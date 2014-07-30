@@ -60,7 +60,8 @@ Import-Package: gda.device.corba,
  org.slf4j;version="[1.7.6,1.7.7)",
  org.springframework.util;version="3.0.4",
  uk.ac.diamond.scisoft.spectroscopy.rcp,
- uk.ac.diamond.scisoft.spectroscopy.rcp.preferences
+ uk.ac.diamond.scisoft.spectroscopy.rcp.preferences,
+ uk.ac.gda.devices.detector.xspress3
 Require-Bundle: uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.common.rcp;bundle-version="1.0.0",
  uk.ac.gda.client;bundle-version="1.0.0",

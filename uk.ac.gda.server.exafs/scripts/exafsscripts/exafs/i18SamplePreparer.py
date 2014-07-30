@@ -28,13 +28,12 @@ class I18SamplePreparer:
 		self.rcpController.openPerspective("org.diamond.exafs.ui.PlottingPerspective")
 
 		stage = sampleParameters.getSampleStageParameters()
-		# temp off while hardware not running RJW 10/6/14
 		self.log( "Moving stage x to:" + str(stage.getX()))
-# 		self.sc_MicroFocusSampleX(stage.getX())
+ 		self.sc_MicroFocusSampleX(stage.getX())
 		self.log( "Moving stage y to:" + str(stage.getY()))
-# 		self.sc_MicroFocusSampleY(stage.getY())
+ 		self.sc_MicroFocusSampleY(stage.getY())
 		self.log( "Moving stage z to:" + str(stage.getZ()))
-# 		self.sc_sample_z(stage.getZ())
+ 		self.sc_sample_z(stage.getZ())
 
 		att1 = sampleParameters.getAttenuatorParameter1()
 		att2 = sampleParameters.getAttenuatorParameter2()

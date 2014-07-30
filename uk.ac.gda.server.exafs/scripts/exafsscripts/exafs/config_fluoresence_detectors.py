@@ -2,11 +2,9 @@ import sys
 import java
 
 from gda.configuration.properties import LocalProperties
-from gda.device.detector.xspress import Xspress2DetectorConfiguration
-from gda.device.detector.xspress import Xspress2BeanUtils
-
-from gda.device.detector.xmap import VortexDetectorConfiguration
-from gda.device.detector.xmap import VortexBeanUtils
+from gda.device.detector.xspress import Xspress2DetectorConfiguration, Xspress2BeanUtils
+from gda.device.detector.xmap import VortexDetectorConfiguration, VortexBeanUtils
+from uk.ac.gda.devices.detector.xspress3 import Xspress3DetectorConfiguration, Xspress3BeanUtils
 
 from gda.jython import InterfaceProvider
 from gda.util import Element
@@ -168,3 +166,19 @@ class VortexConfig():
 
     def getConfigureResult(self):
         return self.configuration.getMessage();
+    
+#
+# Identical to start with.
+#
+class Xspress3Config(VortexConfig):
+    
+    def __init__(self, xmap, ExafsScriptObserver):
+        VortexConfig.__init__(self, xmap, ExafsScriptObserver)
+
+    def initialize(self):
+        self.configuration = Xspress3DetectorConfiguration(self.xmap, self.ExafsScriptObserver)
+        self.vortexUtils=Xspress3BeanUtils()
+        
+    def configure(self, xmlFileName):
+        self.configuration.configure(xmlFileName)
+

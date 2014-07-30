@@ -11,13 +11,14 @@ from gda.scan import TrajectoryScanLine
 from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.client.microfocus.util import ScanPositionsTwoWay
 
+from microfocus.raster_map import RasterMap
 
 #
 # Faster raster
 #
-class RasterMapReturnWrite(Map):
+class RasterMapReturnWrite(RasterMap):
     
-    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer, detectorPreparer, raster_xmap, traj1tfg, traj1xmap,traj3tfg, traj3xmap, traj1SampleX, traj3SampleX, raster_xspress, traj1PositionReader, traj3PositionReader):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer, detectorPreparer, raster_xmap, traj1tfg, traj1xmap,traj3tfg, traj3xmap, traj1SampleX, traj3SampleX, raster_xspress, traj1PositionReader, traj3PositionReader, trajBeamMonitor):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         self.d7a=d7a
@@ -45,6 +46,8 @@ class RasterMapReturnWrite(Map):
         self.traj3PositionReader = traj3PositionReader
         self.trajPositionReader = traj1PositionReader
 
+        self.trajBeamMonitor = trajBeamMonitor
+
         self.beamEnabled = True
         self.finder = Finder.getInstance()
         self.mfd = None
@@ -60,7 +63,7 @@ class RasterMapReturnWrite(Map):
         elif stage==3:
             self.trajSampleX = self.traj3SampleX
             self.trajtfg=self.traj3tfg
-            self.trajtfg.setTtlSocket(2)
+            self.trajtfg.setTtlSocket(1)
             self.trajxmap=self.traj3xmap
             self.trajPositionReader = self.traj3PositionReader
         else:
@@ -68,9 +71,9 @@ class RasterMapReturnWrite(Map):
 
     def _runMap(self,beanGroup, xScannable, yScannable, zScannable, detectorList,scanNumber,experimentFolderName,experimentFullPath,nx,ny):
         scanBean = beanGroup.getScan()
+        
         detectorBean = beanGroup.getDetector()
         detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
-        
         if detectorBean.getExperimentType() != "Fluorescence" or detectorType != "Silicon":
             print "*** Faster maps may only be performed using the Xmap Vortex detector! ***"
             print "*** Change detector type in XML or mapping mode by typing map.disableFasterRaster()"
@@ -86,7 +89,7 @@ class RasterMapReturnWrite(Map):
         tsl  = TrajectoryScanLine([self.trajSampleX, sptw,  self.trajtfg, self.trajxmap, scanBean.getRowTime()/(nx)] )
         tsl.setScanDataPointQueueLength(10000)
         tsl.setPositionCallableThreadPoolSize(10)
-        xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(), scanBean.getYStepSize(), tsl, self.trajPositionReader])
+        xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(), scanBean.getYStepSize(), self.trajBeamMonitor, tsl, self.trajPositionReader])
         xmapRasterscan.getScanPlotSettings().setIgnore(1)
         self._setUpTwoDDataWriter(xmapRasterscan, nx, ny, beanGroup, experimentFullPath, experimentFolderName,scanNumber)
         self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
@@ -162,3 +165,5 @@ class RasterMapReturnWrite(Map):
         
         xmapRasterscan.setDataWriter(twoDWriter)
         
+        
+

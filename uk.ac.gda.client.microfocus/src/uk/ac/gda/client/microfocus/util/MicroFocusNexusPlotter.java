@@ -104,7 +104,7 @@ public class MicroFocusNexusPlotter {
 	}
 
 	private double[] getDataXYValues(int xPixel, int yPixel) {
-		if (dataProvider == null || !ObjectStateManager.isActive(dataProvider)) {
+		if (dataProvider == null) {
 
 			// hack warning!
 			String xyValues = InterfaceProvider.getCommandRunner().evaluateCommand(
@@ -174,9 +174,8 @@ public class MicroFocusNexusPlotter {
 		}
 	}
 
-	public void plotElement(final String elementName, Integer selectedChannel) {
-		ObjectStateManager.setActive(dataProvider);
-
+	public void plotElement(MicroFocusMappableDataProvider fileDataProvider, final String elementName, Integer selectedChannel) {
+		dataProvider = fileDataProvider;
 		dataProvider.setSelectedElement(elementName);
 		dataProvider.setSelectedChannel(selectedChannel);
 
@@ -207,7 +206,7 @@ public class MicroFocusNexusPlotter {
 	 * Display the MCA of the selected point. The x(l) and y(m) values are the data array indexes, not data values.
 	 */
 	private void plotSpectrum(final int l, final int m) {
-		if (dataProvider != null && ObjectStateManager.isActive(dataProvider)) {
+		if (dataProvider != null) {
 			double[] spectrum = null;
 			String detectorName = dataProvider.getDetectorName();
 			if (detectorName.equals("xmapMca")) {

@@ -562,6 +562,14 @@
             name="Vortex Bean File Content"
             priority="high">
       </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.Xspress3Describer"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getXspress3Content"
+            name="Xspress3 Bean File Content"
+            priority="high">
+      </content-type>
    </extension>
 
 
@@ -587,6 +595,17 @@
             name="Vortex Parameters">
          <contentTypeBinding
                contentTypeId="uk.ac.diamond.gda.client.exafs.getVortexContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.detector.xspress3.Xspress3ParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="false"
+            icon="icons/page_refresh.png"
+            id="uk.ac.gda.exafs.ui.Xspress3ParametersEditor"
+            name="Xspress3 Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getXspress3Content">
          </contentTypeBinding>
       </editor>
     </extension>

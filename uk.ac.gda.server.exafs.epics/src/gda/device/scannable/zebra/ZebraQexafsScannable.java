@@ -48,18 +48,18 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 	private String pulseTrigSourcePV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_SEL";
 	private String pulseStartPV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_START";
-//	private String pulseWidthPV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_WID";
+	// private String pulseWidthPV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_WID";
 	private String pulseStepPV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_STEP";
-	
+
 	private String positionTrigPV = "BL18B-OP-DCM-01:ZEBRA:PC_ENC";
 	private String positionDirectionPV = "BL18B-OP-DCM-01:ZEBRA:PC_DIR";
-	
-	private String  startReadback_deg_PV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_START:RBV";
-//	private String  startReadback_counts_PV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_START:RBV_CTS";
-//	private String  stepSizeReadback_deg_PV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_STEP:RBV";
-	private String  stepSizeReadback_counts_PV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_STEP:RBV_CTS";
-	private String  widthReadback_deg_PV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_WID:RBV";
-	private String  widthReadback_counts_PV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_WID:RBV_CTS";
+
+	private String startReadback_deg_PV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_START:RBV";
+	// private String startReadback_counts_PV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_START:RBV_CTS";
+	// private String stepSizeReadback_deg_PV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_STEP:RBV";
+	private String stepSizeReadback_counts_PV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_STEP:RBV_CTS";
+	private String widthReadback_deg_PV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_WID:RBV";
+	private String widthReadback_counts_PV = "BL18B-OP-DCM-01:ZEBRA:PC_GATE_WID:RBV_CTS";
 
 	private Channel armTrigSourceChnl;
 	private Channel armChnl;
@@ -70,16 +70,16 @@ public class ZebraQexafsScannable extends QexafsScannable {
 	private Channel numGatesChnl;
 	private Channel pulseTrigSourceChnl;
 	private Channel pulseStartChnl;
-//	private Channel pulseWidthChnl;
+	// private Channel pulseWidthChnl;
 	private Channel pulseStepChnl;
 	private Channel positionTrigChnl;
 	private Channel positionDirectionChnl;
-	private Channel  startReadback_deg_Chnl;
-//	private Channel  startReadback_counts_Chnl;
-//	private Channel  stepSizeReadback_deg_Chnl;
-	private Channel  stepSizeReadback_counts_Chnl;
-	private Channel  widthReadback_deg_Chnl;
-	private Channel  widthReadback_counts_Chnl;
+	private Channel startReadback_deg_Chnl;
+	// private Channel startReadback_counts_Chnl;
+	// private Channel stepSizeReadback_deg_Chnl;
+	private Channel stepSizeReadback_counts_Chnl;
+	private Channel widthReadback_deg_Chnl;
+	private Channel widthReadback_counts_Chnl;
 
 	private double startReadback_deg;
 
@@ -103,13 +103,13 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			numGatesChnl = channelManager.createChannel(numGatesPV, false);
 			pulseTrigSourceChnl = channelManager.createChannel(pulseTrigSourcePV, false);
 			pulseStartChnl = channelManager.createChannel(pulseStartPV, false);
-//			pulseWidthChnl = channelManager.createChannel(pulseWidthPV, false);
+			// pulseWidthChnl = channelManager.createChannel(pulseWidthPV, false);
 			pulseStepChnl = channelManager.createChannel(pulseStepPV, false);
 			positionTrigChnl = channelManager.createChannel(positionTrigPV, false);
 			positionDirectionChnl = channelManager.createChannel(positionDirectionPV, false);
 			startReadback_deg_Chnl = channelManager.createChannel(startReadback_deg_PV, false);
-//			startReadback_counts_Chnl = channelManager.createChannel(startReadback_counts_PV, false);
-//			stepSizeReadback_deg_Chnl = channelManager.createChannel(stepSizeReadback_deg_PV, false);
+			// startReadback_counts_Chnl = channelManager.createChannel(startReadback_counts_PV, false);
+			// stepSizeReadback_deg_Chnl = channelManager.createChannel(stepSizeReadback_deg_PV, false);
 			stepSizeReadback_counts_Chnl = channelManager.createChannel(stepSizeReadback_counts_PV, false);
 			widthReadback_deg_Chnl = channelManager.createChannel(widthReadback_deg_PV, false);
 			widthReadback_counts_Chnl = channelManager.createChannel(widthReadback_counts_PV, false);
@@ -154,18 +154,19 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			}
 			checkDeadbandAndMove(runupEnergy);
 			logger.debug("Time spent after moved to angle");
-			
-			// TODO tidy up and move Strings to constants 
+
+			// TODO tidy up and move Strings to constants
 
 			// fixed settings
 			logger.debug("Time before fixed zebra settings");
-			controller.caput(armTrigSourceChnl, "Soft");
-			controller.caput(gateTrigSourceChnl, "Position");
-			controller.caput(numGatesChnl, 1);
-			controller.caput(pulseTrigSourceChnl, "Position");
-			controller.caput(pulseStartChnl, 0.0);
-//			controller.caput(pulseWidthChnl, 0.0020);
-			controller.caput(positionTrigChnl, "Enc1-4Av");
+			Boolean changeHasBeenMade = Boolean.FALSE;
+			changeHasBeenMade = caputTestChangeString(armTrigSourceChnl, "Soft", changeHasBeenMade);
+			changeHasBeenMade = caputTestChangeString(gateTrigSourceChnl, "Position", changeHasBeenMade);
+			changeHasBeenMade = caputTestChangeDouble(numGatesChnl, 1, changeHasBeenMade);
+			changeHasBeenMade = caputTestChangeString(pulseTrigSourceChnl, "Position", changeHasBeenMade);
+			changeHasBeenMade = caputTestChangeDouble(pulseStartChnl, 0.0, changeHasBeenMade);
+			// controller.caput(pulseWidthChnl, 0.0020);
+			changeHasBeenMade = caputTestChangeString(positionTrigChnl, "Enc1-4Av", changeHasBeenMade);
 
 			// variable settings
 			logger.debug("Time before variable zebra settings");
@@ -174,14 +175,22 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			double stepDeg = Math.abs(radToDeg(stepSize));
 			double width = Math.abs(stopDeg - startDeg);
 			String positionDirection = stopDeg > startDeg ? "Positive" : "Negative";
-			controller.caput(positionDirectionChnl, positionDirection);
-			controller.caput(gateStartChnl, startDeg);
-			controller.caput(gateWidthChnl, width);
-			controller.caput(pulseStepChnl, stepDeg);
+			changeHasBeenMade = caputTestChangeString(positionDirectionChnl, positionDirection, changeHasBeenMade);
+			changeHasBeenMade = caputTestChangeDouble(gateStartChnl, startDeg, changeHasBeenMade);
+			changeHasBeenMade = caputTestChangeDouble(gateWidthChnl, width, changeHasBeenMade);
+			changeHasBeenMade = caputTestChangeDouble(pulseStepChnl, stepDeg, changeHasBeenMade);
+
+			// Has a change been made, so do we need to wait for the template to complete processing?
+			// We must wait here if we have made a change so that any subsequent reads e.g. in getNumberOfDataPoints()
+			// are consistent with the parameters in this method
+			if (changeHasBeenMade) {
+				controller.caputWait(pulseStepChnl, stepDeg);
+			}
+
 			logger.debug("Time after final zebra set");
-			
 			long timeAtMethodEnd = System.currentTimeMillis();
 			logger.debug("Time spent in prepareForContinuousMove = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
+
 		} catch (DeviceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -189,16 +198,39 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		}
 	}
 
+	private Boolean caputTestChangeString(Channel theChannel, String toPut, Boolean changeMade) throws CAException,
+			InterruptedException, TimeoutException {
+		String current = controller.cagetString(theChannel);
+		if (current.compareTo(toPut) != 0) {
+			controller.caput(theChannel, toPut.toString());
+			changeMade = Boolean.TRUE; // only update to true
+		}
+		return changeMade;
+	}
+
+	private Boolean caputTestChangeDouble(Channel theChannel, double toPut, Boolean changeMade) throws CAException,
+			InterruptedException, TimeoutException {
+		double current = controller.cagetDouble(theChannel);
+		double fractionalChange = Math.abs(current - toPut) / current;
+		if (fractionalChange > 0.001) {
+			controller.caput(theChannel, toPut);
+			changeMade = Boolean.TRUE; // only update to true
+		}
+		return changeMade;
+	}
+
 	@Override
 	public int getNumberOfDataPoints() {
 		try {
 			// get the actual step size in degrees
-			int stepSize_counts = controller.cagetInt(stepSizeReadback_counts_Chnl);
-			int width_counts = controller.cagetInt(widthReadback_counts_Chnl);
-			int readbackNumberOfCounts =  (width_counts/stepSize_counts);
-			return readbackNumberOfCounts;
+			double stepSize_counts = controller.cagetDouble(stepSizeReadback_counts_Chnl);
+			double width_counts = controller.cagetDouble(widthReadback_counts_Chnl);
+			Double readbackNumberOfCounts = Math.floor(width_counts / stepSize_counts);
+			return (int) Math.round(readbackNumberOfCounts);
 		} catch (Exception e) {
-			logger.error("Exception trying to get step size and width readback, assuming number of datapoints is the demanded amount", e);
+			logger.error(
+					"Exception trying to get step size and width readback, assuming number of datapoints is the demanded amount",
+					e);
 			return continuousParameters.getNumberDataPoints();
 		}
 	}
@@ -208,14 +240,14 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		long timeAtMethodStart = System.currentTimeMillis();
 		if (channelsConfigured && continuousParameters != null) {
 			try {
-				
+
 				// set the sped (do this now, after the motor has been moved to the run-up position)
 				if (desiredSpeed <= getMaxSpeed()) {
 					while (isBusy()) {
 						logger.info("-----waiting for qscanAxis to finish moving inside perform before starting scanning. after goto runup");
 						Thread.sleep(100);
 					}
-					controller.caput(currentSpeedChnl, desiredSpeed);
+					caputTestChangeDouble(currentSpeedChnl, desiredSpeed, null);
 				} else {
 					logger.info("Continuous motion for " + getName()
 							+ " greater than Bragg maximum speed. Speed will be set instead to the max imum speed of "
@@ -226,21 +258,17 @@ public class ZebraQexafsScannable extends QexafsScannable {
 				logger.debug("Time before zebra arm with callback");
 				controller.caputWait(armChnl, 1);
 
-				// TODO test that the readbacks are correct, they should be as we do the callback on the arm put
-				// now get the readbacks. These will be used when calculating the real energy of each step in the scan
+				// These will be used when calculating the real energy of each step in the scan, so readback once at this point.
 				logger.debug("Time before zebra readbacks");
 				startReadback_deg = controller.cagetDouble(startReadback_deg_Chnl);
-				// double startReadback_counts =  controller.cagetDouble(startReadback_counts_Chnl) / 4;
-				// double stepSize_deg = controller.cagetDouble(stepSize_deg_Chnl) / 4;
 				stepSize_counts = controller.cagetDouble(stepSizeReadback_counts_Chnl);
-				width_deg =controller.cagetDouble(widthReadback_deg_Chnl);
+				width_deg = controller.cagetDouble(widthReadback_deg_Chnl);
 				width_counts = controller.cagetDouble(widthReadback_counts_Chnl);
 
 				// do the move asynchronously to this thread
 				if (runDownOn) {
 					super.asynchronousMoveTo(angleToEV(runDownPosition));
-				}
-				else {
+				} else {
 					super.asynchronousMoveTo(angleToEV(endAngle));
 				}
 			} catch (Exception e) {
@@ -257,13 +285,9 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		// return to regular running values
 		resetDCMSpeed();
 		try {
-			controller.caput(disarmChnl, 1);
-		} catch (CAException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			logger.error("TODO put description of error here", e);
+			controller.caputWait(disarmChnl, 1);
+		} catch (Exception e) {
+			logger.error("Exception while disarming the Zebra. But GDA will continue. This may cause an error later.", e);
 		}
 		long timeAtMethodEnd = System.currentTimeMillis();
 		logger.debug("Time spent in continuousMoveComplete = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
@@ -272,12 +296,12 @@ public class ZebraQexafsScannable extends QexafsScannable {
 	@Override
 	public double calculateEnergy(int frameIndex) throws DeviceException {
 		try {
-			
-			double frameCentre_eV = calculateFrameEnergyFromZebraReadback(frameIndex);
-			double energy_from_demand_steps = calculateFrameEnergyUsingDemandValues(frameIndex);
 
-			logger.info(String.format("index: %d, energy: %.2f, demand_energy: %.2f", frameIndex, frameCentre_eV,
-					energy_from_demand_steps));
+			double frameCentre_eV = calculateFrameEnergyFromZebraReadback(frameIndex);
+			// double energy_from_demand_steps = calculateFrameEnergyUsingDemandValues(frameIndex);
+
+			// logger.info(String.format("index: %d, energy: %.2f, demand_energy: %.2f", frameIndex, frameCentre_eV,
+			// energy_from_demand_steps));
 
 			return frameCentre_eV;
 
@@ -286,29 +310,29 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		}
 	}
 
-	private double calculateFrameEnergyUsingDemandValues(int frameIndex) throws TimeoutException, CAException,
-			InterruptedException {
-		// calculate the ideal energy of the centre of the frame based on the demand values from the user
-		double startDeg = radToDeg(startAngle);
-		double stopDeg = radToDeg(endAngle);
-		double stepDeg = radToDeg(stepSize);
-		double diff = (frameIndex * stepDeg) + (0.5 * stepDeg);
-		double thisAngle = startDeg - diff;
-		// if going down in energy, so up in angle, then want to add to startDeg
-		if (startDeg < stopDeg) {
-			thisAngle = startDeg + diff;
-		}
-		Angle angleInDeg = (Angle) QuantityFactory.createFromObject(thisAngle, NonSI.DEGREE_ANGLE);
-		double energy_from_demand_steps = angleToEV(angleInDeg);
-		return energy_from_demand_steps;
-	}
+	// private double calculateFrameEnergyUsingDemandValues(int frameIndex) throws TimeoutException, CAException,
+	// InterruptedException {
+	// // calculate the ideal energy of the centre of the frame based on the demand values from the user
+	// double startDeg = radToDeg(startAngle);
+	// double stopDeg = radToDeg(endAngle);
+	// double stepDeg = radToDeg(stepSize);
+	// double diff = (frameIndex * stepDeg) + (0.5 * stepDeg);
+	// double thisAngle = startDeg - diff;
+	// // if going down in energy, so up in angle, then want to add to startDeg
+	// if (startDeg < stopDeg) {
+	// thisAngle = startDeg + diff;
+	// }
+	// Angle angleInDeg = (Angle) QuantityFactory.createFromObject(thisAngle, NonSI.DEGREE_ANGLE);
+	// double energy_from_demand_steps = angleToEV(angleInDeg);
+	// return energy_from_demand_steps;
+	// }
 
 	private double calculateFrameEnergyFromZebraReadback(int frameIndex) throws TimeoutException, CAException,
 			InterruptedException {
 		double countsPerDegree = width_deg / width_counts;
 
 		double frameCentre_offset_cts = ((stepSize_counts * frameIndex) + (0.5 * stepSize_counts));
-		// TODO change sign based on direction and resolution 
+		// TODO change sign based on direction and resolution
 		double frameCentre_deg = startReadback_deg + (frameCentre_offset_cts * countsPerDegree);
 		if (startAngle.isGreaterThan(endAngle)) {
 			frameCentre_deg = startReadback_deg - (frameCentre_offset_cts * countsPerDegree);
