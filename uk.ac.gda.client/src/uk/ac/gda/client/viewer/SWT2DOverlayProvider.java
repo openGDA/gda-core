@@ -32,11 +32,11 @@ import java.util.TreeMap;
 
 import javax.swing.SwingConstants;
 
-import org.dawnsci.plotting.jreality.overlay.Overlay2DProvider;
-import org.dawnsci.plotting.jreality.overlay.OverlayType;
-import org.dawnsci.plotting.jreality.overlay.VectorOverlayStyles;
-import org.dawnsci.plotting.jreality.overlay.enums.LabelOrientation;
-import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay2DProvider;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayType;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.VectorOverlayStyles;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.enums.LabelOrientation;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.primitives.PrimitiveType;
 import org.eclipse.draw2d.Ellipse;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.ImageFigure;
