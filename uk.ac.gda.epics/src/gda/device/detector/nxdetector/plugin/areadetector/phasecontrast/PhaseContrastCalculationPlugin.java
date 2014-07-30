@@ -89,9 +89,11 @@ public class PhaseContrastCalculationPlugin extends NullNXPlugin {
 			double left_pair = quad1 + quad3;
 			double right_pair = quad2 + quad4;
 
-			double horizontal = Math.abs((top_pair - bottom_pair) / total);
-			double vertical = Math.abs((left_pair - right_pair) / total);
-
+			//double horizontal = Math.abs((top_pair - bottom_pair) / total);
+			//double vertical = Math.abs((left_pair - right_pair) / total);
+			double horizontal = (top_pair - bottom_pair);
+			double vertical = (left_pair - right_pair);
+			
 			List<Double> values = new Vector<Double>();
 			values.add(horizontal);
 			values.add(vertical);
