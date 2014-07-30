@@ -22,4 +22,9 @@ public interface FluorescenceAcquireProcessor extends IObservable {
 	
 	public Object getCountRates() throws DeviceException;
 	
+	public String getConfigFileName();
+	
+	public void setConfigFileName(String configFileName);
+	
+	public void loadConfigurationFromFile() throws Exception;
 }
