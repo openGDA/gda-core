@@ -16,8 +16,13 @@ import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.nexusformat.NexusFile;
+
+import uk.ac.gda.beans.vortex.VortexROI;
+import uk.ac.gda.beans.vortex.Xspress3Parameters;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
  * Passive detector which sets up and then reads out from the Xspress3 readout
@@ -52,6 +57,8 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	private String numTrackerExtension = "nxs";
 	private NumTracker numTracker;
 	private int currentScanNumber = -1;
+	
+	private String configFileName;
 
 	public Xspress3Detector() {
 		super();
@@ -519,6 +526,38 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	public Object getCountRates() throws DeviceException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String getConfigFileName() {
+		return configFileName;
+	}
+
+	@Override
+	public void setConfigFileName(String configFileName) {
+		this.configFileName = configFileName;
+	}
+
+	@Override
+	public void loadConfigurationFromFile() throws Exception {
+		if (getConfigFileName() == null)
+			return;
+
+		Xspress3Parameters vortexParameters = (Xspress3Parameters) XMLHelpers.createFromXML(Xspress3Parameters.mappingURL,
+				Xspress3Parameters.class, Xspress3Parameters.schemaURL, getConfigFileName());
+		// Number of ROIs defined in XML file.
+//		configureRegionsOfInterest(vortexParameters);
+//		configureChannelLabels(vortexParameters);
+		
+		List<VortexROI> vortexRois = vortexParameters.getDetector(0).getRegionList();
+		ROI[] rois = new ROI[vortexRois.size()];
+		for (int index = 0; index < vortexRois.size(); index++) {
+			rois[index] = new ROI(vortexRois.get(index).getRoiName(),
+					vortexRois.get(index).getRoiStart(), vortexRois.get(index)
+							.getRoiEnd());
+		}
+
+		setRegionsOfInterest(rois);
 	}
 
 }

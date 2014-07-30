@@ -92,7 +92,6 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 	private ComboWrapper countType;
 	private Button autoSave;
 	private Button live;
-	private BooleanWrapper saveRawSpectrum;
 	private LabelWrapper deadTimeLabel;
 
 	private ScaleBox acquireTime;
@@ -110,6 +109,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 	}
 	
 	
+	@Override
 	protected String getRichEditorTabText() {
 		return "Xspress3";
 	}
@@ -573,10 +573,6 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 		}
 	}
 
-	public BooleanWrapper getSaveRawSpectrum() {
-		return saveRawSpectrum;
-	}
-
 	@Override
 	protected String getDataXMLName() {
 		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
@@ -596,7 +592,6 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 			countType.dispose();
 		autoSave.dispose();
 		live.dispose();
-		saveRawSpectrum.dispose();
 		acquireTime.dispose();
 		acquire.dispose();
 		acquireFileLabel.dispose();

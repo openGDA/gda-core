@@ -4,4 +4,5 @@ import gda.device.Detector;
 import gda.device.detector.NexusDetector;
 
 public interface FluorescenceAcquire extends Detector, FluorescenceAcquireProcessor{
+	
 }
