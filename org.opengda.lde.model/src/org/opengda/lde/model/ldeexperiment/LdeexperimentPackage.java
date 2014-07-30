@@ -233,22 +233,13 @@ public interface LdeexperimentPackage extends EPackage {
 	int SAMPLE__EMAIL = 6;
 
 	/**
-	 * The feature id for the '<em><b>Command</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__COMMAND = 7;
-
-	/**
 	 * The feature id for the '<em><b>Comment</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__COMMENT = 8;
+	int SAMPLE__COMMENT = 7;
 
 	/**
 	 * The feature id for the '<em><b>Mail Count</b></em>' attribute.
@@ -257,7 +248,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__MAIL_COUNT = 9;
+	int SAMPLE__MAIL_COUNT = 8;
 
 	/**
 	 * The feature id for the '<em><b>Data File Count</b></em>' attribute.
@@ -266,7 +257,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__DATA_FILE_COUNT = 10;
+	int SAMPLE__DATA_FILE_COUNT = 9;
 
 	/**
 	 * The feature id for the '<em><b>Data File Path</b></em>' attribute.
@@ -275,7 +266,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__DATA_FILE_PATH = 11;
+	int SAMPLE__DATA_FILE_PATH = 10;
 
 	/**
 	 * The feature id for the '<em><b>Calibrant</b></em>' attribute.
@@ -284,7 +275,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__CALIBRANT = 12;
+	int SAMPLE__CALIBRANT = 11;
 
 	/**
 	 * The feature id for the '<em><b>Calibrant x</b></em>' attribute.
@@ -293,7 +284,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__CALIBRANT_X = 13;
+	int SAMPLE__CALIBRANT_X = 12;
 
 	/**
 	 * The feature id for the '<em><b>Calibrant y</b></em>' attribute.
@@ -302,7 +293,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__CALIBRANT_Y = 14;
+	int SAMPLE__CALIBRANT_Y = 13;
 
 	/**
 	 * The feature id for the '<em><b>Calibrant exposure</b></em>' attribute.
@@ -311,7 +302,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__CALIBRANT_EXPOSURE = 15;
+	int SAMPLE__CALIBRANT_EXPOSURE = 14;
 
 	/**
 	 * The feature id for the '<em><b>Xstart</b></em>' attribute.
@@ -320,7 +311,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__XSTART = 16;
+	int SAMPLE__XSTART = 15;
 
 	/**
 	 * The feature id for the '<em><b>Xstop</b></em>' attribute.
@@ -329,7 +320,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__XSTOP = 17;
+	int SAMPLE__XSTOP = 16;
 
 	/**
 	 * The feature id for the '<em><b>Xstep</b></em>' attribute.
@@ -338,7 +329,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__XSTEP = 18;
+	int SAMPLE__XSTEP = 17;
 
 	/**
 	 * The feature id for the '<em><b>Ystop</b></em>' attribute.
@@ -347,7 +338,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__YSTOP = 19;
+	int SAMPLE__YSTOP = 18;
 
 	/**
 	 * The feature id for the '<em><b>Ystep</b></em>' attribute.
@@ -356,7 +347,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__YSTEP = 20;
+	int SAMPLE__YSTEP = 19;
 
 	/**
 	 * The feature id for the '<em><b>Sample exposure</b></em>' attribute.
@@ -365,16 +356,16 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__SAMPLE_EXPOSURE = 21;
+	int SAMPLE__SAMPLE_EXPOSURE = 20;
 
 	/**
-	 * The feature id for the '<em><b>Driver ID</b></em>' attribute.
+	 * The feature id for the '<em><b>Drive ID</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__DRIVER_ID = 22;
+	int SAMPLE__DRIVE_ID = 21;
 
 	/**
 	 * The feature id for the '<em><b>Pixium x</b></em>' attribute.
@@ -383,7 +374,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__PIXIUM_X = 23;
+	int SAMPLE__PIXIUM_X = 22;
 
 	/**
 	 * The feature id for the '<em><b>Pixium y</b></em>' attribute.
@@ -392,7 +383,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__PIXIUM_Y = 24;
+	int SAMPLE__PIXIUM_Y = 23;
 
 	/**
 	 * The feature id for the '<em><b>Pixium z</b></em>' attribute.
@@ -401,7 +392,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__PIXIUM_Z = 25;
+	int SAMPLE__PIXIUM_Z = 24;
 
 	/**
 	 * The feature id for the '<em><b>Ystart</b></em>' attribute.
@@ -410,7 +401,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__YSTART = 26;
+	int SAMPLE__YSTART = 25;
 
 	/**
 	 * The feature id for the '<em><b>Start Date</b></em>' attribute.
@@ -419,7 +410,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__START_DATE = 27;
+	int SAMPLE__START_DATE = 26;
 
 	/**
 	 * The feature id for the '<em><b>End Date</b></em>' attribute.
@@ -428,7 +419,16 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__END_DATE = 28;
+	int SAMPLE__END_DATE = 27;
+
+	/**
+	 * The feature id for the '<em><b>Command</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__COMMAND = 28;
 
 	/**
 	 * The number of structural features of the '<em>Sample</em>' class.
@@ -785,15 +785,15 @@ public interface LdeexperimentPackage extends EPackage {
 	EAttribute getSample_Sample_exposure();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getDriverID <em>Driver ID</em>}'.
+	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getDriveID <em>Drive ID</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Driver ID</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getDriverID()
+	 * @return the meta object for the attribute '<em>Drive ID</em>'.
+	 * @see org.opengda.lde.model.ldeexperiment.Sample#getDriveID()
 	 * @see #getSample()
 	 * @generated
 	 */
-	EAttribute getSample_DriverID();
+	EAttribute getSample_DriveID();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getPixium_x <em>Pixium x</em>}'.
@@ -1141,12 +1141,12 @@ public interface LdeexperimentPackage extends EPackage {
 		EAttribute SAMPLE__SAMPLE_EXPOSURE = eINSTANCE.getSample_Sample_exposure();
 
 		/**
-		 * The meta object literal for the '<em><b>Driver ID</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Drive ID</b></em>' attribute feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute SAMPLE__DRIVER_ID = eINSTANCE.getSample_DriverID();
+		EAttribute SAMPLE__DRIVE_ID = eINSTANCE.getSample_DriveID();
 
 		/**
 		 * The meta object literal for the '<em><b>Pixium x</b></em>' attribute feature.

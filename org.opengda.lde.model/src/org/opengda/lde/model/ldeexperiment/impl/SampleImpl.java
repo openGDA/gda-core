@@ -27,7 +27,6 @@ import org.opengda.lde.model.ldeexperiment.Sample;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCellID <em>Cell ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getVisitID <em>Visit ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getEmail <em>Email</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCommand <em>Command</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getComment <em>Comment</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getMailCount <em>Mail Count</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDataFileCount <em>Data File Count</em>}</li>
@@ -42,13 +41,14 @@ import org.opengda.lde.model.ldeexperiment.Sample;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getY_stop <em>Ystop</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getY_step <em>Ystep</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getSample_exposure <em>Sample exposure</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDriverID <em>Driver ID</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDriveID <em>Drive ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getPixium_x <em>Pixium x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getPixium_y <em>Pixium y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getPixium_z <em>Pixium z</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getY_start <em>Ystart</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getStartDate <em>Start Date</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getEndDate <em>End Date</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCommand <em>Command</em>}</li>
  * </ul>
  * </p>
  *
@@ -212,26 +212,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @ordered
 	 */
 	protected String email = EMAIL_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getCommand() <em>Command</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getCommand()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String COMMAND_EDEFAULT = "scan x 1 10 1 pixium 1.5";
-
-	/**
-	 * The cached value of the '{@link #getCommand() <em>Command</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getCommand()
-	 * @generated
-	 * @ordered
-	 */
-	protected String command = COMMAND_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getComment() <em>Comment</em>}' attribute.
@@ -528,24 +508,24 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	protected double sample_exposure = SAMPLE_EXPOSURE_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getDriverID() <em>Driver ID</em>}' attribute.
+	 * The default value of the '{@link #getDriveID() <em>Drive ID</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getDriverID()
+	 * @see #getDriveID()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String DRIVER_ID_EDEFAULT = "i11-1";
+	protected static final String DRIVE_ID_EDEFAULT = "i11-1";
 
 	/**
-	 * The cached value of the '{@link #getDriverID() <em>Driver ID</em>}' attribute.
+	 * The cached value of the '{@link #getDriveID() <em>Drive ID</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getDriverID()
+	 * @see #getDriveID()
 	 * @generated
 	 * @ordered
 	 */
-	protected String driverID = DRIVER_ID_EDEFAULT;
+	protected String driveID = DRIVE_ID_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getPixium_x() <em>Pixium x</em>}' attribute.
@@ -666,6 +646,26 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @ordered
 	 */
 	protected Date endDate = END_DATE_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getCommand() <em>Command</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCommand()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String COMMAND_EDEFAULT = "safePosition";
+
+	/**
+	 * The cached value of the '{@link #getCommand() <em>Command</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getCommand()
+	 * @generated
+	 * @ordered
+	 */
+	protected String command = COMMAND_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -1246,8 +1246,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String getDriverID() {
-		return driverID;
+	public String getDriveID() {
+		return driveID;
 	}
 
 	/**
@@ -1255,11 +1255,11 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setDriverID(String newDriverID) {
-		String oldDriverID = driverID;
-		driverID = newDriverID;
+	public void setDriveID(String newDriveID) {
+		String oldDriveID = driveID;
+		driveID = newDriveID;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LdeexperimentPackage.SAMPLE__DRIVER_ID, oldDriverID, driverID));
+			eNotify(new ENotificationImpl(this, Notification.SET, LdeexperimentPackage.SAMPLE__DRIVE_ID, oldDriveID, driveID));
 	}
 
 	/**
@@ -1368,8 +1368,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return getVisitID();
 			case LdeexperimentPackage.SAMPLE__EMAIL:
 				return getEmail();
-			case LdeexperimentPackage.SAMPLE__COMMAND:
-				return getCommand();
 			case LdeexperimentPackage.SAMPLE__COMMENT:
 				return getComment();
 			case LdeexperimentPackage.SAMPLE__MAIL_COUNT:
@@ -1398,8 +1396,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return getY_step();
 			case LdeexperimentPackage.SAMPLE__SAMPLE_EXPOSURE:
 				return getSample_exposure();
-			case LdeexperimentPackage.SAMPLE__DRIVER_ID:
-				return getDriverID();
+			case LdeexperimentPackage.SAMPLE__DRIVE_ID:
+				return getDriveID();
 			case LdeexperimentPackage.SAMPLE__PIXIUM_X:
 				return getPixium_x();
 			case LdeexperimentPackage.SAMPLE__PIXIUM_Y:
@@ -1412,6 +1410,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return getStartDate();
 			case LdeexperimentPackage.SAMPLE__END_DATE:
 				return getEndDate();
+			case LdeexperimentPackage.SAMPLE__COMMAND:
+				return getCommand();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -1444,9 +1444,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return;
 			case LdeexperimentPackage.SAMPLE__EMAIL:
 				setEmail((String)newValue);
-				return;
-			case LdeexperimentPackage.SAMPLE__COMMAND:
-				setCommand((String)newValue);
 				return;
 			case LdeexperimentPackage.SAMPLE__COMMENT:
 				setComment((String)newValue);
@@ -1490,8 +1487,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LdeexperimentPackage.SAMPLE__SAMPLE_EXPOSURE:
 				setSample_exposure((Double)newValue);
 				return;
-			case LdeexperimentPackage.SAMPLE__DRIVER_ID:
-				setDriverID((String)newValue);
+			case LdeexperimentPackage.SAMPLE__DRIVE_ID:
+				setDriveID((String)newValue);
 				return;
 			case LdeexperimentPackage.SAMPLE__PIXIUM_X:
 				setPixium_x((Double)newValue);
@@ -1510,6 +1507,9 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return;
 			case LdeexperimentPackage.SAMPLE__END_DATE:
 				setEndDate((Date)newValue);
+				return;
+			case LdeexperimentPackage.SAMPLE__COMMAND:
+				setCommand((String)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -1543,9 +1543,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return;
 			case LdeexperimentPackage.SAMPLE__EMAIL:
 				setEmail(EMAIL_EDEFAULT);
-				return;
-			case LdeexperimentPackage.SAMPLE__COMMAND:
-				setCommand(COMMAND_EDEFAULT);
 				return;
 			case LdeexperimentPackage.SAMPLE__COMMENT:
 				setComment(COMMENT_EDEFAULT);
@@ -1589,8 +1586,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LdeexperimentPackage.SAMPLE__SAMPLE_EXPOSURE:
 				setSample_exposure(SAMPLE_EXPOSURE_EDEFAULT);
 				return;
-			case LdeexperimentPackage.SAMPLE__DRIVER_ID:
-				setDriverID(DRIVER_ID_EDEFAULT);
+			case LdeexperimentPackage.SAMPLE__DRIVE_ID:
+				setDriveID(DRIVE_ID_EDEFAULT);
 				return;
 			case LdeexperimentPackage.SAMPLE__PIXIUM_X:
 				setPixium_x(PIXIUM_X_EDEFAULT);
@@ -1609,6 +1606,9 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return;
 			case LdeexperimentPackage.SAMPLE__END_DATE:
 				setEndDate(END_DATE_EDEFAULT);
+				return;
+			case LdeexperimentPackage.SAMPLE__COMMAND:
+				setCommand(COMMAND_EDEFAULT);
 				return;
 		}
 		super.eUnset(featureID);
@@ -1636,8 +1636,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return VISIT_ID_EDEFAULT == null ? visitID != null : !VISIT_ID_EDEFAULT.equals(visitID);
 			case LdeexperimentPackage.SAMPLE__EMAIL:
 				return EMAIL_EDEFAULT == null ? email != null : !EMAIL_EDEFAULT.equals(email);
-			case LdeexperimentPackage.SAMPLE__COMMAND:
-				return COMMAND_EDEFAULT == null ? command != null : !COMMAND_EDEFAULT.equals(command);
 			case LdeexperimentPackage.SAMPLE__COMMENT:
 				return COMMENT_EDEFAULT == null ? comment != null : !COMMENT_EDEFAULT.equals(comment);
 			case LdeexperimentPackage.SAMPLE__MAIL_COUNT:
@@ -1666,8 +1664,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return YSTEP_EDEFAULT == null ? y_step != null : !YSTEP_EDEFAULT.equals(y_step);
 			case LdeexperimentPackage.SAMPLE__SAMPLE_EXPOSURE:
 				return sample_exposure != SAMPLE_EXPOSURE_EDEFAULT;
-			case LdeexperimentPackage.SAMPLE__DRIVER_ID:
-				return DRIVER_ID_EDEFAULT == null ? driverID != null : !DRIVER_ID_EDEFAULT.equals(driverID);
+			case LdeexperimentPackage.SAMPLE__DRIVE_ID:
+				return DRIVE_ID_EDEFAULT == null ? driveID != null : !DRIVE_ID_EDEFAULT.equals(driveID);
 			case LdeexperimentPackage.SAMPLE__PIXIUM_X:
 				return pixium_x != PIXIUM_X_EDEFAULT;
 			case LdeexperimentPackage.SAMPLE__PIXIUM_Y:
@@ -1680,6 +1678,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return START_DATE_EDEFAULT == null ? startDate != null : !START_DATE_EDEFAULT.equals(startDate);
 			case LdeexperimentPackage.SAMPLE__END_DATE:
 				return END_DATE_EDEFAULT == null ? endDate != null : !END_DATE_EDEFAULT.equals(endDate);
+			case LdeexperimentPackage.SAMPLE__COMMAND:
+				return COMMAND_EDEFAULT == null ? command != null : !COMMAND_EDEFAULT.equals(command);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -1708,8 +1708,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 		result.append(visitID);
 		result.append(", email: ");
 		result.append(email);
-		result.append(", command: ");
-		result.append(command);
 		result.append(", comment: ");
 		result.append(comment);
 		result.append(", mailCount: ");
@@ -1738,8 +1736,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 		result.append(y_step);
 		result.append(", sample_exposure: ");
 		result.append(sample_exposure);
-		result.append(", driverID: ");
-		result.append(driverID);
+		result.append(", driveID: ");
+		result.append(driveID);
 		result.append(", pixium_x: ");
 		result.append(pixium_x);
 		result.append(", pixium_y: ");
@@ -1752,6 +1750,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 		result.append(startDate);
 		result.append(", endDate: ");
 		result.append(endDate);
+		result.append(", command: ");
+		result.append(command);
 		result.append(')');
 		return result.toString();
 	}

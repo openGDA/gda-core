@@ -70,6 +70,8 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="y_start" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDoubleObject"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="startDate" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDate"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="endDate" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDate"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="command" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        defaultValueLiteral="safePosition"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EEnum" name="STATUS">
     <eLiterals name="READY" literal="READY"/>

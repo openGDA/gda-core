@@ -254,7 +254,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * @generated
 	 */
 	public EAttribute getSample_Command() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(7);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(28);
 	}
 
 	/**
@@ -263,7 +263,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * @generated
 	 */
 	public EAttribute getSample_Comment() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(8);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(7);
 	}
 
 	/**
@@ -272,7 +272,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * @generated
 	 */
 	public EAttribute getSample_MailCount() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(9);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(8);
 	}
 
 	/**
@@ -281,7 +281,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * @generated
 	 */
 	public EAttribute getSample_DataFileCount() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(10);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(9);
 	}
 
 	/**
@@ -290,7 +290,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * @generated
 	 */
 	public EAttribute getSample_DataFilePath() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(11);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(10);
 	}
 
 	/**
@@ -299,7 +299,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * @generated
 	 */
 	public EAttribute getSample_Calibrant() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(12);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(11);
 	}
 
 	/**
@@ -308,7 +308,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * @generated
 	 */
 	public EAttribute getSample_Calibrant_x() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(13);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(12);
 	}
 
 	/**
@@ -317,7 +317,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * @generated
 	 */
 	public EAttribute getSample_Calibrant_y() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(14);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(13);
 	}
 
 	/**
@@ -326,7 +326,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * @generated
 	 */
 	public EAttribute getSample_Calibrant_exposure() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(15);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(14);
 	}
 
 	/**
@@ -335,7 +335,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * @generated
 	 */
 	public EAttribute getSample_X_start() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(16);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(15);
 	}
 
 	/**
@@ -344,7 +344,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * @generated
 	 */
 	public EAttribute getSample_X_stop() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(17);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(16);
 	}
 
 	/**
@@ -353,7 +353,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * @generated
 	 */
 	public EAttribute getSample_X_step() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(18);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(17);
 	}
 
 	/**
@@ -362,7 +362,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * @generated
 	 */
 	public EAttribute getSample_Y_stop() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(19);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(18);
 	}
 
 	/**
@@ -371,7 +371,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * @generated
 	 */
 	public EAttribute getSample_Y_step() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(20);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(19);
 	}
 
 	/**
@@ -380,6 +380,15 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * @generated
 	 */
 	public EAttribute getSample_Sample_exposure() {
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(20);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getSample_DriveID() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(21);
 	}
 
@@ -388,7 +397,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_DriverID() {
+	public EAttribute getSample_Pixium_x() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(22);
 	}
 
@@ -397,7 +406,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_Pixium_x() {
+	public EAttribute getSample_Pixium_y() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(23);
 	}
 
@@ -406,7 +415,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_Pixium_y() {
+	public EAttribute getSample_Pixium_z() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(24);
 	}
 
@@ -415,7 +424,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_Pixium_z() {
+	public EAttribute getSample_Y_start() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(25);
 	}
 
@@ -424,7 +433,7 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_Y_start() {
+	public EAttribute getSample_StartDate() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(26);
 	}
 
@@ -433,17 +442,8 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_StartDate() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(27);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public EAttribute getSample_EndDate() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(28);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(27);
 	}
 
 	/**
@@ -500,7 +500,6 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 		createEAttribute(sampleEClass, SAMPLE__CELL_ID);
 		createEAttribute(sampleEClass, SAMPLE__VISIT_ID);
 		createEAttribute(sampleEClass, SAMPLE__EMAIL);
-		createEAttribute(sampleEClass, SAMPLE__COMMAND);
 		createEAttribute(sampleEClass, SAMPLE__COMMENT);
 		createEAttribute(sampleEClass, SAMPLE__MAIL_COUNT);
 		createEAttribute(sampleEClass, SAMPLE__DATA_FILE_COUNT);
@@ -515,13 +514,14 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 		createEAttribute(sampleEClass, SAMPLE__YSTOP);
 		createEAttribute(sampleEClass, SAMPLE__YSTEP);
 		createEAttribute(sampleEClass, SAMPLE__SAMPLE_EXPOSURE);
-		createEAttribute(sampleEClass, SAMPLE__DRIVER_ID);
+		createEAttribute(sampleEClass, SAMPLE__DRIVE_ID);
 		createEAttribute(sampleEClass, SAMPLE__PIXIUM_X);
 		createEAttribute(sampleEClass, SAMPLE__PIXIUM_Y);
 		createEAttribute(sampleEClass, SAMPLE__PIXIUM_Z);
 		createEAttribute(sampleEClass, SAMPLE__YSTART);
 		createEAttribute(sampleEClass, SAMPLE__START_DATE);
 		createEAttribute(sampleEClass, SAMPLE__END_DATE);
+		createEAttribute(sampleEClass, SAMPLE__COMMAND);
 
 		// Create enums
 		statusEEnum = createEEnum(STATUS);
@@ -578,7 +578,6 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 		initEAttribute(getSample_CellID(), ecorePackage.getEString(), "cellID", "ms1-1", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_VisitID(), ecorePackage.getEString(), "visitID", "0-0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Email(), ecorePackage.getEString(), "email", "chiu.tang@diamond.ac.uk", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_Command(), ecorePackage.getEString(), "command", "scan x 1 10 1 pixium 1.5", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Comment(), ecorePackage.getEString(), "comment", "Please add your comment here", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_MailCount(), ecorePackage.getEInt(), "mailCount", "0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_DataFileCount(), ecorePackage.getEInt(), "dataFileCount", "0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -593,13 +592,14 @@ public class LdeexperimentPackageImpl extends EPackageImpl implements Ldeexperim
 		initEAttribute(getSample_Y_stop(), ecorePackage.getEDoubleObject(), "y_stop", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Y_step(), ecorePackage.getEDoubleObject(), "y_step", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Sample_exposure(), ecorePackage.getEDouble(), "sample_exposure", "5.0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_DriverID(), ecorePackage.getEString(), "driverID", "i11-1", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSample_DriveID(), ecorePackage.getEString(), "driveID", "i11-1", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Pixium_x(), ecorePackage.getEDouble(), "pixium_x", "0.0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Pixium_y(), ecorePackage.getEDouble(), "pixium_y", "0.0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Pixium_z(), ecorePackage.getEDouble(), "pixium_z", "100.0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Y_start(), ecorePackage.getEDoubleObject(), "y_start", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_StartDate(), ecorePackage.getEDate(), "startDate", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_EndDate(), ecorePackage.getEDate(), "endDate", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSample_Command(), ecorePackage.getEString(), "command", "safePosition", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Initialize enums and add enum literals
 		initEEnum(statusEEnum, org.opengda.lde.model.ldeexperiment.STATUS.class, "STATUS");

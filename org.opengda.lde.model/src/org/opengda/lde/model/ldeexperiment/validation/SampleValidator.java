@@ -58,6 +58,8 @@ public interface SampleValidator {
 
 	boolean validateSample_exposure(double value);
 
+	boolean validateDriveID(String value);
+
 	boolean validateDriverID(String value);
 
 	boolean validatePixium_x(double value);

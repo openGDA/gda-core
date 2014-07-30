@@ -20,7 +20,6 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getCellID <em>Cell ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getVisitID <em>Visit ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getEmail <em>Email</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getCommand <em>Command</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getComment <em>Comment</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getMailCount <em>Mail Count</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFileCount <em>Data File Count</em>}</li>
@@ -35,13 +34,14 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getY_stop <em>Ystop</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getY_step <em>Ystep</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getSample_exposure <em>Sample exposure</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDriverID <em>Driver ID</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDriveID <em>Drive ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getPixium_x <em>Pixium x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getPixium_y <em>Pixium y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getPixium_z <em>Pixium z</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getY_start <em>Ystart</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getStartDate <em>Start Date</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getEndDate <em>End Date</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getCommand <em>Command</em>}</li>
  * </ul>
  * </p>
  *
@@ -298,7 +298,7 @@ public interface Sample extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Command</b></em>' attribute.
-	 * The default value is <code>"scan x 1 10 1 pixium 1.5"</code>.
+	 * The default value is <code>"safePosition"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Command</em>' attribute isn't clear,
@@ -308,7 +308,7 @@ public interface Sample extends EObject {
 	 * @return the value of the '<em>Command</em>' attribute.
 	 * @see #setCommand(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LdeexperimentPackage#getSample_Command()
-	 * @model default="scan x 1 10 1 pixium 1.5"
+	 * @model default="safePosition"
 	 * @generated
 	 */
 	String getCommand();
@@ -752,31 +752,31 @@ public interface Sample extends EObject {
 	void setSample_exposure(double value);
 
 	/**
-	 * Returns the value of the '<em><b>Driver ID</b></em>' attribute.
+	 * Returns the value of the '<em><b>Drive ID</b></em>' attribute.
 	 * The default value is <code>"i11-1"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Driver ID</em>' attribute isn't clear,
+	 * If the meaning of the '<em>Drive ID</em>' attribute isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Driver ID</em>' attribute.
-	 * @see #setDriverID(String)
-	 * @see org.opengda.lde.model.ldeexperiment.LdeexperimentPackage#getSample_DriverID()
+	 * @return the value of the '<em>Drive ID</em>' attribute.
+	 * @see #setDriveID(String)
+	 * @see org.opengda.lde.model.ldeexperiment.LdeexperimentPackage#getSample_DriveID()
 	 * @model default="i11-1"
 	 * @generated
 	 */
-	String getDriverID();
+	String getDriveID();
 
 	/**
-	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#getDriverID <em>Driver ID</em>}' attribute.
+	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#getDriveID <em>Drive ID</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Driver ID</em>' attribute.
-	 * @see #getDriverID()
+	 * @param value the new value of the '<em>Drive ID</em>' attribute.
+	 * @see #getDriveID()
 	 * @generated
 	 */
-	void setDriverID(String value);
+	void setDriveID(String value);
 
 	/**
 	 * Returns the value of the '<em><b>Pixium x</b></em>' attribute.
