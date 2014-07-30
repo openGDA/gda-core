@@ -41,10 +41,13 @@ public class MockJythonServer implements IJythonServerNotifer, ICurrentScanInfor
 
 	@Override
 	public void notifyServer(Object source, Object data) {
-		if( data instanceof ScanDataPoint){
-			((ScanDataPoint)data).setCreatorPanelName(scanObserverName);
-			InterfaceProvider.getJythonServerNotifer().notifyServer(source, data);
-		}
+//		if( data instanceof ScanDataPoint){
+//			((ScanDataPoint)data).setCreatorPanelName(scanObserverName);
+////			InterfaceProvider.getScanDataPointProvider().update(source, data);
+//			// causes a StackOverflow when the server notifies itself in its own notify method
+////			InterfaceProvider.getJythonServerNotifer().notifyServer(source, data);
+//		}
+		// do nothing as this does not have any registered IObservers
 	}
 
 	Scan currentScan=null;

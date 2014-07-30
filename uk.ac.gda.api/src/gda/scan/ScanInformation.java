@@ -26,13 +26,13 @@ import java.util.List;
  */
 public class ScanInformation implements Serializable{
 
-	private int[] dimensions;
-	private int scanNumber;
-	private String[] scannableNames;
-	private String[] detectorNames;
-	private String filename;
-	private String instrument;
-	private int numberOfPoints;
+	private int[] dimensions = new int[]{};
+	private int scanNumber = -1;
+	private String[] scannableNames = new String[]{};
+	private String[] detectorNames = new String[]{};
+	private String filename = "";
+	private String instrument = "";
+	private int numberOfPoints = -1;
 	
 	
 	public ScanInformation(){
