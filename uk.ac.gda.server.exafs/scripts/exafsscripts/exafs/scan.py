@@ -141,7 +141,10 @@ class Scan:
             xmlFilename = self._determineDetectorFilename(detectorBean)
             if ((xmlFilename != None) and (experimentFullPath != None)):
                 detectorConfigurationBean = BeansFactory.getBeanObject(experimentFullPath, xmlFilename)
-                meta_add("DetectorConfigurationParameters", BeansFactory.getXMLString(detectorConfigurationBean)) 
+                if detectorConfigurationBean != None:
+                    meta_add("DetectorConfigurationParameters", BeansFactory.getXMLString(detectorConfigurationBean)) 
+                else:
+                    print "Could not get a bean from",experimentFullPath,xmlFilename
         else: 
             self.logger.info("Metashop not found")
         
