@@ -1,6 +1,8 @@
 package org.opengda.lde.ui.providers;
 
 import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.viewers.ITableColorProvider;
@@ -13,7 +15,8 @@ import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.ui.Activator;
 import org.opengda.lde.ui.ImageConstants;
 
-public class SampleGroupViewLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
+public class SampleGroupViewLabelProvider extends LabelProvider implements
+		ITableLabelProvider, ITableColorProvider {
 
 	@Override
 	public Color getForeground(Object element, int columnIndex) {
@@ -36,24 +39,31 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements ITabl
 		if (element instanceof Sample) {
 			Sample sample = (Sample) element;
 			if (columnIndex == SampleTableConstants.COL_ACTIVE) {
-				//TODO replace with check box 
+				// TODO replace with check box
 				if (sample.isActive()) {
-					return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_CHECKED_STATE);
+					return Activator.getDefault().getImageRegistry()
+							.get(ImageConstants.ICON_CHECKED_STATE);
 				} else {
-					return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_UNCHECKED_STATE);
+					return Activator.getDefault().getImageRegistry()
+							.get(ImageConstants.ICON_UNCHECKED_STATE);
 				}
 			} else if (columnIndex == SampleTableConstants.COL_STATUS) {
 				if (sample.isActive()) {
 					if (sample.getStatus() == STATUS.READY) {
-						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_READY);
+						return Activator.getDefault().getImageRegistry()
+								.get(ImageConstants.ICON_RUN_READY);
 					} else if (sample.getStatus() == STATUS.RUNNING) {
-						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING);
+						return Activator.getDefault().getImageRegistry()
+								.get(ImageConstants.ICON_RUNNING);
 					} else if (sample.getStatus() == STATUS.COMPLETED) {
-						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_COMPLETE);
+						return Activator.getDefault().getImageRegistry()
+								.get(ImageConstants.ICON_RUN_COMPLETE);
 					} else if (sample.getStatus() == STATUS.ABORTED) {
-						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_FAILURE);
+						return Activator.getDefault().getImageRegistry()
+								.get(ImageConstants.ICON_RUN_FAILURE);
 					} else if (sample.getStatus() == STATUS.ERROR) {
-						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_ERROR);
+						return Activator.getDefault().getImageRegistry()
+								.get(ImageConstants.ICON_ERROR);
 					}
 				}
 			}
@@ -77,6 +87,8 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements ITabl
 				return sample.getCellID();
 			case SampleTableConstants.COL_VISIT_ID:
 				return sample.getVisitID();
+			case SampleTableConstants.COL_CALIBRANT_NAME:
+				return sample.getCalibrant();
 			case SampleTableConstants.COL_EMAIL:
 				return sample.getEmail();
 			case SampleTableConstants.COL_COMMAND:
@@ -84,7 +96,6 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements ITabl
 			case SampleTableConstants.COL_COMMENT:
 				return sample.getComment();
 			case SampleTableConstants.COL_START_DATE:
-				//TODO replace with Date Object
 				return DateFormat.getInstance().format(sample.getStartDate());
 			case SampleTableConstants.COL_END_DATE:
 				return DateFormat.getInstance().format(sample.getEndDate());

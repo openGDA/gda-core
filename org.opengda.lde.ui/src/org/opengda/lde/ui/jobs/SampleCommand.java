@@ -56,7 +56,7 @@ public class SampleCommand extends CommandBase implements Command, Serializable 
 
 	@Override
 	public void abort() {
-		InterfaceProvider.getCurrentScanController().haltCurrentScan();
+		InterfaceProvider.getCurrentScanController().requestFinishEarly();
 		super.abort();
 	}
 

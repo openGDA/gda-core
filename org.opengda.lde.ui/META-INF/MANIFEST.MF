@@ -23,22 +23,30 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.expressions,
  org.eclipse.ui.navigator,
  org.eclipse.ui.console,
- uk.ac.gda.beamline.i11,
  org.python.pydev,
  uk.ac.gda.epics,
- org.dawnsci.plotting.api,
  org.opengda.lde,
  uk.ac.diamond.scisoft.analysis,
  uk.ac.gda.epics.client,
- uk.ac.diamond.org.springframework
+ uk.ac.diamond.org.springframework,
+ uk.ac.diamond.scisoft.analysis.dataset,
+ org.eclipse.dawnsci.plotting.api;bundle-version="1.2.0"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Import-Package: org.apache.commons.io,
+Import-Package: javax.mail.internet;version="1.5.0",
+ org.apache.commons.io,
  org.apache.commons.lang;version="2.6.0",
- org.dawnsci.plotting.api,
  org.eclipse.emf.edit.ui.dnd,
  org.eclipse.search.ui,
  org.slf4j,
- org.springframework.beans.factory;version="3.2.2.RELEASE",
- uk.ac.diamond.scisoft.analysis.dataset
+ org.springframework.beans.factory;version="3.2.2.RELEASE"
+Export-Package: org.opengda.lde.ui,
+ org.opengda.lde.ui.actions,
+ org.opengda.lde.ui.dialogs,
+ org.opengda.lde.ui.jobs,
+ org.opengda.lde.ui.providers,
+ org.opengda.lde.ui.utils,
+ org.opengda.lde.ui.viewextensionfactories,
+ org.opengda.lde.ui.viewfactories,
+ org.opengda.lde.ui.views

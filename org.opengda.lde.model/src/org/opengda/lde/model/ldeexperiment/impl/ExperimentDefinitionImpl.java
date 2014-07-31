@@ -4,15 +4,12 @@ package org.opengda.lde.model.ldeexperiment.impl;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
-
 import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
-import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
+import org.opengda.lde.model.ldeexperiment.LdeexperimentPackage;
 import org.opengda.lde.model.ldeexperiment.SampleList;
 
 /**
@@ -55,7 +52,7 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	 */
 	@Override
 	protected EClass eStaticClass() {
-		return LDEExperimentsPackage.Literals.EXPERIMENT_DEFINITION;
+		return LdeexperimentPackage.Literals.EXPERIMENT_DEFINITION;
 	}
 
 	/**
@@ -76,7 +73,7 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 		SampleList oldSamplelist = samplelist;
 		samplelist = newSamplelist;
 		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST, oldSamplelist, newSamplelist);
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, LdeexperimentPackage.EXPERIMENT_DEFINITION__SAMPLELIST, oldSamplelist, newSamplelist);
 			if (msgs == null) msgs = notification; else msgs.add(notification);
 		}
 		return msgs;
@@ -91,14 +88,14 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 		if (newSamplelist != samplelist) {
 			NotificationChain msgs = null;
 			if (samplelist != null)
-				msgs = ((InternalEObject)samplelist).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST, null, msgs);
+				msgs = ((InternalEObject)samplelist).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - LdeexperimentPackage.EXPERIMENT_DEFINITION__SAMPLELIST, null, msgs);
 			if (newSamplelist != null)
-				msgs = ((InternalEObject)newSamplelist).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST, null, msgs);
+				msgs = ((InternalEObject)newSamplelist).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - LdeexperimentPackage.EXPERIMENT_DEFINITION__SAMPLELIST, null, msgs);
 			msgs = basicSetSamplelist(newSamplelist, msgs);
 			if (msgs != null) msgs.dispatch();
 		}
 		else if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST, newSamplelist, newSamplelist));
+			eNotify(new ENotificationImpl(this, Notification.SET, LdeexperimentPackage.EXPERIMENT_DEFINITION__SAMPLELIST, newSamplelist, newSamplelist));
 	}
 
 	/**
@@ -109,7 +106,7 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
+			case LdeexperimentPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
 				return basicSetSamplelist(null, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
@@ -123,7 +120,7 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
+			case LdeexperimentPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
 				return getSamplelist();
 		}
 		return super.eGet(featureID, resolve, coreType);
@@ -137,7 +134,7 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
+			case LdeexperimentPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
 				setSamplelist((SampleList)newValue);
 				return;
 		}
@@ -152,7 +149,7 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
+			case LdeexperimentPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
 				setSamplelist((SampleList)null);
 				return;
 		}
@@ -167,7 +164,7 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
+			case LdeexperimentPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
 				return samplelist != null;
 		}
 		return super.eIsSet(featureID);

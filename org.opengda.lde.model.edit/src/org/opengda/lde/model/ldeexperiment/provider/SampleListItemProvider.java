@@ -5,14 +5,10 @@ package org.opengda.lde.model.ldeexperiment.provider;
 
 import java.util.Collection;
 import java.util.List;
-
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.common.util.ResourceLocator;
-
 import org.eclipse.emf.ecore.EStructuralFeature;
-
 import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
@@ -23,9 +19,8 @@ import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
-
-import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
-import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
+import org.opengda.lde.model.ldeexperiment.LdeexperimentFactory;
+import org.opengda.lde.model.ldeexperiment.LdeexperimentPackage;
 import org.opengda.lde.model.ldeexperiment.SampleList;
 
 /**
@@ -64,7 +59,6 @@ public class SampleListItemProvider
 			super.getPropertyDescriptors(object);
 
 			addFilenamePropertyDescriptor(object);
-			addSamplesPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -82,33 +76,11 @@ public class SampleListItemProvider
 				 getResourceLocator(),
 				 getString("_UI_SampleList_filename_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_SampleList_filename_feature", "_UI_SampleList_type"),
-				 LDEExperimentsPackage.Literals.SAMPLE_LIST__FILENAME,
+				 LdeexperimentPackage.Literals.SAMPLE_LIST__FILENAME,
 				 true,
 				 false,
 				 false,
 				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Samples feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addSamplesPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_SampleList_samples_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_SampleList_samples_feature", "_UI_SampleList_type"),
-				 LDEExperimentsPackage.Literals.SAMPLE_LIST__SAMPLES,
-				 true,
-				 false,
-				 false,
-				 null,
 				 null,
 				 null));
 	}
@@ -125,7 +97,7 @@ public class SampleListItemProvider
 	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
-			childrenFeatures.add(LDEExperimentsPackage.Literals.SAMPLE_LIST__SAMPLES);
+			childrenFeatures.add(LdeexperimentPackage.Literals.SAMPLE_LIST__SAMPLES);
 		}
 		return childrenFeatures;
 	}
@@ -181,10 +153,10 @@ public class SampleListItemProvider
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(SampleList.class)) {
-			case LDEExperimentsPackage.SAMPLE_LIST__FILENAME:
+			case LdeexperimentPackage.SAMPLE_LIST__FILENAME:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
-			case LDEExperimentsPackage.SAMPLE_LIST__SAMPLES:
+			case LdeexperimentPackage.SAMPLE_LIST__SAMPLES:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
 		}
@@ -204,8 +176,8 @@ public class SampleListItemProvider
 
 		newChildDescriptors.add
 			(createChildParameter
-				(LDEExperimentsPackage.Literals.SAMPLE_LIST__SAMPLES,
-				 LDEExperimentsFactory.eINSTANCE.createSample()));
+				(LdeexperimentPackage.Literals.SAMPLE_LIST__SAMPLES,
+				 LdeexperimentFactory.eINSTANCE.createSample()));
 	}
 
 	/**

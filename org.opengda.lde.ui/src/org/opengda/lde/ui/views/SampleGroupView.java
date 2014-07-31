@@ -70,7 +70,6 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.window.ToolTip;
-import org.eclipse.nebula.jface.cdatetime.CDateTimeCellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
@@ -84,7 +83,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISaveablePart;
@@ -99,6 +97,7 @@ import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.SampleList;
 import org.opengda.lde.ui.Activator;
 import org.opengda.lde.ui.ImageConstants;
+import org.opengda.lde.ui.cdatetime.CDateTimeCellEditor;
 import org.opengda.lde.ui.jobs.SampleCollectionJob;
 import org.opengda.lde.ui.providers.SampleGroupViewContentProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewLabelProvider;
@@ -137,14 +136,14 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private EditingDomain editingDomain;
 	
 	private final String columnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.ACTIVE, SampleTableConstants.SAMPLE_NAME,
-			SampleTableConstants.CELL_ID, SampleTableConstants.VISIT_ID, SampleTableConstants.EMAIL,
-			SampleTableConstants.COMMAND, SampleTableConstants.COMMENT, SampleTableConstants.START_DATE,
-			SampleTableConstants.END_DATE, SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT };
+			SampleTableConstants.CELL_ID, SampleTableConstants.VISIT_ID, SampleTableConstants.CALIBRANT_NAME, SampleTableConstants.EMAIL,
+			SampleTableConstants.COMMAND, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, 
+			SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT,SampleTableConstants.COMMENT };
 
-	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 30, false), new ColumnWeightData(10, 30, false),new ColumnWeightData(80, 100, true), 
-			new ColumnWeightData(70, 90, false), new ColumnWeightData(40, 50, false), new ColumnWeightData(40, 50, true), 
-			new ColumnWeightData(40, 80, false), new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 70, true), 
-			new ColumnWeightData(50, 90, true), new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 50, true) };
+	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 55, false), new ColumnWeightData(10, 55, false),new ColumnWeightData(80, 110, true), 
+			new ColumnWeightData(40, 60, true), new ColumnWeightData(40, 60, true), new ColumnWeightData(40, 70, true),new ColumnWeightData(40, 200, true), 
+			new ColumnWeightData(40, 400, true),  new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true), 
+			new ColumnWeightData(10, 90, false), new ColumnWeightData(10, 90, false),new ColumnWeightData(50, 300, true) };
 	
 	private TableViewer viewer;
 	private SampleList sampleList;
@@ -184,38 +183,24 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	}
 
 	/**
-	 * This is a callback that will allow us to create the viewer and initialize it.
+	 * This is a callback that will allow us to create the viewer and initialise it.
 	 */
 	public void createPartControl(Composite parent) {
 		Composite rootComposite = new Composite(parent, SWT.NONE);
 		rootComposite.setLayout(new GridLayout());
 //		rootComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
-		viewer = new TableViewer(rootComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
+		viewer = new TableViewer(rootComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 		Table table = viewer.getTable();
-		GridData gd_table = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1);
+		GridData gd_table = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_table.heightHint = 386;
-		gd_table.widthHint = 586;
+		gd_table.widthHint = 1000;
 		table.setLayoutData(gd_table);
 		viewer.getTable().setHeaderVisible(true);
 		viewer.getTable().setLinesVisible(true);
 		
 		ColumnViewerToolTipSupport.enableFor(viewer, ToolTip.NO_RECREATE);
 		createColumns(viewer);
-		
-		TableColumn tblclmnNewColumn_1 = new TableColumn(table, SWT.NONE);
-		tblclmnNewColumn_1.setWidth(100);
-		tblclmnNewColumn_1.setText("New Column");
-		
-		TableColumn tblclmnNewColumn = new TableColumn(table, SWT.NONE);
-		tblclmnNewColumn.setWidth(100);
-		tblclmnNewColumn.setText("New Column");
-		
-		TableItem tableItem = new TableItem(table, SWT.NONE);
-		tableItem.setText("New TableItem");
-		
-		TableItem tableItem_1 = new TableItem(table, SWT.NONE);
-		tableItem_1.setText("New TableItem");
 		
 		viewer.setContentProvider(new SampleGroupViewContentProvider(getResUtil()));
 		viewer.setLabelProvider(new SampleGroupViewLabelProvider());
@@ -232,6 +217,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		Composite statusArea=new Composite(rootComposite, SWT.NONE);
 		statusArea.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		statusArea.setLayout(new GridLayout(4, false));
+		
 		Label lblSampleListFile = new Label(statusArea, SWT.None);
 		lblSampleListFile.setText("Sample Definition File: ");
 
@@ -244,7 +230,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		lblDataFile.setText("Collecting Data File:");
 		
 		txtDataFilename = new Text(statusArea, SWT.BORDER);
-		txtDataFilename.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		txtDataFilename.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtDataFilename.setEditable(false);
 		txtDataFilename.setToolTipText("Data file to be written for the current collection");
 		
@@ -259,10 +245,10 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		
 		Label lblCurrentState = new Label(statusArea, SWT.NONE);
 		lblCurrentState.setText("Processor Messages:");
-		lblCurrentState.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
 		
 		txtProcessorMessage = new Text(statusArea, SWT.BORDER);
 		txtProcessorMessage.setEditable(false);
+		txtProcessorMessage.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtProcessorMessage.setToolTipText("show the current process position out of the total number of active processes ");
 		txtProcessorMessage.setText("Waiting to start");
 		
@@ -405,7 +391,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 							updateSampleStatus(currentSample, STATUS.READY);
 						} else if (commandState == gda.commandqueue.Command.STATE.RUNNING) {
 							updateSampleStatus(currentSample, STATUS.RUNNING);
-							Long scanNumber = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
+							Long scanNumber = (long) InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
 							String detectorName = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getDetectorNames()[0];
 							String beamline="";
 							if (LocalProperties.check("gda.nexus.beamlinePrefix")) {
@@ -524,6 +510,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 					for (Sample sample : samples) {
 						if (sample.isActive()) {
 							//set data file path for each sample before data collection
+							//TODO using dataCollection script
 							String commandString="LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, "+ getDataDirectory(sample) + ");";
 							commandString += sample.getCommand();
 							JythonCommandCommandProvider command = new JythonCommandCommandProvider(commandString, sample.getName(), null);
@@ -782,6 +769,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				return new TextCellEditor(table);
 			} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
+			} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
 			} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
 			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
@@ -805,6 +794,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
 				return true;
 			} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
 				return true;
 			} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
 				return true;
@@ -832,6 +823,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 					return sample.getCellID();
 				} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
 					return sample.getVisitID();
+				} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
+					return sample.getCalibrant();
 				} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
 					return sample.getEmail();
 				} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
@@ -852,7 +845,13 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
 				if (value instanceof Boolean) {
 					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Active(), value));
+						if ((boolean)value==true) {
+							if (isDatesValid((Sample)element)) {
+								runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Active(), value));
+							}
+						} else {
+							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Active(), value));
+						}
 					} catch (Exception e) {
 						logger.error("Exception on setting "+SampleTableConstants.ACTIVE+" field for sample "+((Sample)element).getName(), e);
 					}
@@ -883,6 +882,14 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 						}
 					} catch (Exception e) {
 						logger.error("Exception on setting "+SampleTableConstants.VISIT_ID+" field for sample "+((Sample)element).getName(), e);
+					}
+				}
+			} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Calibrant(), value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+SampleTableConstants.CALIBRANT_NAME+" field for sample "+((Sample)element).getName(), e);
 					}
 				}
 			} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
@@ -932,6 +939,24 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			} 
 		}
 
+		private boolean isDatesValid(Sample sample) {
+			Date now=new Date();
+			boolean startLessEnd = sample.getStartDate().compareTo(sample.getEndDate())<=0;
+			boolean nowInBetween = now.compareTo(sample.getStartDate())>=0 && now.compareTo(sample.getEndDate())<0;
+			if (startLessEnd && nowInBetween) {
+				return true;
+			}
+			String message="";
+			if (!startLessEnd) {
+				message="Sample start date must be before the end date.";
+			}
+			if (!nowInBetween) {
+				message="Cannot active this sample because the current date time is outside its date time range set.";
+			}
+			openMessageBox(message, "Activation Failed - Invalid dates ");
+			return false;
+		}
+
 		private boolean isValidCommand(String value) {
 			// TODO Implement GDA command validator?
 			// validate single/multiple commands, e.g. scan, pos, scripts, etc. HOW???
@@ -966,6 +991,9 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		}
 
 		private boolean isValidVisitID(Sample sample, String value) {
+			if (value.contentEquals("0-0")){
+				return true;
+			}
 			if (sample.getCellID()== null || sample.getCellID().isEmpty()) {
 				String message="Cell ID must be set before visit ID.\n";
 				openMessageBox(message, "Cell ID Missing");

@@ -3,10 +3,8 @@
 package org.opengda.lde.model.ldeexperiment.tests;
 
 import junit.framework.TestCase;
-
 import junit.textui.TestRunner;
-
-import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
+import org.opengda.lde.model.ldeexperiment.LdeexperimentFactory;
 import org.opengda.lde.model.ldeexperiment.SampleList;
 
 /**
@@ -79,7 +77,7 @@ public class SampleListTest extends TestCase {
 	 */
 	@Override
 	protected void setUp() throws Exception {
-		setFixture(LDEExperimentsFactory.eINSTANCE.createSampleList());
+		setFixture(LdeexperimentFactory.eINSTANCE.createSampleList());
 	}
 
 	/**

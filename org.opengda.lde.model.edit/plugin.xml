@@ -10,7 +10,7 @@
       <!-- @generated sampledefinition -->
       <factory
             uri="http://www.opengda.org/LDEExperiments"
-            class="org.opengda.lde.model.ldeexperiment.provider.LDEExperimentsItemProviderAdapterFactory"
+            class="org.opengda.lde.model.ldeexperiment.provider.LdeexperimentItemProviderAdapterFactory"
             supportedTypes=
               "org.eclipse.emf.edit.provider.IEditingDomainItemProvider
                org.eclipse.emf.edit.provider.IStructuredItemContentProvider

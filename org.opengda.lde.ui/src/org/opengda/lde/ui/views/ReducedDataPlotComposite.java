@@ -26,13 +26,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dawnsci.plotting.api.IPlottingSystem;
-import org.dawnsci.plotting.api.PlotType;
-import org.dawnsci.plotting.api.PlottingFactory;
-import org.dawnsci.plotting.api.trace.ILineTrace;
-import org.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.PlotType;
+import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
+import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 /**
@@ -134,7 +135,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 				throw new IllegalStateException(e.getMessage(), e);
 			}
 		}
-		DataHolder dataHolder = null;
+		IDataHolder dataHolder = null;
 		try {
 			dataHolder = LoaderFactory.getData(value);
 		} catch (Exception e) {
@@ -142,11 +143,11 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 			throw new IllegalArgumentException(e.getMessage(), e);
 		}
 		String[] names = dataHolder.getNames();
-		AbstractDataset xAxis=dataHolder.getDataset(0);
+		AbstractDataset xAxis=(AbstractDataset) dataHolder.getDataset(0);
 		xAxis.setName(names[0]);
-		AbstractDataset yds=dataHolder.getDataset(1);
+		AbstractDataset yds=(AbstractDataset) dataHolder.getDataset(1);
 		yds.setName(names[1]);
-		AbstractDataset error=dataHolder.getDataset(2);
+		AbstractDataset error=(AbstractDataset) dataHolder.getDataset(2);
 		error.setName(names[2]);
 		yds.setError(error);
 		ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();

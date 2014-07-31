@@ -24,18 +24,28 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute cellID : EString
     Attribute visitID : EString
     Attribute email : EString
-    Attribute command : EString
     Attribute comment : EString
-    Attribute startDate : EDate
-    Attribute endDate : EDate
     Attribute mailCount : EInt
     Attribute dataFileCount : EInt
     Attribute dataFilePath : EString
-    Operation buildDataFilePath(EString) : EString
-    Operation buildFilename(EString) : EString
-    Operation executeCommand(EString) : STATUS
-    Operation validateFilePath(EString) : EBoolean
-    Operation validateCommand(EString) : EBoolean
+    Attribute calibrant : EString
+    Attribute calibrant_x : EDouble
+    Attribute calibrant_y : EDouble
+    Attribute calibrant_exposure : EDouble
+    Attribute x_start : EDouble
+    Attribute x_stop : EDouble
+    Attribute x_step : EDouble
+    Attribute y_stop : EDoubleObject
+    Attribute y_step : EDoubleObject
+    Attribute sample_exposure : EDouble
+    Attribute driveID : EString
+    Attribute pixium_x : EDouble
+    Attribute pixium_y : EDouble
+    Attribute pixium_z : EDouble
+    Attribute y_start : EDoubleObject
+    Attribute startDate : EDate
+    Attribute endDate : EDate
+    Attribute command : EString
 
   Enum STATUS
     Literal READY = 0

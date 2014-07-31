@@ -31,7 +31,7 @@ public class SampledefinitionAllTests extends TestSuite {
 	 */
 	public static Test suite() {
 		TestSuite suite = new SampledefinitionAllTests("Sampledefinition Tests");
-		suite.addTest(LDEExperimentsTests.suite());
+		suite.addTest(LdeexperimentTests.suite());
 		return suite;
 	}
 
