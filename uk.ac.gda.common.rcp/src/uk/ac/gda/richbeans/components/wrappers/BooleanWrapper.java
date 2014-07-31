@@ -107,6 +107,10 @@ public class BooleanWrapper extends FieldComposite{
 		eventDelegate.notifyValueListeners(evt);
 	}
 	
+	public Button getButton(){
+		return checkBox;
+	}
+	
 	/*******************************************************************/
 	/**        This section will be the same for many wrappers.       **/
 	/*******************************************************************/
