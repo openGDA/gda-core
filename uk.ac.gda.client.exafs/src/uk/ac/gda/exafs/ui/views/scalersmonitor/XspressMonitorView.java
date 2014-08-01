@@ -16,14 +16,15 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.views.scalersmonitor;
+package uk.ac.gda.exafs.ui.views.scalersmonitor;import gda.jython.InterfaceProvider;
+
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.device.detector.xspress.XspressDetector;
 import gda.factory.Finder;
-import gda.jython.InterfaceProvider;
+//import gda.jython.InterfaceProvider;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 
@@ -51,7 +52,10 @@ public class XspressMonitorView extends MonitorViewBase {
 	protected ScalersMonitorConfig displayData;
 	private IAxis dtAxis;
 	private IAxis primaryAxis;
-
+	private XspressDetector xspress;
+	private CounterTimer ionchambers;
+	private Double collectionTime;
+	
 	public XspressMonitorView() {
 	}
 
@@ -71,6 +75,15 @@ public class XspressMonitorView extends MonitorViewBase {
 		dtAxis = myPlotter.createAxis("Deadtime (%)", true, SWT.RIGHT);
 		
 		super.createPartControl(parent);
+
+		//TODO why get the detector names from java properties? Spring is a much nicer way of configuring as it means not having to look in the code to see what devices are used.
+		String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");
+		xspress = (XspressDetector) Finder.getInstance().find(xspressName);
+		String ionchambersName = LocalProperties.get("gda.exafs.ionchambersName", "counterTimer01");
+		ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
+		String monitorCollectionTime = LocalProperties.get("gda.exafs.ui.views.scalersMonitor.collectionTime", "1.0");
+		collectionTime = Double.valueOf(monitorCollectionTime);
+
 	}
 
 	protected void updateXspressGrid(Double[] xspressStats, Double[] values) {
@@ -80,19 +93,25 @@ public class XspressMonitorView extends MonitorViewBase {
 			Double FF = 0.0;
 			double maxRate = 0;
 			double maxDT = 0.0;
+			int maxElement = 0;
 			for (int element = 0; element < numElements; element++) {
 				rates[element] = xspressStats[element * 3]; // Hz
-				dts[element] = (xspressStats[element * 3 + 1] - 1) * 100; // %
+				dts[element] = (xspressStats[element * 3 + 1] - 1) * 100;
+				if (dts[element] < 0.0) dts[element] = 0.0; // %
 				FF += xspressStats[element * 3];
-				maxRate = xspressStats[element * 3] > maxRate ? xspressStats[element * 3] : maxRate;
+				// find which element gives the max rate
+				if (xspressStats[element * 3] > maxRate) {
+					maxRate = xspressStats[element * 3];
+					maxElement = element;
+				}
 				maxDT = xspressStats[element * 3 + 1] > maxDT ? xspressStats[element * 3 + 1] : maxDT;
 			}
 			displayData.setFF(FF);
 
-			// get the normalised in window counts for one of the highest rate elements
+			// get the normalised in window counts for the highest rate element
 			switch (numElements) {
 			case 9:
-				displayData.setFFI0(xspressStats[8 * 3 + 2] / values[0]);
+				displayData.setFFI0(xspressStats[maxElement * 3 + 2] / values[0]);
 				break;
 			case 64:
 				displayData.setFFI0(xspressStats[36 * 3 + 2] / values[0]);  // use element 37 as I think this is one of the more central ones
@@ -100,11 +119,6 @@ public class XspressMonitorView extends MonitorViewBase {
 			default:
 				displayData.setFFI0(xspressStats[2] / values[0]);
 				break;
-			}
-
-			for (int element = 0; element < numElements; element++) {
-				rates[element] = rates[element];
-				dts[element] = dts[element];
 			}
 
 			AbstractDataset dsRates = new DoubleDataset(rates);
@@ -154,8 +168,8 @@ public class XspressMonitorView extends MonitorViewBase {
 
 	@Override
 	protected Double[] getFluoDetectorCountRatesAndDeadTimes() throws DeviceException {
-		String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");
-		XspressDetector xspress = (XspressDetector) Finder.getInstance().find(xspressName);
+//		String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");
+//		XspressDetector xspress = (XspressDetector) Finder.getInstance().find(xspressName);
 		numElements = xspress.getNumberOfDetectors();
 		Double[] rates = (Double[]) xspress.getAttribute("liveStats");
 		return rates;
@@ -164,18 +178,20 @@ public class XspressMonitorView extends MonitorViewBase {
 	@Override
 	protected Double[] getIonChamberValues() throws Exception {
 		//TODO why get the detector names from java properties? Spring is a much nicer way of configuring as it means not having to look in the code to see what devices are used.
-		String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");
-		XspressDetector xspress = (XspressDetector) Finder.getInstance().find(xspressName);
-		String ionchambersName = LocalProperties.get("gda.exafs.ionchambersName", "counterTimer01");
-		CounterTimer ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
-
+//		String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");
+//		XspressDetector xspress = (XspressDetector) Finder.getInstance().find(xspressName);
+//		String ionchambersName = LocalProperties.get("gda.exafs.ionchambersName", "counterTimer01");
+//		CounterTimer ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
+//		String monitorCollectionTime = LocalProperties.get("gda.exafs.ui.views.scalersMonitor.collectionTime", "1.0");
+//		Double collectionTime = Double.valueOf(monitorCollectionTime);
+		
 		// only collect new data outside of scans else will readout the last data collected
 		if (JythonServerFacade.getInstance().getScanStatus() == Jython.IDLE && !xspress.isBusy()
 				&& !ionchambers.isBusy()) {
-			InterfaceProvider.getCommandRunner().runCommand("ScanBase.setInterrupted(False)");
-			InterfaceProvider.getCommandRunner().runCommand("ScanBase.setPaused(False)");
+//			InterfaceProvider.getCommandRunner().runCommand("ScanBase.setInterrupted(False)");
+//			InterfaceProvider.getCommandRunner().runCommand("ScanBase.setPaused(False)");
 			xspress.collectData();
-			ionchambers.setCollectionTime(1);
+			ionchambers.setCollectionTime(collectionTime);
 			ionchambers.clearFrameSets();
 			ionchambers.collectData();
 			xspress.waitWhileBusy();
@@ -198,7 +214,7 @@ public class XspressMonitorView extends MonitorViewBase {
 		// works for TFG2 only where time if the first channel
 		double[] ion_results = ionchambers.readFrame(1, numChannels, currentFrame);
 
-		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
+//		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
 		int i0Index = -1;
 		String[] eNames = ionchambers.getExtraNames();
 		// find the index for I0
