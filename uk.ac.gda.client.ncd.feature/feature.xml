@@ -2,7 +2,7 @@
 <feature
       id="uk.ac.gda.client.ncd.feature"
       label="NCD client feature"
-      version="8.40.0.qualifier"
+      version="8.42.0.qualifier"
       provider-name="Diamond Light Source">
 
    <description url="http://www.example.com/description">
@@ -26,12 +26,6 @@
 
    <plugin
          id="uk.ac.diamond.scisoft.ncd"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="uk.ac.diamond.scisoft.ncd.rcp"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
@@ -80,6 +74,20 @@
 
    <plugin
          id="uk.ac.diamond.scisoft.ncd.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.scisoft.ncd.calibration.rcp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="uk.ac.diamond.scisoft.ncd.core.rcp"
          download-size="0"
          install-size="0"
          version="0.0.0"
