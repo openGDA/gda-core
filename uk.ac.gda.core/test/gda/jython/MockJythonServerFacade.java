@@ -19,11 +19,16 @@
 package gda.jython;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.jython.authenticator.UserAuthentication;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.scan.IScanDataPoint;
+import gda.scan.Scan;
+import gda.scan.ScanDataPoint;
+import gda.scan.ScanEvent;
+import gda.scan.ScanInformation;
 import gda.util.LibGdaCommon;
 
 import java.io.File;
@@ -41,15 +46,36 @@ import org.slf4j.LoggerFactory;
 /**
  * Mock implementation of interfaces usually provided by JythonServerFacade to be used when running tests outside of gda
  * This implementation is used if you set the property JythonServerFacade.dummy to true
- * 
  */
-public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner, ITerminalPrinter,
-		ICurrentScanController, IJythonNamespace, IAuthorisationHolder, IScanDataPointProvider ,
-		IScriptController, ICommandAborter, IBatonStateProvider, JSFObserver, AliasedCommandProvider{
+public class MockJythonServerFacade implements IDefaultScannableProvider, ICurrentScanInformationHolder, IJythonServerNotifer, IScanStatusHolder, ICommandRunner,
+		ITerminalPrinter, ICurrentScanController, IJythonNamespace, IAuthorisationHolder, IScanDataPointProvider,
+		IScriptController, ICommandAborter, IBatonStateProvider, JSFObserver, AliasedCommandProvider {
+
 	private static final Logger logger = LoggerFactory.getLogger(MockJythonServerFacade.class);
-	
+
+	public String evaluateCommandResult = "";
+
+	volatile int scanStatus = Jython.IDLE;
+	volatile int scriptStatus = Jython.IDLE;
+
 	private String terminalOutput = "";
-	
+	private HashMap<String, Object> hashTable = new HashMap<String, Object>();
+	private int authorisationLevel = 0;
+	private ObservableComponent scanDataPointObservers = new ObservableComponent();
+	private ObservableComponent scanEventObervable = new ObservableComponent();
+	private IScanDataPoint lastScanDataPoint = null;
+	private ScanInformation latestScanInfo;
+	String scanObserverName = "";
+
+	ClientDetails[] others = new ClientDetails[] { new ClientDetails(1, "A.N. Other", "A.N. Other", "pc012345", 3,
+			false, "0-0") };
+	ClientDetails myDetails;
+	{
+		final String username = UserAuthentication.getUsername();
+		final String fullName = LibGdaCommon.getFullNameOfUser(username);
+		myDetails = new ClientDetails(0, username, fullName, "pc012345", 3, true, "0-0");
+	}
+
 	public String getTerminalOutput() {
 		return terminalOutput;
 	}
@@ -66,7 +92,7 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	@Override
 	public void requestFinishEarly() {
 	}
-	
+
 	@Override
 	public boolean isFinishEarlyRequested() {
 		return false;
@@ -77,8 +103,6 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 		logger.info(text);
 		terminalOutput += text + "\n";
 	}
-
-	volatile int scanStatus = Jython.IDLE;
 
 	public void setScanStatus(int newStatus) {
 		scanStatus = newStatus;
@@ -106,20 +130,15 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 		return hashTable.get(objectName);
 	}
 
-	HashMap<String, Object> hashTable = new HashMap<String, Object>();
-
 	@Override
 	public void placeInJythonNamespace(String objectName, Object obj) {
 		hashTable.put(objectName, obj);
 	}
 
-	private int authorisationLevel=0;
-
 	@Override
 	public int getAuthorisationLevel() {
 		return authorisationLevel;
 	}
-
 
 	@Override
 	public int getAuthorisationLevelAtRegistration() {
@@ -128,13 +147,13 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 
 	/**
 	 * Allows tests to change authorisation level returned by getAuthorisationLevel
+	 * 
 	 * @param authorisationLevel
 	 */
 	public void setAuthorisationLevel(int authorisationLevel) {
 		this.authorisationLevel = authorisationLevel;
 	}
 
-	ObservableComponent scanDataPointObservers = new ObservableComponent();
 	@Override
 	public void addIScanDataPointObserver(IScanDataPointObserver anObserver) {
 		scanDataPointObservers.addIObserver(anObserver);
@@ -149,10 +168,6 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	public IScanDataPoint getLastScanDataPoint() {
 		return lastScanDataPoint;
 	}
-
-	volatile int scriptStatus = Jython.IDLE;
-
-	private IScanDataPoint lastScanDataPoint=null;
 
 	@Override
 	public void setScriptStatus(int newStatus) {
@@ -169,7 +184,7 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 		scanStatus = Jython.IDLE;
 		scriptStatus = Jython.IDLE;
 	}
-	
+
 	@Override
 	public void beamlineHalt() {
 		abortCommands();
@@ -183,25 +198,22 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	public void resumeCurrentScript() {
 	}
 
-	
 	@Override
 	public void runCommand(String command, String scanObserver) {
 	}
 
 	@Override
 	public void update(Object dataSource, Object data) {
-		if( data instanceof IScanDataPoint){
-			lastScanDataPoint = (IScanDataPoint)data;
+		if (data instanceof IScanDataPoint) {
+			lastScanDataPoint = (IScanDataPoint) data;
 			scanDataPointObservers.notifyIObservers(dataSource, data);
 		}
 	}
 
 	@Override
 	public void addBatonChangedObserver(IObserver anObserver) {
-		
+
 	}
-	
-	
 
 	@Override
 	public boolean amIBatonHolder() {
@@ -216,22 +228,11 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	public void deleteBatonChangedObserver(IObserver anObserver) {
 	}
 
-	ClientDetails myDetails;
-	{
-		final String username = UserAuthentication.getUsername();
-		final String fullName = LibGdaCommon.getFullNameOfUser(username);
-		myDetails = new ClientDetails(0, username, fullName, "pc012345", 3, true, "0-0");
-	}
-	
-	ClientDetails [] others = new ClientDetails[]{new ClientDetails(1, "A.N. Other", "A.N. Other", "pc012345", 3, false, "0-0")};
-
-	public String evaluateCommandResult = "";
-	
 	@Override
 	public ClientDetails getBatonHolder() {
 		return myDetails;
 	}
-	
+
 	@Override
 	public ClientDetails[] getOtherClientInformation() {
 		return others;
@@ -260,9 +261,8 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 
 	@Override
 	public String evaluateCommand(String command) {
-		return evaluateCommandResult ;
+		return evaluateCommandResult;
 	}
-
 
 	@Override
 	public void changeVisitID(String visitID) {
@@ -296,7 +296,7 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 	@Override
 	public void sendMessage(String message) {
 	}
-	
+
 	@Override
 	public List<UserMessage> getMessageHistory() {
 		throw new UnsupportedOperationException();
@@ -309,8 +309,8 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 
 	@Override
 	public Map<String, Object> getAllFromJythonNamespace() throws DeviceException {
-		SortedSet<String> set = new TreeSet<String>(hashTable.keySet()); 
-		LinkedHashMap <String,Object> output = new LinkedHashMap <String,Object>();
+		SortedSet<String> set = new TreeSet<String>(hashTable.keySet());
+		LinkedHashMap<String, Object> output = new LinkedHashMap<String, Object>();
 		for (String objName : set) {
 			output.put(objName, hashTable.get(objName));
 		}
@@ -334,9 +334,43 @@ public class MockJythonServerFacade implements IScanStatusHolder, ICommandRunner
 
 	@Override
 	public void addScanEventObserver(IObserver anObserver) {
+		scanEventObervable.addIObserver(anObserver);
 	}
 
 	@Override
 	public void deleteScanEventObserver(IObserver anObserver) {
-	}	
+		scanEventObervable.deleteIObserver(anObserver);
+	}
+
+	@Override
+	public void notifyServer(Object source, Object data) {
+		if (data instanceof ScanEvent) {
+			latestScanInfo = ((ScanEvent) data).getLatestInformation();
+			scanStatus = ((ScanEvent) data).getLatestStatus().asJython();
+			scanEventObervable.notifyIObservers(source, data);
+		} else if (data instanceof ScanDataPoint) {
+			lastScanDataPoint = (ScanDataPoint) data;
+			scanDataPointObservers.notifyIObservers(source, data);
+		}
+	}
+	
+	@Override
+	public void setCurrentScan(Scan newScan) {
+		// not used
+//		currentScan = newScan;
+	}
+
+	@Override
+	public ScanInformation getCurrentScanInformation() {
+		return latestScanInfo;
+	}
+	
+	@Override
+	public Vector<Scannable> getDefaultScannables() {
+		return new Vector<Scannable>();
+	}
+	
+	public void setScanObserver(String scanObserver) {
+		this.scanObserverName = scanObserver;
+	}
 }

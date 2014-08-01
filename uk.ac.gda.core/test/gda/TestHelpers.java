@@ -36,7 +36,6 @@ import gda.factory.Factory;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
-import gda.jython.MockJythonServer;
 import gda.jython.MockJythonServerFacade;
 import gda.observable.IObserver;
 import gda.util.TestUtils;
@@ -131,7 +130,6 @@ public class TestHelpers {
 		joranConfigurator.doConfigure(new ByteArrayInputStream(f.getBytes()));
 
 		MockJythonServerFacade mockJythonServerFacade = new MockJythonServerFacade();
-		MockJythonServer mockJythonServer = new MockJythonServer();
 		InterfaceProvider.setCommandRunnerForTesting(mockJythonServerFacade);
 		InterfaceProvider.setCurrentScanControllerForTesting(mockJythonServerFacade);
 		InterfaceProvider.setTerminalPrinterForTesting(mockJythonServerFacade);
@@ -140,9 +138,9 @@ public class TestHelpers {
 		InterfaceProvider.setAuthorisationHolderForTesting(mockJythonServerFacade);
 		InterfaceProvider.setScriptControllerForTesting(mockJythonServerFacade);
 		InterfaceProvider.setPanicStopForTesting(mockJythonServerFacade);
-		InterfaceProvider.setCurrentScanInformationHolderForTesting(mockJythonServer);
-		InterfaceProvider.setJythonServerNotiferForTesting(mockJythonServer);
-		InterfaceProvider.setDefaultScannableProviderForTesting(mockJythonServer);
+		InterfaceProvider.setCurrentScanInformationHolderForTesting(mockJythonServerFacade);
+		InterfaceProvider.setJythonServerNotiferForTesting(mockJythonServerFacade);
+		InterfaceProvider.setDefaultScannableProviderForTesting(mockJythonServerFacade);
 		InterfaceProvider.setScanDataPointProviderForTesting(mockJythonServerFacade);
 		InterfaceProvider.setBatonStateProviderForTesting(mockJythonServerFacade);
 		InterfaceProvider.setJSFObserverForTesting(mockJythonServerFacade);

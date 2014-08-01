@@ -21,7 +21,6 @@ package gda.jython.translator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import gda.jython.InterfaceProvider;
-import gda.jython.MockJythonServer;
 import gda.jython.MockJythonServerFacade;
 import gda.util.TestUtils;
 
@@ -54,7 +53,6 @@ public class GeneralTranslatorTest {
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);
 
 		MockJythonServerFacade mockJythonServerFacade = new MockJythonServerFacade();
-		MockJythonServer mockJythonServer = new MockJythonServer();
 		InterfaceProvider.setCommandRunnerForTesting(mockJythonServerFacade);
 		InterfaceProvider.setCurrentScanControllerForTesting(mockJythonServerFacade);
 		InterfaceProvider.setTerminalPrinterForTesting(mockJythonServerFacade);
@@ -63,9 +61,9 @@ public class GeneralTranslatorTest {
 		InterfaceProvider.setAuthorisationHolderForTesting(mockJythonServerFacade);
 		InterfaceProvider.setScriptControllerForTesting(mockJythonServerFacade);
 		InterfaceProvider.setPanicStopForTesting(mockJythonServerFacade);
-		InterfaceProvider.setCurrentScanInformationHolderForTesting(mockJythonServer);
-		InterfaceProvider.setJythonServerNotiferForTesting(mockJythonServer);
-		InterfaceProvider.setDefaultScannableProviderForTesting(mockJythonServer);
+		InterfaceProvider.setCurrentScanInformationHolderForTesting(mockJythonServerFacade);
+		InterfaceProvider.setJythonServerNotiferForTesting(mockJythonServerFacade);
+		InterfaceProvider.setDefaultScannableProviderForTesting(mockJythonServerFacade);
 		InterfaceProvider.setScanDataPointProviderForTesting(mockJythonServerFacade);
 		InterfaceProvider.setBatonStateProviderForTesting(mockJythonServerFacade);
 		InterfaceProvider.setJSFObserverForTesting(mockJythonServerFacade);
