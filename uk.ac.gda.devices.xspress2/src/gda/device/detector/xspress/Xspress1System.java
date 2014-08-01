@@ -416,7 +416,6 @@ public class Xspress1System extends XspressSystem {
 		// Note We dont have resgrades so this is set to 1
 		// for compatibility with xspressDetector interface
 		int[] data = null;
-		int ms;
 		int[][][] output = new int[numberOfDetectors][1][65535];
 		for (int detector = 0; detector < numberOfDetectors; detector++) {
 			logger.debug("Reading mca detector " + detector);
@@ -517,8 +516,9 @@ public class Xspress1System extends XspressSystem {
 		for (int frame = 0; frame < numFrames; frame++) {
 			for (int datum = 0; datum < numberDataPerFrame; datum++) {
 				value = scalerData[iterator];
-				if (value < 0)
+				if (value < 0) {
 					value = (value << 32) >>> 32;
+				}
 				unpacked[frame][datum] = value;
 				iterator++;
 			}
@@ -554,9 +554,9 @@ public class Xspress1System extends XspressSystem {
 		double deadTimeCubed;
 		double bigfactor;
 
-		if (windowed <= 0 || total <= 0)
+		if (windowed <= 0 || total <= 0) {
 			return (0);
-
+		}
 		A = total;
 		B = resets;
 		C = acc;
@@ -636,45 +636,35 @@ public class Xspress1System extends XspressSystem {
 	 *         rate
 	 * @throws DeviceException
 	 */
+	@SuppressWarnings("unchecked")
 	private Object calculateLiveStats() throws DeviceException {
-//		int[] rawData = getRawScalerData();
-//		long[] rawDataLong = convertUnsignedIntToLong(rawData);
-//		// TODO should saveRawSpectrum flag be checked here???
-//		double[] dtcs = calculateDeadtimeCorrectionFactors(rawDataLong);
-		Double[] results = new Double[getNumberOfDetectors()+1];
-//		Double[] results = new Double[3 * this.getNumberOfDetectors()+1];
-//		double[] scalerData = readoutScalerData(0, 0, true)[0];
-		double[] scalerData = readoutScalerData();
-		logger.debug("calculateLiveStats(): number of scaler value is " + scalerData.length);
-		for (int i=0; i<=getNumberOfDetectors(); i++) {
-			logger.debug("calculateLiveStats(): value " + i + " is " + scalerData[i]);
-			results[i] = scalerData[i];
+		int[] rawScalerData = xspressDetectorImpl.readoutHardwareScalers(0, 1);
+		long[][] unpackedScalerData = unpackRawScalerDataToFrames(rawScalerData, 1);
+		double[] scalerData = readoutScalerData(1, unpackedScalerData, true)[0];
+		Double[] results = new Double[3 * getNumberOfDetectors()];
+		long collectionTime = (long) timer.getAttribute("TotalExptTime");
+		final double clockRate = 1.0E-07;
+		int counter = 0;
+		for (int element = 0; element < this.getNumberOfDetectors(); element++) {
+
+			long windowed = unpackedScalerData[0][counter];
+			long total = unpackedScalerData[0][counter + 2];
+			long resets = unpackedScalerData[0][counter + 3];
+			counter += 4;
+
+			Double dt = (collectionTime - resets) * clockRate;
+			Double measuredRate = total * 1000.0 / collectionTime;
+			if (measuredRate.isNaN() || measuredRate.isInfinite()) {
+				results[element * 3] = 0.0;
+				results[element * 3 + 1] = 0.0;
+				results[element * 3 + 2] = 0.0;
+			} else {
+				results[element * 3] = measuredRate;
+				results[element * 3 + 1] = scalerData[element] / windowed;
+				System.out.println("element " + element + " corr " + scalerData[element] + " windowed " + windowed + " res " + results[element * 3 + 1]);
+				results[element * 3 + 2] = windowed / dt;
+			}
 		}
-//
-//		for (int element = 0; element < this.getNumberOfDetectors(); element++) {
-//
-//			// count rate
-//			int allCounts = rawData[element * 4];
-//			int reset = rawData[element * 4 + 1];
-//			int counts = rawData[element * 4 + 2];
-//			int time = rawData[element * 4 + 3];
-//			final double clockRate = 12.5e-09;
-//			Double dt = (time - reset) * clockRate;
-//			Double measuredRate = allCounts / dt;
-//
-//			if (measuredRate.isNaN() || measuredRate.isInfinite()) {
-//				results[element * 3] = 0.0;
-//				results[element * 3 + 1] = 0.0;
-//				results[element * 3 + 2] = 0.0;
-//			} else {
-//				results[element * 3] = measuredRate;
-//				results[element * 3 + 1] = dtcs[element];
-//				results[element * 3 + 2] = counts / dt;
-//			}
-//		}
-//
 		return results;
-
 	}
-
 }
