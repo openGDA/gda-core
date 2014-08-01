@@ -452,7 +452,13 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 
 	@Override
 	public String getImageNDArrayPortInput() throws Exception {
-		return StringUtils.hasText(imageNDArrayPortInput) ? imageNDArrayPortInput : getAdBase().getPortName_RBV();
+		if( StringUtils.hasText(imageNDArrayPortInput))
+			return imageNDArrayPortInput;
+		String portNameRBV = getAdBase().getPortName_RBV();
+		if( !StringUtils.hasText(portNameRBV))
+			throw new Exception("The portNameRBV of adBase is empty");
+		return portNameRBV;
+		
 	}
 
 	public void setImageNDArrayPortInput(String imageNDarrayPortInput) {
