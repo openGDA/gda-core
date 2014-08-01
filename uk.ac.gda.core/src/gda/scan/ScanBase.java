@@ -1076,6 +1076,7 @@ public abstract class ScanBase implements NestableScan {
 					setStatus(ScanStatus.TIDYING_UP_AFTER_STOP);
 					// need the correct exception type so wrapping code know its an interrupt
 					String message = "Scan aborted on request.";
+					logger.info(message);
 					throw new ScanInterruptedException(message,e.getStackTrace());
 				} catch (Exception e) {
 					setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
