@@ -57,9 +57,9 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * scale both types of ROI using total counts / counts in rois This needs
  * refactoring so that roi when all are selected are also corrected.
  */
-public class Xspress2Detector extends XspressSystem implements NexusDetector, XspressDetector {
+public class Xspress2System extends XspressSystem implements NexusDetector, XspressDetector {
 
-	private static final Logger logger = LoggerFactory.getLogger(Xspress2Detector.class);
+	private static final Logger logger = LoggerFactory.getLogger(Xspress2System.class);
 
 	public static final int NO_RES_GRADE = 1;
 	public static final int RES_THRES = 2;
@@ -75,7 +75,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	protected Xspress2DAServerController controller;
 
 
-	public Xspress2Detector() {
+	public Xspress2System() {
 		this.inputNames = new String[] {};
 		settings = new Xspress2CurrentSettings();
 	}

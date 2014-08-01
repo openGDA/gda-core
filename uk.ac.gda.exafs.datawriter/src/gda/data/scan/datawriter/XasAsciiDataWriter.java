@@ -22,7 +22,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.detector.DarkCurrentDetector;
 import gda.device.detector.DarkCurrentResults;
-import gda.device.detector.xspress.Xspress2Detector;
+import gda.device.detector.xspress.Xspress2System;
 import gda.factory.Finder;
 import gda.scan.IScanDataPoint;
 
@@ -147,7 +147,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 					StringBuffer buf = new StringBuffer();
 					buf.append("Disabled elements: ");
 					boolean found = false;
-					Xspress2Detector xspress = Finder.getInstance().find(xspressName);// Finder Arghhhhhhhhh
+					Xspress2System xspress = Finder.getInstance().find(xspressName);// Finder Arghhhhhhhhh
 					if (xspress != null) {
 						for (DetectorElement element : xspress.getDetectorList()) {
 							if (element.isExcluded()) {

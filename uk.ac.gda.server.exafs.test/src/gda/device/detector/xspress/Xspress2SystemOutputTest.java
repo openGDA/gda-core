@@ -43,7 +43,7 @@ import org.junit.Test;
 public class Xspress2SystemOutputTest {
 
 	
-	private static Xspress2Detector xspress = new Xspress2Detector();
+	private static Xspress2System xspress = new Xspress2System();
 	private static Xspress2DAServerController controller;
 	private static DummyDAServer daserver;
 	final static String TestFileFolder = "testfiles/gda/device/detector/xspress/";
@@ -53,7 +53,7 @@ public class Xspress2SystemOutputTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		xspress = new Xspress2Detector();
+		xspress = new Xspress2System();
 		controller = new Xspress2DAServerController();
 		xspress.setController(controller);
 		

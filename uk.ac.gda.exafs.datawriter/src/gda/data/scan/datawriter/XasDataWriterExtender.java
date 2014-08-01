@@ -22,7 +22,7 @@ package gda.data.scan.datawriter;
 import gda.data.PathConstructor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.Scannable;
-import gda.device.detector.xspress.Xspress2Detector;
+import gda.device.detector.xspress.Xspress2System;
 import gda.scan.IScanDataPoint;
 
 import java.io.BufferedWriter;
@@ -56,7 +56,7 @@ public class XasDataWriterExtender extends AsciiWriterExtender {
 	 */
 	@Override
 	public void writeVariableToDoubleMap(Scannable scannable, Object data) {
-		for (DetectorElement detectorElement : ((Xspress2Detector) scannable).getDetectorList()) {
+		for (DetectorElement detectorElement : ((Xspress2System) scannable).getDetectorList()) {
 			int j = 0;
 			for (String label : detectorElement.getLabels()) {
 				String inputName = detectorElement.getName() + "_" + label;
