@@ -24,7 +24,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
-import gda.jython.MockJythonServer;
+import gda.jython.MockJythonServerFacade;
 import gda.jython.authenticator.Authenticator;
 
 import org.junit.Before;
@@ -44,7 +44,7 @@ public class BatonManagerTest {
 		LocalProperties.set( LocalProperties.GDA_ACCESS_CONTROL_ENABLED, "true");
 		LocalProperties.set(Authenticator.AUTHENTICATORCLASS_PROPERTY, "JaasAuthenticator");
 
-		InterfaceProvider.setJythonServerNotiferForTesting(new MockJythonServer());
+		InterfaceProvider.setJythonServerNotiferForTesting(new MockJythonServerFacade());
 		manager = new BatonManager();
 		ClientDetails details1 = new ClientDetails(manager.getNewFacadeIndex(), "abc123", "ABC 123", "pc01234", 0, false, "mx123-1");
 		manager.addFacade("opq", details1);

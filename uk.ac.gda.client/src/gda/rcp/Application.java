@@ -28,7 +28,6 @@ import gda.factory.ObjectFactory;
 import gda.factory.corba.util.AdapterFactory;
 import gda.factory.corba.util.NetService;
 import gda.jython.InterfaceProvider;
-import gda.jython.MockJythonServer;
 import gda.jython.MockJythonServerFacade;
 import gda.jython.authenticator.Authenticator;
 import gda.jython.authenticator.UserAuthentication;
@@ -183,7 +182,6 @@ public class Application implements IApplication {
 		if (localObjectsOnly) {
 			// we need to add a mock jython server facade until we can add a Command Server to the GUI.
 			MockJythonServerFacade mockJythonServerFacade = new MockJythonServerFacade();
-			MockJythonServer mockJythonServer = new MockJythonServer();
 			InterfaceProvider.setCommandRunnerForTesting(mockJythonServerFacade);
 			InterfaceProvider.setCurrentScanControllerForTesting(mockJythonServerFacade);
 			InterfaceProvider.setTerminalPrinterForTesting(mockJythonServerFacade);
@@ -192,9 +190,9 @@ public class Application implements IApplication {
 			InterfaceProvider.setAuthorisationHolderForTesting(mockJythonServerFacade);
 			InterfaceProvider.setScriptControllerForTesting(mockJythonServerFacade);
 			InterfaceProvider.setPanicStopForTesting(mockJythonServerFacade);
-			InterfaceProvider.setCurrentScanInformationHolderForTesting(mockJythonServer);
-			InterfaceProvider.setJythonServerNotiferForTesting(mockJythonServer);
-			InterfaceProvider.setDefaultScannableProviderForTesting(mockJythonServer);
+			InterfaceProvider.setCurrentScanInformationHolderForTesting(mockJythonServerFacade);
+			InterfaceProvider.setJythonServerNotiferForTesting(mockJythonServerFacade);
+			InterfaceProvider.setDefaultScannableProviderForTesting(mockJythonServerFacade);
 			InterfaceProvider.setScanDataPointProviderForTesting(mockJythonServerFacade);
 			InterfaceProvider.setBatonStateProviderForTesting(mockJythonServerFacade);
 			InterfaceProvider.setJSFObserverForTesting(mockJythonServerFacade);

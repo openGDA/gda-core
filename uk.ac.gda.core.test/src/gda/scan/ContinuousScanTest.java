@@ -98,7 +98,7 @@ public class ContinuousScanTest {
 		assertEquals(10, data.length);
 		IScanDataPoint point = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
 		assertEquals(1, point.getScanIdentifier());
-		assertEquals(dir + "/Data/1.dat", point.getCurrentFilename());
+		assertEquals(dir + "/Data/1.dat", scan.getDataWriter().getCurrentFileName());
 	}
 	
 	/**
