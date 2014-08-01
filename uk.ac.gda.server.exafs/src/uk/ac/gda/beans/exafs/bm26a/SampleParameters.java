@@ -21,49 +21,28 @@ package uk.ac.gda.beans.exafs.bm26a;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
 import uk.ac.gda.beans.exafs.ISampleParameters;
-import uk.ac.gda.doe.DOEControl;
 
 public class SampleParameters implements Serializable, ISampleParameters {
 
+	static public final URL mappingURL = SampleParameters.class.getResource("SampleParametersMapping.xml");
+	static public final URL schemaURL = SampleParameters.class.getResource("SampleParametersMapping.xsd");
 	/**
 	 * Valid sample stages.
 	 */
-	public static final String[] SAMPLE_ENV = new String[] { "None", "Room Temperature", "Cryostat", "Furnace",
-			"Custom (XYZ)", "Custom" };
+	public static final String[] STAGE = new String[] { "none", "xyzstage", "cryostage"};
 
-	public static final String[] SAMPLE_ENV_XES = new String[] { "None", "Custom (XYZ)", "Custom" };
-
-	static public final URL mappingURL = SampleParameters.class.getResource("SampleParametersMapping.xml");
-
-	static public final URL schemaURL = SampleParameters.class.getResource("SampleParametersMapping.xsd");
-
-
-	private List<String> descriptions;
-	private String name;
-	private String sampleWheelPosition;
-
-	@DOEControl(
-	// Values are the values of sampleEnvironment which result in activating the
-	// fields argument.
-	values = { "None", "Room Temperature", "Furnace", "Cryostat", "Custom (XYZ)", "Custom" },
-	// NOTE The fields argument must match the fields in this class with the
-	// same name.
-	fields = { "noneParameters", "roomTemperatureParameters", "furnaceParameters", "cryostatParameters",
-			"customXYZParameters", "customParameters" })
-	private String sampleEnvironment = "None";
-
-//	private NoneParameters noneParameters;
-	private SampleStageParameters roomTemperatureParameters;
-	private CryostatParameters cryostatParameters;
-	private FurnaceParameters furnaceParameters;
-	private List<CustomXYZParameter> customXYZParameters;
-	private List<CustomParameter> customParameters;
-
+	private String name = "";
+	private String description1 = "";
+	private String description2 = "";
+	private String stage = "None";
+	private XYZStageParameters xyzStageParameters = new XYZStageParameters();
+	private XYZStageParameters cryoStageParameters = new XYZStageParameters();
 	private boolean shouldValidate = true;
 
 	/**
@@ -71,18 +50,14 @@ public class SampleParameters implements Serializable, ISampleParameters {
 	 */
 	@Override
 	public void clear() {
-		if (descriptions != null)
-			descriptions.clear();
-		if (customParameters != null)
-			customParameters.clear();
-		if (customXYZParameters != null)
-			customXYZParameters.clear();
-	}
-
-	public SampleParameters() {
-		descriptions = new ArrayList<String>(7);
-		customParameters = new ArrayList<CustomParameter>(7);
-		customXYZParameters = new ArrayList<CustomXYZParameter>(7);
+		name = description1 = description2 = "";
+		stage = "None";
+		if (xyzStageParameters != null) {
+			xyzStageParameters.clear();
+		}
+		if (cryoStageParameters != null) {
+			cryoStageParameters.clear();
+		}
 	}
 
 	@Override
@@ -90,103 +65,77 @@ public class SampleParameters implements Serializable, ISampleParameters {
 		return name;
 	}
 
-	public void setDescriptions(List<String> descriptions) {
-		// Castor's implementation for string lists is different to other lists
-		// and the set can pass in an unmodifiable
-		// list.
-		this.descriptions.clear();
-		if (descriptions == null) {
-			return;
-		}
-		this.descriptions.addAll(descriptions);
-	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	public void addDescription(String description) {
-		descriptions.add(description);
+	public String getDescription1() {
+		return description1;
 	}
 
-	@Override
-	public List<String> getDescriptions() {
-		return descriptions;
+	public void setDescription1(String description) {
+		this.description1 = description;
+	}
+	
+	public String getDescription2() {
+		return description2;
 	}
 
-	public String getSampleWheelPosition() {
-		return sampleWheelPosition;
+	public void setDescription2(String description) {
+		this.description2 = description;
 	}
 
-	public void setSampleWheelPosition(String sampleWheelPosition) {
-		this.sampleWheelPosition = sampleWheelPosition;
+	public XYZStageParameters getXyzStageParameters() {
+		return xyzStageParameters;
 	}
 
-	public SampleStageParameters getRoomTemperatureParameters() {
-		return roomTemperatureParameters;
+	public void setXyzStageParameters(XYZStageParameters xyzStageParameters) {
+		this.xyzStageParameters = xyzStageParameters;
 	}
 
-	public void setRoomTemperatureParameters(SampleStageParameters sampleStageParameters) {
-		this.roomTemperatureParameters = sampleStageParameters;
+	public XYZStageParameters getCryoStageParameters() {
+		return cryoStageParameters;
 	}
 
-	public CryostatParameters getCryostatParameters() {
-		return cryostatParameters;
+	public void setCryoStageParameters(XYZStageParameters cryoStageParameters) {
+		this.cryoStageParameters = cryoStageParameters;
 	}
 
 	public NoneParameters getNoneParameters() {
 		return new NoneParameters();
 	}
 
-	public void setCryostatParameters(CryostatParameters cryostatParameters) {
-		this.cryostatParameters = cryostatParameters;
+	@Override
+	public List<String> getDescriptions() {
+		return Arrays.asList(new String[] { description1, description2 });
 	}
 
-	public FurnaceParameters getFurnaceParameters() {
-		return furnaceParameters;
+	public String getStage() {
+		return stage;
 	}
 
-	public void setFurnaceParameters(FurnaceParameters furnaceParameters) {
-		this.furnaceParameters = furnaceParameters;
+	public void setStage(String stage) {
+		this.stage = stage;
 	}
 
-	public List<CustomParameter> getCustomParameters() {
-		return customParameters;
+	public boolean isShouldValidate() {
+		return shouldValidate;
 	}
 
-	public void addCustomParameter(CustomParameter customParameter) {
-		customParameters.add(customParameter);
-	}
-
-	public void setCustomParameters(List<CustomParameter> customParameters) {
-		this.customParameters = customParameters;
-	}
-
-	public List<CustomXYZParameter> getCustomXYZParameters() {
-		return customXYZParameters;
-	}
-
-	public void addCustomXYZParameter(CustomXYZParameter customParameter) {
-		customXYZParameters.add(customParameter);
-	}
-
-	public void setCustomXYZParameters(List<CustomXYZParameter> customParameters) {
-		this.customXYZParameters = customParameters;
+	public void setShouldValidate(boolean shouldValidate) {
+		this.shouldValidate = shouldValidate;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((cryostatParameters == null) ? 0 : cryostatParameters.hashCode());
-		result = prime * result + ((customParameters == null) ? 0 : customParameters.hashCode());
-		result = prime * result + ((customXYZParameters == null) ? 0 : customXYZParameters.hashCode());
-		result = prime * result + ((descriptions == null) ? 0 : descriptions.hashCode());
-		result = prime * result + ((furnaceParameters == null) ? 0 : furnaceParameters.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((roomTemperatureParameters == null) ? 0 : roomTemperatureParameters.hashCode());
-		result = prime * result + ((sampleEnvironment == null) ? 0 : sampleEnvironment.hashCode());
-		result = prime * result + ((sampleWheelPosition == null) ? 0 : sampleWheelPosition.hashCode());
+		result = prime * result + ((description1 == null) ? 0 : description1.hashCode());
+		result = prime * result + ((description2 == null) ? 0 : description2.hashCode());
+		result = prime * result + ((xyzStageParameters == null) ? 0 : xyzStageParameters.hashCode());
+		result = prime * result + ((cryoStageParameters == null) ? 0 : cryoStageParameters.hashCode());
+		result = prime * result + ((stage == null) ? 0 : stage.hashCode());
 		result = prime * result + (shouldValidate ? 1231 : 1237);
 		return result;
 	}
@@ -200,50 +149,35 @@ public class SampleParameters implements Serializable, ISampleParameters {
 		if (getClass() != obj.getClass())
 			return false;
 		SampleParameters other = (SampleParameters) obj;
-		if (cryostatParameters == null) {
-			if (other.cryostatParameters != null)
+		if (description1 == null) {
+			if (other.description1 != null)
 				return false;
-		} else if (!cryostatParameters.equals(other.cryostatParameters))
+		} else if (!description1.equals(other.description1))
 			return false;
-		if (customParameters == null) {
-			if (other.customParameters != null)
+		if (description2 == null) {
+			if (other.description2 != null)
 				return false;
-		} else if (!customParameters.equals(other.customParameters))
-			return false;
-		if (customXYZParameters == null) {
-			if (other.customXYZParameters != null)
-				return false;
-		} else if (!customXYZParameters.equals(other.customXYZParameters))
-			return false;
-		if (descriptions == null) {
-			if (other.descriptions != null)
-				return false;
-		} else if (!descriptions.equals(other.descriptions))
-			return false;
-		if (furnaceParameters == null) {
-			if (other.furnaceParameters != null)
-				return false;
-		} else if (!furnaceParameters.equals(other.furnaceParameters))
+		} else if (!description2.equals(other.description2))
 			return false;
 		if (name == null) {
 			if (other.name != null)
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
-		if (roomTemperatureParameters == null) {
-			if (other.roomTemperatureParameters != null)
+		if (xyzStageParameters == null) {
+			if (other.xyzStageParameters != null)
 				return false;
-		} else if (!roomTemperatureParameters.equals(other.roomTemperatureParameters))
+		} else if (!xyzStageParameters.equals(other.xyzStageParameters))
 			return false;
-		if (sampleEnvironment == null) {
-			if (other.sampleEnvironment != null)
+		if (cryoStageParameters == null) {
+			if (other.xyzStageParameters != null)
 				return false;
-		} else if (!sampleEnvironment.equals(other.sampleEnvironment))
+		} else if (!cryoStageParameters.equals(other.cryoStageParameters))
 			return false;
-		if (sampleWheelPosition == null) {
-			if (other.sampleWheelPosition != null)
+		if (stage == null) {
+			if (other.stage != null)
 				return false;
-		} else if (!sampleWheelPosition.equals(other.sampleWheelPosition))
+		} else if (!stage.equals(other.stage))
 			return false;
 		if (shouldValidate != other.shouldValidate)
 			return false;
@@ -257,21 +191,5 @@ public class SampleParameters implements Serializable, ISampleParameters {
 		} catch (Exception e) {
 			return e.getMessage();
 		}
-	}
-
-	public String getSampleEnvironment() {
-		return sampleEnvironment;
-	}
-
-	public void setSampleEnvironment(String sampleEnvironment) {
-		this.sampleEnvironment = sampleEnvironment;
-	}
-
-	public boolean isShouldValidate() {
-		return shouldValidate;
-	}
-
-	public void setShouldValidate(boolean shouldValidate) {
-		this.shouldValidate = shouldValidate;
 	}
 }
