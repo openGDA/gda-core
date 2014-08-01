@@ -1,6 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
- * Facilities Council
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -17,25 +16,25 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.spring.remoting.http;
+package gda.jython.socket;
 
-/**
- * Constants used by the {@code gda.spring.remoting.http} package.
- */
-public final class Constants {
-	
-	// Prevent instantiation
-	private Constants() {}
-	
-	/**
-	 * Context path under which the objects (and the object lister service)
-	 * will be available.
-	 */
-	public static final String CONTEXT_PATH = "/gda";
-	
-	/**
-	 * Servlet path of the object lister service.
-	 */
-	public static final String REMOTE_OBJECT_LISTER_PATH = "/objects";
-	
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import org.apache.sshd.server.ShellFactory.ExitCallback;
+
+public class SshServerThread extends ServerThread implements SessionClosedCallback {
+
+	private ExitCallback exitCallback;
+
+	protected SshServerThread(InputStream in, OutputStream out, ExitCallback exitCallback) {
+		super(in, out);
+		this.exitCallback = exitCallback;
+	}
+
+	@Override
+	public void sessionClosed() {
+		exitCallback.onExit(0);
+	}
+
 }

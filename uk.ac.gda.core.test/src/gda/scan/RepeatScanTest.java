@@ -85,7 +85,7 @@ public class RepeatScanTest {
 		when(s1.getName()).thenReturn("s1");
 		when(s1.getInputNames()).thenReturn(new String[] { "s1" });
 		when(s1.getExtraNames()).thenReturn(new String[] { });
-		when(s1.getOutputFormat()).thenReturn(new String[] { "%5.1g" });
+		when(s1.getOutputFormat()).thenReturn(new String[] { "%5.1f" });
 		when(s1.getPosition()).thenReturn(0.);
 		
 		d1 = mock(Detector.class);

@@ -2,7 +2,7 @@
 <feature
       id="uk.ac.gda.client.feature"
       label="GDA Client Feature"
-      version="8.40.0.qualifier"
+      version="8.42.0.qualifier"
       provider-name="Diamond Light Source">
 
    <description url="http://www.example.com/description">
@@ -176,13 +176,6 @@
          unpack="false"/>
 
    <plugin
-         id="javax.xml.bind"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.springsource.org.apache.commons.collections"
          download-size="0"
          install-size="0"
@@ -191,13 +184,6 @@
 
    <plugin
          id="javax.activation"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="javax.xml.stream"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -42,7 +42,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
-import org.dawnsci.plotting.api.tool.IToolPageSystem;
+import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.IPath;

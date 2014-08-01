@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,12 +16,10 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.scan;
+package gda.jython.socket;
 
-import java.io.Serializable;
-/**
- * a marker event to pass 'scan completed' event from server to client, so to trigger additional processing on client, i.e. beep sound.
- */
-public class ScanCompletedEvent implements Serializable {
+public interface SessionClosedCallback {
+
+	public void sessionClosed();
 
 }

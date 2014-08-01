@@ -18,12 +18,13 @@
 
 package uk.ac.gda.client.viewer;
 
-import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
-import org.dawnsci.plotting.jreality.tool.ImagePositionListener;
+import org.eclipse.dawnsci.plotting.api.jreality.tool.IImagePositionEvent;
+import org.eclipse.dawnsci.plotting.api.jreality.tool.ImagePositionListener;
 import org.eclipse.draw2d.BorderLayout;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureCanvas;
+import org.eclipse.draw2d.IClippingStrategy;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.ImageFigure;
 import org.eclipse.draw2d.LightweightSystem;
@@ -76,7 +77,7 @@ public class ImageViewer {
 			// figure by half its width
 			// We don't base the overall width on the getContents().getBounds() as that
 			// may be the wrong size, force it to the width of the image itself
-			
+
 			Rectangle imageBounds = getImageBounds();
 
 			int clientHeight = getClientArea().height;
@@ -87,7 +88,7 @@ public class ImageViewer {
 
 		}
 	}
-	
+
 	private static final float DEFAULT_ZOOM_LEVEL = 1.0f;
 	private static final float MAX_ZOOM_LEVEL = 5.0f;
 	private static final float MIN_ZOOM_LEVEL = 0.10f;
@@ -120,7 +121,7 @@ public class ImageViewer {
 	
 	private static Group listenersGroup;
 	private static Text eventConsole;
-	private static boolean logging;	
+	private static boolean logging;
 	private static Label statusLabel;
 	private static Label imageLabel;
 
@@ -136,12 +137,7 @@ public class ImageViewer {
 		canvas = new FigureCanvas(parent, style);
 		canvas.setBackground(ColorConstants.white);
 
-		// make this mode-dependent
-		//cursor = new Cursor(parent.getDisplay(), SWT.CURSOR_CROSS);		
-		//canvas.setCursor(cursor);
-
 		GridData gridData = new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL);
-//		gridData.widthHint = 700;
 		canvas.setLayoutData(gridData);
 
 		LightweightSystem lws = new LightweightSystem(canvas);
@@ -181,7 +177,13 @@ public class ImageViewer {
 
 		fig.add(zoomContainer);
 		layout.setConstraint(zoomContainer, BorderLayout.CENTER);
-
+		zoomContainer.setClippingStrategy(new IClippingStrategy() {
+			
+			@Override
+			public Rectangle[] getClip(IFigure childFigure) {
+				return new Rectangle[]{ zoomContainer.getClientArea()};
+			}
+		});
 		initialize();
 	}
 

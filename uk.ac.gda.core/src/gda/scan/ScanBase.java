@@ -172,9 +172,6 @@ public abstract class ScanBase implements NestableScan {
 		this.scanNumber = scanNumber;
 	}
 
-	/**
-	 *
-	 */
 	public ScanBase() {
 		// randomly create the name
 		name = generateRandomName();
@@ -218,6 +215,7 @@ public abstract class ScanBase implements NestableScan {
 		} else {
 			parentComponent.setStatus(status);
 		}
+		sendScanEvent(ScanEvent.EventType.UPDATED);
 	}
 	
 	@Override
@@ -385,6 +383,8 @@ public abstract class ScanBase implements NestableScan {
 		}
 		
 		readDevicesAndPublishScanDataPoint();
+		
+		sendScanEvent(ScanEvent.EventType.UPDATED);
 
 		checkThreadInterrupted();
 	}
@@ -606,7 +606,7 @@ public abstract class ScanBase implements NestableScan {
 					commandThread.start();
 				}
 			}
-		} catch( DeviceException  th){
+		} catch( DeviceException th){
 			/*
 			 * If any of the above throws an exception such as an InterruptedException due 
 			 * to the thread being interrupted as a result of the user requesting an abort
@@ -617,6 +617,10 @@ public abstract class ScanBase implements NestableScan {
 			}
 			throw th;
 		}
+	}
+	
+	protected void signalScanStarted() {
+		sendScanEvent(ScanEvent.EventType.STARTED);
 	}
 
 	protected void signalScanComplete() {
@@ -632,7 +636,29 @@ public abstract class ScanBase implements NestableScan {
 			java.util.Date date= new java.util.Date();
 			getTerminalPrinter().print("=== Scan ended at "+new Timestamp(date.getTime()).toString()+" ===");
 		}
-		getJythonServerNotifer().notifyServer(this, new ScanCompletedEvent());
+		sendScanEvent(ScanEvent.EventType.FINISHED);
+	}
+
+	protected void sendScanEvent(ScanEvent.EventType reason){
+		getJythonServerNotifer().notifyServer(this, new ScanEvent(reason, getScanInformation(),getStatus(),currentPointCount));
+	}
+	
+	@Override
+	public ScanInformation getScanInformation() {
+		ScanInformation currentInfo = new ScanInformation();
+		currentInfo.setDimensions(getDimensions());
+		// might not be defined at start of scan
+		if (scanDataPointPipeline != null || manuallySetDataWriter != null) {
+			currentInfo.setScanNumber(scanNumber);
+			currentInfo.setFilename(getDataWriter().getCurrentFileName());
+		}
+		currentInfo.setInstrument(instrument);
+		currentInfo.setNumberOfPoints(getTotalNumberOfPoints()); // TODO is this correct??
+		String[] scannables = ScannableUtils.getScannableNames(getScannables()).toArray(new String[] {});
+		String[] detectors = ScannableUtils.getScannableNames(getDetectors()).toArray(new String[] {});
+		currentInfo.setScannableNames(scannables);
+		currentInfo.setDetectorNames(detectors);
+		return currentInfo;
 	}
 
 	protected void shutdownScandataPipeline(boolean waitForProcessingCompletion) throws DeviceException {
@@ -780,9 +806,6 @@ public abstract class ScanBase implements NestableScan {
 		return name;
 	}
 
-	/**
-	 * @return numberOfChildScans
-	 */
 	public int getNumberOfChildScans() {
 		return numberOfChildScans;
 	}
@@ -818,9 +841,6 @@ public abstract class ScanBase implements NestableScan {
 		return this.allScannables;
 	}
 
-	/**
-	 * @return Settings for plotting
-	 */
 	@Override
 	public ScanPlotSettings getScanPlotSettings() {
 		Scan scan = getInnerMostScan();
@@ -832,9 +852,6 @@ public abstract class ScanBase implements NestableScan {
 		return stepId;
 	}
 
-	/**
-	 * Gets the stepIds of scan
-	 */
 	List<IScanStepId> getStepIds() {
 		Vector<IScanStepId> stepsIds = new Vector<IScanStepId>();
 		NestableScan scan = this;
@@ -847,9 +864,6 @@ public abstract class ScanBase implements NestableScan {
 		return stepsIds;
 	}
 
-	/**
-	 * @return Returns the totalNumberOfPoints.
-	 */
 	@Override
 	public int getTotalNumberOfPoints() {
 		Scan outerMostScan = getOuterMostScan();
@@ -1143,6 +1157,7 @@ public abstract class ScanBase implements NestableScan {
 		if (currentStatus != Jython.IDLE) {
 			throw new Exception("Scan not started as there is already a scan running (could be paused).");
 		}
+		signalScanStarted();
 		setStatus(ScanStatus.RUNNING);
 		if (LocalProperties.check(GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL)) {
 			java.util.Date date= new java.util.Date();
@@ -1184,12 +1199,6 @@ public abstract class ScanBase implements NestableScan {
 		this.child = child;
 	}
 
-	/**
-	 * Gives the scan a dataHandler reference.
-	 * 
-	 * @param dataWriter
-	 *            DataWriter
-	 */
 	@Override
 	public void setDataWriter(DataWriter dataWriter) {
 		this.manuallySetDataWriter = dataWriter;

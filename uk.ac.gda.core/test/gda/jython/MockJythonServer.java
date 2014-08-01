@@ -20,7 +20,6 @@ package gda.jython;
 
 import gda.device.Scannable;
 import gda.scan.Scan;
-import gda.scan.ScanDataPoint;
 import gda.scan.ScanInformation;
 
 import java.util.Vector;
@@ -41,10 +40,7 @@ public class MockJythonServer implements IJythonServerNotifer, ICurrentScanInfor
 
 	@Override
 	public void notifyServer(Object source, Object data) {
-		if( data instanceof ScanDataPoint){
-			((ScanDataPoint)data).setCreatorPanelName(scanObserverName);
-			InterfaceProvider.getScanDataPointProvider().update(source, data);
-		}
+		// do nothing as this does not have any registered IObservers
 	}
 
 	Scan currentScan=null;
@@ -55,7 +51,8 @@ public class MockJythonServer implements IJythonServerNotifer, ICurrentScanInfor
 
 	@Override
 	public ScanInformation getCurrentScanInformation() {
-		return JythonServer.getScanInformation(currentScan);
+		if (currentScan == null) return null;
+		return currentScan.getScanInformation();
 	}
 
 	/**

@@ -26,7 +26,6 @@ import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.Scannable;
 import gda.device.Stoppable;
-import gda.device.scannable.ScannableUtils;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
@@ -50,10 +49,8 @@ import gda.messages.MessageHandler;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-import gda.scan.NestableScan;
 import gda.scan.Scan;
 import gda.scan.Scan.ScanStatus;
-import gda.scan.ScanChild;
 import gda.scan.ScanDataPoint;
 import gda.scan.ScanInformation;
 import gda.util.exceptionUtils;
@@ -171,6 +168,8 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	private PasswordAuthenticator authenticator;
 
 	private int remotePort = -1;
+
+	private boolean remoteServerUsesJline;
 
 	private String gdaStationScript;
 	
@@ -292,6 +291,10 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		this.remotePort = remotePort;
 	}
 
+	public void setRemoteServerUsesJline(boolean remoteServerUsesJline) {
+		this.remoteServerUsesJline = remoteServerUsesJline;
+	}
+
 	/**
 	 * Add a Pseudo Device to the list of defaults
 	 * 
@@ -392,6 +395,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 				socket.setServerType(remoteServerType);
 				socket.setAuthenticator(authenticator);
 				socket.setPort(port);
+				socket.setUseJline(remoteServerUsesJline);
 				new Thread(socket, "Jython SocketServer port " + port).start();
 			}
 			configured = true;
@@ -1492,43 +1496,10 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	public boolean isStoppingJythonScannablesOnStopAll() {
 		return stopJythonScannablesOnStopAll;
 	}
-
-	public static ScanInformation getScanInformation(Scan topscan) {
-
-		if (topscan == null)
-			return null;
-		
-		List<Integer> dims = new Vector<Integer>();
-		while (topscan.isChild()) {
-			topscan = ((ScanChild)topscan).getParent();
-		}
-		// hack warning!!!
-		// hack warning!!! should change the scan interface to getDimensions(int[]) and drop this part of code
-		if (topscan instanceof NestableScan) {
-			for (Scan s = topscan;; s = s.getChild()) {
-				dims.add(s.getDimension());
-				if (s.getChild() == null)
-					break;
-			}
-		} else {
-			dims.add(topscan.getDimension());
-		}
-		
-		int scanno = topscan.getScanNumber();
-		String[] scannables = ScannableUtils.getScannableNames(topscan.getScannables()).toArray(new String[] {});
-		String[] detectors = ScannableUtils.getScannableNames(topscan.getDetectors()).toArray(new String[] {});
-		try { 
-			if (scanno <= 0)
-				scanno = topscan.getDataWriter().getCurrentScanIdentifier();
-		} catch (Exception e) {
-			// we tried so hard, but in the end it didn't even matter...
-		}
-		return new ScanInformation(dims, scanno, scannables, detectors);
-	}
 	
 	@Override
 	public ScanInformation getCurrentScanInformation() {
-		return getScanInformation(currentScan);
+		return currentScan.getScanInformation();
 	}
 	
 	@Override

@@ -1,6 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
- * Facilities Council Daresbury Laboratory
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,52 +18,28 @@
 
 package gda.jython.socket;
 
-import gda.jython.JythonServerFacade;
-
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class ServerListenThread extends ServerListenThreadBase {
 
-/**
- * Listens to a port and passes input from that to the Command Server
- */
-public class ServerListenThread extends Thread {
-	private static final Logger logger = LoggerFactory.getLogger(ServerListenThread.class);
+	private BufferedReader in;
+	private PrintWriter out;
 
-	JythonServerFacade command_server = JythonServerFacade.getInstance();
-
-	BufferedReader in = null;
-
-	/**
-	 * @param in
-	 */
-	public ServerListenThread(BufferedReader in) {
-		this.in = in;
+	public ServerListenThread(InputStream in, PrintWriter out, SessionClosedCallback sessionClosedCallback) {
+		super(sessionClosedCallback);
+		this.in = new BufferedReader(new InputStreamReader(in));
+		this.out = out;
 	}
 
 	@Override
-	public void run() {
-		boolean needMore;
-		String fromServer = "";
-		String previousCommand = "";
-		String command = "";
-		try {
-			while ((fromServer = in.readLine()) != null) {
-				command = previousCommand + fromServer;
-				needMore = command_server.runsource(command, "CommandThread");
-				// needMore will be true if the command was incomplete e.g. the
-				// first line of a for loop. It is false otherwise (including
-				// mercifully if there is a syntax error).
-				if (needMore) {
-					previousCommand = command + "\n";
-				} else {
-					previousCommand = "";
-				}
-			}
-		} catch (IOException ex) {
-			logger.error("Error while communicating with CommandServer via socket: " + ex.getMessage());
-		}
+	protected String readLine(String prompt) throws IOException {
+		out.print(prompt);
+		out.flush();
+		return in.readLine();
 	}
+
 }

@@ -343,11 +343,25 @@ where task can be:
 			pids.append(self.event_server(debug_opts=debug_opts))
 		elif self.task.find("objectserver")>=0:
 			pids.append(self.object_server(xmlfile=self.options.os_xml, debug_opts=debug_opts))
+		
 		elif self.task == "servers":
-			pids.append(self.log_server())
-			pids.append(self.name_server(port=self.options.ns_port))
-			pids.append(self.event_server())
-			pids.append(self.object_server(xmlfile=self.options.os_xml, debug_opts=debug_opts))
+			
+			if self.options.start:
+				self.start_all_processes(pids, debug_opts)
+			
+			elif self.options.stop:
+				self.stop_all_processes(pids, debug_opts)
+			
+			elif self.options.restart:
+				
+				self.options.stop = True
+				self.stop_all_processes(pids, debug_opts)
+				self.options.stop = False
+				
+				self.options.start = True
+				self.start_all_processes(pids, debug_opts)
+				self.options.start = False
+		
 		elif self.task == "client":
 			pids.append(self.client(xmlfile=self.options.os_xml, debug_opts=debug_opts))
 		elif self.task == "rcpclient":
@@ -357,6 +371,17 @@ where task can be:
 			
 		return pids
 
+	def start_all_processes(self, pids, debug_opts):
+		pids.append(self.log_server())
+		pids.append(self.name_server(port=self.options.ns_port))
+		pids.append(self.event_server())
+		pids.append(self.object_server(xmlfile=self.options.os_xml, debug_opts=debug_opts))
+
+	def stop_all_processes(self, pids, debug_opts):
+		pids.append(self.object_server(xmlfile=self.options.os_xml, debug_opts=debug_opts))
+		pids.append(self.event_server())
+		pids.append(self.name_server(port=self.options.ns_port))
+		pids.append(self.log_server())
 
 	def get_commandlineArgs(self, argv):
 		""" Read the command line arguments and perform some basic validation.
@@ -392,11 +417,6 @@ where task can be:
 		# if start/stop/restart not specified, default is to restart
 		if self.options.start == None and self.options.stop == None and self.options.restart == None:
 			self.options.restart = True
-
-		# restart implies stop and start
-		if self.options.restart:
-			self.options.start = self.options.stop = True
-
 
 		if self.options.version:
 			return
@@ -630,21 +650,17 @@ where task can be:
 		plugin_locations = {}  # key=plugin name, value=list of paths where this plug can be fouund (should only be 1)
 
 		parents = []  # a list of directories whose subdirectories might be plugins
-		if self.gda_install_git_loc:
-			parents.append(self.gda_install_git_loc)
-			for repo in os.listdir(self.gda_install_git_loc):
-				pathToRepo = abspath(self.gda_install_git_loc, repo)
-				if os.path.isdir(pathToRepo):
-					parents.append(pathToRepo)
-					for repo1 in os.listdir(pathToRepo):
-						if repo1.startswith("."):
-							continue
-						child = abspath(pathToRepo, repo1)
-						if os.path.isdir(child):
-							parents.append(child)
-		subversion_plugins = abspath(self.gda_install_workspace_loc, 'plugins')
-		if os.path.isdir(subversion_plugins):
-			parents.append(subversion_plugins)
+		parents.append(self.gda_install_git_loc)
+		for repo in os.listdir(self.gda_install_git_loc):
+			pathToRepo = abspath(self.gda_install_git_loc, repo)
+			if os.path.isdir(pathToRepo):
+				parents.append(pathToRepo)
+				for repo1 in os.listdir(pathToRepo):
+					if repo1.startswith("."):
+						continue
+					child = abspath(pathToRepo, repo1)
+					if os.path.isdir(child):
+						parents.append(child)
 
 		for parent in parents:
 			for plugin in os.listdir(parent):

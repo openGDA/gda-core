@@ -18,29 +18,37 @@
 
 package gda.scan;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
- * Object that provides information on a scan that scannables or detectors might want to know.
- * 
- * To be extended. Scan number would be good...
+ * Object that provides information about a scan, but not its data.
  */
-public class ScanInformation {
+public class ScanInformation implements Serializable{
 
-	private int[] dimensions;
-	private final int scanNumber;
-	private String[] scannableNames;
-	private String[] detectorNames;
+	private int[] dimensions = new int[]{};
+	private int scanNumber = -1;
+	private String[] scannableNames = new String[]{};
+	private String[] detectorNames = new String[]{};
+	private String filename = "";
+	private String instrument = "";
+	private int numberOfPoints = -1;
 	
 	
-	public ScanInformation(int[] dimensions, int scanNumber, String[] ScannableNames, String[] DetectorNames) {
+	public ScanInformation(){
+	}
+	
+	public ScanInformation(int[] dimensions, int scanNumber, String[] ScannableNames, String[] DetectorNames, String filename, String instrument, int NumberOfPoints) {
 		this.dimensions = dimensions;
 		this.scanNumber = scanNumber;
 		scannableNames = ScannableNames;
 		detectorNames = DetectorNames;
+		this.filename = filename;
+		this.instrument = instrument;
+		numberOfPoints = NumberOfPoints;
 	}
 	
-	public ScanInformation(List<Integer> dimensions, int scanNumber, String[] ScannableNames, String[] DetectorNames) {
+	public ScanInformation(List<Integer> dimensions, int scanNumber, String[] ScannableNames, String[] DetectorNames, String filename, String instrument, int NumberOfPoints) {
 		this.scanNumber = scanNumber;
 		int len = dimensions.size();
 		this.dimensions = new int[len];
@@ -49,22 +57,65 @@ public class ScanInformation {
 		}
 		scannableNames = ScannableNames;
 		detectorNames = DetectorNames;
+		this.filename = filename;
+		this.instrument = instrument;
+		numberOfPoints = NumberOfPoints;
 	}
 
 	public int[] getDimensions() {
 		return dimensions;
 	}
-	
-	public int getScanNumber() {
-		return scanNumber;
+
+	public void setDimensions(int[] dimensions) {
+		this.dimensions = dimensions;
 	}
-	
+
 	public String[] getScannableNames() {
 		return scannableNames;
 	}
 
+	public void setScannableNames(String[] scannableNames) {
+		this.scannableNames = scannableNames;
+	}
+
 	public String[] getDetectorNames() {
 		return detectorNames;
+	}
+
+	public void setDetectorNames(String[] detectorNames) {
+		this.detectorNames = detectorNames;
+	}
+
+	public String getFilename() {
+		return filename;
+	}
+
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
+
+	public String getInstrument() {
+		return instrument;
+	}
+
+	public void setInstrument(String instrument) {
+		this.instrument = instrument;
+	}
+
+	public int getNumberOfPoints() {
+		return numberOfPoints;
+	}
+
+	public void setNumberOfPoints(int numberOfPoints) {
+		this.numberOfPoints = numberOfPoints;
+	}
+
+	public int getScanNumber() {
+		return scanNumber;
+	}
+
+	public void setScanNumber(int scanNumber) {
+		this.scanNumber = scanNumber;
 	}
 
 	@Override

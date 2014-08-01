@@ -28,10 +28,20 @@ import org.springframework.util.StringUtils;
 public class NXDetectorDataFileLinkAppender implements NXDetectorDataAppender {
 
 	private final String filename;
-
+	private final Double xPixelSize;
+	private final Double yPixelSize;
 
 	public NXDetectorDataFileLinkAppender(String filename) {
 		this.filename = filename;
+		this.xPixelSize = null;
+		this.yPixelSize = null;
+	}
+
+	public NXDetectorDataFileLinkAppender(String expectedFullFileName, Double xPixelSize, Double yPixelSize) {
+		this.filename = expectedFullFileName;
+		this.xPixelSize = xPixelSize;
+		this.yPixelSize = yPixelSize;
+		
 	}
 
 	@Override
@@ -42,6 +52,12 @@ public class NXDetectorDataFileLinkAppender implements NXDetectorDataAppender {
 		}
 
 		data.addScanFileLink(detectorName, "nxfile://" + filename + "#entry/instrument/detector/data");
+		if (xPixelSize!=null) {
+			data.addData(detectorName, "x_pixel_size", xPixelSize, null);
+		}
+		if (yPixelSize!=null) {
+			data.addData(detectorName, "y_pixel_size", yPixelSize, null);
+		}
 
 	}
 

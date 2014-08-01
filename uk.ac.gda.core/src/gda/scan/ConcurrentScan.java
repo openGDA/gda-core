@@ -410,6 +410,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 				
 				readDevicesAndPublishScanDataPoint();
 				callAtPointEndHooks();
+				sendScanEvent(ScanEvent.EventType.UPDATED);
 				
 				checkThreadInterrupted();
 				waitIfPaused();
@@ -445,7 +446,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 				}
 				
 				setPointPositionInLine((step == (numberSteps - 1)) ? PointPositionInLine.LAST : PointPositionInLine.MIDDLE);
-				
+			 
 				if (getChild() == null) {
 					callAtPointStartHooks();
 					// make all these increments
@@ -455,6 +456,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 					readDevicesAndPublishScanDataPoint();
 					checkThreadInterrupted();
 					callAtPointEndHooks();
+					sendScanEvent(ScanEvent.EventType.UPDATED);
 				} else {
 					ScanObject principleScanObject = this.allScanObjects.get(0);
 					principleScanObject.scannable.atLevelStart();

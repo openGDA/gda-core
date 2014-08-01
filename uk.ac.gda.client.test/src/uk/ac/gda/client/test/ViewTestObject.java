@@ -25,11 +25,13 @@ import gda.jython.IScanDataPointObserver;
 import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerStatus;
+import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.rcp.util.UIScanDataPointEventService;
 import gda.rcp.views.scan.AbstractScanPlotView;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanDataPoint;
+import gda.scan.ScanEvent;
 
 import java.io.File;
 import java.net.URL;
@@ -106,7 +108,7 @@ public class ViewTestObject implements IScanDataPointProvider {
 			}
 		};
 
-		comp.notifyIObservers(this, new JythonServerStatus(1, 0));
+		sdpObserverComponent.notifyIObservers(this, new JythonServerStatus(1, 0));
 
 		if (UIScanDataPointEventService.getInstance().getCurrentDataPoints().size() != 0)
 			throw new Exception("There are points in the service and there should be none.");
@@ -127,7 +129,7 @@ public class ViewTestObject implements IScanDataPointProvider {
 					+ UIScanDataPointEventService.getInstance().getCurrentDataPoints().size() + " and line index is "
 					+ lineIndex);
 
-		comp.notifyIObservers(this, new JythonServerStatus(0, 0)); // Stop does not reset, test this
+		sdpObserverComponent.notifyIObservers(this, new JythonServerStatus(0, 0)); // Stop does not reset, test this
 
 		if (UIScanDataPointEventService.getInstance().getCurrentDataPoints().size() != (lineIndex - 1))
 			throw new Exception("Current points are size "
@@ -154,25 +156,40 @@ public class ViewTestObject implements IScanDataPointProvider {
 		}
 	}
 
-	private ObservableComponent comp = new ObservableComponent();
+	private ObservableComponent sdpObserverComponent = new ObservableComponent();
+	private ObservableComponent scanEventObserverComponent = new ObservableComponent();
 	private IScanDataPoint lastScanDataPoint;
 
 	@Override
 	public void addIScanDataPointObserver(IScanDataPointObserver anObserver) {
-		comp.addIObserver(anObserver);
+		sdpObserverComponent.addIObserver(anObserver);
 	}
 
 	@Override
 	public void deleteIScanDataPointObserver(IScanDataPointObserver anObserver) {
-		comp.deleteIObserver(anObserver);
+		sdpObserverComponent.deleteIObserver(anObserver);
+	}
+
+	public void update(Object dataSource, Object data) {
+		if (data instanceof IScanDataPoint) {
+			lastScanDataPoint = (IScanDataPoint) data;
+			sdpObserverComponent.notifyIObservers(dataSource, data);
+		} else if (data instanceof ScanEvent){
+			scanEventObserverComponent.notifyIObservers(dataSource, data);
+		}
+	}
+	
+
+	@Override
+	public void addScanEventObserver(IObserver anObserver) {
+		scanEventObserverComponent.addIObserver(anObserver);
 	}
 
 	@Override
-	public void update(Object dataSource, Object data) {
-		if (data instanceof IScanDataPoint)
-			lastScanDataPoint = (IScanDataPoint) data;
-		comp.notifyIObservers(dataSource, data);
+	public void deleteScanEventObserver(IObserver anObserver){
+		scanEventObserverComponent.addIObserver(anObserver);
 	}
+
 
 	@Override
 	public IScanDataPoint getLastScanDataPoint() {
