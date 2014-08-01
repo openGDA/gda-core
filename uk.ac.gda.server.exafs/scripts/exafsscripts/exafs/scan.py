@@ -30,7 +30,7 @@ class Scan:
         self.outputFileName= None
         
     def determineExperimentPath(self, experimentFullPath):
-        experimentFullPath = experimentFullPath + "/"
+#        experimentFullPath = experimentFullPath + "/"
         experimentFolderName = experimentFullPath[experimentFullPath.find("xml")+4:]
         self.log("Using data folder: " + experimentFullPath)
         self.log("Using xml subfolder: " + experimentFolderName)
@@ -67,6 +67,7 @@ class Scan:
         return dets
 
     def _createBeans(self, experimentFullPath, sampleFileName, scanFileName, detectorFileName, outputFileName):
+        print "beans created based on ", experimentFullPath, ", ", sampleFileName, ", ", scanFileName, ", ", detectorFileName, ", ",  outputFileName
         if(self.sampleFileName == None):
             sampleBean = None
         else:
@@ -110,8 +111,12 @@ class Scan:
         asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory()
        
         if LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX):
-            nexusFileNameTemplate = nexusSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".nxs"
-            asciiFileNameTemplate = asciiSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".dat"
+            if sampleName != None and sampleName != "":
+                nexusFileNameTemplate = nexusSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".nxs"
+                asciiFileNameTemplate = asciiSubFolder +"/%d_"+ sampleName+"_"+str(repetition)+".dat"
+            else:
+                nexusFileNameTemplate = nexusSubFolder +"/%d_"+str(repetition)+".nxs"
+                asciiFileNameTemplate = asciiSubFolder +"/%d_"+str(repetition)+".dat"
         else:
             if self.includeSampleNameInNexusName==True:
                 nexusFileNameTemplate = nexusSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".nxs"
