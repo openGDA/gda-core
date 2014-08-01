@@ -190,9 +190,11 @@ class XasScan(Scan):
         if (scanPlotSettings != None):
             self.log("Setting the filter for columns to plot...")
             thisscan.setScanPlotSettings(scanPlotSettings)
-        thisscan.runScan()
-        #update observers
-        controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
+        try:
+            thisscan.runScan()
+            controller.update(None, ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
+        except:
+            pass
 
     def _createAndconfigureXASScannable(self):
         xas_scannable = XasScannable()
