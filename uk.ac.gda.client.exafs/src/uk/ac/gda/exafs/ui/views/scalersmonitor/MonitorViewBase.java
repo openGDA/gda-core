@@ -177,9 +177,9 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 				final Double[] values;
 				final Double[] xspressStats;
 				try {
-					logger.debug("reading from ionchambers");
+					logger.trace("reading from ionchambers");
 					values = getIonChamberValues();
-					logger.debug("reading from fluo detector");
+					logger.trace("reading from fluo detector");
 					xspressStats = getFluoDetectorCountRatesAndDeadTimes();
 				} catch (final Exception e1) {
 					logger.debug("getFluoDetectorCountRatesAndDeadTimes exception" + e1.getMessage(), e1);
