@@ -197,7 +197,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 	public void releaseFile() {
 		try {
 			// System.err.println("Closing file.");
-			logger.info("Closing incremental file: " + file.toString());
+			logger.info("Closing incremental file: " + fileUrl);
 			file.close();
 		} catch (IOException ex) {
 		}
