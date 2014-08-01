@@ -163,10 +163,7 @@ public class Xspress2System extends XspressSystem {
 			ArrayList<XspressROI> regions = new ArrayList<XspressROI>();
 			xspressParameters = new XspressParameters();
 			xspressDeadTimeParameters = new XspressDeadTimeParameters();
-			if (modeOverride)
-				xspressParameters.setReadoutMode(READOUT_MCA);
-			else
-				xspressParameters.setReadoutMode(READOUT_SCALERONLY);
+			xspressParameters.setReadoutMode(READOUT_SCALERONLY);
 			xspressParameters.setResGrade(ResGrades.NONE);
 			xspressParameters.addDetectorElement(new DetectorElement("Element0", 0, 0, 4000, false, regions));
 			xspressParameters.addDetectorElement(new DetectorElement("Element1", 1, 85, 2047, false, regions));
@@ -220,11 +217,7 @@ public class Xspress2System extends XspressSystem {
 	}
 
 	private void configureDetectorFromParameters() throws DeviceException {
-		// always remove all rois first
-		if (modeOverride)
-			xspressParameters.setReadoutMode(READOUT_MCA);
-		else
-			doRemoveROIs();
+		doRemoveROIs();
 		for (DetectorElement detector : xspressParameters.getDetectorList()) {
 			doSetWindowsCommand(detector);
 			if (xspressParameters.getReadoutMode().equals(XspressDetector.READOUT_ROIS)) {
@@ -998,11 +991,6 @@ public class Xspress2System extends XspressSystem {
 
 		if (newXspressParameters != null) {
 			xspressParameters = newXspressParameters;
-			numberOfDetectors = xspressParameters.getDetectorList().size();
-		}
-		// if mode override is set as a property ignore all the parameter file settings
-		if (modeOverride) {
-			xspressParameters.setReadoutMode(READOUT_MCA);
 			configureDetectorFromParameters();
 		}
 	}
