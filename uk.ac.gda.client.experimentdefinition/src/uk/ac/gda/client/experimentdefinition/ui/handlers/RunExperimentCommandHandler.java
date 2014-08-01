@@ -26,6 +26,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.validation.AbstractValidator;
 import uk.ac.gda.beans.validation.InvalidBeanException;
@@ -35,6 +37,7 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 
 public class RunExperimentCommandHandler extends AbstractExperimentCommandHandler {
+	private static final Logger logger = LoggerFactory.getLogger(RunExperimentCommandHandler.class);
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -104,12 +107,14 @@ public class RunExperimentCommandHandler extends AbstractExperimentCommandHandle
 		try {
 			command = new ExperimentCommandProvider(ob);
 		} catch (Exception e) {
+			logger.error("Exception creating ExperimentCommandProvider." + e.getMessage());
 			throw new ExecutionException("Exception creating ExperimentCommandProvider.", e);
 		}
 
 		try {
 			CommandQueueViewFactory.getQueue().addToTail(command);
 		} catch (Exception e) {
+			logger.error("Exception adding ExperimentCommandProvider to CommandQueue." + e.getMessage());
 			throw new ExecutionException("Exception adding ExperimentCommandProvider to CommandQueue.", e);
 		}
 	}
