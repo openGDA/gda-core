@@ -45,7 +45,7 @@ import uk.ac.gda.beans.xspress.XspressROI;
  * Test the Xspress2System class against DummyDAServer. So this is more of a test of DummyDAServer really.
  */
 public class Xspress2SystemTest {
-	private Xspress2System xspress;
+	private Xspress2Detector xspress;
 	private static String testScratchDirectoryName;
 	final String TestFileFolder = "testfiles/gda/device/detector/xspress/";
 	private DummyDAServer daserver;
@@ -64,7 +64,7 @@ public class Xspress2SystemTest {
 
 	@Before
 	public void setUpEachTest() {
-		xspress = new Xspress2System();
+		xspress = new Xspress2Detector();
 		controller = new Xspress2DAServerController();
 		xspress.setController(controller);
 
@@ -98,7 +98,7 @@ public class Xspress2SystemTest {
 	}
 
 	/**
-	 * Test method for {@link gda.device.detector.xspress.Xspress2System#configure()}.
+	 * Test method for {@link gda.device.detector.xspress.Xspress2Detector#configure()}.
 	 */
 	@Test
 	public void testConfigure() {
@@ -139,7 +139,7 @@ public class Xspress2SystemTest {
 	}
 
 	/**
-	 * Test method for {@link gda.device.detector.xspress.Xspress2System#clear()}.
+	 * Test method for {@link gda.device.detector.xspress.Xspress2Detector#clear()}.
 	 */
 	@Test
 	public void testClear() {
@@ -153,7 +153,7 @@ public class Xspress2SystemTest {
 	}
 
 	/**
-	 * Test method for {@link gda.device.detector.xspress.Xspress2System#clear()}.
+	 * Test method for {@link gda.device.detector.xspress.Xspress2Detector#clear()}.
 	 * 
 	 * @throws DeviceException
 	 */
@@ -164,7 +164,7 @@ public class Xspress2SystemTest {
 	}
 
 	/**
-	 * Test method for {@link gda.device.detector.xspress.Xspress2System#start()}.
+	 * Test method for {@link gda.device.detector.xspress.Xspress2Detector#start()}.
 	 */
 	@Test
 	public void testStart() {
@@ -178,7 +178,7 @@ public class Xspress2SystemTest {
 	}
 
 	/**
-	 * Test method for {@link gda.device.detector.xspress.Xspress2System#start()}.
+	 * Test method for {@link gda.device.detector.xspress.Xspress2Detector#start()}.
 	 * 
 	 * @throws DeviceException
 	 */
@@ -206,7 +206,7 @@ public class Xspress2SystemTest {
 	// }
 
 	/**
-	 * Test method for {@link gda.device.detector.xspress.Xspress2System#stop()}.
+	 * Test method for {@link gda.device.detector.xspress.Xspress2Detector#stop()}.
 	 * 
 	 * @throws DeviceException
 	 */
@@ -217,7 +217,7 @@ public class Xspress2SystemTest {
 	}
 
 	/**
-	 * Test method for {@link gda.device.detector.xspress.Xspress2System#saveDetectors(java.lang.String)}.
+	 * Test method for {@link gda.device.detector.xspress.Xspress2Detector#saveDetectors(java.lang.String)}.
 	 */
 	@Test
 	public void testSaveDetectors() {
@@ -227,7 +227,7 @@ public class Xspress2SystemTest {
 	}
 
 	/**
-	 * Test method for {@link gda.device.detector.xspress.Xspress2System#stop()}.
+	 * Test method for {@link gda.device.detector.xspress.Xspress2Detector#stop()}.
 	 */
 	@Test
 	public void testStop() {
@@ -241,7 +241,7 @@ public class Xspress2SystemTest {
 	}
 
 	/**
-	 * Test method for {@link gda.device.detector.xspress.Xspress2System#setResGrade(String)}.
+	 * Test method for {@link gda.device.detector.xspress.Xspress2Detector#setResGrade(String)}.
 	 */
 	@Test
 	public void testSetResGrade() {
@@ -258,7 +258,7 @@ public class Xspress2SystemTest {
 	}
 
 	/**
-	 * Test method for {@link gda.device.detector.xspress.Xspress2System#getMCData(int)}.
+	 * Test method for {@link gda.device.detector.xspress.Xspress2Detector#getMCData(int)}.
 	 */
 	@Test
 	public void testGetMCData() {

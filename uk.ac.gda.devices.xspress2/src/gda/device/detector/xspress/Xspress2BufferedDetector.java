@@ -39,7 +39,7 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 	private static final Logger logger = LoggerFactory.getLogger(Xspress2BufferedDetector.class);
 	protected ContinuousParameters continuousParameters = null;
 	protected boolean isContinuousMode = false;
-	protected Xspress2System xspress2system = null;
+	protected Xspress2Detector xspress2system = null;
 	private boolean isSlave = true;
 	protected int maxNumberOfInts = 750000; // the maximum number of integers to read out from da.server in each bunch
 	private int triggerSwitch = 0;
@@ -262,11 +262,11 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 		continuousParameters = parameters;
 	}
 
-	public Xspress2System getXspress2system() {
+	public Xspress2Detector getXspress2system() {
 		return xspress2system;
 	}
 
-	public void setXspress2system(Xspress2System xspress2system) {
+	public void setXspress2system(Xspress2Detector xspress2system) {
 		this.xspress2system = xspress2system;
 	}
 

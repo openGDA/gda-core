@@ -30,14 +30,14 @@ import org.slf4j.LoggerFactory;
 public class Xspress2DetectorConfiguration implements FluorescentDetectorConfiguration{
 
 	private Logger logger = LoggerFactory.getLogger(Xspress2DetectorConfiguration.class);
-	private Xspress2System xspress2System;
+	private Xspress2Detector xspress2System;
 	private ObservableComponent observer;
 	private String message = "Xspress configuration has not been applied yet";
 	private boolean onlyShowFF = false;
 	private boolean showDTRawValues = false;
 	private boolean saveRawSpectrum = false;
 	
-	public Xspress2DetectorConfiguration(Xspress2System xspress2System, final ObservableComponent observer) {
+	public Xspress2DetectorConfiguration(Xspress2Detector xspress2System, final ObservableComponent observer) {
 		this.observer = observer;
 		this.xspress2System = xspress2System;
 	}
