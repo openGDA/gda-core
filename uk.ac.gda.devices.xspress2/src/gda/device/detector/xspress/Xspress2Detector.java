@@ -64,16 +64,12 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	public static final int NO_RES_GRADE = 1;
 	public static final int RES_THRES = 2;
 	public static final int ALL_RES = 16;
-//	public static final String ONLY_DISPLAY_FF_ATTR = "ff_only";
 	public static final String ADD_DT_VALUES_ATTR = "add_dt_values";
 
-	// Full path to config file
-//	private String configFileName = null;
 	protected int lastFrameCollected = 0;
 	// mode override property, when set to true the xspress is always set in SCAlers and MCA Mode
 	// does not change with the value in the parameters file, no rois are set
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
-//	private String dtcConfigFileName;
 	private Xspress2NexusTreeProvider xspress2SystemData;
 	private Xspress2CurrentSettings settings;
 	protected Xspress2DAServerController controller;
@@ -97,8 +93,9 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 			useDefaultXspressParameters();
 		}
 
-		if (!ResGrades.isResGrade(settings.getParameters().getResGrade()))
+		if (!ResGrades.isResGrade(settings.getParameters().getResGrade())) {
 			throw new FactoryException("resGrade " + settings.getParameters().getResGrade() + " is not an acceptable string");
+		}
 
 		controller.configure();
 
@@ -109,10 +106,12 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		ArrayList<XspressROI> regions = new ArrayList<XspressROI>();
 		XspressParameters xspressParameters = new XspressParameters();
 		XspressDeadTimeParameters xspressDeadTimeParameters = new XspressDeadTimeParameters();
-		if (modeOverride)
+		if (modeOverride) {
 			xspressParameters.setReadoutMode(READOUT_MCA);
-		else
+		}
+		else {
 			xspressParameters.setReadoutMode(READOUT_SCALERONLY);
+		}
 		xspressParameters.setResGrade(ResGrades.NONE);
 		xspressParameters.addDetectorElement(new DetectorElement("Element0", 0, 0, 4000, false, regions));
 		xspressParameters.addDetectorElement(new DetectorElement("Element1", 1, 85, 2047, false, regions));
@@ -216,8 +215,9 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	public void setRegionOfInterest(int detector, ArrayList<XspressROI> regionList) throws DeviceException {
 		DetectorElement detectorElement = settings.getParameters().getDetector(detector);
 		detectorElement.setRegionList(regionList);
-		if (configured)
+		if (configured) {
 			controller.doSetROICommand(detectorElement);
+		}
 	}
 
 	/**
@@ -231,8 +231,9 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	public void setWindows(int detector, int windowStart, int windowEnd) throws DeviceException {
 		DetectorElement detectorElement = settings.getParameters().getDetector(detector);
 		detectorElement.setWindow(windowStart, windowEnd);
-		if (configured)
+		if (configured) {
 			controller.doSetWindowsCommand(detectorElement);
+		}
 	}
 
 
@@ -283,10 +284,12 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		return settings.getChannelLabels();
 	}
 
+	@Override
 	public Boolean getAddDTScalerValuesToAscii() {
 		return settings.isAddDTScalerValuesToAscii();
 	}
 
+	@Override
 	public void setAddDTScalerValuesToAscii(Boolean addDTScalerValuesToAscii) {
 		settings.setAddDTScalerValuesToAscii(addDTScalerValuesToAscii);
 	}
@@ -308,8 +311,9 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	 */
 	public void setFullMCABits(int fullMCABits) throws DeviceException {
 		settings.setFullMCABits(fullMCABits);
-		if (configured)
+		if (configured) {
 			controller.setFullMCABits(fullMCABits);
+		}
 	}
 
 	/**
@@ -334,10 +338,12 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		}
 	}
 
+	@Override
 	public boolean isOnlyDisplayFF() {
 		return settings.getParameters().isOnlyShowFF();
 	}
 
+	@Override
 	public void setOnlyDisplayFF(boolean onlyDisplayFF) {
 		settings.getParameters().setOnlyShowFF(onlyDisplayFF);
 	}
@@ -354,22 +360,26 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		} else if (attribute.equals(ONLY_DISPLAY_FF_ATTR)) {
 			Boolean ffonly = Boolean.parseBoolean(value.toString());
 			setOnlyDisplayFF(ffonly);
-		} else
+		} else {
 			super.setAttribute(attribute, value);
+		}
 	}
 
 	/**
 	 * @param which
 	 * @return true if detectorElement is excluded.
 	 */
+	@Override
 	public boolean isDetectorExcluded(int which) {
 		return settings.getParameters().getDetector(which).isExcluded();
 	}
 
+	@Override
 	public void setDetectorExcluded(int which, boolean excluded) {
 		settings.getParameters().getDetector(which).setExcluded(excluded);
 	}
 
+	@Override
 	public List<DetectorElement> getDetectorList() {
 		return settings.getParameters().getDetectorList();
 	}
@@ -408,7 +418,9 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	public void atScanEnd() throws DeviceException {
 		// if this class was used to define framesets, then ensure they are cleared at the end of the scan
 		if (controller.getTotalFrames() == 0)
+		 {
 			stop(); // stops the TFG - useful if scan aborted and so TFG still in a PAUSE state rather than an IDLE state
+		}
 	}
 
 	@Override
@@ -446,8 +458,9 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		settings.setXspressParameters((XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL,
 				XspressParameters.class, XspressParameters.schemaURL, filename));
 		// if mode override is set as a property ignore all the parameter file settings
-		if (modeOverride)
+		if (modeOverride) {
 			settings.getParameters().setReadoutMode(READOUT_MCA);
+		}
 	}
 
 	public void loadAndInitializeDetectors(String filename, String dtcConfigFileName) throws Exception {
@@ -539,17 +552,18 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	 */
 	private int numResGrades() {
 		// if not in ROI mode then only one res grade
-		if (settings.getParameters().getReadoutMode().compareTo(READOUT_ROIS) != 0)
+		if (settings.getParameters().getReadoutMode().compareTo(READOUT_ROIS) != 0) {
 			return 1;
+		}
 		// if none then only one set of 4096 numbers per mca
-		if (settings.getParameters().getResGrade().compareTo(ResGrades.NONE) == 0)
+		if (settings.getParameters().getResGrade().compareTo(ResGrades.NONE) == 0) {
 			return NO_RES_GRADE;
-		// if all re-grades then 16 arrays per mca
-		else if (settings.getParameters().getResGrade().compareTo(ResGrades.ALLGRADES) == 0)
+		} else if (settings.getParameters().getResGrade().compareTo(ResGrades.ALLGRADES) == 0) {
 			return ALL_RES;
 		// otherwise you get 2 arrays (bad, good)
-		else
+		} else {
 			return RES_THRES;
+		}
 	}
 
 	/**
@@ -578,9 +592,10 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		double[][] scalerDataUsingMCAMemory = xspress2SystemData.readoutScalerDataUsingMCAMemory(numberOfFrames, rawHardwareScalerData, mcaData, true,
 				controller.getI0());
 
-		if (settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS))
+		if (settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS)) {
 			return xspress2SystemData.readoutROIData(numberOfFrames, rawHardwareScalerData, mcaData,
 					scalerDataUsingMCAMemory);
+		}
 
 		// else read out full mca, which is deadtime corrected using the hardware scalers
 		return xspress2SystemData.readoutFullMCA(numberOfFrames, rawHardwareScalerData, mcaData, scalerDataUsingMCAMemory);
@@ -604,14 +619,16 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	@Override
 	@Deprecated
 	public double[] readoutScalerData() throws DeviceException {
-		if (controller.getTotalFrames() == 0)
+		if (controller.getTotalFrames() == 0) {
 			return readoutScalerData(0, 0, true, getRawScalerData(), getCurrentMCASize())[0];
+		}
 		return readoutScalerData(lastFrameCollected, lastFrameCollected, true, getRawScalerData(), getCurrentMCASize())[0];
 	}
 
 	public double[] readoutScalerDataNoCorrection() throws DeviceException {
-		if (controller.getTotalFrames() == 0)
+		if (controller.getTotalFrames() == 0) {
 			return readoutScalerData(0, 0, false, getRawScalerData(), getCurrentMCASize())[0];
+		}
 		return readoutScalerData(lastFrameCollected, lastFrameCollected, false, getRawScalerData(), getCurrentMCASize())[0];
 	}
 
@@ -664,10 +681,11 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
-		if (attributeName.equals("liveStats"))
+		if (attributeName.equals("liveStats")) {
 			return calculateLiveStats();
-		else if (attributeName.equals(ONLY_DISPLAY_FF_ATTR))
+		} else if (attributeName.equals(ONLY_DISPLAY_FF_ATTR)) {
 			return settings.getParameters().isOnlyShowFF();
+		}
 		return null;
 	}
 
@@ -736,10 +754,12 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		return xspress2SystemData.isSumAllElementData();
 	}
 
+	@Override
 	public Boolean getSaveRawSpectrum() {
 		return settings.getParameters().isSaveRawSpectrum();
 	}
 
+	@Override
 	public void setSaveRawSpectrum(Boolean saveRawSpectrum) {
 		settings.getParameters().setSaveRawSpectrum(saveRawSpectrum);
 	}
