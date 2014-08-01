@@ -22,14 +22,11 @@ package gda.device.detector.xspress;
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.detector.DetectorBase;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.xspress.xspress2data.ResGrades;
 import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
 import gda.device.detector.xspress.xspress2data.Xspress2DAServerController;
 import gda.device.detector.xspress.xspress2data.Xspress2NexusTreeProvider;
-import gda.factory.Configurable;
 import gda.factory.FactoryException;
 
 import java.util.ArrayList;
@@ -60,23 +57,23 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * scale both types of ROI using total counts / counts in rois This needs
  * refactoring so that roi when all are selected are also corrected.
  */
-public class Xspress2Detector extends DetectorBase implements NexusDetector, XspressDetector {
+public class Xspress2Detector extends XspressSystem implements NexusDetector, XspressDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress2Detector.class);
 
 	public static final int NO_RES_GRADE = 1;
 	public static final int RES_THRES = 2;
 	public static final int ALL_RES = 16;
-	public static final String ONLY_DISPLAY_FF_ATTR = "ff_only";
+//	public static final String ONLY_DISPLAY_FF_ATTR = "ff_only";
 	public static final String ADD_DT_VALUES_ATTR = "add_dt_values";
 
 	// Full path to config file
-	private String configFileName = null;
+//	private String configFileName = null;
 	protected int lastFrameCollected = 0;
 	// mode override property, when set to true the xspress is always set in SCAlers and MCA Mode
 	// does not change with the value in the parameters file, no rois are set
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
-	private String dtcConfigFileName;
+//	private String dtcConfigFileName;
 	private Xspress2NexusTreeProvider xspress2SystemData;
 	private Xspress2CurrentSettings settings;
 	protected Xspress2DAServerController controller;
@@ -238,13 +235,6 @@ public class Xspress2Detector extends DetectorBase implements NexusDetector, Xsp
 			controller.doSetWindowsCommand(detectorElement);
 	}
 
-	public String getConfigFileName() {
-		return configFileName;
-	}
-
-	public void setConfigFileName(String configFileName) {
-		this.configFileName = configFileName;
-	}
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
@@ -752,14 +742,6 @@ public class Xspress2Detector extends DetectorBase implements NexusDetector, Xsp
 
 	public void setSaveRawSpectrum(Boolean saveRawSpectrum) {
 		settings.getParameters().setSaveRawSpectrum(saveRawSpectrum);
-	}
-
-	public String getDtcConfigFileName() {
-		return dtcConfigFileName;
-	}
-
-	public void setDtcConfigFileName(String dtcConfigFileName) {
-		this.dtcConfigFileName = dtcConfigFileName;
 	}
 
 	public Xspress2CurrentSettings getCurrentSettings() {
