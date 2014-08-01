@@ -4,7 +4,7 @@ from gda.scan import StaticScan
 from gda.data.scan.datawriter import XasAsciiNexusDataWriter
             
 class B18DetectorPreparer:
-    def __init__(self, energy_scannable, mythen_scannable, sensitivities, sensitivity_units ,offsets, offset_units, ionc_gas_injector_scannables, xspressConfig, vortexConfig):
+    def __init__(self, energy_scannable, mythen_scannable, sensitivities, sensitivity_units ,offsets, offset_units, ionc_gas_injector_scannables, xspressConfig, vortexConfig, xspress3Config):
         self.energy_scannable = energy_scannable
         self.mythen_scannable = mythen_scannable
         #self.ionc_stanford_scannables = ionc_stanford_scannables
@@ -15,6 +15,7 @@ class B18DetectorPreparer:
         self.ionc_gas_injector_scannables = ionc_gas_injector_scannables
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
+        self.xspress3Config = xspress3Config
         
     def prepare(self, scanBean, detectorBean, outputBean, experimentFullPath):
         if detectorBean.getExperimentType() == "Fluorescence":
@@ -35,6 +36,9 @@ class B18DetectorPreparer:
                 vortexBean = self.vortexConfig.createBeanFromXML(xmlFileName)
                 saveRawSpectrum = vortexBean.isSaveRawSpectrum()
                 self.vortexConfig.configure(xmlFileName, saveRawSpectrum)
+            elif detType == "Xspress3":
+                self.xspress3Config.initialize()
+                self.xspress3Config.configure(xmlFileName)
             self._control_all_ionc(fluoresenceParameters.getIonChamberParameters())
         elif detectorBean.getExperimentType() == "Transmission":
             transmissionParameters = detectorBean.getTransmissionParameters()

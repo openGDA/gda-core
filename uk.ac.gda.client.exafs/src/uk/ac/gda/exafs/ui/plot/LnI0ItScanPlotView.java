@@ -24,7 +24,7 @@ import gda.scan.IScanDataPoint;
 import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.dawnsci.plotting.jreality.core.AxisMode;
+import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;

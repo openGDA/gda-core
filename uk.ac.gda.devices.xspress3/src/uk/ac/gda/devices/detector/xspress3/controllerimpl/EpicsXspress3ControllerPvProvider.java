@@ -44,7 +44,7 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String FILE_PATH_RBV = ":HDF5:FilePath_RBV";
 
 	private static String FILE_PREFIX = ":HDF5:FileName";
-	private static String FILE_PREFIX_RBV = "HDF5:FileName_RBV";
+	private static String FILE_PREFIX_RBV = ":HDF5:FileName_RBV";
 
 	private static String NEXT_FILENUMBER = ":HDF5:FileNumber";
 	
@@ -62,8 +62,9 @@ public class EpicsXspress3ControllerPvProvider {
 	// MCA and ROI
 	private static String ROI_LOW_BIN_TEMPLATE = ":C%1d_MCA_ROI%1d_LLM";  // channel (1-8),ROI (1-4)
 	private static String ROI_HIGH_BIN_TEMPLATE = ":C%1d_MCA_ROI%1d_HLM";// channel (1-8),ROI (1-4)
-	private static String ROI_COUNT_TEMPLATE = ";C%1d_ROI%1d:Value_RBV";// channel (1-8),ROI (1-4)
-	private static String ROIS_TEMPLATE = ":C%1d_ROI%1d:ArrayData_RBV.VAL"; // channel (1-8),ROI (1-4) this points towards a waveform
+	// temp unitl bug fixed
+	private static String ROI_COUNT_TEMPLATE = ";C%1d_SCA5:Value_RBV";// channel (1-8),ROI (1-4)
+	private static String ROIS_TEMPLATE = ":C%1d_SCA5:ArrayData_RBV.VAL"; // channel (1-8),ROI (1-4) this points towards a waveform
 	private static String MCA_TEMPLATE = ":ARR%1d:ArrayData";// channel (1-8) this points towards a waveform
 	private static String MCA_SUM_TEMPLATE = ":ARRSUM%1d:ArrayData";// channel (1-8) this points towards a waveform
 	

@@ -1,5 +1,4 @@
-/*-
- * Copyright © 2009 Diamond Light Source Ltd.
+/* Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,37 +15,43 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.detector.xspress;
+package uk.ac.gda.exafs.ui.detector.xspress3;
 
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
-import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.exafs.ui.ExafsBeanFileSelectionEditor;
+import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersEditor;
+import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-public class XspressParametersEditor extends ExafsBeanFileSelectionEditor {
-	public static final String ID = "org.diamond.exafs.ui.XspressParametersEditor";
-
+/**
+ *
+ */
+public class Xspress3ParametersEditor extends ExafsBeanFileSelectionEditor {
+	
 	@Override
 	public Class<?> getBeanClass() {
-		return XspressParameters.class;
+		return Xspress3Parameters.class;
 	}
 
 	@Override
 	public URL getMappingUrl() {
-		return XspressParameters.mappingURL;
+		return Xspress3Parameters.mappingURL;
 	}
 
 	@Override
-	protected RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
-		return new XspressParametersUIEditor(path, getMappingUrl(), this, editingBean);
+	protected RichBeanEditorPart getRichBeanEditorPart(String path,
+			                                           Object editingBean) {
+		return new Xspress3ParametersUIEditor(path, getMappingUrl(), this, editingBean);
 	}
 
 	@Override
 	public URL getSchemaUrl() {
-		return XspressParameters.schemaURL;
+		return Xspress3Parameters.schemaURL;
 	}
 	
 	@Override

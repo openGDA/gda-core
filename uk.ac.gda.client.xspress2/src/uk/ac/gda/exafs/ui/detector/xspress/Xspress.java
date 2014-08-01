@@ -24,34 +24,29 @@ import gda.device.detector.xspress.XspressDetector;
 import java.awt.Color;
 import java.util.List;
 
-import org.dawnsci.plotting.api.region.IROIListener;
-import org.dawnsci.plotting.api.region.ROIEvent;
-import org.dawnsci.plotting.jreality.util.PlotColorUtility;
+import org.eclipse.dawnsci.plotting.api.jreality.util.PlotColorUtility;
+import org.eclipse.dawnsci.plotting.api.region.IROIListener;
+import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.jface.viewers.ICellModifier;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPartSite;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
-import uk.ac.gda.exafs.ui.detector.Detector;
-import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
-import uk.ac.gda.exafs.ui.detector.DetectorListComposite;
-import uk.ac.gda.exafs.ui.detector.DetectorROIComposite;
-import uk.ac.gda.exafs.ui.detector.Plot;
-import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
+import uk.ac.gda.exafs.ui.detectorviews.Detector;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorElementComposite;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorListComposite;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorROIComposite;
+import uk.ac.gda.exafs.ui.detectorviews.Plot;
+import uk.ac.gda.exafs.ui.detectorviews.XspressROIComposite;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
@@ -64,7 +59,6 @@ import uk.ac.gda.richbeans.event.ValueEvent;
 
 public class Xspress extends Detector{
 	private XspressAcquire xspressAcquire;
-	private Label lblRegionBins;
 	private ResolutionGrade resolutionGrade;
 	private ReadoutMode readoutMode;
 	private RegionType regionType;
@@ -98,11 +92,27 @@ public class Xspress extends Detector{
 		topComposite.setLayout(gridLayout_1);
 		resolutionGrade = new ResolutionGrade(topComposite);
 		readoutMode = new ReadoutMode(topComposite);
-		regionType = new RegionType(topComposite);
-		boolean showRoi = readoutMode.getReadoutMode().getValue().toString().equals("Regions Of Interest");
-		xspressAcquire = new XspressAcquire(left, sashPlotFormComposite, site.getShell().getDisplay(), readoutMode.getReadoutMode(), resolutionGrade.getResolutionGradeCombo(), plot, xspressDetector, counts);
-		xspressElements = new XspressElements(left, site.getShell(), sashPlotFormComposite, detectorList, counts, showRoi);
 		
+		if(xspressParameters!=null){
+			int mode = 0;
+			String readoutModeFromBean = xspressParameters.getReadoutMode();
+			if(readoutModeFromBean.equals(XspressDetector.READOUT_SCALERONLY )){
+				mode=0;
+			}
+			else if(readoutModeFromBean.equals(XspressDetector.READOUT_MCA )){
+				mode=1;
+			}
+			else if(readoutModeFromBean.equals(XspressDetector.READOUT_ROIS )){
+				mode=2;
+			}
+			readoutMode.getReadoutMode().select(mode);
+		}
+		
+		
+		regionType = new RegionType(topComposite);
+		xspressAcquire = new XspressAcquire(left, sashPlotFormComposite, site.getShell().getDisplay(), readoutMode.getReadoutMode(), resolutionGrade.getResolutionGradeCombo(), plot, xspressDetector, counts);
+		boolean showRoi = readoutMode.getReadoutMode().getValue().toString().equals("Regions Of Interest");
+		xspressElements = new XspressElements(left, site.getShell(), sashPlotFormComposite, detectorList, counts, showRoi, xspressParameters);
 		detectorListComposite = xspressElements.getDetectorListComposite();
 		gridListEditor = detectorListComposite.getDetectorList();
 		if(!ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS) && !ScanObjectManager.isXESOnlyMode())
@@ -111,7 +121,20 @@ public class Xspress extends Detector{
 		detectorElementComposite = detectorListComposite.getDetectorElementComposite();
 		int size = detectorList.size();
 		xspressAcquire.addAcquireListener(gridListEditor, detectorElementComposite);
-		xspressAcquire.addLoadListener(gridListEditor, detectorElementComposite, size);
+		xspressAcquire.addLoadListener(gridListEditor, detectorElementComposite, detectorList.size());
+
+		detectorElementComposite.getRegionList().addBeanSelectionListener(new BeanSelectionListener() {
+			@Override
+			public void selectionChanged(BeanSelectionEvent evt) {
+				//if (getDetectorList().getSelectedIndex() == lastSelectedElementIndex) {
+				//	XspressParameters detBean = (XspressParameters) bean;
+				//	detBean.setSelectedRegionNumber(evt.getSelectionIndex());
+				//}
+				//lastSelectedElementIndex = getDetectorList().getSelectedIndex();
+				xspressElements.updateROIAfterElementCompositeChange();
+			}
+		});
+
 		
 		gridListEditor.addBeanSelectionListener(new BeanSelectionListener() {
 			@Override
@@ -172,14 +195,14 @@ public class Xspress extends Detector{
 		});
 		
 		if(readoutMode.isModeOveride()) {
-			GridUtils.setVisibleAndLayout(readoutMode.getReadoutMode(), false);
-			GridUtils.setVisibleAndLayout(resolutionGrade.getResolutionGradeCombo(), false);
-			GridUtils.setVisibleAndLayout(lblRegionBins, false);
-			GridUtils.setVisibleAndLayout(regionType.getRegionType(), false);
+			readoutMode.getReadoutMode().setVisible(false);
+			resolutionGrade.getResolutionGradeCombo().setVisible(false);
+			detectorElementComposite.getRegionList().setVisible(false);
+			regionType.getRegionType().setVisible(false);
 		}
 		
 		addReadoutModeListenerListener();
-		updateRegionType();
+		
 		tableViewer = gridListEditor.getTableViewer();
 
 		tableViewer.setCellModifier(new ICellModifier() {
@@ -196,11 +219,9 @@ public class Xspress extends Detector{
 				tableViewer.refresh();
 				int[][][] mcaData = xspressAcquire.getMcaData();
 				if(mcaData!=null){
-					plot.plot(selectedIndex,mcaData, false, null);
-					detectorElementComposite.setTotalElementCounts(counts.getTotalElementCounts(selectedIndex, mcaData));
-					detectorElementComposite.setTotalCounts(counts.getTotalCounts(mcaData));
-					xspressElements.setAllElementsCount(counts.getTotalCounts(mcaData));
-					xspressElements.setElementCount(counts.getTotalElementCounts(selectedIndex, mcaData));
+					xspressAcquire.setDetectorElementComposite(detectorElementComposite);
+					xspressAcquire.setXspressElements(xspressElements);
+					xspressAcquire.dataUpdate(selectedIndex, mcaData);
 				}
 				boolean excluded = xspressParameters.getDetectorList().get(selectedIndex).isExcluded();
 				detectorElementComposite.getExcluded().setValue(excluded);
@@ -209,6 +230,7 @@ public class Xspress extends Detector{
 					tableViewer.refresh();
 				tableViewer.refresh();
 			}
+			
 			@Override
 			public Object getValue(Object element, String property) {
 				return null;
@@ -218,37 +240,10 @@ public class Xspress extends Detector{
 			}
 		});
 		
-		final Button button = detectorElementComposite.getExcluded().getButton();
-		final boolean enabled = button.getSelection();
-		updateElementStates(enabled, true);
-		button.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				boolean enabled = button.getSelection();
-				updateElementStates(enabled, false);
-				tableViewer.refresh();
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
+		xspressAcquire.setTableViewer(tableViewer);
+		updateRegionType();
 	}
-	
-	private void updateElementStates(boolean selection, boolean startup){
-		boolean applyToAll = xspressElements.getApplyToAllCheckbox().getSelection();
-		if(!applyToAll)
-			xspressParameters.getDetectorList().get(selectedElement).setExcluded(!selection);
-		else if(!startup){
-			int numberOfElements = xspressParameters.getDetectorList().size();
-			for(int i=0;i<numberOfElements;i++)
-				xspressParameters.getDetectorList().get(i).setExcluded(!selection);
-		}
-	}
-	
+
 	private void addReadoutModeListenerListener(){
 		readoutMode.getReadoutMode().addValueListener(new ValueAdapter("readoutMode") {
 			@Override
@@ -270,7 +265,7 @@ public class Xspress extends Detector{
 		if(detectorROIComposite!=null)
 			detectorElementComposite.getDetectorROIComposite().setVisible(isRoi);
 		detectorElementComposite.setWindowsEditable(!isRoi);
-		GridUtils.startMultiLayout(detectorListComposite.getParent());
+		updateVisibility(detectorROIComposite);
 	}
 	
 	private String getResGradeAllowingForReadoutMode() {
@@ -326,24 +321,23 @@ public class Xspress extends Detector{
 		boolean isRoi = readoutMode.getReadoutMode().getValue().equals(XspressDetector.READOUT_ROIS);
 		detectorElementComposite.setWindowsEditable(!isRoi);
 		VerticalListEditor roi = detectorElementComposite.getRegionList();
-		GridUtils.setVisibleAndLayout(roi, isRoi);
-		GridUtils.startMultiLayout(composite.getParent());
-		try {
-			if(readoutMode.getReadoutMode().getSelectionIndex() == 2 && !readoutMode.isModeOveride()) {
-				GridUtils.setVisibleAndLayout(resolutionGrade.getResolutionGradeCombo(), true);
-				GridUtils.setVisibleAndLayout(lblRegionBins, true);
-				GridUtils.setVisibleAndLayout(regionType.getRegionType(), true);
-			} 
-			else {
-				GridUtils.setVisibleAndLayout(resolutionGrade.getResolutionGradeCombo(), false);
-				GridUtils.setVisibleAndLayout(lblRegionBins, false);
-				GridUtils.setVisibleAndLayout(regionType.getRegionType(), false);
-			}
-		} finally {
-			GridUtils.endMultiLayout();
+		if(readoutMode.getReadoutMode().getSelectionIndex() == 2 && !readoutMode.isModeOveride()) {//if readout rois
+			resolutionGrade.getResolutionGradeCombo().setVisible(true);
+			if(roi!=null)
+				roi.setVisible(true);
+			regionType.getRegionType().setVisible(true);
+		} 
+		else {
+			resolutionGrade.getResolutionGradeCombo().setVisible(false);
+			if(roi!=null)
+				roi.setVisible(false);
+			regionType.getRegionType().setVisible(false);
 		}
-		listEditorUI.notifySelected(roi);
-		roi.setListEditorUI(listEditorUI);
+		sashPlotFormComposite.getLeft().layout();
+		if(roi!=null){
+			listEditorUI.notifySelected(roi);
+			roi.setListEditorUI(listEditorUI);
+		}
 	}
 	
 	public ResolutionGrade getResolutionGrade() {

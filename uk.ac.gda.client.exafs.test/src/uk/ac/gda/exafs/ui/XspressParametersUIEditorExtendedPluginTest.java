@@ -26,14 +26,9 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.junit.Before;
-import org.junit.Test;
 
 import uk.ac.gda.ClientManager;
-import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
 import uk.ac.gda.exafs.ui.detector.xspress.XspressParametersEditor;
-import uk.ac.gda.exafs.ui.detector.xspress.XspressParametersUIEditor;
-import uk.ac.gda.richbeans.beans.BeanUI;
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.util.PackageUtils;
 
 /**

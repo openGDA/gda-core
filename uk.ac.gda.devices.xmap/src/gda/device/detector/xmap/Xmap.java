@@ -724,7 +724,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 		return results;
 	}
 	
-	private Object getCountRates() throws DeviceException {
+	public Object getCountRates() throws DeviceException {
 		Double results[] = new Double[2 * this.getNumberOfMca()];
 		int noOfMca = this.getNumberOfMca();
 		for (int i = 0; i < noOfMca; i++) {

@@ -32,59 +32,63 @@ import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 
+/**
+ *
+ */
 public class XspressROIComposite extends DetectorROIComposite {
-	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
-	private FieldWidgetsForDetectorElementsComposite widgets;
-	private Label lblName;
-	private Label windowStartLabel;
-	private Label windowEndLabel;
-	private Label lblCounts;
+
 	private ScaleBox roiStart;
 	private ScaleBox roiEnd;
+	
 	private LabelWrapper counts;
 	private TextWrapper roiName;
 	
+	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
+
+	/**
+	 * @param parent
+	 * @param style
+	 */
 	public XspressROIComposite(Composite parent, int style) {
+
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
-		lblName = new Label(this, SWT.NONE);
+		
+		Label lblName = new Label(this, SWT.NONE);
 		lblName.setText("Name");
+		
 		roiName = new TextWrapper(this, SWT.BORDER);
 		roiName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		windowStartLabel = new Label(this, SWT.NONE);
+		
+		final Label windowStartLabel = new Label(this, SWT.NONE);
 		windowStartLabel.setText("Region start");
+
 		roiStart = new ScaleBox(this, SWT.NONE);
 		roiStart.setIntegerBox(true);
 		roiStart.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		roiStart.setButtonVisible(true);
 		roiStart.setDecimalPlaces(0);
-		windowEndLabel = new Label(this, SWT.NONE);
+
+		final Label windowEndLabel = new Label(this, SWT.NONE);
 		windowEndLabel.setText("Region end");
+
 		roiEnd = new ScaleBox(this, SWT.NONE);
 		roiEnd.setIntegerBox(true);
 		roiEnd.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		roiEnd.setButtonVisible(true);
 		roiEnd.setDecimalPlaces(0);
-		lblCounts = new Label(this, SWT.NONE);
+
+		Label lblCounts = new Label(this, SWT.NONE);
 		lblCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		lblCounts.setText("In window counts");
+		
 		counts = new LabelWrapper(this, SWT.NONE);
 		counts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		counts.setNotifyType(NOTIFY_TYPE.VALUE_CHANGED);
+		
 		roiStart.setMaximum(roiEnd);
 		roiEnd.setMinimum(roiStart);
-	}
-	
-	@Override
-	public void setVisible(boolean visible){
-		lblName.setVisible(visible);
-		windowStartLabel.setVisible(visible);
-		windowEndLabel.setVisible(visible);
-		lblCounts.setVisible(visible);
-		roiStart.setVisible(visible);
-		roiEnd.setVisible(visible);
-		counts.setVisible(visible);
-		roiName.setVisible(visible);
+
 	}
 	
 	public void setFitTypeVisibility() {
@@ -93,18 +97,16 @@ public class XspressROIComposite extends DetectorROIComposite {
 		GridUtils.startMultiLayout(this);
 		GridUtils.endMultiLayout();
 	}	
-
-	@Override
-	public FieldWidgetsForDetectorElementsComposite getFieldWidgetsForDetectorElementsComposite() {
-		if (widgets == null)
-			widgets = new FieldWidgetsForDetectorElementsComposite(getRoiStart(), getRoiEnd(), getCounts());
-		return widgets;
-	}	
-
+	/**
+	 * @return d
+	 */
 	public ScaleBox getRoiEnd() {
 		return roiEnd;
 	}
 
+	/**
+	 * @return d
+	 */
 	public ScaleBox getRoiStart() {
 		return roiStart;
 	}
@@ -112,15 +114,29 @@ public class XspressROIComposite extends DetectorROIComposite {
 	public LabelWrapper getCounts() {
 		return counts;
 	}
-
+	/**
+	 * @return d
+	 */
 	public TextWrapper getRoiName() {
 		return roiName;
 	}
+
+	FieldWidgetsForDetectorElementsComposite widgets;
+	@Override
+	public FieldWidgetsForDetectorElementsComposite getFieldWidgetsForDetectorElementsComposite() {
+		if (widgets == null) {
+			widgets = new FieldWidgetsForDetectorElementsComposite(getRoiStart(), getRoiEnd(), getCounts());
+		}
+		return widgets;
+	}	
 	
 	public ScaleBox getRegionEnd() {
 		return roiEnd;
 	}
 
+	/**
+	 * @return d
+	 */
 	public ScaleBox getRegionStart() {
 		return roiStart;
 	}
@@ -129,8 +145,10 @@ public class XspressROIComposite extends DetectorROIComposite {
 		return roiEnd;
 	}
 
+	/**
+	 * @return d
+	 */
 	public ScaleBox getWindowStart() {
 		return roiStart;
 	}
-	
 }

@@ -152,6 +152,8 @@ public abstract class MicroFocusMappableDataProvider {
 			zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/Sample_Stage/sc_sample_z");
 		else if (names.contains("/entry1/instrument/table_z/table_z"))
 			zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/table_z/table_z");
+		else if (names.contains("/entry1/instrument/SampleMotors/" + zScannableName))
+			zscannableDS = dataHolder.getLazyDataset("/entry1/instrument/SampleMotors/" + zScannableName);
 		return zscannableDS;
 	}
 
@@ -165,6 +167,8 @@ public abstract class MicroFocusMappableDataProvider {
 			yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/sc_MicroFocusSampleY");
 		else if (names.contains("/entry1/instrument/table_y/table_y"))
 			yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/table_y/table_y");
+		else if (names.contains("/entry1/instrument/SampleMotors/" + yScannableName))
+			yscannableDS = dataHolder.getLazyDataset("/entry1/instrument/SampleMotors/" + yScannableName);
 		return yscannableDS;
 	}
 
@@ -224,6 +228,8 @@ public abstract class MicroFocusMappableDataProvider {
 				xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/traj3ContiniousX/traj3ContiniousX");
 			else if (names.contains("/entry1/instrument/table_x/table_x"))
 				xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/table_x/table_x");
+			else if (names.contains("/entry1/instrument/SampleMotors/" + xScannableName))
+				xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/SampleMotors/" + xScannableName);
 		}
 		return xscannableDS;
 	}

@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -31,21 +32,26 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.exafs.ui.detector.Counts;
-import uk.ac.gda.exafs.ui.detector.DetectorElementComposite;
-import uk.ac.gda.exafs.ui.detector.Elements;
+import uk.ac.gda.exafs.ui.detectorviews.Counts;
+import uk.ac.gda.exafs.ui.detectorviews.DetectorElementComposite;
+import uk.ac.gda.exafs.ui.detectorviews.Elements;
+import uk.ac.gda.exafs.ui.detector.wizards.xspress.ImportXspressROIWizard;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
+
+import com.swtdesigner.SWTResourceManager;
 
 public class XspressElements extends Elements{
 	private static final Logger logger = LoggerFactory.getLogger(XspressElements.class);
@@ -59,9 +65,9 @@ public class XspressElements extends Elements{
 	private int elementCount;
 	private int inWindowCounts;
 	protected DetectorElementComposite detectorElementComposite;
-	private boolean showRoi;
+	private Composite importComposite;
 	
-	public XspressElements(final Composite parent, Shell shell, SashFormPlotComposite sashPlotFormComposite, List<DetectorElement> detectorList, final Counts counts, boolean showRoi) {
+	public XspressElements(final Composite parent, Shell shell, SashFormPlotComposite sashPlotFormComposite, List<DetectorElement> detectorList, final Counts counts, boolean showRoi, XspressParameters xspressParameters) {
 		super(shell, sashPlotFormComposite, counts);
 		Composite grid = new Composite(parent, SWT.BORDER);
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(grid);
@@ -118,17 +124,40 @@ public class XspressElements extends Elements{
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorElementsGroup);
 		
 		try {
-			createDetectorList(detectorElementsGroup, DetectorElement.class, detectorList.size(), XspressROI.class, showRoi);
-			XspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListComposite.getDetectorList());
+			createImportButton(detectorElementsGroup, detectorList.size());
+			createDetectorList(detectorElementsGroup, DetectorElement.class, detectorList.size(), XspressROI.class);
+			NewXspressParametersUIHelper.INSTANCE.setDetectorListGridOrder(detectorListComposite.getDetectorList());
 			if(showRoi){
-				detectorListComposite.getDetectorElementComposite().setMinimumRegions(XspressParametersUIHelper.INSTANCE.getMinimumRegions());
-				detectorListComposite.getDetectorElementComposite().setMaximumRegions(XspressParametersUIHelper.INSTANCE.getMaximumRegions());
+				detectorListComposite.getDetectorElementComposite().setMinimumRegions(NewXspressParametersUIHelper.INSTANCE.getMinimumRegions());
+				detectorListComposite.getDetectorElementComposite().setMaximumRegions(NewXspressParametersUIHelper.INSTANCE.getMaximumRegions());
 			}
 		} catch (Exception e1) {
 			logger.error("Cannot create region editor.", e1);
 		}
 		
 		createApplyToAllObserver();
+	}
+	
+	public void createImportButton(Composite parent, final int elementListSize){
+		importComposite = new Composite(parent, SWT.NONE);
+		importComposite.setLayout(new GridLayout(2, false));
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(importComposite);
+		Label importLabel = new Label(importComposite, SWT.NONE);
+		importLabel.setText("Import Regions Of Interest");
+		final Button importButton = new Button(importComposite, SWT.NONE);
+		GridDataFactory grab = GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).grab(true, false);
+		grab.hint(60, SWT.DEFAULT).applyTo(importButton);
+		importButton.setImage(SWTResourceManager.getImage(NewXspressParametersUIEditor.class, "/icons/calculator_edit.png"));
+		importButton.setToolTipText("Import Regions Of Interest from other Parameters files");
+		final SelectionAdapter importButtonListener = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				WizardDialog dialog = new WizardDialog(importButton.getShell(), new ImportXspressROIWizard(elementListSize, detectorListComposite.getDetectorElementComposite(), detectorListComposite.getDetectorList()));
+				dialog.create();
+				dialog.open();
+			}
+		};
+		importButton.addSelectionListener(importButtonListener);
 	}
 	
 	public void setAllElementsCount(int allElementsCount) {
@@ -186,7 +215,7 @@ public class XspressElements extends Elements{
 		DetectorElementComposite detectorElementComposite = detectorListComposite.getDetectorElementComposite();
 		detectorElementComposite.getWindowStart().addValueListener(detectorElementCompositeValueListener);
 		detectorElementComposite.getWindowEnd().addValueListener(detectorElementCompositeValueListener);
-		if(showRoi)
+		if(detectorElementComposite.getRegionList()!=null)
 			detectorElementComposite.getRegionList().addValueListener(detectorElementCompositeValueListener);
 	}
 

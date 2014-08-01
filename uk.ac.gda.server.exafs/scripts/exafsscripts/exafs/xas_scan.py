@@ -42,8 +42,6 @@ class XasScan(Scan):
         if isinstance(scanBean, XanesScanParameters):
             scriptType = "Xanes"
         scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
-        #self.log("Starting",scriptType,detectorBean.getExperimentType(),"scan over scannable '"+self.energy_scannable.getName()+"'...")
-        # give the beans to the xasdatawriter class to help define the folders/filenames 
         controller = self.ExafsScriptObserver
         experimentFullPath, experimentFolderName = self.determineExperimentPath(experimentFullPath)
         beanGroup = self._createBeanGroup(experimentFolderName, validation, controller, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean)
@@ -176,6 +174,7 @@ class XasScan(Scan):
         self._runScript(outputBean.getBeforeScriptName())
         # work out which detectors to use (they will need to have been configured already by the GUI)
         detectorList = self._getDetectors(detectorBean, scanBean) 
+        self.log("Using detectors" + str(detectorList))
         # work out extra scannables to include
         sampleScannables, outputScannables, scanPlotSettings = self.runPreparers(beanGroup, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean)
         signalParameters = self._getSignalList(outputBean)

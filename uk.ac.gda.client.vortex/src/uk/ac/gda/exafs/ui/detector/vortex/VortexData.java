@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.exafs.ui.detector.Data;
+import uk.ac.gda.exafs.ui.detectorviews.Data;
 
 public class VortexData extends Data{
 	private static final Logger logger = LoggerFactory.getLogger(VortexData.class);

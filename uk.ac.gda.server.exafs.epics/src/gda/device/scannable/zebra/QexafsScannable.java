@@ -83,6 +83,8 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	protected boolean toggleEnergyControl = false;
 	protected double stepIncDemDeg;
 
+	private Length twoDValue;
+
 
 	@Override
 	public void configure() throws FactoryException {
@@ -162,15 +164,21 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 
 		super.stop();
 		resetDCMSpeed();
-		if (toggleEnergyControl) {
-			toggleEnergyControl();
-		}
+		// always toggle the energy when stopping. This takes a couple of seconds but the motor will not be stopped
+		// otherwise
+		toggleEnergyControl();
+	}
+	
+	@Override
+	public void prepareForContinuousMove() throws DeviceException {
+		// clear this, so it has to be re-read once every scan to make sure the value has not changed.
+		twoDValue = null;	
 	}
 
 	protected void resetDCMSpeed() throws DeviceException {
 		try {
 			logger.info("Setting energy to max speed");
-			controller.caputWait(currentSpeedChnl, getMaxSpeed());
+			controller.caput(currentSpeedChnl, getMaxSpeed());
 		} catch (Exception e) {
 			throw new DeviceException("Exception while resetting the DCM speed", e);
 		}
@@ -211,17 +219,20 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	 * @throws InterruptedException
 	 */
 	protected Length getTwoD() throws TimeoutException, CAException, InterruptedException {
-		long timeAtMethodStart = System.currentTimeMillis();
-		String xtalSwitch = controller.cagetString(xtalSwitchChnl);
-		if (xtalSwitch.contains("111")) {
-			return Quantity.valueOf(0.62711, SI.NANO(SI.METER));
-		} else if (xtalSwitch.contains("311")) {
-			return Quantity.valueOf(0.327, SI.NANO(SI.METER));
+		
+		if (twoDValue == null){
+			long timeAtMethodStart = System.currentTimeMillis();
+			String xtalSwitch = controller.cagetString(xtalSwitchChnl);
+			if (xtalSwitch.contains("111")) {
+				return Quantity.valueOf(0.62711, SI.NANO(SI.METER));
+			} else if (xtalSwitch.contains("311")) {
+				return Quantity.valueOf(0.327, SI.NANO(SI.METER));
+			}
+			twoDValue = Quantity.valueOf(0.62711, SI.NANO(SI.METER));
+			long timeAtMethodEnd = System.currentTimeMillis();
+			logger.debug("Time spent in getTwoD = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
 		}
-		Length valueOf = Quantity.valueOf(0.62711, SI.NANO(SI.METER));
-		long timeAtMethodEnd = System.currentTimeMillis();
-		logger.debug("Time spent in getTwoD = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
-		return valueOf;
+		return twoDValue;
 	}
 
 	public boolean isExafs() {

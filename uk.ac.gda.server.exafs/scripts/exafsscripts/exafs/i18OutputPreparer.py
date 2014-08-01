@@ -16,6 +16,7 @@ class I18OutputPreparer:
         metadata = outputParameters.getMetadataList()
         meta=Metadata(self.datawriterconfig)
         if len(metadata)>0:
+            print "adding to file metadata from output parameters"
             meta.add_to_metadata(metadata)
             
         #meta.add_to_nexus_metadata("initial_energy", str(initial_energy), "additional_scannables", NXinstrumentSubTypes.NXmonochromator)

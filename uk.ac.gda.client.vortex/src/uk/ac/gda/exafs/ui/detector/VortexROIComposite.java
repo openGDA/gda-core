@@ -24,6 +24,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import uk.ac.gda.exafs.ui.detectorviews.DetectorROIComposite;
 import uk.ac.gda.richbeans.components.FieldComposite.NOTIFY_TYPE;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
