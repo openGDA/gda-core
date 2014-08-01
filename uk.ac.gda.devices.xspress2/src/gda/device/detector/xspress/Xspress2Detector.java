@@ -49,8 +49,10 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * <p>
  * This returns data as a Nexus tree from its readout method.
  * <p>
- * As this acts differently from the TFGv1 classes, some of the Xpress interface
- * methods may not be implemented. This needs resolving at some point.
+ * This does not actually drive the TFG (Timer), but assumes that the TFG will
+ * be driven by another object in the scan, which is normal for Spectroscopy
+ * beamlines whose scans are driven by a TFG which in turn drives a number of
+ * other detectors used in the experiment.
  * <p>
  * Deadtime correction methods: none thres all hw sca hw - - hw sca+mca hw - -
  * roi hw new hw hw = apply deadtime factor from hardware scalers only new =
@@ -73,7 +75,6 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	private Xspress2NexusTreeProvider xspress2SystemData;
 	private Xspress2CurrentSettings settings;
 	protected Xspress2DAServerController controller;
-
 
 	public Xspress2Detector() {
 		this.inputNames = new String[] {};
@@ -108,8 +109,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		XspressDeadTimeParameters xspressDeadTimeParameters = new XspressDeadTimeParameters();
 		if (modeOverride) {
 			xspressParameters.setReadoutMode(READOUT_MCA);
-		}
-		else {
+		} else {
 			xspressParameters.setReadoutMode(READOUT_SCALERONLY);
 		}
 		xspressParameters.setResGrade(ResGrades.NONE);
@@ -143,8 +143,6 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		settings.setXspressParameters(xspressParameters);
 	}
 
-
-
 	@Override
 	public Double getDeadtimeCalculationEnergy() throws DeviceException {
 		return settings.getDeadtimeEnergy();
@@ -154,7 +152,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	public void setDeadtimeCalculationEnergy(Double energy) throws DeviceException {
 		settings.setDeadtimeEnergy(energy);
 	}
-	
+
 	/**
 	 * This is all detectors (elements), both included and excluded.
 	 */
@@ -235,7 +233,6 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 			controller.doSetWindowsCommand(detectorElement);
 		}
 	}
-
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
@@ -417,8 +414,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	@Override
 	public void atScanEnd() throws DeviceException {
 		// if this class was used to define framesets, then ensure they are cleared at the end of the scan
-		if (controller.getTotalFrames() == 0)
-		 {
+		if (controller.getTotalFrames() == 0) {
 			stop(); // stops the TFG - useful if scan aborted and so TFG still in a PAUSE state rather than an IDLE state
 		}
 	}
@@ -445,7 +441,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	public int getCurrentMCABits() {
 		return settings.getFullMCABits();
 	}
-	
+
 	/**
 	 * Reads the detector windows, gains etc from file.
 	 * 
@@ -524,7 +520,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	 */
 	@Override
 	public int[][][] getMCData(int time) throws DeviceException {
-		
+
 		int[] data = controller.runOneFrame(time);
 
 		if (data != null) {
@@ -589,8 +585,8 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		}
 
 		int[] mcaData = controller.readoutMca(startFrame, numberOfFrames, getCurrentMCASize());
-		double[][] scalerDataUsingMCAMemory = xspress2SystemData.readoutScalerDataUsingMCAMemory(numberOfFrames, rawHardwareScalerData, mcaData, true,
-				controller.getI0());
+		double[][] scalerDataUsingMCAMemory = xspress2SystemData.readoutScalerDataUsingMCAMemory(numberOfFrames,
+				rawHardwareScalerData, mcaData, true, controller.getI0());
 
 		if (settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS)) {
 			return xspress2SystemData.readoutROIData(numberOfFrames, rawHardwareScalerData, mcaData,
@@ -636,7 +632,8 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 			int[] rawscalerData, int currentMcaSize) throws DeviceException {
 		int numberOfFrames = finalFrame - startFrame + 1;
 		int[] mcaData = controller.readoutMca(startFrame, numberOfFrames, currentMcaSize);
-		return xspress2SystemData.readoutScalerDataUsingMCAMemory(numberOfFrames, rawscalerData, mcaData, performCorrections, controller.getI0());
+		return xspress2SystemData.readoutScalerDataUsingMCAMemory(numberOfFrames, rawscalerData, mcaData,
+				performCorrections, controller.getI0());
 	}
 
 	@Override
@@ -647,7 +644,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	@Override
 	public void collectData() throws DeviceException {
 		controller.collectData();
-		if (controller.getTotalFrames() == 0){
+		if (controller.getTotalFrames() == 0) {
 			lastFrameCollected = 0;
 		} else {
 			lastFrameCollected++;
