@@ -24,8 +24,8 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.xspress.xspress2data.ResGrades;
+import gda.device.detector.xspress.xspress2data.Xspress2Controller;
 import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
-import gda.device.detector.xspress.xspress2data.Xspress2DAServerController;
 import gda.device.detector.xspress.xspress2data.Xspress2NexusTreeProvider;
 import gda.factory.FactoryException;
 
@@ -74,7 +74,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
 	private Xspress2NexusTreeProvider xspress2SystemData;
 	private Xspress2CurrentSettings settings;
-	protected Xspress2DAServerController controller;
+	protected Xspress2Controller controller;
 
 	public Xspress2Detector() {
 		this.inputNames = new String[] {};
@@ -769,11 +769,11 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		this.settings = settings;
 	}
 
-	public Xspress2DAServerController getController() {
+	public Xspress2Controller getController() {
 		return controller;
 	}
 
-	public void setController(Xspress2DAServerController controller) {
+	public void setController(Xspress2Controller controller) {
 		this.controller = controller;
 		controller.setCurrentSettings(settings);
 	}

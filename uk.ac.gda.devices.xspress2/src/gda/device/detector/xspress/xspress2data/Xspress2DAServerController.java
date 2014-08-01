@@ -19,7 +19,7 @@ import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 
-public class Xspress2DAServerController {
+public class Xspress2DAServerController implements Xspress2Controller {
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress2DAServerController.class);
 
@@ -47,6 +47,10 @@ public class Xspress2DAServerController {
 	public Xspress2DAServerController() {
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#configure()
+	 */
+	@Override
 	public void configure() throws FactoryException {
 		// If everything has been found send the format, region of interest,
 		// windows & open commands.
@@ -64,6 +68,10 @@ public class Xspress2DAServerController {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#configureDetectorFromParameters()
+	 */
+	@Override
 	public void configureDetectorFromParameters() throws DeviceException {
 		// always remove all rois first
 		if (LocalProperties.check("gda.xspress.mode.override"))
@@ -78,11 +86,19 @@ public class Xspress2DAServerController {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#checkIsConnected()
+	 */
+	@Override
 	public void checkIsConnected() {
 		if (!daServer.isConnected())
 			daServer.connect();
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#start()
+	 */
+	@Override
 	public void start() throws DeviceException {
 		if (mcaHandle < 0 || scalerHandle < 0)
 			open();
@@ -98,6 +114,10 @@ public class Xspress2DAServerController {
 			sendCommand("enable ", scalerHandle);
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#stop()
+	 */
+	@Override
 	public void stop() throws DeviceException {
 		if (mcaHandle < 0 || scalerHandle < 0)
 			open();
@@ -108,6 +128,10 @@ public class Xspress2DAServerController {
 		close();
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#close()
+	 */
+	@Override
 	public void close() throws DeviceException {
 		if (mcaHandle >= 0 && daServer != null && daServer.isConnected()) {
 			daServer.sendCommand("close " + mcaHandle);
@@ -119,6 +143,10 @@ public class Xspress2DAServerController {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#clear()
+	 */
+	@Override
 	public void clear() throws DeviceException {
 		if (mcaHandle < 0 || scalerHandle < 0)
 			open();
@@ -128,6 +156,10 @@ public class Xspress2DAServerController {
 			sendCommand("clear ", scalerHandle);
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#reconfigure()
+	 */
+	@Override
 	public void reconfigure() throws FactoryException {
 		// A real system needs a connection to a real da.server via a DAServer
 		// object.
@@ -143,6 +175,10 @@ public class Xspress2DAServerController {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#collectData()
+	 */
+	@Override
 	public void collectData() throws DeviceException {
 		if (!daServer.isConnected())
 			daServer.connect();
@@ -154,14 +190,26 @@ public class Xspress2DAServerController {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#getStatus()
+	 */
+	@Override
 	public int getStatus() throws DeviceException {
 		return tfg.getStatus();
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#setResolutionGrade(java.lang.String)
+	 */
+	@Override
 	public void setResolutionGrade(String resGrade) throws DeviceException {
 		setResolutionGrade(resGrade, determineNumberOfBits());
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#setResolutionGrade(java.lang.String, int)
+	 */
+	@Override
 	public void setResolutionGrade(String resGrade, int numberOfBits) throws DeviceException {
 		settings.getParameters().setResGrade(resGrade);
 		if (configured) {
@@ -171,6 +219,10 @@ public class Xspress2DAServerController {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#runOneFrame(int)
+	 */
+	@Override
 	public int[] runOneFrame(int time) throws DeviceException {
 		if (!daServer.isConnected())
 			daServer.connect();
@@ -192,6 +244,10 @@ public class Xspress2DAServerController {
 		return readoutMca(0, 1, 4096); // NOTE 1 time frame
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#setFullMCABits(int)
+	 */
+	@Override
 	public void setFullMCABits(int fullMCABits) throws DeviceException {
 		if (configured) {
 			settings.setFullMCABits(fullMCABits);
@@ -333,6 +389,10 @@ public class Xspress2DAServerController {
 		return regionBins;
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#doSetWindowsCommand(uk.ac.gda.beans.xspress.DetectorElement)
+	 */
+	@Override
 	public void doSetWindowsCommand(DetectorElement detector) throws DeviceException {
 		Object obj;
 		int rc;
@@ -374,6 +434,10 @@ public class Xspress2DAServerController {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#getI0()
+	 */
+	@Override
 	public Double getI0() {
 		Double I0 = 1.0;
 		if (settings.getMcaGrades() == Xspress2Detector.ALL_RES && ionChambersCounterTimer != null) {
@@ -386,6 +450,10 @@ public class Xspress2DAServerController {
 		return I0;
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#getTotalFrames()
+	 */
+	@Override
 	public int getTotalFrames() throws NumberFormatException, DeviceException {
 		return Integer.parseInt(tfg.getAttribute("TotalFrames").toString());
 	}
@@ -425,15 +493,10 @@ public class Xspress2DAServerController {
 		return Integer.parseInt(tfg.getAttribute("TotalFrames").toString());
 	}
 
-	/**
-	 * Readout full mca for every detector element and specified time frame
-	 * 
-	 * @param startFrame
-	 *            time frame to read
-	 * @param numberOfFrames
-	 * @return mca data
-	 * @throws DeviceException
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#readoutMca(int, int, int)
 	 */
+	@Override
 	public synchronized int[] readoutMca(int startFrame, int numberOfFrames, int mcaSize) throws DeviceException {
 		int[] value = null;
 		if (mcaHandle < 0)
@@ -452,6 +515,10 @@ public class Xspress2DAServerController {
 		return value;
 	}
 
+	/* (non-Javadoc)
+	 * @see gda.device.detector.xspress.xspress2data.Xspress2Controller#readoutHardwareScalers(int, int)
+	 */
+	@Override
 	public synchronized int[] readoutHardwareScalers(int startFrame, int numberOfFrames) throws DeviceException {
 		int[] value = null;
 		if (scalerHandle < 0)
