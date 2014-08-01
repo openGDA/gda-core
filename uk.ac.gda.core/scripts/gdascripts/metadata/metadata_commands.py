@@ -1,8 +1,5 @@
 from gda.factory import Finder
 from gda.data.scan.datawriter import NexusDataWriter
-#import gda.data.scan.datawriter.NexusDataWriter 
-from gda.data.scan.datawriter.NexusDataWriter import getLocationmap
-#from sets import Set
 from java.util import HashSet  
 
 def setTitle(title):
@@ -23,6 +20,8 @@ def meta_add( farg, *vargs):
     Command to add a scannable to the items to be put into the scan metadata
     """
     metashop=Finder.getInstance().find("metashop")
+    if metashop == None:
+        return
     metashop.add([farg]+list(vargs))
 
 #    metashop.ll()
@@ -45,10 +44,16 @@ def meta_rm(farg, *vargs):
     Command to remove items to be put into the scan metadata. 
     """
     metashop=Finder.getInstance().find("metashop")
+    if metashop == None:
+        return
     metashop.remove([farg]+list(vargs))
 
 def meta_clear_alldynamical():
     metashop = Finder.getInstance().find("metashop")
+    
+    if metashop == None:
+        return
+    
     # clear scannables
     #metashop.getMetaScannables().clear()    
     allMetaScannableList = metashop.getMetaScannables()
