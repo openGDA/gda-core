@@ -7,28 +7,38 @@ from gda.commandqueue import JythonScriptProgressProvider
 from uk.ac.gda.devices.bssc.ispyb import BioSAXSDBFactory, BioSAXSISPyBUtils, ISpyBStatusInfo, ISpyBStatus
 
 class BSSCRun:
-    
+
     def __init__(self, beanFile):
+        finder = gda.factory.Finder.getInstance()
+        find = finder.find
         self.samplevolume = 20
         self.bean = uk.ac.gda.devices.bssc.beans.BSSCSessionBean.createFromXML(beanFile)
-        self.bssc = gda.factory.Finder.getInstance().listAllLocalObjects("uk.ac.gda.devices.bssc.BioSAXSSampleChanger")[0]
-        self.tfg = gda.factory.Finder.getInstance().listAllLocalObjects("gda.device.Timer")[0]
-        self.detector = gda.factory.Finder.getInstance().listAllLocalObjects("uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem")[0]
-        self.shutter = gda.factory.Finder.getInstance().find("shutter")
-        self.bsscscannable = gda.factory.Finder.getInstance().find("bsscscannable")
-        self.processing = gda.factory.Finder.getInstance().find("biosaxsprocessingrunner")
-        self.energy = float(gda.factory.Finder.getInstance().find("dcm_energy").getPosition())
+        self.bssc = finder.listAllLocalObjects("uk.ac.gda.devices.bssc.BioSAXSSampleChanger")[0]
+        self.tfg = finder.listAllLocalObjects("gda.device.Timer")[0]
+        self.detector = finder.listAllLocalObjects("uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem")[0]
+        self.shutter = find("shutter")
+        self.bsscscannable = find("bsscscannable")
+        self.processing = find("biosaxsprocessingrunner")
+        self.energy = float(find("dcm_energy").getPosition())
+        self.sampleConcentration = find("sample_concentration")
+        self.sampleName = find("samplename")
+        self.backgroundFileName = find("backgroundDataFile")
+        self.collectionID = find("dataCollectionId")
+
+        #need to remove hardcoding
+        find("sample_thickness").asynchronousMoveTo(1.6)
+
         self.progresscounter = 0
         self.overheadsteps = 5
         self.stepspersample = 8
         self.stepsperbuffer = 3
-        
-        try: 
+
+        try:
             self.isSimulation = True
             # in simulation temperature control does not work
             self.bssc.getTemperatureSampleStorage()
             self.isSimulation = False
-        except: 
+        except:
             print "Temperature control is not working, will run at ambient conditions."
         if self.isSimulation:
             self.scannables = [self.detector, self.bsscscannable]
@@ -77,17 +87,17 @@ class BSSCRun:
             time.sleep(2)
             raise
         time.sleep(0.1)
-        
+
     def checkDevice(self):
         self.bssc.setEnableVolumeDetectionInWell(True)
         print "Plates in Sample Changer: ", self.bssc.getPlatesIDs()
-    
+
     def getStorageTemperature(self):
         if not self.isSimulation:
             return self.bssc.getTemperatureSampleStorage()
         else:
             return -300.0
-            
+
     def getExposureTemperature(self):
         if not self.isSimulation:
             return self.bssc.getTemperatureSEU()
@@ -97,33 +107,34 @@ class BSSCRun:
     def setExposureTemperature(self, temperature):
         if not self.isSimulation:
             self.monitorAsynchronousMethod(self.bssc.waitTemperatureSEU((temperature)))
-    
+
     def clean(self):
         self.monitorAsynchronousMethod(self.bssc.clean())
-    
+        self.sampleName.setValue("")
+
     def setupTfg(self, frames, tpf):
         self.tfg.clearFrameSets()
         self.tfg.addFrameSet(frames, 50, tpf * 1000, 0, 251, 0, 0);
         self.tfg.loadFrameSets()
         return frames * (tpf + 0.05)
-    
+
     def setTitle(self, title):
         GDAMetadataProvider.getInstance().setMetadataValue("title", title)
-    
+
     def loadWell(self, location):
         self.monitorAsynchronousMethod(self.bssc.fill(location.getPlate(), location.getRowAsInt(), location.getColumn(), self.samplevolume))
-        
+
     def unloadIntoWell(self, location):
         self.monitorAsynchronousMethod(self.bssc.recuperate(location.getPlate(), location.getRowAsInt(), location.getColumn()))
-    
+
     def doTheScan(self, scannables):
         scan = gda.scan.StaticScan(scannables)
         scan.runScan()
-        return scan.getDataWriter().getCurrentFileName() 
-    
+        return scan.getDataWriter().getCurrentFileName()
+
     def expose(self, duration):
         speed = self.samplevolume / duration
-        if speed >= 5 and speed <= 6000: 
+        if speed >= 5 and speed <= 6000:
             # simulation reports these limits
             taskid = self.bssc.push(self.samplevolume, speed)
             filename = self.doTheScan(self.scannables)
@@ -132,13 +143,13 @@ class BSSCRun:
             print "sample speed %5.1f outside allowed range, will do static exposure" % speed
             filename = self.doTheScan(self.scannables)
         return filename
-            
+
     def openShutter(self):
         self.shutter.asynchronousMoveTo("Open")
-    
+
     def closeShutter(self):
         self.shutter.asynchronousMoveTo("Close")
-        
+
     def measureBuffer(self, titration, duration):
         if titration != None:
             self.reportSampleProgress(titration, "Cleaning before Buffer")
@@ -147,23 +158,27 @@ class BSSCRun:
             self.loadWell(titration.getBufferLocation())
             self.reportSampleProgress(titration, "Exposing Buffer")
             self.setTitle("Buffer for next and preceding sample measurement")
-            #sample_name.asynchronousMoveTo("buffer")
+
+            self.sampleName.setValue("%s-buffer" %(titration.getSampleName()))
+            self.sampleConcentration.asynchronousMoveTo(0)
+
             filename = self.expose(duration)
-            #print "Create buffer run dataCollectionIndex " + str(self.dataCollectionIndex)
             self.ispyb.createBufferRun(self.dataCollectionIds[self.dataCollectionIndex], titration.getTimePerFrame(), self.getStorageTemperature(), self.getExposureTemperature(), self.energy, titration.getFrames(), 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, filename, "/entry1/detector/data")
             return filename
-   
+
     def measureSample(self, titration, duration):
-        if titration != None:     
+        if titration != None:
             self.reportSampleProgress(titration, "Cleaning before Sample")
             self.clean()
             self.reportSampleProgress(titration, "Sucking in Sample")
             self.loadWell(titration.getLocation())
             self.reportSampleProgress(titration, "Exposing Sample")
             self.setTitle("Sample: %s (Location %s)" % (titration.getSampleName(), titration.getLocation().toString()))
-            #sample_name.asynchronousMoveTo(titration.getSampleName())
+
+            self.sampleName.setValue(titration.getSampleName())
+            self.sampleConcentration.asynchronousMoveTo(titration.getConcentration())
+
             filename = self.expose(duration)
-            #print "Create sample run dataCollectionIndex " + str(self.dataCollectionIndex)
             self.ispyb.createSampleRun(self.dataCollectionIds[self.dataCollectionIndex], titration.getTimePerFrame(), self.getStorageTemperature(), self.getExposureTemperature(), self.energy, titration.getFrames(), 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, filename, "/entry1/detector/data");
 
             if not titration.getRecouperateLocation() is None:
@@ -181,7 +196,7 @@ class BSSCRun:
             self.setExposureTemperature(titration.getExposureTemperature())
             self.reportSampleProgress(titration, "Setting Up Time Frame Generator")
             return self.setupTfg(titration.getFrames(), titration.getTimePerFrame())
-        
+
     def titrationsCanUseSameBufferMeasurement(self, t1, t2):
         if t1 == None or t2 == None:
             return False
@@ -194,8 +209,13 @@ class BSSCRun:
         if abs(t1.getTimePerFrame() - t2.getTimePerFrame()) > 0.001:
             return False
         return True
-        
+
+    def clearBackgroundAndId(self):
+        self.backgroundFileName.setValue("")
+        self.collectionID.setValue("")
+
     def run(self):
+        self.clearBackgroundAndId()
         self.reportProgress("Initialising");
         self.checkDevice()
         self.bssc.setSampleType("green")
@@ -206,12 +226,12 @@ class BSSCRun:
         for titration in self.bean.getMeasurements():
             print  "\n== Running Titration " + titration.getSampleName() + "\n"
             duration = self.setUpRobotAndDetector(titration)
-            
+
             self.ispyBStatusInfo = ISpyBStatusInfo()
             self.ispyBStatusInfo.setStatus(ISpyBStatus.RUNNING)
             self.ispyBStatusInfo.setProgress(0)
             self.ispyb.setDataCollectionStatus(self.dataCollectionIds[self.dataCollectionIndex], self.ispyBStatusInfo)
-        
+
             if not self.titrationsCanUseSameBufferMeasurement(lastTitration, titration):
                 print "\n= Buffer before"
                 backgroundfile = self.measureBuffer(titration, duration)
@@ -221,9 +241,13 @@ class BSSCRun:
                 self.ispyBStatusInfo.setStatus(ISpyBStatus.RUNNING)
                 self.ispyBStatusInfo.setProgress(33)
                 self.ispyb.setDataCollectionStatus(self.dataCollectionIds[self.dataCollectionIndex], self.ispyBStatusInfo)
+
             print "\n= SAMPLE "
+            self.collectionID.setValue(str(self.dataCollectionIds[self.dataCollectionIndex]))
+            self.backgroundFileName.setValue(backgroundfile)
             samplefile = self.measureSample(titration, duration)
-            self.processing.triggerProcessing(samplefile, backgroundfile, str(self.dataCollectionIds[self.dataCollectionIndex]))
+            self.clearBackgroundAndId()
+
             print "\n= Buffer after"
             backgroundfile = self.measureBuffer(titration, duration)
             lastTitration = titration

@@ -25,11 +25,13 @@ import gda.data.PathConstructor;
 
 public class BioSaxsUtils {
 
+	private static final String VISIT_DIRECTORY_PROPERTY = "gda.data.visitdirectory";
+	
 	private static final String DEFAULT_FILE_NAME = "default";
 	private static final String BIOSAXS_EXTENSION = "biosaxs";
 	
 	public static String getXmlDirectory() {
-		return PathConstructor.createFromTemplate(LocalProperties.getBaseDataDir() + "$visit$/xml/");
+		return PathConstructor.createFromTemplate(LocalProperties.get(VISIT_DIRECTORY_PROPERTY) + "/xml/");
 	}
 	
 	public static File getNewFileFromName(String name) {
