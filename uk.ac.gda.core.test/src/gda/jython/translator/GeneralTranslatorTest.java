@@ -92,7 +92,7 @@ public class GeneralTranslatorTest {
 		translator.translate("vararg_alias tscan");
 		translator.translate("vararg_alias timescan");
 		
-		mockJythonServerFacade.evaluateCommandResult = "['scan']";
+		mockJythonServerFacade.setEvaluateCommandResult("['scan']");
 	}
 
 	@Test
