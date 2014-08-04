@@ -27,6 +27,7 @@ import gda.device.detector.areadetector.v17.impl.ADBaseSimulator;
 import gda.device.detector.areadetector.v17.impl.NDArraySimulator;
 import gda.device.detector.areadetector.v17.impl.NDFileSimulator;
 import gda.device.detector.areadetector.v17.impl.NDPluginBaseSimulator;
+import gda.jython.InterfaceProvider;
 import gda.scan.ConcurrentScan;
 import gda.scan.RepeatScan;
 import junit.framework.Assert;
@@ -74,6 +75,7 @@ public class ADDetectorIntegrationWithSingleImagePerFileWriterTest {
 		adDetector.afterPropertiesSet();
 		adDetector.configure();
 		ConcurrentScan scan = RepeatScan.create_repscan(10, adDetector, .1);
+		InterfaceProvider.getCurrentScanInformationHolder().setCurrentScan(scan);
 		scan.runScan();	
 		scan.getScanNumber();
 		return ndFileSimulator.getFullFileName_RBV();
