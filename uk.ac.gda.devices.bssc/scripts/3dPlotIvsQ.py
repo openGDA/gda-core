@@ -3,6 +3,28 @@ import numpy as np
 from matplotlib import cm
 import sys
 
+def createPlot(filename, datapath, qpath, output):
+	#set up plot
+	import matplotlib.pyplot as plt
+	fig = plt.figure()
+	ax=fig.gca(projection='3d')
+	
+	#set up data
+	import h5py
+	f=h5py.File(filename)
+	reducedDataArray = f[datapath]
+	qArray=f[qpath]
+	x=qArray
+	y=np.arange(0,len(reducedDataArray[0]))
+	x,y = np.meshgrid(x,y)
+	z=np.log(reducedDataArray[0])
+	surf=ax.plot_surface(x,y,z,cmap=cm.coolwarm,linewidth=0,antialiased=True)
+	fig.colorbar(surf, shrink=0.5, aspect=5)
+	if interactive:
+		plt.show()
+	fig.savefig(output)
+	fig.clf()
+
 if __name__ == '__main__':
 
 	import argparse
@@ -39,23 +61,4 @@ if __name__ == '__main__':
 		import matplotlib
 		matplotlib.use('Agg')
 
-	#set up plot
-	import matplotlib.pyplot as plt
-	fig = plt.figure()
-	ax=fig.gca(projection='3d')
-	
-	#set up data
-	import h5py
-	f=h5py.File(filename)
-	reducedDataArray = f[datapath]
-	qArray=f[qpath]
-	x=qArray
-	y=np.arange(0,len(reducedDataArray[0]))
-	x,y = np.meshgrid(x,y)
-	z=np.log(reducedDataArray[0])
-	surf=ax.plot_surface(x,y,z,cmap=cm.coolwarm,linewidth=0,antialiased=True)
-	fig.colorbar(surf, shrink=0.5, aspect=5)
-	if interactive:
-		plt.show()
-	fig.savefig(output)
-	fig.clf()
+	createPlot(filename, datapath, qpath, output)
