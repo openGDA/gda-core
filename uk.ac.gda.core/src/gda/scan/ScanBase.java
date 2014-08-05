@@ -1093,6 +1093,15 @@ public abstract class ScanBase implements NestableScan {
 					logger.info(message);
 					throw new ScanInterruptedException(message,e.getStackTrace());
 				} catch (Exception e) {
+					String message = e.getMessage();
+					// If the scan was aborted whilst in a waitWhileBusy() the interrupted exception is converted
+					// to a device exception, so we use this kludge to signal that it wasn't a failure but a user
+					// aborting the scan. Thus preventing major stacktraces in the log file.
+					if ("sleep interrupted".equals(message)) {
+						// need the correct exception type so wrapping code know its an interrupt
+						logger.info("Scan aborted on request." + message);
+						throw new ScanInterruptedException(message,e.getStackTrace());
+					}
 					setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
 					throw new Exception("during scan collection: " + createMessage(e), e);
 				}
