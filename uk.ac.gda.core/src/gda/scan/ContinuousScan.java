@@ -147,6 +147,10 @@ public class ContinuousScan extends ConcurrentScanChild {
 		try {
 			while (highestFrameNumberRead < numberScanpoints - 1) {
 				checkThreadInterrupted();
+				if (isFinishEarlyRequested()) {
+					// stop motion now and do one last readout
+					qscanAxis.stop();
+				}
 				checkForMotionTimeout();
 				// sleep for a second. For what reason?
 				Thread.sleep(200);
@@ -165,6 +169,9 @@ public class ContinuousScan extends ConcurrentScanChild {
 
 				highestFrameNumberRead = frameNumberReached;
 				logger.debug("number of frames completed:" + new Integer(frameNumberReached + 1));
+				if (isFinishEarlyRequested()) {
+					return;
+				}
 			}
 
 		} catch (ContinuousScanTimeoutException e) {
