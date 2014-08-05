@@ -151,7 +151,7 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 				if (value.equals("Germanium")) {
 					try {
 						// NOTE Currently editing local file.
-						checkConfigFile("Germaninum");
+						checkConfigFile("Germanium");
 					} catch (Exception e1) {
 						logger.error("Cannot open xspress parameters.", e1);
 					}
