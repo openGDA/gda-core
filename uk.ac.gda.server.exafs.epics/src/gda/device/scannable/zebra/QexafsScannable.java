@@ -129,7 +129,7 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 
 		if (Math.abs(currentDegrees - demandDegrees) > 0.00011) {
 			try {
-				super.moveTo(positionInEV);
+				asynchronousMoveTo(positionInEV);
 			} catch (DeviceException e) {
 				logger.error("Could not move scannable", e);
 			}
@@ -167,6 +167,11 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		// always toggle the energy when stopping. This takes a couple of seconds but the motor will not be stopped
 		// otherwise
 		toggleEnergyControl();
+	}
+	
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		stop();
 	}
 	
 	@Override

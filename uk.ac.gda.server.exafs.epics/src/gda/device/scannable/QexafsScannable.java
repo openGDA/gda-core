@@ -316,6 +316,11 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			toggleEnergyControl();
 		}
 	}
+	
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		stop();
+	}
 
 	private void resetDCMSpeed() throws DeviceException {
 		try {
