@@ -24,6 +24,7 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
+import gda.device.detector.xspress.xspress2data.ResGrades;
 import gda.factory.FactoryException;
 
 import java.util.ArrayList;
@@ -636,7 +637,6 @@ public class Xspress1System extends XspressSystem {
 	 *         rate
 	 * @throws DeviceException
 	 */
-	@SuppressWarnings("unchecked")
 	private Object calculateLiveStats() throws DeviceException {
 		int[] rawScalerData = xspressDetectorImpl.readoutHardwareScalers(0, 1);
 		long[][] unpackedScalerData = unpackRawScalerDataToFrames(rawScalerData, 1);

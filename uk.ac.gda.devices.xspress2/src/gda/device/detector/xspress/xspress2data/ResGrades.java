@@ -17,7 +17,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.xspress;
+package gda.device.detector.xspress.xspress2data;
 
 import java.util.Arrays;
 import java.util.List;

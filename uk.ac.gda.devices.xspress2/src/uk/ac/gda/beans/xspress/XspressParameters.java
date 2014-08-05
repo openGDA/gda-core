@@ -32,7 +32,9 @@ public class XspressParameters implements Serializable,IRichBean {
 	/**
 	 * The region type when the ROI returns the sum of counts in the region, so acts like a scaler.
 	 */
-	public static final String VIRTUALSCALER = "Virtual Scaler";
+	static public final String VIRTUALSCALER = "Virtual Scaler";
+	static public final URL mappingURL = XspressParameters.class.getResource("XspressMapping.xml");
+	static public final URL schemaURL = XspressParameters.class.getResource("XspressMapping.xsd");
 
 	private String detectorName;
 	private String resGrade;
@@ -40,18 +42,14 @@ public class XspressParameters implements Serializable,IRichBean {
 	private List<DetectorElement> detectorList;
 	private ElementCountsData[] data;
 	private String readoutMode;
+
 	private boolean editIndividualElements;
-
-	static public final URL mappingURL = XspressParameters.class.getResource("XspressMapping.xml");
-
-	static public final URL schemaURL  = XspressParameters.class.getResource("XspressMapping.xsd");
-	
 	private boolean onlyShowFF = false;
 	private boolean showDTRawValues = false;
 	private boolean saveRawSpectrum = false;
 
-	private int selectedRegionNumber =0;
-	
+	private int selectedRegionNumber = 0;
+
 	public XspressParameters() {
 		detectorList = new ArrayList<DetectorElement>();
 	}

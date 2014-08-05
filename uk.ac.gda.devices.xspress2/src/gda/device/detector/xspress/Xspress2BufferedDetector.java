@@ -22,6 +22,7 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.detector.BufferedDetector;
+import gda.device.detector.DAServer;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NexusDetector;
 
@@ -38,10 +39,11 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 	private static final Logger logger = LoggerFactory.getLogger(Xspress2BufferedDetector.class);
 	protected ContinuousParameters continuousParameters = null;
 	protected boolean isContinuousMode = false;
-	protected Xspress2System xspress2system = null;
+	protected Xspress2Detector xspress2system = null;
 	private boolean isSlave = true;
 	protected int maxNumberOfInts = 750000; // the maximum number of integers to read out from da.server in each bunch
 	private int triggerSwitch = 0;
+	protected DAServer daserver;
 	// frames before this causes a problem 80000 = 2 frames of 9-element reading full mca
 
 	public int getTriggerSwitch() {
@@ -130,8 +132,8 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 
 	private Object runDAServerCommand(String command) throws DeviceException {
 		Object obj = null;
-		if (xspress2system.getDaServer() != null && xspress2system.getDaServer().isConnected()) {
-			if ((obj = xspress2system.getDaServer().sendCommand(command)) == null)
+		if (daserver.isConnected()) {
+			if ((obj = daserver.sendCommand(command)) == null)
 				throw new DeviceException("Null reply received from daserver during " + command);
 			return obj;
 		}
@@ -183,19 +185,19 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	private void switchOffExtTrigger() throws DeviceException {
-		xspress2system.getDaServer().sendCommand("tfg setup-trig start"); // disables external triggering
+		daserver.sendCommand("tfg setup-trig start"); // disables external triggering
 	}
 
 	private void setTimeFrames() throws DeviceException {
 		switchOnExtTrigger();
-		xspress2system.getDaServer().sendCommand("tfg setup-groups ext-start cycles 1");
-		xspress2system.getDaServer().sendCommand(continuousParameters.getNumberDataPoints() + " 0.000001 0.00000001 0 0 0 8");
-		xspress2system.getDaServer().sendCommand("-1 0 0 0 0 0 0");
-		xspress2system.getDaServer().sendCommand("tfg arm");
+		daserver.sendCommand("tfg setup-groups ext-start cycles 1");
+		daserver.sendCommand(continuousParameters.getNumberDataPoints() + " 0.000001 0.00000001 0 0 0 8");
+		daserver.sendCommand("-1 0 0 0 0 0 0");
+		daserver.sendCommand("tfg arm");
 	}
 
 	private void switchOnExtTrigger() throws DeviceException {
-		xspress2system.getDaServer().sendCommand("tfg setup-trig start ttl"+triggerSwitch);
+		daserver.sendCommand("tfg setup-trig start ttl"+triggerSwitch);
 	}
 
 	@Override
@@ -260,11 +262,11 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 		continuousParameters = parameters;
 	}
 
-	public Xspress2System getXspress2system() {
+	public Xspress2Detector getXspress2system() {
 		return xspress2system;
 	}
 
-	public void setXspress2system(Xspress2System xspress2system) {
+	public void setXspress2system(Xspress2Detector xspress2system) {
 		this.xspress2system = xspress2system;
 	}
 
@@ -274,5 +276,13 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 
 	public void setSlave(boolean isSlave) {
 		this.isSlave = isSlave;
+	}
+
+	public DAServer getDaserver() {
+		return daserver;
+	}
+
+	public void setDaserver(DAServer daserver) {
+		this.daserver = daserver;
 	}
 }

@@ -16,6 +16,7 @@ Export-Package: gda.device.detector,
  gda.device.detector.countertimer,
  gda.device.detector.xspress,
  gda.device.detector.xspress.corba.impl,
+ gda.device.detector.xspress.xspress2data,
  uk.ac.gda.beans.xspress
 Import-Package: org.apache.commons.beanutils;version="1.9.1",
  org.apache.commons.lang;version="2.6.0",

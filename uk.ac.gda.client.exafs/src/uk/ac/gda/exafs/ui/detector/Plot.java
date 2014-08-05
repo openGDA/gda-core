@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.detectorviews;
+package uk.ac.gda.exafs.ui.detector;
 
 import gda.device.detector.xspress.xspress2data.ResGrades;
 

@@ -25,6 +25,8 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.DUMMY_XSPRESS2_MODE;
 import gda.device.detector.DummyDAServer;
+import gda.device.detector.xspress.xspress2data.ResGrades;
+import gda.device.detector.xspress.xspress2data.Xspress2DAServerController;
 import gda.device.timer.Etfg;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -41,37 +43,40 @@ import org.junit.Test;
 public class Xspress2SystemOutputTest {
 
 	
-	private static Xspress2System xspress = new Xspress2System();
+	private static Xspress2Detector xspress = new Xspress2Detector();
+	private static Xspress2DAServerController controller;
+	private static DummyDAServer daserver;
 	final static String TestFileFolder = "testfiles/gda/device/detector/xspress/";
 	
 	private static final int NUM_ENABLED_ELEMENTS = 8;
 	private static final int SIZE_SCALER_DATA = NUM_ENABLED_ELEMENTS + 1; // for FF
 
-	/**
-	 */
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		DummyDAServer daserver = new DummyDAServer();
+		xspress = new Xspress2Detector();
+		controller = new Xspress2DAServerController();
+		xspress.setController(controller);
+		
+		daserver = new DummyDAServer();
 		daserver.setName("DummyDAServer");
 		daserver.setXspressMode(DUMMY_XSPRESS2_MODE.XSPRESS2_FULL_MCA);
 		daserver.connect();
 		daserver.setNonRandomTestData(true);
 		Etfg tfg = new Etfg();
 		tfg.setName("tfg");
+		
 		try {
-			xspress.setDaServer(daserver);
-			xspress.setTfg(tfg);
-			String configFile = TestFileFolder + "xspressConfig.xml";
-			String DTFile = TestFileFolder + "Xspress_DeadTime_Parameters.xml";
-			xspress.setConfigFileName(configFile);
-			xspress.setDtcConfigFileName(DTFile);
+			controller.setDaServer(daserver);
+			controller.setTfg(tfg);
+			xspress.setConfigFileName(TestFileFolder + "xspressConfig.xml");
+			xspress.setDtcConfigFileName(TestFileFolder + "Xspress_DeadTime_Parameters.xml");
 			xspress.setName("xspressTest");
-			xspress.setDaServerName("DummyDAServer");
-			xspress.setTfgName("tfg");
-			xspress.setMcaOpenCommand("xspress open-mca");
-			xspress.setScalerOpenCommand("xspress open-scalers");
-			xspress.setStartupScript("xspress2 format-run 'xsp1' res-none");
-			xspress.setXspressSystemName("xsp1");
+			controller.setDaServer(daserver);
+			controller.setTfg(tfg);
+			controller.setMcaOpenCommand("xspress open-mca");
+			controller.setScalerOpenCommand("xspress open-scalers");
+			controller.setStartupScript("xspress2 format-run 'xsp1' res-none");
+			controller.setXspressSystemName("xsp1");
 			xspress.setFullMCABits(8);
 			xspress.configure();
 		} catch (DeviceException e) {
