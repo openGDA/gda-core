@@ -1,9 +1,6 @@
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from matplotlib import cm
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import sys
 
 if __name__ == '__main__':
@@ -14,6 +11,7 @@ if __name__ == '__main__':
 	parser.add_argument("--output", type=str, help="output file name")
 	parser.add_argument("--datapath", type=str, help="path for reduced data in Nexus file", default="/entry1/detector_processing/Normalisation/data")
 	parser.add_argument("--qpath", type=str, help="Q path name in Nexus file", default = "/entry1/detector_result/q")
+	parser.add_argument("--interactive", type=str, help="show interactive plot. Output plot will be produced regardless of interactivity", default=False)
 	args = parser.parse_args()
 
 	if args.filename:
@@ -34,7 +32,15 @@ if __name__ == '__main__':
 	if args.qpath:
 		qpath = args.qpath
 
+	if args.interactive:
+		interactive = True
+	else:
+		interactive = False
+		import matplotlib
+		matplotlib.use('Agg')
+
 	#set up plot
+	import matplotlib.pyplot as plt
 	fig = plt.figure()
 	ax=fig.gca(projection='3d')
 	
@@ -49,6 +55,7 @@ if __name__ == '__main__':
 	z=np.log(reducedDataArray[0])
 	surf=ax.plot_surface(x,y,z,cmap=cm.coolwarm,linewidth=0,antialiased=True)
 	fig.colorbar(surf, shrink=0.5, aspect=5)
-	plt.show()
+	if interactive:
+		plt.show()
 	fig.savefig(output)
 	fig.clf()
