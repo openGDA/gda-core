@@ -609,7 +609,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 	@Override
 	public void setReadoutMode(String readoutMode) throws DeviceException {
 		if (!readoutMode.equals(xspressParameters.getReadoutMode())) {
-			xspressParameters.setReadoutMode(XspressDetector.READOUT_ROIS);
+			xspressParameters.setReadoutMode(readoutMode);
 			configureDetectorFromParameters();
 		}
 	}
@@ -940,6 +940,7 @@ public class Xspress2System extends DetectorBase implements NexusDetector, Xspre
 				XspressParameters.class, XspressParameters.schemaURL, filename);
 		if (newXspressParameters != null) {
 			xspressParameters = newXspressParameters;
+			numberOfDetectors = xspressParameters.getDetectorList().size();
 			configureDetectorFromParameters();
 		}
 	}
