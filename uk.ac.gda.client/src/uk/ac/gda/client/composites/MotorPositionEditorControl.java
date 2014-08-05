@@ -91,7 +91,8 @@ public class MotorPositionEditorControl extends NumberEditorControl {
 		} catch (DeviceException e) {
 			// TODO This is a temporarily commented it out to avoid reading motor positions that are not ready
 			// UIHelper.showError("Error while reading the motor position", e.getMessage());
-			logger.warn("Error while reading the motor position");
+			String name = ((ScannableWrapper) targetObject).getScannable().getName();
+			logger.warn("Error while reading the motor position for " + name);
 		}
 		return super.getFormattedText(value);
 	}
