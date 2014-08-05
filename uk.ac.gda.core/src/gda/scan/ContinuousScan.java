@@ -145,7 +145,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 		int highestFrameNumberRead = -1;
 
 		try {
-			while (/*qscanAxis.isBusy() && */highestFrameNumberRead < numberScanpoints - 1) {
+			while (highestFrameNumberRead < numberScanpoints - 1) {
 				checkThreadInterrupted();
 				checkForMotionTimeout();
 				// sleep for a second. For what reason?
@@ -362,8 +362,6 @@ public class ContinuousScan extends ConcurrentScanChild {
 
 			// then notify IObservers of this scan (e.g. GUI panels)
 			InterfaceProvider.getJythonServerNotifer().notifyServer(this,thisPoint);
-			// this new command re-reads the detectors - so do not want that!!
-			// scanDataPointPipeline.populatePositionsAndDataAndPublish(thisPoint);
 		}
 	}
 
