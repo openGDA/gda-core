@@ -87,9 +87,9 @@ public class ScanDataItemNode extends LineTraceProvider {
 		}
 	};
 
-	public void update(Double value) {
+	public void update(List<Double> values) {
 		synchronized (cachedData) {
-			cachedData.add(value);
+			cachedData.addAll(values);
 		}
 		Display.getDefault().asyncExec(saveData);
 	}

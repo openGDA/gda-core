@@ -25,7 +25,6 @@ import gda.scan.ScanDataPoint;
 import gda.util.Sleep;
 import gda.util.Version;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,7 +39,7 @@ import org.springframework.util.FileCopyUtils;
 /**
  * Thread for dealing with a client connected to the Jython server.
  */
-public class ServerThread extends Thread implements Terminal {
+public abstract class ServerThread extends Thread implements Terminal, SessionClosedCallback {
 
 	private static final Logger logger = LoggerFactory.getLogger(ServerThread.class);
 	
@@ -63,7 +62,7 @@ public class ServerThread extends Thread implements Terminal {
 
 	protected PrintWriter out = null;
 
-	protected BufferedReader in = null;
+	protected InputStream in = null;
 
 	protected ServerThread() {
 		super("CommandThread");
@@ -85,17 +84,31 @@ public class ServerThread extends Thread implements Terminal {
 	}
 	
 	protected void setInputStream(InputStream inputStream) {
-		in = new BufferedReader(new InputStreamReader(inputStream));
+		in = inputStream;
 	}
 	
 	protected void setOutputStream(OutputStream outputStream) {
 		out = new PrintWriter(outputStream, true);
 	}
 
+	protected boolean useJline;
+
+	public void setUseJline(boolean useJline) {
+		this.useJline = useJline;
+	}
+
 	@Override
 	public synchronized void run() {
 		out.printf(WELCOME_BANNER, Version.RELEASE_VER);
-		new ServerListenThread(this.in).start();
+		try {
+			if (useJline) {
+				new JlineServerListenThread(this.in, this.out, this).start();
+			} else {
+				new ServerListenThread(this.in, this.out, this).start();
+			}
+		} catch (IOException e) {
+			logger.error("Unable to create thread to listen to client", e);
+		}
 		// Give server a chance to setup up things, so this message gets to the peer too
 		Sleep.sleep(100);
 	}

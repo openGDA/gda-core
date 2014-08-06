@@ -519,20 +519,21 @@ public class Logpanel extends Composite {
 		
 		connectToLogServer();
 		
-		// display copyable path to gda_server.log
-		String logsDir = LocalProperties.get(LocalProperties.GDA_LOGS_DIR);
+		// display copyable path to gda logs dir
+		String logsDir = LocalProperties.get(LocalProperties.GDA_LOGS_DIR/*, "/tmp/gda/i23/logs"*/);
 		if (logsDir != null) {
-			Composite logFileComposite = new Composite(this, SWT.NONE);
+			Composite logDirComposite = new Composite(this, SWT.NONE);
 			
-			Label logFileLabel = new Label(logFileComposite, SWT.NONE);
-			logFileLabel.setText("Highlights of:");
-			GridDataFactory.swtDefaults().applyTo(logFileLabel);
+			Label logDirLabel = new Label(logDirComposite, SWT.NONE);
+			logDirLabel.setText("Highlights of logging file(s) in:");
+			GridDataFactory.swtDefaults().applyTo(logDirLabel);
 			
-			final Text logFileText = new Text(logFileComposite, SWT.SINGLE | SWT.READ_ONLY);
-			logFileText.setText(logsDir + "/gda_server.log");
+			final Text logFileText = new Text(logDirComposite, SWT.SINGLE | SWT.READ_ONLY);
+			logFileText.setText(logsDir);
+			logFileText.setToolTipText(String.format("'%s' in java.properties", LocalProperties.GDA_LOGS_DIR));
 			
-			GridDataFactory.swtDefaults().span(3, 1).applyTo(logFileComposite);
-			GridLayoutFactory.fillDefaults().numColumns(2).applyTo(logFileComposite);
+			GridDataFactory.swtDefaults().span(3, 1).applyTo(logDirComposite);
+			GridLayoutFactory.fillDefaults().numColumns(2).applyTo(logDirComposite);
 			GridDataFactory.fillDefaults().applyTo(logFileText);
 		}
 		

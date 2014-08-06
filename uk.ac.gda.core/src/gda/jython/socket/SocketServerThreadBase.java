@@ -1,6 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd., Science and Technology
- * Facilities Council
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -19,23 +18,29 @@
 
 package gda.jython.socket;
 
-import org.apache.sshd.server.ShellFactory;
-import org.apache.sshd.server.ShellFactory.Shell;
+import java.io.IOException;
+import java.net.Socket;
 
-/**
- * A {@link ShellFactory} that creates GDA {@link Shell}s.
- */
-public class SshShellFactory implements ShellFactory {
-	
-	private boolean useJline;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-	public SshShellFactory(boolean useJline) {
-		this.useJline = useJline;
+public abstract class SocketServerThreadBase extends ServerThread implements SessionClosedCallback {
+
+	private static final Logger logger = LoggerFactory.getLogger(SocketServerThreadBase.class);
+
+	protected Socket socket;
+
+	protected SocketServerThreadBase(Socket socket) {
+		this.socket = socket;
 	}
 
 	@Override
-	public Shell createShell() {
-		return new SshShell(useJline);
+	public void sessionClosed() {
+		try {
+			socket.close();
+		} catch (IOException ioe) {
+			logger.error("Unable to close socket", ioe);
+		}
 	}
-	
+
 }
