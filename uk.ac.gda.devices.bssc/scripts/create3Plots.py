@@ -21,7 +21,7 @@ def create3Plots(reducedfile, output):
 
 	#set up data
 	import h5py
-	f=h5py.File(reducedfile)
+	f=h5py.File(reducedfile, 'r')
 	reducedDataArray = f[datapath]
 	numberOfDatasets = len(reducedDataArray[0])
 	errorDataArray = f[errorpath]

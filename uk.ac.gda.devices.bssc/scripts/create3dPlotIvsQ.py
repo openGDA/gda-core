@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib import cm
 import sys
 
-def createPlot(filename, datapath, qpath, output):
+def createPlot(filename, datapath, qpath, output, interactive):
 	#set up plot
 	import matplotlib.pyplot as plt
 	fig = plt.figure()
@@ -11,7 +11,7 @@ def createPlot(filename, datapath, qpath, output):
 	
 	#set up data
 	import h5py
-	f=h5py.File(filename)
+	f=h5py.File(filename, 'r')
 	reducedDataArray = f[datapath]
 	qArray=f[qpath]
 	x=qArray
@@ -61,4 +61,4 @@ if __name__ == '__main__':
 		import matplotlib
 		matplotlib.use('Agg')
 
-	createPlot(filename, datapath, qpath, output)
+	createPlot(filename, datapath, qpath, output, interactive=False)
