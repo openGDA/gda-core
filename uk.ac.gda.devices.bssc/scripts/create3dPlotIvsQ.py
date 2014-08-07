@@ -5,7 +5,11 @@ import sys
 
 def createPlot(filename, datapath, qpath, output, interactive):
 	#set up plot
+	if not interactive:
+		import matplotlib
+		matplotlib.use('Agg')
 	import matplotlib.pyplot as plt
+
 	fig = plt.figure()
 	ax=fig.gca(projection='3d')
 	
@@ -22,6 +26,11 @@ def createPlot(filename, datapath, qpath, output, interactive):
 	fig.colorbar(surf, shrink=0.5, aspect=5)
 	if interactive:
 		plt.show()
+		
+	import os
+	outputPath = output[0:output.rfind(os.path.sep)]
+	if not os.path.exists(outputPath):
+		os.makedirs(outputPath)
 	fig.savefig(output)
 	fig.clf()
 
@@ -58,7 +67,5 @@ if __name__ == '__main__':
 		interactive = True
 	else:
 		interactive = False
-		import matplotlib
-		matplotlib.use('Agg')
 
 	createPlot(filename, datapath, qpath, output, interactive=False)
