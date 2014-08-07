@@ -34,6 +34,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ContiguousIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.ContiguousIteratorWithPosition;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DiscontiguousIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
@@ -72,7 +73,7 @@ public class DataSet extends DoubleDataset {
 				nextTime = System.currentTimeMillis() + updateInterval;
 
 				Throwable e = getTrace(2);
-				logger.info("gda.analysis.DataSet is deprecated - use an AbstractDataset", e);
+				logger.info("gda.analysis.DataSet is deprecated - use an Dataset", e);
 				if (warnEverySoMany > 1)
 					logger.info(String.format("this is throttled (and rate-limited) - you are only seeing one message out of %d", warnEverySoMany));
 			}
@@ -561,7 +562,7 @@ public class DataSet extends DoubleDataset {
 	 * 
 	 * @param inData
 	 *            The data to construct the dataset from
-	 * @deprecated Use {@link AbstractDataset#createFromList(List)}
+	 * @deprecated Use {@link DatasetFactory#createFromList(List)}
 	 */
 	@Deprecated
 	public DataSet(final List<Double> inData) {
@@ -795,7 +796,7 @@ public class DataSet extends DoubleDataset {
 	 * 
 	 * @param inputDataSet
 	 *            The dataset to be replicated.
-	 * @deprecated Use {@link AbstractDataset#clone}
+	 * @deprecated Use {@link Dataset#clone}
 	 */
 	@Deprecated
 	public DataSet(DataSet inputDataSet) {
@@ -862,7 +863,7 @@ public class DataSet extends DoubleDataset {
 		} else if (data instanceof DoubleDataset) {
 			dds = (DoubleDataset) data;
 		} else {
-			dds = (DoubleDataset) DatasetUtils.cast(DatasetUtils.convertToAbstractDataset(data), Dataset.FLOAT64);
+			dds = (DoubleDataset) DatasetUtils.cast(DatasetUtils.convertToDataset(data), Dataset.FLOAT64);
 		}
 		result = new DataSet(dds.getData(), dds.getShape());
 		result.setName(data.getName());
@@ -876,7 +877,7 @@ public class DataSet extends DoubleDataset {
 	}
 
 	/**
-	 * @deprecated Use {@link AbstractDataset#toString}
+	 * @deprecated Use {@link Dataset#toString}
 	 */
 	@Deprecated
 	public void disp() {
@@ -887,7 +888,7 @@ public class DataSet extends DoubleDataset {
 	 * Function that gets the size in each dimension of the dataset
 	 * 
 	 * @return an integer array of the size of each direction of the dataset
-	 * @deprecated Use {@link AbstractDataset#getShape}
+	 * @deprecated Use {@link Dataset#getShape}
 	 */
 	@Deprecated
 	public int[] getDimensions() {
@@ -896,7 +897,7 @@ public class DataSet extends DoubleDataset {
 
 	/**
 	 * @return number of array dimensions
-	 * @deprecated Use {@link AbstractDataset#getRank}
+	 * @deprecated Use {@link Dataset#getRank}
 	 */
 	@Deprecated
 	public int getNdim() {
@@ -906,7 +907,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param shape
 	 * @return empty dataset of doubles
-	 * @deprecated Use {@link DoubleDataset#DoubleDataset(int...)} or {@link AbstractDataset#zeros}
+	 * @deprecated Use {@link DoubleDataset#DoubleDataset(int...)} or {@link DatasetFactory#zeros}
 	 */
 	@Deprecated
 	public static DataSet zeros(int... shape) {
@@ -916,7 +917,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param shape
 	 * @return empty dataset of doubles
-	 * @deprecated Use {@link DoubleDataset#ones(int...)} or {@link AbstractDataset#ones}
+	 * @deprecated Use {@link DoubleDataset#ones(int...)} or {@link DatasetFactory#ones}
 	 */
 	@Deprecated
 	public static DataSet ones(int... shape) {
@@ -941,7 +942,7 @@ public class DataSet extends DoubleDataset {
 	 * Function that returns a double array of the data in the Dataset
 	 * 
 	 * @return The double array containing the data
-	 * @deprecated Use {@link AbstractDataset#synchronizedCopy()} with {@link AbstractDataset#getBuffer()} or
+	 * @deprecated Use {@link Dataset#synchronizedCopy()} with {@link Dataset#getBuffer()} or
 	 *             {@link DoubleDataset#getData()}
 	 */
 	@Deprecated
@@ -1031,7 +1032,7 @@ public class DataSet extends DoubleDataset {
 
 	/**
 	 * @return variance
-	 * @deprecated Use {@link AbstractDataset#variance}
+	 * @deprecated Use {@link Dataset#variance}
 	 */
 	@Deprecated
 	public double var() {
@@ -1041,7 +1042,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param isDataSetWholePopulation
 	 * @return variance
-	 * @deprecated Use {@link AbstractDataset#variance(boolean)}
+	 * @deprecated Use {@link Dataset#variance(boolean)}
 	 */
 	@Deprecated
 	public double var(boolean isDataSetWholePopulation) {
@@ -1050,7 +1051,7 @@ public class DataSet extends DoubleDataset {
 
 	/**
 	 * @return standard deviation
-	 * @deprecated Use {@link AbstractDataset#stdDeviation}
+	 * @deprecated Use {@link Dataset#stdDeviation}
 	 */
 	@Deprecated
 	public double std() {
@@ -1060,7 +1061,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param isDataSetWholePopulation
 	 * @return standard deviation
-	 * @deprecated Use {@link AbstractDataset#stdDeviation(boolean)}
+	 * @deprecated Use {@link Dataset#stdDeviation(boolean)}
 	 */
 	@Deprecated
 	public double std(boolean isDataSetWholePopulation) {
@@ -1069,7 +1070,7 @@ public class DataSet extends DoubleDataset {
 
 	/**
 	 * @return root mean square value
-	 * @deprecated Use {@link AbstractDataset#rootMeanSquare}
+	 * @deprecated Use {@link Dataset#rootMeanSquare}
 	 */
 	@Deprecated
 	public double rms() {
@@ -1078,7 +1079,7 @@ public class DataSet extends DoubleDataset {
 
 	/**
 	 * @return peak to peak value
-	 * @deprecated Use {@link AbstractDataset#peakToPeak}
+	 * @deprecated Use {@link Dataset#peakToPeak}
 	 */
 	@Deprecated
 	public double range() {
@@ -1087,7 +1088,7 @@ public class DataSet extends DoubleDataset {
 
 	/**
 	 * @return absolute index of maximum
-	 * @deprecated Use {@link AbstractDataset#argMax()}
+	 * @deprecated Use {@link Dataset#argMax()}
 	 */
 	@Deprecated
 	public int argmax() {
@@ -1096,7 +1097,7 @@ public class DataSet extends DoubleDataset {
 
 	/**
 	 * @return absolute index of minimum
-	 * @deprecated Use {@link AbstractDataset#argMin()}
+	 * @deprecated Use {@link Dataset#argMin()}
 	 */
 	@Deprecated
 	public int argmin() {
@@ -1163,7 +1164,7 @@ public class DataSet extends DoubleDataset {
 	 * Generate an index dataset for current dataset. It is an error to call this for datasets that are not 1D
 	 * 
 	 * @return an index dataset
-	 * @deprecated Use {@link AbstractDataset#getIndices}
+	 * @deprecated Use {@link Dataset#getIndices}
 	 */
 	@Deprecated
 	public DataSet getIndexDataSet() {
@@ -1302,12 +1303,12 @@ public class DataSet extends DoubleDataset {
 	 * @deprecated Use {@link DoubleDataset#createRange(double, double, double)}
 	 */
 	@Deprecated
-	public static DataSet arange(double start, int stop) { // needed to stop AbstractDataset.arange being called by Jython
+	public static DataSet arange(double start, int stop) { // needed to stop Dataset.arange being called by Jython
 		return arange(start, stop, 1);
 	}
 
 	public static DataSet arange(double start, double stop, double step) {
-		return convertToDataSet(AbstractDataset.arange(start, stop, step, Dataset.FLOAT64));
+		return convertToDataSet(DatasetFactory.createRange(start, stop, step, Dataset.FLOAT64));
 	}
 
 	/**
@@ -2397,7 +2398,7 @@ public class DataSet extends DoubleDataset {
 	// override methods that create new datasets to return DataSet
 
 	/**
-	 * This ensures a contiguous view or copy so that {@link DatasetUtils#convertToAbstractDataset(ILazyDataset)}
+	 * This ensures a contiguous view or copy so that {@link DatasetUtils#convertToDataset(ILazyDataset)}
 	 * returns a proper DoubleDataset
 	 */
 	@Override
@@ -2409,7 +2410,7 @@ public class DataSet extends DoubleDataset {
 	}
 
 	@Deprecated
-	public DataSet append(AbstractDataset other, int axis) {
+	public DataSet append(Dataset other, int axis) {
 		return convertToDataSet(DatasetUtils.append(this, other, axis));
 	}
 
@@ -2479,7 +2480,7 @@ public class DataSet extends DoubleDataset {
 	public DataSet sort(Integer axis) {
 		if (axis == null) {
 			if (dataShape != null) { // make contiguous
-				AbstractDataset s = clone();
+				Dataset s = clone();
 				odata = s.getBuffer();
 				setData();
 				dataShape = null;
