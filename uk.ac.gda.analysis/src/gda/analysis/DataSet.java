@@ -992,20 +992,20 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param indices
 	 * @param values
-	 * @deprecated Use {@link AbstractDataset#put(int[], Object[])}
+	 * @deprecated Use {@link DatasetUtils#put(Dataset, int[], Object[])}
 	 */
 	@Deprecated
 	public void put(int[] indices, double[] values) {
-		put(indices, Arrays.asList(values).toArray());
+		DatasetUtils.put(this, indices, Arrays.asList(values).toArray());
 	}
 
 	/**
 	 * @param indices
-	 * @deprecated Use {@link AbstractDataset#take(int[], Integer)}
+	 * @deprecated Use {@link DatasetUtils#take(Dataset, int[], Integer)}
 	 */
 	@Deprecated
 	public DataSet take(int[] indices) {
-		return convertToDataSet(take(indices, null));
+		return convertToDataSet(DatasetUtils.take(this, indices, null));
 	}
 
 	/**
