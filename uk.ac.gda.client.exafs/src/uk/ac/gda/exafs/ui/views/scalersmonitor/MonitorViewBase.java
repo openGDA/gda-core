@@ -182,7 +182,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 					logger.trace("reading from fluo detector");
 					xspressStats = getFluoDetectorCountRatesAndDeadTimes();
 				} catch (final Exception e1) {
-					logger.debug("getFluoDetectorCountRatesAndDeadTimes exception" + e1.getMessage(), e1);
+					logger.debug("getFluoDetectorCountRatesAndDeadTimes exception" + e1.getMessage());
 					setRunMonitoring(false);
 					final String errorMessage = " view will have to stop collecting.\nError occurred while getting detector values: "
 												+ e1.getMessage();
