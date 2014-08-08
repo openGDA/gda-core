@@ -153,6 +153,7 @@ class Scan:
         else: 
             self.logger.info("Metashop not found")
         
+        dataWriter.setSampleName(sampleName)
         dataWriter.setDescriptions(descriptions);
         dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
         dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
