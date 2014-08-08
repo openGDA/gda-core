@@ -29,7 +29,7 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         
         self.setName(name);
         self.setInputNames([])
-        self.setExtraNames(['beamok']);
+        self.setExtraNames([name+"_beamok"]);
 
         self.Units=[]
         self.setOutputFormat(['%.0f'])
@@ -38,7 +38,7 @@ class WaitWhileScannableBelowThresholdMonitorOnly(ScannableMotionBase):
         self.lastStatus = True # Good
 
     def atScanStart(self):
-        print '=== Beam checking enabled: '+self.scannableToMonitor.getName()+' must exceed '+str(self.minimumThreshold)
+        print '=== Beam checking enabled: '+self.scannableToMonitor.getName()+' must exceed '+str(self.minimumThreshold)+', currently '+str(self._getStatus())
         self.statusRemainedGoodSinceLastGetPosition = True
 
     def isBusy(self):
@@ -169,7 +169,7 @@ class WaitForScannableState(WaitWhileScannableBelowThresholdMonitorOnly):
     
     def atScanStart(self):
         readyStatesString = self.readyStates[0] if len(self.readyStates)==1 else str(self.readyStates)
-        print '=== Beam checking enabled: '+self.scannableToMonitor.getName()+' must be in state: ' + readyStatesString
+        print '=== Beam checking enabled: '+self.scannableToMonitor.getName()+' must be in state: ' + readyStatesString+', currently '+str(self._getStatus())
         self.statusRemainedGoodSinceLastGetPosition = True
         
     def getPosition(self):

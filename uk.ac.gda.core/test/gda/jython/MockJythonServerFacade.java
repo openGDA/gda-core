@@ -47,29 +47,28 @@ import org.slf4j.LoggerFactory;
  * Mock implementation of interfaces usually provided by JythonServerFacade to be used when running tests outside of gda
  * This implementation is used if you set the property JythonServerFacade.dummy to true
  */
-public class MockJythonServerFacade implements IDefaultScannableProvider, ICurrentScanInformationHolder, IJythonServerNotifer, IScanStatusHolder, ICommandRunner,
-		ITerminalPrinter, ICurrentScanController, IJythonNamespace, IAuthorisationHolder, IScanDataPointProvider,
-		IScriptController, ICommandAborter, IBatonStateProvider, JSFObserver, AliasedCommandProvider {
+public class MockJythonServerFacade implements IDefaultScannableProvider, ICurrentScanInformationHolder,
+		IJythonServerNotifer, IScanStatusHolder, ICommandRunner, ITerminalPrinter, ICurrentScanController,
+		IJythonNamespace, IAuthorisationHolder, IScanDataPointProvider, IScriptController, ICommandAborter,
+		IBatonStateProvider, JSFObserver, AliasedCommandProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(MockJythonServerFacade.class);
 
-	public String evaluateCommandResult = "";
+	private volatile int scanStatus = Jython.IDLE;
 
-	volatile int scanStatus = Jython.IDLE;
-	volatile int scriptStatus = Jython.IDLE;
-
-	private String terminalOutput = "";
 	private HashMap<String, Object> hashTable = new HashMap<String, Object>();
 	private int authorisationLevel = 0;
 	private ObservableComponent scanDataPointObservers = new ObservableComponent();
 	private ObservableComponent scanEventObervable = new ObservableComponent();
 	private IScanDataPoint lastScanDataPoint = null;
-	private ScanInformation latestScanInfo;
-	String scanObserverName = "";
+	private String terminalOutput = "";
+//	private String scanObserverName = "";
+	private String evaluateCommandResult = "";
+	private Scan currentScan = null;
 
-	ClientDetails[] others = new ClientDetails[] { new ClientDetails(1, "A.N. Other", "A.N. Other", "pc012345", 3,
+	private ClientDetails[] others = new ClientDetails[] { new ClientDetails(1, "A.N. Other", "A.N. Other", "pc012345", 3,
 			false, "0-0") };
-	ClientDetails myDetails;
+	private ClientDetails myDetails;
 	{
 		final String username = UserAuthentication.getUsername();
 		final String fullName = LibGdaCommon.getFullNameOfUser(username);
@@ -182,7 +181,6 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	@Override
 	public void abortCommands() {
 		scanStatus = Jython.IDLE;
-		scriptStatus = Jython.IDLE;
 	}
 
 	@Override
@@ -262,6 +260,10 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	@Override
 	public String evaluateCommand(String command) {
 		return evaluateCommandResult;
+	}
+	
+	public void setEvaluateCommandResult(String evaluateCommandResult) {
+		this.evaluateCommandResult = evaluateCommandResult;
 	}
 
 	@Override
@@ -345,7 +347,6 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	@Override
 	public void notifyServer(Object source, Object data) {
 		if (data instanceof ScanEvent) {
-			latestScanInfo = ((ScanEvent) data).getLatestInformation();
 			scanStatus = ((ScanEvent) data).getLatestStatus().asJython();
 			scanEventObervable.notifyIObservers(source, data);
 		} else if (data instanceof ScanDataPoint) {
@@ -353,24 +354,29 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 			scanDataPointObservers.notifyIObservers(source, data);
 		}
 	}
-	
+
+	/**
+	 * This should be used by tests to tell this class the current scan. In the real system the JythonServer would know
+	 * what the current scan is and so would be able to provide information about it. In this mock, the unit tests need
+	 * to tell this MockJythonServer what the current scan is.
+	 */
 	@Override
 	public void setCurrentScan(Scan newScan) {
-		// not used
-//		currentScan = newScan;
+		currentScan = newScan;
 	}
 
 	@Override
 	public ScanInformation getCurrentScanInformation() {
-		return latestScanInfo;
+		return currentScan.getScanInformation();
 	}
-	
+
 	@Override
 	public Vector<Scannable> getDefaultScannables() {
 		return new Vector<Scannable>();
 	}
-	
-	public void setScanObserver(String scanObserver) {
-		this.scanObserverName = scanObserver;
+
+	public void setScanObserver(@SuppressWarnings("unused") String scanObserver) {
+		// not used
+//		this.scanObserverName = scanObserver;
 	}
 }

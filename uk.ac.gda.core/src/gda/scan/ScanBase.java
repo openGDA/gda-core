@@ -1070,6 +1070,11 @@ public abstract class ScanBase implements NestableScan {
 				} catch (InterruptedException e) {
 					setStatus(ScanStatus.TIDYING_UP_AFTER_STOP);
 					throw new ScanInterruptedException(e.getMessage(),e.getStackTrace());
+				} catch (RedoScanLineThrowable e){
+					logger.info("Redoing scan line because: ", e.getMessage());
+					lineScanNeedsDoing = true;
+					currentPointCount = pointNumberAtLineBeginning;
+					continue;
 				} catch (Exception e) {
 					setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
 					throw new Exception("Exception while preparing for scan collection: " + createMessage(e), e);
@@ -1092,6 +1097,11 @@ public abstract class ScanBase implements NestableScan {
 					String message = "Scan aborted on request.";
 					logger.info(message);
 					throw new ScanInterruptedException(message,e.getStackTrace());
+				} catch (RedoScanLineThrowable e){
+					logger.info("Redoing scan line because: ", e.getMessage());
+					lineScanNeedsDoing = true;
+					currentPointCount = pointNumberAtLineBeginning;
+					continue;
 				} catch (Exception e) {
 					String message = e.getMessage();
 					// If the scan was aborted whilst in a waitWhileBusy() the interrupted exception is converted
@@ -1108,6 +1118,11 @@ public abstract class ScanBase implements NestableScan {
 				
 			} catch (ScanInterruptedException e) {
 				throw e;
+			} catch (RedoScanLineThrowable e){
+				logger.info("Redoing scan line because: ", e.getMessage());
+				lineScanNeedsDoing = true;
+				currentPointCount = pointNumberAtLineBeginning;
+				continue;
 			} catch (Exception e) {
 				InterfaceProvider.getTerminalPrinter().print("====================================================================================================");
 				logger.error(createMessage(e) + ": calling atCommandFailure hooks and then interrupting scan.",e);

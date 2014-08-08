@@ -413,6 +413,9 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			out.write(command);
 			out.flush();
 			reply = getReply(multiline);
+		}  catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new DeviceException(getName() + ": sendCommand interrupted.");
 		} catch (Exception ex) {
 			throw new DeviceException(getName() + ": sendCommand: " + ex.getMessage(),ex);
 		} finally {
@@ -678,6 +681,8 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			try {
 				results = tryToGetBinaryData(message, ndata);
 				retry = false;
+			} catch (InterruptedException e) {
+				throw e;
 			} catch (Exception e) {
 				if (numRetries >= 5) {
 					throw e;
