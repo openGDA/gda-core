@@ -1010,6 +1010,15 @@ public class DataSet extends DoubleDataset {
 	}
 
 	/**
+	 * @param indices
+	 * @deprecated Use {@link DatasetUtils#take(Dataset, int[], Integer)}
+	 */
+	@Deprecated
+	public DataSet take(int[] indices, Integer axis) {
+		return convertToDataSet(DatasetUtils.take(this, indices, axis));
+	}
+
+	/**
 	 * Function that returns the JAMA matrix of the 2D dataset
 	 * 
 	 * @return The JAMA Matrix of the whole object
@@ -2513,12 +2522,7 @@ public class DataSet extends DoubleDataset {
 		return swapAxes(axis1, axis2);
 	}
 
-	@Override
-	public DataSet take(int[] indices, Integer axis) {
-		return convertToDataSet(super.take(indices, axis));
-	}
-
-	@Override
+		@Override
 	public DataSet transpose(int... axes) {
 		return convertToDataSet(super.transpose(axes));
 	}
