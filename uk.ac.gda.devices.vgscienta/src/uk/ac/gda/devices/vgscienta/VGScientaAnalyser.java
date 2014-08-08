@@ -258,7 +258,14 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			double[] axis = getEnergyAxis();
 			data.addAxis(getName(), "energies", new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, 2, 1, "eV", kineticEnergyChangesDuringScan);
 		}
-		
+
+		if (firstReadoutInScan) { // place in entry1/instrument/analyser(NXdetector) group.
+			data.addData(getName(), "kinetic_energy_start",  new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { getStartEnergy() }),  "eV", null);
+			data.addData(getName(), "kinetic_energy_center", new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { (Double) centre_energy.getPosition() }), "eV", null);
+			data.addData(getName(), "kinetic_energy_end",    new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { getEndEnergy() }),    "eV", null);
+						
+		}
+				
 		if (firstReadoutInScan) {
 			String aunit, aname;
 			if ("Transmission".equals(getLensMode())) {
