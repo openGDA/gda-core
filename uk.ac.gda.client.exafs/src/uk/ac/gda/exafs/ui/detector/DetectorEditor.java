@@ -635,12 +635,17 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 		}
 	}
-
+	
 	protected void updateROIAfterElementCompositeChange() {
-		double roiStart = ((Number) getDetectorElementComposite().getStart().getValue()).doubleValue();
-		double roiEnd = ((Number) getDetectorElementComposite().getEnd().getValue()).doubleValue();
-		sashPlotForm.getRegionOnDisplay().setROI(new RectangularROI(roiStart, 0, roiEnd - roiStart, 0, 0));
-		sashPlotForm.getRegionOnDisplay().repaint();
+		DetectorElementComposite detectorElementComposite = getDetectorElementComposite();
+		Number start = (Number) detectorElementComposite.getStart().getValue();
+		Number end = (Number) detectorElementComposite.getEnd().getValue();
+		if (start != null && end != null) {
+			double roiStart = start.doubleValue();
+			double roiEnd = end.doubleValue();
+			sashPlotForm.getRegionOnDisplay().setROI(new RectangularROI(roiStart, 0, roiEnd - roiStart, 0, 0));
+			sashPlotForm.getRegionOnDisplay().repaint();
+		}
 	}
 
 	protected void calculateAndPlotCountTotals(Boolean currentEditIndividual) {

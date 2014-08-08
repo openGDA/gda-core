@@ -16,8 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.exafs.ui.views.scalersmonitor;import gda.jython.InterfaceProvider;
-
+package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
 import gda.configuration.properties.LocalProperties;
 import gda.device.CounterTimer;
@@ -45,13 +44,14 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 public class XspressMonitorView extends MonitorViewBase {
 	public static final String ID = "uk.ac.gda.exafs.ui.views.scalersmonitor";
 //	protected static final Logger logger = LoggerFactory.getLogger(XspressMonitorView.class);
-	private static final Double MAX_FLUO_RATE = 500000.0;
+//	private static final Double MAX_FLUO_RATE = 500000.0;
 	protected ScalersMonitorConfig displayData;
 	private IAxis dtAxis;
 	private IAxis primaryAxis;
 	private XspressDetector xspress;
 	private CounterTimer ionchambers;
 	private Double collectionTime;
+	private Double maxFluoRate;
 	
 	public XspressMonitorView() {
 	}
@@ -78,9 +78,8 @@ public class XspressMonitorView extends MonitorViewBase {
 		xspress = (XspressDetector) Finder.getInstance().find(xspressName);
 		String ionchambersName = LocalProperties.get("gda.exafs.ionchambersName", "counterTimer01");
 		ionchambers = (CounterTimer) Finder.getInstance().find(ionchambersName);
-		String monitorCollectionTime = LocalProperties.get("gda.exafs.ui.views.scalersMonitor.collectionTime", "1.0");
-		collectionTime = Double.valueOf(monitorCollectionTime);
-
+		collectionTime = Double.valueOf(LocalProperties.get("gda.exafs.ui.views.scalersMonitor.collectionTime", "1.0"));
+		maxFluoRate = Double.valueOf(LocalProperties.get("gda.exafs.ui.views.scalersMonitor.maxFluoRate", "500000"));
 	}
 
 	protected void updateXspressGrid(Double[] xspressStats, Double[] values) {
@@ -139,7 +138,7 @@ public class XspressMonitorView extends MonitorViewBase {
 			myPlotter.addTrace(ratesTrace);
 			myPlotter.getSelectedXAxis().setRange(0, numElements);
 			myPlotter.getSelectedXAxis().setTitle("Element");
-			myPlotter.getSelectedYAxis().setRange(0, MAX_FLUO_RATE);
+			myPlotter.getSelectedYAxis().setRange(0, maxFluoRate);
 			
 			// deadtime plot
 			myPlotter.setSelectedYAxis(dtAxis);
