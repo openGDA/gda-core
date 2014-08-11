@@ -993,7 +993,7 @@ public class DataSet extends DoubleDataset {
 	/**
 	 * @param indices
 	 * @param values
-	 * @deprecated Use {@link DatasetUtils#put(Dataset, int[], Object[])}
+	 * @deprecated Use {@link DatasetUtils#put(Dataset, int[], Object)}
 	 */
 	@Deprecated
 	public void put(int[] indices, double[] values) {
