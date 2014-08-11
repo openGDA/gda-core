@@ -17,15 +17,15 @@ DEFAULT_CLIENT_DEBUG_PORT = 8001
 
 #===========================================================================================================================#
 
-import logging #@UnusedImport (suppress an incorrect warning raised by PyDev)
-import logging.handlers #@UnusedImport (suppress an incorrect warning raised by PyDev)
+import logging  # @UnusedImport (suppress an incorrect warning raised by PyDev)
+import logging.handlers  # @UnusedImport (suppress an incorrect warning raised by PyDev)
 
 class LoggingFilter(logging.Filter):
 	""" Filter out log messages with a log level of ERROR and above
 		Used so that ERROR+ messages are not written to stdout, just stderr
 	"""
 
-	def filter(self, record): #@ReservedAssignment
+	def filter(self, record):  # @ReservedAssignment
 		return record.levelno < logging.ERROR
 
 def define_loggers(log_level=logging.INFO):
@@ -100,10 +100,10 @@ class PluginData(object):
 		for line in self._manifestLines():
 			line = line.strip()
 			if line.startswith(section_prefix):
-				line = line.split(section_prefix,1)[1]
+				line = line.split(section_prefix, 1)[1]
 				addToItems = True;
 			if addToItems:
-				items.append(line.split(",",1)[0].strip())
+				items.append(line.split(",", 1)[0].strip())
 				if not line.endswith(','):
 					break
 		return items
@@ -117,7 +117,7 @@ class PluginData(object):
 				 uk.ac.gda.epics,
 				 uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.0.0"
  		"""
-		items = [line.split(";",1)[0].strip() for line in self._getManifestSection("Require-Bundle:")]
+		items = [line.split(";", 1)[0].strip() for line in self._getManifestSection("Require-Bundle:")]
 		self.logger.debug('Manifest Require-Bundle in "%s" was: %s' % (self.manifest, items))
 		return items
 
@@ -131,7 +131,7 @@ class PluginData(object):
  		"""
 		items = []
 		for entry in self._getManifestSection("Bundle-ClassPath:"):
-			if entry =='.':
+			if entry == '.':
 				continue
 			path = os.path.join(self.plugin_path, entry)
 			if os.path.exists(path):
@@ -152,8 +152,8 @@ class GdaOS:
 		self.logger = logging.getLogger('GDA_start')  # get the logger instance
 
 	def putenv(self, env_name, env_value):
-		#always put into environment even if in dry run mode as this
-		#ensure other code that relies on it to work
+		# always put into environment even if in dry run mode as this
+		# ensure other code that relies on it to work
 		os.environ[env_name] = env_value
 	
 	def spawn_nowait(self, command, args, dry_run):
@@ -162,7 +162,7 @@ class GdaOS:
 		self.logger.debug("Popen: %s" % (command,))
 		self.logger.debug("       %s" % (args,))
 		if not dry_run:
-			return subprocess.Popen((command,)+args).pid
+			return subprocess.Popen((command,) + args).pid
 		else:
 			self.logger.debug("subprocess.Popen(...) dry-run")
 			return -1
@@ -183,7 +183,7 @@ class GdaOS:
 		self.logger.debug("Popen: %s" % (command,))
 		self.logger.debug("       %s" % (args,))
 		if not dry_run:
-			return subprocess.Popen((command,)+args, stdout=subprocess.PIPE).stdout
+			return subprocess.Popen((command,) + args, stdout=subprocess.PIPE).stdout
 		else:
 			self.logger.debug("subprocess.Popen(... , stdout=subprocess.PIPE) dry-run")
 			return ""
@@ -285,7 +285,7 @@ where task can be:
 
 		self.get_commandlineArgs(argv)
 		# this file is  <workspace>_git/gda-core.git/uk.ac.gda.core/bin/gda
-		self.gda_install_git_loc = os.path.realpath(abspath(os.path.realpath(os.path.dirname(__file__)),"..","..",".."))
+		self.gda_install_git_loc = os.path.realpath(abspath(os.path.realpath(os.path.dirname(__file__)), "..", "..", ".."))
 		assert self.gda_install_git_loc.endswith("_git")
 		self.gda_install_workspace_loc = self.gda_install_git_loc[:-4]
 		assert os.path.isdir(self.gda_install_workspace_loc)
@@ -330,37 +330,28 @@ where task can be:
 				self.logger.critical('Client XML file does not exist: "%s"' % (self.options.os_xml,))
 				sys.exit(1)
 
-		pids=[]
+		pids = []
 		if self.task == "logpanel":
 			pids.append(self.log_panel(debug_opts=debug_opts))
-		elif self.task.find("logserver")>=0:
+		elif self.task.find("logserver") >= 0:
 			pids.append(self.log_server(debug_opts=debug_opts))
-		elif self.task.find("nameserver")>=0:
+		elif self.task.find("nameserver") >= 0:
 			pids.append(self.name_server(port=self.options.ns_port, debug_opts=debug_opts))
-		elif self.task.find("namemanager")>=0:
+		elif self.task.find("namemanager") >= 0:
 			pids.append(self.name_server_manager(port=self.options.ns_port, debug_opts=debug_opts))
-		elif self.task.find("eventserver")>=0:
+		elif self.task.find("eventserver") >= 0:
 			pids.append(self.event_server(debug_opts=debug_opts))
-		elif self.task.find("objectserver")>=0:
+		elif self.task.find("objectserver") >= 0:
 			pids.append(self.object_server(xmlfile=self.options.os_xml, debug_opts=debug_opts))
 		
 		elif self.task == "servers":
 			
+			if self.options.stop:
+				self.stop_all_processes(pids, debug_opts)
+			
 			if self.options.start:
 				self.start_all_processes(pids, debug_opts)
 			
-			elif self.options.stop:
-				self.stop_all_processes(pids, debug_opts)
-			
-			elif self.options.restart:
-				
-				self.options.stop = True
-				self.stop_all_processes(pids, debug_opts)
-				self.options.stop = False
-				
-				self.options.start = True
-				self.start_all_processes(pids, debug_opts)
-				self.options.start = False
 		
 		elif self.task == "client":
 			pids.append(self.client(xmlfile=self.options.os_xml, debug_opts=debug_opts))
@@ -372,16 +363,24 @@ where task can be:
 		return pids
 
 	def start_all_processes(self, pids, debug_opts):
+		#force stop false
+		old_options_stop = self.options.stop
+		self.options.stop = False
 		pids.append(self.log_server())
 		pids.append(self.name_server(port=self.options.ns_port))
 		pids.append(self.event_server())
 		pids.append(self.object_server(xmlfile=self.options.os_xml, debug_opts=debug_opts))
+		self.options.stop = old_options_stop
 
 	def stop_all_processes(self, pids, debug_opts):
+		#force start False
+		old_options_start = self.options.start
+		self.options.start = False
 		pids.append(self.object_server(xmlfile=self.options.os_xml, debug_opts=debug_opts))
 		pids.append(self.event_server())
 		pids.append(self.name_server(port=self.options.ns_port))
 		pids.append(self.log_server())
+		self.options.start = old_options_start
 
 	def get_commandlineArgs(self, argv):
 		""" Read the command line arguments and perform some basic validation.
@@ -394,7 +393,7 @@ where task can be:
 		if self.options.verbose:
 			self.logger.setLevel(logging.DEBUG)  # log more
 		if self.options.trace:
-			self.logger.setLevel(1)              # log everything
+			self.logger.setLevel(1)  # log everything
 
 		# --profile conflicts with -x
 		if self.options.profile and self.options.os_xml:
@@ -417,6 +416,10 @@ where task can be:
 		# if start/stop/restart not specified, default is to restart
 		if self.options.start == None and self.options.stop == None and self.options.restart == None:
 			self.options.restart = True
+
+		# restart implies stop and start
+		if self.options.restart:
+			self.options.start = self.options.stop = True
 
 		if self.options.version:
 			return
@@ -625,18 +628,18 @@ where task can be:
 
 		self.logger.debug("<< GDA configuration details >>")
 		item_description = [ ("gda.config", self.options.gda_config) ]
-		item_description.append( ('new style layout', bool(self.is_new_style_layout)) )
+		item_description.append(('new style layout', bool(self.is_new_style_layout)))
 		if self.is_new_style_layout:
-			item_description.append( ('profile', self.options.profile) )
-			item_description.append( ('mode', self.options.gda_mode) )
-		item_description.append( ("gda.install.workspace.loc", self.gda_install_workspace_loc) )
-		item_description.append( ("gda.install.git.loc", self.gda_install_git_loc) )
-		item_description.append( ("gda.data", self.options.gda_data or "Will be taken from the java.properties file - if it is missing, then GDA may not work") )
-		item_description.append( ("gda.var", self.options.gda_var or "Will be taken from the java.properties file - if it is missing, then GDA may not work") )
-		item_description.append( ("gda_logdir", self.options.gda_logdir or "gda.logs.dir will be taken from the java.properties file") )
-		item_description.append( ("java.properties", self.options.java_properties) )
-		item_description.append( ("jacorb.config.dir", self.options.jacorb_config_dir) )
-		item_description.append( ("gov.aps.jca.JCALibrary.properties", self.options.jcalibrary_properties) )
+			item_description.append(('profile', self.options.profile))
+			item_description.append(('mode', self.options.gda_mode))
+		item_description.append(("gda.install.workspace.loc", self.gda_install_workspace_loc))
+		item_description.append(("gda.install.git.loc", self.gda_install_git_loc))
+		item_description.append(("gda.data", self.options.gda_data or "Will be taken from the java.properties file - if it is missing, then GDA may not work"))
+		item_description.append(("gda.var", self.options.gda_var or "Will be taken from the java.properties file - if it is missing, then GDA may not work"))
+		item_description.append(("gda_logdir", self.options.gda_logdir or "gda.logs.dir will be taken from the java.properties file"))
+		item_description.append(("java.properties", self.options.java_properties))
+		item_description.append(("jacorb.config.dir", self.options.jacorb_config_dir))
+		item_description.append(("gov.aps.jca.JCALibrary.properties", self.options.jcalibrary_properties))
 		for item, description in item_description:
 			self.logger.debug("%-25s: %s" % (item, description))
 
@@ -678,7 +681,7 @@ where task can be:
 			if len(locs) <> 1:
 				self.logger.warning('Plugin %s appears in multiple locations: %s' % (p, locs))
 			self.plugin_location[p] = locs[0]  # select the first location, which will be the git checkout
-			self.logger.trace('   %-51s %s' % (p,locs[0]))
+			self.logger.trace('   %-51s %s' % (p, locs[0]))
 
 		self.tp = abspath(self.gda_install_workspace_loc, 'tp')
 
@@ -705,25 +708,25 @@ where task can be:
 
 		# uk.ac.gda.core needs special handling, since it uses classes/ rather than the standard bin/
 		location = self.plugin_location["uk.ac.gda.core"]
-		self.append_to_class_path( os.path.join(location, "classes", "main") )
+		self.append_to_class_path(os.path.join(location, "classes", "main"))
 		if self.options.testing:
-			self.append_to_class_path( os.path.join(location, "classes", "test") )
-		self.append_to_class_path( os.path.join(location, "jars", "*") )
+			self.append_to_class_path(os.path.join(location, "classes", "test"))
+		self.append_to_class_path(os.path.join(location, "jars", "*"))
 		plugin_lib = os.path.join(location, "lib", self.options.lib_subdir)
 		if os.path.isdir(plugin_lib) and [item for item in os.listdir(plugin_lib) if not item.startswith('.')]:
-			self.append_to_library_path( plugin_lib )
+			self.append_to_library_path(plugin_lib)
 
 		location = self.plugin_location["uk.ac.diamond.jython"]
-		jythonJarPath = os.path.join(location, "jython2.5","jython.jar")
+		jythonJarPath = os.path.join(location, "jython2.5", "jython.jar")
 		if not os.path.exists(jythonJarPath):
 			self.logger.critical("Jython  %s does not exist" % (jythonJarPath,))
 			sys.exit(1)
 						
-		self.append_to_class_path( os.path.join(location, "jython2.5","jython.jar") )
+		self.append_to_class_path(os.path.join(location, "jython2.5", "jython.jar"))
 		if not self.options.smart:
 			# be dumb - just add in all projects, plus tp/various
 			location = self.plugin_location["uk.ac.gda.libs"]
-			self.append_to_class_path( os.path.join(location, "*") )
+			self.append_to_class_path(os.path.join(location, "*"))
 
 			for plugin, location in sorted(self.plugin_location.iteritems()):
 				if plugin in ("uk.ac.gda.core", "uk.ac.gda.libs"):
@@ -735,12 +738,12 @@ where task can be:
 
 			tp_bundles = os.path.join(self.tp, "plugins")
 			if os.path.isdir(tp_bundles) and [item for item in os.listdir(tp_bundles) if not item.startswith('.')]:
-				self.append_to_class_path( os.path.join(tp_bundles, "*") )
+				self.append_to_class_path(os.path.join(tp_bundles, "*"))
 
 		else:
 			location = self.plugin_location["uk.ac.gda.libs"]
-			self.append_to_class_path( os.path.join(location, "*") )
-#			self.append_to_class_path( os.path.join(location, "jython2.5.1","jython.jar") )
+			self.append_to_class_path(os.path.join(location, "*"))
+# 			self.append_to_class_path( os.path.join(location, "jython2.5.1","jython.jar") )
 
 			# be smart - just add plugins listed as dependencies in the CSpec for the GDA configuration
 			self.plugin_parser = PluginData(self.options.lib_subdir)  # for extracting information from a plugin manifest
@@ -758,10 +761,10 @@ where task can be:
 		# add any classes and jars from the configuration
 		config_classes = abspath(self.options.gda_config, "classes")
 		if os.path.isdir(config_classes) and [item for item in os.listdir(config_classes) if not item.startswith('.')]:
-			self.append_to_class_path( config_classes )
+			self.append_to_class_path(config_classes)
 		config_jars = abspath(self.options.gda_config, "jars")
 		if os.path.isdir(config_jars) and [item for item in os.listdir(config_jars) if not item.startswith('.')]:
-			self.append_to_class_path( os.path.join(config_jars, "*") )
+			self.append_to_class_path(os.path.join(config_jars, "*"))
 
 		self.logger.trace("<< Class Path >>")
 		for item in self.gda_class_path_list:
@@ -780,13 +783,13 @@ where task can be:
 		self.logger.trace("append_single_plugin_to_class_path_and_library_path called for: %s" % (plugin,))
 		plugin_bin = os.path.join(plugin, "bin")
 		if os.path.isdir(plugin_bin) and [item for item in os.listdir(plugin_bin) if not item.startswith('.')]:
-			self.append_to_class_path( plugin_bin )
+			self.append_to_class_path(plugin_bin)
 		plugin_jars = os.path.join(plugin, "jars")
 		if os.path.isdir(plugin_jars) and [item for item in os.listdir(plugin_jars) if not item.startswith('.')]:
-			self.append_to_class_path( os.path.join(plugin_jars, "*") )
+			self.append_to_class_path(os.path.join(plugin_jars, "*"))
 		plugin_lib = os.path.join(plugin, "lib", self.options.lib_subdir)
 		if os.path.isdir(plugin_lib) and [item for item in os.listdir(plugin_lib) if not item.startswith('.')]:
-			self.append_to_library_path( plugin_lib )
+			self.append_to_library_path(plugin_lib)
 
 	def append_to_class_path(self, item):
 		""" Appends a single item to the class path
@@ -825,7 +828,7 @@ where task can be:
 			# handle a regular (non-target-platform plugin)
 			self.append_single_plugin_to_class_path_and_library_path(location)
 			self.plugin_parser.setup(location)
-			dependencies = self.plugin_parser.requireBundleSection()  #look in manifest for other dependencies
+			dependencies = self.plugin_parser.requireBundleSection()  # look in manifest for other dependencies
 			if self.options.testing:
 				testDependent = dependent + ".test"
 				if self.plugin_location.get(dependent):
@@ -837,17 +840,17 @@ where task can be:
 
 		else:
 			# look up a jar in tp/plugins
-			jarPaths = glob.glob( os.path.join(self.tp, "plugins", dependent + "_*.jar") )  # use * in place of version numbers
+			jarPaths = glob.glob(os.path.join(self.tp, "plugins", dependent + "_*.jar"))  # use * in place of version numbers
 			if len(jarPaths) > 1:
 				self.logger.warn("Multiple jars satisfy %s: %s" % (dependent, jarPaths))
 			if len(jarPaths) >= 1:
 				for jarPath in sorted(jarPaths):
 					# FIXME: this is a complete hack. There are 2 version of jscience (2.0.2 and 4.3.1) in tp/ and the classpath order is important.
 					# Further investigation is required.
-					self.append_to_class_path( jarPath )
+					self.append_to_class_path(jarPath)
 			else:
-				rcpclient_required_dependent=["org.python.pydev","org.python.pydev.core","org.python.pydev.debug","org.python.pydev.ast","org.python.pydev.customizations","org.python.pydev.help","org.python.pydev.jython","org.python.pydev.parser","org.python.pydev.refactoring","com.python.pydev","com.python.pydev.analysis","com.python.pydev.codecompletion","com.python.pydev.debug","com.python.pydev.fastparser","com.python.pydev.refactoring","ch.qos.logback.eclipse","ch.qos.logback.beagle"]
-				#Only RCP client requires these bundles so become critial - a real hack, need a better solution.
+				rcpclient_required_dependent = ["org.python.pydev", "org.python.pydev.core", "org.python.pydev.debug", "org.python.pydev.ast", "org.python.pydev.customizations", "org.python.pydev.help", "org.python.pydev.jython", "org.python.pydev.parser", "org.python.pydev.refactoring", "com.python.pydev", "com.python.pydev.analysis", "com.python.pydev.codecompletion", "com.python.pydev.debug", "com.python.pydev.fastparser", "com.python.pydev.refactoring", "ch.qos.logback.eclipse", "ch.qos.logback.beagle"]
+				# Only RCP client requires these bundles so become critial - a real hack, need a better solution.
 				if self.task == "rcpclient" and dependent in rcpclient_required_dependent:
 					self.logger.critical("Cannot find dependent: %s" % (dependent,))
 
@@ -872,14 +875,14 @@ where task can be:
 		self.logger.debug("adding to %s: %s " % (self.libPath, path))
 
 
-	def getpids(self,grep_phrases):
-		if len(grep_phrases)==0:
+	def getpids(self, grep_phrases):
+		if len(grep_phrases) == 0:
 			raise "getpids - grep_phrases is empty)"
 		self.logger.debug("grep_phrases is %s" % (grep_phrases,))
-		pids=()
+		pids = ()
 		if(self.osIsWindows):
 			jpsPath = abspath(os.getenv("JAVA_HOME"), "bin", "jps.exe")
-			a= self.gdaos.popen_get_stdout('"%s" -vl' % jpsPath, False)  # quotes around jpsPath in case of embedded blanks
+			a = self.gdaos.popen_get_stdout('"%s" -vl' % jpsPath, False)  # quotes around jpsPath in case of embedded blanks
 			lines = a.readlines()
 			print "pid lines are "
 			print lines
@@ -894,7 +897,7 @@ where task can be:
 				for grep_phrase in grep_phrases:
 					if not grep_phrase in parts:
 						allfound = False
-						#print "not Match ", grep_phrase
+						# print "not Match ", grep_phrase
 						break
 				if allfound:
 					pids += (int(parts[0]),)
@@ -903,7 +906,7 @@ where task can be:
 			lines = a.readlines()
 			if self.options.verbose :
 				print lines
-			#pids=()
+			# pids=()
 			for line in lines :
 				line = line.strip()
 				parts = line.split()
@@ -918,7 +921,7 @@ where task can be:
 			print pids
 		return pids
 
-	def kill_process(self,grep_phrases, send_quit=False):
+	def kill_process(self, grep_phrases, send_quit=False):
 		if(self.osIsWindows):
 			print grep_phrases
 			pids = self.getpids(grep_phrases)
@@ -928,7 +931,7 @@ where task can be:
 						print "trying to kill process with pid " , str(pid)
 						os.system("tskill " + str(pid))
 					except:
-						type, exception, traceback =sys.exc_info()
+						type, exception, traceback = sys.exc_info()
 						print "Exception raised when trying to kill process %s. %s" % (pid, exception)
 						print "You may not have privilege"
 						return False
@@ -940,7 +943,7 @@ where task can be:
 				signals = [signal.SIGQUIT] + signals
 			
 			for sig in signals:
-				pids= self.getpids(grep_phrases)
+				pids = self.getpids(grep_phrases)
 				for pid in pids:
 					if self.options.verbose:
 						print "About to kill process %d with signal %d" % (pid, sig)
@@ -952,37 +955,37 @@ where task can be:
 							print "Exception raised when trying to kill process %s. %s" % (pid, exception)
 							print "You may not have privilege"
 							return False
-						if ( len(pids) > 0 and sig == signal.SIGTERM):
+						if (len(pids) > 0 and sig == signal.SIGTERM):
 							time.sleep(3)
-						pids= self.getpids(grep_phrases)
-						if ( len(pids) > 0 and sig == signal.SIGTERM):
+						pids = self.getpids(grep_phrases)
+						if (len(pids) > 0 and sig == signal.SIGTERM):
 							time.sleep(7)
 						if (len(pids) == 0):
 							return True
 		if self.options.dry_run:
 			return True
-		pids= self.getpids(grep_phrases)
+		pids = self.getpids(grep_phrases)
 		for pid in pids:
-			print "Error -unable to kill process id=%d",pid
-		return len(pids)==0
+			print "Error -unable to kill process id=%d", pid
+		return len(pids) == 0
 
 
-	def java(self, class_path,class_name, prevmargs=(), vmargs=(), args=(), wait=False, debug_opts=None):
+	def java(self, class_path, class_name, prevmargs=(), vmargs=(), args=(), wait=False, debug_opts=None):
 		old_class_path = os.getenv("CLASSPATH")
 		if old_class_path == None:
 			new_class_path = class_path
 			old_class_path = ""
 		else:
-			new_class_path = class_path + os.pathsep  + old_class_path
+			new_class_path = class_path + os.pathsep + old_class_path
 		self.gdaos.putenv("CLASSPATH", new_class_path)
 		self.logger.debug("setting CLASSPATH to %s" % new_class_path)
 		class_name_tuple = (class_name,)
 		pid = self.start_process(self.javabin, prevmargs, vmargs, class_name_tuple + args, wait, debug_opts)
-		#Reset to old value so that future calls to java are not effected by this one
+		# Reset to old value so that future calls to java are not effected by this one
 		self.gdaos.putenv("CLASSPATH", old_class_path)
 		return pid
 
-	def start_process(self, imagePath, prevmargs=(), vmargs=(),  args=(), wait=False, debug_opts=None):
+	def start_process(self, imagePath, prevmargs=(), vmargs=(), args=(), wait=False, debug_opts=None):
 		
 		# Add plugin native libraries to library path
 		for plugin_lib_path in self.library_path:
@@ -996,15 +999,15 @@ where task can be:
 				suspend = "y"
 			vmargs_debug = (
 				"-Xdebug",
-				"-Xrunjdwp:transport=dt_socket," +
-				"address=" + str(debug_opts["debug_port"]) +
+				"-Xrunjdwp:transport=dt_socket," + 
+				"address=" + str(debug_opts["debug_port"]) + 
 				",server=y,suspend=" + suspend,)
 			vmargs_tuple += vmargs_debug
 			
 		if self.options.profiler:
 			vmargs_profiler = (
 				"-agentlib:jprofilerti=port=" + str(self.options.profiler_port),
-				"-Xbootclasspath/a:"+self.profiler_jar
+				"-Xbootclasspath/a:" + self.profiler_jar
 				) 
 			vmargs_tuple += vmargs_profiler
 			self.addToLd_Library_Path(self.profiler_lib)
@@ -1012,14 +1015,14 @@ where task can be:
 		vmargs_tuple += vmargs
 		
 		if self.options.foreground:
-			self.gdaos.run_in_foreground(imagePath, prevmargs+vmargs_tuple + args, self.options.dry_run)
+			self.gdaos.run_in_foreground(imagePath, prevmargs + vmargs_tuple + args, self.options.dry_run)
 		elif wait :
-			return self.gdaos.runcmd_get_stdout( imagePath , prevmargs+vmargs_tuple + args, self.options.dry_run)
+			return self.gdaos.runcmd_get_stdout(imagePath , prevmargs + vmargs_tuple + args, self.options.dry_run)
 		else :
-			return self.gdaos.spawn_nowait( imagePath , prevmargs+vmargs_tuple + args, self.options.dry_run)
+			return self.gdaos.spawn_nowait(imagePath , prevmargs + vmargs_tuple + args, self.options.dry_run)
 
 	def stop_start_java(self, classpath, class_name, vmargs=(), args=(), sleep=0, debug_opts=None):
-		if self.options.stop and not self.kill_process((class_name,)+vmargs+args, send_quit=self.options.threaddump):
+		if self.options.stop and not self.kill_process((class_name,) + vmargs + args, send_quit=self.options.threaddump):
 			return 0
 		if not self.options.start:
 			return 0
@@ -1029,29 +1032,29 @@ where task can be:
 		return pid
 	
 	def stop_start_process(self, imagePath, prevmargs=(), vmargs=(), args=(), debug_opts=None):
-		if self.options.stop and not self.kill_process((os.path.realpath(imagePath),)+args):
+		if self.options.stop and not self.kill_process((os.path.realpath(imagePath),) + args):
 			return 0
 		if not self.options.start:
 			return 0
-		pid = self.start_process(imagePath, prevmargs, vmargs, args, debug_opts=debug_opts )
+		pid = self.start_process(imagePath, prevmargs, vmargs, args, debug_opts=debug_opts)
 		return pid
 			
 	def addOptionalVMArgs(self, vmargs):
 		# the following are only added if they have been defined, else should be defined in the java.properties file
 		if self.options.gda_logdir != None:
-			vmargs += ("-Dgda.logs.dir="+self.options.gda_logdir,)
+			vmargs += ("-Dgda.logs.dir=" + self.options.gda_logdir,)
 		if self.options.gda_data != None:
-			vmargs += ("-Dgda.data="+self.options.gda_data,)
+			vmargs += ("-Dgda.data=" + self.options.gda_data,)
 		if self.options.gda_var != None:
-			vmargs += ("-Dgda.var="+self.options.gda_var,)
+			vmargs += ("-Dgda.var=" + self.options.gda_var,)
 		if self.options.gda_mode != None:
-			vmargs += ("-Dgda.mode="+self.options.gda_mode,)
+			vmargs += ("-Dgda.mode=" + self.options.gda_mode,)
 		if self.options.java_properties != None:
-			vmargs += ("-Dgda.propertiesFile="+self.options.java_properties,)
+			vmargs += ("-Dgda.propertiesFile=" + self.options.java_properties,)
 		return vmargs
 
 	def log_panel(self, debug_opts=None):
-		class_name="gda.util.LogPanel"
+		class_name = "gda.util.LogPanel"
 		vmargs = (
 					"-Dgda.install.workspace.loc=" + self.gda_install_workspace_loc,
 					"-Dgda.install.git.loc=" + self.gda_install_git_loc,
@@ -1065,7 +1068,7 @@ where task can be:
 		return self.stop_start_java(class_path, class_name , vmargs=vmargs, debug_opts=debug_opts)
 
 	def log_server(self, debug_opts=None):
-		class_name="gda.util.LogServer"
+		class_name = "gda.util.LogServer"
 		vmargs = (
 					"-Dgda.install.workspace.loc=" + self.gda_install_workspace_loc,
 					"-Dgda.install.git.loc=" + self.gda_install_git_loc,
@@ -1075,30 +1078,30 @@ where task can be:
 		return self.stop_start_java(self.gda_class_path, class_name , vmargs=vmargs, sleep=2, debug_opts=debug_opts)
 	
 	def name_server(self, port, debug_opts=None):
-		class_name="org.jacorb.naming.NameServer"
+		class_name = "org.jacorb.naming.NameServer"
 		vmargs = (
-					"-Djacorb.config.dir="+ self.options.jacorb_config_dir,
-					"-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB", 
-					"-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton", 
+					"-Djacorb.config.dir=" + self.options.jacorb_config_dir,
+					"-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB",
+					"-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton",
 					"-DOAPort=" + str(port)
 				)
 		return self.stop_start_java(self.gda_class_path, class_name , vmargs=vmargs, sleep=2, debug_opts=debug_opts)
 
 	
 	def name_server_manager(self, port, debug_opts=None):
-		class_name="org.jacorb.naming.namemanager.NameManager"
+		class_name = "org.jacorb.naming.namemanager.NameManager"
 		vmargs = (
-					"-Djacorb.config.dir="+ self.options.jacorb_config_dir,
-					"-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB", 
-					"-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton", 
+					"-Djacorb.config.dir=" + self.options.jacorb_config_dir,
+					"-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB",
+					"-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton",
 					"-DOAPort=" + str(port)
 				)
 		if self.options.gda_logdir != None:
-			vmargs += ("-Dgda.logs.dir="+self.options.gda_logdir,)
+			vmargs += ("-Dgda.logs.dir=" + self.options.gda_logdir,)
 		return self.stop_start_java(self.gda_class_path, class_name , vmargs=vmargs, sleep=2, debug_opts=debug_opts)
 
 	def event_server(self, debug_opts=None):
-		class_name="gda.factory.corba.util.ChannelServer"
+		class_name = "gda.factory.corba.util.ChannelServer"
 		vmargs = (
 					"-Dgda.install.workspace.loc=" + self.gda_install_workspace_loc,
 					"-Dgda.install.git.loc=" + self.gda_install_git_loc,
@@ -1109,10 +1112,10 @@ where task can be:
 		return self.stop_start_java(self.gda_class_path, class_name , vmargs=vmargs, sleep=2, debug_opts=debug_opts)
 
 	def object_server(self, xmlfile="", debug_opts=None):
-		class_name="gda.util.ObjectServer"
-		args=()
+		class_name = "gda.util.ObjectServer"
+		args = ()
 		if xmlfile != None:
-			args=("-f",xmlfile)
+			args = ("-f", xmlfile)
 			if self.options.profile:
 				args = args + ("-p", self.options.profile)
 		vmargs = (
@@ -1129,7 +1132,7 @@ where task can be:
 		return self.stop_start_java(self.gda_class_path, class_name , vmargs=vmargs, args=args, debug_opts=debug_opts)
 
 	def client(self, xmlfile="", debug_opts=None):
-		class_name="gda.gui.AcquisitionGUI"		
+		class_name = "gda.gui.AcquisitionGUI"		
 		vmargs = (
 					"-Dgda.install.workspace.loc=" + self.gda_install_workspace_loc,
 					"-Dgda.install.git.loc=" + self.gda_install_git_loc,
@@ -1139,9 +1142,9 @@ where task can be:
 				)
 		vmargs = self.addOptionalVMArgs(vmargs)
 		
-		args=()
+		args = ()
 		if xmlfile != None:
-			args=("-f",xmlfile)		
+			args = ("-f", xmlfile)		
 		if self.options.nosplash:
 			args += ("-nosplash",)
 		
@@ -1152,7 +1155,7 @@ where task can be:
 					"-Dgda.install.workspace.loc=" + self.gda_install_workspace_loc,
 					"-Dgda.install.git.loc=" + self.gda_install_git_loc,
 					"-Dgda.config=" + self.options.gda_config,
-					"-Djacorb.config.dir="+ self.options.jacorb_config_dir,
+					"-Djacorb.config.dir=" + self.options.jacorb_config_dir,
 					"-Dgov.aps.jca.JCALibrary.properties=" + self.options.jcalibrary_properties
 				)
 		vmargs = self.addOptionalVMArgs(vmargs)
@@ -1161,16 +1164,16 @@ where task can be:
 			if not os.path.exists(self.options.rcp_image):
 				self.logger.critical('Attempting to run RCP image that does not exist: "%s"' % (self.options.rcp_image,))
 				sys.exit(1)
-		return self.stop_start_process(self.options.rcp_image,prevmargs=("-vmargs",), vmargs=vmargs, debug_opts=debug_opts)
+		return self.stop_start_process(self.options.rcp_image, prevmargs=("-vmargs",), vmargs=vmargs, debug_opts=debug_opts)
 
 	def user_permissions(self, xmlfile="", debug_opts=None):
-		class_name="gda.jython.authoriser.EditPermissions"
+		class_name = "gda.jython.authoriser.EditPermissions"
 		vmargs = (
 				"-Dgda.install.workspace.loc=" + self.gda_install_workspace_loc,
 				"-Dgda.install.git.loc=" + self.gda_install_git_loc,
 				"-Dgda.config=" + self.options.gda_config
 				)
-		args=()
+		args = ()
 		return self.stop_start_java(self.gda_class_path, class_name , vmargs=vmargs, args=args, debug_opts=debug_opts)
 
 	def get_version(self):
@@ -1185,8 +1188,8 @@ where task can be:
 				)
 		vmargs = self.addOptionalVMArgs(vmargs)
 
-		class_name="gda.util.GDALauncherHelper"
-		class_path = self.gda_class_path + os.pathsep + os.path.join(self.gda_install_git_loc, "gda-core.git","uk.ac.gda.core", "classes", "test")
+		class_name = "gda.util.GDALauncherHelper"
+		class_path = self.gda_class_path + os.pathsep + os.path.join(self.gda_install_git_loc, "gda-core.git", "uk.ac.gda.core", "classes", "test")
 		outputFilePath = "TestStartupScript_Output.py"
 		verbose = self.options.verbose
 		self.options.verbose = False
@@ -1197,7 +1200,7 @@ where task can be:
 		lines = a.readlines()
 		if self.options.verbose:
 			print lines
-		script =""
+		script = ""
 		for line in lines:
 			script += line
 		exec(script)
