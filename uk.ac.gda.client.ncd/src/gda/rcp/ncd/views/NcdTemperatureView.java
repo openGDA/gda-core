@@ -38,17 +38,18 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import org.dawnsci.plotting.jreality.core.AxisMode;
-import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
-import org.dawnsci.plotting.jreality.impl.Plot1DGraphTable;
-import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
-import org.dawnsci.plotting.jreality.impl.PlotException;
-import org.dawnsci.plotting.jreality.overlay.Overlay1DProvider;
-import org.dawnsci.plotting.jreality.overlay.OverlayProvider;
-import org.dawnsci.plotting.jreality.overlay.OverlayType;
+
 import org.dawnsci.plotting.jreality.overlay.events.AbstractOverlayConsumer;
 import org.dawnsci.plotting.jreality.overlay.events.OverlayDrawingEvent;
-import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
+import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
+import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DAppearance;
+import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DGraphTable;
+import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DStyles;
+import org.eclipse.dawnsci.plotting.api.jreality.impl.PlotException;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay1DProvider;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayProvider;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayType;
+import org.eclipse.dawnsci.plotting.api.jreality.overlay.primitives.PrimitiveType;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -104,7 +105,6 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 	public static final String ID = "gda.rcp.ncd.views.NcdTemperatureView"; //$NON-NLS-1$
 	private static final Logger logger = LoggerFactory.getLogger(NcdTemperatureView.class);
 	private static final String[] columnNames = {"Ramp","End Temp","Rate (deg/min)","Dwell Time (min)","Cooling Speed"};
-//	private static final String[] columnNames = {"Ramp","Start Temp","End Temp","Rate (deg/min)","Dwell Time (min)",
 //	"Cooling Speed" };
 	private static final int RAMP = 0;
 	private static final int ENDTEMP = 1;
@@ -1237,18 +1237,4 @@ public class NcdTemperatureView extends ViewPart implements IObserver {
 		}
 	}
 
-//	public static void main(String[] args) {
-//		Display display = new Display();
-//		Shell shell = new Shell(display);
-//		shell.setText("Temperature Configure");
-//		shell.setLayout(new FillLayout());
-//		NcdTemperatureView sd = new NcdTemperatureView();
-//		sd.createPartControl(shell);
-//		shell.open();
-//		while (!shell.isDisposed()) {
-//			if (!display.readAndDispatch())
-//				display.sleep();
-//		}
-//		display.dispose();
-//	}
 }
