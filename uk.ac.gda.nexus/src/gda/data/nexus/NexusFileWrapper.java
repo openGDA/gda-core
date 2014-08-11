@@ -298,4 +298,16 @@ public class NexusFileWrapper implements org.nexusformat.NeXusFileInterface {
 	public void putslab(Object arg0, long[] arg1, long[] arg2) throws NexusException {
 		file.putslab(arg0, arg1, arg2);
 	}
+
+	@Override
+	public Object getattr(String name) throws NexusException {
+		logger.debug("getattr - " + name);
+		return file.getattr(name);
+	}
+
+	@Override
+	public void putattr(String name, Object array, int[] size, int iType) throws NexusException {
+		logger.debug("putattr - " + name);
+		file.putattr(name, array, size, iType);
+	}
 }
