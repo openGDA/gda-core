@@ -49,7 +49,6 @@ public class NumTracker {
 
 	private FilenameFilter filter;
 
-
 	/**
 	 * Creates a {@code NumTracker} with extension set to tmp or value of java property 
 	 * LocalProperties.GDA_DATA_NUMTRACKER_EXTENSION,
@@ -60,6 +59,10 @@ public class NumTracker {
 		this("tmp");
 	}
 
+	public NumTracker(String extension, String dirname) throws IOException{
+		setFileExtension(extension);
+		openDir(dirname);
+	}
 	/**
 	 * Creates a {@code NumTracker} with the specified extension.
 	 * 
@@ -78,7 +81,11 @@ public class NumTracker {
 			logger.error(msg);
 			throw new IOException(msg);
 		}
+		openDir(dirname);
 		
+	}
+
+	private void openDir(String dirname) throws IOException{
 		// If the directory doesn't exist then create it.
 		dir = new File(dirname);
 		if (!dir.exists()) {
@@ -88,9 +95,8 @@ public class NumTracker {
 				logger.error(msg);
 				throw new IOException(msg);
 			}
-		}
+		}		
 	}
-
 	/**
 	 * @return the current file number
 	 */
