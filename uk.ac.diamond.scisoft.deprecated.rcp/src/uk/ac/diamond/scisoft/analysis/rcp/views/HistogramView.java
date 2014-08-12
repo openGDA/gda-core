@@ -63,7 +63,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
@@ -111,7 +110,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 
 	private static HashMap<String, Integer> colourSettings = new HashMap<String,Integer>();
 	
-	protected List<AbstractDataset> histograms = null;
+	protected List<Dataset> histograms = null;
 	protected List<IObserver> observers = 
 		Collections.synchronizedList(new LinkedList<IObserver>());
 
@@ -121,7 +120,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 	protected int histogramSize = 128;
 
 	private static final int SLIDERSECTIONS = 1000; // Number of discrete points the sliders for max and min sliders have
-	protected AbstractDataset data = null;
+	protected Dataset data = null;
 
 	private CCombo cmbColourMap;
 	private Composite composite;
@@ -675,12 +674,12 @@ public class HistogramView extends ViewPart implements SelectionListener,
 		histogramFunc.setMinMax(min,max);
 		histogramFunc.setIgnoreOutliers(true);
 		// sanity check if there is actually a histogram live
-		List<AbstractDataset> newHistogram = histogramFunc.value(data); 
-		AbstractDataset histogram = newHistogram.get(0);
+		List<? extends Dataset> newHistogram = histogramFunc.value(data); 
+		Dataset histogram = newHistogram.get(0);
 		if (histograms != null && histograms.size() > 1) {
 			histograms.set(histograms.size() - 1, histogram);
 		} else {
-			histograms = new ArrayList<AbstractDataset>();
+			histograms = new ArrayList<Dataset>();
 			histograms.add(histogram);
 		}
 		
