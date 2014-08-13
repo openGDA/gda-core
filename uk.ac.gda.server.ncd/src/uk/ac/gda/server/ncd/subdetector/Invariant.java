@@ -27,7 +27,7 @@ import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 
 /**
@@ -48,7 +48,7 @@ public class Invariant extends ReductionDetectorBase {
 	}
 
 	@Override
-	public AbstractDataset getqAxis() {
+	public Dataset getqAxis() {
 		return null;
 	}
 

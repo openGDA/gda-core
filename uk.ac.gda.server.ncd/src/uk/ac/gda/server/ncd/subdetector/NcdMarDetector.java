@@ -34,7 +34,7 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.nexusformat.NexusFile;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 
 public class NcdMarDetector extends NcdSubDetector implements LastImageProvider {
@@ -136,7 +136,7 @@ public class NcdMarDetector extends NcdSubDetector implements LastImageProvider 
 	}
 
 	@Override
-	public AbstractDataset readLastImage() throws DeviceException {
+	public Dataset readLastImage() throws DeviceException {
 		return lastData;
 	}
 }
