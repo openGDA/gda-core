@@ -37,6 +37,7 @@ import org.mockito.Mockito;
 import org.nexusformat.NexusFile;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 
 public class NexusDetectorProcessorTest {
@@ -82,7 +83,7 @@ public class NexusDetectorProcessorTest {
 		result.setDoubleVals(new Double[] { DOUBLE_FROM_PROCESSOR });
 
 		dsp = Mockito.mock(DataSetProcessor.class);
-		when(dsp.process(Matchers.any(String.class), Matchers.any(String.class), Matchers.any(AbstractDataset.class)))
+		when(dsp.process(Matchers.any(String.class), Matchers.any(String.class), Matchers.any(Dataset.class)))
 				.thenReturn(result);
 		when(dsp.getExtraNames()).thenReturn(Arrays.asList(new String[] { "max_p" }));
 		when(dsp.getOutputFormat()).thenReturn(Arrays.asList(new String[] { "%5.5g" }));
@@ -193,7 +194,7 @@ public class NexusDetectorProcessorTest {
 		result2.setDoubleVals(new Double[] { DOUBLE_FROM_PROCESSOR2 });
 
 		DataSetProcessor dsp2 = Mockito.mock(DataSetProcessor.class);
-		when(dsp2.process(Matchers.any(String.class), Matchers.any(String.class), Matchers.any(AbstractDataset.class)))
+		when(dsp2.process(Matchers.any(String.class), Matchers.any(String.class), Matchers.any(Dataset.class)))
 				.thenReturn(result2);
 		when(dsp2.getExtraNames()).thenReturn(Arrays.asList(new String[] { "max_p2" }));
 		when(dsp2.getOutputFormat()).thenReturn(Arrays.asList(new String[] { "%5.5g" }));
@@ -206,7 +207,7 @@ public class NexusDetectorProcessorTest {
 		result3.setDoubleVals(new Double[] { DOUBLE_FROM_PROCESSOR3 });
 
 		DataSetProcessor dsp3 = Mockito.mock(DataSetProcessor.class);
-		when(dsp3.process(Matchers.any(String.class), Matchers.any(String.class), Matchers.any(AbstractDataset.class)))
+		when(dsp3.process(Matchers.any(String.class), Matchers.any(String.class), Matchers.any(Dataset.class)))
 				.thenReturn(result3);
 		when(dsp3.getExtraNames()).thenReturn(Arrays.asList(new String[] { "max_p3" }));
 		when(dsp3.getOutputFormat()).thenReturn(Arrays.asList(new String[] { "%5.5g" }));
@@ -219,7 +220,7 @@ public class NexusDetectorProcessorTest {
 		result4.setDoubleVals(new Double[] { DOUBLE_FROM_PROCESSOR4 });
 
 		DataSetProcessor dsp4 = Mockito.mock(DataSetProcessor.class);
-		when(dsp4.process(Matchers.any(String.class), Matchers.any(String.class), Matchers.any(AbstractDataset.class)))
+		when(dsp4.process(Matchers.any(String.class), Matchers.any(String.class), Matchers.any(Dataset.class)))
 				.thenReturn(result4);
 		when(dsp4.getExtraNames()).thenReturn(Arrays.asList(new String[] { "max_p4" }));
 		when(dsp4.getOutputFormat()).thenReturn(Arrays.asList(new String[] { "%5.5g" }));

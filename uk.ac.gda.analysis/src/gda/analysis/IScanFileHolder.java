@@ -20,7 +20,6 @@ package gda.analysis;
 
 import java.util.List;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
@@ -129,7 +128,7 @@ public interface IScanFileHolder {
 	 * @param yCoordinate
 	 *            The Y coordinate of the Pixel
 	 * @return The double value corresponding to the Pixel value at the coordinate specified
-	 * @deprecated Use {@link AbstractDataset#getDouble(int...)}
+	 * @deprecated Use {@link Dataset#getDouble(int...)}
 	 */
 	@Deprecated
 	public double getPixel(int xCoordinate, int yCoordinate);
@@ -154,7 +153,7 @@ public interface IScanFileHolder {
 	 * @throws IllegalArgumentException
 	 *             Thrown if the name cannot be found
 	 */
-	public AbstractDataset getAxis(String axisName) throws IllegalArgumentException;
+	public Dataset getAxis(String axisName) throws IllegalArgumentException;
 
 	/**
 	 * Function that returns the appropriate dataset
@@ -164,7 +163,7 @@ public interface IScanFileHolder {
 	 * @return A dataset which is a copy of the stored dataset
 	 * @throws IllegalArgumentException
 	 */
-	public AbstractDataset getAxis(int axisNumber) throws IllegalArgumentException;
+	public Dataset getAxis(int axisNumber) throws IllegalArgumentException;
 
 	/**
 	 * This function gets the X values of all the crossing points of the dataset with the particular Y value
@@ -201,14 +200,14 @@ public interface IScanFileHolder {
 	 * @deprecated Use {@link DatasetUtils#crossings(Dataset, Dataset, double)}
 	 */
 	@Deprecated
-	public List<Double> getInterpolatedX(AbstractDataset XAxis, AbstractDataset YAxis, double yPosition);
+	public List<Double> getInterpolatedX(Dataset XAxis, Dataset YAxis, double yPosition);
 
 	/**
 	 * @see #getInterpolatedX(String, String, double, double)
 	 * @deprecated Use {@link DatasetUtils#crossings(Dataset, Dataset, double, double)}
 	 */
 	@Deprecated
-	public List<Double> getInterpolatedX(AbstractDataset XAxis, AbstractDataset YAxis, double yPosition,
+	public List<Double> getInterpolatedX(Dataset XAxis, Dataset YAxis, double yPosition,
 			double VarianceProportion);
 
 	/**
@@ -225,7 +224,7 @@ public interface IScanFileHolder {
 	/**
 	 * @see #getDataset(String)
 	 */
-	public AbstractDataset getDataSet(String deviceName);
+	public Dataset getDataSet(String deviceName);
 
 	/**
 	 * @see #setAxis(String, IDataset)
@@ -324,7 +323,7 @@ public interface IScanFileHolder {
 	 * @param y
 	 *            A Dataset containing the data values for the centroid calculation
 	 * @return The double value showing the centroid of the data given the positions and values
-	 * @deprecated Use {@link DatasetUtils#centroid(AbstractDataset, AbstractDataset...)}
+	 * @deprecated Use {@link DatasetUtils#centroid(Dataset, Dataset...)}
 	 */
 	@Deprecated
 	public double centroid(DoubleDataset x, DoubleDataset y);

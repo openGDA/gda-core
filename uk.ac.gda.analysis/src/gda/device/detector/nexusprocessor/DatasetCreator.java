@@ -18,13 +18,13 @@
 
 package gda.device.detector.nexusprocessor;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 
 /**
- * interface that returns a AbstractDataset from an input AbstractDataset. The classic example is to return a dataset that
+ * interface that returns a Dataset from an input Dataset. The classic example is to return a dataset that
  * is a region of interest in the first
  */
 public interface DatasetCreator {
-	AbstractDataset createDataSet(AbstractDataset ds) throws Exception;
+	Dataset createDataSet(Dataset ds) throws Exception;
 
 }

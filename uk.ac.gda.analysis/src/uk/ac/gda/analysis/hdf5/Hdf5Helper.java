@@ -33,7 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 
 /**
@@ -346,7 +346,7 @@ public class Hdf5Helper {
 		}
 	}
 
-	public AbstractDataset createDataSet(Hdf5HelperData hData, boolean extend) throws NullPointerException {
+	public Dataset createDataSet(Hdf5HelperData hData, boolean extend) throws NullPointerException {
 		int datatypeClass = hData.h5Datatype.getDatatypeClass();
 		int datatypeSize = hData.h5Datatype.getDatatypeSize();
 		int dtype = HDF5Loader.getDtype(datatypeClass, datatypeSize);

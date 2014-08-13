@@ -21,7 +21,7 @@ package gda.device.detector.nexusprocessor;
 import java.util.Arrays;
 
 import gda.factory.Findable;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 
 public class DatasetCreatorFromROI implements DatasetCreator, Findable {
@@ -33,8 +33,8 @@ public class DatasetCreatorFromROI implements DatasetCreator, Findable {
 		setEnable(true);
 	}
 	@Override
-	public AbstractDataset createDataSet(AbstractDataset ds) {
-		AbstractDataset result = ds;
+	public Dataset createDataSet(Dataset ds) {
+		Dataset result = ds;
 		if( enable && ( sliceArray != null)){
 			if( sliceArray.length != ds.getRank())
 				throw new IllegalArgumentException("sliceArray.length :" +  sliceArray.length + " != ds.getRank() : " + ds.getRank());
