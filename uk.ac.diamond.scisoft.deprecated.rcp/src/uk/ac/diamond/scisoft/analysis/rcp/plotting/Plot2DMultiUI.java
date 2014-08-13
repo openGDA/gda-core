@@ -47,9 +47,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractCompoundDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.CompoundDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.RGBDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -508,8 +507,8 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 				useRGB &= 
 					(data instanceof RGBDataset) ||
 	 	  	  	    (data instanceof CompoundDataset &&
-					(((AbstractCompoundDataset)data).getElementsPerItem() == 3 ||
-			 		 ((AbstractCompoundDataset)data).getElementsPerItem() == 4));
+					(((CompoundDataset)data).getElementsPerItem() == 3 ||
+			 		 ((CompoundDataset)data).getElementsPerItem() == 4));
 			}
 			if (!useRGB) {
 				for (Dataset data : datasets) {
