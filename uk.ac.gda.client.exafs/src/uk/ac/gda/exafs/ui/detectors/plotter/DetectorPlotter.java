@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPart;
 import org.slf4j.Logger;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 
 public class DetectorPlotter extends Composite {
@@ -49,7 +49,7 @@ public class DetectorPlotter extends Composite {
 	private IPlottingSystem plottingsystem;
 	private IRegion regionOnDisplay;
 	private Text statusLabel;
-	private AbstractDataset[] dataSets;
+	private Dataset[] dataSets;
 
 	public DetectorPlotter(Composite parent, int style, final IWorkbenchPart part) throws Exception {
 		super(parent, style);
@@ -98,7 +98,7 @@ public class DetectorPlotter extends Composite {
 	 * 
 	 * @param dataSets
 	 */
-	public void setDataSets(AbstractDataset... dataSets) {
+	public void setDataSets(Dataset... dataSets) {
 		this.dataSets = dataSets;
 	}
 
@@ -108,7 +108,7 @@ public class DetectorPlotter extends Composite {
 	public void plotData() {
 		plottingsystem.clear();
 		List<IDataset> ys = new ArrayList<IDataset>();
-		for (AbstractDataset ds : dataSets)
+		for (Dataset ds : dataSets)
 			ys.add(ds);
 		plottingsystem.createPlot1D(null, ys, null);
 		plottingsystem.setTitle("");

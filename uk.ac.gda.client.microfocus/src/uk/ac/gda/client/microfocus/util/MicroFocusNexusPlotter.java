@@ -31,7 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.gda.client.microfocus.views.ExafsSelectionView;
 import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
 import uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView;
@@ -155,7 +156,7 @@ public class MicroFocusNexusPlotter {
 	 * 
 	 * @param dataset
 	 */
-	public void plotDataset(AbstractDataset dataset) {
+	public void plotDataset(Dataset dataset) {
 		try {
 			SDAPlotter.imagePlot(MapPlotView.NAME, dataset);
 			updateSpectrum();
@@ -180,13 +181,13 @@ public class MicroFocusNexusPlotter {
 		dataProvider.setSelectedChannel(selectedChannel);
 
 		double[][] mapData = dataProvider.constructMappableData();
-		final AbstractDataset plotSet = AbstractDataset.array(mapData);
+		final Dataset plotSet = DatasetFactory.createFromObject(mapData);
 
 		Double[] xData = dataProvider.getXarray();
-		final AbstractDataset xDataset = AbstractDataset.array(xData);
+		final Dataset xDataset = DatasetFactory.createFromObject(xData);
 
 		Double[] yData = dataProvider.getYarray();
-		final AbstractDataset yDataset = AbstractDataset.array(yData);
+		final Dataset yDataset = DatasetFactory.createFromObject(yData);
 
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
@@ -216,7 +217,7 @@ public class MicroFocusNexusPlotter {
 			}
 
 			if (spectrum != null) {
-				final AbstractDataset yaxis = AbstractDataset.array(spectrum);
+				final Dataset yaxis = DatasetFactory.createFromObject(spectrum);
 
 				logger.info("Plotting spectrum for channel " + dataProvider.getSelectedChannel() + ", pixel " + l + ","
 						+ m);

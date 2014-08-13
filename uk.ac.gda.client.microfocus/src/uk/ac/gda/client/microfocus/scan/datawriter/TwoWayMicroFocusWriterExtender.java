@@ -173,7 +173,7 @@ public class TwoWayMicroFocusWriterExtender extends MicroFocusWriterExtender {
 //	}
 
 //	private void createDataSet() {
-//		dataSet = AbstractDataset.array(new double[numberOfYPoints][numberOfXPoints]);
+//		dataSet = DatasetFactory.createFromObject(new double[numberOfYPoints][numberOfXPoints]);
 //		lastFilledValue = -1.0;
 //		dataSet.fill(lastFilledValue);
 //	}

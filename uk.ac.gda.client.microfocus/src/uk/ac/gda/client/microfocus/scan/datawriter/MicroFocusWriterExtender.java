@@ -47,7 +47,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
@@ -483,8 +484,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 	private void plotImage(DoubleDataset dataSet) throws Exception {
 		// create these at every point using the latest arrays, as these will be updated as the map progresses
-		AbstractDataset xDataset = AbstractDataset.array(xValues);
-		AbstractDataset yDataset = AbstractDataset.array(yValues);
+		Dataset xDataset = DatasetFactory.createFromObject(xValues);
+		Dataset yDataset = DatasetFactory.createFromObject(yValues);
 		SDAPlotter.imagePlot(MapPlotView.NAME, xDataset, yDataset, dataSet);
 	}
 	
