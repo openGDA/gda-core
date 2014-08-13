@@ -49,8 +49,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.diffraction.DSpacing;
@@ -237,11 +237,11 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 	 * @param roi
 	 * @param data
 	 */
-	public void processROI(AbstractDataset data, LinearROI roi) {
+	public void processROI(Dataset data, LinearROI roi) {
 		if (roi.getLength() <= 1 || data.getSize() < 1)
 			return;
-		AbstractDataset[] dataSets = ROIProfile.line(data, roi, DiffractionViewer.lineStep);
-		// DataSet[] dataSets = ROIProfile.line(AbstractDataset.toDataSet(data), roi, DiffractionViewer.lineStep);
+		Dataset[] dataSets = ROIProfile.line(data, roi, DiffractionViewer.lineStep);
+		// DataSet[] dataSets = ROIProfile.line(Dataset.toDataSet(data), roi, DiffractionViewer.lineStep);
 		dataMaxval = dataSets[0].max().doubleValue();
 		plotDataSets(dataSets);
 
@@ -326,11 +326,11 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 		}
 	}
 
-	private List<IdentifiedPeak> fitPeaks(AbstractDataset currentDataSet) {
+	private List<IdentifiedPeak> fitPeaks(Dataset currentDataSet) {
 		if (currentDataSet == null || currentDataSet.getSize() < 1)
 			return null;
 		length = currentDataSet.getSize();
-		return Generic1DFitter.findPeaks(AbstractDataset.arange(length, Dataset.INT), currentDataSet, (int) (length *0.1));
+		return Generic1DFitter.findPeaks(DatasetFactory.createRange(length, Dataset.INT), currentDataSet, (int) (length *0.1));
 
 	}
 
@@ -348,8 +348,8 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 	/**
 	 * Since no longer peak fitting then this method is non longer required
 	 */
-	private void plotFittedCurves(List<APeak> fitterCurves, AbstractDataset dataSets) {
-		ArrayList<AbstractDataset> plottingData = new ArrayList<AbstractDataset>();
+	private void plotFittedCurves(List<APeak> fitterCurves, Dataset dataSets) {
+		ArrayList<Dataset> plottingData = new ArrayList<Dataset>();
 		CompositeFunction compFunc = new CompositeFunction();
 		if (!fitterCurves.isEmpty()) {
 			for (APeak fp : fitterCurves) {

@@ -70,8 +70,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
@@ -460,14 +460,14 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			final IDataset displayData = newData.getSlice(startPos, endPos, step);
 			if (inXAxis == null || inXAxis.size() == 0)
 			{
-				xAxis.setValues(AbstractDataset.arange(0, xSize, xSamplingRate, Dataset.INT32));
+				xAxis.setValues(DatasetFactory.createRange(0, xSize, xSamplingRate, Dataset.INT32));
 				inXAxis = xAxis;
 			} else {
 				xAxis.setValues(inXAxis.subset(0, xSize, xSamplingRate).toDataset());
 			}
 			if (inYAxis == null || inYAxis.size() == 0)
 			{
-				yAxis.setValues(AbstractDataset.arange(0, ySize, ySamplingRate, Dataset.INT32));
+				yAxis.setValues(DatasetFactory.createRange(0, ySize, ySamplingRate, Dataset.INT32));
 				inYAxis = yAxis;
 			} else {
 				yAxis.setValues(inYAxis.subset(0, ySize, ySamplingRate).toDataset());
@@ -510,8 +510,8 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 					}
 				});
 			}else if(getDefaultPlottingSystemChoice()==DeprecatedPreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
-				if(newData instanceof AbstractDataset){
-					createPlot((AbstractDataset)newData, inXAxis, inYAxis);
+				if(newData instanceof Dataset){
+					createPlot((Dataset)newData, inXAxis, inYAxis);
 				}else
 					logger.error("Cannot display 2D Data");
 				Display.getDefault().asyncExec(new Runnable() {
@@ -548,7 +548,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 		}
 	}
 
-	private void createPlot(final AbstractDataset data, final AxisValues xValues, final AxisValues yValues) {
+	private void createPlot(final Dataset data, final AxisValues xValues, final AxisValues yValues) {
 		//clean the observer
 		if(overlay!=null){
 			overlay.cleanIObservers();
@@ -558,8 +558,8 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			@Override
 			public void run() {
 				List<IDataset> axes = Collections.synchronizedList(new LinkedList<IDataset>());
-				AbstractDataset xAxisValues = AbstractDataset.createFromList(xValues.getValues());
-				AbstractDataset yAxisValues = AbstractDataset.createFromList(yValues.getValues());
+				Dataset xAxisValues = DatasetFactory.createFromList(xValues.getValues());
+				Dataset yAxisValues = DatasetFactory.createFromList(yValues.getValues());
 				axes.add(0, xAxisValues);
 				axes.add(1, yAxisValues);
 				if(xAxisValues!=null && yAxisValues!=null){
@@ -572,7 +572,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 				
 				createRegion();
 				
-				// finally tie in the listener to the palettedata changes
+				// finally tie in the listener to the palette data changes
 				Collection<ITrace> traces = plottingSystem.getTraces(IImageTrace.class);
 				image = traces!=null && traces.size()>0 ? (IImageTrace)traces.iterator().next():null;
 				if(image!=null){

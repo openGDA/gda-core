@@ -53,6 +53,7 @@ import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Nexus;
@@ -612,7 +613,7 @@ public class NexusTreeExplorer extends Composite implements IObserver, ISelectio
 				}
 
 				// add in an automatically generated axis with top order so it appears after primary axes
-				AbstractDataset axis = AbstractDataset.arange(dim, Dataset.INT32);
+				Dataset axis = DatasetFactory.createRange(dim, Dataset.INT32);
 				axis.setName("dim:" + (i+1));
 				AxisChoice newChoice = new AxisChoice(axis);
 				newChoice.setIndexMapping(i);
