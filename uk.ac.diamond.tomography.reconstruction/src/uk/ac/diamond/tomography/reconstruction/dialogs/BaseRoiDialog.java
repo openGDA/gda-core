@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 
 public abstract class BaseRoiDialog extends Dialog {
 	
@@ -42,13 +42,13 @@ public abstract class BaseRoiDialog extends Dialog {
 
 	protected IPlottingSystem plottingSystem;
 
-	protected final AbstractDataset image;
+	protected final Dataset image;
 
 	private final int dialogHeight;
 
 	private final int dialogWidth;
 
-	protected BaseRoiDialog(Shell parentShell, AbstractDataset image, int dialogWidth, int dialogHeight) {
+	protected BaseRoiDialog(Shell parentShell, Dataset image, int dialogWidth, int dialogHeight) {
 		super(parentShell);
 		this.image = image;
 		this.dialogWidth = dialogWidth;
