@@ -37,8 +37,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class XspressMonitorView extends MonitorViewBase {
@@ -117,13 +117,13 @@ public class XspressMonitorView extends MonitorViewBase {
 				break;
 			}
 
-			AbstractDataset dsRates = new DoubleDataset(rates);
+			Dataset dsRates = new DoubleDataset(rates);
 			dsRates.setName("Rates (Hz)");
 			
-			AbstractDataset dsDeadTime = new DoubleDataset(dts);
+			Dataset dsDeadTime = new DoubleDataset(dts);
 			dsDeadTime.setName("Deadtime (%)");
 			
-			AbstractDataset x =  AbstractDataset.arange(numElements, Dataset.FLOAT32);
+			Dataset x =  DatasetFactory.createRange(numElements, Dataset.FLOAT32);
 			x.setName("Element");
 			
 			myPlotter.clear();

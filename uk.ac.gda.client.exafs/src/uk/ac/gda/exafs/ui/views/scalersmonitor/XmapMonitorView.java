@@ -39,8 +39,8 @@ import org.eclipse.swt.widgets.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class XmapMonitorView extends MonitorViewBase {
@@ -139,13 +139,13 @@ public class XmapMonitorView extends MonitorViewBase {
 			dts[element] = dts[element];
 		}
 
-		AbstractDataset dsRates = new DoubleDataset(rates);
+		Dataset dsRates = new DoubleDataset(rates);
 		dsRates.setName("Rates (Hz)");
 
-		AbstractDataset dsDeadTime = new DoubleDataset(dts);
+		Dataset dsDeadTime = new DoubleDataset(dts);
 		dsDeadTime.setName("Deadtime (%)");
 
-		AbstractDataset x = AbstractDataset.arange(numElements, Dataset.FLOAT32);
+		Dataset x = DatasetFactory.createRange(numElements, Dataset.FLOAT32);
 		x.setName("Element");
 
 		myPlotter.clear();
