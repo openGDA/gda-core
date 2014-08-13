@@ -46,7 +46,7 @@ import org.javatuples.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataArrayListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
@@ -288,7 +288,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 						DoubleDataset error = new DoubleDataset(getFinalDataListener().getValue2().getValue());
 						y.setError(error);
 						y.setName(legend);
-						List<AbstractDataset> plotDatasets = new ArrayList<AbstractDataset>();
+						List<Dataset> plotDatasets = new ArrayList<Dataset>();
 						plotDatasets.add(y);
 						plottingSystem.createPlot1D(x, plotDatasets, PLOT_TITLE, new NullProgressMonitor());
 					}
