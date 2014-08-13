@@ -56,7 +56,7 @@ import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 import com.cosylab.epics.caj.CAJChannel;
@@ -201,7 +201,7 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 		final DoubleDataset xAxis = new DoubleDataset(xdata,new int[] { xdata.length });
 		xAxis.setName("energies (eV)");
 		
-		final ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
+		final ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
 		DoubleDataset extiodata = new DoubleDataset(value, new int[] { value.length });
 		extiodata.setName("External IO Data");
 		plotDataSets.add(extiodata);

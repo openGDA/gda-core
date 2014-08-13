@@ -46,7 +46,7 @@ import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
@@ -316,7 +316,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 					sum += floats[i];
 				}
 			} else {
-				AbstractDataset[] datasets = ROIProfile.box(new FloatDataset((float[]) groupData.getBuffer(), groupData.dimensions), cpsRoi);
+				Dataset[] datasets = ROIProfile.box(new FloatDataset((float[]) groupData.getBuffer(), groupData.dimensions), cpsRoi);
 				sum = ((Number) datasets[0].sum()).longValue();
 			}
 			addDoubleItem(data, "cps", sum / acquireTime_RBV, "Hz");

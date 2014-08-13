@@ -53,7 +53,7 @@ import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 import com.cosylab.epics.caj.CAJChannel;
@@ -219,7 +219,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 			logger.error("cannot get lens mode from the analyser", e1);
 		}
 
-		ArrayList<AbstractDataset> axes = new ArrayList<AbstractDataset>();
+		ArrayList<Dataset> axes = new ArrayList<Dataset>();
 		axes.add(xAxis);
 		axes.add(yAxis);
 		try {
@@ -232,7 +232,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
 //			logger.warn("image size = {}", values.length);
-			final AbstractDataset ds = new DoubleDataset(values, dims);//.getSlice(null, null, new int[] { -1, 1 });
+			final Dataset ds = new DoubleDataset(values, dims);//.getSlice(null, null, new int[] { -1, 1 });
 			ds.setName("");
 			plottingSystem.clear();
 			plottingSystem.createPlot2D(ds, axes, monitor);

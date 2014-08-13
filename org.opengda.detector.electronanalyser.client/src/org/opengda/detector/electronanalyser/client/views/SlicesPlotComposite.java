@@ -63,7 +63,7 @@ import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 import com.cosylab.epics.caj.CAJChannel;
@@ -280,12 +280,12 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 				return;
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
-			final AbstractDataset ds = new DoubleDataset(values, dims);
+			final Dataset ds = new DoubleDataset(values, dims);
 
-			final ArrayList<AbstractDataset> yaxes = new ArrayList<AbstractDataset>();
+			final ArrayList<Dataset> yaxes = new ArrayList<Dataset>();
 
 			for (int i = 0; i < dims[0]; i++) {
-				AbstractDataset slice2 = ds.getSlice(new int[] { 0, i },new int[] { dims[1], i+1 }, null);
+				Dataset slice2 = ds.getSlice(new int[] { 0, i },new int[] { dims[1], i+1 }, null);
 				slice2.setName("Intensity (counts");
 				yaxes.add(slice2);
 			}

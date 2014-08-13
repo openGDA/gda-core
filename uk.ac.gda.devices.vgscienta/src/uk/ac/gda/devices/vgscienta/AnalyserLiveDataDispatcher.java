@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 
@@ -125,7 +125,7 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 		}
 	}
 
-	protected AbstractDataset getArrayAsDataset(int x, int y) throws Exception {
+	protected Dataset getArrayAsDataset(int x, int y) throws Exception {
 		int[] dims = new int[] {x, y};
 		int arraysize = dims[0]*dims[1];
 		if (arraysize < 1) return null;
@@ -136,14 +136,14 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 		return new FloatDataset(array, dims);
 	}
 	
-	protected AbstractDataset getXAxis() throws Exception {
+	protected Dataset getXAxis() throws Exception {
 		double[] xdata = analyser.getEnergyAxis();
 		DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
 		xAxis.setName("energies (eV)");
 		return xAxis;
 	}	
 	
-	protected AbstractDataset getYAxis() throws Exception {
+	protected Dataset getYAxis() throws Exception {
 		double[] ydata = analyser.getAngleAxis();
 		DoubleDataset yAxis = new DoubleDataset(ydata, new int[] { ydata.length });
 		if ("Transmission".equalsIgnoreCase(analyser.getLensMode())) {
@@ -154,9 +154,9 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 	}
 	
 	protected void plotNewArray() throws Exception {
-		AbstractDataset xAxis = getXAxis();
-		AbstractDataset yAxis = getYAxis();
-		AbstractDataset ds = getArrayAsDataset(yAxis.getShape()[0], xAxis.getShape()[0]);
+		Dataset xAxis = getXAxis();
+		Dataset yAxis = getYAxis();
+		Dataset ds = getArrayAsDataset(yAxis.getShape()[0], xAxis.getShape()[0]);
 		if (ds == null)
 			return;
 		if (ds.max().intValue() <= 0)

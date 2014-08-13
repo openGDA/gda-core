@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 class AnalyserSweptLiveDataDispatcher implements MonitorListener, Configurable, Findable {
@@ -89,7 +89,7 @@ class AnalyserSweptLiveDataDispatcher implements MonitorListener, Configurable, 
 			int arraysize = dims[0]*dims[1];
 			if (arraysize < 1) return;
 			value = Arrays.copyOf(value, arraysize);
-			AbstractDataset ds = new DoubleDataset(value, dims);
+			Dataset ds = new DoubleDataset(value, dims);
 			
 			double[] xdata = analyser.getEnergyAxis();
 			double[] ydata = analyser.getAngleAxis();

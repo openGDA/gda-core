@@ -100,10 +100,10 @@ public class AnalyserCapabilities implements Findable {
 			}
 			mean[i]=mychunksum/chunksize;
 		}
-//		AbstractDataset angledatasets=new DoubleDataset(values, slices, chunksize);
+//		Dataset angledatasets=new DoubleDataset(values, slices, chunksize);
 //		double[] mean = new double[slices]; 
 //		for (int i=0; i<slices; i++) {
-//			AbstractDataset slice = angledatasets.getSlice(new int[] {0, i}, new int[] {chunksize-1, i+1}, null);
+//			Dataset slice = angledatasets.getSlice(new int[] {0, i}, new int[] {chunksize-1, i+1}, null);
 //			mean[i] = Double.parseDouble(slice.mean().toString());
 //		}
 		return mean;

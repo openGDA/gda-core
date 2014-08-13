@@ -61,7 +61,7 @@ import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
@@ -332,7 +332,7 @@ public class SpectrumPlotComposite extends Composite implements IPropertyChangeL
 		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
 		xAxis.setName("energies (eV)");
 
-		ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
+		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
 		double[] data = ArrayUtils.subarray(value, 0, xdata.length);
 		dataset = new DoubleDataset(data, new int[] { data.length });
 		dataset.setName("Intensity (counts)");
