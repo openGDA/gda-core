@@ -37,7 +37,7 @@ import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class PVArrayPlugin extends NullNXPlugin {
@@ -108,7 +108,7 @@ public class PVArrayPlugin extends NullNXPlugin {
 			DeviceException {
 
 		double[] data;
-		AbstractDataset ds;
+		Dataset ds;
 		try {
 			Integer numElements = dataPointsPV.get();
 			logger.debug("Number of data points in the spectrum {}", numElements);
@@ -154,11 +154,11 @@ class NXDetectorDatasetAppender implements NXDetectorDataAppender {
 
 
 	private static final Logger logger=LoggerFactory.getLogger(NXDetectorDatasetAppender.class);
-	private AbstractDataset dataset;
+	private Dataset dataset;
 	private String unit;
 	private String regionName;
 
-	public NXDetectorDatasetAppender(AbstractDataset ds, String unit, String regionName) {
+	public NXDetectorDatasetAppender(Dataset ds, String unit, String regionName) {
 		dataset=ds;
 		this.unit=unit;
 		this.regionName=regionName;
@@ -177,7 +177,7 @@ class NXDetectorDatasetAppender implements NXDetectorDataAppender {
 			throw new DeviceException(e);
 		}
 	}
-	private void readoutDatasetIntoNXDetectorData(NXDetectorData data, AbstractDataset ds, String detectorName, String node) throws DeviceException {
+	private void readoutDatasetIntoNXDetectorData(NXDetectorData data, Dataset ds, String detectorName, String node) throws DeviceException {
 		int[] dims = ds.getShape();
 		if (dims.length == 0) {
 			logger.warn("Dimensions of data from " + detectorName + " are zero length");
@@ -187,17 +187,17 @@ class NXDetectorDatasetAppender implements NXDetectorDataAppender {
 		int dataType = ds.getDtype();
 		int nexusType;
 		switch (dataType) {
-		case AbstractDataset.INT8: 
+		case Dataset.INT8: 
 			nexusType = NexusFile.NX_INT8;
 			break;
-		case AbstractDataset.INT16: 
+		case Dataset.INT16: 
 			nexusType = NexusFile.NX_INT16;
 			break;
-		case AbstractDataset.INT32: 
+		case Dataset.INT32: 
 			nexusType = NexusFile.NX_INT32;
 			break;
-		case AbstractDataset.FLOAT32:
-		case AbstractDataset.FLOAT64:
+		case Dataset.FLOAT32:
+		case Dataset.FLOAT64:
 			nexusType = NexusFile.NX_FLOAT32;
 			break;
 		default:
