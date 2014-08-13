@@ -1,3 +1,4 @@
+package gda.device.detector.xmap;
 /*-
  * Copyright © 2011 Diamond Light Source Ltd.
  *
@@ -16,7 +17,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.xmap;
+
 
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
@@ -25,6 +26,9 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.DAServer;
 import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetectorBase;
+import gda.device.detector.xmap.HardwareTriggeredNexusXmap;
+import gda.device.detector.xmap.NexusXmap;
+import gda.device.detector.xmap.XmapPositionInputStream;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.scannable.PositionStreamIndexer;
@@ -39,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorBase implements
 		HardwareTriggeredNexusXmap {
-	static final Logger logger = LoggerFactory.getLogger(HardwareTriggeredNexusXmapImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(HardwareTriggeredNexusXmapImpl.class);
 	private boolean slave = true;
 	private DAServer daServer;
 	private NexusXmap xmap;

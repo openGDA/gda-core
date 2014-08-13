@@ -22,10 +22,10 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetectorBase;
 import gda.device.scannable.PositionStreamIndexer;
+import gda.device.detector.xmap.XmapPositionInputStream;
 
 import java.util.List;
 import java.util.concurrent.Callable;
-
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

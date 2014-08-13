@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Epics
+Bundle-SymbolicName: uk.ac.gda.devices.xmap.epics
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: uk.ac.gda.core;bundle-version="8.42.0",
+ uk.ac.gda.epics;bundle-version="1.0.0",
+ uk.ac.gda.nexus;bundle-version="1.0.0",
+ slf4j.api;bundle-version="1.7.6",
+ uk.ac.gda.devices.xmap;bundle-version="1.0.0",
+ uk.ac.gda.common;bundle-version="1.2.0",
+ uk.ac.gda.beans.vortex;bundle-version="1.0.0",
+ org.apache.commons.lang;bundle-version="2.6.0"
+Export-Package: gda.device.detector.xmap

@@ -7,7 +7,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: uk.ac.gda.server.exafs;bundle-version="1.0.0",
  uk.ac.gda.api;bundle-version="8.26.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
- uk.ac.gda.epics;bundle-version="1.0.0",
  org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)",
  org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
  uk.ac.gda.common,
