@@ -35,8 +35,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.volimage.CommandClient;
@@ -72,7 +72,7 @@ public class TransferFunctionView extends HistogramView implements Overlay1DCons
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
 		setPartName("TransferFunction ");
-		histograms = new LinkedList<AbstractDataset>();
+		histograms = new LinkedList<Dataset>();
 		histogramSize = 256;
 		redCustomIDs = new int[customSize];
 		greenCustomIDs = new int[customSize];
@@ -246,7 +246,7 @@ public class TransferFunctionView extends HistogramView implements Overlay1DCons
 	{
 		IDataset histogram = histograms.get(0);
 		xAxis.clear();
-		xAxis.setValues(AbstractDataset.arange(histogram.getSize(), Dataset.FLOAT64));
+		xAxis.setValues(DatasetFactory.createRange(histogram.getSize(), Dataset.FLOAT64));
 		histogramPlotter.clearZoomHistory();
 		histogramPlotter.setXAxisValues(xAxis, 1);
 		updateChannelGraphs();
@@ -262,9 +262,9 @@ public class TransferFunctionView extends HistogramView implements Overlay1DCons
 		int startPos = (int)Math.floor(min);
 		int endPos = (int)Math.ceil(max);
 		histograms.clear();
-		AbstractDataset newHisto = data.getSlice(new int[]{startPos},new int[]{endPos}, new int[]{1});
+		Dataset newHisto = data.getSlice(new int[]{startPos},new int[]{endPos}, new int[]{1});
 		xAxis.clear();
-		xAxis.setValues(AbstractDataset.arange(newHisto.getSize(), Dataset.ARRAYFLOAT64));
+		xAxis.setValues(DatasetFactory.createRange(newHisto.getSize(), Dataset.ARRAYFLOAT64));
 		histograms.add(newHisto);
 		histogramPlotter.setXAxisValues(xAxis,1);
 
@@ -276,7 +276,7 @@ public class TransferFunctionView extends HistogramView implements Overlay1DCons
 		if (theObserved instanceof CommandClient) {
 			@SuppressWarnings("unchecked") ArrayList<Integer> list = (ArrayList<Integer>)changeCode;
 			histograms.clear();
-			data = AbstractDataset.createFromList(list);
+			data = DatasetFactory.createFromList(list);
 			histograms.add(data);
 			cmbAlpha.select(3);
 			parent.getDisplay().asyncExec(new Runnable() {

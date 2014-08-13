@@ -58,7 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
@@ -199,7 +199,7 @@ public class StaticScanPlotView extends ViewPart {
 	 */
 	protected void createPlotAndLegend(final PlotBean p) {
 
-		final Map<String, ? extends AbstractDataset> data = p.getDataSets();
+		final Map<String, ? extends Dataset> data = p.getDataSets();
 		if (data.size() > 1) {
 			try {
 				plotter.replaceAllPlots(data.values());
