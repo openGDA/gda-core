@@ -30,7 +30,7 @@ import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
@@ -736,7 +736,7 @@ public class ExcaliburEqualizationHelper {
 		return (value != EDGE_POSITION_IF_ALL_ABOVE_THRESHOLD && value != EDGE_POSITION_IF_ALL_BELOW_THRESHOLD && value != EDGE_POSITION_IF_PIXEL_MASKED_OUT);
 	}
 
-	IntegerDataset getDatasetWithValidPixels(AbstractDataset dataset) {
+	IntegerDataset getDatasetWithValidPixels(Dataset dataset) {
 		int[] validData = new int[dataset.getSize()];
 		int numValidData = 0;
 		IndexIterator iter = dataset.getIterator();
@@ -785,7 +785,7 @@ public class ExcaliburEqualizationHelper {
 		return null;
 	}
 
-	public double[][] createBinnedPopulation(AbstractDataset ids) {
+	public double[][] createBinnedPopulation(Dataset ids) {
 		int minVal = ids.min().intValue();
 		// range of values is from minVal to max. Num of bins is range +1
 		// first bin contains population with val = minVal
