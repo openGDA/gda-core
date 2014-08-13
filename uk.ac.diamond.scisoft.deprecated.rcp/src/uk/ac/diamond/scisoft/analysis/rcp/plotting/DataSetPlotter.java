@@ -100,7 +100,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.diffraction.QSpace;
@@ -945,8 +945,8 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 	}
 
 	private boolean checkForNan(IDataset data) {
-		if (data instanceof AbstractDataset)
-			return ((AbstractDataset) data).containsNans();
+		if (data instanceof Dataset)
+			return ((Dataset) data).containsNans();
 
 		for (int i = 0; i < data.getShape()[0]; i++)
 			if (Double.isNaN(data.getDouble(i)))
@@ -955,8 +955,8 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 	}
 
 	private boolean checkForInf(IDataset data) {
-		if (data instanceof AbstractDataset)
-			return ((AbstractDataset) data).containsInfs();
+		if (data instanceof Dataset)
+			return ((Dataset) data).containsInfs();
 
 		for (int i = 0; i < data.getShape()[0]; i++)
 			if (Double.isInfinite(data.getDouble(i)))
@@ -1127,8 +1127,8 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 		if (currentMode == PlottingMode.TWOD || currentMode == PlottingMode.SURF2D) {
 			qSpace = null;
 			boolean isDiffImage = false;
-			if (currentDataset instanceof AbstractDataset) {
-				AbstractDataset image = (AbstractDataset) currentDataset;
+			if (currentDataset instanceof Dataset) {
+				Dataset image = (Dataset) currentDataset;
 				IMetaData metadata = image.getMetadata();
 				if (metadata instanceof IDiffractionMetadata) {
 					IDiffractionMetadata diffnMetadata = (IDiffractionMetadata) metadata;
@@ -1521,7 +1521,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 
 	public void pushGraphOntoHistory() {
 		if (currentMode == PlottingMode.ONED) {
-			IDataset history = DatasetUtils.convertToAbstractDataset(currentDataSets.get(0)).clone();
+			IDataset history = DatasetUtils.convertToDataset(currentDataSets.get(0)).clone();
 			currentDataSets.add(history);
 			((DataSet3DPlot1D) plotter).addGraphNode();
 			historyCounter++;

@@ -18,7 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.histogram;
 
 import org.eclipse.jface.viewers.ISelection;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 
@@ -28,7 +28,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 @Deprecated
 public class HistogramDataUpdate implements ISelection {
 
-	private AbstractDataset dataset;
+	private Dataset dataset;
 	
 	/**
 	 * Constructor of a HistogramDataUpdate
@@ -37,7 +37,7 @@ public class HistogramDataUpdate implements ISelection {
 	
 	public HistogramDataUpdate(IDataset dataset)
 	{
-		this.dataset = DatasetUtils.convertToAbstractDataset(dataset);
+		this.dataset = DatasetUtils.convertToDataset(dataset);
 	}
 	
 	@Override
@@ -50,7 +50,7 @@ public class HistogramDataUpdate implements ISelection {
 	 * Get the dataset associated to this update
 	 * @return associated dataset
 	 */
-	public AbstractDataset getDataset()
+	public Dataset getDataset()
 	{
 		return dataset;
 	}

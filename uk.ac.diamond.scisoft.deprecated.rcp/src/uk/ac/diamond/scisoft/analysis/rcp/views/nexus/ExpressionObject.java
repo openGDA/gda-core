@@ -25,7 +25,7 @@ import org.nfunk.jep.JEP;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.SymbolTable;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataSetProvider;
@@ -142,18 +142,18 @@ public class ExpressionObject {
 	}
 
 	private JEP             jepParser;
-	private AbstractDataset dataSet;
-	public AbstractDataset getDataSet(IProgressMonitor monitor) throws Exception {
+	private Dataset dataSet;
+	public Dataset getDataSet(IProgressMonitor monitor) throws Exception {
 		
 		if (dataSet!=null) return dataSet;
 		
 	    if (expression==null||provider==null) return new DoubleDataset();
 		
-		final List<AbstractDataset> refs = getVariables(monitor);
+		final List<Dataset> refs = getVariables(monitor);
 		final double[]       data = new double[refs.get(0).getSize()];
 		
 		for (int i = 0; i < data.length; i++) {
-			for (AbstractDataset d : refs) {
+			for (Dataset d : refs) {
 				jepParser.addVariable(d.getName(), d.getDouble(i));
 			}
 			jepParser.parseExpression(expression);
@@ -165,15 +165,15 @@ public class ExpressionObject {
 		return this.dataSet;
 	}
 
-	private List<AbstractDataset> getVariables(IProgressMonitor monitor) throws Exception {
+	private List<Dataset> getVariables(IProgressMonitor monitor) throws Exception {
 		
-		final List<AbstractDataset> refs = new ArrayList<AbstractDataset>(7);
+		final List<Dataset> refs = new ArrayList<Dataset>(7);
 		final SymbolTable vars = getSymbolTable();
 	    for (Object key : vars.keySet()) {
 	    	final Object value = vars.getValue(key);
 	    	if (value==null) {
 	    		if (monitor.isCanceled()) return null;
-	    		final AbstractDataset set = provider!=null ? (AbstractDataset)provider.getDataSet(key.toString(), new ProgressMonitorWrapper(monitor)) : null;
+	    		final Dataset set = provider!=null ? (Dataset)provider.getDataSet(key.toString(), new ProgressMonitorWrapper(monitor)) : null;
 	    		if (set!=null) refs.add(set);
 	    	}
 		}

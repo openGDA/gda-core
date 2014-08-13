@@ -21,7 +21,7 @@ import org.eclipse.dawnsci.plotting.api.jreality.core.ScaleType;
 import org.eclipse.dawnsci.plotting.api.jreality.data.ColourImageData;
 import org.eclipse.dawnsci.plotting.api.jreality.util.ScalingUtility;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
@@ -130,7 +130,7 @@ public class ColourLookupTable {
 			minValue = ScalingUtility.valueScaler(minValue, ScaleType.LN);
 			maxValue = ScalingUtility.valueScaler(maxValue, ScaleType.LN);
 		}
-		AbstractDataset idata = DatasetUtils.convertToAbstractDataset(data);
+		Dataset idata = DatasetUtils.convertToDataset(data);
 		IndexIterator iti = image.getIterator();
 		IndexIterator itd = idata.getIterator();
 

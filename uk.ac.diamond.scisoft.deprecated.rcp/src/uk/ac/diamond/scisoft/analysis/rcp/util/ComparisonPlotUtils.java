@@ -25,7 +25,7 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataSetProvider;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
@@ -51,8 +51,8 @@ public class ComparisonPlotUtils {
 		}
 
 		final File[]         fa = getFiles(files);
-		AbstractDataset             x  = getLargestDataSet(fa, xSel, monitor);
-		final List<AbstractDataset> ys = getDataSets(fa, ySel, true, monitor);
+		Dataset             x  = getLargestDataSet(fa, xSel, monitor);
+		final List<Dataset> ys = getDataSets(fa, ySel, true, monitor);
 		
 		if (ys.isEmpty()) {
 			ys.add(x);
@@ -63,8 +63,8 @@ public class ComparisonPlotUtils {
 		PlotUtils.create1DPlot(x, ys, plotMode, window, monitor);
 	}
 
-	private static List<AbstractDataset> getDataSets(final File[] files, final List<Object> namesOrExpressions, final boolean useFileName, final IProgressMonitor monitor) throws Exception{
-		final List<AbstractDataset> ret = new ArrayList<AbstractDataset>(files.length*namesOrExpressions.size());
+	private static List<Dataset> getDataSets(final File[] files, final List<Object> namesOrExpressions, final boolean useFileName, final IProgressMonitor monitor) throws Exception{
+		final List<Dataset> ret = new ArrayList<Dataset>(files.length*namesOrExpressions.size());
 		for (int i = 0; i < files.length; i++) {
 			for (Object n : namesOrExpressions) {
 				ret.add(getDataSet(files[i], n, useFileName, monitor));
@@ -74,13 +74,13 @@ public class ComparisonPlotUtils {
 	}
 
 	@SuppressWarnings("unused")
-	private static AbstractDataset getLargestDataSet(final File[] files, final Object nameOrExpression, final IProgressMonitor monitor) throws Exception {
+	private static Dataset getLargestDataSet(final File[] files, final Object nameOrExpression, final IProgressMonitor monitor) throws Exception {
 		
-		AbstractDataset ret = null;
+		Dataset ret = null;
 		int    size = Integer.MIN_VALUE;
 		for (int i = 0; i < files.length; i++) {
 			try {
-				final AbstractDataset set = getDataSet(files[i], nameOrExpression, false, monitor);
+				final Dataset set = getDataSet(files[i], nameOrExpression, false, monitor);
 				if (set!=null) {
 					if (set.getSize() > size) {
 						size = set.getSize();
@@ -97,18 +97,18 @@ public class ComparisonPlotUtils {
        	
   	}
 	
-	private static AbstractDataset getDataSet(final File file, final Object nameOrExpression, final boolean useFileName, final IProgressMonitor monitor) throws Exception {
+	private static Dataset getDataSet(final File file, final Object nameOrExpression, final boolean useFileName, final IProgressMonitor monitor) throws Exception {
         
-		AbstractDataset set=null;
+		Dataset set=null;
 		if (nameOrExpression instanceof String) {
-		    set = (AbstractDataset)LoaderFactory.getDataSet(file.getAbsolutePath(), (String)nameOrExpression, new ProgressMonitorWrapper(monitor));
+		    set = (Dataset)LoaderFactory.getDataSet(file.getAbsolutePath(), (String)nameOrExpression, new ProgressMonitorWrapper(monitor));
        	
         } else if (nameOrExpression instanceof ExpressionObject) {
         	final DataSetProvider prov = new DataSetProvider() {
 				@Override
-				public AbstractDataset getDataSet(String name, IMonitor monitor) {
+				public Dataset getDataSet(String name, IMonitor monitor) {
 					try {
-						return (AbstractDataset)LoaderFactory.getDataSet(file.getAbsolutePath(), name, monitor);
+						return (Dataset)LoaderFactory.getDataSet(file.getAbsolutePath(), name, monitor);
 					} catch (Exception e) {
 						return new DoubleDataset();
 					}

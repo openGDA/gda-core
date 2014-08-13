@@ -20,7 +20,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
@@ -52,7 +52,7 @@ public class SliceTest {
 		final IDataHolder   dh = LoaderFactory.getData(currentSlice.getPath());
 		final ILazyDataset lz = dh.getLazyDataset(currentSlice.getName());
 		final IDataset  slice = lz.getSlice(currentSlice.getSliceStart(), currentSlice.getSliceStop(), currentSlice.getSliceStep());
-		AbstractDataset       trans = DatasetUtils.transpose(slice, new int[]{0, 1, 2});
+		Dataset       trans = DatasetUtils.transpose(slice, new int[]{0, 1, 2});
 		
 		if (trans.getShape()[2]!=10) {
 			throw new Exception("Incorrect shape of slice returned! Expected 10 but was "+trans.getShape()[2]);
@@ -83,7 +83,7 @@ public class SliceTest {
 		final IDataHolder   dh = LoaderFactory.getData(currentSlice.getPath());
 		final ILazyDataset lz = dh.getLazyDataset(currentSlice.getName());
 		final IDataset  slice = lz.getSlice(currentSlice.getSliceStart(), currentSlice.getSliceStop(), currentSlice.getSliceStep());
-		AbstractDataset       trans = DatasetUtils.transpose(slice, new int[]{0, 1, 2});
+		Dataset       trans = DatasetUtils.transpose(slice, new int[]{0, 1, 2});
 
 		if (trans.getShape()[2]!=20) {
 			throw new Exception("Incorrect shape of slice returned! Expected 20 but was "+trans.getShape()[2]);
@@ -116,10 +116,10 @@ public class SliceTest {
 		final IDataHolder   dh = LoaderFactory.getData(currentSlice.getPath());
 		final ILazyDataset lz = dh.getLazyDataset(currentSlice.getName());
 		final IDataset  slice = lz.getSlice(currentSlice.getSliceStart(), currentSlice.getSliceStop(), currentSlice.getSliceStep());
-		AbstractDataset       trans = DatasetUtils.transpose(slice, new int[]{0, 1, 2});
+		Dataset       trans = DatasetUtils.transpose(slice, new int[]{0, 1, 2});
 
 		// We sum the data in the dimensions that are not axes
-		AbstractDataset sum    = trans;
+		Dataset sum    = trans;
 		final int[]     dataShape = new int[]{62, 225, 1481};
 		final int       len    = dataShape.length;
 

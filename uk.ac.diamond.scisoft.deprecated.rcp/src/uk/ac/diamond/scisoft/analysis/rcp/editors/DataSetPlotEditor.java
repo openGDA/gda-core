@@ -61,7 +61,7 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
@@ -359,10 +359,10 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 						monitor.beginTask("Updating selected DataSets", 100);
 	                    createCachedData(monitor);
 			
-						final AbstractDataset x  = getDataSet(selections[0], monitor);
-						List<AbstractDataset> ys = null;
+						final Dataset x  = getDataSet(selections[0], monitor);
+						List<Dataset> ys = null;
 						if (selections.length>1) {
-							ys = new ArrayList<AbstractDataset>(3);
+							ys = new ArrayList<Dataset>(3);
 							for (int i = 1; i < selections.length; i++) {
 								ys.add(getDataSet(selections[i], monitor));
 								if (monitor.isCanceled()) return;
@@ -401,9 +401,9 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 
 
 	@Override
-	public AbstractDataset getDataSet(String name, IMonitor monitor) {
+	public Dataset getDataSet(String name, IMonitor monitor) {
 		createCachedData(monitor);
-		return DatasetUtils.convertToAbstractDataset(cachedDataHolder.getDataset(name));
+		return DatasetUtils.convertToDataset(cachedDataHolder.getDataset(name));
 	}
 
 
@@ -413,7 +413,7 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 		return cachedDataHolder.toLazyMap().keySet().contains(name);
 	}
 	
-	public AbstractDataset getDataSet(final Object object, final IProgressMonitor monitor) {
+	public Dataset getDataSet(final Object object, final IProgressMonitor monitor) {
 		if (object instanceof ExpressionObject) {
 			try {
 				return ((ExpressionObject)object).getDataSet(monitor);
@@ -493,7 +493,7 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 	 * Thread safe method which can be called to select a data set in the tree.
 	 * @param name
 	 */
-	public AbstractDataset setDatasetSelected(final String name, boolean clearOthers) {
+	public Dataset setDatasetSelected(final String name, boolean clearOthers) {
 		return dataSetPlotView.setDatasetSelected(name, clearOthers);
 	}
 

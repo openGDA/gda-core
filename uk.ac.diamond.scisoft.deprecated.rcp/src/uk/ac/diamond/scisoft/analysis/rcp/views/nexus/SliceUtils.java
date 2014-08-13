@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
@@ -62,8 +62,8 @@ public class SliceUtils {
     	final int[] start  = new int[dimsDataHolder.size()];
     	final int[] stop   = new int[dimsDataHolder.size()];
     	final int[] step   = new int[dimsDataHolder.size()];
-     	AbstractDataset x  = null;
-    	AbstractDataset y  = null;
+     	Dataset x  = null;
+    	Dataset y  = null;
     	final StringBuilder buf = new StringBuilder();
 
      	for (int i = 0; i < dimsDataHolder.size(); i++) {
@@ -142,7 +142,7 @@ public class SliceUtils {
 	}
 
 
-	public static AbstractDataset createAxisDataset(int size) {
+	public static Dataset createAxisDataset(int size) {
 		final int[] data = new int[size];
 		for (int i = 0; i < data.length; i++) data[i] = i;
 		IntegerDataset ret = new IntegerDataset(data, size);
@@ -162,11 +162,11 @@ public class SliceUtils {
 
 		final IDataHolder  dh = LoaderFactory.getData(currentSlice.getPath());
 		final ILazyDataset lz = dh.getLazyDataset(currentSlice.getName());
-		AbstractDataset  slice = (AbstractDataset)lz.getSlice(currentSlice.getSliceStart(), currentSlice.getSliceStop(), currentSlice.getSliceStep());
+		Dataset  slice = (Dataset)lz.getSlice(currentSlice.getSliceStart(), currentSlice.getSliceStop(), currentSlice.getSliceStep());
 		slice.setName("Slice of "+currentSlice.getName()+" (full shape "+Arrays.toString(dataShape)+")"+currentSlice.getShapeMessage());
 		
 		// We sum the data in the dimensions that are not axes
-		AbstractDataset sum    = slice;
+		Dataset sum    = slice;
 		final int       len    = dataShape.length;
 		for (int i = len-1; i >= 0; i--) {
 			if (!currentSlice.isAxis(i) && dataShape[i]>1)
@@ -180,10 +180,10 @@ public class SliceUtils {
 		if (monitor.isCanceled()) return;
 		
 		final List<IDataset> da = currentSlice.getAxes();
-		List<AbstractDataset> aa = null;
+		List<Dataset> aa = null;
 		if (da!=null) {
-			aa= new ArrayList<AbstractDataset>(2);
-			for (IDataset ia : da) aa.add((AbstractDataset)ia);
+			aa= new ArrayList<Dataset>(2);
+			for (IDataset ia : da) aa.add((Dataset)ia);
 		}
 		PlotUtils.createPlot(sum, aa, mode, plotWindow, monitor);
 

@@ -85,7 +85,7 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
@@ -685,11 +685,11 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 	protected void plot1D(final IProgressMonitor monitor) {
 		
 		if (selections==null || selections.isEmpty()) return;
-		AbstractDataset x = getDataSet(selections.get(0), monitor);
+		Dataset x = getDataSet(selections.get(0), monitor);
 		if (x==null) return;
 		monitor.worked(1);
 
-		final List<AbstractDataset> ys = new ArrayList<AbstractDataset>(3);
+		final List<Dataset> ys = new ArrayList<Dataset>(3);
 		for (int i = 1; i < selections.size(); i++) {
 			ys.add(getDataSet(selections.get(i), monitor));
 			if (monitor.isCanceled()) return;
@@ -784,14 +784,14 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 
 	
 	@Override
-	public AbstractDataset getDataSet(String name, final IMonitor monitor) {
+	public Dataset getDataSet(String name, final IMonitor monitor) {
 		
 		try {
 			if (providerDeligate!=null) {
-				return (AbstractDataset)providerDeligate.getDataSet(name, monitor);
+				return (Dataset)providerDeligate.getDataSet(name, monitor);
 			}
 			if (this.filePath==null) return null;
-			return (AbstractDataset)LoaderFactory.getDataSet(this.filePath, name, monitor);
+			return (Dataset)LoaderFactory.getDataSet(this.filePath, name, monitor);
 		} catch (IllegalArgumentException ie) {
 			return null;
 		} catch (Exception e) {
@@ -806,7 +806,7 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 		return allNames.contains(name);
 	}
 
-	private AbstractDataset getDataSet(Object object, final IProgressMonitor monitor) {
+	private Dataset getDataSet(Object object, final IProgressMonitor monitor) {
 		if (object instanceof ExpressionObject) {
 			try {
 				return ((ExpressionObject)object).getDataSet(monitor);
@@ -1050,12 +1050,12 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 		this.fileName = fileName;
 	}
 
-	private AbstractDataset datasetSelection = null;
+	private Dataset datasetSelection = null;
 	/**
 	 * Thread safe
 	 * @param name
 	 */
-	public AbstractDataset setDatasetSelected(final String name, final boolean clearOthers) {
+	public Dataset setDatasetSelected(final String name, final boolean clearOthers) {
 		
 		datasetSelection = null;
 		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {

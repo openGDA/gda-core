@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Maths;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
@@ -178,7 +178,7 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 		plotter = null;
 	}
 
-	public AbstractDataset getXValues() {
+	public Dataset getXValues() {
 		
 		final List<AxisValues> xValues = mainPlotter.getXAxisValues();
 		
@@ -186,7 +186,7 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 
 	}
 	
-	public Collection<AbstractDataset> getYValues() {
+	public Collection<Dataset> getYValues() {
 		
 		final List<AxisValues> xValues = mainPlotter.getXAxisValues();
 		
@@ -195,11 +195,11 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 		 */
 		final List<IDataset> ys = mainPlotter.getCurrentDataSets();
 
-		final Collection<AbstractDataset> dervs = new ArrayList<AbstractDataset>(ys.size());
+		final Collection<Dataset> dervs = new ArrayList<Dataset>(ys.size());
 		for (int i = 0; i < ys.size(); i++) {
-			final AbstractDataset x    = xValues.get(i).toDataset();
-			final AbstractDataset y    = (AbstractDataset)ys.get(i);
-			AbstractDataset derv = (AbstractDataset)ys.get(i);
+			final Dataset x    = xValues.get(i).toDataset();
+			final Dataset y    = (Dataset)ys.get(i);
+			Dataset derv = (Dataset)ys.get(i);
 			for (int di = 0; di < derivative; di++) { 
 				derv = Maths.derivative(x, derv, derivative);
 			}
@@ -229,11 +229,11 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 		    return;
 		}
 		
-		final Collection<AbstractDataset> dervs = new ArrayList<AbstractDataset>(ys.size());
+		final Collection<Dataset> dervs = new ArrayList<Dataset>(ys.size());
 		for (int i = 0; i < ys.size(); i++) {
-			final AbstractDataset x    = xValues.get(i).toDataset();
-			final AbstractDataset y    = (AbstractDataset)ys.get(i);
-			AbstractDataset derv = (AbstractDataset)ys.get(i);
+			final Dataset x    = xValues.get(i).toDataset();
+			final Dataset y    = (Dataset)ys.get(i);
+			Dataset derv = (Dataset)ys.get(i);
 			for (int di = 0; di < derivative; di++) { 
 				derv = Maths.derivative(x, derv, derivative);
 			}
@@ -451,7 +451,7 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 			public void run() {
 				try {
 					EclipseUtils.getActivePage().showView("uk.ac.diamond.scisoft.analysis.rcp.plotView2");
-					SDAPlotter.plot("Plot 2", viewer.getXValues(), viewer.getYValues().toArray(new AbstractDataset[0]));
+					SDAPlotter.plot("Plot 2", viewer.getXValues(), viewer.getYValues().toArray(new Dataset[0]));
 				} catch (Exception e) {
 					logger.error("Error plotting to DerivitiveViewer", e);
 				}

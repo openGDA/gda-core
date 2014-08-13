@@ -34,7 +34,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 
@@ -117,7 +117,7 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 	 * @param p
 	 * @param sets
 	 */
-	public static void createMultipleLegend(final DataSetPlotter p, final Map<String, ? extends AbstractDataset> sets) {
+	public static void createMultipleLegend(final DataSetPlotter p, final Map<String, ? extends Dataset> sets) {
 		int iplot = 1;
 		for (String name : sets.keySet()) {
 			final Plot1DAppearance app = new Plot1DAppearance(PlotColorUtility.getDefaultColour(iplot, name),
@@ -133,7 +133,7 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 	 * @param p
 	 * @param sets
 	 */
-	public static void createMultipleLegend(final DataSetPlotter p, final Collection<AbstractDataset> sets) {
+	public static void createMultipleLegend(final DataSetPlotter p, final Collection<Dataset> sets) {
 		p.getColourTable().clearLegend();
 		int iplot = 1;
 		for (IDataset set : sets) {

@@ -61,7 +61,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
@@ -176,7 +176,7 @@ public class DataEditor extends EditorPart implements IReusableEditor, IPageChan
 		toolMan.add(format);
 	}
 
-	private Map<String,AbstractDataset> data;
+	private Map<String,Dataset> data;
 	/**
 	 * This method to creates the table columns required to hold the
 	 * 1D data currently in the plotter passed in.
@@ -198,7 +198,7 @@ public class DataEditor extends EditorPart implements IReusableEditor, IPageChan
 		
 		// We put the x values as the first set
 		final List<AxisValues> axes = plotter.getXAxisValues();
-		final AbstractDataset x =  axes.get(0).toDataset();
+		final Dataset x =  axes.get(0).toDataset();
 		x.setName(plotter.getXAxisLabel());
 		sets.add(0,x);
 		
@@ -212,13 +212,13 @@ public class DataEditor extends EditorPart implements IReusableEditor, IPageChan
 		GridUtils.setVisible(errorLabel, false);
 		main.layout();
 
-		if (data==null) data = new LinkedHashMap<String, AbstractDataset>();
+		if (data==null) data = new LinkedHashMap<String, Dataset>();
 		data.clear();
 		
 		final String[] names = new String[sets.size()];
 		for (int i = 0; i < sets.size(); i++) {
 
-			final AbstractDataset set = DatasetUtils.convertToAbstractDataset(sets.get(i));
+			final Dataset set = DatasetUtils.convertToDataset(sets.get(i));
 
 			final TableViewerColumn col   = new TableViewerColumn(tableViewer, SWT.RIGHT, i);
 			names[i] = set.getName()!=null?set.getName():"";

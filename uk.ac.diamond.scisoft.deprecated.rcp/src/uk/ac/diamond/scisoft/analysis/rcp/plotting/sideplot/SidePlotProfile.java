@@ -43,7 +43,7 @@ import org.eclipse.ui.PartInitException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.BooleanDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
@@ -77,8 +77,8 @@ import uk.ac.diamond.scisoft.analysis.roi.handler.ROIHandler;
 public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsumer, SelectionListener, ICellEditorListener {
 	private static Logger logger = LoggerFactory.getLogger(SidePlotProfile.class);
 
-	protected AbstractDataset data;
-	protected AbstractDataset subData;
+	protected Dataset data;
+	protected Dataset subData;
 	protected double subFactor; // linear reduction factor of down-sampled image
 	private static final int DMAXDIM = 500; // maximum length of a side in image for down-sampled image
 
@@ -704,7 +704,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	public boolean getDataset() {
 		IDataset idata = mainPlotter.getCurrentDataSet();
 		if (idata != null) {
-			AbstractDataset ldata = DatasetUtils.convertToAbstractDataset(idata);
+			Dataset ldata = DatasetUtils.convertToDataset(idata);
 			if (!ldata.equals(data)) { // make down-sampled image
 				data = ldata;
 				createDownsampledDataset();

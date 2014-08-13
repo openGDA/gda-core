@@ -36,7 +36,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.BooleanDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
@@ -62,7 +62,7 @@ public class MaskCreator extends SidePlot implements Overlay2DConsumer {
 	private Logger logger = LoggerFactory.getLogger(MaskCreator.class);
 	private Overlay2DProvider2 provider;
 	private OverlayImage oi;
-	private AbstractDataset mainDataSet;
+	private Dataset mainDataSet;
 	private BooleanDataset maskDataSet;
 	private int noOfMaskedPixels = 0;
 	private MCView mcv;
@@ -329,7 +329,7 @@ public class MaskCreator extends SidePlot implements Overlay2DConsumer {
 
 	@Override
 	public void processPlotUpdate() {
-		mainDataSet = DatasetUtils.convertToAbstractDataset(getMainPlotter().getCurrentDataSet());
+		mainDataSet = DatasetUtils.convertToDataset(getMainPlotter().getCurrentDataSet());
 
 		if (mainDataSet != null) {
 			if (maskDataSet != null && !mainDataSet.isCompatibleWith(maskDataSet)) {
@@ -381,7 +381,7 @@ public class MaskCreator extends SidePlot implements Overlay2DConsumer {
 
 	private void save() {
 		if (maskDataSet != null)
-			oldMaskDataSet = (BooleanDataset) maskDataSet.clone();
+			oldMaskDataSet = maskDataSet.clone();
 		else
 			oldMaskDataSet = null;
 		Display.getDefault().asyncExec(new Runnable() {
