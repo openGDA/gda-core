@@ -31,8 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.fitting.Fitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Gaussian;
@@ -72,7 +72,7 @@ public class DataSetFitter extends DataSetProcessorBase implements InitializingB
 	}
 
 	@Override
-	public GDANexusDetectorData process(String detName, String dataName, AbstractDataset dataset) throws Exception {
+	public GDANexusDetectorData process(String detName, String dataName, Dataset dataset) throws Exception {
 		checkAfterPropertiesSetCalled();
 		if(!enable)
 			return null;
@@ -83,8 +83,8 @@ public class DataSetFitter extends DataSetProcessorBase implements InitializingB
 		try {
 			CompositeFunction fit[] = new CompositeFunction[numFits];
 			for (int i = 0; i < numFits; i++) {
-				AbstractDataset sum = dataset.sum(i);
-				AbstractDataset arange = AbstractDataset.arange(sum.getShape()[0], Dataset.FLOAT64);
+				Dataset sum = dataset.sum(i);
+				Dataset arange = DatasetFactory.createRange(sum.getShape()[0], Dataset.FLOAT64);
 				double position_max = arange.max().doubleValue();
 				double position_min = arange.min().doubleValue();
 				double fwhm_max = arange.max().doubleValue();
