@@ -60,7 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
@@ -423,7 +423,7 @@ public class CenterOfRotationView extends BaseParameterView implements ISelectio
 					try {
 						DataHolder data = new TIFFImageLoader(fileName.getAbsolutePath()).loadFile();
 						// update monitor
-						AbstractDataset image = data.getDataset(0);
+						Dataset image = data.getDataset(0);
 						image.isubtract(image.min());
 						image.imultiply(1000.0);
 						// update monitor

@@ -30,7 +30,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.roi.IROI;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 
@@ -41,7 +41,7 @@ public class DefineHeightRoiDialog extends BaseRoiDialog {
 	private IRegion selectedRegion;
 	private int[] startEnd;
 
-	public DefineHeightRoiDialog(Shell parentShell, AbstractDataset image) {
+	public DefineHeightRoiDialog(Shell parentShell, Dataset image) {
 		super(parentShell, image, 1000, 800);
 	}
 

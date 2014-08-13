@@ -67,7 +67,7 @@ import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
@@ -271,7 +271,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 	}
 
 	private int position = -1;
-	private AbstractDataset datasetToPlot;
+	private Dataset datasetToPlot;
 
 	private Job getRefreshJob() {
 		Job refreshJob = new Job("") {
@@ -287,7 +287,7 @@ public class ProjectionsView extends BaseTomoReconPart implements ISelectionList
 					int[] shape = dataset.getShape();
 					shape[0] = position + 1;
 					IDataset slice = dataset.getSlice(new int[] { position, 0, 0 }, shape, new int[] { 1, 1, 1 });
-					datasetToPlot = (AbstractDataset) slice.squeeze();
+					datasetToPlot = (Dataset) slice.squeeze();
 
 					getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 						@Override

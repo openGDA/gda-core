@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageLoader;
 import uk.ac.diamond.tomography.reconstruction.Activator;
@@ -64,7 +64,7 @@ public class UpdatePlotJob extends Job {
 				// update monitor
 				monitor.worked(1);
 
-				AbstractDataset image = data.getDataset(0);
+				Dataset image = data.getDataset(0);
 				image.isubtract(image.min());
 				image.imultiply(1000.0);
 

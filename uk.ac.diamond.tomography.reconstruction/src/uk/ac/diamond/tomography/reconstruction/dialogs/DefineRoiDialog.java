@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 
 public class DefineRoiDialog extends BaseRoiDialog {
@@ -43,7 +43,7 @@ public class DefineRoiDialog extends BaseRoiDialog {
 
 	private static final Logger logger = LoggerFactory.getLogger(DefineRoiDialog.class);
 
-	public DefineRoiDialog(Shell parentShell, AbstractDataset image) {
+	public DefineRoiDialog(Shell parentShell, Dataset image) {
 		super(parentShell, image, 800, 700);
 	}
 

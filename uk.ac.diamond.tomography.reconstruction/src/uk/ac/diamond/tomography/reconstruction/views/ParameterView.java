@@ -92,7 +92,7 @@ import org.eclipse.ui.part.PageBook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
@@ -368,7 +368,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 		defineRoi.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				final AbstractDataset[] images = new AbstractDataset[1];
+				final Dataset[] images = new Dataset[1];
 				BusyIndicator.showWhile(getViewSite().getShell().getDisplay(), new Runnable() {
 
 					@Override
@@ -392,7 +392,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 
 								// update monitor
 								if (data != null) {
-									AbstractDataset image = data.getDataset(0);
+									Dataset image = data.getDataset(0);
 									image.isubtract(image.min());
 									image.imultiply(1000.0);
 									images[0] = image;
@@ -780,7 +780,7 @@ public class ParameterView extends BaseParameterView implements ISelectionListen
 		}
 	}
 
-	private AbstractDataset getImageDataFromProjectionsView() {
+	private Dataset getImageDataFromProjectionsView() {
 		IViewPart projectionsView = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 				.findView(ProjectionsView.ID);
 		ISelection selection = projectionsView.getViewSite().getSelectionProvider().getSelection();
