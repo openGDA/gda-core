@@ -57,7 +57,7 @@ import org.eclipse.ui.part.PageBook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
@@ -124,13 +124,13 @@ public class TomoPlotComposite extends Composite {
 
 	private IPlottingSystem plottingSystem;
 
-	private AbstractDataset rawDataSlice;
+	private Dataset rawDataSlice;
 
 	private long timeSinceLastUpdate = 0;
 
-	private AbstractDataset rawImgDs;
+	private Dataset rawImgDs;
 
-	private AbstractDataset darkImgDs;
+	private Dataset darkImgDs;
 
 	private uk.ac.diamond.scisoft.analysis.dataset.function.Histogram histogram;
 
@@ -403,7 +403,7 @@ public class TomoPlotComposite extends Composite {
 				return;
 			}
 			timeSinceLastUpdate = currentTimeMillis;
-			final ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
+			final ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
 
 			if (rawImgDs != null) {
 				int[] shape = rawImgDs.getShape();
@@ -414,7 +414,7 @@ public class TomoPlotComposite extends Composite {
 			}
 			if (darkImgDs != null) {
 				int[] shape = rawImgDs.getShape();
-				AbstractDataset darkDataSlice = darkImgDs.getSlice(new int[] { y - 1, 0 }, new int[] { y,  shape[1]  },
+				Dataset darkDataSlice = darkImgDs.getSlice(new int[] { y - 1, 0 }, new int[] { y,  shape[1]  },
 						new int[] { 1, 1 });
 				darkDataSlice.squeeze();
 				darkDataSlice.setName("dark");
@@ -465,9 +465,9 @@ public class TomoPlotComposite extends Composite {
 		}
 	}
 
-	private AbstractDataset loadDatasetForTiffImg(String fileName, String dsName) {
+	private Dataset loadDatasetForTiffImg(String fileName, String dsName) {
 		TIFFImageLoader tiffImageLoader = new TIFFImageLoader(fileName);
-		AbstractDataset dataset = null;
+		Dataset dataset = null;
 		try {
 			DataHolder dataHolder = tiffImageLoader.loadFile();
 			dataset = dataHolder.getDataset(0);
@@ -500,7 +500,7 @@ public class TomoPlotComposite extends Composite {
 					DoubleDataset y3 = new DoubleDataset(line2.getYDoubleArray());
 					y3.setName("Line1");
 					DoubleDataset x3 = new DoubleDataset(line2.getXDoubleArray());
-					ArrayList<AbstractDataset> singletonList = new ArrayList<AbstractDataset>(1);
+					ArrayList<Dataset> singletonList = new ArrayList<Dataset>(1);
 					singletonList.add(y3);
 					plottingSystem.updatePlot1D(x3, singletonList, progress);
 				}
@@ -515,7 +515,7 @@ public class TomoPlotComposite extends Composite {
 						DoubleDataset centers1Yds = new DoubleDataset(centers1.getYDoubleArray());
 						centers1Yds.setName("Before Alignment");
 						DoubleDataset centers1Xds = new DoubleDataset(centers1.getXDoubleArray());
-						ArrayList<AbstractDataset> dsList = new ArrayList<AbstractDataset>();
+						ArrayList<Dataset> dsList = new ArrayList<Dataset>();
 						dsList.add(centers1Yds);
 						centers1Yds.setName("Before Alignment");
 						List<ITrace> traces1 = plottingSystem.updatePlot1D(centers1Xds, dsList, progress);
@@ -535,7 +535,7 @@ public class TomoPlotComposite extends Composite {
 						DoubleDataset centers2Yds = new DoubleDataset(centers2.getYDoubleArray());
 						centers2Yds.setName("After Alignment");
 						DoubleDataset centers2Xds = new DoubleDataset(centers2.getXDoubleArray());
-						ArrayList<AbstractDataset> dsList = new ArrayList<AbstractDataset>();
+						ArrayList<Dataset> dsList = new ArrayList<Dataset>();
 						dsList.add(centers2Yds);
 						List<ITrace> traces2 = plottingSystem.updatePlot1D(centers2Xds, dsList, progress);
 						ILineTrace afterTilt = (ILineTrace) traces2.get(0);
@@ -733,7 +733,7 @@ public class TomoPlotComposite extends Composite {
 					histogram.setMinMax(min, max);
 					ds.setName(HISTOGRAM_DATASET_lbl);
 
-					AbstractDataset histogramDs = histogram.value(ds).get(0);
+					Dataset histogramDs = histogram.value(ds).get(0);
 					histogramDs.setName(HISTOGRAM_DATASET_lbl);
 					if (singleLog) {
 						int shape = histogramDs.getShape()[0];
