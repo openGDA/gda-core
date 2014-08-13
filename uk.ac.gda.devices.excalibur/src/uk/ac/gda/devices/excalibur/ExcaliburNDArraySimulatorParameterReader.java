@@ -31,7 +31,7 @@ import java.util.Collection;
 import org.nexusformat.NexusFile;
 import org.springframework.beans.factory.InitializingBean;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 
 public class ExcaliburNDArraySimulatorParameterReader extends DataSetProcessorBase implements InitializingBean {
 	ExcaliburNDArraySimulator sim;
@@ -45,7 +45,7 @@ public class ExcaliburNDArraySimulatorParameterReader extends DataSetProcessorBa
 	}
 
 	@Override
-	public GDANexusDetectorData process(String detectorName, String dataName, AbstractDataset dataset) throws Exception {
+	public GDANexusDetectorData process(String detectorName, String dataName, Dataset dataset) throws Exception {
 		NXDetectorData res = new NXDetectorData();
 		INexusTree detTree = res.getDetTree(detectorName);
 		int[] dims = new int[] { sim.widthUsed, sim.heightUsed };
