@@ -48,7 +48,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 /**
@@ -189,7 +189,7 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
 //			logger.warn("image size = {}", values.length);
-			final AbstractDataset ds = new DoubleDataset(values, dims);
+			final Dataset ds = new DoubleDataset(values, dims);
 			ds.setName("Intensity");
 			plottingSystem.clear();
 			plottingSystem.createPlot2D(ds, null, monitor);

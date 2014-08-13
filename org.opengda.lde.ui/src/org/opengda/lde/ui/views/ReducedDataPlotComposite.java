@@ -46,8 +46,7 @@ import org.opengda.lde.events.NewDataFileEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
@@ -143,14 +142,14 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 			throw new IllegalArgumentException(e.getMessage(), e);
 		}
 		String[] names = dataHolder.getNames();
-		AbstractDataset xAxis=(AbstractDataset) dataHolder.getDataset(0);
+		Dataset xAxis=(Dataset) dataHolder.getDataset(0);
 		xAxis.setName(names[0]);
-		AbstractDataset yds=(AbstractDataset) dataHolder.getDataset(1);
+		Dataset yds=(Dataset) dataHolder.getDataset(1);
 		yds.setName(names[1]);
-		AbstractDataset error=(AbstractDataset) dataHolder.getDataset(2);
+		Dataset error=(Dataset) dataHolder.getDataset(2);
 		error.setName(names[2]);
 		yds.setError(error);
-		ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
+		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
 		plotDataSets.add(yds);
 		plottingSystem.clear();
 		final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);
