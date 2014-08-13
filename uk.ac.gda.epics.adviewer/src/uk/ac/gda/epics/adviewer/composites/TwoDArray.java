@@ -31,16 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.dawnsci.hdf5.HierarchicalDataFactory;
-import org.eclipse.dawnsci.hdf5.HierarchicalDataFileUtils;
-import org.eclipse.dawnsci.hdf5.IHierarchicalDataFile;
-import org.eclipse.dawnsci.hdf5.Nexus;
 import org.dawnsci.io.h5.H5LazyDataset;
-import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
-import org.eclipse.dawnsci.plotting.api.PlotType;
-import org.eclipse.dawnsci.plotting.api.PlottingFactory;
-import org.eclipse.dawnsci.plotting.api.axis.IAxis;
-import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.PojoObservables;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -48,6 +39,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.dawnsci.hdf5.HierarchicalDataFactory;
+import org.eclipse.dawnsci.hdf5.HierarchicalDataFileUtils;
+import org.eclipse.dawnsci.hdf5.IHierarchicalDataFile;
+import org.eclipse.dawnsci.hdf5.Nexus;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.PlotType;
+import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.dawnsci.plotting.api.axis.IAxis;
+import org.eclipse.dawnsci.plotting.api.trace.IImageTrace;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -76,8 +76,8 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ByteDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
@@ -121,7 +121,7 @@ public class TwoDArray extends Composite {
 
 	protected boolean autoScale;
 
-	Map<String, AbstractDataset> stores = new HashMap<String, AbstractDataset>();
+	Map<String, Dataset> stores = new HashMap<String, Dataset>();
 
 	private ScrolledComposite leftScrolledComposite;
 
@@ -144,7 +144,7 @@ public class TwoDArray extends Composite {
 	private NDPluginBase imageNDROIPluginBase;
 
 	private Observer<Double> minCallbackTimeObserver;
-	AbstractDataset ads = null;
+	Dataset ads = null;
 	private Group grpStores;
 	private Button btnA;
 	private Button btnB;
@@ -210,7 +210,7 @@ public class TwoDArray extends Composite {
 						btnA.addSelectionListener(new SelectionAdapter() {
 							@Override
 							public void widgetSelected(SelectionEvent e) {
-								AbstractDataset clone = ads.clone();
+								Dataset clone = ads.clone();
 								clone.setName("A");
 								TwoDArray.this.setupStores("A", clone);
 							}
@@ -223,7 +223,7 @@ public class TwoDArray extends Composite {
 										btnB.addSelectionListener(new SelectionAdapter() {
 											@Override
 											public void widgetSelected(SelectionEvent e) {
-												AbstractDataset clone = ads.clone();
+												Dataset clone = ads.clone();
 												clone.setName("B");
 												TwoDArray.this.setupStores("B", clone);
 											}
@@ -375,10 +375,10 @@ public class TwoDArray extends Composite {
 	public Boolean getShowLeft() {
 		return showLeft;
 	}
-	protected void setupStores(String storeName, AbstractDataset ads) {
+	protected void setupStores(String storeName, Dataset ads) {
 		stores.put(storeName, ads);
-		AbstractDataset storeA = stores.get("A");
-		AbstractDataset storeB = stores.get("B");
+		Dataset storeA = stores.get("A");
+		Dataset storeB = stores.get("B");
 		stores.remove("A-B");
 		if (storeA != null && storeB != null && Arrays.equals(storeA.getShape(), storeB.getShape())) {
 			DoubleDataset storeAMinusB = new DoubleDataset(Maths.subtract(storeA, storeB));
@@ -595,8 +595,8 @@ public class TwoDArray extends Composite {
 			IHierarchicalDataFile writer = HierarchicalDataFactory.getWriter(fileName);
 			try {
 				String parent = createParentEntry(writer, "/entry/stores");
-				for (Entry<String, AbstractDataset> store : stores.entrySet()) {
-					AbstractDataset data = store.getValue();
+				for (Entry<String, Dataset> store : stores.entrySet()) {
+					Dataset data = store.getValue();
 					String dataName = store.getKey();
 					final String dataset = writer.replaceDataset(dataName, data, parent);
 					writer.setNexusAttribute(dataset, Nexus.SDS);
@@ -626,7 +626,7 @@ public class TwoDArray extends Composite {
 						if (dsName.equals("A-B")) continue;
 						
 						ILazyDataset lazy = new H5LazyDataset(reader, fullPath);
-						AbstractDataset store = DatasetUtils.convertToAbstractDataset(lazy.getSlice((Slice) null));
+						Dataset store = DatasetUtils.convertToDataset(lazy.getSlice((Slice) null));
 						store.setName(dsName);
 						setupStores(dsName, store);
 					}
@@ -663,7 +663,7 @@ public class TwoDArray extends Composite {
 		private Runnable updateUIRunnable;
 
 		volatile boolean runnableScheduled = false;
-		private AbstractDataset nonNullDSToPlot;
+		private Dataset nonNullDSToPlot;
 		PlotView plotView;
 
 		void snapShot() throws Exception {
@@ -709,7 +709,7 @@ public class TwoDArray extends Composite {
 			return super.belongsTo(family);
 		}
 
-		private int getPosToIncludeFractionOfPopulation(AbstractDataset yData, Double fractionOfPopulationToInclude) {
+		private int getPosToIncludeFractionOfPopulation(Dataset yData, Double fractionOfPopulationToInclude) {
 			Double sum = (Double) yData.sum();
 			double popIncluded = 0;
 			int j = 0;
@@ -748,7 +748,7 @@ public class TwoDArray extends Composite {
 								+ object.getClass().getName());
 					}
 					ads.setName(arrayCounter.toString());
-					AbstractDataset dsToShow = null;
+					Dataset dsToShow = null;
 					String explanation = "";
 
 					OptionIndex showIndex = showOption.getIndex();
@@ -760,7 +760,7 @@ public class TwoDArray extends Composite {
 					case B:
 					case I_OVER_B:
 					case I_MUNIS_B: {
-						AbstractDataset store = stores.get("B");
+						Dataset store = stores.get("B");
 						if (store != null) {
 							if (showIndex == OptionIndex.B) {
 								dsToShow = store;
@@ -786,7 +786,7 @@ public class TwoDArray extends Composite {
 					case A:
 					case I_OVER_A:
 					case I_MINUS_A: {
-						AbstractDataset store = stores.get("A");
+						Dataset store = stores.get("A");
 						if (store != null) {
 							if (showIndex == OptionIndex.A) {
 								dsToShow = store;
@@ -811,7 +811,7 @@ public class TwoDArray extends Composite {
 					}
 					case I_NORMALISED: {
 						// I-B/A-B
-						AbstractDataset storeB = stores.get("B");
+						Dataset storeB = stores.get("B");
 						DoubleDataset storeA_B = (DoubleDataset) stores.get("A-B");
 						if (storeB != null && storeA_B != null && Arrays.equals(storeB.getShape(), ads.getShape())) {
 							DoubleDataset ds = new DoubleDataset(Maths.subtract(ads, storeB));
@@ -844,12 +844,12 @@ public class TwoDArray extends Composite {
 						// if these work out the same then resort to min and max of dataset
 						int num_bins = 100;
 						Histogram hist = new Histogram(num_bins, min, max, true);
-						List<AbstractDataset> histogram_values = hist.value(dsToShow);
+						List<? extends Dataset> histogram_values = hist.value(dsToShow);
 						if (histogram_values.size() > 1) {
 							DoubleDataset histogramX = (DoubleDataset) histogram_values.get(1).getSlice(
 									new int[] { 0 }, new int[] { num_bins }, new int[] { 1 });
 							histogramX.setName("Intensity");
-							AbstractDataset histogramY = histogram_values.get(0);
+							Dataset histogramY = histogram_values.get(0);
 							int jMax = getPosToIncludeFractionOfPopulation(histogramY, .95);
 							jMax = Math.min(jMax + 1, histogramY.getSize() - 1);
 							int jMin = getPosToIncludeFractionOfPopulation(histogramY, .05);
@@ -875,7 +875,7 @@ public class TwoDArray extends Composite {
 							@Override
 							public void run() {
 								runnableScheduled = false;
-								AbstractDataset dataToPlot = getDataToPlot();
+								Dataset dataToPlot = getDataToPlot();
 								if (trace == null || !Arrays.equals(trace.getData().getShape(), dataToPlot.getShape())) {
 									trace = (IImageTrace) plottingSystem.updatePlot2D(dataToPlot, null, null);
 								}
@@ -906,7 +906,7 @@ public class TwoDArray extends Composite {
 			return Status.OK_STATUS;
 		}
 
-		private AbstractDataset getDataToPlot() {
+		private Dataset getDataToPlot() {
 			return nonNullDSToPlot;
 		}
 
