@@ -26,7 +26,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.gda.beans.BeansFactory;
@@ -109,7 +109,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 		IDataset slice = lazyDataset.getSlice(new int[] { i, 0, 0, 0 }, new int[] { i + 1, xAxisLengthFromFile,
 				numberOfdetectorElements, 4096 }, new int[] { 1, 1, 1, 1 });
 		ILazyDataset sqSlice = slice.squeeze();
-		double[] data = (double[]) ((AbstractDataset) sqSlice).getBuffer();
+		double[] data = (double[]) ((Dataset) sqSlice).getBuffer();
 		int dim[] = sqSlice.getShape();
 		return packto4D(data, dim[0], dim[1], dim[2]);
 	}
@@ -119,7 +119,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 		IDataset slice = lazyDataset.getSlice(new int[] { y, x, detectorNo, roi.getRoiStart() }, new int[] { y + 1,
 				x + 1, detectorNo + 1, roi.getRoiEnd() }, new int[] { 1, 1, 1, 1 });
 		ILazyDataset sqSlice = slice.squeeze();
-		return (double[]) ((AbstractDataset) sqSlice).getBuffer();
+		return (double[]) ((Dataset) sqSlice).getBuffer();
 	}
 
 	@SuppressWarnings("unused")
@@ -216,7 +216,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 		IDataset slice = lazyDataset.getSlice(new int[] { y, x, detectorNo, 0 }, new int[] { y + 1, x + 1,
 				detectorNo + 1, spectrumLength }, new int[] { 1, 1, 1, 1 });
 		ILazyDataset sqSlice = slice.squeeze();
-		return (double[]) ((AbstractDataset) sqSlice).getBuffer();
+		return (double[]) ((Dataset) sqSlice).getBuffer();
 	}
 
 	public String[] getElementNames() {

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
@@ -112,7 +112,7 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 	protected IPlotData getY(IScanDataPoint... points) {
 		Double[] values = cachedY.toArray(new Double[]{});
 		double[] primitiveValues = ArrayUtils.toPrimitive(values, values.length);
-		AbstractDataset yValues = new DoubleDataset(primitiveValues,primitiveValues.length);
+		Dataset yValues = new DoubleDataset(primitiveValues,primitiveValues.length);
 		yValues.setName(getYAxisName());
 		return new DataSetPlotData(getYAxisName(), yValues);
 	}

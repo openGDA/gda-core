@@ -27,7 +27,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.gda.beans.BeansFactory;
@@ -68,7 +68,7 @@ public class ScalerMFMappableDataProvider extends MicroFocusMappableDataProvider
 			IDataset slice = lazyDataset.getSlice(new int[] { 0, 0 }, new int[] { yAxisLengthFromFile,
 					xAxisLengthFromFile }, new int[] { 1, 1 });
 			ILazyDataset sqSlice = slice.squeeze();
-			data = (double[]) ((AbstractDataset) sqSlice).getBuffer();
+			data = (double[]) ((Dataset) sqSlice).getBuffer();
 			detectorData.put(selectedElement, data);
 		} else {
 			data = detectorData.get(selectedElement);

@@ -72,7 +72,7 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
@@ -748,7 +748,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	private String plotTitle = "Saved Data";
 
 	protected void plot(final int ielement, boolean updateTitle) {
-		final List<AbstractDataset> data = unpackDataSets(ielement);
+		final List<Dataset> data = unpackDataSets(ielement);
 
 		if (updateTitle) {
 			Date now = new Date();
@@ -765,7 +765,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			data.get(i).setName(name);
 		}
 
-		sashPlotForm.setDataSets(data.toArray(new AbstractDataset[data.size()]));
+		sashPlotForm.setDataSets(data.toArray(new Dataset[data.size()]));
 		sashPlotForm.getPlottingSystem().setRescale(updateTitle);
 		sashPlotForm.plotData();
 		sashPlotForm.getPlottingSystem().setTitle(plotTitle);
@@ -801,25 +801,25 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 		return "" + iChannel;
 	}
 
-	protected double getMin(Collection<AbstractDataset> data) {
+	protected double getMin(Collection<Dataset> data) {
 		double ret = Double.MAX_VALUE;
-		for (AbstractDataset dataSet : data) {
+		for (Dataset dataSet : data) {
 			ret = Math.min(ret, dataSet.min().doubleValue());
 		}
 		return ret;
 	}
 
-	protected double getMax(Collection<AbstractDataset> data) {
+	protected double getMax(Collection<Dataset> data) {
 		double ret = -Double.MAX_VALUE;
-		for (AbstractDataset dataSet : data) {
+		for (Dataset dataSet : data) {
 			ret = Math.max(ret, dataSet.max().doubleValue());
 		}
 		return ret;
 	}
 
-	protected List<AbstractDataset> unpackDataSets(int ielement) {
+	protected List<Dataset> unpackDataSets(int ielement) {
 
-		final List<AbstractDataset> ret = new ArrayList<AbstractDataset>(7);
+		final List<Dataset> ret = new ArrayList<Dataset>(7);
 		if (ielement < 0 || detectorData == null) {
 			DoubleDataset ds = new DoubleDataset(new double[] { 0d });
 			ret.add(ds);

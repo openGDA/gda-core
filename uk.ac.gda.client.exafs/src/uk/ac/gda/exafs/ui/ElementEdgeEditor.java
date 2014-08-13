@@ -68,7 +68,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.gda.beans.BeansFactory;
@@ -569,7 +569,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 			IntegerDataset y = IntegerDataset.createRange(5);
 			x.setName("Energy (eV)");
 			y.setName("\u0394E (eV)");
-			List<ITrace> traces = plottingsystem.createPlot1D(x, Arrays.asList(new AbstractDataset[] { y }), null);
+			List<ITrace> traces = plottingsystem.createPlot1D(x, Arrays.asList(new Dataset[] { y }), null);
 			exafsProfile = (ILineTrace) traces.get(0);
 			exafsProfile.setTraceColor(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
 		}

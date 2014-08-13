@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
@@ -239,7 +239,7 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 	protected IPlotData getX(IScanDataPoint... points) {
 		Double[] values = cachedX.toArray(new Double[]{});
 		double[] primitiveValues = ArrayUtils.toPrimitive(values, values.length);
-		AbstractDataset xValues = new DoubleDataset(primitiveValues,primitiveValues.length);
+		Dataset xValues = new DoubleDataset(primitiveValues,primitiveValues.length);
 		xValues.setName(getXAxisName());
 		return new DataSetPlotData(getXAxisName(), xValues);
 	}

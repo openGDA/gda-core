@@ -21,7 +21,7 @@ package gda.device.detector.xmap.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
@@ -56,7 +56,7 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		IDataset slice = lazyDataset.getSlice(new int[] { dataPointNumber, 0, 0 }, new int[] { dataPointNumber + 1,
 				numberOfDetectorElements, channelNumbers }, new int[] { 1, 1, 1 });
 		ILazyDataset sqSlice = slice.squeeze();
-		int[] data = (int[]) ((AbstractDataset) sqSlice).getBuffer();
+		int[] data = (int[]) ((Dataset) sqSlice).getBuffer();
 		short allData[][] = new short[numberOfDetectorElements][channelNumbers];
 		for (int i = 0; i < numberOfDetectorElements; i++) {
 			for (int j = 0; j < channelNumbers; j++) {
@@ -85,7 +85,7 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		IDataset slice = lazyDataset.getSlice(new int[] { fromDataPointNumber, 0, 0 }, new int[] { toDataPointNumber,
 				numberOfDetectorElements, channelNumbers }, new int[] { 1, 1, 1 });
 		ILazyDataset sqSlice = slice.squeeze();
-		int[] data = (int[]) ((AbstractDataset) sqSlice).getBuffer();
+		int[] data = (int[]) ((Dataset) sqSlice).getBuffer();
 		int noDataPtsToRead = (toDataPointNumber - fromDataPointNumber) + 1;
 		short allData[][][] = new short[noDataPtsToRead][numberOfDetectorElements][channelNumbers];
 		for (int k = 0; k < noDataPtsToRead; k++) {
@@ -109,7 +109,7 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		IDataset slice = lazyDataset.getSlice(new int[] { dataPointNumber }, new int[] { dataPointNumber + 1 },
 				new int[] { 1 });
 		ILazyDataset sqSlice = slice.squeeze();
-		long[] trigger = (long[]) ((AbstractDataset) sqSlice).getBuffer();
+		long[] trigger = (long[]) ((Dataset) sqSlice).getBuffer();
 		return trigger[0];
 	}
 
@@ -119,7 +119,7 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		IDataset slice = lazyDataset.getSlice(new int[] { dataPointNumber }, new int[] { dataPointNumber + 1 },
 				new int[] { 1 });
 		ILazyDataset sqSlice = slice.squeeze();
-		double[] realtime = (double[]) ((AbstractDataset) sqSlice).getBuffer();
+		double[] realtime = (double[]) ((Dataset) sqSlice).getBuffer();
 		return realtime[0];
 	}
 
@@ -130,7 +130,7 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		IDataset slice = lazyDataset.getSlice(new int[] { dataPointNumber }, new int[] { dataPointNumber + 1 },
 				new int[] { 1 });
 		ILazyDataset sqSlice = slice.squeeze();
-		double[] livetime = (double[]) ((AbstractDataset) sqSlice).getBuffer();
+		double[] livetime = (double[]) ((Dataset) sqSlice).getBuffer();
 		return livetime[0];
 	}
 
@@ -140,7 +140,7 @@ public class XmapBufferedHdf5FileLoader implements XmapFileLoader {
 		IDataset slice = lazyDataset.getSlice(new int[] { dataPointNumber }, new int[] { dataPointNumber + 1 },
 				new int[] { 1 });
 		ILazyDataset sqSlice = slice.squeeze();
-		long[] events = (long[]) ((AbstractDataset) sqSlice).getBuffer();
+		long[] events = (long[]) ((Dataset) sqSlice).getBuffer();
 		return events[0];
 	}
 

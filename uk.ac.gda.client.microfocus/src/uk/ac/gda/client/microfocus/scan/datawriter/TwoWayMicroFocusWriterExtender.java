@@ -35,7 +35,7 @@ public class TwoWayMicroFocusWriterExtender extends MicroFocusWriterExtender {
 	//	private String plotName;
 //	private int numberOfXPoints = 0;
 //	private int numberOfYPoints = 0;
-//	private AbstractDataset dataSet;
+//	private Dataset dataSet;
 //	private double xStepSize;
 //	private double yStepSize;
 //	private Detector detectors[];
@@ -77,7 +77,7 @@ public class TwoWayMicroFocusWriterExtender extends MicroFocusWriterExtender {
 //	private double lastFilledValue;
 //	private boolean active = false;
 
-//	public AbstractDataset getDataSet() {
+//	public Dataset getDataSet() {
 //		return dataSet;
 //	}
 

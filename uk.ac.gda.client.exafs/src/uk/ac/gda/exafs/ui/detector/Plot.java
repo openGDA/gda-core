@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.richbeans.components.wrappers.ComboAndNumberWrapper;
@@ -39,7 +39,7 @@ public class Plot {
 	}
 
 	public void plot(int ielement, int[][][] detectorData, boolean isAdditiveResolutionGradeMode, ComboAndNumberWrapper resolutionGradeCombo) {
-		final List<AbstractDataset> data = unpackDataSets(ielement, detectorData, isAdditiveResolutionGradeMode, resolutionGradeCombo);
+		final List<Dataset> data = unpackDataSets(ielement, detectorData, isAdditiveResolutionGradeMode, resolutionGradeCombo);
 		String plotTitle = null;
 		Date now = new Date();
 		SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
@@ -51,14 +51,14 @@ public class Plot {
 			name += " " + plotTitle;
 			data.get(i).setName(name);
 		}
-		sashPlotFormComposite.setDataSets(data.toArray(new AbstractDataset[data.size()]));
+		sashPlotFormComposite.setDataSets(data.toArray(new Dataset[data.size()]));
 		sashPlotFormComposite.getPlottingSystem().setRescale(true);
 		sashPlotFormComposite.plotData();
 		sashPlotFormComposite.getPlottingSystem().setTitle(plotTitle);
 	}
 	
-	protected List<AbstractDataset> unpackDataSets(int ielement, int[][][] detectorData, boolean isAdditiveResolutionGradeMode, ComboAndNumberWrapper resolutionGradeCombo) {
-		List<AbstractDataset> ret = new ArrayList<AbstractDataset>(7);
+	protected List<Dataset> unpackDataSets(int ielement, int[][][] detectorData, boolean isAdditiveResolutionGradeMode, ComboAndNumberWrapper resolutionGradeCombo) {
+		List<Dataset> ret = new ArrayList<Dataset>(7);
 		if(resolutionGradeCombo!=null)
 			if (ielement < 0 || detectorData == null || !isAdditiveResolutionGradeMode || !resolutionGradeCombo.getValue().equals(ResGrades.ALLGRADES)){
 				if (ielement < 0 || detectorData == null) {
@@ -76,14 +76,14 @@ public class Plot {
 		return unpackDataSets(ielement, detectorData);
 	}
 	
-	protected List<AbstractDataset> unpackDataSets(int ielement, int[][][] detectorData) {
-		List<AbstractDataset> ret = new ArrayList<AbstractDataset>(7);
+	protected List<Dataset> unpackDataSets(int ielement, int[][][] detectorData) {
+		List<Dataset> ret = new ArrayList<Dataset>(7);
 		int[][] elementData = detectorData[ielement];
 		for (int resGrade = 0; resGrade < elementData.length; resGrade++) {
 			int[] data = Arrays.copyOf(elementData[resGrade],elementData[resGrade].length);
 			IntegerDataset d = new IntegerDataset(data, data.length);
 			if (!ret.isEmpty()) {
-				AbstractDataset p = ret.get(resGrade - 1);
+				Dataset p = ret.get(resGrade - 1);
 				d.iadd(p);
 			}
 			ret.add(d);

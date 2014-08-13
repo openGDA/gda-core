@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.ElementCountsData;
@@ -896,7 +896,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	}
 
 	@Override
-	protected List<AbstractDataset> unpackDataSets(int ielement) {
+	protected List<Dataset> unpackDataSets(int ielement) {
 
 		if (ielement < 0 || detectorData == null || !isAdditiveResolutionGradeMode
 				|| !resGrade.getValue().equals(ResGrades.ALLGRADES)) {
@@ -904,13 +904,13 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		}
 
 		// We are ResGrades.ALLGRADES and isAdditiveResolutionGradeMode, so we add them.
-		final List<AbstractDataset> ret = new ArrayList<AbstractDataset>(7);
+		final List<Dataset> ret = new ArrayList<Dataset>(7);
 		final double[][] elementData = detectorData[ielement];
 		for (int resGrade = 0; resGrade < elementData.length; resGrade++) {
 			// must pass by value as we are going to do some maths on it!!!
-			AbstractDataset d = new DoubleDataset(Arrays.copyOf(elementData[resGrade],elementData[resGrade].length));
+			Dataset d = new DoubleDataset(Arrays.copyOf(elementData[resGrade],elementData[resGrade].length));
 			if (!ret.isEmpty()) {
-				final AbstractDataset p = ret.get(resGrade - 1);
+				final Dataset p = ret.get(resGrade - 1);
 				d.iadd(p);
 			}
 			ret.add(d);

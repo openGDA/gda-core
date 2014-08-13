@@ -26,7 +26,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
@@ -57,8 +57,8 @@ public abstract class MicroFocusMappableDataProvider {
 	protected String detectorName;
 	protected INexusTree detectorNode;
 	protected String beanFile;
-	private AbstractDataset i0data;
-	private AbstractDataset itdata;
+	private Dataset i0data;
+	private Dataset itdata;
 
 	public MicroFocusMappableDataProvider() {
 		super();
@@ -93,11 +93,11 @@ public abstract class MicroFocusMappableDataProvider {
 			extractItData(names);
 
 			ILazyDataset xscannableDS = extractXScannableData(names);
-			AbstractDataset xdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(xscannableDS));
+			Dataset xdata = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(xscannableDS));
 			xAxisLengthFromFile = xdata.getShape()[1];
 
 			ILazyDataset yscannableDS = extractYScannableData(names);
-			AbstractDataset ydata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(yscannableDS));
+			Dataset ydata = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(yscannableDS));
 			yAxisLengthFromFile = ydata.getShape()[0];
 			
 			double[] x = (double[]) xdata.getBuffer();
@@ -105,7 +105,7 @@ public abstract class MicroFocusMappableDataProvider {
 			
 			ILazyDataset zscannableDS = extractZScannableData(names);
 
-			AbstractDataset zdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(zscannableDS));
+			Dataset zdata = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(zscannableDS));
 			zValue = Double.parseDouble(zdata.getString(0));
 	
 			// x and y values from file will be
@@ -175,32 +175,32 @@ public abstract class MicroFocusMappableDataProvider {
 	private void extractItData(String names) {
 		if (names.contains("/entry1/counterTimer01/It")) {
 			ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/counterTimer01/It");
-			itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
+			itdata = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(itDS));
 		} else if (names.contains("/entry1/raster_counterTimer01/It")) {
 			ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/raster_counterTimer01/It");
-			itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
+			itdata = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(itDS));
 		} else if (names.contains("/entry1/counterTimer01/It")) {
 			ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/instrument/counterTimer01/It");
-			itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
+			itdata = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(itDS));
 		} else if (names.contains("/entry1/raster_counterTimer01/It")) {
 			ILazyDataset itDS = dataHolder.getLazyDataset("/entry1/instrument/raster_counterTimer01/It");
-			itdata = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(itDS));
+			itdata = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(itDS));
 		}
 	}
 
 	private void extractI0Data(String names) {
 		if (names.contains("/entry1/counterTimer01/I0")) {
 			ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/counterTimer01/I0");
-			i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
+			i0data = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(i0DS));
 		} else if (names.contains("/entry1/raster_counterTimer01/I0")) {
 			ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/raster_counterTimer01/I0");
-			i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
+			i0data = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(i0DS));
 		} else if (names.contains("/entry1/instrument/counterTimer01/I0")) {
 			ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/instrument/counterTimer01/I0");
-			i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
+			i0data = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(i0DS));
 		} else if (names.contains("/entry1/instrument/raster_counterTimer01/I0")) {
 			ILazyDataset i0DS = dataHolder.getLazyDataset("/entry1/instrument/raster_counterTimer01/I0");
-			i0data = DatasetUtils.convertToAbstractDataset(getDatasetFromLazyDataset(i0DS));
+			i0data = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(i0DS));
 		}
 	}
 
@@ -248,11 +248,11 @@ public abstract class MicroFocusMappableDataProvider {
 		beanFile = file;
 	}
 
-	public AbstractDataset getI0data() {
+	public Dataset getI0data() {
 		return i0data;
 	}
 
-	public AbstractDataset getItdata() {
+	public Dataset getItdata() {
 		return itdata;
 	}
 

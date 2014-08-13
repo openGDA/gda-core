@@ -21,7 +21,7 @@ package uk.ac.gda.client.microfocus.util;
 import java.util.HashMap;
 import java.util.List;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.gda.beans.DetectorROI;
@@ -51,7 +51,7 @@ public class MapCache {
 	
 	public double[] getSpectrum(int detectorNo, int x, int y) {
 		int mcaSize = lazyDataset.getShape()[3];
-		AbstractDataset mcaDataset = (AbstractDataset) lazyDataset.getSlice(new int[]{y,x,detectorNo,0},new int[]{y+1,x+1,detectorNo+1,mcaSize},new int[]{1,1,1,1});
+		Dataset mcaDataset = (Dataset) lazyDataset.getSlice(new int[]{y,x,detectorNo,0},new int[]{y+1,x+1,detectorNo+1,mcaSize},new int[]{1,1,1,1});
 		double[] data = new double[mcaSize];
 		for (int i = 0; i < mcaSize; i++) {
 			data[i] = mcaDataset.getDouble(0,0,0,i);
