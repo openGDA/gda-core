@@ -66,7 +66,7 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
@@ -483,9 +483,9 @@ public class Histogram extends Composite {
 										histogramTrace.setTraceColor(ColorConstants.blue);
 									}
 									Slice slice = new Slice(0, numItemsToShow, 1); //stop 1 past last value
-									AbstractDataset dsToShow = ds.getSlice(slice);
+									Dataset dsToShow = ds.getSlice(slice);
 									dsToShow.setName("");
-									AbstractDataset histogramXAxisRangeToShow = histogramXAxisRange.getSlice(slice);
+									Dataset histogramXAxisRangeToShow = histogramXAxisRange.getSlice(slice);
 									histogramTrace.setData(histogramXAxisRangeToShow, dsToShow);
 
 									if (updateUIRunnable == null) {
