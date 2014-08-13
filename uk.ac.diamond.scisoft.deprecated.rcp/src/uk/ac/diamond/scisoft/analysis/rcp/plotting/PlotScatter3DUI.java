@@ -41,7 +41,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -425,9 +425,9 @@ public class PlotScatter3DUI extends AbstractPlotUI {
 			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
 			final List<IDataset> datasets = Collections.synchronizedList(new LinkedList<IDataset>());
 	
-			AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
-			AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
-			AbstractDataset zAxisValues = dbPlot.getAxis(AxisMapBean.ZAXIS);
+			Dataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
+			Dataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
+			Dataset zAxisValues = dbPlot.getAxis(AxisMapBean.ZAXIS);
 			if (xAxisValues != null && yAxisValues != null && zAxisValues != null) {
 				if (!isUpdate) {
 					xAxis.clear();
@@ -463,7 +463,7 @@ public class PlotScatter3DUI extends AbstractPlotUI {
 				mainPlotter.setXTickLabelFormat(TickFormatting.roundAndChopMode);
 				while (iter.hasNext()) {
 					DataSetWithAxisInformation dataSetAxis = iter.next();
-					AbstractDataset data = dataSetAxis.getData();
+					Dataset data = dataSetAxis.getData();
 					datasets.add(data);
 				}
 				if (!isUpdate) {

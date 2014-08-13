@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractCompoundDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.CompoundDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.RGBDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
@@ -442,9 +442,9 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
 		if (plotData != null) {
 			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
-			final List<AbstractDataset> datasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
-			AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
-			AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
+			final List<Dataset> datasets = Collections.synchronizedList(new LinkedList<Dataset>());
+			Dataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
+			Dataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
 			xAxis.clear();
 			yAxis.clear();
 			mainPlotter.setAxisModes((xAxisValues == null ? AxisMode.LINEAR : AxisMode.CUSTOM),
@@ -481,7 +481,7 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 			mainPlotter.setXTickLabelFormat(TickFormatting.roundAndChopMode);
 			while (iter.hasNext()) {
 				DataSetWithAxisInformation dataSetAxis = iter.next();
-				AbstractDataset data = dataSetAxis.getData();
+				Dataset data = dataSetAxis.getData();
 				datasets.add(data);
 			}
 
@@ -504,7 +504,7 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 				}
 			});	
 			boolean useRGB = true;
-			for (AbstractDataset data : datasets) { 
+			for (Dataset data : datasets) { 
 				useRGB &= 
 					(data instanceof RGBDataset) ||
 	 	  	  	    (data instanceof CompoundDataset &&
@@ -512,7 +512,7 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 			 		 ((AbstractCompoundDataset)data).getElementsPerItem() == 4));
 			}
 			if (!useRGB) {
-				for (AbstractDataset data : datasets) {
+				for (Dataset data : datasets) {
 					if (!(data instanceof RGBDataset) &&
 						!(data instanceof CompoundDataset)) {
 //						histoUpdate = new HistogramDataUpdate(data);

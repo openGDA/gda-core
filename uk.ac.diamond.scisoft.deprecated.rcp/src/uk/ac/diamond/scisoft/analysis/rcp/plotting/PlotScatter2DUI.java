@@ -37,7 +37,7 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
@@ -152,7 +152,7 @@ public class PlotScatter2DUI extends Plot1DUIAdapter {
 		
 		if (plotData != null) {
 			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
-			final List<AbstractDataset> datasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+			final List<Dataset> datasets = Collections.synchronizedList(new LinkedList<Dataset>());
 			final List<AxisValues> xAxes = Collections.synchronizedList(new LinkedList<AxisValues>());
 			final List<AxisValues> yAxes = Collections.synchronizedList(new LinkedList<AxisValues>());
 			if (!isUpdate) {
@@ -161,8 +161,8 @@ public class PlotScatter2DUI extends Plot1DUIAdapter {
 				colourTable.clearLegend();			
 				mainPlotter.setAxisModes(AxisMode.CUSTOM, AxisMode.CUSTOM, AxisMode.LINEAR);
 				while (iter.hasNext()) {
-					AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS+Integer.toString(counter));
-					AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS+Integer.toString(counter));
+					Dataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS+Integer.toString(counter));
+					Dataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS+Integer.toString(counter));
 					String xName = xAxisValues.getName();
 					if (xName != null && xName.length() > 0)
 						mainPlotter.setXAxisLabel(xName);
@@ -180,7 +180,7 @@ public class PlotScatter2DUI extends Plot1DUIAdapter {
 					xAxes.add(newXAxis);
 					yAxes.add(newYAxis);
 					DataSetWithAxisInformation dataSetAxis = iter.next();
-					AbstractDataset data = dataSetAxis.getData();
+					Dataset data = dataSetAxis.getData();
 					datasets.add(data);
 					counter++;
 				}
@@ -191,14 +191,14 @@ public class PlotScatter2DUI extends Plot1DUIAdapter {
 				}
 			} else {
 				while (iter.hasNext()) {
-					AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS+"0");
-					AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS+"0");
+					Dataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS+"0");
+					Dataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS+"0");
 					AxisValues newXAxis = new AxisValues();
 					AxisValues newYAxis = new AxisValues();
 					newXAxis.setValues(xAxisValues);
 					newYAxis.setValues(yAxisValues);
 					DataSetWithAxisInformation dataSetAxis = iter.next();
-					AbstractDataset data = dataSetAxis.getData();
+					Dataset data = dataSetAxis.getData();
 					try {
 						mainPlotter.addToCurrentPlot(data,newXAxis,newYAxis);
 					} catch (PlotException e) {

@@ -49,7 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
@@ -196,9 +196,9 @@ public class Plot2DUI extends AbstractPlotUI {
 		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
 		if (plotData != null) {
 			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
-			final List<AbstractDataset> datasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
-			AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
-			AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
+			final List<Dataset> datasets = Collections.synchronizedList(new LinkedList<Dataset>());
+			Dataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
+			Dataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
 			xAxis.clear();
 			yAxis.clear();
 			mainPlotter.setAxisModes((xAxisValues == null ? AxisMode.LINEAR : AxisMode.CUSTOM),
@@ -226,7 +226,7 @@ public class Plot2DUI extends AbstractPlotUI {
 			mainPlotter.setXTickLabelFormat(TickFormatting.roundAndChopMode);
 			while (iter.hasNext()) {
 				DataSetWithAxisInformation dataSetAxis = iter.next();
-				AbstractDataset data = dataSetAxis.getData();
+				Dataset data = dataSetAxis.getData();
 				datasets.add(data);
 			}
 			histoUpdate = new
@@ -246,12 +246,12 @@ public class Plot2DUI extends AbstractPlotUI {
 				compParent.getDisplay().asyncExec(lastestPlot2duiUpdater);	
 			}
 
-//			AbstractDataset data = datasets.get(0);
+//			Dataset data = datasets.get(0);
 //			boolean useRGB = 
 //				(data instanceof RGBDataset) ||
-// 	  	  	    (data instanceof AbstractCompoundDataset &&
-//				(((AbstractCompoundDataset)data).getElementsPerItem() == 3 ||
-//		 		 ((AbstractCompoundDataset)data).getElementsPerItem() == 4));
+// 	  	  	    (data instanceof CompoundDataset &&
+//				(((CompoundDataset)data).getElementsPerItem() == 3 ||
+//		 		 ((CompoundDataset)data).getElementsPerItem() == 4));
 //
 //			if (!useRGB)
 //				plotWindow.notifyHistogramChange(histoUpdate); // plotwindow no longer takes care of histogram changes

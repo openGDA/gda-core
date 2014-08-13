@@ -42,7 +42,7 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.part.ViewPart;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Maths;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
@@ -346,7 +346,7 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 
 	private static String getLabel(DataBean db) {
 		try {
-			AbstractDataset ds = db.getData().get(0).getData();
+			Dataset ds = db.getData().get(0).getData();
 			return ds.getName() + " ("+ formatIntArray(ds.getShape()) + ")";
 		} catch (Throwable t) {
 			return "";
@@ -356,10 +356,10 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 	public static DataBean dataBeanSubtract(DataBean dataBean1, DataBean dataBean2) {
 		DataBean result = (dataBean1 instanceof NexusDataBean) ? new NexusDataBean() : new DataBean();
 
-		AbstractDataset dataSet1 = dataBean1.getData().get(0).getData();
-		AbstractDataset dataSet2 = dataBean2.getData().get(0).getData();
+		Dataset dataSet1 = dataBean1.getData().get(0).getData();
+		Dataset dataSet2 = dataBean2.getData().get(0).getData();
 
-		AbstractDataset dataSet = Maths.subtract(dataSet1, dataSet2);
+		Dataset dataSet = Maths.subtract(dataSet1, dataSet2);
 
 		AxisMapBean axismap = dataBean1.getData().get(0).getAxisMap();
 		List<DataSetWithAxisInformation> coll = new ArrayList<DataSetWithAxisInformation>();
@@ -378,9 +378,9 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 	public static DataBean dataBeanAdd(DataBean dataBean1, DataBean dataBean2) {
 		DataBean result = (dataBean1 instanceof NexusDataBean) ? new NexusDataBean() : new DataBean();
 
-		AbstractDataset dataSet1 = dataBean1.getData().get(0).getData();
-		AbstractDataset dataSet2 = dataBean2.getData().get(0).getData();
-		AbstractDataset dataSet = Maths.add(dataSet1, dataSet2);
+		Dataset dataSet1 = dataBean1.getData().get(0).getData();
+		Dataset dataSet2 = dataBean2.getData().get(0).getData();
+		Dataset dataSet = Maths.add(dataSet1, dataSet2);
 
 		AxisMapBean axismap = dataBean1.getData().get(0).getAxisMap();
 		List<DataSetWithAxisInformation> coll = new ArrayList<DataSetWithAxisInformation>();
@@ -439,7 +439,7 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 	protected void processData(DataBean bean) {
 		// do stuff with new data
 		List<DataSetWithAxisInformation> dc = bean.getData();
-		final AbstractDataset d = dc.get(0).getData();
+		final Dataset d = dc.get(0).getData();
 		parentComp.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -519,7 +519,7 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 		}
 
 		List<DataSetWithAxisInformation> dc = dBean.getData();
-		AbstractDataset data = dc.get(0).getData();
+		Dataset data = dc.get(0).getData();
 		if (data.getRank() == 1) {
 			plotView.updatePlotMode(GuiPlotMode.ONED);
 		} else if (data.getRank() == 2) {

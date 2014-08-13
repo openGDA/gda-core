@@ -42,7 +42,7 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
@@ -247,12 +247,12 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 		
 		if (plotData != null) {
 			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
-			final List<AbstractDataset> datasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+			final List<Dataset> datasets = Collections.synchronizedList(new LinkedList<Dataset>());
 
 			// check for x-axis data
 			xAxis.clear();
-			AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
-			AbstractDataset xAxisValues2 = dbPlot.getAxis(AxisMapBean.XAXIS2);
+			Dataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
+			Dataset xAxisValues2 = dbPlot.getAxis(AxisMapBean.XAXIS2);
 			AxisValues xAxes2 = null;
 			AxisMode xAxisMode = AxisMode.LINEAR;
 			LinkedList<AxisValues> xAxisValuesList = null;
@@ -265,7 +265,7 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 				xAxis.setValues(xAxisValues);
 				xAxisMode = AxisMode.CUSTOM;
 			} else {
-				AbstractDataset testValues = dbPlot.getAxis(AxisMapBean.XAXIS+"0");
+				Dataset testValues = dbPlot.getAxis(AxisMapBean.XAXIS+"0");
 				plotter.setXAxisLabel("X-Axis");
 				if (testValues != null) {
 					xAxisMode = AxisMode.CUSTOM;
@@ -295,10 +295,10 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 			int axisCounter = 0;
 			while (iter.hasNext()) {
 				DataSetWithAxisInformation dataSetAxis = iter.next();
-				AbstractDataset data = dataSetAxis.getData();
+				Dataset data = dataSetAxis.getData();
 				if (xAxisValuesList != null) {
 					String axisStr = AxisMapBean.XAXIS + axisCounter;
-					AbstractDataset testValues = dbPlot.getAxis(axisStr);
+					Dataset testValues = dbPlot.getAxis(axisStr);
 					if (testValues != null) {
 						AxisValues xaxis = new AxisValues(testValues);
 						xAxisValuesList.add(xaxis);

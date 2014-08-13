@@ -40,7 +40,7 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
@@ -110,12 +110,12 @@ public class Plot1DStackUI extends AbstractPlotUI {
 		if (plotData != null) {
 			boolean individualXAxis = false;
 			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
-			final List<AbstractDataset> datasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+			final List<Dataset> datasets = Collections.synchronizedList(new LinkedList<Dataset>());
 			// check for x-axis data
 			xAxis.clear();
 			AxisMode xAxisMode = AxisMode.LINEAR;
 			AxisMode zAxisMode = AxisMode.LINEAR;
-			AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
+			Dataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
 			
 			if (xAxisValues != null) {
 				if (xAxisValues.getName() != null && xAxisValues.getName().length() > 0)
@@ -126,7 +126,7 @@ public class Plot1DStackUI extends AbstractPlotUI {
 				xAxis.setValues(xAxisValues);
 				mainPlotter.setXAxisValues(xAxis, plotData.size());
 			} else {
-				AbstractDataset testValues = dbPlot.getAxis(AxisMapBean.XAXIS+"0");
+				Dataset testValues = dbPlot.getAxis(AxisMapBean.XAXIS+"0");
 				mainPlotter.setXAxisLabel("X-Axis");
 				if (testValues != null)
 				{
@@ -135,7 +135,7 @@ public class Plot1DStackUI extends AbstractPlotUI {
 				}	
 			}
 			mainPlotter.setYAxisLabel("Y-Axis");			
-			AbstractDataset zAxisValues = dbPlot.getAxis(AxisMapBean.ZAXIS);
+			Dataset zAxisValues = dbPlot.getAxis(AxisMapBean.ZAXIS);
 			if (zAxisValues != null) {
 				if (zAxisValues.getName() != null && zAxisValues.getName().length() > 0)
 					mainPlotter.setZAxisLabel(zAxisValues.getName());
@@ -163,11 +163,11 @@ public class Plot1DStackUI extends AbstractPlotUI {
 			while (iter.hasNext()) {
 				DataSetWithAxisInformation dataSetAxis = iter.next();
 				//AxisMapBean mapBean = dataSetAxis.getAxisMap();
-				AbstractDataset data = dataSetAxis.getData();
+				Dataset data = dataSetAxis.getData();
 				if (individualXAxis) 
 				{
 					String axisStr = AxisMapBean.XAXIS + axisCounter;
-					AbstractDataset testValues = dbPlot.getAxis(axisStr);
+					Dataset testValues = dbPlot.getAxis(axisStr);
 					if (testValues != null) {
 						AxisValues xaxis = new AxisValues(testValues);
 						xAxisValuesList.add(xaxis);
