@@ -8,7 +8,7 @@
 <listEntry value="4"/>
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="LD_LIBRARY_PATH" value="${project_loc:uk.ac.gda.nexus}/lib/${target.os}-${target.arch}:${project_loc:org.dawb.hdf5}/lib/${target.os}-${target.arch}"/>
+<mapEntry key="LD_LIBRARY_PATH" value="${project_loc:uk.ac.gda.nexus}/lib/${target.os}-${target.arch}:${project_loc:org.eclipse.dawnsci.hdf5}/lib/${target.os}-${target.arch}"/>
 <mapEntry key="PATH" value="${project_loc:uk.ac.gda.nexus}\lib\${target.os}-${target.arch}"/>
 </mapAttribute>
 <stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value=""/>
