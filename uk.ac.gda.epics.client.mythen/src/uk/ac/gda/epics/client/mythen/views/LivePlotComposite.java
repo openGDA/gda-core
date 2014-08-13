@@ -49,7 +49,7 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
@@ -192,7 +192,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 		return super.setFocus();
 	}
 
-	List<AbstractDataset> plotDatasets = new ArrayList<AbstractDataset>();
+	List<Dataset> plotDatasets = new ArrayList<Dataset>();
 	private IWorkbenchPart workbenchpart;
 	private void plotData(final String filename, final boolean clearFirst) {
 

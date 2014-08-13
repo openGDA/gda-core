@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 
@@ -175,7 +175,7 @@ public class MythenProcessedDataset {
 	 * 
 	 * @return a {@link IDataset} of angles
 	 */
-	public AbstractDataset getAngleDataset() {
+	public Dataset getAngleDataset() {
 		DoubleDataset dataset = new DoubleDataset(getAngleArray());
 		dataset.setName("angle");
 		return dataset;
@@ -188,7 +188,7 @@ public class MythenProcessedDataset {
 	public DataSet getCountDataSet() {
 		return new DataSet("count", getCountArray());
 	}
-	public AbstractDataset getCountDataset() {
+	public Dataset getCountDataset() {
 		DoubleDataset dataset = new DoubleDataset(getCountArray());
 		dataset.setName("counts");
 		return dataset;
