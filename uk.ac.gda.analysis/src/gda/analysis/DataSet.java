@@ -997,7 +997,7 @@ public class DataSet extends DoubleDataset {
 	 */
 	@Deprecated
 	public void put(int[] indices, double[] values) {
-		DatasetUtils.put(this, indices, Arrays.asList(values).toArray());
+		DatasetUtils.put(this, indices, values);
 	}
 
 	/**
