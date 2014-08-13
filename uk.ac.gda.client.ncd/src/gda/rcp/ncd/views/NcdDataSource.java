@@ -42,7 +42,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
@@ -368,7 +368,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 	private void processData(DataBean bean) {
 		// do stuff with new data
 		List<DataSetWithAxisInformation> dc = bean.getData();
-		final AbstractDataset d = dc.get(0).getData();
+		final Dataset d = dc.get(0).getData();
 		parentComp.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -398,7 +398,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 
 	private void pushToPlotView(DataBean dBean) {
 		List<DataSetWithAxisInformation> dc = dBean.getData();
-		AbstractDataset data = dc.get(0).getData();
+		Dataset data = dc.get(0).getData();
 
 		if (plotView == null) {
 			return;

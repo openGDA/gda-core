@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.BooleanDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Maths;
@@ -59,8 +59,8 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 	
 	protected class DatasetWithCentre {
 		double x,y;
-		AbstractDataset dataset;
-		DatasetWithCentre(double x, double y, AbstractDataset dataset) {
+		Dataset dataset;
+		DatasetWithCentre(double x, double y, Dataset dataset) {
 			this.x = x;
 			this.y = y;
 			this.dataset = dataset;
@@ -68,7 +68,7 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 	}
 	
 	protected class OriginalDataAndSettings {
-		AbstractDataset image;
+		Dataset image;
 		BooleanDataset mask;
 		SectorROI sectorROI;
 		
@@ -88,7 +88,7 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 			return new DatasetWithCentre(sectorROI.getPoint()[0], sectorROI.getPoint()[1], image);
 		}
 		
-		private BooleanDataset getMaskDataset(AbstractDataset image) throws Exception {
+		private BooleanDataset getMaskDataset(Dataset image) throws Exception {
 			BooleanDataset md;
 			MaskingBean mb = (MaskingBean) getRoi(GuiParameters.MASKING, MaskingBean.class);
 			if (mb == null || mb.mask == null || !image.isCompatibleWith(mb.mask)) {
@@ -163,7 +163,7 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 		odas = null;
 		
 		List<DataSetWithAxisInformation> dc = bean.getData();
-		final AbstractDataset d = dc.get(0).getData();
+		final Dataset d = dc.get(0).getData();
 		
 		boolean buttonEnabled = false;
 
@@ -238,7 +238,7 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 		int[] shape = dwc.dataset.getShape();
 		
 		int[] newshape = new int[] { getNewLength(shape[0], dwc.y), shape[1] };
-		AbstractDataset sumdata = new IntegerDataset(newshape);
+		Dataset sumdata = new IntegerDataset(newshape);
 		
 		int unflippedOffset = getUnflippedOffsetInNewDataset(shape[0], dwc.y);
 		int flippedOffset = getFlippedOffsetInNewDataset(shape[0], dwc.y);
@@ -261,7 +261,7 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 		int[] shape = dwc.dataset.getShape();
 		
 		int[] newshape = new int[] {  shape[0], getNewLength(shape[1], dwc.x) };
-		AbstractDataset sumdata = new IntegerDataset(newshape);
+		Dataset sumdata = new IntegerDataset(newshape);
 
 		int unflippedOffset = getUnflippedOffsetInNewDataset(shape[1], dwc.x);
 		int flippedOffset = getFlippedOffsetInNewDataset(shape[1], dwc.x);
