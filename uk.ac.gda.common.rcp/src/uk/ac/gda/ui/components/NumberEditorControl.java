@@ -553,7 +553,6 @@ public class NumberEditorControl extends Composite {
 	}
 	@Override
 	public boolean setFocus() {
-		System.out.println(numberLabel.getText());
 		return false;
 	}
 
