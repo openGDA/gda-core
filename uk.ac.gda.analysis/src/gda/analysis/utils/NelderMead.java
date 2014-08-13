@@ -50,10 +50,10 @@ public class NelderMead implements IOptimizer {
 		final int numCoords = coords.length;
 		DoubleDataset[] newCoords = new DoubleDataset[numCoords];
 		for (int i = 0; i < numCoords; i++) {
-			newCoords[i] = (DoubleDataset) DatasetUtils.convertToAbstractDataset(coords[i]).cast(Dataset.FLOAT64);
+			newCoords[i] = (DoubleDataset) DatasetUtils.convertToDataset(coords[i]).cast(Dataset.FLOAT64);
 		}
 
-		DoubleDataset dataValues = (DoubleDataset) DatasetUtils.convertToAbstractDataset(data).cast(Dataset.FLOAT64);
+		DoubleDataset dataValues = (DoubleDataset) DatasetUtils.convertToDataset(data).cast(Dataset.FLOAT64);
 
 		Optimize(newCoords, dataValues, function);
 	}

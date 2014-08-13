@@ -36,7 +36,6 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.nexusformat.NexusFile;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 

@@ -28,7 +28,7 @@ import java.nio.channels.FileChannel;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
@@ -99,7 +99,7 @@ public class RawBinarySaver implements IFileSaver {
 				throw new ScanFileHolderException("Error saving file '" + filename + "'", e);
 			}
 			
-			AbstractDataset adata = DatasetUtils.convertToAbstractDataset(dh.getDataset(i));
+			Dataset adata = DatasetUtils.convertToDataset(dh.getDataset(i));
 			DoubleDataset data = (DoubleDataset)adata.cast(Dataset.FLOAT64);
 			byte dtype = -1;
 			byte isize = 1;

@@ -27,7 +27,7 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.ui.PlatformUI;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
@@ -192,7 +192,7 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 		
 		Double[] values = cachedX.toArray(new Double[]{});
 		double[] primitiveValues = ArrayUtils.toPrimitive(values, values.length);
-		AbstractDataset xValues = new DoubleDataset(primitiveValues,primitiveValues.length);
+		Dataset xValues = new DoubleDataset(primitiveValues,primitiveValues.length);
 		xValues.setName(getXAxisName());
 		return new DataSetPlotData(getXAxisName(), xValues);	
 	}
