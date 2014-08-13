@@ -23,7 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import gda.exafs.scan.ExafsScanPointCreator;
 import gda.scan.IScanDataPoint;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
@@ -57,8 +58,8 @@ public class SubtractedBackgroundScanPlotView extends ExafsScanPlotView {
 		}
 
 		try {
-			AbstractDataset energy = AbstractDataset.createFromList(cachedX);
-			AbstractDataset lnI0It = AbstractDataset.createFromList(cachedY);
+			Dataset energy = DatasetFactory.createFromList(cachedX);
+			Dataset lnI0It = DatasetFactory.createFromList(cachedY);
 
 			Double[] edgePos = xafsFittingUtils.estimateEdgePosition(energy, lnI0It);
 			if (edgePos != null) {
@@ -66,7 +67,7 @@ public class SubtractedBackgroundScanPlotView extends ExafsScanPlotView {
 				int idxStart = DatasetUtils.findIndexGreaterThanOrEqualTo(energy, edgePos[1] + postEdgeStart);
 
 				if (lnI0It.getSize() > (idxStart + minPlotPoints)) {
-					AbstractDataset[] exafs = xafsFittingUtils.getSubtractedBackgroundInK(energy, lnI0It);
+					Dataset[] exafs = xafsFittingUtils.getSubtractedBackgroundInK(energy, lnI0It);
 					exafs[0].setName(getXAxisName());
 					exafs[1].setName(getYAxisName());
 					this.xDataSetData = new DataSetPlotData(getXAxisName(), exafs[0]);

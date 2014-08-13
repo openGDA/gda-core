@@ -23,7 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import gda.exafs.scan.ExafsScanPointCreator;
 import gda.scan.IScanDataPoint;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
@@ -56,8 +57,8 @@ public class FourierScanPlotView extends ExafsScanPlotView {
 		}
 
 		try {
-			AbstractDataset energy = AbstractDataset.createFromList(cachedX);
-			AbstractDataset lnI0It = AbstractDataset.createFromList(cachedY);
+			Dataset energy = DatasetFactory.createFromList(cachedX);
+			Dataset lnI0It = DatasetFactory.createFromList(cachedY);
 
 			Double[] edgePos = xafsFittingUtils.estimateEdgePosition(energy, lnI0It);
 			if (edgePos != null) {
@@ -65,11 +66,11 @@ public class FourierScanPlotView extends ExafsScanPlotView {
 				int idxStart = DatasetUtils.findIndexGreaterThanOrEqualTo(energy, edgePos[1] + postEdgeStart);
 
 				if (lnI0It.getSize() > (idxStart + minPlotPoints)) {
-					AbstractDataset[] fft = xafsFittingUtils.getFFT(energy, lnI0It);
+					Dataset[] fft = xafsFittingUtils.getFFT(energy, lnI0It);
 					fft[0].setName(getXAxisName());
 					this.xDataSetData = new DataSetPlotData(getXAxisName(), fft[0]);
 
-					// At the time of writing this code DataSet does not inherit from AbstractDataset!!
+					// At the time of writing this code DataSet does not inherit from Dataset!!
 					fft[1].setName(getYAxisName());
 					return new DataSetPlotData(getYAxisName(), fft[1]);
 				}

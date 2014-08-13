@@ -23,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gda.scan.IScanDataPoint;
-
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
@@ -54,13 +54,13 @@ public class NoiseScanPlotView extends ExafsScanPlotView {
 		}
 
 		try {
-			final AbstractDataset energy = AbstractDataset.createFromList(cachedX);
-			final AbstractDataset lnI0It = AbstractDataset.createFromList(cachedY);
+			final Dataset energy = DatasetFactory.createFromList(cachedX);
+			final Dataset lnI0It = DatasetFactory.createFromList(cachedY);
 			IPreferenceStore preferences = SpectroscopyRCPActivator.getDefault().getPreferenceStore();
 			int windowSize = preferences.getInt(XafsPreferences.NOISE_WINDOW);
 			int polyOrder = preferences.getInt(XafsPreferences.NOISE_ORDER);
-			final AbstractDataset medi = xafsFittingUtils.getPolynomialSmoothed(energy, lnI0It, windowSize, polyOrder);
-			final AbstractDataset noise = (new DoubleDataset(lnI0It)).isubtract(medi);
+			final Dataset medi = xafsFittingUtils.getPolynomialSmoothed(energy, lnI0It, windowSize, polyOrder);
+			final Dataset noise = (new DoubleDataset(lnI0It)).isubtract(medi);
 			noise.setName(getYAxisName());
 			return new DataSetPlotData(getYAxisName(), noise);
 		} catch (Exception e) {
