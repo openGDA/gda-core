@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<viewpoint:DAnalysis xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:description="http://www.eclipse.org/sirius/description/1.1.0" xmlns:description_1="http://www.eclipse.org/sirius/diagram/description/1.1.0" xmlns:description_2="http://www.eclipse.org/sirius/table/description/1.1.0" xmlns:diagram="http://www.eclipse.org/sirius/diagram/1.1.0" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmlns:style="http://www.eclipse.org/sirius/diagram/description/style/1.1.0" xmlns:table="http://www.eclipse.org/sirius/table/1.1.0" xmlns:viewpoint="http://www.eclipse.org/sirius/1.1.0" xsi:schemaLocation="http://www.eclipse.org/sirius/description/1.1.0 http://www.eclipse.org/sirius/1.1.0#//description http://www.eclipse.org/sirius/diagram/description/1.1.0 http://www.eclipse.org/sirius/diagram/1.1.0#//description http://www.eclipse.org/sirius/table/description/1.1.0 http://www.eclipse.org/sirius/table/1.1.0#//description http://www.eclipse.org/sirius/diagram/description/style/1.1.0 http://www.eclipse.org/sirius/diagram/1.1.0#//description/style" xmi:id="_Q38hsCO3EeSzRczhjhzC9A" selectedViews="_R_n7cCO3EeSzRczhjhzC9A _SlPJ8CO3EeSzRczhjhzC9A _SlclUCO3EeSzRczhjhzC9A _Sn1K8CO3EeSzRczhjhzC9A" version="8.1.1">
+  <models xmi:type="ecore:EPackage" href="sampledefinition.ecore#/"/>
+  <models xmi:type="ecore:EPackage" href="http://www.eclipse.org/emf/2002/Ecore#/"/>
+  <ownedViews xmi:type="viewpoint:DRepresentationContainer" xmi:id="_R_n7cCO3EeSzRczhjhzC9A" initialized="true">
+    <ownedRepresentations xmi:type="diagram:DSemanticDiagram" xmi:id="_SSyIACO3EeSzRczhjhzC9A" name="ldeexperiment class diagram">
+      <ownedAnnotationEntries xmi:type="description:AnnotationEntry" xmi:id="_STJ7cCO3EeSzRczhjhzC9A" source="GMF_DIAGRAMS">
+        <data xmi:type="notation:Diagram" xmi:id="_STJ7cSO3EeSzRczhjhzC9A" type="Sirius" element="_SSyIACO3EeSzRczhjhzC9A" measurementUnit="Pixel">
+          <children xmi:type="notation:Node" xmi:id="_STeEgCO3EeSzRczhjhzC9A" type="2001" element="_SSyIASO3EeSzRczhjhzC9A">
+            <children xmi:type="notation:Node" xmi:id="_STmAUCO3EeSzRczhjhzC9A" type="5002">
+              <layoutConstraint xmi:type="notation:Location" xmi:id="_STmAUSO3EeSzRczhjhzC9A" y="5"/>
+            </children>
+            <children xmi:type="notation:Node" xmi:id="_SkkbkCO3EeSzRczhjhzC9A" type="3005" element="_SSyIAiO3EeSzRczhjhzC9A">
+              <styles xmi:type="notation:ShapeStyle" xmi:id="_SkkbkSO3EeSzRczhjhzC9A" fontName="Sans"/>
+              <layoutConstraint xmi:type="notation:Bounds" xmi:id="_SkkbkiO3EeSzRczhjhzC9A"/>
+            </children>
+            <styles xmi:type="notation:ShapeStyle" xmi:id="_STeEgSO3EeSzRczhjhzC9A" fontName="Sans" fontHeight="8"/>
+            <layoutConstraint xmi:type="notation:Bounds" xmi:id="_STeEgiO3EeSzRczhjhzC9A" width="672" height="67"/>
+          </children>
+          <styles xmi:type="notation:DiagramStyle" xmi:id="_STJ7ciO3EeSzRczhjhzC9A"/>
+        </data>
+      </ownedAnnotationEntries>
+      <ownedDiagramElements xmi:type="diagram:DNode" xmi:id="_SSyIASO3EeSzRczhjhzC9A" width="-1" height="-1">
+        <target xmi:type="ecore:EPackage" href="sampledefinition.ecore#/"/>
+        <semanticElements xmi:type="ecore:EPackage" href="sampledefinition.ecore#/"/>
+        <ownedStyle xmi:type="diagram:WorkspaceImage" xmi:id="_SSyIAiO3EeSzRczhjhzC9A" showIcon="false" labelPosition="node" workspacePath="/org.eclipse.emf.ecoretools.design/icons/full/back/empty.svg">
+          <labelColor xmi:type="viewpoint:RGBValues" xmi:id="_SSyIAyO3EeSzRczhjhzC9A"/>
+          <description xmi:type="style:WorkspaceImageDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@nodeMappings[name='Empty%20Diagram']/@style"/>
+          <borderColor xmi:type="viewpoint:RGBValues" xmi:id="_SSyIBCO3EeSzRczhjhzC9A"/>
+        </ownedStyle>
+        <actualMapping xmi:type="description_1:NodeMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@nodeMappings[name='Empty%20Diagram']"/>
+      </ownedDiagramElements>
+      <description xmi:type="description_1:DiagramDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']"/>
+      <filterVariableHistory xmi:type="diagram:FilterVariableHistory" xmi:id="_SSyIBSO3EeSzRczhjhzC9A"/>
+      <activatedLayers xmi:type="description_1:Layer" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer"/>
+      <activatedLayers xmi:type="description_1:AdditionalLayer" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@additionalLayers[name='Package']"/>
+      <activatedLayers xmi:type="description_1:AdditionalLayer" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@additionalLayers[name='Validation']"/>
+      <activatedLayers xmi:type="description_1:AdditionalLayer" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Archetype']/@ownedRepresentationExtensions[name='Entities%20With%20Archetypes']/@layers[name='Archetypes']"/>
+      <target xmi:type="ecore:EPackage" href="sampledefinition.ecore#/"/>
+    </ownedRepresentations>
+    <ownedRepresentations xmi:type="diagram:DSemanticDiagram" xmi:id="_Sk5LsCO3EeSzRczhjhzC9A" name="ecore class diagram">
+      <ownedAnnotationEntries xmi:type="description:AnnotationEntry" xmi:id="_Sk5ywCO3EeSzRczhjhzC9A" source="GMF_DIAGRAMS">
+        <data xmi:type="notation:Diagram" xmi:id="_Sk5ywSO3EeSzRczhjhzC9A" type="Sirius" element="_Sk5LsCO3EeSzRczhjhzC9A" measurementUnit="Pixel">
+          <children xmi:type="notation:Node" xmi:id="_Sk5ywyO3EeSzRczhjhzC9A" type="2001" element="_Sk5LsSO3EeSzRczhjhzC9A">
+            <children xmi:type="notation:Node" xmi:id="_Sk6Z0CO3EeSzRczhjhzC9A" type="5002">
+              <layoutConstraint xmi:type="notation:Location" xmi:id="_Sk6Z0SO3EeSzRczhjhzC9A" y="5"/>
+            </children>
+            <children xmi:type="notation:Node" xmi:id="_Sk6Z0iO3EeSzRczhjhzC9A" type="3005" element="_Sk5LsiO3EeSzRczhjhzC9A">
+              <styles xmi:type="notation:ShapeStyle" xmi:id="_Sk6Z0yO3EeSzRczhjhzC9A" fontName="Sans"/>
+              <layoutConstraint xmi:type="notation:Bounds" xmi:id="_Sk6Z1CO3EeSzRczhjhzC9A"/>
+            </children>
+            <styles xmi:type="notation:ShapeStyle" xmi:id="_Sk5yxCO3EeSzRczhjhzC9A" fontName="Sans" fontHeight="8"/>
+            <layoutConstraint xmi:type="notation:Bounds" xmi:id="_Sk5yxSO3EeSzRczhjhzC9A" width="672" height="67"/>
+          </children>
+          <styles xmi:type="notation:DiagramStyle" xmi:id="_Sk5ywiO3EeSzRczhjhzC9A"/>
+        </data>
+      </ownedAnnotationEntries>
+      <ownedDiagramElements xmi:type="diagram:DNode" xmi:id="_Sk5LsSO3EeSzRczhjhzC9A" width="-1" height="-1">
+        <target xmi:type="ecore:EPackage" href="http://www.eclipse.org/emf/2002/Ecore#/"/>
+        <semanticElements xmi:type="ecore:EPackage" href="http://www.eclipse.org/emf/2002/Ecore#/"/>
+        <ownedStyle xmi:type="diagram:WorkspaceImage" xmi:id="_Sk5LsiO3EeSzRczhjhzC9A" showIcon="false" labelPosition="node" workspacePath="/org.eclipse.emf.ecoretools.design/icons/full/back/empty.svg">
+          <labelColor xmi:type="viewpoint:RGBValues" xmi:id="_Sk5LsyO3EeSzRczhjhzC9A"/>
+          <description xmi:type="style:WorkspaceImageDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@nodeMappings[name='Empty%20Diagram']/@style"/>
+          <borderColor xmi:type="viewpoint:RGBValues" xmi:id="_Sk5LtCO3EeSzRczhjhzC9A"/>
+        </ownedStyle>
+        <actualMapping xmi:type="description_1:NodeMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer/@nodeMappings[name='Empty%20Diagram']"/>
+      </ownedDiagramElements>
+      <description xmi:type="description_1:DiagramDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']"/>
+      <filterVariableHistory xmi:type="diagram:FilterVariableHistory" xmi:id="_Sk5LtSO3EeSzRczhjhzC9A"/>
+      <activatedLayers xmi:type="description_1:Layer" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@defaultLayer"/>
+      <activatedLayers xmi:type="description_1:AdditionalLayer" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@additionalLayers[name='Package']"/>
+      <activatedLayers xmi:type="description_1:AdditionalLayer" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Entities']/@additionalLayers[name='Validation']"/>
+      <activatedLayers xmi:type="description_1:AdditionalLayer" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Archetype']/@ownedRepresentationExtensions[name='Entities%20With%20Archetypes']/@layers[name='Archetypes']"/>
+      <target xmi:type="ecore:EPackage" href="http://www.eclipse.org/emf/2002/Ecore#/"/>
+    </ownedRepresentations>
+    <ownedRepresentations xmi:type="table:DTable" xmi:id="_ev6-ICO3EeSzRczhjhzC9A" name="ldeexperiment class table" headerColumnWidth="290">
+      <target xmi:type="ecore:EPackage" href="sampledefinition.ecore#/"/>
+      <lines xmi:type="table:DLine" xmi:id="_ev6-ISO3EeSzRczhjhzC9A" label="ExperimentDefinition">
+        <target xmi:type="ecore:EClass" href="sampledefinition.ecore#//ExperimentDefinition"/>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-IiO3EeSzRczhjhzC9A" label="samplelist : SampleList">
+          <target xmi:type="ecore:EReference" href="sampledefinition.ecore#//ExperimentDefinition/samplelist"/>
+          <semanticElements xmi:type="ecore:EReference" href="sampledefinition.ecore#//ExperimentDefinition/samplelist"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-IyO3EeSzRczhjhzC9A" label="samplelist" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EReference" href="sampledefinition.ecore#//ExperimentDefinition/samplelist"/>
+            <semanticElements xmi:type="ecore:EReference" href="sampledefinition.ecore#//ExperimentDefinition/samplelist"/>
+          </cells>
+        </lines>
+        <semanticElements xmi:type="ecore:EClass" href="sampledefinition.ecore#//ExperimentDefinition"/>
+        <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']"/>
+        <cells xmi:type="table:DCell" xmi:id="_ev6-JCO3EeSzRczhjhzC9A" label="ExperimentDefinition" column="_ev6-ZyO3EeSzRczhjhzC9A">
+          <target xmi:type="ecore:EClass" href="sampledefinition.ecore#//ExperimentDefinition"/>
+          <semanticElements xmi:type="ecore:EClass" href="sampledefinition.ecore#//ExperimentDefinition"/>
+        </cells>
+      </lines>
+      <lines xmi:type="table:DLine" xmi:id="_ev6-JSO3EeSzRczhjhzC9A" label="SampleList">
+        <target xmi:type="ecore:EClass" href="sampledefinition.ecore#//SampleList"/>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-JiO3EeSzRczhjhzC9A" label="filename : EString">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//SampleList/filename"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//SampleList/filename"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-JyO3EeSzRczhjhzC9A" label="filename" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//SampleList/filename"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//SampleList/filename"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-KCO3EeSzRczhjhzC9A" label="samples : Sample">
+          <target xmi:type="ecore:EReference" href="sampledefinition.ecore#//SampleList/samples"/>
+          <semanticElements xmi:type="ecore:EReference" href="sampledefinition.ecore#//SampleList/samples"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-KSO3EeSzRczhjhzC9A" label="samples" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EReference" href="sampledefinition.ecore#//SampleList/samples"/>
+            <semanticElements xmi:type="ecore:EReference" href="sampledefinition.ecore#//SampleList/samples"/>
+          </cells>
+        </lines>
+        <semanticElements xmi:type="ecore:EClass" href="sampledefinition.ecore#//SampleList"/>
+        <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']"/>
+        <cells xmi:type="table:DCell" xmi:id="_ev6-KiO3EeSzRczhjhzC9A" label="SampleList" column="_ev6-ZyO3EeSzRczhjhzC9A">
+          <target xmi:type="ecore:EClass" href="sampledefinition.ecore#//SampleList"/>
+          <semanticElements xmi:type="ecore:EClass" href="sampledefinition.ecore#//SampleList"/>
+        </cells>
+      </lines>
+      <lines xmi:type="table:DLine" xmi:id="_ev6-KyO3EeSzRczhjhzC9A" label="Sample">
+        <target xmi:type="ecore:EClass" href="sampledefinition.ecore#//Sample"/>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-LCO3EeSzRczhjhzC9A" label="sampleID : EString">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/sampleID"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/sampleID"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-LSO3EeSzRczhjhzC9A" label="sampleID" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/sampleID"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/sampleID"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-LiO3EeSzRczhjhzC9A" label="status : STATUS">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/status"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/status"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-LyO3EeSzRczhjhzC9A" label="status" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/status"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/status"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-MCO3EeSzRczhjhzC9A" label="active : EBoolean">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/active"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/active"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-MSO3EeSzRczhjhzC9A" label="active" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/active"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/active"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-MiO3EeSzRczhjhzC9A" label="name : EString">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/name"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/name"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-MyO3EeSzRczhjhzC9A" label="name" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/name"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/name"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-NCO3EeSzRczhjhzC9A" label="cellID : EString">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/cellID"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/cellID"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-NSO3EeSzRczhjhzC9A" label="cellID" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/cellID"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/cellID"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-NiO3EeSzRczhjhzC9A" label="visitID : EString">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/visitID"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/visitID"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-NyO3EeSzRczhjhzC9A" label="visitID" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/visitID"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/visitID"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-OCO3EeSzRczhjhzC9A" label="calibrant : EString">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-OSO3EeSzRczhjhzC9A" label="calibrant" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-OiO3EeSzRczhjhzC9A" label="calibrant_x : EDouble">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant_x"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant_x"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-OyO3EeSzRczhjhzC9A" label="calibrant_x" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant_x"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant_x"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-PCO3EeSzRczhjhzC9A" label="calibrant_y : EDouble">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant_y"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant_y"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-PSO3EeSzRczhjhzC9A" label="calibrant_y" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant_y"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant_y"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-PiO3EeSzRczhjhzC9A" label="calibrant_exposure : EDouble">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant_exposure"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant_exposure"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-PyO3EeSzRczhjhzC9A" label="calibrant_exposure" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant_exposure"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/calibrant_exposure"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-QCO3EeSzRczhjhzC9A" label="x_start : EDouble">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/x_start"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/x_start"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-QSO3EeSzRczhjhzC9A" label="x_start" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/x_start"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/x_start"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-QiO3EeSzRczhjhzC9A" label="x_stop : EDouble">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/x_stop"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/x_stop"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-QyO3EeSzRczhjhzC9A" label="x_stop" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/x_stop"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/x_stop"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-RCO3EeSzRczhjhzC9A" label="x_step : EDouble">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/x_step"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/x_step"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-RSO3EeSzRczhjhzC9A" label="x_step" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/x_step"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/x_step"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-RiO3EeSzRczhjhzC9A" label="y_start : EDoubleObject">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/y_start"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/y_start"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-RyO3EeSzRczhjhzC9A" label="y_start" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/y_start"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/y_start"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-SCO3EeSzRczhjhzC9A" label="y_stop : EDoubleObject">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/y_stop"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/y_stop"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-SSO3EeSzRczhjhzC9A" label="y_stop" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/y_stop"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/y_stop"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-SiO3EeSzRczhjhzC9A" label="y_step : EDoubleObject">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/y_step"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/y_step"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-SyO3EeSzRczhjhzC9A" label="y_step" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/y_step"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/y_step"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-TCO3EeSzRczhjhzC9A" label="sample_exposure : EDouble">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/sample_exposure"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/sample_exposure"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-TSO3EeSzRczhjhzC9A" label="sample_exposure" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/sample_exposure"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/sample_exposure"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-TiO3EeSzRczhjhzC9A" label="pixium_x : EDouble">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/pixium_x"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/pixium_x"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-TyO3EeSzRczhjhzC9A" label="pixium_x" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/pixium_x"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/pixium_x"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-UCO3EeSzRczhjhzC9A" label="pixium_y : EDouble">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/pixium_y"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/pixium_y"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-USO3EeSzRczhjhzC9A" label="pixium_y" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/pixium_y"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/pixium_y"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-UiO3EeSzRczhjhzC9A" label="pixium_z : EDouble">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/pixium_z"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/pixium_z"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-UyO3EeSzRczhjhzC9A" label="pixium_z" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/pixium_z"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/pixium_z"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-VCO3EeSzRczhjhzC9A" label="email : EString">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/email"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/email"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-VSO3EeSzRczhjhzC9A" label="email" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/email"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/email"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-ViO3EeSzRczhjhzC9A" label="startDate : EDate">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/startDate"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/startDate"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-VyO3EeSzRczhjhzC9A" label="startDate" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/startDate"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/startDate"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-WCO3EeSzRczhjhzC9A" label="endDate : EDate">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/endDate"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/endDate"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-WSO3EeSzRczhjhzC9A" label="endDate" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/endDate"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/endDate"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-WiO3EeSzRczhjhzC9A" label="command : EString">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/command"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/command"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-WyO3EeSzRczhjhzC9A" label="command" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/command"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/command"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-XCO3EeSzRczhjhzC9A" label="driveID : EString">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/driveID"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/driveID"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-XSO3EeSzRczhjhzC9A" label="driveID" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/driveID"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/driveID"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-XiO3EeSzRczhjhzC9A" label="mailCount : EInt">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/mailCount"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/mailCount"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-XyO3EeSzRczhjhzC9A" label="mailCount" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/mailCount"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/mailCount"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-YCO3EeSzRczhjhzC9A" label="dataFileCount : EInt">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/dataFileCount"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/dataFileCount"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-YSO3EeSzRczhjhzC9A" label="dataFileCount" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/dataFileCount"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/dataFileCount"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-YiO3EeSzRczhjhzC9A" label="comment : EString">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/comment"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/comment"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-YyO3EeSzRczhjhzC9A" label="comment" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/comment"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/comment"/>
+          </cells>
+        </lines>
+        <lines xmi:type="table:DLine" xmi:id="_ev6-ZCO3EeSzRczhjhzC9A" label="dataFilePath : EString">
+          <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/dataFilePath"/>
+          <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/dataFilePath"/>
+          <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']/@ownedSubLines[name='Feature']"/>
+          <cells xmi:type="table:DCell" xmi:id="_ev6-ZSO3EeSzRczhjhzC9A" label="dataFilePath" column="_ev6-ZyO3EeSzRczhjhzC9A">
+            <target xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/dataFilePath"/>
+            <semanticElements xmi:type="ecore:EAttribute" href="sampledefinition.ecore#//Sample/dataFilePath"/>
+          </cells>
+        </lines>
+        <semanticElements xmi:type="ecore:EClass" href="sampledefinition.ecore#//Sample"/>
+        <originMapping xmi:type="description_2:LineMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedLineMappings[name='Classes%20lines']"/>
+        <cells xmi:type="table:DCell" xmi:id="_ev6-ZiO3EeSzRczhjhzC9A" label="Sample" column="_ev6-ZyO3EeSzRczhjhzC9A">
+          <target xmi:type="ecore:EClass" href="sampledefinition.ecore#//Sample"/>
+          <semanticElements xmi:type="ecore:EClass" href="sampledefinition.ecore#//Sample"/>
+        </cells>
+      </lines>
+      <columns xmi:type="table:DFeatureColumn" xmi:id="_ev6-ZyO3EeSzRczhjhzC9A" label="Name" cells="_ev6-JCO3EeSzRczhjhzC9A _ev6-IyO3EeSzRczhjhzC9A _ev6-KiO3EeSzRczhjhzC9A _ev6-JyO3EeSzRczhjhzC9A _ev6-KSO3EeSzRczhjhzC9A _ev6-ZiO3EeSzRczhjhzC9A _ev6-LSO3EeSzRczhjhzC9A _ev6-LyO3EeSzRczhjhzC9A _ev6-MSO3EeSzRczhjhzC9A _ev6-MyO3EeSzRczhjhzC9A _ev6-NSO3EeSzRczhjhzC9A _ev6-NyO3EeSzRczhjhzC9A _ev6-OSO3EeSzRczhjhzC9A _ev6-OyO3EeSzRczhjhzC9A _ev6-PSO3EeSzRczhjhzC9A _ev6-PyO3EeSzRczhjhzC9A _ev6-QSO3EeSzRczhjhzC9A _ev6-QyO3EeSzRczhjhzC9A _ev6-RSO3EeSzRczhjhzC9A _ev6-RyO3EeSzRczhjhzC9A _ev6-SSO3EeSzRczhjhzC9A _ev6-SyO3EeSzRczhjhzC9A _ev6-TSO3EeSzRczhjhzC9A _ev6-TyO3EeSzRczhjhzC9A _ev6-USO3EeSzRczhjhzC9A _ev6-UyO3EeSzRczhjhzC9A _ev6-VSO3EeSzRczhjhzC9A _ev6-VyO3EeSzRczhjhzC9A _ev6-WSO3EeSzRczhjhzC9A _ev6-WyO3EeSzRczhjhzC9A _ev6-XSO3EeSzRczhjhzC9A _ev6-XyO3EeSzRczhjhzC9A _ev6-YSO3EeSzRczhjhzC9A _ev6-YyO3EeSzRczhjhzC9A _ev6-ZSO3EeSzRczhjhzC9A" featureName="name">
+        <originMapping xmi:type="description_2:FeatureColumnMapping" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']/@ownedColumnMappings[name='Name']"/>
+      </columns>
+      <description xmi:type="description_2:EditionTableDescription" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']/@ownedRepresentations[name='Classes']"/>
+    </ownedRepresentations>
+    <viewpoint xmi:type="description:Viewpoint" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Design']"/>
+  </ownedViews>
+  <ownedViews xmi:type="viewpoint:DRepresentationContainer" xmi:id="_SlPJ8CO3EeSzRczhjhzC9A" initialized="true">
+    <viewpoint xmi:type="description:Viewpoint" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Review']"/>
+  </ownedViews>
+  <ownedViews xmi:type="viewpoint:DRepresentationContainer" xmi:id="_SlclUCO3EeSzRczhjhzC9A" initialized="true">
+    <viewpoint xmi:type="description:Viewpoint" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Archetype']"/>
+  </ownedViews>
+  <ownedViews xmi:type="viewpoint:DRepresentationContainer" xmi:id="_Sn1K8CO3EeSzRczhjhzC9A" initialized="true">
+    <viewpoint xmi:type="description:Viewpoint" href="platform:/plugin/org.eclipse.emf.ecoretools.design/description/ecore.odesign#//@ownedViewpoints[name='Generation']"/>
+  </ownedViews>
+</viewpoint:DAnalysis>

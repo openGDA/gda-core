@@ -20,17 +20,12 @@ import org.opengda.lde.model.ldeexperiment.Sample;
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getSampleID <em>Sample ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getStatus <em>Status</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#isActive <em>Active</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCellID <em>Cell ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getVisitID <em>Visit ID</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getEmail <em>Email</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getComment <em>Comment</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getMailCount <em>Mail Count</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDataFileCount <em>Data File Count</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDataFilePath <em>Data File Path</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCalibrant <em>Calibrant</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCalibrant_x <em>Calibrant x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCalibrant_y <em>Calibrant y</em>}</li>
@@ -38,43 +33,28 @@ import org.opengda.lde.model.ldeexperiment.Sample;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getX_start <em>Xstart</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getX_stop <em>Xstop</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getX_step <em>Xstep</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getY_start <em>Ystart</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getY_stop <em>Ystop</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getY_step <em>Ystep</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getSample_exposure <em>Sample exposure</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDriveID <em>Drive ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getPixium_x <em>Pixium x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getPixium_y <em>Pixium y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getPixium_z <em>Pixium z</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getY_start <em>Ystart</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getEmail <em>Email</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getStartDate <em>Start Date</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getEndDate <em>End Date</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCommand <em>Command</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDriveID <em>Drive ID</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getMailCount <em>Mail Count</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDataFileCount <em>Data File Count</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getComment <em>Comment</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDataFilePath <em>Data File Path</em>}</li>
  * </ul>
  * </p>
  *
  * @generated
  */
 public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
-	/**
-	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getName()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String NAME_EDEFAULT = "new_sample";
-
-	/**
-	 * The cached value of the '{@link #getName() <em>Name</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getName()
-	 * @generated
-	 * @ordered
-	 */
-	protected String name = NAME_EDEFAULT;
-
 	/**
 	 * The default value of the '{@link #getSampleID() <em>Sample ID</em>}' attribute.
 	 * <!-- begin-user-doc -->
@@ -154,6 +134,26 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	protected boolean active = ACTIVE_EDEFAULT;
 
 	/**
+	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getName()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String NAME_EDEFAULT = "new_sample";
+
+	/**
+	 * The cached value of the '{@link #getName() <em>Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getName()
+	 * @generated
+	 * @ordered
+	 */
+	protected String name = NAME_EDEFAULT;
+
+	/**
 	 * The default value of the '{@link #getCellID() <em>Cell ID</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -194,46 +194,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	protected String visitID = VISIT_ID_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getEmail() <em>Email</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEmail()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String EMAIL_EDEFAULT = "chiu.tang@diamond.ac.uk";
-
-	/**
-	 * The cached value of the '{@link #getEmail() <em>Email</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getEmail()
-	 * @generated
-	 * @ordered
-	 */
-	protected String email = EMAIL_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getComment() <em>Comment</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getComment()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String COMMENT_EDEFAULT = "Please add your comment here";
-
-	/**
-	 * The cached value of the '{@link #getComment() <em>Comment</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getComment()
-	 * @generated
-	 * @ordered
-	 */
-	protected String comment = COMMENT_EDEFAULT;
-
-	/**
 	 * The default value of the '{@link #getCalibrant() <em>End Date</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -247,66 +207,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 		 return (calendar.getTime());
 	}
 	
-	/**
-	 * The default value of the '{@link #getMailCount() <em>Mail Count</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getMailCount()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final int MAIL_COUNT_EDEFAULT = 0;
-
-	/**
-	 * The cached value of the '{@link #getMailCount() <em>Mail Count</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getMailCount()
-	 * @generated
-	 * @ordered
-	 */
-	protected int mailCount = MAIL_COUNT_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getDataFileCount() <em>Data File Count</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDataFileCount()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final int DATA_FILE_COUNT_EDEFAULT = 0;
-
-	/**
-	 * The cached value of the '{@link #getDataFileCount() <em>Data File Count</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDataFileCount()
-	 * @generated
-	 * @ordered
-	 */
-	protected int dataFileCount = DATA_FILE_COUNT_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getDataFilePath() <em>Data File Path</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDataFilePath()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String DATA_FILE_PATH_EDEFAULT = "";
-
-	/**
-	 * The cached value of the '{@link #getDataFilePath() <em>Data File Path</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDataFilePath()
-	 * @generated
-	 * @ordered
-	 */
-	protected String dataFilePath = DATA_FILE_PATH_EDEFAULT;
-
 	/**
 	 * The default value of the '{@link #getCalibrant() <em>Calibrant</em>}' attribute.
 	 * <!-- begin-user-doc -->
@@ -448,6 +348,26 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	protected double x_step = XSTEP_EDEFAULT;
 
 	/**
+	 * The default value of the '{@link #getY_start() <em>Ystart</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getY_start()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final Double YSTART_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getY_start() <em>Ystart</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getY_start()
+	 * @generated
+	 * @ordered
+	 */
+	protected Double y_start = YSTART_EDEFAULT;
+
+	/**
 	 * The default value of the '{@link #getY_stop() <em>Ystop</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -506,26 +426,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @ordered
 	 */
 	protected double sample_exposure = SAMPLE_EXPOSURE_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getDriveID() <em>Drive ID</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDriveID()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String DRIVE_ID_EDEFAULT = "i11-1";
-
-	/**
-	 * The cached value of the '{@link #getDriveID() <em>Drive ID</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDriveID()
-	 * @generated
-	 * @ordered
-	 */
-	protected String driveID = DRIVE_ID_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getPixium_x() <em>Pixium x</em>}' attribute.
@@ -588,24 +488,24 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	protected double pixium_z = PIXIUM_Z_EDEFAULT;
 
 	/**
-	 * The default value of the '{@link #getY_start() <em>Ystart</em>}' attribute.
+	 * The default value of the '{@link #getEmail() <em>Email</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getY_start()
+	 * @see #getEmail()
 	 * @generated
 	 * @ordered
 	 */
-	protected static final Double YSTART_EDEFAULT = null;
+	protected static final String EMAIL_EDEFAULT = "chiu.tang@diamond.ac.uk";
 
 	/**
-	 * The cached value of the '{@link #getY_start() <em>Ystart</em>}' attribute.
+	 * The cached value of the '{@link #getEmail() <em>Email</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getY_start()
+	 * @see #getEmail()
 	 * @generated
 	 * @ordered
 	 */
-	protected Double y_start = YSTART_EDEFAULT;
+	protected String email = EMAIL_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getStartDate() <em>Start Date</em>}' attribute.
@@ -666,6 +566,106 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @ordered
 	 */
 	protected String command = COMMAND_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getDriveID() <em>Drive ID</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDriveID()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String DRIVE_ID_EDEFAULT = "i11-1";
+
+	/**
+	 * The cached value of the '{@link #getDriveID() <em>Drive ID</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDriveID()
+	 * @generated
+	 * @ordered
+	 */
+	protected String driveID = DRIVE_ID_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getMailCount() <em>Mail Count</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getMailCount()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final int MAIL_COUNT_EDEFAULT = 0;
+
+	/**
+	 * The cached value of the '{@link #getMailCount() <em>Mail Count</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getMailCount()
+	 * @generated
+	 * @ordered
+	 */
+	protected int mailCount = MAIL_COUNT_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getDataFileCount() <em>Data File Count</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDataFileCount()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final int DATA_FILE_COUNT_EDEFAULT = 0;
+
+	/**
+	 * The cached value of the '{@link #getDataFileCount() <em>Data File Count</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDataFileCount()
+	 * @generated
+	 * @ordered
+	 */
+	protected int dataFileCount = DATA_FILE_COUNT_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getComment() <em>Comment</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getComment()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String COMMENT_EDEFAULT = "Please add your comment here";
+
+	/**
+	 * The cached value of the '{@link #getComment() <em>Comment</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getComment()
+	 * @generated
+	 * @ordered
+	 */
+	protected String comment = COMMENT_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getDataFilePath() <em>Data File Path</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDataFilePath()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String DATA_FILE_PATH_EDEFAULT = "";
+
+	/**
+	 * The cached value of the '{@link #getDataFilePath() <em>Data File Path</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getDataFilePath()
+	 * @generated
+	 * @ordered
+	 */
+	protected String dataFilePath = DATA_FILE_PATH_EDEFAULT;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -1354,28 +1354,18 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case LdeexperimentPackage.SAMPLE__NAME:
-				return getName();
 			case LdeexperimentPackage.SAMPLE__SAMPLE_ID:
 				return getSampleID();
 			case LdeexperimentPackage.SAMPLE__STATUS:
 				return getStatus();
 			case LdeexperimentPackage.SAMPLE__ACTIVE:
 				return isActive();
+			case LdeexperimentPackage.SAMPLE__NAME:
+				return getName();
 			case LdeexperimentPackage.SAMPLE__CELL_ID:
 				return getCellID();
 			case LdeexperimentPackage.SAMPLE__VISIT_ID:
 				return getVisitID();
-			case LdeexperimentPackage.SAMPLE__EMAIL:
-				return getEmail();
-			case LdeexperimentPackage.SAMPLE__COMMENT:
-				return getComment();
-			case LdeexperimentPackage.SAMPLE__MAIL_COUNT:
-				return getMailCount();
-			case LdeexperimentPackage.SAMPLE__DATA_FILE_COUNT:
-				return getDataFileCount();
-			case LdeexperimentPackage.SAMPLE__DATA_FILE_PATH:
-				return getDataFilePath();
 			case LdeexperimentPackage.SAMPLE__CALIBRANT:
 				return getCalibrant();
 			case LdeexperimentPackage.SAMPLE__CALIBRANT_X:
@@ -1390,28 +1380,38 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return getX_stop();
 			case LdeexperimentPackage.SAMPLE__XSTEP:
 				return getX_step();
+			case LdeexperimentPackage.SAMPLE__YSTART:
+				return getY_start();
 			case LdeexperimentPackage.SAMPLE__YSTOP:
 				return getY_stop();
 			case LdeexperimentPackage.SAMPLE__YSTEP:
 				return getY_step();
 			case LdeexperimentPackage.SAMPLE__SAMPLE_EXPOSURE:
 				return getSample_exposure();
-			case LdeexperimentPackage.SAMPLE__DRIVE_ID:
-				return getDriveID();
 			case LdeexperimentPackage.SAMPLE__PIXIUM_X:
 				return getPixium_x();
 			case LdeexperimentPackage.SAMPLE__PIXIUM_Y:
 				return getPixium_y();
 			case LdeexperimentPackage.SAMPLE__PIXIUM_Z:
 				return getPixium_z();
-			case LdeexperimentPackage.SAMPLE__YSTART:
-				return getY_start();
+			case LdeexperimentPackage.SAMPLE__EMAIL:
+				return getEmail();
 			case LdeexperimentPackage.SAMPLE__START_DATE:
 				return getStartDate();
 			case LdeexperimentPackage.SAMPLE__END_DATE:
 				return getEndDate();
 			case LdeexperimentPackage.SAMPLE__COMMAND:
 				return getCommand();
+			case LdeexperimentPackage.SAMPLE__DRIVE_ID:
+				return getDriveID();
+			case LdeexperimentPackage.SAMPLE__MAIL_COUNT:
+				return getMailCount();
+			case LdeexperimentPackage.SAMPLE__DATA_FILE_COUNT:
+				return getDataFileCount();
+			case LdeexperimentPackage.SAMPLE__COMMENT:
+				return getComment();
+			case LdeexperimentPackage.SAMPLE__DATA_FILE_PATH:
+				return getDataFilePath();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -1424,9 +1424,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case LdeexperimentPackage.SAMPLE__NAME:
-				setName((String)newValue);
-				return;
 			case LdeexperimentPackage.SAMPLE__SAMPLE_ID:
 				setSampleID((String)newValue);
 				return;
@@ -1436,26 +1433,14 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LdeexperimentPackage.SAMPLE__ACTIVE:
 				setActive((Boolean)newValue);
 				return;
+			case LdeexperimentPackage.SAMPLE__NAME:
+				setName((String)newValue);
+				return;
 			case LdeexperimentPackage.SAMPLE__CELL_ID:
 				setCellID((String)newValue);
 				return;
 			case LdeexperimentPackage.SAMPLE__VISIT_ID:
 				setVisitID((String)newValue);
-				return;
-			case LdeexperimentPackage.SAMPLE__EMAIL:
-				setEmail((String)newValue);
-				return;
-			case LdeexperimentPackage.SAMPLE__COMMENT:
-				setComment((String)newValue);
-				return;
-			case LdeexperimentPackage.SAMPLE__MAIL_COUNT:
-				setMailCount((Integer)newValue);
-				return;
-			case LdeexperimentPackage.SAMPLE__DATA_FILE_COUNT:
-				setDataFileCount((Integer)newValue);
-				return;
-			case LdeexperimentPackage.SAMPLE__DATA_FILE_PATH:
-				setDataFilePath((String)newValue);
 				return;
 			case LdeexperimentPackage.SAMPLE__CALIBRANT:
 				setCalibrant((String)newValue);
@@ -1478,6 +1463,9 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LdeexperimentPackage.SAMPLE__XSTEP:
 				setX_step((Double)newValue);
 				return;
+			case LdeexperimentPackage.SAMPLE__YSTART:
+				setY_start((Double)newValue);
+				return;
 			case LdeexperimentPackage.SAMPLE__YSTOP:
 				setY_stop((Double)newValue);
 				return;
@@ -1486,9 +1474,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return;
 			case LdeexperimentPackage.SAMPLE__SAMPLE_EXPOSURE:
 				setSample_exposure((Double)newValue);
-				return;
-			case LdeexperimentPackage.SAMPLE__DRIVE_ID:
-				setDriveID((String)newValue);
 				return;
 			case LdeexperimentPackage.SAMPLE__PIXIUM_X:
 				setPixium_x((Double)newValue);
@@ -1499,8 +1484,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LdeexperimentPackage.SAMPLE__PIXIUM_Z:
 				setPixium_z((Double)newValue);
 				return;
-			case LdeexperimentPackage.SAMPLE__YSTART:
-				setY_start((Double)newValue);
+			case LdeexperimentPackage.SAMPLE__EMAIL:
+				setEmail((String)newValue);
 				return;
 			case LdeexperimentPackage.SAMPLE__START_DATE:
 				setStartDate((Date)newValue);
@@ -1510,6 +1495,21 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return;
 			case LdeexperimentPackage.SAMPLE__COMMAND:
 				setCommand((String)newValue);
+				return;
+			case LdeexperimentPackage.SAMPLE__DRIVE_ID:
+				setDriveID((String)newValue);
+				return;
+			case LdeexperimentPackage.SAMPLE__MAIL_COUNT:
+				setMailCount((Integer)newValue);
+				return;
+			case LdeexperimentPackage.SAMPLE__DATA_FILE_COUNT:
+				setDataFileCount((Integer)newValue);
+				return;
+			case LdeexperimentPackage.SAMPLE__COMMENT:
+				setComment((String)newValue);
+				return;
+			case LdeexperimentPackage.SAMPLE__DATA_FILE_PATH:
+				setDataFilePath((String)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -1523,9 +1523,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case LdeexperimentPackage.SAMPLE__NAME:
-				setName(NAME_EDEFAULT);
-				return;
 			case LdeexperimentPackage.SAMPLE__SAMPLE_ID:
 				unsetSampleID();
 				return;
@@ -1535,26 +1532,14 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LdeexperimentPackage.SAMPLE__ACTIVE:
 				setActive(ACTIVE_EDEFAULT);
 				return;
+			case LdeexperimentPackage.SAMPLE__NAME:
+				setName(NAME_EDEFAULT);
+				return;
 			case LdeexperimentPackage.SAMPLE__CELL_ID:
 				setCellID(CELL_ID_EDEFAULT);
 				return;
 			case LdeexperimentPackage.SAMPLE__VISIT_ID:
 				setVisitID(VISIT_ID_EDEFAULT);
-				return;
-			case LdeexperimentPackage.SAMPLE__EMAIL:
-				setEmail(EMAIL_EDEFAULT);
-				return;
-			case LdeexperimentPackage.SAMPLE__COMMENT:
-				setComment(COMMENT_EDEFAULT);
-				return;
-			case LdeexperimentPackage.SAMPLE__MAIL_COUNT:
-				setMailCount(MAIL_COUNT_EDEFAULT);
-				return;
-			case LdeexperimentPackage.SAMPLE__DATA_FILE_COUNT:
-				setDataFileCount(DATA_FILE_COUNT_EDEFAULT);
-				return;
-			case LdeexperimentPackage.SAMPLE__DATA_FILE_PATH:
-				setDataFilePath(DATA_FILE_PATH_EDEFAULT);
 				return;
 			case LdeexperimentPackage.SAMPLE__CALIBRANT:
 				setCalibrant(CALIBRANT_EDEFAULT);
@@ -1577,6 +1562,9 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LdeexperimentPackage.SAMPLE__XSTEP:
 				setX_step(XSTEP_EDEFAULT);
 				return;
+			case LdeexperimentPackage.SAMPLE__YSTART:
+				setY_start(YSTART_EDEFAULT);
+				return;
 			case LdeexperimentPackage.SAMPLE__YSTOP:
 				setY_stop(YSTOP_EDEFAULT);
 				return;
@@ -1585,9 +1573,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return;
 			case LdeexperimentPackage.SAMPLE__SAMPLE_EXPOSURE:
 				setSample_exposure(SAMPLE_EXPOSURE_EDEFAULT);
-				return;
-			case LdeexperimentPackage.SAMPLE__DRIVE_ID:
-				setDriveID(DRIVE_ID_EDEFAULT);
 				return;
 			case LdeexperimentPackage.SAMPLE__PIXIUM_X:
 				setPixium_x(PIXIUM_X_EDEFAULT);
@@ -1598,8 +1583,8 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LdeexperimentPackage.SAMPLE__PIXIUM_Z:
 				setPixium_z(PIXIUM_Z_EDEFAULT);
 				return;
-			case LdeexperimentPackage.SAMPLE__YSTART:
-				setY_start(YSTART_EDEFAULT);
+			case LdeexperimentPackage.SAMPLE__EMAIL:
+				setEmail(EMAIL_EDEFAULT);
 				return;
 			case LdeexperimentPackage.SAMPLE__START_DATE:
 				setStartDate(START_DATE_EDEFAULT);
@@ -1609,6 +1594,21 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return;
 			case LdeexperimentPackage.SAMPLE__COMMAND:
 				setCommand(COMMAND_EDEFAULT);
+				return;
+			case LdeexperimentPackage.SAMPLE__DRIVE_ID:
+				setDriveID(DRIVE_ID_EDEFAULT);
+				return;
+			case LdeexperimentPackage.SAMPLE__MAIL_COUNT:
+				setMailCount(MAIL_COUNT_EDEFAULT);
+				return;
+			case LdeexperimentPackage.SAMPLE__DATA_FILE_COUNT:
+				setDataFileCount(DATA_FILE_COUNT_EDEFAULT);
+				return;
+			case LdeexperimentPackage.SAMPLE__COMMENT:
+				setComment(COMMENT_EDEFAULT);
+				return;
+			case LdeexperimentPackage.SAMPLE__DATA_FILE_PATH:
+				setDataFilePath(DATA_FILE_PATH_EDEFAULT);
 				return;
 		}
 		super.eUnset(featureID);
@@ -1622,28 +1622,18 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case LdeexperimentPackage.SAMPLE__NAME:
-				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 			case LdeexperimentPackage.SAMPLE__SAMPLE_ID:
 				return isSetSampleID();
 			case LdeexperimentPackage.SAMPLE__STATUS:
 				return isSetStatus();
 			case LdeexperimentPackage.SAMPLE__ACTIVE:
 				return active != ACTIVE_EDEFAULT;
+			case LdeexperimentPackage.SAMPLE__NAME:
+				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 			case LdeexperimentPackage.SAMPLE__CELL_ID:
 				return CELL_ID_EDEFAULT == null ? cellID != null : !CELL_ID_EDEFAULT.equals(cellID);
 			case LdeexperimentPackage.SAMPLE__VISIT_ID:
 				return VISIT_ID_EDEFAULT == null ? visitID != null : !VISIT_ID_EDEFAULT.equals(visitID);
-			case LdeexperimentPackage.SAMPLE__EMAIL:
-				return EMAIL_EDEFAULT == null ? email != null : !EMAIL_EDEFAULT.equals(email);
-			case LdeexperimentPackage.SAMPLE__COMMENT:
-				return COMMENT_EDEFAULT == null ? comment != null : !COMMENT_EDEFAULT.equals(comment);
-			case LdeexperimentPackage.SAMPLE__MAIL_COUNT:
-				return mailCount != MAIL_COUNT_EDEFAULT;
-			case LdeexperimentPackage.SAMPLE__DATA_FILE_COUNT:
-				return dataFileCount != DATA_FILE_COUNT_EDEFAULT;
-			case LdeexperimentPackage.SAMPLE__DATA_FILE_PATH:
-				return DATA_FILE_PATH_EDEFAULT == null ? dataFilePath != null : !DATA_FILE_PATH_EDEFAULT.equals(dataFilePath);
 			case LdeexperimentPackage.SAMPLE__CALIBRANT:
 				return CALIBRANT_EDEFAULT == null ? calibrant != null : !CALIBRANT_EDEFAULT.equals(calibrant);
 			case LdeexperimentPackage.SAMPLE__CALIBRANT_X:
@@ -1658,28 +1648,38 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return x_stop != XSTOP_EDEFAULT;
 			case LdeexperimentPackage.SAMPLE__XSTEP:
 				return x_step != XSTEP_EDEFAULT;
+			case LdeexperimentPackage.SAMPLE__YSTART:
+				return YSTART_EDEFAULT == null ? y_start != null : !YSTART_EDEFAULT.equals(y_start);
 			case LdeexperimentPackage.SAMPLE__YSTOP:
 				return YSTOP_EDEFAULT == null ? y_stop != null : !YSTOP_EDEFAULT.equals(y_stop);
 			case LdeexperimentPackage.SAMPLE__YSTEP:
 				return YSTEP_EDEFAULT == null ? y_step != null : !YSTEP_EDEFAULT.equals(y_step);
 			case LdeexperimentPackage.SAMPLE__SAMPLE_EXPOSURE:
 				return sample_exposure != SAMPLE_EXPOSURE_EDEFAULT;
-			case LdeexperimentPackage.SAMPLE__DRIVE_ID:
-				return DRIVE_ID_EDEFAULT == null ? driveID != null : !DRIVE_ID_EDEFAULT.equals(driveID);
 			case LdeexperimentPackage.SAMPLE__PIXIUM_X:
 				return pixium_x != PIXIUM_X_EDEFAULT;
 			case LdeexperimentPackage.SAMPLE__PIXIUM_Y:
 				return pixium_y != PIXIUM_Y_EDEFAULT;
 			case LdeexperimentPackage.SAMPLE__PIXIUM_Z:
 				return pixium_z != PIXIUM_Z_EDEFAULT;
-			case LdeexperimentPackage.SAMPLE__YSTART:
-				return YSTART_EDEFAULT == null ? y_start != null : !YSTART_EDEFAULT.equals(y_start);
+			case LdeexperimentPackage.SAMPLE__EMAIL:
+				return EMAIL_EDEFAULT == null ? email != null : !EMAIL_EDEFAULT.equals(email);
 			case LdeexperimentPackage.SAMPLE__START_DATE:
 				return START_DATE_EDEFAULT == null ? startDate != null : !START_DATE_EDEFAULT.equals(startDate);
 			case LdeexperimentPackage.SAMPLE__END_DATE:
 				return END_DATE_EDEFAULT == null ? endDate != null : !END_DATE_EDEFAULT.equals(endDate);
 			case LdeexperimentPackage.SAMPLE__COMMAND:
 				return COMMAND_EDEFAULT == null ? command != null : !COMMAND_EDEFAULT.equals(command);
+			case LdeexperimentPackage.SAMPLE__DRIVE_ID:
+				return DRIVE_ID_EDEFAULT == null ? driveID != null : !DRIVE_ID_EDEFAULT.equals(driveID);
+			case LdeexperimentPackage.SAMPLE__MAIL_COUNT:
+				return mailCount != MAIL_COUNT_EDEFAULT;
+			case LdeexperimentPackage.SAMPLE__DATA_FILE_COUNT:
+				return dataFileCount != DATA_FILE_COUNT_EDEFAULT;
+			case LdeexperimentPackage.SAMPLE__COMMENT:
+				return COMMENT_EDEFAULT == null ? comment != null : !COMMENT_EDEFAULT.equals(comment);
+			case LdeexperimentPackage.SAMPLE__DATA_FILE_PATH:
+				return DATA_FILE_PATH_EDEFAULT == null ? dataFilePath != null : !DATA_FILE_PATH_EDEFAULT.equals(dataFilePath);
 		}
 		return super.eIsSet(featureID);
 	}
@@ -1694,28 +1694,18 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 		if (eIsProxy()) return super.toString();
 
 		StringBuffer result = new StringBuffer(super.toString());
-		result.append(" (name: ");
-		result.append(name);
-		result.append(", sampleID: ");
+		result.append(" (sampleID: ");
 		if (sampleIDESet) result.append(sampleID); else result.append("<unset>");
 		result.append(", status: ");
 		if (statusESet) result.append(status); else result.append("<unset>");
 		result.append(", active: ");
 		result.append(active);
+		result.append(", name: ");
+		result.append(name);
 		result.append(", cellID: ");
 		result.append(cellID);
 		result.append(", visitID: ");
 		result.append(visitID);
-		result.append(", email: ");
-		result.append(email);
-		result.append(", comment: ");
-		result.append(comment);
-		result.append(", mailCount: ");
-		result.append(mailCount);
-		result.append(", dataFileCount: ");
-		result.append(dataFileCount);
-		result.append(", dataFilePath: ");
-		result.append(dataFilePath);
 		result.append(", calibrant: ");
 		result.append(calibrant);
 		result.append(", calibrant_x: ");
@@ -1730,28 +1720,38 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 		result.append(x_stop);
 		result.append(", x_step: ");
 		result.append(x_step);
+		result.append(", y_start: ");
+		result.append(y_start);
 		result.append(", y_stop: ");
 		result.append(y_stop);
 		result.append(", y_step: ");
 		result.append(y_step);
 		result.append(", sample_exposure: ");
 		result.append(sample_exposure);
-		result.append(", driveID: ");
-		result.append(driveID);
 		result.append(", pixium_x: ");
 		result.append(pixium_x);
 		result.append(", pixium_y: ");
 		result.append(pixium_y);
 		result.append(", pixium_z: ");
 		result.append(pixium_z);
-		result.append(", y_start: ");
-		result.append(y_start);
+		result.append(", email: ");
+		result.append(email);
 		result.append(", startDate: ");
 		result.append(startDate);
 		result.append(", endDate: ");
 		result.append(endDate);
 		result.append(", command: ");
 		result.append(command);
+		result.append(", driveID: ");
+		result.append(driveID);
+		result.append(", mailCount: ");
+		result.append(mailCount);
+		result.append(", dataFileCount: ");
+		result.append(dataFileCount);
+		result.append(", comment: ");
+		result.append(comment);
+		result.append(", dataFilePath: ");
+		result.append(dataFilePath);
 		result.append(')');
 		return result.toString();
 	}

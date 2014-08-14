@@ -170,22 +170,13 @@ public interface LdeexperimentPackage extends EPackage {
 	int SAMPLE = 2;
 
 	/**
-	 * The feature id for the '<em><b>Name</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__NAME = 0;
-
-	/**
 	 * The feature id for the '<em><b>Sample ID</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__SAMPLE_ID = 1;
+	int SAMPLE__SAMPLE_ID = 0;
 
 	/**
 	 * The feature id for the '<em><b>Status</b></em>' attribute.
@@ -194,7 +185,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__STATUS = 2;
+	int SAMPLE__STATUS = 1;
 
 	/**
 	 * The feature id for the '<em><b>Active</b></em>' attribute.
@@ -203,7 +194,16 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__ACTIVE = 3;
+	int SAMPLE__ACTIVE = 2;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__NAME = 3;
 
 	/**
 	 * The feature id for the '<em><b>Cell ID</b></em>' attribute.
@@ -224,58 +224,13 @@ public interface LdeexperimentPackage extends EPackage {
 	int SAMPLE__VISIT_ID = 5;
 
 	/**
-	 * The feature id for the '<em><b>Email</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__EMAIL = 6;
-
-	/**
-	 * The feature id for the '<em><b>Comment</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__COMMENT = 7;
-
-	/**
-	 * The feature id for the '<em><b>Mail Count</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__MAIL_COUNT = 8;
-
-	/**
-	 * The feature id for the '<em><b>Data File Count</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__DATA_FILE_COUNT = 9;
-
-	/**
-	 * The feature id for the '<em><b>Data File Path</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__DATA_FILE_PATH = 10;
-
-	/**
 	 * The feature id for the '<em><b>Calibrant</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__CALIBRANT = 11;
+	int SAMPLE__CALIBRANT = 6;
 
 	/**
 	 * The feature id for the '<em><b>Calibrant x</b></em>' attribute.
@@ -284,7 +239,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__CALIBRANT_X = 12;
+	int SAMPLE__CALIBRANT_X = 7;
 
 	/**
 	 * The feature id for the '<em><b>Calibrant y</b></em>' attribute.
@@ -293,7 +248,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__CALIBRANT_Y = 13;
+	int SAMPLE__CALIBRANT_Y = 8;
 
 	/**
 	 * The feature id for the '<em><b>Calibrant exposure</b></em>' attribute.
@@ -302,7 +257,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__CALIBRANT_EXPOSURE = 14;
+	int SAMPLE__CALIBRANT_EXPOSURE = 9;
 
 	/**
 	 * The feature id for the '<em><b>Xstart</b></em>' attribute.
@@ -311,7 +266,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__XSTART = 15;
+	int SAMPLE__XSTART = 10;
 
 	/**
 	 * The feature id for the '<em><b>Xstop</b></em>' attribute.
@@ -320,7 +275,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__XSTOP = 16;
+	int SAMPLE__XSTOP = 11;
 
 	/**
 	 * The feature id for the '<em><b>Xstep</b></em>' attribute.
@@ -329,70 +284,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__XSTEP = 17;
-
-	/**
-	 * The feature id for the '<em><b>Ystop</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__YSTOP = 18;
-
-	/**
-	 * The feature id for the '<em><b>Ystep</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__YSTEP = 19;
-
-	/**
-	 * The feature id for the '<em><b>Sample exposure</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__SAMPLE_EXPOSURE = 20;
-
-	/**
-	 * The feature id for the '<em><b>Drive ID</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__DRIVE_ID = 21;
-
-	/**
-	 * The feature id for the '<em><b>Pixium x</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__PIXIUM_X = 22;
-
-	/**
-	 * The feature id for the '<em><b>Pixium y</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__PIXIUM_Y = 23;
-
-	/**
-	 * The feature id for the '<em><b>Pixium z</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__PIXIUM_Z = 24;
+	int SAMPLE__XSTEP = 12;
 
 	/**
 	 * The feature id for the '<em><b>Ystart</b></em>' attribute.
@@ -401,7 +293,70 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__YSTART = 25;
+	int SAMPLE__YSTART = 13;
+
+	/**
+	 * The feature id for the '<em><b>Ystop</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__YSTOP = 14;
+
+	/**
+	 * The feature id for the '<em><b>Ystep</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__YSTEP = 15;
+
+	/**
+	 * The feature id for the '<em><b>Sample exposure</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__SAMPLE_EXPOSURE = 16;
+
+	/**
+	 * The feature id for the '<em><b>Pixium x</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__PIXIUM_X = 17;
+
+	/**
+	 * The feature id for the '<em><b>Pixium y</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__PIXIUM_Y = 18;
+
+	/**
+	 * The feature id for the '<em><b>Pixium z</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__PIXIUM_Z = 19;
+
+	/**
+	 * The feature id for the '<em><b>Email</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__EMAIL = 20;
 
 	/**
 	 * The feature id for the '<em><b>Start Date</b></em>' attribute.
@@ -410,7 +365,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__START_DATE = 26;
+	int SAMPLE__START_DATE = 21;
 
 	/**
 	 * The feature id for the '<em><b>End Date</b></em>' attribute.
@@ -419,7 +374,7 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__END_DATE = 27;
+	int SAMPLE__END_DATE = 22;
 
 	/**
 	 * The feature id for the '<em><b>Command</b></em>' attribute.
@@ -428,7 +383,52 @@ public interface LdeexperimentPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__COMMAND = 28;
+	int SAMPLE__COMMAND = 23;
+
+	/**
+	 * The feature id for the '<em><b>Drive ID</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__DRIVE_ID = 24;
+
+	/**
+	 * The feature id for the '<em><b>Mail Count</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__MAIL_COUNT = 25;
+
+	/**
+	 * The feature id for the '<em><b>Data File Count</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__DATA_FILE_COUNT = 26;
+
+	/**
+	 * The feature id for the '<em><b>Comment</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__COMMENT = 27;
+
+	/**
+	 * The feature id for the '<em><b>Data File Path</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SAMPLE__DATA_FILE_PATH = 28;
 
 	/**
 	 * The number of structural features of the '<em>Sample</em>' class.

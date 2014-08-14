@@ -13,17 +13,12 @@ import org.eclipse.emf.ecore.EObject;
  * <p>
  * The following features are supported:
  * <ul>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getSampleID <em>Sample ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getStatus <em>Status</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#isActive <em>Active</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getName <em>Name</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getCellID <em>Cell ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getVisitID <em>Visit ID</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getEmail <em>Email</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getComment <em>Comment</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getMailCount <em>Mail Count</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFileCount <em>Data File Count</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFilePath <em>Data File Path</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getCalibrant <em>Calibrant</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getCalibrant_x <em>Calibrant x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getCalibrant_y <em>Calibrant y</em>}</li>
@@ -31,17 +26,22 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getX_start <em>Xstart</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getX_stop <em>Xstop</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getX_step <em>Xstep</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getY_start <em>Ystart</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getY_stop <em>Ystop</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getY_step <em>Ystep</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getSample_exposure <em>Sample exposure</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDriveID <em>Drive ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getPixium_x <em>Pixium x</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getPixium_y <em>Pixium y</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getPixium_z <em>Pixium z</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getY_start <em>Ystart</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getEmail <em>Email</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getStartDate <em>Start Date</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getEndDate <em>End Date</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getCommand <em>Command</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDriveID <em>Drive ID</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getMailCount <em>Mail Count</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFileCount <em>Data File Count</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getComment <em>Comment</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFilePath <em>Data File Path</em>}</li>
  * </ul>
  * </p>
  *

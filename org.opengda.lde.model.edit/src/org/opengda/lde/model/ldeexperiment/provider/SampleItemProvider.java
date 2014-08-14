@@ -56,17 +56,12 @@ public class SampleItemProvider
 		if (itemPropertyDescriptors == null) {
 			super.getPropertyDescriptors(object);
 
-			addNamePropertyDescriptor(object);
 			addSampleIDPropertyDescriptor(object);
 			addStatusPropertyDescriptor(object);
 			addActivePropertyDescriptor(object);
+			addNamePropertyDescriptor(object);
 			addCellIDPropertyDescriptor(object);
 			addVisitIDPropertyDescriptor(object);
-			addEmailPropertyDescriptor(object);
-			addCommentPropertyDescriptor(object);
-			addMailCountPropertyDescriptor(object);
-			addDataFileCountPropertyDescriptor(object);
-			addDataFilePathPropertyDescriptor(object);
 			addCalibrantPropertyDescriptor(object);
 			addCalibrant_xPropertyDescriptor(object);
 			addCalibrant_yPropertyDescriptor(object);
@@ -74,17 +69,22 @@ public class SampleItemProvider
 			addX_startPropertyDescriptor(object);
 			addX_stopPropertyDescriptor(object);
 			addX_stepPropertyDescriptor(object);
+			addY_startPropertyDescriptor(object);
 			addY_stopPropertyDescriptor(object);
 			addY_stepPropertyDescriptor(object);
 			addSample_exposurePropertyDescriptor(object);
-			addDriveIDPropertyDescriptor(object);
 			addPixium_xPropertyDescriptor(object);
 			addPixium_yPropertyDescriptor(object);
 			addPixium_zPropertyDescriptor(object);
-			addY_startPropertyDescriptor(object);
+			addEmailPropertyDescriptor(object);
 			addStartDatePropertyDescriptor(object);
 			addEndDatePropertyDescriptor(object);
 			addCommandPropertyDescriptor(object);
+			addDriveIDPropertyDescriptor(object);
+			addMailCountPropertyDescriptor(object);
+			addDataFileCountPropertyDescriptor(object);
+			addCommentPropertyDescriptor(object);
+			addDataFilePathPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -765,17 +765,12 @@ public class SampleItemProvider
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(Sample.class)) {
-			case LdeexperimentPackage.SAMPLE__NAME:
 			case LdeexperimentPackage.SAMPLE__SAMPLE_ID:
 			case LdeexperimentPackage.SAMPLE__STATUS:
 			case LdeexperimentPackage.SAMPLE__ACTIVE:
+			case LdeexperimentPackage.SAMPLE__NAME:
 			case LdeexperimentPackage.SAMPLE__CELL_ID:
 			case LdeexperimentPackage.SAMPLE__VISIT_ID:
-			case LdeexperimentPackage.SAMPLE__EMAIL:
-			case LdeexperimentPackage.SAMPLE__COMMENT:
-			case LdeexperimentPackage.SAMPLE__MAIL_COUNT:
-			case LdeexperimentPackage.SAMPLE__DATA_FILE_COUNT:
-			case LdeexperimentPackage.SAMPLE__DATA_FILE_PATH:
 			case LdeexperimentPackage.SAMPLE__CALIBRANT:
 			case LdeexperimentPackage.SAMPLE__CALIBRANT_X:
 			case LdeexperimentPackage.SAMPLE__CALIBRANT_Y:
@@ -783,17 +778,22 @@ public class SampleItemProvider
 			case LdeexperimentPackage.SAMPLE__XSTART:
 			case LdeexperimentPackage.SAMPLE__XSTOP:
 			case LdeexperimentPackage.SAMPLE__XSTEP:
+			case LdeexperimentPackage.SAMPLE__YSTART:
 			case LdeexperimentPackage.SAMPLE__YSTOP:
 			case LdeexperimentPackage.SAMPLE__YSTEP:
 			case LdeexperimentPackage.SAMPLE__SAMPLE_EXPOSURE:
-			case LdeexperimentPackage.SAMPLE__DRIVE_ID:
 			case LdeexperimentPackage.SAMPLE__PIXIUM_X:
 			case LdeexperimentPackage.SAMPLE__PIXIUM_Y:
 			case LdeexperimentPackage.SAMPLE__PIXIUM_Z:
-			case LdeexperimentPackage.SAMPLE__YSTART:
+			case LdeexperimentPackage.SAMPLE__EMAIL:
 			case LdeexperimentPackage.SAMPLE__START_DATE:
 			case LdeexperimentPackage.SAMPLE__END_DATE:
 			case LdeexperimentPackage.SAMPLE__COMMAND:
+			case LdeexperimentPackage.SAMPLE__DRIVE_ID:
+			case LdeexperimentPackage.SAMPLE__MAIL_COUNT:
+			case LdeexperimentPackage.SAMPLE__DATA_FILE_COUNT:
+			case LdeexperimentPackage.SAMPLE__COMMENT:
+			case LdeexperimentPackage.SAMPLE__DATA_FILE_PATH:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 		}

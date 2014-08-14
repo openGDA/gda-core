@@ -17,17 +17,12 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Operation getSampleByName(EString) : Sample
 
   Class Sample
-    Attribute name : EString
     Attribute sampleID : EString
     Attribute status : STATUS
     Attribute active : EBoolean
+    Attribute name : EString
     Attribute cellID : EString
     Attribute visitID : EString
-    Attribute email : EString
-    Attribute comment : EString
-    Attribute mailCount : EInt
-    Attribute dataFileCount : EInt
-    Attribute dataFilePath : EString
     Attribute calibrant : EString
     Attribute calibrant_x : EDouble
     Attribute calibrant_y : EDouble
@@ -35,17 +30,22 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute x_start : EDouble
     Attribute x_stop : EDouble
     Attribute x_step : EDouble
+    Attribute y_start : EDoubleObject
     Attribute y_stop : EDoubleObject
     Attribute y_step : EDoubleObject
     Attribute sample_exposure : EDouble
-    Attribute driveID : EString
     Attribute pixium_x : EDouble
     Attribute pixium_y : EDouble
     Attribute pixium_z : EDouble
-    Attribute y_start : EDoubleObject
+    Attribute email : EString
     Attribute startDate : EDate
     Attribute endDate : EDate
     Attribute command : EString
+    Attribute driveID : EString
+    Attribute mailCount : EInt
+    Attribute dataFileCount : EInt
+    Attribute comment : EString
+    Attribute dataFilePath : EString
 
   Enum STATUS
     Literal READY = 0
