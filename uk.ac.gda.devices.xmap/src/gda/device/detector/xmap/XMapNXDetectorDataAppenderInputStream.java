@@ -1,11 +1,13 @@
 package gda.device.detector.xmap;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.scannable.PositionInputStream;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import uk.ac.gda.beans.vortex.VortexROI;
 
 /**
  * Reads a raw HDF5 file from Xia XMap and returns deadtime corrected MCAs and Regions Of Interest totals.
@@ -16,11 +18,11 @@ import gda.device.scannable.PositionInputStream;
 public class XMapNXDetectorDataAppenderInputStream implements PositionInputStream<NXDetectorDataAppender>{
 	
 	String fileName;
-	ROI[] rois;
+	VortexROI[] rois;
 
 	
 	
-	public XMapNXDetectorDataAppenderInputStream(String fileName, ROI[] rois) {
+	public XMapNXDetectorDataAppenderInputStream(String fileName, VortexROI[] rois) {
 		super();
 		this.fileName = fileName;
 		this.rois = rois;
@@ -31,6 +33,8 @@ public class XMapNXDetectorDataAppenderInputStream implements PositionInputStrea
 			throws NoSuchElementException, InterruptedException,
 			DeviceException {
 		// TODO Auto-generated method stub
+		
+		// under development!
 		return null;
 	}
 
