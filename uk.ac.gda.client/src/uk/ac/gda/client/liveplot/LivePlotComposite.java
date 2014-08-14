@@ -407,7 +407,7 @@ public class LivePlotComposite extends Composite {
 						 */
 						int linenum = plotter.addData(scanIdentifier, dataFileName, stepIds, new DoubleDataset(1),
 							new DoubleDataset(1), xAxisHeader, yAxisHeader, false, false, axisSpec);
-						//plotView.getXYData(linenum).archiveFilename = scan.archiveFilename;//we need to set to archiveFilename in scan as currently equal to null
+						plotView.getXYData(linenum).setArchiveFilename(scan.getArchiveFilename());//we need to set to archiveFilename in scan as currently equal to null
 						plotView.getXYData(linenum).setArchive(null);
 					}
 
@@ -1048,6 +1048,10 @@ class LiveData {
 
 	public String getDataFileName() {
 		return dataFileName;
+	}
+
+	public void setArchiveFilename(String archiveFilename) {
+		this.archiveFilename = archiveFilename;
 	}
 
 	public void deleteArchive(String archiveFolder) {
