@@ -18,9 +18,6 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
@@ -29,6 +26,9 @@ import gda.device.detector.NXDetectorData;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 
 public class BackgroundSubtraction extends ReductionDetectorBase {
 
@@ -40,7 +40,7 @@ public class BackgroundSubtraction extends ReductionDetectorBase {
 		super(name, key);
 	}
 
-	public void setBackground(AbstractDataset ds) {
+	public void setBackground(Dataset ds) {
 		background = (FloatDataset) ds.cast(Dataset.FLOAT32);
 	}
 

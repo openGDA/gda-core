@@ -29,7 +29,7 @@ import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Nexus;
@@ -63,18 +63,18 @@ public class SectorIntegration extends ReductionDetectorBase {
 	}
 
 	@SuppressWarnings("hiding")
-	private AbstractDataset mask;
+	private Dataset mask;
 	
 	public SectorIntegration(String name, String key) {
 		super(name, key);
 	}
 
 	public void setMask(IDataset mask) {
-		this.mask = DatasetUtils.convertToAbstractDataset(mask);
+		this.mask = DatasetUtils.convertToDataset(mask);
 	}
 
 	@Override
-	public AbstractDataset getMask() {
+	public Dataset getMask() {
 		return mask;
 	}
 
@@ -92,21 +92,21 @@ public class SectorIntegration extends ReductionDetectorBase {
 			return;
 		}
 
-		AbstractDataset maskUsed = mask;
+		Dataset maskUsed = mask;
 
 		roi.setClippingCompensation(true);
 
 		try {
-			AbstractDataset myazdata = null, myraddata = null;
+			Dataset myazdata = null, myraddata = null;
 
 			NexusGroupData parentngd = nxdata.getData(key, "data", NexusExtractor.SDSClassName);
-			AbstractDataset parentdata = Nexus.createDataset(parentngd, false);
+			Dataset parentdata = Nexus.createDataset(parentngd, false);
 
 			uk.ac.diamond.scisoft.ncd.core.SectorIntegration sec = new uk.ac.diamond.scisoft.ncd.core.SectorIntegration();
 			sec.setROI(roi);
 			sec.setFast(true);
 			sec.setAreaData(ROIProfile.area(Arrays.copyOfRange(parentdata.getShape(),1,3), parentdata.getDtype(), mask, roi, true, true, true));
-			AbstractDataset[] mydata = sec.process(parentdata, frames, maskUsed);
+			Dataset[] mydata = sec.process(parentdata, frames, maskUsed);
 			myazdata = mydata[0];
 			myraddata = mydata[1];
 

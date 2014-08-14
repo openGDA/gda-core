@@ -45,7 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.io.DiffractionMetadata;
@@ -154,7 +154,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 				for (String type : new String[] { NcdDetectorSystem.SAXS_DETECTOR, NcdDetectorSystem.WAXS_DETECTOR,
 						NcdDetectorSystem.FLUORESCENCE_DETECTOR, NcdDetectorSystem.OTHER_DETECTOR }) {
 					if (sub.getDetectorType().equalsIgnoreCase(type)) {
-						AbstractDataset ds = null;
+						Dataset ds = null;
 						if (sub instanceof NcdWireDetector) {
 							double[] data = ((NcdWireDetector) sub).read(frame);
 							int[] dims = sub.getDataDimensions();
@@ -222,7 +222,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 
 	private Map<String, Float> detspec2maskedval = new HashMap<String, Float>(2);
 
-	private DetectorRates createDetectorRate(INcdSubDetector sub, float countingTime, AbstractDataset ds) {
+	private DetectorRates createDetectorRate(INcdSubDetector sub, float countingTime, Dataset ds) {
 		DetectorRates dr = new DetectorRates();
 		dr.detName = sub.getName();
 		dr.countingTime = countingTime;
@@ -274,7 +274,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 		}
 	}
 
-	private void plotData(String panel, AbstractDataset ds) {
+	private void plotData(String panel, Dataset ds) {
 		ds.squeeze();
 		try {
 			switch (ds.getShape().length) {

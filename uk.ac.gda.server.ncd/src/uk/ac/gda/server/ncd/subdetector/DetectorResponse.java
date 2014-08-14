@@ -27,7 +27,6 @@ import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 
@@ -44,7 +43,7 @@ public class DetectorResponse extends ReductionDetectorBase {
 		return response;
 	}
 
-	public void setResponse(AbstractDataset response) {
+	public void setResponse(Dataset response) {
 		this.response = (FloatDataset) response.cast(Dataset.FLOAT32);
 	}
 

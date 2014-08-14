@@ -20,7 +20,7 @@ package uk.ac.gda.server.ncd.subdetector;
 
 import gda.device.DeviceException;
 import gda.device.DeviceBase;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
@@ -46,7 +46,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 	private int scanDataPoint;
 
 	@Override
-	public AbstractDataset readLastImage() throws DeviceException {
+	public Dataset readLastImage() throws DeviceException {
 		double[] data = (double[])detector.getAttribute("ReadLastImage");
 		int[] dims = getDataDimensions();
 		DoubleDataset ds = new DoubleDataset(data, dims);
