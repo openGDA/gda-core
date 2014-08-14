@@ -43,7 +43,7 @@ public class TransformationWriter extends SingleScannableWriter {
 		@Override
 		protected void addCustomAttributes(NeXusFileInterface file, String scannableName, String componentName) throws NexusException {
 			super.addCustomAttributes(file, scannableName, componentName);
-			file.putattr("transformation", transformation[index].getBytes(), NexusFile.NX_CHAR);
+			file.putattr("transformation_type", transformation[index].getBytes(), NexusFile.NX_CHAR);
 			if (depends_on[index] != null)
 				file.putattr("depends_on", depends_on[index].getBytes(), NexusFile.NX_CHAR);
 			if (offset_units[index] != null)
