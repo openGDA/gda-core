@@ -27,7 +27,7 @@ import java.util.List;
 
 import org.nexusformat.NexusFile;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 
 public class DatasetStats extends DataSetProcessorBase {
 
@@ -60,7 +60,7 @@ public class DatasetStats extends DataSetProcessorBase {
 	private boolean profileY;
 	
 	@Override
-	public GDANexusDetectorData process(String detectorName, String dataName, AbstractDataset dataset) throws Exception {
+	public GDANexusDetectorData process(String detectorName, String dataName, Dataset dataset) throws Exception {
 		if(!enable)
 			return null;
 		Object sum = dataset.sum();
@@ -84,7 +84,7 @@ public class DatasetStats extends DataSetProcessorBase {
 					new double[] { vals[i] }, null, 1);
 		}
 		if(profileX){
-			AbstractDataset sum2 = dataset.sum(0);
+			Dataset sum2 = dataset.sum(0);
 			Serializable buffer = sum2.getBuffer();
 			long[] sum0 = (long[] )buffer;//TODO must deal with other types
 			res.addData(detectorName, dataName + "." + "profileX", new int[] { sum0.length}, NexusFile.NX_INT64,

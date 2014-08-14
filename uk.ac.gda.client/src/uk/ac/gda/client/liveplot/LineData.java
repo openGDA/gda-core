@@ -22,18 +22,18 @@ import gda.scan.AxisSpec;
 
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DAppearance;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 
 public class LineData {
 	private Plot1DAppearance appearance;
-	private AbstractDataset x;
-	private AbstractDataset y;
+	private Dataset x;
+	private Dataset y;
 	private AxisSpec yAxisSpec;
 
-	public AbstractDataset getX() {
+	public Dataset getX() {
 		return x;
 	}
-	public AbstractDataset getY() {
+	public Dataset getY() {
 		return y;
 	}
 	public Plot1DAppearance getAppearance() {
@@ -44,7 +44,7 @@ public class LineData {
 		return yAxisSpec;
 	}
 	
-	public LineData(Plot1DAppearance appearance, AbstractDataset x, AbstractDataset y, AxisSpec yAxisSpec) {
+	public LineData(Plot1DAppearance appearance, Dataset x, Dataset y, AxisSpec yAxisSpec) {
 		super();
 		this.appearance = appearance;
 		this.x = x;

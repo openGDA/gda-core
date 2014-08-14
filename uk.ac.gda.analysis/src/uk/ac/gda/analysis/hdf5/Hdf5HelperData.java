@@ -22,7 +22,7 @@ import ncsa.hdf.hdf5lib.H5;
 import ncsa.hdf.hdf5lib.HDF5Constants;
 import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
 import ncsa.hdf.object.h5.H5Datatype;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
@@ -91,11 +91,11 @@ public class Hdf5HelperData {
 		this( getShapeAsLongs(dds.getShape()), dds.getData(), new H5Datatype(HDF5Constants.H5T_NATIVE_DOUBLE),HDF5Constants.H5T_NATIVE_DOUBLE);
 	}
 	
-	public Hdf5HelperData( AbstractDataset ads) {
+	public Hdf5HelperData( Dataset ads) {
 		this( getShapeAsLongs(ads.getShape()), ads.getBuffer(),  getH5DataType(ads));
 	}
 	
-	private static int getH5DataType(AbstractDataset ads) {
+	private static int getH5DataType(Dataset ads) {
 		int dtype = ads.getDtype();
 		switch (dtype) {
 		case Dataset.BOOL:

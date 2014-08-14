@@ -33,7 +33,7 @@ import org.python.core.PySlice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
@@ -67,7 +67,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 				newtrace[i-1] = trace[i];
 			}
 			e.setStackTrace(newtrace);
-			logger.info("this method is deprecated - use an AbstractDataset", e);
+			logger.info("this method is deprecated - use an Dataset", e);
 		}
 	}
 	
@@ -176,7 +176,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	public void setAxis(String axisName, IDataset inData) throws ScanFileHolderException {
 		try {
 			if (holder.contains(axisName)) {
-				if (inData instanceof AbstractDataset)
+				if (inData instanceof Dataset)
 					holder.addDataset(axisName, inData);
 				else
 					holder.addDataset(axisName, inData);
@@ -218,10 +218,10 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	}
 
 	@Override
-	public AbstractDataset getAxis(int axisNumber) throws IllegalArgumentException {
+	public Dataset getAxis(int axisNumber) throws IllegalArgumentException {
 		try {
 			IDataset data = holder.getDataset(axisNumber).clone();
-			return DatasetUtils.convertToAbstractDataset(data);
+			return DatasetUtils.convertToDataset(data);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			logger.error("{} is not a valid position in ScanFileHolder", axisNumber);
 			throw new IllegalArgumentException(axisNumber + " is not a valid position in the ScanFileHolder");
@@ -230,32 +230,32 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 
 	@Override
 	public List<Double> getInterpolatedX(String XAxis, String YAxis, double yPosition) {
-		AbstractDataset a = DatasetUtils.convertToAbstractDataset(holder.getDataset(XAxis));
-		AbstractDataset b = DatasetUtils.convertToAbstractDataset(holder.getDataset(YAxis));
+		Dataset a = DatasetUtils.convertToDataset(holder.getDataset(XAxis));
+		Dataset b = DatasetUtils.convertToDataset(holder.getDataset(YAxis));
 		return DatasetUtils.crossings(a, b, yPosition);
 	}
 
 	@Override
 	public List<Double> getInterpolatedX(String XAxis, String YAxis, double yPosition, double VarianceProportion) {
-		AbstractDataset a = DatasetUtils.convertToAbstractDataset(holder.getDataset(XAxis));
-		AbstractDataset b = DatasetUtils.convertToAbstractDataset(holder.getDataset(YAxis));
+		Dataset a = DatasetUtils.convertToDataset(holder.getDataset(XAxis));
+		Dataset b = DatasetUtils.convertToDataset(holder.getDataset(YAxis));
 		return DatasetUtils.crossings(a, b, yPosition, VarianceProportion);
 	}
 
 	@Deprecated
 	@Override
-	public List<Double> getInterpolatedX(AbstractDataset XAxis, AbstractDataset YAxis, double yPosition) {
+	public List<Double> getInterpolatedX(Dataset XAxis, Dataset YAxis, double yPosition) {
 		return DatasetUtils.crossings(XAxis, YAxis, yPosition);
 	}
 
 	@Deprecated
 	@Override
-	public List<Double> getInterpolatedX(AbstractDataset XAxis, AbstractDataset YAxis, double yPosition, double VarianceProportion) {
+	public List<Double> getInterpolatedX(Dataset XAxis, Dataset YAxis, double yPosition, double VarianceProportion) {
 		return DatasetUtils.crossings(XAxis, YAxis, yPosition, VarianceProportion);
 	}
 
 	@Override
-	public AbstractDataset getDataSet(String deviceName) {
+	public Dataset getDataSet(String deviceName) {
 		return getAxis(deviceName);
 	}
 

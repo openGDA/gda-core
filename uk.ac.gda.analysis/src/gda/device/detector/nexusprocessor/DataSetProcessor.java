@@ -22,7 +22,7 @@ import gda.device.detector.GDANexusDetectorData;
 
 import java.util.Collection;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 
 /**
  * interface for processing a dataset. Process method returns <code>ProcessorResults</code> if extraNames or
@@ -32,7 +32,7 @@ public interface DataSetProcessor {
 
 	String getName();
 
-	GDANexusDetectorData process(String detectorName, String dataName, AbstractDataset dataset) throws Exception;
+	GDANexusDetectorData process(String detectorName, String dataName, Dataset dataset) throws Exception;
 
 	Collection<String> getExtraNames();
 

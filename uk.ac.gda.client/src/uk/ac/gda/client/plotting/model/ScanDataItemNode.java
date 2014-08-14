@@ -25,7 +25,7 @@ import java.util.List;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.swt.widgets.Display;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class ScanDataItemNode extends LineTraceProvider {
@@ -47,7 +47,7 @@ public class ScanDataItemNode extends LineTraceProvider {
 			if (cachedData.isEmpty()) {
 				fileCachedDataFromFile();
 			}
-			DoubleDataset dataset = (DoubleDataset) AbstractDataset.createFromList(cachedData);
+			DoubleDataset dataset = (DoubleDataset) DatasetFactory.createFromList(cachedData);
 			dataset.setName(identifier);
 			return dataset;
 		}

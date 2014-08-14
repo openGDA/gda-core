@@ -27,7 +27,7 @@ import java.util.List;
 
 import org.nexusformat.NexusFile;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 
 /**
  * Example DataSetProcessor that adds data to the NexusProvider Test implementation of INexusProviderDataSetProcessor.
@@ -41,7 +41,7 @@ public class ExampleDataSetProcessor extends DataSetProcessorBase {
 	private List<String> outputFormat = Arrays.asList(new String[] { "%5.5g" });
 
 	@Override
-	public GDANexusDetectorData process(final String detName, String dataName, AbstractDataset dataset) throws Exception {
+	public GDANexusDetectorData process(final String detName, String dataName, Dataset dataset) throws Exception {
 		val = val + 1.;
 		NXDetectorData res = new NXDetectorData();
 		res.addData(detName, new int[]{1}, NexusFile.NX_FLOAT64, new double[]{val}, null, 1);

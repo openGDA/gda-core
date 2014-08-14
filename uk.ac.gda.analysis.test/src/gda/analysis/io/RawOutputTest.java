@@ -24,7 +24,6 @@ import junit.framework.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.io.CBFLoader;
@@ -39,7 +38,7 @@ import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 public class RawOutputTest {
 	static String testScratchDirectoryName = null;
 	static String testpath = null;
-	AbstractDataset data;
+	Dataset data;
 	int sizex = 2400, sizey = 2400, range = sizex * sizey;
 	String filePath = "TestData.dat";
 	static String TestFileFolder;

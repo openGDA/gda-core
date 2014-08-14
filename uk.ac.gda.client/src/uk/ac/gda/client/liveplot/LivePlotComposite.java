@@ -93,7 +93,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotAppearanceDialog;
 import uk.ac.gda.common.rcp.util.GridUtils;
@@ -799,7 +799,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 					if (sd.isVisible()) {
 						
 						xys.add( new LineData(archive.getAppearance(), archive.getxAxis().toDataset(),archive.getyVals(), sd.getyAxisSpec() ));
-						AbstractDataset y = archive.getyVals();
+						Dataset y = archive.getyVals();
 						if (y.getName()==null || "".equals(y.getName())) {
 							y.setName(sd.getName());
 						}
@@ -877,7 +877,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				}
 
 				for (final LineData ld : xys) {
-					AbstractDataset y = ld.getY();
+					Dataset y = ld.getY();
 					String name = y.getName();
 					if (name==null || "".equals(name)) {
 						logger.error("y dataset is not named - it should be!");
