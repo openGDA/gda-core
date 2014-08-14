@@ -155,7 +155,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 
 	private Integer boundaryAlign=null;
 
-	private String expectedFullFileName;
+	protected String expectedFullFileName;
 
 	private int numToBeCaptured;
 
@@ -232,13 +232,17 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 		if( isSetFileNameAndNumber()){
 			setupFilename();
 		}
-		expectedFullFileName = String.format(getNdFile().getFileTemplate_RBV(), getNdFile().getFilePath_RBV(), getNdFile().getFileName_RBV(), getNdFile().getFileNumber_RBV());
+		deriveFullFileName();
 		clearWriteStatusErr();
 		resetCounters();
 		startRecording();
 		getNdFile().getPluginBase().enableCallbacks();
 		firstReadoutInScan = true;
 		alreadyPrepared=true;
+	}
+
+	protected void deriveFullFileName() throws Exception {
+		expectedFullFileName = String.format(getNdFile().getFileTemplate_RBV(), getNdFile().getFilePath_RBV(), getNdFile().getFileName_RBV(), getNdFile().getFileNumber_RBV());
 	}
 	
 	private void setScanDimensions(int[] dimensions, int numberImagesPerCollection) throws Exception {
@@ -302,8 +306,8 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 	}
 	
 	private void startRecording() throws Exception {
-		if (getNdFileHDF5().getCapture() == 1) 
-				throw new DeviceException("detector found already saving data when it should not be");
+		//if (getNdFileHDF5().getCapture() == 1) 
+			//	throw new DeviceException("detector found already saving data when it should not be");
 		
 		getNdFileHDF5().startCapture();
 		int totalmillis = 60 * 1000;

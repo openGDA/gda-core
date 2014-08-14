@@ -35,7 +35,7 @@ public interface ADBase extends ADCommon {
 	}
 	
 	public enum StandardTriggerMode {
-		INTERNAL, EXTERNAL,EXTERNAL_START, EXTERNAL_EXPOSURE, EXTERNAL_FVP,SOFTWARE
+		INTERNAL, EXTERNAL
 	}
 	
 	/**
