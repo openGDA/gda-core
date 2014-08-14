@@ -28,6 +28,7 @@ import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.ScannableUtils;
 import gda.jython.InterfaceProvider;
 
+import java.util.Date;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
@@ -50,23 +51,13 @@ public class ContinuousScan extends ConcurrentScanChild {
 	private Double time;
 	private Integer numberScanpoints;
 	private BufferedDetector[] qscanDetectors;
+	private Date timeMotionFinished;
 
-	/**
-	 * 
-	 */
 	public ContinuousScan() {
 		super();
 		setMustBeFinal(true);
 	}
 
-	/**
-	 * @param energyScannable
-	 * @param start
-	 * @param stop
-	 * @param numberPoints
-	 * @param time
-	 * @param detectors
-	 */
 	public ContinuousScan(ContinuouslyScannable energyScannable, Double start, Double stop, Integer numberPoints,
 			Double time, BufferedDetector[] detectors) {
 		setMustBeFinal(true);
@@ -112,6 +103,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 
 	@Override
 	public void doCollection() throws Exception {
+		checkThreadInterrupted();
 		acquirePoint(true, false);
 		ContinuousParameters params = new ContinuousParameters();
 		params.setStartPosition(start);
@@ -126,6 +118,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 		// I18 had a negative number of pulses in epics. Though theres no such thing, It is working and should be
 		// handled
 		qscanAxis.prepareForContinuousMove();
+		checkThreadInterrupted();
 		numberScanpoints = Math.abs(qscanAxis.getNumberOfDataPoints());
 
 		params.setNumberDataPoints(numberScanpoints);
@@ -136,6 +129,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 			detector.clearMemory();
 			detector.setContinuousParameters(params);
 			detector.setContinuousMode(true);
+			checkThreadInterrupted();
 		}
 
 		// for performance, see how many frames to read at any one time
@@ -151,26 +145,13 @@ public class ContinuousScan extends ConcurrentScanChild {
 		int highestFrameNumberRead = -1;
 
 		try {
-			while (qscanAxis.isBusy() && highestFrameNumberRead < numberScanpoints - 1) {
+			while (highestFrameNumberRead < numberScanpoints - 1) {
+				checkThreadInterrupted();
+				checkForMotionTimeout();
 				// sleep for a second. For what reason?
-				Thread.sleep(1000);
+				Thread.sleep(200);
 				// get lowest number of frames from all detectors
-				int framesReachedArray[] = new int[qscanDetectors.length];
-				fillArray(framesReachedArray, highestFrameNumberRead);
-				int frameNumberReached = highestFrameNumberRead;
-				for (int k = 0; k < qscanDetectors.length; k++) {
-					try {
-						int thisNumberFrames = qscanDetectors[k].getNumberFrames();
-						if (thisNumberFrames - 1 > framesReachedArray[k]) {
-							framesReachedArray[k] = thisNumberFrames - 1;
-						}
-						logger.debug("Frame number for  " + qscanDetectors[k].getName() + " " + framesReachedArray[k]);
-					} catch (DeviceException e) {
-						logger.warn("Problem getting number of frames from " + qscanDetectors[k].getName());
-					}
-				}
-				frameNumberReached = findLowest(framesReachedArray);
-				logger.debug("the lowest frame of all the detectors is " + frameNumberReached);
+				int frameNumberReached = findNumberOfFramesAvailable(highestFrameNumberRead);
 				// do not collect more than 20 frames at any one time
 				if (frameNumberReached - highestFrameNumberRead > maxFrameRead) {
 					frameNumberReached = highestFrameNumberRead + maxFrameRead;
@@ -184,32 +165,59 @@ public class ContinuousScan extends ConcurrentScanChild {
 
 				highestFrameNumberRead = frameNumberReached;
 				logger.debug("number of frames completed:" + new Integer(frameNumberReached + 1));
-
 			}
 
+		} catch (ContinuousScanTimeoutException e) {
+			// scan has been aborted, so stop the motion and let the scan write out the rest of the data point which
+			// have been collected so far
+			qscanAxis.stop();
+			qscanAxis.atCommandFailure();
+			logger.error("ContinuousScanTimeoutException so finish early without throwing an exception");
+			// return normally
 		} catch (InterruptedException e) {
 			// scan has been aborted, so stop the motion and let the scan write out the rest of the data point which
 			// have been collected so far
 			qscanAxis.stop();
 			qscanAxis.atCommandFailure();
 			throw e;
-
 		}
+	}
 
-		// make sure axis has stopped. otherwise next repetition will set things while the axis is moving
-		while (qscanAxis.isBusy())
-			Thread.sleep(100);
-
-		// Collect the rest of the frames and send the resulting sdp's out.
-		// NB: the highestFrameNumberRead is zero based, so if highestFrameNumberRead + 1 == numberScanpoints then we
-		// have read it all already and we do not need to go into this while loop.
-		while (highestFrameNumberRead + 1 < numberScanpoints) {
-			int nextFramesetEnd = highestFrameNumberRead + maxFrameRead;
-			if (nextFramesetEnd > numberScanpoints)
-				nextFramesetEnd = numberScanpoints;
-			createDataPoints(highestFrameNumberRead + 1, nextFramesetEnd);
-			highestFrameNumberRead = nextFramesetEnd;
+	private int findNumberOfFramesAvailable(int highestFrameNumberRead) throws InterruptedException {
+		int frameNumberReached = highestFrameNumberRead;
+		int framesReachedArray[] = new int[qscanDetectors.length];
+		fillArray(framesReachedArray, highestFrameNumberRead);
+		for (int k = 0; k < qscanDetectors.length; k++) {
+			try {
+				int thisNumberFrames = qscanDetectors[k].getNumberFrames();
+				if (thisNumberFrames - 1 > framesReachedArray[k]) {
+					framesReachedArray[k] = thisNumberFrames - 1;
+				}
+				logger.debug("Frame number for  " + qscanDetectors[k].getName() + " " + framesReachedArray[k]);
+			} catch (DeviceException e) {
+				checkThreadInterrupted();
+				logger.warn("Problem getting number of frames from " + qscanDetectors[k].getName());
+			}
 		}
+		frameNumberReached = findLowest(framesReachedArray);
+		logger.debug("the lowest frame of all the detectors is " + frameNumberReached);
+		return frameNumberReached;
+	}
+
+	private void checkForMotionTimeout() throws ContinuousScanTimeoutException, DeviceException {
+		if (qscanAxis.isBusy()) return;
+		
+		Date now = new Date();
+		if (timeMotionFinished == null){
+			logger.info("Motion has finished, now waiting for detectors to readout");
+			timeMotionFinished = now;
+		} else if (now.getTime() - timeMotionFinished.getTime() > 300000){
+			// timeout after 5 minutes
+			String msg = "Timeout waiting for detectors to readout after continuous scan motion has completed";
+			logger.error(msg);
+			throw new ContinuousScanTimeoutException(msg);
+		}
+		
 	}
 
 	private int findLowest(int[] framesReachedArray) {
@@ -282,6 +290,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 		logger.info("reading data from detectors from frames " + lowFrame + " to " + highFrame);
 		try {
 			for (BufferedDetector detector : qscanDetectors) {
+				checkThreadInterrupted();
 				Object[] data = detector.readFrames(lowFrame, highFrame);
 				detData.put(detector.getName(), data);
 			}
@@ -353,9 +362,18 @@ public class ContinuousScan extends ConcurrentScanChild {
 
 			// then notify IObservers of this scan (e.g. GUI panels)
 			InterfaceProvider.getJythonServerNotifer().notifyServer(this,thisPoint);
-			// this new command re-reads the detectors - so do not want that!!
-			// scanDataPointPipeline.populatePositionsAndDataAndPublish(thisPoint);
 		}
 	}
 
+}
+
+/**
+ *  For timeout while waiting for detectors to see all their expected data points.
+ */
+class ContinuousScanTimeoutException extends Exception {
+
+	public ContinuousScanTimeoutException(String msg) {
+		super(msg);
+	}
+	
 }

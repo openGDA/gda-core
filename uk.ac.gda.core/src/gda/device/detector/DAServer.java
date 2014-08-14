@@ -36,6 +36,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -323,8 +324,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		return connected;
 	}
 
-	// TODO why myReadLine and not readLine. my??
-	private String myReadLine() throws IOException, InterruptedException {
+	private String readLine() throws IOException, InterruptedException {
 		char ch;
 		StringBuffer reply = new StringBuffer("");
 
@@ -470,8 +470,9 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 		try {
 			while (true) {
 
-				String message = myReadLine();
+				String message = readLine();
 				logger.trace(getName() + ": getReply message received : " + message);
+				
 				if (isPrompt(message)) {
 					// we got a prompt, so the last message was the return value
 					return reply;
@@ -565,34 +566,13 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 	@SuppressWarnings("null")
 	protected ByteBuffer getBinaryDataBuffer(String command, int ndata) throws Exception {
+
 		ByteBuffer bb = ByteBuffer.allocate(ndata * (Float.SIZE / Byte.SIZE));
-
-//		if (dataport < 0) {
-//			dataport = getDataPort();
-//		}
-
 		lock();
 		try {
 			ensureConnected();
 			if (serverSocket == null) {
-				boolean bound = false;
-				while (!bound) {
-					if (dataPort < 0) {
-						throw new IOException("no bindable ports found");
-					}
-
-					try {
-						serverSocket = ServerSocketChannel.open();
-						serverSocket.socket().bind(new InetSocketAddress(dataPort));
-						serverSocket.configureBlocking(false);
-						bound = true;
-					} catch (IOException e) {
-						dataPort++;
-					}
-				}
-				// should this be re-sent every time ?
-				sendCommand("port " + dataPort);
-				logger.debug(getName() + " getBinaryDataBuffer(): serverSocket created on port " + dataPort);
+				createDataSocket();
 			}
 			out.flush();
 			// The reply to the command will not come until after the
@@ -635,7 +615,6 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 				}
 				while (dataSocket.read(bb) > 0) {
 				}
-				
 			}
 
 			dataSocket.close();
@@ -657,6 +636,27 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 		bb.flip();
 		return bb;
+	}
+
+	private void createDataSocket() throws IOException, DeviceException {
+		boolean bound = false;
+		while (!bound) {
+			if (dataPort < 0) {
+				throw new IOException("no bindable ports found");
+			}
+
+			try {
+				serverSocket = ServerSocketChannel.open();
+				serverSocket.socket().bind(new InetSocketAddress(dataPort));
+				serverSocket.configureBlocking(false);
+				bound = true;
+			} catch (IOException e) {
+				dataPort++;
+			}
+		}
+		// should this be re-sent every time ?
+		sendCommand("port " + dataPort);
+		logger.debug(getName() + " getBinaryDataBuffer(): serverSocket created on port " + dataPort);
 	}
 
 	/**
@@ -699,7 +699,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 	private double[] tryToGetBinaryData(String message, int ndata) throws Exception {
 		String command = message;
 		double[] binaryData = new double[ndata];
-		ByteBuffer bb = getBinaryDataBuffer(command, ndata);
+		ByteBuffer bb = readDataBuffer(ndata, command);
 		if (bb == null)
 			return null;
 		int bufferSize = bb.array().length;
@@ -732,7 +732,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 		String command = message;
 		float[] binaryData = new float[ndata];
-		ByteBuffer bb = getBinaryDataBuffer(command, ndata);
+		ByteBuffer bb = readDataBuffer(ndata, command);
 		if (bb == null)
 			return null;
 		bb.asFloatBuffer().get(binaryData);
@@ -756,7 +756,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 		String command = message;
 		long[] binaryData = new long[ndata];
-		ByteBuffer bb = getBinaryDataBuffer(command, ndata);
+		ByteBuffer bb = readDataBuffer(ndata, command);
 		if (bb == null)
 			return null;
 		bb.asLongBuffer().get(binaryData);
@@ -780,11 +780,28 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 		String command = message;
 		int[] binaryData = new int[ndata];
-		ByteBuffer bb = getBinaryDataBuffer(command, ndata);
+		ByteBuffer bb = readDataBuffer(ndata, command);
 		if (bb == null)
 			return null;
 		bb.asIntBuffer().get(binaryData);
 		return binaryData;
+	}
+
+	private ByteBuffer readDataBuffer(int ndata, String command) throws Exception {
+		try {
+			return getBinaryDataBuffer(command, ndata);
+		} catch (BufferOverflowException e) {
+			// something's got messed up, probably an abort halfway through data readout, so rebuild the data buffer and
+			// try again
+			dataPort = -1;
+			if (serverSocket.isOpen()) {
+				serverSocket.close();
+			}
+			serverSocket = null;
+			createDataSocket();
+			// if this fails, then do not handle the exception here but let it get thrown
+			return getBinaryDataBuffer(command, ndata);
+		}
 	}
 
 	/**
