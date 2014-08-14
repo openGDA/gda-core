@@ -17,7 +17,8 @@ Require-Bundle: uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.analysis,
  org.eclipse.swt,
  org.eclipse.jface,
- uk.ac.gda.beans.vortex;bundle-version="1.0.0"
+ uk.ac.gda.beans.vortex;bundle-version="1.0.0",
+ uk.ac.diamond.org.springframework;bundle-version="3.2.9"
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core
 Import-Package: org.apache.commons.beanutils;version="1.9.1",

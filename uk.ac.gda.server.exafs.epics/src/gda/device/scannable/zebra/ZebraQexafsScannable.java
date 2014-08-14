@@ -20,6 +20,7 @@ package gda.device.scannable.zebra;
 
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import gda.util.QuantityFactory;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -148,6 +149,12 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			logger.debug("Time spent after max speed set");
 
 			// move to run-up position so ready to collect
+			InterfaceProvider.getTerminalPrinter().print("Moving mono to run-up position...");
+			logger.info("Moving mono to run-up position...");
+			// but first, ensure that the energy control switch is set to 'on'
+			if (controller.cagetInt(energySwitchChnl) == 0){
+				controller.caputWait(energySwitchChnl, 1);
+			}
 			double runupEnergy = angleToEV(runupPosition);
 			if (!runUpOn) {
 				runupEnergy = angleToEV(startAngle);
@@ -226,7 +233,9 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			double stepSize_counts = controller.cagetDouble(stepSizeReadback_counts_Chnl);
 			double width_counts = controller.cagetDouble(widthReadback_counts_Chnl);
 			Double readbackNumberOfCounts = Math.floor(width_counts / stepSize_counts);
-			return (int) Math.round(readbackNumberOfCounts);
+			int numberOfDataPointsFromZebraReadback = (int) Math.round(readbackNumberOfCounts);
+			// BLXVIIIB-194 zebra does not always return the number of data points it claims it will
+			return numberOfDataPointsFromZebraReadback -1;
 		} catch (Exception e) {
 			logger.error(
 					"Exception trying to get step size and width readback, assuming number of datapoints is the demanded amount",
@@ -240,22 +249,27 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		long timeAtMethodStart = System.currentTimeMillis();
 		if (channelsConfigured && continuousParameters != null) {
 			try {
+				
+				while (isBusy()) {
+					logger.info("-----waiting for qscanAxis to finish moving inside perform before starting scanning. after goto runup");
+					Thread.sleep(100);
+				}
+				InterfaceProvider.getTerminalPrinter().print("Mono in position.");
+				logger.info("Mono in position.");
 
 				// set the sped (do this now, after the motor has been moved to the run-up position)
 				if (desiredSpeed <= getMaxSpeed()) {
-					while (isBusy()) {
-						logger.info("-----waiting for qscanAxis to finish moving inside perform before starting scanning. after goto runup");
-						Thread.sleep(100);
-					}
 					caputTestChangeDouble(currentSpeedChnl, desiredSpeed, null);
 				} else {
 					logger.info("Continuous motion for " + getName()
-							+ " greater than Bragg maximum speed. Speed will be set instead to the max imum speed of "
+							+ " greater than Bragg maximum speed. Speed will be set instead to the maximum speed of "
 							+ getMaxSpeed() + " deg/s");
 				}
 
 				// prepare zebra to send pulses
 				logger.debug("Time before zebra arm with callback");
+				InterfaceProvider.getTerminalPrinter().print("Arming Zebra box to trigger detectors during mono move...");
+				logger.info("Arming Zebra box to trigger detectors during mono move...");
 				controller.caputWait(armChnl, 1);
 
 				// These will be used when calculating the real energy of each step in the scan, so readback once at this point.
@@ -266,6 +280,8 @@ public class ZebraQexafsScannable extends QexafsScannable {
 				width_counts = controller.cagetDouble(widthReadback_counts_Chnl);
 
 				// do the move asynchronously to this thread
+				InterfaceProvider.getTerminalPrinter().print("Mono move started.");
+				logger.info("Mono move started.");
 				if (runDownOn) {
 					super.asynchronousMoveTo(angleToEV(runDownPosition));
 				} else {

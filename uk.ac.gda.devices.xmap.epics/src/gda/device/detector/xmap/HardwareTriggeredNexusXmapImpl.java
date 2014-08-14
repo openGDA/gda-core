@@ -1,4 +1,3 @@
-package gda.device.detector.xmap;
 /*-
  * Copyright © 2011 Diamond Light Source Ltd.
  *
@@ -17,18 +16,14 @@ package gda.device.detector.xmap;
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+package gda.device.detector.xmap;
 
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
-import gda.device.detector.DAServer;
 import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetectorBase;
-import gda.device.detector.xmap.HardwareTriggeredNexusXmap;
-import gda.device.detector.xmap.NexusXmap;
-import gda.device.detector.xmap.XmapPositionInputStream;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.scannable.PositionStreamIndexer;
@@ -43,9 +38,8 @@ import org.slf4j.LoggerFactory;
 
 public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorBase implements
 		HardwareTriggeredNexusXmap {
-	private static final Logger logger = LoggerFactory.getLogger(HardwareTriggeredNexusXmapImpl.class);
+	static final Logger logger = LoggerFactory.getLogger(HardwareTriggeredNexusXmapImpl.class);
 	private boolean slave = true;
-	private DAServer daServer;
 	private NexusXmap xmap;
 	private EDXDMappingController controller;
 	private boolean integrateBetweenPoints = true;
@@ -363,8 +357,6 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	@Override
 	public void atScanLineStart() throws DeviceException {
 		try {
-			// setup tfg time frames
-			setupContinuousOperation();
 			setupFileAttributes();
 			controller.resetCounters();
 
@@ -390,36 +382,6 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 				this.xmap.isSumAllElementData()));
 	}
 
-	public void setupContinuousOperation() throws DeviceException {
-		if (!isSlave()) {
-			setTimeFrames();
-		}
-	}
-
-	private void setTimeFrames() throws DeviceException {
-		switchOnExtTrigger();
-		getDaServer().sendCommand("tfg setup-groups ext-start cycles 1");
-		getDaServer().sendCommand(this.scanNumberOfPoints + " 0.000001 0.00000001 0 0 0 8");
-		getDaServer().sendCommand("-1 0 0 0 0 0 0");
-		getDaServer().sendCommand("tfg arm");
-	}
-
-	private void switchOnExtTrigger() throws DeviceException {
-		getDaServer().sendCommand("tfg setup-trig start ttl0");
-	}
-
-	private void switchOffExtTrigger() throws DeviceException {
-		getDaServer().sendCommand("tfg setup-trig start"); // disables external triggering
-	}
-
-	public void setDaServer(DAServer daServer) {
-		this.daServer = daServer;
-	}
-
-	public DAServer getDaServer() {
-		return daServer;
-	}
-
 	@Override
 	public void atScanStart() throws DeviceException {
 		controller.setCollectionMode(COLLECTION_MODES.MCA_MAPPING);
@@ -428,8 +390,6 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	@Override
 	public void atScanEnd() throws DeviceException {
 		try {
-			if (!isSlave())
-				switchOffExtTrigger();
 			xmap.stop();
 			controller.endRecording();
 		} catch (Exception e) {
@@ -443,9 +403,6 @@ public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorB
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		try {
-			if (!isSlave())
-				switchOffExtTrigger();
-
 			xmap.stop();
 			controller.endRecording();
 		} catch (Exception e) {

@@ -26,6 +26,12 @@ import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetector;
 import gda.device.scannable.PositionCallableProvider;
 import gda.factory.Configurable;
 
+/**
+ * For using Xia XMap within the AbstractContinuousScanLine-style trajectory scans.
+ * 
+ * @author rjw82
+ *
+ */
 public interface HardwareTriggeredNexusXmap extends XmapDetector,HardwareTriggerableDetector,
 		PositionCallableProvider<NexusTreeProvider>, Configurable, NexusDetector {
 
