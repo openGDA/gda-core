@@ -29,6 +29,10 @@ import gda.observable.IObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * unused by any beamlines so deprecated
+ */
+@Deprecated
 public class EpicsXmapController3ROI extends DeviceBase implements XmapController ,IObserver{
 	private EDXDMappingController edxdController;
 	private int numberOfMca;
