@@ -29,7 +29,7 @@ public class TransformationWriter extends SingleScannableWriter {
 	protected String[] depends_on;
 	protected Double[][] vector;
 	protected String[] transformation;
-	protected Double[] offset;
+	protected Double[][] offset;
 	protected String[] offset_units;
 	
 	class TransformationComponentWriter extends DefaultComponentWriter {
@@ -48,10 +48,10 @@ public class TransformationWriter extends SingleScannableWriter {
 				file.putattr("depends_on", depends_on[index].getBytes(), NexusFile.NX_CHAR);
 			if (offset_units[index] != null)
 				file.putattr("offset_units", offset_units[index].getBytes(), NexusFile.NX_CHAR);
-			if (vector[index] != null) // TODO this needs to be an array, but we need to change NAPI for that 
-				file.putattr("vector", String.format("%5.5g, %5.5g, %5g5", vector[index][0],vector[index][1], vector[index][2]).getBytes(), NexusFile.NX_CHAR);
+			if (vector[index] != null)  
+				file.putattr("vector", vector[index], new int[] { vector[index].length }, NexusFile.NX_FLOAT64);
 			if (offset[index] != null)
-				file.putattr("offset", new double[] {offset[index]}, NexusFile.NX_FLOAT64);
+				file.putattr("offset", offset[index], new int[] { offset[index].length }, NexusFile.NX_FLOAT64);
 		}
 	}
 
@@ -91,11 +91,11 @@ public class TransformationWriter extends SingleScannableWriter {
 		this.transformation = transformation;
 	}
 
-	public Double[] getOffset() {
+	public Double[][] getOffset() {
 		return offset;
 	}
 
-	public void setOffset(Double[] offset) {
+	public void setOffset(Double[][] offset) {
 		this.offset = offset;
 	}
 
