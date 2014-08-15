@@ -5,14 +5,10 @@ package org.opengda.lde.model.ldeexperiment.provider;
 
 import java.util.Collection;
 import java.util.List;
-
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.common.util.ResourceLocator;
-
 import org.eclipse.emf.ecore.EStructuralFeature;
-
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
 import org.eclipse.emf.edit.provider.IItemPropertyDescriptor;
@@ -21,10 +17,9 @@ import org.eclipse.emf.edit.provider.IStructuredItemContentProvider;
 import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
-
 import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
-import org.opengda.lde.model.ldeexperiment.LDEExperimentFactory;
-import org.opengda.lde.model.ldeexperiment.LDEExperimentPackage;
+import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
+import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 
 /**
  * This is the item provider adapter for a {@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition} object.
@@ -77,7 +72,7 @@ public class ExperimentDefinitionItemProvider
 	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
-			childrenFeatures.add(LDEExperimentPackage.Literals.EXPERIMENT_DEFINITION__SAMPLELIST);
+			childrenFeatures.add(LDEExperimentsPackage.Literals.EXPERIMENT_DEFINITION__SAMPLELIST);
 		}
 		return childrenFeatures;
 	}
@@ -130,7 +125,7 @@ public class ExperimentDefinitionItemProvider
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(ExperimentDefinition.class)) {
-			case LDEExperimentPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
+			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
 		}
@@ -150,8 +145,8 @@ public class ExperimentDefinitionItemProvider
 
 		newChildDescriptors.add
 			(createChildParameter
-				(LDEExperimentPackage.Literals.EXPERIMENT_DEFINITION__SAMPLELIST,
-				 LDEExperimentFactory.eINSTANCE.createSampleList()));
+				(LDEExperimentsPackage.Literals.EXPERIMENT_DEFINITION__SAMPLELIST,
+				 LDEExperimentsFactory.eINSTANCE.createSampleList()));
 	}
 
 	/**

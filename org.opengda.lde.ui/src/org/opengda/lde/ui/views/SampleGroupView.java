@@ -58,6 +58,7 @@ import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.ComboBoxCellEditor;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -70,6 +71,7 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.window.ToolTip;
+import org.eclipse.nebula.widgets.formattedtext.FormattedTextCellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
@@ -127,13 +129,17 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	 */
 	public static final String ID = "org.opengda.lde.ui.views.SampleGroupView";
 	public static final String DATA_DRIVER="dls";
+	public static final String BEAMLINE_ID="i11-1";
 	public static final String DATA_FOLDER="data";
 	private static final Logger logger = LoggerFactory.getLogger(SampleGroupView.class);
 	private List<ISelectionChangedListener> selectionChangedListeners;
 	private String dataDriver=DATA_DRIVER;
+	private String beamlineID=BEAMLINE_ID;
 	private String dataFolder=DATA_FOLDER;
 	private LDEResourceUtil resUtil;
 	private EditingDomain editingDomain;
+	private String[] cellIDs;
+	private String[] calibrants;
 	
 	private final String columnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.ACTIVE, SampleTableConstants.SAMPLE_NAME,
 			SampleTableConstants.CELL_ID, SampleTableConstants.VISIT_ID, SampleTableConstants.CALIBRANT_NAME, SampleTableConstants.CALIBRANT_X, 
@@ -141,7 +147,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			SampleTableConstants.SAMPLE_X_STEP, SampleTableConstants.SAMPLE_Y_START, SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, 
 			SampleTableConstants.SAMPLE_EXPOSURE, SampleTableConstants.DETECTOR_X, SampleTableConstants.DETECTOR_Y, SampleTableConstants.DETECTOR_Z, 
 			SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, SampleTableConstants.COMMAND, 
-			SampleTableConstants.DRIVE_ID, SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT,SampleTableConstants.COMMENT };
+//			SampleTableConstants.DRIVE_ID, 
+			SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT,SampleTableConstants.COMMENT };
 
 	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 55, false), new ColumnWeightData(10, 55, false),new ColumnWeightData(80, 110, true), 
 			new ColumnWeightData(40, 60, true), new ColumnWeightData(40, 60, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true),
@@ -149,7 +156,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true),
 			new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true),
 			new ColumnWeightData(40, 200, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(40, 400, true),
-			new ColumnWeightData(40, 60, true), new ColumnWeightData(10, 90, false), new ColumnWeightData(10, 90, false),new ColumnWeightData(50, 300, true) };
+//			new ColumnWeightData(40, 60, true), 
+			new ColumnWeightData(10, 90, false), new ColumnWeightData(10, 90, false),new ColumnWeightData(50, 300, true) };
 	
 	private TableViewer viewer;
 	private SampleList sampleList;
@@ -772,21 +780,49 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
 			} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
-				return new TextCellEditor(table);
+				return new ComboBoxCellEditor(table, getCellIDs());
 			} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
 			} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
-				return new TextCellEditor(table);
+				return new ComboBoxCellEditor(table, getCalibrants());
+			} else if (SampleTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (SampleTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (SampleTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (SampleTableConstants.SAMPLE_X_START.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (SampleTableConstants.SAMPLE_X_STOP.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (SampleTableConstants.SAMPLE_X_STEP.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (SampleTableConstants.SAMPLE_Y_START.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (SampleTableConstants.SAMPLE_Y_STOP.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (SampleTableConstants.SAMPLE_Y_STEP.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (SampleTableConstants.SAMPLE_EXPOSURE.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (SampleTableConstants.DETECTOR_X.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (SampleTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
+			} else if (SampleTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
+				return new FormattedTextCellEditor(table);
 			} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
-				return new TextCellEditor(table);
-			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
-				return new TextCellEditor(table);
-			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
 			} else if (SampleTableConstants.START_DATE.equals(columnIdentifier)){
 				return new CDateTimeCellEditor(table);
 			} else if (SampleTableConstants.END_DATE.equals(columnIdentifier)){
 				return new CDateTimeCellEditor(table);
+			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
+//			} else if (SampleTableConstants.DRIVE_ID.equals(columnIdentifier)) {
+//				return new TextCellEditor(table);
+			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
+				return new TextCellEditor(table);
 			}
 			return null;
 		}
@@ -803,15 +839,43 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				return true;
 			} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
 				return true;
+			} else if (SampleTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.SAMPLE_X_START.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.SAMPLE_X_STOP.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.SAMPLE_X_STEP.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.SAMPLE_Y_START.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.SAMPLE_Y_STOP.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.SAMPLE_Y_STEP.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.SAMPLE_EXPOSURE.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.DETECTOR_X.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
+				return true;
 			} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
-				return true;
-			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
 				return true;
 			} else if (SampleTableConstants.START_DATE.equals(columnIdentifier)) {
 				return true;
 			} else if (SampleTableConstants.END_DATE.equals(columnIdentifier)) {
+				return true;
+			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
+				return true;
+//			} else if (SampleTableConstants.DRIVE_ID.equals(columnIdentifier)) {
+//				return true;
+			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
 				return true;
 			} 
 			return false;
@@ -831,16 +895,44 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 					return sample.getVisitID();
 				} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
 					return sample.getCalibrant();
+				} else if (SampleTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
+					return sample.getCalibrant_x();
+				} else if (SampleTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
+					return sample.getCalibrant_y();
+				} else if (SampleTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
+					return sample.getCalibrant_exposure();
+				} else if (SampleTableConstants.SAMPLE_X_START.equals(columnIdentifier)) {
+					return sample.getSample_x_start();
+				} else if (SampleTableConstants.SAMPLE_X_STOP.equals(columnIdentifier)) {
+					return sample.getSample_x_stop();
+				} else if (SampleTableConstants.SAMPLE_X_STEP.equals(columnIdentifier)) {
+					return sample.getSample_x_step();
+				} else if (SampleTableConstants.SAMPLE_Y_START.equals(columnIdentifier)) {
+					return sample.getSample_y_start();
+				} else if (SampleTableConstants.SAMPLE_Y_STOP.equals(columnIdentifier)) {
+					return sample.getSample_y_stop();
+				} else if (SampleTableConstants.SAMPLE_Y_STEP.equals(columnIdentifier)) {
+					return sample.getSample_y_step();
+				} else if (SampleTableConstants.SAMPLE_EXPOSURE.equals(columnIdentifier)) {
+					return sample.getSample_exposure();
+				} else if (SampleTableConstants.DETECTOR_X.equals(columnIdentifier)) {
+					return sample.getDetector_x();
+				} else if (SampleTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
+					return sample.getDetector_y();
+				} else if (SampleTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
+					return sample.getDetector_z();
 				} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
 					return sample.getEmail();
-				} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
-					return sample.getCommand();
-				} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
-					return sample.getComment();
 				} else if (SampleTableConstants.START_DATE.equals(columnIdentifier)) {
 					return sample.getStartDate();
 				} else if (SampleTableConstants.END_DATE.equals(columnIdentifier)) {
 					return sample.getEndDate();
+				} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
+					return sample.getCommand();
+//				} else if (SampleTableConstants.DRIVE_ID.equals(columnIdentifier)) {
+//					return sample.getDriveID();
+				} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
+					return sample.getComment();
 				} 
 			}
 			return null;
@@ -873,7 +965,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
 				if (value instanceof String) {
 					try {
-						if (isValidCellID((String)value)) {
+						if (isValidCellID((Sample)element,(String)value)) {
 							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_CellID(), value));
 						}
 					} catch (Exception e) {
@@ -898,6 +990,84 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 						logger.error("Exception on setting "+SampleTableConstants.CALIBRANT_NAME+" field for sample "+((Sample)element).getName(), e);
 					}
 				}
+			} else if (SampleTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Calibrant_x(), value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+SampleTableConstants.CALIBRANT_X+" field for sample "+((Sample)element).getName(), e);
+				}
+			} else if (SampleTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Calibrant_y(), value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+SampleTableConstants.CALIBRANT_Y+" field for sample "+((Sample)element).getName(), e);
+				}
+			} else if (SampleTableConstants.CALIBRANT_EXPOSURE.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Calibrant_exposure(), value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+SampleTableConstants.CALIBRANT_EXPOSURE+" field for sample "+((Sample)element).getName(), e);
+				}
+			} else if (SampleTableConstants.SAMPLE_X_START.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_x_start(), value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+SampleTableConstants.SAMPLE_X_START+" field for sample "+((Sample)element).getName(), e);
+				}
+			} else if (SampleTableConstants.SAMPLE_X_STOP.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_x_stop(), value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+SampleTableConstants.SAMPLE_X_STOP+" field for sample "+((Sample)element).getName(), e);
+				}
+			} else if (SampleTableConstants.SAMPLE_X_STEP.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_x_step(), value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+SampleTableConstants.SAMPLE_X_STEP+" field for sample "+((Sample)element).getName(), e);
+				}
+			} else if (SampleTableConstants.SAMPLE_Y_START.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_y_start(), value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+SampleTableConstants.SAMPLE_Y_START+" field for sample "+((Sample)element).getName(), e);
+				}
+			} else if (SampleTableConstants.SAMPLE_Y_STOP.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_y_stop(), value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+SampleTableConstants.SAMPLE_Y_STOP+" field for sample "+((Sample)element).getName(), e);
+				}
+			} else if (SampleTableConstants.SAMPLE_Y_STEP.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_y_step(), value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+SampleTableConstants.SAMPLE_Y_STEP+" field for sample "+((Sample)element).getName(), e);
+				}
+			} else if (SampleTableConstants.SAMPLE_EXPOSURE.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Sample_exposure(), value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+SampleTableConstants.SAMPLE_EXPOSURE+" field for sample "+((Sample)element).getName(), e);
+				}
+			} else if (SampleTableConstants.DETECTOR_X.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Detector_x(), value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+SampleTableConstants.DETECTOR_X+" field for sample "+((Sample)element).getName(), e);
+				}
+			} else if (SampleTableConstants.DETECTOR_Y.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Detector_y(), value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+SampleTableConstants.DETECTOR_Y+" field for sample "+((Sample)element).getName(), e);
+				}
+			} else if (SampleTableConstants.DETECTOR_Z.equals(columnIdentifier)) {
+				try {
+					runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Detector_z(), value));
+				} catch (Exception e) {
+					logger.error("Exception on setting "+SampleTableConstants.DETECTOR_Z+" field for sample "+((Sample)element).getName(), e);
+				}
 			} else if (SampleTableConstants.EMAIL.equals(columnIdentifier)) {
 				if (value instanceof String) {
 					try {
@@ -906,24 +1076,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 						}
 					} catch (Exception e) {
 						logger.error("Exception on setting "+SampleTableConstants.EMAIL+" field for sample "+((Sample)element).getName(), e);
-					}
-				}
-			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						if (isValidCommand((String)value)) {
-							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Command(), value));
-						}
-					} catch (Exception e) {
-						logger.error("Exception on setting "+SampleTableConstants.COMMAND+" field for sample "+((Sample)element).getName(), e);
-					}
-				}
-			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
-				if (value instanceof String) {
-					try {
-						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Comment(), value));
-					} catch (Exception e) {
-						logger.error("Exception on setting "+SampleTableConstants.COMMENT+" field for sample "+((Sample)element).getName(), e);
 					}
 				}
 			} else if (SampleTableConstants.START_DATE.equals(columnIdentifier)) {
@@ -940,6 +1092,34 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_EndDate(), value));
 					} catch (Exception e) {
 						logger.error("Exception on setting "+SampleTableConstants.END_DATE+" field for sample "+((Sample)element).getName(), e);
+					}
+				}
+			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						if (isValidCommand((String)value)) {
+							runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Command(), value));
+						}
+					} catch (Exception e) {
+						logger.error("Exception on setting "+SampleTableConstants.COMMAND+" field for sample "+((Sample)element).getName(), e);
+					}
+				}
+//			} else if (SampleTableConstants.DRIVE_ID.equals(columnIdentifier)) {
+//					if (value instanceof String) {
+//						try {
+//							if (isValidCommand((String)value)) {
+//								runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_DriveID(), value));
+//							}
+//						} catch (Exception e) {
+//							logger.error("Exception on setting "+SampleTableConstants.DRIVE_ID+" field for sample "+((Sample)element).getName(), e);
+//						}
+//					}
+			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
+				if (value instanceof String) {
+					try {
+						runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Comment(), value));
+					} catch (Exception e) {
+						logger.error("Exception on setting "+SampleTableConstants.COMMENT+" field for sample "+((Sample)element).getName(), e);
 					}
 				}
 			} 
@@ -986,24 +1166,20 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			return false;
 		}
 
-		private boolean isValidCellID(String value) {
-			File dir=new File(File.separator+getDataDriver()+File.separator+value);
-			if (dir.exists()) {
-				return true;
+		private boolean isValidCellID(Sample element, String value) {
+			for (Sample sample : samples) {
+				if (element != sample && value.equals(sample.getCellID())) {
+					String message="Sample Cell is already used.\n";
+					openMessageBox(message, "Invalid Cell ID");
+					return false;
+				}
 			}
-			String message="Cannot find the data directory '" + dir.getAbsolutePath()+"' for this sample on data storage driver.\n";
-			openMessageBox(message, "Invalid Cell ID");
-			return false;
+			return true;
 		}
 
 		private boolean isValidVisitID(Sample sample, String value) {
 			if (value.contentEquals("0-0")){
 				return true;
-			}
-			if (sample.getCellID()== null || sample.getCellID().isEmpty()) {
-				String message="Cell ID must be set before visit ID.\n";
-				openMessageBox(message, "Cell ID Missing");
-				return false;
 			}
 			File dir=new File(getDataDirectory(sample));
 			if (dir.exists()) {
@@ -1016,7 +1192,18 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	}
 	
 	private String getDataDirectory(Sample sample) {
-		return File.separator+getDataDriver()+File.separator+sample.getCellID()+File.separator+getDataFolder()+File.separator+Calendar.getInstance().get(Calendar.YEAR)+File.separator+sample.getVisitID();
+		String dataDir=File.separator;
+		if (getDataDriver()!=null && !getDataDriver().isEmpty()) {
+			dataDir += getDataDriver()+File.separator;
+		}
+		if (getBeamlineID()!=null && !getBeamlineID().isEmpty()) {
+			dataDir += getBeamlineID()+File.separator;
+		}
+		if (getDataFolder()!=null && !getDataFolder().isEmpty()) {
+			dataDir += getDataFolder()+File.separator;
+		}
+		dataDir += Calendar.getInstance().get(Calendar.YEAR)+File.separator+sample.getVisitID();
+		return dataDir;
 	}
 	
 	private void openMessageBox(String message, String title) {
@@ -1315,5 +1502,29 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 	public void setDataFolder(String dataFolder) {
 		this.dataFolder = dataFolder;
+	}
+
+	public String[] getCellIDs() {
+		return cellIDs;
+	}
+
+	public void setCellIDs(String[] cellIDs) {
+		this.cellIDs = cellIDs;
+	}
+
+	public String[] getCalibrants() {
+		return calibrants;
+	}
+
+	public void setCalibrants(String[] calibrants) {
+		this.calibrants = calibrants;
+	}
+
+	public String getBeamlineID() {
+		return beamlineID;
+	}
+
+	public void setBeamlineID(String beamlineID) {
+		this.beamlineID = beamlineID;
 	}
 }

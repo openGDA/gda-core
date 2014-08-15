@@ -27,16 +27,16 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute calibrant_x : EDouble
     Attribute calibrant_y : EDouble
     Attribute calibrant_exposure : EDouble
-    Attribute x_start : EDouble
-    Attribute x_stop : EDouble
-    Attribute x_step : EDouble
-    Attribute y_start : EDoubleObject
-    Attribute y_stop : EDoubleObject
-    Attribute y_step : EDoubleObject
+    Attribute sample_x_start : EDoubleObject
+    Attribute sample_x_stop : EDoubleObject
+    Attribute sample_x_step : EDoubleObject
+    Attribute sample_y_start : EDoubleObject
+    Attribute sample_y_stop : EDoubleObject
+    Attribute sample_y_step : EDoubleObject
     Attribute sample_exposure : EDouble
-    Attribute pixium_x : EDouble
-    Attribute pixium_y : EDouble
-    Attribute pixium_z : EDouble
+    Attribute detector_x : EDouble
+    Attribute detector_y : EDouble
+    Attribute detector_z : EDouble
     Attribute email : EString
     Attribute startDate : EDate
     Attribute endDate : EDate

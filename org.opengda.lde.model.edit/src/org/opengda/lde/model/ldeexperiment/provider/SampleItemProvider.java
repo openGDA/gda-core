@@ -5,12 +5,9 @@ package org.opengda.lde.model.ldeexperiment.provider;
 
 import java.util.Collection;
 import java.util.List;
-
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.common.util.ResourceLocator;
-
 import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
@@ -21,8 +18,7 @@ import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
-
-import org.opengda.lde.model.ldeexperiment.LDEExperimentPackage;
+import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.Sample;
 
 /**
@@ -106,7 +102,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_sampleID_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sampleID_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_ID,
+				 LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_ID,
 				 true,
 				 false,
 				 false,
@@ -128,7 +124,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_status_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_status_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__STATUS,
+				 LDEExperimentsPackage.Literals.SAMPLE__STATUS,
 				 true,
 				 false,
 				 false,
@@ -150,7 +146,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_active_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_active_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__ACTIVE,
+				 LDEExperimentsPackage.Literals.SAMPLE__ACTIVE,
 				 true,
 				 false,
 				 false,
@@ -172,7 +168,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_name_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_name_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__NAME,
+				 LDEExperimentsPackage.Literals.SAMPLE__NAME,
 				 true,
 				 false,
 				 false,
@@ -194,7 +190,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_cellID_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_cellID_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__CELL_ID,
+				 LDEExperimentsPackage.Literals.SAMPLE__CELL_ID,
 				 true,
 				 false,
 				 false,
@@ -216,7 +212,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_visitID_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_visitID_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__VISIT_ID,
+				 LDEExperimentsPackage.Literals.SAMPLE__VISIT_ID,
 				 true,
 				 false,
 				 false,
@@ -238,7 +234,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_calibrant_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_calibrant_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__CALIBRANT,
+				 LDEExperimentsPackage.Literals.SAMPLE__CALIBRANT,
 				 true,
 				 false,
 				 false,
@@ -260,7 +256,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_calibrant_x_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_calibrant_x_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__CALIBRANT_X,
+				 LDEExperimentsPackage.Literals.SAMPLE__CALIBRANT_X,
 				 true,
 				 false,
 				 false,
@@ -282,7 +278,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_calibrant_y_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_calibrant_y_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__CALIBRANT_Y,
+				 LDEExperimentsPackage.Literals.SAMPLE__CALIBRANT_Y,
 				 true,
 				 false,
 				 false,
@@ -304,7 +300,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_calibrant_exposure_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_calibrant_exposure_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__CALIBRANT_EXPOSURE,
+				 LDEExperimentsPackage.Literals.SAMPLE__CALIBRANT_EXPOSURE,
 				 true,
 				 false,
 				 false,
@@ -326,7 +322,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_sample_x_start_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sample_x_start_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_XSTART,
+				 LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_XSTART,
 				 true,
 				 false,
 				 false,
@@ -348,7 +344,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_sample_x_stop_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sample_x_stop_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_XSTOP,
+				 LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_XSTOP,
 				 true,
 				 false,
 				 false,
@@ -370,7 +366,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_sample_x_step_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sample_x_step_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_XSTEP,
+				 LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_XSTEP,
 				 true,
 				 false,
 				 false,
@@ -392,7 +388,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_sample_y_start_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sample_y_start_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_YSTART,
+				 LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_YSTART,
 				 true,
 				 false,
 				 false,
@@ -414,7 +410,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_sample_y_stop_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sample_y_stop_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_YSTOP,
+				 LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_YSTOP,
 				 true,
 				 false,
 				 false,
@@ -436,7 +432,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_sample_y_step_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sample_y_step_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_YSTEP,
+				 LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_YSTEP,
 				 true,
 				 false,
 				 false,
@@ -458,7 +454,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_sample_exposure_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sample_exposure_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_EXPOSURE,
+				 LDEExperimentsPackage.Literals.SAMPLE__SAMPLE_EXPOSURE,
 				 true,
 				 false,
 				 false,
@@ -480,7 +476,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_detector_x_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_detector_x_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__DETECTOR_X,
+				 LDEExperimentsPackage.Literals.SAMPLE__DETECTOR_X,
 				 true,
 				 false,
 				 false,
@@ -502,7 +498,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_detector_y_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_detector_y_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__DETECTOR_Y,
+				 LDEExperimentsPackage.Literals.SAMPLE__DETECTOR_Y,
 				 true,
 				 false,
 				 false,
@@ -524,7 +520,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_detector_z_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_detector_z_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__DETECTOR_Z,
+				 LDEExperimentsPackage.Literals.SAMPLE__DETECTOR_Z,
 				 true,
 				 false,
 				 false,
@@ -546,7 +542,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_email_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_email_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__EMAIL,
+				 LDEExperimentsPackage.Literals.SAMPLE__EMAIL,
 				 true,
 				 false,
 				 false,
@@ -568,7 +564,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_startDate_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_startDate_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__START_DATE,
+				 LDEExperimentsPackage.Literals.SAMPLE__START_DATE,
 				 true,
 				 false,
 				 false,
@@ -590,7 +586,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_endDate_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_endDate_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__END_DATE,
+				 LDEExperimentsPackage.Literals.SAMPLE__END_DATE,
 				 true,
 				 false,
 				 false,
@@ -612,7 +608,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_command_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_command_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__COMMAND,
+				 LDEExperimentsPackage.Literals.SAMPLE__COMMAND,
 				 true,
 				 false,
 				 false,
@@ -634,7 +630,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_driveID_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_driveID_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__DRIVE_ID,
+				 LDEExperimentsPackage.Literals.SAMPLE__DRIVE_ID,
 				 true,
 				 false,
 				 false,
@@ -656,7 +652,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_mailCount_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_mailCount_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__MAIL_COUNT,
+				 LDEExperimentsPackage.Literals.SAMPLE__MAIL_COUNT,
 				 true,
 				 false,
 				 false,
@@ -678,7 +674,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_dataFileCount_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_dataFileCount_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__DATA_FILE_COUNT,
+				 LDEExperimentsPackage.Literals.SAMPLE__DATA_FILE_COUNT,
 				 true,
 				 false,
 				 false,
@@ -700,7 +696,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_comment_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_comment_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__COMMENT,
+				 LDEExperimentsPackage.Literals.SAMPLE__COMMENT,
 				 true,
 				 false,
 				 false,
@@ -722,7 +718,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_dataFilePath_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_dataFilePath_feature", "_UI_Sample_type"),
-				 LDEExperimentPackage.Literals.SAMPLE__DATA_FILE_PATH,
+				 LDEExperimentsPackage.Literals.SAMPLE__DATA_FILE_PATH,
 				 true,
 				 false,
 				 false,
@@ -769,35 +765,35 @@ public class SampleItemProvider
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(Sample.class)) {
-			case LDEExperimentPackage.SAMPLE__SAMPLE_ID:
-			case LDEExperimentPackage.SAMPLE__STATUS:
-			case LDEExperimentPackage.SAMPLE__ACTIVE:
-			case LDEExperimentPackage.SAMPLE__NAME:
-			case LDEExperimentPackage.SAMPLE__CELL_ID:
-			case LDEExperimentPackage.SAMPLE__VISIT_ID:
-			case LDEExperimentPackage.SAMPLE__CALIBRANT:
-			case LDEExperimentPackage.SAMPLE__CALIBRANT_X:
-			case LDEExperimentPackage.SAMPLE__CALIBRANT_Y:
-			case LDEExperimentPackage.SAMPLE__CALIBRANT_EXPOSURE:
-			case LDEExperimentPackage.SAMPLE__SAMPLE_XSTART:
-			case LDEExperimentPackage.SAMPLE__SAMPLE_XSTOP:
-			case LDEExperimentPackage.SAMPLE__SAMPLE_XSTEP:
-			case LDEExperimentPackage.SAMPLE__SAMPLE_YSTART:
-			case LDEExperimentPackage.SAMPLE__SAMPLE_YSTOP:
-			case LDEExperimentPackage.SAMPLE__SAMPLE_YSTEP:
-			case LDEExperimentPackage.SAMPLE__SAMPLE_EXPOSURE:
-			case LDEExperimentPackage.SAMPLE__DETECTOR_X:
-			case LDEExperimentPackage.SAMPLE__DETECTOR_Y:
-			case LDEExperimentPackage.SAMPLE__DETECTOR_Z:
-			case LDEExperimentPackage.SAMPLE__EMAIL:
-			case LDEExperimentPackage.SAMPLE__START_DATE:
-			case LDEExperimentPackage.SAMPLE__END_DATE:
-			case LDEExperimentPackage.SAMPLE__COMMAND:
-			case LDEExperimentPackage.SAMPLE__DRIVE_ID:
-			case LDEExperimentPackage.SAMPLE__MAIL_COUNT:
-			case LDEExperimentPackage.SAMPLE__DATA_FILE_COUNT:
-			case LDEExperimentPackage.SAMPLE__COMMENT:
-			case LDEExperimentPackage.SAMPLE__DATA_FILE_PATH:
+			case LDEExperimentsPackage.SAMPLE__SAMPLE_ID:
+			case LDEExperimentsPackage.SAMPLE__STATUS:
+			case LDEExperimentsPackage.SAMPLE__ACTIVE:
+			case LDEExperimentsPackage.SAMPLE__NAME:
+			case LDEExperimentsPackage.SAMPLE__CELL_ID:
+			case LDEExperimentsPackage.SAMPLE__VISIT_ID:
+			case LDEExperimentsPackage.SAMPLE__CALIBRANT:
+			case LDEExperimentsPackage.SAMPLE__CALIBRANT_X:
+			case LDEExperimentsPackage.SAMPLE__CALIBRANT_Y:
+			case LDEExperimentsPackage.SAMPLE__CALIBRANT_EXPOSURE:
+			case LDEExperimentsPackage.SAMPLE__SAMPLE_XSTART:
+			case LDEExperimentsPackage.SAMPLE__SAMPLE_XSTOP:
+			case LDEExperimentsPackage.SAMPLE__SAMPLE_XSTEP:
+			case LDEExperimentsPackage.SAMPLE__SAMPLE_YSTART:
+			case LDEExperimentsPackage.SAMPLE__SAMPLE_YSTOP:
+			case LDEExperimentsPackage.SAMPLE__SAMPLE_YSTEP:
+			case LDEExperimentsPackage.SAMPLE__SAMPLE_EXPOSURE:
+			case LDEExperimentsPackage.SAMPLE__DETECTOR_X:
+			case LDEExperimentsPackage.SAMPLE__DETECTOR_Y:
+			case LDEExperimentsPackage.SAMPLE__DETECTOR_Z:
+			case LDEExperimentsPackage.SAMPLE__EMAIL:
+			case LDEExperimentsPackage.SAMPLE__START_DATE:
+			case LDEExperimentsPackage.SAMPLE__END_DATE:
+			case LDEExperimentsPackage.SAMPLE__COMMAND:
+			case LDEExperimentsPackage.SAMPLE__DRIVE_ID:
+			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
+			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
+			case LDEExperimentsPackage.SAMPLE__COMMENT:
+			case LDEExperimentsPackage.SAMPLE__DATA_FILE_PATH:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 		}

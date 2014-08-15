@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated sampledefinition -->
+      <package
+            uri="http://www.opengda.org/LDEExperiments"
+            class="org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage"
+            genModel="model/sampledefinition.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.extension_parser">
+      <!-- @generated sampledefinition -->
+      <parser
+            type="ldeexperiments"
+            class="org.opengda.lde.model.ldeexperiment.util.LDEExperimentsResourceFactoryImpl"/>
+   </extension>
+
+</plugin>
