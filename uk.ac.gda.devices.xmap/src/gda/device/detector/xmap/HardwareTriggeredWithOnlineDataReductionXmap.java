@@ -43,8 +43,6 @@ import uk.ac.gda.beans.vortex.VortexROI;
  * sub-directory and will not be linked from the GDA Nexus file.
  * <p>
  * This class will derive the ROI totals and so this must hold the detector's configuration for these.
- * <p>
- * FIXME need to resolve the duplication of the functionality here and the original NexusXmap classes.
  */
 public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcquire {
 
@@ -97,7 +95,6 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 	
 	@Override
 	public void completeLine() throws Exception {
-		// TODO check that file is now closed and check that the file name is as expected, but maybe do not need to do anythign here
 		String filename = getXmap().getHDFFileName();
 		boolean isRecording = getXmap().getCaptureStatus();
 		if (isRecording){
@@ -144,7 +141,7 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
 		
-		// FIXME error here when running map
+		// FIXME error here when running map.
 		int firstPixel = pixelsReadSoFar + 1;
 		int rowSize = scanInfo.getDimensions()[1];
 		int rowOfFirstPixel = (int) Math.floor(firstPixel / rowSize);
