@@ -31,16 +31,15 @@ import gda.scan.ScanInformation;
  */
 public abstract class XmapSimpleAcquire extends AbstractXmapTriggeringStrategy {
 
-	public XmapSimpleAcquire(EDXDMappingController xmap, XBufferEPICsPlugin xbuf, double readoutTime)
+	public XmapSimpleAcquire(EDXDMappingController xmap, double readoutTime)
 			throws DeviceException {
-		super(xmap, xbuf);
+		super(xmap);
 		getXmap().setAquisitionTime(readoutTime);
 
 	}
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
-		super.prepareForCollection(collectionTime, numImages, scanInfo);
 		if (numImages != 1) {
 			throw new IllegalArgumentException(
 					"This single exposure triggering strategy expects to expose only 1 spectra");

@@ -20,6 +20,7 @@ package gda.device.detector.xmap.edxd;
 
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
+import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
 
 import java.io.IOException;
@@ -29,24 +30,32 @@ import java.io.IOException;
  */
 public class NDHDF5PVProvider {
 
-	private static final String NumExtraDims_SUFFIX = ":NumExtraDims";
-	private static final String NumExtraDims_RBV_SUFFIX = ":NumExtraDims_RBV";
-	private static final String ExtraDimSizeN_SUFFIX = ":ExtraDimSizeN";
-	private static final String ExtraDimSizeN_RBV_SUFFIX = ":ExtraDimSizeN_RBV";
-	private static final String ExtraDimSizeX_SUFFIX = ":ExtraDimSizeX";
-	private static final String ExtraDimSizeX_RBV_SUFFIX = ":ExtraDimSizeX_RBV";
-	private static final String ExtraDimSizeY_SUFFIX = ":ExtraDimSizeY";
-	private static final String ExtraDimSizeY_RBV_SUFFIX = ":ExtraDimSizeY_RBV";
+	private static final String NumExtraDims_SUFFIX = ":HDF:NumExtraDims";
+	private static final String NumExtraDims_RBV_SUFFIX = ":HDF:NumExtraDims_RBV";
+	private static final String ExtraDimSizeN_SUFFIX = ":HDF:ExtraDimSizeN";
+	private static final String ExtraDimSizeN_RBV_SUFFIX = ":HDF:ExtraDimSizeN_RBV";
+	private static final String ExtraDimSizeX_SUFFIX = ":HDF:ExtraDimSizeX";
+	private static final String ExtraDimSizeX_RBV_SUFFIX = ":HDF:ExtraDimSizeX_RBV";
+	private static final String ExtraDimSizeY_SUFFIX = ":HDF:ExtraDimSizeY";
+	private static final String ExtraDimSizeY_RBV_SUFFIX = ":HDF:ExtraDimSizeY_RBV";
+	private static final String FilePath_SUFFIX = ":HDF:FilePath";
+	private static final String FilePath_RBV_SUFFIX = ":HDF:FilePath_RBV";
+	private static final String NumCapture_SUFFIX = ":HDF:NumCapture";
+	private static final String NumCapture_RBV_SUFFIX = ":HDF:NumCapture_RBV";
 
 	private String epicsTemplate;
 	private PV<Integer> pvNumExtraDims;
 	private PV<Integer> pvExtraDimSizeN;
-	private PV<Integer> pvNumExtraDims_rbv;
-	private PV<Integer> pvExtraDimSizeN_rbv;
+	private ReadOnlyPV<Integer> pvNumExtraDims_rbv;
+	private ReadOnlyPV<Integer> pvExtraDimSizeN_rbv;
 	private PV<Integer> pvExtraDimSizeX;
-	private PV<Integer> pvExtraDimSizeX_rbv;
+	private ReadOnlyPV<Integer> pvExtraDimSizeX_rbv;
 	private PV<Integer> pvExtraDimSizeY;
-	private PV<Integer> pvExtraDimSizeY_rbv;
+	private ReadOnlyPV<Integer> pvExtraDimSizeY_rbv;
+	private PV<String> pvFilePath;
+	private ReadOnlyPV<String> pvFilePath_rbv;
+	private PV<Integer> pvNumCapture;
+	private ReadOnlyPV<Integer> pvNumCapture_rbv;
 
 	public NDHDF5PVProvider(String epicsTemplate) throws FactoryException {
 		if (epicsTemplate == null || epicsTemplate.isEmpty()) {
@@ -62,13 +71,17 @@ public class NDHDF5PVProvider {
 
 	private void createPVs() {
 		pvNumExtraDims = LazyPVFactory.newIntegerPV(generatePVName(NumExtraDims_SUFFIX));
-		pvNumExtraDims_rbv = LazyPVFactory.newIntegerPV(generatePVName(NumExtraDims_RBV_SUFFIX));
+		pvNumExtraDims_rbv = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(NumExtraDims_RBV_SUFFIX));
 		pvExtraDimSizeN = LazyPVFactory.newIntegerPV(generatePVName(ExtraDimSizeN_SUFFIX));
-		pvExtraDimSizeN_rbv = LazyPVFactory.newIntegerPV(generatePVName(ExtraDimSizeN_RBV_SUFFIX));
+		pvExtraDimSizeN_rbv = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(ExtraDimSizeN_RBV_SUFFIX));
 		pvExtraDimSizeX = LazyPVFactory.newIntegerPV(generatePVName(ExtraDimSizeX_SUFFIX));
-		pvExtraDimSizeX_rbv = LazyPVFactory.newIntegerPV(generatePVName(ExtraDimSizeX_RBV_SUFFIX));
+		pvExtraDimSizeX_rbv = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(ExtraDimSizeX_RBV_SUFFIX));
 		pvExtraDimSizeY = LazyPVFactory.newIntegerPV(generatePVName(ExtraDimSizeY_SUFFIX));
-		pvExtraDimSizeY_rbv = LazyPVFactory.newIntegerPV(generatePVName(ExtraDimSizeY_RBV_SUFFIX));
+		pvExtraDimSizeY_rbv = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(ExtraDimSizeY_RBV_SUFFIX));
+		pvFilePath = LazyPVFactory.newStringFromWaveformPV(generatePVName(FilePath_SUFFIX));
+		pvFilePath_rbv = LazyPVFactory.newReadOnlyStringPV(generatePVName(FilePath_RBV_SUFFIX));
+		pvNumCapture = LazyPVFactory.newIntegerPV(generatePVName(NumCapture_SUFFIX));
+		pvNumCapture_rbv = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(NumCapture_RBV_SUFFIX));
 	}
 
 	public int getNumExtraDims() throws IOException {
@@ -101,5 +114,21 @@ public class NDHDF5PVProvider {
 
 	public void setExtraDimSizeY(int dims) throws IOException {
 		pvExtraDimSizeY.putWait(dims);
+	}
+
+	public int getNumberOfPixels() throws IOException {
+		return pvNumCapture_rbv.get();
+	}
+	
+	public void setNumberOfPixels(int i) throws IOException {
+		pvNumCapture.putWait(i);
+	}
+
+	public String getFilePath() throws IOException {
+		return pvFilePath_rbv.get();
+	}
+	
+	public void setFilePath(String dataDir) throws IOException {
+		pvFilePath.putNoWait(dataDir);
 	}
 }

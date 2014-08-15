@@ -19,26 +19,19 @@
 package gda.device.detector.xmap;
 
 import gda.device.detector.addetector.triggering.CollectionStrategyBeanInterface;
-import gda.device.detector.xmap.XBufferEPICsPlugin.EnableCallbacks;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.scan.ScanInformation;
 
 public abstract class AbstractXmapTriggeringStrategy implements CollectionStrategyBeanInterface {
 
 	private final EDXDMappingController xmap;
-	private final XBufferEPICsPlugin xbuf;
 
-	public AbstractXmapTriggeringStrategy(EDXDMappingController xmap, XBufferEPICsPlugin xbuf) {
+	public AbstractXmapTriggeringStrategy(EDXDMappingController xmap) {
 		this.xmap = xmap;
-		this.xbuf = xbuf;
 	}
 
 	public EDXDMappingController getXmap() {
 		return xmap;
-	}
-
-	public XBufferEPICsPlugin getXbuf() {
-		return xbuf;
 	}
 
 	@Override
@@ -53,16 +46,6 @@ public abstract class AbstractXmapTriggeringStrategy implements CollectionStrate
 
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
-
-	}
-
-	@Override
-	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
-		xbufEnableCallbacks();
-	}
-
-	public void xbufEnableCallbacks() throws Exception {
-		xbuf.setEnableCallbacks_RBV(EnableCallbacks.ENABLE.ordinal());
 	}
 
 	@Override

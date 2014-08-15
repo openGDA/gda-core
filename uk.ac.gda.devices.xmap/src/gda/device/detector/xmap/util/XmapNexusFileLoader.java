@@ -233,7 +233,6 @@ public class XmapNexusFileLoader implements XmapFileLoader {
 			return spectrum;
 		}
 
-		@SuppressWarnings("unused")
 		void read(short[] in, int startIndex) throws IOException {
 
 			tagWord0 = in[startIndex++];

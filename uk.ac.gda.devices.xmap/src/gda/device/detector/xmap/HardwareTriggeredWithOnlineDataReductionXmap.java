@@ -55,34 +55,35 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 	private int pixelsReadSoFar;
 	private XMapNXDetectorDataAppenderInputStream[] dataAppenders;
 
-	public HardwareTriggeredWithOnlineDataReductionXmap(EDXDMappingController xmap, XBufferEPICsPlugin xbuf,
+	public HardwareTriggeredWithOnlineDataReductionXmap(EDXDMappingController xmap,
 			NDHDF5PVProvider nDHDF5PVProvider) throws DeviceException {
-		super(xmap, xbuf, -1);
+		super(xmap, -1);
 		this.ndHDF5PVProvider = nDHDF5PVProvider;
 	}
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
 		this.scanInfo = scanInfo;
-		xbufEnableCallbacks();
 		getXmap().setCollectionMode(COLLECTION_MODES.MCA_MAPPING);
 		nextRowToBeCollected = 0;
 		pixelsReadSoFar = -1;
 		getXmap().setPixelsPerRun(scanInfo.getDimensions()[1]);
-		ndHDF5PVProvider.setExtraDimSizeN(0);
+		ndHDF5PVProvider.setNumberOfPixels(scanInfo.getDimensions()[1]);
+		ndHDF5PVProvider.setNumExtraDims(0);
 
 		// make a subfolder
 		String dataDir = PathConstructor.createFromDefaultProperty();
-		dataDir += "/" + scanInfo.getScanNumber();
+		dataDir += scanInfo.getScanNumber();
 		File tempFolder = new File(dataDir);
 		tempFolder.mkdirs();
 		
 		// tell the hdf writer the subfolder
 		dataDir = dataDir.replace("X:", "/dls/i08/");
-		getXmap().setNexusFilePath(dataDir);
+		ndHDF5PVProvider.setFilePath(dataDir);
 		
 		// set the prefix to be the filename
-		getXmap().setFilenamePrefix("xmap-"+scanInfo.getScanNumber());
+		String prefix = "xmap-"+scanInfo.getScanNumber();
+		getXmap().setFilenamePrefix(prefix);
 		
 		dataAppenders = new XMapNXDetectorDataAppenderInputStream[scanInfo.getDimensions()[0]];
 	}
@@ -122,6 +123,12 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 		extraNames.add("FF");
 		return extraNames;
 	}
+	
+	@Override
+	public void atCommandFailure() throws Exception {
+		getXmap().endRecording();
+		getXmap().stop();
+	}
 
 	@Override
 	public List<String> getInputStreamFormats() {
@@ -137,8 +144,7 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
 		
-		pixelsReadSoFar += maxToRead;
-		
+		// FIXME error here when running map
 		int firstPixel = pixelsReadSoFar + 1;
 		int rowSize = scanInfo.getDimensions()[1];
 		int rowOfFirstPixel = (int) Math.floor(firstPixel / rowSize);

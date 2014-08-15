@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.nexusformat.NexusFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexROI;
@@ -43,6 +45,8 @@ import uk.ac.gda.util.CorrectionUtils;
 
 class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> {
 
+	static final Logger logger = LoggerFactory.getLogger(XmapPositionInputStream.class);
+	
 	private final HardwareTriggeredNexusXmap hardwareTriggeredNexusXmap;
 
 	private boolean sumAllElementData = false;
@@ -93,7 +97,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 			readSoFar = totalToRead;
 			return container;
 		} catch (Exception e) {
-			HardwareTriggeredNexusXmapImpl.logger.error("Unable to load file " + fileName, e);
+			logger.error("Unable to load file " + fileName, e);
 			throw new DeviceException("Unable to load file " + fileName, e);
 		}
 	}
