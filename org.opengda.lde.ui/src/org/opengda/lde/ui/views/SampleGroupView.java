@@ -1167,6 +1167,11 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		}
 
 		private boolean isValidCellID(Sample element, String value) {
+			if (value == null) {
+				String message="You must select a Sample Cell ID.\n";
+				openMessageBox(message, "Invalid Cell ID");
+				return false;
+			}
 			for (Sample sample : samples) {
 				if (element != sample && value.equals(sample.getCellID())) {
 					String message="Sample Cell is already used.\n";
@@ -1178,7 +1183,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		}
 
 		private boolean isValidVisitID(Sample sample, String value) {
-			if (value.contentEquals("0-0")){
+			if (value.contentEquals("0-0")){ // Commissioning folder
 				return true;
 			}
 			File dir=new File(getDataDirectory(sample));
