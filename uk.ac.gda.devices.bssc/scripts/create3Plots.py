@@ -36,7 +36,11 @@ def create3Plots(reducedfile, output):
 		ax.set_xlabel(u"q (1/A)")
 		ax.set_ylabel('log I')
 		filename = os.path.join(output+ str(i)+ "plot.png")
+		thumbnailFilename = os.path.join(output+ str(i)+ "plott.png")
 		fig.savefig(filename)
+		fig.set_figheight(2.28)
+		fig.set_figwidth(1.79)
+		fig.savefig(thumbnailFilename)
 		fig.clf()
 		filenamesToReturn.append(filename)
 	return filenamesToReturn
