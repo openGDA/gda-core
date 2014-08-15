@@ -5,9 +5,12 @@ package org.opengda.lde.model.ldeexperiment.provider;
 
 import java.util.Collection;
 import java.util.List;
+
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
+
 import org.eclipse.emf.common.util.ResourceLocator;
+
 import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
@@ -18,7 +21,8 @@ import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
-import org.opengda.lde.model.ldeexperiment.LdeexperimentPackage;
+
+import org.opengda.lde.model.ldeexperiment.LDEExperimentPackage;
 import org.opengda.lde.model.ldeexperiment.Sample;
 
 /**
@@ -66,16 +70,16 @@ public class SampleItemProvider
 			addCalibrant_xPropertyDescriptor(object);
 			addCalibrant_yPropertyDescriptor(object);
 			addCalibrant_exposurePropertyDescriptor(object);
-			addX_startPropertyDescriptor(object);
-			addX_stopPropertyDescriptor(object);
-			addX_stepPropertyDescriptor(object);
-			addY_startPropertyDescriptor(object);
-			addY_stopPropertyDescriptor(object);
-			addY_stepPropertyDescriptor(object);
+			addSample_x_startPropertyDescriptor(object);
+			addSample_x_stopPropertyDescriptor(object);
+			addSample_x_stepPropertyDescriptor(object);
+			addSample_y_startPropertyDescriptor(object);
+			addSample_y_stopPropertyDescriptor(object);
+			addSample_y_stepPropertyDescriptor(object);
 			addSample_exposurePropertyDescriptor(object);
-			addPixium_xPropertyDescriptor(object);
-			addPixium_yPropertyDescriptor(object);
-			addPixium_zPropertyDescriptor(object);
+			addDetector_xPropertyDescriptor(object);
+			addDetector_yPropertyDescriptor(object);
+			addDetector_zPropertyDescriptor(object);
 			addEmailPropertyDescriptor(object);
 			addStartDatePropertyDescriptor(object);
 			addEndDatePropertyDescriptor(object);
@@ -87,28 +91,6 @@ public class SampleItemProvider
 			addDataFilePathPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
-	}
-
-	/**
-	 * This adds a property descriptor for the Name feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addNamePropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_name_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_name_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__NAME,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
 	}
 
 	/**
@@ -124,7 +106,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_sampleID_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sampleID_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__SAMPLE_ID,
+				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_ID,
 				 true,
 				 false,
 				 false,
@@ -146,7 +128,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_status_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_status_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__STATUS,
+				 LDEExperimentPackage.Literals.SAMPLE__STATUS,
 				 true,
 				 false,
 				 false,
@@ -168,11 +150,33 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_active_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_active_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__ACTIVE,
+				 LDEExperimentPackage.Literals.SAMPLE__ACTIVE,
 				 true,
 				 false,
 				 false,
 				 ItemPropertyDescriptor.BOOLEAN_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Name feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addNamePropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_name_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_name_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__NAME,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
 				 null,
 				 null));
 	}
@@ -190,7 +194,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_cellID_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_cellID_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__CELL_ID,
+				 LDEExperimentPackage.Literals.SAMPLE__CELL_ID,
 				 true,
 				 false,
 				 false,
@@ -212,183 +216,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_visitID_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_visitID_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__VISIT_ID,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Email feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addEmailPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_email_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_email_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__EMAIL,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Command feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addCommandPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_command_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_command_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__COMMAND,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Comment feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addCommentPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_comment_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_comment_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__COMMENT,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Start Date feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addStartDatePropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_startDate_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_startDate_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__START_DATE,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the End Date feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addEndDatePropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_endDate_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_endDate_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__END_DATE,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Mail Count feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addMailCountPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_mailCount_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_mailCount_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__MAIL_COUNT,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Data File Count feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addDataFileCountPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_dataFileCount_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_dataFileCount_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__DATA_FILE_COUNT,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Data File Path feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addDataFilePathPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_dataFilePath_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_dataFilePath_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__DATA_FILE_PATH,
+				 LDEExperimentPackage.Literals.SAMPLE__VISIT_ID,
 				 true,
 				 false,
 				 false,
@@ -410,7 +238,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_calibrant_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_calibrant_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__CALIBRANT,
+				 LDEExperimentPackage.Literals.SAMPLE__CALIBRANT,
 				 true,
 				 false,
 				 false,
@@ -432,7 +260,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_calibrant_x_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_calibrant_x_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__CALIBRANT_X,
+				 LDEExperimentPackage.Literals.SAMPLE__CALIBRANT_X,
 				 true,
 				 false,
 				 false,
@@ -454,7 +282,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_calibrant_y_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_calibrant_y_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__CALIBRANT_Y,
+				 LDEExperimentPackage.Literals.SAMPLE__CALIBRANT_Y,
 				 true,
 				 false,
 				 false,
@@ -476,7 +304,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_calibrant_exposure_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_calibrant_exposure_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__CALIBRANT_EXPOSURE,
+				 LDEExperimentPackage.Literals.SAMPLE__CALIBRANT_EXPOSURE,
 				 true,
 				 false,
 				 false,
@@ -486,85 +314,19 @@ public class SampleItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Xstart feature.
+	 * This adds a property descriptor for the Sample xstart feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addX_startPropertyDescriptor(Object object) {
+	protected void addSample_x_startPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Sample_x_start_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_x_start_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__XSTART,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Xstop feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addX_stopPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_x_stop_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_x_stop_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__XSTOP,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Xstep feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addX_stepPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_x_step_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_x_step_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__XSTEP,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Ystop feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addY_stopPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_y_stop_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_y_stop_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__YSTOP,
+				 getString("_UI_Sample_sample_x_start_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sample_x_start_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_XSTART,
 				 true,
 				 false,
 				 false,
@@ -574,19 +336,107 @@ public class SampleItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Ystep feature.
+	 * This adds a property descriptor for the Sample xstop feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addY_stepPropertyDescriptor(Object object) {
+	protected void addSample_x_stopPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Sample_y_step_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_y_step_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__YSTEP,
+				 getString("_UI_Sample_sample_x_stop_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sample_x_stop_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_XSTOP,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Sample xstep feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addSample_x_stepPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_sample_x_step_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sample_x_step_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_XSTEP,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Sample ystart feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addSample_y_startPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_sample_y_start_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sample_y_start_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_YSTART,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Sample ystop feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addSample_y_stopPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_sample_y_stop_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sample_y_stop_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_YSTOP,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Sample ystep feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addSample_y_stepPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_sample_y_step_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sample_y_step_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_YSTEP,
 				 true,
 				 false,
 				 false,
@@ -608,11 +458,165 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_sample_exposure_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_sample_exposure_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__SAMPLE_EXPOSURE,
+				 LDEExperimentPackage.Literals.SAMPLE__SAMPLE_EXPOSURE,
 				 true,
 				 false,
 				 false,
 				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Detector x feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addDetector_xPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_detector_x_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_detector_x_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__DETECTOR_X,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Detector y feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addDetector_yPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_detector_y_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_detector_y_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__DETECTOR_Y,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Detector z feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addDetector_zPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_detector_z_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_detector_z_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__DETECTOR_Z,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Email feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addEmailPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_email_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_email_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__EMAIL,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Start Date feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addStartDatePropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_startDate_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_startDate_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__START_DATE,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the End Date feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addEndDatePropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_endDate_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_endDate_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__END_DATE,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Command feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addCommandPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Sample_command_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_command_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__COMMAND,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
 				 null,
 				 null));
 	}
@@ -630,7 +634,7 @@ public class SampleItemProvider
 				 getResourceLocator(),
 				 getString("_UI_Sample_driveID_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_driveID_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__DRIVE_ID,
+				 LDEExperimentPackage.Literals.SAMPLE__DRIVE_ID,
 				 true,
 				 false,
 				 false,
@@ -640,85 +644,85 @@ public class SampleItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Pixium x feature.
+	 * This adds a property descriptor for the Mail Count feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addPixium_xPropertyDescriptor(Object object) {
+	protected void addMailCountPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Sample_pixium_x_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_pixium_x_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__PIXIUM_X,
+				 getString("_UI_Sample_mailCount_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_mailCount_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__MAIL_COUNT,
 				 true,
 				 false,
 				 false,
-				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
 				 null,
 				 null));
 	}
 
 	/**
-	 * This adds a property descriptor for the Pixium y feature.
+	 * This adds a property descriptor for the Data File Count feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addPixium_yPropertyDescriptor(Object object) {
+	protected void addDataFileCountPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Sample_pixium_y_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_pixium_y_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__PIXIUM_Y,
+				 getString("_UI_Sample_dataFileCount_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_dataFileCount_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__DATA_FILE_COUNT,
 				 true,
 				 false,
 				 false,
-				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
 				 null,
 				 null));
 	}
 
 	/**
-	 * This adds a property descriptor for the Pixium z feature.
+	 * This adds a property descriptor for the Comment feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addPixium_zPropertyDescriptor(Object object) {
+	protected void addCommentPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Sample_pixium_z_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_pixium_z_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__PIXIUM_Z,
+				 getString("_UI_Sample_comment_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_comment_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__COMMENT,
 				 true,
 				 false,
 				 false,
-				 ItemPropertyDescriptor.REAL_VALUE_IMAGE,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
 				 null,
 				 null));
 	}
 
 	/**
-	 * This adds a property descriptor for the Ystart feature.
+	 * This adds a property descriptor for the Data File Path feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addY_startPropertyDescriptor(Object object) {
+	protected void addDataFilePathPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Sample_y_start_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_y_start_feature", "_UI_Sample_type"),
-				 LdeexperimentPackage.Literals.SAMPLE__YSTART,
+				 getString("_UI_Sample_dataFilePath_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_dataFilePath_feature", "_UI_Sample_type"),
+				 LDEExperimentPackage.Literals.SAMPLE__DATA_FILE_PATH,
 				 true,
 				 false,
 				 false,
@@ -765,35 +769,35 @@ public class SampleItemProvider
 		updateChildren(notification);
 
 		switch (notification.getFeatureID(Sample.class)) {
-			case LdeexperimentPackage.SAMPLE__SAMPLE_ID:
-			case LdeexperimentPackage.SAMPLE__STATUS:
-			case LdeexperimentPackage.SAMPLE__ACTIVE:
-			case LdeexperimentPackage.SAMPLE__NAME:
-			case LdeexperimentPackage.SAMPLE__CELL_ID:
-			case LdeexperimentPackage.SAMPLE__VISIT_ID:
-			case LdeexperimentPackage.SAMPLE__CALIBRANT:
-			case LdeexperimentPackage.SAMPLE__CALIBRANT_X:
-			case LdeexperimentPackage.SAMPLE__CALIBRANT_Y:
-			case LdeexperimentPackage.SAMPLE__CALIBRANT_EXPOSURE:
-			case LdeexperimentPackage.SAMPLE__XSTART:
-			case LdeexperimentPackage.SAMPLE__XSTOP:
-			case LdeexperimentPackage.SAMPLE__XSTEP:
-			case LdeexperimentPackage.SAMPLE__YSTART:
-			case LdeexperimentPackage.SAMPLE__YSTOP:
-			case LdeexperimentPackage.SAMPLE__YSTEP:
-			case LdeexperimentPackage.SAMPLE__SAMPLE_EXPOSURE:
-			case LdeexperimentPackage.SAMPLE__PIXIUM_X:
-			case LdeexperimentPackage.SAMPLE__PIXIUM_Y:
-			case LdeexperimentPackage.SAMPLE__PIXIUM_Z:
-			case LdeexperimentPackage.SAMPLE__EMAIL:
-			case LdeexperimentPackage.SAMPLE__START_DATE:
-			case LdeexperimentPackage.SAMPLE__END_DATE:
-			case LdeexperimentPackage.SAMPLE__COMMAND:
-			case LdeexperimentPackage.SAMPLE__DRIVE_ID:
-			case LdeexperimentPackage.SAMPLE__MAIL_COUNT:
-			case LdeexperimentPackage.SAMPLE__DATA_FILE_COUNT:
-			case LdeexperimentPackage.SAMPLE__COMMENT:
-			case LdeexperimentPackage.SAMPLE__DATA_FILE_PATH:
+			case LDEExperimentPackage.SAMPLE__SAMPLE_ID:
+			case LDEExperimentPackage.SAMPLE__STATUS:
+			case LDEExperimentPackage.SAMPLE__ACTIVE:
+			case LDEExperimentPackage.SAMPLE__NAME:
+			case LDEExperimentPackage.SAMPLE__CELL_ID:
+			case LDEExperimentPackage.SAMPLE__VISIT_ID:
+			case LDEExperimentPackage.SAMPLE__CALIBRANT:
+			case LDEExperimentPackage.SAMPLE__CALIBRANT_X:
+			case LDEExperimentPackage.SAMPLE__CALIBRANT_Y:
+			case LDEExperimentPackage.SAMPLE__CALIBRANT_EXPOSURE:
+			case LDEExperimentPackage.SAMPLE__SAMPLE_XSTART:
+			case LDEExperimentPackage.SAMPLE__SAMPLE_XSTOP:
+			case LDEExperimentPackage.SAMPLE__SAMPLE_XSTEP:
+			case LDEExperimentPackage.SAMPLE__SAMPLE_YSTART:
+			case LDEExperimentPackage.SAMPLE__SAMPLE_YSTOP:
+			case LDEExperimentPackage.SAMPLE__SAMPLE_YSTEP:
+			case LDEExperimentPackage.SAMPLE__SAMPLE_EXPOSURE:
+			case LDEExperimentPackage.SAMPLE__DETECTOR_X:
+			case LDEExperimentPackage.SAMPLE__DETECTOR_Y:
+			case LDEExperimentPackage.SAMPLE__DETECTOR_Z:
+			case LDEExperimentPackage.SAMPLE__EMAIL:
+			case LDEExperimentPackage.SAMPLE__START_DATE:
+			case LDEExperimentPackage.SAMPLE__END_DATE:
+			case LDEExperimentPackage.SAMPLE__COMMAND:
+			case LDEExperimentPackage.SAMPLE__DRIVE_ID:
+			case LDEExperimentPackage.SAMPLE__MAIL_COUNT:
+			case LDEExperimentPackage.SAMPLE__DATA_FILE_COUNT:
+			case LDEExperimentPackage.SAMPLE__COMMENT:
+			case LDEExperimentPackage.SAMPLE__DATA_FILE_PATH:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 		}
