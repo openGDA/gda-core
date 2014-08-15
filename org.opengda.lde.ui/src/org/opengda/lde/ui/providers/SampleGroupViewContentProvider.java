@@ -78,7 +78,7 @@ public class SampleGroupViewContentProvider implements IStructuredContentProvide
 				resUtil.getResource().eAdapters().remove(notifyListener);
 			}
 		} catch (Exception e) {
-			logger.error("Cannot get resource from RegionDefinitionResourceUtil", e);
+			logger.error("Cannot get resource from LDEResourceUtil", e);
 		}
 	}
 
