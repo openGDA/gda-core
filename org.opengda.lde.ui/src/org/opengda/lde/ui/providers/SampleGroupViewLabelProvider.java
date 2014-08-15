@@ -39,31 +39,23 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements
 		if (element instanceof Sample) {
 			Sample sample = (Sample) element;
 			if (columnIndex == SampleTableConstants.COL_ACTIVE) {
-				// TODO replace with check box
 				if (sample.isActive()) {
-					return Activator.getDefault().getImageRegistry()
-							.get(ImageConstants.ICON_CHECKED_STATE);
+					return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_CHECKED_STATE);
 				} else {
-					return Activator.getDefault().getImageRegistry()
-							.get(ImageConstants.ICON_UNCHECKED_STATE);
+					return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_UNCHECKED_STATE);
 				}
 			} else if (columnIndex == SampleTableConstants.COL_STATUS) {
 				if (sample.isActive()) {
 					if (sample.getStatus() == STATUS.READY) {
-						return Activator.getDefault().getImageRegistry()
-								.get(ImageConstants.ICON_RUN_READY);
+						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_READY);
 					} else if (sample.getStatus() == STATUS.RUNNING) {
-						return Activator.getDefault().getImageRegistry()
-								.get(ImageConstants.ICON_RUNNING);
+						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_RUNNING);
 					} else if (sample.getStatus() == STATUS.COMPLETED) {
-						return Activator.getDefault().getImageRegistry()
-								.get(ImageConstants.ICON_RUN_COMPLETE);
+						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_COMPLETE);
 					} else if (sample.getStatus() == STATUS.ABORTED) {
-						return Activator.getDefault().getImageRegistry()
-								.get(ImageConstants.ICON_RUN_FAILURE);
+						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_RUN_FAILURE);
 					} else if (sample.getStatus() == STATUS.ERROR) {
-						return Activator.getDefault().getImageRegistry()
-								.get(ImageConstants.ICON_ERROR);
+						return Activator.getDefault().getImageRegistry().get(ImageConstants.ICON_ERROR);
 					}
 				}
 			}
@@ -78,7 +70,6 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements
 			switch (columnIndex) {
 			case SampleTableConstants.COL_STATUS:
 				return "";
-
 			case SampleTableConstants.COL_ACTIVE:
 				return "";
 			case SampleTableConstants.COL_SAMPLE_NAME:
@@ -89,16 +80,42 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements
 				return sample.getVisitID();
 			case SampleTableConstants.COL_CALIBRANT_NAME:
 				return sample.getCalibrant();
+			case SampleTableConstants.COL_CALIBRANT_X:
+				return String.valueOf(sample.getCalibrant_x());
+			case SampleTableConstants.COL_CALIBRANT_Y:
+				return String.valueOf(sample.getCalibrant_y());
+			case SampleTableConstants.COL_CALIBRANT_EXPOSURE:
+				return String.valueOf(sample.getCalibrant_exposure());
+			case SampleTableConstants.COL_SAMPLE_X_START:
+				return String.valueOf(sample.getSample_x_start());
+			case SampleTableConstants.COL_SAMPLE_X_STOP:
+				return String.valueOf(sample.getSample_x_stop());
+			case SampleTableConstants.COL_SAMPLE_X_STEP:
+				return String.valueOf(sample.getSample_x_step());
+			case SampleTableConstants.COL_SAMPLE_Y_START:
+				return String.valueOf(sample.getSample_y_start());
+			case SampleTableConstants.COL_SAMPLE_Y_STOP:
+				return String.valueOf(sample.getSample_y_stop());
+			case SampleTableConstants.COL_SAMPLE_Y_STEP:
+				return String.valueOf(sample.getSample_y_step());
+			case SampleTableConstants.COL_SAMPLE_EXPOSURE:
+				return String.valueOf(sample.getSample_exposure());
+			case SampleTableConstants.COL_DETECTOR_X:
+				return String.valueOf(sample.getDetector_x());
+			case SampleTableConstants.COL_DETECTOR_Y:
+				return String.valueOf(sample.getDetector_y());
+			case SampleTableConstants.COL_DETECTOR_Z:
+				return String.valueOf(sample.getDetector_z());
 			case SampleTableConstants.COL_EMAIL:
 				return sample.getEmail();
-			case SampleTableConstants.COL_COMMAND:
-				return sample.getCommand();
-			case SampleTableConstants.COL_COMMENT:
-				return sample.getComment();
 			case SampleTableConstants.COL_START_DATE:
 				return DateFormat.getInstance().format(sample.getStartDate());
 			case SampleTableConstants.COL_END_DATE:
 				return DateFormat.getInstance().format(sample.getEndDate());
+			case SampleTableConstants.COL_COMMAND:
+				return sample.getCommand();
+			case SampleTableConstants.COL_COMMENT:
+				return sample.getComment();
 			case SampleTableConstants.COL_MAIL_COUNT:
 				return Integer.toString(sample.getMailCount());
 			case SampleTableConstants.COL_DATA_FILE_COUNT:
