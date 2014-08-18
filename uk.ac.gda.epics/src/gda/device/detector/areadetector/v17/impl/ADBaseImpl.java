@@ -49,6 +49,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
+import  gda.device.detector.areadetector.v17.NDPluginBase;
 
 public class ADBaseImpl implements InitializingBean, ADBase {
 
@@ -109,6 +111,8 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 
 	private PV<Integer> pvDetectorState_RBV;
 
+	private Map<Short, gda.device.detector.areadetector.v17.NDPluginBase.DataType> dataTypeRBV_Map;
+	
 	/**
 	*
 	*/
@@ -236,6 +240,68 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getDataType_RBV", ex);
 			throw ex;
 		}
+	}	
+	
+	/**
+	*
+	*/
+	@Override
+	public gda.device.detector.areadetector.v17.NDPluginBase.DataType getDataType_RBV2() throws Exception {
+		try {
+			Channel channel;
+			if (config != null) {
+				channel = createChannel(config.getDataType_RBV().getPv());
+			} else{
+				channel = getChannel(DataType_RBV);
+			}
+			short val=EPICS_CONTROLLER.cagetEnum(channel);
+			if( dataTypeRBV_Map == null){
+				dataTypeRBV_Map = createDataTypeMap(channel);
+			}
+			return dataTypeRBV_Map.get(val);
+		} catch (Exception ex) {
+			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getDataType_RBV", ex);
+			throw ex;
+		}
+	}
+
+	private Map<Short, gda.device.detector.areadetector.v17.NDPluginBase.DataType> createDataTypeMap(Channel channel) throws TimeoutException, CAException, InterruptedException,
+			Exception {
+		Map<Short, gda.device.detector.areadetector.v17.NDPluginBase.DataType> map = new HashMap<Short, gda.device.detector.areadetector.v17.NDPluginBase.DataType>();
+		String [] labels = EPICS_CONTROLLER.cagetLabels(channel);
+		for(int i=0; i< labels.length; i++){
+			String label = labels[i].toUpperCase();
+			short key = (short) i;
+			switch(label){
+			case "INT8":
+				map.put(key,NDPluginBase.DataType.INT8);
+				break;
+			case "INT16":
+				map.put(key,NDPluginBase.DataType.INT16);
+				break;
+			case "INT32":
+				map.put(key,NDPluginBase.DataType.INT32);
+				break;
+			case "UINT8":
+				map.put(key,NDPluginBase.DataType.UINT8);
+				break;
+			case "UINT16":
+				map.put(key,NDPluginBase.DataType.UINT16);
+				break;
+			case "UINT32":
+				map.put(key,NDPluginBase.DataType.UINT32);
+				break;
+			case "FLOAT32":
+				map.put(key,NDPluginBase.DataType.FLOAT32);
+				break;
+			case "FLOAT64":
+				map.put(key,NDPluginBase.DataType.FLOAT64);
+				break;
+			default:
+				throw new Exception("Inavalid data type label " + StringUtils.quote(label));
+			}
+		}
+		return map;
 	}
 
 	/**
@@ -1343,7 +1409,6 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		} finally {
 			// If the acquisition state is busy then wait for it to complete.
 			while (getAcquireState() == 1) {
-				logger.info("sleeping for 25");
 				Sleep.sleep(25);
 			}
 			setStatus(Detector.IDLE);

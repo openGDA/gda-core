@@ -18,6 +18,11 @@
 
 package uk.ac.gda.epics.adviewer;
 
-public interface ADPVSufficesProvider {
-	ADPVSuffixes getSuffices(String detectorName);
+public interface ADPVSuffixes {
+	String getADBaseSuffix();
+	String getArrayROISuffix();
+	String getArraySuffix();
+	String getStatSuffix();
+	String getMPGProcSuffix();
+	String getMPGSuffix();
 }

@@ -66,31 +66,25 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 	}
 
 	public List<uk.ac.diamond.scisoft.analysis.roi.RectangularROI> getScisoftRoiListFromSDAPlotter() throws Exception {
-		GuiBean guiBean;
-		try {
-			guiBean = SDAPlotter.getGuiBean(viewName);
-		} catch (Exception eOriginal) {
-			String[] guiNames;
-			try {
-				guiNames = SDAPlotter.getGuiNames();
-			} catch (Exception e1) {
-				throw new Exception("Problem communicating with SDAPlotter", e1);
-			}
+		// Check bean exists (SDAPlotter will create it if not!)
+		String[] guiNames = SDAPlotter.getGuiNames();
+		if ((!Arrays.asList(guiNames).contains(viewName))) {
 			throw new Exception(MessageFormat.format(
-					"Problem getting gui bean for view named ''{0}''. Available: {1}",
-					viewName, Arrays.toString(guiNames)), eOriginal);
-		}
-		if (guiBean == null) {
-			throw new Exception(MessageFormat.format(
-					"No gui bean for view named ''{0}''. Available: {1}",
+					"No gui bean for view named ''{0}'' available from SDAPlotter. Available: {1}",
 					viewName, Arrays.toString(SDAPlotter.getGuiNames())));
 		}
+		
+		GuiBean guiBean = SDAPlotter.getGuiBean(viewName);
 		Serializable serializable = guiBean.get(GuiParameters.ROIDATALIST);
+		
 		List<uk.ac.diamond.scisoft.analysis.roi.RectangularROI> scisoftRoiList;
 		if (serializable instanceof PerimeterBoxROIList) {
 			scisoftRoiList = new Vector<uk.ac.diamond.scisoft.analysis.roi.RectangularROI>((PerimeterBoxROIList) guiBean.get(GuiParameters.ROIDATALIST));
 		} else {
 			scisoftRoiList = (RectangularROIList) guiBean.get(GuiParameters.ROIDATALIST);
+		}
+		if (scisoftRoiList == null) {
+			scisoftRoiList = new Vector<uk.ac.diamond.scisoft.analysis.roi.RectangularROI>();
 		}
 		return scisoftRoiList;
 	}

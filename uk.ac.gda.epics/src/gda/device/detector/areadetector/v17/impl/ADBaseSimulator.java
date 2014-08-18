@@ -785,45 +785,36 @@ public class ADBaseSimulator implements ADBase {
 
 	@Override
 	public void setMinXWait(int minx, double timeout) throws Exception {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setMinYWait(int value, double timeout) throws Exception {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setSizeXWait(int sizex, double timeout) throws Exception {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setSizeYWait(int sizey, double timeout) throws Exception {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setNumExposures(int numexposures, double timeout) throws Exception {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setImageModeWait(gda.device.detector.areadetector.v17.ADBase.ImageMode imagemode, double timeout)
 			throws Exception {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void waitForDetectorStateIDLE(double timeoutS) throws InterruptedException, Exception, TimeoutException {
-		// TODO Auto-generated method stub
+	}
 
+	@Override
+	public gda.device.detector.areadetector.v17.NDPluginBase.DataType getDataType_RBV2() throws Exception {
+		return gda.device.detector.areadetector.v17.NDPluginBase.DataType.INT8;
 	}
 
 }

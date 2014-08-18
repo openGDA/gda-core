@@ -16,13 +16,14 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.epics.adviewer;
+package gda.device.detector.addetector.triggering;
 
-public interface ADPVSuffices {
-	String getADBaseSuffix();
-	String getArrayROISuffix();
-	String getArraySuffix();
-	String getStatSuffix();
-	String getMPGProcSuffix();
-	String getMPGSuffix();
+import gda.device.detector.addetector.triggering.HardwareTriggeredAndor.AndorTriggerMode;
+
+public class HardwareTriggeredAndorData {
+	public AndorTriggerMode triggerMode;
+
+	public HardwareTriggeredAndorData(AndorTriggerMode triggerMode) {
+		this.triggerMode = triggerMode;
+	}
 }

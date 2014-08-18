@@ -445,12 +445,25 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		dev.getIntegerPVValueCache("PULSE"+pulseId+"_PRE").putWait(timeunit);
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	@Override
 	public void setOutTTL(int outId, int outputSignal) throws Exception {
 		assert(SysSignalMin <= outputSignal && outputSignal <= SysSignalMax);
 		dev.getIntegerPVValueCache("OUT"+outId+"_TTL").putWait(outputSignal);
 	}
 	
+	@Override
+	public boolean getTtlOutputState(int output) throws IOException {
+		Preconditions.checkArgument(1 <= output && output <= 4);
+		final String pvSuffix = String.format("OUT%d_TTL:STA", output);
+		final PV<Integer> pv = dev.getPVInteger(pvSuffix);
+		final int value = pv.get();
+		return (value == 1);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	public void setValue(String beforeUnderscore, int beforeUnderscoreId, String afterUnderscore, int afterUnderscoreId,int val) throws Exception {
 		String pvSuffix = beforeUnderscore;
 		if (beforeUnderscoreId > 0) {
@@ -574,6 +587,28 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 
 	private static boolean isSoftInputSet(int softInputPvValue, int inputNumber) {
 		return ((softInputPvValue & (1<<(inputNumber-1))) > 0);
+	}
+
+	// TODO: Add this to the Interface & document what it does
+	//@Override
+	public boolean isSysStatSet(int sysStat) throws IOException {
+		String inPV;
+		if ( 0 <= sysStat && sysStat <= 15) { inPV = sysStat1Lo; } else
+		if (16 <= sysStat && sysStat <= 31) { inPV = sysStat1Hi; } else
+		if (32 <= sysStat && sysStat <= 47) { inPV = sysStat2Lo; } else
+		if (48 <= sysStat && sysStat <= 63) { inPV = sysStat2Hi; } else {
+			final String err = "Zebra '" + this.name + "': isSysStatSet(" + sysStat + ") invalid, should be between 0 and 63!";
+			logger.error(err);
+			throw new IllegalArgumentException(err);
+		}
+		final PV<Integer> pv = dev.getPVInteger(inPV);
+		final int sysStatPvValue = pv.get();
+		logger.info("Zebra '" + this.name + "': isSysStatSet(" + sysStat + ") " + inPV + " = " + sysStatPvValue);
+		return isSysStatSet(sysStatPvValue, sysStat);
+	}
+
+	private static boolean isSysStatSet(int sysStatPvValue, int inputNumber) {
+		return ((sysStatPvValue & (1<<inputNumber)) > 0);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

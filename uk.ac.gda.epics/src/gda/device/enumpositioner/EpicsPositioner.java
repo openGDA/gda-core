@@ -18,6 +18,8 @@
 
 package gda.device.enumpositioner;
 
+import java.util.LinkedHashMap;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -31,8 +33,10 @@ import gda.epics.xml.EpicsRecord;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.util.exceptionUtils;
+import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.Severity;
@@ -45,6 +49,8 @@ import gov.aps.jca.event.PutListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
+
 /**
  * This class maps to EPICS positioner template.
  * 
@@ -55,6 +61,24 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 	 * logger
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(EpicsPositioner.class);
+
+	public static final String COULD_NOT_ESTABLISH_VALUE_CHANNEL_NAMES_WARNING = "could not establish channel names of position values";
+	
+	private LinkedHashMap<String,Channel> positionValueChannels = new LinkedHashMap<String,Channel>(16);
+	
+	/**
+	 * flag to set in Spring
+	 */
+	private boolean allowPositionValueReads = false;
+	
+	public boolean getAllowPositionValueReads() {
+		return allowPositionValueReads;
+	}
+	
+	public void setAllowPositionValueReads(boolean allowPositionValueReads) {
+		this.allowPositionValueReads = allowPositionValueReads;
+	}
+	
 
 	private String epicsRecordName;
 
@@ -271,10 +295,27 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 				int target = positions.indexOf(position.toString());
 				try {
 					if (getStatus() == EnumPositionerStatus.MOVING) {
-						logger.warn("{} is busy", getName());
-						return;
+						if (acceptNewMoveToPositionWhileMoving) {
+							// stop synchronously
+							controller.caput(stop, 1, 0.0); // 0.0 means no timeout
+							// flag idle
+							synchronized (lock) {
+								positionerStatus = EnumPositionerStatus.IDLE;
+							}
+						}
+						else {
+							// reject new moveTo position
+							logger.warn("{} is busy", getName());
+							return;
+						}
 					}
-					positionerStatus = EnumPositionerStatus.MOVING;
+//					// ensure idle
+//					Preconditions.checkArgument(getStatus() == EnumPositionerStatus.IDLE);
+					// flag moving
+					synchronized (lock) {
+						positionerStatus = EnumPositionerStatus.MOVING;
+					}
+					// move
 					controller.caput(select, target, putCallbackListener);
 				} catch (Throwable th) {
 					positionerStatus = EnumPositionerStatus.ERROR;
@@ -287,6 +328,17 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 		throw new DeviceException("Position called: " + position.toString()+ " not found.");
 
 	}
+	
+	private boolean acceptNewMoveToPositionWhileMoving;
+	
+	public boolean getAcceptNewMoveToPositionWhileMoving() {
+		return this.acceptNewMoveToPositionWhileMoving;
+	}
+	
+	public void setAcceptNewMoveToPositionWhileMoving(boolean acceptNewMoveToPositionWhileMoving) {
+		this.acceptNewMoveToPositionWhileMoving = acceptNewMoveToPositionWhileMoving;
+	}
+	
 
 	@Override
 	public void stop() throws DeviceException {
@@ -308,14 +360,92 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 	}
 
 	@Override
-	public void initializationCompleted() throws DeviceException  {
+	public void initializationCompleted() throws DeviceException, InterruptedException  {
 		String[] position = getPositions();
 		for (int i = 0; i < position.length; i++) {
 			if (position[i] != null || position[i] != "") {
 				super.positions.add(position[i]);
 			}
 		}
+		
+		if (allowPositionValueReads) {
+			// establish position value channels
+			String basePV = recordName;
+			if (recordName == null && epicsRecordName != null) {
+				EpicsRecord epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName);
+				basePV = epicsRecord.getFullRecordName();
+			}
+			if (basePV != null) {
+				String positionValueChannelNamePrefix = basePV.substring(0, basePV.lastIndexOf(":")) + ":P:VAL";
+				CharSequence positionValueChannelNameSuffixes = "ABCDEFGHIJKLMNOP";
+				for (int i = 0; i < super.positions.size(); i++) {
+					char letter = positionValueChannelNameSuffixes.charAt(i);
+					String positionValueChannelName = positionValueChannelNamePrefix + letter;
+					try {
+						Channel positionValueChannel = channelManager.createChannel(positionValueChannelName, false);
+						Thread.sleep(100);
+						positionValueChannels.put(super.positions.get(i), positionValueChannel);
+					}
+					catch (CAException e) {
+						logger.error("could not create channel {}", positionValueChannelName);
+						
+						logger.info("destroying any position value channels that were created");
+						for (Channel positionValueChannel : positionValueChannels.values()) {
+							controller.destroy(positionValueChannel);
+						}
+						
+						throw new DeviceException(e);
+					}
+				}
+			}
+			else {
+				logger.warn(COULD_NOT_ESTABLISH_VALUE_CHANNEL_NAMES_WARNING);
+			}
+		}
+		
 		logger.info("EpicsPositioner " + getName() + " is initialised");
+	}
+	
+	/**
+	 * @return the physical motor value for the supplied position string.
+	 * @throws DeviceException 
+	 */
+	public Double getPositionValue(String position) throws DeviceException {
+		if (!allowPositionValueReads) {
+			throw new DeviceException("object not configured to allow reading of position values");
+		}
+		if (positionValueChannels.isEmpty()) {
+			throw new DeviceException(COULD_NOT_ESTABLISH_VALUE_CHANNEL_NAMES_WARNING);
+		}
+		try {
+			Channel positionValueChannel = positionValueChannels.get(position);
+			return controller.cagetDouble(positionValueChannel);
+		} catch (Exception e) {
+			throw new DeviceException("could not get value of position " + position, e);
+		}
+	}
+	
+	/**
+	 * @return positions mapped to values in position order
+	 */
+	public LinkedHashMap<String,Double> getPositionsMap() throws DeviceException {
+		LinkedHashMap<String,Double> positionsMap = new LinkedHashMap<String,Double>();
+		for (String position : positionValueChannels.keySet()) {
+			positionsMap.put(position, getPositionValue(position));
+		}
+		return positionsMap;
+	}
+	
+	/**
+	 * Reverse lookup - potentially flawed because several positions may have the same value.
+	 */
+	public String getPositionFromValue(double value) throws DeviceException {
+		for (java.util.Map.Entry<String, Double> entry : getPositionsMap().entrySet()) {
+			if (entry.getValue() == value) {
+				return entry.getKey();
+			}
+		}
+		return null;
 	}
 
 	/**
