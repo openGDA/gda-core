@@ -268,7 +268,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 		amVisible = false;
 		myPlotter.dispose();
 		super.dispose();
-		logger.info("dispose");
+		logger.debug("dispose");
 	}
 
 	@Override
@@ -285,7 +285,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 	public void partBroughtToTop(IWorkbenchPartReference partRef) {
 		if (partRef.getPartName().equals(this.getPartName())) {
 			amVisible = true;
-			logger.info("partBroughtToTop");
+			logger.debug("partBroughtToTop");
 		}
 	}
 
@@ -293,7 +293,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 	public void partClosed(IWorkbenchPartReference partRef) {
 		if (partRef.getPartName().equals(this.getPartName())) {
 			amVisible = false;
-			logger.info("partClosed");
+			logger.debug("partClosed");
 		}
 	}
 
@@ -306,7 +306,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 	public void partHidden(IWorkbenchPartReference partRef) {
 		if (partRef.getPartName().equals(this.getPartName())) {
 			amVisible = false;
-			logger.info("partHidden");
+			logger.debug("partHidden");
 		}
 	}
 
@@ -319,7 +319,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 	public void partOpened(IWorkbenchPartReference partRef) {
 		if (partRef.getPartName().equals(this.getPartName())) {
 			amVisible = true;
-			logger.info("partOpened");
+			logger.debug("partOpened");
 		}
 	}
 
@@ -327,7 +327,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 	public void partVisible(IWorkbenchPartReference partRef) {
 		if (partRef.getPartName().equals(this.getPartName())) {
 			amVisible = true;
-			logger.info("partVisible");
+			logger.debug("partVisible");
 		}
 	}
 
