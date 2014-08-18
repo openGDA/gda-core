@@ -152,6 +152,13 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 				if (node instanceof LineTraceProvider && dataTreeViewer.getChecked(node)) {
 					addTrace((LineTraceProvider) node);
 				}
+			}
+		});
+		
+		rootDataNode.addPropertyChangeListener(DataNode.SCAN_ADDED_PROP_NAME, new PropertyChangeListener() {
+			@Override
+			public void propertyChange(final PropertyChangeEvent evt) {
+				DataNode node = (DataNode) evt.getNewValue();
 				dataTreeViewer.reveal(node);
 			}
 		});

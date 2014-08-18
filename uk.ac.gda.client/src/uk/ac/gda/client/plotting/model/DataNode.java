@@ -26,6 +26,7 @@ public abstract class DataNode extends ObservableModel {
 
 	public static final String DATA_CHANGED_PROP_NAME = "changedData";
 	public static final String DATA_ADDED_PROP_NAME = "addedData";
+	public static final String SCAN_ADDED_PROP_NAME = "addedScan";
 
 	protected final DataNode parent;
 
