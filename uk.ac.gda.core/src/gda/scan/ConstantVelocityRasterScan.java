@@ -119,4 +119,9 @@ class RasterScanLine extends ConcurrentScan {
 		callCollectDataOnDetectors = false;
 	}
 	
+	@Override
+	public boolean isReadoutConcurrent() {
+		return false;  // should be false even if enabled for beamline
+	}
+	
 }

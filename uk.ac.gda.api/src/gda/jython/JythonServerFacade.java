@@ -511,7 +511,11 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				boolean panelUpdated = false;
 				IScanDataPoint point = (IScanDataPoint) data;
 				lastScanDataPoint = point;
-				for (IScanDataPointObserver observer : allSDPObservers) {
+				// Create clone so that the observers can deregister themselves inside their update() method if they
+				// want to without causing an ConcurrentModificationException
+				IScanDataPointObserver[] allSDPObserversArray = new IScanDataPointObserver[allSDPObservers.size()];
+				allSDPObservers.copyInto(allSDPObserversArray);
+				for (IScanDataPointObserver observer : allSDPObserversArray) {
 					try {
 						observer.update(this, point);
 						panelUpdated = true;
@@ -524,12 +528,14 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 				// if source of scan command named, then send the SDP to the named panel
 				String panelName = point.getCreatorPanelName();
 				if (panelName != null) {
-					for (INamedScanDataPointObserver observer : namedSDPObservers) {
+					INamedScanDataPointObserver[] namedObserversArray = new INamedScanDataPointObserver[namedSDPObservers.size()];
+					namedSDPObservers.copyInto(namedObserversArray);
+					for (INamedScanDataPointObserver observer : namedObserversArray) {
 						String name = observer.getName();
 						if (name.contains(panelName)) {
 							try {
-								if(!allSDPObservers.contains(observer)){
-									//not done in loop above - we do not want to update the observer twice
+								if (!allSDPObservers.contains(observer)) {
+									// not done in loop above - we do not want to update the observer twice
 									observer.update(this, data);
 								}
 								panelUpdated = true;
@@ -645,14 +651,15 @@ public class JythonServerFacade implements IObserver, JSFObserver, IScanStatusHo
 
 	@Override
 	public void deleteIObserver(IObserver anIObserver) {
-		myIObservers.deleteIObserver(anIObserver);
-		
-		if (anIObserver instanceof IScanDataPointObserver) {
-			allSDPObservers.removeElement(anIObserver);
-		} else if (anIObserver instanceof INamedScanDataPointObserver) {
-			namedSDPObservers.removeElement(anIObserver);
+		synchronized (this) {
+			myIObservers.deleteIObserver(anIObserver);
+			
+			if (anIObserver instanceof IScanDataPointObserver) {
+				allSDPObservers.removeElement(anIObserver);
+			} else if (anIObserver instanceof INamedScanDataPointObserver) {
+				namedSDPObservers.removeElement(anIObserver);
+			}
 		}
-
 	}
 
 	@Override
