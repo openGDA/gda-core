@@ -18,6 +18,8 @@
 
 package org.opengda.lde.ui.viewfactories;
 
+import java.util.List;
+
 import javax.jms.IllegalStateException;
 
 import gda.rcp.views.FindableExecutableExtension;
@@ -40,6 +42,9 @@ public class SampleGroupViewFactory implements FindableExecutableExtension {
 	private LDEResourceUtil resUtil;
 	private String dataDriver;
 	private String dataFolder;
+	private String beamlineID;
+	private List<String> cellIDs;
+	private List<String> calibrantNames;
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -71,6 +76,11 @@ public class SampleGroupViewFactory implements FindableExecutableExtension {
 		if (getDataFolder() != null) {
 			sampleGroupView.setDataFolder(getDataFolder());
 		}
+		if (getBeamlineID() != null) {
+			sampleGroupView.setBeamlineID(beamlineID);;
+		}
+		sampleGroupView.setCellIDs(cellIDs.toArray(new String[] {}));
+		sampleGroupView.setCalibrants(calibrantNames.toArray(new String[] {}));
 		return sampleGroupView;
 	}
 
@@ -108,6 +118,30 @@ public class SampleGroupViewFactory implements FindableExecutableExtension {
 
 	public void setDataFolder(String dataFolder) {
 		this.dataFolder = dataFolder;
+	}
+
+	public String getBeamlineID() {
+		return beamlineID;
+	}
+
+	public void setBeamlineID(String beamlineID) {
+		this.beamlineID = beamlineID;
+	}
+
+	public List<String> getCellIDs() {
+		return cellIDs;
+	}
+
+	public void setCellIDs(List<String> cellIDs) {
+		this.cellIDs = cellIDs;
+	}
+
+	public List<String> getCalibrantNames() {
+		return calibrantNames;
+	}
+
+	public void setCalibrantNames(List<String> calibrantNames) {
+		this.calibrantNames = calibrantNames;
 	}
 
 
