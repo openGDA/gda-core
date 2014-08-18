@@ -49,6 +49,5 @@ Export-Package: org.opengda.lde.ui,
  org.opengda.lde.ui.jobs,
  org.opengda.lde.ui.providers,
  org.opengda.lde.ui.utils,
- org.opengda.lde.ui.viewextensionfactories,
  org.opengda.lde.ui.viewfactories,
  org.opengda.lde.ui.views
