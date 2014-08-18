@@ -118,4 +118,9 @@ public class ExafsPreferenceConstants {
 	
 	public static final String HIDE_DEFAULT_GAS_MIXTURES_BUTTON = "exafs.hideDefaultGasMixturesButton.preference";
 	
+	/**
+	 * When true, QEXAFS scans are the default scan type and new scans are always qexafs when first created
+	 */
+	public static final String QEXAFS_IS_DEFAULT_SCAN_TYPE = "exafs.editor.qexafsdefaultscan.preference";
+	
 }

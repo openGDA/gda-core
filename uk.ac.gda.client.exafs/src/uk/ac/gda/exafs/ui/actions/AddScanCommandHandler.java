@@ -28,6 +28,10 @@ import org.eclipse.ui.PlatformUI;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.AbstractExperimentCommandHandler;
 import uk.ac.gda.exafs.ui.detectorviews.wizards.AddScanWizard;
 
+/**
+ * I do not think this class is used.
+ */
+@Deprecated
 public class AddScanCommandHandler extends AbstractExperimentCommandHandler {
 
 	@Override
