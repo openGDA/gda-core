@@ -209,11 +209,8 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	}
 
 	protected double angleToEV(Angle angle) throws TimeoutException, CAException, InterruptedException {
-		long timeAtMethodStart = System.currentTimeMillis();
 		double amount = QuantityFactory.createFromObject(PhotonEnergy.photonEnergyOf(angle, getTwoD()),
 				NonSI.ELECTRON_VOLT).getAmount();
-		long timeAtMethodEnd = System.currentTimeMillis();
-		logger.debug("Time spent in angleToEV = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
 		return amount;
 	}
 

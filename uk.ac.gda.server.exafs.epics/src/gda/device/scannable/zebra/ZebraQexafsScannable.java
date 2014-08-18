@@ -191,7 +191,10 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			// We must wait here if we have made a change so that any subsequent reads e.g. in getNumberOfDataPoints()
 			// are consistent with the parameters in this method
 			if (changeHasBeenMade) {
-				controller.caputWait(pulseStepChnl, stepDeg);
+				logger.debug("Have changed zebra settings, so sleeping for 1 second to ensure they have been set");
+				// yuck, but even if we go a caputwait to ensure that the Zebra record has finished processing, 
+				// the readback values used in the getNumberOfDataPoints() come out incorrect.
+				Thread.sleep(1000);
 			}
 
 			logger.debug("Time after final zebra set");
@@ -237,11 +240,12 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			
 			if (readbackNumberOfCounts.equals(readbackNumberOfCounts_floored)) {
 				int expectedCounts = (int) Math.round(readbackNumberOfCounts_floored) -1;
-				logger.debug("Expecting from Zebra " + expectedCounts + " points.");
+				logger.debug("Expecting " + expectedCounts + " points from Zebra.");
 				return expectedCounts;
 			}
 			int expectedCounts = (int) Math.round(readbackNumberOfCounts_floored);
 			logger.debug("Expecting from Zebra " + expectedCounts + " points.");
+			
 			return expectedCounts;
 		} catch (Exception e) {
 			logger.error(
