@@ -35,7 +35,7 @@ def createPlot(filename, datapath, qpath, output, interactive):
 	outputPath = output[0:output.rfind(os.path.sep)]
 	if not os.path.exists(outputPath):
 		os.makedirs(outputPath)
-	thumbnailOutput = output[0:output.rfind(".")]+"t"+output[output.rfind(".")]
+	thumbnailOutput = output[0:output.rfind(".")]+"t"+output[output.rfind(".")]+"png"
 	fig.savefig(output)
 	fig.set_figheight(1.79)
 	fig.set_figwidth(1.79)
