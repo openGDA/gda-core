@@ -22,8 +22,12 @@ def createPlot(filename, datapath, qpath, output, interactive):
 	y=np.arange(0,len(reducedDataArray[0]))
 	x,y = np.meshgrid(x,y)
 	z=np.log(reducedDataArray[0])
-	surf=ax.plot_surface(x,y,z,cmap=cm.coolwarm,linewidth=0,antialiased=True)
+	surf=ax.plot_surface(x,y,z,cmap=cm.coolwarm,linewidth=0,antialiased=True,label='logI blahblah')
+	ax.legend()
 	fig.colorbar(surf, shrink=0.5, aspect=5)
+	plt.title("Plot of logI vs. q vs. image number")
+	plt.xlabel("q (1/A)")
+	plt.ylabel("image number")
 	if interactive:
 		plt.show()
 		
@@ -72,4 +76,4 @@ if __name__ == '__main__':
 	else:
 		interactive = False
 
-	createPlot(filename, datapath, qpath, output, interactive=False)
+	createPlot(filename, datapath, qpath, output, interactive)

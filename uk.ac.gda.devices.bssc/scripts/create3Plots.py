@@ -30,9 +30,10 @@ def create3Plots(reducedfile, output):
 	filenamesToReturn = []
 	for i in (0, numberOfDatasets/2, numberOfDatasets-1):
 		fig = plt.figure(figsize=(6, 5))
+		plt.title("Plot for curve " + str(i+1) + " logI vs. q")
 		ax = fig.add_subplot(1,1,1)
 		ax.semilogy()
-		ax.errorbar(qArray, reducedDataArray[0][i], yerr=errorDataArray[0][i], label="Plot for " + str(i+1) + "th I vs. q")
+		ax.errorbar(qArray, reducedDataArray[0][i], yerr=errorDataArray[0][i], )
 		ax.set_xlabel(u"q (1/A)")
 		ax.set_ylabel('log I')
 		filename = os.path.join(output+ str(i)+ "plot.png")
