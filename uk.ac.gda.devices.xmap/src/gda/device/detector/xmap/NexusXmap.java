@@ -237,7 +237,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		super.loadConfigurationFromFile();
 		// Define all the extra names
 		final List<String> names = new ArrayList<String>(31);
-		for (int element = 0; element < vortexParameters.getDetectorList().size(); element++) {
+		for (int element = 0; element < 1; element++) {
 			DetectorElement thisElement = vortexParameters.getDetectorList().get(element);
 			if (thisElement.isExcluded())
 				continue;

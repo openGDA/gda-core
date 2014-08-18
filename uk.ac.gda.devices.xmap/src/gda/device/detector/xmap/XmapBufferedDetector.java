@@ -63,6 +63,12 @@ import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.util.CorrectionUtils;
 
+/**
+ * For using Xia XMap within the ContinuousScan-style trajectory scans.
+ * 
+ * @author rjw82
+ *
+ */
 public class XmapBufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector {
 	private static final long serialVersionUID = -361735061750343662L;
 	private NexusXmap xmap;
