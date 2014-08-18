@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.liveplot.IPlotLineColorService;
@@ -146,7 +146,7 @@ public class ScanDataNode extends DataNode {
 			if (cachedData.isEmpty()) {
 				loadCachedDataFromFile();
 			}
-			DoubleDataset dataset = (DoubleDataset) AbstractDataset.createFromList(cachedData);
+			DoubleDataset dataset = (DoubleDataset) DatasetFactory.createFromList(cachedData);
 			dataset.setName(xAxisName);
 			return dataset;
 		}

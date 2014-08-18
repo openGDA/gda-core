@@ -35,7 +35,7 @@ import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PySystemState;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import Jama.Matrix;
 
@@ -1141,7 +1141,7 @@ public class DataSetTest {
 		}
 	}
 
-	private void testExpandedDataset(AbstractDataset ta, int ipos, int index) {
+	private void testExpandedDataset(Dataset ta, int ipos, int index) {
 		IndexIterator iter = ta.getIterator(true);
 		double[] data = (double[]) ta.getBuffer();
 		int[] pos = iter.getPos();
@@ -1243,7 +1243,7 @@ public class DataSetTest {
 		return output;
 	}
 
-	private void testSlicedExpandedDataset(AbstractDataset t, int[] oshape, int ipos, int index, int start, int startaxis, int step, int stepaxis) {
+	private void testSlicedExpandedDataset(Dataset t, int[] oshape, int ipos, int index, int start, int startaxis, int step, int stepaxis) {
 		int rank = t.getRank();
 		int[] steps = new int[rank];
 		int[] starts = new int[rank];

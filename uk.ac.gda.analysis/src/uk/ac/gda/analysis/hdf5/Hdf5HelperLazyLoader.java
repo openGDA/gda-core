@@ -20,7 +20,7 @@ package uk.ac.gda.analysis.hdf5;
 
 import java.util.Arrays;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
@@ -70,7 +70,7 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 		}
 	}
 	@Override
-	public AbstractDataset getDataset(IMonitor mon, int[] shape, int[] start, int[] stop, int[] step)
+	public Dataset getDataset(IMonitor mon, int[] shape, int[] start, int[] stop, int[] step)
 			throws ScanFileHolderException {
 		try {
 			checkConfigured();

@@ -23,7 +23,7 @@ import gda.device.detector.GDANexusDetectorData;
 import java.util.Collection;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 
 /**
  * DataSetProcessor that sends data to client for plotting
@@ -33,7 +33,7 @@ public class DataSetPlotter extends DataSetProcessorBase {
 	private String plotName="Plot 1";
 
 	@Override
-	public GDANexusDetectorData process(String detName, String dataName, AbstractDataset dataset) throws Exception {
+	public GDANexusDetectorData process(String detName, String dataName, Dataset dataset) throws Exception {
 		if (enable) {
 			SDAPlotter.imagePlot(plotName, dataset);
 		}

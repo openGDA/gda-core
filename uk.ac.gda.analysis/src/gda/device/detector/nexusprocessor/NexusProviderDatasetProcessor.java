@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Nexus;
 
 /**
@@ -51,7 +51,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 
 
 	@SuppressWarnings("unused")
-	protected AbstractDataset getAbstractDatasetFromNexusGroupData(NexusGroupData ngd)  throws Exception {
+	protected Dataset getDatasetFromNexusGroupData(NexusGroupData ngd)  throws Exception {
 		return Nexus.createDataset(ngd, true);
 	}
 	
@@ -65,7 +65,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 			throw new Exception("No data found for detName:" + detName + " dataName:" + dataName + "+ className:"
 					+ className);
 		}
-		AbstractDataset dataset = getAbstractDatasetFromNexusGroupData(ngd);
+		Dataset dataset = getDatasetFromNexusGroupData(ngd);
 		if( datasetCreator != null)
 			dataset = datasetCreator.createDataSet(dataset);
 		

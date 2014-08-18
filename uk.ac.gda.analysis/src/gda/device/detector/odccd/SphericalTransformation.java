@@ -29,7 +29,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
@@ -405,7 +405,7 @@ public class SphericalTransformation {
 			pilDataHolder = pilLoad.loadFile();
 			List<ILazyDataset> pilData = pilDataHolder.getList();
 
-			AbstractDataset myData = DatasetUtils.convertToAbstractDataset(pilData.get(0));
+			Dataset myData = DatasetUtils.convertToDataset(pilData.get(0));
 
 			int PILATUS_SIZE_X = myData.getShape()[1]; // was 195;
 			int PILATUS_SIZE_Y = myData.getShape()[0]; // was 487;

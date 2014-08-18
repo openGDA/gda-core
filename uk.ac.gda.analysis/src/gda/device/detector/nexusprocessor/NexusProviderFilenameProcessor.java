@@ -26,7 +26,7 @@ import java.util.List;
 
 import org.nexusformat.NexusFile;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
@@ -63,7 +63,7 @@ public class NexusProviderFilenameProcessor extends NexusProviderDatasetProcesso
 	}
 
 	@Override
-	protected AbstractDataset getAbstractDatasetFromNexusGroupData(NexusGroupData ngd) throws Exception {
+	protected Dataset getDatasetFromNexusGroupData(NexusGroupData ngd) throws Exception {
 		if (!isEnabled())
 			return null;
 		if( ngd.type == NexusFile.NX_CHAR){ 
@@ -86,7 +86,7 @@ public class NexusProviderFilenameProcessor extends NexusProviderDatasetProcesso
 						}
 					}
 				}
-				return DatasetUtils.convertToAbstractDataset(data.getDataset(dataset_index));
+				return DatasetUtils.convertToDataset(data.getDataset(dataset_index));
 			}
 		}
 		return null;

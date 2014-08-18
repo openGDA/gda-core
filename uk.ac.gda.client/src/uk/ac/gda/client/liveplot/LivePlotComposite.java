@@ -93,7 +93,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotAppearanceDialog;
 import uk.ac.gda.common.rcp.util.GridUtils;
@@ -406,7 +406,7 @@ public class LivePlotComposite extends Composite {
 						 */
 						int linenum = plotter.addData(scanIdentifier, dataFileName, stepIds, new DoubleDataset(1),
 							new DoubleDataset(1), xAxisHeader, yAxisHeader, false, false, axisSpec);
-						//plotView.getXYData(linenum).archiveFilename = scan.archiveFilename;//we need to set to archiveFilename in scan as currently equal to null
+						plotView.getXYData(linenum).setArchiveFilename(scan.getArchiveFilename());//we need to set to archiveFilename in scan as currently equal to null
 						plotView.getXYData(linenum).setArchive(null);
 					}
 
@@ -799,7 +799,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 					if (sd.isVisible()) {
 						
 						xys.add( new LineData(archive.getAppearance(), archive.getxAxis().toDataset(),archive.getyVals(), sd.getyAxisSpec() ));
-						AbstractDataset y = archive.getyVals();
+						Dataset y = archive.getyVals();
 						if (y.getName()==null || "".equals(y.getName())) {
 							y.setName(sd.getName());
 						}
@@ -877,7 +877,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				}
 
 				for (final LineData ld : xys) {
-					AbstractDataset y = ld.getY();
+					Dataset y = ld.getY();
 					String name = y.getName();
 					if (name==null || "".equals(name)) {
 						logger.error("y dataset is not named - it should be!");
@@ -1047,6 +1047,10 @@ class LiveData {
 
 	public String getDataFileName() {
 		return dataFileName;
+	}
+
+	public void setArchiveFilename(String archiveFilename) {
+		this.archiveFilename = archiveFilename;
 	}
 
 	public void deleteArchive(String archiveFolder) {
