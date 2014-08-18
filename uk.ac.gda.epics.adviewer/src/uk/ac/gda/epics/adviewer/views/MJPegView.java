@@ -43,7 +43,7 @@ import uk.ac.gda.epics.adviewer.Ids;
 import uk.ac.gda.epics.adviewer.composites.MJPeg;
 
 public class MJPegView extends ViewPart {
-	public static final String Id = "uk.ac.gda.epics.adviewer.mpegview";
+	public static final String Id = "uk.ac.gda.epics.adviewer.mpegview"; // Todo: This really should be switched to mjpegview, mpeg and mjpeg are different and we may want to implement mpeg streams in the future.
 	private static final Logger logger = LoggerFactory.getLogger(MJPegView.class);
 	private MJPeg mJPeg;
 	private ADController adController;
@@ -73,13 +73,16 @@ public class MJPegView extends ViewPart {
 					serviceName = getViewSite().getSecondaryId();
 				if (StringUtils.isEmpty(serviceName))
 					throw new RuntimeException("No secondary id given");
+				logger.info("MJPegView.createPartControl() serviceName=" + serviceName);
 				try {
 					adController = ADControllerFactory.getInstance().getADController(serviceName);
 				} catch (Exception e) {
 					logger.error("Error getting ADController", e);
 					throw new RuntimeException("Error getting ADController see log for details");
 				}
-				name = adController.getDetectorName() + " MPeg";
+				name = adController.getDetectorName() + " MJPeg";
+			} else {
+				logger.info("MJPegView.createPartControl() adController.getServiceName=" + adController.getServiceName());
 			}
 
 			parent.setLayout(new FillLayout());

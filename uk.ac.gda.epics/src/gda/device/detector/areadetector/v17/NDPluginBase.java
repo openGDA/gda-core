@@ -226,7 +226,7 @@ public interface NDPluginBase extends ADCommon {
 	public static final short Float32=6;
 	public static final short Float64=7;
 	//must be in the order above
-	enum DataType{ INT8, UINT8, INT16, UINT16, INT32, UINT32, FLOAT32, FLOAT64 }
+	public enum DataType{ INT8, UINT8, INT16, UINT16, INT32, UINT32, FLOAT32, FLOAT64 }
 	/**
 	 * BL16I-EA-PILAT-01:image1:DataType_RBV
      * Data type:      DBR_CTRL_ENUM (native: DBF_ENUM)

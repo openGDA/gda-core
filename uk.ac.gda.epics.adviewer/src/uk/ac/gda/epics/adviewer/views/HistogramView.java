@@ -69,6 +69,7 @@ public class HistogramView extends ViewPart {
 					serviceName = getViewSite().getSecondaryId();
 				if (StringUtils.isEmpty(serviceName))
 					throw new RuntimeException("No secondary id given");
+				logger.info("HistogramView.createPartControl() serviceName=" + serviceName);
 				try {
 					adController = ADControllerFactory.getInstance().getADController(serviceName);
 				} catch (Exception e) {
@@ -76,7 +77,8 @@ public class HistogramView extends ViewPart {
 					throw new RuntimeException("Error getting ADController see log for details");
 				}
 				name = adController.getDetectorName() + " Stats";
-
+			} else {
+				logger.info("HistogramView.createPartControl() adController.getServiceName=" + adController.getServiceName());
 			}
 			parent.setLayout(new FillLayout());
 
@@ -113,8 +115,8 @@ public class HistogramView extends ViewPart {
 	protected void createShowViewAction() {
 		List<IAction> actions = new Vector<IAction>();
 		{
-			actions.add(ADActionUtils.addShowViewAction("Show MPeg", MJPegView.Id, adController.getServiceName(),
-					"Show MPeg view for selected camera", Activator.getMJPegViewImage()));
+			actions.add(ADActionUtils.addShowViewAction("Show MJPeg", MJPegView.Id, adController.getServiceName(),
+					"Show MJPeg view for selected camera", Activator.getMJPegViewImage()));
 			actions.add(ADActionUtils.addShowViewAction("Show Array", TwoDArrayView.Id, adController.getServiceName(),
 					"Show array view for selected camera",Activator.getTwoDArrayViewImage()));
 		}

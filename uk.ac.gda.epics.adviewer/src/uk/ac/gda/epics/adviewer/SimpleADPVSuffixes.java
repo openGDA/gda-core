@@ -18,14 +18,14 @@
 
 package uk.ac.gda.epics.adviewer;
 
-public class SimpleADPVSuffices implements ADPVSuffices {
+public class SimpleADPVSuffixes implements ADPVSuffixes {
 
-	private String mpgProcSuffix;
-	private String mpgSuffix;
-	private String statSuffix;
-	private String arraySuffix;
-	private String adBaseSuffix;
-	private String arrayROISuffix;
+	private String mpgProcSuffix=DLSADPVSuffixes.MPG_PROC_PLUGIN_SUFFIX;
+	private String mpgSuffix=DLSADPVSuffixes.MPG_PLUGIN_SUFFIX;
+	private String statSuffix=DLSADPVSuffixes.STAT_PLUGIN_SUFFIX;
+	private String arraySuffix=DLSADPVSuffixes.ARRAY_PLUGIN_SUFFIX;
+	private String adBaseSuffix=DLSADPVSuffixes.ADBASE_SUFFIX;
+	private String arrayROISuffix=DLSADPVSuffixes.ROI_PLUGIN_SUFFIX;
 
 	@Override
 	public String getADBaseSuffix() {
