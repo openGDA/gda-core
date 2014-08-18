@@ -31,8 +31,11 @@ import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.scan.EpicsTrajectoryScanController;
+import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
+import gov.aps.jca.Monitor;
 import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.dbr.DBR_Float;
@@ -207,6 +210,9 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 	private Vector<String> statusUpdateRates = new Vector<String>();
 
 	private Vector<String> readUpdateRates = new Vector<String>();
+	private boolean pollElapsedRealTime=false;
+
+	private Monitor realtimemonitor;
 
 	/**
 	 * 
@@ -749,7 +755,33 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 		} catch (DeviceException e) {
 			logger.error("failed to initialise available Read Update Rates.");
 		}
+		if (isPollElapsedRealTime()) {
+			enablePollRealTime();
+		} else {
+			disablePollRealTime();
+		}
+
 		logger.info("{} is initialised.", getName());
+	}
+	
+	public void disablePollRealTime() {
+		if (trealChannel != null && rtimelistener != null) {
+			try {
+				realtimemonitor = trealChannel.addMonitor(DBRType.CTRL_DOUBLE, 0, Monitor.VALUE, rtimelistener);
+				setPollElapsedRealTime(false);
+			} catch (IllegalStateException e) {
+				logger.error("Fail to add monitor to channel " + trealChannel.getName(), e);
+			} catch (CAException e) {
+				logger.error("Fail to add monitor to channel " + trealChannel.getName(), e);
+			}
+		}
+	}
+
+	public void enablePollRealTime() {
+		if (realtimemonitor != null && rtimelistener != null) {
+			realtimemonitor.removeMonitorListener(rtimelistener);
+			setPollElapsedRealTime(true);
+		}
 	}
 
 	/**
@@ -800,7 +832,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 				logger.error("expecting ENUM but got {} type.", dbr.getType());
 			}
 			notifyIObservers(AcquisitionProperty.STATUS, getStatus());
-			logger.debug("acquisition status updated to {}", getStatus().value());
+			logger.debug("{}: acquisition status updated to {}", getName(), getStatus().value());
 		}
 	}
 
@@ -820,12 +852,12 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 				logger.error("Expecting double or float but got {} type. ", dbr.getType());
 			}
 			notifyIObservers(AcquisitionProperty.ELAPSEDTIME, elapsedRealTimeValue);
-			logger.debug("Elapsed time updated to {}", elapsedRealTimeValue);
+			logger.debug("{}: Elapsed time updated to {}", getName(), elapsedRealTimeValue);
 		}
 	}
 
 	/**
-	 * monitor value array
+	 * monitor value array - ????could this be removed as no observer is add to handle this event after sending to EpicsDlsMcsSis3820?????
 	 */
 	public class DataMonitor implements MonitorListener {
 
@@ -892,6 +924,14 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 	 */
 	public void setNumberOfMca(int numberOfMca) {
 		this.numberOfMca = numberOfMca;
+	}
+
+	public boolean isPollElapsedRealTime() {
+		return pollElapsedRealTime;
+	}
+
+	public void setPollElapsedRealTime(boolean pollElapsedRealTime) {
+		this.pollElapsedRealTime = pollElapsedRealTime;
 	}
 
 }

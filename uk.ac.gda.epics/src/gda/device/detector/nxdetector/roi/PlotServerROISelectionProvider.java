@@ -37,7 +37,7 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 	
 	private int maximumActiveRois;
 	private String viewName;
-	private static final String ROIViewNameSuffix = " Array View";
+	private static final String ROIViewNameSuffix = " Array";
 
 	public static String getGuiName(String detectorName){
 		return detectorName + ROIViewNameSuffix;

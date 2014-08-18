@@ -84,6 +84,12 @@ public class EpicsETLController extends DeviceBase implements Configurable, Find
 
 	private EpicsController controller;
 
+	private String pvRoot;
+
+	public String getPvRoot() {
+		return pvRoot;
+	}
+
 	/**
 	 * The Constructor.
 	 */
@@ -117,6 +123,9 @@ public class EpicsETLController extends DeviceBase implements Configurable, Find
 					logger.error("Can NOT find EPICS configuration for device: " + getDeviceName(), e);
 				}
 
+			} else if (getPvRoot() != null) {
+					createChannelAccess(getPvRoot());
+					channelManager.tryInitialize(100);
 			}
 			// Nothing specified in Server XML file
 			else {
@@ -309,6 +318,11 @@ public class EpicsETLController extends DeviceBase implements Configurable, Find
 	public void setName(String name) {
 		this.name = name;
 
+	}
+
+	public void setPvRoot(String pv) {
+		this.pvRoot=pv;
+		
 	}
 
 }
