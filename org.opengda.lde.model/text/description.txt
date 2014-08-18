@@ -41,7 +41,6 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute startDate : EDate
     Attribute endDate : EDate
     Attribute command : EString
-    Attribute driveID : EString
     Attribute mailCount : EInt
     Attribute dataFileCount : EInt
     Attribute comment : EString

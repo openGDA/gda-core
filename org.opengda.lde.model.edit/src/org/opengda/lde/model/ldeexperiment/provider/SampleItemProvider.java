@@ -80,7 +80,6 @@ public class SampleItemProvider
 			addStartDatePropertyDescriptor(object);
 			addEndDatePropertyDescriptor(object);
 			addCommandPropertyDescriptor(object);
-			addDriveIDPropertyDescriptor(object);
 			addMailCountPropertyDescriptor(object);
 			addDataFileCountPropertyDescriptor(object);
 			addCommentPropertyDescriptor(object);
@@ -618,28 +617,6 @@ public class SampleItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Drive ID feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addDriveIDPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Sample_driveID_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Sample_driveID_feature", "_UI_Sample_type"),
-				 LDEExperimentsPackage.Literals.SAMPLE__DRIVE_ID,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
 	 * This adds a property descriptor for the Mail Count feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -789,7 +766,6 @@ public class SampleItemProvider
 			case LDEExperimentsPackage.SAMPLE__START_DATE:
 			case LDEExperimentsPackage.SAMPLE__END_DATE:
 			case LDEExperimentsPackage.SAMPLE__COMMAND:
-			case LDEExperimentsPackage.SAMPLE__DRIVE_ID:
 			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
 			case LDEExperimentsPackage.SAMPLE__COMMENT:

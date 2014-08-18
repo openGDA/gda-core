@@ -58,8 +58,6 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="endDate" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDate"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="command" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="parkingAll"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="driveID" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        defaultValueLiteral="i11-1"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="mailCount" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         defaultValueLiteral="0"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="dataFileCount" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"

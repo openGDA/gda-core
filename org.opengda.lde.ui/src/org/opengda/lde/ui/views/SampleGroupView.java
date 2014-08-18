@@ -147,7 +147,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			SampleTableConstants.SAMPLE_X_STEP, SampleTableConstants.SAMPLE_Y_START, SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, 
 			SampleTableConstants.SAMPLE_EXPOSURE, SampleTableConstants.DETECTOR_X, SampleTableConstants.DETECTOR_Y, SampleTableConstants.DETECTOR_Z, 
 			SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, SampleTableConstants.COMMAND, 
-//			SampleTableConstants.DRIVE_ID, 
 			SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT,SampleTableConstants.COMMENT };
 
 	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 55, false), new ColumnWeightData(10, 55, false),new ColumnWeightData(80, 110, true), 
@@ -156,7 +155,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true),
 			new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true),
 			new ColumnWeightData(40, 200, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(40, 400, true),
-//			new ColumnWeightData(40, 60, true), 
 			new ColumnWeightData(10, 90, false), new ColumnWeightData(10, 90, false),new ColumnWeightData(50, 300, true) };
 	
 	private TableViewer viewer;
@@ -819,8 +817,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				return new CDateTimeCellEditor(table);
 			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
-//			} else if (SampleTableConstants.DRIVE_ID.equals(columnIdentifier)) {
-//				return new TextCellEditor(table);
 			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
 			}
@@ -873,8 +869,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				return true;
 			} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
 				return true;
-//			} else if (SampleTableConstants.DRIVE_ID.equals(columnIdentifier)) {
-//				return true;
 			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
 				return true;
 			} 
@@ -929,8 +923,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 					return sample.getEndDate();
 				} else if (SampleTableConstants.COMMAND.equals(columnIdentifier)) {
 					return sample.getCommand();
-//				} else if (SampleTableConstants.DRIVE_ID.equals(columnIdentifier)) {
-//					return sample.getDriveID();
 				} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
 					return sample.getComment();
 				} 
@@ -1104,16 +1096,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 						logger.error("Exception on setting "+SampleTableConstants.COMMAND+" field for sample "+((Sample)element).getName(), e);
 					}
 				}
-//			} else if (SampleTableConstants.DRIVE_ID.equals(columnIdentifier)) {
-//					if (value instanceof String) {
-//						try {
-//							if (isValidCommand((String)value)) {
-//								runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_DriveID(), value));
-//							}
-//						} catch (Exception e) {
-//							logger.error("Exception on setting "+SampleTableConstants.DRIVE_ID+" field for sample "+((Sample)element).getName(), e);
-//						}
-//					}
 			} else if (SampleTableConstants.COMMENT.equals(columnIdentifier)) {
 				if (value instanceof String) {
 					try {

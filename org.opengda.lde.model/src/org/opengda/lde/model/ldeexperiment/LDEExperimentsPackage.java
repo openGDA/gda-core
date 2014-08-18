@@ -386,22 +386,13 @@ public interface LDEExperimentsPackage extends EPackage {
 	int SAMPLE__COMMAND = 23;
 
 	/**
-	 * The feature id for the '<em><b>Drive ID</b></em>' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int SAMPLE__DRIVE_ID = 24;
-
-	/**
 	 * The feature id for the '<em><b>Mail Count</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__MAIL_COUNT = 25;
+	int SAMPLE__MAIL_COUNT = 24;
 
 	/**
 	 * The feature id for the '<em><b>Data File Count</b></em>' attribute.
@@ -410,7 +401,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__DATA_FILE_COUNT = 26;
+	int SAMPLE__DATA_FILE_COUNT = 25;
 
 	/**
 	 * The feature id for the '<em><b>Comment</b></em>' attribute.
@@ -419,7 +410,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__COMMENT = 27;
+	int SAMPLE__COMMENT = 26;
 
 	/**
 	 * The feature id for the '<em><b>Data File Path</b></em>' attribute.
@@ -428,7 +419,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE__DATA_FILE_PATH = 28;
+	int SAMPLE__DATA_FILE_PATH = 27;
 
 	/**
 	 * The number of structural features of the '<em>Sample</em>' class.
@@ -437,7 +428,7 @@ public interface LDEExperimentsPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int SAMPLE_FEATURE_COUNT = 29;
+	int SAMPLE_FEATURE_COUNT = 28;
 
 	/**
 	 * The number of operations of the '<em>Sample</em>' class.
@@ -807,17 +798,6 @@ public interface LDEExperimentsPackage extends EPackage {
 	EAttribute getSample_Command();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getDriveID <em>Drive ID</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Drive ID</em>'.
-	 * @see org.opengda.lde.model.ldeexperiment.Sample#getDriveID()
-	 * @see #getSample()
-	 * @generated
-	 */
-	EAttribute getSample_DriveID();
-
-	/**
 	 * Returns the meta object for the attribute '{@link org.opengda.lde.model.ldeexperiment.Sample#getMailCount <em>Mail Count</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1155,14 +1135,6 @@ public interface LDEExperimentsPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute SAMPLE__COMMAND = eINSTANCE.getSample_Command();
-
-		/**
-		 * The meta object literal for the '<em><b>Drive ID</b></em>' attribute feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EAttribute SAMPLE__DRIVE_ID = eINSTANCE.getSample_DriveID();
 
 		/**
 		 * The meta object literal for the '<em><b>Mail Count</b></em>' attribute feature.

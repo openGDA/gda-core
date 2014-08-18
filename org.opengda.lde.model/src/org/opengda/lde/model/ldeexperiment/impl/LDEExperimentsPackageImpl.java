@@ -406,7 +406,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_DriveID() {
+	public EAttribute getSample_MailCount() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(24);
 	}
 
@@ -415,7 +415,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_MailCount() {
+	public EAttribute getSample_DataFileCount() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(25);
 	}
 
@@ -424,7 +424,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_DataFileCount() {
+	public EAttribute getSample_Comment() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(26);
 	}
 
@@ -433,17 +433,8 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_Comment() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(27);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public EAttribute getSample_DataFilePath() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(28);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(27);
 	}
 
 	/**
@@ -517,7 +508,6 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createEAttribute(sampleEClass, SAMPLE__START_DATE);
 		createEAttribute(sampleEClass, SAMPLE__END_DATE);
 		createEAttribute(sampleEClass, SAMPLE__COMMAND);
-		createEAttribute(sampleEClass, SAMPLE__DRIVE_ID);
 		createEAttribute(sampleEClass, SAMPLE__MAIL_COUNT);
 		createEAttribute(sampleEClass, SAMPLE__DATA_FILE_COUNT);
 		createEAttribute(sampleEClass, SAMPLE__COMMENT);
@@ -595,7 +585,6 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEAttribute(getSample_StartDate(), ecorePackage.getEDate(), "startDate", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_EndDate(), ecorePackage.getEDate(), "endDate", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Command(), ecorePackage.getEString(), "command", "parkingAll", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_DriveID(), ecorePackage.getEString(), "driveID", "i11-1", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_MailCount(), ecorePackage.getEInt(), "mailCount", "0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_DataFileCount(), ecorePackage.getEInt(), "dataFileCount", "0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Comment(), ecorePackage.getEString(), "comment", "Please add your comment here", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

@@ -45,7 +45,6 @@ import org.opengda.lde.model.ldeexperiment.Sample;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getStartDate <em>Start Date</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getEndDate <em>End Date</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getCommand <em>Command</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDriveID <em>Drive ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getMailCount <em>Mail Count</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getDataFileCount <em>Data File Count</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.SampleImpl#getComment <em>Comment</em>}</li>
@@ -568,26 +567,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @ordered
 	 */
 	protected String command = COMMAND_EDEFAULT;
-
-	/**
-	 * The default value of the '{@link #getDriveID() <em>Drive ID</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDriveID()
-	 * @generated
-	 * @ordered
-	 */
-	protected static final String DRIVE_ID_EDEFAULT = "i11-1";
-
-	/**
-	 * The cached value of the '{@link #getDriveID() <em>Drive ID</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getDriveID()
-	 * @generated
-	 * @ordered
-	 */
-	protected String driveID = DRIVE_ID_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getMailCount() <em>Mail Count</em>}' attribute.
@@ -1248,27 +1227,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public String getDriveID() {
-		return driveID;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setDriveID(String newDriveID) {
-		String oldDriveID = driveID;
-		driveID = newDriveID;
-		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.SAMPLE__DRIVE_ID, oldDriveID, driveID));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public int getMailCount() {
 		return mailCount;
 	}
@@ -1404,8 +1362,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return getEndDate();
 			case LDEExperimentsPackage.SAMPLE__COMMAND:
 				return getCommand();
-			case LDEExperimentsPackage.SAMPLE__DRIVE_ID:
-				return getDriveID();
 			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
 				return getMailCount();
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
@@ -1497,9 +1453,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return;
 			case LDEExperimentsPackage.SAMPLE__COMMAND:
 				setCommand((String)newValue);
-				return;
-			case LDEExperimentsPackage.SAMPLE__DRIVE_ID:
-				setDriveID((String)newValue);
 				return;
 			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
 				setMailCount((Integer)newValue);
@@ -1597,9 +1550,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 			case LDEExperimentsPackage.SAMPLE__COMMAND:
 				setCommand(COMMAND_EDEFAULT);
 				return;
-			case LDEExperimentsPackage.SAMPLE__DRIVE_ID:
-				setDriveID(DRIVE_ID_EDEFAULT);
-				return;
 			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
 				setMailCount(MAIL_COUNT_EDEFAULT);
 				return;
@@ -1672,8 +1622,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 				return END_DATE_EDEFAULT == null ? endDate != null : !END_DATE_EDEFAULT.equals(endDate);
 			case LDEExperimentsPackage.SAMPLE__COMMAND:
 				return COMMAND_EDEFAULT == null ? command != null : !COMMAND_EDEFAULT.equals(command);
-			case LDEExperimentsPackage.SAMPLE__DRIVE_ID:
-				return DRIVE_ID_EDEFAULT == null ? driveID != null : !DRIVE_ID_EDEFAULT.equals(driveID);
 			case LDEExperimentsPackage.SAMPLE__MAIL_COUNT:
 				return mailCount != MAIL_COUNT_EDEFAULT;
 			case LDEExperimentsPackage.SAMPLE__DATA_FILE_COUNT:
@@ -1744,8 +1692,6 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 		result.append(endDate);
 		result.append(", command: ");
 		result.append(command);
-		result.append(", driveID: ");
-		result.append(driveID);
 		result.append(", mailCount: ");
 		result.append(mailCount);
 		result.append(", dataFileCount: ");

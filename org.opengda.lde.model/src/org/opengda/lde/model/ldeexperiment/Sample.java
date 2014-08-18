@@ -38,7 +38,6 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getStartDate <em>Start Date</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getEndDate <em>End Date</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getCommand <em>Command</em>}</li>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDriveID <em>Drive ID</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getMailCount <em>Mail Count</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getDataFileCount <em>Data File Count</em>}</li>
  *   <li>{@link org.opengda.lde.model.ldeexperiment.Sample#getComment <em>Comment</em>}</li>
@@ -745,33 +744,6 @@ public interface Sample extends EObject {
 	 * @generated
 	 */
 	void setCommand(String value);
-
-	/**
-	 * Returns the value of the '<em><b>Drive ID</b></em>' attribute.
-	 * The default value is <code>"i11-1"</code>.
-	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Drive ID</em>' attribute isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Drive ID</em>' attribute.
-	 * @see #setDriveID(String)
-	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_DriveID()
-	 * @model default="i11-1"
-	 * @generated
-	 */
-	String getDriveID();
-
-	/**
-	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.Sample#getDriveID <em>Drive ID</em>}' attribute.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Drive ID</em>' attribute.
-	 * @see #getDriveID()
-	 * @generated
-	 */
-	void setDriveID(String value);
 
 	/**
 	 * Returns the value of the '<em><b>Mail Count</b></em>' attribute.
