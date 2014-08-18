@@ -42,6 +42,11 @@ def createPlot(filename, datapath, qpath, output, interactive):
 	fig.savefig(thumbnailOutput)
 	fig.clf()
 
+	import subprocess
+	subprocess.call(["setfacl", "-m", "user:vxn01537:r-x", outputPath])
+	subprocess.call(["setfacl", "-m", "user:vxn01537:r-x", output])
+	subprocess.call(["setfacl", "-m", "user:vxn01537:r-x", thumbnailOutput])
+
 if __name__ == '__main__':
 
 	import argparse

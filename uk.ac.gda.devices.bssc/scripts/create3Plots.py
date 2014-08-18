@@ -44,4 +44,7 @@ def create3Plots(reducedfile, output):
 		fig.savefig(thumbnailFilename)
 		fig.clf()
 		filenamesToReturn.append(filename)
+		import subprocess
+		subprocess.call(["setfacl", "-m", "user:vxn01537:r-x", filename])
+		subprocess.call(["setfacl", "-m", "user:vxn01537:r-x", thumbnailFilename])
 	return filenamesToReturn
