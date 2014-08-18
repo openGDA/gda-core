@@ -309,8 +309,8 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 							return;
 						}
 					}
-					// ensure idle
-					Preconditions.checkArgument(getStatus() == EnumPositionerStatus.IDLE);
+//					// ensure idle
+//					Preconditions.checkArgument(getStatus() == EnumPositionerStatus.IDLE);
 					// flag moving
 					synchronized (lock) {
 						positionerStatus = EnumPositionerStatus.MOVING;

@@ -808,10 +808,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	}
 
 	private DBR getDBR(Channel ch, DBRType type, int count, double timeout) throws TimeoutException, CAException {
-		if(logger.isDebugEnabled()){
+		if (ch.getElementCount() != count) {
 			int elementCount = ch.getElementCount();
-			if (elementCount < count)
-				logger.debug("Requested "+count+" elements from "+ch.getName()+" but channel elementCount is "+elementCount); 
+			logger.warn("Requested "+count+" elements from "+ch.getName()+" but channel elementCount is " + elementCount +
+					" ask Controls to increase EPICS_CA_MAX_ARRAY_BYTES.");
 		}
 		try {
 			GetListenerImpl listener = new GetListenerImpl();
