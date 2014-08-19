@@ -1363,7 +1363,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private void hookDoubleClickAction() {
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
-				doubleClickAction.run();
+				//TODO implement this editor
+//				doubleClickAction.run();
 			}
 		});
 	}
