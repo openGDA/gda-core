@@ -70,8 +70,10 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 
 	private ImageDataListener dataListener;
 	private Channel dataChannel;
-
+	private Channel enableChanel;
 	private boolean first = false;
+
+	private String arrayEnablePV;
 
 	/**
 	 * @param parent
@@ -120,6 +122,7 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 	public void createChannels() throws CAException, TimeoutException {
 		first = true;
 		dataChannel = controller.createChannel(arrayPV, dataListener, MonitorType.NATIVE, false);
+		enableChanel= controller.createChannel(arrayEnablePV, null, false, 1);
 		controller.creationPhaseCompleted();
 		logger.debug("Image channel is created");
 	}
@@ -243,5 +246,10 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 
 	public void setPlotName(String plotName) {
 		this.plotName = plotName;
+	}
+
+	public void setArrayEnablePV(String arrayEnablePV) {
+		this.arrayEnablePV=arrayEnablePV;
+		
 	}
 }

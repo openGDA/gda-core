@@ -13,6 +13,7 @@ public class LiveImageViewFactory implements FindableExecutableExtension {
 	private String viewPartName;
 	private String name;
 	private String arrayPV;
+	private String arrayEnablePV;
 	private int xDimension;
 	private int yDimension;
 	@Override
@@ -21,6 +22,7 @@ public class LiveImageViewFactory implements FindableExecutableExtension {
 		LiveImageView imageView = new LiveImageView();
 		imageView.setViewPartName(viewPartName);
 		imageView.setArrayPV(arrayPV);
+		imageView.setArrayEnablePV(arrayEnablePV);
 		imageView.setxDimension(xDimension);
 		imageView.setyDimension(yDimension);
 		return imageView;
@@ -46,6 +48,9 @@ public class LiveImageViewFactory implements FindableExecutableExtension {
 	public void afterPropertiesSet() throws Exception {
 		if (arrayPV == null ) {
 			throw new IllegalArgumentException("'arrayPV' cannot be null in image View.");
+		}
+		if (arrayEnablePV == null ) {
+			throw new IllegalArgumentException("'arrayEnablePV' cannot be null in image View.");
 		}
 		if (xDimension == 0 ) {
 			throw new IllegalArgumentException("'xDimension' of a image cannot be 0.");
@@ -86,6 +91,14 @@ public class LiveImageViewFactory implements FindableExecutableExtension {
 
 	public void setxDimension(int xDimension) {
 		this.xDimension = xDimension;
+	}
+
+	public String getArrayEnablePV() {
+		return arrayEnablePV;
+	}
+
+	public void setArrayEnablePV(String arrayEnablePV) {
+		this.arrayEnablePV = arrayEnablePV;
 	}
 
 }
