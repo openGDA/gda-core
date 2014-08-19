@@ -178,7 +178,7 @@ class LatestFilenameComposite extends Composite {
 
 		fileNameText = new Text(group, SWT.SINGLE | SWT.BORDER);
 		fileNameText.setText(WAITING);
-		fileNameText.setEditable(false);
+		fileNameText.setEditable(true);
 		GridDataFactory.fillDefaults().span(numColumns, 1).grab(true, false).applyTo(fileNameText);
 		fileNameText.addKeyListener(new KeyAdapter() {
 
