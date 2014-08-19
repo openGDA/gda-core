@@ -123,7 +123,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final boolean ACTIVE_EDEFAULT = true;
+	protected static final boolean ACTIVE_EDEFAULT = false;
 
 	/**
 	 * The cached value of the '{@link #isActive() <em>Active</em>}' attribute.
@@ -558,7 +558,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String COMMAND_EDEFAULT = "parkingAll";
+	protected static final String COMMAND_EDEFAULT = null;
 
 	/**
 	 * The cached value of the '{@link #getCommand() <em>Command</em>}' attribute.
@@ -618,7 +618,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String COMMENT_EDEFAULT = "Please add your comment here";
+	protected static final String COMMENT_EDEFAULT = "comment here";
 
 	/**
 	 * The cached value of the '{@link #getComment() <em>Comment</em>}' attribute.
@@ -638,7 +638,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final String DATA_FILE_PATH_EDEFAULT = "";
+	protected static final String DATA_FILE_PATH_EDEFAULT = null;
 
 	/**
 	 * The cached value of the '{@link #getDataFilePath() <em>Data File Path</em>}' attribute.

@@ -162,7 +162,7 @@ public interface Sample extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Active</b></em>' attribute.
-	 * The default value is <code>"true"</code>.
+	 * The default value is <code>"false"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Active</em>' attribute isn't clear,
@@ -172,7 +172,7 @@ public interface Sample extends EObject {
 	 * @return the value of the '<em>Active</em>' attribute.
 	 * @see #setActive(boolean)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_Active()
-	 * @model default="true"
+	 * @model default="false"
 	 * @generated
 	 */
 	boolean isActive();
@@ -720,7 +720,6 @@ public interface Sample extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Command</b></em>' attribute.
-	 * The default value is <code>"parkingAll"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Command</em>' attribute isn't clear,
@@ -730,7 +729,7 @@ public interface Sample extends EObject {
 	 * @return the value of the '<em>Command</em>' attribute.
 	 * @see #setCommand(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_Command()
-	 * @model default="parkingAll"
+	 * @model
 	 * @generated
 	 */
 	String getCommand();
@@ -801,7 +800,7 @@ public interface Sample extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Comment</b></em>' attribute.
-	 * The default value is <code>"Please add your comment here"</code>.
+	 * The default value is <code>"comment here"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Comment</em>' attribute isn't clear,
@@ -811,7 +810,7 @@ public interface Sample extends EObject {
 	 * @return the value of the '<em>Comment</em>' attribute.
 	 * @see #setComment(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_Comment()
-	 * @model default="Please add your comment here"
+	 * @model default="comment here"
 	 * @generated
 	 */
 	String getComment();
@@ -828,7 +827,6 @@ public interface Sample extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Data File Path</b></em>' attribute.
-	 * The default value is <code>""</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Data File Path</em>' attribute isn't clear,
@@ -838,7 +836,7 @@ public interface Sample extends EObject {
 	 * @return the value of the '<em>Data File Path</em>' attribute.
 	 * @see #setDataFilePath(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_DataFilePath()
-	 * @model default=""
+	 * @model
 	 * @generated
 	 */
 	String getDataFilePath();
