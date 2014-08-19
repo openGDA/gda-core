@@ -2,6 +2,8 @@
  */
 package org.opengda.lde.model.ldeexperiment.impl;
 
+import gda.configuration.properties.LocalProperties;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -178,10 +180,10 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getVisitID()
-	 * @generated
+	 * @generated NOT
 	 * @ordered
 	 */
-	protected static final String VISIT_ID_EDEFAULT = "0-0";
+	protected static final String VISIT_ID_EDEFAULT = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
 
 	/**
 	 * The cached value of the '{@link #getVisitID() <em>Visit ID</em>}' attribute.
@@ -278,10 +280,10 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getSample_x_start()
-	 * @generated
+	 * @generated NOT
 	 * @ordered
 	 */
-	protected static final Double SAMPLE_XSTART_EDEFAULT = null;
+	protected static final Double SAMPLE_XSTART_EDEFAULT = Double.NaN;
 
 	/**
 	 * The cached value of the '{@link #getSample_x_start() <em>Sample xstart</em>}' attribute.
@@ -298,10 +300,10 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getSample_x_stop()
-	 * @generated
+	 * @generated NOT
 	 * @ordered
 	 */
-	protected static final Double SAMPLE_XSTOP_EDEFAULT = null;
+	protected static final Double SAMPLE_XSTOP_EDEFAULT = Double.NaN;
 
 	/**
 	 * The cached value of the '{@link #getSample_x_stop() <em>Sample xstop</em>}' attribute.
@@ -318,10 +320,10 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getSample_x_step()
-	 * @generated
+	 * @generated NOT
 	 * @ordered
 	 */
-	protected static final Double SAMPLE_XSTEP_EDEFAULT = null;
+	protected static final Double SAMPLE_XSTEP_EDEFAULT = Double.NaN;
 
 	/**
 	 * The cached value of the '{@link #getSample_x_step() <em>Sample xstep</em>}' attribute.
@@ -338,10 +340,10 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getSample_y_start()
-	 * @generated
+	 * @generated NOT
 	 * @ordered
 	 */
-	protected static final Double SAMPLE_YSTART_EDEFAULT = null;
+	protected static final Double SAMPLE_YSTART_EDEFAULT = Double.NaN;
 
 	/**
 	 * The cached value of the '{@link #getSample_y_start() <em>Sample ystart</em>}' attribute.
@@ -358,10 +360,10 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getSample_y_stop()
-	 * @generated
+	 * @generated NOT
 	 * @ordered
 	 */
-	protected static final Double SAMPLE_YSTOP_EDEFAULT = null;
+	protected static final Double SAMPLE_YSTOP_EDEFAULT = Double.NaN;
 
 	/**
 	 * The cached value of the '{@link #getSample_y_stop() <em>Sample ystop</em>}' attribute.
@@ -378,10 +380,10 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @see #getSample_y_step()
-	 * @generated
+	 * @generated NOT
 	 * @ordered
 	 */
-	protected static final Double SAMPLE_YSTEP_EDEFAULT = null;
+	protected static final Double SAMPLE_YSTEP_EDEFAULT = Double.NaN;
 
 	/**
 	 * The cached value of the '{@link #getSample_y_step() <em>Sample ystep</em>}' attribute.
