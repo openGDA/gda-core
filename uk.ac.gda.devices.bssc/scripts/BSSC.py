@@ -244,7 +244,7 @@ class BSSCRun:
             self.dataCollectionIndex += 1
 
         self.setExperimentFinished(self.experiment)
-        BioSAXSISPyBUtils.dumpCollectionReport(self.experiment)
+        BioSAXSISPyBUtils.dumpExperimentReport(self.experiment)
         self.reportProgress("Closing shutter")
         self.closeShutter()
         self.reportProgress("Performing Final Cell Wash")
