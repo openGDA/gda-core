@@ -152,7 +152,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT,SampleTableConstants.COMMENT };
 
 	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 50, false), new ColumnWeightData(10, 35, false),new ColumnWeightData(80, 110, true), 
-			new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),
+			new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),
 			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
 			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
 			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),
@@ -780,13 +780,18 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
 			} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
-				ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table, SWT.READ_ONLY);
+				final ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table, SWT.READ_ONLY);
 				ce.setLabelProvider(new LabelProvider());
 				ce.setContentProvider(new ArrayContentProvider());
 				ce.setInput(getCellIDs());
 				return ce;
 			} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
-				return new TextCellEditor(table);
+				final ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table);
+				ce.setLabelProvider(new LabelProvider());
+				ce.setContentProvider(new ArrayContentProvider());
+				ce.setInput(getVisitIDs());
+				return ce;
+//				return new TextCellEditor(table);
 			} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
 				ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table, SWT.READ_ONLY);
 				ce.setLabelProvider(new LabelProvider());
@@ -946,7 +951,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				if (value instanceof Boolean) {
 					try {
 						if ((boolean)value==true) {
-							if (isDatesValid((Sample)element)) {
+							if (isDatesValid((Sample)element) && isValidCellID((Sample)element, ((Sample)element).getCellID())) {
 								runCommand(SetCommand.create(editingDomain, element, LDEExperimentsPackage.eINSTANCE.getSample_Active(), value));
 							}
 						} else {
@@ -1159,7 +1164,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		}
 
 		private boolean isValidCellID(Sample element, String value) {
-			if (value == null) {
+			if (value == null || value.isEmpty()) {
 				String message="You must select a Sample Cell ID.\n";
 				openMessageBox(message, "Invalid Cell ID");
 				return false;
@@ -1203,6 +1208,32 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		return dataDir;
 	}
 	
+	private String[] getVisitIDs() {
+		String dataDir=File.separator;
+		if (getDataDriver()!=null && !getDataDriver().isEmpty()) {
+			dataDir += getDataDriver()+File.separator;
+		}
+		if (getBeamlineID()!=null && !getBeamlineID().isEmpty()) {
+			dataDir += getBeamlineID()+File.separator;
+		}
+		if (getDataFolder()!=null && !getDataFolder().isEmpty()) {
+			dataDir += getDataFolder()+File.separator;
+		}
+		dataDir += Calendar.getInstance().get(Calendar.YEAR);
+		File dir=new File(dataDir);
+		String[] list = dir.list();
+		List<String> dirList=new ArrayList<String>();
+		if (list != null) {
+			for (String s : list) {
+				File file=new File(dataDir+File.separator+s);
+				if (file.isDirectory()) {
+					dirList.add(s);
+				}
+			}
+		}
+		return dirList.toArray(new String[0]);
+	}
+
 	private void openMessageBox(String message, String title) {
 		MessageBox dialog=new MessageBox(getSite().getShell(), SWT.ICON_ERROR | SWT.OK);
 		dialog.setText(title);
