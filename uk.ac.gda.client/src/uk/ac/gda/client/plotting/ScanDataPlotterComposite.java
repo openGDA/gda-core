@@ -52,6 +52,7 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -77,10 +78,10 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.ResourceComposite;
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.plotting.model.DataNode;
-import uk.ac.gda.client.plotting.model.LineTraceProvider;
-import uk.ac.gda.client.plotting.model.ScanDataNode;
-import uk.ac.gda.client.plotting.model.LineTraceProvider.TraceStyleDetails;
+import uk.ac.gda.client.plotting.model.Node;
+import uk.ac.gda.client.plotting.model.LineTraceProviderNode;
+import uk.ac.gda.client.plotting.model.LineTraceProviderNode.TraceStyleDetails;
+import uk.ac.gda.client.plotting.model.ScanNode;
 
 public class ScanDataPlotterComposite extends ResourceComposite {
 	private static final int HIGHLIGHTED_LINE_WIDTH = 2;
@@ -90,17 +91,17 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 	private IPlottingSystem plottingSystem;
 
 	private DataPlotterCheckedTreeViewer dataTreeViewer;
-	private final DataNode rootDataNode;
+	private final Node rootDataNode;
 
 	private final DataBindingContext dataBindingCtx = new DataBindingContext();
-	private final IObservableList selectedList = new WritableList(new ArrayList<DataNode>(), DataNode.class);
+	private final IObservableList selectedList = new WritableList(new ArrayList<Node>(), Node.class);
 
 	private Binding selectionBinding;
 
 	private boolean clearPlotOnStartOfScan = true;
 
 
-	public ScanDataPlotterComposite(Composite parent, int style, ViewPart parentView, DataNode rootDataNode) {
+	public ScanDataPlotterComposite(Composite parent, int style, ViewPart parentView, Node rootDataNode) {
 		super(parent, style);
 		this.rootDataNode = rootDataNode;
 		this.setLayout(UIHelper.createGridLayoutWithNoMargin(1, false));
@@ -144,38 +145,38 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 				});
 			}
 		});
-		rootDataNode.addPropertyChangeListener(DataNode.DATA_ADDED_PROP_NAME, new PropertyChangeListener() {
+		rootDataNode.addPropertyChangeListener(Node.DATA_ADDED_PROP_NAME, new PropertyChangeListener() {
 			@Override
 			public void propertyChange(final PropertyChangeEvent evt) {
-				DataNode node = (DataNode) evt.getNewValue();
+				Node node = (Node) evt.getNewValue();
 				dataTreeViewer.expandToLevel(node.getParent(), AbstractTreeViewer.ALL_LEVELS);
-				if (node instanceof LineTraceProvider && dataTreeViewer.getChecked(node)) {
-					addTrace((LineTraceProvider) node);
+				if (node instanceof LineTraceProviderNode && dataTreeViewer.getChecked(node)) {
+					addTrace((LineTraceProviderNode) node);
 				}
 			}
 		});
 		
-		rootDataNode.addPropertyChangeListener(DataNode.SCAN_ADDED_PROP_NAME, new PropertyChangeListener() {
+		rootDataNode.addPropertyChangeListener(Node.SCAN_ADDED_PROP_NAME, new PropertyChangeListener() {
 			@Override
 			public void propertyChange(final PropertyChangeEvent evt) {
-				DataNode node = (DataNode) evt.getNewValue();
-				dataTreeViewer.reveal(node);
+				Node node = (Node) evt.getNewValue();
+				dataTreeViewer.setSelection(new StructuredSelection(node), true);
 			}
 		});
 
-		rootDataNode.addPropertyChangeListener(DataNode.DATA_CHANGED_PROP_NAME, new PropertyChangeListener() {
+		rootDataNode.addPropertyChangeListener(Node.DATA_CHANGED_PROP_NAME, new PropertyChangeListener() {
 			@Override
 			public void propertyChange(final PropertyChangeEvent evt) {
-				DataNode node = (DataNode) evt.getNewValue();
-				if (node instanceof LineTraceProvider && dataTreeViewer.getChecked(node)) {
-					updateTrace((LineTraceProvider) node);
+				Node node = (Node) evt.getNewValue();
+				if (node instanceof LineTraceProviderNode && dataTreeViewer.getChecked(node)) {
+					updateTrace((LineTraceProviderNode) node);
 				}
 			}
 		});
 	}
 
-	private void updateTrace(LineTraceProvider lineTraceProvider) {
-		ILineTrace trace = (ILineTrace) plottingSystem.getTrace(((DataNode) lineTraceProvider).getIdentifier());
+	private void updateTrace(LineTraceProviderNode lineTraceProvider) {
+		ILineTrace trace = (ILineTrace) plottingSystem.getTrace(((Node) lineTraceProvider).getIdentifier());
 		if (trace != null) {
 			trace.setData(lineTraceProvider.getXAxisDataset(), lineTraceProvider.getYAxisDataset());
 			plottingSystem.getAxes().get(0).setTitle(lineTraceProvider.getXAxisDataset().getName());
@@ -184,10 +185,10 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 		}
 	}
 
-	private void addTrace(LineTraceProvider lineTraceProvider) {
-		ILineTrace trace = (ILineTrace) plottingSystem.getTrace(((DataNode) lineTraceProvider).getIdentifier());
+	private void addTrace(LineTraceProviderNode lineTraceProvider) {
+		ILineTrace trace = (ILineTrace) plottingSystem.getTrace(((Node) lineTraceProvider).getIdentifier());
 		if (trace == null) {
-			trace = plottingSystem.createLineTrace(((DataNode) lineTraceProvider).getIdentifier());
+			trace = plottingSystem.createLineTrace(((Node) lineTraceProvider).getIdentifier());
 			TraceStyleDetails traceDetails = lineTraceProvider.getTraceStyle();
 			if (traceDetails.getColorHexValue() != null) {
 				trace.setTraceColor(getTraceColor(traceDetails.getColorHexValue()));
@@ -223,13 +224,13 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 	IObservableFactory dataObservableFactory = new IObservableFactory() {
 		@Override
 		public IObservable createObservable(Object target) {
-			if (target instanceof LineTraceProvider) {
-				if (((LineTraceProvider) target).isPlotByDefault()) {
+			if (target instanceof LineTraceProviderNode) {
+				if (((LineTraceProviderNode) target).isPlotByDefault()) {
 					dataTreeViewer.updateCheckSelection(target, true);
 				}
 			}
-			if (target instanceof DataNode) {
-				return (((DataNode) target).getChildren());
+			if (target instanceof Node) {
+				return (((Node) target).getChildren());
 			}
 			return null;
 		}
@@ -313,8 +314,8 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 			public void update(ViewerCell cell) {
 				Object element = cell.getElement();
 				cell.setText(element.toString());
-				if (element instanceof LineTraceProvider) {
-					LineTraceProvider item = ((LineTraceProvider) element);
+				if (element instanceof LineTraceProviderNode) {
+					LineTraceProviderNode item = ((LineTraceProviderNode) element);
 					String color = item.getTraceStyle().getColorHexValue();
 					if (color != null) {
 						cell.setForeground(getTraceColor(color));
@@ -328,16 +329,16 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 		dataTreeViewer.addCheckStateListener(new ICheckStateListener() {
 			@Override
 			public void checkStateChanged(CheckStateChangedEvent event) {
-				DataNode dataNode = (DataNode) event.getElement();
+				Node dataNode = (Node) event.getElement();
 				updateSelection(dataNode, event.getChecked());
 			}
 
-			private void updateSelection(DataNode dataNode, boolean checked) {
+			private void updateSelection(Node dataNode, boolean checked) {
 				if (dataNode.getChildren() == null) {
 					updateDataItemNode(dataNode, checked);
 				} else {
 					for (Object childDataNode : dataNode.getChildren()) {
-						updateSelection((DataNode) childDataNode, checked);
+						updateSelection((Node) childDataNode, checked);
 					}
 				}
 			}
@@ -352,18 +353,18 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 						updateSelection(element, false);
 					}
 
+					@Override
+					public void handleAdd(int index, Object element) {
+						updateSelection(element, true);
+					}
+					
 					private void updateSelection(Object element, boolean highlighted) {
-						if (element instanceof LineTraceProvider && dataTreeViewer.getChecked(element)) {
-							LineTraceProvider lineTraceProvider = (LineTraceProvider) element;
+						if (element instanceof LineTraceProviderNode && dataTreeViewer.getChecked(element)) {
+							LineTraceProviderNode lineTraceProvider = (LineTraceProviderNode) element;
 							lineTraceProvider.setHighlighted(highlighted);
 							removeTrace(lineTraceProvider.getIdentifier());
 							addTrace(lineTraceProvider);
 						}
-					}
-
-					@Override
-					public void handleAdd(int index, Object element) {
-						updateSelection(element, true);
 					}
 				});
 			}
@@ -383,7 +384,7 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 						@Override
 						public void run() {
 							for(Object obj : rootDataNode.getChildren()) {
-								DataNode nodeToRemove = (DataNode) obj;
+								Node nodeToRemove = (Node) obj;
 								if (dataTreeViewer.getChecked(nodeToRemove)) {
 									dataTreeViewer.updateCheckSelection(nodeToRemove, false);
 								}
@@ -397,13 +398,13 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 				}
 				final IStructuredSelection selection = (IStructuredSelection) dataTreeViewer.getSelection();
 				// FIXME shouldn't have ScanDataNode reference here
-				if (selection.getFirstElement() instanceof ScanDataNode) {
+				if (selection.getFirstElement() instanceof ScanNode) {
 					menuMgr.add(new Action("Remove") {
 						@Override
 						public void run() {
 							Iterator<?> iterator = selection.iterator();
 							while(iterator.hasNext()) {
-								DataNode nodeToRemove = (DataNode) iterator.next();
+								Node nodeToRemove = (Node) iterator.next();
 								if (dataTreeViewer.getChecked(nodeToRemove)) {
 									dataTreeViewer.updateCheckSelection(nodeToRemove, false);
 								}
@@ -411,13 +412,13 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 							}
 						}
 					});
-				} else if (selection.getFirstElement() instanceof LineTraceProvider) {
+				} else if (selection.getFirstElement() instanceof LineTraceProviderNode) {
 					menuMgr.add(new Action("Change appearance") {
 						@Override
 						public void run() {
 							TraceStyleDetails traceStyle = null;
 							if (selection.size() == 1) {
-								traceStyle = ((LineTraceProvider) selection.getFirstElement()).getTraceStyle();
+								traceStyle = ((LineTraceProviderNode) selection.getFirstElement()).getTraceStyle();
 							}
 							TraceStyleDialog dialog = new TraceStyleDialog(ScanDataPlotterComposite.this.getShell(), traceStyle);
 							dialog.create();
@@ -425,8 +426,8 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 								Iterator<?> iterator = selection.iterator();
 								while(iterator.hasNext()) {
 									Object selectedNode = iterator.next();
-									if (selectedNode instanceof LineTraceProvider) {
-										LineTraceProvider nodeToChange = (LineTraceProvider) selectedNode;
+									if (selectedNode instanceof LineTraceProviderNode) {
+										LineTraceProviderNode nodeToChange = (LineTraceProviderNode) selectedNode;
 										try {
 											TraceStyleDetails newTraceStyleDetails = new TraceStyleDetails();
 											BeanUtils.copyProperties(newTraceStyleDetails, dialog.getTraceStyle());
@@ -466,12 +467,15 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 		dataTreeViewer.getControl().setMenu(menu);
 	}
 
-	private void updateDataItemNode(DataNode dataItemNode, boolean isAdded) {
-		if (dataItemNode instanceof LineTraceProvider) {
+	private void updateDataItemNode(Node dataItemNode, boolean isAdded) {
+		if (dataItemNode instanceof LineTraceProviderNode) {
+			LineTraceProviderNode lineTraceProvider = (LineTraceProviderNode) dataItemNode;
 			if (isAdded) {
-				addTrace((LineTraceProvider) dataItemNode);
+				addTrace(lineTraceProvider);
+				lineTraceProvider.getScanNode().addSelection(lineTraceProvider.getLabel());
 			} else {
-				removeTrace(dataItemNode.getIdentifier());
+				removeTrace(lineTraceProvider.getIdentifier());
+				lineTraceProvider.getScanNode().removeSelection(lineTraceProvider.getLabel());
 			}
 		}
 	}

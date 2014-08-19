@@ -22,15 +22,15 @@ import org.eclipse.core.databinding.observable.list.IObservableList;
 
 import uk.ac.gda.beans.ObservableModel;
 
-public abstract class DataNode extends ObservableModel {
+public abstract class Node extends ObservableModel {
 
 	public static final String DATA_CHANGED_PROP_NAME = "changedData";
 	public static final String DATA_ADDED_PROP_NAME = "addedData";
 	public static final String SCAN_ADDED_PROP_NAME = "addedScan";
 
-	protected final DataNode parent;
+	protected final Node parent;
 
-	public DataNode(DataNode parent) {
+	public Node(Node parent) {
 		this.parent = parent;
 	}
 
@@ -38,7 +38,7 @@ public abstract class DataNode extends ObservableModel {
 
 	public abstract String getIdentifier();
 
-	public DataNode getParent() {
+	public Node getParent() {
 		return parent;
 	}
 
@@ -46,7 +46,7 @@ public abstract class DataNode extends ObservableModel {
 		return toString();
 	}
 
-	public abstract void removeChild(DataNode dataNode);
+	public abstract void removeChild(Node dataNode);
 
 	public void disposeResources() {
 		// Nothing to dispose

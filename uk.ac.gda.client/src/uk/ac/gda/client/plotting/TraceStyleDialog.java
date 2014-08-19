@@ -47,8 +47,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.plotting.model.LineTraceProvider;
-import uk.ac.gda.client.plotting.model.LineTraceProvider.TraceStyleDetails;
+import uk.ac.gda.client.plotting.model.LineTraceProviderNode;
+import uk.ac.gda.client.plotting.model.LineTraceProviderNode.TraceStyleDetails;
 
 public class TraceStyleDialog extends TitleAreaDialog {
 
@@ -60,7 +60,7 @@ public class TraceStyleDialog extends TitleAreaDialog {
 		return traceStyle;
 	}
 
-	public TraceStyleDialog(Shell parentShell, LineTraceProvider.TraceStyleDetails traceStyle) {
+	public TraceStyleDialog(Shell parentShell, LineTraceProviderNode.TraceStyleDetails traceStyle) {
 		super(parentShell);
 		if (traceStyle != null) {
 			try {

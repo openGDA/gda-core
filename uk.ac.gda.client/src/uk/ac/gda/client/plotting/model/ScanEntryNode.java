@@ -22,6 +22,7 @@ import gda.rcp.GDAClientActivator;
 import gda.scan.IScanDataPoint;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,34 +39,29 @@ import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.gda.client.UIHelper;
 import uk.ac.gda.client.liveplot.IPlotLineColorService;
-import uk.ac.gda.client.plotting.model.LineTraceProvider.TraceStyleDetails;
+import uk.ac.gda.client.plotting.model.LineTraceProviderNode.TraceStyleDetails;
 
 import com.google.gson.annotations.Expose;
 
-public class ScanDataNode extends DataNode {
+public class ScanEntryNode extends ScanNode {
 
 	private static final String SCAN_DATA_STORE_PREFIX = "scan:";
 	private final IObservableList children = new WritableList(new ArrayList<ScanDataItemNode>(), ScanDataItemNode.class);
 	private final List<Double> cachedData = Collections.synchronizedList(new ArrayList<Double>());
 
 	@Expose
-	private final String identifier;
-	@Expose
-	private final String fileName;
-	@Expose
 	private final List<String> detectorScanItemNames;
 	@Expose
 	private final List<String> positionScanItemNames;
 	private final String xAxisName;
 
-	public ScanDataNode(String identifier, String fileName, List<String> positionScanItemNames, List<String> detectorScanItemNames, DataNode parent) {
-		super(parent);
-		this.identifier = identifier;
-		this.fileName = fileName;
+
+	public ScanEntryNode(String identifier, String fileName, List<String> positionScanItemNames, List<String> detectorScanItemNames, String[] selectedScanItemNamesFromPreviousScan, Node parent) {
+		super(identifier, fileName, parent);
 		this.detectorScanItemNames = detectorScanItemNames;
 		this.positionScanItemNames = positionScanItemNames;
 		xAxisName = this.positionScanItemNames.get(0);
-		createScanDataItems();
+		createScanDataItems(selectedScanItemNamesFromPreviousScan);
 	}
 
 	public List<String> getDetectorScanItemNames() {
@@ -76,16 +72,25 @@ public class ScanDataNode extends DataNode {
 		return positionScanItemNames;
 	}
 
-	private void createScanDataItems() {
+	private void createScanDataItems(String[] selectedScanItemNamesFromPreviousScan) {
+		List<String> selectedScanItemNamesFromPreviousScanList = Arrays.asList(selectedScanItemNamesFromPreviousScan);
 		// TODO Currently detectorScanItemNames are added then positionScanItemNames, needs reviewing on how they are shown
 		if (positionScanItemNames != null) {
 			for (int i = 1; i < positionScanItemNames.size(); i++) { // 0 is reserved for x-axis
-				createScanDataItem(positionScanItemNames.get(i));
+				boolean plotByDefault = true;
+				if (!selectedScanItemNamesFromPreviousScanList.isEmpty()) {
+					plotByDefault = selectedScanItemNamesFromPreviousScanList.contains(positionScanItemNames.get(i));
+				}
+				createScanDataItem(positionScanItemNames.get(i), plotByDefault);
 			}
 		}
 		if (detectorScanItemNames != null) {
 			for (String scanItemName : detectorScanItemNames) {
-				createScanDataItem(scanItemName);
+				boolean plotByDefault = true;
+				if (!selectedScanItemNamesFromPreviousScanList.isEmpty()) {
+					plotByDefault = selectedScanItemNamesFromPreviousScanList.contains(scanItemName);
+				}
+				createScanDataItem(scanItemName, plotByDefault);
 			}
 		}
 		children.addListChangeListener(new IListChangeListener() {
@@ -105,10 +110,10 @@ public class ScanDataNode extends DataNode {
 		});
 	}
 
-	private void createScanDataItem(String scanItemName) {
-		String dataItemIdentifier = createIdentifier(scanItemName);
+	private void createScanDataItem(String scanItemName, boolean plotByDefault) {
+		String dataItemIdentifier = createScanItemIdentifier(scanItemName);
 		TraceStyleDetails traceStyle = createDefaultTraceStyle(scanItemName);
-		ScanDataItemNode scanDataItemNode = new ScanDataItemNode(dataItemIdentifier, scanItemName, this, traceStyle);
+		ScanDataItemNode scanDataItemNode = new ScanDataItemNode(dataItemIdentifier, scanItemName, traceStyle, this, plotByDefault, this);
 		children.add(scanDataItemNode);
 	}
 
@@ -133,12 +138,12 @@ public class ScanDataNode extends DataNode {
 				return colorValue;
 			}
 		}
-		
+
 		return UIHelper.getRandomColor();
 	}
 
-	private String createIdentifier(String scanDataItem) {
-		return "Scan@" + identifier + "@" + scanDataItem;
+	private String createScanItemIdentifier(String scanDataItem) {
+		return "Scan@" + getIdentifier() + "@" + scanDataItem;
 	}
 
 	public DoubleDataset getData() {
@@ -163,11 +168,6 @@ public class ScanDataNode extends DataNode {
 	}
 
 	@Override
-	public String getIdentifier() {
-		return identifier;
-	}
-
-	@Override
 	public String toString() {
 		return getIdentifier();
 	}
@@ -182,11 +182,7 @@ public class ScanDataNode extends DataNode {
 	}
 
 	private String getStoredIdentifier() {
-		return SCAN_DATA_STORE_PREFIX + identifier;
-	}
-
-	public String getFileName() {
-		return fileName;
+		return SCAN_DATA_STORE_PREFIX + this.getIdentifier();
 	}
 
 	private final Runnable saveData = new Runnable() {
@@ -204,10 +200,10 @@ public class ScanDataNode extends DataNode {
 				cachedData.add(p.getPositionsAsDoubles()[0]);
 			}
 		}
-		
+
 		Display.getDefault().asyncExec(saveData);
 		// TODO Currently detectorScanItemNames are added then positionScanItemNames, needs reviewing on how they are shown
-		
+
 		List<Double> values = new ArrayList<Double>();
 		for (int i = 0; i < scanDataPoint.get(0).getPositionsAsDoubles().length - 1; i++) {
 			for (IScanDataPoint p : scanDataPoint) {
@@ -216,7 +212,7 @@ public class ScanDataNode extends DataNode {
 			((ScanDataItemNode) children.get(i)).update(values);
 			values.clear();
 		}
-			
+
 		if (detectorScanItemNames != null) {
 			int offset = scanDataPoint.get(0).getPositionsAsDoubles().length - 1;
 			values.clear();
@@ -231,7 +227,7 @@ public class ScanDataNode extends DataNode {
 	}
 
 	@Override
-	public void removeChild(DataNode dataNode) {
+	public void removeChild(Node dataNode) {
 		// Not supported
 	}
 

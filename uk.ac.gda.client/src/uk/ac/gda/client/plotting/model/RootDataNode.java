@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RootDataNode extends DataNode implements IScanDataPointObserver {
+public class RootDataNode extends Node implements IScanDataPointObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(RootDataNode.class);
 
@@ -53,8 +53,8 @@ public class RootDataNode extends DataNode implements IScanDataPointObserver {
 	private final List<IScanDataPoint> cachedPoints = Collections.synchronizedList(new ArrayList<IScanDataPoint>());
 	private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(MAX_THREAD_POOL_FOR_PLOTTING);
 
-	private final List<ScanDataNode> innerChildren = new LinkedList<ScanDataNode>();
-	private final RollingWritableList children = new RollingWritableList(innerChildren, ScanDataNode.class);
+	private final List<ScanEntryNode> innerChildren = new LinkedList<ScanEntryNode>();
+	private final RollingWritableList children = new RollingWritableList(innerChildren, ScanEntryNode.class);
 
 	public RootDataNode() {
 		super(null);
@@ -72,7 +72,7 @@ public class RootDataNode extends DataNode implements IScanDataPointObserver {
 				event.diff.accept(new ListDiffVisitor() {
 					@Override
 					public void handleRemove(int index, Object element) {
-						((ScanDataNode) element).disposeResources();
+						((ScanEntryNode) element).disposeResources();
 						saveScanHistory();
 					}
 
@@ -86,10 +86,10 @@ public class RootDataNode extends DataNode implements IScanDataPointObserver {
 	}
 
 	private void loadData() {
-		List<ScanDataNode> scansToLoad = PlottingDataStore.INSTANCE.getPreferenceDataStore().loadArrayConfiguration(DATA_STORE_NAME, ScanDataNode.class);
+		List<ScanEntryNode> scansToLoad = PlottingDataStore.INSTANCE.getPreferenceDataStore().loadArrayConfiguration(DATA_STORE_NAME, ScanEntryNode.class);
 		if (scansToLoad != null) {
-			for (ScanDataNode loadedScan : scansToLoad) {
-				ScanDataNode scanDataNode = new ScanDataNode(loadedScan.getIdentifier(), loadedScan.getFileName(), loadedScan.getPositionScanItemNames(), loadedScan.getDetectorScanItemNames(), this);
+			for (ScanEntryNode loadedScan : scansToLoad) {
+				ScanEntryNode scanDataNode = new ScanEntryNode(loadedScan.getIdentifier(), loadedScan.getFileName(), loadedScan.getPositionScanItemNames(), loadedScan.getDetectorScanItemNames(), new String[]{}, this);
 				children.add(scanDataNode);
 			}
 		}
@@ -139,28 +139,33 @@ public class RootDataNode extends DataNode implements IScanDataPointObserver {
 	int scanNo = 0;
 	protected void updateDataSetInUI(List<IScanDataPoint> scanDataPoints) {
 		// FIXME! More work needed to be able to configure which scan entries are shown
-//		if ((scanDataPoint.getScanPlotSettings() != null && scanDataPoint.getScanPlotSettings().getYAxesShown().length < 1)) {
-//			return;
-//		}
+		//		if ((scanDataPoint.getScanPlotSettings() != null && scanDataPoint.getScanPlotSettings().getYAxesShown().length < 1)) {
+		//			return;
+		//		}
 
 		for(int i = 0; i < scanDataPoints.size(); i++) {
 			IScanDataPoint currentPoint = scanDataPoints.get(i);
 			int numberOfPoints = currentPoint.getNumberOfPoints();
 			int currentPointNumber = currentPoint.getCurrentPointNumber();
 			int currentScan = currentPoint.getScanIdentifier();
-			
+
 			if (children.isEmpty() || currentScan > Integer.parseInt(getLastDataNode().getIdentifier())) {
 				List<String> detectorScanItemNames = null;
-				if (!currentPoint.getDetectorHeader().isEmpty() && currentPoint.getDetectorDataAsDoubles().length > 0) {
+				List<String> scannablesNames =  new ArrayList<String>(currentPoint.getPositionHeader());
+				if (!currentPoint.getDetectorHeader().isEmpty() && currentPoint.getDetectorDataAsDoubles().length == currentPoint.getDetectorHeader().size()) {
 					detectorScanItemNames = currentPoint.getDetectorHeader();
+					scannablesNames.addAll(detectorScanItemNames);
 				}
-				ScanDataNode newScanDataNode = new ScanDataNode(
+				String[] previousSelectedScanItemNames = getPreviousSelectedScanItemNames(scannablesNames);
+				ScanEntryNode newScanDataNode = new ScanEntryNode(
 						Integer.toString(currentPoint.getScanIdentifier()),
 						currentPoint.getCurrentFilename(),
 						currentPoint.getPositionHeader(),
 						detectorScanItemNames,
+						previousSelectedScanItemNames,
 						this);
 				children.addAndUpdate(newScanDataNode);
+				firePropertyChange(SCAN_ADDED_PROP_NAME, null, newScanDataNode);
 			}
 			List<IScanDataPoint> points = new ArrayList<IScanDataPoint>();
 			for (int j = 0; j < numberOfPoints - currentPointNumber && i < scanDataPoints.size(); j++) {
@@ -168,14 +173,29 @@ public class RootDataNode extends DataNode implements IScanDataPointObserver {
 			}
 			updatePoints(points, getLastDataNode());
 		}
-		
-	}
-	
-	private ScanDataNode getLastDataNode() {
-		return (ScanDataNode) children.get(0);
 	}
 
-	private void updatePoints(List<IScanDataPoint> points, ScanDataNode currentScanDataNode) {
+	private String[] getPreviousSelectedScanItemNames(List<String> scannablesNames) {
+		if (children.isEmpty()) {
+			return new String[]{};
+		}
+		// Checking if it is same scan
+		ScanEntryNode previous = (ScanEntryNode) children.get(0);
+		ArrayList<String> prevPositions = new ArrayList<String>(previous.getPositionScanItemNames());
+		if (previous.getDetectorScanItemNames() != null) {
+			prevPositions.addAll(previous.getDetectorScanItemNames());
+		}
+		if (scannablesNames.size() == prevPositions.size() && !scannablesNames.retainAll(prevPositions)) {
+			return previous.getSelectedLineTraceNames();
+		}
+		return new String[]{};
+	}
+
+	private ScanEntryNode getLastDataNode() {
+		return (ScanEntryNode) children.get(0);
+	}
+
+	private void updatePoints(List<IScanDataPoint> points, ScanEntryNode currentScanDataNode) {
 		if (currentScanDataNode != null&& !points.isEmpty()) {
 			currentScanDataNode.update(points);
 			for (Object object : currentScanDataNode.getChildren()) {
@@ -196,9 +216,9 @@ public class RootDataNode extends DataNode implements IScanDataPointObserver {
 			super(toWrap, elementType);
 		}
 
-		public void addAndUpdate(ScanDataNode element) {
+		public void addAndUpdate(ScanEntryNode element) {
 			if (size() >= MAX_SCANS_WITH_CACHED_DATA) {
-				final ScanDataNode node = (ScanDataNode) RollingWritableList.super.get(MAX_SCANS_WITH_CACHED_DATA - 1);
+				final ScanEntryNode node = (ScanEntryNode) RollingWritableList.super.get(MAX_SCANS_WITH_CACHED_DATA - 1);
 				node.clearCache();
 			}
 			super.add(0, element);
@@ -213,7 +233,7 @@ public class RootDataNode extends DataNode implements IScanDataPointObserver {
 	}
 
 	@Override
-	public void removeChild(DataNode dataNode) {
+	public void removeChild(Node dataNode) {
 		children.remove(dataNode);
 	}
 }

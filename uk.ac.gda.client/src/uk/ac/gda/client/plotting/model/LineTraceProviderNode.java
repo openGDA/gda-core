@@ -26,20 +26,22 @@ import uk.ac.gda.beans.ObservableModel;
 
 import com.google.gson.annotations.Expose;
 
-public abstract class LineTraceProvider extends DataNode {
+public abstract class LineTraceProviderNode extends Node {
 	private TraceStyleDetails traceStyle;
 	private boolean isHighlighted;
+	private final ScanNode scanNode;
+	private final boolean plotByDefault;
 
-	public LineTraceProvider(DataNode parent, TraceStyleDetails traceStyle) {
+	public LineTraceProviderNode(ScanNode scanNode, boolean plotByDefault, Node parent, TraceStyleDetails traceStyle) {
 		super(parent);
+		this.scanNode = scanNode;
+		this.plotByDefault = plotByDefault;
 		this.setTraceStyle(traceStyle);
 	}
-
 
 	public TraceStyleDetails getTraceStyle() {
 		return traceStyle;
 	}
-
 
 	public void setTraceStyle(TraceStyleDetails traceStyle) {
 		this.traceStyle = traceStyle;
@@ -47,7 +49,9 @@ public abstract class LineTraceProvider extends DataNode {
 
 	public abstract DoubleDataset getYAxisDataset();
 	public abstract DoubleDataset getXAxisDataset();
-	public abstract boolean isPlotByDefault();
+	public boolean isPlotByDefault() {
+		return plotByDefault;
+	}
 
 	public boolean isHighlighted() {
 		return isHighlighted;
@@ -55,6 +59,10 @@ public abstract class LineTraceProvider extends DataNode {
 
 	public void setHighlighted(boolean isHighlighted) {
 		this.isHighlighted = isHighlighted;
+	}
+
+	public ScanNode getScanNode() {
+		return scanNode;
 	}
 
 	public static class TraceStyleDetails extends ObservableModel {

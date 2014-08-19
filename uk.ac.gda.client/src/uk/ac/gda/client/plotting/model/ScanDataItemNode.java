@@ -28,15 +28,15 @@ import org.eclipse.swt.widgets.Display;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
-public class ScanDataItemNode extends LineTraceProvider {
+public class ScanDataItemNode extends LineTraceProviderNode {
 	private final String identifier;
 	private final String label;
 	private final List<Double> cachedData = Collections.synchronizedList(new ArrayList<Double>());
 
 	private static final String SCAN_DATA_STORE_PREFIX = "scan_item:";
 
-	public ScanDataItemNode(String identifier, String label, DataNode parent, TraceStyleDetails traceStyle) {
-		super(parent, traceStyle);
+	public ScanDataItemNode(String identifier, String label, TraceStyleDetails traceStyle, ScanNode scanNode, boolean plotByDefault, Node parent) {
+		super(scanNode, plotByDefault, parent, traceStyle);
 		this.identifier = identifier;
 		this.label = label;
 	}
@@ -60,7 +60,7 @@ public class ScanDataItemNode extends LineTraceProvider {
 
 	@Override
 	public DoubleDataset getXAxisDataset() {
-		return ((ScanDataNode) parent).getData();
+		return ((ScanEntryNode) parent).getData();
 	}
 
 	@Override
@@ -105,12 +105,7 @@ public class ScanDataItemNode extends LineTraceProvider {
 	}
 
 	@Override
-	public boolean isPlotByDefault() {
-		return !cachedData.isEmpty();
-	}
-
-	@Override
-	public void removeChild(DataNode dataNode) {
+	public void removeChild(Node dataNode) {
 		// Nothing to remove
 	}
 

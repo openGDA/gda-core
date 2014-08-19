@@ -32,7 +32,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.plotting.model.DataNode;
+import uk.ac.gda.client.plotting.model.Node;
 import uk.ac.gda.client.plotting.model.RootDataNode;
 
 public class ScanDataPlotView extends ViewPart {
@@ -84,7 +84,7 @@ public class ScanDataPlotView extends ViewPart {
 			public void partActivated(IWorkbenchPartReference partRef) {}
 		});
 
-		rootNode.addPropertyChangeListener(DataNode.DATA_ADDED_PROP_NAME, new PropertyChangeListener() {
+		rootNode.addPropertyChangeListener(Node.DATA_ADDED_PROP_NAME, new PropertyChangeListener() {
 			@Override
 			public void propertyChange(final PropertyChangeEvent evt) {
 				if (SHOW_VIEW_ON_DATA_RECEIVE & !thisViewIsVisible) {
