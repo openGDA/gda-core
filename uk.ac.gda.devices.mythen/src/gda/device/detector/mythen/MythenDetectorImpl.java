@@ -349,8 +349,11 @@ public class MythenDetectorImpl extends DetectorBase implements Mythen, Initiali
 				.trigger(NONE)
 				.build();
 				try {
+					logger.debug("starting acquire, expecting to collect for " + exposureTime + "s");
 					mythenClient.acquire(params);
+					logger.debug("finished acquire");
 					afterCollectData();
+					logger.debug("finished after collect data");
 				} catch (DeviceException e) {
 					logger.error("{}: error text client acquisition failed.", e);
 					throw new RuntimeException("Unable to collect data", e);
