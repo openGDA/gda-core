@@ -18,6 +18,7 @@
 
 package org.opengda.lde.ui.viewfactories;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.jms.IllegalStateException;
@@ -43,8 +44,8 @@ public class SampleGroupViewFactory implements FindableExecutableExtension {
 	private String dataDriver;
 	private String dataFolder;
 	private String beamlineID;
-	private List<String> cellIDs;
-	private List<String> calibrantNames;
+	private List<String> cellIDs=new ArrayList<String>();
+	private List<String> calibrantNames=new ArrayList<String>();
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -79,8 +80,8 @@ public class SampleGroupViewFactory implements FindableExecutableExtension {
 		if (getBeamlineID() != null) {
 			sampleGroupView.setBeamlineID(beamlineID);;
 		}
-		sampleGroupView.setCellIDs(cellIDs.toArray(new String[] {}));
-		sampleGroupView.setCalibrants(calibrantNames.toArray(new String[] {}));
+		sampleGroupView.setCellIDs(cellIDs.toArray(new String[0]));
+		sampleGroupView.setCalibrants(calibrantNames.toArray(new String[0]));
 		return sampleGroupView;
 	}
 

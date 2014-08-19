@@ -53,12 +53,13 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.viewers.ComboBoxCellEditor;
+import org.eclipse.jface.viewers.ComboBoxViewerCellEditor;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -66,6 +67,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -149,13 +151,13 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, SampleTableConstants.COMMAND, 
 			SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT,SampleTableConstants.COMMENT };
 
-	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 55, false), new ColumnWeightData(10, 55, false),new ColumnWeightData(80, 110, true), 
-			new ColumnWeightData(40, 60, true), new ColumnWeightData(40, 60, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true),
-			new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true),
-			new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true),
-			new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true), new ColumnWeightData(40, 70, true),
-			new ColumnWeightData(40, 200, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(40, 400, true),
-			new ColumnWeightData(10, 90, false), new ColumnWeightData(10, 90, false),new ColumnWeightData(50, 300, true) };
+	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 50, false), new ColumnWeightData(10, 35, false),new ColumnWeightData(80, 110, true), 
+			new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),
+			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
+			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
+			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),
+			new ColumnWeightData(40, 200, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(50, 120, true), new ColumnWeightData(40, 300, true),
+			new ColumnWeightData(10, 50, false), new ColumnWeightData(10, 50, false),new ColumnWeightData(50, 300, true) };
 	
 	private TableViewer viewer;
 	private SampleList sampleList;
@@ -772,17 +774,25 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		}
 
 		@Override
-		protected CellEditor getCellEditor(Object element) {
+		protected CellEditor getCellEditor(final Object element) {
 			if (SampleTableConstants.ACTIVE.equals(columnIdentifier)) {
 				return new CheckboxCellEditor(table);
 			} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
 			} else if (SampleTableConstants.CELL_ID.equals(columnIdentifier)) {
-				return new ComboBoxCellEditor(table, getCellIDs());
+				ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table, SWT.READ_ONLY);
+				ce.setLabelProvider(new LabelProvider());
+				ce.setContentProvider(new ArrayContentProvider());
+				ce.setInput(getCellIDs());
+				return ce;
 			} else if (SampleTableConstants.VISIT_ID.equals(columnIdentifier)) {
 				return new TextCellEditor(table);
 			} else if (SampleTableConstants.CALIBRANT_NAME.equals(columnIdentifier)) {
-				return new ComboBoxCellEditor(table, getCalibrants());
+				ComboBoxViewerCellEditor ce = new ComboBoxViewerCellEditor(table, SWT.READ_ONLY);
+				ce.setLabelProvider(new LabelProvider());
+				ce.setContentProvider(new ArrayContentProvider());
+				ce.setInput(getCalibrants());
+				return ce;
 			} else if (SampleTableConstants.CALIBRANT_X.equals(columnIdentifier)) {
 				return new FormattedTextCellEditor(table);
 			} else if (SampleTableConstants.CALIBRANT_Y.equals(columnIdentifier)) {
