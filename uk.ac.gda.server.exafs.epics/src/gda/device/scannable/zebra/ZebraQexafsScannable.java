@@ -191,7 +191,10 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			// We must wait here if we have made a change so that any subsequent reads e.g. in getNumberOfDataPoints()
 			// are consistent with the parameters in this method
 			if (changeHasBeenMade) {
-				controller.caputWait(pulseStepChnl, stepDeg);
+				logger.debug("Have changed zebra settings, so sleeping for 1 second to ensure they have been set");
+				// yuck, but even if we go a caputwait to ensure that the Zebra record has finished processing, 
+				// the readback values used in the getNumberOfDataPoints() come out incorrect.
+				Thread.sleep(1000);
 			}
 
 			logger.debug("Time after final zebra set");
@@ -232,10 +235,18 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			// get the actual step size in degrees
 			double stepSize_counts = controller.cagetDouble(stepSizeReadback_counts_Chnl);
 			double width_counts = controller.cagetDouble(widthReadback_counts_Chnl);
-			Double readbackNumberOfCounts = Math.floor(width_counts / stepSize_counts);
-			int numberOfDataPointsFromZebraReadback = (int) Math.round(readbackNumberOfCounts);
-			// BLXVIIIB-194 zebra does not always return the number of data points it claims it will
-			return numberOfDataPointsFromZebraReadback -1;
+			Double readbackNumberOfCounts_floored = Math.floor(width_counts / stepSize_counts);
+			Double readbackNumberOfCounts = width_counts / stepSize_counts;
+			
+			if (readbackNumberOfCounts.equals(readbackNumberOfCounts_floored)) {
+				int expectedCounts = (int) Math.round(readbackNumberOfCounts_floored) -1;
+				logger.debug("Expecting " + expectedCounts + " points from Zebra.");
+				return expectedCounts;
+			}
+			int expectedCounts = (int) Math.round(readbackNumberOfCounts_floored);
+			logger.debug("Expecting from Zebra " + expectedCounts + " points.");
+			
+			return expectedCounts;
 		} catch (Exception e) {
 			logger.error(
 					"Exception trying to get step size and width readback, assuming number of datapoints is the demanded amount",

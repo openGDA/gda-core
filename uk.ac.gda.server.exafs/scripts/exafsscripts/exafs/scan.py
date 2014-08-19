@@ -157,6 +157,7 @@ class Scan:
         dataWriter.setDescriptions(descriptions);
         dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
         dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
+        dataWriter.setSampleName(sampleName)
         dataWriter.setRunFromExperimentDefinition(True);
         dataWriter.setFolderName(experimentFullPath)
         

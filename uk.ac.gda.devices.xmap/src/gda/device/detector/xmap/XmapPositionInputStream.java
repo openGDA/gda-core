@@ -46,6 +46,7 @@ import uk.ac.gda.util.CorrectionUtils;
 class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> {
 
 	private static final Logger logger = LoggerFactory.getLogger(XmapPositionInputStream.class);
+
 	private final HardwareTriggeredNexusXmap hardwareTriggeredNexusXmap;
 
 	private boolean sumAllElementData = false;

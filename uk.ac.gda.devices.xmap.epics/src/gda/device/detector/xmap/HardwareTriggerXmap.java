@@ -18,11 +18,6 @@
 
 package gda.device.detector.xmap;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
@@ -30,9 +25,15 @@ import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.scan.ScanInformation;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
 /**
- * Drive the XIA Xmap card using hardware triggers. Data is only available after the scan has finished as it is written
- * directly to an HDF5 file by the XMAP card.
+ * Drive the XIA Xmap card using hardware triggers. Data is only available after
+ * the scan has finished as it is written directly to an HDF5 file by the XMAP
+ * card.
  * <p>
  * This plugin returns an index of each point instead.
  */
@@ -40,16 +41,14 @@ public class HardwareTriggerXmap extends XmapSimpleAcquire {
 
 	protected Double index = new Double(0.0);
 
-	public HardwareTriggerXmap(EDXDMappingController xmap, XBufferEPICsPlugin xbuf,
-			@SuppressWarnings("unused") double readoutTime) throws DeviceException {
-		super(xmap, xbuf, -1);
+	public HardwareTriggerXmap(EDXDMappingController xmap, double readoutTime) throws DeviceException {
+		super(xmap, -1);
 	}
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
-		xbufEnableCallbacks();
 		getXmap().setCollectionMode(COLLECTION_MODES.MCA_MAPPING);
-		
+
 		int[] scanDims = scanInfo.getDimensions();
 		int totalFrames = scanDims[0] * scanDims[1];
 		getXmap().setPixelsPerRun(totalFrames);
@@ -60,7 +59,7 @@ public class HardwareTriggerXmap extends XmapSimpleAcquire {
 	public boolean requiresAsynchronousPlugins() {
 		return true;
 	}
-	
+
 	@Override
 	public List<String> getInputStreamNames() {
 		ArrayList<String> names = new ArrayList<String>();

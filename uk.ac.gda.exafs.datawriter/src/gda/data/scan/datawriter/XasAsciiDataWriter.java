@@ -86,7 +86,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 			file.write("# Ascii output file name: '" + fileName + "'\n");
 			if (nexusFilePath != null) {
 				file.write("# Nexus output file: '" + nexusFilePath + "'\n");
-				file.write("# The XML files:\n");
+				file.write("# XML folder and files:\n");
 				file.write("# " + folderName + "\n");
 				file.write("# " + scanParametersName + "\n");
 				file.write("# " + detectorParametersName + "\n");

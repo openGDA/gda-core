@@ -82,6 +82,14 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 		ExafsActivator.getDefault().getPreferenceStore().setValue(ExafsPreferenceConstants.XES_MODE_ENABLED, onlyXESScans);
 	}
 	
+	public static boolean isQEXAFSDefaultScanType() {
+		return ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.QEXAFS_IS_DEFAULT_SCAN_TYPE);
+	}
+
+	public static void setQEXAFSDefaultScanType(boolean qexafsIsDefault) {
+		ExafsActivator.getDefault().getPreferenceStore().setValue(ExafsPreferenceConstants.QEXAFS_IS_DEFAULT_SCAN_TYPE, qexafsIsDefault);
+	}
+	
 	/**
 	 * Based on information returned from the specific Script Controller, returns the ScanObject currently in progress.
 	 * <p>

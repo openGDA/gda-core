@@ -161,7 +161,7 @@ class QexafsScan(Scan):
                             self.log("Repetition " + str(repetitionNumber) + " skipped.")
                     else:
                         raise e
-                except:
+                except Exception, e:
                     self._resetHeader()
                     loggingbean.atCommandFailure()
                     if LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true":
@@ -173,8 +173,7 @@ class QexafsScan(Scan):
                         if numRepetitions > 1:
                             self.log("Repetition " + str(repetitionNumber), + " skipped.")
                     else:
-                        print e
-                        raise
+                        raise e
                     
                 # run the after scan script
                 self._runScript(outputBean.getAfterScriptName())
@@ -221,6 +220,8 @@ class QexafsScan(Scan):
         else:
             if detectorBean.getFluorescenceParameters().getDetectorType() == "Silicon":
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xmap", "VortexQexafsFFI0"], scanBean)
+            elif detectorBean.getFluorescenceParameters().getDetectorType() == "Xspress3":
+                return self._createDetArray(["qexafs_counterTimer01", "qexafs_xspress3", "qexafs_FFI0_xspress3"], scanBean)
             else:
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xspress", "QexafsFFI0"], scanBean)
 
