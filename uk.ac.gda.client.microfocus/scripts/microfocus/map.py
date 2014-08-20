@@ -65,6 +65,11 @@ class Map(Scan):
         scanBean = BeansFactory.getBeanObject(experimentFullPath, scanFileName)
         detectorBean = BeansFactory.getBeanObject(experimentFullPath, detectorFileName)
         outputBean   = BeansFactory.getBeanObject(experimentFullPath, outputFileName)
+        
+        
+        # sanity check
+        if detectorBean.getFluorescenceParameters().getConfigFileName() == None or detectorBean.getFluorescenceParameters().getConfigFileName() == "":
+            raise Exception(" No Fluoresence parameters file supplied: have you selected the Fluoresence option in Detector Parameters?")
     
         beanGroup = BeanGroup()
         beanGroup.setController(self.ExafsScriptObserver)
@@ -119,8 +124,9 @@ class Map(Scan):
             
             zScannable = self.finder.find(scanBean.getZScannableName())
             self.mfd.setZValue(zScannablePos)
-            self.log("Using: " + scanBean.getXScannableName() + ", " + scanBean.getYScannableName() +", " + zScannable.getName())
+            self.log("From xml, using: " + scanBean.getXScannableName() + ", " + scanBean.getYScannableName() +", " + zScannable.getName())
             if(zScannablePos != None):
+                self.log("Moving " + zScannable.getName() + " to " + str(zScannablePos))
                 zScannable.moveTo(zScannablePos)
             
             scanStart = time.asctime()

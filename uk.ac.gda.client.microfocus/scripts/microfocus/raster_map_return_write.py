@@ -55,12 +55,14 @@ class RasterMapReturnWrite(RasterMap):
         
     def setStage(self, stage):
         if stage==1:
+            self.log("Switching faster raster maps to stage 1")
             self.trajSampleX = self.traj1SampleX
             self.trajtfg=self.traj1tfg
             self.trajtfg.setTtlSocket(1)
             self.trajxmap=self.traj1xmap
             self.trajPositionReader = self.traj1PositionReader
         elif stage==3:
+            self.log("Switching faster raster maps to stage 3")
             self.trajSampleX = self.traj3SampleX
             self.trajtfg=self.traj3tfg
             self.trajtfg.setTtlSocket(1)
@@ -147,7 +149,7 @@ class RasterMapReturnWrite(RasterMap):
                 detectorConfigurationBean = BeansFactory.getBeanObject(experimentFullPath, xmlFilename)
                 meta_add("DetectorConfigurationParameters", BeansFactory.getXMLString(detectorConfigurationBean)) 
         else: 
-            self.logger.info("Metashop not found")
+            self.log("Metashop not found")
             
                
         xasWriter.setFolderName(experimentFullPath)
