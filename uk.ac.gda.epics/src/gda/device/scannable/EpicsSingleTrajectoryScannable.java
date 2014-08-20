@@ -186,15 +186,15 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 		if (source instanceof TrajectoryScanProperty) {
 			if (((TrajectoryScanProperty) source) == TrajectoryScanProperty.EXECUTE) {
 				if (arg instanceof ExecuteStatus) {
-					if (((ExecuteStatus) arg) == ExecuteStatus.SUCCESS){
+					if (((ExecuteStatus) arg) == ExecuteStatus.SUCCESS)
 						trajMoveComplete = true;
-					}
-					else {
+					else
 						trajMoveComplete = false;
-					}
+
 				}
 			}
 		}
+
 	}
 
 	@Override
@@ -214,7 +214,6 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 	@Override
 	public void atScanLineEnd() throws DeviceException {
 		try {
-			tracController.read(); // must call this before calling getMActual()
 			scannablePositions = tracController.getMActual(trajectoryIndex);
 		} catch (TimeoutException e) {
 			throw new DeviceException(getName() + " exception in atScanLineEnd", e);
