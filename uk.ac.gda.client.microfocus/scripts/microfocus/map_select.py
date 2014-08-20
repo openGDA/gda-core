@@ -6,12 +6,13 @@ from gda.data import PathConstructor
 #
 class MapSelect():
     
-    def __init__(self, non_raster, raster, raster_return_write):
+    def __init__(self, non_raster, raster, raster_return_write, samplePreparer):
         self.non_raster=non_raster
         self.raster=raster
         self.raster_return_write = raster_return_write
         self.scanBean=None
         self.raster_mode = raster
+        self.samplePreparer = samplePreparer # for eaxfs / xanes but swicthes stages in the same way
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
         
@@ -46,6 +47,7 @@ class MapSelect():
         self.non_raster.setStage(stageNumber)
         self.raster.setStage(stageNumber)
         self.raster_return_write.setStage(stageNumber)
+        self.samplePreparer.setStage(stageNumber)
         
     def enableUseIDGap(self):
         ''' Normal running conditions
