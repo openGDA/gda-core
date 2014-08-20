@@ -7,8 +7,6 @@
 	 <xsd:element name="MicroFocusScanParameters">
 	 	<xsd:complexType>
 			<xsd:sequence>
-	 			<xsd:element name="xScannableName" type="xsd:string" maxOccurs="1" minOccurs="1"/>
-	 			<xsd:element name="yScannableName" type="xsd:string" maxOccurs="1" minOccurs="1"/>
 				<xsd:element name="xStart" type="xsd:double" maxOccurs="1" minOccurs="1"/>
 				<xsd:element name="xEnd" type="xsd:double" maxOccurs="1" minOccurs="1"/>
 				<xsd:element name="xStepSize" type="xsd:double" maxOccurs="1" minOccurs="1"/>
@@ -16,11 +14,8 @@
 				<xsd:element name="yEnd" type="xsd:double" maxOccurs="1" minOccurs="1"/>
 				<xsd:element name="yStepSize" type="xsd:double" maxOccurs="1" minOccurs="1"/>
 				<xsd:element name="collectionTime" type="xsd:double" maxOccurs="1" minOccurs="0"/>
-				<xsd:element name="energyScannableName" type="xsd:string" maxOccurs="1" minOccurs="1"/>
 				<xsd:element name="energy" type="xsd:double" maxOccurs="1" minOccurs="1"/>
-				<xsd:element name="zScannableName" type="xsd:string" maxOccurs="1" minOccurs="1"/>
 				<xsd:element name="zValue" type="xsd:double" maxOccurs="1" minOccurs="0"/>
-				<xsd:element name="continuousScannableName" type="xsd:string" maxOccurs="1" minOccurs="1"/>
 				<xsd:element name="raster" type="xsd:boolean" maxOccurs="1" minOccurs="1"/>
 				<xsd:element name="rowTime" type="xsd:double" maxOccurs="1" minOccurs="0"/>
 			</xsd:sequence>	

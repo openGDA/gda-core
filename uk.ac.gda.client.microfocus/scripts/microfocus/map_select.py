@@ -38,9 +38,26 @@ class MapSelect():
         self.raster_mode = self.raster
         
     def setStage(self,stageNumber):
-        
+        ''' To switch between tables 1 and 3
+        '''
         if stageNumber != 1 and stageNumber != 3:
             return "only stages 1 or 3 may be selected"
         
+        self.non_raster.setStage(stageNumber)
         self.raster.setStage(stageNumber)
         self.raster_return_write.setStage(stageNumber)
+        
+    def enableUseIDGap(self):
+        ''' Normal running conditions
+        '''
+        self.non_raster.setUseWithGapEnergy()
+        self.raster.setUseWithGapEnergy()
+        self.raster_return_write.setUseWithGapEnergy()
+
+    def disableUseIDGap(self):
+        ''' For shutdown and machine-dev days when there is o control of the ID gap
+        '''
+        self.non_raster.setUseNoGapEnergy()
+        self.raster.setUseNoGapEnergy()
+        self.raster_return_write.setUseNoGapEnergy()
+

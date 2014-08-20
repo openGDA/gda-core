@@ -54,15 +54,14 @@ class RasterMapReturnWrite(RasterMap):
         self.detectorBeanFileName=""
         
     def setStage(self, stage):
+        Map.setStage(self,stage)
         if stage==1:
-            self.log("Switching faster raster maps to stage 1")
             self.trajSampleX = self.traj1SampleX
             self.trajtfg=self.traj1tfg
             self.trajtfg.setTtlSocket(1)
             self.trajxmap=self.traj1xmap
             self.trajPositionReader = self.traj1PositionReader
         elif stage==3:
-            self.log("Switching faster raster maps to stage 3")
             self.trajSampleX = self.traj3SampleX
             self.trajtfg=self.traj3tfg
             self.trajtfg.setTtlSocket(1)

@@ -35,13 +35,6 @@ public final class MicroFocusScanParametersUIEditor extends RichBeanEditorPart {
 	private MicroFocusScanParametersComposite beanComposite;
 	private MicroFocusScanParameters scanParameters;
 
-	
-	/**
-	 * @param path
-	 * @param mappingURL
-	 * @param dirtyContainer
-	 * @param editingBean
-	 */
 	public MicroFocusScanParametersUIEditor(String path, URL mappingURL,
 			DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean);
@@ -56,9 +49,6 @@ public final class MicroFocusScanParametersUIEditor extends RichBeanEditorPart {
 		return "MicroFocusScanParameters";
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public void createPartControl(Composite comp) {
 		final ScrolledComposite scrolledComposite = new ScrolledComposite(comp,
@@ -68,7 +58,6 @@ public final class MicroFocusScanParametersUIEditor extends RichBeanEditorPart {
 
 		this.beanComposite = new MicroFocusScanParametersComposite(
 				scrolledComposite, scanParameters, SWT.NONE);
-		((GridData) beanComposite.getXScannableName().getLayoutData()).widthHint = 323;
 		((GridData) beanComposite.getCollectionTime().getLayoutData()).widthHint = 215;
 		scrolledComposite.setContent(beanComposite);
 		beanComposite.layout();
@@ -76,9 +65,6 @@ public final class MicroFocusScanParametersUIEditor extends RichBeanEditorPart {
 				SWT.DEFAULT));
 	}
 
-	/**
-	 * 
-	 */
 	@Override
 	public void setFocus() {
 	}
@@ -87,20 +73,6 @@ public final class MicroFocusScanParametersUIEditor extends RichBeanEditorPart {
 	public void linkUI(boolean isPageChange){
 		super.linkUI(isPageChange);
 		beanComposite.updateScanInfo();
-	}
-
-	public FieldComposite getXScannableName() {
-		return beanComposite.getXScannableName();
-	}
-
-	public FieldComposite getYScannableName() {
-		return beanComposite.getYScannableName();
-	}
-	public FieldComposite getZScannableName() {
-		return beanComposite.getZScannableName();
-	}
-	public FieldComposite getEnergyScannableName() {
-		return beanComposite.getEnergyScannableName();
 	}
 
 	public FieldComposite getCollectionTime() {
@@ -144,4 +116,4 @@ public final class MicroFocusScanParametersUIEditor extends RichBeanEditorPart {
 	public FieldComposite getRowTime() {
 		return beanComposite.getRowTime();
 	}
-	}
+}

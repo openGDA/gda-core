@@ -56,10 +56,10 @@ public class SwitchScanWizardPageOne extends WizardPage {
 					IRichBean thisbean = (IRichBean) element.createExecutableExtension("class");
 					if (thisbean instanceof MicroFocusScanParameters){
 						types = (String[]) ArrayUtils.add(types, "Microfocus");
-						types = (String[]) ArrayUtils.add(types, "Qexafs");
 					} 
-					else if (thisbean instanceof QEXAFSParameters)
+					else if (thisbean instanceof QEXAFSParameters) {
 						types = (String[]) ArrayUtils.add(types, "Qexafs");
+					}
 				} catch (Exception e) {
 				}
 			}
