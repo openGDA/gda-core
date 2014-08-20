@@ -55,7 +55,6 @@ public class ScanEntryNode extends ScanNode {
 	private final List<String> positionScanItemNames;
 	private final String xAxisName;
 
-
 	public ScanEntryNode(String identifier, String fileName, List<String> positionScanItemNames, List<String> detectorScanItemNames, String[] selectedScanItemNamesFromPreviousScan, Node parent) {
 		super(identifier, fileName, parent);
 		this.detectorScanItemNames = detectorScanItemNames;
@@ -70,6 +69,78 @@ public class ScanEntryNode extends ScanNode {
 
 	public List<String> getPositionScanItemNames() {
 		return positionScanItemNames;
+	}
+
+	public DoubleDataset getData() {
+		synchronized (cachedData) {
+			if (cachedData.isEmpty()) {
+				loadCachedDataFromFile();
+			}
+			DoubleDataset dataset = (DoubleDataset) DatasetFactory.createFromList(cachedData);
+			dataset.setName(xAxisName);
+			return dataset;
+		}
+	}
+
+	@Override
+	public IObservableList getChildren() {
+		return children;
+	}
+
+	@Override
+	public String toString() {
+		return getIdentifier();
+	}
+
+	public void clearCache() {
+		synchronized (cachedData) {
+			cachedData.clear();
+		}
+		for (Object obj : children) {
+			((ScanDataItemNode) obj).clearCache();
+		}
+	}
+
+	public void update(List<IScanDataPoint> scanDataPoint) {
+		synchronized (cachedData) {
+			for (IScanDataPoint p : scanDataPoint) {
+				cachedData.add(p.getPositionsAsDoubles()[0]);
+			}
+		}
+
+		Display.getDefault().asyncExec(saveData);
+		// TODO Currently detectorScanItemNames are added then positionScanItemNames, needs reviewing on how they are shown
+
+		List<Double> values = new ArrayList<Double>();
+		for (int i = 0; i < scanDataPoint.get(0).getPositionsAsDoubles().length - 1; i++) {
+			for (IScanDataPoint p : scanDataPoint) {
+				values.add( p.getPositionsAsDoubles()[i + 1]);
+			}
+			((ScanDataItemNode) children.get(i)).update(values);
+			values.clear();
+		}
+
+		if (detectorScanItemNames != null) {
+			int offset = scanDataPoint.get(0).getPositionsAsDoubles().length - 1;
+			values.clear();
+			for (int i = 0; i < scanDataPoint.get(0).getDetectorDataAsDoubles().length; i++) {
+				for (IScanDataPoint p : scanDataPoint) {
+					values.add(p.getDetectorDataAsDoubles()[i]);
+				}
+				((ScanDataItemNode) children.get(i + offset)).update(values);
+				values.clear();
+			}
+		}
+	}
+
+	@Override
+	public void removeChild(Node dataNode) {
+		// Not supported
+	}
+
+	@Override
+	public void disposeResources() {
+		PlottingDataStore.INSTANCE.getPreferenceDataStore().removeConfiguration(getStoredIdentifier());
 	}
 
 	private void createScanDataItems(String[] selectedScanItemNamesFromPreviousScan) {
@@ -146,39 +217,9 @@ public class ScanEntryNode extends ScanNode {
 		return "Scan@" + getIdentifier() + "@" + scanDataItem;
 	}
 
-	public DoubleDataset getData() {
-		synchronized (cachedData) {
-			if (cachedData.isEmpty()) {
-				loadCachedDataFromFile();
-			}
-			DoubleDataset dataset = (DoubleDataset) DatasetFactory.createFromList(cachedData);
-			dataset.setName(xAxisName);
-			return dataset;
-		}
-	}
-
 	private void loadCachedDataFromFile() {
 		List<Double> storedList = PlottingDataStore.INSTANCE.getPreferenceDataStore().loadArrayConfiguration(getStoredIdentifier(), Double.class);
 		cachedData.addAll(storedList);
-	}
-
-	@Override
-	public IObservableList getChildren() {
-		return children;
-	}
-
-	@Override
-	public String toString() {
-		return getIdentifier();
-	}
-
-	public void clearCache() {
-		synchronized (cachedData) {
-			cachedData.clear();
-		}
-		for (Object obj : children) {
-			((ScanDataItemNode) obj).clearCache();
-		}
 	}
 
 	private String getStoredIdentifier() {
@@ -193,46 +234,4 @@ public class ScanEntryNode extends ScanNode {
 			}
 		}
 	};
-
-	public void update(List<IScanDataPoint> scanDataPoint) {
-		synchronized (cachedData) {
-			for (IScanDataPoint p : scanDataPoint) {
-				cachedData.add(p.getPositionsAsDoubles()[0]);
-			}
-		}
-
-		Display.getDefault().asyncExec(saveData);
-		// TODO Currently detectorScanItemNames are added then positionScanItemNames, needs reviewing on how they are shown
-
-		List<Double> values = new ArrayList<Double>();
-		for (int i = 0; i < scanDataPoint.get(0).getPositionsAsDoubles().length - 1; i++) {
-			for (IScanDataPoint p : scanDataPoint) {
-				values.add( p.getPositionsAsDoubles()[i + 1]);
-			}
-			((ScanDataItemNode) children.get(i)).update(values);
-			values.clear();
-		}
-
-		if (detectorScanItemNames != null) {
-			int offset = scanDataPoint.get(0).getPositionsAsDoubles().length - 1;
-			values.clear();
-			for (int i = 0; i < scanDataPoint.get(0).getDetectorDataAsDoubles().length; i++) {
-				for (IScanDataPoint p : scanDataPoint) {
-					values.add(p.getDetectorDataAsDoubles()[i]);
-				}
-				((ScanDataItemNode) children.get(i + offset)).update(values);
-				values.clear();
-			}
-		}
-	}
-
-	@Override
-	public void removeChild(Node dataNode) {
-		// Not supported
-	}
-
-	@Override
-	public void disposeResources() {
-		PlottingDataStore.INSTANCE.getPreferenceDataStore().removeConfiguration(getStoredIdentifier());
-	}
 }
