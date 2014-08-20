@@ -52,6 +52,7 @@ public class EpicsTrajectoryScanRealPositionReader extends EpicsSingleTrajectory
 	@Override
 	public void atScanLineEnd() throws DeviceException {
 		try {
+			tracController.read(); // must call this before calling getMActual()
 			double tempPositions[] = tracController.getMActual(trajectoryIndex);
 			indexOfLastPointInRow = tracController.getActualPulses() - 1;
 			int lineIndex = ((lastReadPointIndex) / indexOfLastPointInRow);
