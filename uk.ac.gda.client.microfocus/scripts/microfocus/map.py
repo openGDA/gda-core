@@ -242,10 +242,6 @@ class Map(Scan):
         dataWriter.setSampleParametersName(self.sampleFileName)
         dataWriter.setOutputParametersName(self.outputFileName)
         dataWriter.setRunFromExperimentDefinition(True);
-        
-        # add the detector configuration file to the metadata
-        #dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
-        
         dataWriter.setDescriptions(descriptions);
         dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
         dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);

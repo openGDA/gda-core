@@ -128,13 +128,15 @@ class RasterMapReturnWrite(RasterMap):
         
         xasWriter = twoDWriter.getXasDataWriter()
         
+        xasWriter.setFolderName(experimentFullPath)
+        xasWriter.setScanParametersName(self.scanFileName)
+        xasWriter.setDetectorParametersName(self.detectorFileName)
+        xasWriter.setSampleParametersName(self.sampleFileName)
+        xasWriter.setOutputParametersName(self.outputFileName)
         xasWriter.setRunFromExperimentDefinition(True);
-        xasWriter.setScanBean(scanBean);
-        xasWriter.setDetectorBean(detectorBean);
-        xasWriter.setSampleBean(sampleBean);
-        xasWriter.setOutputBean(outputBean);
-        xasWriter.setSampleName(sampleName);
-        xasWriter.setXmlFolderName(experimentFullPath)
+        xasWriter.setDescriptions(descriptions);
+        xasWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
+        xasWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
         
         
         if (Finder.getInstance().find("metashop") != None):
