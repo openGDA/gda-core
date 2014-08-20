@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: uk.ac.gda.devices.xmap.test
-Bundle-SymbolicName: uk.ac.gda.devices.xmap.test
+Bundle-Name: uk.ac.gda.devices.xmap.epics.test
+Bundle-SymbolicName: uk.ac.gda.devices.xmap.epics.test
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Fragment-Host: uk.ac.gda.devices.xmap.epics;bundle-version="1.0.0.qualifier"
