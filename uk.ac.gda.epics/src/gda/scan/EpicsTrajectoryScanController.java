@@ -1068,22 +1068,22 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * starts the read process in EPICS.
-	 * @throws DeviceException 
-	 * @throws InterruptedException 
+	 * <p>
+	 * It does not matter how many times this is called after a trajectory has completed, but it must be called for
+	 * methods such as {@link #getActualPulses()} or {@link #getMActual(int)} to return the correct values from this
+	 * trajectory.
+	 * 
+	 * @throws DeviceException
+	 * @throws InterruptedException
 	 */
 	@Override
 	public void read() throws DeviceException, InterruptedException {
-		/*
-		 * if (!buildDone || getBuildStatus() != BuildStatus.SUCCESS) { throw new IllegalStateException( "Success build
-		 * is required before execution."); } if (!executeDone || getExecuteStatus() != ExecuteStatus.SUCCESS) { throw
-		 * new IllegalStateException( "Success execution is required before read data back."); }
-		 */
 		readDone = false;
-		JythonServerFacade.getInstance().print("Trajectory Read is called.");
+		logger.debug("Trajectory Read is called.");
 		try {
 			controller.caput(read, 1, rcbl);
 		} catch (CAException e) {
-			throw new DeviceException("Exception in read",e);
+			throw new DeviceException("Exception in read", e);
 		}
 	}
 
@@ -1339,7 +1339,9 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	@Override
 	public double[] getMActual(int motorIndex) throws DeviceException, TimeoutException, InterruptedException {
 		try{
-		return controller.cagetDoubleArray(mactual[motorIndex - 1]);
+		double[] values = controller.cagetDoubleArray(mactual[motorIndex - 1]);
+		logger.error("reading actual motor positions");
+		return values;
 		} catch (CAException e) {
 			logger.error("Error setting m1Move " , e);
 			throw new DeviceException("Error setting m1Move " , e);
