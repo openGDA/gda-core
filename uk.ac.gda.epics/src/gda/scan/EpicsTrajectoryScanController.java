@@ -201,15 +201,11 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	private ReadCallbackListener rcbl;
 
-	protected boolean readDone = false;
-
 	private BuildStatus buildStatus = BuildStatus.UNDEFINED;
 
 	private String buildState = null;
 
 	private String buildMessage = "not set in EPICS";
-
-	
 
 	private ExecuteStatus executeStatus = ExecuteStatus.UNDEFINED;
 
@@ -217,22 +213,12 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	private String executeMessage = "not set in EPICS";
 
-	
 	private ReadStatus readStatus = ReadStatus.UNDEFINED;
 
 	private String readState = null;
 
 	private String readMessage = "not set in EPICS";
-
 	
-	/*
-	 * private static EpicsTrajectoryScanController instance = null; public static EpicsTrajectoryScanController
-	 * getInstance() { if(instance == null) { instance = new EpicsTrajectoryScanController(); } return instance; }
-	 */
-
-	/**
-	 * default constructor
-	 */
 	public EpicsTrajectoryScanController() {
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
@@ -247,11 +233,6 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 		rml = new ReadMessageListener();
 	}
 
-	/**
-	 * Initialise the trajectory scan object.
-	 * 
-	 * @throws FactoryException
-	 */
 	@Override
 	public void configure() throws FactoryException {
 		if (!configured) {
@@ -1078,7 +1059,6 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	 */
 	@Override
 	public void read() throws DeviceException, InterruptedException {
-		readDone = false;
 		logger.debug("Trajectory Read is called.");
 		try {
 			controller.caput(read, 1, rcbl);
@@ -1339,9 +1319,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	@Override
 	public double[] getMActual(int motorIndex) throws DeviceException, TimeoutException, InterruptedException {
 		try{
-		double[] values = controller.cagetDoubleArray(mactual[motorIndex - 1]);
-		logger.error("reading actual motor positions");
-		return values;
+			return controller.cagetDoubleArray(mactual[motorIndex - 1]);
 		} catch (CAException e) {
 			logger.error("Error setting m1Move " , e);
 			throw new DeviceException("Error setting m1Move " , e);
@@ -1646,9 +1624,6 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 					logger.error("Trajectory scan {} build process failed: {}", getName(), getReadMessage());
 				}
 			}
-			// terminate build calling thread
-			readDone = true;
-			//notifyIObservers(TrajectoryScanProperty.READ, readDone);
 		}
 	}
 
@@ -2351,10 +2326,9 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	@Override
 	public boolean isBusy() throws TimeoutException, InterruptedException, DeviceException {
 		try {
-			return getRead() == 1 ||getExecute() == 1||getBuild() ==1 ? true:false;
-			//return (getBuildStateFromEpics().equals("Busy") || getExecuteState().equals("Busy") || getReadState().equals("isBusy"));
+			return getReadState().compareTo("Busy") == 0 || getExecute() == 1 || getBuild() == 1;
 		} catch (CAException e) {
-			throw new DeviceException(getName() + "Exception in isBusy ",e);
+			throw new DeviceException(getName() + "Exception in isBusy ", e);
 		}
 	}
 
