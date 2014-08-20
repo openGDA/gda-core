@@ -9,6 +9,7 @@ from gda.data.scan.datawriter import XasAsciiDataWriter, DefaultDataWriterFactor
 from gda.device.scannable import XasScannable, XasScannableWithDetectorFramesSetup, JEPScannable
 from gda.exafs.scan import ExafsScanPointCreator, XanesScanPointCreator, ScanStartedMessage
 from gda.exafs.scan import RepetitionsProperties
+from gda.factory import Finder
 from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater, LoggingScriptController, XasLoggingMessage
@@ -21,7 +22,7 @@ from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters, XesSca
 
 class XasScan(Scan):
 
-    def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, configXspressDeadtime=False, moveMonoToStartBeforeScan=False, useItterator=False, handleGapConverter=False, includeSampleNameInNexusName=True):
+    def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, configXspressDeadtime=False, moveMonoToStartBeforeScan=False, useItterator=False, handleGapConverter=True, includeSampleNameInNexusName=True):
         Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, includeSampleNameInNexusName)
         self.moveMonoToStartBeforeScan=moveMonoToStartBeforeScan
         self.useItterator=useItterator
@@ -133,7 +134,7 @@ class XasScan(Scan):
                 repetitionNumber+= 1
                 self._beforeEachRepetition(beanGroup,scriptType,scan_unique_id, numRepetitions, controller,repetitionNumber)
                 if self.handleGapConverter==True:
-                    self.setupHarmonic()
+                    self.setupHarmonic(scanBean)
                 try:
                     if self.useItterator==True:
                         iterator = self.samplePreparer.createIterator(sampleBean,beanGroup.getDetector().getExperimentType())
@@ -159,7 +160,10 @@ class XasScan(Scan):
             if self.moveMonoToStartBeforeScan==True:
                 self.energy_scannable.stop()
             if self.handleGapConverter==True:
-                gap_converter.enableAutoConversion()
+                print "enabling gap converter"
+                auto_mDeg_idGap_mm_converter = Finder.getInstance().find("auto_mDeg_idGap_mm_converter")
+                auto_mDeg_idGap_mm_converter.enableAutoConversion()
+               # gap_converter.enableAutoConversion()
             # repetition loop completed, so reset things
             self.setQueuePropertiesEnd()
             self._resetHeader()
@@ -285,13 +289,16 @@ class XasScan(Scan):
                     return self._createDetArray(group.getDetector(), scanBean)
     
     # Move to start energy so that harmonic can be set by gap_converter for i18 only
-    def setupHarmonic(self, scanBean, gap_converter):
+    def setupHarmonic(self, scanBean):  #, gap_converter):
         initialEnergy = scanBean.getInitialEnergy()
         print "moving ", self.energy_scannable.getName(), " to start energy ", initialEnergy
-        self.energyScannable(initialEnergy)
-        print "move complete, diasabling harmonic change"
-        if gap_converter != None:
-            gap_converter.disableAutoConversion()
+        self.energy_scannable(initialEnergy)
+        print "move complete, disabling harmonic change"
+       # if gap_converter != None:
+        print "disabling harmonic converter"
+        auto_mDeg_idGap_mm_converter = Finder.getInstance().find("auto_mDeg_idGap_mm_converter")
+        auto_mDeg_idGap_mm_converter.disableAutoConversion()
+            #gap_converter.disableAutoConversion()  #auto_mDeg_idGap-mm-converter
 
     #check if halt after current repetition set to true
     def checkForPause(self, numRepetitions,repetitionNumber):

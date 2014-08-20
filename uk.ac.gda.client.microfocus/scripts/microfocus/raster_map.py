@@ -39,10 +39,12 @@ class RasterMap(Map):
 
     def setStage(self, stage):
         if stage==1:
+            self.log("Switching raster maps to stage 1")
             self.trajContiniousX = self.traj1ContiniousX
             self.trajPositionReader = self.traj1PositionReader
             self.raster_counterTimer01.setTtlSocket(1)
         elif stage==3:
+            self.log("Switching raster maps to stage 3")
             self.trajContiniousX = self.traj3ContiniousX
             self.trajPositionReader = self.traj3PositionReader
             # RJW 11/2/14 could have a different TTL socket and then do not have to switch the cables...

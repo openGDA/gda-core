@@ -78,10 +78,11 @@ class I18DetectorPreparer:
         elif isinstance(scanBean, QEXAFSParameters):
             pass
         else:
+            # EXAFS
             collectionTime = scanBean.getExafsTime()
-            if(scan.getExafsToTime() > collectionTime):
+            if(scanBean.getExafsToTime() > collectionTime):
                 collectionTime = scanBean.getExafsToTime()
-        print "setting collection time to" + str(collectionTime)
+        print "setting collection time to " + str(collectionTime)
 
         if self.topupMonitor!=None:
             self.topupMonitor.setPauseBeforePoint(True)

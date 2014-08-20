@@ -255,7 +255,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		Quantity finalAngleQuantity = QuantityFactory.createFromObject(finalEnergyVal, userUnits);
 		Angle finalAngle = BraggAngle.braggAngleOf((Energy) finalAngleQuantity, crystal);
 
-		double range = ((initialAngle.doubleValue() * 180) / Math.PI) - ((finalAngle.doubleValue() * 180) / Math.PI);
+		double range = (((initialAngle.doubleValue() - finalAngle.doubleValue()) * 180) / Math.PI);
 		double time = (range / speedVal) * 1000;
 		totalTime.setUnit("s");
 		if (time > 0) {

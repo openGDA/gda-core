@@ -36,3 +36,11 @@ class MapSelect():
         
     def disableFasterRaster(self):
         self.raster_mode = self.raster
+        
+    def setStage(self,stageNumber):
+        
+        if stageNumber != 1 and stageNumber != 3:
+            return "only stages 1 or 3 may be selected"
+        
+        self.raster.setStage(stageNumber)
+        self.raster_return_write.setStage(stageNumber)
