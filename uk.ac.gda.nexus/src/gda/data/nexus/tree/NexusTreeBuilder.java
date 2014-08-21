@@ -24,6 +24,7 @@ import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusExtractorException;
 import gda.data.nexus.extractor.NexusGroupData;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -35,6 +36,7 @@ import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 /**
  *
@@ -102,7 +104,8 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 						//this is a link so look in targetNodes 
 						//note that both ends of the link have the target attribute so if the value has already 
 						//been read then it will be in the targetNodes
-						targetVal = new String( (byte[]) data.getBuffer());
+						Serializable buffer = data.getBuffer();
+						targetVal = ((String [])buffer)[0];
 						nexusGroupData = targetNodes.get(targetVal);
 					}
 				}

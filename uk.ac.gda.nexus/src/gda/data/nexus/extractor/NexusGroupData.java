@@ -292,6 +292,8 @@ public class NexusGroupData implements Serializable {
 		case NexusFile.NX_CHAR:
 			if (data instanceof String)
 				value = data;
+			else if (data instanceof String[])
+				value = ((String [])data)[0];
 			else
 				value = new String((byte[]) data);
 			break;
