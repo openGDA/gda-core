@@ -64,5 +64,5 @@ class I18SamplePreparer:
 		self.D7B(att2.getSelectedPosition())
 		
 		if sampleParameters.isVfmxActive():
-			self.log( "Moving kb_vfm_x to:" + sampleParameters.getVfmx())
+			self.log( "Moving kb_vfm_x to:" + str(sampleParameters.getVfmx()))
 			self.kb_vfm_x(sampleParameters.getVfmx())
