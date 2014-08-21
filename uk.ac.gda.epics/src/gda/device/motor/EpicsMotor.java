@@ -1306,10 +1306,8 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 				setMinPositionFromListener(new Float(((DBR_Float) dbr).getFloatValue()[0]).doubleValue());
 			} else if (dbr.isDOUBLE()) {
 				setMinPositionFromListener(((DBR_Double) dbr).getDoubleValue()[0]);
-			} else if (dbr.isSHORT()) {
-				setMinPositionFromListener(new Short(((DBR_Short) dbr).getShortValue()[0]).doubleValue());
 			} else {
-				logger.error("Error: " + getName() + " has illegal .LLM value " + dbr);
+				logger.error("Error: illegal .LLM value.");
 			}
 
 		}
@@ -1444,10 +1442,8 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 				setMaxPositionFromListener(new Float(((DBR_Float) dbr).getFloatValue()[0]).doubleValue());
 			} else if (dbr.isDOUBLE()) {
 				setMaxPositionFromListener(((DBR_Double) dbr).getDoubleValue()[0]);
-			} else if (dbr.isSHORT()) {
-				setMaxPositionFromListener(new Short(((DBR_Short) dbr).getShortValue()[0]).doubleValue());
 			} else {
-				logger.error("Error: " + getName() + " has illegal .HLM value " + dbr);
+				logger.error("Error: illegal .HLM value.");
 			}
 		}
 	}
