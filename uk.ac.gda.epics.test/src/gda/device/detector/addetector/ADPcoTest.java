@@ -29,7 +29,11 @@ import gda.device.detector.addetector.triggering.SingleExposurePco;
 import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.device.scannable.DummyScannable;
 import gda.epics.PV;
+import gda.jython.InterfaceProvider;
+import gda.scan.ConcurrentScan;
+import gda.scan.Scan;
 
 import org.junit.After;
 import org.junit.Before;
@@ -94,6 +98,8 @@ public class ADPcoTest extends ADDetectorTest {
 	@Test
 	public void testAtScanStart() throws Exception {
 		TestHelpers.setUpTest(ADPcoTest.class, "testPrepareForCollection", true);
+		Scan testConcurrentScan = new ConcurrentScan(new Object[]{new DummyScannable(),0,1,2,adPco});
+		InterfaceProvider.getCurrentScanInformationHolder().setCurrentScan(testConcurrentScan);
 		det().setReadFilepath(true);
 		super.testAtScanStart();
 		InOrder inOrder = inOrder(adBase, mockArmModePv, fileWriter, mockNdFilePluginBase);
