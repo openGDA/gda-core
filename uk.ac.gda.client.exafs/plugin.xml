@@ -210,10 +210,6 @@
             name="Reset Perspective">
       </command>
       <command
-            id="k.ac.gda.client.exafs.ui.views.scalersmonitor.startcommand"
-            name="name">
-      </command>
-      <command
             id="uk.ac.gda.client.exafs.pauseAfterRepetition"
             name="Pause After Repetition">
       </command>
