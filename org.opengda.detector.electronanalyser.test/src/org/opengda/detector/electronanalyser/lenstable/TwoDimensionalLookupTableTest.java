@@ -57,7 +57,7 @@ public class TwoDimensionalLookupTableTest {
 		Table<String, String, String> table2 = table.getTable();
 		assertTrue(!table2.isEmpty());
 		assertTrue(table2.contains("Angular45", "50"));
-		assertTrue(table2.containsValue("625-6785"));
+		assertTrue(table2.containsValue("625-4397"));
 		for (String rowkey : table2.rowKeySet()) {
 			for (String colkey : table2.columnKeySet()) {
 				System.out.println(String.format("%s\t%s\t%s",rowkey, colkey, table2.get(rowkey,  colkey)));
@@ -71,7 +71,7 @@ public class TwoDimensionalLookupTableTest {
 	 */
 	@Test
 	public void testGetValue() {
-		String expected="625-6785";
+		String expected="625-4397";
 		assertArrayEquals(table.getValue("Angular45","500").getBytes(), (expected).getBytes());
 	}
 
