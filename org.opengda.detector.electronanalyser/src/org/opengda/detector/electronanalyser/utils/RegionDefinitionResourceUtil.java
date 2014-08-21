@@ -179,6 +179,9 @@ public class RegionDefinitionResourceUtil {
 	}
 
 	public Sequence createSequence() throws Exception {
+		if (fileName == null || fileName.isEmpty()) {
+			fileName=getDefaultSequenceDirectory()+File.separator+getDefaultSequenceFilename();
+		}
 		final Resource newResource = getResourceSet().createResource(
 				URI.createFileURI(fileName));
 		final DocumentRoot root = RegiondefinitionFactory.eINSTANCE

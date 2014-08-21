@@ -1321,7 +1321,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 
 	private void openMessageBox(String message) {
-		MessageBox dialog=new MessageBox(getSite().getShell(), SWT.ICON_ERROR |SWT.OK);
+		MessageBox dialog=new MessageBox(getSite().getShell(), SWT.ICON_ERROR | SWT.OK);
 		dialog.setText("Invalid Regions");
 		dialog.setMessage(message);
 		dialog.open();
@@ -1347,6 +1347,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		logger.debug("refresh table with file: {}{}", FilenameUtils.getFullPath(seqFileName), FilenameUtils.getName(seqFileName));
 		if (isDirty()) {
 			InterfaceProvider.getCurrentScanController().pauseCurrentScan();
+			InterfaceProvider.getScriptController().pauseCurrentScript();
 			MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Unsaved Data", null,
 					"Current sequence contains unsaved data. Do you want to save them first?", MessageDialog.WARNING, new String[] { "Yes", "No" }, 0);
 			int result = msgDialog.open();
@@ -1357,6 +1358,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				firePropertyChange(PROP_DIRTY);
 			}
 			InterfaceProvider.getCurrentScanController().resumeCurrentScan();
+			InterfaceProvider.getScriptController().resumeCurrentScript();
 		}
 		try {
 			resource.eAdapters().remove(notifyListener);
