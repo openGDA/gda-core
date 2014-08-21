@@ -20,8 +20,10 @@ package uk.ac.gda.devices.bssc;
 
 import java.io.File;
 
+import uk.ac.gda.devices.bssc.beans.PlateConfig;
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
+import gda.factory.Finder;
 
 public class BioSaxsUtils {
 
@@ -29,6 +31,7 @@ public class BioSaxsUtils {
 	
 	private static final String DEFAULT_FILE_NAME = "default";
 	private static final String BIOSAXS_EXTENSION = "biosaxs";
+//	public static final PlateConfig PLATE_SETUP = Finder.getInstance().find("bsscPlates");
 	
 	public static String getXmlDirectory() {
 		return PathConstructor.createFromTemplate(LocalProperties.get(VISIT_DIRECTORY_PROPERTY) + "/xml/");

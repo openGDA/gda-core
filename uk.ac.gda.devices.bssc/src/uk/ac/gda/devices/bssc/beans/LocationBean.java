@@ -21,15 +21,29 @@ package uk.ac.gda.devices.bssc.beans;
 import uk.ac.gda.beans.IRichBean;
 
 public class LocationBean implements IRichBean {
+	
+	private static final int OFFSET = 65; //ASCII A char
+	
+	transient private PlateConfig config = null;
 	short plate = 1;
 	char row = 'A';
 	short column = 1;
+
+	public LocationBean() {
+	}
+
+	public LocationBean(PlateConfig config) {
+		this.config = config;
+	}
 	
 	public short getPlate() {
 		return plate;
 	}
 
 	public void setPlate(short plate) {
+		if (!validPlate(plate)) {
+			throw new IllegalArgumentException("Invalid plate"); 
+		}
 		this.plate = plate;
 	}
 
@@ -42,6 +56,9 @@ public class LocationBean implements IRichBean {
 	}
 	
 	public void setRow(char row) {
+		if (!validRow(row)) {
+			throw new IllegalArgumentException(row + " is not a valid row");
+		}
 		this.row = Character.toUpperCase(row);
 	}
 
@@ -50,19 +67,55 @@ public class LocationBean implements IRichBean {
 	}
 
 	public void setColumn(short column) {
+		if (!validColumn(column)) {
+			throw new IllegalArgumentException(column + " is not a valid column");
+		}
 		this.column = column;
+	}
+	
+	public PlateConfig getConfig() {
+		return config;
+	}
+	
+	public void setConfig(PlateConfig config) {
+		this.config = config;
+	}
+	
+	public static String getPlateText(short p) {
+		switch (p) {
+		case 0:
+			return "--";
+		case 1:
+			return "I";
+		case 2:
+			return "II";
+		case 3:
+			return "III";
+		default:
+			return "Error: " + p;
+		}
+	}
+	
+	public void setPlate(String value) {
+		short newPlate = plate;
+		try {
+			newPlate = Short.valueOf(value);
+		} catch (NumberFormatException e) {
+			String in = value;
+			if (in.equalsIgnoreCase("I")) {
+				newPlate = 1;
+			} else if (in.equalsIgnoreCase("II")) {
+				newPlate = 2;
+			} else if (in.equalsIgnoreCase("III")) {
+				newPlate = 3;
+			}
+		}
+		setPlate(newPlate);
 	}
 
 	@Override
 	public String toString() {
-		String platestr = "X";
-		switch (plate) {
-			case 1: platestr = "I";
-				break;
-			case 2: platestr = "II";
-				break;
-			case 3: platestr = "III";
-		}
+		String platestr = getPlateText(plate);
 		return String.format("%3s %c %2d", platestr, row, column);
 	}
 
@@ -84,23 +137,31 @@ public class LocationBean implements IRichBean {
 	}
 	
 	public boolean isValid() {
-		if (!validPlate(plate)) 
-			return false;
-		if (!validColumn(column)) 
-			return false;
-		if (!validRow(row)) 
-			return false;
-		return true;
+		return config != null && validPlate(plate) && validRow(row) && validColumn(column);
 	}
 	
-	public static boolean validPlate(int p) {
-		return (p < 4 && p > 0);
+	private boolean validPlate(int p) {
+		if (config == null) { return true; } //we have no idea
+		int plates = config.getAvailablePlates().length;
+		return (p <= plates && p > 0);
 	}
-	public static boolean validColumn(int c) {
-		return (c < 13 && c > 0);
+	private boolean validColumn(int c) {
+		if (config == null) { return true; } //we have no idea
+		try {
+			Plate p = config.getPlate(plate);
+			return (c <= p.getColumnCount() && c > 0);
+		} catch (ArrayIndexOutOfBoundsException ex) {
+			throw new IllegalStateException("Location set to invalid plate", ex);
+		}
 	}
-	public static boolean validRow(char r) {
-		char R = Character.toUpperCase(r);
-		return (!(R < 'A' || R > 'H'));
+	private boolean validRow(char r) {
+		if (config == null) { return true; } //we have no idea
+		try {
+			char R = Character.toUpperCase(r);
+			Plate p = config.getPlate(plate);
+			return (!(R < 'A' || R >= p.getRowCount() + OFFSET));
+		} catch (ArrayIndexOutOfBoundsException ex) {
+			throw new IllegalStateException("Location set to invalid plate", ex);
+		}
 	}
 }

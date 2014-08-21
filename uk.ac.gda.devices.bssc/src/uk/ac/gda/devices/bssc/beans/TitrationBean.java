@@ -18,16 +18,51 @@
 
 package uk.ac.gda.devices.bssc.beans;
 
+import java.util.HashMap;
+import java.util.Map;
 import uk.ac.gda.beans.IRichBean;
 
 public class TitrationBean implements IRichBean {
 	
-	LocationBean location = new LocationBean();
-	LocationBean bufferLocation = new LocationBean();
+	public enum Viscosity {
+		LOW("low", "l"),
+		MEDIUM("medium", "med", "m"),
+		HIGH("high", "h");
+		
+		private static Map<String, Viscosity> acceptedStrings = new HashMap<>();
+		static {
+			for (Viscosity vis : Viscosity.values()) {
+				for (String name : vis.accepted) {
+					acceptedStrings.put(name.toUpperCase(), vis);
+				}
+			}
+		}
+		
+		private final String[] accepted;
+		
+		private Viscosity(String... names) {
+			this.accepted = names;
+		}
+		public static Viscosity fromString(String vis) {
+			Viscosity found = acceptedStrings.get(vis.toUpperCase());
+			if (found != null) {
+				return found;
+			}
+			throw new IllegalArgumentException(vis + " is not a valid viscosity");
+		}
+		
+		@Override
+		public String toString() {
+			return name().toLowerCase();
+		}
+	}
+	
+	LocationBean location = new LocationBean(BSSCSessionBean.BSSC_PLATES);
+	LocationBean bufferLocation = new LocationBean(BSSCSessionBean.BSSC_PLATES);
 	LocationBean recouperateLocation = null;
 	String sampleName = "sample";
 	boolean yellowSample = true;
-	String viscosity = "high";
+	Viscosity viscosity = Viscosity.HIGH;
 	double concentration = 1;
 	double timePerFrame = 1;
 	int frames = 1;
@@ -38,12 +73,25 @@ public class TitrationBean implements IRichBean {
 		return location;
 	}
 	public void setLocation(LocationBean location) {
+		location.setConfig(BSSCSessionBean.BSSC_PLATES);
+		if (!location.isValid()) {
+			throw new IllegalArgumentException("Location is not valid");
+		}
 		this.location = location;
 	}
 	public LocationBean getRecouperateLocation() {
 		return recouperateLocation;
 	}
 	public void setRecouperateLocation(LocationBean recouperateLocation) {
+		if (recouperateLocation != null) {
+			recouperateLocation.setConfig(BSSCSessionBean.BSSC_PLATES);
+			if (!recouperateLocation.isValid()) {
+				throw new IllegalArgumentException("Recouperation Location is not valid");
+			}
+			if (recouperateLocation.equals(location)) {
+				throw new IllegalArgumentException("Recouperation location can't be the same as sample location");
+			}
+		}
 		this.recouperateLocation = recouperateLocation;
 	}
 	public String getSampleName() {
@@ -59,10 +107,10 @@ public class TitrationBean implements IRichBean {
 		this.yellowSample = yellowsample;
 	}
 	public String getViscosity() {
-		return viscosity;
+		return viscosity.toString();
 	}
 	public void setViscosity(String viscosity) {
-		this.viscosity = viscosity;
+		this.viscosity = Viscosity.fromString(viscosity);
 	}
 	public double getConcentration() {
 		return concentration;
@@ -98,6 +146,10 @@ public class TitrationBean implements IRichBean {
 		return bufferLocation;
 	}
 	public void setBufferLocation(LocationBean bufferLocation) {
+		bufferLocation.setConfig(BSSCSessionBean.BSSC_PLATES);
+		if (!bufferLocation.isValid()) {
+			throw new IllegalArgumentException("Buffer location is not valid");
+		}
 		this.bufferLocation = bufferLocation;
 	}
 	@Override
