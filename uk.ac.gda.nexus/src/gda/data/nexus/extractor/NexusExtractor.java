@@ -36,6 +36,7 @@ import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 /**
  * see the package-info.java file for information on this class
@@ -252,15 +253,7 @@ final public class NexusExtractor implements INexusDataGetter {
 			
 			try {
 				if (isAttr) {
-					int arg2[] = new int[2];
-					arg2[0] = lengthToSend;
-					arg2[1] = type;
-					file.getattr(attrName, data, arg2);
-					// remove the 1 extra bytes added on for the null in the attribute string
-					if (infoArgs[1] == NexusFile.NX_CHAR) {
-						dimensions[0] -= 1;
-						data = Arrays.copyOf((byte[]) data, dimensions[0]);
-					}
+					data = (Serializable)file.getattr(attrName);
 				} else {
 					if (startPos != null && dims != null) {
 						file.getslab(startPos, dimensions, data);
