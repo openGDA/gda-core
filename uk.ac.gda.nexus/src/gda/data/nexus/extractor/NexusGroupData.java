@@ -165,6 +165,16 @@ public class NexusGroupData implements Serializable {
 				if (newlineAfterEach) {
 					msg.append("\n");
 				}
+			} else if (type == NexusFile.NX_CHAR && data instanceof String[]) {
+				if (wrap)
+					msg.append("<value>");
+				String s = ((String[]) data)[0];
+				msg.append(s);
+				if (wrap)
+					msg.append("</value>");
+				if (newlineAfterEach) {
+					msg.append("\n");
+				}
 			} else {
 				if (dataAsString) {
 					if (wrap)
@@ -343,10 +353,14 @@ public class NexusGroupData implements Serializable {
 			if (other.data != null) {
 				return false;
 			}
-		} else if (!dataToTxt(false, false, false).equals(other.dataToTxt(false, false, false))) {
-			if (logWhenFalseInOneCase)
-				logger.info("expected = "+dataToTxt(false,true,false) + ", actual= " +other.dataToTxt(false,true,false));
-			return false;
+		} else {
+			String dataToTxt = dataToTxt(false, false, false);
+			String dataToTxt2 = other.dataToTxt(false, false, false);
+			if (!dataToTxt.equals(dataToTxt2)) {
+				if (logWhenFalseInOneCase)
+					logger.info("expected = "+dataToTxt(false,true,false) + ", actual= " +other.dataToTxt(false,true,false));
+				return false;
+			}
 		}
 		return true;
 	}
