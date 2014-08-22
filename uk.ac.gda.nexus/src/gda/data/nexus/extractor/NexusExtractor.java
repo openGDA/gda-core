@@ -254,6 +254,9 @@ final public class NexusExtractor implements INexusDataGetter {
 			try {
 				if (isAttr) {
 					data = (Serializable)file.getattr(attrName);
+					if (infoArgs[1] == NexusFile.NX_CHAR) {
+						dimensions[0] -= 1;
+					}					
 				} else {
 					if (startPos != null && dims != null) {
 						file.getslab(startPos, dimensions, data);
