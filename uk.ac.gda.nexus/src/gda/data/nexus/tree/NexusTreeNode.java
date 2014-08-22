@@ -144,6 +144,16 @@ public class NexusTreeNode implements INexusTree, Serializable {
 				if (newlineAfterEach) {
 					msg.append("\n");
 				}
+			} else if (groupData.type == NexusFile.NX_CHAR && groupData.getBuffer() instanceof String[]) {
+				if (wrap)
+					msg.append("<value>");
+				String s = ((String[]) groupData.getBuffer())[0];
+				msg.append(s);
+				if (wrap)
+					msg.append("</value>");
+				if (newlineAfterEach) {
+					msg.append("\n");
+				}
 			} else {
 				if (dataAsString) {
 					if (wrap)
