@@ -283,13 +283,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 			}
 			appenders.add(new NXDetectorDataFilenamesAppender(getRegionNames(), extraValues, copyoftotalintensity));
 		} else {
-			boolean firstInScan;
-			if (scanDatapoint.get()==1) {
-				firstInScan=true;
-			} else {
-				firstInScan=false;
-			}
-			appenders.add(new NXDetectorDataAnalyserRegionAppender(copyofregiondatalist,firstInScan, copyoftotalintensity));
+			appenders.add(new NXDetectorDataAnalyserRegionAppender(copyofregiondatalist, copyoftotalintensity));
 			called=true;
 		}
 		return appenders;
@@ -497,7 +491,6 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 
 			getAnalyser().setCachedEnergyMode(literal);
 			
-//			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 10.0);
 			getAnalyser().setEnergyStep(region.getEnergyStep() / 1000.0, 10.0);
 			double collectionTime = region.getStepTime();
 			getAnalyser().setStepTime(collectionTime, 10.0);
