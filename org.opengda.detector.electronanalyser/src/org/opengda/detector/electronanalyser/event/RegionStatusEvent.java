@@ -2,6 +2,7 @@ package org.opengda.detector.electronanalyser.event;
 
 import java.io.Serializable;
 
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.scan.RegionScannable;
 
 /**
@@ -15,10 +16,6 @@ public class RegionStatusEvent implements Serializable {
 	 */
 	private static final long serialVersionUID = -6492439515246163536L;
 
-	public static enum Status {
-		READY, RUNNING, ABORTED, COMPLETED, ERROR
-	}
-
 	String regionId;
 	public String getRegionId() {
 		return regionId;
@@ -28,18 +25,18 @@ public class RegionStatusEvent implements Serializable {
 		this.regionId = regionId;
 	}
 
-	Status status;
+	STATUS status;
 
-	public RegionStatusEvent(String regionId, Status status) {
+	public RegionStatusEvent(String regionId, STATUS status) {
 		this.regionId = regionId;
 		this.status = status;
 	}
 
-	public Status getStatus() {
+	public STATUS getStatus() {
 		return status;
 	}
 
-	public void setStatus(Status status) {
+	public void setStatus(STATUS status) {
 		this.status = status;
 	}
 
