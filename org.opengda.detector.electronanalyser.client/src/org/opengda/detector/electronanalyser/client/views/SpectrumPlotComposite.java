@@ -344,6 +344,7 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 		// logger.debug("xais {}", xAxis.getData());
 		// logger.debug("yAxis {}", dataset.getData());
 		plottingSystem.clear();
+		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 		final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);
 		if (!getDisplay().isDisposed()) {
 			getDisplay().asyncExec(new Runnable() {
@@ -375,6 +376,7 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 		ArrayList<AbstractDataset> plotDataSets = new ArrayList<AbstractDataset>();
 		plotDataSets.add(dataset);
 		plottingSystem.clear();
+		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 		plottingSystem.createPlot1D(xAxis, plotDataSets, new NullProgressMonitor());
 	}
 	
