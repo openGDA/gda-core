@@ -68,7 +68,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 import com.cosylab.epics.caj.CAJChannel;
 
-public class SlicesPlotComposite extends Composite implements InitializationListener, MonitorListener, IPropertyChangeListener {
+public class SlicesPlotComposite extends Composite implements InitializationListener, MonitorListener {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(SlicesPlotComposite.class);
@@ -197,8 +197,8 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
 		}
-		dataChannel.dispose();
-		startChannel.dispose();
+//		dataChannel.dispose();
+//		startChannel.dispose();
 		super.dispose();
 	}
 
@@ -216,7 +216,7 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 	}
 
 	private double[] value;
-	private int selectedSlice;
+	private int selectedSlice=1;
 
 	private boolean newRegion=true;
 
@@ -257,10 +257,15 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 	}
 
 	double[] xdata;
+	private boolean displayBindingEnergy=false;
+	ArrayList<AbstractDataset> yaxes = new ArrayList<AbstractDataset>();
 	private void updateSlicesPlot(final IProgressMonitor monitor,final double[] value, final int slice) {
 		if (isNewRegion()) {
 			try {
 				xdata = getAnalyser().getEnergyAxis();
+				if (isDisplayBindingEnergy()) {
+					xdata=convertToBindingENergy(xdata);
+				}
 			} catch (Exception e) {
 				logger.error("cannot get enegery axis from the analyser", e);
 			}
@@ -271,7 +276,11 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 			}
 		}
 		DoubleDataset xAxis = new DoubleDataset(xdata,new int[] { xdata.length });
-		xAxis.setName("energies (eV)");
+		if (isDisplayBindingEnergy()) {
+			xAxis.setName("Binding Energies (eV)");
+		} else {
+			xAxis.setName("Kinetic Energies (eV)");
+		}
 		
 		try {
 			int[] dims = new int[] { getAnalyser().getNdarrayYsize(),getAnalyser().getNdarrayXsize() };
@@ -281,15 +290,15 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
 			final AbstractDataset ds = new DoubleDataset(values, dims);
-
-			final ArrayList<AbstractDataset> yaxes = new ArrayList<AbstractDataset>();
-
+			
+			yaxes.clear();
 			for (int i = 0; i < dims[0]; i++) {
-				AbstractDataset slice2 = ds.getSlice(new int[] { 0, i },new int[] { dims[1], i+1 }, null);
+				AbstractDataset slice2 = ds.getSlice(new int[] { 0, i },new int[] { dims[1], i }, null);
 				slice2.setName("Intensity (counts");
 				yaxes.add(slice2);
 			}
 			plottingSystem.clear();
+			plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 			final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, yaxes, monitor);
 			if (!getDisplay().isDisposed()) {
 				getDisplay().asyncExec(new Runnable() {
@@ -313,6 +322,19 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 		}
 	}
 
+	public void updatePlot() {
+		xdata=convertToBindingENergy(xdata);
+		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
+		if (isDisplayBindingEnergy()) {
+			xAxis.setName("Binding Energies (eV)");
+		} else {
+			xAxis.setName("Kinetic Energies (eV)");
+		}
+		plottingSystem.clear();
+		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
+		plottingSystem.createPlot1D(xAxis, yaxes, new NullProgressMonitor());
+	}
+	
 	public IVGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
@@ -354,18 +376,24 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 			setNewRegion(true);
 		}
 	}
-
-	@Override
-	public void propertyChange(PropertyChangeEvent event) {
+	private double[] convertToBindingENergy(double[] xdata) {
 		try {
 			double excitationEnergy = getAnalyser().getExcitationEnergy();
-			xdata = getAnalyser().getEnergyAxis();
 			for (int i = 0; i < xdata.length; i++) {
 				xdata[i] = excitationEnergy - xdata[i];
 			}
 		} catch (Exception e) {
 			logger.error("cannot get enegery axis fron the analyser", e);
 		}
+		return xdata;
+	}
+
+
+	public boolean isDisplayBindingEnergy() {
+		return displayBindingEnergy;
+	}
+	public void setDisplayBindingEnergy(boolean displayBindingEnergy) {
+		this.displayBindingEnergy = displayBindingEnergy;
 	}
 
 }

@@ -211,8 +211,9 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
 		}
-		spectrumChannel.dispose();
-		startChannel.dispose();
+		//comment out see BLIX-144 for info.
+//		spectrumChannel.dispose();
+//		startChannel.dispose();
 		super.dispose();
 	}
 

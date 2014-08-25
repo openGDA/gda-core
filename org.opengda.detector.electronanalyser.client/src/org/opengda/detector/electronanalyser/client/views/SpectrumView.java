@@ -5,15 +5,12 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.INullSelectionListener;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.actions.RetargetAction;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
 import org.opengda.detector.electronanalyser.client.viewextensionfactories.SequenceViewExtensionFactory;
@@ -44,8 +41,7 @@ public class SpectrumView extends ViewPart {
 		rootComposite.setLayout(new FillLayout());
 
 		try {
-			spectrumPlotComposite = new SpectrumPlotComposite(this,
-					rootComposite, SWT.None);
+			spectrumPlotComposite = new SpectrumPlotComposite(this,rootComposite, SWT.None);
 			spectrumPlotComposite.setAnalyser(getAnalyser());
 			spectrumPlotComposite.setArrayPV(getArrayPV());
 			spectrumPlotComposite.initialise();
