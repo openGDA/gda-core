@@ -35,16 +35,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -68,7 +66,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 import com.cosylab.epics.caj.CAJChannel;
 
-public class SlicesPlotComposite extends Composite implements InitializationListener, MonitorListener, IPropertyChangeListener {
+public class SlicesPlotComposite extends Composite implements InitializationListener, MonitorListener {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(SlicesPlotComposite.class);
@@ -197,8 +195,8 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
 		}
-		dataChannel.dispose();
-		startChannel.dispose();
+//		dataChannel.dispose();
+//		startChannel.dispose();
 		super.dispose();
 	}
 
@@ -216,7 +214,7 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 	}
 
 	private double[] value;
-	private int selectedSlice;
+	private int selectedSlice=1;
 
 	private boolean newRegion=true;
 
@@ -244,7 +242,7 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 							}
 							IProgressMonitor monitor = new NullProgressMonitor();
 							try {
-								updateSlicesPlot(monitor, value, selectedSlice);
+								updateSlicesPlot(monitor, value, Integer.valueOf(sliceControl.getText()));
 							} catch (Exception e) {
 								logger.error(
 										"exception caught preparing analyser live plot", e);
@@ -257,10 +255,15 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 	}
 
 	double[] xdata;
+	private boolean displayBindingEnergy=false;
+	ArrayList<Dataset> yaxes = new ArrayList<Dataset>();
 	private void updateSlicesPlot(final IProgressMonitor monitor,final double[] value, final int slice) {
 		if (isNewRegion()) {
 			try {
 				xdata = getAnalyser().getEnergyAxis();
+				if (isDisplayBindingEnergy()) {
+					xdata=convertToBindingENergy(xdata);
+				}
 			} catch (Exception e) {
 				logger.error("cannot get enegery axis from the analyser", e);
 			}
@@ -271,7 +274,11 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 			}
 		}
 		DoubleDataset xAxis = new DoubleDataset(xdata,new int[] { xdata.length });
-		xAxis.setName("energies (eV)");
+		if (isDisplayBindingEnergy()) {
+			xAxis.setName("Binding Energies (eV)");
+		} else {
+			xAxis.setName("Kinetic Energies (eV)");
+		}
 		
 		try {
 			int[] dims = new int[] { getAnalyser().getNdarrayYsize(),getAnalyser().getNdarrayXsize() };
@@ -280,16 +287,20 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 				return;
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
+
 			final Dataset ds = new DoubleDataset(values, dims);
-
-			final ArrayList<Dataset> yaxes = new ArrayList<Dataset>();
-
-			for (int i = 0; i < dims[0]; i++) {
-				Dataset slice2 = ds.getSlice(new int[] { 0, i },new int[] { dims[1], i+1 }, null);
-				slice2.setName("Intensity (counts");
-				yaxes.add(slice2);
-			}
+			
+			yaxes.clear();
+//			for (int i = 0; i < dims[0]; i++) {
+//				AbstractDataset slice2 = ds.getSlice(new int[] { i*dims[1], i },new int[] { (i+1)*dims[1]-1, i }, null);
+//				slice2.setName("Intensity (counts");
+//				yaxes.add(slice2);
+//			}
+			Dataset slice2 = ds.getSlice(new int[] { slice*dims[1], slice },new int[] { (slice+1)*dims[1]-1, slice }, null);
+			slice2.setName("Intensity (counts");
+			yaxes.add(slice2);
 			plottingSystem.clear();
+			plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 			final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, yaxes, monitor);
 			if (!getDisplay().isDisposed()) {
 				getDisplay().asyncExec(new Runnable() {
@@ -302,7 +313,8 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 							setNewRegion(false);
 						}
 						// Highlight selected slice in blue color
-						profileLineTrace = (ILineTrace) profileLineTraces.get(slice);
+						profileLineTrace = (ILineTrace) profileLineTraces.get(0);
+//						profileLineTrace = (ILineTrace) profileLineTraces.get(slice);
 						profileLineTrace.setTraceColor(ColorConstants.blue);
 						//plottingSystem.autoscaleAxes();
 					}
@@ -313,6 +325,19 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 		}
 	}
 
+	public void updatePlot() {
+		xdata=convertToBindingENergy(xdata);
+		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
+		if (isDisplayBindingEnergy()) {
+			xAxis.setName("Binding Energies (eV)");
+		} else {
+			xAxis.setName("Kinetic Energies (eV)");
+		}
+		plottingSystem.clear();
+		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
+		plottingSystem.createPlot1D(xAxis, yaxes, new NullProgressMonitor());
+	}
+	
 	public IVGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
@@ -354,18 +379,24 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 			setNewRegion(true);
 		}
 	}
-
-	@Override
-	public void propertyChange(PropertyChangeEvent event) {
+	private double[] convertToBindingENergy(double[] xdata) {
 		try {
 			double excitationEnergy = getAnalyser().getExcitationEnergy();
-			xdata = getAnalyser().getEnergyAxis();
 			for (int i = 0; i < xdata.length; i++) {
 				xdata[i] = excitationEnergy - xdata[i];
 			}
 		} catch (Exception e) {
 			logger.error("cannot get enegery axis fron the analyser", e);
 		}
+		return xdata;
+	}
+
+
+	public boolean isDisplayBindingEnergy() {
+		return displayBindingEnergy;
+	}
+	public void setDisplayBindingEnergy(boolean displayBindingEnergy) {
+		this.displayBindingEnergy = displayBindingEnergy;
 	}
 
 }

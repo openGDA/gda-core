@@ -122,6 +122,7 @@ import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewC
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewLabelProvider;
 import org.opengda.detector.electronanalyser.client.viewextensionfactories.RegionViewExtensionFactory;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
+import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.event.SequenceFileChangeEvent;
 import org.opengda.detector.electronanalyser.lenstable.TwoDimensionalLookupTable;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
@@ -1693,6 +1694,24 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						}
 						fireSelectionChanged(currentRegion);
 						sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
+					}
+				});
+			}
+			if (arg instanceof RegionStatusEvent) {
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						String regionId = ((RegionStatusEvent) arg).getRegionId();
+						STATUS status = ((RegionStatusEvent) arg).getStatus();
+						logger.debug("region {} update to {}",regionId, status);
+						for (Region region : regions) {
+							if (region.getRegionId().equalsIgnoreCase(regionId)) {
+								updateRegionStatus(region, status);
+							}
+						}
+						if (status==STATUS.COMPLETED) {
+							fireSelectionChanged(new RegionRunCompletedSelection());
+						}
 					}
 				});
 			}

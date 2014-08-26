@@ -40,8 +40,6 @@ import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -61,7 +59,7 @@ import com.cosylab.epics.caj.CAJChannel;
 /**
  * Monitor and plotting live image data from the electron analyser.
  */
-public class ImagePlotComposite extends Composite implements InitializationListener, MonitorListener, IPropertyChangeListener {
+public class ImagePlotComposite extends Composite implements InitializationListener, MonitorListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImagePlotComposite.class);
 
@@ -137,8 +135,9 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
 		}
-		dataChannel.dispose();
-		startChannel.dispose();
+		//comment out see BLIX-144 for info
+		//		dataChannel.dispose();
+		//		startChannel.dispose();
 		super.dispose();
 	}
 
@@ -190,12 +189,17 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 
 	double[] xdata = null;
 	double[] ydata = null;
+	Dataset ds;
+	private boolean displayBindingEnergy=false;
 
 	private void updateImagePlot(final IProgressMonitor monitor, final double[] value) {
-//		if (isNewRegion()) {
+		if (isNewRegion()) {
 			// analyser region
 			try {
 				xdata = getAnalyser().getEnergyAxis();
+				if (isDisplayBindingEnergy()) {
+					xdata=convertToBindingENergy(xdata);
+				}
 			} catch (Exception e) {
 				logger.error("cannot get enegery axis from the analyser", e);
 			}
@@ -205,9 +209,14 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 				logger.error("cannot get angle axis from the analyser", e);
 			}
 			setNewRegion(false);
-//		}
+		}
 		DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
-		xAxis.setName("energies (eV)");
+		if (isDisplayBindingEnergy()) {
+			xAxis.setName("Binding Energies (eV)");
+		} else {
+			xAxis.setName("Kinetic Energies (eV)");
+		}
+
 		DoubleDataset yAxis = new DoubleDataset(ydata, new int[] { ydata.length });
 		try {
 			if ("Transmission".equalsIgnoreCase(getAnalyser().getLensMode())) {
@@ -232,9 +241,11 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
 //			logger.warn("image size = {}", values.length);
-			final Dataset ds = new DoubleDataset(values, dims);//.getSlice(null, null, new int[] { -1, 1 });
+
+			ds = new DoubleDataset(values, dims);//.getSlice(null, null, new int[] { -1, 1 });
 			ds.setName("");
 			plottingSystem.clear();
+			plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 			plottingSystem.createPlot2D(ds, axes, monitor);
 //			if (!getDisplay().isDisposed()) {
 //				getDisplay().asyncExec(new Runnable() {
@@ -248,6 +259,44 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 		} catch (Exception e) {
 			logger.error("exception caught preparing analyser live image plot", e);
 		}
+	}
+	
+	public void updatePlot() {
+		xdata=convertToBindingENergy(xdata);
+		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
+		if (isDisplayBindingEnergy()) {
+			xAxis.setName("Binding Energies (eV)");
+		} else {
+			xAxis.setName("Kinetic Energies (eV)");
+		}
+		DoubleDataset yAxis = new DoubleDataset(ydata, new int[] { ydata.length });
+		try {
+			if ("Transmission".equalsIgnoreCase(getAnalyser().getLensMode())) {
+				yAxis.setName("pixel");
+			} else {
+				yAxis.setName("angles (deg)");
+			}
+		} catch (Exception e1) {
+			logger.error("cannot get lens mode from the analyser", e1);
+		}
+		ArrayList<Dataset> axes = new ArrayList<Dataset>();
+		axes.add(xAxis);
+		axes.add(yAxis);
+		plottingSystem.clear();
+		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
+		plottingSystem.createPlot2D(ds, axes, new NullProgressMonitor());
+	}
+	
+	private double[] convertToBindingENergy(double[] xdata) {
+		try {
+			double excitationEnergy = getAnalyser().getExcitationEnergy();
+			for (int i = 0; i < xdata.length; i++) {
+				xdata[i] = excitationEnergy - xdata[i];
+			}
+		} catch (Exception e) {
+			logger.error("cannot get enegery axis fron the analyser", e);
+		}
+		return xdata;
 	}
 
 	public IVGScientaAnalyser getAnalyser() {
@@ -296,17 +345,13 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 		}
 	}
 
-	@Override
-	public void propertyChange(PropertyChangeEvent event) {
-		try {
-			double excitationEnergy = getAnalyser().getExcitationEnergy();
-			xdata = getAnalyser().getEnergyAxis();
-			for (int i = 0; i < xdata.length; i++) {
-				xdata[i] = excitationEnergy - xdata[i];
-			}
-		} catch (Exception e) {
-			logger.error("cannot get enegery axis fron the analyser", e);
-		}
+
+	public boolean isDisplayBindingEnergy() {
+		return displayBindingEnergy;
+	}
+
+	public void setDisplayBindingEnergy(boolean displayBindingEnergy) {
+		this.displayBindingEnergy = displayBindingEnergy;
 	}
 
 }
