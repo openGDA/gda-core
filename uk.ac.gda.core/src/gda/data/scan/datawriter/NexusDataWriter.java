@@ -1637,10 +1637,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		return -1;
 	}
 
-	public void setTxtFileNameTemplate(@SuppressWarnings("unused") String txtFileNameTemplate) {
-		// do nothing
-	}
-
 	public void setNexusFileNameTemplate(String nexusFileNameTemplate) throws Exception {
 		this.nexusFileNameTemplate = nexusFileNameTemplate;
 		// We calculate some probable paths now so that the probable
@@ -1700,6 +1696,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				} 
 			} catch (Exception e) {
 				// ignored
+				logger.debug(e.getMessage());
 			}
 			file.opengroup(nxDirName, nxClass);
 			file.makegroup(scannable.getName(), nxClass);
