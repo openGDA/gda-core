@@ -35,17 +35,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.resource.FontRegistry;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.FillLayout;
@@ -70,7 +68,7 @@ import com.cosylab.epics.caj.CAJChannel;
 /**
  *
  */
-public class SpectrumPlotComposite extends Composite implements IPropertyChangeListener, InitializationListener, MonitorListener {
+public class SpectrumPlotComposite extends Composite implements InitializationListener, MonitorListener {
 
 	private FontRegistry fontRegistry;
 	private static final Logger logger = LoggerFactory.getLogger(SpectrumPlotComposite.class);
@@ -185,7 +183,6 @@ public class SpectrumPlotComposite extends Composite implements IPropertyChangeL
 		txtArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtArea.setBackground(ColorConstants.lightBlue);
 		txtArea.setText("0000");
-
 	}
 
 	public void initialise() {
@@ -214,8 +211,9 @@ public class SpectrumPlotComposite extends Composite implements IPropertyChangeL
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
 		}
-		spectrumChannel.dispose();
-		startChannel.dispose();
+		//comment out see BLIX-144 for info.
+//		spectrumChannel.dispose();
+//		startChannel.dispose();
 		super.dispose();
 	}
 
@@ -319,18 +317,25 @@ public class SpectrumPlotComposite extends Composite implements IPropertyChangeL
 	DoubleDataset dataset;
 	double[] xdata = null;
 	private boolean newRegion = true;
+	private boolean displayBindingEnergy=false;
 
 	private void updateSpectrumPlot(final IProgressMonitor monitor, double[] value) {
 		if (isNewRegion()) {
 			try {
 				xdata = getAnalyser().getEnergyAxis();
+				if (isDisplayBindingEnergy()) {
+					xdata=convertToBindingENergy(xdata);
+				}
 			} catch (Exception e) {
 				logger.error("cannot get enegery axis fron the analyser", e);
 			}
 		}
-
 		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
-		xAxis.setName("energies (eV)");
+		if (isDisplayBindingEnergy()) {
+			xAxis.setName("Binding Energies (eV)");
+		} else {
+			xAxis.setName("Kinetic Energies (eV)");
+		}
 
 		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
 		double[] data = ArrayUtils.subarray(value, 0, xdata.length);
@@ -340,6 +345,7 @@ public class SpectrumPlotComposite extends Composite implements IPropertyChangeL
 		// logger.debug("xais {}", xAxis.getData());
 		// logger.debug("yAxis {}", dataset.getData());
 		plottingSystem.clear();
+		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 		final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);
 		if (!getDisplay().isDisposed()) {
 			getDisplay().asyncExec(new Runnable() {
@@ -358,9 +364,23 @@ public class SpectrumPlotComposite extends Composite implements IPropertyChangeL
 				}
 			});
 		}
-
 	}
-
+	
+	public void updatePlot() {
+		xdata=convertToBindingENergy(xdata);
+		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
+		if (isDisplayBindingEnergy()) {
+			xAxis.setName("Binding Energies (eV)");
+		} else {
+			xAxis.setName("Kinetic Energies (eV)");
+		}
+		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
+		plotDataSets.add(dataset);
+		plottingSystem.clear();
+		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
+		plottingSystem.createPlot1D(xAxis, plotDataSets, new NullProgressMonitor());
+	}
+	
 	public void updateStat() {
 		setPositionValue(xdata[dataset.argMax()]);
 		setHeightValue(dataset.max().intValue());
@@ -427,18 +447,22 @@ public class SpectrumPlotComposite extends Composite implements IPropertyChangeL
 		}
 	}
 
-
-	@Override
-	public void propertyChange(PropertyChangeEvent event) {
+	private double[] convertToBindingENergy(double[] xdata) {
 		try {
 			double excitationEnergy = getAnalyser().getExcitationEnergy();
-			xdata = getAnalyser().getEnergyAxis();
 			for (int i = 0; i < xdata.length; i++) {
 				xdata[i] = excitationEnergy - xdata[i];
 			}
 		} catch (Exception e) {
 			logger.error("cannot get enegery axis fron the analyser", e);
 		}
+		return xdata;
 	}
 
+	public void setDisplayBindingEnergy(boolean b) {
+		this.displayBindingEnergy=b;		
+	}
+	public boolean isDisplayBindingEnergy() {
+		return displayBindingEnergy;
+	}
 }

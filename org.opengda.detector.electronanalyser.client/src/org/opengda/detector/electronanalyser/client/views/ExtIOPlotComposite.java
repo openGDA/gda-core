@@ -35,6 +35,7 @@ import gov.aps.jca.event.MonitorListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -64,7 +65,7 @@ import com.cosylab.epics.caj.CAJChannel;
 /**
  * monitor and display external IO data update in the plot.
  */
-public class ExtIOPlotComposite extends Composite implements InitializationListener, MonitorListener, IPropertyChangeListener {
+public class ExtIOPlotComposite extends Composite implements InitializationListener, MonitorListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExtIOPlotComposite.class);
 
@@ -79,7 +80,6 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 	private ILineTrace profileLineTrace;
 	private ExtIODataListener dataListener;
 	private Channel dataChannel;
-	private Monitor dataMonitor;
 
 	private boolean first=false;
 
@@ -133,7 +133,7 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 		String[] split = getArrayPV().split(":");
 		startChannel = controller.createChannel(split[0]+":"+split[1]+":"+ADBase.Acquire, this, MonitorType.NATIVE, false);
 		controller.creationPhaseCompleted();
-		logger.debug("Image channel is created");
+		logger.debug("External IO channel is created");
 	}
 
 	@Override
@@ -141,8 +141,9 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
 		}
-		dataChannel.dispose();
-		startChannel.dispose();
+		//comment out see BLIX-144 for info.
+//		dataChannel.dispose();
+//		startChannel.dispose();
 		super.dispose();
 	}
 
@@ -190,22 +191,33 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 		}
 	}
 	double[] xdata;
+	DoubleDataset extiodata;
+	private boolean displayBindingEnergy=false;
 	private void updateExtIOPlot(final IProgressMonitor monitor, double[] value) {
 		if (isNewRegion()) {
 			try {
 				xdata = getAnalyser().getEnergyAxis();
+				if (isDisplayBindingEnergy()) {
+					xdata=convertToBindingENergy(xdata);
+				}
 			} catch (Exception e) {
 				logger.error("cannot get enegery axis from the analyser", e);
 			}
 		}
 		final DoubleDataset xAxis = new DoubleDataset(xdata,new int[] { xdata.length });
-		xAxis.setName("energies (eV)");
+		if (isDisplayBindingEnergy()) {
+			xAxis.setName("Binding Energies (eV)");
+		} else {
+			xAxis.setName("Kinetic Energies (eV)");
+		}
 		
 		final ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
-		DoubleDataset extiodata = new DoubleDataset(value, new int[] { value.length });
+		double[] data = ArrayUtils.subarray(value, 0, xdata.length);
+		extiodata = new DoubleDataset(data, new int[] { data.length });
 		extiodata.setName("External IO Data");
 		plotDataSets.add(extiodata);
 		plottingSystem.clear();
+		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 		final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);
 			if (!getDisplay().isDisposed()) {
 				getDisplay().asyncExec(new Runnable() {
@@ -218,12 +230,28 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 							profileLineTrace.setTraceColor(ColorConstants.blue);
 							setNewRegion(false);
 						}
-						plottingSystem.autoscaleAxes();
+//						plottingSystem.autoscaleAxes();
 					}
 				});
 			}
 	}
 
+	
+	public void updatePlot() {
+		xdata=convertToBindingENergy(xdata);
+		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
+		if (isDisplayBindingEnergy()) {
+			xAxis.setName("Binding Energies (eV)");
+		} else {
+			xAxis.setName("Kinetic Energies (eV)");
+		}
+		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
+		plotDataSets.add(extiodata);
+		plottingSystem.clear();
+		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
+		plottingSystem.createPlot1D(xAxis, plotDataSets, new NullProgressMonitor());
+	}
+	
 	public IVGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
@@ -268,17 +296,25 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 			setNewRegion(true);
 		}
 	}
-	@Override
-	public void propertyChange(PropertyChangeEvent event) {
+
+	private double[] convertToBindingENergy(double[] xdata) {
 		try {
 			double excitationEnergy = getAnalyser().getExcitationEnergy();
-			xdata = getAnalyser().getEnergyAxis();
 			for (int i = 0; i < xdata.length; i++) {
 				xdata[i] = excitationEnergy - xdata[i];
 			}
 		} catch (Exception e) {
 			logger.error("cannot get enegery axis fron the analyser", e);
 		}
+		return xdata;
+	}
+
+	public boolean isDisplayBindingEnergy() {
+		return displayBindingEnergy;
+	}
+
+	public void setDisplayBindingEnergy(boolean displayBindingEnergy) {
+		this.displayBindingEnergy = displayBindingEnergy;
 	}
 
 }

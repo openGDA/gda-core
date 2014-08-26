@@ -31,7 +31,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.nexusformat.NeXusFileInterface;
 import org.opengda.detector.electronanalyser.NotSupportedException;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
+import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.nxdata.NXDetectorDataAnalyserRegionAppender;
 import org.opengda.detector.electronanalyser.nxdata.NXDetectorDataFilenamesAppender;
@@ -145,6 +147,9 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 								getAnalyser().setNexusFile(file);
 							}
 							//TODO open/close fast shutter according to beam used
+							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
+								((ScriptControllerBase)getScriptcontroller()).update(this, new RegionStatusEvent(region.getRegionId(), STATUS.RUNNING));
+							}
 							getAnalyser().collectData();
 							Sleep.sleep(1000);
 							getAnalyser().waitWhileBusy();
@@ -159,6 +164,9 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 									regionDataList.add(getAnalyser().createRegionNodeWithNewData(region.getName()));
 									totalIntensity.add(getAnalyser().getTotalIntensity());
 								}
+							}
+							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
+								((ScriptControllerBase)getScriptcontroller()).update(this, new RegionStatusEvent(region.getRegionId(), STATUS.COMPLETED));
 							}
 						} catch (InterruptedException e) {
 							try {
@@ -175,12 +183,21 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 							} catch (DeviceException e1) {
 								logger.error("failed to stop the analyser acquisition on interrupt.", e1);
 							}
+							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
+								((ScriptControllerBase)getScriptcontroller()).update(this, new RegionStatusEvent(region.getRegionId(), STATUS.ABORTED));
+							}
 						}catch (DeviceException e) {
 							logger.error("failed to collectdata or waitWhileBusy from the analyser.", e);
+							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
+								((ScriptControllerBase)getScriptcontroller()).update(this, new RegionStatusEvent(region.getRegionId(), STATUS.INVALID));
+							}
 							break;
 						}
 						catch (Exception e) {
 							logger.error("Set new region to detector failed", e);
+							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
+								((ScriptControllerBase)getScriptcontroller()).update(this, new RegionStatusEvent(region.getRegionId(), STATUS.INVALID));
+							}
 							break;
 						}
 					}
@@ -283,13 +300,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 			}
 			appenders.add(new NXDetectorDataFilenamesAppender(getRegionNames(), extraValues, copyoftotalintensity));
 		} else {
-			boolean firstInScan;
-			if (scanDatapoint.get()==1) {
-				firstInScan=true;
-			} else {
-				firstInScan=false;
-			}
-			appenders.add(new NXDetectorDataAnalyserRegionAppender(copyofregiondatalist,firstInScan, copyoftotalintensity));
+			appenders.add(new NXDetectorDataAnalyserRegionAppender(copyofregiondatalist, copyoftotalintensity));
 			called=true;
 		}
 		return appenders;
@@ -497,7 +508,6 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 
 			getAnalyser().setCachedEnergyMode(literal);
 			
-//			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 10.0);
 			getAnalyser().setEnergyStep(region.getEnergyStep() / 1000.0, 10.0);
 			double collectionTime = region.getStepTime();
 			getAnalyser().setStepTime(collectionTime, 10.0);
