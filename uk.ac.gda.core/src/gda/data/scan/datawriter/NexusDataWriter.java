@@ -48,6 +48,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -505,12 +507,36 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			if (makeData) {
 				NexusGroupData data = tree.getData();
 				try {
-					String filePath = new String((byte[]) data.getBuffer(), "UTF-8");
-					File f = new File(filePath);
+					/**
+					 * Create a link of the format
+					 * "nxfile://" + path to external file relative to nxs file + "#" + address 
+					 * 
+					 * The buffer in data contains 
+					 * "nxfile://" + abs path to external file + "#" + address
+					 * 
+					 * so we need to replace the abs path with the relative path
+					 */
+					String link = new String((byte[]) data.getBuffer(), "UTF-8");
+					//link is of format nxfile:// + filepath + # + address
+					String[] linkParts = link.split("nxfile://");
+					if( linkParts.length!=2){
+						throw new NexusException("Invalid format for external link " + StringUtils.quote(link));
+					}
+					String[] parts = linkParts[1].split("#");
+					if( parts.length!=2){
+						throw new NexusException("Invalid format for external link " + StringUtils.quote(link));
+					}
+					Path absExtPath = Paths.get(parts[0]);
+					String address=parts[1];
+					File f = absExtPath.toFile();
 					if (!f.exists())
-						logger.warn("file " + filePath + " does not exist at time of adding link");
-					file.linkexternaldataset(name, filePath);
-					links.add(new ExteneralNXlink(name, filePath));
+						logger.warn("file " + absExtPath + " does not exist at time of adding link");
+					Path nxsFile = Paths.get(nexusFileUrl);
+					Path nxsParent = nxsFile.getParent();
+					Path relativize = nxsParent.relativize(absExtPath);
+					String relativeLink = "nxfile://" + relativize + "#" + address;
+					file.linkexternaldataset(name, relativeLink);
+					links.add(new ExternalNXlink(name, relativeLink));
 				} catch (UnsupportedEncodingException e) {
 					throw new NexusException(
 							"supported encoding in creating string for external linking -- this should never happen");

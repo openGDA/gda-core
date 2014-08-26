@@ -21,10 +21,10 @@ package gda.data.scan.datawriter;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
 
-public class ExteneralNXlink extends SelfCreatingLink {
+public class ExternalNXlink extends SelfCreatingLink {
 	String name, url;
 
-	public ExteneralNXlink(String name, String url) {
+	public ExternalNXlink(String name, String url) {
 		super(null);
 		this.name = name;
 		this.url = url;
