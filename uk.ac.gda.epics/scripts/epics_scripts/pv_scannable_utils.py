@@ -27,6 +27,25 @@ def createPVScannable( name, pv, addToNameSpace=True, hasUnits=True, getAsString
         commandServer.placeInJythonNamespace(name,sc)
     return sc
 
+
+def ls_pv_scannables():
+    """
+    Function to list Scannables associated with EPICs PVs, the PV and the associated DESC field
+    Usage:
+    ls_pv_scannables()
+    """
+    from gda.device.scannable import ScannableMotor
+    from gda.device.motor import EpicsMotor
+    a=InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace()
+    l=filter(lambda x: isinstance(x, EpicsScannable) or (isinstance(x, ScannableMotor) and isinstance(x.motor, EpicsMotor)), a.values().toArray())
+    for x in l:
+        if isinstance(x, EpicsScannable):
+            print x.name, x.pvName, caget(x.pvName + ".DESC")
+        if isinstance(x, ScannableMotor) and isinstance(x.motor, EpicsMotor):
+            print x.name, x.motor.pvName, caget(x.motor.pvName + ".DESC")
+        
+    
+    
 from gda.device.scannable import EpicsScannable
 from gda.epics import CAClient
 
