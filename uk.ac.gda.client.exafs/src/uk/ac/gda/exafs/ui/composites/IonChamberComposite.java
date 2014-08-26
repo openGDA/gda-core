@@ -332,9 +332,9 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		gain.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		List<String> notches = null;
-		if (!LocalProperties.get("gda.factory.factoryName").equals("I18"))
+		if (!LocalProperties.get("gda.factory.factoryName").equals("I18")) {
 			notches = GainCalculation.getGainNotches();
-		else{
+		} else {
 			notches = new ArrayList<String>(8);
 			notches.add("10^3 V/A");
 			notches.add("10^4 V/A");
@@ -356,24 +356,26 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 			}
 		});
 
-		offsetLabel = new Label(gainProperties, SWT.NONE);
-		offsetLabel.setText("Offset");
-		offsetLabel
-				.setToolTipText("The offset setting on the amplifier.\n(This cannot be linked to get the offset as the Stanford Amplifier does not have an offset for the gain, only a set.)");
+		if (!LocalProperties.get("gda.factory.factoryName").equals("I18")) {
+			offsetLabel = new Label(gainProperties, SWT.NONE);
+			offsetLabel.setText("Offset");
+			offsetLabel
+					.setToolTipText("The offset setting on the amplifier.\n(This cannot be linked to get the offset as the Stanford Amplifier does not have an offset for the gain, only a set.)");
 
-		offset = new ComboWrapper(gainProperties, SWT.READ_ONLY);
-		offset.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		final List<String> offsetNotches = GainCalculation.getOffsetNotches();
-		offset.setItems(offsetNotches.toArray(new String[offsetNotches.size()]));
-		offset.addButtonListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				WizardDialog dialog = new WizardDialog(getShell(), new GainWizard());
-				dialog.setPageSize(new Point(780, 550));
-				dialog.create();
-				dialog.open();
-			}
-		});
+			offset = new ComboWrapper(gainProperties, SWT.READ_ONLY);
+			offset.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+			final List<String> offsetNotches = GainCalculation.getOffsetNotches();
+			offset.setItems(offsetNotches.toArray(new String[offsetNotches.size()]));
+			offset.addButtonListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					WizardDialog dialog = new WizardDialog(getShell(), new GainWizard());
+					dialog.setPageSize(new Point(780, 550));
+					dialog.create();
+					dialog.open();
+				}
+			});
+		}
 		// offset.setEnabled(false);
 	}
 
