@@ -341,7 +341,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 		alreadyPrepared=false;
 		if(!isEnabled())
 			return;
-		FileRegistrarHelper.registerFile(getNdFileHDF5().getFullFileName_RBV());
+		FileRegistrarHelper.registerFile(expectedFullFileName);
 		endRecording();
 		disableFileWriting();
 	}
