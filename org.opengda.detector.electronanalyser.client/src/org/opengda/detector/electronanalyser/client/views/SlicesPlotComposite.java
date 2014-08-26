@@ -244,7 +244,7 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 							}
 							IProgressMonitor monitor = new NullProgressMonitor();
 							try {
-								updateSlicesPlot(monitor, value, selectedSlice);
+								updateSlicesPlot(monitor, value, Integer.valueOf(sliceControl.getText()));
 							} catch (Exception e) {
 								logger.error(
 										"exception caught preparing analyser live plot", e);
@@ -292,11 +292,14 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 			final AbstractDataset ds = new DoubleDataset(values, dims);
 			
 			yaxes.clear();
-			for (int i = 0; i < dims[0]; i++) {
-				AbstractDataset slice2 = ds.getSlice(new int[] { 0, i },new int[] { dims[1], i }, null);
-				slice2.setName("Intensity (counts");
-				yaxes.add(slice2);
-			}
+//			for (int i = 0; i < dims[0]; i++) {
+//				AbstractDataset slice2 = ds.getSlice(new int[] { i*dims[1], i },new int[] { (i+1)*dims[1]-1, i }, null);
+//				slice2.setName("Intensity (counts");
+//				yaxes.add(slice2);
+//			}
+			AbstractDataset slice2 = ds.getSlice(new int[] { slice*dims[1], slice },new int[] { (slice+1)*dims[1]-1, slice }, null);
+			slice2.setName("Intensity (counts");
+			yaxes.add(slice2);
 			plottingSystem.clear();
 			plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 			final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, yaxes, monitor);
@@ -311,7 +314,8 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 							setNewRegion(false);
 						}
 						// Highlight selected slice in blue color
-						profileLineTrace = (ILineTrace) profileLineTraces.get(slice);
+						profileLineTrace = (ILineTrace) profileLineTraces.get(0);
+//						profileLineTrace = (ILineTrace) profileLineTraces.get(slice);
 						profileLineTrace.setTraceColor(ColorConstants.blue);
 						//plottingSystem.autoscaleAxes();
 					}
