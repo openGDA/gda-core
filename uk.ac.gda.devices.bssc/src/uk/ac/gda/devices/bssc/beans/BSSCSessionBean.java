@@ -57,14 +57,14 @@ public class BSSCSessionBean implements IRichBean{
 		this.measurements = measurements;
 		for (TitrationBean tb : measurements) {
 			LocationBean loc = tb.getLocation();
-			LocationBean buf = tb.getBufferLocation();
+//			LocationBean buf = tb.getBufferLocation();
 			LocationBean rec = tb.getRecouperateLocation();
 			if (loc.getConfig() == null) {
 				loc.setConfig(BSSC_PLATES);
 			}
-			if (buf.getConfig() == null) {
-				buf.setConfig(BSSC_PLATES);
-			}
+//			if (buf.getConfig() == null) {
+//				buf.setConfig(BSSC_PLATES);
+//			}
 			if (rec != null && rec.getConfig() == null) {
 				rec.setConfig(BSSC_PLATES);
 			}

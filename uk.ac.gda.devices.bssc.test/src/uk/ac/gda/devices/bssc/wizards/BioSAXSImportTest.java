@@ -34,9 +34,9 @@ public class BioSAXSImportTest {
 	private static final int CONCENTRATION_COL_NO = 4;
 	private static final int VISCOSITY_COL_NO = 5;
 	private static final int MOLECULAR_WEIGHT_COL_NO = 6;
-	private static final int BUFFER_PLATE_COL_NO = 7;
-	private static final int BUFFER_ROW_COL_NO = 8;
-	private static final int BUFFER_COLUMN_COL_NO = 9;
+//	private static final int BUFFER_PLATE_COL_NO = 7;
+//	private static final int BUFFER_ROW_COL_NO = 8;
+//	private static final int BUFFER_COLUMN_COL_NO = 9;
 	private static final int RECOUP_PLATE_COL_NO = 10;
 	private static final int RECOUP_ROW_COL_NO = 11;
 	private static final int RECOUP_COLUMN_COL_NO = 12;
@@ -44,7 +44,7 @@ public class BioSAXSImportTest {
 	private static final int FRAMES_COL_NO = 14;
 	private static final int EXPOSURE_TEMP_COL_NO = 15;
 
-	private float sampleStorageTemperature = 15;
+//	private float sampleStorageTemperature = 15;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -127,7 +127,7 @@ public class BioSAXSImportTest {
 				spreadSheetRow = sheet.getRow(rowIndex + 1);
 
 				LocationBean plateLocation = tibi.getLocation();
-				LocationBean bufferLocation = tibi.getBufferLocation();
+//				LocationBean bufferLocation = tibi.getBufferLocation();
 				LocationBean recoupLocation = tibi.getRecouperateLocation();
 
 				plateLocation = locationFromCells(
@@ -152,23 +152,23 @@ public class BioSAXSImportTest {
 				Assert.assertEquals(tibi.getSampleName(), spreadSheetRow
 						.getCell(SAMPLE_NAME_COL_NO).getStringCellValue());
 
-				bufferLocation = locationFromCells(
-						spreadSheetRow.getCell(BUFFER_PLATE_COL_NO),
-						spreadSheetRow.getCell(BUFFER_ROW_COL_NO),
-						spreadSheetRow.getCell(BUFFER_COLUMN_COL_NO));
-				if (!bufferLocation.isValid())
-					throw new Exception("invalid buffer location");
-				tibi.setBufferLocation(bufferLocation);
-				Assert.assertEquals(bufferLocation.getPlate(),
-						parsePlateCell(spreadSheetRow
-								.getCell(BUFFER_PLATE_COL_NO)));
+//				bufferLocation = locationFromCells(
+//						spreadSheetRow.getCell(BUFFER_PLATE_COL_NO),
+//						spreadSheetRow.getCell(BUFFER_ROW_COL_NO),
+//						spreadSheetRow.getCell(BUFFER_COLUMN_COL_NO));
+//				if (!bufferLocation.isValid())
+//					throw new Exception("invalid buffer location");
+//				tibi.setBufferLocation(bufferLocation);
+//				Assert.assertEquals(bufferLocation.getPlate(),
+//						parsePlateCell(spreadSheetRow
+//								.getCell(BUFFER_PLATE_COL_NO)));
 
-				Assert.assertEquals(String.valueOf(bufferLocation.getRow()),
-						spreadSheetRow.getCell(BUFFER_ROW_COL_NO)
-								.getStringCellValue());
-				Assert.assertEquals(bufferLocation.getColumn(), Math
-						.round(spreadSheetRow.getCell(BUFFER_COLUMN_COL_NO)
-								.getNumericCellValue()));
+//				Assert.assertEquals(String.valueOf(bufferLocation.getRow()),
+//						spreadSheetRow.getCell(BUFFER_ROW_COL_NO)
+//								.getStringCellValue());
+//				Assert.assertEquals(bufferLocation.getColumn(), Math
+//						.round(spreadSheetRow.getCell(BUFFER_COLUMN_COL_NO)
+//								.getNumericCellValue()));
 
 				try {
 					recoupLocation = locationFromCells(

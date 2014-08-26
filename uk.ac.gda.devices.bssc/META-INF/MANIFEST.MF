@@ -41,7 +41,9 @@ Require-Bundle: org.eclipse.ui,
  org.dawnsci.plotting.draw2d;bundle-version="1.2.0",
  uk.ac.diamond.scisoft.ncd.core;bundle-version="3.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: uk.ac.gda.devices.bssc,
+Export-Package: org.apache.poi.openxml4j.exceptions,
+ org.apache.poi.ss.usermodel,
+ uk.ac.gda.devices.bssc,
  uk.ac.gda.devices.bssc.beans,
  uk.ac.gda.devices.bssc.ispyb,
  uk.ac.gda.devices.bssc.ui

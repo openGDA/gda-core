@@ -25,10 +25,6 @@
   </extension>
   <extension
         point="org.eclipse.ui.newWizards">
-     <category
-           id="uk.ac.gda.devices.bssc"
-           name="Experiment">
-     </category>
      <wizard
            category="uk.ac.gda.devices.bssc"
            class="uk.ac.gda.devices.bssc.wizards.BSSCSessionWizard"

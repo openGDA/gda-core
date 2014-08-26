@@ -42,7 +42,7 @@ public class LocationBean implements IRichBean {
 
 	public void setPlate(short plate) {
 		if (!validPlate(plate)) {
-			throw new IllegalArgumentException("Invalid plate"); 
+			throw new IllegalArgumentException("Invalid plate: " + plate); 
 		}
 		this.plate = plate;
 	}

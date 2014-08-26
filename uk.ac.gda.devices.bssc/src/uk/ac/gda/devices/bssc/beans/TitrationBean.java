@@ -18,8 +18,12 @@
 
 package uk.ac.gda.devices.bssc.beans;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import uk.ac.gda.beans.IRichBean;
 
 public class TitrationBean implements IRichBean {
@@ -28,7 +32,6 @@ public class TitrationBean implements IRichBean {
 		LOW("low", "l"),
 		MEDIUM("medium", "med", "m"),
 		HIGH("high", "h");
-		
 		private static Map<String, Viscosity> acceptedStrings = new HashMap<>();
 		static {
 			for (Viscosity vis : Viscosity.values()) {
@@ -37,9 +40,7 @@ public class TitrationBean implements IRichBean {
 				}
 			}
 		}
-		
 		private final String[] accepted;
-		
 		private Viscosity(String... names) {
 			this.accepted = names;
 		}
@@ -50,16 +51,25 @@ public class TitrationBean implements IRichBean {
 			}
 			throw new IllegalArgumentException(vis + " is not a valid viscosity");
 		}
-		
 		@Override
 		public String toString() {
 			return name().toLowerCase();
 		}
 	}
+	public enum Mode {
+		NORMAL,
+		SM,
+		NONE;
+	}
 	
 	LocationBean location = new LocationBean(BSSCSessionBean.BSSC_PLATES);
-	LocationBean bufferLocation = new LocationBean(BSSCSessionBean.BSSC_PLATES);
+//	LocationBean bufferLocation = new LocationBean(BSSCSessionBean.BSSC_PLATES);
 	LocationBean recouperateLocation = null;
+	String buffers = "";
+	String bufferCache = "";//save buffer list when switching between isBuffer t/f
+	boolean buffer = false;
+	Mode mode = Mode.NORMAL;
+	String key = "";
 	String sampleName = "sample";
 	boolean yellowSample = true;
 	Viscosity viscosity = Viscosity.HIGH;
@@ -88,11 +98,23 @@ public class TitrationBean implements IRichBean {
 			if (!recouperateLocation.isValid()) {
 				throw new IllegalArgumentException("Recouperation Location is not valid");
 			}
-			if (recouperateLocation.equals(location)) {
-				throw new IllegalArgumentException("Recouperation location can't be the same as sample location");
-			}
+//			if (recouperateLocation.equals(location)) {
+//				throw new IllegalArgumentException("Recouperation location can't be the same as sample location");
+//			}
 		}
 		this.recouperateLocation = recouperateLocation;
+	}
+	public boolean isBuffer() {
+		return buffer;
+	}
+	public void setBuffer(boolean buffer) {
+		this.buffer = buffer;
+		if (buffer) {
+			bufferCache = buffers;
+			buffers = "";
+		} else {
+			buffers = bufferCache;
+		}
 	}
 	public String getSampleName() {
 		return sampleName;
@@ -142,16 +164,64 @@ public class TitrationBean implements IRichBean {
 	public void setMolecularWeight(double molecularWeight) {
 		this.molecularWeight = molecularWeight;
 	}
-	public LocationBean getBufferLocation() {
-		return bufferLocation;
+	public String getBuffers() {
+		return buffers;
 	}
-	public void setBufferLocation(LocationBean bufferLocation) {
-		bufferLocation.setConfig(BSSCSessionBean.BSSC_PLATES);
-		if (!bufferLocation.isValid()) {
-			throw new IllegalArgumentException("Buffer location is not valid");
+	public void setBuffers(String buffers) {
+		Pattern validCell = Pattern.compile("\\s*([0-9]+)\\s*([a-zA-Z])\\s*([0-9]+)\\s*");
+		Matcher matcher; 
+		String[] cells = buffers.split("[;,]+");
+		for (int i = 0; i < cells.length; i++ ) {
+			matcher = validCell.matcher(cells[i]);
+			if (matcher.matches()) {
+				try {
+					LocationBean loc = new LocationBean(BSSCSessionBean.BSSC_PLATES);
+					String plate = matcher.group(1).toLowerCase();
+					String row = matcher.group(2).toLowerCase();
+					String col = matcher.group(3).toLowerCase();
+					//validate
+					loc.setPlate(Short.valueOf(plate));
+					loc.setRow(Character.valueOf(row.charAt(0)));
+					loc.setColumn(Short.valueOf(col));
+					//clean
+					cells[i] = String.format("%s%s%s",plate, row, col);
+				} catch (IllegalArgumentException iae) {
+					throw iae;
+				}
+			} else {
+				throw new IllegalArgumentException(String.format("Buffer plate %s is not valid", cells[i]));
+			}
+//			if (!cell.matches("[0-9]+\\s*[a-zA-Z]\\s*[0-9]+")) {
+//				throw new IllegalArgumentException("Invalid buffer cell: " + cell);
+//			}
 		}
-		this.bufferLocation = bufferLocation;
+		this.buffers = Arrays.toString(cells).replaceAll("[\\[\\]]", "");
+		if (!buffers.equals("")) {
+			buffer = false;
+		}
 	}
+	public String getMode() {
+		return mode.toString();
+	}
+	public void setMode(String mode) {
+		this.mode = Mode.valueOf(mode.toUpperCase());
+	}
+	public String getKey() {
+		return key;
+	}
+	public void setKey(String key) {
+		this.key = key.toLowerCase();
+	}
+	//	public LocationBean getBufferLocation() {
+//		return bufferLocation;
+//	}
+//	public void setBufferLocation(LocationBean bufferLocation) {
+//		bufferLocation.setConfig(BSSCSessionBean.BSSC_PLATES);
+//		if (!bufferLocation.isValid()) {
+//			throw new IllegalArgumentException("Buffer location is not valid");
+//		}
+//		this.bufferLocation = bufferLocation;
+//	}
 	@Override
 	public void clear() {
 	}
