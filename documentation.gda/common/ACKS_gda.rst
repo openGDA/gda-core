@@ -13,7 +13,6 @@ This section lists people who have contributed in some way (code, design, docume
       * Jonathan Blakes
       * Mark Booth
       * Peter Chang
-      * Chris Coles
       * Silvia Da Graca Ramos
       * Baha El Kassaby
       * Richard Fearn
@@ -40,6 +39,7 @@ This section lists people who have contributed in some way (code, design, docume
       * Oliver Buckley
       * Stuart Campbell
       * Josephine Chan
+      * Chris Coles
       * Joachim Diepstraten
       * Jonah Graham
       * Graham Lee
