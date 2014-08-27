@@ -30,8 +30,8 @@ import org.eclipse.core.runtime.content.IContentDescriber;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import uk.ac.gda.beans.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
-import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.exafs.ui.describers.XspressDescriber;
 import uk.ac.gda.util.PackageUtils;
 import uk.ac.gda.util.beans.xml.XMLHelpers;

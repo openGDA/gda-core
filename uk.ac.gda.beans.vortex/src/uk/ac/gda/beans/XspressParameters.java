@@ -16,17 +16,15 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.beans.xspress;
+package uk.ac.gda.beans;
 
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.beanutils.BeanUtils;
+import uk.ac.gda.beans.xspress.DetectorElement;
 
-import uk.ac.gda.beans.ElementCountsData;
-import uk.ac.gda.beans.IRichBean;
 
 public class XspressParameters implements Serializable,IRichBean {	
 	/**
@@ -40,7 +38,6 @@ public class XspressParameters implements Serializable,IRichBean {
 	private String resGrade;
 	private String regionType = VIRTUALSCALER;
 	private List<DetectorElement> detectorList;
-	private ElementCountsData[] data;
 	private String readoutMode;
 
 	private boolean editIndividualElements;
@@ -158,14 +155,6 @@ public class XspressParameters implements Serializable,IRichBean {
 
 	public void setResGrade(String resGrade) {
 		this.resGrade = resGrade;
-	}
-
-	public ElementCountsData[] getData() {
-		return data;
-	}
-
-	public void setData(ElementCountsData[] data) {
-		this.data = data;
 	}
 
 	public String getReadoutMode() {

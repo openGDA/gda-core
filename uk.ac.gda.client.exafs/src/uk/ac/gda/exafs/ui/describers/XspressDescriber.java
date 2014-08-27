@@ -19,7 +19,7 @@
 package uk.ac.gda.exafs.ui.describers;
 
 
-import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.beans.XspressParameters;
 import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
 
 /**

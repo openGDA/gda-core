@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping>
+	
+			
+	<class name="uk.ac.gda.beans.microfocus.MicroFocusScanParameters">
+		<map-to xml="MicroFocusScanParameters" />
+		<field name="xScannableName" type="string">
+			<bind-xml name="xScannableName" node="element" />
+		</field>
+		<field name="yScannableName" type="string">
+			<bind-xml name="yScannableName" node="element" />
+		</field>
+		<field name="xStart" type="double">
+			<bind-xml name="xStart" node="element" />
+		</field>
+		<field name="xEnd" type="double">
+			<bind-xml name="xEnd" node="element" />
+		</field>
+		<field name="xStepSize" type="double">
+			<bind-xml name="xStepSize" node="element" />
+		</field>
+		<field name="yStart" type="double">
+			<bind-xml name="yStart" node="element" />
+		</field>
+		<field name="yEnd" type="double">
+			<bind-xml name="yEnd" node="element" />
+		</field>
+		<field name="yStepSize" type="double">
+			<bind-xml name="yStepSize" node="element" />
+		</field>		
+		<field name="collectionTime" type="double">
+			<bind-xml name="collectionTime" node="element" />
+		</field>
+		<field name="energyScannableName" type="string">
+			<bind-xml name="energyScannableName" node="element" />
+		</field>
+		<field name="energy" type="java.lang.Double">
+			<bind-xml name="energy" node="element"/>
+		</field>
+		<field name="zScannableName" type="string">
+			<bind-xml name="zScannableName" node="element" />
+		</field>
+		<field name="zValue" type="double">
+			<bind-xml name="zValue" node="element" />
+		</field>
+		<field name="continuousScannableName" type="string">
+			<bind-xml name="continuousScannableName" node="element" />
+		</field>
+		<field name="raster" type="boolean">
+			<bind-xml name="raster" node="element" />
+		</field>
+		<field name="rowTime" type="double">
+			<bind-xml name="rowTime" node="element" />
+		</field>
+	</class>
+	
+</mapping>
+	

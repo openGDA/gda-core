@@ -4,7 +4,6 @@ Bundle-Name: Xmap
 Bundle-SymbolicName: uk.ac.gda.devices.xmap
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: uk.ac.gda.libs;bundle-version="1.0.0",
- uk.ac.gda.server.exafs;bundle-version="1.0.0",
  uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.core;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",

@@ -7,9 +7,9 @@ import gda.device.detector.xspress.XspressDetector;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.gda.beans.XspressParameters;
+import uk.ac.gda.beans.XspressROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
-import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
 
 /**
  * Holds the current settings for the Xspress2 detector. This object is shared

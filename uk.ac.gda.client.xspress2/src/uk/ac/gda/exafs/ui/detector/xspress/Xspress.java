@@ -25,7 +25,6 @@ import java.awt.Color;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
-import org.eclipse.dawnsci.plotting.api.jreality.util.PlotColorUtility;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.jface.viewers.ICellModifier;
@@ -37,8 +36,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchPartSite;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
+import uk.ac.gda.beans.XspressParameters;
 import uk.ac.gda.beans.xspress.DetectorElement;
-import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
 import uk.ac.gda.exafs.ui.detectorviews.Detector;

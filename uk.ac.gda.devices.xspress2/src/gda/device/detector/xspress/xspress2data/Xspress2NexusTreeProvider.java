@@ -12,10 +12,10 @@ import java.util.Vector;
 import org.apache.commons.lang.ArrayUtils;
 import org.nexusformat.NexusFile;
 
+import uk.ac.gda.beans.XspressParameters;
+import uk.ac.gda.beans.XspressROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
-import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
 
 /**
  * Provides tools to convert raw data from the Xspress2 electronics into

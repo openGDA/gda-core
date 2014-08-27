@@ -34,10 +34,10 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
 import uk.ac.gda.beans.BeansFactory;
+import uk.ac.gda.beans.XspressParameters;
+import uk.ac.gda.beans.XspressROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.VortexROI;
-import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
 
 public class MicroFocusNexusReader {
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusNexusReader.class);

@@ -20,6 +20,7 @@ package uk.ac.gda.client.microfocus.util;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
 import org.junit.BeforeClass;
@@ -27,8 +28,8 @@ import org.junit.Test;
 
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.beans.XspressROI;
 import uk.ac.gda.beans.vortex.VortexROI;
-import uk.ac.gda.beans.xspress.XspressROI;
 
 public class MicroFocusNexusReaderTest {
 	private static MicroFocusNexusReader rdr;

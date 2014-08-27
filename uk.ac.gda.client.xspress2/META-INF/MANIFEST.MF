@@ -12,11 +12,11 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.common,
  org.eclipse.dawnsci.plotting.api;bundle-version="1.2.0",
  uk.ac.diamond.scisoft.analysis,
- uk.ac.gda.server.exafs,
  uk.ac.gda.client.experimentdefinition,
  uk.ac.gda.core,
  org.eclipse.ui.editors;bundle-version="3.8.0",
- org.dawnsci.plotting.jreality
+ org.dawnsci.plotting.jreality,
+ uk.ac.gda.beans.vortex;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: uk.ac.gda.exafs.ui.describers,
  uk.ac.gda.exafs.ui.detector.xspress
