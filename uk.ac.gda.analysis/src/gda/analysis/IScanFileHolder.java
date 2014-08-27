@@ -20,6 +20,7 @@ package gda.analysis;
 
 import java.util.List;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
@@ -323,7 +324,7 @@ public interface IScanFileHolder {
 	 * @param y
 	 *            A Dataset containing the data values for the centroid calculation
 	 * @return The double value showing the centroid of the data given the positions and values
-	 * @deprecated Use {@link DatasetUtils#centroid(Dataset, Dataset...)}
+	 * @deprecated Use {@link DatasetUtils#centroid(AbstractDataset, AbstractDataset...)}
 	 */
 	@Deprecated
 	public double centroid(DoubleDataset x, DoubleDataset y);
