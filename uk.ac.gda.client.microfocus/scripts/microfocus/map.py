@@ -220,8 +220,8 @@ class Map(Scan):
         twoDWriter = XasAsciiNexusDatapointCompletingDataWriter()
         twoDWriter.addDataWriterExtender(self.mfd)
         # XAS-162 try this:
-#         if (Finder.getInstance().find("FileRegistrar") != None):
-#             twoDWriter.addDataWriterExtender(Finder.getInstance().find("FileRegistrar"))
+        if (Finder.getInstance().find("FileRegistrar") != None):
+            twoDWriter.addDataWriterExtender(Finder.getInstance().find("FileRegistrar"))
         dataWriter = twoDWriter.getXasDataWriter()
         
         
