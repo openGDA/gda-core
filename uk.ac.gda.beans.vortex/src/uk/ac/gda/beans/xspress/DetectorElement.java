@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
+import uk.ac.gda.beans.XspressROI;
 import uk.ac.gda.beans.exafs.IDetectorElement;
 
 /**

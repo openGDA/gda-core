@@ -36,4 +36,7 @@ public interface IOutputParameters extends IRichBean{
 	 */
 	public String getAsciiDirectory();
 	
+	
+	public String getNexusDirectory();
+	
 }

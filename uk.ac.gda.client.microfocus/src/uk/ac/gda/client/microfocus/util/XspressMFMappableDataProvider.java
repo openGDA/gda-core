@@ -31,8 +31,8 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
+import uk.ac.gda.beans.XspressParameters;
+import uk.ac.gda.beans.XspressROI;
 
 public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvider {
 

@@ -23,10 +23,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.beans.XspressParameters;
 import uk.ac.gda.beans.xspress.DetectorElement;
-import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
-
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.DetectorBase;

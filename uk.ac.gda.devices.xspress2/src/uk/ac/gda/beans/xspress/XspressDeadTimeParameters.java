@@ -24,6 +24,8 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
+import uk.ac.gda.beans.XspressParameters;
+
 
 public class XspressDeadTimeParameters {
 	private List<DetectorDeadTimeElement> detectorDTList;

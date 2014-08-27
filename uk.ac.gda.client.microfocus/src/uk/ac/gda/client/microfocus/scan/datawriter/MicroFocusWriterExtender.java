@@ -56,10 +56,10 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.beans.XspressParameters;
+import uk.ac.gda.beans.XspressROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.VortexROI;
-import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
 import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
 

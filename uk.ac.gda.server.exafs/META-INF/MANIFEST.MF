@@ -14,26 +14,21 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.client.experimentdefinition;bundle-version="8.32.0",
  uk.ac.diamond.jython;bundle-version="[2.5.3,3.0.0)",
  org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
- org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)"
+ org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)",
+ uk.ac.gda.exafs.datawriter;bundle-version="1.0.0",
+ uk.ac.gda.beans.vortex;bundle-version="1.0.0",
+ uk.ac.gda.devices.xspress2,
+ uk.ac.gda.devices.xmap;bundle-version="1.0.0",
+ uk.ac.gda.devices.xspress3;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gda.device.detector,
  gda.device.detector.countertimer,
  gda.device.scannable,
- gda.exafs.mucal,
- gda.exafs.scan,
- gda.exafs.xes,
  gda.jython.scriptcontroller.logging,
- gda.util,
- uk.ac.gda.beans,
- uk.ac.gda.beans.exafs,
- uk.ac.gda.beans.exafs.b18,
- uk.ac.gda.beans.exafs.bm26a,
- uk.ac.gda.beans.exafs.i18,
- uk.ac.gda.beans.exafs.i20,
- uk.ac.gda.beans.microfocus,
  uk.ac.gda.server.exafs
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core, uk.ac.gda.client
 Import-Package: gda.factory,
- org.slf4j;version="[1.7.6,1.7.7)"
+ org.slf4j;version="[1.7.6,1.7.7)",
+ uk.ac.gda.beans.xspress
 Bundle-Vendor: Diamond Light Source

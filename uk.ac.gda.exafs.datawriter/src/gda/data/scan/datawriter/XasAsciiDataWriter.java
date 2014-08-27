@@ -22,16 +22,12 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.detector.DarkCurrentDetector;
 import gda.device.detector.DarkCurrentResults;
-import gda.device.detector.xspress.Xspress2Detector;
-import gda.factory.Finder;
 import gda.scan.IScanDataPoint;
 
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.beans.xspress.DetectorElement;
 
 /**
  * Extension to the asciidatawriter which uses xml files if defined which have more options specific to the exafs RCP
@@ -147,17 +143,18 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 					StringBuffer buf = new StringBuffer();
 					buf.append("Disabled elements: ");
 					boolean found = false;
-					Xspress2Detector xspress = Finder.getInstance().find(xspressName);// Finder Arghhhhhhhhh
-					if (xspress != null) {
-						for (DetectorElement element : xspress.getDetectorList()) {
-							if (element.isExcluded()) {
-								if (found)
-									buf.append(",");
-								found = true;
-								buf.append(element.getNumber());
-							}
-						}
-					}
+					// TODO remove this before committing
+//					Xspress2Detector xspress = Finder.getInstance().find(xspressName);// Finder Arghhhhhhhhh
+//					if (xspress != null) {
+//						for (DetectorElement element : xspress.getDetectorList()) {
+//							if (element.isExcluded()) {
+//								if (found)
+//									buf.append(",");
+//								found = true;
+//								buf.append(element.getNumber());
+//							}
+//						}
+//					}
 					if (found)
 						file.write("# " + buf + "\n");
 				} 

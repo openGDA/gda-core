@@ -20,7 +20,7 @@ package gda.device.detector.xspress;
 
 import java.io.File;
 
-import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.beans.XspressParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class Xspress2BeanUtils {

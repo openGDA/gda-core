@@ -9,8 +9,8 @@ import java.util.List;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
+import uk.ac.gda.beans.XspressROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
-import uk.ac.gda.beans.xspress.XspressROI;
 
 public class XspressView extends ViewPart {
 	
