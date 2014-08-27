@@ -5,7 +5,13 @@ Bundle-SymbolicName: org.opengda.lde;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.opengda.lde.Activator
 Bundle-Vendor: Diamond Light Source Ltd
-Require-Bundle: org.eclipse.core.runtime
+Require-Bundle: org.eclipse.core.runtime,
+ uk.ac.gda.core;bundle-version="8.42.0",
+ uk.ac.gda.common,
+ org.opengda.lde.model;bundle-version="0.1.0",
+ org.opengda.lde.model.edit;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Export-Package: org.opengda.lde.events
+Export-Package: org.opengda.lde.events,
+ org.opengda.lde.util
+Import-Package: org.slf4j

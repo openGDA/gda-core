@@ -106,8 +106,8 @@ import org.opengda.lde.ui.jobs.SampleCollectionJob;
 import org.opengda.lde.ui.providers.SampleGroupViewContentProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewLabelProvider;
 import org.opengda.lde.ui.providers.SampleTableConstants;
-import org.opengda.lde.ui.utils.LDEResourceUtil;
 import org.opengda.lde.ui.utils.StringUtils;
+import org.opengda.lde.util.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
@@ -243,7 +243,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		Label lblDataFile = new Label(statusArea, SWT.NONE);
 		lblDataFile.setText("Collecting Data File:");
 		
-		txtDataFilename = new Text(statusArea, SWT.BORDER);
+		txtDataFilename = new Text(statusArea, SWT.BORDER | SWT.READ_ONLY);
 		txtDataFilename.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtDataFilename.setEditable(false);
 		txtDataFilename.setToolTipText("Data file to be written for the current collection");
@@ -260,7 +260,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		Label lblCurrentState = new Label(statusArea, SWT.NONE);
 		lblCurrentState.setText("Processor Messages:");
 		
-		txtProcessorMessage = new Text(statusArea, SWT.BORDER);
+		txtProcessorMessage = new Text(statusArea, SWT.BORDER | SWT.READ_ONLY);
 		txtProcessorMessage.setEditable(false);
 		txtProcessorMessage.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtProcessorMessage.setToolTipText("show the current process position out of the total number of active processes ");
@@ -269,7 +269,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		initialisation();
 		// register as selection provider to the SelectionService
 		getViewSite().setSelectionProvider(this);
-		// register as selection listener of sample view if exist
+		// register as selection listener of sample editor if exist
 //		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SampleViewExtensionFactory.ID, selectionListener);
 		
 		Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
@@ -277,14 +277,14 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			public void done(IJobChangeEvent event) {
 				Job job = event.getJob();
 				if (job instanceof SampleCollectionJob) {
-					SampleCollectionJob regionJob = (SampleCollectionJob) job;
+					SampleCollectionJob sampleJob = (SampleCollectionJob) job;
 					IStatus result = event.getResult();
 					if (result.isOK()) {
-						updateSampleStatus(regionJob, STATUS.COMPLETED);
+						updateSampleStatus(sampleJob, STATUS.COMPLETED);
 					} else if (result.getSeverity() == IStatus.CANCEL) {
-						updateSampleStatus(regionJob, STATUS.ABORTED);
+						updateSampleStatus(sampleJob, STATUS.ABORTED);
 					} else if (result.getSeverity() == IStatus.ERROR) {
-						updateSampleStatus(regionJob, STATUS.ABORTED);
+						updateSampleStatus(sampleJob, STATUS.ERROR);
 					}
 
 					if (Job.getJobManager().find(SampleCollectionJob.FAMILY_SAMPLE_JOB).length == 0) {

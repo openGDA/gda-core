@@ -18,17 +18,17 @@
 
 package org.opengda.lde.ui.viewfactories;
 
+import gda.rcp.views.FindableExecutableExtension;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.jms.IllegalStateException;
 
-import gda.rcp.views.FindableExecutableExtension;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.opengda.lde.ui.utils.LDEResourceUtil;
 import org.opengda.lde.ui.views.SampleGroupView;
+import org.opengda.lde.util.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
