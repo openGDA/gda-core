@@ -125,6 +125,9 @@ class RasterMapReturnWrite(RasterMap):
         twoDWriter = XasAsciiNexusDatapointCompletingDataWriter()
         twoDWriter.setIndexer(rowR)
         twoDWriter.addDataWriterExtender(self.mfd)
+        # XAS-162 try this:
+#         if (Finder.getInstance().find("FileRegistrar") != None):
+#             twoDWriter.addDataWriterExtender(Finder.getInstance().find("FileRegistrar"))
         
         xasWriter = twoDWriter.getXasDataWriter()
         
