@@ -193,7 +193,7 @@ class TestScanDataProcessorResultWithFeatureOutsideCollection(TestScanDataProces
 		# assume that we have found the max value of ye as x was varied
 		self.dsr = XYDataSetResult('lcen', {'lcen': -5.4}, ('lcen',), 'lcen',"..." )
 		#dataSetResult, keyxlabel, scanFileHolder, allscannables
-		self.sdpr = ScanDataProcessorResult(self.dsr,  self.sfh, [self.x,self.y,self.z], 'x', 'ye')
+		self.sdpr = ScanDataProcessorResult(self.dsr,  self.sfh, [self.x,self.y,self.z], 'x.x', 'y.ye')
 	
 	def test__init__scannableValuesFound(self):
 		
