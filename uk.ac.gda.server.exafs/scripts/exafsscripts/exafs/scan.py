@@ -122,23 +122,13 @@ class Scan:
                 asciiFileNameTemplate = asciiSubFolder +"/"+ sampleName+"_%d_"+str(repetition)+".dat"
 
         # create XasAsciiNexusDataWriter object and give it the parameters
-        # XAS-162 try this:
-#         dataWriter = DefaultDataWriterFactory.createDataWriterFromFactory()
         dataWriter = XasAsciiNexusDataWriter()
-        
-#        print "detectorFileName", detectorFileName
-#        print "basestring", basestring
         
         if (Finder.getInstance().find("metashop") != None and isinstance(detectorFileName, basestring)):
             
-            #print "scanning... ", self.detectorFileName
-           # print "meta_add detectorFileName", detectorFileName
             meta_add(detectorFileName, BeansFactory.getXMLString(detectorBean))
-            #print "meta_add outputFileName", outputFileName
             meta_add(outputFileName, BeansFactory.getXMLString(outputBean))
-            #print "meta_add sampleFileName", sampleFileName
             meta_add(sampleFileName, BeansFactory.getXMLString(sampleBean))
-            #print "meta_add scanFileName", scanFileName
             meta_add(scanFileName, BeansFactory.getXMLString(scanBean))
             meta_add("xmlFolderName", experimentFullPath)
             xmlFilename = self._determineDetectorFilename(detectorBean)

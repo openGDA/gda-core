@@ -219,9 +219,6 @@ class Map(Scan):
         # scans to return the real motor positions which are not available until the end of each row.
         twoDWriter = XasAsciiNexusDatapointCompletingDataWriter()
         twoDWriter.addDataWriterExtender(self.mfd)
-        # XAS-162 try this:
-#         if (Finder.getInstance().find("FileRegistrar") != None):
-#             twoDWriter.addDataWriterExtender(Finder.getInstance().find("FileRegistrar"))
         dataWriter = twoDWriter.getXasDataWriter()
         
         
