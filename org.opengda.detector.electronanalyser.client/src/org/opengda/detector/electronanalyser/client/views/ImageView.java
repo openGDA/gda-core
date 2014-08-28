@@ -1,6 +1,5 @@
 package org.opengda.detector.electronanalyser.client.views;
 
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
@@ -10,14 +9,15 @@ import org.eclipse.ui.INullSelectionListener;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
-import org.opengda.detector.electronanalyser.client.viewextensionfactories.SequenceViewExtensionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ImageView extends LivePlotView {
 
+	public static final String ID = "org.opengda.detector.electronanalyser.client.views.imageview";
 	private static final Logger logger = LoggerFactory.getLogger(ImageView.class);
+	ImagePlotComposite plotComposite;
 
 	public ImageView() {
 		setTitleToolTip("live display of 2D matrix as image");
@@ -25,8 +25,6 @@ public class ImageView extends LivePlotView {
 		setPartName("Image");
 	}
 
-	ImagePlotComposite plotComposite;
-	Action energyMode;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -43,7 +41,7 @@ public class ImageView extends LivePlotView {
 		getViewSite()
 				.getWorkbenchWindow()
 				.getSelectionService()
-				.addSelectionListener(SequenceViewExtensionFactory.ID,
+				.addSelectionListener(SequenceView.ID,
 						selectionListener);
 	}
 
@@ -60,5 +58,15 @@ public class ImageView extends LivePlotView {
 				}
 			}
 		}
+	};
+	
+	@Override
+	public void dispose() {
+		getViewSite()
+		.getWorkbenchWindow()
+		.getSelectionService()
+		.removeSelectionListener(SequenceView.ID,
+				selectionListener);
+		super.dispose();
 	};
 }

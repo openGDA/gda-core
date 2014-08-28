@@ -120,7 +120,6 @@ import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefini
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceTableConstants;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewContentProvider;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewLabelProvider;
-import org.opengda.detector.electronanalyser.client.viewextensionfactories.RegionViewExtensionFactory;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
 import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.event.SequenceFileChangeEvent;
@@ -148,6 +147,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 
 public class SequenceView extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, IObserver, InitializationListener {
+	public static final String ID = "org.opengda.detector.electronanalyser.client.sequenceeditor";
 	private static final Logger logger = LoggerFactory.getLogger(SequenceView.class);
 
 	private List<ISelectionChangedListener> selectionChangedListeners;
@@ -771,7 +771,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		initialisation();
 		// register as selection provider to the SelectionService
 		getViewSite().setSelectionProvider(this);
-		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(RegionViewExtensionFactory.ID, selectionListener);
+		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(RegionView.ID, selectionListener);
 
 		Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
 			@Override
@@ -1619,7 +1619,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	public void dispose() {
 		try {
 			regionDefinitionResourceUtil.getResource().eAdapters().remove(notifyListener);
-			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(RegionViewExtensionFactory.ID, selectionListener);
+			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(RegionView.ID, selectionListener);
 			stateChannel.dispose();
 			scriptcontroller.deleteIObserver(this);
 		} catch (Exception e) {

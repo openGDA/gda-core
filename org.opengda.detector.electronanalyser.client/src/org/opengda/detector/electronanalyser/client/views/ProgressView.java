@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class ProgressView extends ViewPart {
 
+	public static String ID = "org.opengda.detector.electronanalyser.client.views.progressview";
 	private static final Logger logger=LoggerFactory .getLogger(ProgressView.class);
 	private String currentPointPV;
 	private String totalPointsPV;

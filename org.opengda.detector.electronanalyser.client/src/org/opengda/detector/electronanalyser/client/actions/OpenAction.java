@@ -9,7 +9,7 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
-import org.opengda.detector.electronanalyser.client.viewextensionfactories.SequenceViewExtensionFactory;
+import org.opengda.detector.electronanalyser.client.views.SequenceView;
 
 public class OpenAction extends Action {
 	private IWorkbenchPage page;
@@ -41,7 +41,7 @@ public class OpenAction extends Action {
 		if (isEnabled()) {
 			IViewPart seqViewPart = null;
 			try {
-				seqViewPart = page.showView(SequenceViewExtensionFactory.ID);
+				seqViewPart = page.showView(SequenceView.ID);
 			} catch (PartInitException e) {
 				e.printStackTrace();
 			}

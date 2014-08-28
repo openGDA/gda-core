@@ -42,7 +42,6 @@ Export-Package: org.opengda.detector.electronanalyser.client,
  org.opengda.detector.electronanalyser.client.dialogs,
  org.opengda.detector.electronanalyser.client.selection,
  org.opengda.detector.electronanalyser.client.sequenceeditor,
- org.opengda.detector.electronanalyser.client.viewextensionfactories,
  org.opengda.detector.electronanalyser.client.viewfactories,
  org.opengda.detector.electronanalyser.client.views,
  org.opengda.detector.electronanalyser.utils

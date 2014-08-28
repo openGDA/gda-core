@@ -9,13 +9,13 @@ import org.eclipse.ui.INullSelectionListener;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
-import org.opengda.detector.electronanalyser.client.viewextensionfactories.SequenceViewExtensionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ExternalIOView extends LivePlotView {
 
+	public static final String ID = "org.opengda.detector.electronanalyser.client.views.externalioview";
 	private static final Logger logger=LoggerFactory .getLogger(ExternalIOView.class);
 	ExtIOPlotComposite plotComposite;
 
@@ -37,7 +37,7 @@ public class ExternalIOView extends LivePlotView {
 		} catch (Exception e) {
 			logger.error("Cannot create external IO plot composite.", e);
 		}
-		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SequenceViewExtensionFactory.ID, selectionListener);
+		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SequenceView.ID, selectionListener);
 	}
 
 	private ISelectionListener selectionListener = new INullSelectionListener() {
@@ -54,4 +54,12 @@ public class ExternalIOView extends LivePlotView {
 			}
 		}
 	};
-}
+	@Override
+	public void dispose() {
+		getViewSite()
+		.getWorkbenchWindow()
+		.getSelectionService()
+		.removeSelectionListener(SequenceView.ID,
+				selectionListener);
+		super.dispose();
+	};}

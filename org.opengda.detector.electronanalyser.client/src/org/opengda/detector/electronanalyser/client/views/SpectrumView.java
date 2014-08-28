@@ -9,13 +9,13 @@ import org.eclipse.ui.INullSelectionListener;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
-import org.opengda.detector.electronanalyser.client.viewextensionfactories.SequenceViewExtensionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SpectrumView extends LivePlotView {
 
+	public static final String ID = "org.opengda.detector.electronanalyser.client.views.spectrumview";
 	private static final Logger logger = LoggerFactory.getLogger(SpectrumView.class);
 	private SpectrumPlotComposite plotComposite;
 	
@@ -41,7 +41,7 @@ public class SpectrumView extends LivePlotView {
 		getViewSite()
 				.getWorkbenchWindow()
 				.getSelectionService()
-				.addSelectionListener(SequenceViewExtensionFactory.ID,
+				.addSelectionListener(SequenceView.ID,
 						selectionListener);
 	}
 
@@ -60,5 +60,13 @@ public class SpectrumView extends LivePlotView {
 			}
 		}
 	};
-
+	@Override
+	public void dispose() {
+		getViewSite()
+		.getWorkbenchWindow()
+		.getSelectionService()
+		.removeSelectionListener(SequenceView.ID,
+				selectionListener);
+		super.dispose();
+	};
 }

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.edit.command.SetCommand;
@@ -59,7 +58,6 @@ import org.opengda.detector.electronanalyser.client.selection.EnergyChangedSelec
 import org.opengda.detector.electronanalyser.client.selection.FileSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
 import org.opengda.detector.electronanalyser.client.selection.TotalTimeSelection;
-import org.opengda.detector.electronanalyser.client.viewextensionfactories.SequenceViewExtensionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
@@ -73,8 +71,6 @@ import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.ui.dialog.MessageDialogHelper;
-
 /**
  * A Region Editor View for defining new or editing existing Region Definition for VG Scienta Electron Analyser.
  * 
@@ -82,6 +78,7 @@ import uk.ac.gda.ui.dialog.MessageDialogHelper;
  * 
  */
 public class RegionView extends ViewPart implements ISelectionProvider, IObserver {
+	public static final String ID = "org.opengda.detector.electronanalyser.client.regioneditor";
 	private static final Logger logger = LoggerFactory.getLogger(RegionView.class);
 
 	public RegionView() {
@@ -138,7 +135,6 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	private Spinner spinnerSlices;
 	private Button btnADCMode;
 	private Text txtHardEnergy;
-	private Scannable xrayenergy;
 	private List<Region> regions;
 	private PageBook regionPageBook;
 	private Composite plainComposite;
@@ -685,7 +681,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 
 		initialisation();
 		getViewSite().setSelectionProvider(this);
-		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SequenceViewExtensionFactory.ID, selectionListener);
+		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SequenceView.ID, selectionListener);
 	}
 
 	private ISelectionListener selectionListener = new INullSelectionListener() {
@@ -750,7 +746,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
 		IViewPart findView = null;
 		if (activePage != null) {
-			findView = activePage.findView(SequenceViewExtensionFactory.ID);
+			findView = activePage.findView(SequenceView.ID);
 		}
 		if (findView != null) {
 			ISelection selection = findView.getViewSite().getSelectionProvider().getSelection();
@@ -1432,7 +1428,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 
 	@Override
 	public void dispose() {
-		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(SequenceViewExtensionFactory.ID, selectionListener);
+		getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(SequenceView.ID, selectionListener);
 		super.dispose();
 	}
 

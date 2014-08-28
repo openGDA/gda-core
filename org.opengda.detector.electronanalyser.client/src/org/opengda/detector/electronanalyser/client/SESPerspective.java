@@ -5,25 +5,25 @@ import gda.rcp.views.JythonTerminalView;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
-import org.opengda.detector.electronanalyser.client.viewextensionfactories.ExternalIOViewExtensionFactory;
-import org.opengda.detector.electronanalyser.client.viewextensionfactories.ImageViewExtensionFactory;
-import org.opengda.detector.electronanalyser.client.viewextensionfactories.ProgressViewExtensionFactory;
-import org.opengda.detector.electronanalyser.client.viewextensionfactories.RegionViewExtensionFactory;
-import org.opengda.detector.electronanalyser.client.viewextensionfactories.SequenceViewExtensionFactory;
-import org.opengda.detector.electronanalyser.client.viewextensionfactories.SlicesViewExtensionFactory;
-import org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory;
+import org.opengda.detector.electronanalyser.client.views.ExternalIOView;
+import org.opengda.detector.electronanalyser.client.views.ImageView;
+import org.opengda.detector.electronanalyser.client.views.ProgressView;
+import org.opengda.detector.electronanalyser.client.views.RegionView;
+import org.opengda.detector.electronanalyser.client.views.SequenceView;
+import org.opengda.detector.electronanalyser.client.views.SlicesView;
+import org.opengda.detector.electronanalyser.client.views.SpectrumView;
 
 import uk.ac.gda.client.CommandQueueViewFactory;
 
 public class SESPerspective implements IPerspectiveFactory {
 	private static final String COMMANDQUEUEVIEW = CommandQueueViewFactory.ID;
-	private static final String PROGRESSVIEW = ProgressViewExtensionFactory.ID;
-	private static final String SLICEVIEW = SlicesViewExtensionFactory.ID;
-	private static final String IMAGEVIEW = ImageViewExtensionFactory.ID;
-	private static final String EXTERNALIOVIEW = ExternalIOViewExtensionFactory.ID;
-	private static final String SPECTRUMVIEW =SpectrumViewExtensionFactory.ID;
-	private static final String REGIONEDITOR = RegionViewExtensionFactory.ID;
-	private static final String SEQUENCEEDITOR = SequenceViewExtensionFactory.ID;
+	private static final String PROGRESSVIEW = ProgressView.ID;
+	private static final String SLICEVIEW = SlicesView.ID;
+	private static final String IMAGEVIEW = ImageView.ID;
+	private static final String EXTERNALIOVIEW = ExternalIOView.ID;
+	private static final String SPECTRUMVIEW =SpectrumView.ID;
+	private static final String REGIONEDITOR = RegionView.ID;
+	private static final String SEQUENCEEDITOR = SequenceView.ID;
 	private static final String JYTHONCONSOLE=JythonTerminalView.ID;
 	public static final String ID = "org.opengda.detector.electronanalyser.client.ses.perspective";
 
