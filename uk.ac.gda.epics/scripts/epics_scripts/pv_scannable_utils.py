@@ -39,10 +39,22 @@ def ls_pv_scannables():
     a=InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace()
     l=filter(lambda x: isinstance(x, EpicsScannable) or (isinstance(x, ScannableMotor) and isinstance(x.motor, EpicsMotor)), a.values().toArray())
     for x in l:
+        description="unknown"
+        pvName ="unknown"
         if isinstance(x, EpicsScannable):
-            print x.name, x.pvName, caget(x.pvName + ".DESC")
+            pvName=x.pvName
         if isinstance(x, ScannableMotor) and isinstance(x.motor, EpicsMotor):
-            print x.name, x.motor.pvName, caget(x.motor.pvName + ".DESC")
+            pvName=x.motor.pvName
+            
+        if x.configured:
+            try:
+                description = caget(pvName + ".DESC")
+            except:
+                description = "Unable to read description"
+                pass
+        else:
+            description = "Not configured!"
+        print x.name, pvName, description
         
     
     
