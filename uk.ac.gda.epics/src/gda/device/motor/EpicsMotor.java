@@ -1186,7 +1186,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		} else if ((lmsta & MSTA_UPPER_LIMIT) != 0 || (lmsta & MSTA_LOWER_LIMIT) != 0) {
 			status = checkUserLimitSwitches(lmsta);	
 			if (!lastMotorStatus.equals(status))
-				logger.warn("Motor - {} is at LOWERLIMIT.", getName());
+				logger.warn("Motor - {} is at " + (status.equals(MotorStatus.LOWERLIMIT) ? "LOWERLIMIT." : "UPPERLIMIT"), getName());
 		} else if ((lmsta & MSTA_DONE) != 0) {
 			status = MotorStatus.READY;
 			if (!lastMotorStatus.equals(status))
