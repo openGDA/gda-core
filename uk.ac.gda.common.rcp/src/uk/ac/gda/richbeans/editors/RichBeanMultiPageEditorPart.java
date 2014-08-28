@@ -427,14 +427,15 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 	public void doSaveAs() {
 		
 		final IFile currentiFile = EclipseUtils.getIFile(getEditorInput());
-		final IFolder    folder  = (currentiFile!=null) ? (IFolder)currentiFile.getParent() : null;
-		
-	    final FileDialog dialog = new FileDialog(getSite().getShell(), SWT.SAVE);
-	    dialog.setText("Save as XML");
-	    dialog.setFilterExtensions(new String[]{"*.xml"});
-	    final File currentFile  = new File(this.path);
-	    dialog.setFilterPath(currentFile.getParentFile().getAbsolutePath());
-		
+		final IFolder folder = (currentiFile != null) ? (IFolder) currentiFile.getParent() : null;
+
+		final FileDialog dialog = new FileDialog(getSite().getShell(), SWT.SAVE);
+		dialog.setText("Save as XML");
+		dialog.setFilterExtensions(new String[] { "*.xml" });
+		final File currentFile = new File(this.path);
+		dialog.setFilterPath(currentFile.getParentFile().getAbsolutePath());
+		dialog.setFileName(currentFile.getName());
+
 	    String newFile = dialog.open();
 		if (newFile!=null) {
 			
