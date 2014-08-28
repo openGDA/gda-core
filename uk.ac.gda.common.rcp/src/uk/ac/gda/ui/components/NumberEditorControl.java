@@ -339,7 +339,15 @@ public class NumberEditorControl extends Composite {
 		controlModel.setMinValue(minValue);
 		controlModel.setMaxValue(maxValue);
 	}
+	
+	public Number getMaxValue(){
+		return controlModel.getMaxValue();
+	}
 
+	public Number getMinValue(){
+		return controlModel.getMinValue();
+	}
+	
 	public void setDigits(int value) throws NumberFormatException {
 		if (!controlModel.getBindingPropertyType().equals(double.class)) {
 			throw new NumberFormatException("Invalid data type set to digits");
