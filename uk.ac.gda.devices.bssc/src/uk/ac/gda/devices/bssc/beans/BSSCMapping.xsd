@@ -33,7 +33,6 @@
 				<xsd:element name="molecularWeight" type="xsd:double" />
 				<xsd:element name="buffer" type="xsd:boolean" />
 				<xsd:element name="buffers" type="xsd:string"/>
-<!-- 				<xsd:element name="bufferLocation" type="LocationBean" /> -->
 				<xsd:element name="yellowSample" type="xsd:boolean" />
 				<xsd:element name="recouperateLocation" type="LocationBean" minOccurs="0"/>
 				<xsd:element name="timePerFrame" type="xsd:double" minOccurs="1"/>
