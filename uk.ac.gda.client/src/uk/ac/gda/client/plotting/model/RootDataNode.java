@@ -23,7 +23,6 @@ import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,14 +43,14 @@ public class RootDataNode extends DataNode implements IScanDataPointObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(RootDataNode.class);
 
-	public static final long DELAY_TO_PLOT_SCAN_DATA_POINTS_IN_MILLI = 200L;
-	public static final int MAX_SCANS_HISTORY = 100;
+	public static final long DELAY_TO_PLOT_SCAN_DATA_POINTS_IN_MILLI = 250L;
+	public static final int MAX_SCANS_HISTORY = 500;
 	public static final int MAX_SCANS_WITH_CACHED_DATA = 10;
 
 	public static final String DATA_STORE_NAME = "plotting_data";
 	private static final int MAX_THREAD_POOL_FOR_PLOTTING = 5;
 
-	private final Collection<IScanDataPoint> cachedPoints = Collections.synchronizedCollection(new ArrayList<IScanDataPoint>());
+	private final List<IScanDataPoint> cachedPoints = Collections.synchronizedList(new ArrayList<IScanDataPoint>());
 	private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(MAX_THREAD_POOL_FOR_PLOTTING);
 
 	private final List<ScanDataNode> innerChildren = new LinkedList<ScanDataNode>();
@@ -126,55 +125,63 @@ public class RootDataNode extends DataNode implements IScanDataPointObserver {
 				synchronized (cachedPoints) {
 					if (!cachedPoints.isEmpty()) {
 						try {
-							for (IScanDataPoint point : cachedPoints) {
-								updateDataSetInUI(point);
-							}
+							updateDataSetInUI(cachedPoints);
 						} catch (Exception e) {
 							logger.error("Unable to update data", e);
-						} finally {
-							cachedPoints.clear();
 						}
+						cachedPoints.clear();
 					}
 				}
 			}
 		});
 	}
 
-	protected void updateDataSetInUI(IScanDataPoint scanDataPoint) {
+	int scanNo = 0;
+	protected void updateDataSetInUI(List<IScanDataPoint> scanDataPoints) {
 		// FIXME! More work needed to be able to configure which scan entries are shown
-		if ((scanDataPoint.getScanPlotSettings() != null && scanDataPoint.getScanPlotSettings().getYAxesShown().length < 1)) {
-			return;
-		}
-		ScanDataNode scanDataNode = findScan(Integer.toString(scanDataPoint.getScanIdentifier()));
-		if (scanDataNode == null) {
-			// TODO Review this logic
-			List<String> detectorScanItemNames = null;
-			if (!scanDataPoint.getDetectorHeader().isEmpty() && scanDataPoint.getDetectorDataAsDoubles().length > 0) {
-				detectorScanItemNames = scanDataPoint.getDetectorHeader();
+//		if ((scanDataPoint.getScanPlotSettings() != null && scanDataPoint.getScanPlotSettings().getYAxesShown().length < 1)) {
+//			return;
+//		}
+
+		for(int i = 0; i < scanDataPoints.size(); i++) {
+			IScanDataPoint currentPoint = scanDataPoints.get(i);
+			int numberOfPoints = currentPoint.getNumberOfPoints();
+			int currentPointNumber = currentPoint.getCurrentPointNumber();
+			int currentScan = currentPoint.getScanIdentifier();
+			
+			if (children.isEmpty() || currentScan > Integer.parseInt(getLastDataNode().getIdentifier())) {
+				List<String> detectorScanItemNames = null;
+				if (!currentPoint.getDetectorHeader().isEmpty() && currentPoint.getDetectorDataAsDoubles().length > 0) {
+					detectorScanItemNames = currentPoint.getDetectorHeader();
+				}
+				ScanDataNode newScanDataNode = new ScanDataNode(
+						Integer.toString(currentPoint.getScanIdentifier()),
+						currentPoint.getCurrentFilename(),
+						currentPoint.getPositionHeader(),
+						detectorScanItemNames,
+						this);
+				children.addAndUpdate(newScanDataNode);
 			}
-			scanDataNode = new ScanDataNode(
-					Integer.toString(scanDataPoint.getScanIdentifier()),
-					scanDataPoint.getCurrentFilename(),
-					scanDataPoint.getPositionHeader(),
-					detectorScanItemNames,
-					this);
-			children.addAndUpdate(scanDataNode);
+			List<IScanDataPoint> points = new ArrayList<IScanDataPoint>();
+			for (int j = 0; j < numberOfPoints - currentPointNumber && i < scanDataPoints.size(); j++) {
+				points.add(scanDataPoints.get(i++));
+			}
+			updatePoints(points, getLastDataNode());
 		}
-		scanDataNode.update(scanDataPoint);
-		// FIXME Review how the data events are fired
-		for (Object object : scanDataNode.getChildren()) {
-			this.firePropertyChange(DATA_ADDED_PROP_NAME, null, object);
-		}
+		
+	}
+	
+	private ScanDataNode getLastDataNode() {
+		return (ScanDataNode) children.get(0);
 	}
 
-	private ScanDataNode findScan(String scanIdentifier) {
-		for (Object node : children) {
-			ScanDataNode scanDataNode = (ScanDataNode) node;
-			if (scanDataNode.getIdentifier().equals(scanIdentifier)) {
-				return scanDataNode;
+	private void updatePoints(List<IScanDataPoint> points, ScanDataNode currentScanDataNode) {
+		if (currentScanDataNode != null&& !points.isEmpty()) {
+			currentScanDataNode.update(points);
+			for (Object object : currentScanDataNode.getChildren()) {
+				this.firePropertyChange(DATA_ADDED_PROP_NAME, null, object);
 			}
 		}
-		return null;
 	}
 
 	@Override

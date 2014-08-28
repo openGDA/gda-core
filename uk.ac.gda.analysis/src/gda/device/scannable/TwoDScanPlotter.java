@@ -45,23 +45,21 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 	protected DoubleDataset y;
 	protected DoubleDataset intensity;
 
-	private String x_colName;
-	private String y_colName;
-
-	private String z_colName;  // Currently, this *must* be a detector as this class looks only in the 
+	private String z_colName; // Currently, this *must* be a detector as this class looks only in that part of the SDP
 	private String plotViewname = "Plot 1";
 
 	private Double xStart;
-
 	private Double xStop;
-
 	private Double xStep;
 
 	private Double yStart;
-
 	private Double yStop;
-
 	private Double yStep;
+	private Long rate = 1200L; // by default refresh all 2D plotter is 1.2 s
+	private Long timeElapsed;
+	private Long timeInit;
+	
+	
 
 	public TwoDScanPlotter() {
 		this.inputNames = new String[] {};
@@ -69,64 +67,48 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 		this.outputFormat = new String[] {};
 	}
 
-	public void setXArgs(Double xStart, Double xStop, Double xStep) {
-		this.xStart = xStart;
-		this.xStop = xStop;
-		this.xStep = xStep;
-	}
-
-	public void setYArgs(Double yStart, Double yStop, Double yStep) {
-		this.yStart = yStart;
-		this.yStop = yStop;
-		this.yStep = yStep;
-	}
-
 	@Override
 	public void atScanStart() throws DeviceException {
-		// clear datasets and re-register with datapoint provider
-		x = createTwoDset(xStart, xStop, xStep,false);
-		y = createTwoDset(yStart, yStop, yStep,true);
-		intensity = null;
+		// re-register with datapoint provider
 		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
-		logger.info(getName() + " - registering as SDP listener.");
+		logger.debug(getName() + " - registering as SDP listener.");
+		timeElapsed = 0L;
+		timeInit = System.currentTimeMillis();
 	}
 
 	private DoubleDataset createTwoDset(Double start, Double stop, Double step, Boolean reverse) {
 		int numPoints = ScannableUtils.getNumberSteps(start, stop, step) + 1; // why + 1?
 		double[] values = new double[numPoints];
 		Double value = start;
-		for (int index = 0; index < numPoints; index++){
+		for (int index = 0; index < numPoints; index++) {
 			values[index] = value;
 			value += step;
 		}
-		if (reverse){
+		if (reverse) {
 			ArrayUtils.reverse(values);
 		}
-		
-		return new DoubleDataset(values);
-	}
 
-	@Override
-	public void atScanEnd() throws DeviceException {
-		// Do not deregister as this may be called before all SDPs have been completed in the pipeline and broadcast;
-		// The update methid will deregister once the final point has been received. If the scan fials or is stopped
-		// atCommandFailure() or stop() will deregister.
+		return new DoubleDataset(values);
 	}
 
 	@Override
 	public void atCommandFailure() {
 		deregisterAsScanDataPointObserver();
 	}
-	
+
 	@Override
 	public void stop() throws DeviceException {
 		deregisterAsScanDataPointObserver();
 	}
-	
+
 	private void deregisterAsScanDataPointObserver() {
+		intensity = null;
+		x = null;
+		y = null;
+		clearArgs();
 		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
 	}
-	
+
 	@Override
 	public void update(Object source, Object arg) {
 		if (source instanceof IScanDataPointProvider && arg instanceof ScanDataPoint) {
@@ -134,46 +116,58 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 			int totalPoints = ((ScanDataPoint) arg).getNumberOfPoints();
 			try {
 				unpackSDP((ScanDataPoint) arg);
-				logger.debug(getName() +  " - Plotting map after receiving point " + currentPoint + " of " + totalPoints);
-				plot();
+				timeElapsed = System.currentTimeMillis() - timeInit;
+				System.out.println("TimeElapsed"+timeElapsed);
+				if (timeElapsed > rate){
+					plot();
+					timeElapsed = 0L;
+					timeInit = System.currentTimeMillis();
+				}
+				logger.debug(getName() + " - Plotting map after receiving point " + currentPoint + " of " + totalPoints);
+				
+				//plot();
 				if (currentPoint == (totalPoints - 1)) {
-					logger.info(getName() + " - last point recevied; deregistering as SDP listener.");
+					plot(); //plot last points
+					logger.debug(getName() + " - last point received; deregistering as SDP listener.");
 					deregisterAsScanDataPointObserver();
 				}
 			} catch (Exception e) {
-				logger.error("exception while plotting 2D data: " + e.getMessage(), e);
-				if (currentPoint == (totalPoints -1)) {
-					logger.info(getName() + " - last point recevied; deregistering as SDP listener.");
-					deregisterAsScanDataPointObserver();
-				}
+				// Quietly deregister as this scan does not match what this is looking for.
+				// In this way, this object could be added to the list of defaults and only plot related scans.
+				deregisterAsScanDataPointObserver();
 			}
 		}
-	}
-
-	@Override
-	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-	}
-
-	@Override
-	public Object rawGetPosition() throws DeviceException {
-		return null;
 	}
 
 	private void unpackSDP(ScanDataPoint sdp) {
 		// NB: ScanDataPoint scan dimensions work are an array working from outside to inside in the nested scans
 		// NB: here we are plotting the inner as the x, and the outer as the y.
+
+		// if the first point, then create empty datasets
 		if (intensity == null) {
 			intensity = new DoubleDataset(sdp.getScanDimensions()[0], sdp.getScanDimensions()[1]);
-//			int scanSize = sdp.getScanDimensions()[0] * sdp.getScanDimensions()[1];
-//			x = new DoubleDataset(scanSize);
-//			y = new DoubleDataset(scanSize);
+
+			// if xstart,xstop,xstep values not defined then simply use an index
+			if (xStart == null) {
+				x = createTwoDset(0.0, (double) sdp.getScanDimensions()[0], 1.0, false);
+			} else {
+				x = createTwoDset(xStart, xStop, xStep, false);
+			}
+
+			if (yStart == null) {
+				y = createTwoDset(0.0, (double) sdp.getScanDimensions()[1], 1.0, true);
+			} else {
+				y = createTwoDset(yStart, yStop, yStep, true);
+			}
+
 		}
 
 		Double inten = getIntensity(sdp);
 		int[] locationInDataSets = getSDPLocation(sdp);
 		int xLoc = locationInDataSets[0];
-		// y has to be reversed as otherwise things are plotted from the top left, not bottom right as the plotting system 2d plotting was originally for images which work this way.
-		int yLoc = sdp.getScanDimensions()[0] - locationInDataSets[1] -1;
+		// y has to be reversed as otherwise things are plotted from the top left, not bottom right as the plotting
+		// system 2d plotting was originally for images which work this way.
+		int yLoc = sdp.getScanDimensions()[0] - locationInDataSets[1] - 1;
 		intensity.set(inten, yLoc, xLoc);
 	}
 
@@ -206,25 +200,49 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 		}
 	}
 
+	
+	/**
+	 * Call this before the scan if you want to plot actual motor positions, not just indexes
+	 * 
+	 * @param xStart
+	 * @param xStop
+	 * @param xStep
+	 */
+	public void setXArgs(Double xStart, Double xStop, Double xStep) {
+		this.xStart = xStart;
+		this.xStop = xStop;
+		this.xStep = xStep;
+	}
+
+	/**
+	 * Call this before the scan if you want to plot actual motor positions, not just indexes
+	 * 
+	 * @param yStart
+	 * @param yStop
+	 * @param yStep
+	 */
+	public void setYArgs(Double yStart, Double yStop, Double yStep) {
+		this.yStart = yStart;
+		this.yStop = yStop;
+		this.yStep = yStep;
+	}
+
+	public void clearArgs() {
+		xStart = xStop = xStep = yStart = yStep = yStop = null;
+	}
+
+	@Override
+	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
+	}
+
+	@Override
+	public Object rawGetPosition() throws DeviceException {
+		return null;
+	}
+
 	@Override
 	public boolean isBusy() throws DeviceException {
 		return false;
-	}
-
-	public String getX_colName() {
-		return x_colName;
-	}
-
-	public void setX_colName(String xColName) {
-		x_colName = xColName;
-	}
-
-	public String getY_colName() {
-		return y_colName;
-	}
-
-	public void setY_colName(String yColName) {
-		y_colName = yColName;
 	}
 
 	public String getZ_colName() {
