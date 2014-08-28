@@ -96,5 +96,11 @@
             type="java.lang.Object">
       </propertyTester>
    </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="uk.ac.gda.devices.hplc.perspectives.HplcStartUp">
+      </startup>
+   </extension>
 
 </plugin>

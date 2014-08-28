@@ -46,8 +46,6 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 	// The shared instance
 	private static Activator plugin;
 
-	private BundleContext context;
-
 	/**
 	 * The constructor
 	 */
@@ -57,7 +55,6 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		this.context = context;
 		plugin = this;
 		Hashtable<String, String> props = new Hashtable<String, String>(1);
 		props = new Hashtable<String, String>(1);

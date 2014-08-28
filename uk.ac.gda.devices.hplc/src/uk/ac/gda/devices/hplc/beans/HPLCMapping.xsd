@@ -35,7 +35,6 @@
 			<xsd:element name="sampleName" type="xsd:string" minOccurs="1"/>
 			<xsd:element name="concentration" type="xsd:double" />
 			<xsd:element name="molecularWeight" type="xsd:double" />
-			<xsd:element name="buffer" type="xsd:boolean" />
 			<xsd:element name="timePerFrame" type="xsd:double" minOccurs="1"/>
 			<xsd:element name="frames" type="xsd:int" minOccurs="1"/>
 			<xsd:element name="visit" type="xsd:string" minOccurs="1"/>

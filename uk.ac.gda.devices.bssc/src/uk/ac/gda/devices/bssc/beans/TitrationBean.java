@@ -188,12 +188,12 @@ public class TitrationBean implements IRichBean {
 				} catch (IllegalArgumentException iae) {
 					throw iae;
 				}
+			} else if (cells[i].equals("")) {
+				this.buffers = "";
+				return;
 			} else {
 				throw new IllegalArgumentException(String.format("Buffer plate %s is not valid", cells[i]));
 			}
-//			if (!cell.matches("[0-9]+\\s*[a-zA-Z]\\s*[0-9]+")) {
-//				throw new IllegalArgumentException("Invalid buffer cell: " + cell);
-//			}
 		}
 		this.buffers = Arrays.toString(cells).replaceAll("[\\[\\]]", "");
 		if (!buffers.equals("")) {
