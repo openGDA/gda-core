@@ -108,6 +108,8 @@ public class LocationBean implements IRichBean {
 				newPlate = 2;
 			} else if (in.equalsIgnoreCase("III")) {
 				newPlate = 3;
+			} else {
+				throw new IllegalArgumentException("Invalid plate: " + value, e);
 			}
 		}
 		setPlate(newPlate);

@@ -18,15 +18,24 @@
 
 package uk.ac.gda.devices.bssc.beans;
 
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.Metadata;
+import gda.device.DeviceException;
+import gda.jython.InterfaceProvider;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.gda.beans.IRichBean;
 
 public class TitrationBean implements IRichBean {
+	private static final Logger logger = LoggerFactory.getLogger(TitrationBean.class);
 	
 	public enum Viscosity {
 		LOW("low", "l"),
@@ -78,7 +87,31 @@ public class TitrationBean implements IRichBean {
 	int frames = 1;
 	float exposureTemperature = 22;
 	double molecularWeight;
+	String visit = "";
+	String username = "";
+
+	public TitrationBean() {
+		try {
+			Metadata md = GDAMetadataProvider.getInstance();
+			this.visit = md.getMetadataValue("visit");
+			this.username = InterfaceProvider.getBatonStateProvider().getMyDetails().getUserID();
+		} catch (DeviceException e) {
+			logger.debug("Could not initialise visit/username");
+		}
+	}
 	
+	public String getVisit() {
+		return visit;
+	}
+	public void setVisit(String visit) {
+		this.visit = visit;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
 	public LocationBean getLocation() {
 		return location;
 	}
