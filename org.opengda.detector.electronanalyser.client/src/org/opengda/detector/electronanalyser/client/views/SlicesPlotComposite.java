@@ -57,6 +57,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
+import org.opengda.detector.electronanalyser.client.IEnergyAxis;
+import org.opengda.detector.electronanalyser.client.IPlotCompositeInitialiser;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +68,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 import com.cosylab.epics.caj.CAJChannel;
 
-public class SlicesPlotComposite extends Composite implements InitializationListener, MonitorListener {
+public class SlicesPlotComposite extends Composite implements InitializationListener, MonitorListener, IEnergyAxis, IPlotCompositeInitialiser  {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(SlicesPlotComposite.class);
@@ -395,8 +397,7 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 	public boolean isDisplayBindingEnergy() {
 		return displayBindingEnergy;
 	}
-	public void setDisplayBindingEnergy(boolean displayBindingEnergy) {
+	public void displayInBindingEnergy(boolean displayBindingEnergy) {
 		this.displayBindingEnergy = displayBindingEnergy;
 	}
-
 }

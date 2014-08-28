@@ -55,6 +55,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
+import org.opengda.detector.electronanalyser.client.IEnergyAxis;
+import org.opengda.detector.electronanalyser.client.IPlotCompositeInitialiser;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +70,7 @@ import com.cosylab.epics.caj.CAJChannel;
 /**
  *
  */
-public class SpectrumPlotComposite extends Composite implements InitializationListener, MonitorListener {
+public class SpectrumPlotComposite extends Composite implements InitializationListener, MonitorListener, IEnergyAxis,IPlotCompositeInitialiser  {
 
 	private FontRegistry fontRegistry;
 	private static final Logger logger = LoggerFactory.getLogger(SpectrumPlotComposite.class);
@@ -459,7 +461,7 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 		return xdata;
 	}
 
-	public void setDisplayBindingEnergy(boolean b) {
+	public void displayInBindingEnergy(boolean b) {
 		this.displayBindingEnergy=b;		
 	}
 	public boolean isDisplayBindingEnergy() {

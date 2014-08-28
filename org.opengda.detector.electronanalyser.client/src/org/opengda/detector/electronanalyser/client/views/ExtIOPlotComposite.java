@@ -53,6 +53,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
+import org.opengda.detector.electronanalyser.client.IEnergyAxis;
+import org.opengda.detector.electronanalyser.client.IPlotCompositeInitialiser;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +67,7 @@ import com.cosylab.epics.caj.CAJChannel;
 /**
  * monitor and display external IO data update in the plot.
  */
-public class ExtIOPlotComposite extends Composite implements InitializationListener, MonitorListener {
+public class ExtIOPlotComposite extends Composite implements InitializationListener, MonitorListener, IEnergyAxis, IPlotCompositeInitialiser  {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExtIOPlotComposite.class);
 
@@ -313,8 +315,7 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 		return displayBindingEnergy;
 	}
 
-	public void setDisplayBindingEnergy(boolean displayBindingEnergy) {
+	public void displayInBindingEnergy(boolean displayBindingEnergy) {
 		this.displayBindingEnergy = displayBindingEnergy;
 	}
-
 }
