@@ -29,7 +29,7 @@
 		</xsd:all>
 	</xsd:complexType>
 	
-	<xsd:complexType name="HPLCBean">
+	<xsd:complexType name="HplcBean">
 		<xsd:all>
 			<xsd:element name="location" type="LocationBean" minOccurs="1" />
 			<xsd:element name="sampleName" type="xsd:string" minOccurs="1"/>
@@ -44,10 +44,10 @@
 		</xsd:all>
 	</xsd:complexType>
 	
-	<xsd:element name="HPLCSessionBean">
+	<xsd:element name="HplcSessionBean">
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element name="measurement" type="HPLCBean" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element name="measurement" type="HplcBean" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>

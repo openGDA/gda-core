@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mapping>
-	<class name="uk.ac.gda.devices.hplc.beans.HPLCSessionBean">
-		<map-to xml="HPLCSessionBean" />
-		<field name="measurements" type="uk.ac.gda.devices.hplc.beans.HPLCBean"
+	<class name="uk.ac.gda.devices.hplc.beans.HplcSessionBean">
+		<map-to xml="HplcSessionBean" />
+		<field name="measurements" type="uk.ac.gda.devices.hplc.beans.HplcBean"
 			collection="collection" set-method="setMeasurements" get-method="getMeasurements">
 			<bind-xml name="measurement" node="element" />
 		</field>
 	</class>
 
-	<class name="uk.ac.gda.devices.hplc.beans.HPLCBean">
-		<map-to xml="HPLCBean" />
+	<class name="uk.ac.gda.devices.hplc.beans.HplcBean">
+		<map-to xml="HplcBean" />
 		<field name="location" type="uk.ac.gda.devices.bssc.beans.LocationBean">
 			<bind-xml name="location" node="element" />
 		</field>

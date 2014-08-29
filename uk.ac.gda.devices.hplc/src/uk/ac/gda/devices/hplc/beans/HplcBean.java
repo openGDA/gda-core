@@ -1,16 +1,14 @@
 package uk.ac.gda.devices.hplc.beans;
 
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.Metadata;
-import gda.device.DeviceException;
 import gda.jython.InterfaceProvider;
+import gda.jython.batoncontrol.ClientDetails;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.devices.bssc.beans.LocationBean;
 
-public class HPLCBean implements IRichBean {
+public class HplcBean implements IRichBean {
 
 	private static final long serialVersionUID = 2999210681645575696L;
-	LocationBean location = new LocationBean(HPLCSessionBean.HPLC_PLATES);
+	LocationBean location = new LocationBean(HplcSessionBean.HPLC_PLATES);
 	String sampleName = "Sample";
 	double concentration;
 	double molecularWeight;
@@ -20,20 +18,19 @@ public class HPLCBean implements IRichBean {
 	String username;
 	String comment = "";
 	String buffers = "";
-	public HPLCBean() {
-		try {
-			Metadata md = GDAMetadataProvider.getInstance();
-			this.visit = md.getMetadataValue("visit");
-			this.username = InterfaceProvider.getBatonStateProvider().getMyDetails().getUserID();
-		} catch (DeviceException e) {
-			e.printStackTrace();
-		}
+	private boolean isStaff;
+
+	public HplcBean() {
+		ClientDetails myDetails = InterfaceProvider.getBatonStateProvider().getMyDetails();
+		this.visit = myDetails.getVisitID();
+		this.username = myDetails.getUserID();
+		this.isStaff = myDetails.getAuthorisationLevel() >= 3;
 	}
 	public LocationBean getLocation() {
 		return location;
 	}
 	public void setLocation(LocationBean location) {
-		location.setConfig(HPLCSessionBean.HPLC_PLATES);
+		location.setConfig(HplcSessionBean.HPLC_PLATES);
 		if (!location.isValid()) {
 			throw new IllegalArgumentException("Location is not valid");
 		}
@@ -73,12 +70,18 @@ public class HPLCBean implements IRichBean {
 		return visit;
 	}
 	public void setVisit(String visit) {
+		if (!(isStaff || this.visit.equals(visit))) {
+			throw new UnsupportedOperationException("User does not have permission to change username/visit");
+		}
 		this.visit = visit;
 	}
 	public String getUsername() {
 		return username;
 	}
 	public void setUsername(String username) {
+		if (!(isStaff || this.username.equals(username))) {
+			throw new UnsupportedOperationException("User does not have permission to change username/visit");
+		}
 		this.username = username;
 	}
 	public String getComment() {

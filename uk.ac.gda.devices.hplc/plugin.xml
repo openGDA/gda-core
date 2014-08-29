@@ -3,10 +3,10 @@
 <plugin>
    <extension point="org.eclipse.ui.editors">
       <editor
-            class="uk.ac.gda.devices.hplc.ui.HPLCSessionBeanEditor"
+            class="uk.ac.gda.devices.hplc.ui.HplcSessionBeanEditor"
             default="true"
             icon="icons/sample.gif"
-            id="uk.ac.gda.devices.hplc.beans.HPLCSessionBeanEditor"
+            id="uk.ac.gda.devices.hplc.beans.HplcSessionBeanEditor"
             name="HPLC Session Editor">
          <contentTypeBinding
                contentTypeId="uk.ac.gda.devices.hplc.HplcFileType">
@@ -17,7 +17,7 @@
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             base-type="org.eclipse.core.runtime.xml"
-            describer="uk.ac.gda.devices.hplc.ui.HPLCSessionBeanDescriber"
+            describer="uk.ac.gda.devices.hplc.ui.HplcSessionBeanDescriber"
             file-extensions="xml, hplc"
             id="uk.ac.gda.devices.hplc.HplcFileType"
             name="HPLC File Content"
@@ -36,7 +36,7 @@
          point="org.eclipse.ui.newWizards">
       <wizard
             category="uk.ac.gda.devices.hplc"
-            class="uk.ac.gda.devices.hplc.wizards.HPLCSessionWizard"
+            class="uk.ac.gda.devices.hplc.wizards.HplcSessionWizard"
             icon="icons/sample.gif"
             id="uk.ac.gda.devices.hplc.newHplcExperiment"
             name="HPLC Experiment">

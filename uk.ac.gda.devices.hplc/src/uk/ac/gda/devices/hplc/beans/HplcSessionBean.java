@@ -25,14 +25,14 @@ import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.devices.bssc.beans.LocationBean;
 import uk.ac.gda.devices.bssc.beans.PlateConfig;
 
-public class HPLCSessionBean implements IRichBean {
+public class HplcSessionBean implements IRichBean {
 
 	private static final long serialVersionUID = 5075861349177543025L;
-	static public final URL mappingURL = HPLCSessionBean.class.getResource("HPLCMapping.xml");
-	static public final URL schemaURL  = HPLCSessionBean.class.getResource("HPLCMapping.xsd");
+	static public final URL mappingURL = HplcSessionBean.class.getResource("HplcMapping.xml");
+	static public final URL schemaURL  = HplcSessionBean.class.getResource("HplcMapping.xsd");
 	public static final PlateConfig HPLC_PLATES = Finder.getInstance().find("hplcPlates");
 	
-	List<HPLCBean> measurements;
+	List<HplcBean> measurements;
 	
 	public void setPlateSetup(PlateConfig plates) {
 		if (!plates.equals(HPLC_PLATES)) {
@@ -40,13 +40,13 @@ public class HPLCSessionBean implements IRichBean {
 		}
 	}
 
-	public List<HPLCBean> getMeasurements() {
+	public List<HplcBean> getMeasurements() {
 		return measurements;
 	}
 
-	public void setMeasurements(List<HPLCBean> measurements) {
+	public void setMeasurements(List<HplcBean> measurements) {
 		this.measurements = measurements;
-		for (HPLCBean tb : measurements) {
+		for (HplcBean tb : measurements) {
 			LocationBean loc = tb.getLocation();
 			if (loc.getConfig() == null) {
 				loc.setConfig(HPLC_PLATES);

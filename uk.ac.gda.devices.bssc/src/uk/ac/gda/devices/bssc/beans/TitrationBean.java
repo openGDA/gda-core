@@ -18,10 +18,8 @@
 
 package uk.ac.gda.devices.bssc.beans;
 
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.Metadata;
-import gda.device.DeviceException;
 import gda.jython.InterfaceProvider;
+import gda.jython.batoncontrol.ClientDetails;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -89,27 +87,31 @@ public class TitrationBean implements IRichBean {
 	double molecularWeight;
 	String visit = "";
 	String username = "";
+	boolean isStaff;
 
 	public TitrationBean() {
-		try {
-			Metadata md = GDAMetadataProvider.getInstance();
-			this.visit = md.getMetadataValue("visit");
-			this.username = InterfaceProvider.getBatonStateProvider().getMyDetails().getUserID();
-		} catch (DeviceException e) {
-			logger.debug("Could not initialise visit/username");
-		}
+		ClientDetails myDetails = InterfaceProvider.getBatonStateProvider().getMyDetails();
+		this.visit = myDetails.getVisitID();
+		this.username = myDetails.getUserID();
+		this.isStaff = myDetails.getAuthorisationLevel() >= 3;
 	}
 	
 	public String getVisit() {
 		return visit;
 	}
 	public void setVisit(String visit) {
+		if (!(isStaff || this.visit.equals(visit))) {
+			throw new UnsupportedOperationException("User does not have permission to change username/visit");
+		}
 		this.visit = visit;
 	}
 	public String getUsername() {
 		return username;
 	}
 	public void setUsername(String username) {
+		if (!(isStaff || this.username.equals(username))) {
+			throw new UnsupportedOperationException("User does not have permission to change username/visit");
+		}
 		this.username = username;
 	}
 	public LocationBean getLocation() {
