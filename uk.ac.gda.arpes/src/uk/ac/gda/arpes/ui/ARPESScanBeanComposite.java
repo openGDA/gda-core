@@ -185,6 +185,21 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		lensMode.setLayoutData(gd_lensMode);
 		lensMode.setItems(capabilities.getLensModes());
 
+		lensMode.addValueListener(new ValueListener() {
+
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				updateFields(e);
+
+			}
+
+			@Override
+			public String getValueListenerName() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		});
+
 		Comparator<String> passEComparator = new Comparator<String>() {
 			@Override
 			public int compare(String o1, String o2) {
@@ -442,8 +457,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		return (Boolean) sweptMode.getValue();
 	}
 
-	@Override
-	public void valueChangePerformed(ValueEvent e) {
+
+	private void updateFields(ValueEvent e) {
 		if (Double.isNaN(e.getDoubleValue()))
 			return;
 		if (wedidit)
@@ -513,6 +528,11 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		}
 		updateEstimatedTime();
 		updateEnergyLimits();
+	}
+
+	@Override
+	public void valueChangePerformed(ValueEvent e) {
+		updateFields(e);
 	}
 
 	private void updateEnergyLimits(){
