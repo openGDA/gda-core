@@ -1,6 +1,9 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.IMetadataEntry;
+import gda.data.metadata.Metadata;
 import gda.data.metadata.VisitEntry;
 import gda.data.metadata.icat.Icat;
 import gda.data.metadata.icat.IcatProvider;
@@ -79,8 +82,6 @@ import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -133,7 +134,6 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
-import org.opengda.detector.electronanalyser.utils.OsUtil;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
@@ -162,15 +162,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Text txtNumberActives;
-	private Text txtLocation;
-	private Text txtUser;
-	private Text txtSample;
+	private Text txtSubFolder;
 	private Text txtPrefix;
-	private Text txtComments;
 	private int nameCount;
-	private String location;
-	private String user;
-	private String visit;
 
 	private final String columnHeaders[] = { SequenceTableConstants.STATUS, SequenceTableConstants.ENABLED, SequenceTableConstants.REGION_NAME,
 			SequenceTableConstants.LENS_MODE, SequenceTableConstants.PASS_ENERGY, SequenceTableConstants.X_RAY_SOURCE,
@@ -479,149 +473,22 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		Label lblLocation = new Label(grpInfo, SWT.NONE);
 		lblLocation.setText("Beamline:");
 
-		txtLocation = new Text(grpInfo, SWT.BORDER);
-		// this field is set in Spring configuration per beamline
-		txtLocation.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				if (e.getSource().equals(txtLocation)) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_Location(),
-								txtLocation.getText().trim());
-					} catch (Exception e1) {
-						logger.error("Cannot get the spectrum from this sequence.", e1);
-					}
-				}
-			}
-		});
-		txtLocation.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		txtLocation.setText("Beamline Name");
-
-		Label lblComments = new Label(grpInfo, SWT.NONE);
-		lblComments.setText("Add comments below:");
-
-		Label lblUser = new Label(grpInfo, SWT.NONE);
-		lblUser.setText("Visit ID:");
-
-		txtUser = new Text(grpInfo, SWT.BORDER );
-		// this field is set dynamically to user proposal number in GDA
-		txtUser.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				if (e.getSource().equals(txtUser)) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_User(),
-								txtUser.getText().trim());
-					} catch (Exception e1) {
-						logger.error("Cannot get the spectrum from this sequence.", e1);
-					}
-				}
-			}
-		});
-		txtUser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		txtUser.setText("visit-ID");
-
-		txtComments = new Text(grpInfo, SWT.BORDER | SWT.MULTI | SWT.WRAP);
-		txtComments.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				Text t = (Text) e.widget;
-				t.selectAll();
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				if (e.getSource().equals(txtComments)) {
-					try {
-						String[] comments;
-						if (OsUtil.isWindows()) {
-							comments = txtComments.getText().split("\r\n");
-						} else {
-							comments = txtComments.getText().split("\n");
-						}
-						List<String> commentList = new ArrayList<String>();
-						for (String string : comments) {
-							commentList.add(string);
-						}
-						Spectrum spectrum = regionDefinitionResourceUtil.getSpectrum();
-						updateFeature(spectrum, RegiondefinitionPackage.eINSTANCE.getSpectrum_Comments(), commentList);
-						updateFeature(spectrum, RegiondefinitionPackage.eINSTANCE.getSpectrum_NumberOfComments(), spectrum.getComments().size());
-					} catch (Exception e1) {
-						logger.error("Cannot get the spectrum from this sequence.", e1);
-					}
-				}
-			}
-		});
-		txtComments.setText("Comments");
-		GridData gd_txtComments = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
-		gd_txtComments.verticalSpan = 4;
-		txtComments.setLayoutData(gd_txtComments);
-
 		Label lblSample = new Label(grpInfo, SWT.NONE);
-		lblSample.setText("Sample:");
+		lblSample.setText("Data Folder:");
 
-		txtSample = new Text(grpInfo, SWT.BORDER);
-		txtSample.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				if (e.getSource().equals(txtSample)) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_SampleName(),
-								txtSample.getText().trim());
-					} catch (Exception e1) {
-						logger.error("Cannot get the spectrum from this sequence.", e1);
-					}
-				}
-			}
-		});
-		txtSample.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		txtSample.setText("Sample name");
+		txtSubFolder = new Text(grpInfo, SWT.BORDER);
+		txtSubFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		txtSubFolder.setText("");
 
 		Label lblPrefix = new Label(grpInfo, SWT.NONE);
-//		GridData gd_lblFileName = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-//		gd_lblFileName.widthHint = 59;
-//		lblFileName.setLayoutData(gd_lblFileName);
 		lblPrefix.setText("File Prefix:");
 
 		txtPrefix = new Text(grpInfo, SWT.BORDER);
-		txtPrefix.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				if (e.getSource().equals(txtPrefix)) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_FilenamePrefix(),
-								txtPrefix.getText().trim());
-					} catch (Exception e1) {
-						logger.error("Cannot get the spectrum from this sequence.", e1);
-					}
-				}
-			}
-		});
-//		GridData gd_txtFilename = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-//		gd_txtFilename.widthHint = 104;
-//		txtPrefix.setLayoutData(gd_txtFilename);
-		txtPrefix.setText("Filename Prefix");
+		txtPrefix.setText("");
 
 		Label lblFormat = new Label(grpInfo, SWT.NONE);
 //		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblFormat.setText("File format:");
-
-		txtfilenameformat = new Text(grpInfo, SWT.BORDER);
-		txtfilenameformat.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				if (e.getSource().equals(txtfilenameformat)) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_FilenameFormat(),
-								txtfilenameformat.getText().trim());
-					} catch (Exception e1) {
-						logger.error("Cannot get the spectrum from this sequence.", e1);
-					}
-				}
-			}
-		});
-		txtfilenameformat.setText("%s_%5d_%s");
-		txtfilenameformat.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 
 		Group grpSequnceRunMode = new Group(rightArea, SWT.NONE);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
@@ -988,7 +855,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				validateRegions();
 			}
 		}
-	};;
+	};
+	private Metadata metadata;
 
 	private void initialisation() {
 		try { // populate Combo list from EPICS PV 
@@ -1030,39 +898,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			spinner.setSelection(sequence.getNumIterations());
 
 			if (spectrum != null) {
-				if (getLocation() != null) {
-					txtLocation.setText(getLocation());
-				} else {
-					txtLocation.setText("Beamline name");
-				}
-				// send the change to sequence file
-				if (!spectrum.getLocation().equalsIgnoreCase(txtLocation.getText().trim())) {
-					updateFeature(spectrum, RegiondefinitionPackage.eINSTANCE.getSpectrum_Location(), txtLocation.getText());
-				}
-				if (getVisit() != null) {
-					// Obtain visit ID from ICat database
-					txtUser.setText(getVisit());
-				} else if (getUser() != null) {
-					// set by Spring configuration
-					txtUser.setText(getUser());
-				} else {
-					// default to user home folder
-					txtUser.setText(System.getProperty("user.name"));
-				}
-				if (!spectrum.getUser().equalsIgnoreCase(txtUser.getText().trim())) {
-					updateFeature(spectrum, RegiondefinitionPackage.eINSTANCE.getSpectrum_User(), txtUser.getText());
-				}
-				txtSample.setText(spectrum.getSampleName());
+				txtSubFolder.setText(spectrum.getSampleName());
 				txtPrefix.setText(spectrum.getFilenamePrefix());
-				txtfilenameformat.setText(spectrum.getFilenameFormat());
 				txtSequenceFilePath.setText(regionDefinitionResourceUtil.getFileName());
-
-				String comments = "";
-				for (String comment : spectrum.getComments()) {
-					comments += comment + "\n";
-				}
-				txtComments.setText(comments);
-				// System.out.println(txtComments.getText());
 			}
 		} else {
 			// start a new sequence
@@ -1097,9 +935,45 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		} catch (CAException | TimeoutException e1) {
 			logger.error("failed to create required spectrum channels", e1);
 		}
+		metadata=GDAMetadataProvider.getInstance();
+		metadata.addIObserver(this);
+		txtSubFolder.addSelectionListener(dataFolder);
+		txtPrefix.addSelectionListener(filenamePrefix);
 		comboElementSet.addSelectionListener(elementSetSelAdaptor);
 	}
+	SelectionAdapter filenamePrefix = new SelectionAdapter() {
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			if (e.getSource().equals(txtPrefix)) {
+				try {
+					updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_FilenamePrefix(),
+							txtPrefix.getText().trim());
+					if (metadata!=null) {
+						metadata.setMetadataValue("filenameprefix", txtPrefix.getText().trim());
+					}
+				} catch (Exception e1) {
+					logger.error("Cannot get the spectrum from this sequence.", e1);
+				}
+			}
+		}
+	};
 
+	SelectionAdapter dataFolder = new SelectionAdapter() {
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			if (e.getSource().equals(txtSubFolder)) {
+				try {
+					updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_SampleName(),
+							txtSubFolder.getText().trim());
+					if (metadata!=null) {
+						metadata.setMetadataValue("subdirectory", txtSubFolder.getText().trim());
+					}
+				} catch (Exception e1) {
+					logger.error("Cannot get the spectrum from this sequence.", e1);
+				}
+			}
+		}
+	};
 	public IVGScientaAnalyser getAnalyser() {
 		return analyser;
 	}
@@ -1394,13 +1268,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			// update spectrum parameters
 			spectrum = regionDefinitionResourceUtil.getSpectrum();
 			if (spectrum != null) {
-				txtSample.setText(spectrum.getSampleName());
+				txtSubFolder.setText(spectrum.getSampleName());
 				txtPrefix.setText(spectrum.getFilenamePrefix());
-				txtfilenameformat.setText(spectrum.getFilenameFormat());
 			} else {
-				txtSample.setText("");
+				txtSubFolder.setText("");
 				txtPrefix.setText("");
-				txtfilenameformat.setText("");
 			}
 			txtSequenceFilePath.setText(regionDefinitionResourceUtil.getFileName());
 			// update sequence run mode
@@ -1604,14 +1476,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		}
 	};
-	private Text txtfilenameformat;
 
 	private Text txtSequenceFilePath;
 
 	private Action startSequenceAction;
-
-
-//	private Device regionScannable;
 
 	private Region currentRegion;
 
@@ -1636,30 +1504,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				editingDomain.getCommandStack().execute(setNameCmd);
 			}
 		}
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
-	public String getUser() {
-		return user;
-	}
-
-	public void setUser(String user) {
-		this.user = user;
-	}
-
-	public String getVisit() {
-		return getVisitID();
-	}
-
-	public void setVisit(String visit) {
-		this.visit = visit;
 	}
 
 	public void setAnalyser(IVGScientaAnalyser analyser) {
@@ -1715,9 +1559,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					}
 				});
 			}
+		} else 		if (source instanceof IMetadataEntry && ((IMetadataEntry)source).getName()=="subdirectory" ) {
+			//TODO update data directory box
 		}
-		// TODO update current region status from detector or EPICS IOC
-
 	}
 
 	public String getDetectorStatePV() {
