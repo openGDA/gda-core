@@ -24,26 +24,47 @@ package org.opengda.detector.electronanalyser.client;
 public class ImageConstants {
 
 	public static final String ICON_HORIZONTAL_FLIP = "/icons/horizontal_flip.gif";
-
-	public static final String ICON_PITCH_ROTATE = "/icons/pitch_rotate.gif";
-
-	public static final String ICON_ROLL_ROTATE = "/icons/roll_rotate.gif";
-
 	public static final String ICON_VERTICAL_FLIP = "/icons/vertical_flip.gif";
+
+	public static final String ICON_RESET_DETECTOR = "/icons/refresh.png";
+	public static final String ICON_CTRL_BTN = "icons/ctrl_btn.gif";
+
+	public static final String ICON_CHECKED_STATE = "icons/checked_state.png";
+	public static final String ICON_UNCHECKED_STATE = "icons/unchecked_state.png";
+
+	public static final String ICON_OPEN_TASK = "icons/open_task.gif";
+	public static final String ICON_SAVE_TASK = "icons/save.gif";
+	public static final String ICON_SAVEAS_TASK = "icons/saveas.gif";
+
+	public static final String ICON_ADD_OBJ = "icons/add_obj.gif";
+	public static final String ICON_DELETE_OBJ = "icons/delete_obj.gif";
+	public static final String ICON_UNDO_EDIT = "icons/undo_edit.gif";
+	public static final String ICON_REDO_EDIT = "icons/redo_edit.gif";
+	public static final String ICON_COPY_EDIT = "icons/copy_edit.gif";
+	public static final String ICON_PASTE_EDIT = "icons/paste_edit.gif";
+	public static final String ICON_NEW_WIZ_EDIT = "icons/new_wiz.gif";
+
+
+	public static final String ICON_RUN_READY = "icons/runready.png";
+	public static final String ICON_RUNNING = "icons/youtube.gif";
+	public static final String ICON_RUN_COMPLETE = "icons/complete_status.gif";
+	public static final String ICON_RUN_FAILURE = "icons/progress_error.gif";
+	public static final String ICON_INVALID = "icons/invalid.png";
+	public static final String ICON_ERROR = "icons/errorstate.gif";
+
+	public static final String ICON_START = "icons/start_task.gif";
+	public static final String ICON_STOP = "icons/stop_task.gif";
+	public static final String ICON_PAUSE = "icons/pause_task.gif";
+	public static final String ICON_SKIP = "icons/skip_task.gif";
+	public static final String ICON_RESUME = "icons/resume_task.gif";
+	public static final String ICON_STATUS = "icons/status.png";
+
+	public static final String ICON_RUN_ON_SERVER = "icons/run_on_server.gif";
+	public static final String ICON_STOP_SERVER = "icons/server_stop.png";
 
 	public static final String ICON_RAW_IMAGE = "/icons/raw_icon.gif";
 
-	public static final String ICON_TOMO_ALIGNMENT = "/icons/tomoAlignment.gif";
-
-	public static final String ICON_TOMO_CONFIG = "/icons/tomoConfig.gif";
-
-	public static final String ICON_RESET_DETECTOR = "/icons/refresh.png";
-
 	public static final String ICON_SAVE_CONFIGURATION = "icons/save_configuration.gif";
-
-	public static final String ICON_CHECKED_STATE = "icons/checked_state.png";
-
-	public static final String ICON_UNCHECKED_STATE = "icons/un_checked_state.png";
 
 	public static final String ICON_OPEN_PREF = "icons/open_pref.gif";
 
@@ -51,38 +72,19 @@ public class ImageConstants {
 
 	public static final String ICON_DOWN_TO_UP = "icons/downtoup.png";
 
-	public static final String ICON_SHOPPING_CART = "icons/shopping_cart.png";
-
-	public static final String ICON_CTRL_BTN = "icons/ctrl_btn.gif";
-
-	public static final String ICON_CTRL_BTN_10x10 = "icons/ctrl_btn_10x10.gif";
-	public static final String ICON_CTRL_BTN_12x12 = "icons/ctrl_btn_12x12.gif";
 	public static final String ICON_REMOTE_DESKTOP = "icons/remote_desktop.gif";
-
-	public static final String ICON_RUN_READY = "icons/runready.png";
-	public static final String ICON_RUNNING = "icons/running.png";
-	public static final String ICON_RUN_COMPLETE = "icons/runcomplete.png";
-	public static final String ICON_RUN_FAILURE = "icons/runerror.png";
-
-	public static final String ICON_START = "icons/run_exc.gif";
-	public static final String ICON_STOP = "icons/stop.gif";
-	public static final String ICON_STATUS = "icons/status.png";
 
 	public static final String ICON_SES = "icons/ses.gif";
 
-	public static final String ICON_RUN_ON_SERVER = "icons/run_on_server.gif";
-	public static final String ICON_STOP_SERVER = "icons/server_stop.png";
-
 	public static final String ICON_INVALID_REGION = "icons/error.png";
+	public static String[] IMAGES = new String[] { ICON_HORIZONTAL_FLIP,ICON_VERTICAL_FLIP,
+			ICON_RESET_DETECTOR, ICON_CTRL_BTN, ICON_CHECKED_STATE, ICON_UNCHECKED_STATE, 
+			ICON_OPEN_TASK, ICON_SAVE_TASK, ICON_SAVEAS_TASK,
+			ICON_ADD_OBJ, ICON_DELETE_OBJ, ICON_UNDO_EDIT, ICON_REDO_EDIT, ICON_COPY_EDIT, ICON_PASTE_EDIT, ICON_NEW_WIZ_EDIT,
+			ICON_RUN_READY, ICON_RUNNING, ICON_RUN_COMPLETE, ICON_RUN_FAILURE, ICON_INVALID, ICON_ERROR,
+			ICON_START, ICON_STOP, ICON_PAUSE, ICON_SKIP, ICON_RESUME, ICON_STATUS, ICON_RUN_ON_SERVER, ICON_STOP_SERVER,
+			ICON_RAW_IMAGE, ICON_SAVE_CONFIGURATION,ICON_OPEN_PREF, ICON_UP_TO_DOWN,ICON_DOWN_TO_UP,ICON_REMOTE_DESKTOP,ICON_SES};
 
-	public static String[] IMAGES = new String[] { ICON_RESET_DETECTOR,
-			ICON_HORIZONTAL_FLIP, ICON_PITCH_ROTATE, ICON_ROLL_ROTATE,
-			ICON_VERTICAL_FLIP, ICON_RAW_IMAGE, ICON_TOMO_ALIGNMENT,
-			ICON_SAVE_CONFIGURATION, ICON_TOMO_CONFIG, ICON_CHECKED_STATE,
-			ICON_UNCHECKED_STATE, ICON_OPEN_PREF, ICON_UP_TO_DOWN,
-			ICON_DOWN_TO_UP, ICON_SHOPPING_CART, ICON_CTRL_BTN,
-			ICON_CTRL_BTN_10x10, ICON_CTRL_BTN_12x12, ICON_REMOTE_DESKTOP,
-			ICON_RUN_READY, ICON_RUNNING, ICON_RUN_COMPLETE, ICON_RUN_FAILURE,
-			ICON_START, ICON_STOP, ICON_STATUS, ICON_SES,ICON_RUN_ON_SERVER, ICON_STOP_SERVER };
+
 
 }

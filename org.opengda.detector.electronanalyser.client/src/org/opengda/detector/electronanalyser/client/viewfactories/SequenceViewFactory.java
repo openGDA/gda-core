@@ -78,12 +78,6 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 		if (camera != null) {
 			sequenceView.setCamera(camera);
 		}
-		if (location != null) {
-			sequenceView.setLocation(location);
-		}
-		if (user != null) {
-			sequenceView.setUser(user);
-		}
 		if (analyser!=null) {
 			sequenceView.setAnalyser(analyser);
 		}

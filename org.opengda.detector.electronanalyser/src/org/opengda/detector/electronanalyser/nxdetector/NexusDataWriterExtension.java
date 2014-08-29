@@ -99,13 +99,12 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 			throw new IllegalArgumentException("Sequence data model must not be null.");
 		}
 		String regionNexusFileName;
-		String filenameFormat = sequence.getSpectrum().getFilenameFormat();
 		String filenamePrefix = sequence.getSpectrum().getFilenamePrefix();
 		if (scanNumber <= 0) {
 			scanNumber=new NumTracker(LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)).getCurrentFileNumber();
 		}
 		if (filenamePrefix!=null && !filenamePrefix.isEmpty()) {
-			regionNexusFileName = String.format(filenameFormat, filenamePrefix,scanNumber, regionName) + ".nxs";
+			regionNexusFileName = String.format("%s_%05d_%s", filenamePrefix,scanNumber, regionName) + ".nxs";
 		} else {
 			regionNexusFileName = String.format("%05d_%s", scanNumber, regionName) + ".nxs";
 		}
