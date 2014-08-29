@@ -615,15 +615,15 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			break;
     		case 3: // ang 14 small correct
     			minEnergies = new int[]{1,1,1,1,1,-1,-1};
-    			maxEnegies = new int[]{8,16,40,80,88,-1,-1};
-			break;
+    			maxEnegies = new int[]{8,24,60,120,88,-1,-1};
+    			break;
     		case 4: // ang 30 correct
     			minEnergies = new int[]{1,1,2,4,7,-1,-1};
     			maxEnegies = new int[]{23,45,113,121,131,-1,-1};
     			break;
     		case 5: // ang 30 small correct
-    			minEnergies = new int[]{1,1,1,2,2,-1,-1};
-    			maxEnegies = new int[]{10,19,48,95,67,-1,-1};
+    			minEnergies = new int[]{1,1,1,1,1,-1,-1};
+    			maxEnegies = new int[]{8,24,60,120,88,-1,-1};
 			break;
 		}
 		int passEnergyIndex = determinePassEnergyIndex(passEnergy);
@@ -658,15 +658,15 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			break;
     		case 3: //ang 14 small correct
     			minEnergies = new int[]{-1,-1,1,2,2,6,12};
-			maxEnegies = new int[]{-1,-1,48,95,190,182,149};
-			break;
+    			maxEnegies = new int[]{-1,-1,48,95,190,182,149};
+    			break;
     		case 4: //ang 30 correct
     			minEnergies = new int[]{-1,-1,2,4,7,18,35};
     			maxEnegies = new int[]{-1,-1,113,226,453,800,1037};
     			break;
     		case 5: //ang 30 small correct
-    			minEnergies = new int[]{-1,-1,1,1,1,3,3};
-			maxEnegies = new int[]{-1,-1,40,80,160,248,248};
+    			minEnergies = new int[]{-1,-1,1,1,1,3,6};
+			maxEnegies = new int[]{-1,-1,60,120,240,248,172};
 			break;
 		}
 		int passEnergyIndex = determinePassEnergyIndex(passEnergy);
