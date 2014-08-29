@@ -19,27 +19,37 @@
 package gda.device.detector.xmap;
 
 import gda.device.DeviceException;
+import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.scan.ScanInformation;
 
 /**
- * Drive the XIA Xmap card using its own internal clock. Data is only available after the scan has finished as it is written
- * directly to an HDF5 file by the XMAP card.
+ * Drive the XIA Xmap card using its own internal clock. Data is only available
+ * after the scan has finished as it is written directly to an HDF5 file by the
+ * XMAP card.
  * <p>
- * This plugin does not return any data, so it is abstract.
+ * This plugin could be used as a base for a software triggered strategy, but as
+ * this is not a full implementation it is abstract.
  */
-public abstract class XmapSimpleAcquire extends AbstractXmapTriggeringStrategy {
+public abstract class XmapSimpleAcquire implements AsyncNXCollectionStrategy {
+
+	private EDXDMappingController xmap;
 
 	public XmapSimpleAcquire(EDXDMappingController xmap, double readoutTime)
 			throws DeviceException {
-		super(xmap);
+		this.xmap = xmap;
 		getXmap().setAquisitionTime(readoutTime);
 
 	}
 
+	public EDXDMappingController getXmap() {
+		return xmap;
+	}
+
 	@Override
-	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
+	public void prepareForCollection(double collectionTime, int numImages,
+			ScanInformation scanInfo) throws Exception {
 		if (numImages != 1) {
 			throw new IllegalArgumentException(
 					"This single exposure triggering strategy expects to expose only 1 spectra");
@@ -47,6 +57,23 @@ public abstract class XmapSimpleAcquire extends AbstractXmapTriggeringStrategy {
 		getXmap().setPixelsPerRun(numImages);
 		getXmap().setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
 
+	}
+
+	@Override
+	public void prepareForCollection(int numberImagesPerCollection,
+			ScanInformation scanInfo) throws Exception {
+		throw new UnsupportedOperationException(
+				"Must be operated via prepareForCollection(collectionTime, numberImagesPerCollection)");
+	}
+
+	@Override
+	public String getName() {
+		return "controller";
+	}
+
+	@Override
+	public boolean willRequireCallbacks() {
+		return false;
 	}
 
 	@Override
@@ -89,7 +116,8 @@ public abstract class XmapSimpleAcquire extends AbstractXmapTriggeringStrategy {
 	}
 
 	@Override
-	public int getNumberImagesPerCollection(double collectionTime) throws Exception {
+	public int getNumberImagesPerCollection(double collectionTime)
+			throws Exception {
 		return 1;
 	}
 
