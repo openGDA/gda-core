@@ -21,6 +21,7 @@ package uk.ac.gda.arpes.ui;
 import gda.commandqueue.JythonCommandCommandProvider;
 import gda.commandqueue.Queue;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 
 import java.util.Comparator;
@@ -517,25 +518,22 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private void updateEnergyLimits(){
 		int lens = lensMode.getSelectionIndex();
 		int passEnergyVal = Integer.parseInt(passEnergy.getValue().toString());
-		int[] lowPassEnergyRange = getLowPassEnergyRange(lens, passEnergyVal);
-		int min = lowPassEnergyRange[0];
-		int max = lowPassEnergyRange[1];
-		if(min!=-1 && max!=-1){
-			startEnergy.setEnabled(true);
-			centreEnergy.setEnabled(true);
-			endEnergy.setEnabled(true);
-			startEnergy.setMinimum(min);
-			startEnergy.setMaximum(max);
-			centreEnergy.setMinimum(min);
-			centreEnergy.setMaximum(max);
-			endEnergy.setMinimum(min);
-			endEnergy.setMaximum(max);
+
+		String psu_mode = InterfaceProvider.getCommandRunner().evaluateCommand("psu_mode()");
+		int[] energyRange;
+		if (psu_mode.equals("High Pass (XPS)")) {
+		    energyRange = getHighPassEnergyRange(lens, passEnergyVal);
+		} else {
+		    energyRange = getLowPassEnergyRange(lens, passEnergyVal);
 		}
-		else{
-			startEnergy.setEnabled(false);
-			centreEnergy.setEnabled(false);
-			endEnergy.setEnabled(false);
-		}
+		int min = energyRange[0];
+		int max = energyRange[1];
+		startEnergy.setMinimum(min);
+		startEnergy.setMaximum(max);
+		centreEnergy.setMinimum(min);
+		centreEnergy.setMaximum(max);
+		endEnergy.setMinimum(min);
+		endEnergy.setMaximum(max);
 	}
 
 	@Override
