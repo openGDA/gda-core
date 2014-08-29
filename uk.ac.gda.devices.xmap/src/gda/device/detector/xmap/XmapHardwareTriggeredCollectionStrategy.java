@@ -22,6 +22,7 @@ import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
+import gda.device.detector.xmap.edxd.EDXDController.PRESET_TYPES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.detector.xmap.edxd.NDHDF5PVProvider;
 import gda.scan.ScanInformation;
@@ -47,8 +48,12 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
 		getXmap().setCollectionMode(COLLECTION_MODES.MCA_MAPPING);
+		getXmap().setPresetType(PRESET_TYPES.NO_PRESET);
 		getXmap().setPixelsPerRun(scanInfo.getDimensions()[1]);
-		ndHDF5PVProvider.setNumberOfPixels(scanInfo.getDimensions()[1]);
+		getXmap().setAutoPixelsPerBuffer(true);
+		int pixelsPerBuffer = 124; // will always be this when auto pixels per buffer
+		int numberOfBuffers = (scanInfo.getDimensions()[1] / pixelsPerBuffer )+ 1;
+		ndHDF5PVProvider.setNumberOfPixels(numberOfBuffers); // TODO rename this method as it is wrong and misleading
 		ndHDF5PVProvider.setNumExtraDims(0);
 		totalNumberImages = 1;
 		for(int dimSize : scanInfo.getDimensions()) {
@@ -58,8 +63,13 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 	
 	
 	@Override
+	public void prepareForLine() throws Exception {
+		getXmap().start(); // restart collection at every line for this class
+	}
+	
+	@Override
 	public void collectData() throws Exception {
-		getXmap().start();
+//		getXmap().start();
 	}
 
 	@Override
@@ -74,7 +84,6 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 
 	@Override
 	public List<String> getInputStreamNames() {
-		// TODO time??
 		return new ArrayList<String>();
 	}
 

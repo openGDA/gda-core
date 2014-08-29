@@ -42,6 +42,8 @@ public class NDHDF5PVProvider {
 	private static final String FilePath_RBV_SUFFIX = ":HDF:FilePath_RBV";
 	private static final String NumCapture_SUFFIX = ":HDF:NumCapture";
 	private static final String NumCapture_RBV_SUFFIX = ":HDF:NumCapture_RBV";
+	private static final String FileNumber_SUFFIX = ":HDF:FileNumber";
+	private static final String FileNumber_RBV_SUFFIX = ":HDF:FileNumber_RBV";
 
 	private String epicsTemplate;
 	private PV<Integer> pvNumExtraDims;
@@ -56,6 +58,8 @@ public class NDHDF5PVProvider {
 	private ReadOnlyPV<String> pvFilePath_rbv;
 	private PV<Integer> pvNumCapture;
 	private ReadOnlyPV<Integer> pvNumCapture_rbv;
+	private PV<Integer> pvFileNumber;
+	private ReadOnlyPV<Integer> pvFileNumber_rbv;
 
 	public NDHDF5PVProvider(String epicsTemplate) throws FactoryException {
 		if (epicsTemplate == null || epicsTemplate.isEmpty()) {
@@ -82,6 +86,8 @@ public class NDHDF5PVProvider {
 		pvFilePath_rbv = LazyPVFactory.newReadOnlyStringPV(generatePVName(FilePath_RBV_SUFFIX));
 		pvNumCapture = LazyPVFactory.newIntegerPV(generatePVName(NumCapture_SUFFIX));
 		pvNumCapture_rbv = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(NumCapture_RBV_SUFFIX));
+		pvFileNumber = LazyPVFactory.newIntegerPV(generatePVName(FileNumber_SUFFIX));
+		pvFileNumber_rbv = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(FileNumber_RBV_SUFFIX));
 	}
 
 	public int getNumExtraDims() throws IOException {
@@ -130,5 +136,13 @@ public class NDHDF5PVProvider {
 	
 	public void setFilePath(String dataDir) throws IOException {
 		pvFilePath.putNoWait(dataDir);
+	}
+	
+	public int getFileNumber() throws IOException {
+		return pvFileNumber_rbv.get();
+	}
+	
+	public void setFileNumber(int fileNumber) throws IOException {
+		pvFileNumber.putWait(fileNumber);
 	}
 }

@@ -45,7 +45,7 @@ public class XmapNXDetectorDataCreator {
 
 		int numFilteredElements = deriveNumberOfIncludedDetectors();
 		int originalNumberOfElements = detectorElements.size();
-		int numberOfROIs = extraNames.length;
+		int numberOfROIs = detectorElements.get(0).getRegionList().size();
 
 		// items to write to nexus
 		double[] summation = null;
