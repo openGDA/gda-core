@@ -40,14 +40,14 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 	private VortexROI[] rois;
 	private NDHDF5PVProvider ndHDF5PVProvider;
 	private int nextRowToBeCollected;
-	private int lastRowRead;
 	private File hdf5Folder;
 	private String hdf5Prefix;
 	private ArrayList<DetectorElement> detectorElements;
 
-	public XmapReadbackHdf5NXPlugin(EDXDMappingController xmap, int numberElements, List<Double> eventProcessingTimes)
+	public XmapReadbackHdf5NXPlugin(EDXDMappingController xmap, NDHDF5PVProvider ndHDF5PVProvider, int numberElements, List<Double> eventProcessingTimes)
 			throws DeviceException {
 		this.xmap = xmap;
+		this.ndHDF5PVProvider = ndHDF5PVProvider;
 		this.numberElements = numberElements;
 		this.eventProcessingTimes = eventProcessingTimes;
 	}
@@ -57,7 +57,6 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 			ScanInformation scanInfo) throws Exception {
 		this.scanInfo = scanInfo;
 		nextRowToBeCollected = 0;
-		lastRowRead = -1;
 
 		// make a subfolder
 		String dataDir = PathConstructor.createFromDefaultProperty();
@@ -82,11 +81,10 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 
 	@Override
 	public void completeLine() throws Exception {
-		// String filename = xmap.getHDFFileName();
-		// boolean isRecording = xmap.getCaptureStatus();
-		// if (isRecording){
-		// throw new DeviceException("the line should have finished!");
-		// }
+		// we need to block the main scan thread here as this is the only way to
+		// know that the row has been completed and the Xmap is ready to move on
+		// to the next row of the scan
+		waitForNextHDF5();
 		nextRowToBeCollected++;
 	}
 
@@ -128,8 +126,7 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 		try {
 			dataLoader.loadFile();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new DeviceException("Exception reading raw Xmap HDF5 file",e);
 		}
 		
 		ArrayList<NXDetectorDataAppender> output = new ArrayList<NXDetectorDataAppender>();
@@ -160,16 +157,6 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 		}
 
 		return output;
-
-		// // FIXME error here when running map.
-		// int firstPixel = pixelsReadSoFar + 1;
-		// int rowSize = scanInfo.getDimensions()[1];
-		// int rowOfFirstPixel = (int) Math.floor(firstPixel / rowSize);
-		//
-		// if (rowOfFirstPixel < nextRowToBeCollected){
-		// return dataAppenders[rowOfFirstPixel].read(maxToRead);
-		// }
-		// throw new DeviceException("Data not collected yet");
 	}
 
 	private File waitForNextHDF5() throws InterruptedException, DeviceException {
@@ -179,15 +166,13 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 			Thread.sleep(100);
 		}
 		
-		new XmapFileUtil(nextHDF5File.getAbsolutePath())
-				.waitForFileToBeReadable();
+		new XmapFileUtil(nextHDF5File.getAbsolutePath()).waitForFileToBeReadable();
 		
 		return nextHDF5File;
 	}
 
 	private File deriveNextHDF5File() {
-		lastRowRead++;
-		String fileName = hdf5Folder + hdf5Prefix + "-" + lastRowRead + ".hdf";
+		String fileName = hdf5Folder + File.separator + hdf5Prefix + "-" + nextRowToBeCollected + ".hdf";
 		return new File(fileName);
 	}
 

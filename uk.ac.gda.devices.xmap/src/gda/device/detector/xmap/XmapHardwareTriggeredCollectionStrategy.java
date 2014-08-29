@@ -20,11 +20,13 @@ package gda.device.detector.xmap;
 
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.detector.xmap.edxd.NDHDF5PVProvider;
 import gda.scan.ScanInformation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -34,6 +36,7 @@ import java.util.NoSuchElementException;
 public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 
 	private NDHDF5PVProvider ndHDF5PVProvider;
+	private int totalNumberImages;
 
 	public XmapHardwareTriggeredCollectionStrategy(EDXDMappingController xmap,
 			NDHDF5PVProvider nDHDF5PVProvider) throws DeviceException {
@@ -47,6 +50,10 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 		getXmap().setPixelsPerRun(scanInfo.getDimensions()[1]);
 		ndHDF5PVProvider.setNumberOfPixels(scanInfo.getDimensions()[1]);
 		ndHDF5PVProvider.setNumExtraDims(0);
+		totalNumberImages = 1;
+		for(int dimSize : scanInfo.getDimensions()) {
+			totalNumberImages *= dimSize;
+		}
 	}
 	
 	
@@ -67,31 +74,29 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 
 	@Override
 	public List<String> getInputStreamNames() {
-		// TODO Auto-generated method stub
-		
-		// TODO time
-		
-		return null;
+		// TODO time??
+		return new ArrayList<String>();
 	}
 
 	@Override
 	public List<String> getInputStreamFormats() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<String>();
 	}
 
 	@Override
 	public List<NXDetectorDataAppender> read(int maxToRead)
 			throws NoSuchElementException, InterruptedException,
 			DeviceException {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<NXDetectorDataAppender> output = new ArrayList<NXDetectorDataAppender>();
+		for (int i = 0; i < totalNumberImages; i++){
+			output.add(new NXDetectorDataNullAppender()) ;
+		}
+		return output;
 	}
 
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime)
 			throws Exception {
-		// TODO Auto-generated method stub
-		
+		// do nothing here		
 	}
 }
