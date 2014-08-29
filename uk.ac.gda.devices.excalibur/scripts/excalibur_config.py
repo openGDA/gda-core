@@ -190,7 +190,8 @@ def switch_on():
         handle_messages.log(None,"excalibur_config_normal not found", Raise=True)
 
     setOperationModeToNormal(dev)
-
+    time.sleep(1)
+    handle_messages.log(None,"Starting scan")
     det.pluginList[1].enabled=False #turn off file saving as it will fail due to uninitialised PHDF5 plugin
     try:
         scan=RepeatScan.create_repscan([1, det, .01])
