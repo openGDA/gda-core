@@ -24,7 +24,7 @@ import gda.device.detector.NXDetectorData;
 
 import java.util.List;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Nexus;
@@ -33,7 +33,7 @@ import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 public class ReductionDetectorBase  extends NcdSubDetector {
 
 	protected String key;
-	protected AbstractDataset qAxis;
+	protected Dataset qAxis;
 	
 	public ReductionDetectorBase(String name, String key) {
 		super();
@@ -84,10 +84,10 @@ public class ReductionDetectorBase  extends NcdSubDetector {
 	}
 	
 	public void setqAxis(IDataset qAxis) {
-		this.qAxis = DatasetUtils.convertToAbstractDataset(qAxis);
+		this.qAxis = DatasetUtils.convertToDataset(qAxis);
 	}
 
-	public AbstractDataset getqAxis() {
+	public Dataset getqAxis() {
 		return qAxis;
 	}
 	

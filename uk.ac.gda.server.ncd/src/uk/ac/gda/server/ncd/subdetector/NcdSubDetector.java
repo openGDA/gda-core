@@ -31,7 +31,6 @@ import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
 import gda.util.persistence.LocalParameters;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,7 +43,7 @@ import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
@@ -344,7 +343,7 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 		this.pixelSize = pixelSize;
 	}
 
-	public AbstractDataset getMask() {
+	public Dataset getMask() {
 		return mask;
 	}
 

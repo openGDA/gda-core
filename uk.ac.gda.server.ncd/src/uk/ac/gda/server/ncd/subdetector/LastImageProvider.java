@@ -19,8 +19,8 @@
 package uk.ac.gda.server.ncd.subdetector;
 
 import gda.device.DeviceException;
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 
 public interface LastImageProvider {
-	public AbstractDataset readLastImage() throws DeviceException;
+	public Dataset readLastImage() throws DeviceException;
 }

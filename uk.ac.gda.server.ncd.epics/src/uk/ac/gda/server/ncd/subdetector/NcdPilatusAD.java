@@ -35,13 +35,12 @@ import gda.observable.IObserver;
 import gda.scan.ScanInformation;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 import uk.ac.gda.server.ncd.pilatus.PilatusADController;
 
@@ -260,12 +259,12 @@ public class NcdPilatusAD extends NcdSubDetector implements InitializingBean, IO
 	}
 
 	@Override
-	public AbstractDataset readLastImage() throws DeviceException {
+	public Dataset readLastImage() throws DeviceException {
 		try {
 			float[] data;
 			data = controller.getCurrentArray();
 			int[] dims = getDataDimensions();
-			AbstractDataset ds = new FloatDataset(data, dims);
+			Dataset ds = new FloatDataset(data, dims);
 			return ds;
 		} catch (Exception e) {
 			throw new DeviceException("error reading last array", e);
