@@ -234,6 +234,7 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 				throw new DeviceException(e);
 			}
 		}
+		//need to add NumExposures for accumulationMode
 		Vector<NXDetectorDataAppender> vector = new Vector<NXDetectorDataAppender>();
 		vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times));
 		return vector;

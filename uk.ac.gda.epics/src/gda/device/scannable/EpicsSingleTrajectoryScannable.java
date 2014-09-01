@@ -31,7 +31,9 @@ import gda.scan.TrajectoryScanController.TrajectoryScanProperty;
 import gda.util.OutOfRangeException;
 import gov.aps.jca.TimeoutException;
 
-//TODO Explain the meaning of this class
+/**
+ * Operates a single axis motion within the EPICS trajectory system for ContinuousScan scans (e.g. I18 raster map scans)
+ */
 public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase implements ContinuouslyScannable, IObserver {
 
 
@@ -44,9 +46,9 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 
 	protected boolean trajMoveComplete;
 	protected int trajectoryIndex = 0;
+	protected int actualPulses;
 
 	private ContinuousParameters continuousParameters;
-	private int actualPulses;
 	private double[] scannablePositions;
 	private int mode;
 	private boolean trajectoryBuildDone;

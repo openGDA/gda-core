@@ -44,7 +44,6 @@ import org.springframework.util.StringUtils;
 
 public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements NXPlugin{
 	
-	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(MultipleImagesPerHDF5FileWriter.class);
 
 	private NDFileHDF5 ndFileHDF5;
@@ -394,28 +393,32 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 			DeviceException {
 		NXDetectorDataAppender dataAppender;
 		//wait until the NumCaptured_RBV is equal to or exceeds maxToRead.
-		checkErrorStatus();
-		try {
-			getNdFile().getPluginBase().checkDroppedFrames();
-		} catch (Exception e) {
-			throw new DeviceException("Error in " + getName(), e);
-		}
-		if (firstReadoutInScan) {
-			dataAppender = new NXDetectorDataFileLinkAppender(expectedFullFileName, getxPixelSize(), getyPixelSize());
-			numToBeCaptured=1;
-			numCaptured=0;
-		}
-		else {
-			dataAppender = new NXDetectorDataNullAppender();
-			numToBeCaptured++;
-		}
-		while( numCaptured< numToBeCaptured){
+		if (isEnabled()) {
+			checkErrorStatus();
 			try {
-				numCaptured = getNdFileHDF5().getNumCaptured_RBV();
+				getNdFile().getPluginBase().checkDroppedFrames();
 			} catch (Exception e) {
-				throw new DeviceException("Error in getCapture_RBV" + getName(), e);
+				throw new DeviceException("Error in " + getName(), e);
 			}
-			Thread.sleep(50);
+			if (firstReadoutInScan) {
+				dataAppender = new NXDetectorDataFileLinkAppender(expectedFullFileName, getxPixelSize(),
+						getyPixelSize());
+				numToBeCaptured = 1;
+				numCaptured = 0;
+			} else {
+				dataAppender = new NXDetectorDataNullAppender();
+				numToBeCaptured++;
+			}
+			while (numCaptured < numToBeCaptured) {
+				try {
+					numCaptured = getNdFileHDF5().getNumCaptured_RBV();
+				} catch (Exception e) {
+					throw new DeviceException("Error in getCapture_RBV" + getName(), e);
+				}
+				Thread.sleep(50);
+			}
+		} else {
+			dataAppender = new NXDetectorDataNullAppender();
 		}
 		firstReadoutInScan = false;
 		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();

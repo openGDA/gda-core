@@ -180,6 +180,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 
 		// we want 1 image per trigger - there will be multiple triggers per collection
 		getAdBase().setNumImages(1);
+		getAdBase().setNumExposures(1);
 		getAdBase().setImageModeWait(ImageMode.SINGLE);
 		adDriverPco.getAdcModePV().putWait(adcMode); // 2 adcs
 		adDriverPco.getTimeStampModePV().putWait(timeStamp); // BCD - if set to None then the image is blank. BCD means no timestamp
