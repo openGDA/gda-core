@@ -53,7 +53,7 @@ Require-Bundle: org.eclipse.help.ui,
  org.eclipse.dawnsci.plotting.api;bundle-version="1.2.0",
  ncsa.hdf;bundle-version="2.8.0"
 Bundle-ActivationPolicy: lazy
-Bundle-Version: 8.42.0.qualifier
+Bundle-Version: 8.43.0.qualifier
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.gda.core
 Eclipse-BuddyPolicy: registered
 Bundle-Localization: plugin
