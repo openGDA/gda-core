@@ -471,6 +471,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 				if (!isSwept()) {
 					stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
 					stepEnergy.setEditable(false);
+					startEnergy.setEditable(false);
+					endEnergy.setEditable(false);
 					energyWidth.setValue(capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue()));
 					energyWidth.setActive(false);
 					startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() - ((Number) energyWidth.getValue()).doubleValue() / 2.0);
@@ -479,6 +481,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 				} else {
 					stepEnergy.setEditable(true);
 					energyWidth.setActive(true);
+					startEnergy.setEditable(true);
+					endEnergy.setEditable(true);
 				}
 			}
 
