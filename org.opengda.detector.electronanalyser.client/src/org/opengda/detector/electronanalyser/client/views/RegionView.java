@@ -61,7 +61,6 @@ import org.opengda.detector.electronanalyser.client.selection.TotalTimeSelection
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.RUN_MODES;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
@@ -109,8 +108,6 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	private Button btnBinding;
 	private Combo regionName;
 	private Spinner numberOfIterationSpinner;
-	private Button btnRepeatuntilStopped;
-	private Button btnConfirmAfterEachInteration;
 	private Spinner spinnerEnergyChannelFrom;
 	private Spinner spinnerYChannelFrom;
 	private Button btnPulseMode;
@@ -128,8 +125,6 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	private Text txtTotalTime;
 	private Button btnSwept;
 	private Combo lensMode;
-	private Combo runMode;
-	private Button btnNumberOfIterations;
 	private Button btnKinetic;
 	private Text txtFramesPerSecond;
 	private Spinner spinnerSlices;
@@ -213,41 +208,33 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 
 		Group grpRunMode = new Group(modeComposite, SWT.NONE);
 		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.widthHint = 300;
-		layoutData.verticalSpan = 2;
 		grpRunMode.setLayoutData(layoutData);
 		grpRunMode.setLayout(new GridLayout(2, false));
-		grpRunMode.setText("Run Mode");
+		grpRunMode.setText("Acquisition Configuration");
 
-		runMode = new Combo(grpRunMode, SWT.READ_ONLY);
-		runMode.setItems(new String[] { "Normal", "Add Dimension" });
-		runMode.setToolTipText("List of available run modes");
-		runMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		new Label(grpRunMode, SWT.NONE);
-
-		btnNumberOfIterations = new Button(grpRunMode, SWT.RADIO);
-		btnNumberOfIterations.setToolTipText("Enable a number of iterations option");
-		btnNumberOfIterations.setText("Number of iterations");
+		Label lblLabelNumberOfIterations = new Label(grpRunMode, SWT.NONE);
+		lblLabelNumberOfIterations.setText("Number of Iterations:");
 
 		numberOfIterationSpinner = new Spinner(grpRunMode, SWT.BORDER);
 		numberOfIterationSpinner.setMinimum(1);
 		numberOfIterationSpinner.setMaximum(Integer.MAX_VALUE);
-		numberOfIterationSpinner.setToolTipText("Set number of iterations required here");
+		numberOfIterationSpinner.setToolTipText("Set number of iterations required");
+		
+		Label lblSclies = new Label(grpRunMode, SWT.NONE);
+		lblSclies.setText("Number of Y Slices:");
 
-		btnRepeatuntilStopped = new Button(grpRunMode, SWT.RADIO);
-		btnRepeatuntilStopped.setToolTipText("Enable repeat until stopped option");
-		btnRepeatuntilStopped.setText("Repeat until stopped");
-
-		new Label(grpRunMode, SWT.NONE);
-
-		btnConfirmAfterEachInteration = new Button(grpRunMode, SWT.CHECK);
-		btnConfirmAfterEachInteration.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		btnConfirmAfterEachInteration.setText("Confirm after each iteration");
-		btnConfirmAfterEachInteration.setToolTipText("Enable confirm after each iteration");
-		btnConfirmAfterEachInteration.setEnabled(false);
-
-		new Label(grpRunMode, SWT.NONE);
+		spinnerSlices = new Spinner(grpRunMode, SWT.BORDER);
+		spinnerSlices.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (e.getSource().equals(spinnerSlices)) {
+					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerSlices.getSelection());
+				}
+			}
+		});
+		spinnerSlices.setToolTipText("Set number of slices required");
+		spinnerSlices.setMinimum(1);
+		spinnerSlices.setMaximum(camera.getCameraYSize());
 
 		Group grpAcquisitionMode = new Group(modeComposite, SWT.NONE);
 		grpAcquisitionMode.setText("Acquisition Mode");
@@ -267,6 +254,58 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 
 		btnFixed = new Button(grpAcquisitionMode, SWT.RADIO);
 		btnFixed.setText("Fixed");
+
+		Group grpExcitationEnergy = new Group(modeComposite, SWT.NONE);
+		grpExcitationEnergy.setText("Excitation Energy [eV]");
+		grpExcitationEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		grpExcitationEnergy.setLayout(new GridLayout(2, true));
+		if (regionDefinitionResourceUtil.isSourceSelectable()) {
+			btnHard = new Button(grpExcitationEnergy, SWT.RADIO);
+			btnHard.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			btnHard.setText("Hard X-Ray:");
+			btnHard.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (e.getSource().equals(btnHard) && btnHard.getSelection()) {
+						updateExcitationEnergy(txtHardEnergy);
+					}
+				}
+			});
+			
+			txtHardEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
+//			txtHardEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			txtHardEnergy.setToolTipText("Current hard X-ray beam energy");
+			txtHardEnergy.setEnabled(false);
+			txtHardEnergy.setEditable(false);
+			
+			btnSoft = new Button(grpExcitationEnergy, SWT.RADIO);
+			btnSoft.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			btnSoft.setText("Soft X-Ray:");
+			btnSoft.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					if (e.getSource().equals(btnSoft) && btnSoft.getSelection()) {
+						updateExcitationEnergy(txtSoftEnergy);
+					}
+				}
+			});
+
+			txtSoftEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
+//			txtSoftEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			txtSoftEnergy.setToolTipText("Current soft X-ray beam energy");
+			txtSoftEnergy.setEnabled(false);
+			txtSoftEnergy.setEditable(false);
+			
+		} else {
+			Label lblCurrentValue = new Label(grpExcitationEnergy, SWT.NONE);
+			lblCurrentValue.setText("X-Ray energy:");
+
+			txtHardEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
+//			txtHardEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			txtHardEnergy.setToolTipText("Current X-ray beam energy");
+			txtHardEnergy.setEnabled(false);
+			txtHardEnergy.setEditable(false);
+		}
 
 		Group grpEnergyMode = new Group(modeComposite, SWT.NONE);
 		grpEnergyMode.setText("Energy Mode");
@@ -295,7 +334,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		btnBinding.setText("Binding");
 
 		Group grpEnergy = new Group(rootComposite, SWT.NONE);
-		grpEnergy.setText("Energy [eV]");
+		grpEnergy.setText("Spectrum energy range [eV]");
 		grpEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpEnergy.setLayout(new GridLayout(4, false));
 
@@ -437,6 +476,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtFramesPerSecond.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtFramesPerSecond.setToolTipText("Camera frame rate");
 		txtFramesPerSecond.setEditable(false);
+		txtFramesPerSecond.setEnabled(false);
 		txtFramesPerSecond.setText(String.format("%d", camera.getFrameRate()));
 
 		Label lblTime = new Label(grpStep, SWT.NONE);
@@ -453,6 +493,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtMinimumTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtMinimumTime.setToolTipText("Minimum time per step allowed");
 		txtMinimumTime.setEditable(false);
+		txtMinimumTime.setEnabled(false);
 		txtMinimumTime.setText(String.format("%f", 1.0 / camera.getFrameRate()));
 
 		Label lblSize = new Label(grpStep, SWT.NONE);
@@ -468,7 +509,8 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtMinimumSize = new Text(grpStep, SWT.BORDER);
 		txtMinimumSize.setToolTipText("Minimum energy size per step allowed");
 		txtMinimumSize.setEditable(false);
-
+		txtMinimumSize.setEnabled(false);
+		
 		Label lblTotalTime = new Label(grpStep, SWT.NONE);
 		lblTotalTime.setText("Total Time [s]");
 
@@ -476,7 +518,8 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtTotalTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtTotalTime.setToolTipText("Anticipated total time for this collection");
 		txtTotalTime.setEditable(false);
-
+		txtTotalTime.setEnabled(false);
+		
 		Label lblTotalSteps = new Label(grpStep, SWT.NONE);
 		lblTotalSteps.setText("Total Steps");
 
@@ -484,7 +527,8 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtTotalSteps.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtTotalSteps.setToolTipText("Total number of steps for this collection");
 		txtTotalSteps.setEditable(false);
-
+		txtTotalSteps.setEnabled(false);
+		
 		Group grpDetector = new Group(rootComposite, SWT.NONE);
 		grpDetector.setText("Detector");
 		grpDetector.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -572,27 +616,6 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		spinnerYChannelTo.setMinimum(1);
 		spinnerYChannelTo.setMaximum(camera.getCameraYSize());
 
-		Label lblSclies = new Label(grpDetector, SWT.NONE);
-		lblSclies.setText("Slices:");
-		new Label(grpDetector, SWT.NONE);
-
-		spinnerSlices = new Spinner(grpDetector, SWT.BORDER);
-		spinnerSlices.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (e.getSource().equals(spinnerSlices)) {
-					updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Slices(), spinnerSlices.getSelection());
-				}
-			}
-		});
-		spinnerSlices.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		spinnerSlices.setToolTipText("Number of slices");
-		spinnerSlices.setMinimum(1);
-		spinnerSlices.setMaximum(camera.getCameraYSize());
-
-		new Label(grpDetector, SWT.NONE);
-		new Label(grpDetector, SWT.NONE);
-
 		Label lblDetectorMode = new Label(grpDetector, SWT.NONE);
 		lblDetectorMode.setText("Mode:");
 
@@ -622,60 +645,6 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			}
 		});
 		btnPulseMode.setText("Pulse Counting");
-
-		Group grpExcitationEnergy = new Group(rootComposite, SWT.NONE);
-		grpExcitationEnergy.setText("Excitation Energy [eV]");
-		grpExcitationEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		if (regionDefinitionResourceUtil.isSourceSelectable()) {
-			grpExcitationEnergy.setLayout(new GridLayout(3, true));
-
-			Label lblXRaySource = new Label(grpExcitationEnergy, SWT.None);
-			lblXRaySource.setText("X-Ray Source:");
-
-			btnHard = new Button(grpExcitationEnergy, SWT.RADIO);
-			btnHard.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-			btnHard.setText("Hard");
-			btnHard.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					if (e.getSource().equals(btnHard) && btnHard.getSelection()) {
-						updateExcitationEnergy(txtHardEnergy);
-					}
-				}
-			});
-
-			btnSoft = new Button(grpExcitationEnergy, SWT.RADIO);
-			btnSoft.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-			btnSoft.setText("Soft");
-			btnSoft.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					if (e.getSource().equals(btnSoft) && btnSoft.getSelection()) {
-						updateExcitationEnergy(txtSoftEnergy);
-					}
-				}
-			});
-
-			Label lblCurrentValue = new Label(grpExcitationEnergy, SWT.NONE);
-			lblCurrentValue.setText("Beam energy:");
-
-			txtHardEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
-			txtHardEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-			txtHardEnergy.setToolTipText("Current hard X-ray beam energy");
-
-			txtSoftEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
-			txtSoftEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-			txtSoftEnergy.setToolTipText("Current soft X-ray beam energy");
-		} else {
-			grpExcitationEnergy.setLayout(new GridLayout(2, true));
-
-			Label lblCurrentValue = new Label(grpExcitationEnergy, SWT.NONE);
-			lblCurrentValue.setText("Beam energy:");
-
-			txtHardEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
-			txtHardEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-			txtHardEnergy.setToolTipText("Current X-ray beam energy");
-		}
 
 		regionComposite.setMinSize(rootComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
@@ -845,10 +814,6 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		}
 		regionName.addSelectionListener(regionNameSelAdapter);
 		lensMode.addSelectionListener(lensModeSelAdaptor);
-		runMode.addSelectionListener(runModeSelAdaptor);
-		btnNumberOfIterations.addSelectionListener(btnNumberOfIterationSelAdaptor);
-		btnRepeatuntilStopped.addSelectionListener(repeatUntilStoopedSelAdaptor);
-		btnConfirmAfterEachInteration.addSelectionListener(confirmAfterEachIterationSelAdaptor);
 		numberOfIterationSpinner.addSelectionListener(numIterationSpinnerSelAdaptor);
 
 		// TODO add monitor to total steps in EPICS
@@ -936,45 +901,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			}
 		}
 	};
-	private SelectionAdapter runModeSelAdaptor = new SelectionAdapter() {
-		@Override
-		public void widgetSelected(SelectionEvent e) {
-			if (e.getSource().equals(runMode)) {
-				// need to use index because string in display is different from
-				// those defined in ENUM literal
-				int index = runMode.getSelectionIndex();
-				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_Mode(), RUN_MODES.get(index));
-				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_RunModeIndex(), index);
-			}
-		}
-	};
-	SelectionAdapter btnNumberOfIterationSelAdaptor = new SelectionAdapter() {
-		@Override
-		public void widgetSelected(SelectionEvent e) {
-			if (e.getSource().equals(btnNumberOfIterations)) {
-				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_NumIterationOption(), true);
-				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_RepeatUntilStopped(), false);
-			}
-		}
-	};
-	private SelectionAdapter repeatUntilStoopedSelAdaptor = new SelectionAdapter() {
-		@Override
-		public void widgetSelected(SelectionEvent e) {
-			if (e.getSource().equals(btnRepeatuntilStopped)) {
-				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_RepeatUntilStopped(), true);
-				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_NumIterationOption(), false);
-			}
-		}
-	};
-	SelectionAdapter confirmAfterEachIterationSelAdaptor = new SelectionAdapter() {
-		@Override
-		public void widgetSelected(SelectionEvent e) {
-			if (e.getSource().equals(btnConfirmAfterEachInteration)) {
-				updateFeature(region.getRunMode(), RegiondefinitionPackage.eINSTANCE.getRunMode_ConfirmAfterEachIteration(),
-						btnConfirmAfterEachInteration.getSelection());
-			}
-		}
-	};
+
 	SelectionAdapter numIterationSpinnerSelAdaptor = new SelectionAdapter() {
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
@@ -1450,10 +1377,6 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		lensMode.setText(region.getLensMode());
 		passEnergy.setText(String.valueOf(region.getPassEnergy()));
 		txtMinimumSize.setText(String.format("%.3f", camera.getEnergyResolution() * region.getPassEnergy()));
-		runMode.setText(runMode.getItem(region.getRunMode().getMode().getValue()));
-		btnNumberOfIterations.setSelection(!region.getRunMode().isRepeatUntilStopped());
-		btnRepeatuntilStopped.setSelection(region.getRunMode().isRepeatUntilStopped());
-		btnConfirmAfterEachInteration.setSelection(region.getRunMode().isConfirmAfterEachIteration());
 		numberOfIterationSpinner.setSelection(region.getRunMode().getNumIterations());
 		btnSwept.setSelection(region.getAcquisitionMode().getLiteral().equalsIgnoreCase("Swept"));
 		btnFixed.setSelection(region.getAcquisitionMode().getLiteral().equalsIgnoreCase("Fixed"));
