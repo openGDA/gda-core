@@ -15,6 +15,9 @@ from types import MethodType
 DEFAULT_SERVER_DEBUG_PORT = 8000
 DEFAULT_CLIENT_DEBUG_PORT = 8001
 
+OLD = 'old'
+NEW = 'new'
+STANDARD = 'standard'
 #===========================================================================================================================#
 
 import logging  # @UnusedImport (suppress an incorrect warning raised by PyDev)
@@ -317,14 +320,14 @@ where task can be:
 		}
 
 		will_start_objectserver = self.task in ("objectserver", "servers")
-		if will_start_objectserver and self.is_new_style_layout:
+		if will_start_objectserver and not self.layout is OLD:
 			self.options.os_xml = abspath(self.options.gda_config, "servers", self.options.profile, self.options.gda_mode, "server.xml")
 			if not os.path.isfile(self.options.os_xml):
 				self.logger.critical('Server XML file does not exist: "%s"' % (self.options.os_xml,))
 				sys.exit(1)
 
 		will_start_client = self.task in ("client")
-		if will_start_client and self.is_new_style_layout:
+		if will_start_client and not self.layout is OLD:
 			self.options.os_xml = abspath(self.options.gda_config, "clients", self.options.profile, self.options.gda_mode, "client.xml")
 			if not os.path.isfile(self.options.os_xml):
 				self.logger.critical('Client XML file does not exist: "%s"' % (self.options.os_xml,))
@@ -567,44 +570,62 @@ where task can be:
 				sys.exit(1)
 		self.options.gda_config = path
 
-		# if clients/jacorb/servers folders exist, then new-style folder structure is being used
+		# if clients/properties/servers folders exist, but not jacorb, then standard style folder structure is being used
 		make_config_subdir = lambda subdir: abspath(self.options.gda_config, subdir)
-		test_dirs = map(make_config_subdir, ("clients", "jacorb", "servers"))
-		self.is_new_style_layout = reduce(operator.and_, map(os.path.isdir, test_dirs))
-		if self.options.gda_mode and not self.is_new_style_layout:
-			self.logger.critical("You specified --mode=%s, but an old-style configuration was found at %s" % (self.options.gda_mode, os.path.abspath(self.options.gda_config)))
-			sys.exit(1)
+		test_dirs = map(make_config_subdir, ("clients", "properties", "servers"))
+		dirs_match = reduce(operator.and_, map(os.path.isdir, test_dirs))
+		
+		if dirs_match and not os.path.isdir(abspath(self.options.gda_config, "jacorb")):
+			self.layout = STANDARD
+		else:
+				# if clients/jacorb/servers folders exist, then new style folder structure is being used
+				test_dirs = map(make_config_subdir, ("clients", "jacorb", "servers"))
+				dirs_match = reduce(operator.and_, map(os.path.isdir, test_dirs))
+				if dirs_match:
+					self.layout = NEW
+				else:
+					self.layout = OLD
+					if self.options.gda_mode :
+						self.logger.critical("You specified --mode=%s, but an old-style configuration was found at %s" % (self.options.gda_mode, os.path.abspath(self.options.gda_config)))
+						sys.exit(1)
 
 		# default profile is "main"
-		if self.is_new_style_layout and not self.options.profile:
+		if not self.layout is OLD and not self.options.profile:
 			self.options.profile = "main"
 
 		# default mode is "live"
-		if self.is_new_style_layout and not self.options.gda_mode:
+		if not self.layout is OLD and not self.options.gda_mode:
 			self.options.gda_mode = "live"
 
 		# Set properties file, if not already set
 		if not self.options.java_properties:
-			if self.is_new_style_layout:
-				self.options.java_properties = abspath(self.options.gda_config, "properties", self.options.gda_mode, "java.properties")
-			else:
+			if self.layout is OLD:
 				self.options.java_properties = abspath(self.options.gda_config, "properties", "java.properties")
-
+			else: #self.layout is NEW or STANDARD
+				self.options.java_properties = abspath(self.options.gda_config, "properties", self.options.gda_mode, "java.properties")
+										
+						
 		# Set JacORB config dir, if not already set
 		if not self.options.jacorb_config_dir:
-			if self.is_new_style_layout:
-				self.options.jacorb_config_dir = abspath(self.options.gda_config, "jacorb", self.options.gda_mode)
-			else:
+			if self.layout is OLD:
 				self.options.jacorb_config_dir = abspath(self.options.gda_config, "properties")
-
+			elif self.layout is NEW:
+				self.options.jacorb_config_dir = abspath(self.options.gda_config, "jacorb", self.options.gda_mode)
+			else: #self.layout is STANDARD
+				self.options.jacorb_config_dir = abspath(self.options.gda_config, "properties", self.options.gda_mode, "jacorb")
+			
+					
+			
 		# Set JCA properties file, if not already set
 		if not self.options.jcalibrary_properties:
-			if self.is_new_style_layout:
-				self.options.jcalibrary_properties = abspath(self.options.gda_config, "jca", self.options.gda_mode, "JCALibrary.properties")
-			else:
+			if self.layout is OLD:
 				self.options.jcalibrary_properties = abspath(self.options.gda_config, "properties", "JCALibrary.properties")
-
-
+			elif self.layout is NEW:
+				self.options.jcalibrary_properties = abspath(self.options.gda_config, "jca", self.options.gda_mode, "JCALibrary.properties")
+			else: #self.layout is STANDARD
+				self.options.jcalibrary_properties = abspath(self.options.gda_config, "properties", self.options.gda_mode, "JCALibrary.properties")
+				
+			
 	def determine_gda_data(self):
 		""" Determine the location of the GDA data directory.
 			Specifying the location is optional. If not set, a gda.data property will need to be defined in the java.properties file.
@@ -628,8 +649,8 @@ where task can be:
 
 		self.logger.debug("<< GDA configuration details >>")
 		item_description = [ ("gda.config", self.options.gda_config) ]
-		item_description.append(('new style layout', bool(self.is_new_style_layout)))
-		if self.is_new_style_layout:
+		item_description.append(('layout', self.layout))
+		if not self.layout is OLD:
 			item_description.append(('profile', self.options.profile))
 			item_description.append(('mode', self.options.gda_mode))
 		item_description.append(("gda.install.workspace.loc", self.gda_install_workspace_loc))
