@@ -392,12 +392,6 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
 			listenForUserMessages();
 			listenForBatonMessages();
-
-			String defaultEditorId = preferenceStore.getString(PreferenceConstants.GDA_DEFAULT_NXS_HDF5_EDITOR_ID);
-			if( defaultEditorId !=null && defaultEditorId.length()>0){
-				IEditorRegistry registry = PlatformUI.getWorkbench().getEditorRegistry();
-				registry.setDefaultEditor("*.nxs", defaultEditorId);
-			}
 			
 			// should these two be done during initialize instead of now when Windows have been created?
 			final WorkspaceModifyOperation wkspaceModifyOperation = new WorkspaceModifyOperation() {
