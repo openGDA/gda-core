@@ -27,9 +27,16 @@ public class RegionStatusEvent implements Serializable {
 
 	STATUS status;
 
-	public RegionStatusEvent(String regionId, STATUS status) {
+	private int regionNumber;
+
+	public int getRegionNumber() {
+		return regionNumber;
+	}
+
+	public RegionStatusEvent(String regionId, STATUS status, int i) {
 		this.regionId = regionId;
 		this.status = status;
+		this.regionNumber=i;
 	}
 
 	public STATUS getStatus() {

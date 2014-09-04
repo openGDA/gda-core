@@ -12,17 +12,26 @@ public class ProgressView extends ViewPart {
 
 	public static String ID = "org.opengda.detector.electronanalyser.client.views.progressview";
 	private static final Logger logger=LoggerFactory .getLogger(ProgressView.class);
-	private String currentPointPV;
+	private String currentIterationRemainingTimePV;
+	private String iterationLeadPointsPV;
+	private String iterationProgressPV;
+	private String iterationTotalPointsPV;
+	private String iterationCurrentPointPV;
+	
+	private String totalRemianingTimePV;
+	private String totalProgressPV;
 	private String totalPointsPV;
-	private String totalIterationsPV;
+	private String currentPointPV;
+	
 	private String currentIterationPV;
-	private String leadPointsPV;
-	private String endPointsPV;
-	private String currentLeadPointPV;
+	private String totalIterationsPV;
+	
+	private String totalDataPointsPV;
 	private String currentDataPointPV;
-	private String regionProgressPV;
-	private String inLeadPV;
 
+	private String inLeadPV;
+	private String currentLeadPointPV;
+	
 	public ProgressView() {
 		setTitleToolTip("display progress view");
 		// setContentDescription("A view for displaying progresses.");
@@ -39,16 +48,21 @@ public class ProgressView extends ViewPart {
 
 		try {
 			RegionProgressComposite regionProgressComposite = new RegionProgressComposite(rootComposite, SWT.None);
-			regionProgressComposite.setLeadPointsPV(leadPointsPV);
-			regionProgressComposite.setEndPointsPV(endPointsPV);
-			regionProgressComposite.setCurrentLeadPointPV(currentLeadPointPV);
-			regionProgressComposite.setCurrentDataPointPV(currentDataPointPV);
-			regionProgressComposite.setRegionProgressPV(regionProgressPV);
-			regionProgressComposite.setInLeadPV(inLeadPV);
-			regionProgressComposite.setTotalIterationsPV(getTotalIterationsPV());
-			regionProgressComposite.setCurrentIterationPV(getCurrentIterationPV());
-			regionProgressComposite.setCurrentPointPV(currentPointPV);
+			regionProgressComposite.setCurrentIterationRemainingTimePV(currentIterationRemainingTimePV);
+			regionProgressComposite.setIterationLeadPointsPV(iterationLeadPointsPV);
+			regionProgressComposite.setIterationProgressPV(iterationProgressPV);
+			regionProgressComposite.setTotalDataPointsPV(totalDataPointsPV);
+			regionProgressComposite.setIterationCurrentPointPV(iterationCurrentPointPV);
+			regionProgressComposite.setTotalRemianingTimePV(totalRemianingTimePV);
+			regionProgressComposite.setTotalProgressPV(totalProgressPV);
 			regionProgressComposite.setTotalPointsPV(totalPointsPV);
+			regionProgressComposite.setCurrentPointPV(currentPointPV);
+			regionProgressComposite.setCurrentIterationPV(currentIterationPV);
+			regionProgressComposite.setTotalIterationsPV(totalIterationsPV);
+//			regionProgressComposite.setIterationTotalPointsPV(iterationTotalPointsPV);
+//			regionProgressComposite.setCurrentDataPointPV(currentDataPointPV);
+//			regionProgressComposite.setInLeadPV(inLeadPV);
+//			regionProgressComposite.setCurrentLeadPointPV(currentLeadPointPV);
 			regionProgressComposite.initialise();
 			regionProgressComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		} catch (Exception e) {
@@ -99,14 +113,6 @@ public class ProgressView extends ViewPart {
 		this.currentIterationPV = currentIterationPV;
 	}
 
-	public void setLeadPointsPV(String leadPointsPV) {
-		this.leadPointsPV=leadPointsPV;		
-	}
-
-	public void setEndPointsPV(String endPointsPV) {
-		this.endPointsPV=endPointsPV;		
-	}
-
 	public void setCurrentLeadPointPV(String currentLeadPointPV) {
 		this.currentLeadPointPV=currentLeadPointPV;
 	}
@@ -115,14 +121,69 @@ public class ProgressView extends ViewPart {
 		this.currentDataPointPV=currentDataPointPV;
 	}
 
-	public void setRegionProgressPV(String regionProgressPV) {
-		this.regionProgressPV=regionProgressPV;
-		
-	}
-
 	public void setInLeadPV(String inLeadPV) {
 		this.inLeadPV=inLeadPV;
 		
+	}
+	
+	public String getCurrentIterationRemainingTimePV() {
+		return this.currentIterationRemainingTimePV;
+	}
+
+	public void setCurrentIterationRemainingTimePV(String currentIterationRemainingTimePV) {
+		this.currentIterationRemainingTimePV=currentIterationRemainingTimePV;
+	}
+	public String getTotalRemianingTimePV() {
+		return this.totalRemianingTimePV;
+	}
+	public void setTotalRemianingTimePV(String totalRemianingTimePV) {
+		this.totalRemianingTimePV=totalRemianingTimePV;
+	}
+	public String getTotalProgressPV() {
+		return this.totalProgressPV;
+	}
+	public void setTotalProgressPV(String totalProgressPV) {
+		this.totalProgressPV=totalProgressPV;
+	}
+
+	public String getIterationProgressPV() {
+		return iterationProgressPV;
+	}
+
+	public void setIterationProgressPV(String iterationProgressPV) {
+		this.iterationProgressPV = iterationProgressPV;
+	}
+
+	public String getIterationLeadPointsPV() {
+		return iterationLeadPointsPV;
+	}
+
+	public void setIterationLeadPointsPV(String iterationLeadPointsPV) {
+		this.iterationLeadPointsPV = iterationLeadPointsPV;
+	}
+
+	public String getIterationTotalPointsPV() {
+		return iterationTotalPointsPV;
+	}
+
+	public void setIterationTotalPointsPV(String iterationTotalPointsPV) {
+		this.iterationTotalPointsPV = iterationTotalPointsPV;
+	}
+
+	public String getIterationCurrentPointPV() {
+		return iterationCurrentPointPV;
+	}
+
+	public void setIterationCurrentPointPV(String iterationCurrentPointPV) {
+		this.iterationCurrentPointPV = iterationCurrentPointPV;
+	}
+
+	public String getTotalDataPointsPV() {
+		return totalDataPointsPV;
+	}
+
+	public void setTotalDataPointsPV(String totalDataPointsPV) {
+		this.totalDataPointsPV = totalDataPointsPV;
 	}
 
 }

@@ -134,6 +134,25 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	private PageBook regionPageBook;
 	private Composite plainComposite;
 	private ScrolledComposite regionComposite;
+	private RegionProgressComposite progressComposite;
+
+	private String currentIterationRemainingTimePV;
+	private String iterationLeadPointsPV;
+	private String iterationProgressPV;
+	private String totalDataPointsPV;
+	private String iterationCurrentPointPV;
+	private String totalRemianingTimePV;
+	private String totalProgressPV;
+	private String totalPointsPV;
+	private String currentPointPV;
+	private String currentIterationPV;
+	private String totalIterationsPV;
+
+	private String statePV;
+	private String acquirePV;
+	private String messagePV;
+	private String zeroSuppliesPV;
+	private AnalyserComposite analyserComposite;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -646,6 +665,25 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		});
 		btnPulseMode.setText("Pulse Counting");
 
+		Label horizontalSeparator = new Label(rootComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
+		GridData gd_label = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_label.widthHint = 450;
+		horizontalSeparator.setLayoutData(gd_label);
+		
+		Group grpProgress = new Group(rootComposite, SWT.NONE);
+		grpProgress.setText("Progress");
+		grpProgress.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		grpProgress.setLayout(new GridLayout());
+		
+		progressComposite=new RegionProgressComposite(grpProgress, SWT.None);
+
+		Group grpAnalyser = new Group(rootComposite, SWT.NONE);
+		grpAnalyser.setText("Analyser IOC");
+		grpAnalyser.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		grpAnalyser.setLayout(new GridLayout());
+		
+		analyserComposite=new AnalyserComposite(grpAnalyser, SWT.None);
+
 		regionComposite.setMinSize(rootComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
 		initialisation();
@@ -815,8 +853,25 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		regionName.addSelectionListener(regionNameSelAdapter);
 		lensMode.addSelectionListener(lensModeSelAdaptor);
 		numberOfIterationSpinner.addSelectionListener(numIterationSpinnerSelAdaptor);
-
-		// TODO add monitor to total steps in EPICS
+		
+		progressComposite.setCurrentIterationRemainingTimePV(getCurrentIterationRemainingTimePV());
+		progressComposite.setIterationLeadPointsPV(getIterationLeadPointsPV());
+		progressComposite.setIterationProgressPV(getIterationProgressPV());
+		progressComposite.setTotalDataPointsPV(getTotalDataPointsPV());
+		progressComposite.setIterationCurrentPointPV(getIterationCurrentPointPV());
+		progressComposite.setTotalRemianingTimePV(getTotalRemianingTimePV());
+		progressComposite.setTotalProgressPV(getTotalProgressPV());
+		progressComposite.setTotalPointsPV(getTotalPointsPV());
+		progressComposite.setCurrentPointPV(getCurrentPointPV());
+		progressComposite.setCurrentIterationPV(getCurrentIterationPV());
+		progressComposite.setTotalIterationsPV(getTotalIterationsPV());
+		progressComposite.initialise();
+		
+		analyserComposite.setStatePV(statePV);
+		analyserComposite.setAcquirePV(acquirePV);
+		analyserComposite.setMessagePV(messagePV);
+		analyserComposite.setZeroSuppliesPV(zeroSuppliesPV);
+		analyserComposite.initialise();
 	}
 
 	private void populateRegionNameCombo(List<Region> regions) {
@@ -1563,4 +1618,126 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			}
 		}
 	}
+
+	public String getCurrentIterationRemainingTimePV() {
+		return currentIterationRemainingTimePV;
+	}
+
+	public void setCurrentIterationRemainingTimePV(
+			String currentIterationRemainingTimePV) {
+		this.currentIterationRemainingTimePV = currentIterationRemainingTimePV;
+	}
+
+	public String getIterationLeadPointsPV() {
+		return iterationLeadPointsPV;
+	}
+
+	public void setIterationLeadPointsPV(String iterationLeadPointsPV) {
+		this.iterationLeadPointsPV = iterationLeadPointsPV;
+	}
+
+	public String getIterationProgressPV() {
+		return iterationProgressPV;
+	}
+
+	public void setIterationProgressPV(String iterationProgressPV) {
+		this.iterationProgressPV = iterationProgressPV;
+	}
+
+	public String getTotalDataPointsPV() {
+		return totalDataPointsPV;
+	}
+
+	public void setTotalDataPointsPV(String totalDataPointsPV) {
+		this.totalDataPointsPV = totalDataPointsPV;
+	}
+
+	public String getIterationCurrentPointPV() {
+		return iterationCurrentPointPV;
+	}
+
+	public void setIterationCurrentPointPV(String iterationCurrentPointPV) {
+		this.iterationCurrentPointPV = iterationCurrentPointPV;
+	}
+
+	public String getTotalRemianingTimePV() {
+		return totalRemianingTimePV;
+	}
+
+	public void setTotalRemianingTimePV(String totalRemianingTimePV) {
+		this.totalRemianingTimePV = totalRemianingTimePV;
+	}
+
+	public String getTotalProgressPV() {
+		return totalProgressPV;
+	}
+
+	public void setTotalProgressPV(String totalProgressPV) {
+		this.totalProgressPV = totalProgressPV;
+	}
+
+	public String getTotalPointsPV() {
+		return totalPointsPV;
+	}
+
+	public void setTotalPointsPV(String totalPointsPV) {
+		this.totalPointsPV = totalPointsPV;
+	}
+
+	public String getCurrentPointPV() {
+		return currentPointPV;
+	}
+
+	public void setCurrentPointPV(String currentPointPV) {
+		this.currentPointPV = currentPointPV;
+	}
+
+	public String getCurrentIterationPV() {
+		return currentIterationPV;
+	}
+
+	public void setCurrentIterationPV(String currentIterationPV) {
+		this.currentIterationPV = currentIterationPV;
+	}
+
+	public String getTotalIterationsPV() {
+		return totalIterationsPV;
+	}
+
+	public void setTotalIterationsPV(String totalIterationsPV) {
+		this.totalIterationsPV = totalIterationsPV;
+	}
+
+	public String getStatePV() {
+		return statePV;
+	}
+
+	public void setStatePV(String statePV) {
+		this.statePV = statePV;
+	}
+
+	public String getAcquirePV() {
+		return acquirePV;
+	}
+
+	public void setAcquirePV(String acquirePV) {
+		this.acquirePV = acquirePV;
+	}
+
+	public String getMessagePV() {
+		return messagePV;
+	}
+
+	public void setMessagePV(String messagePV) {
+		this.messagePV = messagePV;
+	}
+
+	public String getZeroSuppliesPV() {
+		return zeroSuppliesPV;
+	}
+
+	public void setZeroSuppliesPV(String zeroSuppliesPV) {
+		this.zeroSuppliesPV = zeroSuppliesPV;
+	}
+
 }

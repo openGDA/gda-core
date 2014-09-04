@@ -1,18 +1,12 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.metadata.Metadata;
-import gda.data.metadata.VisitEntry;
-import gda.data.metadata.icat.Icat;
-import gda.data.metadata.icat.IcatProvider;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
-import gda.jython.authenticator.UserAuthentication;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
@@ -36,11 +30,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
@@ -61,7 +52,6 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.CellEditor;
@@ -70,9 +60,7 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.EditingSupport;
-import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -90,8 +78,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -99,6 +85,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
@@ -111,12 +98,10 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.ViewPart;
-import org.opengda.detector.electronanalyser.RegionCommand;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
 import org.opengda.detector.electronanalyser.client.ImageConstants;
 import org.opengda.detector.electronanalyser.client.jobs.RegionJob;
-import org.opengda.detector.electronanalyser.client.jobs.RegionJobRule;
 import org.opengda.detector.electronanalyser.client.selection.EnergyChangedSelection;
 import org.opengda.detector.electronanalyser.client.selection.FileSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
@@ -126,6 +111,8 @@ import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefini
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceTableConstants;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewContentProvider;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewLabelProvider;
+import org.opengda.detector.electronanalyser.event.CurrentScanPointNumberEvent;
+import org.opengda.detector.electronanalyser.event.DataFilenameEvent;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
 import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.event.SequenceFileChangeEvent;
@@ -144,8 +131,6 @@ import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.ui.dialog.VisitIDDialog;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -176,9 +161,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			SequenceTableConstants.X_CHANNEL_FROM, SequenceTableConstants.X_CHANNEL_TO, SequenceTableConstants.Y_CHANNEL_FROM,
 			SequenceTableConstants.Y_CHANNEL_TO, SequenceTableConstants.SLICES, SequenceTableConstants.MODE };
 
-	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 30, false), new ColumnWeightData(10, 30, false),
-			new ColumnWeightData(80, 100, true), new ColumnWeightData(70, 90, false), new ColumnWeightData(40, 50, false),
-			new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 80, false), new ColumnWeightData(50, 70, true),
+	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 30, true), new ColumnWeightData(10, 30, true),
+			new ColumnWeightData(80, 100, true), new ColumnWeightData(70, 90, true), new ColumnWeightData(40, 50, true),
+			new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(50, 70, true),
 			new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 90, true), new ColumnWeightData(50, 70, true),
 			new ColumnWeightData(50, 50, true), new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 50, true),
 			new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 50, true),
@@ -197,12 +182,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private Text txtEstimatedTime;
 
-	private Action stopSequenceAction;
-	private Action startAction;
-	private Action stopAction;
-	private Action pauseAction;
-	private Action resumeAction;
-	private Action skipAction;
 	private Action addAction;
 	private Action copyAction;
 	private Action deleteAction;
@@ -210,7 +189,16 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Action redoAction;
 	protected Action doubleClickAction;
 	private Text txtDataFilePath;
+	private Text txtPointValue;
+	private Text txtRegionValue;
+	private Text txtTimeRemaining;
+	private ProgressBar progressBar;
 
+	private int currentPointNumber;
+	private int totalNumberOfPoints;
+	private int totalActiveRegions;
+	private int crrentRegionNumber;
+	
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(
@@ -318,14 +306,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		
 		Composite controlArea = new Composite(rootComposite, SWT.None);
-		// Contains region actions, sequence parameters, file saving info 
 		controlArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		controlArea.setLayout(new GridLayout(5, false));
+		controlArea.setLayout(new GridLayout(3, false));
 
 		Group grpElementset = new Group(controlArea, SWT.NONE);
 		GridData gd_grpElementset = new GridData(GridData.FILL_HORIZONTAL);
 		gd_grpElementset.grabExcessHorizontalSpace = false;
-		gd_grpElementset.widthHint = 100;
+		gd_grpElementset.widthHint = 120;
 		grpElementset.setLayoutData(gd_grpElementset);
 		grpElementset.setLayout(new GridLayout());
 		grpElementset.setText("Element Set");
@@ -339,155 +326,131 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		GridData gd_grpActiveRegions = new GridData(GridData.FILL_HORIZONTAL);
 		gd_grpActiveRegions.grabExcessHorizontalSpace = false;
 		grpActiveRegions.setLayoutData(gd_grpActiveRegions);
-		grpActiveRegions.setText("Active regions");
-		grpActiveRegions.setLayout(new RowLayout());
+		grpActiveRegions.setText("Number of Active Regions");
+		grpActiveRegions.setLayout(new GridLayout());
 		txtNumberActives = new Text(grpActiveRegions, SWT.BORDER | SWT.RIGHT);
-		txtNumberActives.setLayoutData(new RowData(66, SWT.DEFAULT));
+		txtNumberActives.setForeground(ColorConstants.green);
+		txtNumberActives.setBackground(ColorConstants.black);
+		txtNumberActives.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtNumberActives.setEditable(false);
-
+		
 		Group grpTotalTime = new Group(controlArea, SWT.None);
 		GridData gd_grpTotalTime = new GridData(GridData.FILL_HORIZONTAL);
+		gd_grpTotalTime.horizontalAlignment = SWT.LEFT;
+		gd_grpTotalTime.widthHint = 100;
 		gd_grpTotalTime.grabExcessHorizontalSpace = false;
 		grpTotalTime.setLayoutData(gd_grpTotalTime);
-		grpTotalTime.setText("Total Time");
-		grpTotalTime.setLayout(new RowLayout());
+		grpTotalTime.setText("Total Sequence Time");
+		grpTotalTime.setLayout(new GridLayout());
 		txtEstimatedTime = new Text(grpTotalTime, SWT.BORDER | SWT.RIGHT);
-		txtEstimatedTime.setLayoutData(new RowData(77, SWT.DEFAULT));
+		txtEstimatedTime.setForeground(ColorConstants.green);
+		txtEstimatedTime.setBackground(ColorConstants.black);
+		txtEstimatedTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtEstimatedTime.setEditable(false);
-
+		
 		Group grpSequenceFile = new Group(controlArea, SWT.None);
 		GridData gd_grpSequenceFile = new GridData(GridData.FILL_HORIZONTAL);
-		gd_grpSequenceFile.horizontalAlignment = SWT.LEFT;
-		gd_grpSequenceFile.widthHint=400;
-		gd_grpSequenceFile.grabExcessHorizontalSpace = false;
+		gd_grpSequenceFile.horizontalSpan=3;
+		gd_grpSequenceFile.grabExcessHorizontalSpace = true;
 		grpSequenceFile.setLayoutData(gd_grpSequenceFile);
-		grpSequenceFile.setText("Sequence File");
-		grpSequenceFile.setLayout(new RowLayout());
+		grpSequenceFile.setText("Sequence File in the table");
+		grpSequenceFile.setLayout(new GridLayout());
 		txtSequenceFilePath = new Text(grpSequenceFile, SWT.BORDER | SWT.READ_ONLY);
-		txtSequenceFilePath.setLayoutData(new RowData(380, SWT.DEFAULT));
-		txtSequenceFilePath.setEnabled(false);
+		txtSequenceFilePath.setForeground(ColorConstants.green);
+		txtSequenceFilePath.setBackground(ColorConstants.black);
+		txtSequenceFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtSequenceFilePath.setEditable(false);
 		
 		Group grpDataFile = new Group(controlArea, SWT.None);
 		GridData gd_grpDataFile = new GridData(GridData.FILL_HORIZONTAL);
+		gd_grpDataFile.horizontalSpan=3;
 		gd_grpDataFile.grabExcessHorizontalSpace = true;
 		grpDataFile.setLayoutData(gd_grpDataFile);
-		grpDataFile.setText("Collecting Data File");
+		grpDataFile.setText("Data File");
 		grpDataFile.setLayout(new GridLayout());
 		txtDataFilePath = new Text(grpDataFile, SWT.BORDER | SWT.READ_ONLY);
+		txtDataFilePath.setBackground(ColorConstants.black);
+		txtDataFilePath.setForeground(ColorConstants.green);
 		txtDataFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtDataFilePath.setEnabled(false);
+		txtDataFilePath.setEditable(false);
 		txtDataFilePath.setText("Data file to be collected");
 		
+		Group grpScanProgress=new Group(controlArea, SWT.BORDER);
+		grpScanProgress.setText("Scan Progress");
+		grpScanProgress.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		grpScanProgress.setLayout(new GridLayout());
+		
+		Label lblPoint=new Label(grpScanProgress, SWT.None);
+		lblPoint.setText("Point: ");
+		
+		txtPointValue = new Text(grpScanProgress, SWT.BORDER);
+		GridData gd_lblIterationValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lblIterationValue.widthHint = 40;
+		txtPointValue.setLayoutData(gd_lblIterationValue);
+		txtPointValue.setForeground(ColorConstants.green);
+		txtPointValue.setEditable(false);
+		txtPointValue.setBackground(ColorConstants.black);
+		updateScanPointNumber(currentPointNumber, totalNumberOfPoints);
+		
+		Label lblRegion = new Label(grpScanProgress, SWT.NONE);
+		lblRegion.setText("Region:");
+		
+		txtRegionValue = new Text(grpScanProgress, SWT.BORDER);
+		txtRegionValue.setForeground(ColorConstants.green);
+		txtRegionValue.setEditable(false);
+		txtRegionValue.setBackground(ColorConstants.black);
+		txtRegionValue.setText("0");
+		GridData gd_txtCurrentPoint = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
+		gd_txtCurrentPoint.widthHint = 40;
+		txtRegionValue.setLayoutData(gd_txtCurrentPoint);
+		
+		Label lblTimeRemaining = new Label(grpScanProgress, SWT.NONE);
+		lblTimeRemaining.setText("Time Remaining:");
+		
+		txtTimeRemaining = new Text(grpScanProgress, SWT.BORDER);
+//		gd_txtIterationTimeRemaining.widthHint=40;
+		txtTimeRemaining.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		txtTimeRemaining.setForeground(ColorConstants.green);
+		txtTimeRemaining.setBackground(ColorConstants.black);
+		txtTimeRemaining.setText("0.0000");
+		txtTimeRemaining.setEditable(false);
+		
+		Label lblProgress = new Label(grpScanProgress, SWT.NONE);
+		lblProgress.setText("progress:");
+		
+		progressBar = new ProgressBar(grpScanProgress, SWT.HORIZONTAL);
+		GridData gd_progressBar = new GridData(GridData.FILL_HORIZONTAL);
+		gd_progressBar.grabExcessHorizontalSpace = false;
+		gd_progressBar.horizontalSpan = 5;
+		progressBar.setLayoutData(gd_progressBar);
+		progressBar.setMinimum(0);
+		progressBar.setMaximum(100);
+
 		initialisation();
 		// register as selection provider to the SelectionService
 		getViewSite().setSelectionProvider(this);
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(RegionView.ID, selectionListener);
 
-		Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
-			@Override
-			public void done(IJobChangeEvent event) {
-				Job job = event.getJob();
-				if (job instanceof RegionJob) {
-					RegionJob regionJob = (RegionJob) job;
-					IStatus result = event.getResult();
-					if (result.isOK()) {
-						updateRegionStatus(regionJob, STATUS.COMPLETED);
-					} else if (result.getSeverity() == IStatus.CANCEL) {
-						updateRegionStatus(regionJob, STATUS.ABORTED);
-					} else if (result.getSeverity() == IStatus.ERROR) {
-						updateRegionStatus(regionJob, STATUS.ABORTED);
-					}
-					fireSelectionChanged(new RegionRunCompletedSelection());
-					if (Job.getJobManager().find(RegionJob.FAMILY_REGION_JOB).length == 0) {
-						logger.info("Sequence {} collection completed.", regionDefinitionResourceUtil.getFileName());
-						runningonclient = false;
-						updateActionIconsState();
-					}
-				}
-				super.done(event);
-			}
-
-			@Override
-			public void running(IJobChangeEvent event) {
-				Job job = event.getJob();
-				if (job instanceof RegionJob) {
-					final RegionJob regionJob = (RegionJob) job;
-					updateRegionStatus(regionJob, STATUS.RUNNING);
-				}
-				super.running(event);
-			}
-		});
-		prepareRunOnClientActions();
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(sequenceTableViewer.getControl(), "org.opengda.lde.ui.viewer");
 		makeActions();
 		hookContextMenu();
-		hookDoubleClickAction();
 		contributeToActionBars();
-		updateActionIconsState();
+	}
+
+	private void updateRegionNumber(int currentRegionNumber,
+			String totalActiveRegions) {
+		txtRegionValue.setText(String.valueOf(currentRegionNumber) + '/'
+				+ totalActiveRegions);
+	}
+
+	private void updateScanPointNumber(int currentPointNumber,
+			int totalNumberOfPoints) {
+		txtPointValue.setText(String.valueOf(currentPointNumber) + '/'
+				+ String.valueOf(totalNumberOfPoints));
 	}
 
 	private void makeActions() {
-		startAction= new Action() {
-
-			@Override
-			public void run() {
-				super.run();
-				logger.info("Start data collection on GDA server.");
-			}
-		};
-		startAction.setText("Start");
-		startAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_START));
-		startAction.setToolTipText("Start data collection for the active samples on GDA server");
-		
-		stopAction= new Action() {
-
-			@Override
-			public void run() {
-				super.run();
-				logger.info("Stop data collection on GDA server.");
-			}
-		};
-		stopAction.setText("Stop");
-		stopAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_STOP));
-		stopAction.setToolTipText("Stop data collection immediately on GDA server");
-		
-		pauseAction= new Action() {
-
-			@Override
-			public void run() {
-				super.run();
-				logger.info("Pause data collection on GDA server.");
-			}
-		};
-		pauseAction.setText("Pause");
-		pauseAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_PAUSE));
-		pauseAction.setToolTipText("Pause data collection on GDA server");
-		
-		resumeAction= new Action() {
-
-			@Override
-			public void run() {
-				super.run();
-				logger.info("Resume data collection on GDA server.");
-			}
-		};
-		resumeAction.setText("Resume");
-		resumeAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_RESUME));
-		resumeAction.setToolTipText("Resume data collection on GDA server");
-		
-		skipAction= new Action() {
-
-			@Override
-			public void run() {
-				super.run();
-				logger.info("Skip the current sample data collection on GDA server.");
-			}
-		};
-		skipAction.setText("Skip");
-		skipAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_SKIP));
-		skipAction.setToolTipText("Skip the current sample data collection on GDA server");
-		
 		addAction = new Action() {
 
 			@Override
@@ -619,12 +582,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 
 	private void fillLocalPullDown(IMenuManager manager) {
-		manager.add(startAction);
-		manager.add(stopAction);
-		manager.add(pauseAction);
-		manager.add(resumeAction);
-		manager.add(skipAction);
-		manager.add(new Separator());
 		manager.add(addAction);
 		manager.add(deleteAction);
 		manager.add(copyAction);
@@ -634,12 +591,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
-		manager.add(startAction);
-		manager.add(stopAction);
-		manager.add(pauseAction);
-		manager.add(resumeAction);
-		manager.add(skipAction);
-		manager.add(new Separator());
 		manager.add(addAction);
 		manager.add(deleteAction);
 		manager.add(copyAction);
@@ -650,45 +601,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 	
 	private void fillLocalToolBar(IToolBarManager manager) {
-		manager.add(startAction);
-		manager.add(stopAction);
-		manager.add(pauseAction);
-		manager.add(resumeAction);
-		manager.add(skipAction);
-		manager.add(new Separator());
 		manager.add(addAction);
 		manager.add(deleteAction);
 		manager.add(copyAction);
 		manager.add(undoAction);
 		manager.add(redoAction);
-	}
-
-	private void hookDoubleClickAction() {
-		sequenceTableViewer.addDoubleClickListener(new IDoubleClickListener() {
-			public void doubleClick(DoubleClickEvent event) {
-//TODO				doubleClickAction.run();
-			}
-		});
-	}
-	
-
-	private void updateActionIconsState() {
-		if (!runningonclient && !runningonserver) {
-			startSequenceAction.setEnabled(true);
-			stopSequenceAction.setEnabled(false);
-			startRunOnServerAction.setEnabled(true);
-			stopRunOnServerAction.setEnabled(false);
-		} else if (runningonclient) {
-			startSequenceAction.setEnabled(false);
-			stopSequenceAction.setEnabled(true);
-			startRunOnServerAction.setEnabled(false);
-			stopRunOnServerAction.setEnabled(false);
-		} else if (runningonserver) {
-			startSequenceAction.setEnabled(false);
-			stopSequenceAction.setEnabled(false);
-			startRunOnServerAction.setEnabled(false);
-			stopRunOnServerAction.setEnabled(true);
-		}
 	}
 
 	protected void updateRegionStatus(final RegionJob regionJob, final STATUS status) {
@@ -712,54 +629,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				sequenceTableViewer.refresh();
 			}
 		});
-	}
-
-	private boolean runningonclient = false;
-	private boolean runningonserver = false;
-
-	private void prepareRunOnClientActions() {
-		startSequenceAction = new Action() {
-
-			@Override
-			public void run() {
-				super.run();
-				logger.info("Start region collection test, no data saved.");
-				int order = 0;
-				resetRegionStatus();
-				runningonclient = true;
-				updateActionIconsState();
-				for (Region region : regions) {
-					if (region.isEnabled()) {
-						final RegionCommand command = new RegionCommand(region);
-						command.setAnalyser(analyser); // TODO not good to have to set this.
-						Job job = new RegionJob(command.getDescription(), command);
-						job.setRule(new RegionJobRule(order));
-						job.schedule();
-						order++;
-					}
-				}
-			}
-		};
-		startSequenceAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_START));
-		startSequenceAction.setToolTipText("Test region collection without data saving on client.");
-
-		stopSequenceAction = new Action() {
-			@Override
-			public void run() {
-				super.run();
-				logger.info("Calling stop");
-				Job.getJobManager().cancel(RegionJob.FAMILY_REGION_JOB);
-				runningonclient = false;
-				updateActionIconsState();
-			}
-		};
-		stopSequenceAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_STOP));
-		stopSequenceAction.setToolTipText("Stop test collection on client");
-
-		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
-		toolBarManager.add(startSequenceAction);
-		toolBarManager.add(stopSequenceAction);
-
 	}
 
 	protected void resetRegionStatus() {
@@ -802,12 +671,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					sequenceTableViewer.setSelection(sel);
 				}
 			}
+			//TODO scan time remaining
 		}
 	};
 
 	private EditingDomain editingDomain;
-
-	private Action startRunOnServerAction;
 
 	private Scriptcontroller scriptcontroller;
 
@@ -818,8 +686,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Channel stateChannel;
 
 	private EpicsChannelManager channelmanager;
-
-	private Action stopRunOnServerAction;
 
 	private String energyLensTableDir
 	;
@@ -850,7 +716,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		}
 	};
-	private Metadata metadata;
 
 	private void initialisation() {
 		try { // populate Combo list from EPICS PV 
@@ -909,7 +774,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				new EditingDomainViewerDropAdapter(editingDomain, sequenceTableViewer));
 
 		updateCalculatedData();
-		prepareRunOnServerActions();
 		//server event admin or handler
 		scriptcontroller = Finder.getInstance().find("SequenceFileObserver");
 		scriptcontroller.addIObserver(this);
@@ -922,6 +786,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			logger.error("failed to create required spectrum channels", e1);
 		}
 		comboElementSet.addSelectionListener(elementSetSelAdaptor);
+		updateRegionNumber(crrentRegionNumber, txtNumberActives.getText().trim());
+
 	}
 
 	public IVGScientaAnalyser getAnalyser() {
@@ -933,78 +799,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		stateChannel = channelmanager.createChannel(getDetectorStatePV(), analyserStateListener, MonitorType.NATIVE, false);
 		channelmanager.creationPhaseCompleted();
 		logger.debug("analyser state channel and monitor are created");
-	}
-
-
-	private void prepareRunOnServerActions() {
-		startRunOnServerAction = new Action() {
-			@Override
-			public void run() {
-				super.run();
-				logger.info("Start data collection on GDA server.");
-				runningonserver = true;
-				updateActionIconsState();
-				try {
-					JythonServerFacade jsf=JythonServerFacade.getCurrentInstance();
-					
-					String filename;
-					String fileName = regionDefinitionResourceUtil.getFileName();
-					if (fileName.startsWith(File.separator)) {
-						filename = FilenameUtils.getName(fileName);
-					} else {
-						filename=fileName;
-					}
-					List<Region> regions2 = regionDefinitionResourceUtil.getRegions();
-					int count = 0;
-					for (Region region : regions2) {
-						if (region.isEnabled()) {
-							count += 1;
-						}
-					}
-					if (count==1) {
-						logger.info("A single region is selected in the sequence file {}, so only a single data file is collected.", fileName);
-						jsf.runCommand(String.format("analyserscan regions '%s' ew4001", filename));
-					} else if (count>1) {
-						logger.info("Multiple regions are selected in the sequence file {}, so multiple data files are collected, each for one region.", fileName);
-						//jsf.runCommand(String.format("multiregionscan ds 1 1 1 ew4000 '%s'", filename));
-						jsf.runCommand("ew4000.asynchronousMoveTo(%s)", fileName);
-					} else {
-						logger.info("No active region is specified in the sequence file, so no collection is required.");
-					}
-				} catch (Exception e) {
-					logger.error("exception throws on start queue processor.", e);
-					runningonserver = false;
-					updateActionIconsState();
-				}
-			}
-		};
-		startRunOnServerAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry()
-				.getDescriptor(ImageConstants.ICON_RUN_ON_SERVER));
-		startRunOnServerAction.setToolTipText("Start data collection on GDA server");
-
-		stopRunOnServerAction = new Action() {
-			@Override
-			public void run() {
-				super.run();
-				logger.info("Stop collection on GDA server");
-				try {
-					InterfaceProvider.getCurrentScanController().requestFinishEarly();
-					runningonserver = false;
-				} catch (Exception e) {
-					logger.error("exception throws on stop queue processor.", e);
-				}
-				updateActionIconsState();
-			}
-		};
-		stopRunOnServerAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry()
-				.getDescriptor(ImageConstants.ICON_STOP_SERVER));
-		stopRunOnServerAction.setToolTipText("Stop collection on GDA server");
-
-		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
-		toolBarManager.add(startRunOnServerAction);
-		toolBarManager.add(stopRunOnServerAction);
-		toolBarManager.add(new Separator());
-
 	}
 
 
@@ -1367,8 +1161,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		try {
 			resource = regionDefinitionResourceUtil.getResource();
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.warn("Cannot find the resouce from sequence file.");
 		}
 		SaveAsDialog saveAsDialog = new SaveAsDialog(getSite().getShell());
 		saveAsDialog.open();
@@ -1414,8 +1207,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	};
 
 	private Text txtSequenceFilePath;
-
-	private Action startSequenceAction;
 
 	private Region currentRegion;
 
@@ -1483,6 +1274,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					public void run() {
 						String regionId = ((RegionStatusEvent) arg).getRegionId();
 						STATUS status = ((RegionStatusEvent) arg).getStatus();
+						int regionNumber = ((RegionStatusEvent) arg).getRegionNumber();
+						updateRegionNumber(regionNumber, txtNumberActives.getText().trim());
 						logger.debug("region {} update to {}",regionId, status);
 						for (Region region : regions) {
 							if (region.getRegionId().equalsIgnoreCase(regionId)) {
@@ -1492,6 +1285,30 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						if (status==STATUS.COMPLETED) {
 							fireSelectionChanged(new RegionRunCompletedSelection());
 						}
+					}
+				});
+			}
+			if (arg instanceof DataFilenameEvent) {
+				DataFilenameEvent evt = (DataFilenameEvent) arg;
+				totalNumberOfPoints = evt.getNumberOfPoints();
+				final String scanFilename = evt.getScanFilename();
+				int scanNumber = evt.getScanNumber();
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
+						txtDataFilePath.setText(scanFilename);
+					}
+				});
+			}
+			if (arg instanceof CurrentScanPointNumberEvent) {
+				currentPointNumber=((CurrentScanPointNumberEvent)arg).getCurrentPointNumber();
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
 					}
 				});
 			}
@@ -1567,63 +1384,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	@Override
 	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
 		logger.debug("EPICS channel {} initialisation completed.", getDetectorStatePV());
-	}
-
-	/*
-	 * only sets the private chosenVisit attribute
-	 */
-	private String getVisitID() {
-		Icat instance = null;
-		try {
-			instance = IcatProvider.getInstance();
-		} catch (Exception e1) {
-			logger.info("Icat instance is not available", e1);
-		}
-		if (instance != null && !instance.icatInUse()) {
-			logger.info("Icat database not in use. Using the default visit defined by property " + LocalProperties.GDA_DEF_VISIT);
-			return LocalProperties.get("gda.defVisit", "0-0");
-		}
-
-		// test if the result has multiple entries
-		String user = UserAuthentication.getUsername();
-		VisitEntry[] visits = null;
-		try { 
-			if (instance != null) {
-				visits = instance.getMyValidVisits(user);
-			}
-		} catch (Exception e) {
-			logger.info(e.getMessage() + " - using default visit defined by property " + LocalProperties.GDA_DEF_VISIT, e);
-			return LocalProperties.get("gda.defVisit", "0-0");
-		}
-
-		// if no valid visit ID then do same as the cancel button
-		if (visits == null || visits.length == 0) {
-			logger.info("No visits found for user " + user
-					+ " at this time on this beamline. Will use default visit as ID listed as a member of staff.");
-			return LocalProperties.get("gda.defVisit", "0-0");
-		} else if (visits.length == 1) {
-			return visits[0].getVisitID();
-		} else {
-			String visitid = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
-			if (visitid != null) {
-				return visitid;
-			}
-			// send array of visits to dialog to pick one
-			String[][] visitInfo = new String[visits.length][];
-			int i = 0;
-			for (VisitEntry visit : visits) {
-				visitInfo[i] = new String[] { visit.getVisitID(), visit.getTitle() };
-				i++;
-			}
-
-			Display display=Display.getDefault();
-			final VisitIDDialog visitDialog = new VisitIDDialog(display, visitInfo);
-			if (visitDialog.open() == IDialogConstants.CANCEL_ID || visitDialog.getChoosenID() == null) {
-				logger.info("No visit is selected. Will use default visit as ID listed as a member of staff.");
-				return LocalProperties.get("gda.defVisit", "0-0");		
-			}
-			return visitDialog.getChoosenID();
-		}
 	}
 
 	public String getEnergyLensTableDir() {

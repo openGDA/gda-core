@@ -135,9 +135,11 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 
 			@Override
 			public void run() {
+				int i=0;
 				for (Region region : sequence.getRegion()) {
 					if(Thread.currentThread().isInterrupted()) break;
 					if (region.isEnabled()) {
+						i++;
 						try {
 							configureAnalyser(region);
 							Sleep.sleep(1000);
@@ -148,7 +150,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 							}
 							//TODO open/close fast shutter according to beam used
 							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-								((ScriptControllerBase)getScriptcontroller()).update(this, new RegionStatusEvent(region.getRegionId(), STATUS.RUNNING));
+								((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.RUNNING,i));
 							}
 							getAnalyser().collectData();
 							Sleep.sleep(1000);
@@ -166,7 +168,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 								}
 							}
 							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-								((ScriptControllerBase)getScriptcontroller()).update(this, new RegionStatusEvent(region.getRegionId(), STATUS.COMPLETED));
+								((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.COMPLETED,i));
 							}
 						} catch (InterruptedException e) {
 							try {
@@ -184,19 +186,19 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 								logger.error("failed to stop the analyser acquisition on interrupt.", e1);
 							}
 							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-								((ScriptControllerBase)getScriptcontroller()).update(this, new RegionStatusEvent(region.getRegionId(), STATUS.ABORTED));
+								((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.ABORTED,i));
 							}
 						}catch (DeviceException e) {
 							logger.error("failed to collectdata or waitWhileBusy from the analyser.", e);
 							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-								((ScriptControllerBase)getScriptcontroller()).update(this, new RegionStatusEvent(region.getRegionId(), STATUS.INVALID));
+								((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.INVALID,i));
 							}
 							break;
 						}
 						catch (Exception e) {
 							logger.error("Set new region to detector failed", e);
 							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-								((ScriptControllerBase)getScriptcontroller()).update(this, new RegionStatusEvent(region.getRegionId(), STATUS.INVALID));
+								((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.INVALID,i));
 							}
 							break;
 						}
@@ -505,32 +507,25 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 			getAnalyser().setDetectorMode(region.getDetectorMode().getLiteral(), 10.0);
 			getAnalyser().setLensMode(region.getLensMode(), 10.0);
 			getAnalyser().setPassEnergy(region.getPassEnergy(), 10.0);
-
+			//Hack to fix EPICS does not support bind energy input values, energy values in EPICS are kinetic energy only
 			getAnalyser().setCachedEnergyMode(literal);
 			
 			getAnalyser().setEnergyStep(region.getEnergyStep() / 1000.0, 10.0);
 			double collectionTime = region.getStepTime();
 			getAnalyser().setStepTime(collectionTime, 10.0);
-			if (!region.getRunMode().isConfirmAfterEachIteration()) {
-				if (!region.getRunMode().isRepeatUntilStopped()) {
-					getAnalyser().setNumberInterations(region.getRunMode().getNumIterations(), 10.0);
-					getAnalyser().setImageMode(ImageMode.SINGLE, 10.0);
-				} else {
-					getAnalyser().setNumberInterations(1000000, 10.0);
-					getAnalyser().setImageMode(ImageMode.SINGLE, 10.0);
-				}
-			} else {
-				getAnalyser().setNumberInterations(1, 10.0);
+			if (!region.getRunMode().isRepeatUntilStopped()) {
+				getAnalyser().setNumberInterations(region.getRunMode().getNumIterations(), 10.0);
 				getAnalyser().setImageMode(ImageMode.SINGLE, 10.0);
-				throw new NotSupportedException(
-						"Confirm after each iteraction is not yet supported");
+			} else {
+				getAnalyser().setNumberInterations(1000000, 10.0);
+				getAnalyser().setImageMode(ImageMode.SINGLE, 10.0);
 			}
 			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 10.0);
 		} catch (Exception e) {
 			throw e;
 		} 
 		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-			((ScriptControllerBase)getScriptcontroller()).update(this, new RegionChangeEvent(region.getRegionId(), region.getName()));
+			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionChangeEvent(region.getRegionId(), region.getName()));
 		}
 	}
 	@Override
