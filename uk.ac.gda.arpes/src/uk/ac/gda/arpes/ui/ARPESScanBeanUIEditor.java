@@ -28,6 +28,7 @@ import uk.ac.gda.arpes.beans.ARPESScanBean;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
+import org.eclipse.swt.layout.GridLayout;
 
 public final class ARPESScanBeanUIEditor extends RichBeanEditorPart {
 
@@ -46,6 +47,7 @@ public final class ARPESScanBeanUIEditor extends RichBeanEditorPart {
 
 	@Override
 	public void createPartControl(Composite comp) {
+		comp.setLayout(new GridLayout(1, false));		
 		final ScrolledComposite scrolledComposite = new ScrolledComposite(comp, SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
