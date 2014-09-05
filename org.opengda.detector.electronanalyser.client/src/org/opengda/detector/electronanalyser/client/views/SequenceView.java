@@ -1,6 +1,7 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
@@ -13,6 +14,7 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
@@ -198,6 +200,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private int totalNumberOfPoints;
 	private int totalActiveRegions;
 	private int crrentRegionNumber;
+	private Text txtScanNumberValue;
 	
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
@@ -376,16 +379,36 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		txtDataFilePath.setText("Data file to be collected");
 		
 		Group grpScanProgress=new Group(controlArea, SWT.BORDER);
-		grpScanProgress.setText("Scan Progress");
-		grpScanProgress.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		grpScanProgress.setLayout(new GridLayout());
+		GridData gd_grpScanProgress = new GridData(GridData.FILL_HORIZONTAL);
+		gd_grpScanProgress.horizontalSpan=3;
+		gd_grpScanProgress.grabExcessHorizontalSpace = true;
+		grpScanProgress.setLayoutData(gd_grpScanProgress);
+		grpScanProgress.setText("Analyser Scan Progress");
+		grpScanProgress.setLayout(new GridLayout(4, false));
+
+		Label lblScanNumber=new Label(grpScanProgress, SWT.None);
+		lblScanNumber.setText("Current Scan Number: ");
 		
+		txtScanNumberValue = new Text(grpScanProgress, SWT.BORDER);
+		GridData gd_txtScanNumberValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_txtScanNumberValue.widthHint = 50;
+		txtScanNumberValue.setLayoutData(gd_txtScanNumberValue);
+		txtScanNumberValue.setForeground(ColorConstants.green);
+		txtScanNumberValue.setEditable(false);
+		txtScanNumberValue.setBackground(ColorConstants.black);
+		try {
+			txtScanNumberValue.setText(String.format("%d",new NumTracker(LocalProperties.GDA_BEAMLINE_NAME).getCurrentFileNumber()));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		Label lblPoint=new Label(grpScanProgress, SWT.None);
-		lblPoint.setText("Point: ");
+		lblPoint.setText("Scan Point Number: ");
 		
 		txtPointValue = new Text(grpScanProgress, SWT.BORDER);
 		GridData gd_lblIterationValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_lblIterationValue.widthHint = 40;
+		gd_lblIterationValue.widthHint = 50;
 		txtPointValue.setLayoutData(gd_lblIterationValue);
 		txtPointValue.setForeground(ColorConstants.green);
 		txtPointValue.setEditable(false);
@@ -393,7 +416,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		updateScanPointNumber(currentPointNumber, totalNumberOfPoints);
 		
 		Label lblRegion = new Label(grpScanProgress, SWT.NONE);
-		lblRegion.setText("Region:");
+		lblRegion.setText("Active Region Number:");
 		
 		txtRegionValue = new Text(grpScanProgress, SWT.BORDER);
 		txtRegionValue.setForeground(ColorConstants.green);
@@ -401,7 +424,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		txtRegionValue.setBackground(ColorConstants.black);
 		txtRegionValue.setText("0");
 		GridData gd_txtCurrentPoint = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
-		gd_txtCurrentPoint.widthHint = 40;
+		gd_txtCurrentPoint.widthHint = 50;
 		txtRegionValue.setLayoutData(gd_txtCurrentPoint);
 		
 		Label lblTimeRemaining = new Label(grpScanProgress, SWT.NONE);
@@ -412,16 +435,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		txtTimeRemaining.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 		txtTimeRemaining.setForeground(ColorConstants.green);
 		txtTimeRemaining.setBackground(ColorConstants.black);
-		txtTimeRemaining.setText("0.0000");
+		GridData gd_txtTimeRemaining = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
+		gd_txtTimeRemaining.widthHint = 50;
+		txtTimeRemaining.setLayoutData(gd_txtTimeRemaining);
 		txtTimeRemaining.setEditable(false);
 		
 		Label lblProgress = new Label(grpScanProgress, SWT.NONE);
-		lblProgress.setText("progress:");
+		lblProgress.setText("Scan Progress:");
 		
 		progressBar = new ProgressBar(grpScanProgress, SWT.HORIZONTAL);
 		GridData gd_progressBar = new GridData(GridData.FILL_HORIZONTAL);
 		gd_progressBar.grabExcessHorizontalSpace = false;
-		gd_progressBar.horizontalSpan = 5;
+		gd_progressBar.horizontalSpan = 3;
 		progressBar.setLayoutData(gd_progressBar);
 		progressBar.setMinimum(0);
 		progressBar.setMaximum(100);
@@ -438,16 +463,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		contributeToActionBars();
 	}
 
-	private void updateRegionNumber(int currentRegionNumber,
-			String totalActiveRegions) {
-		txtRegionValue.setText(String.valueOf(currentRegionNumber) + '/'
-				+ totalActiveRegions);
+	private void updateRegionNumber(int currentRegionNumber, int totalActiveRegions) {
+		txtRegionValue.setText(String.valueOf(currentRegionNumber) + '/'+ String.valueOf(totalActiveRegions));
 	}
 
 	private void updateScanPointNumber(int currentPointNumber,
 			int totalNumberOfPoints) {
-		txtPointValue.setText(String.valueOf(currentPointNumber) + '/'
-				+ String.valueOf(totalNumberOfPoints));
+		txtPointValue.setText(String.valueOf(currentPointNumber) + '/'+ String.valueOf(totalNumberOfPoints));
 	}
 
 	private void makeActions() {
@@ -680,17 +702,17 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Scriptcontroller scriptcontroller;
 
 	private AnalyserStateListener analyserStateListener;
+	private AnalyserTotalTimeRemainingListener analyserTotalTimeRemainingListener;
+	
+	private String analyserStatePV;
+	private String analyserTotalTimeRemianingPV;
 
-	private String statePV;
-
-	private Channel stateChannel;
-
+	private Channel analyserStateChannel;
+	private Channel analyserTotalTimeRemainingChannel;
+	
 	private EpicsChannelManager channelmanager;
 
-	private String energyLensTableDir
-	;
-	
-	//	private Device ew4000;
+	private String energyLensTableDir;
 
 	private Region getSelectedRegion() {
 		ISelection selection = getSelection();
@@ -780,14 +802,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		//EPICS monitor to update current region status
 		channelmanager = new EpicsChannelManager(this);
 		analyserStateListener = new AnalyserStateListener();
+		analyserTotalTimeRemainingListener=new AnalyserTotalTimeRemainingListener();
 		try {
 			createChannels();
 		} catch (CAException | TimeoutException e1) {
 			logger.error("failed to create required spectrum channels", e1);
 		}
 		comboElementSet.addSelectionListener(elementSetSelAdaptor);
-		updateRegionNumber(crrentRegionNumber, txtNumberActives.getText().trim());
-
+		updateRegionNumber(crrentRegionNumber, numActives);
 	}
 
 	public IVGScientaAnalyser getAnalyser() {
@@ -796,15 +818,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private void createChannels() throws CAException, TimeoutException {
 		first = true;
-		stateChannel = channelmanager.createChannel(getDetectorStatePV(), analyserStateListener, MonitorType.NATIVE, false);
+		analyserStateChannel = channelmanager.createChannel(getDetectorStatePV(), analyserStateListener, MonitorType.NATIVE, false);
+		analyserTotalTimeRemainingChannel=channelmanager.createChannel(getAnalyserTotalTimeRemianingPV(), analyserTotalTimeRemainingListener,MonitorType.NATIVE, false);
 		channelmanager.creationPhaseCompleted();
 		logger.debug("analyser state channel and monitor are created");
 	}
 
+	double totalTimes = 0.0;
+	int numActives = 0;
 
 	private void updateCalculatedData() {
-		int numActives = 0;
 		double totalTimes = 0.0;
+		int numActives = 0;
 		if (!regions.isEmpty()) {
 			for (Region region : regions) {
 				if (region.isEnabled()) {
@@ -822,6 +847,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		txtNumberActives.setText(String.format("%d", numActives));
 		txtEstimatedTime.setText(String.format("%.3f", totalTimes));
+		this.totalTimes=totalTimes;
+		this.numActives=numActives;
 	}
 
 	@Override
@@ -1209,13 +1236,17 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Text txtSequenceFilePath;
 
 	private Region currentRegion;
+	protected int currentRegionNumber;
+	private double totalScanTime;
+	private double time4ScanPointsDone;
+	private double time4RegionsToDo;
 
 	@Override
 	public void dispose() {
 		try {
 			regionDefinitionResourceUtil.getResource().eAdapters().remove(notifyListener);
 			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(RegionView.ID, selectionListener);
-			stateChannel.dispose();
+//			analyserStateChannel.dispose();
 			scriptcontroller.deleteIObserver(this);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1269,13 +1300,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				});
 			}
 			if (arg instanceof RegionStatusEvent) {
+				final String regionId = ((RegionStatusEvent) arg).getRegionId();
+				final STATUS status = ((RegionStatusEvent) arg).getStatus();
+				currentRegionNumber = ((RegionStatusEvent) arg).getRegionNumber();
+				time4RegionsToDo=getRemainingRegionsTimeTotal(currentRegionNumber);
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						String regionId = ((RegionStatusEvent) arg).getRegionId();
-						STATUS status = ((RegionStatusEvent) arg).getStatus();
-						int regionNumber = ((RegionStatusEvent) arg).getRegionNumber();
-						updateRegionNumber(regionNumber, txtNumberActives.getText().trim());
+						updateRegionNumber(currentRegionNumber, numActives);
 						logger.debug("region {} update to {}",regionId, status);
 						for (Region region : regions) {
 							if (region.getRegionId().equalsIgnoreCase(regionId)) {
@@ -1292,23 +1324,31 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				DataFilenameEvent evt = (DataFilenameEvent) arg;
 				totalNumberOfPoints = evt.getNumberOfPoints();
 				final String scanFilename = evt.getScanFilename();
-				int scanNumber = evt.getScanNumber();
+				final int scanNumber = evt.getScanNumber();
+				totalScanTime=totalNumberOfPoints*totalTimes;
 				Display.getDefault().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
 						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
 						txtDataFilePath.setText(scanFilename);
+						txtScanNumberValue.setText(String.valueOf(scanNumber));
 					}
 				});
 			}
 			if (arg instanceof CurrentScanPointNumberEvent) {
 				currentPointNumber=((CurrentScanPointNumberEvent)arg).getCurrentPointNumber();
+				time4ScanPointsDone=currentPointNumber*totalTimes;
 				Display.getDefault().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
 						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
+						for (Region region : regions) {
+							if (region.isEnabled()) {
+								updateRegionStatus(region, STATUS.READY);
+							}
+						}
 					}
 				});
 			}
@@ -1316,16 +1356,54 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 
 	public String getDetectorStatePV() {
-		return statePV;
+		return analyserStatePV;
 	}
 
 	public void setDetectorStatePV(String statePV) {
-		this.statePV = statePV;
+		this.analyserStatePV = statePV;
 	}
 
 	private boolean first = true;
 
 	private Combo comboElementSet;
+	private class AnalyserTotalTimeRemainingListener implements MonitorListener {
+
+		@Override
+		public void monitorChanged(MonitorEvent arg0) {
+			DBR dbr = arg0.getDBR();
+			if (dbr.isDOUBLE()) {
+				final double timeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
+					Display.getDefault().asyncExec(new Runnable() {
+						
+						@Override
+						public void run() {
+							double scanTimeRemaining = totalScanTime-time4ScanPointsDone+time4RegionsToDo+timeremaining;
+							txtTimeRemaining.setText(String.format("%.3f",scanTimeRemaining));
+							progressBar.setSelection((int)(100*(totalScanTime-scanTimeRemaining)/totalScanTime));
+						}
+					});
+				
+				logger.debug("iteration time remaining changed to {}", timeremaining);
+			}
+		}
+	}
+	
+	private double getSequenceTime() {
+		return Double.valueOf(txtEstimatedTime.getText().trim());
+	}
+	private double getRemainingRegionsTimeTotal(int currentRegionNumber2) {
+		double timeToGo = 0.0;
+		int i=0;
+		for (Region region : regions) {
+			if (region.isEnabled()) {
+				i++;
+				if (i>currentRegionNumber2) {
+					timeToGo += region.getTotalTime();
+				}
+			}
+		}
+		return timeToGo;
+	}
 
 	private class AnalyserStateListener implements MonitorListener {
 
@@ -1392,5 +1470,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	public void setEnergyLensTableDir(String energyLensTableDir) {
 		this.energyLensTableDir = energyLensTableDir;
+	}
+
+	public String getAnalyserTotalTimeRemianingPV() {
+		return analyserTotalTimeRemianingPV;
+	}
+
+	public void setAnalyserTotalTimeRemianingPV(
+			String analyserTotalTimeRemianingPV) {
+		this.analyserTotalTimeRemianingPV = analyserTotalTimeRemianingPV;
 	}
 }

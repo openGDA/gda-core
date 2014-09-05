@@ -36,8 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author fy65
  * 
  */
-public class AnalyserComposite extends Composite implements
-		InitializationListener {
+public class AnalyserComposite extends Composite implements InitializationListener {
 
 	private String statePV;
 	private String acquirePV;
@@ -99,8 +98,7 @@ public class AnalyserComposite extends Composite implements
 
 		txtAcquireState = new Text(rootComposite, SWT.BORDER);
 		txtAcquireState.setBackground(ColorConstants.darkGreen);
-		GridData gd_txtAcquireState = new GridData(SWT.CENTER, SWT.CENTER,
-				false, false, 1, 1);
+		GridData gd_txtAcquireState = new GridData(SWT.CENTER, SWT.CENTER,false, false, 1, 1);
 		gd_txtAcquireState.widthHint = 15;
 		txtAcquireState.setLayoutData(gd_txtAcquireState);
 
@@ -128,15 +126,13 @@ public class AnalyserComposite extends Composite implements
 		});
 
 		Label lblMessage = new Label(rootComposite, SWT.NONE);
-		lblMessage.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
-				false, 1, 1));
+		lblMessage.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,false, 1, 1));
 		lblMessage.setText("Message:");
 
 		txtMessage = new Text(rootComposite, SWT.BORDER);
 		txtMessage.setForeground(ColorConstants.green);
 		txtMessage.setBackground(ColorConstants.black);
-		txtMessage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
-				false, 4, 1));
+		txtMessage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,false, 4, 1));
 	}
 
 	public void initialise() {
@@ -192,6 +188,8 @@ public class AnalyserComposite extends Composite implements
 					});
 				}
 				logger.debug("Analyser state changed to {}", stateLabels[value]);
+			}else {
+				logger.error("Analyser state PV type is {}", dbr.getType());
 			}
 		}
 	}
@@ -226,8 +224,9 @@ public class AnalyserComposite extends Composite implements
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
-			if (dbr.isSTRING()) {
-				final String message = ((DBR_String) dbr).getStringValue()[1];
+			if (dbr.isBYTE()) {
+				final byte[] message1 = ((DBR_Byte) dbr).getByteValue();
+				final String message=new String(message1).trim();
 				if (!getDisplay().isDisposed()) {
 					getDisplay().asyncExec(new Runnable() {
 
@@ -238,6 +237,8 @@ public class AnalyserComposite extends Composite implements
 					});
 				}
 				logger.debug("Analyser message updated to {}", message);
+			} else {
+				logger.error("Analyser message PV type is {}", dbr.getType());
 			}
 		}
 	}
@@ -250,9 +251,9 @@ public class AnalyserComposite extends Composite implements
 		} catch (TimeoutException | CAException | InterruptedException e) {
 			logger.error("Failed to get Analyser State labels!");
 		}
-		stateChannel.addMonitor(DBRType.ENUM, stateChannel.getElementCount(),gov.aps.jca.Monitor.VALUE, stateListener);
-		messageChannel.addMonitor(DBRType.STRING, messageChannel.getElementCount(), gov.aps.jca.Monitor.VALUE, messageListener);
-		logger.info("Region Progress EPICS Channels initialisation completed!");
+		controller.setMonitor(stateChannel, DBRType.ENUM, gov.aps.jca.Monitor.VALUE, stateListener, stateChannel.getElementCount());
+		controller.setMonitor(messageChannel,DBRType.BYTE, gov.aps.jca.Monitor.VALUE, messageListener, messageChannel.getElementCount());
+		logger.info("Analyser IOC EPICS Channels initialisation completed!");
 
 	}
 

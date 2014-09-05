@@ -324,7 +324,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 						
 						@Override
 						public void run() {
-							txtIterationTimeRemaining.setText(String.valueOf(timeremaining));
+							txtIterationTimeRemaining.setText(String.format("%.3f",timeremaining));
 						}
 					});
 				}
@@ -474,7 +474,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 						
 						@Override
 						public void run() {
-							txtTotalTimeRemaining.setText(String.valueOf(timeremaining));
+							txtTotalTimeRemaining.setText(String.format("%.3f",timeremaining));
 						}
 					});
 				}

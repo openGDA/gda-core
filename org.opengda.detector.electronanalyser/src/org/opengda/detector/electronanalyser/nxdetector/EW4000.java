@@ -58,6 +58,8 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	EW4000CollectionStrategy collectionStrategy;
 	private Scriptcontroller scriptcontroller;
 
+	private int currentPointNumber;
+
 
 	public EW4000() {
 	}
@@ -200,13 +202,13 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		Sequence sequence = loadSequenceData(getSequenceFilename());
 		collectionStrategy.setSequence(sequence);
 		collectionStrategy.setScanDataPoint(0); // first data point
-
+		currentPointNumber=0;
 		super.atScanStart();		
 	}
 
 	@Override
 	public void atPointStart() throws DeviceException {
-		int currentPointNumber = getScanDataPointProvider().getLastScanDataPoint().getCurrentPointNumber();
+		currentPointNumber++;
 		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
 			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new CurrentScanPointNumberEvent(currentPointNumber));
 		}
