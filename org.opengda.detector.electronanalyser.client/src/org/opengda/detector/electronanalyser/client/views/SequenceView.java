@@ -1372,25 +1372,25 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
 			if (dbr.isDOUBLE()) {
-				final double timeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
+				final double currentregiontimeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
 					Display.getDefault().asyncExec(new Runnable() {
 						
 						@Override
 						public void run() {
-							double scanTimeRemaining = totalScanTime-time4ScanPointsDone+time4RegionsToDo+timeremaining;
+							double scanTimeRemaining = totalScanTime-time4ScanPointsDone+time4RegionsToDo+currentregiontimeremaining;
 							txtTimeRemaining.setText(String.format("%.3f",scanTimeRemaining));
-							progressBar.setSelection((int)(100*(totalScanTime-scanTimeRemaining)/totalScanTime));
+							progressBar.setSelection(100*(int)((totalScanTime-scanTimeRemaining)/totalScanTime));
+							if (currentPointNumber==totalNumberOfPoints && crrentRegionNumber==numActives && currentregiontimeremaining==0) {
+								progressBar.setSelection(0);
+							}
 						}
 					});
 				
-				logger.debug("iteration time remaining changed to {}", timeremaining);
+				logger.debug("iteration time remaining changed to {}", currentregiontimeremaining);
 			}
 		}
 	}
 	
-	private double getSequenceTime() {
-		return Double.valueOf(txtEstimatedTime.getText().trim());
-	}
 	private double getRemainingRegionsTimeTotal(int currentRegionNumber2) {
 		double timeToGo = 0.0;
 		int i=0;
