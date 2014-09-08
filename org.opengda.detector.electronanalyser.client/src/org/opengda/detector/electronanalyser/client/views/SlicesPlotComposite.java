@@ -292,7 +292,7 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 			
 			yaxes.clear();
 //			for (int i = 0; i < dims[0]; i++) {
-//				AbstractDataset slice2 = ds.getSlice(new int[] { i*dims[1], i },new int[] { (i+1)*dims[1]-1, i }, null);
+//				Dataset slice2 = ds.getSlice(new int[] { i*dims[1], i },new int[] { (i+1)*dims[1]-1, i }, null);
 //				slice2.setName("Intensity (counts");
 //				yaxes.add(slice2);
 //			}
