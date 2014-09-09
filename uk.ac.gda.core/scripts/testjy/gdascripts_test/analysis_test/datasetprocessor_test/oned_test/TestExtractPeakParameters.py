@@ -1,4 +1,4 @@
-# TestSinglePeakParameters is implemented using new AbstractDataset - DoubleDataset,not in module TestProcessors which use the deprecated DataSet
+# TestSinglePeakParameters is implemented using new Dataset - DoubleDataset,not in module TestProcessors which use the deprecated DataSet
 import unittest
 
 from gdascripts.analysis.datasetprocessor.oned.extractPeakParameters import ExtractPeakParameters

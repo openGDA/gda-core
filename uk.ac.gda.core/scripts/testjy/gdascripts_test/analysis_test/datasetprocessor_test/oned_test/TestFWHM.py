@@ -1,4 +1,4 @@
-# TestFWHM is implemented using new AbstractDataset - DoubleDataset,not in module TestProcessors which use the deprecated DataSet
+# TestFWHM is implemented using new Dataset - DoubleDataset,not in module TestProcessors which use the deprecated DataSet
 import unittest
 
 from gdascripts.analysis.datasetprocessor.oned.FullWidthHalfMaximum import FullWidthHalfMaximum
