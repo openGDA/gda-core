@@ -1,15 +1,7 @@
 
-import array;
 import scisoftpy as dnp
 from gda.epics import CAClient
 
-from gda.analysis import DataSet;
-
-from uk.ac.diamond.scisoft.analysis.dataset import IntegerDataset, ByteDataset, AbstractDataset
-from uk.ac.diamond.scisoft.analysis import SDAPlotter
-
-
-import array
 
 class WaveformPlotterClass(object):
     def __init__(self, name, waveformPV, viewPanelName="Plot 2"):
@@ -43,11 +35,10 @@ class WaveformPlotterClass(object):
             panel=self.panel;
             
         da=self.chData.cagetArrayByte()
-        ds = ByteDataset.createFromObject(da);
-    
-        newds=ds.reshape([self.height, self.width]);
-    
-        SDAPlotter.imagePlot(panel, newds);
+        ds = dnp.array(da)
+        ds.shape = self.height, self.width
+
+        dnp.plot.image(ds, name=panel)
     
     
     #Fast to get unsigned Byte from EPICS and plot
@@ -56,10 +47,10 @@ class WaveformPlotterClass(object):
             panel=self.panel;
             
         da=self.chData.cagetArrayUnsigned();
-        ds = IntegerDataset.createFromObject(da);
-        newds=ds.reshape([self.height, self.width]);
-    
-        SDAPlotter.imagePlot(panel, newds);
+        ds = dnp.array(da)
+        ds.shape = self.height, self.width
+
+        dnp.plot.image(ds, name=panel)
     
     
     #Slow because of the signed to unsigned conversion
@@ -76,10 +67,10 @@ class WaveformPlotterClass(object):
     #method 3
     #    ds1=array.array('B' [x&0xff for x in ds1] )
             
-        ds = IntegerDataset.createFromObject(da);
-        newds=ds.reshape([self.height, self.width]);
-        
-        SDAPlotter.imagePlot(panel, newds);
+        ds = dnp.array(da)
+        ds.shape = self.height, self.width
+
+        dnp.plot.image(ds, name=panel)
 
 #Usage:
 #from EpicsWaveform import WaveformPlotterClass;
