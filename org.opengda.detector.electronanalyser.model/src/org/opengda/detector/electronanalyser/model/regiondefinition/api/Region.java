@@ -1171,7 +1171,7 @@ public interface Region extends EObject {
 	 * @return the value of the '<em>Total Steps</em>' attribute.
 	 * @see #setTotalSteps(int)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_TotalSteps()
-	 * @model default="0" transient="true"
+	 * @model default="0"
 	 * @generated
 	 */
 	int getTotalSteps();
@@ -1198,7 +1198,7 @@ public interface Region extends EObject {
 	 * @return the value of the '<em>Total Time</em>' attribute.
 	 * @see #setTotalTime(double)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_TotalTime()
-	 * @model default="0.0" transient="true"
+	 * @model default="0.0"
 	 * @generated
 	 */
 	double getTotalTime();

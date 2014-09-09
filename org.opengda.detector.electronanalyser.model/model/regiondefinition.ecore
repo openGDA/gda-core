@@ -83,9 +83,9 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="discriminatorLevel" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
         defaultValueLiteral="10" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="totalSteps" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
-        transient="true" defaultValueLiteral="0"/>
+        defaultValueLiteral="0"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="totalTime" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
-        transient="true" defaultValueLiteral="0.0"/>
+        defaultValueLiteral="0.0"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RunMode">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="mode" eType="#//RUN_MODES"

@@ -28,7 +28,7 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 */
 	public static RegiondefinitionFactory init() {
 		try {
-			RegiondefinitionFactory theRegiondefinitionFactory = (RegiondefinitionFactory)EPackage.Registry.INSTANCE.getEFactory("http://www.opengda.org/regiondefinition"); //$NON-NLS-1$ 
+			RegiondefinitionFactory theRegiondefinitionFactory = (RegiondefinitionFactory)EPackage.Registry.INSTANCE.getEFactory(RegiondefinitionPackage.eNS_URI);
 			if (theRegiondefinitionFactory != null) {
 				return theRegiondefinitionFactory;
 			}

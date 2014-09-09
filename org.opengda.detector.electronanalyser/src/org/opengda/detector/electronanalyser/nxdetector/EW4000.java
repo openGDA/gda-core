@@ -169,10 +169,10 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public void stop() throws DeviceException {
-//		if (!collectionStrategy.isStillHaveDataToWrite()) {
-//			readout();
-//			collectionStrategy.setStillHaveDataToWrite(false);
-//		}
+		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
+			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new CurrentScanCompletedEvent());
+		}
+
 		super.stop();		
 	}
 	@Override
