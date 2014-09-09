@@ -6,8 +6,6 @@ import os
 import time
 import scisoftpy as dnp
 import math
-from uk.ac.diamond.scisoft.analysis.fitting import EllipseFitter as _efitter
-from uk.ac.diamond.scisoft.analysis.dataset import AbstractDataset as absd
 
 from uk.ac.diamond.scisoft.analysis.dataset import Image as javaImage
 
@@ -57,7 +55,7 @@ def readTestInputs(filename='height.txt',idealname='ideal.txt',visit_directory='
     for i in range(0,len(angarray)):
         ofile.write("%g,%g,%g,%g\n"%(angarray[i],horizarray[i],idealarray[i],inarray[i]))
     ofile.close()
-    return((horizarray,inarray,idealarray))
+    return(horizarray,inarray,idealarray)
     
 
 def request_DAWN_Input(message):
@@ -206,35 +204,26 @@ def sphere_alignment_processing(previewmean=False,visit_directory='/dls/i12/data
         except:
             raise
         
-        ydata = absd.createFromList(ys)
-        xdata = absd.createFromList(xs)
         xarray=dnp.array(xs)
         yarray=dnp.array(ys)
     else:
         #Lists of numbers can be read in to compare results
         xarray,yarray,idealarray=readTestInputs(printres=False)
         #is there a less annoying way? 
-        xdata=absd.createFromList(xarray.tolist())
-        ydata=absd.createFromList(yarray.tolist())
         
     #return
     
     print "Fitting ellipse to centroid data"
-    f = _efitter()
-    f.algebraicFit(xdata,ydata)
-    f.geometricFit(xdata,ydata,f.parameters)
+    ellipseFitValues = dnp.fit.ellipsefit(xarray, yarray)
     
     t = dnp.arange(100)*dnp.pi/50.
-    t = absd.createFromList(t.tolist())
-    fitplot = _efitter.generateCoordinates(t, f.parameters)
+    fitplot = dnp.fit.makeellipse(ellipseFitValues, t)
     print("fitplot is: %s element is %s "%(type(fitplot), type(fitplot[0])))
     
     dnp.plot.line(fitplot[0], fitplot[1])
     if previewmean:
         time.sleep(1)
-    dnp.plot.addline(xdata,ydata)
-    
-    ellipseFitValues = f.parameters
+    dnp.plot.addline(xarray, yarray)
     
     print "Results of ellipse fitting routine:"
     print "   Major: %f" % (ellipseFitValues[0])
@@ -301,7 +290,7 @@ def sphere_alignment_processing(previewmean=False,visit_directory='/dls/i12/data
         fout.write("%i,%f,%f\n"%(i,xarray[i],f_calcres[i]))
     fout.close()
     
-    return (xangle,zangle,xdata,ydata)
+    return (xangle,zangle,xarray,yarray)
 
 def doseveral():
     orbits=[]

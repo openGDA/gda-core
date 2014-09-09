@@ -5,8 +5,6 @@
 import time
 import scisoftpy as dnp
 import math
-from uk.ac.diamond.scisoft.analysis.fitting import EllipseFitter as _efitter
-from uk.ac.diamond.scisoft.analysis.dataset import AbstractDataset as absd
 
 from sphere_alignment_processing import sphere_alignment_processing
 
@@ -49,7 +47,7 @@ def sphere_alignment(threshold=0.55, x_stage=ss1_x, flat_field_position=-50, pro
     visit_directory = os.sep.join(['']+[a for a in wd().split(os.sep) if a != ''][:-1])
     
     # try to process the data
-    (xangle,zangle,xdata,ydata) = sphere_alignment_processing(threshold=threshold,visit_directory=visit_directory,flatfile=flat_current_file, projectionfile=data_current_file, request_input_command=requestInput,prompt=True)
+    (xangle,zangle,xarray,yarray) = sphere_alignment_processing(threshold=threshold,visit_directory=visit_directory,flatfile=flat_current_file, projectionfile=data_current_file, request_input_command=requestInput,prompt=True)
     
     print xangle
     print zangle

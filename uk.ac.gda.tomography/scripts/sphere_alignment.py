@@ -5,10 +5,6 @@
 import time
 import scisoftpy as dnp
 import math
-from uk.ac.diamond.scisoft.analysis.fitting import EllipseFitter as _efitter
-from uk.ac.diamond.scisoft.analysis.dataset import AbstractDataset as absd
-
-from sphere_alignment_processing import sphere_alignment_processing
 
 
 print "run sphere alignment script"
@@ -137,8 +133,8 @@ def sphere_alignment(threshold=0.55, x_stage=ss1_x, flat_field_position=-50, pro
             xs.append(x)
             ys.append(y)
         
-        xxx = absd.createFromList(ys)
-        yyy = absd.createFromList(xs)
+        xxx = dnp.array(ys)
+        yyy = dnp.array(xs)
         
         responce = requestInput("Current threshold is %f, y for ok, otherwise enter a new threshold value " % (threshold))
         if responce == 'y' :
@@ -150,14 +146,11 @@ def sphere_alignment(threshold=0.55, x_stage=ss1_x, flat_field_position=-50, pro
                 print "could not interpret %s as a float" % responce
     
     print "Fitting ellipse to centroid data"
-    f = _efitter()
-    f.algebraicFit(xxx,yyy)
-    f.geometricFit(xxx,yyy,f.parameters)
+    ellipseFitValues = dnp.fit.ellipsefit(xxx, yyy)
     
     t = dnp.arange(100)*dnp.pi/50.
-    t = absd.createFromList(t.tolist())
-    fitplot = _efitter.generateCoordinates(t, f.parameters)
-    
+    fitplot = dnp.fit.makeellipse(ellipseFitValues, t._jdataset())
+
     dnp.plot.line(fitplot[0], fitplot[1])
     time.sleep(1)
     dnp.plot.addline(xxx,yyy)
@@ -168,8 +161,6 @@ def sphere_alignment(threshold=0.55, x_stage=ss1_x, flat_field_position=-50, pro
     type (xs)
     print(xs)
     
-    
-    ellipseFitValues = f.parameters
     
     print "Results of ellipse fitting routine:"
     print "   Major: %f" % (ellipseFitValues[0])
