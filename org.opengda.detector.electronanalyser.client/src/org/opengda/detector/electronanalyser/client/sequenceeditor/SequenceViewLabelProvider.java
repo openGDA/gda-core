@@ -14,42 +14,13 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 
-public class SequenceViewLabelProvider extends LabelProvider implements
-		ITableLabelProvider, ITableColorProvider {
+public class SequenceViewLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
+	
 	private double xRaySourceEnergyLimit = 2100.0; // must be in eV
 	private boolean sourceSelectable = false;
 	private Camera camera;
-
-	public double getXRaySourceEnergyLimit() {
-		return xRaySourceEnergyLimit;
-	}
-
-	public void setXRaySourceEnergyLimit(double xRaySourceEnergyLimit) {
-		this.xRaySourceEnergyLimit = xRaySourceEnergyLimit;
-	}
-
-	public boolean isSourceSelectable() {
-		return sourceSelectable;
-	}
-
-	public void setSourceSelectable(boolean sourceSelectable) {
-		this.sourceSelectable = sourceSelectable;
-	}
-
-	@Override
-	public Color getForeground(Object element, int columnIndex) {
-		if (columnIndex == SequenceTableConstants.COL_STATUS) {
-			return ColorConstants.red;
-		}
-		return null;
-	}
-
-	@Override
-	public Color getBackground(Object element, int columnIndex) {
-		if (columnIndex == SequenceTableConstants.COL_STATUS) {
-			return ColorConstants.white;
-		}
-		return null;
+	
+	public SequenceViewLabelProvider() {
 	}
 
 	@Override
@@ -79,6 +50,11 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
 	}
 
 	@Override
@@ -153,6 +129,37 @@ public class SequenceViewLabelProvider extends LabelProvider implements
 								.getFirstXChannel()+1));
 	}
 
+	public double getXRaySourceEnergyLimit() {
+		return xRaySourceEnergyLimit;
+	}
+
+	public void setXRaySourceEnergyLimit(double xRaySourceEnergyLimit) {
+		this.xRaySourceEnergyLimit = xRaySourceEnergyLimit;
+	}
+
+	public boolean isSourceSelectable() {
+		return sourceSelectable;
+	}
+
+	public void setSourceSelectable(boolean sourceSelectable) {
+		this.sourceSelectable = sourceSelectable;
+	}
+
+	@Override
+	public Color getForeground(Object element, int columnIndex) {
+		if (columnIndex == SequenceTableConstants.COL_STATUS) {
+			return ColorConstants.red;
+		}
+		return null;
+	}
+
+	@Override
+	public Color getBackground(Object element, int columnIndex) {
+		if (columnIndex == SequenceTableConstants.COL_STATUS) {
+			return ColorConstants.white;
+		}
+		return null;
+	}
 	public void setCamera(Camera camera) {
 		this.camera = camera;
 

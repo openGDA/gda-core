@@ -216,11 +216,13 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	@Override
 	public void atPointEnd() throws DeviceException {
-		// TODO Auto-generated method stub
 		super.atPointEnd();
 	}
 	@Override
 	public void atScanEnd() throws DeviceException {
+		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
+			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new CurrentScanCompletedEvent());
+		}
 		super.atScanEnd();
 	}
 	public Sequence loadSequenceData(String sequenceFilename) throws DeviceException {

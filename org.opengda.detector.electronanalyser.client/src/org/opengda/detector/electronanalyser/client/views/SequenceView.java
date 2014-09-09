@@ -21,6 +21,7 @@ import gov.aps.jca.event.MonitorListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,9 +31,11 @@ import java.util.Map.Entry;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
@@ -77,6 +80,9 @@ import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -90,6 +96,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.INullSelectionListener;
@@ -99,6 +106,7 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SaveAsDialog;
+import org.eclipse.ui.internal.AnimationEngine;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
@@ -109,6 +117,7 @@ import org.opengda.detector.electronanalyser.client.selection.FileSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
 import org.opengda.detector.electronanalyser.client.selection.TotalTimeSelection;
+import org.opengda.detector.electronanalyser.client.sequenceeditor.AnimatedTableItemFeedback;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceTableConstants;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewContentProvider;
@@ -127,6 +136,7 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Regionde
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
+import org.opengda.detector.electronanalyser.nxdetector.CurrentScanCompletedEvent;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
@@ -198,7 +208,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private int currentPointNumber;
 	private int totalNumberOfPoints;
-	private int totalActiveRegions;
 	private int crrentRegionNumber;
 	private Text txtScanNumberValue;
 	
@@ -399,8 +408,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		try {
 			txtScanNumberValue.setText(String.format("%d",new NumTracker(LocalProperties.GDA_BEAMLINE_NAME).getCurrentFileNumber()));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("Failed to get scan number tracker");
 		}
 
 		Label lblPoint=new Label(grpScanProgress, SWT.None);
@@ -693,7 +701,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					sequenceTableViewer.setSelection(sel);
 				}
 			}
-			//TODO scan time remaining
 		}
 	};
 
@@ -810,6 +817,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		comboElementSet.addSelectionListener(elementSetSelAdaptor);
 		updateRegionNumber(crrentRegionNumber, numActives);
+		images = loadAnimatedGIF(sequenceTableViewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
 	}
 
 	public IVGScientaAnalyser getAnalyser() {
@@ -994,17 +1002,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		if (isDirty()) {
 			InterfaceProvider.getCurrentScanController().pauseCurrentScan();
 			InterfaceProvider.getScriptController().pauseCurrentScript();
-			MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Unsaved Data", null,
-					"Current sequence contains unsaved data. Do you want to save them first?", MessageDialog.WARNING, new String[] { "Yes", "No" }, 0);
-			int result = msgDialog.open();
-			if (result == 0) {
-				doSave(new NullProgressMonitor());
-			} else {
-				isDirty = false;
-				firePropertyChange(PROP_DIRTY);
-			}
-			InterfaceProvider.getCurrentScanController().resumeCurrentScan();
+//			MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Unsaved Data", null,
+//					"Current sequence contains unsaved data. Do you want to save them first?", MessageDialog.WARNING, new String[] { "Yes", "No" }, 0);
+//			int result = msgDialog.open();
+//			if (result == 0) {
+//				doSave(new NullProgressMonitor());
+//			} else {
+//				isDirty = false;
+//				firePropertyChange(PROP_DIRTY);
+//			}
+			doSave(new NullProgressMonitor());
 			InterfaceProvider.getScriptController().resumeCurrentScript();
+			InterfaceProvider.getCurrentScanController().restartCurrentScan();
 		}
 		try {
 			resource.eAdapters().remove(notifyListener);
@@ -1241,13 +1250,19 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private double time4ScanPointsDone;
 	private double time4RegionsToDo;
 
+	@SuppressWarnings("restriction")
 	@Override
 	public void dispose() {
 		try {
 			regionDefinitionResourceUtil.getResource().eAdapters().remove(notifyListener);
 			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(RegionView.ID, selectionListener);
-//			analyserStateChannel.dispose();
+			// analyserStateChannel.dispose();
 			scriptcontroller.deleteIObserver(this);
+			if (animation != null) {
+				animation.cancelAnimation();
+			}
+			animation.join();
+			images=null;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1267,8 +1282,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
 	}
+	AnimationEngine animation = null; 
 
 	@Override
+	@SuppressWarnings("restriction")
 	public void update(Object source, final Object arg) {
 		if (source == scriptcontroller) {
 			if (arg instanceof SequenceFileChangeEvent) {
@@ -1296,6 +1313,17 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						}
 						fireSelectionChanged(currentRegion);
 						sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
+						if (animation!=null) {
+							animation.cancelAnimation();
+						}
+						try {
+							TableItem tableItem = sequenceTableViewer.getTable().getItem(regions.indexOf(currentRegion));
+							AnimatedTableItemFeedback feedback = new AnimatedTableItemFeedback(sequenceTableViewer.getControl().getShell(),images, tableItem,SequenceTableConstants.COL_STATUS);
+							animation= new AnimationEngine(feedback,-1,100);
+							animation.schedule();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
 				});
 			}
@@ -1314,6 +1342,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 								updateRegionStatus(region, status);
 							}
 						}
+						
 						if (status==STATUS.COMPLETED) {
 							fireSelectionChanged(new RegionRunCompletedSelection());
 						}
@@ -1344,15 +1373,41 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					@Override
 					public void run() {
 						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
+					}
+				});
+			}
+			if (arg instanceof CurrentScanCompletedEvent) {
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
 						for (Region region : regions) {
 							if (region.isEnabled()) {
 								updateRegionStatus(region, STATUS.READY);
 							}
 						}
+						if (animation!=null) {
+							animation.cancelAnimation();
+						}
 					}
 				});
 			}
 		} 
+	}
+	private Image[] loadAnimatedGIF(Display display, String imagePath) {
+		URL url = FileLocator.find(ElectronAnalyserClientPlugin.getDefault().getBundle(), new Path(imagePath), null);
+		ImageLoader imageLoader = new ImageLoader();
+		try {
+			imageLoader.load(url.openStream());
+		} catch (IOException e) {
+			logger.error("Cannot load animated gif file {}", url.getPath());
+		}
+		Image[] images = new Image[imageLoader.data.length];
+		for (int i = 0; i < imageLoader.data.length; ++i) {
+			ImageData nextFrameData = imageLoader.data[i];
+			images[i] = new Image(display, nextFrameData);
+		}
+		return images;
 	}
 
 	public String getDetectorStatePV() {
@@ -1366,6 +1421,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private boolean first = true;
 
 	private Combo comboElementSet;
+	private Image[] images;
 	private class AnalyserTotalTimeRemainingListener implements MonitorListener {
 
 		@Override
@@ -1380,7 +1436,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 							double scanTimeRemaining = totalScanTime-time4ScanPointsDone+time4RegionsToDo+currentregiontimeremaining;
 							txtTimeRemaining.setText(String.format("%.3f",scanTimeRemaining));
 							progressBar.setSelection(100*(int)((totalScanTime-scanTimeRemaining)/totalScanTime));
-							if (currentPointNumber==totalNumberOfPoints && crrentRegionNumber==numActives && currentregiontimeremaining==0) {
+							if (currentPointNumber==totalNumberOfPoints && crrentRegionNumber==numActives && scanTimeRemaining==0) {
 								progressBar.setSelection(0);
 							}
 						}
@@ -1402,6 +1458,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				}
 			}
 		}
+		logger.warn("=========regions to do time {}, current region number {}", timeToGo,currentRegionNumber2);
 		return timeToGo;
 	}
 
@@ -1434,7 +1491,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					}
 					break;
 				case 1:
-					updateRegionStatus(currentRegion, STATUS.RUNNING);
+//					updateRegionStatus(currentRegion, STATUS.RUNNING);
 					running=true;
 					logger.debug("analyser is in running state for current region: {}", currentRegion.toString());
 					break;
