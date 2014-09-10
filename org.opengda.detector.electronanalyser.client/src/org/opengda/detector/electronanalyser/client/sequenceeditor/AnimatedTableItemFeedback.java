@@ -6,6 +6,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.internal.AnimationEngine;
 import org.eclipse.ui.internal.ImageCycleFeedbackBase;
 
+@SuppressWarnings("restriction")
 public class AnimatedTableItemFeedback extends ImageCycleFeedbackBase {
 
 	private TableItem tableItem;
