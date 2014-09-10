@@ -124,8 +124,9 @@ import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefini
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceTableConstants;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewContentProvider;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewLabelProvider;
-import org.opengda.detector.electronanalyser.event.CurrentScanPointNumberEvent;
-import org.opengda.detector.electronanalyser.event.DataFilenameEvent;
+import org.opengda.detector.electronanalyser.event.ScanEndEvent;
+import org.opengda.detector.electronanalyser.event.ScanPointStartEvent;
+import org.opengda.detector.electronanalyser.event.ScanStartEvent;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
 import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.event.SequenceFileChangeEvent;
@@ -138,7 +139,6 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Regionde
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
-import org.opengda.detector.electronanalyser.nxdetector.CurrentScanCompletedEvent;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
@@ -1353,8 +1353,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					}
 				});
 			}
-			if (arg instanceof DataFilenameEvent) {
-				DataFilenameEvent evt = (DataFilenameEvent) arg;
+			if (arg instanceof ScanStartEvent) {
+				ScanStartEvent evt = (ScanStartEvent) arg;
 				totalNumberOfPoints = evt.getNumberOfPoints();
 				final String scanFilename = evt.getScanFilename();
 				final int scanNumber = evt.getScanNumber();
@@ -1368,6 +1368,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						txtScanNumberValue.setText(String.valueOf(scanNumber));
 					}
 				});
+				firstTime = true;
 				taskTimer.scheduleAtFixedRate(new TimerTask() {
 
 					@Override
@@ -1377,18 +1378,23 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 							@Override
 							public void run() {
 								double scanTimeRemaining = totalScanTime - time4ScanPointsDone + time4RegionsToDo + currentregiontimeremaining;
-								//TODO
-								if (scanTimeRemaining<Double.valueOf(txtTimeRemaining.getText().trim())) {
+								if (scanTimeRemaining<1) {
+									scanTimeRemaining=0;
+								}
+								if (firstTime) {
+									txtTimeRemaining.setText(String.format("%.3f",scanTimeRemaining));
+									firstTime=false;
+								} else if (scanTimeRemaining<Double.valueOf(txtTimeRemaining.getText().trim())) {
 									txtTimeRemaining.setText(String.format("%.3f",scanTimeRemaining));
 								}
 								progressBar.setSelection((int)(100 * ((totalScanTime - scanTimeRemaining) / totalScanTime)));
 							}
 						});
 					}
-				}, 1000, 1000);
+				}, 1000, 2000);
 			}
-			if (arg instanceof CurrentScanPointNumberEvent) {
-				currentPointNumber=((CurrentScanPointNumberEvent)arg).getCurrentPointNumber();
+			if (arg instanceof ScanPointStartEvent) {
+				currentPointNumber=((ScanPointStartEvent)arg).getCurrentPointNumber();
 				time4ScanPointsDone=currentPointNumber*totalTimes;
 				time4RegionsToDo=getRemainingRegionsTimeTotal(0);
 				Display.getDefault().asyncExec(new Runnable() {
@@ -1399,7 +1405,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					}
 				});
 			}
-			if (arg instanceof CurrentScanCompletedEvent) {
+			if (arg instanceof ScanEndEvent) {
 				Display.getDefault().asyncExec(new Runnable() {
 
 					@Override
@@ -1448,6 +1454,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Image[] images;
 	private double currentregiontimeremaining;
 	private Timer taskTimer=new Timer();
+	private boolean firstTime;
 	
 	private class AnalyserTotalTimeRemainingListener implements MonitorListener {
 

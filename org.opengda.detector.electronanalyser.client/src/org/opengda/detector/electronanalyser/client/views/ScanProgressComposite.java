@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Text;
-import org.opengda.detector.electronanalyser.event.DataFilenameEvent;
+import org.opengda.detector.electronanalyser.event.ScanStartEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,8 +126,8 @@ public class ScanProgressComposite extends Composite implements IObserver {
 	@Override
 	public void update(Object source, Object arg) {
 		if (source==getScriptcontroller()) {
-			if (arg instanceof DataFilenameEvent) {
-				DataFilenameEvent evt=(DataFilenameEvent)arg;
+			if (arg instanceof ScanStartEvent) {
+				ScanStartEvent evt=(ScanStartEvent)arg;
 				totalNumberOfPoints=evt.getNumberOfPoints();
 				String scanFilename = evt.getScanFilename();
 				int scanNumber = evt.getScanNumber();

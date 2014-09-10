@@ -29,8 +29,9 @@ import java.util.Collections;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.opengda.detector.electronanalyser.event.CurrentScanPointNumberEvent;
-import org.opengda.detector.electronanalyser.event.DataFilenameEvent;
+import org.opengda.detector.electronanalyser.event.ScanEndEvent;
+import org.opengda.detector.electronanalyser.event.ScanPointStartEvent;
+import org.opengda.detector.electronanalyser.event.ScanStartEvent;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
@@ -170,7 +171,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	@Override
 	public void stop() throws DeviceException {
 		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new CurrentScanCompletedEvent());
+			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new ScanEndEvent());
 		}
 
 		super.stop();		
@@ -196,7 +197,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		String beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
 		String scanFilename=dataDir+String.format("%s-%d", beamline,scannumber) + ".nxs";
 		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-			((ScriptControllerBase)getScriptcontroller()).update(this, new DataFilenameEvent(scannumber,numberOfPoints,scanFilename));
+			((ScriptControllerBase)getScriptcontroller()).update(this, new ScanStartEvent(scannumber,numberOfPoints,scanFilename));
 		}
 		print("Scan data will write to : "+ scanFilename);
 		Sequence sequence = loadSequenceData(getSequenceFilename());
@@ -210,7 +211,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	public void atPointStart() throws DeviceException {
 		currentPointNumber++;
 		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new CurrentScanPointNumberEvent(currentPointNumber));
+			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new ScanPointStartEvent(currentPointNumber));
 		}
 		super.atPointStart();
 	}
@@ -221,7 +222,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	@Override
 	public void atScanEnd() throws DeviceException {
 		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new CurrentScanCompletedEvent());
+			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new ScanEndEvent());
 		}
 		super.atScanEnd();
 	}
