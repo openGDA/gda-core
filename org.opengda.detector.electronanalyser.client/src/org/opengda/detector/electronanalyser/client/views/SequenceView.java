@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.resources.IFile;
@@ -1258,11 +1260,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(RegionView.ID, selectionListener);
 			// analyserStateChannel.dispose();
 			scriptcontroller.deleteIObserver(this);
-			if (animation != null) {
-				animation.cancelAnimation();
-			}
-			animation.join();
-			images=null;
+//			if (animation != null) {
+//				animation.cancelAnimation();
+//			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1331,7 +1331,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				final String regionId = ((RegionStatusEvent) arg).getRegionId();
 				final STATUS status = ((RegionStatusEvent) arg).getStatus();
 				currentRegionNumber = ((RegionStatusEvent) arg).getRegionNumber();
-				time4RegionsToDo=getRemainingRegionsTimeTotal(currentRegionNumber);
+				if (status==STATUS.RUNNING) {
+					time4RegionsToDo=getRemainingRegionsTimeTotal(currentRegionNumber);
+				} else if (status==STATUS.COMPLETED) {
+					time4RegionsToDo=getRemainingRegionsTimeTotal(currentRegionNumber+1);
+				}
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
@@ -1364,10 +1368,29 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						txtScanNumberValue.setText(String.valueOf(scanNumber));
 					}
 				});
+				taskTimer.scheduleAtFixedRate(new TimerTask() {
+
+					@Override
+					public void run() {
+						Display.getDefault().asyncExec(new Runnable() {
+
+							@Override
+							public void run() {
+								double scanTimeRemaining = totalScanTime - time4ScanPointsDone + time4RegionsToDo + currentregiontimeremaining;
+								//TODO
+								if (scanTimeRemaining<Double.valueOf(txtTimeRemaining.getText().trim())) {
+									txtTimeRemaining.setText(String.format("%.3f",scanTimeRemaining));
+								}
+								progressBar.setSelection((int)(100 * ((totalScanTime - scanTimeRemaining) / totalScanTime)));
+							}
+						});
+					}
+				}, 1000, 1000);
 			}
 			if (arg instanceof CurrentScanPointNumberEvent) {
 				currentPointNumber=((CurrentScanPointNumberEvent)arg).getCurrentPointNumber();
 				time4ScanPointsDone=currentPointNumber*totalTimes;
+				time4RegionsToDo=getRemainingRegionsTimeTotal(0);
 				Display.getDefault().asyncExec(new Runnable() {
 
 					@Override
@@ -1389,6 +1412,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						if (animation!=null) {
 							animation.cancelAnimation();
 						}
+						taskTimer.cancel();
 					}
 				});
 			}
@@ -1422,27 +1446,17 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private Combo comboElementSet;
 	private Image[] images;
+	private double currentregiontimeremaining;
+	private Timer taskTimer=new Timer();
+	
 	private class AnalyserTotalTimeRemainingListener implements MonitorListener {
 
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();
 			if (dbr.isDOUBLE()) {
-				final double currentregiontimeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
-					Display.getDefault().asyncExec(new Runnable() {
-						
-						@Override
-						public void run() {
-							double scanTimeRemaining = totalScanTime-time4ScanPointsDone+time4RegionsToDo+currentregiontimeremaining;
-							txtTimeRemaining.setText(String.format("%.3f",scanTimeRemaining));
-							progressBar.setSelection(100*(int)((totalScanTime-scanTimeRemaining)/totalScanTime));
-							if (currentPointNumber==totalNumberOfPoints && crrentRegionNumber==numActives && scanTimeRemaining==0) {
-								progressBar.setSelection(0);
-							}
-						}
-					});
-				
-				logger.debug("iteration time remaining changed to {}", currentregiontimeremaining);
+				currentregiontimeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
+				logger.debug("iteration time remaining changed to {}",currentregiontimeremaining);
 			}
 		}
 	}
