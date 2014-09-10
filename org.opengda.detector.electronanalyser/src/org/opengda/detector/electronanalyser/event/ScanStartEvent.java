@@ -2,7 +2,7 @@ package org.opengda.detector.electronanalyser.event;
 
 import java.io.Serializable;
 
-public class DataFilenameEvent implements Serializable {
+public class ScanStartEvent implements Serializable {
 
 	private int scanNumber;
 	private String scanFilename;
@@ -12,7 +12,7 @@ public class DataFilenameEvent implements Serializable {
 		return numberOfPoints;
 	}
 
-	public DataFilenameEvent(int scannumber, int numberOfPoints,String scanFilename) {
+	public ScanStartEvent(int scannumber, int numberOfPoints,String scanFilename) {
 		this.scanNumber=scannumber;
 		this.scanFilename=scanFilename;
 		this.numberOfPoints=numberOfPoints;

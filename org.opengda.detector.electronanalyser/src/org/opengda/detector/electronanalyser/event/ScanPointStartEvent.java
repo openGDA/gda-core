@@ -2,7 +2,7 @@ package org.opengda.detector.electronanalyser.event;
 
 import java.io.Serializable;
 
-public class CurrentScanPointNumberEvent implements Serializable {
+public class ScanPointStartEvent implements Serializable {
 
 	private int currentPointNumber;
 
@@ -10,7 +10,7 @@ public class CurrentScanPointNumberEvent implements Serializable {
 		return currentPointNumber;
 	}
 
-	public CurrentScanPointNumberEvent(int i) {
+	public ScanPointStartEvent(int i) {
 		this.currentPointNumber=i;
 	}
 
