@@ -28,21 +28,23 @@ import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.ui.ExtensionFactory;
 
 /**
- * Abstract class to aid creation of views from its view factory configured in Spring.
+ * A kind of {@link ExtensionFactory} class designed to contribute to org.eclipse.ui.views extension-point
+ * the view via view factory instance. This will allow users to configure and create the factory instance 
+ * using Spring bean before the RCP platform starts, and only deliver the actual view object to the extension point after
+ * client had started.
  * <p>
- * This class allows extension providers to provide the instances to extension-points by referring to the factory instead of referring to a class. 
- * <pre>
- *For example, the following extension to the views extension-point uses a factory called ViewFactory.<br/>
+ * Please see the example below for usage in contributing to the extension point.
  *{@code  
  * <extension point="org.eclipse.ui.views">
- *    <view  name="..."  class="gda.rcp.views.ViewFactory:sampleGroupViewFactory", id="..."/>
+ *    <view  name="..."  class="gda.rcp.views.ViewFactory:yourViewFactoryInstanceHere", id="..."/>
  * </extension>
  * }
  * </pre>
- * Effectively, factories give full control over the create executable extension process.
- * The factories are responsible for handling the case where the concrete instance {@code sampleGroupViewFactory} implement IExecutableExtension.
+ * 
+ * The factory responsible for creating the concrete view instance must implement {@link FindableExecutableExtension} interface.
  */
 public class ViewFactory implements IExecutableExtensionFactory, IExecutableExtension {
 	String nameOfFindableExecutableExtension="";
