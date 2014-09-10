@@ -366,9 +366,9 @@ public class RegionProgressComposite extends Composite implements Initialization
 						@Override
 						public void run() {
 							progressBar.setSelection(percentage);
-							if (percentage==100) {
-								progressBar.setSelection(0);
-							}
+//							if (percentage==100) {
+//								progressBar.setSelection(0);
+//							}
 						}
 					});
 				}
@@ -498,9 +498,9 @@ public class RegionProgressComposite extends Composite implements Initialization
 						@Override
 						public void run() {
 							totalProgressBar.setSelection(percentage);
-							if (percentage==100) {
-								totalProgressBar.setSelection(0);
-							}
+//							if (percentage==100) {
+//								totalProgressBar.setSelection(0);
+//							}
 						}
 					});
 				}
