@@ -186,6 +186,8 @@ public class AnalyserComposite extends Composite implements InitializationListen
 							txtStateValue.setText(stateLabels[value]);
 							if (stateLabels[value].equalsIgnoreCase("Error")) {
 								txtStateValue.setForeground(ColorConstants.red);
+							} else {
+								txtStateValue.setForeground(ColorConstants.green);
 							}
 						}
 					});
