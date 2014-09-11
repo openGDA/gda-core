@@ -240,6 +240,7 @@ public class ExtIOPlotComposite extends Composite implements InitializationListe
 
 	
 	public void updatePlot() {
+		if (xdata==null) return;
 		xdata=convertToBindingENergy(xdata);
 		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
 		if (isDisplayBindingEnergy()) {

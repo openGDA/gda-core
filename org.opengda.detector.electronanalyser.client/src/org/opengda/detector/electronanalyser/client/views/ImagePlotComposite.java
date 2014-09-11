@@ -249,6 +249,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 			plottingSystem.clear();
 			plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 			plottingSystem.createPlot2D(ds, axes, monitor);
+			plottingSystem.setKeepAspect(false);
 //			if (!getDisplay().isDisposed()) {
 //				getDisplay().asyncExec(new Runnable() {
 //
@@ -264,6 +265,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 	}
 	
 	public void updatePlot() {
+		if (xdata==null) return;
 		xdata=convertToBindingENergy(xdata);
 		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
 		if (isDisplayBindingEnergy()) {

@@ -61,6 +61,7 @@ import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import sun.org.mozilla.javascript.internal.ast.NumberLiteral;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
@@ -369,6 +370,7 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 	}
 	
 	public void updatePlot() {
+		if (xdata==null) return;
 		xdata=convertToBindingENergy(xdata);
 		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
 		if (isDisplayBindingEnergy()) {

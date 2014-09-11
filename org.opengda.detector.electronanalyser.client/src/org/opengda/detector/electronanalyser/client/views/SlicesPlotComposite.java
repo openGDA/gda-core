@@ -20,6 +20,7 @@ package org.opengda.detector.electronanalyser.client.views;
 
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.memory.corba.integerArrayHelper;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
@@ -42,6 +43,9 @@ import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
+import org.eclipse.dawnsci.slicing.api.system.DimsDataList;
+import org.eclipse.dawnsci.slicing.api.system.SliceSource;
+import org.eclipse.dawnsci.slicing.api.util.SliceUtils;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -65,8 +69,11 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
+import uk.ac.diamond.scisoft.analysis.io.SliceObject;
 
 import com.cosylab.epics.caj.CAJChannel;
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.IntArrayData;
 
 public class SlicesPlotComposite extends Composite implements InitializationListener, MonitorListener, IEnergyAxis, IPlotCompositeInitialiser  {
 
@@ -291,16 +298,12 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 			double[] values = Arrays.copyOf(value, arraysize);
 
 			final Dataset ds = new DoubleDataset(values, dims);
-			
 			yaxes.clear();
-//			for (int i = 0; i < dims[0]; i++) {
-//				AbstractDataset slice2 = ds.getSlice(new int[] { i*dims[1], i },new int[] { (i+1)*dims[1]-1, i }, null);
-//				slice2.setName("Intensity (counts");
-//				yaxes.add(slice2);
-//			}
-			Dataset slice2 = ds.getSlice(new int[] { slice*dims[1], slice },new int[] { (slice+1)*dims[1]-1, slice }, null);
-			slice2.setName("Intensity (counts");
-			yaxes.add(slice2);
+			for (int i = 0; i < dims[0]; i++) {
+				Dataset slice2 = ds.getSlice(new int[] { i, 0 },new int[] { i+1, dims[1]-1 }, new int[] {1,1});
+				slice2.setName("Intensity (counts");
+				yaxes.add(slice2);
+			} 
 			plottingSystem.clear();
 			plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 			final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, yaxes, monitor);
@@ -328,6 +331,7 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 	}
 
 	public void updatePlot() {
+		if (xdata==null) return;
 		xdata=convertToBindingENergy(xdata);
 		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
 		if (isDisplayBindingEnergy()) {
