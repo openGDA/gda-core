@@ -288,6 +288,7 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 		axes.add(yAxis);
 		plottingSystem.clear();
 		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
+		plottingSystem.setKeepAspect(false);
 		plottingSystem.createPlot2D(ds, axes, new NullProgressMonitor());
 	}
 	
