@@ -386,7 +386,8 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 	}
 	
 	public void updateStat() {
-		setPositionValue(xdata[dataset.argMax()]);
+		if (dataset==null) return;
+		if (xdata!=null) setPositionValue(xdata[dataset.argMax()]);
 		setHeightValue(dataset.max().intValue());
 		setFWHMValue(fwhm(dataset));
 		setAreaValue(Double.valueOf(dataset.sum().toString()));
