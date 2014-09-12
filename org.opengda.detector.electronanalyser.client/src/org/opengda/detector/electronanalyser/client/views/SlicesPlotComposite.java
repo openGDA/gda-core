@@ -18,34 +18,16 @@
 
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.device.DeviceException;
-import gda.device.detector.areadetector.v17.ADBase;
-import gda.device.memory.corba.integerArrayHelper;
-import gda.epics.connection.EpicsChannelManager;
-import gda.epics.connection.EpicsController.MonitorType;
-import gda.epics.connection.InitializationListener;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
-import org.eclipse.dawnsci.slicing.api.system.DimsDataList;
-import org.eclipse.dawnsci.slicing.api.system.SliceSource;
-import org.eclipse.dawnsci.slicing.api.util.SliceUtils;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -61,43 +43,19 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
-import org.opengda.detector.electronanalyser.client.IEnergyAxis;
-import org.opengda.detector.electronanalyser.client.IPlotCompositeInitialiser;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
-import uk.ac.diamond.scisoft.analysis.io.SliceObject;
 
-import com.cosylab.epics.caj.CAJChannel;
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.IntArrayData;
+public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 
-public class SlicesPlotComposite extends Composite implements InitializationListener, MonitorListener, IEnergyAxis, IPlotCompositeInitialiser  {
-
-	private static final Logger logger = LoggerFactory
-			.getLogger(SlicesPlotComposite.class);
-
-	private IVGScientaAnalyser analyser;
-	private String arrayPV;
-	private EpicsChannelManager controller;
+	private static final Logger logger = LoggerFactory.getLogger(SlicesPlotComposite.class);
 
 	private static final String SLICE_PLOT = "Slice plot";
 
-	private IPlottingSystem plottingSystem;
-
-	private ILineTrace profileLineTrace;
-
-	private SlicesDataListener dataListener;
-
-	private Channel dataChannel;
-
-	private boolean first;
 	final Spinner sliceControl;
-
-	private Channel startChannel;
 
 	/**
 	 * @param parent
@@ -109,7 +67,6 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 		super(parent, style);
 		this.setBackground(ColorConstants.white);
 
-		controller=new EpicsChannelManager(this);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -141,21 +98,20 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 		sliceControl.setBackground(ColorConstants.white);
 		sliceControl.setMinimum(1);
 		sliceControl.setMaximum(100);
+		sliceControl.setEnabled(false);
 		sliceControl.setToolTipText("display this slice data.");
 		sliceControl.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectedSlice = sliceControl.getSelection();
-				updateSlicesPlot(new NullProgressMonitor(), value,
-						selectedSlice);
+				updatePlot(new NullProgressMonitor(), value);
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				selectedSlice = sliceControl.getSelection();
-				updateSlicesPlot(new NullProgressMonitor(), value,
-						selectedSlice);
+				updatePlot(new NullProgressMonitor(), value);
 			}
 		});
 
@@ -173,140 +129,33 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 		plottingSystem.getSelectedXAxis().setFormatPattern("#####.#");
 
 	}
-	/**
-	 * initialise object
-	 * 1. add monitor to data channel and 
-	 * 2. create and add a monitor listener to handle Monitor changed event.
-	 * This method must be called after the analyser object and data PV are set.
-	 */
-	public void initialise() {
-		if (getAnalyser() == null || getArrayPV()==null) {
-			throw new IllegalStateException("required parameters for 'analyser' and/or 'arrayPV' are missing.");
-		}
-		dataListener = new SlicesDataListener();
-		try {
-			createChannels();
-		} catch (CAException | TimeoutException e1) {
-			logger.error("failed to create required data channel", e1);
-		}
-	}
-	public void createChannels() throws CAException, TimeoutException {
-		first=true;
-		dataChannel = controller.createChannel(arrayPV, dataListener, MonitorType.NATIVE,false);
-		String[] split = getArrayPV().split(":");
-		startChannel = controller.createChannel(split[0]+":"+split[1]+":"+ADBase.Acquire, this, MonitorType.NATIVE, false);
-		controller.creationPhaseCompleted();
-		logger.debug("Slices channel is created");
-	}
-
-	@Override
-	public void dispose() {
-		if (!plottingSystem.isDisposed()) {
-			plottingSystem.clear();
-		}
-//		dataChannel.dispose();
-//		startChannel.dispose();
-		super.dispose();
-	}
-
-	public void clearPlots() {
-		if (!getDisplay().isDisposed()) {
-			getDisplay().syncExec(new Runnable() {
-
-				@Override
-				public void run() {
-					plottingSystem.setTitle("");
-					plottingSystem.reset();
-				}
-			});
-		}
-	}
 
 	private double[] value;
 	private int selectedSlice=1;
-
-	private boolean newRegion=true;
-
-	private class SlicesDataListener implements MonitorListener {
-
-		@Override
-		public void monitorChanged(final MonitorEvent arg0) {
-			if (first) {
-				first=false;
-				logger.debug("Slices Data Listener connected.");
-				return;
-			}
-//			logger.debug("receiving slices data from " + arg0.toString()
-//					+ " to plot on " + plottingSystem.getPlotName()
-//					+ " with axes from " + getAnalyser().getName());
-			if (!getDisplay().isDisposed()) {
-				getDisplay().syncExec(new Runnable() {
-					
-					@Override
-					public void run() {
-						if (SlicesPlotComposite.this.isVisible()) {
-							DBR dbr = arg0.getDBR();
-							if (dbr.isDOUBLE()) {
-								value = ((DBR_Double) dbr).getDoubleValue();
-							}
-							IProgressMonitor monitor = new NullProgressMonitor();
-							try {
-								updateSlicesPlot(monitor, value, Integer.valueOf(sliceControl.getText()));
-							} catch (Exception e) {
-								logger.error(
-										"exception caught preparing analyser live plot", e);
-							}
-						}
-					}
-				});
-			}
-		}
-	}
-
-	double[] xdata;
-	private boolean displayBindingEnergy=false;
-	ArrayList<Dataset> yaxes = new ArrayList<Dataset>();
-	private void updateSlicesPlot(final IProgressMonitor monitor,final double[] value, final int slice) {
-		if (isNewRegion()) {
-			try {
-				xdata = getAnalyser().getEnergyAxis();
-				if (isDisplayBindingEnergy()) {
-					xdata=convertToBindingENergy(xdata);
-				}
-			} catch (Exception e) {
-				logger.error("cannot get enegery axis from the analyser", e);
-			}
-			try {
-				sliceControl.setMaximum(getAnalyser().getNdarrayYsize());
-			} catch (Exception e) {
-				logger.error("cannot get Y diamonsion from the analyser", e);
-			}
-		}
-		DoubleDataset xAxis = new DoubleDataset(xdata,new int[] { xdata.length });
-		if (isDisplayBindingEnergy()) {
-			xAxis.setName("Binding Energies (eV)");
-		} else {
-			xAxis.setName("Kinetic Energies (eV)");
-		}
-		
+	
+	@Override
+	protected void updatePlot(IProgressMonitor monitor, double[] value) {
+		super.updatePlot(monitor, value);
 		try {
-			int[] dims = new int[] { getAnalyser().getNdarrayYsize(),getAnalyser().getNdarrayXsize() };
+			int	slices = getAnalyser().getSlices();
+			sliceControl.setMaximum(slices);
+			sliceControl.setEnabled(true);
+			int length = xdata.clone().length;
+			int[] dims = new int[] { slices, length };
 			int arraysize = dims[0] * dims[1];
 			if (arraysize < 1) {
 				return;
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
-
 			final Dataset ds = new DoubleDataset(values, dims);
-			yaxes.clear();
-			for (int i = 0; i < dims[0]; i++) {
-				Dataset slice2 = ds.getSlice(new int[] { i, 0 },new int[] { i+1, dims[1]-1 }, new int[] {1,1});
-				slice2.setName("Intensity (counts");
-				yaxes.add(slice2);
-			} 
-			plottingSystem.clear();
-			plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
-			final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, yaxes, monitor);
+			
+			ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
+			if (selectedSlice>sliceControl.getMaximum()) selectedSlice=1;
+			Dataset slice2 = ds.getSlice(new int[] { selectedSlice-1, 0 },new int[] { selectedSlice, dims[1]-1 }, new int[] {1,1});
+			dataset=slice2.flatten();
+			dataset.setName("Intensity (counts)");
+			plotDataSets.add(dataset);
+			final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);
 			if (!getDisplay().isDisposed()) {
 				getDisplay().asyncExec(new Runnable() {
 
@@ -314,94 +163,27 @@ public class SlicesPlotComposite extends Composite implements InitializationList
 					public void run() {
 
 						if (isNewRegion()&&!profileLineTraces.isEmpty()) {
+							plottingSystem.setShowLegend(false);
 							plottingSystem.setTitle("");
+							profileLineTrace = (ILineTrace) profileLineTraces.get(0);
+							profileLineTrace.setTraceColor(ColorConstants.blue);
 							setNewRegion(false);
 						}
-						// Highlight selected slice in blue color
-						profileLineTrace = (ILineTrace) profileLineTraces.get(0);
-//						profileLineTrace = (ILineTrace) profileLineTraces.get(slice);
-						profileLineTrace.setTraceColor(ColorConstants.blue);
-						//plottingSystem.autoscaleAxes();
 					}
 				});
 			}
 		} catch (Exception e) {
 			logger.error("exception caught preparing analyser live slices plot",	e);
 		}
+		
 	}
-
+	@Override
 	public void updatePlot() {
 		if (xdata==null) return;
-		xdata=convertToBindingENergy(xdata);
-		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
-		if (isDisplayBindingEnergy()) {
-			xAxis.setName("Binding Energies (eV)");
-		} else {
-			xAxis.setName("Kinetic Energies (eV)");
-		}
-		plottingSystem.clear();
-		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
-		plottingSystem.createPlot1D(xAxis, yaxes, new NullProgressMonitor());
+		super.updatePlot();
+		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
+		plotDataSets.add(dataset);
+		plottingSystem.createPlot1D(xAxis, plotDataSets, new NullProgressMonitor());
 	}
 	
-	public IVGScientaAnalyser getAnalyser() {
-		return analyser;
-	}
-
-	public void setAnalyser(IVGScientaAnalyser analyser) {
-		this.analyser = analyser;
-	}
-
-	public String getArrayPV() {
-		return arrayPV;
-	}
-
-	public void setArrayPV(String arrayPV) {
-		this.arrayPV = arrayPV;
-	}
-	@Override
-	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
-		logger.info("Slices EPICS Channel initialisation completed!");
-		
-	}
-	public void setNewRegion(boolean b) {
-		this.newRegion=b;
-		
-	}
-	public boolean isNewRegion() {
-		return newRegion;
-	}
-	@Override
-	public void monitorChanged(MonitorEvent arg0) {
-		if (((CAJChannel) arg0.getSource()).getName().endsWith(ADBase.Acquire)) {
-//			logger.debug("been informed of some sort of change to acquire status");
-//			DBR_Enum en = (DBR_Enum) arg0.getDBR();
-//			short[] no = (short[]) en.getValue();
-//			if (no[0] == 0) {
-//				logger.info("been informed of a stop");
-//			} else {
-//				logger.info("been informed of a start");
-//			}
-			setNewRegion(true);
-		}
-	}
-	private double[] convertToBindingENergy(double[] xdata) {
-		try {
-			double excitationEnergy = getAnalyser().getExcitationEnergy();
-			for (int i = 0; i < xdata.length; i++) {
-				xdata[i] = excitationEnergy - xdata[i];
-			}
-		} catch (Exception e) {
-			logger.error("cannot get enegery axis fron the analyser", e);
-		}
-		return xdata;
-	}
-
-
-	public boolean isDisplayBindingEnergy() {
-		return displayBindingEnergy;
-	}
-	public void displayInBindingEnergy(boolean displayBindingEnergy) {
-		this.displayBindingEnergy = displayBindingEnergy;
-	}
 }

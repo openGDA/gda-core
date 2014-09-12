@@ -18,26 +18,12 @@
 
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.device.DeviceException;
-import gda.device.detector.areadetector.v17.ADBase;
-import gda.epics.connection.EpicsChannelManager;
-import gda.epics.connection.EpicsController.MonitorType;
-import gda.epics.connection.InitializationListener;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
@@ -55,30 +41,20 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
-import org.opengda.detector.electronanalyser.client.IEnergyAxis;
-import org.opengda.detector.electronanalyser.client.IPlotCompositeInitialiser;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sun.org.mozilla.javascript.internal.ast.NumberLiteral;
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
-import com.cosylab.epics.caj.CAJChannel;
-
 /**
  *
  */
-public class SpectrumPlotComposite extends Composite implements InitializationListener, MonitorListener, IEnergyAxis,IPlotCompositeInitialiser  {
+public class SpectrumPlotComposite extends EpicsArrayPlotComposite {
 
 	private FontRegistry fontRegistry;
-	private static final Logger logger = LoggerFactory.getLogger(SpectrumPlotComposite.class);
-	private String arrayPV;
-
-	private IVGScientaAnalyser analyser;
-
+	static final Logger logger = LoggerFactory.getLogger(SpectrumPlotComposite.class);
 	private Label lblProfileIntensityValue;
 
 	private static final String SPECTRUM_PLOT = "Spectrum plot";
@@ -87,22 +63,12 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 
 	private static final String BOLD_TEXT_9 = "bold-text_9";
 
-	private IPlottingSystem plottingSystem;
-
-	private ILineTrace profileLineTrace;
-
 	private Composite statsComposite;
 
 	private Text txtPosition;
 	private Text txtHeight;
 	private Text txtFWHM;
 	private Text txtArea;
-	private SpectrumDataListener spectrumDataListener;
-	private Channel spectrumChannel;
-	private EpicsChannelManager controller;
-	private boolean first = false;
-	private Channel startChannel;
-
 	/**
 	 * @param parent
 	 * @param style
@@ -111,7 +77,6 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 	public SpectrumPlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
 		super(parent, style);
 
-		controller = new EpicsChannelManager(this);
 		if (Display.getCurrent() != null) {
 			fontRegistry = new FontRegistry(Display.getCurrent());
 			String fontName = Display.getCurrent().getSystemFont().getFontData()[0].getName();
@@ -188,50 +153,6 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 		txtArea.setText("0000");
 	}
 
-	public void initialise() {
-		if (getAnalyser() == null || getArrayPV() == null) {
-			throw new IllegalStateException("required parameters for 'analyser' and/or 'arrayPV' are missing.");
-		}
-		spectrumDataListener = new SpectrumDataListener();
-		try {
-			createChannels();
-		} catch (CAException | TimeoutException e1) {
-			logger.error("failed to create required spectrum channels", e1);
-		}
-	}
-
-	public void createChannels() throws CAException, TimeoutException {
-		first = true;
-		spectrumChannel = controller.createChannel(arrayPV, spectrumDataListener, MonitorType.NATIVE, false);
-		String[] split = getArrayPV().split(":");
-		startChannel = controller.createChannel(split[0] + ":" + split[1] + ":" + ADBase.Acquire, this, MonitorType.NATIVE, false);
-		controller.creationPhaseCompleted();
-		logger.debug("Spectrum channel is created");
-	}
-
-	@Override
-	public void dispose() {
-		if (!plottingSystem.isDisposed()) {
-			plottingSystem.clear();
-		}
-		//comment out see BLIX-144 for info.
-//		spectrumChannel.dispose();
-//		startChannel.dispose();
-		super.dispose();
-	}
-
-	public void clearPlots() {
-		getDisplay().syncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				plottingSystem.setTitle("");
-				plottingSystem.reset();
-			}
-		});
-
-	}
-
 	public void setPositionValue(final double xValue) {
 		if (!getDisplay().isDisposed()) {
 			getDisplay().asyncExec(new Runnable() {
@@ -283,72 +204,15 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 			});
 		}
 	}
-
-	private class SpectrumDataListener implements MonitorListener {
-
-		@Override
-		public void monitorChanged(final MonitorEvent arg0) {
-			if (first) {
-				first = false;
-				logger.debug("Spectrum listener connected.");
-				return;
-			}
-			// logger.debug("receiving spectrum data from " + ((Channel) (arg0.getSource())).getName() + " to plot on " + plottingSystem.getPlotName()
-			// + " with axes from " + getAnalyser().getName());
-
-			if (!getDisplay().isDisposed()) {
-				getDisplay().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						boolean visible = SpectrumPlotComposite.this.isVisible();
-						if (visible) {
-							DBR dbr = arg0.getDBR();
-							double[] value = null;
-							if (dbr.isDOUBLE()) {
-								value = ((DBR_Double) dbr).getDoubleValue();
-							}
-							IProgressMonitor monitor = new NullProgressMonitor();
-							updateSpectrumPlot(monitor, value);
-						}
-					}
-				});
-			}
-		}
-	}
-
-	DoubleDataset dataset;
-	double[] xdata = null;
-	private boolean newRegion = true;
-	private boolean displayBindingEnergy=false;
-
-	private void updateSpectrumPlot(final IProgressMonitor monitor, double[] value) {
-		if (isNewRegion()) {
-			try {
-				xdata = getAnalyser().getEnergyAxis();
-				if (isDisplayBindingEnergy()) {
-					xdata=convertToBindingENergy(xdata);
-				}
-			} catch (Exception e) {
-				logger.error("cannot get enegery axis fron the analyser", e);
-			}
-		}
-		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
-		if (isDisplayBindingEnergy()) {
-			xAxis.setName("Binding Energies (eV)");
-		} else {
-			xAxis.setName("Kinetic Energies (eV)");
-		}
-
+	@Override
+	protected void updatePlot(final IProgressMonitor monitor, double[] value) {
+		super.updatePlot(monitor, value);
+		
 		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
 		double[] data = ArrayUtils.subarray(value, 0, xdata.length);
 		dataset = new DoubleDataset(data, new int[] { data.length });
 		dataset.setName("Intensity (counts)");
 		plotDataSets.add(dataset);
-		// logger.debug("xais {}", xAxis.getData());
-		// logger.debug("yAxis {}", dataset.getData());
-		plottingSystem.clear();
-		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 		final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);
 		if (!getDisplay().isDisposed()) {
 			getDisplay().asyncExec(new Runnable() {
@@ -363,7 +227,6 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 						profileLineTrace.setTraceColor(ColorConstants.blue);
 						setNewRegion(false);
 					}
-					// plottingSystem.autoscaleAxes();
 				}
 			});
 		}
@@ -371,17 +234,9 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 	
 	public void updatePlot() {
 		if (xdata==null) return;
-		xdata=convertToBindingENergy(xdata);
-		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
-		if (isDisplayBindingEnergy()) {
-			xAxis.setName("Binding Energies (eV)");
-		} else {
-			xAxis.setName("Kinetic Energies (eV)");
-		}
+		super.updatePlot();
 		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
 		plotDataSets.add(dataset);
-		plottingSystem.clear();
-		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 		plottingSystem.createPlot1D(xAxis, plotDataSets, new NullProgressMonitor());
 	}
 	
@@ -393,7 +248,7 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 		setAreaValue(Double.valueOf(dataset.sum().toString()));
 	}
 
-	private double fwhm(DoubleDataset dataset) {
+	private double fwhm(Dataset dataset) {
 		List<Double> crossings = DatasetUtils.crossings(dataset, (dataset.max().doubleValue() + dataset.min().doubleValue() / 2));
 		double fwhm = Double.NaN;
 		if (crossings.size() == 2) {
@@ -404,70 +259,5 @@ public class SpectrumPlotComposite extends Composite implements InitializationLi
 			fwhm = Double.NaN;
 		}
 		return fwhm;
-	}
-
-	public IVGScientaAnalyser getAnalyser() {
-		return analyser;
-	}
-
-	public void setAnalyser(IVGScientaAnalyser analyser) {
-		this.analyser = analyser;
-	}
-
-	public String getArrayPV() {
-		return arrayPV;
-	}
-
-	public void setArrayPV(String arrayPV) {
-		this.arrayPV = arrayPV;
-	}
-
-	@Override
-	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
-		logger.info("Spectrum EPICS Channel initialisation completed!");
-
-	}
-
-	public void setNewRegion(boolean b) {
-		this.newRegion = b;
-
-	}
-
-	public boolean isNewRegion() {
-		return newRegion;
-	}
-
-	@Override
-	public void monitorChanged(MonitorEvent arg0) {
-		if (((CAJChannel) arg0.getSource()).getName().endsWith(ADBase.Acquire)) {
-			// logger.debug("been informed of some sort of change to acquire status");
-			// DBR_Enum en = (DBR_Enum) arg0.getDBR();
-			// short[] no = (short[]) en.getValue();
-			// if (no[0] == 0) {
-			// logger.info("been informed of a stop");
-			// } else {
-			// logger.info("been informed of a start");
-			// }
-			setNewRegion(true);
-		}
-	}
-
-	private double[] convertToBindingENergy(double[] xdata) {
-		try {
-			double excitationEnergy = getAnalyser().getExcitationEnergy();
-			for (int i = 0; i < xdata.length; i++) {
-				xdata[i] = excitationEnergy - xdata[i];
-			}
-		} catch (Exception e) {
-			logger.error("cannot get enegery axis fron the analyser", e);
-		}
-		return xdata;
-	}
-
-	public void displayInBindingEnergy(boolean b) {
-		this.displayBindingEnergy=b;		
-	}
-	public boolean isDisplayBindingEnergy() {
-		return displayBindingEnergy;
 	}
 }

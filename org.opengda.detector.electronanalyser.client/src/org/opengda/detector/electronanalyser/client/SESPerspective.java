@@ -1,10 +1,14 @@
 package org.opengda.detector.electronanalyser.client;
 
 import gda.rcp.views.JythonTerminalView;
+import gda.util.Sleep;
 
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 import org.opengda.detector.electronanalyser.client.views.ExternalIOView;
 import org.opengda.detector.electronanalyser.client.views.ImageView;
 import org.opengda.detector.electronanalyser.client.views.RegionView;
@@ -72,17 +76,40 @@ public class SESPerspective implements IPerspectiveFactory {
 			plotFolder.addView(SLICEVIEW);
 		} else if (ElectronAnalyserClientPlugin.TILE_QUAD.equals(plotLayoutString)) {
 			layout.addView(IMAGEVIEW, IPageLayout.RIGHT, 0.5f, SPECTRUMVIEW);
+			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			IViewPart view = page.findView(IMAGEVIEW);
+			view.setFocus();
 			layout.addView(SLICEVIEW, IPageLayout.BOTTOM, 0.5f, IMAGEVIEW);
+			view = page.findView(SLICEVIEW);
+			view.setFocus();
 			layout.addView(EXTERNALIOVIEW, IPageLayout.BOTTOM, 0.5f, SPECTRUMVIEW);
+			view = page.findView(EXTERNALIOVIEW);
+			view.setFocus();
 		} else if (ElectronAnalyserClientPlugin.TILE_VERTICAL.equals(plotLayoutString)) {
 			layout.addView(IMAGEVIEW, IPageLayout.BOTTOM, 0.5f, SPECTRUMVIEW);
+			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			IViewPart view = page.findView(IMAGEVIEW);
+			view.setFocus();
+			Sleep.sleep(1000);
 			layout.addView(SLICEVIEW, IPageLayout.BOTTOM, 0.5f, IMAGEVIEW);
+			view = page.findView(SLICEVIEW);
+			view.setFocus();
+			Sleep.sleep(1000);
 			layout.addView(EXTERNALIOVIEW, IPageLayout.BOTTOM, 0.5f, SPECTRUMVIEW);
+			view = page.findView(EXTERNALIOVIEW);
+			view.setFocus();
+			Sleep.sleep(1000);
 		} else if (ElectronAnalyserClientPlugin.TILE_HORIZONTAL.equals(plotLayoutString)) {
 			layout.addView(IMAGEVIEW, IPageLayout.RIGHT, 0.25f, SPECTRUMVIEW);
+			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			IViewPart view = page.findView(IMAGEVIEW);
+			view.setFocus();
 			layout.addView(EXTERNALIOVIEW, IPageLayout.RIGHT, 0.33f, IMAGEVIEW);
+			view = page.findView(SLICEVIEW);
+			view.setFocus();
 			layout.addView(SLICEVIEW, IPageLayout.RIGHT, 0.5f, EXTERNALIOVIEW);
-			layout.addView(JYTHONCONSOLE, IPageLayout.BOTTOM, 0.5f, REGIONEDITOR);
+			view = page.findView(EXTERNALIOVIEW);
+			view.setFocus();
 		}
 		
         layout.addPerspectiveShortcut(JythonPerspective.ID);
