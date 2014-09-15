@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp;
 
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
@@ -49,7 +50,9 @@ public class AsciiEditorPluginTest {
 		final AsciiEditor editor = createAsciiEditor();
 		final DataSetPlotEditor dataEd = (DataSetPlotEditor) editor.getActiveEditor();
 		final DoubleDataset energy1 = (DoubleDataset) dataEd.setDatasetSelected("Energy", true);
-		final DoubleDataset energy2 = (DoubleDataset) editor.getPlotWindow().getPlottingSystem().getData("Energy");
+		
+		final ITrace trace = editor.getPlotWindow().getPlottingSystem().getTrace("Energy");
+		final DoubleDataset energy2 = (DoubleDataset)trace.getData();
 
 		if (!energy1.equals(energy2))
 			throw new Exception("Dataset changed by plotting it!");
