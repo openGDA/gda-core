@@ -204,7 +204,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	@Override
 	public void initializationCompleted() throws InterruptedException,
 			DeviceException, TimeoutException, CAException {
-				logger.info("EPICS Channel initialisation completed!");
+				logger.info("EPICS Channel {} initialisation completed!", dataChannel.getName());
 			
 			}
 

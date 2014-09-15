@@ -141,5 +141,4 @@ public class ImagePlotComposite extends EpicsArrayPlotComposite {
 		}
 		return ydata;
 	}
-	
 }
