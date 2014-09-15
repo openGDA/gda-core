@@ -102,7 +102,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final boolean ENABLED_EDEFAULT = true;
+	protected static final boolean ENABLED_EDEFAULT = false;
 
 	/**
 	 * The cached value of the '{@link #isEnabled() <em>Enabled</em>}' attribute.

@@ -1299,7 +1299,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Enabled</b></em>' attribute.
-	 * The default value is <code>"true"</code>.
+	 * The default value is <code>"false"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Enabled</em>' attribute isn't clear,
@@ -1311,7 +1311,7 @@ public interface Region extends EObject {
 	 * @see #unsetEnabled()
 	 * @see #setEnabled(boolean)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_Enabled()
-	 * @model default="true" unsettable="true"
+	 * @model default="false" unsettable="true"
 	 * @generated
 	 */
 	boolean isEnabled();

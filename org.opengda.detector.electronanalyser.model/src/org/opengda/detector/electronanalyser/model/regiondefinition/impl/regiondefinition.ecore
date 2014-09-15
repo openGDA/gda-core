@@ -41,7 +41,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="Status" eType="#//STATUS"
         transient="true" defaultValueLiteral="READY"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="Enabled" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
-        defaultValueLiteral="true" unsettable="true"/>
+        defaultValueLiteral="false" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="New Region" unsettable="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="lensMode" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
