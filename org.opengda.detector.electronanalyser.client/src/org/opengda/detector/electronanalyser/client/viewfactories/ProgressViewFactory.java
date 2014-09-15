@@ -12,52 +12,75 @@ public class ProgressViewFactory implements FindableExecutableExtension {
 	private static final Logger logger=LoggerFactory.getLogger(ProgressViewFactory.class);
 	private String viewPartName;
 	private String name;
-	private String currentPointPV;
+	private String currentIterationRemainingTimePV;
+	private String iterationLeadPointsPV;
+	private String iterationProgressPV;
+	private String totalDataPointsPV;
+	private String iterationCurrentPointPV;
+	
+	private String totalRemianingTimePV;
+	private String totalProgressPV;
 	private String totalPointsPV;
+	private String currentPointPV;
+	
 	private String currentIterationPV;
 	private String totalIterationsPV;
-	private String leadPointsPV;
-	private String endPointsPV;
-	private String currentLeadPointPV;
-	private String currentDataPointPV;
-	private String regionProgressPV;
-	private String inLeadPV;
+	
+//	private String iterationTotalPointsPV;
+//	private String currentDataPointPV;
+//	private String inLeadPV;
+//	private String currentLeadPointPV;
 	
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating Progress view");
 		ProgressView progressView = new ProgressView();
 		progressView.setViewPartName(viewPartName);
-		if (leadPointsPV != null) {
-			progressView.setLeadPointsPV(leadPointsPV);
+		if (currentIterationRemainingTimePV != null) {
+			progressView.setCurrentIterationRemainingTimePV(currentIterationRemainingTimePV);
 		}
-		if (endPointsPV != null) {
-			progressView.setEndPointsPV(endPointsPV);
+		if (iterationLeadPointsPV != null) {
+			progressView.setIterationLeadPointsPV(iterationLeadPointsPV);
 		}
-		if (currentLeadPointPV != null) {
-			progressView.setCurrentLeadPointPV(currentLeadPointPV);
-		}
-		if (currentDataPointPV != null) {
-			progressView.setCurrentDataPointPV(currentDataPointPV);
-		}
-		if (regionProgressPV != null) {
-			progressView.setRegionProgressPV(regionProgressPV);
-		}
-		if (inLeadPV != null) {
-			progressView.setInLeadPV(inLeadPV);
-		}
-		if (getCurrentIterationPV() != null) {
-			progressView.setCurrentIterationPV(getCurrentIterationPV());
-		}
-		if (getTotalIterationsPV() != null) {
-			progressView.setTotalIterationsPV(getTotalIterationsPV());
-		}
-		if (currentPointPV != null) {
-			progressView.setCurrentPointPV(currentPointPV);
+		if (iterationProgressPV != null) {
+			progressView.setIterationProgressPV(iterationProgressPV);
 		}
 		if (totalPointsPV != null) {
 			progressView.setTotalPointsPV(totalPointsPV);
 		}
+		if (iterationCurrentPointPV != null) {
+			progressView.setIterationCurrentPointPV(iterationCurrentPointPV);
+		}
+		if (totalRemianingTimePV != null) {
+			progressView.setTotalRemianingTimePV(totalRemianingTimePV);
+		}
+		if (totalProgressPV != null) {
+			progressView.setTotalProgressPV(totalProgressPV);
+		}
+		if (currentPointPV != null) {
+			progressView.setCurrentPointPV(currentPointPV);
+		}
+		if (currentIterationPV != null) {
+			progressView.setCurrentIterationPV(currentIterationPV);
+		}
+		if (totalIterationsPV != null) {
+			progressView.setTotalIterationsPV(totalIterationsPV);
+		}
+		if (totalDataPointsPV != null) {
+			progressView.setTotalDataPointsPV(totalDataPointsPV);
+		}
+//		if (iterationTotalPointsPV != null) {
+//			progressView.setTotalPointsPV(iterationTotalPointsPV);
+//		}
+//		if (currentDataPointPV != null) {
+//			progressView.setCurrentDataPointPV(currentDataPointPV);
+//		}
+//		if (inLeadPV != null) {
+//			progressView.setInLeadPV(inLeadPV);
+//		}
+//		if (currentLeadPointPV != null) {
+//			progressView.setCurrentLeadPointPV(currentLeadPointPV);
+//		}
 		
 		return progressView;
 	}
@@ -80,23 +103,29 @@ public class ProgressViewFactory implements FindableExecutableExtension {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (leadPointsPV == null ) {
-			throw new IllegalArgumentException("Lead points PV cannot be null in progress View.");
+		if (currentIterationRemainingTimePV == null ) {
+			throw new IllegalArgumentException("Current iteration remaining time PV cannot be null in progress View.");
 		}
-		if (endPointsPV == null ) {
-			throw new IllegalArgumentException("End points PV cannot be null in progress View.");
+		if (iterationLeadPointsPV == null ) {
+			throw new IllegalArgumentException("Iteration lead points PV cannot be null in progress View.");
 		}
-		if (currentLeadPointPV == null ) {
-			throw new IllegalArgumentException("Current lead point PV cannot be null in progress View.");
+		if (iterationProgressPV == null ) {
+			throw new IllegalArgumentException("Iteration progress PV cannot be null in progress View.");
 		}
-		if (currentDataPointPV == null ) {
-			throw new IllegalArgumentException("Current data point PV cannot be null in progress View.");
+		if (iterationCurrentPointPV == null ) {
+			throw new IllegalArgumentException("Iteration current point PV cannot be null in progress View.");
 		}
-		if (regionProgressPV == null ) {
-			throw new IllegalArgumentException("Region progress PV cannot be null in progress View.");
+		if (totalRemianingTimePV == null ) {
+			throw new IllegalArgumentException("Total remaining time PV cannot be null in progress View.");
 		}
-		if (inLeadPV == null ) {
-			throw new IllegalArgumentException("In lead PV cannot be null in progress View.");
+		if (totalProgressPV == null ) {
+			throw new IllegalArgumentException("Total progress PV cannot be null in progress View.");
+		}
+		if (totalPointsPV == null ) {
+			throw new IllegalArgumentException("Total points PV cannot be null in progress View.");
+		}
+		if (currentPointPV == null ) {
+			throw new IllegalArgumentException("Current point PV cannot be null in progress View.");
 		}
 		if (currentIterationPV == null ) {
 			throw new IllegalArgumentException("Current iteration PV cannot be null in progress View.");
@@ -104,13 +133,21 @@ public class ProgressViewFactory implements FindableExecutableExtension {
 		if (totalIterationsPV == null ) {
 			throw new IllegalArgumentException("Total iterations PV cannot be null in progress View.");
 		}
-		if (currentPointPV == null ) {
-			throw new IllegalArgumentException("Current point PV cannot be null in progress View.");
+		if (totalDataPointsPV == null ) {
+			throw new IllegalArgumentException("Total number of data points PV cannot be null in progress View.");
 		}
-		if (totalPointsPV == null ) {
-			throw new IllegalArgumentException("Total points PV cannot be null in progress View.");
-		}
-		
+//		if (iterationTotalPointsPV == null ) {
+//			throw new IllegalArgumentException("Iteration total points PV cannot be null in progress View.");
+//		}
+//		if (currentDataPointPV == null ) {
+//			throw new IllegalArgumentException("Current data point PV cannot be null in progress View.");
+//		}
+//		if (inLeadPV == null ) {
+//			throw new IllegalArgumentException("In lead PV cannot be null in progress View.");
+//		}
+//		if (currentLeadPointPV == null ) {
+//			throw new IllegalArgumentException("Current lead point PV cannot be null in progress View.");
+//		}
 	}
 
 	public String getViewPartName() {
@@ -121,20 +158,12 @@ public class ProgressViewFactory implements FindableExecutableExtension {
 		this.viewPartName = viewPartName;
 	}
 
-	public String getCurrentPointPV() {
-		return currentPointPV;
+	public String getIterationCurrentPointPV() {
+		return iterationCurrentPointPV;
 	}
 
-	public void setCurrentPointPV(String currentPointPV) {
-		this.currentPointPV = currentPointPV;
-	}
-
-	public String getTotalPointsPV() {
-		return totalPointsPV;
-	}
-
-	public void setTotalPointsPV(String totalPointsPV) {
-		this.totalPointsPV = totalPointsPV;
+	public void setIterationCurrentPointPV(String currentPointPV) {
+		this.iterationCurrentPointPV = currentPointPV;
 	}
 
 	public String getTotalIterationsPV() {
@@ -153,52 +182,96 @@ public class ProgressViewFactory implements FindableExecutableExtension {
 		this.currentIterationPV = currentIterationPV;
 	}
 
-	public String getLeadPointsPV() {
-		return leadPointsPV;
+	public String getIterationLeadPointsPV() {
+		return iterationLeadPointsPV;
 	}
 
-	public void setLeadPointsPV(String leadPointsPV) {
-		this.leadPointsPV = leadPointsPV;
+	public void setIterationLeadPointsPV(String leadPointsPV) {
+		this.iterationLeadPointsPV = leadPointsPV;
 	}
 
-	public String getEndPointsPV() {
-		return endPointsPV;
+	public String getTotalDataStringPointsPV() {
+		return totalDataPointsPV;
 	}
 
-	public void setEndPointsPV(String endPointsPV) {
-		this.endPointsPV = endPointsPV;
+	public void setTotalDataPointsPV(String endPointsPV) {
+		this.totalDataPointsPV = endPointsPV;
 	}
 
-	public String getCurrentLeadPointPV() {
-		return currentLeadPointPV;
+	public String getIterationProgressPV() {
+		return iterationProgressPV;
 	}
 
-	public void setCurrentLeadPointPV(String currentLeadPointPV) {
-		this.currentLeadPointPV = currentLeadPointPV;
+	public void setIterationProgressPV(String regionProgressPV) {
+		this.iterationProgressPV = regionProgressPV;
 	}
 
-	public String getCurrentDataPointPV() {
-		return currentDataPointPV;
+	public String getCurrentIterationRemainingTimePV() {
+		return currentIterationRemainingTimePV;
 	}
 
-	public void setCurrentDataPointPV(String currentDataPointPV) {
-		this.currentDataPointPV = currentDataPointPV;
+	public void setCurrentIterationRemainingTimePV(
+			String currentIterationRemainingTime) {
+		this.currentIterationRemainingTimePV = currentIterationRemainingTime;
 	}
 
-	public String getRegionProgressPV() {
-		return regionProgressPV;
+	public String getTotalRemianingTimePV() {
+		return totalRemianingTimePV;
 	}
 
-	public void setRegionProgressPV(String regionProgressPV) {
-		this.regionProgressPV = regionProgressPV;
+	public void setTotalRemianingTimePV(String totalRemianingTimePV) {
+		this.totalRemianingTimePV = totalRemianingTimePV;
 	}
 
-	public String getInLeadPV() {
-		return inLeadPV;
+	public String getTotalProgressPV() {
+		return totalProgressPV;
 	}
 
-	public void setInLeadPV(String inLeadPV) {
-		this.inLeadPV = inLeadPV;
+	public void setTotalProgressPV(String totalProgressPV) {
+		this.totalProgressPV = totalProgressPV;
 	}
+
+	public void setTotalPointsPV(String totalPointsPV) {
+		this.totalPointsPV = totalPointsPV;
+	}
+
+	public String getCurrentPointPV() {
+		return currentPointPV;
+	}
+
+	public void setCurrentPointPV(String currentPointPV) {
+		this.currentPointPV = currentPointPV;
+	}
+
+//	public String getTotalPointsPV() {
+//		return iterationTotalPointsPV;
+//	}
+//
+//	public void setIterationTotalPointsPV(String totalPointsPV) {
+//		this.iterationTotalPointsPV = totalPointsPV;
+//	}
+//	public String getInLeadPV() {
+//		return inLeadPV;
+//	}
+//
+//	public void setInLeadPV(String inLeadPV) {
+//		this.inLeadPV = inLeadPV;
+//	}
+//	public String getCurrentLeadPointPV() {
+//		return currentLeadPointPV;
+//	}
+//
+//	public void setCurrentLeadPointPV(String currentLeadPointPV) {
+//		this.currentLeadPointPV = currentLeadPointPV;
+//	}
+//
+//	public String getCurrentDataPointPV() {
+//		return currentDataPointPV;
+//	}
+//
+//	public void setCurrentDataPointPV(String currentDataPointPV) {
+//		this.currentDataPointPV = currentDataPointPV;
+//	}
+
 
 }

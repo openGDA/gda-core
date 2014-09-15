@@ -43,7 +43,8 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 	private String location;
 	private String user;
 	private IVGScientaAnalyser analyser;
-	private String detectorStatePV;
+	private String analyserStatePV;
+	private String analyserTotalTimeRemainingPV;
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -78,17 +79,14 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 		if (camera != null) {
 			sequenceView.setCamera(camera);
 		}
-		if (location != null) {
-			sequenceView.setLocation(location);
-		}
-		if (user != null) {
-			sequenceView.setUser(user);
-		}
 		if (analyser!=null) {
 			sequenceView.setAnalyser(analyser);
 		}
-		if (getDetectorStatePV() != null) {
-			sequenceView.setDetectorStatePV(getDetectorStatePV());
+		if (getAnalyserStatePV() != null) {
+			sequenceView.setDetectorStatePV(getAnalyserStatePV());
+		}
+		if (getAnalyserTotalTimeRemainingPV()!=null) {
+			sequenceView.setAnalyserTotalTimeRemianingPV(analyserTotalTimeRemainingPV);
 		}
 		return sequenceView;
 	}
@@ -134,11 +132,20 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 		this.analyser = analyser;
 	}
 
-	public String getDetectorStatePV() {
-		return detectorStatePV;
+	public String getAnalyserTotalTimeRemainingPV() {
+		return analyserTotalTimeRemainingPV;
 	}
 
-	public void setDetectorStatePV(String detectorStatePV) {
-		this.detectorStatePV = detectorStatePV;
+	public void setAnalyserTotalTimeRemainingPV(
+			String analyserTotalTimeRemainingPV) {
+		this.analyserTotalTimeRemainingPV = analyserTotalTimeRemainingPV;
+	}
+
+	public String getAnalyserStatePV() {
+		return analyserStatePV;
+	}
+
+	public void setAnalyserStatePV(String analyserStatePV) {
+		this.analyserStatePV = analyserStatePV;
 	}
 }

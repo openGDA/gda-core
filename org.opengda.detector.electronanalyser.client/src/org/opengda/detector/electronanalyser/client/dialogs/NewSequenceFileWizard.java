@@ -7,7 +7,7 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPart;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
-import org.opengda.detector.electronanalyser.client.viewextensionfactories.SequenceViewExtensionFactory;
+import org.opengda.detector.electronanalyser.client.views.SequenceView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class NewSequenceFileWizard extends Wizard implements INewWizard {
 
 	@Override
 	public boolean performFinish() {
-		IWorkbenchPart activePart = workbench.getActiveWorkbenchWindow().getActivePage().findView(SequenceViewExtensionFactory.ID);
+		IWorkbenchPart activePart = workbench.getActiveWorkbenchWindow().getActivePage().findView(SequenceView.ID);
 		IRegionDefinitionView regionDefView = null;
 		if (activePart instanceof IRegionDefinitionView) {
 			regionDefView = (IRegionDefinitionView) activePart;

@@ -5,58 +5,58 @@
          point="org.eclipse.ui.views">
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.RegionViewExtensionFactory:regionviewfactory"
+            class="gda.rcp.views.ViewFactory:regionviewfactory"
             id="org.opengda.detector.electronanalyser.client.regioneditor"
             name="Region Editor"
             restorable="true">
       </view>
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SequenceViewExtensionFactory:sequenceviewfactory"
+            class="gda.rcp.views.ViewFactory:sequenceviewfactory"
             id="org.opengda.detector.electronanalyser.client.sequenceeditor"
             name="Sequence Editor"
             restorable="true">
       </view>
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SpectrumViewExtensionFactory:spectrumviewfactory"
+            class="gda.rcp.views.ViewFactory:spectrumviewfactory"
             id="org.opengda.detector.electronanalyser.client.views.spectrumview"
             name="Spectrum"
             restorable="true">
       </view>
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.ExternalIOViewExtensionFactory:externalioviewfactory"
+            class="gda.rcp.views.ViewFactory:externalioviewfactory"
             id="org.opengda.detector.electronanalyser.client.views.externalioview"
             name="External IO"
             restorable="true">
       </view>
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.ImageViewExtensionFactory:imageviewfactory"
+            class="gda.rcp.views.ViewFactory:imageviewfactory"
             id="org.opengda.detector.electronanalyser.client.views.imageview"
             name="Image"
             restorable="true">
       </view>
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.SlicesViewExtensionFactory:slicesviewfactory"
+            class="gda.rcp.views.ViewFactory:slicesviewfactory"
             id="org.opengda.detector.electronanalyser.client.views.slicesview"
             name="Slices"
             restorable="true">
       </view>
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.ProgressViewExtensionFactory:progressviewfactory"
+            class="gda.rcp.views.ViewFactory:progressviewfactory"
             id="org.opengda.detector.electronanalyser.client.views.progressview"
             name="Progress"
             restorable="true">
       </view>
       <view
             category="org.opengda.detector.electronanalyser.client.ses"
-            class="org.opengda.detector.electronanalyser.client.viewextensionfactories.StatusViewExtensionFactory:statusviewfactory"
+            class="gda.rcp.views.ViewFactory:statusviewfactory"
             icon="icons/status.png"
-            id="org.opengda.detector.electronanalyser.views.statusview"
+            id="uk.ac.gda.epics.client.views.StatusView"
             name="Status"
             restorable="true">
       </view>

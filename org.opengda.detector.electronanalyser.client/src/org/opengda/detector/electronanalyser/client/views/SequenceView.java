@@ -1,45 +1,44 @@
 package org.opengda.detector.electronanalyser.client.views;
 
 import gda.configuration.properties.LocalProperties;
-import gda.data.metadata.VisitEntry;
-import gda.data.metadata.icat.Icat;
-import gda.data.metadata.icat.IcatProvider;
+import gda.data.NumTracker;
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
-import gda.jython.authenticator.UserAuthentication;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
@@ -55,9 +54,11 @@ import org.eclipse.emf.edit.ui.dnd.EditingDomainViewerDropAdapter;
 import org.eclipse.emf.edit.ui.dnd.LocalTransfer;
 import org.eclipse.emf.edit.ui.dnd.ViewerDragAdapter;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.CellEditor;
@@ -79,48 +80,53 @@ import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.INullSelectionListener;
 import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SaveAsDialog;
+import org.eclipse.ui.internal.AnimationEngine;
 import org.eclipse.ui.part.ViewPart;
-import org.opengda.detector.electronanalyser.RegionCommand;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.ElectronAnalyserClientPlugin;
 import org.opengda.detector.electronanalyser.client.ImageConstants;
 import org.opengda.detector.electronanalyser.client.jobs.RegionJob;
-import org.opengda.detector.electronanalyser.client.jobs.RegionJobRule;
 import org.opengda.detector.electronanalyser.client.selection.EnergyChangedSelection;
 import org.opengda.detector.electronanalyser.client.selection.FileSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionActivationSelection;
 import org.opengda.detector.electronanalyser.client.selection.RegionRunCompletedSelection;
 import org.opengda.detector.electronanalyser.client.selection.TotalTimeSelection;
+import org.opengda.detector.electronanalyser.client.sequenceeditor.AnimatedTableItemFeedback;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceTableConstants;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewContentProvider;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewLabelProvider;
-import org.opengda.detector.electronanalyser.client.viewextensionfactories.RegionViewExtensionFactory;
+import org.opengda.detector.electronanalyser.event.ScanEndEvent;
+import org.opengda.detector.electronanalyser.event.ScanPointStartEvent;
+import org.opengda.detector.electronanalyser.event.ScanStartEvent;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
 import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.event.SequenceFileChangeEvent;
@@ -134,20 +140,18 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
-import org.opengda.detector.electronanalyser.utils.OsUtil;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.ui.dialog.VisitIDDialog;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 
 public class SequenceView extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, IObserver, InitializationListener {
+	public static final String ID = "org.opengda.detector.electronanalyser.client.sequenceeditor";
 	private static final Logger logger = LoggerFactory.getLogger(SequenceView.class);
 
 	private List<ISelectionChangedListener> selectionChangedListeners;
@@ -162,15 +166,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	private Text txtNumberActives;
-	private Text txtLocation;
-	private Text txtUser;
-	private Text txtSample;
-	private Text txtPrefix;
-	private Text txtComments;
 	private int nameCount;
-	private String location;
-	private String user;
-	private String visit;
 
 	private final String columnHeaders[] = { SequenceTableConstants.STATUS, SequenceTableConstants.ENABLED, SequenceTableConstants.REGION_NAME,
 			SequenceTableConstants.LENS_MODE, SequenceTableConstants.PASS_ENERGY, SequenceTableConstants.X_RAY_SOURCE,
@@ -179,9 +175,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			SequenceTableConstants.X_CHANNEL_FROM, SequenceTableConstants.X_CHANNEL_TO, SequenceTableConstants.Y_CHANNEL_FROM,
 			SequenceTableConstants.Y_CHANNEL_TO, SequenceTableConstants.SLICES, SequenceTableConstants.MODE };
 
-	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 30, false), new ColumnWeightData(10, 30, false),
-			new ColumnWeightData(80, 100, true), new ColumnWeightData(70, 90, false), new ColumnWeightData(40, 50, false),
-			new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 80, false), new ColumnWeightData(50, 70, true),
+	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 30, true), new ColumnWeightData(10, 30, true),
+			new ColumnWeightData(80, 100, true), new ColumnWeightData(70, 90, true), new ColumnWeightData(40, 50, true),
+			new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 80, true), new ColumnWeightData(50, 70, true),
 			new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 90, true), new ColumnWeightData(50, 70, true),
 			new ColumnWeightData(50, 50, true), new ColumnWeightData(50, 70, true), new ColumnWeightData(50, 50, true),
 			new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 50, true), new ColumnWeightData(40, 50, true),
@@ -194,24 +190,29 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private Spectrum spectrum;
 
-	private Combo runMode;
-
-	private Button btnNumberOfIterations;
-
-	private Spinner spinner;
-
-	private Button btnRepeatuntilStopped;
-
-	private Button btnConfirmAfterEachInteration;
-
 	protected boolean isDirty;
 
 	private Resource resource;
 
 	private Text txtEstimatedTime;
 
-	private Action stopSequenceAction;
+	private Action addAction;
+	private Action copyAction;
+	private Action deleteAction;
+	private Action undoAction;
+	private Action redoAction;
+	protected Action doubleClickAction;
+	private Text txtDataFilePath;
+	private Text txtPointValue;
+	private Text txtRegionValue;
+	private Text txtTimeRemaining;
+	private ProgressBar progressBar;
 
+	private int currentPointNumber;
+	private int totalNumberOfPoints;
+	private int crrentRegionNumber;
+	private Text txtScanNumberValue;
+	
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(
@@ -291,14 +292,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				}
 			}
 		});
-		// TableColumnLayout tableLayout = new TableColumnLayout();
-		// tableViewerContainer.setLayout(tableLayout);
-
-		// createColumns(sequenceTableViewer, tableLayout);
 
 		tableViewerContainer.setLayout(new GridLayout());
 		GridData gd1 = new GridData(GridData.FILL_BOTH);
-		gd1.widthHint = 500;
+		gd1.widthHint = 786;
 		sequenceTableViewer.getTable().setLayoutData(gd1);
 		ColumnViewerToolTipSupport.enableFor(sequenceTableViewer, ToolTip.NO_RECREATE); 
 		createColumns(sequenceTableViewer, null);
@@ -323,33 +320,173 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		
 		Composite controlArea = new Composite(rootComposite, SWT.None);
-		// Contains region actions, sequence parameters, file saving info and
-		// comments.
 		controlArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		controlArea.setLayout(new GridLayout(2, false));
+		controlArea.setLayout(new GridLayout(3, false));
 
-		Composite leftArea = new Composite(controlArea, SWT.None);
-		leftArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		leftArea.setLayout(new GridLayout(4, false));
+		Group grpElementset = new Group(controlArea, SWT.NONE);
+		GridData gd_grpElementset = new GridData(GridData.FILL_HORIZONTAL);
+		gd_grpElementset.grabExcessHorizontalSpace = false;
+		gd_grpElementset.widthHint = 120;
+		grpElementset.setLayoutData(gd_grpElementset);
+		grpElementset.setLayout(new GridLayout());
+		grpElementset.setText("Element Set");
+		comboElementSet = new Combo(grpElementset, SWT.READ_ONLY);
+		comboElementSet.setItems(new String[] {"Low","High"});
+		comboElementSet.setToolTipText("Select an element set");
+		comboElementSet.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		comboElementSet.setText(comboElementSet.getItem(0));
+		
+		Group grpActiveRegions = new Group(controlArea, SWT.NONE);
+		GridData gd_grpActiveRegions = new GridData(GridData.FILL_HORIZONTAL);
+		gd_grpActiveRegions.grabExcessHorizontalSpace = false;
+		grpActiveRegions.setLayoutData(gd_grpActiveRegions);
+		grpActiveRegions.setText("Number of Active Regions");
+		grpActiveRegions.setLayout(new GridLayout());
+		txtNumberActives = new Text(grpActiveRegions, SWT.BORDER | SWT.RIGHT);
+		txtNumberActives.setForeground(ColorConstants.green);
+		txtNumberActives.setBackground(ColorConstants.black);
+		txtNumberActives.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtNumberActives.setEditable(false);
+		
+		Group grpTotalTime = new Group(controlArea, SWT.None);
+		GridData gd_grpTotalTime = new GridData(GridData.FILL_HORIZONTAL);
+		gd_grpTotalTime.horizontalAlignment = SWT.LEFT;
+		gd_grpTotalTime.widthHint = 100;
+		gd_grpTotalTime.grabExcessHorizontalSpace = false;
+		grpTotalTime.setLayoutData(gd_grpTotalTime);
+		grpTotalTime.setText("Total Sequence Time");
+		grpTotalTime.setLayout(new GridLayout());
+		txtEstimatedTime = new Text(grpTotalTime, SWT.BORDER | SWT.RIGHT);
+		txtEstimatedTime.setForeground(ColorConstants.green);
+		txtEstimatedTime.setBackground(ColorConstants.black);
+		txtEstimatedTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtEstimatedTime.setEditable(false);
+		
+		Group grpSequenceFile = new Group(controlArea, SWT.None);
+		GridData gd_grpSequenceFile = new GridData(GridData.FILL_HORIZONTAL);
+		gd_grpSequenceFile.horizontalSpan=3;
+		gd_grpSequenceFile.grabExcessHorizontalSpace = true;
+		grpSequenceFile.setLayoutData(gd_grpSequenceFile);
+		grpSequenceFile.setText("Sequence File in the table");
+		grpSequenceFile.setLayout(new GridLayout());
+		txtSequenceFilePath = new Text(grpSequenceFile, SWT.BORDER | SWT.READ_ONLY);
+		txtSequenceFilePath.setForeground(ColorConstants.green);
+		txtSequenceFilePath.setBackground(ColorConstants.black);
+		txtSequenceFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtSequenceFilePath.setEditable(false);
+		
+		Group grpDataFile = new Group(controlArea, SWT.None);
+		GridData gd_grpDataFile = new GridData(GridData.FILL_HORIZONTAL);
+		gd_grpDataFile.horizontalSpan=3;
+		gd_grpDataFile.grabExcessHorizontalSpace = true;
+		grpDataFile.setLayoutData(gd_grpDataFile);
+		grpDataFile.setText("Data File");
+		grpDataFile.setLayout(new GridLayout());
+		txtDataFilePath = new Text(grpDataFile, SWT.BORDER | SWT.READ_ONLY);
+		txtDataFilePath.setBackground(ColorConstants.black);
+		txtDataFilePath.setForeground(ColorConstants.green);
+		txtDataFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtDataFilePath.setEditable(false);
+		txtDataFilePath.setText("Data file to be collected");
+		
+		Group grpScanProgress=new Group(controlArea, SWT.BORDER);
+		GridData gd_grpScanProgress = new GridData(GridData.FILL_HORIZONTAL);
+		gd_grpScanProgress.horizontalSpan=3;
+		gd_grpScanProgress.grabExcessHorizontalSpace = true;
+		grpScanProgress.setLayoutData(gd_grpScanProgress);
+		grpScanProgress.setText("Analyser Scan Progress");
+		grpScanProgress.setLayout(new GridLayout(4, false));
 
-		Composite rightArea = new Composite(controlArea, SWT.None);
-		rightArea.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 1, 1));
-		rightArea.setLayout(new GridLayout());
+		Label lblScanNumber=new Label(grpScanProgress, SWT.None);
+		lblScanNumber.setText("Current Scan Number: ");
+		
+		txtScanNumberValue = new Text(grpScanProgress, SWT.BORDER);
+		GridData gd_txtScanNumberValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_txtScanNumberValue.widthHint = 50;
+		txtScanNumberValue.setLayoutData(gd_txtScanNumberValue);
+		txtScanNumberValue.setForeground(ColorConstants.green);
+		txtScanNumberValue.setEditable(false);
+		txtScanNumberValue.setBackground(ColorConstants.black);
+		try {
+			txtScanNumberValue.setText(String.format("%d",new NumTracker(LocalProperties.GDA_BEAMLINE_NAME).getCurrentFileNumber()));
+		} catch (IOException e) {
+			logger.warn("Failed to get scan number tracker");
+		}
 
-		Group grpRegion = new Group(leftArea, SWT.NONE);
-		GridData gd_grpRegion = new GridData(GridData.FILL_HORIZONTAL);
-		gd_grpRegion.grabExcessHorizontalSpace = false;
-		gd_grpRegion.horizontalAlignment = SWT.LEFT;
-		gd_grpRegion.widthHint = 300;
-		grpRegion.setLayoutData(gd_grpRegion);
-		grpRegion.setText("Region Control");
-		grpRegion.setLayout(new RowLayout());
+		Label lblPoint=new Label(grpScanProgress, SWT.None);
+		lblPoint.setText("Scan Point Number: ");
+		
+		txtPointValue = new Text(grpScanProgress, SWT.BORDER);
+		GridData gd_lblIterationValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lblIterationValue.widthHint = 50;
+		txtPointValue.setLayoutData(gd_lblIterationValue);
+		txtPointValue.setForeground(ColorConstants.green);
+		txtPointValue.setEditable(false);
+		txtPointValue.setBackground(ColorConstants.black);
+		updateScanPointNumber(currentPointNumber, totalNumberOfPoints);
+		
+		Label lblRegion = new Label(grpScanProgress, SWT.NONE);
+		lblRegion.setText("Active Region Number:");
+		
+		txtRegionValue = new Text(grpScanProgress, SWT.BORDER);
+		txtRegionValue.setForeground(ColorConstants.green);
+		txtRegionValue.setEditable(false);
+		txtRegionValue.setBackground(ColorConstants.black);
+		txtRegionValue.setText("0");
+		GridData gd_txtCurrentPoint = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
+		gd_txtCurrentPoint.widthHint = 50;
+		txtRegionValue.setLayoutData(gd_txtCurrentPoint);
+		
+		Label lblTimeRemaining = new Label(grpScanProgress, SWT.NONE);
+		lblTimeRemaining.setText("Time Remaining:");
+		
+		txtTimeRemaining = new Text(grpScanProgress, SWT.BORDER);
+//		gd_txtIterationTimeRemaining.widthHint=40;
+		txtTimeRemaining.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		txtTimeRemaining.setForeground(ColorConstants.green);
+		txtTimeRemaining.setBackground(ColorConstants.black);
+		GridData gd_txtTimeRemaining = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
+		gd_txtTimeRemaining.widthHint = 50;
+		txtTimeRemaining.setLayoutData(gd_txtTimeRemaining);
+		txtTimeRemaining.setEditable(false);
+		
+		Label lblProgress = new Label(grpScanProgress, SWT.NONE);
+		lblProgress.setText("Scan Progress:");
+		
+		progressBar = new ProgressBar(grpScanProgress, SWT.HORIZONTAL);
+		GridData gd_progressBar = new GridData(GridData.FILL_HORIZONTAL);
+		gd_progressBar.grabExcessHorizontalSpace = false;
+		gd_progressBar.horizontalSpan = 3;
+		progressBar.setLayoutData(gd_progressBar);
+		progressBar.setMinimum(0);
+		progressBar.setMaximum(100);
 
-		Button btnNew = new Button(grpRegion, SWT.NONE);
-		btnNew.addSelectionListener(new SelectionAdapter() {
+		initialisation();
+		// register as selection provider to the SelectionService
+		getViewSite().setSelectionProvider(this);
+		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(RegionView.ID, selectionListener);
+
+		// Create the help context id for the viewer's control
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(sequenceTableViewer.getControl(), "org.opengda.lde.ui.viewer");
+		makeActions();
+		hookContextMenu();
+		contributeToActionBars();
+	}
+
+	private void updateRegionNumber(int currentRegionNumber, int totalActiveRegions) {
+		txtRegionValue.setText(String.valueOf(currentRegionNumber) + '/'+ String.valueOf(totalActiveRegions));
+	}
+
+	private void updateScanPointNumber(int currentPointNumber,
+			int totalNumberOfPoints) {
+		txtPointValue.setText(String.valueOf(currentPointNumber) + '/'+ String.valueOf(totalNumberOfPoints));
+	}
+
+	private void makeActions() {
+		addAction = new Action() {
 
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void run() {
 				try {
 					Region newRegion = RegiondefinitionFactory.eINSTANCE.createRegion();
 					nameCount = StringUtils.largestIntAtEndStringsWithPrefix(getRegionNames(), newRegion.getName());
@@ -365,13 +502,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					e1.printStackTrace();
 				}
 			}
-		});
-		btnNew.setText("New");
+		};
+		addAction.setText("Add");
+		addAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_ADD_OBJ));
+		addAction.setToolTipText("Add a new region");
+		
+		copyAction = new Action() {
 
-		Button button = new Button(grpRegion, SWT.NONE);
-		button.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void run() {
 				try {
 					if (getSelectedRegion() != null) {
 						Region copy = EcoreUtil.copy(getSelectedRegion());
@@ -386,7 +525,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 								AddCommand.create(editingDomain, regionDefinitionResourceUtil.getSequence(),
 										RegiondefinitionPackage.eINSTANCE.getSequence_Region(), copy));
 					} else {
-						MessageDialog msgd = new MessageDialog(parent.getShell(), "No region selected", null,
+						MessageDialog msgd = new MessageDialog(getViewSite().getShell(), "No region selected", null,
 								"You have not selected a region to duplicate.", MessageDialog.ERROR, new String[] { "OK" }, 0);
 						msgd.open();
 					}
@@ -394,13 +533,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					e1.printStackTrace();
 				}
 			}
-		});
-		button.setText("Duplicate");
+		};
+		copyAction.setText("Copy");
+		copyAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_COPY_EDIT));
+		copyAction.setToolTipText("Copy selected sample");
 
-		Button btnDelete = new Button(grpRegion, SWT.NONE);
-		btnDelete.addSelectionListener(new SelectionAdapter() {
+		deleteAction = new Action() {
+
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void run() {
 				try {
 					Region selectedRegion = getSelectedRegion();
 					if (selectedRegion != null) {
@@ -408,7 +549,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 								RemoveCommand.create(editingDomain, regionDefinitionResourceUtil.getSequence(),
 										RegiondefinitionPackage.eINSTANCE.getSequence_Region(), selectedRegion));
 					} else {
-						MessageDialog msgd = new MessageDialog(parent.getShell(), "No region selected", null,
+						MessageDialog msgd = new MessageDialog(getViewSite().getShell(), "No region selected", null,
 								"You have not selected a region to delete.", MessageDialog.ERROR, new String[] { "OK" }, 0);
 						msgd.open();
 					}
@@ -416,418 +557,87 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					logger.error("Cannot not get Editing Domain object.", e1);
 				}
 			}
-		});
-		btnDelete.setText("Delete");
+		};
+		deleteAction.setText("Delete");
+		deleteAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_DELETE_OBJ));
+		deleteAction.setToolTipText("Delete selected sample");
 
-		Button btnUndo = new Button(grpRegion, SWT.NONE);
-		btnUndo.addSelectionListener(new SelectionAdapter() {
+		undoAction = new Action() {
+
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void run() {
 				try {
 					editingDomain.getCommandStack().undo();
 				} catch (Exception e1) {
 					logger.error("Cannot not get Editing Domain object.", e1);
 				}
 			}
-		});
-		btnUndo.setText("Undo");
+		};
+		undoAction.setText("Undo");
+		undoAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_UNDO_EDIT));
+		undoAction.setToolTipText("Undo");
+		
 
-		Button btnRedo = new Button(grpRegion, SWT.NONE);
-		btnRedo.addSelectionListener(new SelectionAdapter() {
+		redoAction = new Action() {
+
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void run() {
 				try {
 					editingDomain.getCommandStack().redo();
 				} catch (Exception e1) {
 					logger.error("Cannot not get Editing Domain object.", e1);
 				}
 			}
-		});
-		btnRedo.setText("Redo");
+		};
+		redoAction.setText("Redo");
+		redoAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_REDO_EDIT));
+		redoAction.setToolTipText("Redo");
 
-		Group grpActiveRegions = new Group(leftArea, SWT.NONE);
-		GridData gd_grpActiveRegions = new GridData(GridData.FILL_HORIZONTAL);
-		gd_grpActiveRegions.grabExcessHorizontalSpace = false;
-		grpActiveRegions.setLayoutData(gd_grpActiveRegions);
-		grpActiveRegions.setText("Active regions");
-		grpActiveRegions.setLayout(new RowLayout());
-
-		txtNumberActives = new Text(grpActiveRegions, SWT.BORDER | SWT.RIGHT);
-		txtNumberActives.setLayoutData(new RowData(66, SWT.DEFAULT));
-		txtNumberActives.setEditable(false);
-
-		Group grpTotalTime = new Group(leftArea, SWT.None);
-		GridData gd_grpTotalTime = new GridData(GridData.FILL_HORIZONTAL);
-		gd_grpTotalTime.grabExcessHorizontalSpace = false;
-		grpTotalTime.setLayoutData(gd_grpTotalTime);
-		grpTotalTime.setText("Estimated Time");
-		grpTotalTime.setLayout(new RowLayout());
-
-		txtEstimatedTime = new Text(grpTotalTime, SWT.BORDER | SWT.RIGHT);
-		txtEstimatedTime.setLayoutData(new RowData(77, SWT.DEFAULT));
-		txtEstimatedTime.setEditable(false);
-
-		new Label(leftArea, SWT.NONE);
-
-		Group grpInfo = new Group(leftArea, SWT.NONE);
-		GridData layoutData1 = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData1.horizontalSpan = 4;
-		grpInfo.setLayoutData(layoutData1);
-		grpInfo.setText("Info");
-		grpInfo.setLayout(new GridLayout(3, false));
-
-		Label lblLocation = new Label(grpInfo, SWT.NONE);
-		lblLocation.setText("Beamline:");
-
-		txtLocation = new Text(grpInfo, SWT.BORDER);
-		// this field is set in Spring configuration per beamline
-		txtLocation.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				if (e.getSource().equals(txtLocation)) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_Location(),
-								txtLocation.getText().trim());
-					} catch (Exception e1) {
-						logger.error("Cannot get the spectrum from this sequence.", e1);
-					}
-				}
+	}
+	private void hookContextMenu() {
+		MenuManager menuMgr = new MenuManager("#PopupMenu");
+		menuMgr.setRemoveAllWhenShown(true);
+		menuMgr.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(IMenuManager manager) {
+				SequenceView.this.fillContextMenu(manager);
 			}
 		});
-		txtLocation.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		txtLocation.setText("Beamline Name");
-
-		Label lblComments = new Label(grpInfo, SWT.NONE);
-		lblComments.setText("Add comments below:");
-
-		Label lblUser = new Label(grpInfo, SWT.NONE);
-		lblUser.setText("Visit ID:");
-
-		txtUser = new Text(grpInfo, SWT.BORDER );
-		// this field is set dynamically to user proposal number in GDA
-		txtUser.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				if (e.getSource().equals(txtUser)) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_User(),
-								txtUser.getText().trim());
-					} catch (Exception e1) {
-						logger.error("Cannot get the spectrum from this sequence.", e1);
-					}
-				}
-			}
-		});
-		txtUser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		txtUser.setText("visit-ID");
-
-		txtComments = new Text(grpInfo, SWT.BORDER | SWT.MULTI | SWT.WRAP);
-		txtComments.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				Text t = (Text) e.widget;
-				t.selectAll();
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				if (e.getSource().equals(txtComments)) {
-					try {
-						String[] comments;
-						if (OsUtil.isWindows()) {
-							comments = txtComments.getText().split("\r\n");
-						} else {
-							comments = txtComments.getText().split("\n");
-						}
-						List<String> commentList = new ArrayList<String>();
-						for (String string : comments) {
-							commentList.add(string);
-						}
-						Spectrum spectrum = regionDefinitionResourceUtil.getSpectrum();
-						updateFeature(spectrum, RegiondefinitionPackage.eINSTANCE.getSpectrum_Comments(), commentList);
-						updateFeature(spectrum, RegiondefinitionPackage.eINSTANCE.getSpectrum_NumberOfComments(), spectrum.getComments().size());
-					} catch (Exception e1) {
-						logger.error("Cannot get the spectrum from this sequence.", e1);
-					}
-				}
-			}
-		});
-		txtComments.setText("Comments");
-		GridData gd_txtComments = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
-		gd_txtComments.verticalSpan = 4;
-		txtComments.setLayoutData(gd_txtComments);
-
-		Label lblSample = new Label(grpInfo, SWT.NONE);
-		lblSample.setText("Sample:");
-
-		txtSample = new Text(grpInfo, SWT.BORDER);
-		txtSample.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				if (e.getSource().equals(txtSample)) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_SampleName(),
-								txtSample.getText().trim());
-					} catch (Exception e1) {
-						logger.error("Cannot get the spectrum from this sequence.", e1);
-					}
-				}
-			}
-		});
-		txtSample.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-		txtSample.setText("Sample name");
-
-		Label lblPrefix = new Label(grpInfo, SWT.NONE);
-//		GridData gd_lblFileName = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-//		gd_lblFileName.widthHint = 59;
-//		lblFileName.setLayoutData(gd_lblFileName);
-		lblPrefix.setText("File Prefix:");
-
-		txtPrefix = new Text(grpInfo, SWT.BORDER);
-		txtPrefix.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				if (e.getSource().equals(txtPrefix)) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_FilenamePrefix(),
-								txtPrefix.getText().trim());
-					} catch (Exception e1) {
-						logger.error("Cannot get the spectrum from this sequence.", e1);
-					}
-				}
-			}
-		});
-//		GridData gd_txtFilename = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-//		gd_txtFilename.widthHint = 104;
-//		txtPrefix.setLayoutData(gd_txtFilename);
-		txtPrefix.setText("Filename Prefix");
-
-		Label lblFormat = new Label(grpInfo, SWT.NONE);
-//		lblNewLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblFormat.setText("File format:");
-
-		txtfilenameformat = new Text(grpInfo, SWT.BORDER);
-		txtfilenameformat.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				if (e.getSource().equals(txtfilenameformat)) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSpectrum(), RegiondefinitionPackage.eINSTANCE.getSpectrum_FilenameFormat(),
-								txtfilenameformat.getText().trim());
-					} catch (Exception e1) {
-						logger.error("Cannot get the spectrum from this sequence.", e1);
-					}
-				}
-			}
-		});
-		txtfilenameformat.setText("%s_%5d_%s");
-		txtfilenameformat.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-
-		Group grpSequnceRunMode = new Group(rightArea, SWT.NONE);
-		GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.widthHint = 250;
-		layoutData.verticalSpan = 2;
-		grpSequnceRunMode.setLayoutData(layoutData);
-		grpSequnceRunMode.setLayout(new GridLayout(2, false));
-		grpSequnceRunMode.setText("Sequence Run Mode");
-
-		runMode = new Combo(grpSequnceRunMode, SWT.READ_ONLY);
-		runMode.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (e.getSource().equals(runMode) && runMode.isFocusControl()) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSequence(), RegiondefinitionPackage.eINSTANCE.getSequence_RunModeIndex(),
-								runMode.getSelectionIndex());
-						updateFeature(regionDefinitionResourceUtil.getSequence(), RegiondefinitionPackage.eINSTANCE.getSequence_RunMode(),
-								runMode.getText());
-					} catch (Exception e1) {
-						logger.error("Cannot get the sequence", e);
-					}
-				}
-			}
-		});
-		runMode.setItems(new String[] { "Normal", "Add Dimension" });
-		runMode.setToolTipText("List of available sequence run modes");
-		runMode.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		runMode.setText(runMode.getItem(0));
-
-		new Label(grpSequnceRunMode, SWT.NONE);
-
-		btnNumberOfIterations = new Button(grpSequnceRunMode, SWT.RADIO);
-		btnNumberOfIterations.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (e.getSource().equals(btnNumberOfIterations) && btnNumberOfIterations.getSelection()) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSequence(),
-								RegiondefinitionPackage.eINSTANCE.getSequence_NumInterationOption(), true);
-						updateFeature(regionDefinitionResourceUtil.getSequence(), RegiondefinitionPackage.eINSTANCE.getSequence_RepeatUntilStopped(),
-								false);
-					} catch (Exception e1) {
-						logger.error("Cannot get the sequence", e);
-					}
-				}
-			}
-		});
-		btnNumberOfIterations.setText("Number of iterations:");
-
-		spinner = new Spinner(grpSequnceRunMode, SWT.BORDER);
-		spinner.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (e.getSource().equals(spinner) && spinner.isFocusControl()) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSequence(), RegiondefinitionPackage.eINSTANCE.getSequence_NumIterations(),
-								spinner.getSelection());
-					} catch (Exception e1) {
-						logger.error("Cannot get the sequence", e);
-					}
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				if (e.getSource().equals(spinner) && spinner.isFocusControl()) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSequence(), RegiondefinitionPackage.eINSTANCE.getSequence_NumIterations(),
-								spinner.getSelection());
-					} catch (Exception e1) {
-						logger.error("Cannot get the sequence", e);
-					}
-				}
-			}
-		});
-		spinner.setMinimum(1);
-		spinner.setMaximum(10000);
-		spinner.setToolTipText("Set number of iterations required");
-
-		btnRepeatuntilStopped = new Button(grpSequnceRunMode, SWT.RADIO);
-		btnRepeatuntilStopped.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (e.getSource().equals(btnRepeatuntilStopped) && btnRepeatuntilStopped.getSelection()) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSequence(),
-								RegiondefinitionPackage.eINSTANCE.getSequence_NumInterationOption(), false);
-						updateFeature(regionDefinitionResourceUtil.getSequence(), RegiondefinitionPackage.eINSTANCE.getSequence_RepeatUntilStopped(),
-								true);
-					} catch (Exception e1) {
-						logger.error("Cannot get the sequence", e);
-					}
-				}
-			}
-		});
-		btnRepeatuntilStopped.setText("Repeat until stopped");
-
-		new Label(grpSequnceRunMode, SWT.NONE);
-
-		btnConfirmAfterEachInteration = new Button(grpSequnceRunMode, SWT.CHECK);
-		btnConfirmAfterEachInteration.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (e.getSource().equals(btnConfirmAfterEachInteration) && btnConfirmAfterEachInteration.isFocusControl()) {
-					try {
-						updateFeature(regionDefinitionResourceUtil.getSequence(),
-								RegiondefinitionPackage.eINSTANCE.getSequence_ConfirmAfterEachIteration(),
-								btnConfirmAfterEachInteration.getSelection());
-					} catch (Exception e1) {
-						logger.error("Cannot get the sequence", e);
-					}
-				}
-			}
-		});
-		btnConfirmAfterEachInteration.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		btnConfirmAfterEachInteration.setText("Confirm after each iteration");
-		btnConfirmAfterEachInteration.setEnabled(false);
-
-		new Label(grpSequnceRunMode, SWT.NONE);
-		
-		Group grpElementset = new Group(rightArea, SWT.NONE);
-		GridData gd_grpElementset = new GridData(GridData.FILL_HORIZONTAL);
-		layoutData.widthHint = 250;
-		grpElementset.setLayoutData(gd_grpElementset);
-		grpElementset.setLayout(new GridLayout());
-		grpElementset.setText("Element Set");
-		
-		comboElementSet = new Combo(grpElementset, SWT.READ_ONLY);
-		comboElementSet.setItems(new String[] {"Low","High"});
-		comboElementSet.setToolTipText("Select an element set");
-		comboElementSet.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		comboElementSet.setText(comboElementSet.getItem(0));
-
-		Composite actionArea = new Composite(rootComposite, SWT.None);
-		// Contains region editing, sequence parameters, file saving info and
-		// comments.
-		actionArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		actionArea.setLayout(new GridLayout(2, false));
-
-		Label lblSequnceFile = new Label(actionArea, SWT.None);
-		lblSequnceFile.setText("Sequence File: ");
-
-		txtSequenceFilePath = new Text(actionArea, SWT.BORDER | SWT.READ_ONLY);
-		txtSequenceFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		initialisation();
-		// register as selection provider to the SelectionService
-		getViewSite().setSelectionProvider(this);
-		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(RegionViewExtensionFactory.ID, selectionListener);
-
-		Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
-			@Override
-			public void done(IJobChangeEvent event) {
-				Job job = event.getJob();
-				if (job instanceof RegionJob) {
-					RegionJob regionJob = (RegionJob) job;
-					IStatus result = event.getResult();
-					if (result.isOK()) {
-						updateRegionStatus(regionJob, STATUS.COMPLETED);
-					} else if (result.getSeverity() == IStatus.CANCEL) {
-						updateRegionStatus(regionJob, STATUS.ABORTED);
-					} else if (result.getSeverity() == IStatus.ERROR) {
-						updateRegionStatus(regionJob, STATUS.ABORTED);
-					}
-					fireSelectionChanged(new RegionRunCompletedSelection());
-					if (Job.getJobManager().find(RegionJob.FAMILY_REGION_JOB).length == 0) {
-						logger.info("Sequence {} collection completed.", regionDefinitionResourceUtil.getFileName());
-						runningonclient = false;
-						updateActionIconsState();
-					}
-				}
-				super.done(event);
-			}
-
-			@Override
-			public void running(IJobChangeEvent event) {
-				Job job = event.getJob();
-				if (job instanceof RegionJob) {
-					final RegionJob regionJob = (RegionJob) job;
-					updateRegionStatus(regionJob, STATUS.RUNNING);
-				}
-				super.running(event);
-			}
-		});
-		prepareRunOnClientActions();
-		updateActionIconsState();
+		Menu menu = menuMgr.createContextMenu(sequenceTableViewer.getControl());
+		sequenceTableViewer.getControl().setMenu(menu);
+		getSite().registerContextMenu(menuMgr, sequenceTableViewer);
 	}
 
-	private void updateActionIconsState() {
-		if (!runningonclient && !runningonserver) {
-			startSequenceAction.setEnabled(true);
-			stopSequenceAction.setEnabled(false);
-			startRunOnServerAction.setEnabled(true);
-			stopRunOnServerAction.setEnabled(false);
-		} else if (runningonclient) {
-			startSequenceAction.setEnabled(false);
-			stopSequenceAction.setEnabled(true);
-			startRunOnServerAction.setEnabled(false);
-			stopRunOnServerAction.setEnabled(false);
-		} else if (runningonserver) {
-			startSequenceAction.setEnabled(false);
-			stopSequenceAction.setEnabled(false);
-			startRunOnServerAction.setEnabled(false);
-			stopRunOnServerAction.setEnabled(true);
-		}
+	private void contributeToActionBars() {
+		IActionBars bars = getViewSite().getActionBars();
+		fillLocalPullDown(bars.getMenuManager());
+		fillLocalToolBar(bars.getToolBarManager());
+	}
+
+	private void fillLocalPullDown(IMenuManager manager) {
+		manager.add(addAction);
+		manager.add(deleteAction);
+		manager.add(copyAction);
+		manager.add(undoAction);
+		manager.add(redoAction);
+		
+	}
+
+	private void fillContextMenu(IMenuManager manager) {
+		manager.add(addAction);
+		manager.add(deleteAction);
+		manager.add(copyAction);
+		manager.add(undoAction);
+		manager.add(redoAction);
+		// Other plug-ins can contribute there actions here
+		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+	}
+	
+	private void fillLocalToolBar(IToolBarManager manager) {
+		manager.add(addAction);
+		manager.add(deleteAction);
+		manager.add(copyAction);
+		manager.add(undoAction);
+		manager.add(redoAction);
 	}
 
 	protected void updateRegionStatus(final RegionJob regionJob, final STATUS status) {
@@ -851,54 +661,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				sequenceTableViewer.refresh();
 			}
 		});
-	}
-
-	private boolean runningonclient = false;
-	private boolean runningonserver = false;
-
-	private void prepareRunOnClientActions() {
-		startSequenceAction = new Action() {
-
-			@Override
-			public void run() {
-				super.run();
-				logger.info("Start region collection test, no data saved.");
-				int order = 0;
-				resetRegionStatus();
-				runningonclient = true;
-				updateActionIconsState();
-				for (Region region : regions) {
-					if (region.isEnabled()) {
-						final RegionCommand command = new RegionCommand(region);
-						command.setAnalyser(analyser); // TODO not good to have to set this.
-						Job job = new RegionJob(command.getDescription(), command);
-						job.setRule(new RegionJobRule(order));
-						job.schedule();
-						order++;
-					}
-				}
-			}
-		};
-		startSequenceAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_START));
-		startSequenceAction.setToolTipText("Test region collection without data saving on client.");
-
-		stopSequenceAction = new Action() {
-			@Override
-			public void run() {
-				super.run();
-				logger.info("Calling stop");
-				Job.getJobManager().cancel(RegionJob.FAMILY_REGION_JOB);
-				runningonclient = false;
-				updateActionIconsState();
-			}
-		};
-		stopSequenceAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_STOP));
-		stopSequenceAction.setToolTipText("Stop test collection on client");
-
-		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
-		toolBarManager.add(startSequenceAction);
-		toolBarManager.add(stopSequenceAction);
-
 	}
 
 	protected void resetRegionStatus() {
@@ -946,24 +708,20 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private EditingDomain editingDomain;
 
-	private Action startRunOnServerAction;
-
 	private Scriptcontroller scriptcontroller;
 
 	private AnalyserStateListener analyserStateListener;
+	private AnalyserTotalTimeRemainingListener analyserTotalTimeRemainingListener;
+	
+	private String analyserStatePV;
+	private String analyserTotalTimeRemianingPV;
 
-	private String statePV;
-
-	private Channel stateChannel;
-
+	private Channel analyserStateChannel;
+	private Channel analyserTotalTimeRemainingChannel;
+	
 	private EpicsChannelManager channelmanager;
 
-	private Action stopRunOnServerAction;
-
-	private String energyLensTableDir
-	;
-	
-	//	private Device ew4000;
+	private String energyLensTableDir;
 
 	private Region getSelectedRegion() {
 		ISelection selection = getSelection();
@@ -988,7 +746,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				validateRegions();
 			}
 		}
-	};;
+	};
 
 	private void initialisation() {
 		try { // populate Combo list from EPICS PV 
@@ -1023,46 +781,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		if (sequence != null) {
 			spectrum = sequence.getSpectrum();
-			runMode.setText(runMode.getItem(sequence.getRunMode().getValue()));
-			btnNumberOfIterations.setSelection(!sequence.isRepeatUntilStopped());
-			btnRepeatuntilStopped.setSelection(sequence.isRepeatUntilStopped());
-			btnConfirmAfterEachInteration.setSelection(sequence.isConfirmAfterEachIteration());
-			spinner.setSelection(sequence.getNumIterations());
-
 			if (spectrum != null) {
-				if (getLocation() != null) {
-					txtLocation.setText(getLocation());
-				} else {
-					txtLocation.setText("Beamline name");
-				}
-				// send the change to sequence file
-				if (!spectrum.getLocation().equalsIgnoreCase(txtLocation.getText().trim())) {
-					updateFeature(spectrum, RegiondefinitionPackage.eINSTANCE.getSpectrum_Location(), txtLocation.getText());
-				}
-				if (getVisit() != null) {
-					// Obtain visit ID from ICat database
-					txtUser.setText(getVisit());
-				} else if (getUser() != null) {
-					// set by Spring configuration
-					txtUser.setText(getUser());
-				} else {
-					// default to user home folder
-					txtUser.setText(System.getProperty("user.name"));
-				}
-				if (!spectrum.getUser().equalsIgnoreCase(txtUser.getText().trim())) {
-					updateFeature(spectrum, RegiondefinitionPackage.eINSTANCE.getSpectrum_User(), txtUser.getText());
-				}
-				txtSample.setText(spectrum.getSampleName());
-				txtPrefix.setText(spectrum.getFilenamePrefix());
-				txtfilenameformat.setText(spectrum.getFilenameFormat());
 				txtSequenceFilePath.setText(regionDefinitionResourceUtil.getFileName());
-
-				String comments = "";
-				for (String comment : spectrum.getComments()) {
-					comments += comment + "\n";
-				}
-				txtComments.setText(comments);
-				// System.out.println(txtComments.getText());
 			}
 		} else {
 			// start a new sequence
@@ -1085,19 +805,21 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				new EditingDomainViewerDropAdapter(editingDomain, sequenceTableViewer));
 
 		updateCalculatedData();
-		prepareRunOnServerActions();
 		//server event admin or handler
 		scriptcontroller = Finder.getInstance().find("SequenceFileObserver");
 		scriptcontroller.addIObserver(this);
 		//EPICS monitor to update current region status
 		channelmanager = new EpicsChannelManager(this);
 		analyserStateListener = new AnalyserStateListener();
+		analyserTotalTimeRemainingListener=new AnalyserTotalTimeRemainingListener();
 		try {
 			createChannels();
 		} catch (CAException | TimeoutException e1) {
 			logger.error("failed to create required spectrum channels", e1);
 		}
 		comboElementSet.addSelectionListener(elementSetSelAdaptor);
+		updateRegionNumber(crrentRegionNumber, numActives);
+		images = loadAnimatedGIF(sequenceTableViewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
 	}
 
 	public IVGScientaAnalyser getAnalyser() {
@@ -1106,87 +828,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private void createChannels() throws CAException, TimeoutException {
 		first = true;
-		stateChannel = channelmanager.createChannel(getDetectorStatePV(), analyserStateListener, MonitorType.NATIVE, false);
+		analyserStateChannel = channelmanager.createChannel(getDetectorStatePV(), analyserStateListener, MonitorType.NATIVE, false);
+		analyserTotalTimeRemainingChannel=channelmanager.createChannel(getAnalyserTotalTimeRemianingPV(), analyserTotalTimeRemainingListener,MonitorType.NATIVE, false);
 		channelmanager.creationPhaseCompleted();
 		logger.debug("analyser state channel and monitor are created");
 	}
 
-
-	private void prepareRunOnServerActions() {
-		startRunOnServerAction = new Action() {
-			@Override
-			public void run() {
-				super.run();
-				logger.info("Start data collection on GDA server.");
-				runningonserver = true;
-				updateActionIconsState();
-				try {
-					JythonServerFacade jsf=JythonServerFacade.getCurrentInstance();
-					
-					String filename;
-					String fileName = regionDefinitionResourceUtil.getFileName();
-					if (fileName.startsWith(File.separator)) {
-						filename = FilenameUtils.getName(fileName);
-					} else {
-						filename=fileName;
-					}
-					List<Region> regions2 = regionDefinitionResourceUtil.getRegions();
-					int count = 0;
-					for (Region region : regions2) {
-						if (region.isEnabled()) {
-							count += 1;
-						}
-					}
-					if (count==1) {
-						logger.info("A single region is selected in the sequence file {}, so only a single data file is collected.", fileName);
-						jsf.runCommand(String.format("analyserscan regions '%s' ew4001", filename));
-					} else if (count>1) {
-						logger.info("Multiple regions are selected in the sequence file {}, so multiple data files are collected, each for one region.", fileName);
-						//jsf.runCommand(String.format("multiregionscan ds 1 1 1 ew4000 '%s'", filename));
-						jsf.runCommand("ew4000.asynchronousMoveTo(%s)", fileName);
-					} else {
-						logger.info("No active region is specified in the sequence file, so no collection is required.");
-					}
-				} catch (Exception e) {
-					logger.error("exception throws on start queue processor.", e);
-					runningonserver = false;
-					updateActionIconsState();
-				}
-			}
-		};
-		startRunOnServerAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry()
-				.getDescriptor(ImageConstants.ICON_RUN_ON_SERVER));
-		startRunOnServerAction.setToolTipText("Start data collection on GDA server");
-
-		stopRunOnServerAction = new Action() {
-			@Override
-			public void run() {
-				super.run();
-				logger.info("Stop collection on GDA server");
-				try {
-					InterfaceProvider.getCurrentScanController().requestFinishEarly();
-					runningonserver = false;
-				} catch (Exception e) {
-					logger.error("exception throws on stop queue processor.", e);
-				}
-				updateActionIconsState();
-			}
-		};
-		stopRunOnServerAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry()
-				.getDescriptor(ImageConstants.ICON_STOP_SERVER));
-		stopRunOnServerAction.setToolTipText("Stop collection on GDA server");
-
-		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
-		toolBarManager.add(startRunOnServerAction);
-		toolBarManager.add(stopRunOnServerAction);
-		toolBarManager.add(new Separator());
-
-	}
-
+	double totalTimes = 0.0;
+	int numActives = 0;
 
 	private void updateCalculatedData() {
-		int numActives = 0;
 		double totalTimes = 0.0;
+		int numActives = 0;
 		if (!regions.isEmpty()) {
 			for (Region region : regions) {
 				if (region.isEnabled()) {
@@ -1204,6 +857,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		txtNumberActives.setText(String.format("%d", numActives));
 		txtEstimatedTime.setText(String.format("%.3f", totalTimes));
+		this.totalTimes=totalTimes;
+		this.numActives=numActives;
 	}
 
 	@Override
@@ -1349,17 +1004,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		if (isDirty()) {
 			InterfaceProvider.getCurrentScanController().pauseCurrentScan();
 			InterfaceProvider.getScriptController().pauseCurrentScript();
-			MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Unsaved Data", null,
-					"Current sequence contains unsaved data. Do you want to save them first?", MessageDialog.WARNING, new String[] { "Yes", "No" }, 0);
-			int result = msgDialog.open();
-			if (result == 0) {
-				doSave(new NullProgressMonitor());
-			} else {
-				isDirty = false;
-				firePropertyChange(PROP_DIRTY);
-			}
-			InterfaceProvider.getCurrentScanController().resumeCurrentScan();
+//			MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Unsaved Data", null,
+//					"Current sequence contains unsaved data. Do you want to save them first?", MessageDialog.WARNING, new String[] { "Yes", "No" }, 0);
+//			int result = msgDialog.open();
+//			if (result == 0) {
+//				doSave(new NullProgressMonitor());
+//			} else {
+//				isDirty = false;
+//				firePropertyChange(PROP_DIRTY);
+//			}
+			doSave(new NullProgressMonitor());
 			InterfaceProvider.getScriptController().resumeCurrentScript();
+			InterfaceProvider.getCurrentScanController().restartCurrentScan();
 		}
 		try {
 			resource.eAdapters().remove(notifyListener);
@@ -1393,25 +1049,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 			// update spectrum parameters
 			spectrum = regionDefinitionResourceUtil.getSpectrum();
-			if (spectrum != null) {
-				txtSample.setText(spectrum.getSampleName());
-				txtPrefix.setText(spectrum.getFilenamePrefix());
-				txtfilenameformat.setText(spectrum.getFilenameFormat());
-			} else {
-				txtSample.setText("");
-				txtPrefix.setText("");
-				txtfilenameformat.setText("");
-			}
 			txtSequenceFilePath.setText(regionDefinitionResourceUtil.getFileName());
 			// update sequence run mode
 			sequence = regionDefinitionResourceUtil.getSequence();
-			if (sequence != null) {
-				runMode.setText(sequence.getRunMode().getLiteral());
-				btnNumberOfIterations.setSelection(!sequence.isRepeatUntilStopped());
-				btnRepeatuntilStopped.setSelection(sequence.isRepeatUntilStopped());
-				btnConfirmAfterEachInteration.setSelection(sequence.isConfirmAfterEachIteration());
-				spinner.setSelection(sequence.getNumIterations());
-			}
 			updateCalculatedData();
 		} catch (Exception e) {
 			logger.error("Cannot refresh table.", e);
@@ -1559,8 +1199,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		try {
 			resource = regionDefinitionResourceUtil.getResource();
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.warn("Cannot find the resouce from sequence file.");
 		}
 		SaveAsDialog saveAsDialog = new SaveAsDialog(getSite().getShell());
 		saveAsDialog.open();
@@ -1604,24 +1243,26 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		}
 	};
-	private Text txtfilenameformat;
 
 	private Text txtSequenceFilePath;
 
-	private Action startSequenceAction;
-
-
-//	private Device regionScannable;
-
 	private Region currentRegion;
+	protected int currentRegionNumber;
+	private double totalScanTime;
+	private double time4ScanPointsDone;
+	private double time4RegionsToDo;
 
+	@SuppressWarnings("restriction")
 	@Override
 	public void dispose() {
 		try {
 			regionDefinitionResourceUtil.getResource().eAdapters().remove(notifyListener);
-			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(RegionViewExtensionFactory.ID, selectionListener);
-			stateChannel.dispose();
+			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(RegionView.ID, selectionListener);
+			// analyserStateChannel.dispose();
 			scriptcontroller.deleteIObserver(this);
+//			if (animation != null) {
+//				animation.cancelAnimation();
+//			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1638,35 +1279,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 	}
 
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
-	public String getUser() {
-		return user;
-	}
-
-	public void setUser(String user) {
-		this.user = user;
-	}
-
-	public String getVisit() {
-		return getVisitID();
-	}
-
-	public void setVisit(String visit) {
-		this.visit = visit;
-	}
-
 	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
 	}
+	AnimationEngine animation = null; 
 
 	@Override
+	@SuppressWarnings("restriction")
 	public void update(Object source, final Object arg) {
 		if (source == scriptcontroller) {
 			if (arg instanceof SequenceFileChangeEvent) {
@@ -1694,43 +1313,175 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						}
 						fireSelectionChanged(currentRegion);
 						sequenceTableViewer.setSelection(new StructuredSelection(currentRegion));
+						if (animation!=null) {
+							animation.cancelAnimation();
+						}
+						try {
+							TableItem tableItem = sequenceTableViewer.getTable().getItem(regions.indexOf(currentRegion));
+							AnimatedTableItemFeedback feedback = new AnimatedTableItemFeedback(sequenceTableViewer.getControl().getShell(),images, tableItem,SequenceTableConstants.COL_STATUS);
+							animation= new AnimationEngine(feedback,-1,100);
+							animation.schedule();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
 				});
 			}
 			if (arg instanceof RegionStatusEvent) {
+				final String regionId = ((RegionStatusEvent) arg).getRegionId();
+				final STATUS status = ((RegionStatusEvent) arg).getStatus();
+				currentRegionNumber = ((RegionStatusEvent) arg).getRegionNumber();
+				if (status==STATUS.RUNNING) {
+					time4RegionsToDo=getRemainingRegionsTimeTotal(currentRegionNumber);
+				} else if (status==STATUS.COMPLETED) {
+					time4RegionsToDo=getRemainingRegionsTimeTotal(currentRegionNumber+1);
+				}
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						String regionId = ((RegionStatusEvent) arg).getRegionId();
-						STATUS status = ((RegionStatusEvent) arg).getStatus();
+						updateRegionNumber(currentRegionNumber, numActives);
 						logger.debug("region {} update to {}",regionId, status);
 						for (Region region : regions) {
 							if (region.getRegionId().equalsIgnoreCase(regionId)) {
 								updateRegionStatus(region, status);
 							}
 						}
+						
 						if (status==STATUS.COMPLETED) {
 							fireSelectionChanged(new RegionRunCompletedSelection());
 						}
 					}
 				});
 			}
-		}
-		// TODO update current region status from detector or EPICS IOC
+			if (arg instanceof ScanStartEvent) {
+				ScanStartEvent evt = (ScanStartEvent) arg;
+				totalNumberOfPoints = evt.getNumberOfPoints();
+				final String scanFilename = evt.getScanFilename();
+				final int scanNumber = evt.getScanNumber();
+				totalScanTime=totalNumberOfPoints*totalTimes;
+				Display.getDefault().asyncExec(new Runnable() {
 
+					@Override
+					public void run() {
+						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
+						txtDataFilePath.setText(scanFilename);
+						txtScanNumberValue.setText(String.valueOf(scanNumber));
+					}
+				});
+				firstTime = true;
+				taskTimer.scheduleAtFixedRate(new TimerTask() {
+
+					@Override
+					public void run() {
+						Display.getDefault().asyncExec(new Runnable() {
+
+							@Override
+							public void run() {
+								double scanTimeRemaining = totalScanTime - time4ScanPointsDone + time4RegionsToDo + currentregiontimeremaining;
+								if (scanTimeRemaining<1) {
+									scanTimeRemaining=0;
+								}
+								if (firstTime) {
+									txtTimeRemaining.setText(String.format("%.3f",scanTimeRemaining));
+									firstTime=false;
+								} else if (scanTimeRemaining<Double.valueOf(txtTimeRemaining.getText().trim())) {
+									txtTimeRemaining.setText(String.format("%.3f",scanTimeRemaining));
+								}
+								progressBar.setSelection((int)(100 * ((totalScanTime - scanTimeRemaining) / totalScanTime)));
+							}
+						});
+					}
+				}, 1000, 2000);
+			}
+			if (arg instanceof ScanPointStartEvent) {
+				currentPointNumber=((ScanPointStartEvent)arg).getCurrentPointNumber();
+				time4ScanPointsDone=currentPointNumber*totalTimes;
+				time4RegionsToDo=getRemainingRegionsTimeTotal(0);
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
+					}
+				});
+			}
+			if (arg instanceof ScanEndEvent) {
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						for (Region region : regions) {
+							if (region.isEnabled()) {
+								updateRegionStatus(region, STATUS.READY);
+							}
+						}
+						if (animation!=null) {
+							animation.cancelAnimation();
+						}
+						taskTimer.cancel();
+					}
+				});
+			}
+		} 
+	}
+	private Image[] loadAnimatedGIF(Display display, String imagePath) {
+		URL url = FileLocator.find(ElectronAnalyserClientPlugin.getDefault().getBundle(), new Path(imagePath), null);
+		ImageLoader imageLoader = new ImageLoader();
+		try {
+			imageLoader.load(url.openStream());
+		} catch (IOException e) {
+			logger.error("Cannot load animated gif file {}", url.getPath());
+		}
+		Image[] images = new Image[imageLoader.data.length];
+		for (int i = 0; i < imageLoader.data.length; ++i) {
+			ImageData nextFrameData = imageLoader.data[i];
+			images[i] = new Image(display, nextFrameData);
+		}
+		return images;
 	}
 
 	public String getDetectorStatePV() {
-		return statePV;
+		return analyserStatePV;
 	}
 
 	public void setDetectorStatePV(String statePV) {
-		this.statePV = statePV;
+		this.analyserStatePV = statePV;
 	}
 
 	private boolean first = true;
 
 	private Combo comboElementSet;
+	private Image[] images;
+	private double currentregiontimeremaining;
+	private Timer taskTimer=new Timer();
+	private boolean firstTime;
+	
+	private class AnalyserTotalTimeRemainingListener implements MonitorListener {
+
+		@Override
+		public void monitorChanged(MonitorEvent arg0) {
+			DBR dbr = arg0.getDBR();
+			if (dbr.isDOUBLE()) {
+				currentregiontimeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
+				logger.debug("iteration time remaining changed to {}",currentregiontimeremaining);
+			}
+		}
+	}
+	
+	private double getRemainingRegionsTimeTotal(int currentRegionNumber2) {
+		double timeToGo = 0.0;
+		int i=0;
+		for (Region region : regions) {
+			if (region.isEnabled()) {
+				i++;
+				if (i>currentRegionNumber2) {
+					timeToGo += region.getTotalTime();
+				}
+			}
+		}
+		logger.warn("=========regions to do time {}, current region number {}", timeToGo,currentRegionNumber2);
+		return timeToGo;
+	}
 
 	private class AnalyserStateListener implements MonitorListener {
 
@@ -1761,7 +1512,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					}
 					break;
 				case 1:
-					updateRegionStatus(currentRegion, STATUS.RUNNING);
+//					updateRegionStatus(currentRegion, STATUS.RUNNING);
 					running=true;
 					logger.debug("analyser is in running state for current region: {}", currentRegion.toString());
 					break;
@@ -1791,68 +1542,20 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		logger.debug("EPICS channel {} initialisation completed.", getDetectorStatePV());
 	}
 
-	/*
-	 * only sets the private chosenVisit attribute
-	 */
-	private String getVisitID() {
-		Icat instance = null;
-		try {
-			instance = IcatProvider.getInstance();
-		} catch (Exception e1) {
-			logger.info("Icat instance is not available", e1);
-		}
-		if (instance != null && !instance.icatInUse()) {
-			logger.info("Icat database not in use. Using the default visit defined by property " + LocalProperties.GDA_DEF_VISIT);
-			return LocalProperties.get("gda.defVisit", "0-0");
-		}
-
-		// test if the result has multiple entries
-		String user = UserAuthentication.getUsername();
-		VisitEntry[] visits = null;
-		try { 
-			if (instance != null) {
-				visits = instance.getMyValidVisits(user);
-			}
-		} catch (Exception e) {
-			logger.info(e.getMessage() + " - using default visit defined by property " + LocalProperties.GDA_DEF_VISIT, e);
-			return LocalProperties.get("gda.defVisit", "0-0");
-		}
-
-		// if no valid visit ID then do same as the cancel button
-		if (visits == null || visits.length == 0) {
-			logger.info("No visits found for user " + user
-					+ " at this time on this beamline. Will use default visit as ID listed as a member of staff.");
-			return LocalProperties.get("gda.defVisit", "0-0");
-		} else if (visits.length == 1) {
-			return visits[0].getVisitID();
-		} else {
-			String visitid = LocalProperties.get(LocalProperties.RCP_APP_VISIT);
-			if (visitid != null) {
-				return visitid;
-			}
-			// send array of visits to dialog to pick one
-			String[][] visitInfo = new String[visits.length][];
-			int i = 0;
-			for (VisitEntry visit : visits) {
-				visitInfo[i] = new String[] { visit.getVisitID(), visit.getTitle() };
-				i++;
-			}
-
-			Display display=Display.getDefault();
-			final VisitIDDialog visitDialog = new VisitIDDialog(display, visitInfo);
-			if (visitDialog.open() == IDialogConstants.CANCEL_ID || visitDialog.getChoosenID() == null) {
-				logger.info("No visit is selected. Will use default visit as ID listed as a member of staff.");
-				return LocalProperties.get("gda.defVisit", "0-0");		
-			}
-			return visitDialog.getChoosenID();
-		}
-	}
-
 	public String getEnergyLensTableDir() {
 		return energyLensTableDir;
 	}
 
 	public void setEnergyLensTableDir(String energyLensTableDir) {
 		this.energyLensTableDir = energyLensTableDir;
+	}
+
+	public String getAnalyserTotalTimeRemianingPV() {
+		return analyserTotalTimeRemianingPV;
+	}
+
+	public void setAnalyserTotalTimeRemianingPV(
+			String analyserTotalTimeRemianingPV) {
+		this.analyserTotalTimeRemianingPV = analyserTotalTimeRemianingPV;
 	}
 }

@@ -44,6 +44,23 @@ public class RegionViewFactory implements FindableExecutableExtension {
 	private ScannableMotor pgmenergy;
 	private IVGScientaAnalyser analyser; 
 
+	private String currentIterationRemainingTimePV;
+	private String iterationLeadPointsPV;
+	private String iterationProgressPV;
+	private String totalDataPointsPV;
+	private String iterationCurrentPointPV;
+	private String totalRemianingTimePV;
+	private String totalProgressPV;
+	private String totalPointsPV;
+	private String currentPointPV;
+	private String currentIterationPV;
+	private String totalIterationsPV;
+	
+	private String statePV;
+	private String acquirePV;
+	private String messagePV;
+	private String zeroSuppliesPV;
+
 	public String getViewPartName() {
 		return viewPartName;
 	}
@@ -76,7 +93,21 @@ public class RegionViewFactory implements FindableExecutableExtension {
 		if (dcmenergy!=null) regionView.setDcmEnergy(dcmenergy);
 		if (pgmenergy!=null) regionView.setPgmEnergy(pgmenergy);
 		if (getAnalyser()!=null) regionView.setAnalyser(getAnalyser());
-		
+		regionView.setCurrentIterationRemainingTimePV(getCurrentIterationRemainingTimePV());
+		regionView.setIterationLeadPointsPV(getIterationLeadPointsPV());
+		regionView.setIterationProgressPV(getIterationProgressPV());
+		regionView.setTotalDataPointsPV(getTotalDataPointsPV());
+		regionView.setIterationCurrentPointPV(iterationCurrentPointPV);
+		regionView.setTotalRemianingTimePV(totalRemianingTimePV);
+		regionView.setTotalProgressPV(totalProgressPV);
+		regionView.setTotalPointsPV(totalPointsPV);
+		regionView.setCurrentPointPV(currentPointPV);
+		regionView.setCurrentIterationPV(currentIterationPV);
+		regionView.setTotalIterationsPV(totalIterationsPV);
+		regionView.setStatePV(statePV);
+		regionView.setAcquirePV(acquirePV);
+		regionView.setMessagePV(messagePV);
+		regionView.setZeroSuppliesPV(zeroSuppliesPV);
 		return regionView;
 	}
 
@@ -117,6 +148,126 @@ public class RegionViewFactory implements FindableExecutableExtension {
 
 	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
+	}
+
+	public String getCurrentIterationRemainingTimePV() {
+		return currentIterationRemainingTimePV;
+	}
+
+	public void setCurrentIterationRemainingTimePV(
+			String currentIterationRemainingTimePV) {
+		this.currentIterationRemainingTimePV = currentIterationRemainingTimePV;
+	}
+
+	public String getIterationLeadPointsPV() {
+		return iterationLeadPointsPV;
+	}
+
+	public void setIterationLeadPointsPV(String iterationLeadPointsPV) {
+		this.iterationLeadPointsPV = iterationLeadPointsPV;
+	}
+
+	public String getIterationProgressPV() {
+		return iterationProgressPV;
+	}
+
+	public void setIterationProgressPV(String iterationProgressPV) {
+		this.iterationProgressPV = iterationProgressPV;
+	}
+
+	public String getTotalDataPointsPV() {
+		return totalDataPointsPV;
+	}
+
+	public void setTotalDataPointsPV(String totalDataPointsPV) {
+		this.totalDataPointsPV = totalDataPointsPV;
+	}
+	public String getIterationCurrentPointPV() {
+		return iterationCurrentPointPV;
+	}
+
+	public void setIterationCurrentPointPV(String iterationCurrentPointPV) {
+		this.iterationCurrentPointPV = iterationCurrentPointPV;
+	}
+
+	public String getTotalRemianingTimePV() {
+		return totalRemianingTimePV;
+	}
+
+	public void setTotalRemianingTimePV(String totalRemianingTimePV) {
+		this.totalRemianingTimePV = totalRemianingTimePV;
+	}
+
+	public String getTotalProgressPV() {
+		return totalProgressPV;
+	}
+
+	public void setTotalProgressPV(String totalProgressPV) {
+		this.totalProgressPV = totalProgressPV;
+	}
+
+	public String getTotalPointsPV() {
+		return totalPointsPV;
+	}
+
+	public void setTotalPointsPV(String totalPointsPV) {
+		this.totalPointsPV = totalPointsPV;
+	}
+
+	public String getCurrentPointPV() {
+		return currentPointPV;
+	}
+
+	public void setCurrentPointPV(String currentPointPV) {
+		this.currentPointPV = currentPointPV;
+	}
+
+	public String getCurrentIterationPV() {
+		return currentIterationPV;
+	}
+
+	public void setCurrentIterationPV(String currentIterationPV) {
+		this.currentIterationPV = currentIterationPV;
+	}
+
+	public String getTotalIterationsPV() {
+		return totalIterationsPV;
+	}
+
+	public void setTotalIterationsPV(String totalIterationsPV) {
+		this.totalIterationsPV = totalIterationsPV;
+	}
+
+	public String getStatePV() {
+		return statePV;
+	}
+
+	public void setStatePV(String statePV) {
+		this.statePV = statePV;
+	}
+
+	public String getAcquirePV() {
+		return acquirePV;
+	}
+
+	public void setAcquirePV(String acquirePV) {
+		this.acquirePV = acquirePV;
+	}
+
+	public String getMessagePV() {
+		return messagePV;
+	}
+
+	public void setMessagePV(String messagePV) {
+		this.messagePV = messagePV;
+	}
+
+	public String getZeroSuppliesPV() {
+		return zeroSuppliesPV;
+	}
+
+	public void setZeroSuppliesPV(String zeroSuppliesPV) {
+		this.zeroSuppliesPV = zeroSuppliesPV;
 	}
 
 }

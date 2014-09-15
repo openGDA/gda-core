@@ -1,5 +1,8 @@
 package org.opengda.detector.electronanalyser.nxdetector;
 
+import static gda.jython.InterfaceProvider.getCurrentScanInformationHolder;
+import static gda.jython.InterfaceProvider.getScanDataPointProvider;
+import static gda.jython.InterfaceProvider.getTerminalPrinter;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
@@ -14,8 +17,9 @@ import gda.device.scannable.PositionCallableProvider;
 import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
-import gda.jython.InterfaceProvider;
 import gda.jython.accesscontrol.MethodAccessProtected;
+import gda.jython.scriptcontroller.ScriptControllerBase;
+import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.util.Sleep;
 
 import java.io.File;
@@ -25,6 +29,9 @@ import java.util.Collections;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.opengda.detector.electronanalyser.event.ScanEndEvent;
+import org.opengda.detector.electronanalyser.event.ScanPointStartEvent;
+import org.opengda.detector.electronanalyser.event.ScanStartEvent;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
@@ -50,6 +57,9 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	private String sequenceFilename;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
 	EW4000CollectionStrategy collectionStrategy;
+	private Scriptcontroller scriptcontroller;
+
+	private int currentPointNumber;
 
 
 	public EW4000() {
@@ -127,7 +137,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		super.moveTo(position);
 		try {
 			getCollectionStrategy().completeCollection();
-			InterfaceProvider.getTerminalPrinter().print("region collections completed.");
+			print("region collections completed.");
 		} catch (Exception e) {
 			logger.error("Error on calling completeCollection", e);
 			throw new DeviceException("Error on calling completeCollection", e);
@@ -145,7 +155,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 			logger.error("Cannot create Number tracker instance", e);
 			throw new DeviceException("Cannot create Number tracker instance", e);
 		}
-		InterfaceProvider.getTerminalPrinter().print("This is not a scan, so no scan file will be written");
+		print("This is not a scan, so no scan file will be written");
 		int scannumber = numTracker.incrementNumber();
 		collectionStrategy.setSequence(sequence);
 		collectionStrategy.createDataWriter(scannumber);
@@ -156,14 +166,14 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		print("=== Collect data ends at "+new Timestamp(new java.util.Date().getTime()).toString()+" ===");
 	}
 	private void print(String message) {
-		InterfaceProvider.getTerminalPrinter().print(message);
+		getTerminalPrinter().print(message);
 	}
 	@Override
 	public void stop() throws DeviceException {
-//		if (!collectionStrategy.isStillHaveDataToWrite()) {
-//			readout();
-//			collectionStrategy.setStillHaveDataToWrite(false);
-//		}
+		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
+			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new ScanEndEvent());
+		}
+
 		super.stop();		
 	}
 	@Override
@@ -178,30 +188,43 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 
 	@Override
 	public void atScanStart() throws DeviceException {
-		int scannumber =InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
+		int scannumber =getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
+		int numberOfPoints = getCurrentScanInformationHolder().getCurrentScanInformation().getNumberOfPoints();
 		String dataDir=PathConstructor.createFromDefaultProperty();
 		if (!dataDir.endsWith(File.separator)) {
 			dataDir += File.separator;
 		}
 		String beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
 		String scanFilename=dataDir+String.format("%s-%d", beamline,scannumber) + ".nxs";
-		InterfaceProvider.getTerminalPrinter().print("Scan data will write to : "+ scanFilename);
+		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
+			((ScriptControllerBase)getScriptcontroller()).update(this, new ScanStartEvent(scannumber,numberOfPoints,scanFilename));
+		}
+		print("Scan data will write to : "+ scanFilename);
 		Sequence sequence = loadSequenceData(getSequenceFilename());
 		collectionStrategy.setSequence(sequence);
-		collectionStrategy.setScanDataPoint(0); // fisrt data point
-
+		collectionStrategy.setScanDataPoint(0); // first data point
+		currentPointNumber=0;
 		super.atScanStart();		
 	}
 
 	@Override
 	public void atPointStart() throws DeviceException {
-		// TODO Auto-generated method stub
+		currentPointNumber++;
+		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
+			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new ScanPointStartEvent(currentPointNumber));
+		}
 		super.atPointStart();
 	}
 	@Override
 	public void atPointEnd() throws DeviceException {
-		// TODO Auto-generated method stub
 		super.atPointEnd();
+	}
+	@Override
+	public void atScanEnd() throws DeviceException {
+		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
+			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new ScanEndEvent());
+		}
+		super.atScanEnd();
 	}
 	public Sequence loadSequenceData(String sequenceFilename) throws DeviceException {
 		Sequence sequence;
@@ -246,5 +269,11 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 	}
 	public void createSingleFile(boolean b){
 		collectionStrategy.setSingleDataFile(b);
+	}
+	public Scriptcontroller getScriptcontroller() {
+		return scriptcontroller;
+	}
+	public void setScriptcontroller(Scriptcontroller scriptcontroller) {
+		this.scriptcontroller = scriptcontroller;
 	}
 }

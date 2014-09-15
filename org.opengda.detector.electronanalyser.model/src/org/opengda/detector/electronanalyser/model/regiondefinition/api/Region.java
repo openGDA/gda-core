@@ -1169,9 +1169,11 @@ public interface Region extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Total Steps</em>' attribute.
+	 * @see #isSetTotalSteps()
+	 * @see #unsetTotalSteps()
 	 * @see #setTotalSteps(int)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_TotalSteps()
-	 * @model default="0" transient="true"
+	 * @model default="0" unsettable="true"
 	 * @generated
 	 */
 	int getTotalSteps();
@@ -1181,10 +1183,35 @@ public interface Region extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Total Steps</em>' attribute.
+	 * @see #isSetTotalSteps()
+	 * @see #unsetTotalSteps()
 	 * @see #getTotalSteps()
 	 * @generated
 	 */
 	void setTotalSteps(int value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getTotalSteps <em>Total Steps</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetTotalSteps()
+	 * @see #getTotalSteps()
+	 * @see #setTotalSteps(int)
+	 * @generated
+	 */
+	void unsetTotalSteps();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getTotalSteps <em>Total Steps</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Total Steps</em>' attribute is set.
+	 * @see #unsetTotalSteps()
+	 * @see #getTotalSteps()
+	 * @see #setTotalSteps(int)
+	 * @generated
+	 */
+	boolean isSetTotalSteps();
 
 	/**
 	 * Returns the value of the '<em><b>Total Time</b></em>' attribute.
@@ -1196,9 +1223,11 @@ public interface Region extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Total Time</em>' attribute.
+	 * @see #isSetTotalTime()
+	 * @see #unsetTotalTime()
 	 * @see #setTotalTime(double)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_TotalTime()
-	 * @model default="0.0" transient="true"
+	 * @model default="0.0" unsettable="true"
 	 * @generated
 	 */
 	double getTotalTime();
@@ -1208,10 +1237,35 @@ public interface Region extends EObject {
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Total Time</em>' attribute.
+	 * @see #isSetTotalTime()
+	 * @see #unsetTotalTime()
 	 * @see #getTotalTime()
 	 * @generated
 	 */
 	void setTotalTime(double value);
+
+	/**
+	 * Unsets the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getTotalTime <em>Total Time</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #isSetTotalTime()
+	 * @see #getTotalTime()
+	 * @see #setTotalTime(double)
+	 * @generated
+	 */
+	void unsetTotalTime();
+
+	/**
+	 * Returns whether the value of the '{@link org.opengda.detector.electronanalyser.model.regiondefinition.api.Region#getTotalTime <em>Total Time</em>}' attribute is set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return whether the value of the '<em>Total Time</em>' attribute is set.
+	 * @see #unsetTotalTime()
+	 * @see #getTotalTime()
+	 * @see #setTotalTime(double)
+	 * @generated
+	 */
+	boolean isSetTotalTime();
 
 	/**
 	 * Returns the value of the '<em><b>Status</b></em>' attribute.
@@ -1245,7 +1299,7 @@ public interface Region extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Enabled</b></em>' attribute.
-	 * The default value is <code>"true"</code>.
+	 * The default value is <code>"false"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Enabled</em>' attribute isn't clear,
@@ -1257,7 +1311,7 @@ public interface Region extends EObject {
 	 * @see #unsetEnabled()
 	 * @see #setEnabled(boolean)
 	 * @see org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage#getRegion_Enabled()
-	 * @model default="true" unsettable="true"
+	 * @model default="false" unsettable="true"
 	 * @generated
 	 */
 	boolean isEnabled();

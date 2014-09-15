@@ -18,27 +18,13 @@
 
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.device.DeviceException;
-import gda.device.detector.areadetector.v17.ADBase;
-import gda.epics.connection.EpicsChannelManager;
-import gda.epics.connection.EpicsController.MonitorType;
-import gda.epics.connection.InitializationListener;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
-import org.eclipse.dawnsci.plotting.api.PlotType;
-import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.dawnsci.plotting.api.PlotType;
+import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -47,39 +33,23 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
-import com.cosylab.epics.caj.CAJChannel;
-
 /**
  * Monitor and plotting live image data from the electron analyser.
  */
-public class ImagePlotComposite extends Composite implements InitializationListener, MonitorListener {
+public class ImagePlotComposite extends EpicsArrayPlotComposite {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImagePlotComposite.class);
 
 	private static final String IMAGE_PLOT = "Image plot";
-
-	private IVGScientaAnalyser analyser;
-	private String arrayPV;
-	private EpicsChannelManager controller;
-
-	private IPlottingSystem plottingSystem;
-
-	private ImageDataListener dataListener;
-	private Channel dataChannel;
-
-	private boolean first = false;
-
-	private boolean newRegion = true;
-
-	private Channel startChannel;
-
+	double[] ydata = null;
+	private Dataset yAxis;
+	
 	/**
 	 * @param parent
 	 * @param style
@@ -89,7 +59,6 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 		super(parent, style);
 		this.setBackground(ColorConstants.white);
 
-		controller = new EpicsChannelManager(this);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
@@ -109,125 +78,14 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 		plottingSystem.getSelectedXAxis().setFormatPattern("######.#");
 	}
 
-	public void initialise() {
-		if (getAnalyser() == null || getArrayPV() == null) {
-			throw new IllegalStateException("required parameters for 'analyser' and/or 'arrayPV' are missing.");
-		}
-		dataListener = new ImageDataListener();
-		try {
-			createChannels();
-		} catch (CAException | TimeoutException e1) {
-			logger.error("failed to create required spectrum channels", e1);
-		}
-	}
-
-	public void createChannels() throws CAException, TimeoutException {
-		first = true;
-		dataChannel = controller.createChannel(arrayPV, dataListener, MonitorType.NATIVE, false);
-		String[] split = getArrayPV().split(":");
-		startChannel = controller.createChannel(split[0]+":"+split[1]+":"+ADBase.Acquire, this, MonitorType.NATIVE, false);
-		controller.creationPhaseCompleted();
-		logger.debug("Image channel is created");
-	}
-
 	@Override
-	public void dispose() {
-		if (!plottingSystem.isDisposed()) {
-			plottingSystem.clear();
-		}
-		//comment out see BLIX-144 for info
-		//		dataChannel.dispose();
-		//		startChannel.dispose();
-		super.dispose();
-	}
-
-	public void clearPlots() {
-		getDisplay().syncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				plottingSystem.setTitle("");
-				plottingSystem.reset();
-			}
-		});
-	}
-
-	private class ImageDataListener implements MonitorListener {
-
-		@Override
-		public void monitorChanged(final MonitorEvent arg0) {
-			if (first) {
-				first = false;
-				logger.debug("Image lietener connected.");
-				return;
-			}
-//			logger.debug("receiving image data from " + arg0.toString() + " to plot on " + plottingSystem.getPlotName() + " with axes from "
-//					+ getAnalyser().getName());
-			if (!getDisplay().isDisposed()) {
-				getDisplay().syncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						if (ImagePlotComposite.this.isVisible()) {
-							DBR dbr = arg0.getDBR();
-							double[] value = null;
-							if (dbr.isDOUBLE()) {
-								value = ((DBR_Double) dbr).getDoubleValue();
-							}
-							IProgressMonitor monitor = new NullProgressMonitor();
-							try {
-								updateImagePlot(monitor, value);
-							} catch (Exception e) {
-								logger.error("exception caught preparing analyser live plot", e);
-							}
-						}
-					}
-				});
-			}
-		}
-	}
-
-	double[] xdata = null;
-	double[] ydata = null;
-	Dataset ds;
-	private boolean displayBindingEnergy=false;
-
-	private void updateImagePlot(final IProgressMonitor monitor, final double[] value) {
+	protected void updatePlot(IProgressMonitor monitor, double[] value) {
+		super.updatePlot(monitor, value);
 		if (isNewRegion()) {
-			// analyser region
-			try {
-				xdata = getAnalyser().getEnergyAxis();
-				if (isDisplayBindingEnergy()) {
-					xdata=convertToBindingENergy(xdata);
-				}
-			} catch (Exception e) {
-				logger.error("cannot get enegery axis from the analyser", e);
-			}
-			try {
-				ydata = getAnalyser().getAngleAxis();
-			} catch (Exception e) {
-				logger.error("cannot get angle axis from the analyser", e);
-			}
+			ydata = getYData();
+			yAxis = createYAxis();
 			setNewRegion(false);
 		}
-		DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
-		if (isDisplayBindingEnergy()) {
-			xAxis.setName("Binding Energies (eV)");
-		} else {
-			xAxis.setName("Kinetic Energies (eV)");
-		}
-
-		DoubleDataset yAxis = new DoubleDataset(ydata, new int[] { ydata.length });
-		try {
-			if ("Transmission".equalsIgnoreCase(getAnalyser().getLensMode())) {
-				yAxis.setName("pixel");
-			} else {
-				yAxis.setName("angles (deg)");
-			}
-		} catch (Exception e1) {
-			logger.error("cannot get lens mode from the analyser", e1);
-		}
-
 		ArrayList<Dataset> axes = new ArrayList<Dataset>();
 		axes.add(xAxis);
 		axes.add(yAxis);
@@ -240,35 +98,27 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 				return;
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
-//			logger.warn("image size = {}", values.length);
-
-			ds = new DoubleDataset(values, dims);//.getSlice(null, null, new int[] { -1, 1 });
-			ds.setName("");
-			plottingSystem.clear();
-			plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
-			plottingSystem.createPlot2D(ds, axes, monitor);
-//			if (!getDisplay().isDisposed()) {
-//				getDisplay().asyncExec(new Runnable() {
-//
-//					@Override
-//					public void run() {
-//						plottingSystem.autoscaleAxes();
-//					}
-//				});
-//			}
+			dataset = new DoubleDataset(values, dims);
+			dataset.setName("");
+			plottingSystem.createPlot2D(dataset, axes, monitor);
+			plottingSystem.setKeepAspect(false);
 		} catch (Exception e) {
 			logger.error("exception caught preparing analyser live image plot", e);
-		}
+		}	
+	}
+
+	@Override
+	public void updatePlot() {
+		if (xdata==null) return;
+		super.updatePlot();
+		ArrayList<Dataset> axes = new ArrayList<Dataset>();
+		axes.add(xAxis);
+		axes.add(yAxis);
+		plottingSystem.setKeepAspect(false);
+		plottingSystem.createPlot2D(dataset, axes, new NullProgressMonitor());
 	}
 	
-	public void updatePlot() {
-		xdata=convertToBindingENergy(xdata);
-		final DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
-		if (isDisplayBindingEnergy()) {
-			xAxis.setName("Binding Energies (eV)");
-		} else {
-			xAxis.setName("Kinetic Energies (eV)");
-		}
+	private Dataset createYAxis() {
 		DoubleDataset yAxis = new DoubleDataset(ydata, new int[] { ydata.length });
 		try {
 			if ("Transmission".equalsIgnoreCase(getAnalyser().getLensMode())) {
@@ -279,79 +129,16 @@ public class ImagePlotComposite extends Composite implements InitializationListe
 		} catch (Exception e1) {
 			logger.error("cannot get lens mode from the analyser", e1);
 		}
-		ArrayList<Dataset> axes = new ArrayList<Dataset>();
-		axes.add(xAxis);
-		axes.add(yAxis);
-		plottingSystem.clear();
-		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
-		plottingSystem.createPlot2D(ds, axes, new NullProgressMonitor());
+		return yAxis;
 	}
-	
-	private double[] convertToBindingENergy(double[] xdata) {
+
+	private double[] getYData() {
+		double[] ydata=null;
 		try {
-			double excitationEnergy = getAnalyser().getExcitationEnergy();
-			for (int i = 0; i < xdata.length; i++) {
-				xdata[i] = excitationEnergy - xdata[i];
-			}
+			ydata = getAnalyser().getAngleAxis();
 		} catch (Exception e) {
-			logger.error("cannot get enegery axis fron the analyser", e);
+			logger.error("cannot get angle axis from the analyser", e);
 		}
-		return xdata;
+		return ydata;
 	}
-
-	public IVGScientaAnalyser getAnalyser() {
-		return analyser;
-	}
-
-	public void setAnalyser(IVGScientaAnalyser analyser) {
-		this.analyser = analyser;
-	}
-
-	public String getArrayPV() {
-		return arrayPV;
-	}
-
-	public void setArrayPV(String arrayPV) {
-		this.arrayPV = arrayPV;
-	}
-
-	@Override
-	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
-		logger.info("Image EPICS Channel initialisation completed!");
-
-	}
-
-	public void setNewRegion(boolean b) {
-		this.newRegion = b;
-
-	}
-
-	public boolean isNewRegion() {
-		return newRegion;
-	}
-
-	@Override
-	public void monitorChanged(MonitorEvent arg0) {
-		if (((CAJChannel) arg0.getSource()).getName().endsWith(ADBase.Acquire)) {
-//			logger.debug("been informed of some sort of change to acquire status");
-//			DBR_Enum en = (DBR_Enum) arg0.getDBR();
-//			short[] no = (short[]) en.getValue();
-//			if (no[0] == 0) {
-//				logger.info("been informed of a stop");
-//			} else {
-//				logger.info("been informed of a start");
-//			}
-			setNewRegion(true);
-		}
-	}
-
-
-	public boolean isDisplayBindingEnergy() {
-		return displayBindingEnergy;
-	}
-
-	public void setDisplayBindingEnergy(boolean displayBindingEnergy) {
-		this.displayBindingEnergy = displayBindingEnergy;
-	}
-
 }

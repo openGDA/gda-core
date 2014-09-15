@@ -102,7 +102,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @generated
 	 * @ordered
 	 */
-	protected static final boolean ENABLED_EDEFAULT = true;
+	protected static final boolean ENABLED_EDEFAULT = false;
 
 	/**
 	 * The cached value of the '{@link #isEnabled() <em>Enabled</em>}' attribute.
@@ -688,6 +688,15 @@ public class RegionImpl extends EObjectImpl implements Region {
 	protected int totalSteps = TOTAL_STEPS_EDEFAULT;
 
 	/**
+	 * This is true if the Total Steps attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean totalStepsESet;
+
+	/**
 	 * The default value of the '{@link #getTotalTime() <em>Total Time</em>}' attribute.
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @see #getTotalTime()
@@ -704,6 +713,15 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * @ordered
 	 */
 	protected double totalTime = TOTAL_TIME_EDEFAULT;
+
+	/**
+	 * This is true if the Total Time attribute has been set.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	protected boolean totalTimeESet;
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -1648,8 +1666,33 @@ public class RegionImpl extends EObjectImpl implements Region {
 	public void setTotalSteps(int newTotalSteps) {
 		int oldTotalSteps = totalSteps;
 		totalSteps = newTotalSteps;
+		boolean oldTotalStepsESet = totalStepsESet;
+		totalStepsESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__TOTAL_STEPS, oldTotalSteps, totalSteps));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__TOTAL_STEPS, oldTotalSteps, totalSteps, !oldTotalStepsESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetTotalSteps() {
+		int oldTotalSteps = totalSteps;
+		boolean oldTotalStepsESet = totalStepsESet;
+		totalSteps = TOTAL_STEPS_EDEFAULT;
+		totalStepsESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__TOTAL_STEPS, oldTotalSteps, TOTAL_STEPS_EDEFAULT, oldTotalStepsESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetTotalSteps() {
+		return totalStepsESet;
 	}
 
 	/**
@@ -1667,8 +1710,33 @@ public class RegionImpl extends EObjectImpl implements Region {
 	public void setTotalTime(double newTotalTime) {
 		double oldTotalTime = totalTime;
 		totalTime = newTotalTime;
+		boolean oldTotalTimeESet = totalTimeESet;
+		totalTimeESet = true;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__TOTAL_TIME, oldTotalTime, totalTime));
+			eNotify(new ENotificationImpl(this, Notification.SET, RegiondefinitionPackage.REGION__TOTAL_TIME, oldTotalTime, totalTime, !oldTotalTimeESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void unsetTotalTime() {
+		double oldTotalTime = totalTime;
+		boolean oldTotalTimeESet = totalTimeESet;
+		totalTime = TOTAL_TIME_EDEFAULT;
+		totalTimeESet = false;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.UNSET, RegiondefinitionPackage.REGION__TOTAL_TIME, oldTotalTime, TOTAL_TIME_EDEFAULT, oldTotalTimeESet));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public boolean isSetTotalTime() {
+		return totalTimeESet;
 	}
 
 	/**
@@ -1971,10 +2039,10 @@ public class RegionImpl extends EObjectImpl implements Region {
 				unsetDiscriminatorLevel();
 				return;
 			case RegiondefinitionPackage.REGION__TOTAL_STEPS:
-				setTotalSteps(TOTAL_STEPS_EDEFAULT);
+				unsetTotalSteps();
 				return;
 			case RegiondefinitionPackage.REGION__TOTAL_TIME:
-				setTotalTime(TOTAL_TIME_EDEFAULT);
+				unsetTotalTime();
 				return;
 		}
 		super.eUnset(featureID);
@@ -2034,9 +2102,9 @@ public class RegionImpl extends EObjectImpl implements Region {
 			case RegiondefinitionPackage.REGION__DISCRIMINATOR_LEVEL:
 				return isSetDiscriminatorLevel();
 			case RegiondefinitionPackage.REGION__TOTAL_STEPS:
-				return totalSteps != TOTAL_STEPS_EDEFAULT;
+				return isSetTotalSteps();
 			case RegiondefinitionPackage.REGION__TOTAL_TIME:
-				return totalTime != TOTAL_TIME_EDEFAULT;
+				return isSetTotalTime();
 		}
 		return super.eIsSet(featureID);
 	}
@@ -2095,9 +2163,9 @@ public class RegionImpl extends EObjectImpl implements Region {
 		result.append(", discriminatorLevel: "); //$NON-NLS-1$
 		if (discriminatorLevelESet) result.append(discriminatorLevel); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(", totalSteps: "); //$NON-NLS-1$
-		result.append(totalSteps);
+		if (totalStepsESet) result.append(totalSteps); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(", totalTime: "); //$NON-NLS-1$
-		result.append(totalTime);
+		if (totalTimeESet) result.append(totalTime); else result.append("<unset>"); //$NON-NLS-1$
 		result.append(')');
 		return result.toString();
 	}
