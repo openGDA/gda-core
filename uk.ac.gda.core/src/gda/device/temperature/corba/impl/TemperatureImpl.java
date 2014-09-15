@@ -23,7 +23,6 @@ import gda.device.DeviceException;
 import gda.device.Temperature;
 import gda.device.TemperatureRamp;
 import gda.device.corba.CorbaDeviceException;
-import gda.device.corba.impl.DeviceImpl;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.device.temperature.corba.CorbaTemperaturePOA;
 import gda.device.temperature.corba.CorbaTemperatureRamp;
@@ -37,16 +36,11 @@ import org.omg.CORBA.Any;
 /**
  * A server side implementation for a distributed Temperature class
  */
-/**
- * 
- */
 public class TemperatureImpl extends CorbaTemperaturePOA {
 	//
 	// Private reference to implementation object
 	//
 	private Temperature temperature;
-
-	private DeviceImpl deviceImpl;
 	private ScannableImpl scannableImpl;
 	//
 	// Private reference to POA
@@ -64,7 +58,6 @@ public class TemperatureImpl extends CorbaTemperaturePOA {
 	public TemperatureImpl(Temperature temperature, org.omg.PortableServer.POA poa) {
 		this.temperature = temperature;
 		this.poa = poa;
-		deviceImpl = new DeviceImpl(temperature, poa);
 		scannableImpl = new ScannableImpl(temperature, poa);
 	}
 
@@ -303,22 +296,22 @@ public class TemperatureImpl extends CorbaTemperaturePOA {
 
 	@Override
 	public void setAttribute(String attributeName, org.omg.CORBA.Any value) throws CorbaDeviceException {
-		deviceImpl.setAttribute(attributeName, value);
+			scannableImpl.setAttribute(attributeName, value);
 	}
 
 	@Override
 	public org.omg.CORBA.Any getAttribute(String attributeName) throws CorbaDeviceException {
-		return deviceImpl.getAttribute(attributeName);
+			return scannableImpl.getAttribute(attributeName);
 	}
 
 	@Override
 	public void reconfigure() throws CorbaFactoryException {
-		deviceImpl.reconfigure();
+			scannableImpl.reconfigure();
 	}
 
 	@Override
 	public void close() throws CorbaDeviceException {
-		deviceImpl.close();
+			scannableImpl.close();
 	}
 
 	@Override
@@ -475,12 +468,12 @@ public class TemperatureImpl extends CorbaTemperaturePOA {
 
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
-		return deviceImpl.getProtectionLevel();
+			return scannableImpl.getProtectionLevel();
 	}
 
 	@Override
 	public void setProtectionLevel(int newLevel) throws CorbaDeviceException {
-		deviceImpl.setProtectionLevel(newLevel);
+		scannableImpl.setProtectionLevel(newLevel);
 	}
 
 	@Override
@@ -507,5 +500,4 @@ public class TemperatureImpl extends CorbaTemperaturePOA {
 	public void atLevelEnd() throws CorbaDeviceException {
 		scannableImpl.atLevelEnd();
 	}
-
 }

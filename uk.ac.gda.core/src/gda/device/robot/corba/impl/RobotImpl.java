@@ -22,7 +22,6 @@ package gda.device.robot.corba.impl;
 import gda.device.DeviceException;
 import gda.device.Robot;
 import gda.device.corba.CorbaDeviceException;
-import gda.device.corba.impl.DeviceImpl;
 import gda.device.robot.corba.CorbaRobotPOA;
 import gda.device.robot.corba.SampleState;
 import gda.device.scannable.corba.impl.ScannableImpl;
@@ -39,7 +38,6 @@ import org.omg.CORBA.Any;
 public class RobotImpl extends CorbaRobotPOA {
 	// reference to implementation objects.
 	private Robot robot;
-	private DeviceImpl deviceImpl;
 	private ScannableImpl scannableImpl;
 
 	private org.omg.PortableServer.POA poa;
@@ -55,7 +53,6 @@ public class RobotImpl extends CorbaRobotPOA {
 	public RobotImpl(Robot robot, org.omg.PortableServer.POA poa) {
 		this.robot = robot;
 		this.poa = poa;
-		deviceImpl = new DeviceImpl(robot, poa);
 		scannableImpl = new ScannableImpl(robot, poa);
 	}
 
@@ -225,22 +222,22 @@ public class RobotImpl extends CorbaRobotPOA {
 
 	@Override
 	public void reconfigure() throws CorbaFactoryException {
-		deviceImpl.reconfigure();
+		scannableImpl.reconfigure();
 	}
 
 	@Override
 	public void close() throws CorbaDeviceException {
-		deviceImpl.close();
+		scannableImpl.close();
 	}
 
 	@Override
 	public void setAttribute(String attributeName, org.omg.CORBA.Any value) throws CorbaDeviceException {
-		deviceImpl.setAttribute(attributeName, value);
+		scannableImpl.setAttribute(attributeName, value);
 	}
 
 	@Override
 	public org.omg.CORBA.Any getAttribute(String attributeName) throws CorbaDeviceException {
-		return deviceImpl.getAttribute(attributeName);
+		return scannableImpl.getAttribute(attributeName);
 	}
 
 	@Override
@@ -344,12 +341,12 @@ public class RobotImpl extends CorbaRobotPOA {
 
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
-		return deviceImpl.getProtectionLevel();
+		return scannableImpl.getProtectionLevel();
 	}
 
 	@Override
 	public void setProtectionLevel(int newLevel) throws CorbaDeviceException {
-		deviceImpl.setProtectionLevel(newLevel);
+		scannableImpl.setProtectionLevel(newLevel);
 	}
 
 	@Override

@@ -22,10 +22,8 @@ package gda.device.detector.cobolddetector.corba.impl;
 import gda.device.CoboldDetector;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
-import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.cobolddetector.corba.CorbaCoboldDetectorPOA;
 import gda.device.detector.corba.impl.DetectorImpl;
-import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
 
 import java.util.ArrayList;
@@ -40,12 +38,7 @@ public class CobolddetectorImpl extends CorbaCoboldDetectorPOA {
 	// Private reference to implementation object
 	//
 	private CoboldDetector cobolddetector;
-
 	private DetectorImpl detectorImpl;
-
-	private ScannableImpl scannableImpl;
-
-	private DeviceImpl deviceImpl;
 
 	//
 	// Private reference to POA
@@ -64,8 +57,6 @@ public class CobolddetectorImpl extends CorbaCoboldDetectorPOA {
 		this.cobolddetector = cobolddetector;
 		this.poa = poa;
 		detectorImpl = new DetectorImpl(cobolddetector, poa);
-		scannableImpl = new ScannableImpl(cobolddetector, poa);
-		deviceImpl = new DeviceImpl(cobolddetector, poa);
 	}
 
 	/**
@@ -118,12 +109,12 @@ public class CobolddetectorImpl extends CorbaCoboldDetectorPOA {
 
 	@Override
 	public void setAttribute(String attributeName, Any value) throws CorbaDeviceException {
-		deviceImpl.setAttribute(attributeName, value);
+		detectorImpl.setAttribute(attributeName, value);
 	}
 
 	@Override
 	public Any getAttribute(String attributeName) throws CorbaDeviceException {
-		return deviceImpl.getAttribute(attributeName);
+		return detectorImpl.getAttribute(attributeName);
 	}
 
 	@Override
@@ -187,12 +178,12 @@ public class CobolddetectorImpl extends CorbaCoboldDetectorPOA {
 
 	@Override
 	public void reconfigure() throws CorbaFactoryException {
-		deviceImpl.reconfigure();
+		detectorImpl.reconfigure();
 	}
 
 	@Override
 	public void close() throws CorbaDeviceException {
-		deviceImpl.close();
+		detectorImpl.close();
 	}
 
 	@Override
@@ -207,134 +198,134 @@ public class CobolddetectorImpl extends CorbaCoboldDetectorPOA {
 
 	@Override
 	public String _toString() {
-		return scannableImpl._toString();
+		return detectorImpl._toString();
 	}
 
 	@Override
 	public void asynchronousMoveTo(Any arg0) throws CorbaDeviceException {
-		scannableImpl.asynchronousMoveTo(arg0);
+		detectorImpl.asynchronousMoveTo(arg0);
 	}
 
 	@Override
 	public void atPointEnd() throws CorbaDeviceException {
-		scannableImpl.atPointEnd();
+		detectorImpl.atPointEnd();
 
 	}
 
 	@Override
 	public void atPointStart() throws CorbaDeviceException {
-		scannableImpl.atPointStart();
+		detectorImpl.atPointStart();
 
 	}
 
 	@Override
 	public void atScanEnd() throws CorbaDeviceException {
-		scannableImpl.atScanEnd();
+		detectorImpl.atScanEnd();
 
 	}
 
 	@Override
 	public void atScanLineEnd() throws CorbaDeviceException {
-		scannableImpl.atScanLineEnd();
+		detectorImpl.atScanLineEnd();
 
 	}
 
 	@Override
 	public void atScanLineStart() throws CorbaDeviceException {
-		scannableImpl.atScanLineStart();
+		detectorImpl.atScanLineStart();
 
 	}
 
 	@Override
 	public void atScanStart() throws CorbaDeviceException {
-		scannableImpl.atScanStart();
+		detectorImpl.atScanStart();
 
 	}
 
 	@Override
 	public String[] getExtraNames() {
-		return scannableImpl.getExtraNames();
+		return detectorImpl.getExtraNames();
 	}
 
 	@Override
 	public String[] getInputNames() {
-		return scannableImpl.getInputNames();
+		return detectorImpl.getInputNames();
 	}
 
 	@Override
 	public int getLevel() {
-		return scannableImpl.getLevel();
+		return detectorImpl.getLevel();
 	}
 
 	@Override
 	public Any getPosition() throws CorbaDeviceException {
-		return scannableImpl.getPosition();
+		return detectorImpl.getPosition();
 	}
 
 	@Override
 	public boolean isBusy() throws CorbaDeviceException {
-		return scannableImpl.isBusy();
+		return detectorImpl.isBusy();
 	}
 
 	@Override
 	public void moveTo(Any arg0) throws CorbaDeviceException {
-		scannableImpl.moveTo(arg0);
+		detectorImpl.moveTo(arg0);
 
 	}
 
 	@Override
 	public void setExtraNames(String[] arg0) {
-		scannableImpl.setExtraNames(arg0);
+		detectorImpl.setExtraNames(arg0);
 
 	}
 
 	@Override
 	public void setInputNames(String[] arg0) {
-		scannableImpl.setInputNames(arg0);
+		detectorImpl.setInputNames(arg0);
 
 	}
 
 	@Override
 	public void setLevel(int arg0) {
-		scannableImpl.setLevel(arg0);
+		detectorImpl.setLevel(arg0);
 
 	}
 
 	@Override
 	public void stop() throws CorbaDeviceException {
-		scannableImpl.stop();
+		detectorImpl.stop();
 
 	}
 
 	@Override
 	public void waitWhileBusy() throws CorbaDeviceException {
-		scannableImpl.waitWhileBusy();
+		detectorImpl.waitWhileBusy();
 
 	}
 
 	@Override
 	public String[] getOutputFormat() {
-		return scannableImpl.getOutputFormat();
+		return detectorImpl.getOutputFormat();
 	}
 
 	@Override
 	public Any checkPositionValid(Any arg0) throws CorbaDeviceException {
-		return scannableImpl.checkPositionValid(arg0);
+		return detectorImpl.checkPositionValid(arg0);
 	}
 
 	@Override
 	public void setOutputFormat(String[] arg0) {
-		scannableImpl.setOutputFormat(arg0);
+		detectorImpl.setOutputFormat(arg0);
 	}
 
 	@Override
 	public void atEnd() throws CorbaDeviceException {
-		scannableImpl.atEnd();
+		detectorImpl.atEnd();
 	}
 
 	@Override
 	public void atStart() throws CorbaDeviceException {
-		scannableImpl.atStart();
+		detectorImpl.atStart();
 	}
 
 	@Override
@@ -362,36 +353,36 @@ public class CobolddetectorImpl extends CorbaCoboldDetectorPOA {
 	}
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
-		return deviceImpl.getProtectionLevel();
+		return detectorImpl.getProtectionLevel();
 	}
 
 	@Override
 	public void setProtectionLevel(int newLevel) throws CorbaDeviceException {
-		deviceImpl.setProtectionLevel(newLevel);
+		detectorImpl.setProtectionLevel(newLevel);
 	}
 
 	@Override
 	public void atLevelMoveStart() throws CorbaDeviceException {
-		scannableImpl.atLevelMoveStart();
+		detectorImpl.atLevelMoveStart();
 	}
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
-		scannableImpl.atCommandFailure();
+		detectorImpl.atCommandFailure();
 	}
 	
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
-		return scannableImpl.toFormattedString();
+		return detectorImpl.toFormattedString();
 	}
 
 	@Override
 	public void atLevelStart() throws CorbaDeviceException {
-		scannableImpl.atLevelStart();
+		detectorImpl.atLevelStart();
 	}
 
 	@Override
 	public void atLevelEnd() throws CorbaDeviceException {
-		scannableImpl.atLevelEnd();
+		detectorImpl.atLevelEnd();
 	}
 
 }

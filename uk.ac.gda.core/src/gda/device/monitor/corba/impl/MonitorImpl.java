@@ -22,7 +22,6 @@ package gda.device.monitor.corba.impl;
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.corba.CorbaDeviceException;
-import gda.device.corba.impl.DeviceImpl;
 import gda.device.monitor.corba.CorbaMonitorPOA;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
@@ -38,7 +37,6 @@ public class MonitorImpl extends CorbaMonitorPOA {
 	//
 	private Monitor monitor;
 	private ScannableImpl scannableImpl;
-	private DeviceImpl deviceImpl;
 
 	/**
 	 * Create server side implementation to the CORBA package.
@@ -50,28 +48,27 @@ public class MonitorImpl extends CorbaMonitorPOA {
 	 */
 	public MonitorImpl(Monitor monitor, org.omg.PortableServer.POA poa) {
 		this.monitor = monitor;
-		deviceImpl = new DeviceImpl(monitor, poa);
 		scannableImpl = new ScannableImpl(monitor, poa);
 	}
 
 	@Override
 	public void setAttribute(String attributeName, Any value) throws CorbaDeviceException {
-		deviceImpl.setAttribute(attributeName, value);
+		scannableImpl.setAttribute(attributeName, value);
 	}
 
 	@Override
 	public Any getAttribute(String attributeName) throws CorbaDeviceException {
-		return deviceImpl.getAttribute(attributeName);
+		return scannableImpl.getAttribute(attributeName);
 	}
 
 	@Override
 	public void reconfigure() throws CorbaFactoryException {
-		deviceImpl.reconfigure();
+		scannableImpl.reconfigure();
 	}
 
 	@Override
 	public void close() throws CorbaDeviceException {
-		deviceImpl.close();
+		scannableImpl.close();
 	}
 
 	@Override
@@ -235,12 +232,12 @@ public class MonitorImpl extends CorbaMonitorPOA {
 	
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
-		return deviceImpl.getProtectionLevel();
+		return scannableImpl.getProtectionLevel();
 	}
 
 	@Override
 	public void setProtectionLevel(int newLevel) throws CorbaDeviceException {
-		deviceImpl.setProtectionLevel(newLevel);
+		scannableImpl.setProtectionLevel(newLevel);
 	}
 
 	@Override
