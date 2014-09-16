@@ -71,7 +71,7 @@ public class DummyTemperature extends TemperatureBase implements Temperature {
 		targetTemp = target;
 		// busy = true;
 		logger.debug("setTargetTemperature: about to startTowardsTarget: " + targetTemp);
-		poller.setPollTime(SHORTPOLLTIME);
+		poller.setPollTime(polltime);
 		startTowardsTarget();
 	}
 

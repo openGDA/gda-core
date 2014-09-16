@@ -20,6 +20,8 @@
 package gda.device.temperature;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.scan.datawriter.DataWriter;
+import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.Temperature;
@@ -43,62 +45,49 @@ import org.slf4j.LoggerFactory;
 public abstract class TemperatureBase extends ScannableMotionBase implements AlarmListener, Temperature, PollerListener {
 	
 	private static final Logger logger = LoggerFactory.getLogger(TemperatureBase.class);
-
 	protected final static long LONGPOLLTIME = 5000;
-
 	protected final static long SHORTPOLLTIME = 1000;
-
-	protected long POLLTIME = 100;
-
-	private long polltime = LONGPOLLTIME;
-
+	protected final static long POLLTIME = 100;
+	protected long polltime = LONGPOLLTIME;
+	protected long longPolltime = LONGPOLLTIME;
 	protected double timeSinceStart = -1000.0;
-
 	protected double lowerTemp = -35.0;
-
 	protected double upperTemp = 200.0;
-
 	private Alarm holdTimeAlarm = null;
-
 	protected double targetTemp = 0.0;
-
 	protected volatile double currentTemp = 0.0;
-
 	protected double setPoint;
-
 	protected ArrayList<TemperatureRamp> rampList = new ArrayList<TemperatureRamp>();
-
 	protected Poller poller;
-
 	private boolean running = false;
-
-	protected volatile boolean busy = false;
-
+	protected volatile boolean busy = false;	
 	protected int currentRamp = -1;
-
-	private ArrayList<String> probeNameList = new ArrayList<String>();
-
+	protected ArrayList<String> probeNameList = new ArrayList<String>();
 	private double accuracy = 0.1; // 0.05;
-
 	protected int count = 0;
-
 	protected DataFileWriter dataFileWriter = null;
-
+	protected DataWriter dataWriter = null;
+	protected ArrayList<double[]> bufferedData = new ArrayList<double[]>();
 	protected String fileSuffix = null;
-
+	
 	@Override
-	public void configure() throws FactoryException {
+	public void configure() throws FactoryException{
 		this.setInputNames(new String[]{"temperature"});
 		this.setOutputFormat(new String[]{"%5.2f"});
 		
 		poller = new Poller();
-		poller.setPollTime(LONGPOLLTIME);
+		poller.setPollTime(longPolltime);
 		poller.addListener(this);
 
 		String filePrefix = LocalProperties.get("gda.device.temperature.datadir");
-
 		if ((filePrefix != null) && (fileSuffix != null)) {
 			dataFileWriter = new DataFileWriter(filePrefix, fileSuffix);
+		} else {
+			try {
+				dataWriter = DefaultDataWriterFactory.createDataWriterFromFactory();
+			} catch (Exception e) {
+				logger.error("Error creating datawriter", e);
+			}
 		}
 	}
 
@@ -254,13 +243,11 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	@Override
 	public boolean isAtTargetTemperature() throws DeviceException {
-		//
 		// Wait for the controller to reach its setPoint.
-		// It requires 5 consecutive
-		// readings to be +/- accuracy to minimise errors caused be overheat
-		// or
-		// overcool.
+		// It requires 5 consecutive readings to be +/- accuracy to minimise errors
+		// caused be overheat or overcool.
 
+		logger.info("isAt TargetTemperature()");
 		currentTemp = getCurrentTemperature();
 		double diff = setPoint - currentTemp;
 
@@ -379,6 +366,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 				running = true;
 				currentRamp = 0;
 				timeSinceStart = 0.0;
+				bufferedData.clear();
 				sendRamp(currentRamp);
 				doStart();
 				poller.setPollTime(polltime);
@@ -455,7 +443,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	@Override
 	public void begin() throws DeviceException {
 		// added in for Oxford Cryostream 700
-		logger.info("begib() is not available for {}", getName());
+		logger.info("begin() is not available for {}", getName());
 	}
 
 	/**
@@ -590,5 +578,12 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 		return currentPosition;
 
+	}
+	
+	public Object readout() { return null;}
+
+	public int[] getDataDimensions() {
+		int[] dims = {getInputNames().length + getExtraNames().length, bufferedData.size()};
+		return dims;
 	}
 }

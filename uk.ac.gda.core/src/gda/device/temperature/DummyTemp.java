@@ -56,8 +56,8 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	private double startTime = 0;
 
-	private Thread runner;
-
+	private Thread runner = null;
+	private boolean lastPoint = false;
 	/**
 	 * Constructor for dummy temperature class
 	 */
@@ -69,9 +69,11 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
-		runner = uk.ac.gda.util.ThreadManager.getThread(this);
-		runner.setName(getClass().getName());
-		runner.start();
+		if (runner == null) {
+			runner = uk.ac.gda.util.ThreadManager.getThread(this);
+			runner.setName(getClass().getName()+":"+getName());
+			runner.start();
+		}
 		startPoller();
 		configured = true;
 	}
@@ -88,6 +90,8 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 	public void close() {
 		logger.debug("Dummy temperature " + getName() + " closed");
 		configured = false;
+		stopPoller();
+		poller = null;
 	}
 
 	@Override
@@ -216,7 +220,9 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 	 */
 	public synchronized void runRamps() throws DeviceException {
 		// doAllRamps = true;
-		dataFileWriter.open();
+		if (dataFileWriter != null) {
+			dataFileWriter.open();
+		}
 		runRamp(0);
 	}
 
@@ -235,8 +241,11 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 	@Override
 	protected void doStop() throws DeviceException {
 		// doAllRamps = false;
-		dataFileWriter.close();
+		if (dataFileWriter != null) {
+			dataFileWriter.close();
+		}
 		currentRamp = -1;
+		lastPoint = true;
 		rampState = IDLE;
 		busy = false;
 		logger.debug("rampState changed to IDLE");
@@ -343,9 +352,9 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 				if (busy) {
 					double change;
 					if (rampState == RAMPING) {
-						change = rampList.get(currentRamp).getRate() * (SHORTPOLLTIME + 100) / 60000;
+						change = rampList.get(currentRamp).getRate() * (polltime + 100) / 60000;
 					} else {
-						change = defaultRate * SHORTPOLLTIME / 10000.0;
+						change = defaultRate * polltime / 10000.0;
 						if (change > getAccuracy() && Math.abs(currentTemp - targetTemp) <= change)
 							change = Math.abs(currentTemp - targetTemp);
 					}
@@ -356,7 +365,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 					currentTemp = currentTemp + change;
 
 					logger.debug("DummyTemp has changed currentTemp to " + currentTemp);
-					wait(SHORTPOLLTIME);
+					wait(polltime);
 				}
 
 				else {
@@ -408,6 +417,8 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 	public void startTowardsTarget() {
 		busy = true;
 		notify();
+		Date d = new Date();
+		startTime = d.getTime();
 		logger.debug("DummyTemp startTowardsTarget called ");
 	}
 
@@ -445,19 +456,32 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 			logger.error("Exception " + de.getMessage());
 		}
 
-		if (timeSinceStart >= 0.0) {
+		if (timeSinceStart >= 0.0 || lastPoint) {
 			Date d = new Date();
 			timeSinceStart = d.getTime() - startTime;
 		}
-
 		dataString = "" + n.format(timeSinceStart / 1000.0) + " " + currentTemp;
+// use this to test DSC data
+//		dataString = "" + n.format(timeSinceStart / 1000.0) + " " + currentTemp + " " + (currentTemp+1);
 
 		TemperatureStatus ts = new TemperatureStatus(currentTemp, currentRamp, stateString, dataString);
 
 		if (dataFileWriter != null) {
 			dataFileWriter.write(dataString);
 		}
-		notifyIObservers(this, ts);
+		
+		double data[] = new double[2];
+		data[0] = currentTemp;
+		data[1] = timeSinceStart / 1000.0;
+		bufferedData.add(data);
+		
+		if (isBeingObserved()) {
+			notifyIObservers(this, ts);
+		}
+		if (lastPoint) {
+			lastPoint = false;
+			timeSinceStart = -1000;
+		}
 	}
 
 	/**
@@ -470,5 +494,34 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 	public void sendRamp(int which) {
 		// FIXME: write this method
 		logger.debug("DummyTemp.sendRamp() does not work yet");
+	}
+
+
+	public String getDataFileName() {
+		return (dataFileWriter != null) ? dataFileWriter.getDataFileName() : null;
+	}
+
+	@Override
+	public Object getAttribute(String name) {
+		if (name.equalsIgnoreCase("DataFilename")) {
+			return getDataFileName();
+		} else if (name.equalsIgnoreCase("NeedsCooler")) {
+			return false;
+		} else if (name.equalsIgnoreCase("NeedsCoolerSpeedSetting")) {
+			return false;
+		} else if (name.equalsIgnoreCase("isDSC")) {
+			return false;
+		} else {
+			return null;
+		}
+	}
+	
+	@Override
+	public Object readout() {
+		int dims[] = getDataDimensions();
+		double data[][] = new double[dims[1]][dims[0]];
+		for (int i=0; i<dims[1]; i++)
+			data[i] = bufferedData.get(i);
+		return data;
 	}
 }

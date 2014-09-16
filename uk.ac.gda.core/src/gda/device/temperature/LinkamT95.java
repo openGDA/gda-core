@@ -19,81 +19,58 @@
 
 package gda.device.temperature;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
-import gda.device.Serial;
+import gda.device.SerialReaderWriter;
 import gda.device.TemperatureRamp;
 import gda.device.TemperatureStatus;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gda.util.PollerEvent;
+
+import java.util.ArrayList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Class to control a LinkamCI Those computer interface boxes control the Linkam range of heating/freezing stages. They
  * offer a serial connection.
  */
-public class LinkamCI extends TemperatureBase {
+public class LinkamT95 extends TemperatureBase implements InitializingBean {
 	
-	private static final Logger logger = LoggerFactory.getLogger(LinkamCI.class);
-	
+	private static final Logger logger = LoggerFactory.getLogger(LinkamT95.class);	
 	private final static double MAXTEMP = 900.0;
-
 	private final static double MINTEMP = -35.0;
-
 	private String debugName;
-
 	private int state;
-
-	private AsynchronousReaderWriter arw = null;
+	private SerialReaderWriter serialReaderWriter = null;
 
 	private int startingRamp = 1;
+//	private double samplingTime; // DSC stage only
 
-	private Serial serial;
-
-	private String serialDeviceName;
-
-	private double samplingTime; // DSC stage only
-
-	// FIXME ?
 	// Currently we either have or have not got a DSC stage. Dsc
 	// should be replaced with a more general Stage class if necessary later
 	private LinkamStage stage = null;
 
 	// Possible values of the status byte
 	private final int STOPPED = 1;
-
 	private final int HEATING = 16;
-
 	private final int COOLING = 32;
-
 	private final int HOLDINGLIMIT = 48;
-
 	private final int HOLDINGTIME = 64;
-
 	private final int HOLDINGTEMP = 80;
 
 	private String errorMessage = "";
 
 	private final int COOLINGFAULT = 1;
-
 	private final int OK = 128;
-
-	// FIXME
-	// This makes the xml configuration bogus
-	private String parity = Serial.PARITY_NONE;
-
-	private int baudRate = Serial.BAUDRATE_19200;
-
-	private int stopBits = Serial.STOPBITS_1;
-
-	private int byteSize = Serial.BYTESIZE_8;
+	private String timeColumnName[] = {"time"};
+	private String timeAndDscColumnName[] = {"time", "dsc"};
 
 	/**
 	 * Constructor
 	 */
-	public LinkamCI() {
+	public LinkamT95() {
 		// These will be overwritten by the values specified in the XML
 		// but are given here as defaults.
 		lowerTemp = MINTEMP;
@@ -102,39 +79,32 @@ public class LinkamCI extends TemperatureBase {
 
 	@Override
 	public void configure() throws FactoryException {
+		longPolltime = 2000;
 		super.configure();
-		if (serial == null) {
-			logger.debug("Finding: " + serialDeviceName);
-			if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
-				logger.error("Serial Device " + serialDeviceName + " not found");
-			}
-		} 
-		if (serial != null) {
-			logger.debug("LinkamCI configure called");
-			// debugName is used in error output
-			debugName = getClass().getName() + " " + getName();
-
-			try {
-				serial.setBaudRate(baudRate);
-				serial.setStopBits(stopBits);
-				serial.setByteSize(byteSize);
-				serial.setParity(parity);
-				serial.setReadTimeout(0);
-				serial.flush();
-				arw = new AsynchronousReaderWriter(serial);
-
-				if ((stage = createStage()) != null) {
-					stage.sendStartupCommands();
-				}
-
-				setPumpAuto(true);
-				startPoller();
-				configured = true;
-			} catch (DeviceException de) {
-				logger.error(debugName + ".configure() caught DeviceException" + de.getMessage());
-			}
-
+		try {
+			getCurrentTemperature();
+			Thread.sleep(50);
+		} catch (DeviceException e) {
+			throw new FactoryException(e.getMessage());
+		} catch (InterruptedException e) {
+			throw new FactoryException(e.getMessage());
 		}
+		if ((stage = createStage()) != null) {
+			stage.sendStartupCommands();
+		}
+		if (stage instanceof DscStageT95) {
+			this.setExtraNames(timeAndDscColumnName);
+		} else {
+			this.setExtraNames(timeColumnName);
+		}
+		try {
+			setPumpAuto(true);
+			Thread.sleep(50);
+		} catch (InterruptedException e) {
+			throw new FactoryException(e.getMessage());
+		}
+		startPoller();
+		configured = true;
 	}
 
 	@Override
@@ -145,46 +115,35 @@ public class LinkamCI extends TemperatureBase {
 
 	@Override
 	public void close() throws DeviceException {
-		if (serial != null)
-			serial.close();
-		arw = null;
+		serialReaderWriter.close();
+		stopPoller();
+		poller = null;
+		probeNameList.clear();
 		configured = false;
 	}
 
-	/**
-	 * @param serialDeviceName
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (serialReaderWriter == null) {
+			throw new IllegalArgumentException("readerwriter needs to be set");
+		}
+	}
+
+	public SerialReaderWriter getSerialReaderWriter() {
+		return serialReaderWriter;
+	}
+
+	public void setSerialReaderWriter(SerialReaderWriter serialReaderWriter) {
+		this.serialReaderWriter = serialReaderWriter;
+	}
+
+	/** Do nothing in this method as we don't want probeNames configured in xml.
+	 * There can only be 1 temperature sensor whose name we determine when the device
+	 * is configured.
 	 */
-	public void setSerialDeviceName(String serialDeviceName) {
-		this.serialDeviceName = serialDeviceName;
-	}
-
-	/**
-	 * @return serialDeviceName
-	 */
-	public String getSerialDeviceName() {
-		return serialDeviceName;
-	}
-
-	public Serial getSerial() {
-		return serial;
-	}
-
-	public void setSerial(Serial serial) {
-		this.serial = serial;
-	}
-
-	/**
-	 * @param samplingTime
-	 */
-	public void setSamplingTime(double samplingTime) {
-		this.samplingTime = samplingTime;
-	}
-
-	/**
-	 * @return samplingTime
-	 */
-	public double getSamplingTime() {
-		return samplingTime;
+	@Override
+	public void setProbeNames(ArrayList<String> probeNames) {
 	}
 
 	/**
@@ -202,7 +161,12 @@ public class LinkamCI extends TemperatureBase {
 			case HEATING:
 			case COOLING:
 				if (newState == HOLDINGLIMIT) {
-					startHoldTimer();
+					if (currentRamp == -1) {
+						sendHold();
+//						stop();
+					} else {
+						startHoldTimer();
+					}
 				}
 				break;
 			default:
@@ -300,8 +264,12 @@ public class LinkamCI extends TemperatureBase {
 	protected void sendRamp(int which) {
 		TemperatureRamp temperatureRamp = rampList.get(which);
 		stage.sendRamp(temperatureRamp);
-		sendRate(1, temperatureRamp.getRate());
-		sendLimit(1, temperatureRamp.getEndTemperature());
+		sendRate(temperatureRamp.getRate());
+		try {
+			Thread.sleep(50);
+		} catch (InterruptedException e) {
+		}
+		sendLimit(temperatureRamp.getEndTemperature());
 	}
 
 	/**
@@ -320,11 +288,7 @@ public class LinkamCI extends TemperatureBase {
 	 * @throws DeviceException
 	 */
 	private String getStatusString() throws DeviceException {
-		String cmd = "T";
-		String status = arw.sendCommandAndGetReply(cmd);
-
-		logger.debug("getStatusString status is " + status);
-		return status;
+		return serialReaderWriter.sendCommandAndGetReply("T");
 	}
 
 	@Override
@@ -335,17 +299,18 @@ public class LinkamCI extends TemperatureBase {
 	/**
 	 * Called each time the poller goes round. Implements PollerListener interface.
 	 * 
-	 * @param pe
-	 *            a PollerEvent constructed by the Poller which calls this
+	 * @param pe a PollerEvent constructed by the Poller which calls this
 	 */
 	@Override
 	public void pollDone(PollerEvent pe) {
 		try {
 			logger.debug("pollDone called");
 			String statusString = getStatusString();
-			checkError(statusString.charAt(1));
-			changeState(statusString.charAt(0));
-			currentTemp = extractTemperature(statusString.substring(6, 10));
+			if (statusString != null && statusString.length() > 1) {
+				checkError(statusString.charAt(1));
+				changeState(statusString.charAt(0));
+				currentTemp = extractTemperature(statusString.substring(6, 10));
+			}
 			stage.pollDone(pe);
 		} catch (DeviceException de) {
 			logger.error(debugName + "pollDone() caught DeviceException" + de.getMessage());
@@ -359,17 +324,18 @@ public class LinkamCI extends TemperatureBase {
 	 *            set as the additionalData field of the TemperatureStatus which is sent in the notify.
 	 */
 	public void sendNotify(String additionalData) {
-		notifyIObservers(this, new TemperatureStatus(currentTemp, currentRamp, stateToString(state) + errorMessage,
+		if (isBeingObserved()) {
+			notifyIObservers(this, new TemperatureStatus(currentTemp, currentRamp, stateToString(state) + errorMessage,
 				additionalData));
+		}
 	}
 
 	/**
-	 * Sends a "B" command
+	 * Sends a "B" command to clear the buffers
 	 */
 	private void sendB() {
 		logger.debug("Linkam sendB() called");
-
-		arw.handleCommand("B");
+		serialReaderWriter.handleCommand("B");
 	}
 
 	/**
@@ -377,68 +343,45 @@ public class LinkamCI extends TemperatureBase {
 	 */
 	public void sendHold() {
 		logger.debug("Linkam sendHold() called");
-
-		arw.handleCommand("O");
+		serialReaderWriter.handleCommand("O");
 	}
 
 	/**
-	 * Set limit temperature for given ramp.
+	 * Set limit temperature.
 	 * 
-	 * @param rampNumber
-	 *            the current ramp number
-	 * @param limit
-	 *            is the temperature limit to a resolution of 0.1degC, max value 99.9
+	 * @param limit is the temperature limit to a resolution of 0.1degC, max value 99.9
 	 */
-	private void sendLimit(int rampNumber, double limit) {
-		String cmd = "L" + rampNumber;
-
+	public void sendLimit(double limit) {
 		logger.debug("Linkam.sendLimit called " + limit);
-
-		// if (limit < 0.1 || limit > 99.9)
-		// throw new DeviceException ("Limit is outide Linkam specification");
-
-		String send = cmd + (int) (limit * 10.0);
-
-		arw.handleCommand(send);
+		String send = "L1" + (int) (limit * 10.0);
+		serialReaderWriter.handleCommand(send);
 	}
 
 	/**
-	 * Set rate (in degrees/minute) for current ramp.
+	 * Set rate (in degrees/minute).
 	 * 
-	 * @param rampNumber
-	 *            the current ramp number
-	 * @param rate
-	 *            is the heating/cooling rate. The rate is 0.01degC/min. The maximum is 99.99degC/min.
+	 * @param rate is the heating/cooling rate. The rate is 0.01degC/min. The maximum is 99.99degC/min.
 	 */
-	private void sendRate(int rampNumber, double rate) {
-		String cmd = "R" + rampNumber;
-
+	public void sendRate(double rate) {
 		logger.debug("Linkam.sendRate called " + rate);
-
-		// if (rate < 0.01 || rate > 99.99)
-		// throw new DeviceException ("Rate is outide Linkam specification");
-
-		String send = cmd + (int) (rate * 100);
-
-		arw.handleCommand(send);
+		String send = "R1" + (int) (rate * 100);
+		serialReaderWriter.handleCommand(send);
 	}
 
 	/**
 	 * Sends a start command
 	 */
-	private void sendStart() {
+	public void sendStart() {
 		logger.debug("Linkam sendStart called");
-
-		arw.handleCommand("S");
+		serialReaderWriter.handleCommand("S");
 	}
 
 	/**
 	 * Sends a stop commmand
 	 */
-	private void sendStop() {
+	public void sendStop() {
 		logger.debug("Linkam sendStop() called");
-
-		arw.handleCommand("E");
+		serialReaderWriter.handleCommand("E");
 	}
 
 	/**
@@ -452,15 +395,18 @@ public class LinkamCI extends TemperatureBase {
 		LinkamStage stage = null;
 
 		try {
-			reply = arw.sendCommandAndGetReply("\u00efS");
+			reply = serialReaderWriter.sendCommandAndGetReply("\u00efS");
 			logger.debug("createStage S reply was " + reply);
-			if (reply.indexOf("DSC") != -1) {
-				stage = new DscStage(this, arw, samplingTime);
-			} else {
-				stage = new DefaultStage(this);
+			if (reply != null && reply.length() > 0) {
+				probeNameList.add(reply.substring(0, reply.length()-1).trim());
+				if (reply.indexOf("DSC") != -1) {
+					stage = new DscStageT95(this, serialReaderWriter);
+				} else {
+					stage = new DefaultStageT95(this);
+				}
 			}
 		} catch (DeviceException de) {
-			logger.error(debugName + ".perhapsCreateDsc() caught DeviceException" + de.getMessage());
+			logger.error(debugName + ".createStage() caught DeviceException" + de.getMessage());
 		}
 		return stage;
 	}
@@ -492,8 +438,7 @@ public class LinkamCI extends TemperatureBase {
 	}
 
 	/**
-	 * @param state
-	 *            the status of the Linkam
+	 * @param state the status of the Linkam
 	 * @return the state represented as a string
 	 */
 	private String stateToString(int state) {
@@ -510,10 +455,10 @@ public class LinkamCI extends TemperatureBase {
 			string = "COOLING";
 			break;
 		case HOLDINGLIMIT:
-			string = "HOLDING AT LIMIT";
+			string = "HOLDING AT THE LIMIT";
 			break;
 		case HOLDINGTIME:
-			string = "HOLDING TIME";
+			string = "HOLDING the LIMIT TIME";
 			break;
 		case HOLDINGTEMP:
 			string = "HOLDING CURRENT TEMPERATURE";
@@ -542,23 +487,22 @@ public class LinkamCI extends TemperatureBase {
 	 */
 	private void setPumpAuto(boolean value) {
 		if (value == true) {
-			arw.handleCommand("Pa");
-			poller.setPollTime(LONGPOLLTIME);
+			serialReaderWriter.handleCommand("Pa0");
+//			poller.setPollTime(longPollTime);
 		} else {
-			arw.handleCommand("Pm");
-			poller.setPollTime(polltime);
+			serialReaderWriter.handleCommand("Pm0");
+//			poller.setPollTime(polltime);
 		}
 	}
 
 	/**
 	 * Sets the liquid nitrogen pump speed.
 	 * 
-	 * @param speed
-	 *            the new speed
+	 * @param speed the new speed
 	 */
 	private void setPumpSpeed(int speed) {
 		// The speed can be 0 to 30 (decimal)
-		arw.handleCommand("P" + (char) (0x30 + speed));
+		serialReaderWriter.handleCommand("P" + (char) (0x30 + speed));
 	}
 
 	/**
@@ -582,11 +526,9 @@ public class LinkamCI extends TemperatureBase {
 		if (name.equalsIgnoreCase("LNPumpAuto")) {
 			setPumpAuto(((Boolean) value).booleanValue());
 		}
-
 		if (name.equalsIgnoreCase("LNPumpSpeed")) {
 			setPumpSpeed(((Integer) value).intValue());
 		}
-
 		if (name.equalsIgnoreCase("StartingRamp")) {
 			setStartingRamp(((Integer) value).intValue());
 		}
@@ -616,9 +558,16 @@ public class LinkamCI extends TemperatureBase {
 
 	@Override
 	public void startTowardsTarget() throws DeviceException {
-		logger.error("Warning: startTowardsTarget not implemented in LinkamCI");
+		sendRate(10);
+		sendLimit(targetTemp);
+		sendStart();
 	}
 
+	public void startTowardsTarget(double targetTemp) throws DeviceException {
+		this.targetTemp = targetTemp;
+		startTowardsTarget();
+	}
+	
 	@Override
 	protected void setHWLowerTemp(double lowerTemp) throws DeviceException {
 	}
@@ -629,8 +578,14 @@ public class LinkamCI extends TemperatureBase {
 
 	@Override
 	public void runRamp() throws DeviceException {
-		// TODO Auto-generated method stub
-
 	}
 
+	public ArrayList<double[]> getBufferedData() {
+		return bufferedData;
+	}
+
+	@Override
+	public Object readout() {
+		return bufferedData;
+	}
 }
