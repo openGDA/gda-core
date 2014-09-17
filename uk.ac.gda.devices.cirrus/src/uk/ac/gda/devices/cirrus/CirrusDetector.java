@@ -44,8 +44,14 @@ public class CirrusDetector extends DetectorBase implements NexusDetector {
 	public static void main(String[] args) {
 		try {
 			CirrusDetector det = new CirrusDetector();
-			det.setCirrusHost("172.23.5.147");
-			det.setMasses(new Integer[]{18,28,40});
+			det.setCirrusHost("192.168.0.250");
+			Integer[] masses = new Integer[]{18,28,32};
+			det.setMasses(masses);
+			det.setFilamentToUse(2);
+			det.setCapillaryHeaterOn(true);
+//			det.setCirrusHeaterOn(true);
+			det.setCirrusHeaterOn(false);
+			System.out.println("Configuring system...");
 			det.configure();
 
 			det.collectData();
@@ -54,9 +60,18 @@ public class CirrusDetector extends DetectorBase implements NexusDetector {
 				System.out.println("Detector is busy...");
 				Thread.sleep(50);
 			}
+			System.out.println("Capillary heater on?" + det.isCapillaryHeaterOn());
+			System.out.println("System heater on?" + det.isCirrusHeaterOn());
+			System.out.println("Chamber pressure:" + det.getChamberPressure());
+			System.out.println("Filament:" + det.getFilamentToUse());
 			
-			System.out.println(det.readout().toString());
+			System.out.println("Measured values:");
+			Double[] results = ((NXDetectorData)det.readout()).getDoubleVals();
+			for (int i = 0; i < results.length; i++){
+				System.out.println("Mass: " + masses[i] + " -> " + String.format("%.2f",results[i]) + " mbar");
+			}
 			
+			System.out.println("Test of Cirrus complete!");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
