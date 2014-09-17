@@ -53,6 +53,7 @@ import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 import uk.ac.gda.server.ncd.scannable.EnergyScannable;
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 import uk.ac.gda.server.ncd.subdetector.LastImageProvider;
+import uk.ac.gda.server.ncd.subdetector.NcdScalerDetector;
 import uk.ac.gda.server.ncd.subdetector.NcdWireDetector;
 
 /**
@@ -138,7 +139,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 		}
 
 		float countingTime = 1;
-		final Collection<DetectorRates> rateCollection = new ArrayList<DetectorRates>(2);
+		final Collection<Object> rateCollection = new ArrayList<Object>(4);
 
 		try {
 			for (INcdSubDetector sub : det.getDetectors()) {
@@ -199,6 +200,13 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 							}
 							break;
 						}
+					}
+				}
+				if (sub instanceof NcdScalerDetector) {
+					NcdScalerDetector nsd = ((NcdScalerDetector)sub);
+					float[] data = nsd.readFloat(1,0,0,1,1,frame);
+					if (data.length > 0) {
+						rateCollection.add(new NormalisationUpdate(nsd.getName(), data[frame-1]));
 					}
 				}
 			}

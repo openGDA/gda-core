@@ -41,8 +41,11 @@ import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 import uk.ac.gda.server.ncd.plotting.DetectorRates;
+import uk.ac.gda.server.ncd.plotting.NormalisationUpdate;
 
 /**
  * A system status display panel
@@ -181,6 +184,23 @@ public class NcdStatusUpdater implements IObserver, IAllScanDataPointsObserver {
 									client.saxsCount.setText(String.format("%,6.6G counts", dr.integratedCounts));
 									client.saxsPeakRate.setText(String.format("%,6.5G cps", dr.maxCounts / dr.countingTime));
 									client.saxsPeak.setText(String.format("%,6.6G counts", dr.maxCounts));
+								}
+							} else if (odr instanceof NormalisationUpdate) {
+								NormalisationUpdate norm = (NormalisationUpdate)odr;
+								if ("i0".equalsIgnoreCase(norm.detName)) {
+									client.i0Normalisation.setText(String.format("I0: %G counts", norm.counts));
+									if (norm.counts <= 0) {
+										client.i0Normalisation.setBackground(SWTResourceManager.getColor(SWT.COLOR_RED));
+									} else {
+										client.i0Normalisation.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
+									}
+								} else if ("it".equalsIgnoreCase(norm.detName)) {
+									client.itNormalisation.setText(String.format("It: %G counts", norm.counts));
+									if (norm.counts <= 0) {
+										client.itNormalisation.setBackground(SWTResourceManager.getColor(SWT.COLOR_RED));
+									} else {
+										client.itNormalisation.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
+									}
 								}
 							}
 						}

@@ -45,6 +45,8 @@ public class NcdStatus extends ViewPart {
 	protected Label cycleNumber;
 	protected Label totalCycleCount;
 	protected ProgressBar progressBar;
+	protected Label i0Normalisation;
+	protected Label itNormalisation;
 
 
 	@Override
@@ -128,6 +130,23 @@ public class NcdStatus extends ViewPart {
 		{
 			progressBar = new ProgressBar(parent, SWT.NONE);
 			progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+		}
+		{
+			Group normalisation = new Group(parent, SWT.NONE);
+			normalisation.setText("Normalisation");
+			GridData gd_normalisation = new GridData(SWT.FILL, SWT.CENTER, true, false, 4,1);
+			normalisation.setLayoutData(gd_normalisation);
+			normalisation.setLayout(new FillLayout(SWT.HORIZONTAL));
+			{
+				i0Normalisation = new Label(normalisation, SWT.NONE);
+				i0Normalisation.setText("I0: -- Counts");
+				i0Normalisation.setAlignment(SWT.CENTER);
+			}
+			{
+				itNormalisation = new Label(normalisation, SWT.NONE);
+				itNormalisation.setText("It: -- Counts");
+				itNormalisation.setAlignment(SWT.CENTER);
+			}
 		}
 		{
 			Composite composite = new Composite(parent, SWT.NONE);
