@@ -21,6 +21,7 @@ package uk.ac.diamond.tomography.reconstruction.dialogs;
 import java.util.Collections;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -31,8 +32,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
-
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 
 public abstract class BaseRoiDialog extends Dialog {
 	

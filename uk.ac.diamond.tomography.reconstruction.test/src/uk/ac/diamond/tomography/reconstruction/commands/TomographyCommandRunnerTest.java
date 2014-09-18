@@ -27,11 +27,10 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 
 /**
  * Test harness for testing an ITomographyCommandRunner
