@@ -20,9 +20,10 @@ package gda.device.detector.nexusprocessor;
 
 import java.util.Arrays;
 
+import org.eclipse.dawnsci.analysis.api.dataset.Slice;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+
 import gda.factory.Findable;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 
 public class DatasetCreatorFromROI implements DatasetCreator, Findable {
 

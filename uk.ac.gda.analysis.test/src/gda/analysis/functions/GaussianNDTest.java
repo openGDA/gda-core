@@ -20,10 +20,9 @@ package gda.analysis.functions;
 
 import static org.junit.Assert.assertEquals;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
 import org.junit.Test;
-
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 
 public class GaussianNDTest {
 

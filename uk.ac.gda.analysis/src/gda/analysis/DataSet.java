@@ -23,6 +23,22 @@ import gda.analysis.functions.dataset.IDataSetFunction;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.ContiguousIterator;
+import org.eclipse.dawnsci.analysis.dataset.impl.ContiguousIteratorWithPosition;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
+import org.eclipse.dawnsci.analysis.dataset.impl.DiscontiguousIterator;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
+import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Maths;
+import org.eclipse.dawnsci.analysis.dataset.impl.SliceIterator;
+import org.eclipse.dawnsci.analysis.dataset.impl.Stats;
+import org.eclipse.dawnsci.analysis.dataset.impl.StrideIterator;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyInteger;
@@ -30,22 +46,6 @@ import org.python.core.PyNone;
 import org.python.core.PySequence;
 import org.python.core.PySlice;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.ContiguousIterator;
-import uk.ac.diamond.scisoft.analysis.dataset.ContiguousIteratorWithPosition;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
-import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
-import uk.ac.diamond.scisoft.analysis.dataset.DiscontiguousIterator;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
-import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.Maths;
-import uk.ac.diamond.scisoft.analysis.dataset.SliceIterator;
-import uk.ac.diamond.scisoft.analysis.dataset.Stats;
-import uk.ac.diamond.scisoft.analysis.dataset.StrideIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Downsample;
 import uk.ac.diamond.scisoft.analysis.dataset.function.DownsampleMode;
 import uk.ac.diamond.scisoft.python.PythonUtils;
@@ -1248,7 +1248,7 @@ public class DataSet extends DoubleDataset {
 	 * @param function
 	 *            The DatasetToDatasetFunction that describes the operator to be performed.
 	 * @return A list of DataSets which is obtained from the functions execute method.
-	 * @deprecated Use {@link uk.ac.diamond.scisoft.analysis.dataset.function.DatasetToDatasetFunction#value(IDataset...)}
+	 * @deprecated Use {@link org.eclipse.dawnsci.analysis.dataset.impl.function.DatasetToDatasetFunction#value(IDataset...)}
 	 */
 	@Deprecated
 	public List<DataSet> exec(IDataSetFunction function) {

@@ -25,8 +25,9 @@ import gda.data.PathConstructor;
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
+
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
-import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 /**
  * This class should be used to load MAC (Multi-channel Analyser Crystal) data files into the ScanFileHolder object

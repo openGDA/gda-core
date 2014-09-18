@@ -24,15 +24,15 @@ import gda.data.PathConstructor;
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.RawBinarySaver;
-import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 /**
  * This class is a wrapper for all the static methods which allow easy plotting to the new plot panel.

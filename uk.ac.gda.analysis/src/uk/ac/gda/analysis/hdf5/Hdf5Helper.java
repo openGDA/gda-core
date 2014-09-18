@@ -30,10 +30,10 @@ import ncsa.hdf.hdf5lib.structs.H5G_info_t;
 import ncsa.hdf.object.h5.H5Datatype;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 
 /**

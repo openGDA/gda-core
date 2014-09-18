@@ -18,7 +18,7 @@
 
 package gda.analysis.functions;
 
-import uk.ac.diamond.scisoft.analysis.fitting.functions.IParameter;
+import org.eclipse.dawnsci.analysis.api.fitting.functions.IParameter;
 
 
 public class Parameter extends uk.ac.diamond.scisoft.analysis.fitting.functions.Parameter implements IParameter {

@@ -24,6 +24,8 @@ import gda.analysis.ScanFileHolder;
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -31,9 +33,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
-import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 /**
  *Saves a scan plot as a .PNG image.

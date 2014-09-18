@@ -18,10 +18,11 @@
 
 package gda.analysis;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+
 import gda.analysis.functions.CompositeFunction;
 import gda.analysis.functions.FunctionOutput;
 import gda.analysis.utils.IOptimizer;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.AFunction;
 
 @Deprecated

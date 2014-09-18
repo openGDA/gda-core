@@ -29,15 +29,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
+import org.eclipse.dawnsci.analysis.api.dataset.Slice;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.nexusformat.NexusFile;
-
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 
 public class NexusDetectorProcessorTest {
 

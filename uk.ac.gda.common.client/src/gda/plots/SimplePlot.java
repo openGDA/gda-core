@@ -61,6 +61,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -91,8 +92,6 @@ import org.jfree.ui.VerticalAlignment;
 import org.jfree.util.ShapeUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 /**
  * Provides a simple data line oriented way to use the JFreeChart plotting classes.

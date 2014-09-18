@@ -23,7 +23,7 @@ import gda.analysis.DataSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
 /**
  * Example Code which shows how a function should be written to obey the IDataSetFunction interface.

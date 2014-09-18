@@ -18,14 +18,15 @@
 
 package gda.analysis.utils.optimisation;
 
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.fitting.functions.IOperator;
+import org.eclipse.dawnsci.analysis.api.fitting.functions.IParameter;
+import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+
 import gda.analysis.DataSet;
 import gda.analysis.functions.IFunction;
 import gda.analysis.functions.Parameter;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.fitting.functions.IOperator;
-import uk.ac.diamond.scisoft.analysis.fitting.functions.IParameter;
-import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 
 public class ProblemFunction implements IFunction {
 

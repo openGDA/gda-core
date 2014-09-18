@@ -25,9 +25,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.nexusformat.NexusFile;
-
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 
 /**
  * Example DataSetProcessor that adds data to the NexusProvider Test implementation of INexusProviderDataSetProcessor.

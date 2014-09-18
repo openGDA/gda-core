@@ -22,7 +22,7 @@ import gda.analysis.DataSet;
 
 import java.util.List;
 
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
 /**
  * This Interface is to define function for the dataset.exec command

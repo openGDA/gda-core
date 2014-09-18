@@ -18,10 +18,11 @@
 
 package gda.analysis.functions;
 
+import org.eclipse.dawnsci.analysis.api.fitting.functions.IParameter;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+
 import gda.analysis.DataSet;
 import gda.analysis.TerminalPrinter;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.fitting.functions.IParameter;
 
 /**
  * Class that wrappers the Fermi function from Fermi-Dirac distribution

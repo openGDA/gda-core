@@ -22,7 +22,7 @@ import gda.analysis.DataSet;
 
 import java.io.Serializable;
 
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
 /**
  * @deprecated use {@link uk.ac.diamond.scisoft.analysis.fitting.functions.AFunction}

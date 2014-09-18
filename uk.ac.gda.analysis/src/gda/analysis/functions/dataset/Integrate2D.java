@@ -23,7 +23,7 @@ import gda.analysis.DataSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
 /**
  * Integrate 2D dataset and return list of two 1D datasets for individual sums over the two dimensions

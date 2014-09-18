@@ -18,7 +18,7 @@
 
 package gda.device.detector.nexusprocessor;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 
 /**
  * interface that returns a Dataset from an input Dataset. The classic example is to return a dataset that

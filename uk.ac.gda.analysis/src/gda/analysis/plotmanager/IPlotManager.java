@@ -19,7 +19,8 @@
 
 package gda.analysis.plotmanager;
 
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+
 import gda.factory.Configurable;
 import gda.factory.Findable;
 import gda.factory.Localizable;

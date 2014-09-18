@@ -23,10 +23,11 @@ import gda.analysis.TerminalPrinter;
 
 import java.io.Serializable;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CoordinatesIterator;
 
 
@@ -56,9 +57,9 @@ public class CompositeFunction extends uk.ac.diamond.scisoft.analysis.fitting.fu
 	}
 
 	class PFunction extends AFunction {
-		uk.ac.diamond.scisoft.analysis.fitting.functions.IFunction function;
+		org.eclipse.dawnsci.analysis.api.fitting.functions.IFunction function;
 
-		public PFunction(uk.ac.diamond.scisoft.analysis.fitting.functions.IFunction fn) {
+		public PFunction(org.eclipse.dawnsci.analysis.api.fitting.functions.IFunction fn) {
 			super(fn.getNoOfParameters());
 			function = fn;
 			int n = function.getNoOfParameters();

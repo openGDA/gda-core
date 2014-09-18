@@ -25,20 +25,20 @@ import gda.analysis.DataSet;
  * 
  * Emulates numpy.random
  * 
- * @deprecated Use {@link uk.ac.diamond.scisoft.analysis.dataset.Random} with new generic datasets
+ * @deprecated Use {@link org.eclipse.dawnsci.analysis.dataset.impl.Random} with new generic datasets
  */
 @Deprecated
 public class Random {
 	public static void seed(final int seed) {
-		uk.ac.diamond.scisoft.analysis.dataset.Random.seed(seed);
+		org.eclipse.dawnsci.analysis.dataset.impl.Random.seed(seed);
 	}
 
 	public static void seed(final int[] seed) {
-		uk.ac.diamond.scisoft.analysis.dataset.Random.seed(seed);
+		org.eclipse.dawnsci.analysis.dataset.impl.Random.seed(seed);
 	}
 
 	public static void seed(final long seed) {
-		uk.ac.diamond.scisoft.analysis.dataset.Random.seed(seed);
+		org.eclipse.dawnsci.analysis.dataset.impl.Random.seed(seed);
 	}
 
 	/**
@@ -46,7 +46,7 @@ public class Random {
 	 * @return an array of values sampled from a uniform distribution between 0 and 1 (exclusive) 
 	 */
 	public static DataSet rand(int... size) {
-		return DataSet.convertToDataSet(uk.ac.diamond.scisoft.analysis.dataset.Random.rand(size));
+		return DataSet.convertToDataSet(org.eclipse.dawnsci.analysis.dataset.impl.Random.rand(size));
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class Random {
 	 * @return an array of values sampled from a Gaussian distribution with mean 0 and variance 1 
 	 */
 	public static DataSet randn(int... size) {
-		return DataSet.convertToDataSet(uk.ac.diamond.scisoft.analysis.dataset.Random.randn(size));
+		return DataSet.convertToDataSet(org.eclipse.dawnsci.analysis.dataset.impl.Random.randn(size));
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class Random {
 	 * @return an array of values sampled from a discrete uniform distribution in range [low, high)
 	 */
 	public static DataSet randint(int low, int high, int[] size) {
-		return DataSet.convertToDataSet(uk.ac.diamond.scisoft.analysis.dataset.Random.random_integers(low, high-1, size));
+		return DataSet.convertToDataSet(org.eclipse.dawnsci.analysis.dataset.impl.Random.random_integers(low, high-1, size));
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class Random {
 	 * @return an array of values sampled from a discrete uniform distribution in range [low, high]
 	 */
 	public static DataSet random_integers(int low, int high, int[] size) {
-		return DataSet.convertToDataSet(uk.ac.diamond.scisoft.analysis.dataset.Random.random_integers(low, high, size));
+		return DataSet.convertToDataSet(org.eclipse.dawnsci.analysis.dataset.impl.Random.random_integers(low, high, size));
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class Random {
 	 * @return an array of values sampled from an exponential distribution with mean beta
 	 */
 	public static DataSet exponential(double beta, int... size) {
-		return DataSet.convertToDataSet(uk.ac.diamond.scisoft.analysis.dataset.Random.exponential(beta, size));
+		return DataSet.convertToDataSet(org.eclipse.dawnsci.analysis.dataset.impl.Random.exponential(beta, size));
 	}
 
 	/**
@@ -92,6 +92,6 @@ public class Random {
 	 * @return an array of values sampled from an exponential distribution with mean lambda
 	 */
 	public static DataSet poisson(double lam, int... size) {
-		return DataSet.convertToDataSet(uk.ac.diamond.scisoft.analysis.dataset.Random.poisson(lam, size));
+		return DataSet.convertToDataSet(org.eclipse.dawnsci.analysis.dataset.impl.Random.poisson(lam, size));
 	}
 }

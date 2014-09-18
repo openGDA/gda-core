@@ -18,14 +18,15 @@
 
 package gda.analysis.functions;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+
 import gda.analysis.DataSet;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 /**
- * @deprecated {@link uk.ac.diamond.scisoft.analysis.fitting.functions.IFunction}
+ * @deprecated {@link org.eclipse.dawnsci.analysis.api.fitting.functions.IFunction}
  */
 @Deprecated
-public interface IFunction extends uk.ac.diamond.scisoft.analysis.fitting.functions.IFunction {
+public interface IFunction extends org.eclipse.dawnsci.analysis.api.fitting.functions.IFunction {
 
 	/**
 	 * Function that makes a dataset from the Function

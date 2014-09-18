@@ -24,8 +24,8 @@ import gda.analysis.utils.DatasetMaths;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.Maths;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Maths;
 
 /**
  * Map a 2D dataset from Cartesian to rotated Cartesian coordinates and return that remapped dataset From a rotated

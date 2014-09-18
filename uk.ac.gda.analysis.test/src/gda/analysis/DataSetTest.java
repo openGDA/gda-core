@@ -29,14 +29,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PySystemState;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import Jama.Matrix;
 
 /**

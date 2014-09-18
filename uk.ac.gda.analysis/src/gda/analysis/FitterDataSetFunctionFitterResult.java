@@ -18,7 +18,8 @@
 
 package gda.analysis;
 
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+
 import gda.analysis.functions.FunctionOutput;
 
 public class FitterDataSetFunctionFitterResult {

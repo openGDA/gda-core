@@ -22,8 +22,9 @@ import gda.device.detector.GDANexusDetectorData;
 
 import java.util.Collection;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 
 /**
  * DataSetProcessor that sends data to client for plotting

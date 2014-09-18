@@ -22,10 +22,9 @@ import static org.junit.Assert.assertEquals;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 
 @RunWith(JUnitParamsRunner.class)

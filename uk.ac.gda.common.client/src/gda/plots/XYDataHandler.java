@@ -25,9 +25,8 @@ import java.awt.Color;
 import java.io.IOException;
 import java.text.NumberFormat;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.jfree.data.Range;
-
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public interface XYDataHandler {
 	public void setXAxisLabel(String label);
