@@ -24,12 +24,12 @@ import java.io.File;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.exafs.DetectorParameters;

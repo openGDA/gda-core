@@ -25,6 +25,7 @@ import gda.jython.JythonServerStatus;
 import gda.observable.IObserver;
 import gda.rcp.GDAClientActivator;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.jface.action.Action;
@@ -42,7 +43,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.gda.client.CommandQueueViewFactory;
 
 /**

@@ -22,6 +22,7 @@ import gda.device.Timer;
 
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.jface.viewers.ICellModifier;
@@ -31,7 +32,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPartSite;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
-import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.detectorviews.Counts;
