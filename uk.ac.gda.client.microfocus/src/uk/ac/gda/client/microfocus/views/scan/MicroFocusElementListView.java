@@ -53,7 +53,7 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
@@ -320,7 +320,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		}
 
 		// get detector type xspress/vortex from nexus
-		IMetaData metadata = dataHolder.getMetadata();
+		IMetadata metadata = dataHolder.getMetadata();
 
 		try {
 			String metaNames = metadata.getMetaNames().toString();
