@@ -20,16 +20,17 @@ package uk.ac.gda.server.ncd.subdetector;
 
 import gda.device.DeviceException;
 import gda.device.DeviceBase;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
 import gda.data.nexus.NexusFileWrapper;
 import gda.device.detector.NXDetectorData;
+
 import java.io.File;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 //import org.nexusformat.NXlink;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;

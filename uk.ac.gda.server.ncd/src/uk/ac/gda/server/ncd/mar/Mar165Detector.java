@@ -32,13 +32,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.MARLoader;
-import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 /**
  * Controls the MarCCD Mosaic detector.

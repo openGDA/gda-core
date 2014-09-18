@@ -36,12 +36,12 @@ import gda.scan.ScanInformation;
 
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 import uk.ac.gda.server.ncd.pilatus.PilatusADController;
 
 /**
