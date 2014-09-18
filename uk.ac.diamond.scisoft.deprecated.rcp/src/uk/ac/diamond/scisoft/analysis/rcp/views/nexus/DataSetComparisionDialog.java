@@ -47,7 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.Metadata;
 import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
@@ -174,7 +174,7 @@ public class DataSetComparisionDialog extends Dialog {
 			if (monitor.isCanceled()) return;
 			
 			final List<Pattern> ignored = DataSetPlotView.getIgnored();
-			final IMetaData     data    = LoaderFactory.getMetaData(path, new ProgressMonitorWrapper(monitor));
+			final IMetadata     data    = LoaderFactory.getMetaData(path, new ProgressMonitorWrapper(monitor));
 			Collection<String>  names   = data != null ? data.getDataNames() : null;
 			if (names == null)  {
 				final IDataHolder dh = LoaderFactory.getData(path, new ProgressMonitorWrapper(monitor));

@@ -53,7 +53,7 @@ import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
 import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionCrystalEnvironment;
 import uk.ac.diamond.scisoft.analysis.diffraction.QSpace;
 import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
@@ -914,7 +914,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 					(Double) data.mean());
 			setThreshold();
 			try {
-				IMetaData localMetaData = data.getMetadata();
+				IMetadata localMetaData = data.getMetadata();
 				if (localMetaData instanceof IDiffractionMetadata) {
 					IDiffractionMetadata localDiffractionMetaData = (IDiffractionMetadata)localMetaData;
 					detConfig = localDiffractionMetaData.getDetector2DProperties();
@@ -936,7 +936,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 	}
 
 	private void setThreshold() {
-		IMetaData md = data.getMetadata();
+		IMetadata md = data.getMetadata();
 		if (md != null) {
 			if (mainPlotter instanceof DataSetPlotter) {
 				try {

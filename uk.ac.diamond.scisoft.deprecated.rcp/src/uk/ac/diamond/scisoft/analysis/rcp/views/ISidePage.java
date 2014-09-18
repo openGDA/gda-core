@@ -18,11 +18,11 @@ package uk.ac.diamond.scisoft.analysis.rcp.views;
 
 import org.eclipse.ui.part.IPageBookViewPage;
 
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 @Deprecated
 public interface ISidePage extends IPageBookViewPage{
 
-	public void setMetadataObject(IMetaData meta);
+	public void setMetadataObject(IMetadata meta);
 
 	/**
 	 * Return true if this page is a page for the given part

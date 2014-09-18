@@ -105,7 +105,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.diffraction.QSpace;
 import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColourLookupTable;
@@ -1129,7 +1129,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 			boolean isDiffImage = false;
 			if (currentDataset instanceof Dataset) {
 				Dataset image = (Dataset) currentDataset;
-				IMetaData metadata = image.getMetadata();
+				IMetadata metadata = image.getMetadata();
 				if (metadata instanceof IDiffractionMetadata) {
 					IDiffractionMetadata diffnMetadata = (IDiffractionMetadata) metadata;
 					try {

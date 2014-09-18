@@ -67,7 +67,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.DataSetProvider;
 import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
@@ -442,7 +442,7 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 
 		if (dataSetPlotView==null) return;
 		try {
-			final IMetaData meta = LoaderFactory.getMetaData(EclipseUtils.getFilePath(input), null);
+			final IMetadata meta = LoaderFactory.getMetaData(EclipseUtils.getFilePath(input), null);
 			dataSetPlotView.setMetaData(meta);
 			dataSetPlotView.refresh();
 		} catch (Exception ne) {

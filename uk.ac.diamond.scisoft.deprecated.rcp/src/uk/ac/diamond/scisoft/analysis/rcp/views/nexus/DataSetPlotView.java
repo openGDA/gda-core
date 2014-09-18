@@ -90,7 +90,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
 import uk.ac.diamond.scisoft.analysis.io.DataSetProvider;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.diamond.scisoft.analysis.monitor.IMonitor;
@@ -126,7 +126,7 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 	protected String              filePath;
 	protected String              fileName;
 
-	protected IMetaData           metaData;
+	protected IMetadata           metaData;
 
 	protected final boolean isDialogMode;
 	protected final boolean isPlottingRequired;
@@ -532,7 +532,7 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 		monitor.worked(1);
 		if (monitor.isCanceled()) return;
 
-		final IMetaData          meta = LoaderFactory.getMetaData(path, new ProgressMonitorWrapper(monitor));
+		final IMetadata          meta = LoaderFactory.getMetaData(path, new ProgressMonitorWrapper(monitor));
 		final List<String>       sets = new ArrayList<String>(meta.getDataNames()); // Will be small list			 
 		SortingUtils.removeIgnoredNames(sets, getIgnored());
 		Collections.sort(sets, new SortNatural<String>(true));
@@ -983,7 +983,7 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 	 * Used when the view is being controlled from a Dialog.
 	 * @param meta
 	 */
-	public void setMetaData(final IMetaData meta) {
+	public void setMetaData(final IMetadata meta) {
 		
 		this.data.clear();
 		this.data.addAll(meta.getDataNames());
@@ -1074,7 +1074,7 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 		return datasetSelection;
 	}
 
-	public IMetaData getMetaData() {
+	public IMetadata getMetaData() {
 		return metaData;
 	}
 
