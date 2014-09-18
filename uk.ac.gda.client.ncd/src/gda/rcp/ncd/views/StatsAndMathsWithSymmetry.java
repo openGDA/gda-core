@@ -22,6 +22,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.BooleanDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Maths;
+import org.eclipse.dawnsci.analysis.dataset.roi.MaskingBean;
+import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -32,17 +38,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.BooleanDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.Maths;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotViewStatsAndMaths;
-import uk.ac.diamond.scisoft.analysis.roi.MaskingBean;
-import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
 
 public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 	private static final Logger logger = LoggerFactory.getLogger(StatsAndMathsWithSymmetry.class);

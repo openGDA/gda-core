@@ -18,10 +18,17 @@
 
 package uk.ac.gda.server.ncd.data;
 
+import org.eclipse.dawnsci.analysis.api.dataset.*;
+import org.eclipse.dawnsci.analysis.dataset.impl.ByteDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.LongDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.ShortDataset;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.detector.NXDetectorData;
-import uk.ac.diamond.scisoft.analysis.dataset.*;
 
 public class DataHelpers {
 

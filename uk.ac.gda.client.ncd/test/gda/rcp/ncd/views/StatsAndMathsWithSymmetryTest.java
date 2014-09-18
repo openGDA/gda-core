@@ -24,10 +24,9 @@ import junitparams.Parameters;
 import gda.rcp.ncd.views.StatsAndMathsWithSymmetry;
 import gda.rcp.ncd.views.StatsAndMathsWithSymmetry.DatasetWithCentre;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 
 @RunWith(JUnitParamsRunner.class)
 public class StatsAndMathsWithSymmetryTest {
