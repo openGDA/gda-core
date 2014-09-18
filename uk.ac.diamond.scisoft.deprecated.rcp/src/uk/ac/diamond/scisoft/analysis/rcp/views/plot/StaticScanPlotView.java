@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.dawb.common.util.list.PrimitiveArrayEncoder;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DAppearance;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DStyles;
@@ -58,7 +59,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;

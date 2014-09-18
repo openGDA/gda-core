@@ -21,6 +21,8 @@ import java.util.Map;
 
 import javax.vecmath.Vector3d;
 
+import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
+import org.eclipse.dawnsci.analysis.api.diffraction.DiffractionCrystalEnvironment;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -36,8 +38,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
-import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
-import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionCrystalEnvironment;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 
 

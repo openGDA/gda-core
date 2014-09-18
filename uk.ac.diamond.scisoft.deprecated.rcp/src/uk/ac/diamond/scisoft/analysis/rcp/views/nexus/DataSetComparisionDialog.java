@@ -29,6 +29,9 @@ import org.dawb.common.util.io.SortingUtils;
 import org.dawb.common.util.list.SortNatural;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
+import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
+import org.eclipse.dawnsci.analysis.api.metadata.Metadata;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -46,10 +49,7 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
-import uk.ac.diamond.scisoft.analysis.metadata.IMetadata;
-import uk.ac.diamond.scisoft.analysis.metadata.Metadata;
 import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
 
 import com.swtdesigner.SWTResourceManager;

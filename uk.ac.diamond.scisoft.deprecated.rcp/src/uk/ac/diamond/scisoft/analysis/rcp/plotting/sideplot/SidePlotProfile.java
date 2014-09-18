@@ -22,6 +22,14 @@ import java.util.List;
 
 import org.dawb.common.ui.plot.roi.data.IRowData;
 import org.dawb.common.ui.plot.roi.data.ROIData;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.dawnsci.analysis.dataset.impl.BooleanDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
+import org.eclipse.dawnsci.analysis.dataset.roi.MaskingBean;
+import org.eclipse.dawnsci.analysis.dataset.roi.ROIList;
+import org.eclipse.dawnsci.analysis.dataset.roi.handler.ROIHandler;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay2DConsumer;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay2DProvider;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayProvider;
@@ -43,10 +51,6 @@ import org.eclipse.ui.PartInitException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.BooleanDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Downsample;
 import uk.ac.diamond.scisoft.analysis.dataset.function.DownsampleMode;
 import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
@@ -62,10 +66,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROITableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveQueue;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
-import uk.ac.diamond.scisoft.analysis.roi.IROI;
-import uk.ac.diamond.scisoft.analysis.roi.MaskingBean;
-import uk.ac.diamond.scisoft.analysis.roi.ROIList;
-import uk.ac.diamond.scisoft.analysis.roi.handler.ROIHandler;
 
 /**
  * Abstract class to extend for any side plots that uses overlays and stuff on 2D images

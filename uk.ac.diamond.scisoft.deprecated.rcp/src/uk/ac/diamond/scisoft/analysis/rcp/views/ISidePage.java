@@ -16,9 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
+import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
 import org.eclipse.ui.part.IPageBookViewPage;
-
-import uk.ac.diamond.scisoft.analysis.metadata.IMetadata;
 @Deprecated
 public interface ISidePage extends IPageBookViewPage{
 

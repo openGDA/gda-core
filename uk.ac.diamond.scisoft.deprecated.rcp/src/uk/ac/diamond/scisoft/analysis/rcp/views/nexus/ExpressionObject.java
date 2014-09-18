@@ -21,13 +21,13 @@ import java.util.Date;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.nfunk.jep.JEP;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.SymbolTable;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataSetProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.monitor.ProgressMonitorWrapper;
 

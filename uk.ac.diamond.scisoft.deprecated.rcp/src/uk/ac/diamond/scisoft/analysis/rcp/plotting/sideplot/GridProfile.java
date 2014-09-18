@@ -22,6 +22,12 @@ import java.util.List;
 
 import org.dawb.common.ui.plot.roi.data.GridROIData;
 import org.dawb.common.ui.plot.roi.data.ROIData;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.GridPreferences;
+import org.eclipse.dawnsci.analysis.dataset.roi.GridROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.GridROIList;
+import org.eclipse.dawnsci.analysis.dataset.roi.handler.GridROIHandler;
+import org.eclipse.dawnsci.analysis.dataset.roi.handler.HandleStatus;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayType;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.VectorOverlayStyles;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.primitives.PrimitiveType;
@@ -55,12 +61,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.GridROITableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
-import uk.ac.diamond.scisoft.analysis.roi.GridPreferences;
-import uk.ac.diamond.scisoft.analysis.roi.GridROI;
-import uk.ac.diamond.scisoft.analysis.roi.GridROIList;
-import uk.ac.diamond.scisoft.analysis.roi.IROI;
-import uk.ac.diamond.scisoft.analysis.roi.handler.GridROIHandler;
-import uk.ac.diamond.scisoft.analysis.roi.handler.HandleStatus;
 
 /**
  * A GridProfile side plot for marking regions of interest with a configurable grid layout This side plot is not

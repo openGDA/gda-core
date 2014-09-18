@@ -20,6 +20,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Comparisons;
+import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
+import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay2DConsumer;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay2DProvider2;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayProvider;
@@ -43,10 +47,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPartSite;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Comparisons;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
-import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;

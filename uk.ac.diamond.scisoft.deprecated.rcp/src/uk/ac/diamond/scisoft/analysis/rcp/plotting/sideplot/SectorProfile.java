@@ -30,6 +30,13 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.dawnsci.analysis.dataset.impl.function.Centroid;
+import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.SectorROIList;
+import org.eclipse.dawnsci.analysis.dataset.roi.handler.HandleStatus;
+import org.eclipse.dawnsci.analysis.dataset.roi.handler.SectorROIHandler;
 import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DAppearance;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DGraphTable;
@@ -69,8 +76,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.function.Centroid;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBeanException;
@@ -86,11 +91,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveJobAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
-import uk.ac.diamond.scisoft.analysis.roi.IROI;
-import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
-import uk.ac.diamond.scisoft.analysis.roi.SectorROIList;
-import uk.ac.diamond.scisoft.analysis.roi.handler.HandleStatus;
-import uk.ac.diamond.scisoft.analysis.roi.handler.SectorROIHandler;
 
 import com.swtdesigner.SWTResourceManager;
 

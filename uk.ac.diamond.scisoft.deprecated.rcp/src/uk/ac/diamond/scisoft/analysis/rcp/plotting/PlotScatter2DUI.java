@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DGraphTable;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.PlotException;
@@ -37,7 +38,6 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;

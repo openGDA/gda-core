@@ -27,6 +27,11 @@ import java.util.List;
 
 import org.dawnsci.plotting.jreality.overlay.Overlay1DConsumer;
 import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
 import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DAppearance;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DGraphTable;
@@ -49,10 +54,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.diffraction.DSpacing;
 import uk.ac.diamond.scisoft.analysis.fitting.Generic1DFitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.APeak;
@@ -65,7 +66,6 @@ import uk.ac.diamond.scisoft.analysis.fitting.functions.PearsonVII;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.PseudoVoigt;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
-import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 @Deprecated
 public class DiffractionViewerSpotFit extends Composite implements Overlay1DConsumer {

@@ -26,6 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.dawnsci.plotting.jreality.impl.DataSet3DPlot3D;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -70,9 +75,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
@@ -80,8 +82,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.DataWindowOverlay;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
-import uk.ac.diamond.scisoft.analysis.roi.IROI;
-import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 
 /**
  *

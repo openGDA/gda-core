@@ -19,6 +19,11 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 import java.util.Arrays;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.dawnsci.analysis.dataset.impl.BooleanDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
+import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
+import org.eclipse.dawnsci.analysis.dataset.roi.MaskingBean;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay2DConsumer;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.Overlay2DProvider2;
 import org.eclipse.dawnsci.plotting.api.jreality.overlay.OverlayImage;
@@ -36,16 +41,11 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.BooleanDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
-import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.MCView.PaintMode;
-import uk.ac.diamond.scisoft.analysis.roi.MaskingBean;
 @Deprecated
 class xyPointList {
 	double[] xlist;

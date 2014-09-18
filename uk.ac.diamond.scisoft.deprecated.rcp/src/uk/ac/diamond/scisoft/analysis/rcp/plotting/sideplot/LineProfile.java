@@ -25,6 +25,12 @@ import org.dawb.common.ui.plot.roi.data.LinearROIData;
 import org.dawb.common.ui.plot.roi.data.ROIData;
 import org.dawb.common.ui.util.EclipseUtils;
 import org.dawnsci.plotting.jreality.print.PlotExportUtil;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.LinearROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.LinearROIList;
+import org.eclipse.dawnsci.analysis.dataset.roi.handler.HandleStatus;
+import org.eclipse.dawnsci.analysis.dataset.roi.handler.LinearROIHandler;
 import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DAppearance;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.Plot1DGraphTable;
@@ -62,7 +68,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DropDownAction;
@@ -71,11 +76,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
-import uk.ac.diamond.scisoft.analysis.roi.IROI;
-import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
-import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
-import uk.ac.diamond.scisoft.analysis.roi.handler.HandleStatus;
-import uk.ac.diamond.scisoft.analysis.roi.handler.LinearROIHandler;
 
 import com.swtdesigner.SWTResourceManager;
 

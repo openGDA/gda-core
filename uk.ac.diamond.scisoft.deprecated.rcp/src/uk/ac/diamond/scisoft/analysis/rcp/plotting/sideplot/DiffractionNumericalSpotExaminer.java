@@ -16,6 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.layout.FillLayout;
@@ -23,9 +25,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
-
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 
 import com.swtdesigner.SWTResourceManager;
 

@@ -22,6 +22,7 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -35,7 +36,6 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.diamond.scisoft.analysis.rcp.nexus.NexusTreeExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.util.NexusUtils;
 

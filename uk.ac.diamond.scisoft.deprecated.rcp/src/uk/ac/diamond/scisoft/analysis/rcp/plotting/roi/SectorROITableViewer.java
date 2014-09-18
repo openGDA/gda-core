@@ -17,11 +17,10 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.roi;
 
 import org.dawb.common.ui.plot.roi.data.SectorROIData;
+import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
 import org.eclipse.jface.viewers.ICellEditorListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
-
-import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
 
 /**
  * Class that extends a table viewer for linear regions of interests

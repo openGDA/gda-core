@@ -25,6 +25,8 @@ import java.util.List;
 
 import org.dawnsci.plotting.jreality.print.PlotExportUtil;
 import org.dawnsci.plotting.jreality.tick.TickFormatting;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.plotting.api.jreality.impl.PlotException;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -41,8 +43,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;

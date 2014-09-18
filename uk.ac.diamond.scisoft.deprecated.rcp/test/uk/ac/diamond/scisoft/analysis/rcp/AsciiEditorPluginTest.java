@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp;
 
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.trace.ITrace;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -25,7 +26,6 @@ import org.eclipse.ui.PlatformUI;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.editors.AsciiEditor;
 import uk.ac.diamond.scisoft.analysis.rcp.editors.DataSetPlotEditor;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
