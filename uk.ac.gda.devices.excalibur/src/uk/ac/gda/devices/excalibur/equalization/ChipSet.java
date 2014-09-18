@@ -23,8 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.io.ILazyLoader;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.io.ILazyLoader;
 
 /**
  * Class used in manipulating data  in arrays that is from an array of chips

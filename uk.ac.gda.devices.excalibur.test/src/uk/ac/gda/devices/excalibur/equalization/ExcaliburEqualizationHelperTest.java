@@ -28,11 +28,11 @@ import java.util.Vector;
 
 import junit.framework.Assert;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.ShortDataset;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import uk.ac.diamond.scisoft.analysis.dataset.ShortDataset;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.IPeak;
 import uk.ac.gda.analysis.hdf5.HDF5HelperLocations;
