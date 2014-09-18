@@ -45,11 +45,11 @@ import gov.aps.jca.event.PutListener;
 import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class EpicsCVScanController extends DeviceBase implements InitializationListener, Configurable, Findable {
 

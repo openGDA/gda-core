@@ -31,10 +31,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 /**
  * Class provides function and controls for post MAC data collection processing, covering data rebin and plotting.

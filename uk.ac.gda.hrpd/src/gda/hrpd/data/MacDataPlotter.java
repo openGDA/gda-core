@@ -26,10 +26,9 @@ import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 import gda.observable.IObserver;
 
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 public class MacDataPlotter implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(MacDataPlotter.class);

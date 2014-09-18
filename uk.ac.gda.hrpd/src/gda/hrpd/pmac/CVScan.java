@@ -41,11 +41,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class CVScan extends ScannableMotionBase implements IObserver {
 
