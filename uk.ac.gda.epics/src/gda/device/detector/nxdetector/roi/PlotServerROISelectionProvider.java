@@ -25,13 +25,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
+import org.eclipse.dawnsci.analysis.dataset.roi.PerimeterBoxROIList;
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROIList;
 import org.python.core.PyString;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
-import uk.ac.diamond.scisoft.analysis.roi.PerimeterBoxROIList;
-import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
 
 public class PlotServerROISelectionProvider implements IndexedRectangularROIProvider<Integer>{
 	
@@ -57,15 +57,15 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 	 * @throws Exception 
 	 */
 	public List<RectangularROI<Integer>> getActiveRoiList() throws Exception {
-		List<uk.ac.diamond.scisoft.analysis.roi.RectangularROI> scisoftRoiList = getScisoftRoiListFromSDAPlotter();
+		List<org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI> scisoftRoiList = getScisoftRoiListFromSDAPlotter();
 		ArrayList<RectangularROI<Integer>> roiList = new ArrayList<RectangularROI<Integer>>();
-		for (uk.ac.diamond.scisoft.analysis.roi.RectangularROI scisoftRoi : scisoftRoiList) {
+		for (org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI scisoftRoi : scisoftRoiList) {
 			roiList.add(ImutableRectangularIntegerROI.valueOf(scisoftRoi));
 		}
 		return roiList;
 	}
 
-	public List<uk.ac.diamond.scisoft.analysis.roi.RectangularROI> getScisoftRoiListFromSDAPlotter() throws Exception {
+	public List<org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI> getScisoftRoiListFromSDAPlotter() throws Exception {
 		// Check bean exists (SDAPlotter will create it if not!)
 		String[] guiNames = SDAPlotter.getGuiNames();
 		if ((!Arrays.asList(guiNames).contains(viewName))) {
@@ -77,14 +77,14 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 		GuiBean guiBean = SDAPlotter.getGuiBean(viewName);
 		Serializable serializable = guiBean.get(GuiParameters.ROIDATALIST);
 		
-		List<uk.ac.diamond.scisoft.analysis.roi.RectangularROI> scisoftRoiList;
+		List<org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI> scisoftRoiList;
 		if (serializable instanceof PerimeterBoxROIList) {
-			scisoftRoiList = new Vector<uk.ac.diamond.scisoft.analysis.roi.RectangularROI>((PerimeterBoxROIList) guiBean.get(GuiParameters.ROIDATALIST));
+			scisoftRoiList = new Vector<org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI>((PerimeterBoxROIList) guiBean.get(GuiParameters.ROIDATALIST));
 		} else {
 			scisoftRoiList = (RectangularROIList) guiBean.get(GuiParameters.ROIDATALIST);
 		}
 		if (scisoftRoiList == null) {
-			scisoftRoiList = new Vector<uk.ac.diamond.scisoft.analysis.roi.RectangularROI>();
+			scisoftRoiList = new Vector<org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI>();
 		}
 		return scisoftRoiList;
 	}
@@ -94,7 +94,7 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 		if (index >= maximumActiveRois) {
 			throw new IndexOutOfBoundsException("Maximum index is: " + maximumActiveRois);
 		}
-		List<uk.ac.diamond.scisoft.analysis.roi.RectangularROI> scisoftRoiList = getScisoftRoiListFromSDAPlotter();
+		List<org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI> scisoftRoiList = getScisoftRoiListFromSDAPlotter();
 		if (index >= scisoftRoiList.size()) {
 			return null;
 		}

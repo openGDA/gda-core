@@ -29,7 +29,7 @@ public class ImutableRectangularIntegerROI implements RectangularROI<Integer> {
 	final private int ysize;
 	final private String name;
 
-	public static ImutableRectangularIntegerROI valueOf(uk.ac.diamond.scisoft.analysis.roi.RectangularROI scisoftRoi) {
+	public static ImutableRectangularIntegerROI valueOf(org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI scisoftRoi) {
 		String name = scisoftRoi.getName();
 		int xstart = (int) Math.round(scisoftRoi.getPointX());
 		int ystart = (int) Math.round(scisoftRoi.getPointY());

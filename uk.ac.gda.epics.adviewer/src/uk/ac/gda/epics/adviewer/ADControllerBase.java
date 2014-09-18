@@ -28,13 +28,12 @@ import gda.jython.InterfaceProvider;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
-
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public abstract class ADControllerBase implements ADController, InitializingBean {
 	static final Logger logger = LoggerFactory.getLogger(ADControllerBase.class);

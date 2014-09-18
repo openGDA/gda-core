@@ -41,12 +41,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-
-import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 
 /**
  * we assume the camera is in constant acquire mode, so we can just grab an image from the array plugin
