@@ -133,6 +133,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 	}
 
 	private void updateFrameClients(int lastFrameUFC, int currentFrameUFC) {
+		logger.trace("updateFrameClients: last: {}, current: {}", lastFrameUFC, currentFrameUFC);
 		int frame = lastFrameUFC;
 		if (frame > 0) {
 			frame--;
@@ -204,9 +205,10 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 				}
 				if (sub instanceof NcdScalerDetector) {
 					NcdScalerDetector nsd = ((NcdScalerDetector)sub);
-					float[] data = nsd.readFloat(1,0,0,1,1,frame);
+					float[] data = nsd.readFloat(1,0,0,1,1,frame+1);
+					logger.debug("data: {}, length: {}", data, data.length);
 					if (data.length > 0) {
-						rateCollection.add(new NormalisationUpdate(nsd.getName(), data[frame-1]));
+						rateCollection.add(new NormalisationUpdate(nsd.getName(), data[frame]));
 					}
 				}
 			}
