@@ -42,7 +42,7 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IDataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IFileLoader;
 import uk.ac.diamond.scisoft.analysis.io.IFileSaver;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.IMetadata;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.PilatusTiffLoader;
 import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
@@ -106,7 +106,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	}
 
 	@Override
-	public IMetaData getMetadata() {
+	public IMetadata getMetadata() {
 		return holder.getMetadata();
 	}
 
