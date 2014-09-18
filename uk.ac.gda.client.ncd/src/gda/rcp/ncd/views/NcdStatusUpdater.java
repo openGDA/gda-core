@@ -188,14 +188,14 @@ public class NcdStatusUpdater implements IObserver, IAllScanDataPointsObserver {
 							} else if (odr instanceof NormalisationUpdate) {
 								NormalisationUpdate norm = (NormalisationUpdate)odr;
 								if ("i0".equalsIgnoreCase(norm.detName)) {
-									client.i0Normalisation.setText(String.format("I0: %G counts", norm.counts));
+									client.i0Normalisation.setText(String.format("I0: %G cps", norm.counts));
 									if (norm.counts <= 0) {
 										client.i0Normalisation.setBackground(SWTResourceManager.getColor(SWT.COLOR_RED));
 									} else {
 										client.i0Normalisation.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
 									}
 								} else if ("it".equalsIgnoreCase(norm.detName)) {
-									client.itNormalisation.setText(String.format("It: %G counts", norm.counts));
+									client.itNormalisation.setText(String.format("It: %G cps", norm.counts));
 									if (norm.counts <= 0) {
 										client.itNormalisation.setBackground(SWTResourceManager.getColor(SWT.COLOR_RED));
 									} else {

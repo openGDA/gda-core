@@ -139,12 +139,12 @@ public class NcdStatus extends ViewPart {
 			normalisation.setLayout(new FillLayout(SWT.HORIZONTAL));
 			{
 				i0Normalisation = new Label(normalisation, SWT.NONE);
-				i0Normalisation.setText("I0: -- Counts");
+				i0Normalisation.setText("I0: -- cps");
 				i0Normalisation.setAlignment(SWT.CENTER);
 			}
 			{
 				itNormalisation = new Label(normalisation, SWT.NONE);
-				itNormalisation.setText("It: -- Counts");
+				itNormalisation.setText("It: -- cps");
 				itNormalisation.setAlignment(SWT.CENTER);
 			}
 		}
