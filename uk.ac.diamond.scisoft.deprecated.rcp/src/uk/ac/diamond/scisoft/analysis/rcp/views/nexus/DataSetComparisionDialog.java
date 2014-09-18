@@ -174,7 +174,7 @@ public class DataSetComparisionDialog extends Dialog {
 			if (monitor.isCanceled()) return;
 			
 			final List<Pattern> ignored = DataSetPlotView.getIgnored();
-			final IMetadata     data    = LoaderFactory.getMetaData(path, new ProgressMonitorWrapper(monitor));
+			final IMetadata     data    = LoaderFactory.getMetadata(path, new ProgressMonitorWrapper(monitor));
 			Collection<String>  names   = data != null ? data.getDataNames() : null;
 			if (names == null)  {
 				final IDataHolder dh = LoaderFactory.getData(path, new ProgressMonitorWrapper(monitor));

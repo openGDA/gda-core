@@ -442,7 +442,7 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 
 		if (dataSetPlotView==null) return;
 		try {
-			final IMetadata meta = LoaderFactory.getMetaData(EclipseUtils.getFilePath(input), null);
+			final IMetadata meta = LoaderFactory.getMetadata(EclipseUtils.getFilePath(input), null);
 			dataSetPlotView.setMetaData(meta);
 			dataSetPlotView.refresh();
 		} catch (Exception ne) {

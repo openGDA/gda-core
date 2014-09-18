@@ -532,7 +532,7 @@ public class DataSetPlotView extends ViewPart implements ICheckStateListener, Da
 		monitor.worked(1);
 		if (monitor.isCanceled()) return;
 
-		final IMetadata          meta = LoaderFactory.getMetaData(path, new ProgressMonitorWrapper(monitor));
+		final IMetadata          meta = LoaderFactory.getMetadata(path, new ProgressMonitorWrapper(monitor));
 		final List<String>       sets = new ArrayList<String>(meta.getDataNames()); // Will be small list			 
 		SortingUtils.removeIgnoredNames(sets, getIgnored());
 		Collections.sort(sets, new SortNatural<String>(true));
