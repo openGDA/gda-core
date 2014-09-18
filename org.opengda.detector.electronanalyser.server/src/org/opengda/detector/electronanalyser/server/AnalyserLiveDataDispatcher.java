@@ -27,12 +27,12 @@ import gov.aps.jca.event.MonitorListener;
 
 import java.util.Arrays;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Findable {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserLiveDataDispatcher.class);

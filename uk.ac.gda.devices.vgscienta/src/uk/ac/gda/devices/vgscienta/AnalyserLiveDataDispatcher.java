@@ -32,13 +32,13 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 
 class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Findable {
 	private static final Logger logger = LoggerFactory.getLogger(AnalyserLiveDataDispatcher.class);

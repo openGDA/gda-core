@@ -18,11 +18,12 @@
 
 package uk.ac.gda.arpes.beans;
 
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.Slice;
-import uk.ac.diamond.scisoft.analysis.dataset.StringDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.Slice;
+import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.StringDataset;
+
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Dataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;

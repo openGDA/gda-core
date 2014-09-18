@@ -15,6 +15,8 @@ import gov.aps.jca.event.MonitorListener;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.swt.widgets.Composite;
@@ -23,9 +25,6 @@ import org.opengda.detector.electronanalyser.client.IPlotCompositeInitialiser;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 import com.cosylab.epics.caj.CAJChannel;
 

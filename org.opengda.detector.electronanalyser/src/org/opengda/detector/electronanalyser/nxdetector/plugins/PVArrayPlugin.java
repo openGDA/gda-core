@@ -33,12 +33,11 @@ import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class PVArrayPlugin extends NullNXPlugin {
 	

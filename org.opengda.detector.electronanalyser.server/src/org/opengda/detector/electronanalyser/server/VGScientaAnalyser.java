@@ -35,13 +35,12 @@ import gda.factory.corba.util.CorbaImplClass;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)

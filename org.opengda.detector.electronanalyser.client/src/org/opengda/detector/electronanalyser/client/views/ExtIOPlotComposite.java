@@ -27,6 +27,8 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
@@ -43,9 +45,6 @@ import org.opengda.detector.electronanalyser.client.IEnergyAxis;
 import org.opengda.detector.electronanalyser.client.IPlotCompositeInitialiser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 /**
  * monitor and display external IO data update in the plot.

@@ -42,14 +42,14 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.FloatDataset;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
-import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 
 import com.cosylab.epics.caj.CAJChannel;
 
