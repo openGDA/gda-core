@@ -18,9 +18,9 @@ Require-Bundle: org.eclipse.ui,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: org.apache.commons.io,
+ org.eclipse.dawnsci.analysis.api.dataset,
  org.slf4j,
- org.springframework.beans.factory;version="3.2.2.RELEASE",
- uk.ac.diamond.scisoft.analysis.dataset
+ org.springframework.beans.factory;version="3.2.2.RELEASE"
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Export-Package: uk.ac.gda.beamline.synoptics;uses:="org.eclipse.jface.resource,org.eclipse.ui.plugin,org.osgi.framework",
  uk.ac.gda.beamline.synoptics.api;uses:="org.dawnsci.plotting.api",
