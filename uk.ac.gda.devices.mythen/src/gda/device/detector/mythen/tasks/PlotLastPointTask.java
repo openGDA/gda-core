@@ -21,9 +21,8 @@ package gda.device.detector.mythen.tasks;
 import gda.analysis.Plotter;
 import gda.device.detector.mythen.data.MythenProcessedDataset;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.springframework.beans.factory.InitializingBean;
-
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 /**
  * An {@link AtPointEndTask} which plots the last frame in each scan.
