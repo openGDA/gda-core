@@ -49,7 +49,7 @@ import org.eclipse.ui.part.ViewPart;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBeanException;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.gda.devices.mythen.visualisation.commands.AddFilesCommand;
@@ -309,7 +309,7 @@ public class MythenDataControlView extends ViewPart {
 		DataBean dataBean = new DataBean();
 
 		for (IDataset d : datasets) {
-			DataSetWithAxisInformation axisData = new DataSetWithAxisInformation();
+			DatasetWithAxisInformation axisData = new DatasetWithAxisInformation();
 			axisData.setAxisMap(amb);
 			axisData.setData(d);
 
@@ -373,7 +373,7 @@ public class MythenDataControlView extends ViewPart {
 
 		AxisMapBean amb = new AxisMapBean();
 
-		DataSetWithAxisInformation axisData = new DataSetWithAxisInformation();
+		DatasetWithAxisInformation axisData = new DatasetWithAxisInformation();
 		axisData.setAxisMap(amb);
 		axisData.setData(dataset);
 
