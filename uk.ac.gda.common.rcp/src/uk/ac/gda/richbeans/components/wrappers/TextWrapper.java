@@ -38,7 +38,7 @@ import com.swtdesigner.SWTResourceManager;
 
 /**
  * Designed to wrap Text objects to allow then to work with BeanUI
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class TextWrapper extends ButtonComposite {

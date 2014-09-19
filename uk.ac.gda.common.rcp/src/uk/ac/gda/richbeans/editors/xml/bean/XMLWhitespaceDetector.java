@@ -21,7 +21,7 @@ package uk.ac.gda.richbeans.editors.xml.bean;
 import org.eclipse.jface.text.rules.IWhitespaceDetector;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class XMLWhitespaceDetector implements IWhitespaceDetector {

@@ -24,7 +24,7 @@ import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextViewer;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class XMLDoubleClickStrategy implements ITextDoubleClickStrategy {

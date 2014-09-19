@@ -32,7 +32,7 @@ import org.eclipse.jface.text.presentation.IPresentationRepairer;
 import org.eclipse.swt.custom.StyleRange;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class NonRuleBasedDamagerRepairer

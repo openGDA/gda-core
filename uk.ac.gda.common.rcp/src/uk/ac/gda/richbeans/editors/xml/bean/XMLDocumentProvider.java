@@ -35,7 +35,7 @@ import uk.ac.gda.util.io.FileUtils;
 
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class XMLDocumentProvider extends FileDocumentProvider {

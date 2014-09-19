@@ -25,7 +25,7 @@ import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.Token;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class XMLPartitionScanner extends RuleBasedPartitionScanner {

@@ -54,7 +54,7 @@ import uk.ac.gda.util.schema.SchemaReader;
 import com.swtdesigner.SWTResourceManager;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class XMLConfiguration extends SourceViewerConfiguration {
@@ -235,7 +235,7 @@ public class XMLConfiguration extends SourceViewerConfiguration {
 	}
 
 	/**
-	 * @author fcp94556
+	 * @author Matthew Gerring
 	 *
 	 */
 	public class XMLCompletionProcessor implements IContentAssistProcessor {

@@ -34,7 +34,7 @@ import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class ExampleEditorRichUI extends RichBeanEditorPart {

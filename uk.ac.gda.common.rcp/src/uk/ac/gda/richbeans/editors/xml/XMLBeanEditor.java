@@ -60,7 +60,7 @@ import com.swtdesigner.SWTResourceManager;
  * An XML editor for editing castor beans. Allows the user to edit the XML
  * and will validate the XML they have written.
  * 
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class XMLBeanEditor extends TextEditor  {

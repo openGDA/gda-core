@@ -59,7 +59,7 @@ import com.swtdesigner.SWTResourceManager;
  * and equals() implemented correctly. Not designed to be extended in general. Instead use setEditorUI(...) to provide a
  * composite template for editing each item.
  * 
- * @author fcp94556
+ * @author Matthew Gerring
  */
 public final class VerticalListEditor extends ListEditor {
 	protected TableViewer listViewer;

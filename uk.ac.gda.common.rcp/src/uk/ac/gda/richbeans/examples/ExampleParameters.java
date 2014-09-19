@@ -26,7 +26,7 @@ import org.apache.commons.beanutils.BeanUtils;
 
 /**
  * Example bean.
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class ExampleParameters {

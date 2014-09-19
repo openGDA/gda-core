@@ -38,7 +38,7 @@ import uk.ac.gda.richbeans.event.ValueListener;
 
 /**
  * Designed to wrap Text objects to allow then to work with BeanUI
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class RadioWrapper extends Group implements IFieldWidget {

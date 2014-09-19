@@ -21,7 +21,7 @@ package uk.ac.gda.richbeans.editors.xml.bean;
 import org.eclipse.swt.graphics.RGB;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public interface IXMLColorConstants {

@@ -58,7 +58,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * RCP developer. By naming the data entry fields the same as the fields in the bean,
  * this class will automatically save and open the bean values into the UI.
  * 
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public abstract class RichBeanEditorPart extends EditorPart  implements ValueListener, IReusableEditor, IFieldProvider {

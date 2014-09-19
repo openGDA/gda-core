@@ -29,7 +29,7 @@ import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.event.ValueEvent;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  * 
  * You have to be a widget (even though not needed) so that RCP developer
  * can deal with using the class. Therefore in inherits from Composite.

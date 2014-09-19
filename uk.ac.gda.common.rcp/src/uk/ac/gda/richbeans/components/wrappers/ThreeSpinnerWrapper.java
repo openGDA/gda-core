@@ -32,7 +32,7 @@ import uk.ac.gda.richbeans.event.ValueEvent;
 
 /**
  * 
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class ThreeSpinnerWrapper extends ButtonComposite implements IFieldWidget {

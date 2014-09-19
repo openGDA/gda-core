@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class SWTUtils {

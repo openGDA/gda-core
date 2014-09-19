@@ -22,7 +22,7 @@ import java.util.EventListener;
 
 /**
  * Listener interface for being notified of value changes
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public interface BoundsListener extends EventListener {

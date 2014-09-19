@@ -21,7 +21,7 @@ package uk.ac.gda.ui.utils;
 
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class StringUtils {

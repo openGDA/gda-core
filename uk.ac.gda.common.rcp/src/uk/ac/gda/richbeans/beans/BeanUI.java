@@ -48,7 +48,7 @@ import uk.ac.gda.richbeans.event.ValueListener;
  * confused design of BeanUI but more importantly of RichBeanEditorPart implementations. Now a IFieldWidget must
  * existing for each field in the bean mapping to each widget.
  * 
- * @author fcp94556
+ * @author Matthew Gerring
  */
 public class BeanUI {
 

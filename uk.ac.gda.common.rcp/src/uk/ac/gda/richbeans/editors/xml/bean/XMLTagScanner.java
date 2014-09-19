@@ -27,7 +27,7 @@ import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class XMLTagScanner extends RuleBasedScanner {

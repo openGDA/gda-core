@@ -57,7 +57,7 @@ import com.swtdesigner.SWTResourceManager;
  * 
  * The items are in a fixed grid and there are no add/remove buttons.
  * 
- * @author fcp94556
+ * @author Matthew Gerring
   *
  */
 public final class GridListEditor extends ListEditor {

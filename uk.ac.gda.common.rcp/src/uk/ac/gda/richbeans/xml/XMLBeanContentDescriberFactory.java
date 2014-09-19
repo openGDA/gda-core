@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.common.rcp.util.IStorageUtils;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class XMLBeanContentDescriberFactory {

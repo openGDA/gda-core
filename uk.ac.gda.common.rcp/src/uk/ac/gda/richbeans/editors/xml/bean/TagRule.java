@@ -23,7 +23,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.MultiLineRule;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class TagRule extends MultiLineRule {

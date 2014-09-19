@@ -45,7 +45,7 @@ import uk.ac.gda.richbeans.event.ValueEvent;
  * 
  * You cannot call setExpressionManager on this class.
  * 
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class ScaleBoxAndFixedExpression extends ScaleBox{
