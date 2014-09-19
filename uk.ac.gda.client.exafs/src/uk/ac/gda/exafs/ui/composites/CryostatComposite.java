@@ -39,7 +39,7 @@ import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class CryostatComposite extends FieldBeanComposite {

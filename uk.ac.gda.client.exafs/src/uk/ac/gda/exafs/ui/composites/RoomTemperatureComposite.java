@@ -29,7 +29,7 @@ import uk.ac.gda.richbeans.components.FieldBeanComposite;
 import uk.ac.gda.richbeans.components.scalebox.RangeBox;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class RoomTemperatureComposite extends FieldBeanComposite {

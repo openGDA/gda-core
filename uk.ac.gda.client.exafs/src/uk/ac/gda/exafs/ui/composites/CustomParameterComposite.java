@@ -37,7 +37,7 @@ import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class CustomParameterComposite extends Composite {

@@ -29,7 +29,7 @@ import uk.ac.gda.richbeans.components.scalebox.NumberBox;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class FurnaceComposite extends FieldBeanComposite {
