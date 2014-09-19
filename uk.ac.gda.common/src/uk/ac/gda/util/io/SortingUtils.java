@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 import uk.ac.gda.util.list.SortNatural;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class SortingUtils {

@@ -19,7 +19,7 @@
 package uk.ac.gda.util.beans.xml;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class XMLHelpersException extends Exception {

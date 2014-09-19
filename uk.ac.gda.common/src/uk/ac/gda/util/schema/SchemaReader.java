@@ -45,7 +45,7 @@ import org.w3c.dom.NodeList;
  * 
  * For now this class uses xPath.
  * 
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class SchemaReader {
