@@ -26,7 +26,7 @@ import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class HighResTomoEditor extends RichBeanMultiPageEditorPart {

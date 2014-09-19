@@ -25,7 +25,7 @@ import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
  * Describer for XML file written by Castor. Checks XML in format
  * specifically design for that written by Castor.
  * 
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class HighResTomoDescriber extends XMLBeanContentDescriber {
