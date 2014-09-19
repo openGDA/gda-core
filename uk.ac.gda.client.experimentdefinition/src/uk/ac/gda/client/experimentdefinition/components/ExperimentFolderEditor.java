@@ -68,7 +68,7 @@ import uk.ac.gda.richbeans.xml.XMLBeanContentDescriberFactory;
 /**
  * Will make this more of an editor later, allowing new XML and deletion / backup.
  * 
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class ExperimentFolderEditor extends EditorPart implements ExperimentObjectListener {

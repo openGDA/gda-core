@@ -30,7 +30,7 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import com.swtdesigner.SWTResourceManager;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  */
 public class ExperimentLabelProvider extends LabelProvider {
 

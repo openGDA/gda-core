@@ -34,7 +34,7 @@ import uk.ac.gda.client.experimentdefinition.components.ExperimentProjectNature;
 import uk.ac.gda.util.io.FileUtils;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  */
 public class AddCommandHandler extends AbstractExperimentCommandHandler {
 
