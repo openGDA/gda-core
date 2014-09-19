@@ -3,7 +3,7 @@ from gda.device.scannable import PositionCallableProvider
 from gdascripts.scannable.detector.ProcessingDetectorWrapper import BasicDataSetProvider
 from java.util.concurrent import Callable
 from gdascripts.scannable.detector.DatasetShapeRenderer import RectPainter
-import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException
+from org.eclipse.dawnsci.analysis.api.io import ScanFileHolderException
 from gda.device.detector.hardwaretriggerable import HardwareTriggerableDetector
 
 class DetectorDataProcessorPositionCallable(Callable):
@@ -104,7 +104,7 @@ class DetectorDataProcessorWithRoi(DetectorDataProcessor):
 			try:
 				self.det.removeShape(self, 'roi')
 				print self.name, " roi --> *cleared*"
-			except (uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException, IOError), _:
+			except (ScanFileHolderException, IOError), _:
 				print self.name, " roi --> *cleared (could not load file to display)"
 		else:
 			if x2 < x1:
@@ -119,7 +119,7 @@ class DetectorDataProcessorWithRoi(DetectorDataProcessor):
 			try:
 				self.det.addShape(self, 'roi', RectPainter(y1, x1, y2, x2))
 				print self.name, " roi --> (%d, %d, %d, %d)" % (x1, y1, x2, y2)
-			except (uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException, IOError), _:
+			except (ScanFileHolderException, IOError), _:
 				print self.name, " roi --> (%d, %d, %d, %d) (could not load file to display)" % (x1, y1, x2, y2)
 				
 		
