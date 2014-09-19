@@ -1,5 +1,5 @@
 from gda.device.scannable import PseudoDevice
-from uk.ac.diamond.scisoft.analysis.dataset import DoubleDataset
+from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
 
 
 try:

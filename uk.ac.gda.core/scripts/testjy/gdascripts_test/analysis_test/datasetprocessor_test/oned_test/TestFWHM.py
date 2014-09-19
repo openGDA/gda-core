@@ -2,7 +2,7 @@
 import unittest
 
 from gdascripts.analysis.datasetprocessor.oned.FullWidthHalfMaximum import FullWidthHalfMaximum
-from uk.ac.diamond.scisoft.analysis.dataset import DoubleDataset
+from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
 def close(l1, l2):
 	for v1, v2 in zip(l1, l2):
 		if abs(v1-v2) > .01:

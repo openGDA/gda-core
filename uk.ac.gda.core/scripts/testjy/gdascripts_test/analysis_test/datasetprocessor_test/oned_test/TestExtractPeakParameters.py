@@ -2,7 +2,7 @@
 import unittest
 
 from gdascripts.analysis.datasetprocessor.oned.extractPeakParameters import ExtractPeakParameters
-from uk.ac.diamond.scisoft.analysis.dataset import DoubleDataset
+from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
 from testjy.gdascripts_test.analysis_test.datasetprocessor_test.oned_test.files.files import SILICON_DIFFRACTION
 import scisoftpy as dnp
 import time
