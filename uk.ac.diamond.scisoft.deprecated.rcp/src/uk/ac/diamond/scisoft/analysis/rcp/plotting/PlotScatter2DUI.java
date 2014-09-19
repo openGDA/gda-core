@@ -40,7 +40,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 
 /**
  *
@@ -148,10 +148,10 @@ public class PlotScatter2DUI extends Plot1DUIAdapter {
 
 	@Override
 	public void processPlotUpdate(DataBean dbPlot, boolean isUpdate) {
-		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
+		Collection<DatasetWithAxisInformation> plotData = dbPlot.getData();
 		
 		if (plotData != null) {
-			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
+			Iterator<DatasetWithAxisInformation> iter = plotData.iterator();
 			final List<Dataset> datasets = Collections.synchronizedList(new LinkedList<Dataset>());
 			final List<AxisValues> xAxes = Collections.synchronizedList(new LinkedList<AxisValues>());
 			final List<AxisValues> yAxes = Collections.synchronizedList(new LinkedList<AxisValues>());
@@ -179,7 +179,7 @@ public class PlotScatter2DUI extends Plot1DUIAdapter {
 					newYAxis.setValues(yAxisValues);
 					xAxes.add(newXAxis);
 					yAxes.add(newYAxis);
-					DataSetWithAxisInformation dataSetAxis = iter.next();
+					DatasetWithAxisInformation dataSetAxis = iter.next();
 					Dataset data = dataSetAxis.getData();
 					datasets.add(data);
 					counter++;
@@ -197,7 +197,7 @@ public class PlotScatter2DUI extends Plot1DUIAdapter {
 					AxisValues newYAxis = new AxisValues();
 					newXAxis.setValues(xAxisValues);
 					newYAxis.setValues(yAxisValues);
-					DataSetWithAxisInformation dataSetAxis = iter.next();
+					DatasetWithAxisInformation dataSetAxis = iter.next();
 					Dataset data = dataSetAxis.getData();
 					try {
 						mainPlotter.addToCurrentPlot(data,newXAxis,newYAxis);

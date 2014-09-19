@@ -57,7 +57,7 @@ import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBeanException;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
@@ -770,7 +770,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 
 		if (roiData.getProfileData().length > profileNr) {
 			dBean = new DataBean(GuiPlotMode.ONED);
-			DataSetWithAxisInformation axisData = new DataSetWithAxisInformation();
+			DatasetWithAxisInformation axisData = new DatasetWithAxisInformation();
 			AxisMapBean axisMapBean = new AxisMapBean();
 
 			dBean.addAxis(AxisMapBean.XAXIS, roiData.getXAxis(profileNr).toDataset());

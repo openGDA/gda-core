@@ -43,7 +43,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 
@@ -105,11 +105,11 @@ public class Plot1DStackUI extends AbstractPlotUI {
 	@SuppressWarnings("null")
 	@Override
 	public void processPlotUpdate(DataBean dbPlot, boolean isUpdate) {
-		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
+		Collection<DatasetWithAxisInformation> plotData = dbPlot.getData();
 		
 		if (plotData != null) {
 			boolean individualXAxis = false;
-			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
+			Iterator<DatasetWithAxisInformation> iter = plotData.iterator();
 			final List<Dataset> datasets = Collections.synchronizedList(new LinkedList<Dataset>());
 			// check for x-axis data
 			xAxis.clear();
@@ -161,7 +161,7 @@ public class Plot1DStackUI extends AbstractPlotUI {
 				xAxisValuesList = new LinkedList<AxisValues>();
 			
 			while (iter.hasNext()) {
-				DataSetWithAxisInformation dataSetAxis = iter.next();
+				DatasetWithAxisInformation dataSetAxis = iter.next();
 				//AxisMapBean mapBean = dataSetAxis.getAxisMap();
 				Dataset data = dataSetAxis.getData();
 				if (individualXAxis) 

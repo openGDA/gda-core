@@ -79,7 +79,7 @@ import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBeanException;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
@@ -1479,7 +1479,7 @@ public class SectorProfile extends SidePlotProfile {
 		
 		if (roiData != null && roiData.getProfileData().length > profileNr) {
 			dBean = new DataBean(GuiPlotMode.ONED);
-			DataSetWithAxisInformation axisData = new DataSetWithAxisInformation();
+			DatasetWithAxisInformation axisData = new DatasetWithAxisInformation();
 			AxisMapBean axisMapBean = new AxisMapBean();
 
 			dBean.addAxis(AxisMapBean.XAXIS, roiData.getXAxis(profileNr).toDataset());

@@ -45,7 +45,7 @@ import org.eclipse.ui.PartInitException;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
@@ -420,9 +420,9 @@ public class PlotScatter3DUI extends AbstractPlotUI {
 
 	@Override
 	public void processPlotUpdate(DataBean dbPlot, boolean isUpdate) {
-		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
+		Collection<DatasetWithAxisInformation> plotData = dbPlot.getData();
 		if (plotData != null) {
-			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
+			Iterator<DatasetWithAxisInformation> iter = plotData.iterator();
 			final List<IDataset> datasets = Collections.synchronizedList(new LinkedList<IDataset>());
 	
 			Dataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
@@ -462,7 +462,7 @@ public class PlotScatter3DUI extends AbstractPlotUI {
 				mainPlotter.setYTickLabelFormat(TickFormatting.roundAndChopMode);
 				mainPlotter.setXTickLabelFormat(TickFormatting.roundAndChopMode);
 				while (iter.hasNext()) {
-					DataSetWithAxisInformation dataSetAxis = iter.next();
+					DatasetWithAxisInformation dataSetAxis = iter.next();
 					Dataset data = dataSetAxis.getData();
 					datasets.add(data);
 				}

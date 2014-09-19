@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
@@ -438,9 +438,9 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 	@Override
 	public void processPlotUpdate(DataBean dbPlot, boolean isUpdate)
 	{
-		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
+		Collection<DatasetWithAxisInformation> plotData = dbPlot.getData();
 		if (plotData != null) {
-			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
+			Iterator<DatasetWithAxisInformation> iter = plotData.iterator();
 			final List<Dataset> datasets = Collections.synchronizedList(new LinkedList<Dataset>());
 			Dataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
 			Dataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
@@ -479,7 +479,7 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 			mainPlotter.setYTickLabelFormat(TickFormatting.roundAndChopMode);
 			mainPlotter.setXTickLabelFormat(TickFormatting.roundAndChopMode);
 			while (iter.hasNext()) {
-				DataSetWithAxisInformation dataSetAxis = iter.next();
+				DatasetWithAxisInformation dataSetAxis = iter.next();
 				Dataset data = dataSetAxis.getData();
 				datasets.add(data);
 			}

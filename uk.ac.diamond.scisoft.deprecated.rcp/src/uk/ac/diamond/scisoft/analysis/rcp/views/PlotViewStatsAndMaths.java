@@ -46,7 +46,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.plotserver.NexusDataBean;
 
@@ -362,8 +362,8 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 		Dataset dataSet = Maths.subtract(dataSet1, dataSet2);
 
 		AxisMapBean axismap = dataBean1.getData().get(0).getAxisMap();
-		List<DataSetWithAxisInformation> coll = new ArrayList<DataSetWithAxisInformation>();
-		DataSetWithAxisInformation dswai = new DataSetWithAxisInformation();
+		List<DatasetWithAxisInformation> coll = new ArrayList<DatasetWithAxisInformation>();
+		DatasetWithAxisInformation dswai = new DatasetWithAxisInformation();
 		dswai.setAxisMap(axismap);
 		dswai.setData(dataSet);
 		coll.add(dswai);
@@ -383,8 +383,8 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 		Dataset dataSet = Maths.add(dataSet1, dataSet2);
 
 		AxisMapBean axismap = dataBean1.getData().get(0).getAxisMap();
-		List<DataSetWithAxisInformation> coll = new ArrayList<DataSetWithAxisInformation>();
-		DataSetWithAxisInformation dswai = new DataSetWithAxisInformation();
+		List<DatasetWithAxisInformation> coll = new ArrayList<DatasetWithAxisInformation>();
+		DatasetWithAxisInformation dswai = new DatasetWithAxisInformation();
 		dswai.setAxisMap(axismap);
 		dswai.setData(dataSet);
 		coll.add(dswai);
@@ -438,7 +438,7 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 
 	protected void processData(DataBean bean) {
 		// do stuff with new data
-		List<DataSetWithAxisInformation> dc = bean.getData();
+		List<DatasetWithAxisInformation> dc = bean.getData();
 		final Dataset d = dc.get(0).getData();
 		parentComp.getDisplay().asyncExec(new Runnable() {
 			@Override
@@ -518,7 +518,7 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 			return;
 		}
 
-		List<DataSetWithAxisInformation> dc = dBean.getData();
+		List<DatasetWithAxisInformation> dc = dBean.getData();
 		Dataset data = dc.get(0).getData();
 		if (data.getRank() == 1) {
 			plotView.updatePlotMode(GuiPlotMode.ONED);
