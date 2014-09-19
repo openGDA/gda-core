@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 
@@ -83,8 +83,8 @@ public class CameraView extends ViewPart implements NewImageListener  {
 	private void sendForAnalysis() {
 		try {
 			DataBean dbean = new DataBean(GuiPlotMode.TWOD);
-			List<DataSetWithAxisInformation> data = new ArrayList<DataSetWithAxisInformation>();
-			DataSetWithAxisInformation info = new DataSetWithAxisInformation();
+			List<DatasetWithAxisInformation> data = new ArrayList<DatasetWithAxisInformation>();
+			DatasetWithAxisInformation info = new DatasetWithAxisInformation();
 			info.setData(cameraComposite.getDataset());
 			data.add(info);
 			dbean.setData(data);
