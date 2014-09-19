@@ -22,13 +22,13 @@ import java.net.URL;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.gda.arpes.beans.ARPESScanBean;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
-import org.eclipse.swt.layout.GridLayout;
 
 public final class ARPESScanBeanUIEditor extends RichBeanEditorPart {
 
