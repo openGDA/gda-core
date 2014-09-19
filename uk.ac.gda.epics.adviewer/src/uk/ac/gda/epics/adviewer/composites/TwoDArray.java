@@ -91,7 +91,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.function.Histogram;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBeanException;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
@@ -684,7 +684,7 @@ public class TwoDArray extends Composite {
 								plotView.updatePlotMode(GuiPlotMode.TWOD);
 								DataBean dataBean = new DataBean(GuiPlotMode.TWOD);
 
-								DataSetWithAxisInformation axisData = new DataSetWithAxisInformation();
+								DatasetWithAxisInformation axisData = new DatasetWithAxisInformation();
 								AxisMapBean amb = new AxisMapBean();
 								axisData.setAxisMap(amb);
 								axisData.setData(nonNullDSToPlot);
