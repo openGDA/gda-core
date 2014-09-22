@@ -18,8 +18,9 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+
 import gda.device.DeviceException;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 
 public interface LastImageProvider {
 	public Dataset readLastImage() throws DeviceException;
