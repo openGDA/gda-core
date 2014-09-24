@@ -3,5 +3,12 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="/uk.ac.gda.devices.hatsaxs/jars/JLib.jar"/>
+	<classpathentry kind="lib" path="/uk.ac.gda.devices.hatsaxs/jars/poi-3.9-20121203.jar"/>
+	<classpathentry kind="lib" path="/uk.ac.gda.devices.hatsaxs/jars/poi-examples-3.9-20121203.jar"/>
+	<classpathentry kind="lib" path="/uk.ac.gda.devices.hatsaxs/jars/poi-excelant-3.9-20121203.jar"/>
+	<classpathentry kind="lib" path="/uk.ac.gda.devices.hatsaxs/jars/poi-ooxml-3.9-20121203.jar"/>
+	<classpathentry kind="lib" path="/uk.ac.gda.devices.hatsaxs/jars/poi-ooxml-schemas-3.9-20121203.jar"/>
+	<classpathentry kind="lib" path="/uk.ac.gda.devices.hatsaxs/jars/poi-scratchpad-3.9-20121203.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

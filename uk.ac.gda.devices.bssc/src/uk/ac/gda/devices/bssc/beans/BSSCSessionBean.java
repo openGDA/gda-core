@@ -19,9 +19,13 @@
 package uk.ac.gda.devices.bssc.beans;
 
 import gda.factory.Finder;
+
 import java.net.URL;
 import java.util.List;
+
 import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
+import uk.ac.gda.devices.hatsaxs.beans.PlateConfig;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class BSSCSessionBean implements IRichBean{

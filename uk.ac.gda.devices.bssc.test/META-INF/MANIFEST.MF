@@ -4,7 +4,8 @@ Bundle-Name: BSSC Test
 Bundle-SymbolicName: uk.ac.gda.devices.bssc.test;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)"
-Import-Package: uk.ac.gda.devices.bssc.ispyb
+Import-Package: uk.ac.gda.devices.bssc.ispyb,
+ uk.ac.gda.devices.hatsaxs.beans
 Bundle-Vendor: Diamond Light Source
 Fragment-Host: uk.ac.gda.devices.bssc;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

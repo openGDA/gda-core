@@ -16,30 +16,39 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.devices.bssc;
+package uk.ac.gda.devices.hatsaxs;
 
 import java.io.File;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 
-public class BioSaxsUtils {
+public class HatsaxsUtils {
 
 	private static final String VISIT_DIRECTORY_PROPERTY = "gda.data.visitdirectory";
 	
 	private static final String DEFAULT_FILE_NAME = "default";
 	private static final String BIOSAXS_EXTENSION = "biosaxs";
+	private static final String HPLC_EXTENSION = "hplc";
 	
 	public static String getXmlDirectory() {
 		return PathConstructor.createFromTemplate(LocalProperties.get(VISIT_DIRECTORY_PROPERTY) + "/xml/");
 	}
 	
-	public static File getNewFileFromName(String name) {
+	public static File getBioSaxsFileFromName(String name) {
 		return new File(String.format("%s/%s.%s", getXmlDirectory(), name, BIOSAXS_EXTENSION));
 	}
 	
-	public static File getDefaultFile() {
-		return getNewFileFromName(DEFAULT_FILE_NAME);
+	public static File getHplcFileFromName(String name) {
+		return new File(String.format("%s/%s.%s", getXmlDirectory(), name, HPLC_EXTENSION));
+	}
+
+	public static File getDefaultBioSaxsFile() {
+		return getBioSaxsFileFromName(DEFAULT_FILE_NAME);
+	}
+	
+	public static File getDefaultHplcFile() {
+		return getHplcFileFromName(DEFAULT_FILE_NAME);
 	}
 	
 }

@@ -1,23 +1,32 @@
 package uk.ac.gda.devices.hplc.beans;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import gda.jython.InterfaceProvider;
 import gda.jython.batoncontrol.ClientDetails;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.devices.bssc.beans.LocationBean;
+import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 
 public class HplcBean implements IRichBean {
 
 	private static final long serialVersionUID = 2999210681645575696L;
+	
+	public static final Map<String, Boolean> MODES;
+	static {
+		MODES = new HashMap<>();
+		MODES.put("HPLC", false);
+	}
 	LocationBean location = new LocationBean(HplcSessionBean.HPLC_PLATES);
 	String sampleName = "Sample";
 	double concentration;
 	double molecularWeight;
 	double timePerFrame;
-	int frames;
 	String visit;
 	String username;
 	String comment = "";
 	String buffers = "";
+	String mode = "";
 	private boolean isStaff;
 
 	public HplcBean() {
@@ -60,12 +69,6 @@ public class HplcBean implements IRichBean {
 	public void setTimePerFrame(double timePerFrame) {
 		this.timePerFrame = timePerFrame;
 	}
-	public int getFrames() {
-		return frames;
-	}
-	public void setFrames(int frames) {
-		this.frames = frames;
-	}
 	public String getVisit() {
 		return visit;
 	}
@@ -96,7 +99,19 @@ public class HplcBean implements IRichBean {
 	public void setBuffers(String buffers) {
 		this.buffers = buffers;
 	}
+	public String getMode() {
+		return mode;
+	}
+	public void setMode(String mode) {
+		if (!validMode(mode)) {
+			throw new UnsupportedOperationException("Mode is not valid");
+		}
+		this.mode = mode;
+	}
 
+	private boolean validMode(String mode) {
+		return MODES.containsKey(mode);
+	}
 	@Override
 	public void clear() {
 		// TODO Auto-generated method stub
