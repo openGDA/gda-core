@@ -31,6 +31,7 @@ import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 
+@SuppressWarnings("deprecation")
 public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 
 	public static final String ID = "gda.rcp.views.scan.LnI0ItScanPlotView"; //$NON-NLS-1$

@@ -18,7 +18,6 @@
 
 package uk.ac.gda.exafs.ui.actions;
 
-import org.dawb.workbench.ui.perspective.DataBrowsingPerspective;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -52,7 +51,7 @@ public class DataCollectionModeHandler extends AbstractHandler implements IWorkb
 		IPerspectiveDescriptor[] descriptors = win.getActivePage().getSortedPerspectives();
 		try {
 			PlatformUI.getWorkbench().showPerspective(JythonPerspective.ID, win);
-			PlatformUI.getWorkbench().showPerspective(DataBrowsingPerspective.ID, win);
+//			PlatformUI.getWorkbench().showPerspective(DataBrowsingPerspective.ID, win);
 			PlatformUI.getWorkbench().showPerspective(PlottingPerspective.ID, win);
 			PlatformUI.getWorkbench().showPerspective(ExperimentPerspective.ID, win);
 		} catch (WorkbenchException e) {
@@ -61,7 +60,7 @@ public class DataCollectionModeHandler extends AbstractHandler implements IWorkb
 		}
 		for (IPerspectiveDescriptor desc : descriptors)
 			if (!(desc.getId().equals(JythonPerspective.ID) || 
-			desc.getId().equals(DataBrowsingPerspective.ID) || 
+//			desc.getId().equals(DataBrowsingPerspective.ID) || 
 			desc.getId().equals(PlottingPerspective.ID) ||
 			desc.getId().equals(ExperimentPerspective.ID)))
 				win.getActivePage().closePerspective(desc, true, true);

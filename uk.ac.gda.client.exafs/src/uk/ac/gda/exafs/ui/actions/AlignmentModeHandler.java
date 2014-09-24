@@ -19,7 +19,6 @@
 package uk.ac.gda.exafs.ui.actions;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.dawb.workbench.ui.perspective.DataBrowsingPerspective;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -46,7 +45,7 @@ public class AlignmentModeHandler extends AbstractHandler implements IWorkbenchW
 
 	private static final Logger logger = LoggerFactory.getLogger(AlignmentModeHandler.class);
 
-	private static final String[] idsToShow = new String[] { DataBrowsingPerspective.ID, AlignmentPerspective.ID,
+	private static final String[] idsToShow = new String[] {AlignmentPerspective.ID,
 			JythonPerspective.ID };
 
 	@Override
