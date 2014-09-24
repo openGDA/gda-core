@@ -11,7 +11,8 @@ import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 public class HplcBean implements IRichBean {
 
 	private static final long serialVersionUID = 2999210681645575696L;
-	
+	public static final String DEFAULT_HPLC_MODE = "HPLC";
+
 	public static final Map<String, Boolean> MODES;
 	static {
 		MODES = new HashMap<>();
@@ -26,7 +27,7 @@ public class HplcBean implements IRichBean {
 	String username;
 	String comment = "";
 	String buffers = "";
-	String mode = "";
+	String mode = DEFAULT_HPLC_MODE;
 	private boolean isStaff;
 
 	public HplcBean() {
@@ -115,7 +116,7 @@ public class HplcBean implements IRichBean {
 	@Override
 	public void clear() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
