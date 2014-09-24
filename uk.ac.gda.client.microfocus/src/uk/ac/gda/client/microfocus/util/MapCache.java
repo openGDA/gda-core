@@ -81,23 +81,6 @@ public class MapCache {
 		return data;
 		
 	}
-
-	private double[][] getAllMCAForOnePoint(int x, int y){
-		IDataset pointData = lazyDataset.getSlice(new int[]{y,x,0,0},new int[]{y+1,x+1,lazyDataset.getShape()[2],lazyDataset.getShape()[3]},null);
-
-		int numberChannels = pointData.getShape()[2];
-		int mcaSize = pointData.getShape()[3];
-
-		double[][] data = new double[numberChannels][mcaSize];
-		
-		for (int chaIndex = 0; chaIndex < numberChannels; chaIndex++) {
-			for (int mcaIndex = 0; mcaIndex < mcaSize; mcaIndex++) {
-				data[chaIndex][mcaIndex] = pointData.getDouble(0,0,chaIndex,mcaIndex);
-			}
-		}
-		
-		return data;
-	}
 	
 	private void deriveMapData(List<? extends DetectorROI>[] elementRois) {
 

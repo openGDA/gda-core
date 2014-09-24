@@ -157,6 +157,9 @@ public class I18SampleParameters implements Serializable, ISampleParameters {
 		this.name = name;
 	}
 
+	/**
+	 * @return the value to move the Vertical Focusing Mirror X support motor
+	 */
 	public double getVfmx() {
 		return vfmx;
 	}
@@ -165,6 +168,10 @@ public class I18SampleParameters implements Serializable, ISampleParameters {
 		this.vfmx = vfmx;
 	}
 
+	/**
+	 * @return if true then the Vertical Focusing Mirror X support motor should be moved to the value from
+	 *         {@link #getVfmx()}
+	 */
 	public boolean isVfmxActive() {
 		return vfmxActive;
 	}
