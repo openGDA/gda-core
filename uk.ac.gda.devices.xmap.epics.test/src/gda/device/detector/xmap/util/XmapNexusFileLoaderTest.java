@@ -19,15 +19,27 @@
 package gda.device.detector.xmap.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import gda.util.TestUtils;
 
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class XmapNexusFileLoaderTest {
 
+	static String TestFileFolder;
+
+	@BeforeClass
+	public static void beforeClass() {
+		TestFileFolder = TestUtils.getGDALargeTestFilesLocation();
+		if( TestFileFolder == null){
+			fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
+		}
+	}
+	
 	@Test
 	public void testRead4ElementFile() throws Exception {
-		String testfile1 = "testfiles/gda/device/detector/xmap/util/i18-6777-HTXmapMca.h5";
+		String testfile1 = TestFileFolder + "/uk.ac.gda.devices.xmap.epics.test/i18-6777-HTXmapMca.h5";
 		XmapNexusFileLoader xMapLoader = new XmapNexusFileLoader(testfile1,4);
 		xMapLoader.loadFile();
 		assertEquals(58,xMapLoader.getNumberOfDataPoints());
@@ -39,7 +51,7 @@ public class XmapNexusFileLoaderTest {
 	
 	@Test
 	public void testRead10ElementFile() throws Exception {
-		String testfile1 = "testfiles/gda/device/detector/xmap/util/i18-26092-0-raster_xmap.h5";
+		String testfile1 = TestFileFolder + "/uk.ac.gda.devices.xmap.epics.test/i18-26092-0-raster_xmap.h5";
 		XmapNexusFileLoader xMapLoader = new XmapNexusFileLoader(testfile1,10);
 		xMapLoader.loadFile();
 		assertEquals(401,xMapLoader.getNumberOfDataPoints());
