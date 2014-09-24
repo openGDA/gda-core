@@ -5,7 +5,6 @@ Bundle-SymbolicName: uk.ac.gda.client.xspress2;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
- uk.ac.gda.devices.xspress2,
  uk.ac.gda.common.rcp,
  uk.ac.gda.client.exafs,
  uk.ac.diamond.scisoft.deprecated.rcp,
@@ -16,7 +15,8 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.core,
  org.eclipse.ui.editors;bundle-version="3.8.0",
  org.dawnsci.plotting.jreality,
- uk.ac.gda.beans.vortex;bundle-version="1.0.0"
+ uk.ac.gda.beans.vortex;bundle-version="1.0.0",
+ uk.ac.gda.devices.xspress2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: uk.ac.gda.exafs.ui.describers,
  uk.ac.gda.exafs.ui.detector.xspress

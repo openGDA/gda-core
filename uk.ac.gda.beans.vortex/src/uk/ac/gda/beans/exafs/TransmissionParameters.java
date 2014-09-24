@@ -22,12 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.beanutils.BeanUtils;
-
-/**
- *
- */
-public class TransmissionParameters  implements Serializable{
+public class TransmissionParameters  implements IExperimentDetectorParameters, Serializable{
 	
 	private List<IonChamberParameters> ionChamberParameters;
 	private Double                     workingEnergy;
@@ -83,18 +78,6 @@ public class TransmissionParameters  implements Serializable{
 		ionChamberParameters.clear();
 	}
 
-	/**
-	 *
-	 */
-	@Override
-	public String toString() {
-		try {
-			return BeanUtils.describe(this).toString();
-		} catch (Exception e) {
-			return e.getMessage();
-		}
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -147,7 +130,7 @@ public class TransmissionParameters  implements Serializable{
 	}
 	
 
-	public Double getMythenEnergy() {
+	public double getMythenEnergy() {
 		return mythenEnergy;
 	}
 
@@ -155,7 +138,7 @@ public class TransmissionParameters  implements Serializable{
 		this.mythenEnergy = mythenEnergy;
 	}
 
-	public Double getMythenTime() {
+	public double getMythenTime() {
 		return mythenTime;
 	}
 

@@ -16,10 +16,11 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.scannable;
+package uk.ac.gda.server.exafs.epics.device.scannable;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.scannable.ScannableBase;
 import gda.epics.CAClient;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;

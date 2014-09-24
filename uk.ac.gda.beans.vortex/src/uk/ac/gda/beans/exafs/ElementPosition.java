@@ -48,18 +48,6 @@ public class ElementPosition implements Serializable {
 	}
 
 	/**
-	 *
-	 */
-	@Override
-	public String toString() {
-		try {
-			return BeanUtils.describe(this).toString();
-		} catch (Exception e) {
-			return e.getMessage();
-		}
-	}
-
-	/**
 	 * @return Returns the elementName.
 	 */
 	public String getName() {

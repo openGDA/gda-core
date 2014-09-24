@@ -5,21 +5,25 @@ Bundle-SymbolicName: uk.ac.gda.beans.vortex;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: gda.device.detector,
- gda.exafs.mucal,
- gda.exafs.scan,
+ gda.exafs.mucal;uses:="uk.ac.gda.beans.exafs",
+ gda.exafs.scan;uses:="uk.ac.gda.beans.exafs,org.python.core",
  gda.exafs.xes,
- gda.util,
- uk.ac.gda.beans,
- uk.ac.gda.beans.exafs,
- uk.ac.gda.beans.exafs.b18,
- uk.ac.gda.beans.exafs.bm26a,
- uk.ac.gda.beans.exafs.i18,
- uk.ac.gda.beans.exafs.i20,
- uk.ac.gda.beans.microfocus,
- uk.ac.gda.beans.vortex,
- uk.ac.gda.beans.xspress
+ gda.util;uses:="uk.ac.gda.util.io",
+ uk.ac.gda.beans;uses:="uk.ac.gda.beans.xspress",
+ uk.ac.gda.beans.exafs;uses:="uk.ac.gda.beans,uk.ac.gda.beans.exafs.b18",
+ uk.ac.gda.beans.exafs.b18;uses:="uk.ac.gda.beans.exafs",
+ uk.ac.gda.beans.exafs.bm26a;uses:="uk.ac.gda.beans.exafs",
+ uk.ac.gda.beans.exafs.i18;uses:="uk.ac.gda.beans.exafs",
+ uk.ac.gda.beans.exafs.i20;uses:="uk.ac.gda.beans.exafs,uk.ac.gda.beans",
+ uk.ac.gda.beans.microfocus;uses:="uk.ac.gda.beans.exafs",
+ uk.ac.gda.beans.vortex;uses:="uk.ac.gda.beans.exafs,uk.ac.gda.beans",
+ uk.ac.gda.beans.xspress;uses:="uk.ac.gda.beans.exafs,uk.ac.gda.beans"
 Require-Bundle: uk.ac.gda.common,
  slf4j.api;bundle-version="1.7.6",
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.api;bundle-version="8.42.0",
- uk.ac.diamond.jython
+ uk.ac.diamond.jython,
+ org.apache.commons.lang,
+ org.apache.commons.beanutils
+Import-Package: org.jscience.physics.quantities;version="2.0.2",
+ org.jscience.physics.units;version="2.0.2"

@@ -18,6 +18,10 @@
 
 package uk.ac.gda.beans.exafs;
 
+import gda.device.Scannable;
+
+import java.util.List;
+
 import uk.ac.gda.beans.IRichBean;
 
 
@@ -38,5 +42,15 @@ public interface IOutputParameters extends IRichBean{
 	
 	
 	public String getNexusDirectory();
+
+	List<MetadataParameters> getMetadataList();
+
+	public void setAsciiFileName(String name);
+
+	public String getAfterScriptName();
+
+	public String getBeforeScriptName();
+
+	public List<SignalParameters> getSignalList();
 	
 }

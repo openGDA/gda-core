@@ -5,7 +5,6 @@ Bundle-SymbolicName: uk.ac.gda.server.exafs
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: uk.ac.gda.server.exafs.Activator
 Require-Bundle: org.eclipse.core.runtime,
- uk.ac.gda.core;bundle-version="1.0.0",
  uk.ac.gda.nexus;bundle-version="1.0.0",
  uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.libs;bundle-version="1.0.0",
@@ -19,16 +18,44 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.beans.vortex;bundle-version="1.0.0",
  uk.ac.gda.devices.xspress2,
  uk.ac.gda.devices.xmap;bundle-version="1.0.0",
- uk.ac.gda.devices.xspress3;bundle-version="1.0.0"
+ uk.ac.gda.devices.xspress3;bundle-version="1.0.0",
+ uk.ac.gda.devices.mythen,
+ uk.ac.diamond.org.springframework;bundle-version="4.0.6",
+ uk.ac.diamond.org.nfunk.jep;bundle-version="2.4.1",
+ slf4j.api,
+ uk.ac.gda.core;bundle-version="8.42.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: gda.device.detector,
- gda.device.detector.countertimer,
- gda.device.scannable,
- gda.jython.scriptcontroller.logging,
- uk.ac.gda.server.exafs
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: gda.device.detector;uses:="gda.device,gda.device.detector.countertimer",
+ gda.device.detector.countertimer;uses:="gda.device,gda.device.scannable",
+ gda.device.scannable;uses:="gda.device",
+ gda.jython.scriptcontroller.logging;
+  uses:="uk.ac.gda.beans.exafs,
+   gda.jython,
+   gda.device,
+   gda.device.scannable",
+ uk.ac.gda.server.exafs;uses:="org.osgi.framework",
+ uk.ac.gda.server.exafs.scan;
+  uses:="uk.ac.gda.beans.exafs,
+   gda.data.scan.datawriter,
+   org.python.core,
+   gda.device.detector.countertimer,
+   gda.device,
+   uk.ac.gda.server.exafs.scan.iterators,
+   gda.scan,
+   gda.jython.scriptcontroller.logging,
+   gda.commandqueue,
+   gda.jython.scriptcontroller",
+ uk.ac.gda.server.exafs.scan.iterators;uses:="uk.ac.gda.beans.exafs,gda.device",
+ uk.ac.gda.server.exafs.scan.preparers;
+  uses:="uk.ac.gda.beans.exafs,
+   gda.device.detector.xmap,
+   gda.data.scan.datawriter,
+   gda.device,
+   uk.ac.gda.server.exafs.scan,
+   gda.scan,
+   gda.device.detector.mythen,
+   uk.ac.gda.devices.detector.xspress3,
+   gda.device.detector.xspress"
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core, uk.ac.gda.client
-Import-Package: gda.factory,
- org.slf4j;version="[1.7.6,1.7.7)",
- uk.ac.gda.beans.xspress
 Bundle-Vendor: Diamond Light Source

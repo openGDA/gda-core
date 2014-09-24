@@ -44,7 +44,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	private String sampleName;
 	private int scanNumber;
 	
-	protected XasLoggingMessage(String visit_id,String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete, String elaspedScanTime, String elaspedTotalTime, String predictedTotalTime, String outputFolder, String sampleName, int scanNumber) {
+	public XasLoggingMessage(String visit_id,String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete, String elaspedScanTime, String elaspedTotalTime, String predictedTotalTime, String outputFolder, String sampleName, int scanNumber) {
 		super();
 		this.visitID = visit_id;
 		this.id = id;

@@ -33,9 +33,6 @@ public class Xspress2DetectorConfiguration implements FluorescentDetectorConfigu
 	private Xspress2Detector xspress2System;
 	private ObservableComponent observer;
 	private String message = "Xspress configuration has not been applied yet";
-	private boolean onlyShowFF = false;
-	private boolean showDTRawValues = false;
-	private boolean saveRawSpectrum = false;
 	
 	public Xspress2DetectorConfiguration(Xspress2Detector xspress2System, final ObservableComponent observer) {
 		this.observer = observer;
@@ -46,9 +43,6 @@ public class Xspress2DetectorConfiguration implements FluorescentDetectorConfigu
 		try {
 			xspress2System.setConfigFileName(xmlFileName);
 			xspress2System.configure();
-			xspress2System.setOnlyDisplayFF(onlyShowFF);
-			xspress2System.setAddDTScalerValuesToAscii(showDTRawValues);
-			xspress2System.setSaveRawSpectrum(saveRawSpectrum);
 			message = " The Xspress detector configuration updated.";
 			observer.notifyIObservers("Message", new ScriptProgressEvent(message));
 		} catch (Exception ne) {
@@ -61,29 +55,4 @@ public class Xspress2DetectorConfiguration implements FluorescentDetectorConfigu
 	public String getMessage() {
 		return message;
 	}
-
-	public boolean isOnlyShowFF() {
-		return onlyShowFF;
-	}
-
-	public void setOnlyShowFF(boolean onlyShowFF) {
-		this.onlyShowFF = onlyShowFF;
-	}
-
-	public boolean isShowDTRawValues() {
-		return showDTRawValues;
-	}
-
-	public void setShowDTRawValues(boolean showDTRawValues) {
-		this.showDTRawValues = showDTRawValues;
-	}
-
-	public boolean isSaveRawSpectrum() {
-		return saveRawSpectrum;
-	}
-
-	public void setSaveRawSpectrum(boolean saveRawSpectrum) {
-		this.saveRawSpectrum = saveRawSpectrum;
-	}
-	
 }

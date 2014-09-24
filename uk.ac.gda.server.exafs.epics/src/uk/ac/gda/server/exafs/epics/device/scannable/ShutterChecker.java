@@ -16,11 +16,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.scannable;
+package uk.ac.gda.server.exafs.epics.device.scannable;
 
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.enumpositioner.ValveBase;
+import gda.device.scannable.ScannableBase;
 import gda.epics.LazyPVFactory;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
