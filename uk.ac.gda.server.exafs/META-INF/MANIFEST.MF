@@ -26,36 +26,13 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.core;bundle-version="8.42.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: gda.device.detector;uses:="gda.device,gda.device.detector.countertimer",
- gda.device.detector.countertimer;uses:="gda.device,gda.device.scannable",
- gda.device.scannable;uses:="gda.device",
- gda.jython.scriptcontroller.logging;
-  uses:="uk.ac.gda.beans.exafs,
-   gda.jython,
-   gda.device,
-   gda.device.scannable",
- uk.ac.gda.server.exafs;uses:="org.osgi.framework",
- uk.ac.gda.server.exafs.scan;
-  uses:="uk.ac.gda.beans.exafs,
-   gda.data.scan.datawriter,
-   org.python.core,
-   gda.device.detector.countertimer,
-   gda.device,
-   uk.ac.gda.server.exafs.scan.iterators,
-   gda.scan,
-   gda.jython.scriptcontroller.logging,
-   gda.commandqueue,
-   gda.jython.scriptcontroller",
- uk.ac.gda.server.exafs.scan.iterators;uses:="uk.ac.gda.beans.exafs,gda.device",
- uk.ac.gda.server.exafs.scan.preparers;
-  uses:="uk.ac.gda.beans.exafs,
-   gda.device.detector.xmap,
-   gda.data.scan.datawriter,
-   gda.device,
-   uk.ac.gda.server.exafs.scan,
-   gda.scan,
-   gda.device.detector.mythen,
-   uk.ac.gda.devices.detector.xspress3,
-   gda.device.detector.xspress"
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core, uk.ac.gda.client
 Bundle-Vendor: Diamond Light Source
+Export-Package: gda.device.detector,
+ gda.device.detector.countertimer,
+ gda.device.scannable,
+ gda.jython.scriptcontroller.logging,
+ uk.ac.gda.server.exafs,
+ uk.ac.gda.server.exafs.scan,
+ uk.ac.gda.server.exafs.scan.iterators,
+ uk.ac.gda.server.exafs.scan.preparers
