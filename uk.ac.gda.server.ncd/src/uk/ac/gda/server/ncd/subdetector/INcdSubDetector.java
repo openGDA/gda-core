@@ -20,7 +20,7 @@ package uk.ac.gda.server.ncd.subdetector;
 
 import java.util.List;
 
-import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
+import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
 
 import gda.device.Device;
 import gda.device.DeviceException;

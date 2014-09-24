@@ -21,7 +21,7 @@ package uk.ac.gda.server.ncd.scannable;
 import java.util.Collection;
 import java.util.Vector;
 
-import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionCrystalEnvironment;
+import org.eclipse.dawnsci.analysis.api.diffraction.DiffractionCrystalEnvironment;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;

@@ -31,11 +31,11 @@ import gda.device.detector.NXDetectorData;
 import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
 
+import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
 
-import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
 import uk.ac.gda.server.ncd.subdetector.INcdSubDetector;
 import uk.ac.gda.server.ncd.subdetector.corba.CorbaNcdsubDetector;
 import uk.ac.gda.server.ncd.subdetector.corba.CorbaNcdsubDetectorHelper;
