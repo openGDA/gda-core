@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.scannable.zebra;
+package uk.ac.gda.server.exafs.epics.device.scannable.zebra;
 
 import gda.device.DeviceException;
 import gda.factory.FactoryException;

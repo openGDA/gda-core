@@ -25,6 +25,7 @@ import java.awt.Color;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
+import org.eclipse.dawnsci.plotting.api.jreality.util.PlotColorUtility;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.jface.viewers.ICellModifier;

@@ -16,10 +16,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.scannable;
+package uk.ac.gda.server.exafs.epics.device.scannable;
 
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
+import gda.device.scannable.ContinuouslyScannable;
+import gda.device.scannable.ScannableMotor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

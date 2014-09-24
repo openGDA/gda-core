@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.scannable;
+package uk.ac.gda.server.exafs.epics.device.scannable;
 
 import gda.factory.Findable;
 import gda.observable.IObservable;

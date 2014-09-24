@@ -115,6 +115,7 @@ public class OutputParameters implements Serializable, IOutputParameters {
 		metadataList.add(metadata);
 	}
 
+	@Override
 	public List<MetadataParameters> getMetadataList() {
 		return metadataList;
 	}
@@ -184,15 +185,6 @@ public class OutputParameters implements Serializable, IOutputParameters {
 		} else if (!signalList.equals(other.signalList))
 			return false;
 		return true;
-	}
-
-	@Override
-	public String toString() {
-		try {
-			return BeanUtils.describe(this).toString();
-		} catch (Exception e) {
-			return e.getMessage();
-		}
 	}
 
 	public boolean isShouldValidate() {

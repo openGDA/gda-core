@@ -24,4 +24,17 @@
             type="UNREGISTERED">
       </describer>
    </extension>
+   
+      <extension
+         point="uk.ac.gda.richbeans.beantypes">
+      <describer
+            bean="uk.ac.gda.beans.XspressParameters"
+            contentType="uk.ac.diamond.gda.client.exafs.getXspressContent"
+            includeInNew="false"
+            name="Xspress"
+            template="Xspress_Parameters"
+            type="UNREGISTERED">
+      </describer>
+   </extension>
+   
 </plugin>

@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,10 +16,13 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.scannable;
+package uk.ac.gda.server.exafs.epics.device.scannable;
 
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
+import gda.device.MotorStatus;
+import gda.device.scannable.ContinuouslyScannable;
+import gda.device.scannable.ScannableMotor;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
@@ -42,16 +45,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * For I18 QEXAFS scans. Operates the mono energy but also set position compare to define when and how TTL pulses are
- * sent from the bragg motor to the TFG.
+ * For QEXAFS scans for B18 only. Operates the mono energy but also set position compare to define when and how TTL
+ * pulses are sent from the bragg motor to the TFG.
  * <p>
  * This will change the speed of the Bragg motor if the required movement is slower than the Bragg's maximum (which is
  * also the Bragg default speed). If the required motion is faster than the maximum then this will be logged and the
  * speed will be set to the maximum.
  */
-public class I18QexafsScannable extends ScannableMotor implements ContinuouslyScannable, InitializationListener {
+public class QexafsScannable extends ScannableMotor implements ContinuouslyScannable, InitializationListener {
 
-	private static final Logger logger = LoggerFactory.getLogger(I18QexafsScannable.class);
+	private static final Logger logger = LoggerFactory.getLogger(QexafsScannable.class);
 
 	private ContinuousParameters continuousParameters;
 	private String outputModePV; // 0 = OFF, 1 = ON, 2 = AUTO
@@ -65,6 +68,7 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 	private String energySwitchPV; // combined energy motion flag
 	private String stepIncDegPV; // after start,stop,step set this is the step size in deg
 	private String numPulsesPV; // the number of pulses that will be sent out, after start,stop,step set
+	private String stepIncDemandPV;
 
 	private boolean channelsConfigured = false;
 	private EpicsController controller;
@@ -78,7 +82,7 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 	private Channel currentSpeedChnl;
 	private Channel maxSpeedChnl;
 	private Channel energySwitchChnl;
-	private Channel stepIncDegChnl;
+	private Channel stepIncDemChnl;
 	private Channel numPulsesChnl;
 
 	private Angle startAngle;
@@ -88,14 +92,23 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 	private Angle runDownPosition;
 
 	private Double maxSpeed; // in deg/sec
+	private Double desiredSpeed; // in deg/sec
 
 	private double extraRunUp = 0;
 	private boolean runUpOn = true;
 	private boolean runDownOn = true;
+
+	public boolean calcEndFromGui = true;
 	
-	private boolean inKev = false;
-	
-	private double energyDivision = 1.0;
+	private boolean toggleEnergyControl = false;
+
+	private double stepIncDemDeg;
+
+	double newStartAngleDeg;
+	double newEndAngleDeg;
+	double newNumberOfDataPoints;
+	double newStep;
+	double newStopAngleDeg;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -111,16 +124,10 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 			xtalSwitchChnl = channelManager.createChannel(xtalSwitchPV, false);
 			currentSpeedChnl = channelManager.createChannel(braggCurrentSpeedPV, false);
 			maxSpeedChnl = channelManager.createChannel(braggMaxSpeedPV, false);
-			if (energySwitchPV != null)
-				energySwitchChnl = channelManager.createChannel(energySwitchPV, false);
-			stepIncDegChnl = channelManager.createChannel(stepIncDegPV, false);
+			energySwitchChnl = channelManager.createChannel(energySwitchPV, false);
+			stepIncDemChnl = channelManager.createChannel(stepIncDemandPV, false);
 			numPulsesChnl = channelManager.createChannel(numPulsesPV, false);
-			
-			if(inKev)
-				energyDivision=1000.0;
-			else
-				energyDivision=1.0;
-			
+
 			channelManager.creationPhaseCompleted();
 		} catch (CAException e) {
 			throw new FactoryException("CAException while creating channels for " + getName(), e);
@@ -131,7 +138,7 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 
 	@Override
 	public void prepareForContinuousMove() throws DeviceException {
-
+		long timeAtMethodStart = System.currentTimeMillis();
 		if (!channelsConfigured) {
 			throw new DeviceException("Cannot set continuous mode on for " + getName()
 					+ " as Epics channels not configured");
@@ -147,96 +154,151 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 			Double stopDeg = radToDeg(endAngle);
 			Double stepDeg = radToDeg(stepSize);
 
-			// wait until run down period has finished. 5th oct 2012 trying to fix problem where sometimes a qexafs scan
-			// finishes early
+			// wait until run down period has finished
+			logger.debug("Time spent before busy loop");
 			while (isBusy()) {
 				logger.info("-----waiting for qscanAxis to finish moving inside prepare");
 				Thread.sleep(100);
 			}
+			logger.debug("Time spent after busy loop");
+			resetDCMSpeed();
+			logger.debug("Time spent after max speed set");
 
-			controller.caputWait(outputModeChnl, 0); // ensure at 0 for the run-up movement. No longer in EDM screen.
-			controller.caputWait(currentSpeedChnl, getMaxSpeedInKeV()); // ensure at max speed for the run-up movement
-
-			if (runUpOn)
-				super.moveTo(angleToEV(runupPosition)/energyDivision);
-			else
-				super.moveTo(angleToEV(startAngle)/energyDivision);
-
-			controller.caputWait(startChnl, -startDeg);
-			controller.caputWait(stopChnl, -stopDeg);
-			controller.caputWait(stepChnl, -stepDeg);
-
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			// move to run-up position so ready to collect
+			if (runUpOn) {
+				double angleToEV = angleToEV(runupPosition);
+				move(angleToEV);
+			} else {
+				move(angleToEV(startAngle));
 			}
+			logger.debug("Time spent after moved to angle");
 
+			if (calcEndFromGui) {
+				controller.caputWait(startChnl, startDeg);
+				controller.caputWait(stopChnl, stopDeg);
+				controller.caputWait(stepChnl, Math.abs(stepDeg));
+			} else {
+
+				controller.caputWait(stopChnl, newEndAngleDeg);
+				controller.caputWait(startChnl, newStartAngleDeg);
+				controller.caputWait(stepChnl, Math.abs(newStep));
+
+				double stepIncDemand = Double.parseDouble(controller.caget(stepIncDemChnl));
+				stepIncDemDeg = stepIncDemand * 360 / 40000000;
+			}
+			// why sleep half a second? for epics to calculate the number of pulses
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				throw e;
+			}
+			logger.debug("Time spent after 100ms sleep");
+			int cagetInt = controller.cagetInt(this.numPulsesChnl);
+			logger.debug("Time spent after get no. pulses");
+			long timeAtMethodEnd = System.currentTimeMillis();
+			logger.debug("Time spent in prepareForContinuousMove = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
+			if (!calcEndFromGui)
+				newStopAngleDeg = newStartAngleDeg - (stepIncDemDeg * cagetInt);
+
+		} catch (DeviceException e) {
+			throw e;
 		} catch (Exception e) {
-			if (e instanceof DeviceException)
-				throw (DeviceException) e;
 			throw new DeviceException(getName() + " exception in prepareForContinuousMove", e);
 		}
 	}
 
-	private Double getMaxSpeedInKeV() {
+	private double energyToDegrees(double energy) {
+		Energy valueOf = Quantity.valueOf(energy, NonSI.ELECTRON_VOLT);
+		Angle braggAngleOf = null;
+		try {
+			braggAngleOf = BraggAngle.braggAngleOf(valueOf, getTwoD());
+		} catch (TimeoutException e) {
+			logger.error("Timeout error: failed to get 2D lattice spacing value from channel " +getXtalSwitchPV(), e);
+		} catch (CAException e) {
+			logger.error("Channel error: channel failure occurred while getting 2D lattice spacing value from channel " +getXtalSwitchPV(), e);
+		} catch (InterruptedException e) {
+			logger.error("Interrupt error: the process thread was interrupted for channel " +getXtalSwitchPV()+ "while getting 2D lattice spacing", e);
+		}
+		return radToDeg(braggAngleOf);
+	}
+
+	private void move(double position) {
+		double currentPosition = 0;
+		try {
+			currentPosition = (Double) this.rawGetPosition();
+		} catch (DeviceException e1) {
+			logger.error("TCould not read scannable position", e1);
+		}
+
+		double demandDegrees = energyToDegrees(position);
+		double currentDegrees = energyToDegrees(currentPosition);
+
+		if (Math.abs(currentDegrees - demandDegrees) > 0.00011) {
+			try {
+				super.moveTo(position);
+			} catch (DeviceException e) {
+				logger.error("Could not move scannable", e);
+			}
+		}
+	}
+
+	private Double getMaxSpeed() {
+		long timeAtMethodStart = System.currentTimeMillis();
 		if (maxSpeed == null) {
 			try {
 				maxSpeed = controller.cagetDouble(maxSpeedChnl);
 			} catch (Exception e) {
 				logger.warn("Exception while getting Bragg motor max speed. Defaulting to 0.0674934", e);
-				maxSpeed = 1.0; // 1 keV/s
+				maxSpeed = 0.0674934; // default value in use in Sept 2010
 			}
 		}
+		long timeAtMethodEnd = System.currentTimeMillis();
+		logger.debug("Time spent in getMaxSpeed = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
 		return maxSpeed;
 	}
 
 	@Override
 	public void performContinuousMove() throws DeviceException {
+		long timeAtMethodStart = System.currentTimeMillis();
 		if (channelsConfigured && continuousParameters != null) {
 			try {
-				double moveTime = continuousParameters.getTotalTime();
-				double startEv = angleToEV(startAngle);
-				double endEv = angleToEV(endAngle);
-				double demandSpeedInEV = Math.abs(startEv-endEv)/moveTime;
-				double demandSpeedInKeV = demandSpeedInEV/1000.0;
 				// set the sped (do this now, after the motor has been moved to the run-up position)
-				if (demandSpeedInKeV <= getMaxSpeedInKeV()) {
-					logger.info("*****speed test*****     before     controller.caputWait(currentSpeedChnl, desiredSpeed))");
-					// wait until run down period has finished. 5th oct 2012 trying to fix problem where sometimes a
-					// qexafs scan finishes early
+				if (desiredSpeed <= getMaxSpeed()) {
 					while (isBusy()) {
 						logger.info("-----waiting for qscanAxis to finish moving inside perform before starting scanning. after goto runup");
 						Thread.sleep(100);
 					}
-					controller.caputWait(currentSpeedChnl, demandSpeedInKeV);
+					controller.caputWait(currentSpeedChnl, desiredSpeed);
 				} else {
 					logger.info("Continuous motion for " + getName()
 							+ " greater than Bragg maximum speed. Speed will be set instead to the max imum speed of "
-							+ getMaxSpeedInKeV() + " keV/s");
+							+ getMaxSpeed() + " deg/s");
 				}
 				controller.caputWait(outputModeChnl, 2);
-				if (runDownOn){
-					double angleToEV = angleToEV(runDownPosition);
-					super.asynchronousMoveTo(angleToEV/energyDivision);
-				}
+				if (runDownOn)
+					super.asynchronousMoveTo(angleToEV(runDownPosition));
 				else
-					super.asynchronousMoveTo(angleToEV(endAngle)/energyDivision);
+					super.asynchronousMoveTo(angleToEV(endAngle));
 			} catch (Exception e) {
 				throw new DeviceException(e.getMessage(), e);
 			}
 		}
+		long timeAtMethodEnd = System.currentTimeMillis();
+		logger.debug("Time spent in performContinuousMove = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
 	}
 
 	@Override
 	public void continuousMoveComplete() throws DeviceException {
+		long timeAtMethodStart = System.currentTimeMillis();
 		try {
 			// return to regular running values
 			controller.caputWait(outputModeChnl, 0);
-			controller.caputWait(currentSpeedChnl, getMaxSpeedInKeV());
+			resetDCMSpeed();
 		} catch (Exception e) {
 			throw new DeviceException("Exception while switching output mode to \'off\'", e);
 		}
+		long timeAtMethodEnd = System.currentTimeMillis();
+		logger.debug("Time spent in continuousMoveComplete = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
 	}
 
 	@Override
@@ -246,26 +308,57 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 
 	@Override
 	public void stop() throws DeviceException {
+
+		if (getMotor().getStatus().value() == MotorStatus._READY)
+			return;
+
+		super.stop();
+		resetDCMSpeed();
+		if (toggleEnergyControl) {
+			toggleEnergyControl();
+		}
+	}
+	
+	@Override
+	public void atCommandFailure() throws DeviceException {
+		stop();
+	}
+
+	private void resetDCMSpeed() throws DeviceException {
 		try {
+			logger.info("Setting energy to max speed");
+			controller.caputWait(currentSpeedChnl, getMaxSpeed());
+		} catch (Exception e) {
+			throw new DeviceException("Exception while resetting the DCM speed", e);
+		}
+	}
+
+	private void toggleEnergyControl() throws DeviceException {
+		try {
+			long timeAtMethodStart = System.currentTimeMillis();
 			// return to regular running values
-			controller.caputWait(outputModeChnl, 0);
-			controller.caputWait(currentSpeedChnl, getMaxSpeedInKeV());
-			if (energySwitchPV != null) {
-				controller.caputWait(energySwitchChnl, 0); // off
-				controller.caputWait(energySwitchChnl, 1); // on
-			}
+			logger.info("Toggling energy control");
+			controller.caputWait(energySwitchChnl, 0);
+			controller.caputWait(energySwitchChnl, 1);
+			long timeAtMethodEnd = System.currentTimeMillis();
+			logger.debug("Time spent in stop = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
 		} catch (Exception e) {
 			throw new DeviceException("Exception while changing energy switch off/on to stop the motion", e);
 		}
 	}
 
 	private double radToDeg(Angle angle) {
-		return QuantityFactory.createFromObject(angle, NonSI.DEGREE_ANGLE).getAmount();
+		double amount = QuantityFactory.createFromObject(angle, NonSI.DEGREE_ANGLE).getAmount();
+		return amount;
 	}
 
 	private double angleToEV(Angle angle) throws TimeoutException, CAException, InterruptedException {
-		return QuantityFactory.createFromObject(PhotonEnergy.photonEnergyOf(angle, getTwoD()), NonSI.ELECTRON_VOLT)
-				.getAmount();
+		long timeAtMethodStart = System.currentTimeMillis();
+		double amount = QuantityFactory.createFromObject(PhotonEnergy.photonEnergyOf(angle, getTwoD()),
+				NonSI.ELECTRON_VOLT).getAmount();
+		long timeAtMethodEnd = System.currentTimeMillis();
+		logger.debug("Time spent in angleToEV = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
+		return amount;
 	}
 
 	/**
@@ -275,13 +368,17 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 	 * @throws InterruptedException
 	 */
 	private Length getTwoD() throws TimeoutException, CAException, InterruptedException {
+		long timeAtMethodStart = System.currentTimeMillis();
 		String xtalSwitch = controller.cagetString(xtalSwitchChnl);
 		if (xtalSwitch.contains("111")) {
 			return Quantity.valueOf(0.62711, SI.NANO(SI.METER));
 		} else if (xtalSwitch.contains("311")) {
 			return Quantity.valueOf(0.327, SI.NANO(SI.METER));
 		}
-		return Quantity.valueOf(0.62711, SI.NANO(SI.METER));
+		Length valueOf = Quantity.valueOf(0.62711, SI.NANO(SI.METER));
+		long timeAtMethodEnd = System.currentTimeMillis();
+		logger.debug("Time spent in getTwoD = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
+		return valueOf;
 	}
 
 	public boolean isExafs() {
@@ -290,20 +387,25 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 
 	@Override
 	public double calculateEnergy(int frameIndex) throws DeviceException {
-
 		try {
-			stepSize = (Angle) (startAngle.minus(endAngle)).divide(continuousParameters.getNumberDataPoints());
-			double continuousCountSteps = (Math.round(radToDeg(stepSize) * 111121.98) / 111121.98);
-
-			double braggAngle = startAngle.doubleValue() - frameIndex * Math.toRadians(continuousCountSteps);
+			double continuousCountSteps;
+			if (!calcEndFromGui) {
+				if (endAngle.getAmount() > startAngle.getAmount())
+					continuousCountSteps = -stepIncDemDeg;// back
+				else
+					continuousCountSteps = stepIncDemDeg;// forth
+			} else {// step from editor
+				stepSize = (Angle) (startAngle.minus(endAngle)).divide(continuousParameters.getNumberDataPoints());
+				continuousCountSteps = (Math.round(radToDeg(stepSize) * 111121.98) / 111121.98);
+			}
+			// all angles below in units of Radians.
+			// add 1.5 to the frame index as the B18 Position Compare does not send the first pulse so the first frame is
+			// always missed.
+			double braggAngle = startAngle.doubleValue() - (frameIndex + 1.5) * Math.toRadians(continuousCountSteps);
 			Length twoD = getTwoD();
-
 			double top = (Constants.h.times(Constants.c).divide(Constants.ePlus)).doubleValue();
-
 			double bottom = twoD.doubleValue() * Math.sin(braggAngle);
-
 			double result = top / bottom;
-
 			return result;
 		} catch (Exception e) {
 			throw new DeviceException(e.getMessage());
@@ -311,41 +413,58 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 	}
 
 	private void calculateMotionInDegrees() throws TimeoutException, CAException, InterruptedException {
-
+		long timeAtMethodStart = System.currentTimeMillis();
 		Length twoD = getTwoD();
 
 		Energy startEng = Quantity.valueOf(continuousParameters.getStartPosition(), NonSI.ELECTRON_VOLT);
 		startAngle = BraggAngle.braggAngleOf(startEng, twoD);
 
 		Energy endEng = Quantity.valueOf(continuousParameters.getEndPosition(), NonSI.ELECTRON_VOLT);
+		// calculate end energy from start, step increment, and number of pulses.
 		endAngle = BraggAngle.braggAngleOf(endEng, twoD);
+
+		if (!calcEndFromGui) {
+			newStartAngleDeg = radToDeg(startAngle);
+			newEndAngleDeg = radToDeg(endAngle);
+			newNumberOfDataPoints = continuousParameters.getNumberDataPoints();
+			newStep = Math.abs(newEndAngleDeg - newStartAngleDeg) / newNumberOfDataPoints;
+		}
 
 		stepSize = (Angle) (startAngle.minus(endAngle)).divide(continuousParameters.getNumberDataPoints());
 
+		// Calculate run up and run down
+
 		// v^2 = u^2 + 2as
 		double acceleration = controller.cagetDouble(accelChnl);
-		double desiredSpeed = Math.abs(radToDeg(endAngle) - radToDeg(startAngle)) / continuousParameters.getTotalTime();
-		final double runUp = (desiredSpeed * desiredSpeed) / (2 * acceleration);
-		Angle runUpAngle = (Angle) QuantityFactory.createFromObject(runUp, NonSI.DEGREE_ANGLE);
+		desiredSpeed = Math.abs(radToDeg(endAngle) - radToDeg(startAngle)) / continuousParameters.getTotalTime();
+		double runUp = (desiredSpeed * desiredSpeed) / (2 * acceleration);
+		runUp *= 3.0; // to be safe add 10%
+		// Angle runUpAngle = (Angle) QuantityFactory.createFromObject(runUp, NonSI.DEGREE_ANGLE);
+		// 1.165E-4 deg is a practical minimum to avoid the motor's deadband
+		double step = Math.abs(radToDeg(stepSize));// controller.cagetDouble(this.stepIncDegChnl);
 
-		double step = controller.cagetDouble(this.stepIncDegChnl);
-		double dblRunUpAngle = runUpAngle.getAmount();
-		final int runupFactor = 3;
-		if (Math.abs(dblRunUpAngle) < Math.abs(runupFactor * step)) {
-			runUpAngle = (Angle) QuantityFactory.createFromObject(Math.abs(runupFactor * step), NonSI.DEGREE_ANGLE);
+		if (runUp < 10 * step) {// 0.0001165
+			runUp = 10 * step;
 		}
-		
+
 		Quantity add = QuantityFactory.createFromObject(extraRunUp, NonSI.DEGREE_ANGLE);
 
-		runUpAngle = (Angle) runUpAngle.plus(add);
+		Angle runUpAngle = (Angle) QuantityFactory.createFromObject(runUp, NonSI.DEGREE_ANGLE).plus(add);
+		logger.debug("Run up size: " + runUpAngle.getAmount() + "deg");
 
+		// backwards
 		if (endAngle.getAmount() > startAngle.getAmount()) {
 			runupPosition = (Angle) startAngle.minus(runUpAngle);
 			runDownPosition = (Angle) endAngle.plus(runUpAngle);
-		} else {
+		}
+
+		// forwards
+		else {
 			runupPosition = (Angle) startAngle.plus(runUpAngle);
 			runDownPosition = (Angle) endAngle.minus(runUpAngle);
 		}
+		long timeAtMethodEnd = System.currentTimeMillis();
+		logger.debug("Time spent in calculateMotionInDegrees = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
 	}
 
 	@Override
@@ -429,7 +548,7 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 	public void setStepIncDegPV(String stepIncDegPV) {
 		this.stepIncDegPV = stepIncDegPV;
 	}
-	
+
 	public String getNumPulsesPV() {
 		return numPulsesPV;
 	}
@@ -470,26 +589,42 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 		this.runDownOn = runDownOn;
 	}
 
-	public boolean isInKev() {
-		return inKev;
+	public boolean isCalcEndFromGui() {
+		return calcEndFromGui;
 	}
 
-	public void setInKev(boolean inKev) {
-		this.inKev = inKev;
+	public void setCalcEndFromGui(boolean calcEndFromGui) {
+		this.calcEndFromGui = calcEndFromGui;
+	}
+
+	public String getStepIncDemandPV() {
+		return stepIncDemandPV;
+	}
+
+	public void setStepIncDemandPV(String stepIncDemandPV) {
+		this.stepIncDemandPV = stepIncDemandPV;
 	}
 
 	@Override
 	public int getNumberOfDataPoints() {
-		String erorMessage = "Error getting number of data points from controller";
 		try {
 			return controller.cagetInt(this.numPulsesChnl);
-		} catch (TimeoutException e) {
-			logger.error(erorMessage, e);
-		} catch (CAException e) {
-			logger.error(erorMessage, e);
-		} catch (InterruptedException e) {
-			logger.error(erorMessage, e);
+		} catch (Exception e) {
+			logger.error("Error getting number of data points from controller", e);
 		}
 		return 0;
+	}
+
+	/**
+	 * When true then the energy control PV will be toggled at the end of a qexafs. Default is false.
+	 * 
+	 * @return boolean
+	 */
+	public boolean isToggleEnergyControl() {
+		return toggleEnergyControl;
+	}
+
+	public void setToggleEnergyControl(boolean toggleEnergyControl) {
+		this.toggleEnergyControl = toggleEnergyControl;
 	}
 }

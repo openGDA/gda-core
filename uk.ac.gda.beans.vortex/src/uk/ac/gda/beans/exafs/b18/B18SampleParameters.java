@@ -23,8 +23,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.beanutils.BeanUtils;
-
 import uk.ac.gda.beans.exafs.ISampleParameters;
 
 public class B18SampleParameters implements Serializable, ISampleParameters {
@@ -82,14 +80,14 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 		shouldValidate = true;
 	}
 
-	@Override
-	public String toString() {
-		try {
-			return BeanUtils.describe(this).toString();
-		} catch (Exception e) {
-			return e.getMessage();
-		}
-	}
+//	@Override
+//	public String toString() {
+//		try {
+//			return BeanUtils.describe(this).toString();
+//		} catch (Exception e) {
+//			return e.getMessage();
+//		}
+//	}
 
 	@Override
 	public int hashCode() {

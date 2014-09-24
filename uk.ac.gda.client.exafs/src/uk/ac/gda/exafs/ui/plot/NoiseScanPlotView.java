@@ -18,6 +18,8 @@
 
 package uk.ac.gda.exafs.ui.plot;
 
+import gda.scan.IScanDataPoint;
+
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
@@ -25,7 +27,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.scan.IScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 import uk.ac.diamond.scisoft.spectroscopy.rcp.SpectroscopyRCPActivator;

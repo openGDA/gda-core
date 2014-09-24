@@ -22,13 +22,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.beanutils.BeanUtils;
-
 /**
  * Class to represent changeable parameters in a fluorescence xas scan
  *
  */
-public class FluorescenceParameters  implements Serializable{
+public class FluorescenceParameters  implements IExperimentDetectorParameters, Serializable{
 	
 	private String configFileName;
 	private List<IonChamberParameters> ionChamberParameters;
@@ -45,6 +43,7 @@ public class FluorescenceParameters  implements Serializable{
 	/**
 	 * @return the workingEnergy
 	 */
+	@Override
 	public Double getWorkingEnergy() {
 		return workingEnergy;
 	}
@@ -60,6 +59,7 @@ public class FluorescenceParameters  implements Serializable{
 	/**
 	 * @return type
 	 */
+	@Override
 	public String getDetectorType() {
 		return detectorType;
 	}
@@ -108,7 +108,7 @@ public class FluorescenceParameters  implements Serializable{
 		this.configFileName = configFileName;
 	}
 
-
+	@Override
 	public boolean isCollectDiffractionImages() {
 		return collectDiffractionImages;
 	}
@@ -117,6 +117,7 @@ public class FluorescenceParameters  implements Serializable{
 		this.collectDiffractionImages = collectDiffractionImages;
 	}
 	
+	@Override
 	public double getMythenEnergy() {
 		return mythenEnergy;
 	}
@@ -125,6 +126,7 @@ public class FluorescenceParameters  implements Serializable{
 		this.mythenEnergy = mythenEnergy;
 	}
 
+	@Override
 	public double getMythenTime() {
 		return mythenTime;
 	}
@@ -177,14 +179,5 @@ public class FluorescenceParameters  implements Serializable{
 		} else if (!workingEnergy.equals(other.workingEnergy))
 			return false;
 		return true;
-	}
-
-	@Override
-	public String toString() {
-		try {
-			return BeanUtils.describe(this).toString();
-		} catch (Exception e) {
-			return e.getMessage();
-		}
 	}
 }

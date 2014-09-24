@@ -22,8 +22,6 @@ import gda.configuration.properties.LocalProperties;
 
 import java.io.Serializable;
 
-import org.apache.commons.beanutils.BeanUtils;
-
 /**
  *
  */
@@ -321,15 +319,6 @@ public class IonChamberParameters  implements Serializable{
 		} else if (!workingEnergy.equals(other.workingEnergy))
 			return false;
 		return true;
-	}
-
-	@Override
-	public String toString() {
-		try {
-			return BeanUtils.describe(this).toString();
-		} catch (Exception e) {
-			return e.getMessage();
-		}
 	}
 
 	public void setUseGasProperties(boolean useGasProperties) {
