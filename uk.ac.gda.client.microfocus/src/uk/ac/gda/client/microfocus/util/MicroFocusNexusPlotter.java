@@ -21,6 +21,8 @@ package uk.ac.gda.client.microfocus.util;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.axis.ClickEvent;
 import org.eclipse.dawnsci.plotting.api.axis.IClickListener;
@@ -31,8 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DatasetFactory;
 import uk.ac.gda.client.microfocus.views.ExafsSelectionView;
 import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
 import uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView;

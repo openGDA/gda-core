@@ -21,6 +21,7 @@ package uk.ac.gda.exafs.ui.detectorviews;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -31,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
-import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.exafs.IDetectorElement;

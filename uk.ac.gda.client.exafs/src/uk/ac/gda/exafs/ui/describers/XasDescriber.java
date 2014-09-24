@@ -23,7 +23,7 @@ import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class XasDescriber extends XMLBeanContentDescriber {

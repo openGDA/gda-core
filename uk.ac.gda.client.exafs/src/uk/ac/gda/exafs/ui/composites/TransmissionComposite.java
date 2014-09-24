@@ -33,7 +33,7 @@ import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  */
 public class TransmissionComposite extends WorkingEnergyWithIonChambersComposite {
 

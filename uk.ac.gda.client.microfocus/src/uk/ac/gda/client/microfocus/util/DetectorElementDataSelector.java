@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.nexusformat.NXlink;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
@@ -35,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
-import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 
 public class DetectorElementDataSelector {
 	private INexusTree mainTree;

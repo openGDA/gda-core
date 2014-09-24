@@ -2,6 +2,7 @@ from org.slf4j import LoggerFactory
 from uk.ac.gda.beans import BeansFactory
 
 from gda.configuration.properties import LocalProperties
+from gda.data.scan.datawriter import DefaultDataWriterFactory;
 from gda.exafs.scan import BeanGroup, BeanGroups
 from gda.jython.commands.GeneralCommands import run
 from gda.jython import InterfaceProvider
@@ -128,19 +129,11 @@ class Scan:
         # create XasAsciiNexusDataWriter object and give it the parameters
         dataWriter = XasAsciiNexusDataWriter()
         
-#        print "detectorFileName", detectorFileName
-#        print "basestring", basestring
-        
         if (Finder.getInstance().find("metashop") != None and isinstance(detectorFileName, basestring)):
             
-            #print "scanning... ", self.detectorFileName
-           # print "meta_add detectorFileName", detectorFileName
             meta_add(detectorFileName, BeansFactory.getXMLString(detectorBean))
-            #print "meta_add outputFileName", outputFileName
             meta_add(outputFileName, BeansFactory.getXMLString(outputBean))
-            #print "meta_add sampleFileName", sampleFileName
             meta_add(sampleFileName, BeansFactory.getXMLString(sampleBean))
-            #print "meta_add scanFileName", scanFileName
             meta_add(scanFileName, BeansFactory.getXMLString(scanBean))
             meta_add("xmlFolderName", experimentFullPath)
             xmlFilename = self._determineDetectorFilename(detectorBean)

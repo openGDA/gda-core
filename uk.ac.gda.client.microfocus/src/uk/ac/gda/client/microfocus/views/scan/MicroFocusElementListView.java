@@ -31,6 +31,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
+import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
+import org.eclipse.dawnsci.hdf5.api.HDF5File;
+import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
@@ -49,12 +53,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
-import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.VortexParameters;
@@ -320,7 +320,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		}
 
 		// get detector type xspress/vortex from nexus
-		IMetaData metadata = dataHolder.getMetadata();
+		IMetadata metadata = dataHolder.getMetadata();
 
 		try {
 			String metaNames = metadata.getMetaNames().toString();

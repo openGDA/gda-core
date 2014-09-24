@@ -28,7 +28,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
- * @author fcp94556 Matthew Gerring
+ * @author Matthew Gerring Matthew Gerring
  */
 public class XanesScanParameters implements Serializable, IScanParameters {
 

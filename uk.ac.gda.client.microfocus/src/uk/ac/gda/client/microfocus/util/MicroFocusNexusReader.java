@@ -26,13 +26,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
-import uk.ac.diamond.scisoft.analysis.io.ScanFileHolderException;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.VortexROI;

@@ -270,9 +270,8 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 
 		final Object params = getScanParameters();
 
-		// MicroFocusScanParameters calls it getXScannableName() for some inexplicable reason.
 		if (params instanceof MicroFocusScanParameters)
-			return ((MicroFocusScanParameters) params).getXScannableName();
+			return ""; // not used by MicroFocusScanParameters, the object reference is held in the map scan objects
 
 		return (String) BeansFactory.getBeanValue(params, "scannableName");
 	}

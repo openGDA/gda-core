@@ -23,7 +23,7 @@ import uk.ac.gda.beans.exafs.i20.I20SampleParameters;
 import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class I20SampleDescriber extends XMLBeanContentDescriber {

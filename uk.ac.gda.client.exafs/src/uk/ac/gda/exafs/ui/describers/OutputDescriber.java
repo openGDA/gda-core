@@ -23,7 +23,7 @@ import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
 
 /**
- * @author fcp94556
+ * @author Matthew Gerring
  *
  */
 public class OutputDescriber extends XMLBeanContentDescriber {
