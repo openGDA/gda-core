@@ -42,7 +42,7 @@ public class XmapBufferedHdf5FileLoaderTest {
 	@Before
 	public void setUp()throws Exception
 	{
-		String testfile1 = TestFileFolder + "/uk.ac.gda.server.exafs.epics.test/i18-2309-0-HTXmapMca.h5";
+		String testfile1 = TestFileFolder + "/uk.ac.gda.devices.xmap.epics.test/i18-2309-0-HTXmapMca.h5";
 		xMapLoader = new XmapBufferedHdf5FileLoader(testfile1);
 		xMapLoader.loadFile();
 	
