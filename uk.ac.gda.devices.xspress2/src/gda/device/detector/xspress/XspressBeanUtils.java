@@ -23,30 +23,13 @@ import java.io.File;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class XspressBeanUtils {
-	private static final Logger logger = LoggerFactory.getLogger(XspressBeanUtils.class);
-
-	public static XspressParameters createBeanFromXML(String xmlPath) throws Exception {
-		try {
-			return (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL, XspressParameters.class,
-					XspressParameters.schemaURL, new File(xmlPath));
-		} catch (Exception e) {
-			logger.error("Could not create XspressParameters bean " + e.getMessage());
-			throw e;
-		}
+	public XspressParameters createBeanFromXML(String xmlPath) throws Exception{
+		return (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL, XspressParameters.class, XspressParameters.schemaURL, new File(xmlPath));
 	}
-
-	public static void createXMLfromBean(Xspress2Detector xspress2System,
-			XspressParameters xspressBean) throws Exception {
-		try {
-			File file = new File(xspress2System.getConfigFileName());
-			XMLHelpers.writeToXML(XspressParameters.mappingURL, xspressBean, file);
-		} catch (Exception e) {
-			logger.error("Could not save XspressParameters bean " + e.getMessage());
-			throw e;
-		}
+	
+	public void createXMLfromBean(Xspress2Detector xspress2System, XspressParameters xspressBean) throws Exception{
+		File file = new File(xspress2System.getConfigFileName());
+		XMLHelpers.writeToXML(XspressParameters.mappingURL, xspressBean, file);
 	}
 }
