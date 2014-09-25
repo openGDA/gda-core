@@ -18,8 +18,6 @@
 
 package uk.ac.gda.beans.exafs;
 
-import gda.device.Scannable;
-
 import java.util.List;
 
 import uk.ac.gda.beans.IRichBean;
@@ -30,16 +28,9 @@ import uk.ac.gda.beans.IRichBean;
  */
 public interface IOutputParameters extends IRichBean{
 
-	/**
-	 * @return the asciiFileName
-	 */
 	public String getAsciiFileName();
 
-	/**
-	 * @return the asciiDirectory
-	 */
 	public String getAsciiDirectory();
-	
 	
 	public String getNexusDirectory();
 
