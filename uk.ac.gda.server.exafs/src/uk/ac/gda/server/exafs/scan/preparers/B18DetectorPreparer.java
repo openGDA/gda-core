@@ -4,7 +4,8 @@ import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
 import gda.device.Scannable;
 import gda.device.detector.mythen.MythenDetectorImpl;
 import gda.device.detector.xmap.Xmap;
-import gda.device.detector.xspress.Xspress2System;
+import gda.device.detector.xspress.Xspress2Detector;
+import gda.jython.InterfaceProvider;
 import gda.scan.StaticScan;
 
 import java.util.List;
@@ -27,15 +28,15 @@ public class B18DetectorPreparer implements DetectorPreparer {
 	private Scannable[] sensitivity_units;
 	private Scannable[] offsets;
 	private Scannable[] offset_units;
-	private Scannable[] ionc_gas_injector_scannables;
-	private Xspress2System xspressSystem;
+	private List<Scannable> ionc_gas_injector_scannables;
+	private Xspress2Detector xspressSystem;
 	private Xmap vortexConfig;
 	private Xspress3Detector xspress3Config;
 
-	public B18DetectorPreparer(Scannable energy_scannable, MythenDetectorImpl mythen_scannable, Scannable[] sensitivities,
-			Scannable[] sensitivity_units, Scannable[] offsets, Scannable[] offset_units,
-			Scannable[] ionc_gas_injector_scannables, Xspress2System xspressSystem,
-			Xmap vortexConfig, Xspress3Detector xspress3Config) {
+	public B18DetectorPreparer(Scannable energy_scannable, MythenDetectorImpl mythen_scannable,
+			Scannable[] sensitivities, Scannable[] sensitivity_units, Scannable[] offsets, Scannable[] offset_units,
+			List<Scannable> ionc_gas_injector_scannables, Xspress2Detector xspressSystem, Xmap vortexConfig,
+			Xspress3Detector xspress3Config) {
 		this.energy_scannable = energy_scannable;
 		this.mythen_scannable = mythen_scannable;
 		this.sensitivities = sensitivities;
@@ -69,7 +70,7 @@ public class B18DetectorPreparer implements DetectorPreparer {
 				xspress3Config.configure();
 			}
 			_control_all_ionc(fluoresenceParameters.getIonChamberParameters());
-		} else if (detectorBean.getExperimentType() == "Transmission") {
+		} else if (detectorBean.getExperimentType().equalsIgnoreCase("Transmission")) {
 			TransmissionParameters transmissionParameters = detectorBean.getTransmissionParameters();
 			if (transmissionParameters.isCollectDiffractionImages()) {
 				_control_mythen(transmissionParameters, outputBean, experimentFullPath);
@@ -80,8 +81,7 @@ public class B18DetectorPreparer implements DetectorPreparer {
 
 	@Override
 	public void completeCollection() {
-		// # this will be called at the end of a loop of scans, or after an abort
-		// pass
+		// nothing here
 	}
 
 	protected void _control_all_ionc(List<IonChamberParameters> ion_chambers_bean) throws Exception {
@@ -90,76 +90,75 @@ public class B18DetectorPreparer implements DetectorPreparer {
 		_control_ionc(ion_chambers_bean, 2);
 	}
 
-	protected void _control_ionc(List<IonChamberParameters> ion_chambers_bean, int ion_chamber_num) throws Exception{
-    	IonChamberParameters ion_chamber = ion_chambers_bean.get(ion_chamber_num);
-//#         change_sensitivity = ion_chamber.getChangeSensitivity()
-        _setup_amp_sensitivity(ion_chamber, ion_chamber_num);
-//        _setup_amp_offset(ion_chamber, ion_chamber_num);
-//#         if change_sensitivity == True:
-//#             name = ion_chamber.getName()
-//#             simpleLog("Setting " + name + " stanford")
-//#             name = ion_chamber.getName()
-//#             gain = ion_chamber.getGain()
-//#             self.ionc_stanford_scannables[ion_chamber_num](gain)
-        boolean autoGas = ion_chamber.getAutoFillGas();
-        double gas_fill1_pressure = ion_chamber.getPressure() * 1000.0;
-        double gas_fill1_period = ion_chamber.getGas_fill1_period_box();
-        double gas_fill2_pressure = ion_chamber.getTotalPressure() * 1000.0;
-        double gas_fill2_period = ion_chamber.getGas_fill2_period_box();
-        String flushString = ion_chamber.getFlush().toString();
-        String  purge_pressure = "25.0";
-        String purge_period = "120.0";
-        String gas_select_val = "0";
-        if (autoGas){
-            ionc_gas_injector_scannables[ion_chamber_num].moveTo(new Object[]{purge_pressure, purge_period, gas_fill1_pressure, gas_fill1_period, gas_fill2_pressure, gas_fill2_period, gas_select_val, flushString});
-        }
-    }
+	protected void _control_ionc(List<IonChamberParameters> ion_chambers_bean, int ion_chamber_num) throws Exception {
+		IonChamberParameters ion_chamber = ion_chambers_bean.get(ion_chamber_num);
+		_setup_amp_sensitivity(ion_chamber, ion_chamber_num);
+		boolean autoGas = ion_chamber.getAutoFillGas();
+		if (autoGas) {
+			double gas_fill1_pressure = ion_chamber.getPressure() * 1000.0;
+			double gas_fill1_period = ion_chamber.getGas_fill1_period_box();
+			double gas_fill2_pressure = ion_chamber.getTotalPressure() * 1000.0;
+			double gas_fill2_period = ion_chamber.getGas_fill2_period_box();
+			String flushString = ion_chamber.getFlush().toString();
+			String purge_pressure = "25.0";
+			String purge_period = "120.0";
+			String gas_select_val = "0";
+			ionc_gas_injector_scannables.get(ion_chamber_num).moveTo(
+					new Object[] { purge_pressure, purge_period, gas_fill1_pressure, gas_fill1_period,
+							gas_fill2_pressure, gas_fill2_period, gas_select_val, flushString });
+		}
+	}
 
-	protected void _setup_amp_sensitivity(IonChamberParameters ionChamberParams, int index) throws Exception{
-        if (ionChamberParams.getChangeSensitivity()){
-            if (ionChamberParams.getGain() == null || ionChamberParams.getGain() == ""){
-                return;
-            }
-            String[] gainStringParts = /*sensitivity, units =*/ ionChamberParams.getGain().split(" ");
-            String[] ampStringParts = /*sensitivity, units =*/ ionChamberParams.getOffset().split(" ");
-            try{
-//                print "Changing sensitivity of",ionChamberName,"to",ionChamberParams.getGain();
-                sensitivities[index].moveTo(gainStringParts[0]);
-                sensitivity_units[index].moveTo(gainStringParts[1]);
-                offsets[index].moveTo(ampStringParts[0]);
-                offset_units[index].moveTo(ampStringParts[1]);
-            } catch (Exception e){
-//                print "Exception while trying to change the sensitivity of ion chamber",ionChamberName;
-//                print "Set the ion chamber sensitivity manually, uncheck the box in the Detector Parameters editor and restart the scan";
-//                print "Please report this problem to Data Acquisition";
-                throw e;
-            }
-        }
+	protected void _setup_amp_sensitivity(IonChamberParameters ionChamberParams, int index) throws Exception {
+		if (ionChamberParams.getChangeSensitivity()) {
+			if (ionChamberParams.getGain() == null || ionChamberParams.getGain() == "") {
+				return;
+			}
+			String[] gainStringParts = ionChamberParams.getGain().split(" ");
+			String[] ampStringParts = ionChamberParams.getOffset().split(" ");
+			try {
+				InterfaceProvider.getTerminalPrinter().print(
+						"Changing sensitivity of " + ionChamberParams.getName() + " to " + ionChamberParams.getGain());
+
+				sensitivities[index].moveTo(gainStringParts[0]);
+				sensitivity_units[index].moveTo(gainStringParts[1]);
+				offsets[index].moveTo(ampStringParts[0]);
+				offset_units[index].moveTo(ampStringParts[1]);
+			} catch (Exception e) {
+				InterfaceProvider.getTerminalPrinter().print(
+						"Exception while trying to change the sensitivity of ion chamber" + ionChamberParams.getName());
+				InterfaceProvider
+						.getTerminalPrinter()
+						.print("Set the ion chamber sensitivity manually, uncheck the box in the Detector Parameters editor and restart the scan");
+				InterfaceProvider.getTerminalPrinter().print("Please report this problem to Data Acquisition");
+				throw e;
+			}
+		}
 	}
 
 	protected void _control_mythen(IExperimentDetectorParameters fluoresenceParameters, IOutputParameters outputBean,
 			String experimentFullPath) throws Exception {
-        
+
 		String experimentFolderName = experimentFullPath.substring(experimentFullPath.indexOf("xml") + 4,
 				experimentFullPath.length());
-        String nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory();
-        String asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory();
-        
-//        print "Moving DCM for Mythen image..."
-        energy_scannable.moveTo(fluoresenceParameters.getMythenEnergy());
-        
-        mythen_scannable.setCollectionTime(fluoresenceParameters.getMythenTime());
+		String nexusSubFolder = experimentFolderName + "/" + outputBean.getNexusDirectory();
+		String asciiSubFolder = experimentFolderName + "/" + outputBean.getAsciiDirectory();
 
-        mythen_scannable.setSubDirectory(experimentFolderName);
-        XasAsciiNexusDataWriter dataWriter = new XasAsciiNexusDataWriter();
-        dataWriter.setRunFromExperimentDefinition(false);
-        dataWriter.setNexusFileNameTemplate(nexusSubFolder+"/%d-mythen.nxs");
-        dataWriter.setAsciiFileNameTemplate(asciiSubFolder+"/%d-mythen.dat");
-  
-        StaticScan staticscan = new StaticScan(new Scannable[]{mythen_scannable});
-        staticscan.setDataWriter(dataWriter);
-//        print "Collecting a diffraction image...";
-        staticscan.run();
-//        print "Diffraction scan complete.";
-        }
+		InterfaceProvider.getTerminalPrinter().print("Moving DCM for Mythen image...");
+		energy_scannable.moveTo(fluoresenceParameters.getMythenEnergy());
+
+		mythen_scannable.setCollectionTime(fluoresenceParameters.getMythenTime());
+
+		mythen_scannable.setSubDirectory(experimentFolderName);
+		XasAsciiNexusDataWriter dataWriter = new XasAsciiNexusDataWriter();
+		dataWriter.setRunFromExperimentDefinition(false);
+		dataWriter.setNexusFileNameTemplate(nexusSubFolder + "/%d-mythen.nxs");
+		dataWriter.setAsciiFileNameTemplate(asciiSubFolder + "/%d-mythen.dat");
+
+		StaticScan staticscan = new StaticScan(new Scannable[] { mythen_scannable });
+		staticscan.setDataWriter(dataWriter);
+		InterfaceProvider.getTerminalPrinter().print("Collecting a diffraction image...");
+		staticscan.run();
+		InterfaceProvider.getTerminalPrinter().print("Diffraction scan complete.");
+	}
 }

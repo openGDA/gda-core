@@ -19,6 +19,7 @@
 package uk.ac.gda.server.exafs.scan;
 
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
+import gda.device.DeviceException;
 import gda.scan.ScanPlotSettings;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
@@ -30,7 +31,7 @@ public interface OutputPreparer {
 
 	AsciiDataWriterConfiguration getAsciiDataWriterConfig(IScanParameters scanBean);
 
-	void prepare(IOutputParameters outputParameters, IScanParameters scanBean);
+	void prepare(IOutputParameters outputParameters, IScanParameters scanBean) throws DeviceException;
 
 	ScanPlotSettings getPlotSettings(IDetectorParameters detectorBean, IOutputParameters outputBean);
 
