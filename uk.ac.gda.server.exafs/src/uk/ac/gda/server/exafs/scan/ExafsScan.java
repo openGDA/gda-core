@@ -20,6 +20,7 @@ package uk.ac.gda.server.exafs.scan;
 
 import gda.commandqueue.Processor;
 import gda.configuration.properties.LocalProperties;
+import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.data.scan.datawriter.NexusDataWriter;
@@ -28,7 +29,7 @@ import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.detector.countertimer.TfgScalerWithFrames;
 import gda.jython.InterfaceProvider;
-import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.jython.commands.GeneralCommands;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import gda.scan.ConcurrentScan;
 import gda.scan.Scan;
@@ -55,15 +56,15 @@ public class ExafsScan {
 	final protected SampleEnvironmentPreparer samplePreparer;
 	final protected OutputPreparer outputPreparer;
 	final protected Processor commandQueueProcessor;
-	final protected Scriptcontroller exafsScriptObserver;
 	final protected LoggingScriptController XASLoggingScriptController;
 	final protected AsciiDataWriterConfiguration datawriterconfig;
 	final protected ArrayList<AsciiMetadataConfig> original_header;
 	final protected Scannable energy_scannable;
 	final protected TfgScalerWithFrames ionchambers;
 	final protected boolean includeSampleNameInNexusName;
+	final protected NXMetaDataProvider metashop;
 
-	// variables which will chaneg for each experiment
+	// variables which will change for each experiment
 	private String sampleFileName;
 	private String scanFileName;
 	private String detectorFileName;
@@ -80,26 +81,25 @@ public class ExafsScan {
 	protected String scan_unique_id;
 
 	public ExafsScan(DetectorPreparer detectorPreparer, SampleEnvironmentPreparer samplePreparer,
-			OutputPreparer outputPreparer, Processor commandQueueProcessor, Scriptcontroller ExafsScriptObserver,
+			OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
 			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable,
-			TfgScalerWithFrames ionchambers, boolean includeSampleNameInNexusName) {
+			TfgScalerWithFrames ionchambers, boolean includeSampleNameInNexusName, NXMetaDataProvider metashop) {
 		this.detectorPreparer = detectorPreparer;
 		this.samplePreparer = samplePreparer;
 		this.outputPreparer = outputPreparer;
 		this.commandQueueProcessor = commandQueueProcessor;
-		this.exafsScriptObserver = ExafsScriptObserver;
 		this.XASLoggingScriptController = XASLoggingScriptController;
 		this.datawriterconfig = datawriterconfig;
 		this.original_header = original_header;
 		this.energy_scannable = energy_scannable;
 		this.ionchambers = ionchambers;
 		this.includeSampleNameInNexusName = includeSampleNameInNexusName;
+		this.metashop = metashop;
 
 	}
 
 	protected void determineExperimentPath(String experimentFullPath) {
-
 		String experimentFolderName = experimentFullPath.substring(experimentFullPath.indexOf("xml") + 4,
 				experimentFullPath.length());
 		log("Using data folder: " + experimentFullPath);
@@ -123,7 +123,6 @@ public class ExafsScan {
 
 	protected void _resetHeader() {
 		datawriterconfig.setHeader(original_header);
-		// TODO meta_clear_alldynamical();
 		outputPreparer._resetNexusStaticMetadataList();
 	}
 
@@ -139,8 +138,8 @@ public class ExafsScan {
 		return dets;
 	}
 
-	protected void _createBeans(Object sampleFileName, Object scanFileName, Object detectorFileName,
-			Object outputFileName) throws Exception {
+	protected void _createBeans(String sampleFileName, String scanFileName, String detectorFileName,
+			String outputFileName) throws Exception {
 		log("beans created based on " + experimentFullPath + ", " + sampleFileName + ", " + scanFileName + ", "
 				+ detectorFileName + ", " + outputFileName);
 		sampleBean = null;
@@ -150,47 +149,55 @@ public class ExafsScan {
 		scanBean = (IScanParameters) BeansFactory.getBeanObject(experimentFullPath + "/", scanFileName);
 		detectorBean = (IDetectorParameters) BeansFactory.getBeanObject(experimentFullPath + "/", detectorFileName);
 		outputBean = (IOutputParameters) BeansFactory.getBeanObject(experimentFullPath + "/", outputFileName);
+
+		setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName);
 	}
 
-	// # from xas
-	// TODO do not use this - we should drop using the BeanGroup class but instead hold its variables in this class.
-	// protected BeanGroup _createBeanGroup(String folderName, boolean validation, Scriptcontroller controller,
-	// String experimentFullPath, ISampleParameters sampleBean, IScanParameters scanBean,
-	// IDetectorParameters detectorBean, IOutputParameters outputBean) {
-	// BeanGroup beanGroup = new BeanGroup();
-	// beanGroup.setController(controller);
-	// beanGroup.setXmlFolder(experimentFullPath);
-	// beanGroup.setExperimentFolderName(folderName);
-	// outputBean.setAsciiFileName(sampleBean.getName());
-	// beanGroup.setValidate(validation);
-	// if (sampleBean != null) {
-	// beanGroup.setSample(sampleBean);
-	// }
-	// beanGroup.setDetector(detectorBean);
-	// beanGroup.setOutput(outputBean);
-	// beanGroup.setScan(scanBean);
-	//
-	// return beanGroup;
-	// }
-
-	protected void _runScript(String scriptName) {
+	protected void _runScript(String scriptName) throws Exception {
 		if (scriptName != null && !scriptName.isEmpty()) {
-			// TODO
-			// scriptName = scriptName[scriptName.rfind("scripts/") + 8:];
-			// run(scriptName);
+			GeneralCommands.run(scriptName);
 		}
 	}
 
-	protected Scan _setUpDataWriterSetFilenames(ConcurrentScan thisscan, String sampleName, List<String> descriptions) {
+	protected Scan _setUpDataWriterSetFilenames(ConcurrentScan thisscan, String sampleName, List<String> descriptions)
+			throws Exception {
 		return _setUpDataWriter(thisscan, sampleName, descriptions);
 	}
 
-	protected Scan _setUpDataWriter(Scan thisscan, String sampleName, List<String> descriptions) {
+	protected Scan _setUpDataWriter(Scan thisscan, String sampleName, List<String> descriptions) throws Exception {
 
+		String[] filenameTemplates = deriveFilenametemplates(sampleName);
+
+		XasAsciiNexusDataWriter dataWriter = new XasAsciiNexusDataWriter();
+		dataWriter.setSampleName(sampleName);
+		dataWriter.setDescriptions(descriptions);
+		dataWriter.setNexusFileNameTemplate(filenameTemplates[0]);
+		dataWriter.setAsciiFileNameTemplate(filenameTemplates[1]);
+		dataWriter.setSampleName(sampleName);
+		dataWriter.setRunFromExperimentDefinition(true);
+		dataWriter.setFolderName(experimentFullPath);
+		dataWriter.setScanParametersName(scanFileName);
+		dataWriter.setDetectorParametersName(detectorFileName);
+		dataWriter.setSampleParametersName(sampleFileName);
+		dataWriter.setOutputParametersName(outputFileName);
+
+		AsciiDataWriterConfiguration asciidatawriterconfig = outputPreparer.getAsciiDataWriterConfig(scanBean);
+		if (asciidatawriterconfig != null) {
+			dataWriter.setConfiguration(asciidatawriterconfig);
+		}
+
+		addMetadata();
+
+		thisscan.setDataWriter(dataWriter);
+		return thisscan;
+	}
+
+	private String[] deriveFilenametemplates(String sampleName) {
 		String nexusSubFolder = experimentFolderName + "/" + outputBean.getNexusDirectory();
 		String asciiSubFolder = experimentFolderName + "/" + outputBean.getAsciiDirectory();
-
 		String nexusFileNameTemplate, asciiFileNameTemplate;
+
+		sampleName = sampleName.replaceAll(" +", "_");
 
 		if (LocalProperties.check(NexusDataWriter.GDA_NEXUS_BEAMLINE_PREFIX)) {
 			if (sampleName != null && !sampleName.isEmpty()) {
@@ -208,52 +215,19 @@ public class ExafsScan {
 			asciiFileNameTemplate = asciiSubFolder + "/" + sampleName + "_%d_" + currentRepetition + ".dat";
 		}
 
-		XasAsciiNexusDataWriter dataWriter = new XasAsciiNexusDataWriter();
+		return new String[] { nexusFileNameTemplate, asciiFileNameTemplate };
+	}
 
-		// TODO
-		// if (Finder.getInstance().find("metashop") != None && isinstance(detectorFileName, basestring)):
-		//
-		// #print "scanning... ", self.detectorFileName
-		// # print "meta_add detectorFileName", detectorFileName
-		// meta_add(detectorFileName, BeansFactory.getXMLString(detectorBean))
-		// #print "meta_add outputFileName", outputFileName
-		// meta_add(outputFileName, BeansFactory.getXMLString(outputBean))
-		// #print "meta_add sampleFileName", sampleFileName
-		// meta_add(sampleFileName, BeansFactory.getXMLString(sampleBean))
-		// #print "meta_add scanFileName", scanFileName
-		// meta_add(scanFileName, BeansFactory.getXMLString(scanBean))
-		// meta_add("xmlFolderName", experimentFullPath)
-		// xmlFilename = self._determineDetectorFilename(detectorBean)
-		// if ((xmlFilename != None) and (experimentFullPath != None)):
-		// detectorConfigurationBean = BeansFactory.getBeanObject(experimentFullPath, xmlFilename)
-		// if detectorConfigurationBean != None:
-		// meta_add("DetectorConfigurationParameters", BeansFactory.getXMLString(detectorConfigurationBean))
-		// else:
-		// print "Could not get a bean from",experimentFullPath,xmlFilename
-		// else:
-		// self.logger.info("Metashop not found")
+	private void addMetadata() throws Exception {
+		metashop.add(scanFileName, BeansFactory.getXMLString(scanBean));
+		metashop.add(detectorFileName, BeansFactory.getXMLString(detectorBean));
+		metashop.add(sampleFileName, BeansFactory.getXMLString(sampleBean));
+		metashop.add(outputFileName, BeansFactory.getXMLString(outputBean));
 
-		dataWriter.setSampleName(sampleName);
-		dataWriter.setDescriptions(descriptions);
-		dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
-		dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
-		dataWriter.setSampleName(sampleName);
-		dataWriter.setRunFromExperimentDefinition(true);
-		dataWriter.setFolderName(experimentFullPath);
-
-		dataWriter.setScanParametersName(scanFileName);
-		dataWriter.setDetectorParametersName(detectorFileName);
-		dataWriter.setSampleParametersName(sampleFileName);
-		dataWriter.setOutputParametersName(outputFileName);
-
-		AsciiDataWriterConfiguration asciidatawriterconfig = outputPreparer.getAsciiDataWriterConfig(scanBean);
-		if (asciidatawriterconfig != null) {
-			dataWriter.setConfiguration(asciidatawriterconfig);
+		String detectorFileName = _determineDetectorFilename();
+		if (!detectorFileName.isEmpty()) {
+			metashop.add("DetectorConfigurationParameters", BeansFactory.getXMLString(detectorFileName));
 		}
-
-		thisscan.setDataWriter(dataWriter);
-
-		return thisscan;
 	}
 
 	protected String _determineDetectorFilename() {
