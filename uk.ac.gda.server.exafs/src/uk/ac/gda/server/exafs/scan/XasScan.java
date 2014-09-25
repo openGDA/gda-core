@@ -8,7 +8,6 @@ import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.detector.countertimer.TfgScalerWithFrames;
 import gda.device.scannable.JEPScannable;
 import gda.device.scannable.XasScannable;
 import gda.exafs.scan.ExafsScanPointCreator;
@@ -46,21 +45,17 @@ public class XasScan extends ExafsScan {
 
 	private boolean moveMonoToStartBeforeScan;
 	private boolean useIterator;
-	private boolean handleGapConverter;
 	private long timeRepetitionsStarted;
 
 	public XasScan(DetectorPreparer detectorPreparer, SampleEnvironmentPreparer samplePreparer,
 			OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
-			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable,
-			TfgScalerWithFrames ionchambers,  NXMetaDataProvider metashop, boolean moveMonoToStartBeforeScan, boolean useItterator,
-			boolean handleGapConverter, boolean includeSampleNameInNexusName) {
-		super(detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor,
-				XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers,
-				includeSampleNameInNexusName, metashop);
+			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable, NXMetaDataProvider metashop,
+			boolean moveMonoToStartBeforeScan, boolean useItterator, boolean includeSampleNameInNexusName) {
+		super(detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, XASLoggingScriptController,
+				datawriterconfig, original_header, energy_scannable, includeSampleNameInNexusName, metashop);
 		this.moveMonoToStartBeforeScan = moveMonoToStartBeforeScan;
 		this.useIterator = useItterator;
-		this.handleGapConverter = handleGapConverter;
 	}
 
 	public PyObject __call__(PyObject pyArgs) throws Exception {
@@ -80,11 +75,11 @@ public class XasScan extends ExafsScan {
 		if (scanBean instanceof XanesScanParameters) {
 			scriptType = "Xanes";
 		}
-		
+
 		scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
-		
+
 		_doLooping();
-		
+
 		return new PyInteger(0);
 	}
 
@@ -153,13 +148,15 @@ public class XasScan extends ExafsScan {
 			String initialPercent = calcInitialPercent();
 			long timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted;
 			XasLoggingMessage logmsg = new XasLoggingMessage(_getMyVisitID(), scan_unique_id, scriptType, "Starting "
-					+ scriptType + " scan...", Integer.toString(currentRepetition), Integer.toString(numRepetitions), Integer.toString(i + 1), Integer.toString(num_sample_repeats),
-					initialPercent, Integer.toString(0), Long.toString(timeSinceRepetitionsStarted), Long.toString(timeSinceRepetitionsStarted), experimentFolderName, sampleName, 0);
+					+ scriptType + " scan...", Integer.toString(currentRepetition), Integer.toString(numRepetitions),
+					Integer.toString(i + 1), Integer.toString(num_sample_repeats), initialPercent, Integer.toString(0),
+					Long.toString(timeSinceRepetitionsStarted), Long.toString(timeSinceRepetitionsStarted),
+					experimentFolderName, sampleName, 0);
 
 			if (num_sample_repeats == 1) {
 				printRepetition();
 			}
-			
+
 			_doScan(sampleName, descriptions, logmsg);
 		}
 	}
@@ -177,10 +174,7 @@ public class XasScan extends ExafsScan {
 		try {
 			while (true) {
 				currentRepetition++;
-				_beforeEachRepetition();
-				if (handleGapConverter) {
-					setupHarmonic();
-				}
+				detectorPreparer.beforeEachRepetition();
 				try {
 					if (useIterator) {
 						SampleEnvironmentIterator iterator = samplePreparer.createIterator(detectorBean
@@ -209,12 +203,13 @@ public class XasScan extends ExafsScan {
 			if (moveMonoToStartBeforeScan) {
 				energy_scannable.stop();
 			}
-			if (handleGapConverter) {
-				// TODO call one of the preparers here to do some beamline specific reset
-				// print "enabling gap converter"
-//				Object auto_mDeg_idGap_mm_converter = Finder.getInstance().find("auto_mDeg_idGap_mm_converter");
-				// auto_mDeg_idGap_mm_converter.enableAutoConversion();
-			}
+			// if (handleGapConverter) {
+			// TODO move to I18's detectorPreparer.completeCollection() call one of the preparers here to do some
+			// beamline specific reset
+			// print "enabling gap converter"
+			// Object auto_mDeg_idGap_mm_converter = Finder.getInstance().find("auto_mDeg_idGap_mm_converter");
+			// auto_mDeg_idGap_mm_converter.enableAutoConversion();
+			// }
 			setQueuePropertiesEnd();
 			_resetHeader();
 			detectorPreparer.completeCollection();
@@ -242,8 +237,7 @@ public class XasScan extends ExafsScan {
 			thisscan.setScanPlotSettings(scanPlotSettings);
 		}
 		thisscan.runScan();
-		XASLoggingScriptController.update(null, new ScanFinishEvent(thisscan.getName(),
-				ScanFinishEvent.FinishType.OK));
+		XASLoggingScriptController.update(null, new ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
 	}
 
 	private XasScannable _createAndconfigureXASScannable() {
@@ -261,7 +255,6 @@ public class XasScan extends ExafsScan {
 	}
 
 	public ScanPlotSettings runPreparers() throws Exception {
-		// TODO need to call this somewhere? meta_clear_alldynamical()
 		detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath);
 		samplePreparer.prepare(sampleBean);
 		outputPreparer.prepare(outputBean, scanBean);
@@ -292,21 +285,6 @@ public class XasScan extends ExafsScan {
 		return ExafsScanPointCreator.calculateEnergies((XasScanParameters) scanBean);
 	}
 
-	private void _beforeEachRepetition() throws Exception {
-		Double[] times = new Double[] {};
-		if (scanBean instanceof XasScanParameters) {
-			times = ExafsScanPointCreator.getScanTimeArray((XasScanParameters) scanBean);
-		} else if (scanBean instanceof XanesScanParameters) {
-			times = XanesScanPointCreator.getScanTimeArray((XanesScanParameters) scanBean);
-		}
-		if (times.length > 0) {
-			ionchambers.setTimes(times);
-			log("Setting detector frame times, using array of length " + times.length + "...");
-		}
-		return;
-	}
-
-	// # TODO this should be in output preparer.
 	private List<Scannable> _getSignalList() throws ParseException {
 		List<Scannable> signalList = new ArrayList<Scannable>();
 		for (SignalParameters signal : outputBean.getSignalList()) {
@@ -346,17 +324,17 @@ public class XasScan extends ExafsScan {
 	}
 
 	// # Move to start energy so that harmonic can be set by gap_converter for i18 only
-	// TODO move to the preparers level
-	private void setupHarmonic() throws DeviceException {// : #, gap_converter):
-		double initialEnergy = ((ExafsScanPointCreator) scanBean).getInitialEnergy();
-		// print "moving ", self.energy_scannable.getName(), " to start energy ", initialEnergy
-		energy_scannable.moveTo(initialEnergy);
-		// print "move complete, disabling harmonic change"
-		// print "disabling harmonic converter";
-		// auto_mDeg_idGap_mm_converter = Finder.getInstance().find("auto_mDeg_idGap_mm_converter");
-		// auto_mDeg_idGap_mm_converter.disableAutoConversion();
-		// #gap_converter.disableAutoConversion() #auto_mDeg_idGap-mm-converter
-	}
+	// TODO must add this to the i18 detector preparer before each repeptition
+	// private void setupHarmonic() throws DeviceException {// : #, gap_converter):
+	// double initialEnergy = ((ExafsScanPointCreator) scanBean).getInitialEnergy();
+	// print "moving ", self.energy_scannable.getName(), " to start energy ", initialEnergy
+	// energy_scannable.moveTo(initialEnergy);
+	// print "move complete, disabling harmonic change"
+	// print "disabling harmonic converter";
+	// auto_mDeg_idGap_mm_converter = Finder.getInstance().find("auto_mDeg_idGap_mm_converter");
+	// auto_mDeg_idGap_mm_converter.disableAutoConversion();
+	// #gap_converter.disableAutoConversion() #auto_mDeg_idGap-mm-converter
+	// }
 
 	private void checkForPause() {
 		if (numRepetitions > 1 && LocalProperties.check(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY)) {

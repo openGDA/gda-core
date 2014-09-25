@@ -27,6 +27,9 @@ public interface DetectorPreparer {
 	void prepare(IScanParameters scanBean, IDetectorParameters detectorBean, IOutputParameters outputBean,
 			String experimentFullPath) throws Exception;
 
+	
+	void beforeEachRepetition() throws Exception;
+	
 	void completeCollection();
 
 }

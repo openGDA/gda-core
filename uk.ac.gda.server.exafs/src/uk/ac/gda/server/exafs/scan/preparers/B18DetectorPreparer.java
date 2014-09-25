@@ -2,9 +2,12 @@ package uk.ac.gda.server.exafs.scan.preparers;
 
 import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
 import gda.device.Scannable;
+import gda.device.detector.countertimer.TfgScalerWithFrames;
 import gda.device.detector.mythen.MythenDetectorImpl;
 import gda.device.detector.xmap.Xmap;
 import gda.device.detector.xspress.Xspress2Detector;
+import gda.exafs.scan.ExafsScanPointCreator;
+import gda.exafs.scan.XanesScanPointCreator;
 import gda.jython.InterfaceProvider;
 import gda.scan.StaticScan;
 
@@ -17,6 +20,8 @@ import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
 import uk.ac.gda.beans.exafs.TransmissionParameters;
+import uk.ac.gda.beans.exafs.XanesScanParameters;
+import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
 import uk.ac.gda.server.exafs.scan.DetectorPreparer;
 
@@ -32,10 +37,12 @@ public class B18DetectorPreparer implements DetectorPreparer {
 	private Xspress2Detector xspressSystem;
 	private Xmap vortexConfig;
 	private Xspress3Detector xspress3Config;
+	private IScanParameters scanBean;
+	private TfgScalerWithFrames ionchambers;
 
 	public B18DetectorPreparer(Scannable energy_scannable, MythenDetectorImpl mythen_scannable,
 			Scannable[] sensitivities, Scannable[] sensitivity_units, Scannable[] offsets, Scannable[] offset_units,
-			List<Scannable> ionc_gas_injector_scannables, Xspress2Detector xspressSystem, Xmap vortexConfig,
+			List<Scannable> ionc_gas_injector_scannables, TfgScalerWithFrames ionchambers, Xspress2Detector xspressSystem, Xmap vortexConfig,
 			Xspress3Detector xspress3Config) {
 		this.energy_scannable = energy_scannable;
 		this.mythen_scannable = mythen_scannable;
@@ -44,6 +51,7 @@ public class B18DetectorPreparer implements DetectorPreparer {
 		this.offsets = offsets;
 		this.offset_units = offset_units;
 		this.ionc_gas_injector_scannables = ionc_gas_injector_scannables;
+		this.ionchambers = ionchambers;
 		this.xspressSystem = xspressSystem;
 		this.vortexConfig = vortexConfig;
 		this.xspress3Config = xspress3Config;
@@ -52,6 +60,7 @@ public class B18DetectorPreparer implements DetectorPreparer {
 	@Override
 	public void prepare(IScanParameters scanBean, IDetectorParameters detectorBean, IOutputParameters outputBean,
 			String experimentFullPath) throws Exception {
+		this.scanBean = scanBean;
 		if (detectorBean.getExperimentType().equalsIgnoreCase("Fluorescence")) {
 			FluorescenceParameters fluoresenceParameters = detectorBean.getFluorescenceParameters();
 			if (fluoresenceParameters.isCollectDiffractionImages()) {
@@ -77,6 +86,21 @@ public class B18DetectorPreparer implements DetectorPreparer {
 			}
 			_control_all_ionc(transmissionParameters.getIonChamberParameters());
 		}
+	}
+	
+	@Override
+	public void beforeEachRepetition() throws Exception {
+		Double[] times = new Double[] {};
+		if (scanBean instanceof XasScanParameters) {
+			times = ExafsScanPointCreator.getScanTimeArray((XasScanParameters) scanBean);
+		} else if (scanBean instanceof XanesScanParameters) {
+			times = XanesScanPointCreator.getScanTimeArray((XanesScanParameters) scanBean);
+		}
+		if (times.length > 0) {
+			ionchambers.setTimes(times);
+			// log("Setting detector frame times, using array of length " + times.length + "...");
+		}
+		return;
 	}
 
 	@Override

@@ -27,7 +27,6 @@ import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
-import gda.device.detector.countertimer.TfgScalerWithFrames;
 import gda.jython.InterfaceProvider;
 import gda.jython.commands.GeneralCommands;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
@@ -60,7 +59,6 @@ public class ExafsScan {
 	final protected AsciiDataWriterConfiguration datawriterconfig;
 	final protected ArrayList<AsciiMetadataConfig> original_header;
 	final protected Scannable energy_scannable;
-	final protected TfgScalerWithFrames ionchambers;
 	final protected boolean includeSampleNameInNexusName;
 	final protected NXMetaDataProvider metashop;
 
@@ -83,8 +81,7 @@ public class ExafsScan {
 	public ExafsScan(DetectorPreparer detectorPreparer, SampleEnvironmentPreparer samplePreparer,
 			OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
-			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable,
-			TfgScalerWithFrames ionchambers, boolean includeSampleNameInNexusName, NXMetaDataProvider metashop) {
+			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable, boolean includeSampleNameInNexusName, NXMetaDataProvider metashop) {
 		this.detectorPreparer = detectorPreparer;
 		this.samplePreparer = samplePreparer;
 		this.outputPreparer = outputPreparer;
@@ -93,7 +90,6 @@ public class ExafsScan {
 		this.datawriterconfig = datawriterconfig;
 		this.original_header = original_header;
 		this.energy_scannable = energy_scannable;
-		this.ionchambers = ionchambers;
 		this.includeSampleNameInNexusName = includeSampleNameInNexusName;
 		this.metashop = metashop;
 
