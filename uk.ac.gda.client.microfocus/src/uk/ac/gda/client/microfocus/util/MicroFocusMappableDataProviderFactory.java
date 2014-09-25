@@ -24,9 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.XspressParameters;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.xspress.XspressParameters;
 
 public class MicroFocusMappableDataProviderFactory {
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusMappableDataProviderFactory.class);
