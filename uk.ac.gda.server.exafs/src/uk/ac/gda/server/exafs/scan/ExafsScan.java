@@ -33,6 +33,7 @@ import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import gda.scan.ConcurrentScan;
 import gda.scan.Scan;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -222,7 +223,7 @@ public class ExafsScan {
 
 		String detectorFileName = _determineDetectorFilename();
 		if (!detectorFileName.isEmpty()) {
-			metashop.add("DetectorConfigurationParameters", BeansFactory.getXMLString(detectorFileName));
+			metashop.add("DetectorConfigurationParameters", BeansFactory.getXMLString(experimentFullPath + File.separator + detectorFileName));
 		}
 	}
 
