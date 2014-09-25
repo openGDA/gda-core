@@ -2,7 +2,7 @@ from org.slf4j import LoggerFactory
 from uk.ac.gda.beans import BeansFactory
 
 from gda.configuration.properties import LocalProperties
-from gda.exafs.scan import BeanGroup, BeanGroups
+#from gda.exafs.scan import BeanGroup, BeanGroups
 from gda.jython.commands.GeneralCommands import run
 from gda.jython import InterfaceProvider
 from gda.data.scan.datawriter import NexusDataWriter, XasAsciiNexusDataWriter

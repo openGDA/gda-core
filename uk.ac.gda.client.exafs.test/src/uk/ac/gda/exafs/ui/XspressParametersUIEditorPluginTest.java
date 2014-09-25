@@ -30,9 +30,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.gda.ClientManager;
-import uk.ac.gda.beans.XspressParameters;
-import uk.ac.gda.beans.XspressROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.exafs.ui.detector.xspress.XspressParametersEditor;
 import uk.ac.gda.exafs.ui.detector.xspress.XspressParametersUIEditor;
 import uk.ac.gda.richbeans.beans.BeanUI;

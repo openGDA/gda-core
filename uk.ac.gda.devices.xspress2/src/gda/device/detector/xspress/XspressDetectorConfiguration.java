@@ -58,6 +58,14 @@ public class XspressDetectorConfiguration implements FluorescentDetectorConfigur
 		}
 	}
 
+	public void configure(String xmlFileName, boolean onlyShowFF, boolean showDTRawValues, boolean saveRawSpectrum) throws FactoryException {
+		this.onlyShowFF = onlyShowFF;
+		this.showDTRawValues = showDTRawValues;
+		this.saveRawSpectrum = saveRawSpectrum;
+		configure(xmlFileName);
+
+	}
+	
 	public String getMessage() {
 		return message;
 	}
@@ -85,5 +93,4 @@ public class XspressDetectorConfiguration implements FluorescentDetectorConfigur
 	public void setSaveRawSpectrum(boolean saveRawSpectrum) {
 		this.saveRawSpectrum = saveRawSpectrum;
 	}
-	
 }

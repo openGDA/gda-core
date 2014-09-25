@@ -2,10 +2,10 @@ package gda.device.detector.xspress.xspress2data;
 
 import java.util.List;
 
-import uk.ac.gda.beans.XspressParameters;
 import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
+import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.util.CorrectionUtils;
 
 /**

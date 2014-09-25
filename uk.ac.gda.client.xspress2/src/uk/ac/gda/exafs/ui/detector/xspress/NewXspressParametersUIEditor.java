@@ -28,8 +28,8 @@ import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
 
-import uk.ac.gda.beans.XspressParameters;
 import uk.ac.gda.beans.exafs.DetectorParameters;
+import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;

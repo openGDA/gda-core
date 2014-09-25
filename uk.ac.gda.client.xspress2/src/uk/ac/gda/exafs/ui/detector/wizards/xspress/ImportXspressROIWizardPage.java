@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.XspressParameters;
-import uk.ac.gda.beans.XspressROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ui.detector.xspress.NewXspressParametersUIHelper;
 import uk.ac.gda.exafs.ui.detectorviews.DetectorListComposite;
@@ -278,7 +278,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 					if(index == currentDetectorList.getSelectedIndex())
 						roisToImportComposite.getRegionList().addBean(regionClone.get(index), -1);
 					else{
-						Method addRegion = element.getClass().getMethod("addRegion", uk.ac.gda.beans.XspressROI.class);
+						Method addRegion = element.getClass().getMethod("addRegion", uk.ac.gda.beans.xspress.XspressROI.class);
 						addRegion.invoke(element, regionClone.get(index));
 					}
 				}

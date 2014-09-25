@@ -19,6 +19,7 @@
 package uk.ac.gda.exafs.ui.detector;
 
 import gda.device.Detector;
+import gda.device.detector.xspress.XspressBeanUtils;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.gui.JythonGuiConstants;
@@ -79,11 +80,11 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.ElementCountsData;
-import uk.ac.gda.beans.XspressParameters;
-import uk.ac.gda.beans.XspressROI;
 import uk.ac.gda.beans.exafs.IDetectorElement;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
@@ -468,14 +469,22 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 				try {
 					final Map<String, Serializable> data = new HashMap<String, Serializable>(1);
-					data.put("XMLFileNameToLoad", path);
-					data.put("OutputParametersToLoad", outputBean);
+//					data.put("XMLFileNameToLoad", path);
+//					data.put("OutputParametersToLoad", outputBean);
+					XspressParameters xspressBean = XspressBeanUtils.createBeanFromXML(path);
+					String p1 = xspressBean.isOnlyShowFF() ? "True" : "False";
+					String p2 = xspressBean.isShowDTRawValues() ? "True" : "False";
+					String p3 = xspressBean.isSaveRawSpectrum() ? "True" : "False";
+
 					monitor.worked(10);
-					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command
-							+ "(XMLFileNameToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
+					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), null, command
+							+ ".configure(\"" + path + "\"," + p1 + "," + p2 + "," + p3 + ")", JythonGuiConstants.TERMINALNAME);
+//					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command
+//					+ "(XMLFileNameToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
 					monitor.worked(50);
 					String configureResult = InterfaceProvider.getCommandRunner().evaluateCommand(
-							command + ".getConfigureResult()");
+							command + ".getMessage()");
+//							command + ".getConfigureResult()");
 					sashPlotForm.appendStatus(configureResult, logger);
 				} catch (Exception e) {
 					logger.error("Internal error cannot get data from detector.", e);
