@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.beans;
+package uk.ac.gda.beans.xspress;
 
 import java.io.Serializable;
 

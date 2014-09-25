@@ -5,7 +5,7 @@
    <extension
          point="uk.ac.common.beans.factory">
       <bean
-            class="uk.ac.gda.beans.XspressParameters"
+            class="uk.ac.gda.beans.xspress.XspressParameters"
             describer="uk.ac.gda.exafs.ui.describers.XspressDescriber">
       </bean>
    </extension>

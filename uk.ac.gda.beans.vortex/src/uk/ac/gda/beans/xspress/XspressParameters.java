@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.beans;
+package uk.ac.gda.beans.xspress;
 
 import java.io.Serializable;
 import java.net.URL;
@@ -25,7 +25,7 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.IRichBean;
 
 
 public class XspressParameters implements Serializable,IRichBean {	

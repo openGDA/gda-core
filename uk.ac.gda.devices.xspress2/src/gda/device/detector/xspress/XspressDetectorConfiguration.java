@@ -93,5 +93,4 @@ public class XspressDetectorConfiguration implements FluorescentDetectorConfigur
 	public void setSaveRawSpectrum(boolean saveRawSpectrum) {
 		this.saveRawSpectrum = saveRawSpectrum;
 	}
-	
 }

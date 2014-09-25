@@ -20,16 +20,35 @@ package gda.device.detector.xspress;
 
 import java.io.File;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class XspressBeanUtils {
-	public XspressParameters createBeanFromXML(String xmlPath) throws Exception{
-		return (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL, XspressParameters.class, XspressParameters.schemaURL, new File(xmlPath));
+
+	private static final Logger logger = LoggerFactory.getLogger(XspressBeanUtils.class);
+
+	public static XspressParameters createBeanFromXML(String xmlPath) throws Exception {
+		try {
+			return (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL, XspressParameters.class,
+					XspressParameters.schemaURL, new File(xmlPath));
+		} catch (Exception e) {
+			logger.error("Could not create XspressParameters bean " + e.getMessage());
+			throw e;
+		}
+
 	}
-	
-	public void createXMLfromBean(Xspress2Detector xspress2System, XspressParameters xspressBean) throws Exception{
-		File file = new File(xspress2System.getConfigFileName());
-		XMLHelpers.writeToXML(XspressParameters.mappingURL, xspressBean, file);
+
+	public static void createXMLfromBean(Xspress2Detector xspress2System,
+			XspressParameters xspressBean) throws Exception {
+		try {
+			File file = new File(xspress2System.getConfigFileName());
+			XMLHelpers.writeToXML(XspressParameters.mappingURL, xspressBean, file);
+		} catch (Exception e) {
+			logger.error("Could not save XspressParameters bean " + e.getMessage());
+			throw e;
+		}
 	}
 }

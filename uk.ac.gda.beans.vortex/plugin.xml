@@ -28,7 +28,7 @@
       <extension
          point="uk.ac.gda.richbeans.beantypes">
       <describer
-            bean="uk.ac.gda.beans.XspressParameters"
+            bean="uk.ac.gda.beans.xspress.XspressParameters"
             contentType="uk.ac.diamond.gda.client.exafs.getXspressContent"
             includeInNew="false"
             name="Xspress"
