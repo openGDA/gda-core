@@ -33,6 +33,7 @@ import gda.jython.ScriptBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -268,15 +269,22 @@ public class GeneralCommands {
 		// NOTE: ideally this method would try the entire python sys.path, but this would 
 		//       require making a breaking change and possibly be overkill!
 		JythonServer server = (JythonServer) Finder.getInstance().find(JythonServer.SERVERNAME);
-		String path = server.getJythonScriptPaths().pathToScript(scriptName);
-		if (path == null) {
-			throw new FileNotFoundException("Could not run " + scriptName + " script. File not found in " + server.getJythonScriptPaths().description() + ".");
+		
+		// allow full paths to be given to this method
+		String path = scriptName;
+		if (!scriptName.startsWith(File.separator)) { // if path starts with a backslash assume a full path has been given
+			path = server.getJythonScriptPaths().pathToScript(scriptName);
+			if (path == null) {
+				throw new FileNotFoundException("Could not run " + scriptName + " script. File not found in "
+						+ server.getJythonScriptPaths().description() + ".");
+			}
 		}
+		
 		// Run the file
-		logger.info("<<< Running " + scriptName +  " (" + path + ")");
+		logger.info("<<< Running " + scriptName + " (" + path + ")");
 		server.runCommandSynchronously(path);
 		logger.info("Completed running " + scriptName + ">>>");
-		
+
 	}
 
 	/**
