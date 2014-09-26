@@ -243,6 +243,10 @@ public class ExperimentFactory {
 	}
 
 	protected static IExperimentObjectManager getManager(final IFolder folder, String multiScanName) {
+		if (!folder.exists()) {
+			logger.warn("folder " + folder.getName() + " does not exist");
+			return null;
+		}
 		IFile scanFile = folder.getFile(multiScanName + ".scan");
 		try {
 			return getManager(scanFile);
