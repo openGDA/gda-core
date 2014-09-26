@@ -203,6 +203,11 @@ public class TogglerScannable extends ScannableBase {
 	}
 
 	@Override
+	public String[] getOutputFormat() {
+		return new String[] {};
+	}
+
+	@Override
 	public boolean isBusy() throws DeviceException {
 		return delegate.isBusy();
 	}
