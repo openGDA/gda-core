@@ -22,8 +22,6 @@ import gda.device.DeviceException;
 
 import java.util.List;
 
-import uk.ac.gda.beans.exafs.ISampleParameters;
-
 /**
  * To loop through a series of sample positions. At each node it is expected to perform the energy-scan data collection.
  * <p>
@@ -31,13 +29,6 @@ import uk.ac.gda.beans.exafs.ISampleParameters;
  * before each energy scan.
  */
 public interface SampleEnvironmentIterator {
-
-	/**
-	 * give the Iterator the bean it will iterate over
-	 * 
-	 * @param sampleBean
-	 */
-	public void setSampleBean(ISampleParameters sampleBean);
 
 	/**
 	 * @return the total number of scans defined by the bean held by this object
@@ -72,13 +63,4 @@ public interface SampleEnvironmentIterator {
 	 * @return String[]
 	 */
 	public List<String> getNextSampleDescriptions();
-
-	// def log(self,*msg):
-	// self.logger = LoggerFactory.getLogger(str(self.__class__))
-	// message = ""
-	// for part in msg:
-	// message += str(part) + " "
-	// print message
-	// self.logger.info(message)
-
 }

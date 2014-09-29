@@ -55,12 +55,12 @@ public class QexafsScan extends ExafsScan {
 	private boolean cirrusEnabled;
 	private ContinuouslyScannable qexafsScanable;
 
-	public QexafsScan(DetectorPreparer detectorPreparer, SampleEnvironmentPreparer samplePreparer,
+	public QexafsScan(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer, SampleEnvironmentPreparer samplePreparer,
 			OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
 			ArrayList<AsciiMetadataConfig> original_header, ContinuouslyScannable energy_scannable,
 			boolean includeSampleNameInNexusName, NXMetaDataProvider metashop) {
-		super(detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, XASLoggingScriptController,
+		super(beamlinePreparer, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, XASLoggingScriptController,
 				datawriterconfig, original_header, energy_scannable, includeSampleNameInNexusName, metashop);
 		beamCheck = true;
 		gmsd_enabled = false;
@@ -94,7 +94,7 @@ public class QexafsScan extends ExafsScan {
 		log("Starting QEXAFS scan...");
 		determineExperimentPath(experimentFullPath);
 
-		_createBeans(sampleFileName, scanFileName, detectorFileName, outputFileName);
+		createBeans(sampleFileName, scanFileName, detectorFileName, outputFileName);
 
 		// experimentFullPath, experimentFolderName = determineExperimentPath(experimentFullPath)
 		// #print "qexafs XML file names",sampleFileName, scanFileName, detectorFileName, outputFileName
@@ -141,13 +141,13 @@ public class QexafsScan extends ExafsScan {
 				// raise
 				// "No object for controlling energy during QEXAFS found! Expected qexafs_energy (or scannable1 for testing)"
 				int numberPoints = (int) Math.ceil((final_energy - initial_energy) / step_size);
-				_runScript(outputBean.getBeforeScriptName());
+				runScript(outputBean.getBeforeScriptName());
 				double scan_time = ((QEXAFSParameters) scanBean).getTime();
 
 				String initialPercent = calcInitialPercent();
 				long timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted;
 				String sampleName = sampleBean.getName();
-				XasLoggingMessage logmsg = new XasLoggingMessage(_getMyVisitID(), scan_unique_id, scriptType,
+				XasLoggingMessage logmsg = new XasLoggingMessage(getMyVisitID(), scan_unique_id, scriptType,
 						"Starting " + scriptType + " scan...", Integer.toString(currentRepetition),
 						Integer.toString(numRepetitions), Integer.toString(1), Integer.toString(1), initialPercent,
 						Integer.toString(0), Long.toString(timeSinceRepetitionsStarted), scanBean,
@@ -192,7 +192,7 @@ public class QexafsScan extends ExafsScan {
 				XASLoggingScriptController.update(null, new ScriptProgressEvent("Running QEXAFS scan"));
 				ContinuousScan thisscan = new ContinuousScan(qexafsScanable, start, end, numberPoints, scan_time,
 						detectorList);
-				thisscan = (ContinuousScan) _setUpDataWriter(thisscan, sampleBean.getName(),
+				thisscan = (ContinuousScan) setUpDataWriter(thisscan, sampleBean.getName(),
 						sampleBean.getDescriptions());
 				XASLoggingScriptController.update(null, new ScanCreationEvent(thisscan.getName()));
 				try {
@@ -205,7 +205,7 @@ public class QexafsScan extends ExafsScan {
 							ScanFinishEvent.FinishType.OK));
 					loggingbean.atScanEnd();
 				} catch (DeviceException e) {
-					_resetHeader();
+					resetHeader();
 					loggingbean.atCommandFailure();
 					if (LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY).equals("true")) {
 						LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY, "false");
@@ -222,7 +222,7 @@ public class QexafsScan extends ExafsScan {
 						log("Will not abort queue but will continue to the next scan, if available");
 					}
 				} catch (java.lang.Exception e) {
-					_resetHeader();
+					resetHeader();
 					loggingbean.atCommandFailure();
 					if (LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY).equals("true")) {
 						LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY, "false");
@@ -238,7 +238,7 @@ public class QexafsScan extends ExafsScan {
 						throw e;
 					}
 				}
-				_runScript(outputBean.getAfterScriptName());
+				runScript(outputBean.getAfterScriptName());
 
 				// #check if halt after current repetition set to true
 				if (LocalProperties.get(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY).equals("true")) {
@@ -254,17 +254,17 @@ public class QexafsScan extends ExafsScan {
 				if (numRepsFromProperty != numRepetitions && numRepsFromProperty <= (currentRepetition)) {
 					log("The number of repetitions has been reset to " + numRepsFromProperty + ". As "
 							+ currentRepetition + "repetitions have been completed this scan will now end.");
-					_resetHeader();
+					resetHeader();
 					break;
 				} else if (numRepsFromProperty <= (currentRepetition)) {
-					_resetHeader();
+					resetHeader();
 					break;
 				}
 			}
 		} finally {
 			LocalProperties.set("gda.scan.useScanPlotSettings", "false");
 			LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false");
-			_resetHeader();
+			resetHeader();
 			if (cirrusEnabled) {
 				// t.stop;
 			}

@@ -25,14 +25,25 @@ import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 
+/**
+ * Sets up the experiment-specific options for how the output is configured e.g. file names, file headers
+ */
 public interface OutputPreparer {
 
-	void _resetNexusStaticMetadataList();
+	/**
+	 * Gives the preparer the parameters for the next experiment and do any preparation for the whole experiment.
+	 */
+	void configure(IOutputParameters outputParameters, IScanParameters scanBean, IDetectorParameters detectorBean) throws DeviceException;
+	
+	/**
+	 * Perform any beamline-specific set up before data collection.
+	 */
+	void beforeEachRepetition() throws Exception;
+
+	ScanPlotSettings getPlotSettings();
+
+	void resetNexusStaticMetadataList();
 
 	AsciiDataWriterConfiguration getAsciiDataWriterConfig(IScanParameters scanBean);
-
-	void prepare(IOutputParameters outputParameters, IScanParameters scanBean) throws DeviceException;
-
-	ScanPlotSettings getPlotSettings(IDetectorParameters detectorBean, IOutputParameters outputBean);
 
 }

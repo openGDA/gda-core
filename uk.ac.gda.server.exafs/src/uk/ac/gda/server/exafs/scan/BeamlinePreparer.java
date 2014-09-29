@@ -20,29 +20,29 @@ package uk.ac.gda.server.exafs.scan;
 
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
+import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 
 /**
- * Configures the detectors for ExafsScans. Each implementation should be beamline specific as each beamline has a
- * unique combinations of detectors and scan types.
+ * Beamline-specific work to prepare for, and reset after, ExafsScans.
  */
-public interface DetectorPreparer {
+public interface BeamlinePreparer {
 
 	/**
-	 * Gives the preparer the parameters for the next experiment and do any preparation for the whole experiment.
+	 * Gives the preparer the parameters for the next experiment.
 	 */
-	void configure(IScanParameters scanBean, IDetectorParameters detectorBean, IOutputParameters outputBean,
-			String experimentFullPath) throws Exception;
+	public void configure(IScanParameters scanBean, IDetectorParameters detectorBean,
+			ISampleParameters sampleParameters, IOutputParameters outputBean, String experimentFullPath)
+			throws Exception;
 
 	/**
 	 * Perform any beamline-specific set up before data collection.
 	 */
-	void beforeEachRepetition() throws Exception;
+	public void prepareForExperiment() throws Exception;
 
 	/**
 	 * Perform any beamline-specific work after data collection. To 'reset' the beamline after the experiment.
 	 */
-	void completeCollection();
-
+	public void completeExperiment() throws Exception;
 
 }
