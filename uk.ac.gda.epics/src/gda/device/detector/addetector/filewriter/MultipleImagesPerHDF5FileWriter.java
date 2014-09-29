@@ -164,6 +164,10 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 	private Double xPixelSize=null;
 
 	private Double yPixelSize=null;
+
+	private String xPixelSizeUnit;
+
+	private String yPixelSizeUnit;
 	
 	public Integer getBoundaryAlign() {
 		return boundaryAlign;
@@ -401,7 +405,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 			throw new DeviceException("Error in " + getName(), e);
 		}
 		if (firstReadoutInScan) {
-			dataAppender = new NXDetectorDataFileLinkAppender(expectedFullFileName, getxPixelSize(), getyPixelSize());
+			dataAppender = new NXDetectorDataFileLinkAppender(expectedFullFileName, getxPixelSize(), getyPixelSize(), getxPixelSizeUnit(), getyPixelSizeUnit());
 			numToBeCaptured=1;
 			numCaptured=0;
 		}
@@ -461,5 +465,22 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 
 	public void setxPixelSize(Double xPixelSize) {
 		this.xPixelSize = xPixelSize;
+	}
+
+	public String getxPixelSizeUnit() {
+		return xPixelSizeUnit;
+	}
+
+	public void setxPixelSizeUnit(String xPixelSizeUnit) {
+		this.xPixelSizeUnit = xPixelSizeUnit;
+	}
+
+	public void setyPixelSizeUnit(String yPixelSizeUnit) {
+		this.yPixelSizeUnit=yPixelSizeUnit;
+		
+	}
+
+	public String getyPixelSizeUnit() {
+		return yPixelSizeUnit;
 	}
 }
