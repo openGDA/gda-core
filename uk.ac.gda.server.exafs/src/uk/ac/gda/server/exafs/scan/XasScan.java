@@ -81,29 +81,6 @@ public class XasScan extends ExafsScan {
 		return new PyInteger(0);
 	}
 
-	private void _doItterator(SampleEnvironmentIterator iterator) throws Exception {
-		iterator.resetIterator();
-		int num_sample_repeats = iterator.getNumberOfRepeats();
-		for (int i = 0; i < num_sample_repeats; i++) {
-			iterator.next();
-			String sampleName = iterator.getNextSampleName();
-			List<String> descriptions = iterator.getNextSampleDescriptions();
-			String initialPercent = calcInitialPercent();
-			long timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted;
-			XasLoggingMessage logmsg = new XasLoggingMessage(_getMyVisitID(), scan_unique_id, scriptType, "Starting "
-					+ scriptType + " scan...", Integer.toString(currentRepetition), Integer.toString(numRepetitions),
-					Integer.toString(i + 1), Integer.toString(num_sample_repeats), initialPercent, Integer.toString(0),
-					Long.toString(timeSinceRepetitionsStarted), Long.toString(timeSinceRepetitionsStarted),
-					experimentFolderName, sampleName, 0);
-
-			if (num_sample_repeats == 1) {
-				printRepetition();
-			}
-
-			_doScan(sampleName, descriptions, logmsg);
-		}
-	}
-
 	private void _doLooping() throws Exception {
 
 		if (moveMonoToStartBeforeScan) {
@@ -156,6 +133,29 @@ public class XasScan extends ExafsScan {
 			setQueuePropertiesEnd();
 			_resetHeader();
 			detectorPreparer.completeCollection();
+		}
+	}
+
+	private void _doItterator(SampleEnvironmentIterator iterator) throws Exception {
+		iterator.resetIterator();
+		int num_sample_repeats = iterator.getNumberOfRepeats();
+		for (int i = 0; i < num_sample_repeats; i++) {
+			iterator.next();
+			String sampleName = iterator.getNextSampleName();
+			List<String> descriptions = iterator.getNextSampleDescriptions();
+			String initialPercent = calcInitialPercent();
+			long timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted;
+			XasLoggingMessage logmsg = new XasLoggingMessage(_getMyVisitID(), scan_unique_id, scriptType, "Starting "
+					+ scriptType + " scan...", Integer.toString(currentRepetition), Integer.toString(numRepetitions),
+					Integer.toString(i + 1), Integer.toString(num_sample_repeats), initialPercent, Integer.toString(0),
+					Long.toString(timeSinceRepetitionsStarted), Long.toString(timeSinceRepetitionsStarted),
+					experimentFolderName, sampleName, 0);
+
+			if (num_sample_repeats == 1) {
+				printRepetition();
+			}
+
+			_doScan(sampleName, descriptions, logmsg);
 		}
 	}
 
