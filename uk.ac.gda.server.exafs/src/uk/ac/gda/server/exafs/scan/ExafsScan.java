@@ -27,11 +27,15 @@ import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
+import gda.exafs.scan.RepetitionsProperties;
 import gda.jython.InterfaceProvider;
 import gda.jython.commands.GeneralCommands;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
+import gda.jython.scriptcontroller.logging.XasLoggingMessage;
 import gda.scan.ConcurrentScan;
 import gda.scan.Scan;
+import gda.scan.ScanInterruptedException;
+import gda.scan.ScanPlotSettings;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -78,6 +82,7 @@ public class ExafsScan {
 	protected String experimentFolderName;
 	protected String scriptType;
 	protected String scan_unique_id;
+	protected long timeRepetitionsStarted;
 
 	public ExafsScan(DetectorPreparer detectorPreparer, SampleEnvironmentPreparer samplePreparer,
 			OutputPreparer outputPreparer, Processor commandQueueProcessor,
@@ -241,5 +246,67 @@ public class ExafsScan {
 
 	protected String _getMyVisitID() {
 		return InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID();
+	}
+
+	protected void setQueuePropertiesStart() {
+		LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY, "false");
+		LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY, "false");
+		LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY, Integer.toString(numRepetitions));
+	}
+
+	protected void setQueuePropertiesEnd() {
+		LocalProperties.set("gda.scan.useScanPlotSettings", "false");
+		LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false");
+	}
+
+	protected void printRepetition() {
+		if (numRepetitions > 1) {
+			log("Starting repetition" + currentRepetition + "of" + numRepetitions);
+		} else {
+			log("Starting " + scriptType + " scan...");
+		}
+	}
+
+	protected ScanPlotSettings runPreparers() throws Exception {
+		detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath);
+		samplePreparer.prepare(sampleBean);
+		outputPreparer.prepare(outputBean, scanBean);
+		return outputPreparer.getPlotSettings(detectorBean, outputBean);
+	}
+
+	protected String calcInitialPercent() {
+		return ((currentRepetition - 1) / numRepetitions) * 100 + "%";
+	}
+
+	private long calcTimeSinceRepetitionsStarted() {
+		return System.currentTimeMillis() - timeRepetitionsStarted;
+	}
+
+	protected XasLoggingMessage getLogMessage(String sampleName) throws Exception {
+		String initialPercent = calcInitialPercent();
+		long timeSinceRepetitionsStarted = calcTimeSinceRepetitionsStarted();
+		return new XasLoggingMessage(_getMyVisitID(), scan_unique_id, scriptType,
+				"Starting " + scriptType + " scan...", Integer.toString(currentRepetition),
+				Integer.toString(numRepetitions), Integer.toString(1), Integer.toString(1), initialPercent,
+				Integer.toString(0), Long.toString(timeSinceRepetitionsStarted), scanBean, experimentFolderName,
+				sampleName, 0);
+	}
+
+	protected void handleScanInterrupt(Exception exceptionObject) throws Exception {
+		if (LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true") {
+			LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY, "false");
+			// # check if a panic stop has been issued, so the whole script should stop?
+			if (Thread.currentThread().isInterrupted()) {
+				throw new ScanInterruptedException();
+			}
+			// # only wanted to skip this repetition, so absorb the exception and continue the loop
+			if (numRepetitions > 1) {
+				log("Repetition" + currentRepetition + "skipped.");
+			} else {
+				// print exceptionObject
+				throw exceptionObject;// # any other exception we are not expecting so raise whatever this is to abort
+										// the script
+			}
+		}
 	}
 }

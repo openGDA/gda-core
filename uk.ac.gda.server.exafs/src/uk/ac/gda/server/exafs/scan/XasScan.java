@@ -21,7 +21,6 @@ import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import gda.jython.scriptcontroller.logging.XasLoggingMessage;
 import gda.jython.scriptcontroller.logging.XasProgressUpdater;
 import gda.scan.ConcurrentScan;
-import gda.scan.ScanInterruptedException;
 import gda.scan.ScanPlotSettings;
 
 import java.util.ArrayList;
@@ -45,8 +44,7 @@ public class XasScan extends ExafsScan {
 
 	private boolean moveMonoToStartBeforeScan;
 	private boolean useIterator;
-	private long timeRepetitionsStarted;
-
+	
 	public XasScan(DetectorPreparer detectorPreparer, SampleEnvironmentPreparer samplePreparer,
 			OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
@@ -81,61 +79,6 @@ public class XasScan extends ExafsScan {
 		_doLooping();
 
 		return new PyInteger(0);
-	}
-
-	private void setQueuePropertiesStart() {
-		LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY, "false");
-		LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY, "false");
-		LocalProperties.set(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY, Integer.toString(numRepetitions));
-	}
-
-	private void setQueuePropertiesEnd() {
-		LocalProperties.set("gda.scan.useScanPlotSettings", "false");
-		LocalProperties.set("gda.plot.ScanPlotSettings.fromUserList", "false");
-	}
-
-	private void printRepetition() {
-		if (numRepetitions > 1) {
-			log("Starting repetition" + currentRepetition + "of" + numRepetitions);
-		} else {
-			log("Starting " + scriptType + " scan...");
-		}
-	}
-
-	private String calcInitialPercent() {
-		return ((currentRepetition - 1) / numRepetitions) * 100 + "%";
-	}
-
-	private long calcTimeSinceRepetitionsStarted() {
-		return System.currentTimeMillis() - timeRepetitionsStarted;
-	}
-
-	private XasLoggingMessage getLogMessage(String sampleName) throws Exception {
-		String initialPercent = calcInitialPercent();
-		long timeSinceRepetitionsStarted = calcTimeSinceRepetitionsStarted();
-		return new XasLoggingMessage(_getMyVisitID(), scan_unique_id, scriptType,
-				"Starting " + scriptType + " scan...", Integer.toString(currentRepetition),
-				Integer.toString(numRepetitions), Integer.toString(1), Integer.toString(1), initialPercent,
-				Integer.toString(0), Long.toString(timeSinceRepetitionsStarted), scanBean, experimentFolderName,
-				sampleName, 0);
-	}
-
-	private void handleScanInterrupt(Exception exceptionObject) throws Exception {
-		if (LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true") {
-			LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY, "false");
-			// # check if a panic stop has been issued, so the whole script should stop?
-			if (Thread.currentThread().isInterrupted()) {
-				throw new ScanInterruptedException();
-			}
-			// # only wanted to skip this repetition, so absorb the exception and continue the loop
-			if (numRepetitions > 1) {
-				log("Repetition" + currentRepetition + "skipped.");
-			} else {
-				// print exceptionObject
-				throw exceptionObject;// # any other exception we are not expecting so raise whatever this is to abort
-										// the script
-			}
-		}
 	}
 
 	private void _doItterator(SampleEnvironmentIterator iterator) throws Exception {
@@ -254,13 +197,6 @@ public class XasScan extends ExafsScan {
 		return thisscan;
 	}
 
-	public ScanPlotSettings runPreparers() throws Exception {
-		detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath);
-		samplePreparer.prepare(sampleBean);
-		outputPreparer.prepare(outputBean, scanBean);
-		return outputPreparer.getPlotSettings(detectorBean, outputBean);
-	}
-
 	private Object[] buildScanArguments(Detector[] detectorList, List<Scannable> signalParameters,
 			XasProgressUpdater loggingbean) throws Exception {
 		XasScannable xas_scannable = _createAndconfigureXASScannable();
@@ -278,7 +214,7 @@ public class XasScan extends ExafsScan {
 		return args;
 	}
 
-	public PyTuple resolveEnergiesFromScanBean() throws Exception {
+	protected PyTuple resolveEnergiesFromScanBean() throws Exception {
 		if (scanBean instanceof XanesScanParameters) {
 			return XanesScanPointCreator.calculateEnergies((XanesScanParameters) scanBean);
 		}
