@@ -100,6 +100,7 @@ public class XasScan extends ExafsScan {
 				.getExperimentType());
 		try {
 			
+			beamlinePreparer.prepareForExperiment();
 			
 			while (true) {
 				currentRepetition++;
@@ -129,6 +130,7 @@ public class XasScan extends ExafsScan {
 			setQueuePropertiesEnd();
 			resetHeader();
 			detectorPreparer.completeCollection();
+			beamlinePreparer.completeExperiment();
 		}
 	}
 
