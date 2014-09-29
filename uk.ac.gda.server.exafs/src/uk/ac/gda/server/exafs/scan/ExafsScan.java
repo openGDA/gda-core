@@ -35,7 +35,6 @@ import gda.jython.scriptcontroller.logging.XasLoggingMessage;
 import gda.scan.ConcurrentScan;
 import gda.scan.Scan;
 import gda.scan.ScanInterruptedException;
-import gda.scan.ScanPlotSettings;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -56,6 +55,7 @@ public class ExafsScan {
 
 	private static Logger logger = LoggerFactory.getLogger(ExafsScan.class);
 
+	final protected BeamlinePreparer beamlinePreparer;
 	final protected DetectorPreparer detectorPreparer;
 	final protected SampleEnvironmentPreparer samplePreparer;
 	final protected OutputPreparer outputPreparer;
@@ -84,10 +84,11 @@ public class ExafsScan {
 	protected String scan_unique_id;
 	protected long timeRepetitionsStarted;
 
-	public ExafsScan(DetectorPreparer detectorPreparer, SampleEnvironmentPreparer samplePreparer,
+	public ExafsScan(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer, SampleEnvironmentPreparer samplePreparer,
 			OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
 			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable, boolean includeSampleNameInNexusName, NXMetaDataProvider metashop) {
+		this.beamlinePreparer = beamlinePreparer;
 		this.detectorPreparer = detectorPreparer;
 		this.samplePreparer = samplePreparer;
 		this.outputPreparer = outputPreparer;
@@ -123,12 +124,12 @@ public class ExafsScan {
 		logger.info(msg);
 	}
 
-	protected void _resetHeader() {
+	protected void resetHeader() {
 		datawriterconfig.setHeader(original_header);
-		outputPreparer._resetNexusStaticMetadataList();
+		outputPreparer.resetNexusStaticMetadataList();
 	}
 
-	protected Detector[] _createDetArray(String[] names) throws Exception {
+	protected Detector[] createDetArray(String[] names) throws Exception {
 		Detector[] dets = new Detector[] {};
 		for (String name : names) {
 			Object detector = InterfaceProvider.getJythonNamespace().getFromJythonNamespace(name);
@@ -137,10 +138,11 @@ public class ExafsScan {
 			}
 			dets = (Detector[]) ArrayUtils.add(dets, detector);
 		}
+		log("Using detectors" + dets);
 		return dets;
 	}
 
-	protected void _createBeans(String sampleFileName, String scanFileName, String detectorFileName,
+	protected void createBeans(String sampleFileName, String scanFileName, String detectorFileName,
 			String outputFileName) throws Exception {
 		log("beans created based on " + experimentFullPath + ", " + sampleFileName + ", " + scanFileName + ", "
 				+ detectorFileName + ", " + outputFileName);
@@ -154,19 +156,27 @@ public class ExafsScan {
 
 		setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName);
 	}
+	
+	protected void configurePreparers() throws Exception {
+		beamlinePreparer.configure(scanBean, detectorBean, sampleBean, outputBean, experimentFullPath);
+		detectorPreparer.configure(scanBean, detectorBean, outputBean, experimentFullPath);
+		samplePreparer.configure(sampleBean);
+		outputPreparer.configure(outputBean, scanBean, detectorBean);
+	}
 
-	protected void _runScript(String scriptName) throws Exception {
+
+	protected void runScript(String scriptName) throws Exception {
 		if (scriptName != null && !scriptName.isEmpty()) {
 			GeneralCommands.run(scriptName);
 		}
 	}
 
-	protected Scan _setUpDataWriterSetFilenames(ConcurrentScan thisscan, String sampleName, List<String> descriptions)
+	protected Scan setUpDataWriterSetFilenames(ConcurrentScan thisscan, String sampleName, List<String> descriptions)
 			throws Exception {
-		return _setUpDataWriter(thisscan, sampleName, descriptions);
+		return setUpDataWriter(thisscan, sampleName, descriptions);
 	}
 
-	protected Scan _setUpDataWriter(Scan thisscan, String sampleName, List<String> descriptions) throws Exception {
+	protected Scan setUpDataWriter(Scan thisscan, String sampleName, List<String> descriptions) throws Exception {
 
 		String[] filenameTemplates = deriveFilenametemplates(sampleName);
 
@@ -226,13 +236,13 @@ public class ExafsScan {
 		metashop.add(sampleFileName, BeansFactory.getXMLString(sampleBean));
 		metashop.add(outputFileName, BeansFactory.getXMLString(outputBean));
 
-		String detectorFileName = _determineDetectorFilename();
+		String detectorFileName = determineDetectorFilename();
 		if (!detectorFileName.isEmpty()) {
 			metashop.add("DetectorConfigurationParameters", BeansFactory.getXMLString(experimentFullPath + File.separator + detectorFileName));
 		}
 	}
 
-	protected String _determineDetectorFilename() {
+	protected String determineDetectorFilename() {
 		String xmlFileName = "";
 		if (detectorBean.getExperimentType().equalsIgnoreCase("Fluorescence")) {
 			FluorescenceParameters fluoresenceParameters = detectorBean.getFluorescenceParameters();
@@ -244,7 +254,7 @@ public class ExafsScan {
 		return xmlFileName;
 	}
 
-	protected String _getMyVisitID() {
+	protected String getMyVisitID() {
 		return InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID();
 	}
 
@@ -267,11 +277,9 @@ public class ExafsScan {
 		}
 	}
 
-	protected ScanPlotSettings runPreparers() throws Exception {
-		detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath);
-		samplePreparer.prepare(sampleBean);
-		outputPreparer.prepare(outputBean, scanBean);
-		return outputPreparer.getPlotSettings(detectorBean, outputBean);
+	protected void runPreparers() throws Exception {
+		detectorPreparer.beforeEachRepetition();
+		outputPreparer.beforeEachRepetition();
 	}
 
 	protected String calcInitialPercent() {
@@ -285,7 +293,7 @@ public class ExafsScan {
 	protected XasLoggingMessage getLogMessage(String sampleName) throws Exception {
 		String initialPercent = calcInitialPercent();
 		long timeSinceRepetitionsStarted = calcTimeSinceRepetitionsStarted();
-		return new XasLoggingMessage(_getMyVisitID(), scan_unique_id, scriptType,
+		return new XasLoggingMessage(getMyVisitID(), scan_unique_id, scriptType,
 				"Starting " + scriptType + " scan...", Integer.toString(currentRepetition),
 				Integer.toString(numRepetitions), Integer.toString(1), Integer.toString(1), initialPercent,
 				Integer.toString(0), Long.toString(timeSinceRepetitionsStarted), scanBean, experimentFolderName,
@@ -295,17 +303,15 @@ public class ExafsScan {
 	protected void handleScanInterrupt(Exception exceptionObject) throws Exception {
 		if (LocalProperties.get(RepetitionsProperties.SKIP_REPETITION_PROPERTY) == "true") {
 			LocalProperties.set(RepetitionsProperties.SKIP_REPETITION_PROPERTY, "false");
-			// # check if a panic stop has been issued, so the whole script should stop?
+			// check if a panic stop has been issued, so the whole script should stop?
 			if (Thread.currentThread().isInterrupted()) {
 				throw new ScanInterruptedException();
 			}
-			// # only wanted to skip this repetition, so absorb the exception and continue the loop
+			// only wanted to skip this repetition, so absorb the exception and continue the loop
 			if (numRepetitions > 1) {
 				log("Repetition" + currentRepetition + "skipped.");
 			} else {
-				// print exceptionObject
-				throw exceptionObject;// # any other exception we are not expecting so raise whatever this is to abort
-										// the script
+				throw exceptionObject;
 			}
 		}
 	}

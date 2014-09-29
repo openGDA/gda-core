@@ -33,26 +33,32 @@ import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.MetadataParameters;
 import uk.ac.gda.server.exafs.scan.OutputPreparer;
 
-public class OutputPreparerBase implements OutputPreparer {
+public abstract class OutputPreparerBase implements OutputPreparer {
 
 	private AsciiDataWriterConfiguration datawriterconfig;
 	private NXMetaDataProvider metashop;
 	private Set<String> scannablesAddedToMetadata = new HashSet<String>();
-	
+
 	public OutputPreparerBase(AsciiDataWriterConfiguration datawriterconfig, NXMetaDataProvider metashop) {
 		this.datawriterconfig = datawriterconfig;
-		this.metashop =  metashop;
+		this.metashop = metashop;
 	}
 
 	@Override
-	public void prepare(IOutputParameters outputParameters, IScanParameters scanBean) throws DeviceException {
+	public void configure(IOutputParameters outputParameters, IScanParameters scanBean, IDetectorParameters detectorBean)
+			throws DeviceException {
 		List<MetadataParameters> metadata = outputParameters.getMetadataList();
-		for(MetadataParameters parameter : metadata) {
+		for (MetadataParameters parameter : metadata) {
 			if (!metashop.containsKey(parameter.getScannableName())) {
 				metashop.add(Finder.getInstance().find(parameter.getScannableName()));
 				scannablesAddedToMetadata.add(parameter.getScannableName());
 			}
 		}
+	}
+	
+	@Override
+	public void beforeEachRepetition() throws Exception {
+		//
 	}
 
 	// # Determines the AsciiDataWriterConfiguration to use to format the header/footer of the ascii data files
@@ -63,7 +69,7 @@ public class OutputPreparerBase implements OutputPreparer {
 	}
 
 	@Override
-	public void _resetNexusStaticMetadataList() {
+	public void resetNexusStaticMetadataList() {
 		for (String scannable : scannablesAddedToMetadata) {
 			metashop.remove(scannable);
 		}
@@ -71,9 +77,7 @@ public class OutputPreparerBase implements OutputPreparer {
 	}
 
 	@Override
-	public ScanPlotSettings getPlotSettings(IDetectorParameters detectorBean, IOutputParameters outputBean) {
+	public ScanPlotSettings getPlotSettings() {
 		return null;
 	}
-
-
 }

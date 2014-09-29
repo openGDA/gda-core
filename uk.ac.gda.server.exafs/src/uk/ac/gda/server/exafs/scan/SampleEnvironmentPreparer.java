@@ -21,10 +21,24 @@ package uk.ac.gda.server.exafs.scan;
 import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 
-public interface SampleEnvironmentPreparer{
+/**
+ * Sets up the beamline-specific sample environment options. Each implementation should be beamline specific as each
+ * beamline has a unique combinations of sample environments and scan types.
+ */
+public interface SampleEnvironmentPreparer {
 
-	public void prepare(ISampleParameters sampleParameters) throws Exception;
+	/**
+	 * Gives the preparer the parameters for the next experiment and do any preparation for the whole experiment.
+	 */
+	public void configure(ISampleParameters sampleParameters) throws Exception;
 
+	/**
+	 * Returns an Iterator object which loops over the different sample environment setings for this experiment e.g.
+	 * motor positions, temperatures, or a combination of these.
+	 * 
+	 * @param experimentType
+	 * @return SampleEnvironmentIterator
+	 */
 	public SampleEnvironmentIterator createIterator(String experimentType);
 
 }

@@ -20,7 +20,6 @@ package uk.ac.gda.beans.exafs.bm26a;
 
 import java.io.Serializable;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
