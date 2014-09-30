@@ -38,7 +38,7 @@ class B18DetectorPreparer:
                 self.vortexConfig.configure(xmlFileName, saveRawSpectrum)
             elif detType == "Xspress3":
                 self.xspress3Config.initialize()
-                self.xspress3Config.configure(xmlFileName)
+                self.xspress3Config.configure(xmlFileName,None)
             self._control_all_ionc(fluoresenceParameters.getIonChamberParameters())
         elif detectorBean.getExperimentType() == "Transmission":
             transmissionParameters = detectorBean.getTransmissionParameters()

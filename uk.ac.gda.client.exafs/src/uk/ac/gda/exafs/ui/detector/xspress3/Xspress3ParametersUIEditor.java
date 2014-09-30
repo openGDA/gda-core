@@ -56,8 +56,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.swtdesigner.SWTResourceManager;
-
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -72,10 +70,11 @@ import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
+
+import com.swtdesigner.SWTResourceManager;
 
 public class Xspress3ParametersUIEditor extends DetectorEditor {
 	private String detectorName;
@@ -103,7 +102,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 	
 	
 	public Xspress3ParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
-		super(path, mappingURL, dirtyContainer, editingBean, path);
+		super(path, mappingURL, dirtyContainer, editingBean, "xspress3Config");
 		this.xspress3Parameters = (Xspress3Parameters) editingBean;
 		detectorName = xspress3Parameters.getDetectorName();
 	}
@@ -334,7 +333,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 		try {
 			
 			
-			final Double[][] MCData = getDetector(detectorName).getMCData(collectionTimeValue);
+//			final Double[][] MCData = getDetector(detectorName).getMCData(collectionTimeValue);
 			final int[][] data = getDetector(detectorName).getData();
 			if (monitor != null)
 				monitor.worked(1);
@@ -347,7 +346,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 				monitor.worked(1);
 
 			// returns the icr and ocr
-			Double[] liveStats = (Double[]) getDetector(detectorName).getAttribute("countRates");
+//			Double[] liveStats = (Double[]) getDetector(detectorName).getAttribute("countRates");
 			//final double deadTimeFinal = (Math.abs(liveStats[0] - liveStats[1]) / liveStats[0]) * 100;
 
 			// Note: currently has to be in this order.
