@@ -8,5 +8,7 @@ Fragment-Host: uk.ac.gda.server.exafs;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  org.junit;bundle-version="[4.10.0,5.0.0)",
- uk.ac.gda.devices.xspress2,
- uk.ac.gda.exafs.datawriter
+ uk.ac.gda.exafs.datawriter,
+ uk.ac.diamond.org.powermock;bundle-version="1.5.1"
+Import-Package: org.mockito,
+ org.mockito.stubbing;version="1.9.5"

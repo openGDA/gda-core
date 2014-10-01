@@ -18,15 +18,17 @@
 
 package uk.ac.gda.server.exafs.scan.preparers;
 
+import gda.data.metadata.NXMetaDataProvider;
+import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.factory.Finder;
+import gda.scan.ScanPlotSettings;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import gda.data.metadata.NXMetaDataProvider;
-import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
-import gda.device.DeviceException;
-import gda.factory.Finder;
-import gda.scan.ScanPlotSettings;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
@@ -71,7 +73,11 @@ public abstract class OutputPreparerBase implements OutputPreparer {
 	@Override
 	public void resetNexusStaticMetadataList() {
 		for (String scannable : scannablesAddedToMetadata) {
-			metashop.remove(scannable);
+			// TODO inconsistent API! Should we using the metashop object or the static from NexusDataWriter.
+			// The design needs a review. I had to run this to get the unit test working but something is wrong.
+//			NexusDataWriter.getMetadatascannables().remove(scannable);
+//			metashop.remove(new Object[]{scannable});
+			metashop.remove((Scannable) Finder.getInstance().find(scannable));
 		}
 		scannablesAddedToMetadata.clear();
 	}
