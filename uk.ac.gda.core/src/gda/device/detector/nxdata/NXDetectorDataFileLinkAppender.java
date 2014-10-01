@@ -41,14 +41,6 @@ public class NXDetectorDataFileLinkAppender implements NXDetectorDataAppender {
 		this.yPixelSizeUnit = null;
 	}
 
-	public NXDetectorDataFileLinkAppender(String expectedFullFileName, Double xPixelSize, Double yPixelSize) {
-		this.filename = expectedFullFileName;
-		this.xPixelSize = xPixelSize;
-		this.yPixelSize = yPixelSize;
-		this.xPixelSizeUnit = null;
-		this.yPixelSizeUnit = null;
-	}
-
 	public NXDetectorDataFileLinkAppender(String expectedFullFileName, Double xPixelSize, Double yPixelSize,
 			String xPixelSizeUnit, String yPixelSizeUnit) {
 		this.filename = expectedFullFileName;
