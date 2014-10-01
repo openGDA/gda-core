@@ -19,7 +19,6 @@ package uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
-
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 
 /**

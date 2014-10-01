@@ -16,6 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
+import gda.data.nexus.tree.INexusTree;
+
 import java.io.File;
 
 import org.dawb.common.ui.util.EclipseUtils;
@@ -36,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.nexus.NexusTreeExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.util.NexusUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetPlotView;
-import gda.data.nexus.tree.INexusTree;
 
 public class NexusTreeEditor extends EditorPart implements IPageChangedListener {
 	

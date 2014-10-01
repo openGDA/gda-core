@@ -21,9 +21,9 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
+import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IMainPlot;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 

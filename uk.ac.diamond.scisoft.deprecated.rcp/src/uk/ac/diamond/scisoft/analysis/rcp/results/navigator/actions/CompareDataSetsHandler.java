@@ -40,8 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.util.PlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ComparisonPlotUtils;
+import uk.ac.diamond.scisoft.analysis.rcp.util.PlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetComparisionDialog;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetPlotView;
