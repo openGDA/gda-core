@@ -147,12 +147,4 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 	protected void setupFile() throws Exception {
 		super.prepareForCollection();
 	}
-	
-	protected ScriptControllerBase controller;
-
-	protected ScriptControllerBase getController() {
-		if (controller == null)
-			controller = (ScriptControllerBase) Finder.getInstance().find(configuration.getControllerName());
-		return controller;
-	}
 }

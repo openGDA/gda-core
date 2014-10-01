@@ -29,7 +29,6 @@ public class AsciiDataWriterConfiguration implements FindableAsciiDataWriterConf
 	private ArrayList<AsciiMetadataConfig> header = new ArrayList<AsciiMetadataConfig>();
 	private ArrayList<AsciiMetadataConfig> footer = new ArrayList<AsciiMetadataConfig>();
 	private String commentMarker = "#";
-	private String controllerName = "";
 	private String name = ""; // for Findable interface
 
 	/**
@@ -92,21 +91,6 @@ public class AsciiDataWriterConfiguration implements FindableAsciiDataWriterConf
 		this.commentMarker = commentMarker;
 	}
 
-	/**
-	 * @return Returns the controllerName.
-	 */
-	public String getControllerName() {
-		return controllerName;
-	}
-
-	/**
-	 * @param controllerName
-	 *            The controllerName to set.
-	 */
-	public void setControllerName(String controllerName) {
-		this.controllerName = controllerName;
-	}
-
 	@Override
 	public String getName() {
 		return name;
@@ -121,7 +105,6 @@ public class AsciiDataWriterConfiguration implements FindableAsciiDataWriterConf
 	public AsciiDataWriterConfiguration clone(){
 		AsciiDataWriterConfiguration copy = new AsciiDataWriterConfiguration();
 		copy.name = name;
-		copy.controllerName = controllerName;
 		copy.commentMarker = commentMarker;
 		copy.header = new ArrayList<AsciiMetadataConfig>(header);
 		copy.footer = new ArrayList<AsciiMetadataConfig>(footer);
