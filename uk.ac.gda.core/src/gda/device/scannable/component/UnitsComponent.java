@@ -69,6 +69,8 @@ import org.jscience.physics.quantities.Force;
 import org.jscience.physics.quantities.Length;
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.quantities.Temperature;
+import org.jscience.physics.quantities.Volume;
+import org.jscience.physics.quantities.VolumetricDensity;
 import org.jscience.physics.units.NonSI;
 import org.jscience.physics.units.SI;
 import org.jscience.physics.units.Unit;
@@ -124,7 +126,7 @@ public class UnitsComponent implements PositionConvertor {
 
 	/**
 	 * Returns a string representation of the current reporting units
-	 * 
+	 *
 	 * @return Returns the reportingUnitsString.
 	 */
 	public String getUserUnitString() {
@@ -134,14 +136,14 @@ public class UnitsComponent implements PositionConvertor {
 	public boolean unitHasBeenSet() {
 		return (userUnitHasBeenExplicitelySet | hardwareUnitHasBeenExplicitelySet);
 	}
-	
+
 	/**
 	 * @return the Unit object that is the current user unit
 	 */
 	public Unit<? extends Quantity> getUserUnit() {
 		return userUnit;
 	}
-	
+
 	/**
 	 * @return the Unit object that is the current user unit
 	 */
@@ -153,7 +155,7 @@ public class UnitsComponent implements PositionConvertor {
 	 * Sets the user unit to userUnit. If a hardware unit has not been explicitly set, then the hardware unit is also
 	 * set to userUnit. If a hardware unit has been set, and the userUnit is not compatible with this, then a
 	 * DeviceException is thrown.
-	 * 
+	 *
 	 * @param userUnitsString
 	 *            The string representation of the unit.
 	 * @throws DeviceException
@@ -216,7 +218,7 @@ public class UnitsComponent implements PositionConvertor {
 	 * Based on this string, this method will build a list of acceptable user-units. Afterwards, the acceptable units
 	 * list can be added to via the addAcceptableUnits method if the defaults do not cover enough.
 	 * <p>
-	 * 
+	 *
 	 * @param hardwareUnitString
 	 *            The hardwareUnitString to use.
 	 * @throws DeviceException
@@ -250,7 +252,7 @@ public class UnitsComponent implements PositionConvertor {
 
 	/**
 	 * Should only be called once the hardware units have been set.
-	 * 
+	 *
 	 * @return Returns the acceptableUnitStrings.
 	 */
 	public String[] getAcceptableUnits() {
@@ -266,7 +268,7 @@ public class UnitsComponent implements PositionConvertor {
 	 * <p>
 	 * This should only be called after the setHardwareUnitString method as the list of acceptable units is rebuilt
 	 * during that method.
-	 * 
+	 *
 	 * @param hardwareUnitString
 	 */
 	public void addAcceptableUnit(String hardwareUnitString) {
@@ -284,7 +286,7 @@ public class UnitsComponent implements PositionConvertor {
 	 * This can take strings, numbers or Jython native numbers.
 	 * <p>
 	 * Acceptable strings would be of the form: "10" or "10 mm" or "10mm".
-	 * 
+	 *
 	 * @param position
 	 * @return a Double in hardware units of the given position
 	 */
@@ -308,11 +310,11 @@ public class UnitsComponent implements PositionConvertor {
 	 * This can take strings, numbers or Jython native numbers.
 	 * <p>
 	 * Acceptable strings would be of the form: "10" or "10 mm" or "10mm".
-	 * 
+	 *
 	 * @param position
 	 * @return a Double in hardware units of the given position
 	 */
-	@Deprecated 
+	@Deprecated
 	public Double convertObjectToHardwareUnitsAssumeHardwareUnits(Object position) {
 		Quantity targetPosition = convertObjectToQuantityInHardwareUnits(position);
 
@@ -332,11 +334,11 @@ public class UnitsComponent implements PositionConvertor {
 	 * This can take strings, numbers or Jython native numbers.
 	 * <p>
 	 * Acceptable strings would be of the form: "10" or "10 mm" or "10mm".
-	 * 
+	 *
 	 * @param position
 	 * @return a Double in user units of the given position
 	 */
-	@Deprecated 
+	@Deprecated
 	public Double convertObjectToUserUnitsAssumeHardwareUnits(Object position) {
 		Quantity targetPosition = convertObjectToQuantityInHardwareUnits(position);
 
@@ -349,11 +351,11 @@ public class UnitsComponent implements PositionConvertor {
 
 	/**
 	 * Array version of convertObjectToUserUnitsAssumeHardwareUnits
-	 * 
+	 *
 	 * @param position
 	 * @return Double[]
 	 */
-	@Deprecated 
+	@Deprecated
 	public Double[] convertObjectToUserUnitsAssumeHardwareUnits(Object[] position) {
 
 		Double[] result = new Double[position.length];
@@ -376,11 +378,11 @@ public class UnitsComponent implements PositionConvertor {
 	 * This can take strings, numbers or Jython native numbers.
 	 * <p>
 	 * Acceptable strings would be of the form: "10" or "10 mm" or "10mm".
-	 * 
+	 *
 	 * @param position
 	 * @return a Double in user units of the given position
 	 */
-	@Deprecated 
+	@Deprecated
 	public Double convertObjectToUserUnitsAssumeUserUnits(Object position) {
 		Quantity targetPosition = convertObjectToQuantityInUserUnits(position);
 
@@ -393,11 +395,11 @@ public class UnitsComponent implements PositionConvertor {
 
 	/**
 	 * This converts a variety of objects into a Quantity in user units. Returns null if the object was unacceptable.
-	 * 
+	 *
 	 * @param position
 	 * @return a Quantity which if not implied from the given object will be in user units of the given position
 	 */
-	@Deprecated 
+	@Deprecated
 	public Quantity convertObjectToQuantityInUserUnits(Object position) {
 		Quantity targetPosition = convertObjectToQuantity(position, userUnit);
 		return targetPosition;
@@ -407,11 +409,11 @@ public class UnitsComponent implements PositionConvertor {
 	/**
 	 * This converts a variety of objects into a Quantity in hardware units. Returns null if the object was
 	 * unacceptable.
-	 * 
+	 *
 	 * @param position
 	 * @return a Quantity which if not implied from the given object will be in hardware units of the given position
 	 */
-	@Deprecated 
+	@Deprecated
 	public Quantity convertObjectToQuantityInHardwareUnits(Object position) {
 		Quantity targetPosition = convertObjectToQuantity(position, hardwareUnit);
 		return targetPosition;
@@ -419,12 +421,12 @@ public class UnitsComponent implements PositionConvertor {
 
 	/**
 	 * Converts whatever position is into a Quantity of units targetUnit
-	 * 
+	 *
 	 * @param position
 	 * @param targetUnit
 	 * @return Quantity
 	 */
-	@Deprecated 
+	@Deprecated
 	public Quantity convertObjectToQuantity(final Object position, final Unit<?> targetUnit) {
 		Quantity quantity = null;
 		if (position instanceof String) {
@@ -469,10 +471,12 @@ public class UnitsComponent implements PositionConvertor {
 		if (hardwareUnitQuantity == null) {
 			throw new IllegalArgumentException("Hardware unit string " + hardwareUnitString + " not supportd.");
 		}
+
+		unitList = new ArrayList<Unit<? extends Quantity>>();
+
 		if (hardwareUnitQuantity instanceof Length) {
 			// these first two lines here so theat they are not overwritten
 			// unless we recognise the dimensions of the hardware units
-			unitList = new ArrayList<Unit<? extends Quantity>>();
 			unitList.add(METER);
 			unitList.add(NANO((METER)));
 			unitList.add(MILLI((METER)));
@@ -487,7 +491,6 @@ public class UnitsComponent implements PositionConvertor {
 		}
 		// angular motions
 		else if (hardwareUnitQuantity instanceof Angle) {
-			unitList = new ArrayList<Unit<? extends Quantity>>();
 			unitList.add(RADIAN);
 			unitList.add(DEG_ANGLE);
 			unitList.add(DEGREES_ANGLE);
@@ -503,44 +506,37 @@ public class UnitsComponent implements PositionConvertor {
 
 		// // temperature
 		else if (hardwareUnitQuantity instanceof Temperature) {
-			unitList = new ArrayList<Unit<? extends Quantity>>();
 			unitList.add(CENTIGRADE);
 			unitList.add(KELVIN);
 		}
-		
+
 		// Force
 		else if (hardwareUnitQuantity instanceof Force) {
-			unitList = new ArrayList<Unit<? extends Quantity>>();
 			unitList.add(NEWTON);
 		}
 		// Voltage
 		else if (hardwareUnitQuantity instanceof ElectricPotential) {
-			unitList = new ArrayList<Unit<? extends Quantity>>();
 			unitList.add(VOLT);
 		}
-		
+
 		// Count
 		else if (hardwareUnitQuantity instanceof Count) {
-			unitList = new ArrayList<Unit<? extends Quantity>>();
 			unitList.add(COUNT);
 			unitList.add(KILOCOUNT);
 		}
 
 		// also want energy here
 		else if (hardwareUnitQuantity instanceof Energy) {
-			unitList = new ArrayList<Unit<? extends Quantity>>();
 			unitList.add(KILOELECTRONVOLT);
 			unitList.add(NonSI.ELECTRON_VOLT);
 			unitList.add(NonSIext.GIGAELECTRONVOLT);  //for the machine
 		}
 
 		else if (hardwareUnitQuantity instanceof Dimensionless) {
-			unitList = new ArrayList<Unit<? extends Quantity>>();
 			unitList.add(ONE);
 		}
 
 		else if (hardwareUnitQuantity instanceof ElectricCurrent) {
-			unitList = new ArrayList<Unit<? extends Quantity>>();
 			unitList.add(SI.AMPERE);
 			unitList.add(NonSIext.MICROAMPERE);
 			unitList.add(NonSIext.uAMPERE);
@@ -548,11 +544,19 @@ public class UnitsComponent implements PositionConvertor {
 		}
 
 		else if (hardwareUnitQuantity instanceof Duration) {
-			unitList = new ArrayList<Unit<? extends Quantity>>();
 			unitList.add(SI.SECOND);
 			unitList.add(MILLI((SI.SECOND)));
 		}
-		
+
+		else if (hardwareUnitQuantity instanceof Volume) {
+			unitList.add(NonSI.LITER);
+			unitList.add(SI.CUBIC_METER);
+		}
+
+		else if (hardwareUnitQuantity instanceof VolumetricDensity) {
+			unitList.add(Unit.valueOf("mg/mL"));
+		}
+
 		else {
 			throw new IllegalArgumentException("Hardware unit string " + hardwareUnitString + " not supported.");
 		}
@@ -578,9 +582,9 @@ public class UnitsComponent implements PositionConvertor {
 	/**
 	 * Converts a position array to its representation in external (user) units, and returns the amount of each element
 	 * as a Double. Assumes the input, if not a quantity, or string parseable to a quantity, to be parseable to a Double
-	 * and in internal (hardware) units. If neither external (user) unit or internal (hardware) unit has been set then 
+	 * and in internal (hardware) units. If neither external (user) unit or internal (hardware) unit has been set then
 	 * the object is not altered.
-	 * 
+	 *
 	 * @param internalPosition
 	 * @return externalPosition
 	 */
@@ -589,69 +593,69 @@ public class UnitsComponent implements PositionConvertor {
 		if (internalPosition == null) {
 			return null;
 		}
-		
+
 		if (!unitHasBeenSet()) {
 			return internalPosition;
 		}
-		
+
 		Object[] internalObjectArray = PositionConvertorFunctions.toObjectArray(internalPosition);
-		
+
 		// Amounts by definition are in internal (hardware) units, so make this explicit
 		Quantity[] internalQuantityArray = PositionConvertorFunctions.toQuantityArray(internalObjectArray, hardwareUnit);
 
 		// Convert to external (user) units
 		Quantity[] externalQuantityArray = PositionConvertorFunctions.toQuantityArray(internalQuantityArray, userUnit);
-		
+
 		// Retrieve the amounts
 		Double[] externalAmountArray = PositionConvertorFunctions.toAmountArray(externalQuantityArray);
-		
-		// 
+
+		//
 		return PositionConvertorFunctions.toParticularContainer(externalAmountArray, internalPosition);
 	}
 
 	/**
 	 * Converts a position array to its representation in internal (hardware) units, and returns the amount of each
 	 * element as a Double. Assumes the input, if not a quantity, or string parseable to a quantity, to be parseable to
-	 * a Double and in external (user) units. If neither external (user) unit or internal (hardware) unit has been set then 
+	 * a Double and in external (user) units. If neither external (user) unit or internal (hardware) unit has been set then
 	 * the object is not altered.
-	 * 
+	 *
 	 * @param externalPosition
 	 * @return internalPosition
 	 */
 	@Override
 	public Object externalTowardInternal(Object externalPosition) {
-		
+
 		if (externalPosition == null) {
 			return null;
 		}
-		
+
 		if (!unitHasBeenSet()) {
 			return externalPosition;
 		}
-		
+
 		Object[] externalObjectArray = PositionConvertorFunctions.toObjectArray(externalPosition);
-		
+
 		// Amounts by definition are in external (user) units, so make this explicit
 		Quantity[] externalQuantityArray = PositionConvertorFunctions.toQuantityArray(externalObjectArray, userUnit);
 
 		// Convert to internal (hardware) units
 		Quantity[] internalQuantityArray = PositionConvertorFunctions.toQuantityArray(externalQuantityArray, hardwareUnit);
-		
+
 		// Retrieve the amounts
 		Double[] internalAmountArray = PositionConvertorFunctions.toAmountArray(internalQuantityArray);
-		
+
 		return PositionConvertorFunctions.toParticularContainer(internalAmountArray, externalPosition);
 	}
-	
+
 	public Object toExternalAmount(Object externalPosition) {
 		Object[] externalObjectArray = PositionConvertorFunctions.toObjectArray(externalPosition);
-		
+
 		// Amounts by definition are in external (user) units, so make this explicit
 		Quantity[] externalQuantityArray = PositionConvertorFunctions.toQuantityArray(externalObjectArray, userUnit);
-	
+
 		// Retrieve the amounts
 		Double[] externalAmountArray = PositionConvertorFunctions.toAmountArray(externalQuantityArray);
-		
+
 		return PositionConvertorFunctions.toParticularContainer(externalAmountArray, externalPosition);
 	}
 }
