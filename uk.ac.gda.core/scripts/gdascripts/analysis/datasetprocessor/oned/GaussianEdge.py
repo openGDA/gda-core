@@ -1,5 +1,6 @@
 from XYDataSetProcessor import XYDataSetFunction
 from gdascripts.analysis.datasetprocessor.oned.GaussianPeakAndBackground import  GaussianPeak
+from org.eclipse.dawnsci.analysis.dataset.impl import Maths
 
 class GaussianEdge(XYDataSetFunction):
 
@@ -8,9 +9,10 @@ class GaussianEdge(XYDataSetFunction):
 		self.smoothwidth = 1
 		self.plotPanel = plotPanel
 	
-	def _process(self,xDataSet, yDataSet):	
-		dyDataSet = yDataSet.diff(xDataSet, self.smoothwidth)
-		if dyDataSet.max()-dyDataSet.min() == 0:
+	def _process(self,xDataSet, yDataSet):
+		dyDataSet = Maths.derivative(xDataSet, yDataSet, self.smoothwidth)
+		minVal, maxVal = dyDataSet.min(), dyDataSet.max()
+		if maxVal - minVal == 0:
 			raise ValueError("There is no edge")
 		
 		fitResult = GaussianPeak(self.name, self.labelList, self.formatString, self.plotPanel)._process(xDataSet, dyDataSet)
