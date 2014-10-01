@@ -197,10 +197,10 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 		this.plotWindow = new PlotWindow(right,
 				                        plotMode,
 										plotServerConnection,
-										plotServerConnection,
 										wrapper,
 										getSite().getPage(),
 										plotName);	
+		plotWindow.setNotifyListener(plotServerConnection);
 		plotServerConnection.setPlotWindow(plotWindow);
 		plotWindow.setExclusiveToolars(true);
 		
