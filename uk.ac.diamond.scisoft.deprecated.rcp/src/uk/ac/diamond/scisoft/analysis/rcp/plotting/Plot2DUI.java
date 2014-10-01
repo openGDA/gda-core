@@ -54,7 +54,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
+import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlotView;
@@ -115,7 +115,7 @@ public class Plot2DUI extends AbstractPlotUI {
 	private Action colourCastLog = null;
 	private Action gradientMode = null;
 	private Action axisVisibility = null;
-	private IGuiInfoManager manager = null;
+	private IBeanScriptingManager manager = null;
 	private List<Action> switchToTabs;
 	private HistogramDataUpdate histoUpdate = null;
 	private static final Logger logger = LoggerFactory.getLogger(Plot2DUI.class);
@@ -140,7 +140,7 @@ public class Plot2DUI extends AbstractPlotUI {
 	 */
 	public Plot2DUI(AbstractPlotWindow window, 
 					final DataSetPlotter plotter,
-					final IGuiInfoManager manager,
+					final IBeanScriptingManager manager,
 					Composite parent, IWorkbenchPage page, 
 					IActionBars bars,
 					String id)

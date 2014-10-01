@@ -53,7 +53,7 @@ import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
-import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
+import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
@@ -113,7 +113,7 @@ public class Plot2DMultiUI extends AbstractPlotUI implements IObserver{
 	 */
 	public Plot2DMultiUI(AbstractPlotWindow window, 
 					     final DataSetPlotter plotter,
-					     @SuppressWarnings("unused") final IGuiInfoManager manager,
+					     @SuppressWarnings("unused") final IBeanScriptingManager manager,
 					      Composite parent, IWorkbenchPage page, 
 					      IActionBars bars, String id)
 	{

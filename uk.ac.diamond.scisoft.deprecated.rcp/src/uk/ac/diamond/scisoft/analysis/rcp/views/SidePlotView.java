@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
-import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
+import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
@@ -308,7 +308,7 @@ public class SidePlotView extends ViewPart implements ISidePlotView {
 	 * @param plotter DataSetPlotter object
 	 * @param manager a GuiInfoManager should be possible to set null (none)
 	 */
-	public void setPlotView(DataSetPlotter plotter, IGuiInfoManager manager) {
+	public void setPlotView(DataSetPlotter plotter, IBeanScriptingManager manager) {
 		
 		mainPlotter = plotter;
 		if (manager == null) needToDispose = true;

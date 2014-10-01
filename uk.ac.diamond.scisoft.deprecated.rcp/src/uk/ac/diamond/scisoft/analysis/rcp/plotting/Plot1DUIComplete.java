@@ -46,7 +46,7 @@ import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
-import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
+import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
 
@@ -72,7 +72,7 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 	private String plotViewID;
 	private AbstractPlotWindow plotWindow;
 	private List<Action> switchToTabs;
-	private IGuiInfoManager manager;
+	private IBeanScriptingManager manager;
 	
 	/**
 	 * Constructor of a Plot1DUI 
@@ -84,7 +84,7 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 	 */
 	
 	public Plot1DUIComplete(final AbstractPlotWindow window, 
-							final IGuiInfoManager manager,
+							final IBeanScriptingManager manager,
 							IActionBars bars, 
 					        Composite parent, IWorkbenchPage page,
 					        String viewName) {

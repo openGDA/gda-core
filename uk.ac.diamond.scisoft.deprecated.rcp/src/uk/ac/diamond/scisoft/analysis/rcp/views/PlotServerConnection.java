@@ -39,7 +39,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
-import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
+import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IUpdateNotificationListener;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotConsumer;
@@ -53,7 +53,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotJobType;
  */
 public class PlotServerConnection implements IObserver, 
 										     IObservable, 
-										     IGuiInfoManager,
+										     IBeanScriptingManager,
 											 IUpdateNotificationListener  {
 
 	// Adding in some logging to help with getting this running

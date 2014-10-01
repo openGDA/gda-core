@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbenchPartSite;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.IGuiInfoManager;
+import uk.ac.diamond.scisoft.analysis.plotserver.IBeanScriptingManager;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IMainPlot;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
@@ -67,7 +67,7 @@ public interface ISidePlot extends OverlayConsumer {
 	 * 
 	 * @param plotView The plotView to set
 	 */
-	public void setGuiInfoManager(IGuiInfoManager plotView);
+	public void setGuiInfoManager(IBeanScriptingManager plotView);
 
 	/**
 	 * Set the main plot associated with this ISidePlot
