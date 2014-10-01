@@ -39,7 +39,7 @@ public class AbortCommandsHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
 			logger.debug("Abort All Commands button pressed");
-			Job job = new Job("Aboirt Commands...") {
+			Job job = new Job("Abort Commands...") {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					JythonServerFacade.getInstance().abortCommands();
