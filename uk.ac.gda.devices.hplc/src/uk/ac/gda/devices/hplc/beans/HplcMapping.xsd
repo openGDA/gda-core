@@ -36,11 +36,11 @@
 			<xsd:element name="concentration" type="xsd:double" />
 			<xsd:element name="molecularWeight" type="xsd:double" />
 			<xsd:element name="timePerFrame" type="xsd:double" minOccurs="1"/>
-			<xsd:element name="frames" type="xsd:int" minOccurs="1"/>
 			<xsd:element name="visit" type="xsd:string" minOccurs="1"/>
 			<xsd:element name="username" type="xsd:string" minOccurs="1"/>
 			<xsd:element name="comment" type="xsd:string" minOccurs="1"/>
 			<xsd:element name="buffers" type="xsd:string" minOccurs="1"/>
+			<xsd:element name="mode" type="xsd:string" minOccurs="1"/>
 		</xsd:all>
 	</xsd:complexType>
 	

@@ -10,7 +10,7 @@
 
 	<class name="uk.ac.gda.devices.bssc.beans.TitrationBean">
 		<map-to xml="TitrationBean" />
-		<field name="location" type="uk.ac.gda.devices.bssc.beans.LocationBean">
+		<field name="location" type="uk.ac.gda.devices.hatsaxs.beans.LocationBean">
 			<bind-xml name="location" node="element" />
 		</field>
 		<field name="sampleName" type="string">
@@ -37,7 +37,7 @@
 		<field name="yellowSample" type="boolean">
 			<bind-xml name="yellowSample" node="element" />
 		</field>
-		<field name="recouperateLocation" type="uk.ac.gda.devices.bssc.beans.LocationBean">
+		<field name="recouperateLocation" type="uk.ac.gda.devices.hatsaxs.beans.LocationBean">
 			<bind-xml name="recouperateLocation" node="element" />
 		</field>
 		<field name="timePerFrame" type="double">
@@ -63,7 +63,7 @@
 		</field>
 	</class>
 
-	<class name="uk.ac.gda.devices.bssc.beans.LocationBean">
+	<class name="uk.ac.gda.devices.hatsaxs.beans.LocationBean">
 		<map-to xml="LocationBean" />
 		<field name="plate" type="short">
 			<bind-xml name="plate" node="element" />

@@ -39,11 +39,10 @@ Require-Bundle: org.eclipse.ui,
  org.apache.commons.math3,
  org.dawnsci.plotting.system,
  org.dawnsci.plotting.draw2d;bundle-version="1.2.0",
- uk.ac.diamond.scisoft.ncd.core;bundle-version="3.0.0"
+ uk.ac.diamond.scisoft.ncd.core;bundle-version="3.0.0",
+ uk.ac.gda.devices.hatsaxs;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.apache.poi.openxml4j.exceptions,
- org.apache.poi.ss.usermodel,
- uk.ac.gda.devices.bssc,
+Export-Package: uk.ac.gda.devices.bssc,
  uk.ac.gda.devices.bssc.beans,
  uk.ac.gda.devices.bssc.ispyb,
  uk.ac.gda.devices.bssc.ui
@@ -52,11 +51,4 @@ Import-Package: org.dawnsci.plotting.tools.profile,
  org.slf4j;version="[1.7.6,1.7.7)"
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Bundle-ClassPath: jars/BSSC.jar,
- jars/JLib.jar,
- jars/poi-3.9-20121203.jar,
- jars/poi-examples-3.9-20121203.jar,
- jars/poi-excelant-3.9-20121203.jar,
- jars/poi-ooxml-3.9-20121203.jar,
- jars/poi-ooxml-schemas-3.9-20121203.jar,
- jars/poi-scratchpad-3.9-20121203.jar,
  .

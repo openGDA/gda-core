@@ -20,10 +20,12 @@ package uk.ac.gda.devices.hplc.beans;
 
 import java.net.URL;
 import java.util.List;
+
 import gda.factory.Finder;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.devices.bssc.beans.LocationBean;
-import uk.ac.gda.devices.bssc.beans.PlateConfig;
+import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
+import uk.ac.gda.devices.hatsaxs.beans.PlateConfig;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class HplcSessionBean implements IRichBean {
 
@@ -33,6 +35,14 @@ public class HplcSessionBean implements IRichBean {
 	public static final PlateConfig HPLC_PLATES = Finder.getInstance().find("hplcPlates");
 	
 	List<HplcBean> measurements;
+
+	public static HplcSessionBean createFromXML(String filename) throws Exception {
+		return (HplcSessionBean) XMLHelpers.createFromXML(mappingURL, HplcSessionBean.class, schemaURL, filename);
+	}
+
+	public static void writeToXML(HplcSessionBean bean, String filename) throws Exception {
+		XMLHelpers.writeToXML(mappingURL, bean, filename);
+	}
 	
 	public void setPlateSetup(PlateConfig plates) {
 		if (!plates.equals(HPLC_PLATES)) {

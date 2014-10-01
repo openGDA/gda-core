@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 
 public class TitrationBean implements IRichBean {
 	private static final Logger logger = LoggerFactory.getLogger(TitrationBean.class);

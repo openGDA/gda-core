@@ -16,12 +16,14 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.devices.bssc.beans;
+package uk.ac.gda.devices.hatsaxs.beans;
 
 import uk.ac.gda.beans.IRichBean;
 
 public class LocationBean implements IRichBean {
 	
+	private static final long serialVersionUID = 4468559432687294813L;
+
 	private static final int OFFSET = 65; //ASCII A char
 	
 	transient private PlateConfig config = null;

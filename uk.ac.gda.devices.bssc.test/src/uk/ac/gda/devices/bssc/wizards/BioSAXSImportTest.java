@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.devices.bssc.beans.BSSCSessionBean;
-import uk.ac.gda.devices.bssc.beans.LocationBean;
+import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 import uk.ac.gda.devices.bssc.beans.TitrationBean;
 
 public class BioSAXSImportTest {
