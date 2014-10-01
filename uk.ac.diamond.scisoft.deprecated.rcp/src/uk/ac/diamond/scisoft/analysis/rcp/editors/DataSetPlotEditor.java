@@ -193,9 +193,7 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 		this.plotServerConnection = new PlotServerConnection(plotName);
 		
 		final GuiBean     bean     = plotServerConnection.getGUIInfo();
-		final GuiPlotMode plotMode = (GuiPlotMode) bean.get(GuiParameters.PLOTMODE);
 		this.plotWindow = new PlotWindow(right,
-				                        plotMode,
 										plotServerConnection,
 										wrapper,
 										getSite().getPage(),
