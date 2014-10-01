@@ -1236,6 +1236,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				if (detId != null && detId.length() > 0) {
 					makeCreateStringData("id", detId);
 				}
+			} else {
+				makeCreateStringData("local_name", detectorName);
 			}
 		} catch (DeviceException e) {
 			e.printStackTrace();
