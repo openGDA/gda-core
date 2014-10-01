@@ -36,6 +36,8 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	private double readoutTime = 0.1; // TODO: Should default to 0, change setReadoutTime javadoc if this changes.
 	
 	private boolean readAcquisitionTime = true;
+	private String acquisitionTimeUnit=null;
+	private String acquisitionPeriodUnit=null;
 
 	private boolean readAcquisitionPeriod = false;
 
@@ -205,6 +207,21 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 		return fieldNames;
 	}
 
+	public List<String> getInputStreamUnits() {
+		List<String> fieldUnits = new ArrayList<String>();
+		
+		if (isReadAcquisitionTime()) {
+			if (getAcquisitionTimeUnit()!=null) {
+				fieldUnits.add(getAcquisitionTimeUnit());
+			}
+		}
+		if (isReadAcquisitionPeriod()) {
+			if (getAcquisitionPeriodUnit()!=null) {
+				fieldUnits.add(getAcquisitionPeriodUnit());
+			}
+		}
+		return fieldUnits;
+	}
 	@Override
 	public List<String> getInputStreamFormats() {
 		List<String> formats = new ArrayList<String>();
@@ -235,7 +252,11 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 			}
 		}
 		Vector<NXDetectorDataAppender> vector = new Vector<NXDetectorDataAppender>();
-		vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times));
+		if (getInputStreamUnits().isEmpty()) {
+			vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times));
+		} else {
+			vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times, getInputStreamUnits()));
+		}
 		return vector;
 	}
 	@Override
@@ -249,6 +270,22 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 
 	public void setTimeFormat(String timeFormat) {
 		this.timeFormat = timeFormat;
+	}
+
+	public String getAcquisitionPeriodUnit() {
+		return acquisitionPeriodUnit;
+	}
+
+	public void setAcquisitionPeriodUnit(String acquisitionPeriodUnit) {
+		this.acquisitionPeriodUnit = acquisitionPeriodUnit;
+	}
+
+	public String getAcquisitionTimeUnit() {
+		return acquisitionTimeUnit;
+	}
+
+	public void setAcquisitionTimeUnit(String acquisitionTimeUnit) {
+		this.acquisitionTimeUnit = acquisitionTimeUnit;
 	}
 
 }
