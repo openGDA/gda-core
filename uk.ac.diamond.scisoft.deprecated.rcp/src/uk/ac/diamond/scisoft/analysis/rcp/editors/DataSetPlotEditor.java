@@ -190,11 +190,10 @@ public class DataSetPlotEditor extends EditorPart implements IReusableEditor, ID
 		// no point connecting it to the plot server unless absolutely necessary.
 		this.plotServerConnection = new PlotServerConnection(plotName);
 		
-		final GuiBean     bean     = plotServerConnection.getGUIInfo();
-		this.plotWindow = new PlotWindow(right,
+        this.plotWindow = new PlotWindow(right,
 										plotServerConnection,
 										wrapper,
-										getSite().getPage(),
+										this,
 										plotName);	
 		plotWindow.setNotifyListener(plotServerConnection);
 		plotServerConnection.setPlotWindow(plotWindow);
