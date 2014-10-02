@@ -229,7 +229,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				
 				double pcPulseWidthRaw;
 				if ( !isPcPulseGateNotTrigger() ) {
-					pcPulseWidthRaw = Math.max(0.01*timeUnitConversion, 0.0001);
+					pcPulseWidthRaw =0.0001; // This is the minimum on any time unit range
 				} else {
 					//pcPulseWidthRaw=maxCollectionTimeFromDetectors*timeUnitConversion;
 					// TODO: Remove offset when the bug in zebra with PC_PULSE_WID == PC_PULSE_STEP is fixed.
