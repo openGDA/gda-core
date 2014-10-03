@@ -281,6 +281,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 		}
 		
 		xyPlot.createAndRegisterPlotActions(parent, getViewSite().getActionBars(), getPartName(), actions);
+		xyPlot.createScriptingConnection(getPartName());
 
 		try {
 			/**
