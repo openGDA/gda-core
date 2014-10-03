@@ -172,7 +172,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	private int remotePort = -1;
 
-	private boolean remoteServerUsesJline;
+	private boolean remoteServerUsesJline=true;
 
 	private String gdaStationScript;
 	
