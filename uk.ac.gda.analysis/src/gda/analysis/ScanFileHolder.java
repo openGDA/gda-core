@@ -52,7 +52,7 @@ import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
 /**
  * Class that contains all the info from a single data file. It can also contain a list of names datasets.
  *
- * @deprecated Use {@link LoaderFactory} and {@link DataHolder}
+ * @deprecated Use {@link LoaderFactory} and {@link IDataHolder}
  */
 @Deprecated
 public class ScanFileHolder implements Serializable, IScanFileHolder {
