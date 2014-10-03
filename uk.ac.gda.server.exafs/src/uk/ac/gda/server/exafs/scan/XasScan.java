@@ -33,6 +33,10 @@ import org.python.core.PySequence;
 import org.python.core.PyTuple;
 
 import uk.ac.gda.beans.exafs.DetectorGroup;
+import uk.ac.gda.beans.exafs.IDetectorParameters;
+import uk.ac.gda.beans.exafs.IOutputParameters;
+import uk.ac.gda.beans.exafs.ISampleParameters;
+import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
@@ -71,13 +75,30 @@ public class XasScan extends ExafsScan {
 	
 	public void doCollection(String sampleFileName, String scanFileName, String detectorFileName, String outputFileName, String experimentFullPath, int numRepetitions) throws Exception {
 		
-
-		this.numRepetitions = numRepetitions;
-		
 		determineExperimentPath(experimentFullPath);
 
 		createBeans(sampleFileName, scanFileName, detectorFileName, outputFileName);
 		
+		doCollection(numRepetitions);
+	}
+	
+	public void doCollection(ISampleParameters sampleBean, IScanParameters scanBean, IDetectorParameters detectorBean, IOutputParameters outputBean, String experimentFullPath, int numRepetitions) throws Exception {
+		
+		this.scanBean = scanBean;
+		this.sampleBean = sampleBean;
+		this.detectorBean = detectorBean;
+		this.outputBean = outputBean;
+		
+		setXmlFileNames("","","","");
+		
+		determineExperimentPath(experimentFullPath);
+		
+		doCollection(numRepetitions);
+	}
+	
+	private void doCollection(int numRepetitions) throws Exception {
+		this.numRepetitions = numRepetitions;
+
 		configurePreparers();
 
 		scriptType = "Exafs";
@@ -243,16 +264,16 @@ public class XasScan extends ExafsScan {
 
 	private Detector[] getDetectors() throws Exception {
 		String expt_type = detectorBean.getExperimentType();
-		if (expt_type.equals("Transmission")) {
+		if (expt_type.equalsIgnoreCase("Transmission")) {
 			log("This is a transmission scan");
 			for (DetectorGroup group : detectorBean.getDetectorGroups()) {
-				if (group.getName().compareTo(detectorBean.getTransmissionParameters().getDetectorType()) == 0) {
+				if (group.getName().equalsIgnoreCase(detectorBean.getTransmissionParameters().getDetectorType())) {
 					return createDetArray(group.getDetector());
 				}
 			}
-		} else if (expt_type.equals("XES")) {
+		} else if (expt_type.equalsIgnoreCase("XES")) {
 			for (DetectorGroup group : detectorBean.getDetectorGroups()) {
-				if (group.getName().equals("XES")) {
+				if (group.getName().equalsIgnoreCase("XES")) {
 					return createDetArray(group.getDetector());
 				}
 			}
@@ -260,7 +281,7 @@ public class XasScan extends ExafsScan {
 
 		log("This is a fluoresence scan");
 		for (DetectorGroup group : detectorBean.getDetectorGroups()) {
-			if (group.getName().equals(detectorBean.getFluorescenceParameters().getDetectorType())) {
+			if (group.getName().equalsIgnoreCase(detectorBean.getFluorescenceParameters().getDetectorType())) {
 				return createDetArray(group.getDetector());
 			}
 		}

@@ -23,6 +23,9 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.data.scan.datawriter.AsciiMetadataConfig;
+import gda.data.scan.datawriter.DataWriter;
+import gda.data.scan.datawriter.DataWriterFactory;
+import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
 import gda.device.Detector;
@@ -178,29 +181,35 @@ public class ExafsScan {
 
 	protected Scan setUpDataWriter(Scan thisscan, String sampleName, List<String> descriptions) throws Exception {
 
-		String[] filenameTemplates = deriveFilenametemplates(sampleName);
+		// use the Factory to enable unit testing - which would use a DummyDataWriter
+		DataWriterFactory datawriterFactory = new DefaultDataWriterFactory();
+		DataWriter datawriter = datawriterFactory.createDataWriter();
+		if (datawriter instanceof XasAsciiNexusDataWriter) {
+			XasAsciiNexusDataWriter dataWriter = (XasAsciiNexusDataWriter) datawriter;
 
-		XasAsciiNexusDataWriter dataWriter = new XasAsciiNexusDataWriter();
-		dataWriter.setSampleName(sampleName);
-		dataWriter.setDescriptions(descriptions);
-		dataWriter.setNexusFileNameTemplate(filenameTemplates[0]);
-		dataWriter.setAsciiFileNameTemplate(filenameTemplates[1]);
-		dataWriter.setSampleName(sampleName);
-		dataWriter.setRunFromExperimentDefinition(true);
-		dataWriter.setFolderName(experimentFullPath);
-		dataWriter.setScanParametersName(scanFileName);
-		dataWriter.setDetectorParametersName(detectorFileName);
-		dataWriter.setSampleParametersName(sampleFileName);
-		dataWriter.setOutputParametersName(outputFileName);
+			String[] filenameTemplates = deriveFilenametemplates(sampleName);
 
-		AsciiDataWriterConfiguration asciidatawriterconfig = outputPreparer.getAsciiDataWriterConfig(scanBean);
-		if (asciidatawriterconfig != null) {
-			dataWriter.setConfiguration(asciidatawriterconfig);
+			// XasAsciiNexusDataWriter dataWriter = new XasAsciiNexusDataWriter();
+			dataWriter.setSampleName(sampleName);
+			dataWriter.setDescriptions(descriptions);
+			dataWriter.setNexusFileNameTemplate(filenameTemplates[0]);
+			dataWriter.setAsciiFileNameTemplate(filenameTemplates[1]);
+			dataWriter.setSampleName(sampleName);
+			dataWriter.setRunFromExperimentDefinition(true);
+			dataWriter.setFolderName(experimentFullPath);
+			dataWriter.setScanParametersName(scanFileName);
+			dataWriter.setDetectorParametersName(detectorFileName);
+			dataWriter.setSampleParametersName(sampleFileName);
+			dataWriter.setOutputParametersName(outputFileName);
+
+			AsciiDataWriterConfiguration asciidatawriterconfig = outputPreparer.getAsciiDataWriterConfig(scanBean);
+			if (asciidatawriterconfig != null) {
+				dataWriter.setConfiguration(asciidatawriterconfig);
+			}
+
+			addMetadata();
 		}
-
-		addMetadata();
-
-		thisscan.setDataWriter(dataWriter);
+		thisscan.setDataWriter(datawriter);
 		return thisscan;
 	}
 
