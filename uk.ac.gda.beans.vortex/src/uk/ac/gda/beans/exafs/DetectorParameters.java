@@ -32,8 +32,8 @@ public class DetectorParameters implements Serializable, IDetectorParameters {
 
 	static public final URL schemaUrl = DetectorParameters.class.getResource("ExafsParameterMapping.xsd");
 	
-	static public final String TRANSMISSION_TYPE = "transmission";
-	static public final String FLUORESCENCE_TYPE = "fluorescence";
+	static public final String TRANSMISSION_TYPE = "Transmission";
+	static public final String FLUORESCENCE_TYPE = "Fluorescence";
 	static public final String SOFTXRAYS_TYPE = "soft x-rays";
 	static public final String XES_TYPE = "xes";
 
