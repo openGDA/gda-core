@@ -36,10 +36,10 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	private double readoutTime = 0.1; // TODO: Should default to 0, change setReadoutTime javadoc if this changes.
 	
 	private boolean readAcquisitionTime = true;
-	private String acquisitionTimeUnit=null;
-	private String acquisitionPeriodUnit=null;
+	private String acquisitionTimeUnit="s";
 
 	private boolean readAcquisitionPeriod = false;
+	private String acquisitionPeriodUnit="s";
 
 	private Boolean generateCallbacks = null;
 	
