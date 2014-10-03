@@ -165,9 +165,9 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 
 	private Double yPixelSize=null;
 
-	private String xPixelSizeUnit;
+	private String xPixelSizeUnit=null;
 
-	private String yPixelSizeUnit;
+	private String yPixelSizeUnit=null;
 	
 	public Integer getBoundaryAlign() {
 		return boundaryAlign;
