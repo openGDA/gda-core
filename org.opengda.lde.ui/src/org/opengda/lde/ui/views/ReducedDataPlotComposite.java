@@ -18,6 +18,7 @@
 
 package org.opengda.lde.ui.views;
 
+import gda.factory.Finder;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gda.util.Sleep;
@@ -62,6 +63,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 	private ILineTrace profileLineTrace;
 	
 	private Scriptcontroller eventAdmin;
+	private String eventAdminName;
 	private String plotName;
 
 	/**
@@ -92,7 +94,8 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 	}
 
 	public void initialise() {
-		if (eventAdmin!=null) {
+		if (eventAdminName!=null) {
+			eventAdmin=Finder.getInstance().find(eventAdminName);
 			eventAdmin.addIObserver(this);
 		}
 	}
@@ -186,19 +189,19 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 		}
 	}
 
-	public Scriptcontroller getEventAdmin() {
-		return eventAdmin;
-	}
-
-	public void setEventAdmin(Scriptcontroller eventAdmin) {
-		this.eventAdmin = eventAdmin;
-	}
-
 	public String getPlotName() {
 		return plotName;
 	}
 
 	public void setPlotName(String plotName) {
 		this.plotName = plotName;
+	}
+
+	public String getEventAdminName() {
+		return eventAdminName;
+	}
+
+	public void setEventAdminName(String eventAdminName) {
+		this.eventAdminName = eventAdminName;
 	}
 }

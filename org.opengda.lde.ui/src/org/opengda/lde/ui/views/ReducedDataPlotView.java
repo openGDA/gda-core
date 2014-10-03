@@ -1,7 +1,5 @@
 package org.opengda.lde.ui.views;
 
-import gda.jython.scriptcontroller.Scriptcontroller;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -14,7 +12,7 @@ public class ReducedDataPlotView extends ViewPart {
 	private static final Logger logger = LoggerFactory.getLogger(ReducedDataPlotView.class);
 	public static final String ID = "org.opengda.lde.ui.views.reducdeddataplotview";
 	private ReducedDataPlotComposite plotComposite;
-	private Scriptcontroller eventAdmin;
+	private String eventAdminName;
 	
 	public ReducedDataPlotView() {
 		setTitleToolTip("live display of integrated spectrum");
@@ -29,7 +27,7 @@ public class ReducedDataPlotView extends ViewPart {
 
 		try {
 			plotComposite = new ReducedDataPlotComposite(this, rootComposite, SWT.None);
-			plotComposite.setEventAdmin(eventAdmin);
+			plotComposite.setEventAdminName(eventAdminName);
 			plotComposite.setPlotName(getPartName());
 			plotComposite.initialise();
 			
@@ -47,11 +45,11 @@ public class ReducedDataPlotView extends ViewPart {
 		setPartName(viewPartName);
 	}
 
-	public Scriptcontroller getEventAdmin() {
-		return eventAdmin;
+	public String getEventAdminName() {
+		return eventAdminName;
 	}
 
-	public void setEventAdmin(Scriptcontroller eventAdmin) {
-		this.eventAdmin = eventAdmin;
+	public void setEventAdminName(String eventAdminName) {
+		this.eventAdminName = eventAdminName;
 	}
 }
