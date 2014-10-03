@@ -31,8 +31,8 @@ public class TogglerScannable extends ScannableBase {
 	public enum Hook {
 		AT_SCAN,
 		AT_LINE,
-		AT_LEVEL,
-		AT_POINT
+		AT_POINT,
+		AT_LEVEL
 	}
 
 	private Hook hook;
