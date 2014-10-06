@@ -17,6 +17,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.io.FilenameUtils;
+import org.opengda.lde.events.NewDataFileEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +74,7 @@ public class DataReductionScannable extends ScannableBase implements Scannable {
 				try {
 					result=submit.get();
 					if (getEventAdmin() != null) {
-						((ScriptControllerBase)eventAdmin).update(this, result);
+						((ScriptControllerBase)eventAdmin).update(this, new NewDataFileEvent(result));
 					}
 					logger.info("Data reduction processing is completed on the cluster.");
 				} catch (InterruptedException e) {
