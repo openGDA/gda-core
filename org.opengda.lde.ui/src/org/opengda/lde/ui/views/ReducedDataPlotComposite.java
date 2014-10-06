@@ -96,7 +96,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 	public void initialise() {
 		if (eventAdminName!=null) {
 			eventAdmin=Finder.getInstance().find(eventAdminName);
-			eventAdmin.addIObserver(this);
+			if (eventAdmin != null) eventAdmin.addIObserver(this);
 		}
 	}
 	@Override
@@ -149,9 +149,9 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 		xAxis.setName(names[0]);
 		Dataset yds=(Dataset) dataHolder.getDataset(1);
 		yds.setName(names[1]);
-		Dataset error=(Dataset) dataHolder.getDataset(2);
-		error.setName(names[2]);
-		yds.setError(error);
+//		Dataset error=(Dataset) dataHolder.getDataset(2);
+//		error.setName(names[2]);
+//		yds.setError(error);
 		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
 		plotDataSets.add(yds);
 		plottingSystem.clear();
