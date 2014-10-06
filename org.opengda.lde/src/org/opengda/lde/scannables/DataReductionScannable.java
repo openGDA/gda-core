@@ -44,31 +44,31 @@ public class DataReductionScannable extends ScannableBase implements Scannable {
 			command=LocalProperties.get("gda.lde.datareduction.software","/dls_sw/apps/i11-scripts/bin/LDE-RunFromGDAAtEndOfScan.sh")+" "+Current_Calibrant_Data_Filename+" "+filename;
 			
 		}
-		Callable<String> r = new Callable<String>() {
-			@Override
-			public String call() throws Exception {
-				OSCommandRunner osCommandRunner = new OSCommandRunner(command, true, null, null);
-				if (osCommandRunner.exception != null) {
-					String msg = "Exception seen trying to run command " + osCommandRunner.getCommandAsString();
-					logger.error(msg);
-					logger.error(osCommandRunner.exception.toString());
-				} else if (osCommandRunner.exitValue != 0) {
-					String msg = "Exit code = " + Integer.toString(osCommandRunner.exitValue)
-							+ " returned from command " + osCommandRunner.getCommandAsString();
-					logger.warn(msg);
-					osCommandRunner.logOutput();
-				} else {
-					osCommandRunner.logOutput();
-				}
-				return FilenameUtils.getPath(filename)+"processed/"+FilenameUtils.getBaseName(filename)+".xy";
-			}
-		};
-		final ExecutorService executor = Executors.newFixedThreadPool(1);		
-		final Future<String> submit = executor.submit(r);
 		Thread resultThread=new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
+				Callable<String> r = new Callable<String>() {
+					@Override
+					public String call() throws Exception {
+						OSCommandRunner osCommandRunner = new OSCommandRunner(command, true, null, null);
+						if (osCommandRunner.exception != null) {
+							String msg = "Exception seen trying to run command " + osCommandRunner.getCommandAsString();
+							logger.error(msg);
+							logger.error(osCommandRunner.exception.toString());
+						} else if (osCommandRunner.exitValue != 0) {
+							String msg = "Exit code = " + Integer.toString(osCommandRunner.exitValue)
+									+ " returned from command " + osCommandRunner.getCommandAsString();
+							logger.warn(msg);
+							osCommandRunner.logOutput();
+						} else {
+							osCommandRunner.logOutput();
+						}
+						return FilenameUtils.getPath(filename)+"processed/"+FilenameUtils.getBaseName(filename)+".xy";
+					}
+				};
+				final ExecutorService executor = Executors.newFixedThreadPool(1);		
+				final Future<String> submit = executor.submit(r);
 				String result;
 				try {
 					result=submit.get();
