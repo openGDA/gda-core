@@ -44,6 +44,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.python.core.PyInteger;
+import org.python.core.PyObject;
+import org.python.core.PySequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +57,23 @@ import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 
-public class ExafsScan {
+/**
+ * Base class for all Spectroscopy "UI" scans. These scan objects are created in localStation and are used for every UI
+ * scan.
+ * <p>
+ * Each individual experiment is configured using for XML files which are given to this object through one of the
+ * doCollection methods.
+ * <p>
+ * This class prepares sample environments, detectors, the beamline and output options before creating and then running
+ * a regular GDA Concurrent or Continuous Scan to preform the actual data collection and recording.
+ * <p>
+ * This class is also responsible for creating logging objects which report scan progress to the UI via the
+ * LogginScriptController.
+ * <p>
+ * Beamline customisation is provided by the 'Preparer' objects and the ascii header configured in Spring using a
+ * AsciiDataWriterConfiguration object.
+ */
+public abstract class ExafsScan {
 
 	private static Logger logger = LoggerFactory.getLogger(ExafsScan.class);
 
@@ -62,6 +81,7 @@ public class ExafsScan {
 	final protected DetectorPreparer detectorPreparer;
 	final protected SampleEnvironmentPreparer samplePreparer;
 	final protected OutputPreparer outputPreparer;
+
 	final protected Processor commandQueueProcessor;
 	final protected LoggingScriptController XASLoggingScriptController;
 	final protected AsciiDataWriterConfiguration datawriterconfig;
@@ -87,10 +107,11 @@ public class ExafsScan {
 	protected String scan_unique_id;
 	protected long timeRepetitionsStarted;
 
-	public ExafsScan(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer, SampleEnvironmentPreparer samplePreparer,
-			OutputPreparer outputPreparer, Processor commandQueueProcessor,
+	public ExafsScan(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer,
+			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
-			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable, boolean includeSampleNameInNexusName, NXMetaDataProvider metashop) {
+			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable,
+			boolean includeSampleNameInNexusName, NXMetaDataProvider metashop) {
 		this.beamlinePreparer = beamlinePreparer;
 		this.detectorPreparer = detectorPreparer;
 		this.samplePreparer = samplePreparer;
@@ -102,7 +123,66 @@ public class ExafsScan {
 		this.energy_scannable = energy_scannable;
 		this.includeSampleNameInNexusName = includeSampleNameInNexusName;
 		this.metashop = metashop;
+	}
 
+	/**
+	 * For convenience when calling from Jython.
+	 * 
+	 * @param pyArgs
+	 * @return 0 - normal completion
+	 * @throws Exception
+	 */
+	public PyObject __call__(PyObject pyArgs) throws Exception {
+
+		String sampleFileName = ((PySequence) pyArgs).__finditem__(0).asString();
+		String scanFileName = ((PySequence) pyArgs).__finditem__(1).asString();
+		String detectorFileName = ((PySequence) pyArgs).__finditem__(2).asString();
+		String outputFileName = ((PySequence) pyArgs).__finditem__(3).asString();
+		String experimentFullPath = ((PySequence) pyArgs).__finditem__(4).asString();
+		int numRepetitions = ((PySequence) pyArgs).__finditem__(5).asInt();
+
+		doCollection(sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions);
+
+		return new PyInteger(0);
+	}
+
+	public void doCollection(String sampleFileName, String scanFileName, String detectorFileName,
+			String outputFileName, String experimentFullPath, int numRepetitions) throws Exception {
+
+		determineExperimentPath(experimentFullPath);
+
+		createBeans(sampleFileName, scanFileName, detectorFileName, outputFileName);
+
+		doCollection(numRepetitions);
+	}
+
+	public void doCollection(ISampleParameters sampleBean, IScanParameters scanBean, IDetectorParameters detectorBean,
+			IOutputParameters outputBean, String experimentFullPath, int numRepetitions) throws Exception {
+
+		this.scanBean = scanBean;
+		this.sampleBean = sampleBean;
+		this.detectorBean = detectorBean;
+		this.outputBean = outputBean;
+
+		setXmlFileNames("", "", "", "");
+
+		determineExperimentPath(experimentFullPath);
+
+		doCollection(numRepetitions);
+	}
+
+	/**
+	 * The implementation-specific data collection.
+	 * 
+	 * @param numRepetitions
+	 * @throws Exception
+	 */
+	protected abstract void doCollection(int numRepetitions) throws Exception;
+
+	protected void prepareForCollection(String scriptType) {
+		this.scriptType = scriptType;
+		scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
+		log("Starting " + scriptType + " scan...");
 	}
 
 	protected void determineExperimentPath(String experimentFullPath) {
@@ -159,14 +239,13 @@ public class ExafsScan {
 
 		setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName);
 	}
-	
+
 	protected void configurePreparers() throws Exception {
 		beamlinePreparer.configure(scanBean, detectorBean, sampleBean, outputBean, experimentFullPath);
 		detectorPreparer.configure(scanBean, detectorBean, outputBean, experimentFullPath);
 		samplePreparer.configure(sampleBean);
 		outputPreparer.configure(outputBean, scanBean, detectorBean);
 	}
-
 
 	protected void runScript(String scriptName) throws Exception {
 		if (scriptName != null && !scriptName.isEmpty()) {
@@ -189,7 +268,6 @@ public class ExafsScan {
 
 			String[] filenameTemplates = deriveFilenametemplates(sampleName);
 
-			// XasAsciiNexusDataWriter dataWriter = new XasAsciiNexusDataWriter();
 			dataWriter.setSampleName(sampleName);
 			dataWriter.setDescriptions(descriptions);
 			dataWriter.setNexusFileNameTemplate(filenameTemplates[0]);
@@ -247,7 +325,8 @@ public class ExafsScan {
 
 		String detectorFileName = determineDetectorFilename();
 		if (!detectorFileName.isEmpty()) {
-			metashop.add("DetectorConfigurationParameters", BeansFactory.getXMLString(experimentFullPath + File.separator + detectorFileName));
+			metashop.add("DetectorConfigurationParameters",
+					BeansFactory.getXMLString(experimentFullPath + File.separator + detectorFileName));
 		}
 	}
 
@@ -302,11 +381,10 @@ public class ExafsScan {
 	protected XasLoggingMessage getLogMessage(String sampleName) throws Exception {
 		String initialPercent = calcInitialPercent();
 		long timeSinceRepetitionsStarted = calcTimeSinceRepetitionsStarted();
-		return new XasLoggingMessage(getMyVisitID(), scan_unique_id, scriptType,
-				"Starting " + scriptType + " scan...", Integer.toString(currentRepetition),
-				Integer.toString(numRepetitions), Integer.toString(1), Integer.toString(1), initialPercent,
-				Integer.toString(0), Long.toString(timeSinceRepetitionsStarted), scanBean, experimentFolderName,
-				sampleName, 0);
+		return new XasLoggingMessage(getMyVisitID(), scan_unique_id, scriptType, "Starting " + scriptType + " scan...",
+				Integer.toString(currentRepetition), Integer.toString(numRepetitions), Integer.toString(1),
+				Integer.toString(1), initialPercent, Integer.toString(0), Long.toString(timeSinceRepetitionsStarted),
+				scanBean, experimentFolderName, sampleName, 0);
 	}
 
 	protected void handleScanInterrupt(Exception exceptionObject) throws Exception {
