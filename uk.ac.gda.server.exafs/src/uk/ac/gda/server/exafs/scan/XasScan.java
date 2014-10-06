@@ -27,16 +27,10 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.nfunk.jep.ParseException;
-import org.python.core.PyInteger;
-import org.python.core.PyObject;
-import org.python.core.PySequence;
 import org.python.core.PyTuple;
 
 import uk.ac.gda.beans.exafs.DetectorGroup;
-import uk.ac.gda.beans.exafs.IDetectorParameters;
-import uk.ac.gda.beans.exafs.IOutputParameters;
-import uk.ac.gda.beans.exafs.ISampleParameters;
-import uk.ac.gda.beans.exafs.IScanParameters;
+import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
@@ -44,85 +38,43 @@ import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 
 public class XasScan extends ExafsScan {
 
-	public XasScan(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer, SampleEnvironmentPreparer samplePreparer,
-			OutputPreparer outputPreparer, Processor commandQueueProcessor,
+	public XasScan(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer,
+			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
-			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable, NXMetaDataProvider metashop, boolean includeSampleNameInNexusName) {
-		super(beamlinePreparer, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, XASLoggingScriptController,
-				datawriterconfig, original_header, energy_scannable, includeSampleNameInNexusName, metashop);
+			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable, NXMetaDataProvider metashop,
+			boolean includeSampleNameInNexusName) {
+		super(beamlinePreparer, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor,
+				XASLoggingScriptController, datawriterconfig, original_header, energy_scannable,
+				includeSampleNameInNexusName, metashop);
 	}
 
-	/**
-	 * For convenience when calling from Jython.
-	 * 
-	 * @param pyArgs
-	 * @return 0 - normal completion 
-	 * @throws Exception
-	 */
-	public PyObject __call__(PyObject pyArgs) throws Exception {
-
-		String sampleFileName = ((PySequence) pyArgs).__finditem__(0).asString();
-		String scanFileName = ((PySequence) pyArgs).__finditem__(1).asString();
-		String detectorFileName = ((PySequence) pyArgs).__finditem__(2).asString();
-		String outputFileName = ((PySequence) pyArgs).__finditem__(3).asString();
-		String experimentFullPath = ((PySequence) pyArgs).__finditem__(4).asString();
-		int numRepetitions = ((PySequence) pyArgs).__finditem__(5).asInt();
-		
-		doCollection(sampleFileName,scanFileName,detectorFileName,outputFileName, experimentFullPath,numRepetitions);
-		
-		return new PyInteger(0);
-	}
-	
-	public void doCollection(String sampleFileName, String scanFileName, String detectorFileName, String outputFileName, String experimentFullPath, int numRepetitions) throws Exception {
-		
-		determineExperimentPath(experimentFullPath);
-
-		createBeans(sampleFileName, scanFileName, detectorFileName, outputFileName);
-		
-		doCollection(numRepetitions);
-	}
-	
-	public void doCollection(ISampleParameters sampleBean, IScanParameters scanBean, IDetectorParameters detectorBean, IOutputParameters outputBean, String experimentFullPath, int numRepetitions) throws Exception {
-		
-		this.scanBean = scanBean;
-		this.sampleBean = sampleBean;
-		this.detectorBean = detectorBean;
-		this.outputBean = outputBean;
-		
-		setXmlFileNames("","","","");
-		
-		determineExperimentPath(experimentFullPath);
-		
-		doCollection(numRepetitions);
-	}
-	
-	private void doCollection(int numRepetitions) throws Exception {
+	@Override
+	protected void doCollection(int numRepetitions) throws Exception {
 		this.numRepetitions = numRepetitions;
 
 		configurePreparers();
 
-		scriptType = "Exafs";
+		String scanType = "Exafs";
 		if (scanBean instanceof XanesScanParameters) {
-			scriptType = "Xanes";
+			scanType = "Xanes";
+		} else if (scanBean instanceof QEXAFSParameters) {
+			scanType = "Qeaxfs";
 		}
-
-		scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
+		prepareForCollection(scanType);
 
 		doRepetitions();
 	}
-
 
 	private void doRepetitions() throws Exception {
 
 		setQueuePropertiesStart();
 		currentRepetition = 0;
 		timeRepetitionsStarted = System.currentTimeMillis();
-		SampleEnvironmentIterator iterator = samplePreparer.createIterator(detectorBean
-				.getExperimentType());
+		SampleEnvironmentIterator iterator = samplePreparer.createIterator(detectorBean.getExperimentType());
 		try {
-			
+
 			beamlinePreparer.prepareForExperiment();
-			
+
 			while (true) {
 				currentRepetition++;
 				try {
@@ -138,9 +90,9 @@ public class XasScan extends ExafsScan {
 				numRepetitions = numRepsFromProperty;
 			}
 		} finally {
-//			if (moveMonoToStartBeforeScan) {
-//				energy_scannable.stop();
-//			}
+			// if (moveMonoToStartBeforeScan) {
+			// energy_scannable.stop();
+			// }
 			// if (handleGapConverter) {
 			// TODO move to I18's detectorPreparer.completeCollection() call one of the preparers here to do some
 			// beamline specific reset
@@ -180,29 +132,35 @@ public class XasScan extends ExafsScan {
 
 	// Runs a single energy (XAS/XANES) scan once the sample environment has been set up
 	private void doSingleScan(String sampleName, List<String> descriptions, XasLoggingMessage logmsg) throws Exception {
-		
+
 		runScript(outputBean.getBeforeScriptName());
-		
+
 		runPreparers();
 
+		createAndRunScan(sampleName, descriptions, logmsg);
+
+		runScript(outputBean.getAfterScriptName());
+
+	}
+
+	protected void createAndRunScan(String sampleName, List<String> descriptions, XasLoggingMessage logmsg)
+			throws Exception {
 		XasProgressUpdater loggingbean = new XasProgressUpdater(XASLoggingScriptController, logmsg,
 				timeRepetitionsStarted);
 		ScanPlotSettings scanPlotSettings = outputPreparer.getPlotSettings();
 		List<Scannable> signalParameters = getSignalList();
 		Detector[] detectorList = getDetectors();
 		Object[] args = buildScanArguments(detectorList, signalParameters, loggingbean);
-		
+
 		ConcurrentScan thisscan = createScan(args, sampleName, descriptions, scanPlotSettings);
-		
+
 		// TODO need to review why different observers need different event types here
 		XASLoggingScriptController.update(null, new ScanStartedMessage(scanBean, detectorBean));
 		XASLoggingScriptController.update(null, new ScriptProgressEvent("Running scan"));
 		XASLoggingScriptController.update(null, new ScanCreationEvent(thisscan.getName()));
 
 		thisscan.runScan();
-		
-		runScript(outputBean.getAfterScriptName());
-		
+
 		XASLoggingScriptController.update(null, new ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
 	}
 
@@ -322,25 +280,25 @@ public class XasScan extends ExafsScan {
 		return false;
 	}
 
-//	private void moveMonoToInitialPosition() throws DeviceException, InterruptedException {
-//		Double initialPosition = null;
-//		if (scanBean instanceof XasScanParameters) {
-//			initialPosition = ((XasScanParameters) scanBean).getInitialEnergy();
-//		} else if (scanBean instanceof XanesScanParameters) {
-//			initialPosition = ((XanesScanParameters) scanBean).getRegions().get(0).getEnergy();
-//		} else if (scanBean instanceof XesScanParameters) {
-//			int xes_scanType = ((XesScanParameters) scanBean).getScanType();
-//			if (xes_scanType == XesScanParameters.SCAN_XES_FIXED_MONO) {
-//				initialPosition = ((XesScanParameters) scanBean).getMonoEnergy();
-//			} else {
-//				initialPosition = ((XesScanParameters) scanBean).getMonoInitialEnergy();
-//			}
-//		}
-//
-//		if (energy_scannable != null && initialPosition != null) {
-//			energy_scannable.waitWhileBusy();
-//			energy_scannable.asynchronousMoveTo(initialPosition);
-//			log("Moving mono to initial position...");
-//		}
-//	}
+	// private void moveMonoToInitialPosition() throws DeviceException, InterruptedException {
+	// Double initialPosition = null;
+	// if (scanBean instanceof XasScanParameters) {
+	// initialPosition = ((XasScanParameters) scanBean).getInitialEnergy();
+	// } else if (scanBean instanceof XanesScanParameters) {
+	// initialPosition = ((XanesScanParameters) scanBean).getRegions().get(0).getEnergy();
+	// } else if (scanBean instanceof XesScanParameters) {
+	// int xes_scanType = ((XesScanParameters) scanBean).getScanType();
+	// if (xes_scanType == XesScanParameters.SCAN_XES_FIXED_MONO) {
+	// initialPosition = ((XesScanParameters) scanBean).getMonoEnergy();
+	// } else {
+	// initialPosition = ((XesScanParameters) scanBean).getMonoInitialEnergy();
+	// }
+	// }
+	//
+	// if (energy_scannable != null && initialPosition != null) {
+	// energy_scannable.waitWhileBusy();
+	// energy_scannable.asynchronousMoveTo(initialPosition);
+	// log("Moving mono to initial position...");
+	// }
+	// }
 }
