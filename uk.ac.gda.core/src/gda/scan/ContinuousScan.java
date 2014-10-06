@@ -52,6 +52,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 	private Integer numberScanpoints;
 	private BufferedDetector[] qscanDetectors;
 	private Date timeMotionFinished;
+	private long timeOfLastUpdatedScanEvent;
 
 	public ContinuousScan() {
 		super();
@@ -369,11 +370,23 @@ public class ContinuousScan extends ConcurrentScanChild {
 			thisPoint.setCurrentFilename(getDataWriter().getCurrentFileName());
 
 			// then notify IObservers of this scan (e.g. GUI panels)
-			InterfaceProvider.getJythonServerNotifer().notifyServer(this,thisPoint);
+			InterfaceProvider.getJythonServerNotifer().notifyServer(this,thisPoint); // for the CommandQueue
+			notifyScanEvent();
+			//FIXME GDA should not need two messages sent out here. This needs resolving. The UI should also have to resolve its own updating.
 		}
 	}
-
+	
+	private void notifyScanEvent() {
+		// as this can happen very frequently for ContinuousScans, only notify every second 
+		long now = new Date().getTime();
+		if (now - timeOfLastUpdatedScanEvent  > 1000) {
+			sendScanEvent(ScanEvent.EventType.UPDATED); // for the ApplicationActionToolBar 
+			timeOfLastUpdatedScanEvent = now;
+		}
+	}
 }
+
+
 
 /**
  *  For timeout while waiting for detectors to see all their expected data points.
