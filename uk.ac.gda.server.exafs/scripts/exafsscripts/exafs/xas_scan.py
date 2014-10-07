@@ -276,7 +276,7 @@ class XasScan(Scan):
                 if group.getName() == "XES":
                     return self._createDetArray(group.getDetector(), scanBean)
         else:
-            self.log("This is a fluoresence scan")
+            self.log("This is a fluorescence scan")
             for group in detectorBean.getDetectorGroups():
                 if group.getName() == detectorBean.getFluorescenceParameters().getDetectorType():
                     #print detectorBean.getFluorescenceParameters().getDetectorType(), "experiment"
@@ -287,7 +287,7 @@ class XasScan(Scan):
         initialEnergy = scanBean.getInitialEnergy()
         print "moving ", self.energy_scannable.getName(), " to start energy ", initialEnergy
         self.energyScannable(initialEnergy)
-        print "move complete, diasabling harmonic change"
+        print "move complete, disabling harmonic change"
         if gap_converter != None:
             gap_converter.disableAutoConversion()
 
