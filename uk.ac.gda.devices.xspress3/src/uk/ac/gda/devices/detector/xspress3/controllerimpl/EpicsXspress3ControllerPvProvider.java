@@ -78,15 +78,15 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String SCA_WIN2_HIGH_BIN_TEMPLATE = ":C%1d_SCA6_HLM";// channel (1-8)
 	private static String SCA_WIN2_HIGH_BIN_RBV_TEMPLATE = ":C%1d_SCA6_HLM_RBV";// channel (1-8)
 	
-	private static String SCA_WIN1_SCAS_TEMPLATE = ":C%1d_SCA5_ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
-	private static String SCA_WIN2_SCAS_TEMPLATE = ":C%1d_SCA6_ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
+	private static String SCA_WIN1_SCAS_TEMPLATE = ":C%1d_SCA5:ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
+	private static String SCA_WIN2_SCAS_TEMPLATE = ":C%1d_SCA6:ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
 	
-	private static String SCA_TIME_SCAS_TEMPLATE = ":C%1d_SCA0_ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
-	private static String SCA_RESET_TICKS_SCAS_TEMPLATE = ":C%1d_SCA1_ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
-	private static String SCA_RESET_COUNT_TEMPLATE = ":C%1d_SCA2_ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
-	private static String SCA_ALL_EVENT_TEMPLATE = ":C%1d_SCA3_ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
-	private static String SCA_ALL_GOOD_TEMPLATE = ":C%1d_SCA4_ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
-	private static String SCA_PILEUP_TEMPLATE = ":C%1d_SCA7_ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
+	private static String SCA_TIME_SCAS_TEMPLATE = ":C%1d_SCA0:ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
+	private static String SCA_RESET_TICKS_SCAS_TEMPLATE = ":C%1d_SCA1:ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
+	private static String SCA_RESET_COUNT_TEMPLATE = ":C%1d_SCA2:ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
+	private static String SCA_ALL_EVENT_TEMPLATE = ":C%1d_SCA3:ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
+	private static String SCA_ALL_GOOD_TEMPLATE = ":C%1d_SCA4:ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
+	private static String SCA_PILEUP_TEMPLATE = ":C%1d_SCA7:ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
 
 	// Deadtime correction parameters
 	private static String ALL_GOOD_EVT_GRAD_TEMPLATE = ":C%1d_DTC_AEG_RBV";// channel (1-8)

@@ -238,22 +238,34 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	 * @return NexusTreeProvider array for every frame
 	 * @throws DeviceException
 	 */
-	public NexusTreeProvider[] readoutFrames(int firstFrame, int lastFrame)
-			throws DeviceException {
+	public NexusTreeProvider[] readoutFrames(int firstFrame, int lastFrame) throws DeviceException {
 		int numFramesAvailable = controller.getTotalFramesAvailable();
 		if (lastFrame > numFramesAvailable) {
-			throw new DeviceException("Only " + numFramesAvailable
-					+ " frames available, cannot return frames " + firstFrame
-					+ " to " + lastFrame);
+			throw new DeviceException("Only " + numFramesAvailable + " frames available, cannot return frames "
+					+ firstFrame + " to " + lastFrame);
 		}
 
 		// readout ROI in format [frame][detector channel][ROIs]
-		Double[][][] data = controller.readoutDTCorrectedROI(firstFrame,
-				lastFrame, firstChannelToRead, numberOfChannelsToRead
-						+ firstChannelToRead - 1);
-		// calc FF from ROI
+		int finalChannelToRead = numberOfChannelsToRead + firstChannelToRead - 1;
 		int numFramesRead = lastFrame - firstFrame + 1;
-		Double[][] FFs = calculateFFs(data, numFramesRead);
+		
+		// derive FFs from ROIs on MCAs
+		// Double[][][] data = controller.readoutDTCorrectedROI(firstFrame,
+		// lastFrame, firstChannelToRead, finalChannelToRead);
+		// calc FF from ROI
+		// Double[][] FFs = calculateFFs(data, numFramesRead);
+		
+		// read out FFs from sca5
+		Double[][] FFs_sca5 = controller.readoutDTCorrectedSCA1(firstFrame, lastFrame, firstChannelToRead,
+				finalChannelToRead);
+		Double[][] FFs_sca6 = controller.readoutDTCorrectedSCA2(firstFrame, lastFrame, firstChannelToRead,
+				finalChannelToRead);
+		Double[][] FFs = new Double[numFramesRead][numberOfChannelsToRead];
+		for (int frame = 0; frame < numFramesRead; frame++) {
+			for (int channel = 0; channel < numberOfChannelsToRead; channel++) {
+				FFs[frame][channel] = FFs_sca5[frame][channel] + FFs_sca6[frame][channel];
+			}
+		}
 
 		// create trees
 		NexusTreeProvider[] results = new NexusTreeProvider[numFramesRead];
@@ -261,15 +273,13 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 		for (int frame = 0; frame < numFramesRead; frame++) {
 			NXDetectorData thisFrame = new NXDetectorData(this);
 			INexusTree detTree = thisFrame.getDetTree(getName());
-			thisFrame.addData(detTree, sumLabel,
-					new int[] { numberOfChannelsToRead }, NexusFile.NX_FLOAT64,
+			thisFrame.addData(detTree, sumLabel, new int[] { numberOfChannelsToRead }, NexusFile.NX_FLOAT64,
 					FFs[frame], unitsLabel, 1);
 			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
-				thisFrame.setPlottableValue(getExtraNames()[chan],
-						FFs[frame][chan]);
+				thisFrame.setPlottableValue(getExtraNames()[chan], FFs[frame][chan]);
 			}
 			thisFrame.addScanFileLink(getName(), "nxfile://" + deriveFilename() + "#entry/instrument/detector/data");
-			
+
 			results[frame] = thisFrame;
 		}
 		return results;
@@ -333,12 +343,20 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 		for (int chan = firstChannelToRead; chan < numberOfChannelsToRead
 				+ firstChannelToRead; chan++) {
 			for (int roiNum = 0; roiNum < MAX_ROI_PER_CHANNEL; roiNum++) {
+				// 'soft' ROIs on MCAs
 				if (roiNum < regionList.length) {
 					controller.setROILimits(chan, roiNum,
 							new int[] { regionList[roiNum].getStart(),
 									regionList[roiNum].getEnd() });
 				} else {
 					controller.setROILimits(chan, roiNum, new int[] { 0, 0 });
+				}
+				if (roiNum < 2 && roiNum < regionList.length) {
+					controller.setWindows(chan, roiNum,
+							new int[] { regionList[roiNum].getStart(),
+									regionList[roiNum].getEnd() });
+				} else if (roiNum < 2) {
+					controller.setWindows(chan, roiNum, new int[] { 0, 0 });
 				}
 			}
 		}

@@ -571,13 +571,15 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public void setWindows(int channel, int windowNumber, int[] lowHighScalerWindowChannels) throws DeviceException {
 		try {
 			switch (windowNumber) {
-			case 1:
+			case 0:
+				pvProvider.pvsScaWin1Low[channel].putNoWait(0);
+				pvProvider.pvsScaWin1High[channel].putNoWait(lowHighScalerWindowChannels[1]);
 				pvProvider.pvsScaWin1Low[channel].putWait(lowHighScalerWindowChannels[0]);
-				pvProvider.pvsScaWin1High[channel].putWait(lowHighScalerWindowChannels[1]);
 				break;
-			case 2:
+			case 1:
+				pvProvider.pvsScaWin2Low[channel].putNoWait(0);
+				pvProvider.pvsScaWin2High[channel].putNoWait(lowHighScalerWindowChannels[1]);
 				pvProvider.pvsScaWin2Low[channel].putWait(lowHighScalerWindowChannels[0]);
-				pvProvider.pvsScaWin2High[channel].putWait(lowHighScalerWindowChannels[1]);
 				break;
 			default:
 				throw new DeviceException("Cannot set scaler window: value for window unacceptable");
