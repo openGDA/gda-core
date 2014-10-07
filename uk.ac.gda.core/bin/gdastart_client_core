@@ -1,0 +1,37 @@
+#!/bin/bash
+
+. $GDA_FACILITY_CONFIG/bin/gda_setup_logging gda_client_output
+
+export GDA_CLIENT_LOG_DIR=$GDA_LOGS_DIR
+export GDA_CLIENT_WORKING_DIR=$GDA_WORKSPACE_PARENT/client
+
+VMARGS="-Dgda.mode=$GDA_MODE $VMARGS"
+#KrisB - Changes to cope with choice of jacorb directory locations.
+if [ -d "$GDA_INSTANCE_CONFIG/jacorb/$GDA_MODE" ]; then
+	VMARGS="-Djacorb.config.dir=$GDA_INSTANCE_CONFIG/jacorb/$GDA_MODE $VMARGS"
+elif [ -d "$GDA_INSTANCE_CONFIG/properties/$GDA_MODE/jacorb" ]; then
+	VMARGS="-Djacorb.config.dir=$GDA_INSTANCE_CONFIG/properties/$GDA_MODE/jacorb $VMARGS"
+else
+	echo "Can't find jacorb directory"
+	exit 1
+fi
+VMARGS="-Dgda.propertiesFile=$GDA_INSTANCE_CONFIG/properties/$GDA_MODE/java.properties $VMARGS"
+
+if [ -d "$GDA_INSTANCE_CONFIG/jca/$GDA_MODE" ]; then
+	VMARGS="-Dgov.aps.jca.JCALibrary.properties=$GDA_INSTANCE_CONFIG/jca/$GDA_MODE/JCALibrary.properties $VMARGS"
+elif [ -d "$GDA_INSTANCE_CONFIG/properties/$GDA_MODE/jacorb" ]; then
+	VMARGS="-Dgov.aps.jca.JCALibrary.properties=$GDA_INSTANCE_CONFIG/properties/$GDA_MODE/JCALibrary.properties $VMARGS"
+else
+	echo "Can't find JCALibrary.properties file"
+	exit 1
+fi
+
+VMARGS="-Dgda.install.git.loc=$GDA_WORKSPACE_PARENT/workspace_git $VMARGS"
+
+export GDA_CLIENT_VMARGS=$VMARGS
+#echo  GDA_CLIENT_VMARGS=$VMARGS
+export GDA_CLIENT=$GDA_WORKSPACE_PARENT/client/gda-$BEAMLINE
+
+cd $GDA_WORKSPACE_PARENT/client
+
+$GDA_FACILITY_CONFIG/bin/gdaclient --log --keep --nohup $GDA_CONSOLE_LOG $*

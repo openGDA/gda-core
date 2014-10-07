@@ -498,7 +498,7 @@ Properties which must be set by a -D flag when running the GDA Java processes (t
 ===================================== ===========
 Property                              Description
 ===================================== ===========
-``jacorb.config.dir``                 ``${gda.config}/properties`` or ``${gda.config}/jacorb/<mode>`` (new style configuration) - this is the directory containing the ``etc`` directory for JacORB
+``jacorb.config.dir``                 ``${gda.config}/properties`` or ``${gda.config}/jacorb/<mode>`` (new style configuration) or ``${gda.config}/properties/<mode>/jacorb`` (standard style configuration)- this is the directory containing the ``etc`` directory for JacORB
 ``gov.aps.jca.JCALibrary.properties`` The JCA library properties file for connecting to EPICS PVs.
 ===================================== ===========
 
@@ -760,7 +760,7 @@ Setting                        Value
 ============================== =====
 Properties file                ``$CONFIG/properties/<mode>/java.properties``
 JacORB configuration directory ``$CONFIG/jacorb/<mode>``
-JCA configuration file         ``$CONFIG/jca/<mode>/JCALibrary.properties``
+JCA configuration file         ``$CONFIG/properties/<mode>/JCALibrary.properties``
 Server XML file                ``$CONFIG/servers/<profile>/<mode>/server.xml``
 Client XML file                ``$CONFIG/clients/<profile>/<mode>/client.xml``
 ============================== =====
