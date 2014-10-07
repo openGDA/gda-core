@@ -34,7 +34,6 @@ public class NXDetectorDataDoubleAppender implements NXDetectorDataAppender {
 	static private final int[] SINGLE_DIMENSION = new int[] { 1 };
 	private final List<String> elementNames;
 	private final List<Double> elementValues;
-	private final List<String> elementUnits;
 
 	public NXDetectorDataDoubleAppender(List<String> elementNames, List<Double> elementValues) {
 		if (elementNames.size() != elementValues.size()) {
@@ -43,32 +42,15 @@ public class NXDetectorDataDoubleAppender implements NXDetectorDataAppender {
 		}
 		this.elementNames = elementNames;
 		this.elementValues = elementValues;
-		this.elementUnits=null;
 	}
 
-	public NXDetectorDataDoubleAppender(List<String> elementNames, List<Double> elementValues, List<String> elementUnits) {
-		if (elementNames.size() != elementValues.size() || elementNames.size() != elementUnits.size() || elementValues.size() != elementUnits.size()) {
-			throw new IllegalArgumentException(MessageFormat.format(
-					"Length of elementNames[{0}] != elementValues[{1}] != elementUnits[{2}]", elementNames.size(), elementValues.size(), elementUnits.size())) ;
-		}
-		this.elementNames = elementNames;
-		this.elementValues = elementValues;
-		this.elementUnits=elementUnits;
-	}
-	
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) {
 		for (int i = 0; i < elementNames.size(); i++) {
 			String name = elementNames.get(i);
 			Double value = elementValues.get(i);
-			String unit=elementUnits.get(i);
 			data.setPlottableValue(name, value);
-			INexusTree valdata;
-			if (elementUnits==null) {
-				valdata = data.addData(detectorName, name, SINGLE_DIMENSION, NexusFile.NX_FLOAT64, new double[] { value }, null, null);
-			} else {
-				valdata = data.addData(detectorName, name, SINGLE_DIMENSION, NexusFile.NX_FLOAT64, new double[] { value }, unit, null);
-			}
+			INexusTree valdata = data.addData(detectorName, name, SINGLE_DIMENSION, NexusFile.NX_FLOAT64, new double[] { value }, null, null);
 			valdata.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, valdata, new NexusGroupData(String.format("%s.%s", detectorName, name))));
 		}
 	}
@@ -79,7 +61,6 @@ public class NXDetectorDataDoubleAppender implements NXDetectorDataAppender {
 		int result = 1;
 		result = prime * result + ((elementNames == null) ? 0 : elementNames.hashCode());
 		result = prime * result + ((elementValues == null) ? 0 : elementValues.hashCode());
-		result = prime * result + ((elementUnits == null) ? 0 : elementUnits.hashCode());
 		return result;
 	}
 
@@ -102,11 +83,6 @@ public class NXDetectorDataDoubleAppender implements NXDetectorDataAppender {
 				return false;
 		} else if (!elementValues.equals(other.elementValues))
 			return false;
-		if (elementUnits == null) {
-			if (other.elementUnits != null)
-				return false;
-		} else if (!elementUnits.equals(other.elementUnits))
-			return false;
 		return true;
 	}
 
@@ -116,8 +92,7 @@ public class NXDetectorDataDoubleAppender implements NXDetectorDataAppender {
 		for (int i = 0; i < elementNames.size(); i++) {
 			String name = elementNames.get(i);
 			Double value = elementValues.get(i);
-			String unit = elementUnits.get(i);
-			str = str + " " + name + ":" + value+unit;
+			str = str + " " + name + ":" + value;
 		}
 		return str;
 	}
