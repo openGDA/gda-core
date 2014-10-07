@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotViewStatsAndMaths;
@@ -162,7 +162,7 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 		
 		odas = null;
 		
-		List<DataSetWithAxisInformation> dc = bean.getData();
+		List<DatasetWithAxisInformation> dc = bean.getData();
 		final Dataset d = dc.get(0).getData();
 		
 		boolean buttonEnabled = false;
@@ -297,8 +297,8 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 	
 	protected void pushToPlotView(DatasetWithCentre datasetWithCentre) {
 		DataBean result = new DataBean();
-		List<DataSetWithAxisInformation> coll = new ArrayList<DataSetWithAxisInformation>();
-		DataSetWithAxisInformation dswai = new DataSetWithAxisInformation();
+		List<DatasetWithAxisInformation> coll = new ArrayList<DatasetWithAxisInformation>();
+		DatasetWithAxisInformation dswai = new DatasetWithAxisInformation();
 		dswai.setData(datasetWithCentre.dataset);
 		coll.add(dswai);
 		result.setData(coll);
@@ -311,8 +311,8 @@ public class StatsAndMathsWithSymmetry extends PlotViewStatsAndMaths {
 
 	private void pushToPlotView(OriginalDataAndSettings odas) {
 		DataBean result = new DataBean();
-		List<DataSetWithAxisInformation> coll = new ArrayList<DataSetWithAxisInformation>();
-		DataSetWithAxisInformation dswai = new DataSetWithAxisInformation();
+		List<DatasetWithAxisInformation> coll = new ArrayList<DatasetWithAxisInformation>();
+		DatasetWithAxisInformation dswai = new DatasetWithAxisInformation();
 		dswai.setData(odas.image);
 		coll.add(dswai);
 		result.setData(coll);
