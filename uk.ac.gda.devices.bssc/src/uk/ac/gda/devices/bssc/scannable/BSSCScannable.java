@@ -18,6 +18,7 @@
 
 package uk.ac.gda.devices.bssc.scannable;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.corba.impl.ScannableAdapter;
@@ -119,6 +120,13 @@ public class BSSCScannable extends ScannableBase {
 			whackPoller();
 			return cachedPosition;
 		} catch (BaseException e) {
+			if (LocalProperties.get("gda.instrument").equals("ncd")) {
+				//running in sim mode => no sample changer
+				if (getExtraNames().length == 3) {
+					return new double[] {0,0,0};
+				}
+				return new double[] {0,0,0,0,0};
+			}
 			throw new DeviceException("error getting values", e);
 		}
 	}
