@@ -229,12 +229,15 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 				// if the queue has just completed and the pauseWhenQueueEmpty flag is set, then send a pause to the
 				// manager thread
 				else if (this.state.equals(Processor.STATE.PROCESSING_ITEMS)
-						&& argState.equals(Command.STATE.COMPLETED) && pauseWhenQueueEmpty) {
+						&& (argState.equals(Command.STATE.COMPLETED) || argState.equals(Command.STATE.ABORTED))) {
 					try {
 						int size = queue.getSummaryList().size();
-						if (size == 0) {
+						if (size == 0 && pauseWhenQueueEmpty) {
 							this.state = STATE.WAITING_START;
 							commandToBeProcessed = COMMAND.PAUSE;
+						} else {
+							this.state = STATE.WAITING_START;
+							commandToBeProcessed = COMMAND.START;
 						}
 					} catch (Exception e) {
 						// should never be a timeout when pausing an empty queue
