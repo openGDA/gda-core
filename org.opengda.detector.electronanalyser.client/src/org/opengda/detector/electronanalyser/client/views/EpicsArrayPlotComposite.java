@@ -148,6 +148,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 			xAxis = createXAxis();
 		}
 		plottingSystem.clear();
+		plottingSystem.reset();
 		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 	}
 
@@ -181,7 +182,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		if (xdata==null) return;
 		xdata=convertToBindingENergy(xdata);
 		xAxis = createXAxis();
-		plottingSystem.clear();
+		plottingSystem.reset();
 		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 	}
 
