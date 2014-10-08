@@ -2,8 +2,6 @@ package org.opengda.detector.electronanalyser.client.views;
 
 import org.dawb.common.ui.menu.CheckableActionGroup;
 import org.dawb.common.ui.menu.MenuAction;
-import org.eclipse.dawnsci.plotting.api.preferences.BasePlottingConstants;
-import org.eclipse.dawnsci.plotting.api.preferences.ToolbarConfigurationConstants;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
