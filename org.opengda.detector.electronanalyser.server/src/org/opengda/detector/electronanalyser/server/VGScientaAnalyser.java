@@ -374,8 +374,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	private void createImageData(INexusTree regionNode) {
 		try {
 			int[] dims=new int[2];
-			dims[0] = getEnergyAxis().length;
-			dims[1] = getAngleAxis().length;
+			dims[0] = getAngleAxis().length;
+			dims[1] = getEnergyAxis().length;
 			
 			if (dims.length == 0) {
 				logger.warn("Dimensions of image data from " + getName() + " are zero length");
