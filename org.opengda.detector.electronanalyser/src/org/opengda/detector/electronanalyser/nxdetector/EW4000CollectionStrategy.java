@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.nexusformat.NeXusFileInterface;
-import org.opengda.detector.electronanalyser.NotSupportedException;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
 import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
@@ -39,6 +38,8 @@ import org.opengda.detector.electronanalyser.nxdata.NXDetectorDataAnalyserRegion
 import org.opengda.detector.electronanalyser.nxdata.NXDetectorDataFilenamesAppender;
 import org.opengda.detector.electronanalyser.nxdetector.NexusDataWriterExtension.RegionFileMapper;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
+import org.python.antlr.PythonParser.else_clause_return;
+import org.python.antlr.PythonParser.if_stmt_return;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +51,8 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 	private Vector<String> activeRegionNames=new Vector<String>();
 	private Thread collectionThread;
 	private Vector<String> extraValues=new Vector<String>();
+	private Scannable softXRayFastShutter;
+	private Scannable hardXRayFastShutter;
 	public Vector<String> getExtraValues() {
 		return extraValues;
 	}
@@ -148,7 +151,23 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 								NeXusFileInterface file = nexusDataWriter.getNXFile(region.getName(), scanDatapoint.get());
 								getAnalyser().setNexusFile(file);
 							}
-							//TODO open/close fast shutter according to beam used
+							//open/close fast shutter according to beam used
+							if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
+								//soft x-ray
+								if (softXRayFastShutter!=null) {
+									softXRayFastShutter.moveTo("Out");
+								}
+								if (hardXRayFastShutter!=null) {
+									hardXRayFastShutter.moveTo("In");
+								}
+							} else {
+								if (softXRayFastShutter!=null) {
+									softXRayFastShutter.moveTo("In");
+								}
+								if (hardXRayFastShutter!=null) {
+									hardXRayFastShutter.moveTo("Out");
+								}
+							}
 							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
 								((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.RUNNING,i));
 							}
@@ -170,6 +189,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
 								((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.COMPLETED,i));
 							}
+							
 						} catch (InterruptedException e) {
 							try {
 								getAnalyser().stop();
@@ -261,9 +281,16 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 		if (mythread!=null) {
 			mythread.interrupt();
 		}
+		// close fast shutter according to beam used
+		if (softXRayFastShutter != null) {
+			softXRayFastShutter.moveTo("In");
+		}
+		if (hardXRayFastShutter != null) {
+			hardXRayFastShutter.moveTo("In");
+		}
 		getAnalyser().stop();
-//		waitWhileBusy();
-		completeCollection();		
+		// waitWhileBusy();
+		completeCollection();
 	}
 	
 	@Override
@@ -604,6 +631,22 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 	public boolean requiresAsynchronousPlugins() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public Scannable getSoftXRayFastShutter() {
+		return softXRayFastShutter;
+	}
+
+	public void setSoftXRayFastShutter(Scannable softXRayFastShutter) {
+		this.softXRayFastShutter = softXRayFastShutter;
+	}
+
+	public Scannable getHardXRayFastShutter() {
+		return hardXRayFastShutter;
+	}
+
+	public void setHardXRayFastShutter(Scannable hardXRayFastShutter) {
+		this.hardXRayFastShutter = hardXRayFastShutter;
 	}
 
 }
