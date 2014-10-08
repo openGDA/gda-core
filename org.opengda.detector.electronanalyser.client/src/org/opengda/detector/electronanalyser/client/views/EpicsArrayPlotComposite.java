@@ -143,10 +143,8 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	 * The override method must call this method first to set X-Axis.
 	 */
 	protected void updatePlot(final IProgressMonitor monitor, double[] value) {
-		if (isNewRegion()) {
-			xdata = getXData();
-			xAxis = createXAxis();
-		}
+		xdata = getXData();
+		xAxis = createXAxis();
 		plottingSystem.clear();
 		plottingSystem.reset();
 		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
