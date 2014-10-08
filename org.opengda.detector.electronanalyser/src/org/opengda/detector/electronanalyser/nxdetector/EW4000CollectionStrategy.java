@@ -38,8 +38,6 @@ import org.opengda.detector.electronanalyser.nxdata.NXDetectorDataAnalyserRegion
 import org.opengda.detector.electronanalyser.nxdata.NXDetectorDataFilenamesAppender;
 import org.opengda.detector.electronanalyser.nxdetector.NexusDataWriterExtension.RegionFileMapper;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
-import org.python.antlr.PythonParser.else_clause_return;
-import org.python.antlr.PythonParser.if_stmt_return;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,7 +151,6 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 							}
 							//open/close fast shutter according to beam used
 							if (region.getExcitationEnergy()<getXRaySourceEnergyLimit()) {
-								//soft x-ray
 								if (softXRayFastShutter!=null) {
 									softXRayFastShutter.moveTo("Out");
 								}
