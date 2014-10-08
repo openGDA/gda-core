@@ -61,7 +61,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		createChannels();
 	}
 
-	public void createChannels() {
+	private void createChannels() {
 		if (!channelCreated) {
 			first = true;
 			try {
