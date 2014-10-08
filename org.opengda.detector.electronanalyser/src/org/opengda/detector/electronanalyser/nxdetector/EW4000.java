@@ -197,7 +197,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		String beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
 		String scanFilename=dataDir+String.format("%s-%d", beamline,scannumber) + ".nxs";
 		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
-			((ScriptControllerBase)getScriptcontroller()).update(this, new ScanStartEvent(scannumber,numberOfPoints,scanFilename));
+			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new ScanStartEvent(scannumber,numberOfPoints,scanFilename));
 		}
 		print("Scan data will write to : "+ scanFilename);
 		Sequence sequence = loadSequenceData(getSequenceFilename());
