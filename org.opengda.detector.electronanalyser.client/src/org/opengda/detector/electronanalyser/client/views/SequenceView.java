@@ -233,10 +233,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					@Override
 					public String getToolTipText(Object element) {
 						Region region = (Region) element;
-						if (invalidRefgions.containsKey(region)) {
+						if (invalidRegions.containsKey(region)) {
 							return region.getName()
 									+ " setting is outside energy range "
-									+ invalidRefgions.get(region);
+									+ invalidRegions.get(region);
 						} else {
 							return null;
 						}
@@ -971,7 +971,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private void checkRegionValidation(Region region) {
 		if (!isValidRegion(region)){
-			String message="Region '" + region.getName()+"' is outside the energy range (" + invalidRefgions.get(region)+") \npermitted in the Lens Table for Element Set '"+comboElementSet.getText()+"' and Pass Energy '"+region.getPassEnergy()+"'.\n";
+			String message="Region '" + region.getName()+"' is outside the energy range (" + invalidRegions.get(region)+") \npermitted in the Lens Table for Element Set '"+comboElementSet.getText()+"' and Pass Energy '"+region.getPassEnergy()+"'.\n";
 			openMessageBox(message);
 		}
 	}
@@ -1067,7 +1067,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	public void doSave(IProgressMonitor monitor) {
 		try {
 			validateRegions();
-			if (!invalidRefgions.isEmpty()) {
+			if (!invalidRegions.isEmpty()) {
+				showInvalidRegions();
 				return;
 			}
 			regionDefinitionResourceUtil.getResource().save(null);
@@ -1080,9 +1081,26 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 	}
 
-	private Map<Region, String> invalidRefgions=Maps.newConcurrentMap();
+	private void showInvalidRegions() {
+		String message = "Following region(s) are outside the energy range given in the Lend Table for the given Element Set and Pass Energy.\n";
+		int longestnamelength=0;
+		for (Region region : invalidRegions.keySet()) {
+			if (longestnamelength<region.getName().length()) {
+				longestnamelength=region.getName().length();
+			}
+		}
+		String formatString="%"+longestnamelength+"s\t%10s\t%10s\t%4d\n";
+		message+=String.format(formatString,"Region","Energy Range","Element Set","Pass Energy");
+		for (Entry<Region, String> entry : invalidRegions.entrySet()) {
+			// open message box to warn users
+			message += String.format(formatString,entry.getKey().getName(),entry.getValue(),comboElementSet.getText().trim(),entry.getKey().getPassEnergy());
+		}
+		openMessageBox(message);
+	}
+
+	private Map<Region, String> invalidRegions=Maps.newConcurrentMap();
 	private void validateRegions() {
-		invalidRefgions.clear();
+		invalidRegions.clear();
 		try {
 			for (Region region : regionDefinitionResourceUtil.getRegions()) {
 				if (region.isEnabled()) {
@@ -1092,22 +1110,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		} catch (Exception e) {
 			logger.error("Failed to get all regions from resource util, so no region is checked for validation.", e);
-		}
-		if (!invalidRefgions.isEmpty()) {
-			String message = "Following region(s) are outside the energy range given in the Lend Table for the given Element Set and Pass Energy.\n";
-			int longestnamelength=0;
-			for (Region region : invalidRefgions.keySet()) {
-				if (longestnamelength<region.getName().length()) {
-					longestnamelength=region.getName().length();
-				}
-			}
-			String formatString="%"+longestnamelength+"s\t%10s\t%10s\t%4d\n";
-			message+=String.format(formatString,"Region","Energy Range","Element Set","Pass Energy");
-			for (Entry<Region, String> entry : invalidRefgions.entrySet()) {
-				// open message box to warn users
-				message += String.format(formatString,entry.getKey().getName(),entry.getValue(),comboElementSet.getText().trim(),entry.getKey().getPassEnergy());
-			}
-			openMessageBox(message);
 		}
 	}
 	/**
@@ -1134,14 +1136,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private boolean isValidRegion(String elementset, Region region) {
 		com.google.common.collect.Table<String, String, String> lookupTable = getLookupTable(elementset);
 		if (lookupTable==null) {
-			logger.warn("Analyser Kinetic energy range lookup table for {} element set is is available.",elementset);
+			logger.warn("Analyser Kinetic energy range lookup table for {} element set is not available.",elementset);
 			return true;
 		}
 		String energyrange=lookupTable.get(region.getLensMode(), String.valueOf(region.getPassEnergy()));
 		List<String> limits=Splitter.on("-").splitToList(energyrange);
 		if (region.getEnergyMode()==ENERGY_MODE.KINETIC) {
 			if (!(region.getLowEnergy()>=Double.parseDouble(limits.get(0)) && region.getHighEnergy()<=Double.parseDouble(limits.get(1)))) {
-				invalidRefgions.put(region, energyrange);
+				invalidRegions.put(region, energyrange);
 				return false;
 			}
 		} else {
@@ -1149,18 +1151,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			double endEnergy=region.getExcitationEnergy()-region.getLowEnergy();
 			if (startEnergy<endEnergy) {
 				if (!(startEnergy>=Double.parseDouble(limits.get(0)) && endEnergy<=Double.parseDouble(limits.get(1)))) {
-					invalidRefgions.put(region, energyrange);
+					invalidRegions.put(region, energyrange);
 					return false;
 				}
 			} else {
 				if (!(endEnergy>=Double.parseDouble(limits.get(0)) && startEnergy<=Double.parseDouble(limits.get(1)))) {
-					invalidRefgions.put(region, energyrange);
+					invalidRegions.put(region, energyrange);
 					return false;
 				}
 			}
-		}
-		if (invalidRefgions.containsKey(region)) {
-			invalidRefgions.remove(region);
 		}
 		return true;
 	}
@@ -1192,7 +1191,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	@Override
 	public void doSaveAs() {
 		validateRegions();
-		if (!invalidRefgions.isEmpty()) {
+		if (!invalidRegions.isEmpty()) {
+			showInvalidRegions();
 			return;
 		}
 		Resource resource = null;
@@ -1252,7 +1252,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private double time4ScanPointsDone;
 	private double time4RegionsToDo;
 
-	@SuppressWarnings("restriction")
 	@Override
 	public void dispose() {
 		try {
