@@ -94,7 +94,7 @@ public class DataReductionScannable extends ScannableBase implements Scannable {
 
 	@Override
 	public Object rawGetPosition() throws DeviceException {
-		return "";
+		return 0;
 	}
 
 	@Override
