@@ -134,7 +134,8 @@ public abstract class LineTraceProviderNode extends Node {
 		public static TraceStyleDetails createDefaultDashTrace() {
 			TraceStyleDetails traceStyle = new TraceStyleDetails();
 			traceStyle.setTraceType(TraceType.DASH_LINE);
-			traceStyle.setPointStyle(PointStyle.NONE);
+			traceStyle.setPointStyle(PointStyle.DIAMOND);
+			traceStyle.setPointSize(2);
 			traceStyle.setLineWidth(1);
 			return traceStyle;
 		}
