@@ -822,7 +822,7 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 							IDataHolder dataHolder = loader.loadFile();
 							IDataset dataset = dataHolder.getDataset(0);
 							if (dataset != null) {
-								dataset.setMetadata(null);
+								dataset.clearMetadata(null);
 								SDAPlotter.imagePlot(getPlotName(), dataset);
 								// SDAPlotter.imagePlot(getPlotName(), imageFileName);
 							}
