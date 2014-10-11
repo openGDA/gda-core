@@ -1,14 +1,13 @@
 package org.opengda.lde.scannables;
 
 import gda.configuration.properties.LocalProperties;
-import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.scannable.ScannableBase;
+import gda.device.scannable.DummyScannable;
 import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.scan.ScanInformation;
 import gda.util.OSCommandRunner;
+import gda.util.Sleep;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -21,28 +20,57 @@ import org.opengda.lde.events.NewDataFileEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DataReductionScannable extends ScannableBase implements Scannable {
+public class DataReductionScannable extends DummyScannable implements Scannable {
 	private static final Logger logger=LoggerFactory.getLogger(DataReductionScannable.class);
 	private Scriptcontroller eventAdmin;
 	private boolean calibrant=false;
 	private String Current_Calibrant_Data_Filename=null;
 	private String command;
+	private String filename=null;
+	private double timeout=30000; //30 seconds
 	@Override
 	public void atScanEnd() {
-		ScanInformation scaninfo=InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
-		final String filename = scaninfo.getFilename();
+		if (InterfaceProvider.getCurrentScanController().isFinishEarlyRequested()) {
+			return;
+		}
+		long starttimer=System.currentTimeMillis();
+		long elapsedtimer=System.currentTimeMillis();
+		while (InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint()==null) {
+			Sleep.sleep(100);
+			elapsedtimer=System.currentTimeMillis()-starttimer;
+			if (elapsedtimer>timeout) {
+				InterfaceProvider.getTerminalPrinter().print("Timeout while waiting for filename from last scan data point");
+				logger.error("Timeout while waiting for filename from last scan data point");
+				break;
+			}
+		}
+		filename=InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint().getCurrentFilename();
+//		ScanInformation scaninfo=InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+//		final String filename = scaninfo.getFilename();
 		logger.info("Starting data reduction processing on the cluster...");
+		InterfaceProvider.getTerminalPrinter().print("Starting data reduction processing on the cluster...");
 		if (isCalibrant()) {
+			if (filename == null || filename.isEmpty()) {
+				InterfaceProvider.getTerminalPrinter().print("No calibrant data filename provided, so cannot start data reduction.");
+				logger.warn("No calibrant data filename provided, so cannot start data reduction.");
+				return;
+			}
+				
 			command=LocalProperties.get("gda.lde.datareduction.software","/dls_sw/apps/i11-scripts/bin/LDE-RunFromGDAAtEndOfScan.sh")+" "+filename;
-			Current_Calibrant_Data_Filename=filename;
+			setCurrentCalibrantDataFilename(filename);
 			setCalibrant(false);
 		} else {
-			if (Current_Calibrant_Data_Filename==null || Current_Calibrant_Data_Filename.isEmpty() ) {
+			if (getCurrentCalibrantDataFilename()==null || getCurrentCalibrantDataFilename().isEmpty() ) {
 				InterfaceProvider.getTerminalPrinter().print("No calibrant data filename provided, so cannot start data reduction. Please collect a Calibrant diffraction first.");
 				logger.warn("No calibrant data filename provided, so cannot start data reduction. Please collect a Calibrant diffraction first.");
 				return;
 			}
-			command=LocalProperties.get("gda.lde.datareduction.software","/dls_sw/apps/i11-scripts/bin/LDE-RunFromGDAAtEndOfScan.sh")+" "+Current_Calibrant_Data_Filename+" "+filename;
+			if (filename == null || filename.isEmpty()) {
+				InterfaceProvider.getTerminalPrinter().print("No data filename provided, so cannot start data reduction.");
+				logger.warn("No data filename provided, so cannot start data reduction.");
+				return;
+			}
+			command=LocalProperties.get("gda.lde.datareduction.software","/dls_sw/apps/i11-scripts/bin/LDE-RunFromGDAAtEndOfScan.sh")+" "+getCurrentCalibrantDataFilename()+" "+filename;
 			
 		}
 		Thread resultThread=new Thread(new Runnable() {
@@ -73,33 +101,24 @@ public class DataReductionScannable extends ScannableBase implements Scannable {
 				String result;
 				try {
 					result=submit.get();
+					InterfaceProvider.getTerminalPrinter().print("Plotting reduced data from file "+result);
+					logger.info("Plotting reduced data from file {}",result);
 					if (getEventAdmin() != null) {
-						((ScriptControllerBase)eventAdmin).update(this, new NewDataFileEvent(result));
+						((ScriptControllerBase)eventAdmin).update(getEventAdmin(), new NewDataFileEvent(result));
 					}
 					logger.info("Data reduction processing is completed on the cluster.");
+					InterfaceProvider.getTerminalPrinter().print("Data reduction processing is completed on the cluster.");
 				} catch (InterruptedException e) {
 					logger.error("Data reduction process is interrupted.", e);
+					InterfaceProvider.getTerminalPrinter().print("Data reduction process is interrupted.");
 				} catch (ExecutionException e) {
 					logger.error("Data reduction process is aborted.", e);
+					InterfaceProvider.getTerminalPrinter().print("Data reduction process is aborted.");
 				}
 				executor.shutdown();
 			}
 		});
 		resultThread.start();
-	}
-
-	@Override
-	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-	}
-
-	@Override
-	public Object rawGetPosition() throws DeviceException {
-		return 0;
-	}
-
-	@Override
-	public boolean isBusy() throws DeviceException {
-		return false;
 	}
 
 	public Scriptcontroller getEventAdmin() {
@@ -116,6 +135,15 @@ public class DataReductionScannable extends ScannableBase implements Scannable {
 
 	public void setCalibrant(boolean calibrant) {
 		this.calibrant = calibrant;
+	}
+
+	public String getCurrentCalibrantDataFilename() {
+		return Current_Calibrant_Data_Filename;
+	}
+
+	public void setCurrentCalibrantDataFilename(
+			String current_Calibrant_Data_Filename) {
+		Current_Calibrant_Data_Filename = current_Calibrant_Data_Filename;
 	}
 
 }
