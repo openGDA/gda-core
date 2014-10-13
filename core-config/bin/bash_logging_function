@@ -7,16 +7,16 @@
 # Output is colourized if going to a terminal
 
 log() {
-    local level=$(echo "${1?}" | tr '[:lower:]' '[:upper:]')
+    local level=$(echo "${1:-DEBUG}" | tr '[:lower:]' '[:upper:]')
     if [[ "${level}" != "DEBUG" || -n "${GDA_DEBUG:-}" ]]; then
         shift
-        local caller="${1?}"
+        local caller="${1:-}"
         shift
         local code=
         if [[ -n "${caller}" ]]; then
-            line="[$(date '+%F %T') $HOSTNAME (${caller})] ${level}: $*"
+            line="[$(date '+%F %T') $HOSTNAME (${caller})] ${level}: $@"
         else
-            line="[$(date '+%F %T') $HOSTNAME] ${level}: $*"
+            line="[$(date '+%F %T') $HOSTNAME] ${level}: $@"
         fi
         if [[ -t 2 || -p /dev/stderr ]]; then
             # interactive shell, if stderr is a tty, or a socket
