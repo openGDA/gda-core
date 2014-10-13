@@ -25,7 +25,8 @@ import gda.device.detector.BufferedDetector;
  * <p>
  * The normal paradigm for the XAS Experiment perspective is that the same XML files can be used for all scan types,
  * with only the scan XML file changing. But this breaks down for qexafs where different detector objects are needed as
- * they need to fulfil the BufferedDetector interface. So instead override the list of detectors using the DetectorPreparer.
+ * they need to fulfil the BufferedDetector interface. So instead override the list of detectors using the
+ * DetectorPreparer.
  */
 public interface QexafsDetectorPreparer extends DetectorPreparer {
 

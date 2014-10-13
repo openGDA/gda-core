@@ -331,20 +331,16 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		gain = new ComboWrapper(gainProperties, SWT.READ_ONLY);
 		gain.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
-		List<String> notches = null;
-		if (!LocalProperties.get("gda.factory.factoryName").equals("I18")) {
-			notches = GainCalculation.getGainNotches();
-		} else {
-			notches = new ArrayList<String>(8);
-			notches.add("10^3 V/A");
-			notches.add("10^4 V/A");
-			notches.add("10^5 V/A");
-			notches.add("10^6 V/A");
-			notches.add("10^7 V/A");
-			notches.add("10^8 V/A");
-			notches.add("10^9 V/A");
-			notches.add("10^10 V/A");
-		}
+		List<String> notches = new ArrayList<String>(8);
+		notches.add("10^3 V/A");
+		notches.add("10^4 V/A");
+		notches.add("10^5 V/A");
+		notches.add("10^6 V/A");
+		notches.add("10^7 V/A");
+		notches.add("10^8 V/A");
+		notches.add("10^9 V/A");
+		notches.add("10^10 V/A");
+			
 		gain.setItems(notches.toArray(new String[notches.size()]));
 		gain.addButtonListener(new SelectionAdapter() {
 			@Override
