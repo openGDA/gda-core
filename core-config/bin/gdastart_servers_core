@@ -1,63 +1,81 @@
-#!/bin/bash
-echo "Start of gdastart_servers_core"
 
-. $GDA_FACILITY_CONFIG/bin/gda_setup_logging gda_servers_output
+# Run the "gdastart_servers_pre" scripts to set up the environment as required.
+# For Facility, Group, and Instance, there can be a pre-script, and a mode-specific pre-script (all optional)
+# Note that in "live" mode, these scripts are run twice, so they must be idempotent:
+# (1) on the user machine, when the user issues the gdastart command
+# (2) on the control machine, when remotestartupscript.sh issues the gdastart command
+# 
+for filename in \
+  "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG}/bin/gdastart_servers_pre_facility" \
+  "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG}/etc/${GDA_MODE}/gdastart_servers_pre_facility" \
+  "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG}/bin/gdastart_servers_pre_group" \
+  "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG}/etc/${GDA_MODE}/gdastart_servers_pre_group" \
+  "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG}/bin/gdastart_servers_pre_instance" \
+  "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG}/etc/${GDA_MODE}/gdastart_servers_pre_instance"
+do
+  if [ -e "${filename}" ]; then
+    . ${filename}
+  fi
+done
 
-zenity --title "Are you sure?" --question --text "Are you sure you want to restart the $GDA_MODE $BEAMLINE GDA servers?" --window-icon=question
-SURE=$?
-if [ $SURE == 1 ]; then # 0=Ok, 1=Cancel
-  exit
-fi
+echo "test echo here $HOSTNAME"
 
-echo
-echo "Restarting the GDA Server, please wait..."
-echo
-echo "Keep this window open, and you will see a pop-up when the restart has completed"
-echo
+if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; then
 
-export GDA_VAR=$(readlink -f $GDA_WORKSPACE_PARENT/../var)
-if [ -d $GDA_VAR ]; then
-	export OBJECT_SERVER_STARTUP_FILE=$GDA_VAR/object_server_startup_server_main
-	echo OBJECT_SERVER_STARTUP_FILE=$OBJECT_SERVER_STARTUP_FILE
-	rm -f $OBJECT_SERVER_STARTUP_FILE
+    if [[ -z "${CONTROL_MACHINE_USER}" || -z "${CONTROL_MACHINE_NAME}" || -z "${CONTROL_MACHINE_SSHKEY_LOC}" ]]; then
+      #todo
+      echo "for mode live, not set"
+      exit
+    fi
+
+    # To prevent man-in-the-middle attacks, ensure that we use a validated host key
+    if [[ -n "${CONTROL_MACHINE_PUBKEY}" ]]; then
+      ssh-keygen -R ${CONTROL_MACHINE_NAME} &> /dev/null
+      echo "${CONTROL_MACHINE_NAME} ${CONTROL_MACHINE_PUBKEY}" >> ~/.ssh/known_hosts
+    fi
+
+    # Work around problem with ssh where remotestartupscript.sh completes, but ssh doesn't return. 
+    ssh -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} &
+    # Run in background and wait for OBJECT_SERVER_STARTUP_FILE here. Note that due to network filesystem this is *much* less responsive
+    # but should start the client eventually, unlike ssh which may hang forever.
+
 else
-	zenity --title "Error starting GDA Server" --error --text "$GDA_VAR does not exist. Please contact your GDA representative." 
-	exit
-fi
 
+    echo
+    echo "Restarting the GDA Server, please wait..."
+    echo
+    echo "Keep this window open, and you will see a pop-up when the restart has completed"
+    echo
 
-if [ "$GDA_MODE" = "live" ]; then
-	
-	##This is an example script file to restart GDA server from a remote client
-	##This requires generation of ssh keys and copying the public key to the authorized_keys file in the server
-	##Please refer to the document howtoSSH.txt for key generation.
-	##To use this script change the key file path, user name and the server machine name
-	
-	echo
-	echo Replacing known_host key for $BEAMLINE-control with a verified key.
-	
-	#KNOWN_HOST="b24-control.diamond.ac.uk,172.23.94.32 ssh-rsa"
-	#KNOWN_HOST_KEY="AAAAB3NzaC1yc2EAAAABIwAAAQEApt2PfxXZczhvh0vn7O30f3Km1LJdyWk5kFSPvFyc2yJX9yyHqpS3E1A6rvetblX/qqEfWcFIWcq4l4bl3jc6DGiBzm74PqSYFegT2QaScUkWNbYtBNPkuieYPHHQuTYp9EXJjMUfwgwhs2T43PcTloCVXnaNNWCtuwfB+4gsydT9Wwi40wDoy3dKy0zE7VKEsOCgW4OrpCX9W06TwF2NFCRjOYyIMRd782c/cxxzMgt0tIZSUhua5wC0RByPq9k5Wwf1T9PNCS3ZtGZ52uD8mlC2gwzS1fH7DWHuiqrEFXWgrVMGSUrZa/Ehgzkywn4GMnwzE6BdqY9YJL3m3j3UNQ=="
-	
-	ssh-keygen -R $BEAMLINE-control.diamond.ac.uk &> /dev/null
-	echo $KNOWN_HOST $KNOWN_HOST_KEY >> ~/.ssh/known_hosts
-	
-	# Work around problem with ssh where remotestartupscript.sh completes, but ssh doesn't return. 
-	ssh -i $GDA_INSTANCE_CONFIG/${BEAMLINE}ssh.key gda2@$BEAMLINE-control.diamond.ac.uk &
-	# Run in background and wait for OBJECT_SERVER_STARTUP_FILE here. Note that due to network filesystem this is *much* less responsive
-	# but should start the client eventually, unlike ssh which may hang forever.
-	
-else
-	
-	umask 0002
-	# This should fix a problem where sub-directories created in a visit folder end up
-	# with a different mask to the default.
-	export GDA_CORE_SCRIPT=$GDA_CORE_CONFIG/bin/gda
-	export JAVA_OPTS="-Dgda.deploytype=1 -XX:MaxPermSize=1024m" # Seems to fix the reset_namespace problem
-	GDA_CORE_SCRIPT_OPTIONS="--headless servers --debug --debugport=8001 --mode=$GDA_MODE"
+    # At this point, the pre scripts must have set GDA_LOGS_DIR and GDA_VAR
+    #TODO check that
 
-	echo  $GDA_CORE_SCRIPT $GDA_CORE_SCRIPT_OPTIONS
-	echo  $GDA_CORE_SCRIPT $GDA_CORE_SCRIPT_OPTIONS >> $GDA_CONSOLE_LOG
-	nohup $GDA_CORE_SCRIPT $GDA_CORE_SCRIPT_OPTIONS >> $GDA_CONSOLE_LOG  2>&1 &
+    # Set up the directory for VAR
+    mkdir -pv -m 777 ${GDA_VAR}
+
+    # Set up the directory and file in which to write the console log
+    # We only invoke one script to do this (the most specific one)
+    for filename in \
+      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG}/bin/gda_setup_consolelog_instance" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG}/bin/gda_setup_consolelog_group" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG}/bin/gda_setup_consolelog_facility"
+    do
+      if [ -e "${filename}" ]; then
+        . ${filename}
+        break
+      fi
+    done
+
+    umask 0002
+    # This should fix a problem where sub-directories created in a visit folder end up
+    # with a different mask to the default.
+    GDA_CORE_SCRIPT=${GDA_WORKSPACE_PARENT}/workspace_git/gda-core.git/uk.ac.gda.core/bin/gda
+    export JAVA_OPTS="-Dgda.deploytype=1 -XX:MaxPermSize=1024m" # Seems to fix the reset_namespace problem
+    GDA_CORE_SCRIPT_OPTIONS="--headless servers --debug --debugport=8001 --mode=$GDA_MODE"
+
+    echo  ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS}
+    echo  ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_servers_CONSOLE_LOG}
+    nohup ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_servers_CONSOLE_LOG}  2>&1 &
+
 fi
 echo "End of gdastart_servers_core"

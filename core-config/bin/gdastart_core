@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Parameter 1 is what to start - servers (all 4 servers)
+#                                logserver / nameserver / eventserver / objectserver (each server individually)
+#                                logpanel
+#                                client
+#                                all (servers, logpanel, client)
+#
+# Parameter 2 is the mode (optional?)
+
+# Expects:
+# (1) $GDA_WORKSPACE_PARENT
+# (2) $GDA_INSTANCE_CONFIG_rel
+# (3) $GDA_GROUP_CONFIG_rel (must be set, but can be an empty string)
+# (4) $GDA_FACILITY_CONFIG_rel (must be set, but can be an empty string)
+# (5) $GDA_CORE_CONFIG_rel
+
+# Check that environment variables are set and valid
+##TODO
+if [[ -z "${GDA_GROUP_CONFIG_rel+arbitrary}" ]] ; then
+  echo '$GDA_WORKSPACE_PARENT not set'
+  exit 1
+fi
+if [[ -z "${GDA_GROUP_CONFIG_rel+arbitrary}" ]] ; then
+  echo '$GDA_GROUP_CONFIG_rel not set'
+  exit 1
+fi
+if [[ -z "${GDA_GROUP_CONFIG_rel+arbitrary}" ]] ; then
+  echo '$GDA_GROUP_CONFIG_rel not set'
+  exit 1
+fi
+
+case "${1}" in
+
+servers)
+logserver)
+nameserver)
+eventserver)
+objectserver)
+  . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gdastart_servers_core $@
+  ;;
+
+client)
+  . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gdastart_client_core $@
+  ;;
+
+logpanel)
+  . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gdastart_logpanel_core $@
+  ;;
+
+all)
+  # client must be last
+  . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gdastart_logpanel_core $@
+  . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gdastart_servers_core $@
+  . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gdastart_client_core $@
+  ;;
+
+*)
+  echo 'Error: Parameter='"${1}"' not recognised - must be one of servers/client/logpanel/all'
+  exit 1
+  ;;
+
+esac
