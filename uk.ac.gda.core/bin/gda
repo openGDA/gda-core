@@ -560,7 +560,7 @@ where task can be:
 		else:
 			self.logger.trace('attempting to determine location of GDA config directory')
 			path = self._determine_first_valid_directory([
-				lambda: os.getenv("GDA_INSTANCE_CONFIG") and os.path.abspath(os.getenv("GDA_INSTANCE_CONFIG")),
+				lambda: os.getenv("GDA_WORKSPACE_PARENT") and os.getenv("GDA_INSTANCE_CONFIG_rel") and abspath(os.getenv("GDA_WORKSPACE_PARENT"), os.getenv("GDA_INSTANCE_CONFIG_rel")),
 				lambda: os.getenv("GDA_CONFIG") and os.path.abspath(os.getenv("GDA_CONFIG")),
 				lambda: os.getenv("BEAMLINE", None) not in [None, "BEAMLINE"] and abspath(self.gda_install_workspace_loc, os.getenv("BEAMLINE").lower() + "-config"),
 				lambda: abspath(self.gda_install_workspace_loc, "config"),

@@ -32,11 +32,7 @@ fi
 
 case "${1}" in
 
-servers)
-logserver)
-nameserver)
-eventserver)
-objectserver)
+servers|logserver|nameserver|eventserver|objectserver)
   . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gdastart_servers_core $@
   ;;
 
@@ -56,7 +52,12 @@ all)
   ;;
 
 *)
-  echo 'Error: Parameter='"${1}"' not recognised - must be one of servers/client/logpanel/all'
+	if [[ -z "${1}" ]]; then
+		echo -n 'Error: Parameter missing.'
+	else
+		echo 'Error: Parameter='"${1}"' not recognised.'
+	fi
+   	echo " Must be one of servers/client/logpanel/all."
   exit 1
   ;;
 

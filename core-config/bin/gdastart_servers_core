@@ -6,12 +6,12 @@
 # (2) on the control machine, when remotestartupscript.sh issues the gdastart command
 # 
 for filename in \
-  "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG}/bin/gdastart_servers_pre_facility" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG}/etc/${GDA_MODE}/gdastart_servers_pre_facility" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG}/bin/gdastart_servers_pre_group" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG}/etc/${GDA_MODE}/gdastart_servers_pre_group" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG}/bin/gdastart_servers_pre_instance" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG}/etc/${GDA_MODE}/gdastart_servers_pre_instance"
+  "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gdastart_servers_pre_facility" \
+  "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/etc/${GDA_MODE}/gdastart_servers_pre_facility" \
+  "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gdastart_servers_pre_group" \
+  "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/etc/${GDA_MODE}/gdastart_servers_pre_group" \
+  "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gdastart_servers_pre_instance" \
+  "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/etc/${GDA_MODE}/gdastart_servers_pre_instance"
 do
   if [ -e "${filename}" ]; then
     . ${filename}
@@ -56,9 +56,9 @@ else
     # Set up the directory and file in which to write the console log
     # We only invoke one script to do this (the most specific one)
     for filename in \
-      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG}/bin/gda_setup_consolelog_instance" \
-      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG}/bin/gda_setup_consolelog_group" \
-      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG}/bin/gda_setup_consolelog_facility"
+      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_setup_consolelog_instance" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_setup_consolelog_group" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_setup_consolelog_facility"
     do
       if [ -e "${filename}" ]; then
         . ${filename}
