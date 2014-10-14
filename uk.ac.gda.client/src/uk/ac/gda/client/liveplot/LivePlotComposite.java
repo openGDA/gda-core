@@ -95,6 +95,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
+import uk.ac.diamond.scisoft.analysis.plotclient.ScriptingConnection;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotAppearanceDialog;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.preferences.PreferenceConstants;
@@ -455,6 +456,11 @@ public class LivePlotComposite extends Composite {
 		}
 	}
 
+	public void createScriptingConnection(String partName) {
+		plotView.createScriptingConnection(partName);
+		
+	}
+
 }
 
 /**
@@ -478,6 +484,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	protected LiveData scans[] = new LiveData[0];
 	private UpdatePlotQueue updateQueue = new UpdatePlotQueue();
 	private IPositionListener plottingSystemPositionListener;
+	private ScriptingConnection scriptingConnection;
 	
 	public SubLivePlotView(IWorkbenchPart parentPart, Composite parent, int style, String archiveFolder) {
 		super(parent, style);
@@ -539,6 +546,13 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		int plotPeriodMS = preferenceStore.getInt(PreferenceConstants.GDA_CLIENT_PLOT_PERIOD_MS);
 		updateQueue.setPlotPeriodMS(plotPeriodMS);
 		
+	}
+
+	public void createScriptingConnection(String partName) {
+		if( plottingSystem != null){
+			scriptingConnection = new ScriptingConnection(partName);
+			scriptingConnection.setPlottingSystem(plottingSystem);
+		}
 	}
 
 	void saveState(IMemento memento, String archiveFolder) {
@@ -605,6 +619,8 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	@Override
 	public void dispose() {
 		updateQueue.setKilled(true);
+		if( scriptingConnection != null)
+			scriptingConnection.dispose();
 		if (plottingSystem != null) {
 			if( plottingSystemPositionListener != null){
 				plottingSystem.removePositionListener(plottingSystemPositionListener);
@@ -613,6 +629,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 			plottingSystem.dispose();
 			plottingSystem = null;
 		}
+		super.dispose();
 	}
 
 	@Override

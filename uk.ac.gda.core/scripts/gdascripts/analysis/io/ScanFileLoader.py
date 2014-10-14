@@ -6,8 +6,6 @@ from uk.ac.diamond.scisoft.analysis.io import LoaderFactory
 import os.path
 class ScanFileLoader:
 
-
-
 	def __init__(self, filespec=None, dir=None):
 		
 		self.format = LocalProperties.get("gda.data.scan.datawriter.dataFormat")

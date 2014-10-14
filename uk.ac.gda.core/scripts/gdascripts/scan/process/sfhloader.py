@@ -1,5 +1,4 @@
 def getDataSetFromSFH(sfh, fieldname):
-
     sfhAxesNames = tuple(sfh.getHeadings())
     
     if fieldname in sfhAxesNames:
