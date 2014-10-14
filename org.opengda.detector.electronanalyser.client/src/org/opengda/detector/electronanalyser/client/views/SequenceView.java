@@ -1155,7 +1155,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private void validateRegions() {
 		invalidRegions.clear();
 		try {
-			for (Region region : regionDefinitionResourceUtil.getRegions()) {
+			for (Region region : regions) {
 				if (region.isEnabled()) {
 					// only check enabled regions.
 					isValidRegion(region);
