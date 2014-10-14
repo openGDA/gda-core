@@ -81,11 +81,11 @@ public class ImagePlotComposite extends EpicsArrayPlotComposite {
 	@Override
 	protected void updatePlot(IProgressMonitor monitor, double[] value) {
 		super.updatePlot(monitor, value);
-		if (isNewRegion()) {
+//		if (isNewRegion()) {
 			ydata = getYData();
 			yAxis = createYAxis();
-			setNewRegion(false);
-		}
+//			setNewRegion(false);
+//		}
 		ArrayList<Dataset> axes = new ArrayList<Dataset>();
 		axes.add(xAxis);
 		axes.add(yAxis);

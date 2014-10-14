@@ -196,8 +196,8 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 
 					@Override
 					public void run() {
-						boolean visible = SlicesPlotComposite.this.isVisible();
-						if (visible) {
+//						boolean visible = SlicesPlotComposite.this.isVisible();
+//						if (visible) {
 							DBR dbr = arg0.getDBR();
 
 							if (dbr.isDOUBLE()) {
@@ -206,7 +206,7 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 							}
 							updatePlot(new NullProgressMonitor(), value);
 						}
-					}
+//					}
 				});
 			}
 		}
@@ -233,8 +233,8 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 			if (selectedSlice>sliceControl.getMaximum()) selectedSlice=1;
 			for (int i=0; i<slices; i++) {
 				Dataset slice = ds.getSlice(new int[] {i, 0 },new int[] { i+1, dims[1]-1 }, new int[] {1,1});
-				slice.flatten();
-				dataslices.add(slice);
+				Dataset dataset1=slice.flatten();
+				dataslices.add(dataset1);
 			}
 //			Dataset slice2 = ds.getSlice(new int[] { selectedSlice-1, 0 },new int[] { selectedSlice, dims[1]-1 }, new int[] {1,1});
 //			dataset=slice2.flatten();

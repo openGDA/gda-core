@@ -124,15 +124,15 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 
 					@Override
 					public void run() {
-						boolean visible = EpicsArrayPlotComposite.this.isVisible();
-						if (visible) {
+//						boolean visible = EpicsArrayPlotComposite.this.isVisible();
+//						if (visible) {
 							DBR dbr = arg0.getDBR();
 							double[] value = null;
 							if (dbr.isDOUBLE()) {
 								value = ((DBR_Double) dbr).getDoubleValue();
 							}
 							updatePlot(new NullProgressMonitor(), value);
-						}
+//						}
 					}
 				});
 			}
@@ -180,6 +180,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		if (xdata==null) return;
 		xdata=convertToBindingENergy(xdata);
 		xAxis = createXAxis();
+		plottingSystem.clear();
 		plottingSystem.reset();
 		plottingSystem.getSelectedXAxis().setRange(xdata[0], xdata[xdata.length-1]);
 	}
