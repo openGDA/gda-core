@@ -42,7 +42,7 @@ public class NewSequenceFileWizard extends Wizard implements INewWizard {
 		IFile file = newSequenceFilePage.createNewFile();
 		if (file != null ) {
 			if (regionDefView != null) {
-				regionDefView.refreshTable(file.getLocation().toString(), true);
+				regionDefView.refreshTable(file.getLocation().toString(), true, true);
 			} else {
 				logger.error("Cannot find the active part in new sequence file wizard.");
 			}

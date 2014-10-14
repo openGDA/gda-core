@@ -3,6 +3,7 @@ package org.opengda.detector.electronanalyser.client.views;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
@@ -124,11 +125,11 @@ import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefini
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceTableConstants;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewContentProvider;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewLabelProvider;
+import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
+import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.event.ScanEndEvent;
 import org.opengda.detector.electronanalyser.event.ScanPointStartEvent;
 import org.opengda.detector.electronanalyser.event.ScanStartEvent;
-import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
-import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.event.SequenceFileChangeEvent;
 import org.opengda.detector.electronanalyser.lenstable.TwoDimensionalLookupTable;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
@@ -999,7 +1000,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	 * refresh the table viewer with the sequence file name provided. If it is a new file, an empty sequence will be created.
 	 */
 	@Override
-	public void refreshTable(String seqFileName, boolean newFile) {
+	public void refreshTable(String seqFileName, boolean newFile, boolean fileChanged) {
 		logger.debug("refresh table with file: {}{}", FilenameUtils.getFullPath(seqFileName), FilenameUtils.getName(seqFileName));
 		if (isDirty()) {
 			InterfaceProvider.getCurrentScanController().pauseCurrentScan();
@@ -1032,6 +1033,50 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 			// update existing regions list
 			regions = regionDefinitionResourceUtil.getRegions();
+			if (fileChanged) {
+				for (Region region : regions) {
+					if (region.isEnabled()) {
+						double currentExcitationEnergy=0.0;
+						if (regionDefinitionResourceUtil.isSourceSelectable()) {
+							if (region.getExcitationEnergy()>regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+								Scannable dcmenergy = Finder.getInstance().find("dcmenergy");
+								if (dcmenergy!=null) {
+									try {
+										currentExcitationEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+									} catch (DeviceException e) {
+										logger.error("Cannot get X-ray energy from DCM.", e);
+									}
+								}
+							} else {
+								Scannable pgmenergy = Finder.getInstance().find("pgmenergy");
+								if (pgmenergy != null) {
+									try {
+										currentExcitationEnergy = (double) pgmenergy.getPosition();
+									} catch (DeviceException e) {
+										logger.error("Cannot get X-ray energy from PGM.", e);
+									}
+								}
+							}
+						} else {
+							Scannable dcmenergy = Finder.getInstance().find("dcmenergy");
+							if (dcmenergy!=null) {
+								try {
+									currentExcitationEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+								} catch (DeviceException e) {
+									logger.error("Cannot get X-ray energy from DCM.", e);
+								}
+							}
+						}
+						if (currentExcitationEnergy!=0.0 && currentExcitationEnergy!= region.getExcitationEnergy()) {
+							region.setExcitationEnergy(currentExcitationEnergy);
+							updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), currentExcitationEnergy);
+						}
+						if (!isValidRegion(region)) {
+							region.setEnabled(false);
+						}
+					}
+				}
+			}
 			if (regions.isEmpty()) {
 				fireSelectionChanged(StructuredSelection.EMPTY);
 			} else {
@@ -1211,7 +1256,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				regionDefinitionResourceUtil.saveAs(resource, newFilename);
 				isDirty = false;
 				firePropertyChange(PROP_DIRTY);
-				refreshTable(newFilename, false);
+				refreshTable(newFilename, false, false);
 			}
 		}
 	}
@@ -1292,7 +1337,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					@Override
 					public void run() {
 						logger.debug("Sequence file changed to {}",((SequenceFileChangeEvent) arg).getFilename());
-						refreshTable(((SequenceFileChangeEvent) arg).getFilename(),false);
+						refreshTable(((SequenceFileChangeEvent) arg).getFilename(),false, false);
 					}
 				});
 			}

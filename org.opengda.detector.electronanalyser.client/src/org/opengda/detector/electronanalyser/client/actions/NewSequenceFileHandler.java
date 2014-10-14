@@ -37,7 +37,7 @@ public class NewSequenceFileHandler extends AbstractHandler implements IHandler 
 				file = new File(fileName);
 			}
 			if (file != null && !file.exists()) {
-				regionDefView.refreshTable(fileName, true);
+				regionDefView.refreshTable(fileName, true, false);
 			} else {
 				MessageDialog msgd = new MessageDialog(shell,
 						"Create a new sequence file", null, "file: " + fileName
@@ -46,7 +46,7 @@ public class NewSequenceFileHandler extends AbstractHandler implements IHandler 
 						0);
 				int returncode = msgd.open();
 				if (returncode == 0) {
-					regionDefView.refreshTable(fileName, false);
+					regionDefView.refreshTable(fileName, false,true);
 				}
 			}
 		}

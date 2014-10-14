@@ -1467,11 +1467,17 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			if (region.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
 				btnHard.setSelection(true);
 				btnSoft.setSelection(false);
-				updateExcitationEnergy(txtHardEnergy);
+				if (region.getExcitationEnergy()!= hardXRayEnergy) {
+					updateExcitationEnergy(txtHardEnergy);
+					excitationEnergy = hardXRayEnergy;
+				}
 			} else {
 				btnHard.setSelection(false);
 				btnSoft.setSelection(true);
-				updateExcitationEnergy(txtSoftEnergy);
+				if (region.getExcitationEnergy()!=softXRayEnergy) {
+					updateExcitationEnergy(txtSoftEnergy);
+					excitationEnergy = softXRayEnergy;
+				}
 			}
 		} else {
 			if (dcmenergy != null) {
@@ -1481,7 +1487,10 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 					logger.error("Cannot get X-ray energy from DCM.", e);
 				}
 			}
-			excitationEnergy = hardXRayEnergy;
+			if (region.getExcitationEnergy()!= hardXRayEnergy) {
+				updateExcitationEnergy(txtHardEnergy);
+				excitationEnergy = hardXRayEnergy;
+			}
 			txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
 		}
 	}
@@ -1502,7 +1511,6 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 				logger.error("Cannot get X-ray energy from PGM.", e);
 			}
 		}
-		excitationEnergy = softXRayEnergy;
 		txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
 	}
 
