@@ -974,6 +974,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		if (!isValidRegion(region)){
 			String message="Region '" + region.getName()+"' is outside the energy range (" + invalidRegions.get(region)+") \npermitted in the Lens Table for Element Set '"+comboElementSet.getText()+"' and Pass Energy '"+region.getPassEnergy()+"'.\n";
 			openMessageBox(message);
+			region.setEnabled(false);
+			try {
+				runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false));
+				fireSelectionChanged(new RegionActivationSelection());
+				updateCalculatedData();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
