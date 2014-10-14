@@ -1,34 +1,40 @@
 #!/bin/bash
 
-# Parameter 1 is what to start - servers (all 4 servers)
-#                                logserver / nameserver / eventserver / objectserver (each server individually)
-#                                logpanel
-#                                client
-#                                all (servers, logpanel, client)
-#
-# Parameter 2 is the mode (optional?)
-
-# Expects:
+# Expects the following environment variables to be set:
 # (1) $GDA_WORKSPACE_PARENT
-# (2) $GDA_INSTANCE_CONFIG_rel
-# (3) $GDA_GROUP_CONFIG_rel (must be set, but can be an empty string)
-# (4) $GDA_FACILITY_CONFIG_rel (must be set, but can be an empty string)
-# (5) $GDA_CORE_CONFIG_rel
+# (2) $GDA_WORKSPACE_GIT_NAME  (will normally be "workspace_git", will always end with "_git")
+# (3) $GDA_INSTANCE_CONFIG_rel
+# (4) $GDA_GROUP_CONFIG_rel  (must be set, but can be an empty string)
+# (5) $GDA_FACILITY_CONFIG_rel  (must be set, but can be an empty string)
+# (6) $GDA_CORE_CONFIG_rel
+
+# Expects a parameter line that can be passed on to the gda python script 
+
+# Source function to perform bash logging
+. ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/bash_logging_function
+
+# Logging
+for env_var_name in GDA_WORKSPACE_PARENT GDA_WORKSPACE_GIT_NAME GDA_INSTANCE_CONFIG_rel GDA_GROUP_CONFIG_rel GDA_FACILITY_CONFIG_rel GDA_CORE_CONFIG_rel; do
+    log debug "$(basename ${BASH_SOURCE}):${LINENO})" "\${${env_var_name}}=${!env_var_name}"
+done
 
 # Check that environment variables are set and valid
-##TODO
-if [[ -z "${GDA_GROUP_CONFIG_rel+arbitrary}" ]] ; then
-  echo '$GDA_WORKSPACE_PARENT not set'
-  exit 1
-fi
-if [[ -z "${GDA_GROUP_CONFIG_rel+arbitrary}" ]] ; then
-  echo '$GDA_GROUP_CONFIG_rel not set'
-  exit 1
-fi
-if [[ -z "${GDA_GROUP_CONFIG_rel+arbitrary}" ]] ; then
-  echo '$GDA_GROUP_CONFIG_rel not set'
-  exit 1
-fi
+for env_var_name in GDA_WORKSPACE_PARENT GDA_WORKSPACE_GIT_NAME GDA_INSTANCE_CONFIG_rel GDA_CORE_CONFIG_rel; do
+    if [[ -z "${!env_var_name}" ]]; then
+        log error "$(basename ${BASH_SOURCE}):${LINENO})" "\${${env_var_name}} is not set (or is null) - exiting"
+        exit 2
+    fi
+done
+for env_var_name in GDA_GROUP_CONFIG_rel GDA_FACILITY_CONFIG_rel; do
+    if [[ -z "${!env_var_name=set_but_empty_ok}" ]]; then
+        log error "$(basename ${BASH_SOURCE}):${LINENO})" "\${${env_var_name}} is not set - exiting"
+        exit 2
+    fi
+done
+
+# old-style parameters
+readonly export GDA_INSTALL_GIT_LOC=${GDA_WORKSPACE_PARENT}/${GDA_WORKSPACE_GIT_NAME}
+readonly export GDA_INSTALL_WORKSPACE_LOC=${GDA_WORKSPACE_PARENT}/${GDA_WORKSPACE_GIT_NAME%_git}
 
 case "${1}" in
 
@@ -41,7 +47,6 @@ client)
   ;;
 
 logpanel)
-echo about to start gdastart_logpanel_core
   . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gdastart_logpanel_core $@
   ;;
 
@@ -53,12 +58,12 @@ all)
   ;;
 
 *)
-	if [[ -z "${1}" ]]; then
-		echo -n 'Error: Parameter missing.'
-	else
-		echo 'Error: Parameter='"${1}"' not recognised.'
-	fi
-   	echo " Must be one of servers/client/logpanel/all."
+    if [[ -z "${1}" ]]; then
+        echo -n 'Error: Parameter missing.'
+    else
+        echo 'Error: Parameter='"${1}"' not recognised.'
+    fi
+    echo " Must be one of servers/client/logpanel/all."
   exit 1
   ;;
 

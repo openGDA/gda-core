@@ -1,9 +1,9 @@
 # Utility function to echo a message to stderr (we use stderr since it's unbuffered)
 # Parameter 1 : log level (DEBUG, INFO, WARN, ERROR)
-# Parameter 2 : caller; something like $(basename ${BASH_SOURCE}):${LINENO})
+# Parameter 2 : caller; something like "$(basename ${BASH_SOURCE}):${LINENO})"
 # Parameter 3 : message text
 
-# DEBUG output is only written if $GDA_TRACE is set (to anything)
+# DEBUG output is only written if $GDA_DEBUG is set (to any non-empty string)
 # Output is colourized if going to a terminal
 
 log() {
@@ -19,7 +19,7 @@ log() {
             line="[$(date '+%F %T') $HOSTNAME] ${level}: $@"
         fi
         if [[ -t 2 || -p /dev/stderr ]]; then
-            # interactive shell, if stderr is a tty, or a socket
+            # interactive shell, if stderr is a tty, or a socket (i.e. coming via ssh)
             declare -A colour=([DEBUG]=30 [INFO]=36 [WARN]=33 [ERROR]=31 )
             code=${colour[$level]:-37}
             echo -e "\e[${code}m${line}\e[0m" >&2
