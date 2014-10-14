@@ -223,6 +223,32 @@ public class MonoScannable extends ScannableMotionUnitsBase implements Scannable
 		return toReturn.getAmount();
 	}
 
+	public void setPosition(Object position) throws DeviceException {
+		Quantity newQuantity = QuantityFactory.createFromObject(position, userUnits);
+
+		// for each of the allowed type of unit calculate the
+		// equivalent Angle, if the unit type is not allowed then
+		// null will be returned
+		Angle angle = null;
+		if (newQuantity instanceof Angle) {
+			angle = (Angle) newQuantity;
+		} else if (newQuantity instanceof Length) {
+			Angle braggangle = BraggAngle.braggAngleOf((Length) newQuantity, twoDee);
+			angle = (Angle) braggangle.to(QuantityFactory.createUnitFromString(getHardwareUnitString()));
+		} else if (newQuantity instanceof Energy) {
+			Angle braggangle = BraggAngle.braggAngleOf((Energy) newQuantity, twoDee);
+			angle = (Angle) braggangle.to(QuantityFactory.createUnitFromString(getHardwareUnitString()));
+		}
+
+		if (angle != null) {
+			// move motor to the angle
+			this.theMotor.setPosition(angle.getAmount());
+		} else {
+			throw new DeviceException("MonoScannable.rawAsynchronousMoveTo(): Null position/quantity specified.");
+		}
+		
+	}
+
 	@Override
 	public boolean isBusy() throws DeviceException {
 		return this.theMotor.isBusy();
