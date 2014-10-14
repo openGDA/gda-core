@@ -11,17 +11,19 @@ from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XanesScanParameters
 from uk.ac.gda.beans.exafs import XasScanParameters
 from uk.ac.gda.beans.exafs import QEXAFSParameters
+from uk.ac.gda.beans.microfocus import MicroFocusScanParameters
 
 from java.io import File
 
 from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
 
 class I18DetectorPreparer:
-    def __init__(self,xspressConfig, vortexConfig, I0_keithley, It_keithley):
+    def __init__(self,xspressConfig, vortexConfig, I0_keithley, It_keithley, cmos):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         self.I0_keithley = I0_keithley
         self.It_keithley = It_keithley
+        self.cmos = cmos
 
     def prepare(self, scanBean, detectorBean, outputParameters, scriptFolder):
         if detectorBean.getExperimentType() == "Fluorescence":
@@ -41,6 +43,8 @@ class I18DetectorPreparer:
                 saveRawSpectrum = vortexBean.isSaveRawSpectrum()
                 self.vortexConfig.configure(xmlFileName, saveRawSpectrum)
             self._control_all_ionc(fluoresenceParameters.getIonChamberParameters())
+            if fluoresenceParameters.isCollectDiffractionImages() and isinstance (scanBean,MicroFocusScanParameters):
+                self._control_cmos(scanBean)
         elif detectorBean.getExperimentType() == "Transmission":
             transmissionParameters = detectorBean.getTransmissionParameters()
             self._control_all_ionc(transmissionParameters.getIonChamberParameters())
@@ -118,6 +122,19 @@ class I18DetectorPreparer:
             elif ion_chamber_num==1:
                 print "It sensitivity: ", gain
                 self.It_keithley(gain)
+                
+    def _control_cmos(self, scanBean):
+        if scanBean.isRaster():
+            rowLength = scanBean.getXEnd() - scanBean.getXStart();
+            pointsPerRow = (rowLength / scanBean.getXStepSize()) + 1.0;
+            print "points per row",str(pointsPerRow)
+            collectionTime = scanBean.getRowTime() /  pointsPerRow;
+            print "time per point",str(collectionTime)
+            print "Setting cmos to collect for",str(collectionTime),"s"
+            self.cmos.setCollectionTime(collectionTime)
+        else:
+            print "Setting cmos to collect for",str(scanBean.getCollectionTime()),"s"
+            self.cmos.setCollectionTime(scanBean.getCollectionTime());
             
     def _resolve_gain_index(self, gain):
         if gain == "10^3 V/A":
