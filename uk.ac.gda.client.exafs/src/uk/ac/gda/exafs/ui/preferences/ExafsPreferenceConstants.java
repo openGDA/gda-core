@@ -95,6 +95,14 @@ public class ExafsPreferenceConstants {
 	 * Add a mythen option in the Fluo detector composite
 	 */
 	public static final String SHOW_MYTHEN = "exafs.fluoEditor.showMythen.Preference";
+
+	/**
+	 * If SHOW_MYTHEN value true, and this value false, then operate the diffraction detector at the ends of the scan.
+	 * <p>
+	 * If SHOW_MYTHEN value true, and this value true, then collect diffraction images alongside fluorescence data.
+	 */
+	public static final String DIFFRACTION_COLLECTED_CONCURRENTLY = "exafs.fluoEditor.collectDiffractionConcurrently.Preference";
+	
 	
 	public static final String HIDE_WORKING_ENERGY = "exafs.detectoreditor.hideWorkingEnergy.Preference";
 	
