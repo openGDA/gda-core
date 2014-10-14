@@ -34,6 +34,7 @@ Export-Package: gda.device.detector,
  uk.ac.gda.beans.microfocus,
  uk.ac.gda.server.exafs
 Eclipse-RegisterBuddy: uk.ac.gda.common, uk.ac.gda.core, uk.ac.gda.client
-Import-Package: gda.factory,
+Import-Package: gda.data.scan.datawriter,
+ gda.factory,
  org.slf4j;version="[1.7.6,1.7.7)"
 Bundle-Vendor: Diamond Light Source

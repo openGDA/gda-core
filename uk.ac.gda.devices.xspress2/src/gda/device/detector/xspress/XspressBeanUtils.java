@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class XspressBeanUtils {
 	private static final Logger logger = LoggerFactory.getLogger(XspressBeanUtils.class);
 
-	public XspressParameters createBeanFromXML(String xmlPath) throws Exception {
+	public static XspressParameters createBeanFromXML(String xmlPath) throws Exception {
 		try {
 			return (XspressParameters) XMLHelpers.createFromXML(XspressParameters.mappingURL, XspressParameters.class,
 					XspressParameters.schemaURL, new File(xmlPath));
@@ -39,7 +39,7 @@ public class XspressBeanUtils {
 		}
 	}
 
-	public void createXMLfromBean(Xspress2Detector xspress2System,
+	public static void createXMLfromBean(Xspress2Detector xspress2System,
 			XspressParameters xspressBean) throws Exception {
 		try {
 			File file = new File(xspress2System.getConfigFileName());
