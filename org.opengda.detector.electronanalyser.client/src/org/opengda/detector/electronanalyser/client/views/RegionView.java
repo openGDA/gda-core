@@ -1463,46 +1463,15 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 
 	private void setExcitationEnergy(final Region region) {
 		if (regionDefinitionResourceUtil.isSourceSelectable()) {
+			updateXRaySourceEnergies();
 			if (region.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
 				btnHard.setSelection(true);
 				btnSoft.setSelection(false);
-				if (dcmenergy != null) {
-					try {
-						hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
-					} catch (DeviceException e) {
-						logger.error("Cannot get X-ray energy from DCM.", e);
-					}
-				}
-				excitationEnergy = hardXRayEnergy;
-				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-				if (pgmenergy != null) {
-					try {
-						softXRayEnergy = (double) pgmenergy.getPosition();
-					} catch (DeviceException e) {
-						logger.error("Cannot get X-ray energy from PGM.", e);
-					}
-				}
-				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
+				updateExcitationEnergy(txtHardEnergy);
 			} else {
 				btnHard.setSelection(false);
 				btnSoft.setSelection(true);
-				if (dcmenergy != null) {
-					try {
-						hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
-					} catch (DeviceException e) {
-						logger.error("Cannot get X-ray energy from DCM.", e);
-					}
-				}
-				txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
-				if (pgmenergy != null) {
-					try {
-						softXRayEnergy = (double) pgmenergy.getPosition();
-					} catch (DeviceException e) {
-						logger.error("Cannot get X-ray energy from PGM.", e);
-					}
-				}
-				excitationEnergy = softXRayEnergy;
-				txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
+				updateExcitationEnergy(txtSoftEnergy);
 			}
 		} else {
 			if (dcmenergy != null) {
@@ -1515,6 +1484,26 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			excitationEnergy = hardXRayEnergy;
 			txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
 		}
+	}
+
+	private void updateXRaySourceEnergies() {
+		if (dcmenergy != null) {
+			try {
+				hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+			} catch (DeviceException e) {
+				logger.error("Cannot get X-ray energy from DCM.", e);
+			}
+		}
+		txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
+		if (pgmenergy != null) {
+			try {
+				softXRayEnergy = (double) pgmenergy.getPosition();
+			} catch (DeviceException e) {
+				logger.error("Cannot get X-ray energy from PGM.", e);
+			}
+		}
+		excitationEnergy = softXRayEnergy;
+		txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
 	}
 
 	@Override
