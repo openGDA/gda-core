@@ -1422,13 +1422,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	private void initialiseRegionView(final Region region) {
 		setExcitationEnergy(region);
 
-		if (region.isEnabled()) {
-			regionName.setText(region.getName());
-			// regionName.setEnabled(true);
-		} else {
-			regionName.setText("");
-			// regionName.setEnabled(false);
-		}
+		regionName.setText(region.getName());
 		lensMode.setText(region.getLensMode());
 		passEnergy.setText(String.valueOf(region.getPassEnergy()));
 		txtMinimumSize.setText(String.format("%.3f", camera.getEnergyResolution() * region.getPassEnergy()));
@@ -1442,16 +1436,11 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		} else {
 			kineticSelected=false;
 		}
-//		txtLow.setText(String.format("%.4f", region.getLowEnergy()));
-//		txtHigh.setText(String.format("%.4f", region.getHighEnergy()));
 		sweptLowEnergy=region.getLowEnergy();
 		sweptHighEnergy=region.getHighEnergy();
 		sweptStepSize = region.getEnergyStep();
 		sweptSlices=region.getSlices();
 		fixedCentreEnergy=region.getFixEnergy();
-//		txtCenter.setText(String.format("%.4f", (region.getLowEnergy() + region.getHighEnergy()) / 2));
-//		txtSize.setText(String.format("%.3f", region.getEnergyStep()));
-//		txtWidth.setText(String.format("%.4f", (region.getHighEnergy() - region.getLowEnergy())));
 		txtTime.setText(String.format("%.3f", region.getStepTime()));
 		long frames = Math.round(Double.parseDouble(txtTime.getText()) / Double.parseDouble(txtMinimumTime.getText()));
 		spinnerFrames.setSelection((int) frames);
