@@ -204,7 +204,9 @@ public class XspressMonitorView extends MonitorViewBase {
 
 		int numChannels = ionchambers.getExtraNames().length;
 		// works for TFG2 only where time if the first channel
-		double[] ion_results = ionchambers.readFrame(1, numChannels, currentFrame);
+//		double[] ion_results = ionchambers.readFrame(1, numChannels, currentFrame);
+// [XAS-175] -temporary fix
+		double[] ion_results = (double[])ionchambers.readout();
 
 //		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
 		int i0Index = -1;
