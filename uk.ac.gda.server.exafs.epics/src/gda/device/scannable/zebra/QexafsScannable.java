@@ -191,6 +191,7 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 
 	protected void toggleEnergyControl() throws DeviceException {
 		try {
+
 			long timeAtMethodStart = System.currentTimeMillis();
 			// return to regular running values
 			logger.info("Toggling energy control");
@@ -198,7 +199,15 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 			controller.caputWait(energySwitchChnl, 1);
 			long timeAtMethodEnd = System.currentTimeMillis();
 			logger.debug("Time spent in stop = " + (timeAtMethodEnd - timeAtMethodStart) + "ms");
-		} catch (Exception e) {
+
+			// Do not catch all exceptions here, only look for the ones we expect. Other types should be propagated to
+			// allow higher level handling instead of being wrapped in this method as a DeviceException.
+			// TODO switch to Java 1.7 multiple catch statement
+		} catch (InterruptedException e) {
+			throw new DeviceException("Exception while changing energy switch off/on to stop the motion", e);
+		} catch (TimeoutException e) {
+			throw new DeviceException("Exception while changing energy switch off/on to stop the motion", e);
+		} catch (CAException e) {
 			throw new DeviceException("Exception while changing energy switch off/on to stop the motion", e);
 		}
 	}

@@ -96,22 +96,28 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 			firstData = false;
 		}
 
+		
+		// Nested try..catch..finallys so we at least attempt to write data to
+		// other file writers if there is an error, but still ensure that the
+		// exception is propagated.
+		// This is vital in ContinuousScans to ensure that the scan is stopped
+		// if it is aborted / interrupted during data writing.
 		try {
 			nexus.addData(newData);
 		} catch (Exception e) {
-			// ignore so we don't prevent the xas file from being written
-			// we should at least log this!
-		}
-		try {
-			ascii.addData(newData);
-		} catch (Exception e) {
-			// ignore so we don't prevent the drop file from being written
-			// we should at least log this!
+			throw e;
 		} finally {
 			try {
-				super.addData(this, newData);
+				ascii.addData(newData);
 			} catch (Exception e) {
-				logger.error("exception received from DataWriterBase.addData(...)", e);
+				throw e;
+			} finally {
+				try {
+					super.addData(this, newData);
+				} catch (Exception e) {
+					logger.error("exception received from DataWriterBase.addData(...)", e);
+					throw e;
+				}
 			}
 		}
 	}
