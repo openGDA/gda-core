@@ -1,26 +1,59 @@
-#!/bin/bash
+echo 'start of gdastart_client_core'
+# Run the "gdastart_client_pre" scripts to set up the environment as required.
+# For Facility, Group, and Instance, there can be a pre-script, and a mode-specific pre-script (all optional)
+# 
+for filename in \
+  "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gdastart_client_pre_facility" \
+  "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/etc/${GDA_MODE}/gdastart_client_pre_facility" \
+  "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gdastart_client_pre_group" \
+  "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/etc/${GDA_MODE}/gdastart_client_pre_group" \
+  "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gdastart_client_pre_instance" \
+  "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/etc/${GDA_MODE}/gdastart_client_pre_instance"
+do
+  if [ -e "${filename}" ]; then
+    . ${filename}
+  fi
+done
 
-. $GDA_FACILITY_CONFIG/bin/gda_setup_logging gda_client_output
-
+# Set up the directory and file in which to write the console log
+    # We only invoke one script to do this (the most specific one)
+    for filename in \
+      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_setup_consolelog_instance" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_setup_consolelog_group" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_setup_consolelog_facility"
+    do
+      if [ -e "${filename}" ]; then
+        . ${filename}
+        echo 'just ran console log file ' ${filename}
+        break
+      fi
+    done
+    
 export GDA_CLIENT_LOG_DIR=$GDA_LOGS_DIR
 export GDA_CLIENT_WORKING_DIR=$GDA_WORKSPACE_PARENT/client
 
-VMARGS="-Dgda.mode=$GDA_MODE $VMARGS"
+echo 'GDA_MODE = ' $GDA_MODE
+
+VMARGS="-Dgda.mode=$GDA_MODE ${VMARGS-}"
+
+echo 'VMARGS = ' $VMARGS
 #KrisB - Changes to cope with choice of jacorb directory locations.
-if [ -d "$GDA_INSTANCE_CONFIG/jacorb/$GDA_MODE" ]; then
-	VMARGS="-Djacorb.config.dir=$GDA_INSTANCE_CONFIG/jacorb/$GDA_MODE $VMARGS"
-elif [ -d "$GDA_INSTANCE_CONFIG/properties/$GDA_MODE/jacorb" ]; then
-	VMARGS="-Djacorb.config.dir=$GDA_INSTANCE_CONFIG/properties/$GDA_MODE/jacorb $VMARGS"
+echo '${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jacorb/$GDA_MODE'
+echo "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jacorb/$GDA_MODE"
+if [ -d "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jacorb/$GDA_MODE" ]; then
+	VMARGS="-Djacorb.config.dir=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jacorb/$GDA_MODE $VMARGS"
+elif [ -d "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/$GDA_MODE/jacorb" ]; then
+	VMARGS="-Djacorb.config.dir=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/$GDA_MODE/jacorb $VMARGS"
 else
 	echo "Can't find jacorb directory"
 	exit 1
 fi
-VMARGS="-Dgda.propertiesFile=$GDA_INSTANCE_CONFIG/properties/$GDA_MODE/java.properties $VMARGS"
+VMARGS="-Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/$GDA_MODE/java.properties $VMARGS"
 
-if [ -d "$GDA_INSTANCE_CONFIG/jca/$GDA_MODE" ]; then
-	VMARGS="-Dgov.aps.jca.JCALibrary.properties=$GDA_INSTANCE_CONFIG/jca/$GDA_MODE/JCALibrary.properties $VMARGS"
-elif [ -d "$GDA_INSTANCE_CONFIG/properties/$GDA_MODE/jacorb" ]; then
-	VMARGS="-Dgov.aps.jca.JCALibrary.properties=$GDA_INSTANCE_CONFIG/properties/$GDA_MODE/JCALibrary.properties $VMARGS"
+if [ -d "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jca/$GDA_MODE" ]; then
+	VMARGS="-Dgov.aps.jca.JCALibrary.properties=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jca/$GDA_MODE/JCALibrary.properties $VMARGS"
+elif [ -d "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/$GDA_MODE/jacorb" ]; then
+	VMARGS="-Dgov.aps.jca.JCALibrary.properties=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/$GDA_MODE/JCALibrary.properties $VMARGS"
 else
 	echo "Can't find JCALibrary.properties file"
 	exit 1
@@ -34,4 +67,4 @@ export GDA_CLIENT=$GDA_WORKSPACE_PARENT/client/gda-$BEAMLINE
 
 cd $GDA_WORKSPACE_PARENT/client
 
-$GDA_FACILITY_CONFIG/bin/gdaclient --log --keep --nohup $GDA_CONSOLE_LOG $*
+${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gdaclient --log --keep --nohup $GDA_client_CONSOLE_LOG $*

@@ -41,6 +41,7 @@ client)
   ;;
 
 logpanel)
+echo about to start gdastart_logpanel_core
   . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gdastart_logpanel_core $@
   ;;
 
