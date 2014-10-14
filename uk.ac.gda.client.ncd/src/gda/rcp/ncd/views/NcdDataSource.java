@@ -351,11 +351,6 @@ public class NcdDataSource extends ViewPart implements IObserver {
 	@Override
 	public void update(Object theObserved, Object changeCode) {
 		if (parentComp.isDisposed()) {
-			try {
-				plotView.deleteIObserver(this);
-			} catch (Exception e) {
-				// ignored
-			}
 			return;
 		}
 
