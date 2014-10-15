@@ -327,6 +327,18 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	}
 
 	/**
+	 * Set the position
+	 * 
+	 * @throws DeviceException
+	 */
+	public void setPosition(Object position) throws DeviceException {
+		if (isBusy()) {
+			throw new DeviceException("Motor is moving! Cannot set position");
+		}
+		this.motor.setPosition((Double)position);
+	}
+
+	/**
 	 * Return the last demanded user/external position if one has been set. If the motor is stopped, and the actual
 	 * position is not close to the the demand position, then the current position is returned instead.
 	 * 
