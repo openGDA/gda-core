@@ -33,8 +33,8 @@ for env_var_name in GDA_GROUP_CONFIG_rel GDA_FACILITY_CONFIG_rel; do
 done
 
 # Old-style parameters
-readonly export GDA_INSTALL_GIT_LOC=${GDA_WORKSPACE_PARENT}/${GDA_WORKSPACE_GIT_NAME}
-readonly export GDA_INSTALL_WORKSPACE_LOC=${GDA_WORKSPACE_PARENT}/${GDA_WORKSPACE_GIT_NAME%_git}
+export GDA_INSTALL_GIT_LOC=${GDA_WORKSPACE_PARENT}/${GDA_WORKSPACE_GIT_NAME}
+export GDA_INSTALL_WORKSPACE_LOC=${GDA_WORKSPACE_PARENT}/${GDA_WORKSPACE_GIT_NAME%_git}
 
 # Extract mode and component (required) from the parameters
 # All parameters are passed to the python script, but the bash scripts also need to know the mode, and what we are starting

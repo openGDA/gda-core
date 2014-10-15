@@ -567,7 +567,7 @@ where task can be:
 				])
 			if not path:
 				self.logger.critical("Could not determine the location of the GDA configuration directory from one of the standard locations")
-				self.logger.critical("You need to specify the location of the GDA configuration directory using --config or environment variable GDA_INSTANCE_CONFIG")
+				self.logger.critical("You need to specify the location of the GDA configuration directory using --config or environment variables GDA_WORKSPACE_PARENT/GDA_INSTANCE_CONFIG_rel")
 				sys.exit(1)
 		self.options.gda_config = path
 
