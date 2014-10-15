@@ -1,6 +1,6 @@
 # Utility function to echo a message to stderr (we use stderr since it's unbuffered)
 # Parameter 1 : log level (DEBUG, INFO, WARN, ERROR)
-# Parameter 2 : caller; something like "$(basename ${BASH_SOURCE}):${LINENO})"
+# Parameter 2 : caller; something like "gda_script_name"
 # Parameter 3 : message text
 
 # DEBUG output is only written if $GDA_DEBUG is set (to any non-empty string)

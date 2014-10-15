@@ -1,37 +1,28 @@
-
-# Run the "gdastart_servers_pre" scripts to set up the environment as required.
-# For Facility, Group, and Instance, there can be a pre-script, and a mode-specific pre-script (all optional)
-# Note that in "live" mode, these scripts are run twice, so they must be idempotent:
-# (1) on the user machine, when the user issues the gdastart command
-# (2) on the control machine, when remotestartupscript.sh issues the gdastart command
-# 
-for filename in \
-  "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gdastart_servers_pre_facility" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/etc/${GDA_MODE}/gdastart_servers_pre_facility" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gdastart_servers_pre_group" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/etc/${GDA_MODE}/gdastart_servers_pre_group" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gdastart_servers_pre_instance" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/etc/${GDA_MODE}/gdastart_servers_pre_instance"
-do
-  if [ -e "${filename}" ]; then
-    . ${filename}
-  fi
-done
-
-echo "test echo here $HOSTNAME"
+log debug "gdastart_servers_core" "Entered"
 
 if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; then
 
-    if [[ -z "${CONTROL_MACHINE_USER}" || -z "${CONTROL_MACHINE_NAME}" || -z "${CONTROL_MACHINE_SSHKEY_LOC}" ]]; then
-      #todo
-      echo "for mode live, not set"
-      exit
+    if [[ -n "${GDA_IN_REMOTE_STARTUP-}" ]]; then
+        log error "gdastart_servers_core" "Internal error: remote startup loop detected"
+        exit 2
     fi
 
+    # Validate environment variables
+    for env_var_name in CONTROL_MACHINE_USER CONTROL_MACHINE_NAME CONTROL_MACHINE_SSHKEY_LOC; do
+        log debug "gdastart_servers_core" "\${${env_var_name}}=${!env_var_name}"
+    done
+    for env_var_name in CONTROL_MACHINE_USER CONTROL_MACHINE_NAME CONTROL_MACHINE_SSHKEY_LOC; do
+        if [[ -z "${!env_var_name}" ]]; then
+            log error "gdastart_servers_core" "\${${env_var_name}} is not set (or is null) - exiting"
+            exit 2
+        fi
+    done
+
     # To prevent man-in-the-middle attacks, ensure that we use a validated host key
-    if [[ -n "${CONTROL_MACHINE_PUBKEY}" ]]; then
+    if [[ -n "${CONTROL_MACHINE_PUBKEY-}" ]]; then
       ssh-keygen -R ${CONTROL_MACHINE_NAME} &> /dev/null
       echo "${CONTROL_MACHINE_NAME} ${CONTROL_MACHINE_PUBKEY}" >> ~/.ssh/known_hosts
+      log debug "gdastart_servers_core" "replacing public key for ${CONTROL_MACHINE_PUBKEY} in ~/.ssh/known_hosts"
     fi
 
     # Work around problem with ssh where remotestartupscript.sh completes, but ssh doesn't return. 
@@ -60,10 +51,11 @@ else
       "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_setup_consolelog_group" \
       "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_setup_consolelog_facility"
     do
-      if [ -e "${filename}" ]; then
-        . ${filename}
-        break
-      fi
+        if [ -e "${filename}" ]; then
+            log debug "gdastart_servers_core" "sourcing ${filename}"
+            . ${filename}
+            break
+        fi
     done
 
     umask 0002
@@ -73,9 +65,10 @@ else
     export JAVA_OPTS="-Dgda.deploytype=1 -XX:MaxPermSize=1024m" # Seems to fix the reset_namespace problem
     GDA_CORE_SCRIPT_OPTIONS="--headless servers --debug --debugport=8001 --mode=$GDA_MODE"
 
-    echo  ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS}
+    log info "" "${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS}"
     echo  ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_servers_CONSOLE_LOG}
     nohup ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_servers_CONSOLE_LOG}  2>&1 &
 
 fi
-echo "End of gdastart_servers_core"
+
+log debug "gdastart_servers_core" "Exited"

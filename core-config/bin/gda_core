@@ -8,63 +8,77 @@
 # (5) $GDA_FACILITY_CONFIG_rel  (must be set, but can be an empty string)
 # (6) $GDA_CORE_CONFIG_rel
 
-# Expects a parameter line that can be passed on to the gda python script 
+# Expects a parameter line that can be passed on to the gda python script
 
 # Source function to perform bash logging
 . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/bash_logging_function
 
-# Logging
-for env_var_name in GDA_WORKSPACE_PARENT GDA_WORKSPACE_GIT_NAME GDA_INSTANCE_CONFIG_rel GDA_GROUP_CONFIG_rel GDA_FACILITY_CONFIG_rel GDA_CORE_CONFIG_rel; do
-    log debug "$(basename ${BASH_SOURCE}):${LINENO})" "\${${env_var_name}}=${!env_var_name}"
-done
+log debug "gda_core" "Entered"
 
-# Check that environment variables are set and valid
+# Validate environment variables
+for env_var_name in GDA_WORKSPACE_PARENT GDA_WORKSPACE_GIT_NAME GDA_INSTANCE_CONFIG_rel GDA_GROUP_CONFIG_rel GDA_FACILITY_CONFIG_rel GDA_CORE_CONFIG_rel; do
+    log debug "gda_core" "\${${env_var_name}}=${!env_var_name}"
+done
 for env_var_name in GDA_WORKSPACE_PARENT GDA_WORKSPACE_GIT_NAME GDA_INSTANCE_CONFIG_rel GDA_CORE_CONFIG_rel; do
     if [[ -z "${!env_var_name}" ]]; then
-        log error "$(basename ${BASH_SOURCE}):${LINENO})" "\${${env_var_name}} is not set (or is null) - exiting"
+        log error "gda_core" "\${${env_var_name}} is not set (or is null) - exiting"
         exit 2
     fi
 done
 for env_var_name in GDA_GROUP_CONFIG_rel GDA_FACILITY_CONFIG_rel; do
     if [[ -z "${!env_var_name=set_but_empty_ok}" ]]; then
-        log error "$(basename ${BASH_SOURCE}):${LINENO})" "\${${env_var_name}} is not set - exiting"
+        log error "gda_core" "\${${env_var_name}} is not set - exiting"
         exit 2
     fi
 done
 
-# old-style parameters
+# Old-style parameters
 readonly export GDA_INSTALL_GIT_LOC=${GDA_WORKSPACE_PARENT}/${GDA_WORKSPACE_GIT_NAME}
 readonly export GDA_INSTALL_WORKSPACE_LOC=${GDA_WORKSPACE_PARENT}/${GDA_WORKSPACE_GIT_NAME%_git}
 
-case "${1}" in
-
-servers|logserver|nameserver|eventserver|objectserver)
-  . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gdastart_servers_core $@
-  ;;
-
-client)
-  . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gdastart_client_core $@
-  ;;
-
-logpanel)
-  . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gdastart_logpanel_core $@
-  ;;
-
-all)
-  # client must be last
-  . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gdastart_logpanel_core $@
-  . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gdastart_servers_core $@
-  . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gdastart_client_core $@
-  ;;
-
-*)
-    if [[ -z "${1}" ]]; then
-        echo -n 'Error: Parameter missing.'
-    else
-        echo 'Error: Parameter='"${1}"' not recognised.'
+# Extract mode and component (required) from the parameters
+# All parameters are passed to the python script, but the bash scripts also need to know the mode, and what we are starting
+log debug "gda_core" "Parsing: $@"
+unset GDA_MODE GDA_COMPONENT
+for word in "$@"; do
+    if [[ "${word}" == --mode=* ]]; then
+        export GDA_MODE=${word:7}
     fi
-    echo " Must be one of servers/client/logpanel/all."
-  exit 1
-  ;;
+    if [[ "${word}" != -* ]]; then
+        GDA_COMPONENT=${word}
+    fi
+done
 
-esac
+if [[ -n "${GDA_COMPONENT-}" ]]; then 
+    case ${GDA_COMPONENT} in
+        logserver|nameserver|eventserver|objectserver) GDA_COMPONENT_CATEGORY=servers ;;
+        *) GDA_COMPONENT_CATEGORY=${GDA_COMPONENT} ;;
+    esac
+fi
+
+if [[ -n "${GDA_COMPONENT-}" ]]; then
+    # Run the "gdastart_<component>_pre" scripts to set up the environment as required
+    # For Facility, Group, and Instance, there can be a pre-script, and a mode-specific pre-script (all optional)
+    # Note that in "live" mode, these scripts are run twice, so they must be idempotent:
+    # (1) on the user machine, when the user issues the gda bash command
+    # (2) on the control machine, when remotestartupscript.sh issues the gda bash command
+    for filename in \
+      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gdastart_${GDA_COMPONENT_CATEGORY}_pre_facility" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/etc/${GDA_MODE-ignore}/gdastart_${GDA_COMPONENT_CATEGORY}_pre_facility" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gdastart_${GDA_COMPONENT_CATEGORY}_pre_group" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/etc/${GDA_MODE-ignore}/gdastart_${GDA_COMPONENT_CATEGORY}_pre_group" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gdastart_${GDA_COMPONENT_CATEGORY}_pre_instance" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/etc/${GDA_MODE-ignore}/gdastart_${GDA_COMPONENT_CATEGORY}_pre_instance"
+    do
+      if [ -e "${filename}" ]; then
+        log debug "gda_core" "sourcing ${filename}"
+        . ${filename}
+      fi
+    done
+fi
+
+filename=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_core
+log debug "gda_core" "sourcing ${filename}"
+  . ${filename} "$@"
+
+log debug "gda_core" "Exited"
