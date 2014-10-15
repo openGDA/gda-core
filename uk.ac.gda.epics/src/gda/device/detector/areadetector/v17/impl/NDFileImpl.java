@@ -730,7 +730,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 			} else {
 				EPICS_CONTROLLER.caput(getChannel(Capture), 1, startCallback);
 			}
-			if (LocalProperties.check("gda.epices.detector.need.checking.again.after.caput", true)){
+			if (LocalProperties.check("gda.epics.detector.need.checking.again.after.caput", true)){
 				int counter=0;
 				while(getCapture_RBV() != 1) {
 					Thread.sleep(50);
