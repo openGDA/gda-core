@@ -54,8 +54,8 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.xspress.XspressParameters;
@@ -80,7 +80,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected List[] elementRois;
 	protected Logger logger = LoggerFactory.getLogger(MicroFocusWriterExtender.class);
 	protected int selectedElementIndex = -1;
-	protected String detectorBeanFileName;
+//	protected String detectorBeanFileName;
 	protected int numberOfSubDetectors;
 	protected String detectorName;
 	protected Hashtable<String, Integer> roiNameMap;
@@ -106,14 +106,14 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected double normaliseValue = 1.0;
 
 	public MicroFocusWriterExtender(int xPoints, int yPoints, double xStepSize, double yStepSize,
-			String detectorFileName, Detector[] detectors2) {
+			IDetectorParameters detectorBean, Detector[] detectors2) {
 		this.numberOfXPoints = xPoints;
 		this.numberOfYPoints = yPoints;
 		this.xStepSize = xStepSize;
 		this.yStepSize = yStepSize;
 		this.yIndex = 0;
 		logger.info("The number of X and Y points are " + this.numberOfXPoints + " " + this.numberOfYPoints);
-		this.detectorBeanFileName = detectorFileName;
+		this.detectorBean = detectorBean;
 		setDetectors(detectors2);
 		getWindowsfromBean();
 	}
@@ -123,11 +123,11 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	}
 
 	private void getWindowsfromBean() {
-		try {
-			detectorBean = BeansFactory.getBeanObject(null, detectorBeanFileName);
-		} catch (Exception e) {
-			logger.error("Error loading bean from " + detectorBeanFileName, e);
-		}
+//		try {
+//			detectorBean = BeansFactory.getBeanObject(null, detectorBeanFileName);
+//		} catch (Exception e) {
+//			logger.error("Error loading bean from " + detectorBeanFileName, e);
+//		}
 		numberOfSubDetectors = getNumberOfEnabledMCA();
 
 		for (Detector detector : detectors) {
@@ -653,9 +653,9 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		this.selectedChannel = selectedChannel;
 	}
 
-	public String getDetectorBeanFileName() {
-		return detectorBeanFileName;
-	}
+//	public String getDetectorBeanFileName() {
+//		return detectorBeanFileName;
+//	}
 
 	public void setZValue(double zValue) {
 		this.zValue = zValue;
