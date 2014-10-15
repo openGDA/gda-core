@@ -61,11 +61,11 @@ else
     umask 0002
     # This should fix a problem where sub-directories created in a visit folder end up
     # with a different mask to the default.
-    GDA_CORE_SCRIPT=${GDA_WORKSPACE_PARENT}/workspace_git/gda-core.git/uk.ac.gda.core/bin/gda
+    GDA_CORE_SCRIPT=$(readlink -f ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/../uk.ac.gda.core/bin/gda)
     export JAVA_OPTS="-Dgda.deploytype=1 -XX:MaxPermSize=1024m" # Seems to fix the reset_namespace problem
     GDA_CORE_SCRIPT_OPTIONS="--headless servers --debug --debugport=8001 --mode=$GDA_MODE"
 
-    bashlog info "" "${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS}"
+    bashlog info "gda_servers_core" "${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS}"
     echo  ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_servers_CONSOLE_LOG}
     nohup ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_servers_CONSOLE_LOG}  2>&1 &
 

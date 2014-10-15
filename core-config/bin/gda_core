@@ -63,18 +63,18 @@ if [[ -n "${GDA_COMPONENT-}" ]]; then
 fi
 
 if [[ -n "${GDA_COMPONENT-}" ]]; then
-    # Run the "gdastart_<component>_pre" scripts to set up the environment as required
+    # Run the "gda_<component>_pre" scripts to set up the environment as required
     # For Facility, Group, and Instance, there can be a pre-script, and a mode-specific pre-script (all optional)
     # Note that in "live" mode, these scripts are run twice, so they must be idempotent:
     # (1) on the user machine, when the user issues the gda bash command
     # (2) on the control machine, when remotestartupscript.sh issues the gda bash command
     for filename in \
-      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gdastart_${GDA_COMPONENT_CATEGORY}_pre_facility" \
-      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/etc/${GDA_MODE-ignore}/gdastart_${GDA_COMPONENT_CATEGORY}_pre_facility" \
-      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gdastart_${GDA_COMPONENT_CATEGORY}_pre_group" \
-      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/etc/${GDA_MODE-ignore}/gdastart_${GDA_COMPONENT_CATEGORY}_pre_group" \
-      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gdastart_${GDA_COMPONENT_CATEGORY}_pre_instance" \
-      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/etc/${GDA_MODE-ignore}/gdastart_${GDA_COMPONENT_CATEGORY}_pre_instance"
+      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_pre_facility" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/etc/${GDA_MODE-ignore}/gda_${GDA_COMPONENT_CATEGORY}_pre_facility" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_pre_group" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/etc/${GDA_MODE-ignore}/gda_${GDA_COMPONENT_CATEGORY}_pre_group" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_pre_instance" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/etc/${GDA_MODE-ignore}/gda_${GDA_COMPONENT_CATEGORY}_pre_instance"
     do
       if [ -e "${filename}" ]; then
         bashlog debug "gda_core" "sourcing ${filename}"
