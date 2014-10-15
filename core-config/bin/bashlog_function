@@ -6,7 +6,7 @@
 # DEBUG output is only written if $GDA_DEBUG is set (to any non-empty string)
 # Output is colourized if going to a terminal
 
-log() {
+bashlog() {
     local level=$(echo "${1:-DEBUG}" | tr '[:lower:]' '[:upper:]')
     if [[ "${level}" != "DEBUG" || -n "${GDA_DEBUG:-}" ]]; then
         shift

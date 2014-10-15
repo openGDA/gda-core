@@ -1,19 +1,19 @@
-log debug "gda_servers_core" "Entered"
+bashlog debug "gda_servers_core" "Entered"
 
 if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; then
 
     if [[ -n "${GDA_IN_REMOTE_STARTUP-}" ]]; then
-        log error "gda_servers_core" "Internal error: remote startup loop detected"
+        bashlog error "gda_servers_core" "Internal error: remote startup loop detected"
         exit 2
     fi
 
     # Validate environment variables
     for env_var_name in CONTROL_MACHINE_USER CONTROL_MACHINE_NAME CONTROL_MACHINE_SSHKEY_LOC; do
-        log debug "gda_servers_core" "\${${env_var_name}}=${!env_var_name}"
+        bashlog debug "gda_servers_core" "\${${env_var_name}}=${!env_var_name}"
     done
     for env_var_name in CONTROL_MACHINE_USER CONTROL_MACHINE_NAME CONTROL_MACHINE_SSHKEY_LOC; do
         if [[ -z "${!env_var_name}" ]]; then
-            log error "gda_servers_core" "\${${env_var_name}} is not set (or is null) - exiting"
+            bashlog error "gda_servers_core" "\${${env_var_name}} is not set (or is null) - exiting"
             exit 2
         fi
     done
@@ -22,7 +22,7 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
     if [[ -n "${CONTROL_MACHINE_PUBKEY-}" ]]; then
       ssh-keygen -R ${CONTROL_MACHINE_NAME} &> /dev/null
       echo "${CONTROL_MACHINE_NAME} ${CONTROL_MACHINE_PUBKEY}" >> ~/.ssh/known_hosts
-      log debug "gda_servers_core" "replacing public key for ${CONTROL_MACHINE_PUBKEY} in ~/.ssh/known_hosts"
+      bashlog debug "gda_servers_core" "replacing public key for ${CONTROL_MACHINE_PUBKEY} in ~/.ssh/known_hosts"
     fi
 
     # Work around problem with ssh where remotestartupscript.sh completes, but ssh doesn't return. 
@@ -52,7 +52,7 @@ else
       "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_setup_consolelog_facility"
     do
         if [ -e "${filename}" ]; then
-            log debug "gda_servers_core" "sourcing ${filename}"
+            bashlog debug "gda_servers_core" "sourcing ${filename}"
             . ${filename}
             break
         fi
@@ -65,10 +65,10 @@ else
     export JAVA_OPTS="-Dgda.deploytype=1 -XX:MaxPermSize=1024m" # Seems to fix the reset_namespace problem
     GDA_CORE_SCRIPT_OPTIONS="--headless servers --debug --debugport=8001 --mode=$GDA_MODE"
 
-    log info "" "${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS}"
+    bashlog info "" "${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS}"
     echo  ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_servers_CONSOLE_LOG}
     nohup ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_servers_CONSOLE_LOG}  2>&1 &
 
 fi
 
-log debug "gda_servers_core" "Exited"
+bashlog debug "gda_servers_core" "Exited"
