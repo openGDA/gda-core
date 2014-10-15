@@ -23,13 +23,14 @@ import gda.scan.IScanDataPoint;
 
 import java.io.IOException;
 
+import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.client.microfocus.util.RandomLineFileWriter;
 
 public class TwoWayMicroFocusWriterExtender extends MicroFocusWriterExtender {
 	
 	public TwoWayMicroFocusWriterExtender(int xPoints, int yPoints, double xStepSize, double yStepSize,
-			String detectorFileName, Detector[] detectors2) {
-		super(xPoints, yPoints, xStepSize, yStepSize, detectorFileName, detectors2);
+			IDetectorParameters detectorBean, Detector[] detectors2) {
+		super(xPoints, yPoints, xStepSize, yStepSize, detectorBean, detectors2);
 	}
 
 	//	private String plotName;
