@@ -4,6 +4,10 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.DummyScannable;
+import gda.device.scannable.corba.impl.ScannableAdapter;
+import gda.device.scannable.corba.impl.ScannableImpl;
+import gda.factory.corba.util.CorbaAdapterClass;
+import gda.factory.corba.util.CorbaImplClass;
 import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
@@ -22,6 +26,8 @@ import org.opengda.lde.events.NewDataFileEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@CorbaAdapterClass(ScannableAdapter.class)
+@CorbaImplClass(ScannableImpl.class)
 public class DataReductionScannable extends DummyScannable implements Scannable {
 	private static final Logger logger=LoggerFactory.getLogger(DataReductionScannable.class);
 	private Scriptcontroller eventAdmin;

@@ -1,8 +1,15 @@
 package org.opengda.lde.scannables;
 
 import gda.device.DeviceException;
-import gda.device.scannable.ScannableBase;
 
+import gda.device.scannable.ScannableBase;
+import gda.device.scannable.corba.impl.ScannableAdapter;
+import gda.device.scannable.corba.impl.ScannableImpl;
+import gda.factory.corba.util.CorbaAdapterClass;
+import gda.factory.corba.util.CorbaImplClass;
+
+@CorbaAdapterClass(ScannableAdapter.class)
+@CorbaImplClass(ScannableImpl.class)
 public class FileReferenceScannable extends ScannableBase {
 
 	private String calibrationFilename="Undefined";
