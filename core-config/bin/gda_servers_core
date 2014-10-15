@@ -1,19 +1,19 @@
-log debug "gdastart_servers_core" "Entered"
+log debug "gda_servers_core" "Entered"
 
 if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; then
 
     if [[ -n "${GDA_IN_REMOTE_STARTUP-}" ]]; then
-        log error "gdastart_servers_core" "Internal error: remote startup loop detected"
+        log error "gda_servers_core" "Internal error: remote startup loop detected"
         exit 2
     fi
 
     # Validate environment variables
     for env_var_name in CONTROL_MACHINE_USER CONTROL_MACHINE_NAME CONTROL_MACHINE_SSHKEY_LOC; do
-        log debug "gdastart_servers_core" "\${${env_var_name}}=${!env_var_name}"
+        log debug "gda_servers_core" "\${${env_var_name}}=${!env_var_name}"
     done
     for env_var_name in CONTROL_MACHINE_USER CONTROL_MACHINE_NAME CONTROL_MACHINE_SSHKEY_LOC; do
         if [[ -z "${!env_var_name}" ]]; then
-            log error "gdastart_servers_core" "\${${env_var_name}} is not set (or is null) - exiting"
+            log error "gda_servers_core" "\${${env_var_name}} is not set (or is null) - exiting"
             exit 2
         fi
     done
@@ -22,7 +22,7 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
     if [[ -n "${CONTROL_MACHINE_PUBKEY-}" ]]; then
       ssh-keygen -R ${CONTROL_MACHINE_NAME} &> /dev/null
       echo "${CONTROL_MACHINE_NAME} ${CONTROL_MACHINE_PUBKEY}" >> ~/.ssh/known_hosts
-      log debug "gdastart_servers_core" "replacing public key for ${CONTROL_MACHINE_PUBKEY} in ~/.ssh/known_hosts"
+      log debug "gda_servers_core" "replacing public key for ${CONTROL_MACHINE_PUBKEY} in ~/.ssh/known_hosts"
     fi
 
     # Work around problem with ssh where remotestartupscript.sh completes, but ssh doesn't return. 
@@ -52,7 +52,7 @@ else
       "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_setup_consolelog_facility"
     do
         if [ -e "${filename}" ]; then
-            log debug "gdastart_servers_core" "sourcing ${filename}"
+            log debug "gda_servers_core" "sourcing ${filename}"
             . ${filename}
             break
         fi
@@ -71,4 +71,4 @@ else
 
 fi
 
-log debug "gdastart_servers_core" "Exited"
+log debug "gda_servers_core" "Exited"

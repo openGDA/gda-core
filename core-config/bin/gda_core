@@ -48,6 +48,12 @@ for word in "$@"; do
         GDA_COMPONENT=${word}
     fi
 done
+# Default mode is dummy
+if [[ -z "${GDA_MODE-}" ]]; then
+	export GDA_MODE=dummy
+	extra_parameters="--mode=dummy "
+	log info "gda_core" "set --mode to the default value (dummy)"
+fi 	
 
 if [[ -n "${GDA_COMPONENT-}" ]]; then 
     case ${GDA_COMPONENT} in
@@ -79,6 +85,6 @@ fi
 
 filename=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_core
 log debug "gda_core" "sourcing ${filename}"
-  . ${filename} "$@"
+  . ${filename} "${extra_parameters-}$@"
 
 log debug "gda_core" "Exited"
