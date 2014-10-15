@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.opengda.lde.ui.utils;
+package org.opengda.lde.utils;
 
 import java.util.HashMap;
 

@@ -1,4 +1,4 @@
-package org.opengda.lde.ui.utils;
+package org.opengda.lde.utils;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
@@ -21,7 +21,7 @@ import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.SampleList;
-import org.opengda.lde.ui.Activator;
+import org.opengda.lde.Activator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
