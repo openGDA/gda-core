@@ -19,6 +19,7 @@
 package gda.device.enumpositioner;
 
 import gda.device.DeviceException;
+import gda.device.EnumPositionerStatus;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.STSHandler;
 import gda.epics.util.JCAUtils;
@@ -26,6 +27,10 @@ import gda.factory.FactoryException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.Monitor;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBRType;
+import gov.aps.jca.dbr.DBR_STS_Short;
+import gov.aps.jca.dbr.Status;
 import gov.aps.jca.event.ConnectionEvent;
 import gov.aps.jca.event.ConnectionListener;
 import gov.aps.jca.event.MonitorEvent;
@@ -37,6 +42,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.python.antlr.PythonParser.if_stmt_return;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,11 +98,14 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 		// find in the positionNames array the index of the string
 		if (values.containsKey(positionString)) {
 			final String value = values.get(positionString);
+			positionerStatus=EnumPositionerStatus.MOVING;
 			try {
 				controller.caput(currentPositionChnl, value, pcbl);
 			} catch (Throwable th) {
+				positionerStatus=EnumPositionerStatus.ERROR;
 				throw new DeviceException("failed to moveTo", th);
 			}
+			
 		} else {
 			// if get here then wrong position name supplied
 			throw new DeviceException("Position called: " + positionString + " not found.");
@@ -151,7 +160,7 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 				// The following is commented out to solve scan pyException
 				// problem
 				// - need to track down the real cause.
-				controller.setMonitor(ch, STSHandler.getSTSType(ch), Monitor.VALUE | Monitor.ALARM, this);
+				controller.setMonitor(ch, DBRType.STS_SHORT, Monitor.VALUE | Monitor.ALARM, this);
 
 				synchronized (monitorInstalledSet) {
 					monitorInstalledSet.add(ch);
@@ -177,9 +186,17 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 	@Override
 	public void monitorChanged(MonitorEvent arg0) {
 		// no matter what message is received, send observers latest status
+		DBR dbr= arg0.getDBR();
+		short position = 0;
+		Status status = null;
+		if (dbr.isSTS()) {
+			DBR_STS_Short value = ((DBR_STS_Short)dbr);
+			position = value.getShortValue()[0];
+			status = value.getStatus();
+		}
 		try {
 			if (currentPositionChnl != null && positions != null) {
-				notifyIObservers(getPosition(), getStatus());
+				notifyIObservers(positions.get(position), getStatus());
 			} else {
 				notifyIObservers(null, getStatus());
 			}
@@ -232,6 +249,7 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 			} else {
 				logger.info("{} move done", getName());
 			}
+			positionerStatus=EnumPositionerStatus.IDLE;
 		}
 		
 	}
