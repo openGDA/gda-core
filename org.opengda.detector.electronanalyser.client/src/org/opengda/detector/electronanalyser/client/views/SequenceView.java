@@ -821,6 +821,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		comboElementSet.addSelectionListener(elementSetSelAdaptor);
 		updateRegionNumber(crrentRegionNumber, numActives);
 		images = loadAnimatedGIF(sequenceTableViewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
+		dcmenergy = Finder.getInstance().find("dcmenergy");
+		pgmenergy = Finder.getInstance().find("pgmenergy");
 	}
 
 	public IVGScientaAnalyser getAnalyser() {
@@ -1047,7 +1049,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						double currentExcitationEnergy=0.0;
 						if (regionDefinitionResourceUtil.isSourceSelectable()) {
 							if (region.getExcitationEnergy()>regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
-								Scannable dcmenergy = Finder.getInstance().find("dcmenergy");
 								if (dcmenergy!=null) {
 									try {
 										currentExcitationEnergy = (double) dcmenergy.getPosition() * 1000; // eV
@@ -1056,7 +1057,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 									}
 								}
 							} else {
-								Scannable pgmenergy = Finder.getInstance().find("pgmenergy");
 								if (pgmenergy != null) {
 									try {
 										currentExcitationEnergy = (double) pgmenergy.getPosition();
@@ -1066,7 +1066,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 								}
 							}
 						} else {
-							Scannable dcmenergy = Finder.getInstance().find("dcmenergy");
 							if (dcmenergy!=null) {
 								try {
 									currentExcitationEnergy = (double) dcmenergy.getPosition() * 1000; // eV
@@ -1200,8 +1199,37 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				return false;
 			}
 		} else {
-			double startEnergy=region.getExcitationEnergy()-region.getHighEnergy();
-			double endEnergy=region.getExcitationEnergy()-region.getLowEnergy();
+			double currentExcitationEnergy=0.0;
+			if (regionDefinitionResourceUtil.isSourceSelectable()) {
+				if (region.getExcitationEnergy()>regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+					if (dcmenergy!=null) {
+						try {
+							currentExcitationEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+						} catch (DeviceException e) {
+							logger.error("Cannot get X-ray energy from DCM.", e);
+						}
+					}
+				} else {
+					if (pgmenergy != null) {
+						try {
+							currentExcitationEnergy = (double) pgmenergy.getPosition();
+						} catch (DeviceException e) {
+							logger.error("Cannot get X-ray energy from PGM.", e);
+						}
+					}
+				}
+			} else {
+				if (dcmenergy!=null) {
+					try {
+						currentExcitationEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+					} catch (DeviceException e) {
+						logger.error("Cannot get X-ray energy from DCM.", e);
+					}
+				}
+			}
+			
+			double startEnergy=currentExcitationEnergy-region.getHighEnergy();
+			double endEnergy=currentExcitationEnergy-region.getLowEnergy();
 			if (startEnergy<endEnergy) {
 				if (!(startEnergy>=Double.parseDouble(limits.get(0)) && endEnergy<=Double.parseDouble(limits.get(1)))) {
 					invalidRegions.put(region, energyrange);
@@ -1507,6 +1535,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private double currentregiontimeremaining;
 	private Timer taskTimer=new Timer();
 	private boolean firstTime;
+	private Scannable dcmenergy;
+	private Scannable pgmenergy;
 	
 	private class AnalyserTotalTimeRemainingListener implements MonitorListener {
 
