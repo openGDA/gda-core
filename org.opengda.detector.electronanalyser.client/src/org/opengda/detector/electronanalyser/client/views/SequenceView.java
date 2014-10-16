@@ -976,7 +976,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		if (!isValidRegion(region)){
 			String message="Region '" + region.getName()+"' is outside the energy range (" + invalidRegions.get(region)+") \npermitted in the Lens Table for Element Set '"+comboElementSet.getText()+"' and Pass Energy '"+region.getPassEnergy()+"'.\n";
 			openMessageBox(message);
-			region.setEnabled(false);
+//			region.setEnabled(false);
 			try {
 				runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false));
 				fireSelectionChanged(new RegionActivationSelection());
@@ -1043,47 +1043,47 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 			// update existing regions list
 			regions = regionDefinitionResourceUtil.getRegions();
-			if (fileChanged) {
-				for (Region region : regions) {
-					if (region.isEnabled()) {
-						double currentExcitationEnergy=0.0;
-						if (regionDefinitionResourceUtil.isSourceSelectable()) {
-							if (region.getExcitationEnergy()>regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
-								if (dcmenergy!=null) {
-									try {
-										currentExcitationEnergy = (double) dcmenergy.getPosition() * 1000; // eV
-									} catch (DeviceException e) {
-										logger.error("Cannot get X-ray energy from DCM.", e);
-									}
-								}
-							} else {
-								if (pgmenergy != null) {
-									try {
-										currentExcitationEnergy = (double) pgmenergy.getPosition();
-									} catch (DeviceException e) {
-										logger.error("Cannot get X-ray energy from PGM.", e);
-									}
-								}
-							}
-						} else {
-							if (dcmenergy!=null) {
-								try {
-									currentExcitationEnergy = (double) dcmenergy.getPosition() * 1000; // eV
-								} catch (DeviceException e) {
-									logger.error("Cannot get X-ray energy from DCM.", e);
-								}
-							}
-						}
-						if (currentExcitationEnergy!=0.0 && currentExcitationEnergy!= region.getExcitationEnergy()) {
-							region.setExcitationEnergy(currentExcitationEnergy);
-							updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), currentExcitationEnergy);
-						}
-						if (!isValidRegion(region)) {
-							region.setEnabled(false);
-						}
-					}
-				}
-			}
+//			if (fileChanged) {
+//				for (Region region : regions) {
+//					if (region.isEnabled()) {
+//						double currentExcitationEnergy=0.0;
+//						if (regionDefinitionResourceUtil.isSourceSelectable()) {
+//							if (region.getExcitationEnergy()>regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+//								if (dcmenergy!=null) {
+//									try {
+//										currentExcitationEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+//									} catch (DeviceException e) {
+//										logger.error("Cannot get X-ray energy from DCM.", e);
+//									}
+//								}
+//							} else {
+//								if (pgmenergy != null) {
+//									try {
+//										currentExcitationEnergy = (double) pgmenergy.getPosition();
+//									} catch (DeviceException e) {
+//										logger.error("Cannot get X-ray energy from PGM.", e);
+//									}
+//								}
+//							}
+//						} else {
+//							if (dcmenergy!=null) {
+//								try {
+//									currentExcitationEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+//								} catch (DeviceException e) {
+//									logger.error("Cannot get X-ray energy from DCM.", e);
+//								}
+//							}
+//						}
+//						if (currentExcitationEnergy!=0.0 && currentExcitationEnergy!= region.getExcitationEnergy()) {
+//							region.setExcitationEnergy(currentExcitationEnergy);
+//							updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), currentExcitationEnergy);
+//						}
+//						if (!isValidRegion(region)) {
+//							region.setEnabled(false);
+//						}
+//					}
+//				}
+//			}
 			if (regions.isEmpty()) {
 				fireSelectionChanged(StructuredSelection.EMPTY);
 			} else {
@@ -1118,11 +1118,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		try {
-			validateRegions();
-			if (!invalidRegions.isEmpty()) {
-				showInvalidRegions();
-				return;
-			}
+//			validateRegions();
+//			if (!invalidRegions.isEmpty()) {
+//				showInvalidRegions();
+//				return;
+//			}
 			regionDefinitionResourceUtil.getResource().save(null);
 			isDirty = false;
 			firePropertyChange(PROP_DIRTY);
