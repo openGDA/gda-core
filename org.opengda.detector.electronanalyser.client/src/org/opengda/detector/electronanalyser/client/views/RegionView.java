@@ -697,6 +697,8 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			if (selection instanceof FileSelection) {
 				// sequence file changed
 				try {
+					regionDefinitionResourceUtil.setFileName(((FileSelection)selection).getFilename());
+
 					regions = regionDefinitionResourceUtil.getRegions();
 					populateRegionNameCombo(regions);
 					if (regions.isEmpty()) {
@@ -721,11 +723,8 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 				}
 			} else if (selection instanceof RegionActivationSelection) {
 				populateRegionNameCombo(regions);
-				if (region.isEnabled()) {
-					regionName.setText(region.getName());
-				} else {
-					regionName.setText("");
-				}
+				region=((RegionActivationSelection)selection).getRegion();
+				regionName.setText(region.getName());
 			} else if (selection instanceof IStructuredSelection) {
 				if (StructuredSelection.EMPTY.equals(selection)) {
 					region = null;

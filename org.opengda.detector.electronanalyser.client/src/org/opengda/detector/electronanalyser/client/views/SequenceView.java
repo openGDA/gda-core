@@ -695,7 +695,16 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			} else if (selection instanceof EnergyChangedSelection) {
 				Region region=((EnergyChangedSelection)selection).getRegion();
 				if (region.isEnabled()) {
-					checkRegionValidation(region);
+					try {
+						if(checkRegionValidation(region)) {
+							runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), true));
+						} else {
+							runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false));
+						}
+						updateCalculatedData();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			} else if (selection instanceof IStructuredSelection) {
 				IStructuredSelection sel = (IStructuredSelection) selection;
@@ -745,6 +754,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			if (e.getSource().equals(comboElementSet)) {
 				updateFeature(sequence, RegiondefinitionPackage.eINSTANCE.getSequence_ElementSet(), comboElementSet.getText());
 				validateRegions();
+				if (!invalidRegions.isEmpty()) {
+					showInvalidRegions();
+				}
 			}
 		}
 	};
@@ -954,16 +966,20 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		@Override
 		protected void setValue(Object element, Object value) {
 			if (SequenceTableConstants.ENABLED.equals(columnIdentifier)) {
+				Region region = (Region)element;
 				if (value instanceof Boolean) {
 					try {
-						runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), value));
-						fireSelectionChanged(new RegionActivationSelection());
-						updateCalculatedData();
-						//BLIX-96
-						Region region = (Region)element;
-						if (region.isEnabled()) {
-							checkRegionValidation(region);
+						if ((boolean) value) {
+							if(checkRegionValidation(region)) {
+								runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), true));
+							} else {
+								runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false));
+							}
+						} else {
+							runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), value));
 						}
+						fireSelectionChanged(new RegionActivationSelection((Region)element));
+						updateCalculatedData();
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -972,19 +988,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 	}
 
-	private void checkRegionValidation(Region region) {
+	private boolean checkRegionValidation(Region region) {
 		if (!isValidRegion(region)){
 			String message="Region '" + region.getName()+"' is outside the energy range (" + invalidRegions.get(region)+") \npermitted in the Lens Table for Element Set '"+comboElementSet.getText()+"' and Pass Energy '"+region.getPassEnergy()+"'.\n";
 			openMessageBox(message);
-//			region.setEnabled(false);
-			try {
-				runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false));
-				fireSelectionChanged(new RegionActivationSelection());
-				updateCalculatedData();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			return false;
 		}
+		return true;
 	}
 
 	private void openMessageBox(String message) {
@@ -1028,13 +1038,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			InterfaceProvider.getScriptController().resumeCurrentScript();
 			InterfaceProvider.getCurrentScanController().restartCurrentScan();
 		}
+		if (txtSequenceFilePath.getText().trim().compareTo(seqFileName)==0) {
+			//same file no need refresh
+			return;
+		}
+		
 		try {
 			resource.eAdapters().remove(notifyListener);
 			regionDefinitionResourceUtil.setFileName(seqFileName);
 			if (newFile) {
 				regionDefinitionResourceUtil.createSequence();
 			}
-			fireSelectionChanged(new FileSelection());
+			fireSelectionChanged(new FileSelection(seqFileName));
 			Resource sequenceRes = regionDefinitionResourceUtil.getResource();
 			sequenceTableViewer.setInput(sequenceRes);
 			// update the resource in this view.
@@ -1144,9 +1159,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		String formatString="%"+longestnamelength+"s\t%10s\t%10s\t%4d\n";
 		message+=String.format(formatString,"Region","Energy Range","Element Set","Pass Energy");
 		for (Entry<Region, String> entry : invalidRegions.entrySet()) {
-			// open message box to warn users
 			message += String.format(formatString,entry.getKey().getName(),entry.getValue(),comboElementSet.getText().trim(),entry.getKey().getPassEnergy());
 		}
+		// open message box to warn users
 		openMessageBox(message);
 	}
 
@@ -1373,7 +1388,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					@Override
 					public void run() {
 						logger.debug("Sequence file changed to {}",((SequenceFileChangeEvent) arg).getFilename());
-						refreshTable(((SequenceFileChangeEvent) arg).getFilename(),false, false);
+						refreshTable(((SequenceFileChangeEvent) arg).getFilename(),false, true);
 					}
 				});
 			}
