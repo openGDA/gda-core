@@ -12,14 +12,14 @@ from gda.data.scan.datawriter import DataWriterFactory
 from gda.factory import Finder
 import gda.jython.commands.ScannableCommands.scan
 from gda.analysis import DataSet
-from uk.ac.diamond.scisoft.analysis.roi import GridROI
+from org.eclipse.dawnsci.analysis.dataset.roi import GridROI
 from uk.ac.diamond.scisoft.analysis.plotserver import GuiParameters
 from gdascripts.messages import handle_messages
 from gdascripts.scan import gdascans
 from uk.ac.gda.server.ncd.subdetector import LastImageProvider
 import scisoftpy as dnp
-from uk.ac.diamond.scisoft.analysis.io import Metadata
-from uk.ac.diamond.scisoft.analysis.roi import GridPreferences
+from org.eclipse.dawnsci.analysis.api.metadata import Metadata
+from org.eclipse.dawnsci.analysis.dataset.roi import GridPreferences
 from uk.ac.diamond.scisoft.analysis import SDAPlotter as RCPPlotter
 from java.util import HashMap
 class Grid(DataWriterExtenderBase):

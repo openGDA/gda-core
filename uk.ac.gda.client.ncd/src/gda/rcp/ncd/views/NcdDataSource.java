@@ -44,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotViewStatsAndMaths;
@@ -351,11 +351,6 @@ public class NcdDataSource extends ViewPart implements IObserver {
 	@Override
 	public void update(Object theObserved, Object changeCode) {
 		if (parentComp.isDisposed()) {
-			try {
-				plotView.deleteIObserver(this);
-			} catch (Exception e) {
-				// ignored
-			}
 			return;
 		}
 
@@ -367,7 +362,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 
 	private void processData(DataBean bean) {
 		// do stuff with new data
-		List<DataSetWithAxisInformation> dc = bean.getData();
+		List<DatasetWithAxisInformation> dc = bean.getData();
 		final Dataset d = dc.get(0).getData();
 		parentComp.getDisplay().asyncExec(new Runnable() {
 			@Override
@@ -397,7 +392,7 @@ public class NcdDataSource extends ViewPart implements IObserver {
 	}
 
 	private void pushToPlotView(DataBean dBean) {
-		List<DataSetWithAxisInformation> dc = dBean.getData();
+		List<DatasetWithAxisInformation> dc = dBean.getData();
 		Dataset data = dc.get(0).getData();
 
 		if (plotView == null) {
