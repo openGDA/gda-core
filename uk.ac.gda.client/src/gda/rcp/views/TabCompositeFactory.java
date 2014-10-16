@@ -50,4 +50,7 @@ public interface TabCompositeFactory extends CompositeFactory{
 	public abstract String getLabel();
 	
 
+	public abstract boolean isEnabled();
+
+
 }

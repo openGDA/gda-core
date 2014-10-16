@@ -34,7 +34,7 @@ public interface Processor extends IObservable{
 	public void skip(long timeout_ms) throws Exception;
 	public void start(long timeout_ms) throws Exception;
 	public void stopAfterCurrent() throws Exception;
-	public STATE getState()  throws Exception;
+	public STATE getState();
 	public ProcessorCurrentItem getCurrentItem()  throws Exception;
 	public String getLogFilePath();
 }

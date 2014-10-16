@@ -113,6 +113,7 @@ public class GdaRmiServiceExporter implements InitializingBean {
 		
 		try {
 			setupEventDispatch();
+			logger.debug("Service " + getServiceName() + " exported");
 		} catch (Exception e) {
 			throw new RemoteException("Unable to export service", e);
 		}

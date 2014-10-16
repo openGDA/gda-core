@@ -32,6 +32,7 @@ public class TabCompositeFactoryImpl implements TabCompositeFactory {
 	private String imageFilePath;
 	private String tooltip;
 	private String label;
+	private boolean enabled=true;
 	
 	
 
@@ -99,6 +100,17 @@ public class TabCompositeFactoryImpl implements TabCompositeFactory {
 
 	public void setLabel(String label) {
 		this.label = label;
+	}
+
+
+	@Override
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
 
