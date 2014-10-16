@@ -54,8 +54,11 @@ done
 # Default mode is dummy
 if [[ -z "${GDA_MODE-}" ]]; then
 	export GDA_MODE=dummy
-	extra_parameters="--mode=dummy "
-	bashlog info "gda_core" "set --mode to the default value (dummy)"
+	#Don't set extra parameters if starting client
+	if [ "${GDA_COMPONENT}" != client ]; then
+    	extra_parameters="--mode=dummy "
+    	bashlog info "gda_core" "set --mode to the default value (dummy)"
+    fi
 fi 	
 
 if [[ -n "${GDA_COMPONENT-}" ]]; then 
