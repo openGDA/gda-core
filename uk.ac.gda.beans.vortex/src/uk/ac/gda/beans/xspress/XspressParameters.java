@@ -25,10 +25,10 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.beans.exafs.IDetectorConfigurationParameters;
 
 
-public class XspressParameters implements Serializable,IRichBean {	
+public class XspressParameters implements Serializable,IDetectorConfigurationParameters {	
 	/**
 	 * The region type when the ROI returns the sum of counts in the region, so acts like a scaler.
 	 */

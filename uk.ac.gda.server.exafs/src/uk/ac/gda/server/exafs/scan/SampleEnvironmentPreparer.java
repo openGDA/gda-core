@@ -19,6 +19,7 @@
 package uk.ac.gda.server.exafs.scan;
 
 import uk.ac.gda.beans.exafs.ISampleParameters;
+import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 
 /**
@@ -30,7 +31,7 @@ public interface SampleEnvironmentPreparer {
 	/**
 	 * Gives the preparer the parameters for the next experiment and do any preparation for the whole experiment.
 	 */
-	public void configure(ISampleParameters sampleParameters) throws Exception;
+	public void configure(IScanParameters scanParameters, ISampleParameters sampleParameters) throws Exception;
 
 	/**
 	 * Returns an Iterator object which loops over the different sample environment setings for this experiment e.g.

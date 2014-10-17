@@ -106,13 +106,13 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected double normaliseValue = 1.0;
 
 	public MicroFocusWriterExtender(int xPoints, int yPoints, double xStepSize, double yStepSize,
-			IDetectorParameters detectorBean, Detector[] detectors2) {
+			IRichBean detectorBean, Detector[] detectors2) {
 		this.numberOfXPoints = xPoints;
 		this.numberOfYPoints = yPoints;
 		this.xStepSize = xStepSize;
 		this.yStepSize = yStepSize;
 		this.yIndex = 0;
-		logger.info("The number of X and Y points are " + this.numberOfXPoints + " " + this.numberOfYPoints);
+//		logger.info("The number of X and Y points are " + this.numberOfXPoints + " " + this.numberOfYPoints);
 		this.detectorBean = detectorBean;
 		setDetectors(detectors2);
 		getWindowsfromBean();

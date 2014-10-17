@@ -28,10 +28,10 @@ import java.util.Vector;
 import org.apache.commons.beanutils.BeanUtils;
 
 import uk.ac.gda.beans.ElementCountsData;
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.beans.exafs.IDetectorConfigurationParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-public class VortexParameters implements Serializable, IRichBean {
+public class VortexParameters implements Serializable, IDetectorConfigurationParameters {
 
 	private List<DetectorElement> detectorList;
 	private String countType;
