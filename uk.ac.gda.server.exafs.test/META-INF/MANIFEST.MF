@@ -11,8 +11,10 @@ Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  uk.ac.gda.exafs.datawriter,
  uk.ac.diamond.org.powermock;bundle-version="1.5.1",
  uk.ac.gda.libs,
- uk.ac.gda.core
+ uk.ac.gda.core,
+ org.mockito.mockito-core
 Import-Package: gda.commandqueue,
  gda.device.scannable,
+ javassist;version="3.18.0.GA",
  org.mockito,
  org.mockito.stubbing;version="1.9.5"

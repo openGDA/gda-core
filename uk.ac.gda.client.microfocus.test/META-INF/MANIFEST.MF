@@ -6,6 +6,9 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
 Fragment-Host: uk.ac.gda.client.microfocus;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)",
- uk.ac.gda.epics;bundle-version="1.0.0",
- org.mockito.mockito-core;bundle-version="[1.9.5,2.0.0)"
+Require-Bundle: uk.ac.diamond.org.powermock;bundle-version="1.5.1",
+ uk.ac.gda.server.exafs,
+ uk.ac.diamond.org.springframework;bundle-version="4.0.6",
+ org.mockito.mockito-core;bundle-version="1.9.5",
+ org.junit;bundle-version="4.10.0"
+Import-Package: javassist;version="3.18.0.GA"

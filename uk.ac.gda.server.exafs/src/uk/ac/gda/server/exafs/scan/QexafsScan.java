@@ -54,6 +54,11 @@ public class QexafsScan extends XasScan {
 		qexafsdetectorPreparer = detectorPreparer;
 		qexafsScanable = energy_scannable;
 	}
+	
+	@Override
+	protected String getScanType(){
+		return "Qexafs";
+	}
 
 	@Override
 	protected void createAndRunScan(String sampleName, List<String> descriptions, XasLoggingMessage logmsg)

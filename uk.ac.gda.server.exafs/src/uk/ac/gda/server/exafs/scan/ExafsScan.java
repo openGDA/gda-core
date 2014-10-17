@@ -31,13 +31,20 @@ import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.exafs.scan.RepetitionsProperties;
+import gda.exafs.scan.ScanStartedMessage;
 import gda.jython.InterfaceProvider;
 import gda.jython.commands.GeneralCommands;
+import gda.jython.commands.ScannableCommands;
+import gda.jython.scriptcontroller.event.ScanCreationEvent;
+import gda.jython.scriptcontroller.event.ScanFinishEvent;
+import gda.jython.scriptcontroller.event.ScriptProgressEvent;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import gda.jython.scriptcontroller.logging.XasLoggingMessage;
+import gda.jython.scriptcontroller.logging.XasProgressUpdater;
 import gda.scan.ConcurrentScan;
 import gda.scan.Scan;
 import gda.scan.ScanInterruptedException;
+import gda.scan.ScanPlotSettings;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -51,11 +58,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.BeansFactory;
+import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
+import uk.ac.gda.beans.exafs.IDetectorConfigurationParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
+import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 
 /**
  * Base class for all Spectroscopy "UI" scans. These scan objects are created in localStation and are used for every UI
@@ -99,6 +110,7 @@ public abstract class ExafsScan {
 	protected IScanParameters scanBean;
 	protected IDetectorParameters detectorBean;
 	protected IOutputParameters outputBean;
+	protected IRichBean detectorConfigurationBean;
 	protected int currentRepetition;
 	protected int numRepetitions;
 	protected String experimentFullPath;
@@ -126,6 +138,14 @@ public abstract class ExafsScan {
 	}
 
 	/**
+	 * For the database behind the LoggingScriptController which keeps a list of data collections and for log messages
+	 * to the user.
+	 * 
+	 * @return String name of scan type e.g. XANES
+	 */
+	protected abstract String getScanType();
+
+	/**
 	 * For convenience when calling from Jython.
 	 * 
 	 * @param pyArgs
@@ -149,43 +169,170 @@ public abstract class ExafsScan {
 	public void doCollection(String sampleFileName, String scanFileName, String detectorFileName,
 			String outputFileName, String experimentFullPath, int numRepetitions) throws Exception {
 
+		this.numRepetitions = numRepetitions;
+
 		determineExperimentPath(experimentFullPath);
 
 		createBeans(sampleFileName, scanFileName, detectorFileName, outputFileName);
 
-		doCollection(numRepetitions);
+		doCollection();
 	}
 
 	public void doCollection(ISampleParameters sampleBean, IScanParameters scanBean, IDetectorParameters detectorBean,
-			IOutputParameters outputBean, String experimentFullPath, int numRepetitions) throws Exception {
+			IOutputParameters outputBean, IDetectorConfigurationParameters detectorConfigurationBean,
+			String experimentFullPath, int numRepetitions) throws Exception {
 
 		this.scanBean = scanBean;
 		this.sampleBean = sampleBean;
 		this.detectorBean = detectorBean;
 		this.outputBean = outputBean;
+		this.detectorConfigurationBean = detectorConfigurationBean;
+		this.numRepetitions = numRepetitions;
 
 		setXmlFileNames("", "", "", "");
 
 		determineExperimentPath(experimentFullPath);
 
-		doCollection(numRepetitions);
+		doCollection();
 	}
 
-	/**
-	 * The implementation-specific data collection.
-	 * 
-	 * @param numRepetitions
-	 * @throws Exception
-	 */
-	protected abstract void doCollection(int numRepetitions) throws Exception;
+	protected void doCollection() throws Exception {
 
-	protected void prepareForCollection(String scriptType) {
+		configurePreparers();
+
+		prepareForCollection(getScanType());
+
+		doRepetitions();
+	}
+
+	protected void doRepetitions() throws Exception {
+
+		setQueuePropertiesStart();
+		currentRepetition = 0;
+		timeRepetitionsStarted = System.currentTimeMillis();
+		SampleEnvironmentIterator iterator = samplePreparer.createIterator(detectorBean.getExperimentType());
+		try {
+
+			beamlinePreparer.prepareForExperiment();
+
+			while (true) {
+				currentRepetition++;
+				try {
+					doSampleEnvironmentIterator(iterator);
+				} catch (Exception e) {
+					// FIXME this is a problem as we are often absorbing the wrong types of exceptions, but sometimes we
+					// do want to ignore them and carry on the loop
+					handleScanInterrupt(e);
+				}
+				checkForPause();
+				if (checkIfRepetitionsFinished()) {
+					break;
+				}
+				int numRepsFromProperty = LocalProperties.getAsInt(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY);
+				numRepetitions = numRepsFromProperty;
+			}
+		} finally {
+			finishRepetitions();
+			
+		}
+	}
+	
+	protected void finishRepetitions() throws Exception {
+		setQueuePropertiesEnd();
+		resetHeader();
+		detectorPreparer.completeCollection();
+		beamlinePreparer.completeExperiment();
+	}
+
+	private void doSampleEnvironmentIterator(SampleEnvironmentIterator iterator) throws Exception {
+		iterator.resetIterator();
+		int num_sample_repeats = iterator.getNumberOfRepeats();
+		for (int i = 0; i < num_sample_repeats; i++) {
+			iterator.next();
+			String sampleName = iterator.getNextSampleName();
+			List<String> descriptions = iterator.getNextSampleDescriptions();
+			String initialPercent = calcInitialPercent();
+			long timeSinceRepetitionsStarted = System.currentTimeMillis() - timeRepetitionsStarted;
+			XasLoggingMessage logmsg = new XasLoggingMessage(getMyVisitID(), scan_unique_id, scriptType, "Starting "
+					+ scriptType + " scan...", Integer.toString(currentRepetition), Integer.toString(numRepetitions),
+					Integer.toString(i + 1), Integer.toString(num_sample_repeats), initialPercent, Integer.toString(0),
+					Long.toString(timeSinceRepetitionsStarted), Long.toString(timeSinceRepetitionsStarted),
+					experimentFolderName, sampleName, 0);
+
+			if (num_sample_repeats == 1) {
+				printRepetition();
+			}
+
+			doSingleScan(sampleName, descriptions, logmsg);
+		}
+	}
+
+	// Runs a single energy (XAS/XANES) scan once the sample environment has been set up
+	private void doSingleScan(String sampleName, List<String> descriptions, XasLoggingMessage logmsg) throws Exception {
+
+		runScript(outputBean.getBeforeScriptName());
+
+		runPreparers();
+
+		createAndRunScan(sampleName, descriptions, logmsg);
+
+		runScript(outputBean.getAfterScriptName());
+	}
+
+	protected void createAndRunScan(String sampleName, List<String> descriptions, XasLoggingMessage logmsg)
+			throws Exception, InterruptedException {
+		// this will be the bespoke bit for each scan type
+		Object[] scanArgs = createScanArguments(sampleName, descriptions);
+
+		XasProgressUpdater loggingbean = new XasProgressUpdater(XASLoggingScriptController, logmsg,
+				timeRepetitionsStarted);
+		scanArgs = ArrayUtils.add(scanArgs, loggingbean);
+		ConcurrentScan theScan = ScannableCommands.createConcurrentScan(scanArgs);
+		setUpDataWriter(theScan, sampleName, descriptions);
+
+		ScanPlotSettings scanPlotSettings = outputPreparer.getPlotSettings();
+		if (scanPlotSettings != null) {
+			log("Setting the filter for columns to plot...");
+			theScan.setScanPlotSettings(scanPlotSettings);
+		}
+
+		XASLoggingScriptController.update(null, new ScanStartedMessage(scanBean, detectorBean));
+		XASLoggingScriptController.update(null, new ScriptProgressEvent("Running scan"));
+		XASLoggingScriptController.update(null, new ScanCreationEvent(theScan.getName()));
+		theScan.runScan();
+		XASLoggingScriptController.update(null, new ScanFinishEvent(theScan.getName(), ScanFinishEvent.FinishType.OK));
+	}
+
+	protected abstract Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception;
+
+	private void checkForPause() {
+		if (numRepetitions > 1 && LocalProperties.check(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY)) {
+			log("Paused scan after repetition"
+					+ currentRepetition
+					+ ". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button.");
+			LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY, "false");
+		}
+	}
+
+	private boolean checkIfRepetitionsFinished() {
+		int numRepsFromProperty = LocalProperties.getAsInt(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY);
+		if (numRepsFromProperty < currentRepetition) {
+			log("The number of repetitions has been reset to" + numRepsFromProperty + ". As" + currentRepetition
+					+ "repetitions have been completed this scan will now end.");
+			return true;
+		} else if (numRepsFromProperty <= (currentRepetition)) {
+			return true;// True# normal end to loop
+		}
+		return false;
+	}
+
+	private void prepareForCollection(String scriptType) {
 		this.scriptType = scriptType;
 		scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
 		log("Starting " + scriptType + " scan...");
 	}
 
-	protected void determineExperimentPath(String experimentFullPath) {
+	private void determineExperimentPath(String experimentFullPath) {
 		String experimentFolderName = experimentFullPath.substring(experimentFullPath.indexOf("xml") + 4,
 				experimentFullPath.length());
 		log("Using data folder: " + experimentFullPath);
@@ -225,8 +372,8 @@ public abstract class ExafsScan {
 		return dets;
 	}
 
-	protected void createBeans(String sampleFileName, String scanFileName, String detectorFileName,
-			String outputFileName) throws Exception {
+	private void createBeans(String sampleFileName, String scanFileName, String detectorFileName, String outputFileName)
+			throws Exception {
 		log("beans created based on " + experimentFullPath + ", " + sampleFileName + ", " + scanFileName + ", "
 				+ detectorFileName + ", " + outputFileName);
 		sampleBean = null;
@@ -237,32 +384,38 @@ public abstract class ExafsScan {
 		detectorBean = (IDetectorParameters) BeansFactory.getBeanObject(experimentFullPath + "/", detectorFileName);
 		outputBean = (IOutputParameters) BeansFactory.getBeanObject(experimentFullPath + "/", outputFileName);
 
+		// get the xml for the specific detector in use e.g. vortex, xspress2 or xspress3
+		// TODO these beans should have their own interface for clarity
+		String detectorConfigurationFilename = determineDetectorFilename();
+		detectorConfigurationBean = BeansFactory.getBeanObject(experimentFullPath + "/", detectorConfigurationFilename);
+
 		setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName);
 	}
 
-	protected void configurePreparers() throws Exception {
+	private void configurePreparers() throws Exception {
 		beamlinePreparer.configure(scanBean, detectorBean, sampleBean, outputBean, experimentFullPath);
 		detectorPreparer.configure(scanBean, detectorBean, outputBean, experimentFullPath);
-		samplePreparer.configure(sampleBean);
+		samplePreparer.configure(scanBean, sampleBean);
 		outputPreparer.configure(outputBean, scanBean, detectorBean);
 	}
 
-	protected void runScript(String scriptName) throws Exception {
+	private void runScript(String scriptName) throws Exception {
 		if (scriptName != null && !scriptName.isEmpty()) {
 			GeneralCommands.run(scriptName);
 		}
 	}
 
-	protected Scan setUpDataWriterSetFilenames(ConcurrentScan thisscan, String sampleName, List<String> descriptions)
-			throws Exception {
-		return setUpDataWriter(thisscan, sampleName, descriptions);
+	protected Scan setUpDataWriter(Scan thisscan, String sampleName, List<String> descriptions) throws Exception {
+		DataWriter writer = createAndConfigureDataWriter(sampleName, descriptions);
+		thisscan.setDataWriter(writer);
+		return thisscan;
 	}
 
-	protected Scan setUpDataWriter(Scan thisscan, String sampleName, List<String> descriptions) throws Exception {
+	protected DataWriter createAndConfigureDataWriter(String sampleName, List<String> descriptions) throws Exception {
 
-		// use the Factory to enable unit testing - which would use a DummyDataWriter
 		DataWriterFactory datawriterFactory = new DefaultDataWriterFactory();
 		DataWriter datawriter = datawriterFactory.createDataWriter();
+
 		if (datawriter instanceof XasAsciiNexusDataWriter) {
 			XasAsciiNexusDataWriter dataWriter = (XasAsciiNexusDataWriter) datawriter;
 
@@ -272,7 +425,6 @@ public abstract class ExafsScan {
 			dataWriter.setDescriptions(descriptions);
 			dataWriter.setNexusFileNameTemplate(filenameTemplates[0]);
 			dataWriter.setAsciiFileNameTemplate(filenameTemplates[1]);
-			dataWriter.setSampleName(sampleName);
 			dataWriter.setRunFromExperimentDefinition(true);
 			dataWriter.setFolderName(experimentFullPath);
 			dataWriter.setScanParametersName(scanFileName);
@@ -287,8 +439,21 @@ public abstract class ExafsScan {
 
 			addMetadata();
 		}
-		thisscan.setDataWriter(datawriter);
-		return thisscan;
+
+		return datawriter;
+	}
+
+	private void addMetadata() throws Exception {
+		metashop.add(scanFileName, BeansFactory.getXMLString(scanBean));
+		metashop.add(detectorFileName, BeansFactory.getXMLString(detectorBean));
+		metashop.add(sampleFileName, BeansFactory.getXMLString(sampleBean));
+		metashop.add(outputFileName, BeansFactory.getXMLString(outputBean));
+
+		String detectorFileName = determineDetectorFilename();
+		if (!detectorFileName.isEmpty()) {
+			metashop.add("DetectorConfigurationParameters",
+					BeansFactory.getXMLString(experimentFullPath + File.separator + detectorFileName));
+		}
 	}
 
 	private String[] deriveFilenametemplates(String sampleName) {
@@ -317,20 +482,7 @@ public abstract class ExafsScan {
 		return new String[] { nexusFileNameTemplate, asciiFileNameTemplate };
 	}
 
-	private void addMetadata() throws Exception {
-		metashop.add(scanFileName, BeansFactory.getXMLString(scanBean));
-		metashop.add(detectorFileName, BeansFactory.getXMLString(detectorBean));
-		metashop.add(sampleFileName, BeansFactory.getXMLString(sampleBean));
-		metashop.add(outputFileName, BeansFactory.getXMLString(outputBean));
-
-		String detectorFileName = determineDetectorFilename();
-		if (!detectorFileName.isEmpty()) {
-			metashop.add("DetectorConfigurationParameters",
-					BeansFactory.getXMLString(experimentFullPath + File.separator + detectorFileName));
-		}
-	}
-
-	protected String determineDetectorFilename() {
+	private String determineDetectorFilename() {
 		String xmlFileName = "";
 		if (detectorBean.getExperimentType().equalsIgnoreCase("Fluorescence")) {
 			FluorescenceParameters fluoresenceParameters = detectorBean.getFluorescenceParameters();
@@ -401,5 +553,28 @@ public abstract class ExafsScan {
 				throw exceptionObject;
 			}
 		}
+	}
+
+	protected Detector[] getDetectors() throws Exception {
+
+		String exptType = detectorBean.getExperimentType();
+
+		String detectorGroupName = "";
+		if (exptType.equalsIgnoreCase("fluorescence")) {
+			detectorGroupName = detectorBean.getFluorescenceParameters().getDetectorType();
+		} else if (exptType.equalsIgnoreCase("xes")) {
+			exptType = "xes";
+		} else {
+			detectorGroupName = detectorBean.getTransmissionParameters().getDetectorType();
+		}
+
+		for (DetectorGroup group : detectorBean.getDetectorGroups()) {
+			if (group.getName().equalsIgnoreCase(detectorGroupName)) {
+				return createDetArray(group.getDetector());
+			}
+		}
+
+		throw new IllegalArgumentException("Could not build the list of detectors as no group of detectors named "
+				+ detectorGroupName + " was found in the XML file.");
 	}
 }

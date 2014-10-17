@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.server.exafs.scan;
+package uk.ac.gda.client.microfocus.scan;
 
 import static org.junit.Assert.fail;
 import gda.commandqueue.Processor;
@@ -29,7 +29,6 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.countertimer.TfgScalerWithFrames;
 import gda.device.scannable.ScannableMotor;
-import gda.device.scannable.XasScannable;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServer;
 import gda.jython.JythonServerFacade;
@@ -61,19 +60,26 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.DetectorParameters;
+import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
 import uk.ac.gda.beans.exafs.MetadataParameters;
 import uk.ac.gda.beans.exafs.Region;
 import uk.ac.gda.beans.exafs.SignalParameters;
-import uk.ac.gda.beans.exafs.TransmissionParameters;
-import uk.ac.gda.beans.exafs.XanesScanParameters;
+import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
+import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.beans.xspress.XspressROI;
+import uk.ac.gda.server.exafs.scan.BeamlinePreparer;
+import uk.ac.gda.server.exafs.scan.DetectorPreparer;
+import uk.ac.gda.server.exafs.scan.OutputPreparer;
+import uk.ac.gda.server.exafs.scan.SampleEnvironmentPreparer;
 import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ ScannableCommands.class, ConcurrentScan.class })
-public class XasScanTest {
+public class MapScanTest {
 
 	private BeamlinePreparer beamlinepreparer;
 	private DetectorPreparer detectorPreparer;
@@ -83,15 +89,19 @@ public class XasScanTest {
 	private NXMetaDataProvider metashop;
 	private AsciiDataWriterConfiguration datawriterconfig;
 	private ScannableMotor energy_scannable;
-	private XasScan xasscan;
+	private MapScan mapscan;
 	private LoggingScriptController XASLoggingScriptController;
-	private XanesScanParameters xanesParams;
+	private MicroFocusScanParameters mapscanParams;
 	private DetectorParameters detParams;
 	private ISampleParameters sampleParams;
 	private IOutputParameters outputParams;
 	private TfgScalerWithFrames ionchambers;
 	private final String experimentalFullPath = "/scratch/test/xml/path";
+	private ScannableMotor x_scannable;
+	private ScannableMotor y_scannable;
+	private ScannableMotor z_scannable;
 	private ConcurrentScan mockScan;
+	private XspressParameters xspressConfigurationParameters;
 	private ScanPlotSettings mockPlotSettings;
 
 	private Set<IonChamberParameters> makeIonChamberParameters() {
@@ -122,7 +132,7 @@ public class XasScanTest {
 	}
 
 	@Before
-	public void setup() throws DeviceException {
+	public void setup() throws Exception {
 
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "DummyDataWriter");
 
@@ -132,6 +142,15 @@ public class XasScanTest {
 		Mockito.when(ionchambers.getExtraNames()).thenReturn(new String[] { "i0", "it", "iref" });
 		Mockito.when(ionchambers.getInputNames()).thenReturn(new String[] { "time" });
 		Mockito.when(ionchambers.getOutputFormat()).thenReturn(new String[] { "%.2f", "%.2f", "%.2f", "%.2f" });
+
+		XspressROI roi1 = new XspressROI("Fe_k", 500, 520);
+		ArrayList<XspressROI> regionList = new ArrayList<XspressROI>();
+		regionList.add(roi1);
+
+		xspressConfigurationParameters = new XspressParameters();
+		xspressConfigurationParameters.setDetectorName("xspress2system");
+		xspressConfigurationParameters.addDetectorElement(new DetectorElement("element0", 0, 500, 510, false,
+				regionList));
 
 		ClientDetails details = Mockito.mock(ClientDetails.class);
 		Mockito.when(details.getVisitID()).thenReturn("0-0");
@@ -163,17 +182,16 @@ public class XasScanTest {
 		metashop = new NXMetaDataProvider();
 		XASLoggingScriptController = PowerMockito.mock(LoggingScriptController.class);
 
-		energy_scannable = PowerMockito.mock(ScannableMotor.class);
-		Mockito.when(energy_scannable.getName()).thenReturn("energy_scannable");
-		Mockito.when(energy_scannable.getInputNames()).thenReturn(new String[] { "energy_scannable" });
-		Mockito.when(energy_scannable.getExtraNames()).thenReturn(new String[] {});
-		Mockito.when(energy_scannable.getOutputFormat()).thenReturn(new String[] { "%.2f" });
-		Mockito.when(energy_scannable.getPosition()).thenReturn(7000.0);
+		energy_scannable = createMockMotorScannable("energy_scannable");
+		x_scannable = createMockMotorScannable("x_scannable");
+		y_scannable = createMockMotorScannable("y_scannable");
+		z_scannable = createMockMotorScannable("z_scannable");
 
 		// create XasScan object
-		xasscan = new XasScan(beamlinepreparer, detectorPreparer, samplePreparer, outputPreparer,
+		mapscan = new MapScan(beamlinepreparer, detectorPreparer, samplePreparer, outputPreparer,
 				commandQueueProcessor, XASLoggingScriptController, datawriterconfig,
-				new ArrayList<AsciiMetadataConfig>(), energy_scannable, metashop, true);
+				new ArrayList<AsciiMetadataConfig>(), energy_scannable, metashop, true, ionchambers, x_scannable,
+				y_scannable, z_scannable);
 
 		// create the beans and give to the XasScan
 		Region region = new Region();
@@ -181,30 +199,37 @@ public class XasScanTest {
 		region.setStep(3.0);
 		region.setTime(1.0);
 
-		xanesParams = new XanesScanParameters();
-		xanesParams.setEdge("K");
-		xanesParams.setElement("Fe");
-		xanesParams.addRegion(region);
-		xanesParams.setFinalEnergy(7021.0);
+		mapscanParams = new MicroFocusScanParameters();
+		mapscanParams.setEnergy(7000.);
+		mapscanParams.setXStart(0.0);
+		mapscanParams.setYStart(10.);
+		mapscanParams.setXEnd(1.0);
+		mapscanParams.setYEnd(20.);
+		mapscanParams.setXStepSize(1.0);
+		mapscanParams.setYStepSize(5.0);
+		mapscanParams.setRaster(false);
+		mapscanParams.setCollectionTime(1.);
+		mapscanParams.setZValue(6.0);
 
 		Set<IonChamberParameters> ionParamsSet = makeIonChamberParameters();
 
-		TransmissionParameters transParams = new TransmissionParameters();
-		transParams.setCollectDiffractionImages(false);
-		transParams.setDetectorType("transmission");
+		FluorescenceParameters fluoParams = new FluorescenceParameters();
+		fluoParams.setCollectDiffractionImages(false);
+		fluoParams.setDetectorType("Xspress");
 		for (IonChamberParameters params : ionParamsSet) {
-			transParams.addIonChamberParameter(params);
+			fluoParams.addIonChamberParameter(params);
 		}
 
-		DetectorGroup transmissionDetectors = new DetectorGroup("Transmission", new String[] { "ionchambers" });
+		DetectorGroup transmissionDetectors = new DetectorGroup("Xspress", new String[] { "ionchambers" });
 		List<DetectorGroup> detectorGroups = new ArrayList<DetectorGroup>();
 		detectorGroups.add(transmissionDetectors);
 
 		detParams = new DetectorParameters();
-		detParams.setTransmissionParameters(transParams);
-		detParams.setExperimentType(DetectorParameters.TRANSMISSION_TYPE);
+		detParams.setFluorescenceParameters(fluoParams);
+		detParams.setExperimentType(DetectorParameters.FLUORESCENCE_TYPE);
 		detParams.setDetectorGroups(detectorGroups);
 
+		// sampleParams = new SampleParametersTestImpl();
 		sampleParams = PowerMockito.mock(ISampleParameters.class);
 		Mockito.when(sampleParams.getName()).thenReturn("My Sample");
 		Mockito.when(sampleParams.getDescriptions()).thenReturn(new ArrayList<String>());
@@ -220,34 +245,74 @@ public class XasScanTest {
 
 	}
 
+	private ScannableMotor createMockMotorScannable(String name) throws DeviceException {
+		ScannableMotor newMock = PowerMockito.mock(ScannableMotor.class);
+		Mockito.when(newMock.getName()).thenReturn(name);
+		Mockito.when(newMock.getInputNames()).thenReturn(new String[] { name });
+		Mockito.when(newMock.getExtraNames()).thenReturn(new String[] {});
+		Mockito.when(newMock.getOutputFormat()).thenReturn(new String[] { "%.2f" });
+		Mockito.when(newMock.getPosition()).thenReturn(7000.0);
+
+		return newMock;
+	}
+
 	@Test
-	public void testSingleXanesScan() {
+	public void testSingleMapScan() {
 
 		try {
 
-			prepareMockScan();
+			// see also the annotations at the top of this class
+
+			// this section makes sure that any scans created via the factory method
+			// ScannableCommands.createConcurrentScan() are a mocked version, so this unit test is not running a real
+			// scan: we only want to unit test the class not the scan it runs.
+			{
+				// create mock scan
+				mockScan = PowerMockito.mock(ConcurrentScan.class);
+
+				// runScan is a void method, so have to make an Answer for just that method
+				PowerMockito.doAnswer(new org.mockito.stubbing.Answer<Void>() {
+					@Override
+					public Void answer(InvocationOnMock invocation) throws Throwable {
+						return null;
+					}
+	
+				}).when(mockScan).runScan();
+				
+				mockPlotSettings = PowerMockito.mock(ScanPlotSettings.class);
+				Mockito.when(mockScan.getScanPlotSettings()).thenReturn(mockPlotSettings);
+	
+				// then stub the factory method and make sure that it always retruns the stub
+				Method staticMethod = Reflection.getMatchingMethod(ScannableCommands.class, "createConcurrentScan",
+						new Object[] { new Object[0] });
+				MethodStubStrategy<Object> stubbedMethod = MemberModifier.stub(staticMethod);
+				stubbedMethod.toReturn(mockScan);
+			}
+
+			
 
 			SampleEnvironmentIterator it = PowerMockito.mock(SampleEnvironmentIterator.class);
 			Mockito.when(it.getNumberOfRepeats()).thenReturn(1);
 			Mockito.when(it.getNextSampleName()).thenReturn("My sample");
 			Mockito.when(it.getNextSampleDescriptions()).thenReturn(new ArrayList<String>());
+			Mockito.when(samplePreparer.createIterator("Fluorescence")).thenReturn(it);
 
-			Mockito.when(samplePreparer.createIterator("Transmission")).thenReturn(it);
-
-			xasscan.doCollection(sampleParams, xanesParams, detParams, outputParams, null, experimentalFullPath, 1);
+			mapscan.doCollection(sampleParams, mapscanParams, detParams, outputParams, xspressConfigurationParameters,
+					experimentalFullPath, 1);
 
 			// check that the the correct order of preparers and scan were called
-			InOrder inorder = Mockito.inOrder(beamlinepreparer,detectorPreparer,samplePreparer,outputPreparer,it,outputParams,mockScan,outputParams);
+			InOrder inorder = Mockito.inOrder(beamlinepreparer,detectorPreparer,samplePreparer,outputPreparer,it,outputParams,mockScan);
 			
-			inorder.verify(beamlinepreparer).configure(xanesParams, detParams, sampleParams, outputParams,
+			inorder.verify(beamlinepreparer).configure(mapscanParams, detParams, sampleParams, outputParams,
 					experimentalFullPath);
-			inorder.verify(detectorPreparer).configure(xanesParams, detParams, outputParams, experimentalFullPath);
-			inorder.verify(samplePreparer).configure(xanesParams,sampleParams);
-			inorder.verify(outputPreparer).configure(outputParams, xanesParams, detParams);
+			inorder.verify(detectorPreparer).configure(mapscanParams, detParams, outputParams, experimentalFullPath);
+			inorder.verify(samplePreparer).configure(mapscanParams, sampleParams);
+			inorder.verify(outputPreparer).configure(outputParams, mapscanParams, detParams);
 
-			inorder.verify(samplePreparer).createIterator("Transmission");
+			inorder.verify(samplePreparer).createIterator("Fluorescence");
 			inorder.verify(beamlinepreparer).prepareForExperiment();
 
+			// iterator is always called, even if it only does one repetition
 			inorder.verify(it).resetIterator();
 			inorder.verify(it).next();
 			inorder.verify(it).getNextSampleName();
@@ -258,15 +323,18 @@ public class XasScanTest {
 			inorder.verify(detectorPreparer).beforeEachRepetition();
 			inorder.verify(outputPreparer).beforeEachRepetition();
 
-			inorder.verify(outputParams).getSignalList();
-			inorder.verify(outputPreparer).getPlotSettings();
+			// need to test that the args given to the scan were correct
+			Object[] args = mapscan.createScanArguments("sample 1", new ArrayList<String>());
+			org.junit.Assert.assertTrue(args[0] instanceof Scannable);
+			org.junit.Assert.assertTrue(y_scannable.getName().equals(((Scannable) args[0]).getName()));
+			org.junit.Assert.assertTrue(args[4] instanceof Scannable);
+			org.junit.Assert.assertTrue(x_scannable.getName().equals(((Scannable) args[4]).getName()));
+			org.junit.Assert.assertTrue(args[8] instanceof Scannable);
+			org.junit.Assert.assertTrue(z_scannable.getName().equals(((Scannable) args[8]).getName()));
+			org.junit.Assert.assertTrue(args[9] instanceof Detector);
+			org.junit.Assert.assertTrue(ionchambers.getName().equals(((Scannable) args[9]).getName()));
 
-			// as the scan is not really run but mocked, instead check that the args given to the scan are as expected.
-			Object[] args = xasscan.createScanArguments("sample 1", new ArrayList<String>());
-			org.junit.Assert.assertTrue(args[0] instanceof XasScannable);
-			org.junit.Assert.assertTrue(energy_scannable.getName().equals(((XasScannable) args[0]).getEnergyScannable().getName()));
-			org.junit.Assert.assertTrue(args[2] instanceof Detector);
-			org.junit.Assert.assertTrue(ionchambers.getName().equals(((Scannable) args[2]).getName()));
+			inorder.verify(mockScan).runScan();
 
 			inorder.verify(outputParams).getAfterScriptName();
 			inorder.verify(detectorPreparer).completeCollection();
@@ -275,149 +343,7 @@ public class XasScanTest {
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
-	}
-
-	private void prepareMockScan() {
-		// create mock scan
-		mockScan = PowerMockito.mock(ConcurrentScan.class);
-
-		// runScan is a void method, so have to make an Answer for just that method
-		try {
-			PowerMockito.doAnswer(new org.mockito.stubbing.Answer<Void>() {
-				@Override
-				public Void answer(InvocationOnMock invocation) throws Throwable {
-					return null;
-				}
-
-			}).when(mockScan).runScan();
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
-		
-		mockPlotSettings = PowerMockito.mock(ScanPlotSettings.class);
-		Mockito.when(mockScan.getScanPlotSettings()).thenReturn(mockPlotSettings);
-		
-		// then stub the factory method and make sure that it always retruns the stub
-		Method staticMethod = Reflection.getMatchingMethod(ScannableCommands.class, "createConcurrentScan",
-				new Object[] { new Object[0] });
-		MethodStubStrategy<Object> stubbedMethod = MemberModifier.stub(staticMethod);
-		stubbedMethod.toReturn(mockScan);
 
 	}
 
-	@Test
-	public void testMultipleRepetitionsXanesScan() {
-		try {
-
-			prepareMockScan();
-			
-			SampleEnvironmentIterator it = PowerMockito.mock(SampleEnvironmentIterator.class);
-			Mockito.when(it.getNumberOfRepeats()).thenReturn(1);
-			Mockito.when(it.getNextSampleName()).thenReturn("My sample");
-			Mockito.when(it.getNextSampleDescriptions()).thenReturn(new ArrayList<String>());
-
-			Mockito.when(samplePreparer.createIterator("Transmission")).thenReturn(it);
-
-			xasscan.doCollection(sampleParams, xanesParams, detParams, outputParams, null, experimentalFullPath, 3);
-
-			// check that the the correct order of preparers and scan were called
-
-			// performed after repetition loop
-			Mockito.verify(beamlinepreparer).configure(xanesParams, detParams, sampleParams, outputParams,
-					experimentalFullPath);
-			Mockito.verify(detectorPreparer).configure(xanesParams, detParams, outputParams, experimentalFullPath);
-			Mockito.verify(samplePreparer).configure(xanesParams,sampleParams);
-			Mockito.verify(outputPreparer).configure(outputParams, xanesParams, detParams);
-
-			Mockito.verify(samplePreparer).createIterator("Transmission");
-			Mockito.verify(beamlinepreparer).prepareForExperiment();
-
-			// this is the repetition loop
-			{
-				Mockito.verify(it, Mockito.times(3)).resetIterator();
-				Mockito.verify(it, Mockito.times(3)).next();
-				Mockito.verify(it, Mockito.times(3)).getNextSampleName();
-				Mockito.verify(it, Mockito.times(3)).getNextSampleDescriptions();
-
-				Mockito.verify(outputParams, Mockito.times(3)).getBeforeScriptName();
-
-				Mockito.verify(detectorPreparer, Mockito.times(3)).beforeEachRepetition();
-				Mockito.verify(outputPreparer, Mockito.times(3)).beforeEachRepetition();
-				Mockito.verify(outputPreparer, Mockito.times(3)).getPlotSettings();
-
-				Mockito.verify(outputParams, Mockito.times(3)).getSignalList();
-
-				Mockito.verify(outputParams, Mockito.times(3)).getAfterScriptName();
-			}
-			// end of repetition loop
-
-			// performed after repetition loop
-			Mockito.verify(detectorPreparer).completeCollection();
-			Mockito.verify(beamlinepreparer).completeExperiment();
-
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
-
-	}
-
-	@Test
-	public void testSampleEnvironmentLoopsXanesScan() {
-		try {
-			// 2 sample env loops + 3 repetitions, so 6 scans in total
-
-			prepareMockScan();
-
-			SampleEnvironmentIterator it = PowerMockito.mock(SampleEnvironmentIterator.class);
-			Mockito.when(it.getNumberOfRepeats()).thenReturn(2);
-			Mockito.when(it.getNextSampleName()).thenReturn("My sample");
-			Mockito.when(it.getNextSampleDescriptions()).thenReturn(new ArrayList<String>());
-
-			Mockito.when(samplePreparer.createIterator("Transmission")).thenReturn(it);
-
-			xasscan.doCollection(sampleParams, xanesParams, detParams, outputParams, null, experimentalFullPath, 3);
-
-			// check that the the correct order of preparers and scan were called
-
-			// performed after repetition loop
-			Mockito.verify(beamlinepreparer).configure(xanesParams, detParams, sampleParams, outputParams,
-					experimentalFullPath);
-			Mockito.verify(detectorPreparer).configure(xanesParams, detParams, outputParams, experimentalFullPath);
-			Mockito.verify(samplePreparer).configure(xanesParams,sampleParams);
-			Mockito.verify(outputPreparer).configure(outputParams, xanesParams, detParams);
-
-			Mockito.verify(samplePreparer).createIterator("Transmission");
-			Mockito.verify(beamlinepreparer).prepareForExperiment();
-
-			// this is the repetition loop
-			{
-				Mockito.verify(it, Mockito.times(3)).resetIterator();
-
-				// this the sam env loop
-				{
-					Mockito.verify(it, Mockito.times(6)).next();
-					Mockito.verify(it, Mockito.times(6)).getNextSampleName();
-					Mockito.verify(it, Mockito.times(6)).getNextSampleDescriptions();
-
-					Mockito.verify(outputParams, Mockito.times(6)).getBeforeScriptName();
-
-					Mockito.verify(detectorPreparer, Mockito.times(6)).beforeEachRepetition();
-					Mockito.verify(outputPreparer, Mockito.times(6)).beforeEachRepetition();
-					Mockito.verify(outputPreparer, Mockito.times(6)).getPlotSettings();
-
-					Mockito.verify(outputParams, Mockito.times(6)).getSignalList();
-
-					Mockito.verify(outputParams, Mockito.times(6)).getAfterScriptName();
-				}
-				// end of sam env loop
-			}
-			// end of repetition loop
-
-			// performed after repetition loop
-			Mockito.verify(detectorPreparer).completeCollection();
-			Mockito.verify(beamlinepreparer).completeExperiment();
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
-	}
 }
