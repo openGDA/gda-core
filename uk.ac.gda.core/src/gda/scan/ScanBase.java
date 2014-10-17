@@ -1175,7 +1175,7 @@ public abstract class ScanBase implements NestableScan {
 	
 	
 	@Override
-	public final void runScan() throws InterruptedException, Exception {
+	public void runScan() throws InterruptedException, Exception {
 		
 		int currentStatus = getScanStatusHolder().getScanStatus();
 		if (currentStatus != Jython.IDLE) {
