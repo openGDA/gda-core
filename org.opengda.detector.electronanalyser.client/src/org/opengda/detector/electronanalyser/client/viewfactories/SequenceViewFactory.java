@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.Camera;
 import org.opengda.detector.electronanalyser.client.views.SequenceView;
+import org.opengda.detector.electronanalyser.lenstable.RegionValidator;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
@@ -34,8 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SequenceViewFactory implements FindableExecutableExtension {
 
-	private final Logger logger = LoggerFactory
-			.getLogger(SequenceViewFactory.class);
+	private final Logger logger = LoggerFactory.getLogger(SequenceViewFactory.class);
 	private String viewPartName;
 	private String name;
 	private RegionDefinitionResourceUtil regionDefinitionResourceUtil;
@@ -45,6 +45,7 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 	private IVGScientaAnalyser analyser;
 	private String analyserStatePV;
 	private String analyserTotalTimeRemainingPV;
+	private RegionValidator regionValidator;
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -87,6 +88,9 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 		}
 		if (getAnalyserTotalTimeRemainingPV()!=null) {
 			sequenceView.setAnalyserTotalTimeRemianingPV(analyserTotalTimeRemainingPV);
+		}
+		if (regionValidator!=null) {
+			sequenceView.setRegionValidator(regionValidator);
 		}
 		return sequenceView;
 	}
@@ -147,5 +151,13 @@ public class SequenceViewFactory implements FindableExecutableExtension {
 
 	public void setAnalyserStatePV(String analyserStatePV) {
 		this.analyserStatePV = analyserStatePV;
+	}
+
+	public RegionValidator getRegionValidator() {
+		return regionValidator;
+	}
+
+	public void setRegionValidator(RegionValidator regionValidator) {
+		this.regionValidator = regionValidator;
 	}
 }
