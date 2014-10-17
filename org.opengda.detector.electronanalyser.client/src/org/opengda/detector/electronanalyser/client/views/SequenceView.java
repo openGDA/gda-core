@@ -1024,7 +1024,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	 * refresh the table viewer with the sequence file name provided. If it is a new file, an empty sequence will be created.
 	 */
 	@Override
-	public void refreshTable(String seqFileName, boolean newFile, boolean fileChanged) {
+	public void refreshTable(String seqFileName, boolean newFile) {
 		logger.debug("refresh table with file: {}{}", FilenameUtils.getFullPath(seqFileName), FilenameUtils.getName(seqFileName));
 		if (isDirty()) {
 			InterfaceProvider.getCurrentScanController().pauseCurrentScan();
@@ -1060,30 +1060,35 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			resource = sequenceRes;
 			resource.eAdapters().add(notifyListener);
 
-			// update existing regions list
+			// update existing active regions' excitation energy
 			regions = regionDefinitionResourceUtil.getRegions();
-				for (Region region : regions) {
-					if (region.isEnabled()) {
-						double currentExcitationEnergy=0.0;
-						if (regionDefinitionResourceUtil.isSourceSelectable()) {
-							if (region.getExcitationEnergy()>regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
-								currentExcitationEnergy=hardXRayEnergy;
-							} else {
-								currentExcitationEnergy=softXRayEnergy;
-							}	
+			for (Region region : regions) {
+				if (region.isEnabled()) {
+					double currentExcitationEnergy = 0.0;
+					if (regionDefinitionResourceUtil.isSourceSelectable()) {
+						if (region.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+							currentExcitationEnergy = hardXRayEnergy;
 						} else {
-							currentExcitationEnergy=hardXRayEnergy;
+							currentExcitationEnergy = softXRayEnergy;
 						}
-						if (currentExcitationEnergy!=0.0 && currentExcitationEnergy!= region.getExcitationEnergy()) {
-							updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), currentExcitationEnergy);
-						}
-						if (!isValidRegion(region, false)) {
-							updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false);
-						}
+					} else {
+						currentExcitationEnergy = hardXRayEnergy;
+					}
+					if (currentExcitationEnergy != 0.0
+							&& currentExcitationEnergy != region
+									.getExcitationEnergy()) {
+						updateFeature(region,
+								RegiondefinitionPackage.eINSTANCE
+										.getRegion_ExcitationEnergy(),
+								currentExcitationEnergy);
+					}
+					if (!isValidRegion(region, false)) {
+						updateFeature(region,RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false);
 					}
 				}
+			}
 
-				if (regions.isEmpty()) {
+			if (regions.isEmpty()) {
 				fireSelectionChanged(StructuredSelection.EMPTY);
 			} else {
 				for (Region region : regions) {
@@ -1198,7 +1203,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				regionDefinitionResourceUtil.saveAs(resource, newFilename);
 				isDirty = false;
 				firePropertyChange(PROP_DIRTY);
-				refreshTable(newFilename, false, false);
+				refreshTable(newFilename, false);
 			}
 		}
 	}
@@ -1281,7 +1286,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					@Override
 					public void run() {
 						logger.debug("Sequence file changed to {}",((SequenceFileChangeEvent) arg).getFilename());
-						refreshTable(((SequenceFileChangeEvent) arg).getFilename(),false, true);
+						refreshTable(((SequenceFileChangeEvent) arg).getFilename(),false);
 					}
 				});
 			}

@@ -48,7 +48,7 @@ public class OpenAction extends Action {
 			if (seqViewPart != null && seqFileName != null) {
 				if (seqViewPart instanceof IRegionDefinitionView) {
 					IRegionDefinitionView regionDefinitionView = (IRegionDefinitionView) seqViewPart;
-					regionDefinitionView.refreshTable(seqFileName, false, true);
+					regionDefinitionView.refreshTable(seqFileName, false);
 				}
 			}
 		}
