@@ -60,15 +60,6 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 	private static final String PK_COLUMNNAME = "UNIQUE_ID";
 	private static final String SK_COLUMNNAME = "SCRIPT_NAME";
 
-	static {
-		try {
-			Class.forName(DRIVER);
-		} catch (ClassNotFoundException e) {
-			logger.error("Derby driver class not found. LoggingScriptController objects cannot be used until class "
-					+ DRIVER + " is in the path.", e);
-		}
-	}
-
 	public static String createUniqueID(String key) {
 		long n = random.nextLong();
 		if (n == Long.MIN_VALUE) {
@@ -97,6 +88,14 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 
 	public LoggingScriptController() {
 		super();
+		
+		try {
+			Class.forName(DRIVER);
+		} catch (ClassNotFoundException e) {
+			logger.error("Derby driver class not found. LoggingScriptController objects cannot be used until class "
+					+ DRIVER + " is in the path.", e);
+		}
+
 	}
 
 	@Override
