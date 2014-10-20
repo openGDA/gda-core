@@ -55,7 +55,6 @@ import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.xspress.XspressParameters;

@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.microfocus.scan;
 
-import gda.data.PathConstructor;
 import gda.jython.InterfaceProvider;
 
 import org.python.core.PyInteger;
