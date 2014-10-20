@@ -329,7 +329,7 @@ public abstract class ExafsScan {
 	private void prepareForCollection(String scriptType) {
 		this.scriptType = scriptType;
 		scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
-		log("Starting " + scriptType + " scan...");
+//		log("Starting " + scriptType + " scan...");
 	}
 
 	private void determineExperimentPath(String experimentFullPath) {
@@ -387,7 +387,9 @@ public abstract class ExafsScan {
 		// get the xml for the specific detector in use e.g. vortex, xspress2 or xspress3
 		// TODO these beans should have their own interface for clarity
 		String detectorConfigurationFilename = determineDetectorFilename();
-		detectorConfigurationBean = BeansFactory.getBeanObject(experimentFullPath + "/", detectorConfigurationFilename);
+		if (detectorConfigurationFilename != null && !detectorConfigurationFilename.isEmpty()) {
+			detectorConfigurationBean = BeansFactory.getBeanObject(experimentFullPath + "/", detectorConfigurationFilename);
+		}
 
 		setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName);
 	}

@@ -78,13 +78,13 @@ public class MapScan extends ExafsScan {
 		return "Step Map";
 	}
 
-	public MicroFocusWriterExtender getMDF() {
+	public MicroFocusWriterExtender getMFD() {
 		return mfd;
 	}
 
 	@Override
 	protected Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception {
-
+		
 		mapScanParameters = (MicroFocusScanParameters) scanBean;
 
 		Detector[] detectorList = getDetectors();
@@ -115,7 +115,7 @@ public class MapScan extends ExafsScan {
 		boolean useFrames = LocalProperties.check("gda.microfocus.scans.useFrames");
 		log("Using frames: " + useFrames);
 		if (detectorBean.getExperimentType().equals("Fluorescence") && useFrames) {
-			args = ArrayUtils.add(args, detectorList);
+			args = ArrayUtils.addAll(args, detectorList);
 			counterTimer01.clearFrameSets();
 			log("Frame collection time: " + mapScanParameters.getCollectionTime());
 			counterTimer01.addFrameSet(nx, 1.0E-4, mapScanParameters.getCollectionTime() * 1000.0, 0, 7, -1, 0);
