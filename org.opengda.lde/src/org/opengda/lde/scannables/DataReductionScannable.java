@@ -4,31 +4,33 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.DummyScannable;
+import gda.device.scannable.ScannablePositionChangeEvent;
+import gda.device.scannable.SimpleUDPServerScannable;
 import gda.device.scannable.corba.impl.ScannableAdapter;
 import gda.device.scannable.corba.impl.ScannableImpl;
+import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.observable.IObserver;
 import gda.util.OSCommandRunner;
 import gda.util.Sleep;
 
-import java.io.File;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.commons.io.FilenameUtils;
 import org.opengda.lde.events.NewDataFileEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
-public class DataReductionScannable extends DummyScannable implements Scannable {
+public class DataReductionScannable extends DummyScannable implements Scannable, IObserver {
 	private static final Logger logger=LoggerFactory.getLogger(DataReductionScannable.class);
 	private Scriptcontroller eventAdmin;
 	private boolean calibrant=false;
@@ -37,6 +39,24 @@ public class DataReductionScannable extends DummyScannable implements Scannable 
 	private String filename=null;
 	private double timeout=30000; //30 seconds
 	private FileReferenceScannable currentCalibrationScannable;
+	private SimpleUDPServerScannable simpleUDPServer;
+	
+	@Override
+	public void configure() throws FactoryException {
+		if (!configured) {
+			simpleUDPServer.addIObserver(this);
+			super.configure();
+			configured=true;
+		}
+	}
+	@Override
+	public void close() throws DeviceException {
+		if (configured) {
+			simpleUDPServer.deleteIObserver(this);
+			super.close();
+			configured=false;
+		}
+	}
 	@Override
 	public void atScanEnd() {
 		if (InterfaceProvider.getCurrentScanController().isFinishEarlyRequested()) {
@@ -54,8 +74,13 @@ public class DataReductionScannable extends DummyScannable implements Scannable 
 			}
 		}
 		filename=InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint().getCurrentFilename();
-		logger.info("Starting data reduction processing on the cluster...");
-		InterfaceProvider.getTerminalPrinter().print("Starting data reduction processing on the cluster...");
+		if (!isCalibrant()) {
+			logger.info("Starting data reduction processing on the cluster...");
+			InterfaceProvider.getTerminalPrinter().print("Starting data reduction processing on the cluster for file "+filename+" ...");
+		} else {
+			logger.info("Starting detector calibration processing on the cluster...");
+			InterfaceProvider.getTerminalPrinter().print("Starting detector calibration processing on the cluster using file "+filename+" ...");
+		}
 		if (isCalibrant()) {
 			if (filename == null || filename.isEmpty()) {
 				InterfaceProvider.getTerminalPrinter().print("No calibrant data filename provided, so cannot start data reduction.");
@@ -65,7 +90,6 @@ public class DataReductionScannable extends DummyScannable implements Scannable 
 				
 			command=LocalProperties.get("gda.lde.datareduction.software","/dls_sw/apps/i11-scripts/bin/LDE-RunFromGDAAtEndOfScan.sh")+" "+filename;
 			setCurrentCalibrantDataFilename(filename);
-			setCalibrant(false);
 		} else {
 			if (getCurrentCalibrantDataFilename()==null || getCurrentCalibrantDataFilename().isEmpty() ) {
 				InterfaceProvider.getTerminalPrinter().print("No calibrant data filename provided, so cannot start data reduction. Please collect a Calibrant diffraction first.");
@@ -87,20 +111,26 @@ public class DataReductionScannable extends DummyScannable implements Scannable 
 				Callable<String> r = new Callable<String>() {
 					@Override
 					public String call() throws Exception {
+						String msg;
 						OSCommandRunner osCommandRunner = new OSCommandRunner(command, true, null, null);
 						if (osCommandRunner.exception != null) {
-							String msg = "Exception seen trying to run command " + osCommandRunner.getCommandAsString();
+							msg = "Exception seen trying to run command " + osCommandRunner.getCommandAsString();
 							logger.error(msg);
 							logger.error(osCommandRunner.exception.toString());
 						} else if (osCommandRunner.exitValue != 0) {
-							String msg = "Exit code = " + Integer.toString(osCommandRunner.exitValue)
+							msg = "Exit code = " + Integer.toString(osCommandRunner.exitValue)
 									+ " returned from command " + osCommandRunner.getCommandAsString();
 							logger.warn(msg);
 							osCommandRunner.logOutput();
 						} else {
+							if (!isCalibrant()) {
+								msg="Data reduction processing is completed on the cluster.";
+							} else {
+								msg="Detector calibration processing is completed on the cluster.";
+							}
 							osCommandRunner.logOutput();
 						}
-						return File.separator+FilenameUtils.getPath(filename)+"processed"+File.separator+FilenameUtils.getBaseName(filename)+".xy";
+						return msg;
 					}
 				};
 				final ExecutorService executor = Executors.newFixedThreadPool(1);		
@@ -108,13 +138,11 @@ public class DataReductionScannable extends DummyScannable implements Scannable 
 				String result;
 				try {
 					result=submit.get();
-					InterfaceProvider.getTerminalPrinter().print("Plotting reduced data from file "+result);
-					logger.info("Plotting reduced data from file {}",result);
-					if (getEventAdmin() != null) {
-						((ScriptControllerBase)eventAdmin).update(getEventAdmin(), new NewDataFileEvent(result));
+					logger.info(result);
+					InterfaceProvider.getTerminalPrinter().print(result);
+					if (isCalibrant()) {
+						setCalibrant(false);
 					}
-					logger.info("Data reduction processing is completed on the cluster.");
-					InterfaceProvider.getTerminalPrinter().print("Data reduction processing is completed on the cluster.");
 				} catch (InterruptedException e) {
 					logger.error("Data reduction process is interrupted.", e);
 					InterfaceProvider.getTerminalPrinter().print("Data reduction process is interrupted.");
@@ -141,25 +169,25 @@ public class DataReductionScannable extends DummyScannable implements Scannable 
 	}
 
 	public void setCalibrant(boolean calibrant) {
+		this.calibrant = calibrant;
+		if (!calibrant) return;
 		try {
 			currentCalibrationScannable.moveTo("Undefined");
 		} catch (DeviceException e) {
 			logger.error("Failed to reset the data filename of current calibration scannable");
 		}
-		this.calibrant = calibrant;
 	}
 
 	public String getCurrentCalibrantDataFilename() {
 		return Current_Calibrant_Data_Filename;
 	}
 
-	public void setCurrentCalibrantDataFilename(
-			String current_Calibrant_Data_Filename) {
-		Current_Calibrant_Data_Filename = current_Calibrant_Data_Filename;
+	public void setCurrentCalibrantDataFilename(String calibrantFilename) {
+		Current_Calibrant_Data_Filename = calibrantFilename;
 		try {
-			currentCalibrationScannable.moveTo(filename);
+			currentCalibrationScannable.moveTo(calibrantFilename);
 		} catch (DeviceException e) {
-			logger.error("failed to set the data file name for the current calibration scannable to {}", filename);
+			logger.error("failed to set the data file name for the current calibration scannable to {}", calibrantFilename);
 		}
 	}
 
@@ -172,4 +200,26 @@ public class DataReductionScannable extends DummyScannable implements Scannable 
 		this.currentCalibrationScannable = currentCalibrationScannable;
 	}
 
+	public SimpleUDPServerScannable getSimpleUDPServer() {
+		return simpleUDPServer;
+	}
+
+	public void setSimpleUDPServer(SimpleUDPServerScannable simpleUDPServer) {
+		this.simpleUDPServer = simpleUDPServer;
+	}
+
+	@Override
+	public void update(Object source, Object arg) {
+		if(arg instanceof ScannablePositionChangeEvent){
+			Object pos = ((ScannablePositionChangeEvent)arg).newPosition;
+			if( pos instanceof String){
+				String reductedDataFilename=(String)pos;
+				InterfaceProvider.getTerminalPrinter().print("Plotting reduced data from file "+reductedDataFilename);
+				logger.info("Plotting reduced data from file {}",reductedDataFilename);
+				if (getEventAdmin() != null) {
+					((ScriptControllerBase)eventAdmin).update(getEventAdmin(), new NewDataFileEvent(reductedDataFilename));
+				}
+			}
+		}
+	}
 }
