@@ -1,21 +1,22 @@
 from XYDataSetProcessor import XYDataSetFunction
-from GaussianPeakAndBackground import GaussianPeak
-from gda.analysis.functions import Gaussian, Offset
-from gda.analysis import ScanFileHolder, DataSet
-from gda.analysis.utils import GeneticAlg, NelderMead
+
+from gda.analysis import ScanFileHolder
+from gda.analysis import RCPPlotter
+
+from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
 
 import scisoftpy as dnp
 
-from gda.analysis import DataSetFunctionFitter
 import java.lang.IllegalArgumentException
 
 try:
-	from gda.analysis import Fitter # from swingclient plugin not available to PyDev tests
 	def fitplot(*args):
-		return Fitter.plot(*args)
+		fitted_function = Fitter.fit(*args)
+		RCPPlotter.plot("Data Vector", args[0],fitted_function.display(args[0])[0]);
+		return fitted_function
 except ImportError:
 	def fitplot(*args):
-		return DataSetFunctionFitter.fit(*args)
+		raise
 
 try:
 	from gda.analysis import Plotter  # for Swing
@@ -97,9 +98,9 @@ class TwoGaussianEdges(XYDataSetFunction):
 		if Plotter:  # Not always on path
 			yaxes = [dyDataSet]
 			for funcset in r.makefuncdata():
-				yaxes.append(DataSet(list(funcset)))
+				yaxes.append(DoubleDataset(list(funcset)))
 			try:
-				Plotter.plot('Data Vector', xDataSet, yaxes)
+				RCPPlotter.plot('Data Vector', xDataSet, yaxes)
 			except java.lang.IllegalArgumentException:
 				# Probably cannot find Plot_Manager on the finder
 				print "WARNING: TwoGaussianEdges could not plot fit details as there is no Plot_Manager"

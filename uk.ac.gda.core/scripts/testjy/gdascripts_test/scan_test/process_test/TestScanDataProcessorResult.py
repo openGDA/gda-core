@@ -2,7 +2,7 @@ from gdascripts.scan.process.ScanDataProcessorResult import ScanDataProcessorRes
 from gdascripts.analysis.datasetprocessor.oned.XYDataSetResult import XYDataSetResult
 
 from gda.analysis import ScanFileHolder
-from gda.analysis import DataSet
+from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
 
 import unittest
 import math
@@ -54,7 +54,7 @@ class MockSDPR(ScanDataProcessorResult):
 		if scn != self.abscissa_scannable: raise Exception
 		return self.value
 
-def createSimpleScanFileHolderAndScannables(DataSet=DataSet): #optional parameters is a fudge to remove PyDev reporting error on static method access
+def createSimpleScanFileHolderAndScannables(DataSet=DoubleDataset): #optional parameters is a fudge to remove PyDev reporting error on static method access
 	w = MockScannable('w', ['wi1','wi2'], ['we'])	
 	x = MockScannable('x', ['x'], [])
 	y = MockScannable('y', ['yi'], ['ypath', 'ye'])
@@ -74,7 +74,7 @@ def createSimpleScanFileHolderAndScannables(DataSet=DataSet): #optional paramete
 	
 	return w, x,y,z,sfh
 
-def createSimpleScanFileHolderWithOneValueAndScannables(DataSet=DataSet): #optional parameters is a fudge to remove PyDev reporting error on static method access
+def createSimpleScanFileHolderWithOneValueAndScannables(DataSet=DoubleDataset): #optional parameters is a fudge to remove PyDev reporting error on static method access
 	w = MockScannable('w', ['wi1','wi2'], ['we'])	
 	x = MockScannable('x', ['x'], [])
 	y = MockScannable('y', ['yi'], ['ye'])

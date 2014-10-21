@@ -1,22 +1,26 @@
 from TwodDataSetProcessor import TwodDataSetProcessor
 
-from gda.analysis.functions.dataset import Integrate2D
-from gda.analysis import DataSet
-from gda.analysis.utils import GeneticAlg
-from gda.analysis.functions import Gaussian, Offset
+from uk.ac.diamond.scisoft.analysis.dataset.function import Integrate2D
+from uk.ac.diamond.scisoft.analysis.fitting.functions import Gaussian, Offset
+from uk.ac.diamond.scisoft.analysis.optimize import GeneticAlg
+from uk.ac.diamond.scisoft.analysis.fitting import Fitter 
+
+from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
 
 from math import pi
 import java.lang.IllegalArgumentException
 
-from gda.analysis import DataSetFunctionFitter
+
 
 try:
 	from gda.analysis import Fitter # from swingclient plugin not available to PyDev tests
 	def fitplot(*args):
-		return Fitter.plot(*args)
+		fitted_function = Fitter.fit(*args)
+		RCPPlotter.plot("Data Vector", args[0],fitted_function.display(args[0])[0]);
+		return fitted_function
 except ImportError:
 	def fitplot(*args):
-		return DataSetFunctionFitter().fit(*args).functionOutput
+		raise
 
 class TwodGaussianPeak(TwodDataSetProcessor):
 
@@ -30,21 +34,22 @@ class TwodGaussianPeak(TwodDataSetProcessor):
 		TwodDataSetProcessor.__init__(self, name, labelList, keyxlabel, keyylabel, formatString)
 		self.maxwidth = None
 		
-	def _process(self, ds, xoffset=0, yoffset=0, DataSet=DataSet):###dsxaxis, dsyaxis):
+	def _process(self, ds, xoffset=0, yoffset=0):###dsxaxis, dsyaxis):
 ##		assert(dsyaxis is None)		# STUB
 ##		assert(dsxaxis is None)		# STUB
 		
 		integrator = Integrate2D()
-		dsy, dsx = integrator.execute(ds)
-		dsyaxis = DataSet.arange(dsy.shape[0])
-		dsxaxis = DataSet.arange(dsx.shape[0])
+		dsy, dsx = integrator.value(ds)
+		dsyaxis = DoubleDataset.arange(dsy.shape[0])
+		dsxaxis = DoubleDataset.arange(dsx.shape[0])
 		
 		gaussian = Gaussian(dsyaxis.min(), dsyaxis.max(), dsyaxis.max()-dsyaxis.min(), (dsyaxis.max()-dsyaxis.min())*(dsy.max()-dsy.min()) )
 		gaussian.getParameter(2).setLowerLimit(0)
 		if self.maxwidth is not None:
 			gaussian.getParameter(1).setUpperLimit(self.maxwidth)
-		ansy = DataSetFunctionFitter().fit( dsyaxis, dsy, GeneticAlg(.001), [ gaussian, Offset( dsy.min(),dsy.max() ) ] )
-		ansy = ansy.functionOutput
+		ansy = Fitter.fit(dsyaxis, dsy, GeneticAlg(0.001), [ gaussian, Offset( dsy.min(),dsy.max() ) ] )
+# 		ansy = DataSetFunctionFitter().fit( dsyaxis, dsy, GeneticAlg(.001), [ gaussian, Offset( dsy.min(),dsy.max() ) ] )
+# 		ansy = ansy.functionOutput
 		
 		gaussian = Gaussian(dsxaxis.min(), dsxaxis.max(), dsxaxis.max()-dsxaxis.min(), (dsxaxis.max()-dsxaxis.min())*(dsx.max()-dsx.min()) )
 		gaussian.getParameter(2).setLowerLimit(0)
@@ -54,8 +59,7 @@ class TwodGaussianPeak(TwodDataSetProcessor):
 			ansx = fitplot( dsxaxis, dsx, GeneticAlg(.001), [ gaussian, Offset( dsx.min(),dsx.max() ) ] )
 		except java.lang.IllegalArgumentException:
 			# Probably cannot find Plot_Manager on the finder
-			ansx = DataSetFunctionFitter().fit( dsxaxis, dsx, GeneticAlg(.001), [ gaussian, Offset( dsx.min(),dsx.max() ) ] )
-			ansx = ansx.functionOutput
+			ansx = Fitter.fit(dsyaxis, ansx, GeneticAlg(0.001), [ gaussian, Offset( ansx.min(),ansx.max() ) ] )
 		#dsyaxis = dsyaxis.subSampleMean(dsy.dimensions[0]/2)
 		#dsy = dsy.subSampleMean(dsy.dimensions[0]/2)
 		#dsxaxis = dsxaxis.subSampleMean(dsx.dimensions[0]/2)

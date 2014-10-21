@@ -2,7 +2,6 @@ from testjy.gdascripts_test.analysis_test.io_test.images import TESTFILE
 from gdascripts.scannable.detector.ProcessingDetectorWrapper import ProcessingDetectorWrapper, BasicDataSetProvider
 from gdascripts.scannable.detector.DatasetShapeRenderer import LinePainter, RectPainter
 from mock import Mock
-from gda.analysis import DataSet
 from gda.device.scannable import PseudoDevice
 from gda.device.detector import PseudoDetector
 from gdascripts.analysis.io.dataLoaders import loadImageIntoSFH

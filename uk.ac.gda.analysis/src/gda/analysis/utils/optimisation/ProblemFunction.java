@@ -19,18 +19,18 @@
 package gda.analysis.utils.optimisation;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.fitting.functions.IFunction;
 import org.eclipse.dawnsci.analysis.api.fitting.functions.IOperator;
 import org.eclipse.dawnsci.analysis.api.fitting.functions.IParameter;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
-import gda.analysis.DataSet;
-import gda.analysis.functions.IFunction;
-import gda.analysis.functions.Parameter;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.Parameter;
 
 public class ProblemFunction implements IFunction {
 
-	ProblemDefinition def = null;
+	private final ProblemDefinition def;
+	private String description= "default";
 	private double[] parameters;
 
 	public ProblemFunction(final ProblemDefinition definition) {
@@ -97,11 +97,6 @@ public class ProblemFunction implements IFunction {
 	}
 
 	@Override
-	public DataSet makeDataSet(DoubleDataset... values) {
-		return null;
-	}
-
-	@Override
 	public DoubleDataset makeDataset(IDataset... values) {
 		return null;
 	}
@@ -121,12 +116,6 @@ public class ProblemFunction implements IFunction {
 	}
 
 	@Override
-	public void disp() {
-//		TerminalPrinter.print(toString());
-	}
-
-	String description= "default";
-	@Override
 	public String getDescription() {
 		return description;
 	}
@@ -134,17 +123,6 @@ public class ProblemFunction implements IFunction {
 	@Override
 	public void setDescription(String newDescription) {
 		this.description = newDescription;
-		
-	}
-
-	@Override
-	public String getParameterName(int index) {
-		return getParameter(index).getName();
-	}
-
-	@Override
-	public void setParameterName(String name, int index) {
-		getParameter(index).setName(name);
 		
 	}
 
@@ -164,11 +142,6 @@ public class ProblemFunction implements IFunction {
 
 	@Override
 	public void setDirty(boolean isDirty) {
-	}
-
-	@Override
-	public IFunction getFunction(int index) {
-		return this;
 	}
 
 	@Override

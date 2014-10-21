@@ -19,8 +19,6 @@
 
 package gda.analysis;
 
-import gda.analysis.utils.DatasetMaths;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
@@ -84,7 +82,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	/**
 	 * Container for an image which is associated with the file.
 	 */
-	DataSet image;
+	DoubleDataset image;
 
 	/**
 	 * Constructor
@@ -139,7 +137,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	public void loadPilatusData(String fileName) throws ScanFileHolderException {
 		issueDeprecatedWarning();
 		load(new PilatusTiffLoader(fileName));
-		image = DataSet.convertToDataSet(holder.getDataset(0));
+		image = (DoubleDataset) holder.getDataset(0);
 	}
 
 	@Override
@@ -193,22 +191,16 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	}
 
 	@Override
-	public DataSet getAxis(String axisName) throws IllegalArgumentException {
+	public Dataset getAxis(String axisName) throws IllegalArgumentException {
 		try {
-			IDataset a = holder.getDataset(axisName);
+			Dataset a = (Dataset) holder.getDataset(axisName);
 			if (a != null) {
-				DataSet data = DataSet.convertToDataSet(a).clone();
-				if (data != null)
-					return data;
+				return a;
 			}
 		} catch (Exception e) {
 			ILazyDataset l = holder.getLazyDataset(axisName);
-			IDataset a = l.getSlice();
-			if (a != null) {
-				DataSet data = DataSet.convertToDataSet(a).clone();
-				if (data != null)
-					return data;
-			}
+			Dataset a = (Dataset) l.getSlice();
+			return a;
 		}
 
 		String msg = "Axis name " + axisName + " not recognised. Available axes: " + Arrays.toString(getHeadings());
@@ -340,7 +332,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	@Deprecated
 	public double centroid(DoubleDataset x, DoubleDataset y) {
 		issueDeprecatedWarning();
-		return DatasetMaths.centroid(y, x)[0];
+		return DatasetUtils.centroid(y, x)[0];
 	}
 
 	@Override
@@ -384,7 +376,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 			logger.error("The value {} is not within the ScanFileHolders bounds", value);
 			throw new PyException();
 		}
-		return DataSet.convertToDataSet(holder.getDataset(value));
+		return holder.getDataset(value);
 	}
 
 	/**

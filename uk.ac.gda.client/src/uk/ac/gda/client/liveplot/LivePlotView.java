@@ -18,7 +18,6 @@
 
 package uk.ac.gda.client.liveplot;
 
-import gda.analysis.ScanFileHolder;
 import gda.data.PathConstructor;
 import gda.data.nexus.extractor.NexusExtractorException;
 import gda.jython.IAllScanDataPointsObserver;
@@ -42,12 +41,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
-import org.eclipse.dawnsci.analysis.api.io.IFileLoader;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
+import org.eclipse.dawnsci.analysis.api.io.IFileLoader;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
@@ -382,17 +384,16 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 			}
 		}
 		if (fileLoader != null) {
-			ScanFileHolder scanFileHolder = new ScanFileHolder();
-			scanFileHolder.load(fileLoader);
+			IDataHolder dataHolder = fileLoader.loadFile();
 			if (xyDataSetNames == null) {
-				xyDataSetNames = getXYDataSetNames(shell, scanFileHolder.getHeadings());
+				xyDataSetNames = getXYDataSetNames(shell, dataHolder.getNames());
 				if (xyDataSetNames == null)
 					return;
 			}
-			DoubleDataset xData = scanFileHolder.getAxis(xyDataSetNames.get(0));
+			DoubleDataset xData = (DoubleDataset) dataHolder.getDataset(xyDataSetNames.get(0));
 			for (int i = 1; i < xyDataSetNames.size(); i++) {
 				String xyDataSetName = xyDataSetNames.get(i);
-				DoubleDataset yData = scanFileHolder.getAxis(xyDataSetName);
+				DoubleDataset yData = (DoubleDataset) dataHolder.getDataset(xyDataSetName);
 				AxisSpec axisSpec = null;
 				if( yAxesMap != null) {
 					String yAxisName = yAxesMap.get(xyDataSetName);

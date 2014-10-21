@@ -5,7 +5,8 @@ from time import sleep
 import time
 from gda.device.detector import PseudoDetector
 from gda.device.Detector import BUSY, IDLE
-from gda.analysis import DataSet, ScanFileHolder
+from gda.analysis import ScanFileHolder
+from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
 from gda.analysis.io import PNGSaver
 
 # areaDetector settings required for this to work:
@@ -121,7 +122,7 @@ Move completed: cam1 : t: 1.500000 path: 122201.0
                 dt, t = time.time()-t, time.time()
                 print "%s.readout() (%fs) creating DataSet..." % (self.name, dt)
             
-            self.ds = DataSet(int(float(self.pvs['HEIGHT'].caget())), int(float(self.pvs['WIDTH'].caget())), data)
+            self.ds = DoubleDataset(int(float(self.pvs['HEIGHT'].caget())), int(float(self.pvs['WIDTH'].caget())), data)
             
             if self.verbose:
                 dt, t = time.time()-t, time.time()

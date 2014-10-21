@@ -7,7 +7,7 @@ from gdascripts.analysis.datasetprocessor.oned.TwoGaussianEdges import TwoGaussi
 from gdascripts.analysis.datasetprocessor.oned.scan_stitching import Lcen, Rcen
 
 from testjy.gdascripts_test.analysis_test.datasetprocessor_test.oned_test.files.files import WIRESCANFILE, WIRESCANFILE2, DAT_31473, DAT_31474, DAT_31484, WIRESCANFILE_FAILING_NEGATIVE_STEP
-from gda.analysis import DataSet, ScanFileHolder
+from gda.analysis import DoubleDataset, ScanFileHolder
 from gda.analysis.io import SRSLoader
 
 
@@ -29,7 +29,7 @@ def closer(l1, l2, tolerance=0.01):
 
 class Test(unittest.TestCase):
 	
-	def setUp(self, DataSet=DataSet):
+	def setUp(self, DataSet=DoubleDataset):
 		self.x =    DataSet.array([10.,11.,12.,13.,14.,15.,16.,17.,18.,19.])
 		self.peak = DataSet.array([0.,1.,2.,3.,4.,5.,4.,3.,2.,1.])
 		self.dip = DataSet.array([5.,4.,3.,2.,1.,0.,1.,2.,3.,4.])
