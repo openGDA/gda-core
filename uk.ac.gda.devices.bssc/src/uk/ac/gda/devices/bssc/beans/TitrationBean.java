@@ -27,14 +27,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 
 public class TitrationBean implements IRichBean {
-	private static final Logger logger = LoggerFactory.getLogger(TitrationBean.class);
 	
 	public enum Viscosity {
 		LOW("low", "l"),
@@ -64,19 +60,18 @@ public class TitrationBean implements IRichBean {
 			return name().toLowerCase();
 		}
 	}
-	public enum Mode {
-		NORMAL,
-		SM,
-		NONE;
+
+	public static Map<String, Boolean> MODES;
+	public static void setModes(Map<String, Boolean> modes) {
+		MODES = modes;
 	}
 	
 	LocationBean location = new LocationBean(BSSCSessionBean.BSSC_PLATES);
-//	LocationBean bufferLocation = new LocationBean(BSSCSessionBean.BSSC_PLATES);
 	LocationBean recouperateLocation = null;
 	String buffers = "";
 	String bufferCache = "";//save buffer list when switching between isBuffer t/f
 	boolean buffer = false;
-	Mode mode = Mode.NORMAL;
+	String mode = MODES.keySet().iterator().next();
 	String key = "";
 	String sampleName = "sample";
 	boolean yellowSample = true;
@@ -134,9 +129,6 @@ public class TitrationBean implements IRichBean {
 			if (!recouperateLocation.isValid()) {
 				throw new IllegalArgumentException("Recouperation Location is not valid");
 			}
-//			if (recouperateLocation.equals(location)) {
-//				throw new IllegalArgumentException("Recouperation location can't be the same as sample location");
-//			}
 		}
 		this.recouperateLocation = recouperateLocation;
 	}
@@ -237,10 +229,13 @@ public class TitrationBean implements IRichBean {
 		}
 	}
 	public String getMode() {
-		return mode.toString();
+		return mode;
 	}
 	public void setMode(String mode) {
-		this.mode = Mode.valueOf(mode.toUpperCase());
+		if (mode == null || !MODES.containsKey(mode = mode.toUpperCase())) {
+			throw new IllegalArgumentException("Mode " + mode + " is not valid");
+		}
+		this.mode = mode;
 	}
 	public String getKey() {
 		return key;
@@ -248,16 +243,6 @@ public class TitrationBean implements IRichBean {
 	public void setKey(String key) {
 		this.key = key.toLowerCase();
 	}
-	//	public LocationBean getBufferLocation() {
-//		return bufferLocation;
-//	}
-//	public void setBufferLocation(LocationBean bufferLocation) {
-//		bufferLocation.setConfig(BSSCSessionBean.BSSC_PLATES);
-//		if (!bufferLocation.isValid()) {
-//			throw new IllegalArgumentException("Buffer location is not valid");
-//		}
-//		this.bufferLocation = bufferLocation;
-//	}
 	@Override
 	public void clear() {
 	}

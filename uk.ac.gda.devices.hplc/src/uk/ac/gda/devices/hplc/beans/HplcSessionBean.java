@@ -21,7 +21,6 @@ package uk.ac.gda.devices.hplc.beans;
 import java.net.URL;
 import java.util.List;
 
-import gda.factory.Finder;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.devices.hatsaxs.beans.LocationBean;
 import uk.ac.gda.devices.hatsaxs.beans.PlateConfig;
@@ -32,7 +31,7 @@ public class HplcSessionBean implements IRichBean {
 	private static final long serialVersionUID = 5075861349177543025L;
 	static public final URL mappingURL = HplcSessionBean.class.getResource("HplcMapping.xml");
 	static public final URL schemaURL  = HplcSessionBean.class.getResource("HplcMapping.xsd");
-	public static final PlateConfig HPLC_PLATES = Finder.getInstance().find("hplcPlates");
+	public static PlateConfig HPLC_PLATES;
 	
 	List<HplcBean> measurements;
 
@@ -42,6 +41,10 @@ public class HplcSessionBean implements IRichBean {
 
 	public static void writeToXML(HplcSessionBean bean, String filename) throws Exception {
 		XMLHelpers.writeToXML(mappingURL, bean, filename);
+	}
+	
+	public static void setPlates(PlateConfig plates) {
+		HPLC_PLATES = plates;
 	}
 	
 	public void setPlateSetup(PlateConfig plates) {

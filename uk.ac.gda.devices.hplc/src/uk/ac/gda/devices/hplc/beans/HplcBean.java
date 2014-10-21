@@ -1,6 +1,5 @@
 package uk.ac.gda.devices.hplc.beans;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import gda.jython.InterfaceProvider;
@@ -13,21 +12,20 @@ public class HplcBean implements IRichBean {
 	private static final long serialVersionUID = 2999210681645575696L;
 	public static final String DEFAULT_HPLC_MODE = "HPLC";
 
-	public static final Map<String, Boolean> MODES;
-	static {
-		MODES = new HashMap<>();
-		MODES.put("HPLC", false);
+	public static Map<String, Boolean> MODES;
+	public static void setModes(Map<String, Boolean> modes) {
+		MODES = modes;
 	}
-	LocationBean location = new LocationBean(HplcSessionBean.HPLC_PLATES);
-	String sampleName = "Sample";
-	double concentration;
-	double molecularWeight;
-	double timePerFrame;
-	String visit;
-	String username;
-	String comment = "";
-	String buffers = "";
-	String mode = DEFAULT_HPLC_MODE;
+	private LocationBean location = new LocationBean(HplcSessionBean.HPLC_PLATES);
+	private String sampleName = "Sample";
+	private double concentration;
+	private double molecularWeight;
+	private double timePerFrame;
+	private String visit;
+	private String username;
+	private String comment = "";
+	private String buffers = "";
+	private String mode = DEFAULT_HPLC_MODE;
 	private boolean isStaff;
 
 	public HplcBean() {
@@ -74,6 +72,7 @@ public class HplcBean implements IRichBean {
 		return visit;
 	}
 	public void setVisit(String visit) {
+		//TODO: remove permissions logic from bean
 		if (!(isStaff || this.visit.equals(visit))) {
 			throw new UnsupportedOperationException("User does not have permission to change username/visit");
 		}
@@ -83,6 +82,7 @@ public class HplcBean implements IRichBean {
 		return username;
 	}
 	public void setUsername(String username) {
+		//TODO: remove permissions logic from bean
 		if (!(isStaff || this.username.equals(username))) {
 			throw new UnsupportedOperationException("User does not have permission to change username/visit");
 		}
@@ -104,15 +104,12 @@ public class HplcBean implements IRichBean {
 		return mode;
 	}
 	public void setMode(String mode) {
-		if (!validMode(mode)) {
-			throw new UnsupportedOperationException("Mode is not valid");
+		if (mode == null || !MODES.containsKey(mode = mode.toUpperCase())) {
+			throw new IllegalArgumentException("Mode " + mode + " is not valid");
 		}
 		this.mode = mode;
 	}
 
-	private boolean validMode(String mode) {
-		return MODES.containsKey(mode);
-	}
 	@Override
 	public void clear() {
 		// TODO Auto-generated method stub

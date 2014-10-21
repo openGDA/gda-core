@@ -18,8 +18,6 @@
 
 package uk.ac.gda.devices.bssc.beans;
 
-import gda.factory.Finder;
-
 import java.net.URL;
 import java.util.List;
 
@@ -32,14 +30,18 @@ public class BSSCSessionBean implements IRichBean{
 
 	static public final URL mappingURL = BSSCSessionBean.class.getResource("BSSCMapping.xml");
 	static public final URL schemaURL  = BSSCSessionBean.class.getResource("BSSCMapping.xsd");
-	static public final PlateConfig BSSC_PLATES = Finder.getInstance().find("bsscPlates");
-	
+	static public PlateConfig BSSC_PLATES;
+
 	List<TitrationBean> measurements;
-	
+
 	public PlateConfig getPlateSetup() {
 		return BSSC_PLATES;
 	}
 
+	public static void setPlates(PlateConfig plates) {
+		BSSC_PLATES = plates;
+	}
+	
 	public void setPlateSetup(PlateConfig plates) {
 		if (!plates.equals(BSSC_PLATES)) {
 			throw new IllegalArgumentException("BSSC robot plates do not match machine setup");
@@ -49,11 +51,11 @@ public class BSSCSessionBean implements IRichBean{
 	public static BSSCSessionBean createFromXML(String filename) throws Exception {
 		return (BSSCSessionBean) XMLHelpers.createFromXML(mappingURL, BSSCSessionBean.class, schemaURL, filename);
 	}
-	
+
 	public static void writeToXML(BSSCSessionBean bean, String filename) throws Exception {
 		XMLHelpers.writeToXML(mappingURL, bean, filename);
 	}
-	
+
 	public List<TitrationBean> getMeasurements() {
 		return measurements;
 	}
@@ -61,20 +63,16 @@ public class BSSCSessionBean implements IRichBean{
 		this.measurements = measurements;
 		for (TitrationBean tb : measurements) {
 			LocationBean loc = tb.getLocation();
-//			LocationBean buf = tb.getBufferLocation();
 			LocationBean rec = tb.getRecouperateLocation();
 			if (loc.getConfig() == null) {
 				loc.setConfig(BSSC_PLATES);
 			}
-//			if (buf.getConfig() == null) {
-//				buf.setConfig(BSSC_PLATES);
-//			}
 			if (rec != null && rec.getConfig() == null) {
 				rec.setConfig(BSSC_PLATES);
 			}
 		}
 	}
-	
+
 	@Override
 	public void clear() {
 		measurements = null;
