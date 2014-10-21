@@ -18,7 +18,6 @@
 
 package gda.device.detector.areadetector.impl;
 
-import gda.analysis.DataSet;
 import gda.analysis.RCPPlotter;
 import gda.device.DeviceBase;
 import gda.device.detector.areadetector.AreaDetectorBin;
@@ -29,6 +28,7 @@ import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,7 +151,7 @@ public class AreaDetectorLiveViewImpl extends DeviceBase implements AreaDetector
 						
 						double scalefactor = binX*binY;
 						// the division here is to normalise the data so it always appears to be plain 16bit
-						DataSet data = image.getImage().__div__(scalefactor);
+						DoubleDataset data = image.getImage().idivide(scalefactor);
 
 						// set the max and min values so that the scale is correct
 						data.set(0, 0, 0);

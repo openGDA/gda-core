@@ -18,15 +18,12 @@
 
 package gda.device.detector.areadetector;
 
-import gda.analysis.DataSet;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import gda.factory.Configurable;
 import gda.factory.Localizable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
-/**
- *
- */
 @SuppressWarnings("deprecation")
 public interface EPICSAreaDetectorImage extends Localizable, Configurable {
 
@@ -65,6 +62,6 @@ public interface EPICSAreaDetectorImage extends Localizable, Configurable {
 	 * @throws TimeoutException if the data cannot be retrieved in time
 	 * @throws CAException if there are any other CA errors
 	 */
-	public DataSet getImage() throws TimeoutException, CAException, InterruptedException, InterruptedException;
+	public DoubleDataset getImage() throws TimeoutException, CAException, InterruptedException, InterruptedException;
 
 }

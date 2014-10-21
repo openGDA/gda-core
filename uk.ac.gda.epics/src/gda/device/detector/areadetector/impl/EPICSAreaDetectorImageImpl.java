@@ -18,7 +18,6 @@
 
 package gda.device.detector.areadetector.impl;
 
-import gda.analysis.DataSet;
 import gda.device.detector.areadetector.EPICSAreaDetectorImage;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
@@ -26,6 +25,8 @@ import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
 public class EPICSAreaDetectorImageImpl implements EPICSAreaDetectorImage {
 
@@ -172,11 +173,12 @@ public class EPICSAreaDetectorImageImpl implements EPICSAreaDetectorImage {
 	 *             if there are any other CA errors
 	 */
 	@Override
-	public DataSet getImage() throws TimeoutException, CAException, InterruptedException {
+	public DoubleDataset getImage() throws TimeoutException, CAException, InterruptedException {
 		int width = ecl.cagetInt(channelArrayWidth_RBV);
 		int height = ecl.cagetInt(channelArrayHeight_RBV);
 		double[] data = ecl.cagetDoubleArray(channelArrayData, width * height);
-		DataSet dataSet = new DataSet("PCOImage", height, width, data);
+		DoubleDataset dataSet = new DoubleDataset(data, height, width);
+		dataSet.setName("PCOImage");
 		return dataSet;
 	}
 
