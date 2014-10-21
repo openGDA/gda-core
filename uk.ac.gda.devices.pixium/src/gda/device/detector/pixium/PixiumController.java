@@ -18,7 +18,6 @@
 
 package gda.device.detector.pixium;
 
-import gda.analysis.DataSet;
 import gda.analysis.RCPPlotter;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
@@ -45,9 +44,9 @@ import gov.aps.jca.TimeoutException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Vector;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -751,14 +750,14 @@ public class PixiumController extends DetectorBase {
 
 		int binX;
 		int binY;
-		EPICSAreaDetectorImage image = null;
+		EPICSAreaDetectorImage threadimage = null;
 		PixiumController parent = null;
 		boolean preview = false;
 
 		public void setup(int binx, int biny, EPICSAreaDetectorImage image, PixiumController parent, boolean preview) {
 			this.binX = binx;
 			this.binY = biny;
-			this.image = image;
+			this.threadimage = image;
 			this.parent = parent;
 			this.preview = preview;
 		}
@@ -774,7 +773,7 @@ public class PixiumController extends DetectorBase {
 				try {
 					double scalefactor = binX*binY;
 					// the division here is to normalise the data so it always appears to be plain 16bit
-					DataSet data = (DataSet) image.getImage().__div__(scalefactor);
+					DoubleDataset data = threadimage.getImage().idivide(scalefactor);
 
 					// set it going
 					if(preview) {
