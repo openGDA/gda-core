@@ -156,7 +156,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 	@Override
 	public void atScanEnd() throws CorbaDeviceException {
 		try {
-			this.scannable.atScanLineEnd();
+			this.scannable.atScanEnd();
 		} catch (Throwable e) {
 			logger.error(e.getMessage(),e);
 			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
@@ -186,7 +186,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 	@Override
 	public void atScanStart() throws CorbaDeviceException {
 		try {
-			this.scannable.atScanLineStart();
+			this.scannable.atScanStart();
 		} catch (Throwable e) {
 			logger.error(e.getMessage(),e);
 			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
