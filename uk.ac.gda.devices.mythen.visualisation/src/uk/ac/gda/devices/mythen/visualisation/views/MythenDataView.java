@@ -18,12 +18,11 @@
 
 package uk.ac.gda.devices.mythen.visualisation.views;
 
-import gda.analysis.DataSet;
-
 import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.histogram.functions.AbstractMapFunction;
 import org.eclipse.dawnsci.plotting.api.histogram.functions.ConstMapFunction;
 import org.eclipse.dawnsci.plotting.api.histogram.functions.SquareRootMapFunction;
@@ -72,7 +71,7 @@ public class MythenDataView extends ViewPart {
 		}
 	}
 
-	public void plot2D(DataSet data) {
+	public void plot2D(DoubleDataset data) {
 		replacePlotter(PlottingMode.TWOD);
 		
 		try {

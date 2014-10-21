@@ -18,8 +18,6 @@
 
 package gda.device.detector.mythen.data;
 
-import gda.analysis.DataSet;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,8 +56,7 @@ public class MythenProcessedDataset {
 	 */
 	public MythenProcessedDataset(File file) {
 		lines = new Vector<MythenProcessedData>();
-		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))){
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				String[] tokens = line.split(" ");
@@ -163,12 +160,14 @@ public class MythenProcessedDataset {
 	}
 	
 	/**
-	 * Returns a {@link DataSet} containing the angles in this dataset.
+	 * Returns a {@link DoubleDataset} containing the angles in this dataset.
 	 * 
-	 * @return a {@link DataSet} of angles
+	 * @return a {@link DoubleDataset} of angles
 	 */
-	public DataSet getAngleDataSet() {
-		return new DataSet("angle", getAngleArray());
+	public DoubleDataset getAngleDataSet() {
+		DoubleDataset ds =  new DoubleDataset(getAngleArray());
+		ds.setName("angle");
+		return ds;
 	}
 	/**
 	 * Returns a {@link IDataset} containing the angles in this dataset.
@@ -181,12 +180,14 @@ public class MythenProcessedDataset {
 		return dataset;
 	}
 	/**
-	 * Returns a {@link DataSet} containing the counts in this dataset.
+	 * Returns a {@link DoubleDataset} containing the counts in this dataset.
 	 * 
-	 * @return a {@link DataSet} of counts
+	 * @return a {@link DoubleDataset} of counts
 	 */
-	public DataSet getCountDataSet() {
-		return new DataSet("count", getCountArray());
+	public DoubleDataset getCountDataSet() {
+		DoubleDataset ds =  new DoubleDataset(getCountArray());
+		ds.setName("count");
+		return ds;
 	}
 	public Dataset getCountDataset() {
 		DoubleDataset dataset = new DoubleDataset(getCountArray());
