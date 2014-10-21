@@ -28,8 +28,8 @@ public class HatsaxsUtils {
 	private static final String VISIT_DIRECTORY_PROPERTY = "gda.data.visitdirectory";
 	
 	private static final String DEFAULT_FILE_NAME = "default";
-	private static final String BIOSAXS_EXTENSION = "biosaxs";
-	private static final String HPLC_EXTENSION = "hplc";
+	public static final String BIOSAXS_EXTENSION = "biosaxs";
+	public static final String HPLC_EXTENSION = "hplc";
 	
 	public static String getXmlDirectory() {
 		return PathConstructor.createFromTemplate(LocalProperties.get(VISIT_DIRECTORY_PROPERTY) + "/xml/");
