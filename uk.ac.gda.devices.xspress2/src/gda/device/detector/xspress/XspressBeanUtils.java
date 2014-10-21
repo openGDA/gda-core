@@ -38,9 +38,8 @@ public class XspressBeanUtils {
 			logger.error("Could not create XspressParameters bean " + e.getMessage());
 			throw e;
 		}
-
 	}
-
+	
 	public static void createXMLfromBean(Xspress2Detector xspress2System,
 			XspressParameters xspressBean) throws Exception {
 		try {

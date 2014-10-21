@@ -372,7 +372,6 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 				}
 			});
 		}
-		// offset.setEnabled(false);
 	}
 
 	private void createRight(final Composite main) {

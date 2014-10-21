@@ -1,4 +1,3 @@
-<<<<<<< Upstream, based on origin/master
 *.class
 
 # ignore build output
@@ -12,6 +11,4 @@
 *.class
 
 
-=======
 /bin/
->>>>>>> f0e1215 XAS-172 changes to allow the client and editors to start
