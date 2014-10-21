@@ -11,7 +11,6 @@ from gda.device.scannable.scannablegroup import ScannableGroup
 from gda.data.scan.datawriter import DataWriterFactory
 from gda.factory import Finder
 import gda.jython.commands.ScannableCommands.scan
-from gda.analysis import DataSet
 from org.eclipse.dawnsci.analysis.dataset.roi import GridROI
 from uk.ac.diamond.scisoft.analysis.plotserver import GuiParameters
 from gdascripts.messages import handle_messages
