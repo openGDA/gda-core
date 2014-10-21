@@ -2,14 +2,15 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Hplc
 Bundle-SymbolicName: uk.ac.gda.devices.hplc;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.0
 Bundle-Activator: uk.ac.gda.devices.hplc.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.dawnsci.common.widgets,
  org.eclipse.ui.workbench,
  uk.ac.gda.core;bundle-version="8.42.0",
- org.eclipse.core.expressions
+ org.eclipse.core.expressions,
+ uk.ac.gda.devices.hatsaxs;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: gda.configuration.properties,
@@ -29,12 +30,10 @@ Import-Package: gda.configuration.properties,
  org.eclipse.ui.ide,
  org.eclipse.ui.part,
  org.slf4j;version="1.7.6",
+ org.springframework.beans.factory;version="4.0.6.RELEASE",
  uk.ac.gda.beans,
  uk.ac.gda.client,
  uk.ac.gda.common.rcp.util,
- uk.ac.gda.devices.hatsaxs,
- uk.ac.gda.devices.hatsaxs.beans,
- uk.ac.gda.devices.hatsaxs.ui,
  uk.ac.gda.richbeans.components,
  uk.ac.gda.richbeans.components.scalebox,
  uk.ac.gda.richbeans.editors,
@@ -44,3 +43,6 @@ Import-Package: gda.configuration.properties,
 Export-Package: uk.ac.gda.devices.hplc,
  uk.ac.gda.devices.hplc.beans,
  uk.ac.gda.devices.hplc.ui
+Bundle-ClassPath: .
+Bundle-Vendor: Diamond Light Source
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework

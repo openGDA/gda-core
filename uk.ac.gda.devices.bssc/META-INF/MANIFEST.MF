@@ -39,16 +39,25 @@ Require-Bundle: org.eclipse.ui,
  org.apache.commons.math3,
  org.dawnsci.plotting.system,
  org.dawnsci.plotting.draw2d;bundle-version="1.2.0",
- uk.ac.diamond.scisoft.ncd.core;bundle-version="3.0.0",
- uk.ac.gda.devices.hatsaxs;bundle-version="1.0.0"
+ uk.ac.diamond.scisoft.ncd.core;bundle-version="3.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: uk.ac.gda.devices.bssc,
  uk.ac.gda.devices.bssc.beans,
  uk.ac.gda.devices.bssc.ispyb,
  uk.ac.gda.devices.bssc.ui
-Import-Package: org.dawnsci.plotting.tools.profile,
+Import-Package: org.apache.poi.openxml4j.exceptions,
+ org.apache.poi.ss.usermodel,
+ org.dawnsci.plotting.tools.profile,
  org.dawnsci.plotting.views,
- org.slf4j;version="[1.7.6,1.7.7)"
+ org.embl,
+ org.embl.ctrl,
+ org.embl.data,
+ org.embl.net,
+ org.slf4j;version="[1.7.6,1.7.7)",
+ uk.ac.gda.devices.hatsaxs,
+ uk.ac.gda.devices.hatsaxs.beans,
+ uk.ac.gda.devices.hatsaxs.ui,
+ uk.ac.gda.devices.hatsaxs.wizards
 Eclipse-RegisterBuddy: uk.ac.gda.core
 Bundle-ClassPath: jars/BSSC.jar,
  .

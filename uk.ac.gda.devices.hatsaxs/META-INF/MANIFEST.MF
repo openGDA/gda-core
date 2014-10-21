@@ -4,12 +4,19 @@ Bundle-Name: Hatsaxs
 Bundle-SymbolicName: uk.ac.gda.devices.hatsaxs
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: gda.configuration.properties
+Import-Package: gda.configuration.properties,
+ gda.rcp,
+ org.eclipse.core.resources,
+ org.eclipse.ui.dialogs,
+ org.eclipse.ui.ide,
+ org.osgi.framework;version="1.7.0",
+ org.springframework.beans.factory;version="4.0.6.RELEASE"
 Require-Bundle: uk.ac.gda.core,
  uk.ac.gda.common,
  org.eclipse.jface,
  uk.ac.gda.common.rcp,
- org.eclipse.ui.workbench
+ org.eclipse.ui.workbench,
+ org.eclipse.core.runtime;bundle-version="3.8.0"
 Export-Package: org.apache.poi.openxml4j.exceptions,
  org.apache.poi.ss.usermodel,
  org.embl,
@@ -17,5 +24,19 @@ Export-Package: org.apache.poi.openxml4j.exceptions,
  org.embl.data,
  org.embl.net,
  uk.ac.gda.devices.hatsaxs,
- uk.ac.gda.devices.hatsaxs.beans,
- uk.ac.gda.devices.hatsaxs.ui
+ uk.ac.gda.devices.hatsaxs.beans;uses:="uk.ac.gda.beans,gda.factory",
+ uk.ac.gda.devices.hatsaxs.ui;
+  uses:="uk.ac.gda.richbeans.editors,
+   org.eclipse.swt.graphics,
+   org.eclipse.jface.viewers,
+   org.eclipse.swt.widgets",
+ uk.ac.gda.devices.hatsaxs.wizards
+Bundle-ClassPath: .,
+ jars/JLib.jar,
+ jars/poi-3.9-20121203.jar,
+ jars/poi-examples-3.9-20121203.jar,
+ jars/poi-excelant-3.9-20121203.jar,
+ jars/poi-ooxml-3.9-20121203.jar,
+ jars/poi-ooxml-schemas-3.9-20121203.jar,
+ jars/poi-scratchpad-3.9-20121203.jar
+Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework

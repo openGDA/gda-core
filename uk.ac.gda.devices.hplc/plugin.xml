@@ -90,7 +90,7 @@
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
             class="uk.ac.gda.devices.hplc.perspectives.PerspectivePropertyTester"
-            id="uk.ac.gda.devices.bssc.perspectives.PerspectivePropertyTester"
+            id="uk.ac.gda.devices.hplc.perspectives.PerspectivePropertyTester"
             namespace="uk.ac.gda.devices.hplc.perspectives.PerspectivePropertyTester"
             properties="isKnownPerspective"
             type="java.lang.Object">
