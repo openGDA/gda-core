@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.opengda.lde.events.DataReductionFailedEvent;
 import org.opengda.lde.events.NewDataFileEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -213,11 +214,20 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 		if(arg instanceof ScannablePositionChangeEvent){
 			Object pos = ((ScannablePositionChangeEvent)arg).newPosition;
 			if( pos instanceof String){
-				String reductedDataFilename=(String)pos;
-				InterfaceProvider.getTerminalPrinter().print("Plotting reduced data from file "+reductedDataFilename);
-				logger.info("Plotting reduced data from file {}",reductedDataFilename);
-				if (getEventAdmin() != null) {
-					((ScriptControllerBase)eventAdmin).update(getEventAdmin(), new NewDataFileEvent(reductedDataFilename));
+				String messages=(String)pos;
+				String [] fields = messages.split(",",2);
+				if (fields[0].equalsIgnoreCase("OK")) {
+					InterfaceProvider.getTerminalPrinter().print("Plotting reduced data from file "+fields[1]);
+					logger.info("Plotting reduced data from file {}",fields[1]);
+					if (getEventAdmin() != null) {
+						((ScriptControllerBase)eventAdmin).update(getEventAdmin(), new NewDataFileEvent(fields[1]));
+					}
+				} else if (fields[0].equalsIgnoreCase("FAIL")) {
+					InterfaceProvider.getTerminalPrinter().print("Data reduction failed: "+fields[1]);
+					logger.warn("Data reduction failed: {}",fields[1]);
+					if (getEventAdmin() != null) {
+						((ScriptControllerBase)eventAdmin).update(getEventAdmin(), new DataReductionFailedEvent(fields[1]));
+					}
 				}
 			}
 		}
