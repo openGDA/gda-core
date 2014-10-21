@@ -576,12 +576,12 @@ public abstract class ScanBase implements NestableScan {
 
 				// if a standalone scan, or the top-level scan in a nest of scans
 				if (!isChild() ) { // FIXME: Move all !isChild() logic up into runScan
-					callScannablesAtScanEnd();
+					shutdownScandataPipeline(true);
 
 					callDetectorsEndCollection();
 
+					callScannablesAtScanEnd();
 
-					shutdownScandataPipeline(true);
 					signalScanComplete();
 
 				}
