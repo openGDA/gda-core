@@ -24,7 +24,6 @@ import gda.factory.Localizable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
-@SuppressWarnings("deprecation")
 public interface EPICSAreaDetectorImage extends Localizable, Configurable {
 
 	// getters and setters for spring
