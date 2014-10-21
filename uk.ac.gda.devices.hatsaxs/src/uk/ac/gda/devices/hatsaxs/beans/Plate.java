@@ -21,6 +21,7 @@ package uk.ac.gda.devices.hatsaxs.beans;
 import java.io.Serializable;
 
 public class Plate implements Serializable {
+	private static final long serialVersionUID = 1942532991825612943L;
 	private int rowCount;
 	private int columnCount;
 	private String name;
