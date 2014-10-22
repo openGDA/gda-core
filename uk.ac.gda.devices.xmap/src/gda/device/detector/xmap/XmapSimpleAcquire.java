@@ -19,6 +19,7 @@
 package gda.device.detector.xmap;
 
 import gda.device.DeviceException;
+import gda.device.detector.addetector.triggering.CollectionStrategyBeanInterface;
 import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
@@ -32,7 +33,7 @@ import gda.scan.ScanInformation;
  * This plugin could be used as a base for a software triggered strategy, but as
  * this is not a full implementation it is abstract.
  */
-public abstract class XmapSimpleAcquire implements AsyncNXCollectionStrategy {
+public abstract class XmapSimpleAcquire implements CollectionStrategyBeanInterface {
 
 	private EDXDMappingController xmap;
 
@@ -64,6 +65,12 @@ public abstract class XmapSimpleAcquire implements AsyncNXCollectionStrategy {
 			ScanInformation scanInfo) throws Exception {
 		throw new UnsupportedOperationException(
 				"Must be operated via prepareForCollection(collectionTime, numberImagesPerCollection)");
+	}
+	
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if( xmap == null)
+			throw new RuntimeException("xmap is not set");
 	}
 
 	@Override

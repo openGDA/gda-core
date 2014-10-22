@@ -20,56 +20,55 @@ package gda.device.detector.xmap;
 
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
+import gda.device.detector.xmap.edxd.EDXDController.PIXEL_ADVANCE_MODE;
 import gda.device.detector.xmap.edxd.EDXDController.PRESET_TYPES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.detector.xmap.edxd.NDHDF5PVProvider;
+import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * Drive the XIA Xmap card using hardware triggers in Constant Velocity scans.
  */
 public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 
-	private NDHDF5PVProvider ndHDF5PVProvider;
-	private int totalNumberImages;
-
-	public XmapHardwareTriggeredCollectionStrategy(EDXDMappingController xmap,
-			NDHDF5PVProvider nDHDF5PVProvider) throws DeviceException {
+	
+	private int pixelsPerBuffer = 124; // will always be this by default when auto pixels per buffer 
+	
+	
+	public XmapHardwareTriggeredCollectionStrategy(EDXDMappingController xmap) throws DeviceException {
 		super(xmap, -1);
-		this.ndHDF5PVProvider = nDHDF5PVProvider;
+		//this.ndHDF5PVProvider = nDHDF5PVProvider;
 	}
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
 		getXmap().setCollectionMode(COLLECTION_MODES.MCA_MAPPING);
 		getXmap().setPresetType(PRESET_TYPES.NO_PRESET);
-		getXmap().setPixelsPerRun(scanInfo.getDimensions()[1]);
-		getXmap().setAutoPixelsPerBuffer(true);
-		int pixelsPerBuffer = 124; // will always be this when auto pixels per buffer
-		int numberOfBuffers = (scanInfo.getDimensions()[1] / pixelsPerBuffer )+ 1;
-		ndHDF5PVProvider.setNumberOfPixels(numberOfBuffers); // TODO rename this method as it is wrong and misleading
-		ndHDF5PVProvider.setNumExtraDims(0);
-		totalNumberImages = 1;
-		for(int dimSize : scanInfo.getDimensions()) {
-			totalNumberImages *= dimSize;
-		}
+		getXmap().setPixelAdvanceMode(PIXEL_ADVANCE_MODE.GATE);
+		getXmap().setIgnoreGate(false);
+		getXmap().setPixelsPerRun(numImages);
+		getXmap().setAutoPixelsPerBuffer(false);
+		
 	}
 	
 	
 	@Override
 	public void prepareForLine() throws Exception {
-		getXmap().start(); // restart collection at every line for this class
+//		getXmap().start(); // restart collection at every line for this class
 	}
 	
 	@Override
 	public void collectData() throws Exception {
-//		getXmap().start();
+		getXmap().start();
 	}
 
 	@Override
@@ -84,23 +83,45 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 
 	@Override
 	public List<String> getInputStreamNames() {
-		return new ArrayList<String>();
+		List<String> fieldNames = new ArrayList<String>();
+		
+			fieldNames.add("count_time");
+		
+			return fieldNames;
+		
+		//return new ArrayList<String>();
 	}
 
 	@Override
 	public List<String> getInputStreamFormats() {
-		return new ArrayList<String>();
+		List<String> formats = new ArrayList<String>();
+		
+			formats.add("%.2f");
+		
+		return formats;
+		//return new ArrayList<String>();
 	}
 
 	@Override
 	public List<NXDetectorDataAppender> read(int maxToRead)
 			throws NoSuchElementException, InterruptedException,
 			DeviceException {
-		ArrayList<NXDetectorDataAppender> output = new ArrayList<NXDetectorDataAppender>();
-		for (int i = 0; i < totalNumberImages; i++){
+		/*ArrayList<NXDetectorDataAppender> output = new ArrayList<NXDetectorDataAppender>();
+		//for (int i = 0; i < totalNumberImages; i++){
 			output.add(new NXDetectorDataNullAppender()) ;
+		//}
+		return output;*/
+		List<Double> times = new ArrayList<Double>();
+		
+		try {
+				times.add(0.0);
+		} catch (Exception e) {
+				throw new DeviceException(e);
 		}
-		return output;
+		
+		Vector<NXDetectorDataAppender> vector = new Vector<NXDetectorDataAppender>();
+		vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times));
+		return vector;
 	}
 
 	@Override
@@ -108,4 +129,6 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 			throws Exception {
 		// do nothing here		
 	}
+	
+
 }
