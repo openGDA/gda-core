@@ -146,8 +146,10 @@ public class StepMap extends ExafsScan implements MappingScan {
 		log("Number y points: " + ny);
 		mfd = new MicroFocusWriterExtender(nx, ny, mapScanParameters.getXStepSize(), mapScanParameters.getYStepSize(), detectorConfigurationBean, detectorList);
 		// this updates the Elements view in the Mircofocus UI with the list of elements
-		String fluoConfigFileName = this.experimentFullPath + detectorBean.getFluorescenceParameters().getConfigFileName();
-		elementListScriptController.update(this,fluoConfigFileName);
+		if (elementListScriptController != null){
+			String fluoConfigFileName = this.experimentFullPath + detectorBean.getFluorescenceParameters().getConfigFileName();
+			elementListScriptController.update(this,fluoConfigFileName);
+		}
 	}
 
 	@Override

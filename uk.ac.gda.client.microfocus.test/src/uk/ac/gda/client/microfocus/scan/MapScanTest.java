@@ -191,7 +191,7 @@ public class MapScanTest {
 		mapscan = new StepMap(beamlinepreparer, detectorPreparer, samplePreparer, outputPreparer,
 				commandQueueProcessor, XASLoggingScriptController, datawriterconfig,
 				new ArrayList<AsciiMetadataConfig>(), energy_scannable, metashop, true, ionchambers, x_scannable,
-				y_scannable, z_scannable);
+				y_scannable, z_scannable, null);
 
 		// create the beans and give to the XasScan
 		Region region = new Region();
