@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
@@ -72,6 +73,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.nebula.widgets.formattedtext.FormattedTextCellEditor;
 import org.eclipse.swt.SWT;
@@ -114,6 +116,15 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import uk.ac.gda.client.CommandQueueViewFactory;
+
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.layout.RowData;
 
 /**
  * This sample view shows data obtained from the EMF model. 
@@ -166,10 +177,11 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private Action doubleClickAction;
 	private Action startAction;
 	private Action stopAction;
-	private boolean paused;
 	private Action pauseAction;
 	private Action resumeAction;
 	private Action skipAction;
+	
+	private boolean paused;
 	private boolean running;
 	
 	private Action addAction;
@@ -180,11 +192,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 	private Resource resource;
 	private boolean isDirty;
-	private Text txtFilePath;
-	private Text txtDataFilename;
-	private Text txtProcessorMessage;
 	protected int nameCount;
-	private ProgressBar progressBar;
 	
 	/**
 	 * The constructor.
@@ -229,43 +237,152 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		}
 
 		Composite statusArea=new Composite(rootComposite, SWT.NONE);
-		statusArea.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+		GridData gd_statusArea = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
+		gd_statusArea.heightHint = 147;
+		statusArea.setLayoutData(gd_statusArea);
 		statusArea.setLayout(new GridLayout(4, false));
 		
-		Label lblSampleListFile = new Label(statusArea, SWT.None);
-		lblSampleListFile.setText("Sample Definition File: ");
+		Group grpDataFile = new Group(statusArea, SWT.NONE);
+		GridData gd_grpDataFile = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_grpDataFile.widthHint = 290;
+		grpDataFile.setLayoutData(gd_grpDataFile);
+		grpDataFile.setLayout(null);
+		grpDataFile.setText("Data File");
+		
+		txtDataFilePath = new Text(grpDataFile, SWT.BORDER);
+		txtDataFilePath.setBounds(7, 15, 280, 26);
+		txtDataFilePath.setText("Current data file path");
+		txtDataFilePath.setForeground(ColorConstants.lightGreen);
+		txtDataFilePath.setBackground(ColorConstants.black);
+		
+		Group grpSamplesFileShown = new Group(statusArea, SWT.NONE);
+		grpSamplesFileShown.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		grpSamplesFileShown.setText("Samples file shown in the table above");
+		
+		txtSamplesfile = new Text(grpSamplesFileShown, SWT.BORDER);
+		txtSamplesfile.setEditable(false);
+		txtSamplesfile.setForeground(ColorConstants.lightGreen);
+		txtSamplesfile.setBackground(ColorConstants.black);
+		txtSamplesfile.setText("samples definition file path");
+		txtSamplesfile.setBounds(10, 17, 250, 26);
+		
+		Group grpNoSamplesTo = new Group(statusArea, SWT.NONE);
+		GridData gd_grpNoSamplesTo = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_grpNoSamplesTo.widthHint = 111;
+		gd_grpNoSamplesTo.heightHint = 28;
+		grpNoSamplesTo.setLayoutData(gd_grpNoSamplesTo);
+		grpNoSamplesTo.setText("No. samples collect");
+		grpNoSamplesTo.setLayout(new RowLayout(SWT.HORIZONTAL));
+		
+		txtActivesamples = new Text(grpNoSamplesTo, SWT.BORDER | SWT.RIGHT);
+		txtActivesamples.setLayoutData(new RowData(117, SWT.DEFAULT));
+		txtActivesamples.setEditable(false);
+		txtActivesamples.setForeground(ColorConstants.lightGreen);
+		txtActivesamples.setBackground(ColorConstants.black);
+		txtActivesamples.setText("0");
 
-		txtFilePath = new Text(statusArea, SWT.BORDER | SWT.READ_ONLY);
-		txtFilePath.setToolTipText("show the filename holding the sample list displayed in the table above");
-		txtFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtFilePath.setEditable(false);
-		
-		Label lblDataFile = new Label(statusArea, SWT.NONE);
-		lblDataFile.setText("Collecting Data File:");
-		
-		txtDataFilename = new Text(statusArea, SWT.BORDER);
-		txtDataFilename.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtDataFilename.setEditable(false);
-		txtDataFilename.setToolTipText("Data file to be written for the current collection");
-		
-		Label lblProgress = new Label(statusArea, SWT.NONE);
+		Group grpMinColltionTime = new Group(statusArea, SWT.NONE);
+		grpMinColltionTime.setText("Min. colltion time");
+		grpMinColltionTime.setLayout(null);
+
+		txtTotalTime = new Text(grpMinColltionTime, SWT.BORDER | SWT.RIGHT);
+		txtTotalTime.setForeground(ColorConstants.lightGreen);
+		txtTotalTime.setText("0");
+		txtTotalTime.setEditable(false);
+		txtTotalTime.setBackground(ColorConstants.black);
+		txtTotalTime.setBounds(2, 16, 117, 26);
+
+		Group grpDataCollectionProgress = new Group(statusArea, SWT.NONE);
+		grpDataCollectionProgress.setLayout(new GridLayout(8, false));
+		GridData gd_grpDataCollectionProgress = new GridData(SWT.FILL, SWT.TOP,
+				false, true, 4, 1);
+		gd_grpDataCollectionProgress.heightHint = 67;
+		grpDataCollectionProgress.setLayoutData(gd_grpDataCollectionProgress);
+		grpDataCollectionProgress.setText("Data Collection Progress");
+
+		Label lblCurrentScanNumber = new Label(grpDataCollectionProgress,
+				SWT.NONE);
+		lblCurrentScanNumber.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
+				false, false, 1, 1));
+		lblCurrentScanNumber.setText("Current Scan Number:");
+
+		txtScanNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
+		txtScanNumber.setEditable(false);
+		txtScanNumber.setForeground(ColorConstants.lightGreen);
+		txtScanNumber.setBackground(ColorConstants.black);
+		txtScanNumber.setText("12345");
+		GridData gd_txtScanNumber = new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1);
+		gd_txtScanNumber.widthHint = 60;
+		txtScanNumber.setLayoutData(gd_txtScanNumber);
+
+		Label lblCurrentSample = new Label(grpDataCollectionProgress, SWT.NONE);
+		lblCurrentSample.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
+				false, false, 1, 1));
+		lblCurrentSample.setText("Current Sample:");
+
+		txtSamplename = new Text(grpDataCollectionProgress, SWT.BORDER);
+		txtSamplename.setEditable(false);
+		txtSamplename.setForeground(ColorConstants.lightGreen);
+		txtSamplename.setBackground(ColorConstants.black);
+		txtSamplename.setText("sampleName");
+		GridData gd_txtSamplename = new GridData(SWT.FILL, SWT.CENTER, false,
+				false, 1, 1);
+		gd_txtSamplename.widthHint = 100;
+		txtSamplename.setLayoutData(gd_txtSamplename);
+
+		Label lblSampleNumber = new Label(grpDataCollectionProgress, SWT.NONE);
+		lblSampleNumber.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
+				false, false, 1, 1));
+		lblSampleNumber.setText("Sample Number:");
+
+		txtSampleNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
+		txtSampleNumber.setEditable(false);
+		txtSampleNumber.setBackground(ColorConstants.black);
+		txtSampleNumber.setForeground(ColorConstants.lightGreen);
+		txtSampleNumber.setText("0/0");
+		GridData gd_txtSampleNumber = new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1);
+		gd_txtSampleNumber.widthHint = 40;
+		txtSampleNumber.setLayoutData(gd_txtSampleNumber);
+
+		Label lblScanPointNumber = new Label(grpDataCollectionProgress,
+				SWT.NONE);
+		lblScanPointNumber.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
+				false, false, 1, 1));
+		lblScanPointNumber.setText("Scan Point Number:");
+
+		txtScanPointNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
+		txtScanPointNumber.setEditable(false);
+		txtScanPointNumber.setForeground(ColorConstants.lightGreen);
+		txtScanPointNumber.setBackground(ColorConstants.black);
+		txtScanPointNumber.setText("1/3");
+		GridData gd_txtScanPointNumber = new GridData(SWT.FILL, SWT.CENTER,
+				true, false, 1, 1);
+		gd_txtScanPointNumber.widthHint = 40;
+		txtScanPointNumber.setLayoutData(gd_txtScanPointNumber);
+
+		Label lblProgress = new Label(grpDataCollectionProgress, SWT.NONE);
 		lblProgress.setText("Acquisition Progress:");
-		
-		progressBar = new ProgressBar(statusArea, SWT.NONE);
-		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		progressBar.setToolTipText("show the data collection progress based on the list of active samples displayed in the table");
-		progressBar.setMinimum(0);
-		progressBar.setMaximum(1000);
-		
-		Label lblCurrentState = new Label(statusArea, SWT.NONE);
-		lblCurrentState.setText("Processor Messages:");
-		
-		txtProcessorMessage = new Text(statusArea, SWT.BORDER);
-		txtProcessorMessage.setEditable(false);
-		txtProcessorMessage.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtProcessorMessage.setToolTipText("show the current process position out of the total number of active processes ");
-		txtProcessorMessage.setText("Waiting to start");
-		
+
+		progressBar = new ProgressBar(grpDataCollectionProgress, SWT.NONE);
+		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
+				false, 3, 1));
+
+		Label lblProgressMessage = new Label(grpDataCollectionProgress,
+				SWT.NONE);
+		lblProgressMessage.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
+				false, false, 1, 1));
+		lblProgressMessage.setText("Progress Message:");
+
+		txtProgressMessage = new Text(grpDataCollectionProgress, SWT.BORDER);
+		txtProgressMessage.setForeground(ColorConstants.lightGreen);
+		txtProgressMessage.setBackground(ColorConstants.black);
+		txtProgressMessage.setEditable(false);
+		txtProgressMessage.setText("progressMessage");
+		txtProgressMessage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
+				true, false, 3, 1));
+
 		initialisation();
 		// register as selection provider to the SelectionService
 		getViewSite().setSelectionProvider(this);
@@ -339,7 +456,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			}
 		}
 		if (getResUtil() != null) {
-			txtFilePath.setText(getResUtil().getFileName());
+			txtSamplesfile.setText(getResUtil().getFileName());
 		}
 		
 		samples=sampleList.getSamples();
@@ -379,7 +496,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 								}
 							}
 							if (!itemBeingProcessed) {
-								txtProcessorMessage.setText("No command to process.");
+								txtProgressMessage.setText("No command to process.");
 								progressBar.setSelection(0);
 							}
 							running = false;
@@ -393,6 +510,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			} else if (arg instanceof gda.commandqueue.Command.STATE) {
 				//update sample status and selection
 				Display.getDefault().asyncExec(new Runnable() {
+					private Action txtDataFilename;
+
 					@Override
 					public void run() {
 						if (currentItem == null) {
@@ -434,7 +553,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 					@Override
 					public void run() {
 						progressBar.setSelection((int) (cprog.getPercentDone() * progressBar.getMaximum()));
-						txtProcessorMessage.setText(cprog.getMsg());
+						txtProgressMessage.setText(cprog.getMsg());
 					}
 				});
 			}
@@ -1294,6 +1413,16 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			}
 		}
 	};
+	private Text txtTotalTime;
+	private Text txtSamplesfile;
+	private Text txtActivesamples;
+	private Text txtDataFilePath;
+	private Text txtSamplename;
+	private Text txtScanNumber;
+	private Text txtSampleNumber;
+	private Text txtScanPointNumber;
+	private Text txtProgressMessage;
+	private ProgressBar progressBar;
 
 	
 	private void hookContextMenu() {
@@ -1327,7 +1456,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		manager.add(copyAction);
 		manager.add(undoAction);
 		manager.add(redoAction);
-		
+		manager.add(new Separator());
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
@@ -1342,6 +1471,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		manager.add(copyAction);
 		manager.add(undoAction);
 		manager.add(redoAction);
+		manager.add(new Separator());
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
@@ -1358,6 +1488,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		manager.add(copyAction);
 		manager.add(undoAction);
 		manager.add(redoAction);
+		manager.add(new Separator());
 	}
 
 	private void hookDoubleClickAction() {
