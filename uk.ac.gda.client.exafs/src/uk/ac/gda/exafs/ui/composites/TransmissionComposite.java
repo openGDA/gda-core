@@ -22,29 +22,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.beans.exafs.DetectorParameters;
-import uk.ac.gda.exafs.ExafsActivator;
-import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
-import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.richbeans.event.ValueListener;
 
-/**
- * @author Matthew Gerring
- */
 public class TransmissionComposite extends WorkingEnergyWithIonChambersComposite {
 
-	private BooleanWrapper collectDiffractionImages;
-	private ScaleBox mythenEnergy;
-	private ScaleBox mythenTime;
-
-	/**
-	 * @param parent
-	 * @param style
-	 */
 	public TransmissionComposite(Composite parent, int style, DetectorParameters abean) {
 		super(parent, style, abean);
 		setLayout(new GridLayout());
@@ -55,63 +37,10 @@ public class TransmissionComposite extends WorkingEnergyWithIonChambersComposite
 		gridLayout.numColumns = 2;
 		top.setLayout(gridLayout);
 		
-		if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.SHOW_MYTHEN)) {
-
-			final Label collectDiffImagesLabel = new Label(top, SWT.NONE);
-			collectDiffImagesLabel.setText("Diffraction Images");
-
-			final Composite diffractionComp = new Composite(top, SWT.NONE);
-			diffractionComp.setLayout(new GridLayout(5, true));
-
-			collectDiffractionImages = new BooleanWrapper(diffractionComp, SWT.NONE);
-			collectDiffractionImages.setToolTipText("Collect diffraction data at the start and end of scans");
-			collectDiffractionImages.setText("Collect");
-
-			final Label mythenEnergyLabel = new Label(diffractionComp, SWT.NONE);
-			mythenEnergyLabel.setText("     Energy");
-			mythenEnergy = new ScaleBox(diffractionComp, SWT.NONE);
-			mythenEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			mythenEnergy.setMaximum(20000.0);
-			mythenEnergy.setUnit("eV");
-
-			final Label mythenTimeLabel = new Label(diffractionComp, SWT.NONE);
-			mythenTimeLabel.setText("     Time");
-			mythenTime = new ScaleBox(diffractionComp, SWT.NONE);
-			mythenTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-
-
-					
-			collectDiffractionImages.addValueListener(new ValueListener() {
-
-				@Override
-				public String getValueListenerName() {
-					return null;
-				}
-
-				@Override
-				public void valueChangePerformed(ValueEvent e) {
-					mythenEnergy.setVisible(collectDiffractionImages.getValue());
-					mythenTime.setVisible(collectDiffractionImages.getValue());
-					mythenEnergyLabel.setVisible(collectDiffractionImages.getValue());
-					mythenTimeLabel.setVisible(collectDiffractionImages.getValue());
-				}
-			});
-		}
+		createDiffractionSection(top);
 
 		createEdgeEnergy(top);
 
 		createIonChamberSection(abean);
-	}
-
-	public ScaleBox getMythenEnergy() {
-		return mythenEnergy;
-	}
-
-	public ScaleBox getMythenTime() {
-		return mythenTime;
-	}
-
-	public BooleanWrapper getCollectDiffractionImages() {
-		return collectDiffractionImages;
 	}
 }
