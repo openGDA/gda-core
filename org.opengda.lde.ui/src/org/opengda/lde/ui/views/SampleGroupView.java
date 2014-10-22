@@ -73,7 +73,6 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.nebula.widgets.formattedtext.FormattedTextCellEditor;
 import org.eclipse.swt.SWT;
@@ -81,8 +80,11 @@ import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowData;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
@@ -116,15 +118,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import uk.ac.gda.client.CommandQueueViewFactory;
-
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.layout.RowData;
 
 /**
  * This sample view shows data obtained from the EMF model. 
@@ -237,26 +231,26 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		}
 
 		Composite statusArea=new Composite(rootComposite, SWT.NONE);
-		GridData gd_statusArea = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
+		GridData gd_statusArea = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
 		gd_statusArea.heightHint = 147;
 		statusArea.setLayoutData(gd_statusArea);
 		statusArea.setLayout(new GridLayout(4, false));
 		
 		Group grpDataFile = new Group(statusArea, SWT.NONE);
-		GridData gd_grpDataFile = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		grpDataFile.setLayout(new FillLayout(SWT.HORIZONTAL));
+		GridData gd_grpDataFile = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_grpDataFile.widthHint = 290;
 		grpDataFile.setLayoutData(gd_grpDataFile);
-		grpDataFile.setLayout(null);
 		grpDataFile.setText("Data File");
 		
 		txtDataFilePath = new Text(grpDataFile, SWT.BORDER);
-		txtDataFilePath.setBounds(7, 15, 280, 26);
 		txtDataFilePath.setText("Current data file path");
 		txtDataFilePath.setForeground(ColorConstants.lightGreen);
 		txtDataFilePath.setBackground(ColorConstants.black);
 		
 		Group grpSamplesFileShown = new Group(statusArea, SWT.NONE);
-		grpSamplesFileShown.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		grpSamplesFileShown.setLayout(new FillLayout(SWT.HORIZONTAL));
+		grpSamplesFileShown.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		grpSamplesFileShown.setText("Samples file shown in the table above");
 		
 		txtSamplesfile = new Text(grpSamplesFileShown, SWT.BORDER);
@@ -264,7 +258,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtSamplesfile.setForeground(ColorConstants.lightGreen);
 		txtSamplesfile.setBackground(ColorConstants.black);
 		txtSamplesfile.setText("samples definition file path");
-		txtSamplesfile.setBounds(10, 17, 250, 26);
 		
 		Group grpNoSamplesTo = new Group(statusArea, SWT.NONE);
 		GridData gd_grpNoSamplesTo = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -283,14 +276,14 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 		Group grpMinColltionTime = new Group(statusArea, SWT.NONE);
 		grpMinColltionTime.setText("Min. colltion time");
-		grpMinColltionTime.setLayout(null);
+		grpMinColltionTime.setLayout(new RowLayout(SWT.HORIZONTAL));
 
 		txtTotalTime = new Text(grpMinColltionTime, SWT.BORDER | SWT.RIGHT);
+		txtTotalTime.setLayoutData(new RowData(100, SWT.DEFAULT));
 		txtTotalTime.setForeground(ColorConstants.lightGreen);
 		txtTotalTime.setText("0");
 		txtTotalTime.setEditable(false);
 		txtTotalTime.setBackground(ColorConstants.black);
-		txtTotalTime.setBounds(2, 16, 117, 26);
 
 		Group grpDataCollectionProgress = new Group(statusArea, SWT.NONE);
 		grpDataCollectionProgress.setLayout(new GridLayout(8, false));
@@ -302,8 +295,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 		Label lblCurrentScanNumber = new Label(grpDataCollectionProgress,
 				SWT.NONE);
-		lblCurrentScanNumber.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
-				false, false, 1, 1));
 		lblCurrentScanNumber.setText("Current Scan Number:");
 
 		txtScanNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
@@ -317,8 +308,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtScanNumber.setLayoutData(gd_txtScanNumber);
 
 		Label lblCurrentSample = new Label(grpDataCollectionProgress, SWT.NONE);
-		lblCurrentSample.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
-				false, false, 1, 1));
 		lblCurrentSample.setText("Current Sample:");
 
 		txtSamplename = new Text(grpDataCollectionProgress, SWT.BORDER);
@@ -326,14 +315,12 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtSamplename.setForeground(ColorConstants.lightGreen);
 		txtSamplename.setBackground(ColorConstants.black);
 		txtSamplename.setText("sampleName");
-		GridData gd_txtSamplename = new GridData(SWT.FILL, SWT.CENTER, false,
+		GridData gd_txtSamplename = new GridData(SWT.FILL, SWT.CENTER, true,
 				false, 1, 1);
 		gd_txtSamplename.widthHint = 100;
 		txtSamplename.setLayoutData(gd_txtSamplename);
 
 		Label lblSampleNumber = new Label(grpDataCollectionProgress, SWT.NONE);
-		lblSampleNumber.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
-				false, false, 1, 1));
 		lblSampleNumber.setText("Sample Number:");
 
 		txtSampleNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
@@ -348,8 +335,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 		Label lblScanPointNumber = new Label(grpDataCollectionProgress,
 				SWT.NONE);
-		lblScanPointNumber.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
-				false, false, 1, 1));
 		lblScanPointNumber.setText("Scan Point Number:");
 
 		txtScanPointNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
@@ -371,8 +356,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 		Label lblProgressMessage = new Label(grpDataCollectionProgress,
 				SWT.NONE);
-		lblProgressMessage.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
-				false, false, 1, 1));
 		lblProgressMessage.setText("Progress Message:");
 
 		txtProgressMessage = new Text(grpDataCollectionProgress, SWT.BORDER);
