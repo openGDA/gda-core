@@ -49,16 +49,15 @@ import uk.ac.gda.server.exafs.scan.SampleEnvironmentPreparer;
 
 public class StepMap extends ExafsScan implements MappingScan {
 
-	private MicroFocusWriterExtender mfd;
-	private MicroFocusScanParameters mapScanParameters;
-
-	private final Scannable xScan;
-	private final Scannable yScan;
-	private final Scannable zScannable;
+	protected final Scannable xMotor;
+	protected final Scannable yMotor;
+	protected final Scannable zMotor;
 
 	private final TfgScalerWithFrames counterTimer01;
 
-	private ScriptControllerBase elementListScriptController;
+	protected ScriptControllerBase elementListScriptController;
+	protected MicroFocusWriterExtender mfd;
+	protected MicroFocusScanParameters mapScanParameters;
 
 	public StepMap(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer,
 			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
@@ -72,9 +71,9 @@ public class StepMap extends ExafsScan implements MappingScan {
 				includeSampleNameInNexusName, metashop);
 
 		this.counterTimer01 = counterTimer01;
-		this.xScan = xScan;
-		this.yScan = yScan;
-		this.zScannable = zScannable;
+		this.xMotor = xScan;
+		this.yMotor = yScan;
+		this.zMotor = zScannable;
 		this.elementListScriptController = elementListScriptController;
 	}
 
@@ -99,9 +98,15 @@ public class StepMap extends ExafsScan implements MappingScan {
 
 		moveEnergyAndZBeforeMap();
 
-		Object[] args = new Object[] { yScan, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
-				mapScanParameters.getYStepSize(), xScan, mapScanParameters.getXStart(), mapScanParameters.getXEnd(),
-				mapScanParameters.getXStepSize(), zScannable };		
+		Object[] args = buildListOfArguments(detectorList);
+
+		return args;
+	}
+
+	protected Object[] buildListOfArguments(Detector[] detectorList) throws DeviceException, Exception {
+		Object[] args = new Object[] { yMotor, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
+				mapScanParameters.getYStepSize(), xMotor, mapScanParameters.getXStart(), mapScanParameters.getXEnd(),
+				mapScanParameters.getXStepSize(), zMotor };		
 		boolean useFrames = LocalProperties.check("gda.microfocus.scans.useFrames");
 		log("Using frames: " + useFrames);
 		if (detectorBean.getExperimentType().equals("Fluorescence") && useFrames) {
@@ -116,16 +121,15 @@ public class StepMap extends ExafsScan implements MappingScan {
 				args = ArrayUtils.add(args, mapScanParameters.getCollectionTime());
 			}
 		}
-
 		return args;
 	}
 	
-	private int calculateNumberXPoints() throws Exception {
-		return ScannableUtils.getNumberSteps(xScan, mapScanParameters.getXStart(), mapScanParameters.getXEnd(),
+	protected int calculateNumberXPoints() throws Exception {
+		return ScannableUtils.getNumberSteps(xMotor, mapScanParameters.getXStart(), mapScanParameters.getXEnd(),
 				mapScanParameters.getXStepSize()) + 1;
 	}
 
-	private void moveEnergyAndZBeforeMap() throws DeviceException {
+	protected void moveEnergyAndZBeforeMap() throws DeviceException {
 		double energy = mapScanParameters.getEnergy();
 		double zScannablePos = mapScanParameters.getZValue();
 
@@ -133,14 +137,14 @@ public class StepMap extends ExafsScan implements MappingScan {
 		energy_scannable.moveTo(energy);
 		mfd.setEnergyValue(energy);
 
-		log("Moving " + zScannable.getName() + " to " + zScannablePos);
-		zScannable.moveTo(zScannablePos);
+		log("Moving " + zMotor.getName() + " to " + zScannablePos);
+		zMotor.moveTo(zScannablePos);
 		mfd.setZValue(zScannablePos);
 	}
 
-	private void createMFD(Detector[] detectorList) throws Exception {
+	protected void createMFD(Detector[] detectorList) throws Exception {
 		int nx = calculateNumberXPoints();
-		int ny = ScannableUtils.getNumberSteps(yScan, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
+		int ny = ScannableUtils.getNumberSteps(yMotor, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
 				mapScanParameters.getYStepSize()) + 1;
 		log("Number x points: " + nx);
 		log("Number y points: " + ny);

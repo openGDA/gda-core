@@ -22,17 +22,11 @@ import gda.commandqueue.Processor;
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.data.scan.datawriter.AsciiMetadataConfig;
-import gda.data.scan.datawriter.DataWriter;
-import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
-import gda.data.scan.datawriter.XasAsciiNexusDatapointCompletingDataWriter;
-import gda.device.Detector;
-import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.BufferedDetector;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.LineRepeatingBeamMonitor;
 import gda.device.scannable.RealPositionReader;
-import gda.device.scannable.ScannableUtils;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import gda.scan.ContinuousScan;
@@ -41,9 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
-import uk.ac.gda.client.microfocus.scan.datawriter.MicroFocusWriterExtender;
 import uk.ac.gda.server.exafs.scan.BeamlinePreparer;
-import uk.ac.gda.server.exafs.scan.ExafsScan;
 import uk.ac.gda.server.exafs.scan.OutputPreparer;
 import uk.ac.gda.server.exafs.scan.SampleEnvironmentPreparer;
 
@@ -52,17 +44,9 @@ import uk.ac.gda.server.exafs.scan.SampleEnvironmentPreparer;
  * <p>
  * Requires a ContinuouslyScannable to be operated as the x axis and a RealPositionReader to return the actual motor positions.
  */
-public class RasterMap extends ExafsScan implements MappingScan {
+public class RasterMap extends StepMap implements MappingScan {
 
-	private MicroFocusWriterExtender mfd;
-	private MicroFocusScanParameters mapScanParameters;
-	
 	private ContinuouslyScannable trajectoryMotor;
-	private Scannable yMotor;
-	private Scannable zMotor;
-
-	private ScriptControllerBase elementListScriptController;
-
 	private RasterMapDetectorPreparer bufferedDetectorPreparer;
 	private RealPositionReader positionReader;
 	private LineRepeatingBeamMonitor trajectoryBeamMonitor;
@@ -76,26 +60,18 @@ public class RasterMap extends ExafsScan implements MappingScan {
 			Scannable yMotor,Scannable zMotor, LineRepeatingBeamMonitor trajectoryBeamMonitor, ScriptControllerBase elementListScriptController
 			) {
 		super(beamlinePreparer, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor,
-				XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, includeSampleNameInNexusName,
-				metashop);
+				XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, metashop,
+				includeSampleNameInNexusName, null, trajectoryMotor, yMotor, zMotor,elementListScriptController );
 		
 		this.bufferedDetectorPreparer = detectorPreparer;
 		this.positionReader = positionReader;
-		this.yMotor = yMotor;
-		this.zMotor = zMotor;
 		this.trajectoryBeamMonitor = trajectoryBeamMonitor;
-		this.elementListScriptController = elementListScriptController;
 		this.setTrajectoryMotor(trajectoryMotor);
 	}
 	
 	@Override
 	protected String getScanType() {
 		return "Raster Map";
-	}
-	
-	@Override
-	public MicroFocusWriterExtender getMFD() {
-		return mfd;
 	}
 	
 	@Override
@@ -108,66 +84,23 @@ public class RasterMap extends ExafsScan implements MappingScan {
 
 		moveEnergyAndZBeforeMap();
 
+		Object[] args = buildListOfArguments(detectorList);
+		
+		return args;
+	}
+
+	protected Object[] buildListOfArguments(BufferedDetector[] detectorList) {
 		ContinuousScan cs = new ContinuousScan(trajectoryMotor, mapScanParameters.getXStart(), mapScanParameters.getXEnd(), calculateNumberXPoints(), mapScanParameters.getRowTime(), detectorList) ;
 		
 		//TODO have not done the custom settings for raster maps for the monitor objects
 		
 		Object[] args = new Object[] {yMotor, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),  mapScanParameters.getYStepSize(), trajectoryBeamMonitor, cs, positionReader};
-		
 		return args;
 	}
 
-	private int calculateNumberXPoints() {
+	@Override
+	protected int calculateNumberXPoints() {
 		return (int) (Math.abs(mapScanParameters.getXEnd()- mapScanParameters.getXStart())/mapScanParameters.getXStepSize() + 1);
-	}
-
-	private void moveEnergyAndZBeforeMap() throws DeviceException {
-		double energy = mapScanParameters.getEnergy();
-		double zScannablePos = mapScanParameters.getZValue();
-
-		log("Energy: " + energy);
-		energy_scannable.moveTo(energy);
-		mfd.setEnergyValue(energy);
-
-		log("Moving " + zMotor.getName() + " to " + zScannablePos);
-		zMotor.moveTo(zScannablePos);
-		mfd.setZValue(zScannablePos);
-	}
-
-	private void createMFD(Detector[] detectorList) throws Exception {
-		int nx = calculateNumberXPoints();
-		int ny = ScannableUtils.getNumberSteps(yMotor, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
-				mapScanParameters.getYStepSize()) + 1;
-		log("Number x points: " + nx);
-		log("Number y points: " + ny);
-		mfd = new MicroFocusWriterExtender(nx, ny, mapScanParameters.getXStepSize(), mapScanParameters.getYStepSize(), detectorConfigurationBean, detectorList);
-		// this updates the Elements view in the Mircofocus UI with the list of elements
-		String fluoConfigFileName = this.experimentFullPath + detectorBean.getFluorescenceParameters().getConfigFileName();
-		elementListScriptController.update(this,fluoConfigFileName);
-	}
-
-	@Override
-	protected DataWriter createAndConfigureDataWriter(String sampleName, List<String> descriptions)
-			throws Exception {
-		XasAsciiNexusDatapointCompletingDataWriter twoDWriter = new XasAsciiNexusDatapointCompletingDataWriter();
-		DataWriter underlyingDataWriter = twoDWriter.getDatawriter();
-		underlyingDataWriter.addDataWriterExtender(mfd);
-		if (underlyingDataWriter instanceof XasAsciiNexusDataWriter) {
-			setupXasAsciiNexusDataWriter(sampleName, descriptions, (XasAsciiNexusDataWriter) underlyingDataWriter);
-		}
-		return twoDWriter;
-	}
-	
-	@Override
-	protected void finishRepetitions() throws Exception {
-		super.finishRepetitions();
-		if (mfd != null) {
-			try {
-				mfd.closeWriter();
-			} catch (Throwable e) {
-				throw new Exception(e.getMessage());
-			}
-		}
 	}
 
 	public ContinuouslyScannable getTrajectoryMotor() {
