@@ -7,9 +7,10 @@ from gdascripts.analysis.datasetprocessor.oned.TwoGaussianEdges import TwoGaussi
 from gdascripts.analysis.datasetprocessor.oned.scan_stitching import Lcen, Rcen
 
 from testjy.gdascripts_test.analysis_test.datasetprocessor_test.oned_test.files.files import WIRESCANFILE, WIRESCANFILE2, DAT_31473, DAT_31474, DAT_31484, WIRESCANFILE_FAILING_NEGATIVE_STEP
-from gda.analysis import DoubleDataset, ScanFileHolder
+from gda.analysis import ScanFileHolder
 from gda.analysis.io import SRSLoader
 
+from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
 
 import unittest
 import threading
