@@ -319,7 +319,7 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 				}
 				throw new DeviceException(
 						"EpicsTCA : unable to find suitable converter to convert channel to energy. converterName  "
-								+ converterName == null ? "not given" : converterName);
+								+ ((converterName == null) ? "not given" : converterName));
 			} else if (attributeName.startsWith(energyToChannelPrefix)) {
 				String channel = null;
 				if (channelToEnergyConverter == null && converterName != null) {
@@ -333,7 +333,7 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 				}
 				throw new DeviceException(
 						"EpicsTCA : unable to find suitable converter to convert energy to channel. converterName  "
-								+ converterName == null ? "not given" : converterName);
+								+ ((converterName == null) ? "not given" : converterName));
 			}
 			return null;
 		} catch (Throwable th) {

@@ -1177,7 +1177,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 			}
 			throw new DeviceException(
 					"EpicsMCA : unable to find suitable converter to convert channel to energy. converterName  "
-							+ converterName == null ? "not given" : converterName);
+							+ ((converterName == null) ? "not given" : converterName));
 		} else if (attributeName.startsWith(energyToChannelPrefix)) {
 			// String channel = null;
 			if (channelToEnergyConverter == null && converterName != null) {
@@ -1195,7 +1195,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 			}
 			throw new DeviceException(
 					"EpicsTCA : unable to find suitable converter to convert energy to channel. converterName  "
-							+ converterName == null ? "not given" : converterName);
+							+ ((converterName == null) ? "not given" : converterName));
 		} else if (attributeName.equals(numberOfChannelsAttr)) {
 			return 1024;// getNumberOfChannels();
 		} else {
