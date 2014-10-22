@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.libs;bundle-version="1.0.0",
  uk.ac.gda.nexus
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .,
  jars/RGAComms.jar
 Export-Package: uk.ac.gda.devices.cirrus
