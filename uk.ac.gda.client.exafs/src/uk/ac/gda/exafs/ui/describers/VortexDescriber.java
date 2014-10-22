@@ -19,6 +19,7 @@
 package uk.ac.gda.exafs.ui.describers;
 
 import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersEditor;
 import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
 
 public class VortexDescriber extends XMLBeanContentDescriber {
@@ -30,7 +31,7 @@ public class VortexDescriber extends XMLBeanContentDescriber {
 
 	@Override
 	public String getEditorId() {
-		return "uk.ac.gda.exafs.ui.VortexParametersEditor";
+		return VortexParametersEditor.ID;
 	}
 
 }

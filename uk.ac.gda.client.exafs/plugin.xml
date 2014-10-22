@@ -544,6 +544,22 @@
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.XasDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getXasContent"
+            name="XAS Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
+            describer="uk.ac.gda.exafs.ui.describers.XanesDescriber"
+            file-extensions="xml"
+            id="uk.ac.diamond.gda.client.exafs.getXanesContent"
+            name="XANES Bean File Content"
+            priority="high">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.xml"
             describer="uk.ac.gda.exafs.ui.describers.XspressDescriber"
             file-extensions="xml"
             id="uk.ac.diamond.gda.client.exafs.getXspressContent"
@@ -571,6 +587,28 @@
 
     <extension 
          point="org.eclipse.ui.editors">
+      <editor
+            class="uk.ac.gda.exafs.ui.XasScanParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/XasParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.XasScanParametersEditor"
+            name="XAS Scan Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getXasContent">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="uk.ac.gda.exafs.ui.XanesScanParametersEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            icon="icons/XanesParametersIcon.png"
+            id="uk.ac.gda.exafs.ui.XanesScanParametersEditor"
+            name="XANES Scan Parameters">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.gda.client.exafs.getXanesContent">
+         </contentTypeBinding>
+      </editor>
       <editor
             class="uk.ac.gda.exafs.ui.detector.xspress.XspressParametersEditor"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"

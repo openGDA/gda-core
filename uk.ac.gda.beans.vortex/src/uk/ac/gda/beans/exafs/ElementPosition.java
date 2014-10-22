@@ -20,57 +20,34 @@ package uk.ac.gda.beans.exafs;
 
 import java.io.Serializable;
 
-import org.apache.commons.beanutils.BeanUtils;
-
-/**
- *
- */
 public class ElementPosition implements Serializable {
 
 	private String  name;
 	private String  principleElement;
 	private Integer wheelPosition;
 	
-	/**
-	 * 
-	 */
 	public ElementPosition() {
 		
 	}
-	/**
-	 * @param name
-	 * @param pos
-	 */
+
 	public ElementPosition(String name, int pos) {
 		this.name            = name;
 		this.principleElement= name;
 		this.wheelPosition   = pos;
 	}
 
-	/**
-	 * @return Returns the elementName.
-	 */
 	public String getName() {
 		return name;
 	}
 
-	/**
-	 * @param elementName The elementName to set.
-	 */
 	public void setName(String elementName) {
 		this.name = elementName;
 	}
 
-	/**
-	 * @return Returns the wheelPosition.
-	 */
 	public Integer getWheelPosition() {
 		return wheelPosition;
 	}
 
-	/**
-	 * @param wheelPosition The wheelPosition to set.
-	 */
 	public void setWheelPosition(Integer wheelPosition) {
 		this.wheelPosition = wheelPosition;
 	}
@@ -123,15 +100,11 @@ public class ElementPosition implements Serializable {
 		}
 		return true;
 	}
-	/**
-	 * @return Returns the principleElement.
-	 */
+
 	public String getPrincipleElement() {
 		return principleElement;
 	}
-	/**
-	 * @param principleElement The principleElement to set.
-	 */
+
 	public void setPrincipleElement(String principleElement) {
 		this.principleElement = principleElement;
 	}

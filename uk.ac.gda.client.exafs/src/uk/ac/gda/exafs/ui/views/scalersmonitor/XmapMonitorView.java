@@ -39,16 +39,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class XmapMonitorView extends MonitorViewBase {
 	
 	private static final Double MAX_FLUO_RATE = 500000.0;
 
 	public static final String ID = "uk.ac.gda.exafs.ui.views.xmapmonitor";
-
-	protected static final Logger logger = LoggerFactory.getLogger(XmapMonitorView.class);
 
 	protected ScalersMonitorConfig displayData;
 

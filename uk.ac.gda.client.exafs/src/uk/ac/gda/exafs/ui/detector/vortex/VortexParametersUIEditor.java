@@ -80,7 +80,6 @@ import uk.ac.gda.richbeans.editors.DirtyContainer;
 
 import com.swtdesigner.SWTResourceManager;
 
-@SuppressWarnings("unused")
 public class VortexParametersUIEditor extends DetectorEditor {
 
 	private static final String GDA_DEVICE_VORTEX_SPOOL_DIR = "gda.device.vortex.spoolDir";

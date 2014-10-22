@@ -25,4 +25,4 @@ Import-Package: org.apache.commons.beanutils;version="1.9.1",
 Export-Package: gda.device.detector.xmap,
  gda.device.detector.xmap.corba.impl,
  gda.device.detector.xmap.util
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

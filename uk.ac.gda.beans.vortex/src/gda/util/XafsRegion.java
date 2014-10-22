@@ -136,7 +136,7 @@ public class XafsRegion {
 	 * @param displayUnits
 	 *            the region's displayUnits
 	 */
-	public XafsRegion(String name, double start, double end, @SuppressWarnings("unused") double increment, double time,
+	public XafsRegion(String name, double start, double end, double increment, double time,
 			int steps, String internalUnits, String displayUnits) {
 
 		this.internalUnits = internalUnits;

@@ -20,6 +20,7 @@ package uk.ac.gda.exafs.ui;
 
 import java.net.URL;
 
+import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.beans.exafs.i20.I20OutputParameters;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
@@ -37,12 +38,12 @@ public class I20OutputParametersEditor extends ExafsBeanFileSelectionEditor {
 
 	@Override
 	public URL getMappingUrl() {
-		return I20OutputParameters.mappingURL;
+		return OutputParameters.mappingURL;
 	}
 	
 	@Override
 	public URL getSchemaUrl() {
-		return I20OutputParameters.schemaUrl;
+		return OutputParameters.schemaUrl;
 	}
 
 }

@@ -58,7 +58,6 @@ public class XanesScanPointCreator {
 		return creator.getEnergies();
 	}
 
-	@SuppressWarnings("unused")
 	private static void setupScanPointCreator(XanesScanParameters parameters,XanesScanPointCreator creator ) throws Exception
 	{
 		List<Region> regions = parameters.getRegions();		

@@ -20,6 +20,7 @@ package uk.ac.gda.exafs.ui.describers;
 
 
 import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.exafs.ui.detector.xspress.XspressParametersEditor;
 import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
 
 /**
@@ -33,7 +34,7 @@ public class XspressDescriber extends XMLBeanContentDescriber {
 	}
 	@Override
 	public String getEditorId() {
-		return "uk.ac.gda.exafs.ui.detector.xspress.XspressParametersEditor";
+		return XspressParametersEditor.ID;
 	}
 
 }
