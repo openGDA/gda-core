@@ -24,14 +24,13 @@ import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.data.scan.datawriter.DataWriter;
-import gda.data.scan.datawriter.DummyDataWriter;
 import gda.data.scan.datawriter.XasAsciiNexusDatapointCompletingDataWriter;
 import gda.device.Detector;
+import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.countertimer.TfgScalerWithFrames;
 import gda.device.scannable.ScannableUtils;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
-import gda.scan.Scan;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +45,7 @@ import uk.ac.gda.server.exafs.scan.ExafsScan;
 import uk.ac.gda.server.exafs.scan.OutputPreparer;
 import uk.ac.gda.server.exafs.scan.SampleEnvironmentPreparer;
 
-public class MapScan extends ExafsScan {
+public class StepMap extends ExafsScan implements MappingScan {
 
 	private final TfgScalerWithFrames counterTimer01;
 	private final Scannable xScan;
@@ -56,7 +55,7 @@ public class MapScan extends ExafsScan {
 	private MicroFocusWriterExtender mfd;
 	private MicroFocusScanParameters mapScanParameters;
 
-	public MapScan(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer,
+	public StepMap(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer,
 			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
 			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable, NXMetaDataProvider metashop,
@@ -78,6 +77,7 @@ public class MapScan extends ExafsScan {
 		return "Step Map";
 	}
 
+	@Override
 	public MicroFocusWriterExtender getMFD() {
 		return mfd;
 	}
@@ -89,25 +89,9 @@ public class MapScan extends ExafsScan {
 
 		Detector[] detectorList = getDetectors();
 
-		int nx = ScannableUtils.getNumberSteps(xScan, mapScanParameters.getXStart(), mapScanParameters.getXEnd(),
-				mapScanParameters.getXStepSize()) + 1;
-		int ny = ScannableUtils.getNumberSteps(yScan, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
-				mapScanParameters.getYStepSize()) + 1;
-		log("Number x points: " + nx);
-		log("Number y points: " + ny);
+		createMFD(detectorList);
 
-		double energy = mapScanParameters.getEnergy();
-		double zScannablePos = mapScanParameters.getZValue();
-
-		createMFD(nx, ny, mapScanParameters.getXStepSize(), mapScanParameters.getYStepSize(), detectorList);
-
-		log("Energy: " + energy);
-		energy_scannable.moveTo(energy);
-		mfd.setEnergyValue(energy);
-
-		log("Moving " + zScannable.getName() + " to " + zScannablePos);
-		zScannable.moveTo(zScannablePos);
-		mfd.setZValue(zScannablePos);
+		moveEnergyAndZBeforeMap();
 
 		Object[] args = new Object[] { yScan, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
 				mapScanParameters.getYStepSize(), xScan, mapScanParameters.getXStart(), mapScanParameters.getXEnd(),
@@ -118,6 +102,7 @@ public class MapScan extends ExafsScan {
 			args = ArrayUtils.addAll(args, detectorList);
 			counterTimer01.clearFrameSets();
 			log("Frame collection time: " + mapScanParameters.getCollectionTime());
+			int nx = calculateNumberXPoints();
 			counterTimer01.addFrameSet(nx, 1.0E-4, mapScanParameters.getCollectionTime() * 1000.0, 0, 7, -1, 0);
 		} else {
 			for (Detector detector : detectorList) {
@@ -128,27 +113,42 @@ public class MapScan extends ExafsScan {
 
 		return args;
 	}
-
-	private void createMFD(int nx, int ny, double xStepSize, double yStepSize, Detector[] detectorList) {
-		mfd = new MicroFocusWriterExtender(nx, ny, xStepSize, yStepSize, detectorConfigurationBean, detectorList);
+	
+	private int calculateNumberXPoints() throws Exception {
+		return ScannableUtils.getNumberSteps(xScan, mapScanParameters.getXStart(), mapScanParameters.getXEnd(),
+				mapScanParameters.getXStepSize()) + 1;
 	}
 
-	protected Scan createAndConfigureDataWriter(Scan thisscan, String sampleName, List<String> descriptions)
+	private void moveEnergyAndZBeforeMap() throws DeviceException {
+		double energy = mapScanParameters.getEnergy();
+		double zScannablePos = mapScanParameters.getZValue();
+
+		log("Energy: " + energy);
+		energy_scannable.moveTo(energy);
+		mfd.setEnergyValue(energy);
+
+		log("Moving " + zScannable.getName() + " to " + zScannablePos);
+		zScannable.moveTo(zScannablePos);
+		mfd.setZValue(zScannablePos);
+	}
+
+	private void createMFD(Detector[] detectorList) throws Exception {
+		int nx = calculateNumberXPoints();
+		int ny = ScannableUtils.getNumberSteps(yScan, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
+				mapScanParameters.getYStepSize()) + 1;
+		log("Number x points: " + nx);
+		log("Number y points: " + ny);
+		mfd = new MicroFocusWriterExtender(nx, ny, mapScanParameters.getXStepSize(), mapScanParameters.getYStepSize(), detectorConfigurationBean, detectorList);
+	}
+
+	@Override
+	protected DataWriter createAndConfigureDataWriter(String sampleName, List<String> descriptions)
 			throws Exception {
-
 		DataWriter datawriter = super.createAndConfigureDataWriter(sampleName, descriptions);
-
-		// for unit testing of this class
-		if (datawriter instanceof DummyDataWriter) {
-			thisscan.setDataWriter(datawriter);
-			return thisscan;
-		}
-
 		XasAsciiNexusDatapointCompletingDataWriter twoDWriter = new XasAsciiNexusDatapointCompletingDataWriter();
 		twoDWriter.addDataWriterExtender(mfd);
 		twoDWriter.setDatawriter(datawriter);
-		thisscan.setDataWriter(twoDWriter);
-		return thisscan;
+		return twoDWriter;
 	}
 
 	@Override

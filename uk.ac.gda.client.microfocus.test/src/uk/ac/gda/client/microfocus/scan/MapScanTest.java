@@ -89,7 +89,7 @@ public class MapScanTest {
 	private NXMetaDataProvider metashop;
 	private AsciiDataWriterConfiguration datawriterconfig;
 	private ScannableMotor energy_scannable;
-	private MapScan mapscan;
+	private StepMap mapscan;
 	private LoggingScriptController XASLoggingScriptController;
 	private MicroFocusScanParameters mapscanParams;
 	private DetectorParameters detParams;
@@ -188,7 +188,7 @@ public class MapScanTest {
 		z_scannable = createMockMotorScannable("z_scannable");
 
 		// create XasScan object
-		mapscan = new MapScan(beamlinepreparer, detectorPreparer, samplePreparer, outputPreparer,
+		mapscan = new StepMap(beamlinepreparer, detectorPreparer, samplePreparer, outputPreparer,
 				commandQueueProcessor, XASLoggingScriptController, datawriterconfig,
 				new ArrayList<AsciiMetadataConfig>(), energy_scannable, metashop, true, ionchambers, x_scannable,
 				y_scannable, z_scannable);
