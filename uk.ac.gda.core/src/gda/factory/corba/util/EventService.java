@@ -71,9 +71,9 @@ public class EventService {
 			orb = netService.getOrb();
 			nc = netService.getNamingContextExt();
 
+			logger.info("Resolving EventService using name '{}'", eventChannelName);
 			eventChannel = EventChannelHelper.narrow(nc.resolve(nc.to_name(eventChannelName)));
-
-			logger.debug("Successfully configured EventService using name '{}'", eventChannelName);
+			logger.info("Successfully configured EventService using name '{}'", eventChannelName);
 			configured = true;
 		} catch (NotFound nfe) {
 			logger.error("Could not find EventService using name '{}'", eventChannelName);
