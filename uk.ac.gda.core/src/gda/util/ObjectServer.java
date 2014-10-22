@@ -220,8 +220,11 @@ public abstract class ObjectServer implements Runnable {
 	 */
 	public void configure() throws FactoryException {
 		if (!localObjectsOnly) {
+			logger.info("Calling NetService.getInstance()");
 			netService = NetService.getInstance();
+			logger.info("Calling EventService.getInstance()");
 			EventService.getInstance();
+			logger.info("Completed EventService.getInstance()");
 		}
 		
 		LocalProperties.checkForObsoleteProperties();
