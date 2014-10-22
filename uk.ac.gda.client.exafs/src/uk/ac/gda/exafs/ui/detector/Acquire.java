@@ -92,12 +92,12 @@ public class Acquire {
 	}
 	
 	public void createContinuousAcquireJob(final GridListEditor detectorList, final DetectorElementComposite detectorElementComposite, final int currentSelectedElementIndex) {
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				acquireTimeValue = acquireTime.getNumericValue();
-			}
-		});
+//		Display.getDefault().asyncExec(new Runnable() {
+//			@Override
+//			public void run() {
+//				acquireTimeValue = acquireTime.getNumericValue();
+//			}
+//		});
 		continiousAcquireJob = new Job("updateScanStatus") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -118,6 +118,9 @@ public class Acquire {
 		acquireBtn.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
+				
+				acquireTimeValue = acquireTime.getNumericValue();
+				
 				createContinuousAcquireJob(detectorList, detectorElementComposite, currentSelectedElementIndex);
 				try {
 					if (live==null || !live.getSelection()){
