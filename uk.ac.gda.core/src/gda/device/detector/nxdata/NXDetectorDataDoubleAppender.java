@@ -25,6 +25,7 @@ import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.detector.NXDetectorData;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.nexusformat.NexusFile;
@@ -61,14 +62,12 @@ public class NXDetectorDataDoubleAppender implements NXDetectorDataAppender {
 		for (int i = 0; i < elementNames.size(); i++) {
 			String name = elementNames.get(i);
 			Double value = elementValues.get(i);
-			String unit=elementUnits.get(i);
-			data.setPlottableValue(name, value);
-			INexusTree valdata;
-			if (elementUnits==null) {
-				valdata = data.addData(detectorName, name, SINGLE_DIMENSION, NexusFile.NX_FLOAT64, new double[] { value }, null, null);
-			} else {
-				valdata = data.addData(detectorName, name, SINGLE_DIMENSION, NexusFile.NX_FLOAT64, new double[] { value }, unit, null);
+			String unit=null;
+			if (elementUnits != null && !elementUnits.isEmpty()) {
+				unit=elementUnits.get(i);
 			}
+			data.setPlottableValue(name, value);
+			INexusTree valdata = data.addData(detectorName, name, SINGLE_DIMENSION, NexusFile.NX_FLOAT64, new double[] { value }, unit, null);
 			valdata.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, valdata, new NexusGroupData(String.format("%s.%s", detectorName, name))));
 		}
 	}
