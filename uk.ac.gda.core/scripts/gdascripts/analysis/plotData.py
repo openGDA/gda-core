@@ -2,7 +2,7 @@
 import math
 
 from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
-from gda.analysis import ScanFileHolder,Plotter
+from gda.analysis import ScanFileHolder
 from gda.analysis.io import IFileLoader
 from uk.ac.diamond.scisoft.analysis.io import DataHolder
 

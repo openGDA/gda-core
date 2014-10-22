@@ -1,5 +1,5 @@
 from uk.ac.diamond.scisoft.analysis import SDAPlotter
-from gda.analysis import DataSet
+from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
 from gda.device import DetectorSnapper, DeviceException
 
 try:
@@ -319,7 +319,7 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 				return
 			elif isinstance(dataset, gda.device.detector.NXDetectorData):
 				data = dataset.getNexusTree().getChildNode(1).getChildNode(1).getData()
-				dataset = DataSet(data.getBuffer())
+				dataset = DoubleDataset(data.getBuffer())
 				dataset.setShape(data.dimensions)
 				dataset.squeeze()
 			self.datasetProvider = BasicDataSetProvider(dataset)

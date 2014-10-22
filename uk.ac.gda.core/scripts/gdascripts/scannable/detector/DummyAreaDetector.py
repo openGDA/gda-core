@@ -16,7 +16,6 @@ from gda.analysis import ScanFileHolder
 
 
 from uk.ac.diamond.scisoft.analysis import SDAPlotter;
-#from gda.analysis import DataSet;
 from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset;
 
 from gdascripts.scannable.detector.ZipImageProducer import ZipImageProducerClass;
