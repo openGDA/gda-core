@@ -63,52 +63,51 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 		if (InterfaceProvider.getCurrentScanController().isFinishEarlyRequested()) {
 			return;
 		}
-		long starttimer=System.currentTimeMillis();
-		long elapsedtimer=System.currentTimeMillis();
-		while (InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint()==null) {
-			Sleep.sleep(100);
-			elapsedtimer=System.currentTimeMillis()-starttimer;
-			if (elapsedtimer>timeout) {
-				InterfaceProvider.getTerminalPrinter().print("Timeout while waiting for filename from last scan data point");
-				logger.error("Timeout while waiting for filename from last scan data point");
-				break;
-			}
-		}
-		filename=InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint().getCurrentFilename();
-		if (!isCalibrant()) {
-			logger.info("Starting data reduction processing on the cluster...");
-			InterfaceProvider.getTerminalPrinter().print("Starting data reduction processing on the cluster for file "+filename+" ...");
-		} else {
-			logger.info("Starting detector calibration processing on the cluster...");
-			InterfaceProvider.getTerminalPrinter().print("Starting detector calibration processing on the cluster using file "+filename+" ...");
-		}
-		if (isCalibrant()) {
-			if (filename == null || filename.isEmpty()) {
-				InterfaceProvider.getTerminalPrinter().print("No calibrant data filename provided, so cannot start data reduction.");
-				logger.warn("No calibrant data filename provided, so cannot start data reduction.");
-				return;
-			}
-				
-			command=LocalProperties.get("gda.lde.datareduction.software","/dls_sw/apps/i11-scripts/bin/LDE-RunFromGDAAtEndOfScan.sh")+" "+filename;
-			setCurrentCalibrantDataFilename(filename);
-		} else {
-			if (getCurrentCalibrantDataFilename()==null || getCurrentCalibrantDataFilename().isEmpty() ) {
-				InterfaceProvider.getTerminalPrinter().print("No calibrant data filename provided, so cannot start data reduction. Please collect a Calibrant diffraction first.");
-				logger.warn("No calibrant data filename provided, so cannot start data reduction. Please collect a Calibrant diffraction first.");
-				return;
-			}
-			if (filename == null || filename.isEmpty()) {
-				InterfaceProvider.getTerminalPrinter().print("No data filename provided, so cannot start data reduction.");
-				logger.warn("No data filename provided, so cannot start data reduction.");
-				return;
-			}
-			command=LocalProperties.get("gda.lde.datareduction.software","/dls_sw/apps/i11-scripts/bin/LDE-RunFromGDAAtEndOfScan.sh")+" "+getCurrentCalibrantDataFilename()+" "+filename;
-			
-		}
 		Thread resultThread=new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
+				long starttimer=System.currentTimeMillis();
+				long elapsedtimer=System.currentTimeMillis();
+				while (InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint()==null) {
+					Sleep.sleep(100);
+					elapsedtimer=System.currentTimeMillis()-starttimer;
+					if (elapsedtimer>timeout) {
+						InterfaceProvider.getTerminalPrinter().print("Timeout while waiting for filename from last scan data point");
+						logger.error("Timeout while waiting for filename from last scan data point");
+						break;
+					}
+				}
+				filename=InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint().getCurrentFilename();
+				if (!isCalibrant()) {
+					logger.info("Starting data reduction processing on the cluster...");
+					InterfaceProvider.getTerminalPrinter().print("Starting data reduction processing on the cluster for file "+filename+" ...");
+				} else {
+					logger.info("Starting detector calibration processing on the cluster...");
+					InterfaceProvider.getTerminalPrinter().print("Starting detector calibration processing on the cluster using file "+filename+" ...");
+				}
+				if (isCalibrant()) {
+					if (filename == null || filename.isEmpty()) {
+						InterfaceProvider.getTerminalPrinter().print("No calibrant data filename provided, so cannot start data reduction.");
+						logger.warn("No calibrant data filename provided, so cannot start data reduction.");
+						return;
+					}
+						
+					command=LocalProperties.get("gda.lde.datareduction.software","/dls_sw/apps/i11-scripts/bin/LDE-RunFromGDAAtEndOfScan.sh")+" "+filename;
+					setCurrentCalibrantDataFilename(filename);
+				} else {
+					if (getCurrentCalibrantDataFilename()==null || getCurrentCalibrantDataFilename().isEmpty() ) {
+						InterfaceProvider.getTerminalPrinter().print("No calibrant data filename provided, so cannot start data reduction. Please collect a Calibrant diffraction first.");
+						logger.warn("No calibrant data filename provided, so cannot start data reduction. Please collect a Calibrant diffraction first.");
+						return;
+					}
+					if (filename == null || filename.isEmpty()) {
+						InterfaceProvider.getTerminalPrinter().print("No data filename provided, so cannot start data reduction.");
+						logger.warn("No data filename provided, so cannot start data reduction.");
+						return;
+					}
+					command=LocalProperties.get("gda.lde.datareduction.software","/dls_sw/apps/i11-scripts/bin/LDE-RunFromGDAAtEndOfScan.sh")+" "+getCurrentCalibrantDataFilename()+" "+filename;
+				}
 				Callable<String> r = new Callable<String>() {
 					@Override
 					public String call() throws Exception {
