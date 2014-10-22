@@ -23,6 +23,7 @@ import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.data.scan.datawriter.DataWriter;
+import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
 import gda.data.scan.datawriter.XasAsciiNexusDatapointCompletingDataWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -32,6 +33,7 @@ import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.LineRepeatingBeamMonitor;
 import gda.device.scannable.RealPositionReader;
 import gda.device.scannable.ScannableUtils;
+import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import gda.scan.ContinuousScan;
 
@@ -52,22 +54,26 @@ import uk.ac.gda.server.exafs.scan.SampleEnvironmentPreparer;
  */
 public class RasterMap extends ExafsScan implements MappingScan {
 
-	private ContinuouslyScannable trajectoryMotor;
 	private MicroFocusWriterExtender mfd;
 	private MicroFocusScanParameters mapScanParameters;
-	private RasterMapDetectorPreparer bufferedDetectorPreparer;
-	private RealPositionReader positionReader;
+	
+	private ContinuouslyScannable trajectoryMotor;
 	private Scannable yMotor;
 	private Scannable zMotor;
+
+	private ScriptControllerBase elementListScriptController;
+
+	private RasterMapDetectorPreparer bufferedDetectorPreparer;
+	private RealPositionReader positionReader;
 	private LineRepeatingBeamMonitor trajectoryBeamMonitor;
 	
 	public RasterMap(BeamlinePreparer beamlinePreparer, RasterMapDetectorPreparer detectorPreparer,
 			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
 			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable,
-			boolean includeSampleNameInNexusName, NXMetaDataProvider metashop,
+			NXMetaDataProvider metashop,boolean includeSampleNameInNexusName, 
 			ContinuouslyScannable trajectoryMotor, RealPositionReader positionReader, 
-			Scannable yMotor,Scannable zMotor, LineRepeatingBeamMonitor trajectoryBeamMonitor
+			Scannable yMotor,Scannable zMotor, LineRepeatingBeamMonitor trajectoryBeamMonitor, ScriptControllerBase elementListScriptController
 			) {
 		super(beamlinePreparer, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor,
 				XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, includeSampleNameInNexusName,
@@ -78,6 +84,7 @@ public class RasterMap extends ExafsScan implements MappingScan {
 		this.yMotor = yMotor;
 		this.zMotor = zMotor;
 		this.trajectoryBeamMonitor = trajectoryBeamMonitor;
+		this.elementListScriptController = elementListScriptController;
 		this.setTrajectoryMotor(trajectoryMotor);
 	}
 	
@@ -134,15 +141,20 @@ public class RasterMap extends ExafsScan implements MappingScan {
 		log("Number x points: " + nx);
 		log("Number y points: " + ny);
 		mfd = new MicroFocusWriterExtender(nx, ny, mapScanParameters.getXStepSize(), mapScanParameters.getYStepSize(), detectorConfigurationBean, detectorList);
+		// this updates the Elements view in the Mircofocus UI with the list of elements
+		String fluoConfigFileName = this.experimentFullPath + detectorBean.getFluorescenceParameters().getConfigFileName();
+		elementListScriptController.update(this,fluoConfigFileName);
 	}
 
 	@Override
 	protected DataWriter createAndConfigureDataWriter(String sampleName, List<String> descriptions)
 			throws Exception {
-		DataWriter datawriter = super.createAndConfigureDataWriter(sampleName, descriptions);
 		XasAsciiNexusDatapointCompletingDataWriter twoDWriter = new XasAsciiNexusDatapointCompletingDataWriter();
-		twoDWriter.addDataWriterExtender(mfd);
-		twoDWriter.setDatawriter(datawriter);
+		DataWriter underlyingDataWriter = twoDWriter.getDatawriter();
+		underlyingDataWriter.addDataWriterExtender(mfd);
+		if (underlyingDataWriter instanceof XasAsciiNexusDataWriter) {
+			setupXasAsciiNexusDataWriter(sampleName, descriptions, (XasAsciiNexusDataWriter) underlyingDataWriter);
+		}
 		return twoDWriter;
 	}
 	

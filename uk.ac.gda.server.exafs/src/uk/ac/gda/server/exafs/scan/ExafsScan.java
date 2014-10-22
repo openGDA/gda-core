@@ -420,29 +420,33 @@ public abstract class ExafsScan {
 
 		if (datawriter instanceof XasAsciiNexusDataWriter) {
 			XasAsciiNexusDataWriter dataWriter = (XasAsciiNexusDataWriter) datawriter;
-
-			String[] filenameTemplates = deriveFilenametemplates(sampleName);
-
-			dataWriter.setSampleName(sampleName);
-			dataWriter.setDescriptions(descriptions);
-			dataWriter.setNexusFileNameTemplate(filenameTemplates[0]);
-			dataWriter.setAsciiFileNameTemplate(filenameTemplates[1]);
-			dataWriter.setRunFromExperimentDefinition(true);
-			dataWriter.setFolderName(experimentFullPath);
-			dataWriter.setScanParametersName(scanFileName);
-			dataWriter.setDetectorParametersName(detectorFileName);
-			dataWriter.setSampleParametersName(sampleFileName);
-			dataWriter.setOutputParametersName(outputFileName);
-
-			AsciiDataWriterConfiguration asciidatawriterconfig = outputPreparer.getAsciiDataWriterConfig(scanBean);
-			if (asciidatawriterconfig != null) {
-				dataWriter.setConfiguration(asciidatawriterconfig);
-			}
-
-			addMetadata();
+			setupXasAsciiNexusDataWriter(sampleName, descriptions, dataWriter);
 		}
 
 		return datawriter;
+	}
+
+	protected void setupXasAsciiNexusDataWriter(String sampleName, List<String> descriptions,
+			XasAsciiNexusDataWriter dataWriter) throws Exception {
+		String[] filenameTemplates = deriveFilenametemplates(sampleName);
+
+		dataWriter.setSampleName(sampleName);
+		dataWriter.setDescriptions(descriptions);
+		dataWriter.setNexusFileNameTemplate(filenameTemplates[0]);
+		dataWriter.setAsciiFileNameTemplate(filenameTemplates[1]);
+		dataWriter.setRunFromExperimentDefinition(true);
+		dataWriter.setFolderName(experimentFullPath);
+		dataWriter.setScanParametersName(scanFileName);
+		dataWriter.setDetectorParametersName(detectorFileName);
+		dataWriter.setSampleParametersName(sampleFileName);
+		dataWriter.setOutputParametersName(outputFileName);
+
+		AsciiDataWriterConfiguration asciidatawriterconfig = outputPreparer.getAsciiDataWriterConfig(scanBean);
+		if (asciidatawriterconfig != null) {
+			dataWriter.setConfiguration(asciidatawriterconfig);
+		}
+
+		addMetadata();
 	}
 
 	private void addMetadata() throws Exception {

@@ -24,12 +24,14 @@ import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.data.scan.datawriter.DataWriter;
+import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
 import gda.data.scan.datawriter.XasAsciiNexusDatapointCompletingDataWriter;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.countertimer.TfgScalerWithFrames;
 import gda.device.scannable.ScannableUtils;
+import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
 
 import java.util.ArrayList;
@@ -47,20 +49,23 @@ import uk.ac.gda.server.exafs.scan.SampleEnvironmentPreparer;
 
 public class StepMap extends ExafsScan implements MappingScan {
 
-	private final TfgScalerWithFrames counterTimer01;
+	private MicroFocusWriterExtender mfd;
+	private MicroFocusScanParameters mapScanParameters;
+
 	private final Scannable xScan;
 	private final Scannable yScan;
 	private final Scannable zScannable;
 
-	private MicroFocusWriterExtender mfd;
-	private MicroFocusScanParameters mapScanParameters;
+	private final TfgScalerWithFrames counterTimer01;
+
+	private ScriptControllerBase elementListScriptController;
 
 	public StepMap(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer,
 			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
 			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable, NXMetaDataProvider metashop,
 			boolean includeSampleNameInNexusName, TfgScalerWithFrames counterTimer01, Scannable xScan, Scannable yScan,
-			Scannable zScannable) {
+			Scannable zScannable, ScriptControllerBase elementListScriptController) {
 
 		super(beamlinePreparer, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor,
 				XASLoggingScriptController, datawriterconfig, original_header, energy_scannable,
@@ -70,6 +75,7 @@ public class StepMap extends ExafsScan implements MappingScan {
 		this.xScan = xScan;
 		this.yScan = yScan;
 		this.zScannable = zScannable;
+		this.elementListScriptController = elementListScriptController;
 	}
 
 	@Override
@@ -139,15 +145,20 @@ public class StepMap extends ExafsScan implements MappingScan {
 		log("Number x points: " + nx);
 		log("Number y points: " + ny);
 		mfd = new MicroFocusWriterExtender(nx, ny, mapScanParameters.getXStepSize(), mapScanParameters.getYStepSize(), detectorConfigurationBean, detectorList);
+		// this updates the Elements view in the Mircofocus UI with the list of elements
+		String fluoConfigFileName = this.experimentFullPath + detectorBean.getFluorescenceParameters().getConfigFileName();
+		elementListScriptController.update(this,fluoConfigFileName);
 	}
 
 	@Override
 	protected DataWriter createAndConfigureDataWriter(String sampleName, List<String> descriptions)
 			throws Exception {
-		DataWriter datawriter = super.createAndConfigureDataWriter(sampleName, descriptions);
 		XasAsciiNexusDatapointCompletingDataWriter twoDWriter = new XasAsciiNexusDatapointCompletingDataWriter();
-		twoDWriter.addDataWriterExtender(mfd);
-		twoDWriter.setDatawriter(datawriter);
+		DataWriter underlyingDataWriter = twoDWriter.getDatawriter();
+		underlyingDataWriter.addDataWriterExtender(mfd);
+		if (underlyingDataWriter instanceof XasAsciiNexusDataWriter) {
+			setupXasAsciiNexusDataWriter(sampleName, descriptions, (XasAsciiNexusDataWriter) underlyingDataWriter);
+		}
 		return twoDWriter;
 	}
 

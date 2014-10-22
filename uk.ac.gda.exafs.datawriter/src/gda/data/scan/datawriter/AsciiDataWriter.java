@@ -20,7 +20,6 @@ package gda.data.scan.datawriter;
 
 import gda.factory.Findable;
 import gda.factory.Finder;
-import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanDataPointFormatter;
 
