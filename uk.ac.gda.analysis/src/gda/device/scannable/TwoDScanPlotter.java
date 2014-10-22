@@ -125,9 +125,9 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 				}
 				logger.debug(getName() + " - Plotting map after receiving point " + currentPoint + " of " + totalPoints);
 				
-				//plot();
+				plot();
 				if (currentPoint == (totalPoints - 1)) {
-					plot(); //plot last points
+//					plot(); //plot last points
 					logger.debug(getName() + " - last point received; deregistering as SDP listener.");
 					deregisterAsScanDataPointObserver();
 				}
@@ -259,6 +259,13 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 
 	public String getPlotViewname() {
 		return plotViewname;
+	}
+	public Long getRate() {
+		return rate;
+	}
+
+	public void setRate(Long rate) {
+		this.rate = rate;
 	}
 
 }
