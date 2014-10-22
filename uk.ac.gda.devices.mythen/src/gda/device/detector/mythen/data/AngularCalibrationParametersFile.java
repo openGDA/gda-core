@@ -41,8 +41,7 @@ public class AngularCalibrationParametersFile implements AngularCalibrationParam
 	 */
 	public AngularCalibrationParametersFile(File file) {
 		parameters = new Vector<AngularCalibrationModuleParameters>();
-		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))){
 			String line;
 			while ((line = br.readLine()) != null) {
 				String[] bits = line.trim().split(" ");
@@ -55,7 +54,7 @@ public class AngularCalibrationParametersFile implements AngularCalibrationParam
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("Could not load angular calibration parameters from " + file, e);
-		}
+		} 
 	}
 	
 	/**

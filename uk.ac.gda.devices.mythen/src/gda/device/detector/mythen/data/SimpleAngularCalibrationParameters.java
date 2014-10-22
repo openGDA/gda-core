@@ -43,8 +43,7 @@ public class SimpleAngularCalibrationParameters implements AngularCalibrationPar
 	 */
 	public SimpleAngularCalibrationParameters(File file) {
 		parameters = new HashMap<Integer,Double>();
-		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
 			String line;
 			while ((line = br.readLine()) != null) {
 				String[] bits = line.trim().split("\t");

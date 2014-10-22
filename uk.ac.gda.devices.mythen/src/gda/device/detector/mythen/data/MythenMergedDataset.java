@@ -55,8 +55,7 @@ public class MythenMergedDataset {
 	 */
 	public MythenMergedDataset(File file) {
 		lines = new Vector<MythenMergedData>();
-		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))){
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				String[] tokens = line.split(" ");

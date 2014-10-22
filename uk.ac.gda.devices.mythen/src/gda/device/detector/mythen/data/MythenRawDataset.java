@@ -48,8 +48,7 @@ public class MythenRawDataset {
 
 	private List<MythenRawData> readRawMythenFile(File file) {
 		Vector<MythenRawData> lines = new Vector<MythenRawData>();
-		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))){
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				String[] tokens = line.split(" ");
