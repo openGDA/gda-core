@@ -27,6 +27,51 @@ def createPVScannable( name, pv, addToNameSpace=True, hasUnits=True, getAsString
         commandServer.placeInJythonNamespace(name,sc)
     return sc
 
+
+def ls_pv_scannables( PV=""):
+    """
+    Function to list Scannables associated with EPICs PVs, the PV and the associated DESC field
+    Usage:
+        >ls_pv_scannables()
+    
+    or
+    
+        >ls_pv_scannables(<PV>)
+    """
+    from gda.device.scannable import ScannableMotor
+    from gda.device.motor import EpicsMotor
+    scannableConnectedToPV=None
+    a=InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace()
+    l=filter(lambda x: isinstance(x, EpicsScannable) or (isinstance(x, ScannableMotor) and isinstance(x.motor, EpicsMotor)), a.values().toArray())
+    for x in l:
+        description="unknown"
+        pvName ="unknown"
+        if isinstance(x, EpicsScannable):
+            pvName=x.pvName
+        if isinstance(x, ScannableMotor) and isinstance(x.motor, EpicsMotor):
+            pvName=x.motor.pvName
+            
+        if PV != "":
+            if PV.upper() == pvName.upper():
+                scannableConnectedToPV=x
+                break
+        else:
+            if x.configured:
+                try:
+                    description = caget(pvName + ".DESC")
+                except:
+                    description = "Unable to read description"
+                    pass
+            else:
+                description = "Not configured!"
+            print x.name, pvName, description
+
+    if PV != "":
+        if scannableConnectedToPV is None:
+            print "No scannable found for PV " + PV
+        print "Scannable " + x.name  + " is connected to ", PV
+    
+    
 from gda.device.scannable import EpicsScannable
 from gda.epics import CAClient
 

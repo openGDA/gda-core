@@ -20,6 +20,7 @@ package gda.device.scannable;
 
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
+import gda.scan.TrajectoryScanController.ReadStatus;
 
 import java.util.ArrayList;
 
@@ -52,8 +53,18 @@ public class EpicsTrajectoryScanRealPositionReader extends EpicsSingleTrajectory
 	@Override
 	public void atScanLineEnd() throws DeviceException {
 		try {
+
+			if (tracController.getReadStatus() == ReadStatus.UNDEFINED) {
+				// depending on which type of fly-scanning mechanism we are using we may or may not have to call this to
+				// ensure that the readback has been done.
+				// If its a ContinuousScan then this will have already been done, if its a ConstantVelocityScan then not.
+				continuousMoveComplete();
+			} else {
+				actualPulses = tracController.getActualPulses();
+			}
+
 			double tempPositions[] = tracController.getMActual(trajectoryIndex);
-			indexOfLastPointInRow = tracController.getActualPulses() - 1;
+			indexOfLastPointInRow = actualPulses - 1;
 			int lineIndex = ((lastReadPointIndex) / indexOfLastPointInRow);
 			if (positions.size() == 0)
 				positions.add(tempPositions);

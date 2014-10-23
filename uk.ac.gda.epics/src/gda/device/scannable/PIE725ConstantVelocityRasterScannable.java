@@ -48,9 +48,9 @@ public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithSc
 
 	private static final Logger logger = LoggerFactory.getLogger(PIE725ConstantVelocityRasterScannable.class);
 
-	private PVWithSeparateReadback<Double> pvXpair;
+	protected PVWithSeparateReadback<Double> pvXpair;
 
-	private PVWithSeparateReadback<Double> pvYpair;
+	protected PVWithSeparateReadback<Double> pvYpair;
 
 	private Double[] lastRasterTarget = new Double[2];
 

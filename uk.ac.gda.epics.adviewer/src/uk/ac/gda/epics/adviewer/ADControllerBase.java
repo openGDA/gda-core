@@ -163,6 +163,10 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 		return data;
 	}
 
+	/**
+	 * Sets the exposure time *and* starts a free-running acquisition.
+	 */
+	// TODO: Change name to reflect function
 	@Override
 	public void setExposure(double d) throws Exception {
 
@@ -435,7 +439,7 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 		this.imageMin = imageMin;
 	}
 
-	boolean connectToPlotServer = false;
+	boolean connectToPlotServer = true;
 
 	@Override
 	public boolean isConnectToPlotServer() {
@@ -448,7 +452,13 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 
 	@Override
 	public String getImageNDArrayPortInput() throws Exception {
-		return StringUtils.hasText(imageNDArrayPortInput) ? imageNDArrayPortInput : getAdBase().getPortName_RBV();
+		if( StringUtils.hasText(imageNDArrayPortInput))
+			return imageNDArrayPortInput;
+		String portNameRBV = getAdBase().getPortName_RBV();
+		if( !StringUtils.hasText(portNameRBV))
+			throw new Exception("The portNameRBV of adBase is empty");
+		return portNameRBV;
+		
 	}
 
 	public void setImageNDArrayPortInput(String imageNDarrayPortInput) {

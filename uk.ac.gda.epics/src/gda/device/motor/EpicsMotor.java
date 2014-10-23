@@ -1624,6 +1624,11 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		setName(name);
 	}
 
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "-" + getName();
+	}
+
 	/**
 	 * Sets the Epics Record Name, used by CASTOR.
 	 */

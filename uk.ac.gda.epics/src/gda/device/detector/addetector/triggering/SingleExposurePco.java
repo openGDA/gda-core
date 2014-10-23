@@ -39,6 +39,7 @@ public class SingleExposurePco extends SingleExposureStandard {
 		getAdBase().setAcquirePeriod(0.); // for pco always set acq period to 0 to force delay to 0.
 		if (LiveModeUtil.isLiveMode()) {
 			adDriverPco.getArmModePV().putWait(true);
+			Thread.sleep(2000); //if we do not wait here the first attempt to acquire an image stalls with the IOC in readout mode
 		}
 	}
 

@@ -320,6 +320,7 @@ public class ImageViewer {
 		centerScrollBars();
 	}
 
+
 	/**
 	 * Reload image from a provided ImageData
 	 * 
@@ -443,6 +444,10 @@ public class ImageViewer {
 		return imageData;
 	}
 
+	public Image getImage(){
+		return image;
+	}
+	
 	/* package */static double calcScrollFactor(RangeModel model) {
 		int min = model.getMinimum();
 		int max = model.getMaximum();
