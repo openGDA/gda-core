@@ -22,7 +22,10 @@ Import-Package: org.slf4j,
  org.springframework.beans.factory;version="3.0.4",
  org.springframework.util;version="3.0.4"
 Export-Package: gda.device.detector.pixium,
+ gda.device.detector.pixium.events,
  uk.ac.gda.devices.pixium
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.diamond.scisoft.analysis,
- uk.ac.diamond.org.jacorb, uk.ac.gda.api, uk.ac.diamond.org.springframework
+ uk.ac.diamond.org.jacorb, uk.ac.gda.api,
+ uk.ac.diamond.org.springframework,
+ uk.ac.gda.core
 Eclipse-BuddyPolicy: registered
