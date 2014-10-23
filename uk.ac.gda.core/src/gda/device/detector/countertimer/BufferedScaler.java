@@ -128,6 +128,8 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		buffer.append("tfg setup-groups ext-start cycles 1"+"\n");
 		buffer.append(parameters.getNumberDataPoints() + " 0.000001 0.00000001 0 0 0 " + (ttlSocket + 8)+"\n");
 		buffer.append("-1 0 0 0 0 0 0");
+		// FIXME RJW on qexafs that fail, especially where # points < previous scan, why are # frames incorrect?
+		logger.debug("Setting da.server to arm itself for " + parameters.getNumberDataPoints() + " time frames");
 		daserver.sendCommand(buffer.toString());
 		daserver.sendCommand("tfg arm");
 	}

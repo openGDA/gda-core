@@ -134,6 +134,7 @@ public class StageCompositeFactory implements CompositeFactory {
 				motorPosControl = new MotorPositionEditorControl(motorComp, SWT.NONE, new ScannableWrapper(s.scannable), true, false);
 				motorPosControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 				double d = s.stepSize*Math.pow(10, s.getDecimalPlaces());
+				motorPosControl.setDigits(s.getDecimalPlaces());
 				motorPosControl.setIncrement((int)d);
 			} catch (Exception e1) {
 				logger.error("Error creating control for '", s.scannable.getName() + "'");

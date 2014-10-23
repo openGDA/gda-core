@@ -87,16 +87,18 @@ class TabFolderComposite extends Composite {
 		tabs = new HashMap<TabCompositeFactory, CTabItem>();
 		for (int i = 0; i < availableModes.length; i++) {
 			TabCompositeFactory mode = availableModes[i];
-			CTabItem cTab = new CTabItem(tabFolder, SWT.NONE);
-			Image tabImage = mode.getImage();
-			if (tabImage != null){
-				cTab.setImage(tabImage);
+			if( mode.isEnabled()){
+				CTabItem cTab = new CTabItem(tabFolder, SWT.NONE);
+				Image tabImage = mode.getImage();
+				if (tabImage != null){
+					cTab.setImage(tabImage);
+				}
+				cTab.setText(mode.getLabel());
+				cTab.setToolTipText(mode.getTooltip());
+				Control control = mode.createComposite(tabFolder, SWT.NONE);
+				cTab.setControl(control);
+				tabs.put(mode, cTab);
 			}
-			cTab.setText(mode.getLabel());
-			cTab.setToolTipText(mode.getTooltip());
-			Control control = mode.createComposite(tabFolder, SWT.NONE);
-			cTab.setControl(control);
-			tabs.put(mode, cTab);
 			
 		}
 		tabFolder.setSelection(0);
