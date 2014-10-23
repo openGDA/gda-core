@@ -54,6 +54,7 @@ class RasterMapReturnWrite(RasterMap):
         self.detectorBeanFileName=""
         
     def setStage(self, stage):
+        Map.setStage(self,stage)
         if stage==1:
             self.trajSampleX = self.traj1SampleX
             self.trajtfg=self.traj1tfg
@@ -124,16 +125,21 @@ class RasterMapReturnWrite(RasterMap):
         twoDWriter = XasAsciiNexusDatapointCompletingDataWriter()
         twoDWriter.setIndexer(rowR)
         twoDWriter.addDataWriterExtender(self.mfd)
+        # XAS-162 try this:
+#         if (Finder.getInstance().find("FileRegistrar") != None):
+#             twoDWriter.addDataWriterExtender(Finder.getInstance().find("FileRegistrar"))
         
         xasWriter = twoDWriter.getXasDataWriter()
         
-#         xasWriter.setRunFromExperimentDefinition(True);
-#         xasWriter.setScanBean(scanBean);
-#         xasWriter.setDetectorBean(detectorBean);
-#         xasWriter.setSampleBean(sampleBean);
-#         xasWriter.setOutputBean(outputBean);
-#         xasWriter.setSampleName(sampleName);
-#         xasWriter.setXmlFolderName(experimentFullPath)
+        xasWriter.setFolderName(experimentFullPath)
+        xasWriter.setScanParametersName(self.scanFileName)
+        xasWriter.setDetectorParametersName(self.detectorFileName)
+        xasWriter.setSampleParametersName(self.sampleFileName)
+        xasWriter.setOutputParametersName(self.outputFileName)
+        xasWriter.setRunFromExperimentDefinition(True);
+        xasWriter.setDescriptions(descriptions);
+        xasWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
+        xasWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
         
         
         if (Finder.getInstance().find("metashop") != None):
@@ -147,7 +153,7 @@ class RasterMapReturnWrite(RasterMap):
                 detectorConfigurationBean = BeansFactory.getBeanObject(experimentFullPath, xmlFilename)
                 meta_add("DetectorConfigurationParameters", BeansFactory.getXMLString(detectorConfigurationBean)) 
         else: 
-            self.logger.info("Metashop not found")
+            self.log("Metashop not found")
             
                
         xasWriter.setFolderName(experimentFullPath)

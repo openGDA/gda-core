@@ -11,15 +11,19 @@ from uk.ac.gda.beans import BeansFactory
 from uk.ac.gda.beans.exafs import XanesScanParameters
 from uk.ac.gda.beans.exafs import XasScanParameters
 from uk.ac.gda.beans.exafs import QEXAFSParameters
+from uk.ac.gda.beans.microfocus import MicroFocusScanParameters
 
 from java.io import File
 
 from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
 
 class I18DetectorPreparer:
-    def __init__(self,xspressConfig, vortexConfig):
+    def __init__(self,xspressConfig, vortexConfig, I0_keithley, It_keithley, cmos):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
+        self.I0_keithley = I0_keithley
+        self.It_keithley = It_keithley
+        self.cmos = cmos
 
     def prepare(self, scanBean, detectorBean, outputParameters, scriptFolder):
         if detectorBean.getExperimentType() == "Fluorescence":
@@ -39,6 +43,8 @@ class I18DetectorPreparer:
                 saveRawSpectrum = vortexBean.isSaveRawSpectrum()
                 self.vortexConfig.configure(xmlFileName, saveRawSpectrum)
             self._control_all_ionc(fluoresenceParameters.getIonChamberParameters())
+            if fluoresenceParameters.isCollectDiffractionImages() and isinstance (scanBean,MicroFocusScanParameters):
+                self._control_cmos(scanBean)
         elif detectorBean.getExperimentType() == "Transmission":
             transmissionParameters = detectorBean.getTransmissionParameters()
             self._control_all_ionc(transmissionParameters.getIonChamberParameters())
@@ -78,10 +84,11 @@ class I18DetectorPreparer:
         elif isinstance(scanBean, QEXAFSParameters):
             pass
         else:
+            # EXAFS
             collectionTime = scanBean.getExafsTime()
-            if(scan.getExafsToTime() > collectionTime):
+            if(scanBean.getExafsToTime() > collectionTime):
                 collectionTime = scanBean.getExafsToTime()
-        print "setting collection time to" + str(collectionTime)
+        print "setting collection time to " + str(collectionTime)
 
         if self.topupMonitor!=None:
             self.topupMonitor.setPauseBeforePoint(True)
@@ -99,21 +106,6 @@ class I18DetectorPreparer:
             ScannableCommands.add_default([self.detectorFillingMonitor])
         else :
             ScannableCommands.remove_default([self.detectorFillingMonitor])
-            
-        
-#     def _beforeEachRepetition(self,beanGroup,scriptType,scan_unique_id, numRepetitions, controller, repNum):
-#         times = []
-#         self._configureMonitors(beanGroup)
-#         if isinstance(beanGroup.getScan(),XasScanParameters):
-#             times = ExafsScanPointCreator.getScanTimeArray(beanGroup.getScan())
-#         elif isinstance(beanGroup.getScan(),XanesScanParameters):
-#             times = XanesScanPointCreator.getScanTimeArray(beanGroup.getScan())
-#         if len(times) > 0:
-#             self.log( "Setting scan times, using array of length",len(times))
-#             jython_mapper = JythonNameSpaceMapping()
-#             jython_mapper.counterTimer01.setTimes(times)
-#             ScriptBase.checkForPauses()
-#         return
 
     def _control_all_ionc(self, ion_chambers_bean):
         self._control_ionc(ion_chambers_bean, 0)
@@ -124,13 +116,25 @@ class I18DetectorPreparer:
         change_sensitivity = ion_chamber.getChangeSensitivity()
         if change_sensitivity == True:
             gain = ion_chamber.getGain()
-            print "I0 sensitivity: ", gain
             if ion_chamber_num==0:
-                pv = CAClient("BL18I-EA-IAMP-02:Gain.VAL")
+                print "I0 sensitivity: ", gain
+                self.I0_keithley(gain)
             elif ion_chamber_num==1:
-                pv = CAClient("BL18I-EA-IAMP-03:Gain.VAL")
-            pv.configure() 
-            pv.caput(self._resolve_gain_index(gain))
+                print "It sensitivity: ", gain
+                self.It_keithley(gain)
+                
+    def _control_cmos(self, scanBean):
+        if scanBean.isRaster():
+            rowLength = scanBean.getXEnd() - scanBean.getXStart();
+            pointsPerRow = (rowLength / scanBean.getXStepSize()) + 1.0;
+            print "points per row",str(pointsPerRow)
+            collectionTime = scanBean.getRowTime() /  pointsPerRow;
+            print "time per point",str(collectionTime)
+            print "Setting cmos to collect for",str(collectionTime),"s"
+            self.cmos.setCollectionTime(collectionTime)
+        else:
+            print "Setting cmos to collect for",str(scanBean.getCollectionTime()),"s"
+            self.cmos.setCollectionTime(scanBean.getCollectionTime());
             
     def _resolve_gain_index(self, gain):
         if gain == "10^3 V/A":

@@ -52,19 +52,13 @@ import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.file.FileBox;
 import uk.ac.gda.richbeans.components.file.FileBox.ChoiceType;
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.RadioWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.richbeans.event.ValueListener;
 
 public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite {
 	private final static Logger logger = LoggerFactory.getLogger(FluorescenceComposite.class);
 	private RadioWrapper detectorType;
-	private BooleanWrapper collectDiffractionImages;
-	private ScaleBox mythenEnergy;
-	private ScaleBox mythenTime;
 	private Link configure;
 	private SelectionAdapter configureAction;
 	private FileBox configFileName;
@@ -208,41 +202,8 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 			logger.error("Cannot add EdgeEnergy listeners.", ne);
 		}
 		
-		if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.SHOW_MYTHEN)) {
-			Label collectDiffImagesLabel = new Label(top, SWT.NONE);
-			collectDiffImagesLabel.setText("Diffraction Images");
-			Composite diffractionComp = new Composite(top, SWT.NONE);
-			diffractionComp.setLayout(new GridLayout(5, true));
-			collectDiffractionImages = new BooleanWrapper(diffractionComp, SWT.NONE);
-			collectDiffractionImages.setToolTipText("Collect diffraction data at the start and end of scans");
-			collectDiffractionImages.setText("Collect");
-			final Label mythenEnergyLabel = new Label(diffractionComp, SWT.NONE);
-			mythenEnergyLabel.setText("     Energy");
-			mythenEnergy = new ScaleBox(diffractionComp, SWT.NONE);
-			mythenEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			mythenEnergy.setMaximum(20000.0);
-			mythenEnergy.setUnit("eV");
-			final Label mythenTimeLabel = new Label(diffractionComp, SWT.NONE);
-			mythenTimeLabel.setText("     Time");
-			mythenTime = new ScaleBox(diffractionComp, SWT.NONE);
-			mythenTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-
-			collectDiffractionImages.addValueListener(new ValueListener() {
-
-				@Override
-				public String getValueListenerName() {
-					return null;
-				}
-
-				@Override
-				public void valueChangePerformed(ValueEvent e) {
-					mythenEnergy.setVisible(collectDiffractionImages.getValue());
-					mythenTime.setVisible(collectDiffractionImages.getValue());
-					mythenEnergyLabel.setVisible(collectDiffractionImages.getValue());
-					mythenTimeLabel.setVisible(collectDiffractionImages.getValue());
-				}
-			});
-		}
+		createDiffractionSection(top);
+		
 		if (!ExafsActivator.getDefault().getPreferenceStore().getDefaultBoolean(ExafsPreferenceConstants.HIDE_WORKING_ENERGY)) {
 			createEdgeEnergy(top);
 			createIonChamberSection(abean);
@@ -265,15 +226,6 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 	}
 
 	/**
-	 * Return whether or not to collect diffraction images
-	 * 
-	 * @return true if we should collect them, else false
-	 */
-	public BooleanWrapper getCollectDiffractionImages() {
-		return collectDiffractionImages;
-	}
-
-	/**
 	 * Tells the file chooser widget to update folder.
 	 * 
 	 * @param editorFolder
@@ -284,14 +236,6 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 			configFileName.setFolder(new File(LocalProperties.getConfigDir() + File.separator+ "templates"));
 		else
 			configFileName.setFolder(editorFolder);
-	}
-
-	public ScaleBox getMythenEnergy() {
-		return mythenEnergy;
-	}
-
-	public ScaleBox getMythenTime() {
-		return mythenTime;
 	}
 
 	public void updateFileName() {

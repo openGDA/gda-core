@@ -54,8 +54,6 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	public static final String SAMPLEBEANTYPE = "Sample";
 	public static final String SCANBEANTYPE = "Scan";
 
-	// transient private static final Logger logger = LoggerFactory.getLogger(ScanObject.class);
-
 	@Override
 	public void createFilesFromTemplates() {
 		final IFolder folder = getFolder();
@@ -63,6 +61,9 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 
 		if (ScanObjectManager.isXESOnlyMode()) {
 			IFile scanFile = xmlCH.doTemplateCopy(folder, "XES_Parameters.xml");
+			getTypeToFileMap().put(SCANBEANTYPE, scanFile.getName());
+		} else if (ScanObjectManager.isQEXAFSDefaultScanType()){
+			IFile scanFile = xmlCH.doTemplateCopy(folder, "QEXAFS_Parameters.xml");
 			getTypeToFileMap().put(SCANBEANTYPE, scanFile.getName());
 		} else {
 			IFile scanFile = xmlCH.doTemplateCopy(folder, "XAS_Parameters.xml");
@@ -89,18 +90,8 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	@Override
 	public Map<String, IFile> getFilesWithTypes() {
 		HashMap<String,String> typeToFiles = getTypeToFileMap();
-
-		// NV23 changed as mF parameters need to have sampleParameters to change th scan file prefix
-		// with microfocus scans, do not have a sample parameters
-		/*
-		 * try { if (getScanParameters() instanceof MicroFocusScanParameters) { BidiMap mapCopy = new TreeBidiMap();
-		 * mapCopy.put(SCANBEANTYPE, typeToFiles.get(SCANBEANTYPE)); mapCopy.put(DETECTORBEANTYPE,
-		 * typeToFiles.get(DETECTORBEANTYPE)); mapCopy.put(OUTPUTBEANTYPE, typeToFiles.get(OUTPUTBEANTYPE)); typeToFiles
-		 * = mapCopy; } } catch (Exception e) { logger.error("Exception mapping xml files with type: " + e.getMessage(),
-		 * e); }
-		 */
-
 		Map<String, IFile> targetFiles = new HashMap<String, IFile>(typeToFiles.size());
+		
 		for (Object fileType : typeToFiles.keySet()) {
 			IFile file = getFolder().getFile(typeToFiles.get(fileType));
 			targetFiles.put((String) fileType, file);
@@ -156,7 +147,6 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 		if (fileName.indexOf(' ') > -1)
 			throw new RuntimeException("Sample name cannot contain a space.");
 		getTypeToFileMap().put(SAMPLEBEANTYPE, fileName);
-//		notifyListeners("SampleFileName");
 	}
 
 	public String getScanFileName() {
@@ -167,7 +157,6 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 		if (fileName.indexOf(' ') > -1)
 			throw new RuntimeException("Scan name cannot contain a space.");
 		getTypeToFileMap().put(SCANBEANTYPE, fileName);
-//		notifyListeners("ScanFileName");
 	}
 
 	public String getDetectorFileName() {
@@ -178,7 +167,6 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 		if (fileName.indexOf(' ') > -1)
 			throw new RuntimeException("Detector name cannot contain a space.");
 		getTypeToFileMap().put(DETECTORBEANTYPE, fileName);
-//		notifyListeners("DetectorFileName");
 	}
 
 	public String getOutputFileName() {
@@ -190,7 +178,6 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 			throw new RuntimeException("Output name cannot contain a space.");
 		getTypeToFileMap().put(OUTPUTBEANTYPE, fileName);
 		this.outputPath = null;
-//		notifyListeners("OutputFileName");
 	}
 
 	private String outputPath;
@@ -283,9 +270,8 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 
 		final Object params = getScanParameters();
 
-		// MicroFocusScanParameters calls it getXScannableName() for some inexplicable reason.
 		if (params instanceof MicroFocusScanParameters)
-			return ((MicroFocusScanParameters) params).getXScannableName();
+			return ""; // not used by MicroFocusScanParameters, the object reference is held in the map scan objects
 
 		return (String) BeansFactory.getBeanValue(params, "scannableName");
 	}

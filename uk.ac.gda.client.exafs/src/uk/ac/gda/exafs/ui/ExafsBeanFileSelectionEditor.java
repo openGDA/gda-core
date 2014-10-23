@@ -18,9 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
 
 import org.eclipse.core.resources.IFile;
@@ -33,7 +30,6 @@ import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentFolderEditor;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
 /**
@@ -41,21 +37,20 @@ import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
  */
 public abstract class ExafsBeanFileSelectionEditor extends RichBeanMultiPageEditorPart {
 
-	private boolean allowParentChange = LocalProperties.check("gda.microfocus.allow.parentDir.change");
-	
 	@Override
 	public void setFocus() {
 		super.setFocus();
-		
+
 		// Select this file in any open folder editor.
-		final IWorkbenchPage     page = getSite().getPage();
-		final IFile              file = ExperimentFactory.getExperimentEditorManager().getIFile(getEditorInput());
-		if (file==null) return;
-		final IFolder            dir  = (IFolder)file.getParent();
+		final IWorkbenchPage page = getSite().getPage();
+		final IFile file = ExperimentFactory.getExperimentEditorManager().getIFile(getEditorInput());
+		if (file == null)
+			return;
+		final IFolder dir = (IFolder) file.getParent();
 		final IEditorReference[] refs = page.getEditorReferences();
 		for (int i = 0; i < refs.length; i++) {
 			if (refs[i].getId().equals(ExperimentFolderEditor.ID)) {
-				final ExperimentFolderEditor ed = (ExperimentFolderEditor)refs[i].getEditor(true);
+				final ExperimentFolderEditor ed = (ExperimentFolderEditor) refs[i].getEditor(true);
 				if (ed.getCurrentDirectory().equals(dir)) {
 					ed.setSelected(file);
 				}
@@ -65,23 +60,25 @@ public abstract class ExafsBeanFileSelectionEditor extends RichBeanMultiPageEdit
 
 	@Override
 	protected boolean confirmFileNameChange(final File oldName, final File newName) throws Exception {
+		
+		// Save as is not allowed to change the directory for these editors
 		if (!oldName.getParent().equals(newName.getParent())) {
-			if(!(allowParentChange && (oldName.getName().contains("Xspress") || oldName.getName().contains("Vortex")))){
-				MessageDialog.openError(getSite().getShell(), "Cannot save file.",
-		               "The file '"+newName.getName()+"' cannot be created in '"+newName.getParentFile().getName()+"'.\n\n"+
-		               "You must save the file as an XML in the original experiment directory '"+oldName.getParentFile().getName()+"'");
+			if (oldName.getParentFile().getAbsolutePath() != newName.getParentFile().getAbsolutePath()) {
+				MessageDialog.openError(getSite().getShell(), "Cannot save file.", "The file '" + newName.getName()
+						+ "' cannot be created in:\n'" + newName.getParentFile().getAbsolutePath() + "'.\n\n"
+						+ "You must save the file as an XML in the original experiment directory:\n'"
+						+ oldName.getParentFile().getAbsolutePath() + "'");
 				return false;
 			}
 		}
-		
-		// Just change the name on the one we are selected.
+
+		// Make sure that the IExperimentObject is aware of the name change
 		IExperimentObject ob = ExperimentFactory.getExperimentEditorManager().getSelectedScan();
 		if (ob == null) {
 			MessageDialog.openError(getSite().getShell(), "Cannot save file.", "The file '" + newName.getName()
 					+ "' cannot be saved in '" + newName.getParentFile().getName() + "'.\n\n"
 					+ "No scan has been selected. Please enter multi-scan mode and select a scan you wish to edit.");
-		} 
-		else {
+		} else {
 			ob.renameFile(oldName.getName(), newName.getName());
 			IExperimentObjectManager man = ExperimentFactory.getManager(ob);
 			man.write();
@@ -92,22 +89,14 @@ public abstract class ExafsBeanFileSelectionEditor extends RichBeanMultiPageEdit
 
 	@Override
 	protected String validateFileName(final String newFile) {
-		final File   file = new File(newFile);
+		final File file = new File(newFile);
 		final String name = file.getName();
-	    if (name==null||"".equals(name)||!name.matches("\\w+\\.xml")) {
-			MessageDialog.openError(getSite().getShell(), "Cannot save file.",
-		               "The file '"+name+"' is not a legal file name'.\n\n"+
-		               "Please save the file name without spaces and alphanumeric characters only.");
-	    	return null;
-	    }
+		if (name == null || "".equals(name) || !name.matches("\\w+\\.xml")) {
+			MessageDialog.openError(getSite().getShell(), "Cannot save file.", "The file '" + name
+					+ "' is not a legal file name'.\n\n"
+					+ "Please save the file name without spaces and alphanumeric characters only.");
+			return null;
+		}
 		return newFile;
 	}
-	@Override
-	public void doSaveAs(){
-		final IFile currentiFile = EclipseUtils.getIFile(getEditorInput());
-		if(allowParentChange && (currentiFile.getName().contains("Xspress") ||currentiFile.getName().contains("Vortex")) )		
-			path = LocalProperties.get(LocalProperties.GDA_VAR_DIR) + File.separator + currentiFile.getName();
-		super.doSaveAs();
-	}
-
 }

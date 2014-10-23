@@ -51,7 +51,9 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 
 	private void storeFilenamesWithRegistar() {
 		if (ascii != null)
-			FileRegistrarHelper.registerFiles(new String[] { ascii.fileUrl });
+			FileRegistrarHelper.registerFiles(new String[] { ascii.fileUrl});
+		if (nexus != null)
+			FileRegistrarHelper.registerFiles(new String[] { nexus.dataDir +  nexus.nexusFileName});
 	}
 
 	@Override

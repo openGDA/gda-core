@@ -105,7 +105,7 @@
       <perspective
             class="uk.ac.gda.client.exafs.DetectorPerspective"
             id="uk.ac.gda.client.exafs.detector.perspective"
-            name="Detector Perspective">
+            name="Detector">
       </perspective>
    </extension>
    
@@ -208,10 +208,6 @@
             defaultHandler="uk.ac.gda.client.experimentdefinition.ui.handlers.ResetPerspectiveHandler"
             id="uk.ac.gda.client.exafs.resetperspective"
             name="Reset Perspective">
-      </command>
-      <command
-            id="k.ac.gda.client.exafs.ui.views.scalersmonitor.startcommand"
-            name="name">
       </command>
       <command
             id="uk.ac.gda.client.exafs.pauseAfterRepetition"

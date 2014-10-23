@@ -95,6 +95,14 @@ public class ExafsPreferenceConstants {
 	 * Add a mythen option in the Fluo detector composite
 	 */
 	public static final String SHOW_MYTHEN = "exafs.fluoEditor.showMythen.Preference";
+
+	/**
+	 * If SHOW_MYTHEN value true, and this value false, then operate the diffraction detector at the ends of the scan.
+	 * <p>
+	 * If SHOW_MYTHEN value true, and this value true, then collect diffraction images alongside fluorescence data.
+	 */
+	public static final String DIFFRACTION_COLLECTED_CONCURRENTLY = "exafs.fluoEditor.collectDiffractionConcurrently.Preference";
+	
 	
 	public static final String HIDE_WORKING_ENERGY = "exafs.detectoreditor.hideWorkingEnergy.Preference";
 	
@@ -117,5 +125,10 @@ public class ExafsPreferenceConstants {
 	public static final String DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS = "exafs.outputeditor.showFluoOptions.preference";
 	
 	public static final String HIDE_DEFAULT_GAS_MIXTURES_BUTTON = "exafs.hideDefaultGasMixturesButton.preference";
+	
+	/**
+	 * When true, QEXAFS scans are the default scan type and new scans are always qexafs when first created
+	 */
+	public static final String QEXAFS_IS_DEFAULT_SCAN_TYPE = "exafs.editor.qexafsdefaultscan.preference";
 	
 }

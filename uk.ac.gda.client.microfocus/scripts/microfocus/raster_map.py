@@ -38,6 +38,7 @@ class RasterMap(Map):
         self.trajBeamMonitor = trajBeamMonitor
 
     def setStage(self, stage):
+        Map.setStage(self,stage)
         if stage==1:
             self.trajContiniousX = self.traj1ContiniousX
             self.trajPositionReader = self.traj1PositionReader
@@ -76,7 +77,15 @@ class RasterMap(Map):
             dets += [self.raster_xspress]
             
         cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), dets) 
-        theScan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(), self.trajBeamMonitor, cs, self.trajPositionReader])
+        
+        outerScanArgs = [yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(), self.trajBeamMonitor, cs, self.trajPositionReader]
+
+        if detectorBean.getFluorescenceParameters().isCollectDiffractionImages():
+            if self.cmos != None:
+                print "Using cmos"
+                outerScanArgs += [self.cmos]
+        
+        theScan = ScannableCommands.createConcurrentScan(outerScanArgs)
         theScan.getScanPlotSettings().setIgnore(1)
     
         sampleName = sampleBean.getName()

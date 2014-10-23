@@ -63,7 +63,8 @@ public final class I18SampleParametersComposite extends Composite {
 	}
 
 	public void createNameAndDescription(){
-		Composite nameAndDescriptionComposite = new Composite(this, SWT.NONE);
+		Group nameAndDescriptionComposite = new Group(this, SWT.BORDER);
+		nameAndDescriptionComposite.setText("Sample Details");
 		GridData gd_nameAndDescriptionComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_nameAndDescriptionComposite.widthHint = 385;
 		nameAndDescriptionComposite.setLayoutData(gd_nameAndDescriptionComposite);
@@ -71,7 +72,7 @@ public final class I18SampleParametersComposite extends Composite {
 
 		Label lblName = new Label(nameAndDescriptionComposite, SWT.NONE);
 		lblName.setSize(37, 17);
-		lblName.setText("name");
+		lblName.setText("Name");
 
 		this.name = new TextWrapper(nameAndDescriptionComposite, SWT.NONE);
 		GridData gd_name = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
@@ -81,7 +82,7 @@ public final class I18SampleParametersComposite extends Composite {
 		Label lblDescription = new Label(nameAndDescriptionComposite, SWT.NONE);
 		lblDescription.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 		lblDescription.setSize(72, 17);
-		lblDescription.setText("description");
+		lblDescription.setText("Description");
 	
 		this.description = new TextWrapper(nameAndDescriptionComposite, SWT.MULTI);
 		GridData gd_description = new GridData(SWT.LEFT, SWT.FILL, true, true, 1, 1);
