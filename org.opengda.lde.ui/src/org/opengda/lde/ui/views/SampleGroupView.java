@@ -6,7 +6,9 @@ import gda.commandqueue.JythonCommandCommandProvider;
 import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
 import gda.configuration.properties.LocalProperties;
+import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
+import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 
 import java.io.File;
@@ -118,6 +120,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import uk.ac.gda.client.CommandQueueViewFactory;
+
 import org.eclipse.swt.layout.FillLayout;
 
 /**
@@ -187,6 +190,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private Resource resource;
 	private boolean isDirty;
 	protected int nameCount;
+	private String eventAdminName;
+	private Scriptcontroller eventAdmin;
 	
 	/**
 	 * The constructor.
@@ -445,7 +450,13 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		samples=sampleList.getSamples();
 		viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new ViewerDragAdapter(viewer));
 		viewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new EditingDomainViewerDropAdapter(editingDomain, viewer));
-		
+		if (getEventAdminName()!=null) {
+			eventAdmin = Finder.getInstance().find(getEventAdminName());
+			if (eventAdmin!=null) {
+				eventAdmin.addIObserver(this);
+			}
+		}
+
 		CommandQueueViewFactory.getProcessor().addIObserver(this);
 	}
 
@@ -1669,5 +1680,13 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 	public void setBeamlineID(String beamlineID) {
 		this.beamlineID = beamlineID;
+	}
+
+	public String getEventAdminName() {
+		return eventAdminName;
+	}
+
+	public void setEventAdminName(String eventAdminName) {
+		this.eventAdminName = eventAdminName;
 	}
 }

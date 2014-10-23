@@ -46,6 +46,7 @@ public class SampleGroupViewFactory implements FindableExecutableExtension {
 	private String beamlineID;
 	private List<String> cellIDs=new ArrayList<String>();
 	private List<String> calibrantNames=new ArrayList<String>();
+	private String eventAdminName;
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -79,6 +80,9 @@ public class SampleGroupViewFactory implements FindableExecutableExtension {
 		}
 		if (getBeamlineID() != null) {
 			sampleGroupView.setBeamlineID(beamlineID);;
+		}
+		if (getEventAdminName()!=null) {
+			sampleGroupView.setEventAdminName(eventAdminName);
 		}
 		sampleGroupView.setCellIDs(cellIDs.toArray(new String[0]));
 		sampleGroupView.setCalibrants(calibrantNames.toArray(new String[0]));
@@ -143,6 +147,14 @@ public class SampleGroupViewFactory implements FindableExecutableExtension {
 
 	public void setCalibrantNames(List<String> calibrantNames) {
 		this.calibrantNames = calibrantNames;
+	}
+
+	public String getEventAdminName() {
+		return eventAdminName;
+	}
+
+	public void setEventAdminName(String eventAdminName) {
+		this.eventAdminName = eventAdminName;
 	}
 
 
