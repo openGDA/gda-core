@@ -6,6 +6,9 @@ import gda.commandqueue.JythonCommandCommandProvider;
 import gda.commandqueue.Processor;
 import gda.commandqueue.ProcessorCurrentItem;
 import gda.configuration.properties.LocalProperties;
+import gda.device.detector.pixium.events.ScanEndEvent;
+import gda.device.detector.pixium.events.ScanPointStartEvent;
+import gda.device.detector.pixium.events.ScanStartEvent;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.Scriptcontroller;
@@ -464,8 +467,47 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	Processor.STATE processorState;
 	gda.commandqueue.Command.STATE commandState;
 	private Sample currentSample;
+	private long totalNumberOfPoints;
+	private long currentPointNumber;
 	@Override
 	public void update(Object source, final Object arg) {
+		if (source==eventAdmin) {
+			if (arg instanceof ScanStartEvent) {
+				ScanStartEvent event = ((ScanStartEvent)arg);
+				totalNumberOfPoints = event.getNumberOfPoints();
+				final String scanFilename = event.getScanFilename();
+				final long scanNumber = event.getScanNumber();
+
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
+						txtDataFilePath.setText(scanFilename);
+						txtScanNumber.setText(String.valueOf(scanNumber));
+					}
+				});
+			} else if (arg instanceof ScanPointStartEvent) {
+				currentPointNumber=((ScanPointStartEvent)arg).getCurrentPointNumber();
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
+					}
+				});
+				
+			} else if (arg instanceof ScanEndEvent) {
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						//TODO update currentSample variable.
+						updateSampleStatus(currentSample, STATUS.COMPLETED);
+					}
+				});
+			}
+		}
 		if (source == CommandQueueViewFactory.getProcessor()) {
 			final ProcessorCurrentItem currentItem = getProcessorCurrentItem();
 			final boolean itemBeingProcessed = currentItem != null;
@@ -552,6 +594,9 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				});
 			}
 		}
+	}
+	private void updateScanPointNumber(long currentPointNumber,long totalNumberOfPoints) {
+		txtScanPointNumber.setText(String.valueOf(currentPointNumber) + '/'+ String.valueOf(totalNumberOfPoints));
 	}
 
 	protected void sendEmailToUsers(final Sample sample) {

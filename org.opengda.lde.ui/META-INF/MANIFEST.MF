@@ -32,7 +32,8 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.diamond.scisoft.analysis.dataset,
  org.eclipse.dawnsci.plotting.api;bundle-version="1.2.0",
  org.eclipse.nebula.widgets.formattedtext,
- org.eclipse.jface
+ org.eclipse.jface,
+ uk.ac.gda.devices.pixium
 Eclipse-RegisterBuddy: uk.ac.diamond.org.springframework
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
