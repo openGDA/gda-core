@@ -42,28 +42,22 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implemen
 	private String units = "counts";
 	private int channel;
 	private ScalingAndOffset scalingAndOffset;
-	
+
 	@Override
 	public void writeout(int frames, NXDetectorData nxdata) throws DeviceException {
 		int[] datadims = new int[] {frames };
 		float[] data = readFloat(channel, 0, 0, 1, 1, frames);
 		NexusGroupData ngd;
-
-		float[] tweakeddata = new float[frames];
-		Double offset = scalingAndOffset.getOffset();
-		Double scaling = scalingAndOffset.getScaling();
 		String desc = scalingAndOffset.getDescription();
-		
-		double sum = 0;
-		for (int frame=0; frame<frames; frame++) {
-			tweakeddata[frame] = (float) (data[frame] * scaling + offset);
-			sum += tweakeddata[frame];
-		}
 
-		ngd = new NexusGroupData(datadims, NexusFile.NX_FLOAT32, tweakeddata);
+		double sum = 0;
+		for (float i: data) {
+			sum += i;
+		}
+		ngd = new NexusGroupData(datadims, NexusFile.NX_FLOAT32, data);
 		ngd.isDetectorEntryData = true;
 		addMonitorData(nxdata, getName(), label, ngd, units, 1, desc, null);
-		
+
 		nxdata.setPlottableValue(getName(), sum);
 		ngd = new NexusGroupData(new int[]{1}, NexusFile.NX_FLOAT64, new double[] {sum});
 		ngd.isDetectorEntryData = true;
@@ -88,23 +82,23 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implemen
 		}
 		if (signalVal != null) {
 			Integer[] signalValArray = {signalVal};
-			data.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, data, 
+			data.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, data,
 					new NexusGroupData(new int[] {signalValArray.length}, NexusFile.NX_INT32, signalValArray)));
 		}
 		if (local_name != null) {
-			data.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, data, 
+			data.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, data,
 					new NexusGroupData(local_name)));
 		}
 		if (description != null) {
-			monTree.addChildNode(new NexusTreeNode("description",NexusExtractor.SDSClassName, monTree, 
+			monTree.addChildNode(new NexusTreeNode("description",NexusExtractor.SDSClassName, monTree,
 					new NexusGroupData(description)));
 		}
-		monTree.addChildNode(data);			
+		monTree.addChildNode(data);
 	}
-	
+
 	/**
 	 * returns the names detectors tree
-	 * @param monitorName if null or empty it returns the first 
+	 * @param monitorName if null or empty it returns the first
 	 * @return the NexusTree associated with the named detector
 	 */
 	public static INexusTree getMonitorTree(NXDetectorData nxdata, String monitorName) {
@@ -121,7 +115,24 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implemen
 		nxdata.getNexusTree().addChildNode(detTree);
 		return detTree;
 	}
+
+	private double applyOffsetAndScaling(double value) {
+		return value*scalingAndOffset.getScaling() + scalingAndOffset.getOffset();
+	}
 	
+	private float[] applyOffsetAndScaling(float[] values) {
+		for (int i = 0; i < values.length; i++) {
+			values[i] = (float) applyOffsetAndScaling(values[i]);
+		}
+		return values;
+	}
+	private double[] applyOffsetAndScaling(double[] values) {
+		for (int i = 0; i < values.length; i++) {
+			values[i] = applyOffsetAndScaling(values[i]);
+		}
+		return values;
+	}
+
 	public String getLabel() {
 		return label;
 	}
@@ -153,20 +164,20 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implemen
 	public void setScalingAndOffset(ScalingAndOffset scalingAndOffset) {
 		this.scalingAndOffset = scalingAndOffset;
 	}
-	
+
 	@Override
 	public void atScanStart() throws DeviceException {
 		wasFixed = scalingAndOffset.isFixed();
 		scalingAndOffset.setFixed(true);
 		super.atScanStart();
 	}
-	
+
 	@Override
 	public void atScanEnd() throws DeviceException {
 		scalingAndOffset.setFixed(wasFixed);
 		super.atScanEnd();
 	}
-	
+
 	@Override
 	public void stop() throws DeviceException {
 		scalingAndOffset.setFixed(wasFixed);
@@ -176,5 +187,30 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implemen
 	@Override
 	public String[] getExtraNames() {
 		return new String[] {getName()};
+	}
+
+	@Override
+	public float[] readFloat(int frame) throws DeviceException {
+		float[] data = super.readFloat(frame);
+		logger.trace("Raw data before scaling: {}", data);
+		return applyOffsetAndScaling(data);
+	}
+	@Override
+	public float[] readFloat(int x, int y, int t, int dx, int dy, int dt) throws DeviceException {
+		float[] data = super.readFloat(x, y, t, dx, dy, dt);
+		logger.trace("Raw data before scaling: {}", data);
+		return applyOffsetAndScaling(data);
+	}
+	@Override
+	public double[] read(int frame) throws DeviceException {
+		double[] data = super.read(frame);
+		logger.trace("Raw data before scaling: {}", data);
+		return applyOffsetAndScaling(data);
+	}
+	@Override
+	public double[] read(int x, int y, int t, int dx, int dy, int dt) throws DeviceException {
+		double[] data = super.read(x, y, t, dx, dy, dt);
+		logger.trace("Raw data before scaling: {}", data);
+		return applyOffsetAndScaling(data);
 	}
 }
