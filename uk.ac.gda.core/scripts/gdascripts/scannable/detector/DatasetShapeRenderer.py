@@ -1,5 +1,4 @@
-from gda.analysis import DataSet
-
+from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
 class DatasetShapeRenderer(object):
 	
 	def __init__(self):
@@ -18,7 +17,7 @@ class DatasetShapeRenderer(object):
 		
 	def renderShapes(self, targetDataset):
 		# Make a blank data set
-		image = DataSet(targetDataset.dimensions)
+		image = DoubleDataset(targetDataset.dimensions)
 		for shapeDict in self.shapesToPaint.values():
 			for shape in shapeDict.values():
 				image = shape.paint(image)

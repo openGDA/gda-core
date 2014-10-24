@@ -1,7 +1,7 @@
 from TwodDataSetProcessor import TwodDataSetProcessor
 from TwodGaussianPeak import TwodGaussianPeak
 
-from gda.analysis import DataSet
+from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
 
 LABELLIST = (
 			'background',
@@ -35,7 +35,7 @@ class TwodGaussianPeakWithCalibration(TwodGaussianPeak):
 		self.x_offset = 0.0
 		self.y_offset = 0.0
 
-	def _process(self, ds, xoffset=0, yoffset=0, DataSet=DataSet):
+	def _process(self, ds, xoffset=0, yoffset=0, DataSet=DoubleDataset):
 		background, peakx_raw_pixels, peaky_raw_pixels, topx, topy, fwhmx, fwhmy, fwhmarea = TwodGaussianPeak._process(self, ds, xoffset=xoffset, yoffset=yoffset, DataSet=DataSet)
 		peakx = peakx_raw_pixels - self.x_offset
 		peaky = peaky_raw_pixels - self.y_offset

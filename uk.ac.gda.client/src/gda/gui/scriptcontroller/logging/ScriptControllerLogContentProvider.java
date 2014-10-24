@@ -241,6 +241,10 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 	}
 
 	private boolean haveSeenBefore(ScriptControllerLogResults arg) {
+		if (results == null){
+			return false;
+		}
+		
 		for (ScriptControllerLogResults res : results) {
 			if (res.getUniqueID().equals(arg.getUniqueID())) {
 				return true;

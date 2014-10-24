@@ -1,8 +1,4 @@
 from TwodDataSetProcessor import TwodDataSetProcessor
-from gda.analysis import ScanFileHolder
-from gda.analysis import DataSet
-
-
 
 class PixelIntensity(TwodDataSetProcessor):
 	def __init__(self, name='intensity',

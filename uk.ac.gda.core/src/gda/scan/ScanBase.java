@@ -1175,7 +1175,7 @@ public abstract class ScanBase implements NestableScan {
 	
 	
 	@Override
-	public final void runScan() throws InterruptedException, Exception {
+	public void runScan() throws InterruptedException, Exception {
 		
 		int currentStatus = getScanStatusHolder().getScanStatus();
 		if (currentStatus != Jython.IDLE) {
@@ -1297,7 +1297,9 @@ public abstract class ScanBase implements NestableScan {
 		// in the list of defaults
 		Vector<Scannable> defaultScannables = getDefaultScannableProvider().getDefaultScannables();
 		for (Scannable scannable : defaultScannables) {
-			if (!allScannables.contains(scannable)) {
+			if (scannable instanceof Detector && !allDetectors.contains(scannable)) {
+				this.allDetectors.add((Detector) scannable);
+			} else if (!allScannables.contains(scannable)) {
 				allScannables.add(scannable);
 			}
 		}
@@ -1318,8 +1320,8 @@ public abstract class ScanBase implements NestableScan {
 				// add the detector to the list of detectors.
 				if (!allDetectors.contains(det)) {
 					this.allDetectors.add(det);
-					detectorsToRemove.add(scannable);
 				}
+				detectorsToRemove.add(scannable);
 			}
 		}
 

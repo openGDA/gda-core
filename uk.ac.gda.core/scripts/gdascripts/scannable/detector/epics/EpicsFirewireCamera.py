@@ -5,7 +5,8 @@ from time import sleep
 import time
 from gda.device.detector import PseudoDetector
 from gda.device.Detector import BUSY, IDLE
-from gda.analysis import DataSet, ScanFileHolder
+from gda.analysis import ScanFileHolder
+from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
 from gda.analysis.io import PNGSaver
 from gda.jython import InterfaceProvider
 from gda.data import NumTracker
@@ -75,7 +76,7 @@ class EpicsFirewireCamera(PseudoDetector):
 		else:
 			rawdata = self.pv_data[0].get()
 		data = map(unsign2, rawdata )
-		self.ds = DataSet(int(float(self.pvs['HEIGHT'].caget())), int(float(self.pvs['WIDTH'].caget())), data)
+		self.ds = DoubleDataset(int(float(self.pvs['HEIGHT'].caget())), int(float(self.pvs['WIDTH'].caget())), data)
 		self.last_image_number += 1
 		self.last_filename = self._generateCurrentFilename()
 		if self.filepath is not None:

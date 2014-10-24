@@ -80,8 +80,9 @@ public class EventService {
 		orb = netService.getOrb();
 		nc = netService.getNamingContextExt();
 
+		logger.info("Resolving EventService using name '{}'", eventChannelName);
 		eventChannel = EventChannelHelper.narrow(nc.resolve(nc.to_name(eventChannelName)));
-
+		logger.info("Successfully configured EventService using name '{}'", eventChannelName);
 		configured = true;
 	}
 	

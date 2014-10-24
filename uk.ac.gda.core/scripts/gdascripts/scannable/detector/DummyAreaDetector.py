@@ -13,10 +13,9 @@ from gda.data import PathConstructor
 from gda.analysis.io import JPEGLoader, TIFFImageLoader, PilatusTiffLoader
 from gda.analysis import ScanFileHolder
 
-from gda.analysis.utils import DatasetMaths;
+
 
 from uk.ac.diamond.scisoft.analysis import SDAPlotter;
-#from gda.analysis import DataSet;
 from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset;
 
 from gdascripts.scannable.detector.ZipImageProducer import ZipImageProducerClass;

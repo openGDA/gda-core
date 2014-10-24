@@ -19,13 +19,13 @@
 
 package gda.analysis.plotmanager;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-
+import gda.device.Device;
 import gda.factory.Configurable;
 import gda.factory.Findable;
 import gda.factory.Localizable;
 import gda.observable.IObservable;
-import gda.device.Device;
+
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 
 /**
  * IPlotManager Interface
@@ -37,45 +37,45 @@ public interface IPlotManager extends Findable, IObservable, Configurable, Local
 	 * @param xAxis
 	 * @param dataSets
 	 */
-	public void plot(String panelName, DoubleDataset xAxis, DoubleDataset... dataSets);
+	public void plot(String panelName, Dataset xAxis, Dataset... dataSets);
 
 	/**
 	 * @param panelName
 	 * @param xAxis
 	 * @param dataSets
 	 */
-	public void plotOver(String panelName, DoubleDataset xAxis, DoubleDataset... dataSets);
+	public void plotOver(String panelName, Dataset xAxis, Dataset... dataSets);
 
 	/**
 	 * @param panelName
 	 * @param dataSets
 	 */
-	public void plotImage(String panelName, DoubleDataset... dataSets);
+	public void plotImage(String panelName, Dataset... dataSets);
 	
 	/**
 	 * @param panelName
 	 * @param dataSets
 	 */
 	
-	public void plotImages(String panelName, DoubleDataset... dataSets);
+	public void plotImages(String panelName, Dataset... dataSets);
 	
 	/**
 	 * @param panelName
 	 * @param dataSets
 	 */
-	public void plot3D(String panelName, DoubleDataset...dataSets);
+	public void plot3D(String panelName, Dataset...dataSets);
 	
 	/**
 	 * @param panelName
 	 * @param useWindow
 	 * @param dataSets
 	 */
-	public void plot3D(String panelName, boolean useWindow, DoubleDataset...dataSets);
+	public void plot3D(String panelName, boolean useWindow, Dataset...dataSets);
 	
 	/**
 	 * @param panelName
 	 * @param dataSets
 	 */
-	public void addPlot3D(String panelName, DoubleDataset...dataSets);
+	public void addPlot3D(String panelName, Dataset...dataSets);
 
 }
