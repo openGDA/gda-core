@@ -456,7 +456,7 @@ public abstract class ExafsScan {
 		metashop.add(outputFileName, BeansFactory.getXMLString(outputBean));
 
 		String detectorFileName = determineDetectorFilename();
-		if (!detectorFileName.isEmpty()) {
+		if (detectorFileName != null && !detectorFileName.isEmpty()) {
 			metashop.add("DetectorConfigurationParameters",
 					BeansFactory.getXMLString(experimentFullPath + File.separator + detectorFileName));
 		}
