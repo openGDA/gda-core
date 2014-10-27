@@ -16,7 +16,7 @@
             bean="uk.ac.gda.beans.vortex.Xspress3Parameters"
             contentType="uk.ac.diamond.gda.client.exafs.getXspress3Content"
             includeInNew="false"
-            name="Vortex"
+            name="Xspress3"
             template="Xspress3_Parameters"
             type="UNREGISTERED">
       </describer>
