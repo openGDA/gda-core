@@ -18,9 +18,18 @@
 
 package uk.ac.gda.client.microfocus.scan;
 
+import uk.ac.gda.beans.exafs.IDetectorConfigurationParameters;
+import uk.ac.gda.beans.exafs.IDetectorParameters;
+import uk.ac.gda.beans.exafs.IOutputParameters;
+import uk.ac.gda.beans.exafs.ISampleParameters;
+import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.client.microfocus.scan.datawriter.MicroFocusWriterExtender;
 
 public interface MappingScan {
 
 	public MicroFocusWriterExtender getMFD();
+
+	public void doCollection(ISampleParameters sampleParams, IScanParameters scanBean,
+			IDetectorParameters detParams, IOutputParameters outputParams,
+			IDetectorConfigurationParameters xspressConfigurationParameters, String experimentalFullPath, int i) throws Exception;
 }

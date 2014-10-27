@@ -84,9 +84,9 @@ import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
  * Beamline customisation is provided by the 'Preparer' objects and the ascii header configured in Spring using a
  * AsciiDataWriterConfiguration object.
  */
-public abstract class ExafsScan {
+public abstract class XasScanBase implements XasScan {
 
-	private static Logger logger = LoggerFactory.getLogger(ExafsScan.class);
+	private static Logger logger = LoggerFactory.getLogger(XasScanBase.class);
 
 	final protected BeamlinePreparer beamlinePreparer;
 	final protected DetectorPreparer detectorPreparer;
@@ -119,7 +119,7 @@ public abstract class ExafsScan {
 	protected String scan_unique_id;
 	protected long timeRepetitionsStarted;
 
-	public ExafsScan(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer,
+	public XasScanBase(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer,
 			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
 			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable,
@@ -143,7 +143,8 @@ public abstract class ExafsScan {
 	 * 
 	 * @return String name of scan type e.g. XANES
 	 */
-	protected abstract String getScanType();
+	@Override
+	public abstract String getScanType();
 
 	/**
 	 * For convenience when calling from Jython.
@@ -177,7 +178,8 @@ public abstract class ExafsScan {
 
 		doCollection();
 	}
-
+	
+	@Override
 	public void doCollection(ISampleParameters sampleBean, IScanParameters scanBean, IDetectorParameters detectorBean,
 			IOutputParameters outputBean, IDetectorConfigurationParameters detectorConfigurationBean,
 			String experimentFullPath, int numRepetitions) throws Exception {
@@ -220,8 +222,6 @@ public abstract class ExafsScan {
 				try {
 					doSampleEnvironmentIterator(iterator);
 				} catch (Exception e) {
-					// FIXME this is a problem as we are often absorbing the wrong types of exceptions, but sometimes we
-					// do want to ignore them and carry on the loop
 					handleScanInterrupt(e);
 				}
 				checkForPause();
@@ -233,7 +233,6 @@ public abstract class ExafsScan {
 			}
 		} finally {
 			finishRepetitions();
-			
 		}
 	}
 	
@@ -558,6 +557,8 @@ public abstract class ExafsScan {
 			} else {
 				throw exceptionObject;
 			}
+		} else {
+			throw exceptionObject;
 		}
 	}
 

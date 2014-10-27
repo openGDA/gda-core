@@ -70,7 +70,7 @@ public class RasterMap extends StepMap implements MappingScan {
 	}
 	
 	@Override
-	protected String getScanType() {
+	public String getScanType() {
 		return "Raster Map";
 	}
 	

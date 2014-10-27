@@ -43,11 +43,11 @@ import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.client.microfocus.scan.datawriter.MicroFocusWriterExtender;
 import uk.ac.gda.server.exafs.scan.BeamlinePreparer;
 import uk.ac.gda.server.exafs.scan.DetectorPreparer;
-import uk.ac.gda.server.exafs.scan.ExafsScan;
+import uk.ac.gda.server.exafs.scan.XasScanBase;
 import uk.ac.gda.server.exafs.scan.OutputPreparer;
 import uk.ac.gda.server.exafs.scan.SampleEnvironmentPreparer;
 
-public class StepMap extends ExafsScan implements MappingScan {
+public class StepMap extends XasScanBase implements MappingScan {
 
 	protected final Scannable xMotor;
 	protected final Scannable yMotor;
@@ -78,7 +78,7 @@ public class StepMap extends ExafsScan implements MappingScan {
 	}
 
 	@Override
-	protected String getScanType() {
+	public String getScanType() {
 		return "Step Map";
 	}
 

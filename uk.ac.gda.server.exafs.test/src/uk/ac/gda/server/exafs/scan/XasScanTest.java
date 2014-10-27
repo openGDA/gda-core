@@ -83,7 +83,7 @@ public class XasScanTest {
 	private NXMetaDataProvider metashop;
 	private AsciiDataWriterConfiguration datawriterconfig;
 	private ScannableMotor energy_scannable;
-	private XasScan xasscan;
+	private EnergyScan xasscan;
 	private LoggingScriptController XASLoggingScriptController;
 	private XanesScanParameters xanesParams;
 	private DetectorParameters detParams;
@@ -171,7 +171,7 @@ public class XasScanTest {
 		Mockito.when(energy_scannable.getPosition()).thenReturn(7000.0);
 
 		// create XasScan object
-		xasscan = new XasScan(beamlinepreparer, detectorPreparer, samplePreparer, outputPreparer,
+		xasscan = new EnergyScan(beamlinepreparer, detectorPreparer, samplePreparer, outputPreparer,
 				commandQueueProcessor, XASLoggingScriptController, datawriterconfig,
 				new ArrayList<AsciiMetadataConfig>(), energy_scannable, metashop, true);
 

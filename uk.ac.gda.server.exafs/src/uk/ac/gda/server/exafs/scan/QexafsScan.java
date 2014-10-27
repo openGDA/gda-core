@@ -38,7 +38,7 @@ import java.util.List;
 
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 
-public class QexafsScan extends XasScan {
+public class QexafsScan extends EnergyScan {
 
 	private ContinuouslyScannable qexafsScanable;
 	private QexafsDetectorPreparer qexafsdetectorPreparer;
@@ -56,7 +56,7 @@ public class QexafsScan extends XasScan {
 	}
 	
 	@Override
-	protected String getScanType(){
+	public String getScanType(){
 		return "Qexafs";
 	}
 
