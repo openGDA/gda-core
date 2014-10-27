@@ -575,13 +575,22 @@ public abstract class XasScanBase implements XasScan {
 			detectorGroupName = detectorBean.getTransmissionParameters().getDetectorType();
 		}
 
+		Detector[] detectors = null;
 		for (DetectorGroup group : detectorBean.getDetectorGroups()) {
 			if (group.getName().equalsIgnoreCase(detectorGroupName)) {
-				return createDetArray(group.getDetector());
+				detectors = createDetArray(group.getDetector());
 			}
 		}
-
+		
+		if (detectors == null){
 		throw new IllegalArgumentException("Could not build the list of detectors as no group of detectors named "
 				+ detectorGroupName + " was found in the XML file.");
+		}
+		
+		Detector[] extraDetectors = detectorPreparer.getExtraDetectors();
+		if (extraDetectors != null){
+			detectors = (Detector[]) ArrayUtils.addAll(detectors, extraDetectors);
+		}
+		return detectors;
 	}
 }

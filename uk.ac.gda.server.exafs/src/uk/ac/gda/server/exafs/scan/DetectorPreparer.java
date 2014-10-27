@@ -18,6 +18,7 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import gda.device.Detector;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
@@ -44,5 +45,9 @@ public interface DetectorPreparer {
 	 */
 	void completeCollection();
 
+	/**
+	 * @return any beamline specific detectors to add to ones in use based on the beans given by the configure method
+	 */
+	Detector[] getExtraDetectors();
 
 }
