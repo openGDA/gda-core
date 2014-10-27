@@ -210,7 +210,7 @@ class TestTwoEdges(Test):
 		self.det   = sfh.getDataSet('pips2')
 		self.labels = TwoGaussianEdges().labelList
 	
-	def getInnerAndDetDatasetForGivenOuterValue(self, outerValue, DataSet=DataSet):
+	def getInnerAndDetDatasetForGivenOuterValue(self, outerValue, DataSet=DoubleDataset):
 		mush =  [[o, i, d] for o,i,d in
 				 zip(self.outer.doubleArray(), self.inner.doubleArray(), self.det.doubleArray())
 				 if o==float(outerValue)]
