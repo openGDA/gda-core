@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import ch.qos.logback.classic.BasicConfigurator;
 import ch.qos.logback.classic.Logger;
@@ -332,6 +333,8 @@ public class LogbackUtils {
 		
 		// Configure using the specified logging configuration.
 		try {
+			//Use stdout as use of logger is no good if the logging configuration is wrong
+			System.out.println("Configure logging using file " + StringUtils.quote(configFile));
 			configureLogging(context, configFile);
 		} catch (JoranException e) {
 			final String msg = String.format("Unable to configure logging using %s", configFile);
