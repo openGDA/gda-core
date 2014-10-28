@@ -39,7 +39,7 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 	private String command;
 	private String filename=null;
 	private double timeout=30000; //30 seconds
-	private FileReferenceScannable currentCalibrationScannable;
+	private StringValueScannable currentCalibrationScannable;
 	private SimpleUDPServerScannable simpleUDPServer;
 	
 	@Override
@@ -191,12 +191,12 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 		}
 	}
 
-	public FileReferenceScannable getCurrentCalibrationScannable() {
+	public StringValueScannable getCurrentCalibrationScannable() {
 		return currentCalibrationScannable;
 	}
 
 	public void setCurrentCalibrationScannable(
-			FileReferenceScannable currentCalibrationScannable) {
+			StringValueScannable currentCalibrationScannable) {
 		this.currentCalibrationScannable = currentCalibrationScannable;
 	}
 

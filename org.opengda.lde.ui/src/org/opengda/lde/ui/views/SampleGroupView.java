@@ -482,9 +482,9 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 					@Override
 					public void run() {
-						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
 						txtDataFilePath.setText(scanFilename);
 						txtScanNumber.setText(String.valueOf(scanNumber));
+						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
 					}
 				});
 			} else if (arg instanceof ScanPointStartEvent) {

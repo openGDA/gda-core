@@ -10,17 +10,18 @@ import gda.factory.corba.util.CorbaImplClass;
 
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
-public class FileReferenceScannable extends ScannableBase {
+public class StringValueScannable extends ScannableBase {
 
-	private String calibrationFilename="Undefined";
+	private String value="Undefined";
 	private String name;
+	
 	public String getName() {
 		return name;
 	}
 	public void setName(String name) {
 		this.name = name;
 	}
-	public FileReferenceScannable() {
+	public StringValueScannable() {
 	}
 	
 	public void configure() throws gda.factory.FactoryException {
@@ -33,12 +34,12 @@ public class FileReferenceScannable extends ScannableBase {
 	};
 	@Override
 	public Object getPosition() throws DeviceException {
-		return calibrationFilename;
+		return value;
 	}
 	@Override
 	public void asynchronousMoveTo(Object externalPosition)
 			throws DeviceException {
-		this.calibrationFilename=externalPosition.toString();
+		this.value=externalPosition.toString();
 	}
 	@Override
 	public boolean isBusy() throws DeviceException {
