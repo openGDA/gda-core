@@ -1,10 +1,5 @@
 package org.opengda.lde.ui.views;
 
-//import gda.commandqueue.CommandId;
-//import gda.commandqueue.CommandProgress;
-//import gda.commandqueue.JythonCommandCommandProvider;
-//import gda.commandqueue.Processor;
-//import gda.commandqueue.ProcessorCurrentItem;
 import gda.configuration.properties.LocalProperties;
 import gda.device.detector.pixium.events.ScanEndEvent;
 import gda.device.detector.pixium.events.ScanPointStartEvent;
@@ -513,6 +508,63 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 					public void run() {
 						if (currentSample!=null) {
 							updateSampleStatus(currentSample, STATUS.COMPLETED);
+						}
+					}
+				});
+			} else if (arg instanceof StageChangedEvent) {
+				StageChangedEvent event = ((StageChangedEvent)arg);
+				final String currentStage = event.getCurrentStage();
+				final int numberOfSamples = event.getNumberOfSamples();
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						txtStagename.setText(currentStage+": "+numberOfSamples+" samples.");
+					}
+				});
+			} else if (arg instanceof SampleProcessingEvent) {
+				SampleProcessingEvent event = ((SampleProcessingEvent)arg);
+				final String currentSampleName = event.getCurrentSampleName();
+				final int currentSampleNumber = event.getCurrentSampleNumber();
+				final int totalNumberActiveSamples = event.getTotalNumberActiveSamples();
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						txtSamplename.setText(currentSampleName);
+						updateSampleNumber(currentSampleNumber,totalNumberActiveSamples);
+					}
+				});
+			} else if (arg instanceof SampleChangedEvent) {
+				SampleChangedEvent event = (SampleChangedEvent)arg;
+				final String sampleID = event.getSampleID();
+				logger.debug("sample update to {}",sampleID);
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						for (Sample sample : samples) {
+							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
+								if (currentSample != sample) {
+									updateSampleStatus(currentSample, STATUS.COMPLETED);
+								}
+								currentSample = sample;
+							}
+						}
+						viewer.setSelection(new StructuredSelection(currentSample));
+					}
+				});
+			} else if (arg instanceof SampleStatusEvent) {
+				SampleStatusEvent event = (SampleStatusEvent)arg;
+				final String sampleID = event.getSampleID();
+				final STATUS status = event.getStatus();
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						logger.debug("sample {} update to {}",sampleID, status);
+						for (Sample sample : samples) {
+							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
+								updateSampleStatus(sample, status);
+							}
 						}
 					}
 				});
