@@ -206,13 +206,9 @@ class TestScanDataProcessorResultWithFeatureOutsideCollection(TestScanDataProces
 		
 	def testGetScannableValueAtFeature(self):
 		get = self.sdpr.getScannableValueAtFeature
-# 		print "*******************************************************************"
-# 		print get
-# 		print self.z
-# 		print get(self.z)
-# 		self.assertEquals(get(self.z), [0., 1.])
+		self.assertEquals(get(self.z), [0., 1.])
 		self.assertEquals(get(self.x), -5.4)
-# 		assertArrayWithNansEqual(get(self.y), [0., NAN, 1.])
+		assertArrayWithNansEqual(get(self.y), [0., NAN, 1.])
 
 	def test__call__WithRealSDPR(self):
 		self.sdpr.go()
