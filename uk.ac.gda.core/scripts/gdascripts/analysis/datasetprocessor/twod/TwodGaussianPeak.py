@@ -59,7 +59,7 @@ class TwodGaussianPeak(TwodDataSetProcessor):
 			ansx = fitplot( dsxaxis, dsx, GeneticAlg(.001), [ gaussian, Offset( dsx.min(),dsx.max() ) ] )
 		except java.lang.Exception:
 			# Probably cannot find Plot_Manager on the finder
-			ansx = Fitter.fit(dsyaxis, dsx, GeneticAlg(0.001), [ gaussian, Offset( dsx.min(),dsx.max() ) ] )
+			ansx = Fitter.fit(dsxaxis, dsx, GeneticAlg(0.001), [ gaussian, Offset( dsx.min(),dsx.max() ) ] )
 		#dsyaxis = dsyaxis.subSampleMean(dsy.dimensions[0]/2)
 		#dsy = dsy.subSampleMean(dsy.dimensions[0]/2)
 		#dsxaxis = dsxaxis.subSampleMean(dsx.dimensions[0]/2)
