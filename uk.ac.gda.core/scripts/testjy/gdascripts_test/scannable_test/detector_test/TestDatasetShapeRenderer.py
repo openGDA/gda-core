@@ -77,10 +77,7 @@ class TestDatasetShapeRenderer(unittest.TestCase):
 		self.testAddShape()
 		ds = DoubleDataset([4, 5])
 		ds.set(10, (2, 2))
-		originalDsCopy = ds.clone()
 		result = self.renderer.renderShapesOntoDataset(ds)
-		print ds2lofl(ds)
-		self.assertTrue(ds == originalDsCopy)
 		expected = [
 				[-10.0, -10.0, 0.0, 0.0, 0.0],
 				[0.0, -10.0, -10.0, -10.0, -10.0],
