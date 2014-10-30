@@ -117,6 +117,7 @@ public class DetectorParametersTest {
 		transmissionParameters.setDetectorType("Transmission");
 		transmissionParameters.setWorkingEnergy(7100.0);
 		transmissionParameters.setMythenEnergy(9000.0);
+		transmissionParameters.setMythenTime(10.0);
 		IonChamberParameters ionChamberParameters = new IonChamberParameters();
 		ionChamberParameters.setName("I0");
 		ionChamberParameters.setDeviceName("counterTimer01");
