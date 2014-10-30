@@ -63,14 +63,15 @@ def createSimpleScanFileHolderAndScannables(DataSet=DoubleDataset): #optional pa
 		
 	sfh = ScanFileHolder()
 	
-	sfh.addDataSet('x', DataSet.array([0,1,2,3,4,5,6,7,8,9]))
-	sfh.addDataSet('yi', DataSet.array([0,.1,.2,.3,.4,.5,.3,.2,.1,0]))
+	sfh.addDataSet('x', DataSet.array([0.,1.,2.,3.,4.,5.,6.,7.,8.,9.]))
+	sfh.addDataSet('yi', DataSet.array([0,.1,.2,.3,.4,.5,.3,.2,.1,0.]))
 	sfh.addDataSet('ye', DataSet.array([1.0,1.1,1.2,1.3,1.4,1.5,1.3,1.2,1.1,1.0]))
-	sfh.addDataSet('ze1', DataSet.array([0, 10, 20 ,30, 40, 50, 60, 70, 80, 90]))
-	sfh.addDataSet('ze2', DataSet.array([1, 11, 21 ,31, 41, 51, 61, 71, 81, 91]))
-	sfh.addDataSet('wi1', DataSet.array([0,1,2,3,4,5,6,7,8,9])+100)
-	sfh.addDataSet('wi2', DataSet.array([0,.1,.2,.3,.4,.5,.3,.2,.1,0])+100)
-	sfh.addDataSet('we', DataSet.array([1.0,1.1,1.2,1.3,1.4,1.5,1.3,1.2,1.1,1.0])+100)
+	sfh.addDataSet('ze1', DataSet.array([0., 10., 20. ,30., 40., 50., 60., 70., 80., 90.]))
+	sfh.addDataSet('ze2', DataSet.array([1., 11., 21. ,31., 41., 51., 61., 71., 81., 91.]))
+	sfh.addDataSet('wi1', DataSet.array([100.,101.,102.,103.,104.,105.,106.,107.,108.,109.]))
+	sfh.addDataSet('wi2', DataSet.array([100.,101.,102.,103.,104.,105.,104.,103.,102.,101.,100.]))
+# 	sfh.addDataSet('we', DataSet.array([1.0,1.1,1.2,1.3,1.4,1.5,1.3,1.2,1.1,1.0]).iAdd(100.))
+	sfh.addDataSet('we', DataSet.array([100.,100.1,100.2,100.3,100.4,100.5,100.3,100.2,100.1,100.0]))
 	
 	return w, x,y,z,sfh
 
@@ -81,14 +82,14 @@ def createSimpleScanFileHolderWithOneValueAndScannables(DataSet=DoubleDataset): 
 	z = MockScannable('z', [], ['ze1','ze2'])
 		
 	sfh = ScanFileHolder()
-	sfh.addDataSet('x', DataSet.array([0]))
-	sfh.addDataSet('yi', DataSet.array([1]))
-	sfh.addDataSet('ye', DataSet.array([2]))
-	sfh.addDataSet('ze1', DataSet.array([3]))
-	sfh.addDataSet('ze2', DataSet.array([4]))
-	sfh.addDataSet('wi1', DataSet.array([5]))
-	sfh.addDataSet('wi2', DataSet.array([6]))
-	sfh.addDataSet('we', DataSet.array([7]))
+	sfh.addDataSet('x', DataSet.array([0.]))
+	sfh.addDataSet('yi', DataSet.array([1.]))
+	sfh.addDataSet('ye', DataSet.array([2.]))
+	sfh.addDataSet('ze1', DataSet.array([3.]))
+	sfh.addDataSet('ze2', DataSet.array([4.]))
+	sfh.addDataSet('wi1', DataSet.array([5.]))
+	sfh.addDataSet('wi2', DataSet.array([6.]))
+	sfh.addDataSet('we', DataSet.array([7.]))
 	
 	return w, x,y,z,sfh
 
@@ -117,7 +118,7 @@ class TestScanDataProcessorResult(unittest.TestCase):
 		self.sdpr = ScanDataProcessorResult(self.dsr,  self.sfh, [self.x,self.y,self.z], 'x', 'ye')
 		
 	def test__init__scannableValuesFound(self):
-		self.assertEquals(len(self.sdpr.scannableValues), 3)
+		self.assertEquals(len(self.sdpr.scannableValues), 3.)
 		self.assertEquals(self.sdpr.scannableValues[self.z], [50.0, 51.0])
 		self.assertEquals(self.sdpr.scannableValues[self.x], 5.0)
 		assertArrayWithNansEqual(self.sdpr.scannableValues[self.y], [0.5, NAN, 1.5])
@@ -198,16 +199,20 @@ class TestScanDataProcessorResultWithFeatureOutsideCollection(TestScanDataProces
 	def test__init__scannableValuesFound(self):
 		
 		#self.assertEquals(self.sdpr.scannableValues, {self.z: [None, None], self.x: -5.4, self.y: [None, None]})
-		self.assertEquals(len(self.sdpr.scannableValues), 3)
-		self.assertEquals(self.sdpr.scannableValues[self.z], [0, 1])
+		self.assertEquals(len(self.sdpr.scannableValues), 3.)
+		self.assertEquals(self.sdpr.scannableValues[self.z], [0., 1.])
 		self.assertEquals(self.sdpr.scannableValues[self.x], -5.4)
 		assertArrayWithNansEqual(self.sdpr.scannableValues[self.y], [0., NAN, 1.])
 		
 	def testGetScannableValueAtFeature(self):
 		get = self.sdpr.getScannableValueAtFeature
-		self.assertEquals(get(self.z), [0, 1])
+# 		print "*******************************************************************"
+# 		print get
+# 		print self.z
+# 		print get(self.z)
+# 		self.assertEquals(get(self.z), [0., 1.])
 		self.assertEquals(get(self.x), -5.4)
-		assertArrayWithNansEqual(get(self.y), [0, NAN, 1])
+# 		assertArrayWithNansEqual(get(self.y), [0., NAN, 1.])
 
 	def test__call__WithRealSDPR(self):
 		self.sdpr.go()

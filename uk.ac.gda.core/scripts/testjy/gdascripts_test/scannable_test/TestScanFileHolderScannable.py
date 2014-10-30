@@ -14,7 +14,8 @@ def createSFH(DataSet=DoubleDataset):
 	result.addDataSet('i1', DataSet.array([0,1,2,3,4,5,6,7,8,9]))
 	result.addDataSet('i2', DataSet.array([0,10,20,30,40,50,60,70,80,90]))
 	result.addDataSet('e1', DataSet.array([0,.1,.2,.3,.4,.5,.3,.2,.1,0]))
-	result.addDataSet('e2', DataSet.array([0,.1,.2,.3,.4,.5,.3,.2,.1,0])+100)	
+# 	result.addDataSet('e2', DataSet.array([0,.1,.2,.3,.4,.5,.3,.2,.1,0])+100)	
+	result.addDataSet('e2', DataSet.array([100.,100.1,100.2,100.3,100.4,100.5,100.3,100.2,100.1,100.]))	
 	return result
 
 

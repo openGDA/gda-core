@@ -1,5 +1,6 @@
 from TestProcessingDetectorWrapper import MockDetectorDataProcessor
 from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
+from org.eclipse.dawnsci.analysis.dataset.impl import DatasetUtils
 from gdascripts.scannable.detector.DatasetShapeRenderer import DatasetShapeRenderer, LinePainter, RectPainter
 import unittest
 
@@ -63,7 +64,7 @@ class TestDatasetShapeRenderer(unittest.TestCase):
 	
 	def testRenderShapes(self):
 		self.testAddShape()
-		ds = DataSet([4, 5])
+		ds = DoubleDataset([4, 5])
 		result = self.renderer.renderShapes(ds)
 		expected = [
 				[1., 1., 0., 0., 0.],
@@ -87,8 +88,12 @@ class TestDatasetShapeRenderer(unittest.TestCase):
 				[0.0, -10.0, -10.0, -10.0, -10.0]]
 		self.assertEquals(ds2lofl(result), expected)
 
+# I think the original developer of this meant this to mean Data set to list of lists, but a better name would have been helpful!....
 def ds2lofl(ds):
-	return [list(l) for l in list(ds.doubleMatrix())]
+	
+	array_from_ds = DatasetUtils.createJavaArray(ds)
+	
+	return [list(l) for l in list(array_from_ds)]
 
 def suite():
 	suite = unittest.TestSuite()

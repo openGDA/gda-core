@@ -5,6 +5,7 @@ from java.util.concurrent import Callable
 from gdascripts.scannable.detector.DatasetShapeRenderer import RectPainter
 from org.eclipse.dawnsci.analysis.api.io import ScanFileHolderException
 from gda.device.detector.hardwaretriggerable import HardwareTriggerableDetector
+from org.eclipse.dawnsci.analysis.api.dataset import Slice
 
 class DetectorDataProcessorPositionCallable(Callable):
 	
@@ -35,7 +36,14 @@ class DetectorDataProcessorPositionCallable(Callable):
 			return dataset
 		else:
 			x1, y1, x2, y2 = self.roi
-			return dataset[min(y1, y2):max(y1, y2), min(x1, x2):max(x1, x2)]
+			min_y = min(y1, y2)
+			max_y = max(y1, y2)
+			min_x = min(x1, x2)
+			max_x = max(x1, x2)
+			slice_y = Slice(min_y,max_y,1)
+			slice_x = Slice(min_x,max_x,1)
+			return dataset.getSlice(slice_y,slice_x)
+# 			return dataset[min(y1, y2):max(y1, y2), min(x1, x2):max(x1, x2)]
 	
 
 class DetectorDataProcessor(PseudoDevice, PositionCallableProvider):

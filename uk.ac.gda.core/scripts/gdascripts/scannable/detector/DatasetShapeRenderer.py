@@ -17,7 +17,7 @@ class DatasetShapeRenderer(object):
 		
 	def renderShapes(self, targetDataset):
 		# Make a blank data set
-		image = DoubleDataset(targetDataset.dimensions)
+		image = DoubleDataset(targetDataset.getShape())
 		for shapeDict in self.shapesToPaint.values():
 			for shape in shapeDict.values():
 				image = shape.paint(image)
@@ -29,7 +29,7 @@ class DatasetShapeRenderer(object):
 		a = targetDataset.max()
 		b = targetDataset.min()
 		image = self.renderShapes(targetDataset)
-		return targetDataset + image * (b - (a - b))
+		return targetDataset.iadd(image.imultiply(b - (a - b)))
 
 
 class ShapePainter(object):
@@ -57,7 +57,7 @@ class LinePainter(ShapePainter):
 		self.y2 = y2
 				
 	def paint(self, dataset):
-		rows, cols = dataset.dimensions
+		rows, cols = dataset.getShape()
 #		print "line painting:", self.y1, self.x1, self.y2, self.x2
 		for x in range(self.x1, self.x2 + 1):
 			for y in range(self.y1, self.y2 + 1):
