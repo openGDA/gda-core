@@ -157,11 +157,29 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 			}
 		}
 		try {
+			if (!detectorArm.isParked()) {
+				detectorArm.parkDetector();
+			}
+		} catch (DeviceException e) {
+			message="Failed to park or check detector '"+detectorArm.getName()+"' is at parkin poistion or not.";
+			updateMessage(e, message);
+		}
+		try {
 			waitForAllStagesToBeParked();
 		} catch (DeviceException e) {
 			message = "Failed to park all stages before data collection process start.";
 			updateMessage(e, message);
 			//stop when any stage cannot be parked for safety reason.
+			throw new IllegalStateException(message, e);
+		}
+		try {
+			while (!detectorArm.isParked()) {
+				Sleep.sleep(100);
+			}
+		} catch (DeviceException e) {
+			message="Failed on checking detector '"+detectorArm.getName()+"' is at parkin poistion or not.";
+			updateMessage(e, message);
+			//stop when detector cannot be parked for safety reason.
 			throw new IllegalStateException(message, e);
 		}
 		message="There are "+numActiveSamples+" samples to process.";
@@ -192,10 +210,28 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 		// all stages are done now
 		message="All selected samples on all stages are processed.";
 		updateMessage(null, message);
+		//parking the detector
+		try {
+			if (!detectorArm.isParked()) {
+				detectorArm.parkDetector();
+			}
+		} catch (DeviceException e) {
+			message="Failed to park or check detector '"+detectorArm.getName()+"' is at parkin poistion or not.";
+			updateMessage(e, message);
+		}
+		//parking all stages
 		try {
 			parkAllStages();
 		} catch (DeviceException e) {
 			message = "Park all stage failed: "+ e.getMessage();
+			updateMessage(e, message);
+		}
+		try {
+			while (!detectorArm.isParked()) {
+				Sleep.sleep(100);
+			}
+		} catch (DeviceException e) {
+			message="Failed on checking detector '"+detectorArm.getName()+"' is at parkin poistion or not.";
 			updateMessage(e, message);
 		}
 		message="Data collection completed!";

@@ -23,7 +23,7 @@ public class DetectorArm extends ScannableGroup {
 		return this.getGroupMember(getName() + "z");
 	}
 
-	public void parkStage() throws DeviceException {
+	public void parkDetector() throws DeviceException {
 		getXMotor().asynchronousMoveTo(getParkPosition());
 	}
 
