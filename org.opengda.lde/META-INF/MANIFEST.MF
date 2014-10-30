@@ -21,4 +21,5 @@ Export-Package: org.opengda.lde,
 Import-Package: org.apache.commons.collections4;version="4.0.0",
  org.apache.commons.collections4.map;version="4.0.0",
  org.osgi.framework;version="1.7.0",
- org.slf4j;version="1.7.6"
+ org.slf4j;version="1.7.6",
+ org.springframework.beans.factory;version="4.0.6.RELEASE"

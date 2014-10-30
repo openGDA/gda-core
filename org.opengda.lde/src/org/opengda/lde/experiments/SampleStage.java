@@ -4,7 +4,10 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 
-public class SampleStage extends ScannableGroup {
+import org.opengda.lde.model.ldeexperiment.Sample;
+import org.springframework.beans.factory.InitializingBean;
+
+public class SampleStage extends ScannableGroup implements InitializingBean {
 	private double parkPosition = -400.0;
 	private double engagePosition = 0.0;
 	private double positionTolerance=0.001;
@@ -31,7 +34,23 @@ public class SampleStage extends ScannableGroup {
 	public void engageStage() throws DeviceException {
 		getXMotor().asynchronousMoveTo(getEngagePosition());
 	}
-
+	public boolean isAtXPosition(double demandPosition) throws DeviceException {
+		return ((Double)(getXMotor().getPosition())-demandPosition)<=getPositionTolerance();
+	}
+	public boolean isAtYPosition(double demandPosition) throws DeviceException {
+		return ((Double)(getYMotor().getPosition())-demandPosition)<=getPositionTolerance();
+	}
+	public boolean isAtCalibrantPosition(Sample sample) throws DeviceException {
+		return isAtXPosition(sample.getCalibrant_x()) && isAtYPosition(sample.getCalibrant_y());
+	}
+	public boolean isAtSamplePosition(Sample sample) throws DeviceException {
+		if (sample.getSample_x_start()!=Double.NaN && sample.getSample_y_start()!=Double.NaN)
+			return isAtXPosition(sample.getSample_x_start()) && isAtYPosition(sample.getSample_y_start());
+		if (sample.getSample_x_start()!=Double.NaN && sample.getSample_y_start() == Double.NaN)
+			return isAtXPosition(sample.getSample_x_start());
+		
+		return true;
+	}
 	public boolean isParked() throws DeviceException {
 		return ((Double)(getXMotor().getPosition())-getParkPosition())<=getPositionTolerance();
 	}
@@ -85,6 +104,13 @@ public class SampleStage extends ScannableGroup {
 	}
 	public boolean isDetectorCalibrated() {
 		return detectorCalibrated;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (zPosition==-1000.0) {
+			throw new IllegalStateException("Stage must have Z position set.");
+		}
 	}
 
 }

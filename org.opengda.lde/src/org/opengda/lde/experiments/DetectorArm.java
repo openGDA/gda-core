@@ -40,7 +40,9 @@ public class DetectorArm extends ScannableGroup {
 	public boolean isAtZPosition(Sample sample, double stageOffset) throws DeviceException {
 		return ((Double)(getZMotor().getPosition())-(sample.getDetector_z()+stageOffset))<=getPositionTolerance();
 	}
-
+	public boolean isAtPosition(Sample sample, double stageOffset) throws DeviceException {
+		return isAtXPosition(sample) && isAtYPosition(sample) && isAtZPosition(sample, stageOffset);
+	}
 	public double getParkPosition() {
 		return parkPosition;
 	}
