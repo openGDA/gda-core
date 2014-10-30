@@ -83,6 +83,7 @@ import org.eclipse.nebula.widgets.formattedtext.FormattedTextCellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
@@ -103,6 +104,10 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.lde.events.SampleChangedEvent;
+import org.opengda.lde.events.SampleProcessingEvent;
+import org.opengda.lde.events.SampleStatusEvent;
+import org.opengda.lde.events.StageChangedEvent;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.STATUS;
@@ -123,8 +128,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import uk.ac.gda.client.CommandQueueViewFactory;
-
-import org.eclipse.swt.layout.FillLayout;
 
 /**
  * This sample view shows data obtained from the EMF model. 
@@ -240,7 +243,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 		Composite statusArea=new Composite(rootComposite, SWT.NONE);
 		GridData gd_statusArea = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
-		gd_statusArea.heightHint = 147;
+		gd_statusArea.heightHint = 150;
 		statusArea.setLayoutData(gd_statusArea);
 		statusArea.setLayout(new GridLayout(4, false));
 		
@@ -294,7 +297,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtTotalTime.setBackground(ColorConstants.black);
 
 		Group grpDataCollectionProgress = new Group(statusArea, SWT.NONE);
-		grpDataCollectionProgress.setLayout(new GridLayout(8, false));
+		grpDataCollectionProgress.setLayout(new GridLayout(10, false));
 		GridData gd_grpDataCollectionProgress = new GridData(SWT.FILL, SWT.TOP,
 				false, true, 4, 1);
 		gd_grpDataCollectionProgress.heightHint = 67;
@@ -327,7 +330,18 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				false, 1, 1);
 		gd_txtSamplename.widthHint = 100;
 		txtSamplename.setLayoutData(gd_txtSamplename);
-
+		
+		Label lblCurrentStage = new Label(grpDataCollectionProgress, SWT.NONE);
+		lblCurrentStage.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblCurrentStage.setText("Current Stage:");
+				
+		txtStagename = new Text(grpDataCollectionProgress, SWT.BORDER);
+		txtStagename.setEditable(false);
+		txtStagename.setForeground(ColorConstants.lightGreen);
+		txtStagename.setBackground(ColorConstants.black);
+		txtStagename.setText("stageName");
+		txtStagename.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
 		Label lblSampleNumber = new Label(grpDataCollectionProgress, SWT.NONE);
 		lblSampleNumber.setText("Sample Number:");
 
@@ -341,29 +355,25 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		gd_txtSampleNumber.widthHint = 40;
 		txtSampleNumber.setLayoutData(gd_txtSampleNumber);
 
-		Label lblScanPointNumber = new Label(grpDataCollectionProgress,
-				SWT.NONE);
+		Label lblScanPointNumber = new Label(grpDataCollectionProgress,SWT.NONE);
 		lblScanPointNumber.setText("Scan Point Number:");
-
+		
 		txtScanPointNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
 		txtScanPointNumber.setEditable(false);
 		txtScanPointNumber.setForeground(ColorConstants.lightGreen);
 		txtScanPointNumber.setBackground(ColorConstants.black);
 		txtScanPointNumber.setText("1/3");
-		GridData gd_txtScanPointNumber = new GridData(SWT.FILL, SWT.CENTER,
-				true, false, 1, 1);
+		GridData gd_txtScanPointNumber = new GridData(SWT.FILL, SWT.CENTER,true, false, 1, 1);
 		gd_txtScanPointNumber.widthHint = 40;
 		txtScanPointNumber.setLayoutData(gd_txtScanPointNumber);
-
+				
 		Label lblProgress = new Label(grpDataCollectionProgress, SWT.NONE);
 		lblProgress.setText("Acquisition Progress:");
-
+		
 		progressBar = new ProgressBar(grpDataCollectionProgress, SWT.NONE);
-		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
-				false, 3, 1));
-
-		Label lblProgressMessage = new Label(grpDataCollectionProgress,
-				SWT.NONE);
+		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,false, 4, 1));
+		
+		Label lblProgressMessage = new Label(grpDataCollectionProgress,SWT.NONE);
 		lblProgressMessage.setText("Progress Message:");
 
 		txtProgressMessage = new Text(grpDataCollectionProgress, SWT.BORDER);
@@ -371,8 +381,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtProgressMessage.setBackground(ColorConstants.black);
 		txtProgressMessage.setEditable(false);
 		txtProgressMessage.setText("progressMessage");
-		txtProgressMessage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
-				true, false, 3, 1));
+		txtProgressMessage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,true, false, 4, 1));
 
 		initialisation();
 		// register as selection provider to the SelectionService
@@ -502,10 +511,69 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 					@Override
 					public void run() {
-						//TODO update currentSample variable.
-						updateSampleStatus(currentSample, STATUS.COMPLETED);
+						if (currentSample!=null) {
+							updateSampleStatus(currentSample, STATUS.COMPLETED);
+						}
 					}
 				});
+			} else if (arg instanceof StageChangedEvent) {
+				StageChangedEvent event = ((StageChangedEvent)arg);
+				final String currentStage = event.getCurrentStage();
+				final int numberOfSamples = event.getNumberOfSamples();
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						txtStagename.setText(currentStage+": "+numberOfSamples+" samples.");
+					}
+				});
+			} else if (arg instanceof SampleProcessingEvent) {
+				SampleProcessingEvent event = ((SampleProcessingEvent)arg);
+				final String currentSampleName = event.getCurrentSampleName();
+				final int currentSampleNumber = event.getCurrentSampleNumber();
+				final int totalNumberActiveSamples = event.getTotalNumberActiveSamples();
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						txtSamplename.setText(currentSampleName);
+						updateSampleNumber(currentSampleNumber,totalNumberActiveSamples);
+					}
+				});
+			} else if (arg instanceof SampleChangedEvent) {
+				SampleChangedEvent event = (SampleChangedEvent)arg;
+				final String sampleID = event.getSampleID();
+				logger.debug("sample update to {}",sampleID);
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						for (Sample sample : samples) {
+							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
+								if (currentSample != sample) {
+									updateSampleStatus(currentSample, STATUS.COMPLETED);
+								}
+								currentSample = sample;
+							}
+						}
+						viewer.setSelection(new StructuredSelection(currentSample));
+					}
+				});
+			} else if (arg instanceof SampleStatusEvent) {
+				SampleStatusEvent event = (SampleStatusEvent)arg;
+				final String sampleID = event.getSampleID();
+				final STATUS status = event.getStatus();
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						logger.debug("sample {} update to {}",sampleID, status);
+						for (Sample sample : samples) {
+							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
+								updateSampleStatus(sample, status);
+							}
+						}
+					}
+				});
+				
 			}
 		}
 		if (source == CommandQueueViewFactory.getProcessor()) {
@@ -595,6 +663,10 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			}
 		}
 	}
+	private void updateSampleNumber(int currentSampleNumber,int totalNumberActiveSamples) {
+		txtSampleNumber.setText(String.valueOf(currentSampleNumber) + '/'+ String.valueOf(totalNumberActiveSamples));
+	}
+
 	private void updateScanPointNumber(long currentPointNumber,long totalNumberOfPoints) {
 		txtScanPointNumber.setText(String.valueOf(currentPointNumber) + '/'+ String.valueOf(totalNumberOfPoints));
 	}
@@ -1462,6 +1534,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private Text txtScanPointNumber;
 	private Text txtProgressMessage;
 	private ProgressBar progressBar;
+	private Text txtStagename;
 
 	
 	private void hookContextMenu() {
