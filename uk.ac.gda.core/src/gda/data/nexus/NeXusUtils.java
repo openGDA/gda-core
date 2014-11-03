@@ -388,7 +388,8 @@ public class NeXusUtils {
 					writeNexusString(file, "name", metadata.getMetadataValue("instrument.monochromator.name"));
 				if (metadata.getMetadataValue("instrument.monochromator.energy") != null) {
 					writeNexusDouble(file, "energy", Double.parseDouble(metadata.getMetadataValue("instrument.monochromator.energy")), "keV");
-				} else if (metadata.getMetadataValue("instrument.monochromator.wavelength") != null) {
+				} 
+				if (metadata.getMetadataValue("instrument.monochromator.wavelength") != null) {
 					writeNexusDouble(file, "wavelength", Double.parseDouble(metadata.getMetadataValue("instrument.monochromator.wavelength")), "Angstrom");
 				}
 
