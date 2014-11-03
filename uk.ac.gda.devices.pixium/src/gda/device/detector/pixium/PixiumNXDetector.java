@@ -18,6 +18,8 @@
 
 package gda.device.detector.pixium;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.NXDetector;
@@ -27,15 +29,22 @@ import gda.device.detector.addetector.triggering.AbstractADTriggeringStrategy;
 import gda.device.detector.addetector.triggering.PixiumSimpleAcquire;
 import gda.device.detector.areadetector.v17.impl.NDFileImpl;
 import gda.device.detector.nxdetector.NXPluginBase;
+import gda.device.detector.pixium.events.ScanEndEvent;
+import gda.device.detector.pixium.events.ScanPointStartEvent;
+import gda.device.detector.pixium.events.ScanStartEvent;
 import gda.epics.CachedLazyPVFactory;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.jython.InterfaceProvider;
+import gda.jython.scriptcontroller.ScriptControllerBase;
+import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.Predicate;
 import gda.scan.ConcurrentScan;
 import gda.scan.RepeatScan;
 import gda.scan.ScanInformation;
+import static gda.jython.InterfaceProvider.getCurrentScanInformationHolder;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,6 +98,10 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 	private boolean useShutter = true;
 	PV<Integer> shutterPV;
 	private Scannable fastshutter=null;
+	private Scriptcontroller eventAdmin;
+
+
+	private long currentPointNumber;
 	
 	
 	public PV<Integer> getShutterPV() {
@@ -168,7 +181,29 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 	}
 
 	@Override
+	public void atScanStart() throws DeviceException {
+		//send event to client with scan info at start so users are informed
+		int scannumber =getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
+		int numberOfPoints = getCurrentScanInformationHolder().getCurrentScanInformation().getNumberOfPoints();
+		String dataDir=PathConstructor.createFromDefaultProperty();
+		if (!dataDir.endsWith(File.separator)) {
+			dataDir += File.separator;
+		}
+		String beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME);
+		String scanFilename=dataDir+String.format("%s-%d", beamline,scannumber) + ".nxs";
+		if (getEventAdmin()!=null && getEventAdmin() instanceof ScriptControllerBase) {
+			((ScriptControllerBase)getEventAdmin()).update(getEventAdmin(), new ScanStartEvent(scannumber,numberOfPoints,scanFilename));
+		}
+		print("Scan data will write to : "+ scanFilename);
+		currentPointNumber=0;
+		super.atScanStart();
+	}
+	@Override
 	public void atPointStart() throws DeviceException {
+		currentPointNumber++;
+		if (getEventAdmin()!=null && getEventAdmin() instanceof ScriptControllerBase) {
+			((ScriptControllerBase)getEventAdmin()).update(getEventAdmin(), new ScanPointStartEvent(currentPointNumber));
+		}
 		super.atPointStart();
 		if (fastshutter!=null) {
 			fastshutter.moveTo("OPEN");
@@ -180,6 +215,13 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 		if (fastshutter!=null) {
 			fastshutter.moveTo("CLOSE");
 		}
+	}
+	@Override
+	public void atScanEnd() throws DeviceException {
+		if (getEventAdmin()!=null && getEventAdmin() instanceof ScriptControllerBase) {
+			((ScriptControllerBase)getEventAdmin()).update(getEventAdmin(), new ScanEndEvent());
+		}
+		super.atScanEnd();
 	}
 	@Override
 	public void includeEarlyFrames() throws Exception {
@@ -695,6 +737,14 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 
 	public boolean isIdle() throws IOException {
 		return dev.getPVInteger(DETECTOR_STATE_RBV).get()==0;
+	}
+
+	public Scriptcontroller getEventAdmin() {
+		return eventAdmin;
+	}
+
+	public void setEventAdmin(Scriptcontroller eventAdmin) {
+		this.eventAdmin = eventAdmin;
 	}
 }
 
