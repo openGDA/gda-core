@@ -25,19 +25,22 @@ public class UnixToWindowsFilePathConverter implements FilePathConverter, Initia
 
 	private String windowsSubString;
 	private String unixSubString;
+	private boolean backSlash = true; //some plugins use forward slash for both windows and Unix but previous GDA version uses only different slash 
 
-	
+
 	@Override
 	public String converttoInternal(String filepath) {
 		
 		String replace = StringUtils.replace(filepath, unixSubString, windowsSubString);
-		return StringUtils.replace(replace, "/", "\\");
+		if (backSlash) replace = StringUtils.replace(replace, "/", "\\");   
+		return replace;
 	}
 
 	@Override
 	public String converttoExternal(String filepath) {
 		String replace = StringUtils.replace(filepath, windowsSubString, unixSubString);
-		return StringUtils.replace(replace, "\\", "/");
+		if (backSlash) replace = StringUtils.replace(replace, "\\", "/");
+		return replace;
 	}
 
 	@Override
@@ -63,6 +66,12 @@ public class UnixToWindowsFilePathConverter implements FilePathConverter, Initia
 		this.unixSubString = unixSubString;
 	}
 
+	public boolean isBackSlash() {
+		return backSlash;
+	}
 
+	public void setBackSlash(boolean backSlash) {
+		this.backSlash = backSlash;
+	}
 
 }
