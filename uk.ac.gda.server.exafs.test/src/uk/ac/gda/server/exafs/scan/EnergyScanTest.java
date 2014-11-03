@@ -73,7 +73,7 @@ import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ ScannableCommands.class, ConcurrentScan.class })
-public class XasScanTest {
+public class EnergyScanTest {
 
 	private BeamlinePreparer beamlinepreparer;
 	private DetectorPreparer detectorPreparer;

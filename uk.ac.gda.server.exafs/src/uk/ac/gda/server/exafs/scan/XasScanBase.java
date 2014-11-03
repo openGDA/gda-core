@@ -138,15 +138,6 @@ public abstract class XasScanBase implements XasScan {
 	}
 
 	/**
-	 * For the database behind the LoggingScriptController which keeps a list of data collections and for log messages
-	 * to the user.
-	 * 
-	 * @return String name of scan type e.g. XANES
-	 */
-	@Override
-	public abstract String getScanType();
-
-	/**
 	 * For convenience when calling from Jython.
 	 * 
 	 * @param pyArgs
@@ -266,12 +257,12 @@ public abstract class XasScanBase implements XasScan {
 		}
 	}
 
-	// Runs a single energy (XAS/XANES) scan once the sample environment has been set up
+	// Runs a single energy (XAS/XANES) scan once the beamline and sample environment has been set up
 	private void doSingleScan(String sampleName, List<String> descriptions, XasLoggingMessage logmsg) throws Exception {
 
 		runScript(outputBean.getBeforeScriptName());
 
-		runPreparers();
+		runDetectorAndOutputPreparers();
 
 		createAndRunScan(sampleName, descriptions, logmsg);
 
@@ -522,7 +513,7 @@ public abstract class XasScanBase implements XasScan {
 		}
 	}
 
-	protected void runPreparers() throws Exception {
+	protected void runDetectorAndOutputPreparers() throws Exception {
 		detectorPreparer.beforeEachRepetition();
 		outputPreparer.beforeEachRepetition();
 	}
