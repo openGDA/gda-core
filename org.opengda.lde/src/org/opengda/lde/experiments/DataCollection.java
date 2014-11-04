@@ -1,5 +1,6 @@
 package org.opengda.lde.experiments;
 
+import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -8,16 +9,20 @@ import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
+import gda.jython.ScriptBase;
 import gda.jython.commands.ScannableCommands;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
+import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanEvent;
 import gda.scan.ScanEvent.EventType;
 import gda.scan.ScanInformation;
 import gda.util.Sleep;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.collections4.MultiMap;
@@ -34,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class DataCollection implements IObserver, InitializingBean, Findable, Configurable {
+public class DataCollection extends ScriptBase implements IObserver, InitializingBean, Findable, Configurable {
 	private static final Logger logger = LoggerFactory
 			.getLogger(DataCollection.class);
 	private ArrayList<SampleStage> stages = new ArrayList<SampleStage>();
@@ -53,26 +58,32 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 	private int numActiveSamples;
 	private int currentSampleNumber;
 	private String currentSampleName="";
+	private String dataDriver;
+	private String dataFolder;
+	private String beamlineID;
 
-	public void parkAllStages() throws DeviceException {
+
+	public void parkAllStages() throws DeviceException, InterruptedException {
 		String message = "Parking all stages...";
 		updateMessage(null, message);
 		if (getStages() != null && !getStages().isEmpty()) {
 			for (SampleStage stage : getStages()) {
 				stage.parkStage();
+				checkForPauseAndInterruption();
 			}
 			// wait for all stages to be parked
 			waitForAllStagesToBeParked();
 		}
 	}
 
-	private void waitForAllStagesToBeParked() throws DeviceException {
+	private void waitForAllStagesToBeParked() throws DeviceException, InterruptedException {
 		String message;
 		boolean allParked = false;
 		while (!allParked) {
 			boolean parked = true;
 			for (SampleStage stage : getStages()) {
 				parked = stage.isParked() && parked;
+				checkForPauseAndInterruption();
 			}
 			allParked = parked;
 		}
@@ -90,20 +101,53 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 		message = "Stage " + stage.getName() + " is engaged.";
 		updateMessage(null, message);
 	}
-	public void collectData(String filename) {
+	public void collectData(String filename) throws InterruptedException {
 		prepareDataCollection(filename);
 		processStages();
+	}
+
+	public void pause() {
+		String message="Pause current data collection.";
+		updateMessage(null, message);
+		setPaused(true);
+	}
+	public void resume() {
+		String message="Resume current data collection.";
+		updateMessage(null, message);
+		setPaused(false);
+	}
+	public void skip() {
+		String message;
+		int scanStatus = InterfaceProvider.getScanStatusHolder().getScanStatus();
+		if (scanStatus==ScanStatus.RUNNING.asJython() || scanStatus == ScanStatus.PAUSED.asJython()) {
+			int scanNumber = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
+			message = "Skip current scan "+ scanNumber;
+			updateMessage(null, message);
+			InterfaceProvider.getCurrentScanController().requestFinishEarly();
+		} else {
+			message="No active sample scan to skip at the moment.";
+			updateMessage(null, message);
+		}
+	}
+	private void checkForPauseAndInterruption() throws InterruptedException {
+		try {
+			super.checkForPauses();
+		} catch (InterruptedException e) {
+			throw new InterruptedException("Data Collections are interrupted.");
+		}
 	}
 	/**
 	 * load the samples from experiment definition file, group active or selected samples into stages, and ensure all stages are in safe positions. 
 	 * @param filename
+	 * @throws InterruptedException 
 	 */
-	public void prepareDataCollection(String filename) {
+	public void prepareDataCollection(String filename) throws InterruptedException {
 		String message="Prepare data collection ...";
 		updateMessage(null, message);
 		stageActiveSamplesMap.clear();
 		numActiveSamples = 0;
 		currentSampleNumber=0;
+		currentSampleName="";
 		if (resUtil != null) {
 			// load samples definition from .lde file
 			try {
@@ -115,6 +159,7 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 				throw new IllegalStateException(message, e);
 			}
 		}
+		checkForPauseAndInterruption();
 		if (samples != null && !samples.isEmpty()) {
 			// group sample into stage using stage name as key
 			for (Sample sample : samples) {
@@ -138,6 +183,8 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 			stage.setSamplesProcessed(false);
 			stage.setDetectorCalibrated(false);
 		}
+		checkForPauseAndInterruption();
+		
 		if (eventAdmin!=null) {
 			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(currentSampleName, currentSampleNumber, numActiveSamples));
 		}
@@ -146,6 +193,7 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 				if (!stage.isParked()) {
 					try {
 						stage.parkStage();
+						checkForPauseAndInterruption();
 					} catch (DeviceException e) {
 						message="Failed to park stage '"+stage.getName()+"' before data collection";
 						updateMessage(e, message);
@@ -156,6 +204,7 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 				updateMessage(e, message);
 			}
 		}
+		checkForPauseAndInterruption();
 		try {
 			if (!detectorArm.isParked()) {
 				detectorArm.parkDetector();
@@ -164,6 +213,7 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 			message="Failed to park or check detector '"+detectorArm.getName()+"' is at parkin poistion or not.";
 			updateMessage(e, message);
 		}
+		checkForPauseAndInterruption();
 		try {
 			waitForAllStagesToBeParked();
 		} catch (DeviceException e) {
@@ -187,8 +237,10 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 	}
 	/**
 	 * process samples on each stage in order, engage the stage when its samples are processed or it has no samples except the last stage.
+	 * @throws InterruptedException 
 	 */
-	public void processStages() {
+	public void processStages() throws InterruptedException {
+		checkForPauseAndInterruption();
 		String message="Processing sample stages down the beam direction ...";
 		for (SampleStage stage : getStages()) {
 			@SuppressWarnings("unchecked")
@@ -197,6 +249,7 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 				//stage has samples to process
 				processSamples(stage);
 			}
+			checkForPauseAndInterruption();
 			if (stage != getStages().get(getStages().size() - 1)) {
 				//engage the stage if it is not the last stage down the beam.
 				try {
@@ -207,6 +260,7 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 				}
 			}
 		}
+
 		// all stages are done now
 		message="All selected samples on all stages are processed.";
 		updateMessage(null, message);
@@ -243,8 +297,9 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 	 * 2nd do detector calibration with the calibrant on the stage;
 	 * 3rd do diffraction collection for all samples on the stage.
 	 * @param stage
+	 * @throws InterruptedException 
 	 */
-	private void processSamples(SampleStage stage) {
+	private void processSamples(SampleStage stage) throws InterruptedException {
 		moveDetectorToPosition(stage);
 		doDetectorCalibration(stage);
 		doSampleDataCollection(stage);
@@ -252,8 +307,9 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 	/**
 	 * Only support one position per stage - all samples and calibrant on the stage must have the same distance from the detector.
 	 * @param stage
+	 * @throws InterruptedException 
 	 */
-	private void moveDetectorToPosition(SampleStage stage) {
+	private void moveDetectorToPosition(SampleStage stage) throws InterruptedException {
 		@SuppressWarnings("unchecked")
 		List<Sample> samples = (List<Sample>) stageActiveSamplesMap.get(stage.getName());
 		Sample sample1 = samples.get(0);
@@ -272,6 +328,7 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 			((ScriptControllerBase)eventAdmin).update(eventAdmin, new StageChangedEvent(stage.getName(), samples.size()));
 			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleChangedEvent(sample1.getSampleID()));
 		}
+		checkForPauseAndInterruption();
 
 		try {
 			if (!detectorArm.isAtXPosition(sample1)) {
@@ -316,6 +373,7 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 		}
 		try {
 			while (!detectorArm.isAtPosition(sample1, stage.getzPosition())){
+				checkForPauseAndInterruption();
 				Sleep.sleep(100);
 			}
 		} catch (DeviceException e) {
@@ -333,8 +391,9 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 	/**
 	 * 
 	 * @param stage
+	 * @throws InterruptedException 
 	 */
-	private void doDetectorCalibration(SampleStage stage) {
+	private void doDetectorCalibration(SampleStage stage) throws InterruptedException {
 		@SuppressWarnings("unchecked")
 		List<Sample> samples = (List<Sample>) stageActiveSamplesMap.get(stage.getName());
 		Sample sample1 = samples.get(0);
@@ -350,6 +409,8 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 				updateMessage(e, message);
 			}
 		}
+		checkForPauseAndInterruption();
+
 		if (eventAdmin!=null) {
 			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(calibrant, currentSampleNumber, numActiveSamples));
 		}
@@ -369,6 +430,7 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 		}
 		try {
 			while (!stage.isAtCalibrantPosition(sample1)) {
+				checkForPauseAndInterruption();
 				Sleep.sleep(100);
 			}
 		} catch (DeviceException e) {
@@ -376,9 +438,11 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 			updateMessage(e, message);
 			throw new IllegalStateException(message, e);
 		}
-		
+		//set data directory
+		LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, getDataDirectory(sample1));
 		// collect calibrant diffraction data with data reduction
 		InterfaceProvider.getJSFObserver().addIObserver(this);
+		checkForPauseAndInterruption();
 		try {
 			ScannableCommands.scan(getDatareduction(), 1,1,1, getPixium(), sample1.getCalibrant_exposure());
 			stage.setDetectorCalibrated(true);
@@ -390,15 +454,52 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 			InterfaceProvider.getJSFObserver().deleteIObserver(this);
 		}
 	}
+	private String getDataDirectory(Sample sample) {
+		String dataDir=File.separator;
+		if (getDataDriver()!=null && !getDataDriver().isEmpty()) {
+			dataDir += getDataDriver()+File.separator;
+		}
+		if (getBeamlineID()!=null && !getBeamlineID().isEmpty()) {
+			dataDir += getBeamlineID()+File.separator;
+		}
+		if (getDataFolder()!=null && !getDataFolder().isEmpty()) {
+			dataDir += getDataFolder()+File.separator;
+		}
+		dataDir += Calendar.getInstance().get(Calendar.YEAR)+File.separator+sample.getVisitID();
+		return dataDir;
+	}
+	public String getDataDriver() {
+		return dataDriver;
+	}
 
-	private void doSampleDataCollection(SampleStage stage) {
+	public void setDataDriver(String dataDriver) {
+		this.dataDriver = dataDriver;
+	}
+
+	public String getDataFolder() {
+		return dataFolder;
+	}
+
+	public void setDataFolder(String dataFolder) {
+		this.dataFolder = dataFolder;
+	}
+	public String getBeamlineID() {
+		return beamlineID;
+	}
+
+	public void setBeamlineID(String beamlineID) {
+		this.beamlineID = beamlineID;
+	}
+
+
+	private void doSampleDataCollection(SampleStage stage) throws InterruptedException {
 		String message="Starting diffraction data collection for samples on stage '"+stage.getName()+"'...";
 		updateMessage(null, message);
 		@SuppressWarnings("unchecked")
 		List<Sample> samples = (List<Sample>) stageActiveSamplesMap.get(stage.getName());
-		InterfaceProvider.getJSFObserver().addIObserver(this);
 		boolean success=true;
 		for (Sample sample : samples) {
+			checkForPauseAndInterruption();
 			currentSampleName = sample.getName();
 			currentSampleNumber++;
 			if (getSampleNameScannable()!=null) {
@@ -413,6 +514,7 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 				((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(currentSampleName, currentSampleNumber, numActiveSamples));
 				((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleChangedEvent(sample.getSampleID()));
 			}
+			checkForPauseAndInterruption();
 
 			Scannable x_motor = stage.getXMotor();
 			Double x_start = sample.getSample_x_start();
@@ -447,10 +549,14 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 			double sample_exposure = sample.getSample_exposure();
 			scanparameters.add(sample_exposure);
 			scanparameters.add(datareduction);
+			//set data directory
+			LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, getDataDirectory(sample));
+			checkForPauseAndInterruption();
 
 			if (eventAdmin!=null) {
 				((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), STATUS.RUNNING));
 			}
+			InterfaceProvider.getJSFObserver().addIObserver(this);
 			try {
 				ScannableCommands.scan(scanparameters);
 				success = true && success;
@@ -461,7 +567,10 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 					((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), STATUS.ERROR));
 				}
 				success=false;
+			} finally {
+				InterfaceProvider.getJSFObserver().deleteIObserver(this);
 			}
+			
 			if (success && eventAdmin!=null) {
 				((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), STATUS.COMPLETED));
 			}
@@ -471,7 +580,6 @@ public class DataCollection implements IObserver, InitializingBean, Findable, Co
 		} else {
 			stage.setSamplesProcessed(false);
 		}
-		InterfaceProvider.getJSFObserver().deleteIObserver(this);
 	}
 
 	private void updateMessage(Exception e, String message) {

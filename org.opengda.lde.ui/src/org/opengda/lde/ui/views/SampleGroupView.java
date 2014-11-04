@@ -15,9 +15,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -121,8 +119,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-
-import uk.ac.gda.client.CommandQueueViewFactory;
 
 /**
  * This sample view shows data obtained from the EMF model. 
@@ -463,13 +459,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				eventAdmin.addIObserver(this);
 			}
 		}
-
-		CommandQueueViewFactory.getProcessor().addIObserver(this);
 	}
 
-//	Map<CommandId, Sample> sampleMap=new HashMap<CommandId, Sample>();
-//	Processor.STATE processorState;
-//	gda.commandqueue.Command.STATE commandState;
 	private Sample currentSample;
 	private long totalNumberOfPoints;
 	private long currentPointNumber;
@@ -700,25 +691,16 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			@Override
 			public void run() {
 				super.run();
-//				if (!sampleMap.isEmpty()) {
-//					sampleMap.clear();
-//				}
+
 				logger.info("Start data collection on GDA server.");
 				running = true;
 				paused=false;
 				updateActionIconsState();
 				try {
-					for (Sample sample : samples) {
-						if (sample.isActive()) {
-							//set data file path for each sample before data collection
-							//TODO using dataCollection script
-							String commandString="LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, "+ getDataDirectory(sample) + ");";
-							commandString += sample.getCommand();
-//							JythonCommandCommandProvider command = new JythonCommandCommandProvider(commandString, sample.getName(), null);
-//							CommandId addToTail = CommandQueueViewFactory.getQueue().addToTail(command);
-//							sampleMap.put(addToTail, sample);
-						}
+					if (isDirty()) {
+						doSave(new NullProgressMonitor());
 					}
+					InterfaceProvider.getCommandRunner().runCommand("datacollection.collectData("+resUtil.getFileName()+")");
 				} catch (Exception e) {
 					logger.error("exception throws on start queue processor.", e);
 					running = false;
@@ -737,7 +719,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				super.run();
 				logger.info("Stop data collection on GDA server.");
 				try {
-					CommandQueueViewFactory.getProcessor().stop(100000);
+					InterfaceProvider.getCommandAborter().abortCommands();
 					running=false;
 					paused=false;
 				} catch (Exception e) {
@@ -757,7 +739,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				super.run();
 				logger.info("Pause data collection on GDA server.");
 				try {
-					CommandQueueViewFactory.getProcessor().pause(100000);
+					InterfaceProvider.getCommandRunner().runCommand("datacollection.pause()");
 					running=false;
 					paused=true;
 				} catch (Exception e) {
@@ -780,7 +762,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				paused=false;
 				updateActionIconsState();
 				try {
-					CommandQueueViewFactory.getProcessor().start(100000);
+					InterfaceProvider.getCommandRunner().runCommand("datacollection.resume()");
 				} catch (Exception e) {
 					logger.error("exception throws on stop GDA server queue processor.", e);
 					running = false;
@@ -799,7 +781,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				super.run();
 				logger.info("Skip the current sample data collection on GDA server.");
 				try {
-					CommandQueueViewFactory.getProcessor().skip(100000);
+					InterfaceProvider.getCommandRunner().runCommand("datacollection.skip()");
 				} catch (Exception e) {
 					logger.error("exception throws on stop GDA server queue processor.", e);
 				}
@@ -1668,7 +1650,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		try {
 			resUtil.getResource().eAdapters().remove(notifyListener);
 //			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(SampleViewExtensionFactory.ID, selectionListener);
-			CommandQueueViewFactory.getProcessor().deleteIObserver(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
