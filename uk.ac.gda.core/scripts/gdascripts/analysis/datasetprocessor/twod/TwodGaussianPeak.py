@@ -57,23 +57,23 @@ class TwodGaussianPeak(TwodDataSetProcessor):
 			gaussian.getParameter(1).setUpperLimit(self.maxwidth)
 		try:
 			ansx = fitplot( dsxaxis, dsx, GeneticAlg(.001), [ gaussian, Offset( dsx.min(),dsx.max() ) ] )
-		except java.lang.IllegalArgumentException:
+		except java.lang.Exception:
 			# Probably cannot find Plot_Manager on the finder
-			ansx = Fitter.fit(dsyaxis, ansx, GeneticAlg(0.001), [ gaussian, Offset( ansx.min(),ansx.max() ) ] )
+			ansx = Fitter.fit(dsxaxis, dsx, GeneticAlg(0.001), [ gaussian, Offset( dsx.min(),dsx.max() ) ] )
 		#dsyaxis = dsyaxis.subSampleMean(dsy.dimensions[0]/2)
 		#dsy = dsy.subSampleMean(dsy.dimensions[0]/2)
 		#dsxaxis = dsxaxis.subSampleMean(dsx.dimensions[0]/2)
 		#dsx = dsx.subSampleMean(dsx.dimensions[0]/2)		
 		
-		peaky = ansy[0].getValue()
-		fwhmy = ansy[1].getValue()
-		areay = ansy[2].getValue()
-		offsety = ansy[3].getValue() / dsx.shape[0]
+		peaky = ansy.getParameters()[0].getValue()
+		fwhmy = ansy.getParameters()[1].getValue()
+		areay = ansy.getParameters()[2].getValue()
+		offsety = ansy.getParameters()[3].getValue() / dsx.shape[0]
 		
-		peakx = ansx[0].getValue()
-		fwhmx = ansx[1].getValue()
-		areax = ansx[2].getValue()
-		offsetx = ansx[3].getValue() / dsy.shape[0]
+		peakx = ansx.getParameters()[0].getValue()
+		fwhmx = ansx.getParameters()[1].getValue()
+		areax = ansx.getParameters()[2].getValue()
+		offsetx = ansx.getParameters()[3].getValue() / dsy.shape[0]
 		
 		background = (offsetx+offsety)/2.
 		fwhmarea = fwhmy*fwhmx*pi/4

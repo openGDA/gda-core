@@ -206,7 +206,7 @@ class ScanDataProcessorResult(object):
 							interp = scanFileHolder.getInterpolatedX(dsfield, dsx, xvalue)
 							# Hack to get around GDA-2269
 							if len(list(interp))==0:
-								value = dsx[len(dsx)-1]
+								value = dsx.get(len(dsx.getData())-1)
 							else:
 								value = interp[0]
 						else: # feature not inside scan
@@ -215,9 +215,9 @@ class ScanDataProcessorResult(object):
 							else:
 								# Trick case. Return start or end value for field
 								if xvalue <= dsx.min():
-									value = dsfield[0]
+									value = dsfield.get(0)
 								else: # xvalue >= dsx.min()
-									value = dsfield[-1]
+									value = dsfield.get(-1)
 								
 					pos.append(value)
 				if len(pos)==1:

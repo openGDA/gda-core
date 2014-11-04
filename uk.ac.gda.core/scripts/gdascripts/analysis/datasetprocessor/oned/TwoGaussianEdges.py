@@ -4,6 +4,7 @@ from gda.analysis import ScanFileHolder
 from gda.analysis import RCPPlotter
 
 from org.eclipse.dawnsci.analysis.dataset.impl import DoubleDataset
+from org.eclipse.dawnsci.analysis.dataset.impl import Maths
 
 import scisoftpy as dnp
 
@@ -32,8 +33,8 @@ class TwoGaussianEdges(XYDataSetFunction):
 	
 	def coarseProcess(self, xDataSet, dyDataSet):
 		
-		upos = xDataSet[dyDataSet.maxPos()[0]]
-		dpos = xDataSet[dyDataSet.minPos()[0]]
+		upos = xDataSet.get(dyDataSet.maxPos()[0])
+		dpos = xDataSet.get(dyDataSet.minPos()[0])
 		sfh = ScanFileHolder()
 		
 		# Positive peak (up edge)
@@ -55,7 +56,8 @@ class TwoGaussianEdges(XYDataSetFunction):
 		return upos, ufwhm, uarea, dpos, dfwhm , darea
 	
 	def _process(self, xDataSet, yDataSet):	
-		dyDataSet = yDataSet.diff(xDataSet, self.smoothwidth)
+		dyDataSet = Maths.derivative(xDataSet, yDataSet, self.smoothwidth)
+# 		dyDataSet = yDataSet.diff(xDataSet, self.smoothwidth)
 		
 		uposC, ufwhmC, uareaC, dposC, dfwhmC, dareaC = self.coarseProcess(xDataSet, dyDataSet)
 # 		
@@ -95,15 +97,15 @@ class TwoGaussianEdges(XYDataSetFunction):
 			fwhm = (ufwhm + dfwhm) / 2.
 
 		# Plot to swing	
-		if Plotter:  # Not always on path
-			yaxes = [dyDataSet]
-			for funcset in r.makefuncdata():
-				yaxes.append(DoubleDataset(list(funcset)))
-			try:
-				RCPPlotter.plot('Data Vector', xDataSet, yaxes)
-			except java.lang.IllegalArgumentException:
-				# Probably cannot find Plot_Manager on the finder
-				print "WARNING: TwoGaussianEdges could not plot fit details as there is no Plot_Manager"
+# 		if Plotter:  # Not always on path
+# 			yaxes = [dyDataSet]
+# 			for funcset in r.makefuncdata():
+# 				yaxes.append(funcset)
+# 			try:
+# 				RCPPlotter.plot('Data Vector', xDataSet, [yaxes])
+# 			except java.lang.IllegalArgumentException:
+# 				# Probably cannot find Plot_Manager on the finder
+# 				print "WARNING: TwoGaussianEdges could not plot fit details as there is no Plot_Manager"
 		
 		# Plot to RCP
 		try:

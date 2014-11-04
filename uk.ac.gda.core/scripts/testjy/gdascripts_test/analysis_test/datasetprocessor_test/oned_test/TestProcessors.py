@@ -152,12 +152,12 @@ class TestPeak(Test):
 		expected = (pos, offset, top, fwhm)
 		self.assert_(close(result, expected),"%s\n is not close to expected:\n%s"%(`result`,`expected`))
 
-		result = self.p._process(self.x, self.peak+123)
+		result = self.p._process(self.x, self.peak.iadd(123.))
 		expected = (pos, offset+123, top, fwhm)
 		self.assert_(close(result, expected),"%s\n is not close to expected:\n%s"%(`result`,`expected`))
 
-		result = self.p._process(self.x, 123-self.peak)
-		expected = (pos, offset+123, -top, fwhm)
+		result = self.p._process(self.x, self.peak.imultiply(-1).iadd(123))
+		expected = (pos, offset, -top, fwhm)
 		self.assert_(close(result, expected),"%s\n is not close to expected:\n%s"%(`result`,`expected`))
 
 class TestEdge(Test):
@@ -193,7 +193,7 @@ def check(result, expected, labels, tol=.0001):
 		lines.append('          result  expected')
 		for r, e, name in zip(result, expected, labels):
 			lines.append('%6s % 6f % 6f' % (name, r, e))
-		fmt = 'result: ' + ', '.join(['% 6f'] * len(result))
+		fmt = 'result: ' + ', '.join(['% 6f'] * len(result.getData()))
 		lines.append(fmt % result)
 		raise AssertionError('\n'.join(lines))
 
@@ -210,9 +210,9 @@ class TestTwoEdges(Test):
 		self.det   = sfh.getDataSet('pips2')
 		self.labels = TwoGaussianEdges().labelList
 	
-	def getInnerAndDetDatasetForGivenOuterValue(self, outerValue, DataSet=DataSet):
+	def getInnerAndDetDatasetForGivenOuterValue(self, outerValue, DataSet=DoubleDataset):
 		mush =  [[o, i, d] for o,i,d in
-				 zip(self.outer.doubleArray(), self.inner.doubleArray(), self.det.doubleArray())
+				 zip(self.outer.getData(), self.inner.getData(), self.det.getData())
 				 if o==float(outerValue)]
 		x = [a[1] for a in mush]
 		y = [a[2] for a in mush]
@@ -236,25 +236,29 @@ class TestTwoEdges(Test):
 	def test_process_negative_pulse(self):
 		# outer = 148, y --> -1
 		x, y = self.getInnerAndDetDatasetForGivenOuterValue(148.0)
-		y = -1 * y
+		y = y.imultiply(-1)
 		expected = -3.896408,  0.006343, -3.944682,  0.006067,  1.691232,  0.006205
 		check(TwoGaussianEdges()._process(x, y), expected, TwoGaussianEdges().labelList)
 	
 	def test_process_positive_edge(self):
 		# outer = 148, left half (first half of data though!)
 		x, y = self.getInnerAndDetDatasetForGivenOuterValue(148.0)
-		x=x[len(x)/2:]
-		y=y[len(y)/2:]
+		x=x.getData()[len(x.getData())/2:]
+		y=y.getData()[len(y.getData())/2:]
+		xds = DoubleDataset(x, [len(x)])
+		yds = DoubleDataset(y, [len(y)])
 		expected = -3.944682,  0.006067,  0.000000,  0.000000,  1.683015,  0.006067
-		check(TwoGaussianEdges()._process(x, y), expected, TwoGaussianEdges().labelList)
+		check(TwoGaussianEdges()._process(xds, yds), expected, TwoGaussianEdges().labelList)
 
 	def test_process_negative_edge(self):
 		# outer = 148, left half (first half of data though!)
 		x, y = self.getInnerAndDetDatasetForGivenOuterValue(148.0)
-		x=x[:len(x)/2]
-		y=y[:len(y)/2]
+		x=x.getData()[:len(x.getData())/2]
+		y=y.getData()[:len(y.getData())/2]
+		xds = DoubleDataset(x, [len(x)])
+		yds = DoubleDataset(y, [len(y)])
 		expected = 0.000000,  0.000000, -3.896408,  0.006343,  1.699449,  0.006343
-		check(TwoGaussianEdges()._process(x, y), expected, TwoGaussianEdges().labelList)
+		check(TwoGaussianEdges()._process(xds, yds), expected, TwoGaussianEdges().labelList)
 
 	def test_with_failing_negative_edge_2014(self):
 		sfh = ScanFileHolder()

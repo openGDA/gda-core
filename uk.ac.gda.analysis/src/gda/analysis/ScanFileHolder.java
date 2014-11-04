@@ -331,7 +331,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	@Override
 	@Deprecated
 	public double centroid(DoubleDataset x, DoubleDataset y) {
-		issueDeprecatedWarning();
+//		issueDeprecatedWarning();
 		return DatasetUtils.centroid(y, x)[0];
 	}
 

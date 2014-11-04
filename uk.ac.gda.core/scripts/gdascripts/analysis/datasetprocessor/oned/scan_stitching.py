@@ -6,9 +6,9 @@ class Lcen(XYDataSetFunction):
 		XYDataSetFunction.__init__(self, name, labelList, 'lcen', formatString)
 	
 	def _process(self,xDataSet, yDataSet):
-		start = xDataSet[0]
-		stop = xDataSet[-1]
-		step = xDataSet[1] - xDataSet[0]
+		start = xDataSet.getData()[0]
+		stop = xDataSet.getData()[-1]
+		step = xDataSet.getData()[1] - xDataSet.getData()[0]
 		return tuple([start - (stop-start)/2 - step])
 	
 class Rcen(XYDataSetFunction):
@@ -17,7 +17,7 @@ class Rcen(XYDataSetFunction):
 		XYDataSetFunction.__init__(self, name, labelList, 'rcen', formatString)
 	
 	def _process(self,xDataSet, yDataSet):
-		start = xDataSet[0]
-		stop = xDataSet[-1]
-		step = xDataSet[1] - xDataSet[0]
+		start = xDataSet.getData()[0]
+		stop = xDataSet.getData()[-1]
+		step = xDataSet.getData()[1] - xDataSet.getData()[0]
 		return tuple([stop + (stop-start)/2 + step])

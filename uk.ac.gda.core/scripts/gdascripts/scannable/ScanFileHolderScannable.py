@@ -10,7 +10,7 @@ class SFHInterpolator:
 		# Build pythony representation of dataset for now (Later code should use sfh directly)
 		self.columnDict = {}
 		for key in sfh.getHeadings():
-			self.columnDict[key] = sfh.getDataSet(key).doubleArray()
+			self.columnDict[key] = sfh.getDataSet(key).getData()
 		self.length = len(self.columnDict.values()[0])
 	
 	def getRowAsDict(self, idx):
@@ -42,7 +42,7 @@ class SFHInterpolatorWithHashAccess(SFHInterpolator):
 		self.columnDict = {}
 		self.quantizeSizeDict = quantizeSizeDict
 		for key in sfh.getHeadings():
-			self.columnDict[key] = sfh.getDataSet(key).doubleArray()
+			self.columnDict[key] = sfh.getDataSet(key).getData()
 		self.length = len(self.columnDict.values()[0])
 		
 		# TODO: Quantize here!

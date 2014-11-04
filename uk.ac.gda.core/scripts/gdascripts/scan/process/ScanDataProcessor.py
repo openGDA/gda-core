@@ -97,10 +97,10 @@ class ScanDataProcessor(ScanListener):
 					raise e
 				return "<" + e.message + ">"
 			
-			if len(xDataSet.dimensions) > 1:
+			if len(xDataSet.getShape()) > 1:
 				return "<Cannot process multidimensional scans>"
 			
-			if xDataSet.dimensions[0] in (0,1):
+			if xDataSet.getShape()[0] in (0,1):
 				return "<Scan too short to process sensibly>"
 
 			#try:
