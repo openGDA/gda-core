@@ -21,10 +21,10 @@ package uk.ac.gda.arpes.beans;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.Slice;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.StringDataset;
-import org.eclipse.dawnsci.hdf5.api.HDF5Dataset;
-import org.eclipse.dawnsci.hdf5.api.HDF5File;
 
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 
@@ -36,25 +36,25 @@ public class ScanBeanFromNeXusFile {
 		
 		HDF5Loader hl = new HDF5Loader(filename);
 		try {
-			HDF5File tree = hl.loadTree();
-			HDF5Dataset nodeLink;
+			Tree tree = hl.loadTree();
+			DataNode nodeLink;
 			
-			nodeLink = (HDF5Dataset) tree.findNodeLink("/entry1/instrument/analyser/acquisition_mode").getDestination();
+			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/acquisition_mode").getDestination();
 			setAcquisitionMode(shinynewbean, nodeLink.getDataset());	
 			
-			nodeLink = (HDF5Dataset) tree.findNodeLink("/entry1/instrument/analyser/lens_mode").getDestination();
+			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/lens_mode").getDestination();
 			setLensMode(shinynewbean, nodeLink.getDataset());
 			
-			nodeLink = (HDF5Dataset) tree.findNodeLink("/entry1/instrument/analyser/pass_energy").getDestination();
+			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/pass_energy").getDestination();
 			setPassEnergy(shinynewbean, nodeLink.getDataset());
 			
-			nodeLink = (HDF5Dataset) tree.findNodeLink("/entry1/instrument/analyser/energies").getDestination();
+			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/energies").getDestination();
 			setEnergies(shinynewbean, nodeLink.getDataset());
 			
-			nodeLink = (HDF5Dataset) tree.findNodeLink("/entry1/instrument/analyser/time_for_frames").getDestination();
+			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/time_for_frames").getDestination();
 			setTimePerStep(shinynewbean, nodeLink.getDataset());
 			
-			nodeLink = (HDF5Dataset) tree.findNodeLink("/entry1/instrument/analyser/number_of_cycles").getDestination();
+			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/number_of_cycles").getDestination();
 			setIterations(shinynewbean, nodeLink.getDataset());
 		} finally {
 
