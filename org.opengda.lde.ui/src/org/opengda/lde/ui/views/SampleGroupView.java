@@ -11,6 +11,7 @@ import gda.observable.IObserver;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -23,10 +24,12 @@ import javax.mail.internet.InternetAddress;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
@@ -76,6 +79,9 @@ import org.eclipse.nebula.widgets.formattedtext.FormattedTextCellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -90,12 +96,14 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SaveAsDialog;
+import org.eclipse.ui.internal.AnimationEngine;
 import org.eclipse.ui.part.ViewPart;
 import org.opengda.lde.events.SampleChangedEvent;
 import org.opengda.lde.events.SampleProcessingEvent;
@@ -110,9 +118,11 @@ import org.opengda.lde.ui.Activator;
 import org.opengda.lde.ui.ImageConstants;
 import org.opengda.lde.ui.cdatetime.CDateTimeCellEditor;
 import org.opengda.lde.ui.jobs.SampleCollectionJob;
+import org.opengda.lde.ui.providers.ProgressLabelProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewContentProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewLabelProvider;
 import org.opengda.lde.ui.providers.SampleTableConstants;
+import org.opengda.lde.ui.utils.AnimatedTableItemFeedback;
 import org.opengda.lde.ui.utils.StringUtils;
 import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
@@ -156,7 +166,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, SampleTableConstants.COMMAND, 
 			SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT,SampleTableConstants.COMMENT };
 
-	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 50, false), new ColumnWeightData(10, 35, false),new ColumnWeightData(80, 110, true), 
+	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 150, false), new ColumnWeightData(10, 35, false),new ColumnWeightData(80, 110, true), 
 			new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),
 			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
 			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
@@ -214,14 +224,20 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		gd_table.heightHint = 386;
 		gd_table.widthHint = 1000;
 		table.setLayoutData(gd_table);
-		viewer.getTable().setHeaderVisible(true);
-		viewer.getTable().setLinesVisible(true);
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
 		
 		ColumnViewerToolTipSupport.enableFor(viewer, ToolTip.NO_RECREATE);
 		createColumns(viewer);
 		
 		viewer.setContentProvider(new SampleGroupViewContentProvider(getResUtil()));
 		viewer.setLabelProvider(new SampleGroupViewLabelProvider());
+		
+//		progressColumn = new TableViewerColumn(viewer, table.getColumn(0));
+		
+		progressColumn= new TableViewerColumn(viewer, SWT.CENTER);
+		progressColumn.getColumn().setText("Progress");
+		progressColumn.getColumn().setWidth(150);
 		
 		samples = Collections.emptyList();
 		try {
@@ -266,7 +282,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		gd_grpNoSamplesTo.widthHint = 111;
 		gd_grpNoSamplesTo.heightHint = 28;
 		grpNoSamplesTo.setLayoutData(gd_grpNoSamplesTo);
-		grpNoSamplesTo.setText("No. samples collect");
+		grpNoSamplesTo.setText("No. Active Samples ");
 		grpNoSamplesTo.setLayout(new RowLayout(SWT.HORIZONTAL));
 		
 		txtActivesamples = new Text(grpNoSamplesTo, SWT.BORDER | SWT.RIGHT);
@@ -277,7 +293,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtActivesamples.setText("0");
 
 		Group grpMinColltionTime = new Group(statusArea, SWT.NONE);
-		grpMinColltionTime.setText("Min. colltion time");
+		grpMinColltionTime.setText("No. Collections");
 		grpMinColltionTime.setLayout(new RowLayout(SWT.HORIZONTAL));
 
 		txtTotalTime = new Text(grpMinColltionTime, SWT.BORDER | SWT.RIGHT);
@@ -297,7 +313,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 		Label lblCurrentScanNumber = new Label(grpDataCollectionProgress,
 				SWT.NONE);
-		lblCurrentScanNumber.setText("Current Scan Number:");
+		lblCurrentScanNumber.setText("Scan Number:");
 
 		txtScanNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
 		txtScanNumber.setEditable(false);
@@ -310,7 +326,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtScanNumber.setLayoutData(gd_txtScanNumber);
 
 		Label lblCurrentSample = new Label(grpDataCollectionProgress, SWT.NONE);
-		lblCurrentSample.setText("Current Sample:");
+		lblCurrentSample.setText("Sample:");
 
 		txtSamplename = new Text(grpDataCollectionProgress, SWT.BORDER);
 		txtSamplename.setEditable(false);
@@ -324,7 +340,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		
 		Label lblCurrentStage = new Label(grpDataCollectionProgress, SWT.NONE);
 		lblCurrentStage.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblCurrentStage.setText("Current Stage:");
+		lblCurrentStage.setText("Stage:");
 				
 		txtStagename = new Text(grpDataCollectionProgress, SWT.BORDER);
 		txtStagename.setEditable(false);
@@ -333,21 +349,21 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtStagename.setText("stageName");
 		txtStagename.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		Label lblSampleNumber = new Label(grpDataCollectionProgress, SWT.NONE);
-		lblSampleNumber.setText("Sample Number:");
+		Label lblCollectionNumber = new Label(grpDataCollectionProgress, SWT.NONE);
+		lblCollectionNumber.setText("Collection:");
 
-		txtSampleNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
-		txtSampleNumber.setEditable(false);
-		txtSampleNumber.setBackground(ColorConstants.black);
-		txtSampleNumber.setForeground(ColorConstants.lightGreen);
-		txtSampleNumber.setText("0/0");
-		GridData gd_txtSampleNumber = new GridData(SWT.FILL, SWT.CENTER, true,
+		txtCollectionNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
+		txtCollectionNumber.setEditable(false);
+		txtCollectionNumber.setBackground(ColorConstants.black);
+		txtCollectionNumber.setForeground(ColorConstants.lightGreen);
+		txtCollectionNumber.setText("0/0");
+		GridData gd_txtCollectionNumber = new GridData(SWT.FILL, SWT.CENTER, true,
 				false, 1, 1);
-		gd_txtSampleNumber.widthHint = 40;
-		txtSampleNumber.setLayoutData(gd_txtSampleNumber);
+		gd_txtCollectionNumber.widthHint = 40;
+		txtCollectionNumber.setLayoutData(gd_txtCollectionNumber);
 
 		Label lblScanPointNumber = new Label(grpDataCollectionProgress,SWT.NONE);
-		lblScanPointNumber.setText("Scan Point Number:");
+		lblScanPointNumber.setText("Scan Point:");
 		
 		txtScanPointNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
 		txtScanPointNumber.setEditable(false);
@@ -453,17 +469,41 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		samples=sampleList.getSamples();
 		viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new ViewerDragAdapter(viewer));
 		viewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new EditingDomainViewerDropAdapter(editingDomain, viewer));
+		ProgressLabelProvider progressLabelProvider = new ProgressLabelProvider(viewer);
 		if (getEventAdminName()!=null) {
 			eventAdmin = Finder.getInstance().find(getEventAdminName());
 			if (eventAdmin!=null) {
 				eventAdmin.addIObserver(this);
+				progressLabelProvider.setEventAdmin(eventAdmin);
+				eventAdmin.addIObserver(progressLabelProvider);
 			}
 		}
+		progressColumn.setLabelProvider(progressLabelProvider);
+		images = loadAnimatedGIF(viewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
+
 	}
 
+	private Image[] loadAnimatedGIF(Display display, String imagePath) {
+		URL url = FileLocator.find(Activator.getDefault().getBundle(), new Path(imagePath), null);
+		ImageLoader imageLoader = new ImageLoader();
+		try {
+			imageLoader.load(url.openStream());
+		} catch (IOException e) {
+			logger.error("Cannot load animated gif file {}", url.getPath());
+		}
+		Image[] images = new Image[imageLoader.data.length];
+		for (int i = 0; i < imageLoader.data.length; ++i) {
+			ImageData nextFrameData = imageLoader.data[i];
+			images[i] = new Image(display, nextFrameData);
+		}
+		return images;
+	}
 	private Sample currentSample;
 	private long totalNumberOfPoints;
 	private long currentPointNumber;
+	private Image[] images;
+	protected AnimationEngine animation=null;
+
 	@Override
 	public void update(Object source, final Object arg) {
 		if (source==eventAdmin) {
@@ -500,62 +540,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 						if (currentSample!=null) {
 							updateSampleStatus(currentSample, STATUS.COMPLETED);
 						}
-					}
-				});
-			} else if (arg instanceof StageChangedEvent) {
-				StageChangedEvent event = ((StageChangedEvent)arg);
-				final String currentStage = event.getCurrentStage();
-				final int numberOfSamples = event.getNumberOfSamples();
-				Display.getDefault().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						txtStagename.setText(currentStage+": "+numberOfSamples+" samples.");
-					}
-				});
-			} else if (arg instanceof SampleProcessingEvent) {
-				SampleProcessingEvent event = ((SampleProcessingEvent)arg);
-				final String currentSampleName = event.getCurrentSampleName();
-				final int currentSampleNumber = event.getCurrentSampleNumber();
-				final int totalNumberActiveSamples = event.getTotalNumberActiveSamples();
-				Display.getDefault().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						txtSamplename.setText(currentSampleName);
-						updateSampleNumber(currentSampleNumber,totalNumberActiveSamples);
-					}
-				});
-			} else if (arg instanceof SampleChangedEvent) {
-				SampleChangedEvent event = (SampleChangedEvent)arg;
-				final String sampleID = event.getSampleID();
-				logger.debug("sample update to {}",sampleID);
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						for (Sample sample : samples) {
-							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
-								if (currentSample != sample) {
-									updateSampleStatus(currentSample, STATUS.COMPLETED);
-								}
-								currentSample = sample;
-							}
-						}
-						viewer.setSelection(new StructuredSelection(currentSample));
-					}
-				});
-			} else if (arg instanceof SampleStatusEvent) {
-				SampleStatusEvent event = (SampleStatusEvent)arg;
-				final String sampleID = event.getSampleID();
-				final STATUS status = event.getStatus();
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						logger.debug("sample {} update to {}",sampleID, status);
-						for (Sample sample : samples) {
-							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
-								updateSampleStatus(sample, status);
-							}
+						if (animation!=null) {
+							animation.cancelAnimation();
 						}
 					}
 				});
@@ -575,53 +561,71 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				final String currentSampleName = event.getCurrentSampleName();
 				final int currentSampleNumber = event.getCurrentSampleNumber();
 				final int totalNumberActiveSamples = event.getTotalNumberActiveSamples();
-				Display.getDefault().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						txtSamplename.setText(currentSampleName);
-						updateSampleNumber(currentSampleNumber,totalNumberActiveSamples);
-					}
-				});
-			} else if (arg instanceof SampleChangedEvent) {
-				SampleChangedEvent event = (SampleChangedEvent)arg;
-				final String sampleID = event.getSampleID();
-				logger.debug("sample update to {}",sampleID);
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						for (Sample sample : samples) {
-							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
-								if (currentSample != sample) {
-									updateSampleStatus(currentSample, STATUS.COMPLETED);
-								}
-								currentSample = sample;
-							}
-						}
-						viewer.setSelection(new StructuredSelection(currentSample));
-					}
-				});
-			} else if (arg instanceof SampleStatusEvent) {
-				SampleStatusEvent event = (SampleStatusEvent)arg;
-				final String sampleID = event.getSampleID();
-				final STATUS status = event.getStatus();
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						logger.debug("sample {} update to {}",sampleID, status);
-						for (Sample sample : samples) {
-							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
-								updateSampleStatus(sample, status);
-							}
-						}
-					}
-				});
+				int currentCalibrationNumber = event.getCurrentCalibrationNumber();
+				int totalNumberCalibrations = event.getTotalNumberCalibrations();
 				
-			}
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						txtSamplename.setText(currentSampleName);
+						updateSampleNumber(currentSampleNumber,totalNumberActiveSamples);
+					}
+				});
+			} else if (arg instanceof SampleChangedEvent) {
+				SampleChangedEvent event = (SampleChangedEvent)arg;
+				final String sampleID = event.getSampleID();
+				logger.debug("sample update to {}",sampleID);
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						for (Sample sample : samples) {
+							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
+								if (currentSample != sample) {
+									updateSampleStatus(currentSample, STATUS.COMPLETED);
+								}
+								currentSample = sample;
+							}
+						}
+						viewer.setSelection(new StructuredSelection(currentSample));
+						if (animation!=null) {
+							animation.cancelAnimation();
+						}
+						try {
+							TableItem tableItem = viewer.getTable().getItem(samples.indexOf(currentSample));
+							AnimatedTableItemFeedback feedback = new AnimatedTableItemFeedback(viewer.getControl().getShell(),images, tableItem,SampleTableConstants.COL_STATUS);
+							animation= new AnimationEngine(feedback,-1,100);
+							animation.schedule();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				});
+			} else if (arg instanceof SampleStatusEvent) {
+				SampleStatusEvent event = (SampleStatusEvent)arg;
+				final String sampleID = event.getSampleID();
+				final STATUS status = event.getStatus();
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						logger.debug("sample {} update to {}",sampleID, status);
+						for (Sample sample : samples) {
+							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
+								updateSampleStatus(sample, status);
+							}
+						}
+						if (status==STATUS.PAUSED) {
+							animation.sleep();
+						} else if (status==STATUS.RUNNING) {
+							animation.wakeUp();
+						}
+					}
+				});
+			} 
 		}
 	}
 	private void updateSampleNumber(int currentSampleNumber,int totalNumberActiveSamples) {
-		txtSampleNumber.setText(String.valueOf(currentSampleNumber) + '/'+ String.valueOf(totalNumberActiveSamples));
+		txtCollectionNumber.setText(String.valueOf(currentSampleNumber) + '/'+ String.valueOf(totalNumberActiveSamples));
 	}
 
 	private void updateScanPointNumber(long currentPointNumber,long totalNumberOfPoints) {
@@ -1469,11 +1473,12 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private Text txtDataFilePath;
 	private Text txtSamplename;
 	private Text txtScanNumber;
-	private Text txtSampleNumber;
+	private Text txtCollectionNumber;
 	private Text txtScanPointNumber;
 	private Text txtProgressMessage;
 	private ProgressBar progressBar;
 	private Text txtStagename;
+	private TableViewerColumn progressColumn;
 
 	
 	private void hookContextMenu() {

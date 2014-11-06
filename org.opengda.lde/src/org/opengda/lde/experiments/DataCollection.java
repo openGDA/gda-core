@@ -61,6 +61,9 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	private String dataDriver;
 	private String dataFolder;
 	private String beamlineID;
+	private int numCalibrations;
+	private int currentCalibrationNumber;
+	private Sample currentSample;
 
 
 	public void parkAllStages() throws DeviceException, InterruptedException {
@@ -110,11 +113,17 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		String message="Pause current data collection.";
 		updateMessage(null, message);
 		setPaused(true);
+		if (eventAdmin!=null && currentSample!=null) {
+			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(currentSample.getSampleID(), STATUS.PAUSED));
+		}
 	}
 	public void resume() {
 		String message="Resume current data collection.";
 		updateMessage(null, message);
 		setPaused(false);
+		if (eventAdmin!=null && currentSample!=null) {
+			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(currentSample.getSampleID(), STATUS.RUNNING));
+		}
 	}
 	public void skip() {
 		String message;
@@ -146,8 +155,11 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		updateMessage(null, message);
 		stageActiveSamplesMap.clear();
 		numActiveSamples = 0;
+		numCalibrations=0;
 		currentSampleNumber=0;
+		currentCalibrationNumber=0;
 		currentSampleName="";
+		currentSample=null;
 		if (resUtil != null) {
 			// load samples definition from .lde file
 			try {
@@ -161,7 +173,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		}
 		checkForPauseAndInterruption();
 		if (samples != null && !samples.isEmpty()) {
-			// group sample into stage using stage name as key
+			// group sample into stage using stage name as key, reset status
 			for (Sample sample : samples) {
 				if (sample.isActive()) {
 					stageActiveSamplesMap.put(sample.getCellID().split("-")[0].toLowerCase(), sample);
@@ -171,6 +183,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 					}
 				}
 			}
+			numCalibrations=stageActiveSamplesMap.size();
 		}
 		if (stageActiveSamplesMap.isEmpty()) {
 			message = "No sample is selected in the table for data collection.";
@@ -186,7 +199,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		checkForPauseAndInterruption();
 		
 		if (eventAdmin!=null) {
-			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(currentSampleName, currentSampleNumber, numActiveSamples));
+			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(currentSampleName, currentSampleNumber, currentCalibrationNumber, numActiveSamples, numCalibrations));
 		}
 		for (SampleStage stage : getStages()) {
 			try {
@@ -200,7 +213,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 					}
 				}
 			} catch (DeviceException e) {
-				message="Failed on checking stage '"+stage.getName()+"' is at parkin poistion or not.";
+				message="Failed on checking stage '"+stage.getName()+"' is at parking poistion or not.";
 				updateMessage(e, message);
 			}
 		}
@@ -210,7 +223,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 				detectorArm.parkDetector();
 			}
 		} catch (DeviceException e) {
-			message="Failed to park or check detector '"+detectorArm.getName()+"' is at parkin poistion or not.";
+			message="Failed to park or check detector '"+detectorArm.getName()+"' is at parking poistion or not.";
 			updateMessage(e, message);
 		}
 		checkForPauseAndInterruption();
@@ -227,7 +240,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 				Sleep.sleep(100);
 			}
 		} catch (DeviceException e) {
-			message="Failed on checking detector '"+detectorArm.getName()+"' is at parkin poistion or not.";
+			message="Failed on checking detector '"+detectorArm.getName()+"' is at parking poistion or not.";
 			updateMessage(e, message);
 			//stop when detector cannot be parked for safety reason.
 			throw new IllegalStateException(message, e);
@@ -270,7 +283,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 				detectorArm.parkDetector();
 			}
 		} catch (DeviceException e) {
-			message="Failed to park or check detector '"+detectorArm.getName()+"' is at parkin poistion or not.";
+			message="Failed to park or check detector '"+detectorArm.getName()+"' is at parking poistion or not.";
 			updateMessage(e, message);
 		}
 		//parking all stages
@@ -285,7 +298,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 				Sleep.sleep(100);
 			}
 		} catch (DeviceException e) {
-			message="Failed on checking detector '"+detectorArm.getName()+"' is at parkin poistion or not.";
+			message="Failed on checking detector '"+detectorArm.getName()+"' is at parking poistion or not.";
 			updateMessage(e, message);
 		}
 		message="Data collection completed!";
@@ -312,8 +325,8 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	private void moveDetectorToPosition(SampleStage stage) throws InterruptedException {
 		@SuppressWarnings("unchecked")
 		List<Sample> samples = (List<Sample>) stageActiveSamplesMap.get(stage.getName());
-		Sample sample1 = samples.get(0);
-		double sampleDetectorZPosition=sample1.getDetector_z();
+		currentSample = samples.get(0);
+		double sampleDetectorZPosition=currentSample.getDetector_z();
 		String message="Move detector to its position "+sampleDetectorZPosition+" relative to the stage '"+stage.getName()+"' ...";
 		updateMessage(null, message);
 		for (Sample sample : samples) {
@@ -326,14 +339,15 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		}
 		if (eventAdmin!=null) {
 			((ScriptControllerBase)eventAdmin).update(eventAdmin, new StageChangedEvent(stage.getName(), samples.size()));
-			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleChangedEvent(sample1.getSampleID()));
+			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleChangedEvent(currentSample.getSampleID()));
+			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(currentSample.getSampleID(), STATUS.RUNNING));
 		}
 		checkForPauseAndInterruption();
 
 		try {
-			if (!detectorArm.isAtXPosition(sample1)) {
-				detectorArm.getXMotor().asynchronousMoveTo(sample1.getDetector_x());
-				message="Move detector X motor to position "+sample1.getDetector_x()+" ...";
+			if (!detectorArm.isAtXPosition(currentSample)) {
+				detectorArm.getXMotor().asynchronousMoveTo(currentSample.getDetector_x());
+				message="Move detector X motor to position "+currentSample.getDetector_x()+" ...";
 				updateMessage(null, message);
 			}
 		} catch (DeviceException e) {
@@ -341,9 +355,9 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			updateMessage(e, message);
 		}
 		try {
-			if (!detectorArm.isAtYPosition(sample1)) {
-				detectorArm.getYMotor().asynchronousMoveTo(sample1.getDetector_y());
-				message="Move detector Y motor to position "+sample1.getDetector_y()+" ...";
+			if (!detectorArm.isAtYPosition(currentSample)) {
+				detectorArm.getYMotor().asynchronousMoveTo(currentSample.getDetector_y());
+				message="Move detector Y motor to position "+currentSample.getDetector_y()+" ...";
 				updateMessage(null, message);
 			}
 		} catch (DeviceException e) {
@@ -352,13 +366,13 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		}
 		boolean atZPosition = false;
 		try {
-			atZPosition = detectorArm.isAtZPosition(sample1, stage.getzPosition());
+			atZPosition = detectorArm.isAtZPosition(currentSample, stage.getzPosition());
 		} catch (DeviceException e1) {
 			message="Failed on checking detector Z position: "+e1.getMessage();
 			updateMessage(e1, message);
 		}
 		if (atZPosition) {
-			message="Detector is already at position "+ sample1.getDetector_z()+" relative to the stage '"+stage.getName()+"'";
+			message="Detector is already at position "+ currentSample.getDetector_z()+" relative to the stage '"+stage.getName()+"'";
 			updateMessage(null, message);
 			return;
 		} else {
@@ -372,7 +386,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			}
 		}
 		try {
-			while (!detectorArm.isAtPosition(sample1, stage.getzPosition())){
+			while (!detectorArm.isAtPosition(currentSample, stage.getzPosition())){
 				checkForPauseAndInterruption();
 				Sleep.sleep(100);
 			}
@@ -396,8 +410,8 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	private void doDetectorCalibration(SampleStage stage) throws InterruptedException {
 		@SuppressWarnings("unchecked")
 		List<Sample> samples = (List<Sample>) stageActiveSamplesMap.get(stage.getName());
-		Sample sample1 = samples.get(0);
-		String calibrant = sample1.getCalibrant();
+		currentSample = samples.get(0);
+		String calibrant = currentSample.getCalibrant();
 		String message="Starting detector calibration using calibrant '"+calibrant+"' for stage '"+stage.getName()+"' ...";
 		updateMessage(null, message);		
 		// set calibrant name
@@ -410,26 +424,26 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			}
 		}
 		checkForPauseAndInterruption();
-
+		currentCalibrationNumber++;
 		if (eventAdmin!=null) {
-			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(calibrant, currentSampleNumber, numActiveSamples));
+			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(calibrant, currentSampleNumber, currentCalibrationNumber, numActiveSamples, numCalibrations));
 		}
 		
 		//move calibrant into beam
 		try {
-			stage.getXMotor().asynchronousMoveTo(sample1.getCalibrant_x());
+			stage.getXMotor().asynchronousMoveTo(currentSample.getCalibrant_x());
 		} catch (DeviceException e) {
-			message="Failed to move stage '"+stage.getName()+"x' to "+sample1.getCalibrant_x()+".";
+			message="Failed to move stage '"+stage.getName()+"x' to "+currentSample.getCalibrant_x()+".";
 			updateMessage(e, message);
 		}
 		try {
-			stage.getYMotor().asynchronousMoveTo(sample1.getCalibrant_y());
+			stage.getYMotor().asynchronousMoveTo(currentSample.getCalibrant_y());
 		} catch (DeviceException e) {
-			message="Failed to move stage '"+stage.getName()+"y' to "+sample1.getCalibrant_y()+".";
+			message="Failed to move stage '"+stage.getName()+"y' to "+currentSample.getCalibrant_y()+".";
 			updateMessage(e, message);
 		}
 		try {
-			while (!stage.isAtCalibrantPosition(sample1)) {
+			while (!stage.isAtCalibrantPosition(currentSample)) {
 				checkForPauseAndInterruption();
 				Sleep.sleep(100);
 			}
@@ -439,12 +453,12 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			throw new IllegalStateException(message, e);
 		}
 		//set data directory
-		LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, getDataDirectory(sample1));
+		LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, getDataDirectory(currentSample));
 		// collect calibrant diffraction data with data reduction
 		InterfaceProvider.getJSFObserver().addIObserver(this);
 		checkForPauseAndInterruption();
 		try {
-			ScannableCommands.scan(getDatareduction(), 1,1,1, getPixium(), sample1.getCalibrant_exposure());
+			ScannableCommands.scan(getDatareduction(), 1,1,1, getPixium(), currentSample.getCalibrant_exposure());
 			stage.setDetectorCalibrated(true);
 		} catch (Exception e) {
 			message="Scan failed during calibrant diffraction collection: "+e.getMessage();
@@ -501,6 +515,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		for (Sample sample : samples) {
 			checkForPauseAndInterruption();
 			currentSampleName = sample.getName();
+			currentSample=sample;
 			currentSampleNumber++;
 			if (getSampleNameScannable()!=null) {
 				try {
@@ -511,7 +526,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 				}
 			}
 			if (eventAdmin!=null) {
-				((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(currentSampleName, currentSampleNumber, numActiveSamples));
+				((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(currentSampleName, currentSampleNumber, currentCalibrationNumber, numActiveSamples, numCalibrations));
 				((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleChangedEvent(sample.getSampleID()));
 			}
 			checkForPauseAndInterruption();
@@ -568,6 +583,12 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 				}
 				success=false;
 			} finally {
+				if (InterfaceProvider.getCurrentScanController().isFinishEarlyRequested()){
+					if (eventAdmin!=null) {
+						((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), STATUS.ABORTED));
+					}
+					
+				}
 				InterfaceProvider.getJSFObserver().deleteIObserver(this);
 			}
 			
