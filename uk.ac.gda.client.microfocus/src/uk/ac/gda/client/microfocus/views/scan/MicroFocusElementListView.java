@@ -33,8 +33,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.metadata.IMetadata;
-import org.eclipse.dawnsci.hdf5.api.HDF5File;
-import org.eclipse.dawnsci.hdf5.api.HDF5NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
@@ -176,8 +176,8 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	public void widgetDefaultSelected(SelectionEvent e) {
 	}
 
-	public void loadXspressNexus(HDF5File tree, final String filePath) {
-		HDF5NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
+	public void loadXspressNexus(Tree tree, final String filePath) {
+		NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
 		if (nl == null){
 			nl = tree.findNodeLink("/entry1/before_scan/DetectorConfigurationParameters");
 		}
@@ -244,8 +244,8 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		});
 	}
 
-	public void loadXmapNexus(HDF5File tree, final String filePath) {
-		HDF5NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
+	public void loadXmapNexus(Tree tree, final String filePath) {
+		NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
 		if (nl == null){
 			nl = tree.findNodeLink("/entry1/before_scan/DetectorConfigurationParameters");
 		}
@@ -303,7 +303,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		final String filePath = openDialog.open();
 		HDF5Loader hdf5Loader = new HDF5Loader(filePath);
 
-		HDF5File tree = null;
+		Tree tree = null;
 		try {
 			tree = hdf5Loader.loadTree(null);
 		} catch (ScanFileHolderException e2) {
