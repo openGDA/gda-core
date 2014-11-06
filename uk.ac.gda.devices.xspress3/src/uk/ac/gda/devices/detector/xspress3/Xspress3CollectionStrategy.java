@@ -15,6 +15,12 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+/**
+ * not used or tested yet.
+ * 
+ * @author rjw82
+ *
+ */
 public class Xspress3CollectionStrategy implements AsyncNXCollectionStrategy, Configurable{
 
 	private Xspress3Controller controller;

@@ -18,9 +18,10 @@ from java.io import File
 from gdascripts.parameters.beamline_parameters import JythonNameSpaceMapping
 
 class I18DetectorPreparer:
-    def __init__(self,xspressConfig, vortexConfig, I0_keithley, It_keithley, cmos):
+    def __init__(self,xspressConfig, vortexConfig, xspress3Config, I0_keithley, It_keithley, cmos):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
+        self.xspress3Config = xspress3Config
         self.I0_keithley = I0_keithley
         self.It_keithley = It_keithley
         self.cmos = cmos
@@ -42,6 +43,9 @@ class I18DetectorPreparer:
                 vortexBean = self.vortexConfig.createBeanFromXML(xmlFileName)
                 saveRawSpectrum = vortexBean.isSaveRawSpectrum()
                 self.vortexConfig.configure(xmlFileName, saveRawSpectrum)
+            elif detType == "Xspress3":
+                self.xspress3Config.initialize()
+                self.xspress3Config.configure(xmlFileName)
             self._control_all_ionc(fluoresenceParameters.getIonChamberParameters())
             if fluoresenceParameters.isCollectDiffractionImages() and isinstance (scanBean,MicroFocusScanParameters):
                 self._control_cmos(scanBean)

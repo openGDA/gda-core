@@ -57,10 +57,13 @@ import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.VortexROI;
+import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
 import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
+import uk.ac.gda.devices.detector.xspress3.Xspress3BufferedDetector;
+import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
 
 public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
@@ -74,7 +77,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected String selectedElement = "";
 	protected int selectedChannel = 0;
 	protected IRichBean detectorBean;
-	// FIXME this warning is showing that how this list is used is not clear - needs a redesign
+	// this warning is showing that how this list is used is not clear - needs a redesign
 	@SuppressWarnings("rawtypes")
 	protected List[] elementRois;
 	protected Logger logger = LoggerFactory.getLogger(MicroFocusWriterExtender.class);
@@ -155,6 +158,18 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				elementRois = new List[numberOfSubDetectors];
 				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
 					elementRois[detectorNo] = ((VortexParameters) detectorBean).getDetector(detectorNo).getRegionList();
+			}  else if (detector instanceof Xspress3Detector) {
+				Xspress3Detector xspress = (Xspress3Detector) detector;
+				detectorName = xspress.getName();
+				roiNames = new String[((Xspress3Parameters) detectorBean).getDetector(0).getRegionList().size()];
+				for (int roiIndex = 0; roiIndex < roiNames.length; roiIndex++) {
+					roiNames[roiIndex] = ((Xspress3Parameters) detectorBean).getDetector(0).getRegionList().get(roiIndex)
+							.getRoiName();
+				}
+				fillRoiNames();
+				elementRois = new List[numberOfSubDetectors];
+				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
+					elementRois[detectorNo] = ((Xspress3Parameters) detectorBean).getDetector(detectorNo).getRegionList();
 			}
 		}
 	}
@@ -337,7 +352,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 							}
 							spectrumLength = wholeDataArray[j].length;
 							@SuppressWarnings("unchecked")
-							// FIXME needs a redesign to prevent this unchecked warning
+							// needs a redesign to prevent this unchecked warning
 							List<VortexROI> roiList = elementRois[j];
 							// calculating window total manually instead of using xmap ROIs
 							for (VortexROI roi : roiList) {
@@ -353,13 +368,35 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 								}
 							}
 						}
+					} else if (isXspress3Scan()){
+						// TODO  extract the ROIs and put into the detectorValuesCache object for holding the map in memory
+						//  problem: at the moment, only the FFs are in the data, not the rois...
+						
+						d = ((NXDetectorData) dataObj);
+//						double[][] dataArray = (double[][]) d.getData(detectorName, "MCAs", "SDS").getBuffer();
+//						// assuming all detector elements have the same number of roi
+//						spectrumLength = dataArray[0].length;
+						for (int i = 0; i < numberOfSubDetectors; i++) {
+							@SuppressWarnings("unchecked")
+							List<VortexROI> roiList = elementRois[i];
+							for (VortexROI roi : roiList) {
+								String key = roi.getRoiName();
+								if (ArrayUtils.contains(roiNames, key)) {
+									if (detectorValuesCache[i][roiNameMap.get(key)] == null)
+										detectorValuesCache[i][roiNameMap.get(key)] = new double[totalPoints];
+									Double[] dataArray = (Double[]) d.getData(detectorName, key, "SDS").getBuffer();
+									double windowTotal = dataArray[i];
+									double rgbElementSum = rgbLineData.get(key);
+									rgbLineData.put(key, rgbElementSum + windowTotal);
+									detectorValuesCache[i][roiNameMap.get(key)][currentPointNumber] = windowTotal;
+								}
+							}
+						}
 					}
-//					logger.debug("The y value is " + xy[0]);
-//					logger.debug("the x value is " + xy[1]);
 				}
 			}
 
-			// FIXME into new method after merge to master
+			// TODO move this into new method after merge to master
 			// so what goes into RGB files? An average or a single detector channel or what?
 			StringBuffer rgbLine = new StringBuffer();
 			int xindex = dataPoint.getCurrentPointNumber() % numberOfXPoints;
@@ -527,6 +564,13 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					slice = lazyDataset.getSlice(new int[] { y, x, detNo, 0 }, new int[] { y + 1, x + 1, detNo + 1,
 							spectrumLength }, new int[] { 1, 1, 1, 1 });
 				}
+			} else if (isXspress3Scan()){
+				//  when SWMR available we can write all MCAs for to a single multidimensional data block
+				//  but for the moment have different data per row.
+				String nameOfMcaForGivenRow = "/entry1/instrument/" + detectorName + "/"+ Xspress3Detector.getNameOfRowSubNode(y);
+				lazyDataset = dataHolder.getLazyDataset(nameOfMcaForGivenRow);
+				slice = lazyDataset.getSlice(new int[] { x, detNo, 0 }, new int[] { x + 1, detNo + 1,
+						spectrumLength }, new int[] { 1, 1, 1 });
 			}
 
 			if (slice != null) {
@@ -565,7 +609,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			}
 			plotImage(dataSetToDisplay);
 			return;
-		} else if (isXspressScan() || isXmapScan()) {
+		} else if (isXspressScan() || isXmapScan() || isXspress3Scan()) {
 			for (int point = 0; point <= plottedSoFar; point++) {
 				dataSetToDisplay.set(detectorValuesCache[detectorChannel][selectedElementIndex][point], point
 						/ numberOfXPoints, point % numberOfXPoints);
@@ -587,6 +631,14 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected boolean isXspressScan() {
 		for (Detector det : detectors) {
 			if (det instanceof XspressDetector || det instanceof Xspress2BufferedDetector)
+				return true;
+		}
+		return false;
+	}
+
+	protected boolean isXspress3Scan() {
+		for (Detector det : detectors) {
+			if (det instanceof Xspress3Detector || det instanceof Xspress3BufferedDetector)
 				return true;
 		}
 		return false;

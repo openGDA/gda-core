@@ -179,6 +179,6 @@ class Xspress3Config(VortexConfig):
         self.configuration = Xspress3DetectorConfiguration(self.xmap, self.ExafsScriptObserver)
         self.vortexUtils=Xspress3BeanUtils()
         
-    def configure(self, xmlFileName):
+    def configure(self, xmlFileName, saveRawSpectrum = None):
         self.configuration.configure(xmlFileName)
 

@@ -11,6 +11,12 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+/**
+ * not used or tested yet.
+ * 
+ * @author rjw82
+ *
+ */
 public class Xspress3FFCalculatorNXPlugin implements NXPlugin{
 
 	public static int SUM_ALL_ROI = 0;

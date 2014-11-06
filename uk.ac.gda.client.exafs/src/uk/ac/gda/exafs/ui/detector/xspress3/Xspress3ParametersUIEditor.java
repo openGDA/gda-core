@@ -56,8 +56,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.swtdesigner.SWTResourceManager;
-
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -65,19 +63,21 @@ import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
-import uk.ac.gda.devices.detector.xspress3.FluorescenceAcquire;
+import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
+import com.swtdesigner.SWTResourceManager;
+
 public class Xspress3ParametersUIEditor extends DetectorEditor {
+	private static final String XSPRESS3_EDITOR_DATA_XML_FILENAME = "xspress3_editor_data.xml";
 	private String detectorName;
 	protected Xspress3Parameters xspress3Parameters;
 	private static final String GDA_DEVICE_VORTEX_SPOOL_DIR = "gda.device.vortex.spoolDir";
@@ -103,7 +103,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 	
 	
 	public Xspress3ParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
-		super(path, mappingURL, dirtyContainer, editingBean, path);
+		super(path, mappingURL, dirtyContainer, editingBean, "xspress3Config");
 		this.xspress3Parameters = (Xspress3Parameters) editingBean;
 		detectorName = xspress3Parameters.getDetectorName();
 	}
@@ -329,12 +329,12 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 
 		
 		if (getDetector(detectorName) == null)
-			throw new Exception("Unable to find Xmapdetector called :'" + detectorName + "'");
+			throw new Exception("Unable to find Xspress3 called :'" + detectorName + "'");
 	
 		try {
 			
-			
-			final Double[][] MCData = getDetector(detectorName).getMCData(collectionTimeValue);
+			// seems to collect the data twice. Needs review.
+//			final Double[][] MCData = getDetector(detectorName).getMCData(collectionTimeValue);
 			final int[][] data = getDetector(detectorName).getData();
 			if (monitor != null)
 				monitor.worked(1);
@@ -347,7 +347,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 				monitor.worked(1);
 
 			// returns the icr and ocr
-			Double[] liveStats = (Double[]) getDetector(detectorName).getAttribute("countRates");
+//			Double[] liveStats = (Double[]) getDetector(detectorName).getAttribute("countRates");
 			//final double deadTimeFinal = (Math.abs(liveStats[0] - liveStats[1]) / liveStats[0]) * 100;
 
 			// Note: currently has to be in this order.
@@ -576,11 +576,11 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 	@Override
 	protected String getDataXMLName() {
 		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
-		return varDir + "/vortex_editor_data.xml";
+		return varDir + "/" + XSPRESS3_EDITOR_DATA_XML_FILENAME;
 	}
 
-	private final FluorescenceAcquire getDetector(String detectorName){
-		FluorescenceAcquire detector = (FluorescenceAcquire) Finder.getInstance().find(detectorName);
+	private final FluorescenceDetector getDetector(String detectorName){
+		FluorescenceDetector detector = (FluorescenceDetector) Finder.getInstance().find(detectorName);
 		return detector; 
 	}
 	

@@ -59,6 +59,7 @@ import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.VortexROI;
+import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
@@ -134,6 +135,14 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 			XspressParameters xspress = (XspressParameters) beanObject;
 			updateDetectorChannelCombo(xspress.getDetectorList().size());
 			java.util.List<XspressROI> regionList = xspress.getDetector(0).getRegionList();
+			for (int i = 0; i < regionList.size(); i++) {
+				elementList.add(regionList.get(i).getRoiName());
+			}
+		}
+		else if (beanObject instanceof Xspress3Parameters) {
+			Xspress3Parameters vortex = (Xspress3Parameters) beanObject;
+			updateDetectorChannelCombo(vortex.getDetectorList().size());
+			java.util.List<VortexROI> regionList = vortex.getDetector(0).getRegionList();
 			for (int i = 0; i < regionList.size(); i++) {
 				elementList.add(regionList.get(i).getRoiName());
 			}

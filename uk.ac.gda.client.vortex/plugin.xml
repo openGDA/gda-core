@@ -39,6 +39,10 @@
             class="uk.ac.gda.beans.vortex.VortexParameters"
             describer="uk.ac.gda.exafs.ui.describers.VortexDescriber">
       </bean>
+      <bean
+            class="uk.ac.gda.beans.vortex.Xspress3Parameters"
+            describer="uk.ac.gda.exafs.ui.describers.Xspress3Describer">
+      </bean>
    </extension>
    <extension
          point="uk.ac.gda.richbeans.beantypes">
@@ -48,6 +52,14 @@
             includeInNew="false"
             name="Vortex"
             template="Vortex_Parameters"
+            type="UNREGISTERED">
+      </describer>
+      <describer
+            bean="uk.ac.gda.beans.vortex.Xspress3Parameters"
+            contentType="uk.ac.diamond.gda.client.exafs.getXspress3Content"
+            includeInNew="false"
+            name="Xspress3"
+            template="Xspress3_Parameters"
             type="UNREGISTERED">
       </describer>
    </extension>

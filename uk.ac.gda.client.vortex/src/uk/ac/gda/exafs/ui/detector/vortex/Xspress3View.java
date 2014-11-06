@@ -10,8 +10,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.devices.detector.xspress3.FluorescenceAcquire;
-import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
+import uk.ac.gda.devices.detector.FluorescenceDetector;
 
 public class Xspress3View extends ViewPart{
 
@@ -30,7 +29,7 @@ public class Xspress3View extends ViewPart{
 		
 		String detectorName = "xspress3";
 		String tfgName = "tfg";
-		FluorescenceAcquire xspress3Detector = (FluorescenceAcquire) Finder.getInstance().find(detectorName);
+		FluorescenceDetector xspress3Detector = (FluorescenceDetector) Finder.getInstance().find(detectorName);
 		Timer tfg = (Timer) Finder.getInstance().find(tfgName);
 		new Vortex(path, this.getSite(), parent, detectorList, xspress3Detector, tfg);
 	}

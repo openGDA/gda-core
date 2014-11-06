@@ -32,8 +32,7 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
  */
 public class DummyXspress3Controller implements Xspress3Controller, Findable {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(DummyXspress3Controller.class);
+	private static final Logger logger = LoggerFactory.getLogger(DummyXspress3Controller.class);
 
 	private static final int NUMBER_CHANNELS = 4;
 	// Tfg is only for simulation purposes to get current state (in real system
@@ -45,10 +44,8 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	private String name = "not set";
 	private String xspressSystemName = "'xs3'";
 	private String mcaOpenCommand = "xspress2 open-mca " + xspressSystemName;
-	private String scalerOpenCommand = "xspress2 open-scalers "
-			+ xspressSystemName;
-	private String startupScript = "xspress2 format-run " + xspressSystemName
-			+ " res-none";
+	private String scalerOpenCommand = "xspress2 open-scalers " + xspressSystemName;
+	private String startupScript = "xspress2 format-run " + xspressSystemName + " res-none";
 	private int mcaHandle = -1;
 	private int scalerHandle = -1;
 	private Integer numFramesToAcquire;
@@ -59,6 +56,8 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	private int numRoiToRead;
 	private String template;
 	private int nextNumber;
+
+	private int[] fileDimensions;
 
 	public DummyXspress3Controller(Tfg tfg, DummyDAServer daServer) {
 		super();
@@ -73,8 +72,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 				close();
 			}
 			daServer.sendCommand(startupScript);
-			String formatCommand = "xspress2 format-run " + xspressSystemName
-					+ " 12 res-none";
+			String formatCommand = "xspress2 format-run " + xspressSystemName + " 12 res-none";
 			daServer.sendCommand(formatCommand);
 
 			// clear rois
@@ -82,30 +80,22 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 			daServer.sendCommand(roiCommand);
 
 			// set windows and rois for 4-element
-			String windowCommand = "xspress2 set-window " + xspressSystemName
-					+ " " + 0 + " " + 0 + " " + 4096;
+			String windowCommand = "xspress2 set-window " + xspressSystemName + " " + 0 + " " + 0 + " " + 4096;
 			daServer.sendCommand(windowCommand);
-			windowCommand = "xspress2 set-window " + xspressSystemName + " "
-					+ 1 + " " + 0 + " " + 4096;
+			windowCommand = "xspress2 set-window " + xspressSystemName + " " + 1 + " " + 0 + " " + 4096;
 			daServer.sendCommand(windowCommand);
-			windowCommand = "xspress2 set-window " + xspressSystemName + " "
-					+ 2 + " " + 0 + " " + 4096;
+			windowCommand = "xspress2 set-window " + xspressSystemName + " " + 2 + " " + 0 + " " + 4096;
 			daServer.sendCommand(windowCommand);
-			windowCommand = "xspress2 set-window " + xspressSystemName + " "
-					+ 3 + " " + 0 + " " + 4096;
+			windowCommand = "xspress2 set-window " + xspressSystemName + " " + 3 + " " + 0 + " " + 4096;
 			daServer.sendCommand(windowCommand);
 
-			roiCommand = "xspress2 set-roi " + xspressSystemName
-					+ " 0 100 200 1";
+			roiCommand = "xspress2 set-roi " + xspressSystemName + " 0 100 200 1";
 			daServer.sendCommand(roiCommand);
-			roiCommand = "xspress2 set-roi " + xspressSystemName
-					+ " 1 100 200 1";
+			roiCommand = "xspress2 set-roi " + xspressSystemName + " 1 100 200 1";
 			daServer.sendCommand(roiCommand);
-			roiCommand = "xspress2 set-roi " + xspressSystemName
-					+ " 2 100 200 1";
+			roiCommand = "xspress2 set-roi " + xspressSystemName + " 2 100 200 1";
 			daServer.sendCommand(roiCommand);
-			roiCommand = "xspress2 set-roi " + xspressSystemName
-					+ " 3 100 200 1";
+			roiCommand = "xspress2 set-roi " + xspressSystemName + " 3 100 200 1";
 			daServer.sendCommand(roiCommand);
 
 			open();
@@ -121,11 +111,9 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 				if ((obj = daServer.sendCommand(mcaOpenCommand)) != null) {
 					mcaHandle = ((Integer) obj).intValue();
 					if (mcaHandle < 0) {
-						throw new DeviceException(
-								"Failed to create the mca handle");
+						throw new DeviceException("Failed to create the mca handle");
 					}
-					logger.info("Xspress2System: open() using mcaHandle "
-							+ mcaHandle);
+					logger.info("Xspress2System: open() using mcaHandle " + mcaHandle);
 				}
 			}
 
@@ -133,11 +121,9 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 				if ((obj = daServer.sendCommand(scalerOpenCommand)) != null) {
 					scalerHandle = ((Integer) obj).intValue();
 					if (scalerHandle < 0) {
-						throw new DeviceException(
-								"Failed to create the scaler handle");
+						throw new DeviceException("Failed to create the scaler handle");
 					}
-					logger.info("Xspress2System: open() using scalerHandle "
-							+ scalerHandle);
+					logger.info("Xspress2System: open() using scalerHandle " + scalerHandle);
 				}
 			}
 		}
@@ -154,17 +140,14 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 		}
 	}
 
-	private synchronized void sendCommand(String command, int handle)
-			throws DeviceException {
+	private synchronized void sendCommand(String command, int handle) throws DeviceException {
 		Object obj;
 		if ((obj = daServer.sendCommand(command + handle)) == null) {
-			throw new DeviceException(
-					"Null reply received from daserver during " + command);
+			throw new DeviceException("Null reply received from daserver during " + command);
 		} else if (((Integer) obj).intValue() == -1) {
 			logger.error("DummyXspress3Controller: " + command + " failed");
 			close();
-			throw new DeviceException("DummyXspress3Controller " + command
-					+ " failed");
+			throw new DeviceException("DummyXspress3Controller " + command + " failed");
 		}
 	}
 
@@ -258,36 +241,30 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	}
 
 	@Override
-	public void setROILimits(int channel, int roiNumber,
-			int[] lowHighMCAChannels) {
+	public void setROILimits(int channel, int roiNumber, int[] lowHighMCAChannels) {
 		if (this.roi == null) {
 			roi = new ROI[NUMBER_CHANNELS];
 		}
-		roi[roiNumber] = new ROI("ROI" + roiNumber, lowHighMCAChannels[0],
-				lowHighMCAChannels[1]);
+		roi[roiNumber] = new ROI("ROI" + roiNumber, lowHighMCAChannels[0], lowHighMCAChannels[1]);
 
 	}
 
 	@Override
 	public Integer[] getROILimits(int channel, int roiNumber) {
-		return new Integer[] { roi[roiNumber].getStart(),
-				roi[roiNumber].getEnd() };
+		return new Integer[] { roi[roiNumber].getStart(), roi[roiNumber].getEnd() };
 	}
 
 	@Override
-	public void setWindows(int channel, int roiNumber,
-			int[] lowHighScalerWindowChannels) {
+	public void setWindows(int channel, int roiNumber, int[] lowHighScalerWindowChannels) {
 		if (this.windows == null) {
 			windows = new ROI[2];
 		}
-		windows[roiNumber] = new ROI("SCA" + roiNumber,
-				lowHighScalerWindowChannels[0], lowHighScalerWindowChannels[1]);
+		windows[roiNumber] = new ROI("SCA" + roiNumber, lowHighScalerWindowChannels[0], lowHighScalerWindowChannels[1]);
 	}
 
 	@Override
 	public Integer[] getWindows(int channel, int roiNumber) {
-		return new Integer[] { windows[roiNumber].getStart(),
-				windows[roiNumber].getEnd() };
+		return new Integer[] { windows[roiNumber].getStart(), windows[roiNumber].getEnd() };
 	}
 
 	@Override
@@ -306,8 +283,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	}
 
 	@Override
-	public void setNumberROIToRead(int numRoiToRead)
-			throws IllegalArgumentException {
+	public void setNumberROIToRead(int numRoiToRead) throws IllegalArgumentException {
 		this.numRoiToRead = numRoiToRead;
 	}
 
@@ -351,8 +327,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	}
 
 	@Override
-	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame,
-			int startChannel, int finalChannel) {
+	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel) {
 		int numFrames = finalFrame - startFrame + 1;
 		int numChannels = finalChannel - startChannel + 1;
 
@@ -370,15 +345,12 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	}
 
 	@Override
-	public Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame,
-			int startChannel, int finalChannel) {
-		return readoutDTCorrectedSCA1(startFrame, finalFrame, startChannel,
-				finalChannel);
+	public Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame, int startChannel, int finalChannel) {
+		return readoutDTCorrectedSCA1(startFrame, finalFrame, startChannel, finalChannel);
 	}
 
 	@Override
-	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame,
-			int startChannel, int finalChannel) {
+	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame, int startChannel, int finalChannel) {
 		// int[frame][channel][time,reset ticks, reset counts,all events, all
 		// goodEvents, pileup counts]
 		int numFrames = finalFrame - startFrame + 1;
@@ -409,8 +381,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	}
 
 	@Override
-	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame,
-			int startChannel, int finalChannel) {
+	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame, int startChannel, int finalChannel) {
 		int numFrames = finalFrame - startFrame + 1;
 		int numChannels = finalChannel - startChannel + 1;
 
@@ -429,27 +400,25 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	}
 
 	@Override
-	public Double[][] readoutDTCorrectedLatestMCA(int startChannel,
-			int finalChannel) throws DeviceException {
+	public Double[][] readoutDTCorrectedLatestMCA(int startChannel, int finalChannel) throws DeviceException {
 		return readoutDTCorrectedLatestSummedMCA(startChannel, finalChannel);
 	}
 
 	@Override
-	public Double[][] readoutDTCorrectedLatestSummedMCA(int startChannel,
-			int finalChannel) throws DeviceException {
+	public Double[][] readoutDTCorrectedLatestSummedMCA(int startChannel, int finalChannel) throws DeviceException {
 		int numChannels = finalChannel - startChannel + 1;
-		int[] rawData = daServer.getIntBinaryData("read 0 0 0 " + 4096 + " "
-				+ 1 + " " + 1 + " from " + mcaHandle + " raw motorola", 4096);
-		
+		// int[] rawData = daServer.getIntBinaryData("read 0 0 0 " + 4096 + " "
+		// + 1 + " " + 1 + " from " + mcaHandle + " raw motorola", 4096);
+
 		Double[][] results = new Double[numChannels][4096];
 		Random generator = new Random();
-		
+
 		for (int chan = 0; chan < numChannels; chan++) {
 			for (int mcaChan = 0; mcaChan < 4096; mcaChan++) {
 				results[chan][mcaChan] = (double) generator.nextInt(new Double(1000.0).intValue() * 10000);
 			}
 		}
-		
+
 		return results;
 	}
 
@@ -476,8 +445,30 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return name;
+	}
+
+	@Override
+	public void setHDFFileDimensions(int[] dimensions) throws DeviceException {
+		if (dimensions.length > 3) {
+			throw new DeviceException("Cannot write more than 3 dimensions in the HDF5 plugin!");
+		}
+		fileDimensions = dimensions;
+	}
+
+	@Override
+	public int[] getHDFFileDimensions() throws DeviceException {
+		return fileDimensions;
+	}
+
+	@Override
+	public void setHDFFileAutoIncrement(boolean b) {
+		// do nothing in this sim
+	}
+
+	@Override
+	public void setHDFNumFramesToAcquire(int i) throws DeviceException {
+		// do nothing in this sim
 	}
 
 }
