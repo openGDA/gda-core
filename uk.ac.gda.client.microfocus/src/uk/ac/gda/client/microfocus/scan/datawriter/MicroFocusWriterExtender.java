@@ -143,9 +143,10 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				}
 				fillRoiNames();
 				elementRois = new List[numberOfSubDetectors];
-				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
+				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++){
 					elementRois[detectorNo] = ((XspressParameters) detectorBean).getDetector(detectorNo)
 							.getRegionList();
+				}
 			} else if (detector instanceof XmapDetector) {
 				XmapDetector xspress = (XmapDetector) detector;
 				detectorName = xspress.getName();
@@ -156,8 +157,9 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				}
 				fillRoiNames();
 				elementRois = new List[numberOfSubDetectors];
-				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
+				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++){
 					elementRois[detectorNo] = ((VortexParameters) detectorBean).getDetector(detectorNo).getRegionList();
+				}
 			}  else if (detector instanceof Xspress3Detector) {
 				Xspress3Detector xspress = (Xspress3Detector) detector;
 				detectorName = xspress.getName();
@@ -168,8 +170,9 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				}
 				fillRoiNames();
 				elementRois = new List[numberOfSubDetectors];
-				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++)
+				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++) {
 					elementRois[detectorNo] = ((Xspress3Parameters) detectorBean).getDetector(detectorNo).getRegionList();
+				}
 			}
 		}
 	}

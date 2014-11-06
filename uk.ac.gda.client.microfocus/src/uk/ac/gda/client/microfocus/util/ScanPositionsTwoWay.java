@@ -23,6 +23,9 @@ import gda.device.scannable.ScannableUtils;
 import gda.scan.ScanBase;
 import gda.scan.ScanPositionProvider;
 
+/**
+ * A ScanPositionProvider which flips every other line of data for use in two-way (back and forth) 2D map scans.
+ */
 public class ScanPositionsTwoWay implements ScanPositionProvider {
 
 	private double start;

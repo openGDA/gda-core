@@ -114,7 +114,7 @@ public class MicroFocusDisplayController {
 		logger.debug("displayed map for " + selectedElement + " using " + fileDataProvider.getClass());
 	}
 
-	public void displayMap(String selectedElement, String filePath, Integer channelToDisplay) {
+	public void displayMap(String selectedElement, String filePath, Integer channelToDisplay) throws Exception {
 		if (plotter == null)
 			plotter = new MicroFocusNexusPlotter();
 

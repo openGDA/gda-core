@@ -64,7 +64,16 @@ public abstract class MicroFocusMappableDataProvider {
 		super();
 	}
 
-	public abstract boolean hasPlotData(String elementName);
+	public boolean hasPlotData(String elementName) {
+		String[] elementNames = getElementNames();
+		for (String element : elementNames) {
+			if (elementName.equals(element))
+				return true;
+		}
+		return false;
+	}
+	
+	public abstract String[] getElementNames();
 
 	public abstract double[][] constructMappableData();
 
@@ -73,6 +82,7 @@ public abstract class MicroFocusMappableDataProvider {
 	public abstract double[] getSpectrum(int detectorNo, int y, int x);
 	
 	public abstract void loadBean(IRichBean bean);
+	
 	
 	/**
 	 * Load a MicroFocus Nexus file and read in the x and y axis values
