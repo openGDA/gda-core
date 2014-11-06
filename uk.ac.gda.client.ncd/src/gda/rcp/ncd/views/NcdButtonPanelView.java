@@ -199,7 +199,7 @@ public class NcdButtonPanelView extends ViewPart {
 		}
 		{
 			Composite metadata = new Composite(parent, SWT.NONE);
-			metadata.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1,3));
+			metadata.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1,3));
 			metadata.setLayout(new GridLayout(2, false));
 
 			{
@@ -267,9 +267,12 @@ public class NcdButtonPanelView extends ViewPart {
 			}
 		}
 
+		Composite shutterComp = new Composite(parent, SWT.NONE);
+		shutterComp.setLayout(new GridLayout(1, false));
+		shutterComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1,2));
 		ArrayList<Findable> shutters = Finder.getInstance().listAllObjects("EnumPositioner");
 		for (Findable shutter : shutters) {
-			new ShutterGroup(parent, SWT.NONE, (EnumPositioner) shutter);
+			new ShutterGroup(shutterComp, SWT.NONE, (EnumPositioner) shutter);
 		}
 
 		{
