@@ -50,7 +50,6 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	private String unitsLabel = "counts";
 	private int framesRead = 0;
 	private int firstChannelToRead = 0;
-	private int numberOfChannelsToRead = 1;
 	private int summingMethod = SUM_ALL_ROI;
 
 	private boolean writeHDF5Files = false;
@@ -95,6 +94,8 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 			filePrefix = getName();
 		}
 		inputNames = new String[] {};
+		
+		configureExtraNames();
 	}
 
 	private void createNumTracker() {
@@ -169,12 +170,10 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 			String scanNumber = getScanNumber();
 			String subFolder = "";
 			if (currentDimensions.length > 1){
-				subFolder = File.separator + scanNumber;
+				subFolder = scanNumber;
 			}
 			
-			if (filePath == null || filePath.isEmpty()) {
-				filePath = PathConstructor.createFromDefaultProperty();
-			} 
+			filePath = PathConstructor.createFromRCPProperties();
 			filePath += subFolder;
 			File filePathTester = new File(filePath);
 			if (!filePathTester.exists()){
@@ -190,10 +189,8 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 			} else {
 				controller.setFilePrefix(getName() + "_");
 			}
-			controller.setNextFileNumber(0);
 			
-			// TODO also make sure auto increment is true
-			// and that the NumCapture is the same as the highest dimension.
+			controller.setNextFileNumber(0);
 			controller.setHDFFileAutoIncrement(true);
 			controller.setHDFNumFramesToAcquire(currentDimensions[currentDimensions.length -1]);
 			
@@ -296,7 +293,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 
 		// readout ROI in format [frame][detector channel][ROIs]
 		Double[][][] data = controller.readoutDTCorrectedROI(firstFrame,
-				lastFrame, firstChannelToRead, numberOfChannelsToRead
+				lastFrame, firstChannelToRead, controller.getNumberOfChannels()
 						+ firstChannelToRead - 1);
 		// calc FF from ROI
 		int numFramesRead = lastFrame - firstFrame + 1;
@@ -310,21 +307,21 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 			INexusTree detTree = thisFrame.getDetTree(getName());
 			
 			// add FF (all ROI, all channels)
-			thisFrame.addData(detTree, sumLabel, new int[] { numberOfChannelsToRead }, NexusFile.NX_FLOAT64, FFs[frame], unitsLabel, 1);
+			thisFrame.addData(detTree, sumLabel, new int[] { controller.getNumberOfChannels() }, NexusFile.NX_FLOAT64, FFs[frame], unitsLabel, 1);
 			
 			// add regions of interest for each channel
 			Double [][] thisFrameData = data[frame];
 			for (int region = 0; region < regionNames.length; region++){
-				Double[] countsPerChannel = new Double[numberOfChannelsToRead];
+				Double[] countsPerChannel = new Double[controller.getNumberOfChannels()];
 				
-				for (int channel = 0; channel < numberOfChannelsToRead; channel++){
+				for (int channel = 0; channel < controller.getNumberOfChannels(); channel++){
 					countsPerChannel[channel] = thisFrameData[channel][region];
 				}
-				thisFrame.addData(detTree, regionNames[region], new int[] { numberOfChannelsToRead}, NexusFile.NX_FLOAT64, countsPerChannel, unitsLabel, 2);
+				thisFrame.addData(detTree, regionNames[region], new int[] { controller.getNumberOfChannels()}, NexusFile.NX_FLOAT64, countsPerChannel, unitsLabel, 2);
 			}
 			
 			// add the ROIs as the plottable values (seen in Jython Terminal and ASCII files)
-			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
+			for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
 				thisFrame.setPlottableValue(getExtraNames()[chan], FFs[frame][chan]);
 			}
 			
@@ -352,16 +349,16 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	public Double[] readoutFF() throws DeviceException {
 		// assume that this is readout before the full readout() is called!!
 		Double[][][] data = controller.readoutDTCorrectedROI(framesRead,
-				framesRead, firstChannelToRead, numberOfChannelsToRead
+				framesRead, firstChannelToRead, controller.getNumberOfChannels()
 						+ firstChannelToRead - 1);
 		return calculateFFs(data,1)[0];
 	}
 
 	private Double[][] calculateFFs(Double[][][] data, int numFramesRead) {
-		Double[][] FFs = new Double[numFramesRead][numberOfChannelsToRead]; // [frame][detector
+		Double[][] FFs = new Double[numFramesRead][controller.getNumberOfChannels()]; // [frame][detector
 																			// channel]
 		for (int frame = 0; frame < numFramesRead; frame++) {
-			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
+			for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
 				if (summingMethod == 1) {
 					FFs[frame][chan] = data[frame][chan][0];
 				} else {
@@ -376,8 +373,8 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	public String[] getExtraNames() {
 		// these are the plottable values. For this detector it is the FF for
 		// each channel
-		String[] extraNames = new String[numberOfChannelsToRead];
-		for (int i = 0; i < numberOfChannelsToRead; i++) {
+		String[] extraNames = new String[controller.getNumberOfChannels()];
+		for (int i = 0; i < controller.getNumberOfChannels(); i++) {
 			extraNames[i] = "Chan" + (firstChannelToRead + i);
 		}
 		return extraNames;
@@ -399,7 +396,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 		
 		defineRegionNames(regionList);
 		
-		for (int chan = firstChannelToRead; chan < numberOfChannelsToRead
+		for (int chan = firstChannelToRead; chan < controller.getNumberOfChannels()
 				+ firstChannelToRead; chan++) {
 			for (int roiNum = 0; roiNum < MAX_ROI_PER_CHANNEL; roiNum++) {
 				if (roiNum < regionList.length) {
@@ -453,7 +450,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	
 	public int[][] getData() throws DeviceException{
 		
-		Double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
+		Double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestMCA(firstChannelToRead, controller.getNumberOfChannels() - 1);
 		int[][] deadTimeCorrectedDataInt = new int[deadTimeCorrectedData.length][deadTimeCorrectedData[0].length];
 		for(int i=0;i<deadTimeCorrectedData.length;i++){
 			for(int j=0;j<deadTimeCorrectedData[0].length;j++){
@@ -484,7 +481,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 
 		controller.doStop();
 		
-		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
+		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, controller.getNumberOfChannels() - 1);
 	}
 
 	public int getFirstChannelToRead() {
@@ -495,19 +492,14 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 		this.firstChannelToRead = firstChannelToRead;
 	}
 
-	public int getNumberOfChannelsToRead() {
-		return numberOfChannelsToRead;
-	}
-
-	public void setNumberOfChannelsToRead(int numberOfChannelsToRead) {
-		this.numberOfChannelsToRead = numberOfChannelsToRead;
+	private void configureExtraNames(){
 		// this defines the number of extraNames as currently extraNames = FF
 		// per channel
-		String[] newExtraNames = new String[numberOfChannelsToRead];
-		String[] newoutputFormat = new String[numberOfChannelsToRead];
+		String[] newExtraNames = new String[controller.getNumberOfChannels()];
+		String[] newoutputFormat = new String[controller.getNumberOfChannels()];
 		newoutputFormat[0] = this.outputFormat[0];
 
-		for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
+		for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
 			String label = channelLabelPrefix + (chan + firstChannelToRead);
 			newExtraNames[chan] = label;
 			newoutputFormat[chan] = this.outputFormat[0];

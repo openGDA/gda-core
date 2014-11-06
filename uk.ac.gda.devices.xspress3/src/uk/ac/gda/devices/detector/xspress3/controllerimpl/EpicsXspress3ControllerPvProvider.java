@@ -8,10 +8,11 @@ import gda.factory.FactoryException;
 
 public class EpicsXspress3ControllerPvProvider {
 	
-	public static final int NUMBER_DETECTOR_CHANNELS = 8; // fixed for the moment, but will probably be changed in the future
 	public static final int NUMBER_ROIs = 4; // fixed for the moment, but will could be changed in the future as this is an EPICS-level calculation
 	public static final int MCA_SIZE = 4096; // fixed for the moment, but will could be changed in the future as this is an EPICS-level calculation
 	
+	final private int numberOfDetectorChannels;
+
 	// EPICS strings in camelcase are from the Quantum Detectors API, the ones in capitals are EPICS values 
 	
 	// Control and Status
@@ -174,7 +175,8 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<Integer> pvHDFNumCapture;
 
 
-	public EpicsXspress3ControllerPvProvider(String epicsTemplate) throws FactoryException {
+	public EpicsXspress3ControllerPvProvider(String epicsTemplate, int numberOfDetectorChannels) throws FactoryException {
+		this.numberOfDetectorChannels = numberOfDetectorChannels;
 		if (epicsTemplate == null || epicsTemplate.isEmpty()){
 			throw new FactoryException("Epics template has not been set!");
 		}
@@ -241,34 +243,34 @@ public class EpicsXspress3ControllerPvProvider {
 
 	@SuppressWarnings("unchecked")
 	private void createReadoutPVs() {
-		pvsScalerWindow1 = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
-		pvsScalerWindow2 = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
+		pvsScalerWindow1 = new ReadOnlyPV[numberOfDetectorChannels];
+		pvsScalerWindow2 = new ReadOnlyPV[numberOfDetectorChannels];
 		
-		pvsScaWin1Low = new PV[NUMBER_DETECTOR_CHANNELS];
-		pvsScaWin1LowRBV = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
-		pvsScaWin1High = new PV[NUMBER_DETECTOR_CHANNELS];
-		pvsScaWin1HighRBV = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
-		pvsScaWin2Low = new PV[NUMBER_DETECTOR_CHANNELS];
-		pvsScaWin2LowRBV = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
-		pvsScaWin2High = new PV[NUMBER_DETECTOR_CHANNELS];
-		pvsScaWin2HighRBV = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
+		pvsScaWin1Low = new PV[numberOfDetectorChannels];
+		pvsScaWin1LowRBV = new ReadOnlyPV[numberOfDetectorChannels];
+		pvsScaWin1High = new PV[numberOfDetectorChannels];
+		pvsScaWin1HighRBV = new ReadOnlyPV[numberOfDetectorChannels];
+		pvsScaWin2Low = new PV[numberOfDetectorChannels];
+		pvsScaWin2LowRBV = new ReadOnlyPV[numberOfDetectorChannels];
+		pvsScaWin2High = new PV[numberOfDetectorChannels];
+		pvsScaWin2HighRBV = new ReadOnlyPV[numberOfDetectorChannels];
 		
-		pvsTime = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
-		pvsResetTicks = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
-		pvsResetCount = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
-		pvsAllEvent = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
-		pvsAllGood = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
-		pvsPileup = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
+		pvsTime = new ReadOnlyPV[numberOfDetectorChannels];
+		pvsResetTicks = new ReadOnlyPV[numberOfDetectorChannels];
+		pvsResetCount = new ReadOnlyPV[numberOfDetectorChannels];
+		pvsAllEvent = new ReadOnlyPV[numberOfDetectorChannels];
+		pvsAllGood = new ReadOnlyPV[numberOfDetectorChannels];
+		pvsPileup = new ReadOnlyPV[numberOfDetectorChannels];
 		
-		pvsGoodEventGradient = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
-		pvsGoodEventOffset = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
-		pvsInWinEventGradient = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
-		pvsInWinEventOffset = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
+		pvsGoodEventGradient = new ReadOnlyPV[numberOfDetectorChannels];
+		pvsGoodEventOffset = new ReadOnlyPV[numberOfDetectorChannels];
+		pvsInWinEventGradient = new ReadOnlyPV[numberOfDetectorChannels];
+		pvsInWinEventOffset = new ReadOnlyPV[numberOfDetectorChannels];
 
-		pvsLatestMCA = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
-		pvsLatestMCASummed = new ReadOnlyPV[NUMBER_DETECTOR_CHANNELS];
+		pvsLatestMCA = new ReadOnlyPV[numberOfDetectorChannels];
+		pvsLatestMCASummed = new ReadOnlyPV[numberOfDetectorChannels];
 		
-		for (int channel = 1; channel <= NUMBER_DETECTOR_CHANNELS; channel++){
+		for (int channel = 1; channel <= numberOfDetectorChannels; channel++){
 			pvsScalerWindow1[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_WIN1_SCAS_TEMPLATE,channel));
 			pvsScalerWindow2[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_WIN2_SCAS_TEMPLATE,channel));
 
@@ -301,13 +303,13 @@ public class EpicsXspress3ControllerPvProvider {
 	
 	@SuppressWarnings("unchecked")
 	private void createMCAPVs() {
-		pvsROILLM = new PV[NUMBER_ROIs][NUMBER_DETECTOR_CHANNELS];
-		pvsROIHLM = new PV[NUMBER_ROIs][NUMBER_DETECTOR_CHANNELS];
-		pvsLatestROI = new ReadOnlyPV[NUMBER_ROIs][NUMBER_DETECTOR_CHANNELS];
-		pvsROIs = new ReadOnlyPV[NUMBER_ROIs][NUMBER_DETECTOR_CHANNELS];
+		pvsROILLM = new PV[NUMBER_ROIs][numberOfDetectorChannels];
+		pvsROIHLM = new PV[NUMBER_ROIs][numberOfDetectorChannels];
+		pvsLatestROI = new ReadOnlyPV[NUMBER_ROIs][numberOfDetectorChannels];
+		pvsROIs = new ReadOnlyPV[NUMBER_ROIs][numberOfDetectorChannels];
 		
 		for (int roi = 1; roi <= NUMBER_ROIs; roi++){
-			for (int channel = 1; channel <= NUMBER_DETECTOR_CHANNELS; channel++){
+			for (int channel = 1; channel <= numberOfDetectorChannels; channel++){
 				pvsROILLM[roi-1][channel-1] = LazyPVFactory.newIntegerPV(generatePVName(ROI_LOW_BIN_TEMPLATE,channel,roi));
 				pvsROIHLM[roi-1][channel-1] = LazyPVFactory.newIntegerPV(generatePVName(ROI_HIGH_BIN_TEMPLATE,channel,roi));
 				pvsLatestROI[roi-1][channel-1] = LazyPVFactory.newReadOnlyDoublePV(generatePVName(ROI_COUNT_TEMPLATE,channel,roi));

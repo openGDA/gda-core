@@ -56,8 +56,8 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	private int numRoiToRead;
 	private String template;
 	private int nextNumber;
-
 	private int[] fileDimensions;
+	private int numberOfChannels;
 
 	public DummyXspress3Controller(Tfg tfg, DummyDAServer daServer) {
 		super();
@@ -471,4 +471,13 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 		// do nothing in this sim
 	}
 
+	@Override
+	public int getNumberOfChannels() {
+		// defines the size of data arrays
+		return numberOfChannels;
+	}
+
+	public void setNumberOfChannels(int numberOfChannels) {
+		this.numberOfChannels = numberOfChannels;
+	}
 }

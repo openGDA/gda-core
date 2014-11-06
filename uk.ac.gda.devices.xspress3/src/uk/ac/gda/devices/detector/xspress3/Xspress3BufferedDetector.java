@@ -342,14 +342,6 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		xspress3Detector.setFirstChannelToRead(firstChannelToRead);
 	}
 
-	public int getNumberOfChannelsToRead() {
-		return xspress3Detector.getNumberOfChannelsToRead();
-	}
-
-	public void setNumberOfChannelsToRead(int numberOfChannelsToRead) {
-		xspress3Detector.setNumberOfChannelsToRead(numberOfChannelsToRead);
-	}
-
 	public String[] getInputNames() {
 		return xspress3Detector.getInputNames();
 	}

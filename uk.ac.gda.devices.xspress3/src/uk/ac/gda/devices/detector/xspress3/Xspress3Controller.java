@@ -248,4 +248,6 @@ public interface Xspress3Controller extends Findable{
 	public void configure() throws FactoryException;
 
 	public int getNumFramesPerReadout() throws DeviceException;
+	
+	public int getNumberOfChannels();
 }

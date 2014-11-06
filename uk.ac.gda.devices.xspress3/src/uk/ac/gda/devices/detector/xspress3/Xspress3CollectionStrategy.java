@@ -5,7 +5,6 @@ import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
-import gda.epics.CAClient;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.scan.ScanInformation;

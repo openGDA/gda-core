@@ -38,13 +38,15 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	private int numRoiToRead = 1;
 
 	private int[] dimensionsOfLastFile;
+	
+	private int numberOfDetectorChannels = 4;
 
 	@Override
 	public void configure() throws FactoryException {
 		if (epicsTemplate == null || epicsTemplate.isEmpty()) {
 			throw new FactoryException("Epics template has not been set!");
 		}
-		pvProvider = new EpicsXspress3ControllerPvProvider(epicsTemplate);
+		pvProvider = new EpicsXspress3ControllerPvProvider(epicsTemplate, numberOfDetectorChannels);
 
 		try {
 			Boolean epicsConnectionToHardware = pvProvider.pvIsConnected.get() == CONNECTION_STATE.Connected;
@@ -64,6 +66,20 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	@Override
 	public void setNumberROIToRead(int numRoiToRead) throws IllegalArgumentException {
 		this.numRoiToRead = numRoiToRead;
+	}
+
+	/**
+	 * Used to derive the available PVs.
+	 * 
+	 * @return
+	 */
+	@Override
+	public int getNumberOfChannels() {
+		return numberOfDetectorChannels;
+	}
+
+	public void setNumberOfChannels(int numberOfDetectorChannels) {
+		this.numberOfDetectorChannels = numberOfDetectorChannels;
 	}
 
 	@Override
