@@ -156,7 +156,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private String[] cellIDs;
 	private String[] calibrants;
 	
-	private final String columnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.ACTIVE, SampleTableConstants.SAMPLE_NAME,
+	private final String columnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.PROGRESS, SampleTableConstants.ACTIVE, SampleTableConstants.SAMPLE_NAME,
 			SampleTableConstants.CELL_ID, SampleTableConstants.VISIT_ID, SampleTableConstants.CALIBRANT_NAME, SampleTableConstants.CALIBRANT_X, 
 			SampleTableConstants.CALIBRANT_Y, SampleTableConstants.CALIBRANT_EXPOSURE, SampleTableConstants.SAMPLE_X_START, SampleTableConstants.SAMPLE_X_STOP, 
 			SampleTableConstants.SAMPLE_X_STEP, SampleTableConstants.SAMPLE_Y_START, SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, 
@@ -164,7 +164,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, SampleTableConstants.COMMAND, 
 			SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT,SampleTableConstants.COMMENT };
 
-	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 50, false), new ColumnWeightData(10, 35, false),new ColumnWeightData(80, 110, true), 
+	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 50, false),new ColumnWeightData(10, 70, false), new ColumnWeightData(10, 35, false),new ColumnWeightData(80, 110, true), 
 			new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),
 			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
 			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
@@ -230,12 +230,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		
 		viewer.setContentProvider(new SampleGroupViewContentProvider(getResUtil()));
 		viewer.setLabelProvider(new SampleGroupViewLabelProvider());
-		
-//		progressColumn = new TableViewerColumn(viewer, table.getColumn(0));
-		
-		progressColumn= new TableViewerColumn(viewer, SWT.CENTER);
-		progressColumn.getColumn().setText("Progress");
-		progressColumn.getColumn().setWidth(150);
 		
 		samples = Collections.emptyList();
 		try {
@@ -436,7 +430,12 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new ViewerDragAdapter(viewer));
 		viewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new EditingDomainViewerDropAdapter(editingDomain, viewer));
 
-		ProgressLabelProvider progressLabelProvider = new ProgressLabelProvider(viewer);
+//		progressColumn = new TableViewerColumn(viewer, table.getColumn(0));
+		
+		progressColumn= new TableViewerColumn(viewer, viewer.getTable().getColumn(1));
+//		progressColumn.getColumn().setText("Progress");
+//		progressColumn.getColumn().setWidth(150);
+		ProgressLabelProvider progressLabelProvider = new ProgressLabelProvider(viewer, samples);
 		
 		if (getEventAdminName()!=null) {
 			eventAdmin = Finder.getInstance().find(getEventAdminName());

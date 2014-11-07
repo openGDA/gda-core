@@ -3,7 +3,8 @@ package org.opengda.lde.ui.providers;
 public interface SampleTableConstants {
 
 	final static int COL_STATUS = 0;
-	static final int COL_ACTIVE = COL_STATUS + 1;
+	static final int COL_PROGRESS = COL_STATUS + 1;
+	static final int COL_ACTIVE = COL_PROGRESS + 1;
 	static final int COL_SAMPLE_NAME = COL_ACTIVE + 1;
 	static final int COL_CELL_ID = COL_SAMPLE_NAME + 1;
 	static final int COL_VISIT_ID = COL_CELL_ID + 1;
@@ -30,6 +31,7 @@ public interface SampleTableConstants {
 	static final int COL_COMMENT = COL_DATA_FILE_COUNT + 1;
 
 	static final String STATUS = "Run\nState";
+	static final String PROGRESS = "Progress";
 	static final String ACTIVE = "Use";
 	static final String SAMPLE_NAME = "Sample\nName";
 	static final String CELL_ID = "Cell\nID";
