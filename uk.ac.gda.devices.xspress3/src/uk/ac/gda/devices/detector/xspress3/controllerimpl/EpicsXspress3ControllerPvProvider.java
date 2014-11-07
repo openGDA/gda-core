@@ -72,9 +72,8 @@ public class EpicsXspress3ControllerPvProvider {
 	// MCA and ROI
 	private static String ROI_LOW_BIN_TEMPLATE = ":C%1d_MCA_ROI%1d_LLM";  // channel (1-8),ROI (1-4)
 	private static String ROI_HIGH_BIN_TEMPLATE = ":C%1d_MCA_ROI%1d_HLM";// channel (1-8),ROI (1-4)
-	// temp unitl bug fixed
-	private static String ROI_COUNT_TEMPLATE = ";C%1d_SCA5:Value_RBV";// channel (1-8),ROI (1-4)
-	private static String ROIS_TEMPLATE = ":C%1d_SCA5:ArrayData_RBV.VAL"; // channel (1-8),ROI (1-4) this points towards a waveform
+	private static String ROI_COUNT_TEMPLATE = ";C%1d_ROI%1d:Value_RBV";// channel (1-8),ROI (1-4)
+	private static String ROIS_TEMPLATE = ":C%1d_ROI%1d:ArrayData_RBV.VAL"; // channel (1-8),ROI (1-4) this points towards a waveform
 	private static String MCA_TEMPLATE = ":ARR%1d:ArrayData";// channel (1-8) this points towards a waveform
 	private static String MCA_SUM_TEMPLATE = ":ARRSUM%1d:ArrayData";// channel (1-8) this points towards a waveform
 	

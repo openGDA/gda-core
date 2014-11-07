@@ -320,10 +320,25 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 				thisFrame.addData(detTree, regionNames[region], new int[] { controller.getNumberOfChannels()}, NexusFile.NX_FLOAT64, countsPerChannel, unitsLabel, 2);
 			}
 			
-			// add the ROIs as the plottable values (seen in Jython Terminal and ASCII files)
+//			// add the FFs as the plottable values (seen in Jython Terminal and ASCII files)
+//			for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
+//				thisFrame.setPlottableValue(getExtraNames()[chan], FFs[frame][chan]);
+//			}
+			
+			// add all the rois as plottable values, plus a final FF.
+			int index = 0;
+			double ffSum = 0;
+			String[] extraNames = getExtraNames();
 			for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
-				thisFrame.setPlottableValue(getExtraNames()[chan], FFs[frame][chan]);
+				for (int roi = 0; roi < controller.getNumberROIToRead(); roi++) {
+					double roiCounts = data[frame][chan][roi];
+					ffSum += roiCounts;
+					thisFrame.setPlottableValue(extraNames[index], roiCounts);
+					index++;
+				}
 			}
+			thisFrame.setPlottableValue("FF", ffSum);
+
 			
 			// Add link to MCA data files
 			// Only need to do this for the very first frame of a file. This assumes a 2D scan.
@@ -371,12 +386,26 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 
 	@Override
 	public String[] getExtraNames() {
-		// these are the plottable values. For this detector it is the FF for
-		// each channel
-		String[] extraNames = new String[controller.getNumberOfChannels()];
-		for (int i = 0; i < controller.getNumberOfChannels(); i++) {
-			extraNames[i] = "Chan" + (firstChannelToRead + i);
+//		// these are the plottable values. For this detector it is the FF for
+//		// each channel
+//		String[] extraNames = new String[controller.getNumberOfChannels()];
+//		for (int i = 0; i < controller.getNumberOfChannels(); i++) {
+//			extraNames[i] = "Chan" + (firstChannelToRead + i);
+//		}
+//		return extraNames;
+		
+		int numExtraNames = (controller.getNumberROIToRead() * controller.getNumberOfChannels()) + 1;
+		String[] extraNames = new String[numExtraNames];
+		int index = 0;
+		for(int chan = 0; chan < controller.getNumberOfChannels(); chan++){
+			for(int roi = 0; roi < controller.getNumberROIToRead(); roi++){
+				String valueName = "Chan"+chan+"_"+regionNames[roi];
+				extraNames[index] = valueName;
+				index++;
+			}
 		}
+		extraNames[numExtraNames-1] = "FF";
+		
 		return extraNames;
 	}
 
