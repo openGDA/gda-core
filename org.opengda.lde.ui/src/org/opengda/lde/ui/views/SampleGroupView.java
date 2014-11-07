@@ -1,6 +1,7 @@
 package org.opengda.lde.ui.views;
 
 import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
 import gda.device.detector.pixium.events.ScanEndEvent;
 import gda.device.detector.pixium.events.ScanPointStartEvent;
 import gda.device.detector.pixium.events.ScanStartEvent;
@@ -311,7 +312,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtScanNumber.setEditable(false);
 		txtScanNumber.setForeground(ColorConstants.lightGreen);
 		txtScanNumber.setBackground(ColorConstants.black);
-		txtScanNumber.setText("12345");
+		txtScanNumber.setText("display current scan number");
 		GridData gd_txtScanNumber = new GridData(SWT.FILL, SWT.CENTER, true,
 				false, 1, 1);
 		gd_txtScanNumber.widthHint = 60;
@@ -324,7 +325,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtSamplename.setEditable(false);
 		txtSamplename.setForeground(ColorConstants.lightGreen);
 		txtSamplename.setBackground(ColorConstants.black);
-		txtSamplename.setText("sampleName");
+		txtSamplename.setText("display current sample name");
 		GridData gd_txtSamplename = new GridData(SWT.FILL, SWT.CENTER, true,
 				false, 1, 1);
 		gd_txtSamplename.widthHint = 100;
@@ -338,7 +339,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtStagename.setEditable(false);
 		txtStagename.setForeground(ColorConstants.lightGreen);
 		txtStagename.setBackground(ColorConstants.black);
-		txtStagename.setText("stageName");
+		txtStagename.setText("display current stage name");
 		txtStagename.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
 		Label lblCollectionNumber = new Label(grpDataCollectionProgress, SWT.NONE);
@@ -348,7 +349,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtCollectionNumber.setEditable(false);
 		txtCollectionNumber.setBackground(ColorConstants.black);
 		txtCollectionNumber.setForeground(ColorConstants.lightGreen);
-		txtCollectionNumber.setText("2/4");
+		txtCollectionNumber.setText("0/0");
 		GridData gd_txtCollectionNumber = new GridData(SWT.FILL, SWT.CENTER, true,
 				false, 1, 1);
 		gd_txtCollectionNumber.widthHint = 40;
@@ -361,7 +362,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtScanPointNumber.setEditable(false);
 		txtScanPointNumber.setForeground(ColorConstants.lightGreen);
 		txtScanPointNumber.setBackground(ColorConstants.black);
-		txtScanPointNumber.setText("1/3");
+		txtScanPointNumber.setText("0/0");
 		GridData gd_txtScanPointNumber = new GridData(SWT.FILL, SWT.CENTER,true, false, 1, 1);
 		gd_txtScanPointNumber.widthHint = 40;
 		txtScanPointNumber.setLayoutData(gd_txtScanPointNumber);
@@ -449,7 +450,17 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		progressColumn.setLabelProvider(progressLabelProvider);
 		
 		images = loadAnimatedGIF(viewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
-
+		String beamline=null;
+		if ((beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME))!=null) {
+			NumTracker tracker;
+			try {
+				tracker = new NumTracker(beamline);
+				int currentFileNumber = tracker.getCurrentFileNumber();
+				txtScanNumber.setText(String.valueOf(currentFileNumber));
+			} catch (IOException e) {
+				logger.error("Failed on getting file tracker", e);
+			}
+		}
 	}
 
 	private Image[] loadAnimatedGIF(Display display, String imagePath) {
