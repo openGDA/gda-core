@@ -57,6 +57,7 @@ import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.VortexROI;
+import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
@@ -122,21 +123,15 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	}
 
 	private void getWindowsfromBean() {
-//		try {
-//			detectorBean = BeansFactory.getBeanObject(null, detectorBeanFileName);
-//		} catch (Exception e) {
-//			logger.error("Error loading bean from " + detectorBeanFileName, e);
-//		}
 		numberOfSubDetectors = getNumberOfEnabledMCA();
 
 		for (Detector detector : detectors) {
-			if (detector instanceof XspressDetector) {
-				XspressDetector xspress = (XspressDetector) detector;
-				detectorName = xspress.getName();
-				roiNames = new String[((XspressParameters) detectorBean).getDetector(0).getRegionList().size()];
+			if (detector instanceof XspressDetector || detector instanceof Xspress2BufferedDetector) {
+				detectorName = detector.getName();
+				DetectorElement detElement = ((XspressParameters) detectorBean).getDetector(0);
+				roiNames = new String[detElement.getRegionList().size()];
 				for (int roiIndex = 0; roiIndex < roiNames.length; roiIndex++) {
-					roiNames[roiIndex] = ((XspressParameters) detectorBean).getDetector(0).getRegionList()
-							.get(roiIndex).getRoiName();
+					roiNames[roiIndex] = detElement.getRegionList().get(roiIndex).getRoiName();
 				}
 				fillRoiNames();
 				elementRois = new List[numberOfSubDetectors];
@@ -144,8 +139,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					elementRois[detectorNo] = ((XspressParameters) detectorBean).getDetector(detectorNo)
 							.getRegionList();
 			} else if (detector instanceof XmapDetector) {
-				XmapDetector xspress = (XmapDetector) detector;
-				detectorName = xspress.getName();
+				detectorName = detector.getName();
 				roiNames = new String[((VortexParameters) detectorBean).getDetector(0).getRegionList().size()];
 				for (int roiIndex = 0; roiIndex < roiNames.length; roiIndex++) {
 					roiNames[roiIndex] = ((VortexParameters) detectorBean).getDetector(0).getRegionList().get(roiIndex)

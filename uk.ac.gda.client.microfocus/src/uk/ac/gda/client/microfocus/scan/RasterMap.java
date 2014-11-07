@@ -34,6 +34,8 @@ import gda.scan.ContinuousScan;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.server.exafs.scan.BeamlinePreparer;
 import uk.ac.gda.server.exafs.scan.OutputPreparer;
@@ -94,7 +96,13 @@ public class RasterMap extends StepMap implements MappingScan {
 		
 		//TODO have not done the custom settings for raster maps for the monitor objects
 		
-		Object[] args = new Object[] {yMotor, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),  mapScanParameters.getYStepSize(), trajectoryBeamMonitor, cs, positionReader};
+		Object[] args = new Object[] {yMotor, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),  mapScanParameters.getYStepSize(), trajectoryBeamMonitor, cs};
+		
+		// add a Scannable, if defined, which fetches the motor readback values from the Epics Trajectory template after the trajectory completes.
+		if (positionReader != null){
+			args = ArrayUtils.add(args, positionReader);
+		}
+		
 		return args;
 	}
 

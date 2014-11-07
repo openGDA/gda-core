@@ -54,10 +54,10 @@ import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 @PrepareForTest({ ScannableCommands.class, ConcurrentScan.class })
 public class RasterMapTest {
 
-	private MicrofocusMapTestComponent testHelper;
+	protected MicrofocusMapTestComponent testHelper;
 	private ScanPlotSettings mockPlotSettings;
-	private XasScanBase mapscan;
-	private ContinuouslyScannable x_traj_scannable;
+	protected XasScanBase mapscan;
+	protected ContinuouslyScannable x_traj_scannable;
 	private ConcurrentScan mockScan;
 
 	@Before
@@ -113,12 +113,7 @@ public class RasterMapTest {
 		SampleEnvironmentIterator it = createSingleScanIterator();
 		Mockito.when(testHelper.getSamplePreparer().createIterator("Fluorescence")).thenReturn(it);
 
-		mapscan = new RasterMap(testHelper.getBeamlinepreparer(),
-				(RasterMapDetectorPreparer) testHelper.getDetectorPreparer(), testHelper.getSamplePreparer(),
-				testHelper.getOutputPreparer(), testHelper.getCommandQueueProcessor(),
-				testHelper.getXASLoggingScriptController(), testHelper.getDatawriterconfig(),
-				new ArrayList<AsciiMetadataConfig>(), testHelper.getEnergy_scannable(), testHelper.getMetashop(), true,
-				x_traj_scannable, null, testHelper.getY_scannable(), testHelper.getZ_scannable(), null, null);
+		createMapScan();
 
 		mapscan.doCollection(testHelper.getSampleParams(), testHelper.getMapscanParams(), testHelper.getDetParams(),
 				testHelper.getOutputParams(), testHelper.getXspressConfigurationParameters(),
@@ -170,6 +165,15 @@ public class RasterMapTest {
 		inorder.verify(testHelper.getOutputParams()).getAfterScriptName();
 		inorder.verify(testHelper.getDetectorPreparer()).completeCollection();
 		inorder.verify(testHelper.getBeamlinepreparer()).completeExperiment();
+	}
+
+	protected void createMapScan() {
+		mapscan = new RasterMap(testHelper.getBeamlinepreparer(),
+				(RasterMapDetectorPreparer) testHelper.getDetectorPreparer(), testHelper.getSamplePreparer(),
+				testHelper.getOutputPreparer(), testHelper.getCommandQueueProcessor(),
+				testHelper.getXASLoggingScriptController(), testHelper.getDatawriterconfig(),
+				new ArrayList<AsciiMetadataConfig>(), testHelper.getEnergy_scannable(), testHelper.getMetashop(), true,
+				x_traj_scannable, null, testHelper.getY_scannable(), testHelper.getZ_scannable(), null, null);
 	}
 
 	private BufferedDetector[] createBufferedDetectors() throws DeviceException {
