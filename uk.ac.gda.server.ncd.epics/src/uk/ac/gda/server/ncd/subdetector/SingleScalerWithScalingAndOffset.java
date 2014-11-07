@@ -191,19 +191,19 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implemen
 
 	@Override
 	public float[] readFloat(int frame) throws DeviceException {
-		float[] data = super.readFloat(frame);
+		float[] data = super.readFloat(channel,0,0,1,1,frame);
+		logger.trace("Raw data before scaling: {}", data);
+		return applyOffsetAndScaling(data);
+	}
+	@Override
+	public double[] read(int frame) throws DeviceException {
+		double[] data = super.read(channel,0,0,1,1,frame);
 		logger.trace("Raw data before scaling: {}", data);
 		return applyOffsetAndScaling(data);
 	}
 	@Override
 	public float[] readFloat(int x, int y, int t, int dx, int dy, int dt) throws DeviceException {
 		float[] data = super.readFloat(x, y, t, dx, dy, dt);
-		logger.trace("Raw data before scaling: {}", data);
-		return applyOffsetAndScaling(data);
-	}
-	@Override
-	public double[] read(int frame) throws DeviceException {
-		double[] data = super.read(frame);
 		logger.trace("Raw data before scaling: {}", data);
 		return applyOffsetAndScaling(data);
 	}

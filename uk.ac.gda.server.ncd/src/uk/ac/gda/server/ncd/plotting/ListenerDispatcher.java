@@ -205,7 +205,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 				}
 				if (sub instanceof NcdScalerDetector) {
 					NcdScalerDetector nsd = ((NcdScalerDetector)sub);
-					float[] data = nsd.readFloat(1,0,0,1,1,frame+1);
+					float[] data = nsd.readFloat(frame+1);
 					logger.debug("data: {}, length: {}", data, data.length);
 					if (data.length > 0) {
 						rateCollection.add(new NormalisationUpdate(nsd.getName(), data[frame]/countingTime));
