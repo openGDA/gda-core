@@ -8,7 +8,7 @@ import gda.device.scannable.scannablegroup.ScannableGroup;
 
 public class DetectorArm extends ScannableGroup {
 	//TODO define detector safe position
-	private double parkPosition = 29000.0;
+	private double parkPosition = 2900.0;
 	private double positionTolerance=0.001;
 
 	public Scannable getXMotor() {
