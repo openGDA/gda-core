@@ -31,9 +31,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
@@ -105,6 +103,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.internal.AnimationEngine;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.lde.events.ProcessMessage;
 import org.opengda.lde.events.SampleChangedEvent;
 import org.opengda.lde.events.SampleProcessingEvent;
 import org.opengda.lde.events.SampleStatusEvent;
@@ -117,7 +116,6 @@ import org.opengda.lde.model.ldeexperiment.SampleList;
 import org.opengda.lde.ui.Activator;
 import org.opengda.lde.ui.ImageConstants;
 import org.opengda.lde.ui.cdatetime.CDateTimeCellEditor;
-import org.opengda.lde.ui.jobs.SampleCollectionJob;
 import org.opengda.lde.ui.providers.ProgressLabelProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewContentProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewLabelProvider;
@@ -166,7 +164,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, SampleTableConstants.COMMAND, 
 			SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT,SampleTableConstants.COMMENT };
 
-	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 150, false), new ColumnWeightData(10, 35, false),new ColumnWeightData(80, 110, true), 
+	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 50, false), new ColumnWeightData(10, 35, false),new ColumnWeightData(80, 110, true), 
 			new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),
 			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
 			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
@@ -296,12 +294,12 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		grpMinColltionTime.setText("No. Collections");
 		grpMinColltionTime.setLayout(new RowLayout(SWT.HORIZONTAL));
 
-		txtTotalTime = new Text(grpMinColltionTime, SWT.BORDER | SWT.RIGHT);
-		txtTotalTime.setLayoutData(new RowData(100, SWT.DEFAULT));
-		txtTotalTime.setForeground(ColorConstants.lightGreen);
-		txtTotalTime.setText("0");
-		txtTotalTime.setEditable(false);
-		txtTotalTime.setBackground(ColorConstants.black);
+		txtTotalNumberCollections = new Text(grpMinColltionTime, SWT.BORDER | SWT.RIGHT);
+		txtTotalNumberCollections.setLayoutData(new RowData(100, SWT.DEFAULT));
+		txtTotalNumberCollections.setForeground(ColorConstants.lightGreen);
+		txtTotalNumberCollections.setText("0");
+		txtTotalNumberCollections.setEditable(false);
+		txtTotalNumberCollections.setBackground(ColorConstants.black);
 
 		Group grpDataCollectionProgress = new Group(statusArea, SWT.NONE);
 		grpDataCollectionProgress.setLayout(new GridLayout(10, false));
@@ -356,7 +354,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtCollectionNumber.setEditable(false);
 		txtCollectionNumber.setBackground(ColorConstants.black);
 		txtCollectionNumber.setForeground(ColorConstants.lightGreen);
-		txtCollectionNumber.setText("0/0");
+		txtCollectionNumber.setText("2/4");
 		GridData gd_txtCollectionNumber = new GridData(SWT.FILL, SWT.CENTER, true,
 				false, 1, 1);
 		gd_txtCollectionNumber.widthHint = 40;
@@ -396,39 +394,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		// register as selection listener of sample view if exist
 //		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SampleViewExtensionFactory.ID, selectionListener);
 		
-		Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
-			@Override
-			public void done(IJobChangeEvent event) {
-				Job job = event.getJob();
-				if (job instanceof SampleCollectionJob) {
-					SampleCollectionJob regionJob = (SampleCollectionJob) job;
-					IStatus result = event.getResult();
-					if (result.isOK()) {
-						updateSampleStatus(regionJob, STATUS.COMPLETED);
-					} else if (result.getSeverity() == IStatus.CANCEL) {
-						updateSampleStatus(regionJob, STATUS.ABORTED);
-					} else if (result.getSeverity() == IStatus.ERROR) {
-						updateSampleStatus(regionJob, STATUS.ABORTED);
-					}
-
-					if (Job.getJobManager().find(SampleCollectionJob.FAMILY_SAMPLE_JOB).length == 0) {
-						logger.info("Samples {} collection completed.", getResUtil().getFileName());
-						updateActionIconsState();
-					}
-				}
-				super.done(event);
-			}
-
-			@Override
-			public void running(IJobChangeEvent event) {
-				Job job = event.getJob();
-				if (job instanceof SampleCollectionJob) {
-					final SampleCollectionJob regionJob = (SampleCollectionJob) job;
-					updateSampleStatus(regionJob, STATUS.RUNNING);
-				}
-				super.running(event);
-			}
-		});
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "org.opengda.lde.ui.viewer");
 		makeActions();
@@ -467,9 +432,12 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		}
 		
 		samples=sampleList.getSamples();
+		
 		viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new ViewerDragAdapter(viewer));
 		viewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new EditingDomainViewerDropAdapter(editingDomain, viewer));
+
 		ProgressLabelProvider progressLabelProvider = new ProgressLabelProvider(viewer);
+		
 		if (getEventAdminName()!=null) {
 			eventAdmin = Finder.getInstance().find(getEventAdminName());
 			if (eventAdmin!=null) {
@@ -478,7 +446,9 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				eventAdmin.addIObserver(progressLabelProvider);
 			}
 		}
+		
 		progressColumn.setLabelProvider(progressLabelProvider);
+		
 		images = loadAnimatedGIF(viewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
 
 	}
@@ -505,6 +475,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	protected AnimationEngine animation=null;
 
 	@Override
+	@SuppressWarnings("restriction")
 	public void update(Object source, final Object arg) {
 		if (source==eventAdmin) {
 			if (arg instanceof ScanStartEvent) {
@@ -561,15 +532,16 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				final String currentSampleName = event.getCurrentSampleName();
 				final int currentSampleNumber = event.getCurrentSampleNumber();
 				final int totalNumberActiveSamples = event.getTotalNumberActiveSamples();
-				int currentCalibrationNumber = event.getCurrentCalibrationNumber();
-				int totalNumberCalibrations = event.getTotalNumberCalibrations();
+				final int currentCalibrationNumber = event.getCurrentCalibrationNumber();
+				final int totalNumberCalibrations = event.getTotalNumberCalibrations();
 				
 				Display.getDefault().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
 						txtSamplename.setText(currentSampleName);
-						updateSampleNumber(currentSampleNumber,totalNumberActiveSamples);
+						txtTotalNumberCollections.setText(String.valueOf(totalNumberActiveSamples+totalNumberCalibrations));
+						updateCollectionNumber(currentSampleNumber+currentCalibrationNumber,totalNumberActiveSamples+totalNumberCalibrations);
 					}
 				});
 			} else if (arg instanceof SampleChangedEvent) {
@@ -621,10 +593,19 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 						}
 					}
 				});
-			} 
+			} else if (arg instanceof ProcessMessage) {
+				final String message = ((ProcessMessage)arg).getMessage();
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						txtProgressMessage.setText(message);
+					}
+				});
+				
+			}
 		}
 	}
-	private void updateSampleNumber(int currentSampleNumber,int totalNumberActiveSamples) {
+	private void updateCollectionNumber(int currentSampleNumber,int totalNumberActiveSamples) {
 		txtCollectionNumber.setText(String.valueOf(currentSampleNumber) + '/'+ String.valueOf(totalNumberActiveSamples));
 	}
 
@@ -1440,19 +1421,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			skipAction.setEnabled(false);
 		}
 	}
-	
-	private void updateSampleStatus(final SampleCollectionJob sampleJob, final STATUS status) {
-		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
-			@Override
-			public void run() {
-				Sample sample = sampleJob.getSample();
-				sample.setStatus(status);
-				viewer.refresh();
-			}
-		});
-	}
-	
 	private Adapter notifyListener = new EContentAdapter() {
 
 		@Override
@@ -1467,7 +1436,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			}
 		}
 	};
-	private Text txtTotalTime;
+	private Text txtTotalNumberCollections;
 	private Text txtSamplesfile;
 	private Text txtActivesamples;
 	private Text txtDataFilePath;

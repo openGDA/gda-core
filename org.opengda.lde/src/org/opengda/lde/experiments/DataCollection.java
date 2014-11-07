@@ -610,8 +610,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			logger.info(message);
 		print(message);
 		if (eventAdmin != null) {
-			((ScriptControllerBase) eventAdmin).update(eventAdmin,
-					new ProcessMessage(message));
+			((ScriptControllerBase) eventAdmin).update(eventAdmin,new ProcessMessage(message));
 		}
 	}
 
