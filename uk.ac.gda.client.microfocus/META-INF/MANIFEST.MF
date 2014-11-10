@@ -44,8 +44,7 @@ Export-Package: uk.ac.gda.client.microfocus.controller,
  uk.ac.gda.client.microfocus.util,
  uk.ac.gda.client.microfocus.views,
  uk.ac.gda.client.microfocus.views.scan,
- uk.ac.gda.microfocus.ui.describers,
- uk.ac.gda.server.exafs.scan
+ uk.ac.gda.microfocus.ui.describers
 Bundle-ActivationPolicy: lazy
 Import-Package: Jama,
  org.eclipse.draw2d,
