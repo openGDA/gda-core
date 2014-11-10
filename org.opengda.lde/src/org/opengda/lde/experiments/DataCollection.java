@@ -34,6 +34,7 @@ import org.opengda.lde.events.SampleStatusEvent;
 import org.opengda.lde.events.StageChangedEvent;
 import org.opengda.lde.model.ldeexperiment.STATUS;
 import org.opengda.lde.model.ldeexperiment.Sample;
+import org.opengda.lde.scannables.DataReductionScannable;
 import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -458,6 +459,9 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		InterfaceProvider.getJSFObserver().addIObserver(this);
 		checkForPauseAndInterruption();
 		try {
+			if (getDatareduction() instanceof DataReductionScannable) {
+				((DataReductionScannable)getDatareduction()).setCalibrant(true);
+			}
 			ScannableCommands.scan(getDatareduction(), 1,1,1, getPixium(), currentSample.getCalibrant_exposure());
 			stage.setDetectorCalibrated(true);
 		} catch (Exception e) {
@@ -563,6 +567,10 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			scanparameters.add(pixium);
 			double sample_exposure = sample.getSample_exposure();
 			scanparameters.add(sample_exposure);
+			if (getDatareduction() instanceof DataReductionScannable) {
+				((DataReductionScannable)getDatareduction()).setCalibrant(false);
+				((DataReductionScannable)getDatareduction()).setSampleID(sample.getSampleID());
+			}
 			scanparameters.add(datareduction);
 			//set data directory
 			LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, getDataDirectory(sample));

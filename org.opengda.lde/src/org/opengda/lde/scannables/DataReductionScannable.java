@@ -18,12 +18,15 @@ import gda.observable.IObserver;
 import gda.util.OSCommandRunner;
 import gda.util.Sleep;
 
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.apache.commons.collections4.map.HashedMap;
+import org.apache.commons.io.FilenameUtils;
 import org.opengda.lde.events.DataReductionFailedEvent;
 import org.opengda.lde.events.NewDataFileEvent;
 import org.slf4j.Logger;
@@ -41,6 +44,9 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 	private double timeout=30000; //30 seconds
 	private StringValueScannable currentCalibrationScannable;
 	private SimpleUDPServerScannable simpleUDPServer;
+	private String sampleID=null;
+	private Map<String, String> map=new HashedMap<String, String>();
+
 	
 	@Override
 	public void configure() throws FactoryException {
@@ -107,6 +113,9 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 						return;
 					}
 					command=LocalProperties.get("gda.lde.datareduction.software","/dls_sw/apps/i11-scripts/bin/LDE-RunFromGDAAtEndOfScan.sh")+" "+getCurrentCalibrantDataFilename()+" "+filename;
+					if (getSampleID()!=null) {
+						map.put(FilenameUtils.getBaseName(filename), getSampleID());
+					}
 				}
 				Callable<String> r = new Callable<String>() {
 					@Override
@@ -218,8 +227,13 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 				if (fields[0].equalsIgnoreCase("OK")) {
 					InterfaceProvider.getTerminalPrinter().print("Plotting reduced data from file "+fields[1]);
 					logger.info("Plotting reduced data from file {}",fields[1]);
+					String baseName = FilenameUtils.getBaseName(fields[1]);
+					String sampleid = map.get(baseName);
 					if (getEventAdmin() != null) {
-						((ScriptControllerBase)eventAdmin).update(getEventAdmin(), new NewDataFileEvent(fields[1]));
+						((ScriptControllerBase)eventAdmin).update(getEventAdmin(), new NewDataFileEvent(sampleid, fields[1]));
+					}
+					if (map.containsKey(baseName)) {
+						map.remove(baseName);
 					}
 				} else if (fields[0].equalsIgnoreCase("FAIL")) {
 					InterfaceProvider.getTerminalPrinter().print("Data reduction failed: "+fields[1]);
@@ -230,5 +244,11 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 				}
 			}
 		}
+	}
+	public String getSampleID() {
+		return sampleID;
+	}
+	public void setSampleID(String sampleID) {
+		this.sampleID = sampleID;
 	}
 }
