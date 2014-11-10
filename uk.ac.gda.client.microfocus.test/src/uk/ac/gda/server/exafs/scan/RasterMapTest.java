@@ -19,13 +19,17 @@
 package uk.ac.gda.server.exafs.scan;
 
 import gda.data.scan.datawriter.AsciiMetadataConfig;
+import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.BufferedDetector;
 import gda.device.detector.countertimer.BufferedScaler;
 import gda.device.detector.xspress.Xspress2BufferedDetector;
 import gda.device.scannable.ContinuouslyScannable;
+import gda.device.scannable.LineRepeatingBeamMonitor;
+import gda.device.scannable.RealPositionReader;
 import gda.jython.commands.ScannableCommands;
+import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.scan.ConcurrentScan;
 import gda.scan.ContinuousScan;
 import gda.scan.ScanPlotSettings;
@@ -46,7 +50,7 @@ import org.powermock.api.support.membermodification.strategy.MethodStubStrategy;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import uk.ac.gda.client.microfocus.scan.RasterMap;
+import uk.ac.gda.client.microfocus.scan.MapFactory;
 import uk.ac.gda.client.microfocus.scan.RasterMapDetectorPreparer;
 import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 
@@ -107,8 +111,7 @@ public class RasterMapTest {
 
 		BufferedDetector[] detectors = createBufferedDetectors();
 		testHelper.setDetectorPreparer(PowerMockito.mock(RasterMapDetectorPreparer.class));
-		Mockito.when(((RasterMapDetectorPreparer) testHelper.getDetectorPreparer()).getRasterMapDetectors())
-				.thenReturn(detectors);
+		Mockito.when(testHelper.getDetectorPreparer().getRasterMapDetectors()).thenReturn(detectors);
 
 		SampleEnvironmentIterator it = createSingleScanIterator();
 		Mockito.when(testHelper.getSamplePreparer().createIterator("Fluorescence")).thenReturn(it);
@@ -168,12 +171,33 @@ public class RasterMapTest {
 	}
 
 	protected void createMapScan() {
-		mapscan = new RasterMap(testHelper.getBeamlinepreparer(),
-				(RasterMapDetectorPreparer) testHelper.getDetectorPreparer(), testHelper.getSamplePreparer(),
-				testHelper.getOutputPreparer(), testHelper.getCommandQueueProcessor(),
-				testHelper.getXASLoggingScriptController(), testHelper.getDatawriterconfig(),
-				new ArrayList<AsciiMetadataConfig>(), testHelper.getEnergy_scannable(), testHelper.getMetashop(), true,
-				x_traj_scannable, null, testHelper.getY_scannable(), testHelper.getZ_scannable(), null, null);
+
+		MapFactory theFactory = new MapFactory();
+
+		theFactory.setBeamlinePreparer(testHelper.getBeamlinepreparer());
+		theFactory.setDetectorPreparer(testHelper.getDetectorPreparer());
+		theFactory.setSamplePreparer(testHelper.getSamplePreparer());
+		theFactory.setOutputPreparer(testHelper.getOutputPreparer());
+		theFactory.setCommandQueueProcessor(testHelper.getCommandQueueProcessor());
+		theFactory.setXASLoggingScriptController(testHelper.getXASLoggingScriptController());
+		theFactory.setDatawriterconfig(testHelper.getDatawriterconfig());
+		theFactory.setEnergyScannable(testHelper.getEnergy_scannable());
+		theFactory.setMetashop(testHelper.getMetashop());
+		theFactory.setIncludeSampleNameInNexusName(true);
+		theFactory.setOriginal_header(new ArrayList<AsciiMetadataConfig>());
+
+		theFactory.setCounterTimer(Mockito.mock(CounterTimer.class));
+		theFactory.setxScan(x_traj_scannable);
+		theFactory.setyScan(testHelper.getY_scannable());
+		theFactory.setzScan(testHelper.getZ_scannable());
+		theFactory.setElementListScriptController(Mockito.mock(ScriptControllerBase.class));
+
+		theFactory.setRasterMapDetectorPreparer(testHelper.getDetectorPreparer());
+		theFactory.setTrajectoryMotor(x_traj_scannable);
+		theFactory.setPositionReader(PowerMockito.mock(RealPositionReader.class));
+		theFactory.setTrajectoryBeamMonitor(PowerMockito.mock(LineRepeatingBeamMonitor.class));
+
+		mapscan = theFactory.createRasterMap();
 	}
 
 	private BufferedDetector[] createBufferedDetectors() throws DeviceException {

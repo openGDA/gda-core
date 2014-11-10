@@ -25,7 +25,7 @@ import uk.ac.gda.beans.exafs.XasScanParameters;
 
 public class EnergyScan extends XasScanBase {
 
-	public EnergyScan(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer,
+	protected EnergyScan(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer,
 			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
 			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable, NXMetaDataProvider metashop,

@@ -19,23 +19,49 @@
 package uk.ac.gda.server.exafs.scan;
 
 import gda.data.scan.datawriter.AsciiMetadataConfig;
+import gda.device.CounterTimer;
+import gda.device.scannable.LineRepeatingBeamMonitor;
+import gda.device.scannable.RealPositionReader;
+import gda.jython.scriptcontroller.ScriptControllerBase;
 
 import java.util.ArrayList;
 
-import uk.ac.gda.client.microfocus.scan.FasterRasterMap;
-import uk.ac.gda.client.microfocus.scan.RasterMapDetectorPreparer;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
 
-public class FasterRasterMapTest extends RasterMapTest{
-	
-	
+import uk.ac.gda.client.microfocus.scan.MapFactory;
+
+public class FasterRasterMapTest extends RasterMapTest {
+
 	@Override
 	protected void createMapScan() {
-		mapscan = new FasterRasterMap(testHelper.getBeamlinepreparer(),
-				(RasterMapDetectorPreparer) testHelper.getDetectorPreparer(), testHelper.getSamplePreparer(),
-				testHelper.getOutputPreparer(), testHelper.getCommandQueueProcessor(),
-				testHelper.getXASLoggingScriptController(), testHelper.getDatawriterconfig(),
-				new ArrayList<AsciiMetadataConfig>(), testHelper.getEnergy_scannable(), testHelper.getMetashop(), true,
-				x_traj_scannable, null, testHelper.getY_scannable(), testHelper.getZ_scannable(), null, null);
+
+		MapFactory theFactory = new MapFactory();
+
+		theFactory.setBeamlinePreparer(testHelper.getBeamlinepreparer());
+		theFactory.setDetectorPreparer(testHelper.getDetectorPreparer());
+		theFactory.setSamplePreparer(testHelper.getSamplePreparer());
+		theFactory.setOutputPreparer(testHelper.getOutputPreparer());
+		theFactory.setCommandQueueProcessor(testHelper.getCommandQueueProcessor());
+		theFactory.setXASLoggingScriptController(testHelper.getXASLoggingScriptController());
+		theFactory.setDatawriterconfig(testHelper.getDatawriterconfig());
+		theFactory.setEnergyScannable(testHelper.getEnergy_scannable());
+		theFactory.setMetashop(testHelper.getMetashop());
+		theFactory.setIncludeSampleNameInNexusName(true);
+		theFactory.setOriginal_header(new ArrayList<AsciiMetadataConfig>());
+
+		theFactory.setCounterTimer(Mockito.mock(CounterTimer.class));
+		theFactory.setxScan(x_traj_scannable);
+		theFactory.setyScan(testHelper.getY_scannable());
+		theFactory.setzScan(testHelper.getZ_scannable());
+		theFactory.setElementListScriptController(Mockito.mock(ScriptControllerBase.class));
+
+		theFactory.setRasterMapDetectorPreparer(testHelper.getDetectorPreparer());
+		theFactory.setTrajectoryMotor(x_traj_scannable);
+		theFactory.setPositionReader(PowerMockito.mock(RealPositionReader.class));
+		theFactory.setTrajectoryBeamMonitor(PowerMockito.mock(LineRepeatingBeamMonitor.class));
+
+		mapscan = theFactory.createFasterRasterMap();
 	}
 
 }

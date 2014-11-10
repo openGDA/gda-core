@@ -63,7 +63,7 @@ import uk.ac.gda.client.microfocus.scan.RasterMapDetectorPreparer;
 public class MicrofocusMapTestComponent {
 
 	private BeamlinePreparer beamlinepreparer;
-	private DetectorPreparer detectorPreparer;
+	private RasterMapDetectorPreparer detectorPreparer;
 	private SampleEnvironmentPreparer samplePreparer;
 	private OutputPreparer outputPreparer;
 	private Processor commandQueueProcessor;
@@ -124,7 +124,7 @@ public class MicrofocusMapTestComponent {
 
 		// create the preparers
 		beamlinepreparer = PowerMockito.mock(BeamlinePreparer.class);
-		detectorPreparer = PowerMockito.mock(DetectorPreparer.class);
+		detectorPreparer = PowerMockito.mock(RasterMapDetectorPreparer.class);
 		samplePreparer = PowerMockito.mock(SampleEnvironmentPreparer.class);
 		outputPreparer = PowerMockito.mock(OutputPreparer.class);
 		commandQueueProcessor = PowerMockito.mock(Processor.class);
@@ -236,7 +236,7 @@ public class MicrofocusMapTestComponent {
 		return beamlinepreparer;
 	}
 
-	public DetectorPreparer getDetectorPreparer() {
+	public RasterMapDetectorPreparer getDetectorPreparer() {
 		return detectorPreparer;
 	}
 

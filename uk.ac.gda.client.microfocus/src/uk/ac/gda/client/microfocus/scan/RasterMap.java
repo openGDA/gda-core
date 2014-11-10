@@ -48,12 +48,12 @@ import uk.ac.gda.server.exafs.scan.SampleEnvironmentPreparer;
  */
 public class RasterMap extends StepMap implements MappingScan {
 
-	private ContinuouslyScannable trajectoryMotor;
+	protected ContinuouslyScannable trajectoryMotor;
 	private RasterMapDetectorPreparer bufferedDetectorPreparer;
-	private RealPositionReader positionReader;
-	private LineRepeatingBeamMonitor trajectoryBeamMonitor;
+	protected RealPositionReader positionReader;
+	protected LineRepeatingBeamMonitor trajectoryBeamMonitor;
 	
-	public RasterMap(BeamlinePreparer beamlinePreparer, RasterMapDetectorPreparer detectorPreparer,
+	RasterMap(BeamlinePreparer beamlinePreparer, RasterMapDetectorPreparer detectorPreparer,
 			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
 			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable,

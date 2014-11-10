@@ -26,10 +26,10 @@ import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
 import gda.data.scan.datawriter.XasAsciiNexusDatapointCompletingDataWriter;
+import gda.device.CounterTimer;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.detector.countertimer.TfgScalerWithFrames;
 import gda.device.scannable.ScannableUtils;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
@@ -43,9 +43,9 @@ import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.client.microfocus.scan.datawriter.MicroFocusWriterExtender;
 import uk.ac.gda.server.exafs.scan.BeamlinePreparer;
 import uk.ac.gda.server.exafs.scan.DetectorPreparer;
-import uk.ac.gda.server.exafs.scan.XasScanBase;
 import uk.ac.gda.server.exafs.scan.OutputPreparer;
 import uk.ac.gda.server.exafs.scan.SampleEnvironmentPreparer;
+import uk.ac.gda.server.exafs.scan.XasScanBase;
 
 public class StepMap extends XasScanBase implements MappingScan {
 
@@ -53,17 +53,17 @@ public class StepMap extends XasScanBase implements MappingScan {
 	protected final Scannable yMotor;
 	protected final Scannable zMotor;
 
-	private final TfgScalerWithFrames counterTimer01;
+	private final CounterTimer counterTimer01;
 
 	protected ScriptControllerBase elementListScriptController;
 	protected MicroFocusWriterExtender mfd;
 	protected MicroFocusScanParameters mapScanParameters;
 
-	public StepMap(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer,
+	StepMap(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer,
 			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
 			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable, NXMetaDataProvider metashop,
-			boolean includeSampleNameInNexusName, TfgScalerWithFrames counterTimer01, Scannable xScan, Scannable yScan,
+			boolean includeSampleNameInNexusName, CounterTimer counterTimer01, Scannable xScan, Scannable yScan,
 			Scannable zScannable, ScriptControllerBase elementListScriptController) {
 
 		super(beamlinePreparer, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor,

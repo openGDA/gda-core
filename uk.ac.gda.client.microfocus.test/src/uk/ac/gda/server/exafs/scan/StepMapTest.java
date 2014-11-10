@@ -19,10 +19,12 @@
 package uk.ac.gda.server.exafs.scan;
 
 import gda.data.scan.datawriter.AsciiMetadataConfig;
+import gda.device.CounterTimer;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableMotor;
 import gda.jython.commands.ScannableCommands;
+import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.scan.ConcurrentScan;
 import gda.scan.ScanPlotSettings;
 
@@ -42,7 +44,7 @@ import org.powermock.api.support.membermodification.strategy.MethodStubStrategy;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import uk.ac.gda.client.microfocus.scan.StepMap;
+import uk.ac.gda.client.microfocus.scan.MapFactory;
 import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 
 @RunWith(PowerMockRunner.class)
@@ -93,13 +95,28 @@ public class StepMapTest {
 		SampleEnvironmentIterator it = createSingleScanIterator();
 		Mockito.when(testHelper.getSamplePreparer().createIterator("Fluorescence")).thenReturn(it);
 
-		// create XasScan object
-		mapscan = new StepMap(testHelper.getBeamlinepreparer(), testHelper.getDetectorPreparer(),
-				testHelper.getSamplePreparer(), testHelper.getOutputPreparer(), testHelper.getCommandQueueProcessor(),
-				testHelper.getXASLoggingScriptController(), testHelper.getDatawriterconfig(),
-				new ArrayList<AsciiMetadataConfig>(), testHelper.getEnergy_scannable(), testHelper.getMetashop(), true,
-				testHelper.getIonchambers(), x_scannable, testHelper.getY_scannable(), testHelper.getZ_scannable(),
-				null);
+		// create MapScan object
+		MapFactory theFactory = new MapFactory();
+
+		theFactory.setBeamlinePreparer(testHelper.getBeamlinepreparer());
+		theFactory.setDetectorPreparer(testHelper.getDetectorPreparer());
+		theFactory.setSamplePreparer(testHelper.getSamplePreparer());
+		theFactory.setOutputPreparer(testHelper.getOutputPreparer());
+		theFactory.setCommandQueueProcessor(testHelper.getCommandQueueProcessor());
+		theFactory.setXASLoggingScriptController(testHelper.getXASLoggingScriptController());
+		theFactory.setDatawriterconfig(testHelper.getDatawriterconfig());
+		theFactory.setEnergyScannable(testHelper.getEnergy_scannable());
+		theFactory.setMetashop(testHelper.getMetashop());
+		theFactory.setIncludeSampleNameInNexusName(true);
+		theFactory.setOriginal_header(new ArrayList<AsciiMetadataConfig>());
+
+		theFactory.setCounterTimer(Mockito.mock(CounterTimer.class));
+		theFactory.setxScan(x_scannable);
+		theFactory.setyScan(testHelper.getY_scannable());
+		theFactory.setzScan(testHelper.getZ_scannable());
+		theFactory.setElementListScriptController(Mockito.mock(ScriptControllerBase.class));
+
+		mapscan = theFactory.createStepMap();
 
 		mapscan.doCollection(testHelper.getSampleParams(), testHelper.getMapscanParams(), testHelper.getDetParams(),
 				testHelper.getOutputParams(), testHelper.getXspressConfigurationParameters(),

@@ -43,7 +43,7 @@ public class QexafsScan extends EnergyScan {
 	private ContinuouslyScannable qexafsScanable;
 	private QexafsDetectorPreparer qexafsdetectorPreparer;
 
-	public QexafsScan(BeamlinePreparer beamlinePreparer, QexafsDetectorPreparer detectorPreparer,
+	protected QexafsScan(BeamlinePreparer beamlinePreparer, QexafsDetectorPreparer detectorPreparer,
 			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
 			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
 			ArrayList<AsciiMetadataConfig> original_header, ContinuouslyScannable energy_scannable,
