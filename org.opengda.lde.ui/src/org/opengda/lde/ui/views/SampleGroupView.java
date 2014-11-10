@@ -104,6 +104,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.internal.AnimationEngine;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.lde.events.DataReductionFailedEvent;
+import org.opengda.lde.events.NewDataFileEvent;
 import org.opengda.lde.events.ProcessMessage;
 import org.opengda.lde.events.SampleChangedEvent;
 import org.opengda.lde.events.SampleProcessingEvent;
@@ -612,6 +614,22 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 					}
 				});
 				
+			} else if (arg instanceof NewDataFileEvent) {
+				NewDataFileEvent event = ((NewDataFileEvent)arg);
+				String sampleID = event.getSampleID();
+				for (Sample sample : samples) {
+					if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
+						sendEmailToUsers(sample);
+					}
+				}
+			} else if (arg instanceof DataReductionFailedEvent) {
+				final String message = ((DataReductionFailedEvent)arg).getMesaage();
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						txtProgressMessage.setText(message);
+					}
+				});
 			}
 		}
 	}
@@ -637,9 +655,10 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 					}
 					final String senderName=LocalProperties.get("org.opengda.mail.sender.name","i11-LDE");
 					//TODO changeto i11-LDE operation email account please
-					final String senderEmail=LocalProperties.get("org.opengda.mail.sender.email","dag-group@diamond.ac.uk");
-					final String description="Data for sample "+sample.getName()+" are available now for download/view at " +sample.getDataFilePath()+".";
-					
+					final String senderEmail=LocalProperties.get("org.opengda.mail.sender.email","chiu.tang@diamond.ac.uk");
+					String description="Data for sample "+sample.getName()+" are available now for download and view.\n";
+					description+="To download raw data files, please log into http://icat.diamond.ac.uk \n";
+					description+= "To view and download reducted data please visit http://ispyb.diamond.ac.uk/dc/visit/"+sample.getVisitID()+"\n";
 					final String from = String.format("%s <%s>", senderName, senderEmail);
 					
 					final String beamlineName = LocalProperties.get("gda.beamline.name","Beamline Unknown");
