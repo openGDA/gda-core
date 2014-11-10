@@ -27,6 +27,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
@@ -44,6 +45,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.opengda.lde.events.NewDataFileEvent;
+import org.opengda.lde.model.ldeexperiment.Sample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +60,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(ReducedDataPlotComposite.class);
 
-	private static final String SPECTRUM_PLOT = "Spectrum";
+	private static final String SPECTRUM_PLOT = "Pattern";
 	private IPlottingSystem plottingSystem;
 	private ILineTrace profileLineTrace;
 	
@@ -121,7 +123,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 		});
 	}
 
-	private void updatePlot(final IProgressMonitor monitor, String value) {
+	private void updatePlot(final IProgressMonitor monitor, String value, final String sampleName) {
 		File file= new File(value);
 		long starttime=System.currentTimeMillis();
 		long timer=0;
@@ -164,7 +166,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 					if (!profileLineTraces.isEmpty()) {
 						plottingSystem.setShowLegend(false);
 						// plottingSystem.getSelectedYAxis().setTitle(dataset.getName());
-						plottingSystem.setTitle("");
+						plottingSystem.setTitle(sampleName);
 						profileLineTrace = (ILineTrace) profileLineTraces.get(0);
 						profileLineTrace.setTraceColor(ColorConstants.blue);
 					}
@@ -180,9 +182,21 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 			if (arg instanceof NewDataFileEvent) {
 				Display.getDefault().asyncExec(new Runnable() {
 					
+					private List<Sample> samples;
+
 					@Override
 					public void run() {
-						updatePlot(new NullProgressMonitor(), ((NewDataFileEvent)arg).getFilename());
+						String sampleID = ((NewDataFileEvent)arg).getSampleID();
+						String filename = ((NewDataFileEvent)arg).getFilename();
+						if (sampleID!=null) {
+							for (Sample sample : samples) {
+								if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
+									updatePlot(new NullProgressMonitor(), filename,sample.getName());
+								}
+							}
+						} else {
+							updatePlot(new NullProgressMonitor(), filename,FilenameUtils.getName(filename));
+						}
 					}
 				});
 			}
