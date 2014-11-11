@@ -91,7 +91,7 @@ public class RasterMap extends StepMap implements MappingScan {
 		return args;
 	}
 
-	protected Object[] buildListOfArguments(BufferedDetector[] detectorList) {
+	protected Object[] buildListOfArguments(BufferedDetector[] detectorList){
 		ContinuousScan cs = new ContinuousScan(trajectoryMotor, mapScanParameters.getXStart(), mapScanParameters.getXEnd(), calculateNumberXPoints(), mapScanParameters.getRowTime(), detectorList) ;
 		
 		//TODO have not done the custom settings for raster maps for the monitor objects

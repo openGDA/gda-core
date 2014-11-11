@@ -153,6 +153,7 @@ public class MicrofocusMapTestComponent {
 		mapscanParams.setRaster(false);
 		mapscanParams.setCollectionTime(1.);
 		mapscanParams.setZValue(6.0);
+		mapscanParams.setRowTime(10.0);
 
 		Set<IonChamberParameters> ionParamsSet = makeIonChamberParameters();
 
