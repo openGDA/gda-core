@@ -5,6 +5,7 @@ import gda.rcp.views.FindableExecutableExtension;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.lde.ui.views.ReducedDataPlotView;
+import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,7 @@ public class ReducedDataPlotViewFactory implements FindableExecutableExtension {
 	private String viewPartName;
 	private String name;
 	private String eventAdminName;
+	private LDEResourceUtil resUtil;
 	
 	@Override
 	public Object create() throws CoreException {
@@ -20,6 +22,7 @@ public class ReducedDataPlotViewFactory implements FindableExecutableExtension {
 		ReducedDataPlotView plotView = new ReducedDataPlotView();
 		plotView.setViewPartName(viewPartName);
 		plotView.setEventAdminName(eventAdminName);
+		plotView.setResUtil(getResUtil());
 		return plotView;
 	}
 
@@ -61,5 +64,13 @@ public class ReducedDataPlotViewFactory implements FindableExecutableExtension {
 
 	public void setEventAdminName(String eventAdminName) {
 		this.eventAdminName = eventAdminName;
+	}
+
+	public LDEResourceUtil getResUtil() {
+		return resUtil;
+	}
+
+	public void setResUtil(LDEResourceUtil resUtil) {
+		this.resUtil = resUtil;
 	}
 }

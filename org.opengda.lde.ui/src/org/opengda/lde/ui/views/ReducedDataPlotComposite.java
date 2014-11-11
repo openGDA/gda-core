@@ -46,6 +46,7 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.opengda.lde.events.NewDataFileEvent;
 import org.opengda.lde.model.ldeexperiment.Sample;
+import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +68,8 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 	private Scriptcontroller eventAdmin;
 	private String eventAdminName;
 	private String plotName;
+	private LDEResourceUtil resUtil;
+	private List<Sample> samples;
 
 	/**
 	 * @param parent
@@ -99,6 +102,13 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 		if (eventAdminName!=null) {
 			eventAdmin=Finder.getInstance().find(eventAdminName);
 			if (eventAdmin != null) eventAdmin.addIObserver(this);
+		}
+		if (resUtil!=null) {
+			try {
+				samples=resUtil.getSamples();
+			} catch (Exception e) {
+				logger.error("Cannot retieve sample definitions from LDE resource util.", e);
+			}
 		}
 	}
 	@Override
@@ -180,9 +190,9 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 	public void update(Object source, final Object arg) {
 		if (source == eventAdmin) {
 			if (arg instanceof NewDataFileEvent) {
+
 				Display.getDefault().asyncExec(new Runnable() {
 					
-					private List<Sample> samples;
 
 					@Override
 					public void run() {
@@ -191,7 +201,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 						if (sampleID!=null) {
 							for (Sample sample : samples) {
 								if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
-									updatePlot(new NullProgressMonitor(), filename,sample.getName());
+									updatePlot(new NullProgressMonitor(), filename,sample.getName()+" - "+FilenameUtils.getName(filename));
 								}
 							}
 						} else {
@@ -217,5 +227,13 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 
 	public void setEventAdminName(String eventAdminName) {
 		this.eventAdminName = eventAdminName;
+	}
+
+	public LDEResourceUtil getResUtil() {
+		return resUtil;
+	}
+
+	public void setResUtil(LDEResourceUtil resUtil) {
+		this.resUtil = resUtil;
 	}
 }

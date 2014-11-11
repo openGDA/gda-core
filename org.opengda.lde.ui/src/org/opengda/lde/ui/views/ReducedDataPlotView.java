@@ -4,6 +4,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,7 @@ public class ReducedDataPlotView extends ViewPart {
 	public static final String ID = "org.opengda.lde.ui.views.reducdeddataplotview";
 	private ReducedDataPlotComposite plotComposite;
 	private String eventAdminName;
+	private LDEResourceUtil resUtil;
 	
 	public ReducedDataPlotView() {
 		setTitleToolTip("live display of integrated spectrum");
@@ -28,6 +30,7 @@ public class ReducedDataPlotView extends ViewPart {
 		try {
 			plotComposite = new ReducedDataPlotComposite(this, rootComposite, SWT.None);
 			plotComposite.setEventAdminName(eventAdminName);
+			plotComposite.setResUtil(getResUtil());
 			plotComposite.setPlotName(getPartName());
 			plotComposite.initialise();
 			
@@ -51,5 +54,13 @@ public class ReducedDataPlotView extends ViewPart {
 
 	public void setEventAdminName(String eventAdminName) {
 		this.eventAdminName = eventAdminName;
+	}
+
+	public LDEResourceUtil getResUtil() {
+		return resUtil;
+	}
+
+	public void setResUtil(LDEResourceUtil resUtil) {
+		this.resUtil = resUtil;
 	}
 }
