@@ -53,6 +53,8 @@ public class ContinuousScan extends ConcurrentScanChild {
 	private BufferedDetector[] qscanDetectors;
 	private Date timeMotionFinished;
 	private long timeOfLastUpdatedScanEvent;
+	private boolean biDirectional = false;
+	private boolean lastCollectionInPositiveDirection = false;
 
 	public ContinuousScan() {
 		super();
@@ -106,18 +108,11 @@ public class ContinuousScan extends ConcurrentScanChild {
 	public void doCollection() throws Exception {
 		checkThreadInterrupted();
 		acquirePoint(true, false);
-		ContinuousParameters params = new ContinuousParameters();
-		params.setStartPosition(start);
-		params.setEndPosition(stop);
-		params.setNumberDataPoints(numberScanpoints);
-		params.setTotalTime(time);
-		params.setContinuouslyScannableName(qscanAxis.getName());
+		ContinuousParameters params = createContinuousParameters();
 		qscanAxis.setContinuousParameters(params);
 
-		// prepare the hardware for the continuous move and revise the number of scans points to the actual number which
+		// Prepare the hardware for the continuous move and revise the number of scans points to the actual number which
 		// the hardware will do.
-		// I18 had a negative number of pulses in epics. Though theres no such thing, It is working and should be
-		// handled
 		qscanAxis.prepareForContinuousMove();
 		checkThreadInterrupted();
 		numberScanpoints = Math.abs(qscanAxis.getNumberOfDataPoints());
@@ -197,6 +192,25 @@ public class ContinuousScan extends ConcurrentScanChild {
 			qscanAxis.atCommandFailure();
 			throw e;
 		}
+	}
+
+	protected ContinuousParameters createContinuousParameters() {
+		ContinuousParameters params = new ContinuousParameters();
+		params.setStartPosition(start);
+		params.setEndPosition(stop);
+		
+		if (biDirectional && lastCollectionInPositiveDirection){
+			params.setStartPosition(stop);
+			params.setEndPosition(start);
+			lastCollectionInPositiveDirection = false;
+		} else {
+			lastCollectionInPositiveDirection = true;
+		}
+		
+		params.setNumberDataPoints(numberScanpoints);
+		params.setTotalTime(time);
+		params.setContinuouslyScannableName(qscanAxis.getName());
+		return params;
 	}
 
 	private int findNumberOfFramesAvailable(int highestFrameNumberRead) throws InterruptedException {
@@ -390,6 +404,25 @@ public class ContinuousScan extends ConcurrentScanChild {
 			sendScanEvent(ScanEvent.EventType.UPDATED); // for the ApplicationActionToolBar 
 			timeOfLastUpdatedScanEvent = now;
 		}
+	}
+
+	public boolean isBiDirectional() {
+		return biDirectional;
+	}
+
+	/**
+	 * When true, when this scan is used as the innermost dimension of a multidimensional scan (nest of scans), then
+	 * each repetition will be in the opposite direction.
+	 * <p>
+	 * NB: as the data will be coming out in the reversed direction for every other scan then a custom DataWriter will
+	 * need to be used to perform the corrections to the data.
+	 * 
+	 * TODO move the functionality in XasAsciiNexusDatapointCompletingDataWriter in the exafs.datawriter plugin to core.
+	 * 
+	 * @param biDirectional
+	 */
+	public void setBiDirectional(boolean biDirectional) {
+		this.biDirectional = biDirectional;
 	}
 }
 

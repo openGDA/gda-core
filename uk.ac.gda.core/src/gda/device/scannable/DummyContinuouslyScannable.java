@@ -21,6 +21,7 @@ package gda.device.scannable;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.detector.SimulatedBufferedDetector;
+import gda.factory.FactoryException;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -36,6 +37,15 @@ public class DummyContinuouslyScannable extends ScannableMotionUnitsBase impleme
 
 	private volatile double currentPosition = 0;
 	private volatile boolean busy = false;
+	
+	
+	@Override
+	public void configure() throws FactoryException {
+		super.configure();
+		inputNames = new String[]{getName()};
+		extraNames = new String[]{};
+		outputFormat = new String[]{"%.2f"};
+	}
 
 	@Override
 	public void asynchronousMoveTo(Object externalPosition) throws DeviceException {
@@ -157,8 +167,9 @@ public class DummyContinuouslyScannable extends ScannableMotionUnitsBase impleme
 
 	@Override
 	public double calculateEnergy(int frameIndex) {
-		// TODO Auto-generated method stub
-		return 0;
+		double start = continuousParameters.getStartPosition();
+		double step = (continuousParameters.getEndPosition() - start) / (continuousParameters.getNumberDataPoints() - 1);
+		return start + (step * frameIndex);
 	}
 
 	@Override
