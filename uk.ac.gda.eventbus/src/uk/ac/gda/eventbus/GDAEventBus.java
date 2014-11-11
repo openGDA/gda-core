@@ -34,9 +34,10 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
 
 import com.google.common.base.Objects;
 import com.google.common.eventbus.DeadEvent;
@@ -86,6 +87,12 @@ public class GDAEventBus extends EventBus {
 	private MessageConsumer consumer;
 	private MessageProducer producer;
 
+	public GDAEventBus(String identifier) {
+		this.identifier = identifier;
+		
+		delegate = new EventBus(); //TODO use AsyncEventBus instead?
+	}
+
 	public GDAEventBus() {
 		this("default");
 	}
@@ -94,14 +101,8 @@ public class GDAEventBus extends EventBus {
 		this("default", connectionFactory);
 	}
 
-	public GDAEventBus(String identifier) {
-		this(identifier, new ActiveMQConnectionFactory("tcp://localhost:61616"));
-	}
-		
 	public GDAEventBus(String identifier, ConnectionFactory connectionFactory) {
-		this.identifier = identifier;
-		
-		delegate = new EventBus();
+		this(identifier);
 		
 		// publish(Serializable event) { producer.send(ObjectMessage message) }
 		
@@ -206,6 +207,7 @@ public class GDAEventBus extends EventBus {
 //		return delegate.toString(); // does the same but with MoreObjects in Guava > 16
 	}
 
+	@SuppressWarnings("unused")
 	private static void example() {
 		GDAEventBus bus = new GDAEventBus(); // identifier "default"
 		
@@ -213,7 +215,7 @@ public class GDAEventBus extends EventBus {
 		bus.register(new Object() {
 			@Subscribe
 			public void openingGambit(String s) {
-				logger.info("read " + (s.trim().split("\\s").length == 1 ? "single " : "multi-") + "word String: {}", s);
+				logger.info("read " + (s.trim().split("\\s").length == 1 ? "single " : "multi-") + "word String: \"{}\"", s);
 			}
 		});
 		
@@ -224,8 +226,12 @@ public class GDAEventBus extends EventBus {
 				logger.info("determined Integer to be " + (i < 0 ? "negative" : "positive") + ": {}", i);
 			}
 			@Subscribe
-			public void whichClass(T n) {
-				logger.error("passed a object of type " + n.getClass().getName() + ": {}", n);
+			public void lessThanZero(Double d) {
+				logger.info("determined Double to be " + (d < 0 ? "negative" : "positive") + ": {}", d);
+			}
+			@Subscribe
+			public void whichClass(T n) { // https://github.com/google/guava/issues/1549 ?
+				logger.debug("passed object of type " + n.getClass().getName() + ": {}", n);
 			}
 		}
 		
@@ -256,17 +262,24 @@ public class GDAEventBus extends EventBus {
 		// and don't forget to unregister unnecessary handlers
 		bus.unregister(anyEventHandler);
 		
+		bus.post(1);
+		bus.post(-2.0);
+		bus.post("Three little birds");
 	}
 
 	public static void main(String[] args) throws Exception {
+		((ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.apache.activemq.transport")).setLevel(Level.INFO);
+		((ch.qos.logback.classic.Logger) logger).setLevel(Level.INFO);
 //		example();
 		testActiveMq();
 	}
 
 	private static void testActiveMq() throws InterruptedException, JMSException {
+		
 		// create
-		GDAEventBus eventBus1 = new GDAEventBus("testCamel GDAEventBus 1");
-		GDAEventBus eventBus2 = new GDAEventBus("testCamel GDAEventBus 2");
+		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+		GDAEventBus eventBus1 = new GDAEventBus("eventBus1", connectionFactory);
+		GDAEventBus eventBus2 = new GDAEventBus("eventBus2", connectionFactory);
 //		eventBus2 = eventBus1; // can be the same!
 		
 		// ready
@@ -277,6 +290,8 @@ public class GDAEventBus extends EventBus {
 				System.out.println(event);
 			}
 		};
+		
+		// set
 		eventBus1.register(handler);
 		eventBus2.register(handler);
 		
