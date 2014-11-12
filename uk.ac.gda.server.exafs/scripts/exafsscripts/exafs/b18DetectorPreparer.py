@@ -116,11 +116,12 @@ class B18DetectorPreparer:
         nexusSubFolder = experimentFolderName +"/" + outputBean.getNexusDirectory()
         asciiSubFolder = experimentFolderName +"/" + outputBean.getAsciiDirectory()
         
-        print "Moving DCM for Mythen image..."
         energyForMythen = bean.getMythenEnergy()
+        print "Moving DCM for Mythen image to", energyForMythen
         self.energy_scannable(energyForMythen)
         
         collectionTime = bean.getMythenTime()
+        print "Setting Mythen collection time to",collectionTime
         self.mythen_scannable.setCollectionTime(collectionTime)
 
         self.mythen_scannable.setSubDirectory(experimentFolderName)

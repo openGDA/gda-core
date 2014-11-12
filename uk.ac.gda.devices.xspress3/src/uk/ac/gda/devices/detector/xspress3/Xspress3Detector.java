@@ -421,19 +421,6 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 
 		controller.doStop();
 
-//		int[] data = null;
-//		if (mcaHandle >= 0 && daServer != null && daServer.isConnected())
-//			data = readoutMca(0, 1, 4096); // NOTE 1 time frame
-//
-//		if (data != null) {
-//			try {
-//				int[][][][] fourD = unpackRawDataTo4D(data, 1, numResGrades(), 4096);
-//				return fourD[0];
-//			} catch (Exception e) {
-//				throw new DeviceException("Error while unpacking MCA Data. Data length was " + data.length, e);
-//			}
-//		}
-
 		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
 	}
 
@@ -563,9 +550,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 
 		Xspress3Parameters vortexParameters = (Xspress3Parameters) XMLHelpers.createFromXML(Xspress3Parameters.mappingURL,
 				Xspress3Parameters.class, Xspress3Parameters.schemaURL, getConfigFileName());
-		// Number of ROIs defined in XML file.
-//		configureRegionsOfInterest(vortexParameters);
-//		configureChannelLabels(vortexParameters);
+
 		
 		List<VortexROI> vortexRois = vortexParameters.getDetector(0).getRegionList();
 		ROI[] rois = new ROI[vortexRois.size()];
