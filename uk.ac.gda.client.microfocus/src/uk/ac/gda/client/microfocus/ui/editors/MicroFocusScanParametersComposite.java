@@ -24,22 +24,19 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
-import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
-import uk.ac.gda.richbeans.components.wrappers.LabelWrapper.TEXT_TYPE;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.richbeans.event.ValueListener;
 
 public final class MicroFocusScanParametersComposite extends Composite {
 
-	private LabelWrapper xScannableName;
-	private LabelWrapper yScannableName;
 	private ScaleBox collectionTime;
 	private ScaleBox xStart;
 	private ScaleBox yStart;
@@ -49,8 +46,6 @@ public final class MicroFocusScanParametersComposite extends Composite {
 	private ScaleBox yStepSize;
 	private ScaleBox energy;
 	private ScaleBox zValue;
-	private LabelWrapper zScannableName;
-	private LabelWrapper energyScannableName;
 	private BooleanWrapper raster;
 	private ScaleBox rowTime;
 	private Label rowDistanceLabel;
@@ -60,14 +55,16 @@ public final class MicroFocusScanParametersComposite extends Composite {
 	private Label scanTypeLabel;
 	private Composite infoComposite;
 
+	@SuppressWarnings("unused")
 	public MicroFocusScanParametersComposite(Composite parent, MicroFocusScanParameters bean, int style) {
 		super(parent, style);
-		Composite tableComposite = new Composite(this, SWT.NONE);
+		Group tableComposite = new Group(this, SWT.BORDER);
 		{
 			GridData gridData = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 			gridData.widthHint = 428;
 			tableComposite.setLayoutData(gridData);
 		}
+		tableComposite.setText("Map parameters");
 		tableComposite.setLayout(new GridLayout(2, false));
 		setLayout(new GridLayout(2, false));
 
@@ -78,21 +75,7 @@ public final class MicroFocusScanParametersComposite extends Composite {
 			label.setLayoutData(gridData);
 		}
 
-		label.setText("xScannableName");
-		this.xScannableName = new LabelWrapper(tableComposite, SWT.NONE);
-		xScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		xScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		xScannableName.setTextType(TEXT_TYPE.PLAIN_TEXT);
-
-		label = new Label(tableComposite, SWT.NONE);
-		label.setText("yScannableName");
-		this.yScannableName = new LabelWrapper(tableComposite, SWT.NONE);
-		yScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		yScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		yScannableName.setTextType(TEXT_TYPE.PLAIN_TEXT);
-
-		label = new Label(tableComposite, SWT.NONE);
-		label.setText("collectionTime");
+		label.setText("Collection Time");
 		this.collectionTime = new ScaleBox(tableComposite, SWT.NONE);
 		collectionTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		collectionTime.setMinimum(0.0);
@@ -200,14 +183,9 @@ public final class MicroFocusScanParametersComposite extends Composite {
 			}
 		});
 
-		label = new Label(tableComposite, SWT.NONE);
-		label.setText("EnergyScannableName");
-		energyScannableName = new LabelWrapper(tableComposite, SWT.NONE);
-		energyScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		energyScannableName.setTextType(TEXT_TYPE.PLAIN_TEXT);
 		
 		label = new Label(tableComposite, SWT.NONE);
-		label.setText("energies");
+		label.setText("Energy");
 		energy = new ScaleBox(tableComposite, SWT.NONE);
 		energy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		energy.setMinimum(0.0);
@@ -215,13 +193,6 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		energy.setUnit("eV");
 		energy.setDecimalPlaces(4);
 		new Label(energy, SWT.NONE);
-
-		label = new Label(tableComposite, SWT.NONE);
-		label.setText("ZScannableName");
-		zScannableName = new LabelWrapper(tableComposite, SWT.NONE);
-		zScannableName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		zScannableName.setEnabled(true);
-		zScannableName.setTextType(TEXT_TYPE.PLAIN_TEXT);
 
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("zValue");
@@ -255,7 +226,8 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		timePerPointLabel = new Label(infoComposite, SWT.NONE);
 		timePerPointLabel.setText("                                                                 ");
 
-		Composite rasterComposite = new Composite(this, SWT.NONE);
+		Group rasterComposite = new Group(this, SWT.NONE);
+		rasterComposite.setText("Raster options");
 		rasterComposite.setLayout(new GridLayout());
 		raster = new BooleanWrapper(rasterComposite, SWT.NONE);
 		raster.setText("Is Raster");
@@ -333,22 +305,6 @@ public final class MicroFocusScanParametersComposite extends Composite {
 			timePerPointLabel.setText("Time per point : " + df.format(collectionTime.getNumericValue()));
 		}
 		infoComposite.layout();
-	}
-
-	public FieldComposite getXScannableName() {
-		return xScannableName;
-	}
-
-	public FieldComposite getYScannableName() {
-		return yScannableName;
-	}
-
-	public FieldComposite getZScannableName() {
-		return zScannableName;
-	}
-
-	public FieldComposite getEnergyScannableName() {
-		return energyScannableName;
 	}
 
 	public FieldComposite getCollectionTime() {

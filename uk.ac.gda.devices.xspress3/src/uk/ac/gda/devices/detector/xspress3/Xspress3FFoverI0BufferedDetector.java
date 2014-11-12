@@ -26,6 +26,12 @@ import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.countertimer.BufferedScaler;
 
+/**
+ * Supplies a normalised FF (total counts in ROIs over all channels) during ContinuousScans for Xspress3.
+ * 
+ * @author rjw82
+ *
+ */
 public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements BufferedDetector{
 	private Xspress3BufferedDetector qxspress = null;
 	private BufferedScaler qscaler = null;

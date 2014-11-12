@@ -179,6 +179,10 @@ class Xspress3Config(VortexConfig):
         self.configuration = Xspress3DetectorConfiguration(self.xmap, self.ExafsScriptObserver)
         self.vortexUtils=Xspress3BeanUtils()
         
+<<<<<<< HEAD
     def configure(self, xmlFileName, saveRawSpectrum):
+=======
+    def configure(self, xmlFileName, saveRawSpectrum = None):
+>>>>>>> branch 'gda-8.40' of ssh://dascgitolite@dasc-git.diamond.ac.uk/gda/gda-xas-core.git
         self.configuration.configure(xmlFileName)
 

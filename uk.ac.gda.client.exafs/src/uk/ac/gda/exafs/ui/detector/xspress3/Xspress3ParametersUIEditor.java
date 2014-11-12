@@ -48,13 +48,10 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
-import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
-import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
-import uk.ac.gda.devices.detector.xspress3.FluorescenceAcquire;
+import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
@@ -66,8 +63,14 @@ import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
 import com.swtdesigner.SWTResourceManager;
+//dascgitolite@dasc-git.diamond.ac.uk/gda/gda-xas-core.git
+import uk.ac.gda.beans.exafs.DetectorParameters;
+
+import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
+import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 
 public class Xspress3ParametersUIEditor extends DetectorEditor {
+	private static final String XSPRESS3_EDITOR_DATA_XML_FILENAME = "xspress3_editor_data.xml";
 	private String detectorName;
 	protected Xspress3Parameters xspress3Parameters;
 	private static final String GDA_DEVICE_VORTEX_SPOOL_DIR = "gda.device.vortex.spoolDir";
@@ -298,7 +301,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 		if (monitor != null)
 			monitor.beginTask("Acquiring Xspress3 snapshot...", numWorkUnits);
 
-		FluorescenceAcquire theDetector = getDetector(detectorName);
+		FluorescenceDetector theDetector = getDetector(detectorName);
 		if (theDetector == null)
 			throw new Exception("Unable to find Xspress3Detector called :'" + detectorName + "'");
 
@@ -544,11 +547,11 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 	@Override
 	protected String getDataXMLName() {
 		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
-		return varDir + "/vortex_editor_data.xml";
+		return varDir + "/" + XSPRESS3_EDITOR_DATA_XML_FILENAME;
 	}
 
-	private final FluorescenceAcquire getDetector(String detectorName) {
-		FluorescenceAcquire detector = (FluorescenceAcquire) Finder.getInstance().find(detectorName);
+	private final FluorescenceDetector getDetector(String detectorName) {
+		FluorescenceDetector detector = (FluorescenceDetector) Finder.getInstance().find(detectorName);
 		return detector;
 	}
 

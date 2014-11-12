@@ -49,14 +49,10 @@ public class MicroFocusScanParametersTest {
 			fail("Invalid exception thrown - " + ex.getCause().getMessage());
 		}
 	}
-
-	
 	
 	@Test
 	public void testCreateFromXML()  throws Exception{
 		MicroFocusScanParameters mfp = new MicroFocusScanParameters();
-		mfp.setXScannableName("MicroFocusSampleX");
-		mfp.setYScannableName("MicroFocusSampleY");
 		mfp.setXStart(2.0);
 		mfp.setXEnd(8.0);
 		mfp.setXStepSize(1.0);
@@ -64,11 +60,8 @@ public class MicroFocusScanParametersTest {
 		mfp.setYEnd(4.0);
 		mfp.setYStepSize(1.0);
 		mfp.setCollectionTime(1.0);
-		mfp.setEnergyScannableName("energy");
 		mfp.setEnergy(3500.0);
-		mfp.setZScannableName("sc_sample_z");
 		mfp.setZValue(2.5);
-		mfp.setContinuousScannableName("sc_sample_z");
 		mfp.setRaster(true);
 		mfp.setRowTime(10.0);
 		MicroFocusScanParameters s = MicroFocusScanParameters.createFromXML("testfiles/uk/ac/gda/microfocus/beans/MicroFocusScanParametersTest/MFParameters_Valid.xml");
@@ -81,8 +74,6 @@ public class MicroFocusScanParametersTest {
 	public void testWriteToXML() throws Exception
 	{
 		MicroFocusScanParameters mfp = new MicroFocusScanParameters();
-		mfp.setXScannableName("MicroFocusSampleX");
-		mfp.setYScannableName("MicroFocusSampleY");
 		mfp.setEnergy(1000.0);
 		mfp.setXStart(2.0);
 		mfp.setXEnd(8.0);
@@ -91,11 +82,8 @@ public class MicroFocusScanParametersTest {
 		mfp.setYEnd(4.0);
 		mfp.setYStepSize(1.0);
 		mfp.setCollectionTime(1.0);
-		mfp.setEnergyScannableName("energy");
 		mfp.setEnergy(3500.0);
-		mfp.setZScannableName("sc_sample_z");
 		mfp.setZValue(2.5);
-		mfp.setContinuousScannableName("sc_sample_z");
 		mfp.setRaster(true);
 		mfp.setRowTime(10.0);
 		MicroFocusScanParameters.writeToXML(mfp, testScratchDirectoryName + "MFParameters_written.xml");
@@ -104,6 +92,4 @@ public class MicroFocusScanParametersTest {
 			fail("Values read are incorrect - " + mfp2.toString());
 		}
 	}
-	
-
 }

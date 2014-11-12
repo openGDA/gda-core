@@ -22,7 +22,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,19 +34,26 @@ import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.ACTIVE_MODE;
 import uk.ac.gda.richbeans.beans.BeanUI;
+import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
 import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
 import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
+import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.event.ValueAdapter;
 import uk.ac.gda.richbeans.event.ValueEvent;
+import uk.ac.gda.richbeans.event.ValueListener;
 
-// Apologies for the long name, feel free to rename it if you can come up with something shorter
 public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposite {
 	private final static Logger logger = LoggerFactory.getLogger(WorkingEnergyWithIonChambersComposite.class);
 
 	protected VerticalListEditor ionChamberParameters;
 	IonChamberComposite ionChamberComposite;
 	private DetectorParameters provider;
+	
+	// diffraction section
+	private BooleanWrapper collectDiffractionImages;
+	private ScaleBox mythenEnergy;
+	private ScaleBox mythenTime;
 
 	public WorkingEnergyWithIonChambersComposite(Composite parent, int style, DetectorParameters abean) {
 		super(parent, style, abean);
@@ -112,10 +121,69 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 			selectDefaultsBtn.addSelectionListener(selectDefaultsListener);
 		}
 	}
+	
+	protected void createDiffractionSection(final Composite top) {
+		boolean collectDiffractionData = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.SHOW_MYTHEN);
+		boolean diffractionCollectedWithFluoData = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DIFFRACTION_COLLECTED_CONCURRENTLY);
+		
+		if (collectDiffractionData) {
+			Label collectDiffImagesLabel = new Label(top, SWT.NONE);
+			collectDiffImagesLabel.setText("Diffraction Images");
+			Composite diffractionComp = new Composite(top, SWT.NONE);
+			diffractionComp.setLayout(new GridLayout(5, true));
+			collectDiffractionImages = new BooleanWrapper(diffractionComp, SWT.NONE);
+			collectDiffractionImages.setToolTipText("Collect diffraction data");
+			collectDiffractionImages.setText("Collect");
+			
+			// extra options when collecting diffraction data separately from fluo data
+			if (!diffractionCollectedWithFluoData){
+				final Label mythenEnergyLabel = new Label(diffractionComp, SWT.NONE);
+				mythenEnergyLabel.setText("     Energy");
+				mythenEnergy = new ScaleBox(diffractionComp, SWT.NONE);
+				mythenEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+				mythenEnergy.setMaximum(20000.0);
+				mythenEnergy.setUnit("eV");
+				final Label mythenTimeLabel = new Label(diffractionComp, SWT.NONE);
+				mythenTimeLabel.setText("     Time");
+				mythenTime = new ScaleBox(diffractionComp, SWT.NONE);
+				mythenTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
+				collectDiffractionImages.addValueListener(new ValueListener() {
+	
+					@Override
+					public String getValueListenerName() {
+						return null;
+					}
+	
+					@Override
+					public void valueChangePerformed(ValueEvent e) {
+						mythenEnergy.setVisible(collectDiffractionImages.getValue());
+						mythenTime.setVisible(collectDiffractionImages.getValue());
+						mythenEnergyLabel.setVisible(collectDiffractionImages.getValue());
+						mythenTimeLabel.setVisible(collectDiffractionImages.getValue());
+					}
+				});
+			}
+		}
+	}
+
+	public ScaleBox getMythenEnergy() {
+		return mythenEnergy;
+	}
+
+	public ScaleBox getMythenTime() {
+		return mythenTime;
+	}
+	
 	/**
-	 * @return BeanListEditor
+	 * Return whether or not to collect diffraction images
+	 * 
+	 * @return true if we should collect them, else false
 	 */
+	public BooleanWrapper getCollectDiffractionImages() {
+		return collectDiffractionImages;
+	}
+
 	public VerticalListEditor getIonChamberParameters() {
 		return ionChamberParameters;
 	}

@@ -59,6 +59,7 @@ import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.VortexROI;
+import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
@@ -82,6 +83,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	private boolean loadMapForScan = false;
 	private XspressParameters xspressBean;
 	private VortexParameters vortexBean;
+	private Xspress3Parameters xspress3Bean;
 	private double pointX;
 	private double pointY;
 
@@ -134,6 +136,14 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 			XspressParameters xspress = (XspressParameters) beanObject;
 			updateDetectorChannelCombo(xspress.getDetectorList().size());
 			java.util.List<XspressROI> regionList = xspress.getDetector(0).getRegionList();
+			for (int i = 0; i < regionList.size(); i++) {
+				elementList.add(regionList.get(i).getRoiName());
+			}
+		}
+		else if (beanObject instanceof Xspress3Parameters) {
+			Xspress3Parameters vortex = (Xspress3Parameters) beanObject;
+			updateDetectorChannelCombo(vortex.getDetectorList().size());
+			java.util.List<VortexROI> regionList = vortex.getDetector(0).getRegionList();
 			for (int i = 0; i < regionList.size(); i++) {
 				elementList.add(regionList.get(i).getRoiName());
 			}
@@ -322,6 +332,8 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		// get detector type xspress/vortex from nexus
 		IMetaData metadata = dataHolder.getMetadata();
 
+		elementList.removeAll();
+		
 		try {
 			String metaNames = metadata.getMetaNames().toString();
 			if (metaNames.contains("xspress2system"))
@@ -329,6 +341,9 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 			if (metaNames.contains("xmapMca"))
 				loadXmapNexus(tree, filePath);
+			
+			if (metaNames.contains("xspress3"))
+				loadXspress3Nexus(tree, filePath);
 		} catch (Exception e) {
 			logger.error("Cannot retreive metadata from nexus file " + filePath, e);
 			return;
@@ -336,6 +351,61 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 		elementList.add("I0");
 		elementList.add("It");
+	}
+
+	private void loadXspress3Nexus(final HDF5File tree, final String filePath) {
+		
+		HDF5NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
+		if (nl == null){
+			nl = tree.findNodeLink("/entry1/before_scan/DetectorConfigurationParameters");
+		}
+		String xml = nl.toString();
+		xml = xml.substring(xml.indexOf("<?xml"));
+		ByteArrayInputStream stream = new ByteArrayInputStream(xml.getBytes());
+		InputSource source = new InputSource(stream);
+
+		try {
+			xspress3Bean = (Xspress3Parameters) XMLHelpers.createFromXML(Xspress3Parameters.mappingURL,
+					Xspress3Parameters.class, Xspress3Parameters.schemaURL, source);
+		} catch (Exception e2) {
+			logger.error("Could not create Xspress3Parameters bean from nexus file", e2);
+		}
+
+		java.util.List<VortexROI> regionList = xspress3Bean.getDetector(0).getRegionList();
+		int numElements = regionList.size();
+		String[] elements = new String[numElements];
+
+		int numChannels = xspress3Bean.getDetectorList().size();
+		updateNumberDetectorChannels(numChannels);
+
+		elementList.removeAll();
+		for (int i = 0; i < numElements; i++) {
+			String roiName = regionList.get(i).getRoiName();
+			elements[i] = roiName;
+			elementList.add(roiName);
+		}
+
+		if (filePath != null) {
+			final String msg = ("Loading map from " + filePath);
+			final Integer selectedChannel = getSelectedChannel();
+			Job job = new Job(msg) {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					try {
+						displayController.displayMap(xspress3Bean.getDetector(0).getRegionList().get(0).getRoiName(),
+								filePath, xspress3Bean, selectedChannel);
+					} catch (Exception e) {
+						logger.error("Error displaying the map ", e);
+						showErrorMessage("Error displaying the map " + e.getMessage());
+					} catch (Throwable ne) {
+						logger.error("Cannot open file " + filePath, ne);
+					}
+					return Status.OK_STATUS;
+				}
+			};
+			job.setUser(true);
+			job.schedule();
+		}
 	}
 
 	@Override

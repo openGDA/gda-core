@@ -88,7 +88,6 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 	private Angle runDownPosition;
 
 	private Double maxSpeed; // in deg/sec
-	private Double desiredSpeed; // in deg/sec
 
 	private double extraRunUp = 0;
 	private boolean runUpOn = true;
@@ -156,7 +155,7 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 			}
 
 			controller.caputWait(outputModeChnl, 0); // ensure at 0 for the run-up movement. No longer in EDM screen.
-			controller.caputWait(currentSpeedChnl, getMaxSpeed()); // ensure at max speed for the run-up movement
+			controller.caputWait(currentSpeedChnl, getMaxSpeedInKeV()); // ensure at max speed for the run-up movement
 
 			if (runUpOn)
 				super.moveTo(angleToEV(runupPosition)/energyDivision);
@@ -180,16 +179,15 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 		}
 	}
 
-	private Double getMaxSpeed() {
+	private Double getMaxSpeedInKeV() {
 		if (maxSpeed == null) {
 			try {
 				maxSpeed = controller.cagetDouble(maxSpeedChnl);
 			} catch (Exception e) {
 				logger.warn("Exception while getting Bragg motor max speed. Defaulting to 0.0674934", e);
-				maxSpeed = 0.0674934; // default value in use in Sept 2010
+				maxSpeed = 1.0; // 1 keV/s
 			}
 		}
-
 		return maxSpeed;
 	}
 
@@ -197,8 +195,13 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 	public void performContinuousMove() throws DeviceException {
 		if (channelsConfigured && continuousParameters != null) {
 			try {
+				double moveTime = continuousParameters.getTotalTime();
+				double startEv = angleToEV(startAngle);
+				double endEv = angleToEV(endAngle);
+				double demandSpeedInEV = Math.abs(startEv-endEv)/moveTime;
+				double demandSpeedInKeV = demandSpeedInEV/1000.0;
 				// set the sped (do this now, after the motor has been moved to the run-up position)
-				if (desiredSpeed <= getMaxSpeed()) {
+				if (demandSpeedInKeV <= getMaxSpeedInKeV()) {
 					logger.info("*****speed test*****     before     controller.caputWait(currentSpeedChnl, desiredSpeed))");
 					// wait until run down period has finished. 5th oct 2012 trying to fix problem where sometimes a
 					// qexafs scan finishes early
@@ -206,11 +209,11 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 						logger.info("-----waiting for qscanAxis to finish moving inside perform before starting scanning. after goto runup");
 						Thread.sleep(100);
 					}
-					controller.caputWait(currentSpeedChnl, desiredSpeed);
+					controller.caputWait(currentSpeedChnl, demandSpeedInKeV);
 				} else {
 					logger.info("Continuous motion for " + getName()
 							+ " greater than Bragg maximum speed. Speed will be set instead to the max imum speed of "
-							+ getMaxSpeed() + " deg/s");
+							+ getMaxSpeedInKeV() + " keV/s");
 				}
 				controller.caputWait(outputModeChnl, 2);
 				if (runDownOn){
@@ -230,7 +233,7 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 		try {
 			// return to regular running values
 			controller.caputWait(outputModeChnl, 0);
-			controller.caputWait(currentSpeedChnl, getMaxSpeed());
+			controller.caputWait(currentSpeedChnl, getMaxSpeedInKeV());
 		} catch (Exception e) {
 			throw new DeviceException("Exception while switching output mode to \'off\'", e);
 		}
@@ -246,7 +249,7 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 		try {
 			// return to regular running values
 			controller.caputWait(outputModeChnl, 0);
-			controller.caputWait(currentSpeedChnl, getMaxSpeed());
+			controller.caputWait(currentSpeedChnl, getMaxSpeedInKeV());
 			if (energySwitchPV != null) {
 				controller.caputWait(energySwitchChnl, 0); // off
 				controller.caputWait(energySwitchChnl, 1); // on
@@ -321,7 +324,7 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 
 		// v^2 = u^2 + 2as
 		double acceleration = controller.cagetDouble(accelChnl);
-		desiredSpeed = Math.abs(radToDeg(endAngle) - radToDeg(startAngle)) / continuousParameters.getTotalTime();
+		double desiredSpeed = Math.abs(radToDeg(endAngle) - radToDeg(startAngle)) / continuousParameters.getTotalTime();
 		final double runUp = (desiredSpeed * desiredSpeed) / (2 * acceleration);
 		Angle runUpAngle = (Angle) QuantityFactory.createFromObject(runUp, NonSI.DEGREE_ANGLE);
 

@@ -148,7 +148,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 			final List<DetectorElement> dl = vp.getDetectorList();
 
 			int mcaIndex = 0;
-			DetectorElement e = dl.get(0);
+			for (DetectorElement e : dl) {
 				final List<VortexROI> regions = e.getRegionList();
 				final double[][] rois = new double[regions.size()][2];
 				int iregion = 0;
@@ -159,7 +159,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 				}
 				setROI(rois, mcaIndex);
 				++mcaIndex;
-
+			}
 		} catch (DeviceException e) {
 			logger.error(e.getMessage(), e);
 			throw new Exception("Cannot configure vortex regions of interest.", e);

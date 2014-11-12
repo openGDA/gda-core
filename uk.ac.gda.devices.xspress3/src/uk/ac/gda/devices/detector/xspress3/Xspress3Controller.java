@@ -45,6 +45,14 @@ public interface Xspress3Controller extends Findable{
 	public boolean isSavingFiles() throws DeviceException;
 
 	public void setSavingFiles(Boolean saveFiles) throws DeviceException;
+	
+	public void setHDFFileDimensions(int[] dimensions) throws DeviceException;
+	
+	public int[] getHDFFileDimensions() throws DeviceException;
+
+	public void setHDFFileAutoIncrement(boolean b) throws DeviceException;
+	
+	public void setHDFNumFramesToAcquire(int i) throws DeviceException;
 
 	public Integer getNumFramesToAcquire() throws DeviceException;
 
@@ -240,4 +248,6 @@ public interface Xspress3Controller extends Findable{
 	public void configure() throws FactoryException;
 
 	public int getNumFramesPerReadout() throws DeviceException;
+	
+	public int getNumberOfChannels();
 }

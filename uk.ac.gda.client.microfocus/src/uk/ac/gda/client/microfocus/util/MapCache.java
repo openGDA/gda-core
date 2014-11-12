@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.gda.beans.DetectorROI;
@@ -33,14 +35,14 @@ import uk.ac.gda.beans.DetectorROI;
  */
 public class MapCache {
 
-	private double[][][][] mapdata; // element,channel,y,x
+	private double[][][][] mapdata; // element (ROI),detector channel,y,x
 	private HashMap<String, Integer> roiNameMap;
-	private ILazyDataset lazyDataset;
+	private ILazyDataset allMCAs;  // four dimensional dataset as collected: y,x,detector channel, MCA spectrum
 
 	public MapCache(HashMap<String, Integer> roiNameMap, List<? extends DetectorROI>[] elementRois, ILazyDataset lazyDataset) {
 
 		this.roiNameMap = roiNameMap;
-		this.lazyDataset = lazyDataset;
+		this.allMCAs = lazyDataset;
 		deriveMapData(elementRois);
 	}
 
@@ -50,8 +52,13 @@ public class MapCache {
 	}
 	
 	public double[] getSpectrum(int detectorNo, int x, int y) {
-		int mcaSize = lazyDataset.getShape()[3];
-		AbstractDataset mcaDataset = (AbstractDataset) lazyDataset.getSlice(new int[]{y,x,detectorNo,0},new int[]{y+1,x+1,detectorNo+1,mcaSize},new int[]{1,1,1,1});
+		int mcaSize = allMCAs.getShape()[3];
+		AbstractDataset mcaDataset = (AbstractDataset) allMCAs.getSlice(new int[]{y,x,detectorNo,0},new int[]{y+1,x+1,detectorNo+1,mcaSize},new int[]{1,1,1,1});
+		
+		if (mcaDataset.getDtype() == Dataset.FLOAT){
+			return ((DoubleDataset)mcaDataset).getData();
+		}
+
 		double[] data = new double[mcaSize];
 		for (int i = 0; i < mcaSize; i++) {
 			data[i] = mcaDataset.getDouble(0,0,0,i);
@@ -61,7 +68,7 @@ public class MapCache {
 	
 	
 	private double[][][] getAllMCAForOneLine(int y) {
-		IDataset pointData = lazyDataset.getSlice(new int[]{y,0,0,0},new int[]{y+1,lazyDataset.getShape()[1],lazyDataset.getShape()[2],lazyDataset.getShape()[3]},null);
+		IDataset pointData = allMCAs.getSlice(new int[]{y,0,0,0},new int[]{y+1,allMCAs.getShape()[1],allMCAs.getShape()[2],allMCAs.getShape()[3]},null);
 
 		int numberXPixels = pointData.getShape()[1];
 		int numberChannels = pointData.getShape()[2];
@@ -80,27 +87,10 @@ public class MapCache {
 		return data;
 		
 	}
-
-	private double[][] getAllMCAForOnePoint(int x, int y){
-		IDataset pointData = lazyDataset.getSlice(new int[]{y,x,0,0},new int[]{y+1,x+1,lazyDataset.getShape()[2],lazyDataset.getShape()[3]},null);
-
-		int numberChannels = pointData.getShape()[2];
-		int mcaSize = pointData.getShape()[3];
-
-		double[][] data = new double[numberChannels][mcaSize];
-		
-		for (int chaIndex = 0; chaIndex < numberChannels; chaIndex++) {
-			for (int mcaIndex = 0; mcaIndex < mcaSize; mcaIndex++) {
-				data[chaIndex][mcaIndex] = pointData.getDouble(0,0,chaIndex,mcaIndex);
-			}
-		}
-		
-		return data;
-	}
 	
 	private void deriveMapData(List<? extends DetectorROI>[] elementRois) {
 
-		int shape[] = lazyDataset.getShape();
+		int shape[] = allMCAs.getShape();
 		int numY = shape[0];
 		int numX = shape[1];
 		int numberChannels = shape[2];
@@ -110,7 +100,7 @@ public class MapCache {
 		mapdata = new double[roiNameMap.size()][numberChannels][numY][numX];
 		for (int yIndex = 0; yIndex < numY; yIndex++) {
 			
-			System.out.println(yIndex);
+//			System.out.println(yIndex);
 			double[][][] buffer = getAllMCAForOneLine(yIndex);
 //			logger.info("Reading Nexus Xmap line " + yIndex);
 			

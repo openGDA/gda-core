@@ -24,6 +24,12 @@ import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
+/**
+ * Utility class to easily marshall / unmarshall xspress3 detector configuration parameters.
+ * 
+ * @author rjw82
+ *
+ */
 public class Xspress3BeanUtils {
 	
 	public Xspress3Parameters createBeanFromXML(String xmlPath) throws Exception{

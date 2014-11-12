@@ -42,9 +42,48 @@ class Map(Scan):
         self.scanFilename= None
         self.detectorFilename= None
         self.outputFilename= None
+        
+    def setEnergyScannables(self,energyWithGap, energyNoGap):
+        self.energyWithGap = energyWithGap
+        self.energyNoGap = energyNoGap
+        self.energyScannable = self.energyWithGap
+        
+    def setUseNoGapEnergy(self):
+        self.energyScannable = self.energyNoGap
+
+    def setUseWithGapEnergy(self):
+        self.energyScannable = self.energyWithGap
+        
+    def setStageScannables(self,stage1_x,stage1_y,stage1_z,stage3_x,stage3_y,stage3_z):
+        self.stage1_x = stage1_x
+        self.stage1_y = stage1_y
+        self.stage1_z = stage1_z
+        self.stage3_x = stage3_x
+        self.stage3_y = stage3_y
+        self.stage3_z = stage3_z
+        
+        self.stage_x = stage1_x
+        self.stage_y = stage1_y
+        self.stage_z = stage1_z
+        
+    def setStage(self, stage):
+        if stage==1:
+            self.stage_x = self.stage1_x
+            self.stage_y = self.stage1_y
+            self.stage_z = self.stage1_z
+        elif stage==3:
+            self.stage_x = self.stage3_x
+            self.stage_y = self.stage3_y
+            self.stage_z = self.stage3_z
+        else:
+            print "please enter 1 or 3 as a parameter where 1 is the small stage and 3 is the large stage"
     
     def getMFD(self):
         return self.mfd
+    
+    def setCmos(self,cmos):
+        self.cmos = cmos
+
     
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
     
@@ -65,11 +104,16 @@ class Map(Scan):
         scanBean = BeansFactory.getBeanObject(experimentFullPath, scanFileName)
         detectorBean = BeansFactory.getBeanObject(experimentFullPath, detectorFileName)
         outputBean   = BeansFactory.getBeanObject(experimentFullPath, outputFileName)
+        
+        
+        # sanity check
+        if detectorBean.getFluorescenceParameters().getConfigFileName() == None or detectorBean.getFluorescenceParameters().getConfigFileName() == "":
+            raise Exception(" No Fluoresence parameters file supplied: have you selected the Fluoresence option in Detector Parameters?")
     
         beanGroup = BeanGroup()
         beanGroup.setController(self.ExafsScriptObserver)
         beanGroup.setXmlFolder(experimentFullPath)
-        beanGroup.setScannable(self.finder.find(scanBean.getXScannableName())) #TODO
+        beanGroup.setScannable(self.stage_x)
         beanGroup.setExperimentFolderName(experimentFolderName)
         beanGroup.setScanNumber(scanNumber)
         if(sampleBean != None):
@@ -84,18 +128,9 @@ class Map(Scan):
         
         # *************** DIFFERENT
         self._setupForMap(beanGroup)
-    
-        xScannable = self.finder.find(scanBean.getXScannableName())
-        yScannable = self.finder.find(scanBean.getYScannableName())
         
-        if xScannable==None:
-            from gdascripts.parameters import beamline_parameters
-            jythonNameMap = beamline_parameters.JythonNameSpaceMapping()
-            xScannable=jythonNameMap.__getitem__(scanBean.getXScannableName())
-            yScannable=jythonNameMap.__getitem__(scanBean.getYScannableName())
-        
-        nx = ScannableUtils.getNumberSteps(xScannable,scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
-        ny = ScannableUtils.getNumberSteps(yScannable,scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
+        nx = ScannableUtils.getNumberSteps(self.stage_x,scanBean.getXStart(), scanBean.getXEnd(),scanBean.getXStepSize()) + 1
+        ny = ScannableUtils.getNumberSteps(self.stage_y,scanBean.getYStart(), scanBean.getYEnd(),scanBean.getYStepSize()) + 1
         self.log("Number x points: " + str(nx))
         self.log("Number y points: " + str(ny))
         
@@ -109,26 +144,21 @@ class Map(Scan):
 #         self.mfd = MicroFocusWriterExtender(nx, ny, scanBean.getXStepSize(), scanBean.getYStepSize(),self.detectorBeanFileName, array(detectorList, Detector))
 
         for energy in energyList:
-            
-            
-            energyScannable = self.finder.find(scanBean.getEnergyScannableName())
             self.log("Energy: " + str(energy))
-            energyScannable.moveTo(energy) 
+            self.energyScannable.moveTo(energy) 
             self.mfd.setEnergyValue(energy)
             
-            
-            zScannable = self.finder.find(scanBean.getZScannableName())
             self.mfd.setZValue(zScannablePos)
-            self.log("Using: " + scanBean.getXScannableName() + ", " + scanBean.getYScannableName() +", " + zScannable.getName())
             if(zScannablePos != None):
-                zScannable.moveTo(zScannablePos)
+                self.log("Moving " + self.stage_z.getName() + " to " + str(zScannablePos))
+                self.stage_z.moveTo(zScannablePos)
             
             scanStart = time.asctime()
             
         #    self.redefineNexusMetadataForMaps(beanGroup)
             
             try:
-                self._runMap(beanGroup, xScannable, yScannable, zScannable, detectorList,scanNumber,experimentFolderName,experimentFullPath,nx,ny)
+                self._runMap(beanGroup, self.stage_x, self.stage_y, self.stage_z, detectorList,scanNumber,experimentFolderName,experimentFullPath,nx,ny)
             finally:
                 scanEnd = time.asctime()
                 if(origScanPlotSettings):
@@ -215,10 +245,7 @@ class Map(Scan):
         dataWriter.setDetectorParametersName(self.detectorFileName)
         dataWriter.setSampleParametersName(self.sampleFileName)
         dataWriter.setOutputParametersName(self.outputFileName)
-        
-        # add the detector configuration file to the metadata
-        #dataWriter.setXmlFileName(self._determineDetectorFilename(detectorBean))
-        
+        dataWriter.setRunFromExperimentDefinition(True);
         dataWriter.setDescriptions(descriptions);
         dataWriter.setNexusFileNameTemplate(nexusFileNameTemplate);
         dataWriter.setAsciiFileNameTemplate(asciiFileNameTemplate);
@@ -277,7 +304,15 @@ class Map(Scan):
         else:
             for group in detectorBean.getDetectorGroups():
                 if group.getName() == detectorBean.getFluorescenceParameters().getDetectorType():
-                    return self._createDetArray(group.getDetector(), scanBean)
+                    detArray = self._createDetArray(group.getDetector(), scanBean)
+ 
+                    if detectorBean.getFluorescenceParameters().isCollectDiffractionImages():
+                        if self.cmos != None:
+                            print "Using cmos"
+                            detArray += [self.cmos]
+                
+                    return detArray
+
  
     def finish(self):
         command_server = self.finder.find("command_server")
