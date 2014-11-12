@@ -35,7 +35,6 @@ import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.epics.client.views.controllers.IAdBaseViewController;
 import uk.ac.gda.epics.client.views.controllers.IFileSaverViewController;
-import uk.ac.gda.epics.client.views.controllers.IMJpegViewController;
 import uk.ac.gda.epics.client.views.model.AdBaseModel;
 import uk.ac.gda.epics.client.views.model.FfMpegModel;
 import uk.ac.gda.epics.client.views.model.FileSaverModel;
@@ -65,28 +64,6 @@ public class PixiumViewController implements InitializingBean {
 		return ffmjpegModel;
 	}
 
-	private IMJpegViewController mjpegViewController = new IMJpegViewController.Stub() {
-		@Override
-		public void updateMJpegX(int mjpegX) {
-			for (PixiumView sv : statusViews) {
-				sv.setMJpegX(String.valueOf(mjpegX));
-			}
-		}
-
-		@Override
-		public void updateMJpegY(int mjpegY) {
-			for (PixiumView sv : statusViews) {
-				sv.setMJpegY(String.valueOf(mjpegY));
-			}
-		}
-
-		@Override
-		public void updateMJpegTimeStamp(double mjpegTimestamp) {
-			for (PixiumView sv : statusViews) {
-				sv.setMJpegTimeStamp(getSimpleDateFormat(mjpegTimestamp));
-			}
-		}
-	};
 	private IFileSaverViewController fileSaverViewController = new IFileSaverViewController.Stub() {
 		@Override
 		public void updateFileSaveX(int fileSaverX) {
@@ -174,11 +151,6 @@ public class PixiumViewController implements InitializingBean {
 			}
 		}
 	};
-
-	public void setFfmjpegModel(FfMpegModel ffmjpegModel) {
-		this.ffmjpegModel = ffmjpegModel;
-		this.ffmjpegModel.registerMJpegViewController(mjpegViewController);
-	}
 
 	public AdBaseModel getAdBaseModel() {
 		return adBaseModel;
@@ -315,9 +287,6 @@ public class PixiumViewController implements InitializingBean {
 				fileSaverViewController.updateFileSaveX(fileSaverModel.getDim0Size());
 				fileSaverViewController.updateFileSaveY(fileSaverModel.getDim1Size());
 				// ffmjpef model update
-				mjpegViewController.updateMJpegTimeStamp(ffmjpegModel.getTimeStamp());
-				mjpegViewController.updateMJpegX(ffmjpegModel.getDim0Size());
-				mjpegViewController.updateMJpegY(ffmjpegModel.getDim1Size());
 			} catch (TimeoutException tme) {
 				logger.error("IOC doesn't seem to be running", tme);
 				throw tme;
