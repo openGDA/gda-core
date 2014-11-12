@@ -26,6 +26,7 @@ import org.eclipse.jface.util.Util;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -172,6 +173,10 @@ public class LinkContributionItem extends ContributionItem {
 		}
 
 		updateManager();
+	}
+
+	public void setBackground(Color background) {
+		link.setBackground(background);
 	}
 
 	private void updateManager() {
