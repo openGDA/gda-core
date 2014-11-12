@@ -550,6 +550,15 @@ public class Logpanel extends Composite {
 				viewer.refresh();
 			}
 		});
+		filterText.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				if (e.detail == SWT.ICON_CANCEL) {
+					matchingFilter.setMatching(filterText.getText());
+					viewer.refresh();
+				}
+			}
+		});
 		filterText.setFocus();
 		
 		// table for log messages //TODO ListViewer
