@@ -27,24 +27,31 @@ import gda.observable.ObservableComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Xspress3DetectorConfiguration implements FluorescentDetectorConfiguration{
-	
+/**
+ * Utility class to configure an Xspress3 detector using the given XML file. It
+ * notifies observers of progress e.g. an Xspress3 editor.
+ * 
+ * @author rjw82
+ * 
+ */
+public class Xspress3DetectorConfiguration implements FluorescentDetectorConfiguration {
+
 	private Logger logger = LoggerFactory.getLogger(Xspress3DetectorConfiguration.class);
 	private Xspress3Detector xspress3;
 	private ObservableComponent observer;
 	private String message = "Xspress configuration has not been applied yet";
-	
-	public Xspress3DetectorConfiguration(Xspress3Detector xmap, final ObservableComponent observer){
+
+	public Xspress3DetectorConfiguration(Xspress3Detector xmap, final ObservableComponent observer) {
 		this.observer = observer;
 		this.xspress3 = xmap;
 	}
-	
+
 	@Override
 	public void configure(String xmlFileName) throws FactoryException {
-		try {	
+		try {
 			xspress3.setConfigFileName(xmlFileName);
 			xspress3.stop();
-			logger.info("Wrote new Xspress3 Parameters to: "+xspress3.getConfigFileName());
+			logger.info("Wrote new Xspress3 Parameters to: " + xspress3.getConfigFileName());
 			xspress3.loadConfigurationFromFile();
 			message = " The Xspress detector configuration updated.";
 			observer.notifyIObservers("Message", new ScriptProgressEvent(message));
@@ -56,7 +63,7 @@ public class Xspress3DetectorConfiguration implements FluorescentDetectorConfigu
 		String message = " The xspress3 detector configuration was updated.";
 		observer.notifyIObservers("Message", new ScriptProgressEvent(message));
 	}
-	
+
 	@Override
 	public String getMessage() {
 		return message;

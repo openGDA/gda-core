@@ -10,7 +10,7 @@ from uk.ac.gda.beans import BeansFactory
 from java.io import File
 
 class RasterMap(Map):
-    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer,detectorPreparer, traj1ContiniousX, traj3ContiniousX, raster_counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, raster_xspress, cid, trajBeamMonitor):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer,detectorPreparer, traj1ContiniousX, traj3ContiniousX, raster_counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, raster_xspress, raster_xspress3 , cid, trajBeamMonitor):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         self.d7a=d7a
@@ -30,6 +30,7 @@ class RasterMap(Map):
         self.traj3PositionReader = traj3PositionReader
         self.trajPositionReader = traj1PositionReader
         self.raster_xspress=raster_xspress
+        self.raster_xspress3=raster_xspress3
 
         self.mfd = None
         self.finder = Finder.getInstance()
@@ -73,11 +74,21 @@ class RasterMap(Map):
         dets = [self.raster_counterTimer01, self.cid]
         if(detectorType == "Silicon"):
             dets += [self.raster_xmap]
+        elif(detectorType == "Xspress3"):
+            dets += [self.raster_xspress3]
         else:
             dets += [self.raster_xspress]
             
         cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), dets) 
-        theScan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(), self.trajBeamMonitor, cs, self.trajPositionReader])
+        
+        outerScanArgs = [yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(), self.trajBeamMonitor, cs, self.trajPositionReader]
+
+        if detectorBean.getFluorescenceParameters().isCollectDiffractionImages():
+            if self.cmos != None:
+                print "Using cmos"
+                outerScanArgs += [self.cmos]
+        
+        theScan = ScannableCommands.createConcurrentScan(outerScanArgs)
         theScan.getScanPlotSettings().setIgnore(1)
     
         sampleName = sampleBean.getName()

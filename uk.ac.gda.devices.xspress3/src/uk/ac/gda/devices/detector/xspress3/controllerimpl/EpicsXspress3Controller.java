@@ -37,12 +37,16 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 
 	private int numRoiToRead = 1;
 
+	private int[] dimensionsOfLastFile;
+	
+	private int numberOfDetectorChannels = 4;
+
 	@Override
 	public void configure() throws FactoryException {
 		if (epicsTemplate == null || epicsTemplate.isEmpty()) {
 			throw new FactoryException("Epics template has not been set!");
 		}
-		pvProvider = new EpicsXspress3ControllerPvProvider(epicsTemplate);
+		pvProvider = new EpicsXspress3ControllerPvProvider(epicsTemplate, numberOfDetectorChannels);
 
 		try {
 			Boolean epicsConnectionToHardware = pvProvider.pvIsConnected.get() == CONNECTION_STATE.Connected;
@@ -64,11 +68,26 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		this.numRoiToRead = numRoiToRead;
 	}
 
+	/**
+	 * Used to derive the available PVs.
+	 * 
+	 * @return
+	 */
+	@Override
+	public int getNumberOfChannels() {
+		return numberOfDetectorChannels;
+	}
+
+	public void setNumberOfChannels(int numberOfDetectorChannels) {
+		this.numberOfDetectorChannels = numberOfDetectorChannels;
+	}
+
 	@Override
 	public void doStart() throws DeviceException {
 		try {
 			pvProvider.pvErase.putWait(ERASE_STATE.Erase);
-			// nowait as the IOC does not send a callback (until all data collection finished I suppose, which is not what we want here)
+			// nowait as the IOC does not send a callback (until all data
+			// collection finished I suppose, which is not what we want here)
 			pvProvider.pvAcquire.putNoWait(ACQUIRE_STATE.Acquire);
 			Thread.sleep(100);
 		} catch (IOException e) {
@@ -275,85 +294,96 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		}
 	}
 
-//	public void setPerformScalerUpdates(Boolean doUpdates) throws DeviceException {
-//		try {
-//			UPDATE_CTRL setValue = UPDATE_CTRL.Disable;
-//			if (doUpdates) {
-//				setValue = UPDATE_CTRL.Enable;
-//			}
-//			pvProvider.pvSetScalerUpdate.putWait(setValue);
-//		} catch (IOException e) {
-//			throw new DeviceException("IOException while setting scaler updates on/off", e);
-//		}
-//	}
-//
-//	public Boolean getPerformScalerUpdates() throws DeviceException {
-//		try {
-//			UPDATE_RBV getValue = pvProvider.pvGetScalerUpdate.get();
-//			if (getValue == UPDATE_RBV.Enabled) {
-//				return true;
-//			}
-//			return false;
-//		} catch (IOException e) {
-//			throw new DeviceException("IOException while getting scaler updates setting", e);
-//		}
-//	}
-//
-//	public void setScalerRefreshPeriod(int numFrames) throws DeviceException {
-//		try {
-//			pvProvider.pvScalerUpdatePeriod.putWait(numFrames);
-//		} catch (IOException e) {
-//			throw new DeviceException("IOException while setting scaler refresh period", e);
-//		}
-//	}
+	// public void setPerformScalerUpdates(Boolean doUpdates) throws
+	// DeviceException {
+	// try {
+	// UPDATE_CTRL setValue = UPDATE_CTRL.Disable;
+	// if (doUpdates) {
+	// setValue = UPDATE_CTRL.Enable;
+	// }
+	// pvProvider.pvSetScalerUpdate.putWait(setValue);
+	// } catch (IOException e) {
+	// throw new
+	// DeviceException("IOException while setting scaler updates on/off", e);
+	// }
+	// }
+	//
+	// public Boolean getPerformScalerUpdates() throws DeviceException {
+	// try {
+	// UPDATE_RBV getValue = pvProvider.pvGetScalerUpdate.get();
+	// if (getValue == UPDATE_RBV.Enabled) {
+	// return true;
+	// }
+	// return false;
+	// } catch (IOException e) {
+	// throw new
+	// DeviceException("IOException while getting scaler updates setting", e);
+	// }
+	// }
+	//
+	// public void setScalerRefreshPeriod(int numFrames) throws DeviceException
+	// {
+	// try {
+	// pvProvider.pvScalerUpdatePeriod.putWait(numFrames);
+	// } catch (IOException e) {
+	// throw new
+	// DeviceException("IOException while setting scaler refresh period", e);
+	// }
+	// }
 
-//	public int getScalerRefreshPeriod() throws DeviceException {
-//		try {
-//			return pvProvider.pvScalerUpdatePeriod.get();
-//		} catch (IOException e) {
-//			throw new DeviceException("IOException while fetching scaler refresh period", e);
-//		}
-//	}
-//
-//	public void setPerformMCAUpdates(Boolean doUpdates) throws DeviceException {
-//		try {
-//			UPDATE_CTRL setValue = UPDATE_CTRL.Disable;
-//			if (doUpdates) {
-//				setValue = UPDATE_CTRL.Enable;
-//			}
-//			pvProvider.pvSetMCAUpdate.putWait(setValue);
-//		} catch (IOException e) {
-//			throw new DeviceException("IOException while setting mca updates on/off", e);
-//		}
-//	}
-//
-//	public Boolean getPerformMCAUpdates() throws DeviceException {
-//		try {
-//			UPDATE_RBV getValue = pvProvider.pvGetMCAUpdate.get();
-//			if (getValue == UPDATE_RBV.Enabled) {
-//				return true;
-//			}
-//			return false;
-//		} catch (IOException e) {
-//			throw new DeviceException("IOException while getting mca updates setting", e);
-//		}
-//	}
-//
-//	public void setMCARefreshPeriod(int numFrames) throws DeviceException {
-//		try {
-//			pvProvider.pvMCAUpdatePeriod.putWait(numFrames);
-//		} catch (IOException e) {
-//			throw new DeviceException("IOException while setting mca refresh period", e);
-//		}
-//	}
-//
-//	public int getMCARefreshPeriod() throws DeviceException {
-//		try {
-//			return pvProvider.pvMCAUpdatePeriod.get();
-//		} catch (IOException e) {
-//			throw new DeviceException("IOException while fetching mca refresh period", e);
-//		}
-//	}
+	// public int getScalerRefreshPeriod() throws DeviceException {
+	// try {
+	// return pvProvider.pvScalerUpdatePeriod.get();
+	// } catch (IOException e) {
+	// throw new
+	// DeviceException("IOException while fetching scaler refresh period", e);
+	// }
+	// }
+	//
+	// public void setPerformMCAUpdates(Boolean doUpdates) throws
+	// DeviceException {
+	// try {
+	// UPDATE_CTRL setValue = UPDATE_CTRL.Disable;
+	// if (doUpdates) {
+	// setValue = UPDATE_CTRL.Enable;
+	// }
+	// pvProvider.pvSetMCAUpdate.putWait(setValue);
+	// } catch (IOException e) {
+	// throw new DeviceException("IOException while setting mca updates on/off",
+	// e);
+	// }
+	// }
+	//
+	// public Boolean getPerformMCAUpdates() throws DeviceException {
+	// try {
+	// UPDATE_RBV getValue = pvProvider.pvGetMCAUpdate.get();
+	// if (getValue == UPDATE_RBV.Enabled) {
+	// return true;
+	// }
+	// return false;
+	// } catch (IOException e) {
+	// throw new
+	// DeviceException("IOException while getting mca updates setting", e);
+	// }
+	// }
+	//
+	// public void setMCARefreshPeriod(int numFrames) throws DeviceException {
+	// try {
+	// pvProvider.pvMCAUpdatePeriod.putWait(numFrames);
+	// } catch (IOException e) {
+	// throw new DeviceException("IOException while setting mca refresh period",
+	// e);
+	// }
+	// }
+	//
+	// public int getMCARefreshPeriod() throws DeviceException {
+	// try {
+	// return pvProvider.pvMCAUpdatePeriod.get();
+	// } catch (IOException e) {
+	// throw new
+	// DeviceException("IOException while fetching mca refresh period", e);
+	// }
+	// }
 
 	public void setPerformROIUpdates(Boolean doUpdates) throws DeviceException {
 		try {
@@ -379,21 +409,23 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		}
 	}
 
-//	public void setROIRefreshPeriod(int numFrames) throws DeviceException {
-//		try {
-//			pvProvider.pvSCAROIUpdatePeriod.putWait(numFrames);
-//		} catch (IOException e) {
-//			throw new DeviceException("IOException while setting ROI refresh period", e);
-//		}
-//	}
-//
-//	public int getROIRefreshPeriod() throws DeviceException {
-//		try {
-//			return pvProvider.pvSCAROIUpdatePeriod.get();
-//		} catch (IOException e) {
-//			throw new DeviceException("IOException while fetching ROI refresh period", e);
-//		}
-//	}
+	// public void setROIRefreshPeriod(int numFrames) throws DeviceException {
+	// try {
+	// pvProvider.pvSCAROIUpdatePeriod.putWait(numFrames);
+	// } catch (IOException e) {
+	// throw new DeviceException("IOException while setting ROI refresh period",
+	// e);
+	// }
+	// }
+	//
+	// public int getROIRefreshPeriod() throws DeviceException {
+	// try {
+	// return pvProvider.pvSCAROIUpdatePeriod.get();
+	// } catch (IOException e) {
+	// throw new
+	// DeviceException("IOException while fetching ROI refresh period", e);
+	// }
+	// }
 
 	@Override
 	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel)
@@ -572,12 +604,14 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		try {
 			switch (windowNumber) {
 			case 1:
-				pvProvider.pvsScaWin1Low[channel].putWait(lowHighScalerWindowChannels[0]);
+				pvProvider.pvsScaWin1Low[channel].putWait(0);
 				pvProvider.pvsScaWin1High[channel].putWait(lowHighScalerWindowChannels[1]);
+				pvProvider.pvsScaWin1Low[channel].putWait(lowHighScalerWindowChannels[0]);
 				break;
 			case 2:
-				pvProvider.pvsScaWin2Low[channel].putWait(lowHighScalerWindowChannels[0]);
+				pvProvider.pvsScaWin2Low[channel].putWait(0);
 				pvProvider.pvsScaWin2High[channel].putWait(lowHighScalerWindowChannels[1]);
+				pvProvider.pvsScaWin2Low[channel].putWait(lowHighScalerWindowChannels[0]);
 				break;
 			default:
 				throw new DeviceException("Cannot set scaler window: value for window unacceptable");
@@ -769,6 +803,58 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 			return pvProvider.pvNextFileNumber.get();
 		} catch (IOException e) {
 			throw new DeviceException("IOException while getting file number", e);
+		}
+	}
+
+	@Override
+	public void setHDFFileDimensions(int[] dimensions) throws DeviceException {
+		if (dimensions.length > 3) {
+			throw new DeviceException("Cannot write more than 3 dimensions in the HDF5 plugin!");
+		}
+		try {
+			switch (dimensions.length) {
+			case 0:
+			case 1:
+				pvProvider.pvExtraDimensions.putNoWait(0);
+				break;
+			case 2:
+				pvProvider.pvExtraDimensions.putNoWait(1);
+				pvProvider.pvExtraDimN.putNoWait(dimensions[0]);
+				pvProvider.pvExtraDimX.putNoWait(dimensions[1]);
+				break;
+			case 3:
+				pvProvider.pvExtraDimensions.putNoWait(2);
+				pvProvider.pvExtraDimN.putNoWait(dimensions[0]);
+				pvProvider.pvExtraDimX.putNoWait(dimensions[1]);
+				pvProvider.pvExtraDimY.putNoWait(dimensions[2]);
+				break;
+			}
+		} catch (IOException e) {
+			throw new DeviceException("IOException while getting file number", e);
+		}
+		dimensionsOfLastFile = dimensions;
+	}
+
+	@Override
+	public int[] getHDFFileDimensions() throws DeviceException {
+		return dimensionsOfLastFile;
+	}
+
+	@Override
+	public void setHDFFileAutoIncrement(boolean b) throws DeviceException {
+		try {
+			pvProvider.pvHDFAutoIncrement.putNoWait(true);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting auto increment", e);
+		}
+	}
+
+	@Override
+	public void setHDFNumFramesToAcquire(int i) throws DeviceException {
+		try {
+			pvProvider.pvHDFNumCapture.putNoWait(i);
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting num HDF frames to acquire", e);
 		}
 	}
 }

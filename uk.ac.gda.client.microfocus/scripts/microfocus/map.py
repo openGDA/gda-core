@@ -81,6 +81,10 @@ class Map(Scan):
     def getMFD(self):
         return self.mfd
     
+    def setCmos(self,cmos):
+        self.cmos = cmos
+
+    
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
     
         print ""
@@ -219,9 +223,6 @@ class Map(Scan):
         # scans to return the real motor positions which are not available until the end of each row.
         twoDWriter = XasAsciiNexusDatapointCompletingDataWriter()
         twoDWriter.addDataWriterExtender(self.mfd)
-        # XAS-162 try this:
-#         if (Finder.getInstance().find("FileRegistrar") != None):
-#             twoDWriter.addDataWriterExtender(Finder.getInstance().find("FileRegistrar"))
         dataWriter = twoDWriter.getXasDataWriter()
         
         
@@ -303,7 +304,15 @@ class Map(Scan):
         else:
             for group in detectorBean.getDetectorGroups():
                 if group.getName() == detectorBean.getFluorescenceParameters().getDetectorType():
-                    return self._createDetArray(group.getDetector(), scanBean)
+                    detArray = self._createDetArray(group.getDetector(), scanBean)
+ 
+                    if detectorBean.getFluorescenceParameters().isCollectDiffractionImages():
+                        if self.cmos != None:
+                            print "Using cmos"
+                            detArray += [self.cmos]
+                
+                    return detArray
+
  
     def finish(self):
         command_server = self.finder.find("command_server")

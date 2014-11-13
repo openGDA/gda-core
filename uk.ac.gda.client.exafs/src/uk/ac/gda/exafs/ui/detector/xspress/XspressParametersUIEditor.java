@@ -210,7 +210,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		readoutMode.setItems(new String[] { XspressDetector.READOUT_SCALERONLY, XspressDetector.READOUT_MCA,
 				XspressDetector.READOUT_ROIS });
 		readoutMode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		readoutMode.select(0);
+		readoutMode.select(1);
 		readoutMode.addValueListener(new ValueAdapter("readoutMode") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -558,8 +558,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	}
 
 	private void updateOverrideMode() {
-		if (modeOverride) {
-			this.readoutMode.setValue(XspressDetector.READOUT_ROIS);
+		if (modeOverride && !this.readoutMode.equals(XspressDetector.READOUT_MCA)) {
+			this.readoutMode.setValue(XspressDetector.READOUT_MCA);
 		}
 	}
 

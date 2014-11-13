@@ -18,6 +18,8 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
+import java.text.DecimalFormat;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Group;
@@ -31,18 +33,18 @@ public class ScalersMonitorConfig {
 	private Table table;
 
 	public void setI0(double val) {
-		String txt = String.format(formats[0], val);
-		table.getItem(0).setText(0, txt);
+		DecimalFormat formatter = new DecimalFormat("###,###,###,###,###");
+		table.getItem(0).setText(0, formatter.format(val));
 	}
 
 	public void setIt(double val) {
-		String txt = String.format(formats[1], val);
-		table.getItem(0).setText(1, txt);
+		DecimalFormat formatter = new DecimalFormat("###,###,###,###,###");
+		table.getItem(0).setText(1, formatter.format(val));
 	}
 	
 	public void setIref(double val) {
-		String txt = String.format(formats[2], val);
-		table.getItem(0).setText(2, txt);
+		DecimalFormat formatter = new DecimalFormat("###,###,###,###,###");
+		table.getItem(0).setText(2, formatter.format(val));
 	}
 
 	public void setItI0(double val) {
@@ -56,8 +58,8 @@ public class ScalersMonitorConfig {
 	}
 
 	public void setFF(double val) {
-		String txt = String.format(formats[5], val);
-		table.getItem(0).setText(5, txt);
+		DecimalFormat formatter = new DecimalFormat("###,###,###,###,###");
+		table.getItem(0).setText(5, formatter.format(val));
 	}
 
 	public void setFFI0(double val) {

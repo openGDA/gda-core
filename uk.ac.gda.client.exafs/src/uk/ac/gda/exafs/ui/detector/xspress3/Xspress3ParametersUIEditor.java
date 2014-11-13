@@ -1,18 +1,10 @@
-/* Copyright © 2014 Diamond Light Source Ltd.
- *
- * This file is part of GDA.
- *
- * GDA is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License version 3 as published by the Free
- * Software Foundation.
- *
- * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * You should have received a copy of the GNU General Public License along
- * with GDA. If not, see <http://www.gnu.org/licenses/>.
+/*
+ * Copyright © 2014 Diamond Light Source Ltd. This file is part of GDA. GDA is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License version 3 as published by the Free Software
+ * Foundation. GDA is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with GDA. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 package uk.ac.gda.exafs.ui.detector.xspress3;
@@ -56,28 +48,29 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.swtdesigner.SWTResourceManager;
-
-import uk.ac.gda.beans.ElementCountsData;
-import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
-import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
-import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
-import uk.ac.gda.devices.detector.xspress3.FluorescenceAcquire;
+import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
 import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
 import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
+import com.swtdesigner.SWTResourceManager;
+//dascgitolite@dasc-git.diamond.ac.uk/gda/gda-xas-core.git
+import uk.ac.gda.beans.exafs.DetectorParameters;
+
+import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
+import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
+
 public class Xspress3ParametersUIEditor extends DetectorEditor {
+	private static final String XSPRESS3_EDITOR_DATA_XML_FILENAME = "xspress3_editor_data.xml";
 	private String detectorName;
 	protected Xspress3Parameters xspress3Parameters;
 	private static final String GDA_DEVICE_VORTEX_SPOOL_DIR = "gda.device.vortex.spoolDir";
@@ -100,20 +93,17 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 	private boolean autoSaveEnabled;
 	private Label lblDeadTime;
 
-	
-	
 	public Xspress3ParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
-		super(path, mappingURL, dirtyContainer, editingBean, path);
+		super(path, mappingURL, dirtyContainer, editingBean, "xspress3Config");
 		this.xspress3Parameters = (Xspress3Parameters) editingBean;
 		detectorName = xspress3Parameters.getDetectorName();
 	}
-	
-	
+
 	@Override
 	protected String getRichEditorTabText() {
 		return "Xspress3";
 	}
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 
@@ -149,7 +139,8 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 			gridData.widthHint = 60;
 			gridData.minimumWidth = 60;
 			applyToAllButton.setLayoutData(gridData);
-			applyToAllButton.setImage(SWTResourceManager.getImage(VortexParametersUIEditor.class, "/icons/camera_go.png"));
+			applyToAllButton.setImage(SWTResourceManager.getImage(VortexParametersUIEditor.class,
+					"/icons/camera_go.png"));
 			applyToAllButton
 					.setToolTipText("Apply current detector regions of interest to all other detector elements.");
 			final SelectionAdapter applyToAllListener = new SelectionAdapter() {
@@ -288,24 +279,11 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 		Composite composite_1 = new Composite(grpAcquire, SWT.NONE);
 		GridDataFactory.fillDefaults().applyTo(composite_1);
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(composite_1);
-
-		lblDeadTime = new Label(composite_1, SWT.NONE);
-		lblDeadTime.setText("Dead Time");
-		lblDeadTime.setVisible(false);
-
-		deadTimeLabel = new LabelWrapper(composite_1, SWT.NONE);
-		deadTimeLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		deadTimeLabel.setText("12");
-		deadTimeLabel.setUnit("%");
-		deadTimeLabel.setDecimalPlaces(3);
-		deadTimeLabel.setVisible(false);
 	}
-
 
 	@Override
 	public void linkUI(final boolean isPageChange) {
 		super.linkUI(isPageChange);
-		//private String detectorName;
 		getDetectorElementComposite().setIndividualElements(true);
 	}
 
@@ -318,51 +296,44 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 	@Override
 	protected void acquire(final IProgressMonitor monitor, final double collectionTimeValue) throws Exception {
 
-		int loopSleepTimeInMillis = 100;
-
-		int numWorkUnits = (int) Math.round((collectionTimeValue * 1000 / loopSleepTimeInMillis) / 1000);
-		if (monitor != null)
-			numWorkUnits += 5; // for the extra steps
+		int numWorkUnits = 2;
 
 		if (monitor != null)
-			monitor.beginTask("Acquire Xspress3 data", numWorkUnits);
+			monitor.beginTask("Acquiring Xspress3 snapshot...", numWorkUnits);
 
-		
-		if (getDetector(detectorName) == null)
-			throw new Exception("Unable to find Xmapdetector called :'" + detectorName + "'");
-	
+		FluorescenceDetector theDetector = getDetector(detectorName);
+		if (theDetector == null)
+			throw new Exception("Unable to find Xspress3Detector called :'" + detectorName + "'");
+
 		try {
-			
-			
-			final Double[][] MCData = getDetector(detectorName).getMCData(collectionTimeValue);
-			final int[][] data = getDetector(detectorName).getData();
-			if (monitor != null)
+
+			final Double[][] theData = theDetector.getMCData(collectionTimeValue);
+
+			if (monitor != null) {
 				monitor.worked(1);
+			}
 
-			final int[][][] data3d = get3DArray(data);
-			getDataWrapper().setValue(ElementCountsData.getDataFor(data3d));
-			detectorData = getData(data3d);
+			int numDetectorChannels = theData.length;
+			int mcaLength = theData[0].length;
+			detectorData = new double[numDetectorChannels][1][mcaLength];
+			for (int channel = 0; channel < numDetectorChannels; channel++) {
+				for (int mcaChan = 0; mcaChan < mcaLength; mcaChan++) {
+					detectorData[channel][0][mcaChan] = theData[channel][mcaChan];
+				}
+			}
 
-			if (monitor != null)
-				monitor.worked(1);
-
-			// returns the icr and ocr
-			Double[] liveStats = (Double[]) getDetector(detectorName).getAttribute("countRates");
-			//final double deadTimeFinal = (Math.abs(liveStats[0] - liveStats[1]) / liveStats[0]) * 100;
-
-			// Note: currently has to be in this order.
 			getSite().getShell().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					getDetectorElementComposite().setEndMaximum(detectorData[0][0].length - 1);
-					plot(getDetectorList().getSelectedIndex(),true);
+					plot(getDetectorList().getSelectedIndex(), true);
 					setEnabled(true);
-					//deadTimeLabel.setValue(deadTimeFinal);
 					lblDeadTime.setVisible(true);
 					deadTimeLabel.setVisible(true);
 					sashPlotForm.getLeft().layout();
 				}
 			});
+
 			if (monitor != null) {
 				monitor.worked(1);
 				sashPlotForm.appendStatus("Collected data from detector successfully.", logger);
@@ -412,7 +383,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 							+ GDA_DEVICE_VORTEX_SPOOL_DIR);
 
 				long snapShotNumber = new NumTracker("Xspress3_snapshot").incrementNumber();
-				String fileName = "xspress3_snap_" + snapShotNumber+ ".mca";
+				String fileName = "xspress3_snap_" + snapShotNumber + ".mca";
 				File filePath = new File(spoolDirPath + "/" + fileName);
 				spoolFilePath = filePath.getAbsolutePath();
 				save(detectorData, spoolFilePath);
@@ -550,7 +521,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 							public void run() {
 								acquireFileLabel.setText("Loaded: " + filePath);
 								getDetectorElementComposite().setEndMaximum((detectorData[0][0].length) - 1);
-								plot(getDetectorList().getSelectedIndex(),false);
+								plot(getDetectorList().getSelectedIndex(), false);
 								setEnabled(true);
 							}
 						});
@@ -576,16 +547,14 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 	@Override
 	protected String getDataXMLName() {
 		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
-		return varDir + "/vortex_editor_data.xml";
+		return varDir + "/" + XSPRESS3_EDITOR_DATA_XML_FILENAME;
 	}
 
-	private final FluorescenceAcquire getDetector(String detectorName){
-		FluorescenceAcquire detector = (FluorescenceAcquire) Finder.getInstance().find(detectorName);
-		return detector; 
+	private final FluorescenceDetector getDetector(String detectorName) {
+		FluorescenceDetector detector = (FluorescenceDetector) Finder.getInstance().find(detectorName);
+		return detector;
 	}
-	
-	
-	
+
 	@Override
 	public void dispose() {
 		if (countType != null)
@@ -599,10 +568,9 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 		super.dispose();
 	}
 
-
 	@Override
 	protected String getDetectorName() {
 		return xspress3Parameters.getDetectorName();
-	}	
-	
+	}
+
 }

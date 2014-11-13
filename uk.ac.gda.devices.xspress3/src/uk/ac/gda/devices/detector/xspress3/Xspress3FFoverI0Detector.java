@@ -23,7 +23,7 @@ import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 
 /**
- * Returns FF/I0 for an Xspress3 (Vortex) / ion chamber combination. Note this does not operate any hardware so should be used
+ * Returns FF/I0 for an Xspress3 / ion chamber combination. Note this does not operate any hardware so should be used
  * with other detectors in scans
  */
 public class Xspress3FFoverI0Detector extends DetectorBase {

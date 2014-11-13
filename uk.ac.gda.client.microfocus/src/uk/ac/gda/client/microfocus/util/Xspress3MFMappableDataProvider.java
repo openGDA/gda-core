@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2013 Diamond Light Source Ltd.
+ * Copyright © 2014 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -26,21 +26,23 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AggregateDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.VortexROI;
+import uk.ac.gda.beans.vortex.Xspress3Parameters;
+import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
 
-public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider {
+public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvider {
 
-	private static final Logger logger = LoggerFactory.getLogger(VortexMFMappableDataProvider.class);
+	private static final Logger logger = LoggerFactory.getLogger(Xspress3MFMappableDataProvider.class);
 
 	private int numberOfdetectorElements;
 	private List<VortexROI>[] elementRois;
-	private HashMap<String, Integer> roiNameMap;
 	private MapCache mapCache;
 
-	public VortexMFMappableDataProvider() {
+	public Xspress3MFMappableDataProvider() {
 		super();
 	}
 
@@ -55,22 +57,33 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 	@Override
 	public void loadData(String fileName) {
 		super.loadData(fileName);
-		String eleNames[] = getElementNames();
-
-		roiNameMap = new HashMap<String, Integer>();
-		for (int i = 0; i < eleNames.length; i++)
-			roiNameMap.put(eleNames[i], i);
+		fillCache();
 	}
 
 	@Override
 	public double[][] constructMappableData() {
-
 		logger.debug("getting data for " + selectedElement);
-		if (mapCache == null) {
-			lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/fullSpectrum");
-			mapCache = new MapCache(roiNameMap, elementRois, lazyDataset);
-		}
 		return mapCache.getMap(selectedElement, selectedChannel);
+	}
+
+	protected void fillCache() {
+		// derive the number of rows from the FF
+		ILazyDataset ffDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/FF");
+		int numberRows = ffDataset.getShape()[0];
+		ILazyDataset[] mcaDataSetsByRow = new ILazyDataset[numberRows];
+		for (int row = 0; row < numberRows; row++) {
+			mcaDataSetsByRow[row] = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/"
+					+ Xspress3Detector.getNameOfRowSubNode(row));
+		}
+		lazyDataset = new AggregateDataset(true, mcaDataSetsByRow);
+
+		String eleNames[] = getElementNames();
+		HashMap<String, Integer> roiNameMap = new HashMap<String, Integer>();
+		for (int i = 0; i < eleNames.length; i++) {
+			roiNameMap.put(eleNames[i], i);
+		}
+
+		mapCache = new MapCache(roiNameMap, elementRois, lazyDataset);
 	}
 
 	@Override
@@ -88,46 +101,24 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 	@Override
 	public void loadBean(IRichBean vortexBean) {
 		if (vortexBean != null) {
-			setDetectorName(((VortexParameters) vortexBean).getDetectorName());
-			numberOfdetectorElements = ((VortexParameters) vortexBean).getDetectorList().size();
+			Xspress3Parameters xs3Parameters = (Xspress3Parameters) vortexBean;
+			setDetectorName(xs3Parameters.getDetectorName());
+			numberOfdetectorElements = xs3Parameters.getDetectorList().size();
 			elementRois = new List[numberOfdetectorElements];
 			for (int detectorNo = 0; detectorNo < numberOfdetectorElements; detectorNo++)
-				elementRois[detectorNo] = ((VortexParameters) vortexBean).getDetector(detectorNo).getRegionList();
+				elementRois[detectorNo] = xs3Parameters.getDetector(detectorNo).getRegionList();
 		}
 	}
 
 	@Override
 	public double[] getSpectrum(int detectorNo, int x, int y) {
-
-		if (mapCache == null) {
-			lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/fullSpectrum");
-			mapCache = new MapCache(roiNameMap, elementRois, lazyDataset);
-		}
 		return mapCache.getSpectrum(detectorNo, x, y);
-	}
-
-	public double[][][][] packto4D(int[] d1, int ny, int nx, int detIndex, int mcasize) {
-		double data4d[][][][] = new double[detIndex][ny][nx][mcasize];
-		int index = 0;
-
-		for (int i = 0; i < ny; i++) {
-			for (int j = 0; j < nx; j++) {
-				for (int dIndex = 0; dIndex < detIndex; dIndex++) {
-					for (int k = 0; k < mcasize; k++) {
-						data4d[dIndex][i][j][k] = d1[index];
-						index++;
-					}
-				}
-			}
-		}
-		return data4d;
 	}
 
 	@Override
 	public String[] getElementNames() {
 		ArrayList<String> elementRefList = new ArrayList<String>();
 		ArrayList<String> elementRefList2 = new ArrayList<String>();
-		ArrayList<String> elementsList = new ArrayList<String>();
 		List<VortexROI> elementROI = elementRois[0];
 		for (VortexROI roi : elementROI) {
 			elementRefList.add(roi.getRoiName());
@@ -135,7 +126,7 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 		}
 		for (int i = 1; i < elementRois.length; i++) {
 			elementROI = elementRois[i];
-			elementsList.clear();
+			ArrayList<String> elementsList = new ArrayList<String>();
 			for (VortexROI roi : elementROI) {
 				elementsList.add(roi.getRoiName());
 			}
@@ -147,4 +138,5 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 		}
 		return elementRefList.toArray(new String[elementRefList.size()]);
 	}
+
 }

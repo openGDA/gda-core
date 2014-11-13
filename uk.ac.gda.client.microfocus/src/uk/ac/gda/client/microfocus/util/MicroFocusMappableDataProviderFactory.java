@@ -26,61 +26,36 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 
 public class MicroFocusMappableDataProviderFactory {
+
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusMappableDataProviderFactory.class);
-	public static MicroFocusMappableDataProvider getInstance(String fileName)
-	{
-		try {
-			Object bean = BeansFactory.getBean(new File(fileName));
-			if(bean instanceof XspressParameters)
-			{
-				logger.info("xspress bean " );
-				return new XspressMFMappableDataProvider();
-			}
-			else if(bean instanceof VortexParameters)
-			{
-				logger.info("vortex bean " );
-				return new VortexMFMappableDataProvider();
-			}
-			else if(bean instanceof DetectorParameters)
-			{
-				return new ScalerMFMappableDataProvider();
-			}
-			
-		} catch (Exception e) {
-			logger.error("Could not get instance of MicroFocusMappableDataProvider using "+fileName,e);
-			e.printStackTrace();
-		}
-		return null;
+
+	public static MicroFocusMappableDataProvider getInstance(String fileName) throws Exception {
+
+		Object bean = BeansFactory.getBean(new File(fileName));
+		return getInstance(bean);
+
 	}
-	
-	public static MicroFocusMappableDataProvider getInstance(Object bean)
-	{
-		try {
-			if(bean instanceof XspressParameters)
-			{
-				logger.info("xspress bean " );
-				return new XspressMFMappableDataProvider();
-			}
-			else if(bean instanceof VortexParameters)
-			{
-				logger.info("vortex bean " );
-				return new VortexMFMappableDataProvider();
-			}
-			else if(bean instanceof DetectorParameters)
-			{
-				return new ScalerMFMappableDataProvider();
-			}
-			
-		} catch (Exception e) {
-			logger.error("Could not get instance of MicroFocusMappableDataProvider using bean",e);
-			e.printStackTrace();
+
+	public static MicroFocusMappableDataProvider getInstance(Object bean) {
+
+		if (bean instanceof XspressParameters) {
+			logger.info("xspress bean ");
+			return new XspressMFMappableDataProvider();
+		} else if (bean instanceof Xspress3Parameters) {
+			logger.info("xspress3 bean ");
+			return new Xspress3MFMappableDataProvider();
+		} else if (bean instanceof VortexParameters) {
+			logger.info("vortex bean ");
+			return new VortexMFMappableDataProvider();
+		} else if (bean instanceof DetectorParameters) {
+			return new ScalerMFMappableDataProvider();
 		}
-		return null;
+
+		throw new IllegalArgumentException("Data provider matching " + bean.getClass() + " could not be found!");
 	}
-	
-	
 
 }

@@ -232,4 +232,5 @@ class B18SamplePreparer:
 			filter = bean.getFilter()
 			self.log( "moving sample wheel to " + str(filter))
 			self.samplewheel_scannable.moveToFilter(filter)
+			self.samplewheel_scannable.waitWhileBusy()
 		print "sample wheel move complete"
