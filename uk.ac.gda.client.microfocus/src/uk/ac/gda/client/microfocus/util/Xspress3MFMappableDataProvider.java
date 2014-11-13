@@ -75,7 +75,7 @@ public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvid
 			mcaDataSetsByRow[row] = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/"
 					+ Xspress3Detector.getNameOfRowSubNode(row));
 		}
-		lazyDataset = new AggregateDataset(false, mcaDataSetsByRow);
+		lazyDataset = new AggregateDataset(true, mcaDataSetsByRow);
 
 		String eleNames[] = getElementNames();
 		HashMap<String, Integer> roiNameMap = new HashMap<String, Integer>();

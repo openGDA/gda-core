@@ -240,8 +240,8 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 
 	public void updateFileName() {
 		if (!configFileName.isDisposed()) {
-			final Object fileNameValue = configFileName.getText();
-			if (fileNameValue == null || "".equals(fileNameValue) || isFileNameChangeRequired()) {
+			final String fileNameValue = configFileName.getText();
+			if (fileNameValue == null || fileNameValue.isEmpty() || isFileNameChangeRequired()) {
 				updateFileName(getDetectorType().getValue());
 			}
 		}
@@ -262,53 +262,34 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 					final String element, edge;
 					final Object params = ob.getScanParameters();
 					if ((params instanceof XasScanParameters) || params instanceof XanesScanParameters) {
+						
 						if (params instanceof XasScanParameters) {
 							element = BeanUI.getBeanField("Element", XasScanParameters.class).getValue().toString();
 							edge = BeanUI.getBeanField("Edge", XasScanParameters.class).getValue().toString();
-						} 
-						else {
+						} else {
 							element = BeanUI.getBeanField("Element", XanesScanParameters.class).getValue().toString();
 							edge = BeanUI.getBeanField("Edge", XanesScanParameters.class).getValue().toString();
 						}
+						
 						if (value.equals("Silicon")) {
 							configFileName.setText("Vortex_Parameters" + element + "_" + edge + ".xml");
-						} 
-						else if (value.equals("Germanium")) {
+						} else if (value.equals("Germanium")) {
 							configFileName.setText("Xspress_Parameters" + element + "_" + edge + ".xml");
-						}
-						if (value.equals("Xspress3")) {
+						} else if (value.equals("Xspress3")) {
 							configFileName.setText("Xspress3_Parameters" + element + "_" + edge + ".xml");
-						} 
+						}
 					} else {
-						if (value.equals("Silicon")) {
-							configFileName.setText("Vortex_Parameters.xml");
-						} 
-						else if (value.equals("Germanium")) {
-							configFileName.setText("Xspress_Parameters.xml");
-						}
-						else if (value.equals("Xspress3")) {
-							configFileName.setText("Xspress3_Parameters.xml");
-						}
+						configFileName.setText("");
 					}
 					setFileNameChangeRequired(false);
 				}
 			} catch (Exception ex) {
 				logger.error("Cannot auto change the Fluorescence file name.", ex);
 				setFileNameChangeRequired(true);
-				if (value.equals("Silicon"))
-					configFileName.setText("Vortex_Parameters.xml");
-				else if (value.equals("Germanium"))
-					configFileName.setText("Xspress_Parameters.xml");
-				else if (value.equals("Xspress3"))
-					configFileName.setText("Xspress3_Parameters.xml");
+				configFileName.setText("");
 			}
 		} else {
-			if (value.equals("Silicon"))
-				configFileName.setText("Vortex_Parameters.xml");
-			else if (value.equals("Germanium"))
-				configFileName.setText("Xspress_Parameters.xml");
-			else if (value.equals("Xspress3"))
-				configFileName.setText("Xspress3_Parameters.xml");
+			configFileName.setText("");
 		}
 	}
 
@@ -322,7 +303,7 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 	
 	public void checkConfigFile(String detectorType) throws ClassNotFoundException{
 		final IFolder dir = ExperimentFactory.getExperimentEditorManager().getSelectedFolder();
-		final IFile configFile = dir.getFile(configFileName.getText());
+		IFile configFile = dir.getFile(configFileName.getText());
 		final XMLCommandHandler xmlCommandHandler;
 		
 		if (detectorType.equals("Germanium"))
@@ -335,13 +316,14 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 			throw new ClassNotFoundException("XmlCommandHandler not found");
 		IFile returnFromTemplate = null;
 		if (!configFile.exists()) {
-			if (checkTemplate)
+			if (checkTemplate && !configFileName.getText().isEmpty())
 				returnFromTemplate = xmlCommandHandler.doTemplateCopy(dir, configFileName.getText());
 			if (returnFromTemplate == null) {
 				String newName = xmlCommandHandler.doCopy(dir).getName();
 				configFileName.setText(newName);
 			}
 		}
+		configFile = dir.getFile(configFileName.getText());
 		if (configFile.exists())
 			ExperimentFactory.getExperimentEditorManager().openEditor(configFile);
 	

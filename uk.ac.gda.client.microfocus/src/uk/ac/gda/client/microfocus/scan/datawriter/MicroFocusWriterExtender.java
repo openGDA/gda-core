@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.Dataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
@@ -567,13 +568,20 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					slice = lazyDataset.getSlice(new int[] { y, x, detNo, 0 }, new int[] { y + 1, x + 1, detNo + 1,
 							spectrumLength }, new int[] { 1, 1, 1, 1 });
 				}
-			} else if (isXspress3Scan()){
-				//  when SWMR available we can write all MCAs for to a single multidimensional data block
-				//  but for the moment have different data per row.
-				String nameOfMcaForGivenRow = "/entry1/instrument/" + detectorName + "/"+ Xspress3Detector.getNameOfRowSubNode(y);
-				lazyDataset = dataHolder.getLazyDataset(nameOfMcaForGivenRow);
-				slice = lazyDataset.getSlice(new int[] { x, detNo, 0 }, new int[] { x + 1, detNo + 1,
-						spectrumLength }, new int[] { 1, 1, 1 });
+			} else if (isXspress3Scan()) {
+				// when SWMR available we can write all MCAs for to a single multidimensional data block
+				// but for the moment have different data per row.
+				try {
+					String nameOfMcaForGivenRow = "/entry1/instrument/" + detectorName + "/"
+							+ Xspress3Detector.getNameOfRowSubNode(y);
+					lazyDataset = dataHolder.getLazyDataset(nameOfMcaForGivenRow);
+					slice = lazyDataset.getSlice(new int[] { x, detNo, 0 }, new int[] { x + 1, detNo + 1,
+							spectrumLength }, new int[] { 1, 1, 1 });
+				} catch (Exception e) {
+					// absorb the exception here as if the MCA does not exist then it will probably be because the row
+					// has not completed so the MCA are not available yet.
+					slice = AbstractDataset.zeros(new int[] { 4096 }, Dataset.ARRAYINT64);
+				}
 			}
 
 			if (slice != null) {

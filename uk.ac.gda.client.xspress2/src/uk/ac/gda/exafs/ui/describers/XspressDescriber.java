@@ -33,7 +33,7 @@ public class XspressDescriber extends XMLBeanContentDescriber {
 	}
 	@Override
 	public String getEditorId() {
-		return "uk.ac.gda.exafs.ui.NewXspressParametersEditor";
+		return "uk.ac.gda.exafs.ui.XspressParametersEditor";
 	}
 
 }
