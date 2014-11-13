@@ -22,7 +22,6 @@ package gda.jython;
 import static java.text.MessageFormat.format;
 import gda.commandqueue.IFindableQueueProcessor;
 import gda.configuration.properties.LocalProperties;
-import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.Scannable;
