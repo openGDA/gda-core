@@ -78,6 +78,14 @@ public class ScannableGroupTest {
 	}
 
 	@Test
+	public void testAsynchronousMoveToWithString() throws DeviceException {
+		group.asynchronousMoveTo(new Object[] {1., "pos", 3.});
+		verify(a).asynchronousMoveTo(1.);
+		verify(b).asynchronousMoveTo("pos");
+		verify(c).asynchronousMoveTo(3.);
+	}
+
+	@Test
 	public void testCheckPositionOkay() throws DeviceException {
 		assertEquals(null, group.checkPositionValid(new Double[] {1., 2., 3.}));
 		verify(a).checkPositionValid(new Double[] {1.});
