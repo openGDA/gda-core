@@ -84,4 +84,10 @@ public class HardwareTriggerXmap extends XmapSimpleAcquire {
 		vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), names));
 		return vector;
 	}
+	
+	@Override
+	public void configureAcquireAndPeriodTimes(double collectionTime)
+			throws Exception {
+		// do nothing here		
+	}
 }

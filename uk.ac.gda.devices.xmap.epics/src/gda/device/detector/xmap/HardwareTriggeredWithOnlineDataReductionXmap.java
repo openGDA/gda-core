@@ -159,4 +159,10 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 	public void setRois(VortexROI[] rois) {
 		this.rois = rois;
 	}
+
+	@Override
+	public void configureAcquireAndPeriodTimes(double collectionTime)
+			throws Exception {
+		// do nothing here		
+	}
 }

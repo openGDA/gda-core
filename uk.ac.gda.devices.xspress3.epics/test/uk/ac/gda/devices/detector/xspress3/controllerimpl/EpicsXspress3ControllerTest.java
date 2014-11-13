@@ -48,14 +48,14 @@ public class EpicsXspress3ControllerTest {
 			x3c.setTriggerMode(TRIGGER_MODE.TTl_Veto_Only);
 			x3c.setPerformROICalculations(true);
 			x3c.setPerformROIUpdates(true);
-
+			x3c.setNumberOfChannels(4);
+			
 			// create detector
 			x3d = new Xspress3Detector();
 			x3d.setName("x3d");
 			x3d.setController(x3c);
 			x3d.setNumTrackerExtension("");
-			x3d.setNumberOfChannelsToRead(4); // this defines the extraNames and
-												// plottable values
+
 			x3d.setFirstChannelToRead(0);
 			x3d.configure();
 

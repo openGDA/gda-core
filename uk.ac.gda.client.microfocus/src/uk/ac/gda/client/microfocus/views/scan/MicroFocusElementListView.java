@@ -353,9 +353,9 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		elementList.add("It");
 	}
 
-	private void loadXspress3Nexus(final HDF5File tree, final String filePath) {
+	private void loadXspress3Nexus(final Tree tree, final String filePath) {
 		
-		HDF5NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
+		NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
 		if (nl == null){
 			nl = tree.findNodeLink("/entry1/before_scan/DetectorConfigurationParameters");
 		}
