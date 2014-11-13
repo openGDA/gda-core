@@ -18,7 +18,7 @@ from microfocus.raster_map import RasterMap
 #
 class RasterMapReturnWrite(RasterMap):
     
-    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer, detectorPreparer, raster_xmap, traj1tfg, traj1xmap,traj3tfg, traj3xmap, traj1SampleX, traj3SampleX, raster_xspress, traj1PositionReader, traj3PositionReader, trajBeamMonitor):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer, detectorPreparer, traj_xspress3, traj1tfg, traj1xmap,traj3tfg, traj3xmap, traj1SampleX, traj3SampleX, traj1PositionReader, traj3PositionReader, trajBeamMonitor):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         self.d7a=d7a
@@ -28,19 +28,18 @@ class RasterMapReturnWrite(RasterMap):
         self.ExafsScriptObserver = ExafsScriptObserver
         self.outputPreparer = outputPreparer
         self.detectorPreparer = detectorPreparer
-        self.raster_xmap=raster_xmap
 
         self.traj1SampleX=traj1SampleX
         self.traj3SampleX=traj3SampleX
         self.trajSampleX=traj1SampleX
+        
+        self.traj_xspress3 = traj_xspress3
         self.traj1tfg=traj1tfg
         self.traj3tfg=traj3tfg
         self.trajtfg=traj1tfg
         self.traj1xmap=traj1xmap
         self.traj3xmap=traj3xmap
         self.trajxmap=traj1xmap
-        
-        self.raster_xspress = raster_xspress
         
         self.traj1PositionReader = traj1PositionReader
         self.traj3PositionReader = traj3PositionReader
@@ -75,19 +74,30 @@ class RasterMapReturnWrite(RasterMap):
         
         detectorBean = beanGroup.getDetector()
         detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
-        if detectorBean.getExperimentType() != "Fluorescence" or detectorType != "Silicon":
+        
+        if detectorBean.getExperimentType() != "Fluorescence": # or detectorType != "Silicon":
             print "*** Faster maps may only be performed using the Xmap Vortex detector! ***"
             print "*** Change detector type in XML or mapping mode by typing map.disableFasterRaster()"
             return
         
+        fluoDetector = self.trajxmap
+        if detectorType == "Xspress3":
+            fluoDetector = self.traj_xspress3
+            fluoDetector.setHardwareTriggerProvider(self.trajtfg.getHardwareTriggerProvider())
+        else:
+            # may not have to do this: check.
+            self.trajxmap.setScanNumberOfPoints(nx)
+        # NB: no HardwareTriggered version of Xspress2 has been written
+        
         point_collection_time = scanBean.getRowTime() / nx
         self.trajtfg.setIntegrateBetweenPoints(True)
-        self.trajxmap.setIntegrateBetweenPoints(True)
+#         fluoDetector.setIntegrateBetweenPoints(True)
         self.trajtfg.setCollectionTime(point_collection_time)
-        self.trajxmap.setCollectionTime(point_collection_time)
-        self.trajxmap.setScanNumberOfPoints(nx)
+#         fluoDetector.setCollectionTime(point_collection_time)
+#         fluoDetector.setScanNumberOfPoints(nx)
         sptw = ScanPositionsTwoWay(self.trajSampleX,scanBean.getXStart(), scanBean.getXEnd(), scanBean.getXStepSize())
-        tsl  = TrajectoryScanLine([self.trajSampleX, sptw,  self.trajtfg, self.trajxmap, scanBean.getRowTime()/(nx)] )
+        tsl  = TrajectoryScanLine([self.trajSampleX, sptw,  self.trajtfg, scanBean.getRowTime()/(nx)] )
+#         tsl  = TrajectoryScanLine([self.trajSampleX, sptw,  self.trajtfg, fluoDetector, scanBean.getRowTime()/(nx)] )
         tsl.setScanDataPointQueueLength(10000)
         tsl.setPositionCallableThreadPoolSize(10)
         xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(), scanBean.getYStepSize(), self.trajBeamMonitor, tsl, self.trajPositionReader])

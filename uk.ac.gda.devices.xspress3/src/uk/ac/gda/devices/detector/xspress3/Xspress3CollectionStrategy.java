@@ -5,7 +5,6 @@ import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
-//import gda.epics.CAClient;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.scan.ScanInformation;
@@ -15,6 +14,12 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+/**
+ * not used or tested yet.
+ * 
+ * @author rjw82
+ *
+ */
 public class Xspress3CollectionStrategy implements AsyncNXCollectionStrategy, Configurable{
 
 	private Xspress3Controller controller;

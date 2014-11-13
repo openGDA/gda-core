@@ -15,6 +15,7 @@ import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import org.nexusformat.NexusFile;
 
 import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
+import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
@@ -36,7 +38,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * @author rjw82
  * 
  */
-public class Xspress3Detector extends DetectorBase implements NexusDetector, FluorescenceAcquire {
+public class Xspress3Detector extends DetectorBase implements NexusDetector, FluorescenceDetector {
 
 	public static int SUM_ALL_ROI = 0;
 	public static int SUM_FIRST_ROI = 1;
@@ -48,7 +50,6 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	private String unitsLabel = "counts";
 	private int framesRead = 0;
 	private int firstChannelToRead = 0;
-	private int numberOfChannelsToRead = 1;
 	private int summingMethod = SUM_ALL_ROI;
 
 	private boolean writeHDF5Files = false;
@@ -59,6 +60,24 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	private int currentScanNumber = -1;
 	
 	private String configFileName;
+	private String[] regionNames;
+	private int rowBeingCollected;
+	private int[] currentDimensions;
+
+	/**
+	 * For a given row in a multiDimensional scan , this returns the name of the
+	 * subentry in the Nexus file which contains all the MCAs for that row.
+	 * <p>
+	 * This will become redundant when SWMR is available and all Mca data can be
+	 * placed in the same HDF5 file by the Area Detector EPICS plugin, so there
+	 * will be no need to put MCA data in different files and Nexus nodes.
+	 * 
+	 * @param rowNumber
+	 * @return
+	 */
+	public static String getNameOfRowSubNode(int rowNumber) {
+		return "mcas_row_" + rowNumber;
+	}
 
 	public Xspress3Detector() {
 		super();
@@ -75,6 +94,8 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 			filePrefix = getName();
 		}
 		inputNames = new String[] {};
+		
+		configureExtraNames();
 	}
 
 	private void createNumTracker() {
@@ -94,17 +115,30 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 		ScanInformation currentscan = InterfaceProvider
 				.getCurrentScanInformationHolder().getCurrentScanInformation();
 		currentScanNumber = currentscan.getScanNumber();
+		currentDimensions = currentscan.getDimensions();
+
 		int numDimensions = currentscan.getDimensions().length;
 		int lengthOfEachScanLine = currentscan.getDimensions()[numDimensions - 1];
 		setNumberOfFramesToCollect(lengthOfEachScanLine);
 		stop();
-		prepareFileWriting();
+		prepareFileWriting(currentDimensions);
+		
+		rowBeingCollected = -1;
 	}
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
 		framesRead = 0;
 		startRunningXspress3FrameSet();
+		rowBeingCollected++;
+		
+//		for when we have SWMR and can write to a multi-dimensional HDF5 file
+		// only start the xspress3 during the first row of a multi-dimensional scan
+//		if (newScan){
+//			framesRead = 0;
+//			startRunningXspress3FrameSet();
+//			newScan = false;
+//		}
 	}
 
 	protected void startRunningXspress3FrameSet() throws DeviceException {
@@ -129,27 +163,40 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 		}
 	}
 
-	private void prepareFileWriting() throws DeviceException {
+	private void prepareFileWriting(int[] numDimensions) throws DeviceException {
 		if (writeHDF5Files) {
 			// set file path name, number here if known or set
-			if (filePath != null && !filePath.isEmpty()) {
-				controller.setFilePath(filePath);
-			} else {
-				controller.setFilePath(PathConstructor
-						.createFromDefaultProperty());
+			
+			String scanNumber = getScanNumber();
+			String subFolder = "";
+			if (currentDimensions.length > 1){
+				subFolder = scanNumber;
 			}
+			
+			filePath = PathConstructor.createFromRCPProperties();
+			filePath += subFolder;
+			File filePathTester = new File(filePath);
+			if (!filePathTester.exists()){
+				filePathTester.mkdirs();
+			}
+			controller.setFilePath(filePath);
 
 			if (filePrefix != null && !filePrefix.isEmpty()) {
-				String scanNumber = getScanNumber();
 				if (!scanNumber.isEmpty()) {
 					scanNumber = "_" + scanNumber;
 				}
 				controller.setFilePrefix(filePrefix + scanNumber + "_");
 			} else {
-				controller.setFilePrefix("xspress3_");
+				controller.setFilePrefix(getName() + "_");
 			}
-
+			
 			controller.setNextFileNumber(0);
+			controller.setHDFFileAutoIncrement(true);
+			controller.setHDFNumFramesToAcquire(currentDimensions[currentDimensions.length -1]);
+			
+			// for future use with SWMR
+//			controller.setNextFileNumber(Integer.parseInt(getScanNumber()));
+//			controller.setHDFFileDimensions(numDimensions);
 		}
 	}
 
@@ -229,9 +276,6 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	 * <p>
 	 * Returns the FF (sum of ROI) in the plottable values. May want the option
 	 * in the future to return the individual ROI values instead.
-	 * <p>
-	 * TODO add a link to the HDF5 file created by underlying controller instead
-	 * of adding more data to this Nexus tree.
 	 * 
 	 * @param firstFrame
 	 * @param lastFrame
@@ -249,7 +293,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 
 		// readout ROI in format [frame][detector channel][ROIs]
 		Double[][][] data = controller.readoutDTCorrectedROI(firstFrame,
-				lastFrame, firstChannelToRead, numberOfChannelsToRead
+				lastFrame, firstChannelToRead, controller.getNumberOfChannels()
 						+ firstChannelToRead - 1);
 		// calc FF from ROI
 		int numFramesRead = lastFrame - firstFrame + 1;
@@ -261,14 +305,56 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 		for (int frame = 0; frame < numFramesRead; frame++) {
 			NXDetectorData thisFrame = new NXDetectorData(this);
 			INexusTree detTree = thisFrame.getDetTree(getName());
-			thisFrame.addData(detTree, sumLabel,
-					new int[] { numberOfChannelsToRead }, NexusFile.NX_FLOAT64,
-					FFs[frame], unitsLabel, 1);
-			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
-				thisFrame.setPlottableValue(getExtraNames()[chan],
-						FFs[frame][chan]);
+			
+			// add FF (all ROI, all channels)
+			thisFrame.addData(detTree, sumLabel, new int[] { controller.getNumberOfChannels() }, NexusFile.NX_FLOAT64, FFs[frame], unitsLabel, 1);
+			
+			// add regions of interest for each channel
+			Double [][] thisFrameData = data[frame];
+			for (int region = 0; region < regionNames.length; region++){
+				Double[] countsPerChannel = new Double[controller.getNumberOfChannels()];
+				
+				for (int channel = 0; channel < controller.getNumberOfChannels(); channel++){
+					countsPerChannel[channel] = thisFrameData[channel][region];
+				}
+				thisFrame.addData(detTree, regionNames[region], new int[] { controller.getNumberOfChannels()}, NexusFile.NX_FLOAT64, countsPerChannel, unitsLabel, 2);
 			}
-			thisFrame.addScanFileLink(getName(), "nxfile://" + deriveFilename() + "#entry/instrument/detector/data");
+			
+//			// add the FFs as the plottable values (seen in Jython Terminal and ASCII files)
+//			for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
+//				thisFrame.setPlottableValue(getExtraNames()[chan], FFs[frame][chan]);
+//			}
+			
+			// add all the rois as plottable values, plus a final FF.
+			int index = 0;
+			double ffSum = 0;
+			String[] extraNames = getExtraNames();
+			for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
+				for (int roi = 0; roi < controller.getNumberROIToRead(); roi++) {
+					double roiCounts = data[frame][chan][roi];
+					ffSum += roiCounts;
+					thisFrame.setPlottableValue(extraNames[index], roiCounts);
+					index++;
+				}
+			}
+			thisFrame.setPlottableValue("FF", ffSum);
+
+			
+			// Add link to MCA data files
+			// Only need to do this for the very first frame of a file. This assumes a 2D scan.
+			if (rowBeingCollected == 0 && (frame + firstFrame) == 0) {
+				// There will be a new file per row, so create a new link per row.
+				// This must be done first time, as new links in later frames will be ignored when data is appended in the Nexus file. 
+				int numRows = currentDimensions[0];
+				String path = controller.getFilePath();
+				String prefix = controller.getFilePrefix();
+				for (int row = 0; row < numRows; row++) {
+					String hdf5FileName = path + prefix + row + ".hdf5";
+					String nodeName = getNameOfRowSubNode(row);
+					String fullLink = "nxfile://" + hdf5FileName + "#entry/instrument/detector/data";
+					thisFrame.addExternalFileLink(getName(), nodeName, fullLink, false, false);
+				}
+			}
 			
 			results[frame] = thisFrame;
 		}
@@ -278,16 +364,16 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	public Double[] readoutFF() throws DeviceException {
 		// assume that this is readout before the full readout() is called!!
 		Double[][][] data = controller.readoutDTCorrectedROI(framesRead,
-				framesRead, firstChannelToRead, numberOfChannelsToRead
+				framesRead, firstChannelToRead, controller.getNumberOfChannels()
 						+ firstChannelToRead - 1);
 		return calculateFFs(data,1)[0];
 	}
 
 	private Double[][] calculateFFs(Double[][][] data, int numFramesRead) {
-		Double[][] FFs = new Double[numFramesRead][numberOfChannelsToRead]; // [frame][detector
+		Double[][] FFs = new Double[numFramesRead][controller.getNumberOfChannels()]; // [frame][detector
 																			// channel]
 		for (int frame = 0; frame < numFramesRead; frame++) {
-			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
+			for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
 				if (summingMethod == 1) {
 					FFs[frame][chan] = data[frame][chan][0];
 				} else {
@@ -298,22 +384,28 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 		return FFs;
 	}
 
-	private String deriveFilename() throws DeviceException {
-		String path = controller.getFilePath();
-		String prefix = controller.getFilePrefix();
-		String scanNumber = Integer.toString(controller.getNextFileNumber());
-		String xspress3File =  path + prefix + scanNumber + ".hdf5";
-		return xspress3File;
-	}
-
 	@Override
 	public String[] getExtraNames() {
-		// these are the plottable values. For this detector it is the FF for
-		// each channel
-		String[] extraNames = new String[numberOfChannelsToRead];
-		for (int i = 0; i < numberOfChannelsToRead; i++) {
-			extraNames[i] = "Chan" + (firstChannelToRead + i);
+//		// these are the plottable values. For this detector it is the FF for
+//		// each channel
+//		String[] extraNames = new String[controller.getNumberOfChannels()];
+//		for (int i = 0; i < controller.getNumberOfChannels(); i++) {
+//			extraNames[i] = "Chan" + (firstChannelToRead + i);
+//		}
+//		return extraNames;
+		
+		int numExtraNames = (controller.getNumberROIToRead() * controller.getNumberOfChannels()) + 1;
+		String[] extraNames = new String[numExtraNames];
+		int index = 0;
+		for(int chan = 0; chan < controller.getNumberOfChannels(); chan++){
+			for(int roi = 0; roi < controller.getNumberROIToRead(); roi++){
+				String valueName = "Chan"+chan+"_"+regionNames[roi];
+				extraNames[index] = valueName;
+				index++;
+			}
 		}
+		extraNames[numExtraNames-1] = "FF";
+		
 		return extraNames;
 	}
 
@@ -330,7 +422,10 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 			throw new DeviceException("Too many regions! Only "
 					+ MAX_ROI_PER_CHANNEL + " allowed.");
 		}
-		for (int chan = firstChannelToRead; chan < numberOfChannelsToRead
+		
+		defineRegionNames(regionList);
+		
+		for (int chan = firstChannelToRead; chan < controller.getNumberOfChannels()
 				+ firstChannelToRead; chan++) {
 			for (int roiNum = 0; roiNum < MAX_ROI_PER_CHANNEL; roiNum++) {
 				if (roiNum < regionList.length) {
@@ -343,6 +438,15 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 			}
 		}
 		controller.setNumberROIToRead(regionList.length);
+		
+	}
+
+	private void defineRegionNames(ROI[] regionList) {
+		regionNames = new String[regionList.length];
+		
+		for(int region = 0; region < regionList.length; region++){
+			regionNames[region] = regionList[region].getName();
+		}
 	}
 
 	/**
@@ -353,11 +457,14 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	 * @throws DeviceException
 	 */
 	public ROI[] getRegionsOfInterest() throws DeviceException {
+		// assume that the ROIs were defined via this class and so the
+		// regionNames array kept in this class has the same size as the regions
+		// defined in the controller
 		ROI[] rois = new ROI[controller.getNumberROIToRead()];
 
 		for (int roiNum = 0; roiNum < rois.length; roiNum++) {
 			rois[roiNum] = new ROI();
-			rois[roiNum].setName("ROI" + roiNum);
+			rois[roiNum].setName(regionNames[rois.length]);
 			Integer[] limits = controller.getROILimits(0, roiNum);
 			rois[roiNum].setStart(limits[0]);
 			rois[roiNum].setEnd(limits[1]);
@@ -372,7 +479,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	
 	public int[][] getData() throws DeviceException{
 		
-		Double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
+		Double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestMCA(firstChannelToRead, controller.getNumberOfChannels() - 1);
 		int[][] deadTimeCorrectedDataInt = new int[deadTimeCorrectedData.length][deadTimeCorrectedData[0].length];
 		for(int i=0;i<deadTimeCorrectedData.length;i++){
 			for(int j=0;j<deadTimeCorrectedData[0].length;j++){
@@ -402,21 +509,8 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 		} while (((Timer) Finder.getInstance().find("tfg")).getStatus() == Timer.ACTIVE);
 
 		controller.doStop();
-
-//		int[] data = null;
-//		if (mcaHandle >= 0 && daServer != null && daServer.isConnected())
-//			data = readoutMca(0, 1, 4096); // NOTE 1 time frame
-//
-//		if (data != null) {
-//			try {
-//				int[][][][] fourD = unpackRawDataTo4D(data, 1, numResGrades(), 4096);
-//				return fourD[0];
-//			} catch (Exception e) {
-//				throw new DeviceException("Error while unpacking MCA Data. Data length was " + data.length, e);
-//			}
-//		}
-
-		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
+		
+		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, controller.getNumberOfChannels() - 1);
 	}
 
 	public int getFirstChannelToRead() {
@@ -427,19 +521,14 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 		this.firstChannelToRead = firstChannelToRead;
 	}
 
-	public int getNumberOfChannelsToRead() {
-		return numberOfChannelsToRead;
-	}
-
-	public void setNumberOfChannelsToRead(int numberOfChannelsToRead) {
-		this.numberOfChannelsToRead = numberOfChannelsToRead;
+	private void configureExtraNames(){
 		// this defines the number of extraNames as currently extraNames = FF
 		// per channel
-		String[] newExtraNames = new String[numberOfChannelsToRead];
-		String[] newoutputFormat = new String[numberOfChannelsToRead];
+		String[] newExtraNames = new String[controller.getNumberOfChannels()];
+		String[] newoutputFormat = new String[controller.getNumberOfChannels()];
 		newoutputFormat[0] = this.outputFormat[0];
 
-		for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
+		for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
 			String label = channelLabelPrefix + (chan + firstChannelToRead);
 			newExtraNames[chan] = label;
 			newoutputFormat[chan] = this.outputFormat[0];
@@ -524,7 +613,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 
 	@Override
 	public Object getCountRates() throws DeviceException {
-		// TODO Auto-generated method stub
+		// is this ever called??? Should it be removed from the interface???
 		return null;
 	}
 
@@ -545,9 +634,6 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 
 		Xspress3Parameters vortexParameters = (Xspress3Parameters) XMLHelpers.createFromXML(Xspress3Parameters.mappingURL,
 				Xspress3Parameters.class, Xspress3Parameters.schemaURL, getConfigFileName());
-		// Number of ROIs defined in XML file.
-//		configureRegionsOfInterest(vortexParameters);
-//		configureChannelLabels(vortexParameters);
 		
 		List<VortexROI> vortexRois = vortexParameters.getDetector(0).getRegionList();
 		ROI[] rois = new ROI[vortexRois.size()];

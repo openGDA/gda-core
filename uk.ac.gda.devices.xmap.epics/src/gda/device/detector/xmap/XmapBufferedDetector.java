@@ -22,17 +22,12 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeNode;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.detector.BufferedDetector;
 import gda.device.detector.DAServer;
 import gda.device.detector.DetectorBase;
-import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
@@ -44,24 +39,14 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gov.aps.jca.CAException;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.VortexROI;
-import uk.ac.gda.util.CorrectionUtils;
 
 /**
  * For using Xia XMap within the ContinuousScan-style trajectory scans.
@@ -186,7 +171,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				String beamline = LocalProperties.get("gda.factory.factoryName", "").toLowerCase();
 				lastFileName = lastFileName.replace("X:/", "/dls/" + beamline);
 								
-				waitForFileToBeReadable();
+				new XmapFileUtils(lastFileName).waitForFileToBeReadable();
 
 				createFileLoader();
 				try {
@@ -212,9 +197,14 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				throw new DeviceException( msg);
 			}
 			
+			XmapNXDetectorDataCreator dataCreator = new XmapNXDetectorDataCreator(
+					fileLoader, xmap.vortexParameters.getDetectorList(),
+					getExtraNames(), getOutputFormat(), getName(),
+					isDeadTimeEnabled(), xmap.getEventProcessingTimes(),
+					xmap.isSumAllElementData());
 			NexusTreeProvider[] container = new NexusTreeProvider[numPointsToRead];
 			for (int i = 0; i < numPointsToRead; i++) {
-				container[i] = writeToNexusFile(i, fileLoader.getData(i));
+				container[i] = dataCreator.writeToNexusFile(i, fileLoader.getData(i));
 			}
 			return container;
 		} catch (Exception e) {
@@ -228,45 +218,6 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			}
 			controller.setCollectionMode(COLLECTION_MODES.MCA_SPECTRA);
 			throw new DeviceException("Unable to load file called " + lastFileName, e);
-		}
-	}
-
-	private void waitForFileToBeReadable() throws DeviceException, InterruptedException {
-		try {
-			int timeout = 5000; // ms
-			int timeWaited = 0; // ms
-			int waitTime = 500; // ms
-			
-			// first wait until the file can be seen on the filesystem
-			File existsTest = new File(lastFileName);
-			while (!existsTest.exists() && timeWaited < timeout){
-				Thread.sleep(waitTime);
-				timeWaited += waitTime;
-			}
-			
-			// then keep trying to read from it, as it may still being read to
-			while (true && timeWaited < timeout) {
-				try {
-					// if get here then it at leasts exists
-					BufferedInputStream fileTester = new BufferedInputStream(new FileInputStream(lastFileName));
-					fileTester.read(new byte[64]);
-					// if no exception then its OK to properly open the file
-					fileTester.close();
-					return;
-				} catch (FileNotFoundException e) {
-					logger.warn("FileNotFoundException while waiting for Xmap HDF5, will try again...");
-					Thread.sleep(waitTime);
-					timeWaited += waitTime;
-				} catch (IOException e) {
-					logger.warn("IOException while waiting for Xmap HDF5, will try again...");
-					Thread.sleep(waitTime);
-					timeWaited += waitTime;
-				}
-			}
-			
-			throw new DeviceException("Too many attempts / timeout while waiting for XMAP HDF5 file to be readable - " + lastFileName);
-		} catch (InterruptedException e) {
-			throw new InterruptedException("InterruptedException while waiting for XMAP HDF5 file to be readable - " + lastFileName);
 		}
 	}
 
@@ -523,192 +474,6 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		}
 	}
 
-	// File r/w methods
-	public NXDetectorData writeToNexusFile(int dataPointNumber, short[][] detectorData) {
-		NXDetectorData output = new NXDetectorData(xmap);
-		INexusTree detTree = output.getDetTree(xmap.getName());
-
-		int numFilteredElements = xmap.getNumberOfIncludedDetectors();
-		int originalNumberOfElements = xmap.vortexParameters.getDetectorList().size();
-		int numberOfROIs = xmap.vortexParameters.getDetectorList().get(0).getRegionList().size();
-
-		// items to write to nexus
-		double[] summation = null;
-		double[] correctedAllCounts = new double[numFilteredElements];
-		final List<Double> times = this.xmap.getEventProcessingTimes();
-		double[] ocrs = new double[numFilteredElements];
-		double[] icrs = new double[numFilteredElements];
-		double[][] roiCounts = new double[numberOfROIs][numFilteredElements];
-		String[] roiNames = new String[numberOfROIs];
-		short reducedData[][] = new short[numFilteredElements][];
-
-		int index = -1;
-		for (int element = 0; element < originalNumberOfElements; element++) {
-
-			DetectorElement thisElement = this.xmap.vortexParameters.getDetectorList().get(element);
-			if (thisElement.isExcluded())
-				continue;
-			index++;
-			
-			reducedData[index] = detectorData[element];
-			
-			final double ocr = getOCR(dataPointNumber, element);
-			ocrs[index] = ocr;
-			final double icr = getICR(dataPointNumber, element);
-			icrs[index] = icr;
-
-			// Total counts
-			double allCounts = getEvents(dataPointNumber, element);
-			correctedAllCounts[index] = allCounts;// * deadTimeCorrectionFactor
-
-			// REGIONS
-			for (int iroi = 0; iroi < thisElement.getRegionList().size(); iroi++) {
-
-				final VortexROI roi = thisElement.getRegionList().get(iroi);
-
-				double count = calculateROICounts(roi.getRoiStart(), roi.getRoiEnd(), detectorData[element]);
-				if (deadTimeEnabled) {
-					Double deadTimeCorrectionFactor = CorrectionUtils.getK(times.get(element), icr, ocr);
-					if (deadTimeCorrectionFactor.isInfinite() || deadTimeCorrectionFactor.isNaN())
-						deadTimeCorrectionFactor = 0.0;
-					else
-						count *= deadTimeCorrectionFactor;
-				}
-				roiCounts[iroi][index] = count;
-				roiNames[iroi] = roi.getRoiName();
-			}
-
-			if (this.xmap.isSumAllElementData()) {
-				if (summation == null)
-					summation = new double[detectorData[element].length];
-				for (int i = 0; i < detectorData[element].length; i++) {
-					summation[i] += detectorData[element][i];
-				}
-			}
-		}
-
-		// add total counts
-		final INexusTree counts = output.addData(detTree, "totalCounts", new int[] { numFilteredElements },
-				NexusFile.NX_FLOAT64, correctedAllCounts, "counts", 1);
-		index = -1;
-		for (int element = 0; element < originalNumberOfElements; element++) {
-			DetectorElement thisElement = xmap.vortexParameters.getDetectorList().get(element);
-			if (thisElement.isExcluded())
-				continue;
-			index++;
-			output.setPlottableValue(thisElement.getName(), correctedAllCounts[index]);
-		}
-
-		// event processing time.
-		String evtProcessTimeAsString = "";
-		for (Double ept : times) {
-			evtProcessTimeAsString += ept + " ";
-		}
-		evtProcessTimeAsString = evtProcessTimeAsString.trim();
-		counts.addChildNode(new NexusTreeNode("eventProcessingTime", NexusExtractor.AttrClassName, counts,
-				new NexusGroupData(evtProcessTimeAsString)));
-
-		// ICR
-		output.addData(detTree, "icr", new int[] { numFilteredElements }, NexusFile.NX_FLOAT64, icrs, "Hz", 1);
-
-		// OCR
-		output.addData(detTree, "ocr", new int[] { numFilteredElements }, NexusFile.NX_FLOAT64, ocrs, "Hz", 1);
-
-		// roicounts
-		for (int iroi = 0; iroi < numberOfROIs; iroi++) {
-			String roiName = roiNames[iroi];
-			output.addData(detTree, roiName, new int[] { numFilteredElements }, NexusFile.NX_FLOAT64, roiCounts[iroi],
-					"counts", 1);
-			index = -1;
-			for (int element = 0; element < originalNumberOfElements; element++) {
-				DetectorElement detElement = xmap.vortexParameters.getDetectorList().get(element);
-				if (detElement.isExcluded())
-					continue;
-				index++;
-				String elementName = detElement.getName();
-				output.setPlottableValue(elementName + "_" + roiName, roiCounts[iroi][index]);
-			}
-		}
-
-		// add the full spectrum
-		output.addData(detTree, "fullSpectrum", new int[] { numFilteredElements, reducedData[0].length },
-				NexusFile.NX_INT16, reducedData, "counts", 1);
-
-		double ff = calculateScalerData(dataPointNumber, numberOfROIs, detectorData);
-		output.addData(detTree, "FF", new int[] { 1 }, NexusFile.NX_FLOAT64, new Double[] { ff }, "counts", 1);
-		output.setPlottableValue("FF", ff);
-
-		if (summation != null)
-			output.addData(detTree, "allElementSum", new int[] { summation.length }, NexusFile.NX_FLOAT64, summation,
-					"counts", 1);
-		return output;
-	}
-
-	private double getEvents(int dataPointNumber, int element) {
-		double event = fileLoader.getEvents(dataPointNumber, element);
-		return event;
-	}
-
-	private double calculateScalerData(int dataPointNumber, int numberOfROIs, short[][] detectorData) {
-		final double[] k = new double[this.xmap.vortexParameters.getDetectorList().size()];
-		final List<Double> times = this.xmap.getEventProcessingTimes();
-		for (int i = 0; i < k.length; i++) {
-			Double correctionFactor = CorrectionUtils.getK(times.get(i), getICR(dataPointNumber, i),
-					getOCR(dataPointNumber, i));
-			if (correctionFactor.isInfinite() || correctionFactor.isNaN() || correctionFactor == 0.0) {
-				correctionFactor = 1.0;
-			}
-			k[i] = correctionFactor;
-		}
-
-		// Correct mca counts using K as we go
-		Double[] rois = new Double[numberOfROIs];
-		for (int i = 0; i < rois.length; i++) {
-			rois[i] = 0.0;
-			for (int j = 0; j < k.length; j++) {
-				if (j >= this.xmap.vortexParameters.getDetectorList().size())
-					continue;
-				DetectorElement element = this.xmap.vortexParameters.getDetectorList().get(j);
-				if (element.isExcluded())
-					continue;
-				VortexROI region = element.getRegionList().get(0);
-				double correctedMCA = calculateROICounts(region.getRoiStart(), region.getRoiEnd(), detectorData[j])
-						* k[j];
-				rois[i] += correctedMCA;
-			}
-		}
-		double ff = 0;
-		for (double roi : rois) {
-			ff += roi;
-		}
-		return ff;
-	}
-
-	private double getICR(int dataPointNumber, int element) {
-		double trigger = 0.0;
-		double liveTime = 0.0;
-
-		trigger = fileLoader.getTrigger(dataPointNumber, element);
-		liveTime = fileLoader.getLiveTime(dataPointNumber, element);
-		if (trigger != 0.0 && liveTime != 0.0)
-			return trigger / liveTime;
-		return 0.0;
-	}
-
-	private double getOCR(int dataPointNumber, int element) {
-		double event = fileLoader.getEvents(dataPointNumber, element);
-		double realTime = fileLoader.getRealTime(dataPointNumber, element);
-		if (event != 0.0 && realTime != 0.0)
-			return event / realTime;
-		return 0;
-	}
-
-	private double calculateROICounts(int regionLow, int regionHigh, short[] data) {
-		double count = 0.0;
-		for (int i = regionLow; i <= regionHigh; i++)
-			count += data[i];
-		return count;
-	}
 
 	public boolean isSlave() {
 		return isSlave;

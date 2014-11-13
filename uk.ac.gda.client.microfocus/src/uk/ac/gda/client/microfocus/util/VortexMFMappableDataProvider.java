@@ -123,6 +123,7 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 		return data4d;
 	}
 
+	@Override
 	public String[] getElementNames() {
 		ArrayList<String> elementRefList = new ArrayList<String>();
 		ArrayList<String> elementRefList2 = new ArrayList<String>();
@@ -145,15 +146,5 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 			elementRefList = elementRefList2;
 		}
 		return elementRefList.toArray(new String[elementRefList.size()]);
-	}
-
-	@Override
-	public boolean hasPlotData(String elementName) {
-		String[] elementNames = getElementNames();
-		for (String element : elementNames) {
-			if (elementName.equals(element))
-				return true;
-		}
-		return false;
 	}
 }

@@ -282,7 +282,7 @@ class XasScan(Scan):
                 if group.getName() == "XES":
                     return self._createDetArray(group.getDetector(), scanBean)
         else:
-            self.log("This is a fluoresence scan")
+            self.log("This is a fluorescence scan")
             for group in detectorBean.getDetectorGroups():
                 if group.getName() == detectorBean.getFluorescenceParameters().getDetectorType():
                     #print detectorBean.getFluorescenceParameters().getDetectorType(), "experiment"
