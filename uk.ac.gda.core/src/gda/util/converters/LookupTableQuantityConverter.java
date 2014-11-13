@@ -21,7 +21,6 @@ package gda.util.converters;
 
 import gda.function.ColumnDataFile;
 import gda.function.InterpolationFunction;
-import gda.function.InterpolationWithoutExtrapolationFunction;
 
 import java.util.ArrayList;
 
@@ -100,11 +99,6 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 
 	public LookupTableQuantityConverter(String columnDataFileName, boolean filenameIsFull, int sColumn, int tColumn,
 			Mode mode) {
-		this(columnDataFileName, filenameIsFull, sColumn, tColumn, mode, true);
-	}
-	
-	public LookupTableQuantityConverter(String columnDataFileName, boolean filenameIsFull, int sColumn, int tColumn,
-			Mode mode, boolean extrapolate) {
 		this.sColumn = sColumn;
 		this.tColumn = tColumn;
 		this.mode = mode;
@@ -123,29 +117,17 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 			// and last so that conversion of min and max target gives min
 			// and max source.
 			if (performStoT()) {
-				if (extrapolate) {
-					interpolateFunctionStoT = new InterpolationFunction(columnDataFile.getColumn(sColumn), columnDataFile
-							.getColumn(tColumn), columnDataFile.getColumnUnits(sColumn), columnDataFile
-							.getColumnUnits(tColumn));
-				} else {
-					interpolateFunctionStoT = new InterpolationWithoutExtrapolationFunction(columnDataFile.getColumn(sColumn), columnDataFile
-							.getColumn(tColumn), columnDataFile.getColumnUnits(sColumn), columnDataFile
-							.getColumnUnits(tColumn));
-				}
+				interpolateFunctionStoT = new InterpolationFunction(columnDataFile.getColumn(sColumn), columnDataFile
+						.getColumn(tColumn), columnDataFile.getColumnUnits(sColumn), columnDataFile
+						.getColumnUnits(tColumn));
 			} else
 				interpolateFunctionStoT = null;
 
 			if (performTtoS()) {
-				if (extrapolate) {
-					interpolateFunctionTtoS = new InterpolationFunction(columnDataFile.getColumn(tColumn), columnDataFile
-							.getColumn(sColumn), columnDataFile.getColumnUnits(tColumn), columnDataFile
-							.getColumnUnits(sColumn));
-				} else {
-					interpolateFunctionTtoS = new InterpolationWithoutExtrapolationFunction(columnDataFile.getColumn(tColumn), columnDataFile
-							.getColumn(sColumn), columnDataFile.getColumnUnits(tColumn), columnDataFile
-							.getColumnUnits(sColumn));
-				}
-				
+				interpolateFunctionTtoS = new InterpolationFunction(columnDataFile.getColumn(tColumn), columnDataFile
+						.getColumn(sColumn), columnDataFile.getColumnUnits(tColumn), columnDataFile
+						.getColumnUnits(sColumn));
+
 				double firstT = columnDataFile.getColumn(tColumn)[0];
 				double lastT = columnDataFile.getColumn(tColumn)[columnDataFile.getColumn(tColumn).length - 1];
 				double firstS = columnDataFile.getColumn(sColumn)[0];
@@ -202,10 +184,6 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 		try {
 			return interpolateFunctionTtoS.evaluate(target);
 		} catch (Exception e) {
-			if (e instanceof IllegalArgumentException &&
-					e.getMessage().startsWith("Input value")) {
-				throw e;
-			}
 			throw new Exception(toString() + " - exception " + e.getMessage(), e);
 		}
 	}
@@ -226,10 +204,6 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 		try {
 			return interpolateFunctionStoT.evaluate(source);
 		} catch (Exception e) {
-			if (e instanceof IllegalArgumentException &&
-					e.getMessage().startsWith("Input value")) {
-				throw e;
-			}
 			throw new Exception(toString() + " - exception " + e.getMessage(), e);
 		}
 	}

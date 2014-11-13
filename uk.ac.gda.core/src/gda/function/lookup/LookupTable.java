@@ -144,7 +144,8 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 
 	@Override
 	public void configure() {
-		logger.debug("LookupTable configure called");
+		logger.info("{} configuring lookup table. This will take a while, please wait ......", getName());
+//		logger.debug("LookupTable configure called");
 		if (!configured) {
 			String filePath;
 			if (dirLUT == null) {
@@ -179,7 +180,7 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 	private void readTheFile(String filePath) {
 		lookupMap.clear();
 
-		BufferedReader br;
+		BufferedReader br = null;
 		String nextLine;
 		String[] names = null;
 		String[] unitStrings = null;
@@ -187,20 +188,20 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 		ArrayList<String> lines = new ArrayList<String>();
 		try {
 			// Find out lookup table folder
-
-			logger.debug("LookupTable loading file: " + filePath);
+			
+			logger.info("loading the look up table file {} ", filePath);
 
 			br = new BufferedReader(new FileReader(filePath));
 			while (((nextLine = br.readLine()) != null) && (nextLine.length() > 0)) {
 				if (nextLine.startsWith(getColumnHead())) {
-					logger.debug("Names are :" + nextLine.substring(6));
+					//logger.debug(nextLine);
 					// NB This regex means one or more comma space or tab
-					// This split will include the word "ScannableUnits" as one of the names
+					// This split will include the word "ScannableNames" as one of the names
 					names = nextLine.split("[, \t][, \t]*");
 				} else if (nextLine.startsWith(getColumnUnit())) {
-					logger.debug("Units are :" + nextLine.substring(6));
+					//logger.debug(nextLine);
 					// NB This regex means one or more comma space or tab
-					// This split will include the word "Units" as one of the unitStrings
+					// This split will include the word "ScannableUnits" as one of the unitStrings
 					unitStrings = nextLine.split("[, \t][, \t]*");
 				} else if (!nextLine.startsWith("#"))
 					lines.add(nextLine);
@@ -209,12 +210,21 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 			throw new IllegalArgumentException("LookupTable could not open file " + filePath, fnfe);
 		} catch (IOException ioe) {
 			throw new RuntimeException("LookupTable IOException ", ioe);
+		} finally {
+			try {
+				if (br!=null) {
+					br.close();
+				}
+			} catch (IOException e) {
+				logger.error("IOException on loading look up table", e);
+				throw new RuntimeException("IOException on loading look up table", e);
+			}
 		}
 
 		numberOfRows = lines.size();
-		logger.debug("the file contained " + numberOfRows + " lines");
+		logger.debug("the file containes " + numberOfRows + " lines");
 		int nColumns = new StringTokenizer(lines.get(0), ", \t").countTokens();
-		logger.debug("each line should contain " + nColumns + " numbers");
+		logger.debug("each line contains " + nColumns + " numbers");
 		keys = new ArrayList<Object>();
 		if (names != null) {
 			for (int i = 0; i < nColumns; i++) {

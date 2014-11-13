@@ -35,6 +35,7 @@ public class CommandQueue implements Queue {
 	ObservableComponent obsComp = new ObservableComponent();
 	HashMap<CommandId, Command> commands = new HashMap<CommandId, Command>();
 	List<CommandId> queue = new LinkedList<CommandId>();
+	CommandId headID;
 	
 	@Override
 	public CommandId addToTail(Command command) {
@@ -108,11 +109,15 @@ public class CommandQueue implements Queue {
 		Command cmd=null;
 		synchronized (queue){
 			if( queue.size()>0)
-				cmd= commands.remove(queue.remove(0));
+				cmd= commands.remove(headID=queue.remove(0));
 		}
 		if(cmd!=null)	
 			notifyListeners();
 		return cmd;
+	}
+	@Override
+	public CommandId getRemovedHeadID() {
+		return headID;
 	}
 	@Override
 	public Command remove(CommandId id) {

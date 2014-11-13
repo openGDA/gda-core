@@ -166,51 +166,6 @@ public class InterpolationFunction extends Function implements Configurable {
 		yColumn = column;
 	}
 
-	protected int[] calculateBeforeAfterPair(double x, boolean isAscending, boolean isDescending, double[] xValues, int numberOfXValues) {
-		int before, after;
-		if (isAscending) {
-			// ascending values in x
-			if (x < xValues[0]) {
-				// Extrapolate from the first two values
-				before = 0;
-				after = 1;
-			} else if (x > xValues[numberOfXValues - 1]) {
-				// Extrapolate from the last two values
-				before = numberOfXValues - 2;
-				after = numberOfXValues - 1;
-			} else {
-				// Interpolate from the two surrounding xValues
-				for (before = 0, after = 1; before < numberOfXValues; before++, after++) {
-					if (x >= xValues[before] && x <= xValues[after]) {
-						break;
-					}
-				}
-			}
-		} else if (isDescending) {
-			// descending values in x
-			if (x > xValues[0]) {
-				// Extrapolate from the first two values
-				before = 0;
-				after = 1;
-			} else if (x < xValues[numberOfXValues - 1]) {
-				// Extrapolate from the last two values
-				before = numberOfXValues - 2;
-				after = numberOfXValues - 1;
-			} else {
-				// Interpolate from the two surrounding xValues
-				for (before = 0, after = 1; before < numberOfXValues; before++, after++) {
-					if (x <= xValues[before] && x >= xValues[after]) {
-						break;
-					}
-				}
-			}
-		} else {
-			//should never get here, should have been caught by constructor
-			throw new IllegalArgumentException("InterpolationFunction. xValues must be increasing or decreasing");
-		}
-		return new int[] {before, after};
-	}
-	
 	@Override
 	public Quantity evaluate(Quantity xValue) {
 		Quantity rtrn = null;
@@ -228,9 +183,46 @@ public class InterpolationFunction extends Function implements Configurable {
 			// UA 1 - the xValues either ascend or descend but do not change
 			// direction
 
-			int[] pair = calculateBeforeAfterPair(x, isAscending(), isDescending(), xValues, numberOfXValues);
-			before = pair[0];
-			after = pair[1];
+			if (isAscending()) {
+				// ascending values in x
+				if (x < xValues[0]) {
+					// Extrapolate from the first two values
+					before = 0;
+					after = 1;
+				} else if (x > xValues[numberOfXValues - 1]) {
+					// Extrapolate from the last two values
+					before = numberOfXValues - 2;
+					after = numberOfXValues - 1;
+				} else {
+					// Interpolate from the two surrounding xValues
+					for (before = 0, after = 1; before < numberOfXValues; before++, after++) {
+						if (x >= xValues[before] && x <= xValues[after]) {
+							break;
+						}
+					}
+				}
+			} else if (isDescending()) {
+				// descending values in x
+				if (x > xValues[0]) {
+					// Extrapolate from the first two values
+					before = 0;
+					after = 1;
+				} else if (x < xValues[numberOfXValues - 1]) {
+					// Extrapolate from the last two values
+					before = numberOfXValues - 2;
+					after = numberOfXValues - 1;
+				} else {
+					// Interpolate from the two surrounding xValues
+					for (before = 0, after = 1; before < numberOfXValues; before++, after++) {
+						if (x <= xValues[before] && x >= xValues[after]) {
+							break;
+						}
+					}
+				}
+			} else {
+				//should never get here, should have been caught by constructor
+				throw new IllegalArgumentException("InterpolationFunction. xValues must be increasing or decreasing");
+			}
 			y = yValues[before] + (x - xValues[before]) * (yValues[after] - yValues[before])
 					/ (xValues[after] - xValues[before]);
 

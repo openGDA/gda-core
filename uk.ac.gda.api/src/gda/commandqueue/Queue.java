@@ -55,5 +55,6 @@ public interface Queue extends IObservable{
 	public CommandDetails getCommandDetails(CommandId id) throws Exception;
 	public void setCommandDetails(CommandId id, String details) throws Exception;
 	public CommandSummary getCommandSummary(CommandId id)  throws Exception;
+	CommandId getRemovedHeadID();
 
 }

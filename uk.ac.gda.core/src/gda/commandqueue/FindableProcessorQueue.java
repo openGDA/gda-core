@@ -493,7 +493,7 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 		try{
 			synchronized(lock){
 				if( cmdBeingProcessed != null)
-					return new ProcessorCurrentItem(cmdBeingProcessed.getDescription());
+					return new ProcessorCurrentItem(cmdBeingProcessed.getDescription(), getRemovedHeadID());
 			}
 		} catch (Exception e){
 			logger.error("Error getting current item",e);
@@ -605,5 +605,10 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 		List<CommandId> ids = new Vector<CommandId>();
 		ids.add(addToTail);
 		queue.moveToHead(ids);
+	}
+
+	@Override
+	public CommandId getRemovedHeadID() {
+		return queue.getRemovedHeadID();
 	}
 }

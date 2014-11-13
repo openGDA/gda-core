@@ -182,10 +182,10 @@ class HardwareTriggerableDetectorDataProcessor(DetectorDataProcessorWithRoi, Har
 		return False
 
 	def getDescription(self):
-		return " "
+		return ""
 
 	def getDetectorID(self):
-		return " "
+		return ""
 
 	def getDetectorType(self):
-		return " "
+		return ""
