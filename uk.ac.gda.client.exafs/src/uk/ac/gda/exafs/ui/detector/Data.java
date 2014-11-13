@@ -77,7 +77,7 @@ public class Data {
 		}
 	}
 	
-	public void save(int[][][] data, String filePath) {
+	public void save(int[][][] data, String filePath) throws IOException {
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
 			StringBuffer toWrite = new StringBuffer();
@@ -91,6 +91,7 @@ public class Data {
 			writer.close();
 		} catch (IOException e) {
 			logger.warn("Exception writing acquire data to xml file", e);
+			throw e;
 		}
 	}
 

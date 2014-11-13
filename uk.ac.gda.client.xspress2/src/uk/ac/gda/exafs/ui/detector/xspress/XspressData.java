@@ -40,38 +40,36 @@ public class XspressData extends Data{
 	
 	private static final Logger logger = LoggerFactory.getLogger(XspressData.class);
 	
-	protected void load(FileDialog openDialog, final int detectorListLength, final String filePath) {
+	protected int[][][] load(FileDialog openDialog, final int detectorListLength, final String filePath) throws Exception {
+		int[][][] detectorData = null;
 		String dataDir = PathConstructor.createFromDefaultProperty();
 		dataDir += "processing";
 		if (openDialog.getFilterPath() == null)
 			openDialog.setFilterPath(dataDir);
 		if (filePath != null) {
-			final String msg = ("Loading map from " + filePath);
-			Job job = new Job(msg) {
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
+//			final String msg = ("Loading map from " + filePath);
+//			Job job = new Job(msg) {
+//				@Override
+//				protected IStatus run(IProgressMonitor monitor) {
 					BufferedReader reader = null;
 					try {
 						reader = new BufferedReader(new FileReader(filePath));
 						String line = reader.readLine();
-						ArrayList<double[]> data = new ArrayList<double[]>();
+						ArrayList<int[]> data = new ArrayList<int[]>();
 						while (line != null) {
 							StringTokenizer tokens = new StringTokenizer(line);
-							double elementData[] = new double[tokens.countTokens()];
+							int elementData[] = new int[tokens.countTokens()];
 							for (int i = 0; i < elementData.length; i++)
-								elementData[i] = Double.parseDouble(tokens.nextToken());
+								elementData[i] = Integer.parseInt(tokens.nextToken());
 							data.add(elementData);
 							line = reader.readLine();
 						}
 						int numberOfElements = data.size() / detectorListLength;
-						double[][][] detectorData = new double[detectorListLength][numberOfElements][];
+						detectorData = new int[detectorListLength][numberOfElements][];
 						int dataIndex = 0;
 						for (int i = 0; i < detectorData.length; i++)
 							for (int j = 0; j < numberOfElements; j++)
 								detectorData[i][j] = data.get(dataIndex++);
-						
-					} catch (Exception e) {
-						logger.warn("Exception while reading data from xspress parameters xml file", e);
 					} finally {
 						if (reader != null) {
 							try {
@@ -81,12 +79,13 @@ public class XspressData extends Data{
 							}
 						}
 					}
-					return Status.OK_STATUS;
-				}
-			};
-			job.setUser(true);
-			job.schedule();
+//					return Status.OK_STATUS;
+//				}
+//			};
+//			job.setUser(true);
+//			job.schedule();
 		}
+		return detectorData;
 	}
 
 }

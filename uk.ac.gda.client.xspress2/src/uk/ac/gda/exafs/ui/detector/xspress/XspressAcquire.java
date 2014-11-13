@@ -27,6 +27,7 @@ import gda.device.detector.xspress.XspressDetector;
 
 import java.io.File;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -143,29 +144,34 @@ public class XspressAcquire extends Acquire {
 		loadBtn.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {			
-				try {
 					final String filePath = openDialog.open();
 					if(filePath!=null){
-						xspressData.load(openDialog, detectorListLength, filePath);
 						display.asyncExec(new Runnable() {
 							@Override
 							public void run() {
-								detectorElementComposite.setEndMaximum((mcaData[0][0].length) - 1);
-								plot.plot(detectorList.getSelectedIndex(), mcaData, false, resolutionGrade);
+								try {
+									mcaData = xspressData.load(openDialog, detectorListLength, filePath);
+									detectorElementComposite.setEndMaximum((mcaData[0][0].length) - 1);
+									plot.plot(detectorList.getSelectedIndex(), mcaData, false, resolutionGrade);
+								} catch (Exception e) {
+									MessageDialog.openError(display.getActiveShell(), "Error", "Unable to load data");
+									logger.error("Cannot acquire xspress data", e);
+								}
 							}
 						});
 					}
-				} catch (Exception e1) {
-					logger.error("Cannot acquire xspress data", e1);
-				}
 			}
 		});
 	}
 	
-	public void writeToDisk(String xspressSaveDir, int[][][] detectorData) throws Exception{
+	public void writeToDisk(String xspressSaveDir, int[][][] detectorData) throws Exception {
 		String xspressSaveFullDir = PathConstructor.createFromProperty(xspressSaveDir);
 		if (xspressSaveFullDir == null || xspressSaveFullDir.length() == 0)
 			throw new Exception("Error saving data. Xspress device spool dir is not defined in property " + xspressSaveDir);
+		File detectorDataDirectory = new File(xspressSaveFullDir);
+		if (!detectorDataDirectory.exists()) {
+			throw new Exception("Error saving data. Xspress device spool directory: " + xspressSaveDir + " cannot be found.");
+		}
 		long snapShotNumber = new NumTracker("Xspress_snapshot").incrementNumber();
 		String fileName = "xspress_snap_" + snapShotNumber + ".mca";
 		File detectorFile = new File(xspressSaveFullDir + "/" + fileName);
