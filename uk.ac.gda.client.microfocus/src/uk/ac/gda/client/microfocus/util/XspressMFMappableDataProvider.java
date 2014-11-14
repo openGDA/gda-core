@@ -48,7 +48,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 	private HashMap<String, Integer> roiNameMap;
 	private static final Logger logger = LoggerFactory.getLogger(XspressMFMappableDataProvider.class);
 	// TODO User should be able to change the length via preference
-	private int maxSpectrumLengthForViewing = 2000;
+	private int maxSpectrumLengthForViewing = 4096;
 
 	@Override
 	public void loadData(String fileName) {
@@ -202,19 +202,19 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 	}
 
 	@Override
-	public double[] getSpectrum(int detectorNo, int y, int x) {
+	public double[] getSpectrum(int detectorNo, int x, int y) {
 		int spectrumLength = maxSpectrumLengthForViewing;
 		if (lazyDataset != null) {
 			int shape[] = lazyDataset.getShape();
 			if (shape != null && shape.length == 4) {
-				if (maxSpectrumLengthForViewing <= shape[3])
-					spectrumLength = maxSpectrumLengthForViewing;
-				else
-					spectrumLength = shape[3];
+				spectrumLength = shape[3];
 			}
 		}
 		IDataset slice = lazyDataset.getSlice(new int[] { y, x, detectorNo, 0 }, new int[] { y + 1, x + 1,
 				detectorNo + 1, spectrumLength }, new int[] { 1, 1, 1, 1 });
+		if (slice == null){
+			return null; // we are out of the limits
+		}
 		ILazyDataset sqSlice = slice.squeeze();
 		return (double[]) ((AbstractDataset) sqSlice).getBuffer();
 	}
