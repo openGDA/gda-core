@@ -174,22 +174,19 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 			}
 			
 			filePath = PathConstructor.createFromRCPProperties();
-			filePath += subFolder;
+			filePath += getName() + File.separator + subFolder;
 			File filePathTester = new File(filePath);
 			if (!filePathTester.exists()){
 				filePathTester.mkdirs();
 			}
 			controller.setFilePath(filePath);
 
-			if (filePrefix != null && !filePrefix.isEmpty()) {
-				if (!scanNumber.isEmpty()) {
-					scanNumber = "_" + scanNumber;
-				}
-				controller.setFilePrefix(filePrefix + scanNumber + "_");
+			if (!scanNumber.isEmpty()) {
+				controller.setFilePrefix(scanNumber + "_");
 			} else {
 				controller.setFilePrefix(getName() + "_");
 			}
-			
+
 			controller.setNextFileNumber(0);
 			controller.setHDFFileAutoIncrement(true);
 			controller.setHDFNumFramesToAcquire(currentDimensions[currentDimensions.length -1]);
@@ -642,8 +639,12 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 					vortexRois.get(index).getRoiStart(), vortexRois.get(index)
 							.getRoiEnd());
 		}
+		
+		for (int channel = 0; channel < vortexParameters.getDetectorList().size(); channel++){
+			boolean channelDisabled = vortexParameters.getDetectorList().get(channel).isExcluded();
+			controller.enableChannel(channel,!channelDisabled);
+		}
 
 		setRegionsOfInterest(rois);
 	}
-
 }

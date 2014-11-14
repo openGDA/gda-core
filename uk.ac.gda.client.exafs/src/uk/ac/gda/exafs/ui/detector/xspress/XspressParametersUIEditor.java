@@ -558,8 +558,8 @@ public class XspressParametersUIEditor extends DetectorEditor {
 	}
 
 	private void updateOverrideMode() {
-		if (modeOverride && !this.readoutMode.equals(XspressDetector.READOUT_MCA)) {
-			this.readoutMode.setValue(XspressDetector.READOUT_MCA);
+		if (modeOverride && !this.readoutMode.equals(XspressDetector.READOUT_ROIS)) {
+			this.readoutMode.setValue(XspressDetector.READOUT_ROIS);
 		}
 	}
 

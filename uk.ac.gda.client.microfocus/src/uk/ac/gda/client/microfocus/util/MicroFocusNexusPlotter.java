@@ -206,16 +206,11 @@ public class MicroFocusNexusPlotter {
 	/*
 	 * Display the MCA of the selected point. The x(l) and y(m) values are the data array indexes, not data values.
 	 */
-	private void plotSpectrum(final int l, final int m) {
+	private void plotSpectrum(final int xPixel, final int yPixel) {
+		
 		if (dataProvider != null) {
-			double[] spectrum = null;
-			String detectorName = dataProvider.getDetectorName();
-			if (detectorName.equals("xmapMca")) {
-				spectrum = dataProvider.getSpectrum(dataProvider.getSelectedChannel(), l, m);
-			} else {
-				spectrum = dataProvider.getSpectrum(dataProvider.getSelectedChannel(), m, l);
-			}
-
+			
+			double[] spectrum = dataProvider.getSpectrum(dataProvider.getSelectedChannel(), xPixel, yPixel);
 			if (spectrum != null) {
 				final Dataset yaxis = DatasetFactory.createFromObject(spectrum);
 
@@ -228,21 +223,21 @@ public class MicroFocusNexusPlotter {
 							SDAPlotter.plot(MCA_PLOTTER, yaxis);
 						} catch (Exception e) {
 							logger.error("Unable to plot the spectrum for " + dataProvider.getSelectedChannel() + " "
-									+ l + " " + m, e);
+									+ xPixel + " " + yPixel, e);
 						}
 					}
 				});
 			} else {
-				logger.info("No Spectrum available for index " + dataProvider.getSelectedChannel() + " " + l + "," + m);
+				logger.info("No Spectrum available for index " + dataProvider.getSelectedChannel() + " " + xPixel + "," + yPixel);
 			}
 		} else {
 			// server needs to show the spectrum
-			logger.info("Plotting spectrum for element 0," + l + "," + m);
+			logger.info("Plotting spectrum for element 0," + xPixel + "," + yPixel);
 			JythonServerFacade.getInstance().evaluateCommand(
-					"map.getMFD().plotSpectrum(" + serverPlotChannel + "," + l + "," + m + ")");
+					"map.getMFD().plotSpectrum(" + serverPlotChannel + "," + xPixel + "," + yPixel + ")");
 		}
-		lastLCoordinatePlotted = l;
-		lastMCoordinatePlotted = m;
+		lastLCoordinatePlotted = xPixel;
+		lastMCoordinatePlotted = yPixel;
 	}
 
 	public Double getZValueFromServer() {

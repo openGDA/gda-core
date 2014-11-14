@@ -79,7 +79,7 @@ public abstract class MicroFocusMappableDataProvider {
 
 	public abstract void loadBean();
 
-	public abstract double[] getSpectrum(int detectorNo, int y, int x);
+	public abstract double[] getSpectrum(int channelNum, int xPixel, int yPixel);
 	
 	public abstract void loadBean(IRichBean bean);
 	

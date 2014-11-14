@@ -250,4 +250,8 @@ public interface Xspress3Controller extends Findable{
 	public int getNumFramesPerReadout() throws DeviceException;
 	
 	public int getNumberOfChannels();
+	
+	public boolean isChannelEnabled(int channel) throws DeviceException;
+	
+	public void enableChannel(int channel, boolean doEnable) throws DeviceException;
 }

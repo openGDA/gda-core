@@ -1028,6 +1028,9 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	}
 
 	protected void writeStoredData(@SuppressWarnings("unused") IProgressMonitor monitor) {
+		if (this.getDataWrapper() == null || this.getDataWrapper().getValue() == null) {
+			return;
+		}
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(getDataXMLName()));
 			ElementCountsData[] elements = (ElementCountsData[]) this.dataWrapper.getValue();
