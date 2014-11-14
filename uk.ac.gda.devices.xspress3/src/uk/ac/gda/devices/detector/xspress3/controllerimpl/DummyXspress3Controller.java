@@ -81,10 +81,11 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 			daServer.sendCommand(roiCommand);
 
 			enabledChannels = new boolean[numberOfChannels];
-			
-			for(int channel = 0; channel < numberOfChannels; channel++){
+
+			for (int channel = 0; channel < numberOfChannels; channel++) {
 				enabledChannels[channel] = true;
-				String windowCommand = "xspress2 set-window " + xspressSystemName + " " + channel + " " + 0 + " " + 4096;
+				String windowCommand = "xspress2 set-window " + xspressSystemName + " " + channel + " " + 0 + " "
+						+ 4096;
 				daServer.sendCommand(windowCommand);
 				roiCommand = "xspress2 set-roi " + xspressSystemName + " " + channel + " 100 200 1";
 				daServer.sendCommand(roiCommand);
@@ -319,7 +320,8 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	}
 
 	@Override
-	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException {
+	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel)
+			throws DeviceException {
 		int numFrames = finalFrame - startFrame + 1;
 		int numChannels = finalChannel - startChannel + 1;
 
@@ -328,9 +330,11 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 		Double counts = 10.0;
 		for (int frame = 0; frame < numFrames; frame++) {
 			for (int chan = 0; chan < numChannels; chan++) {
-				if (isChannelEnabled(chan)){
+				if (isChannelEnabled(chan)) {
 					results[frame][chan] = counts;
 					counts += 10.0;
+				} else {
+					results[frame][chan] = 0.0;
 				}
 			}
 		}
@@ -339,12 +343,14 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	}
 
 	@Override
-	public Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException {
+	public Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame, int startChannel, int finalChannel)
+			throws DeviceException {
 		return readoutDTCorrectedSCA1(startFrame, finalFrame, startChannel, finalChannel);
 	}
 
 	@Override
-	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException {
+	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame, int startChannel, int finalChannel)
+			throws DeviceException {
 		// int[frame][channel][time,reset ticks, reset counts,all events, all
 		// goodEvents, pileup counts]
 		int numFrames = finalFrame - startFrame + 1;
@@ -353,7 +359,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 		Integer[][][] results = new Integer[numFrames][numChannels][6];
 		for (int frame = 0; frame < numFrames; frame++) {
 			for (int chan = 0; chan < numChannels; chan++) {
-				if (isChannelEnabled(chan)){
+				if (isChannelEnabled(chan)) {
 					results[frame][chan] = new Integer[] { 0, 1, 2, 3, 4, 5 };
 				} else {
 					results[frame][chan] = new Integer[6];
@@ -379,7 +385,8 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	}
 
 	@Override
-	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException {
+	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame, int startChannel, int finalChannel)
+			throws DeviceException {
 		int numFrames = finalFrame - startFrame + 1;
 		int numChannels = finalChannel - startChannel + 1;
 
@@ -388,10 +395,12 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 		Double counts = 10.0;
 		for (int frame = 0; frame < numFrames; frame++) {
 			for (int chan = 0; chan < numChannels; chan++) {
-				if (isChannelEnabled(chan)){
-					for (int roi = 0; roi < getNumberROIToRead(); roi++) {
+				for (int roi = 0; roi < getNumberROIToRead(); roi++) {
+					if (isChannelEnabled(chan)) {
 						results[frame][chan][roi] = counts;
 						counts += 10;
+					} else {
+						results[frame][chan][roi] = 0.0;
 					}
 				}
 			}
@@ -414,9 +423,11 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 		Random generator = new Random();
 
 		for (int chan = 0; chan < numChannels; chan++) {
-			if (isChannelEnabled(chan)){
-				for (int mcaChan = 0; mcaChan < 4096; mcaChan++) {
+			for (int mcaChan = 0; mcaChan < 4096; mcaChan++) {
+				if (isChannelEnabled(chan)) {
 					results[chan][mcaChan] = (double) generator.nextInt(new Double(1000.0).intValue() * 10000);
+				} else {
+					results[chan][mcaChan] = 0.0;
 				}
 			}
 		}
