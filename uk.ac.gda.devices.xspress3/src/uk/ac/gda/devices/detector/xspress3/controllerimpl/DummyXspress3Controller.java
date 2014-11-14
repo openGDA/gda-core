@@ -58,6 +58,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	private int nextNumber;
 	private int[] fileDimensions;
 	private int numberOfChannels;
+	private boolean[] enabledChannels;
 
 	public DummyXspress3Controller(Tfg tfg, DummyDAServer daServer) {
 		super();
@@ -79,24 +80,15 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 			String roiCommand = "xspress2 set-roi " + xspressSystemName + " -1";
 			daServer.sendCommand(roiCommand);
 
-			// set windows and rois for 4-element
-			String windowCommand = "xspress2 set-window " + xspressSystemName + " " + 0 + " " + 0 + " " + 4096;
-			daServer.sendCommand(windowCommand);
-			windowCommand = "xspress2 set-window " + xspressSystemName + " " + 1 + " " + 0 + " " + 4096;
-			daServer.sendCommand(windowCommand);
-			windowCommand = "xspress2 set-window " + xspressSystemName + " " + 2 + " " + 0 + " " + 4096;
-			daServer.sendCommand(windowCommand);
-			windowCommand = "xspress2 set-window " + xspressSystemName + " " + 3 + " " + 0 + " " + 4096;
-			daServer.sendCommand(windowCommand);
-
-			roiCommand = "xspress2 set-roi " + xspressSystemName + " 0 100 200 1";
-			daServer.sendCommand(roiCommand);
-			roiCommand = "xspress2 set-roi " + xspressSystemName + " 1 100 200 1";
-			daServer.sendCommand(roiCommand);
-			roiCommand = "xspress2 set-roi " + xspressSystemName + " 2 100 200 1";
-			daServer.sendCommand(roiCommand);
-			roiCommand = "xspress2 set-roi " + xspressSystemName + " 3 100 200 1";
-			daServer.sendCommand(roiCommand);
+			enabledChannels = new boolean[numberOfChannels];
+			
+			for(int channel = 0; channel < numberOfChannels; channel++){
+				enabledChannels[channel] = true;
+				String windowCommand = "xspress2 set-window " + xspressSystemName + " " + channel + " " + 0 + " " + 4096;
+				daServer.sendCommand(windowCommand);
+				roiCommand = "xspress2 set-roi " + xspressSystemName + " " + channel + " 100 200 1";
+				daServer.sendCommand(roiCommand);
+			}
 
 			open();
 		} catch (DeviceException e) {
@@ -327,7 +319,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	}
 
 	@Override
-	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel) {
+	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException {
 		int numFrames = finalFrame - startFrame + 1;
 		int numChannels = finalChannel - startChannel + 1;
 
@@ -336,8 +328,10 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 		Double counts = 10.0;
 		for (int frame = 0; frame < numFrames; frame++) {
 			for (int chan = 0; chan < numChannels; chan++) {
-				results[frame][chan] = counts;
-				counts += 10.0;
+				if (isChannelEnabled(chan)){
+					results[frame][chan] = counts;
+					counts += 10.0;
+				}
 			}
 		}
 
@@ -345,12 +339,12 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	}
 
 	@Override
-	public Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame, int startChannel, int finalChannel) {
+	public Double[][] readoutDTCorrectedSCA2(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException {
 		return readoutDTCorrectedSCA1(startFrame, finalFrame, startChannel, finalChannel);
 	}
 
 	@Override
-	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame, int startChannel, int finalChannel) {
+	public Integer[][][] readoutScalerValues(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException {
 		// int[frame][channel][time,reset ticks, reset counts,all events, all
 		// goodEvents, pileup counts]
 		int numFrames = finalFrame - startFrame + 1;
@@ -359,7 +353,11 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 		Integer[][][] results = new Integer[numFrames][numChannels][6];
 		for (int frame = 0; frame < numFrames; frame++) {
 			for (int chan = 0; chan < numChannels; chan++) {
-				results[frame][chan] = new Integer[] { 0, 1, 2, 3, 4, 5 };
+				if (isChannelEnabled(chan)){
+					results[frame][chan] = new Integer[] { 0, 1, 2, 3, 4, 5 };
+				} else {
+					results[frame][chan] = new Integer[6];
+				}
 			}
 		}
 
@@ -381,7 +379,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	}
 
 	@Override
-	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame, int startChannel, int finalChannel) {
+	public Double[][][] readoutDTCorrectedROI(int startFrame, int finalFrame, int startChannel, int finalChannel) throws DeviceException {
 		int numFrames = finalFrame - startFrame + 1;
 		int numChannels = finalChannel - startChannel + 1;
 
@@ -390,9 +388,11 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 		Double counts = 10.0;
 		for (int frame = 0; frame < numFrames; frame++) {
 			for (int chan = 0; chan < numChannels; chan++) {
-				for (int roi = 0; roi < getNumberROIToRead(); roi++) {
-					results[frame][chan][roi] = counts;
-					counts += 10;
+				if (isChannelEnabled(chan)){
+					for (int roi = 0; roi < getNumberROIToRead(); roi++) {
+						results[frame][chan][roi] = counts;
+						counts += 10;
+					}
 				}
 			}
 		}
@@ -414,8 +414,10 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 		Random generator = new Random();
 
 		for (int chan = 0; chan < numChannels; chan++) {
-			for (int mcaChan = 0; mcaChan < 4096; mcaChan++) {
-				results[chan][mcaChan] = (double) generator.nextInt(new Double(1000.0).intValue() * 10000);
+			if (isChannelEnabled(chan)){
+				for (int mcaChan = 0; mcaChan < 4096; mcaChan++) {
+					results[chan][mcaChan] = (double) generator.nextInt(new Double(1000.0).intValue() * 10000);
+				}
 			}
 		}
 
@@ -479,5 +481,15 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 
 	public void setNumberOfChannels(int numberOfChannels) {
 		this.numberOfChannels = numberOfChannels;
+	}
+
+	@Override
+	public boolean isChannelEnabled(int channel) throws DeviceException {
+		return enabledChannels[channel];
+	}
+
+	@Override
+	public void enableChannel(int channel, boolean doEnable) throws DeviceException {
+		enabledChannels[channel] = doEnable;
 	}
 }

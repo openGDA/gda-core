@@ -76,7 +76,8 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String ROIS_TEMPLATE = ":C%1d_ROI%1d:ArrayData_RBV.VAL"; // channel (1-8),ROI (1-4) this points towards a waveform
 	private static String MCA_TEMPLATE = ":ARR%1d:ArrayData";// channel (1-8) this points towards a waveform
 	private static String MCA_SUM_TEMPLATE = ":ARRSUM%1d:ArrayData";// channel (1-8) this points towards a waveform
-	
+	private static String CHANNEL_ENABLE_TEMPLATE = ":C%1d_PluginControlVal";
+
 	// SCA
 	private static String SCA_WIN1_LOW_BIN_TEMPLATE = ":C%1d_SCA5_LLM";// channel (1-8)
 	private static String SCA_WIN1_LOW_BIN_RBV_TEMPLATE = ":C%1d_SCA5_LLM_RBV";// channel (1-8)
@@ -132,6 +133,7 @@ public class EpicsXspress3ControllerPvProvider {
 //	protected PV<UPDATE_CTRL> pvSetSCAROIUpdate;
 //	protected ReadOnlyPV<UPDATE_RBV> pvGetSCAROIUpdate;
 //	protected PV<Integer> pvSCAROIUpdatePeriod;
+	protected PV<UPDATE_RBV>[] pvsChannelEnable;
 	protected ReadOnlyPV<Double[]>[] pvsScalerWindow1;
 	protected ReadOnlyPV<Double[]>[] pvsScalerWindow2;
 	protected ReadOnlyPV<Integer[]>[] pvsTime;
@@ -229,6 +231,11 @@ public class EpicsXspress3ControllerPvProvider {
 	private void createDisplayPVs() {
 		 pvGetMaxFrames = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(MAX_FRAMES_SUFFIX));
 		 pvGetMCASize = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(MCA_SIZE_SUFFIX));
+		 
+		for (int channel = 1; channel <= numberOfDetectorChannels; channel++){
+			pvsChannelEnable[channel-1] = LazyPVFactory.newEnumPV(generatePVName(CHANNEL_ENABLE_TEMPLATE,channel),UPDATE_RBV.class);
+		}
+		 
 //		 pvSetScalerUpdate = LazyPVFactory.newEnumPV(generatePVName(SCALER_UPDATE_SUFFIX),UPDATE_CTRL.class);
 //		 pvGetScalerUpdate = LazyPVFactory.newReadOnlyEnumPV(generatePVName(SCALER_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
 //		 pvScalerUpdatePeriod = LazyPVFactory.newIntegerPV(generatePVName(SCALER_UPDATE_PERIOD_SUFFIX));

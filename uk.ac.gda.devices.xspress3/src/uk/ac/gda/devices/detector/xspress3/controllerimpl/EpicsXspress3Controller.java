@@ -857,4 +857,27 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 			throw new DeviceException("IOException while setting num HDF frames to acquire", e);
 		}
 	}
+
+	@Override
+	public boolean isChannelEnabled(int channel) throws DeviceException {
+		try {
+			return pvProvider.pvsChannelEnable[channel].get() == UPDATE_RBV.Enabled;
+		} catch (IOException e) {
+			throw new DeviceException("IOException while checking channel enabled", e);
+		}
+	}
+
+	@Override
+	public void enableChannel(int channel, boolean doEnable)
+			throws DeviceException {
+		try {
+			if (doEnable) {
+				pvProvider.pvsChannelEnable[channel].putWait(UPDATE_RBV.Enabled);
+			} else {
+				pvProvider.pvsChannelEnable[channel].putWait(UPDATE_RBV.Disabled);
+			}
+		} catch (IOException e) {
+			throw new DeviceException("IOException while setting channel enabled", e);
+		}
+	}
 }

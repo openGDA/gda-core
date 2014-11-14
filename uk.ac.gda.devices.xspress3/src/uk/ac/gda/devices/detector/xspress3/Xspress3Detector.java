@@ -642,8 +642,12 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 					vortexRois.get(index).getRoiStart(), vortexRois.get(index)
 							.getRoiEnd());
 		}
+		
+		for (int channel = 0; channel < vortexParameters.getDetectorList().size(); channel++){
+			boolean channelDisabled = vortexParameters.getDetectorList().get(channel).isExcluded();
+			controller.enableChannel(channel,!channelDisabled);
+		}
 
 		setRegionsOfInterest(rois);
 	}
-
 }
