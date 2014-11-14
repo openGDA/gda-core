@@ -342,7 +342,7 @@ public class UserOptions extends java.util.TreeMap<String, UserOption> implement
 		configDirTemplate = LocalProperties.get("gda.util.userOptions.configDirTemplate");
 		if (configDirTemplate == null) {
 			//go back to previous behaviour
-			configDirTemplate = LocalProperties.get(LocalProperties.GDA_CONFIG) + File.separator + "xml";
+			configDirTemplate = LocalProperties.get(LocalProperties.GDA_INSTANCE_CONFIG) + File.separator + "xml";
 		}
 		if (configDirTemplate == null) {
 			throw new IllegalArgumentException("gda.config not defined");

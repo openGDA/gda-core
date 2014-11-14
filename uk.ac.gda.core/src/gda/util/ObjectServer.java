@@ -263,7 +263,7 @@ public abstract class ObjectServer implements Runnable {
 		// Ensure we have an absolute path to the file
 		File file = new File(xmlFile);
 		if (!file.isAbsolute()) {
-			final String configDir = LocalProperties.get(LocalProperties.GDA_CONFIG);
+			final String configDir = LocalProperties.get(LocalProperties.GDA_INSTANCE_CONFIG);
 			file = new File(new File(configDir, "xml"), xmlFile);
 		}
 		String fullPath = file.getAbsolutePath();

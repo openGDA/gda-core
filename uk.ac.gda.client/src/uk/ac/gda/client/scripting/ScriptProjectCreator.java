@@ -87,7 +87,7 @@ public class ScriptProjectCreator implements IStartup {
 		final IPreferenceStore store = GDAClientActivator.getDefault().getPreferenceStore();
 		if (store.getBoolean(PreferenceConstants.SHOW_XML_CONFIG)) {
 			ProjectUtils.createImportProjectAndFolder(getProjectNameXMLConfig(), "src",
-					LocalProperties.get(LocalProperties.GDA_CONFIG) + "/xml", null, null, monitor);
+					LocalProperties.get(LocalProperties.GDA_INSTANCE_CONFIG) + "/xml", null, null, monitor);
 		} else {
 			final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			final IProject project = root.getProject(getProjectNameXMLConfig());

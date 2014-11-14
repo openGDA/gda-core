@@ -180,7 +180,7 @@ public class FileAuthoriser implements Authoriser {
 	}
 
 	private FileConfiguration openConfigFile() throws ConfigurationException, IOException {
-		String defXmlDir = LocalProperties.get(LocalProperties.GDA_CONFIG) + File.separator + "xml";
+		String defXmlDir = LocalProperties.get(LocalProperties.GDA_INSTANCE_CONFIG) + File.separator + "xml";
 		String xmlDir = LocalProperties.get(GDA_USER_PERMISSIONS_DIR, defXmlDir);
 		FileConfiguration configFile = LocalParameters.getXMLConfiguration(xmlDir, AUTHORISATIONLEVELS, true);
 		configFile.clear();
@@ -189,7 +189,7 @@ public class FileAuthoriser implements Authoriser {
 	}
 
 	private FileConfiguration openStaffFile() throws ConfigurationException, IOException {
-		String defXmlDir = LocalProperties.get(LocalProperties.GDA_CONFIG) + File.separator + "xml";
+		String defXmlDir = LocalProperties.get(LocalProperties.GDA_INSTANCE_CONFIG) + File.separator + "xml";
 		String xmlDir = LocalProperties.get(GDA_USER_PERMISSIONS_DIR, defXmlDir);
 		FileConfiguration configFile = LocalParameters.getXMLConfiguration(xmlDir, BEAMLINESTAFF, true);
 		configFile.clear();

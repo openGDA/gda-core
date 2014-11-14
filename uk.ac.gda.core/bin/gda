@@ -570,7 +570,7 @@ where task can be:
 				self.logger.critical("You need to specify the location of the GDA configuration directory using --config or environment variables GDA_WORKSPACE_PARENT/GDA_INSTANCE_CONFIG_rel")
 				sys.exit(1)
 		self.options.gda_config = path
-
+		
 		# if clients/properties/servers folders exist, but not jacorb, then standard style folder structure is being used
 		make_config_subdir = lambda subdir: abspath(self.options.gda_config, subdir)
 		test_dirs = map(make_config_subdir, ("clients", "properties", "servers"))
@@ -578,6 +578,7 @@ where task can be:
 		
 		if dirs_match and not os.path.isdir(abspath(self.options.gda_config, "jacorb")):
 			self.layout = STANDARD
+			
 		else:
 				# if clients/jacorb/servers folders exist, then new style folder structure is being used
 				test_dirs = map(make_config_subdir, ("clients", "jacorb", "servers"))
@@ -602,10 +603,18 @@ where task can be:
 		if not self.options.java_properties:
 			if self.layout is OLD:
 				self.options.java_properties = abspath(self.options.gda_config, "properties", "java.properties")
-			else: #self.layout is NEW or STANDARD
+			elif self.layout is NEW:
 				self.options.java_properties = abspath(self.options.gda_config, "properties", self.options.gda_mode, "java.properties")
-										
-						
+			else: #self.layout is STANDARD
+				# Using environment varaible set up in beamline specific gda bash script to locate java.properties
+				self.logger.info("GDA_WORKSPACE_PARENT= %s" % os.getenv("GDA_WORKSPACE_PARENT"))
+				self.logger.info("GDA_CORE_CONFIG_rel= %s" % os.getenv("GDA_CORE_CONFIG_rel"))
+				
+				self.options.gda_instance_config_dir = abspath(os.getenv("GDA_WORKSPACE_PARENT") +"/", os.getenv("GDA_INSTANCE_CONFIG_rel"))
+				#Don't need to set variable below as only passing it straight through - See line : -Dgda.group.dir
+				#self.options.gda_group_config_dir = abspath(os.getenv("GDA_WORKSPACE_PARENT") +"/", os.getenv("GDA_GROUP_CONFIG_rel"))
+				self.logger.info("self.options.gda_instance_config_dir= %s" % self.options.gda_instance_config_dir)
+				self.options.java_properties = abspath(self.options.gda_instance_config_dir, "properties", self.options.gda_mode, "new_" + os.getenv("BEAMLINE") + "_java.properties")
 		# Set JacORB config dir, if not already set
 		if not self.options.jacorb_config_dir:
 			if self.layout is OLD:
@@ -615,7 +624,7 @@ where task can be:
 			else: #self.layout is STANDARD
 				self.options.jacorb_config_dir = abspath(self.options.gda_config, "properties", self.options.gda_mode, "jacorb")
 			
-					
+
 			
 		# Set JCA properties file, if not already set
 		if not self.options.jcalibrary_properties:
@@ -1073,6 +1082,11 @@ where task can be:
 			vmargs += ("-Dgda.mode=" + self.options.gda_mode,)
 		if self.options.java_properties != None:
 			vmargs += ("-Dgda.propertiesFile=" + self.options.java_properties,)
+		if self.layout is STANDARD:
+			vmargs += ("-Dgda.core.dir=" + abspath(os.getenv("GDA_WORKSPACE_PARENT") +"/",os.getenv("GDA_CORE_CONFIG_rel")),)
+			vmargs += ("-Dgda.facility.dir=" + abspath(os.getenv("GDA_WORKSPACE_PARENT") +"/",os.getenv("GDA_FACILITY_CONFIG_rel")),)
+			vmargs += ("-Dgda.group.dir=" + abspath(os.getenv("GDA_WORKSPACE_PARENT") +"/",os.getenv("GDA_GROUP_CONFIG_rel")),)
+			vmargs += ("-Dgda.instance.dir=" + abspath(os.getenv("GDA_WORKSPACE_PARENT") +"/",os.getenv("GDA_INSTANCE_CONFIG_rel")),)
 		return vmargs
 
 	def log_panel(self, debug_opts=None):

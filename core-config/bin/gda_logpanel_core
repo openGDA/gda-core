@@ -1,25 +1,4 @@
 
-# Run the "gda_servers_pre" scripts to set up the environment as required.
-# For Facility, Group, and Instance, there can be a pre-script, and a mode-specific pre-script (all optional)
-# Note that in "live" mode, these scripts are run twice, so they must be idempotent:
-# (1) on the user machine, when the user issues the gda command
-# (2) on the control machine, when remotestartupscript.sh issues the gda command
-# 
-for filename in \
-  "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_logpanel_pre_facility" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/etc/${GDA_MODE}/gda_logpanel_pre_facility" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_logpanel_pre_group" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/etc/${GDA_MODE}/gda_logpanel_pre_group" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_logpanel_pre_instance" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/etc/${GDA_MODE}/gda_logpanel_pre_instance"
-do
-  if [ -e "${filename}" ]; then
-  	echo about to run "${filename}"
-    . ${filename}
-  fi
-done
-
-
 LOGPANELWINDOW=$(wmctrl -l | grep "GDA Log Panel" | grep -v grep) || true
 
 
@@ -41,8 +20,12 @@ echo 'About to pick which console log file to run'
     done
 
   GDA_LOGPANEL_APP=/dls_sw/apps/gdalogpanel/gdalogpanel/gdalogpanel
-  GDA_LOGPANEL_APP_ARGS="-vmargs -Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/java.properties -Dgda.install.git.loc=${GDA_WORKSPACE_PARENT}/workspace_git"
 
+  GDA_LOGPANEL_APP_ARGS="-vmargs -Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/new_${BEAMLINE}_java.properties"
+  GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.install.git.loc=${GDA_WORKSPACE_PARENT}/workspace_git"
+  GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.mode=${GDA_MODE}"
+  GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.group.dir=${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}"
+  GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.facility.dir=${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}"
   echo Starting GDA Log Panel...
   #echo GDA_INSTANCE_CONFIG_rel = $GDA_INSTANCE_CONFIG_rel , BEAMLINE = $BEAMLINE- , GDA_MODE = $GDA_MODE
   echo GDA_INSTANCE_CONFIG_rel = $GDA_INSTANCE_CONFIG_rel , GDA_INSTANCE_NAME = $GDA_INSTANCE_NAME , GDA_MODE = $GDA_MODE

@@ -32,14 +32,11 @@ for env_var_name in GDA_GROUP_CONFIG_rel GDA_FACILITY_CONFIG_rel; do
     fi
 done
 
-# Old-style parameters
-export GDA_INSTALL_GIT_LOC=${GDA_WORKSPACE_PARENT}/${GDA_WORKSPACE_GIT_NAME}
-export GDA_INSTALL_WORKSPACE_LOC=${GDA_WORKSPACE_PARENT}/${GDA_WORKSPACE_GIT_NAME%_git}
-
 # Extract mode and component (required) from the parameters
-# All parameters are passed to the python script, but the bash scripts also need to know the mode, and what we are starting
+# All parameters are passed to the next script, but the current script also need to know the mode, and what we are starting
 bashlog debug "gda_core" "Parsing: $@"
-unset GDA_MODE GDA_OPERATION GDA_COMPONENT
+
+unset GDA_OPERATION GDA_COMPONENT
 for word in "$@"; do
     if [[ "${word}" == --mode=* ]]; then
         export GDA_MODE=${word:7}
@@ -55,16 +52,20 @@ done
 if [[ -z "${GDA_MODE-}" ]]; then
 	export GDA_MODE=dummy
 	#Don't set extra parameters if starting client
-	if [ "${GDA_COMPONENT}" != client ]; then
-    	extra_parameters="--mode=dummy "
-    	bashlog info "gda_core" "set --mode to the default value (dummy)"
-    fi
+#	if [ "${GDA_COMPONENT}" != client ]; then
+#    	extra_parameters="--mode=dummy "
+#    	bashlog info "gda_core" "set --mode to the default value (dummy)"
+#    fi
 fi 	
 
-if [[ -n "${GDA_COMPONENT-}" ]]; then 
-    case ${GDA_COMPONENT} in
+if [[ -n "${GDA_COMPONENT-}" ]]; then
+    GDA_COMPONENT="${GDA_COMPONENT,,}"
+    case "${GDA_COMPONENT}" in
         logserver|nameserver|eventserver|objectserver) GDA_COMPONENT_CATEGORY=servers ;;
-        *) GDA_COMPONENT_CATEGORY=${GDA_COMPONENT} ;;
+        logpanel|servers|client) GDA_COMPONENT_CATEGORY=${GDA_COMPONENT} ;;
+        *) bashlog error "gda_core" "${GDA_COMPONENT} not recognised. Valid task names are logpanel, servers, client, logserver, nameserver, eventserver, objectserver"
+        
+        exit 2;;
     esac
 fi
 
@@ -88,6 +89,7 @@ if [[ -n "${GDA_COMPONENT-}" ]]; then
       fi
     done
 fi
+echo '$@=' $@
 
 filename=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_core
 bashlog debug "gda_core" "sourcing ${filename}"

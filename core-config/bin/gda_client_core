@@ -1,19 +1,4 @@
 echo 'start of gdastart_client_core'
-# Run the "gdastart_client_pre" scripts to set up the environment as required.
-# For Facility, Group, and Instance, there can be a pre-script, and a mode-specific pre-script (all optional)
-# 
-for filename in \
-  "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gdastart_client_pre_facility" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/etc/${GDA_MODE}/gdastart_client_pre_facility" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gdastart_client_pre_group" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/etc/${GDA_MODE}/gdastart_client_pre_group" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gdastart_client_pre_instance" \
-  "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/etc/${GDA_MODE}/gdastart_client_pre_instance"
-do
-  if [ -e "${filename}" ]; then
-    . ${filename}
-  fi
-done
 
 # Set up the directory and file in which to write the console log
     # We only invoke one script to do this (the most specific one)
@@ -32,11 +17,8 @@ done
 export GDA_CLIENT_LOG_DIR=$GDA_LOGS_DIR
 export GDA_CLIENT_WORKING_DIR=$GDA_WORKSPACE_PARENT/client
 
-echo 'GDA_MODE = ' $GDA_MODE
-
 VMARGS="-Dgda.mode=$GDA_MODE ${VMARGS-}"
 
-echo 'VMARGS = ' $VMARGS
 #KrisB - Changes to cope with choice of jacorb directory locations.
 echo '${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jacorb/$GDA_MODE'
 echo "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jacorb/$GDA_MODE"
@@ -48,7 +30,18 @@ else
 	echo "Can't find jacorb directory"
 	exit 1
 fi
-VMARGS="-Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/$GDA_MODE/java.properties $VMARGS"
+VMARGS="-Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/$GDA_MODE/new_${BEAMLINE}_java.properties $VMARGS"
+
+
+#KrisB - New lines to pass GDA level variables into Java
+VMARGS="-Dgda.core.dir=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel} $VMARGS"
+VMARGS="-Dgda.facility.dir=${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel} $VMARGS"
+VMARGS="-Dgda.group.dir=${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel} $VMARGS"
+VMARGS="-Dgda.instance.dir=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel} $VMARGS"
+
+#VMARGS="-Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/properties/new_java.properties $VMARGS"
+
+
 
 if [ -d "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jca/$GDA_MODE" ]; then
 	VMARGS="-Dgov.aps.jca.JCALibrary.properties=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jca/$GDA_MODE/JCALibrary.properties $VMARGS"

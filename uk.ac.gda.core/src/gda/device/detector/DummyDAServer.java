@@ -778,7 +778,7 @@ public class DummyDAServer extends DAServer {
 		if (dataFile.contains("/"))
 			file = new File(dataFile);
 		else
-			file = new File(LocalProperties.get(LocalProperties.GDA_CONFIG) + "/testing/" + dataFile);
+			file = new File(LocalProperties.get(LocalProperties.GDA_INSTANCE_CONFIG) + "/testing/" + dataFile);
 		try {
 			final List<String> lines = FileUtils.readFileAsList(file);
 			final List<long[]> data = new ArrayList<long[]>(31);
