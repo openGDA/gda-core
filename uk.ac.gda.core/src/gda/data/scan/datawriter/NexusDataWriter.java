@@ -23,7 +23,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.Metadata;
 import gda.data.nexus.INeXusInfoWriteable;
 import gda.data.nexus.NeXusUtils;
@@ -46,7 +45,6 @@ import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
