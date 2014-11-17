@@ -282,4 +282,36 @@ public class ContinuousScanTest {
 		assertEquals(dir + "/Data/1.dat", point.getCurrentFilename());
 	}
 
+	@Test
+	public void testBiDirectionalModeInMultidimensionScan() throws Exception{
+		String dir = TestHelpers.setUpTest(ContinuousScanTest.class, "testBiDirectionalModeInMultidimensionScan", true);
+		LocalProperties.setScanSetsScanNumber(false);
+		beforeEachTest();
+
+		DummyBufferedDetector detector = new DummyBufferedDetector();
+		detector.setName("det1");
+
+		DummyContinuouslyScannable scannable = new DummyContinuouslyScannable();
+		scannable.setName("test");
+		scannable.addObserver(detector); // acts as a virtual trigger
+
+		ContinuousScan scan = new ContinuousScan(scannable, 50., 200., 10, 0.1, new BufferedDetector[] { detector });
+		scan.setBiDirectional(true);
+		
+		DummyScannable temp01 = new DummyScannable();
+		temp01.setName("temp01");
+
+		ConcurrentScan mainScan = new ConcurrentScan(new Object[] { temp01, 10, 20, 5, scan });
+
+		assertEquals(-1,mainScan.getScanNumber());
+		mainScan.runScan();
+		assertEquals(-1,mainScan.getScanNumber());
+		// but check that the detector has been triggered 150 times
+//		verify(detector, times(30)).addPoint();
+		assertEquals(10,detector.getNumberFrames());
+		IScanDataPoint point = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
+		assertEquals(1, point.getScanIdentifier());
+		assertEquals(dir + "/Data/1.dat", point.getCurrentFilename());
+
+	}
 }

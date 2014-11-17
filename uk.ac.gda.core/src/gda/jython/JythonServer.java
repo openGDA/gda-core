@@ -54,6 +54,7 @@ import gda.scan.Scan;
 import gda.scan.Scan.ScanStatus;
 import gda.scan.ScanDataPoint;
 import gda.scan.ScanInformation;
+import gda.scan.ScanInterruptedException;
 import gda.util.exceptionUtils;
 
 import java.io.File;
@@ -1339,9 +1340,13 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 						+ e.getMessage());
 				server.setScriptStatus(Jython.IDLE, null);
 			} catch (Exception e) {
+				if (e.getCause() instanceof ScanInterruptedException) {
+					logger.info("CommandServer: " + e.getCause().getMessage());
+				} else {
 				logger.error(
 						"CommandServer: error while running command: '" + cmd + "' encountered an error: "
 								+ e.getMessage(), e);
+				}
 				server.setScriptStatus(Jython.IDLE, null);
 			}
 		}

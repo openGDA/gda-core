@@ -19,6 +19,8 @@
 
 package gda.jython;
 
+import gda.scan.ScanInterruptedException;
+
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyJavaType;
@@ -101,8 +103,12 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 				msg = arg0.getCause().getMessage();
 		} else
 			msg = arg0.getMessage();
-
-		logger.error("InteractiveConsole exception: " + msg, arg0);
+		
+		if (arg0.getCause() instanceof ScanInterruptedException) {
+			logger.info("InteractiveConsole exception: " + msg);
+		} else {
+			logger.error("InteractiveConsole exception: " + msg, arg0);
+		}
 	}
 	
 	// All of our strings are unicode potentially, so create a unicode PyString

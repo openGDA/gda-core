@@ -28,6 +28,7 @@ import gda.device.Scannable;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 /**
@@ -56,6 +57,7 @@ public class ScannableGroupTest {
 		verify(b).asynchronousMoveTo(2.);
 		verify(c).asynchronousMoveTo(3.);
 	}
+
 	@Test
 	public void testAsynchronousMoveToWithNulls() throws DeviceException {
 		group.asynchronousMoveTo(new Double[] {1.,null,3.});
@@ -63,7 +65,18 @@ public class ScannableGroupTest {
 		verify(b, times(0)).asynchronousMoveTo(any());
 		verify(c).asynchronousMoveTo(3.);
 	}
-	
+
+	@Test
+	public void testAsynchronousMoveToWithMultiInput() throws DeviceException {
+		b = MockFactory.createMockScannable("b", new String[]{"input1", "input2"}, new String[]{}, new String[]{"%5.5g","%5.5g","%1d"}, 5, new Double[]{10.,20.});
+		group.setGroupMembers(new Scannable[] { a, b, c });
+
+		group.asynchronousMoveTo(new Double[] {1., 2., 5., 3.});
+		verify(a).asynchronousMoveTo(1.);
+		verify(b).asynchronousMoveTo(new Double[] {2., 5.});
+		verify(c).asynchronousMoveTo(3.);
+	}
+
 	@Test
 	public void testCheckPositionOkay() throws DeviceException {
 		assertEquals(null, group.checkPositionValid(new Double[] {1., 2., 3.}));
@@ -71,7 +84,7 @@ public class ScannableGroupTest {
 		verify(b).checkPositionValid(new Double[] {2.});
 		verify(c).checkPositionValid(new Double[] {3.});
 	}
-	
+
 	@Test
 	public void testCheckPositionFails() throws DeviceException {
 		when(c.checkPositionValid(any())).thenReturn("c position is bad");
@@ -80,5 +93,4 @@ public class ScannableGroupTest {
 		verify(b).checkPositionValid(new Double[] {2.});
 		verify(c).checkPositionValid(new Double[] {3.});
 	}
-	
 }

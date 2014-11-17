@@ -450,6 +450,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 							if (state == null)
 								state = getProcessorState();
 
+							queueStatus.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 							switch (state) {
 							case PROCESSING_ITEMS:
 								queueStatus.setText("Running " + (item != null ? item.getDescription() : ""));
@@ -462,6 +463,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 								break;
 							case WAITING_START:
 								queueStatus.setText("Queue - paused");
+								queueStatus.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 								break;
 							}
 						}

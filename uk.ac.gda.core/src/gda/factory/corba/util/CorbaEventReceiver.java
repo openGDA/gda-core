@@ -211,7 +211,7 @@ class PushEventQueue implements Runnable {
 				if (!newEvents.isEmpty()) {
 					int numItems = newEvents.size();
 					if( chkLengthLimit > 0 && numItems > chkLengthLimit && lastItemsHandled != null){
-						logger.error("EventReceiver queue length of " + numItems + " has exceeded limit of " + chkLengthLimit);
+						logger.warn("EventReceiver queue length of " + numItems + " has exceeded check threshold of " + chkLengthLimit);
 						if(logger.isDebugEnabled()){
 							for(TimedStructuredEvent timeEvent : lastItemsHandled){
 								logger.debug(String.format("Previously pushed event (source=%s, type=%s)", timeEvent.getHeader().eventName, timeEvent.getHeader().typeName));
