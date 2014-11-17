@@ -68,7 +68,7 @@ public class ScannableGroupTest {
 
 	@Test
 	public void testAsynchronousMoveToWithMultiInput() throws DeviceException {
-		b = MockFactory.createMockScannable("b", new String[]{"input1", "input2"}, null, new String[] {"%5.5g","%5.5g","%1d"},5,new Double[]{10.,20.});
+		b = MockFactory.createMockScannable("b", new String[]{"input1", "input2"}, new String[]{}, new String[]{"%5.5g","%5.5g","%1d"}, 5, new Double[]{10.,20.});
 		group.setGroupMembers(new Scannable[] { a, b, c });
 
 		group.asynchronousMoveTo(new Double[] {1., 2., 5., 3.});
