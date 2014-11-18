@@ -22,11 +22,12 @@ class Map(Scan):
     #runPreparer methods that called the prepare method in output, sample and detector preparers. Here only detectorPreparer.prepare is called 
     #outputpreparer.prepare should be called to be able to add metadata in both ASCII and Nexus files. Maybe runPreparers method should move 
     #from XasScan to Scan class? 
-    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer,detectorPreparer, xScan, yScan):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, kb_vfm_x, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer,detectorPreparer, xScan, yScan):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
-        self.d7a=d7a
-        self.d7b=d7b
+        self.d7a = d7a
+        self.d7b = d7b
+        self.kb_vfm_x = kb_vfm_x
         self.counterTimer01=counterTimer01
         self.rcpController = rcpController
         self.ExafsScriptObserver=ExafsScriptObserver
@@ -268,6 +269,11 @@ class Map(Scan):
         self.log("Moving: " + self.d7b.getName() + " to " + att2.getSelectedPosition())
         self.d7a(att1.getSelectedPosition())
         self.d7b(att2.getSelectedPosition())
+        
+        if sampleParameters.isVfmxActive():
+            self.log( "Moving kb_vfm_x to:" + str(sampleParameters.getVfmx()))
+            self.kb_vfm_x(sampleParameters.getVfmx())
+        
         LocalProperties.set("gda.scan.useScanPlotSettings", "true")
 
     def _setupForMap(self, beanGroup):
@@ -310,8 +316,9 @@ class Map(Scan):
                         if self.cmos != None:
                             print "Using cmos"
                             detArray += [self.cmos]
-                
+                    
                     return detArray
+        raise Exception("Detector list not found!")
 
  
     def finish(self):

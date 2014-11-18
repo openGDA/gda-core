@@ -18,11 +18,12 @@ from microfocus.raster_map import RasterMap
 #
 class RasterMapReturnWrite(RasterMap):
     
-    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer, detectorPreparer, traj_xspress3, traj1tfg, traj1xmap,traj3tfg, traj3xmap, traj1SampleX, traj3SampleX, traj1PositionReader, traj3PositionReader, trajBeamMonitor):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, kb_vfm_x, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer, detectorPreparer, traj_xspress3, traj1tfg, traj1xmap,traj3tfg, traj3xmap, traj1SampleX, traj3SampleX, traj1PositionReader, traj3PositionReader, trajBeamMonitor):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         self.d7a=d7a
         self.d7b=d7b
+        self.kb_vfm_x = kb_vfm_x
         self.counterTimer01=counterTimer01
         self.rcpController = rcpController
         self.ExafsScriptObserver = ExafsScriptObserver

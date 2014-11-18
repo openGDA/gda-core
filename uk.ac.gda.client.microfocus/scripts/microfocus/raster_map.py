@@ -10,11 +10,12 @@ from uk.ac.gda.beans import BeansFactory
 from java.io import File
 
 class RasterMap(Map):
-    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer,detectorPreparer, traj1ContiniousX, traj3ContiniousX, raster_counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, raster_xspress, raster_xspress3 , cid, trajBeamMonitor):
+    def __init__(self, xspressConfig, vortexConfig, d7a, d7b, kb_vfm_x, counterTimer01, rcpController, ExafsScriptObserver,outputPreparer,detectorPreparer, traj1ContiniousX, traj3ContiniousX, raster_counterTimer01, raster_xmap, traj1PositionReader, traj3PositionReader, raster_xspress, raster_xspress3 , cid, trajBeamMonitor):
         self.xspressConfig = xspressConfig
         self.vortexConfig = vortexConfig
         self.d7a=d7a
         self.d7b=d7b
+        self.kb_vfm_x = kb_vfm_x
         self.counterTimer01=counterTimer01
         self.rcpController = rcpController
         self.ExafsScriptObserver=ExafsScriptObserver
