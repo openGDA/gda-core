@@ -36,7 +36,7 @@ public class XspressParametersEditor extends ExafsBeanFileSelectionEditor {
 	/**
 	 * The id for the editor
 	 */
-	public static final String ID = "org.diamond.exafs.ui.XspressParametersEditor";
+	public static final String ID = "uk.ac.gda.exafs.ui.XspressParametersEditor";
 
 	@Override
 	public Class<?> getBeanClass() {
