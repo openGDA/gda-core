@@ -383,14 +383,14 @@ public class DetectorElementComposite extends Composite {
 
 		if (isIndividualElements && thisElementTotalCountsValue != null) {
 			elementTotalCounts.setValue("Element Total Counts "
-					+ NumberFormat.getInstance().format(thisElementTotalCountsValue));
+					+ NumberFormat.getInstance().format(Math.round(thisElementTotalCountsValue)));
 		} else {
 			elementTotalCounts.setValue("									");
 		}
 
 		if (allElementTotalCountsValue != null) {
 			totalCounts.setValue("All Element Total Counts "
-					+ NumberFormat.getInstance().format(allElementTotalCountsValue));
+					+ NumberFormat.getInstance().format(Math.round(allElementTotalCountsValue)));
 		} else {
 			totalCounts.setValue("");
 		}
