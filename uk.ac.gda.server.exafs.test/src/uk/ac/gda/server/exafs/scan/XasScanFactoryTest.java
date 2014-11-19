@@ -18,16 +18,11 @@
 
 package uk.ac.gda.server.exafs.scan;
 
-import gda.commandqueue.Processor;
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
-import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.device.Scannable;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
-
-import java.util.ArrayList;
-
 import junit.framework.Assert;
 
 import org.junit.Before;
@@ -40,14 +35,12 @@ public class XasScanFactoryTest {
 	private DetectorPreparer detectorPreparer;
 	private OutputPreparer outputPreparer;
 	private SampleEnvironmentPreparer samplePreparer;
-	private Processor commandQueueProcessor;
-	private LoggingScriptController XASLoggingScriptController;
+	private LoggingScriptController loggingScriptController;
 	private AsciiDataWriterConfiguration datawriterconfig;
 	private Scannable energyScannable;
 	private NXMetaDataProvider metashop;
 	private QexafsDetectorPreparer qexafsDetectorPreparer;
 	private ContinuouslyScannable qexafsEnergyScannable;
-	private ArrayList<AsciiMetadataConfig> original_header;
 
 	@Before
 	public void setup() {
@@ -59,13 +52,11 @@ public class XasScanFactoryTest {
 		qexafsDetectorPreparer = PowerMockito.mock(QexafsDetectorPreparer.class);
 		samplePreparer = PowerMockito.mock(SampleEnvironmentPreparer.class);
 		outputPreparer = PowerMockito.mock(OutputPreparer.class);
-		commandQueueProcessor = PowerMockito.mock(Processor.class);
-		XASLoggingScriptController = PowerMockito.mock(LoggingScriptController.class);
+		loggingScriptController = PowerMockito.mock(LoggingScriptController.class);
 		datawriterconfig = PowerMockito.mock(AsciiDataWriterConfiguration.class);
 		energyScannable = PowerMockito.mock(Scannable.class);
 		qexafsEnergyScannable = PowerMockito.mock(ContinuouslyScannable.class);
 		metashop = PowerMockito.mock(NXMetaDataProvider.class);
-		original_header = new ArrayList<AsciiMetadataConfig>();
 	}
 
 	@Test
@@ -77,13 +68,12 @@ public class XasScanFactoryTest {
 		theFactory.setDetectorPreparer(detectorPreparer);
 		theFactory.setSamplePreparer(samplePreparer);
 		theFactory.setOutputPreparer(outputPreparer);
-		theFactory.setCommandQueueProcessor(commandQueueProcessor);
-		theFactory.setXASLoggingScriptController(XASLoggingScriptController);
+		theFactory.setLoggingScriptController(loggingScriptController);
 		theFactory.setDatawriterconfig(datawriterconfig);
 		theFactory.setEnergyScannable(energyScannable);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setOriginal_header(original_header);
+		theFactory.setScanName("energyScan");
 
 		EnergyScan energyScan = theFactory.createEnergyScan();
 
@@ -101,13 +91,12 @@ public class XasScanFactoryTest {
 		theFactory.setDetectorPreparer(detectorPreparer);
 		theFactory.setSamplePreparer(samplePreparer);
 		theFactory.setOutputPreparer(outputPreparer);
-		theFactory.setCommandQueueProcessor(commandQueueProcessor);
-		theFactory.setXASLoggingScriptController(XASLoggingScriptController);
+		theFactory.setLoggingScriptController(loggingScriptController);
 		theFactory.setDatawriterconfig(datawriterconfig);
 		theFactory.setEnergyScannable(energyScannable);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setOriginal_header(original_header);
+		theFactory.setScanName("energyScan");
 
 		try {
 			QexafsScan scan = theFactory.createQexafsScan();
@@ -131,12 +120,11 @@ public class XasScanFactoryTest {
 		theFactory.setDetectorPreparer(detectorPreparer);
 		theFactory.setSamplePreparer(samplePreparer);
 		theFactory.setOutputPreparer(outputPreparer);
-		theFactory.setCommandQueueProcessor(commandQueueProcessor);
-		theFactory.setXASLoggingScriptController(XASLoggingScriptController);
+		theFactory.setLoggingScriptController(loggingScriptController);
 		theFactory.setDatawriterconfig(datawriterconfig);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setOriginal_header(original_header);
+		theFactory.setScanName("energyScan");
 
 		try {
 			theFactory.createEnergyScan();
@@ -155,13 +143,12 @@ public class XasScanFactoryTest {
 		theFactory.setQexafsDetectorPreparer(qexafsDetectorPreparer);
 		theFactory.setSamplePreparer(samplePreparer);
 		theFactory.setOutputPreparer(outputPreparer);
-		theFactory.setCommandQueueProcessor(commandQueueProcessor);
-		theFactory.setXASLoggingScriptController(XASLoggingScriptController);
+		theFactory.setLoggingScriptController(loggingScriptController);
 		theFactory.setDatawriterconfig(datawriterconfig);
 		theFactory.setQexafsEnergyScannable(qexafsEnergyScannable);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setOriginal_header(original_header);
+		theFactory.setScanName("Qexafs");
 
 		QexafsScan scan = theFactory.createQexafsScan();
 
@@ -169,8 +156,7 @@ public class XasScanFactoryTest {
 			Assert.fail("Null returned from factory");
 		}
 	}
-	
-	
+
 	@Test
 	public void createIncompleteQexafsScan() {
 		XasScanFactory theFactory = new XasScanFactory();
@@ -179,12 +165,11 @@ public class XasScanFactoryTest {
 		theFactory.setQexafsDetectorPreparer(qexafsDetectorPreparer);
 		theFactory.setSamplePreparer(samplePreparer);
 		theFactory.setOutputPreparer(outputPreparer);
-		theFactory.setCommandQueueProcessor(commandQueueProcessor);
-		theFactory.setXASLoggingScriptController(XASLoggingScriptController);
+		theFactory.setLoggingScriptController(loggingScriptController);
 		theFactory.setDatawriterconfig(datawriterconfig);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setOriginal_header(original_header);
+		theFactory.setScanName("Qexafs");
 
 		try {
 			theFactory.createEnergyScan();

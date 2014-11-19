@@ -18,14 +18,10 @@
 
 package uk.ac.gda.server.exafs.scan;
 
-import gda.commandqueue.Processor;
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
-import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.device.Scannable;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
-
-import java.util.ArrayList;
 
 public abstract class SpectroscopyScanFactory {
 
@@ -33,25 +29,23 @@ public abstract class SpectroscopyScanFactory {
 	protected DetectorPreparer detectorPreparer;
 	protected OutputPreparer outputPreparer;
 	protected SampleEnvironmentPreparer samplePreparer;
-	protected Processor commandQueueProcessor;
-	protected LoggingScriptController XASLoggingScriptController;
+	protected LoggingScriptController loggingScriptController;
 	protected AsciiDataWriterConfiguration datawriterconfig;
 	protected Scannable energyScannable;
 	protected NXMetaDataProvider metashop;
-	protected ArrayList<AsciiMetadataConfig> original_header;
 	protected boolean includeSampleNameInNexusName;
+	protected String scanName;
 
 	protected void checkSharedObjectsNonNull() {
 
 		checkDefined(beamlinePreparer, "beamlinePreparer");
 		checkDefined(samplePreparer, "samplePreparer");
 		checkDefined(outputPreparer, "outputPreparer");
-		checkDefined(commandQueueProcessor, "commandQueueProcessor");
-		checkDefined(XASLoggingScriptController, "XASLoggingScriptController");
+		checkDefined(loggingScriptController, "LoggingScriptController");
 		checkDefined(datawriterconfig, "datawriterconfig");
-		checkDefined(original_header, "original_header");
 		checkDefined(metashop, "metashop");
 		checkDefined(includeSampleNameInNexusName, "includeSampleNameInNexusName");
+		checkDefined(scanName, "scanName");
 	}
 
 	protected void checkDefined(Object objectToTest, String objectname) {
@@ -92,20 +86,12 @@ public abstract class SpectroscopyScanFactory {
 		this.samplePreparer = samplePreparer;
 	}
 
-	public Processor getCommandQueueProcessor() {
-		return commandQueueProcessor;
+	public LoggingScriptController getLoggingScriptController() {
+		return loggingScriptController;
 	}
 
-	public void setCommandQueueProcessor(Processor commandQueueProcessor) {
-		this.commandQueueProcessor = commandQueueProcessor;
-	}
-
-	public LoggingScriptController getXASLoggingScriptController() {
-		return XASLoggingScriptController;
-	}
-
-	public void setXASLoggingScriptController(LoggingScriptController xASLoggingScriptController) {
-		XASLoggingScriptController = xASLoggingScriptController;
+	public void setLoggingScriptController(LoggingScriptController loggingScriptController) {
+		this.loggingScriptController = loggingScriptController;
 	}
 
 	public AsciiDataWriterConfiguration getDatawriterconfig() {
@@ -132,19 +118,19 @@ public abstract class SpectroscopyScanFactory {
 		this.metashop = metashop;
 	}
 
-	public ArrayList<AsciiMetadataConfig> getOriginal_header() {
-		return original_header;
-	}
-
-	public void setOriginal_header(ArrayList<AsciiMetadataConfig> original_header) {
-		this.original_header = original_header;
-	}
-
 	public boolean isIncludeSampleNameInNexusName() {
 		return includeSampleNameInNexusName;
 	}
 
 	public void setIncludeSampleNameInNexusName(boolean includeSampleNameInNexusName) {
 		this.includeSampleNameInNexusName = includeSampleNameInNexusName;
+	}
+
+	public String getScanName() {
+		return scanName;
+	}
+
+	public void setScanName(String scanName) {
+		this.scanName = scanName;
 	}
 }

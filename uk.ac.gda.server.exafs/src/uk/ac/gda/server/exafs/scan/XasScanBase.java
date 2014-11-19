@@ -18,7 +18,6 @@
 
 package uk.ac.gda.server.exafs.scan;
 
-import gda.commandqueue.Processor;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
@@ -29,7 +28,6 @@ import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
 import gda.device.Detector;
-import gda.device.Scannable;
 import gda.exafs.scan.RepetitionsProperties;
 import gda.exafs.scan.ScanStartedMessage;
 import gda.jython.InterfaceProvider;
@@ -88,19 +86,18 @@ public abstract class XasScanBase implements XasScan {
 
 	private static Logger logger = LoggerFactory.getLogger(XasScanBase.class);
 
-	final protected BeamlinePreparer beamlinePreparer;
-	final protected DetectorPreparer detectorPreparer;
-	final protected SampleEnvironmentPreparer samplePreparer;
-	final protected OutputPreparer outputPreparer;
+	private BeamlinePreparer beamlinePreparer;
+	private DetectorPreparer detectorPreparer;
+	private SampleEnvironmentPreparer samplePreparer;
+	private OutputPreparer outputPreparer;
 
-	final protected Processor commandQueueProcessor;
-	final protected LoggingScriptController XASLoggingScriptController;
-	final protected AsciiDataWriterConfiguration datawriterconfig;
-	final protected ArrayList<AsciiMetadataConfig> original_header;
-	final protected Scannable energy_scannable;
-	final protected boolean includeSampleNameInNexusName;
-	final protected NXMetaDataProvider metashop;
-
+	protected LoggingScriptController loggingScriptController;
+	private AsciiDataWriterConfiguration datawriterconfig;
+	private ArrayList<AsciiMetadataConfig> original_header;
+	private boolean includeSampleNameInNexusName;
+	private NXMetaDataProvider metashop;
+	private String scanName;
+	
 	// variables which will change for each experiment
 	private String sampleFileName;
 	private String scanFileName;
@@ -119,27 +116,9 @@ public abstract class XasScanBase implements XasScan {
 	protected String scan_unique_id;
 	protected long timeRepetitionsStarted;
 
-	public XasScanBase(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer,
-			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
-			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
-			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable,
-			boolean includeSampleNameInNexusName, NXMetaDataProvider metashop) {
-		this.beamlinePreparer = beamlinePreparer;
-		this.detectorPreparer = detectorPreparer;
-		this.samplePreparer = samplePreparer;
-		this.outputPreparer = outputPreparer;
-		this.commandQueueProcessor = commandQueueProcessor;
-		this.XASLoggingScriptController = XASLoggingScriptController;
-		this.datawriterconfig = datawriterconfig;
-		this.original_header = original_header;
-		this.energy_scannable = energy_scannable;
-		this.includeSampleNameInNexusName = includeSampleNameInNexusName;
-		this.metashop = metashop;
-	}
-
 	/**
 	 * For convenience when calling from Jython.
-	 * 
+	 *
 	 * @param pyArgs
 	 * @return 0 - normal completion
 	 * @throws Exception
@@ -169,7 +148,7 @@ public abstract class XasScanBase implements XasScan {
 
 		doCollection();
 	}
-	
+
 	@Override
 	public void doCollection(ISampleParameters sampleBean, IScanParameters scanBean, IDetectorParameters detectorBean,
 			IOutputParameters outputBean, IDetectorConfigurationParameters detectorConfigurationBean,
@@ -274,7 +253,7 @@ public abstract class XasScanBase implements XasScan {
 		// this will be the bespoke bit for each scan type
 		Object[] scanArgs = createScanArguments(sampleName, descriptions);
 
-		XasProgressUpdater loggingbean = new XasProgressUpdater(XASLoggingScriptController, logmsg,
+		XasProgressUpdater loggingbean = new XasProgressUpdater(loggingScriptController, logmsg,
 				timeRepetitionsStarted);
 		scanArgs = ArrayUtils.add(scanArgs, loggingbean);
 		ConcurrentScan theScan = ScannableCommands.createConcurrentScan(scanArgs);
@@ -286,11 +265,11 @@ public abstract class XasScanBase implements XasScan {
 			theScan.setScanPlotSettings(scanPlotSettings);
 		}
 
-		XASLoggingScriptController.update(null, new ScanStartedMessage(scanBean, detectorBean));
-		XASLoggingScriptController.update(null, new ScriptProgressEvent("Running scan"));
-		XASLoggingScriptController.update(null, new ScanCreationEvent(theScan.getName()));
+		loggingScriptController.update(null, new ScanStartedMessage(scanBean, detectorBean));
+		loggingScriptController.update(null, new ScriptProgressEvent("Running scan"));
+		loggingScriptController.update(null, new ScanCreationEvent(theScan.getName()));
 		theScan.runScan();
-		XASLoggingScriptController.update(null, new ScanFinishEvent(theScan.getName(), ScanFinishEvent.FinishType.OK));
+		loggingScriptController.update(null, new ScanFinishEvent(theScan.getName(), ScanFinishEvent.FinishType.OK));
 	}
 
 	protected abstract Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception;
@@ -583,5 +562,49 @@ public abstract class XasScanBase implements XasScan {
 			detectors = (Detector[]) ArrayUtils.addAll(detectors, extraDetectors);
 		}
 		return detectors;
+	}
+
+	public BeamlinePreparer getBeamlinePreparer() {
+		return beamlinePreparer;
+	}
+
+	public void setBeamlinePreparer(BeamlinePreparer beamlinePreparer) {
+		this.beamlinePreparer = beamlinePreparer;
+	}
+
+	public DetectorPreparer getDetectorPreparer() {
+		return detectorPreparer;
+	}
+
+	public void setDetectorPreparer(DetectorPreparer detectorPreparer) {
+		this.detectorPreparer = detectorPreparer;
+	}
+
+	public void setOutputPreparer(OutputPreparer outputPreparer) {
+		this.outputPreparer = outputPreparer;
+	}
+	public void setSamplePreparer(SampleEnvironmentPreparer samplePreparer) {
+		this.samplePreparer = samplePreparer;
+	}
+	public void setLoggingScriptController(LoggingScriptController loggingScriptController) {
+		this.loggingScriptController = loggingScriptController;
+	}
+	public void setDatawriterconfig(AsciiDataWriterConfiguration datawriterconfig) {
+		this.datawriterconfig = datawriterconfig;
+	}
+
+	public void setMetashop(NXMetaDataProvider metashop) {
+		this.metashop = metashop;
+	}
+	public void setIncludeSampleNameInNexusName(boolean includeSampleNameInNexusName) {
+		this.includeSampleNameInNexusName = includeSampleNameInNexusName;
+	}
+
+	public String getScanName() {
+		return scanName;
+	}
+
+	public void setScanName(String scanName) {
+		this.scanName = scanName;
 	}
 }

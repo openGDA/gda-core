@@ -1,16 +1,11 @@
 package uk.ac.gda.server.exafs.scan;
 
-import gda.commandqueue.Processor;
-import gda.data.metadata.NXMetaDataProvider;
-import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
-import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.device.scannable.JEPScannable;
 import gda.device.scannable.XasScannable;
 import gda.exafs.scan.ExafsScanPointCreator;
 import gda.exafs.scan.XanesScanPointCreator;
-import gda.jython.scriptcontroller.logging.LoggingScriptController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,15 +19,10 @@ import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 
 public class EnergyScan extends XasScanBase {
+	protected Scannable energyScannable;
 
-	protected EnergyScan(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer,
-			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
-			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
-			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable, NXMetaDataProvider metashop,
-			boolean includeSampleNameInNexusName) {
-		super(beamlinePreparer, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor,
-				XASLoggingScriptController, datawriterconfig, original_header, energy_scannable,
-				includeSampleNameInNexusName, metashop);
+	protected EnergyScan() {
+		// Used by XasScanFactory
 	}
 
 	@Override
@@ -52,10 +42,10 @@ public class EnergyScan extends XasScanBase {
 	}
 
 	private XasScannable createAndconfigureXASScannable() {
-		XasScannable xas_scannable = new XasScannable();
-		xas_scannable.setName("xas_scannable");
-		xas_scannable.setEnergyScannable(energy_scannable);
-		return xas_scannable;
+		XasScannable xasScannable = new XasScannable();
+		xasScannable.setName("xas_scannable");
+		xasScannable.setEnergyScannable(energyScannable);
+		return xasScannable;
 	}
 
 	private Object[] buildScanArguments(Detector[] detectorList, List<Scannable> signalParameters) throws Exception {
@@ -89,5 +79,9 @@ public class EnergyScan extends XasScanBase {
 			signalList.add(scannable);
 		}
 		return signalList;
+	}
+
+	public void setEnergyScannable(Scannable energyScannable) {
+		this.energyScannable = energyScannable;
 	}
 }

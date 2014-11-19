@@ -19,11 +19,9 @@
 package uk.ac.gda.server.exafs.scan;
 
 import static org.junit.Assert.fail;
-import gda.commandqueue.Processor;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
-import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -75,16 +73,15 @@ import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
 @PrepareForTest({ ScannableCommands.class, ConcurrentScan.class })
 public class EnergyScanTest {
 
-	private BeamlinePreparer beamlinepreparer;
+	private BeamlinePreparer beamlinePreparer;
 	private DetectorPreparer detectorPreparer;
 	private SampleEnvironmentPreparer samplePreparer;
 	private OutputPreparer outputPreparer;
-	private Processor commandQueueProcessor;
 	private NXMetaDataProvider metashop;
 	private AsciiDataWriterConfiguration datawriterconfig;
 	private ScannableMotor energy_scannable;
 	private EnergyScan xasscan;
-	private LoggingScriptController XASLoggingScriptController;
+	private LoggingScriptController loggingScriptController;
 	private XanesScanParameters xanesParams;
 	private DetectorParameters detParams;
 	private ISampleParameters sampleParams;
@@ -154,14 +151,13 @@ public class EnergyScanTest {
 		InterfaceProvider.setScanDataPointProviderForTesting(jythonserverfacade);
 
 		// create the preparers
-		beamlinepreparer = PowerMockito.mock(BeamlinePreparer.class);
+		beamlinePreparer = PowerMockito.mock(BeamlinePreparer.class);
 		detectorPreparer = PowerMockito.mock(DetectorPreparer.class);
 		samplePreparer = PowerMockito.mock(SampleEnvironmentPreparer.class);
 		outputPreparer = PowerMockito.mock(OutputPreparer.class);
-		commandQueueProcessor = PowerMockito.mock(Processor.class);
 		datawriterconfig = new AsciiDataWriterConfiguration();
 		metashop = new NXMetaDataProvider();
-		XASLoggingScriptController = PowerMockito.mock(LoggingScriptController.class);
+		loggingScriptController = PowerMockito.mock(LoggingScriptController.class);
 
 		energy_scannable = PowerMockito.mock(ScannableMotor.class);
 		Mockito.when(energy_scannable.getName()).thenReturn("energy_scannable");
@@ -171,9 +167,17 @@ public class EnergyScanTest {
 		Mockito.when(energy_scannable.getPosition()).thenReturn(7000.0);
 
 		// create XasScan object
-		xasscan = new EnergyScan(beamlinepreparer, detectorPreparer, samplePreparer, outputPreparer,
-				commandQueueProcessor, XASLoggingScriptController, datawriterconfig,
-				new ArrayList<AsciiMetadataConfig>(), energy_scannable, metashop, true);
+		XasScanFactory theFactory = new XasScanFactory();
+		xasscan = theFactory.createEnergyScan();
+		theFactory.setBeamlinePreparer(beamlinePreparer);
+		theFactory.setDetectorPreparer(detectorPreparer);
+		theFactory.setSamplePreparer(samplePreparer);
+		theFactory.setOutputPreparer(outputPreparer);
+		theFactory.setLoggingScriptController(loggingScriptController);
+		theFactory.setDatawriterconfig(datawriterconfig);
+		theFactory.setMetashop(metashop);
+		theFactory.setIncludeSampleNameInNexusName(true);
+		theFactory.setScanName("energyScan");
 
 		// create the beans and give to the XasScan
 		Region region = new Region();
@@ -237,16 +241,16 @@ public class EnergyScanTest {
 			xasscan.doCollection(sampleParams, xanesParams, detParams, outputParams, null, experimentalFullPath, 1);
 
 			// check that the the correct order of preparers and scan were called
-			InOrder inorder = Mockito.inOrder(beamlinepreparer,detectorPreparer,samplePreparer,outputPreparer,it,outputParams,mockScan,outputParams);
+			InOrder inorder = Mockito.inOrder(beamlinePreparer,detectorPreparer,samplePreparer,outputPreparer,it,outputParams,mockScan,outputParams);
 			
-			inorder.verify(beamlinepreparer).configure(xanesParams, detParams, sampleParams, outputParams,
+			inorder.verify(beamlinePreparer).configure(xanesParams, detParams, sampleParams, outputParams,
 					experimentalFullPath);
 			inorder.verify(detectorPreparer).configure(xanesParams, detParams, outputParams, experimentalFullPath);
 			inorder.verify(samplePreparer).configure(xanesParams,sampleParams);
 			inorder.verify(outputPreparer).configure(outputParams, xanesParams, detParams);
 
 			inorder.verify(samplePreparer).createIterator("Transmission");
-			inorder.verify(beamlinepreparer).prepareForExperiment();
+			inorder.verify(beamlinePreparer).prepareForExperiment();
 
 			inorder.verify(it).resetIterator();
 			inorder.verify(it).next();
@@ -270,7 +274,7 @@ public class EnergyScanTest {
 
 			inorder.verify(outputParams).getAfterScriptName();
 			inorder.verify(detectorPreparer).completeCollection();
-			inorder.verify(beamlinepreparer).completeExperiment();
+			inorder.verify(beamlinePreparer).completeExperiment();
 
 		} catch (Exception e) {
 			fail(e.getMessage());
@@ -323,14 +327,14 @@ public class EnergyScanTest {
 			// check that the the correct order of preparers and scan were called
 
 			// performed after repetition loop
-			Mockito.verify(beamlinepreparer).configure(xanesParams, detParams, sampleParams, outputParams,
+			Mockito.verify(beamlinePreparer).configure(xanesParams, detParams, sampleParams, outputParams,
 					experimentalFullPath);
 			Mockito.verify(detectorPreparer).configure(xanesParams, detParams, outputParams, experimentalFullPath);
 			Mockito.verify(samplePreparer).configure(xanesParams,sampleParams);
 			Mockito.verify(outputPreparer).configure(outputParams, xanesParams, detParams);
 
 			Mockito.verify(samplePreparer).createIterator("Transmission");
-			Mockito.verify(beamlinepreparer).prepareForExperiment();
+			Mockito.verify(beamlinePreparer).prepareForExperiment();
 
 			// this is the repetition loop
 			{
@@ -353,7 +357,7 @@ public class EnergyScanTest {
 
 			// performed after repetition loop
 			Mockito.verify(detectorPreparer).completeCollection();
-			Mockito.verify(beamlinepreparer).completeExperiment();
+			Mockito.verify(beamlinePreparer).completeExperiment();
 
 		} catch (Exception e) {
 			fail(e.getMessage());
@@ -380,14 +384,14 @@ public class EnergyScanTest {
 			// check that the the correct order of preparers and scan were called
 
 			// performed after repetition loop
-			Mockito.verify(beamlinepreparer).configure(xanesParams, detParams, sampleParams, outputParams,
+			Mockito.verify(beamlinePreparer).configure(xanesParams, detParams, sampleParams, outputParams,
 					experimentalFullPath);
 			Mockito.verify(detectorPreparer).configure(xanesParams, detParams, outputParams, experimentalFullPath);
 			Mockito.verify(samplePreparer).configure(xanesParams,sampleParams);
 			Mockito.verify(outputPreparer).configure(outputParams, xanesParams, detParams);
 
 			Mockito.verify(samplePreparer).createIterator("Transmission");
-			Mockito.verify(beamlinepreparer).prepareForExperiment();
+			Mockito.verify(beamlinePreparer).prepareForExperiment();
 
 			// this is the repetition loop
 			{
@@ -415,7 +419,7 @@ public class EnergyScanTest {
 
 			// performed after repetition loop
 			Mockito.verify(detectorPreparer).completeCollection();
-			Mockito.verify(beamlinepreparer).completeExperiment();
+			Mockito.verify(beamlinePreparer).completeExperiment();
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}

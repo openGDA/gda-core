@@ -29,20 +29,51 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.factory.InitializingBean;
+
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.MetadataParameters;
 import uk.ac.gda.server.exafs.scan.OutputPreparer;
 
-public abstract class OutputPreparerBase implements OutputPreparer {
+public abstract class OutputPreparerBase implements OutputPreparer, InitializingBean {
 
 	private AsciiDataWriterConfiguration datawriterconfig;
 	private NXMetaDataProvider metashop;
 	private Set<String> scannablesAddedToMetadata = new HashSet<String>();
 
+	public OutputPreparerBase() {
+	}
+
 	public OutputPreparerBase(AsciiDataWriterConfiguration datawriterconfig, NXMetaDataProvider metashop) {
 		this.datawriterconfig = datawriterconfig;
+		this.metashop = metashop;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (datawriterconfig == null) {
+			throw new IllegalArgumentException("Missing datawriterconfig configuration");
+		}
+		if (metashop == null) {
+			throw new IllegalArgumentException("Missing metashop");
+		}
+	}
+
+	public AsciiDataWriterConfiguration getDatawriterconfig() {
+		return datawriterconfig;
+	}
+
+	public void setDatawriterconfig(AsciiDataWriterConfiguration datawriterconfig) {
+		this.datawriterconfig = datawriterconfig;
+	}
+
+	public NXMetaDataProvider getMetashop() {
+		return metashop;
+	}
+
+	public void setMetashop(NXMetaDataProvider metashop) {
 		this.metashop = metashop;
 	}
 

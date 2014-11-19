@@ -18,22 +18,16 @@
 
 package uk.ac.gda.server.exafs.scan;
 
-import gda.commandqueue.Processor;
-import gda.data.metadata.NXMetaDataProvider;
-import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
-import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.device.detector.BufferedDetector;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.exafs.scan.ScanStartedMessage;
 import gda.jython.scriptcontroller.event.ScanCreationEvent;
 import gda.jython.scriptcontroller.event.ScanFinishEvent;
 import gda.jython.scriptcontroller.event.ScriptProgressEvent;
-import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import gda.jython.scriptcontroller.logging.XasLoggingMessage;
 import gda.jython.scriptcontroller.logging.XasProgressUpdater;
 import gda.scan.ContinuousScan;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
@@ -43,18 +37,10 @@ public class QexafsScan extends EnergyScan {
 	private ContinuouslyScannable qexafsScanable;
 	private QexafsDetectorPreparer qexafsdetectorPreparer;
 
-	protected QexafsScan(BeamlinePreparer beamlinePreparer, QexafsDetectorPreparer detectorPreparer,
-			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
-			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
-			ArrayList<AsciiMetadataConfig> original_header, ContinuouslyScannable energy_scannable,
-			NXMetaDataProvider metashop, boolean includeSampleNameInNexusName) {
-		super(beamlinePreparer, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor,
-				XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, metashop,
-				includeSampleNameInNexusName);
-		qexafsdetectorPreparer = detectorPreparer;
-		qexafsScanable = energy_scannable;
+	protected QexafsScan() {
+		// Used by XasScanFactory
 	}
-	
+
 	@Override
 	public String getScanType(){
 		return "Qexafs";
@@ -72,12 +58,12 @@ public class QexafsScan extends EnergyScan {
 		int numberPoints = (int) Math.ceil((final_energy - initial_energy) / step_size);
 		double scan_time = ((QEXAFSParameters) scanBean).getTime();
 
-		XASLoggingScriptController.update(null, new ScanStartedMessage(scanBean, detectorBean));
+		loggingScriptController.update(null, new ScanStartedMessage(scanBean, detectorBean));
 
-		XasProgressUpdater loggingbean = new XasProgressUpdater(XASLoggingScriptController, logmsg,
+		XasProgressUpdater loggingbean = new XasProgressUpdater(loggingScriptController, logmsg,
 				timeRepetitionsStarted);
 
-		double current_energy = (Double) energy_scannable.getPosition();
+		double current_energy = (Double) energyScannable.getPosition();
 		double dist_to_init = Math.abs(initial_energy - current_energy);
 		double dist_to_final = Math.abs(final_energy - current_energy);
 
@@ -102,19 +88,27 @@ public class QexafsScan extends EnergyScan {
 			}
 		}
 
-		log("Scan: " + energy_scannable.getName() + " " + start + " " + end + " " + numberPoints + " " + scan_time
+		log("Scan: " + energyScannable.getName() + " " + start + " " + end + " " + numberPoints + " " + scan_time
 				+ " " + detectorList);
-		XASLoggingScriptController.update(null, new ScriptProgressEvent("Running QEXAFS scan"));
+		loggingScriptController.update(null, new ScriptProgressEvent("Running QEXAFS scan"));
 		ContinuousScan thisscan = new ContinuousScan(qexafsScanable, start, end, numberPoints, scan_time, detectorList);
 		thisscan = (ContinuousScan) setUpDataWriter(thisscan, sampleBean.getName(), sampleBean.getDescriptions());
-		XASLoggingScriptController.update(null, new ScanCreationEvent(thisscan.getName()));
+		loggingScriptController.update(null, new ScanCreationEvent(thisscan.getName()));
 		loggingbean.atScanStart();
 		thisscan.runScan();
-		XASLoggingScriptController.update(null, new ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
+		loggingScriptController.update(null, new ScanFinishEvent(thisscan.getName(), ScanFinishEvent.FinishType.OK));
 		loggingbean.atScanEnd();
 	}
 
 	private BufferedDetector[] _getQEXAFSDetectors() throws Exception {
 		return qexafsdetectorPreparer.getQEXAFSDetectors();
+	}
+
+	public void setQexafsScanable(ContinuouslyScannable qexafsScanable) {
+		this.qexafsScanable = qexafsScanable;
+	}
+
+	public void setQexafsdetectorPreparer(QexafsDetectorPreparer qexafsdetectorPreparer) {
+		this.qexafsdetectorPreparer = qexafsdetectorPreparer;
 	}
 }

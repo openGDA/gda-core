@@ -26,22 +26,52 @@ import gda.observable.ObservableComponent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 
-public class XspressDetectorConfiguration implements FluorescentDetectorConfiguration{
+public class XspressDetectorConfiguration implements FluorescentDetectorConfiguration, InitializingBean {
 
-	private Logger logger = LoggerFactory.getLogger(XspressDetectorConfiguration.class);
+	private static final Logger logger = LoggerFactory.getLogger(XspressDetectorConfiguration.class);
 	private XspressSystem xspressSystem;
 	private ObservableComponent observer;
 	private String message = "Xspress configuration has not been applied yet";
 	private boolean onlyShowFF = false;
 	private boolean showDTRawValues = false;
 	private boolean saveRawSpectrum = false;
-	
+
+	public XspressDetectorConfiguration() {
+	}
+
 	public XspressDetectorConfiguration(XspressSystem xspressSystem, final ObservableComponent observer) {
 		this.observer = observer;
 		this.xspressSystem = xspressSystem;
 	}
-	
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (xspressSystem == null) {
+			throw new IllegalArgumentException("Missing xspresssystem component");
+		}
+		if (observer == null) {
+			throw new IllegalArgumentException("Missing observer component");
+		}
+	}
+
+	public XspressSystem getXspressSystem() {
+		return xspressSystem;
+	}
+
+	public void setXspressSystem(XspressSystem xspressSystem) {
+		this.xspressSystem = xspressSystem;
+	}
+
+	public ObservableComponent getObserver() {
+		return observer;
+	}
+
+	public void setObserver(ObservableComponent observer) {
+		this.observer = observer;
+	}
+
 	public void configure(String xmlFileName) throws FactoryException {
 		try {
 			xspressSystem.setConfigFileName(xmlFileName);
