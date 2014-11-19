@@ -228,23 +228,35 @@ public class EpicsXspress3ControllerPvProvider {
 		pvExtraDimY = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_Y));
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void createDisplayPVs() {
-		 pvGetMaxFrames = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(MAX_FRAMES_SUFFIX));
-		 pvGetMCASize = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(MCA_SIZE_SUFFIX));
-		 
-		for (int channel = 1; channel <= numberOfDetectorChannels; channel++){
-			pvsChannelEnable[channel-1] = LazyPVFactory.newEnumPV(generatePVName(CHANNEL_ENABLE_TEMPLATE,channel),UPDATE_RBV.class);
+		pvGetMaxFrames = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(MAX_FRAMES_SUFFIX));
+		pvGetMCASize = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(MCA_SIZE_SUFFIX));
+
+		pvsChannelEnable = new PV[numberOfDetectorChannels];
+		for (int channel = 1; channel <= numberOfDetectorChannels; channel++) {
+			pvsChannelEnable[channel - 1] = LazyPVFactory.newEnumPV(generatePVName(CHANNEL_ENABLE_TEMPLATE, channel),
+					UPDATE_RBV.class);
 		}
-		 
-//		 pvSetScalerUpdate = LazyPVFactory.newEnumPV(generatePVName(SCALER_UPDATE_SUFFIX),UPDATE_CTRL.class);
-//		 pvGetScalerUpdate = LazyPVFactory.newReadOnlyEnumPV(generatePVName(SCALER_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
-//		 pvScalerUpdatePeriod = LazyPVFactory.newIntegerPV(generatePVName(SCALER_UPDATE_PERIOD_SUFFIX));
-//		 pvSetMCAUpdate = LazyPVFactory.newEnumPV(generatePVName(MCA_UPDATE_SUFFIX),UPDATE_CTRL.class);
-//		 pvGetMCAUpdate = LazyPVFactory.newReadOnlyEnumPV(generatePVName(MCA_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
-//		 pvMCAUpdatePeriod = LazyPVFactory.newIntegerPV(generatePVName(MCA_UPDATE_PERIOD_SUFFIX));
-//		 pvSetSCAROIUpdate = LazyPVFactory.newEnumPV(generatePVName(SCA_UPDATE_SUFFIX),UPDATE_CTRL.class);
-//		 pvGetSCAROIUpdate = LazyPVFactory.newReadOnlyEnumPV(generatePVName(SCA_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
-//		 pvSCAROIUpdatePeriod = LazyPVFactory.newIntegerPV(generatePVName(SCA_UPDATE_PERIOD_SUFFIX));
+
+		// pvSetScalerUpdate =
+		// LazyPVFactory.newEnumPV(generatePVName(SCALER_UPDATE_SUFFIX),UPDATE_CTRL.class);
+		// pvGetScalerUpdate =
+		// LazyPVFactory.newReadOnlyEnumPV(generatePVName(SCALER_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
+		// pvScalerUpdatePeriod =
+		// LazyPVFactory.newIntegerPV(generatePVName(SCALER_UPDATE_PERIOD_SUFFIX));
+		// pvSetMCAUpdate =
+		// LazyPVFactory.newEnumPV(generatePVName(MCA_UPDATE_SUFFIX),UPDATE_CTRL.class);
+		// pvGetMCAUpdate =
+		// LazyPVFactory.newReadOnlyEnumPV(generatePVName(MCA_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
+		// pvMCAUpdatePeriod =
+		// LazyPVFactory.newIntegerPV(generatePVName(MCA_UPDATE_PERIOD_SUFFIX));
+		// pvSetSCAROIUpdate =
+		// LazyPVFactory.newEnumPV(generatePVName(SCA_UPDATE_SUFFIX),UPDATE_CTRL.class);
+		// pvGetSCAROIUpdate =
+		// LazyPVFactory.newReadOnlyEnumPV(generatePVName(SCA_UPDATE_RBV_SUFFIX),UPDATE_RBV.class);
+		// pvSCAROIUpdatePeriod =
+		// LazyPVFactory.newIntegerPV(generatePVName(SCA_UPDATE_PERIOD_SUFFIX));
 	}
 
 	@SuppressWarnings("unchecked")
