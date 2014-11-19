@@ -77,15 +77,17 @@ public class MicroFocusDisplayController {
 	public void displayMap(String selectedElement, Integer selectedChannel) {
 		if (selectedElement.equals("I0")) {
 			if (fileDataProvider != null && fileIsDataSource) {
+				fileDataProvider.setSelectedChannel(selectedChannel);
 				plotter.plotDataset(fileDataProvider.getI0data());
 			} else {
-				plotter.plotMapFromServer("I0",0);
+				plotter.plotMapFromServer("I0",selectedChannel);
 			}
 		} else if (selectedElement.equals("It")) {
 			if (fileDataProvider != null && fileIsDataSource) {
+				fileDataProvider.setSelectedChannel(selectedChannel);
 				plotter.plotDataset(fileDataProvider.getItdata());
 			} else {
-				plotter.plotMapFromServer("It",0);
+				plotter.plotMapFromServer("It",selectedChannel);
 			}
 		} else if (fileIsDataSource) {
 			if (plotter != null) {
