@@ -18,7 +18,6 @@
 
 package uk.ac.gda.server.exafs.scan;
 
-import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -178,13 +177,11 @@ public class RasterMapTest {
 		theFactory.setDetectorPreparer(testHelper.getDetectorPreparer());
 		theFactory.setSamplePreparer(testHelper.getSamplePreparer());
 		theFactory.setOutputPreparer(testHelper.getOutputPreparer());
-		theFactory.setCommandQueueProcessor(testHelper.getCommandQueueProcessor());
-		theFactory.setXASLoggingScriptController(testHelper.getXASLoggingScriptController());
+		theFactory.setLoggingScriptController(testHelper.getXASLoggingScriptController());
 		theFactory.setDatawriterconfig(testHelper.getDatawriterconfig());
 		theFactory.setEnergyScannable(testHelper.getEnergy_scannable());
 		theFactory.setMetashop(testHelper.getMetashop());
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setOriginal_header(new ArrayList<AsciiMetadataConfig>());
 
 		theFactory.setCounterTimer(Mockito.mock(CounterTimer.class));
 		theFactory.setxScan(x_traj_scannable);

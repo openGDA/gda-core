@@ -18,9 +18,14 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
+
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.device.Scannable;
+import gda.jython.IJythonNamespace;
+import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
 
 public abstract class SpectroscopyScanFactory {
@@ -35,6 +40,8 @@ public abstract class SpectroscopyScanFactory {
 	protected NXMetaDataProvider metashop;
 	protected boolean includeSampleNameInNexusName;
 	protected String scanName;
+
+	private XasScanBase scan;
 
 	protected void checkSharedObjectsNonNull() {
 
@@ -132,5 +139,28 @@ public abstract class SpectroscopyScanFactory {
 
 	public void setScanName(String scanName) {
 		this.scanName = scanName;
+	}
+
+	protected void placeInJythonNamespace(XasScanBase theScan) {
+		scan = theScan;
+		FutureTask<Void> placeInJythonTask = new FutureTask<Void>(new Callable<Void>() {
+		@Override
+		public Void call() {
+//			try for 10 secs and give up
+			for (int i=0; i<10; i++) {
+				try {
+					Thread.sleep(1000);
+					IJythonNamespace jythonNamespace = InterfaceProvider.getJythonNamespace();
+					jythonNamespace.placeInJythonNamespace(scanName, scan);
+					return null;
+				} catch (Exception e) {
+					// ignore
+				}
+			}
+			throw new IllegalArgumentException("Failed to put scan '" + scanName + "' into the Jython namespace!");
+		}
+	});
+	
+	new Thread(placeInJythonTask, "placeEnergyScanIntoJythonNamespace").start();
 	}
 }

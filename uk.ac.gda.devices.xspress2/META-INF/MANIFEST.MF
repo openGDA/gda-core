@@ -19,4 +19,5 @@ Export-Package: gda.device.detector,
  gda.device.detector.xspress.xspress2data
 Import-Package: org.apache.commons.beanutils;version="1.9.1",
  org.apache.commons.lang;version="2.6.0",
- org.slf4j
+ org.slf4j,
+ org.springframework.beans.factory;version="4.0.6.RELEASE"

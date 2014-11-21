@@ -50,7 +50,6 @@ public class MapFactoryTest {
 	private BeamlinePreparer beamlinePreparer;
 	private SampleEnvironmentPreparer samplePreparer;
 	private OutputPreparer outputPreparer;
-	private Processor commandQueueProcessor;
 	private LoggingScriptController XASLoggingScriptController;
 	private AsciiDataWriterConfiguration datawriterconfig;
 	private ArrayList<AsciiMetadataConfig> original_header;
@@ -73,7 +72,6 @@ public class MapFactoryTest {
 		detectorPreparer = PowerMockito.mock(DetectorPreparer.class);
 		samplePreparer = PowerMockito.mock(SampleEnvironmentPreparer.class);
 		outputPreparer = PowerMockito.mock(OutputPreparer.class);
-		commandQueueProcessor = PowerMockito.mock(Processor.class);
 		XASLoggingScriptController = PowerMockito.mock(LoggingScriptController.class);
 		datawriterconfig = PowerMockito.mock(AsciiDataWriterConfiguration.class);
 		original_header = new ArrayList<AsciiMetadataConfig>();
@@ -100,13 +98,11 @@ public class MapFactoryTest {
 		theFactory.setDetectorPreparer(detectorPreparer);
 		theFactory.setSamplePreparer(samplePreparer);
 		theFactory.setOutputPreparer(outputPreparer);
-		theFactory.setCommandQueueProcessor(commandQueueProcessor);
-		theFactory.setXASLoggingScriptController(XASLoggingScriptController);
+		theFactory.setLoggingScriptController(XASLoggingScriptController);
 		theFactory.setDatawriterconfig(datawriterconfig);
 		theFactory.setEnergyScannable(energyScannable);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setOriginal_header(original_header);
 
 		theFactory.setCounterTimer(counterTimer);
 		theFactory.setxScan(xScan);
@@ -132,13 +128,11 @@ public class MapFactoryTest {
 		theFactory.setDetectorPreparer(detectorPreparer);
 		theFactory.setSamplePreparer(samplePreparer);
 		theFactory.setOutputPreparer(outputPreparer);
-		theFactory.setCommandQueueProcessor(commandQueueProcessor);
-		theFactory.setXASLoggingScriptController(XASLoggingScriptController);
+		theFactory.setLoggingScriptController(XASLoggingScriptController);
 		theFactory.setDatawriterconfig(datawriterconfig);
 		theFactory.setEnergyScannable(energyScannable);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setOriginal_header(original_header);
 
 		theFactory.setCounterTimer(counterTimer);
 		theFactory.setxScan(xScan);
@@ -164,13 +158,11 @@ public class MapFactoryTest {
 		theFactory.setDetectorPreparer(detectorPreparer);
 		theFactory.setSamplePreparer(samplePreparer);
 		theFactory.setOutputPreparer(outputPreparer);
-		theFactory.setCommandQueueProcessor(commandQueueProcessor);
-		theFactory.setXASLoggingScriptController(XASLoggingScriptController);
+		theFactory.setLoggingScriptController(XASLoggingScriptController);
 		theFactory.setDatawriterconfig(datawriterconfig);
 		theFactory.setEnergyScannable(energyScannable);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setOriginal_header(original_header);
 
 		theFactory.setCounterTimer(counterTimer);
 		theFactory.setxScan(xScan);
@@ -199,13 +191,11 @@ public class MapFactoryTest {
 		theFactory.setDetectorPreparer(detectorPreparer);
 		theFactory.setSamplePreparer(samplePreparer);
 		theFactory.setOutputPreparer(outputPreparer);
-		theFactory.setCommandQueueProcessor(commandQueueProcessor);
-		theFactory.setXASLoggingScriptController(XASLoggingScriptController);
+		theFactory.setLoggingScriptController(XASLoggingScriptController);
 		theFactory.setDatawriterconfig(datawriterconfig);
 		theFactory.setEnergyScannable(energyScannable);
 		// theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setOriginal_header(original_header);
 
 		theFactory.setCounterTimer(counterTimer);
 		theFactory.setxScan(xScan);
@@ -236,13 +226,11 @@ public class MapFactoryTest {
 		theFactory.setDetectorPreparer(detectorPreparer);
 		theFactory.setSamplePreparer(samplePreparer);
 		theFactory.setOutputPreparer(outputPreparer);
-		theFactory.setCommandQueueProcessor(commandQueueProcessor);
-		theFactory.setXASLoggingScriptController(XASLoggingScriptController);
+		theFactory.setLoggingScriptController(XASLoggingScriptController);
 		theFactory.setDatawriterconfig(datawriterconfig);
 		theFactory.setEnergyScannable(energyScannable);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setOriginal_header(original_header);
 
 		theFactory.setCounterTimer(counterTimer);
 		theFactory.setxScan(xScan);
@@ -271,13 +259,11 @@ public class MapFactoryTest {
 		theFactory.setDetectorPreparer(detectorPreparer);
 		theFactory.setSamplePreparer(samplePreparer);
 		theFactory.setOutputPreparer(outputPreparer);
-		theFactory.setCommandQueueProcessor(commandQueueProcessor);
-		theFactory.setXASLoggingScriptController(XASLoggingScriptController);
+		theFactory.setLoggingScriptController(XASLoggingScriptController);
 		theFactory.setDatawriterconfig(datawriterconfig);
 		theFactory.setEnergyScannable(energyScannable);
 		// theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
-		theFactory.setOriginal_header(original_header);
 
 		theFactory.setCounterTimer(counterTimer);
 		theFactory.setxScan(xScan);

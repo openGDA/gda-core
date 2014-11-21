@@ -53,24 +53,6 @@ public class RasterMap extends StepMap implements MappingScan {
 	protected RealPositionReader positionReader;
 	protected LineRepeatingBeamMonitor trajectoryBeamMonitor;
 	
-	RasterMap(BeamlinePreparer beamlinePreparer, RasterMapDetectorPreparer detectorPreparer,
-			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
-			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
-			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable,
-			NXMetaDataProvider metashop,boolean includeSampleNameInNexusName, 
-			ContinuouslyScannable trajectoryMotor, RealPositionReader positionReader, 
-			Scannable yMotor,Scannable zMotor, LineRepeatingBeamMonitor trajectoryBeamMonitor, ScriptControllerBase elementListScriptController
-			) {
-		super(beamlinePreparer, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor,
-				XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, metashop,
-				includeSampleNameInNexusName, null, trajectoryMotor, yMotor, zMotor,elementListScriptController );
-		
-		this.bufferedDetectorPreparer = detectorPreparer;
-		this.positionReader = positionReader;
-		this.trajectoryBeamMonitor = trajectoryBeamMonitor;
-		this.setTrajectoryMotor(trajectoryMotor);
-	}
-	
 	@Override
 	public String getScanType() {
 		return "Raster Map";
@@ -96,7 +78,7 @@ public class RasterMap extends StepMap implements MappingScan {
 		
 		//TODO have not done the custom settings for raster maps for the monitor objects
 		
-		Object[] args = new Object[] {yMotor, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),  mapScanParameters.getYStepSize(), trajectoryBeamMonitor, cs};
+		Object[] args = new Object[] {yScan, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),  mapScanParameters.getYStepSize(), trajectoryBeamMonitor, cs};
 		
 		// add a Scannable, if defined, which fetches the motor readback values from the Epics Trajectory template after the trajectory completes.
 		if (positionReader != null){

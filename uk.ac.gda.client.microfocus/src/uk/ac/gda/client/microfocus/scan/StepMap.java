@@ -18,11 +18,7 @@
 
 package uk.ac.gda.client.microfocus.scan;
 
-import gda.commandqueue.Processor;
 import gda.configuration.properties.LocalProperties;
-import gda.data.metadata.NXMetaDataProvider;
-import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
-import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
 import gda.data.scan.datawriter.XasAsciiNexusDatapointCompletingDataWriter;
@@ -32,50 +28,27 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 import gda.jython.scriptcontroller.ScriptControllerBase;
-import gda.jython.scriptcontroller.logging.LoggingScriptController;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.client.microfocus.scan.datawriter.MicroFocusWriterExtender;
-import uk.ac.gda.server.exafs.scan.BeamlinePreparer;
-import uk.ac.gda.server.exafs.scan.DetectorPreparer;
-import uk.ac.gda.server.exafs.scan.OutputPreparer;
-import uk.ac.gda.server.exafs.scan.SampleEnvironmentPreparer;
 import uk.ac.gda.server.exafs.scan.XasScanBase;
 
 public class StepMap extends XasScanBase implements MappingScan {
 
-	protected final Scannable xMotor;
-	protected final Scannable yMotor;
-	protected final Scannable zMotor;
+	protected Scannable xScan;
+	protected Scannable yScan;
+	protected Scannable zScan;
+	protected Scannable energyScannable;
 
-	private final CounterTimer counterTimer01;
+	private CounterTimer counterTimer;
 
 	protected ScriptControllerBase elementListScriptController;
 	protected MicroFocusWriterExtender mfd;
 	protected MicroFocusScanParameters mapScanParameters;
-
-	StepMap(BeamlinePreparer beamlinePreparer, DetectorPreparer detectorPreparer,
-			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
-			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
-			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable, NXMetaDataProvider metashop,
-			boolean includeSampleNameInNexusName, CounterTimer counterTimer01, Scannable xScan, Scannable yScan,
-			Scannable zScannable, ScriptControllerBase elementListScriptController) {
-
-		super(beamlinePreparer, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor,
-				XASLoggingScriptController, datawriterconfig, original_header, energy_scannable,
-				includeSampleNameInNexusName, metashop);
-
-		this.counterTimer01 = counterTimer01;
-		this.xMotor = xScan;
-		this.yMotor = yScan;
-		this.zMotor = zScannable;
-		this.elementListScriptController = elementListScriptController;
-	}
 
 	@Override
 	public String getScanType() {
@@ -104,17 +77,17 @@ public class StepMap extends XasScanBase implements MappingScan {
 	}
 
 	protected Object[] buildListOfArguments(Detector[] detectorList) throws DeviceException, Exception {
-		Object[] args = new Object[] { yMotor, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
-				mapScanParameters.getYStepSize(), xMotor, mapScanParameters.getXStart(), mapScanParameters.getXEnd(),
-				mapScanParameters.getXStepSize(), zMotor };		
+		Object[] args = new Object[] { yScan, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
+				mapScanParameters.getYStepSize(), xScan, mapScanParameters.getXStart(), mapScanParameters.getXEnd(),
+				mapScanParameters.getXStepSize(), zScan };		
 		boolean useFrames = LocalProperties.check("gda.microfocus.scans.useFrames");
 		log("Using frames: " + useFrames);
 		if (detectorBean.getExperimentType().equals("Fluorescence") && useFrames) {
 			args = ArrayUtils.addAll(args, detectorList);
-			counterTimer01.clearFrameSets();
+			counterTimer.clearFrameSets();
 			log("Frame collection time: " + mapScanParameters.getCollectionTime());
 			int nx = calculateNumberXPoints();
-			counterTimer01.addFrameSet(nx, 1.0E-4, mapScanParameters.getCollectionTime() * 1000.0, 0, 7, -1, 0);
+			counterTimer.addFrameSet(nx, 1.0E-4, mapScanParameters.getCollectionTime() * 1000.0, 0, 7, -1, 0);
 		} else {
 			for (Detector detector : detectorList) {
 				args = ArrayUtils.add(args, detector);
@@ -125,7 +98,7 @@ public class StepMap extends XasScanBase implements MappingScan {
 	}
 	
 	protected int calculateNumberXPoints() throws Exception {
-		return ScannableUtils.getNumberSteps(xMotor, mapScanParameters.getXStart(), mapScanParameters.getXEnd(),
+		return ScannableUtils.getNumberSteps(xScan, mapScanParameters.getXStart(), mapScanParameters.getXEnd(),
 				mapScanParameters.getXStepSize()) + 1;
 	}
 
@@ -134,17 +107,17 @@ public class StepMap extends XasScanBase implements MappingScan {
 		double zScannablePos = mapScanParameters.getZValue();
 
 		log("Energy: " + energy);
-		energy_scannable.moveTo(energy);
+		energyScannable.moveTo(energy);
 		mfd.setEnergyValue(energy);
 
-		log("Moving " + zMotor.getName() + " to " + zScannablePos);
-		zMotor.moveTo(zScannablePos);
+		log("Moving " + zScan.getName() + " to " + zScannablePos);
+		zScan.moveTo(zScannablePos);
 		mfd.setZValue(zScannablePos);
 	}
 
 	protected void createMFD(Detector[] detectorList) throws Exception {
 		int nx = calculateNumberXPoints();
-		int ny = ScannableUtils.getNumberSteps(yMotor, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
+		int ny = ScannableUtils.getNumberSteps(yScan, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
 				mapScanParameters.getYStepSize()) + 1;
 		log("Number x points: " + nx);
 		log("Number y points: " + ny);
@@ -180,4 +153,31 @@ public class StepMap extends XasScanBase implements MappingScan {
 		}
 	}
 
+	public void setElementListScriptController(ScriptControllerBase elementListScriptController) {
+		this.elementListScriptController = elementListScriptController;
+	}
+
+	public CounterTimer getCounterTimer() {
+		return counterTimer;
+	}
+
+	public void setxScan(Scannable xScan) {
+		this.xScan = xScan;
+	}
+
+	public void setyScan(Scannable yScan) {
+		this.yScan = yScan;
+	}
+
+	public void setzScan(Scannable zScan) {
+		this.zScan = zScan;
+	}
+
+	public void setCounterTimer(CounterTimer counterTimer) {
+		this.counterTimer = counterTimer;
+	}
+
+	public void setEnergyScannable(Scannable energyScannable) {
+		this.energyScannable = energyScannable;
+	}
 }

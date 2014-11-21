@@ -43,27 +43,54 @@ public class MapFactory extends SpectroscopyScanFactory {
 
 	public StepMap createStepMap() {
 		checkSharedObjectsNonNull();
+		checkDefined(energyScannable, "energyScannable");
 		checkDefined(xScan, "xScan");
 		checkDefined(yScan, "yScan");
 		checkDefined(zScan, "zScan");
 		checkDefined(elementListScriptController, "elementListScriptController");
 
-		StepMap newMap = new StepMap(beamlinePreparer, detectorPreparer, samplePreparer, outputPreparer,
-				commandQueueProcessor, XASLoggingScriptController, datawriterconfig, original_header, energyScannable,
-				metashop, includeSampleNameInNexusName, counterTimer, xScan, yScan, zScan, elementListScriptController);
-
+		StepMap newMap = new StepMap();
+		newMap.setBeamlinePreparer(beamlinePreparer);
+		newMap.setDetectorPreparer(detectorPreparer);
+		newMap.setOutputPreparer(outputPreparer);
+		newMap.setSamplePreparer(samplePreparer);
+		newMap.setLoggingScriptController(loggingScriptController);
+		newMap.setDatawriterconfig(datawriterconfig);
+		newMap.setEnergyScannable(energyScannable);
+		newMap.setMetashop(metashop);
+		newMap.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
+		newMap.setScanName(scanName);
+		newMap.setCounterTimer(counterTimer);
+		newMap.setxScan(xScan);
+		newMap.setyScan(yScan);
+		newMap.setzScan(zScan);
+		newMap.setElementListScriptController(elementListScriptController);
+		placeInJythonNamespace(newMap);
 		return newMap;
 	}
 
 	public RasterMap createRasterMap() {
 
 		checkObjectsDefined();
+		checkDefined(energyScannable, "energyScannable");
 
-		RasterMap newMap = new RasterMap(beamlinePreparer, rasterMapDetectorPreparer, samplePreparer, outputPreparer,
-				commandQueueProcessor, XASLoggingScriptController, datawriterconfig, original_header, energyScannable,
-				metashop, includeSampleNameInNexusName, trajectoryMotor, positionReader, yScan, zScan,
-				trajectoryBeamMonitor, elementListScriptController);
-
+		RasterMap newMap = new RasterMap();
+		newMap.setBeamlinePreparer(beamlinePreparer);
+		newMap.setDetectorPreparer(rasterMapDetectorPreparer);
+		newMap.setOutputPreparer(outputPreparer);
+		newMap.setSamplePreparer(samplePreparer);
+		newMap.setLoggingScriptController(loggingScriptController);
+		newMap.setDatawriterconfig(datawriterconfig);
+		newMap.setEnergyScannable(energyScannable);
+		newMap.setMetashop(metashop);
+		newMap.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
+		newMap.setScanName(scanName);
+		newMap.setTrajectoryMotor(trajectoryMotor);
+		newMap.setPositionReader(positionReader);
+		newMap.setyScan(yScan);
+		newMap.setzScan(zScan);
+		newMap.setElementListScriptController(elementListScriptController);
+		placeInJythonNamespace(newMap);
 		return newMap;
 	}
 
@@ -81,11 +108,23 @@ public class MapFactory extends SpectroscopyScanFactory {
 
 		checkObjectsDefined();
 
-		FasterRasterMap newMap = new FasterRasterMap(beamlinePreparer, rasterMapDetectorPreparer, samplePreparer,
-				outputPreparer, commandQueueProcessor, XASLoggingScriptController, datawriterconfig, original_header,
-				energyScannable, metashop, includeSampleNameInNexusName, trajectoryMotor, positionReader, yScan, zScan,
-				trajectoryBeamMonitor, elementListScriptController);
-
+		FasterRasterMap newMap = new FasterRasterMap();
+		newMap.setBeamlinePreparer(beamlinePreparer);
+		newMap.setDetectorPreparer(rasterMapDetectorPreparer);
+		newMap.setOutputPreparer(outputPreparer);
+		newMap.setSamplePreparer(samplePreparer);
+		newMap.setLoggingScriptController(loggingScriptController);
+		newMap.setDatawriterconfig(datawriterconfig);
+		newMap.setEnergyScannable(energyScannable);
+		newMap.setMetashop(metashop);
+		newMap.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
+		newMap.setScanName(scanName);
+		newMap.setTrajectoryMotor(trajectoryMotor);
+		newMap.setPositionReader(positionReader);
+		newMap.setyScan(yScan);
+		newMap.setzScan(zScan);
+		newMap.setElementListScriptController(elementListScriptController);
+		placeInJythonNamespace(newMap);
 		return newMap;
 	}
 
@@ -160,5 +199,4 @@ public class MapFactory extends SpectroscopyScanFactory {
 	public void setTrajectoryBeamMonitor(LineRepeatingBeamMonitor trajectoryBeamMonitor) {
 		this.trajectoryBeamMonitor = trajectoryBeamMonitor;
 	}
-
 }

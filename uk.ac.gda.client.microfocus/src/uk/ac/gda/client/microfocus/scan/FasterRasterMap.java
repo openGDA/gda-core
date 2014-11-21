@@ -18,45 +18,17 @@
 
 package uk.ac.gda.client.microfocus.scan;
 
-import gda.commandqueue.Processor;
-import gda.data.metadata.NXMetaDataProvider;
-import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
-import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.TwoDScanRowReverser;
 import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
 import gda.data.scan.datawriter.XasAsciiNexusDatapointCompletingDataWriter;
-import gda.device.Scannable;
 import gda.device.detector.BufferedDetector;
-import gda.device.scannable.ContinuouslyScannable;
-import gda.device.scannable.LineRepeatingBeamMonitor;
-import gda.device.scannable.RealPositionReader;
 import gda.device.scannable.ScannableUtils;
-import gda.jython.scriptcontroller.ScriptControllerBase;
-import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import gda.scan.ContinuousScan;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.gda.server.exafs.scan.BeamlinePreparer;
-import uk.ac.gda.server.exafs.scan.OutputPreparer;
-import uk.ac.gda.server.exafs.scan.SampleEnvironmentPreparer;
-
 public class FasterRasterMap extends RasterMap {
-
-	FasterRasterMap(BeamlinePreparer beamlinePreparer, RasterMapDetectorPreparer detectorPreparer,
-			SampleEnvironmentPreparer samplePreparer, OutputPreparer outputPreparer, Processor commandQueueProcessor,
-			LoggingScriptController XASLoggingScriptController, AsciiDataWriterConfiguration datawriterconfig,
-			ArrayList<AsciiMetadataConfig> original_header, Scannable energy_scannable, NXMetaDataProvider metashop,
-			boolean includeSampleNameInNexusName, ContinuouslyScannable trajectoryMotor,
-			RealPositionReader positionReader, Scannable yMotor, Scannable zMotor,
-			LineRepeatingBeamMonitor trajectoryBeamMonitor, ScriptControllerBase elementListScriptController) {
-		super(beamlinePreparer, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor,
-				XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, metashop,
-				includeSampleNameInNexusName, trajectoryMotor, positionReader, yMotor, zMotor, trajectoryBeamMonitor,
-				elementListScriptController);
-	}
 
 	@Override
 	public String getScanType() {
@@ -126,7 +98,7 @@ public class FasterRasterMap extends RasterMap {
 	protected DataWriter createAndConfigureDataWriter(String sampleName, List<String> descriptions) throws Exception {
 
 		int nx = calculateNumberXPoints();
-		int ny = ScannableUtils.getNumberSteps(yMotor, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
+		int ny = ScannableUtils.getNumberSteps(yScan, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
 				mapScanParameters.getYStepSize()) + 1;
 
 		TwoDScanRowReverser rowR = new TwoDScanRowReverser();
