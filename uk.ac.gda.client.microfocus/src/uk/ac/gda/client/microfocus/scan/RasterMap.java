@@ -61,7 +61,7 @@ public class RasterMap extends StepMap implements MappingScan {
 	@Override
 	protected Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception {
 		mapScanParameters = (MicroFocusScanParameters) scanBean;
-
+		bufferedDetectorPreparer = (RasterMapDetectorPreparer) detectorPreparer;
 		BufferedDetector[] detectorList = bufferedDetectorPreparer.getRasterMapDetectors();
 
 		createMFD(detectorList);
