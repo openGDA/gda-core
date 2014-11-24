@@ -29,6 +29,7 @@ import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -42,6 +43,7 @@ import gda.device.DeviceException;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
+import gda.jython.batoncontrol.ClientDetails;
 import gda.scan.IScanDataPoint;
 
 /**
@@ -62,17 +64,31 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 
 	@Override
 	public void configure() throws FactoryException {
+		HashMap<String, String> overrides = new HashMap<String, String>();
+
+		ClientDetails cd = InterfaceProvider.getBatonStateProvider().getBatonHolder();
+		if (cd != null) {
+			String visit = cd.getVisitID();
+			if (visit != null && !visit.isEmpty()) {
+				overrides.put("visit", visit);
+			}
+		}
+
 		if (filename != null && !filename.isEmpty()) {
-			String path = PathConstructor.createFromProperty("gda.data.visitdirectory") + filename;
+			String path = PathConstructor.createFromProperty("gda.data.visitdirectory", overrides) + filename;
 			this.file = new File(path);
 		} else {
 			logger.error("Can't configure scan list - file not set");
 		}
 	}
 
+
 	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
-		lastScanDataPoint = dataPoint;
+		if (lastScanDataPoint == null) {
+			lastScanDataPoint = dataPoint;
+			configure();
+		}
 	}
 
 	@Override
@@ -107,6 +123,8 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 			}
 		} catch (IOException ioe) {
 			logger.error("Error writing to file", ioe);
+		} finally {
+			lastScanDataPoint = null;
 		}
 	}
 
@@ -117,14 +135,17 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 		String command = StringEscapeUtils.escapeCsv(lastScanDataPoint.getCommand());
 		String scanFile = StringEscapeUtils.escapeCsv(lastScanDataPoint.getCurrentFilename());
 		String title = "";
+		String visit = "";
 		try {
 			title = GDAMetadataProvider.getInstance().getMetadataValue("title");
 			title = StringEscapeUtils.escapeCsv(title);
+			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
 		} catch (DeviceException e) {
 		}
-		String user = InterfaceProvider.getBatonStateProvider().getBatonHolder().getUserID();
+		ClientDetails cd = InterfaceProvider.getBatonStateProvider().getBatonHolder();
+		String user = cd.getUserID();
 
-		String outLine = String.format("%s,%s,%s,%s,%s\n", date, command, title, scanFile, user);
+		String outLine = String.format("%s,%s,%s,%s,%s,%s\n", date, command, title, scanFile, visit, user);
 		return outLine;
 	}
 }
