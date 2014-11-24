@@ -44,9 +44,12 @@ class I20DetectorPreparer:
                 self._configureSiDetector(xmlFileName, saveRawSpectrum)
         elif detectorBean.getExperimentType() == "XES" :
             fluoresenceParameters = detectorBean.getXesParameters()
-            xmlFileName = experimentFullPath + fluoresenceParameters.getConfigFileName()
-            saveRawSpectrum = outputBean.isVortexSaveRawSpectrum()
-            self._configureSiDetector(xmlFileName, saveRawSpectrum)
+            detType = fluoresenceParameters.getDetectorType()
+            if detType == "Silicon":
+                xmlFileName = experimentFullPath + fluoresenceParameters.getConfigFileName()
+                saveRawSpectrum = outputBean.isVortexSaveRawSpectrum()
+                self._configureSiDetector(xmlFileName, saveRawSpectrum)
+            # do not do any configuration here to the medipix
 
             
         ionChamberParamsArray = None

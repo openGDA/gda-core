@@ -87,9 +87,9 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(confComp);
 		String[] items;
 		if (includeGermanium)
-			items = new String[] { "Silicon", "Germanium" };
+			items = new String[] { "Silicon", "Germanium"};
 		else
-			items = new String[] { "Silicon" };
+			items = new String[] { "Silicon", "Medipix"  };
 		this.detectorType = new RadioWrapper(confComp, SWT.NONE, items);
 		detectorType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		detectorType.addValueListener(new ValueAdapter("Detector Type Listener") {
