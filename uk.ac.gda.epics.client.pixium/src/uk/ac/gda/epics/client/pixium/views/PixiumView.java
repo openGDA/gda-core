@@ -27,6 +27,10 @@ import java.util.concurrent.Future;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.KeyAdapter;
@@ -42,6 +46,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
@@ -60,7 +65,7 @@ import uk.ac.gda.epics.client.EPICSClientActivator;
 import uk.ac.gda.epics.client.pixium.ImageConstants;
 
 /**
- * View part used to set parameters and show the status of the pixium area detector. 
+ * View part used to set parameters and show status of the pixium area detector. 
  * This uses the pixium view controller to return it the right values from EPICS.
  */
 public class PixiumView extends ViewPart implements InitializingBean {
@@ -107,15 +112,12 @@ public class PixiumView extends ViewPart implements InitializingBean {
 	
 	private Label statusArrayCounter;
 	private Label statusArrayRate;
-	private Label statusTime;
+	private Label statusTime; // not updated or implemented in EPICS driver so not used here
 	private Label statusExp;
 	private Label statusImg;
 	
 	private Text txtExposuretime;
 	private Text txtAcqperiod;
-	//TODO handle these 2 fields update
-	private Composite statusRequiredState;
-	private Composite statusRunningState;
 
 
 	private Label statusHDFFileSaverCaptureState;
@@ -124,6 +126,9 @@ public class PixiumView extends ViewPart implements InitializingBean {
 	private Label statusHDFFileSaverTimestamp;
 
 	private Composite statusAcquireState;
+	//TODO handle these 2 fields update
+	private Composite statusRequiredState;
+	private Composite statusRunningState;
 
 	public PixiumView() {
 		setTitleImage(EPICSClientActivator.getDefault().getImageRegistry().get(ImageConstants.IMG_DETECTOR_VIEW));
@@ -145,14 +150,13 @@ public class PixiumView extends ViewPart implements InitializingBean {
 		setControlValue(statusArrayRate, arrayRate);
 	}
 
-	public void setTime(final String time) {
-		setControlValue(statusTime, time);
-	}
-
 	public void setExp(final String exp) {
 		setControlValue(statusExp, exp);
 	}
 
+	public void setTime(final String exp) {
+		setControlValue(statusTime, exp);
+	}
 	public void setImg(final String img) {
 		setControlValue(statusImg, img);
 	}
@@ -173,35 +177,16 @@ public class PixiumView extends ViewPart implements InitializingBean {
 		setAcquireControl(acquireState);
 	}
 
-	private void setControlValue(final Label control, final String value) {
-		if (control != null && !control.isDisposed()) {
-			control.getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					if (!control.isDisposed()) {
-						control.setText(value);
-					}
-				}
-			});
-		}
+	public void setCalibrationRequiredState(short state) {
+		setCalibrationRequiredControl(state);
 	}
-
-	private void setControlValue(final Text control, final String value) {
-		if (control != null && !control.isDisposed()) {
-			control.getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					if (!control.isDisposed()) {
-						control.setText(value);
-					}
-				}
-			});
-		}
+	public void setCalibrationRunningState(short state) {
+		setCalibrationRunningControl(state);
 	}
 	
 	@Override
 	public void createPartControl(Composite parent) {
-		logger.info("widgets created for Status view");
+		logger.info("widgets created for Pixium Detector View");
 		toolkit = new FormToolkit(parent.getDisplay());
 		toolkit.setBorderStyle(SWT.BORDER);
 		form = toolkit.createScrolledForm(parent);
@@ -210,30 +195,39 @@ public class PixiumView extends ViewPart implements InitializingBean {
 		form.getBody().setLayout(new ColumnLayout());
 
 		ExpandableComposite detectorComposite = toolkit.createExpandableComposite(formBody, SWT.None);
-		detectorComposite.setLayoutData(new ColumnLayoutData());
+		ColumnLayoutData cld_detectorComposite = new ColumnLayoutData();
+		cld_detectorComposite.widthHint = 350;
+		detectorComposite.setLayoutData(cld_detectorComposite);
 		detectorComposite.setText(DETECTOR);
 		detectorComposite.setLayout(new FillLayout());
 		Composite detectorClient = createDetectorComposite(detectorComposite);
 		detectorComposite.setClient(detectorClient);
 		
 		ExpandableComposite calibrationComposite = toolkit.createExpandableComposite(formBody,ExpandableComposite.TWISTIE | ExpandableComposite.EXPANDED );
-		calibrationComposite.setLayoutData(new ColumnLayoutData());
+		ColumnLayoutData cld_calibrationComposite = new ColumnLayoutData();
+		cld_calibrationComposite.widthHint = 381;
+		calibrationComposite.setLayoutData(cld_calibrationComposite);
 		calibrationComposite.setText(CALIBRATION);
 		calibrationComposite.setLayout(new FillLayout());
 		Composite calibrationClient = createCalibrationComposite(calibrationComposite);
 		calibrationComposite.setClient(calibrationClient);
-
-		ExpandableComposite xpndblcmpstMore = toolkit.createExpandableComposite(form.getBody(), ExpandableComposite.TWISTIE);
-		xpndblcmpstMore.setLayoutData(new ColumnLayoutData());
+		calibrationComposite.addExpansionListener(expansionAdapter);
+		
+		ExpandableComposite xpndblcmpstMore = toolkit.createExpandableComposite(form.getBody(), ExpandableComposite.TWISTIE );
+		ColumnLayoutData cld_xpndblcmpstMore = new ColumnLayoutData();
+		cld_xpndblcmpstMore.widthHint = 350;
+		xpndblcmpstMore.setLayoutData(cld_xpndblcmpstMore);
 		xpndblcmpstMore.setText("More ...");
 		xpndblcmpstMore.setExpanded(true);
 		xpndblcmpstMore.setLayout(new FillLayout());
 		Composite detectorStatusClient = createDetectorStatusComposite(xpndblcmpstMore);
 		xpndblcmpstMore.setClient(detectorStatusClient);
+		xpndblcmpstMore.addExpansionListener(expansionAdapter);
 
-		ExpandableComposite hdfFileSaverComposite = toolkit.createExpandableComposite(formBody,
-				ExpandableComposite.TWISTIE | ExpandableComposite.EXPANDED);
-		hdfFileSaverComposite.setLayoutData(new ColumnLayoutData());
+		ExpandableComposite hdfFileSaverComposite = toolkit.createExpandableComposite(formBody, ExpandableComposite.TWISTIE | ExpandableComposite.EXPANDED);
+		ColumnLayoutData cld_hdfFileSaverComposite = new ColumnLayoutData();
+		cld_hdfFileSaverComposite.widthHint = 350;
+		hdfFileSaverComposite.setLayoutData(cld_hdfFileSaverComposite);
 		hdfFileSaverComposite.setText(HDF_FILE_SAVER);
 		hdfFileSaverComposite.setLayout(new FillLayout());
 		Composite hdfFileSaverClient = createFileSaverComposite(hdfFileSaverComposite);
@@ -245,7 +239,7 @@ public class PixiumView extends ViewPart implements InitializingBean {
 		/* Calls the update fields in a separate thread - so that the UI is not blocked. */
 		Future<Boolean> isSuccessful = pixiumViewController.updateAllFields();
 		new Thread(new RunUpdateAllFields(isSuccessful)).start();
-		pixiumViewController.addListener(this);
+		pixiumViewController.setPixiumView(this);
 	}
 
 	private ExpansionAdapter expansionAdapter = new ExpansionAdapter() {
@@ -312,6 +306,8 @@ public class PixiumView extends ViewPart implements InitializingBean {
 			return REFRESH_CONNECTION_TOOLTIP;
 		}
 	};
+	private GridData fillHorizontalGD_1;
+	private Table table;
 
 	/**
 	 * Create the detector state composite - EPICS status for the detector ADBase
@@ -342,11 +338,12 @@ public class PixiumView extends ViewPart implements InitializingBean {
 		Label lblExposure = toolkit.createLabel(clientComposite, EXPOSURE);
 		
 		txtExposuretime = toolkit.createText(clientComposite, DEFAULT_STATUS_VALUE, SWT.NONE);
-		fillHorizontalGD = new GridData(GridData.FILL_HORIZONTAL);
+		fillHorizontalGD_1 = new GridData(GridData.FILL_HORIZONTAL);
+		fillHorizontalGD_1.widthHint = 151;
 		txtExposuretime.setForeground(ColorConstants.blue);
 		txtExposuretime.setBackground(ColorConstants.button);
-		fillHorizontalGD.horizontalIndent=3;
-		txtExposuretime.setLayoutData(fillHorizontalGD);
+		fillHorizontalGD_1.horizontalIndent=3;
+		txtExposuretime.setLayoutData(fillHorizontalGD_1);
 		txtExposuretime.addKeyListener(new KeyAdapter() {
 			
 			@Override
@@ -402,9 +399,10 @@ public class PixiumView extends ViewPart implements InitializingBean {
 
 	private Composite createCalibrationComposite(Composite detectorComposite) {
 		Composite clientComposite = toolkit.createComposite(detectorComposite);
-		clientComposite.setLayout(new GridLayout(3, false));
+		clientComposite.setLayout(new GridLayout(6, false));
 
 		Label lblRequired = toolkit.createLabel(clientComposite, REQUIRED_STATUS);
+		
 		/* Composite to contain the status composite so that a border can be displayed. */
 		GridData fillHorizontalGD = new GridData();
 		Composite borderComposite = toolkit.createComposite(clientComposite);
@@ -417,12 +415,13 @@ public class PixiumView extends ViewPart implements InitializingBean {
 		fillHorizontalGD.widthHint = 20;
 		fillHorizontalGD.heightHint = 20;
 		borderComposite.setLayoutData(fillHorizontalGD);
-
 		statusRequiredState = toolkit.createComposite(borderComposite);
 		
 		/* Calibrate button */
 		Button btnCalibrate = toolkit.createButton(clientComposite, CALIBRATE_START, SWT.PUSH);
-		btnCalibrate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		GridData gd_btnCalibrate = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnCalibrate.widthHint = 88;
+		btnCalibrate.setLayoutData(gd_btnCalibrate);
 		btnCalibrate.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -453,11 +452,10 @@ public class PixiumView extends ViewPart implements InitializingBean {
 		fillHorizontalGD1.widthHint = 20;
 		fillHorizontalGD1.heightHint = 20;
 		borderComposite1.setLayoutData(fillHorizontalGD1);
-		
 		statusRunningState = toolkit.createComposite(borderComposite1);
+		
 		/* Calibrate stop button */
 		Button btnCalibrateStop = toolkit.createButton(clientComposite, CALIBRATE_STOP, SWT.PUSH);
-		btnCalibrateStop.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		btnCalibrateStop.addSelectionListener(new SelectionListener() {
 			
 			@Override
@@ -474,24 +472,24 @@ public class PixiumView extends ViewPart implements InitializingBean {
 			
 		});
 		
-		
 		/* PU Mode */
 		Label lblPUMode = toolkit.createLabel(clientComposite, PU_MODE);
-		
+
 		Combo comboPUMode = new Combo(clientComposite, SWT.NONE);
-		GridData gd_comboPUMode = new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1);
+		GridData gd_comboPUMode = new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1);
 		gd_comboPUMode.widthHint = 228;
 		comboPUMode.setLayoutData(gd_comboPUMode);
 		toolkit.adapt(comboPUMode);
 		toolkit.paintBordersFor(comboPUMode);
-		comboPUMode.setText("Select PU Mode");
-		comboPUMode.add("Mode1:  Resolution 2880x2881, Min Exp. 80ms, Max Rate 4");
-		comboPUMode.add("Mode3:  Resolution 960x961,   Min Exp. 1ms,  Max Rate 18.5");
-		comboPUMode.add("Mode4:  Resolution 1440x1441, Min Exp. 15ms, Max Rate 12");
-		comboPUMode.add("Mode7:  Resolution 1024x1025, Min Exp. 6ms,  Max Rate 18");
-		comboPUMode.add("Mode13: Resolution 640x641,   Min Exp. 1ms,  Max Rate 30");
-		comboPUMode.add("Mode14: Resolution 768x769,   Min Exp. 1ms,  Max Rate 24");
-		comboPUMode.add("Mode15: Resolution 672x673,   Min Exp. 1ms,  Max Rate 30");
+		comboPUMode.setText("Select PU Mode: Resolution, Min.Exposure, Max.Rate");
+		comboPUMode.add("Mode1:  2880x2881, 80ms, 4fps");
+		comboPUMode.add("Mode3:  960x961,   1ms,  18.5fps");
+		comboPUMode.add("Mode4:  1440x1441, 15ms, 12fps");
+		comboPUMode.add("Mode7:  1024x1025, 6ms,  18fps");
+		comboPUMode.add("Mode13: 640x641,   1ms,  30fps");
+		comboPUMode.add("Mode14: 768x769,   1ms,  24fps");
+		comboPUMode.add("Mode15: 672x673,   1ms,  30fps");
+		comboPUMode.setToolTipText("PU Mode: Resolution, Min.Exposure, Max.Rate");
 		comboPUMode.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -508,17 +506,69 @@ public class PixiumView extends ViewPart implements InitializingBean {
 			}
 			
 		});
+		
+		table = toolkit.createTable(clientComposite, SWT.VIRTUAL | SWT.BORDER);
+		GridData gd_table = new GridData(SWT.LEFT, SWT.CENTER, true, false, 6, 1);
+//		ColumnLayoutData cld_table = new ColumnLayoutData();
+//		cld_table.widthHint = 352;
+//		table.setLayoutData(cld_table);
+		gd_table.widthHint=350;
+		table.setLayoutData(gd_table);
+		table.setHeaderVisible(true);
+		toolkit.paintBordersFor(table);
+		table.setLinesVisible(true);
+//		table.setItemCount(7);
+		TableViewer viewer=new TableViewer(table);
+		viewer.setContentProvider(new ArrayContentProvider());
+		TableViewerColumn puModeColumn=new TableViewerColumn(viewer, SWT.NONE);
+		puModeColumn.getColumn().setText("PU Mode");
+		puModeColumn.getColumn().setWidth(80);
+		puModeColumn.setLabelProvider(new  ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				PUMode mode=(PUMode)element;
+				return String.valueOf(mode.getPuModeID());
+			}
+		});
+		TableViewerColumn resolutionColumn=new TableViewerColumn(viewer, SWT.NONE);
+		resolutionColumn.getColumn().setText("Resolution");
+		resolutionColumn.getColumn().setWidth(100);
+		resolutionColumn.setLabelProvider(new  ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				PUMode mode=(PUMode)element;
+				return mode.getResolution();
+			}
+		});
+		TableViewerColumn minExposureColumn=new TableViewerColumn(viewer, SWT.NONE);
+		minExposureColumn.getColumn().setText("Min.Exposure");
+		minExposureColumn.getColumn().setWidth(100);
+		minExposureColumn.setLabelProvider(new  ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				PUMode mode=(PUMode)element;
+				return mode.getMinimumExposure();
+			}
+		});
+		TableViewerColumn maxRateColumn=new TableViewerColumn(viewer, SWT.NONE);
+		maxRateColumn.getColumn().setText("Max.Rate");
+		maxRateColumn.getColumn().setWidth(70);
+		maxRateColumn.setLabelProvider(new  ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				PUMode mode=(PUMode)element;
+				return mode.getMaximumRate();
+			}
+		});
 
-		
-		//TODO List of PU Modes
-		
+		viewer.setInput(PUModeProvider.INSTANCE.getPUModes());
 
 		return clientComposite;
 	}
 
 	private Composite createDetectorStatusComposite(Composite detectorComposite) {
 		Composite clientComposite = toolkit.createComposite(detectorComposite);
-		clientComposite.setLayout(new GridLayout(2, false));
+		clientComposite.setLayout(new GridLayout(4, false));
 
 		/* Counter */
 		Label lblCounter = toolkit.createLabel(clientComposite, COUNTER);
@@ -570,6 +620,39 @@ public class PixiumView extends ViewPart implements InitializingBean {
 		setColourControl(statusAcquireState, status, SWT.COLOR_DARK_GREEN, SWT.COLOR_GREEN);
 	}
 
+	private void setCalibrationRequiredControl(int status) {
+		setColourControl(statusRequiredState, status, SWT.COLOR_DARK_GREEN, SWT.COLOR_RED);
+	}
+	private void setCalibrationRunningControl(int status) {
+		setColourControl(statusRunningState, status, SWT.COLOR_DARK_GREEN, SWT.COLOR_YELLOW);
+	}
+	
+	private void setControlValue(final Label control, final String value) {
+		if (control != null && !control.isDisposed()) {
+			control.getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					if (!control.isDisposed()) {
+						control.setText(value);
+					}
+				}
+			});
+		}
+	}
+
+	private void setControlValue(final Text control, final String value) {
+		if (control != null && !control.isDisposed()) {
+			control.getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					if (!control.isDisposed()) {
+						control.setText(value);
+					}
+				}
+			});
+		}
+	}
+	
 	/**
 	 * Sets the label background colour to show the status - used for acquire status and capture status.
 	 * 
@@ -594,7 +677,6 @@ public class PixiumView extends ViewPart implements InitializingBean {
 				}
 			});
 		}
-
 	}
 
 	private Composite createFileSaverComposite(Composite fileSaverComposite) {
@@ -602,6 +684,7 @@ public class PixiumView extends ViewPart implements InitializingBean {
 		rootComposite.setLayout(new GridLayout(2, false));
 
 		Label lblCaptureStatus = toolkit.createLabel(rootComposite, CAPTURE);
+		
 		/* Capture status */
 		GridData fillHorizontalGD = new GridData();
 		Composite borderComposite = toolkit.createComposite(rootComposite);
@@ -614,7 +697,6 @@ public class PixiumView extends ViewPart implements InitializingBean {
 		fillHorizontalGD.widthHint = 20;
 		fillHorizontalGD.heightHint = 20;
 		borderComposite.setLayoutData(fillHorizontalGD);
-
 		statusHDFFileSaverCaptureState = toolkit.createLabel(borderComposite, "", SWT.CENTER);
 
 		/* Composite for X and Y so that they appear in the same row */
@@ -682,7 +764,7 @@ public class PixiumView extends ViewPart implements InitializingBean {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (getStatusViewController() == null) {
-			throw new IllegalArgumentException("statusViewController should be declared.");
+			throw new IllegalArgumentException("pixiumViewController should be declared.");
 		}
 	}
 
@@ -694,7 +776,6 @@ public class PixiumView extends ViewPart implements InitializingBean {
 	@Override
 	public void dispose() {
 		toolkit.dispose();
-		pixiumViewController.removePixiumView(this);
 		super.dispose();
 	}
 	public String getViewPartName() {

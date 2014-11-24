@@ -21,9 +21,7 @@ package uk.ac.gda.epics.client.pixium.views;
 import gov.aps.jca.TimeoutException;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,12 +34,11 @@ import org.springframework.beans.factory.InitializingBean;
 import uk.ac.gda.epics.client.views.controllers.IAdBaseViewController;
 import uk.ac.gda.epics.client.views.controllers.IFileSaverViewController;
 import uk.ac.gda.epics.client.views.model.AdBaseModel;
-import uk.ac.gda.epics.client.views.model.FfMpegModel;
 import uk.ac.gda.epics.client.views.model.FileSaverModel;
 
 /**
- * Controller for the status view. This controller connects the Status View part to the EPICS model - showing relevant
- * statuses on the GUI.
+ * Controller for the pixium view. This controller connects the pixium View part to the EPICS model - showing relevant
+ * fields on the GUI.
  */
 /**
  *
@@ -52,106 +49,82 @@ public class PixiumViewController implements InitializingBean {
 
 	public static final double UnixEpochDifferenceFromEPICS = 631152000;
 
+	private FileSaverModel fileSaverModel;
 	private AdBaseModel adBaseModel;
 
-	private List<PixiumView> statusViews = new ArrayList<PixiumView>();
-
-	private FileSaverModel fileSaverModel;
-
-	private FfMpegModel ffmjpegModel;
-
-	public FfMpegModel getFfmjpegModel() {
-		return ffmjpegModel;
-	}
-
+	private PixiumView pixiumView;
+	//TODO add pixium specific PVs
+	
 	private IFileSaverViewController fileSaverViewController = new IFileSaverViewController.Stub() {
 		@Override
 		public void updateFileSaveX(int fileSaverX) {
-			for (PixiumView sv : statusViews) {
-				sv.setFileSaverX(String.valueOf(fileSaverX));
-			}
+				pixiumView.setFileSaverX(String.valueOf(fileSaverX));
 		}
 
 		@Override
 		public void updateFileSaveY(int fileSaverY) {
-			for (PixiumView sv : statusViews) {
-				sv.setFileSaverY(String.valueOf(fileSaverY));
-			}
+				pixiumView.setFileSaverY(String.valueOf(fileSaverY));
 		}
 
 		@Override
 		public void updateFileSaveTimeStamp(double timeStamp) {
-			for (PixiumView sv : statusViews) {
-				sv.setFileSaverTimeStamp(getSimpleDateFormat(timeStamp));
-			}
+			pixiumView.setFileSaverTimeStamp(getSimpleDateFormat(timeStamp));
 		}
 
 		@Override
 		public void updateFileSaverCaptureState(short fileSaverCaptureState) {
-			for (PixiumView sv : statusViews) {
-				sv.setFileSaverCaptureState(fileSaverCaptureState);
-			}
+				pixiumView.setFileSaverCaptureState(fileSaverCaptureState);
 		}
 	};
 
 	private IAdBaseViewController adbaseViewController = new IAdBaseViewController.Stub() {
 		@Override
 		public void updateArrayCounter(int arrayCounter) {
-			for (PixiumView sv : statusViews) {
-				sv.setArrayCounter(String.valueOf(arrayCounter));
-			}
+			pixiumView.setArrayCounter(String.valueOf(arrayCounter));
 		}
 
 		@Override
 		public void updateArrayRate(double arrayRate) {
-			for (PixiumView sv : statusViews) {
-				sv.setArrayRate(String.valueOf(arrayRate));
-			}
+			pixiumView.setArrayRate(String.valueOf(arrayRate));
 		}
 
 		@Override
 		public void updateTimeRemaining(double timeRemaining) {
-			for (PixiumView sv : statusViews) {
-				sv.setTime(String.valueOf(timeRemaining));
-			}
+			pixiumView.setTime(String.valueOf(timeRemaining));
 		}
 
 		@Override
 		public void updateNumberOfExposuresCounter(int numExposuresCounter) {
-			for (PixiumView sv : statusViews) {
-				sv.setExp(String.valueOf(numExposuresCounter));
-			}
+			pixiumView.setExp(String.valueOf(numExposuresCounter));
 		}
 
 		@Override
 		public void updateNumberOfImagesCounter(int numImagesCounter) {
-			for (PixiumView sv : statusViews) {
-				sv.setImg(String.valueOf(numImagesCounter));
-			}
+			pixiumView.setImg(String.valueOf(numImagesCounter));
 		}
 
 		@Override
 		public void updateAcquireState(short acquireState) {
-			for (PixiumView sv : statusViews) {
-				sv.setAcquireState(acquireState);
-			}
+			pixiumView.setAcquireState(acquireState);
 		}
 
 		@Override
 		public void updateAcqExposure(double acqExposure) {
-			for (PixiumView sv : statusViews) {
-				sv.setAcqExposure(String.valueOf(acqExposure));
-			}
+			pixiumView.setAcqExposure(String.valueOf(acqExposure));
 		}
 
 		@Override
 		public void updateAcqPeriod(double acqPeriod) {
-			for (PixiumView sv : statusViews) {
-				sv.setAcqPeriod(String.valueOf(acqPeriod));
-			}
+			pixiumView.setAcqPeriod(String.valueOf(acqPeriod));
 		}
 	};
 
+	public void setAcqExposure(double time) throws Exception {
+		adBaseModel.setAcqExposure(time);
+	}
+	public void setAcqPeriod(double time) throws Exception {
+		adBaseModel.setAcqPeriod(time);
+	}
 	public AdBaseModel getAdBaseModel() {
 		return adBaseModel;
 	}
@@ -190,9 +163,6 @@ public class PixiumViewController implements InitializingBean {
 		if (fileSaverModel == null) {
 			throw new IllegalArgumentException("fileSaverModel needs to be defined.");
 		}
-		if (ffmjpegModel == null) {
-			throw new IllegalArgumentException("ffmjpegModel needs to be defined.");
-		}
 	}
 
 	public String getInitialArrayRateVal() throws Exception {
@@ -221,19 +191,6 @@ public class PixiumViewController implements InitializingBean {
 
 	public String getInitialFileSaverTimestamp() throws Exception {
 		double epoch = fileSaverModel.getTimeStamp();
-		return getSimpleDateFormat(epoch);
-	}
-
-	public String getInitialMJpegX() throws Exception {
-		return String.valueOf(ffmjpegModel.getDim0Size());
-	}
-
-	public String getInitialMJpegY() throws Exception {
-		return String.valueOf(ffmjpegModel.getDim1Size());
-	}
-
-	public String getInitialMJpegTimestamp() throws Exception {
-		double epoch = ffmjpegModel.getTimeStamp();
 		return getSimpleDateFormat(epoch);
 	}
 
@@ -286,7 +243,6 @@ public class PixiumViewController implements InitializingBean {
 				fileSaverViewController.updateFileSaveTimeStamp(fileSaverModel.getTimeStamp());
 				fileSaverViewController.updateFileSaveX(fileSaverModel.getDim0Size());
 				fileSaverViewController.updateFileSaveY(fileSaverModel.getDim1Size());
-				// ffmjpef model update
 			} catch (TimeoutException tme) {
 				logger.error("IOC doesn't seem to be running", tme);
 				throw tme;
@@ -300,12 +256,12 @@ public class PixiumViewController implements InitializingBean {
 
 	};
 
-	public void addListener(PixiumView statusView) {
-		statusViews.add(statusView);
+	public void setPixiumView(PixiumView view) {
+		this.pixiumView=view;
 	}
 
-	public void removePixiumView(PixiumView statusView) {
-		statusViews.remove(statusView);
+	public PixiumView getPixiumView() {
+		return pixiumView;
 	}
 
 }
