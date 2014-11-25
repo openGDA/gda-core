@@ -75,4 +75,6 @@ public interface AdBaseModel {
 
 	boolean removeAdBaseViewController(IAdBaseViewController takeFlatController);
 
+	void setAcqPeriod(double periodTime) throws Exception;
+
 }

@@ -399,10 +399,9 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	public void setAcqExposure(double exposureTime) throws Exception {
 		try {
 			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getAcquireTime_RBV().getPv(), acqExposureMonitorListener),
-						exposureTime);
+				EPICS_CONTROLLER.caput(createChannel(config.getAcquireTime().getPv(),null),exposureTime);
 			}
-			EPICS_CONTROLLER.caput(getChannel(ADBase.AcquireTime_RBV, acqExposureMonitorListener), exposureTime);
+			EPICS_CONTROLLER.caput(getChannel(ADBase.AcquireTime, null), exposureTime);
 		} catch (Exception ex) {
 			throw ex;
 		}
@@ -417,6 +416,17 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 						acqPeriodMonitorListener));
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ADBase.AcquirePeriod_RBV, acqPeriodMonitorListener));
+		} catch (Exception ex) {
+			throw ex;
+		}
+	}
+	@Override
+	public void setAcqPeriod(double periodTime) throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caput(createChannel(config.getAcquirePeriod().getPv(),	null), periodTime);
+			}
+			EPICS_CONTROLLER.caput(getChannel(ADBase.AcquireTime_RBV, null), periodTime);
 		} catch (Exception ex) {
 			throw ex;
 		}
