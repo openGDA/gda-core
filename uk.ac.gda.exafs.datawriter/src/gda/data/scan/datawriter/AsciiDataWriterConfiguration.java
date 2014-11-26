@@ -18,6 +18,8 @@
 
 package gda.data.scan.datawriter;
 
+import gda.device.Detector;
+
 import java.util.ArrayList;
 
 /**
@@ -30,7 +32,7 @@ public class AsciiDataWriterConfiguration implements FindableAsciiDataWriterConf
 	private ArrayList<AsciiMetadataConfig> footer = new ArrayList<AsciiMetadataConfig>();
 	private String commentMarker = "#";
 	private String name = ""; // for Findable interface
-
+	private Detector fluorescenceDetector;
 	/**
 	 * @return Returns the columns.
 	 */
@@ -110,6 +112,14 @@ public class AsciiDataWriterConfiguration implements FindableAsciiDataWriterConf
 		copy.footer = new ArrayList<AsciiMetadataConfig>(footer);
 		copy.columns = new ArrayList<AsciiWriterExtenderConfig>(columns);
 		return copy;
+	}
+
+	public Detector getFluorescenceDetector() {
+		return fluorescenceDetector;
+	}
+
+	public void setFluorescenceDetector(Detector fluorescenceDetector) {
+		this.fluorescenceDetector = fluorescenceDetector;
 	}
 
 }

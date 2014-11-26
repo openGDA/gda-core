@@ -22,12 +22,15 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.detector.DarkCurrentDetector;
 import gda.device.detector.DarkCurrentResults;
+import gda.device.detector.xspress.XspressSystem;
 import gda.scan.IScanDataPoint;
 
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.beans.xspress.DetectorElement;
 
 /**
  * Extension to the asciidatawriter which uses xml files if defined which have more options specific to the exafs RCP
@@ -45,6 +48,8 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 	private String detectorParametersName;
 	private String outputParametersName;
 	private String folderName;
+	
+	private XspressSystem xspressSystem;
 	
 	public XasAsciiDataWriter(int fileNumber) throws InstantiationException {
 		super();
@@ -135,30 +140,38 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 				else
 					file.write("#");
 				file.write("#\n");
-				// Set the detector type
-				String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");// Why is this a local property?The name isdefined in spring
-				String xmapName = LocalProperties.get("gda.exafs.xmapName", "xmapMca");// Why is this a local property? The name is defined in spring
-				if (dataPoint.isDetector(xspressName)) {
+
+				String detectorName = null;
+				Detector fluorescenceDetector = null;
+				if (configuration != null) {
+					fluorescenceDetector = configuration.getFluorescenceDetector();
+					if (fluorescenceDetector != null) {
+						detectorName = fluorescenceDetector.getName();
+					}
+				}
+				if (dataPoint.isDetector(detectorName)) {
 					file.write("# Detector: Ge (XSPRESS)\n");
 					StringBuffer buf = new StringBuffer();
 					buf.append("Disabled elements: ");
 					boolean found = false;
-					// TODO remove this before committing
-//					Xspress2Detector xspress = Finder.getInstance().find(xspressName);// Finder Arghhhhhhhhh
-//					if (xspress != null) {
-//						for (DetectorElement element : xspress.getDetectorList()) {
-//							if (element.isExcluded()) {
-//								if (found)
-//									buf.append(",");
-//								found = true;
-//								buf.append(element.getNumber());
-//							}
-//						}
-//					}
-					if (found)
+					xspressSystem = (XspressSystem) fluorescenceDetector;
+					if (xspressSystem != null) {
+						List<DetectorElement> elementList = xspressSystem.getDetectorList(); 
+						for (DetectorElement element : elementList) {
+							if (element.isExcluded()) {
+								if (found)
+									buf.append(",");
+								found = true;
+								buf.append(element.getNumber());
+							}
+						}
+					}
+					if (found) {
 						file.write("# " + buf + "\n");
+						file.write("#\n");
+					}
 				} 
-				else if (dataPoint.isDetector(xmapName))
+				else if (dataPoint.isDetector(detectorName))
 					file.write("# Detector: Si (XIA)\n");
 				else
 					file.write("#\n");
@@ -287,5 +300,4 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 	public void setFolderName(String folderName) {
 		this.folderName = folderName;
 	}
-	
 }
