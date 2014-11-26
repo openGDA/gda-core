@@ -46,6 +46,7 @@ public class FasterRasterMapTest extends RasterMapTest {
 		theFactory.setEnergyScannable(testHelper.getEnergy_scannable());
 		theFactory.setMetashop(testHelper.getMetashop());
 		theFactory.setIncludeSampleNameInNexusName(true);
+		theFactory.setScanName("mapScan");
 
 		theFactory.setCounterTimer(Mockito.mock(CounterTimer.class));
 		theFactory.setxScan(x_traj_scannable);

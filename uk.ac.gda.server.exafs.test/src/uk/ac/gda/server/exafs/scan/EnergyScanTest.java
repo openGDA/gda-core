@@ -168,7 +168,6 @@ public class EnergyScanTest {
 
 		// create XasScan object
 		XasScanFactory theFactory = new XasScanFactory();
-		xasscan = theFactory.createEnergyScan();
 		theFactory.setBeamlinePreparer(beamlinePreparer);
 		theFactory.setDetectorPreparer(detectorPreparer);
 		theFactory.setSamplePreparer(samplePreparer);
@@ -177,7 +176,9 @@ public class EnergyScanTest {
 		theFactory.setDatawriterconfig(datawriterconfig);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
+		theFactory.setEnergyScannable(energy_scannable);
 		theFactory.setScanName("energyScan");
+		xasscan = theFactory.createEnergyScan();
 
 		// create the beans and give to the XasScan
 		Region region = new Region();

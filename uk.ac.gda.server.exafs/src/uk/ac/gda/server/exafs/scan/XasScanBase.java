@@ -87,7 +87,7 @@ public abstract class XasScanBase implements XasScan {
 	private static Logger logger = LoggerFactory.getLogger(XasScanBase.class);
 
 	private BeamlinePreparer beamlinePreparer;
-	private DetectorPreparer detectorPreparer;
+	protected DetectorPreparer detectorPreparer;
 	private SampleEnvironmentPreparer samplePreparer;
 	private OutputPreparer outputPreparer;
 
