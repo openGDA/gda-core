@@ -462,32 +462,22 @@ public class Xspress1System extends XspressSystem {
 	 * Basically what goes into the Ascii file. Columns should match the values from getExtraNames() or
 	 * getUnFilteredChannelLabels()
 	 */
-	private double[][] readoutScalerData(int numFrames, long[][] unpackedScalerData, boolean performCorrections) {
+	private double[][] readoutScalerData(int numFrames, long[][] unpackedScalerData, boolean performCorrections) throws DeviceException {
 
 		double[][] scalerData = new double[numFrames][];
-		
-		// else return hardware scalers using the win values from the hardwareData array
-//		int[][] unpackedScalerData = unpackRawScalerDataToFrames(rawScalerData, numFrames);
+		long collectionTime = (long) timer.getAttribute("TotalExptTime");
 
 		for (int frame = 0; frame < numFrames; frame++) {
-
 			scalerData[frame] = new double[numberOfDetectors];
 			int counter = 0;
 			for (int element = 0; element < numberOfDetectors; element++) {
 				if (!xspressParameters.getDetector(element).isExcluded()) {
 					if (performCorrections) {
 						long windowed = unpackedScalerData[frame][counter];
-						long acc = unpackedScalerData[frame][counter + 1];
 						long total = unpackedScalerData[frame][counter + 2];
 						long resets = unpackedScalerData[frame][counter + 3];
 						double deadtime = xspressDeadTimeParameters.getDetectorDT(element).getProcessDeadTimeInWindow();
-						scalerData[frame][element] = relinearize(total, resets, acc, windowed, deadtime);
-						logger.debug("Detector " + element + " --------------------------------");
-						logger.debug("Windowed   " + windowed);
-						logger.debug("Acc        " + acc);
-						logger.debug("Total      " + total);
-						logger.debug("Resets     " + resets);
-						logger.debug("Corrected  " + scalerData[frame][element]);
+						scalerData[frame][element] = relinearize(total, resets, windowed, deadtime, collectionTime);
 					} else {
 						scalerData[frame][element] = unpackedScalerData[frame][counter + 3];
 					}
@@ -530,24 +520,19 @@ public class Xspress1System extends XspressSystem {
 	/**
 	 * Rescales the given counts to take into account dead time etc and creates a DetectorReading with the values
 	 * 
-	 * @param total
-	 *            the original total counts read from the detector
-	 * @param resets
-	 *            the number of resets counted
-	 * @param acc
-	 *            the number of some mysterious electronic things
-	 * @param windowed
-	 *            the original number of counts in the window
+	 * @param total the original total counts read from the detector
+	 * @param resets the number of resets counted
+	 * @param windowed the original number of counts in the window
+	 * @param collectionTime the counting time for the point (secs)
 	 * @return the relinearized windowed counts
 	 */
-	public int relinearize(long total, long resets, long acc, long windowed, double deadTime) {
-		// A, B, C, D have no real meaning they are just used to split
+	public int relinearize(long total, long resets, long windowed, double deadTime, double collectionTime) {
+		// A, B, D have no real meaning they are just used to split
 		// the rather unwieldy expression into manageable parts.Contact
 		// the Detector Group for information about the details of the
 		// expression.
 		double A;
 		double B;
-		double C;
 		double D;
 		double factor;
 		double working;
@@ -558,15 +543,13 @@ public class Xspress1System extends XspressSystem {
 		if (windowed <= 0 || total <= 0) {
 			return (0);
 		}
-		A = total;
-		B = resets;
-		C = acc;
-		D = windowed;
+		A = (double)total / collectionTime;
+		B = (double)resets / collectionTime;
+		D = (double)windowed / collectionTime;
 
 		factor = (1.0 / (1.0 - B * 1.0e-07));
 
 		A = factor * A;
-		C = factor * C;
 		D = factor * D;
 
 		deadTimeSquared = deadTime * deadTime;
@@ -580,7 +563,7 @@ public class Xspress1System extends XspressSystem {
 		working = (bigfactor - 2.0 / (9.0 * deadTimeSquared * bigfactor) + 2.0 / (3.0 * deadTime)) / A;
 
 		working = working * D;
-
+		working = working * collectionTime;
 		return (int) working;
 	}
 
@@ -661,7 +644,6 @@ public class Xspress1System extends XspressSystem {
 			} else {
 				results[element * 3] = measuredRate;
 				results[element * 3 + 1] = scalerData[element] / windowed;
-				System.out.println("element " + element + " corr " + scalerData[element] + " windowed " + windowed + " res " + results[element * 3 + 1]);
 				results[element * 3 + 2] = windowed / dt;
 			}
 		}
