@@ -697,6 +697,8 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			if (selection instanceof FileSelection) {
 				// sequence file changed
 				try {
+					regionDefinitionResourceUtil.setFileName(((FileSelection)selection).getFilename());
+
 					regions = regionDefinitionResourceUtil.getRegions();
 					populateRegionNameCombo(regions);
 					if (regions.isEmpty()) {
@@ -721,11 +723,8 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 				}
 			} else if (selection instanceof RegionActivationSelection) {
 				populateRegionNameCombo(regions);
-				if (region.isEnabled()) {
-					regionName.setText(region.getName());
-				} else {
-					regionName.setText("");
-				}
+				region=((RegionActivationSelection)selection).getRegion();
+				regionName.setText(region.getName());
 			} else if (selection instanceof IStructuredSelection) {
 				if (StructuredSelection.EMPTY.equals(selection)) {
 					region = null;
@@ -1422,13 +1421,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	private void initialiseRegionView(final Region region) {
 		setExcitationEnergy(region);
 
-		if (region.isEnabled()) {
-			regionName.setText(region.getName());
-			// regionName.setEnabled(true);
-		} else {
-			regionName.setText("");
-			// regionName.setEnabled(false);
-		}
+		regionName.setText(region.getName());
 		lensMode.setText(region.getLensMode());
 		passEnergy.setText(String.valueOf(region.getPassEnergy()));
 		txtMinimumSize.setText(String.format("%.3f", camera.getEnergyResolution() * region.getPassEnergy()));
@@ -1442,16 +1435,11 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		} else {
 			kineticSelected=false;
 		}
-//		txtLow.setText(String.format("%.4f", region.getLowEnergy()));
-//		txtHigh.setText(String.format("%.4f", region.getHighEnergy()));
 		sweptLowEnergy=region.getLowEnergy();
 		sweptHighEnergy=region.getHighEnergy();
 		sweptStepSize = region.getEnergyStep();
 		sweptSlices=region.getSlices();
 		fixedCentreEnergy=region.getFixEnergy();
-//		txtCenter.setText(String.format("%.4f", (region.getLowEnergy() + region.getHighEnergy()) / 2));
-//		txtSize.setText(String.format("%.3f", region.getEnergyStep()));
-//		txtWidth.setText(String.format("%.4f", (region.getHighEnergy() - region.getLowEnergy())));
 		txtTime.setText(String.format("%.3f", region.getStepTime()));
 		long frames = Math.round(Double.parseDouble(txtTime.getText()) / Double.parseDouble(txtMinimumTime.getText()));
 		spinnerFrames.setSelection((int) frames);
@@ -1526,6 +1514,25 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			excitationEnergy = hardXRayEnergy;
 			txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
 		}
+	}
+
+	private void updateXRaySourceEnergies() {
+		if (dcmenergy != null) {
+			try {
+				hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+			} catch (DeviceException e) {
+				logger.error("Cannot get X-ray energy from DCM.", e);
+			}
+		}
+		txtHardEnergy.setText(String.format("%.4f", hardXRayEnergy));
+		if (pgmenergy != null) {
+			try {
+				softXRayEnergy = (double) pgmenergy.getPosition();
+			} catch (DeviceException e) {
+				logger.error("Cannot get X-ray energy from PGM.", e);
+			}
+		}
+		txtSoftEnergy.setText(String.format("%.4f", softXRayEnergy));
 	}
 
 	@Override

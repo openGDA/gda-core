@@ -213,7 +213,7 @@ public class RegionScannable extends ScannableBase implements Scannable {
 			busy = false;
 		}
 		 if (getScriptController()!=null && getScriptController() instanceof ScriptControllerBase) {
-		 ((ScriptControllerBase)getScriptController()).update(this, new RegionChangeEvent(region.getRegionId(), region.getName()));
+		 ((ScriptControllerBase)getScriptController()).update(getScriptController(), new RegionChangeEvent(region.getRegionId(), region.getName()));
 		 }
 //		oc.notifyIObservers(this, new RegionChangeEvent(region.getRegionId(), region.getName()));
 	}

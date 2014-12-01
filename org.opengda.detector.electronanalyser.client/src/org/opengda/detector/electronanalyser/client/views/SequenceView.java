@@ -3,6 +3,8 @@ package org.opengda.detector.electronanalyser.client.views;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.scannable.ScannableStatus;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
@@ -19,14 +21,11 @@ import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -124,15 +123,14 @@ import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefini
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceTableConstants;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewContentProvider;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.SequenceViewLabelProvider;
+import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
+import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.event.ScanEndEvent;
 import org.opengda.detector.electronanalyser.event.ScanPointStartEvent;
 import org.opengda.detector.electronanalyser.event.ScanStartEvent;
-import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
-import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.event.SequenceFileChangeEvent;
-import org.opengda.detector.electronanalyser.lenstable.TwoDimensionalLookupTable;
+import org.opengda.detector.electronanalyser.lenstable.RegionValidator;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
@@ -145,10 +143,6 @@ import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
 import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Maps;
 
 public class SequenceView extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, IObserver, InitializationListener {
 	public static final String ID = "org.opengda.detector.electronanalyser.client.sequenceeditor";
@@ -233,10 +227,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					@Override
 					public String getToolTipText(Object element) {
 						Region region = (Region) element;
-						if (invalidRefgions.containsKey(region)) {
+						if (!isValidRegion(region, false)) {
 							return region.getName()
-									+ " setting is outside energy range "
-									+ invalidRefgions.get(region);
+									+ " setting is outside energy range permitted.";
 						} else {
 							return null;
 						}
@@ -694,7 +687,16 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			} else if (selection instanceof EnergyChangedSelection) {
 				Region region=((EnergyChangedSelection)selection).getRegion();
 				if (region.isEnabled()) {
-					checkRegionValidation(region);
+					try {
+						if(isValidRegion(region, true)) {
+							runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), true));
+						} else {
+							runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false));
+						}
+						updateCalculatedData();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			} else if (selection instanceof IStructuredSelection) {
 				IStructuredSelection sel = (IStructuredSelection) selection;
@@ -743,7 +745,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(comboElementSet)) {
 				updateFeature(sequence, RegiondefinitionPackage.eINSTANCE.getSequence_ElementSet(), comboElementSet.getText());
-				validateRegions();
+				if (!isAllRegionsValid()) {
+					openMessageBox("Invalid Regions", "There are invalid active regions in the Sequence Editor. \nCorrect and validate all active regions by de-select and re-select them." , SWT.ICON_WARNING);
+					return;
+				}
 			}
 		}
 	};
@@ -820,6 +825,29 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		comboElementSet.addSelectionListener(elementSetSelAdaptor);
 		updateRegionNumber(crrentRegionNumber, numActives);
 		images = loadAnimatedGIF(sequenceTableViewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
+		dcmenergy = Finder.getInstance().find("dcmenergy");
+		if (dcmenergy == null) {
+			logger.error("Finder failed to find 'dcmenergy'");
+		} else {
+			dcmenergy.addIObserver(this);
+		}
+		pgmenergy = Finder.getInstance().find("pgmenergy");
+		if (pgmenergy == null) {
+			logger.error("Finder failed to find 'pgmenergy'");
+		} else {
+			pgmenergy.addIObserver(this);
+		}
+		try {
+			hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+		} catch (DeviceException e) {
+			logger.error("Cannot get X-ray energy from DCM.", e);
+		}
+		try {
+			softXRayEnergy = (double) pgmenergy.getPosition();
+		} catch (DeviceException e) {
+			logger.error("Cannot get X-ray energy from PGM.", e);
+		}
+
 	}
 
 	public IVGScientaAnalyser getAnalyser() {
@@ -951,16 +979,20 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		@Override
 		protected void setValue(Object element, Object value) {
 			if (SequenceTableConstants.ENABLED.equals(columnIdentifier)) {
+				Region region = (Region)element;
 				if (value instanceof Boolean) {
 					try {
-						runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), value));
-						fireSelectionChanged(new RegionActivationSelection());
-						updateCalculatedData();
-						//BLIX-96
-						Region region = (Region)element;
-						if (region.isEnabled()) {
-							checkRegionValidation(region);
+						if ((boolean) value) {
+							if(isValidRegion(region, true)) {
+								runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), true));
+							} else {
+								runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false));
+							}
+						} else {
+							runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), value));
 						}
+						fireSelectionChanged(new RegionActivationSelection((Region)element));
+						updateCalculatedData();
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -969,16 +1001,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 	}
 
-	private void checkRegionValidation(Region region) {
-		if (!isValidRegion(region)){
-			String message="Region '" + region.getName()+"' is outside the energy range (" + invalidRefgions.get(region)+") \npermitted in the Lens Table for Element Set '"+comboElementSet.getText()+"' and Pass Energy '"+region.getPassEnergy()+"'.\n";
-			openMessageBox(message);
-		}
-	}
-
-	private void openMessageBox(String message) {
-		MessageBox dialog=new MessageBox(getSite().getShell(), SWT.ICON_ERROR | SWT.OK);
-		dialog.setText("Invalid Regions");
+	private void openMessageBox(String title, String message, int iconStyle) {
+		MessageBox dialog=new MessageBox(getSite().getShell(), iconStyle | SWT.OK);
+		dialog.setText(title);
 		dialog.setMessage(message);
 		dialog.open();
 	}
@@ -1017,21 +1042,52 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			InterfaceProvider.getScriptController().resumeCurrentScript();
 			InterfaceProvider.getCurrentScanController().restartCurrentScan();
 		}
+		if (txtSequenceFilePath.getText().trim().compareTo(seqFileName)==0) {
+			//same file no need refresh
+			return;
+		}
+		
 		try {
 			resource.eAdapters().remove(notifyListener);
 			regionDefinitionResourceUtil.setFileName(seqFileName);
 			if (newFile) {
 				regionDefinitionResourceUtil.createSequence();
 			}
-			fireSelectionChanged(new FileSelection());
+			fireSelectionChanged(new FileSelection(seqFileName));
 			Resource sequenceRes = regionDefinitionResourceUtil.getResource();
 			sequenceTableViewer.setInput(sequenceRes);
 			// update the resource in this view.
 			resource = sequenceRes;
 			resource.eAdapters().add(notifyListener);
 
-			// update existing regions list
+			// update existing active regions' excitation energy
 			regions = regionDefinitionResourceUtil.getRegions();
+			for (Region region : regions) {
+				if (region.isEnabled()) {
+					double currentExcitationEnergy = 0.0;
+					if (regionDefinitionResourceUtil.isSourceSelectable()) {
+						if (region.getExcitationEnergy() > regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+							currentExcitationEnergy = hardXRayEnergy;
+						} else {
+							currentExcitationEnergy = softXRayEnergy;
+						}
+					} else {
+						currentExcitationEnergy = hardXRayEnergy;
+					}
+					if (currentExcitationEnergy != 0.0
+							&& currentExcitationEnergy != region
+									.getExcitationEnergy()) {
+						updateFeature(region,
+								RegiondefinitionPackage.eINSTANCE
+										.getRegion_ExcitationEnergy(),
+								currentExcitationEnergy);
+					}
+					if (!isValidRegion(region, false)) {
+						updateFeature(region,RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false);
+					}
+				}
+			}
+
 			if (regions.isEmpty()) {
 				fireSelectionChanged(StructuredSelection.EMPTY);
 			} else {
@@ -1066,8 +1122,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		try {
-			validateRegions();
-			if (!invalidRefgions.isEmpty()) {
+			if (!isAllRegionsValid()) {
+				openMessageBox("Saving Failed", "Cannot save the sequence data file as it still contain invalid active region. \nCorrect the invalid region or de-selecte it before saving." , SWT.ICON_WARNING);
 				return;
 			}
 			regionDefinitionResourceUtil.getResource().save(null);
@@ -1080,119 +1136,55 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 	}
 
-	private Map<Region, String> invalidRefgions=Maps.newConcurrentMap();
-	private void validateRegions() {
-		invalidRefgions.clear();
-		try {
-			for (Region region : regionDefinitionResourceUtil.getRegions()) {
-				if (region.isEnabled()) {
-					// only check enabled regions.
-					isValidRegion(region);
-				}
+	private boolean isAllRegionsValid() {
+		boolean valid = true;
+		for (Region region : regions) {
+			if (region.isEnabled()) {
+				// only check enabled regions. check stopped at first invalid region.
+				valid = valid && isValidRegion(region, true);
 			}
-		} catch (Exception e) {
-			logger.error("Failed to get all regions from resource util, so no region is checked for validation.", e);
 		}
-		if (!invalidRefgions.isEmpty()) {
-			String message = "Following region(s) are outside the energy range given in the Lend Table for the given Element Set and Pass Energy.\n";
-			int longestnamelength=0;
-			for (Region region : invalidRefgions.keySet()) {
-				if (longestnamelength<region.getName().length()) {
-					longestnamelength=region.getName().length();
-				}
-			}
-			String formatString="%"+longestnamelength+"s\t%10s\t%10s\t%4d\n";
-			message+=String.format(formatString,"Region","Energy Range","Element Set","Pass Energy");
-			for (Entry<Region, String> entry : invalidRefgions.entrySet()) {
-				// open message box to warn users
-				message += String.format(formatString,entry.getKey().getName(),entry.getValue(),comboElementSet.getText().trim(),entry.getKey().getPassEnergy());
-			}
-			openMessageBox(message);
-		}
+		return valid;
 	}
 	/**
 	 * update the data model Status field according to region valid or not
 	 * @param region
 	 * @return
 	 */
-	private boolean isValidRegion(Region region) {
-		String elementset = comboElementSet.getText().trim().toLowerCase();
-		if (isValidRegion(elementset, region)) {
+	private boolean isValidRegion(Region region, boolean showDialogIfInvalid) {
+		String elementset = comboElementSet.getText().trim();
+		if (regionValidator == null) {
+			logger.info("No region validator provided, so region validation is NOT applied.");
+			return true;
+		}
+		//use current beam photon energy, not what recorded in the region
+		double currentExcitationEnergy=0.0;
+		if (regionDefinitionResourceUtil.isSourceSelectable()) {
+			if (region.getExcitationEnergy()>regionDefinitionResourceUtil.getXRaySourceEnergyLimit()) {
+				currentExcitationEnergy = hardXRayEnergy;
+			} else {
+				currentExcitationEnergy = softXRayEnergy;
+			}
+		} else {
+			currentExcitationEnergy = hardXRayEnergy;
+		}
+		if (regionValidator.isValidRegion(region, elementset, currentExcitationEnergy)) {
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Status(), STATUS.READY);
 			return true;
 		} else {
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Status(), STATUS.INVALID);
+			if (showDialogIfInvalid) {
+				String message="Region '" + region.getName()+"' is outside the energy range permitted for \nElement Set '"+comboElementSet.getText()+"', Pass Energy '"+region.getPassEnergy()+"' and Lend Mode '"+region.getLensMode()+"'.\n";
+				openMessageBox("Invalid Region", message, SWT.ICON_ERROR);
+			}
 			return false;
-		}
-	}
-	/**
-	 * check to see if the given region is valid or not in the given element_set.
-	 * @param elementset
-	 * @param region
-	 * @return
-	 */
-	private boolean isValidRegion(String elementset, Region region) {
-		com.google.common.collect.Table<String, String, String> lookupTable = getLookupTable(elementset);
-		if (lookupTable==null) {
-			logger.warn("Analyser Kinetic energy range lookup table for {} element set is is available.",elementset);
-			return true;
-		}
-		String energyrange=lookupTable.get(region.getLensMode(), String.valueOf(region.getPassEnergy()));
-		List<String> limits=Splitter.on("-").splitToList(energyrange);
-		if (region.getEnergyMode()==ENERGY_MODE.KINETIC) {
-			if (!(region.getLowEnergy()>=Double.parseDouble(limits.get(0)) && region.getHighEnergy()<=Double.parseDouble(limits.get(1)))) {
-				invalidRefgions.put(region, energyrange);
-				return false;
-			}
-		} else {
-			double startEnergy=region.getExcitationEnergy()-region.getHighEnergy();
-			double endEnergy=region.getExcitationEnergy()-region.getLowEnergy();
-			if (startEnergy<endEnergy) {
-				if (!(startEnergy>=Double.parseDouble(limits.get(0)) && endEnergy<=Double.parseDouble(limits.get(1)))) {
-					invalidRefgions.put(region, energyrange);
-					return false;
-				}
-			} else {
-				if (!(endEnergy>=Double.parseDouble(limits.get(0)) && startEnergy<=Double.parseDouble(limits.get(1)))) {
-					invalidRefgions.put(region, energyrange);
-					return false;
-				}
-			}
-		}
-		if (invalidRefgions.containsKey(region)) {
-			invalidRefgions.remove(region);
-		}
-		return true;
-	}
-	/**
-	 * create lens table for lookup energy range limits
-	 * @param elementset
-	 * @return
-	 */
-	private com.google.common.collect.Table<String, String, String> getLookupTable(String elementset) {
-		String tablePath;
-		Joiner pathJoiner = Joiner.on("/").skipNulls();
-		Joiner filenameJoiner = Joiner.on("_").skipNulls();
-		String filename = filenameJoiner.join(elementset, "energy","table.txt");
-		if (getEnergyLensTableDir() == null) {
-			String configDir = LocalProperties.get(LocalProperties.GDA_CONFIG);
-			tablePath = pathJoiner.join(configDir, "lookupTables", filename);
-		} else {
-			
-			tablePath = pathJoiner.join(getEnergyLensTableDir(), filename);
-		}
-		File file = new File(tablePath);
-		if (!file.exists()) {
-			throw new IllegalArgumentException("Cannot find the lookup table : " + tablePath);
-		} else {
-			return new TwoDimensionalLookupTable().createTable(file);
 		}
 	}
 
 	@Override
 	public void doSaveAs() {
-		validateRegions();
-		if (!invalidRefgions.isEmpty()) {
+		if (!isAllRegionsValid()) {
+			openMessageBox("SaveAs Failed", "Cannot save the sequence data file as it still contains invalid active region. \nCorrect the invalid region or de-selecte it before saving." , SWT.ICON_WARNING);
 			return;
 		}
 		Resource resource = null;
@@ -1252,7 +1244,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private double time4ScanPointsDone;
 	private double time4RegionsToDo;
 
-	@SuppressWarnings("restriction")
 	@Override
 	public void dispose() {
 		try {
@@ -1282,7 +1273,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
 	}
-	AnimationEngine animation = null; 
+	AnimationEngine animation = null;
+	private double hardXRayEnergy;
+	private double softXRayEnergy; 
 
 	@Override
 	@SuppressWarnings("restriction")
@@ -1422,7 +1415,26 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					}
 				});
 			}
-		} 
+		}
+		if (source == dcmenergy && arg instanceof ScannableStatus) {
+			if (((ScannableStatus) arg).getStatus() == ScannableStatus.IDLE) {
+				try {
+					hardXRayEnergy = (double) dcmenergy.getPosition() * 1000; // eV
+				} catch (DeviceException e) {
+					logger.error("Cannot get X-ray energy from DCM.", e);
+				}
+			}
+		}
+		if (source == pgmenergy && arg instanceof ScannableStatus) {
+			if (((ScannableStatus) arg).getStatus() == ScannableStatus.IDLE) {
+				try {
+					softXRayEnergy = (double) pgmenergy.getPosition();
+				} catch (DeviceException e) {
+					logger.error("Cannot get X-ray energy from PGM.", e);
+				}
+			}
+		}
+
 	}
 	private Image[] loadAnimatedGIF(Display display, String imagePath) {
 		URL url = FileLocator.find(ElectronAnalyserClientPlugin.getDefault().getBundle(), new Path(imagePath), null);
@@ -1455,6 +1467,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private double currentregiontimeremaining;
 	private Timer taskTimer=new Timer();
 	private boolean firstTime;
+	private Scannable dcmenergy;
+	private Scannable pgmenergy;
+	private RegionValidator regionValidator;
 	
 	private class AnalyserTotalTimeRemainingListener implements MonitorListener {
 
@@ -1558,4 +1573,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			String analyserTotalTimeRemianingPV) {
 		this.analyserTotalTimeRemianingPV = analyserTotalTimeRemianingPV;
 	}
+
+	public void setRegionValidator(RegionValidator regionValidator) {
+		this.regionValidator=regionValidator;
+	}
+	public RegionValidator getRegionValidator() {
+		return regionValidator;
+	}
+
+
 }

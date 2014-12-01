@@ -18,6 +18,15 @@
 
 package org.opengda.detector.electronanalyser.client.views;
 
+import gda.device.detector.areadetector.v17.ADBase;
+import gda.epics.connection.EpicsController.MonitorType;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,6 +64,7 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 	private static final String SLICE_PLOT = "Slice plot";
 
 	final Spinner sliceControl;
+	protected DataListener dataListener;
 
 	/**
 	 * @param parent
@@ -131,10 +141,80 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 
 	private double[] value;
 	private int selectedSlice=1;
+
+	private boolean channelCreatedForSlices=false;
 	
+	/**
+	 * need to override base class method as it uses a different data listener implementation.
+	 */
+	@Override
+	public void initialise() {
+		if (getAnalyser() == null || getArrayPV() == null) {
+			throw new IllegalStateException("required parameters for 'analyser' and/or 'arrayPV' are missing.");
+		}
+		dataListener = new DataListener();
+		createChannels();
+	}
+	
+	private void createChannels() {
+		if (!channelCreatedForSlices) {
+			first = true;
+			try {
+				dataChannel = controller.createChannel(arrayPV,dataListener, MonitorType.NATIVE, false);
+				String[] split = getArrayPV().split(":");
+				startChannel = controller.createChannel(split[0] + ":" + split[1] + ":" + ADBase.Acquire, this, MonitorType.NATIVE, false);
+				controller.creationPhaseCompleted();
+				controller.tryInitialize(100);
+				logger.debug("Data channel {} is created", dataChannel.getName());
+				channelCreatedForSlices = true;
+			} catch (CAException e) {
+				logger.error("Failed to create channel {}", dataChannel.getName());
+			}
+		}
+	}
+	@Override
+	public boolean setFocus() {
+		if (!channelCreatedForSlices) {
+			createChannels();
+		}
+		return super.setFocus();
+	}
+
+	protected class DataListener implements MonitorListener {
+
+		@Override
+		public void monitorChanged(final MonitorEvent arg0) {
+			if (first) {
+				first = false;
+				logger.debug("Monitor listener is added to channel {}.", ((Channel)arg0.getSource()).getName());
+				return;
+			}
+
+			if (!getDisplay().isDisposed()) {
+				getDisplay().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+//						boolean visible = SlicesPlotComposite.this.isVisible();
+//						if (visible) {
+							DBR dbr = arg0.getDBR();
+
+							if (dbr.isDOUBLE()) {
+								value = ((DBR_Double) dbr).getDoubleValue();
+								dataslices.clear();
+							}
+							updatePlot(new NullProgressMonitor(), value);
+						}
+//					}
+				});
+			}
+		}
+	}
+	ArrayList<Dataset> dataslices=new ArrayList<Dataset>();
 	@Override
 	protected void updatePlot(IProgressMonitor monitor, double[] value) {
 		super.updatePlot(monitor, value);
+		this.value=value;
 		try {
 			int	slices = getAnalyser().getSlices();
 			sliceControl.setMaximum(slices);
@@ -150,8 +230,14 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 			
 			ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
 			if (selectedSlice>sliceControl.getMaximum()) selectedSlice=1;
-			Dataset slice2 = ds.getSlice(new int[] { selectedSlice-1, 0 },new int[] { selectedSlice, dims[1]-1 }, new int[] {1,1});
-			dataset=slice2.flatten();
+			for (int i=0; i<slices; i++) {
+				Dataset slice = ds.getSlice(new int[] {i, 0 },new int[] { i+1, dims[1]-1 }, new int[] {1,1});
+				Dataset dataset1=slice.flatten();
+				dataslices.add(dataset1);
+			}
+//			Dataset slice2 = ds.getSlice(new int[] { selectedSlice-1, 0 },new int[] { selectedSlice, dims[1]-1 }, new int[] {1,1});
+//			dataset=slice2.flatten();
+			dataset=dataslices.get(selectedSlice);
 			dataset.setName("Intensity (counts)");
 			plotDataSets.add(dataset);
 			final List<ITrace> profileLineTraces = plottingSystem.createPlot1D(xAxis, plotDataSets, monitor);

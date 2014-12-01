@@ -13,13 +13,17 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISIT
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
 import org.opengda.detector.electronanalyser.utils.RegionStepsTimeEstimation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 
 public class SequenceViewLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
 	
 	private double xRaySourceEnergyLimit = 2100.0; // must be in eV
 	private boolean sourceSelectable = false;
 	private Camera camera;
-	
+	private static final Logger logger=LoggerFactory.getLogger(SequenceViewLabelProvider.class);
 	public SequenceViewLabelProvider() {
 	}
 
@@ -76,6 +80,7 @@ public class SequenceViewLabelProvider extends LabelProvider implements ITableLa
 			case SequenceTableConstants.COL_X_RAY_SOURCE:
 				if (isSourceSelectable()) {
 					if (region.getExcitationEnergy() < xRaySourceEnergyLimit) {
+						logger.warn("excitation energy {}, limit {}",region.getExcitationEnergy(), xRaySourceEnergyLimit );
 						return "Soft";
 					}
 					return "Hard";
