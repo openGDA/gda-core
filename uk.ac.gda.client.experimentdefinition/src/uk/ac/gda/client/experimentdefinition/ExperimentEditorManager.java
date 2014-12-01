@@ -102,27 +102,9 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 		XMLHelpers.setUrlResolver(EclipseUtils.getUrlResolver());
 
-		// Get all the projects and if none is exafs, create a new one.
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		final IProject[] projects = root.getProjects();
-		for (int i = 0; i < projects.length; i++) {
-			try {
-				if (!projects[i].isOpen()) {
-					continue;
-				}
-				if (projects[i].hasNature(ExperimentProjectNature.ID)) {
-					currentProject = projects[i];
-					break;
-				}
-			} catch (CoreException ignored) {
-				// Carry on, we just want to find one that is Exafs the others
-				// we dont care about.
-			}
-		}
+		cleanWorkspace();
 
-		if (currentProject == null) {
-			currentProject = createExperimentProject(root);
-		}
+		currentProject = createExperimentProject();
 
 		Job refreshExafs = new Job("Refresh Experiment Project") {
 			@Override
@@ -141,6 +123,42 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 		addSelectedProjectListener();
 		restoreSelected();
+	}
+
+	/*
+	 * Delete any existing references to the project used by this class, as they could be looking at the wrong folder.
+	 */
+	private void cleanWorkspace() {
+		// Get all the projects and if none is exafs, create a new one.
+		IProject preexistingProject = findPreexistingProject();
+
+		if (preexistingProject != null) {
+			try {
+				preexistingProject.delete(false, true, null);
+				preexistingProject = null;
+			} catch (CoreException e) {
+				logger.error("Exception error removing old project: workspace may be corrupt. You may need to restart the GDA client using the --reset option.", e);
+			}
+		}
+	}
+
+	private IProject findPreexistingProject() {
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		final IProject[] projects = root.getProjects();
+		for (int i = 0; i < projects.length; i++) {
+			try {
+				if (!projects[i].isOpen()) {
+					continue;
+				}
+				if (projects[i].hasNature(ExperimentProjectNature.ID)) {
+					return projects[i];
+				}
+			} catch (CoreException ignored) {
+				// Carry on, we just want to find one that is Exafs the others
+				// we dont care about.
+			}
+		}
+		return null;
 	}
 
 	private void addSelectedProjectListener() {
@@ -196,14 +214,16 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 		}
 	}
 
-	private IProject createExperimentProject(final IWorkspaceRoot root) {
+	private IProject createExperimentProject() {
 
 		String projectName = ExperimentFactory.getExperimentProjectName();
-		IProject project = root.getProject(projectName);
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 
 		try {
 
-			if (!project.exists()) {
+			if (project.exists()) {
+				project.open(null);
+			} else {
 
 				IProjectDescription desc = project.getWorkspace().newProjectDescription(project.getName());
 				IPath location = new Path(Application.getXmlPath());
@@ -218,8 +238,6 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 				IProjectDescription description = project.getDescription();
 				description.setNatureIds(new String[] { ExperimentProjectNature.ID });
 				project.setDescription(description, null);
-			} else {
-				project.open(null);
 			}
 
 			return project;
@@ -458,11 +476,11 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 			((IExperimentObject) sel).getMultiScanName();
 			IExperimentObject ob = ((IExperimentObject) sel);
 			try {
-				return  ExperimentFactory.getManager(ob.getFolder(),ob.getMultiScanName());
+				return ExperimentFactory.getManager(ob.getFolder(), ob.getMultiScanName());
 			} catch (Exception e) {
 				logger.error("Exception trying to find the run manager for " + ob.getRunName(), e);
 			}
-			
+
 		}
 		return null;
 	}
@@ -488,8 +506,10 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 		return ret;
 	}
 
+	@SafeVarargs
 	@Override
-	public Object getValueFromUIOrBean(final String fieldName, final Class<? extends IRichBean>... classes) throws Exception {
+	public final Object getValueFromUIOrBean(final String fieldName, final Class<? extends IRichBean>... classes)
+			throws Exception {
 		IFieldWidget uiBox = BeanUI.getBeanField(fieldName, classes);
 		if (uiBox != null)
 			return uiBox.getValue();
@@ -656,7 +676,8 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 	 */
 	private List<IFile> listFilesToOpen(final IExperimentObject ob) {
 		Map<String, IFile> mapOfTypesToFiles = ob.getFilesWithTypes();
-		Collection<IExperimentBeanDescription> allBeanDescriptions = ExperimentBeanManager.INSTANCE.getBeanDescriptions();
+		Collection<IExperimentBeanDescription> allBeanDescriptions = ExperimentBeanManager.INSTANCE
+				.getBeanDescriptions();
 
 		// reorder Map based on order in allBeanDescriptions as this is the same order registered in the Extension Point
 		// which should be the order to be shown in the UI
@@ -705,7 +726,8 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 					if (!"None".equalsIgnoreCase(name))
 						filteredEditorList.add(selection);
 					try {
-						IExperimentObjectManager man = ExperimentFactory.getManager(ob.getFolder(),ob.getMultiScanName());
+						IExperimentObjectManager man = ExperimentFactory.getManager(ob.getFolder(),
+								ob.getMultiScanName());
 						man.write();
 					} catch (Exception e) {
 						logger.error("Cannot write: " + ob.getRunName(), e);
@@ -723,14 +745,14 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 	protected Map<String, IFile> orderMapOfTypes(IExperimentObject ob, Map<String, IFile> mapOfTypesToFiles,
 			Collection<IExperimentBeanDescription> allBeanDescriptions) {
 
-		IExperimentObjectManager man = ExperimentFactory.getManager(ob.getFolder(),ob.getMultiScanName());
+		IExperimentObjectManager man = ExperimentFactory.getManager(ob.getFolder(), ob.getMultiScanName());
 		String[] typesInOrder = man.getOrderedColumnBeanTypes();
 
 		HashMap<String, IFile> orderedMap = new HashMap<String, IFile>();
 
 		for (String type : typesInOrder) {
 			for (IExperimentBeanDescription desc : allBeanDescriptions) {
-				if (type.equalsIgnoreCase(desc.getBeanType())) 
+				if (type.equalsIgnoreCase(desc.getBeanType()))
 					orderedMap.put(type, mapOfTypesToFiles.get(type));
 			}
 		}
@@ -752,13 +774,11 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 				if (isEditor(filesToOpen.get(i))) {
 					editors[i] = getEditor(filesToOpen.get(i));
 					moveEditorToTheLeftEnd(getActivePage(), editors[i]);
-				}
-				else
+				} else
 					editors[i] = openEditorAndMoveToTheLeft(filesToOpen.get(i), false);
 			}
 
-		} 
-		else
+		} else
 			for (int i = editors.length - 1; i >= 0; i--)
 				editors[i] = openEditorAndMoveToTheLeft(filesToOpen.get(i), false);
 
@@ -888,8 +908,7 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 			selected = man.getExperimentList().get(index);
 			if (selected == null)
 				selected = man.getExperimentList().get(0);
-		} 
-		else if (man != null)
+		} else if (man != null)
 			selected = man;
 		else
 			selected = file;
