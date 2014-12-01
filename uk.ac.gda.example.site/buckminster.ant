@@ -309,6 +309,17 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
         <fail message="ERROR: product.parent.directory.location not set - did you remember to specify a .properties file?">
             <condition><not><isset property="product.parent.directory.location" /></not></condition>
         </fail>
+        <!-- For buckminster.output.root and buckminster.temp.root, first create their immediate parent directories (if required)
+             This ensures that _directory.set.group is applied to the immediate parent(s) if we needed to create them also
+             This is a common case when buckminster.root.prefix is used, and needs to be created -->
+        <dirname property="output.root.parent" file="${buckminster.output.root}" />
+        <antcall target="setup.directory">
+            <param name="setup.directory.name" value="${output.root.parent}" />
+        </antcall>
+        <dirname property="temp.root.parent" file="${buckminster.temp.root}" />
+        <antcall target="setup.directory">
+            <param name="setup.directory.name" value="${temp.root.parent}" />
+        </antcall>
         <antcall target="setup.directory">
             <param name="setup.directory.name" value="${buckminster.output.root}" />
             <param name="setup.directory.delete.previous" value="${buckminster.output.root.delete.previous}" />
