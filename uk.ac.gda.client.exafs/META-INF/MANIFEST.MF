@@ -4,8 +4,13 @@ Bundle-Name: Exafs Plug-in
 Bundle-SymbolicName: uk.ac.gda.client.exafs;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: gda.jscience.physics.quantities,
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: gda.device.corba,
+ gda.device.detector.xmap.corba,
+ gda.jscience.physics.quantities,
+ gda.util.exafs,
+ org.apache.commons.collections,
+ org.apache.commons.collections.bidimap;version="3.2.1",
  org.apache.commons.lang,
  org.dawnsci.plotting.jreality.overlay.events,
  org.dawnsci.plotting.jreality.tool,
