@@ -27,6 +27,7 @@ import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.exafs.ui.detector.xspress.XspressParametersUIEditor;
+import uk.ac.gda.exafs.ui.detector.xspress3.Xspress3ParametersUIEditor;
 import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
 
 /**
@@ -104,6 +105,8 @@ public class ImportROIWizard extends Wizard {
 			mainPage = new ImportXspressROIWizardPage(elementListSize, clonedValue, maximum);
 		} else if (detectorEditor instanceof VortexParametersUIEditor) {
 			mainPage = new ImportVortexROIWizardPage(elementListSize, clonedValue, maximum);			
+		} else if (detectorEditor instanceof Xspress3ParametersUIEditor) {
+			mainPage = new ImportXspress3ROIWizardPage(elementListSize, clonedValue, maximum);			
 		}
 		mainPage.setListEditor(detectorEditor.getDetectorList());
 		addPage(mainPage);

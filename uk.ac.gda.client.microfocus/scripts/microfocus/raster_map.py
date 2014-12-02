@@ -54,7 +54,39 @@ class RasterMap(Map):
 
         else:
             print "please enter 1 or 3 as a parameter where 1 is the small stage and 3 is the large stage"
+            
+            
+#     def getDetectors(self, detectorBean, scanBean):
+#         detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
+#         dets = [self.raster_counterTimer01, self.cid]
+#         if(detectorType == "Silicon"):
+#             dets += [self.raster_xmap]
+#         elif(detectorType == "Xspress3"):
+#             dets += [self.raster_xspress3]
+#         else:
+#             dets += [self.raster_xspress]
+#             
+#         return dets
 
+#         expt_type = detectorBean.getExperimentType()
+#         if expt_type == "Transmission":
+#             for group in detectorBean.getDetectorGroups():
+#                 if group.getName() == detectorBean.getTransmissionParameters().getDetectorType():
+#                     return self._createDetArray(group.getDetector(), scanBean)
+#         else:
+#             for group in detectorBean.getDetectorGroups():
+#                 if group.getName() == detectorBean.getFluorescenceParameters().getDetectorType():
+#                     detArray = self._createDetArray(group.getDetector(), scanBean)
+#  
+#                     if detectorBean.getFluorescenceParameters().isCollectDiffractionImages():
+#                         if self.cmos != None:
+#                             print "Using cmos"
+#                             detArray += [self.cmos]
+#                     
+#                     return detArray
+#         raise Exception("Detector list not found!")
+    
+    
     def _runMap(self,beanGroup, xScannable, yScannable, zScannable, detectorList,scanNumber,experimentFolderName,experimentFullPath,nx,ny):
         detectorBean = beanGroup.getDetector()
         scanBean = beanGroup.getScan()
@@ -62,7 +94,7 @@ class RasterMap(Map):
         outputBean=beanGroup.getOutput()
         
         numberPoints = abs(scanBean.getXEnd()- scanBean.getXStart())/scanBean.getXStepSize() + 1.0
-        
+
         detectorType = detectorBean.getFluorescenceParameters().getDetectorType()
         
         collectionTime = float(scanBean.getRowTime())/float(numberPoints)
@@ -79,7 +111,11 @@ class RasterMap(Map):
             dets += [self.raster_xspress3]
         else:
             dets += [self.raster_xspress]
-            
+             
+        self.log("Detectors used:"+str(dets))
+#         dets = self._getDetectors(detectorBean, scanBean)
+#         self.log("Detectors used:"+str(dets))
+        
         cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), dets) 
         
         outerScanArgs = [yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(), self.trajBeamMonitor, cs, self.trajPositionReader]
