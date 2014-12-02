@@ -51,12 +51,32 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String FILE_AUTOINCREMENT = ":HDF5:AutoIncrement";
 	private static String FILE_NUMCAPTURE = ":HDF5:NumCapture";
 	private static String FULLFILENAME = ":HDF5:FullFileName_RBV";
+
+	private static String EXTRA_DIMS = ":HDF5:NumExtraDims";
+	private static String EXTRA_DIM_N = ":HDF5:ExtraDimSizeN";
+	private static String EXTRA_DIM_X= ":HDF5:ExtraDimSizeX";
+	private static String EXTRA_DIM_Y = ":HDF5:ExtraDimSizeY";
 	
+	// All Element Sum File creation PVs
+//	private static String ALL_EL_STARTSTOP_FILE_WRITING = ":ALLEL:HDF5:Capture";
+//	private static String ALL_EL_FILE_WRITING_RBV = ":ALLEL:HDF5:Capture_RBV";
+//
+//	private static String ALL_EL_FILE_PATH = ":ALLEL:HDF5:FilePath";
+//	private static String ALL_EL_FILE_PATH_RBV = ":ALLEL:HDF5:FilePath_RBV";
+//
+//	private static String ALL_EL_FILE_PREFIX = ":ALLEL:HDF5:FileName";
+//	private static String ALL_EL_FILE_PREFIX_RBV = ":ALLEL:HDF5:FileName_RBV";
+//
+//	private static String ALL_EL_NEXT_FILENUMBER = ":ALLEL:HDF5:FileNumber";
+//	private static String ALL_EL_FILE_AUTOINCREMENT = ":ALLEL:HDF5:AutoIncrement";
+//	private static String ALL_EL_FILE_NUMCAPTURE = ":ALLEL:HDF5:NumCapture";
+//	
+//	private static String ALL_EL_EXTRA_DIMS = ":ALLEL:HDF5:NumExtraDims";
+//	private static String ALL_EL_EXTRA_DIM_N = ":ALLEL:HDF5:ExtraDimSizeN";
+//	private static String ALL_EL_EXTRA_DIM_X= ":ALLEL:HDF5:ExtraDimSizeX";
+//	private static String ALL_EL_EXTRA_DIM_Y = ":ALLEL:HDF5:ExtraDimSizeY";
 	
-//	private static String EXTRA_DIMS = ":HDF5:NumExtraDims";
-//	private static String EXTRA_DIM_N = ":HDF5:ExtraDimSizeN";
-//	private static String EXTRA_DIM_X= ":HDF5:ExtraDimSizeX";
-//	private static String EXTRA_DIM_Y = ":HDF5:ExtraDimSizeY";
+
 	
 	
 	// Display Updates
@@ -161,6 +181,7 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<Integer>[][] pvsROIHLM;// [roi][channel]
 	protected ReadOnlyPV<Double>[][] pvsLatestROI;  // [roi][channel]
 	protected ReadOnlyPV<Double[]>[][] pvsROIs;   //[roi][channel]
+	
 	protected PV<CAPTURE_CTRL_RBV> pvStartStopFileWriting;
 	protected ReadOnlyPV<CAPTURE_CTRL_RBV> pvIsFileWriting;
 	protected ReadOnlyPV<Integer> pvGetFileWritingStatus;
@@ -169,14 +190,28 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<String> pvSetFilePrefix;
 	protected ReadOnlyPV<String> pvGetFilePrefix;
 	protected PV<Integer> pvNextFileNumber;
-//	protected PV<Integer> pvExtraDimensions;
-//	protected PV<Integer> pvExtraDimN;
-//	protected PV<Integer> pvExtraDimX;
-//	protected PV<Integer> pvExtraDimY;
+	protected PV<Integer> pvExtraDimensions;
+	protected PV<Integer> pvExtraDimN;
+	protected PV<Integer> pvExtraDimX;
+	protected PV<Integer> pvExtraDimY;
 	protected PV<Boolean> pvHDFAutoIncrement;
 	protected PV<Integer> pvHDFNumCapture;
 	protected ReadOnlyPV<String> pvHDFFullFileName;
 
+	protected PV<CAPTURE_CTRL_RBV> pvAllElementSumStartStopFileWriting;
+	protected ReadOnlyPV<CAPTURE_CTRL_RBV> pvAllElementSumIsFileWriting;
+	protected ReadOnlyPV<Integer> pvAllElementSumGetFileWritingStatus;
+	protected PV<String> pvAllElementSumSetFilePath;
+	protected ReadOnlyPV<String> pvAllElementSumGetFilePath;
+	protected PV<String> pvAllElementSumSetFilePrefix;
+	protected ReadOnlyPV<String> pvAllElementSumGetFilePrefix;
+	protected PV<Integer> pvAllElementSumNextFileNumber;
+	protected PV<Integer> pvAllElementSumExtraDimensions;
+	protected PV<Integer> pvAllElementSumExtraDimN;
+	protected PV<Integer> pvAllElementSumExtraDimX;
+	protected PV<Integer> pvAllElementSumExtraDimY;
+	protected PV<Boolean> pvAllElementSumHDFAutoIncrement;
+	protected PV<Integer> pvAllElementSumHDFNumCapture;
 
 	public EpicsXspress3ControllerPvProvider(String epicsTemplate, int numberOfDetectorChannels) throws FactoryException {
 		this.numberOfDetectorChannels = numberOfDetectorChannels;
@@ -224,11 +259,27 @@ public class EpicsXspress3ControllerPvProvider {
 		pvNextFileNumber = LazyPVFactory.newIntegerPV(generatePVName(NEXT_FILENUMBER));
 		pvHDFAutoIncrement = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_AUTOINCREMENT));
 		pvHDFNumCapture = LazyPVFactory.newIntegerPV(generatePVName(FILE_NUMCAPTURE));
+
 		pvHDFFullFileName = LazyPVFactory.newReadOnlyStringPV(FULLFILENAME);
-//		pvExtraDimensions = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIMS));
-//		pvExtraDimN = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_N));
-//		pvExtraDimX = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_X));
-//		pvExtraDimY = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_Y));
+		pvExtraDimensions = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIMS));
+		pvExtraDimN = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_N));
+		pvExtraDimX = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_X));
+		pvExtraDimY = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_Y));
+		
+//		pvAllElementSumStartStopFileWriting =  LazyPVFactory.newEnumPV(generatePVName(ALL_EL_STARTSTOP_FILE_WRITING),CAPTURE_CTRL_RBV.class);
+//		pvAllElementSumIsFileWriting = LazyPVFactory.newReadOnlyEnumPV(generatePVName(ALL_EL_FILE_WRITING_RBV),CAPTURE_CTRL_RBV.class);
+//		pvAllElementSumSetFilePath = LazyPVFactory.newStringFromWaveformPV(generatePVName(ALL_EL_FILE_PATH));
+//		pvAllElementSumGetFilePath = LazyPVFactory.newReadOnlyStringFromWaveformPV(generatePVName(ALL_EL_FILE_PATH_RBV));
+//		pvAllElementSumSetFilePrefix = LazyPVFactory.newStringFromWaveformPV(generatePVName(ALL_EL_FILE_PREFIX));
+//		pvAllElementSumGetFilePrefix = LazyPVFactory.newReadOnlyStringFromWaveformPV(generatePVName(ALL_EL_FILE_PREFIX_RBV));
+//		pvAllElementSumNextFileNumber = LazyPVFactory.newIntegerPV(generatePVName(ALL_EL_NEXT_FILENUMBER));
+//		pvAllElementSumHDFAutoIncrement = LazyPVFactory.newBooleanFromEnumPV(generatePVName(ALL_EL_FILE_AUTOINCREMENT));
+//		pvAllElementSumHDFNumCapture = LazyPVFactory.newIntegerPV(generatePVName(ALL_EL_FILE_NUMCAPTURE));
+//		pvAllElementSumExtraDimensions = LazyPVFactory.newIntegerPV(generatePVName(ALL_EL_EXTRA_DIMS));
+//		pvAllElementSumExtraDimN = LazyPVFactory.newIntegerPV(generatePVName(ALL_EL_EXTRA_DIM_N));
+//		pvAllElementSumExtraDimX = LazyPVFactory.newIntegerPV(generatePVName(ALL_EL_EXTRA_DIM_X));
+//		pvAllElementSumExtraDimY = LazyPVFactory.newIntegerPV(generatePVName(ALL_EL_EXTRA_DIM_Y));
+
 	}
 	
 	@SuppressWarnings("unchecked")

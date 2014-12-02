@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
+import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
 
 /**
  * There is more functionality in the EPICS Xspress3 template than made
@@ -109,8 +110,10 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		try {
 			if (saveFiles) {
 				pvProvider.pvStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Capture);
+				pvProvider.pvAllElementSumStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Capture);
 			} else {
 				pvProvider.pvStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Done);
+				pvProvider.pvAllElementSumStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Done);
 			}
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting save files flag", e);
@@ -294,97 +297,6 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		}
 	}
 
-	// public void setPerformScalerUpdates(Boolean doUpdates) throws
-	// DeviceException {
-	// try {
-	// UPDATE_CTRL setValue = UPDATE_CTRL.Disable;
-	// if (doUpdates) {
-	// setValue = UPDATE_CTRL.Enable;
-	// }
-	// pvProvider.pvSetScalerUpdate.putWait(setValue);
-	// } catch (IOException e) {
-	// throw new
-	// DeviceException("IOException while setting scaler updates on/off", e);
-	// }
-	// }
-	//
-	// public Boolean getPerformScalerUpdates() throws DeviceException {
-	// try {
-	// UPDATE_RBV getValue = pvProvider.pvGetScalerUpdate.get();
-	// if (getValue == UPDATE_RBV.Enabled) {
-	// return true;
-	// }
-	// return false;
-	// } catch (IOException e) {
-	// throw new
-	// DeviceException("IOException while getting scaler updates setting", e);
-	// }
-	// }
-	//
-	// public void setScalerRefreshPeriod(int numFrames) throws DeviceException
-	// {
-	// try {
-	// pvProvider.pvScalerUpdatePeriod.putWait(numFrames);
-	// } catch (IOException e) {
-	// throw new
-	// DeviceException("IOException while setting scaler refresh period", e);
-	// }
-	// }
-
-	// public int getScalerRefreshPeriod() throws DeviceException {
-	// try {
-	// return pvProvider.pvScalerUpdatePeriod.get();
-	// } catch (IOException e) {
-	// throw new
-	// DeviceException("IOException while fetching scaler refresh period", e);
-	// }
-	// }
-	//
-	// public void setPerformMCAUpdates(Boolean doUpdates) throws
-	// DeviceException {
-	// try {
-	// UPDATE_CTRL setValue = UPDATE_CTRL.Disable;
-	// if (doUpdates) {
-	// setValue = UPDATE_CTRL.Enable;
-	// }
-	// pvProvider.pvSetMCAUpdate.putWait(setValue);
-	// } catch (IOException e) {
-	// throw new DeviceException("IOException while setting mca updates on/off",
-	// e);
-	// }
-	// }
-	//
-	// public Boolean getPerformMCAUpdates() throws DeviceException {
-	// try {
-	// UPDATE_RBV getValue = pvProvider.pvGetMCAUpdate.get();
-	// if (getValue == UPDATE_RBV.Enabled) {
-	// return true;
-	// }
-	// return false;
-	// } catch (IOException e) {
-	// throw new
-	// DeviceException("IOException while getting mca updates setting", e);
-	// }
-	// }
-	//
-	// public void setMCARefreshPeriod(int numFrames) throws DeviceException {
-	// try {
-	// pvProvider.pvMCAUpdatePeriod.putWait(numFrames);
-	// } catch (IOException e) {
-	// throw new DeviceException("IOException while setting mca refresh period",
-	// e);
-	// }
-	// }
-	//
-	// public int getMCARefreshPeriod() throws DeviceException {
-	// try {
-	// return pvProvider.pvMCAUpdatePeriod.get();
-	// } catch (IOException e) {
-	// throw new
-	// DeviceException("IOException while fetching mca refresh period", e);
-	// }
-	// }
-
 	public void setPerformROIUpdates(Boolean doUpdates) throws DeviceException {
 		try {
 			UPDATE_CTRL setValue = UPDATE_CTRL.Disable;
@@ -408,24 +320,6 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 			throw new DeviceException("IOException while getting roi updates setting", e);
 		}
 	}
-
-	// public void setROIRefreshPeriod(int numFrames) throws DeviceException {
-	// try {
-	// pvProvider.pvSCAROIUpdatePeriod.putWait(numFrames);
-	// } catch (IOException e) {
-	// throw new DeviceException("IOException while setting ROI refresh period",
-	// e);
-	// }
-	// }
-	//
-	// public int getROIRefreshPeriod() throws DeviceException {
-	// try {
-	// return pvProvider.pvSCAROIUpdatePeriod.get();
-	// } catch (IOException e) {
-	// throw new
-	// DeviceException("IOException while fetching ROI refresh period", e);
-	// }
-	// }
 
 	@Override
 	public Double[][] readoutDTCorrectedSCA1(int startFrame, int finalFrame, int startChannel, int finalChannel)
@@ -722,20 +616,6 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		return correctedArray;
 	}
 
-	// private Double[] readDoubleArray(ReadOnlyPV<Double>[] pvs,
-	// int startChannel, int finalChannel) throws DeviceException {
-	// Double[] returnValues = new Double[finalChannel - startChannel];
-	// for (int i = startChannel; i < finalChannel; i++) {
-	// try {
-	// returnValues[i] = pvs[i].get();
-	// } catch (IOException e) {
-	// throw new DeviceException(
-	// "IOException while fetching integera data", e);
-	// }
-	// }
-	// return returnValues;
-	// }
-
 	private Integer[] readIntegerArray(ReadOnlyPV<Integer>[] pvs, int startChannel, int finalChannel)
 			throws DeviceException {
 		Integer[] returnValues = new Integer[finalChannel - startChannel + 1];
@@ -753,6 +633,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public void setFilePath(String path) throws DeviceException {
 		try {
 			pvProvider.pvSetFilePath.putWait(path);
+			pvProvider.pvAllElementSumSetFilePath.putWait(path);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting filepath", e);
 		}
@@ -763,6 +644,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public void setFilePrefix(String template) throws DeviceException {
 		try {
 			pvProvider.pvSetFilePrefix.putWait(template);
+			pvProvider.pvAllElementSumSetFilePrefix.putWait(Xspress3Detector.ALL_ELEMENT_SUM_LABEL +template);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting file prefix", e);
 		}
@@ -773,6 +655,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public void setNextFileNumber(int nextNumber) throws DeviceException {
 		try {
 			pvProvider.pvNextFileNumber.putWait(nextNumber);
+			pvProvider.pvAllElementSumNextFileNumber.putWait(nextNumber);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting file number", e);
 		}
@@ -853,6 +736,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public void setHDFFileAutoIncrement(boolean b) throws DeviceException {
 		try {
 			pvProvider.pvHDFAutoIncrement.putNoWait(true);
+			pvProvider.pvAllElementSumHDFAutoIncrement.putNoWait(true);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting auto increment", e);
 		}
@@ -862,6 +746,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public void setHDFNumFramesToAcquire(int i) throws DeviceException {
 		try {
 			pvProvider.pvHDFNumCapture.putNoWait(i);
+			pvProvider.pvAllElementSumHDFNumCapture.putNoWait(i);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting num HDF frames to acquire", e);
 		}
