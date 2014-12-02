@@ -105,13 +105,16 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 	@Override
 	public void writeHeader() {
 		if (configuration == null) return;
-		for (AsciiMetadataConfig line : this.configuration.getHeader()) {
-			try {
-				String string = this.configuration.getCommentMarker() + " " + line.toString() + "\n";
-				file.write(string);
-				file.flush();
-			} catch (IOException e) {
-				// ignore and keep trying!
+		ArrayList<AsciiMetadataConfig> header = configuration.getHeader();
+		if (header != null) {
+			for (AsciiMetadataConfig line : header) {
+				try {
+					String string = this.configuration.getCommentMarker() + " " + line.toString() + "\n";
+					file.write(string);
+					file.flush();
+				} catch (IOException e) {
+					// ignore and keep trying!
+				}
 			}
 		}
 	}
