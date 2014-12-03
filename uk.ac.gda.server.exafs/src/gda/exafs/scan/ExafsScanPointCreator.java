@@ -265,13 +265,15 @@ public class ExafsScanPointCreator {
 		double kStep = exafsEnergies[i + 1][0] - exafsEnergies[i][0];
 		int num = dn(cEnergy, exafsEnergies[i][0], edgeStep, kStep);
 
-		while (i+1 < exafsEnergies.length && num < EXAFS_SMOOTH_COUNT) {
+		while (num < EXAFS_SMOOTH_COUNT) {
 			num = dn(cEnergy, exafsEnergies[i][0], edgeStep, kStep);
+			if (num > EXAFS_SMOOTH_COUNT)
+				break;
 			kStep = exafsEnergies[i + 1][0] - exafsEnergies[i][0];
-			i++;
+			i += 1;
 		}
 
-		double[] steps = ExafsScanRegionCalculator.calculateVariableStepRegion(cEnergy, exafsEnergies[i-1][0], edgeStep,kStep);
+		double[] steps = ExafsScanRegionCalculator.calculateVariableStepRegion(cEnergy, exafsEnergies[i][0], edgeStep,kStep);
 		exafsEnergies = (double[][]) ArrayUtils.subarray(exafsEnergies, i + 1, exafsEnergies.length);
 		return new double[][][] { createArrayFromEnergySteps(cEnergy, steps, stepTime), exafsEnergies };
 	}
