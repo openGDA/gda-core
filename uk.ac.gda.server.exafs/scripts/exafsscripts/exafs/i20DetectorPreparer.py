@@ -1,6 +1,9 @@
 from java.lang import Exception
+
 from gda.device.detector.xspress import Xspress2DetectorConfiguration
 from gda.device.detector.xmap import VortexDetectorConfiguration
+from gda.exafs.scan import ExafsScanPointCreator, XanesScanPointCreator
+
 from uk.ac.gda.beans.exafs import XasScanParameters, XanesScanParameters
 
 class I20DetectorPreparer:
@@ -51,6 +54,18 @@ class I20DetectorPreparer:
                 self._configureSiDetector(xmlFileName, saveRawSpectrum)
             # do not do any configuration here to the medipix
 
+
+            times = []
+            if isinstance(scanBean,XasScanParameters):
+                times = ExafsScanPointCreator.getScanTimeArray(scanBean)
+            elif isinstance(scanBean,XanesScanParameters):
+                times = XanesScanPointCreator.getScanTimeArray(scanBean)
+            if len(times) > 0:
+                print times
+                print "ic", self.I1
+                self.I1.setTimes(times)
+                print "Setting detector frame times for I1, using array of length",str(len(times)), "..."
+            return
             
         ionChamberParamsArray = None
         if detectorBean.getExperimentType() == "Fluorescence" :

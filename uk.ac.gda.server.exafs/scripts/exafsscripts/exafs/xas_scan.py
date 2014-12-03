@@ -284,7 +284,7 @@ class XasScan(Scan):
                         return self._createDetArray(group.getDetector(), scanBean)
             else :
                 for group in detectorBean.getDetectorGroups():
-                    if group.getName() == "Medipix":
+                    if group.getName() == "XES_medipix":
                         return self._createDetArray(group.getDetector(), scanBean)
         else:
             self.log("This is a fluoresence scan")
