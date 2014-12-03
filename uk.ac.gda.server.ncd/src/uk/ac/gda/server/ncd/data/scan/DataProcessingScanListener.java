@@ -30,19 +30,28 @@ import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Scannable;
-import gda.factory.Finder;
+import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanInformation;
 
-public class DataProcessingScanListener extends DataWriterExtenderBase {
+public class DataProcessingScanListener extends DataWriterExtenderBase implements Findable {
 	private static final Logger logger = LoggerFactory.getLogger(DataProcessingScanListener.class);
 	private ScanInformation scanInformation;
 	private Scannable detector;
 	private ProcessingRunner runner;
-	private String filepath;
+	private String filepath, name;
 	StoredScanMetadataEntry background;
 	StoredScanMetadataEntry collectionId;
+	boolean disabled = false;
+	
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
 
 	public Scannable getDetector() {
 		return detector;
@@ -98,7 +107,8 @@ public class DataProcessingScanListener extends DataWriterExtenderBase {
 			scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		
 			String[] detectors = scanInformation.getDetectorNames();
-			if (Arrays.asList(detectors).contains(detector.getName())) {
+			
+			if (!disabled && Arrays.asList(detectors).contains(detector.getName())) {
 				String backgroundPath = background.getMetadataValue();
 				String collection = collectionId.getMetadataValue();
 	
@@ -113,5 +123,15 @@ public class DataProcessingScanListener extends DataWriterExtenderBase {
 			scanInformation = null;
 			filepath = null;
 		}
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 }
