@@ -20,7 +20,9 @@ See &lt;http://www.opengda.org/&gt;
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Dgda.mode=dummy
+      <vmArgs>-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
+-Dorg.eclipse.swt.internal.gtk.useCairo=false
+-Dgda.mode=dummy
 -Dosgi.locking=none
 -Dgda.install.workspace.loc=${workspace_loc:uk.ac.gda.core}/../../
 -Dgda.install.git.loc=${workspace_loc:uk.ac.gda.core}/../
