@@ -19,7 +19,7 @@
 
 package gda.device.detector.xspress;
 
-import gda.device.detector.FluorescentDetectorConfiguration;
+import gda.device.detector.FluorescentDetectorConfigurationBase;
 import gda.factory.FactoryException;
 import gda.jython.scriptcontroller.event.ScriptProgressEvent;
 import gda.observable.ObservableComponent;
@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class XspressDetectorConfiguration implements FluorescentDetectorConfiguration, InitializingBean {
+public class XspressDetectorConfiguration extends FluorescentDetectorConfigurationBase implements InitializingBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(XspressDetectorConfiguration.class);
 	private XspressSystem xspressSystem;
@@ -37,6 +37,7 @@ public class XspressDetectorConfiguration implements FluorescentDetectorConfigur
 	private boolean onlyShowFF = false;
 	private boolean showDTRawValues = false;
 	private boolean saveRawSpectrum = false;
+	private String name;
 
 	public XspressDetectorConfiguration() {
 	}
@@ -95,7 +96,7 @@ public class XspressDetectorConfiguration implements FluorescentDetectorConfigur
 		configure(xmlFileName);
 
 	}
-	
+
 	public String getMessage() {
 		return message;
 	}
@@ -122,5 +123,17 @@ public class XspressDetectorConfiguration implements FluorescentDetectorConfigur
 
 	public void setSaveRawSpectrum(boolean saveRawSpectrum) {
 		this.saveRawSpectrum = saveRawSpectrum;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void configure () {
+		placeInJythonNamespace(name, this);
 	}
 }

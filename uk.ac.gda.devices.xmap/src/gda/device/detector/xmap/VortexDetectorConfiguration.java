@@ -19,27 +19,29 @@
 
 package gda.device.detector.xmap;
 
-import gda.device.detector.FluorescentDetectorConfiguration;
+import gda.device.detector.FluorescentDetectorConfigurationBase;
 import gda.factory.FactoryException;
 import gda.jython.scriptcontroller.event.ScriptProgressEvent;
 import gda.observable.ObservableComponent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 
-public class VortexDetectorConfiguration implements FluorescentDetectorConfiguration{
+public class VortexDetectorConfiguration extends FluorescentDetectorConfigurationBase implements InitializingBean {
 	
 	private Logger logger = LoggerFactory.getLogger(VortexDetectorConfiguration.class);
 	private Xmap xmap;
 	private ObservableComponent observer;
 	private String message = "Xspress configuration has not been applied yet";
 	private boolean saveRawSpectrum = false;
-	
+	private String name;
+
 	public VortexDetectorConfiguration(Xmap xmap, final ObservableComponent observer){
 		this.observer = observer;
 		this.xmap = xmap;
 	}
-	
+
 	@Override
 	public void configure(String xmlFileName) throws FactoryException {
 		try {	
@@ -58,7 +60,17 @@ public class VortexDetectorConfiguration implements FluorescentDetectorConfigura
 		String message = " The vortex detector configuration updated.";
 		observer.notifyIObservers("Message", new ScriptProgressEvent(message));
 	}
-	
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (xmap == null) {
+			throw new IllegalArgumentException("Missing xspresssystem component");
+		}
+		if (observer == null) {
+			throw new IllegalArgumentException("Missing observer component");
+		}
+	}
+
 	@Override
 	public String getMessage() {
 		return message;
@@ -72,4 +84,31 @@ public class VortexDetectorConfiguration implements FluorescentDetectorConfigura
 		this.saveRawSpectrum = saveRawSpectrum;
 	}
 
+	public Xmap getXmap() {
+		return xmap;
+	}
+
+	public void setXmap(Xmap xmap) {
+		this.xmap = xmap;
+	}
+
+	public ObservableComponent getObserver() {
+		return observer;
+	}
+
+	public void setObserver(ObservableComponent observer) {
+		this.observer = observer;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void configure () {
+		placeInJythonNamespace(name, this);
+	}
 }
