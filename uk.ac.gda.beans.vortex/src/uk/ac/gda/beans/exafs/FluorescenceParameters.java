@@ -28,9 +28,13 @@ import java.util.List;
  */
 public class FluorescenceParameters  implements IExperimentDetectorParameters, Serializable{
 	
+	public static final String GERMANIUM_DET_TYPE = "Germanium";
+	public static final String SILICON_DET_TYPE = "Silicon"; // for Xia Xmap - Vortex
+	public static final String XSPRESS3_DET_TYPE = "Xspress3"; // For Xspress3 - Vortex
+	
 	private String configFileName;
 	private List<IonChamberParameters> ionChamberParameters;
-	private String detectorType = "Germanium"; // NOTE: Defaulted as added when files without type exist.
+	private String detectorType = GERMANIUM_DET_TYPE; // NOTE: Defaulted as added when files without type exist.
 	private boolean collectDiffractionImages; 
 	private double mythenEnergy;
 	private double mythenTime;
