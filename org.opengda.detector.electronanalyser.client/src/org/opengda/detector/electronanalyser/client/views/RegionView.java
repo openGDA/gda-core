@@ -745,6 +745,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 				populateRegionNameCombo(regions);
 				region=((RegionActivationSelection)selection).getRegion();
 				regionName.setText(region.getName());
+				initialiseViewWithRegionData(region);
 			} else if (selection instanceof IStructuredSelection) {
 				if (StructuredSelection.EMPTY.equals(selection)) {
 					region = null;
