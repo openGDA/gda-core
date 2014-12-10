@@ -9,6 +9,8 @@ import gda.observable.IObserver;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.ecore.EObject;
@@ -41,6 +43,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.INullSelectionListener;
@@ -190,6 +193,9 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			@Override
 			public void modifyText(ModifyEvent e) {
 				if (regionName.getText().length() > 0) {
+					if (containsIllegals(regionName.getText())) {
+						openMessageBox("Region Name Error", "Region name '"+ regionName.getText()+"' contains illegal character.", SWT.ICON_ERROR);
+					}
 					regionNameControlDecorator.hide();
 				} else {
 					regionNameControlDecorator.show();
@@ -199,6 +205,13 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 					regionNameControlDecorator.setShowHover(true);
 				}
 			}
+
+			private boolean containsIllegals(String toExamine) {
+			    Pattern pattern = Pattern.compile("[~#@*+%{}<>\\[\\]|\"/^]");
+			    Matcher matcher = pattern.matcher(toExamine);
+			    return matcher.find();
+			}
+			
 		});
 
 		Composite modeComposite = new Composite(rootComposite, SWT.None);
@@ -691,6 +704,13 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SequenceView.ID, selectionListener);
 	}
 
+	private void openMessageBox(String title, String message, int iconStyle) {
+		MessageBox dialog=new MessageBox(getSite().getShell(), iconStyle | SWT.OK);
+		dialog.setText(title);
+		dialog.setMessage(message);
+		dialog.open();
+	}
+	
 	private ISelectionListener selectionListener = new INullSelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
