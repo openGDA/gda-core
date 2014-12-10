@@ -116,6 +116,8 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				final String name = (String) e.getValue();
+				if (name.isEmpty())
+					return;
 				final File file = new File(configFileName.getFolder(), name);
 				if (!file.exists())
 					return;
