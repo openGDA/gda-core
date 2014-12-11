@@ -163,6 +163,10 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 	private Double xPixelSize=null;
 
 	private Double yPixelSize=null;
+
+	private String xPixelSizeUnit=null;
+
+	private String yPixelSizeUnit=null;
 	
 	public Integer getBoundaryAlign() {
 		return boundaryAlign;
@@ -395,30 +399,32 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 		//wait until the NumCaptured_RBV is equal to or exceeds maxToRead.
 		if (isEnabled()) {
 			checkErrorStatus();
+		try {
+			getNdFile().getPluginBase().checkDroppedFrames();
+		} catch (Exception e) {
+			throw new DeviceException("Error in " + getName(), e);
+		}
+		if (firstReadoutInScan) {
+			dataAppender = new NXDetectorDataFileLinkAppender(expectedFullFileName, getxPixelSize(), getyPixelSize(), getxPixelSizeUnit(), getyPixelSizeUnit());
+			numToBeCaptured=1;
+			numCaptured=0;
+		}
+		else {
+			dataAppender = new NXDetectorDataNullAppender();
+			numToBeCaptured++;
+		}
+		while( numCaptured< numToBeCaptured){
 			try {
 				getNdFile().getPluginBase().checkDroppedFrames();
 			} catch (Exception e) {
 				throw new DeviceException("Error in " + getName(), e);
 			}
-			if (firstReadoutInScan) {
-				dataAppender = new NXDetectorDataFileLinkAppender(expectedFullFileName, getxPixelSize(),
-						getyPixelSize());
-				numToBeCaptured = 1;
-				numCaptured = 0;
-			} else {
-				dataAppender = new NXDetectorDataNullAppender();
-				numToBeCaptured++;
+			try {
+				numCaptured = getNdFileHDF5().getNumCaptured_RBV();
+			} catch (Exception e) {
+				throw new DeviceException("Error in getCapture_RBV" + getName(), e);
 			}
-			while (numCaptured < numToBeCaptured) {
-				try {
-					numCaptured = getNdFileHDF5().getNumCaptured_RBV();
-				} catch (Exception e) {
-					throw new DeviceException("Error in getCapture_RBV" + getName(), e);
-				}
-				Thread.sleep(50);
-			}
-		} else {
-			dataAppender = new NXDetectorDataNullAppender();
+			Thread.sleep(50);
 		}
 		firstReadoutInScan = false;
 		Vector<NXDetectorDataAppender> appenders = new Vector<NXDetectorDataAppender>();
@@ -464,5 +470,22 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 
 	public void setxPixelSize(Double xPixelSize) {
 		this.xPixelSize = xPixelSize;
+	}
+
+	public String getxPixelSizeUnit() {
+		return xPixelSizeUnit;
+	}
+
+	public void setxPixelSizeUnit(String xPixelSizeUnit) {
+		this.xPixelSizeUnit = xPixelSizeUnit;
+	}
+
+	public void setyPixelSizeUnit(String yPixelSizeUnit) {
+		this.yPixelSizeUnit=yPixelSizeUnit;
+		
+	}
+
+	public String getyPixelSizeUnit() {
+		return yPixelSizeUnit;
 	}
 }

@@ -62,6 +62,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 	private String filePathUsed = "";
 	private String fileTemplateUsed = "";
 	private String fileWriterName = DEFAULT_FILEWRITERNAME;
+	private boolean firstReadoutInScan=true;
 
 	private long nextExpectedFileNumber = 0;
 	boolean blocking = true;  
@@ -108,6 +109,13 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	private String fileTemplateForReadout = null;
 	private boolean alreadyPrepared=false; //use to allow the same fileWriter to be used in the same multiscan
+	private Double xPixelSize=null;
+
+	private Double yPixelSize=null;
+
+	private String xPixelSizeUnit=null;
+
+	private String yPixelSizeUnit=null;
 	
 	/**
 	 * Creates a SingleImageFileWriter with ndFile, fileTemplate, filePathTemplate, fileNameTemplate and
@@ -240,6 +248,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		if (!getkeyNameForMetadataPathTemplate().isEmpty()) {
 			addPathTemplateToMetadata();
 		}
+		firstReadoutInScan = true;
 		alreadyPrepared=true;		
 	}
 
@@ -401,15 +410,25 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 			// Now check that the file exists
 			waitForFile(lastExpectedFullFilepath);
 		}
+		NXDetectorDataFileAppenderForSrs nxDetectorDataFileAppenderForSrs;
+		if (firstReadoutInScan) {
+			nxDetectorDataFileAppenderForSrs = new NXDetectorDataFileAppenderForSrs(filepath, getInputStreamNames().get(0), getxPixelSize(), getyPixelSize(), getxPixelSizeUnit(), getyPixelSizeUnit());
+			firstReadoutInScan = false;
+		} else {
+			nxDetectorDataFileAppenderForSrs = new NXDetectorDataFileAppenderForSrs(filepath, getInputStreamNames().get(0));
+		}
+		
 
 		// Multiple filewriters require different file writer names and extra names
-		return new NXDetectorDataFileAppenderForSrs(filepath, getInputStreamNames().get(0));
+		return nxDetectorDataFileAppenderForSrs;
+		
 	}
 
 	private void waitForFile(String fullFilePath) throws DeviceException {
 		try {
 			File f = new File(fullFilePath);
 			long numChecks = 0;
+			//TODO must here have timeout in case the file system gone down?
 			while (!f.exists()) {
 				numChecks++;
 				try {
@@ -463,6 +482,38 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	public void setFilePathInaccessibleFromServer(boolean filePathNotVisibleFromServer) {
 		this.filePathInaccessibleFromServer = filePathNotVisibleFromServer;
+	}
+	public Double getyPixelSize() {
+		return yPixelSize;
+	}
+
+	public void setyPixelSize(Double yPixelSize) {
+		this.yPixelSize = yPixelSize;
+	}
+
+	public Double getxPixelSize() {
+		return xPixelSize;
+	}
+
+	public void setxPixelSize(Double xPixelSize) {
+		this.xPixelSize = xPixelSize;
+	}
+
+	public String getxPixelSizeUnit() {
+		return xPixelSizeUnit;
+	}
+
+	public void setxPixelSizeUnit(String xPixelSizeUnit) {
+		this.xPixelSizeUnit = xPixelSizeUnit;
+	}
+
+	public void setyPixelSizeUnit(String yPixelSizeUnit) {
+		this.yPixelSizeUnit=yPixelSizeUnit;
+		
+	}
+
+	public String getyPixelSizeUnit() {
+		return yPixelSizeUnit;
 	}
 
 }

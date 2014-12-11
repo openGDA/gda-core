@@ -34,9 +34,17 @@ public class ADArrayPlugin implements NonAsynchronousNXPlugin {
 	
 	final private NDArray ndArray;
 
-	private boolean enabled = true;
+	private boolean enableDuringScan = true;
+	
+	private boolean writeDataToFile=true;
 
 	private boolean firstReadoutInScan = true;
+
+	private boolean alreadyPrepared=false;
+
+	private String ndArrayPortVal;
+
+	private boolean blocking=true;
 
 	public ADArrayPlugin(NDArray ndArray) {
 		this.ndArray = ndArray;
@@ -54,16 +62,26 @@ public class ADArrayPlugin implements NonAsynchronousNXPlugin {
 
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
-		if (isEnabled()) {
-			ndArray.getPluginBase().enableCallbacks();
-			ndArray.getPluginBase().setBlockingCallbacks((short) 1);
-		} else {
-			ndArray.getPluginBase().disableCallbacks();
-			ndArray.getPluginBase().setBlockingCallbacks((short) 0);
-		}
+		if(!isEnabled())
+			return;
+		if( alreadyPrepared)
+			return;
+		setNDArrayPortAndAddress();
+		getNdArray().getPluginBase().disableCallbacks();
+		getNdArray().getPluginBase().setBlockingCallbacks(isBlocking() ? 1:0); //use camera memory 
+		resetCounters();
+		getNdArray().getPluginBase().enableCallbacks();
 		firstReadoutInScan = true;
+		alreadyPrepared=true;
 	}
-
+	protected void setNDArrayPortAndAddress() throws Exception {
+		if( getNdArrayPortVal() != null && getNdArrayPortVal().length()>0)
+			getNdArray().getPluginBase().setNDArrayPort(getNdArrayPortVal());
+	}
+	private void resetCounters() throws Exception {
+		getNdArray().getPluginBase().setDroppedArrays(0);
+		getNdArray().getPluginBase().setArrayCounter(0);
+	}
 	@Override
 	public void prepareForLine() throws Exception {
 	}
@@ -74,14 +92,21 @@ public class ADArrayPlugin implements NonAsynchronousNXPlugin {
 
 	@Override
 	public void completeCollection() throws Exception {
+		alreadyPrepared=false;
+		if(!isEnabled())
+			return;
 	}
 
 	@Override
 	public void atCommandFailure() throws Exception {
+		stop();
 	}
 
 	@Override
 	public void stop() throws Exception {
+		alreadyPrepared=false;
+		if(!isEnabled())
+			return;
 	}
 
 	@Override
@@ -97,26 +122,51 @@ public class ADArrayPlugin implements NonAsynchronousNXPlugin {
 	@Override
 	public NXDetectorDataAppender read() throws DeviceException {
 		firstReadoutInScan = false;
-		if (!isEnabled()) {
-			return new NXDetectorDataNullAppender();
+
+		if (isEnabled() && isWriteDataToFile()) {
+			try {
+				return new NXDetectorDataArrayAppender(ArrayData.readArrayData(ndArray), firstReadoutInScan);
+			} catch (Exception e) {
+				throw new DeviceException(getName() + "Error reading array data",e);
+			}
 		}
-		try {
-			return new NXDetectorDataArrayAppender(ArrayData.readArrayData(ndArray), firstReadoutInScan);
-		} catch (Exception e) {
-			throw new DeviceException(getName() + "Error reading array data",e);
-		}
+		return new NXDetectorDataNullAppender();
 	}
 
 	public boolean isEnabled() {
-		return enabled;
+		return enableDuringScan;
 	}
 
 	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
+		this.enableDuringScan = enabled;
 	}
 
 	public NDArray getNdArray() {
 		return ndArray;
+	}
+
+	public boolean isBlocking() {
+		return blocking;
+	}
+
+	public void setBlocking(boolean blocking) {
+		this.blocking = blocking;
+	}
+
+	public boolean isWriteDataToFile() {
+		return writeDataToFile;
+	}
+
+	public void setWriteDataToFile(boolean writeDataToFile) {
+		this.writeDataToFile = writeDataToFile;
+	}
+
+	public String getNdArrayPortVal() {
+		return ndArrayPortVal;
+	}
+
+	public void setNdArrayPortVal(String ndArrayPortVal) {
+		this.ndArrayPortVal = ndArrayPortVal;
 	}
 	
 }
