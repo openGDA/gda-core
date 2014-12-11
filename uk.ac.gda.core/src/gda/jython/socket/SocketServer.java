@@ -122,7 +122,7 @@ public class SocketServer implements Runnable {
 		SshServer sshd = SshServer.setUpDefaultServer();
 		sshd.setPort(port);
 		
-		String gdaConfig = LocalProperties.get(LocalProperties.GDA_CONFIG);
+		String gdaConfig = LocalProperties.get(LocalProperties.GDA_INSTANCE_CONFIG);
 		File hostKey = new File(new File(gdaConfig, "etc"), "hostkey.ser");
 		sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(hostKey.getAbsolutePath()));
 		

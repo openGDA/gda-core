@@ -149,7 +149,7 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 		if (!configured) {
 			String filePath;
 			if (dirLUT == null) {
-				String gda_config = LocalProperties.get(LocalProperties.GDA_CONFIG);
+				String gda_config = LocalProperties.get(LocalProperties.GDA_INSTANCE_CONFIG);
 				String lookupTableFolder = LocalProperties.get("gda.function.lookupTable.dir", gda_config
 						+ File.separator + "lookupTables");
 				filePath = lookupTableFolder + File.separator + filename;

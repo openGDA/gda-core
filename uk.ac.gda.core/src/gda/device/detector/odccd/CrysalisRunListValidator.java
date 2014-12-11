@@ -33,7 +33,7 @@ public class CrysalisRunListValidator {
 			dscanspeedratio, dexposuretimeinsec;
 
 	/**
-	 * Constructor that uses validation in LocalProperties.get(LocalProperties.GDA_CONFIG) + "/xml/CrysalisRunListValidator.xml"
+	 * Constructor that uses validation in LocalProperties.get(LocalProperties.GDA_INSTANCE_CONFIG) + "/xml/CrysalisRunListValidator.xml"
 	 */
 	public CrysalisRunListValidator() {
 		this(null);
@@ -47,7 +47,7 @@ public class CrysalisRunListValidator {
 
 	CrysalisRunListValidator(String configPath, boolean allowDefaults) {
 		if (configPath == null) {
-			configPath = LocalProperties.get(LocalProperties.GDA_CONFIG) + "/xml/CrysalisRunListValidator.xml";
+			configPath = LocalProperties.get(LocalProperties.GDA_INSTANCE_CONFIG) + "/xml/CrysalisRunListValidator.xml";
 		}
 		try {
 			XMLConfiguration config=null;
@@ -109,7 +109,7 @@ public class CrysalisRunListValidator {
 	 */
 	public void saveToConfig(String configPath){
 		if (configPath == null) {
-			configPath = LocalProperties.get(LocalProperties.GDA_CONFIG) + "/xml/CrysalisRunListValidator.xml";
+			configPath = LocalProperties.get(LocalProperties.GDA_INSTANCE_CONFIG) + "/xml/CrysalisRunListValidator.xml";
 		}		
 		try {
 			XMLConfiguration config;

@@ -49,7 +49,7 @@ public class FileAuthoriserTest {
 		} catch (Exception e) {
 			fail(exceptionUtils.getFullStackMsg(e));
 		}
-		System.setProperty(LocalProperties.GDA_CONFIG, testScratchDirectoryName);
+		System.setProperty(LocalProperties.GDA_INSTANCE_CONFIG, testScratchDirectoryName);
 		LocalProperties.set(Authoriser.AUTHORISERCLASS_PROPERTY, "gda.jython.authoriser.FileAuthoriser");
 		fileAuthoriser = (FileAuthoriser) AuthoriserProvider.getAuthoriser();
 		fileAuthoriser.addEntry("i02user", 5, false);
