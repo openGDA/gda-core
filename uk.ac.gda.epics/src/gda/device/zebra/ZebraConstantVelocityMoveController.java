@@ -147,7 +147,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				if (maxCollectionTimeFromDetectors > 200000) {
 					throw new IllegalArgumentException("ZebraConstantVelocityMoveController cannot handle collection times over 200000 seconds");
 				}
-				if (maxCollectionTimeFromDetectors > 20 /* TODO: Should be 200, set to 20 for quicker testing */ ) {
+				// Note that max gate width is 214881.9984, so max collection time is 214s at ms resolution, or 59d at s resolution.
+				if (maxCollectionTimeFromDetectors > 214 /* Using 20 rather 214 makes it faster to test the switchover. */ ) {
 					zebra.setPCTimeUnit(Zebra.PC_TIMEUNIT_SEC);
 					timeUnitConversion = 1;
 				} else {

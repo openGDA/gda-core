@@ -590,6 +590,23 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	}
 
 	public void setInitialCompression(String initialCompression) {
+		switch (initialCompression) {
+		case "N-bit":
+			logger.error("{} uses '{}' compression which is dangerous, it throws away data!",
+					getIdentifier(), initialCompression);
+			break;
+		case "szip":
+			logger.warn("{} uses '{}' compression which is encumbered. It cannot be used for commercial purposes!",
+					getIdentifier(), initialCompression);
+			break;
+		case "zlib":
+			logger.info("{} uses '{}' compression.",
+					getIdentifier(), initialCompression);
+			break;
+		default:
+			logger.error("{} requests unsupported compression '{}', the recommended compression is 'zlib'",
+					getIdentifier(), initialCompression);
+		}
 		this.initialCompression = initialCompression;
 	}
 
@@ -1009,5 +1026,19 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 			throw new IllegalArgumentException("BoundaryAlign not yet in the interface file");
 		}
 		return EPICS_CONTROLLER.cagetInt(getChannel(BoundaryAlign_RBV));
+	}
+
+	private String getIdentifier() {
+		// Since this can be configured with either a deviceName, pvProvider or basePVname, return an identifier based on
+		// whichever is currently in use. If multiple are available, return in this order, which matches usage in the class.
+		String id = getDeviceName();
+		if (id == null && pvProvider != null)
+			try {
+				id = pvProvider.getPV("");
+			} catch (Exception e) {
+				logger.error("pvProvider.getPV('') threw exception: ", e);
+			}
+		if (id == null) id = basePVName;
+		return id;
 	}
 }
