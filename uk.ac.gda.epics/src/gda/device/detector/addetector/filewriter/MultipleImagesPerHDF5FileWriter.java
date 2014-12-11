@@ -399,6 +399,7 @@ public class MultipleImagesPerHDF5FileWriter extends FileWriterBase implements N
 		//wait until the NumCaptured_RBV is equal to or exceeds maxToRead.
 		if (isEnabled()) {
 			checkErrorStatus();
+		}
 		try {
 			getNdFile().getPluginBase().checkDroppedFrames();
 		} catch (Exception e) {
