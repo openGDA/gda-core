@@ -27,17 +27,32 @@ import gda.device.detector.areadetector.v17.impl.NDFileImpl;
 public class V17NDFileHDF5FactoryBean extends V17FactoryBeanBase<NDFileHDF5>{
 
 	private NDFileImpl ndFileImpl;
-
+	private String initialCompression = null;
+	private Integer initialZCompressLevel = null;
 
 	public NDFileImpl getNdFileImpl() {
 		return ndFileImpl;
 	}
 
+	public String getInitialCompression() {
+		return initialCompression;
+	}
+
+	public int getInitialZCompressLevel() {
+		return initialZCompressLevel;
+	}
 
 	public void setNdFileImpl(NDFileImpl ndFileImpl) {
 		this.ndFileImpl = ndFileImpl;
 	}
 
+	public void setInitialCompression(String initialCompression) {
+		this.initialCompression = initialCompression;
+	}
+
+	public void setZCompressLevel(int zCompressLevel) {
+		this.initialZCompressLevel = zCompressLevel;
+	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -45,6 +60,12 @@ public class V17NDFileHDF5FactoryBean extends V17FactoryBeanBase<NDFileHDF5>{
 		plugin.setFile(ndFileImpl);
 		plugin.setPvProvider(ndFileImpl.getPvProvider());
 		plugin.afterPropertiesSet();
+		if (initialCompression != null) {
+			plugin.setInitialCompression(initialCompression);
+		}
+		if (initialZCompressLevel != null) {
+			plugin.setInitialZCompressLevel(initialZCompressLevel);
+		}
 		bean  = plugin;
 	}
 
