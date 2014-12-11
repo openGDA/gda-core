@@ -24,6 +24,7 @@ import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorSerialAppender;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.device.detector.nxdetector.roi.ImutableRectangularIntegerROI;
 import gda.device.detector.nxdetector.roi.RectangularROI;
@@ -231,25 +232,8 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 		
 		List<NXDetectorDataAppender> appenders = new ArrayList<NXDetectorDataAppender>();
 		for (List<NXDetectorDataAppender> appenderPair : newAppenderPairs) {
-			appenders.add(new SerialAppender(appenderPair));
+			appenders.add(new NXDetectorSerialAppender(appenderPair));
 		}
 		return appenders;
 	}
-}
-
-class SerialAppender implements NXDetectorDataAppender {
-	
-	final private List<NXDetectorDataAppender> appenders;
-
-	public SerialAppender(List<NXDetectorDataAppender> appenders) {
-		this.appenders = appenders;
-	}
-
-	@Override
-	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
-		for (NXDetectorDataAppender appender : appenders) {
-			appender.appendTo(data, detectorName);
-		}
-	}
-
 }

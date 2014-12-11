@@ -43,6 +43,8 @@ public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
 	public final String INACTIVE_ROI_NAME = "gda_inactive";
 
 	private String ndInputArrayPort;
+	
+	private boolean EnablePVPairSupported = true; //this flag is introduced because xmap detector used an old EPICs version
 
 	public ADRectangularROIPlugin(NDROIPVs ndROIPVs, String pluginName, RectangularROIProvider<Integer> roiProvider) {
 		this.pvs = ndROIPVs;
@@ -76,9 +78,11 @@ public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
 			}
 			pvs.getNamePV().putWait(getRoi().getName());
 			pvs.getPluginBasePVs().getEnableCallbacksPVPair().putWait(true);
-			pvs.getXDimension().getEnablePVPair().putWait(true);
-			pvs.getYDimension().getEnablePVPair().putWait(true);
-			pvs.getZDimension().getEnablePVPair().putWait(false);
+			if (isEnablePVPairSupported()){
+				pvs.getXDimension().getEnablePVPair().putWait(true);
+				pvs.getYDimension().getEnablePVPair().putWait(true);
+				pvs.getZDimension().getEnablePVPair().putWait(false);
+			}
 			pvs.getXDimension().getMinPVPair().putWait(getRoi().getXstart());
 			pvs.getXDimension().getSizePVPair().putWait(getRoi().getXsize());
 			pvs.getYDimension().getMinPVPair().putWait(getRoi().getYstart());
@@ -130,5 +134,11 @@ public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
 		return pvs.getPluginBasePVs().getPortNamePV().get();
 	}
 
+	public boolean isEnablePVPairSupported() {
+		return EnablePVPairSupported;
+	}
 
+	public void setEnablePVPairSupported(boolean enablePVPairSupported) {
+		EnablePVPairSupported = enablePVPairSupported;
+	}
 }

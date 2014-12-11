@@ -18,10 +18,7 @@
 
 package gda.device.detector.addetector.triggering;
 
-//import gda.device.detector.addetector.triggering.HardwareTriggeredAndor.AndorTriggerMode;
 import gda.device.detector.areadetector.v17.ADBase;
-import gda.jython.InterfaceProvider;
-// import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.scan.ScanInformation;
 
 import org.slf4j.Logger;
@@ -41,7 +38,6 @@ public class HardwareTriggeredAndor extends HardwareTriggeredStandard {
 
 	public HardwareTriggeredAndor(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

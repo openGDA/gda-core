@@ -48,8 +48,8 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -346,13 +346,14 @@ public class MJPeg extends Composite {
 		livwMonitoringLbl.setText(b ? "Running" : "Stopped");
 	}
 
-	public Control getCanvas() {
+	public Canvas getCanvas() {
 		return cameraComposite.getViewer().getCanvas();
 	}
 
 	public ImageData getImageData() {
 		return cameraComposite == null ? null : cameraComposite.getViewer().getImageData();
 	}
+
 
 	public void zoomFit() {
 		if (cameraComposite != null)
