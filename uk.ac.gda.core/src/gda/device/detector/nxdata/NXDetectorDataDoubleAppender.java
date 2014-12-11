@@ -18,106 +18,16 @@
 
 package gda.device.detector.nxdata;
 
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeNode;
-import gda.device.detector.NXDetectorData;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.nexusformat.NexusFile;
-
-public class NXDetectorDataDoubleAppender implements NXDetectorDataAppender {
-
-	static private final int[] SINGLE_DIMENSION = new int[] { 1 };
-	private final List<String> elementNames;
-	private final List<Double> elementValues;
-	private final List<String> elementUnits;
+public class NXDetectorDataDoubleAppender extends NXDetectorDataTAppender<Double> {
 
 	public NXDetectorDataDoubleAppender(List<String> elementNames, List<Double> elementValues) {
-		if (elementNames.size() != elementValues.size()) {
-			throw new IllegalArgumentException(MessageFormat.format(
-					"Length of elementNames[{0}] != elementValues[{1}]", elementNames.size(), elementValues.size()));
-		}
-		this.elementNames = elementNames;
-		this.elementValues = elementValues;
-		this.elementUnits=null;
+		super(elementNames, elementValues, null);
 	}
 
-	public NXDetectorDataDoubleAppender(List<String> elementNames, List<Double> elementValues, List<String> elementUnits) {
-		if (elementNames.size() != elementValues.size() || elementNames.size() != elementUnits.size() || elementValues.size() != elementUnits.size()) {
-			throw new IllegalArgumentException(MessageFormat.format(
-					"Length of elementNames[{0}] != elementValues[{1}] != elementUnits[{2}]", elementNames.size(), elementValues.size(), elementUnits.size())) ;
-		}
-		this.elementNames = elementNames;
-		this.elementValues = elementValues;
-		this.elementUnits=elementUnits;
-	}
-	
-	@Override
-	public void appendTo(NXDetectorData data, String detectorName) {
-		for (int i = 0; i < elementNames.size(); i++) {
-			String name = elementNames.get(i);
-			Double value = elementValues.get(i);
-			String unit=null;
-			if (elementUnits != null && !elementUnits.isEmpty()) {
-				unit=elementUnits.get(i);
-			}
-			data.setPlottableValue(name, value);
-			INexusTree valdata = data.addData(detectorName, name, SINGLE_DIMENSION, NexusFile.NX_FLOAT64, new double[] { value }, unit, null);
-			valdata.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, valdata, new NexusGroupData(String.format("%s.%s", detectorName, name))));
-		}
+	public NXDetectorDataDoubleAppender(List<String> elementNames, List<Double> elementValues,  List<String> elementUnits) {
+		super(elementNames, elementValues, elementUnits);
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((elementNames == null) ? 0 : elementNames.hashCode());
-		result = prime * result + ((elementValues == null) ? 0 : elementValues.hashCode());
-		result = prime * result + ((elementUnits == null) ? 0 : elementUnits.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		NXDetectorDataDoubleAppender other = (NXDetectorDataDoubleAppender) obj;
-		if (elementNames == null) {
-			if (other.elementNames != null)
-				return false;
-		} else if (!elementNames.equals(other.elementNames))
-			return false;
-		if (elementValues == null) {
-			if (other.elementValues != null)
-				return false;
-		} else if (!elementValues.equals(other.elementValues))
-			return false;
-		if (elementUnits == null) {
-			if (other.elementUnits != null)
-				return false;
-		} else if (!elementUnits.equals(other.elementUnits))
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		String str = "NXDetectorDataDoubleAppender:";
-		for (int i = 0; i < elementNames.size(); i++) {
-			String name = elementNames.get(i);
-			Double value = elementValues.get(i);
-			String unit = elementUnits.get(i);
-			str = str + " " + name + ":" + value+unit;
-		}
-		return str;
-	}
 }
