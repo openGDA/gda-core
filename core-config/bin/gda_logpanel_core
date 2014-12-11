@@ -1,0 +1,41 @@
+
+LOGPANELWINDOW=$(wmctrl -l | grep "GDA Log Panel" | grep -v grep) || true
+
+
+if [ "$LOGPANELWINDOW" == "" ] ; then
+echo 'About to pick which console log file to run'
+
+# Set up the directory and file in which to write the console log
+    # We only invoke one script to do this (the most specific one)
+    for filename in \
+      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_setup_consolelog_instance" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_setup_consolelog_group" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_setup_consolelog_facility"
+    do
+      if [ -e "${filename}" ]; then
+        . ${filename}
+        echo "just ran ${filename}"
+        break
+      fi
+    done
+
+  GDA_LOGPANEL_APP=/dls_sw/apps/gdalogpanel/gdalogpanel/gdalogpanel
+
+  GDA_LOGPANEL_APP_ARGS="-vmargs -Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/new_${BEAMLINE}_java.properties"
+  GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.install.git.loc=${GDA_WORKSPACE_PARENT}/workspace_git"
+  GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.mode=${GDA_MODE}"
+  GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.group.dir=${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}"
+  GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.facility.dir=${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}"
+  echo Starting GDA Log Panel...
+  #echo GDA_INSTANCE_CONFIG_rel = $GDA_INSTANCE_CONFIG_rel , BEAMLINE = $BEAMLINE- , GDA_MODE = $GDA_MODE
+  echo GDA_INSTANCE_CONFIG_rel = $GDA_INSTANCE_CONFIG_rel , GDA_INSTANCE_NAME = $GDA_INSTANCE_NAME , GDA_MODE = $GDA_MODE
+    
+  
+  echo  $GDA_LOGPANEL_APP $GDA_LOGPANEL_APP_ARGS
+  echo  $GDA_LOGPANEL_APP $GDA_LOGPANEL_APP_ARGS >> ${GDA_LOG_FILE}
+  nohup $GDA_LOGPANEL_APP $GDA_LOGPANEL_APP_ARGS >> ${GDA_LOG_FILE} 2>&1 &
+
+else
+  echo Raising GDA Log Panel...
+  wmctrl -R "GDA Log Panel"
+fi
