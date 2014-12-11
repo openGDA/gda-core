@@ -26,6 +26,7 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
     fi
 
     # Work around problem with ssh where remotestartupscript.sh completes, but ssh doesn't return. 
+    #ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} & # Need to fix authorized_keys file for this to work
     ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} &
     # Run in background and wait for OBJECT_SERVER_STARTUP_FILE here. Note that due to network filesystem this is *much* less responsive
     # but should start the client eventually, unlike ssh which may hang forever.
@@ -79,9 +80,9 @@ else
     GDA_CORE_SCRIPT_OPTIONS="--headless --debug --debugport=8001 --mode=$GDA_MODE --vardir=${GDA_VAR} $@"
 
     bashlog info "gda_servers_core" "${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS}"
-    echo  ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_servers_CONSOLE_LOG}
-    nohup ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_servers_CONSOLE_LOG}  2>&1 &
-
+    echo  ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_LOG_FILE}
+    nohup ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_LOG_FILE}  2>&1 &
+    
 fi
 
 bashlog debug "gda_servers_core" "Exited"

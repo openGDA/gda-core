@@ -14,6 +14,8 @@ echo 'start of gdastart_client_core'
       fi
     done
     
+    echo "GDA_CLIENT_LOG_DIR=$GDA_LOGS_DIR"
+    
 export GDA_CLIENT_LOG_DIR=$GDA_LOGS_DIR
 export GDA_CLIENT_WORKING_DIR=$GDA_WORKSPACE_PARENT/client
 
@@ -38,7 +40,7 @@ VMARGS="-Dgda.core.dir=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel} $VMARGS"
 VMARGS="-Dgda.facility.dir=${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel} $VMARGS"
 VMARGS="-Dgda.group.dir=${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel} $VMARGS"
 VMARGS="-Dgda.instance.dir=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel} $VMARGS"
-
+VMARGS="-Dgda.logs.dir=${GDA_LOGS_DIR} $VMARGS" #KrisB, gda.logs.dir should be read from java.properties, but it doesn't seem to work
 #VMARGS="-Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/properties/new_java.properties $VMARGS"
 
 
@@ -59,4 +61,4 @@ export GDA_CLIENT_VMARGS=$VMARGS
 
 cd $GDA_WORKSPACE_PARENT/client
 
-${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gdaclient --log --keep --nohup $GDA_client_CONSOLE_LOG $*
+${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gdaclient --log --keep --nohup $*

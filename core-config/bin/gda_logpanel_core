@@ -32,8 +32,8 @@ echo 'About to pick which console log file to run'
     
   
   echo  $GDA_LOGPANEL_APP $GDA_LOGPANEL_APP_ARGS
-  echo  $GDA_LOGPANEL_APP $GDA_LOGPANEL_APP_ARGS >> ${GDA_logpanel_CONSOLE_LOG}
-  nohup $GDA_LOGPANEL_APP $GDA_LOGPANEL_APP_ARGS >> ${GDA_logpanel_CONSOLE_LOG} 2>&1 &
+  echo  $GDA_LOGPANEL_APP $GDA_LOGPANEL_APP_ARGS >> ${GDA_LOG_FILE}
+  nohup $GDA_LOGPANEL_APP $GDA_LOGPANEL_APP_ARGS >> ${GDA_LOG_FILE} 2>&1 &
 
 else
   echo Raising GDA Log Panel...
