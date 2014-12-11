@@ -56,7 +56,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.IDetectorConfigurationParameters;
@@ -107,7 +106,7 @@ public abstract class XasScanBase implements XasScan {
 	protected IScanParameters scanBean;
 	protected IDetectorParameters detectorBean;
 	protected IOutputParameters outputBean;
-	protected IRichBean detectorConfigurationBean;
+	protected IDetectorConfigurationParameters detectorConfigurationBean;
 	protected int currentRepetition;
 	protected int numRepetitions;
 	protected String experimentFullPath;
@@ -357,7 +356,7 @@ public abstract class XasScanBase implements XasScan {
 		// TODO these beans should have their own interface for clarity
 		String detectorConfigurationFilename = determineDetectorFilename();
 		if (detectorConfigurationFilename != null && !detectorConfigurationFilename.isEmpty()) {
-			detectorConfigurationBean = BeansFactory.getBeanObject(experimentFullPath + "/", detectorConfigurationFilename);
+			detectorConfigurationBean = (IDetectorConfigurationParameters) BeansFactory.getBeanObject(experimentFullPath + "/", detectorConfigurationFilename);
 		}
 
 		setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName);
@@ -540,7 +539,7 @@ public abstract class XasScanBase implements XasScan {
 		if (exptType.equalsIgnoreCase("fluorescence")) {
 			detectorGroupName = detectorBean.getFluorescenceParameters().getDetectorType();
 		} else if (exptType.equalsIgnoreCase("xes")) {
-			exptType = "xes";
+			detectorGroupName = "xes";
 		} else {
 			detectorGroupName = detectorBean.getTransmissionParameters().getDetectorType();
 		}

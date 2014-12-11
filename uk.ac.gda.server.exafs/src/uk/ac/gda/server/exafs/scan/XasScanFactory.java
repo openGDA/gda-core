@@ -24,52 +24,62 @@ public class XasScanFactory extends SpectroscopyScanFactory {
 
 	private QexafsDetectorPreparer qexafsDetectorPreparer;
 	private ContinuouslyScannable qexafsEnergyScannable;
+	private EnergyScan energyScan;
+	private QexafsScan qexafsScan;
 
 	public XasScanFactory() {
 	}
 
 	public EnergyScan createEnergyScan() {
 
+		if (energyScan != null){
+			return energyScan;
+		}
+
 		checkSharedObjectsNonNull();
 
 		checkDefined(energyScannable, "energyScannable");
 		checkDefined(detectorPreparer, "detectorPreparer");
 
-		EnergyScan newScan = new EnergyScan();
-		newScan.setBeamlinePreparer(beamlinePreparer);
-		newScan.setDetectorPreparer(detectorPreparer);
-		newScan.setOutputPreparer(outputPreparer);
-		newScan.setSamplePreparer(samplePreparer);
-		newScan.setLoggingScriptController(loggingScriptController);
-		newScan.setDatawriterconfig(datawriterconfig);
-		newScan.setEnergyScannable(energyScannable);
-		newScan.setMetashop(metashop);
-		newScan.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
-		newScan.setScanName(scanName);
-		placeInJythonNamespace(newScan);
-		return newScan;
+		energyScan = new EnergyScan();
+		energyScan.setBeamlinePreparer(beamlinePreparer);
+		energyScan.setDetectorPreparer(detectorPreparer);
+		energyScan.setOutputPreparer(outputPreparer);
+		energyScan.setSamplePreparer(samplePreparer);
+		energyScan.setLoggingScriptController(loggingScriptController);
+		energyScan.setDatawriterconfig(datawriterconfig);
+		energyScan.setEnergyScannable(energyScannable);
+		energyScan.setMetashop(metashop);
+		energyScan.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
+		energyScan.setScanName(scanName);
+		placeInJythonNamespace(energyScan);
+		return energyScan;
 	}
 
 	public QexafsScan createQexafsScan() {
+
+		if (qexafsScan != null){
+			return qexafsScan;
+		}
 
 		checkSharedObjectsNonNull();
 
 		checkDefined(qexafsEnergyScannable, "qexafsEnergyScannable");
 		checkDefined(qexafsDetectorPreparer, "qexafsDetectorPreparer");
 
-		QexafsScan newScan = new QexafsScan();
-		newScan.setBeamlinePreparer(beamlinePreparer);
-		newScan.setDetectorPreparer(qexafsDetectorPreparer);
-		newScan.setOutputPreparer(outputPreparer);
-		newScan.setSamplePreparer(samplePreparer);
-		newScan.setLoggingScriptController(loggingScriptController);
-		newScan.setDatawriterconfig(datawriterconfig);
-		newScan.setEnergyScannable(qexafsEnergyScannable);
-		newScan.setMetashop(metashop);
-		newScan.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
-		newScan.setScanName(scanName);
-		placeInJythonNamespace(newScan);
-		return newScan;
+		qexafsScan = new QexafsScan();
+		qexafsScan.setBeamlinePreparer(beamlinePreparer);
+		qexafsScan.setDetectorPreparer(qexafsDetectorPreparer);
+		qexafsScan.setOutputPreparer(outputPreparer);
+		qexafsScan.setSamplePreparer(samplePreparer);
+		qexafsScan.setLoggingScriptController(loggingScriptController);
+		qexafsScan.setDatawriterconfig(datawriterconfig);
+		qexafsScan.setEnergyScannable(qexafsEnergyScannable);
+		qexafsScan.setMetashop(metashop);
+		qexafsScan.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
+		qexafsScan.setScanName(scanName);
+		placeInJythonNamespace(qexafsScan);
+		return qexafsScan;
 	}
 
 	public ContinuouslyScannable getQexafsEnergyScannable() {
