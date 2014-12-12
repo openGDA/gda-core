@@ -26,8 +26,7 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
     fi
 
     # Work around problem with ssh where remotestartupscript.sh completes, but ssh doesn't return. 
-    #ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} & # Need to fix authorized_keys file for this to work
-    ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} &
+    ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} &
     # Run in background and wait for OBJECT_SERVER_STARTUP_FILE here. Note that due to network filesystem this is *much* less responsive
     # but should start the client eventually, unlike ssh which may hang forever.
 
