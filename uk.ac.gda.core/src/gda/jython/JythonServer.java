@@ -1499,11 +1499,12 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	
 	@Override
 	public ScanInformation getCurrentScanInformation() {
-		return currentScan.getScanInformation();
+		return currentScan == null ? null : currentScan.getScanInformation();
 	}
 	
 	@Override
 	public boolean isFinishEarlyRequested() {
+		//TODO: Potential NPE?
 		return currentScan.isFinishEarlyRequested();
 	}
 
