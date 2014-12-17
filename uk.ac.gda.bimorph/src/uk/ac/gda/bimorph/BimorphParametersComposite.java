@@ -487,6 +487,7 @@ public final class BimorphParametersComposite extends Composite {
 		detectorDistance = new ScaleBox(detectorGroup, SWT.NONE);
 		detectorDistance.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		detectorDistance.setDecimalPlaces(8);
+		detectorDistance.setMaximum(Double.MAX_DOUBLE);
 		new Label(detectorDistance, SWT.NONE);
 		new Label(detectorDistance, SWT.NONE);
 	}
