@@ -282,9 +282,9 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		return xspress3Detector.internalToExternal(internalPosition);
 	}
 
-	public Double[] readoutFF() throws DeviceException {
-		return xspress3Detector.readoutFF();
-	}
+//	public Double[] readoutFF() throws DeviceException {
+//		return xspress3Detector.readoutFF();
+//	}
 
 	public String[] getExtraNames() {
 		return xspress3Detector.getExtraNames();
@@ -322,7 +322,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		xspress3Detector.atLevelMoveStart();
 	}
 
-	public Double[][] getMCData(double time) throws DeviceException {
+	public double[][] getMCData(double time) throws DeviceException {
 		return xspress3Detector.getMCData(time);
 	}
 
@@ -438,17 +438,17 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		xspress3Detector.setFilePrefix(filePrefix);
 	}
 
-	public String getNumTrackerExtension() {
-		return xspress3Detector.getNumTrackerExtension();
-	}
+//	public String getNumTrackerExtension() {
+//		return xspress3Detector.getNumTrackerExtension();
+//	}
 
 	public void waitWhileBusy(double timeoutInSeconds) throws DeviceException, InterruptedException {
 		xspress3Detector.waitWhileBusy(timeoutInSeconds);
 	}
 
-	public void setNumTrackerExtension(String numTrackerExtension) {
-		xspress3Detector.setNumTrackerExtension(numTrackerExtension);
-	}
+//	public void setNumTrackerExtension(String numTrackerExtension) {
+//		xspress3Detector.setNumTrackerExtension(numTrackerExtension);
+//	}
 
 	public Object getCountRates() throws DeviceException {
 		return xspress3Detector.getCountRates();

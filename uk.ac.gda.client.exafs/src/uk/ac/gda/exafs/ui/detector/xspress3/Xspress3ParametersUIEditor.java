@@ -307,7 +307,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 
 		try {
 
-			final Double[][] theData = theDetector.getMCData(collectionTimeValue);
+			final double[][] theData = theDetector.getMCData(collectionTimeValue);
 
 			if (monitor != null) {
 				monitor.worked(1);

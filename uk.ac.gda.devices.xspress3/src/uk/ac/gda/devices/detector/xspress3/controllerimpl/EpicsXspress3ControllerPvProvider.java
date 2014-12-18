@@ -50,12 +50,13 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String NEXT_FILENUMBER = ":HDF5:FileNumber";
 	private static String FILE_AUTOINCREMENT = ":HDF5:AutoIncrement";
 	private static String FILE_NUMCAPTURE = ":HDF5:NumCapture";
+	private static String FULLFILENAME = ":HDF5:FullFileName_RBV";
 	
 	
-	private static String EXTRA_DIMS = ":HDF5:NumExtraDims";
-	private static String EXTRA_DIM_N = ":HDF5:ExtraDimSizeN";
-	private static String EXTRA_DIM_X= ":HDF5:ExtraDimSizeX";
-	private static String EXTRA_DIM_Y = ":HDF5:ExtraDimSizeY";
+//	private static String EXTRA_DIMS = ":HDF5:NumExtraDims";
+//	private static String EXTRA_DIM_N = ":HDF5:ExtraDimSizeN";
+//	private static String EXTRA_DIM_X= ":HDF5:ExtraDimSizeX";
+//	private static String EXTRA_DIM_Y = ":HDF5:ExtraDimSizeY";
 	
 	
 	// Display Updates
@@ -168,12 +169,13 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<String> pvSetFilePrefix;
 	protected ReadOnlyPV<String> pvGetFilePrefix;
 	protected PV<Integer> pvNextFileNumber;
-	protected PV<Integer> pvExtraDimensions;
-	protected PV<Integer> pvExtraDimN;
-	protected PV<Integer> pvExtraDimX;
-	protected PV<Integer> pvExtraDimY;
+//	protected PV<Integer> pvExtraDimensions;
+//	protected PV<Integer> pvExtraDimN;
+//	protected PV<Integer> pvExtraDimX;
+//	protected PV<Integer> pvExtraDimY;
 	protected PV<Boolean> pvHDFAutoIncrement;
 	protected PV<Integer> pvHDFNumCapture;
+	protected ReadOnlyPV<String> pvHDFFullFileName;
 
 
 	public EpicsXspress3ControllerPvProvider(String epicsTemplate, int numberOfDetectorChannels) throws FactoryException {
@@ -222,10 +224,11 @@ public class EpicsXspress3ControllerPvProvider {
 		pvNextFileNumber = LazyPVFactory.newIntegerPV(generatePVName(NEXT_FILENUMBER));
 		pvHDFAutoIncrement = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_AUTOINCREMENT));
 		pvHDFNumCapture = LazyPVFactory.newIntegerPV(generatePVName(FILE_NUMCAPTURE));
-		pvExtraDimensions = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIMS));
-		pvExtraDimN = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_N));
-		pvExtraDimX = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_X));
-		pvExtraDimY = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_Y));
+		pvHDFFullFileName = LazyPVFactory.newReadOnlyStringPV(FULLFILENAME);
+//		pvExtraDimensions = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIMS));
+//		pvExtraDimN = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_N));
+//		pvExtraDimX = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_X));
+//		pvExtraDimY = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_Y));
 	}
 	
 	@SuppressWarnings("unchecked")

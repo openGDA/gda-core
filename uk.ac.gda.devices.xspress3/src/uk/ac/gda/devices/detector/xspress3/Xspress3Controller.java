@@ -46,9 +46,9 @@ public interface Xspress3Controller extends Findable{
 
 	public void setSavingFiles(Boolean saveFiles) throws DeviceException;
 	
-	public void setHDFFileDimensions(int[] dimensions) throws DeviceException;
-	
-	public int[] getHDFFileDimensions() throws DeviceException;
+//	public void setHDFFileDimensions(int[] dimensions) throws DeviceException;
+//	
+//	public int[] getHDFFileDimensions() throws DeviceException;
 
 	public void setHDFFileAutoIncrement(boolean b) throws DeviceException;
 	
@@ -189,7 +189,7 @@ public interface Xspress3Controller extends Findable{
 	 * @param finalChannel
 	 * @return Double[detector channel][mca channel]
 	 */
-	public Double[][] readoutDTCorrectedLatestMCA(int startChannel, int finalChannel) throws DeviceException;
+	public double[][] readoutDTCorrectedLatestMCA(int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * 
@@ -199,7 +199,7 @@ public interface Xspress3Controller extends Findable{
 	 * @return Double[detector channel][mca channel]
 	 * @throws DeviceException
 	 */
-	public Double[][] readoutDTCorrectedLatestSummedMCA(int startChannel, int finalChannel) throws DeviceException;
+	public double[][] readoutDTCorrectedLatestSummedMCA(int startChannel, int finalChannel) throws DeviceException;
 
 	/**
 	 * @param channel
@@ -244,6 +244,12 @@ public interface Xspress3Controller extends Findable{
 	public String getFilePrefix() throws DeviceException;
 
 	public int getNextFileNumber() throws DeviceException;
+	
+	/**
+	 * @return String - the full file path of the HDF file being written, or the last one written
+	 * @throws DeviceException
+	 */
+	public String getFullFileName() throws DeviceException;
 
 	public void configure() throws FactoryException;
 

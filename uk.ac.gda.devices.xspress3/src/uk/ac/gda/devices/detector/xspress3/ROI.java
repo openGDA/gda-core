@@ -22,6 +22,12 @@ import java.io.Serializable;
 
 import org.apache.commons.beanutils.BeanUtils;
 
+/**
+ * TODO replace with one of the ROI classes in the shared plugin (currently named uk.ac.gda.beans.vortex)
+ * 
+ * @author rjw82
+ *
+ */
 public class ROI implements Serializable {
 
 	private int start;

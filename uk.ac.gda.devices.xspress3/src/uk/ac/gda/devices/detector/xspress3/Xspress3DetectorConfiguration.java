@@ -37,11 +37,11 @@ import org.slf4j.LoggerFactory;
 public class Xspress3DetectorConfiguration implements FluorescentDetectorConfiguration {
 
 	private Logger logger = LoggerFactory.getLogger(Xspress3DetectorConfiguration.class);
-	private Xspress3Detector xspress3;
+	private Xspress3 xspress3;
 	private ObservableComponent observer;
 	private String message = "Xspress configuration has not been applied yet";
 
-	public Xspress3DetectorConfiguration(Xspress3Detector xmap, final ObservableComponent observer) {
+	public Xspress3DetectorConfiguration(Xspress3 xmap, final ObservableComponent observer) {
 		this.observer = observer;
 		this.xspress3 = xmap;
 	}

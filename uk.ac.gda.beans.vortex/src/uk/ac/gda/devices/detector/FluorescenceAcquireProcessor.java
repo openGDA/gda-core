@@ -23,7 +23,7 @@ public interface FluorescenceAcquireProcessor extends IObservable {
 	 * @return
 	 * @throws DeviceException
 	 */
-	public Double[][] getMCData(double time) throws DeviceException;
+	public double[][] getMCData(double time) throws DeviceException;
 
 	public int[][] getData() throws DeviceException;
 
