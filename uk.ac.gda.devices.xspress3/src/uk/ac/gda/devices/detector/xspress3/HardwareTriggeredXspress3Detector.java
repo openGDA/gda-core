@@ -166,7 +166,7 @@ public class HardwareTriggeredXspress3Detector extends HardwareTriggerableDetect
 		xspress3.clearMemory();
 	}
 
-	public Xspress3Detector getXspress3Detector() {
+	public Xspress3 getXspress3Detector() {
 		return xspress3.getXspress3Detector();
 	}
 

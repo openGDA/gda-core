@@ -56,9 +56,10 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	private int numRoiToRead;
 	private String template;
 	private int nextNumber;
-	private int[] fileDimensions;
+//	private int[] fileDimensions;
 	private int numberOfChannels;
 	private boolean[] enabledChannels;
+	private String simulationFileName;
 
 	public DummyXspress3Controller(Tfg tfg, DummyDAServer daServer) {
 		super();
@@ -409,17 +410,17 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	}
 
 	@Override
-	public Double[][] readoutDTCorrectedLatestMCA(int startChannel, int finalChannel) throws DeviceException {
+	public double[][] readoutDTCorrectedLatestMCA(int startChannel, int finalChannel) throws DeviceException {
 		return readoutDTCorrectedLatestSummedMCA(startChannel, finalChannel);
 	}
 
 	@Override
-	public Double[][] readoutDTCorrectedLatestSummedMCA(int startChannel, int finalChannel) throws DeviceException {
+	public double[][] readoutDTCorrectedLatestSummedMCA(int startChannel, int finalChannel) throws DeviceException {
 		int numChannels = finalChannel - startChannel + 1;
 		// int[] rawData = daServer.getIntBinaryData("read 0 0 0 " + 4096 + " "
 		// + 1 + " " + 1 + " from " + mcaHandle + " raw motorola", 4096);
 
-		Double[][] results = new Double[numChannels][4096];
+		double[][] results = new double[numChannels][4096];
 		Random generator = new Random();
 
 		for (int chan = 0; chan < numChannels; chan++) {
@@ -461,18 +462,18 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 		return name;
 	}
 
-	@Override
-	public void setHDFFileDimensions(int[] dimensions) throws DeviceException {
-		if (dimensions.length > 3) {
-			throw new DeviceException("Cannot write more than 3 dimensions in the HDF5 plugin!");
-		}
-		fileDimensions = dimensions;
-	}
-
-	@Override
-	public int[] getHDFFileDimensions() throws DeviceException {
-		return fileDimensions;
-	}
+//	@Override
+//	public void setHDFFileDimensions(int[] dimensions) throws DeviceException {
+//		if (dimensions.length > 3) {
+//			throw new DeviceException("Cannot write more than 3 dimensions in the HDF5 plugin!");
+//		}
+//		fileDimensions = dimensions;
+//	}
+//
+//	@Override
+//	public int[] getHDFFileDimensions() throws DeviceException {
+//		return fileDimensions;
+//	}
 
 	@Override
 	public void setHDFFileAutoIncrement(boolean b) {
@@ -502,5 +503,19 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	@Override
 	public void enableChannel(int channel, boolean doEnable) throws DeviceException {
 		enabledChannels[channel] = doEnable;
+	}
+	
+	@Override
+	public String getFullFileName() throws DeviceException {
+		return simulationFileName;
+	}
+	
+	/**
+	 * An hdf file containing MCA data.
+	 * 
+	 * @param filename
+	 */
+	public void setSimulationFileName(String filename){
+		simulationFileName = filename;
 	}
 }

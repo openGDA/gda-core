@@ -37,7 +37,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 
 	private int numRoiToRead = 1;
 
-	private int[] dimensionsOfLastFile;
+//	private int[] dimensionsOfLastFile;
 	
 	private int numberOfDetectorChannels = 4;
 
@@ -538,14 +538,14 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	}
 
 	@Override
-	public Double[][] readoutDTCorrectedLatestMCA(int startChannel, int finalChannel) throws DeviceException {
+	public double[][] readoutDTCorrectedLatestMCA(int startChannel, int finalChannel) throws DeviceException {
 
 		updateArrays();
 
-		Double[][] mcas = new Double[finalChannel - startChannel + 1][];
+		double[][] mcas = new double[finalChannel - startChannel + 1][];
 		for (int i = startChannel; i <= finalChannel; i++) {
 			try {
-				mcas[i] = pvProvider.pvsLatestMCA[i].get();
+				mcas[i] = ArrayUtils.toPrimitive(pvProvider.pvsLatestMCA[i].get());
 			} catch (IOException e) {
 				throw new DeviceException("IOException while fetching mca array data", e);
 			}
@@ -562,14 +562,14 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	}
 
 	@Override
-	public Double[][] readoutDTCorrectedLatestSummedMCA(int startChannel, int finalChannel) throws DeviceException {
+	public double[][] readoutDTCorrectedLatestSummedMCA(int startChannel, int finalChannel) throws DeviceException {
 
 		updateArrays();
 
-		Double[][] mcas = new Double[finalChannel - startChannel + 1][];
+		double[][] mcas = new double[finalChannel - startChannel + 1][];
 		for (int i = startChannel; i <= finalChannel; i++) {
 			try {
-				mcas[i] = pvProvider.pvsLatestMCASummed[i].get();
+				mcas[i] = ArrayUtils.toPrimitive(pvProvider.pvsLatestMCASummed[i].get());
 			} catch (IOException e) {
 				throw new DeviceException("IOException while fetching mca array data", e);
 			}
@@ -805,40 +805,49 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 			throw new DeviceException("IOException while getting file number", e);
 		}
 	}
-
+	
 	@Override
-	public void setHDFFileDimensions(int[] dimensions) throws DeviceException {
-		if (dimensions.length > 3) {
-			throw new DeviceException("Cannot write more than 3 dimensions in the HDF5 plugin!");
-		}
+	public String getFullFileName() throws DeviceException {
 		try {
-			switch (dimensions.length) {
-			case 0:
-			case 1:
-				pvProvider.pvExtraDimensions.putNoWait(0);
-				break;
-			case 2:
-				pvProvider.pvExtraDimensions.putNoWait(1);
-				pvProvider.pvExtraDimN.putNoWait(dimensions[0]);
-				pvProvider.pvExtraDimX.putNoWait(dimensions[1]);
-				break;
-			case 3:
-				pvProvider.pvExtraDimensions.putNoWait(2);
-				pvProvider.pvExtraDimN.putNoWait(dimensions[0]);
-				pvProvider.pvExtraDimX.putNoWait(dimensions[1]);
-				pvProvider.pvExtraDimY.putNoWait(dimensions[2]);
-				break;
-			}
+			return pvProvider.pvHDFFullFileName.get();
 		} catch (IOException e) {
-			throw new DeviceException("IOException while getting file number", e);
+			throw new DeviceException("IOException while getting file name", e);
 		}
-		dimensionsOfLastFile = dimensions;
 	}
 
-	@Override
-	public int[] getHDFFileDimensions() throws DeviceException {
-		return dimensionsOfLastFile;
-	}
+//	@Override
+//	public void setHDFFileDimensions(int[] dimensions) throws DeviceException {
+//		if (dimensions.length > 3) {
+//			throw new DeviceException("Cannot write more than 3 dimensions in the HDF5 plugin!");
+//		}
+//		try {
+//			switch (dimensions.length) {
+//			case 0:
+//			case 1:
+//				pvProvider.pvExtraDimensions.putNoWait(0);
+//				break;
+//			case 2:
+//				pvProvider.pvExtraDimensions.putNoWait(1);
+//				pvProvider.pvExtraDimN.putNoWait(dimensions[0]);
+//				pvProvider.pvExtraDimX.putNoWait(dimensions[1]);
+//				break;
+//			case 3:
+//				pvProvider.pvExtraDimensions.putNoWait(2);
+//				pvProvider.pvExtraDimN.putNoWait(dimensions[0]);
+//				pvProvider.pvExtraDimX.putNoWait(dimensions[1]);
+//				pvProvider.pvExtraDimY.putNoWait(dimensions[2]);
+//				break;
+//			}
+//		} catch (IOException e) {
+//			throw new DeviceException("IOException while getting file number", e);
+//		}
+//		dimensionsOfLastFile = dimensions;
+//	}
+//
+//	@Override
+//	public int[] getHDFFileDimensions() throws DeviceException {
+//		return dimensionsOfLastFile;
+//	}
 
 	@Override
 	public void setHDFFileAutoIncrement(boolean b) throws DeviceException {

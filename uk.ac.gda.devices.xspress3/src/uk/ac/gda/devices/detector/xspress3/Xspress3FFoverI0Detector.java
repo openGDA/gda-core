@@ -29,7 +29,7 @@ import gda.device.detector.DetectorBase;
 public class Xspress3FFoverI0Detector extends DetectorBase {
 //	private static final Logger logger = LoggerFactory.getLogger(Xspress3FFoverI0Detector.class);
 
-	private Xspress3Detector xspress3 = null;
+	private Xspress3 xspress3 = null;
 	private CounterTimer ct = null;
 	private int i0_channel = 0;
 
@@ -102,11 +102,11 @@ public class Xspress3FFoverI0Detector extends DetectorBase {
 		return 0;
 	}
 
-	public Xspress3Detector getXspress3() {
+	public Xspress3 getXspress3() {
 		return xspress3;
 	}
 
-	public void setXspress3(Xspress3Detector xmap) {
+	public void setXspress3(Xspress3 xmap) {
 		this.xspress3 = xmap;
 	}
 

@@ -55,7 +55,7 @@ public class EpicsXspress3ControllerTest {
 			x3d = new Xspress3Detector();
 			x3d.setName("x3d");
 			x3d.setController(x3c);
-			x3d.setNumTrackerExtension("");
+//			x3d.setNumTrackerExtension("");
 			x3d.setFirstChannelToRead(0);
 			x3d.configure();
 

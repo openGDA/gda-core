@@ -64,6 +64,7 @@ import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
 import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
+import uk.ac.gda.devices.detector.xspress3.Xspress3;
 import uk.ac.gda.devices.detector.xspress3.Xspress3BufferedDetector;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
 
@@ -155,8 +156,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++){
 					elementRois[detectorNo] = ((VortexParameters) detectorBean).getDetector(detectorNo).getRegionList();
 				}
-			}  else if (detector instanceof Xspress3Detector) {
-				Xspress3Detector xspress = (Xspress3Detector) detector;
+			}  else if (detector instanceof Xspress3) {
+				Xspress3 xspress = (Xspress3) detector;
 				detectorName = xspress.getName();
 				roiNames = new String[((Xspress3Parameters) detectorBean).getDetector(0).getRegionList().size()];
 				for (int roiIndex = 0; roiIndex < roiNames.length; roiIndex++) {
@@ -643,7 +644,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 	protected boolean isXspress3Scan() {
 		for (Detector det : detectors) {
-			if (det instanceof Xspress3Detector || det instanceof Xspress3BufferedDetector)
+			if (det instanceof Xspress3 || det instanceof Xspress3BufferedDetector)
 				return true;
 		}
 		return false;
