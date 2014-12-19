@@ -16,18 +16,15 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.xmap;
+package gda.device.detector.nxdetector.xmap.CollectionStrategy;
 
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
-import gda.device.detector.nxdata.NXDetectorDataNullAppender;
-import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
-import gda.device.detector.xmap.edxd.EDXDController.PIXEL_ADVANCE_MODE;
-import gda.device.detector.xmap.edxd.EDXDController.PRESET_TYPES;
-import gda.device.detector.xmap.edxd.EDXDMappingController;
-import gda.device.detector.xmap.edxd.NDHDF5PVProvider;
-import gda.jython.InterfaceProvider;
+import gda.device.detector.nxdetector.xmap.Controller.XmapAcquisitionBaseEpicsLayer.*;
+import gda.device.detector.nxdetector.xmap.Controller.XmapAcquisitionBaseEpicsLayer;
+import gda.device.detector.nxdetector.xmap.Controller.XmapMappingModeEpicsLayer;
+import gda.device.detector.nxdetector.xmap.Controller.XmapMappingModeEpicsLayer.PixelAdvanceMode;
 import gda.scan.ScanInformation;
 
 import java.util.ArrayList;
@@ -44,21 +41,21 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 	private int pixelsPerBuffer = 124; // will always be this by default when auto pixels per buffer 
 	
 	
-	public XmapHardwareTriggeredCollectionStrategy(EDXDMappingController xmap) throws DeviceException {
+	public XmapHardwareTriggeredCollectionStrategy(XmapAcquisitionBaseEpicsLayer xmap) throws Exception {
 		super(xmap, -1);
 		//this.ndHDF5PVProvider = nDHDF5PVProvider;
 	}
 
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
-		
-		getXmap().setCollectionMode(COLLECTION_MODES.MCA_MAPPING);
-		getXmap().setPresetType(PRESET_TYPES.NO_PRESET);
-		getXmap().setPixelAdvanceMode(PIXEL_ADVANCE_MODE.GATE);
-		getXmap().setIgnoreGate(false);
-		getXmap().setPixelsPerRun(numImages);
-		getXmap().setAutoPixelsPerBuffer(false);
-		
+		getXmap().setCollectMode(CollectionModeEnum.MCA_MAPPING);
+		getXmap().setPresetMode(PresetMode.NO_PRESET);		
+		if (getXmap().isXmapMappingModeInstance("prepareForCollection in Hardware triggered Collection Strategy")){
+			((XmapMappingModeEpicsLayer)getXmap().getCollectionMode()).setPixelAdvanceMode(PixelAdvanceMode.Gate);
+			((XmapMappingModeEpicsLayer)getXmap().getCollectionMode()).setIgnoreGate(false);
+			((XmapMappingModeEpicsLayer)getXmap().getCollectionMode()).setPixelsPerRun(numImages);
+			((XmapMappingModeEpicsLayer)getXmap().getCollectionMode()).setAutoPixelsPerBuffer(false);
+		}
 	}
 	
 	
@@ -68,20 +65,10 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 	}
 	
 	@Override
-	public void collectData() throws Exception {
-		getXmap().start();
-	}
-
-	@Override
 	public boolean requiresAsynchronousPlugins() {
 		return true;
 	}
 	
-	@Override
-	public void atCommandFailure() throws Exception {
-		getXmap().stop();
-	}
-
 	@Override
 	public List<String> getInputStreamNames() {
 		List<String> fieldNames = new ArrayList<String>();
