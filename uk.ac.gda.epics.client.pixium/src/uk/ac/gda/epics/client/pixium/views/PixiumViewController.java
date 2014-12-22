@@ -43,7 +43,7 @@ import uk.ac.gda.epics.client.views.model.FileSaverModel;
 /**
  *
  */
-public class PixiumViewController implements InitializingBean {
+public class PixiumViewController implements InitializingBean, IPixiumViewController {
 
 	private final static Logger logger = LoggerFactory.getLogger(PixiumViewController.class);
 
@@ -51,9 +51,9 @@ public class PixiumViewController implements InitializingBean {
 
 	private FileSaverModel fileSaverModel;
 	private AdBaseModel adBaseModel;
+	private PixiumModel pixiumModel;
 
 	private PixiumView pixiumView;
-	//TODO add pixium specific PVs
 	
 	private IFileSaverViewController fileSaverViewController = new IFileSaverViewController.Stub() {
 		@Override
@@ -78,6 +78,11 @@ public class PixiumViewController implements InitializingBean {
 	};
 
 	private IAdBaseViewController adbaseViewController = new IAdBaseViewController.Stub() {
+		private int numExposuresPerImage=1;
+		private int numExposuresCounter;
+		private int numImages=1;
+		private int numImagesCounter;
+
 		@Override
 		public void updateArrayCounter(int arrayCounter) {
 			pixiumView.setArrayCounter(String.valueOf(arrayCounter));
@@ -96,11 +101,18 @@ public class PixiumViewController implements InitializingBean {
 		@Override
 		public void updateNumberOfExposuresCounter(int numExposuresCounter) {
 			pixiumView.setExp(String.valueOf(numExposuresCounter));
+			if (numExposuresCounter!=0) {
+				int value=((numExposuresCounter+numExposuresPerImage*numImagesCounter)*100)/(numExposuresPerImage*numImages);
+				pixiumView.setProgressBarState(value);
+			}
 		}
 
 		@Override
 		public void updateNumberOfImagesCounter(int numImagesCounter) {
+			this.numImagesCounter=numImagesCounter;
 			pixiumView.setImg(String.valueOf(numImagesCounter));
+			int value=((numExposuresCounter+numExposuresPerImage*numImagesCounter)*100)/(numExposuresPerImage*numImages);
+			pixiumView.setProgressBarState(value);
 		}
 
 		@Override
@@ -117,6 +129,16 @@ public class PixiumViewController implements InitializingBean {
 		public void updateAcqPeriod(double acqPeriod) {
 			pixiumView.setAcqPeriod(String.valueOf(acqPeriod));
 		}
+		
+		@Override
+		public void updateNumExposures(int i) {
+			this.numExposuresPerImage=i;
+		}
+		
+		@Override
+		public void updateNumImages(int i) {
+			this.numImages=i;
+		}
 	};
 
 	public void setAcqExposure(double time) throws Exception {
@@ -124,6 +146,12 @@ public class PixiumViewController implements InitializingBean {
 	}
 	public void setAcqPeriod(double time) throws Exception {
 		adBaseModel.setAcqPeriod(time);
+	}
+	public int getNumExposuresPerImage() throws Exception {
+		return adBaseModel.getNumberOfExposuresPerImage_RBV();
+	}
+	public int getNumImages() throws Exception {
+		return adBaseModel.getNumberOfImages_RBV();
 	}
 	public AdBaseModel getAdBaseModel() {
 		return adBaseModel;
@@ -142,17 +170,19 @@ public class PixiumViewController implements InitializingBean {
 			this.fileSaverModel.registerFileSaverViewController(fileSaverViewController);
 		}
 	}
-
+	
+	public void setPixiumModel(PixiumModel pixiumModel) {
+		this.pixiumModel = pixiumModel;
+		if (this.pixiumModel != null) {
+			this.pixiumModel.registerPixiumViewController(this);
+		}
+	}
 	public FileSaverModel getFileSaverModel() {
 		return fileSaverModel;
 	}
 
 	public void updateView() {
 		// Do nothing
-	}
-
-	public String getInitialTxtReadBackCounterVal() throws Exception {
-		return String.valueOf(adBaseModel.getArrayCounter_RBV());
 	}
 
 	@Override
@@ -163,6 +193,10 @@ public class PixiumViewController implements InitializingBean {
 		if (fileSaverModel == null) {
 			throw new IllegalArgumentException("fileSaverModel needs to be defined.");
 		}
+	}
+
+	public String getInitialArrayCounterVal() throws Exception {
+		return String.valueOf(adBaseModel.getArrayCounter_RBV());
 	}
 
 	public String getInitialArrayRateVal() throws Exception {
@@ -232,12 +266,18 @@ public class PixiumViewController implements InitializingBean {
 				adbaseViewController.updateAcqExposure(adBaseModel.getAcqExposureRBV());
 				adbaseViewController.updateAcqPeriod(adBaseModel.getAcqPeriodRBV());
 				adbaseViewController.updateAcquireState(adBaseModel.getAcquireState());
+				adbaseViewController.updateNumExposures(adBaseModel.getNumberOfExposuresPerImage_RBV());
+				adbaseViewController.updateNumImages(adBaseModel.getNumberOfImages_RBV());
 				adbaseViewController.updateArrayCounter(adBaseModel.getArrayCounter_RBV());
 				adbaseViewController.updateArrayRate(adBaseModel.getArrayRate_RBV());
 				adbaseViewController.updateNumberOfExposuresCounter(adBaseModel.getNumExposuresCounter_RBV());
 				adbaseViewController.updateNumberOfImagesCounter(adBaseModel.getNumImagesCounter_RBV());
 				adbaseViewController.updateTimeRemaining(adBaseModel.getTimeRemaining_RBV());
 				adbaseViewController.updateDetectorDataType(adBaseModel.getDatatype());
+				//Pixium specific controls
+				updateCalibrationRequiredState(pixiumModel.getCalibrationRequiredState());
+				updateCalibrationRunningState(pixiumModel.getCalibrateState());
+				updatePUMode(pixiumModel.getPUMode());
 				// file saver model update
 				fileSaverViewController.updateFileSaverCaptureState(fileSaverModel.getCaptureState());
 				fileSaverViewController.updateFileSaveTimeStamp(fileSaverModel.getTimeStamp());
@@ -262,6 +302,35 @@ public class PixiumViewController implements InitializingBean {
 
 	public PixiumView getPixiumView() {
 		return pixiumView;
+	}
+
+	public PixiumModel getPixiumModel() {
+		return pixiumModel;
+	}
+
+	@Override
+	public void updateCalibrationRequiredState(short requiredState) {
+		pixiumView.setCalibrationRequiredState(requiredState);		
+	}
+	@Override
+	public void updatePUMode(int mode) {
+		pixiumView.setPUMode(mode);
+	}
+	@Override
+	public void updateCalibrationRunningState(short runningState) {
+		pixiumView.setCalibrationRunningState(runningState);
+	}
+	public void startCalibration() throws Exception {
+		pixiumModel.calibrate();
+	}
+	public void stopCalibration() throws Exception {
+		pixiumModel.stop();
+	}
+	public void setPUMode(int puModeID) throws Exception {
+		pixiumModel.setPUMode(puModeID);		
+	}
+	public int getPUMode() throws Exception {
+		return pixiumModel.getPUMode();		
 	}
 
 }

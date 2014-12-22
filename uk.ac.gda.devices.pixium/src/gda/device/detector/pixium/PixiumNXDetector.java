@@ -61,32 +61,6 @@ public class PixiumNXDetector extends NXDetector implements IPixiumNXDetector {
 	static final Logger logger = LoggerFactory.getLogger(PixiumNXDetector.class);
 	
 	
-	private static final String EARLY_FRAMES = "MotionBlur";
-	private static final String EARLY_FRAMES_RBV = EARLY_FRAMES;
-	
-	private static final String BASE_EXPOSURE = "AcquireTime";
-	private static final String BASE_EXPOSURE_RBV = "AcquireTime_RBV";
-	
-	private static final String BASE_ACQUIRE_PERIOD = "AcquirePeriod";
-	private static final String BASE_ACQUIRE_PERIOD_RBV = "AcquirePeriod_RBV";
-
-	private static final String EXPOSURES_PER_IMAGE = "NumExposures";
-	private static final String EXPOSURES_PER_IMAGE_RBV = "NumExposures_RBV";
-	
-	private static final String NUM_IMAGES = "NumImages";
-	private static final String NUM_IMAGES_RBV = "NumImages_RBV";
-	
-	private static final String PU_MODE = "PuMode";
-	private static final String PU_MODE_RBV = "PuMode_RBV";
-	
-	
-	private static final String DETECTOR_STATE_RBV = "DetectorState_RBV";
-	
-	private static final String ACQUIRE = "Acquire";
-	
-	private static final String CALIBRATE = "Calibrate";
-	private static final String CALIBRATE_RBV = "Calibrate_RBV";
-	
 	private CachedLazyPVFactory dev;
 	private String prefix;
 	private List<String> earlyFramesTranslatn = new Vector<String>();
