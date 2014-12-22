@@ -194,7 +194,9 @@ public class DataReductionScannable extends DummyScannable implements Scannable,
 	public void setCurrentCalibrantDataFilename(String calibrantFilename) {
 		Current_Calibrant_Data_Filename = calibrantFilename;
 		try {
-			currentCalibrationScannable.moveTo(calibrantFilename);
+			if (isCalibrant()) {
+				currentCalibrationScannable.moveTo(calibrantFilename);
+			}
 		} catch (DeviceException e) {
 			logger.error("failed to set the data file name for the current calibration scannable to {}", calibrantFilename);
 		}
