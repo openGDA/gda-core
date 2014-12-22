@@ -3,10 +3,15 @@ package org.opengda.lde.experiments;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
+import gda.device.scannable.scannablegroup.corba.impl.ScannablegroupAdapter;
+import gda.device.scannable.scannablegroup.corba.impl.ScannablegroupImpl;
+import gda.factory.corba.util.CorbaAdapterClass;
+import gda.factory.corba.util.CorbaImplClass;
 
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.springframework.beans.factory.InitializingBean;
-
+@CorbaAdapterClass(ScannablegroupAdapter.class)
+@CorbaImplClass(ScannablegroupImpl.class)
 public class SampleStage extends ScannableGroup implements InitializingBean {
 	private double parkPosition = -400.0;
 	private double engagePosition = 0.0;
