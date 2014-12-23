@@ -16,6 +16,7 @@ public class SampleStage extends ScannableGroup implements InitializingBean {
 	private double parkPosition = -400.0;
 	private double engagePosition = 0.0;
 	private double positionTolerance=0.001;
+	//the fixed offset of sample stage in Z direction reference to the Z-zero position of the detector 
 	private double zPosition;
 	private boolean samplesProcessed=false;
 	private boolean detectorCalibrated;
@@ -29,7 +30,11 @@ public class SampleStage extends ScannableGroup implements InitializingBean {
 	}
 
 	public Scannable getRotationMotor() {
-		return this.getGroupMember(getName() + "rot");
+		Scannable groupMember = this.getGroupMember(getName() + "rot");
+		if (groupMember==null) {
+			throw new IllegalArgumentException("No rotation motor in the group '"+getName()+"'.");
+		}
+		return groupMember;
 	}
 
 	public void parkStage() throws DeviceException {
@@ -96,7 +101,11 @@ public class SampleStage extends ScannableGroup implements InitializingBean {
 		this.samplesProcessed = samplesProcessed;
 	}
 
-	public double getzPosition() {
+	public double getzPosition() throws DeviceException {
+		Scannable groupMember = this.getGroupMember(getName() + "ztop");
+		if (groupMember!=null) {
+			return zPosition+Double.valueOf(groupMember.getPosition().toString());
+		}
 		return zPosition;
 	}
 
