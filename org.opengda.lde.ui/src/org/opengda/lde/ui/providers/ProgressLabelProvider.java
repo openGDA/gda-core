@@ -61,18 +61,16 @@ public class ProgressLabelProvider extends OwnerDrawLabelProvider implements
 				return;
 			}
 		}
-//		if (element == tableViewer.getSelection()) {
+		if (currentSample==null || (Sample)element == currentSample) {
+			//enable active sample display 0% on activation, but only update progress for the sample in collection.
 
-			// Calculate Percentage
 			int percentage = (completedUnits * 100 / totalUnits);
 
 			Color foreground = event.gc.getForeground();
 			Color background = event.gc.getBackground();
 			event.gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 			event.gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
-
 			Rectangle bounds = ((TableItem) event.item).getBounds(event.index);
-
 			int width = (bounds.width - 1) * percentage / 100;
 			event.gc.fillGradientRectangle(event.x, event.y, width,event.height, true);
 			Rectangle rect2 = new Rectangle(event.x, event.y, width - 1,event.height - 1);
@@ -85,7 +83,7 @@ public class ProgressLabelProvider extends OwnerDrawLabelProvider implements
 
 			event.gc.setForeground(background);
 			event.gc.setBackground(foreground);
-//		}
+		}
 	}
 
 	@Override
@@ -104,14 +102,19 @@ public class ProgressLabelProvider extends OwnerDrawLabelProvider implements
 				completedUnits = (int) ((ScanPointStartEvent) arg).getCurrentPointNumber();
 			} else if (arg instanceof SampleStatusEvent) {
 				SampleStatusEvent event=(SampleStatusEvent)arg;
-				for (Sample sample : samples) {
-					if (sample.getSampleID().equalsIgnoreCase(event.getSampleID())){
-						currentSample=sample;
+				STATUS status = event.getStatus();
+				if (status==STATUS.RUNNING) {
+					for (Sample sample : samples) {
+						if (sample.getSampleID().equalsIgnoreCase(event.getSampleID())){
+							currentSample=sample;
+						}
 					}
-				}
-				if (event.getStatus()==STATUS.READY) {
+				} else if (status==STATUS.READY) {
 					//reset progress percentage at start of collection
 					completedUnits=0;
+					currentSample=null;
+				} else if (status==STATUS.COMPLETED) {
+					completedUnits=totalUnits;
 				}
 			}
 		}
