@@ -567,7 +567,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 						txtSamplename.setText(currentSampleName);
 						txtTotalNumberCollections.setText(String.valueOf(totalNumberActiveSamples+totalNumberCalibrations));
 						updateCollectionNumber(currentSampleNumber+currentCalibrationNumber,totalNumberActiveSamples+totalNumberCalibrations);
-						
+						progressBar.setSelection(((currentSampleNumber+currentCalibrationNumber)*100)/(totalNumberActiveSamples+totalNumberCalibrations));
 					}
 				});
 			} else if (arg instanceof SampleChangedEvent) {
