@@ -142,6 +142,10 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	protected Channel hlm = null; // User High Limit .HLM, FLOAT
 
 	protected Channel llm = null; // User Lower Limit .LLM, FLOAT
+	
+	protected Channel hls;
+
+	protected Channel lls;
 
 	protected Channel dhlm;
 
@@ -193,6 +197,13 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 */
 	protected LVIOMonitorListener lvioMonitor;
 
+	/**
+	* Monitors for the limit switch states .LLS and .HLS
+	*/
+	protected LLSMonitorListener lowLimitStateMonitor;
+	protected HLSMonitorListener highLimitStateMonitor;
+	
+	
 	protected Channel setPv;
 	protected SetUseMonitorListener setUseListener;
 	
@@ -276,6 +287,8 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		putCallbackListener = new PutCallbackListener();
 		highLimitMonitor = new HLMMonitorListener();
 		lowLimitMonitor = new LLMMonitorListener();
+		highLimitStateMonitor = new HLSMonitorListener();
+		lowLimitStateMonitor = new LLSMonitorListener();
 		dialHighLimitMonitor = new DHLMMonitorListener();
 		dialLowLimitMonitor = new DLLMMonitorListener();
 		lvioMonitor = new LVIOMonitorListener();
@@ -298,6 +311,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	}
 
 	protected EpicsConfiguration epicsConfiguration;
+
 
 	/**
 	 * Sets the EpicsConfiguration to use when looking up PV from deviceName.
@@ -407,6 +421,8 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 			lvio = channelManager.createChannel(pvName + ".LVIO");
 			hlm = channelManager.createChannel(pvName + ".HLM", highLimitMonitor, false);
 			llm = channelManager.createChannel(pvName + ".LLM", lowLimitMonitor, false);
+			hls = channelManager.createChannel(pvName + ".HLS", highLimitStateMonitor, false);
+			lls = channelManager.createChannel(pvName + ".LLS", lowLimitStateMonitor, false);
 			dhlm = channelManager.createChannel(pvName + ".DHLM", dialHighLimitMonitor, false);
 			dllm = channelManager.createChannel(pvName + ".DLLM", dialLowLimitMonitor,false);
 			homf = channelManager.createChannel(pvName + ".HOMF", false);
@@ -1184,7 +1200,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		} else if ((lmsta & MSTA_LOWER_LIMIT) != 0) {
 			status = MotorStatus.LOWERLIMIT;
 			if (!lastMotorStatus.equals(status))
-				logger.warn("Motor - {} is at " + (status.equals(MotorStatus.LOWERLIMIT) ? "LOWERLIMIT." : "UPPERLIMIT"), getName());
+				logger.warn("Motor - {} is at LOWERLIMIT.", getName());
 		} else if ((lmsta & MSTA_DONE) != 0) {
 			status = MotorStatus.READY;
 			if (!lastMotorStatus.equals(status))
@@ -1457,7 +1473,41 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		}
 	}
 	
+	/**
+		 * update upper dial alarm when and if it changes in EPICS.
+		 */
+		private class HLSMonitorListener implements MonitorListener {
+			@Override
+			public void monitorChanged(MonitorEvent mev) {
+				DBR dbr = mev.getDBR();
+				if (dbr.isSHORT()) {
+					short value = ((DBR_Short) dbr).getShortValue()[0];
+					if (value == 1) {
+						set_motorStatus(MotorStatus.UPPERLIMIT);
+					}
+				} else {
+					logger.error("Error: expecting Int type but got " + dbr.getType() + " type.");
+				}
+			}
+		}
 	
+		/**
+		 * update lower dial alarm when and if it changes in EPICS.
+		 */
+		private class LLSMonitorListener implements MonitorListener {
+			@Override
+			public void monitorChanged(MonitorEvent mev) {
+				DBR dbr = mev.getDBR();
+				if (dbr.isSHORT()) {
+					short value = ((DBR_Short) dbr).getShortValue()[0];
+					if (value == 1) {
+						set_motorStatus(MotorStatus.LOWERLIMIT);
+					}
+				} else {
+					logger.error("Error: expecting Int type but got " + dbr.getType() + " type.");
+				}
+			}
+	}	
 	/**
 	 * updates limit violation status from EPICS.
 	 */
