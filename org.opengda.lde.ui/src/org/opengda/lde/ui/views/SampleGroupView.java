@@ -375,6 +375,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		
 		progressBar = new ProgressBar(grpDataCollectionProgress, SWT.NONE);
 		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,false, 4, 1));
+		progressBar.setMaximum(100);
+		progressBar.setMinimum(0);
 		
 		Label lblProgressMessage = new Label(grpDataCollectionProgress,SWT.NONE);
 		lblProgressMessage.setText("Progress Message:");
@@ -565,6 +567,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 						txtSamplename.setText(currentSampleName);
 						txtTotalNumberCollections.setText(String.valueOf(totalNumberActiveSamples+totalNumberCalibrations));
 						updateCollectionNumber(currentSampleNumber+currentCalibrationNumber,totalNumberActiveSamples+totalNumberCalibrations);
+						
 					}
 				});
 			} else if (arg instanceof SampleChangedEvent) {
