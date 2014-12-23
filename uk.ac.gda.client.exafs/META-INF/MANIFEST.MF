@@ -48,8 +48,7 @@ Import-Package: gda.jscience.physics.quantities,
  org.slf4j;version="[1.7.6,1.7.7)",
  org.springframework.util;version="3.0.4",
  uk.ac.diamond.scisoft.spectroscopy.rcp,
- uk.ac.diamond.scisoft.spectroscopy.rcp.preferences,
- uk.ac.gda.devices.detector.xspress3
+ uk.ac.diamond.scisoft.spectroscopy.rcp.preferences
 Require-Bundle: uk.ac.diamond.scisoft.deprecated.rcp;bundle-version="1.3.0",
  uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.common.rcp;bundle-version="1.0.0",
