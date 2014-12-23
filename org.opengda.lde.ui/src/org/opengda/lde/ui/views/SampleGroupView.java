@@ -200,6 +200,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	protected int nameCount;
 	private String eventAdminName;
 	private Scriptcontroller eventAdmin;
+	private int numActiveSamples;
 	
 	/**
 	 * The constructor.
@@ -400,6 +401,19 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 		updateActionIconsState();
 	}
+	
+	private void updateNumberActiveSamples() {
+		int numActives = 0;
+		if (!samples.isEmpty()) {
+			for (Sample sample : samples) {
+				if (sample.isActive()) {
+					numActives++;
+				}
+			}
+		}
+		txtActivesamples.setText(String.format("%d", numActives));
+		this.numActiveSamples=numActives;
+	}
 
 	private void initialisation() {
 		try {
@@ -432,12 +446,9 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		
 		viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new ViewerDragAdapter(viewer));
 		viewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new EditingDomainViewerDropAdapter(editingDomain, viewer));
-
-//		progressColumn = new TableViewerColumn(viewer, table.getColumn(0));
+		updateNumberActiveSamples();
 		
 		progressColumn= new TableViewerColumn(viewer, viewer.getTable().getColumn(1));
-//		progressColumn.getColumn().setText("Progress");
-//		progressColumn.getColumn().setWidth(150);
 		ProgressLabelProvider progressLabelProvider = new ProgressLabelProvider(viewer, samples);
 		
 		if (getEventAdminName()!=null) {
@@ -1143,6 +1154,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 					} catch (Exception e) {
 						logger.error("Exception on setting "+SampleTableConstants.ACTIVE+" field for sample "+((Sample)element).getName(), e);
 					}
+					updateNumberActiveSamples();
 				}
 			} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
 				if (value instanceof String) {
