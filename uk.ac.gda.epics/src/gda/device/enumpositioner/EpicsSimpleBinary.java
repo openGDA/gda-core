@@ -36,6 +36,7 @@ import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
+import gov.aps.jca.dbr.DBR_STS_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
@@ -157,6 +158,9 @@ public class EpicsSimpleBinary extends ScannableBase implements EnumPositioner, 
 		DBR dbr = arg0.getDBR();
 		if (dbr.isENUM()) {
 			int dmovValue = ((DBR_Enum) dbr).getEnumValue()[0];
+			this.notifyIObservers(this, dmovValue);
+		} else if (dbr.isSTS()) {
+			int dmovValue = ((DBR_STS_Enum) dbr).getEnumValue()[0];
 			this.notifyIObservers(this, dmovValue);
 		} else {
 			logger.error("errorwith MonitorEvent from" + epicsRecordName + "should return ENUM type value.");
