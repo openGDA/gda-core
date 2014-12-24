@@ -4,6 +4,7 @@ import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.scannable.DummyScannable;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
@@ -41,8 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 public class DataCollection extends ScriptBase implements IObserver, InitializingBean, Findable, Configurable {
-	private static final Logger logger = LoggerFactory
-			.getLogger(DataCollection.class);
+	private static final Logger logger = LoggerFactory.getLogger(DataCollection.class);
 	private ArrayList<SampleStage> stages = new ArrayList<SampleStage>();
 	private MultiMap<String, List<Sample>> stageActiveSamplesMap = new MultiValueMap<String, List<Sample>>();
 	private List<Sample> samples = new ArrayList<Sample>();
@@ -65,8 +65,11 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	private int numCalibrations;
 	private int currentCalibrationNumber;
 	private Sample currentSample;
-
-
+	/**
+	 * blocking move to park all stages in their safe positions. It only returns after all stages are parked.
+	 * @throws DeviceException
+	 * @throws InterruptedException
+	 */
 	public void parkAllStages() throws DeviceException, InterruptedException {
 		String message = "Parking all stages...";
 		updateMessage(null, message);
@@ -94,7 +97,11 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		message="All stages are parked.";
 		updateMessage(null, message);
 	}
-
+	/**
+	 * blocking move to engage vacuum pipe in the X-ray beam for the specified stage.
+	 * @param stage
+	 * @throws DeviceException
+	 */
 	public void engageStage(SampleStage stage) throws DeviceException {
 		String message = "Engage stage '" + stage.getName()+ "' ...";
 		updateMessage(null, message);
@@ -105,27 +112,57 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		message = "Stage " + stage.getName() + " is engaged.";
 		updateMessage(null, message);
 	}
+	/**
+	 * start LDE data collection.
+	 * Data collection starts with all stages in parking position, proceed from 1st stage and move down 
+	 * the X-ray beam direction, collect diffraction data from all samples on these stages along with 
+	 * detector calibration for each of the stages having samples installed. 
+	 * @param filename - the file containing a list of samples to be collected.
+	 * @throws InterruptedException
+	 */
 	public void collectData(String filename) throws InterruptedException {
 		prepareDataCollection(filename);
 		processStages();
+		completeDataCollection();
+	}
+	
+	private void completeDataCollection() {
+		stageActiveSamplesMap.clear();
+		samples.clear();
 	}
 
+	/**
+	 * pause data collection after current sample.
+	 * This does NOT pause current sample collection if it already started. 
+	 */
 	public void pause() {
 		String message="Pause current data collection.";
 		updateMessage(null, message);
 		setPaused(true);
+		//pause the current scan used to collect data for current sample.
+		InterfaceProvider.getCurrentScanController().pauseCurrentScan();
+//		InterfaceProvider.getScriptController().pauseCurrentScript();
 		if (eventAdmin!=null && currentSample!=null) {
 			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(currentSample.getSampleID(), STATUS.PAUSED));
 		}
 	}
+	/**
+	 * resume data collection for next sample.
+	 */
 	public void resume() {
 		String message="Resume current data collection.";
 		updateMessage(null, message);
 		setPaused(false);
+		//resume the current scan used to collect data for current sample.
+		InterfaceProvider.getCurrentScanController().resumeCurrentScan();
+//		InterfaceProvider.getScriptController().resumeCurrentScript();
 		if (eventAdmin!=null && currentSample!=null) {
 			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(currentSample.getSampleID(), STATUS.RUNNING));
 		}
 	}
+	/**
+	 * skip data collection for current sample or detector calibration, i.e. request early finish.
+	 */
 	public void skip() {
 		String message;
 		int scanStatus = InterfaceProvider.getScanStatusHolder().getScanStatus();
@@ -147,12 +184,13 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		}
 	}
 	/**
-	 * load the samples from experiment definition file, group active or selected samples into stages, and ensure all stages are in safe positions. 
+	 * prepare for data collection, load the samples from experiment definition file, 
+	 * group active or selected samples into stages, and ensure all stages are in safe positions. 
 	 * @param filename
 	 * @throws InterruptedException 
 	 */
-	public void prepareDataCollection(String filename) throws InterruptedException {
-		String message="Prepare data collection ...";
+	private void prepareDataCollection(String filename) throws InterruptedException {
+		String message="Prepare data collection run...";
 		updateMessage(null, message);
 		stageActiveSamplesMap.clear();
 		numActiveSamples = 0;
@@ -250,12 +288,13 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		updateMessage(null, message);
 	}
 	/**
-	 * process samples on each stage in order, engage the stage when its samples are processed or it has no samples except the last stage.
+	 * process samples on each stage in order, engage the stage when its samples are processed or it has no samples 
+	 * except the last stage.
 	 * @throws InterruptedException 
 	 */
-	public void processStages() throws InterruptedException {
+	private void processStages() throws InterruptedException {
 		checkForPauseAndInterruption();
-		String message="Processing sample stages down the beam direction ...";
+		String message="Processing each of the sample stages down the X-ray beam direction ...";
 		for (SampleStage stage : getStages()) {
 			@SuppressWarnings("unchecked")
 			List<Sample> samples = (List<Sample>) stageActiveSamplesMap.get(stage.getName());
@@ -264,8 +303,8 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 				processSamples(stage);
 			}
 			checkForPauseAndInterruption();
-			if (stage != getStages().get(getStages().size() - 1)) {
-				//engage the stage if it is not the last stage down the beam.
+			if (stage != getStages().get(getStages().size() - 1) || stage != stages.get(0)) {
+				//do not need to engage the last and first stages.
 				try {
 					engageStage(stage);
 				} catch (DeviceException e) {
@@ -306,8 +345,8 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		updateMessage(null, message);
 	}
 	/**
-	 * process samples a a stage:
-	 * 1st move detector in position relative to the satge;
+	 * process samples on the specified stage:
+	 * 1st move detector in position relative to the stage;
 	 * 2nd do detector calibration with the calibrant on the stage;
 	 * 3rd do diffraction collection for all samples on the stage.
 	 * @param stage
@@ -319,7 +358,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		doSampleDataCollection(stage);
 	}
 	/**
-	 * Only support one position per stage - all samples and calibrant on the stage must have the same distance from the detector.
+	 * Only support one position per stage - all samples and calibrant on the stage <b>must</b> have the same distance from the detector.
 	 * @param stage
 	 * @throws InterruptedException 
 	 */
@@ -333,7 +372,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		for (Sample sample : samples) {
 			if (sample.getDetector_z() != sampleDetectorZPosition) {
 				//TODO current here does not support samples on the stage having different distance from the detector. 
-				message= "All samples on one the stage '"+stage.getName()+"' must have the same distance from the detector";
+				message= "All samples on the same stage '"+stage.getName()+"' must have the same distance from the detector";
 				updateMessage(null, message);
 				throw new IllegalStateException(message);
 			}
@@ -423,6 +462,8 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 				message="Failed to set calibrant name to '"+calibrant+"' for stage '"+stage.getName()+"'.";
 				updateMessage(e, message);
 			}
+		} else {
+			throw new IllegalStateException("Missing calibrant name scannable.");
 		}
 		checkForPauseAndInterruption();
 		currentCalibrationNumber++;
@@ -459,11 +500,17 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		InterfaceProvider.getJSFObserver().addIObserver(this);
 		checkForPauseAndInterruption();
 		try {
-			if (getDatareduction() instanceof DataReductionScannable) {
-				((DataReductionScannable)getDatareduction()).setCalibrant(true);
+			if (getDatareduction()!= null){
+				if (getDatareduction() instanceof DataReductionScannable) {
+					((DataReductionScannable)getDatareduction()).setCalibrant(true);
+				}
+				logger.info("collect diffraction data from {} with request for post collection data reduction on cluster.", getCalibrantNameScannable().getName());
+				ScannableCommands.scan(getDatareduction(), 1,1,1, getPixium(), currentSample.getCalibrant_exposure());
+				stage.setDetectorCalibrated(true);
+			} else {
+				logger.info("collect diffraction data from {} without data reduction post processing.", getCalibrantNameScannable().getName());
+				ScannableCommands.scan(new DummyScannable("ds"), 1,1,1, getPixium(), currentSample.getCalibrant_exposure());
 			}
-			ScannableCommands.scan(getDatareduction(), 1,1,1, getPixium(), currentSample.getCalibrant_exposure());
-			stage.setDetectorCalibrated(true);
 		} catch (Exception e) {
 			message="Scan failed during calibrant diffraction collection: "+e.getMessage();
 			updateMessage(e, message);
@@ -508,7 +555,6 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	public void setBeamlineID(String beamlineID) {
 		this.beamlineID = beamlineID;
 	}
-
 
 	private void doSampleDataCollection(SampleStage stage) throws InterruptedException {
 		String message="Starting diffraction data collection for samples on stage '"+stage.getName()+"'...";
@@ -567,11 +613,16 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			scanparameters.add(pixium);
 			double sample_exposure = sample.getSample_exposure();
 			scanparameters.add(sample_exposure);
-			if (getDatareduction() instanceof DataReductionScannable) {
-				((DataReductionScannable)getDatareduction()).setCalibrant(false);
-				((DataReductionScannable)getDatareduction()).setSampleID(sample.getSampleID());
+			if (datareduction != null) {
+				if (getDatareduction() instanceof DataReductionScannable) {
+					((DataReductionScannable)getDatareduction()).setCalibrant(false);
+					((DataReductionScannable)getDatareduction()).setSampleID(sample.getSampleID());
+				}
+				scanparameters.add(datareduction);
+				logger.info("collect diffraction data from sample {} with request for post collection data reduction on cluster.", sample.getName());
+			} else {
+				logger.info("collect diffraction data from sample {} without post collection data reduction.", sample.getName());
 			}
-			scanparameters.add(datareduction);
 			//set data directory
 			LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, getDataDirectory(sample));
 			checkForPauseAndInterruption();
