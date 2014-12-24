@@ -147,12 +147,23 @@ public class Application implements IApplication {
 
 		} catch (Throwable ne) {
 			logger.error("Cannot start client", ne);
+			String problem = ne.getMessage();
+			String resolution = "Please contact your GDA support representative.";
+			if (problem.contains("Could not initialise NetService: org.omg.CORBA.TRANSIENT")) {
+				resolution = "It is likely that the server hardware has been updated and GDA server has not been started since. "
+						+ "The usual remedy is to Restart GDA Server from the panel (or 'gdaservers' in a terminal)."
+						+ "\n\nIf the problem cannot be remedied, please contact your GDA support representative.";
+			}
+			else if (problem.contains("NetService: init org.omg.CORBA.ORBPackage.InvalidName")) {
+				resolution = "It is likely that the existing workspace is incompatible with an updated client. "
+						+ "The usual remedy is to start GDA client from a terminal with 'gdaclient --reset'."
+						+ "\n\nIf the problem cannot be remedied, please contact your GDA support representative.";
+			}
 			MessageDialog
 			.openError(
 					new Shell(display),
 					"Cannot Start Client",
-					"The GDA Client cannot start.\n\nPlease contact your GDA support representative.\n\n'"
-							+ ne.getMessage() + "'");
+					"The GDA Client cannot start.\n\n'" + problem + "'\n\n" + resolution);
 			return EXIT_OK;
 
 		} finally {
