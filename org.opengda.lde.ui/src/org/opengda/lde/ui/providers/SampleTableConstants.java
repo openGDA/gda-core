@@ -49,7 +49,7 @@ public interface SampleTableConstants {
 	static final String SAMPLE_EXPOSURE= "Sample\nExposure";
 	static final String DETECTOR_X= "Detector\nX";
 	static final String DETECTOR_Y= "Detector\nY";
-	static final String DETECTOR_Z= "Detector\nZ";
+	static final String DETECTOR_Z= "Detector\nZ relative";
 	static final String EMAIL = "Email";
 	static final String START_DATE = "Start Date";
 	static final String END_DATE = "End Date";
