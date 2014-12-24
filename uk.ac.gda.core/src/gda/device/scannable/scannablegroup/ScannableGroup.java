@@ -252,6 +252,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
+		//TODO must check if the number of inputs match with number of members
 		Vector<Double[]> targets = extractPositionsFromObject(position);
 
 		// send out moves
