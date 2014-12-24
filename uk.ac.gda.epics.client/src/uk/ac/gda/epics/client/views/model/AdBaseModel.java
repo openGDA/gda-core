@@ -77,4 +77,8 @@ public interface AdBaseModel {
 
 	void setAcqPeriod(double periodTime) throws Exception;
 
+	int getNumberOfExposuresPerImage_RBV() throws Exception;
+
+	int getNumberOfImages_RBV() throws Exception;
+
 }
