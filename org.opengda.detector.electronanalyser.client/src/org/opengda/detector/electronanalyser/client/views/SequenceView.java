@@ -6,6 +6,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableStatus;
 import gda.epics.connection.EpicsChannelManager;
+import gda.epics.connection.EpicsController;
 import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
 import gda.factory.Finder;
@@ -85,10 +86,13 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -206,6 +210,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private int totalNumberOfPoints;
 	private int crrentRegionNumber;
 	private Text txtScanNumberValue;
+	private Composite hardShutterState;
+	private Button btnSoftShutter;
+	private Composite softShutterState;
 	
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
@@ -315,7 +322,102 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		Composite controlArea = new Composite(rootComposite, SWT.None);
 		controlArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		controlArea.setLayout(new GridLayout(3, false));
-
+		
+		if (getHardShutterPV()!=null || getSoftShutterPV()!=null) {
+			Group grpShutters=new Group(controlArea, SWT.BORDER);
+			GridData gd_grpShuuters = new GridData(GridData.FILL_HORIZONTAL);
+			gd_grpShuuters.horizontalSpan=3;
+			gd_grpShuuters.grabExcessHorizontalSpace = true;
+			grpShutters.setLayoutData(gd_grpShuuters);
+			grpShutters.setText("Fast Shutters");
+			if (getHardShutterPV()!=null && getSoftShutterPV()!=null) {
+				grpShutters.setLayout(new GridLayout(6, false));
+			} else {
+				grpShutters.setLayout(new GridLayout(3, false));
+			}
+			if (getHardShutterPV()!=null) {
+				Label lblHardXray=new Label(grpShutters, SWT.None);
+				lblHardXray.setText("Hard X-Ray: ");
+				
+				btnHardShutter = new Button(grpShutters, SWT.PUSH);
+				btnHardShutter.setText("Close");
+				btnHardShutter.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent event) {
+						if (event.getSource()==btnHardShutter) {
+							if (btnHardShutter.getText().equalsIgnoreCase("Open")) {
+								try {
+									EpicsController.getInstance().caput(hardShutterChannel, 0);
+								} catch (CAException | InterruptedException e) {
+									logger.error("Failed to open fast shutter for hard X-ray",e);
+								}
+							} else if (btnHardShutter.getText().equalsIgnoreCase("Close")) {
+								try {
+									EpicsController.getInstance().caput(hardShutterChannel, 1);
+								} catch (CAException | InterruptedException e) {
+									logger.error("Failed to close fast shutter for hard X-ray",e);
+								}
+							}
+						}
+					}
+				});
+				/* Composite to contain the status composite so that a border can be displayed. */
+				GridData fillHorizontalGD = new GridData();
+				Composite borderComposite =  new Composite(grpShutters, SWT.NONE);
+				borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+				FillLayout fillLayout = new FillLayout();
+				fillLayout.marginWidth = 2;
+				fillLayout.marginHeight = 2;
+				borderComposite.setLayout(fillLayout);
+				fillHorizontalGD.horizontalIndent = 3;
+				fillHorizontalGD.widthHint = 20;
+				fillHorizontalGD.heightHint = 20;
+				borderComposite.setLayoutData(fillHorizontalGD);
+		
+				hardShutterState = new Composite(borderComposite, SWT.FILL);
+			}
+			if (getSoftShutterPV()!=null) {
+				Label lblSoftXray=new Label(grpShutters, SWT.None);
+				lblSoftXray.setText("Soft X-Ray: ");
+				
+				btnSoftShutter = new Button(grpShutters, SWT.PUSH);
+				btnSoftShutter.setText("CLose");
+				btnSoftShutter.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent event) {
+						if (event.getSource()==btnSoftShutter) {
+							if (btnSoftShutter.getText().equalsIgnoreCase("Open")) {
+								try {
+									EpicsController.getInstance().caput(softShutterChannel, 0);
+								} catch (CAException | InterruptedException e) {
+									logger.error("Failed to open fast shutter for soft X-ray",e);
+								}
+							} else if (btnSoftShutter.getText().equalsIgnoreCase("Close")) {
+								try {
+									EpicsController.getInstance().caput(softShutterChannel, 1);
+								} catch (CAException | InterruptedException e) {
+									logger.error("Failed to close fast shutter for soft X-ray",e);
+								}
+							}
+						}
+					}
+				});
+				/* Composite to contain the status composite so that a border can be displayed. */
+				GridData fillHorizontalGD = new GridData();
+				Composite borderComposite = new Composite(grpShutters, SWT.NONE);
+				borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+				FillLayout fillLayout = new FillLayout();
+				fillLayout.marginWidth = 2;
+				fillLayout.marginHeight = 2;
+				borderComposite.setLayout(fillLayout);
+				fillHorizontalGD.horizontalIndent = 3;
+				fillHorizontalGD.widthHint = 20;
+				fillHorizontalGD.heightHint = 20;
+				borderComposite.setLayoutData(fillHorizontalGD);
+		
+				softShutterState = new Composite(borderComposite, SWT.FILL);
+			}
+		}
 		Group grpElementset = new Group(controlArea, SWT.NONE);
 		GridData gd_grpElementset = new GridData(GridData.FILL_HORIZONTAL);
 		gd_grpElementset.grabExcessHorizontalSpace = false;
@@ -465,7 +567,28 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		hookContextMenu();
 		contributeToActionBars();
 	}
+	
+	private void setShutterState(Composite shutterState,int status) {
+		setColourControl(shutterState, status, SWT.COLOR_WHITE, SWT.COLOR_DARK_GREEN);
+	}
 
+	private void setColourControl(final Control control, final int statusInt, final int openColour,
+			final int closeColour) {
+		if (control != null && !control.isDisposed()) {
+			control.getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					if (!control.isDisposed()) {
+						if (statusInt == 0) {
+							control.setBackground(control.getDisplay().getSystemColor(openColour));
+						} else if (statusInt == 1) {
+							control.setBackground(control.getDisplay().getSystemColor(closeColour));
+						}
+					}
+				}
+			});
+		}
+	}
 	private void updateRegionNumber(int currentRegionNumber, int totalActiveRegions) {
 		txtRegionValue.setText(String.valueOf(currentRegionNumber) + '/'+ String.valueOf(totalActiveRegions));
 	}
@@ -714,12 +837,19 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private AnalyserStateListener analyserStateListener;
 	private AnalyserTotalTimeRemainingListener analyserTotalTimeRemainingListener;
+	private SoftShutterStateListener softShutterStateListener;
+	private HardShutterStateListener hardShutterStateListener;
 	
 	private String analyserStatePV;
 	private String analyserTotalTimeRemianingPV;
+	private String hardShutterPV;
+	private String softShutterPV;
+	
 
 	private Channel analyserStateChannel;
 	private Channel analyserTotalTimeRemainingChannel;
+	private Channel hardShutterChannel;
+	private Channel softShutterChannel;
 	
 	private EpicsChannelManager channelmanager;
 
@@ -817,6 +947,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		channelmanager = new EpicsChannelManager(this);
 		analyserStateListener = new AnalyserStateListener();
 		analyserTotalTimeRemainingListener=new AnalyserTotalTimeRemainingListener();
+		hardShutterStateListener=new HardShutterStateListener();
+		softShutterStateListener=new SoftShutterStateListener();
 		try {
 			createChannels();
 		} catch (CAException | TimeoutException e1) {
@@ -856,8 +988,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	private void createChannels() throws CAException, TimeoutException {
 		first = true;
-		analyserStateChannel = channelmanager.createChannel(getDetectorStatePV(), analyserStateListener, MonitorType.NATIVE, false);
-		analyserTotalTimeRemainingChannel=channelmanager.createChannel(getAnalyserTotalTimeRemianingPV(), analyserTotalTimeRemainingListener,MonitorType.NATIVE, false);
+		if (getDetectorStatePV()!=null) {
+			analyserStateChannel = channelmanager.createChannel(getDetectorStatePV(), analyserStateListener, MonitorType.NATIVE, false);
+		}
+		if (getAnalyserTotalTimeRemianingPV()!=null) {
+			analyserTotalTimeRemainingChannel=channelmanager.createChannel(getAnalyserTotalTimeRemianingPV(), analyserTotalTimeRemainingListener,MonitorType.NATIVE, false);
+		}
+		if (getHardShutterPV()!=null) {
+			hardShutterChannel=channelmanager.createChannel(getHardShutterPV(), hardShutterStateListener,MonitorType.NATIVE, false);
+		}
+		if (getSoftShutterPV()!=null) {
+			softShutterChannel=channelmanager.createChannel(getSoftShutterPV(), softShutterStateListener,MonitorType.NATIVE, false);
+		}
 		channelmanager.creationPhaseCompleted();
 		logger.debug("analyser state channel and monitor are created");
 	}
@@ -1470,6 +1612,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Scannable dcmenergy;
 	private Scannable pgmenergy;
 	private RegionValidator regionValidator;
+	private Button btnHardShutter;
 	
 	private class AnalyserTotalTimeRemainingListener implements MonitorListener {
 
@@ -1551,10 +1694,57 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		}
 	}
+	
+	private class HardShutterStateListener implements MonitorListener {
 
+		@Override
+		public void monitorChanged(final MonitorEvent arg0) {
+			DBR dbr = arg0.getDBR();
+			short state = 0;
+			if (dbr.isENUM()) {
+				state = ((DBR_Enum) dbr).getEnumValue()[0];
+				setShutterState(hardShutterState,state);
+				setShutterControlButtonText(btnHardShutter, state);
+			}
+		}
+	}
+
+	private class SoftShutterStateListener implements MonitorListener {
+
+		@Override
+		public void monitorChanged(final MonitorEvent arg0) {
+			DBR dbr = arg0.getDBR();
+			short state = 0;
+			if (dbr.isENUM()) {
+				state = ((DBR_Enum) dbr).getEnumValue()[0];
+				setShutterState(softShutterState,state);
+				setShutterControlButtonText(btnSoftShutter, state);
+			}
+		}
+	}
 	@Override
 	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
 		logger.debug("EPICS channel {} initialisation completed.", getDetectorStatePV());
+	}
+
+	private void setShutterControlButtonText(final Button btnShutter, final short state) {
+		if (btnShutter != null && !btnShutter.isDisposed()) {
+			btnShutter.getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					if (!btnShutter.isDisposed()) {
+						if (state==0) {
+							btnShutter.setText("Close");
+						} else if (state==1) {
+							btnShutter.setText("Open");
+						} else {
+							btnShutter.setText("Unknown");
+							btnShutter.setForeground(btnShutter.getDisplay().getSystemColor(SWT.COLOR_RED));
+						}
+					}
+				}
+			});
+		}
 	}
 
 	public String getEnergyLensTableDir() {
@@ -1579,6 +1769,22 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 	public RegionValidator getRegionValidator() {
 		return regionValidator;
+	}
+
+	public String getHardShutterPV() {
+		return hardShutterPV;
+	}
+
+	public void setHardShutterPV(String hardShutterPV) {
+		this.hardShutterPV = hardShutterPV;
+	}
+
+	public String getSoftShutterPV() {
+		return softShutterPV;
+	}
+
+	public void setSoftShutterPV(String softShutterPV) {
+		this.softShutterPV = softShutterPV;
 	}
 
 
