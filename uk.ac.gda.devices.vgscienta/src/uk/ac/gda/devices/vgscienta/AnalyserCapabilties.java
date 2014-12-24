@@ -31,4 +31,7 @@ public interface AnalyserCapabilties extends Findable {
 	public double[] getAngleAxis(String lensTable, int startChannel, int length);
 	
 	public String[] getLensModes();
+	
+	public String[] getPsuModes();
+	
 }
