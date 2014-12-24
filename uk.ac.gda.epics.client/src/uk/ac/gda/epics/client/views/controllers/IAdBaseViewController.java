@@ -43,6 +43,10 @@ public interface IAdBaseViewController {
 
 	void updateDetectorState(short detectorState);
 
+	void updateNumExposures(int i);
+
+	void updateNumImages(int i);
+
 	public class Stub implements IAdBaseViewController {
 
 		@Override
@@ -95,5 +99,16 @@ public interface IAdBaseViewController {
 
 		}
 
+		@Override
+		public void updateNumExposures(int i) {
+		}
+
+		@Override
+		public void updateNumImages(int i) {
+			
+		}
+
 	}
+
+
 }

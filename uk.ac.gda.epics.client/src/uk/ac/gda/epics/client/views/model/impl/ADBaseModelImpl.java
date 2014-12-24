@@ -77,6 +77,8 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	private DetectorStateMonitorListener detectorStateMonitorListener;
 	private AcqExposureMonitorListener acqExposureMonitorListener;
 	private AcqPeriodMonitorListener acqPeriodMonitorListener;
+	private NumExposurePerImageMonitorListener numExposuresPerImageMonitorListener;
+	private NumImagesMonitorListener numImagesMonitorListener;
 	private ArrayCounterMonitorListener arrayCounterMonitorListener;
 	private TimeRemainingMonitorListener timeRemainingMonitorListener;
 	private ArrayRateMonitorListener arrayRateMonitorListener;
@@ -88,6 +90,8 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	public ADBaseModelImpl() {
 		acqPeriodMonitorListener = new AcqPeriodMonitorListener();
 		acqExposureMonitorListener = new AcqExposureMonitorListener();
+		numExposuresPerImageMonitorListener = new NumExposurePerImageMonitorListener();
+		numImagesMonitorListener = new NumImagesMonitorListener();
 		arrayCounterMonitorListener = new ArrayCounterMonitorListener();
 		timeRemainingMonitorListener = new TimeRemainingMonitorListener();
 		numExposuresCounterMonitorListener = new NumExposuresCounterMonitorListener();
@@ -150,7 +154,6 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 			}
 		}
 	}
-
 	private class ArrayCounterMonitorListener implements MonitorListener {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
@@ -158,6 +161,29 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 			if (dbr != null && dbr.isINT()) {
 				for (IAdBaseViewController controller : adBaseViewControllers) {
 					controller.updateArrayCounter(((DBR_Int) dbr).getIntValue()[0]);
+				}
+			}
+		}
+	}
+	private class NumExposurePerImageMonitorListener implements MonitorListener {
+		@Override
+		public void monitorChanged(MonitorEvent arg0) {
+			DBR dbr = arg0.getDBR();
+			if (dbr != null && dbr.isINT()) {
+				for (IAdBaseViewController controller : adBaseViewControllers) {
+					controller.updateNumExposures(((DBR_Int) dbr).getIntValue()[0]);
+				}
+			}
+		}
+	}
+
+	private class NumImagesMonitorListener implements MonitorListener {
+		@Override
+		public void monitorChanged(MonitorEvent arg0) {
+			DBR dbr = arg0.getDBR();
+			if (dbr != null && dbr.isINT()) {
+				for (IAdBaseViewController controller : adBaseViewControllers) {
+					controller.updateNumImages(((DBR_Int) dbr).getIntValue()[0]);
 				}
 			}
 		}
@@ -399,10 +425,9 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 	public void setAcqExposure(double exposureTime) throws Exception {
 		try {
 			if (config != null) {
-				EPICS_CONTROLLER.caput(createChannel(config.getAcquireTime_RBV().getPv(), acqExposureMonitorListener),
-						exposureTime);
+				EPICS_CONTROLLER.caput(createChannel(config.getAcquireTime().getPv(),null),exposureTime);
 			}
-			EPICS_CONTROLLER.caput(getChannel(ADBase.AcquireTime_RBV, acqExposureMonitorListener), exposureTime);
+			EPICS_CONTROLLER.caput(getChannel(ADBase.AcquireTime, null), exposureTime);
 		} catch (Exception ex) {
 			throw ex;
 		}
@@ -417,6 +442,17 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 						acqPeriodMonitorListener));
 			}
 			return EPICS_CONTROLLER.cagetDouble(getChannel(ADBase.AcquirePeriod_RBV, acqPeriodMonitorListener));
+		} catch (Exception ex) {
+			throw ex;
+		}
+	}
+	@Override
+	public void setAcqPeriod(double periodTime) throws Exception {
+		try {
+			if (config != null) {
+				EPICS_CONTROLLER.caput(createChannel(config.getAcquirePeriod().getPv(),	null), periodTime);
+			}
+			EPICS_CONTROLLER.caput(getChannel(ADBase.AcquirePeriod, null), periodTime);
 		} catch (Exception ex) {
 			throw ex;
 		}
@@ -467,6 +503,32 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 				return EPICS_CONTROLLER.cagetString(createChannel(config.getPortName_RBV().getPv(), null));
 			}
 			return EPICS_CONTROLLER.cagetString(getChannel(ADBase.PortName_RBV, null));
+		} catch (Exception ex) {
+			throw ex;
+		}
+	}
+
+	@Override
+	public int getNumberOfExposuresPerImage_RBV() throws Exception {
+		try {
+			if (config != null) {
+				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumExposures_RBV().getPv(),numExposuresPerImageMonitorListener));
+			}
+			return EPICS_CONTROLLER.cagetInt(getChannel(ADBase.NumExposures_RBV,
+					numExposuresPerImageMonitorListener));
+		} catch (Exception ex) {
+			throw ex;
+		}
+	}
+
+	@Override
+	public int getNumberOfImages_RBV() throws Exception {
+		try {
+			if (config != null) {
+				return EPICS_CONTROLLER.cagetInt(createChannel(config.getNumImages_RBV().getPv(),numImagesMonitorListener));
+			}
+			return EPICS_CONTROLLER.cagetInt(getChannel(ADBase.NumImages_RBV,
+					numImagesMonitorListener));
 		} catch (Exception ex) {
 			throw ex;
 		}

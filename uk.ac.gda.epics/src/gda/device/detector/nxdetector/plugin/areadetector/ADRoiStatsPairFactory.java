@@ -61,6 +61,8 @@ public class ADRoiStatsPairFactory implements FactoryBean<ADRoiStatsPair> {
 	private List<CentroidStat> enabledCentroidStats = Arrays.asList();
 	
 	private Boolean oneTimeSeriesCollectionPerLine = null;
+	
+	private boolean EnableROIPVPairSupported = true; //this flag is introduced because xmap detector used an old EPICs version
 
 	public void setPluginName(String pluginName) {
 		this.pluginName = pluginName;
@@ -92,6 +94,7 @@ public class ADRoiStatsPairFactory implements FactoryBean<ADRoiStatsPair> {
 	@Override
 	public ADRoiStatsPair getObject() throws Exception {
 		ADRectangularROIPlugin roiPlugin = ADRectangularROIPlugin.createFromBasePVName(pluginName + "_roi", baseRoiPVName, roiProvider);
+		roiPlugin.setEnablePVPairSupported(EnableROIPVPairSupported);
 		ADTimeSeriesStatsPlugin statsPlugin = ADTimeSeriesStatsPlugin.createFromBasePVName(pluginName + "_stats", baseStatsPVName, roiProvider);
 		if (oneTimeSeriesCollectionPerLine != null) { // else use the plugin's default
 			statsPlugin.setOneTimeSeriesCollectionPerLine(oneTimeSeriesCollectionPerLine);
@@ -102,6 +105,14 @@ public class ADRoiStatsPairFactory implements FactoryBean<ADRoiStatsPair> {
 		return pair;
 	}
 
+	public boolean isEnableROIPVPairSupported() {
+		return EnableROIPVPairSupported;
+	}
+
+	public void setEnableROIPVPairSupported(boolean enableROIPVPairSupported) {
+		EnableROIPVPairSupported = enableROIPVPairSupported;
+	}
+	
 	@Override
 	public Class<?> getObjectType() {
 		return ADRoiStatsPair.class;

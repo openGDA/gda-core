@@ -143,10 +143,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	protected Channel llm = null; // User Lower Limit .LLM, FLOAT
 
-	protected Channel hls = null; // User At High Limit Switch .HLS, FLOAT
-
-	protected Channel lls = null; // User At Lower Limit Switch .LLS, FLOAT
-
 	protected Channel dhlm;
 
 	protected Channel dllm;
@@ -411,8 +407,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 			lvio = channelManager.createChannel(pvName + ".LVIO");
 			hlm = channelManager.createChannel(pvName + ".HLM", highLimitMonitor, false);
 			llm = channelManager.createChannel(pvName + ".LLM", lowLimitMonitor, false);
-			hls = channelManager.createChannel(pvName + ".HLS", false);
-			lls = channelManager.createChannel(pvName + ".LLS", false);
 			dhlm = channelManager.createChannel(pvName + ".DHLM", dialHighLimitMonitor, false);
 			dllm = channelManager.createChannel(pvName + ".DLLM", dialLowLimitMonitor,false);
 			homf = channelManager.createChannel(pvName + ".HOMF", false);
@@ -1183,8 +1177,12 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 			status = MotorStatus.FAULT;
 			if (!lastMotorStatus.equals(status))
 				logger.error("Motor - {} is at FAULT. Please check EPICS motor status.", getName());
-		} else if ((lmsta & MSTA_UPPER_LIMIT) != 0 || (lmsta & MSTA_LOWER_LIMIT) != 0) {
-			status = checkUserLimitSwitches(lmsta);	
+		} else if ((lmsta & MSTA_UPPER_LIMIT) != 0) {
+			status = MotorStatus.UPPERLIMIT;
+			if (!lastMotorStatus.equals(status))
+				logger.warn("Motor - {} is at UPPERLIMIT.", getName());
+		} else if ((lmsta & MSTA_LOWER_LIMIT) != 0) {
+			status = MotorStatus.LOWERLIMIT;
 			if (!lastMotorStatus.equals(status))
 				logger.warn("Motor - {} is at LOWERLIMIT.", getName());
 		} else if ((lmsta & MSTA_DONE) != 0) {
@@ -1194,25 +1192,6 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		}
 		lastMotorStatus = status;
 		return status;
-	}
-
-	private MotorStatus checkUserLimitSwitches(long lmsta) {
-		// prefer to check the user limit switches, not the low-level MSTA PV, just in case limits flipped inside the motor record
-		try {
-			short highLevelSwitch  = controller.cagetShort(hls);
-			if (highLevelSwitch == 1)
-				return MotorStatus.UPPERLIMIT;
-			short lowerLevelSwitch  = controller.cagetShort(lls);
-			if (lowerLevelSwitch == 1)
-				return MotorStatus.LOWERLIMIT;
-		} catch (Exception e) {
-			logger.error("Exception when trying to get the user limit switches", e);
-		}
-		
-		if ((lmsta & MSTA_UPPER_LIMIT) != 0) {
-			return MotorStatus.UPPERLIMIT;
-		}
-		return MotorStatus.LOWERLIMIT;
 	}
 
 	public boolean isHomedFromMSTAValue(double msta) {
@@ -1818,7 +1797,7 @@ class MoveEventQueue implements Runnable {
 			}
 		}
 	}
-	
+
 }
 
 class MoveEvent {

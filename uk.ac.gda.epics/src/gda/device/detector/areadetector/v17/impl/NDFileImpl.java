@@ -21,6 +21,7 @@ package gda.device.detector.areadetector.v17.impl;
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.configuration.epics.EpicsConfiguration;
+import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.IPVProvider;
@@ -729,12 +730,14 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 			} else {
 				EPICS_CONTROLLER.caput(getChannel(Capture), 1, startCallback);
 			}
-			int counter=0;
-			while(getCapture_RBV() != 1) {
-				Thread.sleep(50);
-				counter++;
-				if( counter > 100) // more than 5 seconds
-					throw new DeviceException("Capture failed");
+			if (LocalProperties.check("gda.epics.detector.need.checking.again.after.caput", true)){
+				int counter=0;
+				while(getCapture_RBV() != 1) {
+					Thread.sleep(50);
+					counter++;
+					if( counter > 100) // more than 5 seconds
+						throw new DeviceException("Capture failed");
+				}
 			}
 		} catch (Exception e) {
 			setStatus(Detector.IDLE);
@@ -865,7 +868,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 			throw new IllegalArgumentException("'deviceName','basePVName' or 'pvProvider' needs to be declared");
 		}
 		if (getPluginBase() == null) {
-			logger.warn(getDeviceName() + " : 'ndPluginBase' not declared");
+			logger.warn(getIdentifier() + " : 'ndPluginBase' not declared");
 			// TODO: The pilatus driver contains an NDFile with no associated NDPluginBase
 			// throw new IllegalArgumentException("'ndPluginBase' needs to be declared");
 		}
@@ -1153,5 +1156,19 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	public Boolean isWriteStatusErr() throws Exception {
 		Channel channel = config != null ? createChannel(config.getWriteStatus().getPv()) : getChannel(WriteStatus);
 		return EPICS_CONTROLLER.cagetShort(channel)!=0;
+	}
+
+	private String getIdentifier() {
+		// Since this can be configured with either a deviceName, pvProvider or basePVname, return an identifier based on
+		// whichever is currently in use. If multiple are available, return in this order, which matches usage in the class.
+		String id = getDeviceName();
+		if (id == null && pvProvider != null)
+			try {
+				id = pvProvider.getPV("");
+			} catch (Exception e) {
+				logger.error("pvProvider.getPV('') threw exception: ", e);
+			}
+		if (id == null) id = basePVName;
+		return id;
 	}
 }
