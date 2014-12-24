@@ -377,34 +377,6 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		GridData lowLayoutData = new GridData(GridData.FILL_HORIZONTAL);
 		txtLow.setLayoutData(lowLayoutData);
 		txtLow.setToolTipText("start energy");
-		// final ControlDecoration textLowControlDecorator = new
-		// ControlDecoration(
-		// txtLow, SWT.TOP | SWT.LEFT);
-		// FieldDecoration textLowFieldDecoration = FieldDecorationRegistry
-		// .getDefault().getFieldDecoration(
-		// FieldDecorationRegistry.DEC_ERROR);
-		// textLowControlDecorator.setImage(textLowFieldDecoration.getImage());
-		// FieldDecoration dec1 = FieldDecorationRegistry.getDefault()
-		// .getFieldDecoration(
-		// FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
-		// lowLayoutData.horizontalIndent = dec1.getImage().getBounds().width;
-		// txtLow.addModifyListener(new ModifyListener() {
-		//
-		// @Override
-		// public void modifyText(ModifyEvent e) {
-		// if (Double.parseDouble(txtLow.getText()) < excitationEnergy) {
-		// textLowControlDecorator.hide();
-		// txtLow.setForeground(ColorConstants.black);
-		// } else {
-		// textLowControlDecorator.show();
-		// textLowControlDecorator
-		// .setDescriptionText("This value cannot be greater than current excitation energy "
-		// + excitationEnergy);
-		// textLowControlDecorator.setShowHover(true);
-		// txtLow.setForeground(ColorConstants.red);
-		// }
-		// }
-		// });
 
 		Label lblCenter = new Label(grpEnergy, SWT.NONE);
 		lblCenter.setText("Center");
@@ -413,79 +385,22 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		GridData centerLayoutData = new GridData(GridData.FILL_HORIZONTAL);
 		txtCenter.setLayoutData(centerLayoutData);
 		txtCenter.setToolTipText("Center/Fixed energy");
-		// final ControlDecoration textCenterControlDecorator = new
-		// ControlDecoration(
-		// txtCenter, SWT.TOP | SWT.LEFT);
-		// FieldDecoration textCenterFieldDecoration = FieldDecorationRegistry
-		// .getDefault().getFieldDecoration(
-		// FieldDecorationRegistry.DEC_ERROR);
-		// textCenterControlDecorator.setImage(textCenterFieldDecoration
-		// .getImage());
-		// FieldDecoration dec2 = FieldDecorationRegistry.getDefault()
-		// .getFieldDecoration(
-		// FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
-		// centerLayoutData.horizontalIndent =
-		// dec2.getImage().getBounds().width;
-		// txtCenter.addModifyListener(new ModifyListener() {
-		//
-		// @Override
-		// public void modifyText(ModifyEvent e) {
-		// if (Double.parseDouble(txtCenter.getText()) < excitationEnergy) {
-		// textCenterControlDecorator.hide();
-		// txtCenter.setForeground(ColorConstants.black);
-		// } else {
-		// textCenterControlDecorator.show();
-		// textCenterControlDecorator
-		// .setDescriptionText("This value cannot be greater than current excitation energy "
-		// + excitationEnergy);
-		// textCenterControlDecorator.setShowHover(true);
-		// txtCenter.setForeground(ColorConstants.red);
-		// }
-		// }
-		// });
-
+		
 		Label lblHigh = new Label(grpEnergy, SWT.NONE);
 		lblHigh.setText("High");
 
 		txtHigh = new Text(grpEnergy, SWT.BORDER | SWT.SINGLE);
 		GridData highLayoutData = new GridData(GridData.FILL_HORIZONTAL);
 		txtHigh.setLayoutData(highLayoutData);
-		txtHigh.setToolTipText("Stop enenery");
-		// final ControlDecoration textHighControlDecorator = new
-		// ControlDecoration(
-		// txtHigh, SWT.TOP | SWT.LEFT);
-		// FieldDecoration textHighFieldDecoration = FieldDecorationRegistry
-		// .getDefault().getFieldDecoration(
-		// FieldDecorationRegistry.DEC_ERROR);
-		// textHighControlDecorator.setImage(textHighFieldDecoration.getImage());
-		// FieldDecoration dec3 = FieldDecorationRegistry.getDefault()
-		// .getFieldDecoration(
-		// FieldDecorationRegistry.DEC_CONTENT_PROPOSAL);
-		// highLayoutData.horizontalIndent = dec3.getImage().getBounds().width;
-		// txtHigh.addModifyListener(new ModifyListener() {
-		// @Override
-		// public void modifyText(ModifyEvent e) {
-		// if (Double.parseDouble(txtHigh.getText()) < excitationEnergy) {
-		// textHighControlDecorator.hide();
-		// txtHigh.setForeground(ColorConstants.black);
-		// } else {
-		// textHighControlDecorator.show();
-		// textHighControlDecorator
-		// .setDescriptionText("This value cannot be greater than current excitation energy "
-		// + excitationEnergy);
-		// textHighControlDecorator.setShowHover(true);
-		// txtHigh.setForeground(ColorConstants.red);
-		// }
-		// }
-		// });
+		txtHigh.setToolTipText("Stop energy");
 
 		Label lblWidth = new Label(grpEnergy, SWT.NONE);
 		lblWidth.setText("Width");
 
 		txtWidth = new Text(grpEnergy, SWT.BORDER | SWT.SINGLE);
 		txtWidth.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtWidth.setToolTipText("Enery width");
-		txtWidth.setEditable(false);
+		txtWidth.setToolTipText("Energy width");
+//		txtWidth.setEditable(false);
 
 		Group grpStep = new Group(rootComposite, SWT.NONE);
 		grpStep.setText("Step");
@@ -862,6 +777,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtLow.addSelectionListener(energySelectionListener);
 		txtHigh.addSelectionListener(energySelectionListener);
 		txtCenter.addSelectionListener(energySelectionListener);
+		txtWidth.addSelectionListener(energySelectionListener);
 		spinnerFrames.addSelectionListener(framesSelectionListener);
 		txtTime.addSelectionListener(timeSelectionListener);
 		txtSize.addSelectionListener(sizeSelectionListener);
@@ -1147,11 +1063,21 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			double high = Double.parseDouble(txtCenter.getText()) + Double.parseDouble(txtWidth.getText()) / 2;
 			txtHigh.setText(String.format("%.4f", high));
 			txtCenter.setText(String.format("%.4f", Double.parseDouble(txtCenter.getText())));
+//			double width = Double.parseDouble(txtHigh.getText()) - Double.parseDouble(txtLow.getText());
+//			txtWidth.setText(String.format("%.4f", width));
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtLow.getText()));
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtHigh.getText()));
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtCenter.getText()));
+		} else if (source.equals(txtWidth) && txtWidth.isFocusControl()) {
+			double low = Double.parseDouble(txtCenter.getText()) - Double.parseDouble(txtWidth.getText()) / 2;
+			txtLow.setText(String.format("%.4f", low));
+			double high = Double.parseDouble(txtCenter.getText()) + Double.parseDouble(txtWidth.getText()) / 2;
+			txtHigh.setText(String.format("%.4f", high));
+			txtWidth.setText(String.format("%.4f", Double.parseDouble(txtWidth.getText())));
 			double width = Double.parseDouble(txtHigh.getText()) - Double.parseDouble(txtLow.getText());
 			txtWidth.setText(String.format("%.4f", width));
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtLow.getText()));
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtHigh.getText()));
-			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtCenter.getText()));
 		}
 		if (btnSwept.getSelection()) {
 			sweptLowEnergy = Double.parseDouble(txtLow.getText());
