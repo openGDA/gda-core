@@ -322,7 +322,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	 * @throws Exception
 	 */
 	protected SchemaReader setupElementAndEdge(final String objectName) throws Exception {
-		element.setItems(Element.getSortedEdgeSymbols("P", "U"));
+		element.setItems(Element.getSortedEdgeSymbols("P", "Np"));
 
 		SchemaReader reader = new SchemaReader(XasScanParameters.schemaUrl);
 		List<String> choices = reader.getAllowedChoices(objectName, "edge");
