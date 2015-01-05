@@ -606,5 +606,16 @@
       </editor>
     </extension>
 
+   <extension
+         point="uk.ac.common.beans.factory">
+      <bean
+            class="uk.ac.gda.beans.vortex.VortexParameters"
+            describer="uk.ac.gda.exafs.ui.describers.VortexDescriber">
+      </bean>
+      <bean
+            class="uk.ac.gda.beans.vortex.Xspress3Parameters"
+            describer="uk.ac.gda.exafs.ui.describers.Xspress3Describer">
+      </bean>
+   </extension>
 
 </plugin>

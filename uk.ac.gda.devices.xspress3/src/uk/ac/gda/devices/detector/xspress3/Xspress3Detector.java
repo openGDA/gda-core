@@ -39,7 +39,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	public static final String ALL_ELEMENT_SUM_LABEL = "AllElementSum_";
 	public static int SUM_ALL_ROI = 0;
 	public static int SUM_FIRST_ROI = 1;
-	public static int MAX_ROI_PER_CHANNEL = 4;
+	public static int MAX_ROI_PER_CHANNEL = 10;
 
 	protected Xspress3Controller controller;
 	private String channelLabelPrefix = "FF channel ";
@@ -73,11 +73,11 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * @return
 	 */
 	public static String getNameOfRowSubNode(int rowNumber) {
-		return "mcas_row_" + rowNumber;
+		return "mcas_row_" + String.format("%04d", rowNumber);
 	}
 
 	public static String getNameOfAllElementSumRowSubNode(int rowNumber) {
-		return ALL_ELEMENT_SUM_LABEL + "row_" + rowNumber;
+		return ALL_ELEMENT_SUM_LABEL + "row_" + String.format("%04d", rowNumber);
 	}
 
 	public Xspress3Detector() {
@@ -353,12 +353,12 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 				String allElementPrefix = "AllElementSum_"+prefix;
 				
 				for (int row = 0; row < numRows; row++) {
-					String hdf5FileName = path + prefix + row + ".hdf5";
+					String hdf5FileName = path + prefix + String.format("%04d", row) + ".hdf5";
 					String nodeName = getNameOfRowSubNode(row);
 					String fullLink = "nxfile://" + hdf5FileName + "#entry/instrument/detector/data";
 					thisFrame.addExternalFileLink(getName(), nodeName, fullLink, false, false);
 					
-					String allElementFileName = allElementPath + allElementPrefix + row + ".hdf5";
+					String allElementFileName = allElementPath + allElementPrefix + String.format("%04d", row) + ".hdf5";
 					String allElementNodeName = getNameOfAllElementSumRowSubNode(row);
 					String allElementFullLink = "nxfile://" + allElementFileName + "#entry/instrument/detector/data";
 					thisFrame.addExternalFileLink(getName(), allElementNodeName, allElementFullLink, false, false);

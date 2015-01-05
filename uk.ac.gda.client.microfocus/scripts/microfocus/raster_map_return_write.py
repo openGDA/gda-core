@@ -101,8 +101,13 @@ class RasterMapReturnWrite(RasterMap):
 #         tsl  = TrajectoryScanLine([self.trajSampleX, sptw,  self.trajtfg, fluoDetector, scanBean.getRowTime()/(nx)] )
         tsl.setScanDataPointQueueLength(10000)
         tsl.setPositionCallableThreadPoolSize(10)
-        xmapRasterscan = ScannableCommands.createConcurrentScan([yScannable, scanBean.getYStart(), scanBean.getYEnd(), scanBean.getYStepSize(), self.trajBeamMonitor, tsl, self.trajPositionReader])
+        
+        concurrentScanArgs = [yScannable, scanBean.getYStart(), scanBean.getYEnd(), scanBean.getYStepSize(), self.trajBeamMonitor, tsl]
+        if self.includeRealPositionReader :
+            concurrentScanArgs = concurrentScanArgs + [self.trajPositionReader]
+        xmapRasterscan = ScannableCommands.createConcurrentScan(concurrentScanArgs)
         xmapRasterscan.getScanPlotSettings().setIgnore(1)
+        
         self._setUpTwoDDataWriter(xmapRasterscan, nx, ny, beanGroup, experimentFullPath, experimentFolderName,scanNumber)
         self.finder.find("elementListScriptController").update(None, self.detectorBeanFileName);
         self.log("Starting two-directional raster map...")

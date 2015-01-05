@@ -38,6 +38,11 @@ class RasterMap(Map):
         
         self.cid = cid
         self.trajBeamMonitor = trajBeamMonitor
+        
+        self.includeRealPositionReader = True
+        
+    def setIncludeRealPositionReader(self, include=True):
+        self.includeRealPositionReader = include
 
     def setStage(self, stage):
         Map.setStage(self,stage)
@@ -118,7 +123,12 @@ class RasterMap(Map):
         
         cs = ContinuousScan(self.trajContiniousX, scanBean.getXStart(), scanBean.getXEnd(), nx, scanBean.getRowTime(), dets) 
         
-        outerScanArgs = [yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(), self.trajBeamMonitor, cs, self.trajPositionReader]
+        outerScanArgs = [yScannable, scanBean.getYStart(), scanBean.getYEnd(),  scanBean.getYStepSize(), self.trajBeamMonitor, cs]
+        if self.includeRealPositionReader :
+            print "including real positions"
+            outerScanArgs = outerScanArgs + [self.trajPositionReader]
+        else:
+            print "Not including real positions"
 
         if detectorBean.getFluorescenceParameters().isCollectDiffractionImages():
             if self.cmos != None:

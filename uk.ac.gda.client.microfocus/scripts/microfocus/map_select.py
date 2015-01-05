@@ -1,5 +1,5 @@
 from uk.ac.gda.beans import BeansFactory
-from gda.data import PathConstructor
+#from gda.data import PathConstructor
 
 #
 # This is the general 'map' command in the Jython namespace to run a map based on the given filenames in __call__
@@ -16,7 +16,7 @@ class MapSelect():
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, folderName=None, scanNumber= -1, validation=True):
         
-        datadir = PathConstructor.createFromDefaultProperty() + "/xml/"
+        #datadir = PathConstructor.createFromDefaultProperty() + "/xml/"
         xmlFolderName = folderName + "/"
         self.scanBean = BeansFactory.getBeanObject(xmlFolderName, scanFileName)
         if(self.scanBean.isRaster()):
@@ -57,9 +57,17 @@ class MapSelect():
         self.raster_return_write.setUseWithGapEnergy()
 
     def disableUseIDGap(self):
-        ''' For shutdown and machine-dev days when there is o control of the ID gap
+        ''' For shutdown and machine-dev days when there is no control of the ID gap
         '''
         self.non_raster.setUseNoGapEnergy()
         self.raster.setUseNoGapEnergy()
         self.raster_return_write.setUseNoGapEnergy()
+        
+    def enableRealPositions(self):
+        self.raster.setIncludeRealPositionReader(True)
+        self.raster_return_write.setIncludeRealPositionReader(True)
+
+    def disableRealPositions(self):
+        self.raster.setIncludeRealPositionReader(False)
+        self.raster_return_write.setIncludeRealPositionReader(False)
 
