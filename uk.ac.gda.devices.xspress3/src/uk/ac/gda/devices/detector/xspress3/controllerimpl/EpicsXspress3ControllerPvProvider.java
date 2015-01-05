@@ -8,7 +8,7 @@ import gda.factory.FactoryException;
 
 public class EpicsXspress3ControllerPvProvider {
 	
-	public static final int NUMBER_ROIs = 4; // fixed for the moment, but will could be changed in the future as this is an EPICS-level calculation
+	public static final int NUMBER_ROIs = 10; // fixed for the moment, but will could be changed in the future as this is an EPICS-level calculation
 	public static final int MCA_SIZE = 4096; // fixed for the moment, but will could be changed in the future as this is an EPICS-level calculation
 	
 	final private int numberOfDetectorChannels;
