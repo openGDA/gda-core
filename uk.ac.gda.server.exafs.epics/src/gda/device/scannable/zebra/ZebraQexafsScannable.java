@@ -49,7 +49,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 	private String pulseTrigSourcePV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_SEL";
 	private String pulseStartPV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_START";
-	// private String pulseWidthPV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_WID";
+	private String pulseWidthPV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_WID";
 	private String pulseStepPV = "BL18B-OP-DCM-01:ZEBRA:PC_PULSE_STEP";
 
 	private String positionTrigPV = "BL18B-OP-DCM-01:ZEBRA:PC_ENC";
@@ -71,7 +71,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 	private Channel numGatesChnl;
 	private Channel pulseTrigSourceChnl;
 	private Channel pulseStartChnl;
-	// private Channel pulseWidthChnl;
+	private Channel pulseWidthChnl;
 	private Channel pulseStepChnl;
 	private Channel positionTrigChnl;
 	private Channel positionDirectionChnl;
@@ -104,7 +104,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			numGatesChnl = channelManager.createChannel(numGatesPV, false);
 			pulseTrigSourceChnl = channelManager.createChannel(pulseTrigSourcePV, false);
 			pulseStartChnl = channelManager.createChannel(pulseStartPV, false);
-			// pulseWidthChnl = channelManager.createChannel(pulseWidthPV, false);
+			pulseWidthChnl = channelManager.createChannel(pulseWidthPV, false);
 			pulseStepChnl = channelManager.createChannel(pulseStepPV, false);
 			positionTrigChnl = channelManager.createChannel(positionTrigPV, false);
 			positionDirectionChnl = channelManager.createChannel(positionDirectionPV, false);
@@ -185,6 +185,14 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			changeHasBeenMade = caputTestChangeString(positionDirectionChnl, positionDirection, changeHasBeenMade);
 			changeHasBeenMade = caputTestChangeDouble(gateStartChnl, startDeg, changeHasBeenMade);
 			changeHasBeenMade = caputTestChangeDouble(gateWidthChnl, width, changeHasBeenMade);
+			
+			// this value is set by beamline staff, and is not altered by GDA. It MUST be < stepDeg
+			double pulseWidth = controller.cagetDouble(pulseWidthChnl);
+			if (pulseWidth > stepDeg) {
+				throw new DeviceException(
+						"Inconsistent Zebra parameters: the pulse width is greater than the required pulse step, so Zebra will not emit any pulses! You need to change you scan parameters or ask beamline staff.");
+			}
+
 			changeHasBeenMade = caputTestChangeDouble(pulseStepChnl, stepDeg, changeHasBeenMade);
 
 			// Has a change been made, so do we need to wait for the template to complete processing?
