@@ -90,7 +90,8 @@ public class TogglerScannable extends ScannableBase {
 	}
 
 	public void togglePositionStart() throws DeviceException {
-		initialValue = delegate.getPosition();
+		//only record the initial position if it will be used
+		if (endValue == null) initialValue = delegate.getPosition();
 		delegate.moveTo(startValue);
 	}
 
