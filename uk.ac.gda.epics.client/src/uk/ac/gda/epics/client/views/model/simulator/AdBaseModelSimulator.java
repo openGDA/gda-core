@@ -116,4 +116,16 @@ public class AdBaseModelSimulator implements AdBaseModel {
 		
 	}
 
+	@Override
+	public int getNumberOfExposuresPerImage_RBV() throws Exception {
+		// TODO Auto-generated method stub
+		return 1;
+	}
+
+	@Override
+	public int getNumberOfImages_RBV() throws Exception {
+		// TODO Auto-generated method stub
+		return 1;
+	}
+
 }

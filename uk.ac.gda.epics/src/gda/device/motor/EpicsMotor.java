@@ -421,8 +421,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 			lvio = channelManager.createChannel(pvName + ".LVIO");
 			hlm = channelManager.createChannel(pvName + ".HLM", highLimitMonitor, false);
 			llm = channelManager.createChannel(pvName + ".LLM", lowLimitMonitor, false);
-			hls = channelManager.createChannel(pvName + ".HLS", highLimitStateMonitor, false);
-			lls = channelManager.createChannel(pvName + ".LLS", lowLimitStateMonitor, false);
+
 			dhlm = channelManager.createChannel(pvName + ".DHLM", dialHighLimitMonitor, false);
 			dllm = channelManager.createChannel(pvName + ".DLLM", dialLowLimitMonitor,false);
 			homf = channelManager.createChannel(pvName + ".HOMF", false);
