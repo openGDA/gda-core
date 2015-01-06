@@ -22,6 +22,24 @@ import gda.device.DeviceException;
 
 public interface IPixiumNXDetector {
 
+	public static final String EARLY_FRAMES = "MotionBlur";
+	public static final String EARLY_FRAMES_RBV = EARLY_FRAMES;
+	public static final String BASE_EXPOSURE = "AcquireTime";
+	public static final String BASE_EXPOSURE_RBV = "AcquireTime_RBV";
+	public static final String BASE_ACQUIRE_PERIOD = "AcquirePeriod";
+	public static final String BASE_ACQUIRE_PERIOD_RBV = "AcquirePeriod_RBV";
+	public static final String EXPOSURES_PER_IMAGE = "NumExposures";
+	public static final String EXPOSURES_PER_IMAGE_RBV = "NumExposures_RBV";
+	public static final String NUM_IMAGES = "NumImages";
+	public static final String NUM_IMAGES_RBV = "NumImages_RBV";
+	public static final String PU_MODE = "PuMode";
+	public static final String PU_MODE_RBV = "PuMode_RBV";
+	public static final String DETECTOR_STATE_RBV = "DetectorState_RBV";
+	public static final String ACQUIRE = "Acquire";
+	public static final String CALIBRATE = "Calibrate";
+	public static final String CALIBRATE_RBV = "Calibrate_RBV";
+	public static final String CALIBRATION_REQUIRED_RBV = "CalibrationRequired_RBV";
+	
 	public abstract void includeEarlyFrames() throws Exception;
 
 	public abstract void excludeEarlyFrames() throws Exception;
