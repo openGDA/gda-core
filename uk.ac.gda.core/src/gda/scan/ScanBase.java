@@ -576,12 +576,16 @@ public abstract class ScanBase implements NestableScan {
 
 				// if a standalone scan, or the top-level scan in a nest of scans
 				if (!isChild() ) { // FIXME: Move all !isChild() logic up into runScan
-					callScannablesAtScanEnd();
-
-					callDetectorsEndCollection();
-
-
-					shutdownScandataPipeline(true);
+					if (LocalProperties.check("gda.scan.endscan.neworder", false)) {
+						// a work around for GDA-6083
+						shutdownScandataPipeline(true);
+						callDetectorsEndCollection();
+						callScannablesAtScanEnd();
+					} else { //the original designed order
+						callScannablesAtScanEnd();
+						callDetectorsEndCollection();
+						shutdownScandataPipeline(true);
+					}
 					signalScanComplete();
 
 				}

@@ -522,7 +522,12 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 		raise Exception("This detector cannot be operated outside a scan. Try 'scan x 1 1 1 det <t_exp>'")
 
 	def __call__(self, *args):
-		raise Exception("This detector cannot yet be operated outside a scan.")
+		if not len(args):
+			return self.getPosition()
+		collection_time = args[0]
+		self.setCollectionTime(collection_time)
+		self.acquire()
+		return self.getPosition()
 		
 	# HardwareTriggerableDetector
 	
