@@ -6,6 +6,7 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
+import gda.device.detector.NXDetectorData;
 
 /**
  * A version of Xspress3Detector in which EPICS is used to simply record all the
@@ -18,129 +19,143 @@ import gda.device.detector.DetectorBase;
  */
 public class Xspress3WithFullCalculationsDetector extends DetectorBase implements Xspress3 {
 
-	Xspress3Controller controller;
-	private Xspress3ScanOperations scanOperations;
-	private Xspress3DataOperations dataOperations;
-	private int firstChannelToRead = 0;
-	private boolean readDataFromFile = false;
+    Xspress3Controller controller;
+    private Xspress3ScanOperations scanOperations;
+    private Xspress3DataOperations dataOperations;
+    private int firstChannelToRead = 0;
+    private boolean readDataFromFile = false;
 
-	public Xspress3WithFullCalculationsDetector() {
-	}
+    public Xspress3WithFullCalculationsDetector() {
+    }
 
-	public void configure() throws gda.factory.FactoryException {
-		scanOperations = new Xspress3ScanOperations(controller, getName());
-		dataOperations = new Xspress3DataOperations(controller, getName(), firstChannelToRead);
-	}
+    public void configure() throws gda.factory.FactoryException {
+	scanOperations = new Xspress3ScanOperations(controller, getName());
+	dataOperations = new Xspress3DataOperations(controller, getName(), firstChannelToRead);
+    }
 
-	public void atScanStart() throws DeviceException {
-		// cannot tell if we are running a step scan or another type where file
-		// writing will be necessary, so need an attribute which is set
-		// externally to this class.
-		scanOperations.atScanStart(readDataFromFile);
-		dataOperations.atScanStart(readDataFromFile);
-	}
+    public void atScanStart() throws DeviceException {
+	// cannot tell if we are running a step scan or another type where file
+	// writing will be necessary, so need an attribute which is set
+	// externally to this class.
+	scanOperations.atScanStart(readDataFromFile);
+	dataOperations.atScanStart(readDataFromFile);
+    }
 
-	public void atScanLineStart() throws DeviceException {
-		scanOperations.atScanLineStart();
-		dataOperations.atScanLineStart();
-	}
+    public void atScanLineStart() throws DeviceException {
+	scanOperations.atScanLineStart();
+	dataOperations.atScanLineStart();
+    }
 
-	public void atScanEnd() throws DeviceException {
-		scanOperations.atScanEnd();
-	}
+    public void atScanEnd() throws DeviceException {
+	scanOperations.atScanEnd();
+    }
 
-	@Override
-	public void stop() throws DeviceException {
-		controller.doStop();
-	}
+    @Override
+    public void stop() throws DeviceException {
+	controller.doStop();
+    }
 
-	@Override
-	public void collectData() throws DeviceException {
-		// do nothing here as the detector is passive: it sets up time frames at
-		// the start of the scan and then is triggered by a TFG (or another
-		// detector driving the TFG) which must be
-		// included in the same scan
-	}
+    @Override
+    public void collectData() throws DeviceException {
+	// do nothing here as the detector is passive: it sets up time frames at
+	// the start of the scan and then is triggered by a TFG (or another
+	// detector driving the TFG) which must be
+	// included in the same scan
+    }
 
-	@Override
-	public int getStatus() throws DeviceException {
-		int controllerStatus = controller.getStatus();
-		if (controllerStatus == Detector.FAULT || controllerStatus == Detector.STANDBY) {
-			return controllerStatus;
-		}
-		// This detector class is completely passive and is dependent on being
-		// triggered by the TFG, so always return idle and let whatever other
-		// Detector object driving the TFG to control the status
-		return Detector.IDLE;
+    @Override
+    public int getStatus() throws DeviceException {
+	int controllerStatus = controller.getStatus();
+	if (controllerStatus == Detector.FAULT || controllerStatus == Detector.STANDBY) {
+	    return controllerStatus;
 	}
+	// This detector class is completely passive and is dependent on being
+	// triggered by the TFG, so always return idle and let whatever other
+	// Detector object driving the TFG to control the status
+	return Detector.IDLE;
+    }
 
-	@Override
-	public NexusTreeProvider readout() throws DeviceException {
-		return dataOperations.readoutLatest();
-	}
+    @Override
+    public NexusTreeProvider readout() throws DeviceException {
+	return dataOperations.readoutLatest();
+    }
 
-	@Override
-	public boolean createsOwnFiles() throws DeviceException {
-		return false;
-	}
+    @Override
+    public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException {
+	return dataOperations.readoutFrames(startFrame, finalFrame);
+    }
 
-	@Override
-	public double[][] getMCData(double time) throws DeviceException {
-		return dataOperations.getMCData(time);
-	}
+    @Override
+    public boolean createsOwnFiles() throws DeviceException {
+	return false;
+    }
 
-	@Override
-	public int[][] getData() throws DeviceException {
-		return dataOperations.getData();
-	}
+    @Override
+    public double[][] getMCData(double time) throws DeviceException {
+	return dataOperations.getMCData(time);
+    }
 
-	@Override
-	public Object getCountRates() throws DeviceException {
-		// is this ever called??? Should it be removed from the interface???
-		return null;
-	}
+    @Override
+    public int[][] getData() throws DeviceException {
+	return dataOperations.getData();
+    }
 
-	@Override
-	public String getConfigFileName() {
-		return dataOperations.getConfigFileName();
-	}
+    @Override
+    public void clearAndStart() throws DeviceException {
+	scanOperations.clearAndStart();
+    }
 
-	@Override
-	public void setConfigFileName(String configFileName) {
-		dataOperations.setConfigFileName(configFileName);
-	}
+    @Override
+    public Object getCountRates() throws DeviceException {
+	// is this ever called??? Should it be removed from the interface???
+	return null;
+    }
 
-	@Override
-	public void loadConfigurationFromFile() throws Exception {
-		dataOperations.loadConfigurationFromFile();
-	}
+    @Override
+    public String getConfigFileName() {
+	return dataOperations.getConfigFileName();
+    }
 
-	@Override
-	public Xspress3Controller getController() {
-		return controller;
-	}
+    @Override
+    public void setConfigFileName(String configFileName) {
+	dataOperations.setConfigFileName(configFileName);
+    }
 
-	@Override
-	public Double[] readoutFF() throws DeviceException {
-		return dataOperations.readoutFF();
-	}
+    @Override
+    public void loadConfigurationFromFile() throws Exception {
+	dataOperations.loadConfigurationFromFile();
+    }
 
-	@Override
-	public String[] getExtraNames() {
-		return dataOperations.getExtraNames();
-	}
+    @Override
+    public Xspress3Controller getController() {
+	return controller;
+    }
 
-	@Override
-	public String[] getOutputFormat() {
-		return dataOperations.getOutputFormat();
-	}
+    public void setController(Xspress3Controller controller) {
+	this.controller = controller;
+    }
 
-	public boolean isReadDataFromFile() {
-		return readDataFromFile;
-	}
+    @Override
+    public Double[] readoutFF() throws DeviceException {
+	return dataOperations.readoutFF();
+    }
 
-	public void setReadDataFromFile(boolean readDataFromFile) {
-		this.readDataFromFile = readDataFromFile;
-	}
+    @Override
+    public String[] getExtraNames() {
+	return dataOperations.getExtraNames();
+    }
+
+    @Override
+    public String[] getOutputFormat() {
+	return dataOperations.getOutputFormat();
+    }
+
+    public boolean isReadDataFromFile() {
+	return readDataFromFile;
+    }
+
+    public void setReadDataFromFile(boolean readDataFromFile) {
+	this.readDataFromFile = readDataFromFile;
+    }
 
 }

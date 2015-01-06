@@ -1,6 +1,7 @@
 package uk.ac.gda.devices.detector.xspress3;
 
 import gda.device.DeviceException;
+import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 
@@ -12,9 +13,13 @@ import uk.ac.gda.devices.detector.FluorescenceDetector;
  */
 public interface Xspress3 extends FluorescenceDetector, NexusDetector {
 
-	Xspress3Controller getController();
+    public Xspress3Controller getController();
 
-	// TODO review how this is used with the Xspress3FFoverI0Detector
-	Double[] readoutFF() throws DeviceException;
+    // TODO review how this is used with the Xspress3FFoverI0Detector
+    public Double[] readoutFF() throws DeviceException;
+
+    public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException;
+
+    public void clearAndStart() throws DeviceException;
 
 }

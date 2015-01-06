@@ -154,7 +154,7 @@ public class Xspress3DataOperations {
 		return createNexusTreeForFrame(data);
 	}
 
-	private NexusTreeProvider createNexusTreeForFrame(double[][] mcasFromFile) {
+	private NXDetectorData createNexusTreeForFrame(double[][] mcasFromFile) {
 		int numChannels = mcasFromFile.length;
 		int numRois = rois.length;
 
@@ -221,7 +221,7 @@ public class Xspress3DataOperations {
 		return sum;
 	}
 
-	public NexusTreeProvider[] readoutFrames(int firstFrame, int lastFrame) throws DeviceException {
+	public NXDetectorData[] readoutFrames(int firstFrame, int lastFrame) throws DeviceException {
 
 		int numFramesAvailable = controller.getTotalFramesAvailable();
 		if (lastFrame > numFramesAvailable) {
@@ -234,7 +234,7 @@ public class Xspress3DataOperations {
 		try {
 //			file = new NexusFile(filename, NexusFile.NXACC_READ);
 			double[][][] mcasFromFile = extractMCAsFromFile(controller.getFullFileName(), firstFrame, lastFrame);
-			NexusTreeProvider[] frames = new NexusTreeProvider[mcasFromFile.length];
+			NXDetectorData[] frames = new NXDetectorData[mcasFromFile.length];
 			int numFrames = lastFrame - firstFrame + 1;
 			for (int frame = 0; frame < numFrames; frame++) {
 				frames[frame] = createNexusTreeForFrame(mcasFromFile[frame]);

@@ -122,7 +122,7 @@ public class Xspress3System extends Xspress3Detector implements Detector,
 	@Override
 	public double[] readChannel(int startFrame, int frameCount, int channel)
 			throws DeviceException {
-		NXDetectorData[] readoutFrames = (NXDetectorData[]) readoutFrames(
+		NXDetectorData[] readoutFrames = (NXDetectorData[]) readFrames(
 				startFrame, frameCount + startFrame);
 		double[] toReturn = new double[frameCount];
 		for (int i = 0; i < frameCount; i++) {
@@ -134,7 +134,7 @@ public class Xspress3System extends Xspress3Detector implements Detector,
 	@Override
 	public double[] readFrame(int startChannel, int channelCount, int frame)
 			throws DeviceException {
-		NXDetectorData readoutFrame = (NXDetectorData) readoutFrames(frame,
+		NXDetectorData readoutFrame = (NXDetectorData) readFrames(frame,
 				frame)[0];
 		Double[] values = readoutFrame.getDoubleVals();
 		Double[] toReturn = (Double[]) ArrayUtils.subarray(values,
