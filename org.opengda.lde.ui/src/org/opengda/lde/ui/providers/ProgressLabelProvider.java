@@ -1,11 +1,11 @@
 package org.opengda.lde.ui.providers;
 
-import java.util.List;
-
 import gda.device.detector.pixium.events.ScanPointStartEvent;
 import gda.device.detector.pixium.events.ScanStartEvent;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
+
+import java.util.List;
 
 import org.eclipse.jface.viewers.OwnerDrawLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
