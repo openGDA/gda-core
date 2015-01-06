@@ -5,14 +5,10 @@ import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.detector.BufferedDetector;
 import gda.device.detector.DetectorBase;
+import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
-
-import org.python.core.PyException;
-import org.python.core.PyObject;
-import org.python.core.PyString;
-
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 
 /**
@@ -24,9 +20,10 @@ import uk.ac.gda.devices.detector.FluorescenceDetector;
  * @author rjw82
  * 
  */
-public class Xspress3BufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector, FluorescenceDetector {
+public class Xspress3BufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector,
+		FluorescenceDetector {
 
-	private Xspress3Detector xspress3Detector;
+	private Xspress3 xspress3Detector;
 	private ContinuousParameters parameters;
 	private boolean isContinuousModeOn;
 	private TRIGGER_MODE triggerModeWhenInContinuousScan = TRIGGER_MODE.TTl_Veto_Only;
@@ -70,13 +67,13 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	@Override
-	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
-		return xspress3Detector.readoutFrames(startFrame, finalFrame);
+	public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException {
+		return xspress3Detector.readFrames(startFrame, finalFrame);
 	}
 
 	@Override
-	public Object[] readAllFrames() throws DeviceException {
-		return xspress3Detector.readoutFrames(0, xspress3Detector.getController().getNumFramesToAcquire());
+	public NXDetectorData[] readAllFrames() throws DeviceException {
+		return xspress3Detector.readFrames(0, xspress3Detector.getController().getNumFramesToAcquire());
 	}
 
 	@Override
@@ -92,11 +89,11 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		this.triggerModeWhenInContinuousScan = triggerModeWhenInContinuousScan;
 	}
 
-	public Xspress3Detector getXspress3Detector() {
+	public Xspress3 getXspress3Detector() {
 		return xspress3Detector;
 	}
 
-	public void setXspress3Detector(Xspress3Detector xspress3Detector) {
+	public void setXspress3Detector(Xspress3 xspress3Detector) {
 		this.xspress3Detector = xspress3Detector;
 	}
 
@@ -110,14 +107,6 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 
 	public int[] getDataDimensions() throws DeviceException {
 		return xspress3Detector.getDataDimensions();
-	}
-
-	public String checkPositionValid(Object position) {
-		return xspress3Detector.checkPositionValid(position);
-	}
-
-	public boolean isLocal() {
-		return xspress3Detector.isLocal();
 	}
 
 	public int getProtectionLevel() throws DeviceException {
@@ -142,24 +131,12 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		xspress3Detector.atScanStart();
 	}
 
-	public void setLocal(boolean local) {
-		xspress3Detector.setLocal(local);
-	}
-
 	public void asynchronousMoveTo(Object collectionTime) throws DeviceException {
 		xspress3Detector.asynchronousMoveTo(collectionTime);
 	}
 
-	public boolean isConfigureAtStartup() {
-		return xspress3Detector.isConfigureAtStartup();
-	}
-
 	public void atScanLineStart() throws DeviceException {
 		xspress3Detector.atScanLineStart();
-	}
-
-	public void setConfigureAtStartup(boolean configureAtStartup) {
-		xspress3Detector.setConfigureAtStartup(configureAtStartup);
 	}
 
 	public Object getPosition() throws DeviceException {
@@ -174,16 +151,8 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		xspress3Detector.atScanEnd();
 	}
 
-	public boolean isConfigured() {
-		return xspress3Detector.isConfigured();
-	}
-
 	public void atPointEnd() throws DeviceException {
 		xspress3Detector.atPointEnd();
-	}
-
-	public void setConfigured(boolean configured) {
-		xspress3Detector.setConfigured(configured);
 	}
 
 	public void close() throws DeviceException {
@@ -226,18 +195,10 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		xspress3Detector.stop();
 	}
 
-	public void notifyIObservers(Object source, Object arg) {
-		xspress3Detector.notifyIObservers(source, arg);
-	}
-
 	public int getStatus() throws DeviceException {
 		return xspress3Detector.getStatus();
 	}
-
-	public boolean equals(Object obj) {
-		return xspress3Detector.equals(obj);
-	}
-
+	
 	public String getDescription() throws DeviceException {
 		return xspress3Detector.getDescription();
 	}
@@ -254,48 +215,12 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		return xspress3Detector.createsOwnFiles();
 	}
 
-	public int hashCode() {
-		return xspress3Detector.hashCode();
-	}
-
 	public NexusTreeProvider readout() throws DeviceException {
 		return xspress3Detector.readout();
 	}
 
-	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-		xspress3Detector.rawAsynchronousMoveTo(position);
-	}
-
-	public NexusTreeProvider[] readoutFrames(int firstFrame, int lastFrame) throws DeviceException {
-		return xspress3Detector.readoutFrames(firstFrame, lastFrame);
-	}
-
-	public Object rawGetPosition() throws DeviceException {
-		return xspress3Detector.rawGetPosition();
-	}
-
-	public Object externalToInternal(Object externalPosition) {
-		return xspress3Detector.externalToInternal(externalPosition);
-	}
-
-	public Object internalToExternal(Object internalPosition) {
-		return xspress3Detector.internalToExternal(internalPosition);
-	}
-
-//	public Double[] readoutFF() throws DeviceException {
-//		return xspress3Detector.readoutFF();
-//	}
-
 	public String[] getExtraNames() {
 		return xspress3Detector.getExtraNames();
-	}
-
-	public void setRegionsOfInterest(ROI[] regionList) throws DeviceException {
-		xspress3Detector.setRegionsOfInterest(regionList);
-	}
-
-	public ROI[] getRegionsOfInterest() throws DeviceException {
-		return xspress3Detector.getRegionsOfInterest();
 	}
 
 	public void atPointStart() throws DeviceException {
@@ -334,14 +259,6 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		xspress3Detector.atCommandFailure();
 	}
 
-	public int getFirstChannelToRead() {
-		return xspress3Detector.getFirstChannelToRead();
-	}
-
-	public void setFirstChannelToRead(int firstChannelToRead) {
-		xspress3Detector.setFirstChannelToRead(firstChannelToRead);
-	}
-
 	public String[] getInputNames() {
 		return xspress3Detector.getInputNames();
 	}
@@ -358,10 +275,6 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		xspress3Detector.moveTo(position);
 	}
 
-	public int getNumberOfFramesToCollect() throws DeviceException {
-		return xspress3Detector.getNumberOfFramesToCollect();
-	}
-
 	public void setExtraNames(String[] names) {
 		xspress3Detector.setExtraNames(names);
 	}
@@ -369,11 +282,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	public void setInputNames(String[] names) {
 		xspress3Detector.setInputNames(names);
 	}
-
-	public void setNumberOfFramesToCollect(int numberOfFramesToCollect) throws DeviceException {
-		xspress3Detector.setNumberOfFramesToCollect(numberOfFramesToCollect);
-	}
-
+	
 	public void setLevel(int level) {
 		xspress3Detector.setLevel(level);
 	}
@@ -382,73 +291,13 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		xspress3Detector.setOutputFormat(names);
 	}
 
-	public int getSummingMethod() {
-		return xspress3Detector.getSummingMethod();
-	}
-
-	public void setSummingMethod(int summingMethod) {
-		xspress3Detector.setSummingMethod(summingMethod);
-	}
-
-	public String getSumLabel() {
-		return xspress3Detector.getSumLabel();
-	}
-
-	public void setSumLabel(String sumLabel) {
-		xspress3Detector.setSumLabel(sumLabel);
-	}
-
-	public String getUnitsLabel() {
-		return xspress3Detector.getUnitsLabel();
-	}
-
 	public String toString() {
 		return xspress3Detector.toString();
 	}
-
-	public void setUnitsLabel(String unitsLabel) {
-		xspress3Detector.setUnitsLabel(unitsLabel);
-	}
-
-	public boolean isWriteHDF5Files() {
-		return xspress3Detector.isWriteHDF5Files();
-	}
-
-	public void setWriteHDF5Files(boolean writeHDF5Files) {
-		xspress3Detector.setWriteHDF5Files(writeHDF5Files);
-	}
-
+	
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
 		xspress3Detector.waitWhileBusy();
 	}
-
-	public String getFilePath() {
-		return xspress3Detector.getFilePath();
-	}
-
-	public void setFilePath(String filePath) {
-		xspress3Detector.setFilePath(filePath);
-	}
-
-	public String getFilePrefix() {
-		return xspress3Detector.getFilePrefix();
-	}
-
-	public void setFilePrefix(String filePrefix) {
-		xspress3Detector.setFilePrefix(filePrefix);
-	}
-
-//	public String getNumTrackerExtension() {
-//		return xspress3Detector.getNumTrackerExtension();
-//	}
-
-	public void waitWhileBusy(double timeoutInSeconds) throws DeviceException, InterruptedException {
-		xspress3Detector.waitWhileBusy(timeoutInSeconds);
-	}
-
-//	public void setNumTrackerExtension(String numTrackerExtension) {
-//		xspress3Detector.setNumTrackerExtension(numTrackerExtension);
-//	}
 
 	public Object getCountRates() throws DeviceException {
 		return xspress3Detector.getCountRates();
@@ -469,33 +318,4 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	public boolean isAt(Object positionToTest) throws DeviceException {
 		return xspress3Detector.isAt(positionToTest);
 	}
-
-	public PyObject __call__() {
-		return xspress3Detector.__call__();
-	}
-
-	public PyObject __call__(PyObject new_position) {
-		return xspress3Detector.__call__(new_position);
-	}
-
-	public int __len__() {
-		return xspress3Detector.__len__();
-	}
-
-	public PyObject __getitem__(PyObject index) throws PyException {
-		return xspress3Detector.__getitem__(index);
-	}
-
-	public PyString __str__() {
-		return xspress3Detector.__str__();
-	}
-
-	public PyString __repr__() {
-		return xspress3Detector.__repr__();
-	}
-
-	public PyString __doc__() {
-		return xspress3Detector.__doc__();
-	}
-
 }

@@ -262,7 +262,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		}
 
 		// get all various info and add to a NexusTreeProvider
-		NexusTreeProvider tree = readoutFrames(framesRead, framesRead)[0];
+		NexusTreeProvider tree = readFrames(framesRead, framesRead)[0];
 
 		return tree;
 	}
@@ -278,7 +278,8 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * @return NexusTreeProvider array for every frame
 	 * @throws DeviceException
 	 */
-	public NexusTreeProvider[] readoutFrames(int firstFrame, int lastFrame) throws DeviceException {
+	@Override
+	public NXDetectorData[] readFrames(int firstFrame, int lastFrame) throws DeviceException {
 		int numFramesAvailable = controller.getTotalFramesAvailable();
 		if (lastFrame > numFramesAvailable) {
 			throw new DeviceException("Only " + numFramesAvailable + " frames available, cannot return frames "
@@ -293,7 +294,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		Double[][] FFs = calculateFFs(data, numFramesRead);
 
 		// create trees
-		NexusTreeProvider[] results = new NexusTreeProvider[numFramesRead];
+		NXDetectorData[] results = new NXDetectorData[numFramesRead];
 
 		for (int frame = 0; frame < numFramesRead; frame++) {
 			NXDetectorData thisFrame = new NXDetectorData(this);
