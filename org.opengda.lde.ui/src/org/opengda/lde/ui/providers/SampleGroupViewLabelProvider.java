@@ -1,8 +1,6 @@
 package org.opengda.lde.ui.providers;
 
 import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.viewers.ITableColorProvider;

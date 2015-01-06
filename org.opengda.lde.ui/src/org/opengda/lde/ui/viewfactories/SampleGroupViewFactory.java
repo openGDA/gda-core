@@ -28,7 +28,9 @@ import javax.jms.IllegalStateException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.lde.ui.views.SampleGroupView;
-import org.opengda.lde.util.LDEResourceUtil;
+
+import org.opengda.lde.utils.LDEResourceUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +48,7 @@ public class SampleGroupViewFactory implements FindableExecutableExtension {
 	private String beamlineID;
 	private List<String> cellIDs=new ArrayList<String>();
 	private List<String> calibrantNames=new ArrayList<String>();
+	private String eventAdminName;
 
 	public String getViewPartName() {
 		return viewPartName;
@@ -79,6 +82,9 @@ public class SampleGroupViewFactory implements FindableExecutableExtension {
 		}
 		if (getBeamlineID() != null) {
 			sampleGroupView.setBeamlineID(beamlineID);;
+		}
+		if (getEventAdminName()!=null) {
+			sampleGroupView.setEventAdminName(eventAdminName);
 		}
 		sampleGroupView.setCellIDs(cellIDs.toArray(new String[0]));
 		sampleGroupView.setCalibrants(calibrantNames.toArray(new String[0]));
@@ -143,6 +149,14 @@ public class SampleGroupViewFactory implements FindableExecutableExtension {
 
 	public void setCalibrantNames(List<String> calibrantNames) {
 		this.calibrantNames = calibrantNames;
+	}
+
+	public String getEventAdminName() {
+		return eventAdminName;
+	}
+
+	public void setEventAdminName(String eventAdminName) {
+		this.eventAdminName = eventAdminName;
 	}
 
 

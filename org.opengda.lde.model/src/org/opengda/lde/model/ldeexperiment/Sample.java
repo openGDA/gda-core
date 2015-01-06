@@ -269,7 +269,7 @@ public interface Sample extends EObject {
 
 	/**
 	 * Returns the value of the '<em><b>Calibrant</b></em>' attribute.
-	 * The default value is <code>"Si"</code>.
+	 * The default value is <code>"Si(NIST SRM 640c)"</code>.
 	 * <!-- begin-user-doc -->
 	 * <p>
 	 * If the meaning of the '<em>Calibrant</em>' attribute isn't clear,
@@ -279,7 +279,7 @@ public interface Sample extends EObject {
 	 * @return the value of the '<em>Calibrant</em>' attribute.
 	 * @see #setCalibrant(String)
 	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getSample_Calibrant()
-	 * @model default="Si"
+	 * @model default="Si(NIST SRM 640c)"
 	 * @generated
 	 */
 	String getCalibrant();

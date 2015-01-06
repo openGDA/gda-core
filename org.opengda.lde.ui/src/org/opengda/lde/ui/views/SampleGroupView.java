@@ -1,23 +1,23 @@
 package org.opengda.lde.ui.views;
 
-import gda.commandqueue.CommandId;
-import gda.commandqueue.CommandProgress;
-import gda.commandqueue.JythonCommandCommandProvider;
-import gda.commandqueue.Processor;
-import gda.commandqueue.ProcessorCurrentItem;
 import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.device.detector.pixium.events.ScanEndEvent;
+import gda.device.detector.pixium.events.ScanPointStartEvent;
+import gda.device.detector.pixium.events.ScanStartEvent;
+import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
+import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -25,14 +25,15 @@ import javax.mail.internet.InternetAddress;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
@@ -77,23 +78,39 @@ import org.eclipse.nebula.widgets.formattedtext.FormattedTextCellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowData;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SaveAsDialog;
+import org.eclipse.ui.internal.AnimationEngine;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.lde.events.DataReductionFailedEvent;
+import org.opengda.lde.events.NewDataFileEvent;
+import org.opengda.lde.events.ProcessMessage;
+import org.opengda.lde.events.SampleChangedEvent;
+import org.opengda.lde.events.SampleProcessingEvent;
+import org.opengda.lde.events.SampleStatusEvent;
+import org.opengda.lde.events.StageChangedEvent;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.STATUS;
@@ -102,18 +119,21 @@ import org.opengda.lde.model.ldeexperiment.SampleList;
 import org.opengda.lde.ui.Activator;
 import org.opengda.lde.ui.ImageConstants;
 import org.opengda.lde.ui.cdatetime.CDateTimeCellEditor;
-import org.opengda.lde.ui.jobs.SampleCollectionJob;
+import org.opengda.lde.ui.providers.ProgressLabelProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewContentProvider;
 import org.opengda.lde.ui.providers.SampleGroupViewLabelProvider;
 import org.opengda.lde.ui.providers.SampleTableConstants;
+
+import org.opengda.lde.ui.utils.AnimatedTableItemFeedback;
+
 import org.opengda.lde.ui.utils.StringUtils;
-import org.opengda.lde.util.LDEResourceUtil;
+
+import org.opengda.lde.utils.LDEResourceUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-
-import uk.ac.gda.client.CommandQueueViewFactory;
 
 /**
  * This sample view shows data obtained from the EMF model. 
@@ -143,7 +163,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private String[] cellIDs;
 	private String[] calibrants;
 	
-	private final String columnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.ACTIVE, SampleTableConstants.SAMPLE_NAME,
+	private final String columnHeaders[] = { SampleTableConstants.STATUS, SampleTableConstants.PROGRESS, SampleTableConstants.ACTIVE, SampleTableConstants.SAMPLE_NAME,
 			SampleTableConstants.CELL_ID, SampleTableConstants.VISIT_ID, SampleTableConstants.CALIBRANT_NAME, SampleTableConstants.CALIBRANT_X, 
 			SampleTableConstants.CALIBRANT_Y, SampleTableConstants.CALIBRANT_EXPOSURE, SampleTableConstants.SAMPLE_X_START, SampleTableConstants.SAMPLE_X_STOP, 
 			SampleTableConstants.SAMPLE_X_STEP, SampleTableConstants.SAMPLE_Y_START, SampleTableConstants.SAMPLE_Y_STOP, SampleTableConstants.SAMPLE_Y_STEP, 
@@ -151,7 +171,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			SampleTableConstants.EMAIL, SampleTableConstants.START_DATE, SampleTableConstants.END_DATE, SampleTableConstants.COMMAND, 
 			SampleTableConstants.MAIL_COUNT, SampleTableConstants.DATA_FILE_COUNT,SampleTableConstants.COMMENT };
 
-	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 50, false), new ColumnWeightData(10, 35, false),new ColumnWeightData(80, 110, true), 
+	private ColumnWeightData columnLayouts[] = { new ColumnWeightData(10, 50, false),new ColumnWeightData(10, 70, false), new ColumnWeightData(10, 35, false),new ColumnWeightData(80, 110, true), 
 			new ColumnWeightData(40, 55, true), new ColumnWeightData(40, 90, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true),
 			new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 75, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
 			new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true), new ColumnWeightData(40, 65, true),
@@ -166,10 +186,11 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private Action doubleClickAction;
 	private Action startAction;
 	private Action stopAction;
-	private boolean paused;
 	private Action pauseAction;
 	private Action resumeAction;
 	private Action skipAction;
+	
+	private boolean paused;
 	private boolean running;
 	
 	private Action addAction;
@@ -180,11 +201,10 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 	private Resource resource;
 	private boolean isDirty;
-	private Text txtFilePath;
-	private Text txtDataFilename;
-	private Text txtProcessorMessage;
 	protected int nameCount;
-	private ProgressBar progressBar;
+	private String eventAdminName;
+	private Scriptcontroller eventAdmin;
+	private int numActiveSamples;
 	
 	/**
 	 * The constructor.
@@ -210,8 +230,8 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		gd_table.heightHint = 386;
 		gd_table.widthHint = 1000;
 		table.setLayoutData(gd_table);
-		viewer.getTable().setHeaderVisible(true);
-		viewer.getTable().setLinesVisible(true);
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
 		
 		ColumnViewerToolTipSupport.enableFor(viewer, ToolTip.NO_RECREATE);
 		createColumns(viewer);
@@ -229,82 +249,157 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		}
 
 		Composite statusArea=new Composite(rootComposite, SWT.NONE);
-		statusArea.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+		GridData gd_statusArea = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		gd_statusArea.heightHint = 150;
+		statusArea.setLayoutData(gd_statusArea);
 		statusArea.setLayout(new GridLayout(4, false));
 		
-		Label lblSampleListFile = new Label(statusArea, SWT.None);
-		lblSampleListFile.setText("Sample Definition File: ");
+		Group grpDataFile = new Group(statusArea, SWT.NONE);
+		grpDataFile.setLayout(new FillLayout(SWT.HORIZONTAL));
+		GridData gd_grpDataFile = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_grpDataFile.widthHint = 290;
+		grpDataFile.setLayoutData(gd_grpDataFile);
+		grpDataFile.setText("Data File");
+		
+		txtDataFilePath = new Text(grpDataFile, SWT.BORDER);
+		txtDataFilePath.setText("Current data file path");
+		txtDataFilePath.setForeground(ColorConstants.lightGreen);
+		txtDataFilePath.setBackground(ColorConstants.black);
+		
+		Group grpSamplesFileShown = new Group(statusArea, SWT.NONE);
+		grpSamplesFileShown.setLayout(new FillLayout(SWT.HORIZONTAL));
+		grpSamplesFileShown.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		grpSamplesFileShown.setText("Samples file shown in the table above");
+		
+		txtSamplesfile = new Text(grpSamplesFileShown, SWT.BORDER);
+		txtSamplesfile.setEditable(false);
+		txtSamplesfile.setForeground(ColorConstants.lightGreen);
+		txtSamplesfile.setBackground(ColorConstants.black);
+		txtSamplesfile.setText("samples definition file path");
+		
+		Group grpNoSamplesTo = new Group(statusArea, SWT.NONE);
+		GridData gd_grpNoSamplesTo = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_grpNoSamplesTo.widthHint = 111;
+		gd_grpNoSamplesTo.heightHint = 28;
+		grpNoSamplesTo.setLayoutData(gd_grpNoSamplesTo);
+		grpNoSamplesTo.setText("No. Active Samples ");
+		grpNoSamplesTo.setLayout(new RowLayout(SWT.HORIZONTAL));
+		
+		txtActivesamples = new Text(grpNoSamplesTo, SWT.BORDER | SWT.RIGHT);
+		txtActivesamples.setLayoutData(new RowData(117, SWT.DEFAULT));
+		txtActivesamples.setEditable(false);
+		txtActivesamples.setForeground(ColorConstants.lightGreen);
+		txtActivesamples.setBackground(ColorConstants.black);
+		txtActivesamples.setText("0");
 
-		txtFilePath = new Text(statusArea, SWT.BORDER | SWT.READ_ONLY);
-		txtFilePath.setToolTipText("show the filename holding the sample list displayed in the table above");
-		txtFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtFilePath.setEditable(false);
+		Group grpMinColltionTime = new Group(statusArea, SWT.NONE);
+		grpMinColltionTime.setText("No. Collections");
+		grpMinColltionTime.setLayout(new RowLayout(SWT.HORIZONTAL));
+
+		txtTotalNumberCollections = new Text(grpMinColltionTime, SWT.BORDER | SWT.RIGHT);
+		txtTotalNumberCollections.setLayoutData(new RowData(100, SWT.DEFAULT));
+		txtTotalNumberCollections.setForeground(ColorConstants.lightGreen);
+		txtTotalNumberCollections.setText("0");
+		txtTotalNumberCollections.setEditable(false);
+		txtTotalNumberCollections.setBackground(ColorConstants.black);
+
+		Group grpDataCollectionProgress = new Group(statusArea, SWT.NONE);
+		grpDataCollectionProgress.setLayout(new GridLayout(10, false));
+		GridData gd_grpDataCollectionProgress = new GridData(SWT.FILL, SWT.TOP,
+				false, true, 4, 1);
+		gd_grpDataCollectionProgress.heightHint = 67;
+		grpDataCollectionProgress.setLayoutData(gd_grpDataCollectionProgress);
+		grpDataCollectionProgress.setText("Data Collection Progress");
+
+		Label lblCurrentScanNumber = new Label(grpDataCollectionProgress,
+				SWT.NONE);
+		lblCurrentScanNumber.setText("Scan Number:");
+
+		txtScanNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
+		txtScanNumber.setEditable(false);
+		txtScanNumber.setForeground(ColorConstants.lightGreen);
+		txtScanNumber.setBackground(ColorConstants.black);
+		txtScanNumber.setText("display current scan number");
+		GridData gd_txtScanNumber = new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1);
+		gd_txtScanNumber.widthHint = 60;
+		txtScanNumber.setLayoutData(gd_txtScanNumber);
+
+		Label lblCurrentSample = new Label(grpDataCollectionProgress, SWT.NONE);
+		lblCurrentSample.setText("Sample:");
+
+		txtSamplename = new Text(grpDataCollectionProgress, SWT.BORDER);
+		txtSamplename.setEditable(false);
+		txtSamplename.setForeground(ColorConstants.lightGreen);
+		txtSamplename.setBackground(ColorConstants.black);
+		txtSamplename.setText("display current sample name");
+		GridData gd_txtSamplename = new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1);
+		gd_txtSamplename.widthHint = 100;
+		txtSamplename.setLayoutData(gd_txtSamplename);
 		
-		Label lblDataFile = new Label(statusArea, SWT.NONE);
-		lblDataFile.setText("Collecting Data File:");
+		Label lblCurrentStage = new Label(grpDataCollectionProgress, SWT.NONE);
+		lblCurrentStage.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblCurrentStage.setText("Stage:");
+				
+		txtStagename = new Text(grpDataCollectionProgress, SWT.BORDER);
+		txtStagename.setEditable(false);
+		txtStagename.setForeground(ColorConstants.lightGreen);
+		txtStagename.setBackground(ColorConstants.black);
+		txtStagename.setText("display current stage name");
+		txtStagename.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		txtDataFilename = new Text(statusArea, SWT.BORDER | SWT.READ_ONLY);
-		txtDataFilename.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtDataFilename.setEditable(false);
-		txtDataFilename.setToolTipText("Data file to be written for the current collection");
+		Label lblCollectionNumber = new Label(grpDataCollectionProgress, SWT.NONE);
+		lblCollectionNumber.setText("Collection:");
+
+		txtCollectionNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
+		txtCollectionNumber.setEditable(false);
+		txtCollectionNumber.setBackground(ColorConstants.black);
+		txtCollectionNumber.setForeground(ColorConstants.lightGreen);
+		txtCollectionNumber.setText("0/0");
+		GridData gd_txtCollectionNumber = new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1);
+		gd_txtCollectionNumber.widthHint = 40;
+		txtCollectionNumber.setLayoutData(gd_txtCollectionNumber);
+
+		Label lblScanPointNumber = new Label(grpDataCollectionProgress,SWT.NONE);
+		lblScanPointNumber.setText("Scan Point:");
+
 		
-		Label lblProgress = new Label(statusArea, SWT.NONE);
+		txtScanPointNumber = new Text(grpDataCollectionProgress, SWT.BORDER);
+		txtScanPointNumber.setEditable(false);
+		txtScanPointNumber.setForeground(ColorConstants.lightGreen);
+		txtScanPointNumber.setBackground(ColorConstants.black);
+		txtScanPointNumber.setText("0/0");
+		GridData gd_txtScanPointNumber = new GridData(SWT.FILL, SWT.CENTER,true, false, 1, 1);
+		gd_txtScanPointNumber.widthHint = 40;
+		txtScanPointNumber.setLayoutData(gd_txtScanPointNumber);
+				
+		Label lblProgress = new Label(grpDataCollectionProgress, SWT.NONE);
 		lblProgress.setText("Acquisition Progress:");
 		
-		progressBar = new ProgressBar(statusArea, SWT.NONE);
-		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		progressBar.setToolTipText("show the data collection progress based on the list of active samples displayed in the table");
+		progressBar = new ProgressBar(grpDataCollectionProgress, SWT.NONE);
+		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,false, 4, 1));
+		progressBar.setMaximum(100);
 		progressBar.setMinimum(0);
-		progressBar.setMaximum(1000);
 		
-		Label lblCurrentState = new Label(statusArea, SWT.NONE);
-		lblCurrentState.setText("Processor Messages:");
-		
-		txtProcessorMessage = new Text(statusArea, SWT.BORDER | SWT.READ_ONLY);
-		txtProcessorMessage.setEditable(false);
-		txtProcessorMessage.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		txtProcessorMessage.setToolTipText("show the current process position out of the total number of active processes ");
-		txtProcessorMessage.setText("Waiting to start");
-		
+		Label lblProgressMessage = new Label(grpDataCollectionProgress,SWT.NONE);
+		lblProgressMessage.setText("Progress Message:");
+
+		txtProgressMessage = new Text(grpDataCollectionProgress, SWT.BORDER);
+		txtProgressMessage.setForeground(ColorConstants.lightGreen);
+		txtProgressMessage.setBackground(ColorConstants.black);
+		txtProgressMessage.setEditable(false);
+		txtProgressMessage.setText("progressMessage");
+		txtProgressMessage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,true, false, 4, 1));
+
 		initialisation();
 		// register as selection provider to the SelectionService
 		getViewSite().setSelectionProvider(this);
 		// register as selection listener of sample editor if exist
 //		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(SampleViewExtensionFactory.ID, selectionListener);
 		
-		Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
-			@Override
-			public void done(IJobChangeEvent event) {
-				Job job = event.getJob();
-				if (job instanceof SampleCollectionJob) {
-					SampleCollectionJob sampleJob = (SampleCollectionJob) job;
-					IStatus result = event.getResult();
-					if (result.isOK()) {
-						updateSampleStatus(sampleJob, STATUS.COMPLETED);
-					} else if (result.getSeverity() == IStatus.CANCEL) {
-						updateSampleStatus(sampleJob, STATUS.ABORTED);
-					} else if (result.getSeverity() == IStatus.ERROR) {
-						updateSampleStatus(sampleJob, STATUS.ERROR);
-					}
 
-					if (Job.getJobManager().find(SampleCollectionJob.FAMILY_SAMPLE_JOB).length == 0) {
-						logger.info("Samples {} collection completed.", getResUtil().getFileName());
-						updateActionIconsState();
-					}
-				}
-				super.done(event);
-			}
-
-			@Override
-			public void running(IJobChangeEvent event) {
-				Job job = event.getJob();
-				if (job instanceof SampleCollectionJob) {
-					final SampleCollectionJob regionJob = (SampleCollectionJob) job;
-					updateSampleStatus(regionJob, STATUS.RUNNING);
-				}
-				super.running(event);
-			}
-		});
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "org.opengda.lde.ui.viewer");
 		makeActions();
@@ -313,6 +408,19 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		contributeToActionBars();
 
 		updateActionIconsState();
+	}
+	
+	private void updateNumberActiveSamples() {
+		int numActives = 0;
+		if (!samples.isEmpty()) {
+			for (Sample sample : samples) {
+				if (sample.isActive()) {
+					numActives++;
+				}
+			}
+		}
+		txtActivesamples.setText(String.format("%d", numActives));
+		this.numActiveSamples=numActives;
 	}
 
 	private void initialisation() {
@@ -339,106 +447,218 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			}
 		}
 		if (getResUtil() != null) {
-			txtFilePath.setText(getResUtil().getFileName());
+			txtSamplesfile.setText(getResUtil().getFileName());
 		}
 		
 		samples=sampleList.getSamples();
+		
 		viewer.addDragSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new ViewerDragAdapter(viewer));
 		viewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE | DND.DROP_LINK, new Transfer[] { LocalTransfer.getInstance() },new EditingDomainViewerDropAdapter(editingDomain, viewer));
+		updateNumberActiveSamples();
 		
-		CommandQueueViewFactory.getProcessor().addIObserver(this);
+		progressColumn= new TableViewerColumn(viewer, viewer.getTable().getColumn(1));
+		ProgressLabelProvider progressLabelProvider = new ProgressLabelProvider(viewer, samples);
+		
+		if (getEventAdminName()!=null) {
+			eventAdmin = Finder.getInstance().find(getEventAdminName());
+			if (eventAdmin!=null) {
+				eventAdmin.addIObserver(this);
+				progressLabelProvider.setEventAdmin(eventAdmin);
+				eventAdmin.addIObserver(progressLabelProvider);
+			}
+		}
+		
+		progressColumn.setLabelProvider(progressLabelProvider);
+		
+		images = loadAnimatedGIF(viewer.getControl().getDisplay(), ImageConstants.ICON_RUNNING);
+		String beamline=null;
+		if ((beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME))!=null) {
+			NumTracker tracker;
+			try {
+				tracker = new NumTracker(beamline);
+				int currentFileNumber = tracker.getCurrentFileNumber();
+				txtScanNumber.setText(String.valueOf(currentFileNumber));
+			} catch (IOException e) {
+				logger.error("Failed on getting file tracker", e);
+			}
+		}
 	}
 
-	Map<CommandId, Sample> sampleMap=new HashMap<CommandId, Sample>();
-	Processor.STATE processorState;
-	gda.commandqueue.Command.STATE commandState;
+	private Image[] loadAnimatedGIF(Display display, String imagePath) {
+		URL url = FileLocator.find(Activator.getDefault().getBundle(), new Path(imagePath), null);
+		ImageLoader imageLoader = new ImageLoader();
+		try {
+			imageLoader.load(url.openStream());
+		} catch (IOException e) {
+			logger.error("Cannot load animated gif file {}", url.getPath());
+		}
+		Image[] images = new Image[imageLoader.data.length];
+		for (int i = 0; i < imageLoader.data.length; ++i) {
+			ImageData nextFrameData = imageLoader.data[i];
+			images[i] = new Image(display, nextFrameData);
+		}
+		return images;
+	}
 	private Sample currentSample;
+	private long totalNumberOfPoints;
+	private long currentPointNumber;
+	private Image[] images;
+	protected AnimationEngine animation=null;
+
 	@Override
+	@SuppressWarnings("restriction")
 	public void update(Object source, final Object arg) {
-		if (source == CommandQueueViewFactory.getProcessor()) {
-			final ProcessorCurrentItem currentItem = getProcessorCurrentItem();
-			final boolean itemBeingProcessed = currentItem != null;
-			if (arg instanceof Processor.STATE) {
-				// update processor action control
+		if (source==eventAdmin) {
+			if (arg instanceof ScanStartEvent) {
+				ScanStartEvent event = ((ScanStartEvent)arg);
+				totalNumberOfPoints = event.getNumberOfPoints();
+				final String scanFilename = event.getScanFilename();
+				final long scanNumber = event.getScanNumber();
+
 				Display.getDefault().asyncExec(new Runnable() {
+
 					@Override
 					public void run() {
-						processorState = (Processor.STATE) arg;
-						if (processorState == Processor.STATE.WAITING_START) {
-							if (commandState == gda.commandqueue.Command.STATE.PAUSED) {
-								running = true;
-								paused = true;
-							}
-						} else if (processorState == Processor.STATE.PROCESSING_ITEMS) {
-							running = true;
-							paused = false;
-						} else if (processorState == Processor.STATE.WAITING_QUEUE) {
-							for (Sample sample : samples) {
-								if (sample.isActive()) {
-									updateSampleStatus(sample, STATUS.READY);
-								}
-							}
-							if (!itemBeingProcessed) {
-								txtProcessorMessage.setText("No command to process.");
-								progressBar.setSelection(0);
-							}
-							running = false;
-							paused = false;
-						} else if (processorState == Processor.STATE.UNKNOWN) {
-							// Do nothing
-						}
-						updateActionIconsState();
+						txtDataFilePath.setText(scanFilename);
+						txtScanNumber.setText(String.valueOf(scanNumber));
+						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
 					}
 				});
-			} else if (arg instanceof gda.commandqueue.Command.STATE) {
-				//update sample status and selection
+			} else if (arg instanceof ScanPointStartEvent) {
+				currentPointNumber=((ScanPointStartEvent)arg).getCurrentPointNumber();
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						updateScanPointNumber(currentPointNumber,totalNumberOfPoints);
+					}
+				});
+				
+			} else if (arg instanceof ScanEndEvent) {
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						if (currentSample!=null) {
+							updateSampleStatus(currentSample, STATUS.COMPLETED);
+						}
+						if (animation!=null) {
+							animation.cancelAnimation();
+						}
+					}
+				});
+			} else if (arg instanceof StageChangedEvent) {
+				StageChangedEvent event = ((StageChangedEvent)arg);
+				final String currentStage = event.getCurrentStage();
+				final int numberOfSamples = event.getNumberOfSamples();
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						txtStagename.setText(currentStage+": "+numberOfSamples+" samples.");
+					}
+				});
+			} else if (arg instanceof SampleProcessingEvent) {
+				SampleProcessingEvent event = ((SampleProcessingEvent)arg);
+				final String currentSampleName = event.getCurrentSampleName();
+				final int currentSampleNumber = event.getCurrentSampleNumber();
+				final int totalNumberActiveSamples = event.getTotalNumberActiveSamples();
+				final int currentCalibrationNumber = event.getCurrentCalibrationNumber();
+				final int totalNumberCalibrations = event.getTotalNumberCalibrations();
+				
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						txtSamplename.setText(currentSampleName);
+						txtTotalNumberCollections.setText(String.valueOf(totalNumberActiveSamples+totalNumberCalibrations));
+						updateCollectionNumber(currentSampleNumber+currentCalibrationNumber,totalNumberActiveSamples+totalNumberCalibrations);
+						progressBar.setSelection(((currentSampleNumber+currentCalibrationNumber)*100)/(totalNumberActiveSamples+totalNumberCalibrations));
+					}
+				});
+			} else if (arg instanceof SampleChangedEvent) {
+				SampleChangedEvent event = (SampleChangedEvent)arg;
+				final String sampleID = event.getSampleID();
+				logger.debug("sample update to {}",sampleID);
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						if (currentItem == null) {
-							return;
-						}
-						commandState = (gda.commandqueue.Command.STATE) arg;
-						CommandId commandID = currentItem.getCommandID();
-						currentSample = sampleMap.get(commandID);
-						if (commandState == gda.commandqueue.Command.STATE.NOT_STARTED) {
-							updateSampleStatus(currentSample, STATUS.READY);
-						} else if (commandState == gda.commandqueue.Command.STATE.RUNNING) {
-							updateSampleStatus(currentSample, STATUS.RUNNING);
-							Long scanNumber = (long) InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getScanNumber();
-							String detectorName = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation().getDetectorNames()[0];
-							String beamline="";
-							if (LocalProperties.check("gda.nexus.beamlinePrefix")) {
-								beamline=LocalProperties.get(LocalProperties.GDA_BEAMLINE_NAME)+"-";
+						for (Sample sample : samples) {
+							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
+								if (currentSample != sample) {
+									updateSampleStatus(currentSample, STATUS.COMPLETED);
+								}
+								currentSample = sample;
 							}
-							txtDataFilename.setText(getDataDirectory(currentSample)+File.separator+beamline+scanNumber+".nxs");
-						} else if (commandState == gda.commandqueue.Command.STATE.PAUSED) {
-							updateSampleStatus(currentSample, STATUS.PAUSED);
-						} else if (commandState == gda.commandqueue.Command.STATE.COMPLETED) {
-							currentSample.setDataFilePath(txtDataFilename.getText());
-							currentSample.setDataFileCount(currentSample.getDataFileCount()+1);
-							updateSampleStatus(currentSample, STATUS.COMPLETED);
-							//TODO send email to users
-							sendEmailToUsers(currentSample);
-						} else if (commandState == gda.commandqueue.Command.STATE.ABORTED) {
-							updateSampleStatus(currentSample, STATUS.ABORTED);
-						} else if (commandState == gda.commandqueue.Command.STATE.ERROR) {
-							updateSampleStatus(currentSample, STATUS.ERROR);
 						}
 						viewer.setSelection(new StructuredSelection(currentSample));
+						if (animation!=null) {
+							animation.cancelAnimation();
+						}
+						try {
+							TableItem tableItem = viewer.getTable().getItem(samples.indexOf(currentSample));
+							AnimatedTableItemFeedback feedback = new AnimatedTableItemFeedback(viewer.getControl().getShell(),images, tableItem,SampleTableConstants.COL_STATUS);
+							animation= new AnimationEngine(feedback,-1,100);
+							animation.schedule();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
 				});
-			} else if (arg instanceof CommandProgress) {
-				final CommandProgress cprog = (CommandProgress) arg;
+			} else if (arg instanceof SampleStatusEvent) {
+				SampleStatusEvent event = (SampleStatusEvent)arg;
+				final String sampleID = event.getSampleID();
+				final STATUS status = event.getStatus();
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						progressBar.setSelection((int) (cprog.getPercentDone() * progressBar.getMaximum()));
-						txtProcessorMessage.setText(cprog.getMsg());
+						logger.debug("sample {} update to {}",sampleID, status);
+						for (Sample sample : samples) {
+							if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
+								updateSampleStatus(sample, status);
+							}
+						}
+						if (status==STATUS.PAUSED) {
+							animation.sleep();
+						} else if (status==STATUS.RUNNING) {
+							animation.wakeUp();
+						}
+					}
+				});
+			} else if (arg instanceof ProcessMessage) {
+				final String message = ((ProcessMessage)arg).getMessage();
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						txtProgressMessage.setText(message);
+					}
+				});
+				
+			} else if (arg instanceof NewDataFileEvent) {
+				NewDataFileEvent event = ((NewDataFileEvent)arg);
+				String sampleID = event.getSampleID();
+				for (Sample sample : samples) {
+					if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
+						sendEmailToUsers(sample);
+					}
+				}
+			} else if (arg instanceof DataReductionFailedEvent) {
+				final String message = ((DataReductionFailedEvent)arg).getMesaage();
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						txtProgressMessage.setText(message);
 					}
 				});
 			}
 		}
+	}
+	private void updateCollectionNumber(int currentSampleNumber,int totalNumberActiveSamples) {
+		txtCollectionNumber.setText(String.valueOf(currentSampleNumber) + '/'+ String.valueOf(totalNumberActiveSamples));
+	}
+
+	private void updateScanPointNumber(long currentPointNumber,long totalNumberOfPoints) {
+		txtScanPointNumber.setText(String.valueOf(currentPointNumber) + '/'+ String.valueOf(totalNumberOfPoints));
 	}
 
 	protected void sendEmailToUsers(final Sample sample) {
@@ -455,9 +675,10 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 					}
 					final String senderName=LocalProperties.get("org.opengda.mail.sender.name","i11-LDE");
 					//TODO changeto i11-LDE operation email account please
-					final String senderEmail=LocalProperties.get("org.opengda.mail.sender.email","dag-group@diamond.ac.uk");
-					final String description="Data for sample "+sample.getName()+" are available now for download/view at " +sample.getDataFilePath()+".";
-					
+					final String senderEmail=LocalProperties.get("org.opengda.mail.sender.email","chiu.tang@diamond.ac.uk");
+					String description="Data for sample "+sample.getName()+" are available now for download and view.\n";
+					description+="To download raw data files, please log into http://icat.diamond.ac.uk \n";
+					description+= "To view and download reducted data please visit http://ispyb.diamond.ac.uk/dc/visit/"+sample.getVisitID()+"\n";
 					final String from = String.format("%s <%s>", senderName, senderEmail);
 					
 					final String beamlineName = LocalProperties.get("gda.beamline.name","Beamline Unknown");
@@ -487,15 +708,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		
 	}
 
-	private ProcessorCurrentItem getProcessorCurrentItem() {
-		try {
-			return CommandQueueViewFactory.getProcessor().getCurrentItem();
-		} catch (Exception e) {
-			logger.error("Error getting processor current item", e);
-		}
-		return null;
-	}
-
 	protected void updateSampleStatus(final Sample sample, final STATUS status) {
 		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
@@ -513,25 +725,16 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			@Override
 			public void run() {
 				super.run();
-				if (!sampleMap.isEmpty()) {
-					sampleMap.clear();
-				}
+
 				logger.info("Start data collection on GDA server.");
 				running = true;
 				paused=false;
 				updateActionIconsState();
 				try {
-					for (Sample sample : samples) {
-						if (sample.isActive()) {
-							//set data file path for each sample before data collection
-							//TODO using dataCollection script
-							String commandString="LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, "+ getDataDirectory(sample) + ");";
-							commandString += sample.getCommand();
-							JythonCommandCommandProvider command = new JythonCommandCommandProvider(commandString, sample.getName(), null);
-							CommandId addToTail = CommandQueueViewFactory.getQueue().addToTail(command);
-							sampleMap.put(addToTail, sample);
-						}
+					if (isDirty()) {
+						doSave(new NullProgressMonitor());
 					}
+					InterfaceProvider.getCommandRunner().runCommand("datacollection.collectData("+resUtil.getFileName()+")");
 				} catch (Exception e) {
 					logger.error("exception throws on start queue processor.", e);
 					running = false;
@@ -550,7 +753,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				super.run();
 				logger.info("Stop data collection on GDA server.");
 				try {
-					CommandQueueViewFactory.getProcessor().stop(100000);
+					InterfaceProvider.getCommandAborter().abortCommands();
 					running=false;
 					paused=false;
 				} catch (Exception e) {
@@ -570,7 +773,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				super.run();
 				logger.info("Pause data collection on GDA server.");
 				try {
-					CommandQueueViewFactory.getProcessor().pause(100000);
+					InterfaceProvider.getCommandRunner().runCommand("datacollection.pause()");
 					running=false;
 					paused=true;
 				} catch (Exception e) {
@@ -593,7 +796,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				paused=false;
 				updateActionIconsState();
 				try {
-					CommandQueueViewFactory.getProcessor().start(100000);
+					InterfaceProvider.getCommandRunner().runCommand("datacollection.resume()");
 				} catch (Exception e) {
 					logger.error("exception throws on stop GDA server queue processor.", e);
 					running = false;
@@ -612,7 +815,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				super.run();
 				logger.info("Skip the current sample data collection on GDA server.");
 				try {
-					CommandQueueViewFactory.getProcessor().skip(100000);
+					InterfaceProvider.getCommandRunner().runCommand("datacollection.skip()");
 				} catch (Exception e) {
 					logger.error("exception throws on stop GDA server queue processor.", e);
 				}
@@ -960,6 +1163,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 					} catch (Exception e) {
 						logger.error("Exception on setting "+SampleTableConstants.ACTIVE+" field for sample "+((Sample)element).getName(), e);
 					}
+					updateNumberActiveSamples();
 				}
 			} else if (SampleTableConstants.SAMPLE_NAME.equals(columnIdentifier)) {
 				if (value instanceof String) {
@@ -1267,19 +1471,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			skipAction.setEnabled(false);
 		}
 	}
-	
-	private void updateSampleStatus(final SampleCollectionJob sampleJob, final STATUS status) {
-		getViewSite().getShell().getDisplay().asyncExec(new Runnable() {
 
-			@Override
-			public void run() {
-				Sample sample = sampleJob.getSample();
-				sample.setStatus(status);
-				viewer.refresh();
-			}
-		});
-	}
-	
 	private Adapter notifyListener = new EContentAdapter() {
 
 		@Override
@@ -1294,6 +1486,18 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 			}
 		}
 	};
+	private Text txtTotalNumberCollections;
+	private Text txtSamplesfile;
+	private Text txtActivesamples;
+	private Text txtDataFilePath;
+	private Text txtSamplename;
+	private Text txtScanNumber;
+	private Text txtCollectionNumber;
+	private Text txtScanPointNumber;
+	private Text txtProgressMessage;
+	private ProgressBar progressBar;
+	private Text txtStagename;
+	private TableViewerColumn progressColumn;
 
 	
 	private void hookContextMenu() {
@@ -1327,7 +1531,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		manager.add(copyAction);
 		manager.add(undoAction);
 		manager.add(redoAction);
-		
+		manager.add(new Separator());
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
@@ -1342,6 +1546,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		manager.add(copyAction);
 		manager.add(undoAction);
 		manager.add(redoAction);
+		manager.add(new Separator());
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
@@ -1358,6 +1563,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		manager.add(copyAction);
 		manager.add(undoAction);
 		manager.add(redoAction);
+		manager.add(new Separator());
 	}
 
 	private void hookDoubleClickAction() {
@@ -1468,7 +1674,6 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		try {
 			resUtil.getResource().eAdapters().remove(notifyListener);
 //			getViewSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(SampleViewExtensionFactory.ID, selectionListener);
-			CommandQueueViewFactory.getProcessor().deleteIObserver(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1555,5 +1760,13 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 	public void setBeamlineID(String beamlineID) {
 		this.beamlineID = beamlineID;
+	}
+
+	public String getEventAdminName() {
+		return eventAdminName;
+	}
+
+	public void setEventAdminName(String eventAdminName) {
+		this.eventAdminName = eventAdminName;
 	}
 }

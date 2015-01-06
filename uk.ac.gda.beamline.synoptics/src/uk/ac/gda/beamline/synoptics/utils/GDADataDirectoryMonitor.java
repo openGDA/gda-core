@@ -164,6 +164,9 @@ public class GDADataDirectoryMonitor implements Runnable, FileMonitor {
 			if (file.getType().hasChildren()) {
 				// Traverse the children
 				final FileObject[] children = file.getChildren();
+				if (children==null) {
+					return;
+				}
 				for (int i = 0; i < children.length; i++) {
 					_addFile(children[i]);
 				}

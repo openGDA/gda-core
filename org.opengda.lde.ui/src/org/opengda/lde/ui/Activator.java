@@ -4,7 +4,9 @@ import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.opengda.lde.util.SampleGroupEditingDomain;
+
+import org.opengda.lde.utils.SampleGroupEditingDomain;
+
 import org.osgi.framework.BundleContext;
 
 /**

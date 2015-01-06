@@ -131,7 +131,7 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 		if (!plottingSystem.isDisposed()) {
 			plottingSystem.clear();
 		}
-		dataChannel.dispose();
+//		dataChannel.dispose();
 		super.dispose();
 	}
 
@@ -162,18 +162,16 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 
 					@Override
 					public void run() {
-						if (LiveImagePlotComposite.this.isVisible()) {
-							DBR dbr = arg0.getDBR();
-							double[] value = null;
-							if (dbr.isDOUBLE()) {
-								value = ((DBR_Double) dbr).getDoubleValue();
-							}
-							IProgressMonitor monitor = new NullProgressMonitor();
-							try {
-								updateImagePlot(monitor, value);
-							} catch (Exception e) {
-								logger.error("exception caught preparing analyser live plot", e);
-							}
+						DBR dbr = arg0.getDBR();
+						double[] value = null;
+						if (dbr.isDOUBLE()) {
+							value = ((DBR_Double) dbr).getDoubleValue();
+						}
+						IProgressMonitor monitor = new NullProgressMonitor();
+						try {
+							updateImagePlot(monitor, value);
+						} catch (Exception e) {
+							logger.error("exception caught preparing analyser live plot",e);
 						}
 					}
 				});

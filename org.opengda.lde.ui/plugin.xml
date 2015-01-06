@@ -40,6 +40,14 @@
             name="Reduced Data"
             restorable="true">
       </view>
+      <view
+            category="org.opengda.lde.ui"
+            class="gda.rcp.views.ViewFactory:pixiumViewFactory"
+            icon="icons/detector.png"
+            id="uk.ac.gda.epics.client.pixium.views.pixiumview"
+            name="Pixium Detector"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.help.contexts">

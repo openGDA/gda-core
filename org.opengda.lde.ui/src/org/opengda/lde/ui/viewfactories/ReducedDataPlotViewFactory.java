@@ -1,11 +1,11 @@
 package org.opengda.lde.ui.viewfactories;
 
-import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.rcp.views.FindableExecutableExtension;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.lde.ui.views.ReducedDataPlotView;
+import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,14 +13,16 @@ public class ReducedDataPlotViewFactory implements FindableExecutableExtension {
 	private static final Logger logger=LoggerFactory.getLogger(ReducedDataPlotViewFactory.class);
 	private String viewPartName;
 	private String name;
-	private Scriptcontroller eventAdmin;
+	private String eventAdminName;
+	private LDEResourceUtil resUtil;
 	
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating Spectrum plot view");
 		ReducedDataPlotView plotView = new ReducedDataPlotView();
 		plotView.setViewPartName(viewPartName);
-		plotView.setEventAdmin(eventAdmin);
+		plotView.setEventAdminName(eventAdminName);
+		plotView.setResUtil(getResUtil());
 		return plotView;
 	}
 
@@ -42,7 +44,7 @@ public class ReducedDataPlotViewFactory implements FindableExecutableExtension {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (eventAdmin == null ) {
+		if (eventAdminName == null ) {
 			throw new IllegalArgumentException("'eventAdmin' cannot be null.");
 		}
 		
@@ -56,11 +58,19 @@ public class ReducedDataPlotViewFactory implements FindableExecutableExtension {
 		this.viewPartName = viewPartName;
 	}
 
-	public Scriptcontroller getEventAdmin() {
-		return eventAdmin;
+	public String getEventAdminName() {
+		return eventAdminName;
 	}
 
-	public void setEventAdmin(Scriptcontroller eventAdmin) {
-		this.eventAdmin = eventAdmin;
+	public void setEventAdminName(String eventAdminName) {
+		this.eventAdminName = eventAdminName;
+	}
+
+	public LDEResourceUtil getResUtil() {
+		return resUtil;
+	}
+
+	public void setResUtil(LDEResourceUtil resUtil) {
+		this.resUtil = resUtil;
 	}
 }

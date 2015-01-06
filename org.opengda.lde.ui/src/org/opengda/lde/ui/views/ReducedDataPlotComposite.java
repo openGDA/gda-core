@@ -18,6 +18,7 @@
 
 package org.opengda.lde.ui.views;
 
+import gda.factory.Finder;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gda.util.Sleep;
@@ -26,6 +27,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
@@ -45,6 +47,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.opengda.lde.events.NewDataFileEvent;
+import org.opengda.lde.model.ldeexperiment.Sample;
+import org.opengda.lde.utils.LDEResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,12 +61,15 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(ReducedDataPlotComposite.class);
 
-	private static final String SPECTRUM_PLOT = "Spectrum";
+	private static final String SPECTRUM_PLOT = "Pattern";
 	private IPlottingSystem plottingSystem;
 	private ILineTrace profileLineTrace;
 	
 	private Scriptcontroller eventAdmin;
+	private String eventAdminName;
 	private String plotName;
+	private LDEResourceUtil resUtil;
+	private List<Sample> samples;
 
 	/**
 	 * @param parent
@@ -92,8 +99,16 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 	}
 
 	public void initialise() {
-		if (eventAdmin!=null) {
-			eventAdmin.addIObserver(this);
+		if (eventAdminName!=null) {
+			eventAdmin=Finder.getInstance().find(eventAdminName);
+			if (eventAdmin != null) eventAdmin.addIObserver(this);
+		}
+		if (resUtil!=null) {
+			try {
+				samples=resUtil.getSamples();
+			} catch (Exception e) {
+				logger.error("Cannot retieve sample definitions from LDE resource util.", e);
+			}
 		}
 	}
 	@Override
@@ -118,7 +133,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 		});
 	}
 
-	private void updatePlot(final IProgressMonitor monitor, String value) {
+	private void updatePlot(final IProgressMonitor monitor, String value, final String sampleName) {
 		File file= new File(value);
 		long starttime=System.currentTimeMillis();
 		long timer=0;
@@ -146,9 +161,9 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 		xAxis.setName(names[0]);
 		Dataset yds=(Dataset) dataHolder.getDataset(1);
 		yds.setName(names[1]);
-		Dataset error=(Dataset) dataHolder.getDataset(2);
-		error.setName(names[2]);
-		yds.setError(error);
+//		Dataset error=(Dataset) dataHolder.getDataset(2);
+//		error.setName(names[2]);
+//		yds.setError(error);
 		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
 		plotDataSets.add(yds);
 		plottingSystem.clear();
@@ -161,7 +176,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 					if (!profileLineTraces.isEmpty()) {
 						plottingSystem.setShowLegend(false);
 						// plottingSystem.getSelectedYAxis().setTitle(dataset.getName());
-						plottingSystem.setTitle("");
+						plottingSystem.setTitle(sampleName);
 						profileLineTrace = (ILineTrace) profileLineTraces.get(0);
 						profileLineTrace.setTraceColor(ColorConstants.blue);
 					}
@@ -175,23 +190,27 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 	public void update(Object source, final Object arg) {
 		if (source == eventAdmin) {
 			if (arg instanceof NewDataFileEvent) {
+
 				Display.getDefault().asyncExec(new Runnable() {
 					
+
 					@Override
 					public void run() {
-						updatePlot(new NullProgressMonitor(), ((NewDataFileEvent)arg).getFilename());
+						String sampleID = ((NewDataFileEvent)arg).getSampleID();
+						String filename = ((NewDataFileEvent)arg).getFilename();
+						if (sampleID!=null) {
+							for (Sample sample : samples) {
+								if (sample.getSampleID().equalsIgnoreCase(sampleID)) {
+									updatePlot(new NullProgressMonitor(), filename,sample.getName()+" - "+FilenameUtils.getName(filename));
+								}
+							}
+						} else {
+							updatePlot(new NullProgressMonitor(), filename,FilenameUtils.getName(filename));
+						}
 					}
 				});
 			}
 		}
-	}
-
-	public Scriptcontroller getEventAdmin() {
-		return eventAdmin;
-	}
-
-	public void setEventAdmin(Scriptcontroller eventAdmin) {
-		this.eventAdmin = eventAdmin;
 	}
 
 	public String getPlotName() {
@@ -200,5 +219,21 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 
 	public void setPlotName(String plotName) {
 		this.plotName = plotName;
+	}
+
+	public String getEventAdminName() {
+		return eventAdminName;
+	}
+
+	public void setEventAdminName(String eventAdminName) {
+		this.eventAdminName = eventAdminName;
+	}
+
+	public LDEResourceUtil getResUtil() {
+		return resUtil;
+	}
+
+	public void setResUtil(LDEResourceUtil resUtil) {
+		this.resUtil = resUtil;
 	}
 }

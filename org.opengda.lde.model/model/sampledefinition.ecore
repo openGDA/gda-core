@@ -31,7 +31,7 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="visitID" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
         defaultValueLiteral="0-0"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="calibrant" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        defaultValueLiteral="Si"/>
+        defaultValueLiteral="Si(NIST SRM 640c)"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="calibrant_x" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"
         defaultValueLiteral="0"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="calibrant_y" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"

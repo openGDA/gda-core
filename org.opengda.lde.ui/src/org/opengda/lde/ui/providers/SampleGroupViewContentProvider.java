@@ -13,7 +13,9 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
-import org.opengda.lde.util.LDEResourceUtil;
+
+import org.opengda.lde.utils.LDEResourceUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**

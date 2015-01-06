@@ -46,8 +46,9 @@ public class ImageConstants {
 
 
 	public static final String ICON_RUN_READY = "icons/waiting.gif";
-	public static final String ICON_RUNNING = "icons/youtube.gif";
+	public static final String ICON_RUNNING = "icons/running.gif";
 	public static final String ICON_RUN_COMPLETE = "icons/complete_status.gif";
+//	public static final String ICON_RUN_PAUSED = "icons/pause_status.gif";
 	public static final String ICON_RUN_FAILURE = "icons/progress_error.gif";
 	public static final String ICON_INVALID = "icons/invalid.png";
 	public static final String ICON_ERROR = "icons/errorstate.gif";
