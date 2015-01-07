@@ -218,9 +218,15 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		INexusTree acquisition_mode_node=new NexusTreeNode("acquisition_mode", NexusExtractor.SDSClassName, null,acquisition_mode);
 		regionNode.addChildNode(acquisition_mode_node);
 
-		NexusGroupData energy_mode=new NexusGroupData(getEnergyMode());
-		INexusTree energy_mode_node=new NexusTreeNode("energy_mode", NexusExtractor.SDSClassName, null,energy_mode);
-		regionNode.addChildNode(energy_mode_node);
+		if (!getCachedEnergyMode().equalsIgnoreCase("Binding")) {
+			NexusGroupData energy_mode=new NexusGroupData(getEnergyMode());
+			INexusTree energy_mode_node=new NexusTreeNode("energy_mode", NexusExtractor.SDSClassName, null,energy_mode);
+			regionNode.addChildNode(energy_mode_node);
+		} else {
+			NexusGroupData energy_mode=new NexusGroupData("Binding");			
+			INexusTree energy_mode_node=new NexusTreeNode("energy_mode", NexusExtractor.SDSClassName, null,energy_mode);
+			regionNode.addChildNode(energy_mode_node);
+		}
 		
 		NexusGroupData detector_mode=new NexusGroupData(getDetectorMode());
 		INexusTree detector_mode_node=new NexusTreeNode("detector_mode", NexusExtractor.SDSClassName, null,detector_mode);
@@ -497,16 +503,17 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 					NeXusUtils.writeNexusString(nexusFile, "reagion_name", getRegionName());
 					NeXusUtils.writeNexusString(nexusFile, "lens_mode", lensMode);
 					NeXusUtils.writeNexusString(nexusFile, "acquisition_mode", getAcquisitionMode());
-					NeXusUtils.writeNexusString(nexusFile, "energy_mode", getEnergyMode());
 					NeXusUtils.writeNexusString(nexusFile, "detector_mode", getDetectorMode());
 					NeXusUtils.writeNexusInteger(nexusFile, "pass_energy", getPassEnergy());
 					double excitationEnergy = getExcitationEnergy();
 					if (getCachedEnergyMode().equalsIgnoreCase("Binding")) {
+						NeXusUtils.writeNexusString(nexusFile, "energy_mode", "Binding");
 						NeXusUtils.writeNexusDouble(nexusFile, "low_energy", excitationEnergy-getEndEnergy(), "eV");
 						NeXusUtils.writeNexusDouble(nexusFile, "high_energy", excitationEnergy-getStartEnergy(), "eV");
 						NeXusUtils.writeNexusDouble(nexusFile, "fixed_energy", excitationEnergy-getCentreEnergy(), "eV");
 						
 					} else {
+						NeXusUtils.writeNexusString(nexusFile, "energy_mode", "Kinetic");
 						NeXusUtils.writeNexusDouble(nexusFile, "low_energy", getStartEnergy(), "eV");
 						NeXusUtils.writeNexusDouble(nexusFile, "high_energy", getEndEnergy(), "eV");
 						NeXusUtils.writeNexusDouble(nexusFile, "fixed_energy", getCentreEnergy(), "eV");
