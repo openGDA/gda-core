@@ -109,7 +109,13 @@ class RasterMap(Map):
         self.log("Row time: " + str(float(scanBean.getRowTime())))
         self.log("Number points: "+ str(float(numberPoints)))
         
-        dets = [self.raster_counterTimer01, self.cid]
+        
+        # For the very few times a year that the cid is used,
+        # then uncomment this line (and comment out the line below)
+        # to add the cid detector to the raster maps
+#         dets = [self.raster_counterTimer01, self.cid]
+        dets = [self.raster_counterTimer01]
+        
         if(detectorType == "Silicon"):
             dets += [self.raster_xmap]
         elif(detectorType == "Xspress3"):
