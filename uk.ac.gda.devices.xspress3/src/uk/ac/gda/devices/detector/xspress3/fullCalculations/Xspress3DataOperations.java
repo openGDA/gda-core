@@ -26,7 +26,7 @@ public class Xspress3DataOperations {
 	private final String sumLabel = "FF";
 	private final String unitsLabel = "counts";
 	private final String allElementSumLabel = "AllElementSum";
-	
+
 	private Xspress3Controller controller;
 	private int firstChannelToRead;
 	private int framesRead;
@@ -34,7 +34,7 @@ public class Xspress3DataOperations {
 	private String configFileName;
 	private ROI[] rois;
 	private String detectorName;
-
+	private Xspress3FileReader reader;
 
 	public Xspress3DataOperations(Xspress3Controller controller, String detectorName, int firstChannelToRead) {
 		this.controller = controller;
@@ -43,7 +43,8 @@ public class Xspress3DataOperations {
 	}
 
 	public String[] getOutputFormat() {
-		int numNames = getExtraNames().length;
+		int numNames = getExtraNames().length + 1; // the + 1 for the inputName
+		// which every detector has
 		String[] outputFormat = new String[numNames];
 		for (int i = 0; i < numNames; i++) {
 			outputFormat[i] = "%.3f";
@@ -65,13 +66,14 @@ public class Xspress3DataOperations {
 
 	public void atScanLineStart() throws DeviceException {
 		framesRead = 0;
+		reader = null;
 		// rowBeingCollected++;
 	}
 
 	public void atPointEnd() throws DeviceException {
-		if (controller.getNumFramesToAcquire() > 1) {
-			framesRead++;
-		}
+		// if (controller.getNumFramesToAcquire() > 1) {
+		framesRead++;
+		// }
 	}
 
 	public String getConfigFileName() {
@@ -127,17 +129,23 @@ public class Xspress3DataOperations {
 		// this method is for step scan readout and so it assumed that the data
 		// has been collected by the time this method is called
 
-		try {
-			// yuck, but unavoidable to prevent a race condition. The Xspress3
-			// is driven by the TFG, but we
-			// are
-			// looking at the EPICS layer which will be a bit behind the gate
-			// signals sent to the xspress3 electronics, so need a delay until
-			// the available frames PV (and therefore all the data PVs) has been
-			// updated
-			Thread.sleep(150);
-		} catch (InterruptedException e) {
-			throw new DeviceException("InterruptedException during readout.");
+		if (framesRead == 0) {
+			try {
+				// yuck, but unavoidable to prevent a race condition. The
+				// Xspress3
+				// is driven by the TFG, but we
+				// are
+				// looking at the EPICS layer which will be a bit behind the
+				// gate
+				// signals sent to the xspress3 electronics, so need a delay
+				// until
+				// the available frames PV (and therefore all the data PVs) has
+				// been
+				// updated
+				Thread.sleep(250);
+			} catch (InterruptedException e) {
+				throw new DeviceException("InterruptedException during readout.");
+			}
 		}
 
 		// sanity check
@@ -150,7 +158,7 @@ public class Xspress3DataOperations {
 	}
 
 	private NexusTreeProvider readoutLatestFrame() throws DeviceException {
-		double[][] data = controller.readoutDTCorrectedLatestMCA(0, controller.getNumberOfChannels());
+		double[][] data = controller.readoutDTCorrectedLatestMCA(0, controller.getNumberOfChannels() - 1);
 		return createNexusTreeForFrame(data);
 	}
 
@@ -169,21 +177,21 @@ public class Xspress3DataOperations {
 				theFF += thisRoiSum;
 			}
 		}
-		
+
 		int numMcaElements = mcasFromFile[0].length;
-		double [] allElementSum = new double[numMcaElements];
-		for (int element = 0; element < numMcaElements; element++){
-			for  (int chan = 0; chan < numChannels; chan++) {
+		double[] allElementSum = new double[numMcaElements];
+		for (int element = 0; element < numMcaElements; element++) {
+			for (int chan = 0; chan < numChannels; chan++) {
 				allElementSum[element] += mcasFromFile[chan][element];
 			}
 		}
-		
 
 		NXDetectorData thisFrame = new NXDetectorData(getExtraNames(), getOutputFormat(), detectorName);
 		INexusTree detTree = thisFrame.getDetTree(detectorName);
 
 		// add the FF (sum over all rois, over all channels)
-		thisFrame.addData(detTree, sumLabel, new int[] { 1 }, NexusFile.NX_FLOAT64, theFF, unitsLabel, 1);
+		thisFrame.addData(detTree, sumLabel, new int[] { 1 }, NexusFile.NX_FLOAT64, new double[] { theFF }, unitsLabel,
+				1);
 
 		// add rois
 		for (int roi = 0; roi < numRois; roi++) {
@@ -192,12 +200,12 @@ public class Xspress3DataOperations {
 		}
 
 		// add MCAs
-		thisFrame.addData(detTree, mcaLabel, new int[] { numChannels, numMcaElements }, NexusFile.NX_FLOAT64, mcasFromFile,
-				unitsLabel, 2);
-		
+		thisFrame.addData(detTree, mcaLabel, new int[] { numChannels, numMcaElements }, NexusFile.NX_FLOAT64,
+				mcasFromFile, unitsLabel, 2);
+
 		// add all element sum
-		thisFrame.addData(detTree, allElementSumLabel, new int[] { numMcaElements }, NexusFile.NX_FLOAT64, allElementSum,
-				unitsLabel, 2);
+		thisFrame.addData(detTree, allElementSumLabel, new int[] { numMcaElements }, NexusFile.NX_FLOAT64,
+				allElementSum, unitsLabel, 2);
 
 		// add plottable values
 		int index = 0;
@@ -230,25 +238,31 @@ public class Xspress3DataOperations {
 		}
 
 		// this trusts that the file handle is available to read from
-//		NexusFile file = null;
+		// NexusFile file = null;
 		try {
-//			file = new NexusFile(filename, NexusFile.NXACC_READ);
-			double[][][] mcasFromFile = extractMCAsFromFile(controller.getFullFileName(), firstFrame, lastFrame);
-			NXDetectorData[] frames = new NXDetectorData[mcasFromFile.length];
+			// file = new NexusFile(filename, NexusFile.NXACC_READ);
+			/* double[][][] mcasFromFile = */extractMCAsFromFile(controller.getFullFileName(), firstFrame, lastFrame);
 			int numFrames = lastFrame - firstFrame + 1;
+			NXDetectorData[] frames = new NXDetectorData[numFrames];
 			for (int frame = 0; frame < numFrames; frame++) {
-				frames[frame] = createNexusTreeForFrame(mcasFromFile[frame]);
+				int absoluteFrameNumber = frame + firstFrame;
+				frames[frame] = createNexusTreeForFrame(reader.getFrame(absoluteFrameNumber));
 			}
 			return frames;
 		} catch (Exception e) {
 			throw new DeviceException(e.getMessage());
-		} 
+		}
 	}
 
-	private double[][][] extractMCAsFromFile(String filename, int firstFrame, int lastFrame) throws NexusException, NexusExtractorException {
-		Xspress3FileReader reader = new Xspress3FileReader(filename,controller.getNumberOfChannels(), EpicsXspress3ControllerPvProvider.MCA_SIZE);
-		double[][][] mcas = reader.readFrames(firstFrame,lastFrame);
-		return mcas;
+	private void extractMCAsFromFile(String filename, int firstFrame, int lastFrame) throws NexusException,
+			NexusExtractorException {
+		if (reader == null) {
+			reader = new Xspress3FileReader(filename, controller.getNumberOfChannels(),
+					EpicsXspress3ControllerPvProvider.MCA_SIZE);
+			reader.readFile();
+		}
+		// double[][][] mcas = reader.readFrames(firstFrame, lastFrame);
+		// return mcas;
 	}
 
 	public Double[] readoutFF() throws DeviceException {
@@ -316,16 +330,10 @@ public class Xspress3DataOperations {
 		controller.doErase();
 		controller.doStart();
 		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only
-																		// want
-																		// to
-																		// collect
-																		// a
-																		// frame
-																		// at a
-																		// time
+		// // time
 		((Timer) Finder.getInstance().find("tfg")).countAsync(time); // run tfg
-																		// for
-																		// time
+		// for
+		// time
 		do {
 			synchronized (this) {
 				try {

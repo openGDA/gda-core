@@ -307,7 +307,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 
 		try {
 
-			final Double[][] theData = theDetector.getMCData(collectionTimeValue);
+			final double[][] theData = theDetector.getMCData(collectionTimeValue);
 			storeDataInWrapper(theData);
 
 			if (monitor != null) {
@@ -405,12 +405,12 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 		}
 	}
 
-	private void storeDataInWrapper(Double[][] theData) {
+	private void storeDataInWrapper(double[][] theData) {
 		// first convert to a 3D int array to match with the Xspress2 editor
 		final int[][][] ret = new int[theData.length][1][theData[0].length];
 		for (int i = 0; i < theData.length; i++) {
 			for (int mcaChan = 0; mcaChan < theData[0].length; mcaChan++){
-				ret[i][0][mcaChan] = theData[i][mcaChan].intValue();// Int array is [element][grade (1, 2 or all 16)][mca channel]
+				ret[i][0][mcaChan] = (int) Math.round(theData[i][mcaChan]);// Int array is [element][grade (1, 2 or all 16)][mca channel]
 			}
 		}
 		getDataWrapper().setValue(ElementCountsData.getDataFor(ret));

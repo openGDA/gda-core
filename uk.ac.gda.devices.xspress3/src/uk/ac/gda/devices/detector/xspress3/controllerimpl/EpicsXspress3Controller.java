@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
-import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
 
 /**
  * There is more functionality in the EPICS Xspress3 template than made
@@ -110,10 +109,10 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		try {
 			if (saveFiles) {
 				pvProvider.pvStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Capture);
-				pvProvider.pvAllElementSumStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Capture);
+//				pvProvider.pvAllElementSumStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Capture);
 			} else {
 				pvProvider.pvStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Done);
-				pvProvider.pvAllElementSumStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Done);
+//				pvProvider.pvAllElementSumStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Done);
 			}
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting save files flag", e);
@@ -439,7 +438,8 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		double[][] mcas = new double[finalChannel - startChannel + 1][];
 		for (int i = startChannel; i <= finalChannel; i++) {
 			try {
-				mcas[i] = ArrayUtils.toPrimitive(pvProvider.pvsLatestMCA[i].get());
+			    Double[] array = pvProvider.pvsLatestMCA[i].get();
+				mcas[i] = ArrayUtils.toPrimitive(array,0.0);
 			} catch (IOException e) {
 				throw new DeviceException("IOException while fetching mca array data", e);
 			}
@@ -633,7 +633,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public void setFilePath(String path) throws DeviceException {
 		try {
 			pvProvider.pvSetFilePath.putWait(path);
-			pvProvider.pvAllElementSumSetFilePath.putWait(path);
+//			pvProvider.pvAllElementSumSetFilePath.putWait(path);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting filepath", e);
 		}
@@ -644,7 +644,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public void setFilePrefix(String template) throws DeviceException {
 		try {
 			pvProvider.pvSetFilePrefix.putWait(template);
-			pvProvider.pvAllElementSumSetFilePrefix.putWait(Xspress3Detector.ALL_ELEMENT_SUM_LABEL +template);
+//			pvProvider.pvAllElementSumSetFilePrefix.putWait(Xspress3Detector.ALL_ELEMENT_SUM_LABEL +template);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting file prefix", e);
 		}
@@ -655,7 +655,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public void setNextFileNumber(int nextNumber) throws DeviceException {
 		try {
 			pvProvider.pvNextFileNumber.putWait(nextNumber);
-			pvProvider.pvAllElementSumNextFileNumber.putWait(nextNumber);
+//			pvProvider.pvAllElementSumNextFileNumber.putWait(nextNumber);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting file number", e);
 		}
@@ -736,7 +736,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public void setHDFFileAutoIncrement(boolean b) throws DeviceException {
 		try {
 			pvProvider.pvHDFAutoIncrement.putNoWait(true);
-			pvProvider.pvAllElementSumHDFAutoIncrement.putNoWait(true);
+//			pvProvider.pvAllElementSumHDFAutoIncrement.putNoWait(true);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting auto increment", e);
 		}
@@ -746,7 +746,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	public void setHDFNumFramesToAcquire(int i) throws DeviceException {
 		try {
 			pvProvider.pvHDFNumCapture.putNoWait(i);
-			pvProvider.pvAllElementSumHDFNumCapture.putNoWait(i);
+//			pvProvider.pvAllElementSumHDFNumCapture.putNoWait(i);
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting num HDF frames to acquire", e);
 		}

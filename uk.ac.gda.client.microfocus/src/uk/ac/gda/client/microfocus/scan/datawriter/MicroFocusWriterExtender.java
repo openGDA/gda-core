@@ -18,6 +18,7 @@
 
 package uk.ac.gda.client.microfocus.scan.datawriter;
 
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
@@ -383,7 +384,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 								if (ArrayUtils.contains(roiNames, key)) {
 									if (detectorValuesCache[i][roiNameMap.get(key)] == null)
 										detectorValuesCache[i][roiNameMap.get(key)] = new double[totalPoints];
-									Double[] dataArray = (Double[]) d.getData(detectorName, key, "SDS").getBuffer();
+									NexusGroupData groupData = d.getData(detectorName, key, "SDS");
+									double[] dataArray = (double[]) groupData.getBuffer();
 									double windowTotal = dataArray[i];
 									double rgbElementSum = rgbLineData.get(key);
 									rgbLineData.put(key, rgbElementSum + windowTotal);
@@ -405,7 +407,12 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			for (String s : rbgColumns) {
 				Double val = rgbLineData.get(s);
 				if (val != null){
-					DecimalFormat df = new DecimalFormat("#");
+					DecimalFormat df;
+					if (s.contains("ime")){
+						df = new DecimalFormat("#.###");
+					} else {
+						df = new DecimalFormat("#");
+					}
 					rgbLine.append(df.format(val));
 					rgbLine.append(" ");
 				}

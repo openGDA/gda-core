@@ -198,20 +198,20 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<Integer> pvHDFNumCapture;
 	protected ReadOnlyPV<String> pvHDFFullFileName;
 
-	protected PV<CAPTURE_CTRL_RBV> pvAllElementSumStartStopFileWriting;
-	protected ReadOnlyPV<CAPTURE_CTRL_RBV> pvAllElementSumIsFileWriting;
-	protected ReadOnlyPV<Integer> pvAllElementSumGetFileWritingStatus;
-	protected PV<String> pvAllElementSumSetFilePath;
-	protected ReadOnlyPV<String> pvAllElementSumGetFilePath;
-	protected PV<String> pvAllElementSumSetFilePrefix;
-	protected ReadOnlyPV<String> pvAllElementSumGetFilePrefix;
-	protected PV<Integer> pvAllElementSumNextFileNumber;
-	protected PV<Integer> pvAllElementSumExtraDimensions;
-	protected PV<Integer> pvAllElementSumExtraDimN;
-	protected PV<Integer> pvAllElementSumExtraDimX;
-	protected PV<Integer> pvAllElementSumExtraDimY;
-	protected PV<Boolean> pvAllElementSumHDFAutoIncrement;
-	protected PV<Integer> pvAllElementSumHDFNumCapture;
+//	protected PV<CAPTURE_CTRL_RBV> pvAllElementSumStartStopFileWriting;
+//	protected ReadOnlyPV<CAPTURE_CTRL_RBV> pvAllElementSumIsFileWriting;
+//	protected ReadOnlyPV<Integer> pvAllElementSumGetFileWritingStatus;
+//	protected PV<String> pvAllElementSumSetFilePath;
+//	protected ReadOnlyPV<String> pvAllElementSumGetFilePath;
+//	protected PV<String> pvAllElementSumSetFilePrefix;
+//	protected ReadOnlyPV<String> pvAllElementSumGetFilePrefix;
+//	protected PV<Integer> pvAllElementSumNextFileNumber;
+//	protected PV<Integer> pvAllElementSumExtraDimensions;
+//	protected PV<Integer> pvAllElementSumExtraDimN;
+//	protected PV<Integer> pvAllElementSumExtraDimX;
+//	protected PV<Integer> pvAllElementSumExtraDimY;
+//	protected PV<Boolean> pvAllElementSumHDFAutoIncrement;
+//	protected PV<Integer> pvAllElementSumHDFNumCapture;
 
 	public EpicsXspress3ControllerPvProvider(String epicsTemplate, int numberOfDetectorChannels) throws FactoryException {
 		this.numberOfDetectorChannels = numberOfDetectorChannels;
@@ -260,7 +260,7 @@ public class EpicsXspress3ControllerPvProvider {
 		pvHDFAutoIncrement = LazyPVFactory.newBooleanFromEnumPV(generatePVName(FILE_AUTOINCREMENT));
 		pvHDFNumCapture = LazyPVFactory.newIntegerPV(generatePVName(FILE_NUMCAPTURE));
 
-		pvHDFFullFileName = LazyPVFactory.newReadOnlyStringPV(FULLFILENAME);
+		pvHDFFullFileName = LazyPVFactory.newReadOnlyStringFromWaveformPV(generatePVName(FULLFILENAME));
 		pvExtraDimensions = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIMS));
 		pvExtraDimN = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_N));
 		pvExtraDimX = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_X));
