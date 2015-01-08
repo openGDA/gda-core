@@ -10,6 +10,7 @@ import gda.device.detector.NexusDetector;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
+import uk.ac.gda.devices.detector.xspress3.fullCalculations.Xspress3WithFullCalculationsDetector;
 
 /**
  * When using an Xspress3 system in a ContinuousScan.
@@ -64,6 +65,13 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 
     @Override
     public int getNumberFrames() throws DeviceException {
+	
+	if (xspress3Detector instanceof Xspress3WithFullCalculationsDetector){
+	    if (xspress3Detector.getController().isSavingFiles()){
+		return 0;
+	    }
+	}
+	
 	return xspress3Detector.getController().getTotalFramesAvailable();
     }
 
@@ -79,7 +87,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 
     @Override
     public int maximumReadFrames() throws DeviceException {
-	return 500;
+	return 250;
     }
 
     public TRIGGER_MODE getTriggerModeWhenInContinuousScan() {

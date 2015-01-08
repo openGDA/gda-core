@@ -32,8 +32,9 @@ public class Xspress3ScanOperations {
 	int lengthOfEachScanLine = currentscan.getDimensions()[numDimensions - 1];
 	setNumberOfFramesToCollect(lengthOfEachScanLine);
 	controller.doStop();
+	controller.setPerformROICalculations(false);
 
-	if (!readDataFromFile) {
+	if (readDataFromFile) {
 	    prepareFileWriting(currentDimensions);
 	}
 

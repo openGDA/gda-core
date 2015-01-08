@@ -518,4 +518,9 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	public void setSimulationFileName(String filename){
 		simulationFileName = filename;
 	}
+
+	@Override
+	public void setPerformROICalculations(Boolean doCalcs) throws DeviceException {
+	    // do nothing	    
+	}
 }
