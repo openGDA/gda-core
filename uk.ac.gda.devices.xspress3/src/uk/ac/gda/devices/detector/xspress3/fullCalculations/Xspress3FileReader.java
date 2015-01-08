@@ -16,7 +16,7 @@ public class Xspress3FileReader {
 	private String url;
 	private int numberOfDetectorElements;
 	private int mcaSize;
-	private double[][][] theData = null;
+	private double[][][] theData = null; // [frame][element][mcaChannel]
 
 	public Xspress3FileReader(String filename, int numberOfDetectorElements, int mcaSize) throws NexusException {
 		this.url = filename;
@@ -24,23 +24,36 @@ public class Xspress3FileReader {
 		this.mcaSize = mcaSize;
 	}
 
-	public double[][][] readFrames(int firstFrame, int lastFrame) throws NexusException, NexusExtractorException {
-
+	public void readFile() throws NexusException, NexusExtractorException {
 		if (theData == null) {
 			fillDataBuffer();
 		}
-
-		int numFrames = lastFrame - firstFrame + 1;
-		double[][][] data = new double[numFrames][numberOfDetectorElements][mcaSize];
-		int index = 0;
-		for (int frame = firstFrame; frame <= lastFrame; frame++) {
-			data[index] = theData[frame];
-			index++;
-		}
-
-		return data;
 	}
 
+	// public double[][][] readFrames(int firstFrame, int lastFrame) throws
+	// NexusException, NexusExtractorException {
+	//
+	// readFile();
+	//
+	// int numFrames = lastFrame - firstFrame + 1;
+	// double[][][] data = new
+	// double[numFrames][numberOfDetectorElements][mcaSize];
+	// int index = 0;
+	// for (int frame = firstFrame; frame <= lastFrame; frame++) {
+	// data[index] = theData[frame];
+	// index++;
+	// }
+	//
+	// return data;
+	// }
+
+	/*
+	 * Reads the whole row (whole file) into memory
+	 * <p>
+	 * 
+	 * @throws NexusException
+	 * @throws NexusExtractorException
+	 */
 	private void fillDataBuffer() throws NexusException, NexusExtractorException {
 		// data is frame x numberOfDetectorElements x mcaSize
 
@@ -65,6 +78,16 @@ public class Xspress3FileReader {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Assumes {@link #readFile()} has been called and returned normally.
+	 * 
+	 * @param frameNumber
+	 * @return
+	 */
+	public double[][] getFrame(int frameNumber) {
+		return theData[frameNumber];
 	}
 
 }

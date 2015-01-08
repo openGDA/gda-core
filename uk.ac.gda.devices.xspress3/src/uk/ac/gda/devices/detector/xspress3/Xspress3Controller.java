@@ -57,6 +57,9 @@ public interface Xspress3Controller extends Findable{
 	public Integer getNumFramesToAcquire() throws DeviceException;
 
 	public void setNumFramesToAcquire(Integer numFrames) throws DeviceException;
+	
+	// to switch on/off EPICS calculations. When off EPICS will perform much quicker, at the moment.
+	public void setPerformROICalculations(Boolean doCalcs) throws DeviceException;
 
 	public void setTriggerMode(TRIGGER_MODE mode) throws DeviceException;
 
