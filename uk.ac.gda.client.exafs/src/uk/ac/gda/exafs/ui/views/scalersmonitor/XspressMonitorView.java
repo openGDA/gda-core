@@ -26,6 +26,7 @@ import gda.factory.Finder;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.dawnsci.plotting.api.PlotType;
 import org.dawnsci.plotting.api.axis.IAxis;
 import org.dawnsci.plotting.api.trace.ILineTrace;
@@ -194,25 +195,19 @@ public class XspressMonitorView extends MonitorViewBase {
 			currentFrame--;
 		}
 
-		int numChannels = ionchambers.getExtraNames().length;
-		// works for TFG2 only where time if the first channel
-		double[] ion_results = ionchambers.readFrame(1, numChannels, currentFrame);
-
+		// assumes an column called I0
+		double[] ion_results = (double[]) ionchambers.readout();
 		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
-		int i0Index = -1;
-		String[] eNames = ionchambers.getExtraNames();
-		// find the index for I0
-		for (String s : eNames) {
-			i0Index++;
-			if (s.equals("I0"))
-				break;
-
-		}
+		
+		String[] extraNames = ionchambers.getExtraNames();
+		int i0Index = ArrayUtils.indexOf(extraNames, "I0");
 		if (collectionTime != null) {
 			ion_results[i0Index] /= collectionTime;
 			ion_results[i0Index + 1] /= collectionTime;
 			ion_results[i0Index + 2] /= collectionTime;
 		}
+		
+		
 		return new Double[] { ion_results[i0Index + 0], ion_results[i0Index + 1], ion_results[i0Index + 2] };
 	}
 
