@@ -33,6 +33,8 @@ import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.TraceType;
+
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
@@ -42,8 +44,8 @@ import org.eclipse.swt.widgets.Group;
 
 public class XspressMonitorView extends MonitorViewBase {
 	public static final String ID = "uk.ac.gda.exafs.ui.views.scalersmonitor";
-//	protected static final Logger logger = LoggerFactory.getLogger(XspressMonitorView.class);
-//	private static final Double MAX_FLUO_RATE = 500000.0;
+	// protected static final Logger logger = LoggerFactory.getLogger(XspressMonitorView.class);
+	// private static final Double MAX_FLUO_RATE = 500000.0;
 	protected ScalersMonitorConfig displayData;
 	private IAxis dtAxis;
 	private IAxis primaryAxis;
@@ -51,7 +53,7 @@ public class XspressMonitorView extends MonitorViewBase {
 	private CounterTimer ionchambers;
 	private Double collectionTime;
 	private Double maxFluoRate;
-	
+
 	public XspressMonitorView() {
 	}
 
@@ -63,16 +65,17 @@ public class XspressMonitorView extends MonitorViewBase {
 		grpCurrentCountRates.setLayout(new GridLayout());
 
 		displayData = new ScalersMonitorConfig(grpCurrentCountRates);
-		
+
 		myPlotter.createPlotPart(grpCurrentCountRates, "Rates", null, PlotType.XY, null);
 		myPlotter.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		primaryAxis = myPlotter.getSelectedYAxis();
 		primaryAxis.setTitle("Counts (Hz)");
 		dtAxis = myPlotter.createAxis("Deadtime (%)", true, SWT.RIGHT);
-		
+
 		super.createPartControl(parent);
 
-		//TODO why get the detector names from java properties? Spring is a much nicer way of configuring as it means not having to look in the code to see what devices are used.
+		// TODO why get the detector names from java properties? Spring is a much nicer way of configuring as it means
+		// not having to look in the code to see what devices are used.
 		String xspressName = LocalProperties.get("gda.exafs.xspressName", "xspress2system");
 		xspress = (XspressDetector) Finder.getInstance().find(xspressName);
 		String ionchambersName = LocalProperties.get("gda.exafs.ionchambersName", "counterTimer01");
@@ -92,7 +95,8 @@ public class XspressMonitorView extends MonitorViewBase {
 			for (int element = 0; element < numElements; element++) {
 				rates[element] = xspressStats[element * 3]; // Hz
 				dts[element] = (xspressStats[element * 3 + 1] - 1) * 100;
-				if (dts[element] < 0.0) dts[element] = 0.0; // %
+				if (dts[element] < 0.0)
+					dts[element] = 0.0; // %
 				FF += xspressStats[element * 3];
 				// find which element gives the max rate
 				if (xspressStats[element * 3] > maxRate) {
@@ -109,7 +113,8 @@ public class XspressMonitorView extends MonitorViewBase {
 				displayData.setFFI0(xspressStats[maxElement * 3 + 2] / values[0]);
 				break;
 			case 64:
-				displayData.setFFI0(xspressStats[36 * 3 + 2] / values[0]);  // use element 37 as I think this is one of the more central ones
+				displayData.setFFI0(xspressStats[36 * 3 + 2] / values[0]); // use element 37 as I think this is one of
+																			// the more central ones
 				break;
 			default:
 				displayData.setFFI0(xspressStats[2] / values[0]);
@@ -118,15 +123,15 @@ public class XspressMonitorView extends MonitorViewBase {
 
 			Dataset dsRates = new DoubleDataset(rates);
 			dsRates.setName("Rates (Hz)");
-			
+
 			Dataset dsDeadTime = new DoubleDataset(dts);
 			dsDeadTime.setName("Deadtime (%)");
-			
-			Dataset x =  DatasetFactory.createRange(numElements, Dataset.FLOAT32);
+
+			Dataset x = DatasetFactory.createRange(numElements, Dataset.FLOAT32);
 			x.setName("Element");
-			
+
 			myPlotter.clear();
-			
+
 			// rates plot
 			myPlotter.setSelectedYAxis(primaryAxis);
 			ILineTrace ratesTrace = myPlotter.createLineTrace("Rates (Hz)");
@@ -138,7 +143,7 @@ public class XspressMonitorView extends MonitorViewBase {
 			myPlotter.getSelectedXAxis().setRange(0, numElements);
 			myPlotter.getSelectedXAxis().setTitle("Element");
 			myPlotter.getSelectedYAxis().setRange(0, maxFluoRate);
-			
+
 			// deadtime plot
 			myPlotter.setSelectedYAxis(dtAxis);
 			ILineTrace deadTimeTrace = myPlotter.createLineTrace("Red (%)");
@@ -148,7 +153,7 @@ public class XspressMonitorView extends MonitorViewBase {
 			myPlotter.addTrace(deadTimeTrace);
 			myPlotter.getSelectedYAxis().setShowMajorGrid(false);
 			myPlotter.getSelectedYAxis().setRange(0, 100);
-			
+
 			myPlotter.setSelectedYAxis(primaryAxis);
 			myPlotter.setShowLegend(false);
 			myPlotter.repaint(false);
@@ -202,27 +207,19 @@ public class XspressMonitorView extends MonitorViewBase {
 			currentFrame--;
 		}
 
-		int numChannels = ionchambers.getExtraNames().length;
-		// works for TFG2 only where time if the first channel
-//		double[] ion_results = ionchambers.readFrame(1, numChannels, currentFrame);
-// [XAS-175] -temporary fix
-		double[] ion_results = (double[])ionchambers.readout();
-
-//		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
-		int i0Index = -1;
-		String[] eNames = ionchambers.getExtraNames();
-		// find the index for I0
-		for (String s : eNames) {
-			i0Index++;
-			if (s.equals("I0"))
-				break;
-
-		}
+		// assumes an column called I0
+		double[] ion_results = (double[]) ionchambers.readout();
+		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
+		
+		String[] extraNames = ionchambers.getExtraNames();
+		int i0Index = ArrayUtils.indexOf(extraNames, "I0");
 		if (collectionTime != null) {
 			ion_results[i0Index] /= collectionTime;
 			ion_results[i0Index + 1] /= collectionTime;
 			ion_results[i0Index + 2] /= collectionTime;
 		}
+		
+		
 		return new Double[] { ion_results[i0Index + 0], ion_results[i0Index + 1], ion_results[i0Index + 2] };
 	}
 
