@@ -48,9 +48,14 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+import uk.ac.gda.beans.ElementCountsData;
+import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
+import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
+import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
@@ -63,11 +68,6 @@ import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
 import com.swtdesigner.SWTResourceManager;
-//dascgitolite@dasc-git.diamond.ac.uk/gda/gda-xas-core.git
-import uk.ac.gda.beans.exafs.DetectorParameters;
-
-import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
-import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 
 public class Xspress3ParametersUIEditor extends DetectorEditor {
 	private static final String XSPRESS3_EDITOR_DATA_XML_FILENAME = "xspress3_editor_data.xml";
@@ -308,6 +308,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 		try {
 
 			final Double[][] theData = theDetector.getMCData(collectionTimeValue);
+			storeDataInWrapper(theData);
 
 			if (monitor != null) {
 				monitor.worked(1);
@@ -402,6 +403,17 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 		if (monitor != null) {
 			monitor.done();
 		}
+	}
+
+	private void storeDataInWrapper(Double[][] theData) {
+		// first convert to a 3D int array to match with the Xspress2 editor
+		final int[][][] ret = new int[theData.length][1][theData[0].length];
+		for (int i = 0; i < theData.length; i++) {
+			for (int mcaChan = 0; mcaChan < theData[0].length; mcaChan++){
+				ret[i][0][mcaChan] = theData[i][mcaChan].intValue();// Int array is [element][grade (1, 2 or all 16)][mca channel]
+			}
+		}
+		getDataWrapper().setValue(ElementCountsData.getDataFor(ret));
 	}
 
 	protected int[][][] get3DArray(int[][] data) {
