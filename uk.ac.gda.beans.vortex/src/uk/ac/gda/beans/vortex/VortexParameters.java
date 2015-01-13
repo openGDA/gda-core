@@ -21,13 +21,11 @@ package uk.ac.gda.beans.vortex;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.IDetectorConfigurationParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -36,7 +34,6 @@ public class VortexParameters implements Serializable, IDetectorConfigurationPar
 	private List<DetectorElement> detectorList;
 	private String countType;
 	private double collectionTime;
-	private ElementCountsData[] data;
 	private String detectorName;
 	private String tfgName;
 	private boolean saveRawSpectrum = false;
@@ -89,7 +86,6 @@ public class VortexParameters implements Serializable, IDetectorConfigurationPar
 		temp = Double.doubleToLongBits(collectionTime);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((countType == null) ? 0 : countType.hashCode());
-		result = prime * result + Arrays.hashCode(data);
 		result = prime * result + ((detectorList == null) ? 0 : detectorList.hashCode());
 		result = prime * result + ((detectorName == null) ? 0 : detectorName.hashCode());
 		result = prime * result + ((tfgName == null) ? 0 : tfgName.hashCode());
@@ -116,9 +112,6 @@ public class VortexParameters implements Serializable, IDetectorConfigurationPar
 				return false;
 			}
 		} else if (!countType.equals(objectCast(obj).countType)) {
-			return false;
-		}
-		if (!Arrays.equals(data, objectCast(obj).data)) {
 			return false;
 		}
 		if (detectorList == null) {
@@ -169,15 +162,7 @@ public class VortexParameters implements Serializable, IDetectorConfigurationPar
 	public void setCollectionTime(double collectionTime) {
 		this.collectionTime = collectionTime;
 	}
-
-	public void setData(ElementCountsData[] data) {
-		this.data = data;
-	}
-
-	public ElementCountsData[] getData() {
-		return data;
-	}
-
+	
 	public String getDetectorName() {
 		return detectorName;
 	}
