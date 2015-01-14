@@ -18,9 +18,8 @@
 
 package uk.ac.gda.analysis.hdf5;
 
-import java.util.Arrays;
-
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.io.ILazyLoader;
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
@@ -71,20 +70,18 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 		}
 	}
 	@Override
-	public Dataset getDataset(IMonitor mon, int[] shape, int[] start, int[] stop, int[] step)
-			throws ScanFileHolderException {
+	public Dataset getDataset(IMonitor mon, SliceND slice) throws ScanFileHolderException {
 		try {
 			checkConfigured();
-			if (step == null) {
-				step = new int[shape.length];
-				Arrays.fill(step, 1);
-			}
-//			AbstractDataset.checkSlice(shape, start, stop, start, stop, step);		
-			long[] sstart = new long[start.length];
-			long[] sstride = new long[start.length];
-			long[] dsize = new long[start.length];
-			int[] int_dsize = new int[start.length];
-			for( int i=0; i< start.length; i++){
+			int rank = slice.getSourceShape().length;
+			long[] sstart = new long[rank];
+			long[] sstride = new long[rank];
+			long[] dsize = new long[rank];
+			int[] int_dsize = new int[rank];
+			int[] start = slice.getStart();
+			int[] stop  = slice.getStop();
+			int[] step  = slice.getStep();
+			for (int i = 0; i < rank; i++) {
 				sstart[i] = start[i];
 				sstride[i] = step[i];
 				dsize[i] = (stop[i]-start[i])/step[i];
