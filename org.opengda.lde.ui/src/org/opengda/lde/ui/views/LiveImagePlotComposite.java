@@ -27,6 +27,7 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
@@ -61,6 +62,10 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 	private static final String IMAGE_PLOT = "Image plot";
 
 	private String arrayPV;
+	private String arrayEnablePV;
+	private String xSizePV;
+	private String ySizePV;
+	
 	private EpicsChannelManager controller;
 	private int xDimension;
 	private int yDimension;
@@ -69,11 +74,17 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 	private String plotName;
 
 	private ImageDataListener dataListener;
+	private XSizeListener xSizeListener;
+	private YSizeListener ySizeListener;
+	
+	@SuppressWarnings("unused")
 	private Channel dataChannel;
+	@SuppressWarnings("unused")
 	private Channel enableChanel;
+	private Channel xSizeChannel;
+	private Channel ySizeChannel;
 	private boolean first = false;
 
-	private String arrayEnablePV;
 
 	/**
 	 * @param parent
@@ -123,6 +134,12 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 		first = true;
 		dataChannel = controller.createChannel(arrayPV, dataListener, MonitorType.NATIVE, false);
 		enableChanel= controller.createChannel(arrayEnablePV, null, false, 1);
+		if (getxSizePV()!=null) {
+			xSizeChannel=controller.createChannel(getxSizePV(), xSizeListener, MonitorType.NATIVE, true);
+		}
+		if (getySizePV()!=null) {
+			ySizeChannel=controller.createChannel(getySizePV(), ySizeListener, MonitorType.NATIVE, true);
+		}
 		controller.creationPhaseCompleted();
 		logger.debug("Image channel is created");
 	}
@@ -146,6 +163,36 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 			}
 		});
 	}
+	private class XSizeListener implements MonitorListener {
+
+		@Override
+		public void monitorChanged(final MonitorEvent arg0) {
+			if (first) {
+				first = false;
+				logger.debug("X-Size listener connected.");
+				return;
+			}
+			DBR dbr = arg0.getDBR();
+			if (dbr.isINT()) {
+				xDimension = ((DBR_Int) dbr).getIntValue()[0];
+			}
+		}
+	}
+	private class YSizeListener implements MonitorListener {
+
+		@Override
+		public void monitorChanged(final MonitorEvent arg0) {
+			if (first) {
+				first = false;
+				logger.debug("Y-Size listener connected.");
+				return;
+			}
+			DBR dbr = arg0.getDBR();
+			if (dbr.isINT()) {
+				yDimension = ((DBR_Int) dbr).getIntValue()[0];
+			}
+		}
+	}
 
 	private class ImageDataListener implements MonitorListener {
 
@@ -153,13 +200,11 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 		public void monitorChanged(final MonitorEvent arg0) {
 			if (first) {
 				first = false;
-				logger.debug("Image lietener connected.");
+				logger.debug("Image listener connected.");
 				return;
 			}
-//			logger.debug("receiving image data from " + arg0.toString() + " to plot on " + plottingSystem.getPlotName() + " with axes from "
-//					+ getAnalyser().getName());
 			if (!getDisplay().isDisposed()) {
-				getDisplay().syncExec(new Runnable() {
+				getDisplay().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
@@ -249,5 +294,21 @@ public class LiveImagePlotComposite extends Composite implements InitializationL
 	public void setArrayEnablePV(String arrayEnablePV) {
 		this.arrayEnablePV=arrayEnablePV;
 		
+	}
+
+	public String getxSizePV() {
+		return xSizePV;
+	}
+
+	public void setxSizePV(String xSizePV) {
+		this.xSizePV = xSizePV;
+	}
+
+	public String getySizePV() {
+		return ySizePV;
+	}
+
+	public void setySizePV(String ySizePV) {
+		this.ySizePV = ySizePV;
 	}
 }
