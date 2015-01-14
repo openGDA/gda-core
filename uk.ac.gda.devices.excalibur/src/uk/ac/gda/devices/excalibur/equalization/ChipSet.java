@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.io.ILazyLoader;
 
 /**
@@ -269,9 +270,8 @@ class Chip {
 			start[2] = 0;
 			stop[3] = length3d;
 		}
-		return loader.getDataset(null, null, start, stop, step);
+		return loader.getDataset(null, new SliceND(stop.clone(), start, stop, step));
 	}
-
 }
 
 /**
