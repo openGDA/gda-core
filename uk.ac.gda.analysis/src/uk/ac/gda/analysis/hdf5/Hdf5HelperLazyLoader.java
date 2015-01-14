@@ -37,10 +37,8 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 	private String groupName;
 	private String dataSetName;
 	private int dtype;
-	private Hdf5HelperData helperData=null;
-	
-	
-	
+	private Hdf5HelperData helperData = null;
+
 	public int getDtype() throws Exception {
 		checkConfigured();
 		return dtype;
@@ -56,19 +54,19 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 
 	private boolean extend;
 
-	
-	
 	@Override
 	public boolean isFileReadable() {
 		return true;
 	}
 
-	private void checkConfigured() throws Exception{
-		if(helperData == null ){
+	private void checkConfigured() throws Exception {
+		if (helperData == null) {
 			helperData = Hdf5Helper.getInstance().readDataSetAll(fileName, groupName, dataSetName, false);
-			dtype = HDF5Loader.getDtype(helperData.h5Datatype.getDatatypeClass(), helperData.h5Datatype.getDatatypeSize());
+			dtype = HDF5Loader.getDtype(helperData.h5Datatype.getDatatypeClass(),
+					helperData.h5Datatype.getDatatypeSize());
 		}
 	}
+
 	@Override
 	public Dataset getDataset(IMonitor mon, SliceND slice) throws ScanFileHolderException {
 		try {
@@ -77,18 +75,16 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 			long[] sstart = new long[rank];
 			long[] sstride = new long[rank];
 			long[] dsize = new long[rank];
-			int[] int_dsize = new int[rank];
 			int[] start = slice.getStart();
-			int[] stop  = slice.getStop();
 			int[] step  = slice.getStep();
+			int[] shape = slice.getShape();
 			for (int i = 0; i < rank; i++) {
-				sstart[i] = start[i];
+				sstart[i]  = start[i];
 				sstride[i] = step[i];
-				dsize[i] = (stop[i]-start[i])/step[i];
-				int_dsize[i] = (int) dsize[i];
+				dsize[i]   = shape[i];
 			}
-				Object data2 = Hdf5Helper.getInstance().readDataSet(fileName, groupName, dataSetName, sstart, sstride, dsize, null, null, dsize, helperData.native_type, null, true).data;
-				return HDF5Loader.createDataset(data2, int_dsize, dtype, extend);
+			Object data2 = Hdf5Helper.getInstance().readDataSet(fileName, groupName, dataSetName, sstart, sstride, dsize, null, null, dsize, helperData.native_type, null, true).data;
+			return HDF5Loader.createDataset(data2, shape, dtype, extend);
 		} catch (Exception e) {
 			throw new ScanFileHolderException("Error reading from " + fileName,e);
 		}
@@ -101,8 +97,6 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 		for( int i=0; i< dims.length;i++){
 			dims[i] = (int) helperData.dims[i];
 		}
-		return new LazyDataset(dataSetName, dtype,dims, this);
+		return new LazyDataset(dataSetName, dtype, dims, this);
 	}
-	
-
 }
