@@ -29,7 +29,6 @@ import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -52,7 +51,7 @@ import gda.scan.IScanDataPoint;
  */
 public class ScanListDataWriterExtender extends DataWriterExtenderBase implements Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(ScanListDataWriterExtender.class);
-	private static final DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
 	private File file;
 	private IScanDataPoint lastScanDataPoint;
@@ -64,19 +63,10 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 
 	@Override
 	public void configure() throws FactoryException {
-		HashMap<String, String> overrides = new HashMap<String, String>();
-
-		ClientDetails cd = InterfaceProvider.getBatonStateProvider().getBatonHolder();
-		if (cd != null) {
-			String visit = cd.getVisitID();
-			if (visit != null && !visit.isEmpty()) {
-				overrides.put("visit", visit);
-			}
-		}
-
 		if (filename != null && !filename.isEmpty()) {
-			String path = PathConstructor.createFromProperty("gda.data.visitdirectory", overrides) + filename;
+			String path = PathConstructor.createFromProperty("gda.data.visitdirectory") + filename;
 			this.file = new File(path);
+			logger.debug("Configured to use file {}", file.getAbsolutePath());
 		} else {
 			logger.error("Can't configure scan list - file not set");
 		}
@@ -102,11 +92,13 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 			if (!file.exists()) {
 				file.createNewFile();
 			}
-
+			logger.debug("Writing to {}", file.getAbsolutePath());
 			if (file.canWrite()) {
 				Writer writer = null;
 				try {
-					writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file.getAbsolutePath(), true)));//"the-file-name.txt", "UTF-8");
+					writer = new BufferedWriter(
+							new OutputStreamWriter(
+							new FileOutputStream(file.getAbsolutePath(), true)));
 					writer.write(outputLine);
 					logger.debug("Written to scanlist: {}", outputLine);
 				} catch (FileNotFoundException e) {
@@ -131,7 +123,7 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 	private String makeOutputLine() {
 		Date today = new Date();
 
-		String date = df.format(today);
+		String date = dateFormat.format(today);
 		String command = StringEscapeUtils.escapeCsv(lastScanDataPoint.getCommand());
 		String scanFile = StringEscapeUtils.escapeCsv(lastScanDataPoint.getCurrentFilename());
 		String title = "";
@@ -141,11 +133,12 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 			title = StringEscapeUtils.escapeCsv(title);
 			visit = GDAMetadataProvider.getInstance().getMetadataValue("visit");
 		} catch (DeviceException e) {
+			logger.error("Could not get title or visit from metadata", e);
 		}
 		ClientDetails cd = InterfaceProvider.getBatonStateProvider().getBatonHolder();
 		String user = cd.getUserID();
 
-		String outLine = String.format("%s,%s,%s,%s,%s,%s\n", date, command, title, scanFile, visit, user);
+		String outLine = String.format("%s,%s,%s,%s,%s,%s\n", date, command, title, scanFile, user, visit);
 		return outLine;
 	}
 }
