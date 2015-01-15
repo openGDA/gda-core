@@ -185,6 +185,11 @@ class ProcessingDetectorWrapper(PseudoDevice, PositionCallableProvider):
 		return '%i' if self.returnPathAsImageNumberOnly else '%s'
 	
 	def atScanStart(self):
+		try:
+			if self.det.tifwriter.isWaitForFileArrival():
+				print "Warning: ProcessignDetectorWrapper is slower if waitForFileArrival on tifwriter is True"
+		except AttributeError:
+			pass
 		self.det.atScanStart()
 		self._operatingInScan = True
 		self._preparedForScan = False
