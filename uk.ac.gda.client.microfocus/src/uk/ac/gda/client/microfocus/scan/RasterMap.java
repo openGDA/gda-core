@@ -18,33 +18,23 @@
 
 package uk.ac.gda.client.microfocus.scan;
 
-import gda.commandqueue.Processor;
-import gda.data.metadata.NXMetaDataProvider;
-import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
-import gda.data.scan.datawriter.AsciiMetadataConfig;
-import gda.device.Scannable;
 import gda.device.detector.BufferedDetector;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.LineRepeatingBeamMonitor;
 import gda.device.scannable.RealPositionReader;
-import gda.jython.scriptcontroller.ScriptControllerBase;
-import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import gda.scan.ContinuousScan;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
-import uk.ac.gda.server.exafs.scan.BeamlinePreparer;
-import uk.ac.gda.server.exafs.scan.OutputPreparer;
-import uk.ac.gda.server.exafs.scan.SampleEnvironmentPreparer;
 
 /**
  * Performs raster maps by running a ContinuousScan as the innermost dimension in a 2D ConcurrentScan.
  * <p>
- * Requires a ContinuouslyScannable to be operated as the x axis and a RealPositionReader to return the actual motor positions.
+ * Requires a ContinuouslyScannable to be operated as the x axis and a RealPositionReader to return the actual motor
+ * positions.
  */
 public class RasterMap extends StepMap implements MappingScan {
 
@@ -52,12 +42,12 @@ public class RasterMap extends StepMap implements MappingScan {
 	private RasterMapDetectorPreparer bufferedDetectorPreparer;
 	protected RealPositionReader positionReader;
 	protected LineRepeatingBeamMonitor trajectoryBeamMonitor;
-	
+
 	@Override
 	public String getScanType() {
 		return "Raster Map";
 	}
-	
+
 	@Override
 	protected Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception {
 		mapScanParameters = (MicroFocusScanParameters) scanBean;
@@ -69,28 +59,32 @@ public class RasterMap extends StepMap implements MappingScan {
 		moveEnergyAndZBeforeMap();
 
 		Object[] args = buildListOfArguments(detectorList);
-		
+
 		return args;
 	}
 
-	protected Object[] buildListOfArguments(BufferedDetector[] detectorList){
-		ContinuousScan cs = new ContinuousScan(trajectoryMotor, mapScanParameters.getXStart(), mapScanParameters.getXEnd(), calculateNumberXPoints(), mapScanParameters.getRowTime(), detectorList) ;
-		
-		//TODO have not done the custom settings for raster maps for the monitor objects
-		
-		Object[] args = new Object[] {yScan, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),  mapScanParameters.getYStepSize(), trajectoryBeamMonitor, cs};
-		
-		// add a Scannable, if defined, which fetches the motor readback values from the Epics Trajectory template after the trajectory completes.
-		if (positionReader != null){
+	protected Object[] buildListOfArguments(BufferedDetector[] detectorList) {
+		ContinuousScan cs = new ContinuousScan(trajectoryMotor, mapScanParameters.getXStart(),
+				mapScanParameters.getXEnd(), calculateNumberXPoints(), mapScanParameters.getRowTime(), detectorList);
+
+		// TODO have not done the custom settings for raster maps for the monitor objects
+
+		Object[] args = new Object[] { yScan, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
+				mapScanParameters.getYStepSize(), trajectoryBeamMonitor, cs };
+
+		// add a Scannable, if defined, which fetches the motor readback values from the Epics Trajectory template after
+		// the trajectory completes.
+		if (positionReader != null) {
 			args = ArrayUtils.add(args, positionReader);
 		}
-		
+
 		return args;
 	}
 
 	@Override
 	protected int calculateNumberXPoints() {
-		return (int) (Math.abs(mapScanParameters.getXEnd()- mapScanParameters.getXStart())/mapScanParameters.getXStepSize() + 1);
+		return (int) (Math.abs(mapScanParameters.getXEnd() - mapScanParameters.getXStart())
+				/ mapScanParameters.getXStepSize() + 1);
 	}
 
 	public ContinuouslyScannable getTrajectoryMotor() {

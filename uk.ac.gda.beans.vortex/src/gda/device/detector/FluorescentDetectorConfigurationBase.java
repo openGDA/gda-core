@@ -18,36 +18,33 @@
 
 package gda.device.detector;
 
-import gda.factory.Configurable;
-import gda.factory.Findable;
-import gda.jython.IJythonNamespace;
-import gda.jython.InterfaceProvider;
+import gda.observable.IObserver;
 
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.Callable;
+public abstract class FluorescentDetectorConfigurationBase implements FluorescentDetectorConfiguration {
 
-public abstract class FluorescentDetectorConfigurationBase implements FluorescentDetectorConfiguration, Findable, Configurable {
+	protected String name;
 
-	protected void placeInJythonNamespace(final String name, final FluorescentDetectorConfiguration config) {
+	@Override
+	public String getName() {
+		return name;
+	}
 
-		FutureTask<Void> placeInJythonTask = new FutureTask<Void>(new Callable<Void>() {
-		@Override
-		public Void call() {
-//			try for 10 secs and give up
-			for (int i=0; i<10; i++) {
-				try {
-					Thread.sleep(1000);
-					IJythonNamespace jythonNamespace = InterfaceProvider.getJythonNamespace();
-					jythonNamespace.placeInJythonNamespace(name, config);
-					return null;
-				} catch (Exception e) {
-					// ignore
-				}
-			}
-			throw new IllegalArgumentException("Failed to put fluorescence detector configuration '" + name + "' into the Jython namespace!");
-		}
-	});
+	public void setName(String name) {
+		this.name = name;
+	}
 
-	new Thread(placeInJythonTask, "placeEnergyScanIntoJythonNamespace").start();
+	@Override
+	public void addIObserver(IObserver observer) {
+		// events not issued, so no observers
+	}
+
+	@Override
+	public void deleteIObserver(IObserver observer) {
+		// events not issued, so no observers
+	}
+
+	@Override
+	public void deleteIObservers() {
+		// events not issued, so no observers
 	}
 }

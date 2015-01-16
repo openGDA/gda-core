@@ -19,10 +19,16 @@
 package gda.device.detector;
 
 import gda.factory.FactoryException;
+import gda.factory.Findable;
+import gda.observable.IObservable;
 
-public interface FluorescentDetectorConfiguration {
-	
+public interface FluorescentDetectorConfiguration extends Findable, IObservable {
+
+	/**
+	 * Configure the detector using the given XML file.
+	 * 
+	 * @param xmlFileName
+	 * @throws FactoryException
+	 */
 	public void configure(String xmlFileName) throws FactoryException;
-	
-	public String getMessage();
 }

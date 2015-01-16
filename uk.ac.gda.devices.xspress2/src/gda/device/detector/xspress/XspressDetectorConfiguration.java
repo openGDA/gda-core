@@ -21,8 +21,6 @@ package gda.device.detector.xspress;
 
 import gda.device.detector.FluorescentDetectorConfigurationBase;
 import gda.factory.FactoryException;
-import gda.jython.scriptcontroller.event.ScriptProgressEvent;
-import gda.observable.ObservableComponent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,18 +30,14 @@ public class XspressDetectorConfiguration extends FluorescentDetectorConfigurati
 
 	private static final Logger logger = LoggerFactory.getLogger(XspressDetectorConfiguration.class);
 	private XspressSystem xspressSystem;
-	private ObservableComponent observer;
-	private String message = "Xspress configuration has not been applied yet";
 	private boolean onlyShowFF = false;
 	private boolean showDTRawValues = false;
 	private boolean saveRawSpectrum = false;
-	private String name;
 
 	public XspressDetectorConfiguration() {
 	}
 
-	public XspressDetectorConfiguration(XspressSystem xspressSystem, final ObservableComponent observer) {
-		this.observer = observer;
+	public XspressDetectorConfiguration(XspressSystem xspressSystem) {
 		this.xspressSystem = xspressSystem;
 	}
 
@@ -51,9 +45,6 @@ public class XspressDetectorConfiguration extends FluorescentDetectorConfigurati
 	public void afterPropertiesSet() throws Exception {
 		if (xspressSystem == null) {
 			throw new IllegalArgumentException("Missing xspresssystem component");
-		}
-		if (observer == null) {
-			throw new IllegalArgumentException("Missing observer component");
 		}
 	}
 
@@ -65,14 +56,6 @@ public class XspressDetectorConfiguration extends FluorescentDetectorConfigurati
 		this.xspressSystem = xspressSystem;
 	}
 
-	public ObservableComponent getObserver() {
-		return observer;
-	}
-
-	public void setObserver(ObservableComponent observer) {
-		this.observer = observer;
-	}
-
 	public void configure(String xmlFileName) throws FactoryException {
 		try {
 			xspressSystem.setConfigFileName(xmlFileName);
@@ -80,25 +63,20 @@ public class XspressDetectorConfiguration extends FluorescentDetectorConfigurati
 			xspressSystem.setOnlyDisplayFF(onlyShowFF);
 			xspressSystem.setAddDTScalerValuesToAscii(showDTRawValues);
 			xspressSystem.setSaveRawSpectrum(saveRawSpectrum);
-			message = " The Xspress detector configuration updated.";
-			observer.notifyIObservers("Message", new ScriptProgressEvent(message));
 		} catch (Exception ne) {
-			logger.error("Cannot configure Xspress", ne);
-			message = "Cannot configure Xspress " + ne.getMessage();
+			String message = "Cannot configure Xspress " + ne.getMessage();
+			logger.error("Cannot configure Xspress", message);
 			throw new FactoryException("Error during configuration:" + ne.getMessage());
 		}
 	}
 
-	public void configure(String xmlFileName, boolean onlyShowFF, boolean showDTRawValues, boolean saveRawSpectrum) throws FactoryException {
+	public void configure(String xmlFileName, boolean onlyShowFF, boolean showDTRawValues, boolean saveRawSpectrum)
+			throws FactoryException {
 		this.onlyShowFF = onlyShowFF;
 		this.showDTRawValues = showDTRawValues;
 		this.saveRawSpectrum = saveRawSpectrum;
 		configure(xmlFileName);
 
-	}
-
-	public String getMessage() {
-		return message;
 	}
 
 	public boolean isOnlyShowFF() {
@@ -123,17 +101,5 @@ public class XspressDetectorConfiguration extends FluorescentDetectorConfigurati
 
 	public void setSaveRawSpectrum(boolean saveRawSpectrum) {
 		this.saveRawSpectrum = saveRawSpectrum;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public void configure () {
-		placeInJythonNamespace(name, this);
 	}
 }

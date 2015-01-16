@@ -19,11 +19,8 @@
 package uk.ac.gda.exafs.ui.detector;
 
 import gda.device.Detector;
-import gda.device.detector.xspress.XspressBeanUtils;
+import gda.device.detector.FluorescentDetectorConfiguration;
 import gda.factory.Finder;
-import gda.jython.InterfaceProvider;
-import gda.jython.gui.JythonGuiConstants;
-import gda.jython.scriptcontroller.ScriptExecutor;
 import gda.jython.scriptcontroller.corba.impl.ScriptcontrollerAdapter;
 import gda.observable.IObserver;
 
@@ -33,7 +30,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -41,9 +37,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -114,10 +108,6 @@ import com.swtdesigner.SWTResourceManager;
  */
 public abstract class DetectorEditor extends RichBeanEditorPart {
 
-	/*
-	 * name of ScriptController that must be in the system for uploading to device to work
-	 */
-	private static final String EXAFS_SCRIPT_OBSERVER = "ExafsScriptObserver";
 	private static final Logger logger = LoggerFactory.getLogger(DetectorEditor.class);
 	protected SashFormPlotComposite sashPlotForm;
 
@@ -243,8 +233,8 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			@Override
 			public void run() {
 				try {
-					doSave(new NullProgressMonitor());
 					upload();
+					doSave(new NullProgressMonitor());
 				} catch (Exception ne) {
 					logger.error("Cannot configure Detector", ne);
 				}
@@ -468,24 +458,34 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 				monitor.beginTask("Configure Detector", 100);
 
 				try {
-					final Map<String, Serializable> data = new HashMap<String, Serializable>(1);
-//					data.put("XMLFileNameToLoad", path);
-//					data.put("OutputParametersToLoad", outputBean);
-					XspressParameters xspressBean = XspressBeanUtils.createBeanFromXML(path);
-					String p1 = xspressBean.isOnlyShowFF() ? "True" : "False";
-					String p2 = xspressBean.isShowDTRawValues() ? "True" : "False";
-					String p3 = xspressBean.isSaveRawSpectrum() ? "True" : "False";
+					// final Map<String, Serializable> data = new HashMap<String, Serializable>(1);
+					// // data.put("XMLFileNameToLoad", path);
+					// // data.put("OutputParametersToLoad", outputBean);
+					// XspressParameters xspressBean = XspressBeanUtils.createBeanFromXML(path);
+					// String p1 = xspressBean.isOnlyShowFF() ? "True" : "False";
+					// String p2 = xspressBean.isShowDTRawValues() ? "True" : "False";
+					// String p3 = xspressBean.isSaveRawSpectrum() ? "True" : "False";
+					//
+					// monitor.worked(10);
+					// ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), null, command
+					// + ".configure(\"" + path + "\"," + p1 + "," + p2 + "," + p3 + ")",
+					// JythonGuiConstants.TERMINALNAME);
+					// // ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command
+					// // + "(XMLFileNameToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
+					// monitor.worked(50);
+					// String configureResult = InterfaceProvider.getCommandRunner().evaluateCommand(
+					// command + ".getMessage()");
+					// // command + ".getConfigureResult()");
 
-					monitor.worked(10);
-					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), null, command
-							+ ".configure(\"" + path + "\"," + p1 + "," + p2 + "," + p3 + ")", JythonGuiConstants.TERMINALNAME);
-//					ScriptExecutor.Run(EXAFS_SCRIPT_OBSERVER, createObserver(), data, command
-//					+ "(XMLFileNameToLoad,OutputParametersToLoad)", JythonGuiConstants.TERMINALNAME);
-					monitor.worked(50);
-					String configureResult = InterfaceProvider.getCommandRunner().evaluateCommand(
-							command + ".getMessage()");
-//							command + ".getConfigureResult()");
-					sashPlotForm.appendStatus(configureResult, logger);
+					FluorescentDetectorConfiguration configurator = (FluorescentDetectorConfiguration) Finder
+							.getInstance().find(command);
+					try {
+						configurator.configure(path);
+						sashPlotForm.appendStatus("Detector configuration updated", logger);
+					} catch (Exception e) {
+						sashPlotForm.appendStatus("Detector configuration failed to be updated: " + e.getMessage(),
+								logger);
+					}
 				} catch (Exception e) {
 					logger.error("Internal error cannot get data from detector.", e);
 				} finally {
@@ -644,7 +644,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 			}
 		}
 	}
-	
+
 	protected void updateROIAfterElementCompositeChange() {
 		DetectorElementComposite detectorElementComposite = getDetectorElementComposite();
 		Number start = (Number) detectorElementComposite.getStart().getValue();

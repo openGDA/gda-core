@@ -65,7 +65,7 @@ public class MapFactory extends SpectroscopyScanFactory {
 		newMap.setyScan(yScan);
 		newMap.setzScan(zScan);
 		newMap.setElementListScriptController(elementListScriptController);
-		placeInJythonNamespace(newMap);
+//		placeInJythonNamespace(newMap);
 		return newMap;
 	}
 
@@ -90,7 +90,7 @@ public class MapFactory extends SpectroscopyScanFactory {
 		newMap.setyScan(yScan);
 		newMap.setzScan(zScan);
 		newMap.setElementListScriptController(elementListScriptController);
-		placeInJythonNamespace(newMap);
+//		placeInJythonNamespace(newMap);
 		return newMap;
 	}
 
@@ -124,7 +124,7 @@ public class MapFactory extends SpectroscopyScanFactory {
 		newMap.setyScan(yScan);
 		newMap.setzScan(zScan);
 		newMap.setElementListScriptController(elementListScriptController);
-		placeInJythonNamespace(newMap);
+//		placeInJythonNamespace(newMap);
 		return newMap;
 	}
 

@@ -19,10 +19,8 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
-import gda.device.detector.FluorescentDetectorConfiguration;
+import gda.device.detector.FluorescentDetectorConfigurationBase;
 import gda.factory.FactoryException;
-import gda.jython.scriptcontroller.event.ScriptProgressEvent;
-import gda.observable.ObservableComponent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,16 +32,13 @@ import org.slf4j.LoggerFactory;
  * @author rjw82
  * 
  */
-public class Xspress3DetectorConfiguration implements FluorescentDetectorConfiguration {
+public class Xspress3DetectorConfiguration extends FluorescentDetectorConfigurationBase {
 
 	private Logger logger = LoggerFactory.getLogger(Xspress3DetectorConfiguration.class);
 	private Xspress3Detector xspress3;
-	private ObservableComponent observer;
-	private String message = "Xspress configuration has not been applied yet";
 
-	public Xspress3DetectorConfiguration(Xspress3Detector xmap, final ObservableComponent observer) {
-		this.observer = observer;
-		this.xspress3 = xmap;
+	public Xspress3DetectorConfiguration(Xspress3Detector xspress) {
+		this.xspress3 = xspress;
 	}
 
 	@Override
@@ -53,19 +48,9 @@ public class Xspress3DetectorConfiguration implements FluorescentDetectorConfigu
 			xspress3.stop();
 			logger.info("Wrote new Xspress3 Parameters to: " + xspress3.getConfigFileName());
 			xspress3.loadConfigurationFromFile();
-			message = " The Xspress detector configuration updated.";
-			observer.notifyIObservers("Message", new ScriptProgressEvent(message));
 		} catch (Exception ne) {
 			logger.error("Cannot configure Xspress3", ne);
-			message = "Cannot configure Xspress3 " + ne.getMessage();
 			throw new FactoryException("Error during configuration:" + ne.getMessage());
 		}
-		String message = " The xspress3 detector configuration was updated.";
-		observer.notifyIObservers("Message", new ScriptProgressEvent(message));
-	}
-
-	@Override
-	public String getMessage() {
-		return message;
 	}
 }
