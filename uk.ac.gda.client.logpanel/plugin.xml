@@ -66,7 +66,7 @@
          <command
                commandId="uk.ac.gda.client.logpanel.commands.copy"
                icon="icons/copy_edit_on.gif"
-               label="Copy"
+               label="Copy Selected"
                mnemonic="C"
                mode="FORCE_TEXT"
                style="push"
@@ -79,16 +79,16 @@
                mnemonic="l"
                mode="FORCE_TEXT"
                style="push"
-               tooltip="Remove old logging messages">
+               tooltip="Delete contents (of this panel only)">
          </command>
          <command
                commandId="uk.ac.gda.client.logpanel.commands.scrollLock"
                icon="icons/scroll_lock.gif"
-               label="Scroll Lock"
+               label="Lock Scrolling"
                mnemonic="S"
                mode="FORCE_TEXT"
                style="toggle"
-               tooltip="Prevent scrolling down as new messages are received">
+               tooltip="Stop scrolling to reveal latest messages as they are received">
          </command>
       </menuContribution>
 <!--

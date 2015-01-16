@@ -81,7 +81,6 @@ public class Logpanel extends Composite {
 	
 	private static final Logger logger = LoggerFactory.getLogger(Logpanel.class);
 	
-	
 	// log server connection
 	
 	/**
@@ -108,19 +107,21 @@ public class Logpanel extends Composite {
 	}
 	
 	/**
-	 * Convenience method that connects using property values which are correct 
-	 * for both live and dummy modes.
+	 * Connect using default property values which are correct for both live and dummy modes
+	 * as call first in constructor.
 	 */
 	protected void connectToLogServer() {
-		//TODO remove:
-//		String logServerHost = LocalProperties.get(LogbackUtils.GDA_LOGSERVER_HOST, LogbackUtils.GDA_LOGSERVER_HOST_DEFAULT);
-//		int logServerOutPort = LocalProperties.getInt(LogbackUtils.GDA_LOGSERVER_OUT_PORT, LogbackUtils.GDA_LOGSERVER_OUT_PORT_DEFAULT);
 		connectToLogServer(getLogServerHost(), getLogServerOutPort());
 	}
-		
+	//TODO convert these into something more like GDA's configure() and reconfigure()
 	protected void connectToLogServer(String logServerHost, Integer logServerOutPort) {
 		setLogServerHost(logServerHost);
 		setLogServerOutPort(logServerOutPort);
+		
+		//FIXME temp while developing pattern layout switching UI, possible redundant to reset() 
+		if (logpanelContext != null) {
+			logpanelContext.stop();
+		}
 		
 		// setup clean logger context
 		LoggerContext logpanelContext = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -129,33 +130,28 @@ public class Logpanel extends Composite {
 		this.setLogpanelContext(logpanelContext);
 		
 		// setup receiver to connect to log server's ServerSocketAppender
+		// http://logback.qos.ch/manual/receivers.html#receiverClientComponents
 		SocketReceiver receiver = new SocketReceiver();
 		receiver.setContext(logpanelContext);
 		receiver.setRemoteHost(logServerHost);
 		receiver.setPort(logServerOutPort);
 		receiver.setReconnectionDelay(10000);
 		
-		// setup patternLayout using current messagePattern
-		//TODO remove:
-//		patternLayout = new PatternLayout();
-//		patternLayout.setPattern(getMessagePattern());
-//		patternLayout.setContext(logpanelContext);
+		/* this looks simple but is hard to get right
+		patternLayout = new PatternLayout();
+		patternLayout.setPattern(getMessagePattern());
+		patternLayout.setContext(logpanelContext);
+		*/
+		// whereas this is a bit confusing but just works
 		setMessagePatternCreatingPatternLayout(messagePattern);
 		
-		// setup appender which updates IObservableList<ILoggingEvent> input in UI thread
+		// setup appender which updates TableViewer's IObservableList<ILoggingEvent> input
 		Appender<ILoggingEvent> loggingEventsAppender = new AppenderBase<ILoggingEvent>() {
 			@Override
 			protected void append(final ILoggingEvent loggingEvent) {
-				display.asyncExec(new Runnable() {
-					@Override
-					public void run() {
-//						input.add(loggingEvent);
-						addLoggingEvent(loggingEvent); //TODO remove?
-						if (!scrollLockChecked && viewer != null && viewer.getControl() != null && !viewer.getControl().isDisposed()) {
-							viewer.reveal(loggingEvent);
-						}
-					}
-				});
+				addLoggingEvent(loggingEvent);
+				// both of these methods run all or part in UI thread
+				revealLatestUnlessScrollLockChecked();
 			}
 		};
 		loggingEventsAppender.setContext(logpanelContext);
@@ -177,10 +173,9 @@ public class Logpanel extends Composite {
 		logger.info("Receiving from log server {}", getLogServerAddress());
 	}
 	
-	
 	// Logging events and messages
 	
-	protected LoggerContext logpanelContext;
+	private LoggerContext logpanelContext;
 	public LoggerContext getLogpanelContext() {
 		return logpanelContext;
 	}
@@ -189,9 +184,47 @@ public class Logpanel extends Composite {
 	}
 	
 	/**
+	 * works with logpanelContext.stop() and connectToLogServer()
+	 */
+	int buttonPressCount = 0; //TODO remove with button
+	private Button createSwitchPatternButton() {
+		Button button = new Button(this, SWT.TOGGLE);
+		button.setText("Switch pattern layout");
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				// swap patterns
+				messagePattern = 
+					(++buttonPressCount % 2 == 0)
+						? logpanelPattern
+							: serverLogPattern;
+				
+				//FIXME small hack to reconfigure LoggerContext
+				connectToLogServer();
+				
+				// for testing without logging events
+//				logger.trace("trace");
+//				logger.info("info");
+//				logger.debug("debug");
+//				logger.warn("warn");
+//				logger.error("error");
+			}
+		});
+		return button;
+	}	
+	public static final String logpanelPattern  = "%d %-5level %logger - %m%n%ex";
+	public static final String serverLogPattern = "%d %-5level [%property{GDA_SOURCE}/%property{JVMNAME}] %logger - %m%n%ex";
+	/**
+	 * Can use pattern with properties GDA_SOURCE and JVNNAME, latter 
+	 * defined by loggingEvent producers in logging.xml files using 
+	 * JvmNamePropertyDefiner, see mx-config/servers/logserver/logServer.xml
+	 * 
+	 * %logger{15} for example will reduce package names to initials if class name is long
+	 * 
 	 * http://logback.qos.ch/manual/layouts.html#ClassicPatternLayout
 	 */
-	protected String messagePattern = "%d %-5level %logger - %m%n%ex";
+	private String messagePattern = logpanelPattern;
+	
 	public String getMessagePattern() {
 		return messagePattern;
 	}
@@ -204,30 +237,50 @@ public class Logpanel extends Composite {
 	public void setMessagePatternCreatingPatternLayout(String messagePattern) {
 		PatternLayout patternLayout = new PatternLayout();
 		patternLayout.setPattern(messagePattern);
-		this.setPatternLayout(patternLayout);
+		setPatternLayout(patternLayout);
 	}
 	
-	protected PatternLayout patternLayout;
-//	public PatternLayout getPatternLayout() {
-//		return patternLayout;
-//	}
+	private PatternLayout patternLayout;
+	/**
+	 *  PatternLayout tends to be useless outside of a context but might come in handy to others
+	 */
+	public PatternLayout getPatternLayout() {
+		return patternLayout;
+	}
 	public void setPatternLayout(PatternLayout patternLayout) {
 		this.patternLayout = patternLayout;
 		patternLayout.setContext(getLogpanelContext());
 		setMessagePattern(patternLayout.getPattern());
 	}
-	
+
 	public String layoutMessage(ILoggingEvent loggingEvent) {
-		return patternLayout.doLayout(loggingEvent).trim();
+		String laidOut = patternLayout.doLayout(loggingEvent).trim();
+		String transformed = messageTransformer.apply(laidOut);
+		return transformed;
 	}
-	
+	/**
+	 * function named identically to the method it calls when applied
+	 */
 	protected Function<ILoggingEvent, String> layoutMessage = new Function<ILoggingEvent, String>() {
 		@Override
 		public String apply(ILoggingEvent loggingEvent) {
 			return layoutMessage(loggingEvent);
 		}
 	};
-	
+
+	private Function<String, String> messageTransformer = new Function<String, String>() {
+		@Override
+		public String apply(String laidOut) {
+			String transformed = laidOut.replace(".diamond.ac.uk", "@DLS");
+			// transformed  = transformed'
+			// transformed' = transformed''
+			return transformed;
+		}
+	};
+	public void setMessageTransformer(Function<String, String> messageTransformer) {
+		this.messageTransformer = messageTransformer;
+	}
+
 	// transforming selected subsequences of logging events to copyable text 
 	
 	@SuppressWarnings("unchecked")
@@ -261,13 +314,11 @@ public class Logpanel extends Composite {
 	protected static boolean appendNewLineToLatest = true;
 	
 	public String getLatestMessage() {
-		String latestMessage = layoutMessage(loggingEvents.get(loggingEvents.size()-1)).trim();
-		if (appendNewLineToLatest) {
-			return latestMessage + NEW_LINE;
-		}
-		else {
-			return latestMessage;
-		}
+//		String latestMessage = layoutMessage(loggingEvents.get(loggingEvents.size()-1)).trim();
+		if (latestLoggingEvent == null) return "null";
+		String latestMessage = layoutMessage(latestLoggingEvent).trim();
+		if (appendNewLineToLatest) return latestMessage + NEW_LINE;
+		return latestMessage;
 	}
 	
 	public String getLatestMessageFirstLine() {
@@ -322,7 +373,7 @@ public class Logpanel extends Composite {
 	 * Maximum size to which loggingEvents is allowed to grow before eviction 
 	 * of earliest events occurs.
 	 */
-	protected static int maxSize = 12345; //TODO uninformed guess ~ Windows XP widget possibly 10,000
+	protected static int maxSize = 6666; // Windows XP widget handles limit ~10,000? //TODO property
 
 	/**
 	 * Collection of logging events received since connectToLogServer ran for the first time.
@@ -331,20 +382,40 @@ public class Logpanel extends Composite {
 	
 	/**
 	 * Bridge between logging events buffer and viewer in GUI
+	 * 
+	 * Must be mutated in UI thread.
 	 */
 	final IObservableList input = Properties.selfList(ILoggingEvent.class).observe(loggingEvents);	// wrap a writable list into an IObservableList: http://www.vogella.com/tutorials/EclipseDataBinding/article.html#jfacedb_viewer
 	public IObservableList getInput() {
 		return input;
 	}
-	
-	protected void addLoggingEvent(ILoggingEvent loggingEvent) {
-		if (input.size() == maxSize) {
-			input.remove(0);
-		}
-		input.add(loggingEvent);
+
+	/**
+	 * Updates TableViewer's IObservableList input in UI thread
+	 * 
+	 * 2nd most important method after connectToLogServer which
+	 * creates the Appender that calls it.
+	 */
+	protected void addLoggingEvent(final ILoggingEvent loggingEvent) {
+		display.asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				// don't exceed maxSize
+				if (input.size() == maxSize)
+					input.remove(0); // must run in UI thread
+				
+				//TODO here would be suitable when switching pattern layout to re-layout past events too
+				
+				input.add(loggingEvent); // must run in UI thread
+				
+				latestLoggingEvent = loggingEvent;
+			}
+		});
+		revealLatestUnlessScrollLockChecked();
 	}
-	
-	
+
+	ILoggingEvent latestLoggingEvent = null;
+
 	// widgets 
 	
 	private TableViewer viewer; // to set with input
@@ -353,15 +424,27 @@ public class Logpanel extends Composite {
 		return viewer;
 	}
 	
+	//TODO implement "Clear previous messages" in TableViewer row's (actually cell) popup menu
 	
-	protected boolean scrollLockChecked = false;
-	public void setScrollLockChecked(final boolean isChecked) {
+	public void revealLatestUnlessScrollLockChecked() {
 		display.asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				scrollLockChecked = isChecked;
+				if (scrollLockChecked || latestLoggingEvent == null ||
+						viewer == null || viewer.getControl() == null || viewer.getControl().isDisposed())
+					return;
+				viewer.reveal(latestLoggingEvent); // must run in UI thread
 			}
 		});
+	}
+	
+	private boolean scrollLockChecked = false;
+	public boolean getScrollLockChecked() {
+		return scrollLockChecked;
+	}
+	public void setScrollLockChecked(final boolean isChecked) {
+		scrollLockChecked = isChecked;
+		revealLatestUnlessScrollLockChecked(); // runs in its own UI thread
 	}
 	
 	
@@ -372,9 +455,11 @@ public class Logpanel extends Composite {
 	public static final Font MONOSPACE = new Font(Display.getDefault(), new FontData("Monospace", 10, SWT.NORMAL));
 	
 	protected Font font = MONOSPACE;
+	@Override
 	public Font getFont() {
 		return font;
 	}
+	@Override
 	public void setFont(Font font) {
 		this.font = font;
 	}
@@ -395,7 +480,8 @@ public class Logpanel extends Composite {
 		@Override
 		public String getColumnText(Object element, int columnIndex) {
 			ILoggingEvent loggingEvent = (ILoggingEvent) element;
-			return layoutMessage(loggingEvent); //TODO collapse messages to first line by default, expanding individually on double-click
+			return layoutMessage(loggingEvent);
+			//TODO collapse messages to first line by default, expanding individually on double-click
 		}
 		@Override
 		public Image getColumnImage(Object element, int columnIndex) {
@@ -443,7 +529,7 @@ public class Logpanel extends Composite {
 		 * @param matching
 		 */
 		public void setMatching(String matching) {
-			String regex = ".*" + matching + ".*"; // ensure any value can be used for matching //TODO may cause problems with '|', etc.
+			String regex = ".*" + matching + ".*"; // ensure any value can be used for matching doesn't cause problems with non-nested'|'
 			try {
 				if (isCaseInsensitive) {
 					pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE); // UNICODE_CASE essential
@@ -471,10 +557,10 @@ public class Logpanel extends Composite {
 	
 	
 	public static final BiMap<Level, String> LOG_LEVELS = ImmutableBiMap.<Level, String>of(
-			Level.ALL, "All", 
+			Level.ALL,   "All", 
 			Level.DEBUG, "DEBUG", 
-			Level.INFO, "INFO", 
-			Level.WARN, "WARN", 
+			Level.INFO,  "INFO", 
+			Level.WARN,  "WARN", 
 			Level.ERROR, "ERROR");
 	
 	public static Level getLogLevel(String level) {
@@ -525,7 +611,7 @@ public class Logpanel extends Composite {
 			Composite logDirComposite = new Composite(this, SWT.NONE);
 			
 			Label logDirLabel = new Label(logDirComposite, SWT.NONE);
-			logDirLabel.setText("Highlights of logging file(s) in:");
+			logDirLabel.setText("Highlights of log file(s) in:");
 			GridDataFactory.swtDefaults().applyTo(logDirLabel);
 			
 			final Text logFileText = new Text(logDirComposite, SWT.SINGLE | SWT.READ_ONLY);
@@ -542,9 +628,11 @@ public class Logpanel extends Composite {
 		filterLabel.setText("Filter:");
 		
 		final Text filterText = new Text(this, SWT.SINGLE | SWT.BORDER | SWT.SEARCH | SWT.ICON_CANCEL);
+		filterText.setToolTipText("Hide log entries not matching filter text or regex, e.g. EPICS|G?DA(WN)?");
 		filterText.setFont(getFont());
 		filterText.setMessage("*case-insensitive matches*");
 		filterText.addKeyListener(new KeyAdapter() {
+			@Override
 			public void keyReleased(KeyEvent keyEvent) {
 				matchingFilter.setMatching(filterText.getText());
 				viewer.refresh();
@@ -554,18 +642,22 @@ public class Logpanel extends Composite {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				if (e.detail == SWT.ICON_CANCEL) {
-					matchingFilter.setMatching(filterText.getText());
+					matchingFilter.setMatching(""/*filterText.getText()*/);
 					viewer.refresh();
 				}
 			}
 		});
 		filterText.setFocus();
 		
-		// table for log messages //TODO ListViewer
+		//TODO exclusion filter as well as matching filter
+		
+		Button button = createSwitchPatternButton();
+		
+		// 1-column table of log messages
 		viewer = new TableViewer(this, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		viewer.setLabelProvider(new ILoggingEventLabelProvider());
 		viewer.setContentProvider(new ObservableListContentProvider());
-		viewer.setUseHashlookup(true); //TODO test for possible speedup and increased memory usage
+//		viewer.setUseHashlookup(true); //TODO test for possible speedup and increased memory usage
 		viewer.setInput(input);
 		
 		matchingFilter = new MatchingFilter();
@@ -592,12 +684,11 @@ public class Logpanel extends Composite {
 			}
 		}); 
 		
-		
-		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(this);
+		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(this);
 		GridDataFactory.swtDefaults().span(1, 1).applyTo(filterLabel);
 		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(filterText);
-		GridDataFactory.fillDefaults().span(3, 1).grab(true, true).applyTo(viewer.getControl());
-		
+		GridDataFactory.swtDefaults().span(1, 1).grab(false, false).applyTo(button);
+		GridDataFactory.fillDefaults().span(4, 1).grab(true, true).applyTo(viewer.getControl());
 		
 		// former controls supplanted by command buttons in LogpanelView toolbar
 		// methods still useful for other Composites embedding Logpanel 
@@ -605,10 +696,9 @@ public class Logpanel extends Composite {
 		//createClearButton(this);
 		//createCopyButton(this);
 	}
-	
-	
+
 	// controls for Logpanel behaviour outside LogpanelView
-	
+
 	public Button createScrollLockCheckBox(Composite parent) {
 		final Button scrollLockCheckBox = new Button(parent, SWT.CHECK);
 		scrollLockCheckBox.setText("Scroll Lock");
@@ -616,12 +706,12 @@ public class Logpanel extends Composite {
 		scrollLockCheckBox.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				scrollLockChecked = scrollLockCheckBox.getSelection();
+				setScrollLockChecked(scrollLockCheckBox.getSelection());
 			}
 		});
 		return scrollLockCheckBox;
 	}
-	
+
 	public Button createClearButton(Composite parent) {
 		Button clearButton = new Button(parent, SWT.PUSH);
 		clearButton.setText("Clear");
@@ -633,18 +723,18 @@ public class Logpanel extends Composite {
 		});
 		return clearButton;
 	}
-	
-	//TODO public Button createCopyButton(Composite parent) {}
+
 	public Button createCopyButton(Composite parent) {
-		Button clearButton = new Button(parent, SWT.PUSH);
-		clearButton.setText("Clear");
-		clearButton.addSelectionListener(new SelectionAdapter() {
+		Button copyButton = new Button(parent, SWT.PUSH);
+		copyButton.setText("Copy");
+		copyButton.setToolTipText("Copy selected messages to system clipboard");
+		copyButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				input.clear();
+				copySelectedMessagesToClipboard();
 			}
 		});
-		return clearButton;
+		return copyButton;
 	}
-	
+
 }

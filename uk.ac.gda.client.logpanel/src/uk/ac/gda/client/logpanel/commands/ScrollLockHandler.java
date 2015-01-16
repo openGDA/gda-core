@@ -33,11 +33,15 @@ public class ScrollLockHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
+		/* Supposedly possible to synchronise state with other instances of this command
+		 * and perhaps Logpanel.createScrollLockCheckBox created Buttons using IElementUpdater(?)
+		 * but I couldn't get it to work.
+		 */
 		State state = event.getCommand().getState(SCROLL_LOCK_TOGGLE_STATE_ID); 
 		state.setValue(!(Boolean) state.getValue());
 		Logpanel logpanel = ((LogpanelView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().findView(LogpanelView.ID)).getLogpanel();
 		logpanel.setScrollLockChecked((Boolean) state.getValue());
-		return null;	// TODO using IElementUpdater(?) synchronise state with other instances of command and return value of Logpanel.createScrollLockPanel
+		return null;
 	}
 
 }

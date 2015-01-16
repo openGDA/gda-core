@@ -27,23 +27,20 @@ public class Perspective implements IPerspectiveFactory {
 
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
+		// view(s) only
+		layout.setEditorAreaVisible(false);
 
-		layout.setEditorAreaVisible(false); // view(s) only
-
-		layout.setFixed(true); // achieves following but only before view added
-		/*
+		layout.setFixed(true);
+		/* achieves following but only before view added
 		IViewLayout statusLayout = layout.getViewLayout(LogpanelView.ID);
 		statusLayout.setCloseable(false);
 		statusLayout.setMoveable(false);
-		 */
+		*/
 
-		/*
+		/* displays view toolbar icons in top left corner over anything https://bugs.eclipse.org/bugs/show_bug.cgi?id=98883
 		layout.addStandaloneView(LogpanelView.ID, false, IPageLayout.BOTTOM, IPageLayout.NULL_RATIO, layout.getEditorArea());
-		// displays view toolbar icons in top left corner over anything https://bugs.eclipse.org/bugs/show_bug.cgi?id=98883
 		*/
 		layout.addView(LogpanelView.ID, IPageLayout.BOTTOM, 0.5f, layout.getEditorArea());
 		// displays view toolbar icons to the right or below of tab
-
 	}
-
 }

@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.logpanel.view;
 
-import java.util.List;
-
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.databinding.observable.list.IListChangeListener;
@@ -36,86 +34,68 @@ import org.eclipse.ui.handlers.IHandlerActivation;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.ViewPart;
 
-import ch.qos.logback.classic.spi.ILoggingEvent;
 import uk.ac.gda.client.logpanel.commands.CopyToClipboardHandler;
 
 public class LogpanelView extends ViewPart {
-	
+
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "uk.ac.gda.client.logpanel.view";
-	
-	protected Logpanel logpanel;
+
+	private Logpanel logpanel;
 	public Logpanel getLogpanel() {
 		return logpanel;
 	}
-	
-	protected IStatusLineManager statusLineManager;
+
+	private IStatusLineManager statusLineManager;
 	public IStatusLineManager getStatusLineManager() {
 		return statusLineManager;
 	}
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 		logpanel = new Logpanel(parent, SWT.NONE);
-		
-		setupStatusLine();
-		
-		setupCommandActivationAndDeactivationHandlers();
+		setupStatusLine(logpanel, true); //TODO e property
+		setupCommandActivationAndDeactivationHandlers(logpanel);
 	}
-	
-	protected void setupStatusLine() {
+
+	protected void setupStatusLine(final Logpanel logpanel, boolean setStatusToLatestMessageFirstLine) {
 		statusLineManager = getViewSite().getActionBars().getStatusLineManager();
-		statusLineManager.setMessage(String.format("Configured to receive messages from log server %s", getLogpanel().getLogServerAddress()));
-		
+		final String defaultMessage = "Configured to receive messages from log server " + logpanel.getLogServerAddress();
+		statusLineManager.setMessage(defaultMessage);
+		if (!setStatusToLatestMessageFirstLine) return;
 		final IObservableList input = logpanel.getInput();
 		input.addListChangeListener(new IListChangeListener() {
-			final boolean setStatusMessageToLastEventMessageFirstLine = true; //TODO make parameter?
 			@Override
 			public void handleListChange(ListChangeEvent event) {
-				@SuppressWarnings("unchecked")
-				List<ILoggingEvent> list = (List<ILoggingEvent>) event.getObservableList();
-				// if new list added to at least once then we are actually receiving
-				if (list.size() > 0 && setStatusMessageToLastEventMessageFirstLine) {
-					statusLineManager.setMessage("Latest: "+logpanel.getLatestMessageFirstLine());
-				}
-//				else if (size == 1) {
-//					statusLineManager.setMessage(String.format("Receiving from log server %s", logpanel.getLogServerAddress()));
-					if (!setStatusMessageToLastEventMessageFirstLine) {
-						input.removeListChangeListener(this);
-					}
-//				}
+				if (!input.isEmpty()) statusLineManager.setMessage("Latest: " + logpanel.getLatestMessageFirstLine());
+				else statusLineManager.setMessage(defaultMessage);
 			}
 		});
 	}
-	
-	protected void setupCommandActivationAndDeactivationHandlers() {
+
+	protected void setupCommandActivationAndDeactivationHandlers(final Logpanel logpanel) {
 		// activate/deactivate Copy command depending on whether any log messages are selected or not
-		ICommandService commandService = (ICommandService) getSite().getService(ICommandService.class);	// or PlatformUI.getWorkbench().getService(ICommandService.class);
+		ICommandService commandService = (ICommandService) getSite().getService(ICommandService.class); // or PlatformUI.getWorkbench().getService(ICommandService.class);
 		final String copyCommandId = CopyToClipboardHandler.ID;
 		Command copyCommand = commandService.getCommand(copyCommandId);
 		IHandler copyCommandHandler = copyCommand.getHandler();
-		final IHandlerService handlerService = (IHandlerService) getSite().getService(IHandlerService.class);	// or PlatformUI.getWorkbench().getService(IHandlerService.class);
+		final IHandlerService handlerService = (IHandlerService) getSite().getService(IHandlerService.class); // or PlatformUI.getWorkbench().getService(IHandlerService.class);
 		final IHandlerActivation copyCommandHandlerActivation = handlerService.activateHandler(copyCommandId, copyCommandHandler);
 		handlerService.deactivateHandler(copyCommandHandlerActivation);
-		getLogpanel().getViewer().addSelectionChangedListener(new ISelectionChangedListener() {
+		logpanel.getViewer().addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-				if (selection.size() > 0){
-					handlerService.activateHandler(copyCommandHandlerActivation);	// or handlerService.activateHandler(copyCommandId, command.getHandler());
-				}
-				else {
-					handlerService.deactivateHandler(copyCommandHandlerActivation);
-				}
+				if (selection.size() > 0) handlerService.activateHandler(copyCommandHandlerActivation); // or handlerService.activateHandler(copyCommandId, command.getHandler());
+				else handlerService.deactivateHandler(copyCommandHandlerActivation);
 			}
 		});
 	}
-	
+
 	@Override
 	public void setFocus() {
 		logpanel.setFocus();
 	}
-	
 }
