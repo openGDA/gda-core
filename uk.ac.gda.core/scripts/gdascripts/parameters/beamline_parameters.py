@@ -68,6 +68,7 @@ def read_lines_from_file(filename):
 remove_trailing_newlines = lambda l: l.rstrip("\r\n")
 
 class JythonNameSpaceMapping:
+    ''''''
     def __init__(self, commandServer=None ):
         if commandServer==None:
             commandServer = InterfaceProvider.getJythonNamespace()
@@ -75,11 +76,7 @@ class JythonNameSpaceMapping:
     def __getitem__(self, itemName):
         return self.__getattr__(itemName)
     def __getattr__(self, attrName):
-        if attrName == "__eq__":
-            raise AttributeError
-        if attrName == "__cmp__":
-            raise AttributeError
-        if attrName == "__coerce__":
+        if attrName.startswith('__') and attrName.endswith('__'):
             raise AttributeError
         if( self.jythonNamespaceMapping.has_key(attrName)) :
             nameInNameSpace = self.jythonNamespaceMapping[attrName]
@@ -100,20 +97,17 @@ class JythonNameSpaceMapping:
             self.jythonNamespaceMapping = readDictionaryFromFile(self.jythonNamespaceMapFilePath, self.jythonNamespaceMapping)
 
 class FinderNameMapping:
+    ''''''
     def __init__(self, finder=None):
         if finder == None:
             finder = Finder.getInstance()
         self.reload(finder)
     def __getitem__(self, itemName):
         return self.__getattr__(itemName)
+    def __repr__(self):
+        return "FinderNameMapping(finder=%s)" % self.finder
     def __getattr__(self, attrName):
-        if attrName == "__repr__":
-            return lambda: "FinderNameMapping.__repr__"
-        if attrName == "__eq__":
-            raise AttributeError
-        if attrName == "__cmp__":
-            raise AttributeError
-        if attrName == "__coerce__":
+        if attrName.startswith('__') and attrName.endswith('__'):
             raise AttributeError
         if( self.finderNameMapping.has_key(attrName)) :
             nameToFind = self.finderNameMapping[attrName]
@@ -183,4 +177,4 @@ class Parameters:
         for key,item in self.parameters.items():
             f.write(key + "=" + item + "\n")
         f.close()
-    
+
