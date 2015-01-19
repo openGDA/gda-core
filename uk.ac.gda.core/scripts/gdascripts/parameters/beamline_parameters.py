@@ -107,6 +107,8 @@ class FinderNameMapping:
     def __getitem__(self, itemName):
         return self.__getattr__(itemName)
     def __getattr__(self, attrName):
+        if attrName == "__repr__":
+            return lambda: "FinderNameMapping.__repr__"
         if attrName == "__eq__":
             raise AttributeError
         if attrName == "__cmp__":
