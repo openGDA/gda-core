@@ -952,7 +952,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			GDAJythonInterpreter.getTranslator().addAliasedCommand(commandName);
 		}
 	}
-
+	//TODO either none or both addAliased{,Vararg}Command methods should require the guard: if (this.batonManager.isJSFRegistered(JSFIdentifier))
 	@Override
 	public void addAliasedVarargCommand(String commandName, String JSFIdentifier) {
 		GDAJythonInterpreter.getTranslator().addAliasedVarargCommand(commandName);
