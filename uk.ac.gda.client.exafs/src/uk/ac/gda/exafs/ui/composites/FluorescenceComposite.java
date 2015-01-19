@@ -82,13 +82,17 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 		confComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(confComp);
 		String[] items;
-		if (includeXspress3)
+
+		if (includeXspress3) {
 			items = new String[] { "Silicon", "Germanium", "Xspress3" };
-		else if (includeGermanium)
+		}
+		else if (includeGermanium) {
 			items = new String[] { "Silicon", "Germanium" };
-		else
-			items = new String[] { "Silicon" };
-		
+		}
+		else {
+			items = new String[] { "Silicon", "Medipix"};
+		}
+
 		this.detectorType = new RadioWrapper(confComp, SWT.NONE, items);
 		detectorType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		detectorType.addValueListener(new ValueAdapter("Detector Type Listener") {
