@@ -185,3 +185,5 @@ class I20XesScan(XasScan):
             self.outputPreparer.mode = "xas"
             ScannableCommands.remove_default([self.xes_energy,self.analyserAngle])
             self.xes_energy(initialXESEnergy)
+            
+

@@ -278,9 +278,14 @@ class XasScan(Scan):
                 if group.getName() == detectorBean.getTransmissionParameters().getDetectorType():
                     return self._createDetArray(group.getDetector(), scanBean)
         elif expt_type == "XES":
-            for group in detectorBean.getDetectorGroups():
-                if group.getName() == "XES":
-                    return self._createDetArray(group.getDetector(), scanBean)
+            if detectorBean.getXesParameters().getDetectorType() == "Silicon":
+                for group in detectorBean.getDetectorGroups():
+                    if group.getName() == "XES":
+                        return self._createDetArray(group.getDetector(), scanBean)
+            else :
+                for group in detectorBean.getDetectorGroups():
+                    if group.getName() == "XES_medipix":
+                        return self._createDetArray(group.getDetector(), scanBean)
         else:
             self.log("This is a fluorescence scan")
             for group in detectorBean.getDetectorGroups():
