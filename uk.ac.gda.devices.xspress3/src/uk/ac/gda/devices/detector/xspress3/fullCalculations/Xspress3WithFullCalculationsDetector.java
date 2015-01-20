@@ -143,7 +143,7 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	}
 
 	@Override
-	public Double[] readoutFF() throws DeviceException {
+	public double readoutFF() throws DeviceException {
 		return dataOperations.readoutFF();
 	}
 

@@ -30,23 +30,6 @@ public class Xspress3FileReader {
 		}
 	}
 
-	// public double[][][] readFrames(int firstFrame, int lastFrame) throws
-	// NexusException, NexusExtractorException {
-	//
-	// readFile();
-	//
-	// int numFrames = lastFrame - firstFrame + 1;
-	// double[][][] data = new
-	// double[numFrames][numberOfDetectorElements][mcaSize];
-	// int index = 0;
-	// for (int frame = firstFrame; frame <= lastFrame; frame++) {
-	// data[index] = theData[frame];
-	// index++;
-	// }
-	//
-	// return data;
-	// }
-
 	/*
 	 * Reads the whole row (whole file) into memory
 	 * <p>
@@ -59,8 +42,6 @@ public class Xspress3FileReader {
 
 		INexusTree tree = NexusTreeBuilder.getNexusTree(url, NexusTreeNodeSelection.createTreeForAllNXData());
 		INexusTree node = tree.getNode(DATA_PATH);
-		// INexusTree node =
-		// tree.getChildNode(0).getChildNode(0).getChildNode(1).getChildNode(1);
 		NexusGroupData nexusGroupData = NexusExtractor.getNexusGroupData(((INexusSourceProvider) tree).getSource(),
 				node.getNodePathWithClasses(), null, null, true);
 

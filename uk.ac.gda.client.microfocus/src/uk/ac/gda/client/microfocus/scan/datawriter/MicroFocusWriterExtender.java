@@ -66,7 +66,6 @@ import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
 import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
 import uk.ac.gda.devices.detector.xspress3.Xspress3;
 import uk.ac.gda.devices.detector.xspress3.Xspress3BufferedDetector;
-import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
 
 public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
@@ -580,11 +579,17 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				// when SWMR available we can write all MCAs for to a single multidimensional data block
 				// but for the moment have different data per row.
 				try {
-					String nameOfMcaForGivenRow = "/entry1/instrument/" + detectorName + "/"
-							+ Xspress3Detector.getNameOfRowSubNode(y);
-					lazyDataset = dataHolder.getLazyDataset(nameOfMcaForGivenRow);
-					slice = lazyDataset.getSlice(new int[] { x, detNo, 0 }, new int[] { x + 1, detNo + 1,
-							spectrumLength }, new int[] { 1, 1, 1 });
+					lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/MCAs");
+					slice = lazyDataset.getSlice(new int[] { y, x, detNo, 0 }, new int[] { y + 1, x + 1, detNo + 1,
+							spectrumLength }, new int[] { 1, 1, 1, 1 });
+//					if (lazyDataset == null){
+//						String nameOfMcaForGivenRow = "/entry1/instrument/" + detectorName + "/"
+//								+ Xspress3Detector.getNameOfRowSubNode(y);
+//						lazyDataset = dataHolder.getLazyDataset(nameOfMcaForGivenRow);
+//						slice = lazyDataset.getSlice(new int[] { x, detNo, 0 }, new int[] { x + 1, detNo + 1,
+//								spectrumLength }, new int[] { 1, 1, 1 });					
+//					}
+					
 				} catch (Exception e) {
 					// absorb the exception here as if the MCA does not exist then it will probably be because the row
 					// has not completed so the MCA are not available yet.
