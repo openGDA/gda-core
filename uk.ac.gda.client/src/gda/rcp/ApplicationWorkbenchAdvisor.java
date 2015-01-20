@@ -29,9 +29,7 @@ import gda.gui.RCPOpenViewCommand;
 import gda.gui.RCPSetPreferenceCommand;
 import gda.jython.IScanDataPointObserver;
 import gda.jython.InterfaceProvider;
-import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
-import gda.jython.JythonServerStatus;
 import gda.jython.UserMessage;
 import gda.jython.batoncontrol.BatonRequested;
 import gda.observable.IObserver;
@@ -44,8 +42,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -282,7 +282,6 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 				String viewid = preferenceStore.getString(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START_ID);
 				final String viewIdFinal = viewid != "" ? viewid : LivePlotView.ID;
 				final IScanDataPointObserver openXYPlotOnScanStart = new IScanDataPointObserver() {
-
 					@Override
 					public void update(Object source, Object arg) {
 						if (arg instanceof Scan.ScanStatus) {
@@ -293,11 +292,62 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 									@Override
 									public void run() {
 										try {
-											PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+											
+											// only show LivePlotView's which are connected (i.e. have not been disconnected at some point in their lifecycle)
+											boolean activePlotSeen = findAndShowConnectedPlotViews();
+											
+											if (!activePlotSeen){
+												// if nothing found then show Plot View 1
+												PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 													.showView(viewIdFinal, null, IWorkbenchPage.VIEW_VISIBLE);
+												
+												// make sure Plot View 1 is connected to the plotting system
+												HashMap<LivePlotView, String> plotViews = getPlotViews();
+												for (Entry<LivePlotView, String> plotView : plotViews.entrySet()){
+													// the default Scan Plot 1 has a null Secondary Id (allowed in RCP)
+													if (plotView.getValue() == null){
+														plotView.getKey().setConnect(true);
+														break;
+													}
+												}
+											}
 										} catch (PartInitException e) {
 											logger.error("Error opening " + viewIdFinal, e);
 										}
+									}
+									
+									/*
+									 * @return Map of references to the visible LivePlotView and their secondary IDs
+									 */
+									private HashMap<LivePlotView, String> getPlotViews(){
+										HashMap<LivePlotView, String> plotViews = new HashMap<LivePlotView, String>();
+										IViewReference[] views = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getViewReferences();
+										for (IViewReference viewRef : views) {
+											IViewPart thisView = viewRef.getView(false);
+											if (thisView != null && thisView instanceof LivePlotView) {
+												plotViews.put((LivePlotView) thisView,viewRef.getSecondaryId());
+											}
+										}
+										return plotViews;
+									}
+
+									/*
+									 * Show all minimised and connected LivePlotViews
+									 * 
+									 * @return boolean true if at least one plot was available
+									 * @throws PartInitException
+									 */
+									private boolean findAndShowConnectedPlotViews() throws PartInitException {
+										boolean plotSeen = false;
+										HashMap<LivePlotView, String> plotViews = getPlotViews();
+										for (LivePlotView plotView : plotViews.keySet()){
+											if (!plotView.isDisconnected()){
+												PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+												.showView(LivePlotView.ID, plotViews.get(plotView), IWorkbenchPage.VIEW_VISIBLE);
+												plotSeen = true;
+											}
+										}
+										return plotSeen;
 									}
 								});
 							}
