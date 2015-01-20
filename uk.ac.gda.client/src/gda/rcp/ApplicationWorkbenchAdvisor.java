@@ -34,7 +34,6 @@ import gda.jython.UserMessage;
 import gda.jython.batoncontrol.BatonRequested;
 import gda.observable.IObserver;
 import gda.rcp.preferences.GdaRootPreferencePage;
-import gda.scan.Scan;
 import gda.util.ObjectServer;
 
 import java.lang.reflect.Field;
@@ -96,7 +95,7 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.liveplot.LivePlotView;
+import uk.ac.gda.client.liveplot.LivePlotViewManager;
 import uk.ac.gda.client.scripting.JythonPerspective;
 import uk.ac.gda.client.scripting.ScriptProjectCreator;
 import uk.ac.gda.preferences.PreferenceConstants;
@@ -274,43 +273,16 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			// also remove action sets from already open perspective
 			listener.perspectiveActivated(workbenchWindow.getActivePage(), null);
 
-			IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
-			if (preferenceStore.getBoolean(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START)) {
-				String viewid = preferenceStore.getString(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START_ID);
-				final String viewIdFinal = viewid != "" ? viewid : LivePlotView.ID;
-				final IScanDataPointObserver openXYPlotOnScanStart = new IScanDataPointObserver() {
-
-					@Override
-					public void update(Object source, Object arg) {
-						if (arg instanceof Scan.ScanStatus) {
-							final Scan.ScanStatus status = (Scan.ScanStatus) arg;
-							if (status == Scan.ScanStatus.RUNNING) {
-								// must run sync to ensure the view is opened before a scan data point arrives
-								PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-									@Override
-									public void run() {
-										try {
-											PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-													.showView(viewIdFinal, null, IWorkbenchPage.VIEW_VISIBLE);
-										} catch (PartInitException e) {
-											logger.error("Error opening " + viewIdFinal, e);
-										}
-									}
-								});
-							}
-						}
-					}
-				};
-				InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(openXYPlotOnScanStart);
-				addCleanupWork(new CleanupWork() {
-
-					@Override
-					public void cleanup() {
-						InterfaceProvider.getScanDataPointProvider()
-								.deleteIScanDataPointObserver(openXYPlotOnScanStart);
-					}
-				});
-			}
+			// Add a listener to make sure a live scan plot is visible at the start of each scan (unless this
+			// behaviour has been switched off in the client preferences)
+			final IScanDataPointObserver openXYPlotOnScanStart = new LivePlotViewManager();
+			InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(openXYPlotOnScanStart);
+			addCleanupWork(new CleanupWork() {
+				@Override
+				public void cleanup() {
+					InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(openXYPlotOnScanStart);
+				}
+			});
 
 			Findable obj = Finder.getInstance().findNoWarn(RCPControllerImpl.name);
 			if (obj != null) {

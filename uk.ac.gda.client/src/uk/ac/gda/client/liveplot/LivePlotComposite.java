@@ -313,7 +313,7 @@ public class LivePlotComposite extends Composite {
 		sashForm.setLayout(new FillLayout());
 		plotView = new SubLivePlotView(parentPart, sashForm, SWT.NONE, archiveFolder);
 		legend = new LiveLegend(sashForm, SWT.NONE, plotView);
-		showLenged(true);
+		showLegend(true);
 		sashForm.setWeights(WEIGHTS_NORMAL);
 		plotter = new ScanDataPointPlotter(plotView, legend, archiveFolder);
 	}
@@ -321,7 +321,7 @@ public class LivePlotComposite extends Composite {
 	/**
 	 * @param showLegend
 	 */
-	public void showLenged(Boolean showLegend) {
+	public void showLegend(boolean showLegend) {
 		this.showLegend = showLegend;
 		sashForm.setWeights(showLegend ? WEIGHTS_NORMAL : WEIGHTS_NO_LEGEND);
 	}
@@ -329,7 +329,7 @@ public class LivePlotComposite extends Composite {
 	/**
 	 * @return true if legend is hidden
 	 */
-	public Boolean getShowLegend() {
+	public boolean getShowLegend() {
 		return showLegend;
 	}
 

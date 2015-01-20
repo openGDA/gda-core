@@ -103,21 +103,21 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	private IAction actionConnect;
 	private Boolean connected = false;
 	private IPreferenceStore preferenceStore;
-	
+
 	/**
-	 * Folder into which the data for this view is to be stored
-	 * Use getArchiveFolder as __archiveFolder is not initialised until first call to getArchiveFolder
+	 * Folder into which the data for this view is to be stored Use getArchiveFolder as __archiveFolder is not
+	 * initialised until first call to getArchiveFolder
 	 */
 	private String __archiveFolder;
-	
+
 	/**
-	 * IPath to file that holding the memento that lists the different scans saved in the archive
-	 * Use getMementoFileIPath as __mementoFileIPath is not initialised until first call to getArchiveFolder
+	 * IPath to file that holding the memento that lists the different scans saved in the archive Use
+	 * getMementoFileIPath as __mementoFileIPath is not initialised until first call to getArchiveFolder
 	 */
 	private IPath __mementoFileIPath;
-	
+
 	static {
-		//We need to activate the SciSoftRCP bundle as that sets up the PlotServer
+		// We need to activate the SciSoftRCP bundle as that sets up the PlotServer
 		AnalysisRCPActivator.getDefault();
 		PlotServerProvider.getPlotServer().addIObserver(new IObserver() {
 
@@ -132,7 +132,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 								Object obj = guiData.get(GuiParameters.ONEDFILE);
 								if (obj instanceof OneDDataFilePlotDefinition) {
 									final OneDDataFilePlotDefinition data = (OneDDataFilePlotDefinition) obj;
-										Display.getDefault().asyncExec(new Runnable(){
+									Display.getDefault().asyncExec(new Runnable() {
 										@Override
 										public void run() {
 											try {
@@ -174,23 +174,23 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	}
 
 	private IPath getArchiveFileIPath() {
-		if( __mementoFileIPath == null){
+		if (__mementoFileIPath == null) {
 			IPath mementoStoreIPath = GDAClientActivator.getDefault().getStateLocation();
 			String Id = getViewSite().getSecondaryId();
-			if( Id ==null )
+			if (Id == null)
 				Id = getID();
 			__mementoFileIPath = mementoStoreIPath.append(Id);
 		}
 		return __mementoFileIPath;
 	}
-	
-	private String getArchiveFilePath(){
+
+	private String getArchiveFilePath() {
 		IPath mementoFileIPath = getArchiveFileIPath();
 		return mementoFileIPath.toFile().getAbsolutePath();
 	}
-	
-	private String getArchiveFolder(){
-		if( __archiveFolder == null){
+
+	private String getArchiveFolder() {
+		if (__archiveFolder == null) {
 			String archiveFolder = getArchiveFilePath() + "_livearchive";
 			File storeFolderFile = new File(archiveFolder);
 			storeFolderFile.mkdirs();
@@ -198,14 +198,14 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 		}
 		return __archiveFolder;
 	}
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
 		xyPlot = new LivePlotComposite(this, parent, SWT.NONE, getArchiveFolder());
 		xyPlot.setAutoHideNewScan(false);
 		xyPlot.setAutoHideLastScan(preferenceStore.getBoolean(PreferenceConstants.GDA_CLIENT_PLOT_AUTOHIDE_LAST_SCAN));
-		xyPlot.showLenged(true);
+		xyPlot.showLegend(true);
 		getViewSite().getActionBars().getToolBarManager();
 
 		List<IAction> actions = new Vector<IAction>();
@@ -213,7 +213,11 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 			actionConnect = new Action("", IAction.AS_CHECK_BOX) {
 				@Override
 				public void run() {
-					setConnect(!isDisconnected());
+					if (isConnected()) {
+						disconnect();
+					} else {
+						connect();
+					}
 				}
 			};
 			actions.add(actionConnect);
@@ -237,7 +241,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 			IAction action = new Action("", IAction.AS_CHECK_BOX) {
 				@Override
 				public void run() {
-					xyPlot.showLenged(!xyPlot.getShowLegend());
+					xyPlot.showLegend(!xyPlot.getShowLegend());
 					this.setChecked(xyPlot.getShowLegend());
 				}
 			};
@@ -277,7 +281,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 			action.setText("Log10");
 			actions.add(action);
 		}
-		
+
 		xyPlot.createAndRegisterPlotActions(parent, getViewSite().getActionBars(), getPartName(), actions);
 		xyPlot.createScriptingConnection(getPartName());
 
@@ -286,7 +290,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 			 * Attempt to restore the view from the memento stored when view was last disposed
 			 */
 			File file = getArchiveFileIPath().toFile();
-			if( file.exists()){
+			if (file.exists()) {
 				FileReader fileReader = new FileReader(file);
 				XMLMemento memento = XMLMemento.createReadRoot(fileReader);
 				xyPlot.initFromMemento(memento, getArchiveFolder());
@@ -294,8 +298,8 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 		} catch (Exception e) {
 			logger.error("Error restoring view to previous state", e);
 		}
-		
-		setConnect(true);
+
+		connect();
 		xyPlot.initContextMenu(getSite(), getSite().getWorkbenchWindow(), new XYPlotActionGroup(getSite()
 				.getWorkbenchWindow(), xyPlot));
 		getSite().setSelectionProvider(xyPlot.getTreeViewer());
@@ -324,7 +328,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 			return null;
 		List<String> xyDataSetNames = new Vector<String>();
 		xyDataSetNames.add((String) xSel[0]);
-		if( possibleXYDataSetNames.length == 1)
+		if (possibleXYDataSetNames.length == 1)
 			return xyDataSetNames;
 		ListSelectionDialog lsd = new ListSelectionDialog(shell, possibleXYDataSetNames, new ArrayContentProvider(),
 				new LabelProvider(), "");
@@ -374,7 +378,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 		} else {
 			try {
 				fileLoader = LoaderFactory.getLoader(SRSLoader.class, path);
-			} catch(Exception e) {
+			} catch (Exception e) {
 				// Fall through
 			}
 		}
@@ -390,19 +394,20 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 				String xyDataSetName = xyDataSetNames.get(i);
 				DoubleDataset yData = (DoubleDataset) dataHolder.getDataset(xyDataSetName);
 				AxisSpec axisSpec = null;
-				if( yAxesMap != null) {
+				if (yAxesMap != null) {
 					String yAxisName = yAxesMap.get(xyDataSetName);
-					if( yAxisName != null)
+					if (yAxisName != null)
 						axisSpec = new AxisSpec(yAxisName);
 				}
 				int scanNumberFromPath = deriveScanNumberFromPath(path);
-				xyPlot.addData(scanNumberFromPath, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData, true, true, axisSpec);
+				xyPlot.addData(scanNumberFromPath, path, xyDataSetName + "/" + xyDataSetNames.get(0), xData, yData,
+						true, true, axisSpec);
 			}
 		} else {
 			logger.warn("Unrecognized file type - " + path);
 		}
 	}
-	
+
 	private int deriveScanNumberFromPath(String path) {
 		String filename = FilenameUtils.getName(path);
 		Matcher matcher = Pattern.compile("(\\d+)").matcher(filename);
@@ -416,36 +421,43 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	}
 
 	/**
-	 * Call this method to open a new view with a unique id
+	 * Call this method to get a unique secondary ID to use when opening multiple LivePlotViews
 	 */
 	public static String getUniqueSecondaryId() {
-		secondaryIdSuffix++;
-		return ID + secondaryIdSuffix;
+		return String.valueOf(++secondaryIdSuffix);
 	}
 
 	@Override
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
-		setConnect(false);
-		setPartName("Scan Plot " + secondaryIdSuffix);
+		disconnect();
+		if (site.getSecondaryId() == null) {
+			setPartName("Scan Plot 1");
+		} else {
+			setPartName("Scan Plot " + site.getSecondaryId());
+		}
 	}
 
 	/**
-	 * Writes to a memento and a set of archive files in a folder a copy of the state of the xy lines displayed in the view 
-	 * @param memento 
+	 * Writes to a memento and a set of archive files in a folder a copy of the state of the xy lines displayed in the
+	 * view
+	 * 
+	 * @param memento
 	 * @param archiveFolder
 	 */
 	private void saveState(IMemento memento, String archiveFolder) {
-		boolean wasConnected = !isDisconnected();
-		try{
-			setConnect(false);
-			Thread.sleep(500); //wait for any processing of scan data points to complete - hack
+		boolean wasConnected = isConnected();
+		try {
+			disconnect();
+			Thread.sleep(500); // wait for any processing of scan data points to complete - hack
 			if (xyPlot != null)
 				xyPlot.saveState(memento, archiveFolder);
 		} catch (InterruptedException e) {
 			logger.error("saveState interrupted", e);
-		}finally{
-			setConnect(wasConnected);
+		} finally {
+			if (wasConnected) {
+				connect();
+			}
 		}
 	}
 
@@ -453,12 +465,10 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	public void dispose() {
 		try {
 			/**
-			 * To save the state of the view to a memento we need to do it in the dispose method as the 
-			 * normal memento system along saves the state of the application when it is closed. If a view is closed
-			 * at the time the application closes then the state of the view is not saved.
-			 * 
-			 * By doing the save in dispose the user can close and re-open the view without losing the 
-			 * data displayed.
+			 * To save the state of the view to a memento we need to do it in the dispose method as the normal memento
+			 * system along saves the state of the application when it is closed. If a view is closed at the time the
+			 * application closes then the state of the view is not saved. By doing the save in dispose the user can
+			 * close and re-open the view without losing the data displayed.
 			 */
 			XMLMemento memento = XMLMemento.createWriteRoot(MEMENTO_GROUP);
 			saveState(memento, getArchiveFolder());
@@ -467,16 +477,16 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 			logger.error("Error saving state of  view", e);
 		}
 		super.dispose();
-		
+
 		xyPlot.dispose();
-		setConnect(true);
+		connect();
 	}
 
 	@Override
 	public void setFocus() {
 		xyPlot.setFocus();
 	}
-	
+
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class clazz) {
 		if (clazz == IToolPageSystem.class)
@@ -521,19 +531,27 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 		xyPlot.clearGraph();
 	}
 
-	public void setHideOldestScan(Boolean value){
+	public void setHideOldestScan(Boolean value) {
 		xyPlot.setHideOldestScan(value);
 	}
-	
-	public boolean getHideOldestScan(){
+
+	public boolean getHideOldestScan() {
 		return xyPlot.getHideOldestScan();
 	}
-	
+
+	public void connect() {
+		setConnect(true);
+	}
+
+	public void disconnect() {
+		setConnect(false);
+	}
+
 	/**
 	 * @param connect
-	 *            True if scandatapoints are to be ignored
+	 *            <code>true</code> if this plot should connect and listen for scan data points
 	 */
-	public void setConnect(Boolean connect) {
+	private void setConnect(boolean connect) {
 		try {
 			if (connect)
 				InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
@@ -547,12 +565,11 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 			if (actionConnect != null) {
 				actionConnect.setChecked(connected);
 				if (connected) {
-					actionConnect.setToolTipText("Disconnect");
+					actionConnect.setToolTipText("Disconnect: do not listen for new scans");
 					actionConnect.setImageDescriptor(gda.rcp.GDAClientActivator
 							.getImageDescriptor("icons/control_pause_blue.png"));
-				} 
-				else {
-					actionConnect.setToolTipText("Connect");
+				} else {
+					actionConnect.setToolTipText("Connect: listen for data from new scans");
 					actionConnect.setImageDescriptor(gda.rcp.GDAClientActivator
 							.getImageDescriptor("icons/control_play_blue.png"));
 				}
@@ -563,10 +580,10 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 	}
 
 	/**
-	 * @return true if the plot not accepted scandatapoints
+	 * @return <code>true</code> if the plot is currently listening for scan data points
 	 */
-	public boolean isDisconnected() {
-		return !connected;
+	public boolean isConnected() {
+		return connected;
 	}
 
 	@Override
@@ -613,8 +630,7 @@ class XYPlotActionGroup extends ActionGroup {
 		String scanIdentifier = null;
 		if (element instanceof ScanTreeItem) {
 			scanIdentifier = ((ScanTreeItem) element).getCurrentFilename();
-		} 
-		else if (element instanceof SingleScanLine) {
+		} else if (element instanceof SingleScanLine) {
 			scanIdentifier = ((SingleScanLine) element).getCurrentFilename();
 		}
 		if (scanIdentifier != null) {
@@ -656,11 +672,11 @@ class OpenScanFile extends Action implements ActionFactory.IWorkbenchAction {
 			return;
 		}
 		try {
-//			(new OpenDataFileAction(true)).openViewForFile(new File(absFilePath));
-			//Now that Nexus files have their own editor simple use the editor associated with the file
+			// (new OpenDataFileAction(true)).openViewForFile(new File(absFilePath));
+			// Now that Nexus files have their own editor simple use the editor associated with the file
 			IFileStore fileStore = EFS.getLocalFileSystem().getStore(new File(absFilePath).toURI());
-		    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		    IDE.openEditorOnFileStore( page, fileStore );
+			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			IDE.openEditorOnFileStore(page, fileStore);
 		} catch (Exception e) {
 			logger.warn("Cannot open file", e);
 		}

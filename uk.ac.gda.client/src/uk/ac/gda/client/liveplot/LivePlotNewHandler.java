@@ -31,24 +31,25 @@ import org.slf4j.LoggerFactory;
 /**
  * Handler to disconnect the current XYPlotView and create a new one
  */
-public class LivePlotNewHandler extends AbstractHandler{
-	private static final Logger logger = LoggerFactory.getLogger(LivePlotNewHandler.class);		
+public class LivePlotNewHandler extends AbstractHandler {
+	private static final Logger logger = LoggerFactory.getLogger(LivePlotNewHandler.class);
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		try{
+		try {
 			IWorkbenchPart view = HandlerUtil.getActivePartChecked(event);
-			if(view instanceof LivePlotView){
-				LivePlotView xyview = (LivePlotView)view;
-				if(!xyview.isDisconnected()){
-					xyview.setConnect(false);
+			if (view instanceof LivePlotView) {
+				LivePlotView xyview = (LivePlotView) view;
+				if (xyview.isConnected()) {
+					xyview.disconnect();
 				}
 				final IWorkbenchPage page = HandlerUtil.getActiveSite(event).getPage();
-				final IViewPart      part = page.showView(LivePlotView.ID, LivePlotView.getUniqueSecondaryId(), IWorkbenchPage.VIEW_VISIBLE);
+				final IViewPart part = page.showView(LivePlotView.ID, LivePlotView.getUniqueSecondaryId(),
+						IWorkbenchPage.VIEW_VISIBLE);
 				page.activate(part);
 			}
-		}
-		catch (Exception e){
-			logger.error(e.getMessage(),e);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 		}
 		return null;
 	}
