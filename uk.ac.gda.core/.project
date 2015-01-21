@@ -3,16 +3,17 @@
 	<name>uk.ac.gda.core</name>
 	<comment></comment>
 	<projects>
+		<project>org.eclipse.dawnsci.analysis.api</project>
 		<project>tp</project>
 		<project>uk.ac.diamond.org.springframework</project>
 		<project>uk.ac.diamond.scisoft.analysis</project>
-		<project>org.eclipse.dawnsci.analysis.api</project>
 		<project>uk.ac.diamond.scisoft.analysis.plotserver</project>
 		<project>uk.ac.diamond.scisoft.deprecated</project>
 		<project>uk.ac.diamond.scisoft.python</project>
 		<project>uk.ac.gda.analysis</project>
 		<project>uk.ac.gda.api</project>
 		<project>uk.ac.gda.common</project>
+		<project>uk.ac.gda.dls</project>
 		<project>uk.ac.gda.epics</project>
 		<project>uk.ac.gda.libs</project>
 		<project>uk.ac.gda.nexus</project>

@@ -4,11 +4,13 @@ from uk.ac.diamond.scisoft.analysis.io import PilatusEdfLoader
 from org.eclipse.dawnsci.analysis.api.io import ScanFileHolderException
 
 try:
+# TODO remove all references to ConvertedTIFFImageLoader as it simply inherits
+# from TIFFImageLoader without any additional functionality
+# Also remove reference in project to gda.dls
 	from gda.analysis.io import ConvertedTIFFImageLoader 
 except ImportError:
 	ConvertedTIFFImageLoader = None
 from gda.analysis import ScanFileHolder
-import java
 
 FILELOADERS={
 			'TIF':TIFFImageLoader,

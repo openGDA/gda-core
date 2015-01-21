@@ -3,9 +3,11 @@ from testjy.gdascripts_test.analysis_test.io_test.images import TESTFILE, IPP_XR
 from org.eclipse.dawnsci.analysis.api.io import ScanFileHolderException
 from gda.analysis.io import TIFFImageLoader
 try:
+# TODO remove all references to ConvertedTIFFImageLoader as it simply inherits
+# from TIFFImageLoader without any additional functionality
 	from gda.analysis.io import ConvertedTIFFImageLoader
 except ImportError:
-	print "ConvertedTIFFImageLoader can't be imported from PyDev tests without adding a reference to the swingclient plugin"
+	print "ConvertedTIFFImageLoader can't be imported from PyDev tests without adding a reference to the gda.dls plugin"
 	ConvertedTIFFImageLoader = None
 import os.path
 import unittest
