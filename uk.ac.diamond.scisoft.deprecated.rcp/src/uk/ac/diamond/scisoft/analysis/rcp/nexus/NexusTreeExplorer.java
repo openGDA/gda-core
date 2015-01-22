@@ -499,7 +499,7 @@ public class NexusTreeExplorer extends Composite implements IObserver, ISelectio
 
 		if (foundData) {
 			// remove extraneous dimensions
-			cData.squeeze(true);
+			cData.squeezeEnds();
 
 			// set up slices
 			int rank = cData.getRank();
@@ -525,7 +525,7 @@ public class NexusTreeExplorer extends Composite implements IObserver, ISelectio
 							if (s.length > 1)
 								continue; // axis data must be 1D: FIXME
 							d = Nexus.createLazyDataset(n);
-							d.squeeze(true);
+							d.squeezeEnds();
 							AxisChoice choice = new AxisChoice(d);
 							if (attributes != null) {
 								if (attributes.containsKey("axis")) {
