@@ -6,7 +6,6 @@ import gda.device.Timer;
 import gda.device.detector.DAServer;
 import gda.device.detector.countertimer.TfgScaler;
 import gda.device.detector.xspress.Xspress2Detector;
-import gda.device.detector.xspress.XspressDetector;
 import gda.factory.FactoryException;
 
 import java.util.HashMap;
@@ -16,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.xspress.ResGrades;
+import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 

@@ -31,6 +31,8 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.beans.xspress.XspressDetector;
+
 /**
  * To operate the Xspress through TFGv2 in the ContinuousScan framework
  */

@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 import gda.device.DeviceException;

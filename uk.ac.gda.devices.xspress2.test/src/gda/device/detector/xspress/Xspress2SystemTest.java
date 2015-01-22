@@ -23,7 +23,6 @@ import static org.junit.Assert.fail;
 import gda.device.DeviceException;
 import gda.device.detector.DUMMY_XSPRESS2_MODE;
 import gda.device.detector.DummyDAServer;
-import gda.device.detector.xspress.xspress2data.ResGrades;
 import gda.device.detector.xspress.xspress2data.Xspress2DAServerController;
 import gda.device.timer.Etfg;
 import gda.factory.FactoryException;
@@ -39,6 +38,8 @@ import org.junit.Test;
 
 import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
 import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.xspress.ResGrades;
+import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressROI;
 
 /**

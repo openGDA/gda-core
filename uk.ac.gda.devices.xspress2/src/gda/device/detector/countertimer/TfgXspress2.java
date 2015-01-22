@@ -21,13 +21,14 @@ package gda.device.detector.countertimer;
 
 import gda.device.CounterTimer;
 import gda.device.DeviceException;
-import gda.device.detector.xspress.XspressDetector;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**
  * Adapter class for the gda.device.detector.xspress.Xspress2System so that it acts as a CounterTimer.

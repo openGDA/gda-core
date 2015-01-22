@@ -24,7 +24,6 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
-import gda.device.detector.xspress.xspress2data.ResGrades;
 import gda.factory.FactoryException;
 
 import java.util.ArrayList;
@@ -36,7 +35,9 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
 import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
+import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.util.beans.xml.XMLHelpers;

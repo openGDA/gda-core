@@ -21,11 +21,11 @@ package uk.ac.gda.exafs.ui.views.scalersmonitor;
 import gda.configuration.properties.LocalProperties;
 import gda.device.CounterTimer;
 import gda.device.DeviceException;
-import gda.device.detector.xspress.XspressDetector;
 import gda.factory.Finder;
 import gda.jython.Jython;
 import gda.jython.JythonServerFacade;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
@@ -33,14 +33,14 @@ import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace.TraceType;
-
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+
+import uk.ac.gda.beans.xspress.XspressDetector;
 
 public class XspressMonitorView extends MonitorViewBase {
 	public static final String ID = "uk.ac.gda.exafs.ui.views.scalersmonitor";

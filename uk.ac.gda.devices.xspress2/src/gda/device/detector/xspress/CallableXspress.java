@@ -25,6 +25,8 @@ import gda.device.scannable.PositionCallableProvider;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import uk.ac.gda.beans.xspress.XspressDetector;
+
 public class CallableXspress extends Xspress2Detector implements XspressDetector, PositionCallableProvider<NexusTreeProvider>  {
 
 	AtomicBoolean readingOut = new AtomicBoolean(false);

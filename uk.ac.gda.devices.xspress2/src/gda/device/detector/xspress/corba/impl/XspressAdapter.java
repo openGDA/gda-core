@@ -22,7 +22,6 @@ package gda.device.detector.xspress.corba.impl;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.corba.impl.DetectorAdapter;
-import gda.device.detector.xspress.XspressDetector;
 import gda.device.detector.xspress.corba.CorbaDetectorElement;
 import gda.device.detector.xspress.corba.CorbaXspress;
 import gda.device.detector.xspress.corba.CorbaXspressHelper;
@@ -35,6 +34,7 @@ import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
 
 import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**
  * A client side implementation of the adapter pattern for the Xspress class

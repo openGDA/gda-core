@@ -23,7 +23,6 @@ import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.corba.impl.DetectorImpl;
-import gda.device.detector.xspress.XspressDetector;
 import gda.device.detector.xspress.corba.CorbaDetectorElement;
 import gda.device.detector.xspress.corba.CorbaXspressPOA;
 import gda.device.scannable.corba.impl.ScannableImpl;
@@ -32,6 +31,7 @@ import gda.factory.corba.CorbaFactoryException;
 import org.omg.CORBA.Any;
 
 import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**
  * A server side implementation for a distributed Xspress class

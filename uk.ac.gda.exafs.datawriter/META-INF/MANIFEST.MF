@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Require-Bundle: uk.ac.gda.core,
  uk.ac.gda.nexus,
  uk.ac.gda.common,
- uk.ac.gda.beans.vortex;bundle-version="1.0.0",
+ uk.ac.gda.exafs.api;bundle-version="1.0.0",
  uk.ac.gda.devices.xspress2;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: gda.data.scan.datawriter

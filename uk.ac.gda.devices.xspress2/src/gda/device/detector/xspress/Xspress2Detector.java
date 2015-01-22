@@ -23,7 +23,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.NexusDetector;
-import gda.device.detector.xspress.xspress2data.ResGrades;
 import gda.device.detector.xspress.xspress2data.Xspress2Controller;
 import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
 import gda.device.detector.xspress.xspress2data.Xspress2NexusTreeProvider;
@@ -37,7 +36,9 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
 import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
+import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
@@ -404,7 +405,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	 * Sends the daServer commands to enable the xspress system counting. This
 	 * does not start the TFG counting.
 	 * 
-	 * @see gda.device.detector.xspress.XspressDetector#start()
+	 * @see uk.ac.gda.beans.xspress.XspressDetector#start()
 	 */
 	@Override
 	public void start() throws DeviceException {

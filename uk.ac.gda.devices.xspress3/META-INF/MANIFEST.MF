@@ -10,7 +10,7 @@ Require-Bundle: uk.ac.gda.api;bundle-version="8.26.0",
  org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
  uk.ac.gda.common,
  uk.ac.gda.core;bundle-version="8.40.0",
- uk.ac.gda.beans.vortex;bundle-version="1.0.0",
+ uk.ac.gda.exafs.api;bundle-version="1.0.0",
  slf4j.api,
  uk.ac.diamond.jython,
  uk.ac.gda.epics;bundle-version="1.0.0"

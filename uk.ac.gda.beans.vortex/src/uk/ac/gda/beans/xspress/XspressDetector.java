@@ -17,14 +17,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.xspress;
+package uk.ac.gda.beans.xspress;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
 
 import java.util.ArrayList;
-
-import uk.ac.gda.beans.xspress.DetectorElement;
 
 /**
  * Xspress systems must implement this to enable CORBA use

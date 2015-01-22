@@ -2,12 +2,12 @@ package gda.device.detector.xspress.xspress2data;
 
 import gda.device.DeviceException;
 import gda.device.detector.xspress.Xspress2Detector;
-import gda.device.detector.xspress.XspressDetector;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 

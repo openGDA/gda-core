@@ -22,12 +22,13 @@ import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.countertimer.TfgScaler;
-import gda.device.detector.xspress.XspressDetector;
 import gda.factory.Finder;
 
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**
  * Returns FF/I0 for an xspress / ion chamber combination. Note this does not operate any hardware so should be used

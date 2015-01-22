@@ -22,13 +22,15 @@ import java.io.Serializable;
 
 import org.apache.commons.beanutils.BeanUtils;
 
+import uk.ac.gda.beans.DetectorROI;
+
 /**
- * TODO replace with one of the ROI classes in the shared plugin (currently named uk.ac.gda.beans.vortex)
+ * TODO replace with one of the ROI classes in the shared plugin (currently named uk.ac.gda.exafs.api)
  * 
  * @author rjw82
  *
  */
-public class ROI implements Serializable {
+public class ROI implements Serializable, DetectorROI {
 
 	private int start;
 	private int end;
@@ -104,6 +106,21 @@ public class ROI implements Serializable {
 	}
 
 	public int getEnd() {
+		return end;
+	}
+
+	@Override
+	public String getRoiName() {
+		return name;
+	}
+
+	@Override
+	public int getRoiStart() {
+		return start;
+	}
+
+	@Override
+	public int getRoiEnd() {
 		return end;
 	}
 }

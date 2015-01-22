@@ -22,8 +22,6 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
-import gda.device.detector.xspress.XspressDetector;
-import gda.device.detector.xspress.xspress2data.ResGrades;
 import gda.factory.Finder;
 import gda.jython.accesscontrol.AccessDeniedException;
 
@@ -72,6 +70,8 @@ import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.xspress.ResGrades;
+import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;

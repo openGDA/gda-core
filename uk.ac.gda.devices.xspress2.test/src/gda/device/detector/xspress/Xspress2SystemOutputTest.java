@@ -25,7 +25,6 @@ import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.DUMMY_XSPRESS2_MODE;
 import gda.device.detector.DummyDAServer;
-import gda.device.detector.xspress.xspress2data.ResGrades;
 import gda.device.detector.xspress.xspress2data.Xspress2DAServerController;
 import gda.device.timer.Etfg;
 import gda.factory.FactoryException;
@@ -34,6 +33,9 @@ import gda.factory.Finder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import uk.ac.gda.beans.xspress.ResGrades;
+import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**
  * Tests the ascii and nexus output of the Xspress2 in its various modes of operation and output options

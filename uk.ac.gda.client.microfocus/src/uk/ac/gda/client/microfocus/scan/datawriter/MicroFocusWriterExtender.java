@@ -29,7 +29,6 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.countertimer.TfgScaler;
 import gda.device.detector.xmap.XmapBufferedDetector;
 import gda.device.detector.xspress.Xspress2BufferedDetector;
-import gda.device.detector.xspress.XspressDetector;
 import gda.scan.IScanDataPoint;
 
 import java.io.File;
@@ -61,6 +60,7 @@ import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
