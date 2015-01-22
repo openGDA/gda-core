@@ -19,8 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.VortexROI;
 
 /**
  * In the NXPlugin framework for NXDetectors, this reads the raw HDF5 files
@@ -36,7 +36,7 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 	final private int numberElements;
 	final private List<Double> eventProcessingTimes;
 	private ScanInformation scanInfo;
-	private VortexROI[] rois;
+	private DetectorROI[] rois;
 	private NDHDF5PVProvider ndHDF5PVProvider;
 	private int nextRowToBeCollected;
 	private int nextRowToBeRead;
@@ -105,7 +105,7 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 		List<String> extraNames = new ArrayList<String>();
 		for (DetectorElement element : detectorElements) {
 			extraNames.add(element.getName());
-			for (VortexROI roi : rois) {
+			for (DetectorROI roi : rois) {
 				extraNames.add(element.getName() + "_" + roi.getRoiName());
 			}
 		}
@@ -209,11 +209,11 @@ public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 		return new File(fileName);
 	}
 
-	public VortexROI[] getRois() {
+	public DetectorROI[] getRois() {
 		return rois;
 	}
 
-	public void setRois(VortexROI[] rois) {
+	public void setRois(DetectorROI[] rois) {
 		this.rois = rois;
 
 		detectorElements = new ArrayList<DetectorElement>();

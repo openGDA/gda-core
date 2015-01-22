@@ -59,10 +59,10 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
@@ -190,7 +190,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 
 		try {
 			IDetectorROICompositeFactory factory = VortexParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
-			createDetectorList(grid, DetectorElement.class, detectorList.size(), VortexROI.class, factory, false);
+			createDetectorList(grid, DetectorElement.class, detectorList.size(), DetectorROI.class, factory, false);
 			VortexParametersUIHelper.INSTANCE.setDetectorListGridOrder(getDetectorList());
 			getDetectorElementComposite().setWindowsEditable(false);
 			getDetectorElementComposite().setMinimumRegions(VortexParametersUIHelper.INSTANCE.getMinimumRegions());

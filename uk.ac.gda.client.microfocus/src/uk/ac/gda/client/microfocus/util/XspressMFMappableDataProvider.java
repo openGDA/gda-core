@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.BeansFactory;
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
@@ -41,7 +42,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 	}
 
 	private int numberOfdetectorElements;
-	private List<XspressROI>[] elementRois;
+	private List<DetectorROI>[] elementRois;
 	private double[][] dataset;
 	@SuppressWarnings("unused")
 	private double[] data;
@@ -70,8 +71,8 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 				dataSliceFromFile = getDataSliceFromFile(i);
 				for (int j = 0; j < xAxisLengthFromFile; j++) {
 					for (int detectorNo = 0; detectorNo < noOfDetectors; detectorNo++) {
-						List<XspressROI> roiList = elementRois[detectorNo];
-						for (XspressROI roi : roiList) {
+						List<DetectorROI> roiList = elementRois[detectorNo];
+						for (DetectorROI roi : roiList) {
 							if (roi.getRoiName().equals(selectedElement)) {
 								int windowEnd = roi.getRoiEnd();
 								for (int k = roi.getRoiStart(); k <= windowEnd; k++) {
@@ -197,7 +198,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 		}
 	}
 
-	public List<XspressROI>[] getElementRois() {
+	public List<DetectorROI>[] getElementRois() {
 		return elementRois;
 	}
 
@@ -224,8 +225,8 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 		ArrayList<String> elementRefList = new ArrayList<String>();
 		ArrayList<String> elementRefList2 = new ArrayList<String>();
 		ArrayList<String> elementsList = new ArrayList<String>();
-		List<XspressROI> elementROI = elementRois[0];
-		for (XspressROI roi : elementROI) {
+		List<DetectorROI> elementROI = elementRois[0];
+		for (DetectorROI roi : elementROI) {
 			elementRefList.add(roi.getRoiName());
 			elementRefList2.add(roi.getRoiName());
 		}
@@ -233,7 +234,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 		for (int i = 1; i < elementRois.length; i++) {
 			elementROI = elementRois[i];
 			elementsList.clear();
-			for (XspressROI roi : elementROI) {
+			for (DetectorROI roi : elementROI) {
 				elementsList.add(roi.getRoiName());
 			}
 			for (String s : elementRefList) {

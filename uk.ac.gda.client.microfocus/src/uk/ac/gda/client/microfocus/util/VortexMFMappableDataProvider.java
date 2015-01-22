@@ -27,16 +27,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.BeansFactory;
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.VortexParameters;
-import uk.ac.gda.beans.vortex.VortexROI;
 
 public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(VortexMFMappableDataProvider.class);
 
 	private int numberOfdetectorElements;
-	private List<VortexROI>[] elementRois;
+	private List<DetectorROI>[] elementRois;
 	private HashMap<String, Integer> roiNameMap;
 	private MapCache mapCache;
 
@@ -44,11 +44,11 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 		super();
 	}
 
-	public List<VortexROI>[] getElementRois() {
+	public List<DetectorROI>[] getElementRois() {
 		return elementRois;
 	}
 
-	public void setElementRois(List<VortexROI>[] elementRois) {
+	public void setElementRois(List<DetectorROI>[] elementRois) {
 		this.elementRois = elementRois;
 	}
 
@@ -128,15 +128,15 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 		ArrayList<String> elementRefList = new ArrayList<String>();
 		ArrayList<String> elementRefList2 = new ArrayList<String>();
 		ArrayList<String> elementsList = new ArrayList<String>();
-		List<VortexROI> elementROI = elementRois[0];
-		for (VortexROI roi : elementROI) {
+		List<DetectorROI> elementROI = elementRois[0];
+		for (DetectorROI roi : elementROI) {
 			elementRefList.add(roi.getRoiName());
 			elementRefList2.add(roi.getRoiName());
 		}
 		for (int i = 1; i < elementRois.length; i++) {
 			elementROI = elementRois[i];
 			elementsList.clear();
-			for (VortexROI roi : elementROI) {
+			for (DetectorROI roi : elementROI) {
 				elementsList.add(roi.getRoiName());
 			}
 			for (String s : elementRefList) {

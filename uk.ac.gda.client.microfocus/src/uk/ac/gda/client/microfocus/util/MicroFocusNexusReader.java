@@ -34,8 +34,8 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
 import uk.ac.gda.beans.BeansFactory;
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
-import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 
@@ -208,7 +208,7 @@ public class MicroFocusNexusReader {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<VortexROI>[] getWindowsfromVortexBean(String ...fileName)
+	public List<DetectorROI>[] getWindowsfromVortexBean(String ...fileName)
 	{
 		VortexParameters vortexBean = null;
 		try {

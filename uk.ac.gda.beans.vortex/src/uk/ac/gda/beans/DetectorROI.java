@@ -18,10 +18,87 @@
 
 package uk.ac.gda.beans;
 
-public interface DetectorROI {
-	
-	public String getRoiName();
-	public int getRoiStart();
-	public int getRoiEnd();
+import java.io.Serializable;
+
+import org.apache.commons.beanutils.BeanUtils;
+
+public class DetectorROI implements Serializable {
+
+	private int roiStart;
+	private int roiEnd;
+	private String roiName = "<need to set a name>";
+
+	public DetectorROI() {
+	}
+
+	public DetectorROI(String roiName, int roiStart, int roiEnd) {
+		this.roiName = roiName;
+		this.roiEnd = roiEnd;
+		this.roiStart = roiStart;
+	}
+
+	@Override
+	public String toString() {
+		try {
+			return BeanUtils.describe(this).toString();
+		} catch (Exception e) {
+			return e.getMessage();
+		}
+	}
+
+	public String getRoiName() {
+		return roiName;
+	}
+
+	public void setRoiName(String roiName) {
+		this.roiName = roiName;
+	}
+
+	public void setRoiStart(int roiStart) {
+		this.roiStart = roiStart;
+	}
+
+	public void setRoiEnd(int roiEnd) {
+		this.roiEnd = roiEnd;
+	}
+
+	public int getRoiStart() {
+		return roiStart;
+	}
+
+	public int getRoiEnd() {
+		return roiEnd;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + roiEnd;
+		result = prime * result + ((roiName == null) ? 0 : roiName.hashCode());
+		result = prime * result + roiStart;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DetectorROI other = (DetectorROI) obj;
+		if (roiEnd != other.roiEnd)
+			return false;
+		if (roiName == null) {
+			if (other.roiName != null)
+				return false;
+		} else if (!roiName.equals(other.roiName))
+			return false;
+		if (roiStart != other.roiStart)
+			return false;
+		return true;
+	}
 
 }

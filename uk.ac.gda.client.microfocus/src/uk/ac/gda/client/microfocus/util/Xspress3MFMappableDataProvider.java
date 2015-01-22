@@ -29,8 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.BeansFactory;
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
 
@@ -39,18 +39,18 @@ public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvid
 	private static final Logger logger = LoggerFactory.getLogger(Xspress3MFMappableDataProvider.class);
 
 	private int numberOfdetectorElements;
-	private List<VortexROI>[] elementRois;
+	private List<DetectorROI>[] elementRois;
 	private MapCache mapCache;
 
 	public Xspress3MFMappableDataProvider() {
 		super();
 	}
 
-	public List<VortexROI>[] getElementRois() {
+	public List<DetectorROI>[] getElementRois() {
 		return elementRois;
 	}
 
-	public void setElementRois(List<VortexROI>[] elementRois) {
+	public void setElementRois(List<DetectorROI>[] elementRois) {
 		this.elementRois = elementRois;
 	}
 
@@ -125,15 +125,15 @@ public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvid
 	public String[] getElementNames() {
 		ArrayList<String> elementRefList = new ArrayList<String>();
 		ArrayList<String> elementRefList2 = new ArrayList<String>();
-		List<VortexROI> elementROI = elementRois[0];
-		for (VortexROI roi : elementROI) {
+		List<DetectorROI> elementROI = elementRois[0];
+		for (DetectorROI roi : elementROI) {
 			elementRefList.add(roi.getRoiName());
 			elementRefList2.add(roi.getRoiName());
 		}
 		for (int i = 1; i < elementRois.length; i++) {
 			elementROI = elementRois[i];
 			ArrayList<String> elementsList = new ArrayList<String>();
-			for (VortexROI roi : elementROI) {
+			for (DetectorROI roi : elementROI) {
 				elementsList.add(roi.getRoiName());
 			}
 			for (String s : elementRefList) {

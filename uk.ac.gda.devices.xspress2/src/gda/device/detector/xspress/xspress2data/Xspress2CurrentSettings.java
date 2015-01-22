@@ -6,10 +6,10 @@ import gda.device.detector.xspress.Xspress2Detector;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
 
 /**
  * Holds the current settings for the Xspress2 detector. This object is shared
@@ -65,7 +65,7 @@ public class Xspress2CurrentSettings {
 				for (DetectorElement detector : getParameters().getDetectorList()) {
 					if (!detector.isExcluded() || !filteroutExcludedChannels) {
 						String channelName = detector.getName() + "_";
-						for (XspressROI roi : detector.getRegionList())
+						for (DetectorROI roi : detector.getRegionList())
 							channelLabels.add(channelName + roi.getRoiName());
 					}
 				}

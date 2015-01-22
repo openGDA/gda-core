@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.exafs.IDetectorElement;
 
 /**
@@ -53,18 +54,18 @@ public class DetectorElement implements Serializable, IDetectorElement {
 	/**
 	 * list of regions of interest (must add up to 2^n - 1) // TODO must it really?
 	 */
-	private List<XspressROI> regionList;
+	private List<DetectorROI> regionList;
 
 	/**
 	 * default constructor for Castor
 	 */
 	public DetectorElement() {
-		regionList = new ArrayList<XspressROI>();
+		regionList = new ArrayList<DetectorROI>();
 	}
 
 	public DetectorElement(String name, int number, int windowStart, int windowEnd,
 			 boolean excluded,
-			ArrayList<XspressROI> regionList) {
+			ArrayList<DetectorROI> regionList) {
 		this.name = name;
 		this.number = number;
 		this.windowStart = windowStart;
@@ -185,21 +186,21 @@ public class DetectorElement implements Serializable, IDetectorElement {
 	 * @param region
 	 *            the xspress region
 	 */
-	public void addRegion(XspressROI region) {
+	public void addRegion(DetectorROI region) {
 		regionList.add(region);
 	}
 
 	/**
 	 * @return value
 	 */
-	public List<XspressROI> getRegionList() {
+	public List<DetectorROI> getRegionList() {
 		return regionList;
 	}
 
 	/**
 	 * @param regionList
 	 */
-	public void setRegionList(List<XspressROI> regionList) {
+	public void setRegionList(List<DetectorROI> regionList) {
 		this.regionList = regionList;
 	}
 

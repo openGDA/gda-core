@@ -1,7 +1,5 @@
 package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
-import java.util.Random;
-
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Timer;
@@ -10,10 +8,12 @@ import gda.device.timer.Tfg;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 
+import java.util.Random;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.devices.detector.xspress3.ROI;
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 
@@ -50,8 +50,8 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	private int scalerHandle = -1;
 	private Integer numFramesToAcquire;
 	private TRIGGER_MODE mode;
-	private ROI[] roi;
-	private ROI[] windows;
+	private DetectorROI[] roi;
+	private DetectorROI[] windows;
 	private String path;
 	private int numRoiToRead;
 	private String template;
@@ -237,28 +237,28 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	@Override
 	public void setROILimits(int channel, int roiNumber, int[] lowHighMCAChannels) {
 		if (this.roi == null) {
-			roi = new ROI[NUMBER_CHANNELS];
+			roi = new DetectorROI[NUMBER_CHANNELS];
 		}
-		roi[roiNumber] = new ROI("ROI" + roiNumber, lowHighMCAChannels[0], lowHighMCAChannels[1]);
+		roi[roiNumber] = new DetectorROI("ROI" + roiNumber, lowHighMCAChannels[0], lowHighMCAChannels[1]);
 
 	}
 
 	@Override
 	public Integer[] getROILimits(int channel, int roiNumber) {
-		return new Integer[] { roi[roiNumber].getStart(), roi[roiNumber].getEnd() };
+		return new Integer[] { roi[roiNumber].getRoiStart(), roi[roiNumber].getRoiEnd() };
 	}
 
 	@Override
 	public void setWindows(int channel, int roiNumber, int[] lowHighScalerWindowChannels) {
 		if (this.windows == null) {
-			windows = new ROI[2];
+			windows = new DetectorROI[2];
 		}
-		windows[roiNumber] = new ROI("SCA" + roiNumber, lowHighScalerWindowChannels[0], lowHighScalerWindowChannels[1]);
+		windows[roiNumber] = new DetectorROI("SCA" + roiNumber, lowHighScalerWindowChannels[0], lowHighScalerWindowChannels[1]);
 	}
 
 	@Override
 	public Integer[] getWindows(int channel, int roiNumber) {
-		return new Integer[] { windows[roiNumber].getStart(), windows[roiNumber].getEnd() };
+		return new Integer[] { windows[roiNumber].getRoiStart(), windows[roiNumber].getRoiEnd() };
 	}
 
 	@Override

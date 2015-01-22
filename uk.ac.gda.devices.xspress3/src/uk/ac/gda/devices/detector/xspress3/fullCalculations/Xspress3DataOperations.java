@@ -13,9 +13,8 @@ import java.util.List;
 import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 
-import uk.ac.gda.beans.vortex.VortexROI;
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
-import uk.ac.gda.devices.detector.xspress3.ROI;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 import uk.ac.gda.devices.detector.xspress3.controllerimpl.EpicsXspress3ControllerPvProvider;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
@@ -32,7 +31,7 @@ public class Xspress3DataOperations {
 	private int framesRead;
 	// private int rowBeingCollected;
 	private String configFileName;
-	private ROI[] rois;
+	private DetectorROI[] rois;
 	private String detectorName;
 	private Xspress3FileReader reader;
 
@@ -92,10 +91,10 @@ public class Xspress3DataOperations {
 				Xspress3Parameters.mappingURL, Xspress3Parameters.class, Xspress3Parameters.schemaURL,
 				getConfigFileName());
 
-		List<VortexROI> vortexRois = vortexParameters.getDetector(0).getRegionList();
-		rois = new ROI[vortexRois.size()];
+		List<DetectorROI> vortexRois = vortexParameters.getDetector(0).getRegionList();
+		rois = new DetectorROI[vortexRois.size()];
 		for (int index = 0; index < vortexRois.size(); index++) {
-			rois[index] = new ROI(vortexRois.get(index).getRoiName(), vortexRois.get(index).getRoiStart(), vortexRois
+			rois[index] = new DetectorROI(vortexRois.get(index).getRoiName(), vortexRois.get(index).getRoiStart(), vortexRois
 					.get(index).getRoiEnd());
 		}
 	}
@@ -171,7 +170,7 @@ public class Xspress3DataOperations {
 		double theFF = 0;
 		for (int chan = 0; chan < numChannels; chan++) {
 			for (int roi = 0; roi < numRois; roi++) {
-				double thisRoiSum = extractRoi(mcasFromFile[chan], rois[roi].getStart(), rois[roi].getEnd());
+				double thisRoiSum = extractRoi(mcasFromFile[chan], rois[roi].getRoiStart(), rois[roi].getRoiEnd());
 				roiValues[roi][chan] = thisRoiSum;
 				// ffs[chan] += thisRoiSum;
 				theFF += thisRoiSum;
@@ -195,7 +194,7 @@ public class Xspress3DataOperations {
 
 		// add rois
 		for (int roi = 0; roi < numRois; roi++) {
-			thisFrame.addData(detTree, rois[roi].getName(), new int[] { numChannels }, NexusFile.NX_FLOAT64,
+			thisFrame.addData(detTree, rois[roi].getRoiName(), new int[] { numChannels }, NexusFile.NX_FLOAT64,
 					roiValues[roi], unitsLabel, 2);
 		}
 
@@ -289,7 +288,7 @@ public class Xspress3DataOperations {
 		int index = 0;
 		for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
 			for (int roi = 0; roi < rois.length; roi++) {
-				String valueName = "Chan" + chan + "_" + rois[roi].getName();
+				String valueName = "Chan" + chan + "_" + rois[roi].getRoiName();
 				extraNames[index] = valueName;
 				index++;
 			}

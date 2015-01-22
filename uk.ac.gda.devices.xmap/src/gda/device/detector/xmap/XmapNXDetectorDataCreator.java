@@ -11,8 +11,8 @@ import java.util.List;
 
 import org.nexusformat.NexusFile;
 
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.util.CorrectionUtils;
 
 public class XmapNXDetectorDataCreator {
@@ -79,7 +79,7 @@ public class XmapNXDetectorDataCreator {
 			// REGIONS
 			for (int iroi = 0; iroi < thisElement.getRegionList().size(); iroi++) {
 
-				final VortexROI roi = thisElement.getRegionList().get(iroi);
+				final DetectorROI roi = thisElement.getRegionList().get(iroi);
 
 				double count = calculateROICounts(roi.getRoiStart(), roi.getRoiEnd(), detectorData[element]);
 				if (deadTimeEnabled) {
@@ -194,7 +194,7 @@ public class XmapNXDetectorDataCreator {
 				DetectorElement element = detectorElements.get(j);
 				if (element.isExcluded())
 					continue;
-				VortexROI region = element.getRegionList().get(0);
+				DetectorROI region = element.getRegionList().get(0);
 				double correctedMCA = calculateROICounts(region.getRoiStart(), region.getRoiEnd(), detectorData[j])
 						* k[j];
 				rois[i] += correctedMCA;

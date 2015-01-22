@@ -36,6 +36,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
@@ -103,8 +104,8 @@ public class Xspress2SystemTest {
 	 */
 	@Test
 	public void testConfigure() {
-		XspressROI roi = new XspressROI("1st_peak", 100, 1122);
-		ArrayList<XspressROI> regions = new ArrayList<XspressROI>();
+		DetectorROI roi = new DetectorROI("1st_peak", 100, 1122);
+		ArrayList<DetectorROI> regions = new ArrayList<DetectorROI>();
 		regions.add(roi);
 		DetectorElement[] expected = { new DetectorElement("Element0", 0, 0, 4000, false, regions),
 				new DetectorElement("Element1", 1, 85, 2047, false, regions),
@@ -295,9 +296,9 @@ public class Xspress2SystemTest {
 		assertEquals(8, xspress.getFullMCABits());
 		assertEquals(256, xspress.getCurrentMCASize());
 		try {
-			ArrayList<XspressROI> regionList = new ArrayList<XspressROI>();
-			XspressROI roi = new XspressROI("roi1", 50, 100);
-			XspressROI roi2 = new XspressROI("roi2", 150, 174);
+			ArrayList<DetectorROI> regionList = new ArrayList<DetectorROI>();
+			DetectorROI roi = new DetectorROI("roi1", 50, 100);
+			DetectorROI roi2 = new DetectorROI("roi2", 150, 174);
 			regionList.add(roi);
 			regionList.add(roi2);
 			for (int i = 0; i < xspress.getNumberOfDetectors(); i++) {

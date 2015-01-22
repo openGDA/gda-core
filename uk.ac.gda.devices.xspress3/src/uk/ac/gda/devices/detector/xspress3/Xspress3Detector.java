@@ -18,7 +18,7 @@ import java.util.List;
 
 import org.nexusformat.NexusFile;
 
-import uk.ac.gda.beans.vortex.VortexROI;
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -426,7 +426,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return sum;
 	}
 
-	public void setRegionsOfInterest(ROI[] regionList) throws DeviceException {
+	public void setRegionsOfInterest(DetectorROI[] regionList) throws DeviceException {
 		if (regionList.length > MAX_ROI_PER_CHANNEL) {
 			throw new DeviceException("Too many regions! Only " + MAX_ROI_PER_CHANNEL + " allowed.");
 		}
@@ -437,7 +437,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 			for (int roiNum = 0; roiNum < MAX_ROI_PER_CHANNEL; roiNum++) {
 				if (roiNum < regionList.length) {
 					controller.setROILimits(chan, roiNum,
-							new int[] { regionList[roiNum].getStart(), regionList[roiNum].getEnd() });
+							new int[] { regionList[roiNum].getRoiStart(), regionList[roiNum].getRoiEnd() });
 				} else {
 					controller.setROILimits(chan, roiNum, new int[] { 0, 0 });
 				}
@@ -447,11 +447,11 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 	}
 
-	private void defineRegionNames(ROI[] regionList) {
+	private void defineRegionNames(DetectorROI[] regionList) {
 		regionNames = new String[regionList.length];
 
 		for (int region = 0; region < regionList.length; region++) {
-			regionNames[region] = regionList[region].getName();
+			regionNames[region] = regionList[region].getRoiName();
 		}
 	}
 
@@ -462,18 +462,18 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * @return ROI[]
 	 * @throws DeviceException
 	 */
-	public ROI[] getRegionsOfInterest() throws DeviceException {
+	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
 		// assume that the ROIs were defined via this class and so the
 		// regionNames array kept in this class has the same size as the regions
 		// defined in the controller
-		ROI[] rois = new ROI[controller.getNumberROIToRead()];
+		DetectorROI[] rois = new DetectorROI[controller.getNumberROIToRead()];
 
 		for (int roiNum = 0; roiNum < rois.length; roiNum++) {
-			rois[roiNum] = new ROI();
-			rois[roiNum].setName(regionNames[rois.length]);
+			rois[roiNum] = new DetectorROI();
+			rois[roiNum].setRoiName(regionNames[rois.length]);
 			Integer[] limits = controller.getROILimits(0, roiNum);
-			rois[roiNum].setStart(limits[0]);
-			rois[roiNum].setEnd(limits[1]);
+			rois[roiNum].setRoiStart(limits[0]);
+			rois[roiNum].setRoiEnd(limits[1]);
 		}
 		return rois;
 	}
@@ -652,10 +652,10 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 				Xspress3Parameters.mappingURL, Xspress3Parameters.class, Xspress3Parameters.schemaURL,
 				getConfigFileName());
 
-		List<VortexROI> vortexRois = vortexParameters.getDetector(0).getRegionList();
-		ROI[] rois = new ROI[vortexRois.size()];
+		List<DetectorROI> vortexRois = vortexParameters.getDetector(0).getRegionList();
+		DetectorROI[] rois = new DetectorROI[vortexRois.size()];
 		for (int index = 0; index < vortexRois.size(); index++) {
-			rois[index] = new ROI(vortexRois.get(index).getRoiName(), vortexRois.get(index).getRoiStart(), vortexRois
+			rois[index] = new DetectorROI(vortexRois.get(index).getRoiName(), vortexRois.get(index).getRoiStart(), vortexRois
 					.get(index).getRoiEnd());
 		}
 

@@ -32,8 +32,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.ac.gda.beans.BeansFactory;
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.beans.vortex.VortexROI;
 
 public class VortexMFMappableDataProviderTest {
 	final static String testScratchDirectoryName = TestUtils
@@ -68,7 +68,7 @@ public class VortexMFMappableDataProviderTest {
 	@Test
 	public void testGetWindowsFromBean() {
 
-		List<VortexROI>[] roi = vortexDataProvider.getElementRois();
+		List<DetectorROI>[] roi = vortexDataProvider.getElementRois();
 		assertEquals(roi.length, 4, 0);
 	}
 

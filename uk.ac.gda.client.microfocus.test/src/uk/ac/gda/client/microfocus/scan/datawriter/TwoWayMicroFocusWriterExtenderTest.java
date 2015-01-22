@@ -26,7 +26,6 @@ import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
-import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.XmapDetector;
@@ -43,9 +42,9 @@ import org.junit.Test;
 import org.nexusformat.NexusFile;
 
 import uk.ac.gda.beans.BeansFactory;
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
-import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class TwoWayMicroFocusWriterExtenderTest {
@@ -201,7 +200,7 @@ public class TwoWayMicroFocusWriterExtenderTest {
 			// REGIONS
 			for (int iroi = 0; iroi < thisElement.getRegionList().size(); iroi++) {
 
-				final VortexROI roi = thisElement.getRegionList().get(iroi);
+				final DetectorROI roi = thisElement.getRegionList().get(iroi);
 
 				// TODO calculate roi from the full spectrum data
 				double count = calculateROICounts(roi.getRoiStart(), roi.getRoiEnd(), detectorData[element]);

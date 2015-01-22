@@ -24,8 +24,8 @@ import gda.device.detector.xspress.corba.CorbaXspressROI;
 
 import java.util.ArrayList;
 
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
-import uk.ac.gda.beans.xspress.XspressROI;
 
 /**
  * Contains methods which convert Detector to CorbaDetector and vice versa
@@ -40,9 +40,9 @@ public class DetectorElementConverter {
 	 * @see uk.ac.gda.beans.xspress.DetectorElement
 	 */
 	public static DetectorElement toDetectorElement(CorbaDetectorElement cd) {
-		ArrayList<XspressROI> regionList = new ArrayList<XspressROI>();
+		ArrayList<DetectorROI> regionList = new ArrayList<DetectorROI>();
 		for (CorbaXspressROI corbaRegion : cd.regions) {
-			regionList.add(new XspressROI(corbaRegion.regionName, corbaRegion.regionStart, corbaRegion.regionEnd));
+			regionList.add(new DetectorROI(corbaRegion.regionName, corbaRegion.regionStart, corbaRegion.regionEnd));
 		}
 		DetectorElement d = new DetectorElement(cd.name, cd.number, cd.windowStart, cd.windowEnd,cd.excluded, regionList);
 		return d;
@@ -57,10 +57,10 @@ public class DetectorElementConverter {
 	 * @see gda.device.detector.xspress.corba.CorbaDetectorElement
 	 */
 	public static CorbaDetectorElement toCorbaDetectorElement(DetectorElement d) {
-		ArrayList<XspressROI> regionList = (ArrayList<XspressROI>) d.getRegionList();
+		ArrayList<DetectorROI> regionList = (ArrayList<DetectorROI>) d.getRegionList();
 		CorbaXspressROI corbaRegionList[] = new CorbaXspressROI[regionList.size()];
 		int i = 0;
-		for (XspressROI region : regionList) {
+		for (DetectorROI region : regionList) {
 			corbaRegionList[i++] = new CorbaXspressROI(region.getRoiName(), region.getRoiStart(), region
 					.getRoiEnd(), null);
 		}

@@ -8,4 +8,5 @@ Require-Bundle: uk.ac.gda.devices.xspress3;bundle-version="1.0.0",
  org.junit4;bundle-version="4.8.1",
  uk.ac.gda.common,
  uk.ac.gda.core;bundle-version="8.40.0",
- uk.ac.gda.nexus
+ uk.ac.gda.nexus,
+ uk.ac.gda.exafs.api

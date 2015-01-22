@@ -55,14 +55,13 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.VortexParameters;
-import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
 import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
 import uk.ac.gda.devices.detector.xspress3.Xspress3;
@@ -295,8 +294,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 						spectrumLength = dataArray[0].length;
 						for (int i = 0; i < numberOfSubDetectors; i++) {
 							@SuppressWarnings("unchecked")
-							List<XspressROI> roiList = elementRois[i];
-							for (XspressROI roi : roiList) {
+							List<DetectorROI> roiList = elementRois[i];
+							for (DetectorROI roi : roiList) {
 								String key = roi.getRoiName();
 								if (ArrayUtils.contains(roiNames, key)) {
 									if (detectorValuesCache[i][roiNameMap.get(key)] == null)
@@ -353,9 +352,9 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 							spectrumLength = wholeDataArray[j].length;
 							@SuppressWarnings("unchecked")
 							// needs a redesign to prevent this unchecked warning
-							List<VortexROI> roiList = elementRois[j];
+							List<DetectorROI> roiList = elementRois[j];
 							// calculating window total manually instead of using xmap ROIs
-							for (VortexROI roi : roiList) {
+							for (DetectorROI roi : roiList) {
 								String key = roi.getRoiName();
 								if (ArrayUtils.contains(roiNames, key)) {
 									if (detectorValuesCache[j][roiNameMap.get(key)] == null)
@@ -378,8 +377,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 //						spectrumLength = dataArray[0].length;
 						for (int i = 0; i < numberOfSubDetectors; i++) {
 							@SuppressWarnings("unchecked")
-							List<VortexROI> roiList = elementRois[i];
-							for (VortexROI roi : roiList) {
+							List<DetectorROI> roiList = elementRois[i];
+							for (DetectorROI roi : roiList) {
 								String key = roi.getRoiName();
 								if (ArrayUtils.contains(roiNames, key)) {
 									if (detectorValuesCache[i][roiNameMap.get(key)] == null)

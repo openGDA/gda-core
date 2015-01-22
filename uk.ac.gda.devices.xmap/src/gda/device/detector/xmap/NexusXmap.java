@@ -37,8 +37,8 @@ import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.util.CorrectionUtils;
 
 /**
@@ -125,7 +125,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 			// REGIONS
 			double[] elementROIs = controller.getROIs(element, detectorData);
 			for (int iroi = 0; iroi < thisElement.getRegionList().size(); iroi++) {
-				final VortexROI roi = thisElement.getRegionList().get(iroi);
+				final DetectorROI roi = thisElement.getRegionList().get(iroi);
 				double count = elementROIs[iroi];//getROICounts(iroi)[element];
 				count *= deadTimeCorrectionFactor;
 				roiCounts[iroi][index] = count;
@@ -244,7 +244,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 			final String elementName = thisElement.getName();
 			names.add(elementName);
 			for (int iroi = 0; iroi < thisElement.getRegionList().size(); iroi++) {
-				final VortexROI roi = thisElement.getRegionList().get(iroi);
+				final DetectorROI roi = thisElement.getRegionList().get(iroi);
 				names.add(elementName + "_" + roi.getRoiName());
 			}
 		}
@@ -260,7 +260,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 				continue;
 			final String elementName = thisElement.getName();
 			extraNames = (String[]) ArrayUtils.add(extraNames, elementName);
-			for (VortexROI roi : thisElement.getRegionList())
+			for (DetectorROI roi : thisElement.getRegionList())
 				extraNames = (String[]) ArrayUtils.add(extraNames, elementName + "_" + roi.getRoiName());
 		}
 		extraNames = (String[]) ArrayUtils.add(extraNames, "FF");

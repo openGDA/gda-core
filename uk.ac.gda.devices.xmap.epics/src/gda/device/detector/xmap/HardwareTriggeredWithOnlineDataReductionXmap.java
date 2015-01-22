@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import uk.ac.gda.beans.vortex.VortexROI;
+import uk.ac.gda.beans.DetectorROI;
 
 /**
  * Drive the XIA Xmap card using hardware triggers, returning an MCA and Region of Interest totals at each point.
@@ -47,7 +47,7 @@ import uk.ac.gda.beans.vortex.VortexROI;
 public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcquire {
 
 	private ScanInformation scanInfo;
-	private VortexROI[] rois;
+	private DetectorROI[] rois;
 	private NDHDF5PVProvider ndHDF5PVProvider;
 	private int nextRowToBeCollected;
 	private int pixelsReadSoFar;
@@ -114,7 +114,7 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 	public List<String> getInputStreamNames() {
 		// work this our from ROIs
 		List<String> extraNames = new Vector<String>();
-		for (VortexROI roi : rois) {
+		for (DetectorROI roi : rois) {
 			extraNames.add(roi.getRoiName());
 		}
 		extraNames.add("FF");
@@ -152,11 +152,11 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 		throw new DeviceException("Data not collected yet");
 	}
 
-	public VortexROI[] getRois() {
+	public DetectorROI[] getRois() {
 		return rois;
 	}
 
-	public void setRois(VortexROI[] rois) {
+	public void setRois(DetectorROI[] rois) {
 		this.rois = rois;
 	}
 

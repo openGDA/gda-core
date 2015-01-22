@@ -33,13 +33,13 @@ import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
@@ -80,7 +80,7 @@ public class Xspress1System extends XspressSystem {
 			logger.error(
 					"Error loading template XML. Will use a detector with a few default elements instead. "
 							+ e.getMessage(), e);
-			ArrayList<XspressROI> regions = new ArrayList<XspressROI>();
+			ArrayList<DetectorROI> regions = new ArrayList<DetectorROI>();
 			xspressParameters = new XspressParameters();
 			xspressParameters.setReadoutMode(READOUT_SCALERONLY);
 			xspressParameters.setResGrade(ResGrades.NONE);

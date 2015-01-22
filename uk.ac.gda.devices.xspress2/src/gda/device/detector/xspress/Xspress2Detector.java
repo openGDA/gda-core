@@ -34,6 +34,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
@@ -105,7 +106,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	}
 
 	private void useDefaultXspressParameters() {
-		ArrayList<XspressROI> regions = new ArrayList<XspressROI>();
+		ArrayList<DetectorROI> regions = new ArrayList<DetectorROI>();
 		XspressParameters xspressParameters = new XspressParameters();
 		XspressDeadTimeParameters xspressDeadTimeParameters = new XspressDeadTimeParameters();
 		if (modeOverride) {
@@ -211,7 +212,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	 * @param regionList
 	 * @throws DeviceException
 	 */
-	public void setRegionOfInterest(int detector, ArrayList<XspressROI> regionList) throws DeviceException {
+	public void setRegionOfInterest(int detector, ArrayList<DetectorROI> regionList) throws DeviceException {
 		DetectorElement detectorElement = settings.getParameters().getDetector(detector);
 		detectorElement.setRegionList(regionList);
 		if (configured) {
@@ -736,7 +737,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		XspressDeadTimeParameters xspressDeadTimeParameters = new XspressDeadTimeParameters();
 		for (int i = 1; i <= numEle; i++) {
 			xspressParameters.addDetectorElement(new DetectorElement("Element " + i, i, 0, 4095, false,
-					new ArrayList<XspressROI>()));
+					new ArrayList<DetectorROI>()));
 			xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Element " + i, i,
 					2.5304E-9, 2.2534E-7, 2.5454E-7));
 		}

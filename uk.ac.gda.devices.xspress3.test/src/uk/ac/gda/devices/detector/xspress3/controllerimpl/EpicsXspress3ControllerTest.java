@@ -3,7 +3,7 @@ package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
-import uk.ac.gda.devices.detector.xspress3.ROI;
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
 
@@ -60,10 +60,10 @@ public class EpicsXspress3ControllerTest {
 			x3d.configure();
 
 			// set up rois
-			ROI[] rois = new ROI[1];
-			rois[0] = new ROI();
-			rois[0].setStart(100);
-			rois[0].setEnd(200);
+			DetectorROI[] rois = new DetectorROI[1];
+			rois[0] = new DetectorROI();
+			rois[0].setRoiStart(100);
+			rois[0].setRoiEnd(200);
 			x3d.setRegionsOfInterest(rois);
 
 			// now to simulate a step scan where using simple detector class
@@ -102,7 +102,7 @@ public class EpicsXspress3ControllerTest {
 			}
 			System.out.println("acquire finished");
 			for (int i = 0; i < 50; i++) {
-				System.out.println(x3d.readoutFrames(i, i));
+				System.out.println(x3d.readFrames(i, i));
 			}
 
 			// now check that files have been created in /tmp of the machine

@@ -12,6 +12,7 @@ import java.util.Vector;
 import org.apache.commons.lang.ArrayUtils;
 import org.nexusformat.NexusFile;
 
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
@@ -771,7 +772,7 @@ public class Xspress2NexusTreeProvider {
 				// loop over all the ROIs for this element
 				int mcaPosition = 0;
 				for (int roi = 0; roi < thisElement.getRegionList().size(); roi++) {
-					XspressROI thisRoi = thisElement.getRegionList().get(roi);
+					DetectorROI thisRoi = thisElement.getRegionList().get(roi);
 
 					// if a virtual scaler return 1,2 or 16 numbers
 					if (currentSettings.getParameters().getRegionType().equals(XspressParameters.VIRTUALSCALER)) {
@@ -831,7 +832,7 @@ public class Xspress2NexusTreeProvider {
 	 * appropriate corrections.
 	 */
 	private MCAReading extractPartialMCA(int[][][][] unpackedMCAData, int frame, double[] deadtimeCorrectionFactor,
-			int element, int mcaPosition, XspressROI thisRoi, int mcaEndPosition) {
+			int element, int mcaPosition, DetectorROI thisRoi, int mcaEndPosition) {
 		// get the raw data. Only interested in good counts if threshold set
 		int[][] mcas_raw;
 		int[][] mcaDataForThisElement = unpackedMCAData[frame][element];

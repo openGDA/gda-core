@@ -56,12 +56,11 @@ import org.xml.sax.InputSource;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.BeansFactory;
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.VortexParameters;
-import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.microfocus.controller.MicroFocusDisplayController;
@@ -135,7 +134,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		if (beanObject instanceof XspressParameters) {
 			XspressParameters xspress = (XspressParameters) beanObject;
 			updateDetectorChannelCombo(xspress.getDetectorList().size());
-			java.util.List<XspressROI> regionList = xspress.getDetector(0).getRegionList();
+			java.util.List<DetectorROI> regionList = xspress.getDetector(0).getRegionList();
 			for (int i = 0; i < regionList.size(); i++) {
 				elementList.add(regionList.get(i).getRoiName());
 			}
@@ -143,7 +142,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		else if (beanObject instanceof Xspress3Parameters) {
 			Xspress3Parameters vortex = (Xspress3Parameters) beanObject;
 			updateDetectorChannelCombo(vortex.getDetectorList().size());
-			java.util.List<VortexROI> regionList = vortex.getDetector(0).getRegionList();
+			java.util.List<DetectorROI> regionList = vortex.getDetector(0).getRegionList();
 			for (int i = 0; i < regionList.size(); i++) {
 				elementList.add(regionList.get(i).getRoiName());
 			}
@@ -152,7 +151,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		else if (beanObject instanceof VortexParameters) {
 			VortexParameters vortex = (VortexParameters) beanObject;
 			updateDetectorChannelCombo(vortex.getDetectorList().size());
-			java.util.List<VortexROI> regionList = vortex.getDetector(0).getRegionList();
+			java.util.List<DetectorROI> regionList = vortex.getDetector(0).getRegionList();
 			for (int i = 0; i < regionList.size(); i++) {
 				elementList.add(regionList.get(i).getRoiName());
 			}
@@ -203,7 +202,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 			logger.error("Could not create XspressParameters bean from nexus file", e2);
 		}
 
-		java.util.List<XspressROI> regionList = xspressBean.getDetector(0).getRegionList();
+		java.util.List<DetectorROI> regionList = xspressBean.getDetector(0).getRegionList();
 		int numElements = regionList.size();
 		String[] elements = new String[numElements];
 
@@ -271,7 +270,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 			logger.error("Could not create VortexParameters bean from nexus file", e2);
 		}
 
-		java.util.List<VortexROI> regionList = vortexBean.getDetector(0).getRegionList();
+		java.util.List<DetectorROI> regionList = vortexBean.getDetector(0).getRegionList();
 		int numElements = regionList.size();
 		String[] elements = new String[numElements];
 
@@ -371,7 +370,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 			logger.error("Could not create Xspress3Parameters bean from nexus file", e2);
 		}
 
-		java.util.List<VortexROI> regionList = xspress3Bean.getDetector(0).getRegionList();
+		java.util.List<DetectorROI> regionList = xspress3Bean.getDetector(0).getRegionList();
 		int numElements = regionList.size();
 		String[] elements = new String[numElements];
 

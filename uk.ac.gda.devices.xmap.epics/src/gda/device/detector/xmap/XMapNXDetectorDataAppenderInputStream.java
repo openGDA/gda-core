@@ -7,7 +7,7 @@ import gda.device.scannable.PositionInputStream;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import uk.ac.gda.beans.vortex.VortexROI;
+import uk.ac.gda.beans.DetectorROI;
 
 /**
  * Reads a raw HDF5 file from Xia XMap and returns deadtime corrected MCAs and
@@ -20,10 +20,10 @@ public class XMapNXDetectorDataAppenderInputStream implements
 		PositionInputStream<NXDetectorDataAppender> {
 
 	String fileName;
-	VortexROI[] rois;
+	DetectorROI[] rois;
 
 	public XMapNXDetectorDataAppenderInputStream(String fileName,
-			VortexROI[] rois) {
+			DetectorROI[] rois) {
 		super();
 		this.fileName = fileName;
 		this.rois = rois;

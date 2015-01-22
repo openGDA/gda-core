@@ -14,6 +14,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDetector;
@@ -252,7 +253,7 @@ public class Xspress2DAServerController implements Xspress2Controller {
 		for (DetectorElement element : settings.getParameters().getDetectorList()) {
 			int thisMcasize = 1; // always get an extra values for the out of
 									// window counts
-			for (XspressROI roi : element.getRegionList()) {
+			for (DetectorROI roi : element.getRegionList()) {
 				if (settings.getParameters().getRegionType().equals(XspressParameters.VIRTUALSCALER)) {
 					thisMcasize++;
 				} else {
@@ -349,12 +350,12 @@ public class Xspress2DAServerController implements Xspress2Controller {
 		Object obj;
 		int rc;
 		String roiCommand = "xspress2 set-roi " + xspressSystemName + " " + detector.getNumber();
-		List<XspressROI> regionList = detector.getRegionList();
+		List<DetectorROI> regionList = detector.getRegionList();
 		if (regionList.isEmpty())
 		 {
 			return; // No regions for detector element.
 		}
-		for (XspressROI region : regionList) {
+		for (DetectorROI region : regionList) {
 			roiCommand += " " + region.getRoiStart() + " " + region.getRoiEnd() + " " + calculateRegionBins(region);
 		}
 		if ((obj = daServer.sendCommand(roiCommand)) != null) {
@@ -364,7 +365,7 @@ public class Xspress2DAServerController implements Xspress2Controller {
 		}
 	}
 
-	private int calculateRegionBins(XspressROI region) {
+	private int calculateRegionBins(DetectorROI region) {
 		int regionBins = 1; // 1 means a virtual scaler
 		if (settings.getParameters().getRegionType() != null
 				&& settings.getParameters().getRegionType().equals(XspressROI.MCA)) {

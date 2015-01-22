@@ -42,6 +42,7 @@ import java.util.Vector;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
@@ -54,7 +55,6 @@ import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.client.microfocus.scan.RasterMapDetectorPreparer;
 
 /**
@@ -86,8 +86,8 @@ public class MicrofocusMapTestComponent {
 
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "DummyDataWriter");
 
-		XspressROI roi1 = new XspressROI("Fe_k", 500, 520);
-		ArrayList<XspressROI> regionList = new ArrayList<XspressROI>();
+		DetectorROI roi1 = new DetectorROI("Fe_k", 500, 520);
+		ArrayList<DetectorROI> regionList = new ArrayList<DetectorROI>();
 		regionList.add(roi1);
 
 		xspressConfigurationParameters = new XspressParameters();

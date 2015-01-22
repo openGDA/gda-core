@@ -57,7 +57,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 	private static final Logger logger = LoggerFactory.getLogger(ImportXspressROIWizardPage.class);
 
 	private int elementListSize;
-	private List<XspressROI> currentBeans;
+	private List<DetectorROI> currentBeans;
 	private double maximum;
 	protected DetectorComposite roisToImportComposite;
 	private DetectorListComposite detectorListComposite;
@@ -71,7 +71,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 	@SuppressWarnings("unchecked")
 	public ImportXspressROIWizardPage(int elementListSize, List<? extends DetectorROI> currentBeans, double maximum) {
 		this.elementListSize = elementListSize;
-		this.currentBeans = (List<XspressROI>)currentBeans;
+		this.currentBeans = (List<DetectorROI>)currentBeans;
 		this.maximum = maximum;
 	}
 
@@ -272,16 +272,16 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 	@Override
 	protected void performAddAll() {
 		Object bean = detectorListComposite.getDetectorElementComposite().getRegionList().getBean();
-		List <XspressROI> regionToCopy;
-		if(bean instanceof XspressROI)
+		List <DetectorROI> regionToCopy;
+		if(bean instanceof DetectorROI)
 		{
 			List<DetectorElement> detectors = xspressParameters.getDetectorList();
-			regionToCopy = new ArrayList<XspressROI>(detectors.size());
+			regionToCopy = new ArrayList<DetectorROI>(detectors.size());
 			for(int i =0 ; i < detectors.size() ; i++){
 				boolean regionFound = false;
-				List <XspressROI>elementROIList = detectors.get(i).getRegionList();
-				for ( XspressROI roi : elementROIList){
-					if(roi.getRoiName().equals(((XspressROI)bean).getRoiName()))
+				List <DetectorROI>elementROIList = detectors.get(i).getRegionList();
+				for ( DetectorROI roi : elementROIList){
+					if(roi.getRoiName().equals(((DetectorROI)bean).getRoiName()))
 					{
 						regionFound = true;
 						regionToCopy.add(roi);

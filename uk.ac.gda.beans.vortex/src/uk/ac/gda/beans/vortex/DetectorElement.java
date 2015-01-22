@@ -25,6 +25,7 @@ import java.util.Vector;
 
 import org.apache.commons.beanutils.BeanUtils;
 
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.exafs.IDetectorElement;
 
 /**
@@ -34,7 +35,7 @@ import uk.ac.gda.beans.exafs.IDetectorElement;
  */
 public class DetectorElement  implements Serializable, IDetectorElement {
 	
-	private List<VortexROI> regionList;
+	private List<DetectorROI> regionList;
 
 	private String name;
 	
@@ -59,7 +60,7 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 	 * default constructor for Castor
 	 */
 	public DetectorElement() {
-		regionList = new ArrayList<VortexROI>();
+		regionList = new ArrayList<DetectorROI>();
 	}
 
 	/**
@@ -236,20 +237,20 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 	/**
 	 * @param r
 	 */
-	public void addRegion(VortexROI r) {
+	public void addRegion(DetectorROI r) {
 		regionList.add(r);
 	}
 	/**
 	 * @return Returns the regions.
 	 */
-	public List<VortexROI> getRegionList() {
+	public List<DetectorROI> getRegionList() {
 		return regionList;
 	}
 
 	/**
 	 * @param regions The regions to set.
 	 */
-	public void setRegionList(List<VortexROI> regions) {
+	public void setRegionList(List<DetectorROI> regions) {
 		this.regionList = regions;
 	}
 
@@ -260,12 +261,12 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 		number = detectorElement.number;
 		offset = detectorElement.offset;
 		peakingTime = detectorElement.peakingTime;
-		Vector<VortexROI> rois = new Vector<VortexROI>();
-		for( VortexROI rl : detectorElement.getRegionList()){
-			VortexROI roi = new VortexROI();
+		Vector<DetectorROI> rois = new Vector<DetectorROI>();
+		for( DetectorROI rl : detectorElement.getRegionList()){
+			DetectorROI roi = new DetectorROI();
 			roi.setRoiName(rl.getRoiName());
-			roi.setWindowEnd(rl.getWindowEnd());
-			roi.setWindowStart(rl.getWindowStart());
+			roi.setRoiEnd(rl.getRoiEnd());
+			roi.setRoiStart(rl.getRoiStart());
 			rois.add(roi);
 		}
 		setRegionList(rois);

@@ -26,6 +26,7 @@ import java.util.Vector;
 
 import org.apache.commons.beanutils.BeanUtils;
 
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.exafs.IDetectorConfigurationParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -204,8 +205,8 @@ public class VortexParameters implements Serializable, IDetectorConfigurationPar
 		setTfgName(vp.tfgName);
 	}
 
-	public List<VortexROI> getRois() {
-		List<VortexROI> list = new Vector<VortexROI>();
+	public List<DetectorROI> getRois() {
+		List<DetectorROI> list = new Vector<DetectorROI>();
 		for (DetectorElement d : getDetectorList()) {
 			list.addAll(d.getRegionList());
 		}
