@@ -40,7 +40,7 @@ public class XesUtils {
 	}
 
 	public static final double MIN_THETA = 60;
-	public static final double MAX_THETA = 85;
+	public static final double MAX_THETA = 86;
 
 	/**
 	 * Given a Bragg angle and the Crystal properties, returns the Energy of the reflected X-rays from the crystal.
