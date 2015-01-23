@@ -499,13 +499,17 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 		self.detector_for_snaps = detector_for_snaps
 		self.array_monitor_for_hardware_triggering = array_monitor_for_hardware_triggering
 		self._seconds_to_wait_after_count_reached = 0
+		self.scanned_det = None
 	
 	def _setDetector(self, det):
 		self.detector = det
 		
 	@property
 	def det(self):
-		return self.hardware_triggered_detector if self.isHardwareTriggering() else self.detector
+		#AbstractContinuousScanLine sets to non-hardware triggering before endCollection/etc are called
+		if self.scanned_det == None:
+			return self.hardware_triggered_detector if self.isHardwareTriggering() else self.detector
+		return self.scanned_det
 	
 #		return {'pilatus100k_path_template='123-pilatus100k/%5i.cbf.'}
 	
@@ -552,7 +556,9 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 		self._seconds_to_wait_after_count_reached = t
 
 	def prepareForCollection(self):
-		self.det.prepareForCollection()
+		self.scanned_det = None
+		self.scanned_det = self.det
+		self.scanned_det.prepareForCollection()
 
 	def atScanStart(self):
 		ProcessingDetectorWrapper.atScanStart(self)
@@ -601,6 +607,7 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 		
 	def endCollection(self):
 		self.det.endCollection()
+		self.scanned_det = None
 
 #	def atScanLineEnd(self):
 #		self.det.atScanLineEnd()
@@ -609,6 +616,14 @@ class SwitchableHardwareTriggerableProcessingDetectorWrapper(ProcessingDetectorW
 		ProcessingDetectorWrapper.atScanEnd(self)
 #		if self.array_monitor_for_hardware_triggering:
 #			self.array_monitor_for_hardware_triggering.prepareForCollection(999, None) # Number not used
+
+	def stop(self):
+		ProcessingDetectorWrapper.stop(self)
+		self.scanned_det = None
+
+	def atCommandFailure(self):
+		ProcessingDetectorWrapper.atCommandFailure(self)
+		self.scanned_det = None
 
 	def getDataDimensions(self):
 		return [len(self.getExtraNames())]
