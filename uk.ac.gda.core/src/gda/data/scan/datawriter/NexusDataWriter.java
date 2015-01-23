@@ -770,6 +770,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			if (createSrsFile) {
 				srsFile.releaseFile();
 			}
+
 		} catch (NexusException ne) {
 			String error = "NeXusException occurred when closing file: ";
 			logger.error(error + ne.getMessage());
@@ -1659,9 +1660,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		return -1;
 	}
 
-	public void setTxtFileNameTemplate(@SuppressWarnings("unused") String txtFileNameTemplate) {
-		// do nothing
-	}
 
 	public void setNexusFileNameTemplate(String nexusFileNameTemplate) throws Exception {
 		this.nexusFileNameTemplate = nexusFileNameTemplate;
@@ -1722,6 +1720,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				} 
 			} catch (Exception e) {
 				// ignored
+				logger.debug(e.getMessage());
 			}
 			file.opengroup(nxDirName, nxClass);
 			file.makegroup(scannable.getName(), nxClass);
