@@ -10,4 +10,5 @@ Require-Bundle: uk.ac.gda.core,
  uk.ac.gda.devices.xspress2;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: gda.data.scan.datawriter
-Import-Package: org.slf4j
+Import-Package: gda.device.detector.xspress,
+ org.slf4j

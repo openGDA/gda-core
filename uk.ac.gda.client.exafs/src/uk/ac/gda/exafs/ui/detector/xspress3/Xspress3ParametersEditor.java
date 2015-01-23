@@ -21,16 +21,10 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
-import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.exafs.ui.ExafsBeanFileSelectionEditor;
-import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersEditor;
-import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-/**
- *
- */
 public class Xspress3ParametersEditor extends ExafsBeanFileSelectionEditor {
 	
 	@Override

@@ -1,15 +1,15 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Vortex
+Bundle-Name: Exafs API
 Bundle-SymbolicName: uk.ac.gda.exafs.api;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: gda.device.detector,
+Export-Package: gda.device.detector;uses:="gda.factory,gda.observable",
  gda.exafs.mucal;uses:="uk.ac.gda.beans.exafs",
  gda.exafs.scan;uses:="uk.ac.gda.beans.exafs,org.python.core",
  gda.exafs.xes,
  gda.util;uses:="uk.ac.gda.util.io",
- uk.ac.gda.beans;uses:="uk.ac.gda.beans.xspress",
+ uk.ac.gda.beans,
  uk.ac.gda.beans.exafs;uses:="uk.ac.gda.beans,uk.ac.gda.beans.exafs.b18",
  uk.ac.gda.beans.exafs.b18;uses:="uk.ac.gda.beans.exafs",
  uk.ac.gda.beans.exafs.bm26a;uses:="uk.ac.gda.beans.exafs",
@@ -17,8 +17,8 @@ Export-Package: gda.device.detector,
  uk.ac.gda.beans.exafs.i20;uses:="uk.ac.gda.beans.exafs,uk.ac.gda.beans",
  uk.ac.gda.beans.microfocus;uses:="uk.ac.gda.beans.exafs",
  uk.ac.gda.beans.vortex;uses:="uk.ac.gda.beans.exafs,uk.ac.gda.beans",
- uk.ac.gda.beans.xspress,
- uk.ac.gda.devices.detector
+ uk.ac.gda.beans.xspress;uses:="uk.ac.gda.beans.exafs,uk.ac.gda.beans,gda.device",
+ uk.ac.gda.devices.detector;uses:="gda.device"
 Require-Bundle: uk.ac.gda.common,
  slf4j.api;bundle-version="1.7.6",
  uk.ac.gda.libs;bundle-version="1.0.0",
