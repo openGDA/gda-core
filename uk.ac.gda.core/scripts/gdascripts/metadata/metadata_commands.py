@@ -24,8 +24,7 @@ def meta_add( farg, *vargs):
     """
     metashop=Finder.getInstance().find("metashop")
     metashop.add([farg]+list(vargs))
-    return metashop.list(False)
-    
+
 #    metashop.ll()
 def meta_ll():
     """
@@ -47,7 +46,6 @@ def meta_rm(farg, *vargs):
     """
     metashop=Finder.getInstance().find("metashop")
     metashop.remove([farg]+list(vargs))
-    return metashop.list(False)
 
 def meta_clear_alldynamical():
     metashop = Finder.getInstance().find("metashop")

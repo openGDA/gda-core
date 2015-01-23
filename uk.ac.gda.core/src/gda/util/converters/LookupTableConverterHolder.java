@@ -82,6 +82,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 
 	private final int sColumn, tColumn;
 
+	private  boolean interpolateNotExtrapolate = false;
 
 	/**
 	 * @param name
@@ -152,6 +153,14 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 	 */
 	public String getMode() {
 		return modeString;
+	}
+	
+	public boolean isInterpolateNotExtrapolate() {
+		return interpolateNotExtrapolate;
+	}
+
+	public void setInterpolateNotExtrapolate(boolean interpolateNotExtrapolate) {
+		this.interpolateNotExtrapolate = interpolateNotExtrapolate;
 	}
 
 	/**
@@ -225,7 +234,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 			
 			final boolean filenameIsFull = checkWhetherFilenameIsFull(columnDataFileName);
 			GenQuantitiesConverter newConverter = new GenQuantitiesConverter(new LookupTableQuantityConverter(
-					columnDataFileName, filenameIsFull, sColumn, tColumn, LookupTableQuantityConverter.getMode(modeString)));
+					columnDataFileName, filenameIsFull, sColumn, tColumn, LookupTableQuantityConverter.getMode(modeString), !interpolateNotExtrapolate));
 			if (converter != null) {
 				CheckUnitsAreEqual(converter, newConverter);
 			}

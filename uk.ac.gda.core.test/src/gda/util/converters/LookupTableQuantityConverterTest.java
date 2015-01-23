@@ -22,6 +22,7 @@ package gda.util.converters;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import gda.configuration.properties.LocalProperties;
+import gda.util.converters.LookupTableQuantityConverter.Mode;
 
 import org.jscience.physics.quantities.Quantity;
 import org.junit.BeforeClass;
@@ -340,4 +341,47 @@ public class LookupTableQuantityConverterTest {
 				.sourceMinIsTargetMax());
 	}
 
+	@Test
+	public final void testOutOfRangeToTarget() throws Exception {
+		LookupTableQuantityConverter converter = new LookupTableQuantityConverter("Simple.txt", false, 0, 1,
+				Mode.S_TO_T_ONLY, false);
+		Quantity sourceQuantity = Quantity.valueOf(3.0, converter.getAcceptableSourceUnits().get(0));
+		try {
+			converter.toTarget(sourceQuantity);
+			fail("IllegalArgumentException expected when converting value out of range when not allowed to extrapolate");
+		} catch (IllegalArgumentException e) {
+			//expected
+		}
+	}
+
+	@Test
+	public final void testOutOfRangeToSource() throws Exception {
+		LookupTableQuantityConverter converter = new LookupTableQuantityConverter("Simple.txt", false, 0, 1,
+				Mode.T_TO_S_ONLY, false);
+		Quantity targetQuantity = Quantity.valueOf(300.0, converter.getAcceptableTargetUnits().get(0));
+		try {
+			converter.toSource(targetQuantity);
+			fail("IllegalArgumentException expected when converting value out of range when not allowed to extrapolate");
+		} catch (IllegalArgumentException e) {
+			//expected
+		}
+	}
+
+	@Test
+	public final void testExtrapolatedToTarget() throws Exception {
+		LookupTableQuantityConverter converter = new LookupTableQuantityConverter("Simple.txt", false, 0, 1,
+				Mode.S_TO_T_ONLY, true);
+		Quantity sourceQuantity = Quantity.valueOf(3.0, converter.getAcceptableSourceUnits().get(0));
+		Quantity targetQuantity = converter.toTarget(sourceQuantity);
+		assertEquals(300.0, targetQuantity.getAmount(), DELTA);
+	}
+
+	@Test
+	public final void testExtrapolatedToSource() throws Exception {
+		LookupTableQuantityConverter converter = new LookupTableQuantityConverter("Simple.txt", false, 0, 1,
+				Mode.T_TO_S_ONLY, true);
+		Quantity targetQuantity = Quantity.valueOf(300.0, converter.getAcceptableTargetUnits().get(0));
+		Quantity sourceQuantity = converter.toSource(targetQuantity);
+		assertEquals(3.0, sourceQuantity.getAmount(), DELTA);
+	}
 }
