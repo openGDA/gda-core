@@ -102,7 +102,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	protected String defaultNeXusBackend = null;
 
 	/** Are we going to write an SRS file as well ? */
-	private boolean createSrsFile = false;
+	private static boolean createSrsFileByDefault = true;
+	private boolean createSrsFile = createSrsFileByDefault;
 
 	// beamline name
 	protected String beamline = null;
@@ -164,8 +165,9 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		// Check to see if we want to create a text/SRS file as well.
 		// in constructor instead of setupProperties as srsFile is required at an earlier stage
 		try {
-			createSrsFile = LocalProperties.check(GDA_NEXUS_CREATE_SRS, true);
+			createSrsFile = LocalProperties.check(GDA_NEXUS_CREATE_SRS, createSrsFileByDefault);
 			if (createSrsFile) {
+				logger.info("NexusDataWriter is configured to also create SRS data files");
 				srsFile = new SrsDataFile();
 			}
 		}
@@ -772,12 +774,12 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 		} catch (NexusException ne) {
 			String error = "NeXusException occurred when closing file: ";
-			logger.error(error + ne.getMessage());
+			logger.error(error, ne);
 			terminalPrinter.print(error);
 			terminalPrinter.print(ne.getMessage());
 		} catch (Throwable et) {
 			String error = "Error occurred when closing data file(s): ";
-			logger.error(error + et.getMessage());
+			logger.error(error, et);
 			terminalPrinter.print(error);
 			terminalPrinter.print(et.getMessage());
 		} finally {
@@ -1470,7 +1472,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					file.finalize();
 				} catch (Throwable et) {
 					String error = "Error closing NeXus file.";
-					logger.error(error + et.getMessage());
+					logger.error(error, et);
 					terminalPrinter.print(error);
 					terminalPrinter.print(et.getMessage());
 				}
@@ -1510,9 +1512,13 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 
 			// Print informational message to console.
-			terminalPrinter.print("Writing data to file (NeXus): " + nexusFileUrl);
+			String msg = "Writing data to file (NeXus): " + nexusFileUrl;
+			logger.info(msg);
+			terminalPrinter.print(msg);
 			if (createSrsFile) {
-				terminalPrinter.print("Also creating file (txt): " + srsFile.fileUrl);
+				msg = "Also creating file (txt): " + srsFile.fileUrl;
+				logger.info(msg);
+				terminalPrinter.print(msg);
 			}
 		} catch (Error ex) {
 			String error = "Failed to create file (" + nexusFileUrl;
@@ -1680,7 +1686,12 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	@Override
 	public void addDataWriterExtender(final IDataWriterExtender e) {
 		super.addDataWriterExtender(e);
+		if (this.createSrsFile) {
+			logger.warn("NexusDataWriter no longer disables the creation of SRS data files when a DataWriterExtender is added: "+e.toString());
+		}
+		/* This line prevents SRS data files from being written on most beamlines, where a DataWriterExtender is added for the FileRegistrar
 		this.createSrsFile = false;
+		*/
 	}
 
 	public boolean isFirstData() {
