@@ -218,7 +218,9 @@ public class LocalObjectShelf {
 			Collection<ObjectShelfEntry> entryList = shelf.getEntries();
 
 			for (ObjectShelfEntry entry : entryList) {
-				if (entry.getKeyName().equals(keyName)) {
+				String entryKeyName = entry.getKeyName();
+				//TODO: an entry should not have a null keyname, but it can happen
+				if (entryKeyName != null && entryKeyName.equals(keyName)) {
 					entry.setData(toStore);
 					em.merge(entry);
 					em.persist(entry);
@@ -290,6 +292,7 @@ public class LocalObjectShelf {
 	 *             If the key does not exist.
 	 */
 	synchronized public Serializable getValue(String keyName) throws ObjectShelfException {
+		//TODO: code duplicated across set and get methods
 		EntityManager em;
 		ObjectShelf shelf;
 		ObjectShelfEntry entry = null;
@@ -311,7 +314,8 @@ public class LocalObjectShelf {
 
 		// KLUDGE:
 		for (ObjectShelfEntry anEntry : entryList) {
-			if (anEntry.getKeyName().equals(keyName)) {
+			String entryKeyName = anEntry.getKeyName();
+			if (entryKeyName != null && entryKeyName.equals(keyName)) {
 				entry = anEntry;
 			}
 		}
