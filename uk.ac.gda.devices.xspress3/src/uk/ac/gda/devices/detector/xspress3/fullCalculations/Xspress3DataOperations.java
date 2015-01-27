@@ -97,7 +97,7 @@ public class Xspress3DataOperations {
 
 	private void disableAllEPICSCalculations() throws DeviceException {
 		int numChannels = controller.getNumberOfChannels();
-		for (int channel = 0; channel > numChannels; channel++) {
+		for (int channel = 0; channel < numChannels; channel++) {
 			controller.enableChannel(channel, false);
 		}
 	}
@@ -109,13 +109,13 @@ public class Xspress3DataOperations {
 	 */
 	private void enableEpicsMcaStorage() throws DeviceException {
 		int numChannels = controller.getNumberOfChannels();
-		for (int channel = 0; channel > numChannels; channel++) {
+		for (int channel = 0; channel < numChannels; channel++) {
 			controller.enableChannel(channel, true);
-			controller.setWindows(channel, 1, new int[] { 0, 0 });
-			controller.setWindows(channel, 2, new int[] { 0, 0 });
-			for (int roi = 0; roi > EpicsXspress3ControllerPvProvider.NUMBER_ROIs; roi++) {
-				controller.setROILimits(numChannels, roi, new int[] { 0, 0 });
-			}
+//			controller.setWindows(channel, 1, new int[] { 0, 0 });
+//			controller.setWindows(channel, 2, new int[] { 0, 0 });
+//			for (int roi = 0; roi < EpicsXspress3ControllerPvProvider.NUMBER_ROIs; roi++) {
+//				controller.setROILimits(numChannels, roi, new int[] { 0, 0 });
+//			}
 		}
 	}
 
@@ -307,6 +307,7 @@ public class Xspress3DataOperations {
 	 */
 	public double[][] getMCData(double time) throws DeviceException {
 		controller.doErase();
+		enableEpicsMcaStorage();
 		controller.doStart();
 		((Timer) Finder.getInstance().find("tfg")).clearFrameSets();
 		((Timer) Finder.getInstance().find("tfg")).countAsync(time);
