@@ -41,7 +41,6 @@ import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**

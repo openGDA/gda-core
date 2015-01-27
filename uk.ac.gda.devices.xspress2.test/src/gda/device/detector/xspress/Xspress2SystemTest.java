@@ -41,7 +41,6 @@ import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDetector;
-import uk.ac.gda.beans.xspress.XspressROI;
 
 /**
  * Test the Xspress2System class against DummyDAServer. So this is more of a test of DummyDAServer really.

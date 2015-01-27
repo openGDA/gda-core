@@ -33,7 +33,6 @@ import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
 
 public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvider {
 
@@ -116,7 +115,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 	}
 
 	@SuppressWarnings("unused")
-	private double[] getDataSliceFromFile(int y, int x, int detectorNo, XspressROI roi) {
+	private double[] getDataSliceFromFile(int y, int x, int detectorNo, DetectorROI roi) {
 		IDataset slice = lazyDataset.getSlice(new int[] { y, x, detectorNo, roi.getRoiStart() }, new int[] { y + 1,
 				x + 1, detectorNo + 1, roi.getRoiEnd() }, new int[] { 1, 1, 1, 1 });
 		ILazyDataset sqSlice = slice.squeeze();

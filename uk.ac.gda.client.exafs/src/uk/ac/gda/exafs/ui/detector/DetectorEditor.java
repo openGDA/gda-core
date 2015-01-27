@@ -75,16 +75,11 @@ import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.IDetectorElement;
-import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
-import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
-import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.exafs.ExafsActivator;
-import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.exafs.ui.detector.wizards.ImportROIWizard;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
@@ -425,20 +420,20 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	 */
 	@SuppressWarnings("unchecked")
 	public String _testGetRegionName(final int index) {
-		final List<XspressROI> rois = (List<XspressROI>) getDetectorElementComposite().getRegionList().getValue();
+		final List<DetectorROI> rois = (List<DetectorROI>) getDetectorElementComposite().getRegionList().getValue();
 		return rois.get(index).getRoiName();
 	}
 
 	protected void upload() throws Exception {
 
 		// the bean from the enclosing scan (may be null if no scan selected)
-		IExperimentObject experimentObject = ExperimentFactory.getExperimentEditorManager().getSelectedScan();
-		final IOutputParameters outputBean;
-		if (experimentObject != null && experimentObject instanceof ScanObject) {
-			outputBean = ((ScanObject) experimentObject).getOutputParameters();
-		} else {
-			outputBean = null;
-		}
+//		IExperimentObject experimentObject = ExperimentFactory.getExperimentEditorManager().getSelectedScan();
+//		final IOutputParameters outputBean;
+//		if (experimentObject != null && experimentObject instanceof ScanObject) {
+//			outputBean = ((ScanObject) experimentObject).getOutputParameters();
+//		} else {
+//			outputBean = null;
+//		}
 
 		final boolean ok = MessageDialog
 				.openConfirm(

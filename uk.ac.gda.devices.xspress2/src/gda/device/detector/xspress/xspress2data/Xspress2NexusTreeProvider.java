@@ -16,7 +16,6 @@ import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
 
 /**
  * Provides tools to convert raw data from the Xspress2 electronics into

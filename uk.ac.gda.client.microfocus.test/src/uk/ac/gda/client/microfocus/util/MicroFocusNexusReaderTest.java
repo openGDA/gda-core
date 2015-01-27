@@ -29,7 +29,6 @@ import org.junit.Test;
 import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.IRichBean;
-import uk.ac.gda.beans.xspress.XspressROI;
 
 public class MicroFocusNexusReaderTest {
 	private static MicroFocusNexusReader rdr;
@@ -59,7 +58,7 @@ public class MicroFocusNexusReaderTest {
 	public void testGetWindowsfromBean() throws Exception
 	{
 		
-		List<XspressROI>[] rois = rdr.getWindowsfromBean("testfiles/uk/ac/gda/client/microfocus/util/Xspress_Parameters.xml");
+		List<DetectorROI>[] rois = rdr.getWindowsfromBean("testfiles/uk/ac/gda/client/microfocus/util/Xspress_Parameters.xml");
 		assertEquals(9, rois.length);
 		assertEquals("fe",rois[0].get(0).getRoiName());
 		assertEquals(3, rois[0].size());

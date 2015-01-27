@@ -37,7 +37,6 @@ import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.beans.xspress.XspressROI;
 
 public class MicroFocusNexusReader {
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusNexusReader.class);
@@ -181,7 +180,7 @@ public class MicroFocusNexusReader {
 	 * @return list of all elements rois
 	 */
 	@SuppressWarnings("unchecked")
-	public  List<XspressROI>[] getWindowsfromBean(String ...fileName) {
+	public  List<DetectorROI>[] getWindowsfromBean(String ...fileName) {
 		XspressParameters xspressBean = null;
 		try {
 			if(fileName.length == 0)
@@ -312,8 +311,8 @@ public class MicroFocusNexusReader {
 		for (int i = 0; i < yarray.length; i++) {
 			for (int j = 0; j < xarray.length; j++) {
 				for (int detectorNo = 0; detectorNo < noOfDetectors; detectorNo++) {
-					List <XspressROI>roiList = elementRois[detectorNo];
-					for (XspressROI roi : roiList) {
+					List <DetectorROI>roiList = elementRois[detectorNo];
+					for (DetectorROI roi : roiList) {
 						if (roi.getRoiName().equals(elementName)) {
 							if(dataret[detectorNo] == null)
 								getElementData(detectorNo);
