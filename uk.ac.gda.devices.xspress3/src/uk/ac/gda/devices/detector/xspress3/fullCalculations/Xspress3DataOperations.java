@@ -30,7 +30,6 @@ public class Xspress3DataOperations {
 	private Xspress3Controller controller;
 	private int firstChannelToRead;
 	private int framesRead;
-	// private int rowBeingCollected;
 	private String configFileName;
 	private ROI[] rois;
 	private String detectorName;
@@ -53,13 +52,12 @@ public class Xspress3DataOperations {
 	}
 
 	public void atScanStart(boolean readDataFromFile) throws DeviceException {
-		// rowBeingCollected = -1;
+		controller.setPerformROICalculations(false);
 		if (readDataFromFile) {
 			// we are in a Continuous / Fly scan, so data will be readback from
 			// the HDF file at the end of each scan line
 			disableAllEPICSCalculations();
 		} else {
-			// data to be read from EPICS MCA PVs directly
 			enableEpicsMcaStorage();
 		}
 	}
@@ -67,13 +65,10 @@ public class Xspress3DataOperations {
 	public void atScanLineStart() throws DeviceException {
 		framesRead = 0;
 		reader = null;
-		// rowBeingCollected++;
 	}
 
 	public void atPointEnd() throws DeviceException {
-		// if (controller.getNumFramesToAcquire() > 1) {
 		framesRead++;
-		// }
 	}
 
 	public String getConfigFileName() {
@@ -102,7 +97,7 @@ public class Xspress3DataOperations {
 
 	private void disableAllEPICSCalculations() throws DeviceException {
 		int numChannels = controller.getNumberOfChannels();
-		for (int channel = 0; channel > numChannels; channel++) {
+		for (int channel = 0; channel < numChannels; channel++) {
 			controller.enableChannel(channel, false);
 		}
 	}
@@ -114,13 +109,13 @@ public class Xspress3DataOperations {
 	 */
 	private void enableEpicsMcaStorage() throws DeviceException {
 		int numChannels = controller.getNumberOfChannels();
-		for (int channel = 0; channel > numChannels; channel++) {
+		for (int channel = 0; channel < numChannels; channel++) {
 			controller.enableChannel(channel, true);
-			controller.setWindows(channel, 1, new int[] { 0, 0 });
-			controller.setWindows(channel, 2, new int[] { 0, 0 });
-			for (int roi = 0; roi > EpicsXspress3ControllerPvProvider.NUMBER_ROIs; roi++) {
-				controller.setROILimits(numChannels, roi, new int[] { 0, 0 });
-			}
+//			controller.setWindows(channel, 1, new int[] { 0, 0 });
+//			controller.setWindows(channel, 2, new int[] { 0, 0 });
+//			for (int roi = 0; roi < EpicsXspress3ControllerPvProvider.NUMBER_ROIs; roi++) {
+//				controller.setROILimits(numChannels, roi, new int[] { 0, 0 });
+//			}
 		}
 	}
 
@@ -237,11 +232,8 @@ public class Xspress3DataOperations {
 					+ firstFrame + " to " + lastFrame);
 		}
 
-		// this trusts that the file handle is available to read from
-		// NexusFile file = null;
 		try {
-			// file = new NexusFile(filename, NexusFile.NXACC_READ);
-			/* double[][][] mcasFromFile = */extractMCAsFromFile(controller.getFullFileName(), firstFrame, lastFrame);
+			extractMCAsFromFile(controller.getFullFileName(), firstFrame, lastFrame);
 			int numFrames = lastFrame - firstFrame + 1;
 			NXDetectorData[] frames = new NXDetectorData[numFrames];
 			for (int frame = 0; frame < numFrames; frame++) {
@@ -261,26 +253,21 @@ public class Xspress3DataOperations {
 					EpicsXspress3ControllerPvProvider.MCA_SIZE);
 			reader.readFile();
 		}
-		// double[][][] mcas = reader.readFrames(firstFrame, lastFrame);
-		// return mcas;
 	}
 
-	public Double[] readoutFF() throws DeviceException {
-		// assume that this is readout before the full readout() is called!!
-		Double[][][] data = controller.readoutDTCorrectedROI(framesRead, framesRead, firstChannelToRead,
-				controller.getNumberOfChannels() + firstChannelToRead - 1);
-		return calculateFFs(data, 1)[0];
-	}
+	public double readoutFF() throws DeviceException {
+		int numRois = rois.length;
+		int numChannels =controller.getNumberOfChannels();
+		double[][] data = controller.readoutDTCorrectedLatestMCA(0, controller.getNumberOfChannels() - 1);
 
-	private Double[][] calculateFFs(Double[][][] data, int numFramesRead) {
-		Double[][] FFs = new Double[numFramesRead][controller.getNumberOfChannels()]; // [frame][detector
-		// channel]
-		for (int frame = 0; frame < numFramesRead; frame++) {
-			for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
-				FFs[frame][chan] = sumArray(data[frame][chan]);
+		double theFF = 0;
+		for (int chan = 0; chan < numChannels; chan++) {
+			for (int roi = 0; roi < numRois; roi++) {
+				double thisRoiSum = extractRoi(data[chan], rois[roi].getStart(), rois[roi].getEnd());
+				theFF += thisRoiSum;
 			}
 		}
-		return FFs;
+		return theFF;
 	}
 
 	public String[] getExtraNames() {
@@ -297,14 +284,6 @@ public class Xspress3DataOperations {
 		extraNames[numExtraNames - 1] = "FF";
 
 		return extraNames;
-	}
-
-	private Double sumArray(Double[] doubles) {
-		Double sum = 0.0;
-		for (Double element : doubles) {
-			sum += element;
-		}
-		return sum;
 	}
 
 	public int[][] getData() throws DeviceException {
@@ -328,12 +307,10 @@ public class Xspress3DataOperations {
 	 */
 	public double[][] getMCData(double time) throws DeviceException {
 		controller.doErase();
+		enableEpicsMcaStorage();
 		controller.doStart();
-		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only
-		// // time
-		((Timer) Finder.getInstance().find("tfg")).countAsync(time); // run tfg
-		// for
-		// time
+		((Timer) Finder.getInstance().find("tfg")).clearFrameSets();
+		((Timer) Finder.getInstance().find("tfg")).countAsync(time);
 		do {
 			synchronized (this) {
 				try {

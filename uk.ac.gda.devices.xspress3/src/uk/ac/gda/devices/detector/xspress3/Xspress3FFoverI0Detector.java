@@ -49,20 +49,11 @@ public class Xspress3FFoverI0Detector extends DetectorBase {
 	@Override
 	public Object readout() throws DeviceException {
 		Double i0 = getI0();
-		Double ff = getFF();
+		Double ff = xspress3.readoutFF();
 		Double ffio = ff / i0;
 		if (i0 == 0.0 || ff == 0.0 || i0.isInfinite() || i0.isNaN() || ff.isInfinite() || ff.isNaN())
 			ffio = 0.0;
 		return ffio;
-	}
-
-	private double getFF() throws DeviceException {
-		Double[] ffs =  xspress3.readoutFF();
-		double total = 0;
-		for(Double ff : ffs){
-			total += ff;
-		}
-		return total;
 	}
 
 	private Double getI0() throws DeviceException {

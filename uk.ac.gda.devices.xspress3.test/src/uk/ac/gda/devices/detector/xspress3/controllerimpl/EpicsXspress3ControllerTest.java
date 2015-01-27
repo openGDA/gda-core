@@ -102,7 +102,7 @@ public class EpicsXspress3ControllerTest {
 			}
 			System.out.println("acquire finished");
 			for (int i = 0; i < 50; i++) {
-				System.out.println(x3d.readoutFrames(i, i));
+				System.out.println(x3d.readout());
 			}
 
 			// now check that files have been created in /tmp of the machine

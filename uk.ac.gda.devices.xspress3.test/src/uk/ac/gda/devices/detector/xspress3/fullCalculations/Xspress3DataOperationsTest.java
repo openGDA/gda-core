@@ -34,7 +34,7 @@ public class Xspress3DataOperationsTest {
 		NXDetectorData treeProvider = (NXDetectorData) dataOps.readoutFrames(1, 1)[0];
 		
 		org.junit.Assert.assertEquals(11,treeProvider.getExtraNames().length);
-		org.junit.Assert.assertEquals(11,treeProvider.getOutputFormat().length);
+		org.junit.Assert.assertEquals(12,treeProvider.getOutputFormat().length);  // + 1 for the input name
 		org.junit.Assert.assertEquals(11,treeProvider.getDoubleVals().length);
 		
 		org.junit.Assert.assertTrue(treeProvider.getNexusTree() != null);
@@ -43,7 +43,7 @@ public class Xspress3DataOperationsTest {
 		
 		org.junit.Assert.assertEquals(10,((double[]) treeProvider.getNexusTree().getNode("xspress3/Cu").getData().getBuffer()).length);
 		
-		org.junit.Assert.assertEquals(30387.2217,(Double) treeProvider.getNexusTree().getNode("xspress3/FF").getData().getBuffer(),0.001);
+		org.junit.Assert.assertEquals(1,((double[]) treeProvider.getNexusTree().getNode("xspress3/FF").getData().getBuffer()).length,0.001);
 		
 	}
 }
