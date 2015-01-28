@@ -34,6 +34,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.dawnsci.common.richbeans.beans.BeansFactory;
 import org.exolab.castor.mapping.Mapping;
 import org.exolab.castor.mapping.MappingException;
 import org.exolab.castor.xml.Marshaller;
@@ -44,6 +45,74 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
 public class XMLHelpers {
+	
+	
+	/**
+	 * Will get a bean of the appropriate type from any an exafs bean file. One of ScanParameters, XanesScanParameters,
+	 * SampleParameters, DetectorParameters, OutputParameters is returned.
+	 * 
+	 * @param beanFile
+	 * @return the bean
+	 * @throws Exception
+	 */
+	public static IRichBean getBean(final File beanFile) throws Exception {
+		for (int i = 0; i < BeansFactory.getClasses().length; i++) {
+			if (BeansFactory.isBean(beanFile, BeansFactory.getClasses()[i])) {
+				return (IRichBean) XMLHelpers.readBean(beanFile, BeansFactory.getClasses()[i]);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Save a bean to a file.
+	 * 
+	 * @param templatePath
+	 * @param editingBean
+	 * @throws Exception
+	 */
+	public static void saveBean(File templatePath, Object editingBean) throws Exception {
+		URL mapping = null;
+		final Field[] fa = editingBean.getClass().getFields();
+		for (int i = 0; i < fa.length; i++) {
+			if (fa[i].getName().equalsIgnoreCase("mappingurl")) {
+				mapping = (URL) fa[i].get(null);
+				break;
+			}
+		}
+		writeToXML(mapping, editingBean, templatePath);
+	}
+	
+	/**
+	 * Retrieves the bean given the file name, or the bean itself.
+	 * <p>
+	 * For use in command-line tools where the user can supply filenames or beans interchangeably in commands.
+	 * 
+	 * @param dir
+	 * @param beanOrFile
+	 * @return ExafsBeansFactory.getBean(new File(beanFile));
+	 * @throws Exception
+	 */
+	public static IRichBean getBeanObject(final String dir, final Object beanOrFile) throws Exception {
+
+		for (int i = 0; i < BeansFactory.getClasses().length; i++) {
+			if (BeansFactory.getClasses()[i].isInstance(beanOrFile))
+				return (IRichBean) beanOrFile;
+		}
+
+		String path;
+		if(dir != null){
+			path = dir + beanOrFile;
+		} else {
+			path = beanOrFile.toString();
+		}
+		if (!path.endsWith(".xml"))
+			path = path + ".xml";
+		return getBean(new File(path));
+
+	}
+	
+	
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(XMLHelpers.class);
 

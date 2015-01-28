@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2011 Diamond Light Source Ltd.
+ * Copyright © 2015 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,13 +16,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.beans;
-
-import java.io.Serializable;
+package uk.ac.gda.util.beans.xml;
 
 /**
- * For any bean used to help define an experiment
+ * A Java object which can be marshalled / unmarshalled in XML using Castor and work with the RichBean Framework and the
+ * XMLHelpers class in this package.
  */
-public interface IRichBean extends Serializable {
-	public void clear();
+public interface IRichBean {
+
 }

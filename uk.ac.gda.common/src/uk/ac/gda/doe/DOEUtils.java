@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import uk.ac.gda.beans.BeansFactory;
+import org.dawnsci.common.richbeans.beans.BeansFactory;
 
 /**
  * IMPORTANT NOTE: All beans used with this class must have hashCode and equals
