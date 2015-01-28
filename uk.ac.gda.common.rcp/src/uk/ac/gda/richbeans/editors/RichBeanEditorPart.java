@@ -24,6 +24,14 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.dawnsci.common.richbeans.beans.BeanUI;
+import org.dawnsci.common.richbeans.beans.BeanUI.BeanProcessor;
+import org.dawnsci.common.richbeans.beans.BeansFactory;
+import org.dawnsci.common.richbeans.beans.IExpressionWidget;
+import org.dawnsci.common.richbeans.beans.IFieldProvider;
+import org.dawnsci.common.richbeans.beans.IFieldWidget;
+import org.dawnsci.common.richbeans.event.ValueEvent;
+import org.dawnsci.common.richbeans.event.ValueListener;
 import org.eclipse.core.commands.operations.IUndoContext;
 import org.eclipse.core.commands.operations.OperationHistoryFactory;
 import org.eclipse.core.resources.IFile;
@@ -41,15 +49,7 @@ import org.eclipse.ui.part.EditorPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.richbeans.beans.BeanUI;
-import uk.ac.gda.richbeans.beans.BeanUI.BeanProcessor;
-import uk.ac.gda.richbeans.beans.IExpressionWidget;
-import uk.ac.gda.richbeans.beans.IFieldProvider;
-import uk.ac.gda.richbeans.beans.IFieldWidget;
-import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.richbeans.event.ValueListener;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 
@@ -340,7 +340,7 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 				// available to evaluate the expressions for them.
 				BeanUI.notify(editingBean, this, new BeanProcessor() {
 					@Override
-					public void process(Entry<Object, Object> prop, IFieldWidget box) throws Exception {
+					public void process(String name, Object value, IFieldWidget box) throws Exception {
 						if (box instanceof IExpressionWidget) {
 							final IExpressionWidget expressionBox = (IExpressionWidget)box;
 							if (expressionBox.isExpressionAllowed()){

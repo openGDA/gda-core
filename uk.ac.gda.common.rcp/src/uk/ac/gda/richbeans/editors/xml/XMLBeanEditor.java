@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.List;
 
+import org.dawnsci.common.richbeans.beans.BeansFactory;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -45,7 +46,6 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.xml.bean.ColorManager;

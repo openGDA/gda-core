@@ -18,7 +18,7 @@
 
 package uk.ac.gda.richbeans.examples;
 
-import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
+import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriber;
 
 /**
  * Describer for XML file written by Castor. Checks XML in format

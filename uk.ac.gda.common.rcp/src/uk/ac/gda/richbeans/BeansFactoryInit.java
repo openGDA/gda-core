@@ -21,13 +21,13 @@ package uk.ac.gda.richbeans;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dawnsci.common.richbeans.beans.BeansFactory;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.IRichBean;
 
 /**
  *

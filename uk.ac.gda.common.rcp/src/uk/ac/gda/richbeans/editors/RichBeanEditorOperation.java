@@ -18,6 +18,7 @@
 
 package uk.ac.gda.richbeans.editors;
 
+import org.dawnsci.common.richbeans.beans.BeanUI;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.AbstractOperation;
 import org.eclipse.core.runtime.IAdaptable;
@@ -25,8 +26,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Shell;
-
-import uk.ac.gda.richbeans.beans.BeanUI;
 
 public class RichBeanEditorOperation extends AbstractOperation {
 

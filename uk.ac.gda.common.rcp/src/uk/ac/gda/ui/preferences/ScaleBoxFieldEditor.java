@@ -18,6 +18,7 @@
 
 package uk.ac.gda.ui.preferences;
 
+import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.resource.JFaceResources;
@@ -32,8 +33,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 
 /**
  * A field editor for a double preference.

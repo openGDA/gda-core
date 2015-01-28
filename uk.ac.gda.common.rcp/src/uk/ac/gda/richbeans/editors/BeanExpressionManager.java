@@ -25,6 +25,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.dawnsci.common.richbeans.beans.IExpressionManager;
+import org.dawnsci.common.richbeans.beans.IExpressionWidget;
+import org.dawnsci.common.richbeans.beans.IFieldProvider;
+import org.dawnsci.common.richbeans.beans.IFieldWidget;
+import org.dawnsci.common.richbeans.event.ValueEvent;
+import org.dawnsci.common.richbeans.event.ValueListener;
 import org.eclipse.jface.fieldassist.ContentProposalAdapter;
 import org.eclipse.swt.custom.StyledText;
 import org.nfunk.jep.ASTVarNode;
@@ -34,12 +40,6 @@ import org.nfunk.jep.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.richbeans.beans.IExpressionManager;
-import uk.ac.gda.richbeans.beans.IExpressionWidget;
-import uk.ac.gda.richbeans.beans.IFieldProvider;
-import uk.ac.gda.richbeans.beans.IFieldWidget;
-import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.richbeans.event.ValueListener;
 import uk.ac.gda.util.list.SortNatural;
 
 /**

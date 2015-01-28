@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+import org.dawnsci.common.richbeans.beans.BeanUI;
 import org.eclipse.core.commands.operations.IOperationHistory;
 import org.eclipse.core.commands.operations.IUndoContext;
 import org.eclipse.core.commands.operations.ObjectUndoContext;
@@ -61,7 +62,6 @@ import org.xml.sax.InputSource;
 
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.common.rcp.util.IStorageUtils;
-import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.richbeans.editors.xml.XMLBeanEditor;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 

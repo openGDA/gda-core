@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import org.dawnsci.common.richbeans.event.ValueEvent;
+import org.dawnsci.common.richbeans.event.ValueListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -33,9 +35,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.richbeans.event.ValueListener;
 
 /**
  * Widget for showing the result of a command. The command is 

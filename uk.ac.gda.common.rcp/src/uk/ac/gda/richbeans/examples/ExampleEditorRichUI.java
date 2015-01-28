@@ -20,6 +20,9 @@ package uk.ac.gda.richbeans.examples;
 
 import java.net.URL;
 
+import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
+import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.GridData;
@@ -27,9 +30,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
-import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 

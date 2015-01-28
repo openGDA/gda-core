@@ -20,6 +20,8 @@ package uk.ac.gda.richbeans.components.scalebox;
 
 import static org.junit.Assert.assertEquals;
 
+import org.dawnsci.common.richbeans.components.scalebox.DemandBox;
+import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
