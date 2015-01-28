@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.util.beans.xml.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 /**
  *
@@ -49,10 +49,10 @@ public class BeansFactoryInit {
 
 			IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
 					"uk.ac.common.beans.factory");
-			final List<Class<? extends IRichBean>> classes = new ArrayList<Class<? extends IRichBean>>(7);
+			final List<Class<? extends XMLRichBean>> classes = new ArrayList<Class<? extends XMLRichBean>>(7);
 			for (IConfigurationElement e : config) {
 
-				final Class<? extends IRichBean> beanClass = (Class<? extends IRichBean>) e.createExecutableExtension(
+				final Class<? extends XMLRichBean> beanClass = (Class<? extends XMLRichBean>) e.createExecutableExtension(
 						"class").getClass();
 				classes.add(beanClass);
 
