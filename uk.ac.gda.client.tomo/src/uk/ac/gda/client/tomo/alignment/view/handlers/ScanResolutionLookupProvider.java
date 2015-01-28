@@ -20,7 +20,6 @@ package uk.ac.gda.client.tomo.alignment.view.handlers;
 
 import gda.device.DeviceException;
 import gda.function.Lookup;
-import gda.function.lookup.LookupTable;
 import uk.ac.gda.client.tomo.IScanResolutionLookupProvider;
 
 public class ScanResolutionLookupProvider implements IScanResolutionLookupProvider {

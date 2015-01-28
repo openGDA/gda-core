@@ -18,7 +18,7 @@
 
 package uk.ac.gda.client.tomo.basic.beans;
 
-import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
+import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriber;
 
 /**
  *

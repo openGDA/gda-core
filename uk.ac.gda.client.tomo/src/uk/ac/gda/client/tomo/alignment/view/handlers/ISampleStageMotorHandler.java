@@ -18,9 +18,9 @@
 
 package uk.ac.gda.client.tomo.alignment.view.handlers;
 
-import java.util.Map;
-
 import gda.device.DeviceException;
+
+import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 

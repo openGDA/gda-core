@@ -21,6 +21,11 @@ package uk.ac.gda.client.tomo.basic.beans;
 
 import java.util.HashMap;
 
+import org.dawnsci.common.richbeans.components.FieldComposite;
+import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
+import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.SpinnerWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -30,12 +35,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
-
-import uk.ac.gda.richbeans.components.FieldComposite;
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
-import uk.ac.gda.richbeans.components.wrappers.SpinnerWrapper;
-import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 
 /**
  *

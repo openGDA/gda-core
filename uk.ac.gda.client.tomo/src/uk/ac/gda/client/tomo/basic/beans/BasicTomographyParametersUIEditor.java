@@ -20,11 +20,11 @@ package uk.ac.gda.client.tomo.basic.beans;
 
 import java.net.URL;
 
+import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
 
-import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 

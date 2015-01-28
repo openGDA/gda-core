@@ -18,18 +18,17 @@
 
 package uk.ac.gda.client.tomo.alignment.view.handlers.impl;
 
-import java.awt.geom.Point2D.Double;
-import java.util.Collections;
-import java.util.List;
-
 import gda.jython.JythonServerFacade;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.util.Sleep;
 
+import java.awt.geom.Point2D.Double;
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.ui.progress.IProgressConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

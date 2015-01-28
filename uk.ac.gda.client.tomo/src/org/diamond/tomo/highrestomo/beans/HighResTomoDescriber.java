@@ -18,7 +18,7 @@
 
 package org.diamond.tomo.highrestomo.beans;
 
-import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
+import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriber;
 
 
 /**

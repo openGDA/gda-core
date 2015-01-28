@@ -20,7 +20,6 @@ package uk.ac.gda.client.tomo.preferences;
 
 import java.util.regex.Pattern;
 
-import org.eclipse.core.internal.preferences.PreferencesOSGiUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;

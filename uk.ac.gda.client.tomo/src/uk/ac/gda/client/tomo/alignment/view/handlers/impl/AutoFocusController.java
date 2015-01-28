@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.tomo.alignment.view.TomoAlignmentCommands;
 import uk.ac.gda.client.tomo.alignment.view.handlers.IAutofocusController;
-import uk.ac.gda.client.tomo.configuration.view.handlers.IScanControllerUpdateListener;
 
 public class AutoFocusController implements IAutofocusController {
 
