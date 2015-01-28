@@ -36,7 +36,7 @@ import org.eclipse.core.runtime.content.IContentType;
 
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.common.rcp.util.ISortingUtils;
-import uk.ac.gda.util.beans.xml.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 /**
  * Immutable class representing an Exafs Specialisation of a Bean Description
@@ -47,12 +47,12 @@ public class ExperimentBeanDescription implements IExperimentBeanDescription {
 	private String commandId;
 	private XMLCommandHandler handler;
 	private String name;
-	private Class<? extends IRichBean> beanClass;
+	private Class<? extends XMLRichBean> beanClass;
 	private IContentType contentType;
 	private boolean includeInNew;
 
 	public ExperimentBeanDescription(String name, String type, String commandId, XMLCommandHandler handler,
-			Class<? extends IRichBean> beanClass, IContentType contentType, boolean includeInNew) {
+			Class<? extends XMLRichBean> beanClass, IContentType contentType, boolean includeInNew) {
 		if (name == null || beanClass == null) {
 			throw new NullPointerException();
 		}
@@ -79,7 +79,7 @@ public class ExperimentBeanDescription implements IExperimentBeanDescription {
 	}
 
 	@Override
-	public Class<? extends IRichBean> getBeanClass() {
+	public Class<? extends XMLRichBean> getBeanClass() {
 		return beanClass;
 	}
 

@@ -78,7 +78,7 @@ import uk.ac.gda.client.experimentdefinition.components.ExperimentRunEditor;
 import uk.ac.gda.client.experimentdefinition.components.XMLFileDialog;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
-import uk.ac.gda.util.beans.xml.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class ExperimentEditorManager implements IExperimentEditorManager {
@@ -508,14 +508,14 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 	@SafeVarargs
 	@Override
-	public final Object getValueFromUIOrBean(final String fieldName, final Class<? extends IRichBean>... classes)
+	public final Object getValueFromUIOrBean(final String fieldName, final Class<? extends XMLRichBean>... classes)
 			throws Exception {
 		IFieldWidget uiBox = BeanUI.getBeanField(fieldName, classes);
 		if (uiBox != null)
 			return uiBox.getValue();
 
 		IExperimentObject ob = ExperimentFactory.getExperimentEditorManager().getSelectedScan();
-		List<IRichBean> params = ob.getParameters();
+		List<XMLRichBean> params = ob.getParameters();
 		for (Object object : params)
 			for (int i = 0; i < classes.length; i++)
 				if (classes[i].isInstance(object))

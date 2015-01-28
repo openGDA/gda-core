@@ -22,7 +22,7 @@ import org.dawnsci.common.richbeans.components.cell.IXMLFileListProvider;
 import org.eclipse.core.runtime.content.IContentType;
 
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
-import uk.ac.gda.util.beans.xml.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public interface IExperimentBeanDescription extends IXMLFileListProvider {
 
@@ -31,7 +31,7 @@ public interface IExperimentBeanDescription extends IXMLFileListProvider {
 	 * 
 	 * @return the bean class, will not be <code>null</code>
 	 */
-	public Class<? extends IRichBean> getBeanClass();
+	public Class<? extends XMLRichBean> getBeanClass();
 
 	/**
 	 * Return the command id (org.eclipse.ui.commands) that corresponds to this

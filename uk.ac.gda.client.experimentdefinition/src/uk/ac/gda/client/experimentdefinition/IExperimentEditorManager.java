@@ -32,7 +32,7 @@ import uk.ac.gda.client.experimentdefinition.components.ExperimentExperimentView
 import uk.ac.gda.client.experimentdefinition.components.ExperimentFolderEditor;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentRunEditor;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
-import uk.ac.gda.util.beans.xml.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 /**
  * Interface for objects controlling editors which display an experiment as defined by an IExperimentObject.
@@ -73,7 +73,7 @@ public interface IExperimentEditorManager {
 
 	public IExperimentObject getSelectedScan();
 
-	public Object getValueFromUIOrBean(String fieldName, Class<? extends IRichBean>... classes) throws Exception;
+	public Object getValueFromUIOrBean(String fieldName, Class<? extends XMLRichBean>... classes) throws Exception;
 
 	public ExperimentExperimentView getViewer();
 

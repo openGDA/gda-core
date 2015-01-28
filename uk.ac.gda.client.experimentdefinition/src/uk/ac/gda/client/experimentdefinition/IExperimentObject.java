@@ -25,7 +25,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 
-import uk.ac.gda.util.beans.xml.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 /**
  * Interface for an object describing an experiment using a collection of IRichBeans
@@ -86,7 +86,7 @@ public interface IExperimentObject extends Serializable{
 	 */
 	public String getOutputPath();
 
-	public List<IRichBean> getParameters() throws Exception;
+	public List<XMLRichBean> getParameters() throws Exception;
 
 	public IFolder getFolder();
 	

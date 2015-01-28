@@ -21,10 +21,10 @@ package gda.example.richbean;
 import java.io.Serializable;
 import java.net.URL;
 
-import uk.ac.gda.util.beans.xml.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-public class ExampleExpt implements IRichBean, Serializable {
+public class ExampleExpt implements XMLRichBean, Serializable {
 	
 	private double startEnergy;
 	private double finalEnergy;

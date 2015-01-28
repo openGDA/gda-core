@@ -38,7 +38,7 @@ import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentBeanDescription;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentFolderEditor;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.util.beans.xml.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 import uk.ac.gda.util.io.FileUtils;
 
@@ -204,7 +204,7 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 	 * @return bean
 	 * @throws Exception
 	 */
-	public IRichBean getTemplateParameters() throws Exception {
+	public XMLRichBean getTemplateParameters() throws Exception {
 		return XMLHelpers.getBean(getTemplatePath());
 	}
 

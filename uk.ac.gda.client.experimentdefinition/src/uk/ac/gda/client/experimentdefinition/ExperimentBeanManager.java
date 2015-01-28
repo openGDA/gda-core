@@ -28,7 +28,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
-import uk.ac.gda.util.beans.xml.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 
 public enum ExperimentBeanManager {
@@ -71,9 +71,9 @@ public enum ExperimentBeanManager {
 					String includeInNewString = config.getAttribute(ATT_INCLUDE_IN_NEW);
 					
 					
-					Class<? extends IRichBean> beanClass = null;
+					Class<? extends XMLRichBean> beanClass = null;
 					try {
-						beanClass = (Class<? extends IRichBean>) config.createExecutableExtension(ATT_BEAN).getClass();
+						beanClass = (Class<? extends XMLRichBean>) config.createExecutableExtension(ATT_BEAN).getClass();
 					} catch (CoreException e) {
 						throw new RuntimeException("Cannot create required bean", e);
 					}

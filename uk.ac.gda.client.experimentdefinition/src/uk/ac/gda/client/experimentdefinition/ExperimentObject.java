@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.util.beans.xml.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
@@ -175,10 +175,10 @@ public abstract class ExperimentObject implements IExperimentObject {
 	}
 
 	@Override
-	public List<IRichBean> getParameters() throws Exception {
+	public List<XMLRichBean> getParameters() throws Exception {
 
 		List<IFile> files = getFiles();
-		List<IRichBean> params = new ArrayList<IRichBean>(files.size());
+		List<XMLRichBean> params = new ArrayList<XMLRichBean>(files.size());
 
 		for (IFile file : files) {
 			try {
