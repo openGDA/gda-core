@@ -24,6 +24,9 @@ import gda.observable.Observer;
 
 import java.util.List;
 
+import org.dawnsci.common.richbeans.components.scalebox.StandardBox;
+import org.dawnsci.common.richbeans.event.ValueAdapter;
+import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.axis.IAxis;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -43,10 +46,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.richbeans.components.scalebox.StandardBox;
-import uk.ac.gda.richbeans.event.ValueAdapter;
-import uk.ac.gda.richbeans.event.ValueEvent;
 
 public class TwoDArrayROI extends Composite {
 	private static final String SWITCH_ON = "Start";

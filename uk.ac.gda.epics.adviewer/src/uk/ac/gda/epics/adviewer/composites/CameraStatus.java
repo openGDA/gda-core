@@ -21,6 +21,7 @@ package uk.ac.gda.epics.adviewer.composites;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
+import org.dawnsci.common.richbeans.components.scalebox.StandardBox;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -41,7 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.epics.adviewer.ADController;
-import uk.ac.gda.richbeans.components.scalebox.StandardBox;
 
 public class CameraStatus extends Composite {
 	static final Logger logger = LoggerFactory.getLogger(CameraStatus.class);

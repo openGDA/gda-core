@@ -23,6 +23,7 @@ import gda.observable.Observer;
 
 import java.text.DecimalFormat;
 
+import org.dawnsci.common.richbeans.components.scalebox.StandardBox;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -37,8 +38,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.richbeans.components.scalebox.StandardBox;
 
 public class StatisticsStatus extends Composite {
 	@SuppressWarnings("unused")
