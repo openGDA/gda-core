@@ -29,6 +29,11 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 
+import org.dawnsci.common.richbeans.ACTIVE_MODE;
+import org.dawnsci.common.richbeans.components.scalebox.DemandBox;
+import org.dawnsci.common.richbeans.components.scalebox.NumberBox;
+import org.dawnsci.common.richbeans.event.ValueAdapter;
+import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.dawnsci.plotting.services.util.SWTImageUtils;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
@@ -56,11 +61,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import uk.ac.gda.richbeans.ACTIVE_MODE;
-import uk.ac.gda.richbeans.components.scalebox.DemandBox;
-import uk.ac.gda.richbeans.components.scalebox.NumberBox;
-import uk.ac.gda.richbeans.event.ValueAdapter;
-import uk.ac.gda.richbeans.event.ValueEvent;
 import uk.ac.gda.ui.utils.SWTUtils;
 
 public class CameraComposite extends Composite {
