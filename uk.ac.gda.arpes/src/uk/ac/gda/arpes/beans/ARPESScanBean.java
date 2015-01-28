@@ -22,10 +22,10 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 
-import uk.ac.gda.util.beans.xml.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-public class ARPESScanBean implements IRichBean {
+public class ARPESScanBean implements XMLRichBean {
 
 	static public final URL mappingURL = ARPESScanBean.class.getResource("ARPESMapping.xml");
 	static public final URL schemaURL  = ARPESScanBean.class.getResource("ARPESMapping.xsd");
