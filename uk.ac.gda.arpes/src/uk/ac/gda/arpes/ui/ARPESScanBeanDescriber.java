@@ -18,8 +18,9 @@
 
 package uk.ac.gda.arpes.ui;
 
+import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriber;
+
 import uk.ac.gda.arpes.beans.ARPESScanBean;
-import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
 
 public final class ARPESScanBeanDescriber extends XMLBeanContentDescriber {
 

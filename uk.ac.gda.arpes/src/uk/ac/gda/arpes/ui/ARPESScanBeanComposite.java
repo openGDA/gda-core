@@ -28,6 +28,17 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.dawnsci.common.richbeans.ACTIVE_MODE;
+import org.dawnsci.common.richbeans.beans.IFieldWidget;
+import org.dawnsci.common.richbeans.components.FieldComposite;
+import org.dawnsci.common.richbeans.components.scalebox.IntegerBox;
+import org.dawnsci.common.richbeans.components.scalebox.NumberBox;
+import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
+import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.RadioWrapper;
+import org.dawnsci.common.richbeans.event.ValueEvent;
+import org.dawnsci.common.richbeans.event.ValueListener;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -57,19 +68,8 @@ import uk.ac.gda.arpes.beans.ARPESScanBean;
 import uk.ac.gda.arpes.beans.ScanBeanFromNeXusFile;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.devices.vgscienta.AnalyserCapabilties;
-import uk.ac.gda.richbeans.ACTIVE_MODE;
-import uk.ac.gda.richbeans.beans.IFieldWidget;
-import uk.ac.gda.richbeans.components.FieldComposite;
-import uk.ac.gda.richbeans.components.scalebox.IntegerBox;
-import uk.ac.gda.richbeans.components.scalebox.NumberBox;
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
-import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
-import uk.ac.gda.richbeans.components.wrappers.RadioWrapper;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
-import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.richbeans.event.ValueListener;
 
 public final class ARPESScanBeanComposite extends Composite implements ValueListener {
 	private static final Logger logger = LoggerFactory.getLogger(ARPESScanBeanComposite.class);

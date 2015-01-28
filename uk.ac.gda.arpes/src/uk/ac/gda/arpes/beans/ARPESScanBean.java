@@ -22,7 +22,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.IRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class ARPESScanBean implements IRichBean {
@@ -46,11 +46,6 @@ public class ARPESScanBean implements IRichBean {
 	
 	public static void writeToXML(ARPESScanBean bean, String filename) throws Exception {
 		XMLHelpers.writeToXML(mappingURL, bean, filename);
-	}
-
-	@Override
-	public void clear() {
-		// TODO
 	}
 
 	public String getLensMode() {
