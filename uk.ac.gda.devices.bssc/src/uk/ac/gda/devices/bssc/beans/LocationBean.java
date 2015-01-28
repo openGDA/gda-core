@@ -18,7 +18,7 @@
 
 package uk.ac.gda.devices.bssc.beans;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.IRichBean;
 
 public class LocationBean implements IRichBean {
 	short plate = 1;
@@ -65,9 +65,6 @@ public class LocationBean implements IRichBean {
 		}
 		return String.format("%3s %c %2d", platestr, row, column);
 	}
-
-	@Override
-	public void clear() {	}
 	
 	@Override
 	public boolean equals(Object obj) {
