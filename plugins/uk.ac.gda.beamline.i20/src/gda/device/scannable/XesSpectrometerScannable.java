@@ -18,17 +18,17 @@
 
 package gda.device.scannable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.util.ThreadManager;
-
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.exafs.xes.XesUtils;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.observable.IObserver;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.util.ThreadManager;
 
 /**
  * Controls the I20 XES Secondary Spectrometer.
