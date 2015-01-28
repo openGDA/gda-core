@@ -28,6 +28,12 @@ import java.util.Map;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import org.dawnsci.common.richbeans.components.cell.CComboCellEditor;
+import org.dawnsci.common.richbeans.components.scalebox.RangeBox;
+import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
+import org.dawnsci.common.richbeans.event.ValueAdapter;
+import org.dawnsci.common.richbeans.event.ValueEvent;
+import org.dawnsci.common.widgets.celleditor.SpinnerCellEditorWithPlayButton;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -63,12 +69,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.DeprecatedPreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.SDAUtils;
 import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.richbeans.components.cell.CComboCellEditor;
-import uk.ac.gda.richbeans.components.cell.SpinnerCellEditorWithPlayButton;
-import uk.ac.gda.richbeans.components.scalebox.RangeBox;
-import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
-import uk.ac.gda.richbeans.event.ValueAdapter;
-import uk.ac.gda.richbeans.event.ValueEvent;
 
 /**
  * Dialog to slice multi-dimensional data.
