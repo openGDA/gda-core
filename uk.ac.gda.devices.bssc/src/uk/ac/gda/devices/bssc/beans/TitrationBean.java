@@ -18,9 +18,9 @@
 
 package uk.ac.gda.devices.bssc.beans;
 
-import uk.ac.gda.util.beans.xml.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
-public class TitrationBean implements IRichBean {
+public class TitrationBean implements XMLRichBean {
 	
 	LocationBean location = new LocationBean();
 	LocationBean bufferLocation = new LocationBean();

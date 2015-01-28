@@ -18,9 +18,9 @@
 
 package uk.ac.gda.devices.bssc.beans;
 
-import uk.ac.gda.util.beans.xml.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
-public class LocationBean implements IRichBean {
+public class LocationBean implements XMLRichBean {
 	short plate = 1;
 	char row = 'A';
 	short column = 1;
