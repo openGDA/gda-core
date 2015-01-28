@@ -55,10 +55,10 @@ public class XMLHelpers {
 	 * @return the bean
 	 * @throws Exception
 	 */
-	public static IRichBean getBean(final File beanFile) throws Exception {
+	public static XMLRichBean getBean(final File beanFile) throws Exception {
 		for (int i = 0; i < BeansFactory.getClasses().length; i++) {
 			if (BeansFactory.isBean(beanFile, BeansFactory.getClasses()[i])) {
-				return (IRichBean) XMLHelpers.readBean(beanFile, BeansFactory.getClasses()[i]);
+				return (XMLRichBean) XMLHelpers.readBean(beanFile, BeansFactory.getClasses()[i]);
 			}
 		}
 		return null;
@@ -93,11 +93,11 @@ public class XMLHelpers {
 	 * @return ExafsBeansFactory.getBean(new File(beanFile));
 	 * @throws Exception
 	 */
-	public static IRichBean getBeanObject(final String dir, final Object beanOrFile) throws Exception {
+	public static XMLRichBean getBeanObject(final String dir, final Object beanOrFile) throws Exception {
 
 		for (int i = 0; i < BeansFactory.getClasses().length; i++) {
 			if (BeansFactory.getClasses()[i].isInstance(beanOrFile))
-				return (IRichBean) beanOrFile;
+				return (XMLRichBean) beanOrFile;
 		}
 
 		String path;

@@ -22,6 +22,6 @@ package uk.ac.gda.util.beans.xml;
  * A Java object which can be marshalled / unmarshalled in XML using Castor and work with the RichBean Framework and the
  * XMLHelpers class in this package.
  */
-public interface IRichBean {
+public interface XMLRichBean {
 
 }
