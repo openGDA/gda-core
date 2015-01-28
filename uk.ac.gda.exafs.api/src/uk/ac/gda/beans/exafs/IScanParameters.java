@@ -18,12 +18,12 @@
 
 package uk.ac.gda.beans.exafs;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 /**
  * Common interface for all Scan beans
  */
-public interface IScanParameters extends IRichBean{
+public interface IScanParameters extends XMLRichBean{
 
 	/**
 	 * Return the scannable name of this scan if applicable.

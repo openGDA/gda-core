@@ -19,15 +19,14 @@
 package uk.ac.gda.exafs.ui.composites;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.dawnsci.common.richbeans.components.FieldBeanComposite;
+import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-
-import uk.ac.gda.richbeans.components.FieldBeanComposite;
-import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
-import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 
 public final class AttenuatorParametersComposite extends FieldBeanComposite {
 

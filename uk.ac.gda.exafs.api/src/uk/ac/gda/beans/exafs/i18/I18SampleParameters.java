@@ -127,14 +127,6 @@ public class I18SampleParameters implements Serializable, ISampleParameters {
 		return this.attenuatorParameter2;
 	}
 
-	@Override
-	public void clear() {
-		this.attenuatorParameter1 = null;
-		this.attenuatorParameter2 = null;
-		vfmx = 0;
-		vfmxActive = false;
-	}
-
 	public String getDescription() {
 		return description;
 	}

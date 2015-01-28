@@ -249,11 +249,6 @@ public class MicroFocusScanParameters implements Serializable, IScanParameters {
 	}
 
 	@Override
-	public void clear() {
-		energy = null;
-	}
-
-	@Override
 	public String getScannableName() {
 		// TODO: Which scannable should be used here?
 		return null;

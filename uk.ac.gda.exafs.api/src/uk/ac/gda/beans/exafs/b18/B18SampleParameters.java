@@ -58,38 +58,6 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	boolean shouldValidate = true;
 
 	@Override
-	public void clear() {
-		name = description1 = description2 = "";
-		temperatureControl = stage = "none";
-		if (xythetaParameters != null)
-			xythetaParameters.clear();
-		if (userStageParameters != null)
-			userStageParameters.clear();
-		if (lheParameters != null)
-			lheParameters.clear();
-		if (furnaceParameters != null)
-			furnaceParameters.clear();
-		if (lakeshoreParameters != null)
-			lakeshoreParameters.clear();
-		if (ln2CryoStageParameters != null)
-			ln2CryoStageParameters.clear();
-		if (sxCryoStageParameters != null)
-			sxCryoStageParameters.clear();
-		if (sampleWheelParameters != null)
-				sampleWheelParameters.clear();
-		shouldValidate = true;
-	}
-
-//	@Override
-//	public String toString() {
-//		try {
-//			return BeanUtils.describe(this).toString();
-//		} catch (Exception e) {
-//			return e.getMessage();
-//		}
-//	}
-
-	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

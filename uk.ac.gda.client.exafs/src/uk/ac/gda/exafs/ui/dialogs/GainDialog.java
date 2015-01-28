@@ -23,6 +23,12 @@ import gda.util.Element;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import org.dawnsci.common.richbeans.beans.BeanUI;
+import org.dawnsci.common.richbeans.beans.IFieldWidget;
+import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
+import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
+import org.dawnsci.common.richbeans.event.ValueAdapter;
+import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -47,7 +53,6 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.ElementPosition;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
@@ -61,12 +66,8 @@ import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.util.GainBean;
-import uk.ac.gda.richbeans.beans.BeanUI;
-import uk.ac.gda.richbeans.beans.IFieldWidget;
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
-import uk.ac.gda.richbeans.event.ValueAdapter;
-import uk.ac.gda.richbeans.event.ValueEvent;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
+
 import com.swtdesigner.SWTResourceManager;
 
 public class GainDialog extends Dialog {
@@ -372,8 +373,8 @@ public class GainDialog extends Dialog {
 	private void getFinalEnergyValue() {
 		try {
 			this.finalEnergyValue = ExperimentFactory.getExperimentEditorManager().getValueFromUIOrBean("finalEnergy",
-					XasScanParameters.class.asSubclass(IRichBean.class),
-					XanesScanParameters.class.asSubclass(IRichBean.class));
+					XasScanParameters.class.asSubclass(XMLRichBean.class),
+					XanesScanParameters.class.asSubclass(XMLRichBean.class));
 			if (finalEnergy != null)
 				this.finalEnergy.setValue(finalEnergyValue);
 		} catch (Exception ne) {

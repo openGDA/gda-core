@@ -18,7 +18,6 @@
 
 package uk.ac.gda.server.exafs.scan;
 
-import gda.commandqueue.Processor;
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.data.scan.datawriter.AsciiMetadataConfig;

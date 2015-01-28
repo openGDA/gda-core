@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public abstract class MicroFocusMappableDataProvider {
 
@@ -81,7 +81,7 @@ public abstract class MicroFocusMappableDataProvider {
 
 	public abstract double[] getSpectrum(int channelNum, int xPixel, int yPixel);
 	
-	public abstract void loadBean(IRichBean bean);
+	public abstract void loadBean(XMLRichBean bean);
 	
 	
 	/**

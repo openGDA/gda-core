@@ -24,6 +24,7 @@ import gda.util.exafs.Element;
 
 import java.util.List;
 
+import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionEvent;
@@ -41,7 +42,6 @@ import swing2swt.layout.BorderLayout;
 import uk.ac.gda.beans.exafs.Region;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.exafs.ui.composites.RegionComposite;
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
 /**

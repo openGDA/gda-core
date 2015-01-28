@@ -61,20 +61,6 @@ public class DetectorParameters implements Serializable, IDetectorParameters {
 	}
 
 	@Override
-	public void clear() {
-		if (transmissionParameters != null)
-			transmissionParameters.clear();
-		if (fluorescenceParameters != null)
-			fluorescenceParameters.clear();
-		if (softXRaysParameters != null)
-			softXRaysParameters.clear();
-		if (electronYieldParameters != null)
-			electronYieldParameters.clear();
-		if (detectorGroups != null)
-			detectorGroups.clear();
-	}
-
-	@Override
 	public TransmissionParameters getTransmissionParameters() {
 		return transmissionParameters;
 	}

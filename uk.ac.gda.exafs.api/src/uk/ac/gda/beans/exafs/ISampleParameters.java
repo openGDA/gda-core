@@ -20,12 +20,12 @@ package uk.ac.gda.beans.exafs;
 
 import java.util.List;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 /**
  * Interface for beans holding sample environment parameters of a given beamline.
  */
-public interface ISampleParameters extends IRichBean{
+public interface ISampleParameters extends XMLRichBean{
 
 	String getName();
 

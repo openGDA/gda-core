@@ -56,13 +56,6 @@ public class VortexParameters implements Serializable, IDetectorConfigurationPar
 		detectorList = new ArrayList<DetectorElement>();
 	}
 
-	@Override
-	public void clear() {
-		if (detectorList != null)
-			detectorList.clear();
-		selectedRegionNumber=0;
-	}
-
 	public void addDetectorElement(DetectorElement detectorElement) {
 		detectorList.add(detectorElement);
 	}

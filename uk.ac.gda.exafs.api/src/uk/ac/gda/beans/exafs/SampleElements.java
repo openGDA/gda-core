@@ -24,26 +24,18 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 /**
  * A Bean for keeping the elements used in the sample table.
  */
-public class SampleElements implements IRichBean{
+public class SampleElements implements XMLRichBean{
 
 	static public final URL mappingURL = SampleElements.class.getResource("ExafsParameterMapping.xml");
 
 	static public final URL schemaURL  = SampleElements.class.getResource("ExafsParameterMapping.xsd");
 
 	private List<ElementPosition>    elementPositions;
-	
-	/**
-	 * Method required to use with BeanUI. Called using reflection.
-	 */
-	@Override
-	public void clear() {
-		if (elementPositions!=null)    elementPositions.clear();
-	}
 
 	public SampleElements() {
 		elementPositions    = new ArrayList<ElementPosition>(7);

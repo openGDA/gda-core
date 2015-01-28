@@ -56,7 +56,6 @@ import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.DetectorElement;
@@ -67,6 +66,7 @@ import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
 import uk.ac.gda.devices.detector.xspress3.Xspress3;
 import uk.ac.gda.devices.detector.xspress3.Xspress3BufferedDetector;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
@@ -79,7 +79,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected Detector detectors[];
 	protected String selectedElement = "";
 	protected int selectedChannel = 0;
-	protected IRichBean detectorBean;
+	protected XMLRichBean detectorBean;
 	// this warning is showing that how this list is used is not clear - needs a redesign
 	@SuppressWarnings("rawtypes")
 	protected List[] elementRois;
@@ -111,7 +111,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected double normaliseValue = 1.0;
 
 	public MicroFocusWriterExtender(int xPoints, int yPoints, double xStepSize, double yStepSize,
-			IRichBean detectorBean, Detector[] detectors2) {
+			XMLRichBean detectorBean, Detector[] detectors2) {
 		this.numberOfXPoints = xPoints;
 		this.numberOfYPoints = yPoints;
 		this.xStepSize = xStepSize;

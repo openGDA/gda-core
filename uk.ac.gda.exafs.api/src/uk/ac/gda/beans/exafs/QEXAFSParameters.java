@@ -78,15 +78,6 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 		}
 	}
 
-	/**
-	 * Must implement clear() method on beans being used with BeanUI.
-	 */
-	@Override
-	public void clear() {
-		initialEnergy = finalEnergy = speed = stepSize = time = null;
-		element = edge = "";
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;

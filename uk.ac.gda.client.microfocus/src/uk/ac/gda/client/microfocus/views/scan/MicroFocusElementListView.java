@@ -55,15 +55,14 @@ import org.xml.sax.InputSource;
 
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.microfocus.controller.MicroFocusDisplayController;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class MicroFocusElementListView extends ViewPart implements SelectionListener, IObservable, IObserver {
@@ -121,12 +120,12 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	private void populateLists(String xmlfile) {
 		String location = xmlfile.substring(0, xmlfile.lastIndexOf('/')) + "/";
 		String filename = xmlfile.substring(xmlfile.lastIndexOf('/') + 1);
-		IRichBean beanObject = null;
+		XMLRichBean beanObject = null;
 
 		elementList.removeAll();
 
 		try {
-			beanObject = BeansFactory.getBeanObject(location, filename);
+			beanObject = XMLHelpers.getBeanObject(location, filename);
 		} catch (Exception e) {
 			logger.error("Could not create beans from xml file " + xmlfile, e);
 		}
@@ -138,8 +137,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 			for (int i = 0; i < regionList.size(); i++) {
 				elementList.add(regionList.get(i).getRoiName());
 			}
-		}
-		else if (beanObject instanceof Xspress3Parameters) {
+		} else if (beanObject instanceof Xspress3Parameters) {
 			Xspress3Parameters vortex = (Xspress3Parameters) beanObject;
 			updateDetectorChannelCombo(vortex.getDetectorList().size());
 			java.util.List<DetectorROI> regionList = vortex.getDetector(0).getRegionList();
@@ -164,13 +162,13 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	}
 
 	private void updateDetectorChannelCombo(int size) {
-		String [] channels = new String[size];
-		for (int i = 0; i < size; i++){
+		String[] channels = new String[size];
+		for (int i = 0; i < size; i++) {
 			channels[i] = Integer.toString(i);
 		}
 		int currentSelection = cmbChannelChoice.getSelectionIndex();
 		cmbChannelChoice.setItems(channels);
-		if (currentSelection < size){
+		if (currentSelection < size) {
 			cmbChannelChoice.select(currentSelection);
 		} else {
 			cmbChannelChoice.select(0);
@@ -187,7 +185,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 	public void loadXspressNexus(Tree tree, final String filePath) {
 		NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
-		if (nl == null){
+		if (nl == null) {
 			nl = tree.findNodeLink("/entry1/before_scan/DetectorConfigurationParameters");
 		}
 		String xml = nl.toString();
@@ -255,7 +253,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 	public void loadXmapNexus(Tree tree, final String filePath) {
 		NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
-		if (nl == null){
+		if (nl == null) {
 			nl = tree.findNodeLink("/entry1/before_scan/DetectorConfigurationParameters");
 		}
 		String xml = nl.toString();
@@ -332,7 +330,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		IMetadata metadata = dataHolder.getMetadata();
 
 		elementList.removeAll();
-		
+
 		try {
 			String metaNames = metadata.getMetaNames().toString();
 			if (metaNames.contains("xspress2system"))
@@ -340,7 +338,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 			if (metaNames.contains("xmapMca"))
 				loadXmapNexus(tree, filePath);
-			
+
 			if (metaNames.contains("xspress3"))
 				loadXspress3Nexus(tree, filePath);
 		} catch (Exception e) {
@@ -353,9 +351,9 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 	}
 
 	private void loadXspress3Nexus(final Tree tree, final String filePath) {
-		
+
 		NodeLink nl = tree.findNodeLink("/entry1/xml/DetectorConfigurationParameters");
-		if (nl == null){
+		if (nl == null) {
 			nl = tree.findNodeLink("/entry1/before_scan/DetectorConfigurationParameters");
 		}
 		String xml = nl.toString();
@@ -508,4 +506,3 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 		return new Double[] { pointX, pointY, displayController.getZ() };
 	}
 }
-

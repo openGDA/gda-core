@@ -18,9 +18,10 @@
 
 package uk.ac.gda.exafs.ui.describers;
 
+import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriber;
+
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersEditor;
-import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
 
 public class VortexDescriber extends XMLBeanContentDescriber {
 

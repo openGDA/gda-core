@@ -23,9 +23,9 @@ import java.util.Arrays;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.ArrayUtils;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
-public class MicroreactorParameters implements IRichBean {
+public class MicroreactorParameters implements XMLRichBean {
 	private int gas0Rate = 0;
 	private int gas1Rate = 0;
 	private int gas2Rate = 0;
@@ -36,12 +36,7 @@ public class MicroreactorParameters implements IRichBean {
 	private int gas7Rate = 0;
 	private int temperature = 150;
 	private String masses = "2,32"; // comma separated masses
-
-	@Override
-	public void clear() {
-		masses = ""; 
-	}
-
+	
 	public int getGas0Rate() {
 		return gas0Rate;
 	}

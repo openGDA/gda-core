@@ -33,10 +33,11 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
+
 
 public class MicroFocusNexusReader {
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusNexusReader.class);
@@ -184,10 +185,10 @@ public class MicroFocusNexusReader {
 		XspressParameters xspressBean = null;
 		try {
 			if(fileName.length == 0)
-				xspressBean  = (XspressParameters) BeansFactory.getBean(new File(LocalProperties.getConfigDir()
+				xspressBean  = (XspressParameters) XMLHelpers.getBean(new File(LocalProperties.getConfigDir()
 						+ "/templates/Xspress_Parameters.xml"));
 			else
-				xspressBean = (XspressParameters) BeansFactory.getBean(new File(fileName[0]));
+				xspressBean = (XspressParameters) XMLHelpers.getBean(new File(fileName[0]));
 		} catch (Exception e) {
 			logger.warn("Could not open Xspress bean to extract the ROIs",e);
 			return null;
@@ -212,10 +213,10 @@ public class MicroFocusNexusReader {
 		VortexParameters vortexBean = null;
 		try {
 			if(fileName.length == 0)
-				vortexBean = (VortexParameters) BeansFactory.getBean(new File(LocalProperties.getConfigDir()
+				vortexBean = (VortexParameters) XMLHelpers.getBean(new File(LocalProperties.getConfigDir()
 						+ "/templates/Vortex_Parameters.xml"));
 			else
-				vortexBean = (VortexParameters) BeansFactory.getBean(new File(fileName[0]));
+				vortexBean = (VortexParameters) XMLHelpers.getBean(new File(fileName[0]));
 		} catch (Exception e) {
 			logger.warn("Could not open Vortex bean to extract the ROIs",e);
 			return null;

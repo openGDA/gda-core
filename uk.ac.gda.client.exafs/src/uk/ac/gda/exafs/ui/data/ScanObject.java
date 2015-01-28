@@ -25,11 +25,10 @@ import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.dawnsci.common.richbeans.beans.BeansFactory;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 
-import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
@@ -42,6 +41,8 @@ import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
  * This class looks a bit like a bean but it is not designed to be a bean. It is an interface to the .scan file. setting
@@ -233,7 +234,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 		return isDescribed(XesScanParameters.class);
 	}
 
-	private boolean isDescribed(Class<? extends IRichBean> beanClass) throws Exception {
+	private boolean isDescribed(Class<? extends XMLRichBean> beanClass) throws Exception {
 		if (getScanFile() == null)
 			return false;
 		final IFile scanFile = getScanFile();
@@ -256,7 +257,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 		final IFile file = getFolder().getFile(getScanFileName());
 		if (!file.exists())
 			return null;
-		return (IScanParameters) BeansFactory.getBean(file.getLocation().toFile());
+		return (IScanParameters) XMLHelpers.getBean(file.getLocation().toFile());
 
 	}
 
@@ -289,7 +290,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 		final IFile file = getFolder().getFile(getOutputFileName());
 		if (!file.exists())
 			return null;
-		return (IOutputParameters) BeansFactory.getBean(file.getLocation().toFile());
+		return (IOutputParameters) XMLHelpers.getBean(file.getLocation().toFile());
 
 	}
 
@@ -307,7 +308,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 		if (!file.exists())
 			return null;
 
-		return (ISampleParameters) BeansFactory.getBean(file.getLocation().toFile());
+		return (ISampleParameters) XMLHelpers.getBean(file.getLocation().toFile());
 
 	}
 
@@ -324,7 +325,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 		final IFile file = getFolder().getFile(getDetectorFileName());
 		if (!file.exists())
 			return null;
-		return (IDetectorParameters) BeansFactory.getBean(file.getLocation().toFile());
+		return (IDetectorParameters) XMLHelpers.getBean(file.getLocation().toFile());
 	}
 
 	/**

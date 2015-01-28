@@ -20,6 +20,12 @@ package uk.ac.gda.exafs.ui.composites;
 
 import gda.util.Element;
 
+import org.dawnsci.common.richbeans.beans.BeanUI;
+import org.dawnsci.common.richbeans.components.FieldBeanComposite;
+import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
+import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
+import org.dawnsci.common.richbeans.event.ValueAdapter;
+import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.swt.SWT;
@@ -37,8 +43,6 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
@@ -51,12 +55,8 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
-import uk.ac.gda.richbeans.beans.BeanUI;
-import uk.ac.gda.richbeans.components.FieldBeanComposite;
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
-import uk.ac.gda.richbeans.event.ValueAdapter;
-import uk.ac.gda.richbeans.event.ValueEvent;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class WorkingEnergyComposite extends FieldBeanComposite {
 
@@ -283,7 +283,7 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 		} else {
 			String subscanFileName = xesparams.getScanFileName();
 			IFile subscanFile = ob.getFolder().getFile(subscanFileName);
-			IRichBean bean = BeansFactory.getBean(subscanFile.getLocation().toFile());
+			XMLRichBean bean = XMLHelpers.getBean(subscanFile.getLocation().toFile());
 
 			if (bean instanceof XasScanParameters) {
 				setWorkingEnergyUsingXas((XasScanParameters) bean);

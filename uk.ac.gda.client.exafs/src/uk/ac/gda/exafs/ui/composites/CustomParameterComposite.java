@@ -21,6 +21,8 @@ package uk.ac.gda.exafs.ui.composites;
 import gda.device.Scannable;
 import gda.factory.Finder;
 
+import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
+import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -33,8 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.components.wrappers.FindableNameWrapper;
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 
 /**
  * @author Matthew Gerring

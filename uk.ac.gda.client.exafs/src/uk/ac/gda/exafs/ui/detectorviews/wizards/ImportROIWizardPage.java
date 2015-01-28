@@ -22,6 +22,11 @@ import gda.configuration.properties.LocalProperties;
 
 import java.util.List;
 
+import org.dawnsci.common.richbeans.components.file.FileBox;
+import org.dawnsci.common.richbeans.components.file.FileBox.ChoiceType;
+import org.dawnsci.common.richbeans.components.selector.GridListEditor;
+import org.dawnsci.common.richbeans.event.ValueAdapter;
+import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -37,11 +42,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.richbeans.components.file.FileBox;
-import uk.ac.gda.richbeans.components.file.FileBox.ChoiceType;
-import uk.ac.gda.richbeans.components.selector.GridListEditor;
-import uk.ac.gda.richbeans.event.ValueAdapter;
-import uk.ac.gda.richbeans.event.ValueEvent;
 
 public abstract class ImportROIWizardPage extends WizardPage {
 	protected Button addButton;

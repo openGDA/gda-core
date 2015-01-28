@@ -29,10 +29,11 @@ import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
+
 
 public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvider {
 
@@ -158,7 +159,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 	public void loadBean() {
 		Object xspressBean = null;
 		try {
-			xspressBean = BeansFactory.getBean(new File(beanFile));
+			xspressBean = XMLHelpers.getBean(new File(beanFile));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -180,7 +181,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void loadBean(IRichBean xspressBean) {
+	public void loadBean(XMLRichBean xspressBean) {
 		if (xspressBean != null) {
 			detectorName = ((XspressParameters) xspressBean).getDetectorName();
 			numberOfdetectorElements = ((XspressParameters) xspressBean).getDetectorList().size();

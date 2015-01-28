@@ -20,6 +20,12 @@ package uk.ac.gda.exafs.ui.composites;
 
 import java.util.List;
 
+import org.dawnsci.common.richbeans.components.selector.ListEditor;
+import org.dawnsci.common.richbeans.components.selector.ListEditorUI;
+import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.ComboWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.SpinnerWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -34,12 +40,6 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
 import uk.ac.gda.exafs.ui.dialogs.GainWizard;
 import uk.ac.gda.exafs.util.GainCalculation;
-import uk.ac.gda.richbeans.components.selector.ListEditor;
-import uk.ac.gda.richbeans.components.selector.ListEditorUI;
-import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
-import uk.ac.gda.richbeans.components.wrappers.ComboWrapper;
-import uk.ac.gda.richbeans.components.wrappers.SpinnerWrapper;
-import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 
 public class DrainCurrentComposite extends Composite implements ListEditorUI {
 	

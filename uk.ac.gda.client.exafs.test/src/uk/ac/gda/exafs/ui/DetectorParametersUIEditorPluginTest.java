@@ -22,6 +22,7 @@ package uk.ac.gda.exafs.ui;
 import java.io.File;
 import java.util.List;
 
+import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -35,7 +36,6 @@ import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
 import uk.ac.gda.exafs.ui.composites.IonChamberComposite;
 import uk.ac.gda.exafs.ui.composites.TransmissionComposite;
 import uk.ac.gda.exafs.ui.describers.DetectorDescriber;
-import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
 import uk.ac.gda.util.PackageUtils;
 
 /**

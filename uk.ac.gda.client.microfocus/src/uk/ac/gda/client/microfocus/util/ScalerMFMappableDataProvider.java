@@ -30,10 +30,10 @@ import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class ScalerMFMappableDataProvider extends MicroFocusMappableDataProvider {
 
@@ -88,10 +88,10 @@ public class ScalerMFMappableDataProvider extends MicroFocusMappableDataProvider
 		try {
 
 			if (beanFile == null) {
-				detectorBean = BeansFactory.getBean(new File(LocalProperties.getConfigDir()
+				detectorBean = XMLHelpers.getBean(new File(LocalProperties.getConfigDir()
 						+ "/templates/Detector_Parameters.xml"));
 			} else
-				detectorBean = BeansFactory.getBean(new File(beanFile));
+				detectorBean = XMLHelpers.getBean(new File(beanFile));
 		} catch (Exception e) {
 			logger.error("Unable to load bean file in  ScalerMappableDataprovider", e);
 		}
@@ -135,7 +135,7 @@ public class ScalerMFMappableDataProvider extends MicroFocusMappableDataProvider
 	}
 
 	@Override
-	public void loadBean(IRichBean bean) {
+	public void loadBean(XMLRichBean bean) {
 	}
 
 }

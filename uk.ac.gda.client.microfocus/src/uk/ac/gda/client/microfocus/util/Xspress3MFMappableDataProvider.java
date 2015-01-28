@@ -28,11 +28,11 @@ import org.eclipse.dawnsci.analysis.dataset.impl.AggregateDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvider {
 
@@ -94,9 +94,9 @@ public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvid
 
 	@Override
 	public void loadBean() {
-		IRichBean vortexBean = null;
+		XMLRichBean vortexBean = null;
 		try {
-			vortexBean = BeansFactory.getBean(new File(beanFile));
+			vortexBean = XMLHelpers.getBean(new File(beanFile));
 		} catch (Exception e) {
 			logger.error("unable to load the bean file");
 		}
@@ -105,7 +105,7 @@ public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvid
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void loadBean(IRichBean vortexBean) {
+	public void loadBean(XMLRichBean vortexBean) {
 		if (vortexBean != null) {
 			Xspress3Parameters xs3Parameters = (Xspress3Parameters) vortexBean;
 			setDetectorName(xs3Parameters.getDetectorName());

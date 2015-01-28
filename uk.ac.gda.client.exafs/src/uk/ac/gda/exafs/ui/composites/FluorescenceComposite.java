@@ -22,6 +22,13 @@ import gda.configuration.properties.LocalProperties;
 
 import java.io.File;
 
+import org.dawnsci.common.richbeans.beans.BeanUI;
+import org.dawnsci.common.richbeans.beans.BeansFactory;
+import org.dawnsci.common.richbeans.components.file.FileBox;
+import org.dawnsci.common.richbeans.components.file.FileBox.ChoiceType;
+import org.dawnsci.common.richbeans.components.wrappers.RadioWrapper;
+import org.dawnsci.common.richbeans.event.ValueAdapter;
+import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -36,7 +43,6 @@ import org.eclipse.swt.widgets.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
@@ -49,12 +55,6 @@ import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
-import uk.ac.gda.richbeans.beans.BeanUI;
-import uk.ac.gda.richbeans.components.file.FileBox;
-import uk.ac.gda.richbeans.components.file.FileBox.ChoiceType;
-import uk.ac.gda.richbeans.components.wrappers.RadioWrapper;
-import uk.ac.gda.richbeans.event.ValueAdapter;
-import uk.ac.gda.richbeans.event.ValueEvent;
 
 public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite {
 	private final static Logger logger = LoggerFactory.getLogger(FluorescenceComposite.class);

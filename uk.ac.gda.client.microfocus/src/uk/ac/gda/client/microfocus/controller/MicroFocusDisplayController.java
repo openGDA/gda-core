@@ -23,10 +23,10 @@ import org.eclipse.core.runtime.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.client.microfocus.util.MicroFocusMappableDataProvider;
 import uk.ac.gda.client.microfocus.util.MicroFocusMappableDataProviderFactory;
 import uk.ac.gda.client.microfocus.util.MicroFocusNexusPlotter;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class MicroFocusDisplayController {
 	private MicroFocusMappableDataProvider fileDataProvider;
@@ -98,7 +98,7 @@ public class MicroFocusDisplayController {
 		}
 	}
 
-	public void displayMap(String selectedElement, String filePath, IRichBean bean, Integer channelToDisplay) {
+	public void displayMap(String selectedElement, String filePath, XMLRichBean bean, Integer channelToDisplay) {
 		if (plotter == null)
 			plotter = new MicroFocusNexusPlotter();
 		fileDataProvider = MicroFocusMappableDataProviderFactory.getInstance(bean);

@@ -61,17 +61,6 @@ public class XasScanParameters implements Serializable, IScanParameters {
 	private Double kWeighting;
 	private boolean shouldValidate = true;
 
-	/**
-	 * Must implement clear() method on beans being used with BeanUI.
-	 */
-	@Override
-	public void clear() {
-		// We have to nullify fields here because of the
-		// XML the beanline scientists require.
-		a = b = c = gaf1 = gaf2 = gaf3 = null;
-		exafsTime = exafsFromTime = exafsToTime = null;
-	}
-
 	public static XasScanParameters createFromXML(String filename) throws Exception {
 		return (XasScanParameters) XMLHelpers.createFromXML(mappingURL, XasScanParameters.class, schemaUrl, filename);
 	}

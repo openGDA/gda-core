@@ -69,15 +69,6 @@ public class XanesScanParameters implements Serializable, IScanParameters {
 	 */
 	static public final URL schemaUrl = XanesScanParameters.class.getResource("ExafsParameterMapping.xsd");
 
-	/**
-	 * Must implement clear() method on beans being used with BeanUI.
-	 */
-	@Override
-	public void clear() {
-		element = null;
-		edge = null;
-		regions.clear();
-	}
 
 	/**
 	 * @param filename

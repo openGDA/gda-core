@@ -18,11 +18,10 @@
 
 package uk.ac.gda.exafs.ui.detector;
 
+import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
+import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
 import org.eclipse.swt.widgets.Composite;
 import org.springframework.util.Assert;
-
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
 
 /**
  * Common for all Detector Element Composites

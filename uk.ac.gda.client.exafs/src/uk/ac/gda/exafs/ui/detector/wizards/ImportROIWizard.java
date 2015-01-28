@@ -20,15 +20,15 @@ package uk.ac.gda.exafs.ui.detector.wizards;
 
 import java.util.List;
 
+import org.dawnsci.common.richbeans.beans.BeansFactory;
+import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
 import org.eclipse.jface.wizard.Wizard;
 
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.exafs.ui.detector.xspress.XspressParametersUIEditor;
 import uk.ac.gda.exafs.ui.detector.xspress3.Xspress3ParametersUIEditor;
-import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
 
 /**
  * This is the Import Wizard that allows Regions Of Interest to be imported into the

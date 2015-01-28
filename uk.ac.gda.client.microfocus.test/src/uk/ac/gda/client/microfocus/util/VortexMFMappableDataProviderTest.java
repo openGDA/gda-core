@@ -26,14 +26,15 @@ import gda.util.TestUtils;
 
 import java.util.List;
 
+import org.dawnsci.common.richbeans.beans.BeansFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
+
 
 public class VortexMFMappableDataProviderTest {
 	final static String testScratchDirectoryName = TestUtils
@@ -48,7 +49,7 @@ public class VortexMFMappableDataProviderTest {
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);
 		Class<?> c = Class.forName("uk.ac.gda.beans.xspress.XspressParameters");
 		Class<?> c1 = Class.forName("uk.ac.gda.beans.vortex.VortexParameters");
-		BeansFactory.setClasses((Class<? extends IRichBean>[]) new Class<?>[] { c, c1 });
+		BeansFactory.setClasses((Class<? extends XMLRichBean>[]) new Class<?>[] { c, c1 });
 
 	}
 

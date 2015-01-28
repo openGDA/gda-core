@@ -20,13 +20,13 @@ package uk.ac.gda.beans.exafs;
 
 import java.util.List;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 
 /**
  * Common interface for all Output beans
  */
-public interface IOutputParameters extends IRichBean{
+public interface IOutputParameters extends XMLRichBean{
 
 	public String getAsciiFileName();
 

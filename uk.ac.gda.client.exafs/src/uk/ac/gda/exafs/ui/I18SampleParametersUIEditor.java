@@ -23,6 +23,7 @@ import gda.jython.JythonServerFacade;
 import java.net.URL;
 import java.util.ArrayList;
 
+import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
@@ -37,7 +38,6 @@ import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
 import uk.ac.gda.exafs.ui.composites.AttenuatorParametersComposite;
 import uk.ac.gda.exafs.ui.composites.I18SampleParametersComposite;
 import uk.ac.gda.exafs.ui.composites.SampleStageParametersComposite;
-import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 

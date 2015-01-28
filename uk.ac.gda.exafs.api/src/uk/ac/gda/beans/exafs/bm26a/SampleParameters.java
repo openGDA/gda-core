@@ -44,21 +44,6 @@ public class SampleParameters implements Serializable, ISampleParameters {
 	private XYZStageParameters cryoStageParameters = new XYZStageParameters();
 	private boolean shouldValidate = true;
 
-	/**
-	 * Method required to use with BeanUI. Called using reflection.
-	 */
-	@Override
-	public void clear() {
-		name = description1 = description2 = "";
-		stage = "None";
-		if (xyzStageParameters != null) {
-			xyzStageParameters.clear();
-		}
-		if (cryoStageParameters != null) {
-			cryoStageParameters.clear();
-		}
-	}
-
 	@Override
 	public String getName() {
 		return name;

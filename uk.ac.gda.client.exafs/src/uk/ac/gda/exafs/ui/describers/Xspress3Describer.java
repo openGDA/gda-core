@@ -19,8 +19,9 @@
 
 package uk.ac.gda.exafs.ui.describers;
 
+import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriber;
+
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
-import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
 
 public class Xspress3Describer extends XMLBeanContentDescriber {
 

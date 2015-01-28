@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.beanutils.BeanUtils;
-
 public class OutputParameters implements Serializable, IOutputParameters {
 	public static final URL mappingURL = OutputParameters.class.getResource("ExafsParameterMapping.xml");
 	public static final URL schemaUrl = OutputParameters.class.getResource("ExafsParameterMapping.xsd");
@@ -55,12 +53,6 @@ public class OutputParameters implements Serializable, IOutputParameters {
 
 	public void setMetadataActive(boolean metadataActive) {
 		this.metadataActive = metadataActive;
-	}
-
-	@Override
-	public void clear() {
-		signalList.clear();
-		metadataList.clear();
 	}
 
 	public OutputParameters() {

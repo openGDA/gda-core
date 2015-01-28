@@ -22,6 +22,12 @@ import gda.device.Scannable;
 
 import java.util.regex.Pattern;
 
+import org.dawnsci.common.richbeans.components.wrappers.RegularExpressionTextWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.SpinnerWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.TextWrapper.TEXT_TYPE;
+import org.dawnsci.common.richbeans.event.ValueAdapter;
+import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -34,12 +40,6 @@ import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.components.wrappers.FindableNameWrapper;
-import uk.ac.gda.richbeans.components.wrappers.RegularExpressionTextWrapper;
-import uk.ac.gda.richbeans.components.wrappers.SpinnerWrapper;
-import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
-import uk.ac.gda.richbeans.components.wrappers.TextWrapper.TEXT_TYPE;
-import uk.ac.gda.richbeans.event.ValueAdapter;
-import uk.ac.gda.richbeans.event.ValueEvent;
 
 public class SignalParametersComposite extends Composite {
 	private FindableNameWrapper scannableName;

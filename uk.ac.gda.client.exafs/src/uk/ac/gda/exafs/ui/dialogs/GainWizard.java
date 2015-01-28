@@ -18,6 +18,8 @@
 
 package uk.ac.gda.exafs.ui.dialogs;
 
+import org.dawnsci.common.richbeans.beans.BeanUI;
+import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
 import org.eclipse.jface.wizard.Wizard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +27,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
 import uk.ac.gda.exafs.ui.composites.TransmissionComposite;
-import uk.ac.gda.richbeans.beans.BeanUI;
-import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
 
 /**
  * A wizard is used to monitor progress while gain calculation runs.

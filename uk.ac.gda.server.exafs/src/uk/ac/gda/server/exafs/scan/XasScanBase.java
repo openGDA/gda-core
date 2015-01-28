@@ -45,6 +45,9 @@ import gda.scan.ScanInterruptedException;
 import gda.scan.ScanPlotSettings;
 
 import java.io.File;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +58,6 @@ import org.python.core.PySequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.IDetectorConfigurationParameters;
@@ -64,6 +66,7 @@ import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.server.exafs.scan.iterators.SampleEnvironmentIterator;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
  * Base class for all Spectroscopy "UI" scans. These scan objects are created in localStation and are used for every UI
@@ -96,7 +99,7 @@ public abstract class XasScanBase implements XasScan {
 	private boolean includeSampleNameInNexusName;
 	private NXMetaDataProvider metashop;
 	private String scanName;
-	
+
 	// variables which will change for each experiment
 	private String sampleFileName;
 	private String scanFileName;
@@ -117,7 +120,7 @@ public abstract class XasScanBase implements XasScan {
 
 	/**
 	 * For convenience when calling from Jython.
-	 *
+	 * 
 	 * @param pyArgs
 	 * @return 0 - normal completion
 	 * @throws Exception
@@ -204,7 +207,7 @@ public abstract class XasScanBase implements XasScan {
 			finishRepetitions();
 		}
 	}
-	
+
 	protected void finishRepetitions() throws Exception {
 		setQueuePropertiesEnd();
 		resetHeader();
@@ -252,8 +255,7 @@ public abstract class XasScanBase implements XasScan {
 		// this will be the bespoke bit for each scan type
 		Object[] scanArgs = createScanArguments(sampleName, descriptions);
 
-		XasProgressUpdater loggingbean = new XasProgressUpdater(loggingScriptController, logmsg,
-				timeRepetitionsStarted);
+		XasProgressUpdater loggingbean = new XasProgressUpdater(loggingScriptController, logmsg, timeRepetitionsStarted);
 		scanArgs = ArrayUtils.add(scanArgs, loggingbean);
 		ConcurrentScan theScan = ScannableCommands.createConcurrentScan(scanArgs);
 		setUpDataWriter(theScan, sampleName, descriptions);
@@ -297,7 +299,7 @@ public abstract class XasScanBase implements XasScan {
 	private void prepareForCollection(String scriptType) {
 		this.scriptType = scriptType;
 		scan_unique_id = LoggingScriptController.createUniqueID(scriptType);
-//		log("Starting " + scriptType + " scan...");
+		// log("Starting " + scriptType + " scan...");
 	}
 
 	private void determineExperimentPath(String experimentFullPath) {
@@ -346,17 +348,18 @@ public abstract class XasScanBase implements XasScan {
 				+ detectorFileName + ", " + outputFileName);
 		sampleBean = null;
 		if (sampleFileName != null) {
-			sampleBean = (ISampleParameters) BeansFactory.getBeanObject(experimentFullPath + "/", sampleFileName);
+			sampleBean = (ISampleParameters) XMLHelpers.getBeanObject(experimentFullPath + "/", sampleFileName);
 		}
-		scanBean = (IScanParameters) BeansFactory.getBeanObject(experimentFullPath + "/", scanFileName);
-		detectorBean = (IDetectorParameters) BeansFactory.getBeanObject(experimentFullPath + "/", detectorFileName);
-		outputBean = (IOutputParameters) BeansFactory.getBeanObject(experimentFullPath + "/", outputFileName);
+		scanBean = (IScanParameters) XMLHelpers.getBeanObject(experimentFullPath + "/", scanFileName);
+		detectorBean = (IDetectorParameters) XMLHelpers.getBeanObject(experimentFullPath + "/", detectorFileName);
+		outputBean = (IOutputParameters) XMLHelpers.getBeanObject(experimentFullPath + "/", outputFileName);
 
 		// get the xml for the specific detector in use e.g. vortex, xspress2 or xspress3
 		// TODO these beans should have their own interface for clarity
 		String detectorConfigurationFilename = determineDetectorFilename();
 		if (detectorConfigurationFilename != null && !detectorConfigurationFilename.isEmpty()) {
-			detectorConfigurationBean = (IDetectorConfigurationParameters) BeansFactory.getBeanObject(experimentFullPath + "/", detectorConfigurationFilename);
+			detectorConfigurationBean = (IDetectorConfigurationParameters) XMLHelpers.getBeanObject(experimentFullPath
+					+ "/", detectorConfigurationFilename);
 		}
 
 		setXmlFileNames(sampleFileName, scanFileName, detectorFileName, outputFileName);
@@ -418,16 +421,41 @@ public abstract class XasScanBase implements XasScan {
 	}
 
 	private void addMetadata() throws Exception {
-		metashop.add(scanFileName, BeansFactory.getXMLString(scanBean));
-		metashop.add(detectorFileName, BeansFactory.getXMLString(detectorBean));
-		metashop.add(sampleFileName, BeansFactory.getXMLString(sampleBean));
-		metashop.add(outputFileName, BeansFactory.getXMLString(outputBean));
+		metashop.add(scanFileName, getXMLString(scanBean));
+		metashop.add(detectorFileName, getXMLString(detectorBean));
+		metashop.add(sampleFileName, getXMLString(sampleBean));
+		metashop.add(outputFileName, getXMLString(outputBean));
 
 		String detectorFileName = determineDetectorFilename();
 		if (detectorFileName != null && !detectorFileName.isEmpty()) {
-			metashop.add("DetectorConfigurationParameters",
-					BeansFactory.getXMLString(experimentFullPath + File.separator + detectorFileName));
+			metashop.add("DetectorConfigurationParameters", getXMLString(experimentFullPath + File.separator
+					+ detectorFileName));
 		}
+	}
+
+	private String getXMLString(final Object beanOrPath) throws Exception {
+		Object bean = beanOrPath;
+		if (beanOrPath instanceof String) {
+			bean = XMLHelpers.getBean(new File((String) beanOrPath));
+		}
+
+		URL mapping = null;
+		final Field[] fa = bean.getClass().getFields();
+		for (int i = 0; i < fa.length; i++) {
+			if (fa[i].getName().equalsIgnoreCase("mappingurl")) {
+				mapping = (URL) fa[i].get(null);
+			}
+		}
+
+		final StringWriter writer = new StringWriter();
+		try {
+			XMLHelpers.writeToXML(mapping, bean, writer);
+		} catch (Exception e) {
+			logger.error("Exception writing bean " + beanOrPath + " to xml", e);
+		} finally {
+			writer.close();
+		}
+		return writer.toString();
 	}
 
 	private String[] deriveFilenametemplates(String sampleName) {
@@ -550,14 +578,14 @@ public abstract class XasScanBase implements XasScan {
 				detectors = createDetArray(group.getDetector());
 			}
 		}
-		
-		if (detectors == null){
-		throw new IllegalArgumentException("Could not build the list of detectors as no group of detectors named "
-				+ detectorGroupName + " was found in the XML file.");
+
+		if (detectors == null) {
+			throw new IllegalArgumentException("Could not build the list of detectors as no group of detectors named "
+					+ detectorGroupName + " was found in the XML file.");
 		}
-		
+
 		Detector[] extraDetectors = detectorPreparer.getExtraDetectors();
-		if (extraDetectors != null){
+		if (extraDetectors != null) {
 			detectors = (Detector[]) ArrayUtils.addAll(detectors, extraDetectors);
 		}
 		return detectors;
@@ -582,12 +610,15 @@ public abstract class XasScanBase implements XasScan {
 	public void setOutputPreparer(OutputPreparer outputPreparer) {
 		this.outputPreparer = outputPreparer;
 	}
+
 	public void setSamplePreparer(SampleEnvironmentPreparer samplePreparer) {
 		this.samplePreparer = samplePreparer;
 	}
+
 	public void setLoggingScriptController(LoggingScriptController loggingScriptController) {
 		this.loggingScriptController = loggingScriptController;
 	}
+
 	public void setDatawriterconfig(AsciiDataWriterConfiguration datawriterconfig) {
 		this.datawriterconfig = datawriterconfig;
 	}
@@ -595,6 +626,7 @@ public abstract class XasScanBase implements XasScan {
 	public void setMetashop(NXMetaDataProvider metashop) {
 		this.metashop = metashop;
 	}
+
 	public void setIncludeSampleNameInNexusName(boolean includeSampleNameInNexusName) {
 		this.includeSampleNameInNexusName = includeSampleNameInNexusName;
 	}

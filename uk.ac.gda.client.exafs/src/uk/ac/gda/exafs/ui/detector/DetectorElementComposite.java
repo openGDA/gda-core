@@ -20,6 +20,14 @@ package uk.ac.gda.exafs.ui.detector;
 
 import java.text.NumberFormat;
 
+import org.dawnsci.common.richbeans.beans.IFieldWidget;
+import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
+import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
+import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper.BOOLEAN_MODE;
+import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper.TEXT_TYPE;
+import org.dawnsci.common.richbeans.event.ValueAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -33,14 +41,6 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.richbeans.beans.IFieldWidget;
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
-import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper;
-import uk.ac.gda.richbeans.components.wrappers.BooleanWrapper.BOOLEAN_MODE;
-import uk.ac.gda.richbeans.components.wrappers.LabelWrapper;
-import uk.ac.gda.richbeans.components.wrappers.LabelWrapper.TEXT_TYPE;
-import uk.ac.gda.richbeans.event.ValueAdapter;
 
 public class DetectorElementComposite extends Composite {
 	private BooleanWrapper excluded;

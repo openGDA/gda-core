@@ -18,7 +18,6 @@
 
 package uk.ac.gda.beans.exafs.i20;
 
-import java.net.URL;
 import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 

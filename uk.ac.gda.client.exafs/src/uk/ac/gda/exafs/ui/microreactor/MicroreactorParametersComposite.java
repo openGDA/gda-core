@@ -20,17 +20,17 @@ package uk.ac.gda.exafs.ui.microreactor;
 
 import java.util.regex.Pattern;
 
+import org.dawnsci.common.richbeans.components.FieldBeanComposite;
+import org.dawnsci.common.richbeans.components.FieldComposite;
+import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
+import org.dawnsci.common.richbeans.components.wrappers.RegularExpressionTextWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.SpinnerWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import uk.ac.gda.richbeans.components.FieldBeanComposite;
-import uk.ac.gda.richbeans.components.FieldComposite;
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.components.wrappers.RegularExpressionTextWrapper;
-import uk.ac.gda.richbeans.components.wrappers.SpinnerWrapper;
 
 public final class MicroreactorParametersComposite extends FieldBeanComposite {
 	private SpinnerWrapper gas0Rate;

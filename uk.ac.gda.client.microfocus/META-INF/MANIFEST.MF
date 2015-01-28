@@ -37,7 +37,8 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.5.1",
  uk.ac.gda.dls;bundle-version="1.0.0",
  uk.ac.gda.devices.xspress3,
  org.eclipse.dawnsci.analysis.dataset,
- org.eclipse.dawnsci.analysis.api
+ org.eclipse.dawnsci.analysis.api,
+ org.dawnsci.common.widgets
 Export-Package: uk.ac.gda.client.microfocus.controller,
  uk.ac.gda.client.microfocus.scan,
  uk.ac.gda.client.microfocus.scan.datawriter,

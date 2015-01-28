@@ -20,12 +20,12 @@ package uk.ac.gda.beans.exafs;
 
 import java.util.List;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 /**
  * Common interface for all Detector beans
  */
-public interface IDetectorParameters extends IRichBean{
+public interface IDetectorParameters extends XMLRichBean{
 
 	/**
 	 * @return the experimentType

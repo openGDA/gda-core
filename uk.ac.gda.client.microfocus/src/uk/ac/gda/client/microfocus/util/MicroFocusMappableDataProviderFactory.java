@@ -23,11 +23,11 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class MicroFocusMappableDataProviderFactory {
 
@@ -35,7 +35,7 @@ public class MicroFocusMappableDataProviderFactory {
 
 	public static MicroFocusMappableDataProvider getInstance(String fileName) throws Exception {
 
-		Object bean = BeansFactory.getBean(new File(fileName));
+		Object bean = XMLHelpers.getBean(new File(fileName));
 		return getInstance(bean);
 
 	}

@@ -25,13 +25,13 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import gda.util.TestUtils;
 
+import org.dawnsci.common.richbeans.beans.BeansFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class ScalerMFMappableDataProviderTest {
 	
@@ -46,7 +46,7 @@ public class ScalerMFMappableDataProviderTest {
 		Class<?> c = Class.forName("uk.ac.gda.beans.xspress.XspressParameters");
 		Class<?> c1 = Class.forName("uk.ac.gda.beans.vortex.VortexParameters");
 		Class<?> c2 = Class.forName("uk.ac.gda.beans.exafs.DetectorParameters");
-		BeansFactory.setClasses((Class<? extends IRichBean>[]) new Class<?>[]{c, c1, c2});
+		BeansFactory.setClasses((Class<? extends XMLRichBean>[]) new Class<?>[]{c, c1, c2});
 	}
 	
 	@SuppressWarnings("unused")

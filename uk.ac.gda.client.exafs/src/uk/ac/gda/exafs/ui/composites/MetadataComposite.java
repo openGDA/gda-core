@@ -20,6 +20,9 @@ package uk.ac.gda.exafs.ui.composites;
 
 import gda.device.Scannable;
 
+import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
+import org.dawnsci.common.richbeans.event.ValueAdapter;
+import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -28,9 +31,6 @@ import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.beans.exafs.MetadataParameters;
 import uk.ac.gda.components.wrappers.FindableNameWrapper;
-import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
-import uk.ac.gda.richbeans.event.ValueAdapter;
-import uk.ac.gda.richbeans.event.ValueEvent;
 
 public class MetadataComposite extends Composite {
 

@@ -21,6 +21,8 @@ package uk.ac.gda.exafs.ui.detector.xspress;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.dawnsci.common.richbeans.components.selector.GridListEditor;
+import org.dawnsci.common.richbeans.components.selector.GridListEditor.GRID_ORDER;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.widgets.Composite;
@@ -28,8 +30,6 @@ import org.eclipse.swt.widgets.Composite;
 import uk.ac.gda.exafs.ui.detector.DetectorROIComposite;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
-import uk.ac.gda.richbeans.components.selector.GridListEditor;
-import uk.ac.gda.richbeans.components.selector.GridListEditor.GRID_ORDER;
 
 public enum XspressParametersUIHelper {
 	INSTANCE;

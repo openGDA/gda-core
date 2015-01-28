@@ -18,8 +18,9 @@
 
 package uk.ac.gda.exafs.ui.describers;
 
+import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriber;
+
 import uk.ac.gda.beans.exafs.i20.I20OutputParameters;
-import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
 
 public class I20OutputDescriber extends XMLBeanContentDescriber {
 

@@ -18,13 +18,13 @@
 
 package uk.ac.gda.exafs.ui.detector.xspress3;
 
+import org.dawnsci.common.richbeans.components.selector.GridListEditor;
+import org.dawnsci.common.richbeans.components.selector.GridListEditor.GRID_ORDER;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.gda.exafs.ui.detector.DetectorROIComposite;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.VortexROIComposite;
-import uk.ac.gda.richbeans.components.selector.GridListEditor;
-import uk.ac.gda.richbeans.components.selector.GridListEditor.GRID_ORDER;
 
 public enum Xspress3ParametersUIHelper {
 	INSTANCE;

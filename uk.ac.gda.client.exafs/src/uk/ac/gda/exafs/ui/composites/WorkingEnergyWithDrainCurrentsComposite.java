@@ -18,14 +18,14 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
+import org.dawnsci.common.richbeans.ACTIVE_MODE;
+import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.DrainCurrentParameters;
-import uk.ac.gda.richbeans.ACTIVE_MODE;
-import uk.ac.gda.richbeans.components.selector.VerticalListEditor;
 
 // Apologies for the long name, feel free to rename it if you can come up with something shorter
 public class WorkingEnergyWithDrainCurrentsComposite extends WorkingEnergyComposite {

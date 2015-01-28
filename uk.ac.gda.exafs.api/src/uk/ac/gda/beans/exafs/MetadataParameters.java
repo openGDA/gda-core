@@ -19,6 +19,7 @@
 package uk.ac.gda.beans.exafs;
 
 import java.io.Serializable;
+
 import org.apache.commons.beanutils.BeanUtils;
 
 public class MetadataParameters implements Serializable{

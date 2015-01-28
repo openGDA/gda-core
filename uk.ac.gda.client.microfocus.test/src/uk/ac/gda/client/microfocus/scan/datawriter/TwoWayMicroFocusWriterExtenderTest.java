@@ -37,11 +37,11 @@ import gda.scan.ScanDataPoint;
 import java.io.File;
 import java.util.ArrayList;
 
+import org.dawnsci.common.richbeans.beans.BeansFactory;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nexusformat.NexusFile;
 
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;

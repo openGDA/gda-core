@@ -31,10 +31,10 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.exafs.ui.data.ScanObjectManager;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class SwitchScanWizardPageOne extends WizardPage {
 	private Combo expType;
@@ -53,7 +53,7 @@ public class SwitchScanWizardPageOne extends WizardPage {
 		for (IConfigurationElement element : config) {
 			if (element.getName().equals("bean")) {
 				try {
-					IRichBean thisbean = (IRichBean) element.createExecutableExtension("class");
+					XMLRichBean thisbean = (XMLRichBean) element.createExecutableExtension("class");
 					if (thisbean instanceof MicroFocusScanParameters){
 						types = (String[]) ArrayUtils.add(types, "Microfocus");
 					} 

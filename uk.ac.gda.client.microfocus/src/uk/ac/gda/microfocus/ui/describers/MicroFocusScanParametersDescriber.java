@@ -19,8 +19,9 @@
 package uk.ac.gda.microfocus.ui.describers;
 
 
+import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriber;
+
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
-import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
 
 /**
  * @author nv23

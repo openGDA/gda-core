@@ -18,6 +18,7 @@
 
 package uk.ac.gda.exafs.ui.detector;
 
+import org.dawnsci.common.richbeans.components.selector.GridListEditor;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;
@@ -28,7 +29,6 @@ import org.eclipse.ui.forms.events.IExpansionListener;
 
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.exafs.IDetectorElement;
-import uk.ac.gda.richbeans.components.selector.GridListEditor;
 
 import com.swtdesigner.SWTResourceManager;
 

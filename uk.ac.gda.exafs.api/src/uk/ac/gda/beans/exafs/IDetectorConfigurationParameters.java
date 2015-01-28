@@ -1,6 +1,6 @@
 package uk.ac.gda.beans.exafs;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 /**
  * Rich Beans which describe the configuration for a detector for a specific experiment.
@@ -10,6 +10,6 @@ import uk.ac.gda.beans.IRichBean;
  * @author rjw82
  *
  */
-public interface IDetectorConfigurationParameters extends IRichBean {
+public interface IDetectorConfigurationParameters extends XMLRichBean {
 
 }

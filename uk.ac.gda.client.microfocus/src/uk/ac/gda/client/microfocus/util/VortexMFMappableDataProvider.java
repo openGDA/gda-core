@@ -26,10 +26,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.VortexParameters;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
+
 
 public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider {
 
@@ -75,9 +76,9 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 
 	@Override
 	public void loadBean() {
-		IRichBean vortexBean = null;
+		XMLRichBean vortexBean = null;
 		try {
-			vortexBean = BeansFactory.getBean(new File(beanFile));
+			vortexBean = XMLHelpers.getBean(new File(beanFile));
 		} catch (Exception e) {
 			logger.error("unable to load the bean file");
 		}
@@ -86,7 +87,7 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void loadBean(IRichBean vortexBean) {
+	public void loadBean(XMLRichBean vortexBean) {
 		if (vortexBean != null) {
 			setDetectorName(((VortexParameters) vortexBean).getDetectorName());
 			numberOfdetectorElements = ((VortexParameters) vortexBean).getDetectorList().size();

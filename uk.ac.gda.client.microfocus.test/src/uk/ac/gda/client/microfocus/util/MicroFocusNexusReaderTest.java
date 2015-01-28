@@ -23,12 +23,13 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.dawnsci.common.richbeans.beans.BeansFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import uk.ac.gda.beans.BeansFactory;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
+
 
 public class MicroFocusNexusReaderTest {
 	private static MicroFocusNexusReader rdr;
@@ -38,9 +39,9 @@ public class MicroFocusNexusReaderTest {
 	@SuppressWarnings("unchecked")
 	@BeforeClass
 	public static void beforeClass() throws Exception{
-		Class<? extends IRichBean> c = (Class<? extends IRichBean>) Class.forName("uk.ac.gda.beans.xspress.XspressParameters");
-		Class<? extends IRichBean> c1 = (Class<? extends IRichBean>) Class.forName("uk.ac.gda.beans.vortex.VortexParameters");
-		BeansFactory.setClasses((Class<? extends IRichBean>[]) new Class<?>[]{c, c1});
+		Class<? extends XMLRichBean> c = (Class<? extends XMLRichBean>) Class.forName("uk.ac.gda.beans.xspress.XspressParameters");
+		Class<? extends XMLRichBean> c1 = (Class<? extends XMLRichBean>) Class.forName("uk.ac.gda.beans.vortex.VortexParameters");
+		BeansFactory.setClasses((Class<? extends XMLRichBean>[]) new Class<?>[]{c, c1});
 		rdr = new MicroFocusNexusReader();
 		rdr.setXScannableName("MicroFocusSampleX");
 		rdr.setYScannableName("MicroFocusSampleY");

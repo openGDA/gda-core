@@ -25,10 +25,10 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-public class VortexDeadTimeParameters implements Serializable, IRichBean {
+public class VortexDeadTimeParameters implements Serializable, XMLRichBean {
 
 	private List<DetectorDeadTimeElement> detectorDTList;
 	static public final URL mappingURL = VortexDeadTimeParameters.class.getResource("VortexMapping.xml");
@@ -45,12 +45,6 @@ public class VortexDeadTimeParameters implements Serializable, IRichBean {
 
 	public VortexDeadTimeParameters() {
 		detectorDTList = new ArrayList<DetectorDeadTimeElement>();
-	}
-
-	@Override
-	public void clear() {
-		if (detectorDTList != null)
-			detectorDTList.clear();
 	}
 
 	public void addDetectorDeadTimeElement(DetectorDeadTimeElement detectorElement) {

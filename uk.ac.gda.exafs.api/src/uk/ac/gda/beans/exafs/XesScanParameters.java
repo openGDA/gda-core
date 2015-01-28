@@ -77,13 +77,6 @@ public class XesScanParameters implements Serializable, IScanParameters {
 	// the name of the set of offsets (the 'store') which to apply to the XES spectrometer for this scan
 	private String offsetsStoreName;
 
-	/**
-	 * Must implement clear() method on beans being used with BeanUI.
-	 */
-	@Override
-	public void clear() {
-	}
-
 	@Override
 	public String toString() {
 		try {

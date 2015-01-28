@@ -23,8 +23,6 @@ import gda.device.scannable.LineRepeatingBeamMonitor;
 import gda.device.scannable.RealPositionReader;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 
-import java.util.ArrayList;
-
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 
