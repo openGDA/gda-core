@@ -18,7 +18,7 @@
 
 package uk.ac.gda.bimorph;
 
-import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
+import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriber;
 
 public final class BimorphParametersDescriber extends XMLBeanContentDescriber {
 

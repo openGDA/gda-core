@@ -8,9 +8,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  uk.ac.gda.common;bundle-version="1.2.0",
  uk.ac.gda.core;bundle-version="8.26.0",
- uk.ac.gda.common.rcp;bundle-version="1.2.0"
+ uk.ac.gda.common.rcp;bundle-version="1.2.0",
+ org.dawnsci.common.widgets;bundle-version="1.2.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: scripts/,
  .
-Import-Package: uk.ac.gda.richbeans.components
