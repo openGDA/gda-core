@@ -1,8 +1,9 @@
 from gda.device.scannable import ScannableBase, PseudoDevice
 import time
 import java.lang.Exception  # @UnresolvedImport
-from gdascripts.metadata.metadata_commands import setTitle, getTitle, meta_add, meta_ll, meta_ls, meta_rm
+from gdascripts.metadata.metadata_commands import meta_add, meta_rm #, setTitle, getTitle, meta_ll, meta_ls
 from gda.factory import Finder
+from org.slf4j import LoggerFactory
 
 KEY = 'SRSWriteAtFileCreation'
 
@@ -36,6 +37,10 @@ class MetadataCollector(ScannableBase):
         self.extraNames = []
         self.outputFormat = []
 
+        self.logger = LoggerFactory.getLogger("metadata")
+        if scannablesToRead and readFromNexus:
+            self.logger.warn("%s: When readFromNexus=True the specified scannablesToRead are ignored!" % name)
+
         self.readFromNexus = readFromNexus
         self.rootNamespaceDict = rootNamespace
         self.scannables_to_read = scannablesToRead
@@ -46,6 +51,8 @@ class MetadataCollector(ScannableBase):
     def set(self, *args):  # @ReservedAssignment
         if self.readFromNexus:
             raise Exception("Unsupported with readFromNexus == True")
+            # This could be implemented by iterating over existing scannables, removing those not in args
+            # and adding those in args.
         _check_all_scannable(args)
         self.scannables_to_read = list(args)
         return self.ls()
@@ -53,30 +60,32 @@ class MetadataCollector(ScannableBase):
     def ls(self):
         metascannables = Finder.getInstance().find("metashop").getMetaScannables() \
             if self.readFromNexus else self.scannables_to_read
-        names = []
-        for scn in metascannables:
-            names.append(scn.name)
-        return ' '.join(names)
+        # meta_ls and meta_ll enforce their own formatting, so return their
+        # list of metadata scannables in our format.
+        return ' '.join([scn.name for scn in metascannables])
 
     def getMeta(self):
-        return Finder.getInstance().find("metashop").getMetaScannables() if self.readFromNexus else self.scannables_to_read
+        return Finder.getInstance().find("metashop").getMetaScannables() \
+            if self.readFromNexus else self.scannables_to_read
 
     def add(self, *args):
         if self.readFromNexus:
-            raise Exception("Unsupported with readFromNexus == True")
-        _check_all_scannable(args)
-        self.scannables_to_read.extend(args)
+            meta_add(*args)
+        else:
+            _check_all_scannable(args)
+            self.scannables_to_read.extend(args)
         return self.ls()
 
     def rm(self, *args):
         if self.readFromNexus:
-            raise Exception("Unsupported with readFromNexus == True")
-        _check_all_scannable(args)
-        for arg in args:
-            try:
-                self.scannables_to_read.remove(arg)
-            except ValueError:
-                print "Scannable %s not in %s" % (arg.name, self.name)
+            meta_rm(*args)
+        else:
+            _check_all_scannable(args)
+            for arg in args:
+                try:
+                    self.scannables_to_read.remove(arg)
+                except ValueError:
+                    print "Scannable %s not in %s" % (arg.name, self.name)
         return self.ls()
 
     def __str__(self):

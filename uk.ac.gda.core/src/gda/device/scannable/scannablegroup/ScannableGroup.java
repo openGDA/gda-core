@@ -22,6 +22,7 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
+import gda.device.scannable.PositionConvertorFunctions;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -253,7 +254,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		//TODO must check if the number of inputs match with number of members
-		Vector<Double[]> targets = extractPositionsFromObject(position);
+		Vector<Object[]> targets = extractPositionsFromObject(position);
 
 		// send out moves
 		for (int i = 0; i < groupMembers.size(); i++) {
@@ -261,7 +262,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 			if ((groupMembers.get(i).getInputNames().length + groupMembers.get(i).getExtraNames().length) == 0) {
 				continue;
 			}
-			Double[] thisTarget = targets.get(i);
+			Object[] thisTarget = targets.get(i);
 			if (thisTarget.length == 1) {
 				if (targets.get(i)[0] != null) {
 					groupMembers.get(i).asynchronousMoveTo(targets.get(i)[0]);
@@ -273,22 +274,22 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 	}
 
-	protected Vector<Double[]> extractPositionsFromObject(Object position) throws DeviceException {
+	private Vector<Object[]> extractPositionsFromObject(Object position) throws DeviceException {
 		// map object to an array of doubles
 		int inputLength = 0;
 		for (Scannable member : groupMembers) {
 			inputLength += member.getInputNames().length;
 		}
-		Double[] targetPosition = gda.device.scannable.ScannableUtils.objectToArray(position);
+		Object[] targetPosition = PositionConvertorFunctions.toObjectArray(position);
 		if (targetPosition.length != inputLength) {
 			throw new DeviceException("Position does not have correct number of fields. Expected = " + inputLength
 					+ " actual = " + targetPosition.length + " position= " + position.toString());
 		}
 		// break down to individual commands
 		int targetIterator = 0;
-		Vector<Double[]> targets = new Vector<Double[]>();
+		Vector<Object[]> targets = new Vector<Object[]>();
 		for (Scannable member : groupMembers) {
-			Double[] thisTarget = new Double[member.getInputNames().length];
+			Object[] thisTarget = new Object[member.getInputNames().length];
 			for (int i = 0; i < member.getInputNames().length; i++) {
 				thisTarget[i] = targetPosition[targetIterator];
 				targetIterator++;
@@ -319,7 +320,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 					
 					Object pos = member.getPosition();
 					if (pos != null) {
-						memberPosition = ScannableUtils.objectToArray(pos);
+						memberPosition = PositionConvertorFunctions.toObjectArray(pos);
 					} else {
 						memberPosition = new Object[0];
 					}
@@ -567,7 +568,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 	@Override
 	public String checkPositionValid(Object illDefinedPosObject) throws DeviceException {
 
-		Vector<Double[]> targets;
+		Vector<Object[]> targets;
 		try {
 			targets = extractPositionsFromObject(illDefinedPosObject);
 		} catch (Exception e) {
@@ -575,7 +576,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 		}
 
 		for (int i = 0; i < groupMembers.size(); i++) {
-			Double[] thisTarget = targets.get(i);
+			Object[] thisTarget = targets.get(i);
 			if ((thisTarget!=null) && (thisTarget.length > 0) && (thisTarget[0] != null)) {
 				String reason = groupMembers.get(i).checkPositionValid(thisTarget);
 				if (reason != null) {
