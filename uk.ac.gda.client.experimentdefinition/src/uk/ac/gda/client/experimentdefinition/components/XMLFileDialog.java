@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.dawnsci.common.richbeans.components.cell.IXMLFileListProvider;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -42,7 +43,6 @@ import org.eclipse.swt.widgets.Table;
 
 import uk.ac.gda.client.experimentdefinition.IExperimentBeanDescription;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.richbeans.components.cell.IXMLFileListProvider;
 import uk.ac.gda.ui.dialog.OKCancelDialog;
 
 /**

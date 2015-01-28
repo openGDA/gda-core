@@ -21,6 +21,8 @@ package gda.simplescan;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dawnsci.common.richbeans.components.selector.BeanSelectionEvent;
+import org.dawnsci.common.richbeans.components.selector.BeanSelectionListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -34,8 +36,6 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.richbeans.components.selector.BeanSelectionEvent;
-import uk.ac.gda.richbeans.components.selector.BeanSelectionListener;
 
 public class AddDevicesComposite extends Composite {
 	private Button removeScannable;

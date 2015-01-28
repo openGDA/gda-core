@@ -18,10 +18,10 @@
 
 package gda.example.scriptcontroller.logging;
 
-import java.io.Serializable;
-
 import gda.jython.scriptcontroller.logging.ScriptControllerLogColumn;
 import gda.jython.scriptcontroller.logging.ScriptControllerLoggingMessage;
+
+import java.io.Serializable;
 
 /**
  * Message bean as a demo for the LooginScriptController object. Works with the MessagingDemoScript.py

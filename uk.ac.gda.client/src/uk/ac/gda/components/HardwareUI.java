@@ -21,7 +21,8 @@ package uk.ac.gda.components;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableMotor;
 import gda.factory.Finder;
-import uk.ac.gda.richbeans.components.scalebox.NumberBox;
+
+import org.dawnsci.common.richbeans.components.scalebox.NumberBox;
 
 /**
  * Where rich bean widget is linked to specific hardware this utility provides

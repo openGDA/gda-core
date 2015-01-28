@@ -22,6 +22,7 @@ import gda.configuration.properties.LocalProperties;
 
 import java.io.File;
 
+import org.dawnsci.common.richbeans.beans.BeanUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -34,7 +35,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.richbeans.beans.BeanUI;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class SimpleScanView extends ViewPart {

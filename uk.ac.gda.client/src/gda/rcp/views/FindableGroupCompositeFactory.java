@@ -18,9 +18,9 @@
 
 package gda.rcp.views;
 
-import org.springframework.beans.factory.InitializingBean;
-
 import gda.factory.Findable;
+
+import org.springframework.beans.factory.InitializingBean;
 
 public class FindableGroupCompositeFactory extends GroupCompositeFactory implements Findable, InitializingBean{
 

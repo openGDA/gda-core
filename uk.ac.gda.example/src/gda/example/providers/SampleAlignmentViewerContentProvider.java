@@ -18,8 +18,8 @@
 
 package gda.example.providers;
 
-import uk.ac.gda.example.device.collection.SampleAlignmentDeviceCollection;
 import gda.device.DeviceException;
+import uk.ac.gda.example.device.collection.SampleAlignmentDeviceCollection;
 
 public class SampleAlignmentViewerContentProvider implements ISampleAlignmentViewerProvider {
 

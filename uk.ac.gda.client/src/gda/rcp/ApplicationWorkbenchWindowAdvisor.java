@@ -28,7 +28,6 @@ import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
-
 import org.eclipse.wb.swt.SWTResourceManager;
 
 public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {

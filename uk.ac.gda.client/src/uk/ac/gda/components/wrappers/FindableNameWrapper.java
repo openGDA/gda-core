@@ -18,12 +18,13 @@
 
 package uk.ac.gda.components.wrappers;
 
-import java.util.Map;
-
 import gda.device.DeviceException;
 import gda.factory.Finder;
 import gda.jython.JythonServerFacade;
 
+import java.util.Map;
+
+import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -38,7 +39,6 @@ import org.eclipse.swt.widgets.Composite;
 
 import swing2swt.layout.BorderLayout;
 import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.richbeans.components.wrappers.TextWrapper;
 
 import com.swtdesigner.SWTResourceManager;
 

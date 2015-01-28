@@ -18,11 +18,11 @@
 
 package gda.rcp;
 
-import java.util.List;
-import java.util.Vector;
-
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
+
+import java.util.List;
+import java.util.Vector;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;

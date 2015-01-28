@@ -2,6 +2,7 @@ package gda.simplescan;
 
 import java.util.List;
 
+import org.dawnsci.common.richbeans.components.FieldBeanComposite;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
@@ -13,8 +14,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-
-import uk.ac.gda.richbeans.components.FieldBeanComposite;
 
 public class ObjectListEditor extends FieldBeanComposite {
 	protected TableViewer viewer;

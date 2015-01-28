@@ -28,11 +28,11 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISelectionListener;
 
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentExperimentView;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentFolderEditor;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentRunEditor;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
+import uk.ac.gda.util.beans.xml.IRichBean;
 
 /**
  * Interface for objects controlling editors which display an experiment as defined by an IExperimentObject.

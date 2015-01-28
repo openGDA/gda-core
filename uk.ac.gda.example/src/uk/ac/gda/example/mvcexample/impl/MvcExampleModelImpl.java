@@ -31,8 +31,6 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import oracle.net.aso.i;
-
 import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;

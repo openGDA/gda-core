@@ -33,6 +33,10 @@ import java.util.Properties;
 import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.dawnsci.common.richbeans.beans.BeanUI;
+import org.dawnsci.common.richbeans.beans.BeansFactory;
+import org.dawnsci.common.richbeans.beans.IFieldWidget;
+import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriberFactory;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -66,8 +70,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.ClientManager;
-import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentExperimentView;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentFolderEditor;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentPerspective;
@@ -75,10 +77,8 @@ import uk.ac.gda.client.experimentdefinition.components.ExperimentProjectNature;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentRunEditor;
 import uk.ac.gda.client.experimentdefinition.components.XMLFileDialog;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.richbeans.beans.BeanUI;
-import uk.ac.gda.richbeans.beans.IFieldWidget;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
-import uk.ac.gda.richbeans.xml.XMLBeanContentDescriberFactory;
+import uk.ac.gda.util.beans.xml.IRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class ExperimentEditorManager implements IExperimentEditorManager {

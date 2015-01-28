@@ -18,9 +18,9 @@
 
 package gda.rcp.views;
 
-import org.eclipse.ui.part.ViewPart;
-
 import gda.factory.Findable;
+
+import org.eclipse.ui.part.ViewPart;
 
 /**
  * Base class for (findable) view factory beans.

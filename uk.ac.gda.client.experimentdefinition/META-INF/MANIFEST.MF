@@ -15,7 +15,8 @@ Require-Bundle: uk.ac.gda.client;bundle-version="1.0.0",
  com.springsource.org.apache.commons.collections;bundle-version="3.2.1",
  org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)",
  org.apache.commons.io;bundle-version="[2.4.0,2.5.0)",
- org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)"
+ org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
+ org.dawnsci.common.widgets
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

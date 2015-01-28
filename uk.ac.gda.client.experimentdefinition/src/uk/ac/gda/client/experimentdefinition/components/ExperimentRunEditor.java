@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.dawnsci.common.richbeans.components.cell.XMLChooserEditor;
+import org.dawnsci.common.widgets.celleditor.SpinnerCellEditor;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.Assert;
@@ -72,8 +74,6 @@ import uk.ac.gda.client.experimentdefinition.IExperimentBeanDescription;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.common.rcp.CommonRCPActivator;
-import uk.ac.gda.richbeans.components.cell.SpinnerCellEditor;
-import uk.ac.gda.richbeans.components.cell.XMLChooserEditor;
 import uk.ac.gda.ui.modifiers.DoubleClickModifier;
 
 import com.swtdesigner.SWTResourceManager;

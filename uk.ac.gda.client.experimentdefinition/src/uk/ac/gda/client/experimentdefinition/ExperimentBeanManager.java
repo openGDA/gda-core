@@ -27,8 +27,8 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
+import uk.ac.gda.util.beans.xml.IRichBean;
 
 
 public enum ExperimentBeanManager {

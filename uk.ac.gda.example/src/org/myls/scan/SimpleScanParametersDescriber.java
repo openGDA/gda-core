@@ -18,7 +18,7 @@
 
 package org.myls.scan;
 
-import uk.ac.gda.richbeans.xml.XMLBeanContentDescriber;
+import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriber;
 
 /**
  *

@@ -25,7 +25,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.IRichBean;
 
 /**
  * Interface for an object describing an experiment using a collection of IRichBeans

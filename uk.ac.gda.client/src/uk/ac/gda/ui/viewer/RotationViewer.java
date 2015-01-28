@@ -24,6 +24,11 @@ import gda.device.ScannableMotionUnits;
 
 import java.text.DecimalFormat;
 
+import org.dawnsci.common.richbeans.components.EventListenersDelegate;
+import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
+import org.dawnsci.common.richbeans.event.ValueAdapter;
+import org.dawnsci.common.richbeans.event.ValueEvent;
+import org.dawnsci.common.richbeans.event.ValueListener;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -46,11 +51,6 @@ import org.eclipse.swt.widgets.Layout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.richbeans.components.EventListenersDelegate;
-import uk.ac.gda.richbeans.components.scalebox.ScaleBox;
-import uk.ac.gda.richbeans.event.ValueAdapter;
-import uk.ac.gda.richbeans.event.ValueEvent;
-import uk.ac.gda.richbeans.event.ValueListener;
 import uk.ac.gda.ui.internal.viewer.ScannablePositionSource;
 import uk.ac.gda.ui.internal.viewer.ScannableRotationSource;
 

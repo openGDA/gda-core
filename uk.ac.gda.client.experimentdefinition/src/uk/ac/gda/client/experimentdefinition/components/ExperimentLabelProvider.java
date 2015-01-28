@@ -26,7 +26,6 @@ import org.eclipse.swt.graphics.Image;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 
-
 import com.swtdesigner.SWTResourceManager;
 
 /**

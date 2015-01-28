@@ -21,7 +21,7 @@ package gda.example.richbean;
 import java.io.Serializable;
 import java.net.URL;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.IRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class ExampleExpt implements IRichBean, Serializable {
@@ -59,7 +59,4 @@ public class ExampleExpt implements IRichBean, Serializable {
 		XMLHelpers.writeToXML(mappingURL, scanParameters, filename);
 	}
 
-	@Override
-	public void clear() {		
-	}
 }

@@ -30,9 +30,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
+import uk.ac.gda.util.beans.xml.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
  * Represents a single scan.
@@ -182,7 +182,7 @@ public abstract class ExperimentObject implements IExperimentObject {
 
 		for (IFile file : files) {
 			try {
-				params.add(BeansFactory.getBean(file.getLocation().toFile()));
+				params.add(XMLHelpers.getBean(file.getLocation().toFile()));
 			} catch (Exception e) {
 				logger.warn("File not found: " + file);
 				params.add(null);

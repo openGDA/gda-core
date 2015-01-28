@@ -33,13 +33,13 @@ import org.eclipse.jface.action.IAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.BeansFactory;
-import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentBeanDescription;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentFolderEditor;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
+import uk.ac.gda.util.beans.xml.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 import uk.ac.gda.util.io.FileUtils;
 
 public class XMLCommandHandler extends AbstractExperimentCommandHandler {
@@ -205,7 +205,7 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 	 * @throws Exception
 	 */
 	public IRichBean getTemplateParameters() throws Exception {
-		return BeansFactory.getBean(getTemplatePath());
+		return XMLHelpers.getBean(getTemplatePath());
 	}
 
 }

@@ -21,6 +21,7 @@ package uk.ac.gda.client.experimentdefinition.components;
 import java.util.Comparator;
 import java.util.List;
 
+import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriberFactory;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -63,7 +64,6 @@ import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.ExperimentObjectEvent;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.common.rcp.util.ISortingUtils;
-import uk.ac.gda.richbeans.xml.XMLBeanContentDescriberFactory;
 
 /**
  * Will make this more of an editor later, allowing new XML and deletion / backup.

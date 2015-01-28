@@ -18,13 +18,13 @@
 
 package uk.ac.gda.views.baton;
 
-import java.text.SimpleDateFormat;
-import java.util.List;
-
 import gda.configuration.properties.LocalProperties;
 import gda.jython.InterfaceProvider;
 import gda.jython.UserMessage;
 import gda.observable.IObserver;
+
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;

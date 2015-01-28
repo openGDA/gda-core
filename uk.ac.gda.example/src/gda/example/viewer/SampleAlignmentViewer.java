@@ -23,6 +23,9 @@ import gda.example.providers.ISampleAlignmentViewerProvider;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.dawnsci.common.richbeans.components.scalebox.StandardBox;
+import org.dawnsci.common.richbeans.event.ValueAdapter;
+import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -30,10 +33,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-
-import uk.ac.gda.richbeans.components.scalebox.StandardBox;
-import uk.ac.gda.richbeans.event.ValueAdapter;
-import uk.ac.gda.richbeans.event.ValueEvent;
 
 public class SampleAlignmentViewer implements ISampleAlignmentViewer {
 

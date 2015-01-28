@@ -27,10 +27,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
-import org.eclipse.dawnsci.plotting.api.PlotType;
-import org.eclipse.dawnsci.plotting.api.PlottingFactory;
-import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.IObservable;
@@ -40,6 +36,10 @@ import org.eclipse.core.databinding.observable.list.ListChangeEvent;
 import org.eclipse.core.databinding.observable.list.ListDiffVisitor;
 import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.databinding.observable.masterdetail.IObservableFactory;
+import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
+import org.eclipse.dawnsci.plotting.api.PlotType;
+import org.eclipse.dawnsci.plotting.api.PlottingFactory;
+import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -78,9 +78,9 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.ResourceComposite;
 import uk.ac.gda.client.UIHelper;
-import uk.ac.gda.client.plotting.model.Node;
 import uk.ac.gda.client.plotting.model.LineTraceProviderNode;
 import uk.ac.gda.client.plotting.model.LineTraceProviderNode.TraceStyleDetails;
+import uk.ac.gda.client.plotting.model.Node;
 import uk.ac.gda.client.plotting.model.ScanNode;
 
 public class ScanDataPlotterComposite extends ResourceComposite {

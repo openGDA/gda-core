@@ -28,8 +28,6 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.client.liveplot.LivePlotView;
-
 /**
  * Handler to disconnect the current XYPlotView and create a new one
  */

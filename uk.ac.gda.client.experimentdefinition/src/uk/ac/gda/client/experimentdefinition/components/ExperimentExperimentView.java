@@ -21,6 +21,7 @@ package uk.ac.gda.client.experimentdefinition.components;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.dawnsci.common.richbeans.components.cell.TreeTextCellEditor;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -67,7 +68,6 @@ import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.richbeans.components.cell.TreeTextCellEditor;
 import uk.ac.gda.util.io.FileUtils;
 
 /**

@@ -24,8 +24,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import uk.ac.gda.client.liveplot.LivePlotView;
-
 public class HideOldHandler extends AbstractHandler {
 
 	public static final String ID = "uk.ac.gda.client.xyPlotHideOldCommand";

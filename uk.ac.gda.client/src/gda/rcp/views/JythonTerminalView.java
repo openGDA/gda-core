@@ -31,8 +31,8 @@ import gda.rcp.views.dashboard.DashboardView;
 import gda.rcp.views.dashboard.SimpleScannableObject;
 import gda.scan.IScanDataPoint;
 import gda.scan.Scan;
-import gda.scan.ScanEvent;
 import gda.scan.ScanDataPointFormatter;
+import gda.scan.ScanEvent;
 import gda.util.PropertyUtils;
 
 import java.io.BufferedReader;

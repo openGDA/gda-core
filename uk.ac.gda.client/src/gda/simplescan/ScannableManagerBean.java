@@ -19,6 +19,7 @@
 package gda.simplescan;
 
 import java.io.Serializable;
+
 import org.apache.commons.beanutils.BeanUtils;
 
 public class ScannableManagerBean implements Serializable{
