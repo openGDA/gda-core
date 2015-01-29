@@ -1,155 +1,143 @@
+/*-
+ * Copyright © 2013 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package gda.data.scan.datawriter.scannablewriter;
 
-import gda.data.scan.datawriter.SelfCreatingLink;
-
+import java.lang.reflect.Array;
 import java.nio.charset.Charset;
-import java.util.Collection;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DefaultComponentWriter implements ComponentWriter {
-	private static final Logger logger = LoggerFactory.getLogger(DefaultComponentWriter.class);
+public abstract class DefaultComponentWriter implements ComponentWriter {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultComponentWriter.class);
+
+	protected static final Charset UTF8 = Charset.forName("UTF-8");
 
 	private int levels = 0;
-	
-	public DefaultComponentWriter() { }
+
+	public DefaultComponentWriter() {
+		// no op
+	}
+
+	protected abstract Object getComponentSlab(final Object pos);
 
 	/**
 	 * Set the file into the position to write the data
-	 * 
+	 *
 	 * @param file
 	 * @return name of trailing component
 	 * @throws NexusException
 	 */
-	protected String enterLocation(NeXusFileInterface file, String path) throws NexusException {
+	protected String enterLocation(final NeXusFileInterface file, final String path) throws NexusException {
 		levels = 0;
-		StringTokenizer st = new StringTokenizer(path, "/");
+		final StringTokenizer st = new StringTokenizer(path, "/");
 		while (st.hasMoreTokens()) {
-			String[] split = st.nextToken().split(":");
-			String name = split[0];
+			final String[] split = st.nextToken().split(":");
+			final String name = split[0];
 			if (split.length == 1) {
 				// no class, write data
 				return name;
 			}
-			String clazz = split[1];
+			final String clazz = split[1];
 			try {
 				file.makegroup(name, clazz);
-			} catch (NexusException ne) {
+			} catch (final NexusException ne) {
 				// ignore, it might be there already
 			}
 			file.opengroup(name, clazz);
 			levels++;
 		}
 
-		throw new IllegalArgumentException(
-				"configured path is not well formed (suspect it has no trailing component)");
+		throw new IllegalArgumentException("configured path is not well formed (suspect it has no trailing component)");
 	}
 
-	protected void leaveLocation(NeXusFileInterface file) throws NexusException {
+	protected void leaveLocation(final NeXusFileInterface file) throws NexusException {
 		for (int i = 0; i < levels; i++) {
 			file.closegroup();
 		}
 	}
 
-	protected int[] nulldimfordim(int[] dim) {
-		int[] mdim = new int[dim.length];
+	protected int[] nulldimfordim(final int[] dim) {
+		return dimForDimForValue(dim, 0);
+	}
+
+	protected int[] slabsizedimfordim(final int[] dim) {
+		return dimForDimForValue(dim, 1);
+	}
+
+	protected int[] makedatadimfordim(final int[] dim) {
+		return dimForDimForValue(dim, -1);
+	}
+
+	private int[] dimForDimForValue(final int[] dim, final int value) {
+		final int[] mdim = (dim != null) ? new int[dim.length] : new int[] {};
 		for (int i = 0; i < mdim.length; i++) {
-			mdim[i] = 0;
+			mdim[i] = value;
 		}
+
 		return mdim;
 	}
 
-	protected int[] slabsizedimfordim(int[] dim) {
-		int[] mdim = new int[dim.length];
-		for (int i = 0; i < mdim.length; i++) {
-			mdim[i] = 1;
-		}
-		return mdim;
+	protected int[] slabSizeForWriting(final int[] dim, final int length) {
+		// default: ignore length
+		return slabsizedimfordim(dim);
 	}
 
-	protected int[] makedatadimfordim(int[] dim) {
-		int[] mdim = new int[dim.length];
-		for (int i = 0; i < mdim.length; i++) {
-			mdim[i] = -1;
-		}
-		return mdim;
-	}
-	
-	protected int[] putslabdimfordim(int[] dim) {
+	protected int[] putslabdimfordim(final int[] dim) {
 		return dim;
 	}
 
-	protected Object getComponentSlab(Object pos) {
-		Object poso = pos;
-		return new double[] { (Double) poso };
-	}
-
-	@Override
-	public Collection<SelfCreatingLink> makeComponent(NeXusFileInterface file, int[] dim, String path,
-			String scannableName, String componentName, Object pos, String unit) throws NexusException {
-		Vector<SelfCreatingLink> sclc = new Vector<SelfCreatingLink>();
-
-		String name = enterLocation(file, path);
-
-		try {
-			file.opendata(name);
-			logger.info("found dataset "+path+" exists already when trying to create it for "+scannableName+". This may not be a problem provided the data written is the same");
-			return sclc;
-		} catch (NexusException e) {
-			// this is normal case!
-			int[] makedatadim = makedatadimfordim(dim);
-			file.makedata(name, NexusFile.NX_FLOAT64, makedatadim.length, makedatadim);
-			file.opendata(name);
-			if (componentName != null) {
-				file.putattr("local_name", String.format("%s.%s", scannableName, componentName).getBytes(), NexusFile.NX_CHAR);
-			}
-	
-			String axislist = "1";
-			for (int j = 2; j <= dim.length; j++) {
-				axislist = axislist + String.format(",%d", j);
-			}
-			file.putattr("axis", axislist.getBytes(), NexusFile.NX_CHAR);
-			if (unit != null && !unit.isEmpty())
-				file.putattr("units", unit.getBytes(Charset.forName("UTF-8")), NexusFile.NX_CHAR);
-			addCustomAttributes(file, scannableName, componentName);
-			file.putslab(getComponentSlab(pos), nulldimfordim(dim), slabsizedimfordim(dim));
-	
-			sclc.add(new SelfCreatingLink(file.getdataID()));
-			file.closedata();
-		} finally {
-			leaveLocation(file);
-		}
-		
-		return sclc;
-	}
-
 	/**
-	 * To allow overriding classes to add random attributes if required
-	 * the file will have the data set "open" ready to receive putattr calls
-	 * @param file nexus file
-	 * @param scannableName name of Scannable
-	 * @param componentName extra or input name being written
-	 * @throws NexusException 
+	 * To allow overriding classes to add random attributes if required the file will have the data set "open" ready to
+	 * receive putattr calls
+	 *
+	 * @param file
+	 *            nexus file
+	 * @param scannableName
+	 *            name of Scannable
+	 * @param componentName
+	 *            extra or input name being written
+	 * @throws NexusException
 	 */
-	@SuppressWarnings("unused")
-	protected void addCustomAttributes(NeXusFileInterface file, String scannableName, String componentName) throws NexusException { }
+	protected void addCustomAttributes(final NeXusFileInterface file, final String scannableName,
+			final String componentName) throws NexusException {
+		// Default no operation
+	}
 
 	@Override
-	public void writeComponent(NeXusFileInterface file, int[] start, String path, String scannableName,
-			String componentName, Object pos) throws NexusException {
-		String name = enterLocation(file, path);
+	public void writeComponent(final NeXusFileInterface file, final int[] start, final String path,
+			final String scannableName, final String componentName, final Object pos) throws NexusException {
+
+		final String name = enterLocation(file, path);
 
 		file.opendata(name);
 		try {
-			file.putslab(getComponentSlab(pos), putslabdimfordim(start), slabsizedimfordim(start));
-		} catch (Exception e) {
-			logger.error("error converting scannable data", e);
+			final Object slab = getComponentSlab(pos);
+			final int slablength = (slab.getClass().isArray()) ? Array.getLength(slab) : 0;
+			file.putslab(slab, putslabdimfordim(start), slabSizeForWriting(start, slablength));
+
+		} catch (final Exception e) {
+			LOGGER.error("error converting scannable data", e);
 		}
 		file.closedata();
 
