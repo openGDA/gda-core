@@ -16,7 +16,9 @@ The GDA project is an open-source framework for creating customised data acquisi
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Dgda.install.workspace.loc=${workspace_loc}
+      <vmArgs>-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
+-Dorg.eclipse.swt.internal.gtk.useCairo=false
+-Dgda.install.workspace.loc=${workspace_loc}
 -Dgda.install.git.loc=${project_loc:uk.ac.gda.core/}/../..
 -Dgda.config=${project_loc:i20-config}
 -Djava.library.path=${project_loc:uk.ac.gda.nexus}/lib/linux-x86_64

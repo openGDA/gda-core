@@ -392,10 +392,12 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 
 			for (Scannable scannable : thisPoint.getScannables()) {
+				checkForThreadInterrupt();
 				writeScannable(scannable);
 			}
 
 			for (Detector detector : thisPoint.getDetectors()) {
+				checkForThreadInterrupt();
 				writeDetector(detector);
 			}
 
@@ -414,6 +416,23 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 //			} catch (Exception e) {
 //				logger.error("exception received from DataWriterBase.addData(...)", e);
 //			}
+		}
+	}
+
+	/*
+	 * Both the Log4J and Nexus libraries absorb Thread interrupts. As the GDA Scanning Mechanism is dependent on using
+	 * this mechanism and assumes that any Thread interruptions will be not be absorbed but will be propagated then we
+	 * need to explicitly check for this in this class where some operations can take a finite amount of time and so
+	 * when a scan is aborted the interruption can be absorbed and not propagated.
+	 * <p>
+	 * This check is made in other parts of the scanning mechanism, but should also be performed here.
+	 * 
+	 * @throws InterruptedException
+	 */
+	private void checkForThreadInterrupt() throws InterruptedException {
+		if (Thread.interrupted()) {
+			Thread.currentThread().interrupt();
+			throw new InterruptedException();
 		}
 	}
 
@@ -452,6 +471,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	}
 
 	private void writeDetector(Detector detector) throws DeviceException, NexusException {
+		
 		if (detector.createsOwnFiles()) {
 			writeFileCreatorDetector(detector.getName(), extractFileName(detector.getName()),
 					detector.getDataDimensions());
@@ -750,6 +770,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			if (createSrsFile) {
 				srsFile.releaseFile();
 			}
+
 		} catch (NexusException ne) {
 			String error = "NeXusException occurred when closing file: ";
 			logger.error(error + ne.getMessage());
@@ -1236,6 +1257,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				if (detId != null && detId.length() > 0) {
 					makeCreateStringData("id", detId);
 				}
+			} else {
+				makeCreateStringData("local_name", detectorName);
 			}
 		} catch (DeviceException e) {
 			e.printStackTrace();
@@ -1637,9 +1660,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		return -1;
 	}
 
-	public void setTxtFileNameTemplate(@SuppressWarnings("unused") String txtFileNameTemplate) {
-		// do nothing
-	}
 
 	public void setNexusFileNameTemplate(String nexusFileNameTemplate) throws Exception {
 		this.nexusFileNameTemplate = nexusFileNameTemplate;
@@ -1700,6 +1720,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				} 
 			} catch (Exception e) {
 				// ignored
+				logger.debug(e.getMessage());
 			}
 			file.opengroup(nxDirName, nxClass);
 			file.makegroup(scannable.getName(), nxClass);

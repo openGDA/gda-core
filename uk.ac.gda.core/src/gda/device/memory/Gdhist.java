@@ -133,6 +133,10 @@ public class Gdhist extends DeviceBase implements Memory {
 		if(obj.equals("IDLE"))
 			return obj;
 		
+		if(!(obj instanceof Integer)) {
+			return obj;
+		}
+		
 		if (((Integer) obj).intValue() == -1) {
 			logger.error(getName() + ": " + operation + " failed");
 			close();

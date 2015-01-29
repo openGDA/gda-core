@@ -576,12 +576,16 @@ public abstract class ScanBase implements NestableScan {
 
 				// if a standalone scan, or the top-level scan in a nest of scans
 				if (!isChild() ) { // FIXME: Move all !isChild() logic up into runScan
-					callScannablesAtScanEnd();
-
-					callDetectorsEndCollection();
-
-
-					shutdownScandataPipeline(true);
+					if (LocalProperties.check("gda.scan.endscan.neworder", false)) {
+						// a work around for GDA-6083
+						shutdownScandataPipeline(true);
+						callDetectorsEndCollection();
+						callScannablesAtScanEnd();
+					} else { //the original designed order
+						callScannablesAtScanEnd();
+						callDetectorsEndCollection();
+						shutdownScandataPipeline(true);
+					}
 					signalScanComplete();
 
 				}
@@ -1298,7 +1302,9 @@ public abstract class ScanBase implements NestableScan {
 		// in the list of defaults
 		Vector<Scannable> defaultScannables = getDefaultScannableProvider().getDefaultScannables();
 		for (Scannable scannable : defaultScannables) {
-			if (!allScannables.contains(scannable)) {
+			if (scannable instanceof Detector && !allDetectors.contains(scannable)) {
+				this.allDetectors.add((Detector) scannable);
+			} else if (!allScannables.contains(scannable)) {
 				allScannables.add(scannable);
 			}
 		}
@@ -1319,8 +1325,8 @@ public abstract class ScanBase implements NestableScan {
 				// add the detector to the list of detectors.
 				if (!allDetectors.contains(det)) {
 					this.allDetectors.add(det);
-					detectorsToRemove.add(scannable);
 				}
+				detectorsToRemove.add(scannable);
 			}
 		}
 

@@ -31,8 +31,8 @@ public class TogglerScannable extends ScannableBase {
 	public enum Hook {
 		AT_SCAN,
 		AT_LINE,
-		AT_LEVEL,
-		AT_POINT
+		AT_POINT,
+		AT_LEVEL
 	}
 
 	private Hook hook;
@@ -90,7 +90,8 @@ public class TogglerScannable extends ScannableBase {
 	}
 
 	public void togglePositionStart() throws DeviceException {
-		initialValue = delegate.getPosition();
+		//only record the initial position if it will be used
+		if (endValue == null) initialValue = delegate.getPosition();
 		delegate.moveTo(startValue);
 	}
 
@@ -199,6 +200,11 @@ public class TogglerScannable extends ScannableBase {
 	
 	@Override
 	public String[] getExtraNames() {
+		return new String[] {};
+	}
+
+	@Override
+	public String[] getOutputFormat() {
 		return new String[] {};
 	}
 

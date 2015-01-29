@@ -34,10 +34,28 @@ public class NXDetectorDataFileAppenderForSrs implements NXDetectorDataAppender 
 	private final String filename;
 
 	private final String filepathExtraName;
+	private final Double xPixelSize;
+	private final Double yPixelSize;
+	private final String xPixelSizeUnit;
+	private final String yPixelSizeUnit;
 
 	public NXDetectorDataFileAppenderForSrs(String filename, String filepathExtraName) {
 		this.filename = filename;
 		this.filepathExtraName = filepathExtraName;
+		this.xPixelSize = null;
+		this.yPixelSize = null;
+		this.xPixelSizeUnit = null;
+		this.yPixelSizeUnit = null;
+	}
+
+	public NXDetectorDataFileAppenderForSrs(String filename, String filepathExtraName, Double xPixelSize, Double yPixelSize,
+			String xPixelSizeUnit, String yPixelSizeUnit) {
+		this.filename = filename;
+		this.filepathExtraName = filepathExtraName;
+		this.xPixelSize = xPixelSize;
+		this.yPixelSize = yPixelSize;
+		this.xPixelSizeUnit = xPixelSizeUnit;
+		this.yPixelSizeUnit = yPixelSizeUnit;
 	}
 
 	/**
@@ -62,6 +80,22 @@ public class NXDetectorDataFileAppenderForSrs implements NXDetectorDataAppender 
 		int indexOf = Arrays.asList(data.getExtraNames()).indexOf(filepathExtraName);
 		dataForSrs.setFilepathOutputFieldIndex(indexOf);
 		data.setPlottableValue(filepathExtraName, 0.);// this is needed as we have added an entry in extraNames
+
+		if (xPixelSize!=null) {
+			if (xPixelSizeUnit!=null) {
+				data.addData(detectorName, "x_pixel_size", xPixelSize, xPixelSizeUnit);
+			}
+			else {
+				data.addData(detectorName, "x_pixel_size", xPixelSize, null);
+			}
+		}
+		if (yPixelSize!=null) {
+			if (yPixelSizeUnit!=null) {
+				data.addData(detectorName, "y_pixel_size", yPixelSize, yPixelSizeUnit);
+			} else {
+				data.addData(detectorName, "y_pixel_size", yPixelSize, null);
+			}
+		}
 
 	}
 

@@ -188,6 +188,13 @@ public class ContinuousScan extends ConcurrentScanChild {
 			qscanAxis.stop();
 			qscanAxis.atCommandFailure();
 			throw e;
+		} catch (Exception e) {
+			// scan has been aborted, so stop the motion and let the scan write out the rest of the data point which
+			// have been collected so far
+			logger.error("ContinuousScan aborting for an unexpected error!",e);
+			qscanAxis.stop();
+			qscanAxis.atCommandFailure();
+			throw e;
 		}
 	}
 

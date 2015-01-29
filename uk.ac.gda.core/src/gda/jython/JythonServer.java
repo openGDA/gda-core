@@ -22,6 +22,7 @@ package gda.jython;
 import static java.text.MessageFormat.format;
 import gda.commandqueue.IFindableQueueProcessor;
 import gda.configuration.properties.LocalProperties;
+import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.Scannable;
@@ -169,7 +170,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	private int remotePort = -1;
 
-	private boolean remoteServerUsesJline;
+	private boolean remoteServerUsesJline=true;
 
 	private String gdaStationScript;
 	
@@ -690,6 +691,28 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	private void abortCommands(final boolean andCallStopAll) {
+		if (LocalProperties.check("gda.jython.hardware.stop.immediately", false)) {
+			for (Scannable scannable : currentScan.getScannables()) {
+				try {
+					if (scannable.isBusy()) {
+						scannable.stop();
+					}
+				} catch (DeviceException e) {
+					logger.error("Failed to stop {}", scannable.getName());
+					logger.error("Failed on calling scannable stop", e);
+				}
+			}
+			for (Detector detector : currentScan.getDetectors()) {
+				try {
+					if (detector.getStatus()==Detector.BUSY) {
+						detector.stop();
+					}
+				} catch (DeviceException e) {
+					logger.error("Failed to stop {}", detector.getName());
+					logger.error("Failed on calling detector stop", e);
+				}
+			}
+		}
 		uk.ac.gda.util.ThreadManager.getThread(new Runnable() {
 			@Override
 			public void run() {
