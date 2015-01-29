@@ -53,6 +53,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.dawnsci.common.widgets
 Export-Package: com.swtdesigner,
  swing2swt.layout,
+ uk.ac.gda.beans,
  uk.ac.gda.common.rcp,
  uk.ac.gda.common.rcp.jface.viewers,
  uk.ac.gda.common.rcp.util,
