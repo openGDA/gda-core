@@ -15,7 +15,9 @@
  * You should have received a copy of the GNU General Public License along
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
-
+/**
+ * Although called IRichBean this interface is not part of the rich beans.
+ */
 package uk.ac.gda.beans;
 
 public interface IRichBean {
