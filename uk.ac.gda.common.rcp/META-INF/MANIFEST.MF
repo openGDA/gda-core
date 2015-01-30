@@ -52,7 +52,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava;bundle-version="18.0.0"
 Export-Package: com.swtdesigner,
  swing2swt.layout,
- uk.ac.gda.beans,
  uk.ac.gda.common.rcp,
  uk.ac.gda.common.rcp.jface.viewers,
  uk.ac.gda.common.rcp.util,
