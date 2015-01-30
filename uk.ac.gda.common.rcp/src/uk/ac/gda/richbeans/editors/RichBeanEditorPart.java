@@ -22,7 +22,6 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.dawnsci.common.richbeans.beans.BeanUI;
 import org.dawnsci.common.richbeans.beans.BeanUI.BeanProcessor;
@@ -63,7 +62,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  */
 public abstract class RichBeanEditorPart extends EditorPart  implements ValueListener, IReusableEditor, IFieldProvider {
 
-	private static final Logger logger = LoggerFactory.getLogger(RichBeanEditorPart.class);
+	protected static final Logger logger = LoggerFactory.getLogger(RichBeanEditorPart.class);
 	
 	/**
 	 * The bean used for state
@@ -226,7 +225,7 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 	 * @throws Exception 
 	 */
 	public Object updateFromUIAndReturnEditingBean() throws Exception {
-		BeanUI.uiToBean(this, editingBean);
+		BeanUI.uiToBean(getEditorUI(), editingBean);
 		return editingBean;
 	}
 
@@ -328,17 +327,17 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
         // the ui in this class. This class can be used to do this for any
 		// bean and any UI object (editor etc.)
         try {
-    		BeanUI.switchState(editingBean, this, false);
-			BeanUI.beanToUI(editingBean, this);
-			BeanUI.switchState(editingBean, this, true);
+    		BeanUI.switchState(editingBean, getEditorUI(), false);
+			BeanUI.beanToUI(editingBean, getEditorUI());
+			BeanUI.switchState(editingBean, getEditorUI(), true);
 			if (!addedListenersAndSwitchedOn) {
-				BeanUI.addValueListener(editingBean, this, this);
-				BeanUI.setBeanFields(editingBean, this);
+				BeanUI.addValueListener(editingBean, getEditorUI(), this);
+				BeanUI.setBeanFields(editingBean, getEditorUI());
 				addedListenersAndSwitchedOn = true;
 								
 				// We ensure that fields being edited which allow expressions, have the IExpressionManager
 				// available to evaluate the expressions for them.
-				BeanUI.notify(editingBean, this, new BeanProcessor() {
+				BeanUI.notify(editingBean, getEditorUI(), new BeanProcessor() {
 					@Override
 					public void process(String name, Object value, IFieldWidget box) throws Exception {
 						if (box instanceof IExpressionWidget) {
@@ -357,6 +356,14 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 			logger.error("Cannot push values from bean to UI in linkUI()", e);
 		}
 	}
+	
+	/**
+	 * Override to define a different object for editing the UI.
+	 * @return the editorUI object
+	 */
+	protected Object getEditorUI() {
+		return this;
+	}
 
 	protected List<String> expressionFields;
 	/**
@@ -371,14 +378,14 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 	protected List<String> getExpressionFields() throws Exception {
   	    
 		if (expressionFields==null) {
-			expressionFields = BeanUI.getEditingFields(editingBean, this);
+			expressionFields = BeanUI.getEditingFields(editingBean, getEditorUI());
 		}
         return expressionFields;
 	}
 	
 	@Override
 	public IFieldWidget getField(final String fieldName) throws Exception {
-		return BeanUI.getFieldWiget(fieldName, this);
+		return BeanUI.getFieldWiget(fieldName, getEditorUI());
 	}
 
 	@Override
@@ -392,7 +399,7 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 		super.dispose();
 		
 		try {
-			BeanUI.dispose(editingBean, this);
+			BeanUI.dispose(editingBean, getEditorUI());
 		} catch (Exception e) {
 			logger.error("Cannot dispose parts as expected", e);
 		}

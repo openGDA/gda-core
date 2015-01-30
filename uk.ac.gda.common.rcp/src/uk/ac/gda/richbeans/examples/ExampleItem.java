@@ -18,12 +18,14 @@
 
 package uk.ac.gda.richbeans.examples;
 
+import java.io.Serializable;
+
 import org.apache.commons.beanutils.BeanUtils;
 
 /**
  *
  */
-public class ExampleItem {
+public class ExampleItem implements Serializable{
 
 	private Double x,y;
 
