@@ -5,8 +5,7 @@ Bundle-SymbolicName: uk.ac.gda.common.rcp;singleton:=true
 Eclipse-RegisterBuddy: uk.ac.gda.libs
 Bundle-Version: 1.2.0.qualifier
 Bundle-Vendor: Diamond Light Source
-Import-Package: com.google.common.reflect;version="15.0.0",
- com.google.gson;version="2.2.4",
+Import-Package: com.google.gson;version="2.2.4",
  org.eclipse.core.databinding,
  org.eclipse.core.databinding.beans,
  org.eclipse.core.databinding.conversion,
@@ -48,9 +47,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.filesystem;bundle-version="1.2.0",
  org.junit;bundle-version="[4.10.0,5.0.0)",
  org.eclipse.draw2d;bundle-version="3.7.1",
- uk.ac.gda.libs;bundle-version="1.0.0",
  org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)",
- org.dawnsci.common.widgets
+ org.dawnsci.common.widgets,
+ com.google.guava;bundle-version="18.0.0"
 Export-Package: com.swtdesigner,
  swing2swt.layout,
  uk.ac.gda.beans,
