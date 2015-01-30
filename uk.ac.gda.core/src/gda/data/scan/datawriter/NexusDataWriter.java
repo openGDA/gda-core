@@ -798,6 +798,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			if (createSrsFile) {
 				srsFile.releaseFile();
 			}
+
 		} catch (NexusException ne) {
 			String error = "NeXusException occurred when closing file: ";
 			logger.error(error, ne);

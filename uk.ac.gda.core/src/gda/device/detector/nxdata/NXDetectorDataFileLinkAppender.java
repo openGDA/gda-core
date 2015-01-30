@@ -81,6 +81,7 @@ public class NXDetectorDataFileLinkAppender implements NXDetectorDataAppender {
 				data.addData(detectorName, "y_pixel_size", yPixelSize, null);
 			}
 		}
+
 	}
 
 }
