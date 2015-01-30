@@ -142,6 +142,10 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 		} 
 	}
 
+	public void setFilePrefix(String filePrefix) {
+		this.filePrefix = filePrefix;
+	}
+
 	/**
 	 * Closes current file and opens a new file with an incremental number. For use when many files being created
 	 * instead of a single file being appended to.
@@ -157,7 +161,9 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 			if (this.currentFileName == null) {
 				currentFileName = getFileNumber() + "." + this.fileExtension;
 
-				this.filePrefix = LocalProperties.get("gda.data.scan.datawriter.filePrefix");
+				if (this.filePrefix == null) {
+					this.filePrefix = LocalProperties.get("gda.data.scan.datawriter.filePrefix");
+				}
 
 				if (this.filePrefix != null) {
 					currentFileName = this.filePrefix + currentFileName;

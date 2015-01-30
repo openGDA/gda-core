@@ -52,6 +52,7 @@ import org.apache.commons.math3.util.Pair;
 import org.nexusformat.NexusFile;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
+import org.python.core.PyInteger;
 import org.python.core.PyList;
 import org.python.core.PyNone;
 import org.python.core.PyObject;
@@ -956,6 +957,9 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 			int[] dims = new int[] { 1 };
 			int type = NexusFile.NX_FLOAT64;
 			groupData = new NexusGroupData(dims, type, data);
+		} else if (object instanceof PyInteger) {
+			//store as NX_FLOAT64 since a lot of things may pass an int for an expect a double on readback
+			groupData = new NexusGroupData( (double) ( (PyInteger) object).getValue() );
 		} else if (object instanceof long[]) {
 			long[] data = (long[]) object;
 			int dataLen = data.length;

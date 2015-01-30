@@ -770,6 +770,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			if (createSrsFile) {
 				srsFile.releaseFile();
 			}
+
 		} catch (NexusException ne) {
 			String error = "NeXusException occurred when closing file: ";
 			logger.error(error + ne.getMessage());
@@ -1244,9 +1245,18 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		// Metadata items
 		try {
 			if (!(detector instanceof NexusDetector)) {
-				makeCreateStringData("description", ((Detector) detector).getDescription());
-				makeCreateStringData("type", ((Detector) detector).getDetectorType());
-				makeCreateStringData("id", ((Detector) detector).getDetectorID());
+				String detDescription = ((Detector) detector).getDescription();
+				String detType = ((Detector) detector).getDetectorType();
+				String detId = ((Detector) detector).getDetectorID();
+				if (detDescription != null && detDescription.length() > 0) {
+					makeCreateStringData("description", detDescription);
+				}
+				if (detType != null && detType.length() > 0) {
+					makeCreateStringData("type", detType);
+				}
+				if (detId != null && detId.length() > 0) {
+					makeCreateStringData("id", detId);
+				}
 			}
 		} catch (DeviceException e) {
 			e.printStackTrace();
@@ -1363,9 +1373,19 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		file.opengroup(detector.getName(), "NXdetector");
 
 		// Metadata items
-		makeCreateStringData("description", detector.getDescription());
-		makeCreateStringData("type", detector.getDetectorType());
-		makeCreateStringData("id", detector.getDetectorID());
+		String description = detector.getDescription();
+		String type = detector.getDetectorType();
+		String id = detector.getDetectorID();
+
+		if (description != null && description.length() > 0) {
+			makeCreateStringData("description", detector.getDescription());
+		}
+		if (type != null && type.length() > 0) {
+			makeCreateStringData("type", detector.getDetectorType());
+		}
+		if (id != null && id.length() > 0) {
+			makeCreateStringData("id", detector.getDetectorID());
+		}
 
 		// Check to see if the detector will write its own info into NeXus
 		if (detector instanceof INeXusInfoWriteable) {
@@ -1638,9 +1658,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		return -1;
 	}
 
-	public void setTxtFileNameTemplate(@SuppressWarnings("unused") String txtFileNameTemplate) {
-		// do nothing
-	}
 
 	public void setNexusFileNameTemplate(String nexusFileNameTemplate) throws Exception {
 		this.nexusFileNameTemplate = nexusFileNameTemplate;
@@ -1701,6 +1718,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				} 
 			} catch (Exception e) {
 				// ignored
+				logger.debug(e.getMessage());
 			}
 			file.opengroup(nxDirName, nxClass);
 			file.makegroup(scannable.getName(), nxClass);
