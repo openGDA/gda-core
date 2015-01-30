@@ -19,6 +19,7 @@
 
 package gda.scan;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -1284,6 +1285,33 @@ public class ConcurrentScanTest {
 				new Object[] { lev4, 0., 1., 1., lev5a, 1., lev5b, 2., lev6, 3., mon5, detlev9a, 2., detlev5, 2.5, mon9});
 		assertEquals("| lev4 | lev5a, lev5b, *detlev5 | lev6 | *detlev9a || mon5, mon9 |", scan.reportDevicesByLevel());
 	}
-	
+
+	@Test
+	public void testScanInformation() throws Exception {
+		testScratchDirectoryName = TestHelpers.setUpTest(
+				this.getClass(),
+				"testScanInformation",
+				true);
+		setLocalProperties();
+		Scannable scn1 = MockFactory.createMockScannable("scn1");
+		Scannable scn2 = MockFactory.createMockScannable("scn2");
+		Scan scan = new ConcurrentScan(
+				new Object[] { scn1, 0, 4, 1, scn2, 0, 2, 1, detlev5, 1 });
+		ScanInformation expected = new ScanInformation(
+				new int[] {5, 3},
+				0,
+				new String[] { "scn1", "scn2" },
+				new String[] { "detlev5" },
+				"fileName",
+				"unknown",
+				15);
+		ScanInformation actual = scan.getScanInformation();
+
+		assertArrayEquals("Scannable names incorrect", expected.getScannableNames(), actual.getScannableNames());
+		assertArrayEquals("Detector names incorrect", expected.getDetectorNames(), actual.getDetectorNames());
+		assertEquals("Instrument incorrect", expected.getInstrument(), actual.getInstrument());
+		assertArrayEquals("Dimensions incorrect.",expected.getDimensions(), actual.getDimensions());
+		assertEquals("Number of scan points incorrect", expected.getNumberOfPoints(), actual.getNumberOfPoints());
+	}
 
 }
