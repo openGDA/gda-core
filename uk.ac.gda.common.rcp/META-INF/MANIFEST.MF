@@ -49,7 +49,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.draw2d;bundle-version="3.7.1",
  org.apache.commons.beanutils;bundle-version="[1.9.1,1.9.2)",
  org.dawnsci.common.widgets,
- com.google.guava;bundle-version="18.0.0"
+ com.google.guava;bundle-version="[16.0.0,17.0.0]"
 Export-Package: com.swtdesigner,
  swing2swt.layout,
  uk.ac.gda.common.rcp,
