@@ -23,5 +23,4 @@ package uk.ac.gda.util.beans.xml;
  * XMLHelpers class in this package.
  */
 public interface XMLRichBean {
-
 }

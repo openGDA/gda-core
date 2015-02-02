@@ -329,8 +329,7 @@ public class XMLHelpers {
 			final Method clear = existingBean.getClass().getMethod("clear");
 			clear.invoke(existingBean);
 		} catch (Throwable ignored) {
-			ignored.printStackTrace();
-			throw new XMLHelpersException("Internal Error: All beans used with XMLHelpers must define a clear() method to release resources - "+existingBean.getClass().getName());
+			// then don't clear
 		}
 		
 		Unmarshaller unmarshaller = createXMLContext(mappingUrl, existingBean.getClass().getClassLoader()).createUnmarshaller();
