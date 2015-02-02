@@ -20,6 +20,7 @@ package uk.ac.gda.richbeans.examples;
 
 import java.net.URL;
 
+import uk.ac.gda.richbeans.editors.DelegatingRichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
@@ -40,7 +41,11 @@ public class ExampleEditor extends RichBeanMultiPageEditorPart {
 
 	@Override
 	protected RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
-		return new ExampleEditorRichUI(path,getMappingUrl(),this,editingBean);
+		
+		DelegatingRichBeanEditorPart editor = new DelegatingRichBeanEditorPart(path,getMappingUrl(),this,editingBean);
+		editor.setEditorClass(ExampleParametersComposite.class);
+		editor.setRichEditorTabText("Example Custom UI");
+		return editor;
 	}
 
 	@Override

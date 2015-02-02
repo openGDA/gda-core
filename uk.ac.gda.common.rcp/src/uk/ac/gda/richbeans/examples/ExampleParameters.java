@@ -18,6 +18,7 @@
 
 package uk.ac.gda.richbeans.examples;
 
+import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ import org.apache.commons.beanutils.BeanUtils;
  * @author Matthew Gerring
  *
  */
-public class ExampleParameters {
+public class ExampleParameters implements Serializable {
 
 	private String element;
 	private String edge;
