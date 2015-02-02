@@ -35,9 +35,10 @@ import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import swing2swt.layout.BorderLayout;
 import uk.ac.gda.common.rcp.util.GridUtils;
 
 import com.swtdesigner.SWTResourceManager;
@@ -75,8 +76,9 @@ public class FindableNameWrapper extends TextWrapper {
 		
 		this.findableClass = findableClass;
 		if (labelOnRight) {
+			setLayout(new GridLayout(2, false));
 			this.messageLabel = new CLabel(this, SWT.NONE);
-			messageLabel.setLayoutData(BorderLayout.EAST);
+			messageLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 		}
 
 		this.errorImage = SWTResourceManager.getImage(FindableNameWrapper.class, "/icons/error.png");
