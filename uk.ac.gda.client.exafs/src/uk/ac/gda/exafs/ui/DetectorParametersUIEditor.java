@@ -77,8 +77,6 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 		return "Detector";
 	}
 
-	
-	@SuppressWarnings("unused")
 	@Override
 	public void createPartControl(Composite parent) {
 		parent.setData(this);
@@ -92,6 +90,7 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 		composite.setLocation(0, 0);
 		Label experimentTypeLabel = new Label(composite, SWT.NONE);
 		experimentTypeLabel.setText("Experiment Type");
+		experimentTypeLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		experimentType = new ComboWrapper(composite, SWT.READ_ONLY);
 		String[] items;
 		if (ScanObjectManager.isXESOnlyMode())
@@ -108,7 +107,8 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 		Composite composite_1 = new Composite(composite, SWT.NONE);
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		composite_1.setLayout(new GridLayout());
-		new Label(composite, SWT.NONE);
+		Label blankLabel = new Label(composite, SWT.NONE);
+		blankLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		stackComponent = new Composite(composite, SWT.NONE);
 		stackLayout = new StackLayout();
 		stackComponent.setLayout(stackLayout);

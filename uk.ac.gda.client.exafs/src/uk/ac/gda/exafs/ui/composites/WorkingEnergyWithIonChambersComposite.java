@@ -129,6 +129,7 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 		if (collectDiffractionData) {
 			Label collectDiffImagesLabel = new Label(top, SWT.NONE);
 			collectDiffImagesLabel.setText("Diffraction Images");
+			collectDiffImagesLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			Composite diffractionComp = new Composite(top, SWT.NONE);
 			diffractionComp.setLayout(new GridLayout(5, true));
 			collectDiffractionImages = new BooleanWrapper(diffractionComp, SWT.NONE);

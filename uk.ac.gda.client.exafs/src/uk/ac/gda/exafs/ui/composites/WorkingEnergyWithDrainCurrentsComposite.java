@@ -56,6 +56,7 @@ public class WorkingEnergyWithDrainCurrentsComposite extends WorkingEnergyCompos
 		drainCurrentParameters.setMinItems(2);
 		drainCurrentParameters.setMaxItems(2);
 		drainCurrentParameters.setListHeight(100);
+		drainCurrentParameters.setColumnWidths(300,300);
 		//ionChambersTabItem.setControl(drainCurrentParameters);
 		
 		

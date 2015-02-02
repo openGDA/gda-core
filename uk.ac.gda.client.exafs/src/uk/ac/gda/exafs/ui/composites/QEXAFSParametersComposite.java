@@ -32,7 +32,6 @@ import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBoxAndFixedExpression;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
 import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
 import org.dawnsci.common.richbeans.event.ValueAdapter;
 import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.swt.SWT;
@@ -57,7 +56,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 	private ScaleBoxAndFixedExpression finalEnergy;
 	private ScaleBox speed;
 	private ScaleBox stepSize;
-	private LabelWrapper totalTime;
+	private ScaleBox totalTime;
 	private Label numberPoints;
 	private Label avgTimePerPoint;
 	private NumberFormat formatter = new DecimalFormat("#0.00000");
@@ -180,7 +179,8 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 
 		label = new Label(this, SWT.NONE);
 		label.setText("Scan Time");
-		this.totalTime = new LabelWrapper(this, SWT.NONE);
+		this.totalTime = new ScaleBox(this, SWT.NONE);
+		totalTime.setEditable(false);
 		GridData gd_totalTime = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_totalTime.widthHint = 159;
 		totalTime.setLayoutData(gd_totalTime);
@@ -260,7 +260,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		totalTime.setUnit("s");
 		if (time > 0) {
 			totalTime.setValue(time);
-			totalTime.setText(formatter.format(time) + " s");
+//			totalTime.setText(formatter.format(time) + " s");
 		}
 		int numberOfPoints = (int) (rangeEv / stepSizeVal);
 		numberPoints.setText(numberOfPoints + "");

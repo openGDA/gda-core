@@ -1,6 +1,6 @@
 import sys
 
-from uk.ac.gda.beans import BeansFactory
+from uk.ac.gda.util.beans.xml import XMLHelpers
 from java.io import File
 from java.lang import System
 
@@ -22,7 +22,7 @@ def showElementsList(detectorFileName):
     regionsList=[]
     detectorBean=0
     try:
-        detectorBean = BeansFactory.getBean(File(detectorFileName));
+        detectorBean = XMLHelpers.getBean(File(detectorFileName));
         numberOfDetectorElements = detectorBean.getDetectorList().size()
         print "Number of detector elements:" , numberOfDetectorElements        
         for i in range(numberOfDetectorElements):
