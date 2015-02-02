@@ -22,12 +22,9 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.dawnsci.common.richbeans.beans.BeanUI;
-import org.dawnsci.common.richbeans.beans.BeanUI.BeanProcessor;
 import org.dawnsci.common.richbeans.beans.BeansFactory;
-import org.dawnsci.common.richbeans.beans.IExpressionWidget;
 import org.dawnsci.common.richbeans.beans.IFieldProvider;
 import org.dawnsci.common.richbeans.beans.IFieldWidget;
 import org.dawnsci.common.richbeans.event.ValueEvent;
@@ -335,22 +332,23 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 				BeanUI.addValueListener(editingBean, this, this);
 				BeanUI.setBeanFields(editingBean, this);
 				addedListenersAndSwitchedOn = true;
-								
-				// We ensure that fields being edited which allow expressions, have the IExpressionManager
-				// available to evaluate the expressions for them.
-				BeanUI.notify(editingBean, this, new BeanProcessor() {
-					@Override
-					public void process(String name, Object value, IFieldWidget box) throws Exception {
-						if (box instanceof IExpressionWidget) {
-							final IExpressionWidget expressionBox = (IExpressionWidget)box;
-							if (expressionBox.isExpressionAllowed()){
-								final BeanExpressionManager man       = new BeanExpressionManager(expressionBox, RichBeanEditorPart.this);
-								man.setAllowedSymbols(getExpressionFields());
-								expressionBox.setExpressionManager(man);
-							}
-						}
-					}
-				});
+					
+				// TODO resolve this - the DawnSci widgets do not allow expressions - a licensing issue??
+//				// We ensure that fields being edited which allow expressions, have the IExpressionManager
+//				// available to evaluate the expressions for them.
+//				BeanUI.notify(editingBean, this, new BeanProcessor() {
+//					@Override
+//					public void process(String name, Object value, IFieldWidget box) throws Exception {
+//						if (box instanceof IExpressionWidget) {
+//							final IExpressionWidget expressionBox = (IExpressionWidget)box;
+//							if (expressionBox.isExpressionAllowed()){
+//								final BeanExpressionManager man       = new BeanExpressionManager(expressionBox, RichBeanEditorPart.this);
+//								man.setAllowedSymbols(getExpressionFields());
+//								expressionBox.setExpressionManager(man);
+//							}
+//						}
+//					}
+//				});
 
 			}
 		} catch (Exception e) {
