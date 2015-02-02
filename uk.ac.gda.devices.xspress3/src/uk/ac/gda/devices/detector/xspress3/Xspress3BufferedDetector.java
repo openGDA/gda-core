@@ -56,14 +56,9 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	@Override
 	public void setContinuousParameters(ContinuousParameters parameters) throws DeviceException {
 		this.parameters = parameters;
-		// ContinuousScans call atScanStart, then later on
-		// setContinuousParameters(true) before the continuous motion.
-		// As the Xspress3WithFullCalculationsDetector class configures the
-		// detector using the atScanStart and atScanLineStart hooks, they should
-		// be called here to properly configure and prepare the detector.
-		((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(true);
-		atScanStart();
-		atScanLineStart();
+		// Just call the underlying atScanLineStart here, atScanStart would already have been called.
+		// The atScanLineStart of this class should do nothing
+		xspress3Detector.atScanLineStart();
 	}
 
 	@Override
@@ -76,12 +71,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 
 		if (xspress3Detector instanceof Xspress3WithFullCalculationsDetector) {
 			if (xspress3Detector.getController().isSavingFiles()) {
-				int available = xspress3Detector.getController().getTotalFramesAvailable();
-				int toAcquire = xspress3Detector.getController().getNumFramesToAcquire();
-				if (available != toAcquire) {
-					return 0;
-				}
-				return available;
+				return 0;
 			}
 		}
 
@@ -150,6 +140,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	public void atScanStart() throws DeviceException {
+		((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(true);
 		xspress3Detector.atScanStart();
 	}
 
@@ -158,7 +149,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	public void atScanLineStart() throws DeviceException {
-		xspress3Detector.atScanLineStart();
+		// do nothing here, as the correct thing will be done by setContinuousParameters
 	}
 
 	public Object getPosition() throws DeviceException {
@@ -251,7 +242,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	public void atScanLineEnd() throws DeviceException {
-		xspress3Detector.atScanLineEnd();
+//		xspress3Detector.atScanLineEnd();
 	}
 
 	public void clearAndStart() throws DeviceException {
