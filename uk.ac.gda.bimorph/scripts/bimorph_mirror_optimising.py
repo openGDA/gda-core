@@ -17,7 +17,6 @@ from gda.device.scannable import PseudoDevice
 from time import sleep
 from gdascripts.pd.dummy_pds import DummyPD
 from gda.scan import ConcurrentScan
-from uk.ac.gda.beans import BeansFactory
 from gda.epics import CAClient
 from gdascripts.scannable.installStandardScannableMetadataCollection import meta
 
