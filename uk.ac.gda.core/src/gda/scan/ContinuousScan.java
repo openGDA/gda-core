@@ -139,6 +139,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 		qscanAxis.waitWhileBusy();
 		if (!isChild())
 			currentPointCount = -1;
+		timeMotionFinished = null;
 		qscanAxis.performContinuousMove();
 
 		// now readout and convert each point to a regular sdp to give it to the datahandler
@@ -226,7 +227,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 		if (timeMotionFinished == null){
 			logger.info("Motion has finished, now waiting for detectors to readout");
 			timeMotionFinished = now;
-		} else if (now.getTime() - timeMotionFinished.getTime() > 30000){
+		} else if (now.getTime() - timeMotionFinished.getTime() > 60000){
 			// timeout after 5 minutes
 			String msg = "Timeout waiting for detectors to readout after continuous scan motion has completed";
 			logger.error(msg);
