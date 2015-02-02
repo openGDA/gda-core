@@ -242,6 +242,7 @@ public class Xspress3DataOperations {
 			}
 			return frames;
 		} catch (Exception e) {
+			reader = null;
 			throw new DeviceException(e.getMessage());
 		}
 	}
