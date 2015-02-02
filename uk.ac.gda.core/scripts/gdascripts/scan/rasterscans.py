@@ -43,8 +43,6 @@ def pieplotter(ystart, ystop, ystep, xstart, xstep, xstop, zname):
         _plotter.setSwingPlotViewName('Data Vector')
     except AttributeError:
         pass
-    _plotter.setX_colName('pieX')
-    _plotter.setY_colName('pieY')
     _plotter.setZ_colName(zname)
     _plotter.setName('pieplotter_' + zname)
     _plotter.setXArgs(xstart, xstep, xstop)

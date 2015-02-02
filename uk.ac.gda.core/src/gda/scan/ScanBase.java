@@ -770,20 +770,21 @@ public abstract class ScanBase implements NestableScan {
 	// if one of the child scans does not support the reporting of scan dimensions then simply return
 	// as if a 1d scan
 	int[] getDimensions() {
-		
+
+		// ContiguousScan scans should appear one dimensional and have their own interface for working out the dimension
+		// TODO: is it really appropriate for ScanBase to have to be aware of ContiguousScans?
 		Scan outerMostScan = getOuterMostScan();
 		if( outerMostScan != null && outerMostScan instanceof ContiguousScan)
 			return new int[]{ ((ContiguousScan)outerMostScan).getNumberOfContiguousPoints()};
 		Vector<Integer> dim = new Vector<Integer>();
-		NestableScan scan = this;
+		Scan scan = outerMostScan;
 		while (scan != null) {
 			int numberPoints = scan.getDimension();
 			if (numberPoints == -1) {
 				return new int[] { -1 }; // escape if child does not support this concept
 			}
-			// order is parent->child so insert at the front
-			dim.add(0, numberPoints);
-			scan = scan.getParent();
+			dim.add(numberPoints);
+			scan = scan.getChild();
 		}
 		int[] dims = new int[dim.size()];
 		for (int i = 0; i < dim.size(); i++) {
