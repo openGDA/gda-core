@@ -30,10 +30,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author Simon Berriman
  */
-public abstract class AbstractTest {
+public abstract class AbstractTestBase {
 
 	/** Logger */
-	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTest.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTestBase.class);
 
 	@Rule
 	public TestName testName = new TestName();
