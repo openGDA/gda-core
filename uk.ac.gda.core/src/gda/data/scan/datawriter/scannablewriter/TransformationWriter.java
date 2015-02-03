@@ -20,99 +20,66 @@ package gda.data.scan.datawriter.scannablewriter;
 
 import gda.device.Scannable;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 
 public class TransformationWriter extends SingleScannableWriter {
 
-	private String[] dependsOn;
-	private Double[][] vector;
-	private String[] transformation;
-	private Double[] offset;
-	private String[] offsetUnits;
+	protected String[] depends_on;
+	protected Double[][] vector;
+	protected String[] transformation;
+	protected Double[] offset;
+	protected String[] offset_units;
+	
+	class TransformationComponentWriter extends DefaultComponentWriter {
+		
+		private int index;
 
-	public class TransformationComponentWriter extends NumberComponentWriter {
-
-		private final int index;
-
-		public TransformationComponentWriter(final int i) {
+		public TransformationComponentWriter(int i) {
 			this.index = i;
 		}
-
+		
 		@Override
-		protected void addCustomAttributes(final NeXusFileInterface file, final String scannableName,
-				final String componentName) throws NexusException {
-
+		protected void addCustomAttributes(NeXusFileInterface file, String scannableName, String componentName) throws NexusException {
 			super.addCustomAttributes(file, scannableName, componentName);
-
-			file.putattr("transformation", getTransformation()[index].getBytes(), NexusFile.NX_CHAR);
-			if (getDependsOn()[index] != null) {
-				file.putattr("depends_on", getDependsOn()[index].getBytes(), NexusFile.NX_CHAR);
-			}
-			if (getOffsetUnits()[index] != null) {
-				file.putattr("offset_units", getOffsetUnits()[index].getBytes(), NexusFile.NX_CHAR);
-			}
-			if (getVector()[index] != null) {
-				file.putattr(
-						"vector",
-						String.format("%5.5g, %5.5g, %5g5", getVector()[index][0], getVector()[index][1],
-								getVector()[index][2]).getBytes(), NexusFile.NX_CHAR);
-			}
-			if (getOffset()[index] != null) {
-				file.putattr("offset", new double[] { getOffset()[index] }, NexusFile.NX_FLOAT64);
-			}
+			file.putattr("transformation", transformation[index].getBytes(), NexusFile.NX_CHAR);
+			if (depends_on[index] != null)
+				file.putattr("depends_on", depends_on[index].getBytes(), NexusFile.NX_CHAR);
+			if (offset_units[index] != null)
+				file.putattr("offset_units", offset_units[index].getBytes(), NexusFile.NX_CHAR);
+			if (vector[index] != null) // TODO this needs to be an array, but we need to change NAPI for that 
+				file.putattr("vector", String.format("%5.5g, %5.5g, %5g5", vector[index][0],vector[index][1], vector[index][2]).getBytes(), NexusFile.NX_CHAR);
+			if (offset[index] != null)
+				file.putattr("offset", new double[] {offset[index]}, NexusFile.NX_FLOAT64);
 		}
 	}
 
 	@Override
-	protected ComponentWriter getComponentWriter(final Scannable s, final String componentName, final Object object) {
-		final int index = indexForcomponentName(s, componentName);
-		if (getTransformation() != null && getTransformation().length > index) {
-			final TransformationComponentWriter cw = new TransformationComponentWriter(index);
-			getCwriter().put(componentName, cw);
+	protected ComponentWriter getComponentWriter(Scannable s, String componentName, Object object) {
+		int index = indexForcomponentName(s, componentName);
+		if (transformation != null && transformation.length > index) {
+			TransformationComponentWriter cw = new TransformationComponentWriter(index);
+			cwriter.put(componentName, cw);
 			return cw;
 		}
-
+		
 		return super.getComponentWriter(s, componentName, object);
 	}
 
-	private final int indexForcomponentName(final Scannable s, final String component) {
-		final String[] all = (String[]) ArrayUtils.addAll((s.getInputNames() != null) ? s.getInputNames()
-				: new String[] {}, (s.getExtraNames() != null) ? s.getExtraNames() : new String[] {});
-
-		for (int i = 0; i < all.length; i++) {
-			if (component.equals(all[i])) {
-				return i;
-			}
-		}
-		throw new ArrayIndexOutOfBoundsException();
-	}
-
-	@Deprecated
 	public String[] getDepends_on() {
-		return getDependsOn();
+		return depends_on;
 	}
 
-	public String[] getDependsOn() {
-		return dependsOn;
-	}
-
-	@Deprecated
-	public final void setDepends_on(final String[] depends_on) {
-		setDependsOn(depends_on);
-	}
-
-	public final void setDependsOn(final String[] dependsOn) {
-		this.dependsOn = dependsOn;
+	public void setDepends_on(String[] depends_on) {
+		this.depends_on = depends_on;
 	}
 
 	public Double[][] getVector() {
 		return vector;
 	}
 
-	public final void setVector(final Double[][] vector) {
+	public void setVector(Double[][] vector) {
 		this.vector = vector;
 	}
 
@@ -120,7 +87,7 @@ public class TransformationWriter extends SingleScannableWriter {
 		return transformation;
 	}
 
-	public final void setTransformation(final String[] transformation) {
+	public void setTransformation(String[] transformation) {
 		this.transformation = transformation;
 	}
 
@@ -128,25 +95,15 @@ public class TransformationWriter extends SingleScannableWriter {
 		return offset;
 	}
 
-	public final void setOffset(final Double[] offset) {
+	public void setOffset(Double[] offset) {
 		this.offset = offset;
 	}
 
-	@Deprecated
-	public final String[] getOffset_units() {
-		return getOffsetUnits();
+	public String[] getOffset_units() {
+		return offset_units;
 	}
 
-	public String[] getOffsetUnits() {
-		return offsetUnits;
-	}
-
-	@Deprecated
-	public final void setOffset_units(final String[] offset_units) {
-		setOffsetUnits(offset_units);
-	}
-
-	public final void setOffsetUnits(final String[] offsetUnits) {
-		this.offsetUnits = offsetUnits;
-	}
+	public void setOffset_units(String[] offset_units) {
+		this.offset_units = offset_units;
+	}	
 }
