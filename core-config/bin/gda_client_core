@@ -32,7 +32,7 @@ else
 	echo "Can't find jacorb directory"
 	exit 1
 fi
-VMARGS="-Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/$GDA_MODE/new_${BEAMLINE}_java.properties $VMARGS"
+VMARGS="-Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/$GDA_MODE/${GDA_MODE}_instance_java.properties $VMARGS"
 
 
 #KrisB - New lines to pass GDA level variables into Java

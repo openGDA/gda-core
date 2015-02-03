@@ -21,7 +21,7 @@ echo 'About to pick which console log file to run'
 
   GDA_LOGPANEL_APP=/dls_sw/apps/gdalogpanel/gdalogpanel/gdalogpanel
 
-  GDA_LOGPANEL_APP_ARGS="-vmargs -Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/new_${BEAMLINE}_java.properties"
+  GDA_LOGPANEL_APP_ARGS="-vmargs -Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/${GDA_MODE}_instance_java.properties"
   GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.install.git.loc=${GDA_WORKSPACE_PARENT}/workspace_git"
   GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.mode=${GDA_MODE}"
   GDA_LOGPANEL_APP_ARGS="$GDA_LOGPANEL_APP_ARGS -Dgda.group.dir=${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}"

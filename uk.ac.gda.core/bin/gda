@@ -614,7 +614,7 @@ where task can be:
 				#Don't need to set variable below as only passing it straight through - See line : -Dgda.group.dir
 				#self.options.gda_group_config_dir = abspath(os.getenv("GDA_WORKSPACE_PARENT") +"/", os.getenv("GDA_GROUP_CONFIG_rel"))
 				self.logger.info("self.options.gda_instance_config_dir= %s" % self.options.gda_instance_config_dir)
-				self.options.java_properties = abspath(self.options.gda_instance_config_dir, "properties", self.options.gda_mode, "new_" + os.getenv("BEAMLINE") + "_java.properties")
+				self.options.java_properties = abspath(self.options.gda_instance_config_dir, "properties", self.options.gda_mode, self.options.gda_mode + "_instance_java.properties")
 		# Set JacORB config dir, if not already set
 		if not self.options.jacorb_config_dir:
 			if self.layout == OLD:
