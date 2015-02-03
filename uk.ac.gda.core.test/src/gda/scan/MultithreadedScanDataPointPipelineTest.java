@@ -25,7 +25,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import gda.AbstractTest;
+import gda.AbstractTestBase;
 import gda.MockFactory;
 import gda.data.scan.datawriter.DataWriter;
 import gda.device.Detector;
@@ -42,7 +42,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 
-public class MultithreadedScanDataPointPipelineTest extends AbstractTest {
+public class MultithreadedScanDataPointPipelineTest extends AbstractTestBase {
 
 	interface PositionCallableProvidingScannable extends PositionCallableProvider<Object>, Scannable {
 	}
