@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * At the moment this class should handle well formed scannables returning Doubles or Strings 
+ * At the moment this class should handle well formed scannables returning Doubles or Strings
  * with multiple input or extra names
  */
 public class SingleScannableWriter implements ScannableWriter {
@@ -66,19 +66,19 @@ public class SingleScannableWriter implements ScannableWriter {
 		}
 		throw new ArrayIndexOutOfBoundsException();
 	}
-	
+
 	protected ComponentWriter getComponentWriter(Scannable s, String componentName, Object object) {
 		if (cwriter.containsKey(componentName))
 			return cwriter.get(componentName);
 		DefaultComponentWriter cw = null;
-		if (object instanceof String)
+		if (object instanceof Number)
+			cw = new DefaultComponentWriter();
+		else // real default!
 			cw = new StringComponentWriter();
-		if (cw == null) // default
-			cw = new DefaultComponentWriter(); // Doubles
 		cwriter.put(componentName, cw);
 		return cw;
 	}
-	
+
 	protected void resetComponentWriters() {
 		cwriter = new HashMap<String, ComponentWriter>();
 	}
@@ -108,7 +108,7 @@ public class SingleScannableWriter implements ScannableWriter {
 		}
 		return sclc;
 	}
-	
+
 	@Override
 	public void writeScannable(NeXusFileInterface file, Scannable s, Object position, int[] start)
 			throws NexusException {
