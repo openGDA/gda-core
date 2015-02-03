@@ -312,12 +312,12 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			nxdata.addData(getName() + "mask", ngd, null, null);
 		}
 		
-		for (String label : new String[] { "distance", "beam_center_x", "beam_center_y" }) {
+		for (String label : new String[] { "distance", "beam_center_x", "beam_center_y", "scaling_factor" }) {
 			if (attributeMap.containsKey(label)) {
 				try {
 					ngd = new NexusGroupData(new int[] { 1 }, NexusFile.NX_FLOAT64,
 							new double[] { (Double) attributeMap.get(label) });
-					ngd.isDetectorEntryData = false;
+					ngd.isDetectorEntryData = "scaling_factor".equals(label);
 
 					NexusTreeNode type_node = new NexusTreeNode(label, NexusExtractor.SDSClassName, null, ngd);
 					type_node.setIsPointDependent(false);
