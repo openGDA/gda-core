@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.apache.commons.math3.exception.NotANumberException;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
@@ -17,12 +18,12 @@ public class DefaultComponentWriter implements ComponentWriter {
 	private static final Logger logger = LoggerFactory.getLogger(DefaultComponentWriter.class);
 
 	private int levels = 0;
-	
+
 	public DefaultComponentWriter() { }
 
 	/**
 	 * Set the file into the position to write the data
-	 * 
+	 *
 	 * @param file
 	 * @return name of trailing component
 	 * @throws NexusException
@@ -80,14 +81,16 @@ public class DefaultComponentWriter implements ComponentWriter {
 		}
 		return mdim;
 	}
-	
+
 	protected int[] putslabdimfordim(int[] dim) {
 		return dim;
 	}
 
 	protected Object getComponentSlab(Object pos) {
-		Object poso = pos;
-		return new double[] { (Double) poso };
+		if (!(pos instanceof Number)) {
+			throw new NotANumberException();
+		}
+		return new double[] { ((Number) pos).doubleValue() };
 	}
 
 	@Override
@@ -109,7 +112,7 @@ public class DefaultComponentWriter implements ComponentWriter {
 			if (componentName != null) {
 				file.putattr("local_name", String.format("%s.%s", scannableName, componentName).getBytes(), NexusFile.NX_CHAR);
 			}
-	
+
 			String axislist = "1";
 			for (int j = 2; j <= dim.length; j++) {
 				axislist = axislist + String.format(",%d", j);
@@ -119,13 +122,13 @@ public class DefaultComponentWriter implements ComponentWriter {
 				file.putattr("units", unit.getBytes(Charset.forName("UTF-8")), NexusFile.NX_CHAR);
 			addCustomAttributes(file, scannableName, componentName);
 			file.putslab(getComponentSlab(pos), nulldimfordim(dim), slabsizedimfordim(dim));
-	
+
 			sclc.add(new SelfCreatingLink(file.getdataID()));
 			file.closedata();
 		} finally {
 			leaveLocation(file);
 		}
-		
+
 		return sclc;
 	}
 
@@ -135,7 +138,7 @@ public class DefaultComponentWriter implements ComponentWriter {
 	 * @param file nexus file
 	 * @param scannableName name of Scannable
 	 * @param componentName extra or input name being written
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	@SuppressWarnings("unused")
 	protected void addCustomAttributes(NeXusFileInterface file, String scannableName, String componentName) throws NexusException { }
