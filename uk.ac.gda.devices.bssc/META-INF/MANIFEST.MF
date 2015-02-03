@@ -39,7 +39,8 @@ Require-Bundle: org.eclipse.ui,
  org.apache.commons.math3,
  org.dawnsci.plotting.system,
  org.dawnsci.plotting.draw2d;bundle-version="1.2.0",
- uk.ac.diamond.scisoft.ncd.core;bundle-version="3.0.0"
+ uk.ac.diamond.scisoft.ncd.core;bundle-version="3.0.0",
+ org.dawnsci.common.widgets;bundle-version="1.2.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: uk.ac.gda.devices.bssc,
  uk.ac.gda.devices.bssc.beans,

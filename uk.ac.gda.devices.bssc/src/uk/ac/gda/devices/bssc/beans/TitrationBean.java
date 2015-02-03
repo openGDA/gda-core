@@ -18,9 +18,9 @@
 
 package uk.ac.gda.devices.bssc.beans;
 
-import uk.ac.gda.beans.IRichBean;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
-public class TitrationBean implements IRichBean {
+public class TitrationBean implements XMLRichBean {
 	
 	LocationBean location = new LocationBean();
 	LocationBean bufferLocation = new LocationBean();
@@ -99,8 +99,5 @@ public class TitrationBean implements IRichBean {
 	}
 	public void setBufferLocation(LocationBean bufferLocation) {
 		this.bufferLocation = bufferLocation;
-	}
-	@Override
-	public void clear() {
 	}
 }
