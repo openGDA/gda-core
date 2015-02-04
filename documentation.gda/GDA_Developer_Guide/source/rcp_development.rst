@@ -204,6 +204,7 @@ Perspective:
       - uk.ac.gda.common.rcp
       - uk.ac.gda.client.experimentdefinition
       - org.eclipse.core.resources
+      - org.dawnsci.common.widgets
       
 
    b) It will also need to be a registered buddy of ``experimentdefinition`` by including the following line in the MANIFEST.MF file::
@@ -212,22 +213,17 @@ Perspective:
       
 
 
-2) create the Java beans and related editors 
+2) create the Java beans and related editor
 
    This will define your experiments. For more information, see the Javadoc in ``uk.ac.gda.common.rcp/src/uk/ac/gda/richbeans/package-info.java``. 
-   The Beans must implement ``IRichBean``.
+   The Beans must implement ``XMLRichBean``.
  
-   a) write the Java beans which will define your experiments and export that package.
-   b) Add the RichBean Framework wizard to your Eclipse IDE. This is a jar which should be placed in the plugins folder of your Eclipse IDE installation. Then restart the IDE with the --clean option.
-   c) Use the RichBean Framework wizard to build UI classes based on the beans you have defined. To do this, in the IDE, use the menu option::
-   
-      	New -> Other... -> DLS Wizards -> New Rich Bean Editor from Wizard
-      
-
-   d) Write the mapping file and XSD file which is used to map the Java beans to xml.  The tag for the experiment object should match the class name. These should be referenced in each Java class by two public static URLs and two methods:
+   a) Write the Java beans which will define your experiments and export that package.
+   b) Write a Composite which will be used to as the UI to edit the contents of the bean and XML file. This must use a standard constructor for composites: (Composite parent, int style). As the RichBean framework uses reflection to map bean attributes to UI widgets there must be method names in the composite which match the getters in the bean. The Composite getter must return the RichBean widgets which extend FieldComposite. This composite could also be included in a view outside of the rest of the ExperimentDefinition infrastructure as a stand-alone part of the UI. This would be useful if the composite is for configuring hardware or if the whole experiment could be defined using a single bean.
+   c) Write the mapping file and XSD file which is used to map the Java beans to xml.  The tag for the experiment object should match the class name. These should be referenced in each Java bean class by two public static URLs and two methods:
 
 	::
- 
+
  		static public final URL mappingURL = MyBean.class.getResource("MyBeanMapping.xml");
 		static public final URL schemaURL  = MyBean.class.getResource("MyBeanMapping.xsd");
 
@@ -238,6 +234,37 @@ Perspective:
 		public static void writeToXML(MyBean scanParameters, String filename) throws Exception {
 			XMLHelpers.writeToXML(mappingURL, scanParameters, filename);
 		}
+		
+	d) Write the Editor which will display the Composite and the XML. This editor should extend ExperimentBeanMultiPageEditor and so will be mostly boiler-plate:
+	
+	::
+	
+		public final class MyBeanEditor extends RichBeanMultiPageEditorPart {
+	
+		@Override
+		public Class<?> getBeanClass() {
+			return MyBean.class;
+		}
+	
+		@Override
+		public URL getMappingUrl() {
+			return MyBean.mappingURL;
+		}
+	
+		@Override
+		public RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
+			DelegatingRichBeanEditorPart editor = new DelegatingRichBeanEditorPart(path,getMappingUrl(),this,editingBean);
+			editor.setEditorClass(MyBean.class);
+			editor.setRichEditorTabText("Example Custom UI");
+			return editor;
+		}
+	
+		@Override
+		public URL getSchemaUrl() {
+			return MyBean.schemaURL;
+		}
+
+}
 	
 
 3) Use extension points to configure your Experiment perspective.
@@ -246,8 +273,8 @@ Perspective:
 
       i) uk.ac.common.beans.factory
       ii) uk.ac.gda.richbeans.beantypes
-      iii) org.eclipse.ui.editors (editor id must match to the Java class)
-      iv) org.eclipse.core.contenttype.contentTypes
+      iii) org.eclipse.core.contenttype.contentTypes
+      iv) org.eclipse.ui.editors (editor id must match to the Java class, and this must reference the content-type)
 
    b) make a contribution to the ``uk.ac.gda.client.experimentdefinition`` extension point. This references the implementation-specific classes which are used by the Experiment perspective to perform certain roles. Classes which extend the following abstract base classes are required:
 
@@ -321,6 +348,6 @@ as in the example product.
 
 Example classes are in the gda.example.richbean package of the uk.ac.gda.example plugin.
 
-Important: must implement toString(), hashCode() and equals()
+
 
     
