@@ -30,6 +30,7 @@ import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.exafs.ui.detector.xspress.XspressParametersUIEditor;
 import uk.ac.gda.exafs.ui.detector.xspress3.Xspress3ParametersUIEditor;
 
+
 /**
  * This is the Import Wizard that allows Regions Of Interest to be imported into the
  * current DetectorEditor from another bean xml file. 

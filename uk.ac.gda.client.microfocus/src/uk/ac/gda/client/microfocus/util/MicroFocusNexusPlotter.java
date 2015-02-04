@@ -213,7 +213,6 @@ public class MicroFocusNexusPlotter {
 			double[] spectrum = dataProvider.getSpectrum(dataProvider.getSelectedChannel(), xPixel, yPixel);
 			if (spectrum != null) {
 				final Dataset yaxis = DatasetFactory.createFromObject(spectrum);
-
 				logger.info("Plotting spectrum for channel " + dataProvider.getSelectedChannel() + ", pixel " + xPixel + ","
 						+ yPixel);
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {

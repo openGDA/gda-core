@@ -10,6 +10,7 @@ import gda.device.detector.NexusDetector;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
+import uk.ac.gda.devices.detector.xspress3.fullCalculations.Xspress3WithFullCalculationsDetector;
 
 /**
  * When using an Xspress3 system in a ContinuousScan.
@@ -40,7 +41,8 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		if (on) {
 			xspress3Detector.getController().setNumFramesToAcquire(parameters.getNumberDataPoints());
 			xspress3Detector.getController().setTriggerMode(triggerModeWhenInContinuousScan);
-			// Epics needs us to clear memory again after setting trig mode and num frames
+			// Epics needs us to clear memory again after setting trig mode and
+			// num frames
 			clearMemory();
 			xspress3Detector.getController().doStart();
 		}
@@ -54,6 +56,14 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	@Override
 	public void setContinuousParameters(ContinuousParameters parameters) throws DeviceException {
 		this.parameters = parameters;
+		// ContinuousScans call atScanStart, then later on
+		// setContinuousParameters(true) before the continuous motion.
+		// As the Xspress3WithFullCalculationsDetector class configures the
+		// detector using the atScanStart and atScanLineStart hooks, they should
+		// be called here to properly configure and prepare the detector.
+		((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(true);
+		atScanStart();
+		atScanLineStart();
 	}
 
 	@Override
@@ -63,6 +73,18 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 
 	@Override
 	public int getNumberFrames() throws DeviceException {
+
+		if (xspress3Detector instanceof Xspress3WithFullCalculationsDetector) {
+			if (xspress3Detector.getController().isSavingFiles()) {
+				int available = xspress3Detector.getController().getTotalFramesAvailable();
+				int toAcquire = xspress3Detector.getController().getNumFramesToAcquire();
+				if (available != toAcquire) {
+					return 0;
+				}
+				return available;
+			}
+		}
+
 		return xspress3Detector.getController().getTotalFramesAvailable();
 	}
 
@@ -78,7 +100,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 
 	@Override
 	public int maximumReadFrames() throws DeviceException {
-		return 500;
+		return 250;
 	}
 
 	public TRIGGER_MODE getTriggerModeWhenInContinuousScan() {
@@ -148,6 +170,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	public void atScanEnd() throws DeviceException {
+		((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(false);
 		xspress3Detector.atScanEnd();
 	}
 
@@ -198,7 +221,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	public int getStatus() throws DeviceException {
 		return xspress3Detector.getStatus();
 	}
-	
+
 	public String getDescription() throws DeviceException {
 		return xspress3Detector.getDescription();
 	}
@@ -256,6 +279,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	public void atCommandFailure() throws DeviceException {
+		((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(false);
 		xspress3Detector.atCommandFailure();
 	}
 
@@ -282,7 +306,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	public void setInputNames(String[] names) {
 		xspress3Detector.setInputNames(names);
 	}
-	
+
 	public void setLevel(int level) {
 		xspress3Detector.setLevel(level);
 	}
@@ -294,7 +318,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	public String toString() {
 		return xspress3Detector.toString();
 	}
-	
+
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
 		xspress3Detector.waitWhileBusy();
 	}
