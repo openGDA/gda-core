@@ -18,9 +18,11 @@
 
 package uk.ac.gda.richbeans.editors;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
@@ -42,6 +44,7 @@ public class DelegatingRichBeanEditorPart extends RichBeanEditorPart {
 	private Class<? extends Composite> editorClass;
 	private Composite editorUI;
 	private String    tabText;
+	private boolean enableScrolling = false;
 	
 	public DelegatingRichBeanEditorPart(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean);
@@ -53,6 +56,13 @@ public class DelegatingRichBeanEditorPart extends RichBeanEditorPart {
 	 */
 	public void setEditorClass(Class<? extends Composite> delegateClass) {
 		this.editorClass = delegateClass;
+	}
+	
+	/**
+	 * Please call shortly after creation
+	 */	
+	public void setScrollable(boolean enableScrolling){
+		this.enableScrolling = enableScrolling;
 	}
 	
 	/**
@@ -71,12 +81,25 @@ public class DelegatingRichBeanEditorPart extends RichBeanEditorPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		try {		
-			parent.setLayout(new FillLayout());
-			editorUI = editorClass.getConstructor(Composite.class, int.class).newInstance(parent, SWT.BORDER);
-			
+			if (enableScrolling){
+				final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+				scrolledComposite.setExpandHorizontal(true);
+				scrolledComposite.setExpandVertical(true);
+				instantiateComposite(scrolledComposite);
+				scrolledComposite.setContent(editorUI);
+				editorUI.layout();
+				scrolledComposite.setMinSize(editorUI.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+			} else {
+				instantiateComposite(parent);
+			}
 		} catch(Exception e) {
 			logger.error("Cannot create instance of editing composite", e);
 		}
+	}
+
+	private void instantiateComposite(Composite parent) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+		parent.setLayout(new FillLayout());
+		editorUI = editorClass.getConstructor(Composite.class, int.class).newInstance(parent, SWT.BORDER);
 	}
 
 	@Override
