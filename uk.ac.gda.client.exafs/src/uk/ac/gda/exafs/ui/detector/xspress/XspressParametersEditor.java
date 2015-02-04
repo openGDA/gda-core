@@ -24,13 +24,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.exafs.ui.ExafsBeanFileSelectionEditor;
+import uk.ac.gda.client.experimentdefinition.ExperimentBeanMultiPageEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 /**
  *
  */
-public class XspressParametersEditor extends ExafsBeanFileSelectionEditor {
+public class XspressParametersEditor extends ExperimentBeanMultiPageEditor {
 
 	
 	/**

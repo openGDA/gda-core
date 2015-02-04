@@ -22,10 +22,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
-import uk.ac.gda.exafs.ui.ExafsBeanFileSelectionEditor;
+import uk.ac.gda.client.experimentdefinition.ExperimentBeanMultiPageEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-public class Xspress3ParametersEditor extends ExafsBeanFileSelectionEditor {
+public class Xspress3ParametersEditor extends ExperimentBeanMultiPageEditor {
 	
 	@Override
 	public Class<?> getBeanClass() {

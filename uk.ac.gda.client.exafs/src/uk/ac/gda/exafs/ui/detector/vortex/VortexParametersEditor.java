@@ -23,10 +23,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import uk.ac.gda.beans.vortex.VortexParameters;
-import uk.ac.gda.exafs.ui.ExafsBeanFileSelectionEditor;
+import uk.ac.gda.client.experimentdefinition.ExperimentBeanMultiPageEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-public class VortexParametersEditor extends ExafsBeanFileSelectionEditor {
+public class VortexParametersEditor extends ExperimentBeanMultiPageEditor {
 
 	public static final String ID = "uk.ac.gda.exafs.ui.VortexParametersEditor";
 

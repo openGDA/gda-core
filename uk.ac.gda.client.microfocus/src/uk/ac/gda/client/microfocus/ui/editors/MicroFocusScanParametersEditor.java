@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2010 Diamond Light Source Ltd.
+ * Copyright © 2015 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -21,40 +21,35 @@ package uk.ac.gda.client.microfocus.ui.editors;
 import java.net.URL;
 
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
+import uk.ac.gda.richbeans.editors.DelegatingRichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
-/**
- * @author nv23
- *
- */
-public final class MicroFocusScanParametersEditor extends
-		RichBeanMultiPageEditorPart {
 
-	
+public final class MicroFocusScanParametersEditor extends RichBeanMultiPageEditorPart {
+
 	@Override
 	public Class<?> getBeanClass() {
 		return MicroFocusScanParameters.class;
 	}
 
-	
 	@Override
 	public URL getMappingUrl() {
-		return MicroFocusScanParameters.mappingURL; // Please make sure this field is present and the mapping
+		return MicroFocusScanParameters.mappingURL;
 	}
 
-	
 	@Override
-	public RichBeanEditorPart getRichBeanEditorPart(String path,
-			Object editingBean) {
-		return new MicroFocusScanParametersUIEditor(path, getMappingUrl(),
-				this, editingBean);
+	public RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
+		DelegatingRichBeanEditorPart editor = new DelegatingRichBeanEditorPart(path, getMappingUrl(), this, editingBean);
+		editor.setEditorClass(MicroFocusScanParametersComposite.class);
+		editor.setScrollable(true);
+		editor.setRichEditorTabText("Example Custom UI");
+		return editor;
 	}
 
-	
 	@Override
 	public URL getSchemaUrl() {
-		return MicroFocusScanParameters.schemaUrl; // Please make sure this field is present and the schema
+		return MicroFocusScanParameters.schemaUrl;
 	}
 
 }

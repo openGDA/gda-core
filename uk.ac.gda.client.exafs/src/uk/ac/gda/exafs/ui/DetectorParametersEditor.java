@@ -22,12 +22,14 @@ package uk.ac.gda.exafs.ui;
 import java.net.URL;
 
 import uk.ac.gda.beans.exafs.DetectorParameters;
+import uk.ac.gda.client.experimentdefinition.ExperimentBeanMultiPageEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
-public final class DetectorParametersEditor extends ExafsBeanFileSelectionEditor {
+public final class DetectorParametersEditor extends ExperimentBeanMultiPageEditor {
 
 	@Override
-	public Class<?> getBeanClass() {
+	public Class<? extends XMLRichBean> getBeanClass() {
 		return DetectorParameters.class;
 	}
 

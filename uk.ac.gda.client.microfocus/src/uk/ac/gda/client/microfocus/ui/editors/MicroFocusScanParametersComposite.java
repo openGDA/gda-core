@@ -33,8 +33,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
-import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
-
 public final class MicroFocusScanParametersComposite extends Composite {
 
 	private ScaleBox collectionTime;
@@ -56,7 +54,7 @@ public final class MicroFocusScanParametersComposite extends Composite {
 	private Composite infoComposite;
 
 	@SuppressWarnings("unused")
-	public MicroFocusScanParametersComposite(Composite parent, MicroFocusScanParameters bean, int style) {
+	public MicroFocusScanParametersComposite(Composite parent, int style) {
 		super(parent, style);
 		Group tableComposite = new Group(this, SWT.BORDER);
 		{
@@ -231,7 +229,7 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		rasterComposite.setLayout(new GridLayout());
 		raster = new BooleanWrapper(rasterComposite, SWT.NONE);
 		raster.setText("Is Raster");
-		raster.setValue(bean.isRaster());
+		raster.setValue(false);
 
 		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gridData.widthHint = 420;
@@ -277,13 +275,8 @@ public final class MicroFocusScanParametersComposite extends Composite {
 			}
 		});
 
-		if (bean.isRaster()) {
-			rowTime.setEnabled(true);
-			collectionTime.setEnabled(false);
-		} else {
-			rowTime.setEnabled(false);
-			collectionTime.setEnabled(true);
-		}
+		rowTime.setEnabled(false);
+		collectionTime.setEnabled(true);
 		updateScanInfo();
 	}
 

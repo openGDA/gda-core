@@ -21,9 +21,10 @@ package uk.ac.gda.exafs.ui;
 import java.net.URL;
 
 import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
+import uk.ac.gda.client.experimentdefinition.ExperimentBeanMultiPageEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-public final class I18SampleParametersEditor extends ExafsBeanFileSelectionEditor {
+public final class I18SampleParametersEditor extends ExperimentBeanMultiPageEditor {
 
 	@Override
 	public Class<?> getBeanClass() {

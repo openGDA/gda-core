@@ -21,10 +21,11 @@ package uk.ac.gda.exafs.ui;
 import java.net.URL;
 
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
+import uk.ac.gda.client.experimentdefinition.ExperimentBeanMultiPageEditor;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-public final class QEXAFSParametersEditor extends ExafsBeanFileSelectionEditor implements DirtyContainer {
+public final class QEXAFSParametersEditor extends ExperimentBeanMultiPageEditor implements DirtyContainer {
 
 	@Override
 	public Class<?> getBeanClass() {

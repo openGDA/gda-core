@@ -22,9 +22,10 @@ import java.net.URL;
 
 import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.beans.exafs.i20.I20OutputParameters;
+import uk.ac.gda.client.experimentdefinition.ExperimentBeanMultiPageEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
-public class I20OutputParametersEditor extends ExafsBeanFileSelectionEditor {
+public class I20OutputParametersEditor extends ExperimentBeanMultiPageEditor {
 
 	@Override
 	public Class<?> getBeanClass() {
