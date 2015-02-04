@@ -1,0 +1,77 @@
+bashlog debug "gda_servers_core" "Entered"
+
+if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; then
+
+    if [[ -n "${GDA_IN_REMOTE_STARTUP-}" ]]; then
+        bashlog error "gda_servers_core" "Internal error: remote startup loop detected"
+        exit 2
+    fi
+
+    # Validate environment variables
+    for env_var_name in CONTROL_MACHINE_USER CONTROL_MACHINE_NAME CONTROL_MACHINE_SSHKEY_LOC; do
+        bashlog debug "gda_servers_core" "\${${env_var_name}}=${!env_var_name}"
+    done
+    for env_var_name in CONTROL_MACHINE_USER CONTROL_MACHINE_NAME CONTROL_MACHINE_SSHKEY_LOC; do
+        if [[ -z "${!env_var_name}" ]]; then
+            bashlog error "gda_servers_core" "\${${env_var_name}} is not set (or is null) - exiting"
+            exit 2
+        fi
+    done
+
+    # To prevent man-in-the-middle attacks, ensure that we use a validated host key
+    if [[ -n "${CONTROL_MACHINE_PUBKEY-}" ]]; then
+      ssh-keygen -R ${CONTROL_MACHINE_NAME} &> /dev/null
+      echo "${CONTROL_MACHINE_NAME} ${CONTROL_MACHINE_PUBKEY}" >> ~/.ssh/known_hosts
+      bashlog debug "gda_servers_core" "replacing public key for ${CONTROL_MACHINE_PUBKEY} in ~/.ssh/known_hosts"
+    fi
+
+    # Work around problem with ssh where remotestartupscript.sh completes, but ssh doesn't return. 
+    ssh -T -o BatchMode=yes -i ${CONTROL_MACHINE_SSHKEY_LOC} ${CONTROL_MACHINE_USER}@${CONTROL_MACHINE_NAME} ${GDA_OPERATION} &
+    # Run in background and wait for OBJECT_SERVER_STARTUP_FILE here. Note that due to network filesystem this is *much* less responsive
+    # but should start the client eventually, unlike ssh which may hang forever.
+
+else
+
+    echo
+    case "${GDA_OPERATION,,-}" in
+        stop) echo "Stopping the GDA Server, please wait..." ;;
+        start|restart) echo "${GDA_OPERATION^}ing the GDA Server, please wait...";; # ^ converts 1st character to upper case
+        *) echo "Restarting the GDA Server, please wait..." ;; # if no stop|start|restart was passed to this script, then restart is assumed
+    esac
+
+    # At this point, the pre scripts must have set GDA_LOGS_DIR and GDA_VAR
+    #TODO check that
+
+    # Set up the directory for VAR
+    mkdir -pv -m 777 ${GDA_VAR}
+
+    # Set up the directory and file in which to write the console log
+    # We only invoke one script to do this (the most specific one)
+    for filename in \
+      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_setup_consolelog_instance" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_setup_consolelog_group" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_setup_consolelog_facility"
+    do
+        if [ -e "${filename}" ]; then
+            bashlog debug "gda_servers_core" "sourcing ${filename}"
+            . ${filename}
+            break
+        fi
+    done
+
+    umask 0002
+    # This should fix a problem where sub-directories created in a visit folder end up
+    # with a different mask to the default.
+    GDA_CORE_SCRIPT=$(readlink -f ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/../uk.ac.gda.core/bin/gda)
+
+    export JAVA_OPTS="-Dgda.deploytype=1 -XX:MaxPermSize=1024m" # Seems to fix the reset_namespace problem
+    #GDA_CORE_SCRIPT_OPTIONS="--headless --debug --debugport=8001 --mode=$GDA_MODE $@"
+    GDA_CORE_SCRIPT_OPTIONS="--headless --debug --debugport=8001 --mode=$GDA_MODE --vardir=${GDA_VAR} $@"
+
+    bashlog info "gda_servers_core" "${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS}"
+    echo  ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_LOG_FILE}
+    nohup ${GDA_CORE_SCRIPT} ${GDA_CORE_SCRIPT_OPTIONS} >> ${GDA_LOG_FILE}  2>&1 &
+
+fi
+
+bashlog debug "gda_servers_core" "Exited"

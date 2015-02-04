@@ -1,0 +1,91 @@
+#!/bin/bash
+
+# Expects the following environment variables to be set:
+# (1) $GDA_WORKSPACE_PARENT
+# (2) $GDA_WORKSPACE_GIT_NAME  (will normally be "workspace_git", will always end with "_git")
+# (3) $GDA_INSTANCE_CONFIG_rel
+# (4) $GDA_GROUP_CONFIG_rel  (must be set, but can be an empty string)
+# (5) $GDA_FACILITY_CONFIG_rel  (must be set, but can be an empty string)
+# (6) $GDA_CORE_CONFIG_rel
+
+# Expects a parameter line that can be passed on to the gda python script
+
+
+bashlog debug "gda_core" "Start of gda_core script"
+
+# Validate environment variables
+for env_var_name in GDA_WORKSPACE_PARENT GDA_WORKSPACE_GIT_NAME GDA_INSTANCE_CONFIG_rel GDA_GROUP_CONFIG_rel GDA_FACILITY_CONFIG_rel GDA_CORE_CONFIG_rel; do
+    bashlog debug "gda_core" "\${${env_var_name}}=${!env_var_name}"
+done
+for env_var_name in GDA_WORKSPACE_PARENT GDA_WORKSPACE_GIT_NAME GDA_INSTANCE_CONFIG_rel GDA_CORE_CONFIG_rel; do
+    if [[ -z "${!env_var_name}" ]]; then
+        bashlog error "gda_core" "\${${env_var_name}} is not set (or is null) - exiting"
+        exit 2
+    fi
+done
+for env_var_name in GDA_GROUP_CONFIG_rel GDA_FACILITY_CONFIG_rel; do
+    if [[ -z "${!env_var_name=set_but_empty_ok}" ]]; then
+        bashlog error "gda_core" "\${${env_var_name}} is not set - exiting"
+        exit 2
+    fi
+done
+
+# Extract mode and component (required) from the parameters
+# All parameters are passed to the next script, but the current script also need to know the mode, and what we are starting
+bashlog debug "gda_core" "Parsing: $@"
+
+unset GDA_OPERATION GDA_COMPONENT
+for word in "$@"; do
+    if [[ "${word}" == --mode=* ]]; then
+        export GDA_MODE=${word:7}
+    fi
+    if [[ "${word}" != -* ]]; then
+        export GDA_COMPONENT=${word}
+    fi
+    if [[ "${word}" == "--stop" || "${word}" == "--start" || "${word}" == "--restart" ]]; then
+        export GDA_OPERATION=${word:2}
+    fi
+done
+# Default mode is dummy
+if [[ -z "${GDA_MODE-}" ]]; then
+	export GDA_MODE=dummy
+fi
+
+if [[ -n "${GDA_COMPONENT-}" ]]; then
+    GDA_COMPONENT="${GDA_COMPONENT,,}"
+    case "${GDA_COMPONENT}" in
+        logserver|nameserver|eventserver|objectserver) GDA_COMPONENT_CATEGORY=servers ;;
+        logpanel|servers|client) GDA_COMPONENT_CATEGORY=${GDA_COMPONENT} ;;
+        *) bashlog error "gda_core" "${GDA_COMPONENT} not recognised. Valid task names are logpanel, servers, client, logserver, nameserver, eventserver, objectserver"
+        
+        exit 2;;
+    esac
+fi
+
+if [[ -n "${GDA_COMPONENT-}" ]]; then
+    # Run the "gda_<component>_pre" scripts to set up the environment as required
+    # For Facility, Group, and Instance, there can be a pre-script, and a mode-specific pre-script (all optional)
+    # Note that in "live" mode, these scripts are run twice, so they must be idempotent:
+    # (1) on the user machine, when the user issues the gda bash command
+    # (2) on the control machine, when remotestartupscript.sh issues the gda bash command
+    for filename in \
+      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_pre_facility" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/etc/${GDA_MODE-ignore}/gda_${GDA_COMPONENT_CATEGORY}_pre_facility" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_pre_group" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/etc/${GDA_MODE-ignore}/gda_${GDA_COMPONENT_CATEGORY}_pre_group" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_pre_instance" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/etc/${GDA_MODE-ignore}/gda_${GDA_COMPONENT_CATEGORY}_pre_instance"
+    do
+      if [ -e "${filename}" ]; then
+        bashlog debug "gda_core" "sourcing ${filename}"
+        . ${filename}
+      fi
+    done
+fi
+echo '$@=' $@
+
+filename=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_core
+bashlog debug "gda_core" "sourcing ${filename}"
+. ${filename} "${extra_parameters-}$@"
+
+bashlog debug "gda_core" "Exited"

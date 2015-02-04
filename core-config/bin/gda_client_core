@@ -1,0 +1,53 @@
+bashlog debug "gda_client_core" "Entered"
+
+# Set up the directory and file in which to write the console log
+# We only invoke one script to do this (the most specific one)
+for filename in \
+    "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_setup_consolelog_instance" \
+    "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_setup_consolelog_group" \
+    "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_setup_consolelog_facility"
+do
+    if [ -e "${filename}" ]; then
+        . ${filename}
+        echo 'just ran console log file ' ${filename}
+        break
+    fi
+done
+
+export GDA_CLIENT_LOG_DIR=${GDA_LOGS_DIR}
+export GDA_CLIENT_WORKING_DIR=${GDA_WORKSPACE_PARENT}/client
+
+VMARGS="-Dgda.mode=${GDA_MODE} ${VMARGS-}"
+VMARGS="-Dgda.instance.dir=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel} $VMARGS"
+VMARGS="-Dgda.group.dir=${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel} $VMARGS"
+VMARGS="-Dgda.facility.dir=${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel} $VMARGS"
+VMARGS="-Dgda.core.dir=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel} $VMARGS"
+VMARGS="-Dgda.logs.dir=${GDA_LOGS_DIR} $VMARGS" # gda.logs.dir should be read from java.properties, but it doesn't seem to work
+VMARGS="-Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/${GDA_MODE}_instance_java.properties ${VMARGS}"
+
+jacorb_config_dir=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/jacorb
+if [ -d "${jacorb_config_dir}" ]; then
+    VMARGS="-Djacorb.config.dir=${jacorb_config_dir} $VMARGS"
+else
+    echo "Can't find jacorb directory $jacorb_config_dir}"
+    exit 1
+fi
+
+jca_properties_file=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/JCALibrary.properties
+if [ -d "${jca_properties_file}" ]; then
+    VMARGS="-Dgov.aps.jca.JCALibrary.properties=${jca_properties_file} $VMARGS"
+else
+    echo "Can't find JCALibrary.properties file ${jca_properties_file}"
+    exit 1
+fi
+
+VMARGS="-Dgda.install.git.loc=$GDA_WORKSPACE_PARENT/workspace_git $VMARGS"
+
+export GDA_CLIENT_VMARGS=$VMARGS
+bashlog debug "gda_client_core" "VMARGS=${VMARGS}"
+
+cd $GDA_WORKSPACE_PARENT/client
+
+${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gdaclient --log --keep --nohup $*
+
+bashlog debug "gda_client_core" "Exited"
