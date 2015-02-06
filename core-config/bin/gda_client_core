@@ -48,6 +48,12 @@ bashlog debug "gda_client_core" "VMARGS=${VMARGS}"
 
 cd $GDA_WORKSPACE_PARENT/client
 
+#Stripping the word 'client' from the parameters as come from gda bash script and not needed
+PARAMS=$*
+if [[ "$PARAMS" == *"client"* ]]; then
+        PARAMS="${PARAMS/client/}"
+fi
+
 ${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gdaclient --log --keep --nohup $*
 
 bashlog debug "gda_client_core" "Exited"
