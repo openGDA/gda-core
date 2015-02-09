@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test
+Bundle-SymbolicName: uk.ac.gda.server.exafs.epics.test
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: uk.ac.gda.server.exafs.epics;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.junit,
+ uk.ac.diamond.org.powermock;bundle-version="1.5.1",
+ org.mockito.mockito-core,
+ javassist;bundle-version="3.18.0"
