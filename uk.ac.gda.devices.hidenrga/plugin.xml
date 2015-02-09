@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="uk.ac.gda.devices.hidenrga.ui.views.RGASetup"
+            id="uk.ac.gda.devices.hidenrga.rgasetup"
+            name="RGA Setup"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="uk.ac.gda.devices.hidenrga.refreshview"
+            name="Refresh">
+      </command>
+      <command
+            id="uk.ac.gda.devices.hidenrga.applySettings"
+            name="Apply">
+      </command>
+      <command
+            id="uk.ac.gda.devices.hidenrga.record"
+            name="RecordingControl">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="uk.ac.gda.devices.hidenrga.ui.handlers.RefreshView"
+            commandId="uk.ac.gda.devices.hidenrga.refreshview">
+      </handler>
+      <handler
+            class="uk.ac.gda.devices.hidenrga.ui.handlers.ApplySettingsToRGA"
+            commandId="uk.ac.gda.devices.hidenrga.applySettings">
+      </handler>
+      <handler
+            class="uk.ac.gda.devices.hidenrga.ui.handlers.StartStopRecording"
+            commandId="uk.ac.gda.devices.hidenrga.record">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.gda.devices.hidenrga.rgasetup">
+         <command
+               commandId="uk.ac.gda.devices.hidenrga.refreshview"
+               icon="icons/arrow_refresh.png"
+               label="Refresh"
+               style="push"
+               tooltip="Update the view with the current RGA settings">
+         </command>
+         <command
+               commandId="uk.ac.gda.devices.hidenrga.applySettings"
+               icon="icons/cog_go.png"
+               label="Apply settings"
+               style="push"
+               tooltip="Apply the settings to the RGA">
+         </command>
+         <command
+               commandId="uk.ac.gda.devices.hidenrga.record"
+               icon="icons/page_white_go.png"
+               label="Record"
+               style="toggle"
+               tooltip="Start/stop recording RGA data to file">
+         </command>
+      </menuContribution>
+   </extension>
+
+</plugin>
