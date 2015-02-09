@@ -29,8 +29,10 @@ import gda.device.Timer;
 import gda.device.detector.DataDimension;
 import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
+import gda.factory.Finder;
 import gda.util.persistence.LocalParameters;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,6 +48,7 @@ import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.server.ncd.beans.StoredDetectorInfo;
 import uk.ac.gda.server.ncd.detectorsystem.NcdDetectorSystem;
 
 public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
@@ -310,6 +313,10 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 			int[] devicedims = getDataDimensions();
 			ngd = new NexusGroupData(new int[] { devicedims[0], devicedims[1] }, NexusFile.NX_FLOAT64, mask.getData());
 			nxdata.addData(getName() + "mask", ngd, null, null);
+		} else {
+			if (getDetectorType().equals("SAXS")) {
+				linkMaskFile(nxdata);
+			}
 		}
 		
 		for (String label : new String[] { "distance", "beam_center_x", "beam_center_y", "scaling_factor" }) {
@@ -330,6 +337,29 @@ public class NcdSubDetector extends DeviceBase implements INcdSubDetector {
 					logger.warn("Error writing metadata " + label + ": ", e);
 				}
 			}
+		}
+	}
+
+	private void linkMaskFile(NXDetectorData nxdata) {
+		StoredDetectorInfo maskFileInfo = Finder.getInstance().find("detectorInfoPath");
+		if (maskFileInfo == null) {
+			logger.error("Could not include mask file, detectorInfoPath could not be found");
+			return;
+		}
+		String maskFile = maskFileInfo.getSaxsDetectorInfoPath();
+		if (maskFile == null || maskFile.isEmpty()) {
+			logger.info("Not including mask data. No mask file set");
+			return;
+		}
+		if (!new File(maskFile).exists()) {
+			logger.error("Could not include mask data. {} does not exist", maskFile);
+			return;
+		}
+		try {
+			nxdata.addExternalFileLink("detector", "pixel_mask","nxfile://" +  maskFile + "#entry/mask/mask", false, true);
+			logger.info("Linked mask file {}", maskFile);
+		} catch (Exception e) {
+			logger.error("Could not link external mask", e);
 		}
 	}
 
