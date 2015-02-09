@@ -284,6 +284,9 @@ public class ZebraQexafsScannable extends QexafsScannable {
 							+ " greater than Bragg maximum speed. Speed will be set instead to the maximum speed of "
 							+ getMaxSpeed() + " deg/s");
 				}
+				
+				// always toggle the energy at the start
+				toggleEnergyControl();
 
 				// prepare zebra to send pulses
 				logger.debug("Time before zebra arm with callback");
