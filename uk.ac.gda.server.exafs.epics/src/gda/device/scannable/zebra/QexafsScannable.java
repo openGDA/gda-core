@@ -80,8 +80,9 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	protected double extraRunUp = 0;
 	protected boolean runUpOn = true;
 	protected boolean runDownOn = true;
-	protected boolean toggleEnergyControl = false;
+	private boolean doToggleEnergyControl = true;
 	protected double stepIncDemDeg;
+	
 
 	private Length twoDValue;
 
@@ -190,6 +191,12 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	}
 
 	protected void toggleEnergyControl() throws DeviceException {
+		
+		// public boolean to switch this off, depending on circumstances e.g. the exact energies being used.
+		if (!doToggleEnergyControl){
+			return;
+		}
+		
 		try {
 
 			long timeAtMethodStart = System.currentTimeMillis();
@@ -378,10 +385,10 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	 * @return boolean
 	 */
 	public boolean isToggleEnergyControl() {
-		return toggleEnergyControl;
+		return doToggleEnergyControl;
 	}
 
 	public void setToggleEnergyControl(boolean toggleEnergyControl) {
-		this.toggleEnergyControl = toggleEnergyControl;
+		this.doToggleEnergyControl = toggleEnergyControl;
 	}
 }
