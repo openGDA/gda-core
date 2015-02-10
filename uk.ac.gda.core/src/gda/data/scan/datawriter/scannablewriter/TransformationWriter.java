@@ -31,39 +31,44 @@ public class TransformationWriter extends SingleScannableWriter {
 	protected String[] transformation;
 	protected Double[][] offset;
 	protected String[] offset_units;
-	
-	class TransformationComponentWriter extends DefaultComponentWriter {
-		
-		private int index;
 
-		public TransformationComponentWriter(int i) {
+	class TransformationComponentWriter extends DefaultComponentWriter {
+
+		private final int index;
+
+		public TransformationComponentWriter(final int i) {
 			this.index = i;
 		}
-		
+
 		@Override
-		protected void addCustomAttributes(NeXusFileInterface file, String scannableName, String componentName) throws NexusException {
+		protected void addCustomAttributes(final NeXusFileInterface file, final String scannableName,
+				final String componentName) throws NexusException {
 			super.addCustomAttributes(file, scannableName, componentName);
 			file.putattr("transformation_type", transformation[index].getBytes(), NexusFile.NX_CHAR);
-			if (depends_on != null && depends_on[index] != null)
+			if (depends_on != null && depends_on[index] != null) {
 				file.putattr("depends_on", depends_on[index].getBytes(), NexusFile.NX_CHAR);
-			if (offset_units != null && offset_units[index] != null)
+			}
+			if (offset_units != null && offset_units[index] != null) {
 				file.putattr("offset_units", offset_units[index].getBytes(), NexusFile.NX_CHAR);
-			if (vector != null && vector[index] != null)
+			}
+			if (vector != null && vector[index] != null) {
 				file.putattr("vector", vector[index], new int[] { vector[index].length }, NexusFile.NX_FLOAT64);
-			if (offset != null && offset[index] != null)
+			}
+			if (offset != null && offset[index] != null) {
 				file.putattr("offset", offset[index], new int[] { offset[index].length }, NexusFile.NX_FLOAT64);
+			}
 		}
 	}
 
 	@Override
-	protected ComponentWriter getComponentWriter(Scannable s, String componentName, Object object) {
-		int index = indexForcomponentName(s, componentName);
+	protected ComponentWriter getComponentWriter(final Scannable s, final String componentName, final Object object) {
+		final int index = indexForcomponentName(s, componentName);
 		if (transformation != null && transformation.length > index) {
-			TransformationComponentWriter cw = new TransformationComponentWriter(index);
+			final TransformationComponentWriter cw = new TransformationComponentWriter(index);
 			cwriter.put(componentName, cw);
 			return cw;
 		}
-		
+
 		return super.getComponentWriter(s, componentName, object);
 	}
 
@@ -71,7 +76,7 @@ public class TransformationWriter extends SingleScannableWriter {
 		return depends_on;
 	}
 
-	public void setDepends_on(String[] depends_on) {
+	public void setDepends_on(final String[] depends_on) {
 		this.depends_on = depends_on;
 	}
 
@@ -79,7 +84,7 @@ public class TransformationWriter extends SingleScannableWriter {
 		return vector;
 	}
 
-	public void setVector(Double[][] vector) {
+	public void setVector(final Double[][] vector) {
 		this.vector = vector;
 	}
 
@@ -87,7 +92,7 @@ public class TransformationWriter extends SingleScannableWriter {
 		return transformation;
 	}
 
-	public void setTransformation(String[] transformation) {
+	public void setTransformation(final String[] transformation) {
 		this.transformation = transformation;
 	}
 
@@ -95,7 +100,7 @@ public class TransformationWriter extends SingleScannableWriter {
 		return offset;
 	}
 
-	public void setOffset(Double[][] offset) {
+	public void setOffset(final Double[][] offset) {
 		this.offset = offset;
 	}
 
@@ -103,7 +108,7 @@ public class TransformationWriter extends SingleScannableWriter {
 		return offset_units;
 	}
 
-	public void setOffset_units(String[] offset_units) {
+	public void setOffset_units(final String[] offset_units) {
 		this.offset_units = offset_units;
-	}	
+	}
 }

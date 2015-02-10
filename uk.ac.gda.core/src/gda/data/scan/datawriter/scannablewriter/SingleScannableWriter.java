@@ -35,8 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * At the moment this class should handle well formed scannables returning Doubles or Strings
- * with multiple input or extra names
+ * At the moment this class should handle well formed scannables returning Doubles or Strings with multiple input or
+ * extra names
  */
 public class SingleScannableWriter implements ScannableWriter {
 	private static final Logger logger = LoggerFactory.getLogger(SingleScannableWriter.class);
@@ -46,35 +46,38 @@ public class SingleScannableWriter implements ScannableWriter {
 	protected Collection<String> prerequisiteScannableNames;
 	protected Map<String, ComponentWriter> cwriter = new HashMap<String, ComponentWriter>();
 
-	protected static int componentsFor(Scannable s) {
-		int i = s.getInputNames() != null ? s.getInputNames().length : 0;
-		int e = s.getExtraNames() != null ? s.getExtraNames().length : 0;
+	protected static int componentsFor(final Scannable s) {
+		final int i = s.getInputNames() != null ? s.getInputNames().length : 0;
+		final int e = s.getExtraNames() != null ? s.getExtraNames().length : 0;
 		return i + e;
 	}
 
-	protected static String componentNameFor(Scannable s, int i) {
+	protected static String componentNameFor(final Scannable s, final int i) {
 		return ArrayUtils.addAll(s.getInputNames() != null ? s.getInputNames() : new String[] {},
 				s.getExtraNames() != null ? s.getExtraNames() : new String[] {})[i].toString();
 	}
 
-	protected static int indexForcomponentName(Scannable s, String component) {
-		String[] all = (String[]) ArrayUtils.addAll(s.getInputNames() != null ? s.getInputNames() : new String[] {},
-				s.getExtraNames() != null ? s.getExtraNames() : new String[] {});
+	protected static int indexForcomponentName(final Scannable s, final String component) {
+		final String[] all = (String[]) ArrayUtils.addAll(s.getInputNames() != null ? s.getInputNames()
+				: new String[] {}, s.getExtraNames() != null ? s.getExtraNames() : new String[] {});
 		for (int i = 0; i < all.length; i++) {
-			if (component.equals(all[i]))
+			if (component.equals(all[i])) {
 				return i;
+			}
 		}
 		throw new ArrayIndexOutOfBoundsException();
 	}
 
-	protected ComponentWriter getComponentWriter(Scannable s, String componentName, Object object) {
-		if (cwriter.containsKey(componentName))
+	protected ComponentWriter getComponentWriter(final Scannable s, final String componentName, final Object object) {
+		if (cwriter.containsKey(componentName)) {
 			return cwriter.get(componentName);
+		}
 		DefaultComponentWriter cw = null;
-		if (object instanceof Number)
+		if (object instanceof Number) {
 			cw = new DefaultComponentWriter();
-		else // real default!
+		} else {
 			cw = new StringComponentWriter();
+		}
 		cwriter.put(componentName, cw);
 		return cw;
 	}
@@ -84,25 +87,28 @@ public class SingleScannableWriter implements ScannableWriter {
 	}
 
 	@Override
-	public Collection<? extends SelfCreatingLink> makeScannable(NeXusFileInterface file, Scannable s, Object position,
-			int[] dim) throws NexusException {
-		Vector<SelfCreatingLink> sclc = new Vector<SelfCreatingLink>();
+	public Collection<? extends SelfCreatingLink> makeScannable(final NeXusFileInterface file, final Scannable s,
+			final Object position, final int[] dim) throws NexusException {
+		final Vector<SelfCreatingLink> sclc = new Vector<SelfCreatingLink>();
 		resetComponentWriters();
 
 		for (int i = 0; i < componentsFor(s); i++) {
 			try {
-				if (paths == null || paths.length <= i || paths[i].isEmpty())
+				if (paths == null || paths.length <= i || paths[i].isEmpty()) {
 					continue;
-				String componentName = componentNameFor(s, i);
+				}
+				final String componentName = componentNameFor(s, i);
 				String unit = null;
-				if (s instanceof ScannableMotionUnits)
+				if (s instanceof ScannableMotionUnits) {
 					unit = ((ScannableMotionUnits) s).getUserUnits();
-				if (units != null && units.length > i)
+				}
+				if (units != null && units.length > i) {
 					unit = units[i];
-				Object componentObject = getComponentObject(s, position, i);
-				ComponentWriter cw = getComponentWriter(s, componentName, componentObject);
+				}
+				final Object componentObject = getComponentObject(s, position, i);
+				final ComponentWriter cw = getComponentWriter(s, componentName, componentObject);
 				sclc.addAll(cw.makeComponent(file, dim, paths[i], s.getName(), componentName, componentObject, unit));
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				logger.error("error converting scannable data", e);
 			}
 		}
@@ -110,11 +116,12 @@ public class SingleScannableWriter implements ScannableWriter {
 	}
 
 	@Override
-	public void writeScannable(NeXusFileInterface file, Scannable s, Object position, int[] start)
-			throws NexusException {
+	public void writeScannable(final NeXusFileInterface file, final Scannable s, final Object position,
+			final int[] start) throws NexusException {
 		for (int i = 0; i < componentsFor(s); i++) {
-			if (paths == null || paths.length <= i || paths[i].isEmpty())
+			if (paths == null || paths.length <= i || paths[i].isEmpty()) {
 				continue;
+			}
 			Object slab;
 			slab = getComponentObject(s, position, i);
 			cwriter.get(componentNameFor(s, i)).writeComponent(file, start, paths[i], s.getName(),
@@ -122,23 +129,25 @@ public class SingleScannableWriter implements ScannableWriter {
 		}
 	}
 
-	protected Object getComponentObject(@SuppressWarnings("unused") Scannable s, Object position, int i) {
+	protected Object getComponentObject(@SuppressWarnings("unused") final Scannable s, final Object position,
+			final int i) {
 		return getArrayObject(position)[i];
 	}
 
 	private final Class<?>[] ARRAY_PRIMITIVE_TYPES = { int[].class, float[].class, double[].class, boolean[].class,
 			byte[].class, short[].class, long[].class, char[].class };
 
-	private Object[] getArrayObject(Object foo) {
-		if (foo.getClass().isAssignableFrom(Object[].class))
+	private Object[] getArrayObject(final Object foo) {
+		if (foo.getClass().isAssignableFrom(Object[].class)) {
 			return (Object[]) foo;
+		}
 		if (foo.getClass().isArray()) {
-			Class<?> valKlass = foo.getClass();
+			final Class<?> valKlass = foo.getClass();
 			Object[] outputArray = null;
 
-			for (Class<?> arrKlass : ARRAY_PRIMITIVE_TYPES) {
+			for (final Class<?> arrKlass : ARRAY_PRIMITIVE_TYPES) {
 				if (valKlass.isAssignableFrom(arrKlass)) {
-					int arrlength = Array.getLength(foo);
+					final int arrlength = Array.getLength(foo);
 					outputArray = new Object[arrlength];
 					for (int i = 0; i < arrlength; ++i) {
 						outputArray[i] = Array.get(foo, i);
@@ -146,8 +155,9 @@ public class SingleScannableWriter implements ScannableWriter {
 					break;
 				}
 			}
-			if (outputArray == null) // not primitive type array
+			if (outputArray == null) {
 				outputArray = (Object[]) foo;
+			}
 
 			return outputArray;
 		}
@@ -158,7 +168,7 @@ public class SingleScannableWriter implements ScannableWriter {
 		return paths;
 	}
 
-	public void setPaths(String[] paths) {
+	public void setPaths(final String[] paths) {
 		this.paths = paths;
 	}
 
@@ -166,11 +176,11 @@ public class SingleScannableWriter implements ScannableWriter {
 		return units;
 	}
 
-	public void setUnits(String[] units) {
+	public void setUnits(final String[] units) {
 		this.units = units;
 	}
 
-	public void setPrerequisiteScannableNames(Collection<String> prerequisiteScannableNames) {
+	public void setPrerequisiteScannableNames(final Collection<String> prerequisiteScannableNames) {
 		this.prerequisiteScannableNames = prerequisiteScannableNames;
 	}
 

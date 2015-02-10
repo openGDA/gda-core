@@ -26,37 +26,41 @@ import java.util.Collection;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
 
-/** 
- * This interface is used by the NexusDataWriterMetadataTree to place the "position" 
- * of a scannable in the correct place in the NeXus hierarchy. 
+/**
+ * This interface is used by the NexusDataWriterMetadataTree to place the "position" of a scannable in the correct place
+ * in the NeXus hierarchy.
  */
 public interface ScannableWriter {
-	
+
 	/**
-	 * Retrieve a list of other Scannables that need to have their position recorded in order for 
-	 * this Scannable position to be valid. This is mostly the case for motion dependencies, like 
-	 * in diffractometers where the location of an axies depends on other prior motors.
-	 * 
+	 * Retrieve a list of other Scannables that need to have their position recorded in order for this Scannable
+	 * position to be valid. This is mostly the case for motion dependencies, like in diffractometers where the location
+	 * of an axies depends on other prior motors.
+	 *
 	 * @return list of Scannable names
 	 */
 	public Collection<String> getPrerequisiteScannableNames();
-	
+
 	/**
-	 * This is the call to generate the structure in the file 
-	 * If only 
-	 * 
-	 * @param file reference to the NeXusfile with the pointer being in the current NXentry
-	 * @param s the scannable to write 
-	 * @param position the scannable data to write (do NOT call s.getPosition() to get it!)
-	 * @param dim number of dimensions in the scan (or {1} for metadata only)
+	 * This is the call to generate the structure in the file If only
+	 *
+	 * @param file
+	 *            reference to the NeXusfile with the pointer being in the current NXentry
+	 * @param s
+	 *            the scannable to write
+	 * @param position
+	 *            the scannable data to write (do NOT call s.getPosition() to get it!)
+	 * @param dim
+	 *            number of dimensions in the scan (or {1} for metadata only)
 	 */
-	public Collection<? extends SelfCreatingLink> makeScannable(NeXusFileInterface file, Scannable s, Object position, int[] dim) throws NexusException;
-	
+	public Collection<? extends SelfCreatingLink> makeScannable(NeXusFileInterface file, Scannable s, Object position,
+			int[] dim) throws NexusException;
+
 	/**
-	 * 
 	 * @param file
 	 * @param s
 	 * @param position
 	 */
-	public void writeScannable(NeXusFileInterface file, Scannable s, Object position, int[] dimloc) throws NexusException;
+	public void writeScannable(NeXusFileInterface file, Scannable s, Object position, int[] dimloc)
+			throws NexusException;
 }
