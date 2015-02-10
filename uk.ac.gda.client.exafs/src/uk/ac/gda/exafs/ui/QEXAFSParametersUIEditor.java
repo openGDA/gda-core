@@ -116,7 +116,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		});
 		updateElementBtn.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		updateElementBtn.setText("Load defaults");
-		updateElementBtn.setToolTipText("Set the initial and final energies based on the selected element and edge");
+		updateElementBtn.setToolTipText("Set the initial and final energuies based on the selected element and edge");
 		new Label(grpQuickExafsParameters, SWT.NONE);
 		
 		try {

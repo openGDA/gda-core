@@ -267,7 +267,6 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 					args.add(gas_select_val);
 					args.add(flushString);
 
-
 					
 					final Scannable gasInjector;
 							
