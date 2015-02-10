@@ -39,12 +39,11 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	public void setContinuousMode(boolean on) throws DeviceException {
 		this.isContinuousModeOn = on;
 		if (on) {
-			xspress3Detector.getController().setNumFramesToAcquire(parameters.getNumberDataPoints());
-			xspress3Detector.getController().setTriggerMode(triggerModeWhenInContinuousScan);
-			// Epics needs us to clear memory again after setting trig mode and
-			// num frames
-			clearMemory();
-			xspress3Detector.getController().doStart();
+			// we are doing the same work as in a step scan, but need to do the operations at this point
+			// as the number of points may have changed and also atScanLineStart is not called in ContinuousScans
+			((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(true);
+			xspress3Detector.atScanStart();
+			xspress3Detector.atScanLineStart();
 		}
 	}
 
@@ -150,7 +149,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	public void atScanStart() throws DeviceException {
-		xspress3Detector.atScanStart();
+		// do nothing here, as the correct thing will be done by setContinuousParameters
 	}
 
 	public void asynchronousMoveTo(Object collectionTime) throws DeviceException {
