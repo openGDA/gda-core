@@ -31,55 +31,56 @@ import org.nexusformat.NexusFile;
 public class EnergyScannableWriter extends SingleScannableWriter {
 
 	Double uncertaintyFraction = null;
-	
+
 	public Double getUncertaintyFraction() {
 		return uncertaintyFraction;
 	}
 
-	public void setUncertaintyFraction(Double uncertaintyFraction) {
+	public void setUncertaintyFraction(final Double uncertaintyFraction) {
 		this.uncertaintyFraction = uncertaintyFraction;
 	}
 
 	protected class ComponentWriterWithUncertainty extends DefaultComponentWriter {
-		
+
 		DefaultComponentWriter trueEnergyWriter = new DefaultComponentWriter() {
 			@Override
-			protected void addCustomAttributes(NeXusFileInterface file, String scannableName, String componentName) throws NexusException {
-				String uncertaintiesName = uncertaintiesPath.substring(uncertaintiesPath.lastIndexOf("/")+1);
+			protected void addCustomAttributes(final NeXusFileInterface file, final String scannableName,
+					final String componentName) throws NexusException {
+				final String uncertaintiesName = uncertaintiesPath.substring(uncertaintiesPath.lastIndexOf("/") + 1);
 				file.putattr("uncertainties", uncertaintiesName.getBytes(), NexusFile.NX_CHAR);
 			}
 		};
-		
+
 		String uncertaintiesPath = "";
-		
+
 		@Override
-		protected Object getComponentSlab(Object pos) {
-			Object poso = pos;
+		protected Object getComponentSlab(final Object pos) {
+			final Object poso = pos;
 			return new double[] { (Double) poso * uncertaintyFraction };
 		}
 
-		
 		@Override
-		public Collection<SelfCreatingLink> makeComponent(NeXusFileInterface file, int[] dim, String path,
-				String scannableName, String componentName, Object pos, String unit) throws NexusException {
-			uncertaintiesPath = path+"_error";
+		public Collection<SelfCreatingLink> makeComponent(final NeXusFileInterface file, final int[] dim,
+				final String path, final String scannableName, final String componentName, final Object pos,
+				final String unit) throws NexusException {
+			uncertaintiesPath = path + "_error";
 			super.makeComponent(file, dim, uncertaintiesPath, scannableName, null, pos, unit);
-			return trueEnergyWriter.makeComponent(file, dim, path, scannableName, componentName, pos, unit); 
+			return trueEnergyWriter.makeComponent(file, dim, path, scannableName, componentName, pos, unit);
 		}
-		
+
 		@Override
-		public void writeComponent(NeXusFileInterface file, int[] start, String path, String scannableName,
-				String componentName, Object pos) throws NexusException {
+		public void writeComponent(final NeXusFileInterface file, final int[] start, final String path,
+				final String scannableName, final String componentName, final Object pos) throws NexusException {
 			super.writeComponent(file, start, uncertaintiesPath, scannableName, null, pos);
-			trueEnergyWriter.writeComponent(file, start, path, scannableName, componentName, pos); 
+			trueEnergyWriter.writeComponent(file, start, path, scannableName, componentName, pos);
 		}
 	}
 
-	
 	@Override
 	protected void resetComponentWriters() {
 		super.resetComponentWriters();
-		if (uncertaintyFraction != null)
+		if (uncertaintyFraction != null) {
 			cwriter.put("energy", new ComponentWriterWithUncertainty());
+		}
 	}
 }
