@@ -12,8 +12,8 @@ def _getAxes(file, dir=None):
     
     for key in default.keys():
         if hasattr(default[key], 'attrs'):
-            att = default[key].attrs
-            if 'primary' in att:
+            attributesOfFile = default[key].attrs
+            if 'primary' in attributesOfFile:
                 xAxis = default[key]
             else:
                 yAxis = default[key]
