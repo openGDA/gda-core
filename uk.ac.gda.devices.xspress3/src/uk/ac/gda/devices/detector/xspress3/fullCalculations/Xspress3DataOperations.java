@@ -156,8 +156,27 @@ public class Xspress3DataOperations {
 		double[][] data = controller.readoutDTCorrectedLatestMCA(0, controller.getNumberOfChannels() - 1);
 		return createNexusTreeForFrame(data);
 	}
+	
+	private double[][] removeNaNs(double[][] original){
+		// because we might get NaNs from EPICS, which will mess up our totals
+		double[][] filtered = new double[original.length][original[0].length];
+		for(int i = 0; i < original.length; i++){
+			for (int j = 0; j < original[0].length; j++){
+				double value = original[i][j];
+				if (Double.toString(value).compareTo("NaN") == 0){
+					value = 0.0;
+				}
+				filtered[i][j] = value; 
+			}
+		}
+		original = filtered;
+		return original;
+	}
 
 	private NXDetectorData createNexusTreeForFrame(double[][] mcasFromFile) {
+		
+		mcasFromFile = removeNaNs(mcasFromFile);
+		
 		int numChannels = mcasFromFile.length;
 		int numRois = rois.length;
 
