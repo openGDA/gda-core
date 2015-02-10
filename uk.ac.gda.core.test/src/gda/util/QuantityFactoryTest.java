@@ -504,7 +504,7 @@ public class QuantityFactoryTest {
 		value = "345";
 		Integer i = new Integer(value);
 		o = i;
-		q = Quantity.valueOf(Integer.valueOf(value), SI.MILLI(SI.METER));
+		q = Quantity.valueOf(Integer.valueOf(value).doubleValue(), SI.MILLI(SI.METER));
 		assertTrue("quantity factory length not at expected value " + value, q.equals(QuantityFactory.createFromObject(
 				o, SI.MILLI(SI.METER))));
 
