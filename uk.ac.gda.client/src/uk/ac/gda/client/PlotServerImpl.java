@@ -22,6 +22,7 @@ import gda.factory.Finder;
 import gda.observable.IObserver;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.DatasetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 
 public class PlotServerImpl implements PlotServer {
@@ -66,6 +67,10 @@ public class PlotServerImpl implements PlotServer {
 
 	@Override
 	public void setData(String guiName, DataBean plotData) throws Exception {
+		for (DatasetWithAxisInformation d : plotData.getData()) { // remove metadata as lazy datasets are not serializable across CORBA
+			d.clearMetadata();
+		}
+
 		getDelegate().setData(guiName, plotData);
 	}
 
