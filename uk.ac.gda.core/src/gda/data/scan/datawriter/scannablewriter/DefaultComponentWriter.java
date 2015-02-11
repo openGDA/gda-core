@@ -17,26 +17,24 @@
  */
 package gda.data.scan.datawriter.scannablewriter;
 
-import gda.data.scan.datawriter.SelfCreatingLink;
-
+import java.lang.reflect.Array;
 import java.nio.charset.Charset;
-import java.util.Collection;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
-import org.apache.commons.math3.exception.NotANumberException;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DefaultComponentWriter implements ComponentWriter {
-	private static final Logger logger = LoggerFactory.getLogger(DefaultComponentWriter.class);
+public abstract class DefaultComponentWriter implements ComponentWriter {
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultComponentWriter.class);
+
+	protected static final Charset UTF8 = Charset.forName("UTF-8");
 
 	private int levels = 0;
 
 	public DefaultComponentWriter() {
+		// no op
 	}
 
 	/**
@@ -76,26 +74,23 @@ public class DefaultComponentWriter implements ComponentWriter {
 	}
 
 	protected int[] nulldimfordim(final int[] dim) {
-		final int[] mdim = new int[dim.length];
-		for (int i = 0; i < mdim.length; i++) {
-			mdim[i] = 0;
-		}
-		return mdim;
+		return dimForDimForValue(dim, 0);
 	}
 
 	protected int[] slabsizedimfordim(final int[] dim) {
-		final int[] mdim = new int[dim.length];
-		for (int i = 0; i < mdim.length; i++) {
-			mdim[i] = 1;
-		}
-		return mdim;
+		return dimForDimForValue(dim, 1);
 	}
 
 	protected int[] makedatadimfordim(final int[] dim) {
-		final int[] mdim = new int[dim.length];
+		return dimForDimForValue(dim, -1);
+	}
+
+	private int[] dimForDimForValue(final int[] dim, final int value) {
+		final int[] mdim = (dim != null) ? new int[dim.length] : new int[] {};
 		for (int i = 0; i < mdim.length; i++) {
-			mdim[i] = -1;
+			mdim[i] = value;
 		}
+
 		return mdim;
 	}
 
@@ -103,54 +98,11 @@ public class DefaultComponentWriter implements ComponentWriter {
 		return dim;
 	}
 
-	protected Object getComponentSlab(final Object pos) {
-		if (!(pos instanceof Number)) {
-			throw new NotANumberException();
-		}
-		return new double[] { ((Number) pos).doubleValue() };
-	}
+	protected abstract Object getComponentSlab(final Object pos);
 
-	@Override
-	public Collection<SelfCreatingLink> makeComponent(final NeXusFileInterface file, final int[] dim,
-			final String path, final String scannableName, final String componentName, final Object pos,
-			final String unit) throws NexusException {
-		final Vector<SelfCreatingLink> sclc = new Vector<SelfCreatingLink>();
-
-		final String name = enterLocation(file, path);
-
-		try {
-			file.opendata(name);
-			logger.info("found dataset " + path + " exists already when trying to create it for " + scannableName
-					+ ". This may not be a problem provided the data written is the same");
-			return sclc;
-		} catch (final NexusException e) {
-			// this is normal case!
-			final int[] makedatadim = makedatadimfordim(dim);
-			file.makedata(name, NexusFile.NX_FLOAT64, makedatadim.length, makedatadim);
-			file.opendata(name);
-			if (componentName != null) {
-				file.putattr("local_name", String.format("%s.%s", scannableName, componentName).getBytes(),
-						NexusFile.NX_CHAR);
-			}
-
-			String axislist = "1";
-			for (int j = 2; j <= dim.length; j++) {
-				axislist = axislist + String.format(",%d", j);
-			}
-			file.putattr("axis", axislist.getBytes(), NexusFile.NX_CHAR);
-			if (unit != null && !unit.isEmpty()) {
-				file.putattr("units", unit.getBytes(Charset.forName("UTF-8")), NexusFile.NX_CHAR);
-			}
-			addCustomAttributes(file, scannableName, componentName);
-			file.putslab(getComponentSlab(pos), nulldimfordim(dim), slabsizedimfordim(dim));
-
-			sclc.add(new SelfCreatingLink(file.getdataID()));
-			file.closedata();
-		} finally {
-			leaveLocation(file);
-		}
-
-		return sclc;
+	protected int[] slabSizeForWriting(final int[] dim, final int length) {
+		// default: ignore length
+		return slabsizedimfordim(dim);
 	}
 
 	/**
@@ -165,21 +117,25 @@ public class DefaultComponentWriter implements ComponentWriter {
 	 *            extra or input name being written
 	 * @throws NexusException
 	 */
-	@SuppressWarnings("unused")
 	protected void addCustomAttributes(final NeXusFileInterface file, final String scannableName,
 			final String componentName) throws NexusException {
+		// Default no operation
 	}
 
 	@Override
 	public void writeComponent(final NeXusFileInterface file, final int[] start, final String path,
 			final String scannableName, final String componentName, final Object pos) throws NexusException {
+
 		final String name = enterLocation(file, path);
 
 		file.opendata(name);
 		try {
-			file.putslab(getComponentSlab(pos), putslabdimfordim(start), slabsizedimfordim(start));
+			final Object slab = getComponentSlab(pos);
+			final int slablength = (slab.getClass().isArray()) ? Array.getLength(slab) : 0;
+			file.putslab(slab, putslabdimfordim(start), slabSizeForWriting(start, slablength));
+
 		} catch (final Exception e) {
-			logger.error("error converting scannable data", e);
+			LOGGER.error("error converting scannable data", e);
 		}
 		file.closedata();
 

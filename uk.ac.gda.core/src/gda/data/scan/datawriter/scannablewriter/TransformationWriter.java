@@ -26,13 +26,13 @@ import org.nexusformat.NexusFile;
 
 public class TransformationWriter extends SingleScannableWriter {
 
-	protected String[] depends_on;
-	protected Double[][] vector;
-	protected String[] transformation;
-	protected Double[][] offset;
-	protected String[] offset_units;
+	private String[] dependsOn;
+	private Double[][] vector;
+	private String[] transformation;
+	private Double[][] offset;
+	private String[] offsetUnits;
 
-	class TransformationComponentWriter extends DefaultComponentWriter {
+	public class TransformationComponentWriter extends NumberComponentWriter {
 
 		private final int index;
 
@@ -43,13 +43,14 @@ public class TransformationWriter extends SingleScannableWriter {
 		@Override
 		protected void addCustomAttributes(final NeXusFileInterface file, final String scannableName,
 				final String componentName) throws NexusException {
+
 			super.addCustomAttributes(file, scannableName, componentName);
 			file.putattr("transformation_type", transformation[index].getBytes(), NexusFile.NX_CHAR);
-			if (depends_on != null && depends_on[index] != null) {
-				file.putattr("depends_on", depends_on[index].getBytes(), NexusFile.NX_CHAR);
+			if (dependsOn != null && dependsOn[index] != null) {
+				file.putattr("depends_on", dependsOn[index].getBytes(), NexusFile.NX_CHAR);
 			}
-			if (offset_units != null && offset_units[index] != null) {
-				file.putattr("offset_units", offset_units[index].getBytes(), NexusFile.NX_CHAR);
+			if (offsetUnits != null && offsetUnits[index] != null) {
+				file.putattr("offset_units", offsetUnits[index].getBytes(), NexusFile.NX_CHAR);
 			}
 			if (vector != null && vector[index] != null) {
 				file.putattr("vector", vector[index], new int[] { vector[index].length }, NexusFile.NX_FLOAT64);
@@ -62,22 +63,32 @@ public class TransformationWriter extends SingleScannableWriter {
 
 	@Override
 	protected ComponentWriter getComponentWriter(final Scannable s, final String componentName, final Object object) {
-		final int index = indexForcomponentName(s, componentName);
+		final int index = indexForComponentName(s, componentName);
 		if (transformation != null && transformation.length > index) {
 			final TransformationComponentWriter cw = new TransformationComponentWriter(index);
-			cwriter.put(componentName, cw);
+			getCwriter().put(componentName, cw);
 			return cw;
 		}
 
 		return super.getComponentWriter(s, componentName, object);
 	}
 
+	@Deprecated
 	public String[] getDepends_on() {
-		return depends_on;
+		return getDependsOn();
 	}
 
-	public void setDepends_on(final String[] depends_on) {
-		this.depends_on = depends_on;
+	@Deprecated
+	public void setDepends_on(final String[] dependsOn) {
+		setDependsOn(dependsOn);
+	}
+
+	public String[] getDependsOn() {
+		return dependsOn;
+	}
+
+	public void setDependsOn(final String[] dependsOn) {
+		this.dependsOn = dependsOn;
 	}
 
 	public Double[][] getVector() {
@@ -104,11 +115,21 @@ public class TransformationWriter extends SingleScannableWriter {
 		this.offset = offset;
 	}
 
+	@Deprecated
 	public String[] getOffset_units() {
-		return offset_units;
+		return getOffsetUnits();
 	}
 
-	public void setOffset_units(final String[] offset_units) {
-		this.offset_units = offset_units;
+	@Deprecated
+	public void setOffset_units(final String[] offsetUnits) {
+		setOffsetUnits(offsetUnits);
+	}
+
+	public String[] getOffsetUnits() {
+		return offsetUnits;
+	}
+
+	public void setOffsetUnits(final String[] offsetUnits) {
+		this.offsetUnits = offsetUnits;
 	}
 }

@@ -39,136 +39,148 @@ import org.slf4j.LoggerFactory;
  * extra names
  */
 public class SingleScannableWriter implements ScannableWriter {
-	private static final Logger logger = LoggerFactory.getLogger(SingleScannableWriter.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SingleScannableWriter.class);
 
-	protected String[] paths;
-	protected String[] units;
-	protected Collection<String> prerequisiteScannableNames;
-	protected Map<String, ComponentWriter> cwriter = new HashMap<String, ComponentWriter>();
+	private String[] paths;
+	private String[] units;
+	private Collection<String> prerequisiteScannableNames;
+	private final Map<String, ComponentWriter> cwriter = new HashMap<String, ComponentWriter>();
 
-	protected static int componentsFor(final Scannable s) {
-		final int i = s.getInputNames() != null ? s.getInputNames().length : 0;
-		final int e = s.getExtraNames() != null ? s.getExtraNames().length : 0;
+	private final int componentsFor(final Scannable s) {
+		final int i = (s.getInputNames() != null) ? s.getInputNames().length : 0;
+		final int e = (s.getExtraNames() != null) ? s.getExtraNames().length : 0;
 		return i + e;
 	}
 
-	protected static String componentNameFor(final Scannable s, final int i) {
-		return ArrayUtils.addAll(s.getInputNames() != null ? s.getInputNames() : new String[] {},
-				s.getExtraNames() != null ? s.getExtraNames() : new String[] {})[i].toString();
+	private final String componentNameFor(final Scannable s, final int i) {
+		return ArrayUtils.addAll((s.getInputNames() != null) ? s.getInputNames() : new String[] {},
+				(s.getExtraNames() != null) ? s.getExtraNames() : new String[] {})[i].toString();
 	}
 
-	protected static int indexForcomponentName(final Scannable s, final String component) {
-		final String[] all = (String[]) ArrayUtils.addAll(s.getInputNames() != null ? s.getInputNames()
-				: new String[] {}, s.getExtraNames() != null ? s.getExtraNames() : new String[] {});
-		for (int i = 0; i < all.length; i++) {
-			if (component.equals(all[i])) {
-				return i;
+	protected static int indexForComponentName(final Scannable s, final String component) {
+		// FIXME : ArrayUtils.addAll(s.getInputNames(), s.getExtraNames()) should yield same result
+		final String[] all = (String[]) ArrayUtils.addAll((s.getInputNames() != null) ? s.getInputNames()
+				: new String[] {}, (s.getExtraNames() != null) ? s.getExtraNames() : new String[] {});
+
+		if (all != null) {
+			for (int i = 0; i < all.length; i++) {
+				if (component.equals(all[i])) {
+					return i;
+				}
 			}
 		}
+
 		throw new ArrayIndexOutOfBoundsException();
 	}
 
 	protected ComponentWriter getComponentWriter(final Scannable s, final String componentName, final Object object) {
-		if (cwriter.containsKey(componentName)) {
-			return cwriter.get(componentName);
+
+		final Map<String, ComponentWriter> cwmap = getCwriter();
+
+		if (cwmap.containsKey(componentName)) {
+			return cwmap.get(componentName);
 		}
-		DefaultComponentWriter cw = null;
+
+		final ComponentWriter cw;
 		if (object instanceof Number) {
-			cw = new DefaultComponentWriter();
+			cw = new NumberComponentWriter();
 		} else {
 			cw = new StringComponentWriter();
 		}
-		cwriter.put(componentName, cw);
+
+		cwmap.put(componentName, cw);
 		return cw;
 	}
 
 	protected void resetComponentWriters() {
-		cwriter = new HashMap<String, ComponentWriter>();
+		getCwriter().clear();
 	}
 
 	@Override
 	public Collection<? extends SelfCreatingLink> makeScannable(final NeXusFileInterface file, final Scannable s,
 			final Object position, final int[] dim) throws NexusException {
+
 		final Vector<SelfCreatingLink> sclc = new Vector<SelfCreatingLink>();
 		resetComponentWriters();
 
 		for (int i = 0; i < componentsFor(s); i++) {
 			try {
-				if (paths == null || paths.length <= i || paths[i].isEmpty()) {
+				if (getPaths() == null || getPaths().length <= i || getPaths()[i].isEmpty()) {
 					continue;
 				}
 				final String componentName = componentNameFor(s, i);
-				String unit = null;
-				if (s instanceof ScannableMotionUnits) {
+
+				final String unit;
+				if (getUnits() != null && getUnits().length > i) {
+					unit = getUnits()[i];
+				} else if (s instanceof ScannableMotionUnits) {
 					unit = ((ScannableMotionUnits) s).getUserUnits();
+				} else {
+					unit = null;
 				}
-				if (units != null && units.length > i) {
-					unit = units[i];
-				}
+
 				final Object componentObject = getComponentObject(s, position, i);
 				final ComponentWriter cw = getComponentWriter(s, componentName, componentObject);
-				sclc.addAll(cw.makeComponent(file, dim, paths[i], s.getName(), componentName, componentObject, unit));
+				final Collection<SelfCreatingLink> compLinks = cw.makeComponent(file, dim, getPaths()[i], s.getName(),
+						componentName, componentObject, unit);
+				if (cw != null) {
+					sclc.addAll(compLinks);
+				}
+
 			} catch (final Exception e) {
-				logger.error("error converting scannable data", e);
+				LOGGER.error("error converting scannable data", e);
 			}
 		}
+
 		return sclc;
 	}
 
 	@Override
 	public void writeScannable(final NeXusFileInterface file, final Scannable s, final Object position,
 			final int[] start) throws NexusException {
+
 		for (int i = 0; i < componentsFor(s); i++) {
-			if (paths == null || paths.length <= i || paths[i].isEmpty()) {
+			if (getPaths() == null || getPaths().length <= i || getPaths()[i].isEmpty()) {
 				continue;
 			}
-			Object slab;
-			slab = getComponentObject(s, position, i);
-			cwriter.get(componentNameFor(s, i)).writeComponent(file, start, paths[i], s.getName(),
+			final Object slab = getComponentObject(s, position, i);
+			getCwriter().get(componentNameFor(s, i)).writeComponent(file, start, getPaths()[i], s.getName(),
 					componentNameFor(s, i), slab);
 		}
 	}
 
-	protected Object getComponentObject(@SuppressWarnings("unused") final Scannable s, final Object position,
-			final int i) {
+	protected Object getComponentObject(final Scannable s, final Object position, final int i) {
 		return getArrayObject(position)[i];
 	}
 
-	private final Class<?>[] ARRAY_PRIMITIVE_TYPES = { int[].class, float[].class, double[].class, boolean[].class,
-			byte[].class, short[].class, long[].class, char[].class };
+	private final Object[] getArrayObject(final Object position) {
 
-	private Object[] getArrayObject(final Object foo) {
-		if (foo.getClass().isAssignableFrom(Object[].class)) {
-			return (Object[]) foo;
-		}
-		if (foo.getClass().isArray()) {
-			final Class<?> valKlass = foo.getClass();
-			Object[] outputArray = null;
+		if (position.getClass().isArray()) {
+			final Object[] outputArray;
 
-			for (final Class<?> arrKlass : ARRAY_PRIMITIVE_TYPES) {
-				if (valKlass.isAssignableFrom(arrKlass)) {
-					final int arrlength = Array.getLength(foo);
-					outputArray = new Object[arrlength];
-					for (int i = 0; i < arrlength; ++i) {
-						outputArray[i] = Array.get(foo, i);
-					}
-					break;
+			if (position.getClass().getComponentType().isPrimitive()) {
+				final int arrlength = Array.getLength(position);
+				outputArray = new Object[arrlength];
+				for (int i = 0; i < arrlength; ++i) {
+					outputArray[i] = Array.get(position, i);
 				}
-			}
-			if (outputArray == null) {
-				outputArray = (Object[]) foo;
+
+			} else {
+				outputArray = (Object[]) position;
 			}
 
 			return outputArray;
+
+		} else {
+			return new Object[] { position };
 		}
-		return new Object[] { foo };
 	}
 
 	public String[] getPaths() {
 		return paths;
 	}
 
-	public void setPaths(final String[] paths) {
+	public final void setPaths(final String[] paths) {
 		this.paths = paths;
 	}
 
@@ -176,16 +188,20 @@ public class SingleScannableWriter implements ScannableWriter {
 		return units;
 	}
 
-	public void setUnits(final String[] units) {
+	public final void setUnits(final String[] units) {
 		this.units = units;
 	}
 
-	public void setPrerequisiteScannableNames(final Collection<String> prerequisiteScannableNames) {
+	public final void setPrerequisiteScannableNames(final Collection<String> prerequisiteScannableNames) {
 		this.prerequisiteScannableNames = prerequisiteScannableNames;
 	}
 
 	@Override
 	public Collection<String> getPrerequisiteScannableNames() {
 		return prerequisiteScannableNames;
+	}
+
+	protected Map<String, ComponentWriter> getCwriter() {
+		return cwriter;
 	}
 }
