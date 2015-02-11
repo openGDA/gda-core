@@ -19,7 +19,7 @@
 package uk.ac.gda.server.ncd.scannable;
 
 import gda.data.scan.datawriter.SelfCreatingLink;
-import gda.data.scan.datawriter.scannablewriter.DefaultComponentWriter;
+import gda.data.scan.datawriter.scannablewriter.NumberComponentWriter;
 import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 
 import java.util.Collection;
@@ -30,7 +30,7 @@ import org.nexusformat.NexusFile;
 
 public class EnergyScannableWriter extends SingleScannableWriter {
 
-	Double uncertaintyFraction = null;
+	private Double uncertaintyFraction = null;
 
 	public Double getUncertaintyFraction() {
 		return uncertaintyFraction;
@@ -40,9 +40,9 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 		this.uncertaintyFraction = uncertaintyFraction;
 	}
 
-	protected class ComponentWriterWithUncertainty extends DefaultComponentWriter {
+	protected class ComponentWriterWithUncertainty extends NumberComponentWriter {
 
-		DefaultComponentWriter trueEnergyWriter = new DefaultComponentWriter() {
+		NumberComponentWriter trueEnergyWriter = new NumberComponentWriter() {
 			@Override
 			protected void addCustomAttributes(final NeXusFileInterface file, final String scannableName,
 					final String componentName) throws NexusException {
@@ -51,12 +51,13 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 			}
 		};
 
-		String uncertaintiesPath = "";
+		private String uncertaintiesPath = "";
 
 		@Override
-		protected Object getComponentSlab(final Object pos) {
-			final Object poso = pos;
-			return new double[] { (Double) poso * uncertaintyFraction };
+		protected double[] getComponentSlab(final Object pos) {
+			final double[] posArr = super.getComponentSlab(pos);
+			posArr[0] *= uncertaintyFraction;
+			return posArr;
 		}
 
 		@Override
@@ -80,7 +81,7 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 	protected void resetComponentWriters() {
 		super.resetComponentWriters();
 		if (uncertaintyFraction != null) {
-			cwriter.put("energy", new ComponentWriterWithUncertainty());
+			getCwriter().put("energy", new ComponentWriterWithUncertainty());
 		}
 	}
 }
