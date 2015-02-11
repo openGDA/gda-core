@@ -47,7 +47,7 @@ public class SampleStagePositionControlView extends ViewPart  {
 	private RotationViewer samplezViewer;
 	private RotationViewer energyViewer;
 	private RotationViewer sampleThetaViewer;
-	private RotationViewer samplexzViewer;
+	private RotationViewer samplefocusViewer;
 	@Override
 	public void createPartControl(Composite parent) {
 		scrolledComposite = new ScrolledComposite(parent,SWT.H_SCROLL | SWT.V_SCROLL);
@@ -72,9 +72,9 @@ public class SampleStagePositionControlView extends ViewPart  {
 		sampleThetaViewer = new RotationViewer((ScannableMotionUnits)Finder.getInstance().find("sc_sample_thetacoarse"));
 		sampleThetaViewer.createControls(sampleGroup, SWT.SINGLE);
 		sampleThetaViewer.setMotorPositionViewerDecimalPlaces(4);
-		samplexzViewer = new RotationViewer((ScannableMotionUnits)Finder.getInstance().find("sc_microfocusXZ"), 1.0);
-		samplexzViewer.createControls(sampleGroup, SWT.SINGLE);
-		samplexzViewer.setMotorPositionViewerDecimalPlaces(4);
+		samplefocusViewer = new RotationViewer((ScannableMotionUnits)Finder.getInstance().find("sample_focus"), 1.0);
+		samplefocusViewer.createControls(sampleGroup, SWT.SINGLE);
+		samplefocusViewer.setMotorPositionViewerDecimalPlaces(4);
 		energyViewer = new RotationViewer((ScannableMotionUnits)Finder.getInstance().find("energy"));
 		energyViewer.createControls(sampleGroup, SWT.SINGLE);
 		energyViewer.setMotorPositionViewerDecimalPlaces(4);
