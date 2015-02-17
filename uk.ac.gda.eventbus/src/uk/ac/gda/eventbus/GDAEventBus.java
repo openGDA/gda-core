@@ -84,6 +84,7 @@ public class GDAEventBus extends EventBus {
 //	private ConnectionFactory connectionFactory;
 	private Connection connection;
 	private Session session;
+//	private String destinationName;
 	private MessageConsumer consumer;
 	private MessageProducer producer;
 
@@ -101,7 +102,23 @@ public class GDAEventBus extends EventBus {
 		this("default", connectionFactory);
 	}
 
+	public GDAEventBus(ConnectionFactory connectionFactory, String destinationName) {
+		this("default", connectionFactory, destinationName);
+	}
+
+	public GDAEventBus(ConnectionFactory connectionFactory, String destinationName, boolean isDestinationTopicElseQueue) {
+		this("default", connectionFactory, destinationName, isDestinationTopicElseQueue);
+	}
+
 	public GDAEventBus(String identifier, ConnectionFactory connectionFactory) {
+		this(identifier, connectionFactory, "GDA");
+	}
+
+	public GDAEventBus(String identifier, ConnectionFactory connectionFactory, String destinationName) {
+		this(identifier, connectionFactory, destinationName, true);
+	}
+
+	public GDAEventBus(String identifier, ConnectionFactory connectionFactory, String destinationName, boolean isDestinationTopicElseQueue) {
 		this(identifier);
 		
 		// publish(Serializable event) { producer.send(ObjectMessage message) }
@@ -126,7 +143,7 @@ public class GDAEventBus extends EventBus {
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			
 			// Create the destination (Topic or Queue)
-			Destination destination = session.createTopic("GDA");
+			Destination destination = isDestinationTopicElseQueue ? session.createTopic(destinationName) : session.createQueue(destinationName);
 			
 			// Create a MessageProducer from the Session to the Topic or Queue
 			producer = session.createProducer(destination);
