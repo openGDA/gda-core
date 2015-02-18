@@ -89,6 +89,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -325,21 +326,37 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		
 		if (getHardShutterPV()!=null || getSoftShutterPV()!=null) {
 			Group grpShutters=new Group(controlArea, SWT.BORDER);
-			GridData gd_grpShuuters = new GridData(GridData.FILL_HORIZONTAL);
-			gd_grpShuuters.horizontalSpan=3;
-			gd_grpShuuters.grabExcessHorizontalSpace = true;
-			grpShutters.setLayoutData(gd_grpShuuters);
+			GridData gd_grpShutters = new GridData(GridData.FILL_HORIZONTAL);
+			gd_grpShutters.horizontalSpan=3;
+			gd_grpShutters.grabExcessHorizontalSpace = true;
+			grpShutters.setLayoutData(gd_grpShutters);
 			grpShutters.setText("Fast Shutters");
-			if (getHardShutterPV()!=null && getSoftShutterPV()!=null) {
-				grpShutters.setLayout(new GridLayout(6, false));
-			} else {
-				grpShutters.setLayout(new GridLayout(3, false));
-			}
+			grpShutters.setLayout(new GridLayout(2, true));
+			
 			if (getHardShutterPV()!=null) {
-				Label lblHardXray=new Label(grpShutters, SWT.None);
+				Group grpHardShutter=new Group(grpShutters, SWT.NONE);
+				GridData gd_grpHardShutter = new GridData(SWT.LEFT, SWT.CENTER, true, false);
+				grpHardShutter.setLayoutData(gd_grpHardShutter);
+				grpHardShutter.setLayout(new GridLayout(3, false));
+				
+				Label lblHardXray=new Label(grpHardShutter, SWT.None);
 				lblHardXray.setText("Hard X-Ray: ");
 				
-				btnHardShutter = new Button(grpShutters, SWT.PUSH);
+				/* Composite to contain the status composite so that a border can be displayed. */
+				GridData fillHorizontalGD = new GridData();
+				Composite borderComposite =  new Composite(grpHardShutter, SWT.NONE);
+				borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+				FillLayout fillLayout = new FillLayout();
+				fillLayout.marginWidth = 2;
+				fillLayout.marginHeight = 2;
+				borderComposite.setLayout(fillLayout);
+				fillHorizontalGD.horizontalIndent = 3;
+				fillHorizontalGD.widthHint = 20;
+				fillHorizontalGD.heightHint = 20;
+				borderComposite.setLayoutData(fillHorizontalGD);
+				hardShutterState = new Composite(borderComposite, SWT.FILL);
+				
+				btnHardShutter = new Button(grpHardShutter, SWT.PUSH);
 				btnHardShutter.setText("Close");
 				btnHardShutter.addSelectionListener(new SelectionAdapter() {
 					@Override
@@ -361,9 +378,23 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						}
 					}
 				});
+				
+			} else {
+				new Label(grpShutters, SWT.None);
+			}
+			
+			if (getSoftShutterPV()!=null) {
+				Group grpSoftShutter=new Group(grpShutters, SWT.NONE);
+				GridData gd_grpSoftShutter = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
+				grpSoftShutter.setLayoutData(gd_grpSoftShutter);
+				grpSoftShutter.setLayout(new GridLayout(3, false));
+				
+				Label lblSoftXray=new Label(grpSoftShutter, SWT.None);
+				lblSoftXray.setText("Soft X-Ray: ");
+				
 				/* Composite to contain the status composite so that a border can be displayed. */
 				GridData fillHorizontalGD = new GridData();
-				Composite borderComposite =  new Composite(grpShutters, SWT.NONE);
+				Composite borderComposite = new Composite(grpSoftShutter, SWT.NONE);
 				borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_BLACK));
 				FillLayout fillLayout = new FillLayout();
 				fillLayout.marginWidth = 2;
@@ -373,14 +404,9 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				fillHorizontalGD.widthHint = 20;
 				fillHorizontalGD.heightHint = 20;
 				borderComposite.setLayoutData(fillHorizontalGD);
-		
-				hardShutterState = new Composite(borderComposite, SWT.FILL);
-			}
-			if (getSoftShutterPV()!=null) {
-				Label lblSoftXray=new Label(grpShutters, SWT.None);
-				lblSoftXray.setText("Soft X-Ray: ");
+				softShutterState = new Composite(borderComposite, SWT.FILL);
 				
-				btnSoftShutter = new Button(grpShutters, SWT.PUSH);
+				btnSoftShutter = new Button(grpSoftShutter, SWT.PUSH);
 				btnSoftShutter.setText("CLose");
 				btnSoftShutter.addSelectionListener(new SelectionAdapter() {
 					@Override
@@ -402,20 +428,8 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						}
 					}
 				});
-				/* Composite to contain the status composite so that a border can be displayed. */
-				GridData fillHorizontalGD = new GridData();
-				Composite borderComposite = new Composite(grpShutters, SWT.NONE);
-				borderComposite.setBackground(borderComposite.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-				FillLayout fillLayout = new FillLayout();
-				fillLayout.marginWidth = 2;
-				fillLayout.marginHeight = 2;
-				borderComposite.setLayout(fillLayout);
-				fillHorizontalGD.horizontalIndent = 3;
-				fillHorizontalGD.widthHint = 20;
-				fillHorizontalGD.heightHint = 20;
-				borderComposite.setLayoutData(fillHorizontalGD);
-		
-				softShutterState = new Composite(borderComposite, SWT.FILL);
+			} else {
+				new Label(grpShutters, SWT.None);
 			}
 		}
 		Group grpElementset = new Group(controlArea, SWT.NONE);
@@ -569,7 +583,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 	
 	private void setShutterState(Composite shutterState,int status) {
-		setColourControl(shutterState, status, SWT.COLOR_WHITE, SWT.COLOR_DARK_GREEN);
+		setColourControl(shutterState, status, SWT.COLOR_DARK_GREEN, SWT.COLOR_RED);
 	}
 
 	private void setColourControl(final Control control, final int statusInt, final int openColour,
