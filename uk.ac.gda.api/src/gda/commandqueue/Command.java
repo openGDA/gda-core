@@ -36,7 +36,7 @@ public interface Command  extends IObservable, Serializable{
 	void setDetails(String details) throws Exception;
 	void run() throws Exception;
 	void pause() throws Exception;
-	void abort() throws Exception;
+	void abort() throws Exception; // can be interpreted as skip
 	void resume() throws Exception; //resume after a pause
 
 	enum STATE {NOT_STARTED, RUNNING, PAUSED, ABORTED, COMPLETED, ERROR}
