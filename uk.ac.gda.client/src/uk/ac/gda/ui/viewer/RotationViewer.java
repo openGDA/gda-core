@@ -358,7 +358,8 @@ public class RotationViewer {
 				try {
 					((ScannablePositionSource)motor).setPosition(targetVal);
 				} catch (DeviceException e) {
-					logger.error("Exception when " + msg + ":" + e.getMessage(),e);
+					logger.error("Exception when " + msg + ":" + e.getMessage());
+					logger.debug("Exception when " + msg + ":" + e.getMessage(), e);
 				}
 				return Status.OK_STATUS; 
 			}			
@@ -473,7 +474,8 @@ public class RotationViewer {
 								try {
 									((ScannablePositionSource)motor).setPosition(0.0);
 								} catch (DeviceException e) {
-									logger.error("Exception when " + msg + ":" + e.getMessage(),e);
+									logger.error("Exception when " + msg + ":" + e.getMessage());
+									logger.debug("Exception when " + msg + ":" + e.getMessage(), e);
 								}
 								return Status.OK_STATUS; 
 							}			
