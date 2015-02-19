@@ -195,6 +195,9 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 	 */
 	@Override
 	public void dumpProperties() {
+		
+		((ch.qos.logback.classic.Logger)logger).setLevel(ch.qos.logback.classic.Level.DEBUG);
+		
 		@SuppressWarnings("unchecked")
 		Iterator<String> keyIterator = config.getKeys();
 
