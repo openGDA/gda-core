@@ -27,4 +27,11 @@ public interface EpicsConstants {
 		Disable, Enable;
 	}
 
+	/**
+	 * Epics timestamps use the Epics Epoch which starts from 1st Jan 1990. As Unix / Java time runs from 1st Jan 1970
+	 * an offset needs to be applied to convert Epics timestamps, in millisceonds, to the Java Epoch.
+	 * <p>
+	 * So add this number to Epics timestamps to create java.util.Date objects.
+	 */
+	public static long EPICS_EPOCH_OFFSET = 631152000000L; // 00:00:00 1st Jan 1990 in Java Epoch
 }
