@@ -1,7 +1,8 @@
 from gdascripts.messages.handle_messages import simpleLog
 
-from gda.scan import StaticScan
 from gda.data.scan.datawriter import XasAsciiNexusDataWriter
+from gda.jython import ScriptBase
+from gda.scan import StaticScan
             
 class B18DetectorPreparer:
     def __init__(self, energy_scannable, mythen_scannable, sensitivities, sensitivity_units ,offsets, offset_units, ionc_gas_injector_scannables, xspressConfig, vortexConfig, xspress3Config):
@@ -55,28 +56,44 @@ class B18DetectorPreparer:
         self._control_ionc(ion_chambers_bean, 1)
         self._control_ionc(ion_chambers_bean, 2)
 
-    def _control_ionc(self, ion_chambers_bean, ion_chamber_num):
-        ion_chamber = ion_chambers_bean[ion_chamber_num]
-#         change_sensitivity = ion_chamber.getChangeSensitivity()
-        self._setup_amp_sensitivity(ion_chamber, ion_chamber_num)
-        self._setup_amp_offset(ion_chamber, ion_chamber_num)
-#         if change_sensitivity == True:
-#             name = ion_chamber.getName()
-#             simpleLog("Setting " + name + " stanford")
-#             name = ion_chamber.getName()
-#             gain = ion_chamber.getGain()
-#             self.ionc_stanford_scannables[ion_chamber_num](gain)
-        autoGas = ion_chamber.getAutoFillGas()
-        gas_fill1_pressure = str(ion_chamber.getPressure() * 1000.0)
-        gas_fill1_period = str(ion_chamber.getGas_fill1_period_box())
-        gas_fill2_pressure = str(ion_chamber.getTotalPressure() * 1000.0)
-        gas_fill2_period = str(ion_chamber.getGas_fill2_period_box())
-        flushString = str(ion_chamber.getFlush())
-        purge_pressure = "25.0"
-        purge_period = "120.0"
-        gas_select_val = "0"
+    def _control_ionc(self, ion_chambers_bean_array, ion_chamber_num):
+        ionChamberParams = ion_chambers_bean_array[ion_chamber_num]
+        ScriptBase.checkForPauses()
+        self._setup_amp_sensitivity(ionChamberParams, ion_chamber_num)
+        ScriptBase.checkForPauses()
+        self._setup_amp_offset(ionChamberParams, ion_chamber_num)
+        ScriptBase.checkForPauses()
+        self._setup_ionc_gas(ionChamberParams, ion_chamber_num)
+        
+    def _setup_ionc_gas(self, ionChamberParams, ion_chamber_num):
+        gas_scannable = self.ionc_gas_injector_scannables[ion_chamber_num]
+        
+        autoGas = ionChamberParams.getAutoFillGas()
         if autoGas == True:
-            self.ionc_gas_injector_scannables[ion_chamber_num]([purge_pressure, purge_period, gas_fill1_pressure, gas_fill1_period, gas_fill2_pressure, gas_fill2_period, gas_select_val, flushString])
+
+            gas_fill1_pressure = str(ionChamberParams.getPressure() * 1000.0)
+            gas_fill1_period = str(ionChamberParams.getGas_fill1_period_box())
+            gas_fill2_pressure = str(ionChamberParams.getTotalPressure() * 1000.0)
+            gas_fill2_period = str(ionChamberParams.getGas_fill2_period_box())
+            flushString = str(ionChamberParams.getFlush())
+            purge_pressure = "25.0"
+            purge_period = "120.0"
+            
+            gas_select = ionChamberParams.getGasType()
+            gas_select_val = "-1"
+            gas_report_string = "He"
+            if gas_select == "Kr":
+                gas_select_val = "0"
+                gas_report_string = "He + Kr"
+            elif gas_select == "N":
+                gas_select_val = "1"
+                gas_report_string = "He + N2"
+            elif gas_select == "Ar":
+                gas_select_val = "2"
+                gas_report_string = "He + Ar"
+
+            print "Changing gas of",ionChamberParams.getName(),"to",gas_report_string,"for",ionChamberParams.getPercentAbsorption(),"% absorption"
+            gas_scannable([purge_pressure, purge_period, gas_fill1_pressure, gas_fill1_period, gas_fill2_pressure, gas_fill2_period, gas_select_val, flushString])
 
     def _setup_amp_sensitivity(self, ionChamberParams, index):
         if ionChamberParams.getChangeSensitivity():
@@ -130,7 +147,7 @@ class B18DetectorPreparer:
         dataWriter.setNexusFileNameTemplate(nexusSubFolder+"/%d-mythen.nxs")
         dataWriter.setAsciiFileNameTemplate(asciiSubFolder+"/%d-mythen.dat")
   
-        staticscan = StaticScan([self.mythen_scannable])
+        staticscan = StaticScan([self.mythen_scannable, self.energy_scannable])
         staticscan.setDataWriter(dataWriter)
         print "Collecting a diffraction image..."
         staticscan.run()
