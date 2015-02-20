@@ -109,10 +109,8 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		try {
 			if (saveFiles) {
 				pvProvider.pvStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Capture);
-//				pvProvider.pvAllElementSumStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Capture);
 			} else {
 				pvProvider.pvStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Done);
-//				pvProvider.pvAllElementSumStartStopFileWriting.putNoWait(CAPTURE_CTRL_RBV.Done);
 			}
 		} catch (IOException e) {
 			throw new DeviceException("IOException while setting save files flag", e);

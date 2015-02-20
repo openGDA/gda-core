@@ -39,9 +39,9 @@ public class Xspress3ScanOperations {
 	}
 
 	public void atScanLineStart() throws DeviceException {
+		controller.setSavingFiles(readDataFromFile);
 		controller.doErase();
 		controller.doStart();
-		controller.setSavingFiles(readDataFromFile);
 	}
 
 	public void atScanEnd() throws DeviceException {
