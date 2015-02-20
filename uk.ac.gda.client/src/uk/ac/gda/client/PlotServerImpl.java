@@ -67,6 +67,7 @@ public class PlotServerImpl implements PlotServer {
 
 	@Override
 	public void setData(String guiName, DataBean plotData) throws Exception {
+		// FIXME This is necessary as JacORB 2.2.2 has a bug with inner classes, see GDA-5961
 		for (DatasetWithAxisInformation d : plotData.getData()) { // remove metadata as lazy datasets are not serializable across CORBA
 			d.clearMetadata();
 		}
