@@ -43,7 +43,7 @@ public final class MicroFocusScanParametersEditor extends RichBeanMultiPageEdito
 		DelegatingRichBeanEditorPart editor = new DelegatingRichBeanEditorPart(path, getMappingUrl(), this, editingBean);
 		editor.setEditorClass(MicroFocusScanParametersComposite.class);
 		editor.setScrollable(true);
-		editor.setRichEditorTabText("Example Custom UI");
+		editor.setRichEditorTabText("Map");
 		return editor;
 	}
 
