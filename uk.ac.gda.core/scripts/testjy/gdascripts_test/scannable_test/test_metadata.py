@@ -39,14 +39,14 @@ class TestMetadataCollector(unittest.TestCase):
         scn = create_mock_scannable(ins=['a'], outs=['b'], fmts=['%.3f', '%.4f'],
                          pos=[1.12345, 2.12345])
         eq_(self.mc._createNamePositionPairs(scn),
-            [('scn.a', '1.123'), ('scn.b', '2.1234')])
+            [('scn.a', '1.123'), ('scn.b', '2.1235')])
 
     def test_createNamePositionPairsMultiInputOutputNoPrepend(self):
         self.mc.prepend_keys_with_scannable_names = False
         scn = create_mock_scannable(ins=['a'], outs=['b'], fmts=['%.3f', '%.4f'],
                          pos=[1.12345, 2.12345])
         eq_(self.mc._createNamePositionPairs(scn),
-            [('a', '1.123'), ('b', '2.1234')])
+            [('a', '1.123'), ('b', '2.1235')])
 
     def test_createNamePositionPairsMultiInputOutputwithProblem(self):
         scn = create_mock_scannable(ins=['a'], outs=['b'], fmts=['%.3f', '%.4f'],
@@ -87,10 +87,10 @@ class TestMetadataCollector(unittest.TestCase):
         mc = MetadataCollector('mc', {}, [scn1, scn2, scn3])
         eq_(mc._createHeaderStringForScannables(),
 """scn1.a=1.123
-scn1.b=2.1234
+scn1.b=2.1235
 scn2=unavailable
 scn3.b=3.123
-scn3.c=4.1234
+scn3.c=4.1235
 """)
 
     def test_append_creates_if_needed(self):
