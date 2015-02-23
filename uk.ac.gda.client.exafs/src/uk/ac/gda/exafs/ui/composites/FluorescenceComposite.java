@@ -22,6 +22,7 @@ import gda.configuration.properties.LocalProperties;
 
 import java.io.File;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.dawnsci.common.richbeans.beans.BeanUI;
 import org.dawnsci.common.richbeans.beans.BeansFactory;
 import org.dawnsci.common.richbeans.components.file.FileBox;
@@ -67,7 +68,7 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 	private boolean fileNameChangeRequired = false;
 	private boolean autoChangeFluorescenceFile = LocalProperties.check("gda.microfocus.exafs.autoChangeFluorescenceFile");
 
-	public FluorescenceComposite(Composite parent, int style, boolean includeGermanium, boolean includeXspress3, DetectorParameters abean) {
+	public FluorescenceComposite(Composite parent, int style, boolean includeVortex, boolean includeGermanium, boolean includeXspress3, DetectorParameters abean) {
 		super(parent, style, abean);
 		setLayout(new GridLayout());
 		Composite top = new Composite(this, SWT.NONE);
@@ -81,16 +82,16 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 		Composite confComp = new Composite(top, SWT.NONE);
 		confComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(confComp);
-		String[] items;
 
-		if (includeXspress3) {
-			items = new String[] { "Silicon", "Germanium", "Xspress3" };
+		String[] items = new String[]{};
+		if (includeVortex){
+			items = (String[]) ArrayUtils.add(items, "Silicon");
 		}
-		else if (includeGermanium) {
-			items = new String[] { "Silicon", "Germanium" };
+		if (includeGermanium){
+			items = (String[]) ArrayUtils.add(items, "Germanium");
 		}
-		else {
-			items = new String[] { "Silicon", "Medipix"};
+		if (includeXspress3){
+			items = (String[]) ArrayUtils.add(items, "Xspress3");
 		}
 
 		this.detectorType = new RadioWrapper(confComp, SWT.NONE, items);
