@@ -26,6 +26,7 @@ import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -44,7 +45,6 @@ public final class I18SampleParametersComposite extends Composite {
 	private AttenuatorParametersComposite attenuator2;
 	private FieldComposite name;
 	private FieldComposite description;
-	private Button currentPosition;
 	private Button attnCurrentPosition;
 	private I18SampleParameters bean;
 	private GridData gridData_4;
@@ -133,14 +133,17 @@ public final class I18SampleParametersComposite extends Composite {
 		sampleStageParameters.setEditorClass(uk.ac.gda.beans.exafs.i18.SampleStageParameters.class);
 		
 		Composite composite = new Composite(sampleStageComp, SWT.NONE);
+		RowLayout buttonCompositeLayout = new RowLayout();
+		buttonCompositeLayout.marginLeft = 80;
+		composite.setLayout(buttonCompositeLayout);
 		GridData gd_composite = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
 		gd_composite.widthHint = 365;
 		composite.setLayoutData(gd_composite);
 		
-		currentPosition = new Button(composite, SWT.NONE);
+		Button currentPosition = new Button(composite, SWT.NONE);
 		currentPosition.setBounds(229, 0, 133, 29);
-		currentPosition.setToolTipText("Fill the text boxes with the current motor values");
-		currentPosition.setText("Get current values");
+		currentPosition.setToolTipText("Fill the text boxes with the current stage 1 values");
+		currentPosition.setText("Use stage 1 values");
 					
 		currentPosition.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -148,6 +151,20 @@ public final class I18SampleParametersComposite extends Composite {
 				sampleStageParameters.setXValue(JythonServerFacade.getInstance().evaluateCommand("sc_MicroFocusSampleX()"));
 				sampleStageParameters.setYValue(JythonServerFacade.getInstance().evaluateCommand("sc_MicroFocusSampleY()"));
 				sampleStageParameters.setZValue(JythonServerFacade.getInstance().evaluateCommand("sc_sample_z()"));
+			}
+		});
+
+		currentPosition = new Button(composite, SWT.NONE);
+		currentPosition.setBounds(229, 0, 133, 29);
+		currentPosition.setToolTipText("Fill the text boxes with the current stage3 values");
+		currentPosition.setText("Use stage 3 values");
+					
+		currentPosition.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				sampleStageParameters.setXValue(JythonServerFacade.getInstance().evaluateCommand("table_x()"));
+				sampleStageParameters.setYValue(JythonServerFacade.getInstance().evaluateCommand("table_y()"));
+				sampleStageParameters.setZValue(JythonServerFacade.getInstance().evaluateCommand("table_z()"));
 			}
 		});
 	}
@@ -239,7 +256,7 @@ public final class I18SampleParametersComposite extends Composite {
 		vfmx.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		new Label(vfmx, SWT.NONE);
 		
-		currentPosition = new Button(kbComp, SWT.NONE);
+		Button currentPosition = new Button(kbComp, SWT.NONE);
 		currentPosition.setToolTipText("Fill the text boxes with the current motor values");
 		currentPosition.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		currentPosition.setText("Get current value");
@@ -274,10 +291,6 @@ public final class I18SampleParametersComposite extends Composite {
 
 	public AttenuatorParametersComposite getAttenuatorParameter2() {
 		return attenuator2;
-	}
-
-	public Button getCurrentPosition() {
-		return currentPosition;
 	}
 
 	public Button getAttnCurrentPosition() {

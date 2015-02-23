@@ -36,7 +36,7 @@ public class IonChamberParameters  implements Serializable{
 	private String  offset; // offset of the current amps
 	private Double  pressure;
 	private Double  totalPressure = 2d; // Not often changed by user, can default it
-	private String  gasType;
+	private String  gasType = "0";
 	private Double  percentAbsorption;
 	private Double  ionChamberLength=30d;
 	private Double gas_fill1_period_box = 100d;
