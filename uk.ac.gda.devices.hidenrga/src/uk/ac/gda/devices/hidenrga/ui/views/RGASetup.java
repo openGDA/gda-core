@@ -11,6 +11,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
@@ -23,14 +24,16 @@ public class RGASetup extends ViewPart {
 
 	public static String ID = "uk.ac.gda.devices.hidenrga.rgasetup";
 
-	private static final Logger logger = LoggerFactory.getLogger(RGASetup.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(RGASetup.class);
 
 	private Composite massesComposite;
 	private Composite[] massesComposites;
-	private ScrolledComposite massesScrolledComposite;
 	private HidenRGA rga;
 	private Spinner[] massChoices;
 	private Spinner sprNumberMasses;
+
+	private ScrolledComposite mainScrolledComposite;
 
 	public RGASetup() {
 		super();
@@ -39,23 +42,31 @@ public class RGASetup extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 
-		Composite mainComposite = new Composite(parent, SWT.NONE);
-		mainComposite.setLayout(GridLayoutFactory.swtDefaults().numColumns(2).create());
+		parent.setLayout(new FillLayout());
+		mainScrolledComposite = new ScrolledComposite(parent, SWT.V_SCROLL
+				| SWT.BORDER);
+		mainScrolledComposite.setExpandHorizontal(true);
+		mainScrolledComposite.setExpandVertical(true);
+
+		Composite topComposite = new Composite(mainScrolledComposite, SWT.NONE);
+		topComposite.setLayout(GridLayoutFactory.swtDefaults().numColumns(2)
+				.create());
 
 		boolean found = findRGA();
 		if (!found) {
-			Label lblError = new Label(mainComposite, SWT.NONE);
+			Label lblError = new Label(topComposite, SWT.NONE);
 			lblError.setLayoutData(GridDataFactory.swtDefaults().create());
 			lblError.setText("Hiden RGA could not be found!");
-			lblError.setForeground(PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_RED));
+			lblError.setForeground(PlatformUI.getWorkbench().getDisplay()
+					.getSystemColor(SWT.COLOR_RED));
 			return;
 		}
 
-		Label lblNumberMasses = new Label(mainComposite, SWT.NONE);
+		Label lblNumberMasses = new Label(topComposite, SWT.NONE);
 		lblNumberMasses.setLayoutData(GridDataFactory.swtDefaults().create());
 		lblNumberMasses.setText("Number masses:");
 
-		sprNumberMasses = new Spinner(mainComposite, SWT.READ_ONLY);
+		sprNumberMasses = new Spinner(topComposite, SWT.READ_ONLY);
 		sprNumberMasses.setLayoutData(GridDataFactory.swtDefaults().create());
 		sprNumberMasses.setMinimum(1);
 		sprNumberMasses.setMaximum(21);
@@ -69,9 +80,13 @@ public class RGASetup extends ViewPart {
 			}
 		});
 
-		createMassesComposite(mainComposite);
+		createMassesComposite(topComposite);
 
 		updateMasses();
+
+		mainScrolledComposite.setContent(topComposite);
+		mainScrolledComposite.setMinSize(topComposite.computeSize(SWT.DEFAULT,
+				SWT.DEFAULT));
 	}
 
 	private void updateMasses() {
@@ -91,27 +106,26 @@ public class RGASetup extends ViewPart {
 	}
 
 	private void createMassesComposite(Composite mainComposite) {
-		massesScrolledComposite = new ScrolledComposite(mainComposite, SWT.V_SCROLL | SWT.BORDER);
-		massesScrolledComposite.setLayoutData(GridDataFactory.swtDefaults().span(2, 1).create());
-
-		massesComposite = new Composite(massesScrolledComposite, SWT.NONE);
+		massesComposite = new Composite(mainComposite, SWT.NONE);
 		massesComposite.setLayout(GridLayoutFactory.swtDefaults().create());
-		massesScrolledComposite.setContent(massesComposite);
 
 		massesComposites = new Composite[21];
 		massChoices = new Spinner[21];
 
 		for (int i = 0; i < 21; i++) {
 			massesComposites[i] = new Composite(massesComposite, SWT.NONE);
-			massesComposites[i].setLayoutData(GridDataFactory.fillDefaults().create());
-			massesComposites[i].setLayout(GridLayoutFactory.fillDefaults().numColumns(3).create());
+			massesComposites[i].setLayoutData(GridDataFactory.fillDefaults()
+					.create());
+			massesComposites[i].setLayout(GridLayoutFactory.fillDefaults()
+					.numColumns(3).create());
 
 			Label massLabel = new Label(massesComposites[i], SWT.NONE);
 			massLabel.setLayoutData(GridDataFactory.fillDefaults().create());
 			massLabel.setText((i + 1) + ":");
 
 			massChoices[i] = new Spinner(massesComposites[i], SWT.NONE);
-			massChoices[i].setLayoutData(GridDataFactory.fillDefaults().create());
+			massChoices[i].setLayoutData(GridDataFactory.fillDefaults()
+					.create());
 			massChoices[i].setMinimum(0);
 			massChoices[i].setMaximum(128);
 
@@ -119,9 +133,6 @@ public class RGASetup extends ViewPart {
 			amuLabel.setLayoutData(GridDataFactory.fillDefaults().create());
 			amuLabel.setText("amu");
 		}
-		massesComposite.layout();
-		massesComposite.setSize(massesComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		massesScrolledComposite.setMinSize(massesComposite.computeSize(SWT.DEFAULT, 200));
 	}
 
 	protected void setVisibleItems(int selection) {
@@ -132,8 +143,8 @@ public class RGASetup extends ViewPart {
 				massesComposites[i - 1].setVisible(false);
 			}
 		}
-		massesScrolledComposite.layout();
-		massesScrolledComposite.pack();
+		massesComposite.layout();
+		massesComposite.pack();
 	}
 
 	@Override
@@ -141,12 +152,18 @@ public class RGASetup extends ViewPart {
 		massesComposites[0].setFocus();
 	}
 
+	/**
+	 * Refresh the UI from the server-side object
+	 */
 	public void refresh() {
 		if (rga != null) {
 			updateMasses();
 		}
 	}
 
+	/**
+	 * Apply the masses shown in th UI to the server-side object
+	 */
 	public void apply() {
 		if (rga != null) {
 			int[] masses = new int[sprNumberMasses.getSelection()];
@@ -157,6 +174,10 @@ public class RGASetup extends ViewPart {
 		}
 	}
 
+	/**
+	 * Start/stop recording masses to a file. This button could become out of
+	 * sync if the recording is stop/started from the Jython commandline.
+	 */
 	public void toggleRecording() {
 		try {
 			if (!rga.isBusy()) {
