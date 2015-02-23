@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import gda.configuration.properties.LocalProperties;
-import gda.data.NumTrackerFactory;
 import gda.data.PathConstructor;
 
 import java.io.IOException;
@@ -37,7 +36,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  */
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ HidenRGAController.class, PathConstructor.class, NumTrackerFactory.class, LocalProperties.class })
+@PrepareForTest({ HidenRGAController.class, PathConstructor.class, LocalProperties.class })
 public class HidenRGATest {
 
 	private int[] masses;

@@ -30,13 +30,13 @@ public class HidenRGASimulation {
 			//rga.setMasses([16, 32 ,48]);	
 			
 //			// scan simulation
-//			rga.atScanStart();
-//			for (int i = 0; i < 20; i++){
-//				waitAndPrintValues(rga, masses);
-//			}
-//			rga.atScanEnd();
-//			
-//			Thread.sleep(5000);
+			rga.atScanStart();
+			for (int i = 0; i < 20; i++){
+				waitAndPrintValues(rga, masses);
+			}
+			rga.atScanEnd();
+			
+			Thread.sleep(5000);
 			
 			// file writing simulation
 			LocalProperties.set("gda.data.scan.datawriter.datadir","/tmp");
