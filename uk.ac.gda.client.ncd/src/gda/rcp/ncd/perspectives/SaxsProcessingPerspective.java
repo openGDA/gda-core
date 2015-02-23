@@ -30,11 +30,8 @@ public class SaxsProcessingPerspective implements IPerspectiveFactory {
 	
 		layout.addView("uk.ac.gda.client.ncd.saxsview", IPageLayout.RIGHT, 0.5f, IPageLayout.ID_EDITOR_AREA);
 		{
-			IFolderLayout folderLayout = layout.createFolder("folder_1", IPageLayout.TOP, 0.15f, "uk.ac.gda.client.ncd.saxsview");
-			folderLayout.addView("uk.ac.gda.rcp.views.dashboardView");
-		}
-		{
 			IFolderLayout folderLayout = layout.createFolder("folder", IPageLayout.LEFT, 0.95f, IPageLayout.ID_EDITOR_AREA);
+			folderLayout.addView("org.eclipse.ui.navigator.ProjectExplorer");
 			folderLayout.addView("gda.rcp.jythonterminalview");
 		}
 		{
@@ -42,12 +39,9 @@ public class SaxsProcessingPerspective implements IPerspectiveFactory {
 			folderLayout.addView("gda.rcp.ncd.views.StatsAndMathsWithSymmetry");
 			folderLayout.addView("gda.rcp.ncd.views.NcdDataSourceSaxs");
 			folderLayout.addView("uk.ac.gda.client.ncd.QAxisCalibration");
+			folderLayout.addView("uk.ac.diamond.scisoft.ncd.rcp.views.NcdDetectorParameters");
+			folderLayout.addView("uk.ac.diamond.scisoft.ncd.rcp.views.AbsoluteIntensityCalibration");
 			folderLayout.addPlaceholder("org.dawb.workbench.plotting.views.toolPageView.1D");
-		}
-		{
-			IFolderLayout folderLayout = layout.createFolder("folder_2", IPageLayout.BOTTOM, 0.67f, "folder_3");
-			folderLayout.addView("uk.ac.gda.client.ncd.NcdButtonPanelView");
-			folderLayout.addView("gda.rcp.views.baton.BatonView");
 		}
 		{
 			IFolderLayout folderLayout = layout.createFolder("folder_4", IPageLayout.RIGHT, 0.5f, "folder");
