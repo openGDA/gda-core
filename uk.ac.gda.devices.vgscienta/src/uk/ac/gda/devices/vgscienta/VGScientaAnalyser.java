@@ -281,6 +281,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			data.addData(getName(), "lens_mode", new NexusGroupData(getLensMode()), null, null);
 			data.addData(getName(), "acquisition_mode", new NexusGroupData(controller.getAcquisitionMode()), null, null);
 			data.addData(getName(), "pass_energy", new NexusGroupData(new int[] {1}, NexusFile.NX_INT32, new int[] { getPassEnergy() }), "eV", null);
+			data.addData(getName(), "psu_mode", new NexusGroupData(getPsuMode()), null, null);
 			data.addData(getName(), "number_of_frames", new NexusGroupData(new int[] {1}, NexusFile.NX_INT32, new int[] { controller.getFrames() }), null, null);
 			data.addData(getName(), "time_for_frames", new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { getAdBase().getAcquireTime_RBV() }), "s", null);
 			data.addData(getName(), "sensor_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV() }), null, null);
@@ -417,7 +418,9 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	public String getLensMode() throws Exception {
 		return controller.getLensMode();
 	}
-	
+	public String getPsuMode()  throws Exception {
+		return controller.getPsuMode();
+	}	
 	public void setPassEnergy(Integer value) throws Exception {
 		if (inScan) 
 			throw new DeviceException("change of pass energy prohibited during scan");

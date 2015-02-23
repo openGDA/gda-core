@@ -40,6 +40,7 @@ public class VGScientaController implements Configurable {
 	private final EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 	private String basePVName = null;
 	private IPVProvider pvProvider;
+	public static final String PSUMODE_RBV = "ELEMENT_SET_RBV";
 	public static final String LENSMODE = "LENS_MODE";
 	public static final String LENSMODE_RBV = "LENS_MODE_RBV";
 	public static final String ACQMODE = "ACQ_MODE";
@@ -97,7 +98,10 @@ public class VGScientaController implements Configurable {
 	public String getLensMode() throws Exception {
 		return EPICS_CONTROLLER.cagetString(getChannel(LENSMODE_RBV));
 	}
-
+	public String getPsuMode() throws Exception {
+		return EPICS_CONTROLLER.cagetString(getChannel(PSUMODE_RBV));
+	}
+		
 	public void setAcquisitionMode(String value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(ACQMODE), value);
 	}
