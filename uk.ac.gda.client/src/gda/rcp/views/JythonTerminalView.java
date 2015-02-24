@@ -770,19 +770,23 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 		}
 		// record output to a text file
 		else if (parts[0].toLowerCase().compareTo("record") == 0) {
-			if (parts[1].toLowerCase().compareTo("on") == 0) {
+			
+			// print out what was typed
+			appendOutput(this.txtPrompt.getText() + inputText + "\n");
+			
+			addCommandToHistory(inputText);
+			
+			if (parts.length == 2 && parts[1].toLowerCase().compareTo("on") == 0) {
 				startNewOutputFile();
-				appendOutput(this.txtPrompt.getText() + inputText + "\n");
-				addCommandToHistory(inputText);
+				txtInput.setText("");
 			}
-
-			else if (parts[1].toLowerCase().compareTo("off") == 0) {
-				// print out what was typed
-				appendOutput(this.txtPrompt.getText() + inputText + "\n");
-				addCommandToHistory(inputText);
+			else if (parts.length == 2 && parts[1].toLowerCase().compareTo("off") == 0) {
 				closeOutputFile();
+				txtInput.setText("");
 			}
-			txtInput.setText("");
+			else {
+				appendOutput("Expected 'record on' or 'record off'\n");
+			}
 		}
 		// everything else, pass to the Command Server in a separate thread to
 		// stop the GUI freezing.
@@ -792,6 +796,10 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 	}
 
 	private void closeOutputFile() {
+		if (outputFile == null) {
+			logger.warn("Not stopping recording: not started");
+			return;
+		}
 		try {
 			logger.info("Stopped recording terminal output");
 			printOutput = false;
@@ -800,10 +808,9 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 		} catch (IOException e) {
 			outputFile = null;
 		}
-
 	}
 
-	private void startNewOutputFile() {
+	public void startNewOutputFile() {
 		String filename = determineOutputFileName();
 		// open the file
 		try {
@@ -884,6 +891,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 
 		// determine the file name to use
 		String filename;
+		terminalOutputDirName = terminalOutputDirName.replaceAll("/$", ""); // strip leading / to avoid dir//file
 		if (maxValue == 0) {
 			filename = terminalOutputDirName + File.separator + fileNamePrefix + "_1.txt";
 		} else {
