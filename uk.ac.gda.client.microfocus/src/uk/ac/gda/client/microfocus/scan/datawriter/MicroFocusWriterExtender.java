@@ -23,11 +23,9 @@ import gda.data.scan.datawriter.DataWriterExtenderBase;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
 import gda.device.DeviceException;
-import gda.device.XmapDetector;
 import gda.device.detector.BufferedDetector;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.countertimer.TfgScaler;
-import gda.device.detector.xmap.XmapBufferedDetector;
 import gda.device.detector.xspress.Xspress2BufferedDetector;
 import gda.scan.IScanDataPoint;
 
@@ -90,7 +88,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected String detectorName;
 	protected Hashtable<String, Integer> roiNameMap;
 	protected StringBuffer roiHeader = new StringBuffer("row  column");
-	protected Writer writer;
+	private Writer writer;
 	protected String[] roiNames;
 	protected HashMap<String,double[]> scalerValuesCache; // now: <channel name>[buffer array] (to handle multiple TfgScalers) was:[buffer array][element]
 	protected double[][][] detectorValuesCache; // [det chan][element][buffer array]
@@ -144,19 +142,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					elementRois[detectorNo] = ((XspressParameters) detectorBean).getDetector(detectorNo)
 							.getRegionList();
 				}
-			} else if (detector instanceof XmapDetector) {
-				detectorName = detector.getName();
-				roiNames = new String[((VortexParameters) detectorBean).getDetector(0).getRegionList().size()];
-				for (int roiIndex = 0; roiIndex < roiNames.length; roiIndex++) {
-					roiNames[roiIndex] = ((VortexParameters) detectorBean).getDetector(0).getRegionList().get(roiIndex)
-							.getRoiName();
-				}
-				fillRoiNames();
-				elementRois = new List[numberOfSubDetectors];
-				for (int detectorNo = 0; detectorNo < numberOfSubDetectors; detectorNo++){
-					elementRois[detectorNo] = ((VortexParameters) detectorBean).getDetector(detectorNo).getRegionList();
-				}
-			}  else if (detector instanceof Xspress3) {
+			} else if (detector instanceof Xspress3) {
 				Xspress3 xspress = (Xspress3) detector;
 				detectorName = xspress.getName();
 				roiNames = new String[((Xspress3Parameters) detectorBean).getDetector(0).getRegionList().size()];
@@ -309,72 +295,11 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 							}
 						}
 
-					} else if (isXmapScan()
-							&& ((detector instanceof XmapDetector) || (detector instanceof BufferedDetector))) {
-						d = ((NXDetectorData) dataObj);
-						double wholeDataArray[][] = new double[numberOfSubDetectors][];
-						Object wholeDataArrayObject;
-						try {
-							wholeDataArrayObject = d.getData(detectorName, "fullSpectrum", "SDS").getBuffer();
-						} catch (Exception e) {
-							// elements spectrum is not available as twod array
-							wholeDataArrayObject = null;
-						}
-						for (int j = 0; j < numberOfSubDetectors; j++) {
-							Object singleElementSpectrum = null;
-							if (wholeDataArrayObject == null) {
-								singleElementSpectrum = (d
-										.getData(detectorName, "Element" + j + "_fullSpectrum", "SDS").getBuffer());
-							} else {
-								if (wholeDataArrayObject instanceof int[][]) {
-									singleElementSpectrum = ((int[][]) wholeDataArrayObject)[j];
-								} else if (wholeDataArrayObject instanceof double[][])
-									singleElementSpectrum = ((double[][]) wholeDataArrayObject)[j];
-								else if (wholeDataArrayObject instanceof short[][])
-									singleElementSpectrum = ((short[][]) wholeDataArrayObject)[j];
-							}
-							if (singleElementSpectrum instanceof int[]) {
-								wholeDataArray[j] = new double[((int[]) singleElementSpectrum).length];
-								// do an array copy to convert from int to double
-								for (int arIndex = 0; arIndex < ((int[]) singleElementSpectrum).length; arIndex++)
-									wholeDataArray[j][arIndex] = ((int[]) singleElementSpectrum)[arIndex];
-							}
-							if (singleElementSpectrum instanceof short[]) {
-								wholeDataArray[j] = new double[((short[]) singleElementSpectrum).length];
-								// do an array copy to convert from int to double
-								for (int arIndex = 0; arIndex < ((short[]) singleElementSpectrum).length; arIndex++)
-									wholeDataArray[j][arIndex] = ((short[]) singleElementSpectrum)[arIndex];
-							}
-
-							else if (singleElementSpectrum instanceof double[]) {
-								wholeDataArray[j] = (double[]) singleElementSpectrum;
-							}
-							spectrumLength = wholeDataArray[j].length;
-							@SuppressWarnings("unchecked")
-							// needs a redesign to prevent this unchecked warning
-							List<DetectorROI> roiList = elementRois[j];
-							// calculating window total manually instead of using xmap ROIs
-							for (DetectorROI roi : roiList) {
-								String key = roi.getRoiName();
-								if (ArrayUtils.contains(roiNames, key)) {
-									if (detectorValuesCache[j][roiNameMap.get(key)] == null)
-										detectorValuesCache[j][roiNameMap.get(key)] = new double[totalPoints];
-									double windowTotal = getWindowedData(wholeDataArray[j], roi.getRoiStart(),
-											roi.getRoiEnd());
-									double rgbElementSum = rgbLineData.get(key);
-									rgbLineData.put(key, rgbElementSum + windowTotal);
-									detectorValuesCache[j][roiNameMap.get(key)][currentPointNumber] = windowTotal;
-								}
-							}
-						}
 					} else if (isXspress3Scan()){
 						// TODO  extract the ROIs and put into the detectorValuesCache object for holding the map in memory
 						//  problem: at the moment, only the FFs are in the data, not the rois...
 						
 						d = ((NXDetectorData) dataObj);
-//						double[][] dataArray = (double[][]) d.getData(detectorName, "MCAs", "SDS").getBuffer();
-//						// assuming all detector elements have the same number of roi
-//						spectrumLength = dataArray[0].length;
 						for (int i = 0; i < numberOfSubDetectors; i++) {
 							@SuppressWarnings("unchecked")
 							List<DetectorROI> roiList = elementRois[i];
@@ -558,17 +483,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/MCAs");
 				slice = lazyDataset.getSlice(new int[] { y, x, detNo, 0 }, new int[] { y + 1, x + 1, detNo + 1,
 						spectrumLength }, new int[] { 1, 1, 1, 1 });
-			} else if (isXmapScan()) {
-				lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/fullSpectrum");
-				if (lazyDataset == null) {
-					lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/Element" + detNo
-							+ "_fullSpectrum");
-					slice = lazyDataset.getSlice(new int[] { y, x, 0 }, new int[] { y + 1, x + 1, spectrumLength },
-							new int[] { 1, 1, 1 });
-				} else {
-					slice = lazyDataset.getSlice(new int[] { y, x, detNo, 0 }, new int[] { y + 1, x + 1, detNo + 1,
-							spectrumLength }, new int[] { 1, 1, 1, 1 });
-				}
 			} else if (isXspress3Scan()) {
 				// when SWMR available we can write all MCAs for to a single multidimensional data block
 				// but for the moment have different data per row.
@@ -627,7 +541,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			}
 			plotImage(dataSetToDisplay);
 			return;
-		} else if (isXspressScan() || isXmapScan() || isXspress3Scan()) {
+		} else if (isXspressScan() || isXspress3Scan()) {
 			for (int point = 0; point <= plottedSoFar; point++) {
 				dataSetToDisplay.set(detectorValuesCache[detectorChannel][selectedElementIndex][point], point
 						/ numberOfXPoints, point % numberOfXPoints);
@@ -657,14 +571,6 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected boolean isXspress3Scan() {
 		for (Detector det : detectors) {
 			if (det instanceof Xspress3 || det instanceof Xspress3BufferedDetector)
-				return true;
-		}
-		return false;
-	}
-
-	protected boolean isXmapScan() {
-		for (Detector det : detectors) {
-			if (det instanceof XmapDetector || det instanceof XmapBufferedDetector)
 				return true;
 		}
 		return false;
