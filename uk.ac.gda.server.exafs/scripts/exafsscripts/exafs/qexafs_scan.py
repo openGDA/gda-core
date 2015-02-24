@@ -12,6 +12,7 @@ from gda.configuration.properties import LocalProperties
 from gda.device import DeviceException
 from gda.epics import CAClient
 from gda.exafs.scan import BeanGroup, BeanGroups, ScanStartedMessage, RepetitionsProperties
+from gda.jython import InterfaceProvider
 from gda.jython import ScriptBase
 from gda.jython.scriptcontroller.event import ScanCreationEvent, ScanFinishEvent, ScriptProgressEvent
 from gda.jython.scriptcontroller.logging import XasProgressUpdater
@@ -22,13 +23,14 @@ from gdascripts.metadata.metadata_commands import meta_clear_alldynamical
 
 class QexafsScan(Scan):
     
-    def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, cirrus=None):
+    def __init__(self,detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers, topupMonitor, beamMonitor, cirrus=None):
         Scan.__init__(self, detectorPreparer, samplePreparer, outputPreparer, commandQueueProcessor, ExafsScriptObserver, XASLoggingScriptController, datawriterconfig, original_header, energy_scannable, ionchambers)
         self.cirrus = cirrus
         self.cirrusEnabled = False
-        self.beamCheck = True
         self.gmsd_enabled = False
         self.additional_channels_enabled = False
+        self.topupMonitor = topupMonitor
+        self.beamMonitor = beamMonitor
         
     def __call__(self, sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions= -1, validation=True):
 
@@ -224,16 +226,15 @@ class QexafsScan(Scan):
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xspress3", "qexafs_FFI0_xspress3"], scanBean)
             else:
                 return self._createDetArray(["qexafs_counterTimer01", "qexafs_xspress", "QexafsFFI0"], scanBean)
-
-    def isBeamCheck(self):
-        return self.beamCheck
     
     def turnOnBeamCheck(self):
-        self.beamCheck = True
-        
+        InterfaceProvider.getDefaultScannableProvider().addDefault(self.topupMonitor)
+        InterfaceProvider.getDefaultScannableProvider().addDefault(self.beamMonitor)
+
     def turnOffBeamCheck(self):
-        self.beamCheck=False
-    
+        InterfaceProvider.getDefaultScannableProvider().removeDefault(self.topupMonitor)
+        InterfaceProvider.getDefaultScannableProvider().removeDefault(self.beamMonitor)
+
     def useCirrus(self, isUsed):
         self.cirrusEnabled = isUsed
 
