@@ -34,7 +34,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyXspress3Controller.class);
 
-	private static final int NUMBER_CHANNELS = 4;
+//	private static final int NUMBER_CHANNELS = 4;
 	// Tfg is only for simulation purposes to get current state (in real system
 	// Xspress3 hardware would know what is going on)
 	// Tfg should not be driven by this simulation as Xspress3Controllers only
@@ -237,7 +237,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	@Override
 	public void setROILimits(int channel, int roiNumber, int[] lowHighMCAChannels) {
 		if (this.roi == null) {
-			roi = new DetectorROI[NUMBER_CHANNELS];
+			roi = new DetectorROI[numberOfChannels];
 		}
 		roi[roiNumber] = new DetectorROI("ROI" + roiNumber, lowHighMCAChannels[0], lowHighMCAChannels[1]);
 

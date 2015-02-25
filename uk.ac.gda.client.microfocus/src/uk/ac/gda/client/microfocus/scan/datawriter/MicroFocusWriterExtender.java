@@ -54,7 +54,6 @@ import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDetector;
@@ -170,7 +169,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 		}
 		// assume it must be vortex then
-		VortexParameters vortexParameters = (VortexParameters) detectorBean;
+		Xspress3Parameters vortexParameters = (Xspress3Parameters) detectorBean;
 		int numFilteredDetectors = 0;
 		for (int element = 0; element < vortexParameters.getDetectorList().size(); element++)
 			if (!vortexParameters.getDetectorList().get(element).isExcluded())
@@ -309,6 +308,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 									if (detectorValuesCache[i][roiNameMap.get(key)] == null)
 										detectorValuesCache[i][roiNameMap.get(key)] = new double[totalPoints];
 									NexusGroupData groupData = d.getData(detectorName, key, "SDS");
+// 									in the simulation we get Doubles but live we return doubles. Fix the sim									
 									double[] dataArray = (double[]) groupData.getBuffer();
 									double windowTotal = dataArray[i];
 									double rgbElementSum = rgbLineData.get(key);
