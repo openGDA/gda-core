@@ -57,7 +57,6 @@ import uk.ac.gda.arpes.beans.ARPESScanBean;
 import uk.ac.gda.arpes.beans.ScanBeanFromNeXusFile;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.devices.vgscienta.AnalyserCapabilties;
-import uk.ac.gda.richbeans.ACTIVE_MODE;
 import uk.ac.gda.richbeans.beans.IFieldWidget;
 import uk.ac.gda.richbeans.components.FieldComposite;
 import uk.ac.gda.richbeans.components.scalebox.IntegerBox;
@@ -73,41 +72,51 @@ import uk.ac.gda.richbeans.event.ValueListener;
 
 public final class ARPESScanBeanComposite extends Composite implements ValueListener {
 	private static final Logger logger = LoggerFactory.getLogger(ARPESScanBeanComposite.class);
-	private final ComboWrapper lensMode;
-	private final ComboWrapper passEnergy;
-	private final NumberBox startEnergy;
-	private final NumberBox endEnergy;
-	private final NumberBox stepEnergy;
-	private final NumberBox timePerStep;
-	private final NumberBox iterations;
-	private final RadioWrapper sweptMode;
-	private final ScaleBox centreEnergy;
-	private final ScaleBox energyWidth;
-	private final BooleanWrapper configureOnly;
-	private boolean wedidit = false;
+	
 	private AnalyserCapabilties capabilities;
-	private Label lblEstimatedTime;
-	private Label estimatedTime;
-	private Label lblStartEnergy;
-	private Label lblCenterEnergy;
-	private Label lblEndEnergy;
-	private Label lblStepEnergy;
-	private Label lblEnergyWidth;
-	private Label lblTimePerStep;
-	private Label lblIterations;
-	private Label lblConfigureOnly;
-	private Label lblSweptMode;
-	private Label lblPassEnergy;
+	private Label lblpsuMode;
+	private Label psuMode;
 	private Label lblLensMode;
+	private final ComboWrapper lensMode;
+	private Label lblPassEnergy;
+	private final ComboWrapper passEnergy;
+	private Label lblStartEnergy;
+	private final NumberBox startEnergy;
+	private Label lblEndEnergy;
+	private final NumberBox endEnergy;
+	private Label lblStepEnergy;
+	private final NumberBox stepEnergy;
+	private Label lblTimePerStep;
+	private final NumberBox timePerStep;
+	private Label lblIterations;
+	private final NumberBox iterations;
+	private Label lblSweptMode;
+	private final RadioWrapper sweptMode;
+	private Label lblCenterEnergy;
+	private final NumberBox centreEnergy;
+	private Label lblEnergyWidth;
+	private final NumberBox energyWidth;
+	private Label lblConfigureOnly;
+	private final BooleanWrapper configureOnly;
+	
+	private Label lblEstimatedTime;	
+	private Label estimatedTime;
+
 
 	public ARPESScanBeanComposite(final Composite parent, int style, final RichBeanEditorPart editor) {
 		super(parent, style);
+
+		// Load the analyser capabilities
+		capabilities = (AnalyserCapabilties) Finder.getInstance()
+				.listAllLocalObjects(AnalyserCapabilties.class.getCanonicalName()).get(0);
+
+		// Make a 2 column grid layout
 		GridLayout gridLayout = new GridLayout(2, false);
 		gridLayout.horizontalSpacing = 10;
+		gridLayout.verticalSpacing = 6;
 		setLayout(gridLayout);
 
-		capabilities = (AnalyserCapabilties) Finder.getInstance().listAllLocalObjects(AnalyserCapabilties.class.getCanonicalName()).get(0);
-
+		// First row
 		Label label = new Label(this, SWT.NONE);
 		label.setText("Drop file here!");
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -121,7 +130,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		Button btnClipboard = new Button(btnComp, SWT.NONE);
 		btnClipboard.setText("Jython to Clipboard");
-		btnClipboard.setToolTipText("save file and copy Jython instructions to clip board to use this defintion in scripts");
+		btnClipboard
+				.setToolTipText("Save file and copy Jython instructions to clip board to use this defintion in scripts");
 		btnClipboard.addSelectionListener(new SelectionAdapter() {
 
 			@Override
@@ -146,7 +156,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		Button btnQueueExperiment = new Button(btnComp, SWT.NONE);
 		btnQueueExperiment.setText("Queue Experiment");
-		btnQueueExperiment.setToolTipText("save file and queue for execution (will start immediately if queue running)");
+		btnQueueExperiment
+				.setToolTipText("Save file and queue for execution (will start immediately if queue running)");
 		btnQueueExperiment.addSelectionListener(new SelectionAdapter() {
 
 			@Override
@@ -155,16 +166,18 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 				try {
 					IProgressMonitor monitor = new NullProgressMonitor();
 					editor.doSave(monitor);
-					if (monitor.isCanceled())
+					if (monitor.isCanceled()) {
 						return;
+					}
 					Queue queue = CommandQueueViewFactory.getQueue();
 					boolean batonHeld = JythonServerFacade.getInstance().isBatonHeld();
-					if(!batonHeld){
-						MessageDialog dialog = new MessageDialog(Display.getDefault().getActiveShell(), "Baton not held", null,
-							    "You do not hold the baton, please take the baton using the baton manager.", MessageDialog.ERROR, new String[] { "Ok" }, 0);
+					if (!batonHeld) {
+						MessageDialog dialog = new MessageDialog(Display.getDefault().getActiveShell(),
+								"Baton not held", null,
+								"You do not hold the baton, please take the baton using the baton manager.",
+								MessageDialog.ERROR, new String[] { "Ok" }, 0);
 						dialog.open();
-					}
-					else if (queue != null) {
+					} else if (queue != null) {
 						queue.addToTail(new JythonCommandCommandProvider(getOurJythonCommand(editor),
 								editor.getTitle(), editor.getPath()));
 					} else {
@@ -176,6 +189,17 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			}
 		});
 
+		// PSU mode
+		lblpsuMode = new Label(this, SWT.NONE);
+		lblpsuMode.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblpsuMode.setText("PSU Mode");
+		psuMode = new Label(this, SWT.NONE);
+		GridData gd_psuMode = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
+		gd_psuMode.widthHint = 200;
+		psuMode.setLayoutData(gd_psuMode);
+		updatePsuMode(); // Call to get current PSU mode as panel is building
+
+		// Lens Mode
 		lblLensMode = new Label(this, SWT.NONE);
 		lblLensMode.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblLensMode.setText("Lens Mode");
@@ -184,33 +208,9 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		gd_lensMode.widthHint = 200;
 		lensMode.setLayoutData(gd_lensMode);
 		lensMode.setItems(capabilities.getLensModes());
+		lensMode.addValueListener(this);
 
-		lensMode.addValueListener(new ValueListener() {
-
-			@Override
-			public void valueChangePerformed(ValueEvent e) {
-				updateFields(e);
-
-			}
-
-			@Override
-			public String getValueListenerName() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		});
-
-		Comparator<String> passEComparator = new Comparator<String>() {
-			@Override
-			public int compare(String o1, String o2) {
-				return Integer.valueOf(o1.substring(0, o1.lastIndexOf(" "))).compareTo(
-						Integer.valueOf(o2.substring(0, o2.lastIndexOf(" "))));
-			}
-		};
-		Map<String, Short> passMap = new TreeMap<String, Short>(passEComparator);
-		for (short s : capabilities.getPassEnergies()) {
-			passMap.put(String.format("%d eV", s), s);
-		}
+		// Pass energy
 		lblPassEnergy = new Label(this, SWT.NONE);
 		lblPassEnergy.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblPassEnergy.setText("Pass Energy");
@@ -218,9 +218,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		GridData gd_passEnergy = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_passEnergy.widthHint = 200;
 		passEnergy.setLayoutData(gd_passEnergy);
-		passEnergy.setItems(passMap);
+		updatePassEnergy();
 		passEnergy.addValueListener(this);
 
+		// Fixed or swept radio box
 		lblSweptMode = new Label(this, SWT.NONE);
 		lblSweptMode.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblSweptMode.setText("Swept Mode");
@@ -237,15 +238,16 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		};
 		sweptMode.addValueListener(this);
 
+		// Estimated time
 		lblEstimatedTime = new Label(this, SWT.NONE);
 		lblEstimatedTime.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
 		lblEstimatedTime.setText("Estimated Time");
-
 		estimatedTime = new Label(this, SWT.NONE);
 		GridData gd_estimatedTime = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
 		gd_estimatedTime.widthHint = 200;
 		estimatedTime.setLayoutData(gd_estimatedTime);
 
+		// Start Energy
 		lblStartEnergy = new Label(this, SWT.NONE);
 		lblStartEnergy.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblStartEnergy.setText("Start Energy");
@@ -257,8 +259,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		startEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		startEnergy.setUnit("eV");
 		startEnergy.setDecimalPlaces(3);
-		startEnergy.addValueListener(this);
 
+		// Centre energy
 		lblCenterEnergy = new Label(this, SWT.NONE);
 		lblCenterEnergy.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblCenterEnergy.setText("Center Energy");
@@ -272,8 +274,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		centreEnergy.setDecimalPlaces(3);
 		centreEnergy.setFieldName("centreEnergy");
 		centreEnergy.on();
-		centreEnergy.addValueListener(this);
 
+		// End Energy
 		lblEndEnergy = new Label(this, SWT.NONE);
 		lblEndEnergy.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblEndEnergy.setText("End Energy");
@@ -285,8 +287,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		endEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		endEnergy.setUnit("eV");
 		endEnergy.setDecimalPlaces(3);
-		endEnergy.addValueListener(this);
 
+		// Step energy
 		lblStepEnergy = new Label(this, SWT.NONE);
 		lblStepEnergy.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblStepEnergy.setText("Step Energy");
@@ -299,10 +301,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		stepEnergy.setUnit("meV");
 		stepEnergy.setDecimalPlaces(5);
 		stepEnergy.setMaximum(10000);
-		stepEnergy.setMinimum(0.0001);
-		stepEnergy.setMinimumValid(true);
-		stepEnergy.addValueListener(this);
 
+		// Energy width
 		lblEnergyWidth = new Label(this, SWT.NONE);
 		lblEnergyWidth.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblEnergyWidth.setText("Energy Width");
@@ -315,10 +315,9 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		energyWidth.setUnit("eV");
 		energyWidth.setDecimalPlaces(3);
 		energyWidth.setFieldName("energyWidth");
-		energyWidth.on();
-		energyWidth.setActiveMode(ACTIVE_MODE.SET_ENABLED_AND_ACTIVE);
-		energyWidth.addValueListener(this);
+		energyWidth.setEditable(false);
 
+		// Time per step
 		lblTimePerStep = new Label(this, SWT.NONE);
 		lblTimePerStep.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblTimePerStep.setText("Time Per Step");
@@ -331,6 +330,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		timePerStep.setUnit("s");
 		timePerStep.addValueListener(this);
 
+		// Iterations
 		lblIterations = new Label(this, SWT.NONE);
 		lblIterations.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblIterations.setText("Iterations");
@@ -342,6 +342,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		iterations.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		iterations.addValueListener(this);
 
+		// Configure only
 		lblConfigureOnly = new Label(this, SWT.NONE);
 		lblConfigureOnly.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblConfigureOnly.setText("Configure Only");
@@ -349,67 +350,93 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		configureOnly.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 	}
 
-	//DetEnN is number of detector point in swept mode and could be calculated from sweptModeRegion, currently DetEnN=(905-55)
-	//DetEnStep is a minimum energy step per pixel and is a function of a pass Energy,
-	private double determineMinimmumStepEnergy(double passEnergy){
-		if(passEnergy==20)
-			return 1.6119;
-		else if(passEnergy==10)
-			return 0.80595;
-		else if(passEnergy==5)
-			return 0.402975;
-		return -1;
+	private void updatePsuMode() {
+		psuMode.setText(InterfaceProvider.getCommandRunner().evaluateCommand("psu_mode()"));
+
 	}
 
-	private void updateEstimatedTime(){
+	// Sets the available pass energies from the analyser capabilities + PSU mode
+	private void updatePassEnergy() {
+		Comparator<String> passEComparator = new Comparator<String>() {
+			@Override
+			public int compare(String o1, String o2) {
+				return Integer.valueOf(o1.substring(0, o1.lastIndexOf(" "))).compareTo(Integer.valueOf(o2.substring(0, o2.lastIndexOf(" "))));
+			}
+		};
+		Map<String, Short> passMap = new TreeMap<String, Short>(passEComparator);
+		for (short s : capabilities.getPassEnergies()) {
+			passMap.put(String.format("%d eV", s), s);
+		}
+		// Remove Pass energies from drop down not possible with current psu_mode
+		updatePsuMode();
+		if (psuMode.equals("High Pass (XPS)")) {
+			passMap.remove("1 eV"); // PE=1 eV not possible in High Pass
+			passMap.remove("2 eV"); // PE=2 eV not possible in High Pass
+		}
+		if (psuMode.equals("Low Pass (UPS)")) {
+			passMap.remove("50 eV"); // PE=50 eV not possible in Low Pass
+			passMap.remove("100 eV"); // PE=100 eV not possible in Low Pass
+		}
+		passEnergy.setItems(passMap);
+	}
+
+	// DetEnN is number of detector point in swept mode and could be calculated from sweptModeRegion, currently
+	// DetEnN=(905-55)
+	// DetEnStep is a minimum energy step per pixel and is a function of a pass Energy,
+	private double determineMinimmumStepEnergy(double passEnergy) {
+		// This casts passEnergy to an int might be a problem for non-int passEnergies
+		return capabilities.getEnergyStepForPass(determinePassEnergyIndex((int) (passEnergy)));
+	}
+
+	private void updateMinimumStepEnergy() {
+		double passEnergyVal = Double.parseDouble(passEnergy.getValue().toString());
+		stepEnergy.setMinimum(determineMinimmumStepEnergy(passEnergyVal));
+	}
+
+	// This calculates the acquisition time excluding dead time (i.e. shortest possible)
+	private void updateEstimatedTime() {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				int numberOfIterations= iterations.getIntegerValue();
-				double stepTime = timePerStep.getNumericValue();
-				double startEnergyVal = startEnergy.getNumericValue();
-				double endEnergyVal = endEnergy.getNumericValue();
-				double stepEnergyVal = stepEnergy.getNumericValue();
-				double passEnergyVal = Double.parseDouble(passEnergy.getValue().toString());
-				sweptMode.getValue().toString();
-				boolean isSweptMode = (Boolean) sweptMode.getValue();
+
 				long estimatedTimeMs = 0L;
-				if(isSweptMode)
-					estimatedTimeMs = calculateSweptTime(stepTime, startEnergyVal, endEnergyVal, stepEnergyVal, passEnergyVal) * numberOfIterations;
-				else{
-					double energyRange = endEnergyVal - startEnergyVal;
-					double numberOfSteps = energyRange/stepEnergyVal;
-					estimatedTimeMs = (long) (numberOfSteps * (stepTime*1000)) * numberOfIterations;
+				int numberOfIterations = iterations.getIntegerValue();
+				double stepTime = timePerStep.getNumericValue();
+				boolean isSweptMode = (Boolean) sweptMode.getValue();
+
+				if (isSweptMode) {
+					double startEnergyVal = startEnergy.getNumericValue();
+					double endEnergyVal = endEnergy.getNumericValue();
+					double stepEnergyVal = stepEnergy.getNumericValue();
+					double passEnergyVal = Double.parseDouble(passEnergy.getValue().toString());
+					estimatedTimeMs = calculateSweptTime(stepTime, startEnergyVal, endEnergyVal, stepEnergyVal,	passEnergyVal) * numberOfIterations;
+				} else { // Fixed mode
+					estimatedTimeMs = (long) (stepTime * numberOfIterations * 1000);
 				}
+
 				String time = msToString(estimatedTimeMs);
 				estimatedTime.setText(time + " (hh:mm:ss)");
 			}
 		});
 	}
 
-    public String msToString(long ms) {
-        long totalSecs = ms/1000;
-        long hours = (totalSecs / 3600);
-        long mins = (totalSecs / 60) % 60;
-        long secs = totalSecs % 60;
-        String minsString = (mins == 0)
-            ? "00"
-            : ((mins < 10)
-               ? "0" + mins
-               : "" + mins);
-        String secsString = (secs == 0)
-            ? "00"
-            : ((secs < 10)
-               ? "0" + secs
-               : "" + secs);
-        return hours + ":" + minsString + ":" + secsString;
-    }
+	public String msToString(long ms) {
+		long totalSecs = ms / 1000;
+		long hours = (totalSecs / 3600);
+		long mins = (totalSecs / 60) % 60;
+		long secs = totalSecs % 60;
+		String minsString = (mins == 0) ? "00" : ((mins < 10) ? "0" + mins : "" + mins);
+		String secsString = (secs == 0) ? "00" : ((secs < 10) ? "0" + secs : "" + secs);
+		return hours + ":" + minsString + ":" + secsString;
+	}
 
-	private long calculateSweptTime(double stepTime, double startEn, double endEn, double stepEnergyVal, double passEnergyVal){
+	private long calculateSweptTime(double stepTime, double startEn, double endEn, double stepEnergyVal,
+			double passEnergyVal) {
 		double minStepEnergyVal = determineMinimmumStepEnergy(passEnergyVal);
-		//DetEnN is number of detectort point in swept mode and could be calculated from sweptModeRegion, currently DetEnN=(905-55)
-		double numberOfDetectorPoints = 905-55;
-		long sweptTime = (long)((stepTime*(numberOfDetectorPoints*minStepEnergyVal/1000+Math.abs(startEn-endEn))*1000/stepEnergyVal)*1000);
+		// DetEnN is number of detector point in swept mode and could be calculated from sweptModeRegion, currently
+		// DetEnN=(905-55)
+		double numberOfDetectorPoints = 905 - 55; // This is hard coded, not good it specifies the energy points from the swept ROI
+		long sweptTime = (long) ((stepTime * (numberOfDetectorPoints * minStepEnergyVal / 1000 + Math.abs(startEn - endEn)) * 1000 / stepEnergyVal) * 1000);
 		return sweptTime;
 	}
 
@@ -457,107 +484,108 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		return (Boolean) sweptMode.getValue();
 	}
 
-
-	private void updateFields(ValueEvent e) {
-		if (Double.isNaN(e.getDoubleValue()))
-			return;
-		if (wedidit)
-			return;
-		wedidit = true;
-
-		try {
-			if (e.getFieldName().equals("sweptMode")) {
-				stepEnergy.setMinimum(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
-				if (!isSwept()) {
-					stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
-					stepEnergy.setEditable(false);
-					startEnergy.setEditable(false);
-					endEnergy.setEditable(false);
-					energyWidth.setValue(capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue()));
-					energyWidth.setActive(false);
-					startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() - ((Number) energyWidth.getValue()).doubleValue() / 2.0);
-					endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() + ((Number) energyWidth.getValue()).doubleValue() / 2.0);
-
-				} else {
-					stepEnergy.setEditable(true);
-					energyWidth.setActive(true);
-					startEnergy.setEditable(true);
-					endEnergy.setEditable(true);
-				}
-			}
-
-			if (e.getFieldName().equals("passEnergy") || (e.getFieldName().equals("sweptMode") && (Boolean) e.getValue())) {
-				stepEnergy.setMinimum(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
-				if (!isSwept()) {
-					stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
-					double width = capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue());
-					energyWidth.setValue(width);
-					startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() - width / 2.0);
-					endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() + width / 2.0);
-				}
-			}
-
-			if (isSwept()) {
-				if (e.getFieldName().equals("startEnergy")) {
-					centreEnergy.setValue((((Number) endEnergy.getValue()).doubleValue() + e.getDoubleValue()) / 2.0);
-					energyWidth.setValue(((Number) endEnergy.getValue()).doubleValue() - e.getDoubleValue());
-				}
-				if (e.getFieldName().equals("endEnergy")) {
-					centreEnergy.setValue((((Number) startEnergy.getValue()).doubleValue() + e.getDoubleValue()) / 2.0);
-					energyWidth.setValue(-1 * ((Number) startEnergy.getValue()).doubleValue() + e.getDoubleValue());
-				}
-				if (e.getFieldName().equals("energyWidth")) {
-					startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() - e.getDoubleValue() / 2.0);
-					endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() + e.getDoubleValue() / 2.0);
-				}
-			}
-			else {
-				if (e.getFieldName().equals("startEnergy")) {
-					centreEnergy.setValue(((Number) energyWidth.getValue()).doubleValue() / 2.0 + e.getDoubleValue());
-					endEnergy.setValue(((Number) energyWidth.getValue()).doubleValue() + e.getDoubleValue());
-				}
-				if (e.getFieldName().equals("endEnergy")) {
-					centreEnergy.setValue(e.getDoubleValue() - ((Number) energyWidth.getValue()).doubleValue() / 2.0);
-					startEnergy.setValue(e.getDoubleValue() - ((Number) energyWidth.getValue()).doubleValue());
-				}
-			}
-
-			if (e.getFieldName().equals("centreEnergy")) {
-				startEnergy.setValue(e.getDoubleValue() - ((Number) energyWidth.getValue()).doubleValue() / 2.0);
-				endEnergy.setValue(e.getDoubleValue() + ((Number) energyWidth.getValue()).doubleValue() / 2.0);
-			}
-
-		} finally {
-			wedidit = false;
-		}
-		updateEstimatedTime();
-		updateEnergyLimits();
-	}
-
 	@Override
 	public void valueChangePerformed(ValueEvent e) {
-		updateFields(e);
+
+		if (e.getFieldName().equals("lensMode")) {
+			updateEnergyLimits();
+		}
+
+		if (e.getFieldName().equals("passEnergy")) {
+			if (!isSwept()) {// Fixed mode
+				stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
+				energyWidth.setValue(capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue()));
+			}
+		}
+
+		if (e.getFieldName().equals("sweptMode")) {
+			if (isSwept()) {
+				// In swept edit start, stop and step, not centre
+				startEnergy.setEditable(true);
+				centreEnergy.setEditable(false);
+				endEnergy.setEditable(true);
+				stepEnergy.setEditable(true);
+				// Stop watching for changes in centre energy as they are programmatic
+				startEnergy.addValueListener(this);
+				centreEnergy.removeValueListener(this);
+				endEnergy.addValueListener(this);
+				stepEnergy.addValueListener(this);
+
+			} else { // Fixed mode
+				// In fixed edit centre only
+				startEnergy.setEditable(false);
+				centreEnergy.setEditable(true);
+				endEnergy.setEditable(false);
+				stepEnergy.setEditable(false);
+				// Only watch for changes in centreEnergy in fixed mode
+				startEnergy.removeValueListener(this);
+				centreEnergy.addValueListener(this);
+				endEnergy.removeValueListener(this);
+				stepEnergy.removeValueListener(this);
+				// Update values as appropriate for fixed mode
+				energyWidth.setValue(capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue()));
+				startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
+						- ((Number) energyWidth.getValue()).doubleValue() / 2.0);
+				endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
+						+ ((Number) energyWidth.getValue()).doubleValue() / 2.0);
+				stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
+			}
+		}
+
+		if (e.getFieldName().equals("startEnergy")) {
+			// If you change startEnergy must be in swept therefore calculate centre and width
+			centreEnergy.setValue((((Number) startEnergy.getValue()).floatValue() + ((Number) endEnergy.getValue()).floatValue()) / 2.0);
+			energyWidth.setValue(((Number) endEnergy.getValue()).floatValue() - ((Number) startEnergy.getValue()).floatValue());
+		}
+
+		if (e.getFieldName().equals("centreEnergy")) {
+			// If you change centreEnergy must be in fixed mode therefore calculate start and end
+			startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() - ((Number) energyWidth.getValue()).doubleValue() / 2.0);
+			endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() + ((Number) energyWidth.getValue()).doubleValue() / 2.0);
+		}
+
+		if (e.getFieldName().equals("endEnergy")) {
+			// If you change stopEnergy must be in swept therefore calculate centre and width
+			centreEnergy.setValue((((Number) startEnergy.getValue()).floatValue() + ((Number) endEnergy.getValue()).floatValue()) / 2.0);
+			energyWidth.setValue(((Number) endEnergy.getValue()).floatValue() - ((Number) startEnergy.getValue()).floatValue());
+		}
+		updatePsuMode();
+		updateEnergyLimits();
+		updateEstimatedTime();
 	}
 
-	private void updateEnergyLimits(){
+	private void updateEnergyLimits() {
 		int lens = lensMode.getSelectionIndex();
 		int passEnergyVal = Integer.parseInt(passEnergy.getValue().toString());
 
-		String psu_mode = InterfaceProvider.getCommandRunner().evaluateCommand("psu_mode()");
+		//String psu_mode = InterfaceProvider.getCommandRunner().evaluateCommand("psu_mode()");
+		String psu_mode = psuMode.getText();
 		int[] energyRange;
 		if (psu_mode.equals("High Pass (XPS)")) {
-		    energyRange = getHighPassEnergyRange(lens, passEnergyVal);
-		} else {
-		    energyRange = getLowPassEnergyRange(lens, passEnergyVal);
+			energyRange = getHighPassEnergyRange(lens, passEnergyVal);
+		} else { // Low Pass (UPS) or unknown!
+			energyRange = getLowPassEnergyRange(lens, passEnergyVal);
 		}
+		
 		int min = energyRange[0];
 		int max = energyRange[1];
-		startEnergy.setMinimum(min);
-		startEnergy.setMaximum(max);
-		centreEnergy.setMinimum(min);
-		centreEnergy.setMaximum(max);
-		endEnergy.setMinimum(min);
-		endEnergy.setMaximum(max);
+
+		if (isSwept()) { // Swept mode
+			startEnergy.setMinimum(min);
+			startEnergy.setMaximum(max);
+			centreEnergy.setMinimum(-1);
+			centreEnergy.setMaximum(10000);
+			endEnergy.setMinimum(min);
+			endEnergy.setMaximum(max);
+			updateMinimumStepEnergy();
+		} else { // Fixed mode
+			startEnergy.setMinimum(-1);
+			startEnergy.setMaximum(10000);
+			centreEnergy.setMinimum(min);
+			centreEnergy.setMaximum(max);
+			endEnergy.setMinimum(-1);
+			endEnergy.setMaximum(10000);
+		}
 	}
 
 	@Override
@@ -566,133 +594,157 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	}
 
 	public void beanUpdated() {
-		wedidit = true;
-		try {
-			stepEnergy.setMinimum(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
-			centreEnergy.setValue((((Number) endEnergy.getValue()).doubleValue() + ((Number) startEnergy.getValue()).doubleValue()) / 2.0);
-			if (!isSwept()) {
-				stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
-				stepEnergy.setEditable(false);
-				energyWidth.setActive(false);
-				energyWidth.setValue(capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue()));
-				startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() - ((Number) energyWidth.getValue()).doubleValue() / 2.0);
-				endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue() + ((Number) energyWidth.getValue()).doubleValue() / 2.0);
-			}
-			else {
-				stepEnergy.setEditable(true);
-				energyWidth.setActive(true);
-				energyWidth.setValue(((Number) endEnergy.getValue()).doubleValue() - ((Number) startEnergy.getValue()).doubleValue());
-			}
-		} finally {
-			wedidit = false;
+		// Centre energy is not saved in the XML so need to be calculated from start and stop
+		centreEnergy.setValue((((Number) startEnergy.getValue()).floatValue() + ((Number) endEnergy.getValue()).floatValue()) / 2.0);
+
+		if (isSwept()) {
+			// In swept edit start, stop and step, not centre
+			startEnergy.setEditable(true);
+			centreEnergy.setEditable(false);
+			endEnergy.setEditable(true);
+			stepEnergy.setEditable(true);
+			// Stop watching for changes in centre energy as they are programmatic
+			startEnergy.addValueListener(this);
+			centreEnergy.removeValueListener(this);
+			endEnergy.addValueListener(this);
+			stepEnergy.addValueListener(this);
+			// Calculate values to rebuild the editor fully these fields should not be listened to otherwise will fire
+			// another updates
+			energyWidth.setValue(((Number) endEnergy.getValue()).floatValue() - ((Number) startEnergy.getValue()).floatValue());
+
+		} else { // Fixed mode
+			// In fixed edit centre only
+			startEnergy.setEditable(false);
+			centreEnergy.setEditable(true);
+			endEnergy.setEditable(false);
+			stepEnergy.setEditable(false);
+			// Only watch for changes in centreEnergy in fixed mode
+			startEnergy.removeValueListener(this);
+			centreEnergy.addValueListener(this);
+			endEnergy.removeValueListener(this);
+			stepEnergy.removeValueListener(this);
+			// Calculate values to rebuild the editor fully these fields should not be listened to otherwise will fire
+			// another updates
+			energyWidth.setValue(capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue()));
+			stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
+
 		}
+		updatePsuMode();
+		updateEnergyLimits();
 		updateEstimatedTime();
 	}
 
-	private int determinePassEnergyIndex(int passEnergy){
+	private int determinePassEnergyIndex(int passEnergy) {
 		int passEnergyIndex = 0;
 		switch (passEnergy) {
-			case 1:	passEnergyIndex = 0;
-					break;
-			case 2:	passEnergyIndex = 1;
-					break;
-			case 5:	passEnergyIndex = 2;
-					break;
-			case 10:passEnergyIndex = 3;
-					break;
-			case 20:passEnergyIndex = 4;
-					break;
-			case 50:passEnergyIndex = 5;
-					break;
-			case 100:passEnergyIndex = 6;
-					break;
+		case 1:
+			passEnergyIndex = 0;
+			break;
+		case 2:
+			passEnergyIndex = 1;
+			break;
+		case 5:
+			passEnergyIndex = 2;
+			break;
+		case 10:
+			passEnergyIndex = 3;
+			break;
+		case 20:
+			passEnergyIndex = 4;
+			break;
+		case 50:
+			passEnergyIndex = 5;
+			break;
+		case 100:
+			passEnergyIndex = 6;
+			break;
 		}
 		return passEnergyIndex;
 	}
 
-	//-1 represents none
-	//index 0,1,2,3,4,5,6 relates to pass energies 1,2,5,10,20,50,100
-	//lens modes:	0:transmission
-	//				1:angular7NF
-	//				2:angular14
-	//				3:angular14SmallSpot
-	//				4:angular30
-	//				5:angular30SmallSpot
+	// -1 represents none
+	// index 0,1,2,3,4,5,6 relates to pass energies 1,2,5,10,20,50,100
+	// lens modes: 0:transmission
+	// 1:angular7NF
+	// 2:angular14
+	// 3:angular14SmallSpot
+	// 4:angular30
+	// 5:angular30SmallSpot
 
-	private int[] getLowPassEnergyRange(int lens, int passEnergy){
+	private int[] getLowPassEnergyRange(int lens, int passEnergy) {
 		int[] minEnergies = new int[7];
 		int[] maxEnegies = new int[7];
 		switch (lens) {
-    		case 0: //trans correct
-    			minEnergies = new int[]{1,0,1,2,5,-1,-1};
-    			maxEnegies = new int[]{32,64,116,121,131,-1,-1};
-                        break;
-    		case 1: //ang 7 correct
-    			minEnergies = new int[]{1,1,3,12,12,-1,-1};
-    			maxEnegies = new int[]{38,76,116,121,131,-1,-1};
-    			break;
-    		case 2: //ang 14 correct
-    			minEnergies = new int[]{1,1,2,5,10,-1,-1};
-    			maxEnegies = new int[]{38,76,116,121,131,-1,-1};
+		case 0: // trans correct 23-2-15 JJM
+			minEnergies = new int[] { 1, 0, 1, 2, 5, -1, -1 };
+			maxEnegies = new int[] { 32, 64, 116, 121, 131, -1, -1 };
 			break;
-    		case 3: // ang 14 small correct
-    			minEnergies = new int[]{1,1,1,1,1,-1,-1};
-    			maxEnegies = new int[]{8,24,60,120,88,-1,-1};
-    			break;
-    		case 4: // ang 30 correct
-    			minEnergies = new int[]{1,1,2,4,7,-1,-1};
-    			maxEnegies = new int[]{23,45,113,121,131,-1,-1};
-    			break;
-    		case 5: // ang 30 small correct
-    			minEnergies = new int[]{1,1,1,1,1,-1,-1};
-    			maxEnegies = new int[]{8,24,60,120,88,-1,-1};
+		case 1: // ang 7 correct 23-2-15 JJM
+			minEnergies = new int[] { 1, 1, 3, 12, 12, -1, -1 };
+			maxEnegies = new int[] { 38, 76, 116, 121, 131, -1, -1 };
+			break;
+		case 2: // ang 14 correct 23-2-15 JJM
+			minEnergies = new int[] { 1, 1, 2, 5, 10, -1, -1 };
+			maxEnegies = new int[] { 38, 76, 116, 121, 131, -1, -1 };
+			break;
+		case 3: // ang 14 small correct 23-2-15 JJM
+			minEnergies = new int[] { 1, 1, 1, 2, 2, -1, -1 };
+			maxEnegies = new int[] { 10, 19, 48, 95, 67, -1, -1 };
+			break;
+		case 4: // ang 30 correct 23-2-15 JJM
+			minEnergies = new int[] { 1, 1, 2, 4, 7, -1, -1 };
+			maxEnegies = new int[] { 23, 45, 113, 121, 131, -1, -1 };
+			break;
+		case 5: // ang 30 small correct 23-2-15 JJM
+			minEnergies = new int[] { 1, 1, 1, 1, 1, -1, -1 };
+			maxEnegies = new int[] { 8, 24, 60, 120, 88, -1, -1 };
 			break;
 		}
 		int passEnergyIndex = determinePassEnergyIndex(passEnergy);
-		return new int[]{minEnergies[passEnergyIndex],maxEnegies[passEnergyIndex]};
+		return new int[] { minEnergies[passEnergyIndex], maxEnegies[passEnergyIndex] };
 	}
 
-	//-1 represents none
-	//index 0,1,2,3,4,5,6 relates to pass energies 1,2,5,10,20,50,100
+	// -1 represents none
+	// index 0,1,2,3,4,5,6 relates to pass energies 1,2,5,10,20,50,100
 
-	//lens modes:	0:transmission
-	//				1:angular7NF
-	//				2:angular14
-	//				3:angular14SmallSpot
-	//				4:angular30
-	//				5:angular30SmallSpot
+	// lens modes: 0:transmission
+	// 1:angular7NF
+	// 2:angular14
+	// 3:angular14SmallSpot
+	// 4:angular30
+	// 5:angular30SmallSpot
 
-	private int[] getHighPassEnergyRange(int lens, int passEnergy){
+	private int[] getHighPassEnergyRange(int lens, int passEnergy) {
 		int[] minEnergies = new int[7];
 		int[] maxEnegies = new int[7];
 		switch (lens) {
-    		case 0: //transmission correct
-    			minEnergies = new int[]{-1,-1,1,2,5,12,25};
-			maxEnegies = new int[]{-1,-1,160,320,640,1407,1305};
+		case 0: // transmission correct 23-2-15 JJM
+			minEnergies = new int[] { -1, -1, 1, 2, 5, 12, 25 };
+			maxEnegies = new int[] { -1, -1, 160, 320, 640, 1407, 1305 };
 			break;
-    		case 1: //ang 7 correct
-    			minEnergies = new int[]{-1,-1,3,12,12,30,59};
-    			maxEnegies = new int[]{-1,-1,190,761,761,369,216};
-    			break;
-    		case 2: //ang 14 correct
-    			minEnergies = new int[]{-1,-1,2,5,10,25,50};
-			maxEnegies = new int[]{-1,-1,190,381,761,1234,1467};
+		case 1: // ang 7 correct 23-2-15 JJM
+			minEnergies = new int[] { -1, -1, 3, 12, 12, 30, 59 };
+			maxEnegies = new int[] { -1, -1, 190, 761, 761, 369, 216 };
 			break;
-    		case 3: //ang 14 small correct
-    			minEnergies = new int[]{-1,-1,1,2,2,6,12};
-    			maxEnegies = new int[]{-1,-1,48,95,190,182,149};
-    			break;
-    		case 4: //ang 30 correct
-    			minEnergies = new int[]{-1,-1,2,4,7,18,35};
-    			maxEnegies = new int[]{-1,-1,113,226,453,800,1037};
-    			break;
-    		case 5: //ang 30 small correct
-    			minEnergies = new int[]{-1,-1,1,1,1,3,6};
-			maxEnegies = new int[]{-1,-1,60,120,240,248,172};
+		case 2: // ang 14 correct 23-2-15 JJM
+			minEnergies = new int[] { -1, -1, 2, 5, 10, 25, 50 };
+			maxEnegies = new int[] { -1, -1, 190, 381, 761, 1234, 1467 };
+			break;
+		case 3: // ang 14 small correct 23-2-15 JJM
+			minEnergies = new int[] { -1, -1, 1, 2, 2, 6, 12 };
+			maxEnegies = new int[] { -1, -1, 48, 95, 190, 182, 149 };
+			break;
+		case 4: // ang 30 correct 23-2-15 JJM
+			minEnergies = new int[] { -1, -1, 2, 4, 7, 18, 35 };
+			maxEnegies = new int[] { -1, -1, 113, 226, 453, 800, 1037 };
+			break;
+		case 5: // ang 30 small correct 23-2-15 JJM
+			minEnergies = new int[] { -1, -1, 1, 1, 1, 3, 6 };
+			maxEnegies = new int[] { -1, -1, 60, 120, 240, 248, 172 };
 			break;
 		}
 		int passEnergyIndex = determinePassEnergyIndex(passEnergy);
-		return new int[]{minEnergies[passEnergyIndex],maxEnegies[passEnergyIndex]};
+		return new int[] { minEnergies[passEnergyIndex], maxEnegies[passEnergyIndex] };
 	}
 
 	public static void setDropTarget(final Composite parent, final Shell shell, final RichBeanEditorPart editor) {
@@ -702,14 +754,16 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		target.addDropListener(new DropTargetAdapter() {
 			@Override
 			public void dragEnter(DropTargetEvent e) {
-				if (e.detail == DND.DROP_NONE)
+				if (e.detail == DND.DROP_NONE) {
 					e.detail = DND.DROP_LINK;
+				}
 			}
 
 			@Override
 			public void dragOperationChanged(DropTargetEvent e) {
-				if (e.detail == DND.DROP_NONE)
+				if (e.detail == DND.DROP_NONE) {
 					e.detail = DND.DROP_LINK;
+				}
 			}
 
 			@Override
@@ -720,7 +774,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 				}
 				String[] filenames = (String[]) event.data;
 				if (filenames.length > 1) {
-					MessageDialog.openError(shell, "too many files", "Please drop one file only in here.\nI cannot copy settings from multiple sources.");
+					MessageDialog.openError(shell, "too many files",
+							"Please drop one file only in here.\nI cannot copy settings from multiple sources.");
 					return;
 				}
 				ARPESScanBean bean;
@@ -731,7 +786,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 				} catch (Exception e) {
 					logger.error("error converting nexus file to bean", e);
 					// TODO better messages for frequent cases (no analyser in file)
-					MessageDialog.openError(shell, "error reading nexus file for settings", "Analyser settings from that file could not be read.");
+					MessageDialog.openError(shell, "error reading nexus file for settings",
+							"Analyser settings from that file could not be read.");
 					return;
 				}
 				// TODO message for non-analyser parameters (exit slit, entrance slit, photon energy)
@@ -741,8 +797,9 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 						"We would suggest saving this experiment under a new name now.", MessageDialog.QUESTION,
 						new String[] { "Save as...", "Keep existing name and don't save yet" }, 0);
 				int result = dialog.open();
-				if (result == 0)
+				if (result == 0) {
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor().doSaveAs();
+				}
 			}
 		});
 	}
