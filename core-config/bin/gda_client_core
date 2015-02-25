@@ -24,6 +24,7 @@ VMARGS="-Dgda.facility.dir=${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel} $V
 VMARGS="-Dgda.core.dir=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel} $VMARGS"
 VMARGS="-Dgda.logs.dir=${GDA_LOGS_DIR} $VMARGS" # gda.logs.dir should be read from java.properties, but it doesn't seem to work
 VMARGS="-Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/${GDA_MODE}_instance_java.properties ${VMARGS}"
+VMARGS="-Dgda.config=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel} $VMARGS" #Adding this here is a better place to set gda.config than in the gda-xx.ini
 
 jacorb_config_dir=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/jacorb
 if [ -d "${jacorb_config_dir}" ]; then
@@ -34,7 +35,7 @@ else
 fi
 
 jca_properties_file=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/JCALibrary.properties
-if [ -d "${jca_properties_file}" ]; then
+if [ -r "${jca_properties_file}" ]; then
     VMARGS="-Dgov.aps.jca.JCALibrary.properties=${jca_properties_file} $VMARGS"
 else
     echo "Can't find JCALibrary.properties file ${jca_properties_file}"
