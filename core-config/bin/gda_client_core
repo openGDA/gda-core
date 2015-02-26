@@ -1,66 +1,51 @@
-echo 'start of gdastart_client_core'
+bashlog debug "gda_client_core" "Entered"
 
 # Set up the directory and file in which to write the console log
-    # We only invoke one script to do this (the most specific one)
-    for filename in \
-      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_setup_consolelog_instance" \
-      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_setup_consolelog_group" \
-      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_setup_consolelog_facility"
-    do
-      if [ -e "${filename}" ]; then
+# We only invoke one script to do this (the most specific one)
+for filename in \
+    "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_setup_consolelog_instance" \
+    "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_setup_consolelog_group" \
+    "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_setup_consolelog_facility"
+do
+    if [ -e "${filename}" ]; then
         . ${filename}
         echo 'just ran console log file ' ${filename}
         break
-      fi
-    done
-    
-    echo "GDA_CLIENT_LOG_DIR=$GDA_LOGS_DIR"
-    
-export GDA_CLIENT_LOG_DIR=$GDA_LOGS_DIR
-export GDA_CLIENT_WORKING_DIR=$GDA_WORKSPACE_PARENT/client
+    fi
+done
 
-VMARGS="-Dgda.mode=$GDA_MODE ${VMARGS-}"
+export GDA_CLIENT_LOG_DIR=${GDA_LOGS_DIR}
+export GDA_CLIENT_WORKING_DIR=${GDA_WORKSPACE_PARENT}/client
 
-#KrisB - Changes to cope with choice of jacorb directory locations.
-echo '${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jacorb/$GDA_MODE'
-echo "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jacorb/$GDA_MODE"
-if [ -d "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jacorb/$GDA_MODE" ]; then
-	VMARGS="-Djacorb.config.dir=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jacorb/$GDA_MODE $VMARGS"
-elif [ -d "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/$GDA_MODE/jacorb" ]; then
-	VMARGS="-Djacorb.config.dir=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/$GDA_MODE/jacorb $VMARGS"
-else
-	echo "Can't find jacorb directory"
-	exit 1
-fi
-VMARGS="-Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/$GDA_MODE/${GDA_MODE}_instance_java.properties $VMARGS"
-
-
-#KrisB - New lines to pass GDA level variables into Java
-VMARGS="-Dgda.core.dir=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel} $VMARGS"
-VMARGS="-Dgda.facility.dir=${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel} $VMARGS"
-VMARGS="-Dgda.group.dir=${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel} $VMARGS"
+VMARGS="-Dgda.mode=${GDA_MODE} ${VMARGS-}"
 VMARGS="-Dgda.instance.dir=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel} $VMARGS"
+VMARGS="-Dgda.group.dir=${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel} $VMARGS"
+VMARGS="-Dgda.facility.dir=${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel} $VMARGS"
+VMARGS="-Dgda.core.dir=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel} $VMARGS"
+VMARGS="-Dgda.logs.dir=${GDA_LOGS_DIR} $VMARGS" # gda.logs.dir should be read from java.properties, but it doesn't seem to work
+VMARGS="-Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/${GDA_MODE}_instance_java.properties ${VMARGS}"
 VMARGS="-Dgda.config=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel} $VMARGS" #Adding this here is a better place to set gda.config than in the gda-xx.ini
 
-VMARGS="-Dgda.logs.dir=${GDA_LOGS_DIR} $VMARGS" #KrisB, gda.logs.dir should be read from java.properties, but it doesn't seem to work
-
-#VMARGS="-Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/properties/new_java.properties $VMARGS"
-
-
-
-if [ -d "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jca/$GDA_MODE" ]; then
-	VMARGS="-Dgov.aps.jca.JCALibrary.properties=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/jca/$GDA_MODE/JCALibrary.properties $VMARGS"
-elif [ -d "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/$GDA_MODE/jacorb" ]; then
-	VMARGS="-Dgov.aps.jca.JCALibrary.properties=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/$GDA_MODE/JCALibrary.properties $VMARGS"
+jacorb_config_dir=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/jacorb
+if [ -d "${jacorb_config_dir}" ]; then
+    VMARGS="-Djacorb.config.dir=${jacorb_config_dir} $VMARGS"
 else
-	echo "Can't find JCALibrary.properties file"
-	exit 1
+    echo "Can't find jacorb directory $jacorb_config_dir}"
+    exit 1
+fi
+
+jca_properties_file=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/JCALibrary.properties
+if [ -r "${jca_properties_file}" ]; then
+    VMARGS="-Dgov.aps.jca.JCALibrary.properties=${jca_properties_file} $VMARGS"
+else
+    echo "Can't find JCALibrary.properties file ${jca_properties_file}"
+    exit 1
 fi
 
 VMARGS="-Dgda.install.git.loc=$GDA_WORKSPACE_PARENT/workspace_git $VMARGS"
 
 export GDA_CLIENT_VMARGS=$VMARGS
-#echo  GDA_CLIENT_VMARGS=$VMARGS
+bashlog debug "gda_client_core" "VMARGS=${VMARGS}"
 
 cd $GDA_WORKSPACE_PARENT/client
 
@@ -70,4 +55,6 @@ if [[ "$PARAMS" == *"client"* ]]; then
         PARAMS="${PARAMS/client/}"
 fi
 
-${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gdaclient --log --keep --nohup ${GDA_LOG_FILE} $PARAMS
+${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gdaclient --log --keep --nohup $*
+
+bashlog debug "gda_client_core" "Exited"
