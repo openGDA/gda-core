@@ -1,5 +1,7 @@
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
+import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.devices.detector.xspress3.Xspress3;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 import gda.data.nexus.tree.NexusTreeProvider;
@@ -21,6 +23,8 @@ import gda.device.detector.NXDetectorData;
  */
 public class Xspress3WithFullCalculationsDetector extends DetectorBase implements Xspress3 {
 
+	private static final int MCA_SIZE = 4096;
+	
 	Xspress3Controller controller;
 	private Xspress3ScanOperations scanOperations;
 	private Xspress3DataOperations dataOperations;
@@ -173,4 +177,29 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 		this.readDataFromFile = readDataFromFile;
 	}
 
+	@Override
+	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
+		return dataOperations.getRegionsOfInterest();
+	}
+
+	@Override
+	public void setRegionsOfInterest(DetectorROI[] regionList)
+			throws DeviceException {
+		dataOperations.setRegionsOfInterest(regionList);
+	}
+
+	@Override
+	public int getNumberOfChannels() {
+		return controller.getNumberOfChannels();
+	}
+
+	@Override
+	public int getMCASize() {
+		return MCA_SIZE;
+	}
+
+	@Override
+	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) throws Exception {
+		dataOperations.applyConfigurationParameters(parameters);
+	}
 }

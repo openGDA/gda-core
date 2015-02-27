@@ -9,7 +9,9 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.devices.detector.xspress3.fullCalculations.Xspress3WithFullCalculationsDetector;
 
 /**
@@ -340,5 +342,30 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	@Override
 	public double readoutFF() throws DeviceException {
 		return xspress3Detector.readoutFF();
+	}
+
+	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
+		return xspress3Detector.getRegionsOfInterest();
+	}
+
+	@Override
+	public void setRegionsOfInterest(DetectorROI[] regionList)
+			throws DeviceException {
+		xspress3Detector.setRegionsOfInterest(regionList);
+	}
+
+	@Override
+	public int getNumberOfChannels() {
+		return xspress3Detector.getNumberOfChannels();
+	}
+
+	@Override
+	public int getMCASize() {
+		return xspress3Detector.getMCASize();
+	}
+
+	@Override
+	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) throws Exception {
+		xspress3Detector.applyConfigurationParameters(parameters);
 	}
 }

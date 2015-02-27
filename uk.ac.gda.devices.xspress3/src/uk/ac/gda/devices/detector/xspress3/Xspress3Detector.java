@@ -20,6 +20,7 @@ import org.nexusformat.NexusFile;
 
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
@@ -36,6 +37,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  */
 public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
+	private static final int MCA_SIZE = 4096;
 	public static final String ALL_ELEMENT_SUM_LABEL = "AllElementSum_";
 	public static int SUM_ALL_ROI = 0;
 	public static int SUM_FIRST_ROI = 1;
@@ -434,6 +436,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return sum;
 	}
 
+	@Override
 	public void setRegionsOfInterest(DetectorROI[] regionList) throws DeviceException {
 		if (regionList.length > MAX_ROI_PER_CHANNEL) {
 			throw new DeviceException("Too many regions! Only " + MAX_ROI_PER_CHANNEL + " allowed.");
@@ -471,15 +474,17 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * @return ROI[]
 	 * @throws DeviceException
 	 */
+	@Override
 	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
 		// assume that the ROIs were defined via this class and so the
 		// regionNames array kept in this class has the same size as the regions
 		// defined in the controller
-		DetectorROI[] rois = new DetectorROI[controller.getNumberROIToRead()];
+		int numRegions = controller.getNumberROIToRead();
+		DetectorROI[] rois = new DetectorROI[numRegions];
 
-		for (int roiNum = 0; roiNum < rois.length; roiNum++) {
+		for (int roiNum = 0; roiNum < numRegions; roiNum++) {
 			rois[roiNum] = new DetectorROI();
-			rois[roiNum].setRoiName(regionNames[rois.length]);
+			rois[roiNum].setRoiName(regionNames[roiNum]);
 			Integer[] limits = controller.getROILimits(0, roiNum);
 			rois[roiNum].setRoiStart(limits[0]);
 			rois[roiNum].setRoiEnd(limits[1]);
@@ -661,22 +666,45 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		if (getConfigFileName() == null)
 			return;
 
-		Xspress3Parameters vortexParameters = (Xspress3Parameters) XMLHelpers.createFromXML(
+		Xspress3Parameters xspress3Parameters = (Xspress3Parameters) XMLHelpers.createFromXML(
 				Xspress3Parameters.mappingURL, Xspress3Parameters.class, Xspress3Parameters.schemaURL,
 				getConfigFileName());
 
-		List<DetectorROI> vortexRois = vortexParameters.getDetector(0).getRegionList();
-		DetectorROI[] rois = new DetectorROI[vortexRois.size()];
-		for (int index = 0; index < vortexRois.size(); index++) {
-			rois[index] = new DetectorROI(vortexRois.get(index).getRoiName(), vortexRois.get(index).getRoiStart(), vortexRois
-					.get(index).getRoiEnd());
+		applyXspress3ConfigurationParameters(xspress3Parameters);
+	}
+
+	@Override
+	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) throws Exception {
+		if (parameters instanceof Xspress3Parameters) {
+			applyXspress3ConfigurationParameters((Xspress3Parameters)parameters);
+		} else {
+			throw new IllegalArgumentException("An Xspress3Parameters object must be provided to configure the Xspress3 detector");
+		}
+	}
+
+	private void applyXspress3ConfigurationParameters(Xspress3Parameters parameters) throws DeviceException {
+		List<DetectorROI> roisList = parameters.getDetector(0).getRegionList();
+		DetectorROI[] roisArray = new DetectorROI[roisList.size()];
+		for (int index = 0; index < roisList.size(); index++) {
+			DetectorROI roi = roisList.get(index);
+			roisArray[index] = new DetectorROI(roi.getRoiName(), roi.getRoiStart(), roi.getRoiEnd());
 		}
 
-		for (int channel = 0; channel < vortexParameters.getDetectorList().size(); channel++) {
-			boolean channelDisabled = vortexParameters.getDetectorList().get(channel).isExcluded();
+		for (int channel = 0; channel < parameters.getDetectorList().size(); channel++) {
+			boolean channelDisabled = parameters.getDetectorList().get(channel).isExcluded();
 			controller.enableChannel(channel, !channelDisabled);
 		}
 
-		setRegionsOfInterest(rois);
+		setRegionsOfInterest(roisArray);
+	}
+
+	@Override
+	public int getNumberOfChannels() {
+		return controller.getNumberOfChannels();
+	}
+
+	@Override
+	public int getMCASize() {
+		return MCA_SIZE;
 	}
 }

@@ -87,6 +87,13 @@
             name="Stanford Amplifiers"
             restorable="true">
       </view>
+      <view
+            allowMultiple="false"
+            class="uk.ac.gda.exafs.ui.views.detectors.Xspress3ConfigurationView"
+            id="uk.ac.gda.client.exafs.ui.views.detectors.xspress3"
+            name="Xspress3 Configuration"
+            restorable="false">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
@@ -221,6 +228,16 @@
             id="uk.ac.gda.client.exafs.changenumberRepetitions"
             name="Change Number of Repetitions">
       </command>
+      <command
+            description="Apply the current configuration to the detector"
+            id="uk.ac.gda.client.exafs.applyDetectorConfigurationCommand"
+            name="Apply to Detector">
+      </command>
+      <command
+            description="Refresh the view with the current detector settings"
+            id="uk.ac.gda.client.exafs.fetchDetectorConfigurationCommand"
+            name="Refresh view">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -271,6 +288,14 @@
      <handler
            class="uk.ac.gda.exafs.ui.actions.ChangeNumberRepetitions"
            commandId="uk.ac.gda.client.exafs.changenumberRepetitions">
+     </handler>
+     <handler
+           class="uk.ac.gda.exafs.ui.actions.ApplyDetectorConfigurationHandler"
+           commandId="uk.ac.gda.client.exafs.applyDetectorConfigurationCommand">
+     </handler>
+     <handler
+           class="uk.ac.gda.exafs.ui.actions.RefreshDetectorConfigurationHandler"
+           commandId="uk.ac.gda.client.exafs.fetchDetectorConfigurationCommand">
      </handler>
    </extension>
    <extension
@@ -452,6 +477,21 @@
                icon="icons/import_wiz.gif"
                label="Import Experiment"
                style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.gda.client.exafs.ui.views.detectors.xspress3">
+         <command
+               commandId="uk.ac.gda.client.exafs.applyDetectorConfigurationCommand"
+               icon="icons/cog_go.png"
+               label="Apply to Detector"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.gda.client.exafs.fetchDetectorConfigurationCommand"
+               icon="icons/arrow_refresh.png"
+               label="Refresh">
          </command>
       </menuContribution>
    </extension>

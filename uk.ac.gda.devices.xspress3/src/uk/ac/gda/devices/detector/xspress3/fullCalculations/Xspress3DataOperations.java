@@ -15,6 +15,7 @@ import org.nexusformat.NexusFile;
 
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 import uk.ac.gda.devices.detector.xspress3.controllerimpl.EpicsXspress3ControllerPvProvider;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
@@ -84,12 +85,17 @@ public class Xspress3DataOperations {
 				Xspress3Parameters.mappingURL, Xspress3Parameters.class, Xspress3Parameters.schemaURL,
 				getConfigFileName());
 
-		List<DetectorROI> vortexRois = vortexParameters.getDetector(0).getRegionList();
+		applyConfigurationParameters(vortexParameters);
+	}
+	
+	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) {
+		List<DetectorROI> vortexRois = parameters.getDetector(0).getRegionList();
 		rois = new DetectorROI[vortexRois.size()];
 		for (int index = 0; index < vortexRois.size(); index++) {
 			rois[index] = new DetectorROI(vortexRois.get(index).getRoiName(), vortexRois.get(index).getRoiStart(), vortexRois
 					.get(index).getRoiEnd());
 		}
+		
 	}
 
 	private void disableAllEPICSCalculations() throws DeviceException {
@@ -342,4 +348,11 @@ public class Xspress3DataOperations {
 		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, controller.getNumberOfChannels() - 1);
 	}
 
+	public DetectorROI[] getRegionsOfInterest() {
+		return rois;
+	}
+
+	public void setRegionsOfInterest(DetectorROI[] regionList) {
+		rois = regionList;		
+	}
 }

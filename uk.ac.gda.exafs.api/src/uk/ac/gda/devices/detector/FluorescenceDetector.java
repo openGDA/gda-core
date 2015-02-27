@@ -2,6 +2,7 @@ package uk.ac.gda.devices.detector;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
+import uk.ac.gda.beans.DetectorROI;
 
 public interface FluorescenceDetector extends Detector {
 
@@ -35,4 +36,24 @@ public interface FluorescenceDetector extends Detector {
 	 * @throws Exception
 	 */
 	public void loadConfigurationFromFile() throws Exception;
+	
+	public DetectorROI[] getRegionsOfInterest() throws DeviceException;
+	
+	public void setRegionsOfInterest(DetectorROI[] regionList) throws DeviceException;
+
+	/**
+	 * @return The number of elements/detector channels
+	 */
+	public int getNumberOfChannels();
+
+	public int getMCASize();
+
+	/**
+	 * Configure the detector using the given parameters object.
+	 * 
+	 * @param parameters
+	 * @throws Exception
+	 */
+	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) throws Exception;
+
 }

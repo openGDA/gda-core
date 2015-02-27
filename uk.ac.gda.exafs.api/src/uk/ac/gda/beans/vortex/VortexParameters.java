@@ -27,10 +27,10 @@ import java.util.Vector;
 import org.apache.commons.beanutils.BeanUtils;
 
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.exafs.IDetectorConfigurationParameters;
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-public class VortexParameters implements Serializable, IDetectorConfigurationParameters {
+public class VortexParameters implements Serializable, FluorescenceDetectorParameters {
 
 	private List<DetectorElement> detectorList;
 	private String countType;
