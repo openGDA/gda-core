@@ -441,7 +441,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	}
 
 	protected String getOurJythonCommand(final RichBeanEditorPart editor) {
-		return String.format("import arpes; arpes.APRESRun(\"%s\").run()", editor.getPath());
+		return String.format("import arpes; arpes.ARPESRun(\"%s\").run()", editor.getPath());
 	}
 
 	public FieldComposite getLensMode() {

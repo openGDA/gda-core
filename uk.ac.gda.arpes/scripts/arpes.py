@@ -5,7 +5,7 @@ from gda.data.metadata import GDAMetadataProvider
 import gda.jython.commands.ScannableCommands
 from gda.commandqueue import JythonScriptProgressProvider
 
-class APRESRun:
+class ARPESRun:
     
     def __init__(self, beanFile):
         self.bean = uk.ac.gda.arpes.beans.ARPESScanBean.createFromXML(beanFile)
