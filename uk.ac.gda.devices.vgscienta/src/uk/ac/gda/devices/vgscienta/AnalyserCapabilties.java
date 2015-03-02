@@ -24,6 +24,10 @@ public interface AnalyserCapabilties extends Findable {
 
 	public Short[] getPassEnergies();
 	
+	public Short[] getPassEnergiesLow();
+	
+	public Short[] getPassEnergiesHigh();
+	
 	public double getEnergyWidthForPass(int pass);
 	
 	public double getEnergyStepForPass(int pass);
