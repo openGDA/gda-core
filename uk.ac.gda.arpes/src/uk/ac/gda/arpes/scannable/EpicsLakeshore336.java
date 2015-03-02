@@ -36,14 +36,15 @@ public class EpicsLakeshore336 extends ScannableBase {
 	private IPVProvider pvProvider;
 
 	public static final String CH_TEMP = "KRDG%d";
-
 	public static final String LOOP_DEMAND = "SETP_S%d";
 	public static final String LOOP_DEMAND_RBV = "SETP%d";
 	public static final String LOOP_OUTPUT = "HTR%d";
 	public static final String LOOP_HEATERRANGE = "RANGE_S%d";
 	public static final String LOOP_HEATERRANGE_RBV = "RANGE_S%d";
-	public static final String LOOP_RATE = "RAMP_S%d";
-	public static final String LOOP_RATE_RBV = "RAMP%d";
+	public static final String LOOP_RAMP = "RAMP_S%d";
+	public static final String LOOP_RAMP_RBV = "RAMP%d";
+	public static final String LOOP_RAMP_ENABLE = "RAMPST_S%d";
+	public static final String LOOP_RAMP_ENABLE_RBV = "RAMPST%d";
 	public static final String LOOP_INPUT = "OMINPUT_S%d";
 	public static final String LOOP_INPUT_RBV = "OMINPUT%d";
 	public static final String LOOP_MANUAL_OUT = "MOUT_S%d";	
@@ -130,7 +131,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 			if (EPICS_CONTROLLER.cagetInt(getChannel(LOOP_DEMAND_RBV,activeLoop)) == 0)
 				return false;
 		} catch (Exception e) {
-			throw new DeviceException("error reading from lakeshore device", e);
+			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
 		}
 		return Math.abs(getDemandTemperature()-getControlledTemperature()) > tolerance;
 	}
@@ -163,7 +164,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 				return 0.0;
 			return EPICS_CONTROLLER.cagetDouble(getChannel(LOOP_OUTPUT, getActiveLoop()));
 		} catch (Exception e) {
-			throw new DeviceException("error reading from lakeshore device", e);
+			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
 		}
 	}
 
@@ -171,7 +172,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 		try {
 			return EPICS_CONTROLLER.cagetDouble(getChannel(CH_TEMP, i));
 		} catch (Exception e) {
-			throw new DeviceException("error reading from lakeshore device", e);
+			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
 		}
 	}
 
@@ -182,7 +183,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 			int sensor = EPICS_CONTROLLER.cagetInt(getChannel(LOOP_INPUT_RBV, getActiveLoop())) - 1;
 			return EPICS_CONTROLLER.cagetDouble(getChannel(CH_TEMP, sensor));
 		} catch (Exception e) {
-			throw new DeviceException("error reading from lakeshore device", e);
+			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
 		}
 	}
 
@@ -192,7 +193,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 				return;
 			EPICS_CONTROLLER.caputWait(getChannel(LOOP_DEMAND, getActiveLoop()), demand);
 		} catch (Exception e) {
-			throw new DeviceException("error setting value in lakeshore device", e);
+			throw new DeviceException("Error setting value in Lakeshore 336 Temperature Controller device", e);
 		}	
 	}
 	
@@ -202,7 +203,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 				return null;
 			return EPICS_CONTROLLER.cagetDouble(getChannel(LOOP_DEMAND_RBV, getActiveLoop()));
 		} catch (Exception e) {
-			throw new DeviceException("error reading from lakeshore device", e);
+			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
 		}	
 	}
 
@@ -214,7 +215,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 //				return i;
 //			}
 //		} catch (Exception e) {
-//			throw new DeviceException("error reading from lakeshore device", e);
+//			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
 //		}
 //		return 0;
 	}
@@ -225,7 +226,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 				return;
 			EPICS_CONTROLLER.caputWait(getChannel(LOOP_MANUAL_OUT, getActiveLoop()), demand);
 		} catch (Exception e) {
-			throw new DeviceException("error setting value in lakeshore device", e);
+			throw new DeviceException("Error setting value in Lakeshore 336 Temperature Controller device", e);
 		}	
 	}
 	
@@ -235,7 +236,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 				return null;
 			return EPICS_CONTROLLER.cagetDouble(getChannel(LOOP_MANUAL_OUT_RBV, getActiveLoop()));
 		} catch (Exception e) {
-			throw new DeviceException("error reading from lakeshore device", e);
+			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
 		}	
 	}
 	
@@ -245,7 +246,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 				return;
 			EPICS_CONTROLLER.caputWait(getChannel(LOOP_P, getActiveLoop()), demand);
 		} catch (Exception e) {
-			throw new DeviceException("error setting value in lakeshore device", e);
+			throw new DeviceException("Error setting value in Lakeshore 336 Temperature Controller device", e);
 		}	
 	}
 	
@@ -255,7 +256,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 				return null;
 			return EPICS_CONTROLLER.cagetDouble(getChannel(LOOP_P_RBV, getActiveLoop()));
 		} catch (Exception e) {
-			throw new DeviceException("error reading from lakeshore device", e);
+			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
 		}	
 	}
 	
@@ -265,7 +266,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 				return;
 			EPICS_CONTROLLER.caputWait(getChannel(LOOP_I, getActiveLoop()), demand);
 		} catch (Exception e) {
-			throw new DeviceException("error setting value in lakeshore device", e);
+			throw new DeviceException("Error setting value in Lakeshore 336 Temperature Controller device", e);
 		}	
 	}
 	
@@ -275,7 +276,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 				return null;
 			return EPICS_CONTROLLER.cagetDouble(getChannel(LOOP_I_RBV, getActiveLoop()));
 		} catch (Exception e) {
-			throw new DeviceException("error reading from lakeshore device", e);
+			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
 		}	
 	}	
 	
@@ -285,7 +286,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 				return;
 			EPICS_CONTROLLER.caputWait(getChannel(LOOP_D, getActiveLoop()), demand);
 		} catch (Exception e) {
-			throw new DeviceException("error setting value in lakeshore device", e);
+			throw new DeviceException("Error setting value in Lakeshore 336 Temperature Controller device", e);
 		}	
 	}
 	
@@ -295,7 +296,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 				return null;
 			return EPICS_CONTROLLER.cagetDouble(getChannel(LOOP_D_RBV, getActiveLoop()));
 		} catch (Exception e) {
-			throw new DeviceException("error reading from lakeshore device", e);
+			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
 		}	
 	}
 	
@@ -305,7 +306,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 				return;
 			EPICS_CONTROLLER.caputWait(getChannel(LOOP_HEATERRANGE, getActiveLoop()), demand);
 		} catch (Exception e) {
-			throw new DeviceException("error setting value in lakeshore device", e);
+			throw new DeviceException("Error setting value in Lakeshore 336 Temperature Controller device", e);
 		}	
 	}
 	
@@ -315,7 +316,51 @@ public class EpicsLakeshore336 extends ScannableBase {
 				return null;
 			return EPICS_CONTROLLER.cagetInt(getChannel(LOOP_HEATERRANGE_RBV, getActiveLoop()));
 		} catch (Exception e) {
-			throw new DeviceException("error reading from lakeshore device", e);
+			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
 		}	
+	}
+	
+	public void setRampRate(double rampRate) throws DeviceException {
+		try {
+			if (getActiveLoop() == 0)
+				return;
+			EPICS_CONTROLLER.caputWait(getChannel(LOOP_RAMP, getActiveLoop()), rampRate);
+		} catch (Exception e) {
+			throw new DeviceException("Error setting value in Lakeshore 336 Temperature Controller device", e);
+		}	
+	}
+	
+	public Double getRampRate() throws DeviceException {
+		try {
+			if (getActiveLoop() == 0)
+				return null;
+			return EPICS_CONTROLLER.cagetDouble(getChannel(LOOP_RAMP_RBV, getActiveLoop()));
+		} catch (Exception e) {
+			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
+		}	
+	}
+	
+	public void setEnableRamp(boolean rampEnabled) throws DeviceException {
+		try {
+			if (getActiveLoop() == 0)
+				return;
+			EPICS_CONTROLLER.caputWait(getChannel(LOOP_RAMP_ENABLE, getActiveLoop()), rampEnabled ? 1 : 0);
+		} catch (Exception e) {
+			throw new DeviceException("Error setting value in Lakeshore 336 Temperature Controller device", e);
+		}
+	}
+	
+	public Boolean getEnableRamp() throws DeviceException {
+		try {
+			if (getActiveLoop() == 0)
+				return null;
+			int rampEnabled = EPICS_CONTROLLER.cagetInt(getChannel(LOOP_RAMP_ENABLE, getActiveLoop()));
+			if (rampEnabled == 1) {
+				return true;
+			}
+			return false;
+		} catch (Exception e) {
+			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
+		}
 	}
 }
