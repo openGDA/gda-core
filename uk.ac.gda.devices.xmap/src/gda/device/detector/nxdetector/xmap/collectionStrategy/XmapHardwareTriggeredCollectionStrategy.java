@@ -16,15 +16,15 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.nxdetector.xmap.CollectionStrategy;
+package gda.device.detector.nxdetector.xmap.collectionStrategy;
 
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
-import gda.device.detector.nxdetector.xmap.Controller.XmapAcquisitionBaseEpicsLayer.*;
-import gda.device.detector.nxdetector.xmap.Controller.XmapAcquisitionBaseEpicsLayer;
-import gda.device.detector.nxdetector.xmap.Controller.XmapMappingModeEpicsLayer;
-import gda.device.detector.nxdetector.xmap.Controller.XmapMappingModeEpicsLayer.PixelAdvanceMode;
+import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer;
+import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayer;
+import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer.*;
+import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayer.PixelAdvanceMode;
 import gda.scan.ScanInformation;
 
 import java.util.ArrayList;

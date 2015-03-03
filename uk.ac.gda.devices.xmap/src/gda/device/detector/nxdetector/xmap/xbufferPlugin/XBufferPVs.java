@@ -1,4 +1,4 @@
-package gda.device.detector.nxdetector.xmap.XbufferPlugin;
+package gda.device.detector.nxdetector.xmap.xbufferPlugin;
 
 import java.io.IOException;
 

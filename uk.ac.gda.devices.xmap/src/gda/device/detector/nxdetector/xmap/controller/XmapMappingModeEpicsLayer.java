@@ -1,11 +1,11 @@
 /**
  * 
  */
-package gda.device.detector.nxdetector.xmap.Controller;
+package gda.device.detector.nxdetector.xmap.controller;
 
 import java.io.IOException;
 
-import gda.device.detector.nxdetector.xmap.Controller.XmapAcquisitionBaseEpicsLayer.CollectionModeEnum;
+import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer.CollectionModeEnum;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.PVWithSeparateReadback;

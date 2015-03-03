@@ -1,7 +1,7 @@
 /**
  * 
  */
-package gda.device.detector.nxdetector.xmap.XbufferPlugin;
+package gda.device.detector.nxdetector.xmap.xbufferPlugin;
 
 
 import org.springframework.beans.factory.InitializingBean;

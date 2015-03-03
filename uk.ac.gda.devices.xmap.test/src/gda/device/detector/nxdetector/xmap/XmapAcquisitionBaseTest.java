@@ -18,12 +18,13 @@
 
 package gda.device.detector.nxdetector.xmap;
 
-import static org.junit.Assert.fail;
-import gda.device.detector.nxdetector.xmap.Controller.CollectionMode;
-import gda.device.detector.nxdetector.xmap.Controller.XmapAcquisitionBaseEpicsLayer;
-import gda.device.detector.nxdetector.xmap.Controller.XmapMappingModeEpicsLayer;
-import gda.epics.LazyPVFactory;
+import static org.junit.Assert.*;
 
+import java.io.IOException;
+
+import gda.device.detector.nxdetector.xmap.controller.CollectionMode;
+import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer;
+import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayer;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -44,41 +45,46 @@ import org.powermock.modules.junit4.PowerMockRunner;
 public class XmapAcquisitionBaseTest {
 
 	/**
-	 * @throws java.lang.Exception
 	 */
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
+	private String basePVname;
+	private XmapAcquisitionBaseEpicsLayer xmapAcquisitionEpicsLayer;
+	private XmapMappingModeEpicsLayer mappingMode;
+	private CollectionMode mcaMode;
+	private XmapAcquisitionBaseEpicsLayer xmapAcquisitionEpicsLayerwithMapping;
+	
 	@Before
-	public void setUp() throws Exception {
-		PowerMockito.mockStatic(LazyPVFactory.class);
+	public void setUp() throws IOException {
+		basePVname = "basePV:";
 		CollectionMode mcaMode = PowerMockito.mock(CollectionMode.class);
-		XmapMappingModeEpicsLayer mappingMode = PowerMockito.mock(XmapMappingModeEpicsLayer.class);
-		
+		mappingMode = PowerMockito.mock(XmapMappingModeEpicsLayer.class);
+		xmapAcquisitionEpicsLayer = new XmapAcquisitionBaseEpicsLayer(basePVname, mcaMode);
+		xmapAcquisitionEpicsLayerwithMapping = new XmapAcquisitionBaseEpicsLayer(basePVname, mappingMode);
 	
 	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@After
-	public void tearDown() throws Exception {
-	}
-
+	
 	@Test
-	public void test() {
-		fail("Not yet implemented");
+	public void testFullPVname() {
+		assertEquals("Check fullPVname", "basePV:Suffix", xmapAcquisitionEpicsLayer.fullPVname("Suffix"));
+	}	
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testBasePVnameInConstructorExceptionIsThrown() throws IOException {
+		XmapAcquisitionBaseEpicsLayer xmapAcquisitionEpicsLayerException = new XmapAcquisitionBaseEpicsLayer(null, mcaMode);		
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void testCollectionModeInConstructorExceptionIsThrown() throws IOException {
+		XmapAcquisitionBaseEpicsLayer xmapAcquisitionEpicsLayerException = new XmapAcquisitionBaseEpicsLayer(basePVname, null);		
+	}
+
+	
+	@Test(expected = ClassCastException.class)
+	public void testIsXmapMappingModeInstanceExceptionIsThrown() {
+		xmapAcquisitionEpicsLayer.isXmapMappingModeInstance("Test");	
+	}
+	
+	@Test
+	public void testIsXmapMappingModeInstanceIsCorrect() {
+		assertTrue("Mapping mode exists", xmapAcquisitionEpicsLayerwithMapping.isXmapMappingModeInstance("Test"));	
+	}
 }

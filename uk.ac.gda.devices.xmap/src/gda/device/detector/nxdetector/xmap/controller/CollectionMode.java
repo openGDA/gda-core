@@ -1,7 +1,7 @@
-package gda.device.detector.nxdetector.xmap.Controller;
+package gda.device.detector.nxdetector.xmap.controller;
 
 import gda.device.detector.nxdetector.xmap.PVBase;
-import gda.device.detector.nxdetector.xmap.Controller.XmapAcquisitionBaseEpicsLayer.CollectionModeEnum;
+import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer.CollectionModeEnum;
 
 
 public class CollectionMode{

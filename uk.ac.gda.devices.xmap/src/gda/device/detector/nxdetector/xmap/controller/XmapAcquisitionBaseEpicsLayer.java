@@ -1,19 +1,12 @@
-/**
- * 
- */
-package gda.device.detector.nxdetector.xmap.Controller;
+package gda.device.detector.nxdetector.xmap.controller;
 import java.io.IOException;
-import java.util.EnumMap;
-import java.util.Map;
-
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.PVWithSeparateReadback;
 import gda.epics.ReadOnlyPV;
 
 /**
- * @author dfq16044
- * @param <T>
+ * Communication layer between 
  *
  */
 public class XmapAcquisitionBaseEpicsLayer {
@@ -89,6 +82,9 @@ public class XmapAcquisitionBaseEpicsLayer {
 		if (basePVName == null) {
 			throw new IllegalArgumentException("'basePVName' needs to be declared");
 		}
+		if (collectMode == null) {
+			throw new NullPointerException("Collection Mode needs to be declared");
+		}
 		createAcquisitionControlLazyPVs();
 		createAcquisitionConfigurationLazyPVs();
 	}
@@ -96,6 +92,10 @@ public class XmapAcquisitionBaseEpicsLayer {
 	public String fullPVname(String PVsuffix){
 		return basePVName + PVsuffix;
 		
+	}
+	
+	public String getBasePVName(){
+		return basePVName;
 	}
 	
 	private void createAcquisitionControlLazyPVs() throws IOException{		
@@ -147,7 +147,6 @@ public class XmapAcquisitionBaseEpicsLayer {
 	public void setEraseStart() throws Exception {
 		eraseStartPV.putNoWait(true);
 	}
-	
 	
 	public boolean getAcquiring() throws Exception {
 		return acquiringPV.get();

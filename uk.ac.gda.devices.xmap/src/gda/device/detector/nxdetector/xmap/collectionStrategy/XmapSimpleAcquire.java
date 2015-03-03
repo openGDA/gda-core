@@ -16,12 +16,12 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.device.detector.nxdetector.xmap.CollectionStrategy;
+package gda.device.detector.nxdetector.xmap.collectionStrategy;
 
 import gda.device.DeviceException;
 import gda.device.detector.addetector.triggering.CollectionStrategyBeanInterface;
-import gda.device.detector.nxdetector.xmap.Controller.XmapAcquisitionBaseEpicsLayer.*;
-import gda.device.detector.nxdetector.xmap.Controller.XmapAcquisitionBaseEpicsLayer;
+import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer;
+import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer.*;
 import gda.scan.ScanInformation;
 
 /**
