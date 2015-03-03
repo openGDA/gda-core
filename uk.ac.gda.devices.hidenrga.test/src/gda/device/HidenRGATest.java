@@ -5,6 +5,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
 
 import java.io.IOException;
 import java.util.LinkedHashSet;
@@ -46,6 +48,10 @@ public class HidenRGATest {
 
 	@Before
 	public void setup() throws DeviceException, IOException {
+		
+		JythonServerFacade jythonserverfacade = Mockito.mock(JythonServerFacade.class);
+		InterfaceProvider.setTerminalPrinterForTesting(jythonserverfacade);
+		
 		masses = new int[] { 16, 32, 48 };
 		massesSet = new LinkedHashSet<Integer>();
 		massesSet.add(16);

@@ -1,7 +1,9 @@
 package uk.ac.gda.devices.hidenrga.ui.views;
 
 import gda.device.HidenRGA;
+import gda.device.HidenRGAScannable;
 import gda.factory.Finder;
+import gda.observable.IObserver;
 
 import java.util.Set;
 
@@ -20,7 +22,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RGASetup extends ViewPart {
+public class RGASetup extends ViewPart implements IObserver {
 
 	public static String ID = "uk.ac.gda.devices.hidenrga.rgasetup";
 
@@ -34,6 +36,10 @@ public class RGASetup extends ViewPart {
 	private Spinner sprNumberMasses;
 
 	private ScrolledComposite mainScrolledComposite;
+
+	private Label lblMessages;
+
+	private Spinner sprCollectionRate;
 
 	public RGASetup() {
 		super();
@@ -61,6 +67,33 @@ public class RGASetup extends ViewPart {
 					.getSystemColor(SWT.COLOR_RED));
 			return;
 		}
+
+		lblMessages = new Label(topComposite, SWT.NONE);
+		lblMessages.setLayoutData(GridDataFactory.swtDefaults().span(2, 1)
+				.create());
+		lblMessages.setText("");
+
+		String collectionRateToolTip = "The rate data will be logged when recording. If 0 then RGA will be run as fast as possible.";
+
+		Label lbCollectionRate = new Label(topComposite, SWT.NONE);
+		lbCollectionRate.setLayoutData(GridDataFactory.swtDefaults().create());
+		lbCollectionRate.setText("Collection rate (s):");
+		lbCollectionRate.setToolTipText(collectionRateToolTip);
+
+		sprCollectionRate = new Spinner(topComposite, SWT.READ_ONLY);
+		sprCollectionRate.setLayoutData(GridDataFactory.swtDefaults().create());
+		sprCollectionRate.setMinimum(0);
+		sprCollectionRate.setMaximum(60);
+		sprCollectionRate.setIncrement(1);
+		sprCollectionRate.setSelection(1);
+		sprCollectionRate.setToolTipText(collectionRateToolTip);
+		sprCollectionRate.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				rga.setCollectionRate(sprCollectionRate.getSelection());
+			}
+		});
 
 		Label lblNumberMasses = new Label(topComposite, SWT.NONE);
 		lblNumberMasses.setLayoutData(GridDataFactory.swtDefaults().create());
@@ -98,10 +131,15 @@ public class RGASetup extends ViewPart {
 			massChoices[index].setSelection(mass);
 			index++;
 		}
+		sprNumberMasses.setSelection(masses.size());
+		sprCollectionRate.setSelection(rga.getCollectionRate());
 	}
 
 	private boolean findRGA() {
 		rga = (HidenRGA) Finder.getInstance().find("rga");
+		if (rga != null) {
+			rga.addIObserver(this);
+		}
 		return rga != null;
 	}
 
@@ -171,6 +209,7 @@ public class RGASetup extends ViewPart {
 				masses[i] = massChoices[i].getSelection();
 			}
 			rga.setMasses(masses);
+			rga.setCollectionRate(sprCollectionRate.getSelection());
 		}
 	}
 
@@ -188,6 +227,27 @@ public class RGASetup extends ViewPart {
 		} catch (Exception e) {
 			logger.error("Exception when tryign to toggle RGA recording", e);
 		}
+	}
+
+	@Override
+	public void update(Object source, Object arg) {
+		if (arg.toString().compareTo(HidenRGAScannable.RECORDING_STARTED) == 0) {
+			writeMessage("Recording");
+		} else if (arg.toString()
+				.compareTo(HidenRGAScannable.RECORDING_STOPPED) == 0) {
+			writeMessage("");
+		}
+
+	}
+
+	private void writeMessage(final String string) {
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				lblMessages.setText(string);
+				mainScrolledComposite.layout();
+			}
+		});
 	}
 
 }
