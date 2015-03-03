@@ -72,7 +72,7 @@ public class XmapAcquisitionBaseTest {
 		XmapAcquisitionBaseEpicsLayer xmapAcquisitionEpicsLayerException = new XmapAcquisitionBaseEpicsLayer(null, mcaMode);		
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = NullPointerException.class)
 	public void testCollectionModeInConstructorExceptionIsThrown() throws IOException {
 		XmapAcquisitionBaseEpicsLayer xmapAcquisitionEpicsLayerException = new XmapAcquisitionBaseEpicsLayer(basePVname, null);		
 	}
