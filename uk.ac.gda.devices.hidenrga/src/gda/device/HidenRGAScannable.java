@@ -24,6 +24,7 @@ import gda.data.PathConstructor;
 import gda.device.scannable.ScannableBase;
 import gda.epics.EpicsConstants;
 import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
 
@@ -62,6 +63,9 @@ import org.slf4j.LoggerFactory;
  */
 public class HidenRGAScannable extends ScannableBase implements IObserver, HidenRGA {
 
+	public static final String RECORDING_STARTED = "RGA recording started";
+	public static final String RECORDING_STOPPED = "RGA recording stopped";
+
 	private static final Logger logger = LoggerFactory.getLogger(HidenRGAScannable.class);
 	private static final String FORMAT = "%.3f";
 	private static final String DATE_FORMAT = "HH:mm:ss:SSS d MMM yyyy ";
@@ -88,13 +92,13 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 			// open file
 			try (BufferedWriter buffer = new BufferedWriter(new FileWriter(filename))) {
 				lastDataPoint = 0;
-
+				boolean headerWritten = false;
 				// infinite loop
 				while (!shouldStop) {
 					if (lastScanCycleUsed != lastScanCycleSeen) {
-
-						if (lastDataPoint == 0) {
+						if (!headerWritten) {
 							writeHeader(buffer);
+							headerWritten = true;
 						}
 
 						if (collectionRate >= 1) {
@@ -113,6 +117,10 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 			} finally {
 				try {
 					stopRGA();
+					String message = HidenRGAScannable.this.getName() + " has stopped recording";
+					logger.info(message);
+					InterfaceProvider.getTerminalPrinter().print(message);
+					HidenRGAScannable.this.notifyIObservers(this, RECORDING_STOPPED);
 				} catch (IOException e) {
 					logger.error("IOException when stopping the RGA after writing to file", e);
 				}
@@ -251,6 +259,7 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 		try {
 			controller.connect();
 			controller.addIObserver(this);
+			InterfaceProvider.getTerminalPrinter().print(getName() + " connected to Epics");
 		} catch (CAException e) {
 			throw new FactoryException("CAException when trying to connect ot RGA", e);
 		}
@@ -325,6 +334,10 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 	private void startFileWritingThread(String filename) {
 		fileWriterThread = new HidenFileWriter(filename);
 		fileWriterThread.start();
+		String message = getName() + " has started recording to " + filename + " with masses " + getMasses().toString();
+		logger.info(message);
+		InterfaceProvider.getTerminalPrinter().print(message);
+		notifyIObservers(this, RECORDING_STARTED);
 	}
 
 	private String nextRGAFilename() throws IOException {
@@ -427,21 +440,15 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 		outputFormat = (String[]) ArrayUtils.add(outputFormat, FORMAT);
 
 		this.setExtraNames(newNames);
+		this.setOutputFormat(outputFormat);
 	}
 
+	@Override
 	public int getCollectionRate() {
 		return collectionRate;
 	}
 
-	/**
-	 * Set the time in seconds between writing data to file in recording mode.
-	 * <p>
-	 * If <= 0 then data will be recorded as fast as the RGA collects it, if >=1
-	 * then GDA will wait a minimum of that value in seconds before recording
-	 * the next line of data.
-	 * 
-	 * @param collectionRate
-	 */
+	@Override
 	public void setCollectionRate(int collectionRate) {
 		this.collectionRate = collectionRate;
 	}
