@@ -11,6 +11,7 @@ import gda.epics.connection.EpicsController.MonitorType;
 import gda.epics.connection.InitializationListener;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
+import gda.jython.corba.booleanArrayHelper;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 import gov.aps.jca.CAException;
@@ -89,7 +90,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -576,7 +576,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		getViewSite().getWorkbenchWindow().getSelectionService().addSelectionListener(RegionView.ID, selectionListener);
 
 		// Create the help context id for the viewer's control
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(sequenceTableViewer.getControl(), "org.opengda.lde.ui.viewer");
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(sequenceTableViewer.getControl(), "org.opengda.analyser.ui.viewer");
 		makeActions();
 		hookContextMenu();
 		contributeToActionBars();
@@ -1020,6 +1020,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	double totalTimes = 0.0;
 	int numActives = 0;
+	private String invalidRegionName;
 
 	private void updateCalculatedData() {
 		double totalTimes = 0.0;
@@ -1139,15 +1140,15 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				if (value instanceof Boolean) {
 					try {
 						if ((boolean) value) {
-							if(isValidRegion(region, true)) {
-								runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), true));
-							} else {
-								runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false));
-							}
-						} else {
-							runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), value));
+//							if(isValidRegion(region, true)) {
+//								runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), true));
+//							} else {
+//								runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false));
+//							}
+//						} else {
+							runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), value));
 						}
-						fireSelectionChanged(new RegionActivationSelection((Region)element));
+						fireSelectionChanged(new RegionActivationSelection(region));
 						updateCalculatedData();
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -1278,13 +1279,14 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		try {
-			if (!isAllRegionsValid()) {
-				openMessageBox("Saving Failed", "Cannot save the sequence data file as it still contain invalid active region. \nCorrect the invalid region or de-selecte it before saving." , SWT.ICON_WARNING);
-				return;
-			}
 			regionDefinitionResourceUtil.getResource().save(null);
 			isDirty = false;
 			firePropertyChange(PROP_DIRTY);
+			if (!isAllRegionsValid()) {
+				logger.warn("File {} contains invalid active region {}.", regionDefinitionResourceUtil.getFileName(), invalidRegionName);
+			} else {
+				logger.info("All active regions in file {} are valid.", regionDefinitionResourceUtil.getFileName());
+			}
 		} catch (IOException e) {
 			logger.error("Cannot save the resource to a file.", e);
 		} catch (Exception e) {
@@ -1297,7 +1299,13 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		for (Region region : regions) {
 			if (region.isEnabled()) {
 				// only check enabled regions. check stopped at first invalid region.
-				valid = valid && isValidRegion(region, true);
+				if (valid) {
+					boolean validRegion = isValidRegion(region, true);
+					if (!validRegion) {
+						invalidRegionName=region.getName();
+					} 
+					valid = valid && validRegion;
+				}
 			}
 		}
 		return valid;
@@ -1330,7 +1338,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		} else {
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_Status(), STATUS.INVALID);
 			if (showDialogIfInvalid) {
-				String message="Region '" + region.getName()+"' is outside the energy range permitted for \nElement Set '"+comboElementSet.getText()+"', Pass Energy '"+region.getPassEnergy()+"' and Lend Mode '"+region.getLensMode()+"'.\n";
+				String message="Region '" + region.getName()+"' has energies ("+region.getLowEnergy()+" - "+region.getHighEnergy()+") outside the energy range ("+regionValidator.getEnergyrange()+") permitted for \nElement Set: '"+comboElementSet.getText()+"', Pass Energy: '"+region.getPassEnergy()+"' and Lens Mode: '"+region.getLensMode()+"'.\n";
 				openMessageBox("Invalid Region", message, SWT.ICON_ERROR);
 			}
 			return false;
@@ -1339,10 +1347,6 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 	@Override
 	public void doSaveAs() {
-		if (!isAllRegionsValid()) {
-			openMessageBox("SaveAs Failed", "Cannot save the sequence data file as it still contains invalid active region. \nCorrect the invalid region or de-selecte it before saving." , SWT.ICON_WARNING);
-			return;
-		}
 		Resource resource = null;
 		try {
 			resource = regionDefinitionResourceUtil.getResource();
@@ -1361,6 +1365,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				firePropertyChange(PROP_DIRTY);
 				refreshTable(newFilename, false);
 			}
+		}
+		if (!isAllRegionsValid()) {
+			logger.warn("File {} contains invalid active region {}.", regionDefinitionResourceUtil.getFileName(), invalidRegionName);
+		} else {
+			logger.info("All active regions in file {} are valid.", regionDefinitionResourceUtil.getFileName());
 		}
 	}
 

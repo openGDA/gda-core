@@ -414,7 +414,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		spinnerFrames.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		spinnerFrames.setToolTipText("Number of frames per step");
 		spinnerFrames.setMinimum(1);
-		spinnerFrames.setMaximum(1000);
+		spinnerFrames.setMaximum(Integer.MAX_VALUE);
 
 		Label lblFramesPerSecond = new Label(grpStep, SWT.NONE);
 		lblFramesPerSecond.setText("Frames/s");
@@ -661,6 +661,8 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 				region=((RegionActivationSelection)selection).getRegion();
 				regionName.setText(region.getName());
 				initialiseViewWithRegionData(region);
+				//TODO check if this reqion is updated correctly, not old region
+				fireSelectionChanged(new EnergyChangedSelection(region));
 			} else if (selection instanceof IStructuredSelection) {
 				if (StructuredSelection.EMPTY.equals(selection)) {
 					region = null;
@@ -889,6 +891,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(lensMode)) {
 				updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LensMode(), lensMode.getText());
+				fireSelectionChanged(new EnergyChangedSelection(region));
 			}
 		}
 	};
@@ -1272,6 +1275,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 				excitationEnergy = (double) getPgmEnergy().getPosition();
 				txtSoftEnergy.setText(String.format("%.4f", excitationEnergy));
 			}
+			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), excitationEnergy);
 		} catch (DeviceException e) {
 			logger.error("Cannot set excitation energy", e);
 		}
@@ -1324,6 +1328,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_EnergyMode(), ENERGY_MODE.BINDING);
 			kineticSelected=false;
 		}
+		fireSelectionChanged(new EnergyChangedSelection(region));
 	}
 
 	private void updateEnergyFields() {
@@ -1337,6 +1342,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_LowEnergy(), Double.parseDouble(txtLow.getText()));
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_HighEnergy(), Double.parseDouble(txtHigh.getText()));
 		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_FixEnergy(), Double.parseDouble(txtCenter.getText()));
+		updateFeature(region, RegiondefinitionPackage.eINSTANCE.getRegion_ExcitationEnergy(), excitationEnergy);
 	}
 
 	private double getExcitationEnery() {

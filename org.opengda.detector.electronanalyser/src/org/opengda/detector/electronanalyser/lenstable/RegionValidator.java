@@ -25,6 +25,7 @@ public class RegionValidator implements Findable {
 	private static final Logger logger=LoggerFactory.getLogger(RegionValidator.class);
 	private Map<String, String> lookupTablePathMap=new HashMap<String, String>();
 	private String name;
+	private String energyrange;
 	
 	public RegionValidator() {
 	}
@@ -50,7 +51,7 @@ public class RegionValidator implements Findable {
 			logger.warn("Analyser Kinetic energy range lookup table for '{}' element set is not available.",elementset);
 			return true;
 		}
-		String energyrange=lookupTable.get(region.getLensMode(), String.valueOf(region.getPassEnergy()));
+		energyrange=lookupTable.get(region.getLensMode(), String.valueOf(region.getPassEnergy()));
 		List<String> limits=Splitter.on("-").splitToList(energyrange);
 		if (region.getEnergyMode()==ENERGY_MODE.KINETIC) {
 			if (!(region.getLowEnergy()>=Double.parseDouble(limits.get(0)) && region.getHighEnergy()<=Double.parseDouble(limits.get(1)))) {
@@ -61,10 +62,12 @@ public class RegionValidator implements Findable {
 			double endEnergy=excitationEnergy-region.getLowEnergy();
 			if (startEnergy<endEnergy) {
 				if (!(startEnergy>=Double.parseDouble(limits.get(0)) && endEnergy<=Double.parseDouble(limits.get(1)))) {
+					logger.error("Start energy = {}, End energy = {}, at excitation energy = {}", startEnergy, endEnergy, excitationEnergy);
 					return false;
 				}
 			} else {
 				if (!(endEnergy>=Double.parseDouble(limits.get(0)) && startEnergy<=Double.parseDouble(limits.get(1)))) {
+					logger.error("Start energy = {}, End energy = {}, at excitation energy = {}", startEnergy, endEnergy, excitationEnergy);
 					return false;
 				}
 			}
@@ -105,5 +108,7 @@ public class RegionValidator implements Findable {
 	public String getName() {
 		return name;
 	}
-
+	public String getEnergyrange() {
+		return energyrange;
+	}
 }
