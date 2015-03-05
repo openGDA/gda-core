@@ -744,4 +744,7 @@ public class LocalProperties {
 					      + "property from your java.properties file - script paths are defined in the Spring configuration for the command_server.");
 		}
 }
+	public static String[] getStringArray(String propertyName) {
+		return propConfig.getStringArray(propertyName);
+	}
 }

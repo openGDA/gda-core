@@ -285,4 +285,9 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 		return config.containsKey(key);
 	}
 
+	@Override
+	public String[] getStringArray(String propertyName) {
+		return config.getStringArray(propertyName);
+	}
+
 }
