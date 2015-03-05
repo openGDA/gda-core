@@ -25,6 +25,8 @@ public class LiveImageView extends ViewPart {
 	private int xDimension;
 	private int yDimension;
 	private String arrayEnablePV;
+	private String xSizePV;
+	private String ySizePV;
 	@Override
 	public void createPartControl(Composite parent) {
 		Composite rootComposite = new Composite(parent, SWT.NONE);
@@ -37,6 +39,8 @@ public class LiveImageView extends ViewPart {
 			imagePlotComposite.setyDimension(getyDimension());
 			imagePlotComposite.setArrayPV(arrayPV);
 			imagePlotComposite.setArrayEnablePV(arrayEnablePV);
+			imagePlotComposite.setxSizePV(getxSizePV());
+			imagePlotComposite.setySizePV(getySizePV());
 			imagePlotComposite.initialise();
 		} catch (Exception e) {
 			logger.error("Cannot create image plot composite.", e);
@@ -87,5 +91,21 @@ public class LiveImageView extends ViewPart {
 	public void setArrayEnablePV(String arrayEnablePV) {
 		this.arrayEnablePV=arrayEnablePV;
 		
+	}
+
+	public String getxSizePV() {
+		return xSizePV;
+	}
+
+	public void setxSizePV(String xSizePV) {
+		this.xSizePV = xSizePV;
+	}
+
+	public String getySizePV() {
+		return ySizePV;
+	}
+
+	public void setySizePV(String ySizePV) {
+		this.ySizePV = ySizePV;
 	}
 }

@@ -16,6 +16,8 @@ public class LiveImageViewFactory implements FindableExecutableExtension {
 	private String arrayEnablePV;
 	private int xDimension;
 	private int yDimension;
+	private String xSizePV;
+	private String ySizePV;
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating image plot view");
@@ -23,6 +25,8 @@ public class LiveImageViewFactory implements FindableExecutableExtension {
 		imageView.setViewPartName(viewPartName);
 		imageView.setArrayPV(arrayPV);
 		imageView.setArrayEnablePV(arrayEnablePV);
+		imageView.setxSizePV(getxSizePV());
+		imageView.setySizePV(getySizePV());
 		imageView.setxDimension(xDimension);
 		imageView.setyDimension(yDimension);
 		return imageView;
@@ -99,6 +103,22 @@ public class LiveImageViewFactory implements FindableExecutableExtension {
 
 	public void setArrayEnablePV(String arrayEnablePV) {
 		this.arrayEnablePV = arrayEnablePV;
+	}
+
+	public String getxSizePV() {
+		return xSizePV;
+	}
+
+	public void setxSizePV(String xSizePV) {
+		this.xSizePV = xSizePV;
+	}
+
+	public String getySizePV() {
+		return ySizePV;
+	}
+
+	public void setySizePV(String ySizePV) {
+		this.ySizePV = ySizePV;
 	}
 
 }
