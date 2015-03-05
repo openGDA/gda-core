@@ -341,26 +341,15 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
         </echo>
     </target>
 
-    <target name="check_product_symlink_exists" depends="create.product">
+    <target name="remove_previous_product_symlink" depends="create.product">
         <property name="destination.symlink" location="${destination.parent}/client"/>
-        <echo message="Checking if previous symlink to product exists at : ${destination.symlink}" />
-        <condition property="product_symlink_exists">
-            <available file="${destination.symlink}" type="dir"/>
-        </condition>
-    </target>
-
-    <target name="previous_product_symlink_yes" depends="check_product_symlink_exists" if="product_symlink_exists">
         <symlink action="delete" link="${destination.symlink}"/>
     </target>
-    <target name="previous_product_symlink_no" depends="check_product_symlink_exists" unless="product_symlink_exists">
-        <echo message="No previous symlink to product exists at : ${destination.symlink}" />
-    </target>
 
-    <target name="create.product-with.symlink" depends="previous_product_symlink_yes, previous_product_symlink_no">
+    <target name="create.product-with.symlink" depends="remove_previous_product_symlink">
         <symlink link="${destination.symlink}" resource="./${destination.directory}"/>
         <echo>
-== Product has been built in ${destination} ==
-== Symlink to product created (or changed) at ${destination.symlink} ==
+== Symlink to product created (or changed) at ${destination.symlink} --> ./${destination.directory} ==
         </echo>
     </target>
 
