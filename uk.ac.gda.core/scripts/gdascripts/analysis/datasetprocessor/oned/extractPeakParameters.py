@@ -10,7 +10,11 @@ class ExtractPeakParameters(XYDataSetFunction):
         self.delta=None
         self.smoothness=None
         self.cfwhm=0.0
-    
+        self.peakdatas=[]
+        self.peakposition=0.0
+        self.peakheight=0.0
+        self.fwhm=0.0
+        
     def _process(self,xDataSet, yDataSet):
         return self.multiplePeakProcess(xDataSet, yDataSet)
     
@@ -131,7 +135,6 @@ class ExtractPeakParameters(XYDataSetFunction):
         return peaksxyb
 
     def calculateFWHMs(self, xDataSet, yDataSet, peaks):
-        peakdatas=[]
         for peakx,peaky,peakbase in peaks:
             if peakbase is None:
                 fwhm=None
@@ -141,10 +144,13 @@ class ExtractPeakParameters(XYDataSetFunction):
                 leftcrossing=find_lt(xcrossingvalues, peakx)
                 rightcrossing=find_gt(xcrossingvalues, peakx)
                 fwhm=rightcrossing-leftcrossing
+                self.peakposition=peakx
+                self.peakheight=peaky
+                self.fwhm=fwhm
                 self.cfwhm=(rightcrossing+leftcrossing)/2
-            peakdatas.append((peakx,peaky,fwhm))
-        print "\nPeak Parameters (position, value, fwhm) : ", peakdatas
-        return peakdatas
+            self.peakdatas.append((peakx,peaky,fwhm))
+        print "\nPeak Parameters (position, value, fwhm) : ", self.peakdatas
+        return self.peakdatas
 
     
 def find_lt_index(a,x):
