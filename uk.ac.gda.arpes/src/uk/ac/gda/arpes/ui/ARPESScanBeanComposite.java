@@ -363,8 +363,8 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 				return Integer.valueOf(o1.substring(0, o1.lastIndexOf(" "))).compareTo(Integer.valueOf(o2.substring(0, o2.lastIndexOf(" "))));
 			}
 		};
-		Map<String, Short> passMap = new TreeMap<String, Short>(passEComparator);
-		for (short s : capabilities.getPassEnergies()) {
+		Map<String, Integer> passMap = new TreeMap<String, Integer>(passEComparator);
+		for (int s : capabilities.getPassEnergies()) {
 			passMap.put(String.format("%d eV", s), s);
 		}
 		// Remove Pass energies from drop down not possible with current psu_mode

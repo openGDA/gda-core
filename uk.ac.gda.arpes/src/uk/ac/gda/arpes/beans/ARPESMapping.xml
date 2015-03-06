@@ -8,7 +8,7 @@
 		<field name="sweptMode" type="boolean">
 			<bind-xml name="sweptMode" node="element"/>
 		</field>
-		<field name="passEnergy" type="short">
+		<field name="passEnergy" type="int">
 			<bind-xml name="passEnergy" node="element"/>
 		</field>
 		<field name="startEnergy" type="double">
@@ -23,7 +23,7 @@
 		<field name="timePerStep" type="double">
 			<bind-xml name="timePerStep" node="element"/>
 		</field>		
-		<field name="iterations" type="short">
+		<field name="iterations" type="int">
 			<bind-xml name="iterations" node="element"/>
 		</field>
 		<field name="configureOnly" type="boolean">

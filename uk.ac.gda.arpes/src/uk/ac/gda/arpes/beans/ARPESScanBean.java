@@ -19,22 +19,23 @@
 package uk.ac.gda.arpes.beans;
 
 import java.io.File;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.List;
 
 import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
-public class ARPESScanBean implements XMLRichBean {
+public class ARPESScanBean implements XMLRichBean, Serializable {
 
 	static public final URL mappingURL = ARPESScanBean.class.getResource("ARPESMapping.xml");
 	static public final URL schemaURL  = ARPESScanBean.class.getResource("ARPESMapping.xsd");
 
 	String lensMode = "Transmission";
-	short passEnergy = 5;
+	int passEnergy = 5;
 	double startEnergy = 15, endEnergy = 20, stepEnergy = 0.5;
 	double timePerStep = 1;
-	short iterations = 1;
+	int iterations = 1;
 	boolean sweptMode;
 	boolean configureOnly = false;
 	List<SetBean> setBeanList;
@@ -56,11 +57,11 @@ public class ARPESScanBean implements XMLRichBean {
 		this.lensMode = lensMode;
 	}
 
-	public short getPassEnergy() {
+	public int getPassEnergy() {
 		return passEnergy;
 	}
 
-	public void setPassEnergy(short passEnergy) {
+	public void setPassEnergy(int passEnergy) {
 		this.passEnergy = passEnergy;
 	}
 
@@ -96,11 +97,11 @@ public class ARPESScanBean implements XMLRichBean {
 		this.timePerStep = timePerStep;
 	}
 
-	public short getIterations() {
+	public int getIterations() {
 		return iterations;
 	}
 
-	public void setIterations(short iterations) {
+	public void setIterations(int iterations) {
 		this.iterations = iterations;
 	}
 
