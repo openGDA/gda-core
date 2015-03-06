@@ -662,7 +662,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 				regionName.setText(region.getName());
 				initialiseViewWithRegionData(region);
 				//TODO check if this reqion is updated correctly, not old region
-				fireSelectionChanged(new EnergyChangedSelection(region));
+				//fireSelectionChanged(new EnergyChangedSelection(region));
 			} else if (selection instanceof IStructuredSelection) {
 				if (StructuredSelection.EMPTY.equals(selection)) {
 					region = null;

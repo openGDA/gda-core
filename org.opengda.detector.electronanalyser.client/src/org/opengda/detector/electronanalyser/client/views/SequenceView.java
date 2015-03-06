@@ -1140,12 +1140,12 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				if (value instanceof Boolean) {
 					try {
 						if ((boolean) value) {
-//							if(isValidRegion(region, true)) {
-//								runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), true));
-//							} else {
-//								runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false));
-//							}
-//						} else {
+							if(isValidRegion(region, true)) {
+								runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), true));
+							} else {
+								runCommand(SetCommand.create(editingDomain, element, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), false));
+							}
+						} else {
 							runCommand(SetCommand.create(editingDomain, region, RegiondefinitionPackage.eINSTANCE.getRegion_Enabled(), value));
 						}
 						fireSelectionChanged(new RegionActivationSelection(region));
