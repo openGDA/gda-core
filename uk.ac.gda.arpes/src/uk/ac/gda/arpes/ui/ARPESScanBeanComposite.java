@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.dawnsci.common.richbeans.beans.IFieldWidget;
-import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.dawnsci.common.richbeans.components.scalebox.IntegerBox;
 import org.dawnsci.common.richbeans.components.scalebox.NumberBox;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
@@ -113,7 +112,6 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		// Make a 2 column grid layout
 		GridLayout gridLayout = new GridLayout(2, false);
 		gridLayout.horizontalSpacing = 10;
-		gridLayout.verticalSpacing = 6;
 		setLayout(gridLayout);
 
 		// First row
@@ -352,7 +350,6 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 	private void updatePsuMode() {
 		psuMode.setText(InterfaceProvider.getCommandRunner().evaluateCommand("psu_mode()"));
-
 	}
 
 	// Sets the available pass energies from the analyser capabilities + PSU mode
@@ -373,18 +370,17 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			passMap.remove("1 eV"); // PE=1 eV not possible in High Pass
 			passMap.remove("2 eV"); // PE=2 eV not possible in High Pass
 		}
-		if (psuMode.equals("Low Pass (UPS)")) {
+		else if (psuMode.equals("Low Pass (UPS)")) {
 			passMap.remove("50 eV"); // PE=50 eV not possible in Low Pass
 			passMap.remove("100 eV"); // PE=100 eV not possible in Low Pass
+		}
+		else {
+			System.out.println("PSU mode not detected!"); //For debugging.
 		}
 		passEnergy.setItems(passMap);
 	}
 
-	// DetEnN is number of detector point in swept mode and could be calculated from sweptModeRegion, currently
-	// DetEnN=(905-55)
-	// DetEnStep is a minimum energy step per pixel and is a function of a pass Energy,
 	private double determineMinimmumStepEnergy(double passEnergy) {
-		// This casts passEnergy to an int might be a problem for non-int passEnergies
 		return capabilities.getEnergyStepForPass(determinePassEnergyIndex((int) (passEnergy)));
 	}
 
@@ -444,35 +440,35 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		return String.format("import arpes; arpes.ARPESRun(\"%s\").run()", editor.getPath());
 	}
 
-	public FieldComposite getLensMode() {
+	public IFieldWidget getLensMode() {
 		return lensMode;
 	}
 
-	public FieldComposite getPassEnergy() {
+	public IFieldWidget getPassEnergy() {
 		return passEnergy;
 	}
 
-	public FieldComposite getStartEnergy() {
+	public IFieldWidget getStartEnergy() {
 		return startEnergy;
 	}
 
-	public FieldComposite getEndEnergy() {
+	public IFieldWidget getEndEnergy() {
 		return endEnergy;
 	}
 
-	public FieldComposite getStepEnergy() {
+	public IFieldWidget getStepEnergy() {
 		return stepEnergy;
 	}
 
-	public FieldComposite getTimePerStep() {
+	public IFieldWidget getTimePerStep() {
 		return timePerStep;
 	}
 
-	public FieldComposite getIterations() {
+	public IFieldWidget getIterations() {
 		return iterations;
 	}
 
-	public FieldComposite getConfigureOnly() {
+	public IFieldWidget getConfigureOnly() {
 		return configureOnly;
 	}
 
@@ -493,8 +489,12 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 		if (e.getFieldName().equals("passEnergy")) {
 			if (!isSwept()) {// Fixed mode
-				stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
 				energyWidth.setValue(capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue()));
+				startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
+						- ((Number) energyWidth.getValue()).doubleValue() / 2.0);
+				endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
+						+ ((Number) energyWidth.getValue()).doubleValue() / 2.0);
+				stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
 			}
 		}
 
@@ -626,6 +626,10 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			// Calculate values to rebuild the editor fully these fields should not be listened to otherwise will fire
 			// another updates
 			energyWidth.setValue(capabilities.getEnergyWidthForPass(((Number) passEnergy.getValue()).intValue()));
+			startEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
+					- ((Number) energyWidth.getValue()).doubleValue() / 2.0);
+			endEnergy.setValue(((Number) centreEnergy.getValue()).doubleValue()
+					+ ((Number) energyWidth.getValue()).doubleValue() / 2.0);
 			stepEnergy.setValue(capabilities.getEnergyStepForPass(((Number) passEnergy.getValue()).intValue()));
 
 		}

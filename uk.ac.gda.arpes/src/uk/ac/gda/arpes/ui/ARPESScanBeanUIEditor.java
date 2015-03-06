@@ -21,7 +21,6 @@ package uk.ac.gda.arpes.ui;
 import java.net.URL;
 
 import org.dawnsci.common.richbeans.beans.IFieldWidget;
-import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.GridLayout;
@@ -68,35 +67,35 @@ public final class ARPESScanBeanUIEditor extends RichBeanEditorPart {
 	public void setFocus() {
 	}
 
-	public FieldComposite getLensMode() {
+	public IFieldWidget getLensMode() {
 		return beanComposite.getLensMode();
 	}
 
-	public FieldComposite getPassEnergy() {
+	public IFieldWidget getPassEnergy() {
 		return beanComposite.getPassEnergy();
 	}
 
-	public FieldComposite getConfigureOnly() {
+	public IFieldWidget getConfigureOnly() {
 		return beanComposite.getConfigureOnly();
 	}
 
-	public FieldComposite getStartEnergy() {
+	public IFieldWidget getStartEnergy() {
 		return beanComposite.getStartEnergy();
 	}
 
-	public FieldComposite getEndEnergy() {
+	public IFieldWidget getEndEnergy() {
 		return beanComposite.getEndEnergy();
 	}
 
-	public FieldComposite getStepEnergy() {
+	public IFieldWidget getStepEnergy() {
 		return beanComposite.getStepEnergy();
 	}
 
-	public FieldComposite getTimePerStep() {
+	public IFieldWidget getTimePerStep() {
 		return beanComposite.getTimePerStep();
 	}
 
-	public FieldComposite getIterations() {
+	public IFieldWidget getIterations() {
 		return beanComposite.getIterations();
 	}
 
