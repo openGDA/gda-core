@@ -25,8 +25,13 @@ import gda.jython.JythonServerFacade;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.InputStream;
+
+import uk.ac.gda.beamline.synoptics.composites.PropertyValueSelectionCompositeFactory;
 /**
- * provide the property change support for a specified property.
+ * provide the property change support for a specified property. Change to a property via this object
+ * ensure it occurs on on both the Client and Server. 
+ * 
+ * You can find an example of usage at {@link PropertyValueSelectionCompositeFactory}
  */
 public class ListenableProperty {
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
