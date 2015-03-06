@@ -21,25 +21,24 @@ package uk.ac.gda.arpes.beans;
 import java.io.File;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.List;
 
-import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class ARPESScanBean implements XMLRichBean, Serializable {
 
 	static public final URL mappingURL = ARPESScanBean.class.getResource("ARPESMapping.xml");
 	static public final URL schemaURL  = ARPESScanBean.class.getResource("ARPESMapping.xsd");
 
-	String lensMode = "Transmission";
+	String lensMode = "Angular30";
 	int passEnergy = 5;
-	double startEnergy = 15, endEnergy = 20, stepEnergy = 0.5;
+	double startEnergy = 34.790;
+	double endEnergy = 35.210;
+	double stepEnergy = 0.40298;
 	double timePerStep = 1;
 	int iterations = 1;
-	boolean sweptMode;
+	boolean sweptMode = false;
 	boolean configureOnly = false;
-	List<SetBean> setBeanList;
-	StartStopStepBean startStopStepBean;
 	
 	public static ARPESScanBean createFromXML(String filename) throws Exception {
 		return (ARPESScanBean) XMLHelpers.createFromXML(mappingURL, ARPESScanBean.class, schemaURL, new File(filename));
@@ -121,19 +120,59 @@ public class ARPESScanBean implements XMLRichBean, Serializable {
 		this.configureOnly = configureOnly;
 	}
 
-	public List<SetBean> getSetBeanList() {
-		return setBeanList;
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (configureOnly ? 1231 : 1237);
+		long temp;
+		temp = Double.doubleToLongBits(endEnergy);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + iterations;
+		result = prime * result + ((lensMode == null) ? 0 : lensMode.hashCode());
+		result = prime * result + passEnergy;
+		temp = Double.doubleToLongBits(startEnergy);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(stepEnergy);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + (sweptMode ? 1231 : 1237);
+		temp = Double.doubleToLongBits(timePerStep);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
 	}
 
-	public void setSetBeanList(List<SetBean> setBeanList) {
-		this.setBeanList = setBeanList;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ARPESScanBean other = (ARPESScanBean) obj;
+		if (configureOnly != other.configureOnly)
+			return false;
+		if (Double.doubleToLongBits(endEnergy) != Double.doubleToLongBits(other.endEnergy))
+			return false;
+		if (iterations != other.iterations)
+			return false;
+		if (lensMode == null) {
+			if (other.lensMode != null)
+				return false;
+		} else if (!lensMode.equals(other.lensMode))
+			return false;
+		if (passEnergy != other.passEnergy)
+			return false;
+		if (Double.doubleToLongBits(startEnergy) != Double.doubleToLongBits(other.startEnergy))
+			return false;
+		if (Double.doubleToLongBits(stepEnergy) != Double.doubleToLongBits(other.stepEnergy))
+			return false;
+		if (sweptMode != other.sweptMode)
+			return false;
+		if (Double.doubleToLongBits(timePerStep) != Double.doubleToLongBits(other.timePerStep))
+			return false;
+		return true;
 	}
 
-	public StartStopStepBean getScanBean() {
-		return startStopStepBean;
-	}
-
-	public void setScanBean(StartStopStepBean startStopStepBean) {
-		this.startStopStepBean = startStopStepBean;
-	}
+	
 }
