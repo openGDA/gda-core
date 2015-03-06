@@ -119,7 +119,9 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 		transmissionComposite.setEditorClass(TransmissionParameters.class);
 		if (LocalProperties.get("gda.factory.factoryName").equals("b16server") ||  LocalProperties.get("gda.factory.factoryName").equals("b16"))
 			fluorescenceComposite = new FluorescenceComposite(stackComponent, SWT.NONE, true, false, false, (DetectorParameters)editingBean);
-		else if (LocalProperties.get("gda.factory.factoryName").equals("b18") || LocalProperties.get("gda.factory.factoryName").equalsIgnoreCase("i18"))
+		else if (LocalProperties.get("gda.factory.factoryName").equals("b18"))
+			fluorescenceComposite = new FluorescenceComposite(stackComponent, SWT.NONE, true, true, true, (DetectorParameters)editingBean);
+		else if (LocalProperties.get("gda.factory.factoryName").equalsIgnoreCase("i18"))
 			fluorescenceComposite = new FluorescenceComposite(stackComponent, SWT.NONE, false, true, true, (DetectorParameters)editingBean);
 		else
 			fluorescenceComposite = new FluorescenceComposite(stackComponent, SWT.NONE, true, true, false,(DetectorParameters)editingBean);			

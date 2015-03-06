@@ -31,6 +31,7 @@ import gda.device.Detector;
 import gda.exafs.scan.RepetitionsProperties;
 import gda.exafs.scan.ScanStartedMessage;
 import gda.jython.InterfaceProvider;
+import gda.jython.ScriptBase;
 import gda.jython.commands.GeneralCommands;
 import gda.jython.commands.ScannableCommands;
 import gda.jython.scriptcontroller.event.ScanCreationEvent;
@@ -275,19 +276,22 @@ public abstract class XasScanBase implements XasScan {
 
 	protected abstract Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception;
 
-	private void checkForPause() {
+	private void checkForPause() throws InterruptedException {
 		if (numRepetitions > 1 && LocalProperties.check(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY)) {
-			log("Paused scan after repetition"
+			log("** Paused scan after repetition "
 					+ currentRepetition
 					+ ". To resume the scan, press the Start button in the Command Queue view. To abort this scan, press the Skip Task button.");
 			LocalProperties.set(RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY, "false");
+			ScriptBase.setPaused(true);
+			// will now wait here indefinitely until the Command Queue is resumed or aborted
+			ScriptBase.checkForPauses();
 		}
 	}
 
 	private boolean checkIfRepetitionsFinished() {
 		int numRepsFromProperty = LocalProperties.getAsInt(RepetitionsProperties.NUMBER_REPETITIONS_PROPERTY);
 		if (numRepsFromProperty < currentRepetition) {
-			log("The number of repetitions has been reset to" + numRepsFromProperty + ". As" + currentRepetition
+			log("** The number of repetitions has been reset to" + numRepsFromProperty + ". As" + currentRepetition
 					+ "repetitions have been completed this scan will now end.");
 			return true;
 		} else if (numRepsFromProperty <= (currentRepetition)) {
@@ -338,7 +342,7 @@ public abstract class XasScanBase implements XasScan {
 			}
 			dets = (Detector[]) ArrayUtils.add(dets, detector);
 		}
-		log("Using detectors" + dets);
+		log("Using detectors: " + ArrayUtils.toString(names));
 		return dets;
 	}
 
@@ -513,9 +517,9 @@ public abstract class XasScanBase implements XasScan {
 
 	protected void printRepetition() {
 		if (numRepetitions > 1) {
-			log("Starting repetition" + currentRepetition + "of" + numRepetitions);
+			log("**** Starting repetition " + currentRepetition + " of " + numRepetitions + " ****");
 		} else {
-			log("Starting " + scriptType + " scan...");
+			log("**** Starting " + scriptType + " scan...");
 		}
 	}
 

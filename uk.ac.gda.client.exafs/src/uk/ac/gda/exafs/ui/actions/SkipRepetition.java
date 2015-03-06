@@ -51,10 +51,10 @@ public class SkipRepetition extends AbstractHandler implements IWorkbenchWindowA
 		logger.debug("SkipRepetition button pressed");
 		
 		InterfaceProvider.getTerminalPrinter().print(
-				"Request made to skip the current repetition and if available move on to the next one.");
+				"** Request made to skip the current repetition and if available move on to the next one.");
 		InterfaceProvider.getCommandRunner().runCommand(
 				"LocalProperties.set(\"" + RepetitionsProperties.SKIP_REPETITION_PROPERTY + "\",\"true\")");
-		InterfaceProvider.getCommandRunner().runCommand("ScanBase.setInterrupted(True)");
+		InterfaceProvider.getCurrentScanController().requestFinishEarly();
 		return null;
 	}
 

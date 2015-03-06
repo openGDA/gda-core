@@ -552,7 +552,11 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		// per channel
 		String[] newExtraNames = new String[controller.getNumberOfChannels()];
 		String[] newoutputFormat = new String[controller.getNumberOfChannels()];
-		newoutputFormat[0] = this.outputFormat[0];
+		if (this.outputFormat.length == 0){
+			newoutputFormat[0] = "%.3f";
+		} else {
+			newoutputFormat[0] = this.outputFormat[0];
+		}
 
 		for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
 			String label = channelLabelPrefix + (chan + firstChannelToRead);

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
+import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
 
@@ -153,7 +154,9 @@ public class HidenRGATest {
 	}
 
 	@Test
-	public void testHidenReadsCorrectValuesOnReadout() throws DeviceException, IOException {
+	public void testHidenReadsCorrectValuesOnReadout() throws DeviceException, IOException, FactoryException {
+		rga.configure();
+		rga.setMasses(masses);
 		rga.getPosition();
 		
 		Mockito.verify(mockedController).readout();

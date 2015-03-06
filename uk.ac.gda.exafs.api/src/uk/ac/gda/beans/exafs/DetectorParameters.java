@@ -192,6 +192,10 @@ public class DetectorParameters implements Serializable, IDetectorParameters {
 	public void addDetectorGroup(DetectorGroup dg) {
 		detectorGroups.add(dg);
 	}
+	
+	public void clear() {
+		if (detectorGroups!=null) detectorGroups.clear();
+	}
 
 	@Override
 	public List<IonChamberParameters> getIonChambers() throws Exception {

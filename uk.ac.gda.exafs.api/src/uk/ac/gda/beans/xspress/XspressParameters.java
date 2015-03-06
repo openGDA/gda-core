@@ -68,6 +68,10 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 	public DetectorElement getDetector(int index) {
 		return detectorList.get(index);
 	}
+	
+	public void clear(){
+		if (detectorList!=null) detectorList.clear();
+	}
 
 	@Override
 	public int hashCode() {

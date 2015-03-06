@@ -378,10 +378,12 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 			String msg = "Error saving detector data to file";
 			String spoolFilePath = "";
 			try {
-				String spoolDirPath = PathConstructor.createFromProperty(GDA_DEVICE_VORTEX_SPOOL_DIR);
-				if (spoolDirPath == null || spoolDirPath.length() == 0)
-					throw new Exception("Error saving data. Xspress3 device spool dir is not defined in property "
-							+ GDA_DEVICE_VORTEX_SPOOL_DIR);
+				String spoolDirPath;
+				try {
+					spoolDirPath = PathConstructor.createFromProperty(GDA_DEVICE_VORTEX_SPOOL_DIR);
+				} catch (Exception e) {
+					spoolDirPath = PathConstructor.createFromDefaultProperty();
+				}
 
 				long snapShotNumber = new NumTracker("Xspress3_snapshot").incrementNumber();
 				String fileName = "xspress3_snap_" + snapShotNumber + ".mca";

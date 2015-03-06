@@ -260,6 +260,7 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 			controller.connect();
 			controller.addIObserver(this);
 			InterfaceProvider.getTerminalPrinter().print(getName() + " connected to Epics");
+			configured = true;
 		} catch (CAException e) {
 			throw new FactoryException("CAException when trying to connect ot RGA", e);
 		}
@@ -358,11 +359,26 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 			fileWriterThread.stopWriting();
 		}
 	}
+	
+	@Override
+	public String toFormattedString() {
+		if (configured){
+			return super.toFormattedString();
+		}
+		
+		return getName() + ": not connected";
+	}
 
 	@Override
 	public Object getPosition() throws DeviceException {
 
 		synchronized (this) {
+			
+			if (!configured){
+				int numberZeroes = getExtraNames().length;
+				return new int[numberZeroes];
+			}
+			
 			try {
 				double[] latestMasses = controller.readout();
 				double valve = controller.readValve();

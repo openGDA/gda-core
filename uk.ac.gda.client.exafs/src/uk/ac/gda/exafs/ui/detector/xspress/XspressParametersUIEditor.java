@@ -795,10 +795,13 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			});
 
 			if (writeToDisk) {
-				String spoolDirPath = PathConstructor.createFromProperty(GDA_DEVICE_XSPRESS_SPOOL_DIR);
-				if (spoolDirPath == null || spoolDirPath.length() == 0)
-					throw new Exception("Error saving data. Xspress device spool dir is not defined in property "
-							+ GDA_DEVICE_XSPRESS_SPOOL_DIR);
+				String spoolDirPath;
+				try {
+					spoolDirPath = PathConstructor.createFromProperty(GDA_DEVICE_XSPRESS_SPOOL_DIR);
+				} catch (Exception e) {
+					spoolDirPath = PathConstructor.createFromDefaultProperty();
+				}
+
 				long snapShotNumber = new NumTracker("Xspress_snapshot").incrementNumber();
 				String fileName = "xspress_snap_" + snapShotNumber + ".mca";
 				final File filePath = new File(spoolDirPath + "/" + fileName);
