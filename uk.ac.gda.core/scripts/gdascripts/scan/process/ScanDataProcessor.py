@@ -97,10 +97,10 @@ class ScanDataProcessor(ScanListener):
 					raise e
 				return "<" + e.message + ">"
 			
-			if len(xDataSet.dimensions) > 1:
+			if len(xDataSet.getShape()) > 1:
 				return "<Cannot process multidimensional scans>"
 			
-			if xDataSet.dimensions[0] in (0,1):
+			if xDataSet.getShape()[0] in (0,1):
 				return "<Scan too short to process sensibly>"
 
 			#try:
@@ -114,16 +114,16 @@ class ScanDataProcessor(ScanListener):
 			
 			lines = []
 			for processor in self.processors:
-				xydsr = processor.process(xDataSet, yDataSet)
-				if type(xydsr) == type(list()):
-					for each in xydsr:
+				sdpr = processor.process(xDataSet, yDataSet)
+				if type(sdpr) == type(list()):
+					for each in sdpr:
 						sdpr = ScanDataProcessorResult(each, self.sfh, allscannables, xfieldname, yfieldname)
-						self.results[each.processorName] = each
-						lines.append('   ' + (each.processorName+':').ljust(8) + each.report)
+						self.results[each.name] = each
+						lines.append('   ' + (each.name+':').ljust(8) + each.report)
 				else:
-					sdpr = ScanDataProcessorResult(xydsr, self.sfh, allscannables, xfieldname, yfieldname)
-					self.results[xydsr.processorName] = xydsr
-					lines.append('   ' + (xydsr.processorName+':').ljust(8) + xydsr.report)
+					sdpr = ScanDataProcessorResult(sdpr, self.sfh, allscannables, xfieldname, yfieldname)
+					self.results[sdpr.name] = sdpr
+					lines.append('   ' + (sdpr.name+':').ljust(8) + sdpr.report)
 			report = '\n'.join(lines)
 			# add results to root namespace dictionary
 			d = self.rootNamespaceDict
