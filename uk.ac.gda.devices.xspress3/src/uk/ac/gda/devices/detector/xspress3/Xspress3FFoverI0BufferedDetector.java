@@ -18,6 +18,8 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
@@ -71,12 +73,18 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 
 	private double getFF(NexusTreeProvider[] expressFrames, int i) {
 		NXDetectorData expressFrameData = (NXDetectorData) expressFrames[i];
-		Double[] FFs = expressFrameData.getDoubleVals();
-		double ffTotal = 0;
-		for (Double ff : FFs){
-			ffTotal += ff;
+		// find the FF column
+		int ffIndex = ArrayUtils.indexOf(expressFrameData.getExtraNames(),"FF");
+		// if its not there then sum the other columns
+		if (ffIndex == -1){
+			Double[] FFs = expressFrameData.getDoubleVals();
+			double ffTotal = 0;
+			for (Double ff : FFs){
+				ffTotal += ff;
+			}
+			return ffTotal;
 		}
-		return ffTotal;
+		return expressFrameData.getDoubleVals()[ffIndex];
 	}
 
 	@Override

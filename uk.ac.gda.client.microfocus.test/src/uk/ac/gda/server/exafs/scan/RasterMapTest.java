@@ -25,7 +25,6 @@ import gda.device.detector.BufferedDetector;
 import gda.device.detector.countertimer.BufferedScaler;
 import gda.device.detector.xspress.Xspress2BufferedDetector;
 import gda.device.scannable.ContinuouslyScannable;
-import gda.device.scannable.LineRepeatingBeamMonitor;
 import gda.device.scannable.RealPositionReader;
 import gda.jython.commands.ScannableCommands;
 import gda.jython.scriptcontroller.ScriptControllerBase;
@@ -154,13 +153,13 @@ public class RasterMapTest {
 		Object[] args = mapscan.createScanArguments("sample 1", new ArrayList<String>());
 		org.junit.Assert.assertTrue(args[0] instanceof Scannable);
 		org.junit.Assert.assertTrue(testHelper.getY_scannable().getName().equals(((Scannable) args[0]).getName()));
-		org.junit.Assert.assertTrue(args[5] instanceof ContinuousScan);
+		org.junit.Assert.assertTrue(args[4] instanceof ContinuousScan);
 		org.junit.Assert.assertTrue(detectors[0].getName().equals(
-				((ContinuousScan) args[5]).getAllDetectors().get(0).getName()));
+				((ContinuousScan) args[4]).getAllDetectors().get(0).getName()));
 		org.junit.Assert.assertTrue(detectors[1].getName().equals(
-				((ContinuousScan) args[5]).getAllDetectors().get(1).getName()));
+				((ContinuousScan) args[4]).getAllDetectors().get(1).getName()));
 		org.junit.Assert.assertTrue(x_traj_scannable.getName().equals(
-				((ContinuousScan) args[5]).getAllScannables().get(0).getName()));
+				((ContinuousScan) args[4]).getAllScannables().get(0).getName()));
 
 		inorder.verify(mockScan).runScan();
 
@@ -179,7 +178,8 @@ public class RasterMapTest {
 		theFactory.setOutputPreparer(testHelper.getOutputPreparer());
 		theFactory.setLoggingScriptController(testHelper.getXASLoggingScriptController());
 		theFactory.setDatawriterconfig(testHelper.getDatawriterconfig());
-		theFactory.setEnergyScannable(testHelper.getEnergy_scannable());
+		theFactory.setEnergyNoGapScannable(testHelper.getEnergy_scannable());
+		theFactory.setEnergyWithGapScannable(testHelper.getEnergy_scannable());
 		theFactory.setMetashop(testHelper.getMetashop());
 		theFactory.setIncludeSampleNameInNexusName(true);
 		theFactory.setScanName("mapScan");
@@ -193,7 +193,6 @@ public class RasterMapTest {
 		theFactory.setRasterMapDetectorPreparer(testHelper.getDetectorPreparer());
 		theFactory.setTrajectoryMotor(x_traj_scannable);
 		theFactory.setPositionReader(PowerMockito.mock(RealPositionReader.class));
-		theFactory.setTrajectoryBeamMonitor(PowerMockito.mock(LineRepeatingBeamMonitor.class));
 
 		mapscan = theFactory.createRasterMap();
 	}

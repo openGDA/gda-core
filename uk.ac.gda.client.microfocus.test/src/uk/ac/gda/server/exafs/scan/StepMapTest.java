@@ -103,7 +103,8 @@ public class StepMapTest {
 		theFactory.setOutputPreparer(testHelper.getOutputPreparer());
 		theFactory.setLoggingScriptController(testHelper.getXASLoggingScriptController());
 		theFactory.setDatawriterconfig(testHelper.getDatawriterconfig());
-		theFactory.setEnergyScannable(testHelper.getEnergy_scannable());
+		theFactory.setEnergyNoGapScannable(testHelper.getEnergy_scannable());
+		theFactory.setEnergyWithGapScannable(testHelper.getEnergy_scannable());
 		theFactory.setMetashop(testHelper.getMetashop());
 		theFactory.setIncludeSampleNameInNexusName(true);
 		theFactory.setScanName("mapScan");

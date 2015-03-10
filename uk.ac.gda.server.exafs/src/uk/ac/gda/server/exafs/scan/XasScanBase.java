@@ -133,6 +133,11 @@ public abstract class XasScanBase implements XasScan {
 		String detectorFileName = ((PySequence) pyArgs).__finditem__(2).asString();
 		String outputFileName = ((PySequence) pyArgs).__finditem__(3).asString();
 		String experimentFullPath = ((PySequence) pyArgs).__finditem__(4).asString();
+		
+		if (!experimentFullPath.endsWith(File.separator)){
+			experimentFullPath = experimentFullPath + File.separator;
+		}
+		
 		int numRepetitions = ((PySequence) pyArgs).__finditem__(5).asInt();
 
 		doCollection(sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions);

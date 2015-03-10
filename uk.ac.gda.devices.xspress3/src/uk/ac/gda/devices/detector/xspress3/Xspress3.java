@@ -18,7 +18,7 @@ public interface Xspress3 extends FluorescenceDetector, NexusDetector {
 	public double readoutFF() throws DeviceException;
 
 	public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException;
-
+	
 	public void clearAndStart() throws DeviceException;
 
 }

@@ -41,7 +41,7 @@ public class MicroFocusNexusReaderTest {
 	public static void beforeClass() throws Exception{
 		Class<? extends XMLRichBean> c = (Class<? extends XMLRichBean>) Class.forName("uk.ac.gda.beans.xspress.XspressParameters");
 		Class<? extends XMLRichBean> c1 = (Class<? extends XMLRichBean>) Class.forName("uk.ac.gda.beans.vortex.VortexParameters");
-		BeansFactory.setClasses((Class<? extends XMLRichBean>[]) new Class<?>[]{c, c1});
+		BeansFactory.setClasses(new Class<?>[]{c, c1});
 		rdr = new MicroFocusNexusReader();
 		rdr.setXScannableName("MicroFocusSampleX");
 		rdr.setYScannableName("MicroFocusSampleY");

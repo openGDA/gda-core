@@ -20,17 +20,12 @@ package uk.ac.gda.server.exafs.scan;
 
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
-import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.device.CounterTimer;
 import gda.device.Scannable;
 import gda.device.scannable.ContinuouslyScannable;
-import gda.device.scannable.LineRepeatingBeamMonitor;
 import gda.device.scannable.RealPositionReader;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
-
-import java.util.ArrayList;
-
 import junit.framework.Assert;
 
 import org.junit.Before;
@@ -51,7 +46,7 @@ public class MapFactoryTest {
 	private OutputPreparer outputPreparer;
 	private LoggingScriptController XASLoggingScriptController;
 	private AsciiDataWriterConfiguration datawriterconfig;
-	private ArrayList<AsciiMetadataConfig> original_header;
+//	private ArrayList<AsciiMetadataConfig> original_header;
 	private Scannable energyScannable;
 	private NXMetaDataProvider metashop;
 	private Scannable xScan;
@@ -62,7 +57,6 @@ public class MapFactoryTest {
 	private RasterMapDetectorPreparer rasterMapDetectorPreparer;
 	private ContinuouslyScannable trajectoryMotor;
 	private RealPositionReader positionReader;
-	private LineRepeatingBeamMonitor trajectoryBeamMonitor;
 
 	@Before
 	public void setup() {
@@ -73,7 +67,7 @@ public class MapFactoryTest {
 		outputPreparer = PowerMockito.mock(OutputPreparer.class);
 		XASLoggingScriptController = PowerMockito.mock(LoggingScriptController.class);
 		datawriterconfig = PowerMockito.mock(AsciiDataWriterConfiguration.class);
-		original_header = new ArrayList<AsciiMetadataConfig>();
+//		original_header = new ArrayList<AsciiMetadataConfig>();
 		energyScannable = PowerMockito.mock(Scannable.class);
 		metashop = PowerMockito.mock(NXMetaDataProvider.class);
 		counterTimer = PowerMockito.mock(CounterTimer.class);
@@ -85,7 +79,6 @@ public class MapFactoryTest {
 		rasterMapDetectorPreparer = PowerMockito.mock(RasterMapDetectorPreparer.class);
 		trajectoryMotor = PowerMockito.mock(ContinuouslyScannable.class);
 		positionReader = PowerMockito.mock(RealPositionReader.class);
-		trajectoryBeamMonitor = PowerMockito.mock(LineRepeatingBeamMonitor.class);
 	}
 
 	@Test
@@ -99,7 +92,8 @@ public class MapFactoryTest {
 		theFactory.setOutputPreparer(outputPreparer);
 		theFactory.setLoggingScriptController(XASLoggingScriptController);
 		theFactory.setDatawriterconfig(datawriterconfig);
-		theFactory.setEnergyScannable(energyScannable);
+		theFactory.setEnergyNoGapScannable(energyScannable);
+		theFactory.setEnergyWithGapScannable(energyScannable);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
 		theFactory.setScanName("mapScan");
@@ -161,7 +155,8 @@ public class MapFactoryTest {
 		theFactory.setOutputPreparer(outputPreparer);
 		theFactory.setLoggingScriptController(XASLoggingScriptController);
 		theFactory.setDatawriterconfig(datawriterconfig);
-		theFactory.setEnergyScannable(energyScannable);
+		theFactory.setEnergyNoGapScannable(energyScannable);
+		theFactory.setEnergyWithGapScannable(energyScannable);
 		theFactory.setMetashop(metashop);
 		theFactory.setIncludeSampleNameInNexusName(true);
 		theFactory.setScanName("mapScan");
@@ -175,7 +170,6 @@ public class MapFactoryTest {
 		theFactory.setRasterMapDetectorPreparer(rasterMapDetectorPreparer);
 		theFactory.setTrajectoryMotor(trajectoryMotor);
 		theFactory.setPositionReader(positionReader);
-		theFactory.setTrajectoryBeamMonitor(trajectoryBeamMonitor);
 
 		RasterMap theScan = theFactory.createRasterMap();
 
@@ -209,7 +203,6 @@ public class MapFactoryTest {
 		theFactory.setRasterMapDetectorPreparer(rasterMapDetectorPreparer);
 		theFactory.setTrajectoryMotor(trajectoryMotor);
 		theFactory.setPositionReader(positionReader);
-		theFactory.setTrajectoryBeamMonitor(trajectoryBeamMonitor);
 
 		try {
 			theFactory.createRasterMap();
@@ -245,7 +238,6 @@ public class MapFactoryTest {
 		theFactory.setRasterMapDetectorPreparer(rasterMapDetectorPreparer);
 		theFactory.setTrajectoryMotor(trajectoryMotor);
 		theFactory.setPositionReader(positionReader);
-		theFactory.setTrajectoryBeamMonitor(trajectoryBeamMonitor);
 
 		FasterRasterMap theScan = theFactory.createFasterRasterMap();
 
@@ -279,7 +271,6 @@ public class MapFactoryTest {
 		theFactory.setRasterMapDetectorPreparer(rasterMapDetectorPreparer);
 		theFactory.setTrajectoryMotor(trajectoryMotor);
 		theFactory.setPositionReader(positionReader);
-		theFactory.setTrajectoryBeamMonitor(trajectoryBeamMonitor);
 
 		try {
 			theFactory.createFasterRasterMap();

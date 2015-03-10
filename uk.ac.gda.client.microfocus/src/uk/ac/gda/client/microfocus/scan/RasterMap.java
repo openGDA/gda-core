@@ -20,7 +20,6 @@ package uk.ac.gda.client.microfocus.scan;
 
 import gda.device.detector.BufferedDetector;
 import gda.device.scannable.ContinuouslyScannable;
-import gda.device.scannable.LineRepeatingBeamMonitor;
 import gda.device.scannable.RealPositionReader;
 import gda.scan.ContinuousScan;
 
@@ -41,7 +40,7 @@ public class RasterMap extends StepMap implements MappingScan {
 	protected ContinuouslyScannable trajectoryMotor;
 	private RasterMapDetectorPreparer bufferedDetectorPreparer;
 	protected RealPositionReader positionReader;
-	protected LineRepeatingBeamMonitor trajectoryBeamMonitor;
+	private boolean includeRealPositionReader = true;
 
 	@Override
 	public String getScanType() {
@@ -70,11 +69,11 @@ public class RasterMap extends StepMap implements MappingScan {
 		// TODO have not done the custom settings for raster maps for the monitor objects
 
 		Object[] args = new Object[] { yScan, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
-				mapScanParameters.getYStepSize(), trajectoryBeamMonitor, cs };
+				mapScanParameters.getYStepSize(), cs };
 
 		// add a Scannable, if defined, which fetches the motor readback values from the Epics Trajectory template after
 		// the trajectory completes.
-		if (positionReader != null) {
+		if (positionReader != null && includeRealPositionReader) {
 			args = ArrayUtils.add(args, positionReader);
 		}
 
@@ -97,5 +96,9 @@ public class RasterMap extends StepMap implements MappingScan {
 
 	public void setPositionReader(RealPositionReader positionReader) {
 		this.positionReader = positionReader;
+	}
+
+	public void setIncludeRealPositionReader(boolean include) {
+		includeRealPositionReader = include;
 	}
 }

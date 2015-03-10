@@ -21,7 +21,6 @@ package uk.ac.gda.client.microfocus.scan;
 import gda.device.CounterTimer;
 import gda.device.Scannable;
 import gda.device.scannable.ContinuouslyScannable;
-import gda.device.scannable.LineRepeatingBeamMonitor;
 import gda.device.scannable.RealPositionReader;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import uk.ac.gda.server.exafs.scan.SpectroscopyScanFactory;
@@ -36,14 +35,16 @@ public class MapFactory extends SpectroscopyScanFactory {
 	private RasterMapDetectorPreparer rasterMapDetectorPreparer;
 	private ContinuouslyScannable trajectoryMotor;
 	private RealPositionReader positionReader;
-	private LineRepeatingBeamMonitor trajectoryBeamMonitor;
+	private Scannable energyWithGapScannable;
+	private Scannable energyNoGapScannable;
 
 	public MapFactory() {
 	}
 
 	public StepMap createStepMap() {
 		checkSharedObjectsNonNull();
-		checkDefined(energyScannable, "energyScannable");
+		checkDefined(energyWithGapScannable, "energy");
+		checkDefined(energyNoGapScannable, "energy_nogap");
 		checkDefined(xScan, "xScan");
 		checkDefined(yScan, "yScan");
 		checkDefined(zScan, "zScan");
@@ -56,7 +57,9 @@ public class MapFactory extends SpectroscopyScanFactory {
 		newMap.setSamplePreparer(samplePreparer);
 		newMap.setLoggingScriptController(loggingScriptController);
 		newMap.setDatawriterconfig(datawriterconfig);
-		newMap.setEnergyScannable(energyScannable);
+
+		newMap.setEnergyWithGap(energyWithGapScannable);
+		newMap.setEnergyNoGap(energyNoGapScannable);
 		newMap.setMetashop(metashop);
 		newMap.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
 		newMap.setScanName(scanName);
@@ -65,14 +68,14 @@ public class MapFactory extends SpectroscopyScanFactory {
 		newMap.setyScan(yScan);
 		newMap.setzScan(zScan);
 		newMap.setElementListScriptController(elementListScriptController);
-//		placeInJythonNamespace(newMap);
 		return newMap;
 	}
 
 	public RasterMap createRasterMap() {
 
 		checkObjectsDefined();
-		checkDefined(energyScannable, "energyScannable");
+		checkDefined(energyWithGapScannable, "energy");
+		checkDefined(energyNoGapScannable, "energy_nogap");
 
 		RasterMap newMap = new RasterMap();
 		newMap.setBeamlinePreparer(beamlinePreparer);
@@ -81,7 +84,8 @@ public class MapFactory extends SpectroscopyScanFactory {
 		newMap.setSamplePreparer(samplePreparer);
 		newMap.setLoggingScriptController(loggingScriptController);
 		newMap.setDatawriterconfig(datawriterconfig);
-		newMap.setEnergyScannable(energyScannable);
+		newMap.setEnergyWithGap(energyWithGapScannable);
+		newMap.setEnergyNoGap(energyNoGapScannable);
 		newMap.setMetashop(metashop);
 		newMap.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
 		newMap.setScanName(scanName);
@@ -90,7 +94,6 @@ public class MapFactory extends SpectroscopyScanFactory {
 		newMap.setyScan(yScan);
 		newMap.setzScan(zScan);
 		newMap.setElementListScriptController(elementListScriptController);
-//		placeInJythonNamespace(newMap);
 		return newMap;
 	}
 
@@ -101,7 +104,6 @@ public class MapFactory extends SpectroscopyScanFactory {
 		checkDefined(zScan, "zScan");
 		checkDefined(trajectoryMotor, "trajectoryMotor");
 		checkDefined(positionReader, "positionReader");
-		checkDefined(trajectoryBeamMonitor, "trajectoryBeamMonitor");
 	}
 
 	public FasterRasterMap createFasterRasterMap() {
@@ -115,7 +117,8 @@ public class MapFactory extends SpectroscopyScanFactory {
 		newMap.setSamplePreparer(samplePreparer);
 		newMap.setLoggingScriptController(loggingScriptController);
 		newMap.setDatawriterconfig(datawriterconfig);
-		newMap.setEnergyScannable(energyScannable);
+		newMap.setEnergyWithGap(energyWithGapScannable);
+		newMap.setEnergyNoGap(energyNoGapScannable);
 		newMap.setMetashop(metashop);
 		newMap.setIncludeSampleNameInNexusName(includeSampleNameInNexusName);
 		newMap.setScanName(scanName);
@@ -124,7 +127,6 @@ public class MapFactory extends SpectroscopyScanFactory {
 		newMap.setyScan(yScan);
 		newMap.setzScan(zScan);
 		newMap.setElementListScriptController(elementListScriptController);
-//		placeInJythonNamespace(newMap);
 		return newMap;
 	}
 
@@ -192,11 +194,27 @@ public class MapFactory extends SpectroscopyScanFactory {
 		this.positionReader = positionReader;
 	}
 
-	public LineRepeatingBeamMonitor getTrajectoryBeamMonitor() {
-		return trajectoryBeamMonitor;
+	// public LineRepeatingBeamMonitor getTrajectoryBeamMonitor() {
+	// return trajectoryBeamMonitor;
+	// }
+	//
+	// public void setTrajectoryBeamMonitor(LineRepeatingBeamMonitor trajectoryBeamMonitor) {
+	// this.trajectoryBeamMonitor = trajectoryBeamMonitor;
+	// }
+
+	public Scannable getEnergyWithGapScannable() {
+		return energyWithGapScannable;
 	}
 
-	public void setTrajectoryBeamMonitor(LineRepeatingBeamMonitor trajectoryBeamMonitor) {
-		this.trajectoryBeamMonitor = trajectoryBeamMonitor;
+	public void setEnergyWithGapScannable(Scannable energyWithGapScannable) {
+		this.energyWithGapScannable = energyWithGapScannable;
+	}
+
+	public Scannable getEnergyNoGapScannable() {
+		return energyNoGapScannable;
+	}
+
+	public void setEnergyNoGapScannable(Scannable energyNoGapScannable) {
+		this.energyNoGapScannable = energyNoGapScannable;
 	}
 }

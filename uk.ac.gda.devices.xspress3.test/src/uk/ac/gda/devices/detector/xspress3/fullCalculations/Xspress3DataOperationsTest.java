@@ -23,7 +23,7 @@ public class Xspress3DataOperationsTest {
 		controller.setNumFramesToAcquire(1);
 		controller.setNumberOfChannels(10);
 		
-		Xspress3DataOperations dataOps = new Xspress3DataOperations(controller,"xspress3",0);
+		Xspress3DataOperations dataOps = new Xspress3DataOperations(controller,0);
 		String configFile = Xspress3DataOperationsTest.class.getResource("Xspress3_ParametersCu_K.xml").getPath();
 		dataOps.setConfigFileName(configFile);
 		dataOps.loadConfigurationFromFile();
@@ -31,7 +31,7 @@ public class Xspress3DataOperationsTest {
 		URL nexusFile = Xspress3FileReader.class.getResource("46594_0003.hdf5");
 		controller.setSimulationFileName(nexusFile.getPath());
 		
-		NXDetectorData treeProvider = (NXDetectorData) dataOps.readoutFrames(1, 1)[0];
+		NXDetectorData treeProvider = (NXDetectorData) dataOps.readoutFrames(1, 1,"xspress3")[0];
 		
 		org.junit.Assert.assertEquals(11,treeProvider.getExtraNames().length);
 		org.junit.Assert.assertEquals(12,treeProvider.getOutputFormat().length);  // + 1 for the input name

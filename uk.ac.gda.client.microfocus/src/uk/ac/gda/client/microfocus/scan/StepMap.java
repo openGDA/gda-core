@@ -42,7 +42,9 @@ public class StepMap extends XasScanBase implements MappingScan {
 	protected Scannable xScan;
 	protected Scannable yScan;
 	protected Scannable zScan;
-	protected Scannable energyScannable;
+	protected Scannable energyNoGap;
+	protected Scannable energyWithGap;
+	protected Scannable energyInUse;
 
 	private CounterTimer counterTimer;
 
@@ -62,7 +64,7 @@ public class StepMap extends XasScanBase implements MappingScan {
 
 	@Override
 	protected Object[] createScanArguments(String sampleName, List<String> descriptions) throws Exception {
-		
+
 		mapScanParameters = (MicroFocusScanParameters) scanBean;
 
 		Detector[] detectorList = getDetectors();
@@ -79,7 +81,7 @@ public class StepMap extends XasScanBase implements MappingScan {
 	protected Object[] buildListOfArguments(Detector[] detectorList) throws DeviceException, Exception {
 		Object[] args = new Object[] { yScan, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),
 				mapScanParameters.getYStepSize(), xScan, mapScanParameters.getXStart(), mapScanParameters.getXEnd(),
-				mapScanParameters.getXStepSize(), zScan };		
+				mapScanParameters.getXStepSize(), zScan };
 		boolean useFrames = LocalProperties.check("gda.microfocus.scans.useFrames");
 		log("Using frames: " + useFrames);
 		if (detectorBean.getExperimentType().equals("Fluorescence") && useFrames) {
@@ -96,7 +98,7 @@ public class StepMap extends XasScanBase implements MappingScan {
 		}
 		return args;
 	}
-	
+
 	protected int calculateNumberXPoints() throws Exception {
 		return ScannableUtils.getNumberSteps(xScan, mapScanParameters.getXStart(), mapScanParameters.getXEnd(),
 				mapScanParameters.getXStepSize()) + 1;
@@ -107,7 +109,7 @@ public class StepMap extends XasScanBase implements MappingScan {
 		double zScannablePos = mapScanParameters.getZValue();
 
 		log("Energy: " + energy);
-		energyScannable.moveTo(energy);
+		energyInUse.moveTo(energy);
 		mfd.setEnergyValue(energy);
 
 		log("Moving " + zScan.getName() + " to " + zScannablePos);
@@ -121,17 +123,18 @@ public class StepMap extends XasScanBase implements MappingScan {
 				mapScanParameters.getYStepSize()) + 1;
 		log("Number x points: " + nx);
 		log("Number y points: " + ny);
-		mfd = new MicroFocusWriterExtender(nx, ny, mapScanParameters.getXStepSize(), mapScanParameters.getYStepSize(), detectorConfigurationBean, detectorList);
+		mfd = new MicroFocusWriterExtender(nx, ny, mapScanParameters.getXStepSize(), mapScanParameters.getYStepSize(),
+				detectorConfigurationBean, detectorList);
 		// this updates the Elements view in the Mircofocus UI with the list of elements
-		if (elementListScriptController != null){
-			String fluoConfigFileName = this.experimentFullPath + detectorBean.getFluorescenceParameters().getConfigFileName();
-			elementListScriptController.update(this,fluoConfigFileName);
+		if (elementListScriptController != null) {
+			String fluoConfigFileName = this.experimentFullPath
+					+ detectorBean.getFluorescenceParameters().getConfigFileName();
+			elementListScriptController.update(this, fluoConfigFileName);
 		}
 	}
 
 	@Override
-	protected DataWriter createAndConfigureDataWriter(String sampleName, List<String> descriptions)
-			throws Exception {
+	protected DataWriter createAndConfigureDataWriter(String sampleName, List<String> descriptions) throws Exception {
 		XasAsciiNexusDatapointCompletingDataWriter twoDWriter = new XasAsciiNexusDatapointCompletingDataWriter();
 		DataWriter underlyingDataWriter = twoDWriter.getDatawriter();
 		underlyingDataWriter.addDataWriterExtender(mfd);
@@ -177,7 +180,21 @@ public class StepMap extends XasScanBase implements MappingScan {
 		this.counterTimer = counterTimer;
 	}
 
-	public void setEnergyScannable(Scannable energyScannable) {
-		this.energyScannable = energyScannable;
+	public void setEnergyNoGap(Scannable energyNoGap) {
+		this.energyNoGap = energyNoGap;
 	}
+
+	public void setEnergyWithGap(Scannable energyWithGap) {
+		this.energyWithGap = energyWithGap;
+		this.energyInUse = energyWithGap; // default
+	}
+
+	public void setUseNoGapEnergy() {
+		this.energyInUse = this.energyNoGap;
+	}
+
+	public void setUseWithGapEnergy() {
+		this.energyInUse = this.energyWithGap;
+	}
+
 }

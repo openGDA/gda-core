@@ -103,7 +103,9 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 		HashMap<String, String> currentVals = new HashMap<String, String>();
 		for (String cmd : cmds) {
 			currentVals.put(cmd, runDAServerCommand("tfg read " + cmd).toString());
-			logger.info("tfg read " + cmd + ": " + currentVals.get(cmd));
+			if (cmd.equals("frame")){
+				logger.info("tfg read " + cmd + ": " + currentVals.get(cmd));
+			}
 		}
 		if (currentVals.isEmpty())
 			return 0;

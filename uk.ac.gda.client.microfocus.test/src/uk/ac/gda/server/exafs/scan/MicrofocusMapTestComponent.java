@@ -81,6 +81,7 @@ public class MicrofocusMapTestComponent {
 	private XspressParameters xspressConfigurationParameters;
 	private JythonServer jythonserver;
 	private TfgScalerWithFrames ionchambers;
+	private ScannableMotor energy_nogap_scannable;
 
 	public void setup() throws DeviceException {
 
@@ -133,6 +134,8 @@ public class MicrofocusMapTestComponent {
 		XASLoggingScriptController = PowerMockito.mock(LoggingScriptController.class);
 
 		energy_scannable = createMockMotorScannable("energy_scannable");
+		energy_nogap_scannable = createMockMotorScannable("energy_nogap_scannable");
+		
 		y_scannable = createMockMotorScannable("y_scannable");
 		z_scannable = createMockMotorScannable("z_scannable");
 
