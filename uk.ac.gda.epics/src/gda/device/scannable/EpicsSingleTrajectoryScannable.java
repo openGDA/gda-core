@@ -51,7 +51,7 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 	private ContinuousParameters continuousParameters;
 	private double[] scannablePositions;
 	private int mode;
-	private boolean trajectoryBuildDone;
+	protected boolean trajectoryBuildDone;
 
 	@Override
 	public void configure() throws FactoryException {
