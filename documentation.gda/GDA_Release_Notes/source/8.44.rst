@@ -1,5 +1,5 @@
-GDA 8.44  (not yet released - planned for Nov/2014)
-===================================================
+GDA 8.44  (Mar/2015)
+====================
 
 User Highlights
 ---------------
@@ -10,12 +10,34 @@ New Features
 Fixes
 ~~~~~
 
-
 Developer
 ---------
 
 Important
 ~~~~~~~~~
+
+When creating the GDA client, the "client" symlink can optionally be created or updated
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. rubric:: Buckminster "create.product" can optionally create a "client" symlink
+
+A new Buckminster action (accessed from the :menuselection:`Buckminster --> Involve Action...` menu), has been added:
+
+    ``create.product-linux.gtk.x86_64-with.symlink``
+
+The new action does the following (only available when building a linux64 product):
+
+    #. Performs the standard ``create.product-linux.gtk.x86_64`` action
+    #. Deletes any existing ``client`` symlink (which presumably links to the previous product build)
+    #. Create a ``client`` symlink which links to the new product build
+
+.. rubric:: ``pewma.py`` can optionally create a "client" symlink
+
+From the command line, the new action can be invoked using ``pewma.py`` option ``--recreate-symlink`` as follows:
+
+  .. code-block:: bash
+
+    pewma.py --workspace /path/to/workspace --recreate-symlink product <site.project.name> linux64
 
 New Features
 ~~~~~~~~~~~~
@@ -39,5 +61,4 @@ How to create notes
 4. Fixup the reStructuredText.
 
 5. Tweak the text of the user highlights at the top.
-
 

@@ -10,12 +10,13 @@ This section lists people who have contributed in some way (code, design, docume
    * Contributors to the most recent release
       * Jun Aishima
       * Mark Basham
+      * Kristian Benning
+      * Simon Berriman
       * Jonathan Blakes
       * Mark Booth
       * Peter Chang
       * Silvia Da Graca Ramos
       * Baha El Kassaby
-      * Richard Fearn
       * Jacob Filik
       * Matthew Gerring
       * Paul Gibbons
@@ -25,11 +26,15 @@ This section lists people who have contributed in some way (code, design, docume
       * Phyo Kyaw
       * Karl Levik
       * Charles Mita
+      * James Mudd
+      * Colin Palmer
+      * Deepa Rethinam
       * Tobias Richter
       * Chris Sharpe
       * Irakli Sikharulidze
       * Robert Walton
       * Kaz Wanelik
+      * Michael Wharmby
       * Matthew Webber
       * Richard Woolliscroft
       * Fajin Yuan
@@ -41,6 +46,7 @@ This section lists people who have contributed in some way (code, design, docume
       * Josephine Chan
       * Chris Coles
       * Joachim Diepstraten
+      * Richard Fearn
       * Jonah Graham
       * Graham Lee
       * Conor Lehane

@@ -54,7 +54,7 @@ else
     do
         if [ -e "${filename}" ]; then
             bashlog debug "gda_servers_core" "sourcing ${filename}"
-            . ${filename}
+            . ${filename} servers
             break
         fi
     done

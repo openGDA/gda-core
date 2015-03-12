@@ -8,7 +8,7 @@ for filename in \
     "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_setup_consolelog_facility"
 do
     if [ -e "${filename}" ]; then
-        . ${filename}
+        . ${filename} client
         echo 'just ran console log file ' ${filename}
         break
     fi
