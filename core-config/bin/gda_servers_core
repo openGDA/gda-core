@@ -45,6 +45,11 @@ else
     # Set up the directory for VAR
     mkdir -pv -m 777 ${GDA_VAR}
 
+	if [[ -f "${OBJECT_SERVER_STARTUP_FILE}" ]]; then
+	    bashlog info "gda_servers_pre_facility" "deleting ${OBJECT_SERVER_STARTUP_FILE}, last modified $(stat --format=%y ${OBJECT_SERVER_STARTUP_FILE} | cut -c 1-19)"
+	    rm -fv ${OBJECT_SERVER_STARTUP_FILE}
+	fi
+
     # Set up the directory and file in which to write the console log
     # We only invoke one script to do this (the most specific one)
     for filename in \
