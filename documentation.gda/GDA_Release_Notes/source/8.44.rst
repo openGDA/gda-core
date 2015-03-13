@@ -41,6 +41,9 @@ From the command line, the new action can be invoked using ``pewma.py`` option `
 
 New Features
 ~~~~~~~~~~~~
+* Screenshot tool
+
+ - A screenshot tool has been added to the client. See JIRA ticket GDA-6110 for details.
 
 Fixes
 ~~~~~
