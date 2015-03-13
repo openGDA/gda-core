@@ -31,12 +31,10 @@ public class Xspress3DataOperations {
 	private int framesRead;
 	private String configFileName;
 	private DetectorROI[] rois;
-	private String detectorName;
 	private Xspress3FileReader reader;
 
-	public Xspress3DataOperations(Xspress3Controller controller, String detectorName, int firstChannelToRead) {
+	public Xspress3DataOperations(Xspress3Controller controller, int firstChannelToRead) {
 		this.controller = controller;
-		this.detectorName = detectorName;
 		this.firstChannelToRead = firstChannelToRead;
 	}
 
@@ -118,7 +116,7 @@ public class Xspress3DataOperations {
 		}
 	}
 
-	public NexusTreeProvider readoutLatest() throws DeviceException {
+	public NexusTreeProvider readoutLatest(String detectorName) throws DeviceException {
 
 		// this method is for step scan readout and so it assumed that the data
 		// has been collected by the time this method is called
@@ -148,12 +146,12 @@ public class Xspress3DataOperations {
 			// Problem in the logic somewhere.
 			throw new DeviceException("Cannot readout - no more data in buffer");
 		}
-		return readoutLatestFrame();
+		return readoutLatestFrame(detectorName);
 	}
 
-	private NexusTreeProvider readoutLatestFrame() throws DeviceException {
+	private NexusTreeProvider readoutLatestFrame(String detectorName) throws DeviceException {
 		double[][] data = controller.readoutDTCorrectedLatestMCA(0, controller.getNumberOfChannels() - 1);
-		return createNexusTreeForFrame(data);
+		return createNexusTreeForFrame(data, detectorName);
 	}
 	
 	private double[][] removeNaNs(double[][] original){
@@ -172,7 +170,7 @@ public class Xspress3DataOperations {
 		return original;
 	}
 
-	private NXDetectorData createNexusTreeForFrame(double[][] mcasFromFile) {
+	private NXDetectorData createNexusTreeForFrame(double[][] mcasFromFile, String detectorName) {
 		
 		mcasFromFile = removeNaNs(mcasFromFile);
 		
@@ -242,7 +240,7 @@ public class Xspress3DataOperations {
 		return sum;
 	}
 
-	public NXDetectorData[] readoutFrames(int firstFrame, int lastFrame) throws DeviceException {
+	public NXDetectorData[] readoutFrames(int firstFrame, int lastFrame, String detectorName) throws DeviceException {
 
 		int numFramesAvailable = controller.getTotalFramesAvailable();
 		if (lastFrame > numFramesAvailable) {
@@ -256,7 +254,7 @@ public class Xspress3DataOperations {
 			NXDetectorData[] frames = new NXDetectorData[numFrames];
 			for (int frame = 0; frame < numFrames; frame++) {
 				int absoluteFrameNumber = frame + firstFrame;
-				frames[frame] = createNexusTreeForFrame(reader.getFrame(absoluteFrameNumber));
+				frames[frame] = createNexusTreeForFrame(reader.getFrame(absoluteFrameNumber), detectorName);
 			}
 			return frames;
 		} catch (Exception e) {

@@ -32,7 +32,7 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 
 	public void configure() throws gda.factory.FactoryException {
 		scanOperations = new Xspress3ScanOperations(controller, getName());
-		dataOperations = new Xspress3DataOperations(controller, getName(), firstChannelToRead);
+		dataOperations = new Xspress3DataOperations(controller, firstChannelToRead);
 	}
 
 	public void atScanStart() throws DeviceException {
@@ -84,12 +84,20 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
-		return dataOperations.readoutLatest();
+		return dataOperations.readoutLatest(getName());
 	}
+	
+	/*
+	 * The detectorName is the string used in the Nexus tree returned. Allows for composition where the xspress3 is a component of another detector e.g. Xspress3BufferedDetector
+	 */
+	public NXDetectorData[] readFrames(int startFrame, int finalFrame, String detectorName) throws DeviceException {
+		return dataOperations.readoutFrames(startFrame, finalFrame,detectorName);
+	}
+
 
 	@Override
 	public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException {
-		return dataOperations.readoutFrames(startFrame, finalFrame);
+		return readFrames(startFrame, finalFrame, getName());
 	}
 
 	@Override

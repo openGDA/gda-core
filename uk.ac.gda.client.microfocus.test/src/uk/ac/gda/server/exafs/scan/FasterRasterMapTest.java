@@ -19,7 +19,6 @@
 package uk.ac.gda.server.exafs.scan;
 
 import gda.device.CounterTimer;
-import gda.device.scannable.LineRepeatingBeamMonitor;
 import gda.device.scannable.RealPositionReader;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 
@@ -42,6 +41,8 @@ public class FasterRasterMapTest extends RasterMapTest {
 		theFactory.setLoggingScriptController(testHelper.getXASLoggingScriptController());
 		theFactory.setDatawriterconfig(testHelper.getDatawriterconfig());
 		theFactory.setEnergyScannable(testHelper.getEnergy_scannable());
+		theFactory.setEnergyNoGapScannable(testHelper.getEnergy_scannable());
+		theFactory.setEnergyWithGapScannable(testHelper.getEnergy_scannable());
 		theFactory.setMetashop(testHelper.getMetashop());
 		theFactory.setIncludeSampleNameInNexusName(true);
 		theFactory.setScanName("mapScan");
@@ -55,7 +56,6 @@ public class FasterRasterMapTest extends RasterMapTest {
 		theFactory.setRasterMapDetectorPreparer(testHelper.getDetectorPreparer());
 		theFactory.setTrajectoryMotor(x_traj_scannable);
 		theFactory.setPositionReader(PowerMockito.mock(RealPositionReader.class));
-		theFactory.setTrajectoryBeamMonitor(PowerMockito.mock(LineRepeatingBeamMonitor.class));
 
 		mapscan = theFactory.createFasterRasterMap();
 	}

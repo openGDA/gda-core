@@ -22,9 +22,9 @@ import uk.ac.gda.devices.detector.xspress3.fullCalculations.Xspress3WithFullCalc
  * 
  */
 public class Xspress3BufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector,
-		FluorescenceDetector {
+		FluorescenceDetector, Xspress3 {
 
-	private Xspress3 xspress3Detector;
+	private Xspress3WithFullCalculationsDetector xspress3Detector;
 	private ContinuousParameters parameters;
 	private boolean isContinuousModeOn;
 	private TRIGGER_MODE triggerModeWhenInContinuousScan = TRIGGER_MODE.TTl_Veto_Only;
@@ -79,12 +79,12 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 
 	@Override
 	public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException {
-		return xspress3Detector.readFrames(startFrame, finalFrame);
+		return xspress3Detector.readFrames(startFrame, finalFrame, getName());
 	}
-
+	
 	@Override
 	public NXDetectorData[] readAllFrames() throws DeviceException {
-		return xspress3Detector.readFrames(0, xspress3Detector.getController().getNumFramesToAcquire());
+		return xspress3Detector.readFrames(0, xspress3Detector.getController().getNumFramesToAcquire(), getName());
 	}
 
 	@Override
@@ -104,7 +104,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		return xspress3Detector;
 	}
 
-	public void setXspress3Detector(Xspress3 xspress3Detector) {
+	public void setXspress3Detector(Xspress3WithFullCalculationsDetector xspress3Detector) {
 		this.xspress3Detector = xspress3Detector;
 	}
 
@@ -330,5 +330,15 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 
 	public boolean isAt(Object positionToTest) throws DeviceException {
 		return xspress3Detector.isAt(positionToTest);
+	}
+
+	@Override
+	public Xspress3Controller getController() {
+		return xspress3Detector.getController();
+	}
+
+	@Override
+	public double readoutFF() throws DeviceException {
+		return xspress3Detector.readoutFF();
 	}
 }

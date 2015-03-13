@@ -23,6 +23,7 @@ import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
 import gda.scan.ScanPlotSettings;
 
 import java.util.HashSet;
@@ -82,11 +83,24 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 			throws DeviceException {
 		List<MetadataParameters> metadata = outputParameters.getMetadataList();
 		for (MetadataParameters parameter : metadata) {
-			if (!metashop.containsKey(parameter.getScannableName())) {
-				metashop.add(Finder.getInstance().find(parameter.getScannableName()));
-				scannablesAddedToMetadata.add(parameter.getScannableName());
+			String scannableName = parameter.getScannableName();
+			if (!metashop.containsKey(scannableName)) {
+				Scannable scannable= retriveScannable(scannableName);
+				if (scannable!= null){
+					metashop.add(scannable);
+					scannablesAddedToMetadata.add(scannableName);
+				}
 			}
 		}
+	}
+	
+	private Scannable retriveScannable(String scannableName){
+		Scannable scannableFromFinder = Finder.getInstance().find(scannableName);
+		if (scannableFromFinder!= null){
+			return scannableFromFinder;
+		}
+		Scannable scannableFromNamespace = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+		return scannableFromNamespace;
 	}
 	
 	@Override
@@ -103,12 +117,11 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 
 	@Override
 	public void resetNexusStaticMetadataList() {
-		for (String scannable : scannablesAddedToMetadata) {
-			// TODO inconsistent API! Should we using the metashop object or the static from NexusDataWriter.
-			// The design needs a review. I had to run this to get the unit test working but something is wrong.
-//			NexusDataWriter.getMetadatascannables().remove(scannable);
-//			metashop.remove(new Object[]{scannable});
-			metashop.remove((Scannable) Finder.getInstance().find(scannable));
+		for (String scannableName : scannablesAddedToMetadata) {
+			Scannable scannable = retriveScannable(scannableName);
+			if (scannable != null) {
+				metashop.remove(scannable);
+			}
 		}
 		scannablesAddedToMetadata.clear();
 	}
