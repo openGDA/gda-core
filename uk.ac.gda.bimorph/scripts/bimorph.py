@@ -4,6 +4,8 @@ from gdascripts.pd.dummy_pds import DummyPD
 import gda.jython.commands.InputCommands as inputCommand
 from gdascripts.analysis.io.ScanFileLoader import ScanFileLoader
 from gda.data import PathConstructor
+from gda.data import NumTracker
+from gda.data.metadata import GDAMetadataProvider
 
 class VoltageControllerSim:
     def __init__(self, verbose, numberOfElectrodes):
@@ -155,10 +157,15 @@ class RunOptimisation:
         self.printVoltages(self.voltages)
 
     def getErrorData(self):
+        fileNo = self.error_file
+        if fileNo == 0:
+            nt = NumTracker(GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", None))
+            fileNo = nt.getCurrentFileNumber()
+            print "Using %d (most recent file) as error file as 0 was specified" %fileNo
         try:
-            errorData = ScanFileLoader(self.error_file, self.scanDir).getSFH()
+            errorData = ScanFileLoader(fileNo, self.scanDir).getSFH()
         except Exception, e:
-            errorData = ScanFileLoader(self.error_file, PathConstructor().getDefaultDataDir()).getSFH()
+            errorData = ScanFileLoader(fileNo, PathConstructor().getDefaultDataDir()).getSFH()
         return errorData
 
     def getColumnNames(self, headings):
@@ -233,13 +240,16 @@ class RunOptimisation:
         matrix = []
         for file in files:
             data = ScanFileLoader(file, self.scanDir).getSFH()
-            print columnNames
+            dataHeadings = data.getNames()
+            dataColumnNames = self.getColumnNames(dataHeadings)
+            print "data:" + str(dataColumnNames)
+            print "error:" + str(columnNames)
             # *********** RobW 17 May 2014 7pm : its not finding the column in here. I've added some debig stuff. If had time I would have dived into ScanFileHolder, and/or debugged it on the server.
             print "file: " + str(file)
             print "self.scanDir: " + str(self.scanDir)
             print "scan file holder: " + str(data)
             print "scan file holder (DataHolder) contains names:" + str(data.getNames())
-            column_name = columnNames["data_centroid"]
+            column_name = dataColumnNames["data_centroid"]
             print "using column for the data_centroid the column named: " + column_name
             ds = data.getLazyDataset(column_name)
             if ds == None:
