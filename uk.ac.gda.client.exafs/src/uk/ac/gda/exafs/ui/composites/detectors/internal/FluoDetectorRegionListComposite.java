@@ -34,12 +34,13 @@ public class FluoDetectorRegionListComposite extends FieldBeanComposite {
 	private VerticalListEditor regionList;
 	private FluoDetectorROIComposite detectorROIComposite;
 
-	public FluoDetectorRegionListComposite(Composite parent, int style, FluorescenceDetectorCompositeController controller) {
+	public FluoDetectorRegionListComposite(Composite parent, int style, FluoDetectorCompositeController controller) {
 		super(parent, style);
 
 		GridLayoutFactory.fillDefaults().applyTo(this);
 
-		regionList = new VerticalListEditor(this, SWT.BORDER);
+		regionList = new VerticalListEditor(this, SWT.NONE);
+		regionList.setRequireSelectionPack(false);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(regionList);
 		regionList.setTemplateName("ROI");
 		regionList.setNameField("roiName");

@@ -14,7 +14,7 @@ public interface FluorescenceDetector extends Detector {
 	 * @return
 	 * @throws DeviceException
 	 */
-	public double[][] getMCData(double time) throws DeviceException;
+	public int[][] getMCData(double time) throws DeviceException;
 
 	public int[][] getData() throws DeviceException;
 

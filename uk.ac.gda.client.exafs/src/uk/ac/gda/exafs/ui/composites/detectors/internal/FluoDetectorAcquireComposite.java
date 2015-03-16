@@ -20,7 +20,6 @@ package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
 import gda.configuration.properties.LocalProperties;
 
-import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
 import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -53,9 +52,9 @@ public class FluoDetectorAcquireComposite extends Composite {
 	private Button autoSaveCheckBox;
 	private Button liveCheckBox;
 
-	public FluoDetectorAcquireComposite(Composite composite, final FluorescenceDetectorCompositeController controller) {
+	public FluoDetectorAcquireComposite(Composite composite, final FluoDetectorCompositeController controller) {
 		super(composite, SWT.NONE);
-		
+
 		this.setLayout(new FillLayout());
 
 		Group grpAcquire = new Group(this, SWT.NONE);
@@ -69,7 +68,7 @@ public class FluoDetectorAcquireComposite extends Composite {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				// TODO 
+				controller.loadAcquireDataFromFile();
 			}
 
 			@Override
@@ -138,7 +137,7 @@ public class FluoDetectorAcquireComposite extends Composite {
 			}
 		});
 
-		FileDialog openDialog = new FileDialog(controller.getSite().getShell(), SWT.OPEN);
+		FileDialog openDialog = new FileDialog(controller.getShell(), SWT.OPEN);
 		openDialog.setFilterPath(LocalProperties.get(LocalProperties.GDA_DATAWRITER_DIR));
 
 		Composite composite_1 = new Composite(grpAcquire, SWT.NONE);
@@ -169,7 +168,7 @@ public class FluoDetectorAcquireComposite extends Composite {
 		acquireButton.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/control_stop_blue.png"));
 	}
 
-	public FieldComposite getCollectionTime() {
+	public ScaleBox getCollectionTime() {
 		return acquireTime;
 	}
 

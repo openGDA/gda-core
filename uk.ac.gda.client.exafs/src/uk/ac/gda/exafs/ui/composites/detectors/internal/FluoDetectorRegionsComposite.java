@@ -19,7 +19,6 @@
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
 import org.dawnsci.common.richbeans.components.FieldBeanComposite;
-import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.dawnsci.common.richbeans.components.selector.BeanSelectionEvent;
 import org.dawnsci.common.richbeans.components.selector.BeanSelectionListener;
 import org.dawnsci.common.richbeans.components.selector.GridListEditor;
@@ -37,6 +36,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.exafs.IDetectorElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
@@ -46,11 +47,13 @@ import com.swtdesigner.SWTResourceManager;
 
 public class FluoDetectorRegionsComposite extends FieldBeanComposite {
 
+	private static Logger logger = LoggerFactory.getLogger(FluoDetectorRegionsComposite.class);
+
 	private GridListEditor detectorChannelList;
 	private FluoDetectorRegionListComposite regionListComposite;
-	private FluorescenceDetectorCompositeController controller;
+	private FluoDetectorCompositeController controller;
 
-	public FluoDetectorRegionsComposite(Composite composite, FluorescenceDetectorCompositeController controller) {
+	public FluoDetectorRegionsComposite(Composite composite, FluoDetectorCompositeController controller) {
 		super(composite, SWT.NONE);
 		this.setLayout(new FillLayout());
 
@@ -65,8 +68,6 @@ public class FluoDetectorRegionsComposite extends FieldBeanComposite {
 		createSeparator(regionsGroup);
 
 		createElementSelectionTable(regionsGroup);
-
-		createSeparator(regionsGroup);
 
 		createRegionsList(regionsGroup);
 
@@ -108,23 +109,28 @@ public class FluoDetectorRegionsComposite extends FieldBeanComposite {
 	private void createElementSelectionTable(Group regionsGroup) {
 		// TODO add import button
 
-		int channelListSize = controller.getDetector().getNumberOfChannels();
+		Label channelsLabel = new Label(regionsGroup, SWT.NONE);
+		channelsLabel.setText(" Channels:");
+		GridDataFactory.fillDefaults()/* .align(SWT.BEGINNING, SWT.CENTER) */.applyTo(channelsLabel);
 
+		int channelListSize = controller.getDetector().getNumberOfChannels();
 		double channelListSizeSquareRoot = Math.sqrt(channelListSize);
+
 		// Squared table of Detector Elements
+		int columns = channelListSize / 2;
+		int rows = 2;
+
 		if (Double.compare(channelListSizeSquareRoot, (int) channelListSizeSquareRoot) == 0) {
-			this.detectorChannelList = new GridListEditor(regionsGroup, SWT.NONE, (int) channelListSizeSquareRoot,
-					(int) channelListSizeSquareRoot);
-			// Table with two rows in the case of even number of detectors
-		} else if ((channelListSize % 2) == 0) {
-			this.detectorChannelList = new GridListEditor(regionsGroup, SWT.NONE, channelListSize / 2, 2);
-		} else {
-			throw new NullPointerException("Grid with the list of detectors cannot be created");
+			columns = (int) channelListSizeSquareRoot;
+			rows = (int) channelListSizeSquareRoot;
+		} else if ((channelListSize % 2) != 0) {
+			logger.warn("Non-even, non-square number of detector elements: not sure how to layout the grid!");
 		}
 
-		GridDataFactory.fillDefaults().applyTo(detectorChannelList);
-		detectorChannelList.setEditorClass(DetectorElement.class); // TODO do we need this??
+		this.detectorChannelList = new GridListEditor(regionsGroup, SWT.NONE, columns, rows);
 
+		GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.CENTER).applyTo(detectorChannelList);
+		detectorChannelList.setEditorClass(DetectorElement.class);
 	}
 
 	public int getSelectedDetectorChannel() {
@@ -155,32 +161,8 @@ public class FluoDetectorRegionsComposite extends FieldBeanComposite {
 			public void selectionChanged(BeanSelectionEvent evt) {
 				controller.replot();
 				regionListComposite.getRegionList().setSelectedIndex(0);
-				// TODO and change the rois visible in the regionList
-				// plot(evt.getSelectionIndex(), false);
-				// if (bean instanceof XspressParameters) {
-				// XspressParameters xspress = (XspressParameters) bean;
-				// getDetectorElementComposite().getRegionList().setSelectedIndex(xspress.getSelectedRegionNumber());
-				// } else if (bean instanceof VortexParameters) {
-				// VortexParameters vortex = (VortexParameters) bean;
-				// getDetectorElementComposite().getRegionList().setSelectedIndex(vortex.getSelectedRegionNumber());
-				// }
 			}
 		});
-
-		// // TODO where should these two be?
-		//
-		// // change the behaviour of the plot based on the preference
-		// ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
-		// @Override
-		// public void propertyChange(PropertyChangeEvent event) {
-		// if (event.getProperty().compareTo(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED) == 0) {
-		// setRegionEditableFromPreference();
-		// }
-		// }
-		// });
-		//
-		// // setup the default dragging behaviour
-		// setRegionEditableFromPreference();
 	}
 
 	private void createApplyToAllPanel(Group regionsGroup) {
@@ -201,13 +183,13 @@ public class FluoDetectorRegionsComposite extends FieldBeanComposite {
 		final SelectionAdapter applyToAllListener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				// TODO applyToAll(true);
+				controller.applyToAll();
 			}
 		};
 		applyToAllButton.addSelectionListener(applyToAllListener);
 	}
 
-	public FieldComposite getDetectorList() {
+	public GridListEditor getDetectorList() {
 		return detectorChannelList;
 	}
 }

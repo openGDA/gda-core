@@ -328,7 +328,7 @@ public class Xspress3DataOperations {
 	 * @return
 	 * @throws DeviceException
 	 */
-	public double[][] getMCData(double time) throws DeviceException {
+	public int[][] getMCData(double time) throws DeviceException {
 		controller.doErase();
 		enableEpicsMcaStorage();
 		controller.doStart();
@@ -345,7 +345,7 @@ public class Xspress3DataOperations {
 
 		controller.doStop();
 
-		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, controller.getNumberOfChannels() - 1);
+		return getData();
 	}
 
 	public DetectorROI[] getRegionsOfInterest() {

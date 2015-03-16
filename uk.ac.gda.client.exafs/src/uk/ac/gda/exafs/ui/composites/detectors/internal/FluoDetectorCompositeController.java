@@ -18,61 +18,74 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
+import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import org.dawnsci.common.richbeans.beans.BeanUI;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.ui.IWorkbenchPartSite;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
+import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorComposite;
+import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 
 /**
  * Performs the work using shared objects and composites in this package.
  * <p>
  * This performs the interactions between these composites and the underlying detector object.
  */
-public class FluorescenceDetectorCompositeController {
+public class FluoDetectorCompositeController {
 
-	private static Logger logger = LoggerFactory.getLogger(FluorescenceDetectorCompositeController.class);
+	private static Logger logger = LoggerFactory.getLogger(FluoDetectorCompositeController.class);
 
 	private FluorescenceDetector theDetector;
-	private IWorkbenchPartSite mysite;
 	private FluorescenceDetectorComposite fluorescenceDetectorComposite;
 	private boolean continuousAquire;
 	private Thread continuousThread;
 	private SashFormPlotComposite sashFormPlot;
 	private ObservableComponent roiObservableComponent = new ObservableComponent();
+	private FluoCompositeDataStore dataStore;
+	private int[][] theData;
 
-	private double[][] theData;
+	private FileDialog openDialog;
 
-	public FluorescenceDetectorCompositeController(FluorescenceDetector theDetector, IWorkbenchPartSite site,
+	public FluoDetectorCompositeController(FluorescenceDetector theDetector,
 			FluorescenceDetectorComposite fluorescenceDetectorComposite) {
 		this.theDetector = theDetector;
-		this.mysite = site;
 		this.fluorescenceDetectorComposite = fluorescenceDetectorComposite;
 		sashFormPlot = fluorescenceDetectorComposite.getSashFormPlot();
 
@@ -93,6 +106,31 @@ public class FluorescenceDetectorCompositeController {
 				updateRoiUI(evt);
 			}
 		});
+
+		ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				if (event.getProperty().compareTo(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED) == 0) {
+					setRegionEditableFromPreference();
+				}
+			}
+		});
+
+		// setup the default dragging behaviour
+		setRegionEditableFromPreference();
+
+		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
+		String fileName = varDir + "/" + theDetector.getName() + "_editor_data.xml";
+		dataStore = new FluoCompositeDataStore(fileName);
+	}
+
+	private void setRegionEditableFromPreference() {
+
+		// TODO bug in dawn?? if this is changed then the drag whole roi seems to stop working.
+
+		sashFormPlot.getRegionOnDisplay().setMobile(
+				ExafsActivator.getDefault().getPreferenceStore()
+						.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED));
 	}
 
 	protected void updateRoiUI(ROIEvent evt) {
@@ -103,16 +141,17 @@ public class FluorescenceDetectorCompositeController {
 		return theDetector;
 	}
 
-	public IWorkbenchPartSite getSite() {
-		return mysite;
+	public Shell getShell() {
+		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 	}
 
 	public SashFormPlotComposite getSashFormPlot() {
 		return fluorescenceDetectorComposite.getSashFormPlot();
 	}
 
-	public void plot(final double[] theData) {
-		// final List<Dataset> data = unpackDataSets(theData);
+	public void plot(final int[] theData) {
+
+		// TODO we might be replotting due to reading old file, so do not necessarily want to have this title
 
 		String plotTitle;
 		// if (updateTitle) {
@@ -129,13 +168,14 @@ public class FluorescenceDetectorCompositeController {
 		// name += " " + plotTitle;
 		// data.get(i).setName(name);
 		// }
-
-		sashFormPlot.setDataSets(new DoubleDataset(theData));
+		Dataset dataset = DatasetFactory.createFromObject(theData);
+		sashFormPlot.setDataSets(dataset);
 		sashFormPlot.getPlottingSystem().setRescale(true);
 		sashFormPlot.plotData();
 		sashFormPlot.getPlottingSystem().setTitle(plotTitle);
 		// calculateAndPlotCountTotals(true); TODO
 		sashFormPlot.getPlottingSystem().setRescale(false);
+		sashFormPlot.getPlottingSystem().setShowLegend(false);
 	}
 
 	/**
@@ -200,7 +240,7 @@ public class FluorescenceDetectorCompositeController {
 
 	void singleAcquire(final double collectionTimeValue, final boolean writeToDisk) throws Exception {
 
-		IProgressService service = (IProgressService) getSite().getService(IProgressService.class);
+		IProgressService service = (IProgressService) PlatformUI.getWorkbench().getService(IProgressService.class);
 		service.run(true, true, new IRunnableWithProgress() {
 
 			@Override
@@ -223,7 +263,7 @@ public class FluorescenceDetectorCompositeController {
 
 		try {
 			theData = theDetector.getMCData(collectionTimeValue);
-			// TODO persist a copy of data storeDataInWrapper(theData);
+			dataStore.writeDataToFile(theData);
 
 			if (monitor != null) {
 				monitor.worked(1);
@@ -243,7 +283,6 @@ public class FluorescenceDetectorCompositeController {
 		} catch (DeviceException e) {
 			logAndDisplayErrorMessage("Exception reading out detector data",
 					"Hardware problem acquiring data. See log for details.", "Exception reading out detector data.", e);
-			return;
 		} catch (IOException e) {
 			logAndDisplayErrorMessage("Exception writing out detector data",
 					"Problem recording data. See log for details.", "Exception writing out detector data.", e);
@@ -267,35 +306,19 @@ public class FluorescenceDetectorCompositeController {
 	}
 
 	private void saveDataToFile() throws IOException {
-		String spoolDirPath = PathConstructor.createFromDefaultProperty();
 		String snapshotPrefix = theDetector.getName() + "_snapshot";
 		long snapShotNumber = new NumTracker(snapshotPrefix).incrementNumber();
 		String fileName = snapshotPrefix + snapShotNumber + ".mca";
+
+		String spoolDirPath = PathConstructor.createFromDefaultProperty();
 		File filePath = new File(spoolDirPath + "/" + fileName);
 		String spoolFilePath = filePath.getAbsolutePath();
-		save(theData, spoolFilePath);
+
+		FluoCompositeDataStore newStore = new FluoCompositeDataStore(spoolFilePath);
+		newStore.writeDataToFile(theData);
+
 		String msg = "Saved: " + spoolFilePath;
 		sashFormPlot.appendStatus(msg, logger);
-	}
-
-	private void save(double[][] data, String filePath) {
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
-
-			StringBuilder toWrite = new StringBuilder();
-			for (int i = 0; i < data.length; i++) {
-				for (int j = 0; j < data[0].length; j++) {
-					toWrite.append(data[i][j]);
-					toWrite.append("\t");
-				}
-				toWrite.append("\n");
-				writer.write(toWrite.toString());
-				toWrite.delete(0, toWrite.length());
-			}
-			writer.close();
-		} catch (IOException e) {
-			logger.warn("Exception writing acquire data to xml file", e);
-		}
 	}
 
 	public void dispose() {
@@ -303,15 +326,18 @@ public class FluorescenceDetectorCompositeController {
 	}
 
 	public void replot() {
+		if (theData == null) {
+			loadDataFromStore();
+		}
 
 		if (theData != null) {
-
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					// getDetectorElementComposite().setEndMaximum(detectorData[0][0].length - 1);
 					// plot(getDetectorList().getSelectedIndex(), true);
-					plot(theData[fluorescenceDetectorComposite.getRegionsComposite().getSelectedDetectorChannel()]);
+					int channel = fluorescenceDetectorComposite.getRegionsComposite().getSelectedDetectorChannel();
+					plot(theData[channel]);
 					// setEnabled(true);
 					// lblDeadTime.setVisible(true);
 					// deadTimeLabel.setVisible(true);
@@ -319,6 +345,10 @@ public class FluorescenceDetectorCompositeController {
 				}
 			});
 		}
+	}
+
+	private void loadDataFromStore() {
+		theData = dataStore.readDataFromFile();
 	}
 
 	public void updatePlottedRegion(int roiStart, int roiEnd) {
@@ -340,23 +370,93 @@ public class FluorescenceDetectorCompositeController {
 
 	public void applyConfigurationToDetector() {
 		try {
-			theDetector.applyConfigurationParameters((FluorescenceDetectorParameters) fluorescenceDetectorComposite.getBean());
+			theDetector.applyConfigurationParameters((FluorescenceDetectorParameters) fluorescenceDetectorComposite
+					.getBean());
 			sashFormPlot.appendStatus("Successfully applied settings to detector", logger);
-			
+
 		} catch (DeviceException de) {
 			logAndDisplayErrorMessage("Exception applying detector settings",
 					"Hardware problem applying detector settings. See log for details.",
-					"Exception applying detector settings.",
-					de);
+					"Exception applying detector settings.", de);
 		} catch (Exception ex) {
 			logAndDisplayErrorMessage("Exception applying detector settings",
 					"Internal error while applying detector settings. See log for details.",
-					"Exception applying detector settings.",
-					ex);
+					"Exception applying detector settings.", ex);
 		}
 	}
 
 	public void fetchConfigurationFromDetector() {
 		// TODO
 	}
+
+	public void loadAcquireDataFromFile() {
+		if (openDialog == null) {
+			openDialog = new FileDialog(getShell(), SWT.OPEN);
+		}
+
+		String dataDir = PathConstructor.createFromDefaultProperty();
+		openDialog.setFilterPath(dataDir);
+		openDialog.setFilterNames(new String[] { "*.mca" });
+		final String filePath = openDialog.open();
+		if (filePath != null) {
+
+			FluoCompositeDataStore newStore = new FluoCompositeDataStore(filePath);
+			theData = newStore.readDataFromFile();
+			replot();
+
+			final String msg = ("Loading map from " + filePath);
+			Job job = new Job(msg) {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					FluoCompositeDataStore newStore = new FluoCompositeDataStore(filePath);
+					theData = newStore.readDataFromFile();
+					replot();
+					return Status.OK_STATUS;
+				}
+
+			};
+			job.setUser(true);
+			job.schedule();
+		}
+	}
+
+	protected void applyToAll() {
+
+		if (!MessageDialog
+				.openConfirm(
+						getShell(),
+						"Confirm Apply To All",
+						"Do you want to apply currently selected elements regions of interest to all detecors?\n\nThis will write new regions for the elements automatically.")) {
+			return;
+		}
+
+		final int currentIndex = fluorescenceDetectorComposite.getRegionsComposite().getSelectedDetectorChannel();
+
+		FluorescenceDetectorParameters editorBean = fluorescenceDetectorComposite.getDataModel();
+
+		int numChannels = editorBean.getDetectorList().size();
+
+		List<DetectorElement> newElements = new ArrayList<DetectorElement>();
+		for (int i = 0; i < numChannels; i++) {
+			DetectorElement newElement = new DetectorElement();
+			newElement.setName(editorBean.getDetectorList().get(i).getName());
+			newElement.setNumber(editorBean.getDetectorList().get(i).getNumber());
+			newElement.setRegionList(editorBean.getDetectorList().get(currentIndex).getRegionList());
+			newElements.add(newElement);
+		}
+		editorBean.setDetectorList(newElements);
+
+		try {
+			BeanUI.switchState(editorBean, fluorescenceDetectorComposite.getEditorUI(), false);
+			BeanUI.fireValueListeners(editorBean, fluorescenceDetectorComposite.getEditorUI());
+			BeanUI.beanToUI(editorBean, fluorescenceDetectorComposite.getEditorUI());
+			BeanUI.switchState(editorBean, fluorescenceDetectorComposite.getEditorUI(), true);
+		} catch (Exception e) {
+			// should never get an exception here as this means that there is a wiring problem between the UI and the
+			// bean, which would already have manifested itself by the time we get to this point
+			logger.debug("Unexpected exception when applying to all", e);
+		}
+
+	}
+
 }

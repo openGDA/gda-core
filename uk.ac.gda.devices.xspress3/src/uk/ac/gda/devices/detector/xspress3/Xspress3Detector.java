@@ -516,7 +516,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * @return
 	 * @throws DeviceException
 	 */
-	public double[][] getMCData(double time) throws DeviceException {
+	public int[][] getMCData(double time) throws DeviceException {
 		controller.doErase();
 		controller.doStart();
 		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only
@@ -541,7 +541,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 		controller.doStop();
 
-		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, controller.getNumberOfChannels() - 1);
+		return getData();
 	}
 
 	public int getFirstChannelToRead() {

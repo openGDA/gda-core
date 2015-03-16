@@ -261,7 +261,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		xspress3Detector.atLevelMoveStart();
 	}
 
-	public double[][] getMCData(double time) throws DeviceException {
+	public int[][] getMCData(double time) throws DeviceException {
 		return xspress3Detector.getMCData(time);
 	}
 

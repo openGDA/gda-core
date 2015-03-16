@@ -110,7 +110,7 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	}
 
 	@Override
-	public double[][] getMCData(double time) throws DeviceException {
+	public int[][] getMCData(double time) throws DeviceException {
 		return dataOperations.getMCData(time);
 	}
 

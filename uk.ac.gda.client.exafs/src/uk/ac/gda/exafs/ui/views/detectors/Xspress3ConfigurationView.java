@@ -18,14 +18,12 @@
 
 package uk.ac.gda.exafs.ui.views.detectors;
 
-import gda.factory.Finder;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
-import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorComposite;
+import uk.ac.gda.exafs.ui.composites.detectors.Xspress3ParametersComposite;
 
 /**
  * Configures the regions of interest of an Xspress3 detector. Name is hardcoded but could be replaced with a java
@@ -34,15 +32,14 @@ import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorComposite;
 public class Xspress3ConfigurationView extends ViewPart implements FluorescenceConfigurationView {
 
 	public static final String ID = "uk.ac.gda.client.exafs.ui.views.detectors.xspress3";
-	private FluorescenceDetectorComposite x3Composite;
+	private Xspress3ParametersComposite x3Composite;
 
 	public Xspress3ConfigurationView() {
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-		FluorescenceDetector theDetector = (FluorescenceDetector) Finder.getInstance().find("xspress3");
-		x3Composite = new FluorescenceDetectorComposite(parent, SWT.NONE, this, theDetector);
+		x3Composite = new Xspress3ParametersComposite(parent, SWT.NONE);
 	}
 
 	@Override
@@ -57,7 +54,7 @@ public class Xspress3ConfigurationView extends ViewPart implements FluorescenceC
 	}
 
 	public FluorescenceDetectorComposite getFluorescenceDetectorComposite() {
-		return x3Composite;
+		return x3Composite.getFluorescenceDetectorComposite();
 	}
 
 	@Override

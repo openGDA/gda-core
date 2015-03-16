@@ -41,10 +41,9 @@ public class FluoDetectorROIComposite extends FieldBeanComposite implements IObs
 	private ScaleBox roiEnd;
 	private LabelWrapper counts;
 	private TextWrapper roiName;
-	private FluorescenceDetectorCompositeController controller;
-	protected boolean updatingFromUI;
+	private FluoDetectorCompositeController controller;
 
-	public FluoDetectorROIComposite(Composite parent, int style, FluorescenceDetectorCompositeController controller) {
+	public FluoDetectorROIComposite(Composite parent, int style, FluoDetectorCompositeController controller) {
 		super(parent, style);
 		this.controller = controller;
 		setLayout(new GridLayout(2, false));
