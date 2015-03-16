@@ -104,6 +104,9 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 
 	public ARPESScanBeanComposite(final Composite parent, int style, final RichBeanEditorPart editor) {
 		super(parent, style);
+		
+		//Switch off undoing as it doesn't work when box values are programatically updated
+		editor.setUndoStackActive(false);
 
 		// Load the analyser capabilities
 		capabilities = (AnalyserCapabilties) Finder.getInstance()
@@ -375,7 +378,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			passMap.remove("100 eV"); // PE=100 eV not possible in Low Pass
 		}
 		else {
-			System.out.println("PSU mode not detected!"); //For debugging.
+			logger.warn("PSU mode not detected!");
 		}
 		passEnergy.setItems(passMap);
 	}
