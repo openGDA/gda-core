@@ -118,8 +118,6 @@ public class TomoPlotComposite extends Composite {
 
 	private MODE mode = MODE.NONE;
 
-	private static final String REGION_FIT2 = "RegionFit2";
-
 	private static final Logger logger = LoggerFactory.getLogger(TomoPlotComposite.class);
 
 	private IPlottingSystem plottingSystem;
@@ -546,8 +544,10 @@ public class TomoPlotComposite extends Composite {
 
 					plottingSystem.clearRegions();
 					if (tiltPoints.getEllipse1() != null) {
-						IRegion region1 = plottingSystem.createRegion(
-								RegionUtils.getUniqueName("RegionFit1", plottingSystem), RegionType.POLYGON);
+						IRegion region1 = plottingSystem.getRegion("Pre Tilt");
+						if (region1 == null) {
+							region1 = plottingSystem.createRegion("Pre Tilt", RegionType.POLYGON);
+						}
 						region1.setLineWidth(1);
 						region1.setRegionColor(ColorConstants.black);
 
@@ -560,14 +560,16 @@ public class TomoPlotComposite extends Composite {
 //						region1.setROI(new EllipticalFitROI(roi1));
 						region1.setROI(roi1);
 						region1.setMobile(false);
-						region1.setName("Pre Tilt");
 					}
 					if (tiltPoints.getEllipse2() != null) {
 						//
-						IRegion region2 = plottingSystem.createRegion(
-								RegionUtils.getUniqueName(REGION_FIT2, plottingSystem), RegionType.ELLIPSEFIT);
+						IRegion region2 = plottingSystem.getRegion("Post Tilt");
+						if (region2 == null) {
+							region2 = plottingSystem.createRegion("Post Tilt", RegionType.ELLIPSEFIT);
+						}
 						region2.setLineWidth(1);
 						region2.setRegionColor(ColorConstants.orange);
+
 						PolygonalROI roi2 = new PolygonalROI();
 						for (DoublePoint dp : tiltPoints.getEllipse2().getDoublePointList()) {
 							roi2.insertPoint(dp.getX(), dp.getY());
@@ -576,7 +578,6 @@ public class TomoPlotComposite extends Composite {
 						plottingSystem.addRegion(region2);
 						region2.setROI(new EllipticalFitROI(roi2));
 						region2.setMobile(false);
-						region2.setName("Post Tilt");
 					}
 					if (tiltPoints.getTiltPointsTitle() != null) {
 						plottingSystem.setTitle(tiltPoints.getTiltPointsTitle());
