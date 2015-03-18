@@ -262,9 +262,9 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 			newMetadataString = existingMetadataString;
 		}
 
-		String filePathRelativeToDataDirIfPossible = getFilePathRelativeToDataDirIfPossible();
+		String fileDirRelativeToDataDirIfPossible = getFileDirRelativeToDataDirIfPossible();
 		String template = (getFileTemplateForReadout() == null) ? getFileTemplate() : getFileTemplateForReadout();
-		String newValue = StringUtils.replaceOnce(template, "%s", filePathRelativeToDataDirIfPossible + "/");
+		String newValue = StringUtils.replaceOnce(template, "%s", fileDirRelativeToDataDirIfPossible + "/");
 		newValue = StringUtils.replaceOnce(newValue, "%s", getFileName());
 		String newKey = getkeyNameForMetadataPathTemplate();
 		jythonNamespace.placeInJythonNamespace("SRSWriteAtFileCreation", newMetadataString + newKey + "='" + newValue
@@ -397,7 +397,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 							"If configured to return a path relative to the datadir, the configured filePathTemplate must begin wiht $datadir$. It is :'"
 									+ getFilePathTemplate() + "'");
 				}
-				filepath = getFilePathRelativeToDataDirIfPossible();
+				filepath = getRelativeFilePath();
 			} else {
 				filepath = getFullFileName();
 			}

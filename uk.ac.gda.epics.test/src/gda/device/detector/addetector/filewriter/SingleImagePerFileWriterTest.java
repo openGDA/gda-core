@@ -19,10 +19,16 @@
 package gda.device.detector.addetector.filewriter;
 
 import static org.junit.Assert.*;
+
+import java.util.List;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
+import gda.device.detector.NXDetectorDataWithFilepathForSrs;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorDataFileAppenderForSrs;
 import gda.jython.ICurrentScanInformationHolder;
 import gda.jython.IJythonNamespace;
 import gda.jython.ITerminalPrinter;
@@ -32,6 +38,7 @@ import gda.scan.ScanInformation;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import static org.mockito.Mockito.*;
 
 
@@ -56,8 +63,9 @@ public class SingleImagePerFileWriterTest {
 		when(mockNdFile.createWriteStatusObservable()).thenReturn(new ObservableUtil<Short>());
 		writer = new SingleImagePerFileWriter("detname");
 		writer.setNdFile(mockNdFile);
+		writer.setWaitForFileArrival(false);
 		writer.afterPropertiesSet();
-		LocalProperties.set(PathConstructor.getDefaultPropertyName(), "path/to/datadir");
+		LocalProperties.set(PathConstructor.getDefaultPropertyName(), "absolute/path/to/datadir");
 		configureScanInformationHolder();
 		InterfaceProvider.setTerminalPrinterForTesting(mock(ITerminalPrinter.class));
 		
@@ -79,7 +87,7 @@ public class SingleImagePerFileWriterTest {
 
 	@Test
 	public void testGetFilePathDefault() {
-		assertEquals("path/to/datadir/12345-detname-files", writer.getFilePath());
+		assertEquals("absolute/path/to/datadir/12345-detname-files", writer.getFilePath());
 	}
 	
 	@Test
@@ -127,5 +135,25 @@ public class SingleImagePerFileWriterTest {
 		verify(namespace).placeInJythonNamespace("SRSWriteAtFileCreation", expected);
 		
 	}
-	
+
+	@Test
+	public void testFilePathsOnRead() throws Exception {
+		writer.prepareForCollection(3, null);
+		List<NXDetectorDataAppender> readValues = writer.read(Integer.MAX_VALUE);
+		NXDetectorDataFileAppenderForSrs value = (NXDetectorDataFileAppenderForSrs)readValues.get(0);
+		NXDetectorDataWithFilepathForSrs data = new NXDetectorDataWithFilepathForSrs();
+		value.appendTo(data, "detname");
+		assertEquals(data.getFilepath(), "absolute/path/to/datadir/12345-detname-files/00001.tif");
+	}
+
+	@Test
+	public void testRelativeFilePathsOnRead() throws Exception {
+		writer.setReturnPathRelativeToDatadir(true);
+		writer.prepareForCollection(3, null);
+		List<NXDetectorDataAppender> readValues = writer.read(Integer.MAX_VALUE);
+		NXDetectorDataFileAppenderForSrs value = (NXDetectorDataFileAppenderForSrs)readValues.get(0);
+		NXDetectorDataWithFilepathForSrs data = new NXDetectorDataWithFilepathForSrs();
+		value.appendTo(data, "detname");
+		assertEquals(data.getFilepath(), "12345-detname-files/00001.tif");
+	}
 }
