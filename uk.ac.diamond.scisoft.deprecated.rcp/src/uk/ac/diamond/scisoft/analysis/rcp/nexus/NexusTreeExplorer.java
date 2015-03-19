@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -372,7 +372,7 @@ public class NexusTreeExplorer extends Composite implements IObserver, ISelectio
 	private boolean isNodeAnExternalFilePath(INexusTree node){
 		if( node.getNxClass().equals(NexusExtractor.SDSClassName) && node.getAttribute(DATA_FILENAME_ATTR_NAME)!=null){
 			NexusGroupData g = node.getData();
-			return (g != null && g.type == NexusFile.NX_CHAR);
+			return (g != null && g.type == NexusGlobals.NX_CHAR);
 		}
 		return false;
 		
@@ -380,7 +380,7 @@ public class NexusTreeExplorer extends Composite implements IObserver, ISelectio
 	
 	private boolean processTextNode(INexusTree node) {
 		NexusGroupData g = node.getData();
-		if (g != null && g.type == NexusFile.NX_CHAR) {
+		if (g != null && g.type == NexusGlobals.NX_CHAR) {
 			try {
 				Serializable buf = g.getBuffer();
 				if (buf == null) {
@@ -512,7 +512,7 @@ public class NexusTreeExplorer extends Composite implements IObserver, ISelectio
 						continue;
 
 					NexusGroupData g = n.getData();
-					if (g != null && g.type != NexusFile.NX_CHAR) {
+					if (g != null && g.type != NexusGlobals.NX_CHAR) {
 						HashMap<String, Serializable> attributes = n.getAttributes();
 
 						if (attributes != null && attributes.containsKey("signal"))

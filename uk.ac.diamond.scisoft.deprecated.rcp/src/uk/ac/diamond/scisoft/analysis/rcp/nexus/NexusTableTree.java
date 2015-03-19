@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -255,37 +255,37 @@ class NexusLabelProvider implements ITableLabelProvider {
 				break;
 			case 3: // type
 				switch (gData.type) {
-				case NexusFile.NX_CHAR:
+				case NexusGlobals.NX_CHAR:
 					msg = "CHAR";
 					break;
-				case NexusFile.NX_FLOAT64:
+				case NexusGlobals.NX_FLOAT64:
 					msg = "FLT64";
 					break;
-				case NexusFile.NX_FLOAT32:
+				case NexusGlobals.NX_FLOAT32:
 					msg = "FLT32";
 					break;
-				case NexusFile.NX_INT64:
+				case NexusGlobals.NX_INT64:
 					msg = "INT64";
 					break;
-				case NexusFile.NX_UINT64:
+				case NexusGlobals.NX_UINT64:
 					msg = "UINT64";
 					break;
-				case NexusFile.NX_INT32:
+				case NexusGlobals.NX_INT32:
 					msg = "INT32";
 					break;
-				case NexusFile.NX_UINT32:
+				case NexusGlobals.NX_UINT32:
 					msg = "UINT32";
 					break;
-				case NexusFile.NX_INT16:
+				case NexusGlobals.NX_INT16:
 					msg = "INT16";
 					break;
-				case NexusFile.NX_UINT16:
+				case NexusGlobals.NX_UINT16:
 					msg = "UINT16";
 					break;
-				case NexusFile.NX_INT8:
+				case NexusGlobals.NX_INT8:
 					msg = "INT8";
 					break;
-				case NexusFile.NX_UINT8:
+				case NexusGlobals.NX_UINT8:
 					msg = "UINT8";
 					break;
 				default:
@@ -295,7 +295,7 @@ class NexusLabelProvider implements ITableLabelProvider {
 				break;
 			case 4: // data
 				msg = "double-click to view";
-				if (gData.type == NexusFile.NX_CHAR) {
+				if (gData.type == NexusGlobals.NX_CHAR) {
 					NexusGroupData ngd;
 					try {
 						ngd = NexusExtractor.getNexusGroupDataWithBuffer(nTNode, true);
