@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -189,7 +189,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 	}
 
 	INexusTree makeNexusTreeNode(String label, double data) {
-		NexusGroupData groupData = new NexusGroupData(new int[] { 1 }, NexusFile.NX_FLOAT64, new double[] { data });
+		NexusGroupData groupData = new NexusGroupData(new int[] { 1 }, NexusGlobals.NX_FLOAT64, new double[] { data });
 		return new NexusTreeNode(label, NexusExtractor.SDSClassName, null, groupData);
 	}
 
@@ -380,7 +380,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 							new NexusGroupData(1)));
 					fileNameNode.addChildNode(new NexusTreeNode("axes", NexusExtractor.AttrClassName, fileNameNode,
 							new NexusGroupData("time")));
-					data.addAxis(name, "time", new int[] { timesCurrentAcq2.length }, NexusFile.NX_FLOAT64,
+					data.addAxis(name, "time", new int[] { timesCurrentAcq2.length }, NexusGlobals.NX_FLOAT64,
 							timesCurrentAcq2, 1, 1, "s", false);
 				}
 				// must match the list of input and extra names
@@ -402,7 +402,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 							new NexusGroupData(1)));
 					fileNameNode.addChildNode(new NexusTreeNode("axes", NexusExtractor.AttrClassName, fileNameNode,
 							new NexusGroupData("time")));
-					data.addAxis(name, "time", new int[] { timesCurrentAcq2.length }, NexusFile.NX_FLOAT64,
+					data.addAxis(name, "time", new int[] { timesCurrentAcq2.length }, NexusGlobals.NX_FLOAT64,
 							timesCurrentAcq2, 1, 1, "s", false);
 				}
 				// add filename as an NXNote
