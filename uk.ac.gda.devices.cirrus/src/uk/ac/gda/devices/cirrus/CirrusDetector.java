@@ -30,7 +30,7 @@ import gda.factory.FactoryException;
 import mksAsciiComms.JMeasurement;
 import mksAsciiComms.JReadings;
 
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 
 /**
  * Operates the Cirrus mass spectrometer in scans as a detector.
@@ -165,7 +165,7 @@ public class CirrusDetector extends DetectorBase implements NexusDetector {
 			dblFullResults[i][1] = counts;
 			dblFullResults[i][0] = mass;
 		}
-		nxdata.addData(detTree, "masses", new int[] { results.length, 2 }, NexusFile.NX_FLOAT64, dblFullResults,
+		nxdata.addData(detTree, "masses", new int[] { results.length, 2 }, NexusGlobals.NX_FLOAT64, dblFullResults,
 				"mbar", 1);
 		
 		return nxdata;
