@@ -26,7 +26,7 @@ import gda.device.DeviceException;
 import gda.device.currentamplifier.ScalingAndOffset;
 import gda.device.detector.NXDetectorData;
 
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,12 +54,12 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implemen
 		for (float i: data) {
 			sum += i;
 		}
-		ngd = new NexusGroupData(datadims, NexusFile.NX_FLOAT32, data);
+		ngd = new NexusGroupData(datadims, NexusGlobals.NX_FLOAT32, data);
 		ngd.isDetectorEntryData = true;
 		addMonitorData(nxdata, getName(), label, ngd, units, 1, desc, null);
 
 		nxdata.setPlottableValue(getName(), sum);
-		ngd = new NexusGroupData(new int[]{1}, NexusFile.NX_FLOAT64, new double[] {sum});
+		ngd = new NexusGroupData(new int[]{1}, NexusGlobals.NX_FLOAT64, new double[] {sum});
 		ngd.isDetectorEntryData = true;
 		addMonitorData(nxdata, getName(), "framesetsum", ngd, units, null, null, "ncddetectors."+getName());
 		//FIXME hardcoding of ncddetectors
@@ -83,7 +83,7 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implemen
 		if (signalVal != null) {
 			Integer[] signalValArray = {signalVal};
 			data.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, data,
-					new NexusGroupData(new int[] {signalValArray.length}, NexusFile.NX_INT32, signalValArray)));
+					new NexusGroupData(new int[] {signalValArray.length}, NexusGlobals.NX_INT32, signalValArray)));
 		}
 		if (local_name != null) {
 			data.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, data,

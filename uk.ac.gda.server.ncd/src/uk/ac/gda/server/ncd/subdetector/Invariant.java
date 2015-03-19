@@ -25,7 +25,7 @@ import gda.device.detector.NXDetectorData;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ public class Invariant extends ReductionDetectorBase {
 			if (parentngd == null) return;
 			uk.ac.diamond.scisoft.ncd.core.Invariant inv = new uk.ac.diamond.scisoft.ncd.core.Invariant();
 			float[] mydata = inv.process(parentngd.getBuffer(), parentngd.dimensions);
-			NexusGroupData myngd = new NexusGroupData(new int[] {parentngd.dimensions[0]}, NexusFile.NX_FLOAT32, mydata);
+			NexusGroupData myngd = new NexusGroupData(new int[] {parentngd.dimensions[0]}, NexusGlobals.NX_FLOAT32, mydata);
 			myngd.isDetectorEntryData = true;
 			nxdata.addData(getName(), myngd, "1", 1);
 			addMetadata(nxdata);

@@ -30,7 +30,7 @@ import gda.factory.Finder;
 
 import java.util.List;
 
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,14 +107,14 @@ public class NcdXmapDetector extends NcdSubDetector  {
 		xmapcontroller.stop();
 		int[][] detectorData = xmapcontroller.getData();
 		
-		NexusGroupData ngd = new NexusGroupData(new int[]{detectorData[0].length}, NexusFile.NX_INT32, detectorData[0]);
+		NexusGroupData ngd = new NexusGroupData(new int[]{detectorData[0].length}, NexusGlobals.NX_INT32, detectorData[0]);
 		ngd.isDetectorEntryData = true;
 		dataTree.addData(getTreeName(), ngd, "counts", 1);
 
 		if (xmapcontroller instanceof EpicsXmapController) {
 			EpicsXmapController emc = (EpicsXmapController) xmapcontroller;
 			double[] energyaxis = emc.getEnergyBins()[0];
-			NexusGroupData angd = new NexusGroupData(new int[]{energyaxis.length}, NexusFile.NX_FLOAT64, energyaxis);
+			NexusGroupData angd = new NexusGroupData(new int[]{energyaxis.length}, NexusGlobals.NX_FLOAT64, energyaxis);
 			dataTree.addAxis(getTreeName(), "energy", angd, 1, 1, "keV", false);
 		}
 		

@@ -25,7 +25,7 @@ import gda.device.detector.NXDetectorData;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +64,7 @@ public class BackgroundSubtraction extends ReductionDetectorBase {
 			uk.ac.diamond.scisoft.ncd.core.BackgroundSubtraction bs = new uk.ac.diamond.scisoft.ncd.core.BackgroundSubtraction();
 			bs.setBackground(background);
 			float[] mydata = bs.process(parentngd.getBuffer(), parentngd.dimensions);
-			NexusGroupData myngd = new NexusGroupData(parentngd.dimensions, NexusFile.NX_FLOAT32, mydata);
+			NexusGroupData myngd = new NexusGroupData(parentngd.dimensions, NexusGlobals.NX_FLOAT32, mydata);
 			myngd.isDetectorEntryData = true;
 			nxdata.addData(getName(), myngd, "1", 1);
 			addQAxis(nxdata, parentngd.dimensions.length);

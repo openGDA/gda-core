@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +91,7 @@ public class NcdWireDetector extends NcdSubDetector implements INcdSubDetector {
 
 		datadims = ArrayUtils.add(datadims, 0, frames);
 
-		NexusGroupData ngd = new NexusGroupData(datadims, NexusFile.NX_FLOAT32, data);
+		NexusGroupData ngd = new NexusGroupData(datadims, NexusGlobals.NX_FLOAT32, data);
 		ngd.isDetectorEntryData = true;
 		nxdata.addData(getTreeName(), ngd, "counts", 1, getInterpretation());
 

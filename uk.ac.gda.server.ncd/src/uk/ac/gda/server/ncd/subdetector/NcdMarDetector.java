@@ -34,7 +34,7 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 
 public class NcdMarDetector extends NcdSubDetector implements LastImageProvider {
 
@@ -79,7 +79,7 @@ public class NcdMarDetector extends NcdSubDetector implements LastImageProvider 
 
 		lastData = new FloatDataset(data, datadims);
 		
-		NexusGroupData ngd = new NexusGroupData(ArrayUtils.add(datadims, 0, 1), NexusFile.NX_FLOAT32, data);
+		NexusGroupData ngd = new NexusGroupData(ArrayUtils.add(datadims, 0, 1), NexusGlobals.NX_FLOAT32, data);
 		ngd.isDetectorEntryData = true;
 		dataTree.addData(getName(), ngd, "counts", 1);
 		
@@ -102,7 +102,7 @@ public class NcdMarDetector extends NcdSubDetector implements LastImageProvider 
 		}
 		
 		if (getPixelSize() != 0.0) {
-			ngd = new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[]{getPixelSize()});
+			ngd = new NexusGroupData(new int[] {1}, NexusGlobals.NX_FLOAT64, new double[]{getPixelSize()});
 			ngd.isDetectorEntryData = false;
 			
 			
