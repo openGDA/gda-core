@@ -198,7 +198,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		GridData gd_psuMode = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
 		gd_psuMode.widthHint = 200;
 		psuMode.setLayoutData(gd_psuMode);
-		updatePsuMode(); // Call to get current PSU mode as panel is building
+		psuMode.setText("Not detected!");
 
 		// Lens Mode
 		lblLensMode = new Label(this, SWT.NONE);
@@ -219,7 +219,6 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		GridData gd_passEnergy = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_passEnergy.widthHint = 200;
 		passEnergy.setLayoutData(gd_passEnergy);
-		updatePassEnergy();
 		passEnergy.addValueListener(this);
 
 		// Fixed or swept radio box
@@ -349,10 +348,20 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		lblConfigureOnly.setText("Configure Only");
 		configureOnly = new BooleanWrapper(this, SWT.NONE);
 		configureOnly.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		//Call to get current PSU mode as panel is building
+		//Only call after creating all GUI objects
+		updatePsuMode(); 
 	}
 
 	private void updatePsuMode() {
-		psuMode.setText(InterfaceProvider.getCommandRunner().evaluateCommand("psu_mode()"));
+		String newPsuMode = InterfaceProvider.getCommandRunner().evaluateCommand("psu_mode()").trim();
+		if (!newPsuMode.equals(psuMode.getText())){
+			//If PSU mode has changed update GUI
+			logger.info("PSU mode change detected! New PSU mode = " + newPsuMode);
+			psuMode.setText(newPsuMode);
+			updatePassEnergy();
+		}
 	}
 
 	// Sets the available pass energies from the analyser capabilities + PSU mode
@@ -368,17 +377,16 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			passMap.put(String.format("%d eV", s), s);
 		}
 		// Remove Pass energies from drop down not possible with current psu_mode
-		updatePsuMode();
-		if (psuMode.equals("High Pass (XPS)")) {
+		if (psuMode.getText().equals("High Pass (XPS)")) {
 			passMap.remove("1 eV"); // PE=1 eV not possible in High Pass
 			passMap.remove("2 eV"); // PE=2 eV not possible in High Pass
 		}
-		else if (psuMode.equals("Low Pass (UPS)")) {
+		else if (psuMode.getText().equals("Low Pass (UPS)")) {
 			passMap.remove("50 eV"); // PE=50 eV not possible in Low Pass
 			passMap.remove("100 eV"); // PE=100 eV not possible in Low Pass
 		}
 		else {
-			logger.warn("PSU mode not detected!");
+			logger.warn("PSU mode not matched! Got PSU mode = " + psuMode.getText());
 		}
 		passEnergy.setItems(passMap);
 	}
