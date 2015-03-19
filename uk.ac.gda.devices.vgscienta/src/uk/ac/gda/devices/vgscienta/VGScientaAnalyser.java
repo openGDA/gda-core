@@ -45,7 +45,7 @@ import gov.aps.jca.event.MonitorListener;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -256,13 +256,13 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 
 		if (kineticEnergyChangesDuringScan || firstReadoutInScan) {
 			double[] axis = getEnergyAxis();
-			data.addAxis(getName(), "energies", new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, 2, 1, "eV", kineticEnergyChangesDuringScan);
+			data.addAxis(getName(), "energies", new int[] { axis.length }, NexusGlobals.NX_FLOAT64, axis, 2, 1, "eV", kineticEnergyChangesDuringScan);
 		}
 
 		if (firstReadoutInScan) { // place in entry1/instrument/analyser(NXdetector) group.
-			data.addData(getName(), "kinetic_energy_start",  new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { getStartEnergy() }),  "eV", null);
-			data.addData(getName(), "kinetic_energy_center", new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { (Double) centre_energy.getPosition() }), "eV", null);
-			data.addData(getName(), "kinetic_energy_end",    new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { getEndEnergy() }),    "eV", null);
+			data.addData(getName(), "kinetic_energy_start",  new NexusGroupData(new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { getStartEnergy() }),  "eV", null);
+			data.addData(getName(), "kinetic_energy_center", new NexusGroupData(new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { (Double) centre_energy.getPosition() }), "eV", null);
+			data.addData(getName(), "kinetic_energy_end",    new NexusGroupData(new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { getEndEnergy() }),    "eV", null);
 						
 		}
 				
@@ -276,29 +276,29 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 				aunit = "degree";
 			}
 			double[] axis = getAngleAxis();
-			data.addAxis(getName(), aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, 1, 1, aunit, false);
+			data.addAxis(getName(), aname, new int[] { axis.length }, NexusGlobals.NX_FLOAT64, axis, 1, 1, aunit, false);
 
 			data.addData(getName(), "lens_mode", new NexusGroupData(getLensMode()), null, null);
 			data.addData(getName(), "acquisition_mode", new NexusGroupData(controller.getAcquisitionMode()), null, null);
-			data.addData(getName(), "pass_energy", new NexusGroupData(new int[] {1}, NexusFile.NX_INT32, new int[] { getPassEnergy() }), "eV", null);
+			data.addData(getName(), "pass_energy", new NexusGroupData(new int[] {1}, NexusGlobals.NX_INT32, new int[] { getPassEnergy() }), "eV", null);
 			data.addData(getName(), "psu_mode", new NexusGroupData(getPsuMode()), null, null);
-			data.addData(getName(), "number_of_frames", new NexusGroupData(new int[] {1}, NexusFile.NX_INT32, new int[] { controller.getFrames() }), null, null);
-			data.addData(getName(), "time_for_frames", new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { getAdBase().getAcquireTime_RBV() }), "s", null);
-			data.addData(getName(), "sensor_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV() }), null, null);
-			data.addData(getName(), "region_origin", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMinX_RBV(), getAdBase().getMinY_RBV() }), null, null);
-			data.addData(getName(), "region_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getSizeX_RBV(), getAdBase().getSizeY_RBV() }), null, null);
+			data.addData(getName(), "number_of_frames", new NexusGroupData(new int[] {1}, NexusGlobals.NX_INT32, new int[] { controller.getFrames() }), null, null);
+			data.addData(getName(), "time_for_frames", new NexusGroupData(new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { getAdBase().getAcquireTime_RBV() }), "s", null);
+			data.addData(getName(), "sensor_size", new NexusGroupData(new int[] {2}, NexusGlobals.NX_INT32, new int[] { getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV() }), null, null);
+			data.addData(getName(), "region_origin", new NexusGroupData(new int[] {2}, NexusGlobals.NX_INT32, new int[] { getAdBase().getMinX_RBV(), getAdBase().getMinY_RBV() }), null, null);
+			data.addData(getName(), "region_size", new NexusGroupData(new int[] {2}, NexusGlobals.NX_INT32, new int[] { getAdBase().getSizeX_RBV(), getAdBase().getSizeY_RBV() }), null, null);
 
 			if (cpsRoi != null) {
-				data.addData(getName(), "cps_region_origin", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, cpsRoi.getIntPoint()), null, null);
-				data.addData(getName(), "cps_region_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, cpsRoi.getIntLengths()), null, null);
+				data.addData(getName(), "cps_region_origin", new NexusGroupData(new int[] {2}, NexusGlobals.NX_INT32, cpsRoi.getIntPoint()), null, null);
+				data.addData(getName(), "cps_region_size", new NexusGroupData(new int[] {2}, NexusGlobals.NX_INT32, cpsRoi.getIntLengths()), null, null);
 			} else {
 				NexusGroupData groupData = data.getData(getName(), "data", NexusExtractor.SDSClassName);
-				data.addData(getName(), "cps_region_origin", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, new int[] { 0, 0 }), null, null);
-				data.addData(getName(), "cps_region_size", new NexusGroupData(new int[] {2}, NexusFile.NX_INT32, groupData.dimensions), null, null);
+				data.addData(getName(), "cps_region_origin", new NexusGroupData(new int[] {2}, NexusGlobals.NX_INT32, new int[] { 0, 0 }), null, null);
+				data.addData(getName(), "cps_region_size", new NexusGroupData(new int[] {2}, NexusGlobals.NX_INT32, groupData.dimensions), null, null);
 			}
 			
 			if (entranceSlitInformationProvider != null) {
-				data.addData(getName(), "entrance_slit_size", new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { entranceSlitInformationProvider.getSizeInMM() }), "mm", null);
+				data.addData(getName(), "entrance_slit_size", new NexusGroupData(new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { entranceSlitInformationProvider.getSizeInMM() }), "mm", null);
 				data.addData(getName(), "entrance_slit_setting", new NexusGroupData(String.format("%03d", entranceSlitInformationProvider.getRawValue().intValue())), null, null);
 				data.addData(getName(), "entrance_slit_shape", new NexusGroupData(entranceSlitInformationProvider.getShape().toLowerCase()), null, null);
 				data.addData(getName(), "entrance_slit_direction", new NexusGroupData(entranceSlitInformationProvider.getDirection().toLowerCase()), null, null);
@@ -309,14 +309,14 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	@Override
 	protected void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
 		int acquired = flex.getLastAcquired(); 
-		data.addData(getName(), "number_of_cycles", new NexusGroupData(new int[] {1}, NexusFile.NX_INT32, new int[] { acquired }), null, null, null, true);
+		data.addData(getName(), "number_of_cycles", new NexusGroupData(new int[] {1}, NexusGlobals.NX_INT32, new int[] { acquired }), null, null, null, true);
 		
 		double acquireTime_RBV = flex.getAcquireTime();
-		data.addData(getName(), "time_per_channel", new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { acquireTime_RBV }), "s", null, null, true);
+		data.addData(getName(), "time_per_channel", new NexusGroupData(new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { acquireTime_RBV }), "s", null, null, true);
 		
 		NexusGroupData groupData = data.getData(getName(), "data", NexusExtractor.SDSClassName);
 		switch (groupData.type) {
-		case NexusFile.NX_FLOAT32: 
+		case NexusGlobals.NX_FLOAT32: 
 			long sum = 0;
 			if (cpsRoi == null) {
 				float[] floats = (float[]) groupData.getBuffer();
@@ -337,7 +337,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		}
 	}
 	protected void addDoubleItem(NXDetectorData data, String name, Double d, String units){
-		INexusTree valdata = data.addData(getName(), name, new NexusGroupData(new int[] {1}, NexusFile.NX_FLOAT64, new double[] { d }), units, null, null, true);
+		INexusTree valdata = data.addData(getName(), name, new NexusGroupData(new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { d }), units, null, null, true);
 		valdata.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, valdata, new NexusGroupData(String.format("%s.%s", getName(), name))));
 		data.setPlottableValue(name, d);
 	}

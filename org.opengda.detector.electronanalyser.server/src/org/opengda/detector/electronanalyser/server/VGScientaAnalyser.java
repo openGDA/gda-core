@@ -38,7 +38,7 @@ import gov.aps.jca.TimeoutException;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,7 +144,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			String aunit = "eV";
 			double[] axis = getEnergyAxis();
 
-			data.addAxis(getName(), aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit, false);
+			data.addAxis(getName(), aname, new int[] { axis.length }, NexusGlobals.NX_FLOAT64, axis, i + 1, 1, aunit, false);
 
 			i = 0;
 			if ("Transmission".equals(getLensMode())) {
@@ -156,11 +156,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			}
 			axis = getAngleAxis();
 
-			data.addAxis(getName(), aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit, false);
+			data.addAxis(getName(), aname, new int[] { axis.length }, NexusGlobals.NX_FLOAT64, axis, i + 1, 1, aunit, false);
 
 			data.addData(getName(), "lens_mode", new NexusGroupData(getLensMode()), null, null);
 			
-			data.addData(getName(), "pass_energy", new int[] {1}, NexusFile.NX_INT32, new int[] { getPassEnergy() }, null, null);
+			data.addData(getName(), "pass_energy", new int[] {1}, NexusGlobals.NX_INT32, new int[] { getPassEnergy() }, null, null);
 
 			data.addData(getName(), "acquisition_mode", new NexusGroupData(getAcquisitionMode()), null, null);
 			
@@ -168,13 +168,13 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 			data.addData(getName(), "detector_mode", new NexusGroupData( getDetectorMode() ), null, null);
 
-			data.addData(getName(), "sensor_size", new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV() }, null, null);
+			data.addData(getName(), "sensor_size", new int[] {2}, NexusGlobals.NX_INT32, new int[] { getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV() }, null, null);
 
-			data.addData(getName(), "region_origin", new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getMinX_RBV(), getAdBase().getMinY_RBV() }, null, null);
+			data.addData(getName(), "region_origin", new int[] {2}, NexusGlobals.NX_INT32, new int[] { getAdBase().getMinX_RBV(), getAdBase().getMinY_RBV() }, null, null);
 
-			data.addData(getName(), "region_size", new int[] {2}, NexusFile.NX_INT32, new int[] { getAdBase().getSizeX_RBV(), getAdBase().getSizeY_RBV() }, null, null);
+			data.addData(getName(), "region_size", new int[] {2}, NexusGlobals.NX_INT32, new int[] { getAdBase().getSizeX_RBV(), getAdBase().getSizeY_RBV() }, null, null);
 
-			data.addData(getName(), "number_of_iterations", new int[] {1}, NexusFile.NX_INT32, new int[] { getNumberIterations() }, null, null);
+			data.addData(getName(), "number_of_iterations", new int[] {1}, NexusGlobals.NX_INT32, new int[] { getNumberIterations() }, null, null);
 		}
 	}
 	
@@ -185,12 +185,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		double[] spectrum=null;
 		spectrum = getSpectrum();
 		if (spectrum!=null) {
-			data.addData(getName(), "spectrum", new int[] {spectrum.length}, NexusFile.NX_FLOAT64, spectrum, "counts", null);
+			data.addData(getName(), "spectrum", new int[] {spectrum.length}, NexusGlobals.NX_FLOAT64, spectrum, "counts", null);
 		}
 		double[] externalIO=null;
 		externalIO = getExternalIOData();
 		if (externalIO!=null) {
-			data.addData(getName(), "externalIO", new int[] {externalIO.length}, NexusFile.NX_FLOAT64, externalIO, null, null);
+			data.addData(getName(), "externalIO", new int[] {externalIO.length}, NexusGlobals.NX_FLOAT64, externalIO, null, null);
 		}
 	
 	}
@@ -332,14 +332,14 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 					axis[j]=excitationEnergy-axis[j];
 				}
 			}
-			NexusGroupData energies=new NexusGroupData(new int[] {axis.length},NexusFile.NX_FLOAT64, axis);
+			NexusGroupData energies=new NexusGroupData(new int[] {axis.length},NexusGlobals.NX_FLOAT64, axis);
 			energies.isDetectorEntryData = true;
 			INexusTree energies_node=new NexusTreeNode(aname, NexusExtractor.SDSClassName, null,energies);
 			Integer[] axisVal = {i+1};
 			regionNode.addChildNode(energies_node);
-			energies_node.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, energies_node, new NexusGroupData(new int[] {axisVal.length}, NexusFile.NX_INT32, axisVal)));
+			energies_node.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, energies_node, new NexusGroupData(new int[] {axisVal.length}, NexusGlobals.NX_INT32, axisVal)));
 			Integer[] primaryVal = {1};
-			energies_node.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, energies_node, new NexusGroupData(new int[] {primaryVal.length}, NexusFile.NX_INT32, primaryVal)));
+			energies_node.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, energies_node, new NexusGroupData(new int[] {primaryVal.length}, NexusGlobals.NX_INT32, primaryVal)));
 			energies_node.addChildNode(new NexusTreeNode("unit",NexusExtractor.AttrClassName, energies_node, new NexusGroupData(aunit)));
 		} catch (Exception e) {
 			logger.error("failed to get energy axis data from analyser.", e);
@@ -356,14 +356,14 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		}
 		try {
 			axis = getAngleAxis();
-			NexusGroupData vertiaclaxis=new NexusGroupData(new int[] {axis.length},NexusFile.NX_FLOAT64, axis);
+			NexusGroupData vertiaclaxis=new NexusGroupData(new int[] {axis.length},NexusGlobals.NX_FLOAT64, axis);
 			vertiaclaxis.isDetectorEntryData = true;
 			INexusTree vertiaclaxis_node=new NexusTreeNode(aname, NexusExtractor.SDSClassName, null,vertiaclaxis);
 			Integer[] axisVal = {i+1};
 			regionNode.addChildNode(vertiaclaxis_node);
-			vertiaclaxis_node.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, vertiaclaxis_node, new NexusGroupData(new int[] {axisVal.length}, NexusFile.NX_INT32, axisVal)));
+			vertiaclaxis_node.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, vertiaclaxis_node, new NexusGroupData(new int[] {axisVal.length}, NexusGlobals.NX_INT32, axisVal)));
 			Integer[] primaryVal = {1};
-			vertiaclaxis_node.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, vertiaclaxis_node, new NexusGroupData(new int[] {primaryVal.length}, NexusFile.NX_INT32, primaryVal)));
+			vertiaclaxis_node.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, vertiaclaxis_node, new NexusGroupData(new int[] {primaryVal.length}, NexusGlobals.NX_INT32, primaryVal)));
 			vertiaclaxis_node.addChildNode(new NexusTreeNode("unit",NexusExtractor.AttrClassName, vertiaclaxis_node, new NexusGroupData(aunit)));
 		} catch (Exception e) {
 			logger.error("failed to get angle or location axis data from analyser.", e);
@@ -386,10 +386,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				logger.warn("Dimensions of image data from " + getName() + " are zero length");
 				return;
 			}
-//			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0], dims[1] };
+//			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0], dims[1] };
 
 			double[] s = getImage();
-			NexusGroupData image_data=new NexusGroupData(dims,NexusFile.NX_FLOAT64, s);
+			NexusGroupData image_data=new NexusGroupData(dims,NexusGlobals.NX_FLOAT64, s);
 			image_data.isDetectorEntryData=true;
 			NexusTreeNode image_data_node=new NexusTreeNode("image_data", NexusExtractor.SDSClassName, null,image_data);
 			image_data_node.setIsPointDependent(true);
@@ -417,10 +417,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				logger.warn("Dimensions of spectrum from " + getName() + " are zero length");
 				return;
 			}
-//			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0] };
+//			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0] };
 			
 			double[] s = getSpectrum(dims[0]);
-			NexusGroupData spectrum_data=new NexusGroupData(dims,NexusFile.NX_FLOAT64, s);
+			NexusGroupData spectrum_data=new NexusGroupData(dims,NexusGlobals.NX_FLOAT64, s);
 			spectrum_data.isDetectorEntryData=true;
 			NexusTreeNode spectrum_data_node=new NexusTreeNode("spectrum_data", NexusExtractor.SDSClassName, null,spectrum_data);
 			spectrum_data_node.setIsPointDependent(true);
@@ -446,10 +446,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				logger.warn("Dimensions of external IO data from " + getName() + " are zero length");
 				return;
 			}
-//			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0] };
+//			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0] };
 	
 			double[] s = getExternalIOData(dims[0]);
-			NexusGroupData external_io_data=new NexusGroupData(dims,NexusFile.NX_FLOAT64, s);
+			NexusGroupData external_io_data=new NexusGroupData(dims,NexusGlobals.NX_FLOAT64, s);
 			external_io_data.isDetectorEntryData=true;
 			NexusTreeNode external_io_data_node=new NexusTreeNode("external_io_data", NexusExtractor.SDSClassName, null,external_io_data);
 			external_io_data_node.setIsPointDependent(true);
@@ -463,9 +463,9 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	private void createExciationEnergy(INexusTree regionNode) {
 		try {
 			int[] dims=new int[] {1};
-//			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0] };
+//			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0] };
 			double[] s = new double[] {getExcitationEnergy()};
-			NexusGroupData excitation_energy=new NexusGroupData(dims,NexusFile.NX_FLOAT64, s);
+			NexusGroupData excitation_energy=new NexusGroupData(dims,NexusGlobals.NX_FLOAT64, s);
 			excitation_energy.isDetectorEntryData=true;
 			NexusTreeNode excitation_energy_node=new NexusTreeNode("excitation_energy", NexusExtractor.SDSClassName, null,excitation_energy);
 			excitation_energy_node.setIsPointDependent(true);
@@ -548,9 +548,9 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 						NeXusUtils.writeNexusDoubleArray(nexusFile, aname, axis);
 						nexusFile.opendata(aname);
-						nexusFile.putattr("axis", new int[] {i+1}, NexusFile.NX_INT32);
-						nexusFile.putattr("primary", new int[] {1}, NexusFile.NX_INT32);
-						nexusFile.putattr("unit", aunit.getBytes(), NexusFile.NX_CHAR);
+						nexusFile.putattr("axis", new int[] {i+1}, NexusGlobals.NX_INT32);
+						nexusFile.putattr("primary", new int[] {1}, NexusGlobals.NX_INT32);
+						nexusFile.putattr("unit", aunit.getBytes(), NexusGlobals.NX_CHAR);
 						nexusFile.closedata();
 					} catch (Exception e) {
 						logger.error("failed to get energy axis data from analyser.", e);
@@ -568,9 +568,9 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 						axis = getAngleAxis();
 						NeXusUtils.writeNexusDoubleArray(nexusFile, aname, axis);
 						nexusFile.opendata(aname);
-						nexusFile.putattr("axis", new int[] {i+1}, NexusFile.NX_INT32);
-						nexusFile.putattr("primary", new int[] {1}, NexusFile.NX_INT32);
-						nexusFile.putattr("unit", aunit.getBytes(), NexusFile.NX_CHAR);
+						nexusFile.putattr("axis", new int[] {i+1}, NexusGlobals.NX_INT32);
+						nexusFile.putattr("primary", new int[] {1}, NexusGlobals.NX_INT32);
+						nexusFile.putattr("unit", aunit.getBytes(), NexusGlobals.NX_CHAR);
 						nexusFile.closedata();
 					} catch (Exception e) {
 						logger.error("failed to get angle or location axis data from analyser.", e);
@@ -608,10 +608,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				logger.warn("Dimensions of image data from " + getName() + " are zero length");
 				return;
 			}
-			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0], dims[1] };
+			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0], dims[1] };
 			int rank = datadims.length;
 			if (scanDataPoint == 1) {
-				nexusFile.makedata("image_data", NexusFile.NX_INT32, rank, datadims);
+				nexusFile.makedata("image_data", NexusGlobals.NX_INT32, rank, datadims);
 			}
 			nexusFile.opendata("image_data");
 			int[] startPos = new int[rank];
@@ -639,10 +639,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				logger.warn("Dimensions of spectrum from " + getName() + " are zero length");
 				return;
 			}
-			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0] };
+			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0] };
 			int rank = datadims.length;
 			if (scanDataPoint == 1) {
-				nexusFile.makedata("spectrum_data", NexusFile.NX_FLOAT64, rank, datadims);
+				nexusFile.makedata("spectrum_data", NexusGlobals.NX_FLOAT64, rank, datadims);
 			}
 			nexusFile.opendata("spectrum_data");
 			int[] startPos = new int[rank];
@@ -673,10 +673,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				logger.warn("Dimensions of external IO data from " + getName() + " are zero length");
 				return;
 			}
-			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0] };
+			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0] };
 			int rank = datadims.length;
 			if (scanDataPoint == 1) {
-				nexusFile.makedata("external_io_data", NexusFile.NX_FLOAT64, rank, datadims);
+				nexusFile.makedata("external_io_data", NexusGlobals.NX_FLOAT64, rank, datadims);
 			}
 			nexusFile.opendata("external_io_data");
 			int[] startPos = new int[rank];
@@ -695,10 +695,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	private void writeExciationEnergy(int scanDataPoint) {
 		try {
 			int[] dims=new int[] {1};
-			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , dims[0] };
+			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0] };
 			int rank = datadims.length;
 			if (scanDataPoint == 1) {
-				nexusFile.makedata("excitation_energy", NexusFile.NX_FLOAT64, rank, datadims);
+				nexusFile.makedata("excitation_energy", NexusGlobals.NX_FLOAT64, rank, datadims);
 			}
 			nexusFile.opendata("excitation_energy");
 			int[] startPos = new int[rank];

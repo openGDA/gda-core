@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,7 +217,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 				}
 			}
 
-			data.addAxis(detectorName, aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit, false);
+			data.addAxis(detectorName, aname, new int[] { axis.length }, NexusGlobals.NX_FLOAT64, axis, i + 1, 1, aunit, false);
 
 			i = 0;
 			if ("Transmission".equals(analyser.getLensMode())) {
@@ -229,7 +229,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 			}
 			axis = analyser.getAngleAxis();
 
-			data.addAxis(detectorName, aname, new int[] { axis.length }, NexusFile.NX_FLOAT64, axis, i + 1, 1, aunit, false);
+			data.addAxis(detectorName, aname, new int[] { axis.length }, NexusGlobals.NX_FLOAT64, axis, i + 1, 1, aunit, false);
 			
 			data.addData(detectorName, "reagion_name", new NexusGroupData(regionName), null, null);
 
@@ -237,37 +237,37 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 			data.addData(detectorName, "acquisition_mode", new NexusGroupData(analyser.getAcquisitionMode()), null, null);
 			data.addData(detectorName, "detector_mode", new NexusGroupData( analyser.getDetectorMode() ), null, null);
 			
-			data.addData(detectorName, "pass_energy", new int[] {1}, NexusFile.NX_INT32, new int[] { analyser.getPassEnergy()}, null, null);
+			data.addData(detectorName, "pass_energy", new int[] {1}, NexusGlobals.NX_INT32, new int[] { analyser.getPassEnergy()}, null, null);
 			if (energyMode.equalsIgnoreCase("Binding")) {
 				data.addData(detectorName, "energy_mode", new NexusGroupData( this.energyMode ), null, null);
-				data.addData(detectorName, "low_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] {analyser.getExcitationEnergy()- analyser.getEndEnergy() }, "eV", null);
-				data.addData(detectorName, "high_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] {analyser.getExcitationEnergy()- analyser.getStartEnergy()}, "eV", null);
-				data.addData(detectorName, "fixed_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] {analyser.getExcitationEnergy()- analyser.getCentreEnergy()}, "eV", null);
+				data.addData(detectorName, "low_energy", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] {analyser.getExcitationEnergy()- analyser.getEndEnergy() }, "eV", null);
+				data.addData(detectorName, "high_energy", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] {analyser.getExcitationEnergy()- analyser.getStartEnergy()}, "eV", null);
+				data.addData(detectorName, "fixed_energy", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] {analyser.getExcitationEnergy()- analyser.getCentreEnergy()}, "eV", null);
 			}
 			else {
 				data.addData(detectorName, "energy_mode", new NexusGroupData( analyser.getEnergyMode() ), null, null);
-				data.addData(detectorName, "low_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { analyser.getStartEnergy()}, "eV", null);
-				data.addData(detectorName, "high_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { analyser.getEndEnergy()}, "eV", null);
-				data.addData(detectorName, "fixed_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { analyser.getCentreEnergy()}, "eV", null);
+				data.addData(detectorName, "low_energy", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { analyser.getStartEnergy()}, "eV", null);
+				data.addData(detectorName, "high_energy", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { analyser.getEndEnergy()}, "eV", null);
+				data.addData(detectorName, "fixed_energy", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { analyser.getCentreEnergy()}, "eV", null);
 			}
-			data.addData(detectorName, "excitation_energy", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { analyser.getExcitationEnergy()}, "eV", null);
-			data.addData(detectorName, "energy_step", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { analyser.getEnergyStep()}, "eV", null);
+			data.addData(detectorName, "excitation_energy", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { analyser.getExcitationEnergy()}, "eV", null);
+			data.addData(detectorName, "energy_step", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { analyser.getEnergyStep()}, "eV", null);
 			double stepTime = analyser.getStepTime();
-			data.addData(detectorName, "step_time", new int[] {1}, NexusFile.NX_FLOAT64, new double[] { stepTime}, "s", null);
-			data.addData(detectorName, "number_of_slices", new int[] {1}, NexusFile.NX_INT32, new int[] { analyser.getSlices() }, null, null);
-			data.addData(detectorName, "number_of_iterations", new int[] {1}, NexusFile.NX_INT32, new int[] { analyser.getNumberIterations()}, null, null);
+			data.addData(detectorName, "step_time", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { stepTime}, "s", null);
+			data.addData(detectorName, "number_of_slices", new int[] {1}, NexusGlobals.NX_INT32, new int[] { analyser.getSlices() }, null, null);
+			data.addData(detectorName, "number_of_iterations", new int[] {1}, NexusGlobals.NX_INT32, new int[] { analyser.getNumberIterations()}, null, null);
 			int totalSteps = analyser.getTotalSteps().intValue();
-			data.addData(detectorName, "total_steps", new int[] {1}, NexusFile.NX_INT32, new int[] { totalSteps }, null, null);
-			data.addData(detectorName, "total_time", new int[] {1}, NexusFile.NX_FLOAT64, new double[] {totalSteps*stepTime }, null, null);
+			data.addData(detectorName, "total_steps", new int[] {1}, NexusGlobals.NX_INT32, new int[] { totalSteps }, null, null);
+			data.addData(detectorName, "total_time", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] {totalSteps*stepTime }, null, null);
 
 			int cameraMinX = analyser.getCameraMinX();
-			data.addData(detectorName, "detector_x_from", new int[] {1}, NexusFile.NX_INT32, new int[] { cameraMinX}, null, null);
+			data.addData(detectorName, "detector_x_from", new int[] {1}, NexusGlobals.NX_INT32, new int[] { cameraMinX}, null, null);
 			int cameraMinY = analyser.getCameraMinY();
-			data.addData(detectorName, "detector_y_from", new int[] {1}, NexusFile.NX_INT32, new int[] { cameraMinY}, null, null);
-			data.addData(detectorName, "detector_x_to", new int[] {1}, NexusFile.NX_INT32, new int[] { analyser.getCameraSizeX()-cameraMinX}, null, null);
-			data.addData(detectorName, "detector_y_to", new int[] {1}, NexusFile.NX_INT32, new int[] { analyser.getCameraSizeY()-cameraMinY}, null, null);
+			data.addData(detectorName, "detector_y_from", new int[] {1}, NexusGlobals.NX_INT32, new int[] { cameraMinY}, null, null);
+			data.addData(detectorName, "detector_x_to", new int[] {1}, NexusGlobals.NX_INT32, new int[] { analyser.getCameraSizeX()-cameraMinX}, null, null);
+			data.addData(detectorName, "detector_y_to", new int[] {1}, NexusGlobals.NX_INT32, new int[] { analyser.getCameraSizeY()-cameraMinY}, null, null);
 //
-//			data.addData(detectorName, "region_size", new int[] {2}, NexusFile.NX_INT32, new int[] { analyser.getAdBase().getSizeX_RBV(), analyser.getAdBase().getSizeY_RBV() }, null, null);
+//			data.addData(detectorName, "region_size", new int[] {2}, NexusGlobals.NX_INT32, new int[] { analyser.getAdBase().getSizeX_RBV(), analyser.getAdBase().getSizeY_RBV() }, null, null);
 		}
 	private int[] determineDataDimensions(NDArray ndArray) throws Exception {
 		// only called if configured to readArrays (and hence ndArray is set)
@@ -312,7 +312,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 					cd[i] = (short) (b[i] & 0xff);
 				}
 				dataVals = cd;
-				nexusType = NexusFile.NX_INT16;
+				nexusType = NexusGlobals.NX_INT16;
 			}
 		}
 			break;
@@ -321,7 +321,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 			if (expectedNumPixels > b.length)
 				throw new DeviceException("Data size is not valid");
 			dataVals = b;
-			nexusType = NexusFile.NX_INT8;
+			nexusType = NexusGlobals.NX_INT8;
 			break;
 		}
 		case NDPluginBase.Int16: {
@@ -331,7 +331,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 						+ s.length + " expected:" + expectedNumPixels);
 
 			dataVals = s;
-			nexusType = NexusFile.NX_INT16;
+			nexusType = NexusGlobals.NX_INT16;
 		}
 			break;
 		case NDPluginBase.UInt16: {
@@ -345,7 +345,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 				cd[i] = (s[i] & 0xffff);
 			}
 			dataVals = cd;
-			nexusType = NexusFile.NX_INT32;
+			nexusType = NexusGlobals.NX_INT32;
 		}
 			break;
 		case NDPluginBase.UInt32: // TODO should convert to INT64 if any numbers
@@ -357,7 +357,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 						+ s.length + " expected:" + expectedNumPixels);
 
 			dataVals = s;
-			nexusType = NexusFile.NX_INT32;
+			nexusType = NexusGlobals.NX_INT32;
 		}
 			break;
 		case NDPluginBase.Float32:
@@ -368,7 +368,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 						+ s.length + " expected:" + expectedNumPixels);
 
 			dataVals = s;
-			nexusType = NexusFile.NX_FLOAT32;
+			nexusType = NexusGlobals.NX_FLOAT32;
 		}
 			break;
 		default:

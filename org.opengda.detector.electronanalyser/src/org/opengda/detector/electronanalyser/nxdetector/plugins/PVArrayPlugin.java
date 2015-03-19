@@ -35,7 +35,7 @@ import java.util.Vector;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -187,17 +187,17 @@ class NXDetectorDatasetAppender implements NXDetectorDataAppender {
 		int nexusType;
 		switch (dataType) {
 		case Dataset.INT8: 
-			nexusType = NexusFile.NX_INT8;
+			nexusType = NexusGlobals.NX_INT8;
 			break;
 		case Dataset.INT16: 
-			nexusType = NexusFile.NX_INT16;
+			nexusType = NexusGlobals.NX_INT16;
 			break;
 		case Dataset.INT32: 
-			nexusType = NexusFile.NX_INT32;
+			nexusType = NexusGlobals.NX_INT32;
 			break;
 		case Dataset.FLOAT32:
 		case Dataset.FLOAT64:
-			nexusType = NexusFile.NX_FLOAT32;
+			nexusType = NexusGlobals.NX_FLOAT32;
 			break;
 		default:
 			throw new DeviceException("Type of data is not understood :" + dataType);
