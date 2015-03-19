@@ -78,4 +78,29 @@ public class NexusGlobals {
 	 * <a href="http://trac.nexusformat.org/code/ticket/180">NeXus ticket #180</a>)
 	 */
 	public final static String GDA_NX_DEFAULT = NEXUS_FILE_HDF5;
+
+	public final static int NXACC_CREATE4 = NexusFile.NXACC_CREATE4;
+	public final static int NXACC_CREATE5 = NexusFile.NXACC_CREATE5;
+	public final static int NXACC_CREATEXML = NexusFile.NXACC_CREATEXML;
+	public final static int NXACC_READ = NexusFile.NXACC_READ;
+	public final static int NXACC_RDWR = NexusFile.NXACC_RDWR;
+
+	public final static int NX_COMP_LZW_LVL1 = NexusFile.NX_COMP_LZW_LVL1;
+
+	public final static int NX_BOOLEAN = NexusFile.NX_BOOLEAN;
+	public final static int NX_CHAR = NexusFile.NX_CHAR;
+
+	public final static int NX_FLOAT32  = NexusFile.NX_FLOAT32;
+	public final static int NX_FLOAT64  = NexusFile.NX_FLOAT64;
+
+	public final static int NX_INT8  = NexusFile.NX_INT8;
+	public final static int NX_INT16 = NexusFile.NX_INT16;
+	public final static int NX_INT32 = NexusFile.NX_INT32;
+	public final static int NX_INT64 = NexusFile.NX_INT64;
+	public final static int NX_UINT8  = NexusFile.NX_UINT8;
+	public final static int NX_UINT16 = NexusFile.NX_UINT16;
+	public final static int NX_UINT32 = NexusFile.NX_UINT32;
+	public final static int NX_UINT64 = NexusFile.NX_UINT64;
+
+	public final static int NX_UNLIMITED = NexusFile.NX_UNLIMITED;
 }
