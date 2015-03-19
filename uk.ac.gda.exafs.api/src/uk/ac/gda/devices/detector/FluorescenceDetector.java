@@ -16,9 +16,7 @@ public interface FluorescenceDetector extends Detector {
 	 */
 	public int[][] getMCData(double time) throws DeviceException;
 
-	public int[][] getData() throws DeviceException;
-
-	public Object getCountRates() throws DeviceException;
+//	public int[][] getData() throws DeviceException;
 
 	public String getConfigFileName();
 
@@ -55,5 +53,9 @@ public interface FluorescenceDetector extends Detector {
 	 * @throws Exception
 	 */
 	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) throws Exception;
+	
+	public Class <? extends FluorescenceDetectorParameters> getConfigurationParametersClass();
+	
+	public FluorescenceDetectorParameters getConfigurationParameters();
 
 }

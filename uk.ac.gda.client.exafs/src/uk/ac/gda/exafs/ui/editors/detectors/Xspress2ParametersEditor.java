@@ -20,32 +20,32 @@ package uk.ac.gda.exafs.ui.editors.detectors;
 
 import java.net.URL;
 
-import uk.ac.gda.beans.vortex.Xspress3Parameters;
-import uk.ac.gda.exafs.ui.composites.detectors.Xspress3ParametersComposite;
+import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.exafs.ui.composites.detectors.Xspress2ParametersComposite;
 import uk.ac.gda.richbeans.editors.DelegatingRichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
-public final class Xspress3ParametersEditor extends RichBeanMultiPageEditorPart {
-	
-	public static final String ID = "uk.ac.gda.exafs.ui.Xspress3ParametersEditor";
+public final class Xspress2ParametersEditor extends RichBeanMultiPageEditorPart {
 
+	public static final String ID = "uk.ac.gda.exafs.ui.Xspress2ParametersEditor";
+	
 	@Override
 	public Class<?> getBeanClass() {
-		return Xspress3Parameters.class;
+		return XspressParameters.class;
 	}
 
 	@Override
 	public URL getMappingUrl() {
-		return Xspress3Parameters.mappingURL;
+		return XspressParameters.mappingURL;
 	}
 
 	@Override
 	public RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
 		DelegatingRichBeanEditorPart editor = new DelegatingRichBeanEditorPart(path, getMappingUrl(), this, editingBean);
-		editor.setEditorClass(Xspress3ParametersComposite.class);
+		editor.setEditorClass(Xspress2ParametersComposite.class);
 		editor.setScrollable(true);
-		editor.setRichEditorTabText("Xspress3");
+		editor.setRichEditorTabText("Xspress2");
 		return editor;
 
 		// NB: there is a very subtle bug, which is related to how the DelegatingRichBeanEditorPart works - as it does
@@ -62,7 +62,7 @@ public final class Xspress3ParametersEditor extends RichBeanMultiPageEditorPart 
 
 	@Override
 	public URL getSchemaUrl() {
-		return Xspress3Parameters.schemaURL;
+		return XspressParameters.schemaURL;
 	}
 
 }

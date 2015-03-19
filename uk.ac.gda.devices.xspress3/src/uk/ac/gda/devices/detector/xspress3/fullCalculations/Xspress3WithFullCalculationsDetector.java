@@ -1,6 +1,7 @@
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
 import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.devices.detector.xspress3.Xspress3;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
@@ -115,19 +116,8 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	}
 
 	@Override
-	public int[][] getData() throws DeviceException {
-		return dataOperations.getData();
-	}
-
-	@Override
 	public void clearAndStart() throws DeviceException {
 		scanOperations.clearAndStart();
-	}
-
-	@Override
-	public Object getCountRates() throws DeviceException {
-		// is this ever called??? Should it be removed from the interface???
-		return null;
 	}
 
 	@Override
@@ -202,4 +192,15 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) throws Exception {
 		dataOperations.applyConfigurationParameters(parameters);
 	}
+	
+	@Override
+	public Class<? extends FluorescenceDetectorParameters> getConfigurationParametersClass() {
+		return Xspress3Parameters.class;
+	}
+
+	@Override
+	public FluorescenceDetectorParameters getConfigurationParameters() {
+		return dataOperations.getConfigurationParameters();
+	}
+
 }

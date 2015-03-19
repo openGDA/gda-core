@@ -40,12 +40,6 @@
 				<xsd:element name="number" type="xsd:integer" maxOccurs="1"
 					minOccurs="1" />
 				<xsd:element name="ROI" maxOccurs="unbounded" minOccurs="0" />
-				<xsd:element name="gain" type="xsd:double" maxOccurs="1"
-					minOccurs="1" />
-				<xsd:element name="peakingTime" type="xsd:double"
-					maxOccurs="1" minOccurs="0" />
-				<xsd:element name="offset" type="xsd:double" maxOccurs="1"
-					minOccurs="1" />
 				<xsd:element name="excluded" type="xsd:boolean"
 					maxOccurs="1" minOccurs="0" />
 			</xsd:sequence>
@@ -59,9 +53,9 @@
 					minOccurs="1" />
 				<xsd:element name="number" type="xsd:integer" maxOccurs="1"
 					minOccurs="1" />
-				<xsd:element name="processDeadTimeAllEvent" type="xsd:double"
+				<xsd:element name="processDeadTimeAllEventGradient" type="xsd:double"
 					maxOccurs="1" minOccurs="1" />
-				<xsd:element name="processDeadTimeInWindow" type="xsd:double"
+				<xsd:element name="processDeadTimeInWindowGradient" type="xsd:double"
 					maxOccurs="1" minOccurs="1" />
 			</xsd:sequence>
 		</xsd:complexType>

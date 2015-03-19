@@ -60,6 +60,7 @@ public class VortexParameters implements Serializable, FluorescenceDetectorParam
 		detectorList.add(detectorElement);
 	}
 
+	
 	public List<DetectorElement> getDetectorList() {
 		return detectorList;
 	}

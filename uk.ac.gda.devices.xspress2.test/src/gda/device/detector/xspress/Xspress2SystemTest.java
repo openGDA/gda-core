@@ -37,8 +37,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDetector;
 

@@ -30,6 +30,7 @@ import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 /**
  *
  */
+@Deprecated
 public class XspressParametersEditor extends ExperimentBeanMultiPageEditor {
 
 	

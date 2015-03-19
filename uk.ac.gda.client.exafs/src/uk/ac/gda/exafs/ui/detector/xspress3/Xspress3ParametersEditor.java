@@ -25,6 +25,7 @@ import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanMultiPageEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
+@Deprecated
 public class Xspress3ParametersEditor extends ExperimentBeanMultiPageEditor {
 	
 	@Override

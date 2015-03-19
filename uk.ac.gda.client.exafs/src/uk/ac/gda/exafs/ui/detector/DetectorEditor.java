@@ -101,6 +101,7 @@ import com.swtdesigner.SWTResourceManager;
 /**
  * Class to contain plotting which some detector editors require.
  */
+@Deprecated
 public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	private static final Logger logger = LoggerFactory.getLogger(DetectorEditor.class);

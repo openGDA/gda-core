@@ -22,6 +22,7 @@ package uk.ac.gda.exafs.ui.describers;
 import org.dawnsci.common.richbeans.xml.XMLBeanContentDescriber;
 
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
+import uk.ac.gda.exafs.ui.editors.detectors.Xspress3ParametersEditor;
 
 public class Xspress3Describer extends XMLBeanContentDescriber {
 
@@ -32,7 +33,7 @@ public class Xspress3Describer extends XMLBeanContentDescriber {
 
 	@Override
 	public String getEditorId() {
-		return "uk.ac.gda.exafs.ui.Xspress3ParametersEditor";
+		return Xspress3ParametersEditor.ID;
 	}
 
 }

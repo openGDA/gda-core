@@ -18,30 +18,62 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
-import org.dawnsci.common.richbeans.components.FieldBeanComposite;
+import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
 import org.dawnsci.common.richbeans.components.selector.BeanSelectionEvent;
 import org.dawnsci.common.richbeans.components.selector.BeanSelectionListener;
 import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
+import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.BooleanWrapper.BOOLEAN_MODE;
+import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
+import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper.TEXT_TYPE;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 
 import uk.ac.gda.beans.DetectorROI;
 
-public class FluoDetectorRegionListComposite extends FieldBeanComposite {
+public class FluoDetectorRegionListComposite extends Composite {
 
 	private VerticalListEditor regionList;
 	private FluoDetectorROIComposite detectorROIComposite;
+	private BooleanWrapper excluded;
+	private LabelWrapper elementName;
+	private LabelWrapper totalCounts;
+	private LabelWrapper elementCounts;
 
-	public FluoDetectorRegionListComposite(Composite parent, int style, FluoDetectorCompositeController controller) {
+	public FluoDetectorRegionListComposite(Composite parent, int style, final FluoDetectorCompositeController controller) {
 		super(parent, style);
 
-		GridLayoutFactory.fillDefaults().applyTo(this);
+		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(this);
 
-		regionList = new VerticalListEditor(this, SWT.NONE);
+		elementName = new LabelWrapper(this, SWT.NONE);
+		GridDataFactory.fillDefaults().applyTo(elementName);
+		elementName.setTextType(TEXT_TYPE.PLAIN_TEXT);
+
+		excluded = new BooleanWrapper(this, SWT.NONE);
+		GridDataFactory.swtDefaults().align(SWT.RIGHT, SWT.CENTER).applyTo(excluded);
+		excluded.setBooleanMode(BOOLEAN_MODE.REVERSE);
+		excluded.setText("Enabled");
+
+		Label totalCountsLabel = new Label(this, SWT.NONE);
+		totalCountsLabel.setText("All elements total counts:");
+
+		totalCounts = new LabelWrapper(this, SWT.NONE);
+		GridDataFactory.fillDefaults().applyTo(totalCounts);
+		totalCounts.setTextType(TEXT_TYPE.PLAIN_TEXT);
+
+		Label elementCountsLabel = new Label(this, SWT.NONE);
+		elementCountsLabel.setText("This element total counts:");
+
+		elementCounts = new LabelWrapper(this, SWT.NONE);
+		GridDataFactory.fillDefaults().applyTo(elementCounts);
+		elementCounts.setTextType(TEXT_TYPE.PLAIN_TEXT);
+
+		regionList = new VerticalListEditor(this, SWT.BORDER);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, true).applyTo(regionList);
 		regionList.setRequireSelectionPack(false);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(regionList);
 		regionList.setTemplateName("ROI");
 		regionList.setNameField("roiName");
 		regionList.setListHeight(100);
@@ -55,7 +87,7 @@ public class FluoDetectorRegionListComposite extends FieldBeanComposite {
 		});
 
 		detectorROIComposite = new FluoDetectorROIComposite(regionList, SWT.NONE, controller);
-		GridDataFactory.fillDefaults().applyTo(detectorROIComposite);
+		GridDataFactory.fillDefaults().span(2, 1).applyTo(detectorROIComposite);
 
 		regionList.setEditorUI(detectorROIComposite);
 
@@ -64,7 +96,35 @@ public class FluoDetectorRegionListComposite extends FieldBeanComposite {
 		detectorROIComposite.setVisible(true);
 	}
 
+	public BooleanWrapper getExcluded() {
+		return excluded;
+	}
+
 	public VerticalListEditor getRegionList() {
 		return regionList;
+	}
+
+	public LabelWrapper getElementNameLabel() {
+		return elementName;
+	}
+
+	public LabelWrapper getTotalCountsLabel() {
+		return totalCounts;
+	}
+
+	public LabelWrapper getElementCountsLabel() {
+		return elementCounts;
+	}
+
+	public ScaleBox getRoiStart() {
+		return detectorROIComposite.getRoiStart();
+	}
+
+	public ScaleBox getRoiEnd() {
+		return detectorROIComposite.getRoiEnd();
+	}
+
+	public LabelWrapper getROICountsLabel() {
+		return detectorROIComposite.getCountsLabel();
 	}
 }

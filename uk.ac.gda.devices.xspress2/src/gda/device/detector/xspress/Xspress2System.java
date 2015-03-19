@@ -35,8 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 import uk.ac.gda.beans.xspress.XspressDetector;
@@ -58,6 +58,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * scale both types of ROI using total counts / counts in rois This needs
  * refactoring so that roi when all are selected are also corrected.
  */
+@Deprecated
 public class Xspress2System extends XspressSystem implements NexusDetector, XspressDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress2System.class);

@@ -51,6 +51,7 @@ import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.xspress3.Xspress3ParametersUIHelper;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
+@Deprecated
 public class ImportXspress3ROIWizardPage extends ImportROIWizardPage {
 	private static final Logger logger = LoggerFactory.getLogger(ImportXspress3ROIWizardPage.class);
 

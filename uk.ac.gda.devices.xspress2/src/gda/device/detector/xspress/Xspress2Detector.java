@@ -35,12 +35,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.devices.detector.FluorescenceDetector;
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
@@ -60,7 +62,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * scale both types of ROI using total counts / counts in rois This needs
  * refactoring so that roi when all are selected are also corrected.
  */
-public class Xspress2Detector extends XspressSystem implements NexusDetector, XspressDetector {
+public class Xspress2Detector extends XspressSystem implements NexusDetector, XspressDetector, FluorescenceDetector {
 
 	private static final Logger logger = LoggerFactory.getLogger(Xspress2Detector.class);
 
@@ -795,5 +797,94 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 
 	public Xspress2NexusTreeProvider getSystemData() {
 		return xspress2SystemData;
+	}
+
+	@Override
+	public int[][] getMCData(double time) throws DeviceException {
+		
+		int[] data = controller.runOneFrame((int) Math.round(time));
+
+		if (data != null) {
+			try {
+				// [numFrames][numberOfDetectors][numResGrades][mcaSize]
+				int[][][][] fourD = xspress2SystemData.unpackRawDataTo4D(data, 1, 1, 4096,
+						settings.getNumberOfDetectors());
+				
+				// remove frame and res-grade settings - not used by I18 or B18
+				int numDetectors = fourD[0].length;
+				int mcaSize = fourD[0][0][0].length;
+				int[][] twoD = new int[numDetectors][mcaSize];
+				
+				for (int det = 0; det < numDetectors; det++){
+					for (int mcaChan = 0; mcaChan < mcaSize; mcaChan++){
+						twoD[det][mcaChan] = fourD[0][det][0][mcaChan];
+					}
+				}
+				
+				return twoD;
+			} catch (Exception e) {
+				throw new DeviceException("Error while unpacking MCA Data. Data length was " + data.length, e);
+			}
+		}
+
+		return null;
+	}
+
+	@Override
+	public void loadConfigurationFromFile() throws Exception {
+		loadAndInitializeDetectors(getConfigFileName());		
+	}
+
+	@Override
+	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
+		List<DetectorROI> rois = settings.getParameters().getDetectorList().get(0).getRegionList();
+		return (DetectorROI[]) rois.toArray();
+	}
+
+	@Override
+	public void setRegionsOfInterest(DetectorROI[] regionList)
+			throws DeviceException {
+		
+		// convert to list
+		List<DetectorROI> rois = new ArrayList<DetectorROI>();
+		for(DetectorROI roi : regionList){
+			rois.add(roi);
+		}
+		
+		// replace rois in each detector channel(element) in the settings object and push to hardware
+		for(DetectorElement element : settings.getParameters().getDetectorList()){
+			element.setRegionList(rois);
+			controller.doSetROICommand(element);
+		}
+	}
+
+	@Override
+	public int getNumberOfChannels() {
+		return settings.getNumberOfDetectors();
+	}
+
+	@Override
+	public int getMCASize() {
+		return settings.getFullMCASize();
+	}
+
+	@Override
+	public void applyConfigurationParameters(
+			FluorescenceDetectorParameters parameters) throws Exception {
+		settings.setXspressParameters((XspressParameters) parameters);
+		// if mode override is set as a property ignore all the parameter file settings
+		if (modeOverride) {
+			settings.getParameters().setReadoutMode(READOUT_MCA);
+		}
+	}
+
+	@Override
+	public Class<? extends FluorescenceDetectorParameters> getConfigurationParametersClass() {
+		return XspressParameters.class;
+	}
+
+	@Override
+	public FluorescenceDetectorParameters getConfigurationParameters() {
+		return settings.getParameters();
 	}
 }

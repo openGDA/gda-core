@@ -22,22 +22,24 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.dawnsci.common.richbeans.beans.BeanUI;
+import org.dawnsci.common.richbeans.beans.BeanController;
+import org.dawnsci.common.richbeans.components.scalebox.NumberBox;
+import org.dawnsci.common.richbeans.event.ValueAdapter;
+import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
@@ -48,6 +50,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -56,6 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
+import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
@@ -74,22 +78,39 @@ public class FluoDetectorCompositeController {
 
 	private FluorescenceDetector theDetector;
 	private FluorescenceDetectorComposite fluorescenceDetectorComposite;
+
+	private FluorescenceDetectorParameters detectorParameters;
+	private BeanController dataBindingController;
 	private boolean continuousAquire;
 	private Thread continuousThread;
 	private SashFormPlotComposite sashFormPlot;
-	private ObservableComponent roiObservableComponent = new ObservableComponent();
 	private FluoCompositeDataStore dataStore;
 	private int[][] theData;
-
+	private String plotTitle;
 	private FileDialog openDialog;
 
-	public FluoDetectorCompositeController(FluorescenceDetector theDetector,
-			FluorescenceDetectorComposite fluorescenceDetectorComposite) {
+	public FluoDetectorCompositeController(Composite parent, FluorescenceDetectorParameters detectorParameters,
+			FluorescenceDetector theDetector) throws Exception {
+
+		this.detectorParameters = detectorParameters;
 		this.theDetector = theDetector;
-		this.fluorescenceDetectorComposite = fluorescenceDetectorComposite;
+		this.fluorescenceDetectorComposite = new FluorescenceDetectorComposite(parent, SWT.NONE, this, theDetector.getConfigurationParametersClass());
 		sashFormPlot = fluorescenceDetectorComposite.getSashFormPlot();
 
-		sashFormPlot.getRegionOnDisplay().addROIListener(new IROIListener() {
+		dataBindingController = new BeanController(fluorescenceDetectorComposite, detectorParameters);
+		dataBindingController.beanToUI();
+		dataBindingController.switchUIOn();
+
+		dataBindingController.addValueListener(new ValueAdapter() {
+
+			@Override
+			public void valueChangePerformed(ValueEvent e) {
+				applyCurrentRegionsToAllElements();
+			}
+		});
+
+
+		sashFormPlot.addRegionListener(new IROIListener() {
 
 			@Override
 			public void roiSelected(ROIEvent evt) {
@@ -104,13 +125,16 @@ public class FluoDetectorCompositeController {
 			@Override
 			public void roiChanged(ROIEvent evt) {
 				updateRoiUI(evt);
+
+				// TODO need to make this work properly - currently changes don't reach bean
+				updateBeanFromUI();
 			}
 		});
 
 		ExafsActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().compareTo(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED) == 0) {
+				if (event.getProperty().equals(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED)) {
 					setRegionEditableFromPreference();
 				}
 			}
@@ -120,62 +144,81 @@ public class FluoDetectorCompositeController {
 		setRegionEditableFromPreference();
 
 		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
-		String fileName = varDir + "/" + theDetector.getName() + "_editor_data.xml";
+		String fileName = varDir + "/" + theDetector.getName() + "_plot_data.xml";
 		dataStore = new FluoCompositeDataStore(fileName);
+
+		replot();
 	}
 
 	private void setRegionEditableFromPreference() {
-
-		// TODO bug in dawn?? if this is changed then the drag whole roi seems to stop working.
-
+		// Bug in dawn stops this working correctly when preference is changed at runtime
+		// See DAWNSCI-5843 for latest status on a possible fix
 		sashFormPlot.getRegionOnDisplay().setMobile(
 				ExafsActivator.getDefault().getPreferenceStore()
 						.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED));
 	}
 
-	protected void updateRoiUI(ROIEvent evt) {
-		roiObservableComponent.notifyIObservers(this, evt);
+	private void updateRoiUI(ROIEvent evt) {
+		IROI roi = evt.getROI();
+		final int start = (int) Math.round(roi.getPointX());
+		final int end = (int) (start + Math.round(roi.getBounds().getLength(0)));
+
+		updateNumberBoxIntegerValue(fluorescenceDetectorComposite.getRegionsComposite().getRoiStart(), start);
+		updateNumberBoxIntegerValue(fluorescenceDetectorComposite.getRegionsComposite().getRoiEnd(), end);
+	}
+
+	private void updateNumberBoxIntegerValue(NumberBox numberBox, int value) {
+		numberBox.off();
+		numberBox.setIntegerValue(value);
+		numberBox.on();
 	}
 
 	public FluorescenceDetector getDetector() {
 		return theDetector;
 	}
 
-	public Shell getShell() {
-		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-	}
-
 	public SashFormPlotComposite getSashFormPlot() {
 		return fluorescenceDetectorComposite.getSashFormPlot();
 	}
 
-	public void plot(final int[] theData) {
+	public FluorescenceDetectorComposite getFluorescenceDetectorComposite() {
+		return fluorescenceDetectorComposite;
+	}
 
-		// TODO we might be replotting due to reading old file, so do not necessarily want to have this title
+	private Shell getCurrentShell() {
+		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+	}
 
-		String plotTitle;
-		// if (updateTitle) {
-		Date now = new Date();
-		SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
-		plotTitle = "Acquire at " + dt.format(now);
-		// }
-
-		// for (int i = 0; i < data.size(); i++) {
-		// String name = getChannelName(theData);
-		// if (data.size() > 1) {
-		// name += " " + i;
-		// }
-		// name += " " + plotTitle;
-		// data.get(i).setName(name);
-		// }
-		Dataset dataset = DatasetFactory.createFromObject(theData);
+	private void plot(final int element) {
+		Dataset dataset = DatasetFactory.createFromObject(theData[element]);
 		sashFormPlot.setDataSets(dataset);
 		sashFormPlot.getPlottingSystem().setRescale(true);
 		sashFormPlot.plotData();
 		sashFormPlot.getPlottingSystem().setTitle(plotTitle);
-		// calculateAndPlotCountTotals(true); TODO
 		sashFormPlot.getPlottingSystem().setRescale(false);
 		sashFormPlot.getPlottingSystem().setShowLegend(false);
+
+		updateElementNameLabel(element);
+		calculateAndDisplayCountTotals(element);
+		// TODO also add roi counts to roi listener
+	}
+
+	private void updateElementNameLabel(int element) {
+		fluorescenceDetectorComposite.getRegionsComposite().getElementNameLabel().setValue("Element " + element);
+	}
+
+	private void calculateAndDisplayCountTotals(int element) {
+		String totalCounts = getFormattedTotal(theData);
+		fluorescenceDetectorComposite.getRegionsComposite().getTotalCountsLabel().setValue(totalCounts);
+
+		String elementCounts = getFormattedTotal(theData[element]);
+		fluorescenceDetectorComposite.getRegionsComposite().getElementCountsLabel().setValue(elementCounts);
+	}
+
+	private String getFormattedTotal(Object data) {
+		Dataset dataset = DatasetFactory.createFromObject(data);
+		Long totalCounts = (Long) dataset.typedSum(Dataset.INT64);
+		return NumberFormat.getInstance().format(totalCounts.longValue());
 	}
 
 	/**
@@ -269,6 +312,7 @@ public class FluoDetectorCompositeController {
 				monitor.worked(1);
 			}
 
+			updatePlotTitle();
 			replot();
 
 			if (monitor != null) {
@@ -291,6 +335,12 @@ public class FluoDetectorCompositeController {
 		if (monitor != null) {
 			monitor.done();
 		}
+	}
+
+	private void updatePlotTitle() {
+		Date now = new Date();
+		SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+		plotTitle = "Acquire at " + dt.format(now);
 	}
 
 	private void logAndDisplayErrorMessage(final String uiTitleMessage, final String uiMessage,
@@ -336,12 +386,12 @@ public class FluoDetectorCompositeController {
 				public void run() {
 					// getDetectorElementComposite().setEndMaximum(detectorData[0][0].length - 1);
 					// plot(getDetectorList().getSelectedIndex(), true);
-					int channel = fluorescenceDetectorComposite.getRegionsComposite().getSelectedDetectorChannel();
-					plot(theData[channel]);
+					int element = fluorescenceDetectorComposite.getRegionsComposite().getSelectedDetectorElement();
+					plot(element);
 					// setEnabled(true);
 					// lblDeadTime.setVisible(true);
 					// deadTimeLabel.setVisible(true);
-					sashFormPlot.getLeft().layout();
+					// sashFormPlot.getLeft().layout();
 				}
 			});
 		}
@@ -349,29 +399,30 @@ public class FluoDetectorCompositeController {
 
 	private void loadDataFromStore() {
 		theData = dataStore.readDataFromFile();
+		if (theData != null) {
+			plotTitle = "Saved data";
+		}
 	}
 
 	public void updatePlottedRegion(int roiStart, int roiEnd) {
-		sashFormPlot.getRegionOnDisplay().setROI(new RectangularROI(roiStart, 0, roiEnd - roiStart, 0, 0));
-		sashFormPlot.getRegionOnDisplay().repaint();
+		if (sashFormPlot != null){
+			sashFormPlot.getRegionOnDisplay().setROI(new RectangularROI(roiStart, 0, roiEnd - roiStart, 0, 0));
+			sashFormPlot.getRegionOnDisplay().repaint();
+		}
 	}
 
-	public void addRoiObserver(IObserver anIObserver) {
-		roiObservableComponent.addIObserver(anIObserver);
-	}
-
-	public void deleteRoiObserver(IObserver anIObserver) {
-		roiObservableComponent.deleteIObserver(anIObserver);
-	}
-
-	public void updateBeanFromUI() {
-		fluorescenceDetectorComposite.updateBeanFromUI();
+	private void updateBeanFromUI() {
+		try {
+			dataBindingController.uiToBean();
+			dataBindingController.fireValueListeners();
+		} catch (Exception ex) {
+			logger.error("Error trying to update bean from UI", ex);
+		}
 	}
 
 	public void applyConfigurationToDetector() {
 		try {
-			theDetector.applyConfigurationParameters((FluorescenceDetectorParameters) fluorescenceDetectorComposite
-					.getBean());
+			theDetector.applyConfigurationParameters(detectorParameters);
 			sashFormPlot.appendStatus("Successfully applied settings to detector", logger);
 
 		} catch (DeviceException de) {
@@ -386,12 +437,14 @@ public class FluoDetectorCompositeController {
 	}
 
 	public void fetchConfigurationFromDetector() {
-		// TODO
+		detectorParameters = theDetector.getConfigurationParameters();
+		applyCurrentRegionsToAllElements();
+		replot();
 	}
 
 	public void loadAcquireDataFromFile() {
 		if (openDialog == null) {
-			openDialog = new FileDialog(getShell(), SWT.OPEN);
+			openDialog = new FileDialog(getCurrentShell(), SWT.OPEN);
 		}
 
 		String dataDir = PathConstructor.createFromDefaultProperty();
@@ -420,43 +473,17 @@ public class FluoDetectorCompositeController {
 		}
 	}
 
-	protected void applyToAll() {
+	public void applyCurrentRegionsToAllElements() {
 
-		if (!MessageDialog
-				.openConfirm(
-						getShell(),
-						"Confirm Apply To All",
-						"Do you want to apply currently selected elements regions of interest to all detecors?\n\nThis will write new regions for the elements automatically.")) {
-			return;
+		final int currentIndex = fluorescenceDetectorComposite.getRegionsComposite().getSelectedDetectorElement();
+
+		List<DetectorROI> regions = detectorParameters.getDetector(currentIndex).getRegionList();
+
+		List<DetectorElement> elements = detectorParameters.getDetectorList();
+		for (DetectorElement element : elements) {
+			// TODO consider making a copy of the regions list once the detector classes support separate region lists
+			// for each detector element
+			element.setRegionList(regions);
 		}
-
-		final int currentIndex = fluorescenceDetectorComposite.getRegionsComposite().getSelectedDetectorChannel();
-
-		FluorescenceDetectorParameters editorBean = fluorescenceDetectorComposite.getDataModel();
-
-		int numChannels = editorBean.getDetectorList().size();
-
-		List<DetectorElement> newElements = new ArrayList<DetectorElement>();
-		for (int i = 0; i < numChannels; i++) {
-			DetectorElement newElement = new DetectorElement();
-			newElement.setName(editorBean.getDetectorList().get(i).getName());
-			newElement.setNumber(editorBean.getDetectorList().get(i).getNumber());
-			newElement.setRegionList(editorBean.getDetectorList().get(currentIndex).getRegionList());
-			newElements.add(newElement);
-		}
-		editorBean.setDetectorList(newElements);
-
-		try {
-			BeanUI.switchState(editorBean, fluorescenceDetectorComposite.getEditorUI(), false);
-			BeanUI.fireValueListeners(editorBean, fluorescenceDetectorComposite.getEditorUI());
-			BeanUI.beanToUI(editorBean, fluorescenceDetectorComposite.getEditorUI());
-			BeanUI.switchState(editorBean, fluorescenceDetectorComposite.getEditorUI(), true);
-		} catch (Exception e) {
-			// should never get an exception here as this means that there is a wiring problem between the UI and the
-			// bean, which would already have manifested itself by the time we get to this point
-			logger.debug("Unexpected exception when applying to all", e);
-		}
-
 	}
-
 }

@@ -48,20 +48,38 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 	// the detector group when the system is set up. The values supplied should
 	// be hand edited into the configuration file. The gain and offset can be
 	// changed subsequently using the XspressPanel or Xspress2Panel.
-	private double gain;
-
-	private double offset;
+//	private double gain;
+//
+//	private double offset;
 	
 	private boolean excluded = false;
 	
-	private double peakingTime;
+//	private double peakingTime;
 
+	// The windowStart and windowEnd are the start and end channel numbers of the
+	// data which should be summed to produce fluorescence counts.
+	private int windowStart;
+	private int windowEnd;
+	
+	
 	/**
 	 * default constructor for Castor
 	 */
 	public DetectorElement() {
 		regionList = new ArrayList<DetectorROI>();
 	}
+	
+	public DetectorElement(String name, int number, int windowStart, int windowEnd,
+			 boolean excluded,
+			ArrayList<DetectorROI> regionList) {
+		this.name = name;
+		this.number = number;
+		this.windowStart = windowStart;
+		this.windowEnd = windowEnd;
+		this.excluded = excluded;
+		this.regionList = regionList;
+	}
+
 
 	/**
 	 * 
@@ -69,19 +87,19 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 	public void clear() {
 		if (regionList!=null) regionList.clear();
 	}
-	/**
-	 * @return Returns the peakingTime.
-	 */
-	public double getPeakingTime() {
-		return peakingTime;
-	}
-
-	/**
-	 * @param peakingTime The peakingTime to set.
-	 */
-	public void setPeakingTime(double peakingTime) {
-		this.peakingTime = peakingTime;
-	}
+//	/**
+//	 * @return Returns the peakingTime.
+//	 */
+//	public double getPeakingTime() {
+//		return peakingTime;
+//	}
+//
+//	/**
+//	 * @param peakingTime The peakingTime to set.
+//	 */
+//	public void setPeakingTime(double peakingTime) {
+//		this.peakingTime = peakingTime;
+//	}
 
 	/**
 	 *
@@ -96,12 +114,12 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 	}
 
 
-	/**
-	 * @return gain
-	 */
-	public double getGain() {
-		return gain;
-	}
+//	/**
+//	 * @return gain
+//	 */
+//	public double getGain() {
+//		return gain;
+//	}
 	
 	/**
 	 * @return Returns the name.
@@ -124,12 +142,12 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 		this.number = number;
 	}
 
-	/**
-	 * @return offset
-	 */
-	public double getOffset() {
-		return offset;
-	}
+//	/**
+//	 * @return offset
+//	 */
+//	public double getOffset() {
+//		return offset;
+//	}
 
 	/**
 	 * @return number
@@ -138,25 +156,25 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 		return number;
 	}
 
-	/**
-	 * Sets the gain
-	 * 
-	 * @param gain
-	 *            new value
-	 */
-	public void setGain(double gain) {
-		this.gain = gain;
-	}
-
-	/**
-	 * Sets the offset
-	 * 
-	 * @param offset
-	 *            new value
-	 */
-	public void setOffset(double offset) {
-		this.offset = offset;
-	}
+//	/**
+//	 * Sets the gain
+//	 * 
+//	 * @param gain
+//	 *            new value
+//	 */
+//	public void setGain(double gain) {
+//		this.gain = gain;
+//	}
+//
+//	/**
+//	 * Sets the offset
+//	 * 
+//	 * @param offset
+//	 *            new value
+//	 */
+//	public void setOffset(double offset) {
+//		this.offset = offset;
+//	}
 
 	@Override
 	public boolean isExcluded() {
@@ -174,63 +192,36 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (excluded ? 1231 : 1237);
-		long temp;
-		temp = Double.doubleToLongBits(gain);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + number;
-		temp = Double.doubleToLongBits(offset);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(peakingTime);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + ((regionList == null) ? 0 : regionList.hashCode());
+		result = prime * result
+				+ ((regionList == null) ? 0 : regionList.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
 		DetectorElement other = (DetectorElement) obj;
-		if (excluded != other.excluded) {
+		if (excluded != other.excluded)
 			return false;
-		}
-		if (Double.doubleToLongBits(gain) != Double
-				.doubleToLongBits(other.gain)) {
-			return false;
-		}
 		if (name == null) {
-			if (other.name != null) {
+			if (other.name != null)
 				return false;
-			}
-		} else if (!name.equals(other.name)) {
+		} else if (!name.equals(other.name))
 			return false;
-		}
-		if (number != other.number) {
+		if (number != other.number)
 			return false;
-		}
-		if (Double.doubleToLongBits(offset) != Double
-				.doubleToLongBits(other.offset)) {
-			return false;
-		}
-		if (Double.doubleToLongBits(peakingTime) != Double
-				.doubleToLongBits(other.peakingTime)) {
-			return false;
-		}
 		if (regionList == null) {
-			if (other.regionList != null) {
+			if (other.regionList != null)
 				return false;
-			}
-		} else if (!regionList.equals(other.regionList)) {
+		} else if (!regionList.equals(other.regionList))
 			return false;
-		}
 		return true;
 	}
 
@@ -256,11 +247,11 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 
 	public DetectorElement(DetectorElement detectorElement){
 		excluded = detectorElement.excluded;
-		gain = detectorElement.gain;
+//		gain = detectorElement.gain;
 		name = detectorElement.name;
 		number = detectorElement.number;
-		offset = detectorElement.offset;
-		peakingTime = detectorElement.peakingTime;
+//		offset = detectorElement.offset;
+//		peakingTime = detectorElement.peakingTime;
 		Vector<DetectorROI> rois = new Vector<DetectorROI>();
 		for( DetectorROI rl : detectorElement.getRegionList()){
 			DetectorROI roi = new DetectorROI();
@@ -270,5 +261,32 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 			rois.add(roi);
 		}
 		setRegionList(rois);
+	}
+
+	public int getWindowStart() {
+		return windowStart;
+	}
+
+	public void setWindowStart(int windowStart) {
+		this.windowStart = windowStart;
+	}
+
+	public int getWindowEnd() {
+		return windowEnd;
+	}
+
+	public void setWindowEnd(int windowEnd) {
+		this.windowEnd = windowEnd;
+	}
+	
+	/**
+	 * Sets the window.
+	 * 
+	 * @param windowStart
+	 * @param windowEnd
+	 */
+	public void setWindow(int windowStart, int windowEnd) {
+		this.windowStart = windowStart;
+		this.windowEnd = windowEnd;
 	}
 }

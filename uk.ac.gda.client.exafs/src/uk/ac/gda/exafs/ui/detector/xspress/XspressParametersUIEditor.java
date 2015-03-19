@@ -79,7 +79,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDetector;
 import uk.ac.gda.beans.xspress.XspressParameters;
@@ -104,6 +104,7 @@ import com.swtdesigner.SWTResourceManager;
 /**
  *
  */
+@Deprecated
 public class XspressParametersUIEditor extends DetectorEditor {
 	
 	private static final String GDA_DEVICE_XSPRESS_SPOOL_DIR = "gda.device.xspress.spoolDir";

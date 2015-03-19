@@ -32,6 +32,7 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class PositionStreamingXspress extends Xspress2Detector implements PositionCallableProvider<NexusTreeProvider>, PositionInputStream<NexusTreeProvider> {
 	private static Logger logger = LoggerFactory.getLogger(PositionStreamingXspress.class);
 	private PositionStreamIndexer<NexusTreeProvider> indexer;

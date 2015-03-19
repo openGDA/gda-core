@@ -26,9 +26,11 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanUtils;
 
 import uk.ac.gda.beans.exafs.IDetectorConfigurationParameters;
+import uk.ac.gda.beans.vortex.DetectorElement;
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 
 
-public class XspressParameters implements Serializable,IDetectorConfigurationParameters {	
+public class XspressParameters implements Serializable,IDetectorConfigurationParameters, FluorescenceDetectorParameters {	
 	/**
 	 * The region type when the ROI returns the sum of counts in the region, so acts like a scaler.
 	 */
@@ -195,18 +197,11 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 	public boolean isSaveRawSpectrum() {
 		return saveRawSpectrum;
 	}
-	
-	/**
-	 * @return Returns the regionType.
-	 */
+
 	public String getRegionType() {
 		return regionType;
 	}
 
-	/**
-	 * @param regionType
-	 *            The regionType to set.
-	 */
 	public void setRegionType(String regionType) {
 		this.regionType = regionType;
 	}
@@ -218,5 +213,4 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 	public void setSelectedRegionNumber(int selectedRegionNumber) {
 		this.selectedRegionNumber = selectedRegionNumber;
 	}
-	
 }

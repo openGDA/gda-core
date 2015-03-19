@@ -24,6 +24,8 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
+import uk.ac.gda.beans.vortex.DetectorDeadTimeElement;
+
 
 public class XspressDeadTimeParameters {
 	private List<DetectorDeadTimeElement> detectorDTList;

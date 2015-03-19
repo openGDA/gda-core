@@ -33,7 +33,7 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.COMM_FAILURE;
 import org.omg.CORBA.TRANSIENT;
 
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**

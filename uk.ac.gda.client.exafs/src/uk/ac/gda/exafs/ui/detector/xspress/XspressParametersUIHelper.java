@@ -31,6 +31,7 @@ import uk.ac.gda.exafs.ui.detector.DetectorROIComposite;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 
+@Deprecated
 public enum XspressParametersUIHelper {
 	INSTANCE;
 	

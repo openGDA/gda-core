@@ -24,25 +24,25 @@ import org.eclipse.swt.widgets.Composite;
 /**
  * Xspress3 specific wrapper for the FluorescenceDetectorComposite.
  * <p>
- * Assumes the Xspress3 detector is called "xspress3" but this could be changed to use a Java property.
+ * Assumes the Xspress2 detector is called "xspress2system" but this could be changed to use a Java property.
  */
-public class Xspress3ParametersComposite extends Composite {
+public class Xspress2ParametersComposite extends Composite {
 
-	FluorescenceDetectorComposite x3Composite;
+	FluorescenceDetectorComposite x2Composite;
 
-	public Xspress3ParametersComposite(Composite parent, int style) {
+	public Xspress2ParametersComposite(Composite parent, int style) {
 		super(parent, style);
 		this.setLayout(new FillLayout());
-		x3Composite = FluorescenceDetectorCompositeFactory.createNewXspress3Composite(this);
+		x2Composite = FluorescenceDetectorCompositeFactory.createNewXspress2Composite(this);
 	}
 
 	@Override
 	public void dispose() {
 		super.dispose();
-		x3Composite.dispose();
+		x2Composite.dispose();
 	}
 
 	public FluorescenceDetectorComposite getFluorescenceDetectorComposite() {
-		return x3Composite;
+		return x2Composite;
 	}
 }

@@ -30,7 +30,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 
 /**
  * Extension to the asciidatawriter which uses xml files if defined which have more options specific to the exafs RCP

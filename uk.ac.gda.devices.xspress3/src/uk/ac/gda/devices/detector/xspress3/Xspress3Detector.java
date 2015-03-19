@@ -14,11 +14,13 @@ import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.nexusformat.NexusFile;
 
 import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
@@ -643,21 +645,6 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		this.filePrefix = filePrefix;
 	}
 
-	// public String getNumTrackerExtension() {
-	// return numTrackerExtension;
-	// }
-	//
-	// public void setNumTrackerExtension(String numTrackerExtension) {
-	// this.numTrackerExtension = numTrackerExtension;
-	// createNumTracker();
-	// }
-
-	@Override
-	public Object getCountRates() throws DeviceException {
-		// is this ever called??? Should it be removed from the interface???
-		return null;
-	}
-
 	@Override
 	public String getConfigFileName() {
 		return configFileName;
@@ -713,5 +700,38 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	@Override
 	public int getMCASize() {
 		return MCA_SIZE;
+	}
+	
+	@Override
+	public Class<? extends FluorescenceDetectorParameters> getConfigurationParametersClass() {
+		return Xspress3Parameters.class;
+	}
+
+	@Override
+	public FluorescenceDetectorParameters getConfigurationParameters() {
+		DetectorROI[] regions;
+		try {
+			regions = getRegionsOfInterest();
+		} catch (DeviceException e) {
+			Xspress3Parameters parameters = new Xspress3Parameters();
+			parameters.setDetectorName(getName());
+			return parameters;
+		}
+		
+		List<DetectorElement> detectorList = new ArrayList<DetectorElement>();
+		
+		for(int i = 0; i < getNumberOfChannels(); i++){
+			DetectorElement thisElement = new DetectorElement();
+			for(DetectorROI region : regions){
+				thisElement.addRegion(region);
+			}
+			detectorList.add(thisElement);
+		}
+		
+		Xspress3Parameters parameters = new Xspress3Parameters();
+		parameters.setDetectorName(getName());
+		parameters.setDetectorList(detectorList);
+
+		return parameters;
 	}
 }

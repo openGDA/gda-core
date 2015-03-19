@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.beans.xspress.XspressROI;
 import uk.ac.gda.common.rcp.util.GridUtils;
@@ -53,6 +53,7 @@ import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 import uk.ac.gda.exafs.ui.detector.xspress.XspressParametersUIHelper;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
+@Deprecated
 public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 	private static final Logger logger = LoggerFactory.getLogger(ImportXspressROIWizardPage.class);
 

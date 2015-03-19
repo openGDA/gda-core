@@ -492,6 +492,7 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 
 	public void setNumberOfChannels(int numberOfChannels) {
 		this.numberOfChannels = numberOfChannels;
+		enabledChannels = new boolean[numberOfChannels];
 	}
 
 	@Override

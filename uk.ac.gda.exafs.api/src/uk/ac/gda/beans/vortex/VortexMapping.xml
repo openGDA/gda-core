@@ -46,15 +46,6 @@
 			collection="collection" set-method="addRegion" get-method="getRegionList">
 			<bind-xml name="ROI" node="element" />
 		</field>
-		<field name="gain" type="double">
-			<bind-xml name="gain" node="element" />
-		</field>
-		<field name="peakingTime" type="double">
-			<bind-xml name="peakingTime" node="element" />
-		</field>
-		<field name="offset" type="double">
-			<bind-xml name="offset" node="element" />
-		</field>
 		<field name="excluded" type="boolean">
 			<bind-xml name="excluded" node="element" />
 		</field>
@@ -68,11 +59,11 @@
 		<field name="number" type="integer">
 			<bind-xml name="number" node="element" />
 		</field>
-		<field name="processDeadTimeAllEvent" type="double">
-			<bind-xml name="processDeadTimeAllEvent" node="element" />
+		<field name="processDeadTimeAllEventGradient" type="double">
+			<bind-xml name="processDeadTimeAllEventGradient" node="element" />
 		</field>
-		<field name="processDeadTimeInWindow" type="double">
-			<bind-xml name="processDeadTimeInWindow" node="element" />
+		<field name="processDeadTimeInWindowGradient" type="double">
+			<bind-xml name="processDeadTimeInWindowGradient" node="element" />
 		</field>
 	</class>
 

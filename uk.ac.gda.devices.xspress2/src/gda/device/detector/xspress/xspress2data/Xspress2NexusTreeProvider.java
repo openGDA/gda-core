@@ -13,7 +13,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.nexusformat.NexusFile;
 
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
 import uk.ac.gda.beans.xspress.XspressParameters;
 

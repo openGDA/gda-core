@@ -53,7 +53,7 @@ import uk.ac.gda.beans.exafs.MetadataParameters;
 import uk.ac.gda.beans.exafs.Region;
 import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.client.microfocus.scan.RasterMapDetectorPreparer;
 

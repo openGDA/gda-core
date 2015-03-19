@@ -30,7 +30,7 @@ import gda.factory.corba.CorbaFactoryException;
 
 import org.omg.CORBA.Any;
 
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**

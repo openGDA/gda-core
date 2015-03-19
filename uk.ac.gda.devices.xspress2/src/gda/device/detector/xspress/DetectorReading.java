@@ -19,7 +19,7 @@
 
 package gda.device.detector.xspress;
 
-import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.vortex.DetectorElement;
 
 /**
  * Class to represent readings from an Xspress detector element.

@@ -17,7 +17,7 @@
 		<field name="editIndividualElements" type="boolean">
 			<bind-xml name="editIndividualElements" node="element" />
 		</field>
-		<field name="DetectorElement" type="uk.ac.gda.beans.xspress.DetectorElement"
+		<field name="DetectorElement" type="uk.ac.gda.beans.vortex.DetectorElement"
 			collection="collection" set-method="addDetectorElement" get-method="getDetectorList">
 			<bind-xml name="DetectorElement" node="element"/>
 		</field>
@@ -37,7 +37,7 @@
 
 	<class name="uk.ac.gda.beans.xspress.XspressDeadTimeParameters">
 		<map-to xml="XspressDeadTimeParameters"/>
-		<field name="DetectorDeadTimeElement" type="uk.ac.gda.beans.xspress.DetectorDeadTimeElement"
+		<field name="DetectorDeadTimeElement" type="uk.ac.gda.beans.vortex.DetectorDeadTimeElement"
 			collection="collection" set-method="addDetectorDeadTimeElement" get-method="getDetectorDeadTimeElementList">
 			<bind-xml name="DetectorDeadTimeElement" node="element"/>
 		</field>		
@@ -56,7 +56,7 @@
 		</field>
 	</class>
 	
-	<class name="uk.ac.gda.beans.xspress.DetectorElement">
+	<class name="uk.ac.gda.beans.vortex.DetectorElement">
 		<map-to xml="DetectorElement"/>
 		<field name="name" type="string">
 			<bind-xml name="name" node="element"/>
@@ -78,7 +78,7 @@
 			<bind-xml name="Region" node="element"/>
 		</field>
 	</class>
-	<class name="uk.ac.gda.beans.xspress.DetectorDeadTimeElement">
+	<class name="uk.ac.gda.beans.vortex.DetectorDeadTimeElement">
 		<map-to xml="DetectorDeadTimeElement"/>
 		<field name="name" type="string">
 			<bind-xml name="name" node="element"/>

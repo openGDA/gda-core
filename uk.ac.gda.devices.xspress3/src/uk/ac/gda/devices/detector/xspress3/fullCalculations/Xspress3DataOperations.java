@@ -8,12 +8,14 @@ import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
 import gda.factory.Finder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 
 import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
@@ -354,5 +356,24 @@ public class Xspress3DataOperations {
 
 	public void setRegionsOfInterest(DetectorROI[] regionList) {
 		rois = regionList;		
+	}
+
+	public FluorescenceDetectorParameters getConfigurationParameters() {
+		DetectorROI[] regions = getRegionsOfInterest();
+
+		List<DetectorElement> detectorList = new ArrayList<DetectorElement>();
+
+		for (int i = 0; i < controller.getNumberOfChannels(); i++) {
+			DetectorElement thisElement = new DetectorElement();
+			for (DetectorROI region : regions) {
+				thisElement.addRegion(region);
+			}
+			detectorList.add(thisElement);
+		}
+
+		Xspress3Parameters parameters = new Xspress3Parameters();
+		parameters.setDetectorList(detectorList);
+
+		return parameters;
 	}
 }

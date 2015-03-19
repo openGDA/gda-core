@@ -68,6 +68,7 @@ import uk.ac.gda.richbeans.editors.DirtyContainer;
 
 import com.swtdesigner.SWTResourceManager;
 
+@Deprecated
 public class Xspress3ParametersUIEditor extends DetectorEditor {
 	private static final String XSPRESS3_EDITOR_DATA_XML_FILENAME = "xspress3_editor_data.xml";
 	private String detectorName;

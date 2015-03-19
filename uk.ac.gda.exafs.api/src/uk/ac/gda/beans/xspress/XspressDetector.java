@@ -24,6 +24,8 @@ import gda.device.DeviceException;
 
 import java.util.ArrayList;
 
+import uk.ac.gda.beans.vortex.DetectorElement;
+
 /**
  * Xspress systems must implement this to enable CORBA use
  */
