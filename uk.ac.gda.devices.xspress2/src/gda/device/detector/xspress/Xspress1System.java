@@ -29,7 +29,7 @@ import gda.factory.FactoryException;
 import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -331,7 +331,7 @@ public class Xspress1System extends XspressSystem {
 				NXDetectorData thisFrame = new NXDetectorData(this);
 				INexusTree detTree = thisFrame.getDetTree(getName());
 				// do not use numberOfDetectors here so all information in the array is added to Nexus (i.e. FF)
-				thisFrame.addData(detTree, "scalers", new int[] { numberOfDetectors }, NexusFile.NX_FLOAT64,
+				thisFrame.addData(detTree, "scalers", new int[] { numberOfDetectors }, NexusGlobals.NX_FLOAT64,
 						ArrayUtils.subarray(scalerData[frame], 0, numberOfDetectors), "counts", 1);
 				thisFrame = addExtraInformationToNexusTree(unpackedScalerData, scalerData, frame, thisFrame, detTree);
 				results[frame] = thisFrame;
@@ -352,7 +352,7 @@ public class Xspress1System extends XspressSystem {
 	private NXDetectorData addDTValuesToNXDetectorData(NXDetectorData thisFrame, long[] unpackedScalerData) {
 		// always add raw scaler values to nexus data
 		thisFrame.addData(thisFrame.getDetTree(getName()), "raw scaler values",
-				new int[] { unpackedScalerData.length }, NexusFile.NX_INT32, unpackedScalerData, "counts", 1);
+				new int[] { unpackedScalerData.length }, NexusGlobals.NX_INT32, unpackedScalerData, "counts", 1);
 
 		return thisFrame;
 	}
@@ -366,7 +366,7 @@ public class Xspress1System extends XspressSystem {
 		int ffColumn = elementNames.indexOf("FF");
 
 		if (elementNames.size() == ds.length && ffColumn > -1) {
-			thisFrame.addData(detTree, "FF", new int[] { 1 }, NexusFile.NX_FLOAT64, new double[] { ds[ffColumn] },
+			thisFrame.addData(detTree, "FF", new int[] { 1 }, NexusGlobals.NX_FLOAT64, new double[] { ds[ffColumn] },
 					"counts", 1);
 		}
 		return thisFrame;

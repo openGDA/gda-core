@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
@@ -228,16 +228,16 @@ public class Xspress2NexusTreeProvider {
 			if (alwaysRecordRawMCAs || currentSettings.getParameters().isSaveRawSpectrum()) {
 				int[][] raw_mcasSingleResGrade = removeSingleDimensionFromArray(data[frame]);
 				thisFrame.addData(detTree, "MCAs", new int[] { currentSettings.getNumberOfDetectors(), 4096 },
-						NexusFile.NX_INT32, raw_mcasSingleResGrade, "counts", 1);
+						NexusGlobals.NX_INT32, raw_mcasSingleResGrade, "counts", 1);
 
 			} else {
 				double[][] mcasSingleResGrade = removeSingleDimensionFromArray(correctedMCAArrays);
 				thisFrame.addData(detTree, "MCAs", new int[] { currentSettings.getNumberOfDetectors(), 4096 },
-						NexusFile.NX_FLOAT64, mcasSingleResGrade, "counts", 1);
+						NexusGlobals.NX_FLOAT64, mcasSingleResGrade, "counts", 1);
 			}
 			// add all in-window scaler counts in bulk
 			thisFrame.addData(detTree, "scalers", new int[] { currentSettings.getNumberOfDetectors() },
-					NexusFile.NX_FLOAT64, scalerData[frame], "counts", 1);
+					NexusGlobals.NX_FLOAT64, scalerData[frame], "counts", 1);
 
 			// optionally create a sum of all MCAs together
 			if (isSumAllElementData()) {
@@ -248,7 +248,7 @@ public class Xspress2NexusTreeProvider {
 						summation[i] += out[0][i];
 					}
 				}
-				thisFrame.addData(detTree, "allElementSum", new int[] { 4096 }, NexusFile.NX_FLOAT64, summation,
+				thisFrame.addData(detTree, "allElementSum", new int[] { 4096 }, NexusGlobals.NX_FLOAT64, summation,
 						"counts", 1);
 			}
 
@@ -278,12 +278,12 @@ public class Xspress2NexusTreeProvider {
 	private NXDetectorData addFFIfPossible(INexusTree detTree, NXDetectorData thisFrame, double[] ds) {
 		int ffColumn = currentSettings.getChannelLabels().indexOf("FF");
 		if (currentSettings.getChannelLabels().size() == ds.length && ffColumn > -1)
-			thisFrame.addData(detTree, "FF", new int[] { 1 }, NexusFile.NX_FLOAT64, new double[] { ds[ffColumn] },
+			thisFrame.addData(detTree, "FF", new int[] { 1 }, NexusGlobals.NX_FLOAT64, new double[] { ds[ffColumn] },
 					"counts", 1);
 		if (currentSettings.getMcaGrades() == Xspress2Detector.RES_THRES) {
 			int ffBadColumn = currentSettings.getChannelLabels().indexOf("FF_bad");
 			if (ffBadColumn > -1)
-				thisFrame.addData(detTree, "FF_bad", new int[] { 1 }, NexusFile.NX_FLOAT64,
+				thisFrame.addData(detTree, "FF_bad", new int[] { 1 }, NexusGlobals.NX_FLOAT64,
 						new double[] { ds[ffBadColumn] }, "counts", 1);
 		}
 		return thisFrame;
@@ -304,7 +304,7 @@ public class Xspress2NexusTreeProvider {
 			// do not use numberOfDetectors here so all information in the array
 			// is added to Nexus (i.e. FF)
 			thisFrame.addData(detTree, "scalers", new int[] { currentSettings.getNumberOfDetectors() },
-					NexusFile.NX_FLOAT64, scalerValues, "counts", 1);
+					NexusGlobals.NX_FLOAT64, scalerValues, "counts", 1);
 			thisFrame = addExtraInformationToNexusTree(unpackedScalerData, scalerData, frame, thisFrame, detTree);
 			results[frame] = thisFrame;
 		}
@@ -486,7 +486,7 @@ public class Xspress2NexusTreeProvider {
 							i++;
 						}
 						thisFrame.addData(detTree, roiName, new int[] { readingsInThisROI.size(), 4096 },
-								NexusFile.NX_INT32, mcaDataInThisROI, "counts", 1);
+								NexusGlobals.NX_INT32, mcaDataInThisROI, "counts", 1);
 					} else {
 						double[][] mcaDataInThisROI = new double[readingsInThisROI.size()][];
 						int i = 0;
@@ -495,7 +495,7 @@ public class Xspress2NexusTreeProvider {
 							i++;
 						}
 						thisFrame.addData(detTree, roiName, new int[] { readingsInThisROI.size(), 4096 },
-								NexusFile.NX_FLOAT64, mcaDataInThisROI, "counts", 1);
+								NexusGlobals.NX_FLOAT64, mcaDataInThisROI, "counts", 1);
 					}
 					break;
 				case (Xspress2Detector.RES_THRES):
@@ -511,7 +511,7 @@ public class Xspress2NexusTreeProvider {
 						}
 						thisFrame.addData(detTree, roiName,
 								new int[] { readingsInThisROI.size(), currentSettings.getMcaGrades(), 4096 },
-								NexusFile.NX_INT32, mcaDataInThisROI, "counts", 1);
+								NexusGlobals.NX_INT32, mcaDataInThisROI, "counts", 1);
 					} else {
 						double[][][] mcaDataInThisROI = new double[readingsInThisROI.size()][currentSettings
 								.getMcaGrades()][];
@@ -525,7 +525,7 @@ public class Xspress2NexusTreeProvider {
 						}
 						thisFrame.addData(detTree, roiName,
 								new int[] { readingsInThisROI.size(), currentSettings.getMcaGrades(), 4096 },
-								NexusFile.NX_FLOAT64, mcaDataInThisROI, "counts", 1);
+								NexusGlobals.NX_FLOAT64, mcaDataInThisROI, "counts", 1);
 					}
 					break;
 				default:
@@ -538,7 +538,7 @@ public class Xspress2NexusTreeProvider {
 						}
 						thisFrame.addData(detTree, roiName,
 								new int[] { readingsInThisROI.size(), currentSettings.getMcaGrades(), 4096 },
-								NexusFile.NX_INT32, mcaDataInThisROI, "counts", 1);
+								NexusGlobals.NX_INT32, mcaDataInThisROI, "counts", 1);
 					} else {
 						double[][][] mcaDataInThisROI = new double[readingsInThisROI.size()][currentSettings
 								.getMcaGrades()][];
@@ -549,7 +549,7 @@ public class Xspress2NexusTreeProvider {
 						}
 						thisFrame.addData(detTree, roiName,
 								new int[] { readingsInThisROI.size(), currentSettings.getMcaGrades(), 4096 },
-								NexusFile.NX_FLOAT64, mcaDataInThisROI, "counts", 1);
+								NexusGlobals.NX_FLOAT64, mcaDataInThisROI, "counts", 1);
 					}
 				}
 			}
@@ -568,7 +568,7 @@ public class Xspress2NexusTreeProvider {
 						vsDataInThisROI[i] = thisReading.counts[0];
 						i++;
 					}
-					thisFrame.addData(detTree, roiName, new int[] { vsDataInThisROI.length }, NexusFile.NX_FLOAT64,
+					thisFrame.addData(detTree, roiName, new int[] { vsDataInThisROI.length }, NexusGlobals.NX_FLOAT64,
 							vsDataInThisROI, "counts", 1);
 				} else if (readingsInThisROI.get(0).counts.length == 2) {
 					double[][] vsDataInThisROI = new double[readingsInThisROI.size()][2];
@@ -578,7 +578,7 @@ public class Xspress2NexusTreeProvider {
 						i++;
 					}
 					thisFrame.addData(detTree, roiName, new int[] { readingsInThisROI.size(), 2 },
-							NexusFile.NX_FLOAT64, vsDataInThisROI, "counts", 1);
+							NexusGlobals.NX_FLOAT64, vsDataInThisROI, "counts", 1);
 				} else {
 					// all 16 grades
 					double[][] vsDataInThisROI = new double[readingsInThisROI.size()][currentSettings.getMcaGrades()];
@@ -589,7 +589,7 @@ public class Xspress2NexusTreeProvider {
 					}
 					thisFrame.addData(detTree, roiName,
 							new int[] { readingsInThisROI.size(), currentSettings.getMcaGrades() },
-							NexusFile.NX_FLOAT64, vsDataInThisROI, "counts", 1);
+							NexusGlobals.NX_FLOAT64, vsDataInThisROI, "counts", 1);
 				}
 			}
 
@@ -666,13 +666,13 @@ public class Xspress2NexusTreeProvider {
 		}
 
 		thisFrame.addData(thisFrame.getDetTree(detectorName), "raw scaler total", new int[] { numFilteredDetectors },
-				NexusFile.NX_INT32, totalCounts, "counts", 1);
+				NexusGlobals.NX_INT32, totalCounts, "counts", 1);
 		thisFrame.addData(thisFrame.getDetTree(detectorName), "tfg resets", new int[] { numFilteredDetectors },
-				NexusFile.NX_INT32, numResets, "counts", 1);
+				NexusGlobals.NX_INT32, numResets, "counts", 1);
 		thisFrame.addData(thisFrame.getDetTree(detectorName), "raw scaler in-window",
-				new int[] { numFilteredDetectors }, NexusFile.NX_INT32, inWinCounts, "counts", 1);
+				new int[] { numFilteredDetectors }, NexusGlobals.NX_INT32, inWinCounts, "counts", 1);
 		thisFrame.addData(thisFrame.getDetTree(detectorName), "tfg clock cycles", new int[] { numFilteredDetectors },
-				NexusFile.NX_INT32, numClockCounts, "counts", 1);
+				NexusGlobals.NX_INT32, numClockCounts, "counts", 1);
 
 		return thisFrame;
 	}

@@ -16,7 +16,7 @@ import gda.scan.ScanInformation;
 import java.io.File;
 import java.util.List;
 
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
@@ -303,7 +303,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 			INexusTree detTree = thisFrame.getDetTree(getName());
 
 			// add FF (all ROI, all channels)
-			thisFrame.addData(detTree, sumLabel, new int[] { controller.getNumberOfChannels() }, NexusFile.NX_FLOAT64,
+			thisFrame.addData(detTree, sumLabel, new int[] { controller.getNumberOfChannels() }, NexusGlobals.NX_FLOAT64,
 					FFs[frame], unitsLabel, 1);
 
 			// add regions of interest for each channel
@@ -315,7 +315,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 					countsPerChannel[channel] = thisFrameData[channel][region];
 				}
 				thisFrame.addData(detTree, regionNames[region], new int[] { controller.getNumberOfChannels() },
-						NexusFile.NX_FLOAT64, countsPerChannel, unitsLabel, 2);
+						NexusGlobals.NX_FLOAT64, countsPerChannel, unitsLabel, 2);
 			}
 
 			// // add the FFs as the plottable values (seen in Jython Terminal

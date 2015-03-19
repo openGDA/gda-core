@@ -28,7 +28,7 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.factory.Finder;
 
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +78,7 @@ public class TfgXMapFFoverI0 extends DetectorBase implements NexusDetector {
 		Double ffio = ff / i0;
 		if (i0 == 0.0 || ff == 0.0 || i0.isInfinite() || i0.isNaN() || ff.isInfinite() || ff.isNaN())
 			ffio = 0.0;
-		thisFrame.addData(detTree, getExtraNames()[0], new int[] { 1 }, NexusFile.NX_FLOAT64, new Double[] { ffio }, "counts", 1);
+		thisFrame.addData(detTree, getExtraNames()[0], new int[] { 1 }, NexusGlobals.NX_FLOAT64, new Double[] { ffio }, "counts", 1);
 		thisFrame.setPlottableValue(getExtraNames()[0], ffio);
 		return thisFrame;
 	}
