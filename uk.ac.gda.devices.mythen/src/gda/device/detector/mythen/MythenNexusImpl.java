@@ -25,7 +25,7 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.mythen.data.MythenRawDataset;
 
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 
 public class MythenNexusImpl extends MythenDetectorImpl implements NexusDetector {
 	
@@ -57,9 +57,9 @@ public class MythenNexusImpl extends MythenDetectorImpl implements NexusDetector
 	public NexusTreeProvider readout() throws DeviceException{
 		NXDetectorData thisFrame = new NXDetectorData(this);
 		thisFrame.addNote(getName(), "Raw file:" + rawFile.getName());
-		thisFrame.addData(getName(), new int[] { processedData.getLines().size() }, NexusFile.NX_FLOAT64, processedData.getCountArray(),
+		thisFrame.addData(getName(), new int[] { processedData.getLines().size() }, NexusGlobals.NX_FLOAT64, processedData.getCountArray(),
 				"counts", 1);
-		thisFrame.addAxis(getName(), "position", new int[] {processedData.getLines().size()}, NexusFile.NX_FLOAT64, processedData.getAngleArray(), 2, 1, "degrees", false);
+		thisFrame.addAxis(getName(), "position", new int[] {processedData.getLines().size()}, NexusGlobals.NX_FLOAT64, processedData.getAngleArray(), 2, 1, "degrees", false);
 		thisFrame.setPlottableValue(getName(), 0.0);
 		thisFrame.setDoubleVals(new Double[]{0.0});
 		
