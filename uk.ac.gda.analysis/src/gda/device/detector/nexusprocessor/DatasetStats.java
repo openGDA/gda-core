@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 
 public class DatasetStats extends DataSetProcessorBase {
 
@@ -79,19 +79,19 @@ public class DatasetStats extends DataSetProcessorBase {
 		List<String> names = getOutputNames();
 		for (int i = 0; i < names.size(); i++) {
 			String name = names.get(i);
-			res.addData(detectorName, dataName + "." + name, new int[] { 1 }, NexusFile.NX_FLOAT64,
+			res.addData(detectorName, dataName + "." + name, new int[] { 1 }, NexusGlobals.NX_FLOAT64,
 					new double[] { vals[i] }, null, 1);
 		}
 		if(profileX){
 			Dataset sum2 = dataset.sum(0);
 			Serializable buffer = sum2.getBuffer();
 			long[] sum0 = (long[] )buffer;//TODO must deal with other types
-			res.addData(detectorName, dataName + "." + "profileX", new int[] { sum0.length}, NexusFile.NX_INT64,
+			res.addData(detectorName, dataName + "." + "profileX", new int[] { sum0.length}, NexusGlobals.NX_INT64,
 					sum0, null, 1);
 		}
 		if(profileY){
 			long[] sum1 = (long[] )dataset.sum(1).getBuffer();
-			res.addData(detectorName, dataName + "." + "profileY", new int[] { sum1.length}, NexusFile.NX_INT64,
+			res.addData(detectorName, dataName + "." + "profileY", new int[] { sum1.length}, NexusGlobals.NX_INT64,
 					sum1, null, 1);
 		}
 

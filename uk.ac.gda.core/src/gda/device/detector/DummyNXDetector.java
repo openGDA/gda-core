@@ -26,7 +26,7 @@ import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 
 /**
  *
@@ -58,14 +58,14 @@ public class DummyNXDetector implements NexusDetector {
 			
 			int[] dims = {10};
 			double[] dataVals = {1.1,2.2,3.3,4.4,5.5,6.6,7.7,8.8,9.9,0.0};
-			data.addData(elementName,dims, NexusFile.NX_FLOAT64, dataVals, "counts", 1);
+			data.addData(elementName,dims, NexusGlobals.NX_FLOAT64, dataVals, "counts", 1);
 			
 			int[] axis = {100,200,300,400,500,600,700,800,900,1000};
-			data.addAxis(elementName,"useless", dims, NexusFile.NX_INT32, axis, 1, 1, "pixels", false);
+			data.addAxis(elementName,"useless", dims, NexusGlobals.NX_INT32, axis, 1, 1, "pixels", false);
 			
 			
 			{
-				NexusGroupData dead_time_data = new NexusGroupData(new int[] { 1  } , NexusFile.NX_FLOAT64, new double[]{0.11} );
+				NexusGroupData dead_time_data = new NexusGroupData(new int[] { 1  } , NexusGlobals.NX_FLOAT64, new double[]{0.11} );
 				dead_time_data.isDetectorEntryData = true;
 				NexusTreeNode dead_time = new NexusTreeNode("dead_time",NexusExtractor.SDSClassName, null, dead_time_data);
 				dead_time.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, dead_time,new NexusGroupData("2")));

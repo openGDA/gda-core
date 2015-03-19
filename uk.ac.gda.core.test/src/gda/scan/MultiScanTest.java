@@ -50,7 +50,7 @@ import java.util.concurrent.Callable;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +90,7 @@ public class MultiScanTest {
 		
 		Detector det = TestHelpers.createTestDetector("htd", 0., new String[] {},
 				new String[] { "htd" }, 0, outputFormat, TestHelpers.createTestNexusGroupData(
-						dims2, NexusFile.NX_INT32, data2In, true), null, "description2", "detectorID2",
+						dims2, NexusGlobals.NX_INT32, data2In, true), null, "description2", "detectorID2",
 				"detectorType2");	
 		
 		ConcurrentScan scan2 = new ConcurrentScan(new Object[]{simpleScannable2, 0, 20, 2, det, .1});
@@ -413,7 +413,7 @@ class MyNXPlugin implements NXPlugin{
 
 			@Override
 			public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
-				data.addData(detectorName, getName(), new int[] { 1 }, NexusFile.NX_FLOAT64, new double[] { 0. }, null, null);
+				data.addData(detectorName, getName(), new int[] { 1 }, NexusGlobals.NX_FLOAT64, new double[] { 0. }, null, null);
 				
 			}});
 		return appenders;

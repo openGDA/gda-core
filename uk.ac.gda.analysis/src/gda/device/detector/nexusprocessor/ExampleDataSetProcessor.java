@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 
 /**
  * Example DataSetProcessor that adds data to the NexusProvider Test implementation of INexusProviderDataSetProcessor.
@@ -43,7 +43,7 @@ public class ExampleDataSetProcessor extends DataSetProcessorBase {
 	public GDANexusDetectorData process(final String detName, String dataName, Dataset dataset) throws Exception {
 		val = val + 1.;
 		NXDetectorData res = new NXDetectorData();
-		res.addData(detName, new int[]{1}, NexusFile.NX_FLOAT64, new double[]{val}, null, 1);
+		res.addData(detName, new int[]{1}, NexusGlobals.NX_FLOAT64, new double[]{val}, null, 1);
 		return res;
 	}
 

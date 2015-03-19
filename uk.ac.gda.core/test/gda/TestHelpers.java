@@ -48,7 +48,7 @@ import java.util.List;
 
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -849,7 +849,7 @@ class SimpleSubDetector extends SimpleDetector implements NexusDetector {
 	}
 
 	/**
-	 * @return type of data - e.g. NexusFile.NX_FLOAT64
+	 * @return type of data - e.g. NexusGlobals.NX_FLOAT64
 	 */
 	public int getDataType() {
 		return data.type;
@@ -859,7 +859,7 @@ class SimpleSubDetector extends SimpleDetector implements NexusDetector {
 	public NexusTreeProvider readout() throws DeviceException {
 		NXDetectorData nxdetData = new TestNXDetectorData();
 		if (filename != null) {
-			nxdetData.addData(name, new int[] { 19 }, NexusFile.NX_INT32, new int[19], null, null);
+			nxdetData.addData(name, new int[] { 19 }, NexusGlobals.NX_INT32, new int[19], null, null);
 			nxdetData.addFileName(name, filename);
 			INexusTree detTree = nxdetData.getDetTree(name);
 			{

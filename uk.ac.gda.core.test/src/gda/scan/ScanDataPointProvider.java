@@ -23,7 +23,7 @@ import gda.data.nexus.nxclassio.NexusFileHandle;
 import gda.device.Detector;
 import gda.device.Scannable;
 
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 
 public class ScanDataPointProvider {
 	ScanDataPoint[] points;
@@ -52,7 +52,7 @@ public class ScanDataPointProvider {
 
 		Detector det = TestHelpers.createTestDetector("SimpleDetector2", 0., new String[] {},
 				new String[] { "simpleDetector2" }, 0, new String[] { "%5.2g" }, TestHelpers.createTestNexusGroupData(
-						dims2, NexusFile.NX_INT32, data2In, true), null, "description2", "detectorID2",
+						dims2, NexusGlobals.NX_INT32, data2In, true), null, "description2", "detectorID2",
 				"detectorType2");	
 
 		points = new ScanDataPoint[num];
