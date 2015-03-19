@@ -29,7 +29,7 @@ import gda.device.detector.nexusprocessor.DataSetProcessorBase;
 import java.util.Collection;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.springframework.beans.factory.InitializingBean;
 
 public class ExcaliburNDArraySimulatorParameterReader extends DataSetProcessorBase implements InitializingBean {
@@ -51,11 +51,11 @@ public class ExcaliburNDArraySimulatorParameterReader extends DataSetProcessorBa
 		// construct NexusGroupData explicitly to ensure isDetectorEntryData and isPointDependent are false
 		// as this is calibration data
 		detTree.addChildNode(new NexusTreeNode(dataName + ".heights", NexusExtractor.SDSClassName, null, new NexusGroupData(dims,
-				NexusFile.NX_FLOAT64, sim.heights)));
+				NexusGlobals.NX_FLOAT64, sim.heights)));
 		detTree.addChildNode(new NexusTreeNode(dataName + ".centres", NexusExtractor.SDSClassName, null, new NexusGroupData(dims,
-				NexusFile.NX_FLOAT64, sim.centres)));
+				NexusGlobals.NX_FLOAT64, sim.centres)));
 		detTree.addChildNode(new NexusTreeNode(dataName + ".widths", NexusExtractor.SDSClassName, null, new NexusGroupData(dims,
-				NexusFile.NX_FLOAT64, sim.widths)));
+				NexusGlobals.NX_FLOAT64, sim.widths)));
 
 		return res;
 	}
