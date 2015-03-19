@@ -59,7 +59,7 @@ import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -656,7 +656,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 	}
 
 	protected void addDoubleItemToNXData(NXDetectorData data, String name, Double val) {
-		INexusTree valdata = data.addData(getName(), name, dims, NexusFile.NX_FLOAT64, new double[] { val }, null, null);
+		INexusTree valdata = data.addData(getName(), name, dims, NexusGlobals.NX_FLOAT64, new double[] { val }, null, null);
 		valdata.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, valdata, new NexusGroupData(String.format("%s.%s",  getName(), name))));
 		data.setPlottableValue(name, val);
 	}
@@ -794,7 +794,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 				for (int j = 1; j < dims[i]; j++) {
 					axis[j - 1] = j;
 				}
-				data.addAxis(getName(), getName() + "_axis" + (i + 1), new int[] { axis.length }, NexusFile.NX_INT32,
+				data.addAxis(getName(), getName() + "_axis" + (i + 1), new int[] { axis.length }, NexusGlobals.NX_INT32,
 						axis, i + 1, 1, "pixels", false);
 			}
 		}

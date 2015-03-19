@@ -24,7 +24,7 @@ import gda.device.detector.areadetector.v17.NDPluginBase;
 
 import java.io.Serializable;
 
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 
 /**
  * Class to hold data extracted from NDArray plugin in form to add to NXDetectorData
@@ -93,7 +93,7 @@ public class ArrayData{
 					cd[i] = (short) (b[i] & 0xff);
 				}
 				dataVals = cd;
-				nexusType = NexusFile.NX_INT16;
+				nexusType = NexusGlobals.NX_INT16;
 			}
 		}
 			break;
@@ -102,7 +102,7 @@ public class ArrayData{
 			if (expectedNumPixels > b.length)
 				throw new DeviceException("Data size is not valid");
 			dataVals = b;
-			nexusType = NexusFile.NX_INT8;
+			nexusType = NexusGlobals.NX_INT8;
 			break;
 		}
 		case NDPluginBase.Int16: {
@@ -112,7 +112,7 @@ public class ArrayData{
 						+ expectedNumPixels);
 
 			dataVals = s;
-			nexusType = NexusFile.NX_INT16;
+			nexusType = NexusGlobals.NX_INT16;
 		}
 			break;
 		case NDPluginBase.UInt16: {
@@ -126,7 +126,7 @@ public class ArrayData{
 				cd[i] = (s[i] & 0xffff);
 			}
 			dataVals = cd;
-			nexusType = NexusFile.NX_INT32;
+			nexusType = NexusGlobals.NX_INT32;
 		}
 			break;
 		case NDPluginBase.UInt32: // TODO should convert to INT64 if any numbers are negative
@@ -137,7 +137,7 @@ public class ArrayData{
 						+ expectedNumPixels);
 
 			dataVals = s;
-			nexusType = NexusFile.NX_INT32;
+			nexusType = NexusGlobals.NX_INT32;
 		}
 			break;
 		case NDPluginBase.Float32:
@@ -148,7 +148,7 @@ public class ArrayData{
 						+ expectedNumPixels);
 
 			dataVals = s;
-			nexusType = NexusFile.NX_FLOAT32;
+			nexusType = NexusGlobals.NX_FLOAT32;
 		}
 			break;
 		default:

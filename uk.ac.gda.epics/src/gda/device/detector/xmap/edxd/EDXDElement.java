@@ -30,7 +30,7 @@ import java.util.Arrays;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.nexusformat.NeXusFileInterface;
 import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 
 import uk.ac.diamond.scisoft.analysis.fitting.Fitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
@@ -409,7 +409,7 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}	
 	
 	public int getDataType() {
-		return NexusFile.NX_FLOAT64;
+		return NexusGlobals.NX_FLOAT64;
 	}
 
 	@Override
