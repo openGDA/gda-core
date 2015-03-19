@@ -644,7 +644,6 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			GridUtils.layoutFull(getDetectorElementComposite().getExcluded().getParent());
 			getDetectorList().setListVisible(currentEditIndividual);
 			autoApplyToAll(!currentEditIndividual);
-			sashPlotForm.layout();
 			calculateAndPlotCountTotals(currentEditIndividual);
 		} finally {
 			GridUtils.endMultiLayout();
