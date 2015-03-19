@@ -34,7 +34,7 @@ import java.util.Vector;
 
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**
@@ -99,7 +99,7 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 				if( !isAttr){
 					//Look for target attribute
 					NexusGroupData data = nexusDataGetter.getAttributeOfCurrentProcessedGroup("target");
-					if( data != null && data.type == NexusFile.NX_CHAR && data.getBuffer() != null){
+					if( data != null && data.type == NexusGlobals.NX_CHAR && data.getBuffer() != null){
 						//this is a link so look in targetNodes 
 						//note that both ends of the link have the target attribute so if the value has already 
 						//been read then it will be in the targetNodes

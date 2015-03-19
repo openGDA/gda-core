@@ -18,10 +18,11 @@
 
 package gda.data.nexus.extractor;
 
+import gda.data.nexus.NexusGlobals;
+
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,7 @@ public class NexusGroupData implements Serializable {
 	public int[] chunkDimensions = null;
 
 	/**
-	 * type of data e.g. NexusFile.NX_CHAR
+	 * type of data e.g. NexusGlobals.NX_CHAR
 	 */
 	public final int type;
 
@@ -52,7 +53,7 @@ public class NexusGroupData implements Serializable {
 	 * Setting this can advise a datawriter to use the specified compression algorithm
 	 * for a choice see:
 	 * 
-	 * NexusFile.NX_COMP_*
+	 * NexusGlobals.NX_COMP_*
 	 */
 	public Integer compressionType = null;
 
@@ -85,7 +86,7 @@ public class NexusGroupData implements Serializable {
 		}
 		dimensions = new int[1];
 		dimensions[0] = s.length();
-		type = NexusFile.NX_CHAR;
+		type = NexusGlobals.NX_CHAR;
 	}
 
 	public NexusGroupData(Integer i) {
@@ -93,7 +94,7 @@ public class NexusGroupData implements Serializable {
 		int[] idata = new int[]{i};
 		dimensions = new int[]{idata.length};
 		data = idata;
-		type = NexusFile.NX_INT32;
+		type = NexusGlobals.NX_INT32;
 	}
 
 	public NexusGroupData(Boolean b) {
@@ -105,7 +106,7 @@ public class NexusGroupData implements Serializable {
 		double [] idata = new double[]{i};
 		dimensions = new int[]{idata.length};
 		data = idata;
-		type = NexusFile.NX_FLOAT64;
+		type = NexusGlobals.NX_FLOAT64;
 	}
 	/**
 	 * @return The data buffer compatible with type, null if data not extracted
@@ -133,10 +134,10 @@ public class NexusGroupData implements Serializable {
 		msg.append("</dimensions>");
 		msg.append("<type>");
 		switch (type) {
-		case NexusFile.NX_CHAR:
+		case NexusGlobals.NX_CHAR:
 			msg.append("NX_CHAR");
 			break;
-		case NexusFile.NX_FLOAT64:
+		case NexusGlobals.NX_FLOAT64:
 			msg.append("NX_FLOAT64");
 			break;
 		default:
@@ -156,7 +157,7 @@ public class NexusGroupData implements Serializable {
 	public String dataToTxt(boolean newlineAfterEach, boolean dataAsString, boolean wrap) {
 		StringBuffer msg = new StringBuffer();
 		if (data != null) {
-			if (type == NexusFile.NX_CHAR && data instanceof byte[]) {
+			if (type == NexusGlobals.NX_CHAR && data instanceof byte[]) {
 				if (wrap)
 					msg.append("<value>");
 				msg.append(new String((byte[]) data));
@@ -165,7 +166,7 @@ public class NexusGroupData implements Serializable {
 				if (newlineAfterEach) {
 					msg.append("\n");
 				}
-			} else if (type == NexusFile.NX_CHAR && data instanceof String[]) {
+			} else if (type == NexusGlobals.NX_CHAR && data instanceof String[]) {
 				if (wrap)
 					msg.append("<value>");
 				String s = ((String[]) data)[0];
@@ -299,7 +300,7 @@ public class NexusGroupData implements Serializable {
 
 		// promote to int or double if possible
 		switch (type) {
-		case NexusFile.NX_CHAR:
+		case NexusGlobals.NX_CHAR:
 			if (data instanceof String)
 				value = data;
 			else if (data instanceof String[])
@@ -307,22 +308,22 @@ public class NexusGroupData implements Serializable {
 			else
 				value = new String((byte[]) data);
 			break;
-		case NexusFile.NX_FLOAT64:
+		case NexusGlobals.NX_FLOAT64:
 			value = ((double[]) data)[0];
 			break;
-		case NexusFile.NX_FLOAT32:
+		case NexusGlobals.NX_FLOAT32:
 			value = (double) ((float[]) data)[0];
 			break;
-		case NexusFile.NX_INT64:
+		case NexusGlobals.NX_INT64:
 			value = ((long[]) data)[0];
 			break;
-		case NexusFile.NX_INT32:
+		case NexusGlobals.NX_INT32:
 			value = ((int[]) data)[0];
 			break;
-		case NexusFile.NX_INT16:
+		case NexusGlobals.NX_INT16:
 			value = (int) ((short[]) data)[0];
 			break;
-		case NexusFile.NX_INT8:
+		case NexusGlobals.NX_INT8:
 			value = (int) ((byte[]) data)[0];
 			break;
 		default:

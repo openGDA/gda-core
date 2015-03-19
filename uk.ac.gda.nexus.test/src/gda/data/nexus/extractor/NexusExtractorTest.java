@@ -34,7 +34,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 
 public class NexusExtractorTest {
 	String scratchFolder;
@@ -104,7 +104,7 @@ public class NexusExtractorTest {
 				+ NexusExtractor.NXDataClassName + "/" + "a" + "/" + NexusExtractor.SDSClassName + "/";
 		URL url = new URL("file:" + new File(TestFileFolder + "327.nxs").getAbsolutePath());
 		NexusGroupData data = NexusExtractor.getNexusGroupData(url, pathWithClass, null, null, true);
-		Assert.assertEquals(NexusFile.NX_FLOAT64, data.type );
+		Assert.assertEquals(NexusGlobals.NX_FLOAT64, data.type );
 		Assert.assertEquals( 1, data.dimensions.length);
 		Assert.assertEquals( 11, data.dimensions[0]);
 		Assert.assertEquals( (Double)1.0, (Double)((double [])data.getBuffer())[10]);
@@ -112,7 +112,7 @@ public class NexusExtractorTest {
 		int[] dims = new int []{2};
 		int[] startPos = new int[] { 2 };
 		data = NexusExtractor.getNexusGroupData(url, pathWithClass, dims, startPos, true);
-		Assert.assertEquals(NexusFile.NX_FLOAT64, data.type );
+		Assert.assertEquals(NexusGlobals.NX_FLOAT64, data.type );
 		Assert.assertEquals( 1, data.dimensions.length);
 		Assert.assertEquals( 2, data.dimensions[0]);
 		Assert.assertEquals( (Double)0.2, (Double)((double [])data.getBuffer())[0]);
