@@ -19,6 +19,7 @@
 package gda.device.detector.maxipix2;
 
 import fr.esrf.Tango.DevFailed;
+import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -42,8 +43,6 @@ import gda.factory.FactoryException;
 
 import java.util.Vector;
 import java.util.concurrent.Callable;
-
-import org.nexusformat.NexusFile;
 
 /*
  * MaxiPix2 detector that works in the mode: 1 readout/getPositionCallable per acquisition - multiple frames. Used to
@@ -104,7 +103,7 @@ public class MaxiPix2NexusDetector extends DetectorBase implements NexusDetector
 	}
 
 	INexusTree makeNexusTreeNode(String label, double data) {
-		NexusGroupData groupData = new NexusGroupData(new int[] { 1 }, NexusFile.NX_FLOAT64, new double[] { data });
+		NexusGroupData groupData = new NexusGroupData(new int[] { 1 }, NexusGlobals.NX_FLOAT64, new double[] { data });
 		return new NexusTreeNode(label, NexusExtractor.SDSClassName, null, groupData);
 	}
 	INexusTree makeNexusTreeNode(String label, String data) {
@@ -277,7 +276,7 @@ public class MaxiPix2NexusDetector extends DetectorBase implements NexusDetector
 				fileNameNode.addChildNode(new NexusTreeNode("axes", NexusExtractor.AttrClassName, fileNameNode,
 						new NexusGroupData("time")));
 
-				data.addAxis(name, "time", new int[] { timesCurrentAcq2.length }, NexusFile.NX_FLOAT64,
+				data.addAxis(name, "time", new int[] { timesCurrentAcq2.length }, NexusGlobals.NX_FLOAT64,
 						timesCurrentAcq2, 1, 1, "s", false);
 
 				{

@@ -18,13 +18,12 @@
 
 package gda.device.detector.ccd;
 
+import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
-
-import org.nexusformat.NexusFile;
 
 public class NexusTangoCcd extends TangoCcd implements  NexusDetector {
 
@@ -53,11 +52,11 @@ public class NexusTangoCcd extends TangoCcd implements  NexusDetector {
 		short depth = (Short) getAttribute("Depth");
 		if (byteData != null) {
 			if (depth == 1) {
-				ngd = new NexusGroupData(new int[] { width, height }, NexusFile.NX_INT8, byteData);
+				ngd = new NexusGroupData(new int[] { width, height }, NexusGlobals.NX_INT8, byteData);
 			} else if (depth == 2) {
-				ngd = new NexusGroupData(new int[] { width, height }, NexusFile.NX_INT16, byteData);
+				ngd = new NexusGroupData(new int[] { width, height }, NexusGlobals.NX_INT16, byteData);
 			} else {
-				ngd = new NexusGroupData(new int[] { width, height }, NexusFile.NX_INT32, byteData);
+				ngd = new NexusGroupData(new int[] { width, height }, NexusGlobals.NX_INT32, byteData);
 			}
 			ngd.isDetectorEntryData = true;
 			nxdata.addData(getName(), ngd, "counts", 1);
