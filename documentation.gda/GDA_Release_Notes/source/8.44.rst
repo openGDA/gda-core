@@ -51,7 +51,7 @@ Fixes
 How to create notes
 ~~~~~~~~~~~~~~~~~~~
 
-1. Run the git command:``git log --no-merges --pretty=format:\%aD\, \%an\, \* %s [%an - %h] %b\ 8.40rel..HEAD > /tmp/reponame.version.csv``
+1. Run the git command: ``git log --no-merges --pretty="format:%aD, %an, * %s [%an - %h] %b" gda-8.42rel..gda-8.44rel > /tmp/reponame.version.csv``
 
 2. Open up in excel or the likes,
    
