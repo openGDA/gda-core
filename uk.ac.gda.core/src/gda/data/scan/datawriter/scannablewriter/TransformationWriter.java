@@ -18,11 +18,10 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFileInterface;
+import gda.data.nexus.NexusGlobals;
 import gda.device.Scannable;
-
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
 
 public class TransformationWriter extends SingleScannableWriter {
 
@@ -41,22 +40,22 @@ public class TransformationWriter extends SingleScannableWriter {
 		}
 
 		@Override
-		protected void addCustomAttributes(final NeXusFileInterface file, final String scannableName,
+		protected void addCustomAttributes(final NexusFileInterface file, final String scannableName,
 				final String componentName) throws NexusException {
 
 			super.addCustomAttributes(file, scannableName, componentName);
-			file.putattr("transformation_type", transformation[index].getBytes(), NexusFile.NX_CHAR);
+			file.putattr("transformation_type", transformation[index].getBytes(), NexusGlobals.NX_CHAR);
 			if (dependsOn != null && dependsOn[index] != null) {
-				file.putattr("depends_on", dependsOn[index].getBytes(), NexusFile.NX_CHAR);
+				file.putattr("depends_on", dependsOn[index].getBytes(), NexusGlobals.NX_CHAR);
 			}
 			if (offsetUnits != null && offsetUnits[index] != null) {
-				file.putattr("offset_units", offsetUnits[index].getBytes(), NexusFile.NX_CHAR);
+				file.putattr("offset_units", offsetUnits[index].getBytes(), NexusGlobals.NX_CHAR);
 			}
 			if (vector != null && vector[index] != null) {
-				file.putattr("vector", vector[index], new int[] { vector[index].length }, NexusFile.NX_FLOAT64);
+				file.putattr("vector", vector[index], new int[] { vector[index].length }, NexusGlobals.NX_FLOAT64);
 			}
 			if (offset != null && offset[index] != null) {
-				file.putattr("offset", offset[index], new int[] { offset[index].length }, NexusFile.NX_FLOAT64);
+				file.putattr("offset", offset[index], new int[] { offset[index].length }, NexusGlobals.NX_FLOAT64);
 			}
 		}
 	}

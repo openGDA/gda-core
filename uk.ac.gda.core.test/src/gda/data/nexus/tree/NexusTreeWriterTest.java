@@ -20,13 +20,13 @@
 package gda.data.nexus.tree;
 
 import gda.TestHelpers;
+import gda.data.nexus.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.nexusformat.NexusFile;
-
 
 /**
  *
@@ -44,7 +44,7 @@ public class NexusTreeWriterTest {
 		tree_in.addChildNode( entry2);
 		entry2.addChildNode( new NexusTreeNode("units",NexusExtractor.AttrClassName,entry2, new NexusGroupData("\u212B")));
 		String filename = testScratchDirectoryName+"/out.nxs";
-		NexusFile file = new NexusFile(filename,NexusFile.NXACC_CREATE5);
+		NexusFile file = new NexusFile(filename, NexusGlobals.NXACC_CREATE5);
 		NexusTreeWriter.writeHere(file, tree_in);
 		file.close();
 		INexusTree tree_out = NexusTreeBuilder.getNexusTree(filename, NexusTreeNodeSelection.createTreeForAllData());

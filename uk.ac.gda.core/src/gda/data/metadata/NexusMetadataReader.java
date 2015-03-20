@@ -19,6 +19,9 @@
 
 package gda.data.metadata;
 
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import gda.factory.Findable;
 
 import java.util.ArrayList;
@@ -26,8 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,7 +125,7 @@ public class NexusMetadataReader implements Findable {
 		StringTokenizer st2;
 
 		try {
-			nf = new NexusFile(filename, NexusFile.NXACC_READ);
+			nf = new NexusFile(filename, NexusGlobals.NXACC_READ);
 			while (st1.hasMoreTokens()) {
 				temp = st1.nextToken();
 				if (!st1.hasMoreTokens()) {

@@ -19,6 +19,7 @@
 package uk.ac.gda.client.liveplot;
 
 import gda.data.PathConstructor;
+import gda.data.nexus.NexusException;
 import gda.data.nexus.extractor.NexusExtractorException;
 import gda.jython.IAllScanDataPointsObserver;
 import gda.jython.InterfaceProvider;
@@ -74,7 +75,6 @@ import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.dialogs.ListSelectionDialog;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ViewPart;
-import org.nexusformat.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

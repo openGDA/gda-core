@@ -18,7 +18,9 @@
 
 package gda.data.scan.datawriter;
 
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusFile;
+import gda.data.nexus.NexusGlobals;
+
 import org.springframework.beans.factory.InitializingBean;
 
 /**
@@ -234,14 +236,14 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 	}
 	
 	public void writeStringData(String filename, String dataName, String dataValue ) throws Exception {
-		NexusFile file = new NexusFile(filename,NexusFile.NXACC_RDWR);
+		NexusFile file = new NexusFile(filename,NexusGlobals.NXACC_RDWR);
 		try {
 			// navigate to desired place
 			file.opengroup("entry1", "NXentry");
 			file.opengroup("tomo_entry", "NXsubentry");
 			
 			int[] arr = { dataValue.length() };
-			file.makedata(dataName, NexusFile.NX_CHAR, 1, arr);
+			file.makedata(dataName, NexusGlobals.NX_CHAR, 1, arr);
 			file.opendata(dataName);
 			file.putdata(dataValue.getBytes());
 			file.closedata();

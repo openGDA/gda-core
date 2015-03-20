@@ -17,12 +17,13 @@
  */
 package gda.data.scan.datawriter.scannablewriter;
 
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFileInterface;
+
 import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.util.StringTokenizer;
 
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,7 @@ public abstract class DefaultComponentWriter implements ComponentWriter {
 	 * @return name of trailing component
 	 * @throws NexusException
 	 */
-	protected String enterLocation(final NeXusFileInterface file, final String path) throws NexusException {
+	protected String enterLocation(final NexusFileInterface file, final String path) throws NexusException {
 		levels = 0;
 		final StringTokenizer st = new StringTokenizer(path, "/");
 		while (st.hasMoreTokens()) {
@@ -67,7 +68,7 @@ public abstract class DefaultComponentWriter implements ComponentWriter {
 		throw new IllegalArgumentException("configured path is not well formed (suspect it has no trailing component)");
 	}
 
-	protected void leaveLocation(final NeXusFileInterface file) throws NexusException {
+	protected void leaveLocation(final NexusFileInterface file) throws NexusException {
 		for (int i = 0; i < levels; i++) {
 			file.closegroup();
 		}
@@ -117,13 +118,13 @@ public abstract class DefaultComponentWriter implements ComponentWriter {
 	 *            extra or input name being written
 	 * @throws NexusException
 	 */
-	protected void addCustomAttributes(final NeXusFileInterface file, final String scannableName,
+	protected void addCustomAttributes(final NexusFileInterface file, final String scannableName,
 			final String componentName) throws NexusException {
 		// Default no operation
 	}
 
 	@Override
-	public void writeComponent(final NeXusFileInterface file, final int[] start, final String path,
+	public void writeComponent(final NexusFileInterface file, final int[] start, final String path,
 			final String scannableName, final String componentName, final Object pos) throws NexusException {
 
 		final String name = enterLocation(file, path);

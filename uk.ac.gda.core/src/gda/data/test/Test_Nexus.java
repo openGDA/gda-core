@@ -20,8 +20,8 @@
 package gda.data.test;
 
 import gda.data.nexus.NexusFileFactory;
+import gda.data.nexus.NexusFileInterface;
 
-import org.nexusformat.NeXusFileInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ public class Test_Nexus {
 
 		// Create a new NEXUS file
 		try {
-			NeXusFileInterface nf = NexusFileFactory.createFile(filename, "HDF5", false);
+			NexusFileInterface nf = NexusFileFactory.createFile(filename, "HDF5", false);
 			// nf.makegroup("entry1","NXentry");
 			nf.close();
 		} catch (Throwable e) {

@@ -18,11 +18,12 @@
 
 package gda.data.scan.datawriter;
 
+import gda.data.nexus.NXlink;
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFileInterface;
+
 import java.io.File;
 
-import org.nexusformat.NXlink;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
 
 public class SelfCreatingLink {
 	NXlink nxlink;
@@ -32,10 +33,10 @@ public class SelfCreatingLink {
 	}
 
 	public String getName() {
-		return new File(nxlink.targetPath).getName();
+		return new File(nxlink.getTargetPath()).getName();
 	}
 	
-	public void create(NeXusFileInterface file) throws NexusException {
+	public void create(NexusFileInterface file) throws NexusException {
 		file.makelink(nxlink);
 	}
 }

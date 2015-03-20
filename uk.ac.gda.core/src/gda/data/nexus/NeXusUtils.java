@@ -31,9 +31,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NeXusUtils {
 
-	private static final Logger logger = LoggerFactory.getLogger(NeXusUtils.class);
+	private static final Logger logger = LoggerFactory.getLogger(NexusUtils.class);
 
 	private final static String DEFAULT_NUMBER_VALUE = "-1.0";
 	@SuppressWarnings("unused")
@@ -148,7 +145,7 @@ public class NeXusUtils {
 	 */
 	public static int[] getDim(int[] dimension) {
 		int[] iDim = new int[dimension.length + 1];
-		iDim[0] = NexusFile.NX_UNLIMITED;
+		iDim[0] = NexusGlobals.NX_UNLIMITED;
 
 		for (int i = 0; i < dimension.length; i++) {
 			iDim[i + 1] = dimension[i];
@@ -165,7 +162,7 @@ public class NeXusUtils {
 	 * @throws NexusException
 	 * @throws IOException
 	 */
-	public static void writeXESraw(NeXusFileInterface file, String entryName) throws NexusException, IOException {
+	public static void writeXESraw(NexusFileInterface file, String entryName) throws NexusException, IOException {
 
 		String beamline = LocalProperties.get("gda.instrument", "base");
 		NumTracker runNumber = new NumTracker(beamline);
@@ -182,19 +179,19 @@ public class NeXusUtils {
 		file.opengroup(entryName, "NXentry");
 
 		try {
-			writeNexusString(file, "title", metadata.getMetadataValue(GDAMetadataProvider.TITLE));
-			writeNexusString(file, "investigation", metadata.getMetadataValue(GDAMetadataProvider.INVESTIGATION));
-			writeNexusString(file, "proposal_identifier", metadata.getMetadataValue(GDAMetadataProvider.PROPOSAL));
-			writeNexusString(file, "experiment_identifier", metadata.getMetadataValue(GDAMetadataProvider.EXPERIMENT_IDENTIFIER));
-			writeNexusString(file, "experiment_description",metadata.getMetadataValue(GDAMetadataProvider.EXPERIMENT_DESCRIPTION));
-			writeNexusString(file, "collection_identifier", metadata.getMetadataValue(GDAMetadataProvider.COLLECTION_IDENTIFIER));
-			writeNexusString(file, "collection_description", metadata.getMetadataValue(GDAMetadataProvider.COLLECTION_DESCRIPTION));
-			writeNexusString(file, "run_cycle", metadata.getMetadataValue(GDAMetadataProvider.FACILITY_RUN_CYCLE));
+			NexusUtils.writeNexusString(file, "title", metadata.getMetadataValue(GDAMetadataProvider.TITLE));
+			NexusUtils.writeNexusString(file, "investigation", metadata.getMetadataValue(GDAMetadataProvider.INVESTIGATION));
+			NexusUtils.writeNexusString(file, "proposal_identifier", metadata.getMetadataValue(GDAMetadataProvider.PROPOSAL));
+			NexusUtils.writeNexusString(file, "experiment_identifier", metadata.getMetadataValue(GDAMetadataProvider.EXPERIMENT_IDENTIFIER));
+			NexusUtils.writeNexusString(file, "experiment_description",metadata.getMetadataValue(GDAMetadataProvider.EXPERIMENT_DESCRIPTION));
+			NexusUtils.writeNexusString(file, "collection_identifier", metadata.getMetadataValue(GDAMetadataProvider.COLLECTION_IDENTIFIER));
+			NexusUtils.writeNexusString(file, "collection_description", metadata.getMetadataValue(GDAMetadataProvider.COLLECTION_DESCRIPTION));
+			NexusUtils.writeNexusString(file, "run_cycle", metadata.getMetadataValue(GDAMetadataProvider.FACILITY_RUN_CYCLE));
 			/* to allow unit tests to check for differences in files we need a way of forcing a certain version number */
 			if (LocalProperties.check("gda.data.scan.datawriter.setTime0")){
-				writeNexusString(file, "program_name", "GDA 7.11.0");
+				NexusUtils.writeNexusString(file, "program_name", "GDA 7.11.0");
 			} else {
-				writeNexusString(file, "program_name", "GDA " + Version.getReleaseVersion());
+				NexusUtils.writeNexusString(file, "program_name", "GDA " + Version.getReleaseVersion());
 			}
 
 //			writeGeneralMetaData(file, metadata);
@@ -206,7 +203,7 @@ public class NeXusUtils {
 
 		// Run Number
 		// writeNexusInteger(file, "entry_identifier", (int) runNumber.getCurrentFileNumber());
-		writeNexusString(file, "entry_identifier", String.valueOf(runNumber.getCurrentFileNumber()));
+		NexusUtils.writeNexusString(file, "entry_identifier", String.valueOf(runNumber.getCurrentFileNumber()));
 
 		// Write the NXuser
 		write_NXuser(file);
@@ -229,7 +226,7 @@ public class NeXusUtils {
 	 *            The NeXus file handle
 	 * @throws NexusException
 	 */
-	public static void write_NXinstrument(NeXusFileInterface file) throws NexusException {
+	public static void write_NXinstrument(NexusFileInterface file) throws NexusException {
 
 		String beamline = LocalProperties.get("gda.instrument", "base");
 
@@ -241,7 +238,7 @@ public class NeXusUtils {
 		// Open the NXinstrument
 		file.opengroup("instrument", "NXinstrument");
 
-		writeNexusString(file, "name", beamline);
+		NexusUtils.writeNexusString(file, "name", beamline);
 
 		// These are other components that we may or may not have values for...
 		write_NXmonochromator(file);
@@ -263,7 +260,7 @@ public class NeXusUtils {
 	 *            The NeXus file handle
 	 * @throws NexusException
 	 */
-	public static void write_NXuser(NeXusFileInterface file) throws NexusException {
+	public static void write_NXuser(NexusFileInterface file) throws NexusException {
 
 		Metadata metadata = GDAMetadataProvider.getInstance();
 
@@ -272,7 +269,7 @@ public class NeXusUtils {
 		file.opengroup("user01", "NXuser");
 
 		try {
-			writeNexusString(file, "username", metadata.getMetadataValue("federalid"));
+			NexusUtils.writeNexusString(file, "username", metadata.getMetadataValue("federalid"));
 		} catch (DeviceException e) {
 			logger.warn("NXuser: Problem reading one or more items of metadata.");
 		}
@@ -287,8 +284,8 @@ public class NeXusUtils {
 	 * @return NeXus file handle
 	 * @throws NexusException
 	 */
-	public static NexusFile openNexusFile(String filename) throws NexusException {
-		return new NexusFile(filename, NexusFile.NXACC_RDWR);
+	public static NexusFileInterface openNexusFile(String filename) throws NexusException {
+		return NexusUtils.openNexusFile(filename);
 	}
 
 	/**
@@ -298,15 +295,15 @@ public class NeXusUtils {
 	 * @return NeXus file handle
 	 * @throws NexusException
 	 */
-	public static NexusFile openNexusFileReadOnly(String filename) throws NexusException {
-		return new NexusFile(filename, NexusFile.NXACC_READ);
+	public static NexusFileInterface openNexusFileReadOnly(String filename) throws NexusException {
+		return NexusUtils.openNexusFileReadOnly(filename);
 	}
 
 	/**
 	 * @param file
 	 * @throws NexusException
 	 */
-	public static void write_NXsource(NeXusFileInterface file) throws NexusException {
+	public static void write_NXsource(NexusFileInterface file) throws NexusException {
 		Metadata metadata = GDAMetadataProvider.getInstance();
 
 		// Make the source if it's not there.
@@ -318,13 +315,13 @@ public class NeXusUtils {
 		file.opengroup("source", "NXsource");
 
 		try {
-			writeNexusString(file, "name", metadata.getMetadataValue("facility.name", "gda.facility", "DLS"));
-			writeNexusString(file, "type", metadata.getMetadataValue("facility.type", "gda.facility.type", "Synchrotron X-ray Source"));
-			writeNexusString(file, "probe", metadata.getMetadataValue("facility.probe", "gda.facility.probe", "x-ray"));
+			NexusUtils.writeNexusString(file, "name", metadata.getMetadataValue("facility.name", "gda.facility", "DLS"));
+			NexusUtils.writeNexusString(file, "type", metadata.getMetadataValue("facility.type", "gda.facility.type", "Synchrotron X-ray Source"));
+			NexusUtils.writeNexusString(file, "probe", metadata.getMetadataValue("facility.probe", "gda.facility.probe", "x-ray"));
 			if (!metadata.getMetadataValue("instrument.source.energy").isEmpty())
-				writeNexusDouble(file, "energy", Double.parseDouble(metadata.getMetadataValue("instrument.source.energy",	null, DEFAULT_NUMBER_VALUE)), "GeV");
+				NexusUtils.writeNexusDouble(file, "energy", Double.parseDouble(metadata.getMetadataValue("instrument.source.energy",	null, DEFAULT_NUMBER_VALUE)), "GeV");
 			if (!metadata.getMetadataValue("instrument.source.current").isEmpty())
-				writeNexusDouble(file, "current", Double.parseDouble(metadata.getMetadataValue("instrument.source.current",	null, DEFAULT_NUMBER_VALUE)), "mA");
+				NexusUtils.writeNexusDouble(file, "current", Double.parseDouble(metadata.getMetadataValue("instrument.source.current",	null, DEFAULT_NUMBER_VALUE)), "mA");
 		} catch (DeviceException e) {
 			logger.warn("NXsource: Problem reading one or more items of metadata.");
 		}
@@ -355,7 +352,7 @@ public class NeXusUtils {
 	 * @param file
 	 * @throws NexusException
 	 */
-	public static void write_NXmonochromator(NeXusFileInterface file) throws NexusException {
+	public static void write_NXmonochromator(NexusFileInterface file) throws NexusException {
 		Metadata metadata = GDAMetadataProvider.getInstance();
 		boolean found = false;
 
@@ -385,12 +382,12 @@ public class NeXusUtils {
 
 			try {
 				if (metadata.getMetadataValue("instrument.monochromator.name") != null)
-					writeNexusString(file, "name", metadata.getMetadataValue("instrument.monochromator.name"));
+					NexusUtils.writeNexusString(file, "name", metadata.getMetadataValue("instrument.monochromator.name"));
 				if (metadata.getMetadataValue("instrument.monochromator.energy") != null) {
-					writeNexusDouble(file, "energy", Double.parseDouble(metadata.getMetadataValue("instrument.monochromator.energy")), "keV");
+					NexusUtils.writeNexusDouble(file, "energy", Double.parseDouble(metadata.getMetadataValue("instrument.monochromator.energy")), "keV");
 				} 
 				if (metadata.getMetadataValue("instrument.monochromator.wavelength") != null) {
-					writeNexusDouble(file, "wavelength", Double.parseDouble(metadata.getMetadataValue("instrument.monochromator.wavelength")), "Angstrom");
+					NexusUtils.writeNexusDouble(file, "wavelength", Double.parseDouble(metadata.getMetadataValue("instrument.monochromator.wavelength")), "Angstrom");
 				}
 
 			} catch (DeviceException e) {
@@ -407,7 +404,7 @@ public class NeXusUtils {
 	 * @param file
 	 * @throws NexusException
 	 */
-	public static void write_NXinsertion_device(NeXusFileInterface file) throws NexusException {
+	public static void write_NXinsertion_device(NexusFileInterface file) throws NexusException {
 		boolean found = false;
 		Metadata metadata = GDAMetadataProvider.getInstance();
 
@@ -447,7 +444,7 @@ public class NeXusUtils {
 			try {
 				String gap = metadata.getMetadataValue("instrument.insertion_device.gap");
 				if (gap != null) {
-					writeNexusDouble(file, "gap", Double.parseDouble(gap), "mm");
+					NexusUtils.writeNexusDouble(file, "gap", Double.parseDouble(gap), "mm");
 				}
 			} catch (DeviceException e) {
 				logger.warn("NXinsertion_device: Problem reading one or more items of metadata.");
@@ -476,7 +473,7 @@ public class NeXusUtils {
 	 * @throws NexusException
 	 */
 	@SuppressWarnings("unused")
-	public static void writeMetadataList(NeXusFileInterface file, ArrayList<String> names, ArrayList<DataType> datatypes)
+	public static void writeMetadataList(NexusFileInterface file, ArrayList<String> names, ArrayList<DataType> datatypes)
 			throws NexusException {
 		Metadata metadata = GDAMetadataProvider.getInstance();
 		// for (String item : names) {
@@ -494,7 +491,7 @@ public class NeXusUtils {
 	 * @param file
 	 * @throws NexusException
 	 */
-	public static void write_NXbending_magnet(NeXusFileInterface file) throws NexusException {
+	public static void write_NXbending_magnet(NexusFileInterface file) throws NexusException {
 		Metadata metadata = GDAMetadataProvider.getInstance();
 		boolean found = false;
 
@@ -550,13 +547,13 @@ public class NeXusUtils {
 				}
 
 				// Now lets write these to the file
-				NeXusUtils.writeNexusString(file, "name", name);
-				NeXusUtils.writeNexusDouble(file, "bending_radius", bending_radius);
-				NeXusUtils.writeNexusDouble(file, "critical_energy", critical_energy);
+				NexusUtils.writeNexusString(file, "name", name);
+				NexusUtils.writeNexusDouble(file, "bending_radius", bending_radius);
+				NexusUtils.writeNexusDouble(file, "critical_energy", critical_energy);
 
 				file.makegroup("spectrum", "NXdata");
 				file.opengroup("spectrum", "NXdata");
-				NeXusUtils.writeNexusDoubleArray(file, "data", spectrum);
+				NexusUtils.writeNexusDoubleArray(file, "data", spectrum);
 				file.closegroup();
 
 			} catch (DeviceException e) {
@@ -572,7 +569,7 @@ public class NeXusUtils {
 	 * @param file
 	 * @throws NexusException
 	 */
-	public static void write_NXsample(NeXusFileInterface file) throws NexusException {
+	public static void write_NXsample(NexusFileInterface file) throws NexusException {
 		// TODO Check to see if there are any Sample fields.
 
 		// Make the source if it's not there.
@@ -613,7 +610,7 @@ public class NeXusUtils {
 	 * @param file
 	 * @param entryName
 	 */
-	public static void writeSAS(@SuppressWarnings("unused") NeXusFileInterface file, @SuppressWarnings("unused") String entryName) {
+	public static void writeSAS(@SuppressWarnings("unused") NexusFileInterface file, @SuppressWarnings("unused") String entryName) {
 		// Not implemented yet - give me chance!
 		logger.warn("SAS Definition: Trying to use an unimplemented feature.");
 	}
@@ -624,256 +621,8 @@ public class NeXusUtils {
 	 * @param file
 	 * @param entryName
 	 */
-	public static void writeXAS(@SuppressWarnings("unused") NeXusFileInterface file, @SuppressWarnings("unused") String entryName) {
+	public static void writeXAS(@SuppressWarnings("unused") NexusFileInterface file, @SuppressWarnings("unused") String entryName) {
 		// Not implemented yet - give me chance!
 		logger.warn("XAS Definition: Trying to use an unimplemented feature.");
-	}
-
-	/**
-	 * Writes the String 'stringToWrite' into a field called 'name' at the current position in the NeXus file.
-	 * 
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void writeNexusString(NeXusFileInterface file, String name, String value) throws NexusException {
-		if(value == null || name == null || name.isEmpty() || value.isEmpty())
-			return;
-		byte [] bytes = value.getBytes();
-		int[] dimArray = new int[1];
-		dimArray[0] = bytes.length;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusFile.NX_CHAR, 1, dimArray);
-		}
-		file.opendata(name);
-		file.putdata(bytes);
-		file.closedata();		
-	}
-
-	/**
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void writeNexusStringAttribute(NeXusFileInterface file, String name, String value) throws NexusException {
-		file.putattr(name, value.getBytes(), NexusFile.NX_CHAR);
-	}
-
-	/**
-	 * Writes the integer 'value' into a field called 'name' at the current position in the NeXus file.
-	 * 
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void writeNexusInteger(NeXusFileInterface file, String name, int value) throws NexusException {
-		int[] dimArray = new int[1];
-		dimArray[0] = 1;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusFile.NX_INT32, 1, dimArray);
-		}
-		file.opendata(name);
-		int[] arr = { value };
-		file.putdata(arr);
-		file.closedata();
-	}
-
-	/**
-	 * Writes the integer array 'value' into a field called 'name' at the current position in the NeXus file.
-	 * 
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void writeNexusIntegerArray(NeXusFileInterface file, String name, int[] value) throws NexusException {
-		if (value.length == 0)
-			return;
-		int[] dimArray = new int[1];
-		dimArray[0] = value.length;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusFile.NX_INT32, 1, dimArray);
-		}
-		file.opendata(name);
-		file.putdata(value);
-		file.closedata();
-	}
-
-	/**
-	 * Writes the long 'value' into a field called 'name' at the current position in the NeXus file.
-	 * 
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void writeNexusLong(NeXusFileInterface file, String name, int value) throws NexusException {
-		int[] dimArray = new int[1];
-		dimArray[0] = 1;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusFile.NX_INT64, 1, dimArray);
-		}
-		file.opendata(name);
-		long[] arr = { value };
-		file.putdata(arr);
-		file.closedata();
-	}
-
-	/**
-	 * Writes the long array 'value' into a field called 'name' at the current position in the NeXus file.
-	 * 
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void writeNexusLongArray(NeXusFileInterface file, String name, long[] value) throws NexusException {
-		if (value.length == 0)
-			return;
-		int[] dimArray = new int[1];
-		dimArray[0] = value.length;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusFile.NX_INT64, 1, dimArray);
-		}
-		file.opendata(name);
-		file.putdata(value);
-		file.closedata();
-	}
-
-	/**
-	 * Writes the double 'value' into a field called 'name' at the current position in the NeXus file.
-	 * 
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void writeNexusDouble(NeXusFileInterface file, String name, double value, String units) throws NexusException {
-		int[] dimArray = new int[1];
-		dimArray[0] = 1;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusFile.NX_FLOAT64, 1, dimArray);
-		}
-		file.opendata(name);
-		double[] dataArray = { value };
-		file.putdata(dataArray);
-		if (units != null) {
-			file.putattr("units", units.getBytes(Charset.forName("UTF-8")), NexusFile.NX_CHAR);
-		}
-		file.closedata();
-	}
-	
-	/**
-	 * Writes the double 'value' into a field called 'name' at the current position in the NeXus file.
-	 * 
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void writeNexusDouble(NeXusFileInterface file, String name, double value) throws NexusException {
-		writeNexusDouble(file, name, value, null);
-	}
-
-	/**
-	 * @param file
-	 * @param name
-	 * @param value
-	 *            a string containing a double value
-	 * @throws NexusException
-	 */
-	public static void writeNexusDouble(NeXusFileInterface file, String name, String value) throws NexusException {
-		writeNexusDouble(file, name, Double.parseDouble(value));
-	}
-
-	/**
-	 * Writes the double array 'value' into a field called 'name' at the current position in the NeXus file.
-	 * 
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void writeNexusDoubleArray(NeXusFileInterface file, String name, double[] value) throws NexusException {
-		if (value.length == 0)
-			return;
-		int[] dimArray = new int[1];
-		dimArray[0] = value.length;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusFile.NX_FLOAT64, 1, dimArray);
-		}
-		file.opendata(name);
-		file.putdata(value);
-		file.closedata();
-	}
-
-	/**
-	 * Writes the double array 'value' into a field called 'name' at the current position in the NeXus file.
-	 * 
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void writeNexusDoubleArray(NeXusFileInterface file, String name, Double[] value) throws NexusException {
-		if (value != null && value.length > 0) {
-			int[] dimArray = new int[1];
-			dimArray[0] = value.length;
-			if (file.groupdir().get(name) == null) {
-				file.makedata(name, NexusFile.NX_FLOAT64, 1, dimArray);
-			}
-			file.opendata(name);
-			file.putdata(value);
-			file.closedata();
-		}
-	}
-
-	/**
-	 * Writes the boolean 'value' into a field called 'name' at the current position in the NeXus file.
-	 * 
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void writeNexusBoolean(NeXusFileInterface file, String name, boolean value) throws NexusException {
-		int[] dimArray = new int[1];
-		dimArray[0] = 1;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusFile.NX_BOOLEAN, 1, dimArray);
-		}
-		file.opendata(name);
-		file.putdata(value);
-		file.closedata();
-	}
-
-	/**
-	 * Appends the value 'double' into the field called 'name'. If 'name' does not exist then it will be created.
-	 * 
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void appendNexusDouble(NeXusFileInterface file, String name, double value) throws NexusException {
-		int[] dimArray = new int[1];
-		dimArray[0] = NexusGlobals.GDA_NX_UNLIMITED;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusFile.NX_FLOAT64, 1, dimArray);
-		}
-
-		file.opendata(name);
-
-		double[] dataArray = { value };
-		int[] dataStart = new int[1];
-		int[] dataLength = new int[1];
-		dataStart[0] = 1;
-		dataLength[0] = 1;
-
-		file.putslab(dataArray, dataStart, dataLength);
-		file.closedata();
 	}
 }

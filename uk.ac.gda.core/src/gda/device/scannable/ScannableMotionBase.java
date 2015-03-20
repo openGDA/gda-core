@@ -21,7 +21,9 @@ package gda.device.scannable;
 import static gda.device.scannable.PositionConvertorFunctions.toDoubleArray;
 import static gda.device.scannable.PositionConvertorFunctions.toObjectArray;
 import gda.data.nexus.INeXusInfoWriteable;
-import gda.data.nexus.NeXusUtils;
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFileInterface;
+import gda.data.nexus.NexusUtils;
 import gda.device.Device;
 import gda.device.DeviceException;
 import gda.device.ScannableMotion;
@@ -33,8 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
 import org.python.core.PyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -490,17 +490,17 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 	}
 
 	@Override
-	public void writeNeXusInformation(NeXusFileInterface file) throws NexusException {
+	public void writeNeXusInformation(NexusFileInterface file) throws NexusException {
 		writeNeXusInformationLimits(file);
 	}
 	
-	protected void writeNeXusInformationLimits(NeXusFileInterface file) throws NexusException {
+	protected void writeNeXusInformationLimits(NexusFileInterface file) throws NexusException {
 			Double[] upperLimits = getUpperGdaLimits();
 			if (upperLimits != null)
-				NeXusUtils.writeNexusDoubleArray(file, "soft_limit_max", upperLimits);
+				NexusUtils.writeNexusDoubleArray(file, "soft_limit_max", upperLimits);
 			Double[] lowerLimits = getLowerGdaLimits();
 			if (lowerLimits != null)
-				NeXusUtils.writeNexusDoubleArray(file, "soft_limit_min", lowerLimits);
+				NexusUtils.writeNexusDoubleArray(file, "soft_limit_min", lowerLimits);
 	}
 
 	public static Double[] getInputLimits(ScannableMotion sm, int input) {

@@ -18,6 +18,7 @@
 
 package gda.analysis.io;
 
+import gda.data.nexus.NexusException;
 import gda.data.nexus.extractor.NexusExtractorException;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeBuilder;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
-import org.nexusformat.NexusException;
 
 /**
  * This duplicates static methods to allow direct access to the methods from this class.
@@ -51,7 +51,7 @@ public class NexusLoader extends uk.ac.diamond.scisoft.analysis.io.NexusLoader {
 	 */
 	static public List<String> getDataSetNames( String nexusFilename, IMonitor mon) throws NexusException, NexusExtractorException, Exception {
 		return uk.ac.diamond.scisoft.analysis.io.NexusLoader.getDatasetNames(nexusFilename, mon);
-	}	
+	}
 
 	/*
 	 * Helper method to extract sizes of specified datasets

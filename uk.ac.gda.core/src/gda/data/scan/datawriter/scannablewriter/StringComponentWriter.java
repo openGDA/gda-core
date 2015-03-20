@@ -18,6 +18,9 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFileInterface;
+import gda.data.nexus.NexusGlobals;
 import gda.data.scan.datawriter.SelfCreatingLink;
 
 import java.lang.reflect.Array;
@@ -26,9 +29,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
 
 public class StringComponentWriter extends DefaultComponentWriter {
 
@@ -64,7 +64,7 @@ public class StringComponentWriter extends DefaultComponentWriter {
 	}
 
 	@Override
-	public Collection<SelfCreatingLink> makeComponent(final NeXusFileInterface file, int[] dim, final String path,
+	public Collection<SelfCreatingLink> makeComponent(final NexusFileInterface file, int[] dim, final String path,
 			final String scannableName, final String componentName, final Object pos, final String unit)
 					throws NexusException {
 
@@ -90,11 +90,11 @@ public class StringComponentWriter extends DefaultComponentWriter {
 		}
 		rank = dim.length;
 
-		file.makedata(name, NexusFile.NX_CHAR, rank, dim);
+		file.makedata(name, NexusGlobals.NX_CHAR, rank, dim);
 		file.opendata(name);
 
 		if (componentName != null) {
-			file.putattr("local_name", (scannableName + "." + componentName).getBytes(UTF8), NexusFile.NX_CHAR);
+			file.putattr("local_name", (scannableName + "." + componentName).getBytes(UTF8), NexusGlobals.NX_CHAR);
 		}
 
 		addCustomAttributes(file, scannableName, componentName);

@@ -18,13 +18,12 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFileInterface;
 import gda.data.scan.datawriter.SelfCreatingLink;
 import gda.device.Scannable;
 
 import java.util.Collection;
-
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
 
 /**
  * This interface is used by the NexusDataWriterMetadataTree to place the "position" of a scannable in the correct place
@@ -53,7 +52,7 @@ public interface ScannableWriter {
 	 * @param dim
 	 *            number of dimensions in the scan (or {1} for metadata only)
 	 */
-	public Collection<? extends SelfCreatingLink> makeScannable(NeXusFileInterface file, Scannable s, Object position,
+	public Collection<? extends SelfCreatingLink> makeScannable(NexusFileInterface file, Scannable s, Object position,
 			int[] dim) throws NexusException;
 
 	/**
@@ -61,6 +60,6 @@ public interface ScannableWriter {
 	 * @param s
 	 * @param position
 	 */
-	public void writeScannable(NeXusFileInterface file, Scannable s, Object position, int[] dimloc)
+	public void writeScannable(NexusFileInterface file, Scannable s, Object position, int[] dimloc)
 			throws NexusException;
 }

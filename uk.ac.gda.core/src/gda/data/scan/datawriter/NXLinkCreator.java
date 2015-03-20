@@ -18,6 +18,10 @@
 
 package gda.data.scan.datawriter;
 
+import gda.data.nexus.NXlink;
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusExtractor;
 
 import java.util.List;
@@ -26,9 +30,6 @@ import java.util.Vector;
 import ncsa.hdf.hdf5lib.H5;
 import ncsa.hdf.hdf5lib.HDF5Constants;
 
-import org.nexusformat.NXlink;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class NXLinkCreator {
 	}
 
 	public void makelinks(String filename) throws Exception {
-		NexusFile file = new NexusFile(filename,NexusFile.NXACC_RDWR);
+		NexusFile file = new NexusFile(filename, NexusGlobals.NXACC_RDWR);
 		try {
 			for( SubEntryLink link : links){
 				String value = link.value;

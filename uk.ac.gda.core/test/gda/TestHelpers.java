@@ -21,7 +21,9 @@ package gda;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.INeXusInfoWriteable;
-import gda.data.nexus.NeXusUtils;
+import gda.data.nexus.NexusUtils;
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFileInterface;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -46,9 +48,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
 import gda.data.nexus.NexusGlobals;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -422,10 +423,10 @@ class SimpleScannable implements Scannable, INeXusInfoWriteable {
 	}
 
 	@Override
-	public void writeNeXusInformation(NeXusFileInterface file) throws NexusException {
+	public void writeNeXusInformation(NexusFileInterface file) throws NexusException {
 		try {
 			if (units != null && units.length > 0) {
-				NeXusUtils.writeNexusStringAttribute(file, "units", units[0]);
+				NexusUtils.writeNexusStringAttribute(file, "units", units[0]);
 			}
 		} catch (NexusException e) {
 			logger.debug("DOF: Problem writing additional info to NeXus file.");

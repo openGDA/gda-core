@@ -18,6 +18,8 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFileInterface;
 import gda.data.scan.datawriter.SelfCreatingLink;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
@@ -29,8 +31,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +97,7 @@ public class SingleScannableWriter implements ScannableWriter {
 	}
 
 	@Override
-	public Collection<? extends SelfCreatingLink> makeScannable(final NeXusFileInterface file, final Scannable s,
+	public Collection<? extends SelfCreatingLink> makeScannable(final NexusFileInterface file, final Scannable s,
 			final Object position, final int[] dim) throws NexusException {
 
 		final Vector<SelfCreatingLink> sclc = new Vector<SelfCreatingLink>();
@@ -136,7 +136,7 @@ public class SingleScannableWriter implements ScannableWriter {
 	}
 
 	@Override
-	public void writeScannable(final NeXusFileInterface file, final Scannable s, final Object position,
+	public void writeScannable(final NexusFileInterface file, final Scannable s, final Object position,
 			final int[] start) throws NexusException {
 
 		for (int i = 0; i < componentsFor(s); i++) {

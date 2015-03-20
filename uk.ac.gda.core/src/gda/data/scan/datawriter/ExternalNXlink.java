@@ -18,8 +18,8 @@
 
 package gda.data.scan.datawriter;
 
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFileInterface;
 
 public class ExternalNXlink extends SelfCreatingLink {
 	String name, url;
@@ -37,7 +37,7 @@ public class ExternalNXlink extends SelfCreatingLink {
 	
 	@Override
 	public
-	void create(NeXusFileInterface file) throws NexusException {
+	void create(NexusFileInterface file) throws NexusException {
 		file.linkexternaldataset(name, url);
 	}
 }

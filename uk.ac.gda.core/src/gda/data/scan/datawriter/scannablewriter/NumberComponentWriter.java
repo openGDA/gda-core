@@ -18,6 +18,9 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFileInterface;
+import gda.data.nexus.NexusGlobals;
 import gda.data.scan.datawriter.SelfCreatingLink;
 
 import java.util.Collection;
@@ -25,9 +28,6 @@ import java.util.Collections;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math3.exception.NotANumberException;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +49,7 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 	}
 
 	@Override
-	public Collection<SelfCreatingLink> makeComponent(final NeXusFileInterface file, final int[] dim,
+	public Collection<SelfCreatingLink> makeComponent(final NexusFileInterface file, final int[] dim,
 			final String path, final String scannableName, final String componentName, final Object pos,
 			final String unit) throws NexusException {
 
@@ -67,21 +67,21 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 		}
 
 		final int[] makedatadim = makedatadimfordim(dim);
-		file.makedata(name, NexusFile.NX_FLOAT64, makedatadim.length, makedatadim);
+		file.makedata(name, NexusGlobals.NX_FLOAT64, makedatadim.length, makedatadim);
 		file.opendata(name);
 
 		if (componentName != null) {
-			file.putattr("local_name", (scannableName + "." + componentName).getBytes(UTF8), NexusFile.NX_CHAR);
+			file.putattr("local_name", (scannableName + "." + componentName).getBytes(UTF8), NexusGlobals.NX_CHAR);
 		}
 
 		final StringBuilder axislist = new StringBuilder(dim.length * 3 + 1).append('1');
 		for (int j = 2; j <= dim.length; j++) {
 			axislist.append(',').append(j);
 		}
-		file.putattr("axis", axislist.toString().getBytes(UTF8), NexusFile.NX_CHAR);
+		file.putattr("axis", axislist.toString().getBytes(UTF8), NexusGlobals.NX_CHAR);
 
 		if (StringUtils.isNotBlank(unit)) {
-			file.putattr("units", unit.getBytes(UTF8), NexusFile.NX_CHAR);
+			file.putattr("units", unit.getBytes(UTF8), NexusGlobals.NX_CHAR);
 		}
 
 		addCustomAttributes(file, scannableName, componentName);
