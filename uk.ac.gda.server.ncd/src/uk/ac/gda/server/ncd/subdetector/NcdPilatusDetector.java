@@ -18,23 +18,23 @@
 
 package uk.ac.gda.server.ncd.subdetector;
 
-import gda.device.DeviceException;
-import gda.device.DeviceBase;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFile;
+import gda.data.nexus.NexusFileInterface;
 import gda.data.nexus.NexusFileWrapper;
+import gda.data.nexus.NexusGlobals;
+import gda.device.DeviceBase;
+import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 
 import java.io.File;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-//import org.nexusformat.NXlink;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 	private static final Logger logger = LoggerFactory.getLogger(NcdPilatusDetector.class);
 	private String nexusFileUrl = null;
 	private String nexusFileName;
-	private NeXusFileInterface file;
+	private NexusFileInterface file;
 	private NexusFileWrapper nfw;
 	private int scanDataPoint;
 
@@ -73,7 +73,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 		detector.atScanStart();
 		try {
 			scanDataPoint = 0;
-			file = new NexusFile(setupNexusFile(getDetectorType().toLowerCase()), NexusFile.NXACC_CREATE5);
+			file = new NexusFile(setupNexusFile(getDetectorType().toLowerCase()), NexusGlobals.NXACC_CREATE5);
 			nfw = new NexusFileWrapper(file);
 			nfw.makegroup("entry", "NXentry");
 			nfw.opengroup("entry", "NXentry");
@@ -102,11 +102,11 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 	private void writeSubFile(int frames) {
 		try {
 			int[] dims = detector.getDataDimensions();
-			int[] datadims = new int[] {NexusFile.NX_UNLIMITED , frames, dims[0], dims[1] };
+			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , frames, dims[0], dims[1] };
 			// Open data array.
 			int rank = datadims.length;
 			if (scanDataPoint == 0) {
-				nfw.makedata("data", NexusFile.NX_INT32, rank, datadims);
+				nfw.makedata("data", NexusGlobals.NX_INT32, rank, datadims);
 				nfw.opendata("data");
 			}
 			int[] startPos = new int[rank];

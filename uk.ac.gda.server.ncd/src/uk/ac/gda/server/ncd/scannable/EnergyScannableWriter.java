@@ -24,9 +24,9 @@ import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 
 import java.util.Collection;
 
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFileInterface;
+import gda.data.nexus.NexusGlobals;
 
 public class EnergyScannableWriter extends SingleScannableWriter {
 
@@ -44,10 +44,10 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 
 		NumberComponentWriter trueEnergyWriter = new NumberComponentWriter() {
 			@Override
-			protected void addCustomAttributes(final NeXusFileInterface file, final String scannableName,
+			protected void addCustomAttributes(final NexusFileInterface file, final String scannableName,
 					final String componentName) throws NexusException {
 				final String uncertaintiesName = uncertaintiesPath.substring(uncertaintiesPath.lastIndexOf("/") + 1);
-				file.putattr("uncertainties", uncertaintiesName.getBytes(), NexusFile.NX_CHAR);
+				file.putattr("uncertainties", uncertaintiesName.getBytes(), NexusGlobals.NX_CHAR);
 			}
 		};
 
@@ -61,7 +61,7 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 		}
 
 		@Override
-		public Collection<SelfCreatingLink> makeComponent(final NeXusFileInterface file, final int[] dim,
+		public Collection<SelfCreatingLink> makeComponent(final NexusFileInterface file, final int[] dim,
 				final String path, final String scannableName, final String componentName, final Object pos,
 				final String unit) throws NexusException {
 			uncertaintiesPath = path + "_error";
@@ -70,7 +70,7 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 		}
 
 		@Override
-		public void writeComponent(final NeXusFileInterface file, final int[] start, final String path,
+		public void writeComponent(final NexusFileInterface file, final int[] start, final String path,
 				final String scannableName, final String componentName, final Object pos) throws NexusException {
 			super.writeComponent(file, start, uncertaintiesPath, scannableName, null, pos);
 			trueEnergyWriter.writeComponent(file, start, path, scannableName, componentName, pos);
