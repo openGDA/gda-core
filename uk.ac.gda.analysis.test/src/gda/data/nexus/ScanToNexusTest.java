@@ -50,7 +50,7 @@ import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusGlobals;
 
 import uk.ac.gda.analysis.hdf5.Hdf5Helper;
 import uk.ac.gda.analysis.hdf5.Hdf5HelperData;
@@ -79,7 +79,7 @@ public class ScanToNexusTest {
 
 		Detector simpleDetector1 = TestHelpers.createTestDetector("SimpleDetector1", 0., new String[] {},
 				new String[] {}, 0, new String[] { "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g",
-						"%5.2g", "%5.2g", "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1, NexusFile.NX_FLOAT64,
+						"%5.2g", "%5.2g", "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1, NexusGlobals.NX_FLOAT64,
 						data1In, true), null, "description1", "detectorID1", "detectorType1");
 
 		Object[] args = new Object[] { simpleScannable1, 0., 10., 1., simpleScannable2, simpleDetector1 };
@@ -111,7 +111,7 @@ public class ScanToNexusTest {
 
 		Detector simpleDetector1 = TestHelpers.createTestDetector("SimpleDetector1", 0., new String[] {},
 				new String[] {}, 0, new String[] { "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1,
-						NexusFile.NX_FLOAT64, data1In, true), null, "description1", "detectorID1", "detectorType1");
+						NexusGlobals.NX_FLOAT64, data1In, true), null, "description1", "detectorID1", "detectorType1");
 
 		Object[] args = new Object[] { simpleScannable1, 0., 1, 1., simpleScannable2, 0., 2, 1., simpleScannable3, 0.,
 				3, 1., simpleDetector1 };
