@@ -19,6 +19,8 @@
 package gda.device.detector.xmap.edxd;
 
 import gda.data.nexus.INeXusInfoWriteable;
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFileInterface;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
@@ -28,10 +30,8 @@ import gda.device.epicsdevice.ReturnType;
 import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import gda.data.nexus.NexusGlobals;
 
+import gda.data.nexus.NexusGlobals;
 import uk.ac.diamond.scisoft.analysis.fitting.Fitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Quadratic;
@@ -557,7 +557,7 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 
 	@Override
-	public void writeNeXusInformation(NeXusFileInterface file)
+	public void writeNeXusInformation(NexusFileInterface file)
 			throws NexusException {	
 	}
 	
