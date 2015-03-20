@@ -287,8 +287,8 @@ public class NeXusUtils {
 	 * @return NeXus file handle
 	 * @throws NexusException
 	 */
-	public static GdaNexusFile openNexusFile(String filename) throws NexusException {
-		return new GdaNexusFile(filename, NexusFile.NXACC_RDWR);
+	public static NexusFile openNexusFile(String filename) throws NexusException {
+		return new NexusFile(filename, NexusFile.NXACC_RDWR);
 	}
 
 	/**
@@ -298,8 +298,8 @@ public class NeXusUtils {
 	 * @return NeXus file handle
 	 * @throws NexusException
 	 */
-	public static GdaNexusFile openNexusFileReadOnly(String filename) throws NexusException {
-		return new GdaNexusFile(filename, NexusFile.NXACC_READ);
+	public static NexusFile openNexusFileReadOnly(String filename) throws NexusException {
+		return new NexusFile(filename, NexusFile.NXACC_READ);
 	}
 
 	/**

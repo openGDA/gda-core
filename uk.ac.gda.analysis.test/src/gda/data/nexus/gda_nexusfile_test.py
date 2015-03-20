@@ -2,17 +2,16 @@
 import unittest
 import os.path
 import jarray
-from gda.data.nexus import GdaNexusFile
 from org.nexusformat import NexusFile;
 from java.util import Arrays
 TestFileFolder = "test-scratch/gda/data/nexus/GdaNexusTestFiles";
-class GDANexusFileTest(unittest.TestCase):
+class NexusFileTest(unittest.TestCase):
     def testSimpleCreation(self):
         abspath = os.path.abspath(TestFileFolder + "/1.nxs")
         parentPath = os.path.split(abspath)[0]
         if not os.path.exists(parentPath):
             os.makedirs(parentPath)
-        file = GdaNexusFile(abspath, GdaNexusFile.NXACC_CREATE5);
+        file = NexusFile(abspath, NexusFile.NXACC_CREATE5);
         file.makegroup("ScanFileHolder", "NXentry");
         file.opengroup("ScanFileHolder", "NXentry");
         file.makegroup("datasets", "NXdata");
@@ -23,7 +22,7 @@ class GDANexusFileTest(unittest.TestCase):
         file.putdata(dataIn)
         file.closedata();
         file.close();
-        file = GdaNexusFile(abspath, GdaNexusFile.NXACC_READ);
+        file = NexusFile(abspath, NexusFile.NXACC_READ);
         file.opengroup("ScanFileHolder", "NXentry");
         file.opengroup("datasets", "NXdata");        
         file.opendata("heading1");
@@ -35,5 +34,5 @@ class GDANexusFileTest(unittest.TestCase):
         self.assertEqual(dataIn,dataOut)
         
 if __name__ == '__main__':
-    suite = unittest.TestLoader().loadTestsFromTestCase(GDANexusFileTest)
-    unittest.TextTestRunner(verbosity=2).run(suite)            
+    suite = unittest.TestLoader().loadTestsFromTestCase(NexusFileTest)
+    unittest.TextTestRunner(verbosity=2).run(suite)

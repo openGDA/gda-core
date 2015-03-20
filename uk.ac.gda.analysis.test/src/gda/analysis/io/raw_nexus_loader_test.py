@@ -5,7 +5,6 @@ import os
 import jarray
 from gda.analysis import ScanFileHolder #@UnresolvedImport
 from gda.analysis.io import RawNexusLoader, AsciiScanFileHolderSaver, SimpleNexusSaver, SRSLoader #@UnresolvedImport
-from gda.data.nexus import GdaNexusFile #@UnresolvedImport
 from org.nexusformat import NexusFile; #@UnresolvedImport
 from java.util import Arrays
 from gda.jython import InterfaceProvider #@UnresolvedImport
@@ -23,7 +22,7 @@ class RawNexusLoaderTest(unittest.TestCase):
             os.remove(self.abspath)
 
     def testSimpleCreation(self):
-        file = GdaNexusFile(self.abspath, GdaNexusFile.NXACC_CREATE5);
+        file = NexusFile(self.abspath, NexusFile.NXACC_CREATE5);
         file.makegroup("ScanFileHolder", "NXentry");
         file.opengroup("ScanFileHolder", "NXentry");
         file.makegroup("datasets", "NXdata");
@@ -55,7 +54,7 @@ class RawNexusLoaderTest(unittest.TestCase):
 #        os.remove(self.abspath)
         sfh.save(SimpleNexusSaver(self.abspath));
         
-        file = GdaNexusFile(self.abspath, GdaNexusFile.NXACC_READ);
+        file = NexusFile(self.abspath, NexusFile.NXACC_READ);
         file.opengroup("ScanFileHolder", "NXentry");
         file.opengroup("datasets", "NXdata");        
         file.opendata("heading1");
