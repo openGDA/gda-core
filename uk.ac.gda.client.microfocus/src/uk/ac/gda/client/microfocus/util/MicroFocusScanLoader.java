@@ -18,6 +18,7 @@
 
 package uk.ac.gda.client.microfocus.util;
 
+import gda.data.nexus.NexusException;
 import gda.data.nexus.extractor.NexusExtractorException;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeBuilder;
@@ -29,7 +30,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IFolder;
-import org.nexusformat.NexusException;
 import org.xml.sax.InputSource;
 
 import uk.ac.gda.beans.exafs.DetectorParameters;

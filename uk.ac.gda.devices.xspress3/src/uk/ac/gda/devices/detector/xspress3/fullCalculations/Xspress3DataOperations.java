@@ -10,9 +10,8 @@ import gda.factory.Finder;
 
 import java.util.List;
 
-import org.nexusformat.NexusException;
+import gda.data.nexus.NexusException;
 import gda.data.nexus.NexusGlobals;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;

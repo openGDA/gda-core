@@ -18,7 +18,11 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.data.nexus.GdaNexusFile;
+import gda.data.nexus.NXlink;
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFile;
+import gda.data.nexus.NexusFileInterface;
+import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 
@@ -28,10 +32,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
-import org.nexusformat.NXlink;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,18 +164,18 @@ public class DetectorElementDataSelector {
 			}
 		}
 		// write the sumData back in to the nexus file
-		NeXusFileInterface file = null;
+		NexusFileInterface file = null;
 		NXlink link = null;
 		try {
 
 			if (sumData != null) {
 				// fileName = fileName.replace(".nxs", "_1.nxs");
 				String newFileName = fileCopy(fileName, outputFileDir);
-				file = new GdaNexusFile(newFileName, NexusFile.NXACC_RDWR);
+				file = new NexusFile(newFileName, NexusGlobals.NXACC_RDWR);
 				file.opengroup("entry1", "NXentry");
 				file.opengroup("instrument", "NXinstrument");
 				file.opengroup(detectorName, "NXdetector");
-				file.makedata("selectedElementSum", NexusFile.NX_FLOAT64, 3, new int[] { sumData.length,
+				file.makedata("selectedElementSum", NexusGlobals.NX_FLOAT64, 3, new int[] { sumData.length,
 						sumData[0].length, sumData[0][0].length });
 				file.opendata("selectedElementSum");
 				file.putslab(sumData, new int[] { 0, 0, 0 }, new int[] { sumData.length, sumData[0].length,

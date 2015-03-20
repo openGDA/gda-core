@@ -18,12 +18,11 @@
 
 package gda.data.scan.datawriter;
 
-import gda.data.nexus.NeXusUtils;
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusUtils;
 
 import java.util.HashMap;
 import java.util.Vector;
-
-import org.nexusformat.NexusException;
 
 /**
  * Nexus Data Writer which has a custom list of metadata values about the sample to add to the nexus file.
@@ -107,7 +106,7 @@ public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 
 				try {
 					for (NexusFileMetadata thisEntry : group)
-						NeXusUtils.writeNexusString(file, thisEntry.getName(), thisEntry.getValue());
+						NexusUtils.writeNexusString(file, thisEntry.getName(), thisEntry.getValue());
 				} finally {
 					if (madeSubGroup)
 						file.closegroup();
