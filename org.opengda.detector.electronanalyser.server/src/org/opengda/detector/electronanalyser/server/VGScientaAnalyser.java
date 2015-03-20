@@ -18,7 +18,9 @@
 
 package org.opengda.detector.electronanalyser.server;
 
-import gda.data.nexus.NeXusUtils;
+import gda.data.nexus.NexusFileInterface;
+import gda.data.nexus.NexusUtils;
+import gda.data.nexus.NexusException;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -36,9 +38,9 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
+
 import gda.data.nexus.NexusGlobals;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +59,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	private NDProcess ndProc;
 
-	private NeXusFileInterface nexusFile;
+	private NexusFileInterface nexusFile;
 
 	private String regionName;
 
@@ -500,38 +502,38 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				try {
 					String lensMode= getLensMode();
 					//write analyser parameters here
-					NeXusUtils.writeNexusString(nexusFile, "reagion_name", getRegionName());
-					NeXusUtils.writeNexusString(nexusFile, "lens_mode", lensMode);
-					NeXusUtils.writeNexusString(nexusFile, "acquisition_mode", getAcquisitionMode());
-					NeXusUtils.writeNexusString(nexusFile, "detector_mode", getDetectorMode());
-					NeXusUtils.writeNexusInteger(nexusFile, "pass_energy", getPassEnergy());
+					NexusUtils.writeNexusString(nexusFile, "reagion_name", getRegionName());
+					NexusUtils.writeNexusString(nexusFile, "lens_mode", lensMode);
+					NexusUtils.writeNexusString(nexusFile, "acquisition_mode", getAcquisitionMode());
+					NexusUtils.writeNexusString(nexusFile, "detector_mode", getDetectorMode());
+					NexusUtils.writeNexusInteger(nexusFile, "pass_energy", getPassEnergy());
 					double excitationEnergy = getExcitationEnergy();
 					if (getCachedEnergyMode().equalsIgnoreCase("Binding")) {
-						NeXusUtils.writeNexusString(nexusFile, "energy_mode", "Binding");
-						NeXusUtils.writeNexusDouble(nexusFile, "low_energy", excitationEnergy-getEndEnergy(), "eV");
-						NeXusUtils.writeNexusDouble(nexusFile, "high_energy", excitationEnergy-getStartEnergy(), "eV");
-						NeXusUtils.writeNexusDouble(nexusFile, "fixed_energy", excitationEnergy-getCentreEnergy(), "eV");
+						NexusUtils.writeNexusString(nexusFile, "energy_mode", "Binding");
+						NexusUtils.writeNexusDouble(nexusFile, "low_energy", excitationEnergy-getEndEnergy(), "eV");
+						NexusUtils.writeNexusDouble(nexusFile, "high_energy", excitationEnergy-getStartEnergy(), "eV");
+						NexusUtils.writeNexusDouble(nexusFile, "fixed_energy", excitationEnergy-getCentreEnergy(), "eV");
 						
 					} else {
-						NeXusUtils.writeNexusString(nexusFile, "energy_mode", "Kinetic");
-						NeXusUtils.writeNexusDouble(nexusFile, "low_energy", getStartEnergy(), "eV");
-						NeXusUtils.writeNexusDouble(nexusFile, "high_energy", getEndEnergy(), "eV");
-						NeXusUtils.writeNexusDouble(nexusFile, "fixed_energy", getCentreEnergy(), "eV");
+						NexusUtils.writeNexusString(nexusFile, "energy_mode", "Kinetic");
+						NexusUtils.writeNexusDouble(nexusFile, "low_energy", getStartEnergy(), "eV");
+						NexusUtils.writeNexusDouble(nexusFile, "high_energy", getEndEnergy(), "eV");
+						NexusUtils.writeNexusDouble(nexusFile, "fixed_energy", getCentreEnergy(), "eV");
 					}
-					NeXusUtils.writeNexusDouble(nexusFile, "energy_step", getEnergyStep(), "eV");
+					NexusUtils.writeNexusDouble(nexusFile, "energy_step", getEnergyStep(), "eV");
 					double stepTime = getStepTime();
-					NeXusUtils.writeNexusDouble(nexusFile, "step_time", stepTime, "s");
-					NeXusUtils.writeNexusInteger(nexusFile, "number_of_slices", getSlices());
-					NeXusUtils.writeNexusInteger(nexusFile, "number_of_iterations", getNumberIterations());
+					NexusUtils.writeNexusDouble(nexusFile, "step_time", stepTime, "s");
+					NexusUtils.writeNexusInteger(nexusFile, "number_of_slices", getSlices());
+					NexusUtils.writeNexusInteger(nexusFile, "number_of_iterations", getNumberIterations());
 					int totalSteps = getTotalSteps().intValue();
-					NeXusUtils.writeNexusInteger(nexusFile, "total_steps", totalSteps);
-					NeXusUtils.writeNexusDouble(nexusFile, "total_time", totalSteps*stepTime, "s");
+					NexusUtils.writeNexusInteger(nexusFile, "total_steps", totalSteps);
+					NexusUtils.writeNexusDouble(nexusFile, "total_time", totalSteps*stepTime, "s");
 					int cameraMinX = getCameraMinX();
-					NeXusUtils.writeNexusInteger(nexusFile, "detector_x_from", cameraMinX);
+					NexusUtils.writeNexusInteger(nexusFile, "detector_x_from", cameraMinX);
 					int cameraMinY = getCameraMinY();
-					NeXusUtils.writeNexusInteger(nexusFile, "detector_y_from", cameraMinY);
-					NeXusUtils.writeNexusInteger(nexusFile, "detector_x_to", getCameraSizeX()-cameraMinX);
-					NeXusUtils.writeNexusInteger(nexusFile, "detector_y_to", getCameraSizeY()-cameraMinY);
+					NexusUtils.writeNexusInteger(nexusFile, "detector_y_from", cameraMinY);
+					NexusUtils.writeNexusInteger(nexusFile, "detector_x_to", getCameraSizeX()-cameraMinX);
+					NexusUtils.writeNexusInteger(nexusFile, "detector_y_to", getCameraSizeY()-cameraMinY);
 					// write axis
 					int i = 1;
 					String aname = "energies";
@@ -546,7 +548,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 							}
 						}
 
-						NeXusUtils.writeNexusDoubleArray(nexusFile, aname, axis);
+						NexusUtils.writeNexusDoubleArray(nexusFile, aname, axis);
 						nexusFile.opendata(aname);
 						nexusFile.putattr("axis", new int[] {i+1}, NexusGlobals.NX_INT32);
 						nexusFile.putattr("primary", new int[] {1}, NexusGlobals.NX_INT32);
@@ -566,7 +568,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 					}
 					try {
 						axis = getAngleAxis();
-						NeXusUtils.writeNexusDoubleArray(nexusFile, aname, axis);
+						NexusUtils.writeNexusDoubleArray(nexusFile, aname, axis);
 						nexusFile.opendata(aname);
 						nexusFile.putattr("axis", new int[] {i+1}, NexusGlobals.NX_INT32);
 						nexusFile.putattr("primary", new int[] {1}, NexusGlobals.NX_INT32);
@@ -1090,11 +1092,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		controller.setExcitationEnergy(energy);
 	}
 
-	public NeXusFileInterface getNexusFile() {
+	public NexusFileInterface getNexusFile() {
 		return nexusFile;
 	}
 
-	public void setNexusFile(NeXusFileInterface nexusFile) {
+	public void setNexusFile(NexusFileInterface nexusFile) {
 		this.nexusFile = nexusFile;
 	}
 
@@ -1118,10 +1120,4 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public Double getTotalIntensity() {
 		return totalIntensity;
 	}
-
-
-
-
-
-
 }

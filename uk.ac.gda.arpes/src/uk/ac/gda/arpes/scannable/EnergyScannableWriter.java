@@ -18,6 +18,8 @@
 
 package uk.ac.gda.arpes.scannable;
 
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFileInterface;
 import gda.data.scan.datawriter.SelfCreatingLink;
 import gda.data.scan.datawriter.scannablewriter.ComponentWriter;
 import gda.data.scan.datawriter.scannablewriter.NumberComponentWriter;
@@ -28,8 +30,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
 
 public class EnergyScannableWriter extends SingleScannableWriter {
 
@@ -99,7 +99,7 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 		}
 
 		@Override
-		public Collection<SelfCreatingLink> makeComponent(final NeXusFileInterface file, final int[] dim,
+		public Collection<SelfCreatingLink> makeComponent(final NexusFileInterface file, final int[] dim,
 				final String path, final String scannableName, final String componentName, final Object pos,
 				final String unit) throws NexusException {
 
@@ -114,7 +114,7 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 		}
 
 		@Override
-		public void writeComponent(final NeXusFileInterface file, final int[] start, final String path,
+		public void writeComponent(final NexusFileInterface file, final int[] start, final String path,
 				final String scannableName, final String componentName, final Object pos) throws NexusException {
 			super.writeComponent(file, start, path, scannableName, componentName, pos);
 			final double[] stokes = getStokes(pos.toString());
