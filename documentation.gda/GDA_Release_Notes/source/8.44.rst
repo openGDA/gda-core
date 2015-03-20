@@ -10,6 +10,9 @@ New Features
 Fixes
 ~~~~~
 
+* 'run' used to ignore leading / in paths but now treats them as absolute
+* Users should use new histogram tool instead of more complex colour mapping tool.
+
 Developer
 ---------
 
@@ -39,22 +42,484 @@ From the command line, the new action can be invoked using ``pewma.py`` option `
 
     pewma.py --workspace /path/to/workspace --recreate-symlink product <site.project.name> linux64
 
+Moving to Gerrit at Diamond
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The repositories listed below have now been moved to the Gerrit code review tool. Direct commits to these repositories
+will no longer be accepted.
+
+ - gda-core.git
+ - gda-epics.git
+ - gda-pes.git
+ - gda-dls-beamlines-xas.git
+ - gda-xas-core.git
+
+
 New Features
 ~~~~~~~~~~~~
-* Screenshot tool
+* New screenshot tool
 
- - A screenshot tool has been added to the client. See JIRA ticket GDA-6110 for details.
+ - `GDA-6110 <http://jira.diamond.ac.uk/browse/GDA-6110>`_ A new screenshot tool has been added to the client.
 
-Fixes
-~~~~~
+* Support for air-bearing motors
+
+ - `BLXXJ-315 <http://jira.diamond.ac.uk/browse/BLXXJ-315>`_ [Fajin Yuan - 65a2cba] add scannable support for air bearing motor which require a scannable to control air supply.
+
+
+Significant Fixes
+~~~~~~~~~~~~~~~~~
+* DataSet has been removed
+
+ - `GDA-6000 <http://jira.diamond.ac.uk/browse/GDA-6000>`_ remove DataSet [Richard Woolliscroft - fa19aac]
+
+* RichBean changes
+
+ - * `XAS-190 <http://jira.diamond.ac.uk/browse/XAS-190>`_ [Richard Woolliscroft - 8af0177]
+
+* Support for non numeric scannables in ScannableGroup
+
+ - `BLVI-130 <http://jira.diamond.ac.uk/browse/BLVI-130>`_ [Mark Booth - f192c56] Since ScannableGroup no longer tries to convert all inputs to doubles, if a scannable relies on only getting double inputs is used in a ScannableGroup which is given none double input, then this combination will no longer work.
+
+
+Complete List of Changes Since Version 8.42
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Core/Common
+^^^^^^^^^^^
+* `BLXXJ-312 <http://jira.diamond.ac.uk/browse/BLXXJ-312>`_: move i20-1 to new configuration launchers [Fajin Yuan - f4a18fc] part of common configuration properties relocation processings
+* `GDA-6009 <http://jira.diamond.ac.uk/browse/GDA-6009>`_ Logging changes [Kristian Benning - 9d79adc]
+* `GDA-6009 <http://jira.diamond.ac.uk/browse/GDA-6009>`_ move delete of object server flag file from facility to core ensures that in live mode, file is deleted from correct machine/permissions [Kristian Benning - edaae90]
+* `GDA-6009 <http://jira.diamond.ac.uk/browse/GDA-6009>`_ New Config Logging changes [Kristian Benning - 79fb77c]
+* CORE (8.40) Remove relative paths from diamond gdaclient command line. [Mark Booth - e435320]
+* `GDA-6009 <http://jira.diamond.ac.uk/browse/GDA-6009>`_ Restore per invocation console logs and most recent log symlink [Mark Booth - 732f4e9]
+* CORBA: recompile all corba jars to pick up the latest changes, and while we're at it make sure we used Java 7. [Matthew Webber - e427e61]
+* `DASCTEST-293 <http://jira.diamond.ac.uk/browse/DASCTEST-293>`_ repository DawnScience/dawn-eclipse.git --> eclipse/dawnsci.git (both GitHub) [Matthew Webber - b7d48b1]
+* Do not make all DLS beamlines depend on uk.ac.gda.oe [Matthew Webber - 70fc115]
+* Fix beamline name [Matthew Webber - e076399]
+* `GDA-6009 <http://jira.diamond.ac.uk/browse/GDA-6009>`_ enable move to new config structure and startup scripts [Matthew Webber - 018d9cc]
+* I09-2 Add new beamline to all-dls list [Matthew Webber - ba5bd71]
+* TESTING: Update testing classpath after plugins moved [Matthew Webber - 1a9d96e]
+* Update java version that is loaded [Matthew Webber - ea3187a]
+* Add ability to set foreground colour based on value [Paul Gibbons - 8e26618]
+* Add common properties for live_localhost [Paul Gibbons - 1cae2ff]
+* Add definition of gda.dls-config [Paul Gibbons - 4f820fa]
+* Make standard logging config more informative [Paul Gibbons - f8eacb4]
+* Set GDALOGS to /scratch [Paul Gibbons - 8f80651]
+* Sanified class name [Peter Chang - 9cac405]
+* Updated log text [Peter Chang - ef59aea]
+* Updated old loader [Peter Chang - 52f42f0]
+* call the new method of the superclass after is was improved [Richard Woolliscroft - 3d12d23]
+* `GDA-6000 <http://jira.diamond.ac.uk/browse/GDA-6000>`_ remove DataSet [Richard Woolliscroft - fa19aac]
+* make BeamMonitor class look at multiple shutters [Richard Woolliscroft - 5e6f138] as FE has two shutters: one controlled by the machine and one by the beamline
+* (8.38) - Changed NexusDataWriter to no longer require description/type/id strings. [Charles Mita - 6cd6007]
+* (8.38) Added debug message to log if NexusDataWriter.makeMetadataScannableFallback fails when creating group (previously it was silently ignored). [Charles Mita - 676b674]
+* (8.38) Added getMeta method to metadata.py that gets metadata from the relevant source. [Charles Mita - fd39165]
+* (8.38) Added setFilePrefix method to IncrementalFile to match the functionality offered by NexusDataWriter's SRS file functionality. [Charles Mita - b61eb20]
+* (8.38) Removed unsupported method from NexusDataWriter (nobody was using it). [Charles Mita - e543bd6]
+* (8.40) Fix regression with piezo raster scans (B16) caused by 882e8b7 [Charles Mita - fcf3ed7] TwoDScanDataPlotter no longer requires the x and y axes to have column names set.
+* 8.40 - TogglerScannable only records initial position if it's needed [Charles Mita - 0efc309] Initially added during investigation of `BLVII-165 <http://jira.diamond.ac.uk/browse/BLVII-165>`_ as we had problems reading PVs for a time.
+* Add a passthrough scannable for use with ScannableMotionUnits [Charles Mita - 9cdc076] Required for `BLXVI-160 <http://jira.diamond.ac.uk/browse/BLXVI-160>`_ - a motor used in sixckappa (with cryostat) has to be configured to always move through 0 degrees when going from positive to negative (instead of 180 degrees).
+* Add null check to LocalObjectShelf when getting key names [Charles Mita - 88b0f5b] I don't know how an entry's keyname can be null, but it's happened.
+* Allow transformation properties to be null [Charles Mita - b6a2f67]
+* `BLVII-162 <http://jira.diamond.ac.uk/browse/BLVII-162>`_ (8.40) added TimeDelayScannable. [Charles Mita - 574e743] Added a scannable that is busy for the time provided in asyncMoveTo(). Initially designed to be used in a ScannableGroup to represent the fast shutter on I07 that will be opened and closed at each scan point.
+* `BLXVI-117 <http://jira.diamond.ac.uk/browse/BLXVI-117>`_ (8.38) Fixed regression with ScanDataProcessorResult [Charles Mita - c107ad1]
+* `BLXVI-134 <http://jira.diamond.ac.uk/browse/BLXVI-134>`_ (8.38) - workaround for the fact that AbstractContinousScanLine sets HardwareTriggering to false before atScanEnd is called [Charles Mita - c687144]
+* `BLXVI-142 <http://jira.diamond.ac.uk/browse/BLXVI-142>`_ (8.42) - Added NXPlugin that forces callbacks [Charles Mita - 8a55cdd] This adds an NXPlugin that does nothing except enables callbacks.
+* `BLXVI-149 <http://jira.diamond.ac.uk/browse/BLXVI-149>`_ (8.42) -JS.getCurrentScanInformation returns null if no scan [Charles Mita - ce12bca] Refactoring for `GDA-6005 <http://jira.diamond.ac.uk/browse/GDA-6005>`_ (commit 7223170)
+* `BLXVI-152 <http://jira.diamond.ac.uk/browse/BLXVI-152>`_ (8.42) - Reimplemented __call__ in SHTPDW (xeye and pilatus) [Charles Mita - 24324ef] SwitchableHardwareTriggerableProcessingDetectorWrapper stopped supporting __call__ with the move to NXDetector. Reimplemented to match other detector implementations.
+* `BLXVI-156 <http://jira.diamond.ac.uk/browse/BLXVI-156>`_ (8.42) - ProcessingDetectorWrapper warns if waitForFile==True [Charles Mita - 524bb1d] AreaDetectors normally have their tifwriters wait for the file to arrive on the file system.
+* Change TogglerScannable to not have an empty OutputFormat [Charles Mita - 3a4b091]
+* Changed order in TogglerScannable Hook enum [Charles Mita - c0e635d] Changed to the order to better reflect the order they're called
+* Fixed TestScanDataProcessorResult to account for c107ad1f [Charles Mita - 297d29f] See `BLXVI-117 <http://jira.diamond.ac.uk/browse/BLXVI-117>`_ - commit c107ad1f (cherrpicked to 252c90b6).
+* `GDA-6103 <http://jira.diamond.ac.uk/browse/GDA-6103>`_ (8.42) - add unit test for Concurrent.getScanInformation [Charles Mita - f070977] getScanInformation is actually implemented in ScanBase - could alternatively test in ScanBaseTest. Should probably add tests to other scans that do not derive from ConcurrentScan.
+* `GDA-6103 <http://jira.diamond.ac.uk/browse/GDA-6103>`_ (8.42) - Fix ScanBase.getDimensions (wrong dimensions returned) [Charles Mita - eb987f1] getDimensions recursed the wrong way; looking for parent scans instead of child scans, even though it started at the outermost scan. Also caused `BLXVI-161 <http://jira.diamond.ac.uk/browse/BLXVI-161>`_.
+* `GDA-6110 <http://jira.diamond.ac.uk/browse/GDA-6110>`_ Add screenshot plugins to client feature definition [Colin Palmer - f91aee5]
+* add option to provide detector pixel size units in NXDetector node which is required by 2D diffraction data reduction project. [Fajin Yuan - 767fa81]
+* `BLIX-153 <http://jira.diamond.ac.uk/browse/BLIX-153>`_: "Abort all running commands, scan and scripts" does not work on terminal in 'analyserscan' enable to stop scannable and detector in the current scan only if you set the property to true. Defult is false - so the existing behaviour does not change. `BLIX-153 <http://jira.diamond.ac.uk/browse/BLIX-153>`_ [Fajin Yuan - 3261aa8] Task-Url: `BLIX-143 <http://jira.diamond.ac.uk/browse/BLIX-143>`_
+* `BLXI-224 <http://jira.diamond.ac.uk/browse/BLXI-224>`_: add the pixel size information with unit for area detector under NXdetector node `BLXI-224 <http://jira.diamond.ac.uk/browse/BLXI-224>`_ [Fajin Yuan - 4a6bba3]
+* `BLXI-225 <http://jira.diamond.ac.uk/browse/BLXI-225>`_: provide unit for the 'count_time' data in the detector nexus data file `BLXI-225 <http://jira.diamond.ac.uk/browse/BLXI-225>`_ [Fajin Yuan - 07ec4f8]
+* `BLXI-227 <http://jira.diamond.ac.uk/browse/BLXI-227>`_: add detector name string to 'local_name' under thr NXdetector node in the pixium nexus data file `BLXI-227 <http://jira.diamond.ac.uk/browse/BLXI-227>`_ [Fajin Yuan - 6185719]
+* `BLXXJ-312 <http://jira.diamond.ac.uk/browse/BLXXJ-312>`_: move i20-1 to new configuration launchers [Fajin Yuan - 1b1e28a] part of common configuration properties relocation processings
+* `BLXXJ-315 <http://jira.diamond.ac.uk/browse/BLXXJ-315>`_: ensure air supply is on for air bearing motor when motion is requested [Fajin Yuan - 65a2cba] add scannable support for air bearing motor which require a scannable to control air supply.
+* correct miss use of varaibles and and access to individual analysis result. [Fajin Yuan - e20dfea]
+* extending version restriction for guava [Fajin Yuan - 4611024]
+* Fix NXDetectorAreaDetectorIntegrationTest [Fajin Yuan - 684f0ed]
+* `GDA-6083 <http://jira.diamond.ac.uk/browse/GDA-6083>`_ work round this issue [Fajin Yuan - 0cbe7fe]
+* `GDA-6083 <http://jira.diamond.ac.uk/browse/GDA-6083>`_: Call to getLastScanDataPoint() return NULL when called from a scannable's atScanEnd() if you only have one scan data point. [Fajin Yuan - 6d5b26a] Ensure the last scan data point is called before atScanEnd of the scannables.
+* `GDA-6084 <http://jira.diamond.ac.uk/browse/GDA-6084>`_: fix the mis-map of call atScanEnd() and atScantStart() in the ScannableImpl `GDA-6084 <http://jira.diamond.ac.uk/browse/GDA-6084>`_ [Fajin Yuan - f666d55]
+* improve the class javadoc [Fajin Yuan - 9f44535]
+* make sure both wavelength and energy from monochromator be written in file if both provided. [Fajin Yuan - 0d043ee]
+* re-implement changes after reset to earlier commit. [Fajin Yuan - 8ca86c7]
+* CORE: Added classes for Linkam model T95 and optional output to Nexus  datafile [Geoffrey Mant - 08e8215]
+* CORE: allow monoscannable to set position [Geoffrey Mant - de903d1]
+* CORE: New SerialRead/Writer interface for tango implementation [Geoffrey Mant - b7f8f34]
+* `GDA-6058 <http://jira.diamond.ac.uk/browse/GDA-6058>`_ Fix corba impl's to prevent duplicate events [Geoffrey Mant - 1e5aec3]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ refactor: Check for missing folder. [Geoffrey Mant - dfb07e6]
+* Core: Change error reporting to remove excessive python stack trace when user issues abort scan. Now use logger.info on exception.getCause().getMessage() to report "Scan aborted on request". [grm84 - 98e2a3d]
+* add write-only defaultPosition property for DummyMotor [Jonathan Blakes - edc3515]
+* don't trim - done later in null-safe way [Jonathan Blakes - c5f1870]
+* fix "Error getting value for item named __repr__ in finderNameMap for attribute __repr__" for locals() in console [Jonathan Blakes - 9da3d72]
+* `GDA-6085 <http://jira.diamond.ac.uk/browse/GDA-6085>`_ warn about PushEventQueue check threshold instead of limit error [Jonathan Blakes - 198d435]
+* GDAEventBus: add constructor-args for JMS destination name and whether is topic or queue [Jonathan Blakes - d06ec4c]
+* GDAEventBus: don't force ConnectionFactory constructor-arg [Jonathan Blakes - b77e88d]
+* GDAEventBus: `GDA-6087 <http://jira.diamond.ac.uk/browse/GDA-6087>`_ add uk.ac.gda.eventbus plugin [Jonathan Blakes - 47ea902]
+* gdalogpanel: fix brush icon not refreshing viewer filter with now empty string [Jonathan Blakes - 29bf42c]
+* gdalogpanel: fix product launcher [Jonathan Blakes - f315649]
+* gdalogpanel: use GDA_SOURCE and JVNNAME with switchable pattern layouts [Jonathan Blakes - 6fea2ba]
+* handle special methods consistently in FinderNameMapping and JythonNameSpaceMapping [Jonathan Blakes - 4bcb4ca]
+* log error without traceback, but debug with, when already moving EpicsMotor asked to move [Jonathan Blakes - 385e2f7] easily reproduced by vaguely hurried interaction with RotationViewer's translation MotorPositionEditors
+* move SimpleUDPServerScannable from uk.ac.gda.px to uk.ac.gda.core [Jonathan Blakes - 9acfb2d]
+* `MXGDA-2039 <http://jira.diamond.ac.uk/browse/MXGDA-2039>`_ highlight ambiguity of Command.abort() discovered in FindableProcessorQueue [Jonathan Blakes - 56f0f93]
+* `MXGDA-2164 <http://jira.diamond.ac.uk/browse/MXGDA-2164>`_ highlight (with red background) that queue is paused [Jonathan Blakes - 999c3c9] Requires concomitant `MXGDA-2164 <http://jira.diamond.ac.uk/browse/MXGDA-2164>`_ commit in gda-common-rcp.git
+* `MXGDA-2259 <http://jira.diamond.ac.uk/browse/MXGDA-2259>`_ tidy up and expose 'record' functionality for MXGDAClientStartup [Jonathan Blakes - f7e79cb]
+* print DICAT test results for multiple beamlines [Jonathan Blakes - 549cbbd]
+* Processor.getState() doesn't throw an Exception [Jonathan Blakes - cba6377]
+* suggest usual remedies when client fails to start due to CORBA exceptions [Jonathan Blakes - 6dfe5d5]
+* CORE (`GDA-6009 <http://jira.diamond.ac.uk/browse/GDA-6009>`_) Support standard layout in core gda script. [Kristian Benning - 0d8a54b]
+* `GDA-6009 <http://jira.diamond.ac.uk/browse/GDA-6009>`_ - Change to gda_client_core so overwrites all properties in gda-[beamline].ini [Kristian Benning - deecc9d]
+* `GDA-6009 <http://jira.diamond.ac.uk/browse/GDA-6009>`_ move delete of object server flag file from facility to core ensures that in live mode, file is deleted from correct machine/permissions [Kristian Benning - 3ed958c]
+* Launcher to run gda command in Python Debugger [Kristian Benning - 1028774]
+* Add some ObjectServer and EventService logging. [Mark Booth - a81ee52]
+* `BLVI-130 <http://jira.diamond.ac.uk/browse/BLVI-130>`_ (8.38) Add support for non numeric scannables in ScannablGroup. [Mark Booth - f192c56] Since ScannableGroup no longer tries to convert all inputs to doubles, if a scannable relies on only getting double inputs is used in a ScannableGroup which is given none double input, then this combination will no longer work.
+* CORE (8.38) Add test for multi-input scannables to ScannableGroupTest. [Mark Booth - d500ec3]
+* Delete spring beans file which stops Eclipse starting in a timely manner. [Mark Booth - f996708]
+* `GDA-5852 <http://jira.diamond.ac.uk/browse/GDA-5852>`_ (8.42) Dont suppress SRS file writing on addDataWriterExtender call. [Mark Booth - 41c65af] Also, improve logging.
+* `GDA-5852 <http://jira.diamond.ac.uk/browse/GDA-5852>`_ (8.42) Support add & rm when readFromNexus=True. [Mark Booth - 009a4d0] Also, improve logging in metadata.py script.
+* `GDA-6009 <http://jira.diamond.ac.uk/browse/GDA-6009>`_ (8.43) Add missing GDA_LOG_FILE parameter to gdaclient --nohup call. [Mark Booth - 925ed05]
+* `GDA-6009 <http://jira.diamond.ac.uk/browse/GDA-6009>`_ (8.43) Update given breaking changes to gda_setup_consolelog_instance [Mark Booth - e630baf]
+* CORBA: recompile all corba jars to pick up the latest changes, and while we're at it make sure we used Java 7. [Matthew Webber - 4c4d1fe]
+* Core now requires Java 1.7 [Matthew Webber - 722e1cd]
+* `DASCTEST-283 <http://jira.diamond.ac.uk/browse/DASCTEST-283>`_ Set permissions correctly when creating parent directories [Matthew Webber - 3b998a3]
+* `DASCTEST-293 <http://jira.diamond.ac.uk/browse/DASCTEST-293>`_ repository DawnScience/dawn-eclipse.git --> eclipse/dawnsci.git (both GitHub) [Matthew Webber - 3434409]
+* `DATAACQTEAM-121 <http://jira.diamond.ac.uk/browse/DATAACQTEAM-121>`_ Avoid client crash when gtk>=2.24 and cairo<1.9.4 [Matthew Webber - b95789c]
+* `DATAACQTEAM-121 <http://jira.diamond.ac.uk/browse/DATAACQTEAM-121>`_ Correct previous fix Avoid client crash when gtk>=2.24 and cairo<1.9.4 [Matthew Webber - 3f8bd88]
+* DOCS: Add option to create symlink after product built (linux64 only) [Matthew Webber - fa467bc]
+* `GDA-5083 <http://jira.diamond.ac.uk/browse/GDA-5083>`_ disable assert that intermittently fails [Matthew Webber - b484fa7]
+* `GDA-5583 <http://jira.diamond.ac.uk/browse/GDA-5583>`_ remove order verification that is too strict [Matthew Webber - 2e853b5]
+* `GDA-5984 <http://jira.diamond.ac.uk/browse/GDA-5984>`_ Temporarily skip comparison whose result is different between Java 7 and 8 [Matthew Webber - 2f8bf5b]
+* `GDA-5984 <http://jira.diamond.ac.uk/browse/GDA-5984>`_ Update expected output to match Java 8 change [Matthew Webber - cfec227]
+* `GDA-6009 <http://jira.diamond.ac.uk/browse/GDA-6009>`_ enable move to new config structure and startup scripts [Matthew Webber - 4110923]
+* Remove Beagle log viewer from GDA, it is no longer used. [Matthew Webber - 29559a1]
+* Restore NexusDataWriter (only) to point before merge from 8.38 to 8.40 [Matthew Webber - 969873f]
+* TESTING: fix initialization of mock object [Matthew Webber - a20ba0d]
+* TESTING: Update testing classpath after plugins moved [Matthew Webber - db2d44d]
+* Update com.google.guava from 15.0.0 to 16.0.1 (for MX) [Matthew Webber - 38941c0]
+* Fix to ScanFileHolderException location [matthew.gerring - 4e9e205]
+* Moved IMetadata (Pete wot made me do it) [matthew.gerring - 51ceb12]
+* Moved/renamed plugins [matthew.gerring - bbc1b79]
+* Renamed IMetaData to IMetadata (Pete wot made me do it) [matthew.gerring - 79229dd]
+* Add enabled flag to TabCompositeFactory [Paul Gibbons - e4f3c77]
+* Add logger debug msg to assist problems during startup [Paul Gibbons - 076fcef]
+* Add Scripting connection to liveplot [Paul Gibbons - d5e178a] Usage: dnp.plot.setdefname(""Scan Plot 1"")
+* `GDA-6007 <http://jira.diamond.ac.uk/browse/GDA-6007>`_ Jython telnet supports Jline type support by default [Paul Gibbons - 64b3a74]
+* Handle the specification of units [Paul Gibbons - 74a79d0]
+* New classes to provide generic EnumPositioners [Paul Gibbons - b715579]
+* New template based NXDetectorDataAppender [Paul Gibbons - f8d87c0]
+* `TOMO-29 <http://jira.diamond.ac.uk/browse/TOMO-29>`_ Make hdf5 file in GDA scan file a relative path [Paul Gibbons - 08d1713] Requires `SCISOFT-1997 <http://jira.diamond.ac.uk/browse/SCISOFT-1997>`_ fix for HDF5Loader
+* uk.ac.gda.client - tooltip reflects min and max to specified digits [Paul Gibbons - 3478c5a]
+* Added comment about JacORB inner class bug [Peter Chang - 8695b0f]
+* Removed erroneous and unnecessary calculation [Peter Chang - 7ed0849]
+* Replaced mentions of abstract datasets in comments [Peter Chang - 53c821d]
+* Updated lazy loader implementation [Peter Chang - 602affd]
+* Updated with comments about out-of-date code [Peter Chang - 33b7cb8]
+* Add Volume and Volumetric Density to UnitsComponent [Peter Holloway - 6ece166]
+* Fix serialization error when opening plots [Peter Holloway - d895863] Fix by Peter Chang
+* Use Maths.derivative instead of deprecated DataSet.diff method for GaussianEdge [Peter Holloway - c0353a2]
+* Scisoft have updated to open single editor for nextus files. So this loading of nexus tree editor is no longer needed. It also opens external files. [Phyo Kyaw - 2eb60ec]
+* Updated scan lines to include point style and size. [Phyo Kyaw - 833d158]
+* Updated to change from diamond points to circle points when plotting. [Phyo Kyaw - ac61900]
+* allow full paths to be given to the run method [Richard Woolliscroft - 27cbe36]
+* `BLXVIIIB-197 <http://jira.diamond.ac.uk/browse/BLXVIIIB-197>`_ fix bug where the CommandQueue pauseWhenQueueEmpty attribute was not giving expected behaviour [Richard Woolliscroft - 6beb92b]
+* `BLXVIIIB-197 <http://jira.diamond.ac.uk/browse/BLXVIIIB-197>`_ fix bug where the skip button in the command queue was doing the same thing as the 'abort and pause' button [Richard Woolliscroft - c05708d]
+* `BLXX-268 <http://jira.diamond.ac.uk/browse/BLXX-268>`_ fix bug where Experiment perspective would look at the wrong folder if visit ID had changed but an old GDA client workspace was being used. [Richard Woolliscroft - 3550029]
+* change the example richbean editor to use the new DelegatingRichBeanEditorPart base class and removes the need for the ExampleExptUIEditor [Richard Woolliscroft - 1dbf9d7]
+* check for thread interrupts before writing to Nexus file as HDF library absorbs InterruptedExceptions [Richard Woolliscroft - 4c56ef8]
+* ensure motion aborted for any exception type [Richard Woolliscroft - 77a752b]
+* `GDA-5909 <http://jira.diamond.ac.uk/browse/GDA-5909>`_ contribute Phyo's new ScanDataPlotView to the main GDA [Richard Woolliscroft - 3678105] To use by default, add to your plugin_customization.ini uk.ac.gda.client/gda.open_xyplot_on_scan_start_id=uk.ac.gda.client.plotting.scandataplotview
+* `GDA-5978 <http://jira.diamond.ac.uk/browse/GDA-5978>`_ remove unused view and test code [Richard Woolliscroft - ea9b9db]
+* `GDA-6000 <http://jira.diamond.ac.uk/browse/GDA-6000>`_ minor changes to Jython scripts to fix unit tests relating to Datasets [Richard Woolliscroft - eac4e4f]
+* `GDA-6000 <http://jira.diamond.ac.uk/browse/GDA-6000>`_ remove old DataSet class and gda.analysis.functions and gda.analysis.utils classes [Richard Woolliscroft - 09e83d2]
+* `GDA-6089 <http://jira.diamond.ac.uk/browse/GDA-6089>`_ add bi-directional mode to ContinuousScans [Richard Woolliscroft - 4791ee5]
+* move static section into constructor as it interferes with unit testing [Richard Woolliscroft - 0610208]
+* new base class for editors working in ExperimentDefinition plugin [Richard Woolliscroft - 3a0b834] This class is moved from client.exafs as it provides fucntionality to prevent XML files accidentally being saved in the wrong location for all editors which are to be used within the framework provided by this plugin - it is not Exafs specific.
+* prevent duplicate entries in Scannable and Detector lists in certain situations [Richard Woolliscroft - 925a9bf]
+* Rename IRichBean interface to XMLRichBean [Richard Woolliscroft - 87c586a] This interface is a marker for bean classes which represent something which will be displayed in an UI, via the BeanUI class, and persisted in XML via the XMLHelpers class.  The BeanUI class uses Object in its signatures so XMLRichBean is only for GDA classes wanting the XML persistence.
+* slow down the frequency tp ScanEvent.UPDATED messages to prevent the UI from freezing up [Richard Woolliscroft - f94ed65]
+* update the developer documentation for writing graphical XML editors within the RichBean framework. [Richard Woolliscroft - a73d42c] It is now much simpler. Developers write a composite which can be used in stand-alone views or within a standard editor class. To also have standalone views has been a requirement for some time.
+* `XAS-190 <http://jira.diamond.ac.uk/browse/XAS-190>`_ fix layout problem after merge with DawnSci Richbean code [Richard Woolliscroft - 04bf8db]
+* `XAS-190 <http://jira.diamond.ac.uk/browse/XAS-190>`_ remove GDA copy of RichBean classes and use DawnSci version instead [Richard Woolliscroft - 8af0177] Changes in GDA dev since the fork ahve been applied to the DawnSci version
+* Add this class as it is used in XmapReadbackHdf5NXPlugin.java and ADROIStatsPair.java [Silvia Ramos - 1302152]
+* `BLVIII-28 <http://jira.diamond.ac.uk/browse/BLVIII-28>`_: Test 2 D plotter view Add setRate() and getRate() to adjust the rate at which the 2D plot is updating, by default is 1.2 s. [Silvia Ramos - 476a56d]
+* `BLVIII-50 <http://jira.diamond.ac.uk/browse/BLVIII-50>`_: Create a class for nxdata for double data array appender [Silvia Ramos - e36bce2]
+* `DATAACQTEAM-126 <http://jira.diamond.ac.uk/browse/DATAACQTEAM-126>`_: SingleScannableWriter only handle String and doubles [Silvia Ramos - 559133f] Change the build property to add javacProjectSettings to avoid build errors.
+* Abstract test to log test method name as its executed, plus test test class to see it works. Also cleaned up lack of generics in test test. [simon - 990608c]
+* Fix `DATAACQTEAM-126 <http://jira.diamond.ac.uk/browse/DATAACQTEAM-126>`_, and restructure ComponentWriter hierarchy in the process. [simon - ded79d1]
+* `DATAAQCTEAM-126 <http://jira.diamond.ac.uk/browse/DATAAQCTEAM-126>`_ Refactor to separate 'String' and 'Number' component writers away from common code in their 'Default' (which is now abstract). [Simon Berriman - 42fa298]
+* `DATAAQUTEAM-126 <http://jira.diamond.ac.uk/browse/DATAAQUTEAM-126>`_ Test for Number else default to String, instead of other way round [Simon Berriman - 5d20c75]
+* Added SimpleFilePathConverter class. [Charles Mita - c2d572e] Performs file path substitution using StringUtils.replace().
+* add support for multi-valued properties [Fajin Yuan - c1a8adf]
+* `GDA-6009 <http://jira.diamond.ac.uk/browse/GDA-6009>`_ dump all properties with LocalProperties.dumpProperties() [Jonathan Blakes - f2b340b]
+* GDAEventBus: `GDA-6087 <http://jira.diamond.ac.uk/browse/GDA-6087>`_ export package required for ActiveMQConnectionFactory [Jonathan Blakes - 6280b3a]
+* TESTING: update testing classpath following refactor [Matthew Webber - 75c2c03]
+* Output information on logging config file being used [Paul Gibbons - b67ffd0]
+* change output to an error to highlight there is a problem which needs fixing [Richard Woolliscroft - fcd6cb5]
+* Rename IRichBean interface to XMLRichBean [Richard Woolliscroft - e15f245] This interface is a marker for bean classes which represent something which will be displayed in an UI, via the BeanUI class, and persisted in XML via the XMLHelpers class.  The BeanUI class uses Object in its signatures so XMLRichBean is only for GDA classes wanting the XML persistence.
+* `XAS-190 <http://jira.diamond.ac.uk/browse/XAS-190>`_ after further testing of merged RichBean code [Richard Woolliscroft - fb89107]
+* `XAS-190 <http://jira.diamond.ac.uk/browse/XAS-190>`_ remove GDA copy of RichBean classes and use DawnSci version instead [Richard Woolliscroft - 697c906] Changes in GDA dev since the fork ahve been applied to the DawnSci version
+* `BLVIII-25 <http://jira.diamond.ac.uk/browse/BLVIII-25>`_: Second user experiment - integrate XIA XMAP In the new version of EPICs, the filepath in HDF file writer plugin uses fordward slash. A flag configurable in xml file was added to choose between fordward and backward slash without affecting other beamlines. By default, it sets up for the case of forward slash. [Silvia Ramos - 3e0d7bb]
+
+
+RCP
+^^^
+* `MXGDA-2164 <http://jira.diamond.ac.uk/browse/MXGDA-2164>`_ allow status line item text to be highlighted [Jonathan Blakes - f3a34ab]
+* ADMIN: use the same Guava version as other plugins [Matthew Webber - c6308d3]
+* Ant script should include do-nothig targets [Matthew Webber - c42569d]
+* Added back in Richard Ws class IRichBean. This interface is not part of the rich beans framework because it breaks the design that a bean is not linked in any way to how it is rendered. [matthew.gerring - d3742f0]
+* Added comment. [matthew.gerring - d43f12d]
+* Created DelegatingRichBeanEditor and used it in the example. [matthew.gerring - e323bc6]
+* Not a number [matthew.gerring - 5021442]
+* Removed dependency on gda.libs as com.google.guava is the only plugin left it uses from libs. This could break the build but it we can remove libs dependency, it will make it easier to reuse the plugin. [matthew.gerring - 65dccd2]
+* Removed old interface I accidentally readded, sorry Richard W [matthew.gerring - 10c8b01]
+* Add methods getMaxValue and getMinValue [Paul Gibbons - 1a0dd4e]
+* add current filename into saveAs dialog [Richard Woolliscroft - 14adb06]
+* added option to wrap the given composite in a ScrolledComposite to handle resizing [Richard Woolliscroft - 7df4598]
+* Rename IRichBean interface to XMLRichBean [Richard Woolliscroft - 195ff27] This interface is a marker for bean classes which represent something which will be displayed in an UI, via the BeanUI class, and persisted in XML via the XMLHelpers class.  The BeanUI class uses Object in its signatures so XMLRichBean is only for GDA classes wanting the XML persistence.
+* `XAS-190 <http://jira.diamond.ac.uk/browse/XAS-190>`_ remove GDA copy of RichBean classes and use DawnSci version instead [Richard Woolliscroft - 57d02d4] Changes in GDA dev since the fork ahve been applied to the DawnSci version
+* `XAS-190 <http://jira.diamond.ac.uk/browse/XAS-190>`_ switch off JEP use [Richard Woolliscroft - b5a8190] As the JEP license is not compatibl;e with DawnSci code. If this functionality is required then we should use JEXL indes the BeanProcessor class.
+
+
+EPICS
+^^^^^
+* Add toString method to EpicsMotor [Charles Mita - 17d086a] Originally from 03c59c78 (which has been reverted).
+* `BC-99 <http://jira.diamond.ac.uk/browse/BC-99>`_ (8.40) - Fixed issue with PCO arming that required 2 sec wait [Charles Mita - eb9ca48] Controls have fixed the issue that required us to wait for two seconds after arming the PCO4000 on B16 to prevent stalling on readout.
+* Only warn if the requested number of bytes is greater than the limit [Charles Mita - 8f67fcc] Fixed test in EpicsController to only log a warning if the requested element count is _above_ the channel element count, instead of merely being different.
+* Revert `GDA-5992 <http://jira.diamond.ac.uk/browse/GDA-5992>`_ if a motor limit is hit, use the LLS and HLS PVs to determine which one has been hit"" [Charles Mita - 2f69205] The changes in the reverted can cause a deadlock, preventing reads from PVs on the IOC from GDA.
+* add units support to detector pixel size [Fajin Yuan - e79d377]
+* added source attachment for debug [Fajin Yuan - 2740bcc]
+* `BLXI-225 <http://jira.diamond.ac.uk/browse/BLXI-225>`_: provide unit for the 'count_time' data in the detector nexus data file [Fajin Yuan - f3e8bfb] need to give default 's' unit
+* `BLXI-228 <http://jira.diamond.ac.uk/browse/BLXI-228>`_: pixium live image display no data after IOC restart ensure this plugin is enabled for each scan, but could be configured to not add data to scan data file as the actual image is written by EPICS hdf plugin. `BLXI-228 <http://jira.diamond.ac.uk/browse/BLXI-228>`_ [Fajin Yuan - a9a5e4c]
+* `BLXI-230 <http://jira.diamond.ac.uk/browse/BLXI-230>`_: create a Pixium specifc control view for calibration and mode change on GUI [Fajin Yuan - 517851c] add more PV field support to the Area detector
+* `BLXXJ-315 <http://jira.diamond.ac.uk/browse/BLXXJ-315>`_: ensure air supply is on for air bearing motor when motion is requested [Fajin Yuan - 49d6efa] class to control air supply for air bearing motor or other device require air supply. It takes two independent PVs, one for set, the other for read. It's isBusy() return false until the read and set is the same, as it takes seconds for air supply to reach its required pressure in the device.
+* `MXGDA-2060 <http://jira.diamond.ac.uk/browse/MXGDA-2060>`_ fixed. [Fajin Yuan - a9af8cd]
+* remove old jars, replace them with caj-1.1.14 [Fajin Yuan - 347634a]
+* remove the unneccessary position call from monitor callback as the event already has the position value. fix the dead locking. [Fajin Yuan - 2c62bd8]
+* revert CAJ from 1.1.14 to 1.1.13 to solve issue described in `MXGDA-2060 <http://jira.diamond.ac.uk/browse/MXGDA-2060>`_. left the 1.1.14 in place so further debug can be done in future. [Fajin Yuan - 92c90da]
+* The if encolsed codes block does not work for pixium detector, so I introduced a property to exclude it without change default. [Fajin Yuan - c82ce56]
+* avoid 'g.d.m.EpicsMotor - Error: illegal .{HLM,LLM} value.' message if dbr.isSHORT; use motor name in message otherwise [Jonathan Blakes - 9c644a3]
+* Revert ""avoid 'g.d.m.EpicsMotor - Error: illegal .{HLM,LLM} value.' message if dbr.isSHORT; use motor name in message otherwise"" [Jonathan Blakes - 3c174d7]
+* BLXV (8.40) Fix null identifier in warning when not using deviceName. [Mark Booth - a9f4df4]
+* BLXV (8.40) Make TimeUnit switchover at the full 214s not testing 20s value [Mark Booth - d7bf90e]
+* `BLXV-127 <http://jira.diamond.ac.uk/browse/BLXV-127>`_ (8.40) Add initial compression and compression level to HDF5 factory. [Mark Booth - ecd4137] Also add errors and warnings for known compression types.
+* BXV (8.38) Temporarily duplicate ZebraConstantVelocityMoveController. [Mark Booth - 6e2ed82] The aim is to create a ZebraRockScanMoveController temporarily in order to make it clearer what the requirements are for abstracting out move controller strategies.
+* `BXV-115 <http://jira.diamond.ac.uk/browse/BXV-115>`_ (8.38) Create ZebraRockScanMoveController. [Mark Booth - 95137cb]
+* `DASCTEST-293 <http://jira.diamond.ac.uk/browse/DASCTEST-293>`_ repository DawnScience/dawn-eclipse.git --> eclipse/dawnsci.git (both GitHub) [Matthew Webber - f123dcd]
+* TESTING: Update testing classpath after plugins moved [Matthew Webber - bed046f]
+* Update com.google.guava from 15.0.0 to 16.0.1 (for MX) [Matthew Webber - b47445a]
+* Moved/renamed plugins [matthew.gerring - 9e0bbfd]
+* Add ability to list scannable associated with PV [Paul Gibbons - 4003624]
+* Addd getImage method [Paul Gibbons - d3a19b2]
+* `BLXIIIJ-55 <http://jira.diamond.ac.uk/browse/BLXIIIJ-55>`_ - Add function ls_pv_scannables [Paul Gibbons - 0418862] Function to list Scannables associated with EPICs PVs, the PV and the associated DESC field
+* Ensure we get 1 exposure per trigger [Paul Gibbons - c13a18b]
+* EPICS - set zebra pcPulseWith to minimum on any time unit [Paul Gibbons - cfa7524]
+* MJPeg GetCanvas now returns a Canvas [Paul Gibbons - 0419d90]
+* MulitpleImagesPerHDF5 - use expectedFullFilename as PV is cleared [Paul Gibbons - 829ff95]
+* Need to add sleep(2s) after pco arm [Paul Gibbons - 47be4b9] `BC-99 <http://jira.diamond.ac.uk/browse/BC-99>`_
+* Report motor is in LOWERLIMIT or UPPERLIMIT appropriately [Paul Gibbons - 3451dda]
+* Return empty NXDetectorData if plugin is disabled. [Paul Gibbons - 079de58]
+* Throw exception if adbase portname is not set in EPICS [Paul Gibbons - 67e5d0a]
+* Refactored to use scisoftpy properly [Peter Chang - 220946d]
+* Sanified class name [Peter Chang - 9a84905]
+* add constant to rpovide conversion between Epics timestamps and Java Date objects [Richard Woolliscroft - 4100028]
+* add PVs to the PSLSingleExposure class optionally reconnect to the hardware at every node in the scan [Richard Woolliscroft - 3144989]
+* `BLXVIII-165 <http://jira.diamond.ac.uk/browse/BLXVIII-165>`_ resolve issue where the RealPositionReader was being used in both fly-scan types (ContinuousScan and ConstantVelocityScan) but only worked for one of them [Richard Woolliscroft - 03486a5] This is because this class relies on the Epics Trajectory template being read out and this happened in ContinuousScans but did not happen in ConstantVelocityScans
+* fix unit test by injecting a scan object into MockJythonServerFacade [Richard Woolliscroft - afb59f8]
+* `GDA-5992 <http://jira.diamond.ac.uk/browse/GDA-5992>`_ monitor lower limit and upper limit events to record when a limit has been hit. [Richard Woolliscroft - f44cb87] This is the patch approved in this Jira ticket.
+* `GDA-6000 <http://jira.diamond.ac.uk/browse/GDA-6000>`_ replace DataSet with Dataset [Richard Woolliscroft - c695552]
+* make trajectoryBuildDone protected so that subclasses can override the behavious in prepareForContinuousMove() [Richard Woolliscroft - 1307daf]
+* new collection strategy for CMOS area detector on I18 [Richard Woolliscroft - f668994] the underlying PSL software is slow and flakey so this strategy accounts for this
+* Revert `BLXVIII-165 <http://jira.diamond.ac.uk/browse/BLXVIII-165>`_ fix bug where readbacks from Epics trajectory scans were incorrect"" [Richard Woolliscroft - 9016bc6] This reverts commit ced35fc9419873bfdc59b9f3af50d74d25e94713.
+* `XAS-190 <http://jira.diamond.ac.uk/browse/XAS-190>`_ remove GDA copy of RichBean classes and use DawnSci version instead [Richard Woolliscroft - 6c0f655] Changes in GDA dev since the fork ahve been applied to the DawnSci version
+* `BLVIII-25 <http://jira.diamond.ac.uk/browse/BLVIII-25>`_: Second user experiment - integrate XIA XMAP ROI plugin in Xmap uses the old version of EPICs. The field that Enable the Dimensions of ROI is not available in the old version and cannot be setup. A flag is created EnableROIPVPairSupported and is configurable in a xml file. [Silvia Ramos - f6402b5]
+* Remove previous local changes. Version running on i08. [Silvia Ramos - 6563246]
+* `GDA-6108 <http://jira.diamond.ac.uk/browse/GDA-6108>`_ Update project settings for projects that explicitly name Java 6 as the minimum VM, but which then directly use or depend upon Java 7+ classes. [Simon Berriman - 603740e]
+
+
+Spectroscopy
+^^^^^^^^^^^^
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ refactor: Changes from moving beans [Geoffrey Mant - 1b0053a]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ refactor: Moved xspress beans to uk.ac.gda.beans.xspress Removed Xspress2BeansUtils & Xspress2DetectorConfiguration [Geoffrey Mant - 2ad6922]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ refactor: remove redundant ExafsScriptObserver from AsciiDataWriter [Geoffrey Mant - 788c970]
+* `XAS-180 <http://jira.diamond.ac.uk/browse/XAS-180>`_: Add xml to create and configure scans in XasScanFactory (mapFactory) [Geoffrey Mant - dc14dd1]
+* `XAS-180 <http://jira.diamond.ac.uk/browse/XAS-180>`_: Amend tests for setName() [Geoffrey Mant - 20dc803]
+* `XAS-181 <http://jira.diamond.ac.uk/browse/XAS-181>`_: Modification to xspress1 dead time correction [Geoffrey Mant - 011ab26]
+* `XAS-182 <http://jira.diamond.ac.uk/browse/XAS-182>`_: Re-implemented excluded detector elements in ascii dataset [Geoffrey Mant - 1d1878a]
+* `XAS-184 <http://jira.diamond.ac.uk/browse/XAS-184>`_: Fix null pointer exception [Geoffrey Mant - 1829026]
+* `XAS-185 <http://jira.diamond.ac.uk/browse/XAS-185>`_: Add xspress & xmap detector configurations to jython namespace [Geoffrey Mant - 206c7a0]
+* XAS: Delete Xspress2DetectorConfiguration as this is a duplicate of the generic XspressDetectorConfiguration. [Geoffrey Mant - 17e74eb]
+* XAS: Rename Xspress2BeanUtils to generic XspressBeanUtils.  Added logger messages found in python script. [Geoffrey Mant - 1a30140]
+* XAS: xspress parameter editing [Geoffrey Mant - 60a8ca3]
+* ADMIN: remove unnecessary dependency that was added in 60a8ca3 [Matthew Webber - e8e19d7]
+* `DASCTEST-293 <http://jira.diamond.ac.uk/browse/DASCTEST-293>`_ repository DawnScience/dawn-eclipse.git --> eclipse/dawnsci.git (both GitHub) [Matthew Webber - 2d6c23c]
+* Delete bin/ check in erroneously [Matthew Webber - b6b8b16]
+* Delete traces of old uk.ac.gda.client.vortex remaining in error [Matthew Webber - 5f767f4]
+* Fix bug in Map perspective where changing the detector element, when I0 or It selected does not change the displayed MCA [Matthew Webber - 4909d74]
+* Fix dependencies in test fragments [Matthew Webber - d15aa2f]
+* Fix name of xmap.epics.test [Matthew Webber - 04c7c7b]
+* `GDA-6038 <http://jira.diamond.ac.uk/browse/GDA-6038>`_ Re-enable test following fix. [Matthew Webber - f4673e6]
+* Materializing uk.ac.gda.devices.xspress2/3 should bring in its test fragment [Matthew Webber - 1c26115]
+* Move large test files to GDALargeTestFiles [Matthew Webber - 40f761e]
+* Remove bin/ directory that should not have been committed; add .gitignore [Matthew Webber - 4c1506c]
+* Remove export of package that does not exist [Matthew Webber - 7a96506]
+* Remove remaining debris from incompletely-deleted project [Matthew Webber - 66eeabc]
+* Rename directory after project renamed [Matthew Webber - 3d5cc11]
+* Rename directory to match rename of plugin [Matthew Webber - a0d4017]
+* Switch to bundle dependency, since package import gets the wrong bundle [Matthew Webber - 510fe38]
+* TESTING: add test runners for uk.ac.gda.devices.hidenrga.test [Matthew Webber - fd673cd]
+* TESTING: finish earlier incomplete move of some JUnit tests Add/Update test runners (Eclipse and Ant) [Matthew Webber - afb93b3]
+* TESTING: Update testing classpath after plugins moved [Matthew Webber - 3d74ca0]
+* TESTING: when materializing uk.ac.gda.devices.xspress2, bring in .test fragment [Matthew Webber - eb901e8]
+* uk.ac.gda.devices.xmap not required by uk.ac.gda.client.microfocus, only by .test fragment [Matthew Webber - 6b50147]
+* Update uk.ac.gda.client.exafs(.test) to require Java 7 [Matthew Webber - 8c6e9a2]
+* Moved IMetadata (Pete wot made me do it) [matthew.gerring - 159bc72]
+* Moved/renamed plugins [matthew.gerring - 1a91fe6]
+* Renamed IMetaData to IMetadata (Pete wot made me do it) [matthew.gerring - f172977]
+* Generalized HDF5 to tree [Peter Chang - fc8ae14]
+* Bug fixed for aquire button not updating value. [Phyo Kyaw - 8e8e6ff]
+* Bug fixes on loading and saving of snapshots. [Phyo Kyaw - cc25361]
+* Change the logic on how kstep is calculated. [Phyo Kyaw - eec4a93]
+* Enabling medipix during xes scan. [Phyo Kyaw - eaaf924]
+* Include scan with medipix detector in scan. [Phyo Kyaw - a83626b]
+* Removed vortex plugin as dependency. [Phyo Kyaw - 35cbd8e]
+* Updated xes bragg angle limit. [Phyo Kyaw - 61c3670]
+* add channel enable / disable functionality to Xspress3 change xspress subfolder [Richard Woolliscroft - 8b12b4b] The MCAs from Xspress3 are written to their own HDF file.
+* add commas to MonitorViews and fix Xspress3 editor [Richard Woolliscroft - 8fce2a8]
+* add experiment definition to the dependencies [Richard Woolliscroft - 1302eef] to pick up the uk.ac.gda.richbeans.beantypes extention point
+* Add KB VFM control to all map types [Richard Woolliscroft - 1f50fe4]
+* add raster map unit test [Richard Woolliscroft - a175022]
+* added final Strings for the names of Fluo detectors used in bean [Richard Woolliscroft - 738a73c]
+* After running the acceptance tests using B18 sim with new configuration [Richard Woolliscroft - c26904a]
+* as use of the CMOS detector for diffraction images into I18 map logic [Richard Woolliscroft - 51cef12] This will need to be merged into the work being done on master to port Jython scripts into Java (`XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_)
+* `BLVIII-25 <http://jira.diamond.ac.uk/browse/BLVIII-25>`_ after testing on beamline with hardware but no trigger pulses [Richard Woolliscroft - 1c7c466]
+* `BLVIII-25 <http://jira.diamond.ac.uk/browse/BLVIII-25>`_ after testing with 100ms hardware pulses [Richard Woolliscroft - 2f40550] 200x200 and 1000x1000 maps succesfully run. Loks like the overhead by Xmap to reset for the next line of a scan is < 1s which is good news
+* `BLXVIII-151 <http://jira.diamond.ac.uk/browse/BLXVIII-151>`_ remove pointless saveAs logic which forces a file to be saved to the var directory for no apparant reason [Richard Woolliscroft - c37b4e6] checked with beamline staff and this is pointless
+* `BLXVIII-154 <http://jira.diamond.ac.uk/browse/BLXVIII-154>`_ allow Xspress3 to use more than 4 channels [Richard Woolliscroft - 1819d2b]
+* `BLXVIII-154 <http://jira.diamond.ac.uk/browse/BLXVIII-154>`_ changes required to get xspress3 working on beamline. [Richard Woolliscroft - 60cb43a] Tested with hardware, beam and used in experiments. Removed the client.vortex plugin
+* `BLXVIII-154 <http://jira.diamond.ac.uk/browse/BLXVIII-154>`_ changes to xspress3 to work in 2D maps [Richard Woolliscroft - 62a9e60]
+* `BLXVIII-154 <http://jira.diamond.ac.uk/browse/BLXVIII-154>`_ switch to reading from correct ROIs not windows and provide a column per ROI not FF per channel. [Richard Woolliscroft - 65db0fe] Also add an FF column which was not there before.
+* `BLXVIII-163 <http://jira.diamond.ac.uk/browse/BLXVIII-163>`_ fix bug where the KB VRM x-motor was not being moved in UI scans [Richard Woolliscroft - 439b33b]
+* `BLXVIII-164 <http://jira.diamond.ac.uk/browse/BLXVIII-164>`_ change the I18 Keithley amplifier gains in UI scans [Richard Woolliscroft - 87b894e]
+* `BLXVIII-171 <http://jira.diamond.ac.uk/browse/BLXVIII-171>`_ fix the map provider classes to work consistently, so Xspress3 maps can be viewed properly [Richard Woolliscroft - 3c18ebf]
+* `BLXVIII-178 <http://jira.diamond.ac.uk/browse/BLXVIII-178>`_ Xspress3 was not working in qexafs scans, so change the buffered detectro class to perform the same operatsion as the step scan class, but at the right time in the scan. [Richard Woolliscroft - a0d8843]
+* `BLXVIII-179 <http://jira.diamond.ac.uk/browse/BLXVIII-179>`_ add option to hide Xmap (Silicon) option in detector editor [Richard Woolliscroft - a76968b] As B18 and I18 now are using Xspress3.
+* `BLXVIII-180 <http://jira.diamond.ac.uk/browse/BLXVIII-180>`_ change the reference to the new object for focussing the sample [Richard Woolliscroft - 2de4242]
+* `BLXVIII-182 <http://jira.diamond.ac.uk/browse/BLXVIII-182>`_ convert NaNs to 0.0s [Richard Woolliscroft - 56f0a6b] EPICS can send NaNs if the detectors are in a bad state or are swiyched off. This causes problems for data analysis down the line so they must be convereted zeroes.
+* `BLXVIII-183 <http://jira.diamond.ac.uk/browse/BLXVIII-183>`_ add button to fetch current values from table 3 [Richard Woolliscroft - e5c5c99]
+* `BLXVIII-188 <http://jira.diamond.ac.uk/browse/BLXVIII-188>`_ remove xmap references from I18 and microfocus plugins [Richard Woolliscroft - 6ec68fb]
+* `BLXVIIIB-150 <http://jira.diamond.ac.uk/browse/BLXVIIIB-150>`_ switched to readout FFs from hardware windows instead of 'soft' ROIs from MCAs. [Richard Woolliscroft - 1a77cb1] Tested on beamline in step and continuous scans.
+* `BLXVIIIB-204 <http://jira.diamond.ac.uk/browse/BLXVIIIB-204>`_ prevent InterruptExceptions created by CommandQueue skip or abort from ebing absorbed [Richard Woolliscroft - 2b2d606] There were several places where this was happening.
+* change xspress subfolder [Richard Woolliscroft - a206f38] The MCAs from Xspress3 are written to their own HDF file.
+* Change Xspress3 interface so that BufferedXspress3Detector will work with both versions of Xspress3Detector (the original and the new WithFullCalculations version) [Richard Woolliscroft - a62f59d]
+* create XmapReadbackHdf5NXPlugin to generate Xmap data during Constant-Velocity scans within the NXDetector framework [Richard Woolliscroft - f150fac]
+* extend the range of available elements [Richard Woolliscroft - 6bf5ce2]
+* fix bug in Xspress3 editor where data was not ebing saved after acquire [Richard Woolliscroft - 02ebec9]
+* fix bug with xspress3 in map scans [Richard Woolliscroft - 47efb53]
+* fix configuring Xspress3 when pressing the 'configure' button in Xspress3 Editor and when running script scans [Richard Woolliscroft - 9054f77]
+* fix fluorescence composite where it was always opening the same file [Richard Woolliscroft - 4d830e2]
+* fix gas filling controls in Ion Chamber Composite [Richard Woolliscroft - 45f01c5]
+* fix gas filling during UI scans [Richard Woolliscroft - 0fc89ca]
+* fix I18 sim [Richard Woolliscroft - 2a3a8c6]
+* fix MicroFocusNexusReaderTest [Richard Woolliscroft - ca12bfb]
+* fix NPE shown by uit tests [Richard Woolliscroft - 2d75389]
+* fix tab label [Richard Woolliscroft - 5fbcca2]
+* Fix the scrollbars in the RGA view [Richard Woolliscroft - 6e877af]
+* fix unit test - the bean has a new atribute which needed setting in the test [Richard Woolliscroft - 821116d]
+* fix unit test by explicitly setting an attribute in the test [Richard Woolliscroft - 469252b]
+* fix unit test xml files after change to xsd [Richard Woolliscroft - 96f3729]
+* Fixes to new xspress3 classes after testing with hardware on beamline [Richard Woolliscroft - 2419ce9] performance improvements, add ability to open old files in GDA client
+* I18 get the correct ascii headers for energy, map, raster and faster raster scans [Richard Woolliscroft - 2941918]
+* I18 remove scannable names from microfocus xml and instead direct inject the object references into the mapping objects [Richard Woolliscroft - 2eadbf3]
+* Merge from I18 and B18 production workspaces [Richard Woolliscroft - 926c2ec] change number of decimal places for Xspress2 FF
+* move the duplicated diffration code into superclass and add a new preference to control its visibility [Richard Woolliscroft - 1a16a94]
+* move Xspress2 unit tests out of server.exafs.tests into their own plugin [Richard Woolliscroft - 0d7e969]
+* move xspress3.epics plugin code into xspress3 and remove unecessary dependencies on xspress3 plugin [Richard Woolliscroft - 37fea43] The epics fragment is pointless as the Xspress3 has to use epics.  Instead remove the unecessary reference to the xspress3 plugin
+* new Xspress3 interface. Interact with this interface as much as possible. [Richard Woolliscroft - 1213013]
+* new Xspress3 interface. Interact with this interface as much as possible. [Richard Woolliscroft - d7d4b2d]
+* Now toggle energy control PV at the start of every Qexafs scan and implement the boolean so beamline staff can switch this functionality off and on via Jython [Richard Woolliscroft - fc408c2] The methods were there but not implemented.
+* prevent illogical step width sizes [Richard Woolliscroft - fc11afd]
+* remove cid detector by deafult as it is used so rarely [Richard Woolliscroft - bb4daca] GDA contact to manuualy add back for the one or two experiments per year it is actually used
+* remove classes relating to the aborted attempt to refactor the xspress and vortex editors [Richard Woolliscroft - 4ed82a5] when this work is done, it should eb done form scratch using new technology and not try to refactor the RichBean editors
+* remove python scripts now replaced with Java classes [Richard Woolliscroft - 89b2162]
+* rename some classes and method for clarity [Richard Woolliscroft - 35ec684]
+* rename uk.ac.gda.beans.vortex plugin to uk.ac.gda.exafs.api [Richard Woolliscroft - 529f0bc] as that is what it is: the API layer between the Exafs UI and server plugins
+* separate out functionality observing file readability [Richard Woolliscroft - d357cf9]
+* show integers for all element count values in editors [Richard Woolliscroft - a1ea4a5]
+* switch between sample stages for step scans (exafs and xanes) using the same mechanism as maps [Richard Woolliscroft - 077e1a6]
+* tell the map scripts to record the proper header information in ascii [Richard Woolliscroft - 6896e77]
+* testing on I18 with x-rays [Richard Woolliscroft - bdc6b2d] Fixes to xspress3 in raster / qexafs scans
+* tidy up xspress2.test plugin [Richard Woolliscroft - 657e6ac]
+* use correct ID in source code [Richard Woolliscroft - ef867a2] (even if never referenced)
+* wait for sample wheel to complete move [Richard Woolliscroft - f42338c]
+* when modeoverride (I18) then display options for virtual scalers, not windows [Richard Woolliscroft - 9d81197]
+* `XAA-172 <http://jira.diamond.ac.uk/browse/XAA-172>`_ move location of private method in file to make it more readable [Richard Woolliscroft - 5e77562]
+* `XAS-162 <http://jira.diamond.ac.uk/browse/XAS-162>`_ ensure the FileRegistrar object is always used in UI scans [Richard Woolliscroft - f91251d]
+* `XAS-162 <http://jira.diamond.ac.uk/browse/XAS-162>`_ make sure that the Nexus file is added to the FileRegistrar when file writing is complete [Richard Woolliscroft - e97a72d]
+* `XAS-170 <http://jira.diamond.ac.uk/browse/XAS-170>`_ only create one version of the scan objects [Richard Woolliscroft - 5995d7f] enables re-use of factory elsewhere in the code e.g. xes scans on I20
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ add extra functionality to DetectorPreparer [Richard Woolliscroft - 8214e98] so I18 can add a diffraction detector to the scan when user selects the option
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ add FasterRasterMap Java class [Richard Woolliscroft - e2042b4]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ add OutputPreparerTest [Richard Woolliscroft - dec9556]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ after testing QexafsScan.java [Richard Woolliscroft - 0fc91c5] I was going to write a unit test but there is so much duplication with XasScan.java that all was needed was some refactoring to properly inherit from XasScan. There is not much to QexafsScan now.  All the real work is done in the preparers and the ContinuousScan class. JavaDoc written for ExafsScan to explain the architecture.
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ changes after testing I18 [Richard Woolliscroft - 11d3fa8]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ changes to allow the client and editors to start [Richard Woolliscroft - d8e3766]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ changes to get mapping plotting working again [Richard Woolliscroft - a20f127]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ changes to get raster map unit test working [Richard Woolliscroft - 5041ed1] some name changes to make the design clearer
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ correctly open detector xml file [Richard Woolliscroft - e18b3c7]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ fix compiler errors after SciSoft unannpunced refactoring and complete enough XAS scrpt refactoring to be ready to test B18 [Richard Woolliscroft - 1309494]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ fix fasterraster maps to use the same classes as raster maps with new bi-directional mode for ContinuousScans [Richard Woolliscroft - b1e09bd]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ fixes to get Xanes and Exafs scans working for B18 using new Java code [Richard Woolliscroft - 8addb3b] - some output not clear - some code needs moving to the preparers level
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ initial commit of new Java map scans [Richard Woolliscroft - d2da1eb]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ merge the ROI classes for xspress, Vortex and xspress3 [Richard Woolliscroft - 0486431] They were all the same....
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ minor code clean up [Richard Woolliscroft - 3fc7ad8]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ minor UI changes to allow for I18 Keithleys [Richard Woolliscroft - 3c8b5f8]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ move all XAS client and server shared objects into beans plugin [Richard Woolliscroft - f0ebd99] so exafs.server only contains server-side objects and the dependency on exafs.server can be removed from many client and devices plugins
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ new Java class to perform raster map scans. [Richard Woolliscroft - 2659bd1] todo: unit test and system testing by running the acceptance tests with the dummy configuration
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ new MapScan unit test [Richard Woolliscroft - 005f094] doing this has enabled/caused lots of the code to be improved
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ port the qexafs.py class into Java [Richard Woolliscroft - f321850] tested with B18 dummy configuratio with all xml options. Cirrus code not included - need to think about the structure.
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ refactor XasScan to more cleanly define work done by preparers [Richard Woolliscroft - 2bc4c24]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ remove some I18 and B18 specific code out of shared XasScan class [Richard Woolliscroft - eefca2b]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ remove unused script [Richard Woolliscroft - 9659d55]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ update imports after rebase [Richard Woolliscroft - 2c298e4]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ updated xml / xsd [Richard Woolliscroft - 4bcf1a1]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ use Factory design pattern to ensure the the objects controlling XAS scans are constructed properly [Richard Woolliscroft - fc21e70] added to b18, i18 and bm26a beamlines so far.
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ use the new BeamlinePreparers [Richard Woolliscroft - 553b87e]
+* `XAS-172 <http://jira.diamond.ac.uk/browse/XAS-172>`_ write unit test for XasScan [Richard Woolliscroft - 235ab73]
+* `XAS-175 <http://jira.diamond.ac.uk/browse/XAS-175>`_ use the extraNames to work out the I0 column in the data [Richard Woolliscroft - 5cb16b0] do not assume it is column 1, as this breaks thngs for TFG 1
+* `XAS-177 <http://jira.diamond.ac.uk/browse/XAS-177>`_ New Composite and View for configuring Xspress3 detectors [Richard Woolliscroft - 66a8baf] Composite can be used in RichBean XML editors
+* `XAS-185 <http://jira.diamond.ac.uk/browse/XAS-185>`_ distribute fluo detector configuration objects over RMI and remove from Jython namespace [Richard Woolliscroft - e855c01]
+* `XAS-187 <http://jira.diamond.ac.uk/browse/XAS-187>`_ prevent FileNotFoundException when chaging radio button selection [Richard Woolliscroft - 76c522f]
+* `XAS-190 <http://jira.diamond.ac.uk/browse/XAS-190>`_ fix layout problem after merge with DawnSci Richbean code [Richard Woolliscroft - 2f452d1]
+* `XAS-190 <http://jira.diamond.ac.uk/browse/XAS-190>`_ remove GDA copy of RichBean classes and use DawnSci version instead [Richard Woolliscroft - 4ae9ec9] Changes in GDA dev since the fork ahve been applied to the DawnSci version
+* `XAS-190 <http://jira.diamond.ac.uk/browse/XAS-190>`_ switch to new ExperimentDefinition base class editor [Richard Woolliscroft - d5d85fb]
+* `XAS-192 <http://jira.diamond.ac.uk/browse/XAS-192>`_ improvements to Hiden RGA UI [Richard Woolliscroft - 8dfb206] added collection rate to UI
+* `XAS-192 <http://jira.diamond.ac.uk/browse/XAS-192>`_ new class to operate the Hiden RGA mass analyser [Richard Woolliscroft - 50ec5fd] This is driven thorugh Epics. There is a new Scannable which can be part of a scan, or can log the masses to a file with timestamp.
+* `XAS-1972 <http://jira.diamond.ac.uk/browse/XAS-1972>`_ after integration and testing of I18 map scans [Richard Woolliscroft - 775847a]
+* `XVIII-152 <http://jira.diamond.ac.uk/browse/XVIII-152>`_ changes to microfocus perspective to work with xspress3 [Richard Woolliscroft - 157b45d]
+* `BLVIII-25 <http://jira.diamond.ac.uk/browse/BLVIII-25>`_: Second user experiment - integrate XIA XMAP Integrate XMAP in NXDetector framework. XBufferPlugin is a plugin that set up EPICs xbuf intermediate plugin. [Silvia Ramos - ffb67e1]
+* `BLVIII-40 <http://jira.diamond.ac.uk/browse/BLVIII-40>`_: Refactor XBuffer plugin and Xmap controller (manual merge from 8.40 of e8c3e157, b1ff792, 3936f7e) [Silvia Ramos - 6baa179]
+* `BLVIII-53 <http://jira.diamond.ac.uk/browse/BLVIII-53>`_ push all new Xmap classes to master (location of the packages have been changed [Silvia Ramos - b1ff792]
+* `BLVIII-54 <http://jira.diamond.ac.uk/browse/BLVIII-54>`_ Xmap passing unit test [Silvia Ramos - 3936f7e]
+
+
+MX
+^^
+Separate release notes will be produced by the MX team.
+
 
 How to create notes
 ~~~~~~~~~~~~~~~~~~~
 
-1. Run the git command: ``git log --no-merges --pretty="format:%aD, %an, * %s [%an - %h] %b" gda-8.42rel..gda-8.44rel > /tmp/reponame.version.csv``
+1. Run the git command: ``git log --no-merges --pretty='format:"%aD", "%an", "* %s [%an - %h] %b"' gda-8.42rel..gda-8.44rel > /tmp/reponame.version.csv``
 
 2. Open up in excel or the likes,
-   
+  
    a. Sort by name, as we tend to work in our pet areas and this makes categorisation simpler (also message quality is likewise correlated).
    b. Add an empty column to fill with single character tags. These will become component headings. e.g.  'u' for user 'dz' for developer+zebra.
    c. Sort by the tab columns
