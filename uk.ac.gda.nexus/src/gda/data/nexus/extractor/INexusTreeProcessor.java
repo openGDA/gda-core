@@ -18,7 +18,8 @@
 
 package gda.data.nexus.extractor;
 
-import org.nexusformat.NexusException;
+import gda.data.nexus.NexusException;
+
 
 /**
  * see the package-info.java file for information on this class

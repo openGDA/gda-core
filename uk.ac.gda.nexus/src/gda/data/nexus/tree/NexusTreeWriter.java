@@ -18,11 +18,10 @@
 
 package gda.data.nexus.tree;
 
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFile;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
-
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
 
 /**
  * Class that add a NexusTree to a Nexus file
@@ -37,9 +36,10 @@ public class NexusTreeWriter {
 	 * 
 	 * @throws NexusException
 	 */
-	public static void writeHere(NexusFile file, INexusTree tree) throws NexusException{
+	public static void writeHere(NexusFile file, INexusTree tree) throws NexusException {
 		String name = tree.getName();
 		String nxClass = tree.getNxClass();
+
 		if( nxClass.equals(NexusExtractor.AttrClassName)){
 			NexusGroupData data = tree.getData();
 			if( data != null && data.getBuffer() != null){

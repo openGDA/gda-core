@@ -33,8 +33,10 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
-import org.nexusformat.NexusException;
+
+import gda.data.nexus.NexusException;
 import gda.data.nexus.NexusGlobals;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**

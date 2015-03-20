@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2015 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,17 +18,19 @@
 
 package gda.data.nexus;
 
-/**
- * An interface to be implemented by a device (normally) if it is able to write additional information about itself to
- * the current position in the NeXus file.
- */
-public interface INeXusInfoWriteable {
 
-	/**
-	 * @param file
-	 *            nexus file handle
-	 * @throws NexusException 
-	 */
-	public void writeNeXusInformation(NexusFileInterface file) throws NexusException ;
+public class NexusException extends org.nexusformat.NexusException {
 
+	public NexusException(org.nexusformat.NexusException e) {
+		super(e.getMessage());
+	}
+
+	public NexusException(String msg) {
+		super(msg);
+	}
+
+	@Override
+	public String getMessage() {
+		return super.getMessage();
+	}
 }

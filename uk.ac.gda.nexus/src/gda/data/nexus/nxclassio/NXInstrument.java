@@ -18,9 +18,8 @@
 
 package gda.data.nexus.nxclassio;
 
+import gda.data.nexus.NexusException;
 import gda.data.nexus.extractor.NexusExtractorException;
-
-import org.nexusformat.NexusException;
 
 
 /**

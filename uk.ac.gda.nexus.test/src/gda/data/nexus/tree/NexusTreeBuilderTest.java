@@ -18,6 +18,7 @@
 
 package gda.data.nexus.tree;
 
+import gda.data.nexus.NexusException;
 import gda.data.nexus.extractor.NexusExtractorException;
 import gda.util.TestUtils;
 
@@ -30,7 +31,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.nexusformat.NexusException;
 import org.xml.sax.InputSource;
 
 public class NexusTreeBuilderTest {
@@ -73,7 +73,8 @@ public class NexusTreeBuilderTest {
 		"</nexusTreeNodeSelection>" +
 		"</nexusTreeNodeSelection>";
 		return NexusTreeNodeSelection.createFromXML(new InputSource(new StringReader(xml)));
-	}	
+	}
+
 	@Test
 	public void testNexusTreeBuilderToGetStructureButNotData() throws NexusException, NexusExtractorException, Exception {
 		INexusTree tree = NexusTreeBuilder.getNexusTree(TestFileFolder + File.separator + "327.nxs", getSelForAllButData());
@@ -81,6 +82,4 @@ public class NexusTreeBuilderTest {
 		Assert.assertEquals("test",tree.getChildNode(0).getChildNode(26).getChildNode(22).getChildNode(5).getData().getBuffer(),null);
 		
 	}
-	
-	
 }

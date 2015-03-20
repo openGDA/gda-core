@@ -17,7 +17,11 @@
 
 package gda.data.nexus.extractor;
 
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFile;
+import gda.data.nexus.NexusFileInterface;
 import gda.data.nexus.NexusFileWrapper;
+import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.INexusTreeProcessor.RESPONSE;
 import gda.data.nexus.tree.INexusSourceProvider;
 import gda.data.nexus.tree.INexusTree;
@@ -31,9 +35,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
+import org.nexusformat.AttributeEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**
@@ -61,7 +63,7 @@ final public class NexusExtractor implements INexusDataGetter {
 
 	private Group currentGroupBeingProcessed = null;
 
-	private NeXusFileInterface file = null;
+	private NexusFileInterface file = null;
 
 	final String fileName;
 
@@ -110,7 +112,7 @@ final public class NexusExtractor implements INexusDataGetter {
 		// try to open the attribute
 		try {
 			file.opendata(currentGroupBeingProcessed.name);
-			Map<String, org.nexusformat.AttributeEntry> dir = file.attrdir();
+			Map<String, org.nexusformat.AttributeEntry> dir = (Map<String, AttributeEntry>) file.attrdir();
 			Set<Entry<String, org.nexusformat.AttributeEntry>> set = dir.entrySet();
 			for (Entry<String, org.nexusformat.AttributeEntry> entry : set) {
 				Attr attr = new Attr(entry.getKey(), entry.getValue());
@@ -153,7 +155,7 @@ final public class NexusExtractor implements INexusDataGetter {
 		return getNexusGroupData(file, currentGroupBeingProcessed.name, name, getData, isAttr, type, length, null, null);
 	}
 
-	static NexusGroupData getNexusGroupData(NeXusFileInterface file, String currentGroupName, String attrName,
+	static NexusGroupData getNexusGroupData(NexusFileInterface file, String currentGroupName, String attrName,
 			boolean getData, boolean isAttr, int AttrType, int AttrLength, int[] startPos, int[] dims)
 			throws NexusException, NexusExtractorException {
 
@@ -174,7 +176,7 @@ final public class NexusExtractor implements INexusDataGetter {
 				 * attribute length does not account the byte for the null
 				 */
 
-				if (infoArgs[1] == NexusFile.NX_CHAR) {
+				if (infoArgs[1] == NexusGlobals.NX_CHAR) {
 					infoDims[0] += 1;
 				}
 			} else {
@@ -219,27 +221,27 @@ final public class NexusExtractor implements INexusDataGetter {
 			Serializable data = null;
 			
 			switch (type) {
-			case NexusFile.NX_CHAR:
-			case NexusFile.NX_INT8:
-			case NexusFile.NX_UINT8:
+			case NexusGlobals.NX_CHAR:
+			case NexusGlobals.NX_INT8:
+			case NexusGlobals.NX_UINT8:
 				data = new byte[lengthToSend];
 				break;
-			case NexusFile.NX_INT16:
-			case NexusFile.NX_UINT16:
+			case NexusGlobals.NX_INT16:
+			case NexusGlobals.NX_UINT16:
 				data = new short[lengthToSend];
 				break;
-			case NexusFile.NX_INT32:
-			case NexusFile.NX_UINT32:
+			case NexusGlobals.NX_INT32:
+			case NexusGlobals.NX_UINT32:
 				data = new int[lengthToSend];
 				break;
-			case NexusFile.NX_INT64:
-			case NexusFile.NX_UINT64:
+			case NexusGlobals.NX_INT64:
+			case NexusGlobals.NX_UINT64:
 				data = new long[lengthToSend];
 				break;
-			case NexusFile.NX_FLOAT32:
+			case NexusGlobals.NX_FLOAT32:
 				data = new float[lengthToSend];
 				break;
-			case NexusFile.NX_FLOAT64:
+			case NexusGlobals.NX_FLOAT64:
 				data = new double[lengthToSend];
 				break;
 			}
@@ -252,7 +254,7 @@ final public class NexusExtractor implements INexusDataGetter {
 			try {
 				if (isAttr) {
 					data = (Serializable)file.getattr(attrName);
-					if (infoArgs[1] == NexusFile.NX_CHAR) {
+					if (infoArgs[1] == NexusGlobals.NX_CHAR) {
 						dimensions[0] -= 1;
 					}					
 				} else {
@@ -309,7 +311,7 @@ final public class NexusExtractor implements INexusDataGetter {
 
 					file.opendata(group.name);
 					try {
-						Map<String, org.nexusformat.AttributeEntry> dir = file.attrdir();
+						Map<String, org.nexusformat.AttributeEntry> dir = (Map<String, AttributeEntry>) file.attrdir();
 						Set<Entry<String, org.nexusformat.AttributeEntry>> set = dir.entrySet();
 						for (Entry<String, org.nexusformat.AttributeEntry> entry : set) {
 							RESPONSE response2 = loop(new Attr(entry.getKey(), entry.getValue()), mon);
@@ -338,7 +340,7 @@ final public class NexusExtractor implements INexusDataGetter {
 			// We need to get the sets of groups and attr after first opending the file - otherwise we can get a Nexus
 			// invalid type exception
 			Map<String, String> groupdir = file.groupdir();
-			Map<String, org.nexusformat.AttributeEntry> attrdir = file.attrdir();
+			Map<String, org.nexusformat.AttributeEntry> attrdir = (Map<String, AttributeEntry>) file.attrdir();
 			{
 				// iterate over all elements of the node
 				Set<Entry<String, String>> set = groupdir.entrySet();
@@ -398,7 +400,7 @@ final public class NexusExtractor implements INexusDataGetter {
 	public void runLoop(INexusTreeProcessor loopProcessor, boolean debug, final IMonitor mon) throws NexusException,
 			NexusExtractorException {
 		this.loopProcessor = loopProcessor;
-		file = new NexusFile(fileName, NexusFile.NXACC_READ);
+		file = new NexusFile(fileName, NexusGlobals.NXACC_READ);
 		if (debug) {
 			file = new NexusFileWrapper(file);
 		}
@@ -568,7 +570,7 @@ class SimpleExtractor {
 	 * @throws NexusExtractorException
 	 */
 	@SuppressWarnings("unchecked")
-	public NexusGroupData getData(NeXusFileInterface file, String nodePathWithClasses) throws NexusException,
+	public NexusGroupData getData(NexusFileInterface file, String nodePathWithClasses) throws NexusException,
 			NexusExtractorException {
 		String[] nodeIds = nodePathWithClasses.split("/", 3);
 		if (!(nodeIds[0].equals("") && nodeIds[1].equals("")) && !(nodeIds[1].equals(NexusExtractor.SDSClassName))
@@ -586,7 +588,7 @@ class SimpleExtractor {
 		int attrType = 0;
 		int attrLength = 0;
 		if (isAttr) {
-			Map<String, org.nexusformat.AttributeEntry> dir = file.attrdir();
+			Map<String, org.nexusformat.AttributeEntry> dir = (Map<String, AttributeEntry>) file.attrdir();
 			Set<Entry<String, org.nexusformat.AttributeEntry>> set = dir.entrySet();
 			for (Entry<String, org.nexusformat.AttributeEntry> entry : set) {
 				if (entry.getKey().equals(attrName)) {
@@ -602,7 +604,7 @@ class SimpleExtractor {
 	}
 
 	protected final NexusGroupData getData() throws NexusException, NexusExtractorException {
-		NeXusFileInterface file = new NexusFile(source.getPath(), NexusFile.NXACC_READ);
+		NexusFileInterface file = new NexusFile(source.getPath(), NexusGlobals.NXACC_READ);
 		if (debug) {
 			file = new NexusFileWrapper(file);
 		}

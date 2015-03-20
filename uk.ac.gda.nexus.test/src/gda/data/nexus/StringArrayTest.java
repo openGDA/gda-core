@@ -21,9 +21,6 @@ package gda.data.nexus;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
-
 /**
  * Small test class for writing String Arrays.
  */
@@ -54,15 +51,15 @@ public class StringArrayTest {
 
 		try {
 			// Lets create a new file.
-			NexusFile file = new NexusFile("/tmp/file.nxs", NexusFile.NXACC_CREATE5);
+			NexusFile file = new NexusFile("/tmp/file.nxs", NexusGlobals.NXACC_CREATE5);
 
-			dimArray[0] = NexusFile.NX_UNLIMITED;
+			dimArray[0] = NexusGlobals.NX_UNLIMITED;
 			dimArray[1] = defaultLength;
 
 			file.makegroup("test", "NXnote");
 			file.opengroup("test", "NXnote");
 
-			file.makedata("stringarray", NexusFile.NX_CHAR, nDims, dimArray);
+			file.makedata("stringarray", NexusGlobals.NX_CHAR, nDims, dimArray);
 
 			file.opendata("stringarray");
 
@@ -96,5 +93,4 @@ public class StringArrayTest {
 		}
 
 	}
-
 }

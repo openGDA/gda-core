@@ -18,14 +18,14 @@
 
 package gda.data.nexus.nxclassio;
 
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFile;
+import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusExtractorException;
 
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.Map.Entry;
-
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
 
 /**
  * Class to handle access to NexusFiles
@@ -100,7 +100,6 @@ public class NexusFileHandle {
 		file.getinfo(iDim, iStart);
 	}
 
-	@SuppressWarnings("unchecked")
 	synchronized String getNameForClass(NexusPath nexusPath, String className) throws NexusExtractorException {
 		try {
 			openData(nexusPath, false);
@@ -129,7 +128,6 @@ public class NexusFileHandle {
 		return new String(bytes);
 	}
 
-	@SuppressWarnings("unchecked")
 	synchronized void openData(NexusPath nexusPath, boolean create) throws NexusException, NexusExtractorException {
 		openfile();
 		if (currentNexusPath == null) {
@@ -185,8 +183,8 @@ public class NexusFileHandle {
 
 	private synchronized void openfile() throws NexusException {
 		if (file == null) {
-			file = new NexusFile(fileName, writeable ? (create ? NexusFile.NXACC_CREATE5 : NexusFile.NXACC_RDWR)
-					: NexusFile.NXACC_READ);
+			file = new NexusFile(fileName, writeable ? (create ? NexusGlobals.NXACC_CREATE5 : NexusGlobals.NXACC_RDWR)
+					: NexusGlobals.NXACC_READ);
 			create = false; // only create once
 			currentNexusPath = null;
 		}
@@ -205,13 +203,13 @@ public class NexusFileHandle {
 
 	synchronized void setDoubleData(NexusPath nexusPath, String dataName, int[] dims, double[] data)
 			throws NexusException, NexusExtractorException {
-		setData(nexusPath, dataName, NexusFile.NX_FLOAT64, dims, data);
+		setData(nexusPath, dataName, NexusGlobals.NX_FLOAT64, dims, data);
 	}
 
 	synchronized void setString(NexusPath nexusPath, String dataName, String value) throws NexusException,
 			NexusExtractorException {
 		byte[] buf = value.getBytes();
 		int[] dims = new int[] { buf.length };
-		setData(nexusPath, dataName, NexusFile.NX_CHAR, dims, buf);
+		setData(nexusPath, dataName, NexusGlobals.NX_CHAR, dims, buf);
 	}
 }

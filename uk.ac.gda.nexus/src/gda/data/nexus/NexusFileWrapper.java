@@ -21,18 +21,15 @@ package gda.data.nexus;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.nexusformat.NXlink;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * class used to instrument calls to implementations of NeXusFileInterface
  */
-public class NexusFileWrapper implements org.nexusformat.NeXusFileInterface {
+public class NexusFileWrapper implements NexusFileInterface {
 	private static final Logger logger = LoggerFactory.getLogger(NexusFileWrapper.class);
-	NeXusFileInterface file;
+	NexusFileInterface file;
 	Vector<String> currentGroupNamePath = new Vector<String>();
 	Vector<String> currentGroupNXNamePath = new Vector<String>();
 	Vector<String> currentDataPath = new Vector<String>();
@@ -61,7 +58,7 @@ public class NexusFileWrapper implements org.nexusformat.NeXusFileInterface {
 	 * @param file
 	 *            to be instrumented
 	 */
-	public NexusFileWrapper(NeXusFileInterface file) {
+	public NexusFileWrapper(NexusFileInterface file) {
 		this.file = file;
 	}
 
@@ -97,8 +94,7 @@ public class NexusFileWrapper implements org.nexusformat.NeXusFileInterface {
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
-	public Hashtable attrdir() throws NexusException {
+	public Hashtable<String, ?> attrdir() throws NexusException {
 		logger.debug("attrdir - " + getCurrentAttrLocation());
 		return file.attrdir();
 	}
@@ -166,8 +162,7 @@ public class NexusFileWrapper implements org.nexusformat.NeXusFileInterface {
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
-	public Hashtable groupdir() throws NexusException {
+	public Hashtable<String, String> groupdir() throws NexusException {
 		logger.debug("groupdir - " + getCurrentGroup());
 		return file.groupdir();
 	}

@@ -13,8 +13,7 @@ Require-Bundle: org.eclipse.core.runtime,
 Export-Package: gda.data.nexus,
  gda.data.nexus.extractor,
  gda.data.nexus.nxclassio,
- gda.data.nexus.tree,
- org.nexusformat
+ gda.data.nexus.tree
 Bundle-ClassPath: .,
  jars/jnexus.jar
 Bundle-NativeCode: lib/win32-x86/hdf5dll.dll;  lib/win32-x86/jnexus.dll;  lib/win32-x86/libNeXus-0.dll;  lib/win32-x86/mxml1.dll;  lib/win32-x86/szip.dll;  lib/win32-x86/zlib1.dll;

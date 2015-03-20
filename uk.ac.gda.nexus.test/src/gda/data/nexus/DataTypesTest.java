@@ -24,7 +24,6 @@ import gda.util.TestUtils;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.nexusformat.NexusFile;
 
 /**
  * Just a short test class to check writing of file types using the nexus java api 
@@ -51,7 +50,7 @@ public class DataTypesTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testDouble() throws Exception {
-		new GenericTest<Double>(NexusFile.NX_FLOAT64, new Double[] { 0.0, -1.0, Double.MAX_VALUE });
+		new GenericTest<Double>(NexusGlobals.NX_FLOAT64, new Double[] { 0.0, -1.0, Double.MAX_VALUE });
 	}
 
 	/**
@@ -60,7 +59,7 @@ public class DataTypesTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testByte() throws Exception {
-		new GenericTest<Byte>(NexusFile.NX_INT8, new Byte[] { 0, -1, Byte.MAX_VALUE });
+		new GenericTest<Byte>(NexusGlobals.NX_INT8, new Byte[] { 0, -1, Byte.MAX_VALUE });
 	}
 
 	/**
@@ -69,7 +68,7 @@ public class DataTypesTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testLong() throws Exception {
-		new GenericTest<Long>(NexusFile.NX_INT64, new Long[] { 0l, -1l, Long.MAX_VALUE });
+		new GenericTest<Long>(NexusGlobals.NX_INT64, new Long[] { 0l, -1l, Long.MAX_VALUE });
 	}
 
 	/**
@@ -79,7 +78,7 @@ public class DataTypesTest {
 	@Test
 	public void testLongUnsigned() throws Exception {
 		// this should not work in principle
-		new GenericTest<Long>(NexusFile.NX_UINT64, new Long[] { 0l, -1l, Long.MAX_VALUE });
+		new GenericTest<Long>(NexusGlobals.NX_UINT64, new Long[] { 0l, -1l, Long.MAX_VALUE });
 	}
 
 	/**
@@ -88,7 +87,7 @@ public class DataTypesTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testInteger() throws Exception {
-		new GenericTest<Integer>(NexusFile.NX_INT32, new Integer[] { 0, -1, Integer.MAX_VALUE });
+		new GenericTest<Integer>(NexusGlobals.NX_INT32, new Integer[] { 0, -1, Integer.MAX_VALUE });
 	}
 
 	class GenericTest<T extends Number> {
@@ -98,7 +97,7 @@ public class DataTypesTest {
 			T[] received = toTest.clone();
 
 			String filename = testScratchDirectoryName + "foo.nxs";
-			NexusFile file = new NexusFile(filename, NexusFile.NXACC_CREATE5);
+			NexusFile file = new NexusFile(filename, NexusGlobals.NXACC_CREATE5);
 			file.makegroup("entry1", "NXentry");
 			file.opengroup("entry1", "NXentry");
 			file.makedata("data", type, 1, new int[] { toTest.length });
@@ -110,7 +109,7 @@ public class DataTypesTest {
 			file.closegroup();
 			file.close();
 
-			file = new NexusFile(filename, NexusFile.NXACC_READ);
+			file = new NexusFile(filename, NexusGlobals.NXACC_READ);
 			file.opengroup("entry1", "NXentry");
 			file.opendata("data");
 

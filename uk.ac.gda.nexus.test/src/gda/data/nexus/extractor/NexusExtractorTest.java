@@ -33,7 +33,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.nexusformat.NexusException;
+
+import gda.data.nexus.NexusException;
 import gda.data.nexus.NexusGlobals;
 
 public class NexusExtractorTest {
@@ -119,5 +120,4 @@ public class NexusExtractorTest {
 		Assert.assertEquals( (Double)0.3, (Double)((double [])data.getBuffer())[1]);
 
 	}
-
 }

@@ -18,10 +18,11 @@
 
 package gda.data.nexus.extractor;
 
+import gda.data.nexus.NexusException;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.nexusformat.NexusException;
 
 /**
  *
