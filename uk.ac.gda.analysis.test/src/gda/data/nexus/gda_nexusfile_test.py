@@ -2,7 +2,7 @@
 import unittest
 import os.path
 import jarray
-from org.nexusformat import NexusFile;
+from uk.ac.gda.nexus import NexusFile;
 from java.util import Arrays
 TestFileFolder = "test-scratch/gda/data/nexus/GdaNexusTestFiles";
 class NexusFileTest(unittest.TestCase):

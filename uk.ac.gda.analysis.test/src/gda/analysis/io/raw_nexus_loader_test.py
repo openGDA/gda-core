@@ -5,7 +5,7 @@ import os
 import jarray
 from gda.analysis import ScanFileHolder #@UnresolvedImport
 from gda.analysis.io import RawNexusLoader, AsciiScanFileHolderSaver, SimpleNexusSaver, SRSLoader #@UnresolvedImport
-from org.nexusformat import NexusFile; #@UnresolvedImport
+from gda.data.nexus import NexusFile; #@UnresolvedImport
 from java.util import Arrays
 from gda.jython import InterfaceProvider #@UnresolvedImport
 from gda.jython import MockJythonServerFacade #@UnresolvedImport
