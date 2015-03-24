@@ -4,11 +4,9 @@ Performs software triggered tomography
 
 #from pcoDetectorWrapper import PCODetectorWrapper
 from gda.configuration.properties import LocalProperties
-from gda.data.scan.datawriter import *
-from gda.data.scan.datawriter.DataWriter import *
+from gda.data.scan.datawriter import NXSubEntryWriter, NXTomoEntryLinkCreator
 from gda.data.scan.datawriter.DefaultDataWriterFactory import \
     createDataWriterFromFactory
-from gda.data.scan.datawriter.IDataWriterExtender import *
 from gda.device.scannable import ScannableBase, ScannableUtils, SimpleScannable
 from gda.device.scannable.scannablegroup import ScannableGroup
 from gda.jython import InterfaceProvider
