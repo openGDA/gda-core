@@ -43,42 +43,19 @@ public class NexusFileFactory {
 	 * 
 	 * @param fileUrl
 	 *            String The full filename of the file to create.
-	 * @param type
-	 *            String The format of NeXus file to create (HDF4, HDF5, XML).
 	 * @param instrumentFileApi  - if true the nexus api is instrumented
-	 * @return NexusFile
+	 * @return NexusFileInterface
 	 * @throws Exception
 	 */
-	public static NexusFileInterface createFile(String fileUrl, String type, boolean instrumentFileApi) throws Exception {
-		NexusFileInterface nf = null;
-
-		// If the type of file is null, then create a file of the default type (i.e. HDF5)
-		if (type == null) {
-			logger.debug("NexusFile: A null file type was requested - using default NeXus format ("
-					+ NexusGlobals.GDA_NX_DEFAULT + ")");
-			type = NexusGlobals.GDA_NX_DEFAULT;
-		}
+	public static NexusFileInterface createFile(String fileUrl, boolean instrumentFileApi) throws Exception {
 
 		File f = new File(fileUrl);
 		File fparent = new File(f.getParent());
 		if (!fparent.exists()) {
 			fparent.mkdirs();
 		}
-		if (type.equalsIgnoreCase("HDF5")) {
-			// Create HDF5 based NeXus file.
-			logger.debug("Creating HDF5 format NeXus file.");
-			nf = new NexusFile(fileUrl, NexusGlobals.NXACC_CREATE5);
-		} else if (type.equalsIgnoreCase("HDF4")) {
-			// Create HDF4 based NeXus file.
-			logger.debug("Creating HDF4 format NeXus file.");
-			nf = new NexusFile(fileUrl, NexusGlobals.NXACC_CREATE4);
-		} else if (type.equalsIgnoreCase("XML")) {
-			// Create XML based NeXus file.
-			logger.debug("Creating XML format NeXus file (" + fileUrl + ").");
-			nf = new NexusFile(fileUrl, NexusGlobals.NXACC_CREATEXML);
-		} else {
-			throw new NexusException("No matching NexusFile opening mode in NexusFileFactory.");
-		}
+		logger.debug("Creating HDF5 format NeXus file.");
+		NexusFileInterface nf = NexusUtils.createNexusFile(fileUrl);
 		if (instrumentFileApi)
 			nf = new NexusFileWrapper(nf);
 		

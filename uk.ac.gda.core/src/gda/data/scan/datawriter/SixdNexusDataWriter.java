@@ -67,11 +67,6 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	public static final String GDA_NEXUS_INSTRUMENT_API = "gda.nexus.instrumentApi";
 
 	/**
-	 * Property to control the file format. Defaults to {@link NexusGlobals#GDA_NX_DEFAULT}
-	 */
-	public static final String GDA_DATA_NEXUS_BACKEND = "gda.data.nexus.backend";
-	
-	/**
 	 * Property specifying whether SRS data files should be written in
 	 * addition to NeXus files. Default is {@code true}.
 	 */
@@ -87,9 +82,6 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	private static final Logger logger = LoggerFactory.getLogger(SixdNexusDataWriter.class);
 
 	static final int MAX_DATAFILENAME = 255;
-
-	/** Default NeXus format */
-	private String defaultNeXusBackend = null;
 
 	/** Are we going to write an SRS file as well ? */
 	private boolean createSrsFile = false;
@@ -160,9 +152,9 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		}
 	}
 	
-	class ExteneralNXlink extends SelfCreatingLink {
+	class ExternalNXlink extends SelfCreatingLink {
 		String name, url;
-		public ExteneralNXlink(String name, String url) {
+		public ExternalNXlink(String name, String url) {
 			super(null);
 			this.name = name;
 			this.url = url;
@@ -198,12 +190,6 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		if (beamline == null) {
 			// If the beamline name is not set then use 'base'
 			beamline = "base";
-		}
-
-		// Check to see if we want to use a different NeXus backend format.
-		defaultNeXusBackend = LocalProperties.get(GDA_DATA_NEXUS_BACKEND);
-		if (defaultNeXusBackend == null) {
-			defaultNeXusBackend = NexusGlobals.GDA_NX_DEFAULT;
 		}
 
 		// Check to see if the data directory has been defined.
@@ -427,12 +413,12 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		}
 		String name = tree.getName();
 		String nxClass = tree.getNxClass();
-		Boolean dataOpen = false;
-		Boolean loopNodes = true;
-		Boolean attrBelowThisOnly = attrOnly;
-		Boolean nxClassIsSDS = nxClass.equals(NexusExtractor.SDSClassName);
-		Boolean nxClassIsAttr = nxClass.equals(NexusExtractor.AttrClassName);
-		Boolean nxClassIsExternalSDS = nxClass.equals(NexusExtractor.ExternalSDSLink);
+		boolean dataOpen = false;
+		boolean loopNodes = true;
+		boolean attrBelowThisOnly = attrOnly;
+		boolean nxClassIsSDS = nxClass.equals(NexusExtractor.SDSClassName);
+		boolean nxClassIsAttr = nxClass.equals(NexusExtractor.AttrClassName);
+		boolean nxClassIsExternalSDS = nxClass.equals(NexusExtractor.ExternalSDSLink);
 		if (nxClassIsExternalSDS) {
 			if (makeData) {
 				NexusGroupData data = tree.getData();
@@ -442,7 +428,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 					if ( ! f.exists())
 						logger.warn("file " + filePath + " does not exist at time of adding link");
 					file.linkexternaldataset(name, filePath);
-					links.add(new ExteneralNXlink(name, filePath));
+					links.add(new ExternalNXlink(name, filePath));
 				} catch (UnsupportedEncodingException e) {
 					throw new NexusException("supported encoding in creating string for external linking -- this should never happen");
 				}
@@ -1287,7 +1273,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 
 			// create nexus file and return handle
-			file = NexusFileFactory.createFile(nexusFileUrl, defaultNeXusBackend, LocalProperties
+			file = NexusFileFactory.createFile(nexusFileUrl, LocalProperties
 					.check(GDA_NEXUS_INSTRUMENT_API));
 			if (createSrsFile) {
 				// Check to see if the file(s) already exists!

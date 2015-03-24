@@ -79,11 +79,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 */
 	public static final String GDA_NEXUS_INSTRUMENT_API = "gda.nexus.instrumentApi";
 
-	/**
-	 * Property to control the file format. Defaults to {@link NexusGlobals#GDA_NX_DEFAULT}
-	 */
-	public static final String GDA_DATA_NEXUS_BACKEND = "gda.data.nexus.backend";
-	
 	public static final String GDA_NEXUS_METADATAPROVIDER_NAME = "gda.nexus.metadata.provider.name";
 
 	/**
@@ -98,9 +93,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	public static final String GDA_NEXUS_BEAMLINE_PREFIX = "gda.nexus.beamlinePrefix";
 
 	static final int MAX_DATAFILENAME = 255;
-
-	/** Default NeXus format */
-	protected String defaultNeXusBackend = null;
 
 	/** Are we going to write an SRS file as well ? */
 	private static boolean createSrsFileByDefault = true;
@@ -196,12 +188,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		if (beamline == null) {
 			// If the beamline name is not set then use 'base'
 			beamline = "base";
-		}
-
-		// Check to see if we want to use a different NeXus backend format.
-		defaultNeXusBackend = LocalProperties.get(GDA_DATA_NEXUS_BACKEND);
-		if (defaultNeXusBackend == null) {
-			defaultNeXusBackend = NexusGlobals.GDA_NX_DEFAULT;
 		}
 
 		// Check to see if the data directory has been defined.
@@ -1471,7 +1457,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 * @throws Exception
 	 */
 	protected NexusFileInterface createFile() throws Exception {
-		return NexusFileFactory.createFile(nexusFileUrl, defaultNeXusBackend, LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
+		return NexusFileFactory.createFile(nexusFileUrl, LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
 	}
 	
 	/**

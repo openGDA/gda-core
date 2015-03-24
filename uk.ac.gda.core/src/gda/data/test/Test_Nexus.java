@@ -50,7 +50,7 @@ public class Test_Nexus {
 
 		// Create a new NEXUS file
 		try {
-			NexusFileInterface nf = NexusFileFactory.createFile(filename, "HDF5", false);
+			NexusFileInterface nf = NexusFileFactory.createFile(filename, false);
 			// nf.makegroup("entry1","NXentry");
 			nf.close();
 		} catch (Throwable e) {
