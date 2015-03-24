@@ -23,6 +23,7 @@ import gda.data.nexus.NexusException;
 import gda.data.nexus.NexusFile;
 import gda.data.nexus.NexusFileInterface;
 import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 
@@ -171,7 +172,7 @@ public class DetectorElementDataSelector {
 			if (sumData != null) {
 				// fileName = fileName.replace(".nxs", "_1.nxs");
 				String newFileName = fileCopy(fileName, outputFileDir);
-				file = new NexusFile(newFileName, NexusGlobals.NXACC_RDWR);
+				file = NexusUtils.openNexusFile(newFileName);
 				file.opengroup("entry1", "NXentry");
 				file.opengroup("instrument", "NXinstrument");
 				file.opengroup(detectorName, "NXdetector");
