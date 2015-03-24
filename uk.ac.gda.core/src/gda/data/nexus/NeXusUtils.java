@@ -28,7 +28,6 @@ import gda.device.DeviceException;
 import gda.util.Version;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import org.slf4j.Logger;
@@ -277,28 +276,6 @@ public class NeXusUtils {
 		file.closegroup();
 	}
 		
-	/**
-	 * Opens a NeXus file and returns the file handle.
-	 * 
-	 * @param filename
-	 * @return NeXus file handle
-	 * @throws NexusException
-	 */
-	public static NexusFileInterface openNexusFile(String filename) throws NexusException {
-		return NexusUtils.openNexusFile(filename);
-	}
-
-	/**
-	 * Opens a NeXus file as readonly and returns the file handle.
-	 * 
-	 * @param filename
-	 * @return NeXus file handle
-	 * @throws NexusException
-	 */
-	public static NexusFileInterface openNexusFileReadOnly(String filename) throws NexusException {
-		return NexusUtils.openNexusFileReadOnly(filename);
-	}
-
 	/**
 	 * @param file
 	 * @throws NexusException

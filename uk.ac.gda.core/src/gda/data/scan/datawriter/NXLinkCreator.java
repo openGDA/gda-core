@@ -20,8 +20,8 @@ package gda.data.scan.datawriter;
 
 import gda.data.nexus.NXlink;
 import gda.data.nexus.NexusException;
-import gda.data.nexus.NexusFile;
-import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.NexusFileInterface;
+import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusExtractor;
 
 import java.util.List;
@@ -46,7 +46,7 @@ public class NXLinkCreator {
 	}
 
 	public void makelinks(String filename) throws Exception {
-		NexusFile file = new NexusFile(filename, NexusGlobals.NXACC_RDWR);
+		NexusFileInterface file = NexusUtils.createNexusFile(filename);
 		try {
 			for( SubEntryLink link : links){
 				String value = link.value;
@@ -130,7 +130,7 @@ public class NXLinkCreator {
 			}
 		}
 	}
-	private void makelink(NexusFile file, String path, NXlink link, String url) throws Exception {
+	private void makelink(NexusFileInterface file, String path, NXlink link, String url) throws Exception {
 		String [] parts = path.split("/",2);
 		if( parts[0].isEmpty()){
 			if( parts.length>1){
@@ -166,7 +166,7 @@ public class NXLinkCreator {
 	}
 
 
-	private NXlink getLink(NexusFile file, String path) throws NexusException, Exception {
+	private NXlink getLink(NexusFileInterface file, String path) throws NexusException, Exception {
 		String [] parts = path.split("/",2);
 		if( parts[0].isEmpty()){
 			if( parts.length>1){
@@ -202,7 +202,7 @@ public class NXLinkCreator {
 		return link;
 	}
 
-	private String getExternalLinkInfo(NexusFile file, String path, String dataClassName, String unavailable) throws NexusException, Exception {
+	private String getExternalLinkInfo(NexusFileInterface file, String path, String dataClassName, String unavailable) throws NexusException, Exception {
 		String [] parts = path.split("/",2);
 		if( parts[0].isEmpty()){
 			if( parts.length>1){

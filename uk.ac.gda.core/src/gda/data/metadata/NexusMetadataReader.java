@@ -20,8 +20,8 @@
 package gda.data.metadata;
 
 import gda.data.nexus.NexusException;
-import gda.data.nexus.NexusFile;
-import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.NexusFileInterface;
+import gda.data.nexus.NexusUtils;
 import gda.factory.Findable;
 
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class NexusMetadataReader implements Findable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(NexusMetadataReader.class);
 	
-	NexusFile nf = null;
+	NexusFileInterface nf = null;
 
 	String filename = null;
 
@@ -62,7 +62,7 @@ public class NexusMetadataReader implements Findable {
 		this.filename = filename;
 	}
 
-	private String getString(NexusFile nf, String item) throws NexusException {
+	private String getString(NexusFileInterface nf, String item) throws NexusException {
 		byte bytes[];
 		String string;
 
@@ -74,7 +74,7 @@ public class NexusMetadataReader implements Findable {
 		return string;
 	}
 
-	private int getDimension(NexusFile nf) {
+	private int getDimension(NexusFileInterface nf) {
 		int dimension = 0;
 		int arg0[] = new int[20];
 		int arg1[] = new int[20];
@@ -125,7 +125,7 @@ public class NexusMetadataReader implements Findable {
 		StringTokenizer st2;
 
 		try {
-			nf = new NexusFile(filename, NexusGlobals.NXACC_READ);
+			nf = NexusUtils.openNexusFileReadOnly(filename);
 			while (st1.hasMoreTokens()) {
 				temp = st1.nextToken();
 				if (!st1.hasMoreTokens()) {
