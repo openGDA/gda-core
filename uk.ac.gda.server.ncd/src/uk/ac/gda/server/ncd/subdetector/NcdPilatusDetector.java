@@ -23,10 +23,10 @@ import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
 import gda.data.nexus.NexusException;
-import gda.data.nexus.NexusFile;
 import gda.data.nexus.NexusFileInterface;
 import gda.data.nexus.NexusFileWrapper;
 import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.NexusUtils;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
@@ -73,7 +73,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 		detector.atScanStart();
 		try {
 			scanDataPoint = 0;
-			file = new NexusFile(setupNexusFile(getDetectorType().toLowerCase()), NexusGlobals.NXACC_CREATE5);
+			file = NexusUtils.openNexusFile(setupNexusFile(getDetectorType().toLowerCase()));
 			nfw = new NexusFileWrapper(file);
 			nfw.makegroup("entry", "NXentry");
 			nfw.opengroup("entry", "NXentry");
