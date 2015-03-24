@@ -128,7 +128,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 
 		String regionNexusFileUrl = dir.getAbsolutePath()+File.separator + regionNexusFileName;
 		InterfaceProvider.getTerminalPrinter().print("Region '" + regionName + "' data will write to: "+ regionNexusFileUrl);
-		NexusFileInterface regionNexusfile = NexusFileFactory.createFile(regionNexusFileUrl, defaultNeXusBackend,LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
+		NexusFileInterface regionNexusfile = NexusFileFactory.createFile(regionNexusFileUrl, LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
 		
 		RegionFileMapper regionFileMapper = new RegionFileMapper(regionName,regionNexusFileUrl,regionNexusfile );
 		files.put(regionName, regionFileMapper);
