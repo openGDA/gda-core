@@ -19,13 +19,14 @@
 package gda.data.nexus.nxclassio;
 
 import gda.data.nexus.NexusException;
-import gda.data.nexus.NexusFile;
+import gda.data.nexus.NexusFileInterface;
 import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusExtractorException;
 
 import java.util.Hashtable;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Class to handle access to NexusFiles
@@ -45,7 +46,7 @@ public class NexusFileHandle {
 	}
 	Boolean create = false;
 	NexusPath currentNexusPath = null;
-	private NexusFile file = null;
+	private NexusFileInterface file = null;
 	final String fileName;
 
 	final Boolean writeable;
@@ -183,8 +184,8 @@ public class NexusFileHandle {
 
 	private synchronized void openfile() throws NexusException {
 		if (file == null) {
-			file = new NexusFile(fileName, writeable ? (create ? NexusGlobals.NXACC_CREATE5 : NexusGlobals.NXACC_RDWR)
-					: NexusGlobals.NXACC_READ);
+			file = writeable ? (create ? NexusUtils.createNexusFile(fileName) : NexusUtils.openNexusFile(fileName)) :
+				NexusUtils.openNexusFileReadOnly(fileName);
 			create = false; // only create once
 			currentNexusPath = null;
 		}

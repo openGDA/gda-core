@@ -97,7 +97,7 @@ public class DataTypesTest {
 			T[] received = toTest.clone();
 
 			String filename = testScratchDirectoryName + "foo.nxs";
-			NexusFile file = new NexusFile(filename, NexusGlobals.NXACC_CREATE5);
+			NexusFileInterface file = NexusUtils.createNexusFile(filename);
 			file.makegroup("entry1", "NXentry");
 			file.opengroup("entry1", "NXentry");
 			file.makedata("data", type, 1, new int[] { toTest.length });
@@ -109,7 +109,7 @@ public class DataTypesTest {
 			file.closegroup();
 			file.close();
 
-			file = new NexusFile(filename, NexusGlobals.NXACC_READ);
+			file = NexusUtils.openNexusFileReadOnly(filename);
 			file.opengroup("entry1", "NXentry");
 			file.opendata("data");
 

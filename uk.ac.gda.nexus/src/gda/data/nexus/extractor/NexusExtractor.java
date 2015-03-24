@@ -18,10 +18,10 @@
 package gda.data.nexus.extractor;
 
 import gda.data.nexus.NexusException;
-import gda.data.nexus.NexusFile;
 import gda.data.nexus.NexusFileInterface;
 import gda.data.nexus.NexusFileWrapper;
 import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.INexusTreeProcessor.RESPONSE;
 import gda.data.nexus.tree.INexusSourceProvider;
 import gda.data.nexus.tree.INexusTree;
@@ -400,7 +400,7 @@ final public class NexusExtractor implements INexusDataGetter {
 	public void runLoop(INexusTreeProcessor loopProcessor, boolean debug, final IMonitor mon) throws NexusException,
 			NexusExtractorException {
 		this.loopProcessor = loopProcessor;
-		file = new NexusFile(fileName, NexusGlobals.NXACC_READ);
+		file = NexusUtils.openNexusFileReadOnly(fileName);
 		if (debug) {
 			file = new NexusFileWrapper(file);
 		}
@@ -604,7 +604,7 @@ class SimpleExtractor {
 	}
 
 	protected final NexusGroupData getData() throws NexusException, NexusExtractorException {
-		NexusFileInterface file = new NexusFile(source.getPath(), NexusGlobals.NXACC_READ);
+		NexusFileInterface file = NexusUtils.openNexusFileReadOnly(source.getPath());
 		if (debug) {
 			file = new NexusFileWrapper(file);
 		}

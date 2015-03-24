@@ -22,15 +22,12 @@ package gda.data.nexus;
 
 import java.nio.charset.Charset;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Utility methods for dealing with NeXus files.
  */
 public class NexusUtils {
 
-	private static final Logger logger = LoggerFactory.getLogger(NexusUtils.class);
+//	private static final Logger logger = LoggerFactory.getLogger(NexusUtils.class);
 
 	/**
 	 * Returns the number of dimensions (rank) required for the data section in a NeXus file. e.g. A single channel
@@ -91,6 +88,17 @@ public class NexusUtils {
 
 		
 	/**
+	 * Creates a NeXus file and returns the file handle. If file already exists then it will be overwritten.
+	 * 
+	 * @param filename
+	 * @return NeXus file handle
+	 * @throws NexusException
+	 */
+	public static NexusFileInterface createNexusFile(String filename) throws NexusException {
+		return new NexusFile(filename, NexusGlobals.NXACC_CREATE5);
+	}
+
+	/**
 	 * Opens a NeXus file and returns the file handle.
 	 * 
 	 * @param filename
@@ -124,10 +132,9 @@ public class NexusUtils {
 		if(value == null || name == null || name.isEmpty() || value.isEmpty())
 			return;
 		byte [] bytes = value.getBytes();
-		int[] dimArray = new int[1];
-		dimArray[0] = bytes.length;
+		int[] dimArray = new int[] {bytes.length};
 		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusGlobals.NX_CHAR, 1, dimArray);
+			file.makedata(name, NexusGlobals.NX_CHAR, dimArray.length, dimArray);
 		}
 		file.opendata(name);
 		file.putdata(bytes);
@@ -142,6 +149,16 @@ public class NexusUtils {
 	 */
 	public static void writeNexusStringAttribute(NexusFileInterface file, String name, String value) throws NexusException {
 		file.putattr(name, value.getBytes(), NexusGlobals.NX_CHAR);
+	}
+
+	/**
+	 * @param file
+	 * @param name
+	 * @param values
+	 * @throws NexusException
+	 */
+	public static void writeNexusIntegerAttribute(NexusFileInterface file, String name, int... values) throws NexusException {
+		file.putattr(name, values, NexusGlobals.NX_INT32);
 	}
 
 	/**
@@ -343,7 +360,7 @@ public class NexusUtils {
 	 */
 	public static void appendNexusDouble(NexusFileInterface file, String name, double value) throws NexusException {
 		int[] dimArray = new int[1];
-		dimArray[0] = NexusGlobals.GDA_NX_UNLIMITED;
+		dimArray[0] = NexusGlobals.NX_UNLIMITED;
 		if (file.groupdir().get(name) == null) {
 			file.makedata(name, NexusGlobals.NX_FLOAT64, 1, dimArray);
 		}

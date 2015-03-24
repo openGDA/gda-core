@@ -51,7 +51,7 @@ public class StringArrayTest {
 
 		try {
 			// Lets create a new file.
-			NexusFile file = new NexusFile("/tmp/file.nxs", NexusGlobals.NXACC_CREATE5);
+			NexusFileInterface file = NexusUtils.createNexusFile("/tmp/file.nxs");
 
 			dimArray[0] = NexusGlobals.NX_UNLIMITED;
 			dimArray[1] = defaultLength;

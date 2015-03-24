@@ -19,7 +19,7 @@
 package gda.data.nexus.tree;
 
 import gda.data.nexus.NexusException;
-import gda.data.nexus.NexusFile;
+import gda.data.nexus.NexusFileInterface;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 
@@ -36,7 +36,7 @@ public class NexusTreeWriter {
 	 * 
 	 * @throws NexusException
 	 */
-	public static void writeHere(NexusFile file, INexusTree tree) throws NexusException {
+	public static void writeHere(NexusFileInterface file, INexusTree tree) throws NexusException {
 		String name = tree.getName();
 		String nxClass = tree.getNxClass();
 

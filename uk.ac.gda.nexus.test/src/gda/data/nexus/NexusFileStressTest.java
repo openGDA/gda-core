@@ -61,7 +61,7 @@ public class NexusFileStressTest {
 	@SuppressWarnings("unused")
 	@Test(expected=NullPointerException.class)
 	public void testConstructor() throws Exception {
-		new NexusFile(null, NexusGlobals.NXACC_READ);
+		NexusUtils.openNexusFileReadOnly(null);
 	}
 
 	/**
@@ -69,9 +69,9 @@ public class NexusFileStressTest {
 	 */
 	@Test(expected=NullPointerException.class)
 	public void testMakeGroupNPE1() throws Exception {
-		NexusFile file = null;
+		NexusFileInterface file = null;
 		try {
-			file = new NexusFile(filename, NexusGlobals.NXACC_CREATE5);
+			file = NexusUtils.createNexusFile(filename);
 			file.makegroup(null, "NXentry");
 			file.opengroup("entry1", "NXentry");
 			file.closegroup();
@@ -86,9 +86,9 @@ public class NexusFileStressTest {
 	 */
 	@Test(expected=NullPointerException.class)
 	public void testMakeGroupNPE2() throws Exception {
-		NexusFile file = null;
+		NexusFileInterface file = null;
 		try {
-			file = new NexusFile(filename, NexusGlobals.NXACC_CREATE5);
+			file = NexusUtils.createNexusFile(filename);
 			file.makegroup("entry1", null);
 			file.opengroup("entry1", "NXentry");
 			file.closegroup();
@@ -103,9 +103,9 @@ public class NexusFileStressTest {
 	 */
 	@Test(expected=NullPointerException.class)
 	public void testOpenGroupNPE1() throws Exception {
-		NexusFile file = null;
+		NexusFileInterface file = null;
 		try {
-			file = new NexusFile(filename, NexusGlobals.NXACC_CREATE5);
+			file = NexusUtils.createNexusFile(filename);
 			file.opengroup(null, "NXentry");
 			file.closegroup();
 		}
@@ -119,9 +119,9 @@ public class NexusFileStressTest {
 	 */
 	@Test(expected=NullPointerException.class)
 	public void testOpenGroupNPE2() throws Exception {
-		NexusFile file = null;
+		NexusFileInterface file = null;
 		try {
-			file = new NexusFile(filename, NexusGlobals.NXACC_CREATE5);
+			file = NexusUtils.createNexusFile(filename);
 			file.opengroup("entry1", null);
 			file.closegroup();
 		}
@@ -135,9 +135,9 @@ public class NexusFileStressTest {
 	 */
 	@Test(expected=NullPointerException.class)
 	public void testMakeDataNPE1() throws Exception {
-		NexusFile file = null;
+		NexusFileInterface file = null;
 		try {
-			file = new NexusFile(filename, NexusGlobals.NXACC_CREATE5);
+			file = NexusUtils.createNexusFile(filename);
 			file.makegroup("entry1", "NXentry");
 			file.opengroup("entry1", "NXentry");
 			file.makedata(null, NexusGlobals.NX_FLOAT64, 2, new int[] { 1 } );
@@ -153,9 +153,9 @@ public class NexusFileStressTest {
 	 */
 	@Test(expected=NullPointerException.class)
 	public void testMakeDataNPE2() throws Exception {
-		NexusFile file = null;
+		NexusFileInterface file = null;
 		try {
-			file = new NexusFile(filename, NexusGlobals.NXACC_CREATE5);
+			file = NexusUtils.createNexusFile(filename);
 			file.makegroup("entry1", "NXentry");
 			file.opengroup("entry1", "NXentry");
 			file.makedata("data", NexusGlobals.NX_FLOAT64, 2, (long[]) null);
@@ -190,9 +190,9 @@ public class NexusFileStressTest {
 			int[] startPos = new int[rank];
 			
 			// create the file
-			NexusFile file = null;
+			NexusFileInterface file = null;
 			try {
-				file = new NexusFile(filename, NexusGlobals.NXACC_CREATE5);
+				file = NexusUtils.createNexusFile(filename);
 				file.makegroup("entry1", "NXentry");
 				file.opengroup("entry1", "NXentry");
 				file.makedata(null, NexusGlobals.NX_FLOAT64, rank, dimArray);
@@ -221,7 +221,7 @@ public class NexusFileStressTest {
 	@Test(expected=NexusException.class)
 	public void testFileNotThere() throws Exception {
 			deleteFile();
-			NexusFile file = new NexusFile(filename, NexusGlobals.NXACC_READ);
+			NexusFileInterface file = NexusUtils.openNexusFileReadOnly(filename);
 			file.opengroup("entry1", "NXentry");
 			file.closegroup();
 			file.close();
