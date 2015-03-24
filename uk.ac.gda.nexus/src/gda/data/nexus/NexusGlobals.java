@@ -31,57 +31,8 @@ import org.nexusformat.NexusFile;
  */
 
 public class NexusGlobals {
-	/**
-	 * constant denoting an unlimited dimension.
-	 */
-	public final static int GDA_NX_UNLIMITED = NexusFile.NX_UNLIMITED;
 
-	/**
-	 * Format is HDF4
-	 */
-	public final static String NEXUS_FILE_HDF4 = "HDF4";
-
-	/**
-	 * Format is HDF5
-	 */
-	public final static String NEXUS_FILE_HDF5 = "HDF5";
-
-	/**
-	 * Format is XML
-	 */
-	public final static String NEXUS_FILE_XML = "XML";
-
-	/**
-	 * Access mode is READ
-	 */
-	public final static String NEXUS_FILE_READ = "READ";
-
-	/**
-	 * Access mode is READWRITE
-	 */
-	public final static String NEXUS_FILE_READWRITE = "READWRITE";
-
-	/**
-	 * Default length of string data
-	 */
-	public final static int DEFAULT_LENGTH_OF_STRING_DATA = 255;
-
-	/**
-	 * Default length of description string
-	 */
-	public final static int DEFAULT_LENGTH_OF_DESCRIPTION_STRING = 3000;
-
-	/**
-	 * Constant defining the default backend format to be used.
-	 * 
-	 * <p>(We used to default to HDF4; see
-	 * <a href="http://trac.nexusformat.org/code/ticket/180">NeXus ticket #180</a>)
-	 */
-	public final static String GDA_NX_DEFAULT = NEXUS_FILE_HDF5;
-
-	public final static int NXACC_CREATE4 = NexusFile.NXACC_CREATE4;
 	public final static int NXACC_CREATE5 = NexusFile.NXACC_CREATE5;
-	public final static int NXACC_CREATEXML = NexusFile.NXACC_CREATEXML;
 	public final static int NXACC_READ = NexusFile.NXACC_READ;
 	public final static int NXACC_RDWR = NexusFile.NXACC_RDWR;
 
