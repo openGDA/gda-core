@@ -22,6 +22,7 @@ import gda.data.nexus.NexusGlobals;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,25 +90,80 @@ public class NexusGroupData implements Serializable {
 		type = NexusGlobals.NX_CHAR;
 	}
 
-	public NexusGroupData(Integer i) {
+	/**
+	 * @param length
+	 * @param s String from which to make a NexusGroupData
+	 */
+	public NexusGroupData(int length, String s) {
 		super();
-		int[] idata = new int[]{i};
-		dimensions = new int[]{idata.length};
-		data = idata;
+		try {
+			data = Arrays.copyOf(s.getBytes("UTF-8"), length);
+		} catch (UnsupportedEncodingException e) {
+			data = Arrays.copyOf(s.getBytes(), length);
+		}
+		dimensions = new int[] {length};
+		type = NexusGlobals.NX_CHAR;
+	}
+
+	public NexusGroupData(byte... b) {
+		this(new int[]{b.length}, b);
+	}
+
+	public NexusGroupData(int[] dims, byte... b) {
+		super();
+		dimensions = dims;
+		data = b;
+		type = NexusGlobals.NX_INT8;
+	}
+
+	public NexusGroupData(short... s) {
+		this(new int[]{s.length}, s);
+	}
+
+	public NexusGroupData(int[] dims, short... s) {
+		super();
+		dimensions = dims;
+		data = s;
+		type = NexusGlobals.NX_INT16;
+	}
+
+	public NexusGroupData(int... i) {
+		this(new int[]{i.length}, i);
+	}
+
+	public NexusGroupData(int[] dims, int... i) {
+		super();
+		dimensions = dims;
+		data = i;
 		type = NexusGlobals.NX_INT32;
 	}
 
-	public NexusGroupData(Boolean b) {
+	public NexusGroupData(boolean b) {
 		this(b?1:0);
 	}
-	
-	public NexusGroupData(Double i) {
+
+	public NexusGroupData(float... f) {
+		this(new int[]{f.length}, f);
+	}
+
+	public NexusGroupData(int[] dims, float... f) {
 		super();
-		double [] idata = new double[]{i};
-		dimensions = new int[]{idata.length};
-		data = idata;
+		dimensions = dims;
+		data = f;
+		type = NexusGlobals.NX_FLOAT32;
+	}
+
+	public NexusGroupData(double... d) {
+		this(new int[]{d.length}, d);
+	}
+
+	public NexusGroupData(int[] dims, double... d) {
+		super();
+		dimensions = dims;
+		data = d;
 		type = NexusGlobals.NX_FLOAT64;
 	}
+
 	/**
 	 * @return The data buffer compatible with type, null if data not extracted
 	 */
