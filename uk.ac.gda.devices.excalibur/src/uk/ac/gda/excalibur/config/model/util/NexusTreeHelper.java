@@ -492,24 +492,19 @@ public class NexusTreeHelper {
 		NexusTreeNode pixelNode = new NexusTreeNode(PIXEL, EXCONF_PKG.getPixelModel().getName(), chipReg);
 
 		pixelNode.addChildNode(new NexusTreeNode(EXCONF_PKG.getPixelModel_GainMode().getName(),
-				NexusExtractor.SDSClassName, pixelNode, new NexusGroupData(new int[] { 256, 256 }, NexusGlobals.NX_INT16,
-						pixelModel.getGainMode())));
+				NexusExtractor.SDSClassName, pixelNode, new NexusGroupData(new int[] { 256, 256 }, pixelModel.getGainMode())));
 
 		pixelNode.addChildNode(new NexusTreeNode(EXCONF_PKG.getPixelModel_Mask().getName(),
-				NexusExtractor.SDSClassName, pixelNode, new NexusGroupData(new int[] { 256, 256 }, NexusGlobals.NX_INT16,
-						pixelModel.getMask())));
+				NexusExtractor.SDSClassName, pixelNode, new NexusGroupData(new int[] { 256, 256 }, pixelModel.getMask())));
 
 		pixelNode.addChildNode(new NexusTreeNode(EXCONF_PKG.getPixelModel_Test().getName(),
-				NexusExtractor.SDSClassName, pixelNode, new NexusGroupData(new int[] { 256, 256 }, NexusGlobals.NX_INT16,
-						pixelModel.getTest())));
+				NexusExtractor.SDSClassName, pixelNode, new NexusGroupData(new int[] { 256, 256 }, pixelModel.getTest())));
 
 		pixelNode.addChildNode(new NexusTreeNode(EXCONF_PKG.getPixelModel_ThresholdA().getName(),
-				NexusExtractor.SDSClassName, pixelNode, new NexusGroupData(new int[] { 256, 256 }, NexusGlobals.NX_INT16,
-						pixelModel.getThresholdA())));
+				NexusExtractor.SDSClassName, pixelNode, new NexusGroupData(new int[] { 256, 256 }, pixelModel.getThresholdA())));
 
 		pixelNode.addChildNode(new NexusTreeNode(EXCONF_PKG.getPixelModel_ThresholdB().getName(),
-				NexusExtractor.SDSClassName, pixelNode, new NexusGroupData(new int[] { 256, 256 }, NexusGlobals.NX_INT16,
-						pixelModel.getThresholdB())));
+				NexusExtractor.SDSClassName, pixelNode, new NexusGroupData(new int[] { 256, 256 }, pixelModel.getThresholdB())));
 		chipReg.addChildNode(pixelNode);
 		//
 		nxfem.addChildNode(chipReg);
