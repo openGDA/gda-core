@@ -118,24 +118,24 @@ public class SectorIntegration extends ReductionDetectorBase {
 			myradngd.isDetectorEntryData = true;
 			nxdata.addData(getName(), myradngd, "1", 1);
 
-			NexusGroupData roiData = new NexusGroupData(new int[] { 2 }, NexusGlobals.NX_FLOAT64, roi.getPoint());
+			NexusGroupData roiData = new NexusGroupData(roi.getPoint());
 			roiData.isDetectorEntryData = false;
 			nxdata.addData(getName(), "beam centre", roiData, "pixels", 0);
-			roiData = new NexusGroupData(new int[] { 2 }, NexusGlobals.NX_FLOAT64, roi.getAnglesDegrees());
+			roiData = new NexusGroupData(roi.getAnglesDegrees());
 			roiData.isDetectorEntryData = false;
 			nxdata.addData(getName(), "integration angles", roiData, "Deg", 0);
-			roiData = new NexusGroupData(new int[] { 2 }, NexusGlobals.NX_FLOAT64, roi.getRadii());
+			roiData = new NexusGroupData(roi.getRadii());
 			roiData.isDetectorEntryData = false;
 			nxdata.addData(getName(), "integration radii", roiData, "pixels", 0);
 			nxdata.addData(getName(), "integration symmetry", new NexusGroupData(roi.getSymmetryText()), null, 0);
 			if (gradient != null && intercept != null) {
 				double[] calibrationValues =  new double[] {gradient.doubleValue(), intercept.doubleValue()};
-				NexusGroupData calibrationData = new NexusGroupData(new int[] { 2 }, NexusGlobals.NX_FLOAT64, calibrationValues);
+				NexusGroupData calibrationData = new NexusGroupData(calibrationValues);
 				calibrationData.isDetectorEntryData = false;
 				nxdata.addData(getName(), "qaxis calibration", calibrationData, null, 0);
 			}
 			if (cameraLength != null) {
-				NexusGroupData cameraData = new NexusGroupData(new int[] { 1 }, NexusGlobals.NX_FLOAT64, new double[] {cameraLength.doubleValue()});
+				NexusGroupData cameraData = new NexusGroupData(cameraLength);
 				cameraData.isDetectorEntryData = false;
 				nxdata.addData(getName(), "camera length", cameraData, "mm", 0);
 			}

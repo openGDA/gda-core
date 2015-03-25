@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +71,7 @@ public class NcdScalerDetector extends NcdSubDetector implements INcdSubDetector
 		for (int chan=0; chan<channels; chan++) {
 			float[] frameData = new float[frames];
 			System.arraycopy(data, i, frameData, 0, frames);
-			ngd = new NexusGroupData(datadims, NexusGlobals.NX_FLOAT32, frameData);
+			ngd = new NexusGroupData(datadims, frameData);
 			ngd.isDetectorEntryData = true;
 			nxdata.addData(getName(), labels.nextToken(), ngd, "counts", 1);
 			i += frames;

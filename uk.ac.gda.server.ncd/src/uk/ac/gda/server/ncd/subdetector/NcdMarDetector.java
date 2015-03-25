@@ -102,7 +102,7 @@ public class NcdMarDetector extends NcdSubDetector implements LastImageProvider 
 		}
 		
 		if (getPixelSize() != 0.0) {
-			ngd = new NexusGroupData(new int[] {1}, NexusGlobals.NX_FLOAT64, new double[]{getPixelSize()});
+			ngd = new NexusGroupData(getPixelSize());
 			ngd.isDetectorEntryData = false;
 			
 			
