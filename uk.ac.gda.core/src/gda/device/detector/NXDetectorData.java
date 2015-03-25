@@ -19,6 +19,7 @@
 
 package gda.device.detector;
 
+import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -30,7 +31,6 @@ import gda.device.scannable.ScannableUtils;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -261,18 +261,9 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param filename filename
 	 */
 	public void addFileName(String detName, String filename){
-
-		int[] dimensions = new int[]{MAX_DATAFILENAME};
-		byte filenameBytes[] = new byte[MAX_DATAFILENAME];
-		java.util.Arrays.fill(filenameBytes, (byte) 0); // zero terminate
-
-		for (int k = 0; k < filename.length(); k++) {
-			filenameBytes[k] = (byte) filename.charAt(k);
-		}
-		
 		INexusTree detTree = getDetTree(detName);
 		NexusTreeNode data = new NexusTreeNode(DATA_FILE_CLASS_NAME, NexusExtractor.NXNoteClassName, null,null);
-		NexusGroupData file_name_sds = new NexusGroupData(dimensions, NexusGlobals.NX_CHAR,filenameBytes);
+		NexusGroupData file_name_sds = new NexusGroupData(MAX_DATAFILENAME, filename);
 		NexusTreeNode file_name = new NexusTreeNode(FILE_NAME_NODE_NAME, NexusExtractor.SDSClassName, null,file_name_sds);
 		file_name.addChildNode(new NexusTreeNode(DATA_FILENAME_ATTR_NAME,NexusExtractor.AttrClassName, file_name,new NexusGroupData(1)));
 		data.setIsPointDependent(true);

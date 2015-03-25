@@ -65,7 +65,7 @@ public class DummyNXDetector implements NexusDetector {
 			
 			
 			{
-				NexusGroupData dead_time_data = new NexusGroupData(new int[] { 1  } , NexusGlobals.NX_FLOAT64, new double[]{0.11} );
+				NexusGroupData dead_time_data = new NexusGroupData(0.11);
 				dead_time_data.isDetectorEntryData = true;
 				NexusTreeNode dead_time = new NexusTreeNode("dead_time",NexusExtractor.SDSClassName, null, dead_time_data);
 				dead_time.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, dead_time,new NexusGroupData("2")));

@@ -33,7 +33,6 @@ import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -49,7 +48,6 @@ import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math3.util.Pair;
-import gda.data.nexus.NexusGlobals;
 import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
@@ -930,33 +928,18 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 			groupData = new NexusGroupData((String) object);
 		} else if (object instanceof Integer) {
 			groupData = new NexusGroupData((Integer) object);
-		} else if (object instanceof Long) {
-			Double dblValue = ((Number) object).doubleValue();
-			double[] dblData = new double[] { dblValue };
-			int[] dims = new int[] { dblData.length };
-			int type = NexusGlobals.NX_FLOAT64;
-			groupData = new NexusGroupData(dims, type, dblData);
+//		} else if (object instanceof Long) {
+//			Double dblValue = ((Number) object).doubleValue();
+//			double[] dblData = new double[] { dblValue };
+//			groupData = new NexusGroupData(dblData);
 		} else if (object instanceof Number) {
-			Double dblValue = ((Number) object).doubleValue();
-			double[] dblData = new double[] { dblValue };
-			int[] dims = new int[] { dblData.length };
-			int type = NexusGlobals.NX_FLOAT64;
-			groupData = new NexusGroupData(dims, type, dblData);
+			groupData = new NexusGroupData(((Number) object).doubleValue());
 		} else if (object instanceof double[]) {
-			double[] data = (double[]) object;
-			int[] dims = new int[] { data.length };
-			int type = NexusGlobals.NX_FLOAT64;
-			groupData = new NexusGroupData(dims, type, data);
+			groupData = new NexusGroupData((double[]) object);
 		} else if (object instanceof int[]) {
-			int[] data = (int[]) object;
-			int[] dims = new int[] { data.length };
-			int type = NexusGlobals.NX_INT32;
-			groupData = new NexusGroupData(dims, type, data);
+			groupData = new NexusGroupData((int[]) object);
 		} else if (object instanceof PyFloat) {
-			double [] data = new double[]{((PyFloat) object).asDouble()};
-			int[] dims = new int[] { 1 };
-			int type = NexusGlobals.NX_FLOAT64;
-			groupData = new NexusGroupData(dims, type, data);
+			groupData = new NexusGroupData(((PyFloat) object).asDouble());
 		} else if (object instanceof PyInteger) {
 			//store as NX_FLOAT64 since a lot of things may pass an int for an expect a double on readback
 			groupData = new NexusGroupData( (double) ( (PyInteger) object).getValue() );
@@ -967,9 +950,7 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 			for (int i = 0; i < dataLen; i++) {
 				dblData[i] = data[i];
 			}
-			int[] dims = new int[] { dblData.length };
-			int type = NexusGlobals.NX_FLOAT64;
-			groupData = new NexusGroupData(dims, type, data);
+			groupData = new NexusGroupData(dblData);
 		} else if (object instanceof Number[]) {
 			Number[] data = (Number[]) object;
 			int dataLen = data.length;
@@ -977,9 +958,7 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 			for (int i = 0; i < dataLen; i++) {
 				dblData[i] = data[i].doubleValue();
 			}
-			int[] dims = new int[] { dblData.length };
-			int type = NexusGlobals.NX_FLOAT64;
-			groupData = new NexusGroupData(dims, type, dblData);
+			groupData = new NexusGroupData(dblData);
 		} else if (object instanceof PyList) {
 			// coerce PyList into double array.
 			int dataLen = ((PyList) object).__len__();
@@ -994,9 +973,7 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 					dblData[i] = Double.valueOf(item.toString());
 				}
 			}
-			int[] dims = new int[] { dblData.length };
-			int type = NexusGlobals.NX_FLOAT64;
-			groupData = new NexusGroupData(dims, type, dblData);
+			groupData = new NexusGroupData(dblData);
 		} else if (object instanceof PySequence) {
 			// coerce PySequence into double array.
 			int dataLen = ((PySequence) object).__len__();
@@ -1011,9 +988,7 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 					dblData[i] = Double.valueOf(item.toString());
 				}
 			}
-			int[] dims = new int[] { dblData.length };
-			int type = NexusGlobals.NX_FLOAT64;
-			groupData = new NexusGroupData(dims, type, dblData);
+			groupData = new NexusGroupData(dblData);
 		} else {
 			logger.error("unhandled data type: " + object.getClass().getName()
 					+ " - this dataset might not have been written correctly to Nexus file.");
