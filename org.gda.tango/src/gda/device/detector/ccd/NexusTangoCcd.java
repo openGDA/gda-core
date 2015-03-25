@@ -51,6 +51,7 @@ public class NexusTangoCcd extends TangoCcd implements  NexusDetector {
 		int height = (Integer) getAttribute("Height");
 		short depth = (Short) getAttribute("Depth");
 		if (byteData != null) {
+			// XXX does NGD cope with interpreting "data" that does not match type? 
 			if (depth == 1) {
 				ngd = new NexusGroupData(new int[] { width, height }, NexusGlobals.NX_INT8, byteData);
 			} else if (depth == 2) {

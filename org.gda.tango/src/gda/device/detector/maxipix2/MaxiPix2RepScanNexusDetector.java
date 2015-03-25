@@ -97,7 +97,7 @@ public class MaxiPix2RepScanNexusDetector extends DetectorBase implements Positi
 	}
 
 	INexusTree makeNexusTreeNode(String label, double data) {
-		NexusGroupData groupData = new NexusGroupData(new int[] { 1 }, NexusGlobals.NX_FLOAT64, new double[] { data });
+		NexusGroupData groupData = new NexusGroupData(data);
 		return new NexusTreeNode(label, NexusExtractor.SDSClassName, null, groupData);
 	}
 
