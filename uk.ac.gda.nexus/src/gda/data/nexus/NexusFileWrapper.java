@@ -201,7 +201,7 @@ public class NexusFileWrapper implements NexusFileInterface {
 
 	@Override
 	public void makelink(NXlink arg0) throws NexusException {
-		logger.debug("makelink - " + arg0.targetPath);
+		logger.debug("makelink - " + arg0.getTargetPath());
 		file.makelink(arg0);
 	}
 

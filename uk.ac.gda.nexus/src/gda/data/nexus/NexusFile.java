@@ -350,7 +350,7 @@ public class NexusFile implements NexusFileInterface {
 	@Override
 	public void makelink(NXlink target) throws NexusException {
 		try {
-			file.makelink(target);
+			file.makelink(target.link);
 		} catch (org.nexusformat.NexusException e) {
 			throw new NexusException(e);
 		}
@@ -359,7 +359,7 @@ public class NexusFile implements NexusFileInterface {
 	@Override
 	public void makenamedlink(String name, NXlink target) throws NexusException {
 		try {
-			file.makenamedlink(name, target);
+			file.makenamedlink(name, target.link);
 		} catch (org.nexusformat.NexusException e) {
 			throw new NexusException(e);
 		}

@@ -19,15 +19,13 @@
 package gda.data.nexus;
 
 
-public class NXlink extends org.nexusformat.NXlink {
+public class NXlink {
+	org.nexusformat.NXlink link;
 	public NXlink(org.nexusformat.NXlink l) {
-		linkType = l.linkType;
-		ref = l.ref;
-		tag = l.tag;
-		targetPath = l.targetPath;
+		link = l;
 	}
 
 	public String getTargetPath() {
-		return targetPath;
+		return link.targetPath;
 	}
 }
