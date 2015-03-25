@@ -424,7 +424,7 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 		for(int i = 0; i < result.length; i++) {
 			result[i] = data[i];
 		}
-		NexusGroupData groupData = new NexusGroupData(getDataDimensions(), getDataType(), result );
+		NexusGroupData groupData = new NexusGroupData(getDataDimensions(), result );
 		return groupData;
 	}
 	

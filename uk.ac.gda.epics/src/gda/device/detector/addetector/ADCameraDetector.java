@@ -289,8 +289,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 		for (String label : new String[] { "x_pixel_size", "y_pixel_size" }) {
 			if (attributeMap.containsKey(label)) {
 				try {
-					ngd = new NexusGroupData(new int[] { 1 }, NexusGlobals.NX_FLOAT64,
-							new double[] { (Double) attributeMap.get(label) });
+					ngd = new NexusGroupData((Double) attributeMap.get(label));
 					ngd.isDetectorEntryData = false;
 
 					NexusTreeNode type_node = new NexusTreeNode(label, NexusExtractor.SDSClassName, null, ngd);
@@ -309,8 +308,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 		for (String label : new String[] { "beam_center_x", "beam_center_y" }) {
 			if (attributeMap.containsKey(label)) {
 				try {
-					ngd = new NexusGroupData(new int[] { 1 }, NexusGlobals.NX_FLOAT64,
-							new double[] { (Double) attributeMap.get(label) });
+					ngd = new NexusGroupData((Double) attributeMap.get(label));
 					ngd.isDetectorEntryData = false;
 
 					NexusTreeNode type_node = new NexusTreeNode(label, NexusExtractor.SDSClassName, null, ngd);
