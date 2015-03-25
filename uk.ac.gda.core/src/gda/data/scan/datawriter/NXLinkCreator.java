@@ -46,7 +46,7 @@ public class NXLinkCreator {
 	}
 
 	public void makelinks(String filename) throws Exception {
-		NexusFileInterface file = NexusUtils.createNexusFile(filename);
+		NexusFileInterface file = NexusUtils.openNexusFile(filename);
 		try {
 			for( SubEntryLink link : links){
 				String value = link.value;
