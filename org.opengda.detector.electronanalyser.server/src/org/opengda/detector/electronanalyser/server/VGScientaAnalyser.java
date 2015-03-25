@@ -334,14 +334,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 					axis[j]=excitationEnergy-axis[j];
 				}
 			}
-			NexusGroupData energies=new NexusGroupData(new int[] {axis.length},NexusGlobals.NX_FLOAT64, axis);
+			NexusGroupData energies=new NexusGroupData(axis);
 			energies.isDetectorEntryData = true;
 			INexusTree energies_node=new NexusTreeNode(aname, NexusExtractor.SDSClassName, null,energies);
-			Integer[] axisVal = {i+1};
 			regionNode.addChildNode(energies_node);
-			energies_node.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, energies_node, new NexusGroupData(new int[] {axisVal.length}, NexusGlobals.NX_INT32, axisVal)));
-			Integer[] primaryVal = {1};
-			energies_node.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, energies_node, new NexusGroupData(new int[] {primaryVal.length}, NexusGlobals.NX_INT32, primaryVal)));
+			energies_node.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, energies_node, new NexusGroupData(i+1)));
+			energies_node.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, energies_node, new NexusGroupData(1)));
 			energies_node.addChildNode(new NexusTreeNode("unit",NexusExtractor.AttrClassName, energies_node, new NexusGroupData(aunit)));
 		} catch (Exception e) {
 			logger.error("failed to get energy axis data from analyser.", e);
@@ -358,15 +356,13 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		}
 		try {
 			axis = getAngleAxis();
-			NexusGroupData vertiaclaxis=new NexusGroupData(new int[] {axis.length},NexusGlobals.NX_FLOAT64, axis);
+			NexusGroupData vertiaclaxis=new NexusGroupData(axis);
 			vertiaclaxis.isDetectorEntryData = true;
-			INexusTree vertiaclaxis_node=new NexusTreeNode(aname, NexusExtractor.SDSClassName, null,vertiaclaxis);
-			Integer[] axisVal = {i+1};
-			regionNode.addChildNode(vertiaclaxis_node);
-			vertiaclaxis_node.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, vertiaclaxis_node, new NexusGroupData(new int[] {axisVal.length}, NexusGlobals.NX_INT32, axisVal)));
-			Integer[] primaryVal = {1};
-			vertiaclaxis_node.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, vertiaclaxis_node, new NexusGroupData(new int[] {primaryVal.length}, NexusGlobals.NX_INT32, primaryVal)));
-			vertiaclaxis_node.addChildNode(new NexusTreeNode("unit",NexusExtractor.AttrClassName, vertiaclaxis_node, new NexusGroupData(aunit)));
+			INexusTree verticalaxis_node=new NexusTreeNode(aname, NexusExtractor.SDSClassName, null,vertiaclaxis);
+			regionNode.addChildNode(verticalaxis_node);
+			verticalaxis_node.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, verticalaxis_node, new NexusGroupData(i+1)));
+			verticalaxis_node.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, verticalaxis_node, new NexusGroupData(1)));
+			verticalaxis_node.addChildNode(new NexusTreeNode("unit",NexusExtractor.AttrClassName, verticalaxis_node, new NexusGroupData(aunit)));
 		} catch (Exception e) {
 			logger.error("failed to get angle or location axis data from analyser.", e);
 			throw e;
@@ -390,8 +386,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			}
 //			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0], dims[1] };
 
-			double[] s = getImage();
-			NexusGroupData image_data=new NexusGroupData(dims,NexusGlobals.NX_FLOAT64, s);
+			NexusGroupData image_data=new NexusGroupData(dims, getImage());
 			image_data.isDetectorEntryData=true;
 			NexusTreeNode image_data_node=new NexusTreeNode("image_data", NexusExtractor.SDSClassName, null,image_data);
 			image_data_node.setIsPointDependent(true);
@@ -414,15 +409,9 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	private void createSpectrumData(INexusTree regionNode) {
 		try {
 			int size = getEnergyAxis().length;
-			int[] dims=new int[] {size};
-			if (dims.length == 0) {
-				logger.warn("Dimensions of spectrum from " + getName() + " are zero length");
-				return;
-			}
-//			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0] };
 			
-			double[] s = getSpectrum(dims[0]);
-			NexusGroupData spectrum_data=new NexusGroupData(dims,NexusGlobals.NX_FLOAT64, s);
+			double[] s = getSpectrum(size);
+			NexusGroupData spectrum_data=new NexusGroupData(s);
 			spectrum_data.isDetectorEntryData=true;
 			NexusTreeNode spectrum_data_node=new NexusTreeNode("spectrum_data", NexusExtractor.SDSClassName, null,spectrum_data);
 			spectrum_data_node.setIsPointDependent(true);
@@ -443,15 +432,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			} else {
 				size = getEnergyAxis().length;
 			}
-			int[] dims=new int[] {size};
-			if (dims.length == 0) {
-				logger.warn("Dimensions of external IO data from " + getName() + " are zero length");
-				return;
-			}
-//			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0] };
-	
-			double[] s = getExternalIOData(dims[0]);
-			NexusGroupData external_io_data=new NexusGroupData(dims,NexusGlobals.NX_FLOAT64, s);
+			NexusGroupData external_io_data=new NexusGroupData(getExternalIOData(size));
 			external_io_data.isDetectorEntryData=true;
 			NexusTreeNode external_io_data_node=new NexusTreeNode("external_io_data", NexusExtractor.SDSClassName, null,external_io_data);
 			external_io_data_node.setIsPointDependent(true);
@@ -464,10 +445,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	}
 	private void createExciationEnergy(INexusTree regionNode) {
 		try {
-			int[] dims=new int[] {1};
-//			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0] };
-			double[] s = new double[] {getExcitationEnergy()};
-			NexusGroupData excitation_energy=new NexusGroupData(dims,NexusGlobals.NX_FLOAT64, s);
+			NexusGroupData excitation_energy=new NexusGroupData(getExcitationEnergy());
 			excitation_energy.isDetectorEntryData=true;
 			NexusTreeNode excitation_energy_node=new NexusTreeNode("excitation_energy", NexusExtractor.SDSClassName, null,excitation_energy);
 			excitation_energy_node.setIsPointDependent(true);
