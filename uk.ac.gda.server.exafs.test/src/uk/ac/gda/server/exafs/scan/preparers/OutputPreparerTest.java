@@ -84,7 +84,7 @@ public class OutputPreparerTest {
 			outputParameters.setMetadataActive(true);
 			
 			OutputPreparerTestImpl impl = new OutputPreparerTestImpl(datawriterconfig,metashop);
-			impl.configure(outputParameters, null,null);
+			impl.configure(outputParameters, null,null, null);
 			
 			assertTrue(metashop.getMetaScannables().contains(mocked_sxcryo_scannable));
 			

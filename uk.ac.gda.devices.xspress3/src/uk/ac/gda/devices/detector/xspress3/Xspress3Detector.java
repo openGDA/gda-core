@@ -34,7 +34,14 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * @see uk.ac.gda.devices.detector.xspress#Xspress3System
  * @author rjw82
  * 
+ *         now replaced with Xspress3WithFullCalculationsDetector. This new
+ *         class was developed for I18 after problems were seen in the EPICS
+ *         layer. This new class is yet to be tested on B18. But it should work
+ *         and should be applicable for B18, the classes should be able to be
+ *         swapped with no further changes required in the rest of the code.
+ * 
  */
+@Deprecated
 public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 	private static final int MCA_SIZE = 4096;

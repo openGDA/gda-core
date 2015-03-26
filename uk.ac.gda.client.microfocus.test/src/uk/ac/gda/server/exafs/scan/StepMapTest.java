@@ -134,7 +134,7 @@ public class StepMapTest {
 		inorder.verify(testHelper.getSamplePreparer()).configure(testHelper.getMapscanParams(),
 				testHelper.getSampleParams());
 		inorder.verify(testHelper.getOutputPreparer()).configure(testHelper.getOutputParams(),
-				testHelper.getMapscanParams(), testHelper.getDetParams());
+				testHelper.getMapscanParams(), testHelper.getDetParams(), testHelper.getSampleParams());
 
 		inorder.verify(testHelper.getSamplePreparer()).createIterator("Fluorescence");
 		inorder.verify(testHelper.getBeamlinepreparer()).prepareForExperiment();

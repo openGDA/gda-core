@@ -383,11 +383,11 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	}
 
 	public boolean isAlwaysRecordRawMCAs() {
-		return xspress2SystemData.isAlwaysRecordRawMCAs();
+		return settings.isAlwaysRecordRawMCAs();
 	}
 
 	public void setAlwaysRecordRawMCAs(boolean alwaysRecordRawMCAs) {
-		xspress2SystemData.setAlwaysRecordRawMCAs(alwaysRecordRawMCAs);
+		settings.setAlwaysRecordRawMCAs(alwaysRecordRawMCAs);
 	}
 
 	/**
@@ -577,25 +577,32 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	 * properly
 	 */
 	public NexusTreeProvider[] readout(int startFrame, int finalFrame) throws DeviceException {
+		return readout(getName(), startFrame, finalFrame);
+	}
+
+	/**
+	 * Version of readout method in which the given detectorName is used in the NexusTree. Used where this object is a component of a different detector class.
+	 */
+	public NexusTreeProvider[] readout(String detectorName, int startFrame, int finalFrame) throws DeviceException {
 		int numberOfFrames = finalFrame - startFrame + 1;
 
 		int[] rawHardwareScalerData = controller.readoutHardwareScalers(startFrame, numberOfFrames);
 
 		if (settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_SCALERONLY)) {
-			return xspress2SystemData.unpackScalerData(numberOfFrames, rawHardwareScalerData);
+			return xspress2SystemData.unpackScalerData(detectorName, numberOfFrames, rawHardwareScalerData);
 		}
 
 		int[] mcaData = controller.readoutMca(startFrame, numberOfFrames, getCurrentMCASize());
-		double[][] scalerDataUsingMCAMemory = xspress2SystemData.readoutScalerDataUsingMCAMemory(numberOfFrames,
+		double[][] scalerDataUsingMCAMemory = xspress2SystemData.readoutScalerDataUsingMCAMemory(detectorName, numberOfFrames,
 				rawHardwareScalerData, mcaData, true, controller.getI0());
 
 		if (settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS)) {
-			return xspress2SystemData.readoutROIData(numberOfFrames, rawHardwareScalerData, mcaData,
+			return xspress2SystemData.readoutROIData(detectorName, numberOfFrames, rawHardwareScalerData, mcaData,
 					scalerDataUsingMCAMemory);
 		}
 
 		// else read out full mca, which is deadtime corrected using the hardware scalers
-		return xspress2SystemData.readoutFullMCA(numberOfFrames, rawHardwareScalerData, mcaData, scalerDataUsingMCAMemory);
+		return xspress2SystemData.readoutFullMCA(detectorName, numberOfFrames, rawHardwareScalerData, mcaData, scalerDataUsingMCAMemory);
 	}
 
 	@Override
@@ -629,12 +636,19 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		return readoutScalerData(lastFrameCollected, lastFrameCollected, false, getRawScalerData(), getCurrentMCASize())[0];
 	}
 
-	public double[][] readoutScalerData(int startFrame, int finalFrame, boolean performCorrections,
+	public double[][] readoutScalerData(String detectorName, int startFrame, int finalFrame, boolean performCorrections,
 			int[] rawscalerData, int currentMcaSize) throws DeviceException {
 		int numberOfFrames = finalFrame - startFrame + 1;
 		int[] mcaData = controller.readoutMca(startFrame, numberOfFrames, currentMcaSize);
-		return xspress2SystemData.readoutScalerDataUsingMCAMemory(numberOfFrames, rawscalerData, mcaData,
+		return xspress2SystemData.readoutScalerDataUsingMCAMemory(detectorName, numberOfFrames, rawscalerData, mcaData,
 				performCorrections, controller.getI0());
+
+	}
+	
+	public double[][] readoutScalerData(int startFrame, int finalFrame, boolean performCorrections,
+			int[] rawscalerData, int currentMcaSize) throws DeviceException {
+		return readoutScalerData(getName(), startFrame, finalFrame, performCorrections,
+			 rawscalerData,  currentMcaSize);
 	}
 
 	@Override
@@ -745,11 +759,11 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	}
 
 	public void setSumAllElementData(boolean sumAllElementData) {
-		xspress2SystemData.setSumAllElementData(sumAllElementData);
+		settings.setSumAllElementData(sumAllElementData);
 	}
 
 	public boolean isSumAllElementData() {
-		return xspress2SystemData.isSumAllElementData();
+		return settings.isSumAllElementData();
 	}
 
 	@Override

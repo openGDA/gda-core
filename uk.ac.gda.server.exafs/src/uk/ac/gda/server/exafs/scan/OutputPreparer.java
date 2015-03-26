@@ -23,6 +23,7 @@ import gda.device.DeviceException;
 import gda.scan.ScanPlotSettings;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
+import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 
 /**
@@ -33,7 +34,7 @@ public interface OutputPreparer {
 	/**
 	 * Gives the preparer the parameters for the next experiment and do any preparation for the whole experiment.
 	 */
-	void configure(IOutputParameters outputParameters, IScanParameters scanBean, IDetectorParameters detectorBean) throws DeviceException;
+	void configure(IOutputParameters outputParameters, IScanParameters scanBean, IDetectorParameters detectorBean, ISampleParameters sampleParameters) throws DeviceException;
 	
 	/**
 	 * Perform any beamline-specific set up before data collection.

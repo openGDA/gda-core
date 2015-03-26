@@ -40,6 +40,8 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 	public XspressMFMappableDataProvider() {
 		super();
 	}
+	
+	private static final String[] detectorNames = new String[]{"xspress2system", "raster_xspress2"};
 
 	private int numberOfdetectorElements;
 	private List<DetectorROI>[] elementRois;
@@ -54,7 +56,10 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 	@Override
 	public void loadData(String fileName) {
 		super.loadData(fileName);
-		lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/MCAs");
+		lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorNames[0] + "/MCAs");
+		if (lazyDataset == null){
+			lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorNames[1] + "/MCAs");
+		}
 	}
 
 	@Override
@@ -164,7 +169,6 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 			e.printStackTrace();
 		}
 		if (xspressBean != null) {
-			detectorName = ((XspressParameters) xspressBean).getDetectorName();
 			numberOfdetectorElements = ((XspressParameters) xspressBean).getDetectorList().size();
 
 			elementRois = new List[numberOfdetectorElements];
@@ -183,7 +187,6 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 	@Override
 	public void loadBean(XMLRichBean xspressBean) {
 		if (xspressBean != null) {
-			detectorName = ((XspressParameters) xspressBean).getDetectorName();
 			numberOfdetectorElements = ((XspressParameters) xspressBean).getDetectorList().size();
 
 			elementRois = new List[numberOfdetectorElements];

@@ -35,6 +35,8 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(VortexMFMappableDataProvider.class);
+	
+	private static final String[] detectorNames = new String[]{"xmapMca"};
 
 	private int numberOfdetectorElements;
 	private List<DetectorROI>[] elementRois;
@@ -68,7 +70,7 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 
 		logger.debug("getting data for " + selectedElement);
 		if (mapCache == null) {
-			lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/fullSpectrum");
+			lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorNames[0] + "/fullSpectrum");
 			mapCache = new MapCache(roiNameMap, elementRois, lazyDataset);
 		}
 		return mapCache.getMap(selectedElement, selectedChannel);
@@ -89,7 +91,6 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 	@Override
 	public void loadBean(XMLRichBean vortexBean) {
 		if (vortexBean != null) {
-			setDetectorName(((VortexParameters) vortexBean).getDetectorName());
 			numberOfdetectorElements = ((VortexParameters) vortexBean).getDetectorList().size();
 			elementRois = new List[numberOfdetectorElements];
 			for (int detectorNo = 0; detectorNo < numberOfdetectorElements; detectorNo++)
@@ -101,7 +102,7 @@ public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider
 	public double[] getSpectrum(int detectorNo, int x, int y) {
 
 		if (mapCache == null) {
-			lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/fullSpectrum");
+			lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorNames[0] + "/fullSpectrum");
 			mapCache = new MapCache(roiNameMap, elementRois, lazyDataset);
 		}
 		return mapCache.getSpectrum(detectorNo, x, y);

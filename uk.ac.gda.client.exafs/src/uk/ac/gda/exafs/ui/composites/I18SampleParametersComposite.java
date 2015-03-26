@@ -143,7 +143,7 @@ public final class I18SampleParametersComposite extends Composite {
 		Button currentPosition = new Button(composite, SWT.NONE);
 		currentPosition.setBounds(229, 0, 133, 29);
 		currentPosition.setToolTipText("Fill the text boxes with the current stage 1 values");
-		currentPosition.setText("Use stage 1 values");
+		currentPosition.setText("Fetch stage 1 values");
 					
 		currentPosition.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -157,7 +157,7 @@ public final class I18SampleParametersComposite extends Composite {
 		currentPosition = new Button(composite, SWT.NONE);
 		currentPosition.setBounds(229, 0, 133, 29);
 		currentPosition.setToolTipText("Fill the text boxes with the current stage3 values");
-		currentPosition.setText("Use stage 3 values");
+		currentPosition.setText("Fetch stage 3 values");
 					
 		currentPosition.addListener(SWT.Selection, new Listener() {
 			@Override

@@ -117,7 +117,7 @@ public class ExafsSelectionView extends ViewPart {
 		ScanFilter scanFilter = new ScanFilter();
 		File dirList[] = projectDir.listFiles();
 		for (File dir : dirList) {
-			if (dir.isDirectory() && dir.getName().startsWith("Experiment")) {
+			if (dir.isDirectory()) {
 				String[] files = dir.list(scanFilter);
 				for (String file : files) {
 					exafsScanList.add(dir.getName() + File.separator + file);
@@ -162,7 +162,7 @@ public class ExafsSelectionView extends ViewPart {
 	}
 
 	public void setSelectedPoint(final Double[] xyzPosition) {
-		logger.info("Info from Exafs Selection view " + xyzPosition[0] + " " + xyzPosition[1] + " " + xyzPosition[2]);
+		logger.debug("Info from Exafs Selection view " + xyzPosition[0] + " " + xyzPosition[1] + " " + xyzPosition[2]);
 		if (xyzPosition[2] == null){
 			xyzPosition[2] = Double.parseDouble(InterfaceProvider.getCommandRunner().evaluateCommand("sc_sample_z()"));
 		}
@@ -178,7 +178,7 @@ public class ExafsSelectionView extends ViewPart {
 	}
 
 	public void refresh() {
-		logger.info("REfresh called from ExafsSelectionView");
+//		logger.info("REfresh called from ExafsSelectionView");
 		exafsScanList.removeAll();
 		populateExafsScanList();
 	}

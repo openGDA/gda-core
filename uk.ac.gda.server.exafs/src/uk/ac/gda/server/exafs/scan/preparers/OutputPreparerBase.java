@@ -34,6 +34,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
+import uk.ac.gda.beans.exafs.ISampleParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.MetadataParameters;
 import uk.ac.gda.server.exafs.scan.OutputPreparer;
@@ -79,7 +80,7 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 	}
 
 	@Override
-	public void configure(IOutputParameters outputParameters, IScanParameters scanBean, IDetectorParameters detectorBean)
+	public void configure(IOutputParameters outputParameters, IScanParameters scanBean, IDetectorParameters detectorBean, ISampleParameters sampleParameters)
 			throws DeviceException {
 		List<MetadataParameters> metadata = outputParameters.getMetadataList();
 		for (MetadataParameters parameter : metadata) {

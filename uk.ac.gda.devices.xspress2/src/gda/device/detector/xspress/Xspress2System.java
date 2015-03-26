@@ -386,11 +386,11 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 	}
 
 	public boolean isAlwaysRecordRawMCAs() {
-		return xspress2SystemData.isAlwaysRecordRawMCAs();
+		return settings.isAlwaysRecordRawMCAs();
 	}
 
 	public void setAlwaysRecordRawMCAs(boolean alwaysRecordRawMCAs) {
-		xspress2SystemData.setAlwaysRecordRawMCAs(alwaysRecordRawMCAs);
+		settings.setAlwaysRecordRawMCAs(alwaysRecordRawMCAs);
 	}
 
 	/**
@@ -586,20 +586,20 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 		int[] rawHardwareScalerData = controller.readoutHardwareScalers(startFrame, numberOfFrames);
 
 		if (settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_SCALERONLY)) {
-			return xspress2SystemData.unpackScalerData(numberOfFrames, rawHardwareScalerData);
+			return xspress2SystemData.unpackScalerData(getName(), numberOfFrames, rawHardwareScalerData);
 		}
 
 		int[] mcaData = controller.readoutMca(startFrame, numberOfFrames, getCurrentMCASize());
-		double[][] scalerDataUsingMCAMemory = xspress2SystemData.readoutScalerDataUsingMCAMemory(numberOfFrames, rawHardwareScalerData, mcaData, true,
+		double[][] scalerDataUsingMCAMemory = xspress2SystemData.readoutScalerDataUsingMCAMemory(getName(), numberOfFrames, rawHardwareScalerData, mcaData, true,
 				controller.getI0());
 
 		if (settings.getParameters().getReadoutMode().equals(XspressDetector.READOUT_ROIS)) {
-			return xspress2SystemData.readoutROIData(numberOfFrames, rawHardwareScalerData, mcaData,
+			return xspress2SystemData.readoutROIData(getName(), numberOfFrames, rawHardwareScalerData, mcaData,
 					scalerDataUsingMCAMemory);
 		}
 
 		// else read out full mca, which is deadtime corrected using the hardware scalers
-		return xspress2SystemData.readoutFullMCA(numberOfFrames, rawHardwareScalerData, mcaData, scalerDataUsingMCAMemory);
+		return xspress2SystemData.readoutFullMCA(getName(), numberOfFrames, rawHardwareScalerData, mcaData, scalerDataUsingMCAMemory);
 	}
 
 	@Override
@@ -637,7 +637,7 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 			int[] rawscalerData, int currentMcaSize) throws DeviceException {
 		int numberOfFrames = finalFrame - startFrame + 1;
 		int[] mcaData = controller.readoutMca(startFrame, numberOfFrames, currentMcaSize);
-		return xspress2SystemData.readoutScalerDataUsingMCAMemory(numberOfFrames, rawscalerData, mcaData, performCorrections, controller.getI0());
+		return xspress2SystemData.readoutScalerDataUsingMCAMemory(getName(), numberOfFrames, rawscalerData, mcaData, performCorrections, controller.getI0());
 	}
 
 	@Override
@@ -748,11 +748,11 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 	}
 
 	public void setSumAllElementData(boolean sumAllElementData) {
-		xspress2SystemData.setSumAllElementData(sumAllElementData);
+		settings.setSumAllElementData(sumAllElementData);
 	}
 
 	public boolean isSumAllElementData() {
-		return xspress2SystemData.isSumAllElementData();
+		return settings.isSumAllElementData();
 	}
 
 	@Override

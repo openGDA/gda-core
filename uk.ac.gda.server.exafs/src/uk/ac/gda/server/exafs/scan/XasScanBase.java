@@ -21,7 +21,6 @@ package uk.ac.gda.server.exafs.scan;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
-import gda.data.scan.datawriter.AsciiMetadataConfig;
 import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.DataWriterFactory;
 import gda.data.scan.datawriter.DefaultDataWriterFactory;
@@ -49,7 +48,6 @@ import java.io.File;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -96,7 +94,6 @@ public abstract class XasScanBase implements XasScan {
 
 	protected LoggingScriptController loggingScriptController;
 	private AsciiDataWriterConfiguration datawriterconfig;
-	private ArrayList<AsciiMetadataConfig> original_header;
 	private boolean includeSampleNameInNexusName;
 	private NXMetaDataProvider metashop;
 	private String scanName;
@@ -133,11 +130,11 @@ public abstract class XasScanBase implements XasScan {
 		String detectorFileName = ((PySequence) pyArgs).__finditem__(2).asString();
 		String outputFileName = ((PySequence) pyArgs).__finditem__(3).asString();
 		String experimentFullPath = ((PySequence) pyArgs).__finditem__(4).asString();
-		
-		if (!experimentFullPath.endsWith(File.separator)){
+
+		if (!experimentFullPath.endsWith(File.separator)) {
 			experimentFullPath = experimentFullPath + File.separator;
 		}
-		
+
 		int numRepetitions = ((PySequence) pyArgs).__finditem__(5).asInt();
 
 		doCollection(sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions);
@@ -334,7 +331,7 @@ public abstract class XasScanBase implements XasScan {
 	}
 
 	protected void resetHeader() {
-		datawriterconfig.setHeader(original_header);
+		// datawriterconfig.setHeader(original_header);
 		outputPreparer.resetNexusStaticMetadataList();
 	}
 
@@ -378,7 +375,7 @@ public abstract class XasScanBase implements XasScan {
 		beamlinePreparer.configure(scanBean, detectorBean, sampleBean, outputBean, experimentFullPath);
 		detectorPreparer.configure(scanBean, detectorBean, outputBean, experimentFullPath);
 		samplePreparer.configure(scanBean, sampleBean);
-		outputPreparer.configure(outputBean, scanBean, detectorBean);
+		outputPreparer.configure(outputBean, scanBean, detectorBean, sampleBean);
 	}
 
 	private void runScript(String scriptName) throws Exception {
@@ -424,6 +421,8 @@ public abstract class XasScanBase implements XasScan {
 		AsciiDataWriterConfiguration asciidatawriterconfig = outputPreparer.getAsciiDataWriterConfig(scanBean);
 		if (asciidatawriterconfig != null) {
 			dataWriter.setConfiguration(asciidatawriterconfig);
+		} else {
+			dataWriter.setConfiguration(datawriterconfig);
 		}
 
 		addMetadata();

@@ -36,6 +36,9 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvider {
 
+	
+	private static final String[] detectorNames = new String[]{"xspress3", "raster_xspress3"};
+	
 	private static final Logger logger = LoggerFactory.getLogger(Xspress3MFMappableDataProvider.class);
 
 	private int numberOfdetectorElements;
@@ -68,16 +71,19 @@ public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvid
 
 	protected void fillCache() {
 		// when GDA writes all the MCAs to the Nexus file
-		lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/MCAs");
+		lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorNames[0] + "/MCAs");
+		if (lazyDataset == null){
+			lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorNames[1] + "/MCAs");
+		}
 		
 		// else try the 'old' way where the MCAs are in separate file written by EPICS and linked to Nexus file
 		if (lazyDataset == null){
 			// derive the number of rows from the FF
-			ILazyDataset ffDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/FF");
+			ILazyDataset ffDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorNames[0] + "/FF");
 			int numberRows = ffDataset.getShape()[0];
 			ILazyDataset[] mcaDataSetsByRow = new ILazyDataset[numberRows];
 			for (int row = 0; row < numberRows; row++) {
-				mcaDataSetsByRow[row] = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/"
+				mcaDataSetsByRow[row] = dataHolder.getLazyDataset("/entry1/instrument/" + detectorNames[0] + "/"
 						+ Xspress3Detector.getNameOfRowSubNode(row));
 			}
 			lazyDataset = new AggregateDataset(true, mcaDataSetsByRow);
@@ -108,7 +114,6 @@ public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvid
 	public void loadBean(XMLRichBean vortexBean) {
 		if (vortexBean != null) {
 			Xspress3Parameters xs3Parameters = (Xspress3Parameters) vortexBean;
-			setDetectorName(xs3Parameters.getDetectorName());
 			numberOfdetectorElements = xs3Parameters.getDetectorList().size();
 			elementRois = new List[numberOfdetectorElements];
 			for (int detectorNo = 0; detectorNo < numberOfdetectorElements; detectorNo++)

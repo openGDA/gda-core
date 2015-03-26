@@ -163,7 +163,7 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	private NexusTreeProvider[] readNexusTrees(int startFrame, int finalFrame) throws DeviceException {
-		return xspress2system.readout(startFrame, finalFrame); // as daserver first frame is 0 not 1
+		return xspress2system.readout(getName(), startFrame, finalFrame); // as daserver first frame is 0 not 1
 	}
 
 	@Override
