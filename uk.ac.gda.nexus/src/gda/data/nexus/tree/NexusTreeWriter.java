@@ -43,7 +43,7 @@ public class NexusTreeWriter {
 		if( nxClass.equals(NexusExtractor.AttrClassName)){
 			NexusGroupData data = tree.getData();
 			if( data != null && data.getBuffer() != null){
-				file.putattr(name, data.getBuffer(), data.type);
+				file.putattr(name, data.getBuffer(), data.getType());
 			}
 			return;
 		}

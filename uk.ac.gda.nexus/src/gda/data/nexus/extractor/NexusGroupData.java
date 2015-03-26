@@ -48,7 +48,7 @@ public class NexusGroupData implements Serializable {
 	/**
 	 * type of data e.g. NexusGlobals.NX_CHAR
 	 */
-	public final int type;
+	private final int type;
 
 	/**
 	 * Setting this can advise a datawriter to use the specified compression algorithm
@@ -162,6 +162,13 @@ public class NexusGroupData implements Serializable {
 		dimensions = dims;
 		data = d;
 		type = NexusGlobals.NX_FLOAT64;
+	}
+
+	/**
+	 * @return type of data e.g. NexusGlobals.NX_CHAR
+	 */
+	public int getType() {
+		return type;
 	}
 
 	/**

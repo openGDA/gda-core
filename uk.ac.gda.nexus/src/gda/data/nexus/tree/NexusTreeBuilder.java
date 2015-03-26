@@ -101,7 +101,7 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 				if( !isAttr){
 					//Look for target attribute
 					NexusGroupData data = nexusDataGetter.getAttributeOfCurrentProcessedGroup("target");
-					if( data != null && data.type == NexusGlobals.NX_CHAR && data.getBuffer() != null){
+					if( data != null && data.getType() == NexusGlobals.NX_CHAR && data.getBuffer() != null){
 						//this is a link so look in targetNodes 
 						//note that both ends of the link have the target attribute so if the value has already 
 						//been read then it will be in the targetNodes

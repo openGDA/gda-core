@@ -134,7 +134,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	protected String dataToTxt(boolean newlineAfterEach, boolean dataAsString, boolean wrap) {
 		StringBuffer msg = new StringBuffer();
 		if (groupData.getBuffer() != null) {
-			if (groupData.type == NexusGlobals.NX_CHAR && groupData.getBuffer() instanceof byte[]) {
+			if (groupData.getType() == NexusGlobals.NX_CHAR && groupData.getBuffer() instanceof byte[]) {
 				if (wrap)
 					msg.append("<value>");
 				String s = new String((byte[]) groupData.getBuffer());
@@ -144,7 +144,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 				if (newlineAfterEach) {
 					msg.append("\n");
 				}
-			} else if (groupData.type == NexusGlobals.NX_CHAR && groupData.getBuffer() instanceof String[]) {
+			} else if (groupData.getType() == NexusGlobals.NX_CHAR && groupData.getBuffer() instanceof String[]) {
 				if (wrap)
 					msg.append("<value>");
 				String s = ((String[]) groupData.getBuffer())[0];
@@ -293,7 +293,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 				msg.append("\n");
 			}
 			msg.append("<type>");
-			switch (groupData.type) {
+			switch (groupData.getType()) {
 			case NexusGlobals.NX_CHAR:
 				msg.append("NX_CHAR");
 				break;
@@ -301,7 +301,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 				msg.append("NX_FLOAT64");
 				break;
 			default:
-				msg.append(groupData.type);
+				msg.append(groupData.getType());
 				break;
 			}
 			msg.append("</type>");
@@ -376,7 +376,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 				msg.append(keyValueSep + i);
 			}
 			msg.append(dataItemSep + "type");
-			switch (groupData.type) {
+			switch (groupData.getType()) {
 			case NexusGlobals.NX_CHAR:
 				msg.append(keyValueSep + "NX_CHAR");
 				break;
@@ -384,7 +384,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 				msg.append(keyValueSep + "NX_FLOAT64");
 				break;
 			default:
-				msg.append(". type - " + groupData.type);
+				msg.append(". type - " + groupData.getType());
 				break;
 			}
 			if (includeData) {
