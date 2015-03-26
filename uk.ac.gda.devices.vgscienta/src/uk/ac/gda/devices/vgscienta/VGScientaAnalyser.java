@@ -314,7 +314,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		data.addData(getName(), "time_per_channel", new NexusGroupData(acquireTime_RBV), "s", null, null, true);
 		
 		NexusGroupData groupData = data.getData(getName(), "data", NexusExtractor.SDSClassName);
-		switch (groupData.type) {
+		switch (groupData.getType()) {
 		case NexusGlobals.NX_FLOAT32: 
 			long sum = 0;
 			if (cpsRoi == null) {
