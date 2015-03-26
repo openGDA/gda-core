@@ -461,7 +461,6 @@ public abstract class ScanBase implements NestableScan {
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 */
-	@SuppressWarnings("unused")
 	public void waitForDetectorReadoutAndPublishCompletion() throws InterruptedException, ExecutionException {
 		// Do nothing as readoutDetectorsAndPublish blocks until complete.
 	}
@@ -541,7 +540,6 @@ public abstract class ScanBase implements NestableScan {
 	 * 
 	 * @throws DeviceException
 	 */
-	@SuppressWarnings("unused")
 	protected void endScan() throws DeviceException, InterruptedException {
 
 		// if the interrupt was set
@@ -1018,6 +1016,10 @@ public abstract class ScanBase implements NestableScan {
 				}
 				scanNumber = runNumber.incrementNumber();
 			}
+		}  else if (isChild()){
+			// assume that the outermost scan in a nest of scans would have its scan number defined before 
+			// prepareScanForCollection() called on any of the inner scans
+			scanNumber = getOuterMostScan().getScanNumber();
 		}
 	}
 	
