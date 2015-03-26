@@ -9,10 +9,8 @@ if [[ "${GDA_MODE}" == "live" && "${CONTROL_MACHINE_NAME}" != "$(uname -n)" ]]; 
 
     # Validate environment variables
     for env_var_name in CONTROL_MACHINE_USER CONTROL_MACHINE_NAME CONTROL_MACHINE_SSHKEY_LOC; do
-        bashlog debug "gda_servers_core" "\${${env_var_name}}=${!env_var_name}"
-    done
-    for env_var_name in CONTROL_MACHINE_USER CONTROL_MACHINE_NAME CONTROL_MACHINE_SSHKEY_LOC; do
-        if [[ -z "${!env_var_name}" ]]; then
+        bashlog debug "gda_servers_core" "\${${env_var_name}}=${!env_var_name-NOT.SET.OR.NULL}"
+        if [ -z "${!env_var_name+x}" ]; then
             bashlog error "gda_servers_core" "\${${env_var_name}} is not set (or is null) - exiting"
             exit 2
         fi
