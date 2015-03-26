@@ -15,7 +15,7 @@ def tryToLoadDataset(path, iFileLoader):
 	try:
 		os.system("touch %s" % path)
 		dataset = loadImageIntoSFH(path, iFileLoader)[0] # a dataset
-		if len(dataset.getDimensions())!=2:
+		if len(dataset.getShape())!=2:
 			print "*" * 80
 			print "DatasetProvider.tryToLoadDataset got a dataset with ", dataset.getDimensions(), " dimensions."
 			print "The anaysis code will try again to load the image, and unless it times out everything is *OKAY*"
@@ -25,6 +25,8 @@ def tryToLoadDataset(path, iFileLoader):
 		return dataset
 	#except java.io.FileNotFoundException, e:
 	except:
+		#TODO: Do not swallow all exceptions
+		#This could cause very confusing errors
 		return None
 
 
