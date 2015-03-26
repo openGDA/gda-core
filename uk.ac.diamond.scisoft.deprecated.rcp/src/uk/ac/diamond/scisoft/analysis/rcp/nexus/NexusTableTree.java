@@ -254,7 +254,7 @@ class NexusLabelProvider implements ITableLabelProvider {
 					msg = msg.substring(0, msg.length()-2);
 				break;
 			case 3: // type
-				switch (gData.type) {
+				switch (gData.getType()) {
 				case NexusGlobals.NX_CHAR:
 					msg = "CHAR";
 					break;
@@ -289,13 +289,13 @@ class NexusLabelProvider implements ITableLabelProvider {
 					msg = "UINT8";
 					break;
 				default:
-					msg = "type = " + gData.type;
+					msg = "type = " + gData.getType();
 					break;
 				}
 				break;
 			case 4: // data
 				msg = "double-click to view";
-				if (gData.type == NexusGlobals.NX_CHAR) {
+				if (gData.getType() == NexusGlobals.NX_CHAR) {
 					NexusGroupData ngd;
 					try {
 						ngd = NexusExtractor.getNexusGroupDataWithBuffer(nTNode, true);
