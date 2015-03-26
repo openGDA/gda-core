@@ -66,7 +66,7 @@ public class NexusProviderFilenameProcessor extends NexusProviderDatasetProcesso
 	protected Dataset getDatasetFromNexusGroupData(NexusGroupData ngd) throws Exception {
 		if (!isEnabled())
 			return null;
-		if( ngd.type == NexusGlobals.NX_CHAR){ 
+		if( ngd.getType() == NexusGlobals.NX_CHAR){ 
 			String[] filenames = (new FileNameBufToStrings( ngd.dimensions, (byte[])ngd.getBuffer())).getFilenames();
 			if( filenames.length == 1){ 
 				String path = filenames[0];

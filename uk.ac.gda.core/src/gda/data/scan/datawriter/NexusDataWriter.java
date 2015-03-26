@@ -560,7 +560,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 						axisno += thisPoint.getScanDimensions().length;
 						file.putattr(name, axisno.toString().getBytes(), NexusGlobals.NX_CHAR);
 					} else {
-						file.putattr(name, data.getBuffer(), data.type);
+						file.putattr(name, data.getBuffer(), data.getType());
 					}
 				}
 			}
@@ -601,9 +601,9 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 							}
 						}
 						int compression = sds.compressionType != null ? sds.compressionType : NexusGlobals.NX_COMP_LZW_LVL1;
-						file.compmakedata(name, sds.type, dataDimMake.length, dataDimMake, compression, chunks);
+						file.compmakedata(name, sds.getType(), dataDimMake.length, dataDimMake, compression, chunks);
 					} else {
-						file.makedata(name, sds.type, dataDimMake.length, dataDimMake);
+						file.makedata(name, sds.getType(), dataDimMake.length, dataDimMake);
 					}
 					
 					file.opendata(name);

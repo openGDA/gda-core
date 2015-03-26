@@ -853,7 +853,7 @@ class SimpleSubDetector extends SimpleDetector implements NexusDetector {
 	 * @return type of data - e.g. NexusGlobals.NX_FLOAT64
 	 */
 	public int getDataType() {
-		return data.type;
+		return data.getType();
 	}
 
 	@Override

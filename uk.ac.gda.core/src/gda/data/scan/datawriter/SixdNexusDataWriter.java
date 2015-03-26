@@ -444,7 +444,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 						axisno += thisPoint.getScanDimensions().length;
 						file.putattr(name, axisno.toString().getBytes(), NexusGlobals.NX_CHAR);
 					} else {
-						file.putattr(name, data.getBuffer(), data.type);
+						file.putattr(name, data.getBuffer(), data.getType());
 					}
 				}
 			}
@@ -473,7 +473,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 					int[] dataDimMake = generateDataDim(tree.isPointDependent(),
 							tree.isPointDependent() ? scanDimensions : null, sds.dimensions);
 					// make the data array to store the data...
-					file.makedata(name, sds.type, dataDimMake.length, dataDimMake);
+					file.makedata(name, sds.getType(), dataDimMake.length, dataDimMake);
 					// FIXME put a break point here and not make it crash
 
 					file.opendata(name);
