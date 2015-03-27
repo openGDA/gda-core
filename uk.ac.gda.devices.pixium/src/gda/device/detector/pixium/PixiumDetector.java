@@ -33,10 +33,7 @@ import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NXDetectorDataWithFilepathForSrs;
 import gda.device.detector.areadetector.v17.NDFile;
-import gda.device.scannable.PositionCallableProvider;
 import gda.jython.InterfaceProvider;
-import gda.jython.JythonServer;
-import gda.jython.JythonServerFacade;
 import gda.scan.ScanInformation;
 import gda.util.Sleep;
 import gov.aps.jca.CAException;
@@ -52,7 +49,6 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
-import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -380,8 +376,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 							new NexusGroupData(1)));
 					fileNameNode.addChildNode(new NexusTreeNode("axes", NexusExtractor.AttrClassName, fileNameNode,
 							new NexusGroupData("time")));
-					data.addAxis(name, "time", new int[] { timesCurrentAcq2.length }, NexusGlobals.NX_FLOAT64,
-							timesCurrentAcq2, 1, 1, "s", false);
+					data.addAxis(name, "time", new NexusGroupData(timesCurrentAcq2), 1, 1, "s", false);
 				}
 				// must match the list of input and extra names
 				data.setDoubleVals(new Double[] { new Double(1.0) });
@@ -402,8 +397,7 @@ public class PixiumDetector extends DetectorBase implements InitializingBean, IP
 							new NexusGroupData(1)));
 					fileNameNode.addChildNode(new NexusTreeNode("axes", NexusExtractor.AttrClassName, fileNameNode,
 							new NexusGroupData("time")));
-					data.addAxis(name, "time", new int[] { timesCurrentAcq2.length }, NexusGlobals.NX_FLOAT64,
-							timesCurrentAcq2, 1, 1, "s", false);
+					data.addAxis(name, "time", new NexusGroupData(timesCurrentAcq2), 1, 1, "s", false);
 				}
 				// add filename as an NXNote
 				data.addFileNames(getName(), filenames);
