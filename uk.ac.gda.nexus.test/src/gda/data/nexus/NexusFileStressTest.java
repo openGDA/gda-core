@@ -158,7 +158,7 @@ public class NexusFileStressTest {
 			file = NexusUtils.createNexusFile(filename);
 			file.makegroup("entry1", "NXentry");
 			file.opengroup("entry1", "NXentry");
-			file.makedata("data", NexusGlobals.NX_FLOAT64, 2, (long[]) null);
+			file.makedata("data", NexusGlobals.NX_FLOAT64, 2, (int[]) null);
 			file.closegroup();
 		}
 		finally {

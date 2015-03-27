@@ -96,24 +96,6 @@ public class NexusFile implements NexusFileInterface {
 	}
 
 	@Override
-	public void opengrouppath(String path) throws NexusException {
-		try {
-			file.opengrouppath(path);
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
-	public String getpath() throws NexusException {
-		try {
-			return file.getpath();
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
 	public void closegroup() throws NexusException {
 		try {
 			file.closegroup();
@@ -133,31 +115,12 @@ public class NexusFile implements NexusFileInterface {
 	}
 
 	@Override
-	public void compmakedata(String name, int type, int rank, long[] dim, int compression_type, long[] iChunk)
-			throws NexusException {
-		try {
-			file.compmakedata(name, type, rank, dim, compression_type, iChunk);
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
 	public String toString() {
 		return file.toString();
 	}
 
 	@Override
 	public void makedata(String name, int type, int rank, int[] dim) throws NexusException {
-		try {
-			file.makedata(name, type, rank, dim);
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
-	public void makedata(String name, int type, int rank, long[] dim) throws NexusException {
 		try {
 			file.makedata(name, type, rank, dim);
 		} catch (org.nexusformat.NexusException e) {
@@ -184,15 +147,6 @@ public class NexusFile implements NexusFileInterface {
 	}
 
 	@Override
-	public void compress(int compression_type) throws NexusException {
-		try {
-			file.compress(compression_type);
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
 	public void getdata(Object array) throws NexusException {
 		try {
 			file.getdata(array);
@@ -203,15 +157,6 @@ public class NexusFile implements NexusFileInterface {
 
 	@Override
 	public void getslab(int[] start, int[] size, Object array) throws NexusException {
-		try {
-			file.getslab(start, size, array);
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
-	public void getslab(long[] start, long[] size, Object array) throws NexusException {
 		try {
 			file.getslab(start, size, array);
 		} catch (org.nexusformat.NexusException e) {
@@ -238,15 +183,6 @@ public class NexusFile implements NexusFileInterface {
 	}
 
 	@Override
-	public void putslab(Object array, long[] start, long[] size) throws NexusException {
-		try {
-			file.putslab(array, start, size);
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
 	public Object getattr(String name) throws NexusException {
 		try {
 			return file.getattr(name);
@@ -256,27 +192,9 @@ public class NexusFile implements NexusFileInterface {
 	}
 
 	@Override
-	public void getattr(String name, Object array, int[] args) throws NexusException {
-		try {
-			file.getattr(name, array, args);
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
 	public void putattr(String name, Object array, int iType) throws NexusException {
 		try {
 			file.putattr(name, array, iType);
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
-	public void putattr(String name, Object array, int[] size, int iType) throws NexusException {
-		try {
-			file.putattr(name, array, size, iType);
 		} catch (org.nexusformat.NexusException e) {
 			throw new NexusException(e);
 		}
@@ -293,25 +211,7 @@ public class NexusFile implements NexusFileInterface {
 	}
 
 	@Override
-	public void setnumberformat(int type, String format) throws NexusException {
-		try {
-			file.setnumberformat(type, format);
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
 	public void getinfo(int[] iDim, int[] args) throws NexusException {
-		try {
-			file.getinfo(iDim, args);
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
-	public void getinfo(long[] iDim, int[] args) throws NexusException {
 		try {
 			file.getinfo(iDim, args);
 		} catch (org.nexusformat.NexusException e) {
@@ -324,15 +224,6 @@ public class NexusFile implements NexusFileInterface {
 	public Hashtable<String, String> groupdir() throws NexusException {
 		try {
 			return file.groupdir();
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
-	public NXlink getgroupID() throws NexusException {
-		try {
-			return new NXlink(file.getgroupID());
 		} catch (org.nexusformat.NexusException e) {
 			throw new NexusException(e);
 		}
@@ -366,45 +257,9 @@ public class NexusFile implements NexusFileInterface {
 	}
 
 	@Override
-	public void opensourcepath() throws NexusException {
-		try {
-			file.opensourcepath();
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
-	public String inquirefile() throws NexusException {
-		try {
-			return file.inquirefile();
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
-	public void linkexternal(String name, String nxclass, String nxurl) throws NexusException {
-		try {
-			file.linkexternal(name, nxclass, nxurl);
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
 	public void linkexternaldataset(String name, String nxurl) throws NexusException {
 		try {
 			file.linkexternaldataset(name, nxurl);
-		} catch (org.nexusformat.NexusException e) {
-			throw new NexusException(e);
-		}
-	}
-
-	@Override
-	public String isexternalgroup(String name, String nxclass) throws NexusException {
-		try {
-			return file.isexternalgroup(name, nxclass);
 		} catch (org.nexusformat.NexusException e) {
 			throw new NexusException(e);
 		}
