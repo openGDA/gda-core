@@ -25,7 +25,8 @@ import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.data.metadata.Metadata;
-import gda.data.nexus.nxclassio.NexusFileHandle;
+import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
@@ -35,7 +36,6 @@ import gda.scan.ConcurrentScan;
 import java.io.File;
 
 import org.junit.Test;
-import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +73,7 @@ public class FileRegistrarTest {
 				new String[] { "simpleScannable2" }, 0, new String[] { "%5.2g" }, null);
 
 		int[] dims1 = new int[] { 10 };
-		int totalLength = NexusFileHandle.calcTotalLength(dims1);
+		int totalLength = NexusExtractor.calcTotalLength(dims1);
 		double[] data1In = new double[totalLength];
 		for (int index = 0; index < totalLength; index++) {
 			data1In[index] = index;

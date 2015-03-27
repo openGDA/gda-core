@@ -21,8 +21,8 @@ package gda.scan;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.nxclassio.NexusFileHandle;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -79,7 +79,7 @@ public class MultiScanTest {
 		int[] data2In;
 		int totalLength;
 		int[] dims2 = new int[] { 2, 3 };
-		totalLength = NexusFileHandle.calcTotalLength(dims2);
+		totalLength = NexusExtractor.calcTotalLength(dims2);
 		data2In = new int[totalLength];
 		String [] outputFormat = new String[totalLength+1];
 		for (int index = 0; index < totalLength; index++) {

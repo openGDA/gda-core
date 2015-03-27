@@ -19,11 +19,10 @@
 package gda.scan;
 
 import gda.TestHelpers;
-import gda.data.nexus.nxclassio.NexusFileHandle;
 import gda.device.Detector;
 import gda.device.Scannable;
-
 import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.extractor.NexusExtractor;
 
 public class ScanDataPointProvider {
 	ScanDataPoint[] points;
@@ -44,7 +43,7 @@ public class ScanDataPointProvider {
 	public void preparePoints(int num){
 		int totalLength;
 		int[] dims2 = new int[] { 2, 3 };
-		totalLength = NexusFileHandle.calcTotalLength(dims2);
+		totalLength = NexusExtractor.calcTotalLength(dims2);
 		data2In = new int[totalLength];
 		for (int index = 0; index < totalLength; index++) {
 			data2In[index] = index;

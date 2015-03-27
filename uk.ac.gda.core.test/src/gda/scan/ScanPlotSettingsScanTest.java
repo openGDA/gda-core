@@ -21,13 +21,15 @@ package gda.scan;
 import static org.junit.Assert.assertEquals;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
-import gda.data.nexus.nxclassio.NexusFileHandle;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.jython.commands.ScannableCommands;
 
 import org.junit.Test;
+
 import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.extractor.NexusExtractor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,7 +151,7 @@ public class ScanPlotSettingsScanTest {
 				"SC2E1" }, new String[] { "SC2I0", "SC2I1" }, 0, new String[] { "%5.2g" }, null);
 
 		int[] dims1 = new int[] { 10 };
-		int totalLength = NexusFileHandle.calcTotalLength(dims1);
+		int totalLength = NexusExtractor.calcTotalLength(dims1);
 		double[] data1In = new double[totalLength];
 		for (int index = 0; index < totalLength; index++) {
 			data1In[index] = index;

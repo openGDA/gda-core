@@ -25,7 +25,7 @@ import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.GdaMetadata;
 import gda.data.metadata.Metadata;
 import gda.data.metadata.StoredMetadataEntry;
-import gda.data.nexus.nxclassio.NexusFileHandle;
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeBuilder;
 import gda.data.nexus.tree.NexusTreeBuilder.TREE_CONTENTS;
@@ -57,7 +57,7 @@ public class NexusDetectorWritingTest {
 				new String[] { "simpleScannable2" }, 0, new String[] { "%5.2g" }, new String[] {"eV"});
 
 		int[] dims1 = new int[] { 10 };
-		int totalLength = NexusFileHandle.calcTotalLength(dims1);
+		int totalLength = NexusExtractor.calcTotalLength(dims1);
 		double[] data1In = new double[totalLength];
 		for (int index = 0; index < totalLength; index++) {
 			data1In[index] = index;
