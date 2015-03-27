@@ -28,13 +28,11 @@ import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.scan.ScanInformation;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import gda.data.nexus.NexusGlobals;
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,7 +215,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 				}
 			}
 
-			data.addAxis(detectorName, aname, new int[] { axis.length }, NexusGlobals.NX_FLOAT64, axis, i + 1, 1, aunit, false);
+			data.addAxis(detectorName, aname, new NexusGroupData(axis), i + 1, 1, aunit, false);
 
 			i = 0;
 			if ("Transmission".equals(analyser.getLensMode())) {
@@ -229,45 +227,45 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 			}
 			axis = analyser.getAngleAxis();
 
-			data.addAxis(detectorName, aname, new int[] { axis.length }, NexusGlobals.NX_FLOAT64, axis, i + 1, 1, aunit, false);
+			data.addAxis(detectorName, aname, new NexusGroupData(axis), i + 1, 1, aunit, false);
 			
-			data.addData(detectorName, "reagion_name", new NexusGroupData(regionName), null, null);
+			data.addData(detectorName, "reagion_name", new NexusGroupData(regionName));
 
-			data.addData(detectorName, "lens_mode", new NexusGroupData(analyser.getLensMode()), null, null);
-			data.addData(detectorName, "acquisition_mode", new NexusGroupData(analyser.getAcquisitionMode()), null, null);
-			data.addData(detectorName, "detector_mode", new NexusGroupData( analyser.getDetectorMode() ), null, null);
+			data.addData(detectorName, "lens_mode", new NexusGroupData(analyser.getLensMode()));
+			data.addData(detectorName, "acquisition_mode", new NexusGroupData(analyser.getAcquisitionMode()));
+			data.addData(detectorName, "detector_mode", new NexusGroupData(analyser.getDetectorMode()));
 			
-			data.addData(detectorName, "pass_energy", new int[] {1}, NexusGlobals.NX_INT32, new int[] { analyser.getPassEnergy()}, null, null);
+			data.addData(detectorName, "pass_energy", new NexusGroupData(analyser.getPassEnergy()));
 			if (energyMode.equalsIgnoreCase("Binding")) {
-				data.addData(detectorName, "energy_mode", new NexusGroupData( this.energyMode ), null, null);
-				data.addData(detectorName, "low_energy", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] {analyser.getExcitationEnergy()- analyser.getEndEnergy() }, "eV", null);
-				data.addData(detectorName, "high_energy", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] {analyser.getExcitationEnergy()- analyser.getStartEnergy()}, "eV", null);
-				data.addData(detectorName, "fixed_energy", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] {analyser.getExcitationEnergy()- analyser.getCentreEnergy()}, "eV", null);
+				data.addData(detectorName, "energy_mode", new NexusGroupData(energyMode));
+				data.addData(detectorName, "low_energy", new NexusGroupData(analyser.getExcitationEnergy()- analyser.getEndEnergy()), "eV");
+				data.addData(detectorName, "high_energy", new NexusGroupData(analyser.getExcitationEnergy()- analyser.getStartEnergy()), "eV");
+				data.addData(detectorName, "fixed_energy", new NexusGroupData(analyser.getExcitationEnergy()- analyser.getCentreEnergy()), "eV");
 			}
 			else {
-				data.addData(detectorName, "energy_mode", new NexusGroupData( analyser.getEnergyMode() ), null, null);
-				data.addData(detectorName, "low_energy", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { analyser.getStartEnergy()}, "eV", null);
-				data.addData(detectorName, "high_energy", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { analyser.getEndEnergy()}, "eV", null);
-				data.addData(detectorName, "fixed_energy", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { analyser.getCentreEnergy()}, "eV", null);
+				data.addData(detectorName, "energy_mode", new NexusGroupData(analyser.getEnergyMode()));
+				data.addData(detectorName, "low_energy", new NexusGroupData(analyser.getStartEnergy()), "eV");
+				data.addData(detectorName, "high_energy", new NexusGroupData(analyser.getEndEnergy()), "eV");
+				data.addData(detectorName, "fixed_energy", new NexusGroupData(analyser.getCentreEnergy()), "eV");
 			}
-			data.addData(detectorName, "excitation_energy", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { analyser.getExcitationEnergy()}, "eV", null);
-			data.addData(detectorName, "energy_step", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { analyser.getEnergyStep()}, "eV", null);
+			data.addData(detectorName, "excitation_energy", new NexusGroupData(analyser.getExcitationEnergy()), "eV");
+			data.addData(detectorName, "energy_step", new NexusGroupData(analyser.getEnergyStep()), "eV");
 			double stepTime = analyser.getStepTime();
-			data.addData(detectorName, "step_time", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] { stepTime}, "s", null);
-			data.addData(detectorName, "number_of_slices", new int[] {1}, NexusGlobals.NX_INT32, new int[] { analyser.getSlices() }, null, null);
-			data.addData(detectorName, "number_of_iterations", new int[] {1}, NexusGlobals.NX_INT32, new int[] { analyser.getNumberIterations()}, null, null);
+			data.addData(detectorName, "step_time", new NexusGroupData(stepTime), "s");
+			data.addData(detectorName, "number_of_slices", new NexusGroupData(analyser.getSlices()));
+			data.addData(detectorName, "number_of_iterations", new NexusGroupData(analyser.getNumberIterations()));
 			int totalSteps = analyser.getTotalSteps().intValue();
-			data.addData(detectorName, "total_steps", new int[] {1}, NexusGlobals.NX_INT32, new int[] { totalSteps }, null, null);
-			data.addData(detectorName, "total_time", new int[] {1}, NexusGlobals.NX_FLOAT64, new double[] {totalSteps*stepTime }, null, null);
+			data.addData(detectorName, "total_steps", new NexusGroupData(totalSteps));
+			data.addData(detectorName, "total_time", new NexusGroupData(totalSteps*stepTime));
 
 			int cameraMinX = analyser.getCameraMinX();
-			data.addData(detectorName, "detector_x_from", new int[] {1}, NexusGlobals.NX_INT32, new int[] { cameraMinX}, null, null);
+			data.addData(detectorName, "detector_x_from", new NexusGroupData(cameraMinX));
 			int cameraMinY = analyser.getCameraMinY();
-			data.addData(detectorName, "detector_y_from", new int[] {1}, NexusGlobals.NX_INT32, new int[] { cameraMinY}, null, null);
-			data.addData(detectorName, "detector_x_to", new int[] {1}, NexusGlobals.NX_INT32, new int[] { analyser.getCameraSizeX()-cameraMinX}, null, null);
-			data.addData(detectorName, "detector_y_to", new int[] {1}, NexusGlobals.NX_INT32, new int[] { analyser.getCameraSizeY()-cameraMinY}, null, null);
+			data.addData(detectorName, "detector_y_from", new NexusGroupData(cameraMinY));
+			data.addData(detectorName, "detector_x_to", new NexusGroupData(analyser.getCameraSizeX()-cameraMinX));
+			data.addData(detectorName, "detector_y_to", new NexusGroupData(analyser.getCameraSizeY()-cameraMinY));
 //
-//			data.addData(detectorName, "region_size", new int[] {2}, NexusGlobals.NX_INT32, new int[] { analyser.getAdBase().getSizeX_RBV(), analyser.getAdBase().getSizeY_RBV() }, null, null);
+//			data.addData(detectorName, "region_size", new NexusGroupData(analyser.getAdBase().getSizeX_RBV(), analyser.getAdBase().getSizeY_RBV()));
 		}
 	private int[] determineDataDimensions(NDArray ndArray) throws Exception {
 		// only called if configured to readArrays (and hence ndArray is set)
@@ -296,10 +294,9 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 		for (int i = 1; i < dims.length; i++) {
 			expectedNumPixels = expectedNumPixels * dims[i];
 		}
-		Serializable dataVals;
+		NexusGroupData dataVals;
 		// TODO do only once per scan
 		short dataType = ndArray.getPluginBase().getDataType_RBV();
-		int nexusType;
 		switch (dataType) {
 		case NDPluginBase.UInt8: {
 			byte[] b = new byte[] {};
@@ -311,8 +308,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 				for (int i = 0; i < expectedNumPixels; i++) {
 					cd[i] = (short) (b[i] & 0xff);
 				}
-				dataVals = cd;
-				nexusType = NexusGlobals.NX_INT16;
+				dataVals = new NexusGroupData(dims, cd);
 			}
 		}
 			break;
@@ -320,8 +316,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 			byte[] b = ndArray.getByteArrayData(expectedNumPixels);
 			if (expectedNumPixels > b.length)
 				throw new DeviceException("Data size is not valid");
-			dataVals = b;
-			nexusType = NexusGlobals.NX_INT8;
+			dataVals = new NexusGroupData(dims, b);
 			break;
 		}
 		case NDPluginBase.Int16: {
@@ -330,8 +325,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 				throw new DeviceException("Data size is not valid length read:"
 						+ s.length + " expected:" + expectedNumPixels);
 
-			dataVals = s;
-			nexusType = NexusGlobals.NX_INT16;
+			dataVals = new NexusGroupData(dims, s);
 		}
 			break;
 		case NDPluginBase.UInt16: {
@@ -344,8 +338,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 			for (int i = 0; i < expectedNumPixels; i++) {
 				cd[i] = (s[i] & 0xffff);
 			}
-			dataVals = cd;
-			nexusType = NexusGlobals.NX_INT32;
+			dataVals = new NexusGroupData(dims, cd);
 		}
 			break;
 		case NDPluginBase.UInt32: // TODO should convert to INT64 if any numbers
@@ -356,8 +349,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 				throw new DeviceException("Data size is not valid length read:"
 						+ s.length + " expected:" + expectedNumPixels);
 
-			dataVals = s;
-			nexusType = NexusGlobals.NX_INT32;
+			dataVals = new NexusGroupData(dims, s);
 		}
 			break;
 		case NDPluginBase.Float32:
@@ -367,8 +359,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 				throw new DeviceException("Data size is not valid length read:"
 						+ s.length + " expected:" + expectedNumPixels);
 
-			dataVals = s;
-			nexusType = NexusGlobals.NX_FLOAT32;
+			dataVals = new NexusGroupData(dims, s);
 		}
 			break;
 		default:
@@ -376,7 +367,7 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 					+ dataType);
 		}
 
-		data.addData(detectorName, regionName + "_image", dims, nexusType,	dataVals, "counts", 1);
+		data.addData(detectorName, regionName + "_image", dataVals, "counts", 1);
 	}
 
 }

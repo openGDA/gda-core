@@ -18,9 +18,10 @@
 
 package org.opengda.detector.electronanalyser.server;
 
-import gda.data.nexus.NexusFileInterface;
-import gda.data.nexus.NexusUtils;
 import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFileInterface;
+import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -38,9 +39,6 @@ import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-
-import gda.data.nexus.NexusGlobals;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,7 +144,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			String aunit = "eV";
 			double[] axis = getEnergyAxis();
 
-			data.addAxis(getName(), aname, new int[] { axis.length }, NexusGlobals.NX_FLOAT64, axis, i + 1, 1, aunit, false);
+			data.addAxis(getName(), aname, new NexusGroupData(axis), i + 1, 1, aunit, false);
 
 			i = 0;
 			if ("Transmission".equals(getLensMode())) {
@@ -158,25 +156,25 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			}
 			axis = getAngleAxis();
 
-			data.addAxis(getName(), aname, new int[] { axis.length }, NexusGlobals.NX_FLOAT64, axis, i + 1, 1, aunit, false);
+			data.addAxis(getName(), aname, new NexusGroupData(axis), i + 1, 1, aunit, false);
 
-			data.addData(getName(), "lens_mode", new NexusGroupData(getLensMode()), null, null);
+			data.addData(getName(), "lens_mode", new NexusGroupData(getLensMode()));
 			
-			data.addData(getName(), "pass_energy", new int[] {1}, NexusGlobals.NX_INT32, new int[] { getPassEnergy() }, null, null);
+			data.addData(getName(), "pass_energy", new NexusGroupData(getPassEnergy()));
 
-			data.addData(getName(), "acquisition_mode", new NexusGroupData(getAcquisitionMode()), null, null);
+			data.addData(getName(), "acquisition_mode", new NexusGroupData(getAcquisitionMode()));
 			
-			data.addData(getName(), "energy_mode", new NexusGroupData( getEnergyMode() ), null, null);
+			data.addData(getName(), "energy_mode", new NexusGroupData(getEnergyMode()));
 
-			data.addData(getName(), "detector_mode", new NexusGroupData( getDetectorMode() ), null, null);
+			data.addData(getName(), "detector_mode", new NexusGroupData(getDetectorMode()));
 
-			data.addData(getName(), "sensor_size", new int[] {2}, NexusGlobals.NX_INT32, new int[] { getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV() }, null, null);
+			data.addData(getName(), "sensor_size", new NexusGroupData(getAdBase().getMaxSizeX_RBV(), getAdBase().getMaxSizeY_RBV()));
 
-			data.addData(getName(), "region_origin", new int[] {2}, NexusGlobals.NX_INT32, new int[] { getAdBase().getMinX_RBV(), getAdBase().getMinY_RBV() }, null, null);
+			data.addData(getName(), "region_origin", new NexusGroupData(getAdBase().getMinX_RBV(), getAdBase().getMinY_RBV()));
 
-			data.addData(getName(), "region_size", new int[] {2}, NexusGlobals.NX_INT32, new int[] { getAdBase().getSizeX_RBV(), getAdBase().getSizeY_RBV() }, null, null);
+			data.addData(getName(), "region_size", new NexusGroupData(getAdBase().getSizeX_RBV(), getAdBase().getSizeY_RBV()));
 
-			data.addData(getName(), "number_of_iterations", new int[] {1}, NexusGlobals.NX_INT32, new int[] { getNumberIterations() }, null, null);
+			data.addData(getName(), "number_of_iterations", new NexusGroupData(getNumberIterations()));
 		}
 	}
 	
@@ -187,12 +185,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		double[] spectrum=null;
 		spectrum = getSpectrum();
 		if (spectrum!=null) {
-			data.addData(getName(), "spectrum", new int[] {spectrum.length}, NexusGlobals.NX_FLOAT64, spectrum, "counts", null);
+			data.addData(getName(), "spectrum", new NexusGroupData(spectrum), "counts");
 		}
 		double[] externalIO=null;
 		externalIO = getExternalIOData();
 		if (externalIO!=null) {
-			data.addData(getName(), "externalIO", new int[] {externalIO.length}, NexusGlobals.NX_FLOAT64, externalIO, null, null);
+			data.addData(getName(), "externalIO", new NexusGroupData(externalIO));
 		}
 	
 	}

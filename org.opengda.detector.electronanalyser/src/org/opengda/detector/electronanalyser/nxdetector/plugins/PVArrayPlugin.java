@@ -35,7 +35,10 @@ import java.util.Vector;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+
 import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.extractor.NexusGroupData;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,6 +206,6 @@ class NXDetectorDatasetAppender implements NXDetectorDataAppender {
 			throw new DeviceException("Type of data is not understood :" + dataType);
 		}
 		//logger.warn("dimension = {}, data = {}", dims[0],ds.getBuffer()); 
-		data.addData(detectorName, regionName+"_"+ds.getName(), dims, nexusType, ds.getBuffer(), unit, 1);
+		data.addData(detectorName, regionName+"_"+ds.getName(), new NexusGroupData(dims, nexusType, ds.getBuffer()), unit, 1);
 	}
 }

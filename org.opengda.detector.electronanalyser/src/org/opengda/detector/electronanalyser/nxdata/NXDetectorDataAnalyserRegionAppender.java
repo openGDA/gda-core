@@ -41,7 +41,7 @@ public class NXDetectorDataAnalyserRegionAppender implements NXDetectorDataAppen
 				INexusTree regiontree=regionDataList.get(i);
 				for (INexusTree regionchild : regiontree) {
 					logger.debug("add {} to region node {} in detector tree.",regionchild.getName(), regiontree.getName());
-					data.addData(regiontree.getName(), regionchild.getName(),regionchild.getData().dimensions, regionchild.getData().getType(),regionchild.getData().getBuffer(), null, null);
+					data.addData(regiontree.getName(), regionchild.getName(), regionchild.getData());
 				}
 				String regionName = regiontree.getName();
 				Double regionIntensity = totalIntensity.get(i);

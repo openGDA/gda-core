@@ -18,6 +18,7 @@
 
 package uk.ac.gda.devices.vgscienta;
 
+import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -45,7 +46,6 @@ import gov.aps.jca.event.MonitorListener;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
-import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -256,7 +256,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 
 		if (kineticEnergyChangesDuringScan || firstReadoutInScan) {
 			double[] axis = getEnergyAxis();
-			data.addAxis(getName(), "energies", new int[] { axis.length }, NexusGlobals.NX_FLOAT64, axis, 2, 1, "eV", kineticEnergyChangesDuringScan);
+			data.addAxis(getName(), "energies", new NexusGroupData(axis), 2, 1, "eV", kineticEnergyChangesDuringScan);
 		}
 
 		if (firstReadoutInScan) { // place in entry1/instrument/analyser(NXdetector) group.
@@ -276,7 +276,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 				aunit = "degree";
 			}
 			double[] axis = getAngleAxis();
-			data.addAxis(getName(), aname, new int[] { axis.length }, NexusGlobals.NX_FLOAT64, axis, 1, 1, aunit, false);
+			data.addAxis(getName(), aname, new NexusGroupData(axis), 1, 1, aunit, false);
 
 			data.addData(getName(), "lens_mode", new NexusGroupData(getLensMode()), null, null);
 			data.addData(getName(), "acquisition_mode", new NexusGroupData(controller.getAcquisitionMode()), null, null);
