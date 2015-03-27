@@ -62,7 +62,9 @@ public class NexusGroupData implements Serializable {
 	 * Flag to indicate that when writing this value to a file the entry is to linked to the NXEntry/NXDetector section as a variable of the scan
 	 */
 	public boolean isDetectorEntryData = false;
-	
+
+	private boolean isUnsigned = false;
+
 	/**
 	 * @param dimensions
 	 * @param type
@@ -127,6 +129,13 @@ public class NexusGroupData implements Serializable {
 		type = NexusGlobals.NX_INT16;
 	}
 
+	public NexusGroupData(short[][] s) {
+		super();
+		dimensions = new int[] {s.length, s[0].length};
+		data = s;
+		type = NexusGlobals.NX_INT16;
+	}
+
 	public NexusGroupData(int... i) {
 		this(new int[]{i.length}, i);
 	}
@@ -136,6 +145,31 @@ public class NexusGroupData implements Serializable {
 		dimensions = dims;
 		data = i;
 		type = NexusGlobals.NX_INT32;
+	}
+
+	public NexusGroupData(int[][] i) {
+		super();
+		dimensions = new int[] {i.length, i[0].length};
+		data = i;
+		type = NexusGlobals.NX_INT32;
+	}
+
+	public NexusGroupData(int[][][] i) {
+		super();
+		dimensions = new int[] {i.length, i[0].length, i[0][0].length};
+		data = i;
+		type = NexusGlobals.NX_INT32;
+	}
+
+	public NexusGroupData(long... l) {
+		this(new int[]{l.length}, l);
+	}
+
+	public NexusGroupData(int[] dims, long... l) {
+		super();
+		dimensions = dims;
+		data = l;
+		type = NexusGlobals.NX_INT64;
 	}
 
 	public NexusGroupData(boolean b) {
@@ -164,10 +198,54 @@ public class NexusGroupData implements Serializable {
 		type = NexusGlobals.NX_FLOAT64;
 	}
 
+	public NexusGroupData(double[][] d) {
+		super();
+		dimensions = new int[] {d.length, d[0].length};
+		data = d;
+		type = NexusGlobals.NX_FLOAT64;
+	}
+
+	public NexusGroupData(double[][][] d) {
+		super();
+		dimensions = new int[] {d.length, d[0].length, d[0][0].length};
+		data = d;
+		type = NexusGlobals.NX_FLOAT64;
+	}
+
+	/**
+	 * Set type to be unsigned
+	 * @return this
+	 */
+	public NexusGroupData setUnsigned() {
+		switch (type) {
+		case NexusGlobals.NX_INT8:
+		case NexusGlobals.NX_INT16:
+		case NexusGlobals.NX_INT32:
+		case NexusGlobals.NX_INT64:
+			isUnsigned = true;
+			break;
+		default:
+			throw new UnsupportedOperationException("Can not set type to unsigned");
+		}
+		return this;
+	}
+
 	/**
 	 * @return type of data e.g. NexusGlobals.NX_CHAR
 	 */
 	public int getType() {
+		if (isUnsigned) {
+			switch (type) {
+			case NexusGlobals.NX_INT8:
+				return NexusGlobals.NX_UINT8;
+			case NexusGlobals.NX_INT16:
+				return NexusGlobals.NX_UINT16;
+			case NexusGlobals.NX_INT32:
+				return NexusGlobals.NX_UINT32;
+			case NexusGlobals.NX_INT64:
+				return NexusGlobals.NX_UINT64;
+			}
+		}
 		return type;
 	}
 
