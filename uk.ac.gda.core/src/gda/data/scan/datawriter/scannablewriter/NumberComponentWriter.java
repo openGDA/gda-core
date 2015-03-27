@@ -21,6 +21,7 @@ package gda.data.scan.datawriter.scannablewriter;
 import gda.data.nexus.NexusException;
 import gda.data.nexus.NexusFileInterface;
 import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.NexusUtils;
 import gda.data.scan.datawriter.SelfCreatingLink;
 
 import java.util.Collection;
@@ -71,17 +72,17 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 		file.opendata(name);
 
 		if (componentName != null) {
-			file.putattr("local_name", (scannableName + "." + componentName).getBytes(UTF8), NexusGlobals.NX_CHAR);
+			NexusUtils.writeNexusStringAttribute(file, "local_name", scannableName + "." + componentName);
 		}
 
 		final StringBuilder axislist = new StringBuilder(dim.length * 3 + 1).append('1');
 		for (int j = 2; j <= dim.length; j++) {
 			axislist.append(',').append(j);
 		}
-		file.putattr("axis", axislist.toString().getBytes(UTF8), NexusGlobals.NX_CHAR);
+		NexusUtils.writeNexusStringAttribute(file, "axis", axislist.toString());
 
 		if (StringUtils.isNotBlank(unit)) {
-			file.putattr("units", unit.getBytes(UTF8), NexusGlobals.NX_CHAR);
+			NexusUtils.writeNexusStringAttribute(file, "units", unit);
 		}
 
 		addCustomAttributes(file, scannableName, componentName);

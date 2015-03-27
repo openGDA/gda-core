@@ -476,7 +476,7 @@ public class NeXusUtils {
 		String name = "";
 		Double critical_energy = Double.parseDouble(DEFAULT_NUMBER_VALUE);
 		Double bending_radius = Double.parseDouble(DEFAULT_NUMBER_VALUE);
-		Double[] spectrum;
+		double[] spectrum;
 
 		ArrayList<String> items = new ArrayList<String>();
 		items.add("instrument.bending_magnet.name");
@@ -518,7 +518,7 @@ public class NeXusUtils {
 				String spectrumStr = metadata.getMetadataValue("instrument.bending_magnet.spectrum", null,
 						DEFAULT_NUMBER_VALUE);
 				String[] spectrumArray = spectrumStr.split(" ");
-				spectrum = new Double[spectrumArray.length];
+				spectrum = new double[spectrumArray.length];
 				for (int i = 0; i < spectrumArray.length; i++) {
 					spectrum[i] = Double.parseDouble(spectrumArray[i]);
 				}
