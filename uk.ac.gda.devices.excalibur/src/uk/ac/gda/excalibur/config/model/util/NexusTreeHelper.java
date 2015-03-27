@@ -23,9 +23,6 @@ import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.detector.NXDetectorData;
-
-import gda.data.nexus.NexusGlobals;
-
 import uk.ac.gda.excalibur.config.model.AnperModel;
 import uk.ac.gda.excalibur.config.model.ExcaliburConfig;
 import uk.ac.gda.excalibur.config.model.ExcaliburConfigFactory;
