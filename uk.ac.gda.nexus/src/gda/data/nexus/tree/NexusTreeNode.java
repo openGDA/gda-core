@@ -134,7 +134,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 	protected String dataToTxt(boolean newlineAfterEach, boolean dataAsString, boolean wrap) {
 		StringBuffer msg = new StringBuffer();
 		if (groupData.getBuffer() != null) {
-			if (groupData.getType() == NexusGlobals.NX_CHAR && groupData.getBuffer() instanceof byte[]) {
+			if (groupData.isChar() && groupData.getBuffer() instanceof byte[]) {
 				if (wrap)
 					msg.append("<value>");
 				String s = new String((byte[]) groupData.getBuffer());
@@ -144,7 +144,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 				if (newlineAfterEach) {
 					msg.append("\n");
 				}
-			} else if (groupData.getType() == NexusGlobals.NX_CHAR && groupData.getBuffer() instanceof String[]) {
+			} else if (groupData.isChar() && groupData.getBuffer() instanceof String[]) {
 				if (wrap)
 					msg.append("<value>");
 				String s = ((String[]) groupData.getBuffer())[0];

@@ -250,6 +250,13 @@ public class NexusGroupData implements Serializable {
 	}
 
 	/**
+	 * @return true if data contains characters
+	 */
+	public boolean isChar() {
+		return getType() == NexusGlobals.NX_CHAR;
+	}
+
+	/**
 	 * @return The data buffer compatible with type, null if data not extracted
 	 */
 	public Serializable getBuffer() {
