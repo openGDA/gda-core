@@ -18,6 +18,7 @@
 
 package gda.device.detector.nexusprocessor;
 
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.detector.GDANexusDetectorData;
 import gda.device.detector.NXDetectorData;
 
@@ -29,7 +30,6 @@ import java.util.Vector;
 import org.eclipse.dawnsci.analysis.api.fitting.functions.IParameter;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -110,8 +110,7 @@ public class DataSetFitter extends DataSetProcessorBase implements InitializingB
 		//the NexusDataWriter requires that the number of entries must be the same for all scan data points in a scan.
 		for (int i = 0; i < extraNames.size(); i++) {
 			String name = extraNames.get(i);
-			res.addData(detName, dataName + "." + name, new int[] { 1 }, NexusGlobals.NX_FLOAT64,
-					new double[] { vals[i] }, null, 1);
+			res.addData(detName, dataName + "." + name, new NexusGroupData(vals[i]), null, 1);
 		}
 
 		res.setDoubleVals(vals);

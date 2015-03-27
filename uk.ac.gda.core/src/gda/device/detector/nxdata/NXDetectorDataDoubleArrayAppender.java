@@ -18,10 +18,9 @@
 
 package gda.device.detector.nxdata;
 
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
-
-import gda.data.nexus.NexusGlobals;
 
 public class NXDetectorDataDoubleArrayAppender implements NXDetectorDataAppender {
 
@@ -36,7 +35,7 @@ public class NXDetectorDataDoubleArrayAppender implements NXDetectorDataAppender
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
 		try {
-			data.addData(detectorName, "data", new int[]{this.array.length}, NexusGlobals.NX_FLOAT64, this.array, units, 1);
+			data.addData(detectorName, "data", new NexusGroupData(array), units, 1);
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}

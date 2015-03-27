@@ -26,8 +26,6 @@ import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 
-import gda.data.nexus.NexusGlobals;
-
 /**
  *
  */
@@ -56,12 +54,11 @@ public class DummyNXDetector implements NexusDetector {
 				elementName = name;
 			data.addNote(elementName,"Just a test");
 			
-			int[] dims = {10};
 			double[] dataVals = {1.1,2.2,3.3,4.4,5.5,6.6,7.7,8.8,9.9,0.0};
-			data.addData(elementName,dims, NexusGlobals.NX_FLOAT64, dataVals, "counts", 1);
+			data.addData(elementName, new NexusGroupData(dataVals), "counts", 1);
 			
 			int[] axis = {100,200,300,400,500,600,700,800,900,1000};
-			data.addAxis(elementName,"useless", dims, NexusGlobals.NX_INT32, axis, 1, 1, "pixels", false);
+			data.addAxis(elementName,"useless", new NexusGroupData(axis), 1, 1, "pixels", false);
 			
 			
 			{

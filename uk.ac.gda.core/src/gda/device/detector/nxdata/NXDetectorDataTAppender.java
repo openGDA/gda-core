@@ -27,11 +27,8 @@ import gda.device.detector.NXDetectorData;
 import java.text.MessageFormat;
 import java.util.List;
 
-import gda.data.nexus.NexusGlobals;
-
 public class NXDetectorDataTAppender <T> implements NXDetectorDataAppender {
 
-	static private final int[] SINGLE_DIMENSION = new int[] { 1 };
 	private final List<String> elementNames;
 	private final List<T> elementValues;
 	private final List<String> elementUnits;
@@ -68,11 +65,10 @@ public class NXDetectorDataTAppender <T> implements NXDetectorDataAppender {
 			}			
 			if( t instanceof Double){
 				data.setPlottableValue(name, (Double)t);
-				valdata = data.addData(detectorName, name, SINGLE_DIMENSION, NexusGlobals.NX_FLOAT64, new double[] { (Double)t }, unit, null);
-			} 
-			if( t instanceof Integer){
+				valdata = data.addData(detectorName, name, new NexusGroupData((Double) t), unit, null);
+			} else if( t instanceof Integer){
 				data.setPlottableValue(name, ((Integer)t).doubleValue());
-				valdata = data.addData(detectorName, name, SINGLE_DIMENSION, NexusGlobals.NX_INT32, new int[] { (Integer)t }, unit, null);
+				valdata = data.addData(detectorName, name, new NexusGroupData((Integer) t), unit, null);
 			}
 			if(valdata ==null)
 				throw new RuntimeException("Only Double or Integer currently supported by NXDetectorDataTAppender");

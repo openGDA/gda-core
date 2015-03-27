@@ -21,9 +21,9 @@ package gda;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.INeXusInfoWriteable;
-import gda.data.nexus.NexusUtils;
 import gda.data.nexus.NexusException;
 import gda.data.nexus.NexusFileInterface;
+import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -47,8 +47,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import gda.data.nexus.NexusGlobals;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -860,7 +858,7 @@ class SimpleSubDetector extends SimpleDetector implements NexusDetector {
 	public NexusTreeProvider readout() throws DeviceException {
 		NXDetectorData nxdetData = new TestNXDetectorData();
 		if (filename != null) {
-			nxdetData.addData(name, new int[] { 19 }, NexusGlobals.NX_INT32, new int[19], null, null);
+			nxdetData.addData(name, new NexusGroupData(new int[19]));
 			nxdetData.addFileName(name, filename);
 			INexusTree detTree = nxdetData.getDetTree(name);
 			{

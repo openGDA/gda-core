@@ -504,12 +504,12 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		}
 		String name = tree.getName();
 		String nxClass = tree.getNxClass();
-		Boolean dataOpen = false;
-		Boolean loopNodes = true;
-		Boolean attrBelowThisOnly = attrOnly;
-		Boolean nxClassIsSDS = nxClass.equals(NexusExtractor.SDSClassName);
-		Boolean nxClassIsAttr = nxClass.equals(NexusExtractor.AttrClassName);
-		Boolean nxClassIsExternalSDS = nxClass.equals(NexusExtractor.ExternalSDSLink);
+		boolean dataOpen = false;
+		boolean loopNodes = true;
+		boolean attrBelowThisOnly = attrOnly;
+		boolean nxClassIsSDS = nxClass.equals(NexusExtractor.SDSClassName);
+		boolean nxClassIsAttr = nxClass.equals(NexusExtractor.AttrClassName);
+		boolean nxClassIsExternalSDS = nxClass.equals(NexusExtractor.ExternalSDSLink);
 		if (nxClassIsExternalSDS) {
 			if (makeData) {
 				NexusGroupData data = tree.getData();

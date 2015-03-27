@@ -20,6 +20,8 @@ package gda.scan;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
+import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.nxclassio.NexusFileHandle;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -50,7 +52,6 @@ import java.util.concurrent.Callable;
 
 import org.junit.Before;
 import org.junit.Test;
-import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -413,8 +414,7 @@ class MyNXPlugin implements NXPlugin{
 
 			@Override
 			public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
-				data.addData(detectorName, getName(), new int[] { 1 }, NexusGlobals.NX_FLOAT64, new double[] { 0. }, null, null);
-				
+				data.addData(detectorName, getName(), new NexusGroupData(0d), null, null);
 			}});
 		return appenders;
 	}
