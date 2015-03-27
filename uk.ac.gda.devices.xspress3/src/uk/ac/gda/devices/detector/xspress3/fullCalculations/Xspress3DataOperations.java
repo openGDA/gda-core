@@ -1,6 +1,8 @@
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
+import gda.data.nexus.NexusException;
 import gda.data.nexus.extractor.NexusExtractorException;
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
@@ -10,8 +12,6 @@ import gda.factory.Finder;
 
 import java.util.List;
 
-import gda.data.nexus.NexusException;
-import gda.data.nexus.NexusGlobals;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
@@ -206,22 +206,19 @@ public class Xspress3DataOperations {
 		INexusTree detTree = thisFrame.getDetTree(detectorName);
 
 		// add the FF (sum over all rois, over all channels)
-		thisFrame.addData(detTree, sumLabel, new int[] { 1 }, NexusGlobals.NX_FLOAT64, new double[] { theFF }, unitsLabel,
+		thisFrame.addData(detTree, sumLabel, new NexusGroupData(theFF), unitsLabel,
 				1);
 
 		// add rois
 		for (int roi = 0; roi < numRois; roi++) {
-			thisFrame.addData(detTree, rois[roi].getRoiName(), new int[] { numChannels }, NexusGlobals.NX_FLOAT64,
-					roiValues[roi], unitsLabel, 2);
+			thisFrame.addData(detTree, rois[roi].getRoiName(), new NexusGroupData(roiValues[roi]), unitsLabel, 2);
 		}
 
 		// add MCAs
-		thisFrame.addData(detTree, mcaLabel, new int[] { numChannels, numMcaElements }, NexusGlobals.NX_FLOAT64,
-				mcasFromFile, unitsLabel, 2);
+		thisFrame.addData(detTree, mcaLabel, new NexusGroupData(mcasFromFile), unitsLabel, 2);
 
 		// add all element sum
-		thisFrame.addData(detTree, allElementSumLabel, new int[] { numMcaElements }, NexusGlobals.NX_FLOAT64,
-				allElementSum, unitsLabel, 2);
+		thisFrame.addData(detTree, allElementSumLabel, new NexusGroupData(allElementSum), unitsLabel, 2);
 
 		// add plottable values
 		int index = 0;

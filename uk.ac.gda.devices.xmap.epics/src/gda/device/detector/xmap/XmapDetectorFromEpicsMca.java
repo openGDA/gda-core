@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
-import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -540,9 +539,9 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 
 			// Real and live time
 			float[] realAndLiveTime = getRealAndLiveTime(element);
-			output.addData(detTree, thisElement.getName()+"_realtime", null, NexusGlobals.NX_FLOAT64, new double[]{realAndLiveTime[0]}, "s", 1);
+			NXDetectorData.addData(detTree, thisElement.getName()+"_realtime", new NexusGroupData(realAndLiveTime[0]), "s", 1);
 			output.setPlottableValue(thisElement.getName()+"_realtime", (double) realAndLiveTime[0]);
-			output.addData(detTree, thisElement.getName()+"_livetime", null, NexusGlobals.NX_FLOAT64, new double[]{realAndLiveTime[1]}, "s", 1);
+			NXDetectorData.addData(detTree, thisElement.getName()+"_livetime", new NexusGroupData(realAndLiveTime[1]), "s", 1);
 			output.setPlottableValue(thisElement.getName()+"_livetime", (double) realAndLiveTime[1]);
 			
 			Analyser analyser = analysers.get(element);
@@ -564,7 +563,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 							regionsOfInterestCountCache = new HashMap<Integer, double[][]>();
 						count = getROICountsUsingCache(roiIndex, regionsOfInterestCountCache)[element];
 					}
-					INexusTree roidata = output.addData(detTree, getExtraName(thisElement, roi), null, NexusGlobals.NX_FLOAT64, new double[]{count}, "counts", 1);
+					INexusTree roidata = NXDetectorData.addData(detTree, getExtraName(thisElement, roi), new NexusGroupData(count), "counts", 1);
 					if(!firstScanPointDone){
 						roidata.addChildNode(new NexusTreeNode("start",NexusExtractor.AttrClassName, roidata, new NexusGroupData(roi.getRoiStart())));
 						roidata.addChildNode(new NexusTreeNode("end",NexusExtractor.AttrClassName, roidata, new NexusGroupData(roi.getRoiEnd())));
@@ -574,7 +573,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	
 			}
 			//add the full spectrum
-			output.addData(detTree, thisElement.getName()+"_fullSpectrum", new int[]{detectorData[element].length}, NexusGlobals.NX_INT32, detectorData[element], "counts", 1);
+			NXDetectorData.addData(detTree, thisElement.getName()+"_fullSpectrum", new NexusGroupData(detectorData[element]), "counts", 1);
 			if(sumAllElementData)
 			{
 				if(summation == null)
@@ -587,10 +586,10 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 		}
 		logger.info("xmap - total readout time: " + (System.nanoTime() - startTime)/1000000000.);
 		if( isReturnFullSpectrum())
-			output.addData(detTree, "fullSpectrum", new int[]{detectorData.length, detectorData[0].length}, NexusGlobals.NX_INT32, detectorData, "counts", 1);
+			NXDetectorData.addData(detTree, "fullSpectrum", new NexusGroupData(detectorData), "counts", 1);
 		
 		if(summation != null)
-			output.addData(detTree, "allElementSum", new int[]{summation.length}, NexusGlobals.NX_INT32, summation, "counts",1);
+			NXDetectorData.addData(detTree, "allElementSum", new NexusGroupData(summation), "counts",1);
 		firstScanPointDone=true;
 		return output;
 	}

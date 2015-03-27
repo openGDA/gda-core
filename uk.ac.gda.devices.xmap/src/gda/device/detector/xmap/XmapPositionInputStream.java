@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,8 +163,7 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 		}
 
 		// add total counts
-		final INexusTree counts = output.addData(detTree, "totalCounts", new int[] { numberOfElements },
-				NexusGlobals.NX_FLOAT64, correctedAllCounts, "counts", 1);
+		final INexusTree counts = NXDetectorData.addData(detTree, "totalCounts", new NexusGroupData(correctedAllCounts), "counts", 1);
 		for (int element = 0; element < numberOfElements; element++) {
 			DetectorElement thisElement = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList()
 					.get(element);
@@ -182,16 +180,15 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 				new NexusGroupData(evtProcessTimeAsString)));
 
 		// ICR
-		output.addData(detTree, "icr", new int[] { numberOfElements }, NexusGlobals.NX_FLOAT64, icrs, "Hz", 1);
+		NXDetectorData.addData(detTree, "icr", new NexusGroupData(icrs), "Hz", 1);
 
 		// OCR
-		output.addData(detTree, "ocr", new int[] { numberOfElements }, NexusGlobals.NX_FLOAT64, ocrs, "Hz", 1);
+		NXDetectorData.addData(detTree, "ocr", new NexusGroupData(ocrs), "Hz", 1);
 
 		// roicounts
 		for (int iroi = 0; iroi < numberOfROIs; iroi++) {
 			String roiName = roiNames[iroi];
-			output.addData(detTree, roiName, new int[] { numberOfElements }, NexusGlobals.NX_FLOAT64, roiCounts[iroi],
-					"Hz", 1);
+			NXDetectorData.addData(detTree, roiName, new NexusGroupData(roiCounts[iroi]), "Hz", 1);
 			for (int element = 0; element < numberOfElements; element++) {
 				String elementName = this.hardwareTriggeredNexusXmap.getXmap().vortexParameters.getDetectorList()
 						.get(element).getName();
@@ -200,17 +197,15 @@ class XmapPositionInputStream implements PositionInputStream<NexusTreeProvider> 
 		}
 
 		// add the full spectrum
-		output.addData(detTree, "fullSpectrum", new int[] { numberOfElements, detectorData[0].length },
-				NexusGlobals.NX_INT16, detectorData, "counts", 1);
+		NXDetectorData.addData(detTree, "fullSpectrum", new NexusGroupData(detectorData), "counts", 1);
 
 		// ToDo implement the getROI and readout scanler data
 		double ff = calculateScalerData(dataPointNumber, numberOfROIs, detectorData);
-		output.addData(detTree, "FF", new int[] { 1 }, NexusGlobals.NX_FLOAT64, new Double[] { ff }, "counts", 1);
+		NXDetectorData.addData(detTree, "FF", new NexusGroupData(ff), "counts", 1);
 		output.setPlottableValue("FF", ff);
 
 		if (summation != null)
-			output.addData(detTree, "allElementSum", new int[] { summation.length }, NexusGlobals.NX_FLOAT64, summation,
-					"counts", 1);
+			NXDetectorData.addData(detTree, "allElementSum", new NexusGroupData(summation), "counts", 1);
 		return output;
 	}
 

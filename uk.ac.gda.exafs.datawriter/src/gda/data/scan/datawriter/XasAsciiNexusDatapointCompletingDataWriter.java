@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * For use in two-directional raster scans (faster raster or ratser-map-return-write).
+ * For use in two-directional raster scans (faster raster or raster-map-return-write).
  * <p>
  * This 'flips' (changes the data point number) and buffers the data points from the odd numbered rows which run in the
  * returning direction. It then issues the data points in the normal order as if this was a regular two dimensional scan

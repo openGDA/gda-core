@@ -9,8 +9,6 @@ import gda.device.detector.xmap.util.XmapFileLoader;
 
 import java.util.List;
 
-import gda.data.nexus.NexusGlobals;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.util.CorrectionUtils;
@@ -103,8 +101,7 @@ public class XmapNXDetectorDataCreator {
 		}
 
 		// add total counts
-		final INexusTree counts = output.addData(detTree, "totalCounts", new int[] { numFilteredElements },
-				NexusGlobals.NX_FLOAT64, correctedAllCounts, "counts", 1);
+		final INexusTree counts = NXDetectorData.addData(detTree, "totalCounts", new NexusGroupData(correctedAllCounts), "counts", 1);
 		index = -1;
 		for (int element = 0; element < originalNumberOfElements; element++) {
 			DetectorElement thisElement = detectorElements.get(element);
@@ -124,16 +121,15 @@ public class XmapNXDetectorDataCreator {
 				new NexusGroupData(evtProcessTimeAsString)));
 
 		// ICR
-		output.addData(detTree, "icr", new int[] { numFilteredElements }, NexusGlobals.NX_FLOAT64, icrs, "Hz", 1);
+		NXDetectorData.addData(detTree, "icr", new NexusGroupData(icrs), "Hz", 1);
 
 		// OCR
-		output.addData(detTree, "ocr", new int[] { numFilteredElements }, NexusGlobals.NX_FLOAT64, ocrs, "Hz", 1);
+		NXDetectorData.addData(detTree, "ocr", new NexusGroupData(ocrs), "Hz", 1);
 
 		// roicounts
 		for (int iroi = 0; iroi < numberOfROIs; iroi++) {
 			String roiName = roiNames[iroi];
-			output.addData(detTree, roiName, new int[] { numFilteredElements }, NexusGlobals.NX_FLOAT64, roiCounts[iroi],
-					"counts", 1);
+			NXDetectorData.addData(detTree, roiName, new NexusGroupData(roiCounts[iroi]), "counts", 1);
 			index = -1;
 			for (int element = 0; element < originalNumberOfElements; element++) {
 				DetectorElement detElement = detectorElements.get(element);
@@ -146,15 +142,14 @@ public class XmapNXDetectorDataCreator {
 		}
 
 		// add the full spectrum
-		output.addData(detTree, "fullSpectrum", new int[] { numFilteredElements, reducedData[0].length },
-				NexusGlobals.NX_INT16, reducedData, "counts", 1);
+		NXDetectorData.addData(detTree, "fullSpectrum", new NexusGroupData(reducedData), "counts", 1);
 
 		double ff = calculateScalerData(dataPointNumber, numberOfROIs, detectorData);
-		output.addData(detTree, "FF", new int[] { 1 }, NexusGlobals.NX_FLOAT64, new Double[] { ff }, "counts", 1);
+		NXDetectorData.addData(detTree, "FF", new NexusGroupData(ff), "counts", 1);
 		output.setPlottableValue("FF", ff);
 
 		if (createAllElementsSum)
-			output.addData(detTree, "allElementSum", new int[] { summation.length }, NexusGlobals.NX_FLOAT64, summation,
+			NXDetectorData.addData(detTree, "allElementSum", new NexusGroupData(summation),
 					"counts", 1);
 		return output;
 	}

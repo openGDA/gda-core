@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,8 +149,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		}
 
 		// add total counts
-		final INexusTree counts = output.addData(detTree, "totalCounts", new int[] { numFilteredElements },
-				NexusGlobals.NX_FLOAT64, correctedAllCounts, "counts", 1);
+		final INexusTree counts = NXDetectorData.addData(detTree, "totalCounts", new NexusGroupData(correctedAllCounts), "counts", 1);
 		index = -1;
 		for (int element = 0; element < originalNumberOfElements; element++) {
 			DetectorElement thisElement = vortexParameters.getDetectorList().get(element);
@@ -173,17 +171,16 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		counts.addChildNode(new NexusTreeNode("eventProcessingTime", NexusExtractor.AttrClassName, counts, new NexusGroupData(evtProcessTimeAsString)));
 
 		// ICR
-		output.addData(detTree, "icr", new int[] { numFilteredElements }, NexusGlobals.NX_FLOAT64, icrs, "Hz", 1);
+		NXDetectorData.addData(detTree, "icr", new NexusGroupData(icrs), "Hz", 1);
 
 		// OCR
-		output.addData(detTree, "ocr", new int[] { numFilteredElements }, NexusGlobals.NX_FLOAT64, ocrs, "Hz", 1);
+		NXDetectorData.addData(detTree, "ocr", new NexusGroupData(ocrs), "Hz", 1);
 
 		// roicounts
 		double ffFromRoi = 0.0;
 		for (int iroi = 0; iroi < numberOfROIs; iroi++) {
 			String roiName = roiNames[iroi];
-			output.addData(detTree, roiName, new int[] { numFilteredElements }, NexusGlobals.NX_FLOAT64, roiCounts[iroi],
-					"Hz", 1);
+			NXDetectorData.addData(detTree, roiName, new NexusGroupData(roiCounts[iroi]), "Hz", 1);
 			index = -1;
 			for (int element = 0; element < originalNumberOfElements; element++) {
 				DetectorElement detElement = vortexParameters.getDetectorList().get(element);
@@ -199,24 +196,20 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		// add the full spectrum
 		if (saveRawSpectrum || alwaysRecordRawMCAs){
 			if (originalNumberOfElements == 1) {
-				output.addData(detTree, "fullSpectrum", new int[] {reducedDetectorData[0].length },
-						NexusGlobals.NX_INT32, reducedDetectorData[0], "counts", 1);
+				NXDetectorData.addData(detTree, "fullSpectrum", new NexusGroupData(reducedDetectorData[0]), "counts", 1);
 			} else {
-				output.addData(detTree, "fullSpectrum", new int[] { numFilteredElements, reducedDetectorData[0].length },
-						NexusGlobals.NX_INT32, reducedDetectorData, "counts", 1);
+				NXDetectorData.addData(detTree, "fullSpectrum", new NexusGroupData(reducedDetectorData), "counts", 1);
 			}
 			
 		} else {
 			if (originalNumberOfElements == 1) {
-				output.addData(detTree, "fullSpectrum", new int[] { correctedDetData[0].length }, NexusGlobals.NX_FLOAT64,
-						correctedDetData[0], "counts", 1);
+				NXDetectorData.addData(detTree, "fullSpectrum", new NexusGroupData(correctedDetData[0]), "counts", 1);
 			} else {
-				output.addData(detTree, "fullSpectrum", new int[] { numFilteredElements, correctedDetData[0].length },
-						NexusGlobals.NX_FLOAT64, correctedDetData, "counts", 1);
+				NXDetectorData.addData(detTree, "fullSpectrum", new NexusGroupData(correctedDetData), "counts", 1);
 			}
 		}
 		double ff = ffFromRoi;
-		output.addData(detTree, "FF", new int[] { 1 }, NexusGlobals.NX_FLOAT64, new Double[] { ff }, "counts", 1);
+		NXDetectorData.addData(detTree, "FF", new NexusGroupData(ff), "counts", 1);
 		output.setPlottableValue("FF", ff);
 		if (saveRawSpectrum) {
 			for (int element = 0; element < originalNumberOfElements; element++) {
@@ -228,7 +221,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 			}
 		}
 		if (summation != null)
-			output.addData(detTree, "allElementSum", new int[] { summation.length }, NexusGlobals.NX_FLOAT64, summation, "counts", 1);
+			NXDetectorData.addData(detTree, "allElementSum", new NexusGroupData(summation), "counts", 1);
 		return output;
 	}
 	
