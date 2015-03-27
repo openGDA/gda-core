@@ -19,7 +19,6 @@
 package gda.device.detector.maxipix2;
 
 import fr.esrf.Tango.DevFailed;
-import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -276,8 +275,7 @@ public class MaxiPix2NexusDetector extends DetectorBase implements NexusDetector
 				fileNameNode.addChildNode(new NexusTreeNode("axes", NexusExtractor.AttrClassName, fileNameNode,
 						new NexusGroupData("time")));
 
-				data.addAxis(name, "time", new int[] { timesCurrentAcq2.length }, NexusGlobals.NX_FLOAT64,
-						timesCurrentAcq2, 1, 1, "s", false);
+				data.addAxis(name, "time", new NexusGroupData(timesCurrentAcq2), 1, 1, "s", false);
 
 				{
 					INexusTree detTree = data.getDetTree(name);

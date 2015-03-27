@@ -19,7 +19,6 @@
 package gda.device.detector.maxipix2;
 
 import fr.esrf.Tango.DevFailed;
-import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -238,8 +237,7 @@ public class MaxiPix2RepScanNexusDetector extends DetectorBase implements Positi
 
 				//in a repscan an additional outer variable is scanned which is the time.
 				//so we create the time axis to represent this variable with dim=0
-				data.addAxis(name, "time", new int[] { timesCurrentAcq2.length }, NexusGlobals.NX_FLOAT64,
-						timesCurrentAcq2, 0, 1, "s", false);
+				data.addAxis(name, "time", new NexusGroupData(timesCurrentAcq2), 0, 1, "s", false);
 
 				{
 					INexusTree detTree = data.getDetTree(name);
