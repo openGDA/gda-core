@@ -26,7 +26,6 @@ import gda.device.DeviceException;
 import gda.device.currentamplifier.ScalingAndOffset;
 import gda.device.detector.NXDetectorData;
 
-import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +44,6 @@ public class SingleScalerWithScalingAndOffset extends NcdScalerDetector implemen
 
 	@Override
 	public void writeout(int frames, NXDetectorData nxdata) throws DeviceException {
-		int[] datadims = new int[] {frames };
 		float[] data = readFloat(channel, 0, 0, 1, 1, frames);
 		NexusGroupData ngd;
 		String desc = scalingAndOffset.getDescription();

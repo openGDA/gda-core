@@ -30,7 +30,6 @@ import gda.factory.Finder;
 
 import java.util.List;
 
-import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
