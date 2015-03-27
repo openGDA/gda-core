@@ -31,7 +31,6 @@ import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
-import gda.data.nexus.NexusGlobals;
 import uk.ac.diamond.scisoft.analysis.fitting.Fitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Quadratic;
@@ -407,10 +406,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 		xmap.setValue("SET"+MAXWIDTH+number.toString(),"",maxWidth);
 		return getTriggerGapTime();
 	}	
-	
-	public int getDataType() {
-		return NexusGlobals.NX_FLOAT64;
-	}
 
 	@Override
 	public String getName() {

@@ -18,6 +18,7 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector;
 
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.areadetector.v17.ADBase;
@@ -120,8 +121,8 @@ public class CameraROINXPlugin implements NXPlugin{
 
 			@Override
 			public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
-				data.addData(detectorName, "region_origin", new int[]{minX_rbv, minY_rbv}, null);
-				data.addData(detectorName, "region_size", new int[]{sizeX_rbv, sizeY_rbv}, null);
+				data.addData(detectorName, "region_origin", new NexusGroupData(minX_rbv, minY_rbv));
+				data.addData(detectorName, "region_size", new NexusGroupData(sizeX_rbv, sizeY_rbv));
 				}
 			} : new NXDetectorDataNullAppender();
 		firstReadoutInScan = false; 

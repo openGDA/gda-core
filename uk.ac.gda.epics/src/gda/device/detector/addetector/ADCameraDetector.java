@@ -42,7 +42,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
-import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -271,7 +270,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 	public NexusTreeProvider readout() throws DeviceException {
 		NXDetectorData ndd = new NXDetectorData();
 		IntegerDataset image = readLastImage();
-		ndd.addData(getName(), image.getShape(), NexusGlobals.NX_INT32, image.getData(), null, null);
+		ndd.addData(getName(), new NexusGroupData(image.getShape(), image.getData()), null, null);
 		try {
 			ndd.setDoubleVals(new Double[] {new Double(array.getPluginBase().getArrayCounter_RBV())});
 		} catch (Exception e) {
