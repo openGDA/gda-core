@@ -162,6 +162,36 @@ public class NexusUtils {
 	}
 
 	/**
+	 * @param file
+	 * @param name
+	 * @param values
+	 * @throws NexusException
+	 */
+	public static void writeNexusIntegerAttribute(NexusFileInterface file, String name, Integer[] values) throws NexusException {
+		file.putattr(name, values, NexusGlobals.NX_INT32);
+	}
+
+	/**
+	 * @param file
+	 * @param name
+	 * @param values
+	 * @throws NexusException
+	 */
+	public static void writeNexusDoubleAttribute(NexusFileInterface file, String name, double... values) throws NexusException {
+		file.putattr(name, values, NexusGlobals.NX_FLOAT64);
+	}
+
+	/**
+	 * @param file
+	 * @param name
+	 * @param values
+	 * @throws NexusException
+	 */
+	public static void writeNexusDoubleAttribute(NexusFileInterface file, String name, Double[] values) throws NexusException {
+		file.putattr(name, values, NexusGlobals.NX_FLOAT64);
+	}
+
+	/**
 	 * Writes the integer 'value' into a field called 'name' at the current position in the NeXus file.
 	 * 
 	 * @param file
