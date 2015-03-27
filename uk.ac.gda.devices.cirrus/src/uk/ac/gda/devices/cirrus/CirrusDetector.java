@@ -18,7 +18,7 @@
 
 package uk.ac.gda.devices.cirrus;
 
-import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -29,8 +29,6 @@ import gda.device.scannable.ScannableStatus;
 import gda.factory.FactoryException;
 import mksAsciiComms.JMeasurement;
 import mksAsciiComms.JReadings;
-
-import gda.data.nexus.NexusGlobals;
 
 /**
  * Operates the Cirrus mass spectrometer in scans as a detector.
@@ -153,8 +151,6 @@ public class CirrusDetector extends DetectorBase implements NexusDetector {
 
 		JReadings pReadings = measurements.getData();
 		NXDetectorData nxdata = new NXDetectorData(this);
-		INexusTree detTree = nxdata.getDetTree(getName());
-		double[] results = new double[pReadings.getNumReadingsAvailable()];
 		double[][] dblFullResults = new double[pReadings.getNumReadingsAvailable()][2];
 
 		for (int i = 0; i < pReadings.getNumReadingsAvailable(); i++) {
@@ -165,9 +161,8 @@ public class CirrusDetector extends DetectorBase implements NexusDetector {
 			dblFullResults[i][1] = counts;
 			dblFullResults[i][0] = mass;
 		}
-		nxdata.addData(detTree, "masses", new int[] { results.length, 2 }, NexusGlobals.NX_FLOAT64, dblFullResults,
-				"mbar", 1);
-		
+		nxdata.addData(getName(), "masses", new NexusGroupData(dblFullResults), "mbar", 1);
+
 		return nxdata;
 
 	}
