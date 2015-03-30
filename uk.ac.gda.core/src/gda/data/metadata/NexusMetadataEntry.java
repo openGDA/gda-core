@@ -22,7 +22,9 @@ package gda.data.metadata;
 import gda.factory.Findable;
 
 /**
- * The Class NexusMetadataEntry.
+ * A NexusMetadataEntry references to a named metadata entry with an access name
+ * comprising a concatenated string of colon-separated (":") groups with each group possessing
+ * a name and an NXclass separated by a percentage sign ("%") 
  */
 public class NexusMetadataEntry implements Findable {
 	private String accessName = "";

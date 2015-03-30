@@ -1281,14 +1281,14 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			// Detectors with multiple extra names can act like countertimers
 
 			int[] dataDim = generateDataDim(true, scanDimensions, null);
+			boolean first = true;
+			for (String extra : detector.getExtraNames()) {
 
-			for (int j = 0; j < detector.getExtraNames().length; j++) {
-
-				file.makedata(detector.getExtraNames()[j], NexusGlobals.NX_FLOAT64, dataDim.length, dataDim);
+				file.makedata(extra, NexusGlobals.NX_FLOAT64, dataDim.length, dataDim);
 
 				// Get a link ID to this data set
-				file.opendata(detector.getExtraNames()[j]);
-				NexusUtils.writeNexusStringAttribute(file, "local_name", String.format("%s.%s", detectorName, detector.getExtraNames()[j]));
+				file.opendata(extra);
+				NexusUtils.writeNexusStringAttribute(file, "local_name", String.format("%s.%s", detectorName, extra));
 
 				SelfCreatingLink detectorID = new SelfCreatingLink(file.getdataID());
 				file.closedata();
@@ -1298,7 +1298,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				// close NXinstrument
 				file.closegroup();
 
-				if (j == 0) {
+				if (first) {
+					first = false;
 					// If this is the first channel then we need to create (and
 					// open) the NXdata item and link to the scannables.
 					file.makegroup(detector.getName(), "NXdata");
@@ -1320,7 +1321,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				// channel.
 				file.opengroup("instrument", "NXinstrument");
 				file.opengroup(detector.getName(), "NXdetector");
-
 			}
 
 		} else {
