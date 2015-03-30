@@ -51,11 +51,6 @@ public class FrelonImpl extends BaseImpl implements Frelon {
 	}
 
 	@Override
-	public void setESPIABoardNumber(short eSPIABoardNumber) throws DevFailed {
-		getTangoDeviceProxy().setAttribute(ATTRIBUTE_ESPIA_DEV_NB, eSPIABoardNumber);
-	}
-
-	@Override
 	public ImageMode getImageMode() throws DevFailed {
 		String val = getTangoDeviceProxy().getAttributeAsString(ATTRIBUTE_IMAGE_MODE);
 		if (val.equals(FRAME_TRANSFERT))

@@ -27,8 +27,6 @@ public interface Frelon extends Base {
 	
 	short getESPIABoardNumber() throws DevFailed;
 	
-	void setESPIABoardNumber(short eSPIABoardNumber) throws DevFailed;	
-
 	enum ImageMode {
 		FRAME_TRANSFERT, FULL_FRAME
 	}
