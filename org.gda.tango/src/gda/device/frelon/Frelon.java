@@ -20,7 +20,6 @@ package gda.device.frelon;
 
 import fr.esrf.Tango.DevFailed;
 import gda.device.base.Base;
-import gda.device.maxipix2.MaxiPix2.FillMode;
 
 public interface Frelon extends Base {
 
@@ -68,4 +67,6 @@ public interface Frelon extends Base {
 	void setSPB2Config(SPB2Config sPB2Config) throws DevFailed;	
 	
 	long getSeqStatus() throws DevFailed;
+	String[] execSerialCommand(String cmd) throws DevFailed;
+	void resetLink() throws DevFailed;
 }

@@ -21,6 +21,7 @@ package gda.device.frelon.impl;
 import fr.esrf.Tango.DevError;
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.ErrSeverity;
+import fr.esrf.TangoApi.DeviceData;
 import gda.device.base.impl.BaseImpl;
 import gda.device.frelon.Frelon;
 
@@ -224,4 +225,16 @@ public class FrelonImpl extends BaseImpl implements Frelon {
 		return getTangoDeviceProxy().getAttributeAsLong(SEQ_STATUS);
 	}
 
+	@Override
+	public String[] execSerialCommand(String cmd) throws DevFailed {
+		DeviceData argin = new DeviceData();
+		argin.insert(cmd);
+		DeviceData command_inout = getTangoDeviceProxy().command_inout("execSerialCommand", argin);
+		return command_inout.extractStringArray();
+	}
+
+	@Override
+	public void resetLink() throws DevFailed {
+		getTangoDeviceProxy().sendSimpleCommand("resetLink");		
+	}
 }
