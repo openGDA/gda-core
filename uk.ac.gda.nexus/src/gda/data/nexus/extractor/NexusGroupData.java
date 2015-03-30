@@ -41,17 +41,17 @@ public class NexusGroupData implements Serializable {
 
 	/**
 	 * This array may be used to indicate a preferred choice of chunking to the datawriter.
-	 * The datawriter might well ignore that though (for now all will). 
+	 * The data-writer might well ignore that though (for now all will). 
 	 */
 	public int[] chunkDimensions = null;
 
 	/**
-	 * type of data e.g. NexusGlobals.NX_CHAR
+	 * type of data for output e.g. NexusGlobals.NX_CHAR
 	 */
 	private final int type;
 
 	/**
-	 * Setting this can advise a datawriter to use the specified compression algorithm
+	 * Setting this can advise a data-writer to use the specified compression algorithm
 	 * for a choice see:
 	 * 
 	 * NexusGlobals.NX_COMP_*
@@ -67,7 +67,7 @@ public class NexusGroupData implements Serializable {
 
 	/**
 	 * @param dimensions
-	 * @param type
+	 * @param type specified for output
 	 * @param data
 	 */
 	public NexusGroupData(int[] dimensions, int type, Serializable data) {
@@ -514,4 +514,57 @@ public class NexusGroupData implements Serializable {
 		return true;
 	}
 
+	private NexusGroupData asType(int type) {
+		if (this.type == type)
+			return this;
+
+		NexusGroupData ngd = new NexusGroupData(dimensions, type, data);
+		ngd.chunkDimensions = chunkDimensions;
+		ngd.isDetectorEntryData = isDetectorEntryData;
+		ngd.isUnsigned = isUnsigned;
+		return ngd;
+	}
+
+	/**
+	 * @return data with output type as float
+	 */
+	public NexusGroupData asFloat() {
+		return asType(NexusGlobals.NX_FLOAT32);
+	}
+
+	
+	/**
+	 * @return data with output type as double
+	 */
+	public NexusGroupData asDouble() {
+		return asType(NexusGlobals.NX_FLOAT64);
+	}
+
+	/**
+	 * @return data with output type as byte
+	 */
+	public NexusGroupData asByte() {
+		return asType(NexusGlobals.NX_INT8);
+	}
+
+	/**
+	 * @return data with output type as short
+	 */
+	public NexusGroupData asShort() {
+		return asType(NexusGlobals.NX_INT16);
+	}
+
+	/**
+	 * @return data with output type as integer
+	 */
+	public NexusGroupData asInt() {
+		return asType(NexusGlobals.NX_INT32);
+	}
+
+	/**
+	 * @return data with output type as long
+	 */
+	public NexusGroupData asLong() {
+		return asType(NexusGlobals.NX_INT64);
+	}
 }
