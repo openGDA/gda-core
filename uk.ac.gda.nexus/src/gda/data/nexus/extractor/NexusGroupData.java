@@ -78,6 +78,39 @@ public class NexusGroupData implements Serializable {
 	}
 
 	/**
+	 * @param dimensions
+	 * @param data
+	 */
+	public NexusGroupData(int[] dimensions, Serializable data) {
+		super();
+		this.dimensions = dimensions;
+		this.data = data;
+		if (data.getClass().isArray()) {
+			if (data instanceof boolean[] || data instanceof Boolean[]) {
+				type = NexusGlobals.NX_INT8;
+			} else if (data instanceof byte[] || data instanceof Byte[]) {
+				type = NexusGlobals.NX_INT8;
+			} else if (data instanceof short[] || data instanceof Short[]) {
+				type = NexusGlobals.NX_INT16;
+			} else if (data instanceof int[] || data instanceof Integer[]) {
+				type = NexusGlobals.NX_INT32;
+			} else if (data instanceof long[] || data instanceof Long[]) {
+				type = NexusGlobals.NX_INT64;
+			} else if (data instanceof float[] || data instanceof Float[]) {
+				type = NexusGlobals.NX_FLOAT32;
+			} else if (data instanceof double[] || data instanceof Double[]) {
+				type = NexusGlobals.NX_FLOAT64;
+			} else {
+				type = NexusGlobals.NX_UNLIMITED;
+				throw new IllegalArgumentException("Unknown class of serializable array");
+			}
+		} else {
+			type = NexusGlobals.NX_UNLIMITED;
+			throw new IllegalArgumentException("Serializable must be an array");
+		}
+	}
+
+	/**
 	 * @param s String from which to make a NexusGroupData
 	 */
 	public NexusGroupData(String s) {
