@@ -30,9 +30,6 @@ import gda.factory.FactoryException;
 import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
-
-import gda.data.nexus.NexusGlobals;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -354,7 +351,7 @@ public class Xspress1System extends XspressSystem {
 	private NXDetectorData addDTValuesToNXDetectorData(NXDetectorData thisFrame, long[] unpackedScalerData) {
 		// always add raw scaler values to nexus data
 		thisFrame.addData(getName(), "raw scaler values",
-				new NexusGroupData(new int[] { unpackedScalerData.length }, NexusGlobals.NX_INT32, unpackedScalerData), "counts", 1);
+				new NexusGroupData(unpackedScalerData).asInt(), "counts", 1);
 
 		return thisFrame;
 	}
