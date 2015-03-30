@@ -22,6 +22,7 @@ import gda.data.nexus.NexusGlobals;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 import org.slf4j.Logger;
@@ -48,7 +49,7 @@ public class NexusGroupData implements Serializable {
 	/**
 	 * type of data for output e.g. NexusGlobals.NX_CHAR
 	 */
-	private final int type;
+	private int type;
 
 	/**
 	 * Setting this can advise a data-writer to use the specified compression algorithm
@@ -65,13 +66,15 @@ public class NexusGroupData implements Serializable {
 
 	private boolean isUnsigned = false;
 
+	NexusGroupData() {
+	}
+
 	/**
 	 * @param dimensions
 	 * @param type specified for output
 	 * @param data
 	 */
 	NexusGroupData(int[] dimensions, int type, Serializable data) {
-		super();
 		this.dimensions = dimensions;
 		this.type = type;
 		this.data = data;
@@ -82,7 +85,6 @@ public class NexusGroupData implements Serializable {
 	 * @param data
 	 */
 	public NexusGroupData(int[] dimensions, Serializable data) {
-		super();
 		this.dimensions = dimensions;
 		this.data = data;
 		if (data.getClass().isArray()) {
@@ -114,7 +116,6 @@ public class NexusGroupData implements Serializable {
 	 * @param s String from which to make a NexusGroupData
 	 */
 	public NexusGroupData(String s) {
-		super();
 		try {
 			data = s.getBytes("UTF-8");
 		} catch (UnsupportedEncodingException e) {
@@ -130,7 +131,6 @@ public class NexusGroupData implements Serializable {
 	 * @param s String from which to make a NexusGroupData
 	 */
 	public NexusGroupData(int length, String s) {
-		super();
 		try {
 			data = Arrays.copyOf(s.getBytes("UTF-8"), length);
 		} catch (UnsupportedEncodingException e) {
@@ -145,7 +145,6 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int[] dims, byte... b) {
-		super();
 		dimensions = dims;
 		data = b;
 		type = NexusGlobals.NX_INT8;
@@ -156,14 +155,12 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int[] dims, short... s) {
-		super();
 		dimensions = dims;
 		data = s;
 		type = NexusGlobals.NX_INT16;
 	}
 
 	public NexusGroupData(short[][] s) {
-		super();
 		dimensions = new int[] {s.length, s[0].length};
 		data = s;
 		type = NexusGlobals.NX_INT16;
@@ -174,21 +171,18 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int[] dims, int... i) {
-		super();
 		dimensions = dims;
 		data = i;
 		type = NexusGlobals.NX_INT32;
 	}
 
 	public NexusGroupData(int[][] i) {
-		super();
 		dimensions = new int[] {i.length, i[0].length};
 		data = i;
 		type = NexusGlobals.NX_INT32;
 	}
 
 	public NexusGroupData(int[][][] i) {
-		super();
 		dimensions = new int[] {i.length, i[0].length, i[0][0].length};
 		data = i;
 		type = NexusGlobals.NX_INT32;
@@ -199,7 +193,6 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int[] dims, long... l) {
-		super();
 		dimensions = dims;
 		data = l;
 		type = NexusGlobals.NX_INT64;
@@ -214,7 +207,6 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int[] dims, float... f) {
-		super();
 		dimensions = dims;
 		data = f;
 		type = NexusGlobals.NX_FLOAT32;
@@ -225,21 +217,18 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int[] dims, double... d) {
-		super();
 		dimensions = dims;
 		data = d;
 		type = NexusGlobals.NX_FLOAT64;
 	}
 
 	public NexusGroupData(double[][] d) {
-		super();
 		dimensions = new int[] {d.length, d[0].length};
 		data = d;
 		type = NexusGlobals.NX_FLOAT64;
 	}
 
 	public NexusGroupData(double[][][] d) {
-		super();
 		dimensions = new int[] {d.length, d[0].length, d[0][0].length};
 		data = d;
 		type = NexusGlobals.NX_FLOAT64;
@@ -345,7 +334,7 @@ public class NexusGroupData implements Serializable {
 				if (wrap)
 					msg.append("</value>");
 				if (newlineAfterEach) {
-					msg.append("\n");
+					msg.append('\n');
 				}
 			} else if (type == NexusGlobals.NX_CHAR && data instanceof String[]) {
 				if (wrap)
@@ -355,103 +344,109 @@ public class NexusGroupData implements Serializable {
 				if (wrap)
 					msg.append("</value>");
 				if (newlineAfterEach) {
-					msg.append("\n");
+					msg.append('\n');
 				}
 			} else {
 				if (dataAsString) {
 					if (wrap)
 						msg.append("<value>");
-					if (data instanceof double[]) {
-						double[] ddata = (double[]) (data);
-						for (double d : ddata) {
-							msg.append(Double.toString(d) + ",");
+					if (data instanceof byte[]) {
+						for (byte d : (byte[]) data) {
+							msg.append(Byte.toString(d));
+							msg.append(',');
 						}
-						msg.deleteCharAt(msg.length()-1);
+					} else if (data instanceof short[]) {
+						for (short d : (short[]) data) {
+							msg.append(Short.toString(d));
+							msg.append(',');
+						}
 					} else if (data instanceof int[]) {
-						int[] ddata = (int[]) (data);
-						for (int d : ddata) {
-							msg.append(Integer.toString(d) + ",");
+						for (int d : (int[]) data) {
+							msg.append(Integer.toString(d));
+							msg.append(',');
 						}
-						msg.deleteCharAt(msg.length()-1);
-					} else if (data instanceof byte[]) {
-						byte[] ddata = (byte[]) (data);
-						for (byte d : ddata) {
-							msg.append(Byte.toString(d) + ",");
-						}
-						msg.deleteCharAt(msg.length()-1);
-					} else if (data instanceof float[]) {
-						float[] ddata = (float[]) (data);
-						for (float d : ddata) {
-							msg.append(Float.toString(d) + ",");
-						}
-						msg.deleteCharAt(msg.length()-1);
 					} else if (data instanceof long[]) {
-						long[] ddata = (long[]) (data);
-						for (long d : ddata) {
-							msg.append(Long.toString(d) + ",");
+						for (long d : (long[]) data) {
+							msg.append(Long.toString(d));
+							msg.append(',');
 						}
-						msg.deleteCharAt(msg.length()-1);
+					} else if (data instanceof float[]) {
+						for (float d : (float[]) data) {
+							msg.append(Float.toString(d));
+							msg.append(',');
+						}
+					} else if (data instanceof double[]) {
+						for (double d : (double[]) data) {
+							msg.append(Double.toString(d));
+							msg.append(',');
+						}
 					} else {
 						msg.append(data.toString());
+						msg.append(',');
 					}
+					msg.deleteCharAt(msg.length()-1);
 					if (wrap)
 						msg.append("</value>");
 					if (newlineAfterEach) {
-						msg.append("\n");
+						msg.append('\n');
 					}
 				} else {
 					msg.append("<values>");
 					if (newlineAfterEach) {
-						msg.append("\n");
+						msg.append('\n');
 					}
-					if (data instanceof double[]) {
-						double[] ddata = (double[]) (data);
-						for (double d : ddata) {
-							msg.append("<value>");
-							msg.append(Double.toString(d));
-							msg.append("</value>");
-							if (newlineAfterEach) {
-								msg.append("\n");
-							}
-						}
-					} else if (data instanceof int[]) {
-						int[] ddata = (int[]) (data);
-						for (int d : ddata) {
-							msg.append("<value>");
-							msg.append(Integer.toString(d));
-							msg.append("</value>");
-							if (newlineAfterEach) {
-								msg.append("\n");
-							}
-						}
-					} else if (data instanceof byte[]) {
-						byte[] ddata = (byte[]) (data);
-						for (byte d : ddata) {
+					if (data instanceof byte[]) {
+						for (byte d : (byte[]) data) {
 							msg.append("<value>");
 							msg.append(Byte.toString(d));
 							msg.append("</value>");
 							if (newlineAfterEach) {
-								msg.append("\n");
+								msg.append('\n');
 							}
 						}
-					} else if (data instanceof float[]) {
-						float[] ddata = (float[]) (data);
-						for (float d : ddata) {
+					} else if (data instanceof short[]) {
+						for (short d : (short[]) data) {
 							msg.append("<value>");
-							msg.append(Float.toString(d));
+							msg.append(Short.toString(d));
 							msg.append("</value>");
 							if (newlineAfterEach) {
-								msg.append("\n");
+								msg.append('\n');
+							}
+						}
+					} else if (data instanceof int[]) {
+						for (int d : (int[]) data) {
+							msg.append("<value>");
+							msg.append(Integer.toString(d));
+							msg.append("</value>");
+							if (newlineAfterEach) {
+								msg.append('\n');
 							}
 						}
 					} else if (data instanceof long[]) {
-						long[] ddata = (long[]) (data);
-						for (long d : ddata) {
+						for (long d : (long[]) data) {
 							msg.append("<value>");
 							msg.append(Long.toString(d));
 							msg.append("</value>");
 							if (newlineAfterEach) {
-								msg.append("\n");
+								msg.append('\n');
+							}
+						}
+					} else if (data instanceof float[]) {
+						for (float d : (float[]) data) {
+							msg.append("<value>");
+							msg.append(Float.toString(d));
+							msg.append("</value>");
+							if (newlineAfterEach) {
+								msg.append('\n');
+							}
+						}
+					} else if (data instanceof double[]) {
+						for (double d : (double[]) data) {
+							msg.append("<value>");
+							msg.append(Double.toString(d));
+							msg.append("</value>");
+							if (newlineAfterEach) {
+								msg.append('\n');
 							}
 						}
 					} else {
@@ -459,7 +454,7 @@ public class NexusGroupData implements Serializable {
 					}
 					msg.append("</values>");
 					if (newlineAfterEach) {
-						msg.append("\n");
+						msg.append('\n');
 					}
 				}
 			}
@@ -479,40 +474,57 @@ public class NexusGroupData implements Serializable {
 
 		Serializable value;
 
-		// promote to int or double if possible
-		switch (type) {
-		case NexusGlobals.NX_CHAR:
-			if (data instanceof String)
-				value = data;
-			else if (data instanceof String[])
-				value = ((String [])data)[0];
-			else
-				value = new String((byte[]) data);
-			break;
-		case NexusGlobals.NX_FLOAT64:
-			value = ((double[]) data)[0];
-			break;
-		case NexusGlobals.NX_FLOAT32:
-			value = (double) ((float[]) data)[0];
-			break;
-		case NexusGlobals.NX_INT64:
-			value = ((long[]) data)[0];
-			break;
-		case NexusGlobals.NX_INT32:
-			value = ((int[]) data)[0];
-			break;
-		case NexusGlobals.NX_INT16:
-			value = (int) ((short[]) data)[0];
-			break;
-		case NexusGlobals.NX_INT8:
-			value = (int) ((byte[]) data)[0];
-			break;
-		default:
-			value = null;
-			break;
+		if (data.getClass().isArray()) {
+			if (type == NexusGlobals.NX_CHAR) { // reinterpret byte arrays as String 
+				return getStringFromArray(data);
+			}
+			value = getFromArray(data);
+			if (value == null)
+				return value;
+		} else {
+			value = data;
+		}
+
+		Class<? extends Serializable> clazz = value.getClass();
+		if (type == NexusGlobals.NX_BOOLEAN) {
+			if (!clazz.equals(Boolean.class) || !clazz.equals(boolean.class)) {
+				value = !value.equals(0);
+			}
+		} else {
+			// promote to integers and doubles if possible
+			if (clazz.equals(byte.class) || clazz.equals(Byte.class)) {
+				value = ((Byte) value).intValue();
+			} else if (clazz.equals(short.class) || clazz.equals(Short.class)) {
+				value = ((Short) value).intValue();
+			} else if (clazz.equals(float.class) || clazz.equals(Float.class)) {
+				value = ((Float) value).doubleValue();
+			}
 		}
 
 		return value;
+	}
+
+	private static Serializable getFromArray(Serializable array) {
+		Serializable a = (Serializable) Array.get(array, 0);
+		if (a == null)
+			return null;
+		if (a.getClass().isArray())
+			return getFromArray(a);
+		return a;
+	}
+
+	private static String getStringFromArray(Serializable array) {
+		if (array instanceof byte[]) {
+			return new String((byte[]) array);
+		}
+		Serializable a = (Serializable) Array.get(array, 0);
+		if (a == null)
+			return null;
+		if (a instanceof String)
+			return (String) a;
+		if (a.getClass().isArray())
+			return getStringFromArray(a);
+		return null;
 	}
 
 	@Override
