@@ -25,7 +25,6 @@ import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.data.metadata.Metadata;
-import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.IDataWriterExtender;
@@ -82,7 +81,7 @@ public class FileRegistrarTest {
 		Detector simpleDetector = TestHelpers.createTestDetector("SimpleDetector", 0.,
 				new String[] { "simpleDetector1" }, new String[] {}, 0, new String[] { "%5.2g", "%5.2g", "%5.2g",
 						"%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g" }, TestHelpers
-						.createTestNexusGroupData(dims1, NexusGlobals.NX_FLOAT64, data1In, true), null, "description1",
+						.createTestNexusGroupData(dims1, data1In, true), null, "description1",
 				"detectorID1", "detectorType1");
 
 		Detector simpleFileDetector = TestHelpers.createTestFileDetector("simpleDetector1", 0, "HLK%05X.mp3",

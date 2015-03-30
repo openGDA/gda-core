@@ -78,8 +78,8 @@ public class ScanToNexusTest {
 
 		Detector simpleDetector1 = TestHelpers.createTestDetector("SimpleDetector1", 0., new String[] {},
 				new String[] {}, 0, new String[] { "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g",
-						"%5.2g", "%5.2g", "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1, NexusGlobals.NX_FLOAT64,
-						data1In, true), null, "description1", "detectorID1", "detectorType1");
+						"%5.2g", "%5.2g", "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1, data1In, true),
+						null, "description1", "detectorID1", "detectorType1");
 
 		Object[] args = new Object[] { simpleScannable1, 0., 10., 1., simpleScannable2, simpleDetector1 };
 		ConcurrentScan scan = new ConcurrentScan(args);
@@ -109,8 +109,8 @@ public class ScanToNexusTest {
 		}
 
 		Detector simpleDetector1 = TestHelpers.createTestDetector("SimpleDetector1", 0., new String[] {},
-				new String[] {}, 0, new String[] { "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1,
-						NexusGlobals.NX_FLOAT64, data1In, true), null, "description1", "detectorID1", "detectorType1");
+				new String[] {}, 0, new String[] { "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1, data1In, true),
+				null, "description1", "detectorID1", "detectorType1");
 
 		Object[] args = new Object[] { simpleScannable1, 0., 1, 1., simpleScannable2, 0., 2, 1., simpleScannable3, 0.,
 				3, 1., simpleDetector1 };

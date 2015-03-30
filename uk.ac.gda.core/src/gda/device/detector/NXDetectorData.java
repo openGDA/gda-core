@@ -19,7 +19,6 @@
 
 package gda.device.detector;
 
-import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -271,7 +270,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param isDetectorEntryData  Flag to indicate that when writing this value to a file the entry is to linked to the 
 	 * NXEntry/NXDetector section as a variable of the scan
 	 */
-	public NexusTreeNode addFileNames(String detName, String nodeName, String []filenames, boolean isPointDependent, boolean isDetectorEntryData){
+	public NexusTreeNode addFileNames(String detName, String nodeName, String[] filenames, boolean isPointDependent, boolean isDetectorEntryData){
 
 		int[] dimensions = filenames.length == 1 ? new int[]{MAX_DATAFILENAME } : new int[]{filenames.length,MAX_DATAFILENAME };
 		byte filenameBytes[] = new byte[MAX_DATAFILENAME * filenames.length];
@@ -286,7 +285,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		}
 		
 		INexusTree detTree = getDetTree(detName);
-		NexusGroupData file_name_sds = new NexusGroupData(dimensions, NexusGlobals.NX_CHAR,filenameBytes);
+		NexusGroupData file_name_sds = new NexusGroupData(dimensions, filenameBytes).asChar();
 		NexusTreeNode file_name = new NexusTreeNode(nodeName, NexusExtractor.SDSClassName, null,file_name_sds);
 		file_name.setIsPointDependent(isPointDependent);
 		file_name_sds.isDetectorEntryData=isDetectorEntryData;

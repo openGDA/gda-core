@@ -21,15 +21,12 @@ package gda.scan;
 import static org.junit.Assert.assertEquals;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.jython.commands.ScannableCommands;
 
 import org.junit.Test;
-
-import gda.data.nexus.NexusGlobals;
-import gda.data.nexus.extractor.NexusExtractor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -158,8 +155,8 @@ public class ScanPlotSettingsScanTest {
 		}
 
 		Detector simpleDetector1 = TestHelpers.createTestDetector("SimpleDetector1", 0., new String[] { "SD1" },
-				new String[] {}, 0, new String[] { "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1,
-						NexusGlobals.NX_FLOAT64, data1In, true), null, "description1", "detectorID1", "detectorType1");
+				new String[] {}, 0, new String[] { "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1, data1In, true),
+				null, "description1", "detectorID1", "detectorType1");
 
 		Object[] args = nested ? new Object[] { simpleScannable1, new Double[] { 0., 0. }, new Double[] { 10., 10. },
 				new Double[] { 1., 1. }, simpleScannable2, new Double[] { 0., 0. }, new Double[] { 10., 10. },

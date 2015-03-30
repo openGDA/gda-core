@@ -201,14 +201,14 @@ public class TestHelpers {
 				description, detectorID, detectorType);
 	}
 
-	public static NexusGroupData createTestNexusGroupData(int[] dimensions, int type, Serializable data,
+	public static NexusGroupData createTestNexusGroupData(int[] dimensions, Serializable data,
 			boolean useSuperToString) {
-		return createTestNexusGroupData(dimensions, type, data, useSuperToString, true);
+		return createTestNexusGroupData(dimensions, data, useSuperToString, true);
 	}
 
-	public static NexusGroupData createTestNexusGroupData(int[] dimensions, int type, Serializable data,
+	public static NexusGroupData createTestNexusGroupData(int[] dimensions, Serializable data,
 			boolean useSuperToString, boolean isDetectorEntryData) {
-		NexusGroupData nexusGroupData = new Data(dimensions, type, data, useSuperToString);
+		NexusGroupData nexusGroupData = new Data(dimensions, data, useSuperToString);
 		nexusGroupData.isDetectorEntryData = isDetectorEntryData;
 		return nexusGroupData;
 	}
@@ -893,8 +893,8 @@ class TestNXDetectorData extends NXDetectorData {
 class Data extends NexusGroupData {
 	boolean useSuperToString;
 
-	Data(int[] dimensions, int type, Serializable data, boolean useSuperToString) {
-		super(dimensions, type, data);
+	Data(int[] dimensions, Serializable data, boolean useSuperToString) {
+		super(dimensions, data);
 		this.useSuperToString = useSuperToString;
 	}
 

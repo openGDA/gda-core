@@ -20,7 +20,6 @@ package gda.scan;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
-import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.Detector;
@@ -91,7 +90,7 @@ public class MultiScanTest {
 		
 		Detector det = TestHelpers.createTestDetector("htd", 0., new String[] {},
 				new String[] { "htd" }, 0, outputFormat, TestHelpers.createTestNexusGroupData(
-						dims2, NexusGlobals.NX_INT32, data2In, true), null, "description2", "detectorID2",
+						dims2, data2In, true), null, "description2", "detectorID2",
 				"detectorType2");	
 		
 		ConcurrentScan scan2 = new ConcurrentScan(new Object[]{simpleScannable2, 0, 20, 2, det, .1});
