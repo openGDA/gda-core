@@ -49,6 +49,7 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 	 static final String ATTRIBUTE_ACQ_NB_FRAMES = "acq_nb_frames";
 	 static final String ATTRIBUTE_LIMA_TYPE = "lima_type";
 	 static final String ATTRIBUTE_CAMERA_TYPE = "camera_type";
+	 static final String ATTRIBUTE_CAMERA_PIXEL_SIZE = "camera_pixelsize";
 	 static final String ATTRIBUTE_CAMERA_MODEL = "camera_model";
 	 static final String ATTRIBUTE_ACQ_STATUS = "acq_status";
 	 static final String ATTRIBUTE_DEBUG_MODULES = "debug_modules";
@@ -129,6 +130,8 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 	 static final String ACQMODE_CONCATENATION = "CONCATENATION";
 	 static final String ACQMODE_SINGLE = "SINGLE";
 
+	 static final String ATTRIBUTE_VALID_RANGES = "valid_ranges";
+
 	@Override
 	public String getLimaType() throws DevFailed {
 		return getTangoDeviceProxy().getAttributeAsString(ATTRIBUTE_LIMA_TYPE);
@@ -139,6 +142,11 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 		return getTangoDeviceProxy().getAttributeAsString(ATTRIBUTE_CAMERA_TYPE);
 	}
 
+	@Override
+	public double[] getCameraPixelSize() throws DevFailed {
+		return getTangoDeviceProxy().getAttributeAsDoubleArray(ATTRIBUTE_CAMERA_PIXEL_SIZE);
+	}
+	
 	@Override
 	public String getCameraModel() throws DevFailed {
 		return getTangoDeviceProxy().getAttributeAsString(ATTRIBUTE_CAMERA_MODEL);
@@ -250,6 +258,11 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 	@Override
 	public void setLatencyTime(double latencyTime) throws DevFailed {
 		getTangoDeviceProxy().setAttribute(ATTRIBUTE_LATENCY_TIME, latencyTime);
+	}
+
+	@Override
+	public double[] getValidRanges() throws DevFailed {
+		return getTangoDeviceProxy().getAttributeAsDoubleArray(ATTRIBUTE_VALID_RANGES);
 	}
 
 	@Override
@@ -748,4 +761,5 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 	public void reset() throws DevFailed {
 		sendSimpleCommand(COMMAND_RESET);
 	}
+
 }

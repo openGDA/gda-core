@@ -19,7 +19,9 @@
 package gda.device.lima.impl;
 
 import gda.device.lima.LimaROIInt;
-
+/**
+ * Area of interest in unit of bin size.
+ */
 public class LimaROIIntImpl implements LimaROIInt {
 
 	int [] data = new int[]{0,0,0,0};

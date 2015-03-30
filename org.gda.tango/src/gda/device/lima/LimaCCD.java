@@ -43,6 +43,8 @@ public interface LimaCCD extends Base {
 	String getLimaType() throws DevFailed;
 
 	String getCameraType() throws DevFailed;
+	
+	double[] getCameraPixelSize() throws DevFailed;
 
 	String getCameraModel() throws DevFailed;
 
@@ -53,7 +55,8 @@ public interface LimaCCD extends Base {
 	AcqStatus getAcqStatus() throws DevFailed;
 
 	enum AcqMode {
-		SINGLE, CONCATENATION, 
+		SINGLE, //the default mode, one frame per image 
+		CONCATENATION, // frames are concatenated in the image
 		/**
 		 * ACCUMULATION mode 
 		 * To use this mode you have to:
@@ -72,10 +75,10 @@ public interface LimaCCD extends Base {
 		 * images which means the detector will take 20 x 2 frames but accumulated
 		 * into 2 images.
 		 * The accumulation mode has been implemented to allow long exposure time
-		 * without satured  the detector, as you may know the maxipix detector is
+		 * without saturating the detector, as you may know the maxipix detector is
 		 * limited in depth (11 bits).
 		 */
-		ACCUMULATION
+		ACCUMULATION // the exposure is shared by multiple frames to avoid pixel saturation
 	}
 
 	AcqMode getAcqMode() throws DevFailed;
@@ -83,49 +86,114 @@ public interface LimaCCD extends Base {
 	void setAcqMode(AcqMode mode) throws DevFailed;
 
 	int getAcqNbFrames() throws DevFailed;
-
+	/**
+	 * set number of frames to be acquired. default is 1 frame.
+	 * @param acqNbFrames
+	 * @throws DevFailed
+	 */
 	void setAcqNbFrames(Integer acqNbFrames) throws DevFailed;
 
 	enum AcqTriggerMode {
-		INTERNAL_TRIGGER, EXTERNAL_TRIGGER, EXTERNAL_TRIGGER_MULTI, INTERNAL_TRIGGER_MULTI, EXTERNAL_GATE, EXTERNAL_START_STOP
+		INTERNAL_TRIGGER,// software trigger, start immediately after acqStart() called, all acq_nb_frames are acquired in a sequence 
+		EXTERNAL_TRIGGER,//wait for an external trigger signal to start acquisition for the acq_nb_frames number of frames
+		EXTERNAL_TRIGGER_MULTI,// wait for multiple external triggers, one for each frame of the acquisition
+		INTERNAL_TRIGGER_MULTI,// software triggers need to call acqStart() for each frame
+		EXTERNAL_GATE,//wait for a gate signal for each frame, the gate period is the exposure time
+		EXTERNAL_START_STOP //???
 	}
 
 	AcqTriggerMode getAcqTriggerMode() throws DevFailed;
 
 	void setAcqTriggerMode(AcqTriggerMode mode) throws DevFailed;
-
+	/**
+	 * return the latency time between 2 frame acquired.
+	 * @return the latency time
+	 * @throws DevFailed
+	 */
 	double getLatencyTime() throws DevFailed;
-
+	/**
+	 * set the latency time between 2 frames to be acquired. This cannot be zero, the minimum time is the readout time of the detector.
+	 * @param latencyTime
+	 * @throws DevFailed
+	 */
 	void setLatencyTime(double latencyTime) throws DevFailed;
-
+	/**
+	 * valid ranges for exposure and latency times as array of double in the format of 
+	 * [min_exposure,max_exposure, min_latency, max_latency]
+	 * @return [min_exposure,max_exposure, min_latency, max_latency]
+	 * @throws DevFailed
+	 */
+	double[] getValidRanges() throws DevFailed;
+	/**
+	 * return the expsoure time of a image, default is 1 second.
+	 * @return exposure time
+	 * @throws DevFailed
+	 */
 	double getAcqExpoTime() throws DevFailed;
-
+	/**
+	 * set the exposure time of a image in the detector, default is 1 second.
+	 * @param acqExpoTime
+	 * @throws DevFailed
+	 */
 	void setAcqExpoTime(double acqExpoTime) throws DevFailed;
-
+	/**
+	 * return the effective accumulation total exposure time.
+	 * @return effective accumulation time
+	 * @throws DevFailed
+	 */
 	double getAccExpoTime() throws DevFailed;
-
+	/**
+	 * return the calculated accumulation number of frames per image. 
+	 * @return the calculated accumulation number
+	 * @throws DevFailed
+	 */
 	int getAccNbFrames() throws DevFailed;
-
+	/**
+	 * get the maximum exposure time per frame for accumulation.
+	 * @return time
+	 * @throws DevFailed
+	 */
 	double getAccMaxExpoTime() throws DevFailed;
-
+	/**
+	 * set the maximum exposure time per frame for accumulation.
+	 * @param accMaxExpoTime
+	 * @throws DevFailed
+	 */
 	void setAccMaxExpoTime(double accMaxExpoTime) throws DevFailed;
 
 	enum AccTimeMode {
-		LIVE, REAL
+		LIVE, //acq_expo_time=acc_live_time, acc_dead_time is extra
+		REAL  //acq_expo_time=acc_live_time + acc_dead_time
 	}
 
 	AccTimeMode getAccTimeMode() throws DevFailed;
-
+	/**
+	 * set the accumulation time mode.
+	 * @param accTimeMode
+	 * @throws DevFailed
+	 */
 	void setAccTimeMode(AccTimeMode accTimeMode) throws DevFailed;
-
+	/**
+	 * get the total accumulation dead time in a acquisition.
+	 * @return total accumulation dead time
+	 * @throws DevFailed
+	 */
 	double getAccDeadTime() throws DevFailed;
-
+	/**
+	 * get the total accumulation live time, which is the detector total counting time.
+	 * @return total accumulation live time - the actual detector exposure time.
+	 * @throws DevFailed
+	 */
 	double getAccLiveTime() throws DevFailed;
 
 	enum ImageType {
 		BPP8, BPP8S, BPP10, BPP10S, BPP12, BPP12S, BPP14, BPP14S, BPP16, BPP16S, BPP32, BPP32S
 	}
-
+	/**
+	 * returns the current image data type - bit per pixel, signed or unsigned.
+	 * @return {@link ImageType}
+	 * @throws DevFailed
+	 */
 	ImageType getImageType() throws DevFailed;
 
 	long getImageWidth() throws DevFailed;
