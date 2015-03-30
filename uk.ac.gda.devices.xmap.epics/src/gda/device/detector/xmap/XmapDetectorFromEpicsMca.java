@@ -539,9 +539,9 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 
 			// Real and live time
 			float[] realAndLiveTime = getRealAndLiveTime(element);
-			NXDetectorData.addData(detTree, thisElement.getName()+"_realtime", new NexusGroupData(realAndLiveTime[0]).asFloat(), "s", 1);
+			NXDetectorData.addData(detTree, thisElement.getName()+"_realtime", new NexusGroupData((double) realAndLiveTime[0]), "s", 1);
 			output.setPlottableValue(thisElement.getName()+"_realtime", (double) realAndLiveTime[0]);
-			NXDetectorData.addData(detTree, thisElement.getName()+"_livetime", new NexusGroupData(realAndLiveTime[1]).asFloat(), "s", 1);
+			NXDetectorData.addData(detTree, thisElement.getName()+"_livetime", new NexusGroupData((double) realAndLiveTime[1]), "s", 1);
 			output.setPlottableValue(thisElement.getName()+"_livetime", (double) realAndLiveTime[1]);
 			
 			Analyser analyser = analysers.get(element);
