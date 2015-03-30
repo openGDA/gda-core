@@ -18,7 +18,6 @@
 
 package gda.device.detector.ccd;
 
-import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
@@ -51,13 +50,11 @@ public class NexusTangoCcd extends TangoCcd implements  NexusDetector {
 		int height = (Integer) getAttribute("Height");
 		short depth = (Short) getAttribute("Depth");
 		if (byteData != null) {
-			// XXX does NGD cope with interpreting "data" that does not match type? 
-			if (depth == 1) {
-				ngd = new NexusGroupData(new int[] { width, height }, NexusGlobals.NX_INT8, byteData);
-			} else if (depth == 2) {
-				ngd = new NexusGroupData(new int[] { width, height }, NexusGlobals.NX_INT16, byteData);
-			} else {
-				ngd = new NexusGroupData(new int[] { width, height }, NexusGlobals.NX_INT32, byteData);
+			ngd = new NexusGroupData(new int[] { width, height }, byteData);
+			if (depth == 2) {
+				ngd = ngd.asShort();
+			} else if (depth != 1) {
+				ngd = ngd.asInt();
 			}
 			ngd.isDetectorEntryData = true;
 			nxdata.addData(getName(), ngd, "counts", 1);
