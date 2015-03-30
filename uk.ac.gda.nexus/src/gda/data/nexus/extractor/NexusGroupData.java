@@ -70,7 +70,7 @@ public class NexusGroupData implements Serializable {
 	 * @param type specified for output
 	 * @param data
 	 */
-	public NexusGroupData(int[] dimensions, int type, Serializable data) {
+	NexusGroupData(int[] dimensions, int type, Serializable data) {
 		super();
 		this.dimensions = dimensions;
 		this.type = type;
@@ -559,18 +559,10 @@ public class NexusGroupData implements Serializable {
 	}
 
 	/**
-	 * @return data with output type as float
+	 * @return data with output type as char
 	 */
-	public NexusGroupData asFloat() {
-		return asType(NexusGlobals.NX_FLOAT32);
-	}
-
-	
-	/**
-	 * @return data with output type as double
-	 */
-	public NexusGroupData asDouble() {
-		return asType(NexusGlobals.NX_FLOAT64);
+	public NexusGroupData asChar() {
+		return asType(NexusGlobals.NX_CHAR);
 	}
 
 	/**
@@ -599,5 +591,20 @@ public class NexusGroupData implements Serializable {
 	 */
 	public NexusGroupData asLong() {
 		return asType(NexusGlobals.NX_INT64);
+	}
+
+	/**
+	 * @return data with output type as float
+	 */
+	public NexusGroupData asFloat() {
+		return asType(NexusGlobals.NX_FLOAT32);
+	}
+
+	
+	/**
+	 * @return data with output type as double
+	 */
+	public NexusGroupData asDouble() {
+		return asType(NexusGlobals.NX_FLOAT64);
 	}
 }
