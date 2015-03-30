@@ -18,6 +18,7 @@
 
 package org.opengda.detector.electronanalyser.nxdetector.plugins;
 
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
@@ -35,10 +36,6 @@ import java.util.Vector;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-
-import gda.data.nexus.NexusGlobals;
-import gda.data.nexus.extractor.NexusGroupData;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -186,26 +183,11 @@ class NXDetectorDatasetAppender implements NXDetectorDataAppender {
 			return;
 		}
 
-		int dataType = ds.getDtype();
-		int nexusType;
-		switch (dataType) {
-		case Dataset.INT8: 
-			nexusType = NexusGlobals.NX_INT8;
-			break;
-		case Dataset.INT16: 
-			nexusType = NexusGlobals.NX_INT16;
-			break;
-		case Dataset.INT32: 
-			nexusType = NexusGlobals.NX_INT32;
-			break;
-		case Dataset.FLOAT32:
-		case Dataset.FLOAT64:
-			nexusType = NexusGlobals.NX_FLOAT32;
-			break;
-		default:
-			throw new DeviceException("Type of data is not understood :" + dataType);
+		NexusGroupData ngd = new NexusGroupData(dims, ds.getBuffer());
+		if (ds.getDtype() == Dataset.FLOAT32) {
+			ngd = ngd.asDouble();
 		}
 		//logger.warn("dimension = {}, data = {}", dims[0],ds.getBuffer()); 
-		data.addData(detectorName, regionName+"_"+ds.getName(), new NexusGroupData(dims, nexusType, ds.getBuffer()), unit, 1);
+		data.addData(detectorName, regionName+"_"+ds.getName(), ngd, unit, 1);
 	}
 }
