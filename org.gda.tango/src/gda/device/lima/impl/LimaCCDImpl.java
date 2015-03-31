@@ -83,6 +83,8 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 	 static final String ATTRIBUTE_SAVING_SUFFIX = "saving_suffix";
 	 static final String ATTRIBUTE_SAVING_MODE = "saving_mode";
 	 static final String ATTRIBUTE_SHUTTER_OPEN_TIME = "shutter_open_time";
+	 static final String ATTRIBUTE_SHUTTER_CLOSE_TIME = "shutter_close_time";
+	 private static final String ATTRIBUTE_SHUTTER_MANUAL_STATE = "shutter_manual_state";
 
 	 static final String COMMAND_SET_IMAGE_HEADER = "setImageHeader";
 	 static final String COMMAND_RESET = "reset";
@@ -131,6 +133,10 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 	 static final String ACQMODE_SINGLE = "SINGLE";
 
 	 static final String ATTRIBUTE_VALID_RANGES = "valid_ranges";
+
+	private static final String ATTRIBUTE_IMAGE_ROTATION = "image_rotation";
+
+
 
 	@Override
 	public String getLimaType() throws DevFailed {
@@ -446,6 +452,14 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 		boolean[] val = new boolean[] { limaFlip.getFlipX(), limaFlip.getFlipY() };
 		getTangoDeviceProxy().setAttribute(ATTRIBUTE_IMAGE_FLIP, val, 2, 1);
 	}
+	@Override
+	public String getImageRotation() throws DevFailed {
+		return getTangoDeviceProxy().getAttributeAsString(ATTRIBUTE_IMAGE_ROTATION);
+	}
+	@Override
+	public void setImageRotation(int degree) throws DevFailed {
+		getTangoDeviceProxy().setAttribute(ATTRIBUTE_IMAGE_ROTATION, String.valueOf(degree));
+	}
 
 	@Override
 	public ShutterMode getShutterMode() throws DevFailed {
@@ -485,6 +499,23 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 	@Override
 	public void setShutterOpenTime(double shutterOpenTime) throws DevFailed {
 		getTangoDeviceProxy().setAttribute(ATTRIBUTE_SHUTTER_OPEN_TIME, shutterOpenTime);
+	}
+	@Override
+	public double getShutterCloseTime() throws DevFailed {
+		return getTangoDeviceProxy().getAttributeAsDouble(ATTRIBUTE_SHUTTER_CLOSE_TIME);
+	}
+	@Override
+	public void setShutterCloseTime(double shutterCloseTime) throws DevFailed {
+		getTangoDeviceProxy().setAttribute(ATTRIBUTE_SHUTTER_CLOSE_TIME, shutterCloseTime);
+	}
+	@Override
+	public String getShutterManualState() throws DevFailed {
+		return getTangoDeviceProxy().getAttributeAsString(ATTRIBUTE_SHUTTER_MANUAL_STATE);
+		
+	}
+	@Override
+	public void setShutterManualState(String value) throws DevFailed{
+		getTangoDeviceProxy().setAttribute(ATTRIBUTE_SHUTTER_MANUAL_STATE, value);
 	}
 
 	@Override

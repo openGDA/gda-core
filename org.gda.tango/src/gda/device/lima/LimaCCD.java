@@ -195,117 +195,311 @@ public interface LimaCCD extends Base {
 	 * @throws DevFailed
 	 */
 	ImageType getImageType() throws DevFailed;
-
+	/**
+	 * the detector width in pixel
+	 * @return width size in pixel
+	 * @throws DevFailed
+	 */
 	long getImageWidth() throws DevFailed;
-
+	/**
+	 * the detector height in pixel
+	 * @return height size in pixel
+	 * @throws DevFailed
+	 */
 	long getImageHeight() throws DevFailed;
-
+	/**
+	 * return region of interest on image. default is no ROI [0,0,0,0]
+	 * @return ROI
+	 * @throws DevFailed
+	 */
 	LimaROIInt getImageROIInt() throws DevFailed;
-
+	/** 
+	 * set the region of interest, in the units of binning
+	 * @param limaROIInt
+	 * @throws DevFailed
+	 */
 	void setImageROIInt(LimaROIInt limaROIInt) throws DevFailed;
-
+	/**
+	 * get binning factor on image in [x-bin, y-bin]
+	 * @return Lima bin
+	 * @throws DevFailed
+	 */
 	LimaBin getImageBin() throws DevFailed;
-
+	/**
+	 * set the bin factors for a image.
+	 * @param limaBin
+	 * @throws DevFailed
+	 */
 	void setImageBin(LimaBin limaBin) throws DevFailed;
-	
+	/**
+	 * set the bin factors for a image.
+	 * @param xBinValue
+	 * @param yBinValue
+	 * @throws DeviceException
+	 */
 	void setImageBin(long xBinValue, long yBinValue) throws DeviceException;
-
+	/**
+	 * get flip on the image, default is false for both X and Y.
+	 * @return lima flip
+	 * @throws DevFailed
+	 */
 	LimaFlip getImageFlip() throws DevFailed;
-
+	/**
+	 * set flip on image, X, Y axis independent.
+	 * @param limaFlip
+	 * @throws DevFailed
+	 */
 	void setImageFlip(LimaFlip limaFlip) throws DevFailed;
+	/**
+	 * get the image rotation: "0", "90","180" or "270"
+	 * @return "0", "90","180" or "270"
+	 * @throws DevFailed
+	 */
+	String getImageRotation() throws DevFailed;
+	/**
+	 * set image rotation to "0", "90","180" or "270".
+	 * @param degree
+	 * @throws DevFailed
+	 */
+	void setImageRotation(int degree) throws DevFailed;
 
 	enum ShutterMode {
-		MANUAL, AUTO_FRAME, AUTO_SEQUENCE
+		MANUAL, 
+		AUTO_FRAME, // the output signal is activated for each individual frame of a sequence
+		AUTO_SEQUENCE //the output signal is activated during the whole sequence
 	}
 
 	ShutterMode getShutterMode() throws DevFailed;
 
 	void setShutterMode(ShutterMode shutterMode) throws DevFailed;
-
+	/**
+	 * returns the delay in second between the output shutter signal and the beginning of the acquisition,
+	 * if not null the shutter signal is set on before the acquisition is started.
+	 * @return the delay time
+	 * @throws DevFailed
+	 */
 	double getShutterOpenTime() throws DevFailed;
-
+	/**
+	 * sets the delay in second between the output shutter signal and the beginning of the acquisition,
+	 * if not null the shutter signal is set on before the acquisition is started.
+	 * @param shutterOpenTime
+	 * @throws DevFailed
+	 */
 	void setShutterOpenTime(double shutterOpenTime) throws DevFailed;
-
+	
+	/**
+	 * returns the delay in second between the shutter signal and the end of the acquisition,
+	 * if not null the shutter signal is set on before the end of the acquisition.
+	 * @return the delay time
+	 * @throws DevFailed
+	 */
+	double getShutterCloseTime() throws DevFailed;
+	/**
+	 * sets the delay in second between the shutter signal and the end of the acquisition,
+	 * if not null the shutter signal is set on before the end of the acquisition.
+	 * @param shutterCloseTime
+	 * @throws DevFailed
+	 */
+	void setShutterCloseTime(double shutterCloseTime) throws DevFailed;
+	/**
+	 * get the open/close state of the shutter if manual mode is supported.
+	 * @return open or close
+	 * @throws DevFailed
+	 */
+	String getShutterManualState() throws DevFailed;
+	/**
+	 * set to open or close the shutter manually if the Manual mode is supported.
+	 * @param value - open or close
+	 * @throws DevFailed
+	 */
+	void setShutterManualState(String value) throws DevFailed;
 	enum SavingMode {
-		MANUAL, AUTO_FRAME, AUTO_HEADER
+		MANUAL, //no automatic saving, a command will be implemented in a next release to be able to save an acquired image 
+		AUTO_FRAME, // frames are automatically saved according to the saving parameters
+		AUTO_HEADER //frames are only saved when the setImageHeader() is called in order to set header information with image data.
 	}
-
+	/** 
+	 * returns the current saving mode setting.
+	 * @return saving mode
+	 * @throws DevFailed
+	 */
 	SavingMode getSavingMode() throws DevFailed;
-
+	/**
+	 * sets the saving mode
+	 * @param savingMode
+	 * @throws DevFailed
+	 */
 	void setSavingMode(SavingMode savingMode) throws DevFailed;
-
+	/**
+	 * return the current directory where the image files are saved.
+	 * @return image data directory
+	 * @throws DevFailed
+	 */
 	String getSavingDirectory() throws DevFailed;
-
+	/**
+	 * sets the the directory where to save the image files.
+	 * @param savingDirectory
+	 * @throws DevFailed
+	 */
 	void setSavingDirectory(String savingDirectory) throws DevFailed;
-
+	/**
+	 * get the current image file prefix.
+	 * @return file prefix
+	 * @throws DevFailed
+	 */
 	String getSavingPrefix() throws DevFailed;
 
 	/**
+	 * sets the image file prefix to be saved next.
+	 * 
 	 * Changing savingPrefix will cause the saving_next_number to be set to 0. You then need to change the
 	 * saving_next_number to 1 to get the value to increment. Fails if the prefix has already been used - if files exist
 	 * which match
+	 *
+	 * @param savingPrefix
+	 * @throws DevFailed
 	 */
 	void setSavingPrefix(String savingPrefix) throws DevFailed;
-
+	/**
+	 * gets the current image file suffix
+	 * @return the image file suffix
+	 * @throws DevFailed
+	 */
 	String getSavingSuffix() throws DevFailed;
 
 	/**
-	 * The suffix is set implicitly by setting the SavingFormat e.g. EDF = .edf
+	 * The suffix is set implicitly by setting the SavingFormat e.g. EDF = .edf 
 	 * 
 	 * @param savingSuffix
 	 * @throws DevFailed
 	 */
 	void setSavingSuffix(String savingSuffix) throws DevFailed;
-
+	/**
+	 * gets the next number for the image to be saved
+	 * @return the next svae number
+	 * @throws DevFailed
+	 */
 	int getSavingNextNumber() throws DevFailed;
 
 	/**
+	 * sets the next saving number.
+	 * 
 	 * Changing savingPrefix will cause the saving_next_number to be set to 0. You then need to change the
 	 * saving_next_number to 1 to get the value to increment.
+	 *
+	 * @param savingNextNumber
+	 * @throws DevFailed
 	 */
 	void setSavingNextNumber(int savingNextNumber) throws DevFailed;
 
 	enum SavingFormat {
-		RAW, EDF, CBF
+		RAW, //save in binary format
+		EDF, //save in ESRF data format
+		CBF //save in CBF format (a compressed format for crystallography)
 	}
-
+	/**
+	 * gets the current data format for saving image files
+	 * @return data format
+	 * @throws DevFailed
+	 */
 	SavingFormat getSavingFormat() throws DevFailed;
-
+	/**
+	 * sets the data format for saving image files
+	 * 
+	 * @param savingFormat
+	 * @throws DevFailed
+	 */
 	void setSavingFormat(SavingFormat savingFormat) throws DevFailed;
-
+	/**
+	 * In case of existing files, an overwrite policy is mandatory
+	 */
 	enum SavingOverwritePolicy {
-		ABORT, OVERWRITE, APPEND
+		ABORT, // if the file exists, the saving is aborted
+		OVERWRITE, //if the file exists, it is overwritten
+		APPEND //if the file exists, the image is appended to the file.
 	}
-
+	/**
+	 * get current saving  overwrite policy
+	 * @return saving overwrite policy
+	 * @throws DevFailed
+	 */
 	SavingOverwritePolicy getSavingOverwritePolicy() throws DevFailed;
-
+	/**
+	 * sets the saving overwrite policy
+	 * @param savingOverwritePolicy
+	 * @throws DevFailed
+	 */
 	void setSavingOverwritePolicy(SavingOverwritePolicy savingOverwritePolicy) throws DevFailed;
-
+	/**
+	 * get the current number of frames to be saved in a single file
+	 * @return frames per file
+	 * @throws DevFailed
+	 */
 	int getSavingFramePerFile() throws DevFailed;
-
+	/**
+	 * set the number of frames permitted to save in a single file
+	 * @param savingFramePerFile
+	 * @throws DevFailed
+	 */
 	void setSavingFramePerFile(int savingFramePerFile) throws DevFailed;
-
+	/**
+	 * get common header with multiple entries
+	 * @return common header
+	 * @throws DevFailed
+	 */
 	String[] getSavingCommonHeader() throws DevFailed;
-
+	/**
+	 * set the common header with multiple entries
+	 * @param savingCommonHeader
+	 * @throws DevFailed
+	 */
 	void setSavingCommonHeader(String[] savingCommonHeader) throws DevFailed;
-
+	/**
+	 * get the current saving header delimiter
+	 * @return LimaSavingHeaderDelimiter, default is ["=", "n", ";"]
+	 * @throws DevFailed
+	 */
 	LimaSavingHeaderDelimiter getLimaSavingHeaderDelimiter() throws DevFailed;
-
+	/**
+	 * set the saving header delimiter for key, entry and image number
+	 * @param limaSavingHeaderDelimiter
+	 * @throws DevFailed
+	 */
 	void setLimaSavingHeaderDelimiter(LimaSavingHeaderDelimiter limaSavingHeaderDelimiter) throws DevFailed;
-
+	/**
+	 * return the last acquired image number, ready for reading
+	 * @return 0 is ready for reading, -1 if not
+	 * @throws DevFailed
+	 */
 	int getLastImageReady() throws DevFailed;
 
-	/*
-	 * 0 is saved OK, -1 if not
+	/**
+	 * the last saved image number 
+	 * @return 0 is saved OK, -1 if not
+	 * @throws DevFailed
 	 */
 	int getLastImageSaved() throws DevFailed;
-
+	/**
+	 * query if camera ready for next image
+	 * Can be used for fast synchronization with trigger mode (internal or external).
+	 * 
+	 * @return True after a camera readout, otherwise false.
+	 * @throws DevFailed
+	 */
 	boolean getReadyForNextImage() throws DevFailed;
-
+	/**
+	 * query if ready for the next acquisition
+	 * @return true after the end of acquisition, otherwise false
+	 * @throws DevFailed
+	 */
 	boolean getReadyForNextAcq() throws DevFailed;
-
+	/**
+	 * get the performance writing time for the last images in seconds.
+	 * @return writing time.
+	 * @throws DevFailed
+	 */
 	double[] getWriteStatistics() throws DevFailed;
-
+	
 	String[] getDebugModules() throws DevFailed;
 
 	void setDebugModules(String[] debugModules) throws DevFailed;
