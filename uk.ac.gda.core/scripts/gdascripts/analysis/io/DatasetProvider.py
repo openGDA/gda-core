@@ -1,6 +1,6 @@
 from gdascripts.analysis.io.dataLoaders import loadImageIntoSFH
-from gda.jython.commands.GeneralCommands import pause
-import os
+from org.slf4j import LoggerFactory
+import os, sys, traceback
 import threading
 import time
 
@@ -13,18 +13,24 @@ def tryToLoadDataset(path, iFileLoader):
 		return None
 
 	try:
+		""" If we have got to here then we have already confirmed that the file exists, so
+		    touching the file just means that we can't tell when it was last written to!
+		    This makes debugging file writing & permissions problems *much* more difficult.
 		os.system("touch %s" % path)
+		    TODO: Remove this entirely unless someone can provide a compelling reason to retain it.
+		"""
 		dataset = loadImageIntoSFH(path, iFileLoader)[0] # a dataset
-		if len(dataset.getDimensions())!=2:
+		if not len(dataset.shape) == 2:
+			LoggerFactory.getLogger("DatasetProvider.tryToLoadDataset").error('Expected 2 dimensions but found %r when sanity checking image %r using loader %r' % (dataset.shape, path, iFileLoader))
 			print "*" * 80
-			print "DatasetProvider.tryToLoadDataset got a dataset with ", dataset.getDimensions(), " dimensions."
-			print "The anaysis code will try again to load the image, and unless it times out everything is *OKAY*"
+			print "DatasetProvider.tryToLoadDataset got a dataset with ", dataset.shape, " dimensions."
+			print "The analysis code will try again to load the image, and unless it times out everything is *OKAY*"
 			print "Please call DASC support to report this (tricky to track down) bug"
 			print "*" * 80
 			return None
 		return dataset
-	#except java.io.FileNotFoundException, e:
 	except:
+		LoggerFactory.getLogger("DatasetProvider.tryToLoadDataset").error('Error loading or sanity checking image %r using loader %r :\n %s' % (path, iFileLoader, ''.join(traceback.format_exception(*sys.exc_info()))))
 		return None
 
 
