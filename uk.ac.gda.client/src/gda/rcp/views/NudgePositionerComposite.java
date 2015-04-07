@@ -72,7 +72,7 @@ public class NudgePositionerComposite extends Composite{
 		this(parent, style, scannable, showName, null, false, true);
 	}
 	
-	public NudgePositionerComposite(Composite parent, int style, Scannable scannable, boolean showName, String overrideName, boolean positionOnly, boolean moveEnabled) {
+	public NudgePositionerComposite(Composite parent, int style, Scannable scannable, boolean showName, String overrideName, final boolean positionOnly, boolean moveEnabled) {
 		super(parent, style);
 		this.scannable = scannable;
 		GridLayout gridLayout = new GridLayout(4, false);
@@ -240,9 +240,11 @@ public class NudgePositionerComposite extends Composite{
 							} catch (DeviceException e) {
 								logger.error("Error while getting currrent position of " + scannableName, e);
 							}
-							btnDecrement.setEnabled(false);
-							btnIncrement.setEnabled(false);
-							btnStop.setEnabled(true);
+							if (!positionOnly) { // If positionOnly=true buttons won't exist.
+								btnDecrement.setEnabled(false);
+								btnIncrement.setEnabled(false);
+								btnStop.setEnabled(true);
+							}
 						}
 					});
 				}
@@ -256,9 +258,11 @@ public class NudgePositionerComposite extends Composite{
 						} catch (DeviceException e) {
 							logger.error("Error while getting currrent position of " + scannableName, e);
 						}
-						btnDecrement.setEnabled(true);
-						btnIncrement.setEnabled(true);
-						btnStop.setEnabled(false);
+						if (!positionOnly) { // If positionOnly=true buttons won't exist.
+							btnDecrement.setEnabled(true);
+							btnIncrement.setEnabled(true);
+							btnStop.setEnabled(false);
+						}
 					}
 				});
 				return Status.OK_STATUS;
