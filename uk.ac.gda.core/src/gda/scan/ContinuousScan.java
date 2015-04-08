@@ -106,6 +106,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 
 	@Override
 	public void doCollection() throws Exception {
+		timeMotionFinished = null;
 		checkThreadInterrupted();
 		acquirePoint(true, false);
 		ContinuousParameters params = createContinuousParameters();

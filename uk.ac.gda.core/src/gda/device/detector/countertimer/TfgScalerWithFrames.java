@@ -48,8 +48,8 @@ public class TfgScalerWithFrames extends TfgScalerWithLogValues {
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
-		super.clearFrameSets();
 		if (times != null && times.length > 0) {
+			super.clearFrameSets();
 			// create the time frames here
 			for (int i = 0; i < times.length; i++) {
 				// convert times to milliseconds for da.server
