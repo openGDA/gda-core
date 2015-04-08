@@ -59,11 +59,11 @@
 		<field name="number" type="integer">
 			<bind-xml name="number" node="element" />
 		</field>
-		<field name="processDeadTimeAllEventGradient" type="double">
-			<bind-xml name="processDeadTimeAllEventGradient" node="element" />
+		<field name="processDeadTimeAllEventOffset" type="double">
+			<bind-xml name="processDeadTimeAllEvent" node="element" />
 		</field>
-		<field name="processDeadTimeInWindowGradient" type="double">
-			<bind-xml name="processDeadTimeInWindowGradient" node="element" />
+		<field name="processDeadTimeInWindow" type="double">
+			<bind-xml name="processDeadTimeInWindow" node="element" />
 		</field>
 	</class>
 

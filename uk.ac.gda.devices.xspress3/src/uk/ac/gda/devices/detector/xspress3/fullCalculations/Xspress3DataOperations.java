@@ -360,6 +360,9 @@ public class Xspress3DataOperations {
 
 	public FluorescenceDetectorParameters getConfigurationParameters() {
 		DetectorROI[] regions = getRegionsOfInterest();
+		if (regions == null){
+			regions = new DetectorROI[0];
+		}
 
 		List<DetectorElement> detectorList = new ArrayList<DetectorElement>();
 

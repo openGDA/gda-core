@@ -21,10 +21,16 @@ package uk.ac.gda.exafs.ui.composites.detectors;
 import gda.device.DeviceException;
 import gda.factory.Finder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.vortex.DetectorElement;
+import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorCompositeController;
@@ -39,6 +45,9 @@ public class FluorescenceDetectorCompositeFactory {
 		try {
 			FluorescenceDetector x3Detector = (FluorescenceDetector) Finder.getInstance().find("xspress3");
 			FluorescenceDetectorParameters x3Parameters = x3Detector.getConfigurationParameters();
+			if(x3Parameters == null){
+				x3Parameters = createDefaultXspress3Parameters(x3Detector);
+			}
 			FluoDetectorCompositeController controller = new FluoDetectorCompositeController(parent, x3Parameters,
 					x3Detector);
 			x3Composite = controller.getFluorescenceDetectorComposite();
@@ -48,6 +57,42 @@ public class FluorescenceDetectorCompositeFactory {
 			logger.error("Internal error while creating Xspress3 configuration composite", ex);
 		}
 		return x3Composite;
+	}
+
+	private static Xspress3Parameters createDefaultXspress3Parameters(FluorescenceDetector detector)
+			throws DeviceException {
+
+		Xspress3Parameters xspress3Parameters = new Xspress3Parameters();
+
+		xspress3Parameters.setCollectionTime(1000.0);
+		int numberOfElements = detector.getNumberOfChannels();
+		DetectorROI[] regions = detector.getRegionsOfInterest();
+
+		if (regions == null || regions.length == 0) {
+			// create a default
+			regions = new DetectorROI[1];
+			regions[0] = new DetectorROI();
+			regions[0].setRoiName("ROI 1");
+			regions[0].setRoiStart(700);
+			regions[0].setRoiEnd(800);
+		}
+
+		// TODO this is forced to use vortex DetectorElements instead of xspress DetectorElements
+		// fix by overriding methods in VortexParameters? Or join types? Or use an interface?
+		List<DetectorElement> detElements = new ArrayList<DetectorElement>(numberOfElements);
+
+		for (int index = 0; index < numberOfElements; index++) {
+			DetectorElement thisElement = new DetectorElement();
+			for (DetectorROI region : regions) {
+				thisElement.addRegion(region);
+			}
+			thisElement.setNumber(index);
+			thisElement.setName("element" + index);
+			detElements.add(thisElement);
+		}
+		xspress3Parameters.setDetectorList(detElements);
+
+		return xspress3Parameters;
 	}
 
 	public static FluorescenceDetectorComposite createNewXspress2Composite(Composite parent) {
