@@ -384,7 +384,7 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 	
 	@Override
 	public IFieldWidget getField(final String fieldName) throws Exception {
-		return BeanUI.getFieldWiget(fieldName, getEditorUI());
+		return BeanUI.getFieldWidget(fieldName, getEditorUI());
 	}
 
 	@Override
