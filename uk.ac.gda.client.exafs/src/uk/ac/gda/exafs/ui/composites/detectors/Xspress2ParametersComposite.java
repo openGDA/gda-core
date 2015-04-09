@@ -18,31 +18,23 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors;
 
-import org.eclipse.swt.layout.FillLayout;
+import gda.factory.Finder;
+
 import org.eclipse.swt.widgets.Composite;
 
-/**
- * Xspress3 specific wrapper for the FluorescenceDetectorComposite.
- * <p>
- * Assumes the Xspress2 detector is called "xspress2system" but this could be changed to use a Java property.
- */
-public class Xspress2ParametersComposite extends Composite {
+import uk.ac.gda.devices.detector.FluorescenceDetector;
 
-	FluorescenceDetectorComposite x2Composite;
+/**
+ * Xspress3-specific subclass of FluorescenceDetectorComposite.
+ */
+public class Xspress2ParametersComposite extends FluorescenceDetectorComposite {
 
 	public Xspress2ParametersComposite(Composite parent, int style) {
 		super(parent, style);
-		this.setLayout(new FillLayout());
-		x2Composite = FluorescenceDetectorCompositeFactory.createNewXspress2Composite(this);
 	}
 
 	@Override
-	public void dispose() {
-		super.dispose();
-		x2Composite.dispose();
-	}
-
-	public FluorescenceDetectorComposite getFluorescenceDetectorComposite() {
-		return x2Composite;
+	protected FluorescenceDetector getDetectorInstance() {
+		return (FluorescenceDetector) Finder.getInstance().find("xspress2system");
 	}
 }

@@ -18,24 +18,47 @@
 
 package uk.ac.gda.exafs.ui.views.detectors;
 
-import uk.ac.gda.devices.detector.FluorescenceDetector;
+import org.eclipse.ui.part.ViewPart;
+
+import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorComposite;
 
 /**
- * Views which are used to configure the Regions of Interest of detectors implementing {@link FluorescenceDetector}
+ * Configures the regions of interest of a fluorescence detector. Subclasses should override createPartControl() to
+ * create the FluorescenceDetectorComposite.
  * <p>
  * There should be a view for each detector instance on the beamline. However all views implementing this interface can
  * share the same command handlers.
  */
-public interface FluorescenceConfigurationView {
+public abstract class FluorescenceDetectorConfigurationView extends ViewPart {
+
+	protected FluorescenceDetectorComposite fluorescenceDetectorComposite;
+
+	public FluorescenceDetectorConfigurationView() {
+		super();
+	}
+
+	@Override
+	public void setFocus() {
+		fluorescenceDetectorComposite.setFocus();
+	}
+
+	@Override
+	public void dispose() {
+		fluorescenceDetectorComposite.dispose();
+		super.dispose();
+	}
 
 	/**
 	 * Apply the Regions as displayed in the view to the detector
 	 */
-	public void applyConfigurationToDetector();
+	public void applyConfigurationToDetector() {
+		fluorescenceDetectorComposite.getController().applyConfigurationToDetector();
+	}
 
 	/**
 	 * Update the regions displayed in the view from the detector
 	 */
-	public void fetchConfigurationFromDetector();
-
+	public void fetchConfigurationFromDetector() {
+		fluorescenceDetectorComposite.getController().fetchConfigurationFromDetector();
+	}
 }

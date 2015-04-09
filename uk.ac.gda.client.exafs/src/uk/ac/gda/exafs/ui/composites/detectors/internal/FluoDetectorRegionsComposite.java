@@ -32,7 +32,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
@@ -80,9 +79,9 @@ public class FluoDetectorRegionsComposite extends Composite {
 		createBindings();
 	}
 
-	private void createImportButton(Group regionsGroup, final Class<? extends FluorescenceDetectorParameters> detectorParametersClazz) {
+	private void createImportButton(Group regionsGroup, final Class<? extends FluorescenceDetectorParameters> detectorParametersClass) {
 		Composite importComposite = new Composite(regionsGroup, SWT.NONE);
-		importComposite.setLayout(new GridLayout(2, false));
+		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(importComposite);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(importComposite);
 		
 		final Label importLabel = new Label(importComposite, SWT.NONE);
@@ -96,7 +95,7 @@ public class FluoDetectorRegionsComposite extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				WizardDialog dialog = new WizardDialog(importButton.getShell(), new ImportFluoDetROIWizard(
-						regionListComposite.getRegionList(), detectorElementTable, detectorParametersClazz));
+						regionListComposite.getRegionList(), detectorElementTable, detectorParametersClass));
 				dialog.create();
 				dialog.open();
 			}

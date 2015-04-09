@@ -31,8 +31,6 @@ import org.eclipse.swt.widgets.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.exafs.ui.detector.DetectorEditor;
-
 import com.swtdesigner.SWTResourceManager;
 
 public class FluoDetectorAcquireComposite extends Composite {
@@ -58,7 +56,7 @@ public class FluoDetectorAcquireComposite extends Composite {
 
 		loadButton = new Button(acquireGroup, SWT.NONE);
 		GridDataFactory.swtDefaults().span(numberOfColumns, 1).applyTo(loadButton);
-		loadButton.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/folder.png"));
+		loadButton.setImage(SWTResourceManager.getImage(FluoDetectorAcquireComposite.class, "/icons/folder.png"));
 		loadButton.setText("Load");
 		loadButton.addSelectionListener(new SelectionAdapter() {
 
@@ -114,15 +112,15 @@ public class FluoDetectorAcquireComposite extends Composite {
 	}
 
 	private void setAcquireImageToSnapshot() {
-		acquireButton.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/camera_go.png"));
+		acquireButton.setImage(SWTResourceManager.getImage(FluoDetectorAcquireComposite.class, "/icons/camera_go.png"));
 	}
 
 	private void setAcquireImageToGo() {
-		acquireButton.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/control_play_blue.png"));
+		acquireButton.setImage(SWTResourceManager.getImage(FluoDetectorAcquireComposite.class, "/icons/control_play_blue.png"));
 	}
 
 	private void setAcquireImageToStop() {
-		acquireButton.setImage(SWTResourceManager.getImage(DetectorEditor.class, "/icons/control_stop_blue.png"));
+		acquireButton.setImage(SWTResourceManager.getImage(FluoDetectorAcquireComposite.class, "/icons/control_stop_blue.png"));
 	}
 
 	public ScaleBox getCollectionTime() {

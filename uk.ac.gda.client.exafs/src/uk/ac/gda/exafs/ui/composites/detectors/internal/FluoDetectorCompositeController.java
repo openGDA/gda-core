@@ -35,6 +35,7 @@ import org.dawnsci.common.richbeans.beans.BeanController;
 import org.dawnsci.common.richbeans.components.scalebox.NumberBox;
 import org.dawnsci.common.richbeans.event.ValueAdapter;
 import org.dawnsci.common.richbeans.event.ValueEvent;
+import org.dawnsci.common.richbeans.event.ValueListener;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -50,7 +51,6 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -89,14 +89,20 @@ public class FluoDetectorCompositeController {
 	private String plotTitle;
 	private FileDialog openDialog;
 
-	public FluoDetectorCompositeController(Composite parent, FluorescenceDetectorParameters detectorParameters,
-			FluorescenceDetector theDetector) throws Exception {
+	public FluoDetectorCompositeController(FluorescenceDetectorComposite fluorescenceDetectorComposite,
+			FluorescenceDetectorParameters detectorParameters, FluorescenceDetector theDetector) {
 
 		this.detectorParameters = detectorParameters;
 		this.theDetector = theDetector;
-		this.fluorescenceDetectorComposite = new FluorescenceDetectorComposite(parent, SWT.NONE, this, theDetector.getConfigurationParametersClass());
-		sashFormPlot = fluorescenceDetectorComposite.getSashFormPlot();
+		this.fluorescenceDetectorComposite = fluorescenceDetectorComposite;
+	}
 
+	/**
+	 * Call this method once the GUI has been fully constructed
+	 * 
+	 * @throws Exception
+	 */
+	public void start() throws Exception {
 		dataBindingController = new BeanController(fluorescenceDetectorComposite, detectorParameters);
 		dataBindingController.beanToUI();
 		dataBindingController.switchUIOn();
@@ -109,7 +115,7 @@ public class FluoDetectorCompositeController {
 			}
 		});
 
-
+		sashFormPlot = fluorescenceDetectorComposite.getSashFormPlot();
 		sashFormPlot.addRegionListener(new IROIListener() {
 
 			@Override
@@ -146,16 +152,16 @@ public class FluoDetectorCompositeController {
 		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
 		String fileName = varDir + "/" + theDetector.getName() + "_plot_data.xml";
 		dataStore = new FluoCompositeDataStore(fileName);
-
-		replot();
 	}
 
 	private void setRegionEditableFromPreference() {
 		// Bug in dawn stops this working correctly when preference is changed at runtime
 		// See DAWNSCI-5843 for latest status on a possible fix
-		sashFormPlot.getRegionOnDisplay().setMobile(
-				ExafsActivator.getDefault().getPreferenceStore()
-						.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED));
+		// sashFormPlot.getRegionOnDisplay().setMobile(
+		// ExafsActivator.getDefault().getPreferenceStore()
+		// .getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED));
+		sashFormPlot.getRegionOnDisplay().setMobile(false); // TODO temporary while the binding from plot to bean is
+															// failing
 	}
 
 	private void updateRoiUI(ROIEvent evt) {
@@ -371,10 +377,6 @@ public class FluoDetectorCompositeController {
 		sashFormPlot.appendStatus(msg, logger);
 	}
 
-	public void dispose() {
-		sashFormPlot.dispose();
-	}
-
 	public void replot() {
 		if (theData == null) {
 			loadDataFromStore();
@@ -405,7 +407,7 @@ public class FluoDetectorCompositeController {
 	}
 
 	public void updatePlottedRegion(int roiStart, int roiEnd) {
-		if (sashFormPlot != null){
+		if (sashFormPlot != null) {
 			sashFormPlot.getRegionOnDisplay().setROI(new RectangularROI(roiStart, 0, roiEnd - roiStart, 0, 0));
 			sashFormPlot.getRegionOnDisplay().repaint();
 		}
@@ -417,6 +419,14 @@ public class FluoDetectorCompositeController {
 			dataBindingController.fireValueListeners();
 		} catch (Exception ex) {
 			logger.error("Error trying to update bean from UI", ex);
+		}
+	}
+
+	private void updateUIFromBean() {
+		try {
+			dataBindingController.beanToUI();
+		} catch (Exception ex) {
+			logger.error("Error trying to update UI from bean", ex);
 		}
 	}
 
@@ -438,6 +448,7 @@ public class FluoDetectorCompositeController {
 
 	public void fetchConfigurationFromDetector() {
 		detectorParameters = theDetector.getConfigurationParameters();
+		updateUIFromBean();
 		applyCurrentRegionsToAllElements();
 		replot();
 	}
@@ -481,9 +492,23 @@ public class FluoDetectorCompositeController {
 
 		List<DetectorElement> elements = detectorParameters.getDetectorList();
 		for (DetectorElement element : elements) {
-			// TODO consider making a copy of the regions list once the detector classes support separate region lists
-			// for each detector element
+			// TODO consider making a copy of the regions list if the detector classes ever support separate region
+			// lists for each detector element
 			element.setRegionList(regions);
 		}
+	}
+
+	/**
+	 * Add a value listener to all UI elements
+	 */
+	public void addValueListener(ValueListener listener) throws Exception {
+		dataBindingController.addValueListener(listener);
+	}
+
+	/**
+	 * Remove a value listener from all UI elements
+	 */
+	public void removeValueListener(ValueListener listener) throws Exception {
+		dataBindingController.removeValueListener(listener);
 	}
 }
