@@ -107,9 +107,18 @@ public class DelegatingRichBeanEditorPart extends RichBeanEditorPart {
 		editorUI.setFocus();
 	}
 
+	/*
+	 * Made <code>public</code> in this override to allow any containing workbench part (such as a subclass of
+	 * RichBeanMultiPageEditorPart in a different package) to access the editor UI after it has been created.
+	 */
 	@Override
-	protected Object getEditorUI() {
+	public Object getEditorUI() {
 		return editorUI;
 	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+		editorUI.dispose();
+	}
 }
