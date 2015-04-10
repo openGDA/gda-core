@@ -54,6 +54,7 @@ public class MicroFocusNexusPlotter {
 
 	public MicroFocusNexusPlotter() {
 		super();
+		createClickListener();
 	}
 
 	private void createClickListener() {
@@ -145,7 +146,7 @@ public class MicroFocusNexusPlotter {
 					JythonServerFacade.getInstance().evaluateCommand(
 							"map.getMFD().displayPlot(\"" + elementName + "\"," + selectedChannel + ")");
 					updateSpectrum();
-					createClickListener();
+//					createClickListener();
 				} catch (Exception e) {
 					logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
 				}
@@ -162,7 +163,7 @@ public class MicroFocusNexusPlotter {
 		try {
 			SDAPlotter.imagePlot(MapPlotView.NAME, dataset);
 			updateSpectrum();
-			createClickListener();
+//			createClickListener();
 		} catch (Exception e) {
 			logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
 		}
@@ -198,7 +199,7 @@ public class MicroFocusNexusPlotter {
 				try {
 					SDAPlotter.imagePlot(MapPlotView.NAME, xDataset, yDataset, plotSet);
 					updateSpectrum();
-					createClickListener();
+//					createClickListener();
 				} catch (Exception e) {
 					logger.error("Error plotting the dataset in MicroFocusNexusPlotter", e);
 				}
@@ -216,8 +217,6 @@ public class MicroFocusNexusPlotter {
 			double[] spectrum = dataProvider.getSpectrum(dataProvider.getSelectedChannel(), xPixel, yPixel);
 			if (spectrum != null) {
 				final Dataset yaxis = DatasetFactory.createFromObject(spectrum);
-				logger.info("Plotting spectrum for channel " + dataProvider.getSelectedChannel() + ", pixel " + xPixel
-						+ "," + yPixel);
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
@@ -235,7 +234,6 @@ public class MicroFocusNexusPlotter {
 			}
 		} else {
 			// server needs to show the spectrum
-			logger.info("Plotting spectrum for element 0," + xPixel + "," + yPixel);
 			JythonServerFacade.getInstance().evaluateCommand(
 					"map.getMFD().plotSpectrum(" + serverPlotChannel + "," + xPixel + "," + yPixel + ")");
 		}

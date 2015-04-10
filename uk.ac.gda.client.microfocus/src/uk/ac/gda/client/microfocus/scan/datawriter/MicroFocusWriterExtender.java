@@ -115,13 +115,14 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected int yIndex = -1;
 	protected IScanDataPoint lastDataPoint = null;
 	protected long lastTimePlotWasUpdate = 0;
-	protected HDF5Loader hdf5Loader;
+//	protected HDF5Loader hdf5Loader;
 	protected ILazyDataset lazyDataset;
 	protected int spectrumLength = 4096;
 	protected boolean normalise = false;
 	protected String normaliseElement = "I0";
 	protected int normaliseElementIndex = -1;
 	protected double normaliseValue = 1.0;
+	private String currentHDF5filename;
 
 	public MicroFocusWriterExtender(int xPoints, int yPoints, double xStepSize, double yStepSize,
 			XMLRichBean detectorBean, Detector[] detectors2) {
@@ -225,7 +226,8 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			// create the rgb file
 			createRgbFile((new StringTokenizer(dataPoint.getCurrentFilename(), ".")).nextToken());
 			// load the dataset for reading the spectrum
-			hdf5Loader = new HDF5Loader(dataPoint.getCurrentFilename());
+//			hdf5Loader = new HDF5Loader(dataPoint.getCurrentFilename());
+			currentHDF5filename = dataPoint.getCurrentFilename();
 		}
 
 		if ((lastDataPoint == null || (!lastDataPoint.equals(dataPoint) && lastDataPoint.getCurrentFilename().equals(
@@ -397,7 +399,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			for (String col : rgbColumnNames) {
 				roiHeader.append("  " + col);
 			}
-			addToRgbFile(0, roiHeader.toString());
+			addToRgbFile(0, roiHeader.toString().trim());
 		}
 
 		// add rbgData to the array to start off the counts
@@ -510,14 +512,13 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 
 		if (current >= point) {
 			IDataset slice = null;
-			DataHolder dataHolder = hdf5Loader.loadFile();
+			// reopen every time to ensure latest data is picked up - seems to be new behaviour in NAPI 
+			DataHolder dataHolder = new HDF5Loader(currentHDF5filename).loadFile();
 			if (isXspressScan()) {
 				lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/MCAs");
 				slice = lazyDataset.getSlice(new int[] { y, x, detNo, 0 }, new int[] { y + 1, x + 1, detNo + 1,
 						spectrumLength }, new int[] { 1, 1, 1, 1 });
 			} else if (isXspress3Scan()) {
-				// TODO when SWMR available we can write all MCAs for to a single multidimensional data block
-				// but for the moment have different data per row.
 				try {
 					lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/MCAs");
 					slice = lazyDataset.getSlice(new int[] { y, x, detNo, 0 }, new int[] { y + 1, x + 1, detNo + 1,
