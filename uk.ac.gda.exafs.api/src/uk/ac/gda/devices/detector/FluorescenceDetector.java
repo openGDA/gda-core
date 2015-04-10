@@ -2,60 +2,40 @@ package uk.ac.gda.devices.detector;
 
 import gda.device.Detector;
 import gda.device.DeviceException;
-import uk.ac.gda.beans.DetectorROI;
 
 public interface FluorescenceDetector extends Detector {
 
 	/**
-	 * Perform a 'snapshot' data collection and return the MCAs. No file writing
-	 * is involved.
-	 *
-	 * @param time
-	 * @return
+	 * Perform a 'snapshot' data collection and return the MCA data. No file writing is involved.
+	 * 
+	 * @param time The collection time in milliseconds
+	 * @return the MCA data as a double array: [detector element][MCA channel]
 	 * @throws DeviceException
 	 */
-	public int[][] getMCData(double time) throws DeviceException;
-
-//	public int[][] getData() throws DeviceException;
-
-	public String getConfigFileName();
+	public double[][] getMCAData(double time) throws DeviceException;
 
 	/**
-	 * Give the detector the XML file containing the parameters it should load.
-	 *
-	 * @param configFileName
+	 * @return The number of detector elements (sometimes also called channels but this risks confusion with the
+	 * channels which make up the MCA)
 	 */
-	public void setConfigFileName(String configFileName);
+	public int getNumberOfElements();
 
 	/**
-	 * Configure the detector using the parameters in the XML file given though
-	 * the {@link #setConfigFileName(String)} method.
-	 *
-	 * @throws Exception
+	 * @return The number of channels in the MCA (Multi-Channel Analyser)
 	 */
-	public void loadConfigurationFromFile() throws Exception;
-
-	public DetectorROI[] getRegionsOfInterest() throws DeviceException;
-
-	public void setRegionsOfInterest(DetectorROI[] regionList) throws DeviceException;
-
-	/**
-	 * @return The number of elements/detector channels
-	 */
-	public int getNumberOfChannels();
-
 	public int getMCASize();
 
 	/**
-	 * Configure the detector using the given parameters object.
-	 *
+	 * Configure the detector using the given parameters
+	 * 
 	 * @param parameters
 	 * @throws Exception
 	 */
 	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) throws Exception;
 	
-	public Class <? extends FluorescenceDetectorParameters> getConfigurationParametersClass();
-	
+	/**
+	 * @return The current detector configuration
+	 */
 	public FluorescenceDetectorParameters getConfigurationParameters();
 
 }

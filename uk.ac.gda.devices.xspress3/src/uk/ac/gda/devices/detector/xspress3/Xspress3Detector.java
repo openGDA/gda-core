@@ -443,7 +443,10 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return sum;
 	}
 
-	@Override
+	/**
+	 * @deprecated Use applyConfigurationParameters() instead
+	 */
+	@Deprecated
 	public void setRegionsOfInterest(DetectorROI[] regionList) throws DeviceException {
 		if (regionList.length > MAX_ROI_PER_CHANNEL) {
 			throw new DeviceException("Too many regions! Only " + MAX_ROI_PER_CHANNEL + " allowed.");
@@ -480,8 +483,9 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 *
 	 * @return ROI[]
 	 * @throws DeviceException
+	 * @deprecated Use getConfigurationParameters() instead
 	 */
-	@Override
+	@Deprecated
 	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
 		// assume that the ROIs were defined via this class and so the
 		// regionNames array kept in this class has the same size as the regions
@@ -505,19 +509,6 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		controller.doStart();
 	}
 
-	public int[][] getData() throws DeviceException {
-
-		double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestMCA(firstChannelToRead,
-				controller.getNumberOfChannels() - 1);
-		int[][] deadTimeCorrectedDataInt = new int[deadTimeCorrectedData.length][deadTimeCorrectedData[0].length];
-		for (int i = 0; i < deadTimeCorrectedData.length; i++) {
-			for (int j = 0; j < deadTimeCorrectedData[0].length; j++) {
-				deadTimeCorrectedDataInt[i][j] = (int) Math.round(deadTimeCorrectedData[i][j]);
-			}
-		}
-		return deadTimeCorrectedDataInt;
-	}
-
 	/**
 	 * @param time
 	 *            - milliseconds
@@ -525,20 +516,20 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * @throws DeviceException
 	 */
 	@Override
+	@Deprecated
 	public int[][] getMCData(double time) throws DeviceException {
+		getMCAData(time);
+
+		double[][] mcaData = getMCAData(time);
+		return getIntDataFromDoubles(mcaData);
+	}
+
+	@Override
+	public double[][] getMCAData(double time) throws DeviceException {
 		controller.doErase();
 		controller.doStart();
-		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only
-																		// want
-																		// to
-																		// collect
-																		// a
-																		// frame
-																		// at a
-																		// time
-		((Timer) Finder.getInstance().find("tfg")).countAsync(time); // run tfg
-																		// for
-																		// time
+		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only want to collect a frame at a time
+		((Timer) Finder.getInstance().find("tfg")).countAsync(time); // run tfg for time
 		do {
 			synchronized (this) {
 				try {
@@ -550,7 +541,17 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 		controller.doStop();
 
-		return getData();
+		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, controller.getNumberOfChannels() - 1);
+	}
+
+	private int[][] getIntDataFromDoubles(double[][] mcaData) {
+		int[][] mcaIntData = new int[mcaData.length][mcaData[0].length];
+		for (int i = 0; i < mcaData.length; i++) {
+			for (int j = 0; j < mcaData[0].length; j++) {
+				mcaIntData[i][j] = (int) Math.round(mcaData[i][j]);
+			}
+		}
+		return mcaIntData;
 	}
 
 	public int getFirstChannelToRead() {
@@ -694,18 +695,13 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	}
 
 	@Override
-	public int getNumberOfChannels() {
+	public int getNumberOfElements() {
 		return controller.getNumberOfChannels();
 	}
 
 	@Override
 	public int getMCASize() {
 		return MCA_SIZE;
-	}
-
-	@Override
-	public Class<? extends FluorescenceDetectorParameters> getConfigurationParametersClass() {
-		return Xspress3Parameters.class;
 	}
 
 	@Override
@@ -721,7 +717,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 		List<DetectorElement> detectorList = new ArrayList<DetectorElement>();
 
-		for(int i = 0; i < getNumberOfChannels(); i++){
+		for(int i = 0; i < getNumberOfElements(); i++){
 			DetectorElement thisElement = new DetectorElement();
 			for(DetectorROI region : regions){
 				thisElement.addRegion(region);

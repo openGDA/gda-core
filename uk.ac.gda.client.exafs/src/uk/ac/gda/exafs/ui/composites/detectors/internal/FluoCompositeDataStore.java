@@ -28,7 +28,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.ElementCountsData;
+import uk.ac.gda.util.list.PrimitiveArrayEncoder;
 
 public class FluoCompositeDataStore {
 
@@ -40,8 +40,8 @@ public class FluoCompositeDataStore {
 		this.fileName = fileName;
 	}
 
-	public int[][] readDataFromFile() {
-		int[][] result = new int[][] {/* empty */};
+	public double[][] readDataFromFile() {
+		double[][] result = new double[][] {/* empty */};
 		try {
 			File dataFile = new File(fileName);
 			if (!dataFile.exists()) {
@@ -52,9 +52,7 @@ public class FluoCompositeDataStore {
 			String strLine = in.readLine();
 			in.close();
 
-			ElementCountsData newData = new ElementCountsData();
-			newData.setDataString(strLine);
-			result = newData.getData();
+			result = getDataFromString(strLine);
 
 		} catch (IOException e) {
 			logger.error("IOException whilst reading stored detector editor data from file " + fileName);
@@ -62,12 +60,19 @@ public class FluoCompositeDataStore {
 		return result;
 	}
 
-	public void writeDataToFile(int[][] newData) {
-		ElementCountsData elementCountsData = new ElementCountsData();
-		elementCountsData.setData(newData);
+	private double[][] getDataFromString(String compressedData) {
+		final String[] split = compressedData.split(";");
+		final double[][] data = new double[split.length][];
+		for (int i = 0; i < split.length; i++) {
+			data[i] = PrimitiveArrayEncoder.getDoubleArray(split[i]);
+		}
+		return data;
+	}
+
+	public void writeDataToFile(double[][] newData) {
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
-			out.write(elementCountsData.getDataString());
+			out.write(getDataString(newData));
 			out.write("\n");
 			out.close();
 		} catch (IOException e) {
@@ -75,4 +80,17 @@ public class FluoCompositeDataStore {
 		}
 	}
 
+	private String getDataString(double[][] data) {
+		if (data == null) {
+			return null;
+		}
+		final StringBuilder stringBuilder = new StringBuilder();
+		for (int i = 0; i < data.length; i++) {
+			stringBuilder.append(PrimitiveArrayEncoder.getString(data[i]));
+			if (i != data.length - 1) {
+				stringBuilder.append(";");
+			}
+		}
+		return stringBuilder.toString();
+	}
 }

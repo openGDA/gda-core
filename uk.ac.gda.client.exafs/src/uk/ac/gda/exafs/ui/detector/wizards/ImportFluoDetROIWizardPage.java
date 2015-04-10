@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.detector.wizards;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.dawnsci.common.richbeans.beans.BeanUI;
@@ -45,11 +43,9 @@ import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
+import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorROIComposite;
 import uk.ac.gda.exafs.ui.detector.DetectorListComposite;
-import uk.ac.gda.exafs.ui.detector.DetectorROIComposite;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
-import uk.ac.gda.exafs.ui.detector.VortexROIComposite;
-import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 import uk.ac.gda.exafs.ui.detector.xspress3.Xspress3ParametersUIHelper;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -65,15 +61,15 @@ public class ImportFluoDetROIWizardPage extends ImportROIWizardPage {
 	private boolean validSource;
 	private FluorescenceDetectorParameters detParameters;
 
-	private Class<? extends FluorescenceDetectorParameters> detectorParametersClazz;
+	private Class<? extends FluorescenceDetectorParameters> detectorParametersClass;
 
 	
 	// Region list stores a list of ROIs, potentially unsafe conversion, if it fails
 	// there will be runtime class cast exceptions
 	@SuppressWarnings("unchecked")
-	public ImportFluoDetROIWizardPage(int elementListSize, List<? extends DetectorROI> currentBeans, double maximum, Class <? extends FluorescenceDetectorParameters>  detectorParametersClazz) {
+	public ImportFluoDetROIWizardPage(int elementListSize, List<? extends DetectorROI> currentBeans, double maximum, Class <? extends FluorescenceDetectorParameters>  detectorParametersClass) {
 		this.elementListSize = elementListSize;
-		this.detectorParametersClazz = detectorParametersClazz;
+		this.detectorParametersClass = detectorParametersClass;
 		this.currentBeans = (List<DetectorROI>)currentBeans;
 		this.maximum = maximum;
 	}
@@ -134,8 +130,8 @@ public class ImportFluoDetROIWizardPage extends ImportROIWizardPage {
 			
 			@Override
 			public void notifySelected(ListEditor listEditor) {
-		   		XspressROIComposite xspressROIComposite = (XspressROIComposite)(listEditor.getEditorUI());
-				xspressROIComposite.setFitTypeVisibility();
+//		   		XspressROIComposite xspressROIComposite = (XspressROIComposite)(listEditor.getEditorUI());
+//				xspressROIComposite.setFitTypeVisibility();
 			}
 			
 			@Override
@@ -172,8 +168,8 @@ public class ImportFluoDetROIWizardPage extends ImportROIWizardPage {
 			regionList.setEditorClass(DetectorROI.class);
 			
 //			final DetectorROIComposite detectorROIComposite = Xspress3ParametersUIHelper.INSTANCE.getDetectorROICompositeFactory().createDetectorROIComposite(regionList, SWT.NONE);
-			final DetectorROIComposite detectorROIComposite = new VortexROIComposite(regionList, SWT.NONE);
-			detectorROIComposite.getFieldWidgetsForDetectorElementsComposite().getRoiEnd().setMaximum(maximum);
+			final FluoDetectorROIComposite detectorROIComposite = new FluoDetectorROIComposite(regionList, SWT.NONE);
+			detectorROIComposite.getRoiEnd().setMaximum(maximum);
 			regionList.setEditorUI(detectorROIComposite);
 			
 			detectorROIComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -193,8 +189,8 @@ public class ImportFluoDetROIWizardPage extends ImportROIWizardPage {
 				
 				@Override
 				public void notifySelected(ListEditor listEditor) {
-			   		XspressROIComposite xspressROIComposite = (XspressROIComposite)(listEditor.getEditorUI());
-					xspressROIComposite.setFitTypeVisibility();
+//			   		XspressROIComposite xspressROIComposite = (XspressROIComposite)(listEditor.getEditorUI());
+//					xspressROIComposite.setFitTypeVisibility();
 				}
 				
 				@Override
@@ -247,7 +243,7 @@ public class ImportFluoDetROIWizardPage extends ImportROIWizardPage {
 	protected void newSourceSelected(IPath path) {
 		validSource = false;
 		try {
-			detParameters = (FluorescenceDetectorParameters) XMLHelpers.readBean(path.toFile(), detectorParametersClazz);
+			detParameters = (FluorescenceDetectorParameters) XMLHelpers.readBean(path.toFile(), detectorParametersClass);
 			if (detParameters.getDetectorList().size() == elementListSize) {
 				BeanUI.switchState(detParameters, detectorListComposite, false);
 				BeanUI.beanToUI(detParameters, detectorListComposite);
@@ -275,54 +271,7 @@ public class ImportFluoDetROIWizardPage extends ImportROIWizardPage {
 	}
 	@Override
 	protected void performAddAll() {
-		Object bean = detectorListComposite.getDetectorElementComposite().getRegionList().getBean();
-		List <DetectorROI> regionToCopy;
-		if(bean instanceof DetectorROI)
-		{
-			List<uk.ac.gda.beans.vortex.DetectorElement> detectors = detParameters.getDetectorList();
-			regionToCopy = new ArrayList<DetectorROI>(detectors.size());
-			for(int i =0 ; i < detectors.size() ; i++){
-				boolean regionFound = false;
-				List <DetectorROI>elementROIList = detectors.get(i).getRegionList();
-				for ( DetectorROI roi : elementROIList){
-					if(roi.getRoiName().equals(((DetectorROI)bean).getRoiName()))
-					{
-						regionFound = true;
-						regionToCopy.add(roi);
-						break;
-					}
-				}
-				if(!regionFound)
-				{
-					logger.error("Unable to find the common region all elements, cannot copy");
-					return;
-				}
-			}
-//			System.out.println("the beans found are " + this.currentDetectorList.getValue());
-			try {
-			final List<?> elements = (List<?>) this.currentDetectorList.getValue();
-			final List<?> regionClone = BeanUI.cloneBeans(regionToCopy);
-			int index = -1;
-			
-				for (Object element : elements) {
-					++index;
-					
-					if(index == currentDetectorList.getSelectedIndex())
-					{
-						roisToImportComposite.getRegionList().addBean(regionClone.get(index), -1);
-					}
-					else
-					{
-						final Method addRegion = element.getClass().getMethod("addRegion", uk.ac.gda.beans.xspress.XspressROI.class);
-						addRegion.invoke(element, regionClone.get(index));
-					}
-					
-				}
-			} catch (Exception e1) {
-				logger.error("Error apply current detector regions to all detectors.", e1);
-			}		
-			
-		}
+		performAdd(); // Since detector elements do not actually support separate lists of ROIs
 	}
 	
 	@Override

@@ -494,8 +494,10 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 
 	@Override
 	public void dispose() {
-		if (plottingsystem != null)
+		if (plottingsystem != null) {
 			plottingsystem.dispose();
+			plottingsystem = null;
+		}
 		super.dispose();
 	}
 

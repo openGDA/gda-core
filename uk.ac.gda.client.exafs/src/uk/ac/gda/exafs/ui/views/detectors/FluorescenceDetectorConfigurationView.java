@@ -19,19 +19,25 @@
 package uk.ac.gda.exafs.ui.views.detectors;
 
 import org.eclipse.ui.part.ViewPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorComposite;
+import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorCompositeController;
 
 /**
  * Configures the regions of interest of a fluorescence detector. Subclasses should override createPartControl() to
- * create the FluorescenceDetectorComposite.
+ * create the FluorescenceDetectorComposite and its controller.
  * <p>
  * There should be a view for each detector instance on the beamline. However all views implementing this interface can
  * share the same command handlers.
  */
 public abstract class FluorescenceDetectorConfigurationView extends ViewPart {
 
+	private static final Logger logger = LoggerFactory.getLogger(FluorescenceDetectorConfigurationView.class);
+
 	protected FluorescenceDetectorComposite fluorescenceDetectorComposite;
+	protected FluorescenceDetectorCompositeController controller;
 
 	public FluorescenceDetectorConfigurationView() {
 		super();
@@ -42,23 +48,25 @@ public abstract class FluorescenceDetectorConfigurationView extends ViewPart {
 		fluorescenceDetectorComposite.setFocus();
 	}
 
-	@Override
-	public void dispose() {
-		fluorescenceDetectorComposite.dispose();
-		super.dispose();
-	}
-
 	/**
 	 * Apply the Regions as displayed in the view to the detector
 	 */
 	public void applyConfigurationToDetector() {
-		fluorescenceDetectorComposite.getController().applyConfigurationToDetector();
+		if (controller != null) {
+			controller.applyConfigurationToDetector();
+		} else {
+			logger.warn("Controller does not exist, cannot apply detector configuration");
+		}
 	}
 
 	/**
 	 * Update the regions displayed in the view from the detector
 	 */
 	public void fetchConfigurationFromDetector() {
-		fluorescenceDetectorComposite.getController().fetchConfigurationFromDetector();
+		if (controller != null) {
+			controller.fetchConfigurationFromDetector();
+		} else {
+			logger.warn("Controller does not exist, cannot fetch detector configuration");
+		}
 	}
 }

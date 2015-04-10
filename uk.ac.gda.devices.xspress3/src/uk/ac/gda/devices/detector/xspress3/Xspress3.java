@@ -13,6 +13,16 @@ import uk.ac.gda.devices.detector.FluorescenceDetector;
  */
 public interface Xspress3 extends FluorescenceDetector, NexusDetector {
 
+	/**
+	 * Perform a 'snapshot' data collection and return the MCAs. No file writing is involved.
+	 *
+	 * @param time
+	 * @return
+	 * @throws DeviceException
+	 */
+	@Deprecated
+	public int[][] getMCData(double time) throws DeviceException;
+
 	public Xspress3Controller getController();
 
 	public double readoutFF() throws DeviceException;
@@ -21,4 +31,9 @@ public interface Xspress3 extends FluorescenceDetector, NexusDetector {
 
 	public void clearAndStart() throws DeviceException;
 
+	public String getConfigFileName();
+
+	public void setConfigFileName(String configFileName);
+
+	public void loadConfigurationFromFile() throws Exception;
 }

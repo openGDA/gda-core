@@ -18,124 +18,421 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors;
 
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.selector.GridListEditor;
-import org.dawnsci.common.richbeans.event.ValueListener;
+import java.text.NumberFormat;
+
+import org.dawnsci.common.richbeans.beans.IFieldWidget;
+import org.dawnsci.common.richbeans.components.selector.BeanSelectionListener;
+import org.dawnsci.common.richbeans.components.selector.ListEditor;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
+import org.eclipse.dawnsci.plotting.api.region.IROIListener;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
-import uk.ac.gda.common.rcp.util.GridUtils;
-import uk.ac.gda.devices.detector.FluorescenceDetector;
-import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorAcquireComposite;
-import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorCompositeController;
+import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorCountsComposite;
+import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorElementsComposite;
 import uk.ac.gda.exafs.ui.composites.detectors.internal.FluoDetectorRegionsComposite;
 
 /**
  * Composite for enabling a user to set the regions of interest for energy sensitive detectors.
  */
-public abstract class FluorescenceDetectorComposite extends Composite {
+public class FluorescenceDetectorComposite extends Composite {
 
 	private static final Logger logger = LoggerFactory.getLogger(FluorescenceDetectorComposite.class);
 
 	private SashFormPlotComposite sashFormPlot;
 	private FluoDetectorAcquireComposite acquireComposite;
+	private FluoDetectorElementsComposite elementsComposite;
+	private FluoDetectorCountsComposite countsComposite;
 	private FluoDetectorRegionsComposite regionsComposite;
-	private FluoDetectorCompositeController controller;
-	protected FluorescenceDetector theDetector;
+	private int mcaSize;
 
+	/**
+	 * Create a new FluorescenceDetectorComposite. After the relevant values are available, this should be followed by calls to setDetectorElementListSize()
+	 * <b>(once only)</b> and setMCASize().
+	 *
+	 * @param parent
+	 * @param style
+	 */
 	public FluorescenceDetectorComposite(Composite parent, int style) {
 		super(parent, style);
 		this.setLayout(new FillLayout());
 
 		try {
-			this.theDetector = getDetectorInstance();
-
-			FluorescenceDetectorParameters detectorParameters = theDetector.getConfigurationParameters();
-
-			this.controller = new FluoDetectorCompositeController(this, detectorParameters, theDetector);
-
 			sashFormPlot = new SashFormPlotComposite(this, null);
 			sashFormPlot.getPlottingSystem().setRescale(false);
-			sashFormPlot.getSashForm().setWeights(new int[] { 35, 65 });
+			sashFormPlot.getSashForm().setWeights(new int[] { 30, 70 });
+			sashFormPlot.getRegionOnDisplay().setShowPosition(true); // This has no effect but would be nice!
+			sashFormPlot.setXAxisLabel("Channel number");
+			sashFormPlot.setYAxisLabel("Counts");
 
-			acquireComposite = new FluoDetectorAcquireComposite(sashFormPlot.getLeft(), controller);
-			GridDataFactory.fillDefaults().grab(true, false).applyTo(acquireComposite);
-			regionsComposite = new FluoDetectorRegionsComposite(sashFormPlot.getLeft(), controller,
-					theDetector.getConfigurationParametersClass());
-			GridDataFactory.fillDefaults().grab(true, true).applyTo(regionsComposite);
+			addDisposeListener(new DisposeListener() {
+				@Override
+				public void widgetDisposed(DisposeEvent e) {
+					sashFormPlot.dispose();
+				}
+			});
 
-			sashFormPlot.computeSizes();
+			GridDataFactory horizontalGrabGridData = GridDataFactory.fillDefaults().grab(true, false);
 
-			GridUtils.setVisibleAndLayout(acquireComposite, true);
-			GridUtils.setVisibleAndLayout(regionsComposite, true);
+			acquireComposite = new FluoDetectorAcquireComposite(sashFormPlot.getLeft(), SWT.NONE);
+			horizontalGrabGridData.applyTo(acquireComposite);
 
-			controller.start();
-			controller.replot();
+			elementsComposite = new FluoDetectorElementsComposite(sashFormPlot.getLeft(), SWT.NONE);
+			horizontalGrabGridData.applyTo(elementsComposite);
+
+			countsComposite = new FluoDetectorCountsComposite(sashFormPlot.getLeft(), SWT.NONE);
+			horizontalGrabGridData.applyTo(countsComposite);
+
+			regionsComposite = new FluoDetectorRegionsComposite(sashFormPlot.getLeft(), SWT.NONE, elementsComposite);
+			horizontalGrabGridData.applyTo(regionsComposite);
+
+			updateAfterLayoutChange();
 
 		} catch (Exception ex) {
-			logger.info("Exception creating FluorescenceDetectorComposite", ex);
+			// Creating the PlottingSystem in SashFormPlotComposite can throw Exception
+			logger.warn("Exception creating FluorescenceDetectorComposite", ex);
+			Label errorMessageLabel = new Label(this, SWT.NONE);
+			errorMessageLabel.setText("Error - see log for details");
+		}
+	}
+
+	private void updateAfterLayoutChange() {
+		sashFormPlot.computeSizes();
+		// Set up a task to make final adjustments after the GUI has finished construction
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				regionsComposite.updateAfterLayoutChange();
+			}
+		});
+	}
+
+	/**
+	 * Call this once after construction when the number of detector elements is known
+	 *
+	 * @param size
+	 */
+	public void setDetectorElementListSize(int size) {
+		elementsComposite.configureDetectorElementTable(size, regionsComposite);
+		updateAfterLayoutChange();
+	}
+
+	/**
+	 * Call this after construction when the number of MCA channels is known
+	 *
+	 * @param mcaSize
+	 */
+	public void setMCASize(int mcaSize) {
+		this.mcaSize = mcaSize;
+		regionsComposite.getRoiEnd().setMaximum(mcaSize);
+	}
+
+	/**
+	 * For access by BeanUI only. This name must match the field name in VortexParameters.
+	 */
+	public IFieldWidget getCollectionTime() {
+		return acquireComposite.getCollectionTime();
+	}
+
+	/**
+	 * For access by BeanUI only. This name must match the field name in FluorescenceDetectorParameters.
+	 */
+	public ListEditor getDetectorList() {
+		return elementsComposite.getDetectorList();
+	}
+
+	/**
+	 * For access by the controller <em>only</em> for the purpose of initialising the Import Region wizard.
+	 * <p>
+	 * It would be better to avoid breaking encapsulation like this if possible but that might not be possible, or would
+	 * certainly require the wizard to be rewritten.
+	 */
+	public ListEditor getRegionList() {
+		return regionsComposite.getRegionList();
+	}
+
+	/**
+	 * Add a listener which will be notified when a selection is changed in one of the list editors
+	 *
+	 * @param listener
+	 */
+	public void addBeanSelectionListener(BeanSelectionListener listener) {
+		getDetectorList().addBeanSelectionListener(listener);
+		getRegionList().addBeanSelectionListener(listener);
+	}
+
+	/**
+	 * @return the acquisition time (in milliseconds)
+	 */
+	public double getAcquisitionTime() {
+		return acquireComposite.getCollectionTime().getNumericValue();
+	}
+
+	/**
+	 * Add a listener which will be notified when the load button is pressed
+	 *
+	 * @param listener
+	 */
+	public void addLoadButtonListener(SelectionListener listener) {
+		acquireComposite.getLoadButton().addSelectionListener(listener);
+	}
+
+	/**
+	 * Add a listener which will be notified when the save button is pressed
+	 *
+	 * @param listener
+	 */
+	public void addSaveButtonListener(SelectionListener listener) {
+		acquireComposite.getSaveButton().addSelectionListener(listener);
+	}
+
+	/**
+	 * Add a listener which will be notified when the acquire button is pressed
+	 *
+	 * @param listener
+	 */
+	public void addAcquireButtonListener(SelectionListener listener) {
+		acquireComposite.getAcquireButton().addSelectionListener(listener);
+	}
+
+	/**
+	 * @return <code>true</code> if data should be automatically saved after acquisition
+	 */
+	public boolean getAutoSaveModeSelection() {
+		return acquireComposite.getAutoSaveCheckBox().getSelection();
+	}
+
+	/**
+	 * @return <code>true</code> if data should be acquired continuously
+	 */
+	public boolean getContinuousModeSelection() {
+		return acquireComposite.getLiveCheckBox().getSelection();
+	}
+
+	/**
+	 * Add a listener which will be notified when the continuous acquisition checkbox is clicked
+	 *
+	 * @param listener
+	 */
+	public void addContinuousModeButtonListener(SelectionListener listener) {
+		acquireComposite.getLiveCheckBox().addSelectionListener(listener);
+	}
+
+	/**
+	 * Update the view to show that continuous acquisition mode is selected
+	 */
+	public void setContinuousAcquireMode() {
+		acquireComposite.setContinuousAcquireMode();
+	}
+
+	/**
+	 * Update the view to show that single acquisition mode is selected
+	 */
+	public void setSingleAcquireMode() {
+		acquireComposite.setSingleAcquireMode();
+	}
+
+	/**
+	 * @return the index number of the currently-selected detector element
+	 */
+	public int getSelectedDetectorElementIndex() {
+		return elementsComposite.getSelectedElementIndex();
+	}
+
+	/**
+	 * Set the element name to be displayed below the detector element list
+	 *
+	 * @param label
+	 */
+	public void setElementName(String label) {
+		elementsComposite.getElementNameLabel().setValue(label);
+	}
+
+	/**
+	 * Set the total counts for all enabled detector elements
+	 *
+	 * @param enabledElementCounts
+	 */
+	public void setEnabledElementsCounts(double enabledElementCounts) {
+		countsComposite.getEnabledElementsCounts().setValue(formatDoubleValue(enabledElementCounts));
+		countsComposite.layout(true, true);
+	}
+
+	/**
+	 * Set the total counts for the currently-selected detector element
+	 *
+	 * @param elementCounts
+	 */
+	public void setSelectedElementCounts(double elementCounts) {
+		countsComposite.getSelectedElementCounts().setValue(formatDoubleValue(elementCounts));
+		countsComposite.layout(true, true);
+	}
+
+	/**
+	 * Set the counts for the currently-selected region
+	 *
+	 * @param regionCounts
+	 */
+	public void setSelectedRegionCounts(double regionCounts) {
+		countsComposite.getSelectedRegionCounts().setValue(formatDoubleValue(regionCounts));
+		countsComposite.layout(true, true);
+	}
+
+	private String formatDoubleValue(double val) {
+		return NumberFormat.getInstance().format(val);
+	}
+
+	/**
+	 * Add a listener which will be notified when the import button is pressed
+	 *
+	 * @param listener
+	 */
+	public void addRegionImportButtonSelectionListener(SelectionListener listener) {
+		regionsComposite.getImportButton().addSelectionListener(listener);
+	}
+
+	/**
+	 * @return the start value of the currently-selected region
+	 */
+	public int getRegionStart() {
+		return (int) regionsComposite.getRoiStart().getNumericValue();
+	}
+
+	/**
+	 * Set the start value of the currently-selected region
+	 *
+	 * @param regionStart
+	 */
+	public void setRegionStart(int regionStart) {
+		regionsComposite.getRoiStart().setIntegerValue(regionStart);
+	}
+
+	/**
+	 * @return the end value of the currently-selected region
+	 */
+	public int getRegionEnd() {
+		return (int) regionsComposite.getRoiEnd().getNumericValue();
+	}
+
+	/**
+	 * Set the end value of the currently-selected region
+	 *
+	 * @param regionEnd
+	 */
+	public void setRegionEnd(int regionEnd) {
+		regionsComposite.getRoiEnd().setIntegerValue(regionEnd);
+	}
+
+	/**
+	 * Update the region on the plot from the current settings in the UI
+	 */
+	public void updatePlottedRegionFromUI() {
+		int start = getRegionStart();
+		int end = getRegionEnd();
+		sashFormPlot.getRegionOnDisplay().setROI(new RectangularROI(start, 0, end - start, 0, 0));
+		sashFormPlot.getRegionOnDisplay().repaint();
+	}
+
+	/**
+	 * Set whether the region on the plot can be moved by dragging
+	 *
+	 * @param mobile
+	 */
+	public void setPlottedRegionMobile(boolean mobile) {
+		sashFormPlot.getRegionOnDisplay().setMobile(mobile);
+	}
+
+	/**
+	 * Add a listener which will be notified when the plotted region is changed
+	 *
+	 * @param listener
+	 */
+	public void addPlottedRegionListener(IROIListener listener) {
+		sashFormPlot.addRegionListener(listener);
+	}
+
+	/**
+	 * Update the view to indicate that continuous acquisition is in progress
+	 */
+	public void showAcquireStarted() {
+		acquireComposite.showAcquireStarted();
+	}
+
+	/**
+	 * Update the view to indicate that continuous acquisition has finished
+	 */
+	public void showAcquireFinished() {
+		acquireComposite.showAcquireFinished();
+	}
+
+	/**
+	 * Append text to the status panel
+	 *
+	 * @param text
+	 */
+	public void appendStatus(String text) {
+		sashFormPlot.appendStatus(text);
+	}
+
+	/**
+	 * Rescale the plot
+	 * <p>
+	 * In this implementation, the plotting system is told to scale its axes automatically, and the X-axis is manually
+	 * rescaled afterwards so it is completely filled by the available MCA data.
+	 */
+	public void autoscaleAxes() {
+		sashFormPlot.getPlottingSystem().autoscaleAxes();
+		if (mcaSize > 0) {
+			sashFormPlot.getPlottingSystem().getSelectedXAxis().setRange(0, mcaSize);
 		}
 	}
 
 	/**
-	 * Override this method to return the specific FluorescenceDetector that is to be configured with this composite
+	 * Set the label for the X-axis of the plot
 	 *
-	 * @return the FluorescenceDetector
+	 * @param xAxislabel
 	 */
-	protected abstract FluorescenceDetector getDetectorInstance();
-
-	/*
-	 * This name must match the field name in VortexParameters
-	 */
-	public ScaleBox getCollectionTime() {
-		return acquireComposite.getCollectionTime();
-	}
-
-	/*
-	 * This name must match the field name in VortexParameters
-	 */
-	public GridListEditor getDetectorList() {
-		return regionsComposite.getDetectorList();
-	}
-
-	@Override
-	public void dispose() {
-		sashFormPlot.dispose();
-		super.dispose();
-	}
-
-	public SashFormPlotComposite getSashFormPlot() {
-		return sashFormPlot;
-	}
-
-	public FluoDetectorAcquireComposite getAcquireComposite() {
-		return acquireComposite;
-	}
-
-	public FluoDetectorRegionsComposite getRegionsComposite() {
-		return regionsComposite;
-	}
-
-	public FluoDetectorCompositeController getController() {
-		return controller;
+	public void setXAxisLabel(String xAxislabel) {
+		sashFormPlot.setXAxisLabel(xAxislabel);
 	}
 
 	/**
-	 * Add a value listener to all IFieldWidgets in the UI
+	 * Set the label for the Y-axis of the plot
+	 *
+	 * @param yAxislabel
 	 */
-	public void addValueListener(ValueListener listener) throws Exception {
-		controller.addValueListener(listener);
+	public void setYAxisLabel(String yAxislabel) {
+		sashFormPlot.setYAxisLabel(yAxislabel);
 	}
 
 	/**
-	 * Remove a value listener from all IFieldWidgets in the UI
+	 * Set the title shown above the plot
+	 *
+	 * @param plotTitle
 	 */
-	public void removeValueListener(ValueListener listener) throws Exception {
-		controller.removeValueListener(listener);
+	public void setPlotTitle(String plotTitle) {
+		sashFormPlot.setPlotTitle(plotTitle);
+	}
+
+	/**
+	 * Plot the given dataset
+	 *
+	 * @param dataset
+	 */
+	public void plotDataset(IDataset dataset) {
+		sashFormPlot.setDatasets(dataset);
+		sashFormPlot.plotData();
 	}
 }

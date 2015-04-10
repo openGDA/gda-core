@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.dawnsci.common.richbeans.components.file.FileBox;
 import org.dawnsci.common.richbeans.components.file.FileBox.ChoiceType;
-import org.dawnsci.common.richbeans.components.selector.GridListEditor;
+import org.dawnsci.common.richbeans.components.selector.ListEditor;
 import org.dawnsci.common.richbeans.event.ValueAdapter;
 import org.dawnsci.common.richbeans.event.ValueEvent;
 import org.eclipse.core.runtime.IPath;
@@ -48,7 +48,7 @@ public abstract class ImportROIWizardPage extends WizardPage {
 	protected Button addToAllButton;
 	protected Composite mainComposite;
 	protected ScrolledComposite scrolledComp;
-	protected GridListEditor currentDetectorList;
+	protected ListEditor currentDetectorList;
 
 
 	public ImportROIWizardPage() {
@@ -180,7 +180,7 @@ public abstract class ImportROIWizardPage extends WizardPage {
 		}
 	}
 
-	public void setListEditor(GridListEditor detectorList) {
+	public void setListEditor(ListEditor detectorList) {
 		this.currentDetectorList = detectorList;
 
 	}

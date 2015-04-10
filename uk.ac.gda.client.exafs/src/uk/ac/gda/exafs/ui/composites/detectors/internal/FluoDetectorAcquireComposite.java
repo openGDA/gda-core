@@ -18,53 +18,49 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
+import org.dawnsci.common.richbeans.components.scalebox.NumberBox;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.swtdesigner.SWTResourceManager;
 
 public class FluoDetectorAcquireComposite extends Composite {
 
-	private static final Logger logger = LoggerFactory.getLogger(FluoDetectorAcquireComposite.class);
-
-	private ScaleBox acquireTime;
+	private NumberBox acquireTime;
 	private Button loadButton;
+	private Button saveButton;
 	private Button acquireButton;
 	private Button autoSaveCheckBox;
 	private Button liveCheckBox;
 
-	public FluoDetectorAcquireComposite(Composite composite, final FluoDetectorCompositeController controller) {
-		super(composite, SWT.NONE);
+	public FluoDetectorAcquireComposite(Composite composite, int style) {
+		super(composite, style);
 
 		this.setLayout(new FillLayout());
 
 		Group acquireGroup = new Group(this, SWT.NONE);
 		acquireGroup.setText("Acquire Spectra");
 
-		final int numberOfColumns = 4;
-		GridLayoutFactory.swtDefaults().numColumns(numberOfColumns).applyTo(acquireGroup);
+		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(acquireGroup);
 
 		loadButton = new Button(acquireGroup, SWT.NONE);
-		GridDataFactory.swtDefaults().span(numberOfColumns, 1).applyTo(loadButton);
+		GridDataFactory.swtDefaults().applyTo(loadButton);
 		loadButton.setImage(SWTResourceManager.getImage(FluoDetectorAcquireComposite.class, "/icons/folder.png"));
 		loadButton.setText("Load");
-		loadButton.addSelectionListener(new SelectionAdapter() {
 
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				controller.loadAcquireDataFromFile();
-			}
-		});
+		saveButton = new Button(acquireGroup, SWT.NONE);
+		GridDataFactory.swtDefaults().applyTo(saveButton);
+		saveButton.setImage(SWTResourceManager.getImage(FluoDetectorAcquireComposite.class, "/icons/disk.png"));
+		saveButton.setText("Save");
+
+		autoSaveCheckBox = new Button(acquireGroup, SWT.CHECK);
+		autoSaveCheckBox.setText("Save on Acquire");
 
 		acquireButton = new Button(acquireGroup, SWT.NONE);
 		setAcquireImageToSnapshot();
@@ -76,39 +72,8 @@ public class FluoDetectorAcquireComposite extends Composite {
 		acquireTime.setMaximum(50000);
 		acquireTime.setUnit("ms");
 
-		autoSaveCheckBox = new Button(acquireGroup, SWT.CHECK);
-		autoSaveCheckBox.setText("Save on Acquire");
-
 		liveCheckBox = new Button(acquireGroup, SWT.CHECK);
 		liveCheckBox.setText("Live");
-		liveCheckBox.addSelectionListener(new SelectionAdapter() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (liveCheckBox.getSelection()) {
-					autoSaveCheckBox.setEnabled(false);
-					setAcquireImageToGo();
-				} else {
-					autoSaveCheckBox.setEnabled(true);
-					setAcquireImageToSnapshot();
-				}
-			}
-		});
-
-		acquireButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				try {
-					if (liveCheckBox.getSelection()) {
-						controller.continuousAcquire(acquireTime.getNumericValue());
-					} else {
-						controller.singleAcquire(acquireTime.getNumericValue(), autoSaveCheckBox.getSelection());
-					}
-				} catch (Exception e1) {
-					logger.error("Cannot acquire xmap data", e1);
-				}
-			}
-		});
 	}
 
 	private void setAcquireImageToSnapshot() {
@@ -123,8 +88,18 @@ public class FluoDetectorAcquireComposite extends Composite {
 		acquireButton.setImage(SWTResourceManager.getImage(FluoDetectorAcquireComposite.class, "/icons/control_stop_blue.png"));
 	}
 
-	public ScaleBox getCollectionTime() {
+	public NumberBox getCollectionTime() {
 		return acquireTime;
+	}
+
+	public void setContinuousAcquireMode() {
+		autoSaveCheckBox.setEnabled(false);
+		setAcquireImageToGo();
+	}
+
+	public void setSingleAcquireMode() {
+		autoSaveCheckBox.setEnabled(true);
+		setAcquireImageToSnapshot();
 	}
 
 	public void showAcquireStarted() {
@@ -138,5 +113,25 @@ public class FluoDetectorAcquireComposite extends Composite {
 		acquireTime.setEnabled(true);
 		liveCheckBox.setEnabled(true);
 		setAcquireImageToGo();
+	}
+
+	public Button getLoadButton() {
+		return loadButton;
+	}
+
+	public Button getSaveButton() {
+		return saveButton;
+	}
+
+	public Button getAcquireButton() {
+		return acquireButton;
+	}
+
+	public Button getAutoSaveCheckBox() {
+		return autoSaveCheckBox;
+	}
+
+	public Button getLiveCheckBox() {
+		return liveCheckBox;
 	}
 }

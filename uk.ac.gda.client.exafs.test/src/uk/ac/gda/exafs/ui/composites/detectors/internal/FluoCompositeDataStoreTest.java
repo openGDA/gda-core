@@ -31,7 +31,7 @@ import org.junit.Test;
 
 public class FluoCompositeDataStoreTest {
 
-	private int[][] theData;
+	private double[][] theData;
 	private File originalDataFile;
 
 	@Before
@@ -45,7 +45,7 @@ public class FluoCompositeDataStoreTest {
 	public void testReadDataFile() {
 		assertEquals(10, theData.length);
 		assertEquals(4096, theData[0].length);
-		assertEquals(7947694, theData[0][0]);
+		assertEquals(7947694, theData[0][0], Double.MIN_VALUE);
 	}
 
 	@Test

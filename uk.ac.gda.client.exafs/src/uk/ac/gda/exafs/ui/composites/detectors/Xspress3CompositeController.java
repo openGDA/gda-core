@@ -19,22 +19,15 @@
 package uk.ac.gda.exafs.ui.composites.detectors;
 
 import gda.factory.Finder;
-
-import org.eclipse.swt.widgets.Composite;
-
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 
 /**
- * Xspress3-specific subclass of FluorescenceDetectorComposite.
+ * Xspress3-specific subclass of FluorescenceDetectorCompositeController.
  */
-public class Xspress3ParametersComposite extends FluorescenceDetectorComposite {
-
-	public Xspress3ParametersComposite(Composite parent, int style) {
-		super(parent, style);
-	}
+public class Xspress3CompositeController extends FluorescenceDetectorCompositeController {
 
 	@Override
-	protected FluorescenceDetector getDetectorInstance() {
+	public FluorescenceDetector getDetectorInstance() {
 		return (FluorescenceDetector) Finder.getInstance().find("xspress3");
 	}
 }

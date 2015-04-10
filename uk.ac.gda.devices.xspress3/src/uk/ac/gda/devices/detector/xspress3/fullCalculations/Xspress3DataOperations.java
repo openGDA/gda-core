@@ -317,31 +317,25 @@ public class Xspress3DataOperations {
 		return extraNames;
 	}
 
-	public int[][] getData() throws DeviceException {
-
-		double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestMCA(firstChannelToRead,
-				controller.getNumberOfChannels() - 1);
-		int[][] deadTimeCorrectedDataInt = new int[deadTimeCorrectedData.length][deadTimeCorrectedData[0].length];
-		for (int i = 0; i < deadTimeCorrectedData.length; i++) {
-			for (int j = 0; j < deadTimeCorrectedData[0].length; j++) {
-				deadTimeCorrectedDataInt[i][j] = (int) Math.round(deadTimeCorrectedData[i][j]);
-			}
-		}
-		return deadTimeCorrectedDataInt;
-	}
-
 	/**
 	 * @param time
 	 *            - milliseconds
 	 * @return
 	 * @throws DeviceException
 	 */
+	@Deprecated
 	public int[][] getMCData(double time) throws DeviceException {
+		getMCAData(time);
+
+		double[][] mcaData = getMCAData(time);
+		return getIntDataFromDoubles(mcaData);
+	}
+
+	public double[][] getMCAData(double time) throws DeviceException {
 		controller.doErase();
-		enableEpicsMcaStorage();
 		controller.doStart();
-		((Timer) Finder.getInstance().find("tfg")).clearFrameSets();
-		((Timer) Finder.getInstance().find("tfg")).countAsync(time);
+		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only want to collect a frame at a time
+		((Timer) Finder.getInstance().find("tfg")).countAsync(time); // run tfg for time
 		do {
 			synchronized (this) {
 				try {
@@ -353,7 +347,17 @@ public class Xspress3DataOperations {
 
 		controller.doStop();
 
-		return getData();
+		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, controller.getNumberOfChannels() - 1);
+	}
+
+	private int[][] getIntDataFromDoubles(double[][] mcaData) {
+		int[][] mcaIntData = new int[mcaData.length][mcaData[0].length];
+		for (int i = 0; i < mcaData.length; i++) {
+			for (int j = 0; j < mcaData[0].length; j++) {
+				mcaIntData[i][j] = (int) Math.round(mcaData[i][j]);
+			}
+		}
+		return mcaIntData;
 	}
 
 	public DetectorROI[] getRegionsOfInterest() {

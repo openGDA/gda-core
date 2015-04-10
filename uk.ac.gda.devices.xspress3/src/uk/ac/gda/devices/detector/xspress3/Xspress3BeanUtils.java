@@ -36,9 +36,8 @@ public class Xspress3BeanUtils {
 		return (Xspress3Parameters) XMLHelpers.createFromXML(Xspress3Parameters.mappingURL, Xspress3Parameters.class, VortexParameters.schemaURL, new File(xmlPath));
 	}
 
-	public void createXMLfromBean(Xspress3 xmap, Xspress3Parameters vortexBean) throws Exception{
-		File file = new File(xmap.getConfigFileName());
-		XMLHelpers.writeToXML(Xspress3Parameters.mappingURL, vortexBean, file);
+	public void createXMLfromBean(Xspress3 xspress3, Xspress3Parameters xspress3Bean) throws Exception{
+		File file = new File(xspress3.getConfigFileName());
+		XMLHelpers.writeToXML(Xspress3Parameters.mappingURL, xspress3Bean, file);
 	}
-
 }

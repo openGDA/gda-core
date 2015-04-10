@@ -18,198 +18,101 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
-import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
-import org.dawnsci.common.richbeans.components.selector.BeanSelectionEvent;
-import org.dawnsci.common.richbeans.components.selector.BeanSelectionListener;
-import org.dawnsci.common.richbeans.components.selector.GridListEditor;
-import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
+import org.dawnsci.common.richbeans.beans.IFieldWidget;
+import org.dawnsci.common.richbeans.components.scalebox.NumberBox;
+import org.dawnsci.common.richbeans.components.selector.ListEditor;
+import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.exafs.IDetectorElement;
-import uk.ac.gda.beans.vortex.DetectorElement;
-import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
-import uk.ac.gda.exafs.ui.detector.wizards.ImportFluoDetROIWizard;
+import uk.ac.gda.beans.DetectorROI;
 
 import com.swtdesigner.SWTResourceManager;
 
 public class FluoDetectorRegionsComposite extends Composite {
 
-	private static Logger logger = LoggerFactory.getLogger(FluoDetectorRegionsComposite.class);
+	private FluoDetectorElementsComposite elementsComposite;
+	private Button importButton;
+	private VerticalListEditor regionList;
+	private FluoDetectorROIComposite detectorROIComposite;
 
-	private GridListEditor detectorElementTable;
-	private FluoDetectorRegionListComposite regionListComposite;
-	private FluoDetectorCompositeController controller;
-
-	public FluoDetectorRegionsComposite(Composite composite, FluoDetectorCompositeController controller, Class<? extends FluorescenceDetectorParameters> detectorParametersClazz) {
-		super(composite, SWT.NONE);
+	public FluoDetectorRegionsComposite(Composite parent, int style,
+			final FluoDetectorElementsComposite elementsComposite) {
+		super(parent, style);
 		this.setLayout(new FillLayout());
 
-		this.controller = controller;
+		this.elementsComposite = elementsComposite;
 
 		Group regionsGroup = new Group(this, SWT.NONE);
 		regionsGroup.setText("Regions");
 		GridLayoutFactory.swtDefaults().applyTo(regionsGroup);
 
-		createApplyToAllPanel(regionsGroup);
-
-		createSeparator(regionsGroup);
-
-		createImportButton(regionsGroup, detectorParametersClazz);
-
-		createDetectorElementTable(regionsGroup);
-
-		createRegionsList(regionsGroup);
-
-		configureDetectorElementTable();
-
-		createBindings();
-	}
-
-	private void createImportButton(Group regionsGroup, final Class<? extends FluorescenceDetectorParameters> detectorParametersClass) {
-		Composite importComposite = new Composite(regionsGroup, SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(importComposite);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(importComposite);
-
-		final Label importLabel = new Label(importComposite, SWT.NONE);
-		importLabel.setText("Import Regions Of Interest");
-		final Button importButton = new Button(importComposite, SWT.NONE);
-		GridDataFactory grab = GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).grab(true, false);
-		grab.hint(60, SWT.DEFAULT).applyTo(importButton);
-		importButton.setImage(SWTResourceManager.getImage(FluoDetectorRegionsComposite.class, "/icons/calculator_edit.png"));
+		importButton = new Button(regionsGroup, SWT.NONE);
+		importButton.setImage(SWTResourceManager.getImage(FluoDetectorRegionsComposite.class,
+				"/icons/calculator_edit.png"));
+		importButton.setText("Import");
 		importButton.setToolTipText("Import Regions Of Interest from other Parameters files");
-		final SelectionAdapter importButtonListener = new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				WizardDialog dialog = new WizardDialog(importButton.getShell(), new ImportFluoDetROIWizard(
-						regionListComposite.getRegionList(), detectorElementTable, detectorParametersClass));
-				dialog.create();
-				dialog.open();
-			}
-		};
-		importButton.addSelectionListener(importButtonListener);
+
+		regionList = new VerticalListEditor(regionsGroup, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(regionList);
+		regionList.setRequireSelectionPack(false);
+		regionList.setTemplateName("ROI");
+		regionList.setNameField("roiName");
+		regionList.setAdditionalFields(new String[] { "roiStart", "roiEnd" });
+		regionList.setColumnNames("Name", "Start", "End");
+		regionList.setColumnWidths(200, 50, 50);
+		regionList.setShowAdditionalFields(true);
+		regionList.setListHeight(100);
+		regionList.setEditorClass(DetectorROI.class);
+
+		detectorROIComposite = new FluoDetectorROIComposite(regionList, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(detectorROIComposite);
+		regionList.setEditorUI(detectorROIComposite);
+		regionList.setVisible(true);
+		regionList.setEnabled(true);
+		detectorROIComposite.setVisible(true);
 	}
 
-	private void createApplyToAllPanel(Group regionsGroup) {
-		final Composite applyToAllPanel = new Composite(regionsGroup, SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(applyToAllPanel);
-
-		Button applyToAllCheckbox = new Button(applyToAllPanel, SWT.CHECK);
-		applyToAllCheckbox.setText("Apply changes to all elements");
-		applyToAllCheckbox.setSelection(true);
-		applyToAllCheckbox.setEnabled(false);
+	/*
+	 * For access by BeanUI only. This name must match the field name in DetectorElement.
+	 */
+	public IFieldWidget getExcluded() {
+		// This is a bit of a hack to get around the fact that in the parameters bean, each element has a separate list
+		// of regions, but in the detector class there is just a single list. BeanUI expects to find the getExcluded()
+		// method on the editor UI object for the detector element, but conceptually it fits much more naturally to put
+		// the "Enabled" box in the elements composite next to the element grid. To do this we keep a reference to the
+		// element composite and pass the getExcluded() call on to it.
+		return elementsComposite.getExcluded();
 	}
 
-	private void createSeparator(Group regionsGroup) {
-		Label sep = new Label(regionsGroup, SWT.SEPARATOR | SWT.HORIZONTAL);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(sep);
+	public void updateAfterLayoutChange() {
+		getRoiStart().checkBounds(); // Prevent roiStart appearing in red on first opening
+		regionList.setShowAdditionalFields(true); // Need to call this here to get correct names showing in header due
+													// to a bug in Dawn 1.8. Should be fixed in later versions.
 	}
 
-	private void createDetectorElementTable(Group regionsGroup) {
-
-		Label elementsLabel = new Label(regionsGroup, SWT.NONE);
-		elementsLabel.setText("Detector Elements:");
-
-		int elementListSize = controller.getDetector().getNumberOfChannels();
-		double elementListSizeSquareRoot = Math.sqrt(elementListSize);
-
-		// Squared table of Detector Elements
-		int columns = elementListSize / 2;
-		int rows = 2;
-
-		if (Double.compare(elementListSizeSquareRoot, (int) elementListSizeSquareRoot) == 0) {
-			columns = (int) elementListSizeSquareRoot;
-			rows = (int) elementListSizeSquareRoot;
-		} else if ((elementListSize % 2) != 0) {
-			logger.warn("Non-even, non-square number of detector elements: not sure how to layout the grid!");
-		}
-
-		this.detectorElementTable = new GridListEditor(regionsGroup, SWT.NONE, columns, rows);
-		GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.CENTER).applyTo(detectorElementTable);
+	public Button getImportButton() {
+		return importButton;
 	}
 
-	private void createRegionsList(Group regionsGroup) {
-		regionListComposite = new FluoDetectorRegionListComposite(regionsGroup, SWT.NONE, controller);
-		GridDataFactory.fillDefaults().applyTo(regionListComposite);
+	public ListEditor getRegionList() {
+		return regionList;
 	}
 
-	private void configureDetectorElementTable() {
-		detectorElementTable.setEditorClass(DetectorElement.class);
-		detectorElementTable.setEditorUI(regionListComposite);
-		detectorElementTable.setGridWidth(200);
-		detectorElementTable.setEnabled(true);
-		detectorElementTable.setAdditionalLabelProvider(new ColumnLabelProvider() {
-			private final Color lightGray = SWTResourceManager.getColor(SWT.COLOR_GRAY);
-
-			@Override
-			public Color getForeground(Object element) {
-				if (element instanceof IDetectorElement) {
-					IDetectorElement detectorElement = (IDetectorElement) element;
-					if (detectorElement.isExcluded()) {
-						return lightGray;
-					}
-				}
-				return null;
-			}
-
-			@Override
-			public String getText(Object element) {
-				return null;
-			}
-		});
+	public FluoDetectorROIComposite getDetectorROIComposite() {
+		return detectorROIComposite;
 	}
 
-	private void createBindings() {
-		detectorElementTable.addBeanSelectionListener(new BeanSelectionListener() {
-			@Override
-			public void selectionChanged(BeanSelectionEvent evt) {
-				controller.replot();
-			}
-		});
+	public NumberBox getRoiStart() {
+		return detectorROIComposite.getRoiStart();
 	}
 
-	public GridListEditor getDetectorList() {
-		return detectorElementTable;
-	}
-
-	public int getSelectedDetectorElement() {
-		return detectorElementTable.getSelectedIndex();
-	}
-
-	public LabelWrapper getElementNameLabel() {
-		return regionListComposite.getElementNameLabel();
-	}
-
-	public LabelWrapper getTotalCountsLabel() {
-		return regionListComposite.getTotalCountsLabel();
-	}
-
-	public LabelWrapper getElementCountsLabel() {
-		return regionListComposite.getElementCountsLabel();
-	}
-
-	public ScaleBox getRoiStart() {
-		return regionListComposite.getRoiStart();
-	}
-
-	public ScaleBox getRoiEnd() {
-		return regionListComposite.getRoiEnd();
-	}
-
-	public LabelWrapper getROICountsLabel() {
-		return regionListComposite.getROICountsLabel();
+	public NumberBox getRoiEnd() {
+		return detectorROIComposite.getRoiEnd();
 	}
 }

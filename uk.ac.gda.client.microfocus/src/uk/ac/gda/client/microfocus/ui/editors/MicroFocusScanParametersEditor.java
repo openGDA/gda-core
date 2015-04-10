@@ -20,13 +20,15 @@ package uk.ac.gda.client.microfocus.ui.editors;
 
 import java.net.URL;
 
+import org.eclipse.swt.widgets.Composite;
+
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
+import uk.ac.gda.richbeans.CompositeFactory;
 import uk.ac.gda.richbeans.editors.DelegatingRichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
-
-public final class MicroFocusScanParametersEditor extends RichBeanMultiPageEditorPart {
+public final class MicroFocusScanParametersEditor extends RichBeanMultiPageEditorPart implements CompositeFactory {
 
 	@Override
 	public Class<?> getBeanClass() {
@@ -40,8 +42,8 @@ public final class MicroFocusScanParametersEditor extends RichBeanMultiPageEdito
 
 	@Override
 	public RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
-		DelegatingRichBeanEditorPart editor = new DelegatingRichBeanEditorPart(path, getMappingUrl(), this, editingBean);
-		editor.setEditorClass(MicroFocusScanParametersComposite.class);
+		DelegatingRichBeanEditorPart editor = new DelegatingRichBeanEditorPart(path, getMappingUrl(), this,
+				editingBean, this);
 		editor.setScrollable(true);
 		editor.setRichEditorTabText("Map");
 		return editor;
@@ -50,6 +52,11 @@ public final class MicroFocusScanParametersEditor extends RichBeanMultiPageEdito
 	@Override
 	public URL getSchemaUrl() {
 		return MicroFocusScanParameters.schemaUrl;
+	}
+
+	@Override
+	public Composite createComposite(Composite parent, int style) {
+		return new MicroFocusScanParametersComposite(parent, style);
 	}
 
 }

@@ -10,7 +10,6 @@ import gda.device.detector.NexusDetector;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.devices.detector.xspress3.fullCalculations.Xspress3WithFullCalculationsDetector;
@@ -293,8 +292,14 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	}
 
 	@Override
+	@Deprecated
 	public int[][] getMCData(double time) throws DeviceException {
 		return xspress3Detector.getMCData(time);
+	}
+
+	@Override
+	public double[][] getMCAData(double time) throws DeviceException {
+		return xspress3Detector.getMCAData(time);
 	}
 
 	@Override
@@ -388,20 +393,26 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		return xspress3Detector.readoutFF();
 	}
 
-	@Override
+	/**
+	 * @deprecated Use getConfigurationParameters() instead
+	 */
+	@Deprecated
 	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
 		return xspress3Detector.getRegionsOfInterest();
 	}
 
-	@Override
+	/**
+	 * @deprecated Use applyConfigurationParameters() instead
+	 */
+	@Deprecated
 	public void setRegionsOfInterest(DetectorROI[] regionList)
 			throws DeviceException {
 		xspress3Detector.setRegionsOfInterest(regionList);
 	}
 
 	@Override
-	public int getNumberOfChannels() {
-		return xspress3Detector.getNumberOfChannels();
+	public int getNumberOfElements() {
+		return xspress3Detector.getNumberOfElements();
 	}
 
 	@Override
@@ -412,11 +423,6 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	@Override
 	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) throws Exception {
 		xspress3Detector.applyConfigurationParameters(parameters);
-	}
-
-	@Override
-	public Class<? extends FluorescenceDetectorParameters> getConfigurationParametersClass() {
-		return Xspress3Parameters.class;
 	}
 
 	@Override

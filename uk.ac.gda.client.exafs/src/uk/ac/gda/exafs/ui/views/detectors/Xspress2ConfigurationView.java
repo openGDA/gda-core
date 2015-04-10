@@ -21,7 +21,8 @@ package uk.ac.gda.exafs.ui.views.detectors;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-import uk.ac.gda.exafs.ui.composites.detectors.Xspress2ParametersComposite;
+import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorComposite;
+import uk.ac.gda.exafs.ui.composites.detectors.Xspress2CompositeController;
 
 /**
  * Configures the regions of interest of an Xspress2 detector.
@@ -32,6 +33,9 @@ public class Xspress2ConfigurationView extends FluorescenceDetectorConfiguration
 
 	@Override
 	public void createPartControl(Composite parent) {
-		fluorescenceDetectorComposite = new Xspress2ParametersComposite(parent, SWT.NONE);
+		fluorescenceDetectorComposite = new FluorescenceDetectorComposite(parent, SWT.NONE);
+		controller = new Xspress2CompositeController();
+		controller.setEditorUI(fluorescenceDetectorComposite);
+		controller.initialise();
 	}
 }

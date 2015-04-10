@@ -21,8 +21,7 @@ package uk.ac.gda.exafs.ui.detector.wizards;
 import java.util.List;
 
 import org.dawnsci.common.richbeans.beans.BeansFactory;
-import org.dawnsci.common.richbeans.components.selector.GridListEditor;
-import org.dawnsci.common.richbeans.components.selector.VerticalListEditor;
+import org.dawnsci.common.richbeans.components.selector.ListEditor;
 import org.eclipse.jface.wizard.Wizard;
 
 import uk.ac.gda.beans.DetectorROI;
@@ -64,16 +63,16 @@ import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 public class ImportFluoDetROIWizard extends Wizard {
 
 	private ImportFluoDetROIWizardPage mainPage;
-	private VerticalListEditor regionList;
-	private GridListEditor elementList;
-	private Class<? extends FluorescenceDetectorParameters> detectorParametersClazz;
+	private ListEditor regionList;
+	private ListEditor elementList;
+	private Class<? extends FluorescenceDetectorParameters> detectorParametersClass;
 
-	public ImportFluoDetROIWizard(VerticalListEditor regionList, GridListEditor elementList,
-			Class<? extends FluorescenceDetectorParameters> detectorParametersClazz) {
+	public ImportFluoDetROIWizard(ListEditor regionList, ListEditor elementList,
+			Class<? extends FluorescenceDetectorParameters> detectorParametersClass) {
 		super();
 		this.regionList = regionList;
 		this.elementList = elementList;
-		this.detectorParametersClazz = detectorParametersClazz;
+		this.detectorParametersClass = detectorParametersClass;
 	}
 
 	@Override
@@ -97,7 +96,7 @@ public class ImportFluoDetROIWizard extends Wizard {
 			clonedValue = null;
 		}
 		mainPage = new ImportFluoDetROIWizardPage(elementList.getListSize(), clonedValue, maximum,
-				detectorParametersClazz);
+				detectorParametersClass);
 		mainPage.setListEditor(elementList);
 		addPage(mainPage);
 	}

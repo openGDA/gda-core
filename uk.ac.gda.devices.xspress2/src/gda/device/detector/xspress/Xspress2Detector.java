@@ -799,7 +799,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	}
 
 	@Override
-	public int[][] getMCData(double time) throws DeviceException {
+	public double[][] getMCAData(double time) throws DeviceException {
 		
 		int[] data = controller.runOneFrame((int) Math.round(time));
 
@@ -812,7 +812,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 				// remove frame and res-grade settings - not used by I18 or B18
 				int numDetectors = fourD[0].length;
 				int mcaSize = fourD[0][0][0].length;
-				int[][] twoD = new int[numDetectors][mcaSize];
+				double[][] twoD = new double[numDetectors][mcaSize];
 				
 				for (int det = 0; det < numDetectors; det++){
 					for (int mcaChan = 0; mcaChan < mcaSize; mcaChan++){
@@ -829,18 +829,15 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		return null;
 	}
 
-	@Override
 	public void loadConfigurationFromFile() throws Exception {
 		loadAndInitializeDetectors(getConfigFileName());		
 	}
 
-	@Override
 	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
 		List<DetectorROI> rois = settings.getParameters().getDetectorList().get(0).getRegionList();
 		return (DetectorROI[]) rois.toArray();
 	}
 
-	@Override
 	public void setRegionsOfInterest(DetectorROI[] regionList)
 			throws DeviceException {
 		
@@ -858,7 +855,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	}
 
 	@Override
-	public int getNumberOfChannels() {
+	public int getNumberOfElements() {
 		return settings.getNumberOfDetectors();
 	}
 
@@ -875,11 +872,6 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 		if (modeOverride) {
 			settings.getParameters().setReadoutMode(READOUT_MCA);
 		}
-	}
-
-	@Override
-	public Class<? extends FluorescenceDetectorParameters> getConfigurationParametersClass() {
-		return XspressParameters.class;
 	}
 
 	@Override

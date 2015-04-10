@@ -59,7 +59,7 @@ import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentBeanManager;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
-import uk.ac.gda.devices.detector.FluorescenceDetector;
+import uk.ac.gda.devices.detector.xspress3.Xspress3;
 import uk.ac.gda.exafs.ui.composites.FluorescenceComposite;
 import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
@@ -301,7 +301,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 		if (monitor != null)
 			monitor.beginTask("Acquiring Xspress3 snapshot...", numWorkUnits);
 
-		FluorescenceDetector theDetector = getDetector(detectorName);
+		Xspress3 theDetector = getDetector(detectorName);
 		if (theDetector == null)
 			throw new Exception("Unable to find Xspress3Detector called :'" + detectorName + "'");
 
@@ -565,8 +565,8 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 		return varDir + "/" + XSPRESS3_EDITOR_DATA_XML_FILENAME;
 	}
 
-	private final FluorescenceDetector getDetector(String detectorName) {
-		FluorescenceDetector detector = (FluorescenceDetector) Finder.getInstance().find(detectorName);
+	private final Xspress3 getDetector(String detectorName) {
+		Xspress3 detector = (Xspress3) Finder.getInstance().find(detectorName);
 		return detector;
 	}
 
