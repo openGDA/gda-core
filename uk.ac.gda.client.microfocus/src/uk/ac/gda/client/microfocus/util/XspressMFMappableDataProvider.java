@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
@@ -41,16 +42,12 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 		super();
 	}
 	
-	private static final String[] detectorNames = new String[]{"xspress2system", "raster_xspress2"};
+	private static final String[] detectorNames = new String[]{"xspress2system", "raster_xspress"};
 
 	private int numberOfdetectorElements;
 	private List<DetectorROI>[] elementRois;
-	private double[][] dataset;
-	@SuppressWarnings("unused")
-	private double[] data;
 	private HashMap<String, Integer> roiNameMap;
 	private static final Logger logger = LoggerFactory.getLogger(XspressMFMappableDataProvider.class);
-	// TODO User should be able to change the length via preference
 	private int maxSpectrumLengthForViewing = 4096;
 
 	@Override
@@ -64,85 +61,32 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 
 	@Override
 	public double[][] constructMappableData() {
-		logger.debug("getting data for " + selectedElement);
-		int noOfDetectors;
-		double dataSliceFromFile[][][] = null;
+		logger.debug("getting data for " + selectedElement + " channel " + selectedChannel);
 		double[][] mapData = new double[yarray.length][xarray.length];
 		Integer selectedElementIndex = roiNameMap.get(selectedElement);
-		noOfDetectors = numberOfdetectorElements;
-		if (dataset[selectedElementIndex] == null) {
-			dataset[selectedElementIndex] = new double[yAxisLengthFromFile * xAxisLengthFromFile];
-			for (int i = 0; i < yAxisLengthFromFile; i++) {
-				dataSliceFromFile = getDataSliceFromFile(i);
-				for (int j = 0; j < xAxisLengthFromFile; j++) {
-					for (int detectorNo = 0; detectorNo < noOfDetectors; detectorNo++) {
-						List<DetectorROI> roiList = elementRois[detectorNo];
-						for (DetectorROI roi : roiList) {
-							if (roi.getRoiName().equals(selectedElement)) {
-								int windowEnd = roi.getRoiEnd();
-								for (int k = roi.getRoiStart(); k <= windowEnd; k++) {
-									mapData[i][j] += dataSliceFromFile[j][detectorNo][k];
-								}
-							} else {
-								Integer otherElementIndex = roiNameMap.get(roi.getRoiName());
-								if (otherElementIndex != null) {
-									if (dataset[otherElementIndex] == null)
-										dataset[otherElementIndex] = new double[yAxisLengthFromFile
-												* xAxisLengthFromFile];
-									int windowEnd = roi.getRoiEnd();
-									for (int k = roi.getRoiStart(); k <= windowEnd; k++) {
-										dataset[otherElementIndex][(i * xAxisLengthFromFile) + j] += dataSliceFromFile[j][detectorNo][k];
-									}
-								}
-							}
-						}
-					}
-					dataset[selectedElementIndex][(i * xAxisLengthFromFile) + j] = mapData[i][j];
+		DetectorROI roi=  elementRois[selectedChannel].get(selectedElementIndex);
+		
+		double[][][] mcas = getMCAMapFromFile(selectedChannel);
+		for (int i = 0; i < yAxisLengthFromFile; i++) {
+			for (int j = 0; j < xAxisLengthFromFile; j++) {
+				double[] roiValues = ArrayUtils.subarray(mcas[i][j], roi.getRoiStart(), roi.getRoiEnd());
+				double roiSum = 0;
+				for (double value :roiValues ) {
+					roiSum += value;
 				}
+				mapData[i][j] = roiSum;
 			}
-		} else {
-			for (int i = 0; i < yAxisLengthFromFile; i++) {
-				for (int j = 0; j < xAxisLengthFromFile; j++) {
-					mapData[i][j] = dataset[selectedElementIndex][(i * xAxisLengthFromFile) + j];
-				}
-			}
-
 		}
 		return mapData;
 	}
-
-	private double[][][] getDataSliceFromFile(int i) {
-		IDataset slice = lazyDataset.getSlice(new int[] { i, 0, 0, 0 }, new int[] { i + 1, xAxisLengthFromFile,
-				numberOfdetectorElements, 4096 }, new int[] { 1, 1, 1, 1 });
+	
+	private double[][][] getMCAMapFromFile(int channel) {
+		IDataset slice = lazyDataset.getSlice(new int[] { 0, 0, channel, 0 }, new int[] { yAxisLengthFromFile, xAxisLengthFromFile,
+				channel+1, 4096 }, new int[] { 1, 1, 1, 1 });
 		ILazyDataset sqSlice = slice.squeeze();
 		double[] data = (double[]) ((Dataset) sqSlice).getBuffer();
 		int dim[] = sqSlice.getShape();
 		return packto4D(data, dim[0], dim[1], dim[2]);
-	}
-
-	@SuppressWarnings("unused")
-	private double[] getDataSliceFromFile(int y, int x, int detectorNo, DetectorROI roi) {
-		IDataset slice = lazyDataset.getSlice(new int[] { y, x, detectorNo, roi.getRoiStart() }, new int[] { y + 1,
-				x + 1, detectorNo + 1, roi.getRoiEnd() }, new int[] { 1, 1, 1, 1 });
-		ILazyDataset sqSlice = slice.squeeze();
-		return (double[]) ((Dataset) sqSlice).getBuffer();
-	}
-
-	@SuppressWarnings("unused")
-	private double[][][][] packto4D(double[] d1, int ny, int nx, int noOfDetElements, int mcasize) {
-		double[][][][] ret = new double[noOfDetElements][ny][nx][mcasize];
-		int index = 0;
-		for (int i = 0; i < ny; i++) {
-			for (int j = 0; j < nx; j++) {
-				for (int l = 0; l < noOfDetElements; l++) {
-					for (int k = 0; k < mcasize; k++) {
-						ret[l][i][j][k] = d1[index];
-						index++;
-					}
-				}
-			}
-		}
-		return ret;
 	}
 
 	private double[][][] packto4D(double[] d1, int ny, int nx, int mcasize) {
@@ -175,7 +119,6 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 			for (int detectorNo = 0; detectorNo < numberOfdetectorElements; detectorNo++)
 				elementRois[detectorNo] = ((XspressParameters) xspressBean).getDetector(detectorNo).getRegionList();
 			String eleNames[] = getElementNames();
-			dataset = new double[eleNames.length][];
 			roiNameMap = new HashMap<String, Integer>();
 			for (int i = 0; i < eleNames.length; i++) {
 				roiNameMap.put(eleNames[i], i);
@@ -193,7 +136,6 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 			for (int detectorNo = 0; detectorNo < numberOfdetectorElements; detectorNo++)
 				elementRois[detectorNo] = ((XspressParameters) xspressBean).getDetector(detectorNo).getRegionList();
 			String eleNames[] = getElementNames();
-			dataset = new double[eleNames.length][];
 			roiNameMap = new HashMap<String, Integer>();
 			for (int i = 0; i < eleNames.length; i++) {
 				roiNameMap.put(eleNames[i], i);

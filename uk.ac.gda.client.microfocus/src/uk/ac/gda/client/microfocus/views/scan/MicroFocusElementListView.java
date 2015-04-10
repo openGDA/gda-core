@@ -333,14 +333,18 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 		try {
 			String metaNames = metadata.getMetaNames().toString();
-			if (metaNames.contains("xspress2system") || metaNames.contains("raster_xspress"))
-				loadXspressNexus(tree, filePath);
-
-			if (metaNames.contains("xmapMca"))
-				loadXmapNexus(tree, filePath);
-
-			if (metaNames.contains("xspress3") || metaNames.contains("raster_xspress3"))
+			if (metaNames.contains("xspress3")) {
 				loadXspress3Nexus(tree, filePath);
+			} else if (metaNames.contains("raster_xspress3")) {
+				loadXspress3Nexus(tree, filePath);
+			} else if (metaNames.contains("xspress2system")) {
+				loadXspressNexus(tree, filePath);
+			} else if (metaNames.contains("raster_xspress")) {
+				loadXspressNexus(tree, filePath);
+			} else if (metaNames.contains("xmapMca")) {
+				loadXmapNexus(tree, filePath);
+			}
+
 		} catch (Exception e) {
 			logger.error("Cannot retreive metadata from nexus file " + filePath, e);
 			return;
