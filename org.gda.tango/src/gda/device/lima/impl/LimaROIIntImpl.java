@@ -20,7 +20,7 @@ package gda.device.lima.impl;
 
 import gda.device.lima.LimaROIInt;
 /**
- * Area of interest in unit of bin size.
+ * Area of interest in unit of bin size. The field order in Frelon detector is [x_begin, y_begin, x_length, y_length]
  */
 public class LimaROIIntImpl implements LimaROIInt {
 
@@ -36,8 +36,8 @@ public class LimaROIIntImpl implements LimaROIInt {
 
 	@Override
 	public String toString() {
-		return "LimaROIIntImpl [getBeginX()=" + getBeginX() + ", getBeginY()=" + getBeginY() + ", getEndX()=" + getEndX()
-				+ ", getEndY()=" + getEndY() + "]";
+		return "LimaROIIntImpl [getBeginX()=" + getBeginX() + ", getBeginY()=" + getBeginY() + ", getEndX()=" + getLengthX()
+				+ ", getEndY()=" + getLengthY() + "]";
 	}
 
 	@Override
@@ -47,22 +47,22 @@ public class LimaROIIntImpl implements LimaROIInt {
 
 	@Override
 	public int getBeginY() {
-		return data[2];
-	}
-
-	@Override
-	public int getEndX() {
 		return data[1];
 	}
 
 	@Override
-	public int getEndY() {
+	public int getLengthX() {
+		return data[2];
+	}
+
+	@Override
+	public int getLengthY() {
 		return data[3];
 	}
 
 	
 	@Override
-	public void setEndY(int val) {
+	public void setLengthY(int val) {
 		data[3]= val;
 	}
 
@@ -73,12 +73,12 @@ public class LimaROIIntImpl implements LimaROIInt {
 
 	@Override
 	public void setBeginY(int val) {
-		data[2]= val;
+		data[1]= val;
 	}
 
 	@Override
-	public void setEndX(int val) {
-		data[1]= val;
+	public void setLengthX(int val) {
+		data[2]= val;
 	}
 
 	

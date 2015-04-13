@@ -67,6 +67,16 @@ public interface Frelon extends Base {
 	void setSPB2Config(SPB2Config sPB2Config) throws DevFailed;	
 	
 	long getSeqStatus() throws DevFailed;
+	/**
+	 * send a command through the serial line
+	 * @param cmd
+	 * @return command's result
+	 * @throws DevFailed
+	 */
 	String[] execSerialCommand(String cmd) throws DevFailed;
+	/**
+	 * reset the espia link
+	 * @throws DevFailed
+	 */
 	void resetLink() throws DevFailed;
 }

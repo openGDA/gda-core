@@ -388,15 +388,15 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 		}
 		LimaROIIntImpl limaROI = new LimaROIIntImpl();
 		limaROI.setBeginX(val[0]);
-		limaROI.setEndX(val[1]);
+		limaROI.setLengthX(val[1]);
 		limaROI.setBeginY(val[2]);
-		limaROI.setEndY(val[3]);
+		limaROI.setLengthY(val[3]);
 		return limaROI;
 	}
 
 	@Override
 	public void setImageROIInt(LimaROIInt limaROI) throws DevFailed {
-		int[] val = new int[] { limaROI.getBeginX(), limaROI.getEndX(), limaROI.getBeginY(), limaROI.getEndY() };
+		int[] val = new int[] { limaROI.getBeginX(), limaROI.getLengthX(), limaROI.getBeginY(), limaROI.getLengthY() };
 		getTangoDeviceProxy().setAttribute(ATTRIBUTE_IMAGE_ROI, val, 4, 1);
 	}
 

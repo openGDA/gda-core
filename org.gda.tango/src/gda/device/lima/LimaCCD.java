@@ -23,23 +23,54 @@ import gda.device.DeviceException;
 import gda.device.base.Base;
 
 public interface LimaCCD extends Base {
-
+	/**
+	 * Prepare the camera for a new acquisition, have to be called each time a parameter is set.
+	 * @throws DevFailed
+	 */
 	void prepareAcq() throws DevFailed;
-
+	/** 
+	 * start acquisition
+	 * @throws DevFailed
+	 */
 	void startAcq() throws DevFailed;
-
+	/**
+	 * stop acquisition
+	 * @throws DevFailed
+	 */
 	void stopAcq() throws DevFailed;
-
+	/** 
+	 * set image header
+	 * @param headers
+	 * @throws DevFailed
+	 */
 	void setImageHeader(String[] headers) throws DevFailed;
-
+	/**
+	 * return image data in raw format - i.e. byte array
+	 * @param imageNumber
+	 * @return image data
+	 * @throws DevFailed
+	 */
 	byte[] getImage(int imageNumber) throws DevFailed;
-
+	/**
+	 * close the shutter on  this call.
+	 * @throws DevFailed
+	 */
 	void closeShutterManual() throws DevFailed;
-
+	/**
+	 * open shutter on this call.
+	 * @throws DevFailed
+	 */
 	void closeOpenManual() throws DevFailed;
-
+	/**
+	 * reset the camera to factory setting
+	 * @throws DevFailed
+	 */
 	void reset() throws DevFailed;
-
+	/**
+	 * get Lima camera type
+	 * @return Frelon, Pilatus, ...
+	 * @throws DevFailed
+	 */
 	String getLimaType() throws DevFailed;
 
 	String getCameraType() throws DevFailed;

@@ -144,8 +144,8 @@ public class MaxiPix2NexusDetector extends DetectorBase implements NexusDetector
 			LimaROIInt imageROIInt = limaCCD.getImageROIInt();
 			top.addChildNode(makeNexusTreeNode("imageROIBeginX",imageROIInt.getBeginX()));
 			top.addChildNode(makeNexusTreeNode("imageROIBeginY",imageROIInt.getBeginY()));
-			top.addChildNode(makeNexusTreeNode("imageROIEndX",imageROIInt.getEndX()));
-			top.addChildNode(makeNexusTreeNode("imageROIEndY",imageROIInt.getEndY()));
+			top.addChildNode(makeNexusTreeNode("imageROIEndX",imageROIInt.getLengthX()));
+			top.addChildNode(makeNexusTreeNode("imageROIEndY",imageROIInt.getLengthY()));
 			
 			return top;
 		} catch (DevFailed e) {

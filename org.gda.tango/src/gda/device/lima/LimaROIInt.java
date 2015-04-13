@@ -37,13 +37,13 @@ public interface LimaROIInt {
 	 * return ROI End X in unit of X binning factor of the detector settings
 	 * @return X-End
 	 */
-	int getEndX();
+	int getLengthX();
 
 	/**
 	 * return ROI End Y in unit of Y binning factor of the detector settings
 	 * @return Y-End
 	 */
-	int getEndY();
+	int getLengthY();
 
 	/**
 	 * set ROI begin X in unit of X binning factor of the detector settings
@@ -55,7 +55,7 @@ public interface LimaROIInt {
 	 * set ROI End X in unit of X binning factor of the detector settings
 	 * @param val - X-End
 	 */
-	void setEndX(int val);
+	void setLengthX(int val);
 
 	/**
 	 * set ROI begin Y in unit of Y binning factor of the detector settings
@@ -67,5 +67,5 @@ public interface LimaROIInt {
 	 * set ROI End Y in unit of Y binning factor of the detector settings
 	 * @param val - Y-End
 	 */
-	void setEndY(int val);
+	void setLengthY(int val);
 }
