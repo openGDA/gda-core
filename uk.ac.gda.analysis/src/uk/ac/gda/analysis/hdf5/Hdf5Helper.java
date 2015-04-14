@@ -31,10 +31,9 @@ import ncsa.hdf.object.h5.H5Datatype;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.hdf5.HDF5Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 
 /**
  *
@@ -300,12 +299,12 @@ public class Hdf5Helper {
 	public Dataset createDataSet(Hdf5HelperData hData, boolean extend) throws NullPointerException {
 		int datatypeClass = hData.h5Datatype.getDatatypeClass();
 		int datatypeSize = hData.h5Datatype.getDatatypeSize();
-		int dtype = HDF5Loader.getDtype(datatypeClass, datatypeSize);
+		int dtype = HDF5Utils.getDtype(datatypeClass, datatypeSize);
 		int dims[] = new int[hData.dims.length];
 		for (int i = 0; i < hData.dims.length; i++)
 			dims[i] = (int) hData.dims[i];
 
-		return HDF5Loader.createDataset(hData.data, dims, dtype, extend);
+		return HDF5Utils.createDataset(hData.data, dims, dtype, extend);
 	}
 
 	public Hdf5HelperData readDataSetAll(String fileName, String location, String dataSetName, boolean getData)

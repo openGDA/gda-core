@@ -25,8 +25,7 @@ import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyDataset;
-
-import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import org.eclipse.dawnsci.hdf5.HDF5Utils;
 
 /*
  * Class to create a lazy dataset from an address in a hdf file
@@ -62,7 +61,7 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 	private void checkConfigured() throws Exception {
 		if (helperData == null) {
 			helperData = Hdf5Helper.getInstance().readDataSetAll(fileName, groupName, dataSetName, false);
-			dtype = HDF5Loader.getDtype(helperData.h5Datatype.getDatatypeClass(),
+			dtype = HDF5Utils.getDtype(helperData.h5Datatype.getDatatypeClass(),
 					helperData.h5Datatype.getDatatypeSize());
 		}
 	}
@@ -84,7 +83,7 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 				dsize[i]   = shape[i];
 			}
 			Object data2 = Hdf5Helper.getInstance().readDataSet(fileName, groupName, dataSetName, sstart, sstride, dsize, null, null, dsize, helperData.native_type, null, true).data;
-			return HDF5Loader.createDataset(data2, shape, dtype, extend);
+			return HDF5Utils.createDataset(data2, shape, dtype, extend);
 		} catch (Exception e) {
 			throw new ScanFileHolderException("Error reading from " + fileName,e);
 		}
