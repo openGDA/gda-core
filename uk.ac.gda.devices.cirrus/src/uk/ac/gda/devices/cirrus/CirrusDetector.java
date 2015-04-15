@@ -35,7 +35,7 @@ import org.nexusformat.NexusFile;
 /**
  * Operates the Cirrus mass spectrometer in scans as a detector.
  */
-public class CirrusDetector extends DetectorBase implements NexusDetector {
+public class CirrusDetector extends DetectorBase implements NexusDetector, Cirrus {
 
 	private CirrusController controller = new CirrusController();
 	private String cirrusHost;
