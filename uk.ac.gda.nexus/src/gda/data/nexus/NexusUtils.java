@@ -20,6 +20,8 @@
 package gda.data.nexus;
 
 
+import gda.data.nexus.napi.NexusFileNAPI;
+
 import java.nio.charset.Charset;
 
 /**
@@ -405,5 +407,9 @@ public class NexusUtils {
 
 		file.putslab(dataArray, dataStart, dataLength);
 		file.closedata();
+	}
+
+	public static org.eclipse.dawnsci.hdf5.nexus.NexusFile createNXFile(String path) {
+		return new NexusFileNAPI(path);
 	}
 }
