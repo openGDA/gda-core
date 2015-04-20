@@ -16,7 +16,10 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.data.nexus;
+package gda.data.nexus.napi;
+
+import gda.data.nexus.NexusException;
+import gda.data.nexus.NexusFileInterface;
 
 import java.util.Hashtable;
 

@@ -18,6 +18,8 @@
 
 package gda.data.nexus;
 
+import gda.data.nexus.napi.NXlink;
+
 import java.util.Hashtable;
 
 public interface NexusFileInterface {

@@ -20,6 +20,7 @@
 package gda.data.nexus;
 
 
+import gda.data.nexus.napi.NexusFile;
 import gda.data.nexus.napi.NexusFileNAPI;
 
 import java.nio.charset.Charset;

@@ -38,6 +38,7 @@ import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.nexusformat.AttributeEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
  * see the package-info.java file for information on this class
  */
