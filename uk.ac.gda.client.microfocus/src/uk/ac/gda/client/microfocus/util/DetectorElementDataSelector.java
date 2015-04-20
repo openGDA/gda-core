@@ -18,13 +18,12 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.data.nexus.NXlink;
 import gda.data.nexus.NexusException;
-import gda.data.nexus.NexusFile;
 import gda.data.nexus.NexusFileInterface;
 import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.napi.NXlink;
 import gda.data.nexus.tree.INexusTree;
 
 import java.io.File;
