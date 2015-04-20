@@ -18,9 +18,9 @@
 
 package gda.data.scan.datawriter;
 
-import gda.data.nexus.NXlink;
 import gda.data.nexus.NexusException;
 import gda.data.nexus.NexusFileInterface;
+import gda.data.nexus.napi.NXlink;
 
 import java.io.File;
 
