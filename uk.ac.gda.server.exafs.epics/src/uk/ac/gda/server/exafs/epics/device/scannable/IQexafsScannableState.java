@@ -21,6 +21,7 @@ package uk.ac.gda.server.exafs.epics.device.scannable;
 import gda.factory.Findable;
 import gda.observable.IObservable;
 
+@Deprecated
 public interface IQexafsScannableState extends IObservable, Findable{
 	public String getState();
 }

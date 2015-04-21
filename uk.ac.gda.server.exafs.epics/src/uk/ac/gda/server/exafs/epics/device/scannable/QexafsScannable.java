@@ -51,7 +51,10 @@ import org.slf4j.LoggerFactory;
  * This will change the speed of the Bragg motor if the required movement is slower than the Bragg's maximum (which is
  * also the Bragg default speed). If the required motion is faster than the maximum then this will be logged and the
  * speed will be set to the maximum.
+ * <p>
+ * Deprecated now that B18 uses Zebra and not position compare
  */
+@Deprecated
 public class QexafsScannable extends ScannableMotor implements ContinuouslyScannable, InitializationListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(QexafsScannable.class);
