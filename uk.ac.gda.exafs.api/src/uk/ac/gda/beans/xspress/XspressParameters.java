@@ -37,6 +37,10 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 	static public final String VIRTUALSCALER = "Virtual Scaler";
 	static public final URL mappingURL = XspressParameters.class.getResource("XspressMapping.xml");
 	static public final URL schemaURL = XspressParameters.class.getResource("XspressMapping.xsd");
+	
+	static public final String READOUT_MODE_SCALERS_ONLY = "Scalers only";
+	static public final String READOUT_MODE_SCALERS_AND_MCA = "Scalers and MCA";
+	static public final String READOUT_MODE_REGIONSOFINTEREST = "Regions Of Interest";
 
 	private String detectorName;
 	private String resGrade;

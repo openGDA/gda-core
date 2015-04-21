@@ -206,13 +206,7 @@ public class Xspress2NexusTreeProvider {
 			NXDetectorData thisFrame = new NXDetectorData(currentSettings.getExtraNames(),
 					currentSettings.getOutputFormat(), detectorName);
 			INexusTree detTree = thisFrame.getDetTree(detectorName);
-			double[] deadtimeCorrectionFactors = new double[currentSettings.getNumberOfDetectors()];
-			if (currentSettings.getParameters().isSaveRawSpectrum())
-				Arrays.fill(deadtimeCorrectionFactors, 1.0);
-			else {
-				long[] hardwareScalerReadings = convertUnsignedIntToLong(unpackedScalerData[frame]);
-				deadtimeCorrectionFactors = getDeadtimeCorrectionFactors(hardwareScalerReadings);
-			}
+			double[] deadtimeCorrectionFactors =  determineDeadtimeCorrectionFactors(unpackedScalerData[frame]);
 
 			double[][][] correctedMCAArrays = correctMCAArrays(data[frame], deadtimeCorrectionFactors);
 
@@ -248,6 +242,16 @@ public class Xspress2NexusTreeProvider {
 			results[frame] = thisFrame;
 		}
 		return results;
+	}
+	
+	private double[] determineDeadtimeCorrectionFactors(int[] unpackedScalerData){
+		double[] deadtimeCorrectionFactor = new double[currentSettings.getNumberOfDetectors()];
+		Arrays.fill(deadtimeCorrectionFactor, 1.0);
+		if (unpackedScalerData != null && !currentSettings.getParameters().isSaveRawSpectrum()) {
+			long[] hardwareScalerReadings = convertUnsignedIntToLong(unpackedScalerData);
+			deadtimeCorrectionFactor = getDeadtimeCorrectionFactors(hardwareScalerReadings);
+		}
+		return deadtimeCorrectionFactor;
 	}
 
 	public double[] getDeadtimeCorrectionFactors(long[] hardwareScalerReadings) {
@@ -309,12 +313,7 @@ public class Xspress2NexusTreeProvider {
 		int[][] unpackedScalerData = unpackRawScalerDataToFrames(rawScalerData, numFrames);
 
 		for (int frame = 0; frame < numFrames; frame++) {
-			double[] deadtimeCorrectionFactors = new double[currentSettings.getNumberOfDetectors()];
-			if (performCorrections && !currentSettings.getParameters().isSaveRawSpectrum()) {
-				long[] hardwareScalerReadings = convertUnsignedIntToLong(unpackedScalerData[frame]);
-				deadtimeCorrectionFactors = getDeadtimeCorrectionFactors(hardwareScalerReadings);
-			} else
-				Arrays.fill(deadtimeCorrectionFactors, 1.0);
+			double[] deadtimeCorrectionFactors =  determineDeadtimeCorrectionFactors(unpackedScalerData[frame]);
 			scalerData[frame] = new double[0];
 			int counter = 2;
 			for (int element = 0; element < currentSettings.getNumberOfDetectors(); element++) {
@@ -342,8 +341,9 @@ public class Xspress2NexusTreeProvider {
 
 		Reading[][] readings = getROIs(detectorName, numFrames, rawScalerData, true, mcaData);
 		Reading[][] readingsUncorrected = null;
-		if (currentSettings.getMcaGrades() == Xspress2Detector.ALL_RES)
+		if (currentSettings.getMcaGrades() == Xspress2Detector.ALL_RES) {
 			readingsUncorrected = getROIs(detectorName, numFrames, null, false, mcaData);
+		}
 
 		for (int frame = 0; frame < numFrames; frame++) {
 			scalerData[frame] = new double[0];
@@ -406,10 +406,7 @@ public class Xspress2NexusTreeProvider {
 					if (currentSettings.getMcaGrades() != Xspress2Detector.ALL_RES) {
 						scalerData[frame] = ArrayUtils.add(scalerData[frame], mcareading.peakArea);
 						ff += mcareading.peakArea;
-						ff_bad += mcareading.peakArea_bad; // only really
-															// relevant when
-															// mcaGrades ==
-															// RES_THRES
+						ff_bad += mcareading.peakArea_bad; // only really relevant when mcaGrades == RES_THRES
 					} else {
 						// sum of resGrade bins over all ROIs
 						for (int resGrade = 0; resGrade < 16; resGrade++) {
@@ -739,18 +736,13 @@ public class Xspress2NexusTreeProvider {
 			// get the raw hardware scaler data
 			unpackedScalerData = unpackRawScalerDataToFrames(scalerData, numberOfFrames);
 
-		// readout the mca memory and unpack into a 3D form
+		// readout the mca memory and unpack into a 3D form  [frame][channel][res_grade][energy]
 		int[][][][] unpackedMCAData = unpackRawDataTo4D(mcaData, numberOfFrames, currentSettings.getMcaGrades(),
 				currentSettings.getMcaSize(), currentSettings.getNumberOfDetectors());
 
 		for (int frame = 0; frame < numberOfFrames; frame++) {
 			Reading[] value = new Reading[0];
-			double[] deadtimeCorrectionFactor = new double[currentSettings.getNumberOfDetectors()];
-			Arrays.fill(deadtimeCorrectionFactor, 1.0);
-			if (scalerData != null && !currentSettings.getParameters().isSaveRawSpectrum()) {
-				long[] hardwareScalerReadings = convertUnsignedIntToLong(unpackedScalerData[frame]);
-				deadtimeCorrectionFactor = getDeadtimeCorrectionFactors(hardwareScalerReadings);
-			}
+			double[] deadtimeCorrectionFactor =  determineDeadtimeCorrectionFactors(unpackedScalerData[frame]);
 
 			// loop over all the elements
 			for (int element = 0; element < currentSettings.getNumberOfDetectors(); element++) {
@@ -765,8 +757,12 @@ public class Xspress2NexusTreeProvider {
 				for (int roi = 0; roi < thisElement.getRegionList().size(); roi++) {
 					DetectorROI thisRoi = thisElement.getRegionList().get(roi);
 
-					// if a virtual scaler return 1,2 or 16 numbers
-					if (currentSettings.getParameters().getRegionType().equals(XspressParameters.VIRTUALSCALER)) {
+					// three options at this point: we are in 'regions of interest' mode
+					// and are using virtual scalers; or we are in 'regions of interest' mode and are using partial MCAs; we are in 
+					// 'regions of interest' mode and are using full MCAs
+					String regionType = currentSettings.getParameters().getRegionType();
+					if (regionType.equals(XspressParameters.VIRTUALSCALER)) {
+						// if a virtual scaler return 1,2 or 16 numbers
 						double[] out = extractVirtualScaler(unpackedMCAData, frame, deadtimeCorrectionFactor, element,
 								mcaPosition);
 						String elementName = detectorName + "_element" + element + "_" + thisRoi.getRoiName();
@@ -785,12 +781,20 @@ public class Xspress2NexusTreeProvider {
 						mcaPosition++;
 
 					} else {
-						int mcaEndPosition = mcaPosition + thisRoi.getRoiEnd() - thisRoi.getRoiStart();
-						MCAReading reading = extractPartialMCA(unpackedMCAData, frame, deadtimeCorrectionFactor,
-								element, mcaPosition, thisRoi, mcaEndPosition);
-						value = (Reading[]) ArrayUtils.add(value, reading);
-						// increment the position in the raw data array
-						mcaPosition = mcaEndPosition + 1;
+						// MCAReadings - but could be the full MCA, not only a partial mca
+						boolean isFullMCA = unpackedMCAData[frame][element][0].length == currentSettings.getFullMCASize();
+						if (isFullMCA){
+							MCAReading reading = extractPartialMCA(unpackedMCAData, frame, deadtimeCorrectionFactor,
+									element, 0, thisRoi, unpackedMCAData[frame][element][0].length);
+							value = (Reading[]) ArrayUtils.add(value, reading);							
+						} else {
+							int mcaEndPosition = mcaPosition + thisRoi.getRoiEnd() - thisRoi.getRoiStart();
+							MCAReading reading = extractPartialMCA(unpackedMCAData, frame, deadtimeCorrectionFactor,
+									element, mcaPosition, thisRoi, mcaEndPosition);
+							value = (Reading[]) ArrayUtils.add(value, reading);
+							// increment the position in the raw data array
+							mcaPosition = mcaEndPosition + 1;
+						}
 					}
 				}
 
@@ -825,12 +829,18 @@ public class Xspress2NexusTreeProvider {
 	private MCAReading extractPartialMCA(int[][][][] unpackedMCAData, int frame, double[] deadtimeCorrectionFactor,
 			int element, int mcaPosition, DetectorROI thisRoi, int mcaEndPosition) {
 		// get the raw data. Only interested in good counts if threshold set
+		boolean isFullMCA = unpackedMCAData[frame][element][0].length == currentSettings.getFullMCASize();
 		int[][] mcas_raw;
 		int[][] mcaDataForThisElement = unpackedMCAData[frame][element];
-		switch (currentSettings.getMcaSize()) {
+		switch (currentSettings.getMcaGrades()) {
 		case Xspress2Detector.NO_RES_GRADE:
-			mcas_raw = new int[][] { getResGradesSlice(mcaDataForThisElement, mcaPosition, mcaEndPosition,
+			if (isFullMCA){
+				mcas_raw = mcaDataForThisElement;
+			} else {
+				// we are using partial MCAs
+				mcas_raw = new int[][] { getResGradesSlice(mcaDataForThisElement, mcaPosition, mcaEndPosition,
 					thisRoi.getRoiStart(), thisRoi.getRoiEnd())[0] };
+			}
 			break;
 		case Xspress2Detector.RES_THRES:
 			// all res grades
@@ -849,9 +859,13 @@ public class Xspress2NexusTreeProvider {
 		double peakArea = 0;
 		double peakArea_bad = 0;
 
-		switch (currentSettings.getMcaSize()) {
+		switch (currentSettings.getMcaGrades()) {
 		case Xspress2Detector.NO_RES_GRADE:
-			peakArea = sumPartialMCACounts(mcas_corrected[0]);
+			double[] corrctedSpectrum = mcas_corrected[0];
+			if (isFullMCA){
+				corrctedSpectrum = ArrayUtils.subarray(corrctedSpectrum, thisRoi.getRoiStart(), thisRoi.getRoiEnd());
+			}
+			peakArea = sumPartialMCACounts(corrctedSpectrum);
 			break;
 		case Xspress2Detector.RES_THRES:
 			// correct for good events thrown away in badIn

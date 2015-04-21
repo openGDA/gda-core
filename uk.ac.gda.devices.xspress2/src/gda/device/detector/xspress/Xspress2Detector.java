@@ -546,7 +546,7 @@ public class Xspress2Detector extends XspressSystem implements NexusDetector, Xs
 	}
 
 	/**
-	 * @return int - the number of copies of data you get depending on
+	 * @return int - the number of versions of data you get depending on
 	 *         resolution setting
 	 */
 	private int numResGrades() {
