@@ -263,7 +263,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		// Centre energy
 		lblCenterEnergy = new Label(this, SWT.NONE);
 		lblCenterEnergy.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		lblCenterEnergy.setText("Center Energy");
+		lblCenterEnergy.setText("Centre Energy"); //use UK spelling to match scannable name centre_energy
 		centreEnergy = new ScaleBox(this, SWT.NONE);
 		GridData gridData_1 = (GridData) centreEnergy.getControl().getLayoutData();
 		gridData_1.widthHint = 200;
