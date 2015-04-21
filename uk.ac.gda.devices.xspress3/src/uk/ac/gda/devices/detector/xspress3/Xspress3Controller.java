@@ -260,7 +260,13 @@ public interface Xspress3Controller extends Findable{
 	
 	public int getNumberOfChannels();
 	
+	/*
+	 * Enabled in the Epics sense of EPICS, not in the GDA sense of contributing to the FF.
+	 */
 	public boolean isChannelEnabled(int channel) throws DeviceException;
 	
+	/*
+	 * Enabled in the Epics sense of EPICS, not in the GDA sense of contributing to the FF.
+	 */
 	public void enableChannel(int channel, boolean doEnable) throws DeviceException;
 }

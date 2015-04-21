@@ -34,6 +34,7 @@ public class Xspress3DataOperations {
 	private int framesRead;
 	private String configFileName;
 	private DetectorROI[] rois;
+	private boolean[] isChannelEnabled;
 	private Xspress3FileReader reader;
 
 	public Xspress3DataOperations(Xspress3Controller controller, int firstChannelToRead) {
@@ -98,6 +99,10 @@ public class Xspress3DataOperations {
 					.get(index).getRoiEnd());
 		}
 		
+		isChannelEnabled = new boolean[controller.getNumberOfChannels()];
+		for(int detector = 0; detector < controller.getNumberOfChannels(); detector++){
+			isChannelEnabled[detector] = !parameters.getDetector(detector).isExcluded();
+		}
 	}
 
 	private void disableAllEPICSCalculations() throws DeviceException {
@@ -186,22 +191,24 @@ public class Xspress3DataOperations {
 		int numRois = rois.length;
 
 		double[][] roiValues = new double[numRois][numChannels];
-		// double[] ffs = new double[numChannels];
 		double theFF = 0;
 		for (int chan = 0; chan < numChannels; chan++) {
-			for (int roi = 0; roi < numRois; roi++) {
-				double thisRoiSum = extractRoi(mcasFromFile[chan], rois[roi].getRoiStart(), rois[roi].getRoiEnd());
-				roiValues[roi][chan] = thisRoiSum;
-				// ffs[chan] += thisRoiSum;
-				theFF += thisRoiSum;
+			if (isChannelEnabled[chan]){ // excluded channels do not have a value for ROIs or do they contribute to the FF 
+				for (int roi = 0; roi < numRois; roi++) {
+					double thisRoiSum = extractRoi(mcasFromFile[chan], rois[roi].getRoiStart(), rois[roi].getRoiEnd());
+					roiValues[roi][chan] = thisRoiSum;
+					theFF += thisRoiSum;
+				}
 			}
 		}
 
 		int numMcaElements = mcasFromFile[0].length;
 		double[] allElementSum = new double[numMcaElements];
-		for (int element = 0; element < numMcaElements; element++) {
-			for (int chan = 0; chan < numChannels; chan++) {
-				allElementSum[element] += mcasFromFile[chan][element];
+		for (int chan = 0; chan < numChannels; chan++) {
+			if (isChannelEnabled[chan]){ // excluded channels do not contribute to the allElementSum
+				for (int element = 0; element < numMcaElements; element++) {
+					allElementSum[element] += mcasFromFile[chan][element];
+				}
 			}
 		}
 
@@ -287,9 +294,11 @@ public class Xspress3DataOperations {
 
 		double theFF = 0;
 		for (int chan = 0; chan < numChannels; chan++) {
-			for (int roi = 0; roi < numRois; roi++) {
-				double thisRoiSum = extractRoi(data[chan], rois[roi].getRoiStart(), rois[roi].getRoiEnd());
-				theFF += thisRoiSum;
+			if (isChannelEnabled[chan]){
+				for (int roi = 0; roi < numRois; roi++) {
+					double thisRoiSum = extractRoi(data[chan], rois[roi].getRoiStart(), rois[roi].getRoiEnd());
+					theFF += thisRoiSum;
+				}
 			}
 		}
 		return theFF;
