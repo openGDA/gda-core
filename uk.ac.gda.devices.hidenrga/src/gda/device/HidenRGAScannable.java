@@ -47,8 +47,8 @@ import org.slf4j.LoggerFactory;
  * The Hiden RGA is a gas mass analyser for use on Spectroscopy beamlines.
  * <p>
  * It will be shared across different beamlines but only Spectroscopy ones for
- * the moment. If other beamlines need this then this class should be moved into
- * its own plugin.
+ * the moment. If other beamlines need this then this class maybe should be
+ * moved into its a different repository.
  * <p>
  * This class operates in two modes: either it can be part of a stwp scan, but
  * it will force the scan to run slow enough that the Hiden can take a new
@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
  * If it is already recording to a file and it is included in a scan that it
  * will throw an exception which will abort the scan.
  */
-public class HidenRGAScannable extends ScannableBase implements IObserver, HidenRGA {
+public class HidenRGAScannable extends ScannableBase implements IObserver , HidenRGA{
 
 	public static final String RECORDING_STARTED = "RGA recording started";
 	public static final String RECORDING_STOPPED = "RGA recording stopped";
@@ -299,6 +299,11 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 
 	private boolean isRecording() {
 		return fileWriterThread != null && fileWriterThread.isAlive();
+	}
+	
+	@Override
+	public void stop() throws DeviceException {
+		atCommandFailure();
 	}
 
 	@Override
