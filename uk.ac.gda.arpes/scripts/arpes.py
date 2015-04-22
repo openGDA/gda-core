@@ -1,4 +1,5 @@
-import time, sys
+import time
+import sys
 import gda.factory.Finder
 import uk.ac.gda.arpes.beans.ARPESScanBean
 from gda.data.metadata import GDAMetadataProvider
@@ -22,7 +23,33 @@ class ARPESRun:
         JythonScriptProgressProvider.sendProgress(100.0*self.progresscounter/self.totalSteps, "%s  (%3.1f%% done)" % (message, 100.0*self.progresscounter/self.totalSteps))
         
     def checkDevice(self):
-        pass
+        #The idea of this method it to check that the analyser is ready to be configured or
+        #acquired from.
+        #Check if analyser is acquiring if so stop it.
+        if(self.scienta.adBase.getDetectorState_RBV() == 1):
+            print "Analyser was acquiring stop it"
+            self.scienta.adBase.stopAcquiring()
+            time.sleep(1.5)
+        #Now check for other cases such as the error state and try to recover to idle.
+        #This method is used as a workaround for the analyser getting into an error state hopefully
+        #can eventually be fixed on the EPICS IOC end.
+        #Check if analyser is in any state except idle and try to get into idle state
+        if(self.scienta.adBase.getDetectorState_RBV() != 0):
+            print "Analyser not in idle state"
+            #Change to single frame mode
+            self.scienta.adBase.setImageMode(0)
+            #Set short acquire time
+            self.scienta.adBase.setAcquireTime(0.100)
+            #acquire to get one frame and recover from an error condition back to idle
+            self.scienta.adBase.startAcquiring()
+            time.sleep(1.5)
+            #Check i recovering has worked if not tell users
+            if(self.scienta.adBase.getDetectorState_RBV() != 0):
+                print "Analyser is still not ready check EPICS!"
+            else:
+               print "Recovered to idle state. Analyser is ready" 
+        else:
+            print "Analyser is ready"
     
     def setStorageTemperature(self):
         self.monitorAsynchronousMethod(self.bssc.waitTemperatureSample(self.bean.getSampleStorageTemperature()))
@@ -55,7 +82,7 @@ class ARPESRun:
         if self.bean.isConfigureOnly():
             self.reportProgress("Setting Up Analyser")
             self.reportProgress("Setting Up Analyser")
-            print "analyser set up"
+            print "(Config only) Analyser is set up!"
         else:
             self.reportProgress("Running Acquisition")
             gda.jython.commands.ScannableCommands.staticscan([self.scienta])
