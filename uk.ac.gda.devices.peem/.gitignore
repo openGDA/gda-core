@@ -24,6 +24,11 @@ cachedir/
 /test-reports
 /test-scratch
 
+### Security files ###
+*ssh.key
+password
+passwords
+
 ### Various OS, etc. files ###
 *.lnk
 desktop.ini
