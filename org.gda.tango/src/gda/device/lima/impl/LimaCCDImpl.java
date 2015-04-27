@@ -69,9 +69,9 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 	 static final String ATTRIBUTE_ACC_LIVE_TIME = "acc_live_time";
 	 static final String ATTRIBUTE_ACC_DEAD_TIME = "acc_dead_time";
 	 static final String ATTRIBUTE_ACC_TIME_MODE = "acc_time_mode";
-	 static final String ATTRIBUTE_ACC_MAX_EXPO_TIME = "acc_max_expotime";
+	 static final String ATTRIBUTE_ACC_MAX_EXPO_TIME = "acc_max_expo_time";
 	 static final String ATTRIBUTE_ACC_NB_FRAMES = "acc_nb_frames";
-	 static final String ATTRIBUTE_ACC_EXPO_TIME = "acc_expotime";
+	 static final String ATTRIBUTE_ACC_EXPO_TIME = "acc_expo_time";
 	 static final String ATTRIBUTE_ACQ_EXPO_TIME = "acq_expo_time";
 	 static final String ATTRIBUTE_LATENCY_TIME = "latency_time";
 	 static final String ATTRIBUTE_ACQ_MODE = "acq_mode";
@@ -388,15 +388,15 @@ public class LimaCCDImpl extends BaseImpl implements LimaCCD, InitializingBean {
 		}
 		LimaROIIntImpl limaROI = new LimaROIIntImpl();
 		limaROI.setBeginX(val[0]);
-		limaROI.setLengthX(val[1]);
-		limaROI.setBeginY(val[2]);
+		limaROI.setBeginY(val[1]);
+		limaROI.setLengthX(val[2]);
 		limaROI.setLengthY(val[3]);
 		return limaROI;
 	}
 
 	@Override
 	public void setImageROIInt(LimaROIInt limaROI) throws DevFailed {
-		int[] val = new int[] { limaROI.getBeginX(), limaROI.getLengthX(), limaROI.getBeginY(), limaROI.getLengthY() };
+		int[] val = new int[] { limaROI.getBeginX(), limaROI.getBeginY(), limaROI.getLengthX(), limaROI.getLengthY() };
 		getTangoDeviceProxy().setAttribute(ATTRIBUTE_IMAGE_ROI, val, 4, 1);
 	}
 

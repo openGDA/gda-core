@@ -36,8 +36,8 @@ public class LimaROIIntImpl implements LimaROIInt {
 
 	@Override
 	public String toString() {
-		return "LimaROIIntImpl [getBeginX()=" + getBeginX() + ", getBeginY()=" + getBeginY() + ", getEndX()=" + getLengthX()
-				+ ", getEndY()=" + getLengthY() + "]";
+		return "LimaROIIntImpl [getBeginX()=" + getBeginX() + ", getBeginY()=" + getBeginY() + ", getLengthX()=" + getLengthX()
+				+ ", getLengthY()=" + getLengthY() + "]";
 	}
 
 	@Override

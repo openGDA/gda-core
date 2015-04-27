@@ -88,7 +88,7 @@ public class TangoDeviceLogger implements TangoDevice{
 	public DeviceAttribute read_attribute(String attributeName) throws DevFailed {
 		logger.info("read_attribute in: attributeName:[" + attributeName +"]");
 		DeviceAttribute res = device.read_attribute(attributeName);
-		logger.info("read_attribute: attributeName:[" + attributeName +"] res:["+new DummyDeviceAttribute( res) +"]");
+		logger.info("read_attribute: attributeName:[" + attributeName +"] res:["+res+"]");
 		return res;
 	}
 
