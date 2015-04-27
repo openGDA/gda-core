@@ -341,15 +341,20 @@ Additional Ant tasks for Buckminster build. Based on http://www.ralfebert.de/blo
         </echo>
     </target>
 
-    <target name="remove_previous_product_symlink" depends="create.product">
-        <property name="destination.symlink" location="${destination.parent}/client"/>
-        <symlink action="delete" link="${destination.symlink}"/>
+    <target name="_symlink.check.params">
+        <fail message="create.product-with.symlink called, but symlink.to.product.location not set" unless="symlink.to.product.location" />
+        <fail message="create.product-with.symlink called, but symlink.to.product.value not set" unless="symlink.to.product.value" />
+        <property.expand property="symlink.to.product.target" definition="${symlink.to.product.value}"/>
+    </target>
+
+    <target name="remove_previous_product_symlink" depends="create.product, _symlink.check.params">
+        <symlink action="delete" link="${symlink.to.product.location}"/>
     </target>
 
     <target name="create.product-with.symlink" depends="remove_previous_product_symlink">
-        <symlink link="${destination.symlink}" resource="./${destination.directory}"/>
+        <symlink link="${symlink.to.product.location}" resource="${symlink.to.product.target}"/>
         <echo>
-== Symlink to product created (or changed) at ${destination.symlink} --> ./${destination.directory} ==
+== Symlink to product created (or changed) at ${symlink.to.product.location} --> ${symlink.to.product.target} ==
         </echo>
     </target>
 
