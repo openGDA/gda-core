@@ -32,7 +32,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The Zebra-specific parts of the Qexafs movement
+ * The Zebra-specific parts of the Qexafs movement for B18.
+ * <p>
+ * I had hoped that this would be a generic solution for any motor movement involving Zebra, but it seems that there
+ * have had to be many solution-specific parts added.
+ * <p>
+ * So while this could not be used 'as is' on other beamlines, but it can be a template for other beamlines looking for
+ * a similar solution with Zebra.
  */
 public class ZebraQexafsScannable extends QexafsScannable {
 
@@ -89,6 +95,8 @@ public class ZebraQexafsScannable extends QexafsScannable {
 	private double width_deg;
 
 	private double width_counts;
+	
+	protected Channel isArmedChnl;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -114,6 +122,9 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			stepSizeReadback_counts_Chnl = channelManager.createChannel(stepSizeReadback_counts_PV, false);
 			widthReadback_deg_Chnl = channelManager.createChannel(widthReadback_deg_PV, false);
 			widthReadback_counts_Chnl = channelManager.createChannel(widthReadback_counts_PV, false);
+
+			
+			isArmedChnl = channelManager.createChannel("BL18B-OP-DCM-01:ZEBRA:PC_ARM_OUT",false);
 
 			channelManager.creationPhaseCompleted();
 
@@ -159,6 +170,10 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			if (!runUpOn) {
 				runupEnergy = angleToEV(startAngle);
 			}
+			
+			// always toggle before first movement in a scan
+			toggleEnergyControl();
+			
 			checkDeadbandAndMove(runupEnergy);
 			logger.debug("Time spent after moved to angle");
 
@@ -276,7 +291,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 				InterfaceProvider.getTerminalPrinter().print("Mono in position.");
 				logger.info("Mono in position.");
 
-				// set the sped (do this now, after the motor has been moved to the run-up position)
+				// set the speed (do this now, after the motor has been moved to the run-up position)
 				if (desiredSpeed <= getMaxSpeed()) {
 					caputTestChangeDouble(currentSpeedChnl, desiredSpeed, null);
 				} else {
@@ -289,8 +304,19 @@ public class ZebraQexafsScannable extends QexafsScannable {
 				logger.debug("Time before zebra arm with callback");
 				InterfaceProvider.getTerminalPrinter().print("Arming Zebra box to trigger detectors during mono move...");
 				logger.info("Arming Zebra box to trigger detectors during mono move...");
-				controller.caputWait(armChnl, 1);
-
+				controller.caput(armChnl, 1);
+				int isArmed = controller.cagetInt(isArmedChnl);
+				int timeWaitingToArm = 0; // ms
+				while (isArmed == 0){
+					Thread.sleep(100);
+					isArmed = controller.cagetInt(isArmedChnl);
+					timeWaitingToArm += 100;
+					
+					if(timeWaitingToArm > 20000){
+						throw new DeviceException("20s timeout waiting for Zebra to arm");
+					}
+				}
+			
 				// These will be used when calculating the real energy of each step in the scan, so readback once at this point.
 				logger.debug("Time before zebra readbacks");
 				startReadback_deg = controller.cagetDouble(startReadback_deg_Chnl);
@@ -316,6 +342,21 @@ public class ZebraQexafsScannable extends QexafsScannable {
 
 	@Override
 	public void continuousMoveComplete() throws DeviceException {
+		
+		// should ensure that the motor has finished moving before we carry on
+		if (isBusy()){
+			try {
+				waitWhileBusy(5);
+			} catch (DeviceException e) {
+				// DeviceException means a timeout, so call stop and continue
+				logger.error("Exception while waiting for the qexafs mono movement to finish by itself, so stopping the motor automatically", e);
+				stop();
+			} catch (InterruptedException e) {
+				// if interrupted then someone is aborting the scan, so must re-throw the exception
+				throw new DeviceException(e.getMessage(),e);
+			}
+		}
+		
 		long timeAtMethodStart = System.currentTimeMillis();
 		// return to regular running values
 		resetDCMSpeed();
@@ -331,37 +372,12 @@ public class ZebraQexafsScannable extends QexafsScannable {
 	@Override
 	public double calculateEnergy(int frameIndex) throws DeviceException {
 		try {
-
-			double frameCentre_eV = calculateFrameEnergyFromZebraReadback(frameIndex);
-			// double energy_from_demand_steps = calculateFrameEnergyUsingDemandValues(frameIndex);
-
-			// logger.info(String.format("index: %d, energy: %.2f, demand_energy: %.2f", frameIndex, frameCentre_eV,
-			// energy_from_demand_steps));
-
-			return frameCentre_eV;
-
+			return calculateFrameEnergyFromZebraReadback(frameIndex);
 		} catch (Exception e) {
 			throw new DeviceException("Exception wile calculating frame energy", e);
 		}
 	}
-
-	// private double calculateFrameEnergyUsingDemandValues(int frameIndex) throws TimeoutException, CAException,
-	// InterruptedException {
-	// // calculate the ideal energy of the centre of the frame based on the demand values from the user
-	// double startDeg = radToDeg(startAngle);
-	// double stopDeg = radToDeg(endAngle);
-	// double stepDeg = radToDeg(stepSize);
-	// double diff = (frameIndex * stepDeg) + (0.5 * stepDeg);
-	// double thisAngle = startDeg - diff;
-	// // if going down in energy, so up in angle, then want to add to startDeg
-	// if (startDeg < stopDeg) {
-	// thisAngle = startDeg + diff;
-	// }
-	// Angle angleInDeg = (Angle) QuantityFactory.createFromObject(thisAngle, NonSI.DEGREE_ANGLE);
-	// double energy_from_demand_steps = angleToEV(angleInDeg);
-	// return energy_from_demand_steps;
-	// }
-
+	
 	private double calculateFrameEnergyFromZebraReadback(int frameIndex) throws TimeoutException, CAException,
 			InterruptedException {
 		double countsPerDegree = width_deg / width_counts;
@@ -376,5 +392,4 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		double frameCentre_eV = angleToEV(frameCentre_angle);
 		return frameCentre_eV;
 	}
-
 }
