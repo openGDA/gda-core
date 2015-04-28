@@ -374,6 +374,9 @@ public class Xspress3DataOperations {
 
 		for (int i = 0; i < controller.getNumberOfChannels(); i++) {
 			DetectorElement thisElement = new DetectorElement();
+			if (isChannelEnabled != null){
+				thisElement.setExcluded(!isChannelEnabled[i]);
+			}
 			for (DetectorROI region : regions) {
 				thisElement.addRegion(region);
 			}
