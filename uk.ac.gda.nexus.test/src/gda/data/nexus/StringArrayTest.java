@@ -18,6 +18,8 @@
 
 package gda.data.nexus;
 
+import gda.data.nexus.napi.NexusException;
+
 import org.junit.Ignore;
 import org.junit.Test;
 

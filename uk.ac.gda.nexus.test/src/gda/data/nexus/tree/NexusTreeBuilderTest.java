@@ -18,7 +18,6 @@
 
 package gda.data.nexus.tree;
 
-import gda.data.nexus.NexusException;
 import gda.data.nexus.extractor.NexusExtractorException;
 import gda.util.TestUtils;
 
@@ -26,6 +25,7 @@ import java.io.File;
 import java.io.StringReader;
 import java.net.URL;
 
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

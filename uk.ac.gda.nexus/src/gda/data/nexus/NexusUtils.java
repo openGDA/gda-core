@@ -20,10 +20,19 @@
 package gda.data.nexus;
 
 
-import gda.data.nexus.napi.NexusFile;
+import gda.data.nexus.napi.NexusException;
 import gda.data.nexus.napi.NexusFileNAPI;
 
-import java.nio.charset.Charset;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 
 /**
  * Utility methods for dealing with NeXus files.
@@ -98,7 +107,7 @@ public class NexusUtils {
 	 * @throws NexusException
 	 */
 	public static NexusFileInterface createNexusFile(String filename) throws NexusException {
-		return new NexusFile(filename, NexusGlobals.NXACC_CREATE5);
+		return new gda.data.nexus.napi.NexusFile(filename, NexusGlobals.NXACC_CREATE5);
 	}
 
 	/**
@@ -109,305 +118,267 @@ public class NexusUtils {
 	 * @throws NexusException
 	 */
 	public static NexusFileInterface openNexusFile(String filename) throws NexusException {
-		return new NexusFile(filename, NexusGlobals.NXACC_RDWR);
+		return new gda.data.nexus.napi.NexusFile(filename, NexusGlobals.NXACC_RDWR);
 	}
 
 	/**
-	 * Opens a NeXus file as readonly and returns the file handle.
+	 * Opens a NeXus file as read-only and returns the file handle.
 	 * 
 	 * @param filename
 	 * @return NeXus file handle
 	 * @throws NexusException
 	 */
 	public static NexusFileInterface openNexusFileReadOnly(String filename) throws NexusException {
-		return new NexusFile(filename, NexusGlobals.NXACC_READ);
+		return new gda.data.nexus.napi.NexusFile(filename, NexusGlobals.NXACC_READ);
 	}
 
 	/**
-	 * Writes the String 'stringToWrite' into a field called 'name' at the current position in the NeXus file.
+	 * Create a (top-level) NeXus augmented path
+	 * @param name
+	 * @param nxClass
+	 * @return augmented path
+	 */
+	public static String createAugmentPath(String name, String nxClass) {
+		StringBuilder b = new StringBuilder();
+		if (!name.startsWith(Tree.ROOT))
+			b.append(Tree.ROOT);
+		return addToAugmentPath(b, name, nxClass).toString();
+	}
+
+	/**
+	 * Add to a NeXus augmented path
+	 * @param path
+	 * @param name
+	 * @param nxClass
+	 * @return augmented path
+	 */
+	public static String addToAugmentPath(String path, String name, String nxClass) {
+		return addToAugmentPath(new StringBuilder(path), name, nxClass).toString();
+	}
+
+	/**
+	 * Add to a NeXus augmented path
+	 * @param path
+	 * @param name
+	 * @param nxClass
+	 * @return augmented path
+	 */
+	public static StringBuilder addToAugmentPath(StringBuilder path, String name, String nxClass) {
+		if (name == null) {
+			throw new IllegalArgumentException("Name must not be null");
+		}
+		if (path.lastIndexOf(Node.SEPARATOR) != path.length() - 1) {
+			path.append(Node.SEPARATOR);
+		}
+		path.append(name);
+		if (nxClass != null) {
+			path.append(NexusFile.NXCLASS_SEPARATOR).append(nxClass);
+		}
+		return path;
+	}
+
+	/**
+	 * Create a plain path by stripping out NXclasses 
+	 * @param augmentedPath
+	 * @return plain path
+	 */
+	public static String stripAugmentedPath(String augmentedPath) {
+		int i;
+		while ((i = augmentedPath.indexOf(NexusFile.NXCLASS_SEPARATOR)) >= 0) {
+			int j = augmentedPath.indexOf(Node.SEPARATOR, i);
+			augmentedPath = j >= 0 ? augmentedPath.substring(0, i) + augmentedPath.substring(j)
+					: augmentedPath.substring(0, i);
+		}
+		return augmentedPath;
+	}
+
+	/**
+	 * Create a lazy writeable dataset
+	 * @param name
+	 * @param dtype
+	 * @param shape
+	 * @param maxShape
+	 * @param chunks
+	 * @return lazy writeable dataset
+	 */
+	public static ILazyWriteableDataset createLazyWriteableDataset(String name, int dtype, int[] shape, int[] maxShape, int[] chunks) {
+		return new LazyWriteableDataset(name, dtype, shape, maxShape, chunks, null);
+	}
+
+	/**
+	 * Write the string into a field called 'name' at the group in the NeXus file.
 	 * 
 	 * @param file
+	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws NexusException
+	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
 	 */
-	public static void writeNexusString(NexusFileInterface file, String name, String value) throws NexusException {
-		if(value == null || name == null || name.isEmpty() || value.isEmpty())
-			return;
-		byte [] bytes = value.getBytes();
-		int[] dimArray = new int[] {bytes.length};
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusGlobals.NX_CHAR, dimArray.length, dimArray);
-		}
-		file.opendata(name);
-		file.putdata(bytes);
-		file.closedata();		
+	public static DataNode writeString(NexusFile file, GroupNode group, String name, String value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+		return write(file, group, name, value);
 	}
 
 	/**
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void writeNexusStringAttribute(NexusFileInterface file, String name, String value) throws NexusException {
-		file.putattr(name, value.getBytes(), NexusGlobals.NX_CHAR);
-	}
-
-	/**
-	 * @param file
-	 * @param name
-	 * @param values
-	 * @throws NexusException
-	 */
-	public static void writeNexusIntegerAttribute(NexusFileInterface file, String name, int... values) throws NexusException {
-		file.putattr(name, values, NexusGlobals.NX_INT32);
-	}
-
-	/**
-	 * @param file
-	 * @param name
-	 * @param values
-	 * @throws NexusException
-	 */
-	public static void writeNexusIntegerAttribute(NexusFileInterface file, String name, Integer[] values) throws NexusException {
-		file.putattr(name, values, NexusGlobals.NX_INT32);
-	}
-
-	/**
-	 * @param file
-	 * @param name
-	 * @param values
-	 * @throws NexusException
-	 */
-	public static void writeNexusDoubleAttribute(NexusFileInterface file, String name, double... values) throws NexusException {
-		file.putattr(name, values, NexusGlobals.NX_FLOAT64);
-	}
-
-	/**
-	 * @param file
-	 * @param name
-	 * @param values
-	 * @throws NexusException
-	 */
-	public static void writeNexusDoubleAttribute(NexusFileInterface file, String name, Double[] values) throws NexusException {
-		file.putattr(name, values, NexusGlobals.NX_FLOAT64);
-	}
-
-	/**
-	 * Writes the integer 'value' into a field called 'name' at the current position in the NeXus file.
+	 * Write the integer into a field called 'name' at the group in the NeXus file.
 	 * 
 	 * @param file
+	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws NexusException
+	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
 	 */
-	public static void writeNexusInteger(NexusFileInterface file, String name, int value) throws NexusException {
-		int[] dimArray = new int[1];
-		dimArray[0] = 1;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusGlobals.NX_INT32, 1, dimArray);
-		}
-		file.opendata(name);
-		int[] arr = { value };
-		file.putdata(arr);
-		file.closedata();
+	public static DataNode writeInteger(NexusFile file, GroupNode group, String name, int value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+		return write(file, group, name, value);
 	}
 
 	/**
-	 * Writes the integer array 'value' into a field called 'name' at the current position in the NeXus file.
+	 * Write the integer array into a field called 'name' at the group in the NeXus file.
 	 * 
 	 * @param file
+	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws NexusException
+	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
 	 */
-	public static void writeNexusIntegerArray(NexusFileInterface file, String name, int[] value) throws NexusException {
-		if (value.length == 0)
-			return;
-		int[] dimArray = new int[1];
-		dimArray[0] = value.length;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusGlobals.NX_INT32, 1, dimArray);
-		}
-		file.opendata(name);
-		file.putdata(value);
-		file.closedata();
+	public static DataNode writeIntegerArray(NexusFile file, GroupNode group, String name, int[] value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+		return write(file, group, name, value);
 	}
 
 	/**
-	 * Writes the long 'value' into a field called 'name' at the current position in the NeXus file.
+	 * Write the double into a field called 'name' at the group in the NeXus file.
 	 * 
 	 * @param file
+	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws NexusException
+	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
 	 */
-	public static void writeNexusLong(NexusFileInterface file, String name, int value) throws NexusException {
-		int[] dimArray = new int[1];
-		dimArray[0] = 1;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusGlobals.NX_INT64, 1, dimArray);
-		}
-		file.opendata(name);
-		long[] arr = { value };
-		file.putdata(arr);
-		file.closedata();
+	public static DataNode writeDouble(NexusFile file, GroupNode group, String name, double value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+		return write(file, group, name, value);
 	}
 
 	/**
-	 * Writes the long array 'value' into a field called 'name' at the current position in the NeXus file.
+	 * Write the double into a field called 'name' at the group in the NeXus file.
 	 * 
 	 * @param file
+	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws NexusException
+	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
 	 */
-	public static void writeNexusLongArray(NexusFileInterface file, String name, long[] value) throws NexusException {
-		if (value.length == 0)
-			return;
-		int[] dimArray = new int[1];
-		dimArray[0] = value.length;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusGlobals.NX_INT64, 1, dimArray);
-		}
-		file.opendata(name);
-		file.putdata(value);
-		file.closedata();
+	public static DataNode writeDoubleArray(NexusFile file, GroupNode group, String name, double[] value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+		return write(file, group, name, value);
 	}
 
 	/**
-	 * Writes the double 'value' into a field called 'name' at the current position in the NeXus file.
+	 * Write the double into a field called 'name' at the group in the NeXus file.
 	 * 
 	 * @param file
+	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws NexusException
+	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
 	 */
-	public static void writeNexusDouble(NexusFileInterface file, String name, double value, String units) throws NexusException {
-		int[] dimArray = new int[1];
-		dimArray[0] = 1;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusGlobals.NX_FLOAT64, 1, dimArray);
-		}
-		file.opendata(name);
-		double[] dataArray = { value };
-		file.putdata(dataArray);
+	public static DataNode writeDoubleArray(NexusFile file, GroupNode group, String name, Double[] value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+		return write(file, group, name, value);
+	}
+
+	/**
+	 * Write the double into a field called 'name' at the group in the NeXus file.
+	 * 
+	 * @param file
+	 * @param group
+	 * @param name
+	 * @param value
+	 * @param units
+	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 */
+	public static DataNode writeDouble(NexusFile file, GroupNode group, String name, double value, String units) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+		DataNode node = write(file, group, name, value);
 		if (units != null) {
-			file.putattr("units", units.getBytes(Charset.forName("UTF-8")), NexusGlobals.NX_CHAR);
+			writeStringAttribute(file, node, "units", units);
 		}
-		file.closedata();
+		return node;
 	}
+
+	/**
+	 * Write the object into a field called 'name' at the group in the NeXus file.
+	 * 
+	 * @param file
+	 * @param group
+	 * @param name
+	 * @param value
+	 * @return data node
+	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 */
+	public static DataNode write(NexusFile file, GroupNode group, String name, Object value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+		if (value == null || name == null || name.isEmpty())
+			return null;
 	
-	/**
-	 * Writes the double 'value' into a field called 'name' at the current position in the NeXus file.
-	 * 
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void writeNexusDouble(NexusFileInterface file, String name, double value) throws NexusException {
-		writeNexusDouble(file, name, value, null);
+		Dataset a = DatasetFactory.createFromObject(value);
+		a.setName(name);
+		return file.createData(group, a);
 	}
 
 	/**
 	 * @param file
+	 * @param node
 	 * @param name
 	 * @param value
-	 *            a string containing a double value
-	 * @throws NexusException
+	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
 	 */
-	public static void writeNexusDouble(NexusFileInterface file, String name, String value) throws NexusException {
-		writeNexusDouble(file, name, Double.parseDouble(value));
+	public static void writeStringAttribute(NexusFile file, Node node, String name, String value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+		writeAttribute(file, node, name, value);
 	}
 
 	/**
-	 * Writes the double array 'value' into a field called 'name' at the current position in the NeXus file.
-	 * 
 	 * @param file
+	 * @param node
 	 * @param name
 	 * @param value
-	 * @throws NexusException
+	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
 	 */
-	public static void writeNexusDoubleArray(NexusFileInterface file, String name, double[] value) throws NexusException {
-		if (value.length == 0)
+	public static void writeIntegerAttribute(NexusFile file, Node node, String name, int... value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+		writeAttribute(file, node, name, value);
+	}
+
+	/**
+	 * @param file
+	 * @param node
+	 * @param name
+	 * @param value
+	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 */
+	public static void writeDoubleAttribute(NexusFile file, Node node, String name, double... value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+		writeAttribute(file, node, name, value);
+	}
+
+	/**
+	 * @param file
+	 * @param node
+	 * @param name
+	 * @param value
+	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 */
+	public static void writeDoubleAttribute(NexusFile file, Node node, String name, Double... value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+		writeAttribute(file, node, name, value);
+	}
+
+	/**
+	 * @param file
+	 * @param node
+	 * @param name
+	 * @param value
+	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 */
+	public static void writeAttribute(NexusFile file, Node node, String name, Object value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+		if (value == null || name == null || name.isEmpty())
 			return;
-		int[] dimArray = new int[1];
-		dimArray[0] = value.length;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusGlobals.NX_FLOAT64, 1, dimArray);
-		}
-		file.opendata(name);
-		file.putdata(value);
-		file.closedata();
-	}
 
-	/**
-	 * Writes the double array 'value' into a field called 'name' at the current position in the NeXus file.
-	 * 
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void writeNexusDoubleArray(NexusFileInterface file, String name, Double[] value) throws NexusException {
-		if (value != null && value.length > 0) {
-			int[] dimArray = new int[1];
-			dimArray[0] = value.length;
-			if (file.groupdir().get(name) == null) {
-				file.makedata(name, NexusGlobals.NX_FLOAT64, 1, dimArray);
-			}
-			file.opendata(name);
-			file.putdata(value);
-			file.closedata();
-		}
-	}
-
-	/**
-	 * Writes the boolean 'value' into a field called 'name' at the current position in the NeXus file.
-	 * 
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void writeNexusBoolean(NexusFileInterface file, String name, boolean value) throws NexusException {
-		int[] dimArray = new int[1];
-		dimArray[0] = 1;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusGlobals.NX_BOOLEAN, 1, dimArray);
-		}
-		file.opendata(name);
-		file.putdata(value);
-		file.closedata();
-	}
-
-	/**
-	 * Appends the value 'double' into the field called 'name'. If 'name' does not exist then it will be created.
-	 * 
-	 * @param file
-	 * @param name
-	 * @param value
-	 * @throws NexusException
-	 */
-	public static void appendNexusDouble(NexusFileInterface file, String name, double value) throws NexusException {
-		int[] dimArray = new int[1];
-		dimArray[0] = NexusGlobals.NX_UNLIMITED;
-		if (file.groupdir().get(name) == null) {
-			file.makedata(name, NexusGlobals.NX_FLOAT64, 1, dimArray);
-		}
-
-		file.opendata(name);
-
-		double[] dataArray = { value };
-		int[] dataStart = new int[1];
-		int[] dataLength = new int[1];
-		dataStart[0] = 1;
-		dataLength[0] = 1;
-
-		file.putslab(dataArray, dataStart, dataLength);
-		file.closedata();
+		Dataset a = DatasetFactory.createFromObject(value);
+		a.setName(name);
+		Attribute attr = file.createAttribute(node, a);
+		file.addAttribute(node, attr);
 	}
 
 	public static org.eclipse.dawnsci.hdf5.nexus.NexusFile createNXFile(String path) {

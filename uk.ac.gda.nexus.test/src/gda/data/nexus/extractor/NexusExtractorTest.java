@@ -28,13 +28,13 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import gda.data.nexus.NexusException;
 import gda.data.nexus.NexusGlobals;
 
 public class NexusExtractorTest {
@@ -112,7 +112,7 @@ public class NexusExtractorTest {
 
 		int[] dims = new int []{2};
 		int[] startPos = new int[] { 2 };
-		data = NexusExtractor.getNexusGroupData(url, pathWithClass, dims, startPos, true);
+		data = NexusExtractor.getNexusGroupData(url, pathWithClass, startPos, dims, true);
 		Assert.assertEquals(NexusGlobals.NX_FLOAT64, data.getType() );
 		Assert.assertEquals( 1, data.dimensions.length);
 		Assert.assertEquals( 2, data.dimensions[0]);

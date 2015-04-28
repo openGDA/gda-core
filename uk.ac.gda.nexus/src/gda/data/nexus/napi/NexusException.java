@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gda.data.nexus;
+package gda.data.nexus.napi;
 
 
 public class NexusException extends org.nexusformat.NexusException {

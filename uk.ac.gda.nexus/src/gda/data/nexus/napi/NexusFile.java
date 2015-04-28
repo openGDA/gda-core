@@ -18,7 +18,6 @@
 
 package gda.data.nexus.napi;
 
-import gda.data.nexus.NexusException;
 import gda.data.nexus.NexusFileInterface;
 
 import java.util.Hashtable;

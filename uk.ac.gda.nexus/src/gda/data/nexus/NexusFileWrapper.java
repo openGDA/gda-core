@@ -19,6 +19,7 @@
 package gda.data.nexus;
 
 import gda.data.nexus.napi.NXlink;
+import gda.data.nexus.napi.NexusException;
 
 import java.util.Hashtable;
 import java.util.Vector;

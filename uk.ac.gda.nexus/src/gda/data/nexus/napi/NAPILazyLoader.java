@@ -18,10 +18,9 @@
 
 package gda.data.nexus.napi;
 
-import gda.data.nexus.NexusException;
-
 import java.io.File;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
@@ -30,11 +29,15 @@ import java.util.Arrays;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.io.ILazyLoader;
+import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
+import org.eclipse.dawnsci.analysis.dataset.impl.StringDataset;
+import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,14 +120,31 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 			size = newShape;
 		}
 
-		
-		Dataset d = DatasetFactory.zeros(size, dtype);
+		Dataset d = null;
 		NexusFile file = null;
+		int textLength = -1;
 
 		try {
 			file = new NexusFile(filename, NexusFile.NXACC_READ);
 			file.openpath(path);
 			file.opendata(name);
+			if (dtype == Dataset.STRING) {
+				int[] infoDims = new int[10];
+				int[] infoArgs = new int[10];
+				file.getinfo(infoDims, infoArgs);
+				if (infoArgs[1] != NexusFile.NX_CHAR) {
+					throw new ScanFileHolderException("Dataset was expected to contain strings"); 
+				}
+				int trank = infoArgs[0];
+				if (trank != trueShape.length) {
+					throw new ScanFileHolderException("Dataset has wrong rank"); 
+				}
+				textLength = infoDims[trank - 1];
+				
+				d = DatasetFactory.zeros(Arrays.copyOf(infoDims, trank), Dataset.INT8);
+			} else {
+				d = DatasetFactory.zeros(size, dtype);
+			}
 			if (!Arrays.equals(trueShape, slice.getSourceShape())) { // if shape was squeezed then need to translate to true slice
 				final int trank = trueShape.length;
 				int[] tstart = new int[trank];
@@ -141,11 +161,18 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 						j++;
 					}
 				}
-				
-				file.getslab(tstart, tsize, d.getBuffer());
+				if (textLength > 0) {
+					d = readSlabAsStrings(file, textLength, tstart, tsize, (byte[]) d.getBuffer());
+				} else {
+					file.getslab(tstart, tsize, d.getBuffer());
+				}
 				d.setShape(size); // squeeze shape back
 			} else {
-				file.getslab(lstart, size, d.getBuffer());
+				if (textLength > 0) {
+					d = readSlabAsStrings(file, textLength, lstart, size, (byte[]) d.getBuffer());
+				} else {
+					file.getslab(lstart, size, d.getBuffer());
+				}
 			}
 			if (useSteps)
 				d = d.getSlice(null, null, lstep); // reduce dataset to requested elements
@@ -157,5 +184,26 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 				file.close();
 		}
 		return d;
+	}
+
+	private Dataset readSlabAsStrings(NexusFile file, int length, int[] start, int[] size, byte[] buffer) throws NexusException {
+		int[] bsize = size.clone();
+		bsize[bsize.length - 1] = length;
+		file.getslab(start, bsize, buffer);
+		byte[] text = new byte[length];
+		StringDataset data = new StringDataset(size);
+		IndexIterator it = data.getIterator();
+		String[] strings = data.getData();
+		int k = 0;
+		while (it.hasNext()) {
+			System.arraycopy(buffer, k, text, 0, length);
+			k += length;
+			try {
+				strings[it.index] = new String(text, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				strings[it.index] = new String(text);
+			}
+		}
+		return data;
 	}
 }

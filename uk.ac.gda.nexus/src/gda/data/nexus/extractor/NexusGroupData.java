@@ -19,12 +19,17 @@
 package gda.data.nexus.extractor;
 
 import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.NexusUtils;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +71,8 @@ public class NexusGroupData implements Serializable {
 
 	private boolean isUnsigned = false;
 
+	private int textLength = -1;
+
 	NexusGroupData() {
 	}
 
@@ -78,6 +85,34 @@ public class NexusGroupData implements Serializable {
 		this.dimensions = dimensions;
 		this.type = type;
 		this.data = data;
+	}
+
+	/**
+	 * @param dimensions
+	 * @param clazz
+	 */
+	NexusGroupData(int[] dimensions, Class<?> clazz) {
+		this.dimensions = dimensions;
+		if (clazz.equals(String.class)) {
+			type = NexusGlobals.NX_CHAR;
+		} else if (clazz.equals(Boolean.class)) {
+			type = NexusGlobals.NX_CHAR;
+		} else if (clazz.equals(Byte.class)) {
+			type = NexusGlobals.NX_INT8;
+		} else if (clazz.equals(Short.class)) {
+			type = NexusGlobals.NX_INT16;
+		} else if (clazz.equals(Integer.class)) {
+			type = NexusGlobals.NX_INT32;
+		} else if (clazz.equals(Long.class)) {
+			type = NexusGlobals.NX_INT64;
+		} else if (clazz.equals(Float.class)) {
+			type = NexusGlobals.NX_FLOAT32;
+		} else if (clazz.equals(Double.class)) {
+			type = NexusGlobals.NX_FLOAT64;
+		} else {
+			throw new IllegalArgumentException("Class type is unsupported");
+		}
+		this.data = null;
 	}
 
 	/**
@@ -102,6 +137,9 @@ public class NexusGroupData implements Serializable {
 				type = NexusGlobals.NX_FLOAT32;
 			} else if (data instanceof double[] || data instanceof Double[]) {
 				type = NexusGlobals.NX_FLOAT64;
+			} else if (data instanceof String[]) {
+				type = NexusGlobals.NX_CHAR;
+				makeBytes((String[]) data);
 			} else {
 				type = NexusGlobals.NX_UNLIMITED;
 				throw new IllegalArgumentException("Unknown class of serializable array");
@@ -110,6 +148,64 @@ public class NexusGroupData implements Serializable {
 			type = NexusGlobals.NX_UNLIMITED;
 			throw new IllegalArgumentException("Serializable must be an array");
 		}
+	}
+
+	/**
+	 * TODO replace with ncsa.hdf.object.Dataset#stringToByte
+	 * Makes fixed size byte array
+	 * @param text
+	 */
+	private void makeBytes(String[] text) {
+		int n = text.length;
+		int max = -1;
+		for (int i = 0; i < n; i++) {
+			String t = text[i];
+			if (t == null)
+				continue;
+			byte[] s;
+			try {
+				s = t.getBytes("UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				s = t.getBytes();
+			}
+			max = Math.max(max, s.length);
+		}
+		textLength = max;
+		byte[] bdata = new byte[max * n];
+		int k = 0;
+		for (int i = 0; i < n; i++) {
+			String t = text[i];
+			if (t == null)
+				continue;
+
+			byte[] s;
+			try {
+				s = t.getBytes("UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				s = t.getBytes();
+			}
+			System.arraycopy(s, 0, bdata, k, s.length);
+			k += max;
+		}
+		data = bdata;
+		dimensions = new int[] { n };
+	}
+
+	private String[] makeStrings(byte[] bdata) {
+		int n = bdata.length / textLength;
+		String[] text = new String[n];
+		byte[] string = new byte[textLength + 1];
+		int k = 0;
+		for (int i = 0; i < n; i++) {
+			System.arraycopy(bdata, k, string, 0, textLength);
+			try {
+				text[i] = new String(string, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				text[i] = new String(string);
+			}
+			k += textLength;
+		}
+		return text;
 	}
 
 	/**
@@ -275,13 +371,16 @@ public class NexusGroupData implements Serializable {
 	 * @return true if data contains characters
 	 */
 	public boolean isChar() {
-		return getType() == NexusGlobals.NX_CHAR;
+		return type == NexusGlobals.NX_CHAR;
 	}
 
 	/**
 	 * @return The data buffer compatible with type, null if data not extracted
 	 */
 	public Serializable getBuffer() {
+		if (type == NexusGlobals.NX_CHAR) {
+			return makeStrings((byte[]) data);
+		}
 		return data;
 	}
 
@@ -502,6 +601,47 @@ public class NexusGroupData implements Serializable {
 		}
 
 		return value;
+	}
+
+	/**
+	 * Create a lazy dataset based on contents
+	 * @return lazy dataset
+	 */
+	public ILazyWriteableDataset toLazyDataset() {
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", getDtype(type), dimensions, null, chunkDimensions);
+		return lazy;
+	}
+
+	/**
+	 * Create a dataset based on contents
+	 * @return dataset
+	 */
+	public IDataset toDataset() {
+		IDataset dataset = DatasetFactory.createFromObject(data, getDtype(type));
+		dataset.setShape(dimensions);
+		return dataset;
+	}
+
+	private int getDtype(int type) {
+		switch (type) {
+		case NexusGlobals.NX_BOOLEAN:
+			return Dataset.BOOL;
+		case NexusGlobals.NX_CHAR:
+			return Dataset.STRING;
+		case NexusGlobals.NX_INT8:
+			return Dataset.INT8;
+		case NexusGlobals.NX_INT16:
+			return Dataset.INT16;
+		case NexusGlobals.NX_INT32:
+			return Dataset.INT32;
+		case NexusGlobals.NX_INT64:
+			return Dataset.INT64;
+		case NexusGlobals.NX_FLOAT32:
+			return Dataset.FLOAT32;
+		case NexusGlobals.NX_FLOAT64:
+			return Dataset.FLOAT64;
+		}
+		return 0;
 	}
 
 	private static Serializable getFromArray(Serializable array) {

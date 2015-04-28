@@ -17,25 +17,29 @@
 
 package gda.data.nexus.extractor;
 
-import gda.data.nexus.NexusException;
-import gda.data.nexus.NexusFileInterface;
-import gda.data.nexus.NexusFileWrapper;
-import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.INexusTreeProcessor.RESPONSE;
 import gda.data.nexus.tree.INexusSourceProvider;
 import gda.data.nexus.tree.INexusTree;
 
 import java.io.File;
-import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.Iterator;
 
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
-import org.nexusformat.AttributeEntry;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
+import org.eclipse.dawnsci.analysis.api.tree.Tree;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +68,7 @@ final public class NexusExtractor implements INexusDataGetter {
 
 	private Group currentGroupBeingProcessed = null;
 
-	private NexusFileInterface file = null;
+	private NexusFile file = null;
 
 	final String fileName;
 
@@ -106,27 +110,17 @@ final public class NexusExtractor implements INexusDataGetter {
 	 * @throws NexusExtractorException
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	public NexusGroupData getAttributeOfCurrentProcessedGroup(String attrName) throws NexusException,
 			NexusExtractorException {
 		NexusGroupData val = null;
 		// try to open the attribute
-		try {
-			file.opendata(currentGroupBeingProcessed.name);
-			Map<String, org.nexusformat.AttributeEntry> dir = (Map<String, AttributeEntry>) file.attrdir();
-			Set<Entry<String, org.nexusformat.AttributeEntry>> set = dir.entrySet();
-			for (Entry<String, org.nexusformat.AttributeEntry> entry : set) {
-				Attr attr = new Attr(entry.getKey(), entry.getValue());
-				if (attr.getName().equals(attrName)) {
-					Group currentGroupBeingProcessed_tmp = currentGroupBeingProcessed;
-					currentGroupBeingProcessed = attr;
-					val = getDataForCurrentProcessedGroup(attr.getName(), attr.getNXclass(), true);
-					currentGroupBeingProcessed = currentGroupBeingProcessed_tmp;
-					break;
-				}
-			}
-		} finally {
-			file.closedata();
+		DataNode d = file.getData((GroupNode) currentGroupBeingProcessed.parent, currentGroupBeingProcessed.name);
+		Attribute a = d.getAttribute(attrName);
+		if (a != null) {
+			Group currentGroupBeingProcessed_tmp = currentGroupBeingProcessed;
+			currentGroupBeingProcessed = new Attr(d, attrName, a);
+			val = new NexusGroupData(a.getShape(), DatasetUtils.serializeDataset(a.getValue()));
+			currentGroupBeingProcessed = currentGroupBeingProcessed_tmp;
 		}
 		return val;
 	}
@@ -146,138 +140,19 @@ final public class NexusExtractor implements INexusDataGetter {
 				|| !currentGroupBeingProcessed.getNXclass().equals(nxClass)) {
 			throw new NexusExtractorException("getDataForCurrentProcessedGroup being called out of sequence");
 		}
-		boolean isAttr = currentGroupBeingProcessed instanceof Attr;
-		int type = 0;
-		int length = 0;
-		if (isAttr) {
-			type = ((Attr) currentGroupBeingProcessed).entry.type;
-			length = ((Attr) currentGroupBeingProcessed).entry.length;
+		if (currentGroupBeingProcessed instanceof Attr) {
+			Attribute a = ((Attr) currentGroupBeingProcessed).entry;
+			return new NexusGroupData(a.getShape(), DatasetUtils.serializeDataset(a.getValue()));
 		}
-		return getNexusGroupData(file, currentGroupBeingProcessed.name, name, getData, isAttr, type, length, null, null);
+		DataNode d = file.getData((GroupNode) currentGroupBeingProcessed.parent, name);
+		ILazyDataset l = d.getDataset();
+		if (getData) {
+			IDataset ds = l instanceof IDataset ? (IDataset) l : l.getSlice();
+			return new NexusGroupData(ds.getShape(), DatasetUtils.serializeDataset(ds));
+		}
+		return new NexusGroupData(l.getShape(), l.elementClass());
 	}
 
-	static NexusGroupData getNexusGroupData(NexusFileInterface file, String currentGroupName, String attrName,
-			boolean getData, boolean isAttr, int AttrType, int AttrLength, int[] startPos, int[] dims)
-			throws NexusException, NexusExtractorException {
-
-		if (!isAttr) {
-			file.opendata(currentGroupName);
-		}
-
-		try {
-			int[] infoDims = new int[10];
-			int[] infoArgs = new int[10];
-			if (isAttr) {
-				infoArgs[0] = 1;
-				infoArgs[1] = AttrType;
-				infoDims[0] = AttrLength;
-				/*
-				 * add on 1 extra byte for the null in the attribute string hdfdump shows that we simply put the
-				 * attribute using the code: file.putattr(name, (String)value.getBytes(), NexusFile.NX_CHAR); but the
-				 * attribute length does not account the byte for the null
-				 */
-
-				if (infoArgs[1] == NexusGlobals.NX_CHAR) {
-					infoDims[0] += 1;
-				}
-			} else {
-				file.getinfo(infoDims, infoArgs);
-			}
-
-			int rank = infoArgs[0];
-			int[] dimensions = new int[rank];
-			for (int i = 0; i < rank; i++) {
-				dimensions[i] = infoDims[i];
-			}
-			int type = infoArgs[1];
-
-			int lengthToSend = 0;
-
-			long totalLength = calcTotalLengthLong(dimensions);
-			/* if a particular slab is request then check for sanity and change dimensions and length to that value */
-			if (!isAttr && startPos != null && dims != null) {
-				/* check sanity */
-				if (startPos.length != dims.length || startPos.length != dimensions.length) {
-					throw new NexusExtractorException("startPos or dimensions of different rank than dataset");
-				}
-				// use new dimensions
-				dimensions = dims;
-				long lengthRequested = calcTotalLengthLong(dimensions);
-				if (lengthRequested > totalLength) {
-					throw new NexusExtractorException("requested chunk extends over dataset boundaries");
-				}
-				totalLength = lengthRequested;
-			}
-
-			if (!getData || totalLength <= 0) {
-				return new NexusGroupData(dimensions, type, null);
-			}
-
-			if (totalLength > Integer.MAX_VALUE) {
-				throw new NexusExtractorException("data size requested too big for java arrays");
-			}
-
-			lengthToSend = (int) totalLength;
-
-			Serializable data = null;
-			
-			switch (type) {
-			case NexusGlobals.NX_CHAR:
-			case NexusGlobals.NX_INT8:
-			case NexusGlobals.NX_UINT8:
-				data = new byte[lengthToSend];
-				break;
-			case NexusGlobals.NX_INT16:
-			case NexusGlobals.NX_UINT16:
-				data = new short[lengthToSend];
-				break;
-			case NexusGlobals.NX_INT32:
-			case NexusGlobals.NX_UINT32:
-				data = new int[lengthToSend];
-				break;
-			case NexusGlobals.NX_INT64:
-			case NexusGlobals.NX_UINT64:
-				data = new long[lengthToSend];
-				break;
-			case NexusGlobals.NX_FLOAT32:
-				data = new float[lengthToSend];
-				break;
-			case NexusGlobals.NX_FLOAT64:
-				data = new double[lengthToSend];
-				break;
-			}
-			
-			if (data == null) {
-				throw new NexusExtractorException("Unable to getdata for " + currentGroupName + " as type "
-						+ Integer.toString(type) + " is not supported");
-			}
-			
-			try {
-				if (isAttr) {
-					data = (Serializable)file.getattr(attrName);
-					if (infoArgs[1] == NexusGlobals.NX_CHAR) {
-						dimensions[0] -= 1;
-					}					
-				} else {
-					if (startPos != null && dims != null) {
-						file.getslab(startPos, dimensions, data);
-					} else {
-						file.getdata(data);
-					}
-				}
-				return new NexusGroupData(dimensions, type, data);
-			} catch (NexusException ex) {
-				logger.error("Error gettting data. totalLength=" + totalLength + " type = " + type);
-				throw ex;
-			}
-		} finally {
-			if (!isAttr) {
-				file.closedata();
-			}
-		}
-	}
-
-	@SuppressWarnings("unchecked")
 	private RESPONSE loop(Group group, final IMonitor mon) throws NexusException, NexusExtractorException {
 
 		if (mon != null) {
@@ -309,23 +184,18 @@ final public class NexusExtractor implements INexusDataGetter {
 					// SDS element is open so now iterate over attributes and then send endElement
 					// The processor does not allow the attribute to be a parent so simply send endElement after all
 					// have been processed
-
-					file.opendata(group.name);
-					try {
-						Map<String, org.nexusformat.AttributeEntry> dir = (Map<String, AttributeEntry>) file.attrdir();
-						Set<Entry<String, org.nexusformat.AttributeEntry>> set = dir.entrySet();
-						for (Entry<String, org.nexusformat.AttributeEntry> entry : set) {
-							RESPONSE response2 = loop(new Attr(entry.getKey(), entry.getValue()), mon);
-							if (response2 == RESPONSE.NO_MORE) {
-								response = RESPONSE.NO_MORE;
-								break;
-							}
+					DataNode d = file.getData((GroupNode) group.parent, group.name);
+					Iterator<? extends Attribute> it = d.getAttributeIterator();
+					while (it.hasNext()) {
+						Attribute a = it.next();
+						RESPONSE response2 = loop(new Attr(d, a.getName(), a), mon);
+						if (response2 == RESPONSE.NO_MORE) {
+							response = RESPONSE.NO_MORE;
+							break;
 						}
-					} finally {
-						// signal to the processor that the SDS_ATTR have finished
-						loopProcessor.endElement(); // e
-						file.closedata();
 					}
+					// signal to the processor that the SDS_ATTR have finished
+					loopProcessor.endElement(); // e
 				}
 				// always return skip which causes processing of current item to stop, To stop processing all together
 				// the processor can send
@@ -333,44 +203,47 @@ final public class NexusExtractor implements INexusDataGetter {
 				return RESPONSE.SKIP_OVER;
 			}
 		}
-		// if top group which was added artificially by this processing and is not in the file or there is no dataset
-		if (!(group.name.isEmpty() && group.NXclass.isEmpty()) && !group.containsSDS()) {
-			file.opengroup(group.name, group.NXclass);
+		GroupNode c;
+		if (group.name.equals(Tree.ROOT)) {
+			c = file.getGroup(group.name, false);
+		} else {
+			c = file.getGroup((GroupNode) group.parent, group.name, group.NXclass, false);
 		}
 		try {
 			// We need to get the sets of groups and attr after first opending the file - otherwise we can get a Nexus
 			// invalid type exception
-			Map<String, String> groupdir = file.groupdir();
-			Map<String, org.nexusformat.AttributeEntry> attrdir = (Map<String, AttributeEntry>) file.attrdir();
-			{
-				// iterate over all elements of the node
-				Set<Entry<String, String>> set = groupdir.entrySet();
-				for (Entry<String, String> entry : set) {
-					RESPONSE response2 = loop(new Group(entry.getKey(), entry.getValue()), mon);
-					if (response2 == RESPONSE.NO_MORE) {
-						response = RESPONSE.NO_MORE;
-						break;
-					}
+			Iterator<String> it = c.getNodeNameIterator();
+			while (it.hasNext()) {
+				String n = it.next();
+				NodeLink l = c.getNodeLink(n);
+				Node nn = l.getDestination();
+				Attribute a = nn.getAttribute(NexusFile.NXCLASS);
+				String nc = a == null ? "" : a.getFirstElement();
+				if (nc.isEmpty() && l.isDestinationData()) {
+					nc = SDSClassName;
+				}
+				RESPONSE response2 = loop(new Group(c, n, nc), mon);
+				if (response2 == RESPONSE.NO_MORE) {
+					response = RESPONSE.NO_MORE;
+					break;
 				}
 			}
-			{
-				// iterate over all attributes of the node.
-				Set<Entry<String, org.nexusformat.AttributeEntry>> set = attrdir.entrySet();
-				for (Entry<String, org.nexusformat.AttributeEntry> entry : set) {
-					RESPONSE response2 = loop(new Attr(entry.getKey(), entry.getValue()), mon);
-					if (response2 == RESPONSE.NO_MORE) {
-						response = RESPONSE.NO_MORE;
-						break;
-					}
+			Iterator<? extends Attribute> ait = c.getAttributeIterator();
+			while (it.hasNext()) {
+				Attribute a = ait.next();
+				RESPONSE response2 = loop(new Attr(c, a.getName(), a), mon);
+				if (response2 == RESPONSE.NO_MORE) {
+					response = RESPONSE.NO_MORE;
+					break;
 				}
 			}
 		} catch (NexusException e) {
 			logger.info(e.getMessage() + " " + group.toString());
 			throw e;
+		} catch (Throwable e) {
+			logger.info(e.getMessage() + " " + group.toString());
+			throw e;
 		} finally {
-			if (!(group.name.isEmpty() && group.NXclass.isEmpty()) && !group.containsSDS()) {
-				file.closegroup();
-			}
 			currentGroupBeingProcessed = null;
 		}
 		// tell processor that end of current node has been reached.
@@ -401,12 +274,11 @@ final public class NexusExtractor implements INexusDataGetter {
 	public void runLoop(INexusTreeProcessor loopProcessor, boolean debug, final IMonitor mon) throws NexusException,
 			NexusExtractorException {
 		this.loopProcessor = loopProcessor;
-		file = NexusUtils.openNexusFileReadOnly(fileName);
-		if (debug) {
-			file = new NexusFileWrapper(file);
-		}
+		file = NexusUtils.createNXFile(fileName);
+		file.setDebug(debug);
 		try {
-			loop(new Group(topName, topClass), mon);
+			file.openToRead();
+			loop(new Group(null, Tree.ROOT, topClass), mon);
 		} finally {
 			if (file != null) {
 				file.close();
@@ -488,16 +360,19 @@ final public class NexusExtractor implements INexusDataGetter {
 }
 
 class Group {
+	
 	final String name;
 	final String NXclass;
+	final Node parent;
 
-	Group(String name, String NXclass) {
+	Group(Node parent, String name, String NXclass) {
+		this.parent = parent;
 		this.name = name;
 		this.NXclass = NXclass;
 	}
 
 	static Group getInstance(Group source) {
-		return new Group(source.name, source.NXclass);
+		return new Group(source.parent, source.name, source.NXclass);
 	}
 
 	String getName() {
@@ -540,10 +415,10 @@ class Group {
 }
 
 class Attr extends Group {
-	org.nexusformat.AttributeEntry entry;
+	Attribute entry;
 
-	Attr(String name, org.nexusformat.AttributeEntry entry) {
-		super(name, NexusExtractor.AttrClassName);
+	Attr(Node parent, String name, Attribute entry) {
+		super(parent, name, NexusExtractor.AttrClassName);
 		this.entry = entry;
 	}
 }
@@ -560,7 +435,27 @@ class SimpleExtractor {
 		this.source = source;
 		this.startPos = startPos;
 		this.dims = dims;
+		if (startPos != null && dims != null && startPos.length != dims.length) {
+			throw new IllegalArgumentException("Non-null start position and dimensions must have same length");
+		}
 		this.nodePathWithClasses = nodePathWithClasses;
+	}
+
+	private String createAugmentedPath(String nodePathWithClasses) {
+		while (nodePathWithClasses.startsWith("/"))
+			nodePathWithClasses = nodePathWithClasses.substring(1);
+		return split(new StringBuilder(), nodePathWithClasses).toString();
+	}
+
+	private StringBuilder split(StringBuilder path, String bits) {
+		String[] nodes = bits.split("/", 3);
+		path.append(Node.SEPARATOR);
+		path.append(nodes[0]);
+		path.append(NexusFile.NXCLASS_SEPARATOR);
+		path.append(nodes[1]);
+		if (nodes.length == 2 || nodes[2].isEmpty())
+			return path;
+		return split(path, nodes[2]);
 	}
 
 	/**
@@ -570,49 +465,51 @@ class SimpleExtractor {
 	 * @throws NexusException
 	 * @throws NexusExtractorException
 	 */
-	@SuppressWarnings("unchecked")
-	public NexusGroupData getData(NexusFileInterface file, String nodePathWithClasses) throws NexusException,
+	public NexusGroupData getData(NexusFile file, String nodePathWithClasses) throws NexusException,
 			NexusExtractorException {
-		String[] nodeIds = nodePathWithClasses.split("/", 3);
-		if (!(nodeIds[0].equals("") && nodeIds[1].equals("")) && !(nodeIds[1].equals(NexusExtractor.SDSClassName))
-				&& !(nodeIds[1].equals(NexusExtractor.AttrClassName))) {
-			file.opengroup(nodeIds[0], nodeIds[1]);
+		String augmentedPath = createAugmentedPath(nodePathWithClasses);
+		String attrName = null;
+		if (augmentedPath.endsWith(NexusExtractor.AttrClassName)) {
+			int i = augmentedPath.lastIndexOf(Node.SEPARATOR);
+			attrName = augmentedPath.substring(i + 1, augmentedPath.lastIndexOf(NexusFile.NXCLASS_SEPARATOR));
+			augmentedPath = augmentedPath.substring(0, i);
 		}
-		if (nodeIds.length > 2 && !nodeIds[2].isEmpty()) {
-			if (nodeIds[1].equals(NexusExtractor.SDSClassName)) {
-				file.opendata(nodeIds[0]);
+
+		DataNode data = file.getData(augmentedPath);
+		if (attrName != null) {
+			Attribute a = data.getAttribute(attrName);
+			return new NexusGroupData(a.getShape(), DatasetUtils.serializeDataset(a.getValue()));
+		}
+
+		ILazyDataset lazy = data.getDataset();
+		SliceND slice = null;
+		if (startPos != null || dims != null) {
+			int[] start = startPos == null ? new int[lazy.getRank()] : startPos;
+			if (start.length != lazy.getRank()) {
+				throw new IllegalArgumentException("Start position must have length equal to dataset rank");
 			}
-			return getData(file, nodeIds[2]);
-		}
-		boolean isAttr = nodeIds[1].equals(NexusExtractor.AttrClassName);
-		String attrName = nodeIds[0];
-		int attrType = 0;
-		int attrLength = 0;
-		if (isAttr) {
-			Map<String, org.nexusformat.AttributeEntry> dir = (Map<String, AttributeEntry>) file.attrdir();
-			Set<Entry<String, org.nexusformat.AttributeEntry>> set = dir.entrySet();
-			for (Entry<String, org.nexusformat.AttributeEntry> entry : set) {
-				if (entry.getKey().equals(attrName)) {
-					org.nexusformat.AttributeEntry attrEntry = entry.getValue();
-					attrType = attrEntry.type;
-					attrLength = attrEntry.length;
-					break;
+			int[] stop;
+			if (dims == null) {
+				stop = lazy.getShape();
+			} else {
+				stop = new int[dims.length];
+				for (int i = 0; i < dims.length; i++) {
+					stop[i] = dims[i] + start[i];
 				}
 			}
+			slice = new SliceND(lazy.getShape(), start, stop, null);
+		} else {
+			slice = new SliceND(lazy.getShape());
 		}
-		return NexusExtractor.getNexusGroupData(file, nodeIds[0], attrName, true, isAttr, attrType, attrLength,
-				startPos, dims);
+
+		return new NexusGroupData(slice.getShape(), DatasetUtils.serializeDataset(lazy.getSlice(slice)));
 	}
 
 	protected final NexusGroupData getData() throws NexusException, NexusExtractorException {
-		NexusFileInterface file = NexusUtils.openNexusFileReadOnly(source.getPath());
-		if (debug) {
-			file = new NexusFileWrapper(file);
-		}
-		try {
+		try (NexusFile file = NexusUtils.createNXFile(source.getPath())) {
+			file.setDebug(debug);
+			file.openToRead();
 			return getData(file, nodePathWithClasses);
-		} finally {
-			file.close();
 		}
 	}
 }

@@ -18,8 +18,6 @@
 
 package gda.data.nexus.napi;
 
-import gda.data.nexus.NexusException;
-
 import java.io.File;
 import java.io.Serializable;
 import java.util.Arrays;

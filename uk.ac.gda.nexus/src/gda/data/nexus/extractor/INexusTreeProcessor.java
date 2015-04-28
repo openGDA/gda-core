@@ -18,7 +18,7 @@
 
 package gda.data.nexus.extractor;
 
-import gda.data.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 
 
 /**

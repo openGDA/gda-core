@@ -23,6 +23,12 @@ import gda.util.TestUtils;
 
 import java.io.File;
 
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -61,7 +67,8 @@ public class NexusFileStressTest {
 	@SuppressWarnings("unused")
 	@Test(expected=NullPointerException.class)
 	public void testConstructor() throws Exception {
-		NexusUtils.openNexusFileReadOnly(null);
+		NexusFile file = NexusUtils.createNXFile(null);
+		file.openToRead();
 	}
 
 	/**
@@ -69,12 +76,11 @@ public class NexusFileStressTest {
 	 */
 	@Test(expected=NullPointerException.class)
 	public void testMakeGroupNPE1() throws Exception {
-		NexusFileInterface file = null;
+		NexusFile file = null;
 		try {
-			file = NexusUtils.createNexusFile(filename);
-			file.makegroup(null, "NXentry");
-			file.opengroup("entry1", "NXentry");
-			file.closegroup();
+			file = NexusUtils.createNXFile(filename);
+			file.createAndOpenToWrite();
+			file.getGroup(null, true);
 			}
 		finally {
 			if (file != null) file.close();
@@ -86,12 +92,11 @@ public class NexusFileStressTest {
 	 */
 	@Test(expected=NullPointerException.class)
 	public void testMakeGroupNPE2() throws Exception {
-		NexusFileInterface file = null;
+		NexusFile file = null;
 		try {
-			file = NexusUtils.createNexusFile(filename);
-			file.makegroup("entry1", null);
-			file.opengroup("entry1", "NXentry");
-			file.closegroup();
+			file = NexusUtils.createNXFile(filename);
+			file.createAndOpenToWrite();
+			file.getGroup(null, "entry1", null, true);
 		}
 		finally {
 			if (file != null) file.close();
@@ -103,11 +108,11 @@ public class NexusFileStressTest {
 	 */
 	@Test(expected=NullPointerException.class)
 	public void testOpenGroupNPE1() throws Exception {
-		NexusFileInterface file = null;
+		NexusFile file = null;
 		try {
-			file = NexusUtils.createNexusFile(filename);
-			file.opengroup(null, "NXentry");
-			file.closegroup();
+			file = NexusUtils.createNXFile(filename);
+			file.openToRead();
+			file.getGroup(null, false);
 		}
 		finally {
 			if (file != null) file.close();
@@ -119,11 +124,11 @@ public class NexusFileStressTest {
 	 */
 	@Test(expected=NullPointerException.class)
 	public void testOpenGroupNPE2() throws Exception {
-		NexusFileInterface file = null;
+		NexusFile file = null;
 		try {
-			file = NexusUtils.createNexusFile(filename);
-			file.opengroup("entry1", null);
-			file.closegroup();
+			file = NexusUtils.createNXFile(filename);
+			file.openToRead();
+			file.getGroup(null, "entry1", null, false);
 		}
 		finally {
 			if (file != null) file.close();
@@ -135,13 +140,11 @@ public class NexusFileStressTest {
 	 */
 	@Test(expected=NullPointerException.class)
 	public void testMakeDataNPE1() throws Exception {
-		NexusFileInterface file = null;
+		NexusFile file = null;
 		try {
-			file = NexusUtils.createNexusFile(filename);
-			file.makegroup("entry1", "NXentry");
-			file.opengroup("entry1", "NXentry");
-			file.makedata(null, NexusGlobals.NX_FLOAT64, 2, new int[] { 1 } );
-			file.closegroup();
+			file = NexusUtils.createNXFile(filename);
+			file.createAndOpenToWrite();
+			file.createData("/entry1:NXentry", DatasetFactory.createFromObject(2.).reshape(1), true);
 		}
 		finally {
 			if (file != null) file.close();
@@ -153,13 +156,11 @@ public class NexusFileStressTest {
 	 */
 	@Test(expected=NullPointerException.class)
 	public void testMakeDataNPE2() throws Exception {
-		NexusFileInterface file = null;
+		NexusFile file = null;
 		try {
-			file = NexusUtils.createNexusFile(filename);
-			file.makegroup("entry1", "NXentry");
-			file.opengroup("entry1", "NXentry");
-			file.makedata("data", NexusGlobals.NX_FLOAT64, 2, (int[]) null);
-			file.closegroup();
+			file = NexusUtils.createNXFile(filename);
+			file.createAndOpenToWrite();
+			file.createData("/entry1:NXentry", DatasetFactory.createFromObject(2.), true);
 		}
 		finally {
 			if (file != null) file.close();
@@ -180,35 +181,30 @@ public class NexusFileStressTest {
 			// setup data etc. according to configuration
 			int rank = dim.length+1;
 			int[] dimArray = new int[rank];
-			dimArray[0] = NexusGlobals.NX_UNLIMITED;
-			int size = 1;
+			dimArray[0] = ILazyWriteableDataset.UNLIMITED;
 			for (int i = 0; i < dim.length; i++) {
 				dimArray[i+1] = dim[i];
-				size *= dim[i];
 			}
-			double[] data = new double[size];
 			int[] startPos = new int[rank];
-			
+			int[] stop = dimArray.clone();
+			stop[0] = 1;
+			Dataset data = DatasetFactory.zeros(dim, Dataset.FLOAT64).reshape(stop);
+
 			// create the file
-			NexusFileInterface file = null;
+			NexusFile file = null;
 			try {
-				file = NexusUtils.createNexusFile(filename);
-				file.makegroup("entry1", "NXentry");
-				file.opengroup("entry1", "NXentry");
-				file.makedata(null, NexusGlobals.NX_FLOAT64, rank, dimArray);
-				file.opendata("data");
+				file = NexusUtils.createNXFile(filename);
+				file.createAndOpenToWrite();
+				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(null, Dataset.FLOAT64, stop, dimArray, stop);
+				file.createData("/entry1:NXentry", lazy, true);
 	
 				// write the slabs
 				dimArray[0] = 1;
 				for (int i = 0; i < numberOfPoints; i++) {
 					startPos[0] = i;
-					file.putslab(data, startPos, dimArray);
+					stop[0] = startPos[i] + 1;
+					lazy.setSlice(null, data, new SliceND(lazy.getShape(), startPos, stop, null));
 				}
-	
-				// wrap up
-				file.closedata();
-				file.closegroup();
-				file.closegroup();
 			}
 			finally {
 				if (file != null) file.close();
@@ -221,10 +217,8 @@ public class NexusFileStressTest {
 	@Test(expected=NexusException.class)
 	public void testFileNotThere() throws Exception {
 			deleteFile();
-			NexusFileInterface file = NexusUtils.openNexusFileReadOnly(filename);
-			file.opengroup("entry1", "NXentry");
-			file.closegroup();
-			file.close();
+			NexusFile file = NexusUtils.createNXFile(filename);
+			file.openToRead();
 	}
 
 	public static void main(String[] args) {

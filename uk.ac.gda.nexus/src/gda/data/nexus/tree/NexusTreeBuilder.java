@@ -18,7 +18,6 @@
 
 package gda.data.nexus.tree;
 
-import gda.data.nexus.NexusException;
 import gda.data.nexus.extractor.INexusDataGetter;
 import gda.data.nexus.extractor.INexusTreeProcessor;
 import gda.data.nexus.extractor.NexusExtractor;
@@ -34,6 +33,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /**
@@ -79,8 +79,8 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 			response = RESPONSE.GO_INTO;
 			//we are keeping this one so add in the attributes
 			treeNode = new NexusTreeNode(name, nxClass, parentNode, null);
-			Boolean isAttr =  nxClass.equals(NexusExtractor.AttrClassName);
-			Boolean isSDS = nxClass.equals(NexusExtractor.SDSClassName);
+			boolean isAttr =  nxClass.equals(NexusExtractor.AttrClassName);
+			boolean isSDS = nxClass.equals(NexusExtractor.SDSClassName);
 			if ( isSDS || isAttr){
 				//if SDS or attr then read using getDataForCurrentProcessedGroup.
 				if (parentNode == null) {
@@ -173,7 +173,8 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 	static public synchronized INexusTree getNexusTree(String fileName, NexusTreeNodeSelection selectionTree, final IMonitor mon) throws NexusException, NexusExtractorException {
 		NexusExtractor extractor =  new NexusExtractor(fileName);
 		NexusTreeBuilder proc = new NexusTreeBuilder(selectionTree);
-		extractor.runLoop(proc, System.getProperty("gda.nexus.instrumentApi") != null, mon);
+//		extractor.runLoop(proc, System.getProperty("gda.nexus.instrumentApi") != null, mon);
+		extractor.runLoop(proc, true, mon);
 		return proc.getTree();
 	}
 

@@ -18,6 +18,10 @@
 
 package gda.data.nexus;
 
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+
 /**
  * An interface to be implemented by a device (normally) if it is able to write additional information about itself to
  * the current position in the NeXus file.
@@ -27,8 +31,9 @@ public interface INeXusInfoWriteable {
 	/**
 	 * @param file
 	 *            nexus file handle
+	 * @param group
 	 * @throws NexusException 
 	 */
-	public void writeNeXusInformation(NexusFileInterface file) throws NexusException ;
+	public void writeNeXusInformation(NexusFile file, GroupNode group) throws NexusException;
 
 }

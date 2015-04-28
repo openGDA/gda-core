@@ -19,9 +19,13 @@
 package gda.data.nexus;
 
 import static org.junit.Assert.assertEquals;
-
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.util.TestUtils;
 
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -50,7 +54,7 @@ public class DataTypesTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testDouble() throws Exception {
-		new GenericTest<Double>(NexusGlobals.NX_FLOAT64, new Double[] { 0.0, -1.0, Double.MAX_VALUE });
+		new GenericTest<Double>(new Double[] { 0.0, -1.0, Double.MAX_VALUE });
 	}
 
 	/**
@@ -59,7 +63,7 @@ public class DataTypesTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testByte() throws Exception {
-		new GenericTest<Byte>(NexusGlobals.NX_INT8, new Byte[] { 0, -1, Byte.MAX_VALUE });
+		new GenericTest<Byte>(new Byte[] { 0, -1, Byte.MAX_VALUE });
 	}
 
 	/**
@@ -68,7 +72,7 @@ public class DataTypesTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testLong() throws Exception {
-		new GenericTest<Long>(NexusGlobals.NX_INT64, new Long[] { 0l, -1l, Long.MAX_VALUE });
+		new GenericTest<Long>(new Long[] { 0l, -1l, Long.MAX_VALUE });
 	}
 
 	/**
@@ -78,7 +82,7 @@ public class DataTypesTest {
 	@Test
 	public void testLongUnsigned() throws Exception {
 		// this should not work in principle
-		new GenericTest<Long>(NexusGlobals.NX_UINT64, new Long[] { 0l, -1l, Long.MAX_VALUE });
+		new GenericTest<Long>(new Long[] { 0l, -1l, Long.MAX_VALUE });
 	}
 
 	/**
@@ -87,40 +91,30 @@ public class DataTypesTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void testInteger() throws Exception {
-		new GenericTest<Integer>(NexusGlobals.NX_INT32, new Integer[] { 0, -1, Integer.MAX_VALUE });
+		new GenericTest<Integer>(new Integer[] { 0, -1, Integer.MAX_VALUE });
 	}
 
 	class GenericTest<T extends Number> {
-		GenericTest(int type, T[] toTest) throws Exception {
+		GenericTest(T[] toTest) throws Exception {
 
 			T[] expected = toTest.clone();
-			T[] received = toTest.clone();
 
 			String filename = testScratchDirectoryName + "foo.nxs";
-			NexusFileInterface file = NexusUtils.createNexusFile(filename);
-			file.makegroup("entry1", "NXentry");
-			file.opengroup("entry1", "NXentry");
-			file.makedata("data", type, 1, new int[] { toTest.length });
-			file.opendata("data");
+			NexusFile file = NexusUtils.createNXFile(filename);
+			file.createAndOpenToWrite();
+			GroupNode group = file.getGroup(NexusUtils.createAugmentPath("entry1", NexusExtractor.NXEntryClassName), true);
 
-			file.putdata(toTest);
-
-			file.closedata();
-			file.closegroup();
+			NexusUtils.write(file, group, "data", toTest);
 			file.close();
 
-			file = NexusUtils.openNexusFileReadOnly(filename);
-			file.opengroup("entry1", "NXentry");
-			file.opendata("data");
-
-			file.getdata(received);
-
-			file.closedata();
-			file.closegroup();
+			file.openToRead();
+			group = file.getGroup(NexusUtils.createAugmentPath("entry1", NexusExtractor.NXEntryClassName), true);
+			DataNode data = file.getData(group, "data");
+			IDataset d = data.getDataset().getSlice();
 			file.close();
 
 			for (int i = 0; i < expected.length; i++) {
-				assertEquals(expected[i], received[i]);
+				assertEquals(expected[i], d.getObject(i));
 			}
 		}
 	}

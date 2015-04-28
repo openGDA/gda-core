@@ -18,7 +18,8 @@
 
 package gda.data.nexus.napi;
 
-import java.io.IOException;
+import gda.data.nexus.NexusUtils;
+
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -42,18 +43,23 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.nexusformat.AttributeEntry;
 import org.nexusformat.NXlink;
-import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
+	private static final Logger logger = LoggerFactory.getLogger(org.eclipse.dawnsci.hdf5.nexus.NexusFile.class);
 	private String filename;
 
 	private NexusFile file;
 	private boolean canWrite = false;
 
 	private TreeFile tree; // acts as a cache
+
+	private boolean debug;
 
 	/**
 	 * @param name
@@ -71,18 +77,19 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	}
 
 	@Override
-	public void openToRead() throws IOException {
+	public void openToRead() throws NexusException {
 		canWrite = false;
 		try {
 			file = new NexusFile(filename, NexusFile.NXACC_READ);
 			initTree();
-		} catch (NexusException e) {
-			throw new IOException(e);
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Cannot open to read: {}", filename, e);
+			throw new NexusException("Cannot open to read", e);
 		}
 	}
 
 	@Override
-	public void openToWrite(boolean createIfNecessary) throws IOException {
+	public void openToWrite(boolean createIfNecessary) throws NexusException {
 		try {
 			if (Files.exists(Paths.get(filename))) {
 				file = new NexusFile(filename, NexusFile.NXACC_RDWR);
@@ -95,61 +102,106 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 				canWrite = true;
 				return;
 			}
-		} catch (NexusException e) {
-			throw new IOException(e);
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Cannot open to write: {}", filename, e);
+			throw new NexusException("Cannot open to write", e);
 		}
-		throw new IOException("File not found and not created");
+		logger.error("File not found and not created: {}", filename);
+		throw new NexusException("File not found and not created");
 	}
 
 	@Override
-	public void createAndOpenToWrite() throws IOException {
+	public void createAndOpenToWrite() throws NexusException {
 		try {
 			file = new NexusFile(filename, NexusFile.NXACC_CREATE5);
 			initTree();
 			canWrite = true;
 			return;
-		} catch (NexusException e) {
-			throw new IOException(e);
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Cannot create: {}", filename, e);
+			throw new NexusException("Cannot create", e);
 		}
 	}
 
 	@Override
-	public void flush() {
+	public void flush() throws NexusException {
 		try {
 			file.flush();
-		} catch (NexusException e) {
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Problem flushing: {}", filename, e);
+			throw new NexusException("Problem flushing", e);
 		}
 	}
 
 	@Override
-	public void close() {
+	public void close() throws NexusException {
 		try {
 			file.close();
 			tree = null;
-		} catch (NexusException e) {
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Cannot close: {}", filename, e);
+			throw new NexusException("Cannot close", e);
 		}
 	}
 
-	private void checkClosed() {
+	private void checkClosed(boolean checkForWrite) {
 		if (tree == null) {
 			throw new IllegalStateException("File has been closed");
+		}
+		if (checkForWrite && !canWrite) {
+			logger.error("Cannot write as opened read-only");
+			throw new IllegalStateException("Cannot write as opened read-only");
 		}
 	}
 
 	@Override
-	public GroupNode getGroup(String path, boolean createPathIfNecessary) {
-		checkClosed();
-		NodeLink link = tree.findNodeLink(path);
+	public void setDebug(boolean debug) {
+		this.debug = debug;
+	}
+
+	@Override
+	public GroupNode getGroup(String path, boolean createPathIfNecessary) throws NexusException {
+		checkClosed(false);
+		String bpath = NexusUtils.stripAugmentedPath(path);
+		NodeLink link = tree.findNodeLink(bpath);
 		if (link != null) {
-			if (link.isDestinationGroup())
-				return (GroupNode) link.getDestination();
-			throw new IllegalArgumentException("Path specified is not for a group");
+			if (link.isDestinationGroup()) {
+				GroupNode g = (GroupNode) link.getDestination();
+				if (!g.isPopulated()) {
+					if (!bpath.endsWith(Node.SEPARATOR)) {
+						bpath = bpath + Node.SEPARATOR;
+					}
+					try {
+						file.openpath(bpath);
+					} catch (org.nexusformat.NexusException e) {
+						logger.error("Cannot open to group: {}", bpath, e);
+						throw new NexusException("Cannot open to group", e);
+					}
+					populate(bpath, g);
+				}
+				return g;
+			}
+			logger.error("Path specified is not for a group");
+			throw new NexusException("Path specified is not for a group");
 		}
-		Tuple<String, GroupNode> tuple = openAll(path, createPathIfNecessary, true);
-		if (tuple.n == null)
+		Tuple<String, GroupNode, Node> tuple = openAll(path, createPathIfNecessary, true);
+		if (tuple.name == null)
 			return null;
 
-		return tuple.g;
+		return tuple.group;
+	}
+
+	@Override
+	public GroupNode getGroup(GroupNode group, String name, String nxClass, boolean createPathIfNecessary) throws NexusException {
+		String path = getPath(group);
+		if (path == null)
+			throw new NullPointerException("Group was null");
+		return getGroup(NexusUtils.addToAugmentPath(path, name, nxClass), createPathIfNecessary);
+	}
+
+	@Override
+	public String getPath(Node node) {
+		return TreeUtils.getPath(tree, node);
 	}
 
 	private String[][] parseAugmentedPath(String path) {
@@ -167,27 +219,31 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	}
 
 	private static final String SDS = "SDS";
-	private static final String NXCLASS = "NX_class";
 
-	class Tuple<T, U> {
-		T n;
-		T c;
-		U g;
-		public Tuple(T t, T v, U u) {
-			this.n = t;
-			this.c = v;
-			this.g = u;
+	class Tuple<S, G, N> {
+		S name;
+		S clazz;
+		S path;
+		G group;
+		N node;
+		public Tuple(S t, S v, S p, G u, N x) {
+			this.name = t;
+			this.clazz = v;
+			this.path = p;
+			this.group = u;
+			this.node = x;
 		}
 	}
 
 	/**
-	 * Open all groups in path
+	 * Open all nodes in path
 	 * @param path
 	 * @param createPathIfNecessary
 	 * @param toBottom
-	 * @return name, NeXus class, group
+	 * @return name, NeXus class, group, bottom node
+	 * @throws NexusException 
 	 */
-	private Tuple<String, GroupNode> openAll(String path, boolean createPathIfNecessary, boolean toBottom) {
+	private Tuple<String, GroupNode, Node> openAll(String path, boolean createPathIfNecessary, boolean toBottom) throws NexusException {
 		String[][] pairs = parseAugmentedPath(path);
 		int imax = pairs.length;
 		if (!toBottom)
@@ -196,8 +252,9 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		GroupNode group = tree.getGroupNode();
 		try {
 			file.openpath(Tree.ROOT);
-		} catch (NexusException e) {
-			return null;
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Cannot open root: {}", filename, e);
+			throw new NexusException("Cannot open root", e);
 		}
 		String name = Tree.ROOT;
 		StringBuilder cpath = new StringBuilder(Tree.ROOT);
@@ -206,8 +263,10 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			populate(ppath, group);
 		}
 		String clazz = null;
-		for (int i = 1; i < imax; i++) { // miss out first as it is blank
-			String[] pair = pairs[i];
+		int i = 1;
+		String[] pair = null;
+		for (; i < imax; i++) { // miss out first as it is blank
+			pair = pairs[i];
 			name = pair[0];
 			if (name.isEmpty())
 				continue;
@@ -235,13 +294,31 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		if (toBottom && !group.isPopulated()) {
 			populate(ppath, group);
 		}
+		Node node = null;
+		if (toBottom && name == null && i == imax - 1 && pair != null) {
+			name = pair[0];
+			NodeLink link = group.getNodeLink(name);
+			node = link.getDestination();
+			if (link.isDestinationData()) {
+				openDataset(name);
+			}
+		}
+		if (toBottom && node == null) {
+			node = group;
+		}
 		if (name != null && !toBottom) {
 			name = pairs[imax][0];
 		}
-		return new Tuple<String, GroupNode>(name, clazz, group);
+		return new Tuple<String, GroupNode, Node>(name, clazz, ppath, group, node);
 	}
 
-	private void populate(String path, GroupNode group) {
+	/**
+	 * Populate group
+	 * @param path path to group (ends with {@link Node#SEPARATOR})
+	 * @param group
+	 * @throws NexusException
+	 */
+	private void populate(String path, GroupNode group) throws NexusException {
 		try {
 			@SuppressWarnings("unchecked")
 			Hashtable<String, String> map = file.groupdir();
@@ -253,61 +330,74 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 					createDataNode(group, npath, n);
 				} else {
 					GroupNode g = TreeFactory.createGroupNode(npath.hashCode());
-					g.addAttribute(TreeFactory.createAttribute(tree, n, NXCLASS, c, false));
+					Attribute a = TreeFactory.createAttribute(tree, n, NXCLASS, c, false);
+					g.addAttribute(a);
 					copyAttributes(n, g);
 					group.addGroupNode(tree, path, n, g);
 				}
 			}
-		} catch (NexusException e) {
-			return;
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Problem populating group: {}", path, e);
+			throw new NexusException("Problem populating group", e);
 		}
 	}
 
-	private boolean openGroup(String name, String nxClass, boolean create) {
+	private boolean openGroup(String name, String nxClass, boolean create) throws NexusException {
 		try {
 			String url = file.isexternalgroup(name, nxClass);
 			if (url == null) {
+				if (debug) {
+					logger.debug("Opening group: {}:{}", name, nxClass);
+				}
 				file.opengroup(name, nxClass);
 			} else {
 				return false;
 			}
-		} catch (NexusException e) {
+		} catch (org.nexusformat.NexusException e) {
 			if (!create || !canWrite) {
 				return false;
+			}
+			if (debug) {
+				logger.debug("Creating group: {}:{}", name, nxClass);
 			}
 			try {
 				file.makegroup(name, nxClass);
 				file.opengroup(name, nxClass);
-			} catch (NexusException e1) {
-				return false;
+			} catch (org.nexusformat.NexusException e1) {
+				logger.error("Cannot create group: {}", name, e1);
+				throw new NexusException("Cannot create group", e1);
 			}
 		}
 		return true;
 	}
 
 	@SuppressWarnings("unchecked")
-	private void copyAttributes(String name, Node node) {
+	private void copyAttributes(String name, Node node) throws NexusException {
 		Hashtable<String, AttributeEntry> map;
 		try {
 			map = file.attrdir();
-		} catch (NexusException e) {
-			return;
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Problem getting attributes: {}", name, e);
+			throw new NexusException("Problem getting attributes", e);
 		}
 		for (Entry<String, AttributeEntry> sa: map.entrySet()) {
 			node.addAttribute(createAttribute(name, sa.getKey(), sa.getValue()));
 		}
 	}
 
-	private Attribute createAttribute(String name, String n, AttributeEntry e) {
+	private Attribute createAttribute(String name, String n, AttributeEntry e) throws NexusException {
 		Object s;
 		try {
 			s = file.getattr(n);
-		} catch (NexusException e1) {
-			return null;
+		} catch (org.nexusformat.NexusException e1) {
+			logger.error("Problem getting attribute: {}", n, e);
+			throw new NexusException("Problem getting attribute", e1);
 		}
 		Attribute a = TreeFactory.createAttribute(tree, name, n, s, false);
-		IDataset d = a.getValue();
-		d.setShape(a.isString() ? new int[0] : e.dim);
+		if (!a.isString()) {
+			IDataset d = a.getValue();
+			d.setShape(e.dim);
+		}
 		a.setTypeName(parseTypeName(e.type));
 		return a;
 	}
@@ -333,26 +423,32 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	}
 
 	@Override
-	public DataNode getData(String path) {
-		checkClosed();
-		NodeLink link = tree.findNodeLink(path);
+	public DataNode getData(String path) throws NexusException {
+		checkClosed(false);
+		NodeLink link = tree.findNodeLink(NexusUtils.stripAugmentedPath(path));
 		if (link != null) {
 			if (link.isDestinationData())
 				return (DataNode) link.getDestination();
 			throw new IllegalArgumentException("Path specified is not for a dataset");
 		}
 
-		Tuple<String, GroupNode> tuple = openAll(path, false, false);
-		String name = tuple.n;
+		Tuple<String, GroupNode, Node> tuple = openAll(path, false, false);
+		String name = tuple.name;
 		if (name == null)
 			return null;
 		if (!openDataset(name))
 			return null;
 
-		return createDataNode(tuple.g, path, name);
+		return createDataNode(tuple.group, tuple.path + name, name);
 	}
 
-	private DataNode createDataNode(GroupNode g, String path, String name) {
+	@Override
+	public DataNode getData(GroupNode group, String name) throws NexusException {
+		String path = NexusUtils.addToAugmentPath(getPath(group), name, null);
+		return getData(path);
+	}
+
+	private DataNode createDataNode(GroupNode g, String path, String name) throws NexusException {
 		DataNode dataNode = TreeFactory.createDataNode(path.hashCode());
 		copyAttributes(name, dataNode);
 		String p = path.substring(0, path.length() - name.length());
@@ -361,17 +457,26 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		int[] args = new int[10];
 		try {
 			file.getinfo(tShape, args);
-		} catch (NexusException e) {
-			return null;
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Problem getting info on dataset: {}", name, e);
+			throw new NexusException("Problem getting info on dataset", e);
 		}
 
-		closeDataset();
+		closeDataset(name);
 
-		int rank = args[0];
 		int dtype = getDtype(args[1]);
-		int[] shape = new int[rank];
-		for (int i = 0; i < rank; i++) {
-			shape[i] = tShape[i];
+		int rank = args[0];
+		int[] shape;
+		if (dtype == Dataset.STRING && rank == 1) { // for strings, ignore final dimension (NAPI stored them as fixed size strings)
+			shape = new int[] { 1 };
+		} else {
+			if (dtype == Dataset.STRING) {
+				rank--;
+			}
+			shape = new int[rank];
+			for (int i = 0; i < rank; i++) {
+				shape[i] = tShape[i];
+			}
 		}
 		ILazyDataset lazy = null;
 		if (canWrite) {
@@ -405,51 +510,80 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		return 0;
 	}
 
-	private boolean openDataset(String name) {
+	private boolean openDataset(String name) throws NexusException {
 		try {
 			String url = file.isexternaldataset(name);
 			if (url == null) {
+				if (debug) {
+					logger.debug("Opening dataset: {}", name);
+				}
 				file.opendata(name);
 			} else {
 				return false;
 			}
-		} catch (NexusException e) {
-			return false;
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Cannot open dataset: {}", name, e);
+			throw new NexusException("Cannot open dataset", e);
 		}
 		return true;
 	}
 
-	private boolean closeDataset() {
+	private boolean closeDataset(String name) throws NexusException {
 		try {
+			if (debug) {
+				logger.debug("Closing dataset: {}", name);
+			}
 			file.closedata();
-		} catch (NexusException e) {
-			return false;
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Cannot close dataset: {}", name, e);
+			throw new NexusException("Cannot close dataset", e);
 		}
 		return true;
 	}
 
 	@Override
-	public DataNode createData(String path, ILazyWriteableDataset data, boolean createPathIfNecessary) {
-		checkClosed();
-		if (!canWrite) {
-			return null;
-		}
-		Tuple<String, GroupNode> tuple = openAll(path, false, true);
-		if (tuple.n == null)
+	public DataNode createData(String path, ILazyWriteableDataset data, boolean createPathIfNecessary) throws NexusException {
+		return createData(path, data, COMPRESSION_NONE, createPathIfNecessary);
+	}
+
+	@Override
+	public DataNode createData(String path, ILazyWriteableDataset data, int compression, boolean createPathIfNecessary) throws NexusException {
+		checkClosed(true);
+		Tuple<String, GroupNode, Node> tuple = openAll(path, false, true);
+		if (tuple.name == null)
 			return null;
 
 		String name = data.getName();
 		try {
-			file.makedata(name, getType(data), data.getRank(), data.getMaxShape());
-		} catch (NexusException e) {
-			return null;
+			if (compression == COMPRESSION_NONE) {
+				if (debug) {
+					logger.debug("Creating dataset: {}", name);
+				}
+				file.makedata(name, getType(data), data.getRank(), data.getMaxShape());
+			} else {
+				int cmp;
+				switch (compression) {
+				case COMPRESSION_LZW_L1:
+					cmp = NexusFile.NX_COMP_LZW_LVL1;
+					break;
+				default:
+					cmp = NexusFile.NX_COMP_NONE;
+					break;
+				}
+				if (debug) {
+					logger.debug("Creating compressed dataset: {}", name);
+				}
+				file.compmakedata(name, getType(data), data.getRank(), data.getMaxShape(), cmp, data.getChunking());
+			}
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Cannot create dataset: {}", name, e);
+			throw new NexusException("Cannot create dataset", e);
 		}
-		String dpath = path + Node.SEPARATOR + name;
+		String dpath = tuple.path + Node.SEPARATOR + name;
 		DataNode dataNode = TreeFactory.createDataNode(dpath.hashCode());
-		dataNode.setDataset(data);
-		tuple.g.addDataNode(tree, path + Node.SEPARATOR, name, dataNode);
+		tuple.group.addDataNode(tree, tuple.path + Node.SEPARATOR, name, dataNode);
 
-		data.setSaver(new NAPILazySaver(tree, path, name, data.getShape(), AbstractDataset.getDType(data)));
+		data.setSaver(new NAPILazySaver(tree, tuple.path, name, data.getShape(), AbstractDataset.getDType(data)));
 		dataNode.setDataset(data);
 		return dataNode;
 	}
@@ -475,30 +609,89 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	}
 
 	@Override
-	public DataNode createData(GroupNode group, ILazyWriteableDataset data) {
-		return createData(TreeUtils.getPath(tree, group), data, true);
+	public DataNode createData(GroupNode group, ILazyWriteableDataset data) throws NexusException {
+		String path = getPath(group);
+		return createData(path, data, true);
+	}
+
+	@Override
+	public DataNode createData(GroupNode group, ILazyWriteableDataset data, int compression) throws NexusException {
+		String path = getPath(group);
+		return createData(path, data, compression, true);
+	}
+
+	@Override
+	public DataNode createData(GroupNode group, IDataset data) throws NexusException {
+		String path = getPath(group);
+		return createData(path, data, true);
+	}
+
+	@Override
+	public DataNode createData(String path, IDataset data, boolean createPathIfNecessary) throws NexusException {
+		checkClosed(true);
+		Tuple<String, GroupNode, Node> tuple = openAll(path, false, true);
+		if (tuple.name == null)
+			return null;
+
+		String name = data.getName();
+		try {
+			if (debug) {
+				logger.debug("Creating and populating dataset: {}", name);
+			}
+			file.makedata(name, getType(data), data.getRank(), data.getShape());
+			file.opendata(name);
+			file.putdata(DatasetUtils.serializeDataset(data));
+			file.closedata();
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Cannot create and populate dataset: {}", name, e);
+			throw new NexusException("Cannot create and populate dataset", e);
+		}
+
+		String dpath = tuple.path + Node.SEPARATOR + name;
+		DataNode dataNode = TreeFactory.createDataNode(dpath.hashCode());
+		tuple.group.addDataNode(tree, tuple.path + Node.SEPARATOR, name, dataNode);
+
+		dataNode.setDataset(data);
+		return dataNode;
 	}
 
 	@Override
 	public Attribute createAttribute(String node, IDataset attr) {
-		checkClosed();
+		checkClosed(false);
 		Attribute a = TreeFactory.createAttribute(tree, node, attr.getName());
 		a.setValue(attr);
 		return a;
 	}
 
 	@Override
-	public void addAttribute(Node node, Attribute... attribute) {
-		checkClosed();
-		if (!canWrite) {
-			throw new IllegalStateException("Can not write as opened read-only");
-		}
-		String path = TreeUtils.getPath(tree, node);
-		
+	public Attribute createAttribute(Node node, IDataset attr) {
+		String path = getPath(node);
+		return createAttribute(path.substring(path.lastIndexOf(Node.SEPARATOR)), attr);
+	}
+
+	@Override
+	public void addAttribute(Node node, Attribute... attribute) throws NexusException {
+		String path = getPath(node);
+		addAttribute(path, attribute);
+	}
+
+	@Override
+	public void addAttribute(String path, Attribute... attribute) throws NexusException {
+		checkClosed(true);
+
+		Tuple<String, GroupNode, Node> tuple = openAll(path, false, true);
+		if (tuple.name == null)
+			return;
+
 		try {
-			file.openpath(path);
+			if (debug) {
+				logger.debug("Putting attributes in {}:", tuple.name);
+			}
 			for (Attribute a : attribute) {
-				node.addAttribute(a);
+				if (debug) {
+					logger.debug("\t{}", a.getName());
+				}
+				tuple.node.addAttribute(a);
 				IDataset d = a.getValue();
 				if (d.elementClass().equals(String.class)) {
 					file.putattr(a.getName(), d.getString().getBytes(), NexusFile.NX_CHAR);
@@ -506,63 +699,67 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 					file.putattr(a.getName(), DatasetUtils.serializeDataset(d), getType(d));
 				}
 			}
-		} catch (NexusException e) {
-			return;
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Problem adding attributes: {}", attribute, e);
+			throw new NexusException("Problem adding attributes", e);
+		} finally {
+			if (tuple.node instanceof DataNode) {
+				closeDataset(tuple.name);
+			}
 		}
 	}
 
 	@Override
-	public void link(String source, String destination) {
-		checkClosed();
-		if (!canWrite) {
-			throw new IllegalStateException("Can not write as opened read-only");
-		}
+	public void link(String source, String destination) throws NexusException {
+		checkClosed(true);
 
-		Tuple<String, GroupNode> tuple = openAll(source, false, false);
-		String sname = tuple.n;
+		Tuple<String, GroupNode, Node> tuple = openAll(source, false, false);
+		String sname = tuple.name;
 		if (sname == null) {
 			throw new IllegalArgumentException("Source does not exist");
 		}
-		if (!tuple.g.isPopulated()) {
-			populate(source.substring(0, source.length() - sname.length()), tuple.g);
+		if (!tuple.group.isPopulated()) {
+			populate(source.substring(0, source.length() - sname.length()), tuple.group);
 		}
-		NodeLink l = tuple.g.getNodeLink(sname);
+		NodeLink l = tuple.group.getNodeLink(sname);
 		NXlink t = null;
 		try {
 			if (l.isDestinationData()) {
 				openDataset(sname);
 				t = file.getdataID();
 			} else if (l.isDestinationGroup()) {
-				file.opengroup(sname, tuple.c);
+				file.opengroup(sname, tuple.clazz);
 				t = file.getgroupID();
 			}
-		} catch (NexusException e) {
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Problem getting source: {}", sname, e);
+			throw new NexusException("Problem getting source", e);
 		}
 		if (t == null) {
-			throw new IllegalArgumentException("Could not get link information");
+			throw new IllegalArgumentException("Could not get link information as source was a link");
 		}
 
 		boolean useSourceName = destination.endsWith(Node.SEPARATOR);
 		tuple = openAll(destination, true, useSourceName);
+		if (!useSourceName)
+			sname = tuple.name;
+
 		try {
-			if (useSourceName) {
-				file.makenamedlink(sname, t);
-			} else {
-				file.makenamedlink(tuple.n, t);
+			if (debug) {
+				logger.debug("Creating link: {}", t.targetPath);
 			}
-		} catch (NexusException e) {
-			throw new IllegalArgumentException(e);
+			file.makenamedlink(sname, t);
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Problem creating link: {}", sname, e);
+			throw new NexusException(e);
 		}
 	}
 
 	@Override
-	public void linkExternal(URI source, String destination, boolean isGroup) {
-		checkClosed();
-		if (!canWrite) {
-			throw new IllegalStateException("Can not write as opened read-only");
-		}
+	public void linkExternal(URI source, String destination, boolean isGroup) throws NexusException {
+		checkClosed(true);
 		boolean useSourceName = destination.endsWith(Node.SEPARATOR);
-		Tuple<String, GroupNode> tuple = openAll(destination, true, useSourceName);
+		Tuple<String, GroupNode, Node> tuple = openAll(destination, true, useSourceName);
 		String dname;
 		String dclass;
 		if (useSourceName) {
@@ -571,17 +768,21 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			dname = part[0];
 			dclass = part.length == 1 ? null : part[1];
 		} else {
-			dname = tuple.n;
-			dclass = tuple.c;
+			dname = tuple.name;
+			dclass = tuple.clazz;
 		}
 		try {
+			if (debug) {
+				logger.debug("Creating external link: {}", source);
+			}
 			if (isGroup) {
 				file.linkexternal(dname, dclass == null ? "" : dclass, source.toString());
 			} else {
 				file.linkexternaldataset(dname, source.toString());
 			}
-		} catch (NexusException e) {
-			throw new IllegalArgumentException(e);
+		} catch (org.nexusformat.NexusException e) {
+			logger.error("Problem creating external link: {}", dname, e);
+			throw new NexusException("Problem creating external link", e);
 		}
 	}
 }
