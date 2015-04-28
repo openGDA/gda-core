@@ -37,7 +37,7 @@ public interface PropertiesConfig {
 	public void loadPropertyData(String listName) throws ConfigurationException;
 
 	/**
-	 * Dump out all existing properties to debug channel.
+	 * Dump out all existing properties to info channel.
 	 */
 	public void dumpProperties();
 
