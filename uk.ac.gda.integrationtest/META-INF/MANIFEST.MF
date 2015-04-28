@@ -5,6 +5,7 @@ Bundle-SymbolicName: uk.ac.gda.integrationtest
 Bundle-Version: 8.46.0.qualifier
 Require-Bundle: uk.ac.gda.common;bundle-version="1.2.0",
  uk.ac.gda.core;bundle-version="8.34.0",
- uk.ac.gda.nexus
+ uk.ac.gda.nexus,
+ org.eclipse.dawnsci.hdf5;bundle-version="1.2.0"
 Import-Package: org.junit
 Bundle-Vendor: Diamond Light Source
