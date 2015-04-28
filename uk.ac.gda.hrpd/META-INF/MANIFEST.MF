@@ -16,7 +16,8 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.swingclient,
  uk.ac.gda.analysis,
  uk.ac.gda.devices.mythen;bundle-version="1.0.0",
- org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)"
+ org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
+ org.eclipse.dawnsci.hdf5;bundle-version="1.2.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .,
