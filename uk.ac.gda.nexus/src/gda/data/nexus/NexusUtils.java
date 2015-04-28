@@ -193,6 +193,17 @@ public class NexusUtils {
 	}
 
 	/**
+	 * Get name of last part
+	 * @param path
+	 * @return name or null if path does not contain any {@value Node#SEPARATOR} or ends in that
+	 */
+	public static String getName(String path) {
+		if (path.endsWith(Node.SEPARATOR) || !path.contains(Node.SEPARATOR))
+			return null;
+		return path.substring(path.indexOf(Node.SEPARATOR));
+	}
+
+	/**
 	 * Create a lazy writeable dataset
 	 * @param name
 	 * @param dtype
