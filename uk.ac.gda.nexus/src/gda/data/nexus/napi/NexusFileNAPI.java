@@ -240,7 +240,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	 * @param path
 	 * @param createPathIfNecessary
 	 * @param toBottom
-	 * @return name, NeXus class, group, bottom node
+	 * @return name, NeXus class, group, path (with {@value Node#SEPARATOR}), group, bottom node
 	 * @throws NexusException 
 	 */
 	private Tuple<String, GroupNode, Node> openAll(String path, boolean createPathIfNecessary, boolean toBottom) throws NexusException {
@@ -437,7 +437,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		if (name == null)
 			return null;
 		if (!openDataset(name))
-			return null;
+			return null; // TODO external dataset
 
 		return createDataNode(tuple.group, tuple.path + name, name);
 	}
@@ -510,6 +510,11 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		return 0;
 	}
 
+	/**
+	 * @param name
+	 * @return false if it is external
+	 * @throws NexusException
+	 */
 	private boolean openDataset(String name) throws NexusException {
 		try {
 			String url = file.isexternaldataset(name);
@@ -579,9 +584,9 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			logger.error("Cannot create dataset: {}", name, e);
 			throw new NexusException("Cannot create dataset", e);
 		}
-		String dpath = tuple.path + Node.SEPARATOR + name;
+		String dpath = tuple.path + name;
 		DataNode dataNode = TreeFactory.createDataNode(dpath.hashCode());
-		tuple.group.addDataNode(tree, tuple.path + Node.SEPARATOR, name, dataNode);
+		tuple.group.addDataNode(tree, tuple.path, name, dataNode);
 
 		data.setSaver(new NAPILazySaver(tree, tuple.path, name, data.getShape(), AbstractDataset.getDType(data)));
 		dataNode.setDataset(data);
@@ -647,9 +652,9 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			throw new NexusException("Cannot create and populate dataset", e);
 		}
 
-		String dpath = tuple.path + Node.SEPARATOR + name;
+		String dpath = tuple.path + name;
 		DataNode dataNode = TreeFactory.createDataNode(dpath.hashCode());
-		tuple.group.addDataNode(tree, tuple.path + Node.SEPARATOR, name, dataNode);
+		tuple.group.addDataNode(tree, tuple.path, name, dataNode);
 
 		dataNode.setDataset(data);
 		return dataNode;
