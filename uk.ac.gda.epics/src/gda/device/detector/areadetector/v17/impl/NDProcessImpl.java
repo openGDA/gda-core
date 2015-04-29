@@ -1100,12 +1100,12 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	*
 	*/
 	@Override
-	public String getOC1() throws Exception {
+	public double getOC1() throws Exception {
 		try {
 			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getOC1().getPv()));
+				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC1().getPv()));
 			}
-			return EPICS_CONTROLLER.caget(getChannel(OC1));
+			return EPICS_CONTROLLER.cagetDouble(getChannel(OC1));
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.NDProcessImpl-> Cannot getOC1", ex);
 			throw ex;
@@ -1116,7 +1116,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	*
 	*/
 	@Override
-	public void setOC1(String oc1) throws Exception {
+	public void setOC1(double oc1) throws Exception {
 		try {
 			if (config != null) {
 				EPICS_CONTROLLER.caput(createChannel(config.getOC1().getPv()), oc1);
@@ -1133,12 +1133,12 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	*
 	*/
 	@Override
-	public String getOC1_RBV() throws Exception {
+	public double getOC1_RBV() throws Exception {
 		try {
 			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getOC1_RBV().getPv()));
+				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC1_RBV().getPv()));
 			}
-			return EPICS_CONTROLLER.caget(getChannel(OC1_RBV));
+			return EPICS_CONTROLLER.cagetDouble(getChannel(OC1_RBV));
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.NDProcessImpl-> Cannot getOC1_RBV", ex);
 			throw ex;
@@ -1149,12 +1149,12 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	*
 	*/
 	@Override
-	public String getOC2() throws Exception {
+	public double getOC2() throws Exception {
 		try {
 			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getOC2().getPv()));
+				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC2().getPv()));
 			}
-			return EPICS_CONTROLLER.caget(getChannel(OC2));
+			return EPICS_CONTROLLER.cagetDouble(getChannel(OC2));
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.NDProcessImpl-> Cannot getOC2", ex);
 			throw ex;
@@ -1165,7 +1165,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	*
 	*/
 	@Override
-	public void setOC2(String oc2) throws Exception {
+	public void setOC2(double oc2) throws Exception {
 		try {
 			if (config != null) {
 				EPICS_CONTROLLER.caput(createChannel(config.getOC2().getPv()), oc2);
@@ -1182,12 +1182,12 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	*
 	*/
 	@Override
-	public String getOC2_RBV() throws Exception {
+	public double getOC2_RBV() throws Exception {
 		try {
 			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getOC2_RBV().getPv()));
+				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC2_RBV().getPv()));
 			}
-			return EPICS_CONTROLLER.caget(getChannel(OC2_RBV));
+			return EPICS_CONTROLLER.cagetDouble(getChannel(OC2_RBV));
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.NDProcessImpl-> Cannot getOC2_RBV", ex);
 			throw ex;
@@ -1198,12 +1198,12 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	*
 	*/
 	@Override
-	public String getOC3() throws Exception {
+	public double getOC3() throws Exception {
 		try {
 			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getOC3().getPv()));
+				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC3().getPv()));
 			}
-			return EPICS_CONTROLLER.caget(getChannel(OC3));
+			return EPICS_CONTROLLER.cagetDouble(getChannel(OC3));
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.NDProcessImpl-> Cannot getOC3", ex);
 			throw ex;
@@ -1214,7 +1214,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	*
 	*/
 	@Override
-	public void setOC3(String oc3) throws Exception {
+	public void setOC3(double oc3) throws Exception {
 		try {
 			if (config != null) {
 				EPICS_CONTROLLER.caput(createChannel(config.getOC3().getPv()), oc3);
@@ -1231,12 +1231,12 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	*
 	*/
 	@Override
-	public String getOC3_RBV() throws Exception {
+	public double getOC3_RBV() throws Exception {
 		try {
 			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getOC3_RBV().getPv()));
+				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC3_RBV().getPv()));
 			}
-			return EPICS_CONTROLLER.caget(getChannel(OC3_RBV));
+			return EPICS_CONTROLLER.cagetDouble(getChannel(OC3_RBV));
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.NDProcessImpl-> Cannot getOC3_RBV", ex);
 			throw ex;
@@ -1247,12 +1247,12 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	*
 	*/
 	@Override
-	public String getOC4() throws Exception {
+	public double getOC4() throws Exception {
 		try {
 			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getOC4().getPv()));
+				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC4().getPv()));
 			}
-			return EPICS_CONTROLLER.caget(getChannel(OC4));
+			return EPICS_CONTROLLER.cagetDouble(getChannel(OC4));
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.NDProcessImpl-> Cannot getOC4", ex);
 			throw ex;
@@ -1263,7 +1263,7 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	*
 	*/
 	@Override
-	public void setOC4(String oc4) throws Exception {
+	public void setOC4(double oc4) throws Exception {
 		try {
 			if (config != null) {
 				EPICS_CONTROLLER.caput(createChannel(config.getOC4().getPv()), oc4);
@@ -1280,12 +1280,12 @@ public class NDProcessImpl extends NDBaseImpl implements InitializingBean, NDPro
 	*
 	*/
 	@Override
-	public String getOC4_RBV() throws Exception {
+	public double getOC4_RBV() throws Exception {
 		try {
 			if (config != null) {
-				return EPICS_CONTROLLER.caget(createChannel(config.getOC4_RBV().getPv()));
+				return EPICS_CONTROLLER.cagetDouble(createChannel(config.getOC4_RBV().getPv()));
 			}
-			return EPICS_CONTROLLER.caget(getChannel(OC4_RBV));
+			return EPICS_CONTROLLER.cagetDouble(getChannel(OC4_RBV));
 		} catch (Exception ex) {
 			logger.warn("g.d.d.a.v.i.NDProcessImpl-> Cannot getOC4_RBV", ex);
 			throw ex;

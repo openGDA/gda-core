@@ -506,62 +506,62 @@ public interface NDProcess extends GetPluginBaseAvailable {
 	/**
 	 *
 	 */
-	String getOC1() throws Exception;
+	double getOC1() throws Exception;
 
 	/**
 	 *
 	 */
-	void setOC1(String oc1) throws Exception;
+	void setOC1(double oc1) throws Exception;
 
 	/**
 	 *
 	 */
-	String getOC1_RBV() throws Exception;
+	double getOC1_RBV() throws Exception;
 
 	/**
 	 *
 	 */
-	String getOC2() throws Exception;
+	double getOC2() throws Exception;
 
 	/**
 	 *
 	 */
-	void setOC2(String oc2) throws Exception;
+	void setOC2(double oc2) throws Exception;
 
 	/**
 	 *
 	 */
-	String getOC2_RBV() throws Exception;
+	double getOC2_RBV() throws Exception;
 
 	/**
 	 *
 	 */
-	String getOC3() throws Exception;
+	double getOC3() throws Exception;
 
 	/**
 	 *
 	 */
-	void setOC3(String oc3) throws Exception;
+	void setOC3(double oc3) throws Exception;
 
 	/**
 	 *
 	 */
-	String getOC3_RBV() throws Exception;
+	double getOC3_RBV() throws Exception;
 
 	/**
 	 *
 	 */
-	String getOC4() throws Exception;
+	double getOC4() throws Exception;
 
 	/**
 	 *
 	 */
-	void setOC4(String oc4) throws Exception;
+	void setOC4(double oc4) throws Exception;
 
 	/**
 	 *
 	 */
-	String getOC4_RBV() throws Exception;
+	double getOC4_RBV() throws Exception;
 
 	/**
 	 *

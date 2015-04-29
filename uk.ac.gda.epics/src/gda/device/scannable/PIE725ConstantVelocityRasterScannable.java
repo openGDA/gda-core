@@ -231,7 +231,7 @@ public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithSc
 			JythonServerFacade jsf = JythonServerFacade.getInstance();
 
 			String instantiateRasterGenerator = MessageFormat.format(
-					"RasterGenerator(rate={0} , xmin={1}, xmax={2}, ymin={3}, ymax={4}, rows={5}, cols={6})",
+					"RasterGenerator(_rate={0} , _xmin={1}, _xmax={2}, _ymin={3}, _ymax={4}, _rows={5}, _cols={6})",
 					rate, xmin, xmax, ymin, ymax, rows, cols);
 
 			// TODO: create constant for epics_scripts.device.scannable.pie725.generateRaster
