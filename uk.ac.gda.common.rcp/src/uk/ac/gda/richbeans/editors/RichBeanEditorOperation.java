@@ -30,13 +30,13 @@ import org.eclipse.swt.widgets.Shell;
 public class RichBeanEditorOperation extends AbstractOperation {
 
 	protected Object             undo,redo;
-	protected RichBeanEditorPart uiObject;
+	protected RichBeanEditorPart richBeanEditor;
 
-	public RichBeanEditorOperation(final String label, final Object undo, final Object redo, final RichBeanEditorPart uiObject) {
+	public RichBeanEditorOperation(final String label, final Object undo, final Object redo, final RichBeanEditorPart richBeanEditor) {
 		super(label!=null?label:"");
-		this.undo     = undo;
-		this.redo     = redo;
-		this.uiObject = uiObject;
+		this.undo = undo;
+		this.redo = redo;
+		this.richBeanEditor = richBeanEditor;
 	}
 
 	@Override
@@ -47,14 +47,14 @@ public class RichBeanEditorOperation extends AbstractOperation {
 	public IStatus beanToUI(@SuppressWarnings("unused") IProgressMonitor monitor, IAdaptable info, final Object bean) throws ExecutionException {
 		final Shell shell = (Shell)info.getAdapter(Shell.class);
 		shell.setRedraw(false);
-		uiObject.setUndoStackActive(false);
+		richBeanEditor.setUndoStackActive(false);
 		try {		
-			BeanUI.beanToUI(bean, uiObject);
+			BeanUI.beanToUI(bean, richBeanEditor.getEditorUI());
 			return Status.OK_STATUS;
 		} catch (Exception e) {
 			throw new ExecutionException(e.getMessage(), e);
 		} finally {
-			uiObject.setUndoStackActive(true);
+			richBeanEditor.setUndoStackActive(true);
 			shell.setRedraw(true);
 		}
 	}
