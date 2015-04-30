@@ -22,19 +22,23 @@ import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
-import gda.data.nexus.NexusException;
-import gda.data.nexus.NexusFileInterface;
-import gda.data.nexus.NexusFileWrapper;
-import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.NexusUtils;
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 
 import java.io.File;
 
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,9 +46,9 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 	private static final Logger logger = LoggerFactory.getLogger(NcdPilatusDetector.class);
 	private String nexusFileUrl = null;
 	private String nexusFileName;
-	private NexusFileInterface file;
-	private NexusFileWrapper nfw;
+	private NexusFile file;
 	private int scanDataPoint;
+	private GroupNode group;
 
 	@Override
 	public Dataset readLastImage() throws DeviceException {
@@ -73,14 +77,13 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 		detector.atScanStart();
 		try {
 			scanDataPoint = 0;
-			file = NexusUtils.openNexusFile(setupNexusFile(getDetectorType().toLowerCase()));
-			nfw = new NexusFileWrapper(file);
-			nfw.makegroup("entry", "NXentry");
-			nfw.opengroup("entry", "NXentry");
-			nfw.makegroup("instrument", "NXinstrument");
-			nfw.opengroup("instrument", "NXinstrument");
-			nfw.makegroup("detector", "NXdetector");
-			nfw.opengroup("detector", "NXdetector");
+			file = NexusUtils.createNXFile(setupNexusFile(getDetectorType().toLowerCase()));
+			file.setDebug(true);
+			file.openToWrite(true);
+			StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), "entry", NexusExtractor.NXEntryClassName);
+			NexusUtils.addToAugmentPath(path, "instrument", NexusExtractor.NXInstrumentClassName);
+			NexusUtils.addToAugmentPath(path, "detector", NexusExtractor.NXDetectorClassName);
+			group = file.getGroup(path.toString(), true);
 		} catch (Exception e) {
 			logger.error("Unable to create nexus file " + nexusFileUrl);
 		}
@@ -89,34 +92,40 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 	@Override
 	public void atScanEnd() throws DeviceException {
 		try {
-			nfw.closedata(); // Close data
-			nfw.closegroup(); // Close NXdetector
-			nfw.closegroup(); // close NXinstrument
-			nfw.closegroup(); // Close NXentry
-			nfw.close();
+			file.close();
 		} catch (NexusException e) {
 			logger.error("Error closing hdf5 file "+ nexusFileUrl + " : " + e.getMessage());
-		} 
+		}
 	}
 	
 	private void writeSubFile(int frames) {
 		try {
 			int[] dims = detector.getDataDimensions();
-			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , frames, dims[0], dims[1] };
+			int[] datadims = new int[] {ILazyWriteableDataset.UNLIMITED , frames, dims[0], dims[1] };
 			// Open data array.
 			int rank = datadims.length;
+			int[] slabdatadims = new int[] { 1, 1, dims[0], dims[1] };
+			
+			ILazyWriteableDataset lazy;
+			DataNode data;
 			if (scanDataPoint == 0) {
-				nfw.makedata("data", NexusGlobals.NX_INT32, rank, datadims);
-				nfw.opendata("data");
+				lazy = NexusUtils.createLazyWriteableDataset("data", Dataset.INT32, slabdatadims, datadims, slabdatadims);
+				data = file.createData(group, lazy);
+			} else {
+				data = file.getData(group, "data");
+				lazy = data.getWriteableDataset();
 			}
 			int[] startPos = new int[rank];
-			int[] slabdatadims = new int[] { 1, 1, dims[0], dims[1] };
+			int[] stop = slabdatadims.clone();
 
 			for (int i = 0; i < frames; i++) {
 				startPos[0] = scanDataPoint;
+				stop[0] = startPos[0] + 1;
 				startPos[1] = i;
+				stop[1] = startPos[1] + 1;
 				detector.setAttribute("ImageToReadout", (scanDataPoint*frames + i));
-				nfw.putslab(detector.readout(), startPos, slabdatadims);
+				Dataset d = DatasetFactory.createFromObject(detector.readout()).reshape(slabdatadims);
+				lazy.setSlice(null, d, new SliceND(lazy.getShape(), startPos, stop, null));
 			}
 			scanDataPoint++;
 		} catch (Exception e) {
