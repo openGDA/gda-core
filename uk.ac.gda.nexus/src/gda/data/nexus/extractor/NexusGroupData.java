@@ -139,7 +139,7 @@ public class NexusGroupData implements Serializable {
 				type = NexusGlobals.NX_FLOAT64;
 			} else if (data instanceof String[]) {
 				type = NexusGlobals.NX_CHAR;
-				makeBytes((String[]) data);
+				makeBytes((String[]) data, null);
 			} else {
 				type = NexusGlobals.NX_UNLIMITED;
 				throw new IllegalArgumentException("Unknown class of serializable array");
@@ -154,38 +154,38 @@ public class NexusGroupData implements Serializable {
 	 * TODO replace with ncsa.hdf.object.Dataset#stringToByte
 	 * Makes fixed size byte array
 	 * @param text
+	 * @param maxLength maximum encoded length in bytes of each string
 	 */
-	private void makeBytes(String[] text) {
+	private void makeBytes(String[] text, Integer maxLength) {
 		int n = text.length;
+		byte[][] lines = new byte[n][];
 		int max = -1;
 		for (int i = 0; i < n; i++) {
 			String t = text[i];
 			if (t == null)
 				continue;
-			byte[] s;
 			try {
-				s = t.getBytes("UTF-8");
+				lines[i] = t.getBytes("UTF-8");
 			} catch (UnsupportedEncodingException e) {
-				s = t.getBytes();
+				lines[i] = t.getBytes();
 			}
-			max = Math.max(max, s.length);
+			max = Math.max(max, lines[i].length);
 		}
-		textLength = max;
-		byte[] bdata = new byte[max * n];
+		if (maxLength == null || maxLength < 0) {
+			textLength = max;
+		} else {
+			textLength = maxLength;
+		}
+		byte[] bdata = new byte[textLength * n];
 		int k = 0;
 		for (int i = 0; i < n; i++) {
-			String t = text[i];
+			byte[] t = lines[i];
 			if (t == null)
 				continue;
 
-			byte[] s;
-			try {
-				s = t.getBytes("UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				s = t.getBytes();
-			}
-			System.arraycopy(s, 0, bdata, k, s.length);
-			k += max;
+			int l = t.length > textLength ? textLength : t.length;
+			System.arraycopy(t, 0, bdata, k, l);
+			k += textLength;
 		}
 		data = bdata;
 		dimensions = new int[] { n };
