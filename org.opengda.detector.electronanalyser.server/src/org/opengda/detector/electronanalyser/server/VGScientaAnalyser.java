@@ -38,7 +38,6 @@ import gov.aps.jca.TimeoutException;
 import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.Slice;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
@@ -578,7 +577,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			Dataset image = DatasetFactory.createFromObject(getImage(dims[1] * dims[2]));
 			image.setShape(dims);
 			
-			lazy.setSlice(null, image, new SliceND(dims, new Slice(scanDataPoint, scanDataPoint+1)));
+			lazy.setSlice(null, image, SliceND.createSlice(lazy, new int[] {scanDataPoint}, new int[] {scanDataPoint+1}));
 		} catch (Exception e) {
 			logger.error("Failed to get NDArray data from EPICS plugin. ",e);
 		}
@@ -602,7 +601,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			Dataset spectrum = DatasetFactory.createFromObject(getSpectrum(size));
 			spectrum.setShape(dims);
 			
-			lazy.setSlice(null, spectrum, new SliceND(dims, new Slice(scanDataPoint, scanDataPoint+1)));
+			lazy.setSlice(null, spectrum, SliceND.createSlice(lazy, new int[] {scanDataPoint}, new int[] {scanDataPoint+1}));
 
 			this.totalIntensity=(Double) spectrum.sum();
 		} catch (Exception e) {
@@ -633,7 +632,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			Dataset io = DatasetFactory.createFromObject(getExternalIOData(size));
 			io.setShape(dims);
 			
-			lazy.setSlice(null, io, new SliceND(dims, new Slice(scanDataPoint, scanDataPoint+1)));
+			lazy.setSlice(null, io, SliceND.createSlice(lazy, new int[] {scanDataPoint}, new int[] {scanDataPoint+1}));
 		} catch (Exception e) {
 			logger.error("Failed to get external IO data from EPICS analyser. ",e);
 		}
@@ -656,7 +655,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			Dataset exEnergy = DatasetFactory.createFromObject(getExcitationEnergy());
 			exEnergy.setShape(dims);
 			
-			lazy.setSlice(null, exEnergy, new SliceND(dims, new Slice(scanDataPoint, scanDataPoint+1)));
+			lazy.setSlice(null, exEnergy, SliceND.createSlice(lazy, new int[] {scanDataPoint}, new int[] {scanDataPoint+1}));
 		} catch (Exception e) {
 			logger.error("Failed to get excitation energy from EPICS analyser. ",e);
 		}
