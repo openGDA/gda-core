@@ -4,7 +4,7 @@ import os.path
 import os
 import jarray
 from gda.analysis import ScanFileHolder #@UnresolvedImport
-from gda.analysis.io import RawNexusLoader, AsciiScanFileHolderSaver, SimpleNexusSaver, SRSLoader #@UnresolvedImport
+from gda.analysis.io import AsciiScanFileHolderSaver, SimpleNexusSaver, SRSLoader #@UnresolvedImport
 from gda.data.nexus import NexusFile; #@UnresolvedImport
 from java.util import Arrays
 from gda.jython import InterfaceProvider #@UnresolvedImport
@@ -39,12 +39,6 @@ class RawNexusLoaderTest(unittest.TestCase):
 #        print iStart
         file.close();
         
-        rnl = RawNexusLoader(self.abspath)
-        sfh = ScanFileHolder()
-        sfh.load(rnl);
-        sfh.info()
-        ds = sfh.getDataSet("heading1")
-
         os.remove(self.abspath)
 # This cannot work as the saved file is _NOT_ a valid SRS format
 #        sfh.save(AsciiScanFileHolderSaver(self.abspath+"_srs"));
