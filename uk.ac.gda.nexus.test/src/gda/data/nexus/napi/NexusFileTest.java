@@ -50,24 +50,36 @@ public class NexusFileTest {
 		nf.createAndOpenToWrite();
 
 		GroupNode g = nf.getGroup("/e/a/b", true);
-		int[] shape = new int[] {2, 34};
-		int[] mshape = new int[] {ILazyWriteableDataset.UNLIMITED, 34};
-		LazyWriteableDataset d = new LazyWriteableDataset("d", Dataset.INT16, shape, mshape, null, null);
-		nf.createData(g, d);
-
 		Dataset a = DatasetFactory.createFromObject("world");
 		a.setName("hello");
 
 		nf.addAttribute(g, nf.createAttribute("b", a));
 
+		int[] shape = new int[] {2, 34};
+		int[] mshape = new int[] {ILazyWriteableDataset.UNLIMITED, 34};
+		LazyWriteableDataset d = new LazyWriteableDataset("d", Dataset.INT16, shape, mshape, null, null);
+		nf.createData(g, d);
+
+		LazyWriteableDataset e = new LazyWriteableDataset("e", Dataset.FLOAT64, shape, mshape, null, null);
+		nf.createData(g, e);
+
 		a = DatasetFactory.createFromObject(-1.5);
 		a.setName("value");
 		nf.addAttribute(g.getDataNode(d.getName()), nf.createAttribute(d.getName(), a));
+
+		LazyWriteableDataset t = new LazyWriteableDataset("t", Dataset.STRING, shape, mshape, null, null);
+		nf.createData(g, t);
 
 		nf.close();
 
 		SliceND slice = new SliceND(shape, new Slice(2), new Slice(10, 11));
 		d.setSlice(DatasetFactory.zeros(slice.getShape(), Dataset.INT16).fill(-5), slice);
+
+		SliceND eSlice = SliceND.createSlice(e, new int[] {2, 3}, new int[] {4, 34});
+		e.setSlice(DatasetFactory.zeros(eSlice.getShape(), Dataset.INT16).fill(-9), eSlice);
+
+		t.setSlice(DatasetFactory.createFromObject(new String[] {"Hello", "World"}).reshape(2, 1),
+				SliceND.createSlice(t, new int[] {2, 3}, new int[] {4, 4}));
 
 		nf.openToRead();
 		g = nf.getGroup("/e/a/b", false);
@@ -75,6 +87,13 @@ public class NexusFileTest {
 
 		DataNode n = nf.getData("/e/a/b/d");
 		checkData(n, shape);
+
+		n = nf.getData("/e/a/b/e");
+		checkEData(n, new int[] {4, 34});
+
+		n = nf.getData("/e/a/b/t");
+		checkTextData(n, new int[] {4, 34});
+
 		nf.close();
 
 		nf.openToWrite(false);
@@ -89,6 +108,9 @@ public class NexusFileTest {
 
 		n = g.getDataNode("d");
 		checkData(n, shape);
+
+		n = g.getDataNode("t");
+		checkTextData(n, new int[] {3, 34});
 
 		n = nf.getData("/g");
 		Assert.assertNull(n);
@@ -109,6 +131,33 @@ public class NexusFileTest {
 		Assert.assertArrayEquals(shape, b.getShape());
 		IDataset bs = b.getSlice();
 		Assert.assertEquals(0, bs.getLong(0, 0));
-		Assert.assertEquals(-5, bs.getLong(0, 10));
+		Assert.assertEquals(-5, bs.getLong(1, 10));
+	}
+
+	private void checkEData(DataNode n, int[] shape) {
+		ILazyDataset b = n.getDataset();
+		Assert.assertTrue(b.elementClass().equals(Double.class));
+		Assert.assertArrayEquals(shape, b.getShape());
+		IDataset bs = b.getSlice();
+		Assert.assertEquals(0, bs.getDouble(0, 0), 1e-12);
+		Assert.assertEquals(0, bs.getDouble(0, 2), 1e-12);
+		Assert.assertEquals(0, bs.getDouble(0, 10), 1e-12);
+		Assert.assertEquals(0, bs.getDouble(1, 0), 1e-12);
+		Assert.assertEquals(0, bs.getDouble(1, 2), 1e-12);
+		Assert.assertEquals(0, bs.getDouble(1, 10), 1e-12);
+		Assert.assertEquals(0, bs.getDouble(2, 0), 1e-12);
+		Assert.assertEquals(0, bs.getDouble(2, 2), 1e-12);
+		Assert.assertEquals(-9, bs.getDouble(2, 10), 1e-12);
+	}
+
+	private void checkTextData(DataNode n, int[] shape) {
+		ILazyDataset b = n.getDataset();
+		Assert.assertTrue(b.elementClass().equals(String.class));
+		// NAPI is broken wrt strings so skip for time being
+//		Assert.assertArrayEquals(shape, b.getShape());
+//		IDataset bs = b.getSlice();
+//		Assert.assertEquals("", bs.getString(0, 0));
+//		Assert.assertEquals("Hello", bs.getString(2, 3));
+//		Assert.assertEquals("World", bs.getString(3, 3));
 	}
 }

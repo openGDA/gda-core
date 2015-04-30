@@ -23,6 +23,7 @@ import gda.data.nexus.NexusUtils;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Map.Entry;
 
@@ -51,6 +52,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
+	/**
+	 * Maximum length of any text string encoded as bytes
+	 */
+	private static final int MAX_TEXT_LENGTH = 255;
 	private static final Logger logger = LoggerFactory.getLogger(org.eclipse.dawnsci.hdf5.nexus.NexusFile.class);
 	private String filename;
 
@@ -559,12 +564,37 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			return null;
 
 		String name = data.getName();
+		int type = getType(data);
+
+		NAPILazySaver saver = new NAPILazySaver(tree, tuple.path, name, data.getShape(), AbstractDataset.getDType(data));
+		data.setSaver(saver);
+		int rank;
+		int[] mShape;
+		int[] chunks;
+		if (type == NexusFile.NX_CHAR) {
+			saver.setMaxTextLength(MAX_TEXT_LENGTH);
+			rank = data.getRank() + 1;
+			mShape = data.getMaxShape();
+			if (mShape != null) {
+				mShape = Arrays.copyOf(mShape, rank);
+				mShape[rank - 1] = MAX_TEXT_LENGTH;
+			}
+			chunks = data.getChunking();
+			if (chunks != null) {
+				chunks = Arrays.copyOf(chunks, rank);
+				chunks[rank - 1] = MAX_TEXT_LENGTH;
+			}
+		} else {
+			rank = data.getRank();
+			mShape = data.getMaxShape();
+			chunks = data.getChunking();
+		}
 		try {
 			if (compression == COMPRESSION_NONE) {
 				if (debug) {
 					logger.debug("Creating dataset: {}", name);
 				}
-				file.makedata(name, getType(data), data.getRank(), data.getMaxShape());
+				file.makedata(name, type, rank, mShape);
 			} else {
 				int cmp;
 				switch (compression) {
@@ -578,7 +608,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 				if (debug) {
 					logger.debug("Creating compressed dataset: {}", name);
 				}
-				file.compmakedata(name, getType(data), data.getRank(), data.getMaxShape(), cmp, data.getChunking());
+				file.compmakedata(name, type, rank, mShape, cmp, chunks);
 			}
 		} catch (org.nexusformat.NexusException e) {
 			logger.error("Cannot create dataset: {}", name, e);
@@ -588,12 +618,15 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		DataNode dataNode = TreeFactory.createDataNode(dpath.hashCode());
 		tuple.group.addDataNode(tree, tuple.path, name, dataNode);
 
-		data.setSaver(new NAPILazySaver(tree, tuple.path, name, data.getShape(), AbstractDataset.getDType(data)));
 		dataNode.setDataset(data);
 		return dataNode;
 	}
 
-	private int getType(ILazyDataset data) {
+	/**
+	 * @param data
+	 * @return NAPI dataset type
+	 */
+	static int getType(ILazyDataset data) {
 		Class<?> clazz = data.elementClass();
 		if (clazz.equals(String.class)) {
 			return NexusFile.NX_CHAR;

@@ -20,6 +20,7 @@ package gda.data.nexus.napi;
 
 import java.io.File;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
@@ -27,10 +28,15 @@ import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.io.ILazySaver;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
+import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
+import org.eclipse.dawnsci.analysis.dataset.impl.StringDataset;
 import org.nexusformat.NexusFile;
 
 public class NAPILazySaver extends NAPILazyLoader implements ILazySaver, Serializable {
+
+	private int textLength;
 
 	/**
 	 * @param tree
@@ -45,17 +51,6 @@ public class NAPILazySaver extends NAPILazyLoader implements ILazySaver, Seriali
 
 	@Override
 	public void initialize() throws Exception {
-		NexusFile file = null;
-		try {
-			file = new NexusFile(filename, NexusFile.NXACC_READ);
-			file.openpath(path);
-			file.makedata(name, dtype, trueShape.length, trueShape);
-		} catch (NexusException e) {
-			logger.error("Problem with NeXus library: {}", e);
-		} finally {
-			if (file != null)
-				file.close();
-		}
 	}
 
 	@Override
@@ -121,9 +116,9 @@ public class NAPILazySaver extends NAPILazyLoader implements ILazySaver, Seriali
 					}
 				}
 				
-				file.putslab(DatasetUtils.serializeDataset(data), tstart, tsize);
+				saveData(file, data, tstart, tsize);
 			} else {
-				file.putslab(DatasetUtils.serializeDataset(data), lstart, size);
+				saveData(file, data, lstart, size);
 			}
 		} catch (NexusException e) {
 			logger.error("Problem with NeXus library: {}", e);
@@ -131,5 +126,49 @@ public class NAPILazySaver extends NAPILazyLoader implements ILazySaver, Seriali
 			if (file != null)
 				file.close();
 		}
+	}
+
+	/**
+	 * Set maximum length to be used for string datasets
+	 * @param maxTextLength the maximum number of bytes used to encode any string
+	 */
+	public void setMaxTextLength(int maxTextLength) {
+		textLength = maxTextLength;
+	}
+
+	private void saveData(NexusFile file, IDataset data, int[] start, int[] size) throws org.nexusformat.NexusException {
+		Dataset cdata = DatasetUtils.cast(data, dtype);
+		Serializable slab;
+		if (dtype == Dataset.STRING) {
+			slab = convertStringsToSlab((StringDataset) cdata, textLength);
+			int r = start.length + 1;
+			start = Arrays.copyOf(start, r);
+			size = Arrays.copyOf(size, r);
+			size[r - 1] = textLength;
+		} else {
+			slab = DatasetUtils.serializeDataset(cdata);
+		}
+		file.putslab(slab, start, size);
+	}
+
+	private static byte[] convertStringsToSlab(StringDataset data, int length) {
+		int n = data.getSize();
+		String[] strings = data.getData();
+		byte[] buffer = new byte[n * length];
+		IndexIterator it = data.getIterator();
+		int k = 0;
+		while (it.hasNext()) {
+			String t = strings[it.index];
+
+			byte[] b;
+			try {
+				b = t.getBytes("UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				b = t.getBytes();
+			}
+			int l = b.length < length ? b.length : length;
+			System.arraycopy(b, 0, buffer, k, l);
+		}
+		return buffer;
 	}
 }
