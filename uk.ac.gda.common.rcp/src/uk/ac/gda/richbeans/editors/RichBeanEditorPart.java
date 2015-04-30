@@ -217,6 +217,8 @@ public abstract class RichBeanEditorPart extends EditorPart  implements ValueLis
 		if (input!=null) {
 	        setPartName(input.getName());
 		}
+		// TODO this method should fire a property change as specified in the javadoc, but when this is implemented
+		// it will need testing
 	}
 	/**
 	 * @return the editingBean

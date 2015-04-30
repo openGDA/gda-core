@@ -159,22 +159,24 @@ public abstract class RichBeanMultiPageEditorPart extends MultiPageEditorPart im
 	
 	@Override
 	public void setInput(final IEditorInput input) {
-		try{
-	        assignInput(input);
-	        createBean();
-	        linkUI();
-	        
-	        
-	        // Close all other editors editing this bean.
-	        // Currently only one editor for a given bean class may be open 
-	        // at a time.
-	        final IEditorReference[] refs = getSite().getPage().getEditorReferences();
-	        for (int i = 0; i < refs.length; i++) {
+		try {
+			assignInput(input);
+			createBean();
+			linkUI();
+
+			// Close all other editors editing this bean.
+			// Currently only one editor for a given bean class may be open
+			// at a time.
+			final IEditorReference[] refs = getSite().getPage().getEditorReferences();
+			for (int i = 0; i < refs.length; i++) {
 				if (refs[i].getId().equals(this.getSite().getId())) {
 					final IEditorPart part = refs[i].getEditor(false);
 					if (part!=this) getSite().getPage().closeEditor(part, true);
 				}
 			}
+			// TODO this method should fire a property change as specified in the javadoc, but when this is implemented
+			// it will need testing
+
 		} catch (Throwable th){
 			logger.error("Error setting input for editor from input " + input.getName(), th);
 		}
