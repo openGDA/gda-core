@@ -559,7 +559,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	@Override
 	public DataNode createData(String path, ILazyWriteableDataset data, int compression, boolean createPathIfNecessary) throws NexusException {
 		checkClosed(true);
-		Tuple<String, GroupNode, Node> tuple = openAll(path, false, true);
+		Tuple<String, GroupNode, Node> tuple = openAll(path, createPathIfNecessary, true);
 		if (tuple.name == null)
 			return null;
 
@@ -667,7 +667,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	@Override
 	public DataNode createData(String path, IDataset data, boolean createPathIfNecessary) throws NexusException {
 		checkClosed(true);
-		Tuple<String, GroupNode, Node> tuple = openAll(path, false, true);
+		Tuple<String, GroupNode, Node> tuple = openAll(path, createPathIfNecessary, true);
 		if (tuple.name == null)
 			return null;
 
