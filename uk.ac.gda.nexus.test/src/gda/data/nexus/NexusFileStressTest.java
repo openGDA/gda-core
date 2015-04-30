@@ -203,7 +203,7 @@ public class NexusFileStressTest {
 				for (int i = 0; i < numberOfPoints; i++) {
 					startPos[0] = i;
 					stop[0] = startPos[i] + 1;
-					lazy.setSlice(null, data, new SliceND(lazy.getShape(), startPos, stop, null));
+					lazy.setSlice(null, data, SliceND.createSlice(lazy, startPos, stop));
 				}
 			}
 			finally {
