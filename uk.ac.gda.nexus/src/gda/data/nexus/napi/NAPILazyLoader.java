@@ -33,6 +33,7 @@ import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
+import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
@@ -135,13 +136,14 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 				if (infoArgs[1] != NexusFile.NX_CHAR) {
 					throw new ScanFileHolderException("Dataset was expected to contain strings"); 
 				}
-				int trank = infoArgs[0];
+				int trank = infoArgs[0] - 1;
 				if (trank != trueShape.length) {
 					throw new ScanFileHolderException("Dataset has wrong rank"); 
 				}
-				textLength = infoDims[trank - 1];
-				
-				d = DatasetFactory.zeros(Arrays.copyOf(infoDims, trank), Dataset.INT8);
+				textLength = infoDims[trank];
+				int[] tsize = Arrays.copyOf(size, trank + 1);
+				tsize[trank] = textLength;
+				d = DatasetFactory.zeros(tsize, Dataset.INT8);
 			} else {
 				d = DatasetFactory.zeros(size, dtype);
 			}
@@ -186,10 +188,14 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 		return d;
 	}
 
-	private Dataset readSlabAsStrings(NexusFile file, int length, int[] start, int[] size, byte[] buffer) throws NexusException {
-		int[] bsize = size.clone();
+	private static Dataset readSlabAsStrings(NexusFile file, int length, int[] start, int[] size, byte[] buffer) throws NexusException {
+		int[] bstart = Arrays.copyOf(start, start.length + 1);
+		int[] bsize = Arrays.copyOf(size, size.length + 1);
 		bsize[bsize.length - 1] = length;
-		file.getslab(start, bsize, buffer);
+		if (AbstractDataset.calcSize(bsize) != buffer.length) {
+			throw new IllegalArgumentException("Buffer of incorrect length");
+		}
+		file.getslab(bstart, bsize, buffer);
 		byte[] text = new byte[length];
 		StringDataset data = new StringDataset(size);
 		IndexIterator it = data.getIterator();
