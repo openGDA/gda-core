@@ -564,6 +564,9 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			return null;
 
 		String name = data.getName();
+		if (name == null || name.isEmpty()) {
+			throw new NullPointerException("Dataset name must be defined");
+		}
 		int type = getType(data);
 
 		NAPILazySaver saver = new NAPILazySaver(tree, tuple.path, name, data.getShape(), AbstractDataset.getDType(data));
@@ -672,6 +675,9 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			return null;
 
 		String name = data.getName();
+		if (name == null || name.isEmpty()) {
+			throw new NullPointerException("Dataset name must be defined");
+		}
 		try {
 			if (debug) {
 				logger.debug("Creating and populating dataset: {}", name);
