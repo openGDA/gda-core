@@ -18,6 +18,8 @@
 
 package gda.swing.ncd;
 
+import gda.configuration.properties.LocalProperties;
+
 import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -51,9 +53,9 @@ public class OutputTriggerTableModel extends DefaultTableModel {
 
 	private static final String[] triggers = { "USR0", "USR1", "USR2", "USR3", "USR4", "USR5", "USR6", "USR7" };
 
-	private int inversion = 192;
+	private int inversion = LocalProperties.getInt("gda.ncd.defaultOutputTriggerInversion", 192);
 
-	private int drive = 0;
+	private int drive = LocalProperties.getInt("gda.ncd.defaultOutputTriggerDrive", 0);
 
 	private TablePopup popup;
 
