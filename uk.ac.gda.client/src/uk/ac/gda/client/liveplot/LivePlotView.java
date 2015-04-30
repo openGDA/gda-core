@@ -19,8 +19,6 @@
 package uk.ac.gda.client.liveplot;
 
 import gda.data.PathConstructor;
-import gda.data.nexus.NexusException;
-import gda.data.nexus.extractor.NexusExtractorException;
 import gda.jython.IAllScanDataPointsObserver;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
@@ -303,7 +301,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 		getSite().setSelectionProvider(xyPlot.getTreeViewer());
 	}
 
-	private void openFile(OneDDataFilePlotDefinition data) throws NexusException, NexusExtractorException, Exception {
+	private void openFile(OneDDataFilePlotDefinition data) throws Exception {
 		Vector<String> xyDatasetNames = new Vector<String>();
 		xyDatasetNames.add(data.x_axis);
 		for (String y_axis : data.y_axes) {
@@ -343,8 +341,7 @@ public class LivePlotView extends ViewPart implements IAllScanDataPointsObserver
 		return xyDataSetNames;
 	}
 
-	public void openFile(String path, List<String> xyDataSetNames, Map<String, String> yAxesMap) throws NexusException, NexusExtractorException,
-			Exception {
+	public void openFile(String path, List<String> xyDataSetNames, Map<String, String> yAxesMap) throws Exception {
 		if (path == null) {
 			if (fileDialog == null) {
 				fileDialog = new FileDialog(getSite().getShell(), SWT.OPEN);

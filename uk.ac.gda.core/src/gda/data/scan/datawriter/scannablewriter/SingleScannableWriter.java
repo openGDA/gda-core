@@ -18,8 +18,6 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
-import gda.data.nexus.NexusException;
-import gda.data.nexus.NexusFileInterface;
 import gda.data.scan.datawriter.SelfCreatingLink;
 import gda.device.Scannable;
 import gda.device.ScannableMotionUnits;
@@ -31,6 +29,9 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +98,7 @@ public class SingleScannableWriter implements ScannableWriter {
 	}
 
 	@Override
-	public Collection<? extends SelfCreatingLink> makeScannable(final NexusFileInterface file, final Scannable s,
+	public Collection<? extends SelfCreatingLink> makeScannable(final NexusFile file, GroupNode group, final Scannable s,
 			final Object position, final int[] dim) throws NexusException {
 
 		final Vector<SelfCreatingLink> sclc = new Vector<SelfCreatingLink>();
@@ -121,7 +122,7 @@ public class SingleScannableWriter implements ScannableWriter {
 
 				final Object componentObject = getComponentObject(s, position, i);
 				final ComponentWriter cw = getComponentWriter(s, componentName, componentObject);
-				final Collection<SelfCreatingLink> compLinks = cw.makeComponent(file, dim, getPaths()[i], s.getName(),
+				final Collection<SelfCreatingLink> compLinks = cw.makeComponent(file, group, dim, getPaths()[i], s.getName(),
 						componentName, componentObject, unit);
 				if (cw != null) {
 					sclc.addAll(compLinks);
@@ -136,7 +137,7 @@ public class SingleScannableWriter implements ScannableWriter {
 	}
 
 	@Override
-	public void writeScannable(final NexusFileInterface file, final Scannable s, final Object position,
+	public void writeScannable(final NexusFile file, GroupNode group, final Scannable s, final Object position,
 			final int[] start) throws NexusException {
 
 		for (int i = 0; i < componentsFor(s); i++) {
@@ -144,7 +145,7 @@ public class SingleScannableWriter implements ScannableWriter {
 				continue;
 			}
 			final Object slab = getComponentObject(s, position, i);
-			getCwriter().get(componentNameFor(s, i)).writeComponent(file, start, getPaths()[i], s.getName(),
+			getCwriter().get(componentNameFor(s, i)).writeComponent(file, group, start, getPaths()[i], s.getName(),
 					componentNameFor(s, i), slab);
 		}
 	}

@@ -18,11 +18,11 @@
 
 package gda.data.scan.datawriter;
 
-import gda.data.nexus.NexusException;
 import gda.data.nexus.NexusFileInterface;
 import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.napi.NXlink;
+import gda.data.nexus.napi.NexusException;
 
 import java.util.List;
 import java.util.Vector;

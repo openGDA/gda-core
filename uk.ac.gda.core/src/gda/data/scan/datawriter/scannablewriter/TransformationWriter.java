@@ -18,10 +18,12 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
-import gda.data.nexus.NexusException;
-import gda.data.nexus.NexusFileInterface;
 import gda.data.nexus.NexusUtils;
 import gda.device.Scannable;
+
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 
 public class TransformationWriter extends SingleScannableWriter {
 
@@ -40,22 +42,22 @@ public class TransformationWriter extends SingleScannableWriter {
 		}
 
 		@Override
-		protected void addCustomAttributes(final NexusFileInterface file, final String scannableName,
+		protected void addCustomAttributes(final NexusFile file, GroupNode group, final String scannableName,
 				final String componentName) throws NexusException {
 
-			super.addCustomAttributes(file, scannableName, componentName);
-			NexusUtils.writeNexusStringAttribute(file, "transformation_type", transformation[index]);
+			super.addCustomAttributes(file, group, scannableName, componentName);
+			NexusUtils.writeStringAttribute(file, group, "transformation_type", transformation[index]);
 			if (dependsOn != null && dependsOn[index] != null) {
-				NexusUtils.writeNexusStringAttribute(file, "depends_on", dependsOn[index]);
+				NexusUtils.writeStringAttribute(file, group, "depends_on", dependsOn[index]);
 			}
 			if (offsetUnits != null && offsetUnits[index] != null) {
-				NexusUtils.writeNexusStringAttribute(file, "offset_units", offsetUnits[index]);
+				NexusUtils.writeStringAttribute(file, group, "offset_units", offsetUnits[index]);
 			}
 			if (vector != null && vector[index] != null) {
-				NexusUtils.writeNexusDoubleAttribute(file, "vector", vector[index]);
+				NexusUtils.writeDoubleAttribute(file, group, "vector", vector[index]);
 			}
 			if (offset != null && offset[index] != null) {
-				NexusUtils.writeNexusDoubleAttribute(file, "offset", offset[index]);
+				NexusUtils.writeDoubleAttribute(file, group, "offset", offset[index]);
 			}
 		}
 	}

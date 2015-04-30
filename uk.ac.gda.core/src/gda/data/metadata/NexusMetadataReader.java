@@ -19,16 +19,18 @@
 
 package gda.data.metadata;
 
-import gda.data.nexus.NexusException;
-import gda.data.nexus.NexusFileInterface;
 import gda.data.nexus.NexusUtils;
 import gda.factory.Findable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
 
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +41,7 @@ public class NexusMetadataReader implements Findable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(NexusMetadataReader.class);
 	
-	NexusFileInterface nf = null;
+	NexusFile nf = null;
 
 	String filename = null;
 
@@ -62,40 +64,63 @@ public class NexusMetadataReader implements Findable {
 		this.filename = filename;
 	}
 
-	private String getString(NexusFileInterface nf, String item) throws NexusException {
-		byte bytes[];
-		String string;
+//	private String getString(NexusFile nf, GroupNode group, String item) throws NexusException {
+////		byte bytes[];
+////		String string = null;
+//
+//		DataNode data = nf.getData(group, item);
+//		ILazyDataset lazy = data.getDataset();
+//		if (lazy == null)
+//			return null;
+//
+//		if (!lazy.elementClass().equals(String.class))
+//			return null;
+//
+//		IDataset d = lazy.getSlice();
+//		return d.getString();
+////		nf.opendata(item);
+////		bytes = new byte[getDimension(nf)];
+////		nf.getdata(bytes);
+////		string = new String(bytes);
+////
+////		return string;
+//	}
 
-		nf.opendata(item);
-		bytes = new byte[getDimension(nf)];
-		nf.getdata(bytes);
-		string = new String(bytes);
+	private String getString(DataNode data){
+		ILazyDataset lazy = data.getDataset();
+		if (lazy == null)
+			return null;
 
-		return string;
+		if (!lazy.elementClass().equals(String.class))
+			return null;
+
+		IDataset d = lazy.getSlice();
+		return d.getString();
 	}
 
-	private int getDimension(NexusFileInterface nf) {
-		int dimension = 0;
-		int arg0[] = new int[20];
-		int arg1[] = new int[20];
-
-		try {
-			nf.getinfo(arg0, arg1);
-			dimension = arg0[0];
-		} catch (NexusException e) {
-			// ignore
-		}
-
-		return dimension;
-	}
+//	private int getDimension(NexusFile nf) {
+//		int dimension = 0;
+//		int arg0[] = new int[20];
+//		int arg1[] = new int[20];
+//
+//		try {
+//			nf.getinfo(arg0, arg1);
+//			dimension = arg0[0];
+//		} catch (NexusException e) {
+//			// ignore
+//		}
+//
+//		return dimension;
+//	}
 
 	/**
 	 * Gets the metadata item with a given name.
 	 * 
 	 * @param name
 	 * @return metadata
+	 * @throws NexusException 
 	 */
-	public String getNamedNexusMetadata(String name) {
+	public String getNamedNexusMetadata(String name) throws NexusException {
 
 		for (NexusMetadataEntry nme : nexusMetadataEntries) {
 			if (nme.getName().equals(name)) {
@@ -108,52 +133,69 @@ public class NexusMetadataReader implements Findable {
 		return "";
 	}
 
+	private String transformAccessName(String accessName) {
+		if (accessName == null)
+			return null;
+
+		String path = accessName.replace(':', '/');
+		path = path.replace('%', ':');
+		return path;
+	}
+
 	/**
 	 * Gets the metadata item at a given location.
 	 * 
 	 * @param location
 	 * @return metadata
+	 * @throws NexusException 
 	 */
-	public String getNexusMetadata(String location) {
-		String error = null;
-		String metadata = "";
-		String temp;
-		String name = "";
-		String nexusClass = "";
-
-		StringTokenizer st1 = new StringTokenizer(location, ":");
-		StringTokenizer st2;
-
-		try {
-			nf = NexusUtils.openNexusFileReadOnly(filename);
-			while (st1.hasMoreTokens()) {
-				temp = st1.nextToken();
-				if (!st1.hasMoreTokens()) {
-					metadata = getString(nf, temp);
-				} else {
-					st2 = new StringTokenizer(temp, "%");
-					if (st2.hasMoreTokens()) {
-						name = st2.nextToken();
-					}
-					if (st2.hasMoreTokens()) {
-						nexusClass = st2.nextToken();
-					}
-					nf.opengroup(name, nexusClass);
-				}
-			}
-
-			nf.finalize();
-		} catch (NexusException ne) {
-			error = "NeXusException occurred when accessing NeXus file\n" + ne.getMessage();
-		} catch (Throwable et) {
-			error = "Error occurred when accessing NeXus file\n" + et.getMessage();
-		}
-
-		if (error != null) {
-			logger.debug(error);
-		}
-
-		return metadata;
+	public String getNexusMetadata(String location) throws NexusException {
+		nf = NexusUtils.createNXFile(filename);
+		nf.openToRead();
+		return getString(nf.getData(transformAccessName(location)));
+//		
+//		String error = null;
+//		String metadata = "";
+//		String temp;
+//		String name = "";
+//		String nexusClass = "";
+//
+//		StringTokenizer st1 = new StringTokenizer(location, ":");
+//		StringTokenizer st2;
+//
+//		// use colon to separate groups
+//		// in each group, use percent to separate NXclass
+//		try {
+//			nf = NexusUtils.createNXFile(filename);
+//			nf.openToRead();
+//			while (st1.hasMoreTokens()) {
+//				temp = st1.nextToken();
+//				if (!st1.hasMoreTokens()) {
+//					metadata = getString(nf, temp);
+//				} else {
+//					st2 = new StringTokenizer(temp, "%");
+//					if (st2.hasMoreTokens()) {
+//						name = st2.nextToken();
+//					}
+//					if (st2.hasMoreTokens()) {
+//						nexusClass = st2.nextToken();
+//					}
+//					nf.opengroup(name, nexusClass);
+//				}
+//			}
+//
+//			nf.finalize();
+//		} catch (NexusException ne) {
+//			error = "NeXusException occurred when accessing NeXus file\n" + ne.getMessage();
+//		} catch (Throwable et) {
+//			error = "Error occurred when accessing NeXus file\n" + et.getMessage();
+//		}
+//
+//		if (error != null) {
+//			logger.debug(error);
+//		}
+//
+//		return metadata;
 	}
 
 	@Override
