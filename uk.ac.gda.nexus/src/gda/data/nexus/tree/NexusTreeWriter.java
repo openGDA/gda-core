@@ -18,10 +18,13 @@
 
 package gda.data.nexus.tree;
 
-import gda.data.nexus.NexusFileInterface;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+
+import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.napi.NexusException;
 
 /**
  * Class that add a NexusTree to a Nexus file
@@ -36,31 +39,22 @@ public class NexusTreeWriter {
 	 * 
 	 * @throws NexusException
 	 */
-	public static void writeHere(NexusFileInterface file, INexusTree tree) throws NexusException {
+	public static void writeHere(NexusFile file, GroupNode group, INexusTree tree) throws NexusException {
 		String name = tree.getName();
 		String nxClass = tree.getNxClass();
 
 		if( nxClass.equals(NexusExtractor.AttrClassName)){
 			NexusGroupData data = tree.getData();
 			if( data != null && data.getBuffer() != null){
-				file.putattr(name, data.getBuffer(), data.getType());
+				NexusUtils.writeAttribute(file, group, name, data.toDataset());
 			}
 			return;
 		}
-		if(! name.isEmpty() && ! nxClass.isEmpty()){
-			if( !(file.groupdir().containsKey(name) && file.groupdir().get(name).equals(nxClass))){
-				file.makegroup(name, nxClass);
-			}
-			file.opengroup(name, nxClass);
+		if (!name.isEmpty() && !nxClass.isEmpty()) {
+			group = file.getGroup(group, name, nxClass, true);
 		}
-		try{
-			for( INexusTree branch : tree ){
-				writeHere(file,branch);
-			}
-		} finally {
-			if(! name.isEmpty() && ! nxClass.isEmpty()){
-				file.closegroup();
-			}
+		for (INexusTree branch : tree) {
+			writeHere(file, group, branch);
 		}
 	}
 }
