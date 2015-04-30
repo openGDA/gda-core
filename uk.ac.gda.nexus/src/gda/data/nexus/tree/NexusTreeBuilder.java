@@ -173,8 +173,7 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 	static public synchronized INexusTree getNexusTree(String fileName, NexusTreeNodeSelection selectionTree, final IMonitor mon) throws NexusException, NexusExtractorException {
 		NexusExtractor extractor =  new NexusExtractor(fileName);
 		NexusTreeBuilder proc = new NexusTreeBuilder(selectionTree);
-//		extractor.runLoop(proc, System.getProperty("gda.nexus.instrumentApi") != null, mon);
-		extractor.runLoop(proc, true, mon);
+		extractor.runLoop(proc, System.getProperty("gda.nexus.instrumentApi") != null, mon);
 		return proc.getTree();
 	}
 
@@ -285,7 +284,7 @@ public class NexusTreeBuilder implements INexusTreeProcessor {
 		}
 		Iterator<Group> iter = path.descendingIterator();
 
-		//construct a list of NexusTreeNodeSelection that jsut contains the top item so that the
+		//construct a list of NexusTreeNodeSelection that just contains the top item so that the
 		//whole tree can be walked through using
 		// for (NexusTreeNodeSelection selectionNode : selectionNodes){
 		//  selectionNodes = selectionNode.getChildNodes();
