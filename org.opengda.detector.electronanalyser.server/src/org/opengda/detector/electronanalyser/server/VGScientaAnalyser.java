@@ -18,9 +18,6 @@
 
 package org.opengda.detector.electronanalyser.server;
 
-import gda.data.nexus.NexusException;
-import gda.data.nexus.NexusFileInterface;
-import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
@@ -38,7 +35,17 @@ import gda.factory.corba.util.CorbaImplClass;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
+import java.util.Arrays;
+
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.Slice;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +64,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 	private NDProcess ndProc;
 
-	private NexusFileInterface nexusFile;
+	private NexusFile nexusFile;
 
 	private String regionName;
 
@@ -389,8 +396,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			NexusTreeNode image_data_node=new NexusTreeNode("image_data", NexusExtractor.SDSClassName, null,image_data);
 			image_data_node.setIsPointDependent(true);
 			regionNode.addChildNode(image_data_node);
-		} catch (NexusException e) {
-			logger.error("Error writing image data to nexus file. ", e);
 		} catch (Exception e) {
 			logger.error("Failed to get NDArray data from EPICS plugin. ",e);
 		}
@@ -415,8 +420,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			spectrum_data_node.setIsPointDependent(true);
 			regionNode.addChildNode(spectrum_data_node);
 			this.totalIntensity=(Double) new DoubleDataset(s).sum();
-		} catch (NexusException e) {
-			logger.error("Error writing spectrum data to nexus file. ", e);
 		} catch (Exception e) {
 			logger.error("Failed to get spectrum data from EPICS analyser. ",e);
 		}
@@ -435,8 +438,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			NexusTreeNode external_io_data_node=new NexusTreeNode("external_io_data", NexusExtractor.SDSClassName, null,external_io_data);
 			external_io_data_node.setIsPointDependent(true);
 			regionNode.addChildNode(external_io_data_node);
-		} catch (NexusException e) {
-			logger.error("Error writing external IO data to nexus file. ", e);
 		} catch (Exception e) {
 			logger.error("Failed to get external IO data from EPICS analyser. ",e);
 		}
@@ -448,8 +449,6 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			NexusTreeNode excitation_energy_node=new NexusTreeNode("excitation_energy", NexusExtractor.SDSClassName, null,excitation_energy);
 			excitation_energy_node.setIsPointDependent(true);
 			regionNode.addChildNode(excitation_energy_node);
-		} catch (NexusException e) {
-			logger.error("Error writing excitation energy to nexus file. ", e);
 		} catch (Exception e) {
 			logger.error("Failed to get excitation energy from EPICS analyser. ",e);
 		}
@@ -468,48 +467,46 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public void writeOut(int scanDataPoint)  {
 		try {
 	//		InterfaceProvider.getTerminalPrinter().print("Writing region " + getRegionName() + " data to file : "+ datafilepath+". Please wait ......" );
-			nexusFile.opengroup("entry1","NXentry");
-			nexusFile.opengroup("instrument", "NXinstrument");
-			if (nexusFile.groupdir().get("detector") == null) {
-				nexusFile.makegroup("detector","NXdetector");
-			}
-			nexusFile.opengroup("detector", "NXdetector");
+			StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), "entry1", NexusExtractor.NXEntryClassName);
+			NexusUtils.addToAugmentPath(path, "instrument", NexusExtractor.NXInstrumentClassName);
+			NexusUtils.addToAugmentPath(path, "detector", NexusExtractor.NXDetectorClassName);
+			GroupNode g = nexusFile.getGroup(path.toString(), true);
 			if (scanDataPoint == 1) {
 				try {
 					String lensMode= getLensMode();
 					//write analyser parameters here
-					NexusUtils.writeNexusString(nexusFile, "reagion_name", getRegionName());
-					NexusUtils.writeNexusString(nexusFile, "lens_mode", lensMode);
-					NexusUtils.writeNexusString(nexusFile, "acquisition_mode", getAcquisitionMode());
-					NexusUtils.writeNexusString(nexusFile, "detector_mode", getDetectorMode());
-					NexusUtils.writeNexusInteger(nexusFile, "pass_energy", getPassEnergy());
+					NexusUtils.writeString(nexusFile, g, "reagion_name", getRegionName());
+					NexusUtils.writeString(nexusFile, g, "lens_mode", lensMode);
+					NexusUtils.writeString(nexusFile, g, "acquisition_mode", getAcquisitionMode());
+					NexusUtils.writeString(nexusFile, g, "detector_mode", getDetectorMode());
+					NexusUtils.writeInteger(nexusFile, g, "pass_energy", getPassEnergy());
 					double excitationEnergy = getExcitationEnergy();
 					if (getCachedEnergyMode().equalsIgnoreCase("Binding")) {
-						NexusUtils.writeNexusString(nexusFile, "energy_mode", "Binding");
-						NexusUtils.writeNexusDouble(nexusFile, "low_energy", excitationEnergy-getEndEnergy(), "eV");
-						NexusUtils.writeNexusDouble(nexusFile, "high_energy", excitationEnergy-getStartEnergy(), "eV");
-						NexusUtils.writeNexusDouble(nexusFile, "fixed_energy", excitationEnergy-getCentreEnergy(), "eV");
+						NexusUtils.writeString(nexusFile, g, "energy_mode", "Binding");
+						NexusUtils.writeDouble(nexusFile, g, "low_energy", excitationEnergy-getEndEnergy(), "eV");
+						NexusUtils.writeDouble(nexusFile, g, "high_energy", excitationEnergy-getStartEnergy(), "eV");
+						NexusUtils.writeDouble(nexusFile, g, "fixed_energy", excitationEnergy-getCentreEnergy(), "eV");
 						
 					} else {
-						NexusUtils.writeNexusString(nexusFile, "energy_mode", "Kinetic");
-						NexusUtils.writeNexusDouble(nexusFile, "low_energy", getStartEnergy(), "eV");
-						NexusUtils.writeNexusDouble(nexusFile, "high_energy", getEndEnergy(), "eV");
-						NexusUtils.writeNexusDouble(nexusFile, "fixed_energy", getCentreEnergy(), "eV");
+						NexusUtils.writeString(nexusFile, g, "energy_mode", "Kinetic");
+						NexusUtils.writeDouble(nexusFile, g, "low_energy", getStartEnergy(), "eV");
+						NexusUtils.writeDouble(nexusFile, g, "high_energy", getEndEnergy(), "eV");
+						NexusUtils.writeDouble(nexusFile, g, "fixed_energy", getCentreEnergy(), "eV");
 					}
-					NexusUtils.writeNexusDouble(nexusFile, "energy_step", getEnergyStep(), "eV");
+					NexusUtils.writeDouble(nexusFile, g, "energy_step", getEnergyStep(), "eV");
 					double stepTime = getStepTime();
-					NexusUtils.writeNexusDouble(nexusFile, "step_time", stepTime, "s");
-					NexusUtils.writeNexusInteger(nexusFile, "number_of_slices", getSlices());
-					NexusUtils.writeNexusInteger(nexusFile, "number_of_iterations", getNumberIterations());
+					NexusUtils.writeDouble(nexusFile, g, "step_time", stepTime, "s");
+					NexusUtils.writeInteger(nexusFile, g, "number_of_slices", getSlices());
+					NexusUtils.writeInteger(nexusFile, g, "number_of_iterations", getNumberIterations());
 					int totalSteps = getTotalSteps().intValue();
-					NexusUtils.writeNexusInteger(nexusFile, "total_steps", totalSteps);
-					NexusUtils.writeNexusDouble(nexusFile, "total_time", totalSteps*stepTime, "s");
+					NexusUtils.writeInteger(nexusFile, g, "total_steps", totalSteps);
+					NexusUtils.writeDouble(nexusFile, g, "total_time", totalSteps*stepTime, "s");
 					int cameraMinX = getCameraMinX();
-					NexusUtils.writeNexusInteger(nexusFile, "detector_x_from", cameraMinX);
+					NexusUtils.writeInteger(nexusFile, g, "detector_x_from", cameraMinX);
 					int cameraMinY = getCameraMinY();
-					NexusUtils.writeNexusInteger(nexusFile, "detector_y_from", cameraMinY);
-					NexusUtils.writeNexusInteger(nexusFile, "detector_x_to", getCameraSizeX()-cameraMinX);
-					NexusUtils.writeNexusInteger(nexusFile, "detector_y_to", getCameraSizeY()-cameraMinY);
+					NexusUtils.writeInteger(nexusFile, g, "detector_y_from", cameraMinY);
+					NexusUtils.writeInteger(nexusFile, g, "detector_x_to", getCameraSizeX()-cameraMinX);
+					NexusUtils.writeInteger(nexusFile, g, "detector_y_to", getCameraSizeY()-cameraMinY);
 					// write axis
 					int i = 1;
 					String aname = "energies";
@@ -524,12 +521,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 							}
 						}
 
-						NexusUtils.writeNexusDoubleArray(nexusFile, aname, axis);
-						nexusFile.opendata(aname);
-						nexusFile.putattr("axis", new int[] {i+1}, NexusGlobals.NX_INT32);
-						nexusFile.putattr("primary", new int[] {1}, NexusGlobals.NX_INT32);
-						nexusFile.putattr("unit", aunit.getBytes(), NexusGlobals.NX_CHAR);
-						nexusFile.closedata();
+						DataNode d = NexusUtils.writeDoubleArray(nexusFile, g, aname, axis);
+						NexusUtils.writeIntegerAttribute(nexusFile, d, "axis", i+1);
+						NexusUtils.writeIntegerAttribute(nexusFile, d, "primary", 1);
+						NexusUtils.writeStringAttribute(nexusFile, d, "unit", aunit);
 					} catch (Exception e) {
 						logger.error("failed to get energy axis data from analyser.", e);
 					}
@@ -544,12 +539,10 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 					}
 					try {
 						axis = getAngleAxis();
-						NexusUtils.writeNexusDoubleArray(nexusFile, aname, axis);
-						nexusFile.opendata(aname);
-						nexusFile.putattr("axis", new int[] {i+1}, NexusGlobals.NX_INT32);
-						nexusFile.putattr("primary", new int[] {1}, NexusGlobals.NX_INT32);
-						nexusFile.putattr("unit", aunit.getBytes(), NexusGlobals.NX_CHAR);
-						nexusFile.closedata();
+						DataNode d = NexusUtils.writeDoubleArray(nexusFile, g, aname, axis);
+						NexusUtils.writeIntegerAttribute(nexusFile, d, "axis", i+1);
+						NexusUtils.writeIntegerAttribute(nexusFile, d, "primary", 1);
+						NexusUtils.writeStringAttribute(nexusFile, d, "unit", aunit);
 					} catch (Exception e) {
 						logger.error("failed to get angle or location axis data from analyser.", e);
 					
@@ -559,86 +552,65 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				}
 			}
 			// write data that changes with scan data point here
-			writeImageData(scanDataPoint);
-			writeSpectrumData(scanDataPoint);
-			writeExternalIOData(scanDataPoint);
-			writeExciationEnergy(scanDataPoint);
-			//close detector
-			nexusFile.closegroup();
-			//close instrument
-			nexusFile.closegroup();
-			//close entry1
-			nexusFile.closegroup();
+			writeImageData(g, scanDataPoint);
+			writeSpectrumData(g, scanDataPoint);
+			writeExternalIOData(g, scanDataPoint);
+			writeExcitationEnergy(g, scanDataPoint);
 			//TODO Test this
 			nexusFile.flush();
-		} catch (NexusException e) {
+		} catch (Exception e) {
 			logger.error("NexusException on write data out",e);
 		} 
 	}
 
-	private void writeImageData(int scanDataPoint) {
+	private void writeImageData(GroupNode g, int scanDataPoint) {
 		try {
-			int[] dims=new int[2];
-			dims[0] = getEnergyAxis().length;
-			dims[1] = getAngleAxis().length;
+			int[] dims=new int[] {1, getEnergyAxis().length, getAngleAxis().length};
+			int[] datadims = new int[] {ILazyWriteableDataset.UNLIMITED , dims[1], dims[2] };
+			DataNode d = nexusFile.getData(g, "image_data");
+			ILazyWriteableDataset lazy;
+			if (d == null || !Arrays.equals(d.getDataset().getShape(), dims)) {
+				lazy = NexusUtils.createLazyWriteableDataset("image_data", Dataset.INT32, dims, datadims, dims);
+				d = nexusFile.createData(g, lazy);
+			} else {
+				lazy = d.getWriteableDataset();
+			}
+			Dataset image = DatasetFactory.createFromObject(getImage(dims[1] * dims[2]));
+			image.setShape(dims);
 			
-			if (dims.length == 0) {
-				logger.warn("Dimensions of image data from " + getName() + " are zero length");
-				return;
-			}
-			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0], dims[1] };
-			int rank = datadims.length;
-			if (scanDataPoint == 1) {
-				nexusFile.makedata("image_data", NexusGlobals.NX_INT32, rank, datadims);
-			}
-			nexusFile.opendata("image_data");
-			int[] startPos = new int[rank];
-			int[] slabdatadims = new int[] { 1, dims[0], dims[1] };
-	
-			int expectedNumPixels = dims[0];
-			for (int i = 1; i < dims.length; i++) {
-				expectedNumPixels = expectedNumPixels * dims[i];
-			}
-			double[] s = getImage(expectedNumPixels);
-			startPos[0] = scanDataPoint;
-			nexusFile.putslab(s, startPos, slabdatadims);
-			nexusFile.closedata();
-		} catch (NexusException e) {
-			logger.error("Error writing image data to nexus file. ", e);
+			lazy.setSlice(null, image, new SliceND(dims, new Slice(scanDataPoint, scanDataPoint+1)));
 		} catch (Exception e) {
 			logger.error("Failed to get NDArray data from EPICS plugin. ",e);
 		}
 	}
-	private void writeSpectrumData(int scanDataPoint) {
+
+	private void writeSpectrumData(GroupNode g, int scanDataPoint) {
 		try {
 			int size = getEnergyAxis().length;
-			int[] dims=new int[] {size};
-			if (dims.length == 0) {
-				logger.warn("Dimensions of spectrum from " + getName() + " are zero length");
-				return;
+			int[] dims=new int[] {1, size};
+			int[] datadims = new int[] {ILazyWriteableDataset.UNLIMITED , dims[1] };
+
+			DataNode d = nexusFile.getData(g, "spectrum_data");
+			ILazyWriteableDataset lazy;
+			if (d == null || !Arrays.equals(d.getDataset().getShape(), dims)) {
+				lazy = NexusUtils.createLazyWriteableDataset("spectrum_data", Dataset.FLOAT64, dims, datadims, dims);
+				d = nexusFile.createData(g, lazy);
+			} else {
+				lazy = d.getWriteableDataset();
 			}
-			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0] };
-			int rank = datadims.length;
-			if (scanDataPoint == 1) {
-				nexusFile.makedata("spectrum_data", NexusGlobals.NX_FLOAT64, rank, datadims);
-			}
-			nexusFile.opendata("spectrum_data");
-			int[] startPos = new int[rank];
-			int[] slabdatadims = new int[] { 1, dims[0] };
-	
-			double[] s = getSpectrum(dims[0]);
-			startPos[0] = scanDataPoint;
-			nexusFile.putslab(s, startPos, slabdatadims);
-			nexusFile.closedata();
-			this.totalIntensity=(Double) new DoubleDataset(s).sum();
-		} catch (NexusException e) {
-			logger.error("Error writing spectrum data to nexus file. ", e);
+
+			Dataset spectrum = DatasetFactory.createFromObject(getSpectrum(size));
+			spectrum.setShape(dims);
+			
+			lazy.setSlice(null, spectrum, new SliceND(dims, new Slice(scanDataPoint, scanDataPoint+1)));
+
+			this.totalIntensity=(Double) spectrum.sum();
 		} catch (Exception e) {
 			logger.error("Failed to get spectrum data from EPICS analyser. ",e);
 		}
 	}
 
-	private void writeExternalIOData(int scanDataPoint) {
+	private void writeExternalIOData(GroupNode g, int scanDataPoint) {
 		try {
 			int size;
 			if (getAcquisitionMode().equalsIgnoreCase("Fixed")) {
@@ -646,49 +618,45 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			} else {
 				size = getEnergyAxis().length;
 			}
-			int[] dims=new int[] {size};
-			if (dims.length == 0) {
-				logger.warn("Dimensions of external IO data from " + getName() + " are zero length");
-				return;
+			int[] dims=new int[] {1, size};
+			int[] datadims = new int[] {ILazyWriteableDataset.UNLIMITED , dims[1] };
+
+			DataNode d = nexusFile.getData(g, "external_io_data");
+			ILazyWriteableDataset lazy;
+			if (d == null || !Arrays.equals(d.getDataset().getShape(), dims)) {
+				lazy = NexusUtils.createLazyWriteableDataset("external_io_data", Dataset.FLOAT64, dims, datadims, dims);
+				d = nexusFile.createData(g, lazy);
+			} else {
+				lazy = d.getWriteableDataset();
 			}
-			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0] };
-			int rank = datadims.length;
-			if (scanDataPoint == 1) {
-				nexusFile.makedata("external_io_data", NexusGlobals.NX_FLOAT64, rank, datadims);
-			}
-			nexusFile.opendata("external_io_data");
-			int[] startPos = new int[rank];
-			int[] slabdatadims = new int[] { 1, dims[0] };
-	
-			double[] s = getExternalIOData(dims[0]);
-			startPos[0] = scanDataPoint;
-			nexusFile.putslab(s, startPos, slabdatadims);
-			nexusFile.closedata();
-		} catch (NexusException e) {
-			logger.error("Error writing external IO data to nexus file. ", e);
+
+			Dataset io = DatasetFactory.createFromObject(getExternalIOData(size));
+			io.setShape(dims);
+			
+			lazy.setSlice(null, io, new SliceND(dims, new Slice(scanDataPoint, scanDataPoint+1)));
 		} catch (Exception e) {
 			logger.error("Failed to get external IO data from EPICS analyser. ",e);
 		}
 	}
-	private void writeExciationEnergy(int scanDataPoint) {
+	private void writeExcitationEnergy(GroupNode g, int scanDataPoint) {
 		try {
-			int[] dims=new int[] {1};
-			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0] };
-			int rank = datadims.length;
-			if (scanDataPoint == 1) {
-				nexusFile.makedata("excitation_energy", NexusGlobals.NX_FLOAT64, rank, datadims);
+			int size = 1;
+			int[] dims=new int[] {1, size};
+			int[] datadims = new int[] {ILazyWriteableDataset.UNLIMITED , size };
+
+			DataNode d = nexusFile.getData(g, "excitation_energy");
+			ILazyWriteableDataset lazy;
+			if (d == null || !Arrays.equals(d.getDataset().getShape(), dims)) {
+				lazy = NexusUtils.createLazyWriteableDataset("excitation_energy", Dataset.FLOAT64, dims, datadims, dims);
+				d = nexusFile.createData(g, lazy);
+			} else {
+				lazy = d.getWriteableDataset();
 			}
-			nexusFile.opendata("excitation_energy");
-			int[] startPos = new int[rank];
-			int[] slabdatadims = new int[] { 1, dims[0] };
-	
-			double s = getExcitationEnergy();
-			double[] ee= new double[]{s};
-			startPos[0] = scanDataPoint;
-			nexusFile.putslab(ee, startPos, slabdatadims);
-			nexusFile.closedata();
-		} catch (NexusException e) {
-			logger.error("Error writing excitation energy to nexus file. ", e);
+
+			Dataset exEnergy = DatasetFactory.createFromObject(getExcitationEnergy());
+			exEnergy.setShape(dims);
+			
+			lazy.setSlice(null, exEnergy, new SliceND(dims, new Slice(scanDataPoint, scanDataPoint+1)));
 		} catch (Exception e) {
 			logger.error("Failed to get excitation energy from EPICS analyser. ",e);
 		}
@@ -1068,11 +1036,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		controller.setExcitationEnergy(energy);
 	}
 
-	public NexusFileInterface getNexusFile() {
+	public NexusFile getNexusFile() {
 		return nexusFile;
 	}
 
-	public void setNexusFile(NexusFileInterface nexusFile) {
+	public void setNexusFile(NexusFile nexusFile) {
 		this.nexusFile = nexusFile;
 	}
 

@@ -18,8 +18,6 @@
 
 package uk.ac.gda.arpes.scannable;
 
-import gda.data.nexus.NexusException;
-import gda.data.nexus.NexusFileInterface;
 import gda.data.scan.datawriter.SelfCreatingLink;
 import gda.data.scan.datawriter.scannablewriter.ComponentWriter;
 import gda.data.scan.datawriter.scannablewriter.NumberComponentWriter;
@@ -30,6 +28,9 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 
 public class EnergyScannableWriter extends SingleScannableWriter {
 
@@ -99,29 +100,29 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 		}
 
 		@Override
-		public Collection<SelfCreatingLink> makeComponent(final NexusFileInterface file, final int[] dim,
+		public Collection<SelfCreatingLink> makeComponent(final NexusFile file, final GroupNode group, final int[] dim,
 				final String path, final String scannableName, final String componentName, final Object pos,
 				final String unit) throws NexusException {
 
-			super.makeComponent(file, dim, path, scannableName, componentName, pos, unit);
+			super.makeComponent(file, group, dim, path, scannableName, componentName, pos, unit);
 			final double[] stokes = getStokes(pos.toString());
 			if (stokes == null) {
 				stokesWriter = null;
 			} else {
-				stokesWriter.makeComponent(file, dim, stokesPath, scannableName, componentName, stokes, null);
+				stokesWriter.makeComponent(file, group, dim, stokesPath, scannableName, componentName, stokes, null);
 			}
 			return Collections.emptySet();
 		}
 
 		@Override
-		public void writeComponent(final NexusFileInterface file, final int[] start, final String path,
+		public void writeComponent(final NexusFile file, final GroupNode group, final int[] start, final String path,
 				final String scannableName, final String componentName, final Object pos) throws NexusException {
-			super.writeComponent(file, start, path, scannableName, componentName, pos);
+			super.writeComponent(file, group, start, path, scannableName, componentName, pos);
 			final double[] stokes = getStokes(pos.toString());
 			if (stokes == null) {
 				stokesWriter = null;
 			} else {
-				stokesWriter.writeComponent(file, start, stokesPath, scannableName, componentName, stokes);
+				stokesWriter.writeComponent(file, group, start, stokesPath, scannableName, componentName, stokes);
 			}
 		}
 	}

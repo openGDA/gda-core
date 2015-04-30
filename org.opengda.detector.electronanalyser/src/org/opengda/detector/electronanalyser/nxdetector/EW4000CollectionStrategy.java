@@ -1,6 +1,5 @@
 package org.opengda.detector.electronanalyser.nxdetector;
 
-import gda.data.nexus.NexusFileInterface;
 import gda.data.nexus.tree.INexusTree;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -29,6 +28,7 @@ import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.opengda.detector.electronanalyser.event.RegionChangeEvent;
 import org.opengda.detector.electronanalyser.event.RegionStatusEvent;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
@@ -146,7 +146,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 							Sleep.sleep(1000);
 							lastregion=region;
 							if (!isSingleDataFile()) {
-								NexusFileInterface file = nexusDataWriter.getNXFile(region.getName(), scanDatapoint.get());
+								NexusFile file = nexusDataWriter.getNXFile(region.getName(), scanDatapoint.get());
 								getAnalyser().setNexusFile(file);
 							}
 							//open/close fast shutter according to beam used

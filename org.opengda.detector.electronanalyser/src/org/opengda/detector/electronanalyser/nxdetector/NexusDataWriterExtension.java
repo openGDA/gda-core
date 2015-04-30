@@ -21,8 +21,7 @@ package org.opengda.detector.electronanalyser.nxdetector;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
-import gda.data.nexus.NexusFileFactory;
-import gda.data.nexus.NexusFileInterface;
+import gda.data.nexus.NexusUtils;
 import gda.data.scan.datawriter.NexusDataWriter;
 import gda.jython.InterfaceProvider;
 
@@ -31,6 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +55,6 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 			for (Entry<String, RegionFileMapper> entry : files.entrySet()) {
 				try {
 					entry.getValue().getNxFile().flush();
-					entry.getValue().getNxFile().finalize();
 				} catch (Throwable et) {
 					String error = "Error closing NeXus file " + entry.getValue().getURL();
 					logger.error(error + et.getMessage());
@@ -92,7 +91,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	 * @return NeXusFileInterface
 	 * @throws Exception
 	 */
-	public NexusFileInterface createFile(String regionName,	Sequence sequence) throws Exception {
+	public NexusFile createFile(String regionName,	Sequence sequence) throws Exception {
 		this.entryName = "entry1";
 
 		if (sequence == null) {
@@ -128,14 +127,14 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 
 		String regionNexusFileUrl = dir.getAbsolutePath()+File.separator + regionNexusFileName;
 		InterfaceProvider.getTerminalPrinter().print("Region '" + regionName + "' data will write to: "+ regionNexusFileUrl);
-		NexusFileInterface regionNexusfile = NexusFileFactory.createFile(regionNexusFileUrl, LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
+		NexusFile regionNexusfile = NexusUtils.createNXFile(regionNexusFileUrl);
 		
 		RegionFileMapper regionFileMapper = new RegionFileMapper(regionName,regionNexusFileUrl,regionNexusfile );
 		files.put(regionName, regionFileMapper);
 		return regionNexusfile;
 	}
 
-	public NexusFileInterface getNXFile(String regionName, int scanDataPoint) {
+	public NexusFile getNXFile(String regionName, int scanDataPoint) {
 		if (!files.isEmpty() && files.containsKey(regionName)) {
 			RegionFileMapper mapper = files.get(regionName);
 //			InterfaceProvider.getTerminalPrinter().print("scan point: "+scanDataPoint+"\t-\tCollecting region '" + regionName + "' data to file : "+ mapper.getURL());
@@ -147,9 +146,9 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	class RegionFileMapper {
 		private String regionName;
 		private String URL;
-		private NexusFileInterface nxFile;
+		private NexusFile nxFile;
 		public RegionFileMapper(String regionName, String regionNexusFileUrl,
-				NexusFileInterface regionNexusfile) {
+				NexusFile regionNexusfile) {
 			this.regionName=regionName;
 			this.URL=regionNexusFileUrl;
 			this.nxFile=regionNexusfile;
@@ -166,10 +165,10 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 		public void setURL(String uRL) {
 			URL = uRL;
 		}
-		public NexusFileInterface getNxFile() {
+		public NexusFile getNxFile() {
 			return nxFile;
 		}
-		public void setNxFile(NexusFileInterface nxFile) {
+		public void setNxFile(NexusFile nxFile) {
 			this.nxFile = nxFile;
 		}
 	}
