@@ -1,6 +1,5 @@
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
-import gda.data.nexus.NexusException;
 import gda.data.nexus.extractor.NexusExtractorException;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -11,6 +10,8 @@ import gda.device.detector.NXDetectorData;
 import gda.factory.Finder;
 
 import java.util.List;
+
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;

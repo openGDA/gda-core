@@ -18,11 +18,13 @@
 
 package gda.data.scan.datawriter;
 
-import gda.data.nexus.NexusException;
 import gda.data.nexus.NexusUtils;
 
 import java.util.HashMap;
 import java.util.Vector;
+
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 
 /**
  * Nexus Data Writer which has a custom list of metadata values about the sample to add to the nexus file.
@@ -84,36 +86,24 @@ public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 	}
 
 	@Override
-	protected void createCustomMetaData() throws NexusException {
+	protected void createCustomMetaData(GroupNode g) throws NexusException {
 		HashMap<String,Vector<NexusFileMetadata>> groups = getMetadataEntries();
 		for (String groupName : groups.keySet()){
 			Vector<NexusFileMetadata> group = groupedMetadata.get(groupName);
 			if (group.size() > 0) {
-				boolean madeSubGroup = false;
 				// if its part of the instrument, then put it inside the existing 'instrument' section of the Nexus file.
-				if (group.get(0).getNxEntryType() == NexusFileMetadata.EntryTypes.NXinstrument) {
-					if (file.groupdir().get("instrument") == null)
-						file.makegroup("instrument", group.get(0).getNxEntryType().toString());
-					file.opengroup("instrument", group.get(0).getNxEntryType().toString());
-					if (file.groupdir().get(group.get(0).getTypeLabel()) == null) 
-						file.makegroup(group.get(0).getTypeLabel(), group.get(0).getNxEntrySubType().toString());
-					file.opengroup(group.get(0).getTypeLabel(), group.get(0).getNxEntrySubType().toString());
-					madeSubGroup = true;
+				NexusFileMetadata first = group.get(0);
+				GroupNode gr;
+				if (first.getNxEntryType() == NexusFileMetadata.EntryTypes.NXinstrument) {
+					GroupNode gi = file.getGroup(g, "instrument", first.getNxEntryType().toString(), true);
+					gr = file.getGroup(gi, first.getTypeLabel(), first.getNxEntrySubType().toString(), true);
 				} else {
-					file.makegroup(group.get(0).getTypeLabel(), group.get(0).getNxEntryType().toString());
-					file.opengroup(group.get(0).getTypeLabel(), group.get(0).getNxEntryType().toString());
+					gr = file.getGroup(g, first.getTypeLabel(), first.getNxEntrySubType().toString(), true);
 				}
 
-				try {
-					for (NexusFileMetadata thisEntry : group)
-						NexusUtils.writeNexusString(file, thisEntry.getName(), thisEntry.getValue());
-				} finally {
-					if (madeSubGroup)
-						file.closegroup();
-					file.closegroup();
-				}
+				for (NexusFileMetadata thisEntry : group)
+					NexusUtils.writeString(file, gr, thisEntry.getName(), thisEntry.getValue());
 			}
 		}
 	}
-
 }
