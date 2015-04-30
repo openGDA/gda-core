@@ -497,9 +497,9 @@ class SimpleExtractor {
 					stop[i] = dims[i] + start[i];
 				}
 			}
-			slice = new SliceND(lazy.getShape(), start, stop, null);
+			slice = SliceND.createSlice(lazy, start, stop);
 		} else {
-			slice = new SliceND(lazy.getShape());
+			slice = SliceND.createSlice(lazy, null, null);
 		}
 
 		return new NexusGroupData(slice.getShape(), DatasetUtils.serializeDataset(lazy.getSlice(slice)));
