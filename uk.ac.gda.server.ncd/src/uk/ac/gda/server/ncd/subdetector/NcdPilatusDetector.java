@@ -125,7 +125,7 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 				stop[1] = startPos[1] + 1;
 				detector.setAttribute("ImageToReadout", (scanDataPoint*frames + i));
 				Dataset d = DatasetFactory.createFromObject(detector.readout()).reshape(slabdatadims);
-				lazy.setSlice(null, d, new SliceND(lazy.getShape(), startPos, stop, null));
+				lazy.setSlice(null, d, SliceND.createSlice(lazy, startPos, stop));
 			}
 			scanDataPoint++;
 		} catch (Exception e) {
