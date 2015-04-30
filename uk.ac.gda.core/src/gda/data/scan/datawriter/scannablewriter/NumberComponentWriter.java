@@ -83,7 +83,7 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 		Dataset sdata = DatasetFactory.createFromObject(getComponentSlab(pos)).reshape(sshape);
 
 		try {
-			lazy.setSlice(null, sdata, new SliceND(lazy.getShape(), sstart, sstop, null));
+			lazy.setSlice(null, sdata, SliceND.createSlice(lazy, sstart, sstop));
 		} catch (Exception e) {
 			logger.error("Problem writing data: {}", path, e);
 		}

@@ -483,7 +483,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 			Dataset ds = DatasetFactory.createFromObject(newData).reshape(dimArray);
 			try {
-				lazy.setSlice(null, ds, new SliceND(lazy.getShape(), startPos, stop, null));
+				lazy.setSlice(null, ds, SliceND.createSlice(lazy, startPos, stop));
 			} catch (Exception e) {
 				throw new NexusException(e.getMessage());
 			}
@@ -643,7 +643,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 						int[] dataStop = generateDataStop(dataStartPos, sds.dimensions);
 						IDataset ds = sds.toDataset();
 						try {
-							lazy.setSlice(null, ds, new SliceND(lazy.getShape(), dataStartPos, dataStop, null));
+							lazy.setSlice(null, ds, SliceND.createSlice(lazy, dataStartPos, dataStop));
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							logger.error("TODO put description of error here", e);
@@ -665,7 +665,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					IDataset ds = sds.toDataset();
 					ds.setShape(dataDim);
 					try {
-						lazy.setSlice(null, ds, new SliceND(lazy.getShape(), dataStartPos, dataStop, null));
+						lazy.setSlice(null, ds, SliceND.createSlice(lazy, dataStartPos, dataStop));
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						logger.error("TODO put description of error here", e);
@@ -1162,7 +1162,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		Dataset fileName = DatasetFactory.createFromObject(dataFileName).reshape(dataDim);
 		ILazyWriteableDataset lazy = data.getWriteableDataset();
 		try {
-			lazy.setSlice(null, fileName, new SliceND(lazy.getShape(), dataStartPos, dataStop, null));
+			lazy.setSlice(null, fileName, SliceND.createSlice(lazy, dataStartPos, dataStop));
 		} catch (Exception e) {
 			logger.error("Could not write file_name", e);
 			throw new NexusException("Could not write file_name", e);
@@ -1534,7 +1534,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			DataNode data = file.getData(group, extraNames[i]);
 			ILazyWriteableDataset lazy = data.getWriteableDataset();
 			try {
-				lazy.setSlice(null, DatasetFactory.createFromObject(positions[inputNames.length + i]), new SliceND(lazy.getShape(), startPos, stop, null));
+				lazy.setSlice(null, DatasetFactory.createFromObject(positions[inputNames.length + i]), SliceND.createSlice(lazy, startPos, stop));
 			} catch (Exception e) {
 				throw new NexusException(e.getMessage());
 			}
@@ -1558,7 +1558,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			DataNode data = file.getData(group, detector.getExtraNames()[j]);
 			try {
 				ILazyWriteableDataset lazy = data.getWriteableDataset();
-				lazy.setSlice(null, DatasetFactory.createFromObject(newData[j]), new SliceND(dimArray, startPos, stop, null));
+				lazy.setSlice(null, DatasetFactory.createFromObject(newData[j]).reshape(dimArray), SliceND.createSlice(lazy, startPos, stop));
 			} catch (Exception e) {
 				throw new NexusException(e.getMessage());
 			}

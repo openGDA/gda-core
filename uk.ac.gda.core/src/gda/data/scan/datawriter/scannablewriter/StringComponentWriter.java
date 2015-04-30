@@ -107,7 +107,7 @@ public class StringComponentWriter extends DefaultComponentWriter {
 		Dataset sdata = DatasetFactory.createFromObject(slab).reshape(sshape);
 
 		try {
-			lazy.setSlice(null, sdata, new SliceND(lazy.getShape(), sstart, sstop, null));
+			lazy.setSlice(null, sdata, SliceND.createSlice(lazy, sstart, sstop));
 		} catch (Exception e) {
 			throw new NexusException("Problem writing data", e);
 		}

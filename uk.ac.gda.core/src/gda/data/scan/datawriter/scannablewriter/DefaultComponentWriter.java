@@ -105,7 +105,7 @@ public abstract class DefaultComponentWriter implements ComponentWriter {
 		}
 		Dataset sd = DatasetFactory.createFromObject(slab).reshape(sshape);
 		try {
-			lazy.setSlice(null, sd, new SliceND(sd.getShape(), sstart, sstop, null));
+			lazy.setSlice(null, sd, SliceND.createSlice(sd, sstart, sstop));
 		} catch (Exception e) {
 			logger.error("Could not write slab: {}", path, e);
 			throw new NexusException("Could not write slab", e);

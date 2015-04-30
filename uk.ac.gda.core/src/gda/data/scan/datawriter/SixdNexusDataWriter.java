@@ -434,7 +434,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 						IDataset ds = sds.toDataset();
 						ds.setShape(dataDim);
 						try {
-							lazy.setSlice(null, ds, new SliceND(lazy.getShape(), dataStartPos, dataStop, null));
+							lazy.setSlice(null, ds, SliceND.createSlice(lazy, dataStartPos, dataStop));
 						} catch (Exception e) {
 							logger.error("Problem setting slice on data node", e);
 							throw new NexusException(e.getMessage());
@@ -457,7 +457,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 					IDataset ds = sds.toDataset();
 					ds.setShape(dataDim);
 					try {
-						lazy.setSlice(null, ds, new SliceND(lazy.getShape(), dataStartPos, dataStop, null));
+						lazy.setSlice(null, ds, SliceND.createSlice(lazy, dataStartPos, dataStop));
 					} catch (Exception e) {
 						logger.error("Problem setting slice on data node", e);
 						throw new NexusException(e.getMessage());
@@ -1206,7 +1206,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 			ILazyWriteableDataset lazy = data.getWriteableDataset();
 			try {
-				lazy.setSlice(null, DatasetFactory.createFromObject(positions[i]).reshape(dimArray), new SliceND(lazy.getShape(), startPos, stop, null));
+				lazy.setSlice(null, DatasetFactory.createFromObject(positions[i]).reshape(dimArray), SliceND.createSlice(lazy, startPos, stop));
 			} catch (Exception e) {
 				logger.error("Problem setting slice on data node", e);
 				throw new NexusException(e.getMessage());
@@ -1220,7 +1220,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 			ILazyWriteableDataset lazy = data.getWriteableDataset();
 			try {
-				lazy.setSlice(null, DatasetFactory.createFromObject(positions[inputNames.length + i]).reshape(dimArray), new SliceND(lazy.getShape(), startPos, stop, null));
+				lazy.setSlice(null, DatasetFactory.createFromObject(positions[inputNames.length + i]).reshape(dimArray), SliceND.createSlice(lazy, startPos, stop));
 			} catch (Exception e) {
 				logger.error("Problem setting slice on data node", e);
 				throw new NexusException(e.getMessage());
@@ -1287,7 +1287,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 				ILazyWriteableDataset lazy = data.getWriteableDataset();
 				try {
 					lazy.setSlice(null, DatasetFactory.createFromObject(dataFileName).reshape(dataDim),
-							new SliceND(lazy.getShape(), dataStartPos, dataStop, null));
+							SliceND.createSlice(lazy, dataStartPos, dataStop));
 				} catch (Exception e) {
 					logger.error("Problem setting slice on data node", e);
 					throw new NexusException(e.getMessage());
@@ -1298,7 +1298,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 				ILazyWriteableDataset lazy = data.getWriteableDataset();
 				try {
 					lazy.setSlice(null, DatasetFactory.createFromObject(parseDouble(dataItem)).reshape(dimArray),
-							new SliceND(lazy.getShape(), startPos, stop, null));
+							SliceND.createSlice(lazy, startPos, stop));
 				} catch (Exception e) {
 					logger.error("Problem setting slice on data node", e);
 					throw new NexusException(e.getMessage());
