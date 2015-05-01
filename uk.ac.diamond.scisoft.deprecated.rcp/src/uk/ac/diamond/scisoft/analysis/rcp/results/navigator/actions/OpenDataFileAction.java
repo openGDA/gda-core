@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView;
-import uk.ac.diamond.scisoft.analysis.rcp.views.NexusTreeView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetPlotView;
 
 
@@ -109,12 +108,6 @@ public class OpenDataFileAction extends AbstractHandler {
 	
 					@Override
 					public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						try {
-							final NexusTreeView view = (NexusTreeView)getView(NexusTreeView.ID, page);
-							if (view!=null) view.loadTree(file.getAbsolutePath(), monitor);
-						} catch (Exception ne) {
-							logger.error("Cannot open nexus", ne);
-						}
 						try {
 							final DataSetPlotView view = (DataSetPlotView)getView(DataSetPlotView.ID, page);
 							if (view!=null) view.setFile(file.getAbsolutePath(), monitor);
