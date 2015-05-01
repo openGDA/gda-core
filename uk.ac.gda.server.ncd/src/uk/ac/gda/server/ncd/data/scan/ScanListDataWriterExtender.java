@@ -22,7 +22,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
@@ -64,11 +63,11 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 	@Override
 	public void configure() throws FactoryException {
 		if (filename != null && !filename.isEmpty()) {
-			String path = PathConstructor.createFromProperty("gda.data.visitdirectory") + filename;
-			this.file = new File(path);
+			String path = PathConstructor.createFromProperty("gda.data.visitdirectory");
+			this.file = new File(path, filename);
 			logger.debug("Configured to use file {}", file.getAbsolutePath());
 		} else {
-			logger.error("Can't configure scan list - file not set");
+			logger.error("Can't configure scan list - filename not set");
 		}
 	}
 
@@ -87,8 +86,12 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 			logger.error("File not set - not writing to scan list");
 			return;
 		}
-		String outputLine = makeOutputLine();
+		if (lastScanDataPoint == null) {
+			logger.debug("No data collected");
+			return;
+		}
 		try {
+			String outputLine = makeOutputLine();
 			if (!file.exists()) {
 				file.createNewFile();
 			}
@@ -113,7 +116,8 @@ public class ScanListDataWriterExtender extends DataWriterExtenderBase implement
 			} else {
 				logger.error("Cannot write to scan list file. Check permissions");
 			}
-		} catch (IOException ioe) {
+		} catch (Exception ioe) {
+			//catch everything to prevent scan failing
 			logger.error("Error writing to file", ioe);
 		} finally {
 			lastScanDataPoint = null;
