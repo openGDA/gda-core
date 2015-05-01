@@ -85,6 +85,11 @@
             name="Compare">
       </command>
       <command
+           defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.NexusFilterHandler"
+           id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.NexusFilter"
+           name="Nexus Filter">
+     </command>
+     <command
             defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.DatFilterHandler"
             id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.DatFilter"
             name="Dat Filter">
@@ -121,6 +126,11 @@
          </separator>
          <menu
                label="Filter">
+            <command
+                  commandId="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.NexusFilter"
+                  label=".nxs files"
+                  style="toggle">
+            </command>
             <command
                   commandId="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.DatFilter"
                   label=".dat files"
