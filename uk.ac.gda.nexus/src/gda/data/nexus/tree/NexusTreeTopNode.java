@@ -36,7 +36,7 @@ public class NexusTreeTopNode extends NexusTreeNode implements INexusTree, INexu
 	}
 	
 	NexusTreeTopNode(INexusTree node, URL source){
-		super(node.getName(), node.getNxClass(), node.getParentNode(), node.getData());
+		super("", node.getNxClass(), node.getParentNode(), node.getData());
 		this.source = source;
 	}
 }

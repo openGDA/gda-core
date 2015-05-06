@@ -30,6 +30,7 @@ import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,6 +149,23 @@ public class NexusGroupData implements Serializable {
 			type = NexusGlobals.NX_UNLIMITED;
 			throw new IllegalArgumentException("Serializable must be an array");
 		}
+	}
+
+	/**
+	 * @param dataset
+	 * @return group data
+	 */
+	public static NexusGroupData createFromDataset(IDataset dataset) {
+		Dataset ad = DatasetUtils.convertToDataset(dataset);
+		return new NexusGroupData(ad.getShapeRef(), ad.getBuffer());
+	}
+
+	/**
+	 * Set maximum length of any string when encoded as bytes
+	 * @param length
+	 */
+	public void setMaxStringLength(int length) {
+		this.textLength = length;
 	}
 
 	/**
@@ -417,6 +435,22 @@ public class NexusGroupData implements Serializable {
 		return msg.toString();
 	}
 
+	private String getAsString() {
+		if (data instanceof String[]) {
+			return ((String[]) data)[0];
+		} else if (data instanceof byte[]) {
+			byte[] bdata = (byte[]) data;
+			int i;
+			for (i = 0; i < textLength; i++) {
+				if (bdata[i] == 0) {
+					break;
+				}
+			}
+			return new String(bdata, 0, i);
+		}
+		return "";
+	}
+
 	/**
 	 * @param newlineAfterEach
 	 * @param dataAsString
@@ -426,20 +460,10 @@ public class NexusGroupData implements Serializable {
 	public String dataToTxt(boolean newlineAfterEach, boolean dataAsString, boolean wrap) {
 		StringBuffer msg = new StringBuffer();
 		if (data != null) {
-			if (type == NexusGlobals.NX_CHAR && data instanceof byte[]) {
+			if (type == NexusGlobals.NX_CHAR) {
 				if (wrap)
 					msg.append("<value>");
-				msg.append(new String((byte[]) data));
-				if (wrap)
-					msg.append("</value>");
-				if (newlineAfterEach) {
-					msg.append('\n');
-				}
-			} else if (type == NexusGlobals.NX_CHAR && data instanceof String[]) {
-				if (wrap)
-					msg.append("<value>");
-				String s = ((String[]) data)[0];
-				msg.append(s);
+				msg.append(getAsString());
 				if (wrap)
 					msg.append("</value>");
 				if (newlineAfterEach) {
@@ -483,7 +507,7 @@ public class NexusGroupData implements Serializable {
 						msg.append(data.toString());
 						msg.append(',');
 					}
-					msg.deleteCharAt(msg.length()-1);
+//					msg.deleteCharAt(msg.length()-1);
 					if (wrap)
 						msg.append("</value>");
 					if (newlineAfterEach) {
@@ -616,25 +640,53 @@ public class NexusGroupData implements Serializable {
 	 * Create a dataset based on contents
 	 * @return dataset
 	 */
-	public IDataset toDataset() {
-		IDataset dataset = DatasetFactory.createFromObject(data, getDtype(type));
+	public Dataset toDataset() {
+		return toDataset(true);
+	}
+
+	/**
+	 * Create a dataset based on contents
+	 * @param keepBitWidth
+	 * @return dataset
+	 */
+	public Dataset toDataset(boolean keepBitWidth) {
+		Dataset dataset = DatasetFactory.createFromObject(data, getDtype(type));
+		if (!keepBitWidth && isUnsigned(type)) {
+			dataset = DatasetUtils.makeUnsigned(dataset);
+		}
 		dataset.setShape(dimensions);
 		return dataset;
 	}
 
+	static boolean isUnsigned(int type) {
+		switch (type) {
+		case NexusGlobals.NX_UINT64:
+		case NexusGlobals.NX_UINT32:
+		case NexusGlobals.NX_UINT16:
+		case NexusGlobals.NX_UINT8:
+			return true;
+		default:
+			return false;
+		}
+	}
+
 	private int getDtype(int type) {
 		switch (type) {
-		case NexusGlobals.NX_BOOLEAN:
-			return Dataset.BOOL;
+//		case NexusGlobals.NX_BOOLEAN:
+//			return Dataset.BOOL;
 		case NexusGlobals.NX_CHAR:
 			return Dataset.STRING;
 		case NexusGlobals.NX_INT8:
+		case NexusGlobals.NX_UINT8:
 			return Dataset.INT8;
 		case NexusGlobals.NX_INT16:
+		case NexusGlobals.NX_UINT16:
 			return Dataset.INT16;
 		case NexusGlobals.NX_INT32:
+		case NexusGlobals.NX_UINT32:
 			return Dataset.INT32;
 		case NexusGlobals.NX_INT64:
+		case NexusGlobals.NX_UINT64:
 			return Dataset.INT64;
 		case NexusGlobals.NX_FLOAT32:
 			return Dataset.FLOAT32;
@@ -708,6 +760,17 @@ public class NexusGroupData implements Serializable {
 		ngd.isDetectorEntryData = isDetectorEntryData;
 		ngd.isUnsigned = isUnsigned;
 		return ngd;
+	}
+
+	public int[] getDimensions() {
+		if (type == NexusGlobals.NX_CHAR) {
+			int last = dimensions.length - 1;
+			int[] dims = dimensions.clone();
+			if (dimensions[last] == 1)
+				dims[last] = textLength;
+			return dims;
+		}
+		return dimensions;
 	}
 
 	/**

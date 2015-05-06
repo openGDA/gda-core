@@ -131,134 +131,6 @@ public class NexusTreeNode implements INexusTree, Serializable {
 		return toText("", ":", "/", "|", false);
 	}
 
-	protected String dataToTxt(boolean newlineAfterEach, boolean dataAsString, boolean wrap) {
-		StringBuffer msg = new StringBuffer();
-		if (groupData.getBuffer() != null) {
-			if (groupData.isChar() && groupData.getBuffer() instanceof byte[]) {
-				if (wrap)
-					msg.append("<value>");
-				String s = new String((byte[]) groupData.getBuffer());
-				msg.append(s);
-				if (wrap)
-					msg.append("</value>");
-				if (newlineAfterEach) {
-					msg.append("\n");
-				}
-			} else if (groupData.isChar() && groupData.getBuffer() instanceof String[]) {
-				if (wrap)
-					msg.append("<value>");
-				String s = ((String[]) groupData.getBuffer())[0];
-				msg.append(s);
-				if (wrap)
-					msg.append("</value>");
-				if (newlineAfterEach) {
-					msg.append("\n");
-				}
-			} else {
-				if (dataAsString) {
-					if (wrap)
-						msg.append("<value>");
-					if (groupData.getBuffer() instanceof double[]) {
-						double[] ddata = (double[]) (groupData.getBuffer());
-						for (double d : ddata) {
-							msg.append(Double.toString(d) + ",");
-						}
-					} else if (groupData.getBuffer() instanceof int[]) {
-						int[] ddata = (int[]) (groupData.getBuffer());
-						for (int d : ddata) {
-							msg.append(Integer.toString(d) + ",");
-						}
-					} else if (groupData.getBuffer() instanceof byte[]) {
-						byte[] ddata = (byte[]) (groupData.getBuffer());
-						for (byte d : ddata) {
-							msg.append(Byte.toString(d) + ",");
-						}
-					} else if (groupData.getBuffer() instanceof float[]) {
-						float[] ddata = (float[]) (groupData.getBuffer());
-						for (float d : ddata) {
-							msg.append(Float.toString(d) + ",");
-						}
-					} else if (groupData.getBuffer() instanceof long[]) {
-						long[] ddata = (long[]) (groupData.getBuffer());
-						for (long d : ddata) {
-							msg.append(Long.toString(d) + ",");
-						}
-					} else {
-						msg.append(groupData.getBuffer().toString());
-					}
-					if (wrap)
-						msg.append("</value>");
-					if (newlineAfterEach) {
-						msg.append("\n");
-					}
-				} else {
-					msg.append("<values>");
-					if (newlineAfterEach) {
-						msg.append("\n");
-					}
-					if (groupData.getBuffer() instanceof double[]) {
-						double[] ddata = (double[]) (groupData.getBuffer());
-						for (double d : ddata) {
-							msg.append("<value>");
-							msg.append(Double.toString(d));
-							msg.append("</value>");
-							if (newlineAfterEach) {
-								msg.append("\n");
-							}
-						}
-					} else if (groupData.getBuffer() instanceof int[]) {
-						int[] ddata = (int[]) (groupData.getBuffer());
-						for (int d : ddata) {
-							msg.append("<value>");
-							msg.append(Integer.toString(d));
-							msg.append("</value>");
-							if (newlineAfterEach) {
-								msg.append("\n");
-							}
-						}
-					} else if (groupData.getBuffer() instanceof byte[]) {
-						byte[] ddata = (byte[]) (groupData.getBuffer());
-						for (byte d : ddata) {
-							msg.append("<value>");
-							msg.append(Byte.toString(d));
-							msg.append("</value>");
-							if (newlineAfterEach) {
-								msg.append("\n");
-							}
-						}
-					} else if (groupData.getBuffer() instanceof float[]) {
-						float[] ddata = (float[]) (groupData.getBuffer());
-						for (float d : ddata) {
-							msg.append("<value>");
-							msg.append(Float.toString(d));
-							msg.append("</value>");
-							if (newlineAfterEach) {
-								msg.append("\n");
-							}
-						}
-					} else if (groupData.getBuffer() instanceof long[]) {
-						long[] ddata = (long[]) (groupData.getBuffer());
-						for (long d : ddata) {
-							msg.append("<value>");
-							msg.append(Long.toString(d));
-							msg.append("</value>");
-							if (newlineAfterEach) {
-								msg.append("\n");
-							}
-						}
-					} else {
-						msg.append(groupData.getBuffer().toString());
-					}
-					msg.append("</values>");
-					if (newlineAfterEach) {
-						msg.append("\n");
-					}
-				}
-			}
-		}
-		return msg.toString();
-	}
-
 	/**
 	 * @param newlineAfterEach
 	 *            - if true the output is interspersed with newlines to make it more humanly readable
@@ -285,7 +157,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 
 		if (groupData != null) {
 			msg.append("<dimensions>");
-			for (int i : groupData.dimensions) {
+			for (int i : groupData.getDimensions()) {
 				msg.append("<dimension>" + i + "</dimension>");
 			}
 			msg.append("</dimensions>");
@@ -308,7 +180,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 			if (newlineAfterEach) {
 				msg.append("\n");
 			}
-			msg.append(dataToTxt(newlineAfterEach, dataAsString, true));
+			msg.append(groupData.dataToTxt(newlineAfterEach, dataAsString, true));
 
 		}
 		
@@ -372,7 +244,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 		StringBuffer msg = new StringBuffer(prefix + nodeSep + nxClass + keyValueSep + name);
 		if (groupData != null) {
 			msg.append(dataItemSep + "dimensions");
-			for (int i : groupData.dimensions) {
+			for (int i : groupData.getDimensions()) {
 				msg.append(keyValueSep + i);
 			}
 			msg.append(dataItemSep + "type");
@@ -388,7 +260,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 				break;
 			}
 			if (includeData) {
-				msg.append(dataItemSep + "data" + keyValueSep + dataToTxt(false, true, false));
+				msg.append(dataItemSep + "data" + keyValueSep + groupData.dataToTxt(false, true, false));
 			}
 		}
 

@@ -137,7 +137,7 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 					throw new ScanFileHolderException("Dataset was expected to contain strings"); 
 				}
 				int trank = infoArgs[0] - 1;
-				if (trank != trueShape.length) {
+				if (trank != 0 && trank != trueShape.length) {
 					throw new ScanFileHolderException("Dataset has wrong rank"); 
 				}
 				textLength = infoDims[trank];
@@ -168,7 +168,6 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 				} else {
 					file.getslab(tstart, tsize, d.getBuffer());
 				}
-				d.setShape(size); // squeeze shape back
 			} else {
 				if (textLength > 0) {
 					d = readSlabAsStrings(file, textLength, lstart, size, (byte[]) d.getBuffer());
@@ -178,6 +177,7 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 			}
 			if (useSteps)
 				d = d.getSlice(null, null, lstep); // reduce dataset to requested elements
+			d.setShape(newShape); // squeeze shape back
 			d.setName(name);
 		} catch (NexusException e) {
 			logger.error("Problem with NeXus library: {}", e);
@@ -189,8 +189,15 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 	}
 
 	private static Dataset readSlabAsStrings(NexusFile file, int length, int[] start, int[] size, byte[] buffer) throws NexusException {
-		int[] bstart = Arrays.copyOf(start, start.length + 1);
-		int[] bsize = Arrays.copyOf(size, size.length + 1);
+		int[] bstart;
+		int[] bsize;
+		if (start.length > 1) {
+			bstart = Arrays.copyOf(start, start.length + 1);
+			bsize = Arrays.copyOf(size, size.length + 1);
+		} else {
+			bstart = start;
+			bsize = size.clone();
+		}
 		bsize[bsize.length - 1] = length;
 		if (AbstractDataset.calcSize(bsize) != buffer.length) {
 			throw new IllegalArgumentException("Buffer of incorrect length");

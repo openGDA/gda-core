@@ -146,11 +146,18 @@ final public class NexusExtractor implements INexusDataGetter {
 		}
 		DataNode d = file.getData((GroupNode) currentGroupBeingProcessed.parent, name);
 		ILazyDataset l = d.getDataset();
+		int[] shape = l.getShape();
+		NexusGroupData n;
 		if (getData) {
 			IDataset ds = l instanceof IDataset ? (IDataset) l : l.getSlice();
-			return new NexusGroupData(ds.getShape(), DatasetUtils.serializeDataset(ds));
+			n = new NexusGroupData(shape, DatasetUtils.serializeDataset(ds));
+		} else {
+			n = new NexusGroupData(shape, l.elementClass());
+			if (d.isString()) {
+				n.setMaxStringLength(d.getMaxStringLength());
+			}
 		}
-		return new NexusGroupData(l.getShape(), l.elementClass());
+		return n;
 	}
 
 	private RESPONSE loop(Group group, final IMonitor mon) throws NexusException, NexusExtractorException {

@@ -473,10 +473,12 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		int rank = args[0];
 		int[] shape;
 		if (dtype == Dataset.STRING && rank == 1) { // for strings, ignore final dimension (NAPI stored them as fixed size strings)
+			dataNode.setMaxStringLength(tShape[0]);
 			shape = new int[] { 1 };
 		} else {
 			if (dtype == Dataset.STRING) {
 				rank--;
+				dataNode.setMaxStringLength(tShape[rank]);
 			}
 			shape = new int[rank];
 			for (int i = 0; i < rank; i++) {
