@@ -32,7 +32,6 @@ import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Nexus;
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 
 public class SectorIntegration extends ReductionDetectorBase {
@@ -99,7 +98,7 @@ public class SectorIntegration extends ReductionDetectorBase {
 			Dataset myazdata = null, myraddata = null;
 
 			NexusGroupData parentngd = nxdata.getData(key, "data", NexusExtractor.SDSClassName);
-			Dataset parentdata = Nexus.createDataset(parentngd, false);
+			Dataset parentdata = parentngd.toDataset(false);
 
 			uk.ac.diamond.scisoft.ncd.core.SectorIntegration sec = new uk.ac.diamond.scisoft.ncd.core.SectorIntegration();
 			sec.setROI(roi);
@@ -109,11 +108,11 @@ public class SectorIntegration extends ReductionDetectorBase {
 			myazdata = mydata[0];
 			myraddata = mydata[1];
 
-			NexusGroupData myazngd = Nexus.createNexusGroupData(myazdata);
+			NexusGroupData myazngd = NexusGroupData.createFromDataset(myazdata);
 			myazngd.isDetectorEntryData = true;
 			nxdata.addData(getName(), "azimuth", myazngd, "1",  null);
 
-			NexusGroupData myradngd = Nexus.createNexusGroupData(myraddata);
+			NexusGroupData myradngd = NexusGroupData.createFromDataset(myraddata);
 			myradngd.isDetectorEntryData = true;
 			nxdata.addData(getName(), myradngd, "1", 1);
 
@@ -139,7 +138,7 @@ public class SectorIntegration extends ReductionDetectorBase {
 				nxdata.addData(getName(), "camera length", cameraData, "mm", 0);
 			}
 			if (maskUsed != null) {
-				nxdata.addData(getName(), "mask", Nexus.createNexusGroupData(maskUsed), "pixel", 0);
+				nxdata.addData(getName(), "mask", NexusGroupData.createFromDataset(maskUsed), "pixel", 0);
 			}
 			addQAxis(nxdata, parentngd.dimensions.length - 1);
 
