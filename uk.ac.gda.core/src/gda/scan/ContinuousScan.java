@@ -106,6 +106,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 
 	@Override
 	public void doCollection() throws Exception {
+		timeMotionFinished = null;
 		checkThreadInterrupted();
 		acquirePoint(true, false);
 		ContinuousParameters params = createContinuousParameters();
@@ -200,8 +201,10 @@ public class ContinuousScan extends ConcurrentScanChild {
 		params.setEndPosition(stop);
 		
 		if (biDirectional && lastCollectionInPositiveDirection){
-			params.setStartPosition(stop);
-			params.setEndPosition(start);
+			// shift by one pixel when going in the reverse direction (seen to be necessary on I18)
+			double stepSize = (stop- start) / numberScanpoints;
+			params.setStartPosition(stop - stepSize);
+			params.setEndPosition(start - stepSize);
 			lastCollectionInPositiveDirection = false;
 		} else {
 			lastCollectionInPositiveDirection = true;
