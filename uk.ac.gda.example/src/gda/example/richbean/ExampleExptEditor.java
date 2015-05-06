@@ -23,11 +23,14 @@ package gda.example.richbean;
 
 import java.net.URL;
 
+import org.eclipse.swt.widgets.Composite;
+
+import uk.ac.gda.richbeans.CompositeFactory;
 import uk.ac.gda.richbeans.editors.DelegatingRichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
-public final class ExampleExptEditor extends RichBeanMultiPageEditorPart {
+public final class ExampleExptEditor extends RichBeanMultiPageEditorPart implements CompositeFactory {
 
 	@Override
 	public Class<?> getBeanClass() {
@@ -41,10 +44,7 @@ public final class ExampleExptEditor extends RichBeanMultiPageEditorPart {
 
 	@Override
 	public RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
-//		return new ExampleExptUIEditor(path, getMappingUrl(), this, editingBean);
-
-		DelegatingRichBeanEditorPart editor = new DelegatingRichBeanEditorPart(path,getMappingUrl(),this,editingBean);
-		editor.setEditorClass(ExampleExptComposite.class);
+		DelegatingRichBeanEditorPart editor = new DelegatingRichBeanEditorPart(path, getMappingUrl(), this, editingBean, this);
 		editor.setRichEditorTabText("Example Custom UI");
 		return editor;
 	}
@@ -54,4 +54,8 @@ public final class ExampleExptEditor extends RichBeanMultiPageEditorPart {
 		return ExampleExpt.schemaURL; // Please make sure this field is present and the schema
 	}
 
+	@Override
+	public Composite createComposite(Composite parent, int style) {
+		return new ExampleExptComposite(parent, style);
+	}
 }
