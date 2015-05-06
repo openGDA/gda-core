@@ -1377,6 +1377,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	protected NexusFile createFile() throws Exception {
 		NexusFile f = NexusUtils.createNXFile(nexusFileUrl);
 		f.setDebug(LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
+		f.createAndOpenToWrite();
 		return f;
 	}
 	
@@ -1389,7 +1390,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		try {
 			if (file != null) {
 				try {
-					file.flush();
+					file.close();
 				} catch (Throwable et) {
 					String error = "Error closing NeXus file.";
 					logger.error(error, et);
