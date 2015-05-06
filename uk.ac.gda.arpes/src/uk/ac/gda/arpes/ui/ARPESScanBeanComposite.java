@@ -18,8 +18,6 @@
 
 package uk.ac.gda.arpes.ui;
 
-import gda.commandqueue.JythonCommandCommandProvider;
-import gda.commandqueue.Queue;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
@@ -64,7 +62,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.arpes.beans.ARPESScanBean;
 import uk.ac.gda.arpes.beans.ScanBeanFromNeXusFile;
-import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.devices.vgscienta.AnalyserCapabilties;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
@@ -105,7 +102,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	public ARPESScanBeanComposite(final Composite parent, int style, final RichBeanEditorPart editor) {
 		super(parent, style);
 		
-		//Switch off undoing as it doesn't work when box values are programatically updated
+		//Switch off undoing as it doesn't work when box values are programmatically updated
 		editor.setUndoStackActive(false);
 
 		// Load the analyser capabilities
@@ -156,38 +153,32 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		});
 
 		Button btnQueueExperiment = new Button(btnComp, SWT.NONE);
-		btnQueueExperiment.setText("Queue Experiment");
+		btnQueueExperiment.setText("Acquire Now!");
 		btnQueueExperiment
-				.setToolTipText("Save file and queue for execution (will start immediately if queue running)");
+				.setToolTipText("Save file and Acquire immediately");
 		btnQueueExperiment.addSelectionListener(new SelectionAdapter() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				super.widgetSelected(e);
-				try {
-					IProgressMonitor monitor = new NullProgressMonitor();
-					editor.doSave(monitor);
-					if (monitor.isCanceled()) {
-						return;
-					}
-					Queue queue = CommandQueueViewFactory.getQueue();
-					boolean batonHeld = JythonServerFacade.getInstance().isBatonHeld();
-					if (!batonHeld) {
-						MessageDialog dialog = new MessageDialog(Display.getDefault().getActiveShell(),
-								"Baton not held", null,
-								"You do not hold the baton, please take the baton using the baton manager.",
-								MessageDialog.ERROR, new String[] { "Ok" }, 0);
-						dialog.open();
-					} else if (queue != null) {
-						queue.addToTail(new JythonCommandCommandProvider(getOurJythonCommand(editor),
-								editor.getTitle(), editor.getPath()));
-					} else {
-						logger.warn("No queue received from CommandQueueViewFactory");
-					}
-				} catch (Exception e1) {
-					logger.error("Error adding command to the queue", e1);
+				IProgressMonitor monitor = new NullProgressMonitor();
+				editor.doSave(monitor);
+				if (monitor.isCanceled()) {
+					return;
+				}
+				// Check if baton is held
+				boolean batonHeld = JythonServerFacade.getInstance().isBatonHeld();
+				if (!batonHeld) {
+					MessageDialog dialog = new MessageDialog(Display.getDefault().getActiveShell(), "Baton not held",
+							null, "You do not hold the baton, please take the baton using the baton manager.",
+							MessageDialog.ERROR, new String[] { "Ok" }, 0);
+					dialog.open();
+				} else { // Baton is held run the scan
+					JythonServerFacade.getInstance().runCommand(
+							String.format("arpes.ARPESRun(\"%s\").run()", editor.getPath()));
 				}
 			}
+
 		});
 
 		// PSU mode
