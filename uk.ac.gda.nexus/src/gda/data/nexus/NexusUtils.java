@@ -20,7 +20,6 @@
 package gda.data.nexus;
 
 
-import gda.data.nexus.napi.NexusException;
 import gda.data.nexus.napi.NexusFileNAPI;
 
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
@@ -32,6 +31,7 @@ import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 
 /**
@@ -104,9 +104,9 @@ public class NexusUtils {
 	 * 
 	 * @param filename
 	 * @return NeXus file handle
-	 * @throws NexusException
+	 * @throws gda.data.nexus.napi.NexusException 
 	 */
-	public static NexusFileInterface createNexusFile(String filename) throws NexusException {
+	public static NexusFileInterface createNexusFile(String filename) throws gda.data.nexus.napi.NexusException {
 		return new gda.data.nexus.napi.NexusFile(filename, NexusGlobals.NXACC_CREATE5);
 	}
 
@@ -115,9 +115,9 @@ public class NexusUtils {
 	 * 
 	 * @param filename
 	 * @return NeXus file handle
-	 * @throws NexusException
+	 * @throws gda.data.nexus.napi.NexusException 
 	 */
-	public static NexusFileInterface openNexusFile(String filename) throws NexusException {
+	public static NexusFileInterface openNexusFile(String filename) throws gda.data.nexus.napi.NexusException {
 		return new gda.data.nexus.napi.NexusFile(filename, NexusGlobals.NXACC_RDWR);
 	}
 
@@ -126,9 +126,9 @@ public class NexusUtils {
 	 * 
 	 * @param filename
 	 * @return NeXus file handle
-	 * @throws NexusException
+	 * @throws gda.data.nexus.napi.NexusException 
 	 */
-	public static NexusFileInterface openNexusFileReadOnly(String filename) throws NexusException {
+	public static NexusFileInterface openNexusFileReadOnly(String filename) throws gda.data.nexus.napi.NexusException {
 		return new gda.data.nexus.napi.NexusFile(filename, NexusGlobals.NXACC_READ);
 	}
 
@@ -200,7 +200,7 @@ public class NexusUtils {
 	public static String getName(String path) {
 		if (path.endsWith(Node.SEPARATOR) || !path.contains(Node.SEPARATOR))
 			return null;
-		return path.substring(path.indexOf(Node.SEPARATOR));
+		return path.substring(path.indexOf(Node.SEPARATOR) + 1);
 	}
 
 	/**
@@ -223,9 +223,9 @@ public class NexusUtils {
 	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 * @throws NexusException 
 	 */
-	public static DataNode writeString(NexusFile file, GroupNode group, String name, String value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+	public static DataNode writeString(NexusFile file, GroupNode group, String name, String value) throws NexusException {
 		return write(file, group, name, value);
 	}
 
@@ -236,9 +236,9 @@ public class NexusUtils {
 	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 * @throws NexusException 
 	 */
-	public static DataNode writeInteger(NexusFile file, GroupNode group, String name, int value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+	public static DataNode writeInteger(NexusFile file, GroupNode group, String name, int value) throws NexusException {
 		return write(file, group, name, value);
 	}
 
@@ -249,9 +249,9 @@ public class NexusUtils {
 	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 * @throws NexusException 
 	 */
-	public static DataNode writeIntegerArray(NexusFile file, GroupNode group, String name, int[] value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+	public static DataNode writeIntegerArray(NexusFile file, GroupNode group, String name, int[] value) throws NexusException {
 		return write(file, group, name, value);
 	}
 
@@ -262,9 +262,9 @@ public class NexusUtils {
 	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 * @throws NexusException 
 	 */
-	public static DataNode writeDouble(NexusFile file, GroupNode group, String name, double value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+	public static DataNode writeDouble(NexusFile file, GroupNode group, String name, double value) throws NexusException {
 		return write(file, group, name, value);
 	}
 
@@ -275,9 +275,9 @@ public class NexusUtils {
 	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 * @throws NexusException 
 	 */
-	public static DataNode writeDoubleArray(NexusFile file, GroupNode group, String name, double[] value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+	public static DataNode writeDoubleArray(NexusFile file, GroupNode group, String name, double[] value) throws NexusException {
 		return write(file, group, name, value);
 	}
 
@@ -288,9 +288,9 @@ public class NexusUtils {
 	 * @param group
 	 * @param name
 	 * @param value
-	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 * @throws NexusException 
 	 */
-	public static DataNode writeDoubleArray(NexusFile file, GroupNode group, String name, Double[] value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+	public static DataNode writeDoubleArray(NexusFile file, GroupNode group, String name, Double[] value) throws NexusException {
 		return write(file, group, name, value);
 	}
 
@@ -302,9 +302,9 @@ public class NexusUtils {
 	 * @param name
 	 * @param value
 	 * @param units
-	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 * @throws NexusException 
 	 */
-	public static DataNode writeDouble(NexusFile file, GroupNode group, String name, double value, String units) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+	public static DataNode writeDouble(NexusFile file, GroupNode group, String name, double value, String units) throws NexusException {
 		DataNode node = write(file, group, name, value);
 		if (units != null) {
 			writeStringAttribute(file, node, "units", units);
@@ -320,9 +320,9 @@ public class NexusUtils {
 	 * @param name
 	 * @param value
 	 * @return data node
-	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 * @throws NexusException 
 	 */
-	public static DataNode write(NexusFile file, GroupNode group, String name, Object value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+	public static DataNode write(NexusFile file, GroupNode group, String name, Object value) throws NexusException {
 		if (value == null || name == null || name.isEmpty())
 			return null;
 	
@@ -336,9 +336,9 @@ public class NexusUtils {
 	 * @param node
 	 * @param name
 	 * @param value
-	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 * @throws NexusException 
 	 */
-	public static void writeStringAttribute(NexusFile file, Node node, String name, String value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+	public static void writeStringAttribute(NexusFile file, Node node, String name, String value) throws NexusException {
 		writeAttribute(file, node, name, value);
 	}
 
@@ -347,9 +347,9 @@ public class NexusUtils {
 	 * @param node
 	 * @param name
 	 * @param value
-	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 * @throws NexusException 
 	 */
-	public static void writeIntegerAttribute(NexusFile file, Node node, String name, int... value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+	public static void writeIntegerAttribute(NexusFile file, Node node, String name, int... value) throws NexusException {
 		writeAttribute(file, node, name, value);
 	}
 
@@ -358,9 +358,9 @@ public class NexusUtils {
 	 * @param node
 	 * @param name
 	 * @param value
-	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 * @throws NexusException 
 	 */
-	public static void writeDoubleAttribute(NexusFile file, Node node, String name, double... value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+	public static void writeDoubleAttribute(NexusFile file, Node node, String name, double... value) throws NexusException {
 		writeAttribute(file, node, name, value);
 	}
 
@@ -369,9 +369,9 @@ public class NexusUtils {
 	 * @param node
 	 * @param name
 	 * @param value
-	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 * @throws NexusException 
 	 */
-	public static void writeDoubleAttribute(NexusFile file, Node node, String name, Double... value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+	public static void writeDoubleAttribute(NexusFile file, Node node, String name, Double... value) throws NexusException {
 		writeAttribute(file, node, name, value);
 	}
 
@@ -380,9 +380,9 @@ public class NexusUtils {
 	 * @param node
 	 * @param name
 	 * @param value
-	 * @throws org.eclipse.dawnsci.hdf5.nexus.NexusException 
+	 * @throws NexusException 
 	 */
-	public static void writeAttribute(NexusFile file, Node node, String name, Object value) throws org.eclipse.dawnsci.hdf5.nexus.NexusException {
+	public static void writeAttribute(NexusFile file, Node node, String name, Object value) throws NexusException {
 		if (value == null || name == null || name.isEmpty())
 			return;
 
@@ -392,7 +392,9 @@ public class NexusUtils {
 		file.addAttribute(node, attr);
 	}
 
-	public static org.eclipse.dawnsci.hdf5.nexus.NexusFile createNXFile(String path) {
-		return new NexusFileNAPI(path);
+	public static NexusFile createNXFile(String path) throws NexusException {
+		NexusFileNAPI file = new NexusFileNAPI(path);
+		file.createAndOpenToWrite();
+		return file;
 	}
 }
