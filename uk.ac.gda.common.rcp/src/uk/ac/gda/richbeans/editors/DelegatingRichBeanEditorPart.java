@@ -18,7 +18,6 @@
 
 package uk.ac.gda.richbeans.editors;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 
 import org.eclipse.swt.SWT;
@@ -26,47 +25,42 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
+import uk.ac.gda.richbeans.CompositeFactory;
+
 /**
  * A bean editor part that delegates to a composite.
- * 
- * You must call setEditorClass(...) and setRichEditorTabText(...) 
- * just after the part is instantiated.
- * 
+ *
+ * You must call setEditorClass(...) and setRichEditorTabText(...) just after the part is instantiated.
+ *
   <usage>
   DelegatingRichBeanEditorPart ed = new DelegatingRichBeanEditorPart(path, getMappingUrl(), this, editingBean);
   ed.setEditorClass(uiClass);
   ed.setRichEditorTabText(editorTabName);
   </usage>
- * 
  */
 public class DelegatingRichBeanEditorPart extends RichBeanEditorPart {
 
-	private Class<? extends Composite> editorClass;
+	private CompositeFactory uiProvider;
 	private Composite editorUI;
-	private String    tabText;
+	private String tabText;
 	private boolean enableScrolling = false;
-	
-	public DelegatingRichBeanEditorPart(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
+
+	public DelegatingRichBeanEditorPart(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean,
+			CompositeFactory uiProvider) {
 		super(path, mappingURL, dirtyContainer, editingBean);
+		this.uiProvider = uiProvider;
 	}
-	
+
 	/**
 	 * Please call shortly after creation
-	 * @param delegateClass
 	 */
-	public void setEditorClass(Class<? extends Composite> delegateClass) {
-		this.editorClass = delegateClass;
-	}
-	
-	/**
-	 * Please call shortly after creation
-	 */	
-	public void setScrollable(boolean enableScrolling){
+	public void setScrollable(boolean enableScrolling) {
 		this.enableScrolling = enableScrolling;
 	}
-	
+
 	/**
 	 * Please call shortly after creation.
+	 *
 	 * @param tabText
 	 */
 	public void setRichEditorTabText(String tabText) {
@@ -80,26 +74,22 @@ public class DelegatingRichBeanEditorPart extends RichBeanEditorPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		try {		
-			if (enableScrolling){
-				final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
-				scrolledComposite.setExpandHorizontal(true);
-				scrolledComposite.setExpandVertical(true);
-				instantiateComposite(scrolledComposite);
-				scrolledComposite.setContent(editorUI);
-				editorUI.layout();
-				scrolledComposite.setMinSize(editorUI.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-			} else {
-				instantiateComposite(parent);
-			}
-		} catch(Exception e) {
-			logger.error("Cannot create instance of editing composite", e);
+		if (enableScrolling) {
+			final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+			scrolledComposite.setExpandHorizontal(true);
+			scrolledComposite.setExpandVertical(true);
+			instantiateComposite(scrolledComposite);
+			scrolledComposite.setContent(editorUI);
+			editorUI.layout();
+			scrolledComposite.setMinSize(editorUI.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		} else {
+			instantiateComposite(parent);
 		}
 	}
 
-	private void instantiateComposite(Composite parent) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+	private void instantiateComposite(Composite parent) {
 		parent.setLayout(new FillLayout());
-		editorUI = editorClass.getConstructor(Composite.class, int.class).newInstance(parent, SWT.BORDER);
+		editorUI = uiProvider.createComposite(parent, SWT.BORDER);
 	}
 
 	@Override
@@ -107,12 +97,8 @@ public class DelegatingRichBeanEditorPart extends RichBeanEditorPart {
 		editorUI.setFocus();
 	}
 
-	/*
-	 * Made <code>public</code> in this override to allow any containing workbench part (such as a subclass of
-	 * RichBeanMultiPageEditorPart in a different package) to access the editor UI after it has been created.
-	 */
 	@Override
-	public Object getEditorUI() {
+	protected Object getEditorUI() {
 		return editorUI;
 	}
 
