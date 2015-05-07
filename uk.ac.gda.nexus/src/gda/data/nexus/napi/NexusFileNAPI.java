@@ -22,6 +22,7 @@ import gda.data.nexus.NexusUtils;
 
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -85,6 +86,9 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	public void openToRead() throws NexusException {
 		canWrite = false;
 		try {
+			if (debug) {
+				logger.debug("Opening file to read (thd {}): {}", Thread.currentThread(), filename);
+			}
 			file = new NexusFile(filename, NexusFile.NXACC_READ);
 			initTree();
 		} catch (org.nexusformat.NexusException e) {
@@ -95,13 +99,20 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 
 	@Override
 	public void openToWrite(boolean createIfNecessary) throws NexusException {
+		Path p = Paths.get(filename);
 		try {
-			if (Files.exists(Paths.get(filename))) {
+			if (Files.exists(p)) {
+				if (debug) {
+					logger.debug("Opening existing file to write (thd {}): {}", Thread.currentThread(), filename);
+				}
 				file = new NexusFile(filename, NexusFile.NXACC_RDWR);
 				initTree();
 				canWrite = true;
 				return;
 			} else if (createIfNecessary) {
+				if (debug) {
+					logger.debug("Creating new file to write (thd {}): {}", Thread.currentThread(), filename);
+				}
 				file = new NexusFile(filename, NexusFile.NXACC_CREATE5);
 				initTree();
 				canWrite = true;
@@ -117,6 +128,14 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 
 	@Override
 	public void createAndOpenToWrite() throws NexusException {
+		if (debug) {
+			Path p = Paths.get(filename);
+			if (Files.exists(p)) {
+				logger.debug("File already exists and will overwrite (thd {}): {}", Thread.currentThread(), filename);
+			} else {
+				logger.debug("Creating new file to write (thd {}): {}", Thread.currentThread(), filename);
+			}
+		}
 		try {
 			file = new NexusFile(filename, NexusFile.NXACC_CREATE5);
 			initTree();
@@ -130,6 +149,9 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 
 	@Override
 	public void flush() throws NexusException {
+		if (file == null)
+			return;
+
 		try {
 			file.flush();
 		} catch (org.nexusformat.NexusException e) {
@@ -140,6 +162,9 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 
 	@Override
 	public void close() throws NexusException {
+		if (file == null)
+			return;
+
 		try {
 			file.close();
 			tree = null;
@@ -167,6 +192,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	@Override
 	public GroupNode getGroup(String path, boolean createPathIfNecessary) throws NexusException {
 		checkClosed(false);
+
 		String bpath = NexusUtils.stripAugmentedPath(path);
 		NodeLink link = tree.findNodeLink(bpath);
 		if (link != null) {
@@ -352,7 +378,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			String url = file.isexternalgroup(name, nxClass);
 			if (url == null) {
 				if (debug) {
-					logger.debug("Opening group: {}:{}", name, nxClass);
+					logger.debug("Opening group (thd {}): {}:{}", Thread.currentThread(), name, nxClass);
 				}
 				file.opengroup(name, nxClass);
 			} else {
@@ -363,7 +389,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 				return false;
 			}
 			if (debug) {
-				logger.debug("Creating group: {}:{}", name, nxClass);
+				logger.debug("Creating group (thd {}): {}:{}", Thread.currentThread(), name, nxClass);
 			}
 			try {
 				file.makegroup(name, nxClass);
@@ -430,6 +456,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	@Override
 	public DataNode getData(String path) throws NexusException {
 		checkClosed(false);
+
 		NodeLink link = tree.findNodeLink(NexusUtils.stripAugmentedPath(path));
 		if (link != null) {
 			if (link.isDestinationData())
@@ -527,7 +554,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			String url = file.isexternaldataset(name);
 			if (url == null) {
 				if (debug) {
-					logger.debug("Opening dataset: {}", name);
+					logger.debug("Opening dataset (thd {}): {}", Thread.currentThread(), name);
 				}
 				file.opendata(name);
 			} else {
@@ -543,7 +570,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	private boolean closeDataset(String name) throws NexusException {
 		try {
 			if (debug) {
-				logger.debug("Closing dataset: {}", name);
+				logger.debug("Closing dataset (thd {}): {}", Thread.currentThread(), name);
 			}
 			file.closedata();
 		} catch (org.nexusformat.NexusException e) {
@@ -561,6 +588,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	@Override
 	public DataNode createData(String path, ILazyWriteableDataset data, int compression, boolean createPathIfNecessary) throws NexusException {
 		checkClosed(true);
+
 		Tuple<String, GroupNode, Node> tuple = openAll(path, createPathIfNecessary, true);
 		if (tuple.name == null)
 			return null;
@@ -597,7 +625,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		try {
 			if (compression == COMPRESSION_NONE) {
 				if (debug) {
-					logger.debug("Creating dataset: {}", name);
+					logger.debug("Creating dataset (thd {}): {}", Thread.currentThread(), name);
 				}
 				file.makedata(name, type, rank, mShape);
 			} else {
@@ -611,7 +639,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 					break;
 				}
 				if (debug) {
-					logger.debug("Creating compressed dataset: {}", name);
+					logger.debug("Creating compressed dataset (thd {}): {}", Thread.currentThread(), name);
 				}
 				file.compmakedata(name, type, rank, mShape, cmp, chunks);
 			}
@@ -672,6 +700,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	@Override
 	public DataNode createData(String path, IDataset data, boolean createPathIfNecessary) throws NexusException {
 		checkClosed(true);
+
 		Tuple<String, GroupNode, Node> tuple = openAll(path, createPathIfNecessary, true);
 		if (tuple.name == null)
 			return null;
@@ -682,7 +711,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		}
 		try {
 			if (debug) {
-				logger.debug("Creating and populating dataset: {}", name);
+				logger.debug("Creating and populating dataset (thd {}): {}", Thread.currentThread(), name);
 			}
 			file.makedata(name, getType(data), data.getRank(), data.getShape());
 			file.opendata(name);
@@ -704,6 +733,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	@Override
 	public Attribute createAttribute(String node, IDataset attr) {
 		checkClosed(false);
+
 		Attribute a = TreeFactory.createAttribute(tree, node, attr.getName());
 		a.setValue(attr);
 		return a;
@@ -731,7 +761,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 
 		try {
 			if (debug) {
-				logger.debug("Putting attributes in {}:", tuple.name);
+				logger.debug("Putting attributes (thd {}): {}", Thread.currentThread(), tuple.name);
 			}
 			for (Attribute a : attribute) {
 				if (debug) {
@@ -792,7 +822,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 
 		try {
 			if (debug) {
-				logger.debug("Creating link: {}", t.targetPath);
+				logger.debug("Creating link (thd {}): {}", Thread.currentThread(), t.targetPath);
 			}
 			file.makenamedlink(sname, t);
 		} catch (org.nexusformat.NexusException e) {
@@ -804,6 +834,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	@Override
 	public void linkExternal(URI source, String destination, boolean isGroup) throws NexusException {
 		checkClosed(true);
+
 		boolean useSourceName = destination.endsWith(Node.SEPARATOR);
 		Tuple<String, GroupNode, Node> tuple = openAll(destination, true, useSourceName);
 		String dname;
@@ -819,7 +850,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		}
 		try {
 			if (debug) {
-				logger.debug("Creating external link: {}", source);
+				logger.debug("Creating external link (thd {}): {}", Thread.currentThread(), source);
 			}
 			if (isGroup) {
 				file.linkexternal(dname, dclass == null ? "" : dclass, source.toString());
