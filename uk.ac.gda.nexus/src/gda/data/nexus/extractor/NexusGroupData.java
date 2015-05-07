@@ -210,6 +210,15 @@ public class NexusGroupData implements Serializable {
 	}
 
 	private String[] makeStrings(byte[] bdata) {
+		if (textLength <= 0) { // single string case
+			String text;
+			try {
+				text = new String(bdata, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				text = new String(bdata);
+			}
+			return new String[] {text};
+		}
 		int n = bdata.length / textLength;
 		String[] text = new String[n];
 		byte[] string = new byte[textLength + 1];
@@ -650,7 +659,7 @@ public class NexusGroupData implements Serializable {
 	 * @return dataset
 	 */
 	public Dataset toDataset(boolean keepBitWidth) {
-		Dataset dataset = DatasetFactory.createFromObject(data, getDtype(type));
+		Dataset dataset = DatasetFactory.createFromObject(getBuffer(), getDtype(type));
 		if (!keepBitWidth && isUnsigned(type)) {
 			dataset = DatasetUtils.makeUnsigned(dataset);
 		}
