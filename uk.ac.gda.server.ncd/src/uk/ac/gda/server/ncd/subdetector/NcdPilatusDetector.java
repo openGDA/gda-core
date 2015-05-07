@@ -77,9 +77,8 @@ public class NcdPilatusDetector extends NcdSubDetector implements LastImageProvi
 		detector.atScanStart();
 		try {
 			scanDataPoint = 0;
-			file = NexusUtils.createNXFile(setupNexusFile(getDetectorType().toLowerCase()));
+			file = NexusUtils.createNexusFile(setupNexusFile(getDetectorType().toLowerCase()));
 			file.setDebug(true);
-			file.openToWrite(true);
 			StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), "entry", NexusExtractor.NXEntryClassName);
 			NexusUtils.addToAugmentPath(path, "instrument", NexusExtractor.NXInstrumentClassName);
 			NexusUtils.addToAugmentPath(path, "detector", NexusExtractor.NXDetectorClassName);
