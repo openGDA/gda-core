@@ -174,8 +174,7 @@ public class DetectorElementDataSelector {
 			if (sumData != null) {
 				// fileName = fileName.replace(".nxs", "_1.nxs");
 				String newFileName = fileCopy(fileName, outputFileDir);
-				file = NexusUtils.createNXFile(newFileName);
-				file.openToWrite(false);
+				file = NexusUtils.openNexusFile(newFileName);
 				StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), "entry1", NexusExtractor.NXEntryClassName);
 				ge = file.getGroup(path.toString(), false);
 				NexusUtils.addToAugmentPath(path, "instrument", NexusExtractor.NXInstrumentClassName);
