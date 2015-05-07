@@ -238,40 +238,13 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 	}
 	
 	public void writeStringData(String filename, String dataName, String dataValue ) throws Exception {
-		NexusFile file = NexusUtils.createNXFile(filename);
-		file.openToWrite(false);
+		NexusFile file = NexusUtils.openNexusFile(filename);
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), "entry1", NexusExtractor.NXEntryClassName);
 		NexusUtils.addToAugmentPath(path, "tomo_entry", "NXsubentry");
 //		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
 		GroupNode group = file.getGroup(path.toString(), true);
 		NexusUtils.writeString(file, group, dataName, dataValue);
-
-//		NexusFileInterface file = NexusUtils.openNexusFile(filename);
-//		try {
-//			// navigate to desired place
-//			file.opengroup("entry1", "NXentry");
-//			file.opengroup("tomo_entry", "NXsubentry");
-//			
-//			int[] arr = { dataValue.length() };
-//			file.makedata(dataName, NexusGlobals.NX_CHAR, 1, arr);
-//			file.opendata(dataName);
-//			file.putdata(dataValue.getBytes());
-//			file.closedata();
-//			
-//			// navigate back from desired place
-//			file.closegroup();
-//			file.closegroup();
-//		} finally {
-//			file.flush();
-//			try {
-//				file.finalize();
-//			} catch (Throwable e) {
-//				throw new Exception("Error finalising " + filename,e);
-//			} finally {
-//				file.close();
-//				
-//			}
-//		}
+		file.close();
 	}
 	
 	@Override

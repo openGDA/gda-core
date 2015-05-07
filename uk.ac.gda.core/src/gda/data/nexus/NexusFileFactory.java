@@ -23,7 +23,6 @@ import gda.data.nexus.extractor.NexusExtractor;
 
 import java.io.File;
 
-import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,18 +58,15 @@ public class NexusFileFactory {
 			fparent.mkdirs();
 		}
 		logger.debug("Creating HDF5 format NeXus file.");
-		NexusFile nf = NexusUtils.createNXFile(fileUrl);
+		NexusFile nf = NexusUtils.createNexusFile(fileUrl);
 		nf.setDebug(instrumentFileApi);
-//		if (instrumentFileApi)
-//			nf = new NexusFileWrapper(nf);
 		
 		// For now we will assume that all the NeXus files have a single
 		// NXentry called "entry1". This is because of the way that the
 		// metadata classes have been written (i.e. they expect an entry called entry1!)
 
 		String entryName = "entry1";
-		GroupNode g = nf.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), true);
-//		nf.makegroup(entryName, "NXentry");
+		nf.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), true);
 
 		// add XES definition to file.
 		NeXusUtils.writeXESraw(nf, entryName);

@@ -1375,9 +1375,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 * @throws Exception
 	 */
 	protected NexusFile createFile() throws Exception {
-		NexusFile f = NexusUtils.createNXFile(nexusFileUrl);
+		NexusFile f = NexusUtils.createNexusFile(nexusFileUrl);
 		f.setDebug(LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
-		f.createAndOpenToWrite();
 		return f;
 	}
 	

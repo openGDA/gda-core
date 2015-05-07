@@ -707,11 +707,10 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	 * Does nothing otherwise.
 	 * @throws NexusException 
 	 */
-	@SuppressWarnings("unused") // allow inheriting classes to throw this exception
 	protected void createCustomMetaData() throws NexusException {
 	}
 
-	private String getGroupNameFor(@SuppressWarnings("unused") Scannable s) {
+	private String getGroupNameFor(Scannable s) {
 		String groupName = "NXpositioner";
 		return groupName;
 	}
@@ -1040,7 +1039,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 	/**
 	 * Create the next file. First increment the file number and then try and get a NeXus file handle from
-	 * {@link NexusUtils#createNXFile(String)}.
+	 * {@link NexusUtils#createNexusFile(String)}.
 	 */
 	public void createNextFile() {
 		try {
@@ -1101,7 +1100,8 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 
 			// create nexus file and return handle
-			file = NexusUtils.createNXFile(nexusFileUrl);
+			file = NexusUtils.createNexusFile(nexusFileUrl);
+			file.setDebug(LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
 			if (createSrsFile) {
 				// Check to see if the file(s) already exists!
 				final File textFile = new File(txtFileUrl);

@@ -44,8 +44,8 @@ public class NexusTreeWriterTest {
 		tree_in.addChildNode( entry2);
 		entry2.addChildNode( new NexusTreeNode("units",NexusExtractor.AttrClassName,entry2, new NexusGroupData("\u212B")));
 		String filename = testScratchDirectoryName+"/out.nxs";
-		NexusFile file = NexusUtils.createNXFile(filename);
-		file.openToWrite(true);
+		NexusFile file = NexusUtils.createNexusFile(filename);
+		file.setDebug(true);
 		NexusTreeWriter.writeHere(file, file.getGroup("/", true), tree_in);
 		file.close();
 		INexusTree tree_out = NexusTreeBuilder.getNexusTree(filename, NexusTreeNodeSelection.createTreeForAllData());
