@@ -38,9 +38,9 @@ public class StringArrayTest {
 	}
 
 	/**
-	 * @param args
+	 * @param argv
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] argv) {
 		// TODO Auto-generated method stub
 
 		int[] startPos = new int[2];
@@ -53,7 +53,7 @@ public class StringArrayTest {
 
 		try {
 			// Lets create a new file.
-			NexusFileInterface file = NexusUtils.createNexusFile("/tmp/file.nxs");
+			NexusFileInterface file = new gda.data.nexus.napi.NexusFile("/tmp/file.nxs", NexusGlobals.NXACC_CREATE5);
 
 			dimArray[0] = NexusGlobals.NX_UNLIMITED;
 			dimArray[1] = defaultLength;
@@ -94,5 +94,37 @@ public class StringArrayTest {
 			e.printStackTrace();
 		}
 
+		try {
+			// Lets create a new file.
+			NexusFileInterface file = new gda.data.nexus.napi.NexusFile("/tmp/file.nxs", NexusGlobals.NXACC_READ);
+
+			file.opengroup("test", "NXnote");
+
+			file.opendata("stringarray");
+
+			int[] dims = new int[10];
+			int[] args = new int[10];
+			file.getinfo(dims, args);
+			int rank = args[0];
+			System.err.println(Arrays.toString(dims) + "/" + Arrays.toString(args));
+			byte[] valueBytes = new byte[dims[rank - 1] + 2];
+			dimArray[0] = 1;
+			dimArray[1] = dims[rank - 1];
+			startPos[1] = 0;
+			for (int i = 0; i < nPoints; i++) {
+				startPos[0] = i;
+				System.err.println(Arrays.toString(startPos) + "/" + Arrays.toString(dimArray));
+				file.getslab(startPos, dimArray, valueBytes);
+				System.out.println(new String(valueBytes));
+			}
+
+			file.closedata();
+
+			file.closegroup();
+
+			file.close();
+		} catch (NexusException e) {
+			e.printStackTrace();
+		}
 	}
 }

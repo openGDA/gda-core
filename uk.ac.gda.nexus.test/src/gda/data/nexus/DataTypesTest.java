@@ -100,8 +100,7 @@ public class DataTypesTest {
 			T[] expected = toTest.clone();
 
 			String filename = testScratchDirectoryName + "foo.nxs";
-			NexusFile file = NexusUtils.createNXFile(filename);
-			file.createAndOpenToWrite();
+			NexusFile file = NexusUtils.createNexusFile(filename);
 			GroupNode group = file.getGroup(NexusUtils.createAugmentPath("entry1", NexusExtractor.NXEntryClassName), true);
 
 			NexusUtils.write(file, group, "data", toTest);

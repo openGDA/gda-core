@@ -98,40 +98,6 @@ public class NexusUtils {
 		return iDim;
 	}
 
-		
-	/**
-	 * Creates a NeXus file and returns the file handle. If file already exists then it will be overwritten.
-	 * 
-	 * @param filename
-	 * @return NeXus file handle
-	 * @throws gda.data.nexus.napi.NexusException 
-	 */
-	public static NexusFileInterface createNexusFile(String filename) throws gda.data.nexus.napi.NexusException {
-		return new gda.data.nexus.napi.NexusFile(filename, NexusGlobals.NXACC_CREATE5);
-	}
-
-	/**
-	 * Opens a NeXus file and returns the file handle.
-	 * 
-	 * @param filename
-	 * @return NeXus file handle
-	 * @throws gda.data.nexus.napi.NexusException 
-	 */
-	public static NexusFileInterface openNexusFile(String filename) throws gda.data.nexus.napi.NexusException {
-		return new gda.data.nexus.napi.NexusFile(filename, NexusGlobals.NXACC_RDWR);
-	}
-
-	/**
-	 * Opens a NeXus file as read-only and returns the file handle.
-	 * 
-	 * @param filename
-	 * @return NeXus file handle
-	 * @throws gda.data.nexus.napi.NexusException 
-	 */
-	public static NexusFileInterface openNexusFileReadOnly(String filename) throws gda.data.nexus.napi.NexusException {
-		return new gda.data.nexus.napi.NexusFile(filename, NexusGlobals.NXACC_READ);
-	}
-
 	/**
 	 * Create a (top-level) NeXus augmented path
 	 * @param name
@@ -392,9 +358,39 @@ public class NexusUtils {
 		file.addAttribute(node, attr);
 	}
 
-	public static NexusFile createNXFile(String path) throws NexusException {
+	/**
+	 * Create a new Nexus file (overwriting any existing one)
+	 * @param path
+	 * @return Nexus file
+	 * @throws NexusException
+	 */
+	public static NexusFile createNexusFile(String path) throws NexusException {
 		NexusFileNAPI file = new NexusFileNAPI(path);
 		file.createAndOpenToWrite();
+		return file;
+	}
+
+	/**
+	 * Open an existing Nexus file to modify
+	 * @param path
+	 * @return Nexus file
+	 * @throws NexusException
+	 */
+	public static NexusFile openNexusFile(String path) throws NexusException {
+		NexusFileNAPI file = new NexusFileNAPI(path);
+		file.openToWrite(false);
+		return file;
+	}
+
+	/**
+	 * Open an existing Nexus file to read only
+	 * @param path
+	 * @return Nexus file
+	 * @throws NexusException
+	 */
+	public static NexusFile openNexusFileReadOnly(String path) throws NexusException {
+		NexusFileNAPI file = new NexusFileNAPI(path);
+		file.openToRead();
 		return file;
 	}
 }

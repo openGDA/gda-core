@@ -41,13 +41,7 @@ public class NexusFileTest {
 	@Test
 	public void testNexusFile() throws Exception {
 		String name = "test-scratch/test.nxs";
-//		File f = new File(name);
-//		if (f.exists())
-//			f.delete();
-
-		NexusFile nf = NexusUtils.createNXFile(name);
-
-		nf.createAndOpenToWrite();
+		NexusFile nf = NexusUtils.createNexusFile(name);
 
 		GroupNode g = nf.getGroup("/e/a/b", true);
 		Dataset a = DatasetFactory.createFromObject("world");

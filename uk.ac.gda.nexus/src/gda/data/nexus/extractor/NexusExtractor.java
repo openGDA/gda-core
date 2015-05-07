@@ -281,10 +281,9 @@ final public class NexusExtractor implements INexusDataGetter {
 	public void runLoop(INexusTreeProcessor loopProcessor, boolean debug, final IMonitor mon) throws NexusException,
 			NexusExtractorException {
 		this.loopProcessor = loopProcessor;
-		file = NexusUtils.createNXFile(fileName);
-		file.setDebug(debug);
 		try {
-			file.openToRead();
+			file = NexusUtils.openNexusFileReadOnly(fileName);
+			file.setDebug(debug);
 			loop(new Group(null, Tree.ROOT, topClass), mon);
 		} finally {
 			if (file != null) {
@@ -513,9 +512,8 @@ class SimpleExtractor {
 	}
 
 	protected final NexusGroupData getData() throws NexusException, NexusExtractorException {
-		try (NexusFile file = NexusUtils.createNXFile(source.getPath())) {
+		try (NexusFile file = NexusUtils.openNexusFileReadOnly(source.getPath())) {
 			file.setDebug(debug);
-			file.openToRead();
 			return getData(file, nodePathWithClasses);
 		}
 	}
