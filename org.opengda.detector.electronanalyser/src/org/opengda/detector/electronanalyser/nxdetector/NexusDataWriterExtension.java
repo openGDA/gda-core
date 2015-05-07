@@ -88,7 +88,7 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 	 * @param regionName
 	 * @param nexusFileNameTemplate
 	 *            the template must contain "%d_%s"
-	 * @return NeXusFileInterface
+	 * @return Nexus file
 	 * @throws Exception
 	 */
 	public NexusFile createFile(String regionName,	Sequence sequence) throws Exception {
@@ -127,8 +127,9 @@ public class NexusDataWriterExtension extends NexusDataWriter {
 
 		String regionNexusFileUrl = dir.getAbsolutePath()+File.separator + regionNexusFileName;
 		InterfaceProvider.getTerminalPrinter().print("Region '" + regionName + "' data will write to: "+ regionNexusFileUrl);
-		NexusFile regionNexusfile = NexusUtils.createNXFile(regionNexusFileUrl);
-		
+		NexusFile regionNexusfile = NexusUtils.createNexusFile(regionNexusFileUrl);
+		regionNexusfile.setDebug(LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
+
 		RegionFileMapper regionFileMapper = new RegionFileMapper(regionName,regionNexusFileUrl,regionNexusfile );
 		files.put(regionName, regionFileMapper);
 		return regionNexusfile;
