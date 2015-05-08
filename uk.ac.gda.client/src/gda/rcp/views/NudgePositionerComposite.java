@@ -37,7 +37,6 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -62,17 +61,18 @@ public class NudgePositionerComposite extends Composite{
 	private String scannableName;
 	private boolean limitsSet=false;
 	private String userUnits;
-	boolean moveEnabled;
-	
+	private boolean moveEnabled;
+	private boolean positionOnly;
+
 	public NudgePositionerComposite(Composite parent, int style, Scannable scannable) {
 		this(parent, style, scannable, true, null, false, true);
 	}
-	
+
 	public NudgePositionerComposite(Composite parent, int style, Scannable scannable, boolean showName) {
 		this(parent, style, scannable, showName, null, false, true);
 	}
-	
-	public NudgePositionerComposite(Composite parent, int style, Scannable scannable, boolean showName, String overrideName, final boolean positionOnly, boolean moveEnabled) {
+
+	public NudgePositionerComposite(Composite parent, int style, Scannable scannable, final boolean showName, String overrideName, final boolean positionOnly, boolean moveEnabled) {
 		super(parent, style);
 		this.scannable = scannable;
 		GridLayout gridLayout = new GridLayout(4, false);
@@ -83,120 +83,111 @@ public class NudgePositionerComposite extends Composite{
 		setLayout(gridLayout);
 		scannableName = scannable.getName();
 		this.moveEnabled = moveEnabled;
-		
+		this.positionOnly = positionOnly;
+
 		GridData gd_position = new GridData(SWT.FILL, SWT.TOP, false, false, 4, 1);
 		gd_position.widthHint = 85;
-		
+
 		if(showName){
 			Label lblScannableName = new Label(this, SWT.CENTER);
-			lblScannableName.setForeground(new Color(getDisplay(), 0, 0, 0));
 			if(overrideName==null || overrideName.equals(""))
 				lblScannableName.setText(scannableName);
 			else
 				lblScannableName.setText(overrideName);
 			lblScannableName.setLayoutData(gd_position);
 		}
-		
+
 		position = new Text(this, SWT.BORDER);
 		position.setTextLimit(10);
 		position.addKeyListener(new KeyAdapter() {
 			@Override
-			public void keyPressed(KeyEvent e) {
-				int keyCode = e.keyCode;
-				if(keyCode==13){//enter pressed
-					updateReadbackJob.schedule();
+			public void keyPressed(KeyEvent key) {
+				//Get the keyCode
+				int keyCode = key.keyCode;
+				//If enter was pressed move to new position
+				if(keyCode==13 || keyCode == 16777296){ //enter or numpad enter pressed
 					double newPosition = Double.valueOf(position.getText());
-					try {
+					move(newPosition);
+				}
+				if (!positionOnly) {
+					//If up was pressed increment position and move
+					if (keyCode == 16777217) { //up arrow pressed 
+						double newPosition = Double.valueOf(position.getText()) + Double.valueOf(increment.getText());
 						move(newPosition);
-					} catch (DeviceException e1) {
-						logger.error("Error while trying to move " + scannableName, e1);
+					}
+					//If down was pressed decrement position and move
+					if (keyCode == 16777218) { //down arrow pressed 
+						double newPosition = Double.valueOf(position.getText()) - Double.valueOf(increment.getText());
+						move(newPosition);
 					}
 				}
 			}
 		});
-		
 		position.addFocusListener(new FocusListener() {
-			
 			@Override
 			public void focusLost(FocusEvent e) {
-				try {
-					double currentPosition = Double.valueOf(NudgePositionerComposite.this.scannable.getPosition().toString());
-					setPositionValue(currentPosition);
-				} catch (NumberFormatException e1) {
-					logger.error("Error while trying to get position of " + scannableName, e1);
-				} catch (DeviceException e1) {
-					logger.error("Error while trying to get position of " + scannableName, e1);
-				}
-				
-				
+				// Update to ensure current position is shown when focus is lost
+				updateReadbackJob.schedule();
 			}
 			
 			@Override
 			public void focusGained(FocusEvent e) {
-				// TODO Auto-generated method stub
-				
+				// Don't do anything.
 			}
 		});
-		
+
 		gd_position = new GridData(SWT.FILL, SWT.TOP, false, false, 4, 1);
 		gd_position.widthHint = 85;
 		position.setLayoutData(gd_position);
-		
 		position.setEditable(moveEnabled);
-		
+
 		if(!positionOnly){
 			btnDecrement = new Button(this, SWT.NONE);
 			btnDecrement.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					updateReadbackJob.schedule();
-					try {
-						double currentPosition = Double.valueOf(NudgePositionerComposite.this.scannable.getPosition().toString());
-						double decrementValue = Double.valueOf(increment.getText());
-						move(currentPosition-decrementValue);
-					} catch (DeviceException e1) {
-						logger.error("Error while trying to move " + scannableName, e1);
-					}
+					double currentPosition = Double.valueOf(position.getText());
+					double decrementValue = Double.valueOf(increment.getText());
+					move(currentPosition - decrementValue);
 				}
 			});
 			GridData gd_btnDecrement = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 			gd_btnDecrement.widthHint = 30;
 			btnDecrement.setLayoutData(gd_btnDecrement);
 			btnDecrement.setText("-");
-			
+
 			increment = new Text(this, SWT.BORDER);
-			increment.addSelectionListener(new SelectionAdapter() {
+			increment.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+			increment.addKeyListener(new KeyAdapter() {
 				@Override
-				public void widgetSelected(SelectionEvent e) {
-					//check whether valid
+				public void keyPressed(KeyEvent key) {
+					//Get the keyCode
+					int keyCode = key.keyCode;
+					//If enter was pressed switch focus to position box to allow up down tapping.
+					if(keyCode==13 || keyCode == 16777296){ //enter or numpad enter pressed 
+						position.setFocus();
+					}
 				}
 			});
-			increment.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-			
+
 			btnIncrement = new Button(this, SWT.NONE);
 			btnIncrement.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					updateReadbackJob.schedule();
-					try {
-						double currentPosition = Double.valueOf(NudgePositionerComposite.this.scannable.getPosition().toString());
-						double incrementValue = Double.valueOf(increment.getText());
-						move(currentPosition+incrementValue);
-					} catch (DeviceException e1) {
-						logger.error("Error while trying to move " + scannableName, e1);
-					}
+					double currentPosition = Double.valueOf(position.getText());
+					double incrementValue = Double.valueOf(increment.getText());
+					move(currentPosition + incrementValue);
 				}
 			});
 			GridData gd_btnIncrement = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 			gd_btnIncrement.widthHint = 30;
 			btnIncrement.setLayoutData(gd_btnIncrement);
 			btnIncrement.setText("+");
-			
+
 			btnStop = new Button(this, SWT.NONE);
 			btnStop.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					updateReadbackJob.schedule();
 					try {
 						NudgePositionerComposite.this.scannable.stop();
 					} catch (DeviceException e1) {
@@ -206,79 +197,49 @@ public class NudgePositionerComposite extends Composite{
 			});
 			btnStop.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1));
 			btnStop.setText("Stop");
-			
+
 			double defaultIncrement = 1;
 			increment.setText(String.valueOf(defaultIncrement));
 		}
-		
-		updateReadbackJob = new Job("updateReadback") {
+
+		updateReadbackJob = new Job("Update " + scannableName + " nudge positioner readback value") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				boolean moving = true;
-				
-				while (moving) {
+				while (moving) { // Loop which runs while scannable is moving
 					boolean status;
 					try {
 						status = NudgePositionerComposite.this.scannable.isBusy();
-						if (!status)
+						if (!status) {
 							moving = false;
+						}
 					} catch (DeviceException e1) {
 						logger.error("Error while determining whether " + scannableName + " is busy", e1);
 					}
-					
+
 					try {
-						Thread.sleep(10);
-					} catch (InterruptedException e) {
+						Thread.sleep(100); // Pause to stop loop running to fast. ~ 10 Hz
+					} catch (InterruptedException e) { // Do nothing
 					}
-					Display.getDefault().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							double currentPosition;
-							try {
-								currentPosition = Double.valueOf(NudgePositionerComposite.this.scannable.getPosition().toString());
-								setPositionValue(currentPosition);
-							} catch (DeviceException e) {
-								logger.error("Error while getting currrent position of " + scannableName, e);
-							}
-							if (!positionOnly) { // If positionOnly=true buttons won't exist.
-								btnDecrement.setEnabled(false);
-								btnIncrement.setEnabled(false);
-								btnStop.setEnabled(true);
-							}
-						}
-					});
+					// Update the GUI
+					updateGui(getCurrentPosition(), moving);
 				}
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						double currentPosition;
-						try {
-							currentPosition = Double.valueOf(NudgePositionerComposite.this.scannable.getPosition().toString());
-							setPositionValue(currentPosition);
-						} catch (DeviceException e) {
-							logger.error("Error while getting currrent position of " + scannableName, e);
-						}
-						if (!positionOnly) { // If positionOnly=true buttons won't exist.
-							btnDecrement.setEnabled(true);
-							btnIncrement.setEnabled(true);
-							btnStop.setEnabled(false);
-						}
-					}
-				});
 				return Status.OK_STATUS;
 			}
 		};
 
-		refresh();//get initial values
-		
+		// Add an observer to the scannable when an event occurs such as starting to move
+		// start the updateReadbackJob. If the job is already running a maximum of one extra will
+		// be scheduled.
 		final IObserver iObserver = new IObserver() {
 			@Override
 			public void update(final Object source, Object arg) {
-				refresh();
+				// Start the updateReadbackJob
+				updateReadbackJob.schedule();
 			}
 		};
-		
-		scannable.addIObserver(iObserver);	
+		scannable.addIObserver(iObserver);
+
 		this.addDisposeListener(new DisposeListener() {		
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
@@ -286,17 +247,18 @@ public class NudgePositionerComposite extends Composite{
 				updateReadbackJob.cancel();
 			}
 		});
-		
+
 		determineScannableLimits();
 		determineUserUnits();
+		updateReadbackJob.schedule(); // Get initial values
 	}
-	
-	public void refresh() {
-		updateReadbackJob.cancel();
-		updateReadbackJob.schedule();
-	}
-	
-	private void move(double position) throws DeviceException{
+
+	/**
+	 * Moves the scannable to a new position by calling {@link Scannable} asynchronousMoveTo(position).
+	 * Checks if the position is within limits and if the scannable is busy before moving
+	 * @param position The demanned position
+	 */
+	private void move(double position) {
 		boolean batonHeld = JythonServerFacade.getInstance().isBatonHeld();
 		if(!batonHeld){
 			MessageDialog dialog = new MessageDialog(Display.getDefault().getActiveShell(), "Baton not held", null,
@@ -304,18 +266,69 @@ public class NudgePositionerComposite extends Composite{
 			dialog.open();
 		}
 		else if(!limitsSet || (position>=lowerLimit && position<= upperLimit) && moveEnabled)
-			NudgePositionerComposite.this.scannable.asynchronousMoveTo(position);
+			try {
+				if(!NudgePositionerComposite.this.scannable.isBusy()){
+					NudgePositionerComposite.this.scannable.asynchronousMoveTo(position);
+				}
+			} catch (DeviceException e) {
+				logger.error("Error while trying to move " + scannableName, e);
+			}
 	}
-	
-	private void setPositionValue(double position){
-		if(userUnits==null)
-			this.position.setText(String.valueOf(position));
-		else if(userUnits.equals(""))
-			this.position.setText(String.valueOf(position));
-		else
-			this.position.setText(String.valueOf(position)+userUnits);
+
+	/**
+	 * This is used to update the GUI. Only this method should be used to update the GUI to ensure
+	 * display is consistent. The position is updated and the controls enabled/disabled as appropriate
+	 * @param currentPositionString The newest position to display typically from {@link #getCurrentPosition()}
+	 * @param moving Flag showing if the scannable is moving
+	 */
+	private void updateGui(final String currentPositionString, final boolean moving) {
+		// Update the GUI in the UI thread
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				// Update the position
+				if (currentPositionString == null) {
+					NudgePositionerComposite.this.position.setText("null");
+				} else if (userUnits == null || userUnits.equals("")) {
+					NudgePositionerComposite.this.position.setText(currentPositionString);
+				} else {
+					NudgePositionerComposite.this.position.setText(currentPositionString + " " + userUnits);
+				}
+				// Update the controls enabled/disabled
+				if (!positionOnly) { // If positionOnly=true buttons won't exist.
+					btnDecrement.setEnabled(!moving);
+					btnIncrement.setEnabled(!moving);
+					position.setEditable(!moving);
+					btnStop.setEnabled(moving);
+				}
+			}
+		});
 	}
-	
+
+	/**
+	 * Calls {@link Scannable} getPosition() method and parses it into a String using getOutputFormat()
+	 * If the scannable returns an array the first element is used.
+	 * @return The current position of the scannable
+	 */
+	private String getCurrentPosition() {
+		Double currentPosition = null;
+		try {
+			Object getPosition = this.scannable.getPosition();
+
+			if (getPosition.getClass().isArray())
+				// The scannable returns an array assume the relevant value is the first and its a Double
+				currentPosition = ((Double[]) getPosition)[0].doubleValue();
+				
+			else if (getPosition instanceof Double) {
+				currentPosition = ((Double) getPosition).doubleValue();
+			}
+		} catch (DeviceException e) {
+			logger.error("Error while getting currrent position of " + scannableName, e);
+		}
+
+		return String.format(scannable.getOutputFormat()[0], currentPosition).trim();
+	}
+
 	private void determineUserUnits(){
 		JythonServerFacade jythonServer = JythonServerFacade.getInstance();
 		String command = "\'" + scannableName + "\' in globals()";
@@ -329,7 +342,7 @@ public class NudgePositionerComposite extends Composite{
 			}
 		}
 	}
-		
+
 	private void determineScannableLimits(){
 		JythonServerFacade jythonServer = JythonServerFacade.getInstance();
 		String command = "\'" + scannableName + "\' in globals()";
