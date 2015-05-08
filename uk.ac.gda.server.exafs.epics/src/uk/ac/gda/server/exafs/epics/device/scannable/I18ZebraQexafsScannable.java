@@ -22,7 +22,6 @@ import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.ScannableMotor;
-import gda.device.scannable.zebra.ZebraQexafsScannable;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.epics.connection.InitializationListener;
@@ -54,7 +53,7 @@ import org.slf4j.LoggerFactory;
  */
 public class I18ZebraQexafsScannable extends ScannableMotor implements ContinuouslyScannable, InitializationListener {
 
-	private static final Logger logger = LoggerFactory.getLogger(ZebraQexafsScannable.class);
+	private static final Logger logger = LoggerFactory.getLogger(I18ZebraQexafsScannable.class);
 
 	private EpicsController controller;
 	private EpicsChannelManager channelManager;
@@ -84,8 +83,8 @@ public class I18ZebraQexafsScannable extends ScannableMotor implements Continuou
 	private String widthReadback_deg_PV = "BL18I-OP-DCM-01:ZEBRA:PC_GATE_WID:RBV";
 	private String widthReadback_counts_PV = "BL18I-OP-DCM-01:ZEBRA:PC_GATE_WID:RBV_CTS";
 
-	private String xtalSwitchPV = "BL18I-OP-DCM-01:MP:SELECT";
-	private String accelPV = "BL18I-OP-DCM-01:BRAGG.ACCL";
+//	private String xtalSwitchPV = "BL18I-OP-DCM-01:MP:SELECT";
+//	private String accelPV = "BL18I-OP-DCM-01:BRAGG.ACCL";
 	private String braggMaxSpeedPV = "BL18I-OP-DCM-01:ENERGY.VMAX";
 	private String braggCurrentSpeedPV = "BL18I-OP-DCM-01:ENERGY.VELO";
 
@@ -109,8 +108,8 @@ public class I18ZebraQexafsScannable extends ScannableMotor implements Continuou
 	private Channel widthReadback_deg_Chnl;
 	private Channel widthReadback_counts_Chnl;
 
-	private Channel xtalSwitchChnl;
-	private Channel accelChnl;
+//	private Channel xtalSwitchChnl;
+//	private Channel accelChnl;
 	private Channel maxSpeedChnl;
 	private Channel currentSpeedChnl;
 
@@ -159,8 +158,8 @@ public class I18ZebraQexafsScannable extends ScannableMotor implements Continuou
 			widthReadback_deg_Chnl = channelManager.createChannel(widthReadback_deg_PV, false);
 			widthReadback_counts_Chnl = channelManager.createChannel(widthReadback_counts_PV, false);
 
-			xtalSwitchChnl = channelManager.createChannel(xtalSwitchPV, false);
-			accelChnl = channelManager.createChannel(accelPV, false);
+//			xtalSwitchChnl = channelManager.createChannel(xtalSwitchPV, false);
+//			accelChnl = channelManager.createChannel(accelPV, false);
 			maxSpeedChnl = channelManager.createChannel(braggMaxSpeedPV, false);
 			currentSpeedChnl = channelManager.createChannel(braggCurrentSpeedPV, false);
 
@@ -171,7 +170,7 @@ public class I18ZebraQexafsScannable extends ScannableMotor implements Continuou
 		}
 	}
 
-	private void calculateMotionInDegrees() throws TimeoutException, CAException, InterruptedException {
+	private void calculateMotionInDegrees() {
 
 		Length twoD = getTwoD();
 
@@ -388,8 +387,7 @@ public class I18ZebraQexafsScannable extends ScannableMotor implements Continuou
 		}
 	}
 
-	private double calculateFrameEnergyFromZebraReadback(int frameIndex) throws TimeoutException, CAException,
-			InterruptedException {
+	private double calculateFrameEnergyFromZebraReadback(int frameIndex) {
 		double countsPerDegree = width_deg / width_counts;
 
 		double frameCentre_offset_cts = ((stepSize_counts * frameIndex) + (0.5 * stepSize_counts));
@@ -408,18 +406,15 @@ public class I18ZebraQexafsScannable extends ScannableMotor implements Continuou
 		return QuantityFactory.createFromObject(angle, NonSI.DEGREE_ANGLE).getAmount();
 	}
 
-	private double angleToEV(Angle angle) throws TimeoutException, CAException, InterruptedException {
+	private double angleToEV(Angle angle) {
 		return QuantityFactory.createFromObject(PhotonEnergy.photonEnergyOf(angle, getTwoD()), NonSI.ELECTRON_VOLT)
 				.getAmount();
 	}
 
 	/**
 	 * @return 2*lattice spacing for the given Bragg crystal cut in use.
-	 * @throws TimeoutException
-	 * @throws CAException
-	 * @throws InterruptedException
 	 */
-	private Length getTwoD() throws TimeoutException, CAException, InterruptedException {
+	private Length getTwoD() {
 		// fixed at 111
 		return Quantity.valueOf(0.62711, SI.NANO(SI.METER));
 	}
