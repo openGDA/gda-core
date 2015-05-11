@@ -19,7 +19,9 @@
 package gda.data.nexus.napi;
 
 import gda.data.nexus.NexusUtils;
+import gda.data.nexus.extractor.NexusGroupData;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -713,9 +715,27 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			if (debug) {
 				logger.debug("Creating and populating dataset (thd {}): {}", Thread.currentThread(), name);
 			}
-			file.makedata(name, getType(data), data.getRank(), data.getShape());
+			int type = getType(data);
+			Serializable blob;
+			int[] shape;
+			int rank;
+			if (type == NexusFile.NX_CHAR) {
+				NexusGroupData ngd = NexusGroupData.createFromDataset(data);
+				blob = ngd.getBuffer(true);
+				shape = ngd.getDimensions();
+				rank = shape.length;
+			} else {
+				shape = data.getShape();
+				rank = shape.length;
+				if (rank == 0) {
+					shape = new int[] {1};
+					rank = 1;
+				}
+				blob = DatasetUtils.serializeDataset(data);
+			}
+			file.makedata(name, type, rank, shape);
 			file.opendata(name);
-			file.putdata(DatasetUtils.serializeDataset(data));
+			file.putdata(blob);
 			file.closedata();
 		} catch (org.nexusformat.NexusException e) {
 			logger.error("Cannot create and populate dataset: {}", name, e);

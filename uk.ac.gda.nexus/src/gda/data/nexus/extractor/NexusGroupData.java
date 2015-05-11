@@ -405,7 +405,15 @@ public class NexusGroupData implements Serializable {
 	 * @return The data buffer compatible with type, null if data not extracted
 	 */
 	public Serializable getBuffer() {
-		if (type == NexusGlobals.NX_CHAR) {
+		return getBuffer(false);
+	}
+
+	/**
+	 * @param raw if true, do not convert to bytes back to strings
+	 * @return The data buffer compatible with type, null if data not extracted
+	 */
+	public Serializable getBuffer(boolean raw) {
+		if (!raw && type == NexusGlobals.NX_CHAR) {
 			return makeStrings((byte[]) data);
 		}
 		return data;
