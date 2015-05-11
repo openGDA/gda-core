@@ -133,7 +133,9 @@ public class NexusUtils {
 		if (name == null) {
 			throw new IllegalArgumentException("Name must not be null");
 		}
-		if (path.lastIndexOf(Node.SEPARATOR) != path.length() - 1) {
+		if (path.length() == 0) {
+			path.append(Tree.ROOT);
+		} else if (path.lastIndexOf(Node.SEPARATOR) != path.length() - 1) {
 			path.append(Node.SEPARATOR);
 		}
 		path.append(name);
