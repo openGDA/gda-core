@@ -516,9 +516,9 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		}
 		ILazyDataset lazy = null;
 		if (canWrite) {
-			lazy = new LazyWriteableDataset(name, dtype, shape, null, null, new NAPILazySaver(tree, p, name, shape, dtype));
+			lazy = new LazyWriteableDataset(name, dtype, shape, null, null, new NAPILazySaver(file, tree, p, name, shape, dtype));
 		} else {
-			lazy = new LazyDataset(name, dtype, shape, new NAPILazyLoader(tree, p, name, shape, dtype));
+			lazy = new LazyDataset(name, dtype, shape, new NAPILazyLoader(file, tree, p, name, shape, dtype));
 		}
 		dataNode.setDataset(lazy);
 		return dataNode;
@@ -601,7 +601,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		}
 		int type = getType(data);
 
-		NAPILazySaver saver = new NAPILazySaver(tree, tuple.path, name, data.getShape(), AbstractDataset.getDType(data));
+		NAPILazySaver saver = new NAPILazySaver(file, tree, tuple.path, name, data.getShape(), AbstractDataset.getDType(data));
 		data.setSaver(saver);
 		int rank;
 		int[] mShape;

@@ -51,15 +51,18 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 	protected int[] trueShape;
 	protected String filename;
 	protected int dtype;
+	protected NexusFile file;
 
 	/**
+	 * @param file 
 	 * @param tree
 	 * @param path group where dataset will reside
 	 * @param name
 	 * @param shape
 	 * @param dtype
 	 */
-	public NAPILazyLoader(Tree tree, String path, String name, int[] shape, int dtype) {
+	public NAPILazyLoader(NexusFile file, Tree tree, String path, String name, int[] shape, int dtype) {
+		this.file = file;
 		source = tree.getSourceURI();
 		if (tree instanceof TreeFile) {
 			filename = ((TreeFile) tree).getFilename();
@@ -87,6 +90,10 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 			return false;
 
 		return new File(filename != null ? filename : source.getPath()).canRead();
+	}
+
+	protected NexusFile open() throws NexusException {
+		return new NexusFile(filename, NexusFile.NXACC_READ);
 	}
 
 	@Override
@@ -122,12 +129,22 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 		}
 
 		Dataset d = null;
-		NexusFile file = null;
 		int textLength = -1;
+		boolean close = true;
 
 		try {
-			file = new NexusFile(filename, NexusFile.NXACC_READ);
-			file.openpath(path);
+			if (file != null) {
+				try {
+					file.openpath(path);
+					close = false; // still open
+				} catch (NexusException e1) {
+					file = null;
+				}
+			}
+			if (file == null) {
+				file = open();
+				file.openpath(path);
+			}
 			file.opendata(name);
 			if (dtype == Dataset.STRING) {
 				int[] infoDims = new int[10];
@@ -182,8 +199,10 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 		} catch (NexusException e) {
 			logger.error("Problem with NeXus library: {}", e);
 		} finally {
-			if (file != null)
+			if (close) {
 				file.close();
+				file = null;
+			}
 		}
 		return d;
 	}

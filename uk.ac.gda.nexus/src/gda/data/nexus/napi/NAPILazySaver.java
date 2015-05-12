@@ -32,6 +32,7 @@ import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
 import org.eclipse.dawnsci.analysis.dataset.impl.StringDataset;
+import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 
 public class NAPILazySaver extends NAPILazyLoader implements ILazySaver, Serializable {
@@ -39,14 +40,15 @@ public class NAPILazySaver extends NAPILazyLoader implements ILazySaver, Seriali
 	private int textLength;
 
 	/**
+	 * @param file 
 	 * @param tree
 	 * @param path group where dataset will reside
 	 * @param name
 	 * @param shape
 	 * @param dtype
 	 */
-	public NAPILazySaver(Tree tree, String path, String name, int[] shape, int dtype) {
-		super(tree, path, name, shape, dtype);
+	public NAPILazySaver(NexusFile file, Tree tree, String path, String name, int[] shape, int dtype) {
+		super(file, tree, path, name, shape, dtype);
 	}
 
 	@Override
@@ -59,6 +61,11 @@ public class NAPILazySaver extends NAPILazyLoader implements ILazySaver, Seriali
 			return false;
 
 		return new File(filename != null ? filename : source.getPath()).canWrite();
+	}
+
+	@Override
+	protected NexusFile open() throws NexusException {
+		return new NexusFile(filename, NexusFile.NXACC_RDWR);
 	}
 
 	@Override
@@ -93,11 +100,20 @@ public class NAPILazySaver extends NAPILazyLoader implements ILazySaver, Seriali
 			size = newShape;
 		}
 
-		
-		NexusFile file = null;
+		boolean close = true;
 		try {
-			file = new NexusFile(filename, NexusFile.NXACC_RDWR);
-			file.openpath(path);
+			if (file != null) {
+				try {
+					file.openpath(path);
+					close = false; // still open
+				} catch (NexusException e1) {
+					file = null;
+				}
+			}
+			if (file == null) {
+				file = open();
+				file.openpath(path);
+			}
 			file.opendata(name);
 			if (!Arrays.equals(trueShape, slice.getSourceShape())) { // if shape was squeezed then need to translate to true slice
 				final int trank = trueShape.length;
@@ -123,8 +139,10 @@ public class NAPILazySaver extends NAPILazyLoader implements ILazySaver, Seriali
 		} catch (NexusException e) {
 			logger.error("Problem with NeXus library: {}", e);
 		} finally {
-			if (file != null)
+			if (close) {
 				file.close();
+				file = null;
+			}
 		}
 	}
 
