@@ -18,44 +18,12 @@
 
 package uk.ac.diamond.tomography.reconstruction;
 
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.WorkbenchException;
+import org.dawb.common.ui.perspective.AbstractPerspectiveLaunch;
 
-public class TomoPerspectiveLaunch implements IWorkbenchWindowActionDelegate {
+public class TomoPerspectiveLaunch extends AbstractPerspectiveLaunch {
 
 	@Override
-	public void dispose() {
-		// TODO Auto-generated method stub
-
+	public String getID() {
+		return "uk.ac.diamond.tomography.reconstruction.perspective";
 	}
-
-	@Override
-	public void init(IWorkbenchWindow window) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void run(IAction action) {
-		try {
-			PlatformUI.getWorkbench().showPerspective(
-					"uk.ac.diamond.tomography.reconstruction.perspective",
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow());
-		} catch (WorkbenchException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	@Override
-	public void selectionChanged(IAction action, ISelection selection) {
-		// TODO Auto-generated method stub
-
-	}
-
-
 }
