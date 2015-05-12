@@ -29,6 +29,7 @@ class Scan:
         self.scanFileName= None
         self.detectorFileName= None
         self.outputFileName= None
+        self.scanBean = None
         
     def determineExperimentPath(self, experimentFullPath):
         experimentFullPath = experimentFullPath + "/"
@@ -54,7 +55,8 @@ class Scan:
     def _resetHeader(self):
         self.datawriterconfig.setHeader(self.original_header)
         meta_clear_alldynamical()
-        self.outputPreparer._resetNexusStaticMetadataList()
+        self.outputPreparer._resetNexusStaticMetadataList()        
+        self.outputPreparer._resetAsciiStaticMetadataList()
 
     def _createDetArray(self, names, scanBean=None):
         dets = []

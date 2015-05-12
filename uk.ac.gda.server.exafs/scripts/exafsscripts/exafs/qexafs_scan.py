@@ -70,11 +70,12 @@ class QexafsScan(Scan):
                 self._resetHeader()
                 self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
                 meta_clear_alldynamical()
+                self.outputPreparer._resetAsciiStaticMetadataList()
                 self.samplePreparer.prepare(sampleBean)
                 initial_energy = scanBean.getInitialEnergy()
                 final_energy = scanBean.getFinalEnergy()
                 step_size = scanBean.getStepSize()
-                self.outputPreparer.prepare(outputBean, scanBean)
+                self.outputPreparer.prepare(outputBean, scanBean, sampleBean)
                 #print 'Prepare output'
                 if len(outputBean.getCheckedSignalList()) > 0:
                     print "Signal parameters not available with QEXAFS"

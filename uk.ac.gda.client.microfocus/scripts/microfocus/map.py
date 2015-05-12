@@ -105,7 +105,7 @@ class Map(Scan):
         scanBean = BeansFactory.getBeanObject(experimentFullPath, scanFileName)
         detectorBean = BeansFactory.getBeanObject(experimentFullPath, detectorFileName)
         outputBean   = BeansFactory.getBeanObject(experimentFullPath, outputFileName)
-        
+        self._runScript(outputBean.getBeforeScriptName())
         
         # sanity check
         if detectorBean.getFluorescenceParameters().getConfigFileName() == None or detectorBean.getFluorescenceParameters().getConfigFileName() == "":
@@ -169,6 +169,7 @@ class Map(Scan):
                 self.log("Map start time " + str(scanStart))
                 self.log("Map end time " + str(scanEnd))
                 self.finish()
+                self._runScript(beanGroup.getOutput().getAfterScriptName())# run the after scan script
                 
     def _createMFD(self, nx, ny, xStepSize, yStepSize, detectorList):
         self.mfd = MicroFocusWriterExtender(nx, ny, xStepSize, yStepSize,self.detectorBeanFileName, array(detectorList, Detector))

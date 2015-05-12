@@ -215,8 +215,9 @@ class XasScan(Scan):
     def runPreparers(self, beanGroup, experimentFullPath, sampleBean, scanBean, detectorBean, outputBean):
         self.detectorPreparer.prepare(scanBean, detectorBean, outputBean, experimentFullPath)
         meta_clear_alldynamical()
+        self.outputPreparer._resetAsciiStaticMetadataList()
         sampleScannables = self.samplePreparer.prepare(sampleBean)
-        outputScannables = self.outputPreparer.prepare(outputBean, scanBean)
+        outputScannables = self.outputPreparer.prepare(outputBean, scanBean, sampleBean)
         scanPlotSettings = self.outputPreparer.getPlotSettings(detectorBean,outputBean)
         return sampleScannables, outputScannables, scanPlotSettings
 
