@@ -18,6 +18,9 @@
 
 package gda.data.nexus.napi;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import gda.data.nexus.NexusUtils;
 
 import java.net.URI;
@@ -32,8 +35,8 @@ import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class NexusFileTest {
@@ -93,7 +96,7 @@ public class NexusFileTest {
 		nf.openToWrite(false);
 		nf.link("/e/a/b", "/f/c");
 
-		nf.linkExternal(new URI("nxfile://./"+name+"#/e/a/b/d"), "/g", false);
+		nf.linkExternal(new URI("nxfile:///./"+name+"#/e/a/b/d"), "/g", false);
 		nf.close();
 
 		nf.openToRead();
@@ -107,51 +110,84 @@ public class NexusFileTest {
 		checkTextData(n, new int[] {3, 34});
 
 		n = nf.getData("/g");
-		Assert.assertNull(n);
+		checkData(n, shape);
 		nf.close();
 	}
 
 	private void checkGroup(GroupNode g) {
-		Assert.assertTrue(g.containsAttribute("hello"));
-		Assert.assertEquals("world", g.getAttribute("hello").getValue().getString());
-		Assert.assertTrue(g.isPopulated() && g.containsDataNode("d"));
+		assertTrue(g.containsAttribute("hello"));
+		assertEquals("world", g.getAttribute("hello").getValue().getString());
+		assertTrue(g.isPopulated() && g.containsDataNode("d"));
 	}
 
 	private void checkData(DataNode n, int[] shape) {
-		Assert.assertTrue(n.containsAttribute("value"));
-		Assert.assertEquals(-1.5, n.getAttribute("value").getValue().getDouble(), 1e-15);
+		assertTrue(n.containsAttribute("value"));
+		assertEquals(-1.5, n.getAttribute("value").getValue().getDouble(), 1e-15);
 		ILazyDataset b = n.getDataset();
-		Assert.assertTrue(b.elementClass().equals(Short.class));
-		Assert.assertArrayEquals(shape, b.getShape());
+		assertTrue(b.elementClass().equals(Short.class));
+		assertArrayEquals(shape, b.getShape());
 		IDataset bs = b.getSlice();
-		Assert.assertEquals(0, bs.getLong(0, 0));
-		Assert.assertEquals(-5, bs.getLong(1, 10));
+		assertEquals(0, bs.getLong(0, 0));
+		assertEquals(-5, bs.getLong(1, 10));
 	}
 
 	private void checkEData(DataNode n, int[] shape) {
 		ILazyDataset b = n.getDataset();
-		Assert.assertTrue(b.elementClass().equals(Double.class));
-		Assert.assertArrayEquals(shape, b.getShape());
+		assertTrue(b.elementClass().equals(Double.class));
+		assertArrayEquals(shape, b.getShape());
 		IDataset bs = b.getSlice();
-		Assert.assertEquals(0, bs.getDouble(0, 0), 1e-12);
-		Assert.assertEquals(0, bs.getDouble(0, 2), 1e-12);
-		Assert.assertEquals(0, bs.getDouble(0, 10), 1e-12);
-		Assert.assertEquals(0, bs.getDouble(1, 0), 1e-12);
-		Assert.assertEquals(0, bs.getDouble(1, 2), 1e-12);
-		Assert.assertEquals(0, bs.getDouble(1, 10), 1e-12);
-		Assert.assertEquals(0, bs.getDouble(2, 0), 1e-12);
-		Assert.assertEquals(0, bs.getDouble(2, 2), 1e-12);
-		Assert.assertEquals(-9, bs.getDouble(2, 10), 1e-12);
+		assertEquals(0, bs.getDouble(0, 0), 1e-12);
+		assertEquals(0, bs.getDouble(0, 2), 1e-12);
+		assertEquals(0, bs.getDouble(0, 10), 1e-12);
+		assertEquals(0, bs.getDouble(1, 0), 1e-12);
+		assertEquals(0, bs.getDouble(1, 2), 1e-12);
+		assertEquals(0, bs.getDouble(1, 10), 1e-12);
+		assertEquals(0, bs.getDouble(2, 0), 1e-12);
+		assertEquals(0, bs.getDouble(2, 2), 1e-12);
+		assertEquals(-9, bs.getDouble(2, 10), 1e-12);
 	}
 
 	private void checkTextData(DataNode n, int[] shape) {
 		ILazyDataset b = n.getDataset();
-		Assert.assertTrue(b.elementClass().equals(String.class));
+		assertTrue(b.elementClass().equals(String.class));
 		// NAPI is broken wrt strings so skip for time being
 //		Assert.assertArrayEquals(shape, b.getShape());
 //		IDataset bs = b.getSlice();
-//		Assert.assertEquals("", bs.getString(0, 0));
-//		Assert.assertEquals("Hello", bs.getString(2, 3));
-//		Assert.assertEquals("World", bs.getString(3, 3));
+//		assertEquals("", bs.getString(0, 0));
+//		assertEquals("Hello", bs.getString(2, 3));
+//		assertEquals("World", bs.getString(3, 3));
+	}
+
+	@Test
+	public void testLinked() throws NexusException {
+		String d = "testfiles/gda/data/nexus/";
+		String n = "testnapilinks.nxs";
+
+		NexusFile f = NexusUtils.openNexusFileReadOnly(d + n);
+
+		// original
+		int[] shape;
+		IDataset ds;
+		shape = new int[] {25, 3};
+		ds = f.getData("/entry1/to/this/level/d1").getDataset().getSlice();
+		assertArrayEquals(shape, ds.getShape());
+		assertEquals(1, ds.getInt(0, 1));
+		assertEquals(5, ds.getInt(1, 2));
+		assertEquals(37, ds.getInt(12, 1));
+
+		shape = new int[] {2, 5};
+		ds = f.getData("/d_el").getDataset().getSlice();
+		assertArrayEquals(shape, ds.getShape());
+		assertEquals(1., ds.getDouble(0, 1), 1e-8);
+		assertEquals(9., ds.getDouble(1, 4), 1e-8);
+
+//		ds = f.getData("/entry1/to/this/level/extdst").getDataset().getSlice();
+//		assertArrayEquals(shape, ds.getShape());
+//		assertEquals(1., ds.getDouble(0, 1), 1e-8);
+//		assertEquals(9., ds.getDouble(1, 4), 1e-8);
+
+		// cannot get string attributes written by h5py(!!!)
+//		GroupNode g = f.getGroup("/g_el/lies", false);
+//		assertEquals("ballyhoo", g.getAttribute("a1").getFirstElement());
 	}
 }
