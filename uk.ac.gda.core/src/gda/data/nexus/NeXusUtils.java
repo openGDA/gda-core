@@ -300,7 +300,7 @@ public class NeXusUtils {
 		Metadata metadata = GDAMetadataProvider.getInstance();
 
 		for (String string : list) {
-			if ((metadata.getMetadataValue(string)).isEmpty() == false) {
+			if (!metadata.getMetadataValue(string).isEmpty()) {
 				return true;
 			}
 		}
