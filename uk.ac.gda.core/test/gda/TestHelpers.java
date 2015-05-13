@@ -21,7 +21,6 @@ package gda;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.INeXusInfoWriteable;
-import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -46,7 +45,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
@@ -422,10 +424,13 @@ class SimpleScannable implements Scannable, INeXusInfoWriteable {
 	}
 
 	@Override
-	public void writeNeXusInformation(NexusFile file, GroupNode group) throws NexusException {
+	public void writeNeXusInformation(NexusFile file, Node node) throws NexusException {
 		try {
 			if (units != null && units.length > 0) {
-				NexusUtils.writeStringAttribute(file, group, "units", units[0]);
+				Dataset ad = DatasetFactory.createFromObject(units[0]);
+				ad.setName("units");
+				Attribute a = file.createAttribute(node, ad);
+				file.addAttribute(node, a);
 			}
 		} catch (NexusException e) {
 			logger.debug("DOF: Problem writing additional info to NeXus file.");

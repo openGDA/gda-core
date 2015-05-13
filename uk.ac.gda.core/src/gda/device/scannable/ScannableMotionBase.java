@@ -34,6 +34,7 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.python.core.PyException;
@@ -491,10 +492,11 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 	}
 
 	@Override
-	public void writeNeXusInformation(NexusFile file, GroupNode group) throws NexusException {
-		writeNeXusInformationLimits(file, group);
+	public void writeNeXusInformation(NexusFile file, Node node) throws NexusException {
+		if (node instanceof GroupNode)
+			writeNeXusInformationLimits(file, (GroupNode) node);
 	}
-	
+
 	protected void writeNeXusInformationLimits(NexusFile file, GroupNode group) throws NexusException {
 		Double[] upperLimits = getUpperGdaLimits();
 		if (upperLimits != null)
