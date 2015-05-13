@@ -210,6 +210,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 						logger.error("Cannot open to group: {}", bpath, e);
 						throw new NexusException("Cannot open to group", e);
 					}
+					copyAttributes(link.getName(), g);
 					populate(bpath, g);
 				}
 				return g;
@@ -276,7 +277,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	 * @param path
 	 * @param createPathIfNecessary
 	 * @param toBottom
-	 * @return name, NeXus class, group, path (with {@value Node#SEPARATOR}), group, bottom node
+	 * @return name, NeXus class, group, path (with {@value Node#SEPARATOR}), external link, group, bottom node
 	 * @throws NexusException 
 	 */
 	private Tuple<String, GroupNode, Node> openAll(String path, boolean createPathIfNecessary, boolean toBottom) throws NexusException {
@@ -322,11 +323,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 				populate(gpath, group);
 			}
 			if (!group.containsGroupNode(name)) {
-				GroupNode g = TreeFactory.createGroupNode(cpath.hashCode());
-				if (clazz != null && !clazz.isEmpty())
-					g.addAttribute(TreeFactory.createAttribute(tree, name, NXCLASS, clazz, false));
-				copyAttributes(name, g);
-				group.addGroupNode(tree, ppath, name, g);
+				createGroupNode(cpath.hashCode(), group, ppath, name, clazz);
 			}
 			group = group.getGroupNode(name);
 			ppath = gpath;
@@ -374,6 +371,15 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		return new Tuple<String, GroupNode, Node>(name, clazz, ppath, ext, group, node);
 	}
 
+	private void createGroupNode(long oid, GroupNode group, String path, String name, String clazz)
+			throws NexusException {
+		GroupNode g = TreeFactory.createGroupNode(oid);
+		if (clazz != null && !clazz.isEmpty())
+			g.addAttribute(TreeFactory.createAttribute(tree, name, NXCLASS, clazz, false));
+		copyAttributes(name, g);
+		group.addGroupNode(tree, path, name, g);
+	}
+
 	/**
 	 * Populate group
 	 * @param path path to group (ends with {@link Node#SEPARATOR})
@@ -402,11 +408,9 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 						}
 					}
 				} else {
-					GroupNode g = TreeFactory.createGroupNode(npath.hashCode());
-					Attribute a = TreeFactory.createAttribute(tree, n, NXCLASS, c, false);
-					g.addAttribute(a);
-					copyAttributes(n, g);
-					group.addGroupNode(tree, path, n, g);
+					file.opengroup(n, c);
+					createGroupNode(npath.hashCode(), group, path, n, c);
+					file.closegroup();
 				}
 			}
 		} catch (org.nexusformat.NexusException e) {
@@ -889,7 +893,8 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 				tuple.node.addAttribute(a);
 				IDataset d = a.getValue();
 				if (d.elementClass().equals(String.class)) {
-					file.putattr(a.getName(), d.getString().getBytes(), NexusFile.NX_CHAR);
+					NexusGroupData ngd = NexusGroupData.createFromDataset(d);
+					file.putattr(a.getName(), ngd.getBuffer(true), NexusFile.NX_CHAR);
 				} else {
 					file.putattr(a.getName(), DatasetUtils.serializeDataset(d), getType(d));
 				}
@@ -900,6 +905,12 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		} finally {
 			if (tuple.node instanceof DataNode) {
 				closeDataset(tuple.name);
+			}
+			try {
+				file.closegroup();
+			} catch (org.nexusformat.NexusException e) {
+				logger.error("Problem closing group: {}", tuple.node, e);
+				throw new NexusException("Problem closing group", e);
 			}
 		}
 	}
