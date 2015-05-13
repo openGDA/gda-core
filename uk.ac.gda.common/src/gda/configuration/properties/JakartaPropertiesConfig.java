@@ -195,6 +195,9 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 	 */
 	@Override
 	public void dumpProperties() {
+		
+		((ch.qos.logback.classic.Logger)logger).setLevel(ch.qos.logback.classic.Level.DEBUG);
+		
 		@SuppressWarnings("unchecked")
 		Iterator<String> keyIterator = config.getKeys();
 
@@ -208,10 +211,10 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 					// processing
 					// done by commons config applied - ie string
 					// interpolation, etc.
-					logger.debug(key + " = " + LocalProperties.get(key));
+					logger.info(key + " = " + LocalProperties.get(key));
 				} else {
 					// Handle non-string objects, eg ArrayList's
-					logger.debug(key + " = " + o.toString());
+					logger.info(key + " = " + o.toString());
 				}
 			}
 		}

@@ -371,6 +371,10 @@ public class LocalProperties {
 
 	}
 
+	public static void dumpProperties() {
+		propConfig.dumpProperties();
+	}
+
 	/**
 	 * Set a group of string-valued properties. An array of strings is passed in and each string is expected to be of
 	 * the form "A=B". Each string is parsed into its a key (A) and a value (B). A string property is then set using
