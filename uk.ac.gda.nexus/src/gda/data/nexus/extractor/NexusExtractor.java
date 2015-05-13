@@ -211,7 +211,8 @@ final public class NexusExtractor implements INexusDataGetter {
 			}
 		}
 		GroupNode c;
-		if (group.name.equals(Tree.ROOT)) {
+		boolean isRoot = group.name.equals(Tree.ROOT);
+		if (isRoot) {
 			c = file.getGroup(group.name, false);
 		} else {
 			c = file.getGroup((GroupNode) group.parent, group.name, group.NXclass, false);
@@ -235,13 +236,18 @@ final public class NexusExtractor implements INexusDataGetter {
 					break;
 				}
 			}
-			Iterator<? extends Attribute> ait = c.getAttributeIterator();
-			while (it.hasNext()) {
-				Attribute a = ait.next();
-				RESPONSE response2 = loop(new Attr(c, a.getName(), a), mon);
-				if (response2 == RESPONSE.NO_MORE) {
-					response = RESPONSE.NO_MORE;
-					break;
+			if (!isRoot) {
+				Iterator<? extends Attribute> ait = c.getAttributeIterator();
+				while (ait.hasNext()) {
+					Attribute a = ait.next();
+					if (NexusFile.NXCLASS.equals(a.getName()))
+							continue; // skip NX_class
+	
+					RESPONSE response2 = loop(new Attr(c, a.getName(), a), mon);
+					if (response2 == RESPONSE.NO_MORE) {
+						response = RESPONSE.NO_MORE;
+						break;
+					}
 				}
 			}
 		} catch (NexusException e) {
