@@ -194,6 +194,8 @@ public class NexusUtils {
 	 * @throws NexusException 
 	 */
 	public static DataNode writeString(NexusFile file, GroupNode group, String name, String value) throws NexusException {
+		if (name == null || name.isEmpty() || value == null || value.isEmpty())
+			return null;
 		return write(file, group, name, value);
 	}
 
