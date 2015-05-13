@@ -258,6 +258,9 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			print(String.format("PauseTime is %d ADCmode is %d and Pixrate is %d", readouttime, getADCMode(),
 					getPixRate()));
 		}
+		else {
+			LoggerFactory.getLogger("PCOControllerV17:"+this.getName()).info("getReadoutTime: Not live!");
+		}
 		return readouttime;
 
 	}
@@ -278,6 +281,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public void setADCMode(int value) throws Exception {
 		if (!isLive) {
+			LoggerFactory.getLogger("PCOControllerV17:"+this.getName()).info("setADCMode: Not live!");
 			return;
 		}
 
@@ -473,6 +477,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public void setAcquireMode(int value) throws Exception {
 		if (!isLive) {
+			LoggerFactory.getLogger("PCOControllerV17:"+this.getName()).info("setAcquireMode: Not live!");
 			return;
 		}
 
@@ -519,6 +524,7 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 	@Override
 	public void setArmMode(int value) throws Exception {
 		if (!isLive) {
+			LoggerFactory.getLogger("PCOControllerV17:"+this.getName()).info("setArmMode: Not live!");
 			return;
 		}
 		if (value != 0 && value != 1) {
@@ -598,6 +604,9 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			// Set the timestamp mode to the initial time stamp mode
 			setTimestampMode(initialTimestampMode);
 		}
+		else {
+			LoggerFactory.getLogger("PCOControllerV17:"+this.getName()).info("resetAll: Not live!");
+		}
 		if (areaDetector != null)
 			areaDetector.reset();
 		if (draw != null)
@@ -660,6 +669,9 @@ public class PCOControllerV17 implements IPCOControllerV17, InitializingBean {
 			if (getArmMode() == 1) {
 				setArmMode(0); // disarm camera before change parameters
 			}
+		}
+		else {
+			LoggerFactory.getLogger("PCOControllerV17:"+this.getName()).info("makeDetectorReadyForCollection: Not live!");
 		}
 		areaDetector.setArrayCounter(0);
 		tiff.stopCapture();

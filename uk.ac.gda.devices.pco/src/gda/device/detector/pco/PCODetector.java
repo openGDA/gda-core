@@ -273,6 +273,9 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 					controller.disarmCamera();
 				}
 			}
+			else {
+				LoggerFactory.getLogger("PCODetector:"+this.getName()).info("setCollectionTime: Not live!");
+			}
 			ADBase areaDetector = controller.getAreaDetector();
 			areaDetector.setAcquireTime(collectionTime);
 			this.collectionTime = collectionTime;
@@ -291,6 +294,9 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 				if (controller.isArmed()) {
 					controller.disarmCamera();
 				}
+			}
+			else {
+				LoggerFactory.getLogger("PCODetector:"+this.getName()).info("setCollectionTime: Not live!");
 			}
 			ADBase areaDetector = controller.getAreaDetector();
 			areaDetector.setAcquireTime(collectionTime);
@@ -1185,6 +1191,9 @@ public class PCODetector extends DetectorBase implements InitializingBean, IPCOD
 		// The ADC mode is available only the actual PCO IOC and not the simulation
 		if (LiveModeUtil.isLiveMode()) {
 			controller.setADCMode(mode);
+		}
+		else {
+			LoggerFactory.getLogger("PCODetector:"+this.getName()).info("setADCMode: Not live!");
 		}
 	}
 
