@@ -89,17 +89,17 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 		}
 		
 		if (componentName != null) {
-			NexusUtils.writeStringAttribute(file, group, "local_name", scannableName + "." + componentName);
+			NexusUtils.writeStringAttribute(file, data, "local_name", scannableName + "." + componentName);
 		}
 
 		final StringBuilder axislist = new StringBuilder(dim.length * 3 + 1).append('1');
 		for (int j = 2; j <= dim.length; j++) {
 			axislist.append(',').append(j);
 		}
-		NexusUtils.writeStringAttribute(file, group, "axis", axislist.toString());
+		NexusUtils.writeStringAttribute(file, data, "axis", axislist.toString());
 
 		if (StringUtils.isNotBlank(unit)) {
-			NexusUtils.writeStringAttribute(file, group, "units", unit);
+			NexusUtils.writeStringAttribute(file, data, "units", unit);
 		}
 
 		addCustomAttributes(file, group, scannableName, componentName);

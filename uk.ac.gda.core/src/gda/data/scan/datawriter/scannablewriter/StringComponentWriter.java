@@ -29,6 +29,7 @@ import java.util.Collections;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
@@ -96,7 +97,7 @@ public class StringComponentWriter extends DefaultComponentWriter {
 		rank = dim.length;
 
 		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(name, Dataset.STRING, dim, null, null);
-		file.createData(group, lazy);
+		DataNode data = file.createData(group, lazy);
 
 		int[] sstart = nulldimfordim(dim);
 		int[] sshape = slabsizedimfordim(dim);
@@ -113,7 +114,7 @@ public class StringComponentWriter extends DefaultComponentWriter {
 		}
 
 		if (componentName != null) {
-			NexusUtils.writeStringAttribute(file, group, "local_name", scannableName + "." + componentName);
+			NexusUtils.writeStringAttribute(file, data, "local_name", scannableName + "." + componentName);
 		}
 
 		addCustomAttributes(file, group, scannableName, componentName);

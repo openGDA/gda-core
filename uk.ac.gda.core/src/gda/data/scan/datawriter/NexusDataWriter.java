@@ -585,12 +585,13 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			if (makeData) {
 				NexusGroupData data = tree.getData();
 				if (data != null && data.getBuffer() != null) {
+					DataNode node = file.getData(group, name);
 					if ("axis".equals(name) || "label".equals(name)) {
 						Integer axisno = getIntfromBuffer(data.getBuffer());
 						axisno += thisPoint.getScanDimensions().length;
-						NexusUtils.writeStringAttribute(file, group, name, axisno.toString());
+						NexusUtils.writeStringAttribute(file, node, name, axisno.toString());
 					} else {
-						NexusUtils.writeAttribute(file, group, name, data.toDataset());
+						NexusUtils.writeAttribute(file, node, name, data.toDataset());
 					}
 				}
 			}
@@ -996,7 +997,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					DataNode data = file.createData(g, lazy);
 
 					// Get a link ID to this data set.
-					NexusUtils.writeStringAttribute(file, g, "local_name", String.format("%s.%s", scannable.getName(), element));
+					NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", scannable.getName(), element));
 
 					// assign axes
 					if (thisPoint.getScanDimensions().length > 0) {
@@ -1006,10 +1007,10 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 						// this is not solvable given the current data in SDP
 
 						if ((thisPoint.getScanDimensions().length) > inputnameindex) {
-							NexusUtils.writeStringAttribute(file, g, "label", String.format("%d", inputnameindex + 1));
-							NexusUtils.writeStringAttribute(file, g, "primary", "1");
+							NexusUtils.writeStringAttribute(file, data, "label", String.format("%d", inputnameindex + 1));
+							NexusUtils.writeStringAttribute(file, data, "primary", "1");
 						}
-						NexusUtils.writeStringAttribute(file, g, "axis", axislist);
+						NexusUtils.writeStringAttribute(file, data, "axis", axislist);
 					}
 
 					scannableID.add(new SelfCreatingLink(data));
@@ -1024,10 +1025,10 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					DataNode data = file.createData(g, lazy);
 
 					// Get a link ID to this data set.
-					NexusUtils.writeStringAttribute(file, g, "local_name", String.format("%s.%s", scannable.getName(), element));
+					NexusUtils.writeStringAttribute(file, data, "local_name", String.format("%s.%s", scannable.getName(), element));
 
 					if (thisPoint.getDetectorNames().isEmpty() && extranameindex == 0) {
-						NexusUtils.writeStringAttribute(file, g, "signal", "1");
+						NexusUtils.writeStringAttribute(file, data, "signal", "1");
 					}
 
 					scannableID.add(new SelfCreatingLink(data));
