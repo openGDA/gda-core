@@ -746,8 +746,8 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 				
 				// Create (and open) group for the scannable
 				String groupName = getGroupNameFor(scannable);
-				NexusUtils.addToAugmentPath(path, scannable.getName(), groupName);
-				GroupNode g = file.getGroup(path.toString(), true);
+				StringBuilder p = NexusUtils.addToAugmentPath(new StringBuilder(path), scannable.getName(), groupName);
+				GroupNode g = file.getGroup(p.toString(), true);
 
 				// Check to see if the scannable will write its own info into NeXus
 				if (scannable instanceof INeXusInfoWriteable) {

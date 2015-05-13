@@ -65,7 +65,7 @@ public class NexusFileFactory {
 		// NXentry called "entry1". This is because of the way that the
 		// metadata classes have been written (i.e. they expect an entry called entry1!)
 
-		String entryName = "entry1";
+		String entryName = "/entry1";
 		nf.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), true);
 
 		// add XES definition to file.

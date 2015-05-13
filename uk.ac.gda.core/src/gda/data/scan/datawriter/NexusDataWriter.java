@@ -846,7 +846,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 	private void makeMetadata() {
 		try {
-			GroupNode g = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
+			GroupNode g = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), true);
 
 			NexusUtils.writeString(file, g, "scan_command", thisPoint.getCommand());
 			String scanid = "";
@@ -981,8 +981,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				String[] extraNames = scannable.getExtraNames();
 
 				String groupName = getGroupClassFor(scannable);
-				NexusUtils.addToAugmentPath(new StringBuilder(path), scannable.getName(), groupName);
-				GroupNode g = file.getGroup(path.toString(), true);
+				StringBuilder p = NexusUtils.addToAugmentPath(new StringBuilder(path), scannable.getName(), groupName);
+				GroupNode g = file.getGroup(p.toString(), true);
 
 				// Check to see if the scannable will write its own info into NeXus
 				if (scannable instanceof INeXusInfoWriteable) {
@@ -1200,7 +1200,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		// if this is the only detector the fallback group would be better 
 		// Make and open NXdata
 		path.setLength(0);
-		NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
+		NexusUtils.addToAugmentPath(path, entryName, NexusExtractor.NXEntryClassName);
 		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDataClassName);
 		group = file.getGroup(path.toString(), true);
 
@@ -1376,9 +1376,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 * @throws Exception
 	 */
 	protected NexusFile createFile() throws Exception {
-		NexusFile f = NexusUtils.createNexusFile(nexusFileUrl);
-		f.setDebug(LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
-		return f;
+		return NexusFileFactory.createFile(nexusFileUrl, LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
 	}
 	
 	/**
