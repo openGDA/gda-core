@@ -122,7 +122,7 @@ Move completed: cam1 : t: 1.500000 path: 122201.0
                 dt, t = time.time()-t, time.time()
                 print "%s.readout() (%fs) creating DataSet..." % (self.name, dt)
             
-            self.ds = DoubleDataset(int(float(self.pvs['HEIGHT'].caget())), int(float(self.pvs['WIDTH'].caget())), data)
+            self.ds = DoubleDataset(data, [int(float(self.pvs['HEIGHT'].caget())), int(float(self.pvs['WIDTH'].caget()))])
             
             if self.verbose:
                 dt, t = time.time()-t, time.time()
