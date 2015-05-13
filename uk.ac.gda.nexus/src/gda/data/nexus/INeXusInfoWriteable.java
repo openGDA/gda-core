@@ -18,7 +18,7 @@
 
 package gda.data.nexus;
 
-import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 
@@ -31,9 +31,9 @@ public interface INeXusInfoWriteable {
 	/**
 	 * @param file
 	 *            nexus file handle
-	 * @param group
+	 * @param node
 	 * @throws NexusException 
 	 */
-	public void writeNeXusInformation(NexusFile file, GroupNode group) throws NexusException;
+	public void writeNeXusInformation(NexusFile file, Node node) throws NexusException;
 
 }
