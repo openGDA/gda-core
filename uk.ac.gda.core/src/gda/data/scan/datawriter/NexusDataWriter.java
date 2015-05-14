@@ -67,6 +67,7 @@ import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
@@ -585,13 +586,23 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			if (makeData) {
 				NexusGroupData data = tree.getData();
 				if (data != null && data.getBuffer() != null) {
-					DataNode node = file.getData(group, name);
+					INexusTree parent = tree.getParentNode();
+					Node node;
+					if (parent.getNxClass().equals(NexusExtractor.SDSClassName)) {
+						node = file.getData(group, parent.getName());
+					} else {
+						node = file.getGroup(group, parent.getName(), parent.getNxClass(), false);
+					}
 					if ("axis".equals(name) || "label".equals(name)) {
 						Integer axisno = getIntfromBuffer(data.getBuffer());
 						axisno += thisPoint.getScanDimensions().length;
 						NexusUtils.writeStringAttribute(file, node, name, axisno.toString());
 					} else {
-						NexusUtils.writeAttribute(file, node, name, data.toDataset());
+						if (data.isChar()) {
+							NexusUtils.writeStringAttribute(file, node, name, data.toString());
+						} else {
+							NexusUtils.writeAttribute(file, node, name, data.toDataset());
+						}
 					}
 				}
 			}
