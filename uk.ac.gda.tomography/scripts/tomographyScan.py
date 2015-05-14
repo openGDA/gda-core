@@ -178,27 +178,27 @@ def addNXTomoSubentry(scanObject, tomography_detector_name, tomography_theta_nam
     
     nxLinkCreator = NXTomoEntryLinkCreator()
     
-    default_placeholder_target = "entry1:NXentry/scan_identifier:NXdata"
+    default_placeholder_target = "entry1:NXentry/scan_identifier:SDS"
     
     # detector independent items
-    nxLinkCreator.setControl_data_target("entry1:NXentry/instrument:NXinstrument/source:NXsource/current:NXdata")
+    nxLinkCreator.setControl_data_target("entry1:NXentry/instrument:NXinstrument/source:NXsource/current:SDS")
     
     nxLinkCreator.setInstrument_detector_distance_target(default_placeholder_target)
-    nxLinkCreator.setInstrument_detector_image_key_target("entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/image_key:NXdata")
+    nxLinkCreator.setInstrument_detector_image_key_target("entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/image_key:SDS")
     nxLinkCreator.setInstrument_detector_x_pixel_size_target(default_placeholder_target)
     nxLinkCreator.setInstrument_detector_y_pixel_size_target(default_placeholder_target)
     
     nxLinkCreator.setInstrument_source_target("entry1:NXentry/instrument:NXinstrument/source:NXsource")
     
     sample_rotation_angle_target = "entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/" 
-    sample_rotation_angle_target += tomography_theta_name + ":NXdata"
+    sample_rotation_angle_target += tomography_theta_name + ":SDS"
     nxLinkCreator.setSample_rotation_angle_target(sample_rotation_angle_target);
     
     nxLinkCreator.setSample_x_translation_target(default_placeholder_target)
     nxLinkCreator.setSample_y_translation_target(default_placeholder_target)
     nxLinkCreator.setSample_z_translation_target(default_placeholder_target)
     
-    nxLinkCreator.setTitle_target("entry1:NXentry/title:NXdata")
+    nxLinkCreator.setTitle_target("entry1:NXentry/title:SDS")
     
     # detector dependent items
     if tomography_detector_name == "pco4000_dio_hdf":
@@ -211,13 +211,13 @@ def addNXTomoSubentry(scanObject, tomography_detector_name, tomography_theta_nam
         # image filenames
         instrument_detector_data_target = "entry1:NXentry/instrument:NXinstrument/"
         instrument_detector_data_target += tomography_detector_name + ":NXdetector/"
-        instrument_detector_data_target += "image_data:NXdata"
+        instrument_detector_data_target += "image_data:SDS"
         nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
     elif tomography_detector_name == "pco":
         # image filenames
         instrument_detector_data_target = "entry1:NXentry/instrument:NXinstrument/"
         instrument_detector_data_target += tomography_detector_name + ":NXdetector/"
-        instrument_detector_data_target += "data_file:NXnote/file_name:NXdata"
+        instrument_detector_data_target += "data_file:NXnote/file_name:SDS"
         nxLinkCreator.setInstrument_detector_data_target(instrument_detector_data_target)
     else:
         print "Default target used for unsupported tomography detector in addNXTomoSubentry: " + tomography_detector_name
