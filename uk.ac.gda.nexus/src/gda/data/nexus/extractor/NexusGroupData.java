@@ -22,8 +22,8 @@ import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.NexusUtils;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
@@ -73,6 +73,8 @@ public class NexusGroupData implements Serializable {
 	private boolean isUnsigned = false;
 
 	private int textLength = -1;
+
+	private static final Charset UTF8 = Charset.forName("UTF-8");
 
 	NexusGroupData() {
 	}
@@ -182,11 +184,7 @@ public class NexusGroupData implements Serializable {
 			String t = text[i];
 			if (t == null)
 				continue;
-			try {
-				lines[i] = t.getBytes("UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				lines[i] = t.getBytes();
-			}
+			lines[i] = t.getBytes(UTF8);
 			max = Math.max(max, lines[i].length);
 		}
 		if (maxLength == null || maxLength < 0) {
@@ -212,24 +210,14 @@ public class NexusGroupData implements Serializable {
 	private String[] makeStrings(byte[] bdata) {
 		if (textLength <= 0) { // single string case
 			String text;
-			try {
-				text = new String(bdata, "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				text = new String(bdata);
-			}
+			text = new String(bdata, UTF8);
 			return new String[] {text};
 		}
 		int n = bdata.length / textLength;
 		String[] text = new String[n];
-		byte[] string = new byte[textLength + 1];
 		int k = 0;
 		for (int i = 0; i < n; i++) {
-			System.arraycopy(bdata, k, string, 0, textLength);
-			try {
-				text[i] = new String(string, "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				text[i] = new String(string);
-			}
+			text[i] = new String(bdata, k, textLength, UTF8);
 			k += textLength;
 		}
 		return text;
@@ -239,11 +227,7 @@ public class NexusGroupData implements Serializable {
 	 * @param s String from which to make a NexusGroupData
 	 */
 	public NexusGroupData(String s) {
-		try {
-			data = s.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			data = s.getBytes();
-		}
+		data = s.getBytes(UTF8);
 		dimensions = new int[1];
 		dimensions[0] = s.length();
 		type = NexusGlobals.NX_CHAR;
@@ -254,11 +238,7 @@ public class NexusGroupData implements Serializable {
 	 * @param s String from which to make a NexusGroupData
 	 */
 	public NexusGroupData(int length, String s) {
-		try {
-			data = Arrays.copyOf(s.getBytes("UTF-8"), length);
-		} catch (UnsupportedEncodingException e) {
-			data = Arrays.copyOf(s.getBytes(), length);
-		}
+		data = Arrays.copyOf(s.getBytes(UTF8), length);
 		dimensions = new int[] {length};
 		type = NexusGlobals.NX_CHAR;
 	}
