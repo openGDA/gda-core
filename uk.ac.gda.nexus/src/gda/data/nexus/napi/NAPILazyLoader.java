@@ -20,10 +20,10 @@ package gda.data.nexus.napi;
 
 import java.io.File;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
@@ -33,7 +33,6 @@ import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
-import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
@@ -207,35 +206,23 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 		return d;
 	}
 
+	private static final Charset UTF8 = Charset.forName("UTF-8");
+
 	private static Dataset readSlabAsStrings(NexusFile file, int length, int[] start, int[] size, byte[] buffer) throws NexusException {
-		int[] bstart;
-		int[] bsize;
-		if (start.length > 1) {
-			bstart = Arrays.copyOf(start, start.length + 1);
-			bsize = Arrays.copyOf(size, size.length + 1);
-		} else {
-			bstart = start;
-			bsize = size.clone();
-		}
-		bsize[bsize.length - 1] = length;
-		if (AbstractDataset.calcSize(bsize) != buffer.length) {
-			throw new IllegalArgumentException("Buffer of incorrect length");
-		}
-		file.getslab(bstart, bsize, buffer);
-		byte[] text = new byte[length];
+		file.getdata(buffer);
 		StringDataset data = new StringDataset(size);
 		IndexIterator it = data.getIterator();
 		String[] strings = data.getData();
 		int k = 0;
 		while (it.hasNext()) {
-			System.arraycopy(buffer, k, text, 0, length);
+			strings[it.index] = new String(buffer, k, length, UTF8);
 			k += length;
-			try {
-				strings[it.index] = new String(text, "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				strings[it.index] = new String(text);
-			}
 		}
-		return data;
+
+		int[] stop = new int[start.length];
+		for (int i = 0; i < start.length; i++) {
+			stop[i] = start[i] + size[i];
+		}
+		return data.getSlice(start, stop, null);
 	}
 }
