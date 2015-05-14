@@ -316,16 +316,17 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 				}
 				break;
 			}
+			if (!group.containsGroupNode(name)) {
+				createGroupNode(cpath.hashCode(), group, ppath, name, clazz);
+			}
+			group = group.getGroupNode(name);
 			cpath.append(name);
 			cpath.append(Node.SEPARATOR);
 			String gpath = cpath.toString();
 			if (!group.isPopulated()) {
 				populate(gpath, group);
 			}
-			if (!group.containsGroupNode(name)) {
-				createGroupNode(cpath.hashCode(), group, ppath, name, clazz);
-			}
-			group = group.getGroupNode(name);
+
 			ppath = gpath;
 		}
 		if (ext != null && ext != IS_DATA) {
