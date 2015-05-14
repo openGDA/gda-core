@@ -368,6 +368,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		}
 		if (name != null && !toBottom) {
 			name = pairs[imax][0];
+			clazz = pairs[imax].length < 2 ? "" : pairs[imax][1];
 		}
 		return new Tuple<String, GroupNode, Node>(name, clazz, ppath, ext, group, node);
 	}
