@@ -125,7 +125,7 @@ public class NXLinkCreator {
 	 * @param key
 	 * @param target
 	 * Formats for target:
-	 * "/entry1:NXentry/default:NXdata/simpleScannable1:NXdata" - creates a hard link to a location in current file
+	 * "/entry1:NXentry/default:NXdata/simpleScannable1:SDS" - creates a hard link to a location in current file
 	 * "nxfile://<filePath>#entry1/SimpleDetector1/simpleScannable1" - create soft link to a location in other file
 	 * "#entry2/test2" - create soft link to location in current file - NB h5py module in Python cannot read this
 	 */
