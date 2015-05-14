@@ -936,25 +936,39 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		if (sname == null) {
 			throw new IllegalArgumentException("Source does not exist");
 		}
-		if (!tuple.group.isPopulated()) {
-			populate(source.substring(0, source.length() - sname.length()), tuple.group);
-		}
-		NodeLink l = tuple.group.getNodeLink(sname);
-		NXlink t = null;
 		String uri = null;
-		try {
-			if (l.isDestinationData()) {
-				uri = openDataset(sname);
-				if (uri == null)
-					t = file.getdataID();
-			} else if (l.isDestinationGroup()) {
-				uri = openGroup(sname, tuple.clazz, false);
-				if (uri == null)
-					t = file.getgroupID();
+		boolean isData = false;
+		if (!tuple.group.isPopulated()) {
+			try {
+				populate(tuple.path, tuple.group);
+			} catch (NexusException e) {
+				// external link
+				if (tuple.clazz.equals(SDS)) {
+					isData = true;
+					uri = openDataset(sname);
+				} else {
+					uri = openGroup(sname, tuple.clazz, false);
+				}
 			}
-		} catch (org.nexusformat.NexusException e) {
-			logger.error("Problem getting source: {}", sname, e);
-			throw new NexusException("Problem getting source", e);
+		}
+		NXlink t = null;
+		if (uri == null) {
+			NodeLink l = tuple.group.getNodeLink(sname);
+			try {
+				if (l.isDestinationData()) {
+					isData = true;
+					uri = openDataset(sname);
+					if (uri == null)
+						t = file.getdataID();
+				} else if (l.isDestinationGroup()) {
+					uri = openGroup(sname, tuple.clazz, false);
+					if (uri == null)
+						t = file.getgroupID();
+				}
+			} catch (org.nexusformat.NexusException e) {
+				logger.error("Problem getting source: {}", sname, e);
+				throw new NexusException("Problem getting source", e);
+			}
 		}
 		if (t == null && uri == null) {
 			throw new IllegalArgumentException("Could not get link information as source was a link");
@@ -975,7 +989,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 				if (debug) {
 					logger.debug("Creating external link (thd {}): {}", Thread.currentThread(), uri);
 				}
-				if (l.isDestinationData()) {
+				if (isData) {
 					file.linkexternaldataset(sname, uri);
 				} else {
 					file.linkexternal(sname, tuple.clazz, uri);
