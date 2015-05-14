@@ -51,13 +51,13 @@ class Rscan(ConcurrentScanWrapper):
   rscan scn1 relstart relstop step [scnN relstart relstop step]... [scnN relstart step] [scnN [absolute_pos]]...
 
   As scan except positions of scannables to be scanned (but not simply moved) are relative. The former will be
-  reurned to their initial positions.
+  returned to their initial positions.
   
-  e.g.: rscan x -1 2 1 z                    --> loop x, for each step read value/position of z 
-        rscan x -1 2 1 z 1000               --> loop x, for each step expose/move z for/to 1 
-        rscan x -1 2 1 y -10 11 1 z 1000    --> loop x, for each x loop y, for each (x,y) step expose/move z for/to 1
-        rscan x -1 2 1 y -1 1 z 1000        --> loop x and y together (no ystop required), for each step expose/move z for/to 1
-        rscan x -1 2 1 y -2 2 1 z 1000 a b  --> combine any of the above!
+  e.g.: rscan x -1 2 1 z                 --> loop x, for each step read value/position of z
+        rscan x -1 2 1 z 3               --> loop x, for each step expose/move z for/to 3
+        rscan x -1 2 1 y -10 11 1 z 3    --> loop x, for each x loop y, for each (x,y) step expose/move z for/to 3
+        rscan x -1 2 1 y -1 1 z 3        --> loop x and y together (no ystop required), for each step expose/move z for/to 3
+        rscan x -1 2 1 y -2 2 1 z 3 a b  --> combine any of the above!
         
   See also scan."""
 	def __init__(self, scanListeners = None):

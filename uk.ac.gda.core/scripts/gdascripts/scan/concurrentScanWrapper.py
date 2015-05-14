@@ -1,9 +1,7 @@
 from copy import copy
 from gda.device.scannable import PseudoDevice, ScannableBase
 from gda.device import Scannable
-from gda.jython.commands.ScannableCommands import createScanPlotSettings, pos, \
-    configureScanPipelineParameters
-from gda.jython.commands.InputCommands import requestInput
+from gda.jython.commands.ScannableCommands import createScanPlotSettings, pos, configureScanPipelineParameters
 from gda.scan import ConcurrentScan, ScanBase, ScanPositionProvider
 from gdascripts.scan.SecondaryConcurrentScan import SecondaryConcurrentScan
 from gdascripts.scan.process.ScannableScan import ScannableScan
@@ -241,19 +239,26 @@ class ConcurrentScanWrapper(object):
         return result
 
     def makeAbsolute(self, argStruct, initialPositions):
-        #WARNING: will alter the original list
+        """
+        modifies the argStruct to make start and end positions absolute from relative
+        requires an initialPositions dictionary of scannable/position pairs
+        WARNING: will alter the original list
+        """
         for i in range(len(argStruct)):
             currentList = argStruct[i]
             if len(currentList) == 2 and isinstance(currentList[1], tuple):
-                initialPos = initialPositions[currentList[0]]
+                initialPos = initialPositions[currentList[0]] # Get initial position of current scannable from dict
                 newtuple = []
                 for pos in currentList[1]:
                     newtuple.append(add(pos, initialPos))
                 currentList[1] = tuple(newtuple)
-            elif len(currentList) in (3, 4):
-                initialPos = initialPositions[currentList[0]]
-                currentList[1] = add(currentList[1], initialPos)
-                currentList[2] = add(currentList[2], initialPos)
+            elif len(currentList) == 3: # [Scannable, start, step]
+                initialPos = initialPositions[currentList[0]] # Get initial position of current scannable from dict
+                currentList[1] = add(currentList[1], initialPos) # Make start absolute
+            elif len(currentList) == 4: # [Scannable, start, stop, step]
+                initialPos = initialPositions[currentList[0]] # Get initial position of current scannable from dict
+                currentList[1] = add(currentList[1], initialPos) # Make start absolute
+                currentList[2] = add(currentList[2], initialPos) # Make stop absolute
         return argStruct
 
     def returnToInitialPositions(self, initialPositionsDict):
