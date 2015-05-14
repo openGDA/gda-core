@@ -394,23 +394,26 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 				String n = e.getKey();
 				String c = e.getValue();
 				String npath = path + n;
-				if (c.equals(SDS)) {
-					String ext = openDataset(n);
-					if (ext == null) {
+				String ext = c.equals(SDS) ? openDataset(n) : openGroup(n, c, false);
+				if (ext == null) {
+					if (c.equals(SDS)) {
 						createDataNode(group, npath, n);
 					} else {
-						try {
-							Tuple<String, GroupNode, Node> ntuple = createExternalNode(null, ext, false, true);
-							group.addDataNode(tree, npath, n, (DataNode) ntuple.node);
-						} catch (Throwable t) {
-							logger.error("Could not create external group", t);
-							throw new NexusException("Could not create external group", t);
-						}
+						createGroupNode(npath.hashCode(), group, path, n, c);
+						file.closegroup();
 					}
 				} else {
-					file.opengroup(n, c);
-					createGroupNode(npath.hashCode(), group, path, n, c);
-					file.closegroup();
+					try {
+						Tuple<String, GroupNode, Node> ntuple = createExternalNode(null, ext, false, true);
+						if (ntuple.node instanceof GroupNode) {
+							group.addGroupNode(tree, npath, n, (GroupNode) ntuple.node);
+						} else if (ntuple.node instanceof DataNode) {
+							group.addDataNode(tree, npath, n, (DataNode) ntuple.node);
+						}
+					} catch (Throwable t) {
+						logger.error("Could not create external group", t);
+						throw new NexusException("Could not create external group", t);
+					}
 				}
 			}
 		} catch (org.nexusformat.NexusException e) {
@@ -467,7 +470,11 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			throw new NexusException("Problem getting attributes", e);
 		}
 		for (Entry<String, AttributeEntry> sa: map.entrySet()) {
-			node.addAttribute(createAttribute(name, sa.getKey(), sa.getValue()));
+			try {
+				node.addAttribute(createAttribute(name, sa.getKey(), sa.getValue()));
+			} catch (Throwable t) {
+				logger.warn("Could not get attr so ignoring {}", sa.getKey(), t);
+			}
 		}
 	}
 
@@ -559,6 +566,9 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		String nodepath = uri.getFragment();
 		if (rest != null && !rest.isEmpty()) {
 			nodepath = nodepath + Node.SEPARATOR + rest;
+		}
+		if (!nodepath.startsWith(Tree.ROOT)) {
+			nodepath = Tree.ROOT + nodepath;
 		}
 		Path p = Paths.get(filepath);
 		if (!Files.exists(p)) {
