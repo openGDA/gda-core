@@ -45,7 +45,6 @@ import gda.scan.IScanDataPoint;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -554,7 +553,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					 * 
 					 * so we need to replace the abs path with the relative path
 					 */
-					String link = new String((byte[]) data.getBuffer(), "UTF-8");
+					String link = ((String[]) data.getBuffer())[0];
 					//link is of format nxfile:// + filepath + # + address
 					String[] linkParts = link.split("nxfile://");
 					if( linkParts.length!=2){
@@ -575,7 +574,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					String relativeLink = "nxfile://" + relativize + "#" + address;
 					file.linkExternal(new URI(relativeLink), name, false);
 					links.add(new ExternalNXlink(name, relativeLink));
-				} catch (UnsupportedEncodingException | URISyntaxException e) {
+				} catch (URISyntaxException e) {
 					throw new NexusException(
 							"supported encoding in creating string for external linking -- this should never happen");
 				}
