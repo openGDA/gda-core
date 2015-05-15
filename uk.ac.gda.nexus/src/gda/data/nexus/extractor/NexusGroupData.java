@@ -667,6 +667,13 @@ public class NexusGroupData implements Serializable {
 		}
 	}
 
+	/**
+	 * @return dataset type
+	 */
+	public int getDtype() {
+		return getDtype(getType());
+	}
+
 	private int getDtype(int type) {
 		switch (type) {
 //		case NexusGlobals.NX_BOOLEAN:
