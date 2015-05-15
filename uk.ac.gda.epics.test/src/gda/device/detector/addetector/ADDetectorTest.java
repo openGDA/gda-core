@@ -483,8 +483,8 @@ public class ADDetectorTest {
 		assertEquals("/full/path/to/file99.cbf", readout.toString());
 		INexusTree rootNode = readout.getNexusTree().getChildNode(0);
 		assertEquals("testdet", rootNode.getName());
-		String actualPath = new String((byte[]) rootNode.getChildNode("data_file", "NXnote")
-				.getChildNode("file_name", "SDS").getData().getBuffer());
+		String actualPath = ((String[]) rootNode.getChildNode("data_file", "NXnote")
+				.getChildNode("file_name", "SDS").getData().getBuffer())[0];
 		assertEquals("/full/path/to/file99.cbf", actualPath.trim()); // trim gets rid of the internal null bytes from
 																		// actualString
 	}

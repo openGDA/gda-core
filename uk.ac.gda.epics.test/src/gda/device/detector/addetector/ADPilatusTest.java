@@ -188,8 +188,8 @@ public class ADPilatusTest extends ADDetectorTest {
 				.getBuffer(), .001);
 		assertArrayEquals(new double[] { 0.55 }, (double[]) rootNode.getChildNode("period", "SDS").getData()
 				.getBuffer(), .001);
-		String actualPath = new String((byte[]) rootNode.getChildNode("data_file", "NXnote")
-				.getChildNode("file_name", "SDS").getData().getBuffer());
+		String actualPath = ((String[]) rootNode.getChildNode("data_file", "NXnote")
+				.getChildNode("file_name", "SDS").getData().getBuffer())[0];
 		assertEquals(pathname, actualPath.trim()); // trim gets rid of the internal null bytes from
 	}
 
