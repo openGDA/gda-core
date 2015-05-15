@@ -18,9 +18,17 @@
 
 package gda.data.nexus;
 
-import gda.data.nexus.napi.NexusException;
+import java.util.Arrays;
 
-import org.junit.Ignore;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.junit.Test;
 
 /**
@@ -28,103 +36,37 @@ import org.junit.Test;
  */
 public class StringArrayTest {
 
-	/**
-	 * This is a dummy test, since no real JUnit tests exist in this class.
-	 */
-	@Ignore("Incomplete test class - it does contain not any Junit-runnable methods.")
 	@Test
-	public void dummyTest() {
-	// TODO: Remove dummyTest and add some Junit-runnable methods (add @Test where appropriate).
-	}
-
-	/**
-	 * @param argv
-	 */
-	public static void main(String[] argv) {
-		// TODO Auto-generated method stub
-
-		int[] startPos = new int[2];
-		int[] dimArray = new int[2];
-		String value = null;
-
-		int nDims = 2;
+	public void test() {
 		int nPoints = 10;
-		int defaultLength = 255;
 
 		try {
-			// Lets create a new file.
-			NexusFileInterface file = new gda.data.nexus.napi.NexusFile("/tmp/file.nxs", NexusGlobals.NXACC_CREATE5);
+			NexusFile nf = NexusUtils.createNexusFile("/tmp/file.nxs");
 
-			dimArray[0] = NexusGlobals.NX_UNLIMITED;
-			dimArray[1] = defaultLength;
-
-			file.makegroup("test", "NXnote");
-			file.opengroup("test", "NXnote");
-
-			file.makedata("stringarray", NexusGlobals.NX_CHAR, nDims, dimArray);
-
-			file.opendata("stringarray");
+			GroupNode g = nf.getGroup("/test:NXnote", true);
+			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("stringarray", Dataset.STRING, new int[] {ILazyWriteableDataset.UNLIMITED}, null, null);
+			nf.createData(g, lazy);
 
 			for (int i = 0; i < nPoints; i++) {
-
-				value = "file" + i;
-
-				byte valueBytes[] = new byte[defaultLength];
-
-				for (int k = 0; k < value.length(); k++) {
-					valueBytes[k] = (byte) value.charAt(k);
-				}
-
-				dimArray[0] = 1;
-				dimArray[1] = defaultLength;
-
-				startPos[0] = i;
-				startPos[1] = 0;
-
-				file.putslab(valueBytes, startPos, dimArray);
-
+				lazy.setSlice(null, DatasetFactory.createFromObject("file" + i), SliceND.createSlice(lazy, new int[] {i}, new int[] {i+1}));
 			}
 
-			file.closedata();
-
-			file.closegroup();
-
-			file.close();
-		} catch (NexusException e) {
+			nf.close();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		try {
-			// Lets create a new file.
-			NexusFileInterface file = new gda.data.nexus.napi.NexusFile("/tmp/file.nxs", NexusGlobals.NXACC_READ);
-
-			file.opengroup("test", "NXnote");
-
-			file.opendata("stringarray");
-
-			int[] dims = new int[10];
-			int[] args = new int[10];
-			file.getinfo(dims, args);
-			int rank = args[0];
-			System.err.println(Arrays.toString(dims) + "/" + Arrays.toString(args));
-			byte[] valueBytes = new byte[dims[rank - 1] + 2];
-			dimArray[0] = 1;
-			dimArray[1] = dims[rank - 1];
-			startPos[1] = 0;
+		try (NexusFile f = NexusUtils.openNexusFileReadOnly("/tmp/file.nxs")) {
+			DataNode d = f.getData("/test/stringarray");
+			IDataset ds = d.getDataset().getSlice();
+			System.err.println(ds);
+			int[] shape = ds.getShape();
+			System.err.println(Arrays.toString(shape));
 			for (int i = 0; i < nPoints; i++) {
-				startPos[0] = i;
-				System.err.println(Arrays.toString(startPos) + "/" + Arrays.toString(dimArray));
-				file.getslab(startPos, dimArray, valueBytes);
-				System.out.println(new String(valueBytes));
+				System.err.println(i + "/" + nPoints);
+				System.out.println(ds.getString(i));
 			}
-
-			file.closedata();
-
-			file.closegroup();
-
-			file.close();
 		} catch (NexusException e) {
-			e.printStackTrace();
 		}
 	}
 }
