@@ -39,65 +39,6 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
  */
 public class NexusUtils {
 
-//	private static final Logger logger = LoggerFactory.getLogger(NexusUtils.class);
-
-	/**
-	 * Returns the number of dimensions (rank) required for the data section in a NeXus file. e.g. A single channel
-	 * counterTimer would have a rank=1. A multi channel counterTimer would have a rank=2. A two dimensional detector
-	 * (CCD) would have a rank=3.
-	 * @param detectorDataDimensions 
-	 * @return int
-	 */
-	public static int getRank(int[] detectorDataDimensions) {
-		int rank = 0;
-
-		// The rank is just the dimensionality of the data and the scan dimension - hence the +1
-		rank = detectorDataDimensions.length+1;
-		return rank;
-	}
-	
-	/**
-	 * Returns the number of dimensions (rank) required for the data section in a NeXus file. e.g. A single channel
-	 * counterTimer would have a rank=1. A multi channel counterTimer would have a rank=2. A two dimensional detector
-	 * (CCD) would have a rank=3.
-	 * 
-	 * @param width
-	 * @param height
-	 * @return int
-	 */
-	public static int getRank(int width, int height)  {
-		int rank = 0;
-
-		if (width > 1) {
-			if (height > 1) {
-				rank = 3;
-			} else {
-				rank = 2;
-			}
-		} else {
-			rank = 1;
-		}
-		return rank;
-	}
-
-	/**
-	 * Returns the dimensions array for a given width/height of data that can be used by the NeXus API to create a data
-	 * section.
-	 * 
-	 * @param dimension
-	 * @return int[]
-	 */
-	public static int[] getDim(int[] dimension) {
-		int[] iDim = new int[dimension.length + 1];
-		iDim[0] = NexusGlobals.NX_UNLIMITED;
-
-		for (int i = 0; i < dimension.length; i++) {
-			iDim[i + 1] = dimension[i];
-		}
-
-		return iDim;
-	}
-
 	/**
 	 * Create a (top-level) NeXus augmented path
 	 * @param name
