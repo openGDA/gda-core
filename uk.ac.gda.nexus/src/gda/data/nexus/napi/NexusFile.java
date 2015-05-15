@@ -18,11 +18,9 @@
 
 package gda.data.nexus.napi;
 
-import gda.data.nexus.NexusFileInterface;
-
 import java.util.Hashtable;
 
-public class NexusFile implements NexusFileInterface {
+public class NexusFile {
 	org.nexusformat.NexusFile file;
 
 	public NexusFile(String name, int flags) throws NexusException {
@@ -43,7 +41,6 @@ public class NexusFile implements NexusFileInterface {
 		return file.equals(obj);
 	}
 
-	@Override
 	public void flush() throws NexusException {
 		try {
 			file.flush();
@@ -52,7 +49,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void close() throws NexusException {
 		try {
 			file.close();
@@ -70,7 +66,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void makegroup(String name, String nxclass) throws NexusException {
 		try {
 			file.makegroup(name, nxclass);
@@ -79,7 +74,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void opengroup(String name, String nxclass) throws NexusException {
 		try {
 			file.opengroup(name, nxclass);
@@ -88,7 +82,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void openpath(String path) throws NexusException {
 		try {
 			file.openpath(path);
@@ -97,7 +90,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void closegroup() throws NexusException {
 		try {
 			file.closegroup();
@@ -106,7 +98,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void compmakedata(String name, int type, int rank, int[] dim, int compression_type, int[] iChunk)
 			throws NexusException {
 		try {
@@ -121,7 +112,6 @@ public class NexusFile implements NexusFileInterface {
 		return file.toString();
 	}
 
-	@Override
 	public void makedata(String name, int type, int rank, int[] dim) throws NexusException {
 		try {
 			file.makedata(name, type, rank, dim);
@@ -130,7 +120,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void opendata(String name) throws NexusException {
 		try {
 			file.opendata(name);
@@ -139,7 +128,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void closedata() throws NexusException {
 		try {
 			file.closedata();
@@ -148,7 +136,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void getdata(Object array) throws NexusException {
 		try {
 			file.getdata(array);
@@ -157,7 +144,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void getslab(int[] start, int[] size, Object array) throws NexusException {
 		try {
 			file.getslab(start, size, array);
@@ -166,7 +152,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void putdata(Object array) throws NexusException {
 		try {
 			file.putdata(array);
@@ -175,7 +160,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void putslab(Object array, int[] start, int[] size) throws NexusException {
 		try {
 			file.putslab(array, start, size);
@@ -184,7 +168,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public Object getattr(String name) throws NexusException {
 		try {
 			return file.getattr(name);
@@ -193,7 +176,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void putattr(String name, Object array, int iType) throws NexusException {
 		try {
 			file.putattr(name, array, iType);
@@ -203,7 +185,6 @@ public class NexusFile implements NexusFileInterface {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
 	public Hashtable<String, ?> attrdir() throws NexusException {
 		try {
 			return file.attrdir();
@@ -212,7 +193,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void getinfo(int[] iDim, int[] args) throws NexusException {
 		try {
 			file.getinfo(iDim, args);
@@ -222,7 +202,6 @@ public class NexusFile implements NexusFileInterface {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
 	public Hashtable<String, String> groupdir() throws NexusException {
 		try {
 			return file.groupdir();
@@ -231,7 +210,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public NXlink getdataID() throws NexusException {
 		try {
 			return new NXlink(file.getdataID());
@@ -240,7 +218,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void makelink(NXlink target) throws NexusException {
 		try {
 			file.makelink(target.link);
@@ -249,7 +226,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void makenamedlink(String name, NXlink target) throws NexusException {
 		try {
 			file.makenamedlink(name, target.link);
@@ -258,7 +234,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public void linkexternaldataset(String name, String nxurl) throws NexusException {
 		try {
 			file.linkexternaldataset(name, nxurl);
@@ -267,7 +242,6 @@ public class NexusFile implements NexusFileInterface {
 		}
 	}
 
-	@Override
 	public String isexternaldataset(String name) throws NexusException {
 		try {
 			return file.isexternaldataset(name);
