@@ -215,7 +215,11 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 		String[] strings = data.getData();
 		int k = 0;
 		while (it.hasNext()) {
-			strings[it.index] = new String(buffer, k, length, UTF8);
+			int end = k;
+			int stop = Math.min(k + length, buffer.length);
+			while (end < stop && buffer[end++] != 0) {
+			}
+			strings[it.index] = new String(buffer, k, end - k - 1, UTF8);
 			k += length;
 		}
 

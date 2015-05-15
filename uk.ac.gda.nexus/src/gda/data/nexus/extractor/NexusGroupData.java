@@ -75,6 +75,11 @@ public class NexusGroupData implements Serializable {
 
 	private int textLength = -1;
 
+	/**
+	 * Maximum length of any text string encoded as bytes
+	 */
+	public static final int MAX_TEXT_LENGTH = 255;
+
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 
 	NexusGroupData() {
@@ -82,12 +87,12 @@ public class NexusGroupData implements Serializable {
 
 	/**
 	 * @param dimensions
-	 * @param type specified for output
+	 * @param dtype dataset type specified for output
 	 * @param data
 	 */
-	NexusGroupData(int[] dimensions, int type, Serializable data) {
+	NexusGroupData(int[] dimensions, int dtype, Serializable data) {
 		this.dimensions = dimensions;
-		this.dtype = type;
+		this.dtype = dtype;
 		this.data = data;
 	}
 
@@ -200,7 +205,11 @@ public class NexusGroupData implements Serializable {
 		String[] text = new String[n];
 		int k = 0;
 		for (int i = 0; i < n; i++) {
-			text[i] = new String(bdata, k, textLength, UTF8);
+			int end = k;
+			int stop = Math.min(k + textLength, bdata.length);
+			while (end < stop && bdata[end++] != 0) {
+			}
+			text[i] = new String(bdata, k, end - k - 1, UTF8);
 			k += textLength;
 		}
 		return text;
