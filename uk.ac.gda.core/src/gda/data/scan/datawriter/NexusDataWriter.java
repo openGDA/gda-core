@@ -358,7 +358,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	/*
 	 * Fields present for convenience The dimensions of the to be written - not taking into account the dimensions of
 	 * the data itself The length of this array should match the length of scanDimensions and the values are all 1 but
-	 * for the first which is NexusGlobals.NX_UNLIMITED;
+	 * for the first which is ILazyWriteableDataset.UNLIMITED.
 	 */
 	int[] dataDimPrefix;
 
