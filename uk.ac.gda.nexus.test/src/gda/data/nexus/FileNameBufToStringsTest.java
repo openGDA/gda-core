@@ -18,9 +18,7 @@
 
 package gda.data.nexus;
 
-import gda.data.nexus.FileNameBufToStrings;
-
-import java.io.UnsupportedEncodingException;
+import gda.data.nexus.extractor.NexusGroupData;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,14 +26,15 @@ import org.junit.Test;
 public class FileNameBufToStringsTest {
 
 	@Test
-	public void testDim1() throws UnsupportedEncodingException {
+	public void testDim1() {
 
 		String dataFileName = "This is a test";
 
 		byte[] buf = StringToByteArray(dataFileName);
-		int[] dimensions = new int[] { FileNameBufToStrings.MAX_DATAFILENAME };
 
-		String[] stringList = new FileNameBufToStrings(dimensions, buf).getFilenames();
+		NexusGroupData ngd = new NexusGroupData(buf).asChar();
+		ngd.setMaxStringLength(NexusGroupData.MAX_TEXT_LENGTH);
+		String[] stringList = (String[]) ngd.getBuffer();
 		Assert.assertEquals(dataFileName, stringList[0]);
 	}
 
@@ -44,7 +43,7 @@ public class FileNameBufToStringsTest {
 	}
 
 	private byte[] StringToByteArray(String[] dataFileNames, int[] dimensions) {
-		int len = dataFileNames.length * FileNameBufToStrings.MAX_DATAFILENAME;
+		int len = dataFileNames.length * NexusGroupData.MAX_TEXT_LENGTH;
 		byte filenameBytes[] = new byte[len];
 		java.util.Arrays.fill(filenameBytes, (byte) 0); // zero terminate
 
@@ -54,7 +53,7 @@ public class FileNameBufToStringsTest {
 				for (int k = 0; k < dataFileName.length(); k++) {
 					filenameBytes[k + offset] = (byte) dataFileName.charAt(k);
 				}
-				offset += FileNameBufToStrings.MAX_DATAFILENAME;
+				offset += NexusGroupData.MAX_TEXT_LENGTH;
 			}
 			return filenameBytes;
 		} else if (dimensions.length == 2) {
@@ -65,7 +64,7 @@ public class FileNameBufToStringsTest {
 					for (int k = 0; k < dataFileName.length(); k++) {
 						filenameBytes[k + offset] = (byte) dataFileName.charAt(k);
 					}
-					offset += FileNameBufToStrings.MAX_DATAFILENAME;
+					offset += NexusGroupData.MAX_TEXT_LENGTH;
 				}
 			}
 			return filenameBytes;
@@ -74,7 +73,7 @@ public class FileNameBufToStringsTest {
 	}
 
 	@Test
-	public void testDim2() throws UnsupportedEncodingException {
+	public void testDim2() {
 
 		String dataFileName = "This is a test";
 		String dataFileName1 = "This is a test1";
@@ -82,15 +81,16 @@ public class FileNameBufToStringsTest {
 		String[] dataFileNames = new String[] { dataFileName, dataFileName1 };
 		int[] dataFileNamesDimensions = new int[] { dataFileNames.length };
 		byte[] buf = StringToByteArray(dataFileNames, dataFileNamesDimensions);
+		NexusGroupData ngd = new NexusGroupData(dataFileNamesDimensions, buf).asChar();
+		ngd.setMaxStringLength(NexusGroupData.MAX_TEXT_LENGTH);
+		String[] stringList = (String[]) ngd.getBuffer();
 
-		int[] dimensions = new int[] { dataFileNames.length, FileNameBufToStrings.MAX_DATAFILENAME };
-		String[] stringList = new FileNameBufToStrings(dimensions, buf).getFilenames();
 		Assert.assertEquals(dataFileName, stringList[0]);
 		Assert.assertEquals(dataFileName1, stringList[1]);
 	}
 
 	@Test
-	public void testDim3() throws UnsupportedEncodingException {
+	public void testDim3() {
 
 		String dataFileName1A = "This is a test1A";
 		String dataFileName2A = "This is a test2A";
@@ -106,9 +106,10 @@ public class FileNameBufToStringsTest {
 		int[] dataFileNamesDimensions = new int[] { 2, 3 };
 
 		byte[] buf = StringToByteArray(dataFileNames, dataFileNamesDimensions);
-		int[] dimensions = new int[] { 2, 3, FileNameBufToStrings.MAX_DATAFILENAME };
+		NexusGroupData ngd = new NexusGroupData(dataFileNamesDimensions, buf).asChar();
+		ngd.setMaxStringLength(NexusGroupData.MAX_TEXT_LENGTH);
+		String[] stringList = (String[]) ngd.getBuffer();
 
-		String[] stringList = new FileNameBufToStrings(dimensions, buf).getFilenames();
 		Assert.assertEquals(dataFileName1A, stringList[0]);
 		Assert.assertEquals(dataFileName1B, stringList[1]);
 		Assert.assertEquals(dataFileName1C, stringList[2]);
