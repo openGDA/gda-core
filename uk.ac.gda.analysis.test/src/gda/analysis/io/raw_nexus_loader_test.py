@@ -5,12 +5,14 @@ import os
 import jarray
 from gda.analysis import ScanFileHolder #@UnresolvedImport
 from gda.analysis.io import AsciiScanFileHolderSaver, SimpleNexusSaver, SRSLoader #@UnresolvedImport
-from gda.data.nexus import NexusFile; #@UnresolvedImport
+from gda.data.nexus import NexusUtils
+from org.eclipse.dawnsci.analysis.dataset.impl import Dataset, DatasetFactory
+from org.eclipse.dawnsci.analysis.api.dataset import SliceND
 from java.util import Arrays
 from gda.jython import InterfaceProvider #@UnresolvedImport
 from gda.jython import MockJythonServerFacade #@UnresolvedImport
 
-TestFileFolder = "test/gda/analysis/io/TestFiles";
+TestFileFolder = "test-scratch/gda/analysis/io/TestFiles";
 class RawNexusLoaderTest(unittest.TestCase):
     def setUp(self):
         InterfaceProvider.setTerminalPrinterForTesting(MockJythonServerFacade())
@@ -22,41 +24,31 @@ class RawNexusLoaderTest(unittest.TestCase):
             os.remove(self.abspath)
 
     def testSimpleCreation(self):
-        file = NexusFile(self.abspath, NexusFile.NXACC_CREATE5);
-        file.makegroup("ScanFileHolder", "NXentry");
-        file.opengroup("ScanFileHolder", "NXentry");
-        file.makegroup("datasets", "NXdata");
-        file.opengroup("datasets", "NXdata");        
-        file.makedata("heading1", NexusFile.NX_FLOAT64, 2,[10,100000]);#@UndefinedVariable
-        file.opendata("heading1");
-        dataIn = jarray.array(range(1000000),"d")
-        file.putdata(dataIn)
-        iDim = jarray.array(range(20),"i")
-        iStart = jarray.array(range(2),"i")
-        file.getinfo(iDim, iStart)
-        file.closedata();
-#        print iDim
-#        print iStart
-        file.close();
-        
-        os.remove(self.abspath)
+#         file = NexusUtils.createNexusFile(self.abspath)
+#         g = file.getGroup("/ScanFileHolder:NXentry/datasets:NXdata", True)
+#         lazy = NexusUtils.createLazyWriteableDataset("heading1", Dataset.FLOAT64, [10, 100000], None, None)
+#         file.createData(g, lazy)
+#         dataIn = DatasetFactory.createRange(lazy.getSize(), Dataset.FLOAT64)
+#         dataIn.shape = lazy.getShape()
+#         lazy.setSlice(None, dataIn, SliceND.createSlice(lazy, None, None))
+#         file.close()
+#         os.remove(self.abspath)
+
 # This cannot work as the saved file is _NOT_ a valid SRS format
 #        sfh.save(AsciiScanFileHolderSaver(self.abspath+"_srs"));
 #
-#        sfh = ScanFileHolder()
+        dataIn = DatasetFactory.createRange(1000000, Dataset.FLOAT64)
+        dataIn.shape = [10,100000]
+        sfh = ScanFileHolder()
+        sfh.addDataSet("heading1", dataIn)
 #        sfh.load(SRSLoader(self.abspath+"_srs"));#@UndefinedVariable
 #        os.remove(self.abspath)
         sfh.save(SimpleNexusSaver(self.abspath));
         
-        file = NexusFile(self.abspath, NexusFile.NXACC_READ);
-        file.opengroup("ScanFileHolder", "NXentry");
-        file.opengroup("datasets", "NXdata");        
-        file.opendata("heading1");
-        dataOut = jarray.array(range(1000000),"d")
-        dataOut[999999]=0.
-        file.getdata(dataOut)
-        file.closedata();
-        file.close();
+        file = NexusUtils.openNexusFileReadOnly(self.abspath)
+        g = file.getGroup("/ScanFileHolder:NXentry/datasets:NXdata", False)
+        dataOut = file.getData(g, "heading1").getDataset().getSlice()
+        file.close()
         if dataIn!=dataOut:
             self.fail("dataIn != dataOut")
         

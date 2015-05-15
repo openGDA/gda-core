@@ -2,8 +2,11 @@
 import unittest
 import os.path
 import jarray
-from uk.ac.gda.nexus import NexusFile;
 from java.util import Arrays
+from gda.data.nexus import NexusUtils
+from org.eclipse.dawnsci.analysis.dataset.impl import Dataset, DatasetFactory
+from org.eclipse.dawnsci.analysis.api.dataset import SliceND
+
 TestFileFolder = "test-scratch/gda/data/nexus/GdaNexusTestFiles";
 class NexusFileTest(unittest.TestCase):
     def testSimpleCreation(self):
@@ -11,26 +14,18 @@ class NexusFileTest(unittest.TestCase):
         parentPath = os.path.split(abspath)[0]
         if not os.path.exists(parentPath):
             os.makedirs(parentPath)
-        file = NexusFile(abspath, NexusFile.NXACC_CREATE5);
-        file.makegroup("ScanFileHolder", "NXentry");
-        file.opengroup("ScanFileHolder", "NXentry");
-        file.makegroup("datasets", "NXdata");
-        file.opengroup("datasets", "NXdata");        
-        file.makedata("heading1", NexusFile.NX_FLOAT64, 2,[10,100000]);
-        file.opendata("heading1");
-        dataIn = jarray.array(range(1000000),"d")
-        file.putdata(dataIn)
-        file.closedata();
-        file.close();
-        file = NexusFile(abspath, NexusFile.NXACC_READ);
-        file.opengroup("ScanFileHolder", "NXentry");
-        file.opengroup("datasets", "NXdata");        
-        file.opendata("heading1");
-        dataOut = jarray.array(range(1000000),"d")
-        dataOut[999999]=0.
-        file.getdata(dataOut)
-        file.closedata();
-        file.close();
+        file = NexusUtils.createNexusFile(abspath)
+        g = file.getGroup("/ScanFileHolder:NXentry/datasets:NXdata", True)
+        lazy = NexusUtils.createLazyWriteableDataset("heading1", Dataset.FLOAT64, [10, 100000], None, None)
+        file.createData(g, lazy)
+        dataIn = DatasetFactory.createRange(lazy.getSize(), Dataset.FLOAT64)
+        dataIn.shape = lazy.getShape()
+        lazy.setSlice(None, dataIn, SliceND.createSlice(lazy, None, None))
+        file.close()
+        file = NexusUtils.openNexusFileReadOnly(abspath)
+        g = file.getGroup("/ScanFileHolder:NXentry/datasets:NXdata", False)
+        dataOut = file.getData(g, "heading1").getDataset().getSlice()
+        file.close()
         self.assertEqual(dataIn,dataOut)
         
 if __name__ == '__main__':
