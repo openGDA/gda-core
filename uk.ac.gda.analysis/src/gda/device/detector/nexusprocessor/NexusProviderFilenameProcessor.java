@@ -18,7 +18,6 @@
 
 package gda.device.detector.nexusprocessor;
 
-import gda.data.nexus.FileNameBufToStrings;
 import gda.data.nexus.extractor.NexusGroupData;
 
 import java.io.File;
@@ -65,11 +64,11 @@ public class NexusProviderFilenameProcessor extends NexusProviderDatasetProcesso
 	protected Dataset getDatasetFromNexusGroupData(NexusGroupData ngd) throws Exception {
 		if (!isEnabled())
 			return null;
-		if( ngd.isChar()){ 
-			String[] filenames = (new FileNameBufToStrings( ngd.dimensions, (byte[])ngd.getBuffer())).getFilenames();
-			if( filenames.length == 1){ 
-				String path = filenames[0];
-				if( !(new File(path)).exists()){
+		if (ngd.isChar()) {
+			Dataset files = ngd.toDataset();
+			if (files.getSize() == 1) {
+				String path = files.getStringAbs(0);
+				if (!(new File(path)).exists()) {
 					Thread.sleep(1000);
 				}
 				IDataHolder data=null;
