@@ -388,7 +388,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 				logger.warn("Dimensions of image data from " + getName() + " are zero length");
 				return;
 			}
-//			int[] datadims = new int[] {NexusGlobals.NX_UNLIMITED , dims[0], dims[1] };
+//			int[] datadims = new int[] {ILazyWriteableDataset.UNLIMITED , dims[0], dims[1] };
 
 			NexusGroupData image_data=new NexusGroupData(dims, getImage());
 			image_data.isDetectorEntryData=true;

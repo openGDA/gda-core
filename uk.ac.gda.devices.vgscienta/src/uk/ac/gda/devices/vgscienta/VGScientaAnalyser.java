@@ -18,7 +18,6 @@
 
 package uk.ac.gda.devices.vgscienta;
 
-import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -314,8 +313,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		data.addData(getName(), "time_per_channel", new NexusGroupData(acquireTime_RBV), "s", null, null, true);
 		
 		NexusGroupData groupData = data.getData(getName(), "data", NexusExtractor.SDSClassName);
-		switch (groupData.getType()) {
-		case NexusGlobals.NX_FLOAT32: 
+		if (groupData.isFloat()) {
 			long sum = 0;
 			if (cpsRoi == null) {
 				float[] floats = (float[]) groupData.getBuffer();
@@ -327,14 +325,12 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 				sum = ((Number) datasets[0].sum()).longValue();
 			}
 			addDoubleItem(data, "cps", sum / acquireTime_RBV, "Hz");
-			break;
-
-		default:
+		} else {
 			logger.error("unexpected data type for cps");
 			addDoubleItem(data, "cps", 0.0, "Hz");
-			break;
 		}
 	}
+
 	protected void addDoubleItem(NXDetectorData data, String name, double d, String units){
 		INexusTree valdata = data.addData(getName(), name, new NexusGroupData(d), units, null, null, true);
 		valdata.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, valdata, new NexusGroupData(String.format("%s.%s", getName(), name))));
