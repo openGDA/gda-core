@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import gda.data.nexus.NexusGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,17 +164,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 				msg.append("\n");
 			}
 			msg.append("<type>");
-			switch (groupData.getType()) {
-			case NexusGlobals.NX_CHAR:
-				msg.append("NX_CHAR");
-				break;
-			case NexusGlobals.NX_FLOAT64:
-				msg.append("NX_FLOAT64");
-				break;
-			default:
-				msg.append(groupData.getType());
-				break;
-			}
+			msg.append(groupData.getType());
 			msg.append("</type>");
 			if (newlineAfterEach) {
 				msg.append("\n");
@@ -248,17 +237,7 @@ public class NexusTreeNode implements INexusTree, Serializable {
 				msg.append(keyValueSep + i);
 			}
 			msg.append(dataItemSep + "type");
-			switch (groupData.getType()) {
-			case NexusGlobals.NX_CHAR:
-				msg.append(keyValueSep + "NX_CHAR");
-				break;
-			case NexusGlobals.NX_FLOAT64:
-				msg.append(keyValueSep + "NX_FLOAT64");
-				break;
-			default:
-				msg.append(". type - " + groupData.getType());
-				break;
-			}
+			msg.append(keyValueSep + groupData.getType());
 			if (includeData) {
 				msg.append(dataItemSep + "data" + keyValueSep + groupData.dataToTxt(false, true, false));
 			}

@@ -18,7 +18,6 @@
 
 package gda.data.nexus.extractor;
 
-import gda.data.nexus.NexusGlobals;
 import gda.data.nexus.NexusUtils;
 
 import java.io.Serializable;
@@ -28,9 +27,11 @@ import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,15 +54,15 @@ public class NexusGroupData implements Serializable {
 	public int[] chunkDimensions = null;
 
 	/**
-	 * type of data for output e.g. NexusGlobals.NX_CHAR
+	 * type of data for output e.g. Dataset.STRING
 	 */
-	private int type;
+	private int dtype;
 
 	/**
 	 * Setting this can advise a data-writer to use the specified compression algorithm
 	 * for a choice see:
 	 * 
-	 * NexusGlobals.NX_COMP_*
+	 * {@link NexusFile}.COMPRESSION_*
 	 */
 	public Integer compressionType = null;
 
@@ -86,7 +87,7 @@ public class NexusGroupData implements Serializable {
 	 */
 	NexusGroupData(int[] dimensions, int type, Serializable data) {
 		this.dimensions = dimensions;
-		this.type = type;
+		this.dtype = type;
 		this.data = data;
 	}
 
@@ -96,25 +97,7 @@ public class NexusGroupData implements Serializable {
 	 */
 	NexusGroupData(int[] dimensions, Class<?> clazz) {
 		this.dimensions = dimensions;
-		if (clazz.equals(String.class)) {
-			type = NexusGlobals.NX_CHAR;
-		} else if (clazz.equals(Boolean.class)) {
-			type = NexusGlobals.NX_CHAR;
-		} else if (clazz.equals(Byte.class)) {
-			type = NexusGlobals.NX_INT8;
-		} else if (clazz.equals(Short.class)) {
-			type = NexusGlobals.NX_INT16;
-		} else if (clazz.equals(Integer.class)) {
-			type = NexusGlobals.NX_INT32;
-		} else if (clazz.equals(Long.class)) {
-			type = NexusGlobals.NX_INT64;
-		} else if (clazz.equals(Float.class)) {
-			type = NexusGlobals.NX_FLOAT32;
-		} else if (clazz.equals(Double.class)) {
-			type = NexusGlobals.NX_FLOAT64;
-		} else {
-			throw new IllegalArgumentException("Class type is unsupported");
-		}
+		dtype = AbstractDataset.getDTypeFromClass(clazz);
 		this.data = null;
 	}
 
@@ -127,28 +110,28 @@ public class NexusGroupData implements Serializable {
 		this.data = data;
 		if (data.getClass().isArray()) {
 			if (data instanceof boolean[] || data instanceof Boolean[]) {
-				type = NexusGlobals.NX_INT8;
+				dtype = Dataset.INT8;
 			} else if (data instanceof byte[] || data instanceof Byte[]) {
-				type = NexusGlobals.NX_INT8;
+				dtype = Dataset.INT8;
 			} else if (data instanceof short[] || data instanceof Short[]) {
-				type = NexusGlobals.NX_INT16;
+				dtype = Dataset.INT16;
 			} else if (data instanceof int[] || data instanceof Integer[]) {
-				type = NexusGlobals.NX_INT32;
+				dtype = Dataset.INT32;
 			} else if (data instanceof long[] || data instanceof Long[]) {
-				type = NexusGlobals.NX_INT64;
+				dtype = Dataset.INT64;
 			} else if (data instanceof float[] || data instanceof Float[]) {
-				type = NexusGlobals.NX_FLOAT32;
+				dtype = Dataset.FLOAT32;
 			} else if (data instanceof double[] || data instanceof Double[]) {
-				type = NexusGlobals.NX_FLOAT64;
+				dtype = Dataset.FLOAT64;
 			} else if (data instanceof String[]) {
-				type = NexusGlobals.NX_CHAR;
+				dtype = Dataset.STRING;
 				makeBytes((String[]) data, null);
 			} else {
-				type = NexusGlobals.NX_UNLIMITED;
+				dtype = -1;
 				throw new IllegalArgumentException("Unknown class of serializable array");
 			}
 		} else {
-			type = NexusGlobals.NX_UNLIMITED;
+			dtype = -1;
 			throw new IllegalArgumentException("Serializable must be an array");
 		}
 	}
@@ -230,7 +213,7 @@ public class NexusGroupData implements Serializable {
 		data = s.getBytes(UTF8);
 		dimensions = new int[1];
 		dimensions[0] = s.length();
-		type = NexusGlobals.NX_CHAR;
+		dtype = Dataset.STRING;
 	}
 
 	/**
@@ -240,7 +223,7 @@ public class NexusGroupData implements Serializable {
 	public NexusGroupData(int length, String s) {
 		data = Arrays.copyOf(s.getBytes(UTF8), length);
 		dimensions = new int[] {length};
-		type = NexusGlobals.NX_CHAR;
+		dtype = Dataset.STRING;
 	}
 
 	public NexusGroupData(byte... b) {
@@ -250,7 +233,7 @@ public class NexusGroupData implements Serializable {
 	public NexusGroupData(int[] dims, byte... b) {
 		dimensions = dims;
 		data = b;
-		type = NexusGlobals.NX_INT8;
+		dtype = Dataset.INT8;
 	}
 
 	public NexusGroupData(short... s) {
@@ -260,13 +243,13 @@ public class NexusGroupData implements Serializable {
 	public NexusGroupData(int[] dims, short... s) {
 		dimensions = dims;
 		data = s;
-		type = NexusGlobals.NX_INT16;
+		dtype = Dataset.INT16;
 	}
 
 	public NexusGroupData(short[][] s) {
 		dimensions = new int[] {s.length, s[0].length};
 		data = s;
-		type = NexusGlobals.NX_INT16;
+		dtype = Dataset.INT16;
 	}
 
 	public NexusGroupData(int... i) {
@@ -276,19 +259,19 @@ public class NexusGroupData implements Serializable {
 	public NexusGroupData(int[] dims, int... i) {
 		dimensions = dims;
 		data = i;
-		type = NexusGlobals.NX_INT32;
+		dtype = Dataset.INT32;
 	}
 
 	public NexusGroupData(int[][] i) {
 		dimensions = new int[] {i.length, i[0].length};
 		data = i;
-		type = NexusGlobals.NX_INT32;
+		dtype = Dataset.INT32;
 	}
 
 	public NexusGroupData(int[][][] i) {
 		dimensions = new int[] {i.length, i[0].length, i[0][0].length};
 		data = i;
-		type = NexusGlobals.NX_INT32;
+		dtype = Dataset.INT32;
 	}
 
 	public NexusGroupData(long... l) {
@@ -298,7 +281,7 @@ public class NexusGroupData implements Serializable {
 	public NexusGroupData(int[] dims, long... l) {
 		dimensions = dims;
 		data = l;
-		type = NexusGlobals.NX_INT64;
+		dtype = Dataset.INT64;
 	}
 
 	public NexusGroupData(boolean b) {
@@ -312,7 +295,7 @@ public class NexusGroupData implements Serializable {
 	public NexusGroupData(int[] dims, float... f) {
 		dimensions = dims;
 		data = f;
-		type = NexusGlobals.NX_FLOAT32;
+		dtype = Dataset.FLOAT32;
 	}
 
 	public NexusGroupData(double... d) {
@@ -322,19 +305,19 @@ public class NexusGroupData implements Serializable {
 	public NexusGroupData(int[] dims, double... d) {
 		dimensions = dims;
 		data = d;
-		type = NexusGlobals.NX_FLOAT64;
+		dtype = Dataset.FLOAT64;
 	}
 
 	public NexusGroupData(double[][] d) {
 		dimensions = new int[] {d.length, d[0].length};
 		data = d;
-		type = NexusGlobals.NX_FLOAT64;
+		dtype = Dataset.FLOAT64;
 	}
 
 	public NexusGroupData(double[][][] d) {
 		dimensions = new int[] {d.length, d[0].length, d[0][0].length};
 		data = d;
-		type = NexusGlobals.NX_FLOAT64;
+		dtype = Dataset.FLOAT64;
 	}
 
 	/**
@@ -342,11 +325,11 @@ public class NexusGroupData implements Serializable {
 	 * @return this
 	 */
 	public NexusGroupData setUnsigned() {
-		switch (type) {
-		case NexusGlobals.NX_INT8:
-		case NexusGlobals.NX_INT16:
-		case NexusGlobals.NX_INT32:
-		case NexusGlobals.NX_INT64:
+		switch (dtype) {
+		case Dataset.INT8:
+		case Dataset.INT16:
+		case Dataset.INT32:
+		case Dataset.INT64:
 			isUnsigned = true;
 			break;
 		default:
@@ -356,29 +339,10 @@ public class NexusGroupData implements Serializable {
 	}
 
 	/**
-	 * @return type of data e.g. NexusGlobals.NX_CHAR
-	 */
-	public int getType() {
-		if (isUnsigned) {
-			switch (type) {
-			case NexusGlobals.NX_INT8:
-				return NexusGlobals.NX_UINT8;
-			case NexusGlobals.NX_INT16:
-				return NexusGlobals.NX_UINT16;
-			case NexusGlobals.NX_INT32:
-				return NexusGlobals.NX_UINT32;
-			case NexusGlobals.NX_INT64:
-				return NexusGlobals.NX_UINT64;
-			}
-		}
-		return type;
-	}
-
-	/**
 	 * @return true if data contains characters
 	 */
 	public boolean isChar() {
-		return type == NexusGlobals.NX_CHAR;
+		return dtype == Dataset.STRING;
 	}
 
 	/**
@@ -393,7 +357,7 @@ public class NexusGroupData implements Serializable {
 	 * @return The data buffer compatible with type, null if data not extracted
 	 */
 	public Serializable getBuffer(boolean raw) {
-		if (!raw && type == NexusGlobals.NX_CHAR) {
+		if (!raw && dtype == Dataset.STRING) {
 			return makeStrings((byte[]) data);
 		}
 		return data;
@@ -417,15 +381,15 @@ public class NexusGroupData implements Serializable {
 		}
 		msg.append("</dimensions>");
 		msg.append("<type>");
-		switch (type) {
-		case NexusGlobals.NX_CHAR:
+		switch (dtype) {
+		case Dataset.STRING:
 			msg.append("NX_CHAR");
 			break;
-		case NexusGlobals.NX_FLOAT64:
+		case Dataset.FLOAT64:
 			msg.append("NX_FLOAT64");
 			break;
 		default:
-			msg.append(type);
+			msg.append(dtype);
 			break;
 		}
 		msg.append("</type>");
@@ -457,7 +421,7 @@ public class NexusGroupData implements Serializable {
 	public String dataToTxt(boolean newlineAfterEach, boolean dataAsString, boolean wrap) {
 		StringBuffer msg = new StringBuffer();
 		if (data != null) {
-			if (type == NexusGlobals.NX_CHAR) {
+			if (dtype == Dataset.STRING) {
 				if (wrap)
 					msg.append("<value>");
 				msg.append(getAsString());
@@ -595,7 +559,7 @@ public class NexusGroupData implements Serializable {
 		Serializable value;
 
 		if (data.getClass().isArray()) {
-			if (type == NexusGlobals.NX_CHAR) { // reinterpret byte arrays as String 
+			if (dtype == Dataset.STRING) { // reinterpret byte arrays as String 
 				return getStringFromArray(data);
 			}
 			value = getFromArray(data);
@@ -606,7 +570,7 @@ public class NexusGroupData implements Serializable {
 		}
 
 		Class<? extends Serializable> clazz = value.getClass();
-		if (type == NexusGlobals.NX_BOOLEAN) {
+		if (dtype == Dataset.BOOL) {
 			if (!clazz.equals(Boolean.class) || !clazz.equals(boolean.class)) {
 				value = !value.equals(0);
 			}
@@ -629,7 +593,7 @@ public class NexusGroupData implements Serializable {
 	 * @return lazy dataset
 	 */
 	public ILazyWriteableDataset toLazyDataset() {
-		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", getDtype(type), dimensions, null, chunkDimensions);
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", dtype, dimensions, null, chunkDimensions);
 		return lazy;
 	}
 
@@ -647,58 +611,57 @@ public class NexusGroupData implements Serializable {
 	 * @return dataset
 	 */
 	public Dataset toDataset(boolean keepBitWidth) {
-		Dataset dataset = DatasetFactory.createFromObject(getBuffer(), getDtype(type));
-		if (!keepBitWidth && isUnsigned(type)) {
+		Dataset dataset = DatasetFactory.createFromObject(getBuffer(), dtype);
+		if (!keepBitWidth && isUnsigned) {
 			dataset = DatasetUtils.makeUnsigned(dataset);
 		}
 		dataset.setShape(dimensions);
 		return dataset;
 	}
 
-	static boolean isUnsigned(int type) {
-		switch (type) {
-		case NexusGlobals.NX_UINT64:
-		case NexusGlobals.NX_UINT32:
-		case NexusGlobals.NX_UINT16:
-		case NexusGlobals.NX_UINT8:
-			return true;
-		default:
-			return false;
-		}
-	}
-
 	/**
 	 * @return dataset type
 	 */
 	public int getDtype() {
-		return getDtype(getType());
+		return dtype;
 	}
 
-	private int getDtype(int type) {
-		switch (type) {
-//		case NexusGlobals.NX_BOOLEAN:
-//			return Dataset.BOOL;
-		case NexusGlobals.NX_CHAR:
-			return Dataset.STRING;
-		case NexusGlobals.NX_INT8:
-		case NexusGlobals.NX_UINT8:
-			return Dataset.INT8;
-		case NexusGlobals.NX_INT16:
-		case NexusGlobals.NX_UINT16:
-			return Dataset.INT16;
-		case NexusGlobals.NX_INT32:
-		case NexusGlobals.NX_UINT32:
-			return Dataset.INT32;
-		case NexusGlobals.NX_INT64:
-		case NexusGlobals.NX_UINT64:
-			return Dataset.INT64;
-		case NexusGlobals.NX_FLOAT32:
-			return Dataset.FLOAT32;
-		case NexusGlobals.NX_FLOAT64:
-			return Dataset.FLOAT64;
+	/**
+	 * @return type of data e.g. "NX_CHAR"
+	 */
+	public String getType() {
+		String type;
+		switch (dtype) {
+		case Dataset.STRING:
+			type = "CHAR";
+			break;
+		case Dataset.INT8:
+			type = "INT8";
+			break;
+		case Dataset.INT16:
+			type = "INT16";
+			break;
+		case Dataset.INT32:
+			type = "INT32";
+			break;
+		case Dataset.INT64:
+			type = "INT64";
+			break;
+		case Dataset.FLOAT32:
+			type = "FLOAT32";
+			break;
+		case Dataset.FLOAT64:
+			type = "FLOAT64";
+			break;
+		default:
+			return "UNKNOWN";
 		}
-		return 0;
+		if (isUnsigned) {
+			type = "U" + type;
+		}
+		return "NX_" + type;
 	}
+
 
 	private static Serializable getFromArray(Serializable array) {
 		Serializable a = (Serializable) Array.get(array, 0);
@@ -756,7 +719,7 @@ public class NexusGroupData implements Serializable {
 	}
 
 	private NexusGroupData asType(int type) {
-		if (this.type == type)
+		if (this.dtype == type)
 			return this;
 
 		NexusGroupData ngd = new NexusGroupData(dimensions, type, data);
@@ -767,7 +730,7 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public int[] getDimensions() {
-		if (type == NexusGlobals.NX_CHAR) {
+		if (dtype == Dataset.STRING) {
 			int last = dimensions.length - 1;
 			int[] dims = dimensions.clone();
 			if (dimensions[last] == 1)
@@ -781,42 +744,42 @@ public class NexusGroupData implements Serializable {
 	 * @return data with output type as char
 	 */
 	public NexusGroupData asChar() {
-		return asType(NexusGlobals.NX_CHAR);
+		return asType(Dataset.STRING);
 	}
 
 	/**
 	 * @return data with output type as byte
 	 */
 	public NexusGroupData asByte() {
-		return asType(NexusGlobals.NX_INT8);
+		return asType(Dataset.INT8);
 	}
 
 	/**
 	 * @return data with output type as short
 	 */
 	public NexusGroupData asShort() {
-		return asType(NexusGlobals.NX_INT16);
+		return asType(Dataset.INT16);
 	}
 
 	/**
 	 * @return data with output type as integer
 	 */
 	public NexusGroupData asInt() {
-		return asType(NexusGlobals.NX_INT32);
+		return asType(Dataset.INT32);
 	}
 
 	/**
 	 * @return data with output type as long
 	 */
 	public NexusGroupData asLong() {
-		return asType(NexusGlobals.NX_INT64);
+		return asType(Dataset.INT64);
 	}
 
 	/**
 	 * @return data with output type as float
 	 */
 	public NexusGroupData asFloat() {
-		return asType(NexusGlobals.NX_FLOAT32);
+		return asType(Dataset.FLOAT32);
 	}
 
 	
@@ -824,14 +787,14 @@ public class NexusGroupData implements Serializable {
 	 * @return data with output type as double
 	 */
 	public NexusGroupData asDouble() {
-		return asType(NexusGlobals.NX_FLOAT64);
+		return asType(Dataset.FLOAT64);
 	}
 
 	public boolean isFloat() {
-		return type == NexusGlobals.NX_FLOAT32;
+		return dtype == Dataset.FLOAT32;
 	}
 
 	public boolean isDouble() {
-		return type == NexusGlobals.NX_FLOAT64;
+		return dtype == Dataset.FLOAT64;
 	}
 }
