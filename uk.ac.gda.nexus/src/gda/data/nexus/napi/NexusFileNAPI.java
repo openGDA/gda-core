@@ -613,7 +613,9 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 
 		closeDataset(name);
 
-		int dtype = getDtype(args[1]);
+		int[] dtypeSign = getDtypeSign(args[1]);
+		dataNode.setUnsigned(dtypeSign[1] == 0);
+		int dtype = dtypeSign[0];
 		int rank = args[0];
 		int[] shape;
 		if (dtype == Dataset.STRING && rank == 1) { // for strings, ignore final dimension (NAPI stored them as fixed size strings)
@@ -639,26 +641,49 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		return dataNode;
 	}
 
-	private int getDtype(int type) {
+	// returns {dtype, [unsigned=0,signed=1]}
+	private int[] getDtypeSign(int type) {
+		int t = -1;
 		switch (type) {
-		case NexusFile.NX_BOOLEAN:
-			return Dataset.BOOL;
+//		case NexusFile.NX_BOOLEAN:
+//			t = Dataset.BOOL;
+//			break;
 		case NexusFile.NX_CHAR:
-			return Dataset.STRING;
+			t = Dataset.STRING;
+			break;
 		case NexusFile.NX_INT8:
-			return Dataset.INT8;
+		case NexusFile.NX_UINT8:
+			t = Dataset.INT8;
+			break;
 		case NexusFile.NX_INT16:
-			return Dataset.INT16;
+		case NexusFile.NX_UINT16:
+			t = Dataset.INT16;
+			break;
 		case NexusFile.NX_INT32:
-			return Dataset.INT32;
+		case NexusFile.NX_UINT32:
+			t = Dataset.INT32;
+			break;
 		case NexusFile.NX_INT64:
-			return Dataset.INT64;
+		case NexusFile.NX_UINT64:
+			t = Dataset.INT64;
+			break;
 		case NexusFile.NX_FLOAT32:
-			return Dataset.FLOAT32;
+			t = Dataset.FLOAT32;
+			break;
 		case NexusFile.NX_FLOAT64:
-			return Dataset.FLOAT64;
+			t = Dataset.FLOAT64;
+			break;
 		}
-		return 0;
+
+		int s = 1;
+		switch (type) {
+		case NexusFile.NX_UINT8:
+		case NexusFile.NX_UINT16:
+		case NexusFile.NX_UINT32:
+		case NexusFile.NX_UINT64:
+			s = 0;
+		}
+		return new int[] {t, s};
 	}
 
 	/**
