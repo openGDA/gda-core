@@ -42,7 +42,7 @@ public class NexusGroupData implements Serializable {
 	private Serializable data;
 	
 	/**
-	 * dimensions - @see org.nexusformat.NexusFile.getInfo
+	 * dimensions of data
 	 */
 	public int[] dimensions;
 
@@ -234,7 +234,7 @@ public class NexusGroupData implements Serializable {
 	}
 
 	/**
-	 * @param length
+	 * @param length of encoded string in bytes
 	 * @param s String from which to make a NexusGroupData
 	 */
 	public NexusGroupData(int length, String s) {
@@ -818,5 +818,13 @@ public class NexusGroupData implements Serializable {
 	 */
 	public NexusGroupData asDouble() {
 		return asType(NexusGlobals.NX_FLOAT64);
+	}
+
+	public boolean isFloat() {
+		return type == NexusGlobals.NX_FLOAT32;
+	}
+
+	public boolean isDouble() {
+		return type == NexusGlobals.NX_FLOAT64;
 	}
 }
