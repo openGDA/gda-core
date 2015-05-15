@@ -33,7 +33,6 @@ import gda.observable.IObserver;
 import gda.scan.ScanDataPoint;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -303,36 +302,7 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 	}
 
 	private static DoubleDataset getDSfromNGD(NexusGroupData ngd, String name) {
-		Object data = ngd.getBuffer();
-		int[] dim = ngd.dimensions;
-
-		double[] array;
-
-		if (data instanceof float[]) {
-			float[] fdata = (float[]) data;
-			array = new double[fdata.length];
-			for (int i = 0; i < fdata.length; i++) {
-				array[i] = fdata[i];
-			}
-		} else if (data instanceof int[]) {
-			int[] idata = (int[]) data;
-			array = new double[idata.length];
-			for (int i = 0; i < idata.length; i++) {
-				array[i] = idata[i];
-			}
-		} else if (data instanceof byte[]) {
-			ByteBuffer bb = ByteBuffer.wrap((byte[]) data);
-			int len = ((byte[]) data).length / 4;
-			array = new double[len];
-			for (int i = 0; i < len; i++) {
-				array[i] = bb.getInt();
-			}
-		} else {
-			// fingers crossed
-			array = (double[]) data;
-		}
-
-		DoubleDataset ds = new DoubleDataset(array, dim);
+		DoubleDataset ds = (DoubleDataset) ngd.toDataset().cast(Dataset.FLOAT64);
 		ds.setName(name);
 		return ds;
 	}
@@ -422,13 +392,8 @@ public class ListenerDispatcher implements Findable, IObserver, Configurable, IA
 		for (INexusTree branch : nexusTree) {
 			if (branch.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
 				INexusTree type = branch.getChildNode("sas_type", NexusExtractor.SDSClassName);
-				if (type != null) {
-					String typeStr = null;
-					try {
-						typeStr = new String((byte[]) type.getData().getBuffer(), "UTF-8");
-					} catch (UnsupportedEncodingException e) {
-						//
-					}
+				if (type != null && type.getData().isChar()) {
+					String typeStr = ((String[]) type.getData().getBuffer())[0];
 
 					for (String allowed : NcdDetectorSystem.detectorTypes) {
 						if (allowed.equals(typeStr)) {

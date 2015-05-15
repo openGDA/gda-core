@@ -18,39 +18,17 @@
 
 package uk.ac.gda.server.ncd.data;
 
-import org.eclipse.dawnsci.analysis.api.dataset.*;
-import org.eclipse.dawnsci.analysis.dataset.impl.ByteDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.LongDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.ShortDataset;
-
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.detector.NXDetectorData;
+
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 
 public class DataHelpers {
 
 	public static IDataset getData(NXDetectorData nd, String det, String key) {
 		NexusGroupData parentngd = nd.getData(det, key, NexusExtractor.SDSClassName);
-		IDataset result = null;
-		
-		if (parentngd.getBuffer() instanceof float[]) {
-			result = new FloatDataset((float[]) parentngd.getBuffer(), parentngd.dimensions);
-		} else if (parentngd.getBuffer() instanceof double[]) {
-			result = new DoubleDataset((double[]) parentngd.getBuffer(), parentngd.dimensions);
-		} else if (parentngd.getBuffer() instanceof int[]) {
-			result = new IntegerDataset((int[]) parentngd.getBuffer(), parentngd.dimensions);
-		} else if (parentngd.getBuffer() instanceof long[]) {
-			result = new LongDataset((long[]) parentngd.getBuffer(), parentngd.dimensions);
-		} else if (parentngd.getBuffer() instanceof byte[]) {
-			result = new ByteDataset((byte[]) parentngd.getBuffer(), parentngd.dimensions);
-		} else if (parentngd.getBuffer() instanceof short[]) {
-			result = new ShortDataset((short[]) parentngd.getBuffer(), parentngd.dimensions);
-		} else {
-			// FIXME not looking good if we get in here
-		}
+		IDataset result = parentngd.toDataset();
 		
 		if (result != null) result.setName(det+":"+key);
 		return result;
