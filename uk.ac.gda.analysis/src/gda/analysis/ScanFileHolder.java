@@ -160,7 +160,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 
 		TerminalPrinter.print(out);
 
-		this.ls();
+		ls();
 	}
 
 	@Override
@@ -174,16 +174,12 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	public void setAxis(String axisName, IDataset inData) throws ScanFileHolderException {
 		try {
 			if (holder.contains(axisName)) {
-				if (inData instanceof Dataset)
-					holder.addDataset(axisName, inData);
-				else
-					holder.addDataset(axisName, inData);
+				holder.addDataset(axisName, inData);
 				return;
 			}
 
 			logger.info("Axis does not exist, create new one ");
-			this.addDataSet(axisName, inData);
-
+			addDataSet(axisName, inData);
 		} catch (Exception e) {
 			throw new ScanFileHolderException("Problem adding data", e);
 		}
@@ -193,14 +189,13 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 	@Override
 	public Dataset getAxis(String axisName) throws IllegalArgumentException {
 		try {
-			Dataset a = (Dataset) holder.getDataset(axisName);
+			Dataset a = DatasetUtils.convertToDataset(holder.getDataset(axisName));
 			if (a != null) {
 				return a;
 			}
 		} catch (Exception e) {
 			ILazyDataset l = holder.getLazyDataset(axisName);
-			Dataset a = (Dataset) l.getSlice();
-			return a;
+			return DatasetUtils.convertToDataset(l.getSlice());
 		}
 
 		String msg = "Axis name " + axisName + " not recognised. Available axes: " + Arrays.toString(getHeadings());
