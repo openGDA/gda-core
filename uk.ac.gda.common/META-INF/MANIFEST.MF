@@ -38,7 +38,7 @@ Require-Bundle: org.junit;bundle-version="[4.10.0,5.0.0)",
  org.apache.commons.lang;bundle-version="[2.6.0,2.7.0)",
  org.dawnsci.common.widgets
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.exolab.castor.mapping;version="1.2.0",
  org.exolab.castor.xml;version="1.2.0",
  org.slf4j;version="[1.7.6,1.7.7)",
