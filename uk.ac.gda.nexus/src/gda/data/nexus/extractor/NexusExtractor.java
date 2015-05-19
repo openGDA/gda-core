@@ -27,7 +27,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 
-import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
@@ -37,7 +36,6 @@ import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
@@ -119,7 +117,7 @@ final public class NexusExtractor implements INexusDataGetter {
 		if (a != null) {
 			Group currentGroupBeingProcessed_tmp = currentGroupBeingProcessed;
 			currentGroupBeingProcessed = new Attr(d, attrName, a);
-			val = new NexusGroupData(a.getShape(), DatasetUtils.serializeDataset(a.getValue()));
+			val = NexusGroupData.createFromDataset(a.getValue());
 			currentGroupBeingProcessed = currentGroupBeingProcessed_tmp;
 		}
 		return val;
@@ -142,15 +140,14 @@ final public class NexusExtractor implements INexusDataGetter {
 		}
 		if (currentGroupBeingProcessed instanceof Attr) {
 			Attribute a = ((Attr) currentGroupBeingProcessed).entry;
-			return new NexusGroupData(a.getShape(), DatasetUtils.serializeDataset(a.getValue()));
+			return NexusGroupData.createFromDataset(a.getValue());
 		}
 		DataNode d = file.getData((GroupNode) currentGroupBeingProcessed.parent, name);
 		ILazyDataset l = d.getDataset();
 		int[] shape = l.getShape();
 		NexusGroupData n;
 		if (getData) {
-			IDataset ds = l instanceof IDataset ? (IDataset) l : l.getSlice();
-			n = new NexusGroupData(shape, DatasetUtils.serializeDataset(ds));
+			n = NexusGroupData.createFromDataset(l.getSlice());
 		} else {
 			n = new NexusGroupData(shape, l.elementClass());
 			if (d.isString()) {
@@ -487,7 +484,7 @@ class SimpleExtractor {
 		DataNode data = file.getData(augmentedPath);
 		if (attrName != null) {
 			Attribute a = data.getAttribute(attrName);
-			return new NexusGroupData(a.getShape(), DatasetUtils.serializeDataset(a.getValue()));
+			return NexusGroupData.createFromDataset(a.getValue());
 		}
 
 		ILazyDataset lazy = data.getDataset();
@@ -511,7 +508,7 @@ class SimpleExtractor {
 			slice = SliceND.createSlice(lazy, null, null);
 		}
 
-		return new NexusGroupData(slice.getShape(), DatasetUtils.serializeDataset(lazy.getSlice(slice)));
+		return NexusGroupData.createFromDataset(lazy.getSlice(slice));
 	}
 
 	protected final NexusGroupData getData() throws NexusException, NexusExtractorException {
