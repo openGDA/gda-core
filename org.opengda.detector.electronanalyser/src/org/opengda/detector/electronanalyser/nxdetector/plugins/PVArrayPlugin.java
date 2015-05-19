@@ -183,7 +183,7 @@ class NXDetectorDatasetAppender implements NXDetectorDataAppender {
 			return;
 		}
 
-		NexusGroupData ngd = new NexusGroupData(dims, ds.getBuffer());
+		NexusGroupData ngd = NexusGroupData.createFromDataset(ds);
 		if (ds.getDtype() == Dataset.FLOAT32) {
 			ngd = ngd.asDouble();
 		}
