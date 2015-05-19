@@ -47,6 +47,7 @@ import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
@@ -204,16 +205,14 @@ public class TestHelpers {
 				description, detectorID, detectorType);
 	}
 
-	public static NexusGroupData createTestNexusGroupData(int[] dimensions, Serializable data,
+	public static NexusGroupData createTestNexusGroupData(int[] shape, int dtype,
 			boolean useSuperToString) {
-		return createTestNexusGroupData(dimensions, data, useSuperToString, true);
-	}
-
-	public static NexusGroupData createTestNexusGroupData(int[] dimensions, Serializable data,
-			boolean useSuperToString, boolean isDetectorEntryData) {
-		NexusGroupData nexusGroupData = new Data(dimensions, data, useSuperToString);
-		nexusGroupData.isDetectorEntryData = isDetectorEntryData;
-		return nexusGroupData;
+		int size = AbstractDataset.calcSize(shape);
+		Dataset dataset = DatasetFactory.createRange(size, dtype);
+		dataset.setShape(shape);
+		NexusGroupData ngd = new Data(dataset, useSuperToString);
+		ngd.isDetectorEntryData = true;
+		return ngd;
 	}
 
 	/**
@@ -892,8 +891,8 @@ class TestNXDetectorData extends NXDetectorData {
 class Data extends NexusGroupData {
 	boolean useSuperToString;
 
-	Data(int[] dimensions, Serializable data, boolean useSuperToString) {
-		super(dimensions, data);
+	Data(Dataset dataset, boolean useSuperToString) {
+		super(dataset);
 		this.useSuperToString = useSuperToString;
 	}
 

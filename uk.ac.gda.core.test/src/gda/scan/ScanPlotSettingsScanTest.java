@@ -26,6 +26,7 @@ import gda.device.Detector;
 import gda.device.Scannable;
 import gda.jython.commands.ScannableCommands;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,14 +149,9 @@ public class ScanPlotSettingsScanTest {
 				"SC2E1" }, new String[] { "SC2I0", "SC2I1" }, 0, new String[] { "%5.2g" }, null);
 
 		int[] dims1 = new int[] { 10 };
-		int totalLength = NexusExtractor.calcTotalLength(dims1);
-		double[] data1In = new double[totalLength];
-		for (int index = 0; index < totalLength; index++) {
-			data1In[index] = index;
-		}
 
 		Detector simpleDetector1 = TestHelpers.createTestDetector("SimpleDetector1", 0., new String[] { "SD1" },
-				new String[] {}, 0, new String[] { "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1, data1In, true),
+				new String[] {}, 0, new String[] { "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1, Dataset.FLOAT64, true),
 				null, "description1", "detectorID1", "detectorType1");
 
 		Object[] args = nested ? new Object[] { simpleScannable1, new Double[] { 0., 0. }, new Double[] { 10., 10. },

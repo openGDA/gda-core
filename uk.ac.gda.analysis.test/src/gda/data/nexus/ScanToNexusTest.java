@@ -25,7 +25,6 @@ import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.GdaMetadata;
 import gda.data.metadata.Metadata;
 import gda.data.metadata.StoredMetadataEntry;
-import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeBuilder;
 import gda.data.nexus.tree.NexusTreeNode;
@@ -48,6 +47,7 @@ import java.util.LinkedList;
 
 import junit.framework.Assert;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -70,15 +70,9 @@ public class ScanToNexusTest {
 				new String[] { "simpleScannable2" }, 0, new String[] { "%5.2g" }, new String[] { "eV" });
 
 		int[] dims1 = new int[] { 10 };
-		int totalLength = NexusExtractor.calcTotalLength(dims1);
-		double[] data1In = new double[totalLength];
-		for (int index = 0; index < totalLength; index++) {
-			data1In[index] = index;
-		}
-
 		Detector simpleDetector1 = TestHelpers.createTestDetector("SimpleDetector1", 0., new String[] {},
 				new String[] {}, 0, new String[] { "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g",
-						"%5.2g", "%5.2g", "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1, data1In, true),
+						"%5.2g", "%5.2g", "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1, Dataset.FLOAT64, true),
 						null, "description1", "detectorID1", "detectorType1");
 
 		Object[] args = new Object[] { simpleScannable1, 0., 10., 1., simpleScannable2, simpleDetector1 };
@@ -102,14 +96,8 @@ public class ScanToNexusTest {
 				new String[] { "simpleScannable3" }, 3, new String[] { "%5.2g" }, new String[] { "eV" });
 
 		int[] dims1 = new int[] { 10 };
-		int totalLength = NexusExtractor.calcTotalLength(dims1);
-		double[] data1In = new double[totalLength];
-		for (int index = 0; index < totalLength; index++) {
-			data1In[index] = index;
-		}
-
 		Detector simpleDetector1 = TestHelpers.createTestDetector("SimpleDetector1", 0., new String[] {},
-				new String[] {}, 0, new String[] { "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1, data1In, true),
+				new String[] {}, 0, new String[] { "%5.2g" }, TestHelpers.createTestNexusGroupData(dims1, Dataset.FLOAT64, true),
 				null, "description1", "detectorID1", "detectorType1");
 
 		Object[] args = new Object[] { simpleScannable1, 0., 1, 1., simpleScannable2, 0., 2, 1., simpleScannable3, 0.,

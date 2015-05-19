@@ -25,7 +25,6 @@ import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.data.metadata.Metadata;
-import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.scan.datawriter.DefaultDataWriterFactory;
 import gda.data.scan.datawriter.IDataWriterExtender;
 import gda.device.Detector;
@@ -34,6 +33,7 @@ import gda.scan.ConcurrentScan;
 
 import java.io.File;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,16 +72,10 @@ public class FileRegistrarTest {
 				new String[] { "simpleScannable2" }, 0, new String[] { "%5.2g" }, null);
 
 		int[] dims1 = new int[] { 10 };
-		int totalLength = NexusExtractor.calcTotalLength(dims1);
-		double[] data1In = new double[totalLength];
-		for (int index = 0; index < totalLength; index++) {
-			data1In[index] = index;
-		}
-
 		Detector simpleDetector = TestHelpers.createTestDetector("SimpleDetector", 0.,
 				new String[] { "simpleDetector1" }, new String[] {}, 0, new String[] { "%5.2g", "%5.2g", "%5.2g",
 						"%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g", "%5.2g" }, TestHelpers
-						.createTestNexusGroupData(dims1, data1In, true), null, "description1",
+						.createTestNexusGroupData(dims1, Dataset.FLOAT64, true), null, "description1",
 				"detectorID1", "detectorType1");
 
 		Detector simpleFileDetector = TestHelpers.createTestFileDetector("simpleDetector1", 0, "HLK%05X.mp3",
