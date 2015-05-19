@@ -285,7 +285,9 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 			}
 			thisFrame.setPlottableValue(getExtraNames()[numberOfChannelsToRead], totalFF);
 
-			thisFrame.addScanFileLink(getName(), "nxfile://" + deriveFilename() + "#entry/instrument/detector/data");
+			if (writeHDF5Files) {
+				thisFrame.addScanFileLink(getName(), "nxfile://" + deriveFilename() + "#entry/instrument/detector/data");
+			}
 
 			results[frame] = thisFrame;
 		}
