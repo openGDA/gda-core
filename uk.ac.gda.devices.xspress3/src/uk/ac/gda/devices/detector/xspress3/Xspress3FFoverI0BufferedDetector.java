@@ -35,7 +35,7 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 
 	@Override
 	public void configure() {
-		setExtraNames(new String[] { getName() });
+		setExtraNames(new String[] { "FFI0" });
 		setInputNames(new String[0]);
 		setOutputFormat(new String[] { "%.9f" });
 	}
@@ -65,10 +65,14 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 
 	private double getFF(NexusTreeProvider[] expressFrames, int i) {
 		NXDetectorData expressFrameData = (NXDetectorData) expressFrames[i];
-		Double[] FFs = expressFrameData.getDoubleVals();
+		Double[] xspressOutput = expressFrameData.getDoubleVals();
+		String[] names = qxspress.getExtraNames();
+		
 		double ffTotal = 0;
-		for (Double ff : FFs){
-			ffTotal += ff;
+		for (int index = 0; index < names.length; index++) {
+			if (names[index].equals("FF")) {
+				ffTotal = xspressOutput[index];
+			}
 		}
 		return ffTotal;
 	}

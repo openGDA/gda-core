@@ -263,6 +263,7 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 		Double[][] FFs = new Double[numFramesRead][numberOfChannelsToRead];
 		for (int frame = 0; frame < numFramesRead; frame++) {
 			for (int channel = 0; channel < numberOfChannelsToRead; channel++) {
+				// TODO summing all ROIs here - should check current value of summingMethod!
 				FFs[frame][channel] = FFs_sca5[frame][channel] + FFs_sca6[frame][channel];
 			}
 		}
@@ -293,21 +294,34 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 		}
 		return results;
 	}
-	
-	public Double[] readoutFF() throws DeviceException {
-		// assume that this is readout before the full readout() is called!!
-		Double[][][] data = controller.readoutDTCorrectedROI(framesRead,
-				framesRead, firstChannelToRead, numberOfChannelsToRead
-						+ firstChannelToRead - 1);
-		return calculateFFs(data,1)[0];
+
+	/**
+	 * For use by Xspress3FFOverI0Detector only. Not intended for use in continuous scans. Largely duplicates code
+	 * used in Xspress3FFoverI0BufferedDetector.getFF().
+	 */
+	public double readoutFFTotal() throws DeviceException {
+
+		// inefficient to call this whole method just to get the FF, but easiest option for now
+		NXDetectorData xspressFrame = (NXDetectorData) readout();
+
+		Double[] xspressOutput = xspressFrame.getDoubleVals();
+		String[] names = getExtraNames();
+
+		double ffTotal = 0;
+		for (int index = 0; index < names.length; index++) {
+			if (names[index].equals("FF")) {
+				ffTotal = xspressOutput[index];
+			}
+		}
+		return ffTotal;
 	}
 
+	@SuppressWarnings("unused") // still used in commented code in readoutFrames()
 	private Double[][] calculateFFs(Double[][][] data, int numFramesRead) {
-		Double[][] FFs = new Double[numFramesRead][numberOfChannelsToRead]; // [frame][detector
-																			// channel]
+		Double[][] FFs = new Double[numFramesRead][numberOfChannelsToRead]; // [frame][detector channel]
 		for (int frame = 0; frame < numFramesRead; frame++) {
 			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
-				if (summingMethod == 1) {
+				if (summingMethod == SUM_FIRST_ROI) {
 					FFs[frame][chan] = data[frame][chan][0];
 				} else {
 					FFs[frame][chan] = sumArray(data[frame][chan]);
@@ -539,7 +553,6 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 
 	@Override
 	public Object getCountRates() throws DeviceException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
