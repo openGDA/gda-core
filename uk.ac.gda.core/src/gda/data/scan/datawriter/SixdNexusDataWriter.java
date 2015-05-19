@@ -1005,7 +1005,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 			//to check the data type:
 			if ( !isNumberParsable(dataList.get(j)) ){//Non parsable entry, treat it as file name string
 				GroupNode g = file.getGroup(group, "data_file", NexusExtractor.NXNoteClassName, true);
-				dataDim = generateDataDim(true, scanDimensions, new int[] { MAX_DATAFILENAME });
+				dataDim = generateDataDim(true, scanDimensions, null);
 				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("file_name", Dataset.STRING, dataDim, null, null);
 				DataNode data = file.createData(g, lazy);
 				// Get a link ID to this data set
@@ -1280,7 +1280,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 				// Set all the start positions to be zero (except for the first
 				// dimension which is the scan point)
-				int[] dataDimensions = new int[] { MAX_DATAFILENAME };
+				int[] dataDimensions = null;
 				int[] dataDim = generateDataDim(false, dataDimPrefix, dataDimensions);
 				int[] dataStartPos = NexusDataWriter.generateDataStartPos(dataStartPosPrefix, dataDimensions);
 				int[] dataStop = NexusDataWriter.generateDataStop(dataStartPos, dataDimensions);

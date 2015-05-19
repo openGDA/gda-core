@@ -1164,7 +1164,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		// Set all the start positions to be zero (except for the first
 		// dimension which is the scan point)
 		// FIXME
-		int[] dataDimensions = new int[] { MAX_DATAFILENAME };
+		int[] dataDimensions = null;
 		int[] dataDim = generateDataDim(false, dataDimPrefix, dataDimensions);
 		int[] dataStartPos = generateDataStartPos(dataStartPosPrefix, dataDimensions);
 		int[] dataStop = generateDataStop(dataStartPos, dataDimensions);
@@ -1200,7 +1200,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 		GroupNode g = file.getGroup(group, "data_file", NexusExtractor.NXNoteClassName, true);
 
-		int[] dataDim = generateDataDim(true, scanDimensions, new int[] { MAX_DATAFILENAME });
+		int[] dataDim = generateDataDim(true, scanDimensions, null);
 
 		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("file_name", Dataset.STRING, dataDim, null, null);
 		file.createData(g, lazy);
