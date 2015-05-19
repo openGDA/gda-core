@@ -278,6 +278,13 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
 				thisFrame.setPlottableValue(getExtraNames()[chan], FFs[frame][chan]);
 			}
+
+			double totalFF = 0;
+			for (Double ff : FFs[frame]){
+				totalFF += ff;
+			}
+			thisFrame.setPlottableValue(getExtraNames()[numberOfChannelsToRead], totalFF);
+
 			thisFrame.addScanFileLink(getName(), "nxfile://" + deriveFilename() + "#entry/instrument/detector/data");
 
 			results[frame] = thisFrame;
@@ -320,10 +327,11 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 	public String[] getExtraNames() {
 		// these are the plottable values. For this detector it is the FF for
 		// each channel
-		String[] extraNames = new String[numberOfChannelsToRead];
+		String[] extraNames = new String[numberOfChannelsToRead + 1];
 		for (int i = 0; i < numberOfChannelsToRead; i++) {
 			extraNames[i] = "Chan" + (firstChannelToRead + i);
 		}
+		extraNames[numberOfChannelsToRead] = "FF";
 		return extraNames;
 	}
 
