@@ -286,6 +286,8 @@ public class Xspress3Detector extends DetectorBase implements NexusDetector, Flu
 			}
 			thisFrame.setPlottableValue(getExtraNames()[numberOfChannelsToRead], totalFF);
 
+			// TODO this needs fixing at some point - currently writes an absolute path when better to use relative in Nexus
+			// Also, deriveFilename() only gives the correct name in step scans when Auto Increment is switched off in EPICS
 			if (writeHDF5Files) {
 				thisFrame.addScanFileLink(getName(), "nxfile://" + deriveFilename() + "#entry/instrument/detector/data");
 			}
