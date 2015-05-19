@@ -38,12 +38,10 @@ public class Xspress3FFoverI0Detector extends DetectorBase {
 
 	@Override
 	public void configure() {
-		if (getExtraNames().length == 0)
-			this.setExtraNames(new String[] { "FFI0" });
-		this.setInputNames(new String[0]);
-		if (outputFormat == null || outputFormat.length != 1)
-			this.setOutputFormat(new String[] { "%.9f" });
-
+		// Should really configure these using Spring XML
+		setExtraNames(new String[] { "FFI0" });
+		setInputNames(new String[0]);
+		setOutputFormat(new String[] { "%.9f" });
 	}
 
 	@Override
