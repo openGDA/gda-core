@@ -20,6 +20,8 @@ package gda.data.nexus.extractor;
 
 
 import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.StringDataset;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,5 +40,29 @@ public class NexusGroupDataTest {
 
 		int[][][] obj = new int[][][] { { {2}, {3, 4}, {4} }, {{1, 2, 3}, {5, 6, 7, 8}} };
 		Assert.assertArrayEquals(new int[] {2, 3, 4}, AbstractDataset.getShapeFromObject(obj));
+	}
+
+	@Test
+	public void testStrings() {
+
+		StringDataset strings = new StringDataset(new String[] {"Hello", "world", "!", "How", "are", "you?"}, 2, 3);
+
+		NexusGroupData ngd = NexusGroupData.createFromDataset(strings);
+
+		ngd.setMaxStringLength(40);
+		byte[] bdata = (byte[]) ngd.getBuffer(true);
+
+		NexusGroupData bngd = new NexusGroupData(bdata);
+		ngd = bngd.asChar();
+		ngd.setMaxStringLength(40);
+		Dataset s = ngd.toDataset();
+		s.setShape(2, 3);
+		Assert.assertEquals(strings, s);
+
+		bngd = new NexusGroupData(new int[] {2, 3, 40}, bdata);
+		ngd = bngd.asChar();
+		ngd.setMaxStringLength(40);
+		s = ngd.toDataset();
+		Assert.assertEquals(strings, s);
 	}
 }

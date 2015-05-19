@@ -107,7 +107,7 @@ public class NexusFileTest {
 		checkData(n, shape);
 
 		n = g.getDataNode("t");
-		checkTextData(n, new int[] {3, 34});
+		checkTextData(n, new int[] {4, 34});
 
 		n = nf.getData("/g");
 		checkData(n, shape);
@@ -151,11 +151,11 @@ public class NexusFileTest {
 		ILazyDataset b = n.getDataset();
 		assertTrue(b.elementClass().equals(String.class));
 		// NAPI is broken wrt strings so skip for time being
-//		Assert.assertArrayEquals(shape, b.getShape());
-//		IDataset bs = b.getSlice();
-//		assertEquals("", bs.getString(0, 0));
-//		assertEquals("Hello", bs.getString(2, 3));
-//		assertEquals("World", bs.getString(3, 3));
+		assertArrayEquals(shape, b.getShape());
+		IDataset bs = b.getSlice();
+		assertEquals("", bs.getString(0, 0));
+		assertEquals("Hello", bs.getString(2, 3));
+		assertEquals("World", bs.getString(3, 3));
 	}
 
 	@Test

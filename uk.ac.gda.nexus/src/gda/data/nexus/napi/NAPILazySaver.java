@@ -18,9 +18,10 @@
 
 package gda.data.nexus.napi;
 
+import gda.data.nexus.extractor.NexusGroupData;
+
 import java.io.File;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
@@ -30,8 +31,6 @@ import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
-import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
-import org.eclipse.dawnsci.analysis.dataset.impl.StringDataset;
 import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 
@@ -47,8 +46,8 @@ public class NAPILazySaver extends NAPILazyLoader implements ILazySaver, Seriali
 	 * @param shape
 	 * @param dtype
 	 */
-	public NAPILazySaver(NexusFile file, Tree tree, String path, String name, int[] shape, int dtype) {
-		super(file, tree, path, name, shape, dtype);
+	public NAPILazySaver(NexusFile file, Tree tree, String path, String name, int[] shape, int dtype, boolean isUnsigned) {
+		super(file, tree, path, name, shape, dtype, isUnsigned);
 	}
 
 	@Override
@@ -156,37 +155,20 @@ public class NAPILazySaver extends NAPILazyLoader implements ILazySaver, Seriali
 
 	private void saveData(NexusFile file, IDataset data, int[] start, int[] size) throws org.nexusformat.NexusException {
 		Dataset cdata = DatasetUtils.cast(data, dtype);
-		Serializable slab;
-		if (dtype == Dataset.STRING) {
-			slab = convertStringsToSlab((StringDataset) cdata, textLength);
-			int r = start.length + 1;
-			start = Arrays.copyOf(start, r);
-			size = Arrays.copyOf(size, r);
-			size[r - 1] = textLength;
-		} else {
-			slab = DatasetUtils.serializeDataset(cdata);
+		if (cdata.getRank() == 0) {
+			cdata.setShape(1);
 		}
-		file.putslab(slab, start, size);
-	}
-
-	private static byte[] convertStringsToSlab(StringDataset data, int length) {
-		int n = data.getSize();
-		String[] strings = data.getData();
-		byte[] buffer = new byte[n * length];
-		IndexIterator it = data.getIterator();
-		int k = 0;
-		while (it.hasNext()) {
-			String t = strings[it.index];
-
-			byte[] b;
-			try {
-				b = t.getBytes("UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				b = t.getBytes();
+		NexusGroupData ngd = NexusGroupData.createFromDataset(cdata);
+		ngd.setMaxStringLength(textLength);
+		Serializable slab = ngd.getBuffer(true);
+		int[] tsize = ngd.getDimensions();
+		if (ngd.getDtype() == Dataset.STRING && !Arrays.equals(size, tsize)) {
+			if (tsize.length > size.length) {
+				start = Arrays.copyOf(start, tsize.length);
 			}
-			int l = b.length < length ? b.length : length;
-			System.arraycopy(b, 0, buffer, k, l);
+			file.putslab(slab, start, tsize);
+		} else {
+			file.putslab(slab, start, size);
 		}
-		return buffer;
 	}
 }

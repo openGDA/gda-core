@@ -18,12 +18,13 @@
 
 package gda.data.nexus.napi;
 
+import gda.data.nexus.extractor.NexusGroupData;
+
 import java.io.File;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
@@ -35,8 +36,6 @@ import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
-import org.eclipse.dawnsci.analysis.dataset.impl.StringDataset;
 import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
@@ -50,6 +49,7 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 	protected int[] trueShape;
 	protected String filename;
 	protected int dtype;
+	protected boolean unsigned;
 	protected NexusFile file;
 
 	/**
@@ -60,7 +60,7 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 	 * @param shape
 	 * @param dtype
 	 */
-	public NAPILazyLoader(NexusFile file, Tree tree, String path, String name, int[] shape, int dtype) {
+	public NAPILazyLoader(NexusFile file, Tree tree, String path, String name, int[] shape, int dtype, boolean isUnsigned) {
 		this.file = file;
 		source = tree.getSourceURI();
 		if (tree instanceof TreeFile) {
@@ -70,6 +70,7 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 		this.name = name;
 		trueShape = shape;
 		this.dtype = dtype;
+		unsigned = isUnsigned;
 	}
 
 	protected boolean checkHost() {
@@ -180,13 +181,13 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 					}
 				}
 				if (textLength > 0) {
-					d = readSlabAsStrings(file, textLength, tstart, tsize, (byte[]) d.getBuffer());
+					d = readSlabAsStrings(file, textLength, trueShape, tstart, tsize, (byte[]) d.getBuffer());
 				} else {
 					file.getslab(tstart, tsize, d.getBuffer());
 				}
 			} else {
 				if (textLength > 0) {
-					d = readSlabAsStrings(file, textLength, lstart, size, (byte[]) d.getBuffer());
+					d = readSlabAsStrings(file, textLength, trueShape, lstart, size, (byte[]) d.getBuffer());
 				} else {
 					file.getslab(lstart, size, d.getBuffer());
 				}
@@ -195,6 +196,9 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 				d = d.getSlice(null, null, lstep); // reduce dataset to requested elements
 			d.setShape(newShape); // squeeze shape back
 			d.setName(name);
+//			if (unsigned) {
+//				d = DatasetUtils.makeUnsigned(d);
+//			}
 		} catch (NexusException e) {
 			logger.error("Problem with NeXus library: {}", e);
 		} finally {
@@ -206,23 +210,13 @@ public class NAPILazyLoader implements ILazyLoader, Serializable {
 		return d;
 	}
 
-	private static final Charset UTF8 = Charset.forName("UTF-8");
-
-	private static Dataset readSlabAsStrings(NexusFile file, int length, int[] start, int[] size, byte[] buffer) throws NexusException {
+	private static Dataset readSlabAsStrings(NexusFile file, int length, int[] shape, int[] start, int[] size, byte[] buffer) throws NexusException {
 		file.getdata(buffer);
-		StringDataset data = new StringDataset(size);
-		IndexIterator it = data.getIterator();
-		String[] strings = data.getData();
-		int k = 0;
-		while (it.hasNext()) {
-			int end = k;
-			int stop = Math.min(k + length, buffer.length);
-			while (end < stop && buffer[end++] != 0) {
-			}
-			strings[it.index] = new String(buffer, k, end - k - 1, UTF8);
-			k += length;
-		}
-
+		NexusGroupData ngd = new NexusGroupData(buffer);
+		ngd.setMaxStringLength(length);
+		Dataset data = ngd.asChar().toDataset(true);
+		data.setShape(shape);
+		
 		int[] stop = new int[start.length];
 		for (int i = 0; i < start.length; i++) {
 			stop[i] = start[i] + size[i];

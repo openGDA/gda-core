@@ -138,7 +138,6 @@ public class NexusGroupData implements Serializable {
 				dtype = Dataset.FLOAT64;
 			} else if (data instanceof String[]) {
 				dtype = Dataset.STRING;
-				makeBytes((String[]) data, null);
 			} else {
 				dtype = -1;
 				throw new IllegalArgumentException("Unknown class of serializable array");
@@ -170,8 +169,9 @@ public class NexusGroupData implements Serializable {
 	 * Makes fixed size byte array
 	 * @param text
 	 * @param maxLength maximum encoded length in bytes of each string
+	 * @return serializable
 	 */
-	private void makeBytes(String[] text, Integer maxLength) {
+	private static Serializable makeBytes(String[] text, int maxLength) {
 		int n = text.length;
 		byte[][] lines = new byte[n][];
 		int max = -1;
@@ -179,45 +179,62 @@ public class NexusGroupData implements Serializable {
 			String t = text[i];
 			if (t == null)
 				continue;
-			lines[i] = t.getBytes(UTF8);
-			max = Math.max(max, lines[i].length);
+			byte[] l = t.getBytes(UTF8);
+			if (maxLength > 0) {
+				if (l.length != maxLength) {
+					l = Arrays.copyOf(l, maxLength);
+				}
+			}
+			max = Math.max(max, l.length);
+			lines[i] = l;
 		}
-		if (maxLength == null || maxLength < 0) {
-			textLength = max;
-		} else {
-			textLength = maxLength;
-		}
-		byte[] bdata = new byte[textLength * n];
+		byte[] bdata = new byte[n * max];
 		int k = 0;
 		for (int i = 0; i < n; i++) {
-			byte[] t = lines[i];
-			if (t == null)
-				continue;
-
-			int l = t.length > textLength ? textLength : t.length;
-			System.arraycopy(t, 0, bdata, k, l);
-			k += textLength;
+			System.arraycopy(lines[i], 0, bdata, k, max);
+			k += max;
 		}
-		data = bdata;
-		dimensions = new int[] { n };
+		return bdata;
 	}
 
-	private String[] makeStrings(byte[] bdata) {
-		if (textLength <= 0) { // single string case
-			String text;
-			text = new String(bdata, UTF8);
-			return new String[] {text};
-		}
-		int n = bdata.length / textLength;
-		String[] text = new String[n];
-		int k = 0;
+	private static int getMaxLength(String[] text) {
+		int n = text.length;
+		int max = -1;
 		for (int i = 0; i < n; i++) {
-			int end = k;
-			int stop = Math.min(k + textLength, bdata.length);
+			String t = text[i];
+			if (t == null)
+				continue;
+			byte[] line = t.getBytes(UTF8);
+			max = Math.max(max, line.length);
+		}
+		return max;
+	}
+
+	private static String[] makeStrings(byte[] bdata, int maxLength) {
+		if (maxLength <= 0) { // single string case
+			return new String[] { new String(bdata, UTF8) };
+		}
+		int n = bdata.length / maxLength;
+		String[] text = new String[n];
+		if (n == 1) {
+			int end = 0;
+			int stop = Math.min(maxLength, bdata.length);
 			while (end < stop && bdata[end++] != 0) {
 			}
-			text[i] = new String(bdata, k, end - k - 1, UTF8);
-			k += textLength;
+			if (end == stop) {
+				end++;
+			}
+			text[0] = new String(bdata, 0, end - 1, UTF8);
+		} else {
+			int k = 0;
+			for (int i = 0; i < n; i++) {
+				int end = k;
+				int stop = Math.min(k + maxLength, bdata.length);
+				while (end < stop && bdata[end++] != 0) {
+				}
+				text[i] = new String(bdata, k, end - k - 1, UTF8);
+				k += maxLength;
+			}
 		}
 		return text;
 	}
@@ -226,9 +243,8 @@ public class NexusGroupData implements Serializable {
 	 * @param s String from which to make a NexusGroupData
 	 */
 	public NexusGroupData(String s) {
-		data = s.getBytes(UTF8);
-		dimensions = new int[1];
-		dimensions[0] = s.length();
+		data = new String[] { s };
+		dimensions = new int[] { 1 };
 		dtype = Dataset.STRING;
 	}
 
@@ -237,8 +253,9 @@ public class NexusGroupData implements Serializable {
 	 * @param s String from which to make a NexusGroupData
 	 */
 	public NexusGroupData(int length, String s) {
-		data = Arrays.copyOf(s.getBytes(UTF8), length);
-		dimensions = new int[] {length};
+		textLength = length;
+		data = new String[] { s };
+		dimensions = new int[] { 1 };
 		dtype = Dataset.STRING;
 	}
 
@@ -369,12 +386,17 @@ public class NexusGroupData implements Serializable {
 	}
 
 	/**
-	 * @param raw if true, do not convert to bytes back to strings
+	 * @param encode if true, convert to strings to UTF-8 bytes
 	 * @return The data buffer compatible with type, null if data not extracted
 	 */
-	public Serializable getBuffer(boolean raw) {
-		if (!raw && dtype == Dataset.STRING) {
-			return makeStrings((byte[]) data);
+	public Serializable getBuffer(boolean encode) {
+		if (dtype == Dataset.STRING) {
+			if (!encode && data instanceof byte[]) {
+				return makeStrings((byte[]) data, textLength);
+			}
+			if (encode && data instanceof String[]) {
+				return makeBytes((String[]) data, textLength);
+			}
 		}
 		return data;
 	}
@@ -417,13 +439,14 @@ public class NexusGroupData implements Serializable {
 			return ((String[]) data)[0];
 		} else if (data instanceof byte[]) {
 			byte[] bdata = (byte[]) data;
+			int end = Math.min(bdata.length, textLength);
 			int i;
-			for (i = 0; i < textLength; i++) {
+			for (i = 0; i < end; i++) {
 				if (bdata[i] == 0) {
 					break;
 				}
 			}
-			return new String(bdata, 0, i);
+			return new String(bdata, 0, i, UTF8);
 		}
 		return "";
 	}
@@ -631,7 +654,13 @@ public class NexusGroupData implements Serializable {
 		if (!keepBitWidth && isUnsigned) {
 			dataset = DatasetUtils.makeUnsigned(dataset);
 		}
-		dataset.setShape(dimensions);
+		if (dtype == Dataset.STRING) {
+			if (data instanceof byte[] &&  dimensions.length > 1 && dimensions[dimensions.length - 1] == textLength) {
+				dataset.setShape(Arrays.copyOf(dimensions, dimensions.length - 1));
+			}
+		} else {
+			dataset.setShape(dimensions);
+		}
 		return dataset;
 	}
 
@@ -658,8 +687,9 @@ public class NexusGroupData implements Serializable {
 			type = "INT16";
 			break;
 		case Dataset.INT32:
-			type = "INT32";
-			break;
+			return "24";
+//			type = "INT32";
+//			break;
 		case Dataset.INT64:
 			type = "INT64";
 			break;
@@ -742,16 +772,27 @@ public class NexusGroupData implements Serializable {
 		ngd.chunkDimensions = chunkDimensions;
 		ngd.isDetectorEntryData = isDetectorEntryData;
 		ngd.isUnsigned = isUnsigned;
+		ngd.textLength = textLength;
 		return ngd;
 	}
 
 	public int[] getDimensions() {
 		if (dtype == Dataset.STRING) {
-			int last = dimensions.length - 1;
-			int[] dims = dimensions.clone();
-			if (dimensions[last] == 1)
-				dims[last] = textLength;
-			return dims;
+			if (data instanceof String[]) {
+				int[] dims;
+				int rank = dimensions.length;
+				if (textLength > 0) {
+					dims = Arrays.copyOf(dimensions, rank + 1);
+					dims[rank] = textLength;
+				} else if (rank == 0 || (rank == 1 && dimensions[0] == 1)) {
+					byte[] line = ((String[]) data)[0].getBytes(UTF8);
+					dims = new int[] { line.length };
+				} else {
+					dims = Arrays.copyOf(dimensions, rank + 1);
+					dims[rank] = getMaxLength((String[]) data);
+				}
+				return dims;
+			}
 		}
 		return dimensions;
 	}

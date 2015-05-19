@@ -43,7 +43,6 @@ import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.api.tree.TreeUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
@@ -633,9 +632,9 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		}
 		ILazyDataset lazy = null;
 		if (canWrite) {
-			lazy = new LazyWriteableDataset(name, dtype, shape, null, null, new NAPILazySaver(file, tree, p, name, shape, dtype));
+			lazy = new LazyWriteableDataset(name, dtype, shape, null, null, new NAPILazySaver(file, tree, p, name, shape, dtype, dataNode.isUnsigned()));
 		} else {
-			lazy = new LazyDataset(name, dtype, shape, new NAPILazyLoader(file, tree, p, name, shape, dtype));
+			lazy = new LazyDataset(name, dtype, shape, new NAPILazyLoader(file, tree, p, name, shape, dtype, dataNode.isUnsigned()));
 		}
 		dataNode.setDataset(lazy);
 		return dataNode;
@@ -741,7 +740,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		}
 		int type = getType(data);
 
-		NAPILazySaver saver = new NAPILazySaver(file, tree, tuple.path, name, data.getShape(), AbstractDataset.getDType(data));
+		NAPILazySaver saver = new NAPILazySaver(file, tree, tuple.path, name, data.getShape(), AbstractDataset.getDType(data), false);
 		data.setSaver(saver);
 		int rank;
 		int[] mShape;
@@ -856,24 +855,10 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 				logger.debug("Creating and populating dataset (thd {}): {}", Thread.currentThread(), name);
 			}
 			int type = getType(data);
-			Serializable blob;
-			int[] shape;
-			int rank;
-			if (type == NexusFile.NX_CHAR) {
-				NexusGroupData ngd = NexusGroupData.createFromDataset(data);
-				blob = ngd.getBuffer(true);
-				shape = ngd.getDimensions();
-				rank = shape.length;
-			} else {
-				shape = data.getShape();
-				rank = shape.length;
-				if (rank == 0) {
-					shape = new int[] {1};
-					rank = 1;
-				}
-				blob = DatasetUtils.serializeDataset(data);
-			}
-			file.makedata(name, type, rank, shape);
+			NexusGroupData ngd = NexusGroupData.createFromDataset(data);
+			int[] shape = ngd.getDimensions();
+			Serializable blob = ngd.getBuffer(true);
+			file.makedata(name, type, shape.length, shape);
 			file.opendata(name);
 			file.putdata(blob);
 			file.closedata();
@@ -929,12 +914,8 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 				}
 				tuple.node.addAttribute(a);
 				IDataset d = a.getValue();
-				if (d.elementClass().equals(String.class)) {
-					NexusGroupData ngd = NexusGroupData.createFromDataset(d);
-					file.putattr(a.getName(), ngd.getBuffer(true), NexusFile.NX_CHAR);
-				} else {
-					file.putattr(a.getName(), DatasetUtils.serializeDataset(d), getType(d));
-				}
+				NexusGroupData ngd = NexusGroupData.createFromDataset(d);
+				file.putattr(a.getName(), ngd.getBuffer(true), getType(d));
 			}
 		} catch (org.nexusformat.NexusException e) {
 			logger.error("Problem adding attributes: {}", attribute, e);
