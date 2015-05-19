@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NexusGroupData implements Serializable {
 	transient private static final Logger logger = LoggerFactory.getLogger(NexusGroupData.class);		
+
 	private Serializable data;
 	
 	/**
@@ -107,10 +108,17 @@ public class NexusGroupData implements Serializable {
 	}
 
 	/**
+	 * @param data
+	 */
+	protected NexusGroupData(IDataset data) {
+		this(data.getShape(), DatasetUtils.convertToDataset(data).getBuffer());
+	}
+
+	/**
 	 * @param dimensions
 	 * @param data
 	 */
-	public NexusGroupData(int[] dimensions, Serializable data) {
+	NexusGroupData(int[] dimensions, Serializable data) {
 		this.dimensions = dimensions;
 		this.data = data;
 		if (data.getClass().isArray()) {
@@ -146,8 +154,7 @@ public class NexusGroupData implements Serializable {
 	 * @return group data
 	 */
 	public static NexusGroupData createFromDataset(IDataset dataset) {
-		Dataset ad = DatasetUtils.convertToDataset(dataset);
-		return new NexusGroupData(ad.getShapeRef(), ad.getBuffer());
+		return new NexusGroupData(dataset);
 	}
 
 	/**
@@ -236,7 +243,7 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(byte... b) {
-		this(new int[]{b.length}, b);
+		this(new int[] { b.length }, b);
 	}
 
 	public NexusGroupData(int[] dims, byte... b) {
@@ -246,7 +253,7 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(short... s) {
-		this(new int[]{s.length}, s);
+		this(new int[] { s.length }, s);
 	}
 
 	public NexusGroupData(int[] dims, short... s) {
@@ -256,13 +263,13 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(short[][] s) {
-		dimensions = new int[] {s.length, s[0].length};
+		dimensions = AbstractDataset.getShapeFromObject(s);
 		data = s;
 		dtype = Dataset.INT16;
 	}
 
 	public NexusGroupData(int... i) {
-		this(new int[]{i.length}, i);
+		this(new int[] { i.length }, i);
 	}
 
 	public NexusGroupData(int[] dims, int... i) {
@@ -272,19 +279,19 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int[][] i) {
-		dimensions = new int[] {i.length, i[0].length};
+		dimensions = AbstractDataset.getShapeFromObject(i);
 		data = i;
 		dtype = Dataset.INT32;
 	}
 
 	public NexusGroupData(int[][][] i) {
-		dimensions = new int[] {i.length, i[0].length, i[0][0].length};
+		dimensions = AbstractDataset.getShapeFromObject(i);
 		data = i;
 		dtype = Dataset.INT32;
 	}
 
 	public NexusGroupData(long... l) {
-		this(new int[]{l.length}, l);
+		this(new int[] { l.length }, l);
 	}
 
 	public NexusGroupData(int[] dims, long... l) {
@@ -294,11 +301,11 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(boolean b) {
-		this(b?1:0);
+		this(b ? 1 : 0);
 	}
 
 	public NexusGroupData(float... f) {
-		this(new int[]{f.length}, f);
+		this(new int[] { f.length }, f);
 	}
 
 	public NexusGroupData(int[] dims, float... f) {
@@ -308,7 +315,7 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(double... d) {
-		this(new int[]{d.length}, d);
+		this(new int[] { d.length }, d);
 	}
 
 	public NexusGroupData(int[] dims, double... d) {
@@ -318,13 +325,13 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(double[][] d) {
-		dimensions = new int[] {d.length, d[0].length};
+		dimensions = AbstractDataset.getShapeFromObject(d);
 		data = d;
 		dtype = Dataset.FLOAT64;
 	}
 
 	public NexusGroupData(double[][][] d) {
-		dimensions = new int[] {d.length, d[0].length, d[0][0].length};
+		dimensions = AbstractDataset.getShapeFromObject(d);
 		data = d;
 		dtype = Dataset.FLOAT64;
 	}
