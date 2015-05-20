@@ -149,6 +149,21 @@ public class Xspress3DataOperations {
 			// Problem in the logic somewhere.
 			throw new DeviceException("Cannot readout - no more data in buffer");
 		}
+
+		// RW: 13/2/15 problem seeing "repeated numbers" in FFs. This si due to
+		// the Epics nt updating fast enough in step scans.
+		// As its Friday afternoon I am putting in a sleep here, but a correct
+		// fix would be to wait until the 'Total Frames Readout' value as
+		// increased since the last time this method was called, as this method
+		// is only called from within step scans
+		try {
+			Thread.sleep(150);
+		} catch (InterruptedException e) {
+			throw new DeviceException("InterruptedException during readout.");
+		}
+		
+		// ...but what about the sanity check above?? This should prevent the race condition
+		
 		return readoutLatestFrame();
 	}
 
@@ -279,11 +294,12 @@ public class Xspress3DataOperations {
 		int numRois = rois.length;
 		int numChannels =controller.getNumberOfChannels();
 		double[][] data = controller.readoutDTCorrectedLatestMCA(0, controller.getNumberOfChannels() - 1);
+		double[][] dataWithoutNaNs = removeNaNs(data);
 
 		double theFF = 0;
 		for (int chan = 0; chan < numChannels; chan++) {
 			for (int roi = 0; roi < numRois; roi++) {
-				double thisRoiSum = extractRoi(data[chan], rois[roi].getStart(), rois[roi].getEnd());
+				double thisRoiSum = extractRoi(dataWithoutNaNs[chan], rois[roi].getStart(), rois[roi].getEnd());
 				theFF += thisRoiSum;
 			}
 		}
