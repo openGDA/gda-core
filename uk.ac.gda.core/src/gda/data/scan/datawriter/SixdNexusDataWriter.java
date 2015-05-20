@@ -267,7 +267,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		thisPoint = dataPoint;
 		scanPointNumber++;
 
-		// Some Debug messages
+		// Some debug messages
 		logger.debug("Adding SDP with UUID: {}", dataPoint.getUniqueName());
 		if (firstData) {
 			logger.debug("Scan Parameters...");
@@ -331,8 +331,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	private void writeDetector(Detector detector) throws NexusException {
 		if (detector instanceof NexusDetector) {
 			writeNexusDetector((NexusDetector) detector);
-		}
-		else{//Non Nexus detector
+		} else { // Non Nexus detector
 			writeCommonDetector(detector);
 /*			
 			if (detector.createsOwnFiles()) {
@@ -437,8 +436,8 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 						try {
 							lazy.setSlice(null, ds, SliceND.createSlice(lazy, dataStartPos, dataStop));
 						} catch (Exception e) {
-							logger.error("Problem setting slice on data node", e);
-							throw new NexusException(e.getMessage());
+							logger.error("Problem setting slice on data node: {}", lazy, e);
+							throw new NexusException("Problem setting slice on data node", e);
 						}
 					}
 					if (links != null && sds.isDetectorEntryData) {
@@ -466,7 +465,6 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 					// Close data - do not add children as attributes added for first point only
 					loopNodes = false;
-
 				}
 			}
 		}
@@ -513,18 +511,11 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	private double parseDouble(Object obj){
 		return ((Number)obj).doubleValue();
 	}
+
 	private String parseString(Object obj){
 		return (String)obj;
 	}
 	
-	
-//	private double[] extractDoubleData(String detectorName) {
-//		double[] data = null;
-//		Object object = extractDetectorObject(detectorName);
-//		data = extractDoubleData(detectorName, object);
-//		return data;
-//	}
-
 	private ArrayList<Object> extractData(String detectorName) {
 		ArrayList<Object> data = new ArrayList<Object>();
 		Object object = extractDetectorObject(detectorName);
@@ -566,60 +557,6 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	private INexusTree extractNexusTree(String detectorName) {
 		return ((NexusTreeProvider) extractDetectorObject(detectorName)).getNexusTree();
 	}
-
-//	/**
-//	 * @param detectorName
-//	 * @param object
-//	 * @return the data read from the detector
-//	 * @throws NumberFormatException
-//	 */
-//	private double[] extractDoubleData(String detectorName, Object object) throws NumberFormatException {
-//		double[] data = null;
-//		if (object instanceof double[]) {
-//			data = (double[]) object;
-//		} else if (object instanceof PyList) {
-//			// coerce PyList into double array.
-//			int length = ((PyList) object).__len__();
-//			data = new double[length];
-//			for (int i = 0; i < length; i++) {
-//				data[i] = Double.valueOf(((PyList) object).__getitem__(i).toString());
-//			}
-//		} else if (object instanceof int[]) {
-//			int[] idata = (int[]) object;
-//			data = new double[idata.length];
-//			for (int i = 0; i < data.length; i++) {
-//				data[i] = idata[i];
-//			}
-//		} else if (object instanceof long[]) {
-//			long[] ldata = (long[]) object;
-//			data = new double[ldata.length];
-//			for (int i = 0; i < data.length; i++) {
-//				data[i] = ldata[i];
-//			}
-//		} else if (object instanceof String[]) {
-//			String[] sdata = (String[]) object;
-//			data = new double[sdata.length];
-//			for (int i = 0; i < data.length; i++) {
-//				data[i] = Double.valueOf(sdata[i]);
-//			}
-//		} else if (object instanceof Number[]) {
-//			Number[] ldata = (Number[]) object;
-//			data = new double[ldata.length];
-//			for (int i = 0; i < data.length; i++) {
-//				data[i] = ldata[i].doubleValue();
-//			}
-//		} else if (object instanceof Double) {
-//			data = new double[] { (Double) object };
-//		} else if (object instanceof Integer) {
-//			data = new double[] { (Integer) object };
-//		} else if (object instanceof Long) {
-//			data = new double[] { (Long) object };
-//		} else {
-//			logger.error("cannot handle data of type " + object.getClass().getName() + " from detector: "
-//					+ detectorName + ". NO DATA WILL BE WRITTEN TO NEXUS FILE!");
-//		}
-//		return data;
-//	}
 
 	private Double[] extractDoublePositions(String scannableName) {
 		int index = thisPoint.getScannableNames().indexOf(scannableName);
@@ -787,7 +724,6 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Dataset.FLOAT64, dataDim, null, null);
 					DataNode data = file.createData(g, lazy);
 
-					
 					if (thisPoint.getDetectorNames().isEmpty() && extranameindex == 0) {
 						NexusUtils.writeStringAttribute(file, data, "signal", "1");
 					}
@@ -885,7 +821,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
 		NexusUtils.addToAugmentPath(path, "instrument", NexusExtractor.NXInstrumentClassName);
 		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
-//		// Create NXdetector
+		// Create NXdetector
 		GroupNode group = file.getGroup(path.toString(), true);
 
 		// Metadata items
@@ -910,7 +846,6 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 				writeHere(file, group, subTree, true, false, links);
 			}
 		} else if (detector.getExtraNames().length > 0) {
-
 			// Detectors with multiple extra names can act like countertimers
 
 			int[] dataDim = generateDataDim(true, scanDimensions, null);
@@ -919,14 +854,14 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(detector.getExtraNames()[j], Dataset.FLOAT64, dataDim, null, null);
 				DataNode data = file.createData(group, lazy);
 
-//				// Get a link ID to this data set
+				// Get a link ID to this data set
 				SelfCreatingLink detectorID = new SelfCreatingLink(data);
 
 				GroupNode g = file.getGroup(group, detector.getName(), NexusExtractor.NXDataClassName, j == 0);
 				// If this is the first channel then we need to create (and
 				// open) the NXdata item and link to the scannables.
 				if (j == 0) {
-//					// Make links to all scannables.
+					// Make links to all scannables.
 					for (SelfCreatingLink id : scannableID) {
 						id.create(file, g);
 					}
@@ -998,7 +933,6 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		nameList.addAll(Arrays.asList(detector.getInputNames()));
 		nameList.addAll(Arrays.asList(detector.getExtraNames()));
 		
-//		Object dataObject = extractDetectorObject(detector.getName());
 		ArrayList<Object> dataList = extractData(detector.getName());
 		
 		for (int j = 0; j < nameList.size(); j++) {
@@ -1039,7 +973,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 
 	/**
-	 * Create the next file. First increment the file number and then try and get a NeXus file handle from
+	 * Create the next file. First increment the file number and then try and get a NeXus file from
 	 * {@link NexusUtils#createNexusFile(String)}.
 	 */
 	public void createNextFile() {
@@ -1187,7 +1121,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		int[] stop = NexusDataWriter.generateDataStop(startPos, null);
 		int[] dimArray = generateDataDim(false, dataDimPrefix, null);
 
-		// Get inputnames and positions
+		// Get inputNames and positions
 		String[] inputNames = scannable.getInputNames();
 		String[] extraNames = scannable.getExtraNames();
 		Double[] positions = extractDoublePositions(scannable.getName());
@@ -1252,11 +1186,11 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		
 		for (int j = 0; j < nameList.size(); j++) {
 			Object dataItem=dataList.get(j);
-			if ( !isNumberParsable(dataItem) ){//treat it as file name
+			if (!isNumberParsable(dataItem)) {//treat it as file name
 				///////////////////////
 				String dataFileName=this.parseString(dataItem);
 				
-				if (dataFileName.length() > 255) {
+				if (dataFileName.length() > MAX_DATAFILENAME) {
 					logger.error("The detector (" + detector.getName() + ") returned a file name (of length " + dataFileName.length()
 							+ ") which is greater than the max allowed length (" + MAX_DATAFILENAME + ").");
 				}
@@ -1280,10 +1214,9 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 				// Set all the start positions to be zero (except for the first
 				// dimension which is the scan point)
-				int[] dataDimensions = null;
-				int[] dataDim = generateDataDim(false, dataDimPrefix, dataDimensions);
-				int[] dataStartPos = NexusDataWriter.generateDataStartPos(dataStartPosPrefix, dataDimensions);
-				int[] dataStop = NexusDataWriter.generateDataStop(dataStartPos, dataDimensions);
+				int[] dataDim = generateDataDim(false, dataDimPrefix, null);
+				int[] dataStartPos = NexusDataWriter.generateDataStartPos(dataStartPosPrefix, null);
+				int[] dataStop = NexusDataWriter.generateDataStop(dataStartPos, null);
 
 				ILazyWriteableDataset lazy = data.getWriteableDataset();
 				try {
@@ -1293,8 +1226,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 					logger.error("Problem setting slice on data node", e);
 					throw new NexusException(e.getMessage());
 				}
-			}
-			else{//pure data entry
+			} else { // pure data entry
 				DataNode data = file.getData(group, nameList.get(j));
 				ILazyWriteableDataset lazy = data.getWriteableDataset();
 				try {
@@ -1304,13 +1236,10 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 					logger.error("Problem setting slice on data node", e);
 					throw new NexusException(e.getMessage());
 				}
-
 			}
 		}
 	}
 
-	
-	
 	@Override
 	public int getCurrentScanIdentifier(){
 		try {

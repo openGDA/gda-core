@@ -54,7 +54,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -368,7 +367,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		thisPoint = dataPoint;
 		scanPointNumber++;
 
-		// Some Debug messages
+		// Some debug messages
 		logger.debug("Adding SDP with UUID: {}", dataPoint.getUniqueName());
 		if (firstData) {
 			logger.debug("Scan Parameters...");
@@ -498,7 +497,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		} else {
 			if (detector instanceof NexusDetector) {
 				writeNexusDetector((NexusDetector) detector);
-				// } else if (detector instanceof CounterTimer) {
 			} else if (detector.getExtraNames() != null && detector.getExtraNames().length > 0) {
 				double[] data = extractDoubleData(detector.getName());
 				if (data != null) {
@@ -649,15 +647,14 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					}
 					
 					if (!tree.isPointDependent()) {
-//						int[] dataDim = generateDataDim(false, null, sds.dimensions);
 						int[] dataStartPos = generateDataStartPos(null, sds.dimensions);
 						int[] dataStop = generateDataStop(dataStartPos, sds.dimensions);
 						IDataset ds = sds.toDataset();
 						try {
 							lazy.setSlice(null, ds, SliceND.createSlice(lazy, dataStartPos, dataStop));
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							logger.error("TODO put description of error here", e);
+							logger.error("Problem setting slice on lazy dataset: {}", lazy, e);
+							throw new NexusException("Problem setting slice on lazy dataset", e);
 						}
 					}
 					if (links != null && sds.isDetectorEntryData) {
@@ -678,8 +675,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					try {
 						lazy.setSlice(null, ds, SliceND.createSlice(lazy, dataStartPos, dataStop));
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						logger.error("TODO put description of error here", e);
+						logger.error("Problem setting slice on lazy dataset: {}", lazy, e);
+						throw new NexusException("Problem setting slice on lazy dataset", e);
 					}
 
 					// Close data - do not add children as attributes added for first point only
@@ -713,15 +710,12 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 	private Object extractDetectorObject(String detectorName) {
 		int index = thisPoint.getDetectorNames().indexOf(detectorName);
-		Object object = thisPoint.getDetectorData().get(index);
-		return object;
+		return thisPoint.getDetectorData().get(index);
 	}
 
 	private double[] extractDoubleData(String detectorName) {
-		double[] data = null;
 		Object object = extractDetectorObject(detectorName);
-		data = extractDoubleData(detectorName, object);
-		return data;
+		return extractDoubleData(detectorName, object);
 	}
 
 	private String extractFileName(String detectorName) {
@@ -928,22 +922,21 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			GroupNode g = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
 
 			Set<Scannable> wehavewritten = new HashSet<Scannable>();
-			for (Iterator<Scannable> iterator = scannablesAndMonitors.iterator(); iterator.hasNext();) {
-				Scannable scannable = iterator.next();
+			for (Scannable scannable : scannablesAndMonitors) {
 				String scannableName = scannable.getName();
 				if (weKnowTheLocationFor(scannableName)) {
 					wehavewritten.add(scannable);
-					Collection<String> prerequisites = locationmap.get(scannableName).getPrerequisiteScannableNames();
+					ScannableWriter writer = locationmap.get(scannableName);
+					Collection<String> prerequisites = writer.getPrerequisiteScannableNames();
 					if (prerequisites != null)
 						metadatascannablestowrite.addAll(prerequisites);
-					scannableID.addAll(locationmap.get(scannableName).makeScannable(file, g, scannable, getSDPositionFor(scannableName), generateDataDim(false, scanDimensions, null)));
+					scannableID.addAll(writer.makeScannable(file, g, scannable, getSDPositionFor(scannableName), generateDataDim(false, scanDimensions, null)));
 				}
 			}
 			
-			int oldsize;
+			Set<String> aux = new HashSet<String>();
 			do { // add dependencies of metadata scannables
-				oldsize = metadatascannablestowrite.size();
-				Set<String> aux = new HashSet<String>();
+				aux.clear();
 				for (String s: metadatascannablestowrite) {
 					if (weKnowTheLocationFor(s)) {
 						Collection<String> prerequisites = locationmap.get(s).getPrerequisiteScannableNames();
@@ -951,9 +944,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 							aux.addAll(prerequisites);
 					}
 				}
-				metadatascannablestowrite.addAll(aux);
-			} while(metadatascannablestowrite.size() > oldsize);
-			
+			} while (metadatascannablestowrite.addAll(aux));
+
 			// remove the ones in the scan, as they are not metadata
 			for (Scannable scannable : scannablesAndMonitors) {
 				metadatascannablestowrite.remove(scannable.getName());
@@ -962,7 +954,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			scannablesAndMonitors.removeAll(wehavewritten);
 			
 			makeMetadataScannables(g, metadatascannablestowrite);
-			
 		} catch (NexusException e) {
 			// FIXME NexusDataWriter should allow exceptions to be thrown
 			logger.error("TODO put description of error here", e);
@@ -1163,11 +1154,9 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 		// Set all the start positions to be zero (except for the first
 		// dimension which is the scan point)
-		// FIXME
-		int[] dataDimensions = null;
-		int[] dataDim = generateDataDim(false, dataDimPrefix, dataDimensions);
-		int[] dataStartPos = generateDataStartPos(dataStartPosPrefix, dataDimensions);
-		int[] dataStop = generateDataStop(dataStartPos, dataDimensions);
+		int[] dataDim = generateDataDim(false, dataDimPrefix, null);
+		int[] dataStartPos = generateDataStartPos(dataStartPosPrefix, null);
+		int[] dataStop = generateDataStop(dataStartPos, null);
 
 		DataNode data = file.getData(group, "file_name");
 		Dataset fileName = DatasetFactory.createFromObject(dataFileName).reshape(dataDim);
@@ -1205,7 +1194,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("file_name", Dataset.STRING, dataDim, null, null);
 		file.createData(g, lazy);
 
-		//FIXME this data group does not contain detector data, 
+		// FIXME this data group does not contain detector data, 
 		// we should not create this
 		// if this is the only detector the fallback group would be better 
 		// Make and open NXdata
@@ -1262,7 +1251,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 				writeHere(file, group, subTree, true, false, links);
 			}
 		} else if (detector instanceof Detector && detector.getExtraNames().length > 0) {
-
 			// Detectors with multiple extra names can act like counter-timers
 
 			int[] dataDim = generateDataDim(true, scanDimensions, null);
@@ -1324,7 +1312,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 	 */
 	private void makeCounterTimer(Detector detector) throws NexusException, DeviceException {
 		SelfCreatingLink detectorID;
-		// CounterTimer ct = (CounterTimer) detector;
 
 		// Navigate to the relevant section in file...
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
@@ -1512,7 +1499,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 		int[] stop = generateDataStop(startPos, null);
 		int[] dimArray = generateDataDim(false, dataDimPrefix, null);
 
-		// Get inputnames and positions
+		// Get inputNames and positions
 		String[] inputNames = scannable.getInputNames();
 		String[] extraNames = scannable.getExtraNames();
 		Double[] positions = extractDoublePositions(scannable.getName());
