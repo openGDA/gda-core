@@ -164,14 +164,20 @@ class TestConcurrentScanWrapper(unittest.TestCase):
 		self.assertEquals(add(1.,2),3.)
 		self.assertEquals(add([1,2],[.1,.2]),[1.1,2.2])
 
+	# GDA-6145 Changed tests for second axis relative to step should not be relative
 	def testMakeAbsolute(self):
 		makeabsolute = self.scan.makeAbsolute
 		a, b, c, mie = createScannables()
+		self.assertEquals(makeabsolute([[a]], {a:5}), [[a]])
+		self.assertEquals(makeabsolute([[a,20]], {a:5}), [[a,20]])
+		self.assertEquals(makeabsolute([[a,20], [c]], {a:5}), [[a,20],[c]])
 		self.assertEquals(makeabsolute([[a,1,2,3],[b,4],[c]], {a:0.1, b:0.2}), [[a,1.1,2.1,3],[b,4.],[c]])
-		self.assertEquals(makeabsolute([[a,1,2,3],[b,4,5],[c]], {a:0.1, b:0.2}), [[a,1.1,2.1,3],[b,4.2,5.2],[c]])
+		self.assertEquals(makeabsolute([[a,1,2,3],[b,4,5],[c]], {a:0.1, b:0.2}), [[a,1.1,2.1,3],[b,4.2,5.0],[c]])
+		self.assertEquals(makeabsolute([[a,1,2,3],[b,-10,3.5],[c]], {a:0.1, b:0.2}), [[a,1.1,2.1,3],[b,-9.8,3.5],[c]])
 		self.assertEquals(makeabsolute([[a,1,2,3],[b,4,5,6],[c]], {a:0.1,b:.2}), [[a,1.1,2.1,3],[b,4.2,5.2,6],[c]])
-		self.assertEquals(makeabsolute([[a,1,2,3],[mie,[400,410],[500,510],[6,6.1]],[c]], {a:0.1,mie:[1,2]}), [[a,1.1,2.1,3],[mie,[401,412],[501,512],[6,6.1]],[c]])		
-		
+		self.assertEquals(makeabsolute([[a,-1,-2,0.1],[b,4,5,0.33],[c,-10,5]], {a:-20,b:0.2,c:10}), [[a,-21.0,-22.0,0.1],[b,4.2,5.2,0.33],[c,0,5]])
+		self.assertEquals(makeabsolute([[a,1,2,3],[mie,[400,410],[500,510],[6,6.1]],[c]], {a:0.1,mie:[1,2]}), [[a,1.1,2.1,3],[mie,[401,412],[501,512],[6,6.1]],[c]])
+
 	def testReturnToInitialPositions(self):
 		# Mock the pos command
 		gdascripts.scan.concurrentScanWrapper.pos = mockpos
