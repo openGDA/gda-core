@@ -40,13 +40,14 @@ import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_Byte;
 import gov.aps.jca.dbr.DBR_CTRL_Byte;
 import gov.aps.jca.dbr.DBR_CTRL_Double;
-import gov.aps.jca.dbr.DBR_CTRL_Enum;
 import gov.aps.jca.dbr.DBR_CTRL_Float;
 import gov.aps.jca.dbr.DBR_CTRL_Int;
 import gov.aps.jca.dbr.DBR_CTRL_Short;
 import gov.aps.jca.dbr.DBR_CTRL_String;
+import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Float;
 import gov.aps.jca.dbr.DBR_Int;
+import gov.aps.jca.dbr.DBR_LABELS_Enum;
 import gov.aps.jca.dbr.DBR_Short;
 import gov.aps.jca.dbr.DBR_String;
 import gov.aps.jca.event.MonitorEvent;
@@ -59,8 +60,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A class which monitors a single Epics pv. The value is then broadcast to IObservers of this object or can be
- * retrieved via the getValue method.
+ * A class which monitors the value of single Epics PV. The value is then broadcast to IObservers of this object or can be
+ * retrieved via the getValue method. This will not monitor changes to limits, alarms or status.
  */
 public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, InitializationListener, Scannable {
 
@@ -236,8 +237,11 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 				latestShtValue = ((DBR_CTRL_Short) dbr).getShortValue()[0];
 				return latestShtValue;
 			} else if (dbr.isENUM()) {
-				String[] labels = ((DBR_CTRL_Enum) dbr).getLabels();
-				Short labelNumber = ((DBR_CTRL_Enum) dbr).getEnumValue()[0];
+				// Use DBR_LABLES_Enum (not DBR_ENUM) to allow the getLables method to be called this
+				// allows the monitor to return the new string not the short specifying
+				// the position on the enum.
+				String[] labels = ((DBR_LABELS_Enum) dbr).getLabels();
+				Short labelNumber = ((DBR_LABELS_Enum) dbr).getEnumValue()[0];
 				latestStrValue = labels[labelNumber];
 				return latestStrValue;
 			} else if (dbr.isBYTE()) {
@@ -271,7 +275,10 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 				latestShtArray = ((DBR_CTRL_Short) dbr).getShortValue();
 				return latestShtArray;
 			} else if (dbr.isENUM()) {
-				latestStrArray = ((DBR_CTRL_Enum) dbr).getLabels();
+				// Use DBR_LABLES_Enum (not DBR_ENUM) to allow the getLables method to be called this
+				// allows the monitor to return the new string not the short specifying
+				// the position on the enum.
+				latestStrArray = ((DBR_LABELS_Enum) dbr).getLabels();
 				return latestStrArray;
 			} else if (dbr.isBYTE()) {
 				latestByteArray = ((DBR_CTRL_Byte) dbr).getByteValue();
@@ -288,10 +295,9 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 	}
 
 	/**
-	 * Monitor value changes in EPICS and update observers with value, not including unit
-	 * 
-	 * @Todo make it returns quantity
-	 */
+	 * Monitor value changes in EPICS and update observers with value, not including unit, alarms,
+	 * status or limits.
+	*/
 	private class ValueMonitorListener implements MonitorListener {
 		boolean first=true;
 		/**
@@ -304,12 +310,11 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 				return;
 			}
 			DBR dbr = arg0.getDBR();
-			if (dbr.getCount() == 1) {
+			if (dbr.getCount() == 1) { // Single PV
 				if (dbr.isDOUBLE()) {
 					double lastValue = latestDblValue;
-					latestDblValue = ((DBR_CTRL_Double) dbr).getDoubleValue()[0];
+					latestDblValue = ((DBR_Double) dbr).getDoubleValue()[0];
 					latestValue = latestDblValue;
-
 					if (Math.abs((latestDblValue - lastValue) / lastValue) * 100.0 >= sensitivity) {
 						notifyIObservers(this, latestDblValue);
 					}
@@ -341,12 +346,17 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 					if (!lastValue.equalsIgnoreCase(latestStrValue)) {
 						notifyIObservers(this, latestStrValue);
 					}
-				} else if (dbr.isCTRL() && dbr.isENUM()) {
-					short lastValue = latestShtValue;
-					latestShtValue = ((DBR_CTRL_Enum) dbr).getEnumValue()[0];
-					latestValue = latestShtValue;
-					if (lastValue != latestShtValue) {
-						notifyIObservers(this, latestShtValue);
+				} else if (dbr.isENUM()) {
+					String lastValue = latestStrValue;
+					// Use DBR_LABLES_Enum (not DBR_ENUM) to allow the getLables method to be called this
+					// allows the monitor to return the new string not the short specifying
+					// the position on the enum.
+					String[] labels = ((DBR_LABELS_Enum) dbr).getLabels();
+					Short labelNumber = ((DBR_LABELS_Enum) dbr).getEnumValue()[0];
+					latestStrValue = labels[labelNumber];
+					latestValue = latestStrValue;
+					if (!lastValue.equalsIgnoreCase(latestStrValue)) {
+						notifyIObservers(this, latestStrValue);
 					}
 				} else if (dbr.isBYTE()) {
 					byte lastValue = latestByteValue;
@@ -355,11 +365,13 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 					if (latestByteValue != lastValue) {
 						notifyIObservers(this, latestByteValue);
 					}
+				} else {
+					logger.error("The monitored PV type was not matched");
 				}
-			} else if (dbr.getCount() > 1) {
+			} else if (dbr.getCount() > 1) { // Array PV
 				if (dbr.isDOUBLE()) {
 					double[] lastValue = latestDblArray;
-					latestDblArray = ((DBR_CTRL_Double) dbr).getDoubleValue();
+					latestDblArray = ((DBR_Double) dbr).getDoubleValue();
 					latestValue = latestDblArray;
 					for (int i = 0; i < latestDblArray.length; i++) {
 						if (Math.abs((latestDblArray[i] - lastValue[i]) / lastValue[i]) * 100.0 >= sensitivity) {
@@ -402,9 +414,12 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 							notifyIObservers(this, latestStrValue);
 						}
 					}
-				} else if (dbr.isCTRL() && dbr.isENUM()) {
+				} else if (dbr.isENUM()) {
 					String[] lastValue = latestStrArray;
-					latestStrArray = ((DBR_CTRL_Enum) dbr).getLabels();
+					// Use DBR_LABLES_Enum (not DBR_ENUM) to allow the getLables method to be called this
+					// allows the monitor to return the new string not the short specifying
+					// the position on the enum.
+					latestStrArray = ((DBR_LABELS_Enum) dbr).getLabels();
 					latestValue = latestStrArray;
 					for (int i = 0; i < latestStrArray.length; i++) {
 						if (!lastValue[i].equalsIgnoreCase(latestStrArray[i])) {
@@ -420,6 +435,8 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 							notifyIObservers(this, latestByteArray);
 						}
 					}
+				} else {
+					logger.error("The monitored PV type was not matched");
 				}
 			}
 		}
@@ -686,7 +703,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 	}
 
 	/**
-	 * set poll to true to ensure Monitor.getPosition always poll the data from hardware. the default is false.
+	 * Set poll to true to ensure Monitor.getPosition() always poll the data from hardware. The default is false.
 	 * 
 	 * @param poll
 	 */
