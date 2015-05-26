@@ -189,15 +189,10 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 	}
 
 	/**
-	 * Dump out all existing properties to message logging debug channel. N.B. Forces debug level to maximum, to force
-	 * property values to be printed to debug channel. Since we can't fetch the debug level, any existing level is
-	 * overwritten and cannot be restored. However this method is intended for debugging purposes only.
+	 * Dump out all existing properties to message logging info channel.
 	 */
 	@Override
 	public void dumpProperties() {
-		
-		((ch.qos.logback.classic.Logger)logger).setLevel(ch.qos.logback.classic.Level.DEBUG);
-		
 		@SuppressWarnings("unchecked")
 		Iterator<String> keyIterator = config.getKeys();
 
@@ -211,10 +206,10 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 					// processing
 					// done by commons config applied - ie string
 					// interpolation, etc.
-					logger.debug(key + " = " + LocalProperties.get(key));
+					logger.info(key + " = " + LocalProperties.get(key));
 				} else {
 					// Handle non-string objects, eg ArrayList's
-					logger.debug(key + " = " + o.toString());
+					logger.info(key + " = " + o.toString());
 				}
 			}
 		}
