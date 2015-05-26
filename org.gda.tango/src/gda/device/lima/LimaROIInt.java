@@ -17,10 +17,13 @@
  */
 
 package gda.device.lima;
+
+import java.io.Serializable;
+
 /**
  * Area of interest (AOI) settings for Lima CCD.
  */
-public interface LimaROIInt {
+public interface LimaROIInt extends Serializable {
 	/**
 	 * return ROI begin X in unit of X binning factor of the detector settings
 	 * @return X-Begin

@@ -185,7 +185,8 @@ public class FrelonImpl extends BaseImpl implements Frelon {
 
 	@Override
 	public long getROIBinOffset() throws DevFailed {
-		return getTangoDeviceProxy().getAttributeAsLong(ROI_BIN_OFFSET);
+		//TODO why .getAttributeAsLong(ROI_BIN_OFFSET) throws org.omg.CORBA.BAD_OPERATION: 
+		return getTangoDeviceProxy().getAttributeAsInt(ROI_BIN_OFFSET);
 	}
 
 	@Override
