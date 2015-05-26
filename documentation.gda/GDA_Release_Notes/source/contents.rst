@@ -7,6 +7,7 @@ These release notes describe the major changes in each release of the GDA. This 
 .. toctree::
    :maxdepth: 1
 
+   8.46.rst
    8.44.rst
    8.42.rst
    8.40.rst

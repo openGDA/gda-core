@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 public class Version {
 	private static final Logger logger = LoggerFactory.getLogger(Version.class);
-	public static final String RELEASE_VER = "8.44.0";
+	public static final String RELEASE_VER = "8.46.0";
 	private static final String RELEASE = RELEASE_VER;
 
 	/**
