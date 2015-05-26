@@ -242,6 +242,9 @@ public class PCOTomography implements ITomographyDetector, Findable {
 					controller.disarmCamera();
 				}
 			}
+			else {
+				LoggerFactory.getLogger("PCOTomography:"+this.getName()).info("demandRaw: Not live!");
+			}
 		}
 		// Expectation is that this called only after the camera has issued a resetAll command.
 		// set file template to
