@@ -1174,8 +1174,9 @@ public abstract class ScanBase implements NestableScan {
 		} finally {
 
 			switch (getStatus()) {
-			case PAUSED:		//if paused here then must have been paused too late to have any affect e.g. fly/continuous scan, but still an OK transition
-				setStatus(ScanStatus.RUNNING);
+			case PAUSED: // if paused here then must have been paused too late to have any effect e.g. fly/continuous scan or in last point of a step scan
+				setStatus(ScanStatus.RUNNING); // set RUNNING status to update UI that we are no longer paused
+				// Deliberately fall-through to RUNNING case to handle normal scan completion
 				//$FALL-THROUGH$
 			case RUNNING:
 				setStatus(ScanStatus.COMPLETED_OKAY);
