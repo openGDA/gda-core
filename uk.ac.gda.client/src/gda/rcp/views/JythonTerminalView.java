@@ -462,7 +462,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 			}
 		});
 
-		appendOutput(txtPromptText + txtInputText + "\n");
+		appendOutput(String.format("%s %s\n", txtPromptText, txtInputText));
 		// if this is the start of a new command
 		if (txtPromptText.compareTo(NORMALPROMPT) == 0) {
 			String typedCmd = txtInputText;
