@@ -18,12 +18,13 @@ Important
 
 New Features
 ~~~~~~~~~~~~
-* Screenshot tool
 
- - A screenshot tool has been added to the client. See JIRA ticket GDA-6110 for details.
+- A screenshot tool has been added to the client. See JIRA ticket `GDA-6110 <http://jira.diamond.ac.uk/browse/GDA-6110>`_ for details.
 
 Fixes
 ~~~~~
+- ``rscan`` command has been fixed when using multiple axis. See JIRA ticket `GDA-6145 <http://jira.diamond.ac.uk/browse/GDA-6145>`_ for details.
+- EpicsMonitor has been fixed to allow observers to be notified when a enum PV is changed. See JIRA ticket `GDA-6138 <http://jira.diamond.ac.uk/browse/GDA-6138>`_ for details.
 
 How to create notes
 ~~~~~~~~~~~~~~~~~~~
