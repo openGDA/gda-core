@@ -106,18 +106,18 @@ public class NudgePositionerComposite extends Composite{
 				int keyCode = key.keyCode;
 				//If enter was pressed move to new position
 				if(keyCode==13 || keyCode == 16777296){ //enter or numpad enter pressed
-					double newPosition = Double.valueOf(position.getText());
+					double newPosition = Double.valueOf(position.getText().split(" ")[0]);
 					move(newPosition);
 				}
 				if (!positionOnly) {
 					//If up was pressed increment position and move
 					if (keyCode == 16777217) { //up arrow pressed 
-						double newPosition = Double.valueOf(position.getText()) + Double.valueOf(increment.getText());
+						double newPosition = Double.valueOf(position.getText().split(" ")[0]) + Double.valueOf(increment.getText());
 						move(newPosition);
 					}
 					//If down was pressed decrement position and move
 					if (keyCode == 16777218) { //down arrow pressed 
-						double newPosition = Double.valueOf(position.getText()) - Double.valueOf(increment.getText());
+						double newPosition = Double.valueOf(position.getText().split(" ")[0]) - Double.valueOf(increment.getText());
 						move(newPosition);
 					}
 				}
@@ -146,7 +146,7 @@ public class NudgePositionerComposite extends Composite{
 			btnDecrement.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					double currentPosition = Double.valueOf(position.getText());
+					double currentPosition = Double.valueOf(position.getText().split(" ")[0]);
 					double decrementValue = Double.valueOf(increment.getText());
 					move(currentPosition - decrementValue);
 				}
@@ -174,7 +174,7 @@ public class NudgePositionerComposite extends Composite{
 			btnIncrement.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					double currentPosition = Double.valueOf(position.getText());
+					double currentPosition = Double.valueOf(position.getText().split(" ")[0]);
 					double incrementValue = Double.valueOf(increment.getText());
 					move(currentPosition + incrementValue);
 				}
@@ -317,10 +317,12 @@ public class NudgePositionerComposite extends Composite{
 
 			if (getPosition.getClass().isArray())
 				// The scannable returns an array assume the relevant value is the first and its a Double
-				currentPosition = ((Double[]) getPosition)[0].doubleValue();
-				
+				currentPosition = ((Double) ((Object[]) getPosition)[0]).doubleValue();
 			else if (getPosition instanceof Double) {
 				currentPosition = ((Double) getPosition).doubleValue();
+			}
+			else {
+				logger.error("Error while parsing currrent position of " + scannableName);
 			}
 		} catch (DeviceException e) {
 			logger.error("Error while getting currrent position of " + scannableName, e);
