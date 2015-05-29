@@ -139,4 +139,6 @@ public interface PropertiesConfig {
 	 * @return True if the configuration contains the specified key
 	 */
 	public boolean containsKey(String key);
+
+	public String[] getStringArray(String propertyName);
 }
