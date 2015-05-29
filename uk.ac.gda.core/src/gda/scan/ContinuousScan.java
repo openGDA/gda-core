@@ -264,14 +264,10 @@ public class ContinuousScan extends ConcurrentScanChild {
 	protected void endScan() throws DeviceException, InterruptedException {
 		try {
 			qscanAxis.continuousMoveComplete();
-		} finally {
-			// always stop the detectors and end the scan (which will stop the qscanAxis too)
-			qscanAxis.stop();
 			for (BufferedDetector detector : qscanDetectors) {
-				logger.debug("Stopping detector: " + detector.getName());
-				detector.stop();
 				detector.setContinuousMode(false);
 			}
+		} finally {
 			super.endScan();
 		}
 	}
