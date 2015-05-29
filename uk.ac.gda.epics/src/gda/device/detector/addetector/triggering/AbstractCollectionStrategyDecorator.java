@@ -18,15 +18,13 @@
 
 package gda.device.detector.addetector.triggering;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdetector.AsyncNXCollectionStrategy;
 import gda.scan.ScanInformation;
-
-import org.springframework.beans.factory.InitializingBean;
 
 /** This class provides a base class from which Collection Strategy Decorators can be derived.
  *  it allows decorators to only override the functions they need to override.
@@ -190,4 +188,27 @@ public abstract class AbstractCollectionStrategyDecorator implements CollectionS
 		this.decoratee = decoratee;
 	}
 
+	/** This function recurses through each decorator down to the decorated class
+	 *  returning all decorators which are an instance of the specified class.
+	 *
+	 * @param clazz		 should be the Class object which represents type T
+	 * @param decoratee	 is the decoratee we are to recurse down into
+	 * @return			 the list of decoratees which are of the specified type
+	 */
+	public static <T> List<T> getDecorateesOfT(Class<T> clazz, AbstractCollectionStrategyDecorator decoratee) {
+		List<T> decorateesOfT;
+
+		// If there is no decoratee or the decoratee is not an AbstractCollectionStrategyDecorator start a new list
+		if (decoratee.getDecoratee() == null || !(decoratee.getDecoratee() instanceof AbstractCollectionStrategyDecorator)) {
+			decorateesOfT = new ArrayList<>();
+		} else { // Otherwise recurse down into the inner decoratee
+			decorateesOfT = AbstractCollectionStrategyDecorator.getDecorateesOfT(clazz,
+						   (AbstractCollectionStrategyDecorator)decoratee.getDecoratee());
+		}
+		// Now add self if we are one.
+		if (clazz.isInstance(decoratee)) {
+			decorateesOfT.add(clazz.cast(decoratee));
+		}
+		return decorateesOfT;
+	}
 }
