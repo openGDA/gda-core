@@ -18,21 +18,18 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 
 /**
- * Returns FF/I0 for an Xspress3 / ion chamber combination. Note this does not operate any hardware so should be used
+ * Returns FF/I0 for an Xspress3 (Vortex) / ion chamber combination. Note this does not operate any hardware so should be used
  * with other detectors in scans
  */
 public class Xspress3FFoverI0Detector extends DetectorBase {
-	private static final Logger logger = LoggerFactory.getLogger(Xspress3FFoverI0Detector.class);
+//	private static final Logger logger = LoggerFactory.getLogger(Xspress3FFoverI0Detector.class);
 
-	private Xspress3 xspress3 = null;
+	private Xspress3Detector xspress3 = null;
 	private CounterTimer ct = null;
 	private int i0_channel = 0;
 
@@ -52,16 +49,20 @@ public class Xspress3FFoverI0Detector extends DetectorBase {
 	@Override
 	public Object readout() throws DeviceException {
 		Double i0 = getI0();
-		Double ff = xspress3.readoutFF();
+		Double ff = getFF();
 		Double ffio = ff / i0;
-		if (i0 == 0.0 || i0.isNaN() || i0.isInfinite()){ 
-			logger.info("Problem with I0, so set FF/I0 to 0.0");
+		if (i0 == 0.0 || ff == 0.0 || i0.isInfinite() || i0.isNaN() || ff.isInfinite() || ff.isNaN())
 			ffio = 0.0;
-		} else if (ff == 0.0 || ff.isInfinite() || ff.isNaN()){
-			logger.info("Problem with FF, so set FF/I0 to 0.0");
-			ffio = 0.0;
-		}
 		return ffio;
+	}
+
+	private double getFF() throws DeviceException {
+		Double[] ffs =  xspress3.readoutFF();
+		double total = 0;
+		for(Double ff : ffs){
+			total += ff;
+		}
+		return total;
 	}
 
 	private Double getI0() throws DeviceException {
@@ -101,11 +102,11 @@ public class Xspress3FFoverI0Detector extends DetectorBase {
 		return 0;
 	}
 
-	public Xspress3 getXspress3() {
+	public Xspress3Detector getXspress3() {
 		return xspress3;
 	}
 
-	public void setXspress3(Xspress3 xmap) {
+	public void setXspress3(Xspress3Detector xmap) {
 		this.xspress3 = xmap;
 	}
 

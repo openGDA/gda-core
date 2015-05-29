@@ -291,7 +291,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 				controller.getNumberOfChannels() + firstChannelToRead - 1);
 		// calc FF from ROI
 		int numFramesRead = lastFrame - firstFrame + 1;
-		double[][] FFs = calculateFFs(data, numFramesRead);
+		Double[][] FFs = calculateFFs(data, numFramesRead);
 
 		// create trees
 		NXDetectorData[] results = new NXDetectorData[numFramesRead];
@@ -371,21 +371,15 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return results;
 	}
 
-	public double readoutFF() throws DeviceException {
+	public Double[] readoutFF() throws DeviceException {
 		// assume that this is readout before the full readout() is called!!
 		Double[][][] data = controller.readoutDTCorrectedROI(framesRead, framesRead, firstChannelToRead,
 				controller.getNumberOfChannels() + firstChannelToRead - 1);
-		double[] ffSum = calculateFFs(data, 1)[0];
-		
-		double ff = 0.0;
-		for (double value : ffSum){
-			ff += value;
-		}
-		return ff;
+		return calculateFFs(data, 1)[0];
 	}
 
-	private double[][] calculateFFs(Double[][][] data, int numFramesRead) {
-		double[][] FFs = new double[numFramesRead][controller.getNumberOfChannels()]; // [frame][detector
+	private Double[][] calculateFFs(Double[][][] data, int numFramesRead) {
+		Double[][] FFs = new Double[numFramesRead][controller.getNumberOfChannels()]; // [frame][detector
 		// channel]
 		for (int frame = 0; frame < numFramesRead; frame++) {
 			for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
