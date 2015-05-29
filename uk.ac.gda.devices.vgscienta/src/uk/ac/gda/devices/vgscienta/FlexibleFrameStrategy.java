@@ -107,7 +107,10 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 		wethinkweareincharge = false;
 		highestFrame = currentFrame;
 		currentFrame = -1;
-		super.completeCollection();
+		// versions of SES=ses1.3.1r5 and IOC=R3.14.12.3v2-11 subsume zeroing of power supplies within acquire stop, 
+		// so separate zeroing action is no longer exposed. Call to super.completeCollection was 
+		// removed from here avoid toggling the power supplies by invoking stop (via getAdBase().stopAcquire) 
+		// after every datapoint in a step scan 
 		notifyObservers();
 	}
 	

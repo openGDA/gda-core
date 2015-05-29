@@ -80,7 +80,7 @@ public class SweepUpdater extends DeviceBase implements Configurable, Findable {
 
 	public void dispatch() {
 		SweptProgress progress = new SweptProgress(oldNumber, maxSweep);
-		logger.debug("publishing ",progress);
+		logger.debug("publishing {}",progress);
 		notifyIObservers(getName(), progress);
 	}
 
