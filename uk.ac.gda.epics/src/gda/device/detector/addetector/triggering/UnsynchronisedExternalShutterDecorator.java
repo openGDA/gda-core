@@ -18,9 +18,6 @@
 
 package gda.device.detector.addetector.triggering;
 
-import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
-
-import gda.device.detector.areadetector.v17.ADBase;
 import gda.scan.ScanInformation;
 
 public final class UnsynchronisedExternalShutterDecorator extends AbstractCollectionStrategyDecorator
