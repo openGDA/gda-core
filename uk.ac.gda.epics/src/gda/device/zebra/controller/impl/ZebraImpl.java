@@ -611,6 +611,9 @@ public class ZebraImpl implements Zebra, Findable, InitializingBean {
 		return ((sysStatPvValue & (1<<inputNumber)) > 0);
 	}
 
+	public void reset() throws IOException {
+		dev.getPVInteger(sysResetProc).putWait(1);
+	}
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }
