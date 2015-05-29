@@ -47,6 +47,10 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** A class which provides a GUI composite to allow easy control of a scannable. It provides the current
+ * position which can be edited and moved and buttons to allow incremental moves. It also provides a
+ * stop button to abort moves.
+ */
 public class NudgePositionerComposite extends Composite{
 	private static final Logger logger = LoggerFactory.getLogger(NudgePositionerComposite.class);	
 	private Text increment;
@@ -63,16 +67,55 @@ public class NudgePositionerComposite extends Composite{
 	private String userUnits;
 	private boolean moveEnabled;
 	private boolean positionOnly;
+	private boolean showStop;
+	private double defaultIncrement = 1;
 
+	/**Simple constructor for a NudgePositionerComposite only requires the specification of minimal
+	 * parameters. 
+	 * @param parent
+	 * @param style (Typically SWT.NONE)
+	 * @param scannable Scannable to be controlled
+	 */
 	public NudgePositionerComposite(Composite parent, int style, Scannable scannable) {
-		this(parent, style, scannable, true, null, false, true);
+		this(parent, style, scannable, true, null, false, true, true);
 	}
-
+	
+	/**Constructor for a NudgePositionerComposite which allows additional control over the GUI
+	 * @param parent
+	 * @param style (Typically SWT.NONE)
+	 * @param scannable Scannable to be controlled
+	 * @param showName If false name will not be shown
+	 */
 	public NudgePositionerComposite(Composite parent, int style, Scannable scannable, boolean showName) {
 		this(parent, style, scannable, showName, null, false, true);
 	}
 
+	/**Constructor for a NudgePositionerComposite which allows additional control over the GUI
+	 * @param parent
+	 * @param style (Typically SWT.NONE)
+	 * @param scannable Scannable to be controlled
+	 * @param overrideName Specifies a name which will be used for the GUI or null to use the scannable name
+	 * @param showStop If false no stop button will be displayed (Can be used when scannable can't be stopped)
+	 */
+	public NudgePositionerComposite(Composite parent, int style, Scannable scannable, String overrideName, boolean showStop) {
+		this(parent, style, scannable, true, overrideName, false, true, showStop);
+	}
+	
 	public NudgePositionerComposite(Composite parent, int style, Scannable scannable, final boolean showName, String overrideName, final boolean positionOnly, boolean moveEnabled) {
+		this(parent, style, scannable, showName, overrideName, positionOnly, moveEnabled, true);
+	}
+
+	/**Constructor for a NudgePositionerComposite which allows full control over the GUI
+	 * @param parent
+	 * @param style (Typically SWT.NONE)
+	 * @param scannable Scannable to be controlled
+	 * @param showName If false name will not be shown
+	 * @param overrideName Specifies a name which will be used for the GUI or null to use the scannable name
+	 * @param positionOnly If true only the position box will be shown (No nudging is possible)
+	 * @param moveEnabled If false movement of the scannable will be blocked
+	 * @param showStop If false no stop button will be displayed (Can be used when scannable can't be stopped)
+	 */
+	public NudgePositionerComposite(Composite parent, int style, Scannable scannable, final boolean showName, String overrideName, final boolean positionOnly, boolean moveEnabled, final boolean showStop) {
 		super(parent, style);
 		this.scannable = scannable;
 		GridLayout gridLayout = new GridLayout(4, false);
@@ -84,19 +127,20 @@ public class NudgePositionerComposite extends Composite{
 		scannableName = scannable.getName();
 		this.moveEnabled = moveEnabled;
 		this.positionOnly = positionOnly;
+		this.showStop = showStop;
 
 		GridData gd_position = new GridData(SWT.FILL, SWT.TOP, false, false, 4, 1);
 		gd_position.widthHint = 85;
 
-		if(showName){
+		if (showName) {
 			Label lblScannableName = new Label(this, SWT.CENTER);
-			if(overrideName==null || overrideName.equals(""))
+			if (overrideName == null || overrideName.equals(""))
 				lblScannableName.setText(scannableName);
 			else
 				lblScannableName.setText(overrideName);
 			lblScannableName.setLayoutData(gd_position);
 		}
-
+		
 		position = new Text(this, SWT.BORDER);
 		position.setTextLimit(10);
 		position.addKeyListener(new KeyAdapter() {
@@ -129,7 +173,7 @@ public class NudgePositionerComposite extends Composite{
 				// Update to ensure current position is shown when focus is lost
 				updateReadbackJob.schedule();
 			}
-			
+
 			@Override
 			public void focusGained(FocusEvent e) {
 				// Don't do anything.
@@ -184,24 +228,28 @@ public class NudgePositionerComposite extends Composite{
 			btnIncrement.setLayoutData(gd_btnIncrement);
 			btnIncrement.setText("+");
 
-			btnStop = new Button(this, SWT.NONE);
-			btnStop.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					try {
-						NudgePositionerComposite.this.scannable.stop();
-					} catch (DeviceException e1) {
-						logger.error("Error while stopping "+ scannableName, e);
+			// Stop button
+			
+			if (showStop) {
+				btnStop = new Button(this, SWT.NONE);
+				btnStop.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						try {
+							NudgePositionerComposite.this.scannable.stop();
+						} catch (DeviceException e1) {
+							logger.error("Error while stopping " + scannableName, e);
+						}
 					}
-				}
-			});
-			btnStop.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1));
-			btnStop.setText("Stop");
-
-			double defaultIncrement = 1;
+				});
+				btnStop.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1));
+				btnStop.setText("Stop");
+			}
 			increment.setText(String.valueOf(defaultIncrement));
 		}
 
+		// This is the job which handles updating of the composite. It need to be scheduled when a move is
+		// started after which it will continue to run until the move finishes.
 		updateReadbackJob = new Job("Update " + scannableName + " nudge positioner readback value") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -256,7 +304,7 @@ public class NudgePositionerComposite extends Composite{
 	/**
 	 * Moves the scannable to a new position by calling {@link Scannable} asynchronousMoveTo(position).
 	 * Checks if the position is within limits and if the scannable is busy before moving
-	 * @param position The demanned position
+	 * @param position The demanded position
 	 */
 	private void move(double position) {
 		boolean batonHeld = JythonServerFacade.getInstance().isBatonHeld();
@@ -299,7 +347,9 @@ public class NudgePositionerComposite extends Composite{
 					btnDecrement.setEnabled(!moving);
 					btnIncrement.setEnabled(!moving);
 					position.setEditable(!moving);
-					btnStop.setEnabled(moving);
+					if (showStop) {
+						btnStop.setEnabled(moving);
+					}
 				}
 			}
 		});
