@@ -33,7 +33,6 @@ import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.scannablegroup.ScannableGroup;
 import gda.factory.Findable;
 import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -341,8 +340,14 @@ public class NXMetaDataProvider implements NexusTreeAppender, Map<String, Object
 		List<Scannable> metaScannableList = new Vector<Scannable>();
 		Set<String> metaScannableSet = NexusDataWriter.getMetadatascannables();
 		for (String scannableName : metaScannableSet) {
-			Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
-			metaScannableList.add(scannable);
+
+			try {
+				Scannable scannable = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
+				metaScannableList.add(scannable);
+			} catch (Exception e) {
+				throw new RuntimeException("Error converting " + scannableName + " to a scannable: "
+						+ e.getMessage(), e);
+			}
 		}
 		return metaScannableList;
 	}
