@@ -231,7 +231,16 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 			output.addData(detTree, "allElementSum", new int[] { summation.length }, NexusFile.NX_FLOAT64, summation, "counts", 1);
 		return output;
 	}
-	
+
+	@Override
+	public Object getPosition() throws DeviceException {
+		NXDetectorData readout = (NXDetectorData) readout();
+		Double[] position = readout.getDoubleVals();
+		assert position.length == getOutputFormat().length :
+			"getPosition().length != getOutputFormat().length";
+		return position;
+	}
+
 	@Override
 	public void loadConfigurationFromFile() throws Exception {
 		super.loadConfigurationFromFile();
