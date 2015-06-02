@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.beamline.i05.scannable;
+package uk.ac.gda.arpes.scannable;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
