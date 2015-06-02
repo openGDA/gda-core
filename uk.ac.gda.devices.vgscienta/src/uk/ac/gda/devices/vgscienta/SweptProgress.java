@@ -21,15 +21,16 @@ package uk.ac.gda.devices.vgscienta;
 import java.io.Serializable;
 
 public class SweptProgress implements Serializable {
-	public int current, max;
+	public int current, max, pct;
 
-	public SweptProgress(int current, int max) {
+	public SweptProgress(int current, int max, int pct) {
 		this.current = current;
 		this.max = (max >= current) ? max : current;
+		this.pct = pct;
 	}
-	
+
 	@Override
 	public String toString() {
-		return String.format("sweep #%d of %d", current, max);
+		return String.format("sweep #%d of %d = %d%% complete", current, max, pct);
 	}
 }

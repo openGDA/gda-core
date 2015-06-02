@@ -42,8 +42,8 @@ public class SweepUpdater extends DeviceBase implements Configurable, Findable {
 	
 	protected VGScientaAnalyser analyser;
 	private EpicsController epicsController;
-	private String currentSweepPV, maxSweepPV;
-	private int oldNumber = -1, maxSweep = 0;
+	private String currentSweepPV, maxSweepPV, pctSweepPV;
+	private int oldNumber = -1, maxSweep = 0, percentage = 0;
 
 	@Override
 	public void configure() throws FactoryException {
@@ -72,14 +72,26 @@ public class SweepUpdater extends DeviceBase implements Configurable, Findable {
 					}
 				}
 			});
-			
+
+			epicsController.setMonitor(epicsController.createChannel(pctSweepPV),  new MonitorListener() {
+				@Override
+				public void monitorChanged(MonitorEvent ev) {
+					try {
+						percentage =((gov.aps.jca.dbr.INT) ev.getDBR().convert(DBRType.INT)).getIntValue()[0];
+						dispatch();
+					} catch (Exception e) {
+						logger.error("exception caught preparing swept updates", e);
+					}
+				}
+			});
+						
 		} catch (Exception e) {
 			throw new FactoryException("Cannot set up monitoring of arrays", e);
 		}
 	}
 
 	public void dispatch() {
-		SweptProgress progress = new SweptProgress(oldNumber, maxSweep);
+		SweptProgress progress = new SweptProgress(oldNumber, maxSweep, percentage);
 		logger.debug("publishing {}",progress);
 		notifyIObservers(getName(), progress);
 	}
@@ -98,5 +110,13 @@ public class SweepUpdater extends DeviceBase implements Configurable, Findable {
 
 	public void setMaxSweepPV(String maxSweepPV) {
 		this.maxSweepPV = maxSweepPV;
+	}
+	
+	public String getPercentagePV() {
+		return pctSweepPV;
+	}
+
+	public void setPercentagePV(String percentagePV) {
+		this.pctSweepPV = percentagePV;
 	}
 }

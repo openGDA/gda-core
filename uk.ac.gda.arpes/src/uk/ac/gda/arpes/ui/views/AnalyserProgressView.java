@@ -202,11 +202,8 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					progressBar.setText(getProgressBarText(sp.current, sp.max));
-					if (sp.current < progressBar.getMinimum())
-						progressBar.setMinimum(sp.current);
-					progressBar.setMaximum(sp.max);
-					progressBar.setSelection(sp.current);
+					progressBar.setText(running ? String.format("Running: %d%% completed", sp.pct) : "IDLE");
+					progressBar.setSelection(sp.pct);
 					if (sp.current > 0)
 						progressBar.setBackground(postColor);
 					else
@@ -216,18 +213,5 @@ public class AnalyserProgressView extends ViewPart implements IObserver {
 			return;
 		}
 	}
-	
-	private String getProgressBarText(int cur, int max) {
-		if (running) {
-			String form = "%d";
-			if (max > 999)
-				form = "%04d";
-			else if (max > 99)
-				form = "%03d";
-			else if (max > 9)
-				form = "%02d";
-			return String.format("Running  "+form+" / %d", cur, max);
-		}
-		return "IDLE";
-	}
+
 }
