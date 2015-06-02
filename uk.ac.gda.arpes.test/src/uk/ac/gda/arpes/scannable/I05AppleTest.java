@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.beamline.i05.scannable;
+package uk.ac.gda.arpes.scannable;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -34,8 +34,8 @@ import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.gda.beamline.i05.scannable.I05Apple.TrajectorySolver;
-import uk.ac.gda.beamline.i05.scannable.I05Apple.PGMove;
+import uk.ac.gda.arpes.scannable.I05Apple.TrajectorySolver;
+import uk.ac.gda.arpes.scannable.I05Apple.PGMove;
 
 public class I05AppleTest {
 
