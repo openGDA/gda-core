@@ -21,6 +21,7 @@ package gda.data.nexus.napi;
 import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusGroupData;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.file.Files;
@@ -129,12 +130,26 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 
 	@Override
 	public void createAndOpenToWrite() throws NexusException {
-		if (debug) {
-			Path p = Paths.get(filename);
-			if (Files.exists(p)) {
+		Path p = Paths.get(filename);
+		if (Files.exists(p)) {
+			if (debug) {
 				logger.debug("File already exists and will overwrite (thd {}): {}", Thread.currentThread(), filename);
-			} else {
+			}
+		} else {
+			if (debug) {
 				logger.debug("Creating new file to write (thd {}): {}", Thread.currentThread(), filename);
+			}
+			p = p.getParent();
+			if (Files.notExists(p)) {
+				if (debug) {
+					logger.debug("Creating new parent directory to write (thd {}): {}", Thread.currentThread(), p);
+				}
+				try {
+					Files.createDirectories(p);
+				} catch (IOException e) {
+					logger.error("Cannot create parent directory: {}", p, e);
+					throw new NexusException("Cannot create directory", e);
+				}
 			}
 		}
 		try {
