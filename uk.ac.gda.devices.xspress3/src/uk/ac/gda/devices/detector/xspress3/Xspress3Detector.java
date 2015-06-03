@@ -265,7 +265,9 @@ public class Xspress3Detector extends DetectorBase implements Xspress3, Fluoresc
 		for (int frame = 0; frame < numFramesRead; frame++) {
 			for (int channel = 0; channel < numberOfChannelsToRead; channel++) {
 				// TODO summing all ROIs here - should check current value of summingMethod!
-				FFs[frame][channel] = FFs_sca5[frame][channel] + FFs_sca6[frame][channel];
+				// Check on b18 beamline and found that the right calculation is FFs[frame][channel] = FFs_sca5[frame][channel]; 
+				// and not FFs[frame][channel] = FFs_sca5[frame][channel] + FFs_sca6[frame][channel];
+				FFs[frame][channel] = FFs_sca5[frame][channel];
 			}
 		}
 
