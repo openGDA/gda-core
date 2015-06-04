@@ -622,6 +622,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					}
 				}
 				ILazyWriteableDataset lazy = sds.toLazyDataset();
+				lazy.setName(name);
 				if (makeData) {
 					DataNode data;
 					int[] dataDimMake = generateDataDim(tree.isPointDependent(),
