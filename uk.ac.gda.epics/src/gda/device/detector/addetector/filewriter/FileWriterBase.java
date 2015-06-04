@@ -236,25 +236,32 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	 * Only if the path template starts with the datadir, return a path relative to it, otherwise
 	 * return an absolute path.
 	 */
-	protected String getFilePathRelativeToDataDirIfPossible() {
+	protected String getFileDirRelativeToDataDirIfPossible() {
 		String template = getFilePathTemplate();
 		if (StringUtils.startsWith(template, "$datadir$")) {
 			template = StringUtils.replace(template, "$datadir$","");
 			template = StringUtils.removeStart(template, "/");
 		} else {
+			//return absolute path (after substituting data directory)
 			template = substituteDatadir(template);
 		}
 		return substituteScan(template);
-		
-		// The following change fixed a bug with path creation with the rasterpil camera, but because it causes the
-		// internally stored nextExpectedfileNumber to increment. It should probably do this, but resulted in
-		// things getting out of sync when setting up the i16 bespoke fiddly bit in the top of the metadata.
-		
-//		String fullFileName = getFullFileName(); 
-//		String datadir = PathConstructor.createFromDefaultProperty();
-//		String relativeFilename = StringUtils.removeStart(fullFileName, datadir);
-//		relativeFilename = StringUtils.removeStart(relativeFilename, "/");
-//		return relativeFilename;
+	}
+
+	/**
+	 * @return the file path relative to the data directory if it starts with the datadir,
+	 * otherwise returns absolute path.
+	 * @throws Exception
+	 */
+	protected String getRelativeFilePath() throws Exception {
+		String fullFileName = getFullFileName();
+		String datadir = PathConstructor.createFromDefaultProperty();
+		if (StringUtils.startsWith(fullFileName, datadir)) {
+			String relativeFilename = StringUtils.removeStart(fullFileName, datadir);
+			relativeFilename = StringUtils.removeStart(relativeFilename, "/");
+			return relativeFilename;
+		}
+		return fullFileName;
 	}
 
 	private String substituteDatadir(String template) {
