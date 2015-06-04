@@ -435,4 +435,12 @@ public class NudgePositionerComposite extends Composite{
 		
 	}
 
+	/**
+	 * Change the increment programmatically from a view
+	 * @param increment
+	 */
+	public void setIncrement(double increment) {
+		this.increment.setText(String.valueOf(increment));
+	}
+
 }
