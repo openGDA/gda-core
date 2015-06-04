@@ -250,12 +250,21 @@ public class NexusGroupData implements Serializable {
 
 	/**
 	 * @param length of encoded string in bytes
-	 * @param s String from which to make a NexusGroupData
+	 * @param s Strings from which to make a NexusGroupData
 	 */
-	public NexusGroupData(int length, String s) {
+	public NexusGroupData(int length, String... s) {
+		this(length, new int[] {s.length}, s);
+	}
+
+	/**
+	 * @param length of encoded string in bytes
+	 * @param dims
+	 * @param s Strings from which to make a NexusGroupData
+	 */
+	public NexusGroupData(int length, int[] dims, String[] s) {
 		textLength = length;
-		data = new String[] { s };
-		dimensions = new int[] { 1 };
+		data = s;
+		dimensions = dims;
 		dtype = Dataset.STRING;
 	}
 
@@ -632,7 +641,17 @@ public class NexusGroupData implements Serializable {
 	 * @return lazy dataset
 	 */
 	public ILazyWriteableDataset toLazyDataset() {
-		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", dtype, dimensions, null, chunkDimensions);
+		int[] shape = dimensions;
+		int[] chunks = chunkDimensions;
+		if (dtype == Dataset.STRING) {
+			if (data instanceof byte[] &&  dimensions.length > 1 && dimensions[dimensions.length - 1] == textLength) {
+				shape = Arrays.copyOf(dimensions, dimensions.length - 1);
+				if (chunks != null) {
+					chunks = Arrays.copyOf(chunkDimensions, chunkDimensions.length - 1);
+				}
+			}
+		}
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", dtype, shape, null, chunks);
 		return lazy;
 	}
 
