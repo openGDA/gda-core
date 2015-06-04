@@ -39,7 +39,6 @@ import org.springframework.util.StringUtils;
  */
 public class NXDetectorData implements GDANexusDetectorData, Serializable {
 
-	static final int MAX_DATAFILENAME = 255;
 	public static final String DATA_FILE_CLASS_NAME = "data_file";
 	public static final String FILE_NAME_NODE_NAME = "file_name";
 	private static final String DATA_FILENAME_ATTR_NAME = "data_filename";
@@ -249,7 +248,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	public void addFileName(String detName, String filename){
 		INexusTree detTree = getDetTree(detName);
 		NexusTreeNode node = new NexusTreeNode(DATA_FILE_CLASS_NAME, NexusExtractor.NXNoteClassName, null,null);
-		NexusGroupData file_name_sds = new NexusGroupData(MAX_DATAFILENAME, filename);
+		NexusGroupData file_name_sds = new NexusGroupData(NexusGroupData.MAX_TEXT_LENGTH, filename);
 		NexusTreeNode file_name = new NexusTreeNode(FILE_NAME_NODE_NAME, NexusExtractor.SDSClassName, null,file_name_sds);
 		file_name.addChildNode(new NexusTreeNode(DATA_FILENAME_ATTR_NAME,NexusExtractor.AttrClassName, file_name,new NexusGroupData(1)));
 		node.setIsPointDependent(true);
@@ -271,25 +270,12 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * NXEntry/NXDetector section as a variable of the scan
 	 */
 	public NexusTreeNode addFileNames(String detName, String nodeName, String[] filenames, boolean isPointDependent, boolean isDetectorEntryData){
-
-		int[] dimensions = filenames.length == 1 ? new int[]{MAX_DATAFILENAME } : new int[]{filenames.length,MAX_DATAFILENAME };
-		byte filenameBytes[] = new byte[MAX_DATAFILENAME * filenames.length];
-		java.util.Arrays.fill(filenameBytes, (byte) 0); // zero terminate
-
-		int offset = 0;
-		for( String filename: filenames){
-			for (int k = 0; k < filename.length(); k++) {
-				filenameBytes[k+offset] = (byte) filename.charAt(k);
-			}
-			offset +=MAX_DATAFILENAME;
-		}
-		
-		INexusTree detTree = getDetTree(detName);
-		NexusGroupData file_name_sds = new NexusGroupData(dimensions, filenameBytes).asChar();
+		NexusGroupData file_name_sds = new NexusGroupData(NexusGroupData.MAX_TEXT_LENGTH, filenames);
 		NexusTreeNode file_name = new NexusTreeNode(nodeName, NexusExtractor.SDSClassName, null,file_name_sds);
 		file_name.setIsPointDependent(isPointDependent);
 		file_name_sds.isDetectorEntryData=isDetectorEntryData;
 		file_name.addChildNode(new NexusTreeNode(DATA_FILENAME_ATTR_NAME,NexusExtractor.AttrClassName, file_name,new NexusGroupData(1)));
+		INexusTree detTree = getDetTree(detName);
 		detTree.addChildNode(file_name);	
 		return file_name;
 	}
