@@ -627,6 +627,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					DataNode data;
 					int[] dataDimMake = generateDataDim(tree.isPointDependent(),
 							tree.isPointDependent() ? scanDimensions : null, sds.dimensions);
+					lazy.setMaxShape(dataDimMake);
 
 					if (sds.dimensions != null && sds.dimensions.length > 1) {
 						int[] chunks = Arrays.copyOf(dataDimMake, dataDimMake.length);						
@@ -640,7 +641,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 							}
 						}
 						int compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_LZW_L1;
-						lazy.setMaxShape(dataDimMake);
 						lazy.setChunking(chunks);
 						data = file.createData(group, lazy, compression);
 					} else {
