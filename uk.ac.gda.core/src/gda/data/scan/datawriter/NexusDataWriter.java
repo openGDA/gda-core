@@ -615,21 +615,16 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 			NexusGroupData sds = tree.getData();
 			if (sds != null) {
-				if (sds.dimensions != null) {
-					for (int i : sds.dimensions) {
-						if (i == 0)
-							throw new NexusException("Data for " + name + " is invalid. SDS Dimension = 0");
-					}
-				}
 				ILazyWriteableDataset lazy = sds.toLazyDataset();
+				int[] sdims = lazy.getShape();
 				lazy.setName(name);
 				if (makeData) {
 					DataNode data;
 					int[] dataDimMake = generateDataDim(tree.isPointDependent(),
-							tree.isPointDependent() ? scanDimensions : null, sds.dimensions);
+							tree.isPointDependent() ? scanDimensions : null, sdims);
 					lazy.setMaxShape(dataDimMake);
 
-					if (sds.dimensions != null && sds.dimensions.length > 1) {
+					if (sdims.length > 1) {
 						int[] chunks = Arrays.copyOf(dataDimMake, dataDimMake.length);						
 						for (int i = 0; i < chunks.length; i++) {
 							if (chunks[i] == -1) chunks[i] = 1;
@@ -640,16 +635,16 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 								chunks[i+lendiff] = dataDimMake[i+lendiff] == -1 ? sds.chunkDimensions[i] : Math.min(sds.chunkDimensions[i], chunks[i+lendiff]);
 							}
 						}
-						int compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_LZW_L1;
 						lazy.setChunking(chunks);
+						int compression = sds.compressionType != null ? sds.compressionType : NexusFile.COMPRESSION_LZW_L1;
 						data = file.createData(group, lazy, compression);
 					} else {
 						data = file.createData(group, lazy);
 					}
-					
+
 					if (!tree.isPointDependent()) {
-						int[] dataStartPos = generateDataStartPos(null, sds.dimensions);
-						int[] dataStop = generateDataStop(dataStartPos, sds.dimensions);
+						int[] dataStartPos = generateDataStartPos(null, sdims);
+						int[] dataStop = generateDataStop(dataStartPos, sdims);
 						IDataset ds = sds.toDataset();
 						try {
 							lazy.setSlice(null, ds, SliceND.createSlice(lazy, dataStartPos, dataStop));
@@ -664,15 +659,19 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 					attrBelowThisOnly = true;
 				} else {
-					int[] dataDim = generateDataDim(false, dataDimPrefix, sds.dimensions);
-					int[] dataStartPos = generateDataStartPos(dataStartPosPrefix, sds.dimensions);
-					int[] dataStop = generateDataStop(dataStartPos, sds.dimensions);
+					if (sdims.length == 1 && sdims[0] == 1) {
+						sdims = null; // fix single item writing
+					}
+					int[] dataDim = generateDataDim(false, dataDimPrefix, sdims);
+					int[] dataStartPos = generateDataStartPos(dataStartPosPrefix, sdims);
+					int[] dataStop = generateDataStop(dataStartPos, sdims);
 
 					DataNode d = file.getData(group, name);
 
 					lazy = d.getWriteableDataset();
 					IDataset ds = sds.toDataset();
 					ds.setShape(dataDim);
+
 					try {
 						lazy.setSlice(null, ds, SliceND.createSlice(lazy, dataStartPos, dataStop));
 					} catch (Exception e) {
@@ -682,7 +681,6 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 					// Close data - do not add children as attributes added for first point only
 					loopNodes = false;
-
 				}
 			}
 		} else {

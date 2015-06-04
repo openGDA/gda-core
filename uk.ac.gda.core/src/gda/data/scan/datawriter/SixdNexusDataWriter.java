@@ -409,28 +409,21 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 			NexusGroupData sds = tree.getData();
 			if (sds != null) {
-				if (sds.dimensions != null) {
-					for (int i : sds.dimensions) {
-						if (i==0)
-							throw new NexusException("Data for " + name + " is invalid. SDS Dimension = 0");
-					}
-				}
-				ILazyWriteableDataset lazy;
+				ILazyWriteableDataset lazy = sds.toLazyDataset();
+				int[] sdims = lazy.getShape();
 				if (makeData) {
 					int[] dataDimMake = generateDataDim(tree.isPointDependent(),
-							tree.isPointDependent() ? scanDimensions : null, sds.dimensions);
+							tree.isPointDependent() ? scanDimensions : null, sdims);
 					// make the data array to store the data...
-					lazy = sds.toLazyDataset();
-					lazy.setName(name);
 					lazy.setMaxShape(dataDimMake);
 					DataNode data = file.createData(group, lazy);
 
 					// FIXME put a break point here and not make it crash
 
 					if (!tree.isPointDependent()) {
-						int[] dataDim = generateDataDim(false, null, sds.dimensions);
-						int[] dataStartPos = NexusDataWriter.generateDataStartPos(null, sds.dimensions);
-						int[] dataStop = NexusDataWriter.generateDataStop(dataStartPos, sds.dimensions);
+						int[] dataDim = generateDataDim(false, null, sdims);
+						int[] dataStartPos = NexusDataWriter.generateDataStartPos(null, sdims);
+						int[] dataStop = NexusDataWriter.generateDataStop(dataStartPos, sdims);
 						IDataset ds = sds.toDataset();
 						ds.setShape(dataDim);
 						try {
@@ -446,9 +439,12 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 					attrBelowThisOnly = true;
 				} else {
-					int[] dataDim = generateDataDim(false, dataDimPrefix, sds.dimensions);
-					int[] dataStartPos = NexusDataWriter.generateDataStartPos(dataStartPosPrefix, sds.dimensions);
-					int[] dataStop = NexusDataWriter.generateDataStop(dataStartPos, sds.dimensions);
+					if (sdims.length == 1 && sdims[0] == 1) {
+						sdims = null; // fix single item writing
+					}
+					int[] dataDim = generateDataDim(false, dataDimPrefix, sdims);
+					int[] dataStartPos = NexusDataWriter.generateDataStartPos(dataStartPosPrefix, sdims);
+					int[] dataStop = NexusDataWriter.generateDataStop(dataStartPos, sdims);
 
 					// Open data array.
 					DataNode data = file.getData(group, name);
