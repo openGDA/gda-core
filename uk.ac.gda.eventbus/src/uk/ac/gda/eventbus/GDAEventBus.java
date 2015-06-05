@@ -19,6 +19,7 @@
 package uk.ac.gda.eventbus;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -37,12 +38,13 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Level;
-
 import com.google.common.base.Objects;
 import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * A Java-friendly route to a publish-subscribe message-oriented architecture
@@ -228,7 +230,7 @@ public class GDAEventBus extends EventBus {
 	private static void example() {
 		GDAEventBus bus = new GDAEventBus(); // identifier "default"
 		
-		// register a good old anonymous inner class for a simple handler
+		// Simple handlers might be anonymous sub types of Object
 		bus.register(new Object() {
 			@Subscribe
 			public void openingGambit(String s) {
@@ -236,7 +238,15 @@ public class GDAEventBus extends EventBus {
 			}
 		});
 		
-		// handlers can subscribe to multiple event types/subtypes
+		// Subscribers to Object will receive any (and all!) events
+		class AnyEventHandler {
+			@Subscribe
+			public void anyAndAll(Object o) {
+				logger.debug("saw {}: {}", o.getClass().getName(), o.toString());
+			}
+		}
+		
+		// Handlers can subscribe to multiple event types/subtypes
 		class NumericEventHandler<T> { // parameterised for demonstration purposes
 			@Subscribe
 			public void lessThanZero(Integer i) {
@@ -252,41 +262,47 @@ public class GDAEventBus extends EventBus {
 			}
 		}
 		
-		// subscribe to Object to receive all events
-		class AnyEventHandler {
-			@Subscribe
-			public void anyAndAll(Object o) {
-				logger.debug("saw {}: {}", o.getClass().getName(), o.toString());
-			}
-		}
-		// but keep a reference in case you need to unregister later
+		// Instantiate super type handlers as needed for debugging
 		final AnyEventHandler anyEventHandler = new AnyEventHandler();
 		bus.register(anyEventHandler);
-		
-		// handle DeadEvent to discover all events without a receiver
-		class DeadEventHandler {
-			@Subscribe
-			public void wentInWater(DeadEvent d) {
-				logger.warn("discovered unhandled event of type {} posted by: {}", d.getEvent().getClass().getName(), d.getSource());
-			}
-		}
-		
-		// can register some handlers dynamically as needed
-		bus.register(new DeadEventHandler());
-		// having left parameterising generics until it is unavoidable
-		bus.register(new NumericEventHandler<Number>());
-		
-		// and don't forget to unregister unnecessary handlers
+		// but keep a reference for when you are done
 		bus.unregister(anyEventHandler);
 		
+		// DefaultDeadEventHandler receives events without subscribers
+		bus.register(new DefaultDeadEventHandler(logger));
+		
+		// Having left generic handlers until it was unavoidable...
+		bus.register(new NumericEventHandler<Number>());
+		
+		// Let's test
 		bus.post(1);
 		bus.post(-2.0);
 		bus.post("Three little birds");
 	}
 
+	/**
+	 * Uncover any event types without (registered) subscribers that
+	 * are posted (or published) on a GDAEventBus, by (optionally)
+	 * registering an instance of DefaultDeadEventHandler
+	 * (or any object subscribing to DeadEvent).
+	 */
+	public static class DefaultDeadEventHandler {
+		final Logger logger;
+		final Set<Class<?>> ignored;
+		public DefaultDeadEventHandler(Logger logger, Class<?>... ignored) {
+			this.logger = checkNotNull(logger);
+			this.ignored = checkNotNull(newHashSet(ignored));
+		}
+		@Subscribe public void logWarning(DeadEvent d) {
+			if (!ignored.contains(d.getEvent().getClass()))
+				logger.warn("unhandled event type {} posted by: {}", d.getEvent().getClass().getName(), d.getSource());
+		}
+	}
+
+
 	public static void main(String[] args) throws Exception {
-		((ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.apache.activemq.transport")).setLevel(Level.INFO);
-		((ch.qos.logback.classic.Logger) logger).setLevel(Level.INFO);
+//		((ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.apache.activemq.transport")).setLevel(Level.INFO);
+//		((ch.qos.logback.classic.Logger) logger).setLevel(Level.INFO);
 //		example();
 		testActiveMq();
 	}
@@ -325,11 +341,10 @@ public class GDAEventBus extends EventBus {
 		eventBus2.cleanUp();
 	}
 		
-	private void cleanUp() throws JMSException {
-		producer.close();
-		consumer.close();
-		session.close();
-		connection.close();
+	public void cleanUp/*closeConnection*/() throws JMSException {
+		if (producer != null) producer.close();
+		if (consumer != null) consumer.close();
+		if (session != null) session.close();
+		if (connection != null) connection.close();
 	}
-
 }
