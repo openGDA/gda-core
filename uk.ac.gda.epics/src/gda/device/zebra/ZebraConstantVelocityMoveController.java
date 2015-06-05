@@ -84,8 +84,22 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		try {
 			logger.info("prepare for move");
 
-			zebra.pcDisarm();
+			zebra.reset(); // Doing a reset does appear to disarm the zebra before we check it, so we don't need to explicitly
+			// disarm. We probably don't need to check either, but to verify that we will leave the check and log message in.
+
+			/* Note that a disarm and waiting for the zebra to no longer be disarmed is not enough. The zebra box will
+			 * stay armed internally and since a recent zebra support module update, will error when position compare
+			 * parameters are set.
+			 *
+			 * Even if the zebra is saying it is disarmed and you wait 10000ms, you still get this problem.
+			 */
+			//zebra.pcDisarm();
 			//if we want to check it is disarmed we will need to wait >2s as that is the zebra bus update period
+			while (zebra.isPCArmed()) {
+				logger.info("Zebra already armed, waiting for disarm...");
+				Thread.sleep(10000); // 1000ms did not prevent the problem with pcDisarm(), 10000ms is enough with reset() though!
+			}
+			// TODO: Remove the above code block and comments once we have demonstrated that it is never called.
 
 			//sources must be set first
 			zebra.setPCArmSource(Zebra.PC_ARM_SOURCE_SOFT);
@@ -213,7 +227,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 						throw new IllegalArgumentException("\n Minimum acceleration distance " + minimumAccelerationDistance +
 							" takes too long (" + totalTime + "s) at speed " + requiredSpeed + 
 							"\n Either increase rock size, decrease collection time or increase CollectionExtensionTime " +
-							"\n and take a new dark (currentl extension time=" + minimumAccelerationTime + "s) e.g.:" +
+							"\n and take a new dark (currently extension time=" + minimumAccelerationTime + "s) e.g.:" +
 							"\n  <detector>.getCollectionStrategy().setCollectionExtensionTimeS(" + (int)(totalTime*2+1) + ")");
 					accelerationDistance = minimumAccelerationDistance;
 				}
@@ -261,8 +275,12 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				requiredSpeed = (Math.abs(step)/pcPulseStepRBV);
 				pcGateWidth=(gateWidthTime * requiredSpeed)+accelerationDistance;
 				// Why do we add accelerationDistance to the gate width? We add it to the moveTo in ExecuteMoveTask anyway
+				
+				// Note that this setPCGateWidth is pointless, since we haven't setPCGateSource yet (and setupGateAndArm does a setPCGateWidth later)
 				zebra.setPCGateWidth((gateWidthTime * requiredSpeed)+accelerationDistance);
 				Thread.sleep(1); // TODO: Remove when the bug in zebra RBV handling is fixed
+				// Note, all Zebra support modules deployed at version 0.2 or later should be Ok, and should not need this cludge.
+				// Reviewing the zebra support modules deployed on dls_sw, not are earlier than 1.3, so this should be safe to remove now.
 				logger.info("New requiredSpeed="+requiredSpeed);
 				
 				/*
@@ -304,15 +322,38 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	}
 
 	protected void setupGateAndArm(double pcGateStart, double pcGateWidth, @SuppressWarnings("unused") double step2, @SuppressWarnings("unused") double gateWidthTimeInS) throws Exception {
+		// The difference between requested and RBV positions should never be more than double the motor resolution.
+		double tolerance = scannableMotor.getMotorResolution()*2;
+		
 		zebra.setPCGateSource(Zebra.PC_GATE_SOURCE_POSITION);
 		zebra.setPCGateStart(pcGateStart);
 		zebra.setPCGateWidth(pcGateWidth);
 		
-		// Note that we need to read back any values relating to a physical motor, as the readback will be quantised to the
-		// resolution of the motor.
-		pcGateWidthRBV = zebra.getPCGateWidthRBV();
+		// We need to read back values relating to a physical motor, as they will be quantised to the resolution of the motor.
 		pcGateStartRBV = zebra.getPCGateStartRBV();
-		// We can't run checkRBV() on motor positions as we don't know how much they are going to change.
+		pcGateWidthRBV = zebra.getPCGateWidthRBV();
+		logger.info("setupGateAndArm: pcGateStart=" + pcGateStart + " pcGateWidth=" + pcGateWidth + " tolerance=" + tolerance +
+				" pcGateWidthRBV=" + pcGateWidthRBV + " pcGateStartRBV=" + pcGateStartRBV + " - Arming...");
+		
+		double rawDiff = Math.abs(pcGateWidth - pcGateWidthRBV);
+		if (rawDiff > tolerance) {
+			logger.warn("setupGateAndArm: Wrote "+pcGateWidth+" to pcGateWidth but read back "+pcGateWidthRBV+" (diff="+rawDiff+") Let's try that again...");
+			Thread.sleep(10); // TODO: Remove when the bug in zebra RBV handling is fixed.
+			// Thread.sleep(1); would probably be fine too, as elsewhere in this class.
+			// Note that the problem appears to be that in between the zebra.setPCGateWidth(...) and zebra.getPCGateWidthRBV()
+			// being called the update from the monitor isn'getting into the cached value, so zebra.getPCGateWidthRBV() returns
+			// a stale value.
+			// The best solution would probably be to flush the cache of the RBV after the the setter has completed, but
+			// PVValueCache doesn't currently support flushing of the cache. Once this is done, it should be poossible to
+			// remove all of the Thread.sleep's.
+			pcGateWidthRBV = zebra.getPCGateWidthRBV();
+		}
+		/* Given that setPCGateWidth can return before getPCGateWidthRBV has stabilised, giving us an erroneously large gate
+		 * width (and causing ExecuteMoveTask.run to crash the motor, we need to check the RBV against required, so assume
+		 * that it is going to be within the motor resolution.
+		 */
+		checkRBV(pcGateStart, pcGateStartRBV, tolerance, "pcGateStart");
+		checkRBV(pcGateWidth, pcGateWidthRBV, tolerance, "pcGateWidth");
 		
 		zebra.pcArm();
 	}
@@ -348,6 +389,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			try {
 				double speed = scannableMotor.getSpeed();
 				try {
+					logger.info("ExecuteMoveTask.call: " + " requiredSpeed=" + requiredSpeed + " pcGateStartRBV=" + pcGateStartRBV +
+								" pcGateWidthRBV=" + pcGateWidthRBV + " accelerationDistance=" + accelerationDistance);
 					scannableMotor.setSpeed(requiredSpeed);
 					scannableMotor.moveTo(pcGateStartRBV + ((step>0 ? 1.0 : -1.0)*pcGateWidthRBV +
 															(step>0 ? 1.0 : -1.0)*accelerationDistance ));
