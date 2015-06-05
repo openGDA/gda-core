@@ -382,13 +382,13 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		passEnergy.setItems(passMap);
 	}
 
-	private double determineMinimmumStepEnergy(double passEnergy) {
+	private double determineMinimumStepEnergy(double passEnergy) {
 		return capabilities.getEnergyStepForPass(determinePassEnergyIndex((int) (passEnergy)));
 	}
 
 	private void updateMinimumStepEnergy() {
 		double passEnergyVal = Double.parseDouble(passEnergy.getValue().toString());
-		stepEnergy.setMinimum(determineMinimmumStepEnergy(passEnergyVal));
+		stepEnergy.setMinimum(determineMinimumStepEnergy(passEnergyVal));
 	}
 
 	// This calculates the acquisition time excluding dead time (i.e. shortest possible)
@@ -397,7 +397,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			@Override
 			public void run() {
 
-				long estimatedTimeMs = 0L;
+				double estimatedTimeSecs = 0.0;
 				int numberOfIterations = iterations.getIntegerValue();
 				double stepTime = timePerStep.getNumericValue();
 				boolean isSweptMode = (Boolean) sweptMode.getValue();
@@ -407,12 +407,12 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 					double endEnergyVal = endEnergy.getNumericValue();
 					double stepEnergyVal = stepEnergy.getNumericValue();
 					double passEnergyVal = Double.parseDouble(passEnergy.getValue().toString());
-					estimatedTimeMs = calculateSweptTime(stepTime, startEnergyVal, endEnergyVal, stepEnergyVal,	passEnergyVal) * numberOfIterations;
+					estimatedTimeSecs = numberOfIterations * calculateSweptTime(stepTime, startEnergyVal, endEnergyVal, stepEnergyVal, passEnergyVal);
 				} else { // Fixed mode
-					estimatedTimeMs = (long) (stepTime * numberOfIterations * 1000);
+					estimatedTimeSecs = numberOfIterations * stepTime;
 				}
 
-				String time = msToString(estimatedTimeMs);
+				String time = msToString((long) (estimatedTimeSecs * 1000));
 				estimatedTime.setText(time + " (hh:mm:ss)");
 			}
 		});
@@ -428,14 +428,17 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		return hours + ":" + minsString + ":" + secsString;
 	}
 
-	private long calculateSweptTime(double stepTime, double startEn, double endEn, double stepEnergyVal,
-			double passEnergyVal) {
-		double minStepEnergyVal = determineMinimmumStepEnergy(passEnergyVal);
-		// DetEnN is number of detector point in swept mode and could be calculated from sweptModeRegion, currently
-		// DetEnN=(905-55)
-		double numberOfDetectorPoints = 905 - 55; // This is hard coded, not good it specifies the energy points from the swept ROI
-		long sweptTime = (long) ((stepTime * (numberOfDetectorPoints * minStepEnergyVal / 1000 + Math.abs(startEn - endEn)) * 1000 / stepEnergyVal) * 1000);
-		return sweptTime;
+	private double calculateSweptTime(double stepTime, double startEn, double endEn, double stepEnergyVal, double passEnergyVal) {  
+		// returns sweptTime estimate in milliseconds
+		// Analyser is only visible via Finder as cast to Device, so get jython to dig out the region instead
+		String sweptRegEmin = InterfaceProvider.getCommandRunner().evaluateCommand("analyser.getSweptModeRegion()[0]").trim(); // typically = 55
+		String sweptRegEmax = InterfaceProvider.getCommandRunner().evaluateCommand("analyser.getSweptModeRegion()[2]").trim(); // typically = 905
+
+		double numberOfDetectorPoints = Integer.parseInt(sweptRegEmax) - Integer.parseInt(sweptRegEmin);	
+		double minStepEnergyValEv = determineMinimumStepEnergy(passEnergyVal) / 1000; // convert from meV to eV
+		double stepEnergyValEv = stepEnergyVal / 1000;                                // convert from meV to eV
+		double energyRangeEv   = Math.abs(startEn - endEn);
+		return  (stepTime * (numberOfDetectorPoints * minStepEnergyValEv + energyRangeEv) / stepEnergyValEv);
 	}
 
 	protected String getOurJythonCommand(final RichBeanEditorPart editor) {
