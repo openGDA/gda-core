@@ -18,6 +18,9 @@
 
 package gda.device.detector.addetector.triggering;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
@@ -38,6 +41,7 @@ import gda.scan.ScanInformation;
 
  */
 public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggeringStrategy {
+	private static final Logger logger = LoggerFactory.getLogger(MultipleExposureSoftwareTriggerAutoMode.class);
 
 	/**
 	 * maxExposureTime  - maximum exposure time(s) that the camera is capable of.
@@ -61,6 +65,12 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 	 * To allow for detectors with prefix acquire give option to read it at prepareForCollection
 	 */
 	private boolean readAcquireTimeFromHardware=false;
+
+	/**
+	 * If we disable the MultipleExposure summing process after collection then anything which relies on it, such as the array
+	 * plugin, used for the array view, will stop getting images, so this option leaves the plugin running after data collection.
+	 */
+	private boolean filterEnabledAfterCollection = false;
 
 	private int procDataTypeOut=5; // UINT32	
 
@@ -169,10 +179,12 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 			getAdBase().setImageModeWait(ImageMode.SINGLE);
 			getAdBase().setNumImages(1);
 		}
-		if( ndProcess != null){
+		if( ndProcess != null && !filterEnabledAfterCollection){
+			// Set it to what it was already set to in prepareForCollection!
 			ndProcess.setFilterType(NDProcess.FilterTypeV1_8_Sum);
+			// Disable plugin and zero out filter, so we can't continue to use it!
 			ndProcess.setNumFilter(1);
-			ndProcess.getPluginBase().disableCallbacks();
+			ndProcess.getPluginBase().disableCallbacks(); // Disable callbacks, so we can't continue to use it!
 		}
 	}
 	
@@ -256,4 +268,12 @@ public class MultipleExposureSoftwareTriggerAutoMode extends AbstractADTriggerin
 		}
 	}
 
+	public boolean isFilterEnabledAfterCollection() {
+		return filterEnabledAfterCollection;
+	}
+
+	public void setFilterEnabledAfterCollection(boolean filterEnabledAfterCollection) {
+		this.filterEnabledAfterCollection = filterEnabledAfterCollection;
+		logger.info("filterEnabledAfterCollection=" + filterEnabledAfterCollection);
+	}
 }

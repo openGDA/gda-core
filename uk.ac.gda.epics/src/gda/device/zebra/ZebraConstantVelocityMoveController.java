@@ -24,7 +24,7 @@ import gda.device.Scannable;
 import gda.device.continuouscontroller.ConstantVelocityMoveController2;
 import gda.device.continuouscontroller.ContinuousMoveController;
 import gda.device.detector.NXDetector;
-import gda.device.detector.addetector.triggering.SingleExposureUnsynchronisedExternalShutter;
+import gda.device.detector.addetector.triggering.AbstractCollectionStrategyDecorator;
 import gda.device.detector.addetector.triggering.UnsynchronisedExternalShutterNXCollectionStrategy;
 import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
@@ -132,16 +132,17 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 					if (det instanceof NXDetector) {
 						NXDetector nxdet = (NXDetector) det;
 						NXCollectionStrategyPlugin nxcs = nxdet.getCollectionStrategy();
-						if (nxcs instanceof UnsynchronisedExternalShutterNXCollectionStrategy) {
-							UnsynchronisedExternalShutterNXCollectionStrategy ues = (UnsynchronisedExternalShutterNXCollectionStrategy) nxcs;
-							double newMinimumAccelerationTime = ues.getCollectionExtensionTimeS();
-							minimumAccelerationTime = Math.min(minimumAccelerationTime, newMinimumAccelerationTime);
-							logger.info("Detector " + det.getName() + " returned newMinimumAccelerationTime=" + 
-									newMinimumAccelerationTime + " so minimumAccelerationTime now " + minimumAccelerationTime +
-									" (" + ues.getClass().getName() + ")");
-						} else {
-							logger.info("Detector " + det.getName() + " collection strategy is not an " +
-									"UnsynchronisedExternalShutterNXCollectionStrategy: " + nxcs.getClass().getName());
+						// If the collection strategy is decorated, iterate over all UnsynchronisedExternalShutterNXCollectionStrategy
+						if (nxcs instanceof AbstractCollectionStrategyDecorator) {
+							for (UnsynchronisedExternalShutterNXCollectionStrategy ues:
+									((AbstractCollectionStrategyDecorator) nxcs).getDecorateesOfType(
+											UnsynchronisedExternalShutterNXCollectionStrategy.class)) {
+								double newMinimumAccelerationTime = ues.getCollectionExtensionTimeS();
+								minimumAccelerationTime = Math.min(minimumAccelerationTime, newMinimumAccelerationTime);
+								logger.info("Detector " + det.getName() + " returned newMinimumAccelerationTime=" +
+										newMinimumAccelerationTime + " so minimumAccelerationTime now " + minimumAccelerationTime +
+										" (" + ues.getClass().getName() + ")");
+							}
 						}
 					} else {
 						logger.info("Detector " + det.getName() + " is not an NXdetector! " + det.getClass().getName());
