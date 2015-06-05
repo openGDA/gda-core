@@ -28,6 +28,7 @@ import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.impl.AreaDetectorBinImpl;
 import gda.device.detector.areadetector.impl.AreaDetectorROIImpl;
 import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.areadetector.v17.ImageMode;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.connection.EpicsController;
@@ -50,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
+
 import  gda.device.detector.areadetector.v17.NDPluginBase;
 
 public class ADBaseImpl implements InitializingBean, ADBase {

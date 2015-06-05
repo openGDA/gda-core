@@ -20,8 +20,8 @@ package gda.device.detector.addetector.triggering;
 
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADDriverPco;
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
+import gda.device.detector.areadetector.v17.ImageMode;
 import gda.scan.ScanInformation;
 
 /*

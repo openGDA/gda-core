@@ -22,7 +22,7 @@ import java.io.IOException;
 
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
+import gda.device.detector.areadetector.v17.ImageMode;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.jython.InterfaceProvider;

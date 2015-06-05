@@ -21,8 +21,8 @@ package gda.device.detector.addetector.triggering;
 import java.text.MessageFormat;
 
 import gda.device.detector.areadetector.v17.ADBase;
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
+import gda.device.detector.areadetector.v17.ImageMode;
 import gda.scan.ScanInformation;
 
 public class MultipleExposurePerCollectionStandard extends SimpleAcquire {

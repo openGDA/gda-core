@@ -30,10 +30,6 @@ import java.util.concurrent.TimeoutException;
  */
 public interface ADBase extends ADCommon {
 
-	public enum ImageMode {
-		SINGLE, MULTIPLE, CONTINUOUS
-	}
-	
 	public enum StandardTriggerMode {
 		INTERNAL, EXTERNAL
 	}
