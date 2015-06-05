@@ -39,9 +39,9 @@ import gda.device.continuouscontroller.HardwareTriggerProvider;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.addetector.triggering.HardwareTriggeredPilatus;
 import gda.device.detector.addetector.triggering.SingleExposurePilatus;
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
 import gda.device.detector.areadetector.v17.ADDriverPilatus;
 import gda.device.detector.areadetector.v17.ADDriverPilatus.PilatusTriggerMode;
+import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDFile;
 
 import java.io.File;
