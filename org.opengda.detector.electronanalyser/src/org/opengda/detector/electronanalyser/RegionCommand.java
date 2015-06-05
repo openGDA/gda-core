@@ -7,7 +7,7 @@ import gda.commandqueue.CommandSummary;
 import gda.commandqueue.SimpleCommandDetails;
 import gda.commandqueue.SimpleCommandSummary;
 import gda.device.DeviceException;
-import gda.device.detector.areadetector.v17.ADBase.ImageMode;
+import gda.device.detector.areadetector.v17.ImageMode;
 
 import java.io.Serializable;
 
