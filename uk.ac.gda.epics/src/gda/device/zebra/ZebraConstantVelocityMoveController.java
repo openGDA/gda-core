@@ -135,9 +135,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 						// If the collection strategy is decorated, iterate over all UnsynchronisedExternalShutterNXCollectionStrategy
 						if (nxcs instanceof AbstractCollectionStrategyDecorator) {
 							for (UnsynchronisedExternalShutterNXCollectionStrategy ues:
-									AbstractCollectionStrategyDecorator.getDecorateesOfT(
-											UnsynchronisedExternalShutterNXCollectionStrategy.class,
-											(AbstractCollectionStrategyDecorator) nxcs)) {
+									((AbstractCollectionStrategyDecorator) nxcs).getDecorateesOfType(
+											UnsynchronisedExternalShutterNXCollectionStrategy.class)) {
 								double newMinimumAccelerationTime = ues.getCollectionExtensionTimeS();
 								minimumAccelerationTime = Math.min(minimumAccelerationTime, newMinimumAccelerationTime);
 								logger.info("Detector " + det.getName() + " returned newMinimumAccelerationTime=" +
