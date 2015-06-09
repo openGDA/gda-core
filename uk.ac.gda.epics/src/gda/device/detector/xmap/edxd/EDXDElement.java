@@ -27,10 +27,10 @@ import gda.device.epicsdevice.ReturnType;
 
 import java.util.Arrays;
 
+import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 
 import uk.ac.diamond.scisoft.analysis.fitting.Fitter;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
@@ -407,10 +407,6 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 		xmap.setValue("SET"+MAXWIDTH+number.toString(),"",maxWidth);
 		return getTriggerGapTime();
 	}	
-	
-	public int getDataType() {
-		return NexusFile.NX_FLOAT64;
-	}
 
 	@Override
 	public String getName() {
@@ -424,7 +420,7 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 		for(int i = 0; i < result.length; i++) {
 			result[i] = data[i];
 		}
-		NexusGroupData groupData = new NexusGroupData(getDataDimensions(), getDataType(), result );
+		NexusGroupData groupData = new NexusGroupData(getDataDimensions(), result );
 		return groupData;
 	}
 	
@@ -557,7 +553,7 @@ public class EDXDElement extends DetectorBase implements INeXusInfoWriteable {
 	}
 
 	@Override
-	public void writeNeXusInformation(NeXusFileInterface file)
+	public void writeNeXusInformation(NexusFile file, Node node)
 			throws NexusException {	
 	}
 	

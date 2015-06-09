@@ -18,40 +18,15 @@
 
 package gda.device.detector.addetector;
 
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.NDArray;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 
-import java.io.Serializable;
-
-import org.nexusformat.NexusFile;
-
 /**
  * Class to hold data extracted from NDArray plugin in form to add to NXDetectorData
  */
-public class ArrayData{
-
-	private Serializable dataVals;
-	private int[] dims;
-	private int nexusType;
-
-	public ArrayData(int[] dims, int nexusType, Serializable dataVals) {
-		this.dims = dims;
-		this.nexusType = nexusType;
-		this.dataVals = dataVals;
-	}
-
-	public Serializable getDataVals() {
-		return dataVals;
-	}
-
-	public int[] getDims() {
-		return dims;
-	}
-
-	public int getNexusType() {
-		return nexusType;
-	}
+public class ArrayData {
 
 	public static int[] determineDataDimensions(NDArray ndArray) throws Exception {
 		// only called if configured to readArrays (and hence ndArray is set)
@@ -64,23 +39,22 @@ public class ArrayData{
 
 		int[] dims = java.util.Arrays.copyOfRange(dimFromEpics, 3 - nDimensions, 3);
 		return dims;
-	}	
-	
-	public static ArrayData readArrayData(NDArray ndArray) throws Exception{
+	}
+
+	public static NexusGroupData readArrayData(NDArray ndArray) throws Exception {
 		int[] dims = determineDataDimensions(ndArray);
 
 		if (dims.length == 0) {
-			throw new Exception ("Dimensions of data from ndArray are zero length");
+			throw new Exception("Dimensions of data from ndArray are zero length");
 		}
 
 		int expectedNumPixels = dims[0];
 		for (int i = 1; i < dims.length; i++) {
 			expectedNumPixels = expectedNumPixels * dims[i];
 		}
-		Serializable dataVals;
+		NexusGroupData dataVals;
 		// TODO do only once per scan
 		short dataType = ndArray.getPluginBase().getDataType_RBV();
-		int nexusType;
 		switch (dataType) {
 		case NDPluginBase.UInt8: {
 			byte[] b = new byte[] {};
@@ -92,8 +66,7 @@ public class ArrayData{
 				for (int i = 0; i < expectedNumPixels; i++) {
 					cd[i] = (short) (b[i] & 0xff);
 				}
-				dataVals = cd;
-				nexusType = NexusFile.NX_INT16;
+				dataVals = new NexusGroupData(dims, cd);
 			}
 		}
 			break;
@@ -101,8 +74,7 @@ public class ArrayData{
 			byte[] b = ndArray.getByteArrayData(expectedNumPixels);
 			if (expectedNumPixels > b.length)
 				throw new DeviceException("Data size is not valid");
-			dataVals = b;
-			nexusType = NexusFile.NX_INT8;
+			dataVals = new NexusGroupData(dims, b);
 			break;
 		}
 		case NDPluginBase.Int16: {
@@ -111,8 +83,7 @@ public class ArrayData{
 				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
 						+ expectedNumPixels);
 
-			dataVals = s;
-			nexusType = NexusFile.NX_INT16;
+			dataVals = new NexusGroupData(dims, s);
 		}
 			break;
 		case NDPluginBase.UInt16: {
@@ -125,8 +96,7 @@ public class ArrayData{
 			for (int i = 0; i < expectedNumPixels; i++) {
 				cd[i] = (s[i] & 0xffff);
 			}
-			dataVals = cd;
-			nexusType = NexusFile.NX_INT32;
+			dataVals = new NexusGroupData(dims, cd);
 		}
 			break;
 		case NDPluginBase.UInt32: // TODO should convert to INT64 if any numbers are negative
@@ -136,8 +106,7 @@ public class ArrayData{
 				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
 						+ expectedNumPixels);
 
-			dataVals = s;
-			nexusType = NexusFile.NX_INT32;
+			dataVals = new NexusGroupData(dims, s);
 		}
 			break;
 		case NDPluginBase.Float32:
@@ -147,13 +116,12 @@ public class ArrayData{
 				throw new DeviceException("Data size is not valid length read:" + s.length + " expected:"
 						+ expectedNumPixels);
 
-			dataVals = s;
-			nexusType = NexusFile.NX_FLOAT32;
+			dataVals = new NexusGroupData(dims, s);
 		}
 			break;
 		default:
 			throw new DeviceException("Type of data is not understood :" + dataType);
 		}
-		return new ArrayData(dims, nexusType, dataVals);		
+		return dataVals;
 	}
 }

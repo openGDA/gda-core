@@ -42,7 +42,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.IntegerDataset;
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -271,7 +270,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 	public NexusTreeProvider readout() throws DeviceException {
 		NXDetectorData ndd = new NXDetectorData();
 		IntegerDataset image = readLastImage();
-		ndd.addData(getName(), image.getShape(), NexusFile.NX_INT32, image.getData(), null, null);
+		ndd.addData(getName(), new NexusGroupData(image.getShape(), image.getData()), null, null);
 		try {
 			ndd.setDoubleVals(new Double[] {new Double(array.getPluginBase().getArrayCounter_RBV())});
 		} catch (Exception e) {
@@ -289,8 +288,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 		for (String label : new String[] { "x_pixel_size", "y_pixel_size" }) {
 			if (attributeMap.containsKey(label)) {
 				try {
-					ngd = new NexusGroupData(new int[] { 1 }, NexusFile.NX_FLOAT64,
-							new double[] { (Double) attributeMap.get(label) });
+					ngd = new NexusGroupData((Double) attributeMap.get(label));
 					ngd.isDetectorEntryData = false;
 
 					NexusTreeNode type_node = new NexusTreeNode(label, NexusExtractor.SDSClassName, null, ngd);
@@ -309,8 +307,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 		for (String label : new String[] { "beam_center_x", "beam_center_y" }) {
 			if (attributeMap.containsKey(label)) {
 				try {
-					ngd = new NexusGroupData(new int[] { 1 }, NexusFile.NX_FLOAT64,
-							new double[] { (Double) attributeMap.get(label) });
+					ngd = new NexusGroupData((Double) attributeMap.get(label));
 					ngd.isDetectorEntryData = false;
 
 					NexusTreeNode type_node = new NexusTreeNode(label, NexusExtractor.SDSClassName, null, ngd);
