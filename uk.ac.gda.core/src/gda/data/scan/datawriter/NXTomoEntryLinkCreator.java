@@ -18,7 +18,11 @@
 
 package gda.data.scan.datawriter;
 
-import org.nexusformat.NexusFile;
+import gda.data.nexus.NexusUtils;
+import gda.data.nexus.extractor.NexusExtractor;
+
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
@@ -26,30 +30,30 @@ import org.springframework.beans.factory.InitializingBean;
  */
 public class NXTomoEntryLinkCreator extends NXLinkCreator implements InitializingBean {
 	
-	private String control_data_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/current:NXdata";
+	private String control_data_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/current:SDS";
 	
 	private String data_data_target = "entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/data:SDS";
-	private String data_rotation_angle_target = "entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/rotation_angle:NXdata";
+	private String data_rotation_angle_target = "entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/rotation_angle:SDS";
 	
 	private String instrument_detector_data_target = "entry1:NXentry/instrument:NXinstrument/pco1_hw_hdf:NXdetector/data:SDS";
-	private String instrument_detector_distance_target = "entry1:NXentry/scan_identifier:NXdata";
-	private String instrument_detector_image_key_target = "entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/image_key:NXdata";
-	private String instrument_detector_x_pixel_size_target = "entry1:NXentry/scan_identifier:NXdata";
-	private String instrument_detector_y_pixel_size_target = "entry1:NXentry/scan_identifier:NXdata";
+	private String instrument_detector_distance_target = "entry1:NXentry/scan_identifier:SDS";
+	private String instrument_detector_image_key_target = "entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/image_key:SDS";
+	private String instrument_detector_x_pixel_size_target = "entry1:NXentry/scan_identifier:SDS";
+	private String instrument_detector_y_pixel_size_target = "entry1:NXentry/scan_identifier:SDS";
 	
 	private String instrument_source_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource";
-	private String instrument_source_current_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/current:NXdata";
-	private String instrument_source_energy_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/energy:NXdata";
-	private String instrument_source_name_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/name:NXdata";
-	private String instrument_source_probe_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/probe:NXdata";
-	private String instrument_source_type_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/type:NXdata";
+	private String instrument_source_current_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/current:SDS";
+	private String instrument_source_energy_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/energy:SDS";
+	private String instrument_source_name_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/name:SDS";
+	private String instrument_source_probe_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/probe:SDS";
+	private String instrument_source_type_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/type:SDS";
 	
-	private String sample_rotation_angle_target = "entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/ss1_rot:NXdata";
-	private String sample_x_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplex:NXdata";
-	private String sample_y_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_sampley:NXdata";
-	private String sample_z_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplez:NXdata";
+	private String sample_rotation_angle_target = "entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/ss1_rot:SDS";
+	private String sample_x_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplex:SDS";
+	private String sample_y_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_sampley:SDS";
+	private String sample_z_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplez:SDS";
 	
-	private String title_target = "entry1:NXentry/scan_identifier:NXdata";
+	private String title_target = "entry1:NXentry/scan_identifier:SDS";
 	
 	public String getControl_data_target() {
 		return control_data_target;
@@ -115,11 +119,11 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 	public void setInstrument_source_target(String instrument_source_target) {
 		this.instrument_source_target = instrument_source_target;
 		
-		this.instrument_source_current_target = this.instrument_source_target + "/current:NXdata";
-		this.instrument_source_energy_target = this.instrument_source_target + "/energy:NXdata";
-		this.instrument_source_name_target = this.instrument_source_target + "/name:NXdata";
-		this.instrument_source_probe_target = this.instrument_source_target + "/probe:NXdata";
-		this.instrument_source_type_target = this.instrument_source_target + "/type:NXdata";
+		this.instrument_source_current_target = this.instrument_source_target + "/current:SDS";
+		this.instrument_source_energy_target = this.instrument_source_target + "/energy:SDS";
+		this.instrument_source_name_target = this.instrument_source_target + "/name:SDS";
+		this.instrument_source_probe_target = this.instrument_source_target + "/probe:SDS";
+		this.instrument_source_type_target = this.instrument_source_target + "/type:SDS";
 	}
 	
 	public String getSample_x_translation_target() {
@@ -234,32 +238,13 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 	}
 	
 	public void writeStringData(String filename, String dataName, String dataValue ) throws Exception {
-		NexusFile file = new NexusFile(filename,NexusFile.NXACC_RDWR);
-		try {
-			// navigate to desired place
-			file.opengroup("entry1", "NXentry");
-			file.opengroup("tomo_entry", "NXsubentry");
-			
-			int[] arr = { dataValue.length() };
-			file.makedata(dataName, NexusFile.NX_CHAR, 1, arr);
-			file.opendata(dataName);
-			file.putdata(dataValue.getBytes());
-			file.closedata();
-			
-			// navigate back from desired place
-			file.closegroup();
-			file.closegroup();
-		} finally {
-			file.flush();
-			try {
-				file.finalize();
-			} catch (Throwable e) {
-				throw new Exception("Error finalising " + filename,e);
-			} finally {
-				file.close();
-				
-			}
-		}
+		NexusFile file = NexusUtils.openNexusFile(filename);
+		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), "entry1", NexusExtractor.NXEntryClassName);
+		NexusUtils.addToAugmentPath(path, "tomo_entry", "NXsubentry");
+//		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
+		GroupNode group = file.getGroup(path.toString(), true);
+		NexusUtils.writeString(file, group, dataName, dataValue);
+		file.close();
 	}
 	
 	@Override

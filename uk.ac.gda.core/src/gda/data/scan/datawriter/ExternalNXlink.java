@@ -18,8 +18,14 @@
 
 package gda.data.scan.datawriter;
 
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
+import gda.data.nexus.NexusUtils;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 
 public class ExternalNXlink extends SelfCreatingLink {
 	String name, url;
@@ -31,13 +37,11 @@ public class ExternalNXlink extends SelfCreatingLink {
 	}
 
 	@Override
-	public String getName() {
-		return name;
-	}
-	
-	@Override
-	public
-	void create(NeXusFileInterface file) throws NexusException {
-		file.linkexternaldataset(name, url);
+	public void create(NexusFile file, GroupNode g) throws NexusException {
+		try {
+			file.linkExternal(new URI(url), NexusUtils.addToAugmentPath(file.getPath(g), name, null), false);
+		} catch (URISyntaxException e) {
+			throw new NexusException("Problem creating a valid URI", e);
+		}
 	}
 }

@@ -20,7 +20,8 @@ package gda.scan;
 
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
-import gda.data.nexus.nxclassio.NexusFileHandle;
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -48,9 +49,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.junit.Before;
 import org.junit.Test;
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,14 +76,11 @@ public class MultiScanTest {
 		Scannable simpleScannable2 = TestHelpers.createTestScannable("SimpleScannable1", 0., new String[] {},
 				new String[] { "simpleScannable1" }, 0, new String[] { "%5.2g" }, null);
 		
-		int[] data2In;
 		int totalLength;
 		int[] dims2 = new int[] { 2, 3 };
-		totalLength = NexusFileHandle.calcTotalLength(dims2);
-		data2In = new int[totalLength];
+		totalLength = NexusExtractor.calcTotalLength(dims2);
 		String [] outputFormat = new String[totalLength+1];
 		for (int index = 0; index < totalLength; index++) {
-			data2In[index] = index;
 			outputFormat[index] =  "%5.2g";
 		}
 		outputFormat[totalLength] =  "%5.2g"; //for collectionTime
@@ -90,7 +88,7 @@ public class MultiScanTest {
 		
 		Detector det = TestHelpers.createTestDetector("htd", 0., new String[] {},
 				new String[] { "htd" }, 0, outputFormat, TestHelpers.createTestNexusGroupData(
-						dims2, NexusFile.NX_INT32, data2In, true), null, "description2", "detectorID2",
+						dims2, Dataset.INT32, true), null, "description2", "detectorID2",
 				"detectorType2");	
 		
 		ConcurrentScan scan2 = new ConcurrentScan(new Object[]{simpleScannable2, 0, 20, 2, det, .1});
@@ -413,8 +411,7 @@ class MyNXPlugin implements NXPlugin{
 
 			@Override
 			public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
-				data.addData(detectorName, getName(), new int[] { 1 }, NexusFile.NX_FLOAT64, new double[] { 0. }, null, null);
-				
+				data.addData(detectorName, getName(), new NexusGroupData(0d), null, null);
 			}});
 		return appenders;
 	}

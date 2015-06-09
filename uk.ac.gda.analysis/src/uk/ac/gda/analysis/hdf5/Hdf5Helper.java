@@ -31,24 +31,12 @@ import ncsa.hdf.object.h5.H5Datatype;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.hdf5.HDF5Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-
 /**
- * From http://davis.lbl.gov/Manuals/HDF5-1.4.3/Tutor/rdwt.html During a dataset I/O operation, the library transfers
- * raw data between memory and the file. The data in memory can have a datatype different from that of the file and can
- * also be of a different size (i.e., the data in memory is a subset of the dataset elements, or vice versa). Therefore,
- * to perform read or write operations, the application program must specify: The dataset The dataset's datatype in
- * memory The dataset's dataspace in memory The dataset's dataspace in the file The dataset transfer property list (The
- * dataset transfer property list controls various aspects of the I/O operations, such as the number of processes
- * participating in a collective I/O request or hints to the library to control caching of raw data. In this tutorial,
- * we use the default dataset transfer property list.) The data buffer The steps to read from or write to a dataset are
- * as follows: Obtain the dataset identifier. Specify the memory datatype. Specify the memory dataspace. Specify the
- * file dataspace. Specify the transfer properties. Perform the desired operation on the dataset. Close the dataset.
- * Close the dataspace, datatype, and property list if necessary. To read from or write to a dataset, the
- * H5Dread/h5dread_f and H5Dwrite/h5dwrite_f routines are used.
+ *
  */
 public class Hdf5Helper {
 	private static final Logger logger = LoggerFactory.getLogger(Hdf5Helper.class);
@@ -67,44 +55,6 @@ public class Hdf5Helper {
 		writeToFile(hData, fileName, location, dataSetName, null, null, null);
 	}
 
-	/*
-	 * public boolean writeToFileOld(Hdf5HelperData hData, String fileName, String groupName, String dataSetName, long[]
-	 * chunk_dims, boolean[] extendible, long[] offset) throws Exception { boolean success = true; int fileId = -1; int
-	 * filespaceId = -1; int datasetId = -1; int groupId = -1; String[] split = groupName.split("/"); int[] groupIds =
-	 * new int[split.length]; boolean[] isDataSet = new boolean[groupIds.length]; Arrays.fill(groupIds, -1); if
-	 * (extendible != null){ if (extendible.length != hData.dims.length) throw new
-	 * IllegalArgumentException("extendible.length != hData.dims.length"); if( offset == null || offset.length !=
-	 * extendible.length) throw new IllegalArgumentException("offset == null || offset.length != extendible.length"); }
-	 * // Create a new file using default properties. try { if ((new File(fileName)).exists()) { fileId =
-	 * H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT); } else { fileId =
-	 * H5.H5Fcreate(fileName, HDF5Constants.H5F_ACC_EXCL, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT); } for
-	 * (int i = 0; i < split.length; i++) { int loc_id = i == 0 ? fileId : groupIds[i - 1]; String name = split[i];
-	 * isDataSet[i] = false; if( name.endsWith(":DS")){ name = name.replace(":DS",""); isDataSet[i] = true; } try { if(
-	 * isDataSet[i]){ groupIds[i] = H5.H5Dopen(loc_id, name, HDF5Constants.H5P_DEFAULT); } else {
-	 * H5.H5Gget_info_by_name(loc_id, name, HDF5Constants.H5P_DEFAULT); groupIds[i] = H5.H5Gopen(loc_id, name,
-	 * HDF5Constants.H5P_DEFAULT); } } catch (Exception ex) { if( !isDataSet[i]){ groupIds[i] = H5.H5Gcreate(loc_id,
-	 * name, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT); } else { throw new
-	 * Exception("DataSet does not exist " + groupName ); } } } groupId = groupIds[groupIds.length - 1]; // Create
-	 * dataspace. Setting maximum size to NULL sets the maximum // size to be the current size. if (hData != null) {
-	 * long[] max_dims = null; int cparms = HDF5Constants.H5P_DEFAULT; if (extendible != null) { max_dims = new
-	 * long[extendible.length]; for (int i = 0; i < max_dims.length; i++) { max_dims[i] = extendible[i] ?
-	 * HDF5Constants.H5S_UNLIMITED : hData.dims[i]; } cparms = H5.H5Pcreate(HDF5Constants.H5P_DATASET_CREATE); int
-	 * status = H5.H5Pset_chunk(cparms, hData.dims.length, chunk_dims); if (status < 0) throw new
-	 * Exception("Error setting chunk"); } filespaceId = H5.H5Screate_simple(hData.dims.length, hData.dims, max_dims);
-	 * int typeId = hData.native_type; try{ datasetId = H5.H5Dopen(groupId, dataSetName, HDF5Constants.H5P_DEFAULT);
-	 * }catch(Exception e){ datasetId = H5.H5Dcreate(groupId, dataSetName, typeId, filespaceId,
-	 * HDF5Constants.H5P_DEFAULT,cparms, HDF5Constants.H5P_DEFAULT); } if (extendible != null) { long [] extent = new
-	 * long[hData.dims.length]; for( int i=0; i< extent.length;i++){ extent[i] = offset[i] + hData.dims[i]; }
-	 * H5.H5Dset_extent(datasetId, extent); int filespace = H5.H5Dget_space(datasetId); int status =
-	 * H5.H5Sselect_hyperslab(filespace, HDF5Constants.H5S_SELECT_SET, offset, null, hData.dims, null); if (status < 0)
-	 * throw new Exception("Error H5Sselect_hyperslab"); H5.H5Dwrite(datasetId, typeId, filespaceId, filespace,
-	 * HDF5Constants.H5P_DEFAULT, hData.data); } else { H5.H5Dwrite(datasetId, typeId, HDF5Constants.H5S_ALL,
-	 * HDF5Constants.H5S_ALL, HDF5Constants.H5P_DEFAULT, hData.data); } } return success; } catch (Exception ex) { throw
-	 * new Exception("Unable to write to file:" + fileName + " at group:" + groupName, ex); } finally { if (datasetId >=
-	 * 0) H5.H5Dclose(datasetId); if (filespaceId >= 0) H5.H5Sclose(filespaceId); for (int i = groupIds.length - 1; i >=
-	 * 0; i--) { if (groupIds[i] != -1){ if( isDataSet[i]){ H5.H5Dclose(groupIds[i]); } else { H5.H5Gclose(groupIds[i]);
-	 * } } } if (fileId >= 0) H5.H5Fclose(fileId); } }
-	 */
 	private void createAttribute(int loc_id, String attributeName, String attributeValue) throws Exception {
 
 		Hdf5HelperData attr_data = Hdf5HelperData.getInstance(attributeValue);
@@ -349,21 +299,14 @@ public class Hdf5Helper {
 	public Dataset createDataSet(Hdf5HelperData hData, boolean extend) throws NullPointerException {
 		int datatypeClass = hData.h5Datatype.getDatatypeClass();
 		int datatypeSize = hData.h5Datatype.getDatatypeSize();
-		int dtype = HDF5Loader.getDtype(datatypeClass, datatypeSize);
+		int dtype = HDF5Utils.getDtype(datatypeClass, datatypeSize);
 		int dims[] = new int[hData.dims.length];
 		for (int i = 0; i < hData.dims.length; i++)
 			dims[i] = (int) hData.dims[i];
 
-		return HDF5Loader.createDataset(hData.data, dims, dtype, extend);
+		return HDF5Utils.createDataset(hData.data, dims, dtype, extend);
 	}
 
-	/*
-	 * sstart = new long[rank]; // source start sstride = new long[rank]; // source steps dsize = new long[rank]; //
-	 * destination size block = null; for( int i=0;i<rank;i++){ sstart[i]=0; sstride[i]=1; dsize[i] = dims[i]; } int len
-	 * = 1; for (int i = 0; i < dsize.length; i++) { len *= dsize[i]; } long[] data_maxdims=null; long[] data_dims = new
-	 * long[]{len};//dims; int data_rank=1;//rank; if( data == null){ int len = 1; for (int i = 0; i < dims.length; i++)
-	 * { len *= dims[i]; } data = H5Datatype.allocateArray(mem_type_id, len); }
-	 */
 	public Hdf5HelperData readDataSetAll(String fileName, String location, String dataSetName, boolean getData)
 			throws Exception {
 		try{

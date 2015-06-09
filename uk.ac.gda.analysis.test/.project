@@ -3,12 +3,16 @@
 	<name>uk.ac.gda.analysis.test</name>
 	<comment></comment>
 	<projects>
+		<project>org.eclipse.dawnsci.analysis.api</project>
+		<project>org.eclipse.dawnsci.analysis.dataset</project>
 		<project>tp</project>
 		<project>uk.ac.diamond.jython</project>
 		<project>uk.ac.diamond.scisoft.analysis</project>
-		<project>org.eclipse.dawnsci.analysis.api</project>
-		<project>org.eclipse.dawnsci.analysis.dataset</project>
 		<project>uk.ac.diamond.scisoft.python</project>
+		<project>uk.ac.gda.analysis</project>
+		<project>uk.ac.gda.api</project>
+		<project>uk.ac.gda.core</project>
+		<project>uk.ac.gda.nexus</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -21,7 +21,6 @@ package gda;
 
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.INeXusInfoWriteable;
-import gda.data.nexus.NeXusUtils;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -46,9 +45,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
+import org.eclipse.dawnsci.analysis.api.tree.Attribute;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -202,16 +205,14 @@ public class TestHelpers {
 				description, detectorID, detectorType);
 	}
 
-	public static NexusGroupData createTestNexusGroupData(int[] dimensions, int type, Serializable data,
+	public static NexusGroupData createTestNexusGroupData(int[] shape, int dtype,
 			boolean useSuperToString) {
-		return createTestNexusGroupData(dimensions, type, data, useSuperToString, true);
-	}
-
-	public static NexusGroupData createTestNexusGroupData(int[] dimensions, int type, Serializable data,
-			boolean useSuperToString, boolean isDetectorEntryData) {
-		NexusGroupData nexusGroupData = new Data(dimensions, type, data, useSuperToString);
-		nexusGroupData.isDetectorEntryData = isDetectorEntryData;
-		return nexusGroupData;
+		int size = AbstractDataset.calcSize(shape);
+		Dataset dataset = DatasetFactory.createRange(size, dtype);
+		dataset.setShape(shape);
+		NexusGroupData ngd = new Data(dataset, useSuperToString);
+		ngd.isDetectorEntryData = true;
+		return ngd;
 	}
 
 	/**
@@ -422,10 +423,13 @@ class SimpleScannable implements Scannable, INeXusInfoWriteable {
 	}
 
 	@Override
-	public void writeNeXusInformation(NeXusFileInterface file) throws NexusException {
+	public void writeNeXusInformation(NexusFile file, Node node) throws NexusException {
 		try {
 			if (units != null && units.length > 0) {
-				NeXusUtils.writeNexusStringAttribute(file, "units", units[0]);
+				Dataset ad = DatasetFactory.createFromObject(units[0]);
+				ad.setName("units");
+				Attribute a = file.createAttribute(node, ad);
+				file.addAttribute(node, a);
 			}
 		} catch (NexusException e) {
 			logger.debug("DOF: Problem writing additional info to NeXus file.");
@@ -848,18 +852,11 @@ class SimpleSubDetector extends SimpleDetector implements NexusDetector {
 				detectorType);
 	}
 
-	/**
-	 * @return type of data - e.g. NexusFile.NX_FLOAT64
-	 */
-	public int getDataType() {
-		return data.type;
-	}
-
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		NXDetectorData nxdetData = new TestNXDetectorData();
 		if (filename != null) {
-			nxdetData.addData(name, new int[] { 19 }, NexusFile.NX_INT32, new int[19], null, null);
+			nxdetData.addData(name, new NexusGroupData(new int[19]));
 			nxdetData.addFileName(name, filename);
 			INexusTree detTree = nxdetData.getDetTree(name);
 			{
@@ -894,8 +891,8 @@ class TestNXDetectorData extends NXDetectorData {
 class Data extends NexusGroupData {
 	boolean useSuperToString;
 
-	Data(int[] dimensions, int type, Serializable data, boolean useSuperToString) {
-		super(dimensions, type, data);
+	Data(Dataset dataset, boolean useSuperToString) {
+		super(dataset);
 		this.useSuperToString = useSuperToString;
 	}
 

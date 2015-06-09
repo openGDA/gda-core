@@ -18,24 +18,20 @@
 
 package gda.data.scan.datawriter;
 
-import java.io.File;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 
-import org.nexusformat.NXlink;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
 
 public class SelfCreatingLink {
-	NXlink nxlink;
+	DataNode source;
 
-	public SelfCreatingLink(NXlink nxlink) {
-		this.nxlink = nxlink;
+	public SelfCreatingLink(DataNode data) {
+		source = data;
 	}
 
-	public String getName() {
-		return new File(nxlink.targetPath).getName();
-	}
-	
-	public void create(NeXusFileInterface file) throws NexusException {
-		file.makelink(nxlink);
+	public void create(NexusFile file, GroupNode g) throws NexusException {
+		file.link(file.getPath(source), file.getPath(g));
 	}
 }

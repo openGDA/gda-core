@@ -82,19 +82,10 @@ public class NXDetectorDataFileAppenderForSrs implements NXDetectorDataAppender 
 		data.setPlottableValue(filepathExtraName, 0.);// this is needed as we have added an entry in extraNames
 
 		if (xPixelSize!=null) {
-			if (xPixelSizeUnit!=null) {
-				data.addData(detectorName, "x_pixel_size", xPixelSize, xPixelSizeUnit);
-			}
-			else {
-				data.addData(detectorName, "x_pixel_size", xPixelSize, null);
-			}
+			data.addData(detectorName, "x_pixel_size", new NexusGroupData(xPixelSize), xPixelSizeUnit);
 		}
 		if (yPixelSize!=null) {
-			if (yPixelSizeUnit!=null) {
-				data.addData(detectorName, "y_pixel_size", yPixelSize, yPixelSizeUnit);
-			} else {
-				data.addData(detectorName, "y_pixel_size", yPixelSize, null);
-			}
+			data.addData(detectorName, "y_pixel_size", new NexusGroupData(yPixelSize), yPixelSizeUnit);
 		}
 
 	}

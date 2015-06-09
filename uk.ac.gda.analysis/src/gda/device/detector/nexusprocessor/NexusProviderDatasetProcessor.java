@@ -28,8 +28,6 @@ import java.util.Vector;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 
-import uk.ac.diamond.scisoft.analysis.dataset.Nexus;
-
 /**
  * Extracts dataset from NexusTreeprovider and passes to processors
  */
@@ -53,7 +51,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 
 	@SuppressWarnings("unused")
 	protected Dataset getDatasetFromNexusGroupData(NexusGroupData ngd)  throws Exception {
-		return Nexus.createDataset(ngd, true);
+		return ngd.toDataset(true);
 	}
 	
 	

@@ -26,9 +26,7 @@ import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.Metadata;
 import gda.data.nexus.INeXusInfoWriteable;
-import gda.data.nexus.NeXusUtils;
-import gda.data.nexus.NexusFileFactory;
-import gda.data.nexus.NexusGlobals;
+import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -44,15 +42,22 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
-import org.nexusformat.NXlink;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.python.core.PyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,11 +72,6 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	 */
 	public static final String GDA_NEXUS_INSTRUMENT_API = "gda.nexus.instrumentApi";
 
-	/**
-	 * Property to control the file format. Defaults to {@link NexusGlobals#GDA_NX_DEFAULT}
-	 */
-	public static final String GDA_DATA_NEXUS_BACKEND = "gda.data.nexus.backend";
-	
 	/**
 	 * Property specifying whether SRS data files should be written in
 	 * addition to NeXus files. Default is {@code true}.
@@ -88,9 +88,6 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	private static final Logger logger = LoggerFactory.getLogger(SixdNexusDataWriter.class);
 
 	static final int MAX_DATAFILENAME = 255;
-
-	/** Default NeXus format */
-	private String defaultNeXusBackend = null;
 
 	/** Are we going to write an SRS file as well ? */
 	private boolean createSrsFile = false;
@@ -123,7 +120,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	protected String entryName = "entry1";
 
 	/** File Handle for NeXus file */
-	protected NeXusFileInterface file;
+	protected NexusFile file;
 	/** File Handle for text file */
 	protected FileWriter txtfile;
 
@@ -151,29 +148,6 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 	private boolean fileNumberConfigured=false;
 
-	class SelfCreatingLink {
-		NXlink nxlink;
-		public SelfCreatingLink(NXlink nxlink) {
-			 this.nxlink = nxlink;
-		}
-		void create(NeXusFileInterface file) throws NexusException {
-			file.makelink(nxlink);
-		}
-	}
-	
-	class ExteneralNXlink extends SelfCreatingLink {
-		String name, url;
-		public ExteneralNXlink(String name, String url) {
-			super(null);
-			this.name = name;
-			this.url = url;
-		}
-		@Override
-		void create(NeXusFileInterface file) throws NexusException {
-			file.linkexternaldataset(name, url);
-		}
-	}
-	
 	/**
 	 * Constructor. This attempts to read the java.property which defines the beamline name. 
 	 */
@@ -199,12 +173,6 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		if (beamline == null) {
 			// If the beamline name is not set then use 'base'
 			beamline = "base";
-		}
-
-		// Check to see if we want to use a different NeXus backend format.
-		defaultNeXusBackend = LocalProperties.get(GDA_DATA_NEXUS_BACKEND);
-		if (defaultNeXusBackend == null) {
-			defaultNeXusBackend = NexusGlobals.GDA_NX_DEFAULT;
 		}
 
 		// Check to see if the data directory has been defined.
@@ -245,40 +213,6 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		} 			
 	}
 
-	static private int[] generateStartPosPrefix(int currentPoint, int[] scanDimensions) {
-		if (scanDimensions.length == 1) {
-			return new int[] { currentPoint };
-		}
-		int[] scanNumbers = new int[scanDimensions.length];
-		int[] totals = new int[scanDimensions.length];
-		totals[scanDimensions.length - 1] = 1;
-		for (int i = scanDimensions.length - 2; i > -1; i--) {
-			totals[i] = scanDimensions[i + 1] * totals[i + 1];
-		}
-		if (currentPoint > totals[0] * scanDimensions[0]) {
-			throw new IllegalArgumentException("currentPoint is larger than expected from reported scan dimensions");
-		}
-
-		int remainder = currentPoint;
-		for (int j = 0; j < scanDimensions.length - 1; j++) {
-			scanNumbers[j] = remainder / totals[j];
-			remainder = remainder - scanNumbers[j] * totals[j];
-		}
-		scanNumbers[scanDimensions.length - 1] = remainder;
-		return scanNumbers;
-	}
-
-	static private int[] generateDataStartPos(int[] dataStartPosPrefix, int[] dataDimensions) {
-		int[] dataStartPos = null;
-		if (dataStartPosPrefix != null) {
-			dataStartPos = Arrays.copyOf(dataStartPosPrefix, dataStartPosPrefix.length
-					+ (dataDimensions != null ? dataDimensions.length : 0));
-		} else if (dataDimensions != null) {
-			dataStartPos = new int[dataDimensions.length];
-		}
-		return dataStartPos;
-	}
-
 	/**
 	 * calculate dimensionality of data to be written 
 	 * @param make if true calculate for pre-allocation (first Dim NX_UNLIMITED)
@@ -286,6 +220,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	 * @param dataDimensions
 	 * @return dimensions
 	 */
+	// TODO decide whether this is same as one in NDW
 	static private int[] generateDataDim(boolean make, int[] dataDimPrefix, int[] dataDimensions) {
 		int[] dataDim = null;
 		if (dataDimPrefix != null) {
@@ -303,7 +238,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 			dataDim = Arrays.copyOf(dataDimensions, dataDimensions.length);
 		}
 		if (make && dataDim != null) {
-			dataDim[0] = NexusFile.NX_UNLIMITED;
+			dataDim[0] = ILazyWriteableDataset.UNLIMITED;
 		}
 		return dataDim;
 	}
@@ -323,7 +258,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	/*
 	 * Fields present for convenience The dimensions of the to be written - not taking into account the dimensions of
 	 * the data itself The length of this array should match the length of scanDimensions and the values are all 1 but
-	 * for the first which is NexusFile.NX_UNLIMITED;
+	 * for the first which is ILazyWriteableDataset.UNLIMITED.
 	 */
 	int[] dataDimPrefix;
 
@@ -332,7 +267,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		thisPoint = dataPoint;
 		scanPointNumber++;
 
-		// Some Debug messages
+		// Some debug messages
 		logger.debug("Adding SDP with UUID: {}", dataPoint.getUniqueName());
 		if (firstData) {
 			logger.debug("Scan Parameters...");
@@ -346,7 +281,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 			logger.warn("The DataWriter(" + scanPointNumber + ") and the DataPoint("
 					+ dataPoint.getCurrentPointNumber() + ") disagree about the point number!");
 		}
-		dataStartPosPrefix = generateStartPosPrefix(thisPoint.getCurrentPointNumber(), thisPoint.getScanDimensions());
+		dataStartPosPrefix = NexusDataWriter.generateStartPosPrefix(thisPoint.getCurrentPointNumber(), thisPoint.getScanDimensions());
 
 		try {
 			if (firstData) {
@@ -396,8 +331,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	private void writeDetector(Detector detector) throws NexusException {
 		if (detector instanceof NexusDetector) {
 			writeNexusDetector((NexusDetector) detector);
-		}
-		else{//Non Nexus detector
+		} else { // Non Nexus detector
 			writeCommonDetector(detector);
 /*			
 			if (detector.createsOwnFiles()) {
@@ -421,19 +355,18 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		return Integer.parseInt(buf.toString());
 	}
 	
-	void writeHere(NeXusFileInterface file, INexusTree tree, boolean makeData, boolean attrOnly, List<SelfCreatingLink> links)
+	void writeHere(NexusFile file, GroupNode group, INexusTree tree, boolean makeData, boolean attrOnly, List<SelfCreatingLink> links)
 			throws NexusException {
 		if (!tree.isPointDependent() && !makeData) {
 			return;
 		}
 		String name = tree.getName();
 		String nxClass = tree.getNxClass();
-		Boolean dataOpen = false;
-		Boolean loopNodes = true;
-		Boolean attrBelowThisOnly = attrOnly;
-		Boolean nxClassIsSDS = nxClass.equals(NexusExtractor.SDSClassName);
-		Boolean nxClassIsAttr = nxClass.equals(NexusExtractor.AttrClassName);
-		Boolean nxClassIsExternalSDS = nxClass.equals(NexusExtractor.ExternalSDSLink);
+		boolean loopNodes = true;
+		boolean attrBelowThisOnly = attrOnly;
+		boolean nxClassIsSDS = nxClass.equals(NexusExtractor.SDSClassName);
+		boolean nxClassIsAttr = nxClass.equals(NexusExtractor.AttrClassName);
+		boolean nxClassIsExternalSDS = nxClass.equals(NexusExtractor.ExternalSDSLink);
 		if (nxClassIsExternalSDS) {
 			if (makeData) {
 				NexusGroupData data = tree.getData();
@@ -442,9 +375,9 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 					File f = new File(filePath);
 					if ( ! f.exists())
 						logger.warn("file " + filePath + " does not exist at time of adding link");
-					file.linkexternaldataset(name, filePath);
-					links.add(new ExteneralNXlink(name, filePath));
-				} catch (UnsupportedEncodingException e) {
+					file.linkExternal(new URI(filePath), NexusUtils.addToAugmentPath(file.getPath(group), name, nxClass), false);
+					links.add(new ExternalNXlink(name, filePath));
+				} catch (UnsupportedEncodingException | URISyntaxException e) {
 					throw new NexusException("supported encoding in creating string for external linking -- this should never happen");
 				}
 			}
@@ -454,12 +387,13 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 			if (makeData) {
 				NexusGroupData data = tree.getData();
 				if (data != null && data.getBuffer() != null) {
+					DataNode node = file.getData(group, name);
 					if ("axis".equals(name) || "label".equals(name)) {
 						Integer axisno = getIntfromBuffer(data.getBuffer());
 						axisno += thisPoint.getScanDimensions().length;
-						file.putattr(name, axisno.toString().getBytes(), NexusFile.NX_CHAR);
+						NexusUtils.writeStringAttribute(file, node, name, axisno.toString());
 					} else {
-						file.putattr(name, data.getBuffer(), data.type);
+						NexusUtils.writeAttribute(file, node, name, data.toDataset());
 					}
 				}
 			}
@@ -470,82 +404,78 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		}
 		if (!name.isEmpty() && !nxClass.isEmpty()) {
 			if (!nxClassIsSDS) {
-				if (!(file.groupdir().containsKey(name) && file.groupdir().get(name).equals(nxClass))) {
-					file.makegroup(name, nxClass);
-				}
-				file.opengroup(name, nxClass);
+				group = file.getGroup(group, name, nxClass, true);
 			}
 
 			NexusGroupData sds = tree.getData();
 			if (sds != null) {
-				if (sds.dimensions != null) {
-					for (int i : sds.dimensions) {
-						if (i==0)
-							throw new NexusException("Data for " + name + " is invalid. SDS Dimension = 0");
-					}
-				}
+				ILazyWriteableDataset lazy = sds.toLazyDataset();
+				int[] sdims = lazy.getShape();
 				if (makeData) {
 					int[] dataDimMake = generateDataDim(tree.isPointDependent(),
-							tree.isPointDependent() ? scanDimensions : null, sds.dimensions);
+							tree.isPointDependent() ? scanDimensions : null, sdims);
 					// make the data array to store the data...
-					file.makedata(name, sds.type, dataDimMake.length, dataDimMake);
+					lazy.setMaxShape(dataDimMake);
+					DataNode data = file.createData(group, lazy);
+
 					// FIXME put a break point here and not make it crash
 
-					file.opendata(name);
 					if (!tree.isPointDependent()) {
-						int[] dataDim = generateDataDim(false, null, sds.dimensions);
-						int[] dataStartPos = generateDataStartPos(null, sds.dimensions);
-						file.putslab(sds.getBuffer(), dataStartPos, dataDim);
+						int[] dataDim = generateDataDim(false, null, sdims);
+						int[] dataStartPos = NexusDataWriter.generateDataStartPos(null, sdims);
+						int[] dataStop = NexusDataWriter.generateDataStop(dataStartPos, sdims);
+						IDataset ds = sds.toDataset();
+						ds.setShape(dataDim);
+						try {
+							lazy.setSlice(null, ds, SliceND.createSlice(lazy, dataStartPos, dataStop));
+						} catch (Exception e) {
+							logger.error("Problem setting slice on data node: {}", lazy, e);
+							throw new NexusException("Problem setting slice on data node", e);
+						}
 					}
 					if (links != null && sds.isDetectorEntryData) {
-						links.add(new SelfCreatingLink(file.getdataID()));
+						links.add(new SelfCreatingLink(data));
 					}
 
-					dataOpen = true;
 					attrBelowThisOnly = true;
 				} else {
-					int[] dataDim = generateDataDim(false, dataDimPrefix, sds.dimensions);
-					int[] dataStartPos = generateDataStartPos(dataStartPosPrefix, sds.dimensions);
+					if (sdims.length == 1 && sdims[0] == 1) {
+						sdims = null; // fix single item writing
+					}
+					int[] dataDim = generateDataDim(false, dataDimPrefix, sdims);
+					int[] dataStartPos = NexusDataWriter.generateDataStartPos(dataStartPosPrefix, sdims);
+					int[] dataStop = NexusDataWriter.generateDataStop(dataStartPos, sdims);
 
 					// Open data array.
-					file.opendata(name);
+					DataNode data = file.getData(group, name);
 
-					file.putslab(sds.getBuffer(), dataStartPos, dataDim);
-					dataOpen = true;
+					lazy = data.getWriteableDataset();
+					IDataset ds = sds.toDataset();
+					ds.setShape(dataDim);
+					try {
+						lazy.setSlice(null, ds, SliceND.createSlice(lazy, dataStartPos, dataStop));
+					} catch (Exception e) {
+						logger.error("Problem setting slice on data node", e);
+						throw new NexusException(e.getMessage());
+					}
 
 					// Close data - do not add children as attributes added for first point only
 					loopNodes = false;
-
 				}
 			}
 		}
-		try {
-			if (loopNodes) {
-				for (INexusTree branch : tree) {
-					writeHere(file, branch, makeData, attrBelowThisOnly, links);
-				}
-			}
-		} finally {
-			if (dataOpen) {
-				file.closedata();
-			}
-			if (!name.isEmpty() && !nxClass.isEmpty() && !nxClassIsSDS) {
-				file.closegroup();
+		if (loopNodes) {
+			for (INexusTree branch : tree) {
+				writeHere(file, group, branch, makeData, attrBelowThisOnly, links);
 			}
 		}
 	}
 
 	private void writeNexusDetector(NexusDetector detector) throws NexusException {
-		file.opengroup(this.entryName, "NXentry");
-		file.opengroup("instrument", "NXinstrument");
-		try {
-			INexusTree tree = extractNexusTree(detector.getName());
-			for (INexusTree subTree : tree) {
-				writeHere(file, subTree, false, false, null);
-			}
-		} finally {
-			file.closegroup();
-			file.closegroup();
+		GroupNode group = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
+		INexusTree tree = extractNexusTree(detector.getName());
+		for (INexusTree subTree : tree) {
+			writeHere(file, group, subTree, false, false, null);
 		}
 	}
 
@@ -555,7 +485,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		return object;
 	}
 	
-	private boolean isNumberParseable(Object obj){
+	private boolean isNumberParsable(Object obj){
 		boolean result=false;
 		try{
 			((Number)obj).doubleValue();
@@ -574,21 +504,14 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		return result;
 	}
 
-	private double parseDoulbe(Object obj){
+	private double parseDouble(Object obj){
 		return ((Number)obj).doubleValue();
 	}
+
 	private String parseString(Object obj){
 		return (String)obj;
 	}
 	
-	
-	private double[] extractDoubleData(String detectorName) {
-		double[] data = null;
-		Object object = extractDetectorObject(detectorName);
-		data = extractDoubleData(detectorName, object);
-		return data;
-	}
-
 	private ArrayList<Object> extractData(String detectorName) {
 		ArrayList<Object> data = new ArrayList<Object>();
 		Object object = extractDetectorObject(detectorName);
@@ -631,60 +554,6 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		return ((NexusTreeProvider) extractDetectorObject(detectorName)).getNexusTree();
 	}
 
-	/**
-	 * @param detectorName
-	 * @param object
-	 * @return the data read from the detector
-	 * @throws NumberFormatException
-	 */
-	private double[] extractDoubleData(String detectorName, Object object) throws NumberFormatException {
-		double[] data = null;
-		if (object instanceof double[]) {
-			data = (double[]) object;
-		} else if (object instanceof PyList) {
-			// coerce PyList into double array.
-			int length = ((PyList) object).__len__();
-			data = new double[length];
-			for (int i = 0; i < length; i++) {
-				data[i] = Double.valueOf(((PyList) object).__getitem__(i).toString());
-			}
-		} else if (object instanceof int[]) {
-			int[] idata = (int[]) object;
-			data = new double[idata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = idata[i];
-			}
-		} else if (object instanceof long[]) {
-			long[] ldata = (long[]) object;
-			data = new double[ldata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = ldata[i];
-			}
-		} else if (object instanceof String[]) {
-			String[] sdata = (String[]) object;
-			data = new double[sdata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = Double.valueOf(sdata[i]);
-			}
-		} else if (object instanceof Number[]) {
-			Number[] ldata = (Number[]) object;
-			data = new double[ldata.length];
-			for (int i = 0; i < data.length; i++) {
-				data[i] = ldata[i].doubleValue();
-			}
-		} else if (object instanceof Double) {
-			data = new double[] { (Double) object };
-		} else if (object instanceof Integer) {
-			data = new double[] { (Integer) object };
-		} else if (object instanceof Long) {
-			data = new double[] { (Long) object };
-		} else {
-			logger.error("cannot handle data of type " + object.getClass().getName() + " from detector: "
-					+ detectorName + ". NO DATA WILL BE WRITTEN TO NEXUS FILE!");
-		}
-		return data;
-	}
-
 	private Double[] extractDoublePositions(String scannableName) {
 		int index = thisPoint.getScannableNames().indexOf(scannableName);
 
@@ -714,17 +583,11 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		try {
 			if (file != null) {
 				file.flush();
-				file.finalize();
 			}
 			if (txtfile != null) {
 				txtfile.flush();
 				txtfile.close();
 			}
-		} catch (NexusException ne) {
-			String error = "NeXusException occurred when closing file: ";
-			logger.error(error + ne.getMessage());
-			terminalPrinter.print(error);
-			terminalPrinter.print(ne.getMessage());
 		} catch (Throwable et) {
 			String error = "Error occurred when closing data file(s): ";
 			logger.error(error + et.getMessage());
@@ -755,27 +618,21 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 	private void makeMetadata() {
 		try {
-			file.opengroup(this.entryName, "NXentry");
+			GroupNode group = file.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), false);
 
-			NeXusUtils.writeNexusString(file, "scan_command", thisPoint.getCommand());
+			NexusUtils.writeString(file, group, "scan_command", thisPoint.getCommand());
 			String scanid = "";
 			try {
 				scanid = metadata.getMetadataValue(GDAMetadataProvider.SCAN_IDENTIFIER);
 			} catch (DeviceException e) {
 				// do nothing
 			}
-			NeXusUtils.writeNexusString(file, "scan_identifier", scanid.isEmpty() ? thisPoint.getUniqueName() : scanid);
-			NeXusUtils.writeNexusIntegerArray(file, "scan_dimensions", thisPoint.getScanDimensions());
-			NeXusUtils.writeNexusString(file, "title", metadata.getMetadataValue("title"));
+			NexusUtils.writeString(file, group, "scan_identifier", scanid.isEmpty() ? thisPoint.getUniqueName() : scanid);
+			NexusUtils.writeIntegerArray(file, group, "scan_dimensions", thisPoint.getScanDimensions());
+			NexusUtils.writeString(file, group, "title", metadata.getMetadataValue("title"));
 			createCustomMetaData();
 		} catch (Exception e) {
 			logger.info("error writing less important scan information", e);
-		} finally {
-			try {
-				file.closegroup();
-			} catch (NexusException e) {
-				// this just needs to work
-			}
 		}
 	}
 
@@ -784,11 +641,10 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	 * Does nothing otherwise.
 	 * @throws NexusException 
 	 */
-	@SuppressWarnings("unused") // allow inheriting classes to throw this exception
 	protected void createCustomMetaData() throws NexusException {
 	}
 
-	private String getGroupNameFor(@SuppressWarnings("unused") Scannable s) {
+	private String getGroupNameFor(Scannable s) {
 		String groupName = "NXpositioner";
 		return groupName;
 	}
@@ -806,8 +662,8 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		}
 
 		try {
-			file.opengroup(this.entryName, "NXentry");
-			file.opengroup("instrument", "NXinstrument");
+			StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
+			NexusUtils.addToAugmentPath(path, "instrument", NexusExtractor.NXInstrumentClassName);
 
 			scannablesAndMonitors.addAll(thisPoint.getScannables());
 			// create an NXpositioner for each scannable...
@@ -823,23 +679,21 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 				
 				// Create (and open) group for the scannable
 				String groupName = getGroupNameFor(scannable);
-				file.makegroup(scannable.getName(), groupName);
-				file.opengroup(scannable.getName(), groupName);
+				StringBuilder p = NexusUtils.addToAugmentPath(new StringBuilder(path), scannable.getName(), groupName);
+				GroupNode g = file.getGroup(p.toString(), true);
 
 				// Check to see if the scannable will write its own info into NeXus
 				if (scannable instanceof INeXusInfoWriteable) {
-					((INeXusInfoWriteable) scannable).writeNeXusInformation(file);
+					((INeXusInfoWriteable) scannable).writeNeXusInformation(file, g);
 				}
 
 				// loop over input names...
 				for (String element : inputNames) {
 					// Create the data array (with an unlimited scan
 					// dimension)
-					file.makedata(element, NexusFile.NX_FLOAT64, dataDim.length, dataDim);
+					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Dataset.FLOAT64, dataDim, null, null);
+					DataNode data = file.createData(g, lazy);
 
-					// Get a link ID to this data set.
-					file.opendata(element);
-					
 					// assign axes
 					if (thisPoint.getScanDimensions().length > 0) {
 						// TODO 
@@ -848,14 +702,14 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 						// this is not solvable given the current data in SDP
 						
 						if ((thisPoint.getScanDimensions().length) > inputnameindex) {
-							file.putattr("label", String.format("%d",inputnameindex+1).getBytes(), NexusFile.NX_CHAR);
-							file.putattr("primary", "1".getBytes(), NexusFile.NX_CHAR);
+							NexusUtils.writeStringAttribute(file, data, "label", String.format("%d",inputnameindex+1));
+							NexusUtils.writeStringAttribute(file, data, "primary", "1");
 						} 
-						file.putattr("axis", axislist.getBytes(), NexusFile.NX_CHAR);
+						NexusUtils.writeStringAttribute(file, data, "axis", axislist);
 					}
 
-					scannableID.add(new SelfCreatingLink(file.getdataID()));
-					file.closedata();
+					// Get a link ID to this data set.
+					scannableID.add(new SelfCreatingLink(data));
 					inputnameindex++;
 				}
 
@@ -863,28 +717,18 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 					// Create the data array (with an unlimited scan
 					// dimension)
-					file.makedata(element, NexusFile.NX_FLOAT64, dataDim.length, dataDim);
+					ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(element, Dataset.FLOAT64, dataDim, null, null);
+					DataNode data = file.createData(g, lazy);
 
-					// Get a link ID to this data set.
-					file.opendata(element);
-					
 					if (thisPoint.getDetectorNames().isEmpty() && extranameindex == 0) {
-						file.putattr("signal", "1".getBytes(), NexusFile.NX_CHAR);
+						NexusUtils.writeStringAttribute(file, data, "signal", "1");
 					}
 					
-					scannableID.add(new SelfCreatingLink(file.getdataID()));
-					file.closedata();
+					// Get a link ID to this data set.
+					scannableID.add(new SelfCreatingLink(data));
 					extranameindex++;
 				}
-
-				// Close NXpositioner/NXmonitor
-				file.closegroup();
 			}
-
-			// Close NXinstrument...
-			file.closegroup();
-			// Close NXentry...
-			file.closegroup();
 		} catch (NexusException e) {
 			String error = "NeXus file creation failed during makeScannables: ";
 			logger.error(error + e.getMessage(), e);
@@ -894,26 +738,19 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	}
 
 	private void makeFallbackNXData() throws NexusException {
-		file.opengroup(this.entryName, "NXentry");
-		// Make and open NXdata
-		file.makegroup("default", "NXdata");
-		file.opengroup("default", "NXdata");
+		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
+		NexusUtils.addToAugmentPath(path, "default", NexusExtractor.NXDataClassName);
+		GroupNode group = file.getGroup(path.toString(), true);
 
 		// Make links to all scannables.
 		for (SelfCreatingLink id : scannableID) {
 			try {
-				id.create(file);
+				id.create(file, group);
 			} catch (NexusException e) {
 				logger.warn("Error in makeLink (reported to NX group) for " + id.toString()
 						+ "with error" + e.getMessage());
 			}
 		}
-
-		// close NXdata
-		file.closegroup();
-
-		// close NXentry
-		file.closegroup();
 	}
 
 	/**
@@ -958,7 +795,7 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 			INexusTree detTree = extractNexusTree(detector.getName());
 			for (INexusTree det : detTree) {
 				if (det.getNxClass().equals(NexusExtractor.NXDetectorClassName)) {
-					makeGenericDetector(det.getName(), null, 0, detector, det);
+					makeGenericDetector(det.getName(), null, Dataset.FLOAT64, detector, det);
 				}
 			}
 		}
@@ -969,42 +806,26 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	}
 
 	/**
-	 * Helper routine to create and write string based data items into the current position in a NeXus file.
-	 * 
-	 * @param dataName
-	 * @param dataValue
-	 * @throws NexusException
-	 */
-	private void makeCreateStringData(String dataName, String dataValue) throws NexusException {
-		int[] arr = { dataValue.length() };
-		file.makedata(dataName, NexusFile.NX_CHAR, 1, arr);
-		file.opendata(dataName);
-		file.putdata(dataValue.getBytes());
-		file.closedata();
-	}
-
-	/**
 	 * Creates an NXdetector for a generic detector (ie one without a special create routine).
 	 * 
 	 * @param detector
 	 * @throws NexusException
 	 */
-	private void makeGenericDetector(String detectorName, int[] dataDimensions, int type, Object detector,
+	private void makeGenericDetector(String detectorName, int[] dataDimensions, int dtype, Detector detector,
 			INexusTree detectorData) throws NexusException {
 		// Navigate to the relevant section in file...
-		file.opengroup(this.entryName, "NXentry");
-		file.opengroup("instrument", "NXinstrument");
-
+		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
+		NexusUtils.addToAugmentPath(path, "instrument", NexusExtractor.NXInstrumentClassName);
+		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
 		// Create NXdetector
-		file.makegroup(detectorName, "NXdetector");
-		file.opengroup(detectorName, "NXdetector");
+		GroupNode group = file.getGroup(path.toString(), true);
 
 		// Metadata items
 		try {
 			if (!(detector instanceof NexusDetector)) {
-				makeCreateStringData("description", ((Detector) detector).getDescription());
-				makeCreateStringData("type", ((Detector) detector).getDetectorType());
-				makeCreateStringData("id", ((Detector) detector).getDetectorID());
+				NexusUtils.writeString(file, group, "description", detector.getDescription());
+				NexusUtils.writeString(file, group, "type", detector.getDetectorType());
+				NexusUtils.writeString(file, group, "id", detector.getDetectorID());
 			}
 		} catch (DeviceException e) {
 			e.printStackTrace();
@@ -1012,99 +833,67 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 		// Check to see if the detector will write its own info into NeXus
 		if (detector instanceof INeXusInfoWriteable) {
-			((INeXusInfoWriteable) detector).writeNeXusInformation(file);
+			((INeXusInfoWriteable) detector).writeNeXusInformation(file, group);
 		}
 
 		List<SelfCreatingLink> links = new Vector<SelfCreatingLink>();
 		if (detectorData != null) {
 			for (INexusTree subTree : detectorData) {
-				writeHere(file, subTree, true, false, links);
+				writeHere(file, group, subTree, true, false, links);
 			}
-		} else if (detector instanceof Detector && ((Detector) detector).getExtraNames().length > 0) {
-
+		} else if (detector.getExtraNames().length > 0) {
 			// Detectors with multiple extra names can act like countertimers
 
 			int[] dataDim = generateDataDim(true, scanDimensions, null);
 
-			for (int j = 0; j < ((Detector) detector).getExtraNames().length; j++) {
-
-				file.makedata(((Detector) detector).getExtraNames()[j], NexusFile.NX_FLOAT64, dataDim.length, dataDim);
+			for (int j = 0; j < detector.getExtraNames().length; j++) {
+				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(detector.getExtraNames()[j], Dataset.FLOAT64, dataDim, null, null);
+				DataNode data = file.createData(group, lazy);
 
 				// Get a link ID to this data set
-				file.opendata(((Detector) detector).getExtraNames()[j]);
-				SelfCreatingLink detectorID = new SelfCreatingLink(file.getdataID());
-				file.closedata();
+				SelfCreatingLink detectorID = new SelfCreatingLink(data);
 
-				// close NXdetector
-				file.closegroup();
-				// close NXinstrument
-				file.closegroup();
-
+				GroupNode g = file.getGroup(group, detector.getName(), NexusExtractor.NXDataClassName, j == 0);
+				// If this is the first channel then we need to create (and
+				// open) the NXdata item and link to the scannables.
 				if (j == 0) {
-					// If this is the first channel then we need to create (and
-					// open) the NXdata item and link to the scannables.
-					file.makegroup(((Detector) detector).getName(), "NXdata");
-					file.opengroup(((Detector) detector).getName(), "NXdata");
-
 					// Make links to all scannables.
 					for (SelfCreatingLink id : scannableID) {
-						id.create(file);
+						id.create(file, g);
 					}
-				} else {
-					// Just open it.
-					file.opengroup(((Detector) detector).getName(), "NXdata");
 				}
 
 				// Make a link to the data array
-				detectorID.create(file);
-
-				// close NXdata
-				file.closegroup();
-
-				// Navigate back to the NXdetector, so we can add the next
-				// channel.
-				file.opengroup("instrument", "NXinstrument");
-				file.opengroup(((Detector) detector).getName(), "NXdetector");
-
+				detectorID.create(file, g);
 			}
 
 		} else {
 			// even make data area for detectors that first create their own files
 			int[] dataDim = generateDataDim(true, scanDimensions, dataDimensions);
 
+			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", dtype, dataDim, null, null);
 			// make the data array to store the data...
-			file.makedata("data", type, dataDim.length, dataDim);
+			DataNode data = file.createData(group, lazy);
 
 			// Get a link ID to this data set.
-			file.opendata("data");
-			links.add(new SelfCreatingLink(file.getdataID()));
-			file.closedata();
+			links.add(new SelfCreatingLink(data));
 		}
 
-		// close NXdetector
-		file.closegroup();
-		// close NXinstrument
-		file.closegroup();
-
 		// Make and open NXdata
-		file.makegroup(detectorName, "NXdata");
-		file.opengroup(detectorName, "NXdata");
+		path.setLength(0);
+		NexusUtils.addToAugmentPath(path, entryName, NexusExtractor.NXEntryClassName);
+		NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDataClassName);
+		group = file.getGroup(path.toString(), true);
 
 		// Make a link to the data array
 		for (SelfCreatingLink link : links) {
-			link.create(file);
+			link.create(file, group);
 		}
 
 		// Make links to all scannables.
 		for (SelfCreatingLink id : scannableID) {
-			id.create(file);
+			id.create(file, group);
 		}
-
-		// close NXdata
-		file.closegroup();
-
-		// close NXentry
-		file.closegroup();
 	}
 	
 	/**
@@ -1118,21 +907,20 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		SelfCreatingLink detectorID;
 		
 		// Navigate to the relevant section in file...
-		file.opengroup(this.entryName, "NXentry");
-		file.opengroup("instrument", "NXinstrument");
-
+		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
+		NexusUtils.addToAugmentPath(path, "instrument", NexusExtractor.NXInstrumentClassName);
+		NexusUtils.addToAugmentPath(path, detector.getName(), NexusExtractor.NXDetectorClassName);
 		// Create NXdetector
-		file.makegroup(detector.getName(), "NXdetector");
-		file.opengroup(detector.getName(), "NXdetector");
+		GroupNode group = file.getGroup(path.toString(), true);
 
 		// Metadata items
-		makeCreateStringData("description", detector.getDescription());
-		makeCreateStringData("type", detector.getDetectorType());
-		makeCreateStringData("id", detector.getDetectorID());
+		NexusUtils.writeString(file, group, "description", detector.getDescription());
+		NexusUtils.writeString(file, group, "type", detector.getDetectorType());
+		NexusUtils.writeString(file, group, "id", detector.getDetectorID());
 
 		// Check to see if the detector will write its own info into NeXus
 		if (detector instanceof INeXusInfoWriteable) {
-			((INeXusInfoWriteable) detector).writeNeXusInformation(file);
+			((INeXusInfoWriteable) detector).writeNeXusInformation(file, group);
 		}
 		
 		int[] dataDim = generateDataDim(true, scanDimensions, null);
@@ -1141,99 +929,54 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		nameList.addAll(Arrays.asList(detector.getInputNames()));
 		nameList.addAll(Arrays.asList(detector.getExtraNames()));
 		
-//		Object dataObject = extractDetectorObject(detector.getName());
-		ArrayList dataList = extractData(detector.getName());
+		ArrayList<Object> dataList = extractData(detector.getName());
 		
 		for (int j = 0; j < nameList.size(); j++) {
 			//to check the data type:
-			if ( !isNumberParseable(dataList.get(j)) ){//Non parseable entry, treat it as file name string
-				file.makegroup("data_file", "NXnote");
-				file.opengroup("data_file", "NXnote");
-
-				dataDim = generateDataDim(true, scanDimensions, new int[] { MAX_DATAFILENAME });
-				file.makedata("file_name", NexusFile.NX_CHAR, dataDim.length, dataDim);
-
+			if ( !isNumberParsable(dataList.get(j)) ){//Non parsable entry, treat it as file name string
+				GroupNode g = file.getGroup(group, "data_file", NexusExtractor.NXNoteClassName, true);
+				dataDim = generateDataDim(true, scanDimensions, null);
+				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("file_name", Dataset.STRING, dataDim, null, null);
+				DataNode data = file.createData(g, lazy);
 				// Get a link ID to this data set
-				file.opendata("file_name");
-				detectorID = new SelfCreatingLink(file.getdataID());
-				file.closedata();
-
-				// Close NXnote
-				file.closegroup();
-				
-				// close NXdetector
-				file.closegroup();
-				// close NXinstrument
-				file.closegroup();
-
-			}
-			else{//Suppose it can be cast into double
+				detectorID = new SelfCreatingLink(data);
+			} else {//Suppose it can be cast into double
 				
 				dataDim = generateDataDim(true, scanDimensions, null);
 			
 				//this can fail if the list of names contains duplicates
-				file.makedata(nameList.get(j), NexusFile.NX_FLOAT64, dataDim.length, dataDim);
-
+				ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("data", Dataset.FLOAT64, dataDim, null, null);
+				DataNode data = file.createData(group, lazy);
 				// Get a link ID to this data set
-				file.opendata(nameList.get(j));
-				detectorID = new SelfCreatingLink(file.getdataID());
-				file.closedata();
-
-				// close NXdetector
-				file.closegroup();
-				// close NXinstrument
-				file.closegroup();
-				}
+				detectorID = new SelfCreatingLink(data);
+			}
 			
+			// If this is the first channel then we need to create (and
+			// open) the NXdata item and link to the scannables.
+			GroupNode g = file.getGroup(group, detector.getName(), NexusExtractor.NXDataClassName, j == 0);
 			if(j== 0){
-				// If this is the first channel then we need to create (and
-				// open) the NXdata item and link to the scannables.
-				file.makegroup(detector.getName(), "NXdata");
-				file.opengroup(detector.getName(), "NXdata");
-
 				// Make links to all scannables.
 				for (SelfCreatingLink id : scannableID) {
-					id.create(file);
+					id.create(file, g);
 				}
-			}
-			else{
-				// Just open it.
-				file.opengroup(detector.getName(), "NXdata");
 			}
 
 			// Make a link to the data array
-			detectorID.create(file);
-			// close NXdata
-			file.closegroup();
-
-			// Navigate back to the NXdetector, so we can add the next
-			// channel.
-			file.opengroup("instrument", "NXinstrument");
-			file.opengroup(detector.getName(), "NXdetector");
+			detectorID.create(file, g);
 		}
 
-
-		// Close NXdetector
-		file.closegroup();
-
-		// Close NXinstrument
-		file.closegroup();
-
-		// close NXentry
-		file.closegroup();
 	}
 
 
 	/**
-	 * Create the next file. First increment the file number and then try and get a NeXus file handle from
-	 * {@link NexusFileFactory}.
+	 * Create the next file. First increment the file number and then try and get a NeXus file from
+	 * {@link NexusUtils#createNexusFile(String)}.
 	 */
 	public void createNextFile() {
 		try {
 			if (file != null) {
 				try {
 					file.flush();
-					file.finalize();
 				} catch (Throwable et) {
 					String error = "Error closing NeXus file.";
 					logger.error(error + et.getMessage());
@@ -1288,8 +1031,8 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 			}
 
 			// create nexus file and return handle
-			file = NexusFileFactory.createFile(nexusFileUrl, defaultNeXusBackend, LocalProperties
-					.check(GDA_NEXUS_INSTRUMENT_API));
+			file = NexusUtils.createNexusFile(nexusFileUrl);
+			file.setDebug(LocalProperties.check(GDA_NEXUS_INSTRUMENT_API));
 			if (createSrsFile) {
 				// Check to see if the file(s) already exists!
 				final File textFile = new File(txtFileUrl);
@@ -1370,10 +1113,11 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 	 * @throws NexusException
 	 */
 	private void writeScannable(Scannable scannable) throws NexusException {
-		int[] startPos = generateDataStartPos(dataStartPosPrefix, null);
+		int[] startPos = NexusDataWriter.generateDataStartPos(dataStartPosPrefix, null);
+		int[] stop = NexusDataWriter.generateDataStop(startPos, null);
 		int[] dimArray = generateDataDim(false, dataDimPrefix, null);
 
-		// Get inputnames and positions
+		// Get inputNames and positions
 		String[] inputNames = scannable.getInputNames();
 		String[] extraNames = scannable.getExtraNames();
 		Double[] positions = extractDoublePositions(scannable.getName());
@@ -1381,41 +1125,38 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 		logger.debug("Writing data for scannable (" + scannable.getName() + ") to NeXus file.");
 
 		// Navigate to correct location in the file.
-		file.opengroup(this.entryName, "NXentry");
-		file.opengroup("instrument", "NXinstrument");
-		file.opengroup(scannable.getName(), getGroupNameFor(scannable));
+		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
+		NexusUtils.addToAugmentPath(path, "instrument", NexusExtractor.NXInstrumentClassName);
+		NexusUtils.addToAugmentPath(path, scannable.getName(), getGroupNameFor(scannable));
+		GroupNode group = file.getGroup(path.toString(), true);
 
 		// Loop over inputNames...
 		for (int i = 0; i < inputNames.length; i++) {
 			// Open data item
-			file.opendata(inputNames[i]);
+			DataNode data = file.getData(group, inputNames[i]);
 
-			double[] tmpData = new double[1];
-			tmpData[0] = positions[i];
-
-			file.putslab(tmpData, startPos, dimArray);
-
-			file.closedata();
+			ILazyWriteableDataset lazy = data.getWriteableDataset();
+			try {
+				lazy.setSlice(null, DatasetFactory.createFromObject(positions[i]).reshape(dimArray), SliceND.createSlice(lazy, startPos, stop));
+			} catch (Exception e) {
+				logger.error("Problem setting slice on data node", e);
+				throw new NexusException(e.getMessage());
+			}
 		}
 
 		// and now over extraNames...
 		for (int i = 0; i < extraNames.length; i++) {
 			// Open data item
-			file.opendata(extraNames[i]);
-			double[] tmpData = new double[1];
-			tmpData[0] = positions[inputNames.length + i];
+			DataNode data = file.getData(group, extraNames[i]);
 
-			file.putslab(tmpData, startPos, dimArray);
-
-			file.closedata();
+			ILazyWriteableDataset lazy = data.getWriteableDataset();
+			try {
+				lazy.setSlice(null, DatasetFactory.createFromObject(positions[inputNames.length + i]).reshape(dimArray), SliceND.createSlice(lazy, startPos, stop));
+			} catch (Exception e) {
+				logger.error("Problem setting slice on data node", e);
+				throw new NexusException(e.getMessage());
+			}
 		}
-
-		// close NXpositioner/NXmonitor
-		file.closegroup();
-		// close NXinstrument
-		file.closegroup();
-		// Close NXentry
-		file.closegroup();
 	}
 
 	private void writeCommonDetector(Detector detector) throws NexusException {
@@ -1429,30 +1170,30 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 		ArrayList<Object> dataList = extractData(detector.getName());
 
-		int[] startPos = generateDataStartPos(dataStartPosPrefix, null);
+		int[] startPos = NexusDataWriter.generateDataStartPos(dataStartPosPrefix, null);
+		int[] stop = NexusDataWriter.generateDataStop(startPos, null);
 		int[] dimArray = generateDataDim(false, dataDimPrefix, null);
 
 		// Navigate to correct location in the file.
-		file.opengroup(this.entryName, "NXentry");
-		file.opengroup("instrument", "NXinstrument");
-		file.opengroup(detector.getName(), "NXdetector");
+		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
+		NexusUtils.addToAugmentPath(path, "instrument", NexusExtractor.NXInstrumentClassName);
+		NexusUtils.addToAugmentPath(path, detector.getName(), NexusExtractor.NXDetectorClassName);
+		GroupNode group = file.getGroup(path.toString(), true);
 		
 		for (int j = 0; j < nameList.size(); j++) {
 			Object dataItem=dataList.get(j);
-			if ( !isNumberParseable(dataItem) ){//treat it as file name
+			if (!isNumberParsable(dataItem)) {//treat it as file name
 				///////////////////////
 				String dataFileName=this.parseString(dataItem);
 				
-				if (dataFileName.length() > 255) {
+				if (dataFileName.length() > MAX_DATAFILENAME) {
 					logger.error("The detector (" + detector.getName() + ") returned a file name (of length " + dataFileName.length()
 							+ ") which is greater than the max allowed length (" + MAX_DATAFILENAME + ").");
 				}
 
-
-				file.opengroup("data_file", "NXnote");
-
+				GroupNode g = file.getGroup(group, "data_file", NexusExtractor.NXNoteClassName, false);
 				// Open filename array.
-				file.opendata("file_name");
+				DataNode data = file.getData(g, "file_name");
 
 				logger.debug("Filename received from detector: " + dataFileName);
 
@@ -1469,50 +1210,32 @@ public class SixdNexusDataWriter extends DataWriterBase implements DataWriter {
 
 				// Set all the start positions to be zero (except for the first
 				// dimension which is the scan point)
-				int[] dataDimensions = new int[] { MAX_DATAFILENAME };
-				int[] dataDim = generateDataDim(false, dataDimPrefix, dataDimensions);
-				int[] dataStartPos = generateDataStartPos(dataStartPosPrefix, dataDimensions);
+				int[] dataDim = generateDataDim(false, dataDimPrefix, null);
+				int[] dataStartPos = NexusDataWriter.generateDataStartPos(dataStartPosPrefix, null);
+				int[] dataStop = NexusDataWriter.generateDataStop(dataStartPos, null);
 
-				byte filenameBytes[] = new byte[MAX_DATAFILENAME];
-				java.util.Arrays.fill(filenameBytes, (byte) 0); // zero terminate
-
-				for (int k = 0; k < dataFileName.length(); k++) {
-					filenameBytes[k] = (byte) dataFileName.charAt(k);
+				ILazyWriteableDataset lazy = data.getWriteableDataset();
+				try {
+					lazy.setSlice(null, DatasetFactory.createFromObject(dataFileName).reshape(dataDim),
+							SliceND.createSlice(lazy, dataStartPos, dataStop));
+				} catch (Exception e) {
+					logger.error("Problem setting slice on data node", e);
+					throw new NexusException(e.getMessage());
 				}
-				file.putslab(filenameBytes, dataStartPos, dataDim);
-
-				// Close filename array.
-				file.closedata();
-
-				// Close the data_file NXnote
-				file.closegroup();
-
-				//////////////////////
+			} else { // pure data entry
+				DataNode data = file.getData(group, nameList.get(j));
+				ILazyWriteableDataset lazy = data.getWriteableDataset();
+				try {
+					lazy.setSlice(null, DatasetFactory.createFromObject(parseDouble(dataItem)).reshape(dimArray),
+							SliceND.createSlice(lazy, startPos, stop));
+				} catch (Exception e) {
+					logger.error("Problem setting slice on data node", e);
+					throw new NexusException(e.getMessage());
 				}
-			else{//pure data entry
-				file.opendata(nameList.get(j));
-
-				double[] tmpData = new double[1];
-				tmpData[0] = this.parseDoulbe(dataItem);
-
-				file.putslab(tmpData, startPos, dimArray);
-
-				// Close data
-				file.closedata();
-				
 			}
 		}
-		// Close NXdetector
-		file.closegroup();
-		// close NXinstrument
-		file.closegroup();
-		// Close NXentry
-		file.closegroup();
-
 	}
 
-	
-	
 	@Override
 	public int getCurrentScanIdentifier(){
 		try {

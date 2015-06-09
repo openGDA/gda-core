@@ -19,58 +19,25 @@ package gda.data.scan.datawriter.scannablewriter;
 
 import java.lang.reflect.Array;
 import java.nio.charset.Charset;
-import java.util.StringTokenizer;
 
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class DefaultComponentWriter implements ComponentWriter {
-	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultComponentWriter.class);
+	private static final Logger logger = LoggerFactory.getLogger(DefaultComponentWriter.class);
 
 	protected static final Charset UTF8 = Charset.forName("UTF-8");
 
-	private int levels = 0;
-
 	public DefaultComponentWriter() {
 		// no op
-	}
-
-	/**
-	 * Set the file into the position to write the data
-	 *
-	 * @param file
-	 * @return name of trailing component
-	 * @throws NexusException
-	 */
-	protected String enterLocation(final NeXusFileInterface file, final String path) throws NexusException {
-		levels = 0;
-		final StringTokenizer st = new StringTokenizer(path, "/");
-		while (st.hasMoreTokens()) {
-			final String[] split = st.nextToken().split(":");
-			final String name = split[0];
-			if (split.length == 1) {
-				// no class, write data
-				return name;
-			}
-			final String clazz = split[1];
-			try {
-				file.makegroup(name, clazz);
-			} catch (final NexusException ne) {
-				// ignore, it might be there already
-			}
-			file.opengroup(name, clazz);
-			levels++;
-		}
-
-		throw new IllegalArgumentException("configured path is not well formed (suspect it has no trailing component)");
-	}
-
-	protected void leaveLocation(final NeXusFileInterface file) throws NexusException {
-		for (int i = 0; i < levels; i++) {
-			file.closegroup();
-		}
 	}
 
 	protected int[] nulldimfordim(final int[] dim) {
@@ -117,28 +84,31 @@ public abstract class DefaultComponentWriter implements ComponentWriter {
 	 *            extra or input name being written
 	 * @throws NexusException
 	 */
-	protected void addCustomAttributes(final NeXusFileInterface file, final String scannableName,
+	protected void addCustomAttributes(final NexusFile file, GroupNode group, final String scannableName,
 			final String componentName) throws NexusException {
 		// Default no operation
 	}
 
 	@Override
-	public void writeComponent(final NeXusFileInterface file, final int[] start, final String path,
+	public void writeComponent(final NexusFile file, GroupNode group, final int[] start, final String path,
 			final String scannableName, final String componentName, final Object pos) throws NexusException {
 
-		final String name = enterLocation(file, path);
-
-		file.opendata(name);
-		try {
-			final Object slab = getComponentSlab(pos);
-			final int slablength = (slab.getClass().isArray()) ? Array.getLength(slab) : 0;
-			file.putslab(slab, putslabdimfordim(start), slabSizeForWriting(start, slablength));
-
-		} catch (final Exception e) {
-			LOGGER.error("error converting scannable data", e);
+		DataNode data = file.getData(path);
+		ILazyWriteableDataset lazy = data.getWriteableDataset();
+		final Object slab = getComponentSlab(pos);
+		final int slablength = (slab.getClass().isArray()) ? Array.getLength(slab) : 0;
+		int[] sstart = putslabdimfordim(start);
+		int[] sshape = slabSizeForWriting(start, slablength);
+		int[] sstop = sstart.clone();
+		for (int i = 0; i < sstop.length; i++) {
+			sstop[i] += sshape[i];
 		}
-		file.closedata();
-
-		leaveLocation(file);
+		Dataset sd = DatasetFactory.createFromObject(slab).reshape(sshape);
+		try {
+			lazy.setSlice(null, sd, SliceND.createSlice(sd, sstart, sstop));
+		} catch (Exception e) {
+			logger.error("Could not write slab: {}", path, e);
+			throw new NexusException("Could not write slab", e);
+		}
 	}
 }

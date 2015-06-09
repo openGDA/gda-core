@@ -471,8 +471,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 
 		if(addCollectTimeMs){
-			nxdata.addData(getName(), "time_ms", lastCollectTimeMs, "ms");
-			INexusTree startTimeData = nxdata.addData(getName(), "start_time", start_time, "s");
+			nxdata.addData(getName(), "time_ms", new NexusGroupData(lastCollectTimeMs), "ms");
+			INexusTree startTimeData = nxdata.addData(getName(), "start_time", new NexusGroupData(start_time), "s");
 			if( firstReadOut){
 				startTimeData.addChildNode(new NexusTreeNode("start",NexusExtractor.AttrClassName, startTimeData, new NexusGroupData(start_time_start)));
 				firstReadOut = false;

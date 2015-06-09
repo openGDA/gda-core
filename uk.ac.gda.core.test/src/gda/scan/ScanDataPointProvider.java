@@ -19,11 +19,11 @@
 package gda.scan;
 
 import gda.TestHelpers;
-import gda.data.nexus.nxclassio.NexusFileHandle;
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.Detector;
 import gda.device.Scannable;
 
-import org.nexusformat.NexusFile;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 
 public class ScanDataPointProvider {
 	ScanDataPoint[] points;
@@ -42,18 +42,13 @@ public class ScanDataPointProvider {
 	
 	
 	public void preparePoints(int num){
-		int totalLength;
 		int[] dims2 = new int[] { 2, 3 };
-		totalLength = NexusFileHandle.calcTotalLength(dims2);
-		data2In = new int[totalLength];
-		for (int index = 0; index < totalLength; index++) {
-			data2In[index] = index;
-		}
 
+		NexusGroupData ngd = TestHelpers.createTestNexusGroupData(dims2, Dataset.INT32, true);
+		data2In = (int[]) ngd.getBuffer();
 		Detector det = TestHelpers.createTestDetector("SimpleDetector2", 0., new String[] {},
-				new String[] { "simpleDetector2" }, 0, new String[] { "%5.2g" }, TestHelpers.createTestNexusGroupData(
-						dims2, NexusFile.NX_INT32, data2In, true), null, "description2", "detectorID2",
-				"detectorType2");	
+				new String[] { "simpleDetector2" }, 0, new String[] { "%5.2g" }, ngd, null, "description2", "detectorID2",
+				"detectorType2");
 
 		points = new ScanDataPoint[num];
 		String uniqueName = Long.toString(System.currentTimeMillis());

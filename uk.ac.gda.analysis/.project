@@ -3,9 +3,10 @@
 	<name>uk.ac.gda.analysis</name>
 	<comment></comment>
 	<projects>
-		<project>uk.ac.diamond.scisoft.analysis</project>
 		<project>org.eclipse.dawnsci.analysis.api</project>
+		<project>uk.ac.diamond.scisoft.analysis</project>
 		<project>uk.ac.diamond.scisoft.deprecated</project>
+		<project>uk.ac.gda.nexus</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

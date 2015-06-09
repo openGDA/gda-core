@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
-import org.nexusformat.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 
 /**
  * This duplicates static methods to allow direct access to the methods from this class.
@@ -51,7 +51,7 @@ public class NexusLoader extends uk.ac.diamond.scisoft.analysis.io.NexusLoader {
 	 */
 	static public List<String> getDataSetNames( String nexusFilename, IMonitor mon) throws NexusException, NexusExtractorException, Exception {
 		return uk.ac.diamond.scisoft.analysis.io.NexusLoader.getDatasetNames(nexusFilename, mon);
-	}	
+	}
 
 	/*
 	 * Helper method to extract sizes of specified datasets

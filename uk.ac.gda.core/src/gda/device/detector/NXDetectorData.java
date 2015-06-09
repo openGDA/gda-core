@@ -30,7 +30,6 @@ import gda.device.scannable.ScannableUtils;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -40,7 +39,6 @@ import org.springframework.util.StringUtils;
  */
 public class NXDetectorData implements GDANexusDetectorData, Serializable {
 
-	static final int MAX_DATAFILENAME = 255;
 	public static final String DATA_FILE_CLASS_NAME = "data_file";
 	public static final String FILE_NAME_NODE_NAME = "file_name";
 	private static final String DATA_FILENAME_ATTR_NAME = "data_filename";
@@ -119,166 +117,144 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		tree.addChildNode(detTree);
 		return detTree;
 	}
-	
-	/**
-	 * Adds the specified data to the named detector
-	 * @param detName The name of the detector to add data to
-	 * @param dimensions the dimensions of the data to add
-	 * @param type the nexus type of the data, e.g. NexusFile.NX_INT32
-	 * @param dataValues the data to add
-	 * @param units  - if not null a units attribute is added
-	 * @param signalVal - if not null a signal attribute is added
-	 * @return The node added.
-	 */
-	public INexusTree addData(String detName, int[] dimensions, int type, Serializable dataValues, String units, Integer signalVal) {
-		return addData(detName,"data",dimensions,type,dataValues,units,signalVal);
-	}
 
 	/**
-	 * Adds the specified data to the named detector
-	 * @param detName The name of the detector to add data to
-	 * @param dataName The name of the detector to add data to
-	 * @param dimensions the dimensions of the data to add
-	 * @param type the nexus type of the data, e.g. NexusFile.NX_INT32
-	 * @param dataValues the data to add
-	 * @param units  - if not null a units attribute is added
-	 * @param signalVal - if not null a signal attribute is added
-	 * @return The node added.
-	 */
-	public INexusTree addData(String detName, final String dataName, int[] dimensions, int type, Serializable dataValues, String units, Integer signalVal) {
-		INexusTree detTree = getDetTree(detName);
-		return addData(detTree,dataName,dimensions,type,dataValues,units,signalVal);
-	}
-	
-	public INexusTree addData(String detName, final String dataName, double dataValues, String units) {
-		INexusTree detTree = getDetTree(detName);
-		return addData(detTree,dataName,new int[] { 1 },NexusFile.NX_FLOAT64,new double[]{dataValues},units,null);
-	}
-	public INexusTree addData(String detName, final String dataName, int dataValues, String units) {
-		INexusTree detTree = getDetTree(detName);
-		return addData(detTree,dataName,new int[] { 1 },NexusFile.NX_INT32,new int[]{dataValues},units,null);
-	}
-	public INexusTree addData(String detName, final String dataName, long dataValues, String units) {
-		INexusTree detTree = getDetTree(detName);
-		return addData(detTree,dataName,new int[] { 1 },NexusFile.NX_UINT32,new long[]{dataValues},units,null);
-	}
-
-	public INexusTree addData(String detName, final String dataName, int []dataValues, String units) {
-		INexusTree detTree = getDetTree(detName);
-		return addData(detTree,dataName,new int[] { dataValues.length },NexusFile.NX_INT32,dataValues,units,null);
-	}
-	public INexusTree addData(String detName, final String dataName, double []dataValues, String units) {
-		INexusTree detTree = getDetTree(detName);
-		return addData(detTree,dataName,new int[] { dataValues.length },NexusFile.NX_FLOAT64,dataValues,units,null);
-	}
-	
-	/**
-	 * 
 	 * @param parent
-	 * @param dataName
-	 * @param dimensions
-	 * @param type
-	 * @param dataValues
+	 * @param data 
+	 * @return The node added.
+	 */
+	public INexusTree addData(String parent, NexusGroupData data) {
+		return addData(getDetTree(parent), "data", data, null, null);
+	}
+
+	/**
+	 * @param parent
+	 * @param data 
+	 * @param units
+	 * @return The node added.
+	 */
+	public INexusTree addData(String parent, NexusGroupData data, String units) {
+		return addData(getDetTree(parent), "data", data, units, null);
+	}
+
+	/**
+	 * @param parent
+	 * @param data 
+	 * @return The node added.
+	 */
+	public INexusTree addData(String parent, String dataName, NexusGroupData data) {
+		return addData(getDetTree(parent), dataName, data, null, null);
+	}
+
+	/**
+	 * @param parent
+	 * @param data 
+	 * @param units
+	 * @return The node added.
+	 */
+	public INexusTree addData(String parent, String dataName, NexusGroupData data, String units) {
+		return addData(getDetTree(parent), dataName, data, units, null);
+	}
+
+	/**
+	 * @param parent
+	 * @param data 
 	 * @param units
 	 * @param signalVal
 	 * @return The node added.
 	 */
-	public INexusTree addData(INexusTree parent, final String dataName, int[] dimensions, int type, Serializable dataValues, String units, Integer signalVal ){
-		NexusGroupData data_sds = new NexusGroupData(dimensions, type, dataValues);
-		data_sds.isDetectorEntryData = true;
-		NexusTreeNode data = new NexusTreeNode(dataName, NexusExtractor.SDSClassName, parent,data_sds);
-		data.setIsPointDependent(true);
-		if( units != null){
-			data.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, data, new NexusGroupData(units)));
-		}
-		if( signalVal != null){
-			data.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, data, new NexusGroupData(signalVal)));
-		}
-		parent.addChildNode(data);	
-		return data;
+	public INexusTree addData(String parent, NexusGroupData data, String units, Integer signalVal) {
+		return addData(getDetTree(parent), "data", data, units, signalVal);
 	}
 
-	public INexusTree addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal) {
-		return addData(detName, dataName, data_sds, units, signalVal, null);
-	}
 	/**
-	 * Adds the specified data to the named detector
-	 * @param detName The name of the detector to add data to
-	 * @param data_sds The implementation of NexusGroupData to be reported as the data
-	 * @param units  - if not null a units attribute is added
-	 * @param signalVal - if not null a signal attribute is added
+	 * 
+	 * @param parent
+	 * @param dataName
+	 * @param data 
+	 * @param units
+	 * @param signalVal
+	 * @return The node added.
 	 */
-	public INexusTree addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation) {
-		return addData(detName, dataName, data_sds, units, signalVal, interpretation, data_sds.isDetectorEntryData);
-	}
-	
-	public INexusTree addData(String detName, String dataName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation, boolean isPointDependent) {
-		INexusTree detTree = getDetTree(detName);
-		NexusTreeNode data = new NexusTreeNode(dataName, NexusExtractor.SDSClassName, null, data_sds);
-		data.setIsPointDependent(data_sds.isDetectorEntryData || isPointDependent);
+	public static INexusTree addData(INexusTree parent, final String dataName, NexusGroupData data, String units,
+			Integer signalVal) {
+		data.isDetectorEntryData = true;
+		NexusTreeNode node = new NexusTreeNode(dataName, NexusExtractor.SDSClassName, parent, data);
+		node.setIsPointDependent(true);
 		if (units != null) {
-			data.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, data, new NexusGroupData(units)));
+			node.addChildNode(new NexusTreeNode("units", NexusExtractor.AttrClassName, node, new NexusGroupData(units)));
 		}
 		if (signalVal != null) {
-			data.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, data, new NexusGroupData(signalVal)));
+			node.addChildNode(new NexusTreeNode("signal", NexusExtractor.AttrClassName, node,
+					new NexusGroupData(signalVal)));
+		}
+		parent.addChildNode(node);
+		return node;
+	}
+
+	public INexusTree addData(String detName, String dataName, NexusGroupData data, String units, Integer signalVal) {
+		return addData(detName, dataName, data, units, signalVal, null, data.isDetectorEntryData);
+	}
+
+	/**
+	 * Adds the specified data to the named detector
+	 * @param detName The name of the detector to add data to
+	 * @param data The implementation of NexusGroupData to be reported as the data
+	 * @param units  - if not null a units attribute is added
+	 * @param signalVal - if not null a signal attribute is added
+	 */
+	public INexusTree addData(String detName, NexusGroupData data, String units, Integer signalVal, String interpretation) {
+		return addData(detName, "data", data, units, signalVal, interpretation, true);
+	}
+
+	/**
+	 * Adds the specified data to the named detector
+	 * @param detName The name of the detector to add data to
+	 * @param data The implementation of NexusGroupData to be reported as the data
+	 * @param units  - if not null a units attribute is added
+	 * @param signalVal - if not null a signal attribute is added
+	 * @param interpretation - if not null an interpretation string
+	 */
+	public INexusTree addData(String detName, String dataName, NexusGroupData data, String units, Integer signalVal, String interpretation) {
+		return addData(detName, dataName, data, units, signalVal, interpretation, data.isDetectorEntryData);
+	}
+
+	public INexusTree addData(String detName, String dataName, NexusGroupData data, String units, Integer signalVal, String interpretation, boolean isPointDependent) {
+		return addData(getDetTree(detName), dataName, data, units, signalVal, interpretation, isPointDependent);
+	}
+
+	public static INexusTree addData(INexusTree parent, String dataName, NexusGroupData data, String units, Integer signalVal, String interpretation, boolean isPointDependent) {
+		NexusTreeNode node = new NexusTreeNode(dataName, NexusExtractor.SDSClassName, null, data);
+		node.setIsPointDependent(data.isDetectorEntryData || isPointDependent);
+		if (units != null) {
+			node.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, node, new NexusGroupData(units)));
+		}
+		if (signalVal != null) {
+			node.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, node, new NexusGroupData(signalVal)));
 		}
 		if (interpretation != null) {
-			data.addChildNode(new NexusTreeNode("interpretation",NexusExtractor.AttrClassName, data, 
+			node.addChildNode(new NexusTreeNode("interpretation",NexusExtractor.AttrClassName, node, 
 					new NexusGroupData(interpretation)));
 		}
-		detTree.addChildNode(data);
-		return data;
+		parent.addChildNode(node);
+		return node;
 	}
-	
-	
-	/**
-	 * Adds the specified data to the named detector
-	 * @param detName The name of the detector to add data to
-	 * @param data_sds The implementation of NexusGroupData to be reported as the data
-	 * @param units  - if not null a units attribute is added
-	 * @param signalVal - if not null a signal attribute is added
-	 */
-	public INexusTree addData(String detName, NexusGroupData data_sds, String units, Integer signalVal) {
-		data_sds.isDetectorEntryData = true;
-		return addData(detName, "data", data_sds, units, signalVal, null);
-	}
-	
-	/**
-	 * Adds the specified data to the named detector
-	 * @param detName The name of the detector to add data to
-	 * @param data_sds The implementation of NexusGroupData to be reported as the data
-	 * @param units  - if not null a units attribute is added
-	 * @param signalVal - if not null a signal attribute is added
-	 */
-	public INexusTree addData(String detName, NexusGroupData data_sds, String units, Integer signalVal, String interpretation) {
-		data_sds.isDetectorEntryData = true;
-		return addData(detName, "data", data_sds, units, signalVal, interpretation);
-	}
-	
+
 	/**
 	 * Add the string as a NXNote - used when the detector writes data to a file itself to be agglomerated into the NExus file later.
 	 * @param detName  The name of the detector to add data to
 	 * @param filename filename
 	 */
 	public void addFileName(String detName, String filename){
-
-		int[] dimensions = new int[]{MAX_DATAFILENAME};
-		byte filenameBytes[] = new byte[MAX_DATAFILENAME];
-		java.util.Arrays.fill(filenameBytes, (byte) 0); // zero terminate
-
-		for (int k = 0; k < filename.length(); k++) {
-			filenameBytes[k] = (byte) filename.charAt(k);
-		}
-		
 		INexusTree detTree = getDetTree(detName);
-		NexusTreeNode data = new NexusTreeNode(DATA_FILE_CLASS_NAME, NexusExtractor.NXNoteClassName, null,null);
-		NexusGroupData file_name_sds = new NexusGroupData(dimensions, NexusFile.NX_CHAR,filenameBytes);
+		NexusTreeNode node = new NexusTreeNode(DATA_FILE_CLASS_NAME, NexusExtractor.NXNoteClassName, null,null);
+		NexusGroupData file_name_sds = new NexusGroupData(NexusGroupData.MAX_TEXT_LENGTH, filename);
 		NexusTreeNode file_name = new NexusTreeNode(FILE_NAME_NODE_NAME, NexusExtractor.SDSClassName, null,file_name_sds);
 		file_name.addChildNode(new NexusTreeNode(DATA_FILENAME_ATTR_NAME,NexusExtractor.AttrClassName, file_name,new NexusGroupData(1)));
-		data.setIsPointDependent(true);
+		node.setIsPointDependent(true);
 		file_name.setIsPointDependent(true);
-		data.addChildNode( file_name);
-		detTree.addChildNode(data);			
+		node.addChildNode( file_name);
+		detTree.addChildNode(node);			
 	}
 	
 	/**
@@ -293,26 +269,13 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param isDetectorEntryData  Flag to indicate that when writing this value to a file the entry is to linked to the 
 	 * NXEntry/NXDetector section as a variable of the scan
 	 */
-	public NexusTreeNode addFileNames(String detName, String nodeName, String []filenames, boolean isPointDependent, boolean isDetectorEntryData){
-
-		int[] dimensions = filenames.length == 1 ? new int[]{MAX_DATAFILENAME } : new int[]{filenames.length,MAX_DATAFILENAME };
-		byte filenameBytes[] = new byte[MAX_DATAFILENAME * filenames.length];
-		java.util.Arrays.fill(filenameBytes, (byte) 0); // zero terminate
-
-		int offset = 0;
-		for( String filename: filenames){
-			for (int k = 0; k < filename.length(); k++) {
-				filenameBytes[k+offset] = (byte) filename.charAt(k);
-			}
-			offset +=MAX_DATAFILENAME;
-		}
-		
-		INexusTree detTree = getDetTree(detName);
-		NexusGroupData file_name_sds = new NexusGroupData(dimensions, NexusFile.NX_CHAR,filenameBytes);
+	public NexusTreeNode addFileNames(String detName, String nodeName, String[] filenames, boolean isPointDependent, boolean isDetectorEntryData){
+		NexusGroupData file_name_sds = new NexusGroupData(NexusGroupData.MAX_TEXT_LENGTH, filenames);
 		NexusTreeNode file_name = new NexusTreeNode(nodeName, NexusExtractor.SDSClassName, null,file_name_sds);
 		file_name.setIsPointDependent(isPointDependent);
 		file_name_sds.isDetectorEntryData=isDetectorEntryData;
 		file_name.addChildNode(new NexusTreeNode(DATA_FILENAME_ATTR_NAME,NexusExtractor.AttrClassName, file_name,new NexusGroupData(1)));
+		INexusTree detTree = getDetTree(detName);
 		detTree.addChildNode(file_name);	
 		return file_name;
 	}
@@ -330,6 +293,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 //		link.addChildNode(new NexusTreeNode("napimount", NexusExtractor.AttrClassName, link, new NexusGroupData(hdfFileName)));
 		detTree.addChildNode(link);
 	}
+
 	/**
 	 * create one node called 'linkname' for each external file link.
 	 * @param detName
@@ -342,35 +306,9 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		NexusGroupData groupData = new NexusGroupData( fileName );
 		NexusTreeNode link = new NexusTreeNode(linknodename, NexusExtractor.ExternalSDSLink, null, groupData);
 		link.setIsPointDependent(isPointDependent);
-		groupData.isDetectorEntryData=isDetectorEntryData;
+		groupData.isDetectorEntryData = isDetectorEntryData;
 //		link.addChildNode(new NexusTreeNode("napimount", NexusExtractor.AttrClassName, link, new NexusGroupData(hdfFileName)));
 		detTree.addChildNode(link);
-	}	/**
-	 * Adds the specified Axis to the named detector
-	 * @param detName The name of the detector to add data to
-	 * @param name The name of the Axis
-	 * @param dimensions the dimensions of the data to add
-	 * @param type the nexus type of the data, e.g. NexusFile.NX_INT32
-	 * @param axisValues The values of the Axis, i.e the actual values
-	 * @param axisValue The dimension which this axis relates to <b>from the detector point of view</b>, 
-	 * 						i.e. 1 is the first detector axis, scan dimensions will be added as required 
-	 * 						by the DataWriter
-	 * @param primaryValue The importance of this axis, 1 is the most relevant, then 2 etc.
-	 * @param units The units the axis is specified in
-	 * @param isPointDependent If this data should be added to the nexus at every point set this to true, if its a one off, make this false
-	 */
-	public void addAxis(String detName, String name, int[] dimensions, int type, Serializable axisValues, Integer axisValue, Integer primaryValue, String units,
-			boolean isPointDependent) {
-		INexusTree detTree = getDetTree(detName);
-
-		NexusGroupData axis_sds = new NexusGroupData(dimensions, type, axisValues);
-		axis_sds.isDetectorEntryData = true;
-		NexusTreeNode axis = new NexusTreeNode(name,NexusExtractor.SDSClassName, tree, axis_sds);
-		axis.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, axis,new NexusGroupData(axisValue)));
-		axis.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, axis,new NexusGroupData(primaryValue)));
-		axis.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
-		axis.setIsPointDependent(isPointDependent);
-		detTree.addChildNode(axis);
 	}
 
 	/**
@@ -387,34 +325,28 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 */
 	public void addAxis(String detName, String name, NexusGroupData axis_sds, Integer axisValue, Integer primaryValue, String units,
 			boolean isPointDependent) {
-		INexusTree detTree = getDetTree(detName);
-
 		axis_sds.isDetectorEntryData = true;
 		NexusTreeNode axis = new NexusTreeNode(name,NexusExtractor.SDSClassName, tree, axis_sds);
 		axis.addChildNode(new NexusTreeNode("axis",NexusExtractor.AttrClassName, axis,new NexusGroupData(axisValue)));
 		axis.addChildNode(new NexusTreeNode("primary",NexusExtractor.AttrClassName, axis,new NexusGroupData(primaryValue)));
 		axis.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
 		axis.setIsPointDependent(isPointDependent);
-		detTree.addChildNode(axis);
+		getDetTree(detName).addChildNode(axis);
 	}
 
 	/**
 	 * Adds the specified Axis to the named detector
 	 * @param detName The name of the detector to add data to
 	 * @param name The name of the Axis
-	 * @param dimensions the dimensions of the data to add
-	 * @param type the nexus type of the data, e.g. NexusFile.NX_INT32
-	 * @param axisValues The values of the Axis, i.e the actual values
+	 * @param axisSDS The values of the Axis, i.e the actual values
 	 * @param units The units the axis is specified in
 	 * @param isPointDependent If this data should be added to the nexus at every point set this to true, if its a one off, make this false
 	 */
-	public void addElement(String detName, String name, int[] dimensions, int type, Serializable axisValues, String units, boolean isPointDependent) {
-		INexusTree detTree = getDetTree(detName);
-
-		NexusTreeNode axis = new NexusTreeNode(name,NexusExtractor.SDSClassName, tree, new NexusGroupData(dimensions, type, axisValues));
+	public void addElement(String detName, String name, NexusGroupData axisSDS, String units, boolean isPointDependent) {
+		NexusTreeNode axis = new NexusTreeNode(name,NexusExtractor.SDSClassName, tree, axisSDS);
 		axis.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, axis,new NexusGroupData(units)));
 		axis.setIsPointDependent(isPointDependent);
-		detTree.addChildNode(axis);
+		getDetTree(detName).addChildNode(axis);
 	}
 	
 	/**
@@ -423,8 +355,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param note the string contents of the note
 	 */
 	public void addNote(String detName, String note) {
-		INexusTree detTree = getDetTree(detName);
-		addNote(detTree, note);
+		addNote(getDetTree(detName), note);
 	}
 
 	/**
@@ -485,7 +416,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	}
 	
 	/** 
-	 * Use this to set the plotable Double values, if you prefer that over the 
+	 * Use this to set the plottable Double values, if you prefer that over the 
 	 * convenience methods that use the scannable constructor of this class.
 	 * Consider checking your extraNames and providing an outputFormat as well then.
 	 * 

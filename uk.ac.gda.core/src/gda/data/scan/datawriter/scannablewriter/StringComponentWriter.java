@@ -18,6 +18,7 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
+import gda.data.nexus.NexusUtils;
 import gda.data.scan.datawriter.SelfCreatingLink;
 
 import java.lang.reflect.Array;
@@ -26,9 +27,14 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 
 public class StringComponentWriter extends DefaultComponentWriter {
 
@@ -64,11 +70,11 @@ public class StringComponentWriter extends DefaultComponentWriter {
 	}
 
 	@Override
-	public Collection<SelfCreatingLink> makeComponent(final NeXusFileInterface file, int[] dim, final String path,
+	public Collection<SelfCreatingLink> makeComponent(final NexusFile file, GroupNode group, int[] dim, final String path,
 			final String scannableName, final String componentName, final Object pos, final String unit)
 					throws NexusException {
 
-		final String name = enterLocation(file, path);
+		final String name = NexusUtils.getName(path);
 
 		stringlength = 127;
 
@@ -90,18 +96,28 @@ public class StringComponentWriter extends DefaultComponentWriter {
 		}
 		rank = dim.length;
 
-		file.makedata(name, NexusFile.NX_CHAR, rank, dim);
-		file.opendata(name);
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(name, Dataset.STRING, dim, null, null);
+		DataNode data = file.createData(group, lazy);
 
-		if (componentName != null) {
-			file.putattr("local_name", (scannableName + "." + componentName).getBytes(UTF8), NexusFile.NX_CHAR);
+		int[] sstart = nulldimfordim(dim);
+		int[] sshape = slabsizedimfordim(dim);
+		int[] sstop = sstart.clone();
+		for (int i = 0; i < sstop.length; i++) {
+			sstop[i] += sshape[i];
+		}
+		Dataset sdata = DatasetFactory.createFromObject(slab).reshape(sshape);
+
+		try {
+			lazy.setSlice(null, sdata, SliceND.createSlice(lazy, sstart, sstop));
+		} catch (Exception e) {
+			throw new NexusException("Problem writing data", e);
 		}
 
-		addCustomAttributes(file, scannableName, componentName);
-		file.putslab(slab, nulldimfordim(dim), slabsizedimfordim(dim));
+		if (componentName != null) {
+			NexusUtils.writeStringAttribute(file, data, "local_name", scannableName + "." + componentName);
+		}
 
-		file.closedata();
-		leaveLocation(file);
+		addCustomAttributes(file, group, scannableName, componentName);
 
 		return Collections.emptySet();
 	}

@@ -19,11 +19,11 @@
 
 package gda.data.nexus;
 
+import gda.data.nexus.extractor.NexusExtractor;
+
 import java.io.File;
 
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,52 +46,27 @@ public class NexusFileFactory {
 	 * 
 	 * @param fileUrl
 	 *            String The full filename of the file to create.
-	 * @param type
-	 *            String The format of NeXus file to create (HDF4, HDF5, XML).
 	 * @param instrumentFileApi  - if true the nexus api is instrumented
-	 * @return GdaNexusFile
+	 * @return NexusFile
 	 * @throws Exception
 	 */
-	public static NeXusFileInterface createFile(String fileUrl, String type, boolean instrumentFileApi) throws Exception {
-		NeXusFileInterface nf = null;
-
-		// If the type of file is null, then create a file of the default type (i.e. HDF5)
-		if (type == null) {
-			logger.debug("GdaNeXusFile: A null file type was requested - using default NeXus format ("
-					+ NexusGlobals.GDA_NX_DEFAULT + ")");
-			type = NexusGlobals.GDA_NX_DEFAULT;
-		}
+	public static NexusFile createFile(String fileUrl, boolean instrumentFileApi) throws Exception {
 
 		File f = new File(fileUrl);
 		File fparent = new File(f.getParent());
 		if (!fparent.exists()) {
 			fparent.mkdirs();
 		}
-		if (type.equalsIgnoreCase("HDF5")) {
-			// Create HDF5 based NeXus file.
-			logger.debug("Creating HDF5 format NeXus file.");
-			nf = new GdaNexusFile(fileUrl, NexusFile.NXACC_CREATE5);
-		} else if (type.equalsIgnoreCase("HDF4")) {
-			// Create HDF4 based NeXus file.
-			logger.debug("Creating HDF4 format NeXus file.");
-			nf = new GdaNexusFile(fileUrl, NexusFile.NXACC_CREATE4);
-		} else if (type.equalsIgnoreCase("XML")) {
-			// Create XML based NeXus file.
-			logger.debug("Creating XML format NeXus file (" + fileUrl + ").");
-			nf = new GdaNexusFile(fileUrl, NexusFile.NXACC_CREATEXML);
-		} else {
-			throw new NexusException("No matching GdaNexusFile opening mode in NexusFileFactory.");
-		}
-		if(instrumentFileApi)
-			nf = new NexusFileWrapper(nf);
+		logger.debug("Creating HDF5 format NeXus file.");
+		NexusFile nf = NexusUtils.createNexusFile(fileUrl);
+		nf.setDebug(instrumentFileApi);
 		
 		// For now we will assume that all the NeXus files have a single
 		// NXentry called "entry1". This is because of the way that the
 		// metadata classes have been written (i.e. they expect an entry called entry1!)
 
-		String entryName = "entry1";
-
-		nf.makegroup(entryName, "NXentry");
+		String entryName = "/entry1";
+		nf.getGroup(NexusUtils.createAugmentPath(entryName, NexusExtractor.NXEntryClassName), true);
 
 		// add XES definition to file.
 		NeXusUtils.writeXESraw(nf, entryName);

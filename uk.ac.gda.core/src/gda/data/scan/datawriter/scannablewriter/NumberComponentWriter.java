@@ -18,6 +18,7 @@
 
 package gda.data.scan.datawriter.scannablewriter;
 
+import gda.data.nexus.NexusUtils;
 import gda.data.scan.datawriter.SelfCreatingLink;
 
 import java.util.Collection;
@@ -25,16 +26,21 @@ import java.util.Collections;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math3.exception.NotANumberException;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NumberComponentWriter extends DefaultComponentWriter {
 
 	/** Logger */
-	private static final Logger LOGGER = LoggerFactory.getLogger(NumberComponentWriter.class);
+	private static final Logger logger = LoggerFactory.getLogger(NumberComponentWriter.class);
 
 	public NumberComponentWriter() {
 		// no op
@@ -49,48 +55,55 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 	}
 
 	@Override
-	public Collection<SelfCreatingLink> makeComponent(final NeXusFileInterface file, final int[] dim,
+	public Collection<SelfCreatingLink> makeComponent(final NexusFile file, GroupNode group, final int[] dim,
 			final String path, final String scannableName, final String componentName, final Object pos,
 			final String unit) throws NexusException {
 
-		final String name = enterLocation(file, path);
-
+		DataNode data;
 		try {
-			file.opendata(name);
-			LOGGER.info("found dataset " + path + " exists already when trying to create it for " + scannableName
-					+ ". This may not be a problem provided the data written is the same");
-			leaveLocation(file);
+			data = file.getData(path);
+			logger.info("found dataset {} exists already when trying to create it for {}. This may not be a problem provided the data written is the same",
+					path, scannableName);
 			return null;
-
 		} catch (final NexusException e) {
 			// this is normal case!
 		}
 
 		final int[] makedatadim = makedatadimfordim(dim);
-		file.makedata(name, NexusFile.NX_FLOAT64, makedatadim.length, makedatadim);
-		file.opendata(name);
+		String name = NexusUtils.getName(path);
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(name, Dataset.FLOAT64, makedatadim, makedatadim, null);
+		data = file.createData(group, lazy);
 
+		int[] sstart = nulldimfordim(dim);
+		int[] sshape = slabsizedimfordim(dim);
+		int[] sstop = sstart.clone();
+		for (int i = 0; i < sstop.length; i++) {
+			sstop[i] += sshape[i];
+		}
+		Dataset sdata = DatasetFactory.createFromObject(getComponentSlab(pos)).reshape(sshape);
+
+		try {
+			lazy.setSlice(null, sdata, SliceND.createSlice(lazy, sstart, sstop));
+		} catch (Exception e) {
+			logger.error("Problem writing data: {}", path, e);
+		}
+		
 		if (componentName != null) {
-			file.putattr("local_name", (scannableName + "." + componentName).getBytes(UTF8), NexusFile.NX_CHAR);
+			NexusUtils.writeStringAttribute(file, data, "local_name", scannableName + "." + componentName);
 		}
 
 		final StringBuilder axislist = new StringBuilder(dim.length * 3 + 1).append('1');
 		for (int j = 2; j <= dim.length; j++) {
 			axislist.append(',').append(j);
 		}
-		file.putattr("axis", axislist.toString().getBytes(UTF8), NexusFile.NX_CHAR);
+		NexusUtils.writeStringAttribute(file, data, "axis", axislist.toString());
 
 		if (StringUtils.isNotBlank(unit)) {
-			file.putattr("units", unit.getBytes(UTF8), NexusFile.NX_CHAR);
+			NexusUtils.writeStringAttribute(file, data, "units", unit);
 		}
 
-		addCustomAttributes(file, scannableName, componentName);
-		file.putslab(getComponentSlab(pos), nulldimfordim(dim), slabsizedimfordim(dim));
-
-		final SelfCreatingLink scl = new SelfCreatingLink(file.getdataID());
-
-		file.closedata();
-		leaveLocation(file);
+		addCustomAttributes(file, group, scannableName, componentName);
+		final SelfCreatingLink scl = new SelfCreatingLink(data);
 
 		return Collections.singleton(scl);
 	}

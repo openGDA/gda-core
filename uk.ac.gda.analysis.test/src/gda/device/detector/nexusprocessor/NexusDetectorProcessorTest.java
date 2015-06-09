@@ -36,7 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-import org.nexusformat.NexusFile;
 
 public class NexusDetectorProcessorTest {
 
@@ -65,7 +64,7 @@ public class NexusDetectorProcessorTest {
 		int height = 10;
 		byte[] sdsData = new byte[width * height];
 		Arrays.fill(sdsData, (byte) 1);
-		detector_data.addData(DETNAME, new int[] { width, height }, NexusFile.NX_UINT8, sdsData, null, null);
+		detector_data.addData(DETNAME, new NexusGroupData(new int[] { width, height }, sdsData).setUnsigned(), null, null);
 		detector_data.setDoubleVals(new Double[] { DOUBLE_FROM_DETECTOR });
 
 		// create detector
@@ -76,8 +75,7 @@ public class NexusDetectorProcessorTest {
 
 		result = new NXDetectorData();
 		result.getDetTree(DETNAME);
-		result.addData(DETNAME, PROCESSOR_DATA, new int[] { 1 }, NexusFile.NX_FLOAT64,
-				new double[] { DOUBLE_FROM_PROCESSOR }, null, null);
+		result.addData(DETNAME, PROCESSOR_DATA, new NexusGroupData(DOUBLE_FROM_PROCESSOR), null, null);
 		result.setDoubleVals(new Double[] { DOUBLE_FROM_PROCESSOR });
 
 		dsp = Mockito.mock(DataSetProcessor.class);
@@ -187,8 +185,7 @@ public class NexusDetectorProcessorTest {
 
 		NXDetectorData result2 = new NXDetectorData();
 		result2.getDetTree(DETNAME);
-		result2.addData(DETNAME, PROCESSOR_DATA2, new int[] { 1 }, NexusFile.NX_FLOAT64,
-				new double[] { DOUBLE_FROM_PROCESSOR2 }, null, null);
+		result2.addData(DETNAME, PROCESSOR_DATA2, new NexusGroupData(DOUBLE_FROM_PROCESSOR2), null, null);
 		result2.setDoubleVals(new Double[] { DOUBLE_FROM_PROCESSOR2 });
 
 		DataSetProcessor dsp2 = Mockito.mock(DataSetProcessor.class);
@@ -200,8 +197,7 @@ public class NexusDetectorProcessorTest {
 
 		NXDetectorData result3 = new NXDetectorData();
 		result3.getDetTree(DETNAME);
-		result3.addData(DETNAME, PROCESSOR_DATA3, new int[] { 1 }, NexusFile.NX_FLOAT64,
-				new double[] { DOUBLE_FROM_PROCESSOR3 }, null, null);
+		result3.addData(DETNAME, PROCESSOR_DATA3, new NexusGroupData(DOUBLE_FROM_PROCESSOR3), null, null);
 		result3.setDoubleVals(new Double[] { DOUBLE_FROM_PROCESSOR3 });
 
 		DataSetProcessor dsp3 = Mockito.mock(DataSetProcessor.class);
@@ -213,8 +209,7 @@ public class NexusDetectorProcessorTest {
 
 		NXDetectorData result4 = new NXDetectorData();
 		result4.getDetTree(DETNAME);
-		result4.addData(DETNAME, PROCESSOR_DATA4, new int[] { 1 }, NexusFile.NX_FLOAT64,
-				new double[] { DOUBLE_FROM_PROCESSOR4 }, null, null);
+		result4.addData(DETNAME, PROCESSOR_DATA4, new NexusGroupData(DOUBLE_FROM_PROCESSOR4), null, null);
 		result4.setDoubleVals(new Double[] { DOUBLE_FROM_PROCESSOR4 });
 
 		DataSetProcessor dsp4 = Mockito.mock(DataSetProcessor.class);
@@ -289,7 +284,7 @@ public class NexusDetectorProcessorTest {
 				sdsData[j * width + i] = (byte) Math.min(127, g.getVal(i, j));
 			}
 		}
-		detector_data.addData(DETNAME, new int[] { width, height }, NexusFile.NX_UINT8, sdsData, null, null);
+		detector_data.addData(DETNAME, new NexusGroupData(new int[] { width, height }, sdsData).setUnsigned());
 
 		NexusDetector det = Mockito.mock(NexusDetector.class);
 		when(det.readout()).thenReturn(detector_data);
@@ -347,7 +342,7 @@ public class NexusDetectorProcessorTest {
 				sdsData[j * width + i] = (byte) Math.min(127, g.getVal(i, j));
 			}
 		}
-		detector_data.addData(DETNAME, new int[] { width, height }, NexusFile.NX_UINT8, sdsData, null, null);
+		detector_data.addData(DETNAME, new NexusGroupData(new int[] { width, height }, sdsData).setUnsigned());
 
 		NexusDetector det = Mockito.mock(NexusDetector.class);
 		when(det.readout()).thenReturn(detector_data);

@@ -23,8 +23,9 @@ import gda.device.Scannable;
 
 import java.util.Collection;
 
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 
 /**
  * This interface is used by the NexusDataWriterMetadataTree to place the "position" of a scannable in the correct place
@@ -35,7 +36,7 @@ public interface ScannableWriter {
 	/**
 	 * Retrieve a list of other Scannables that need to have their position recorded in order for this Scannable
 	 * position to be valid. This is mostly the case for motion dependencies, like in diffractometers where the location
-	 * of an axies depends on other prior motors.
+	 * of an axis depends on other prior motors.
 	 *
 	 * @return list of Scannable names
 	 */
@@ -53,7 +54,7 @@ public interface ScannableWriter {
 	 * @param dim
 	 *            number of dimensions in the scan (or {1} for metadata only)
 	 */
-	public Collection<? extends SelfCreatingLink> makeScannable(NeXusFileInterface file, Scannable s, Object position,
+	public Collection<? extends SelfCreatingLink> makeScannable(NexusFile file, GroupNode group, Scannable s, Object position,
 			int[] dim) throws NexusException;
 
 	/**
@@ -61,6 +62,6 @@ public interface ScannableWriter {
 	 * @param s
 	 * @param position
 	 */
-	public void writeScannable(NeXusFileInterface file, Scannable s, Object position, int[] dimloc)
+	public void writeScannable(NexusFile file, GroupNode group, Scannable s, Object position, int[] dimloc)
 			throws NexusException;
 }

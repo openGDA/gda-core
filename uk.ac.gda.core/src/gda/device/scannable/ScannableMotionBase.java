@@ -21,7 +21,7 @@ package gda.device.scannable;
 import static gda.device.scannable.PositionConvertorFunctions.toDoubleArray;
 import static gda.device.scannable.PositionConvertorFunctions.toObjectArray;
 import gda.data.nexus.INeXusInfoWriteable;
-import gda.data.nexus.NeXusUtils;
+import gda.data.nexus.NexusUtils;
 import gda.device.Device;
 import gda.device.DeviceException;
 import gda.device.ScannableMotion;
@@ -33,8 +33,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.python.core.PyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -490,17 +492,18 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 	}
 
 	@Override
-	public void writeNeXusInformation(NeXusFileInterface file) throws NexusException {
-		writeNeXusInformationLimits(file);
+	public void writeNeXusInformation(NexusFile file, Node node) throws NexusException {
+		if (node instanceof GroupNode)
+			writeNeXusInformationLimits(file, (GroupNode) node);
 	}
-	
-	protected void writeNeXusInformationLimits(NeXusFileInterface file) throws NexusException {
-			Double[] upperLimits = getUpperGdaLimits();
-			if (upperLimits != null)
-				NeXusUtils.writeNexusDoubleArray(file, "soft_limit_max", upperLimits);
-			Double[] lowerLimits = getLowerGdaLimits();
-			if (lowerLimits != null)
-				NeXusUtils.writeNexusDoubleArray(file, "soft_limit_min", lowerLimits);
+
+	protected void writeNeXusInformationLimits(NexusFile file, GroupNode group) throws NexusException {
+		Double[] upperLimits = getUpperGdaLimits();
+		if (upperLimits != null)
+			NexusUtils.writeDoubleArray(file, group, "soft_limit_max", upperLimits);
+		Double[] lowerLimits = getLowerGdaLimits();
+		if (lowerLimits != null)
+			NexusUtils.writeDoubleArray(file, group, "soft_limit_min", lowerLimits);
 	}
 
 	public static Double[] getInputLimits(ScannableMotion sm, int input) {
