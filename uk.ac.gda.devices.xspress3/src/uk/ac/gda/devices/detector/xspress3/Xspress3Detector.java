@@ -1,6 +1,7 @@
 package uk.ac.gda.devices.detector.xspress3;
 
 import gda.data.PathConstructor;
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
@@ -15,8 +16,6 @@ import gda.scan.ScanInformation;
 
 import java.io.File;
 import java.util.List;
-
-import org.nexusformat.NexusFile;
 
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
@@ -303,19 +302,17 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 			INexusTree detTree = thisFrame.getDetTree(getName());
 
 			// add FF (all ROI, all channels)
-			thisFrame.addData(detTree, sumLabel, new int[] { controller.getNumberOfChannels() }, NexusFile.NX_FLOAT64,
-					FFs[frame], unitsLabel, 1);
+			thisFrame.addData(detTree, sumLabel, new NexusGroupData(FFs[frame]), unitsLabel, 1);
 
 			// add regions of interest for each channel
 			Double[][] thisFrameData = data[frame];
 			for (int region = 0; region < regionNames.length; region++) {
-				Double[] countsPerChannel = new Double[controller.getNumberOfChannels()];
+				double[] countsPerChannel = new double[controller.getNumberOfChannels()];
 
 				for (int channel = 0; channel < controller.getNumberOfChannels(); channel++) {
 					countsPerChannel[channel] = thisFrameData[channel][region];
 				}
-				thisFrame.addData(detTree, regionNames[region], new int[] { controller.getNumberOfChannels() },
-						NexusFile.NX_FLOAT64, countsPerChannel, unitsLabel, 2);
+				thisFrame.addData(detTree, regionNames[region], new NexusGroupData(countsPerChannel), unitsLabel, 2);
 			}
 
 			// // add the FFs as the plottable values (seen in Jython Terminal

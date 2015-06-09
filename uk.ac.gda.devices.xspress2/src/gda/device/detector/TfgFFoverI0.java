@@ -18,13 +18,13 @@
 
 package gda.device.detector;
 
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.countertimer.TfgScaler;
 import gda.factory.Finder;
 
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,10 +68,10 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 		Double ff = getFF();
 		NXDetectorData thisFrame = new NXDetectorData(this);
 		INexusTree detTree = thisFrame.getDetTree(getName());
-		Double ffio = ff / i0;
+		double ffio = ff / i0;
 		if (i0 == 0.0 || ff == 0.0 || i0.isInfinite() || i0.isNaN() || ff.isInfinite() || ff.isNaN())
 			ffio = 0.0;
-		thisFrame.addData(detTree, "FFI0", new int[] { 1 }, NexusFile.NX_FLOAT64, new Double[] { ffio }, "counts", 1);
+		NXDetectorData.addData(detTree, "FFI0", new NexusGroupData(ffio), "counts", 1);
 		thisFrame.setPlottableValue("FFI0", ffio);
 		return thisFrame;
 	}

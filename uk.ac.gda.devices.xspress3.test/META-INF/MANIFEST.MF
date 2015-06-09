@@ -9,4 +9,5 @@ Require-Bundle: uk.ac.gda.devices.xspress3;bundle-version="1.0.0",
  uk.ac.gda.common,
  uk.ac.gda.core;bundle-version="8.40.0",
  uk.ac.gda.nexus,
- uk.ac.gda.exafs.api
+ uk.ac.gda.exafs.api,
+ org.eclipse.dawnsci.hdf5

@@ -29,7 +29,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IFolder;
-import org.nexusformat.NexusException;
 import org.xml.sax.InputSource;
 
 import uk.ac.gda.beans.exafs.DetectorParameters;
@@ -53,7 +52,7 @@ public class MicroFocusScanLoader {
 		"</nexusTreeNodeSelection>";
 		return NexusTreeNodeSelection.createFromXML(new InputSource(new StringReader(xml)));
 	}
-	public java.util.List<String> loadMapXmlForView(String filePath) throws NexusException, NexusExtractorException, Exception
+	public java.util.List<String> loadMapXmlForView(String filePath) throws NexusExtractorException, Exception
 	{
 		final INexusTree   tree  = NexusTreeBuilder.getNexusTree(filePath, MicroFocusScanLoader.getSelection());
 		
@@ -74,7 +73,7 @@ public class MicroFocusScanLoader {
 		
 	}
 	
-	public void loadMapXmlForScan(IFolder folderToLoad, String filePath) throws NexusException, NexusExtractorException, Exception {
+	public void loadMapXmlForScan(IFolder folderToLoad, String filePath) throws Exception {
 		IExperimentObjectManager man = ExperimentProjectNature.createNewEmptyScan(folderToLoad, "loaded", null);
 		ScanObject obj = (ScanObject) man.createNewExperiment(filePath.substring(filePath.lastIndexOf(File.separator), filePath.indexOf(".nxs")));
 		final INexusTree   tree  = NexusTreeBuilder.getNexusTree(filePath, MicroFocusScanLoader.getSelection());

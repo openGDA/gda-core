@@ -18,7 +18,8 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.data.nexus.GdaNexusFile;
+import gda.data.nexus.NexusUtils;
+import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 
@@ -28,10 +29,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
-import org.nexusformat.NXlink;
-import org.nexusformat.NeXusFileInterface;
-import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,7 +147,6 @@ public class DetectorElementDataSelector {
 	}
 
 	public void editNexusFile(String fileName, String outputFileDir, int... selElements) {
-		boolean dataOpen = false;
 		loadData(fileName);
 		this.selectedElements = selElements;
 		double sumData[][][] = null;
@@ -164,24 +166,22 @@ public class DetectorElementDataSelector {
 			}
 		}
 		// write the sumData back in to the nexus file
-		NeXusFileInterface file = null;
-		NXlink link = null;
+		NexusFile file = null;
+		DataNode dn = null;
+		GroupNode ge = null;
 		try {
 
 			if (sumData != null) {
 				// fileName = fileName.replace(".nxs", "_1.nxs");
 				String newFileName = fileCopy(fileName, outputFileDir);
-				file = new GdaNexusFile(newFileName, NexusFile.NXACC_RDWR);
-				file.opengroup("entry1", "NXentry");
-				file.opengroup("instrument", "NXinstrument");
-				file.opengroup(detectorName, "NXdetector");
-				file.makedata("selectedElementSum", NexusFile.NX_FLOAT64, 3, new int[] { sumData.length,
-						sumData[0].length, sumData[0][0].length });
-				file.opendata("selectedElementSum");
-				file.putslab(sumData, new int[] { 0, 0, 0 }, new int[] { sumData.length, sumData[0].length,
-						sumData[0][0].length });
-				link = file.getdataID();
-				dataOpen = true;
+				file = NexusUtils.openNexusFile(newFileName);
+				StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), "entry1", NexusExtractor.NXEntryClassName);
+				ge = file.getGroup(path.toString(), false);
+				NexusUtils.addToAugmentPath(path, "instrument", NexusExtractor.NXInstrumentClassName);
+				NexusUtils.addToAugmentPath(path, detectorName, NexusExtractor.NXDetectorClassName);
+
+				Dataset d = DatasetFactory.createFromObject(sumData);
+				dn = file.createData(NexusUtils.addToAugmentPath(path, "selectedElementSum", null).toString(), d, true);
 			}
 
 		} catch (NexusException e) {
@@ -190,21 +190,17 @@ public class DetectorElementDataSelector {
 		} finally {
 			if (file != null) {
 				try {
-					if (dataOpen)
-						file.closedata();
-					file.closegroup();
-					file.closegroup();
 					// make the link in default level
-					if (link != null) {
-						file.opengroup(detectorName, "NXdata");
-						file.makelink(link);
-						file.closegroup();
+					if (dn != null && ge != null) {
+						GroupNode gd = file.getGroup(ge, detectorName, NexusExtractor.NXDataClassName, false);
+						file.link(file.getPath(dn), file.getPath(gd));
 					}
-					file.closegroup();
 					file.close();
 				} catch (NexusException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				} finally {
+					
 				}
 
 			}

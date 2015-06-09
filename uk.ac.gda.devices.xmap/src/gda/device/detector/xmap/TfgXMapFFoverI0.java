@@ -18,6 +18,7 @@
 
 package gda.device.detector.xmap;
 
+import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.CounterTimer;
@@ -28,7 +29,6 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.factory.Finder;
 
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,10 +75,10 @@ public class TfgXMapFFoverI0 extends DetectorBase implements NexusDetector {
 		Double ff = getFF();
 		NXDetectorData thisFrame = new NXDetectorData(this);
 		INexusTree detTree = thisFrame.getDetTree(getName());
-		Double ffio = ff / i0;
+		double ffio = ff / i0;
 		if (i0 == 0.0 || ff == 0.0 || i0.isInfinite() || i0.isNaN() || ff.isInfinite() || ff.isNaN())
 			ffio = 0.0;
-		thisFrame.addData(detTree, getExtraNames()[0], new int[] { 1 }, NexusFile.NX_FLOAT64, new Double[] { ffio }, "counts", 1);
+		NXDetectorData.addData(detTree, getExtraNames()[0], new NexusGroupData(ffio), "counts", 1);
 		thisFrame.setPlottableValue(getExtraNames()[0], ffio);
 		return thisFrame;
 	}
