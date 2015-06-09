@@ -600,6 +600,8 @@ public class ExcaliburEqualizationHelper {
 		if (numItems != chipPresent.length)
 			throw new IllegalArgumentException("numItems != chipPresent.length");
 
+		// FIXME redesign this to return a lazy dataset from HDF5Loader
+		// and add it to chipset
 		Hdf5HelperLazyLoader loader = new Hdf5HelperLazyLoader(thresholdFile, getEqualisationLocation().getLocationForOpen(), THRESHOLD_DATASET, false);
 		int[] shape = loader.getLazyDataSet().getShape();
 
@@ -1144,6 +1146,8 @@ public class ExcaliburEqualizationHelper {
 		if (columns != ExcaliburReadoutNodeFem.CHIPS_PER_FEM)
 			throw new IllegalArgumentException("columns != ExcaliburReadoutNodeFem.CHIPS_PER_FEM");
 
+		// FIXME redesign this to return a lazy dataset from HDF5Loader
+		// and add it to chipset
 		ChipSet chipset = new ChipSet(rows, columns, chipPresent);
 		Hdf5HelperLazyLoader loader = null;
 		loader = new Hdf5HelperLazyLoader(thresholdAdjFile, getEqualisationLocation()
