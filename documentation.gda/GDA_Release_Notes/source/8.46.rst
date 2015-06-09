@@ -10,6 +10,43 @@ New Features
 Fixes
 ~~~~~
 
+NAPI migration
+--------------
+
+The Java version of the API provided by the NeXus committee has been used in GDA for reading, writing and linking data.
+There are a number of issues with this API which drives a timely migration from its direct use:
+
+   * It possesses a hidden state
+   * Diamond Light Source is only user
+   * Java 8 issue (`GDA-6112 <http://jira.diamond.ac.uk/browse/GDA-6112>`_)
+   * buggy string handling
+ 
+A multi-stage plan was carried out to extricate the NAPI usage in GDA, under ticket `GDA-6113 <http://jira.diamond.ac.uk/browse/GDA-6113>`_
+
+   #. redirect users of NAPI constants to NexusGlobals and remove other users
+   #. reduce and remove constants usage in NexusGroupData and by using NGD
+   #. move NexusException class, and replace with new one
+   #. replace NeXusFileInterface with NexusFileInterface
+   #. eliminate all uses of constants
+   #. remove nxclassio package
+   #. isolate old NAPI classes to napi sub-package
+   #. create new NAPI based lazy loader and saver
+   #. create new Nexus File interface and implement a NAPI based version
+   #. refactor to use new Nexus file interface [rewrite ``NexusUtils``, change interfaces ``ComponentWriter``, ``ScannableWriter``, and ``INeXusInfoWriteable``]
+   #. fix up many bugs
+   #. tidy and remove old classes
+   #. port some old Jython usage
+
+This has resulted in changes in many projects and repositories.
+ 
+Future changes planned
+
+   * Investigate any thread-safety issues for new interface
+   * Implement NexusFile interface using the Java bindings for HDF5
+   * Auto-generate interfaces and classes from NXDL for all Nexus classes to be used
+     for loading and validating then for saving. These will include the application definitions.
+   * Switch the underlying HDF5 library to a SWMR version.
+
 Developer
 ---------
 
