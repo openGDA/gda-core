@@ -23,7 +23,7 @@
 				<contains string="${redhat_release}" substring="Red Hat Enterprise Linux Client release 5." />
 			</or>
 		</condition>
-		<junit-call description="${ant.project.name} Java JUnit tests" maxmemory="2048">
+		<junit-call description="${ant.project.name} Java JUnit tests" maxmemory="2048m">
 			<formatter type="xml" />
 			<classpath>
 				<pathelement location="${junitjar.loc}" />
