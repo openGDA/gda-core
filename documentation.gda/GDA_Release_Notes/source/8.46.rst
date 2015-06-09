@@ -25,6 +25,7 @@ Fixes
 ~~~~~
 - ``rscan`` command has been fixed when using multiple axis. See JIRA ticket `GDA-6145 <http://jira.diamond.ac.uk/browse/GDA-6145>`_ for details.
 - EpicsMonitor has been fixed to allow observers to be notified when a enum PV is changed. See JIRA ticket `GDA-6138 <http://jira.diamond.ac.uk/browse/GDA-6138>`_ for details.
+- ImageMode enum has been moved out of ADBase to a separate file to allow its use in Jython See JIRA ticket `GDA-6152 <http://jira.diamond.ac.uk/browse/GDA-6152>`_ for details.
 
 How to create notes
 ~~~~~~~~~~~~~~~~~~~
