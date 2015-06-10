@@ -35,12 +35,6 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 			reductionStatusInfo.addFileName("");
 			reductionStatusInfo.setMessage("");
 			bioSaxsDataCollection.setReductionStatus(reductionStatusInfo);
-			ISpyBStatusInfo analysisStatusInfo = new ISpyBStatusInfo();
-			analysisStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
-			analysisStatusInfo.setProgress(0);
-			analysisStatusInfo.addFileName("");
-			analysisStatusInfo.setMessage("");
-			bioSaxsDataCollection.setAnalysisStatus(analysisStatusInfo);
 			collectionsMap.put(i, bioSaxsDataCollection);
 		}
 	}
@@ -78,12 +72,6 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 		reductionStatusInfo.addFileName("");
 		reductionStatusInfo.setMessage("");
 		bioSaxsDataCollection.setReductionStatus(reductionStatusInfo);
-		ISpyBStatusInfo analysisStatusInfo = new ISpyBStatusInfo();
-		analysisStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
-		analysisStatusInfo.setProgress(0);
-		analysisStatusInfo.addFileName("");
-		analysisStatusInfo.setMessage("");
-		bioSaxsDataCollection.setAnalysisStatus(analysisStatusInfo);
 		collectionsMap.put(dataCollectionId, bioSaxsDataCollection);
 
 		// Mock the controller receiving a notification update that database has
@@ -183,22 +171,6 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 	}
 
 	@Override
-	public long createDataAnalysis(long dataCollectionId) throws SQLException {
-		// Mock up creating a data reduction data base object here
-		long dataAnalysisId = 0;
-		ISpyBStatusInfo status = new ISpyBStatusInfo();
-		status.setStatus(ISpyBStatus.COMPLETE);
-		status.setProgress(100);
-		status.addFileName("");
-		setDataAnalysisStatus(dataCollectionId, status);
-
-		// Mock the controller receiving a notification update that database has
-		// been updated
-		sendISpyBUpdate(dataCollectionId);
-		return dataAnalysisId;
-	}
-
-	@Override
 	public void setDataReductionStatus(long saxsDataCollectionId,
 			ISpyBStatusInfo status) throws SQLException {
 		collectionsMap.get(saxsDataCollectionId).setReductionStatus(status);
@@ -208,18 +180,6 @@ public class MockBioSAXSISPyB implements BioSAXSISPyB {
 	public ISpyBStatusInfo getDataReductionStatus(long saxsDataCollectionId)
 			throws SQLException {
 		return collectionsMap.get(saxsDataCollectionId).getReductionStatus();
-	}
-
-	@Override
-	public void setDataAnalysisStatus(long saxsDataCollectionId,
-			ISpyBStatusInfo status) throws SQLException {
-		collectionsMap.get(saxsDataCollectionId).setAnalysisStatus(status);
-	}
-
-	@Override
-	public ISpyBStatusInfo getDataAnalysisStatus(long saxsDataCollectionId)
-			throws SQLException {
-		return collectionsMap.get(saxsDataCollectionId).getAnalysisStatus();
 	}
 
 	@Override

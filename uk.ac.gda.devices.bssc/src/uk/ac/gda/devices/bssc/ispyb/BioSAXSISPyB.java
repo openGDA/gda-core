@@ -218,25 +218,6 @@ public interface BioSAXSISPyB {
 			throws SQLException;
 
 	/**
-	 * Call this method when data analysis is started so that its status can be recorded
-	 * 
-	 * @param dataCollectionId
-	 * @return AnalysisId
-	 * @throws SQLException
-	 */
-	public long createDataAnalysis(long dataCollectionId) throws SQLException;
-
-	/**
-	 * Sets the data analysis status of the data collection
-	 * 
-	 * @param dataCollectionId
-	 * @param status
-	 * @throws SQLException
-	 */
-	public void setDataAnalysisStatus(long dataCollectionId, ISpyBStatusInfo status)
-			throws SQLException;
-	
-	/**
 	 * Returns the status of the data reduction for a sample/data collection
 	 * 
 	 * @param dataCollectionId
@@ -252,15 +233,6 @@ public interface BioSAXSISPyB {
 	 * @throws SQLException
 	 */
 	public List<ISAXSDataCollection> getSAXSDataCollections(long blSessionId) throws SQLException;
-
-	/**
-	 * Returns the status of the data analysis for a sample/data collection
-	 * 
-	 * @param dataCollectionId
-	 * @return ProgressStatus
-	 * @throws SQLException
-	 */
-	public ISpyBStatusInfo getDataAnalysisStatus(long dataCollectionId) throws SQLException;
 
 	/**
 	 * 
