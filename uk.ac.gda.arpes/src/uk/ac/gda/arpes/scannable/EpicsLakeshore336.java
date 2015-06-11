@@ -40,7 +40,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 	public static final String LOOP_DEMAND_RBV = "SETP%d";
 	public static final String LOOP_OUTPUT = "HTR%d";
 	public static final String LOOP_HEATERRANGE = "RANGE_S%d";
-	public static final String LOOP_HEATERRANGE_RBV = "RANGE_S%d";
+	public static final String LOOP_HEATERRANGE_RBV = "RANGE%d";
 	public static final String LOOP_RAMP = "RAMP_S%d";
 	public static final String LOOP_RAMP_RBV = "RAMP%d";
 	public static final String LOOP_RAMP_ENABLE = "RAMPST_S%d";
@@ -57,7 +57,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 	public static final String LOOP_D_RBV = "D%d";
 
 	double tolerance = 0.05;
-	
+
 	public double getTolerance() {
 		return tolerance;
 	}
@@ -128,10 +128,23 @@ public class EpicsLakeshore336 extends ScannableBase {
 		try {
 			if (EPICS_CONTROLLER.cagetInt(getChannel(LOOP_HEATERRANGE_RBV, activeLoop)) == 0)
 				return false;
-			if (EPICS_CONTROLLER.cagetInt(getChannel(LOOP_DEMAND_RBV, activeLoop)) == 0)
+			if (getDemandTemperature() == 0.0) // Special setpoint of 0 means never busy
 				return false;
 		} catch (Exception e) {
 			throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
+		}
+		// If ramping is enabled need to check if the ramping currentSetpoint has reached the finalSetpoint yet
+		if (getRampEnable()) {
+			try {
+				double finalSetpoint = EPICS_CONTROLLER.cagetDouble(getChannel(LOOP_DEMAND, getActiveLoop()));
+				// currentSetpoint will be slowly ramping if ramp is enabled
+				double currentSetpoint = EPICS_CONTROLLER.cagetDouble(getChannel(LOOP_DEMAND_RBV, getActiveLoop()));
+				if (currentSetpoint != finalSetpoint) { // Should be exactly equal once ramp completes
+					return true; // Still ramping so isBusy() returns true
+				}
+			} catch (Exception e) {
+				throw new DeviceException("Error reading from Lakeshore 336 Temperature Controller device", e);
+			}
 		}
 		return Math.abs(getDemandTemperature() - getControlledTemperature()) > tolerance;
 	}
@@ -144,7 +157,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 				getTemperature(1),
 				getTemperature(2),
 				getHeaterPercent(),
-				getHeaterRange().doubleValue() 
+				getHeaterRange().doubleValue()
 				};
 		return pos;
 	}
@@ -355,7 +368,7 @@ public class EpicsLakeshore336 extends ScannableBase {
 		try {
 			if (getActiveLoop() == 0)
 				return null;
-			int rampEnabled = EPICS_CONTROLLER.cagetInt(getChannel(LOOP_RAMP_ENABLE, getActiveLoop()));
+			int rampEnabled = EPICS_CONTROLLER.cagetInt(getChannel(LOOP_RAMP_ENABLE_RBV, getActiveLoop()));
 			if (rampEnabled == 1) {
 				return true;
 			}
