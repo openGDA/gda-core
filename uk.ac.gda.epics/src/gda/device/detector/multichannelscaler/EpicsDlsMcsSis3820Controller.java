@@ -117,24 +117,9 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 	private Channel nbinsChannel;
 
 	/**
-	 * Status update rate
-	 */
-	private Channel statrateChannel;
-
-	/**
 	 * data update rate
 	 */
 	private Channel readrateChannel;
-
-	/**
-	 * enable wait (synchronise) for client
-	 */
-	//private Channel enableclientwaitChannel;
-
-	/**
-	 * set client wait status
-	 */
-	//private Channel clientwaitChannel;
 
 	/**
 	 * real time since start of acquisition
@@ -262,10 +247,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 			startChannel = channelManager.createChannel(config.getSTART().getPv(), false);
 			stopChannel = channelManager.createChannel(config.getSTOP().getPv(), false);
 			nbinsChannel = channelManager.createChannel(config.getNBINS().getPv(), false);
-			statrateChannel = channelManager.createChannel(config.getSTATRATE().getPv(), false);
 			readrateChannel = channelManager.createChannel(config.getREADRATE().getPv(), false);
-			//enableclientwaitChannel = channelManager.createChannel(config.getENACLIENTWAIT().getPv(), false);
-			//clientwaitChannel = channelManager.createChannel(config.getCLIENTWAIT().getPv(), false);
 			trealChannel = channelManager.createChannel(config.getTREAL().getPv(), rtimelistener, false);
 			acqChannel = channelManager.createChannel(config.getACQ().getPv(), acqlistener, false);
 			tacqChannel = channelManager.createChannel(config.getTACQ().getPv(), false);
@@ -419,38 +401,6 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 		}
 	}
 
-	/**
-	 * sets a new status update rate
-	 *
-	 * @param value
-	 * @throws DeviceException
-	 */
-	public void setStatusRate(String value) throws DeviceException {
-		if (!statusUpdateRates.contains(value)) {
-			throw new IllegalArgumentException("Input must be in range: " + getStatusRates());
-		}
-		try {
-			controller.caput(statrateChannel, value);
-		} catch (Throwable th) {
-			logger.error("failed to set status update rate on {}.", getName());
-			throw new DeviceException("failed to set status update rate", th);
-		}
-	}
-
-	/**
-	 * gets the current status update rate
-	 *
-	 * @return the current status update rate
-	 * @throws DeviceException
-	 */
-	public String getStatusRate() throws DeviceException {
-		try {
-			return controller.caget(statrateChannel);
-		} catch (Throwable th) {
-			logger.error("failed to get status update rate on {}.", getName());
-			throw new DeviceException("failed to get status update rate", th);
-		}
-	}
 
 	/**
 	 * sets a new read update rate for DlsMcsSIS3820.
@@ -735,16 +685,6 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 	public void initializationCompleted() {
 
 		try {
-			String[] position = getStatusRates();
-			for (int i = 0; i < position.length; i++) {
-				if (position[i] != null || position[i] != "") {
-					statusUpdateRates.add(position[i]);
-				}
-			}
-		} catch (DeviceException e) {
-			logger.error("failed to initialise available Status Update Rates.");
-		}
-		try {
 			String[] position = getReadRates();
 			for (int i = 0; i < position.length; i++) {
 				if (position[i] != null || position[i] != "") {
@@ -783,22 +723,6 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 		}
 	}
 
-	/**
-	 * gets all available status update rates from EPICS IOC
-	 *
-	 * @return available status update rates
-	 * @throws DeviceException
-	 */
-	public String[] getStatusRates() throws DeviceException {
-		String[] positionLabels = new String[statusUpdateRates.size()];
-		try {
-			positionLabels = controller.cagetLabels(statrateChannel);
-		} catch (Throwable th) {
-			logger.error("failed to get status update rates avalable on {}.", getName());
-			throw new DeviceException("failed to set status update rates available.", th);
-		}
-		return positionLabels;
-	}
 
 	/**
 	 * gets all available read update rates from EPICS IOC
@@ -809,7 +733,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 	public String[] getReadRates() throws DeviceException {
 		String[] positionLabels = new String[readUpdateRates.size()];
 		try {
-			positionLabels = controller.cagetLabels(statrateChannel);
+			positionLabels = controller.cagetLabels(readrateChannel);
 		} catch (Throwable th) {
 			logger.error("failed to get read update rates avalable on {}.", getName());
 			throw new DeviceException("failed to get read update rates avalable", th);
