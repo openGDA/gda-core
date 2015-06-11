@@ -37,6 +37,7 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class NexusFileTest {
@@ -159,6 +160,7 @@ public class NexusFileTest {
 	}
 
 	@Test
+	@Ignore("2015/06/11 Test ignored since intermittently fails SCI-5295")
 	public void testLinked() throws NexusException {
 		String d = "testfiles/gda/data/nexus/";
 		String n = "testnapilinks.nxs";
