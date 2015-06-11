@@ -33,6 +33,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class NexusExtractorTest {
@@ -66,6 +67,7 @@ public class NexusExtractorTest {
 	 * @throws NexusException
 	 */
 	@Test
+	@Ignore("2015/06/11 Test ignored since intermittently fails SCI-5295")
 	public void testGetNexusGroupDataURLStringBoolean() throws NexusException, NexusExtractorException {
 		INexusTree tree = NexusTreeBuilder.getNexusTree(TestFileFolder + "327.nxs", NexusTreeNodeSelection
 				.createTreeForAllNXData());
