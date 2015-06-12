@@ -60,7 +60,9 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 		List<org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI> scisoftRoiList = getScisoftRoiListFromSDAPlotter();
 		ArrayList<RectangularROI<Integer>> roiList = new ArrayList<RectangularROI<Integer>>();
 		for (org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI scisoftRoi : scisoftRoiList) {
-			roiList.add(ImutableRectangularIntegerROI.valueOf(scisoftRoi));
+			if (scisoftRoi.isPlot()) {
+				roiList.add(ImutableRectangularIntegerROI.valueOf(scisoftRoi));
+			}
 		}
 		return roiList;
 	}
@@ -94,11 +96,11 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 		if (index >= maximumActiveRois) {
 			throw new IndexOutOfBoundsException("Maximum index is: " + maximumActiveRois);
 		}
-		List<org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI> scisoftRoiList = getScisoftRoiListFromSDAPlotter();
+		List<RectangularROI<Integer>> scisoftRoiList = getActiveRoiList();
 		if (index >= scisoftRoiList.size()) {
 			return null;
 		}
-		return ImutableRectangularIntegerROI.valueOf(scisoftRoiList.get(index));
+		return scisoftRoiList.get(index);
 	}
 
 	public PyString __str__() {
