@@ -21,8 +21,6 @@ package gda.data.scan.datawriter.scannablewriter;
 import gda.data.nexus.NexusUtils;
 import gda.data.scan.datawriter.SelfCreatingLink;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -38,7 +36,7 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 
 public class StringComponentWriter extends DefaultComponentWriter {
 
-	private int stringlength = 0;
+//	private int stringlength = 0;
 	private int rank = 0;
 
 	public StringComponentWriter() {
@@ -65,8 +63,8 @@ public class StringComponentWriter extends DefaultComponentWriter {
 	}
 
 	@Override
-	protected byte[] getComponentSlab(final Object pos) {
-		return ArrayUtils.add(pos.toString().getBytes(UTF8), (byte) 0);
+	protected String getComponentSlab(final Object pos) {
+		return pos.toString();
 	}
 
 	@Override
@@ -74,30 +72,16 @@ public class StringComponentWriter extends DefaultComponentWriter {
 			final String scannableName, final String componentName, final Object pos, final String unit)
 					throws NexusException {
 
-		final String name = NexusUtils.getName(path);
+		String aPath = file.getPath(group) + path;
+		final String name = NexusUtils.getName(aPath);
 
-		stringlength = 127;
-
-		final Object slab = getComponentSlab(pos);
-		final int slablength = Array.getLength(slab);
-
-		if (Arrays.equals(dim, new int[] { 1 })) {
-			stringlength = slablength;
-		} else if (slablength + 10 > stringlength) { // if strings vary more than that we are in trouble
-			stringlength = slablength + 10;
-		}
+		final String slab = getComponentSlab(pos);
 
 		dim = makedatadimfordim(dim);
 
-		if (dim[dim.length - 1] == 1) {
-			dim[dim.length - 1] = stringlength;
-		} else {
-			dim = ArrayUtils.add(dim, stringlength);
-		}
-		rank = dim.length;
-
 		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(name, Dataset.STRING, dim, null, null);
-		DataNode data = file.createData(group, lazy);
+		GroupNode lGroup = file.getGroup(aPath.substring(0, aPath.length() - name.length()), true);
+		DataNode data = file.createData(lGroup, lazy);
 
 		int[] sstart = nulldimfordim(dim);
 		int[] sshape = slabsizedimfordim(dim);
@@ -117,7 +101,7 @@ public class StringComponentWriter extends DefaultComponentWriter {
 			NexusUtils.writeStringAttribute(file, data, "local_name", scannableName + "." + componentName);
 		}
 
-		addCustomAttributes(file, group, scannableName, componentName);
+		addCustomAttributes(file, lGroup, scannableName, componentName);
 
 		return Collections.emptySet();
 	}
