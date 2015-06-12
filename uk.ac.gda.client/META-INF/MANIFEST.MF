@@ -56,7 +56,7 @@ Require-Bundle: org.eclipse.help.ui,
  uk.ac.diamond.scisoft.analysis.plotclient,
  org.dawnsci.common.widgets
 Bundle-ActivationPolicy: lazy
-Bundle-Version: 8.46.0.qualifier
+Bundle-Version: 8.48.0.qualifier
 Eclipse-RegisterBuddy: uk.ac.gda.libs, uk.ac.gda.core
 Eclipse-BuddyPolicy: registered
 Bundle-Localization: plugin
