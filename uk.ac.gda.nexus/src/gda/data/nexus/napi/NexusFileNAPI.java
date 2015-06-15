@@ -930,7 +930,11 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 				tuple.node.addAttribute(a);
 				IDataset d = a.getValue();
 				NexusGroupData ngd = NexusGroupData.createFromDataset(d);
-				file.putattr(a.getName(), ngd.getBuffer(true), getType(d));
+				if (d.getRank() > 1 || d.getSize() > 1) {
+					file.putattr(a.getName(), ngd.getBuffer(true), d.getShape(), getType(d));
+				} else {
+					file.putattr(a.getName(), ngd.getBuffer(true), getType(d));
+				}
 			}
 		} catch (org.nexusformat.NexusException e) {
 			logger.error("Problem adding attributes: {}", attribute, e);
@@ -1052,5 +1056,15 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			logger.error("Problem creating external link: {}", dname, e);
 			throw new NexusException("Problem creating external link", e);
 		}
+	}
+
+	@Override
+	public boolean checkIfPathExists(String path) {
+		try {
+			file.openpath(NexusUtils.stripAugmentedPath(path));
+			return true;
+		} catch (org.nexusformat.NexusException e) {
+		}
+		return false;
 	}
 }

@@ -109,7 +109,7 @@ public class NexusUtils {
 	public static String getName(String path) {
 		if (path.endsWith(Node.SEPARATOR) || !path.contains(Node.SEPARATOR))
 			return null;
-		return path.substring(path.indexOf(Node.SEPARATOR) + 1);
+		return path.substring(path.lastIndexOf(Node.SEPARATOR) + 1);
 	}
 
 	/**
