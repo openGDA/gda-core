@@ -145,7 +145,9 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 		// if the first point, then create empty datasets
 		if (intensity == null) {
 			intensity = new DoubleDataset(sdp.getScanDimensions()[0], sdp.getScanDimensions()[1]);
-
+			// Fill with NaN to allow auto histogramming to work. Otherwise values are zero.
+			intensity.fill(Double.NaN);
+			
 			// if xstart,xstop,xstep values not defined then simply use an index
 			if (xStart == null) {
 				x = createTwoDset(0.0, (double) sdp.getScanDimensions()[0], 1.0, false);
