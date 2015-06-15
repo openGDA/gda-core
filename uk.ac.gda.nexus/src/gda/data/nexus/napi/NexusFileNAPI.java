@@ -1059,7 +1059,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	}
 
 	@Override
-	public boolean checkIfPathExists(String path) {
+	public boolean isPathValid(String path) {
 		try {
 			file.openpath(NexusUtils.stripAugmentedPath(path));
 			return true;
