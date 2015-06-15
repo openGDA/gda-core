@@ -26,6 +26,7 @@ import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
 import java.util.Collection;
 
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 
@@ -45,7 +46,7 @@ public class EnergyScannableWriter extends SingleScannableWriter {
 
 		NumberComponentWriter trueEnergyWriter = new NumberComponentWriter() {
 			@Override
-			protected void addCustomAttributes(final NexusFile file, final GroupNode group, final String scannableName,
+			protected void addCustomAttributes(final NexusFile file, final Node group, final String scannableName,
 					final String componentName) throws NexusException {
 				final String uncertaintiesName = uncertaintiesPath.substring(uncertaintiesPath.lastIndexOf("/") + 1);
 				NexusUtils.writeStringAttribute(file, group, "uncertainties", uncertaintiesName);
