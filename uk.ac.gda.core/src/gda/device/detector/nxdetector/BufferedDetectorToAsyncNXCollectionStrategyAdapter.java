@@ -77,6 +77,7 @@ public class BufferedDetectorToAsyncNXCollectionStrategyAdapter implements Async
 		bufferedDetector.atScanStart();
 		bufferedDetector.atScanLineStart();
 		bufferedDetector.clearMemory();
+		framesAlreadyRead = 0;
 
 		// Number of data points is the only field of ContinuousParameters used by most BufferedDetectors
 		// Could also perhaps set total time with a rough estimate by multiplying collection time and number of points?
@@ -262,5 +263,12 @@ public class BufferedDetectorToAsyncNXCollectionStrategyAdapter implements Async
 			throw new IllegalArgumentException("Unknown readout object type: " + dataObject.getClass().getSimpleName());
 		}
 		return appender;
+	}
+
+	/**
+	 * @return The number of data points/frames already read from the detector
+	 */
+	public int getNumberOfDataPointsAlreadyRead() {
+		return framesAlreadyRead;
 	}
 }
