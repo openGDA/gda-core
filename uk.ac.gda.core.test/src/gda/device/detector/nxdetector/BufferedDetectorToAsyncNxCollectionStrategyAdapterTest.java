@@ -189,6 +189,8 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 		inOrder.verify(bufferedDetector).setContinuousParameters(continuousParametersArgument.capture());
 		ContinuousParameters continuousParameters = continuousParametersArgument.getValue();
 		assertThat(continuousParameters.getNumberDataPoints(), is(equalTo(numberOfDataPoints)));
+
+		assertThat(adapter.getNumberOfDataPointsAlreadyRead(), is(equalTo(0)));
 	}
 
 	@Test
@@ -339,5 +341,34 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 	@Test(expected=IllegalArgumentException.class)
 	public void creatingDataAppenderFromOtherObjectTypeShouldThrowException() throws Exception {
 		NXDetectorDataAppender appender = adapter.createDataAppenderFromObject(new Object());
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Test full scan
+	//
+
+	@Test
+	public void successiveScansShouldReadoutWithoutThrowingExceptions() throws Exception {
+		// Set up
+		int numberOfScans = 3;
+		double collectionTime = 2;
+		int numberOfDataPoints = 4;
+		ContinuousParameters params = new ContinuousParameters();
+		params.setNumberDataPoints(numberOfDataPoints);
+		when(bufferedDetector.getContinuousParameters()).thenReturn(params);
+		when(bufferedDetector.getNumberFrames()).thenReturn(numberOfDataPoints);
+		when(bufferedDetector.readFrames(anyInt(), anyInt())).thenReturn(ONE_DOUBLE_VALUE);
+		when(bufferedDetector.getExtraNames()).thenReturn(new String[] { "First extra name" });
+
+		// Run scans
+		for (int scan = 0; scan < numberOfScans; scan++) {
+			adapter.prepareForCollection(collectionTime, numberOfDataPoints, null);
+			adapter.collectData();
+			for (int dataPoint = 0; dataPoint < numberOfDataPoints; dataPoint++) {
+				adapter.read(1);
+			}
+			adapter.completeLine();
+			adapter.completeCollection();
+		}
 	}
 }
