@@ -60,19 +60,21 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 			final String unit) throws NexusException {
 
 		DataNode data;
-		try {
-			data = file.getData(path);
+
+		String aPath = file.getPath(group) + path;
+
+		if (file.isPathValid(aPath)) {
 			logger.info("found dataset {} exists already when trying to create it for {}. This may not be a problem provided the data written is the same",
-					path, scannableName);
+					aPath, scannableName);
 			return null;
-		} catch (final NexusException e) {
-			// this is normal case!
 		}
+		
+		String name = NexusUtils.getName(aPath);
 
 		final int[] makedatadim = makedatadimfordim(dim);
-		String name = NexusUtils.getName(path);
 		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset(name, Dataset.FLOAT64, makedatadim, makedatadim, null);
-		data = file.createData(group, lazy);
+		GroupNode lGroup = file.getGroup(aPath.substring(0, aPath.length() - name.length()), true);
+		data = file.createData(lGroup, lazy);
 
 		int[] sstart = nulldimfordim(dim);
 		int[] sshape = slabsizedimfordim(dim);
@@ -85,7 +87,7 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 		try {
 			lazy.setSlice(null, sdata, SliceND.createSlice(lazy, sstart, sstop));
 		} catch (Exception e) {
-			logger.error("Problem writing data: {}", path, e);
+			logger.error("Problem writing data: {}", aPath, e);
 		}
 		
 		if (componentName != null) {
@@ -102,7 +104,7 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 			NexusUtils.writeStringAttribute(file, data, "units", unit);
 		}
 
-		addCustomAttributes(file, group, scannableName, componentName);
+		addCustomAttributes(file, data, scannableName, componentName);
 		final SelfCreatingLink scl = new SelfCreatingLink(data);
 
 		return Collections.singleton(scl);

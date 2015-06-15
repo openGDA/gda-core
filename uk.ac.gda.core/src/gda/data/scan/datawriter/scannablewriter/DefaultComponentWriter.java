@@ -24,6 +24,7 @@ import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
@@ -84,7 +85,7 @@ public abstract class DefaultComponentWriter implements ComponentWriter {
 	 *            extra or input name being written
 	 * @throws NexusException
 	 */
-	protected void addCustomAttributes(final NexusFile file, GroupNode group, final String scannableName,
+	protected void addCustomAttributes(final NexusFile file, Node group, final String scannableName,
 			final String componentName) throws NexusException {
 		// Default no operation
 	}
@@ -93,7 +94,8 @@ public abstract class DefaultComponentWriter implements ComponentWriter {
 	public void writeComponent(final NexusFile file, GroupNode group, final int[] start, final String path,
 			final String scannableName, final String componentName, final Object pos) throws NexusException {
 
-		DataNode data = file.getData(path);
+		String aPath = file.getPath(group) + path;
+		DataNode data = file.getData(aPath);
 		ILazyWriteableDataset lazy = data.getWriteableDataset();
 		final Object slab = getComponentSlab(pos);
 		final int slablength = (slab.getClass().isArray()) ? Array.getLength(slab) : 0;
@@ -107,7 +109,7 @@ public abstract class DefaultComponentWriter implements ComponentWriter {
 		try {
 			lazy.setSlice(null, sd, SliceND.createSlice(sd, sstart, sstop));
 		} catch (Exception e) {
-			logger.error("Could not write slab: {}", path, e);
+			logger.error("Could not write slab: {}", aPath, e);
 			throw new NexusException("Could not write slab", e);
 		}
 	}
