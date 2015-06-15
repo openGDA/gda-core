@@ -28,7 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * 
+ *
  */
 public class GaussianTest {
 	private Gaussian gaussianOne;
@@ -59,7 +59,7 @@ public class GaussianTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testYAtX() {
@@ -67,7 +67,7 @@ public class GaussianTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testDerivativeAtX() {
@@ -75,7 +75,7 @@ public class GaussianTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testXAtY() {
@@ -90,7 +90,7 @@ public class GaussianTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testDerivativeAtY() {

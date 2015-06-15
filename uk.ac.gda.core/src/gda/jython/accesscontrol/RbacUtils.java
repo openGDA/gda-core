@@ -18,13 +18,6 @@
 
 package gda.jython.accesscontrol;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
-
 import gda.configuration.properties.LocalProperties;
 import gda.device.Device;
 import gda.device.corba.impl.DeviceAdapter;
@@ -32,20 +25,27 @@ import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
 import gda.factory.corba.util.RbacEnabledAdapter;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
+
 /**
  * Contains methods that handle wrapping of objects to enable role-based access control (RBAC).
  */
 public class RbacUtils {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(RbacUtils.class);
-	
+
 	static boolean wrapWithInterceptors;
-	
+
 	static
 	{
 		wrapWithInterceptors=LocalProperties.isAccessControlEnabled();
 	}
-	
+
 	protected static boolean canProxyUsingCglib(Findable findable) {
 		final boolean isFinal = Modifier.isFinal(findable.getClass().getModifiers());
 		if (isFinal) {
@@ -53,13 +53,13 @@ public class RbacUtils {
 		}
 		return !isFinal;
 	}
-	
+
 	public static Findable wrapFindableWithInterceptor(Findable findable){
-		
+
 		if (!wrapWithInterceptors){
 			return findable;
 		}
-		
+
 		if (findable instanceof Device && canProxyUsingCglib(findable)) {
 			findable = DeviceInterceptor.newDeviceInstance((Device) findable);
 		} else if (isOEInPath()) {
@@ -73,22 +73,22 @@ public class RbacUtils {
 		}
 		return findable;
 	}
-	
+
 	public static Findable buildProxy(final Findable findable) {
-		
+
 		if (!(findable instanceof RbacEnabledAdapter)) {
 			return findable;
 		}
-		
+
 		final RbacEnabledAdapter adapter = (RbacEnabledAdapter) findable;
-		
+
 		final org.omg.CORBA.Object corbaObject = adapter.getCorbaObject();
 		final String name = findable.getName();
 		final NetService netService = adapter.getNetService();
-		
+
 		return buildProxy(findable, corbaObject, name, netService);
 	}
-	
+
 	@SuppressWarnings({ "null" })
 	private static Findable buildProxy(Findable theFindable, org.omg.CORBA.Object theDevice, String name, NetService netService) {
 		//test to see if we are creating OE wrappers as well
@@ -102,7 +102,7 @@ public class RbacUtils {
 		} catch (Exception e1) {
 			oeInPath = false;
 		}
-		
+
 		if (oeInPath) {
 			try {
 				newoeinstance = OEInterceptor.getMethod("newOEAdapterInstance", OEAdapter, org.omg.CORBA.Object.class,String.class,NetService.class);
@@ -111,7 +111,7 @@ public class RbacUtils {
 				logger.warn("OE classes are available, but the newOEAdapterInstance method could not be found");
 			}
 		}
-		
+
 		// rebuild every device object inside an RBACProxy
 		if (theFindable instanceof DeviceAdapter) {
 			Findable findableProxy = DeviceInterceptor.newDeviceAdapterInstance((DeviceAdapter) theFindable, theDevice,
@@ -134,18 +134,18 @@ public class RbacUtils {
 		}
 		return theFindable;
 	}
-	
+
 	// The below methods and fields are for OEs only - they should be removed with OEs.
-	// The reflection is done to prevent the core plugin being dependent on the oe plugin. 
-	
+	// The reflection is done to prevent the core plugin being dependent on the oe plugin.
+
 	static Method newoeinstance;
-	
+
 	static Boolean oeInPath;
-	
+
 	static Class<?> OEInterceptor;
-	
+
 	static Class<?> OE;
-	
+
 	private synchronized static boolean isOEInPath(){
 		if ( oeInPath == null){
 			try {
@@ -159,12 +159,12 @@ public class RbacUtils {
 		}
 		return oeInPath;
 	}
-	
+
 	/**
 	 * Returns {@code true} if the object is a cglib proxy.
 	 */
 	public static boolean objectIsCglibProxy(Object o) {
 		return (o instanceof net.sf.cglib.proxy.Factory);
 	}
-	
+
 }

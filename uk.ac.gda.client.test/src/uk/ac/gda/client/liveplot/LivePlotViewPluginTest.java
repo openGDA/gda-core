@@ -61,11 +61,11 @@ public class LivePlotViewPluginTest implements IScanDataPointProvider, ScanDataP
 		ClientManager.setTestingMode(true);
 		scratchFolder=TestHelpers.setUpTest(LivePlotViewPluginTest.class, "setUp", true);
 		testdataFile = LivePlotViewPluginTest.class.getResource("LivePlotViewTestTestData.nxs");
-		GDAClientActivator.getDefault().getPreferenceStore().setValue(PreferenceConstants.MAX_SIZE_CACHED_DATA_POINTS,1);	
-		
+		GDAClientActivator.getDefault().getPreferenceStore().setValue(PreferenceConstants.MAX_SIZE_CACHED_DATA_POINTS,1);
+
 		InterfaceProvider.setScanDataPointProviderForTesting(this);
 		UIScanDataPointEventService.getInstance().reconnect();
-		
+
 	}
 
 	/**
@@ -88,12 +88,12 @@ public class LivePlotViewPluginTest implements IScanDataPointProvider, ScanDataP
 		final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		this.view = (LivePlotView)window.getActivePage().showView(LivePlotView.getID());
 		window.getActivePage().activate(view);
-		
+
 		ActionFactory.IWorkbenchAction  maximizeAction = ActionFactory.MAXIMIZE.create(window);
-		maximizeAction.run(); // Will maximize the active part		
+		maximizeAction.run(); // Will maximize the active part
 		waitForJobs();
-		delay(3000);		
-		
+		delay(3000);
+
 		ScanDataPointHandlerTester addDataQueue = new ScanDataPointHandlerTester(this);
 		for(int i=0; i< 3; i++){
 			File f =  new File(scratchFolder + File.separator + Integer.toString(i)+".nxs");
@@ -106,10 +106,10 @@ public class LivePlotViewPluginTest implements IScanDataPointProvider, ScanDataP
 			case 0:
 				{
 				/* first sets of lines is a nested scan the first scannable has 3 positions, the second 2 positions
-				 * and the 3rd 100, so there are 6 combinations of first and second scannables. 
+				 * and the 3rd 100, so there are 6 combinations of first and second scannables.
 				 * There are 2 extra scannables being monitored so the total number of lines per combination is 4
 				 * making 4*6 lines = 24.
-				 * So x is the 3rd scannable 
+				 * So x is the 3rd scannable
 				 */
 				Assert.assertNotNull(this.view.xyPlot.plotView.scans[23]);
 				Assert.assertNull(this.view.xyPlot.plotView.scans[24]);
@@ -154,10 +154,10 @@ public class LivePlotViewPluginTest implements IScanDataPointProvider, ScanDataP
 		delay(15000); //time to 'play with the graph if wanted
 	}
 
-	
+
 	/**
 	 * Process UI input but do not return for the specified time interval.
-	 * 
+	 *
 	 * @param waitTimeMillis
 	 *            the number of milliseconds
 	 */
@@ -228,5 +228,5 @@ public class LivePlotViewPluginTest implements IScanDataPointProvider, ScanDataP
 
 	@Override
 	public void deleteScanEventObserver(IObserver anObserver) {
-	}	
+	}
 }

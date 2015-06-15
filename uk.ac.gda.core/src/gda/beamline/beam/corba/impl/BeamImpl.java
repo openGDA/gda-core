@@ -20,18 +20,18 @@
 package gda.beamline.beam.corba.impl;
 
 import gda.beamline.BeamInfo;
+import gda.beamline.beam.corba.CorbaBeamInfoPOA;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.factory.corba.util.EventDispatcher;
 import gda.factory.corba.util.EventService;
-import gda.beamline.beam.corba.CorbaBeamInfoPOA;
 import gda.observable.IObserver;
 
 /**
  * A server side implementation for a distributed BeamInfo interface.
  */
 public class BeamImpl extends CorbaBeamInfoPOA implements IObserver {
-	
+
 	private BeamInfo theObject = null;
 
 	private org.omg.PortableServer.POA poa;
@@ -42,7 +42,7 @@ public class BeamImpl extends CorbaBeamInfoPOA implements IObserver {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param object
 	 *            the BeamInfo implementation object
 	 * @param poa
@@ -59,7 +59,7 @@ public class BeamImpl extends CorbaBeamInfoPOA implements IObserver {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the BeamInfo implementation object
 	 */
 	public BeamInfo _delegate() {
@@ -68,7 +68,7 @@ public class BeamImpl extends CorbaBeamInfoPOA implements IObserver {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param theobject
 	 *            set the BeamInfo implementation object
 	 */

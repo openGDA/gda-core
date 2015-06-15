@@ -27,17 +27,17 @@ import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
 public class ExampleExperimentObject extends ExperimentObject {
 
 	public static final String SCANBEANTYPE = "Scan";
-	
+
 	@Override
 	public void createFilesFromTemplates() {
 		final IFolder folder = getFolder();
 		XMLCommandHandler xmlCH = new XMLCommandHandler();
-		
+
 		// just one file in each experiment at the moment
 		IFile scanFile = xmlCH.doTemplateCopy(folder, "ExampleExpt_Parameters.xml");
 		typeToFileMap.put(SCANBEANTYPE, scanFile.getName());
 	}
-	
+
 	@Override
 	public String getOutputPath() {
 		return null;
@@ -47,7 +47,7 @@ public class ExampleExperimentObject extends ExperimentObject {
 	public long estimateTime() throws Exception {
 		return 0;
 	}
-	
+
 	/**
 	 * This is used when marshalling/unmarshalling this object to a .scan file
 	 */
@@ -60,14 +60,14 @@ public class ExampleExperimentObject extends ExperimentObject {
 		buf.append(getNumberRepetitions());
 		return buf.toString();
 	}
-	
+
 	public void setScanFileName(String string) {
 		if (string.indexOf(' ') > -1)
 			throw new RuntimeException("Scan name cannot contain a space.");
 		getTypeToFileMap().put(SCANBEANTYPE, string);
 //		notifyListeners("ScanFileName");
 	}
-	
+
 	public String getScanFileName() {
 		return getTypeToFileMap().get(SCANBEANTYPE);
 	}
@@ -87,7 +87,7 @@ public class ExampleExperimentObject extends ExperimentObject {
 	@Override
 	public void parseEditorFile(String fileName) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

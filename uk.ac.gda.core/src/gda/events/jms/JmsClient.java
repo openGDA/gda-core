@@ -31,17 +31,17 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 public class JmsClient {
 
 	protected static final String TOPIC_PREFIX = "gda.event.";
-	
+
 	protected static final String JMS_URL = "tcp://localhost:61616";
-	
+
 	protected Connection connection;
-	
+
 	protected Session session;
-	
+
 	protected void createSession() throws JMSException {
 		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(JMS_URL);
 		connection = factory.createConnection();
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 	}
-	
+
 }

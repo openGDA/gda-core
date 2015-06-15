@@ -30,9 +30,9 @@ import org.slf4j.LoggerFactory;
  * HumiditySocketExecutor Class
  */
 public class HumiditySocketExecutor implements SocketExecutor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(HumiditySocketExecutor.class);
-	
+
 	private static final String SEPARATOR = "$";
 
 	private double humidity = 0.25;

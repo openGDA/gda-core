@@ -30,16 +30,16 @@ import org.jfree.data.xy.XYSeriesCollection;
 public interface Magnifier {
 	/**
 	 * Should set the SimplePlot to be magnified.
-	 * 
+	 *
 	 * @param toBeMagnified
 	 *            the SimplePlot which will be magnified.
-	 * @param xySeriesCollection 
+	 * @param xySeriesCollection
 	 */
 	public void setSimplePlot(SimplePlot toBeMagnified, XYSeriesCollection xySeriesCollection);
 
 	/**
 	 * Should toggle the visibility of the window.
-	 * 
+	 *
 	 * @param visible
 	 *            the new visibility.
 	 */
@@ -47,7 +47,7 @@ public interface Magnifier {
 
 	/**
 	 * Should set the size of the window.
-	 * 
+	 *
 	 * @param size
 	 *            a Dimension containing the width and height of the window.
 	 */
@@ -55,7 +55,7 @@ public interface Magnifier {
 
 	/**
 	 * Should cause the window to display the given area of the plot.
-	 * 
+	 *
 	 * @param toMagnify
 	 *            a Rectangle2D which specifies the area to magnify.
 	 */

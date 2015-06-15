@@ -15,7 +15,7 @@ public interface AlarmListener {
 
 	/**
 	 * Alarm callback.
-	 * 
+	 *
 	 * @param anAlarm
 	 *            the alarm performing the callback
 	 */

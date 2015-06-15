@@ -40,7 +40,7 @@ public class TimerImpl extends CorbaTimerPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param timer
 	 *            the Timer implementation object
 	 * @param poa
@@ -54,7 +54,7 @@ public class TimerImpl extends CorbaTimerPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Timer implementation object
 	 */
 	public Timer _delegate() {
@@ -63,7 +63,7 @@ public class TimerImpl extends CorbaTimerPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param timer
 	 *            set the Timer implementation object
 	 */
@@ -225,7 +225,7 @@ public class TimerImpl extends CorbaTimerPOA {
 	public void close() throws CorbaDeviceException {
 		deviceImpl.close();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();

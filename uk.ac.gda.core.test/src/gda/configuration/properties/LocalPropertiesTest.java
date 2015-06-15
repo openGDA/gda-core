@@ -20,7 +20,6 @@
 package gda.configuration.properties;
 
 import static org.junit.Assert.assertEquals;
-import gda.configuration.properties.LocalProperties;
 
 import java.util.Arrays;
 
@@ -34,7 +33,7 @@ public class LocalPropertiesTest {
 	private static final String TEST = "test";
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testAsIntsNormal() {
@@ -44,7 +43,7 @@ public class LocalPropertiesTest {
 		assertEquals(Arrays.asList(  new Integer[] {1,2,3}),LocalProperties.getAsIntList(LocalPropertiesTest.TEST));
 	}
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testAsIntsEmpty() {
@@ -52,36 +51,36 @@ public class LocalPropertiesTest {
 		assertEquals(Arrays.asList(  new Integer[] {}), LocalProperties.getAsIntList(LocalPropertiesTest.TEST));
 	}
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testStringToIntListNull() {
 		assertEquals(null, LocalProperties.stringToIntList(null));
 	}
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testAsIntsDefault() {
 		assertEquals(Arrays.asList(  new Integer[] {1,2,3}),LocalProperties.getAsIntList("not a property",new Integer[] {1,2,3}));
-	}	
-	
+	}
+
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testStringToIntListSingleA() {
 		assertEquals(Arrays.asList(  new Integer[] {1}), LocalProperties.stringToIntList("1,"));
 	}
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testStringToIntListSingleB() {
 		assertEquals(Arrays.asList(  new Integer[] {1}), LocalProperties.stringToIntList("1"));
 	}
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetAsInt() {
@@ -89,5 +88,5 @@ public class LocalPropertiesTest {
 		assertEquals(1, LocalProperties.getAsInt(LocalPropertiesTest.TEST).intValue());
 		assertEquals(2, LocalProperties.getAsInt("not a property", 2).intValue());
 	}
-	
+
 }

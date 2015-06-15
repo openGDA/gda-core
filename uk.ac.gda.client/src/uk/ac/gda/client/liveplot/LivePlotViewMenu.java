@@ -43,17 +43,17 @@ public class LivePlotViewMenu extends ContributionItem {
 		final MenuItem menuItem = new MenuItem(parent.getMenu(),SWT.CHECK,index);
 		menuItem.setText("Disconnect");
 		menuItem.addSelectionListener(new SelectionListener() {
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				state = !state;
 				menuItem.setSelection(state);
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
 		});
 		menuItem.getMenu().addMenuListener(new MenuAdapter(){
@@ -63,9 +63,9 @@ public class LivePlotViewMenu extends ContributionItem {
 				super.menuShown(e);
 				menuItem.setSelection(state);
 			}
-			
+
 		});
 	}
 
-	
+
 }

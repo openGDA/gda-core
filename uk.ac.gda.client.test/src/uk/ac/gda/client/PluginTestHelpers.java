@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Display;
 public class PluginTestHelpers {
 	/**
 	 * Process UI input but do not return for the specified time interval.
-	 * 
+	 *
 	 * @param waitTimeMillis
 	 *            the number of milliseconds
 	 */

@@ -39,7 +39,7 @@ public class XColorDefinition {
 
 	/**
 	 * Constructor which makes an XColorDefinition from a string.
-	 * 
+	 *
 	 * @param fromFile
 	 *            the string
 	 */
@@ -55,7 +55,7 @@ public class XColorDefinition {
 
 	/**
 	 * Constructor which makes an XColorDefinition from its parts.
-	 * 
+	 *
 	 * @param red
 	 *            the red value
 	 * @param green
@@ -74,7 +74,7 @@ public class XColorDefinition {
 
 	/**
 	 * Gets the name.
-	 * 
+	 *
 	 * @return the name
 	 */
 	public String getName() {
@@ -83,7 +83,7 @@ public class XColorDefinition {
 
 	/**
 	 * Gets the red component.
-	 * 
+	 *
 	 * @return the red component
 	 */
 	public int getRed() {
@@ -92,7 +92,7 @@ public class XColorDefinition {
 
 	/**
 	 * Gets the green component.
-	 * 
+	 *
 	 * @return the green component
 	 */
 	public int getGreen() {
@@ -101,7 +101,7 @@ public class XColorDefinition {
 
 	/**
 	 * Gets the blue component.
-	 * 
+	 *
 	 * @return the blue component
 	 */
 	public int getBlue() {
@@ -110,7 +110,7 @@ public class XColorDefinition {
 
 	/**
 	 * Returns a String to represent the XColorDefinition.
-	 * 
+	 *
 	 * @return a String (same format as found in rgb.txt files
 	 */
 	@Override

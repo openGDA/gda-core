@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * <b>Description: </b>Use this class to read and write SRS streams. The SRS data must be provided, or read, via a
  * SrsBuffer object.
  * </p>
- * 
+ *
  * @see gda.data.srs.SrsBuffer
  */
 
@@ -47,7 +47,7 @@ public class SrsFile {
 
 	/**
 	 * Write a SRS file
-	 * 
+	 *
 	 * @param buf
 	 *            The SRS buffer to use.
 	 * @param filename
@@ -71,7 +71,7 @@ public class SrsFile {
 
 	/**
 	 * Read a SRS file.
-	 * 
+	 *
 	 * @param filename
 	 *            The filename to read.
 	 * @return The SRS buffer.
@@ -96,7 +96,7 @@ public class SrsFile {
 
 	/**
 	 * Write this buffer to the stream. The stream will be flushed, but not closed.
-	 * 
+	 *
 	 * @param buf
 	 *            The SrsBuffer.
 	 * @param out
@@ -261,7 +261,7 @@ public class SrsFile {
 
 	/**
 	 * Method which reads all the tabbed separated values from a String.
-	 * 
+	 *
 	 * @param line
 	 * @return The found eleemnts in a Vector<String>
 	 */

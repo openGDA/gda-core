@@ -43,7 +43,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Wrapper for native C VISA method. Open a default resource manager.
-	 * 
+	 *
 	 * @param session
 	 * @return error code
 	 */
@@ -51,7 +51,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Wrapper for native C method.
-	 * 
+	 *
 	 * @param session
 	 * @param name
 	 * @param mode
@@ -63,7 +63,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Wrapper for native C method.
-	 * 
+	 *
 	 * @param session
 	 * @return error code
 	 */
@@ -71,7 +71,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Wrapper for native C method.
-	 * 
+	 *
 	 * @param session
 	 * @param mesg
 	 * @return error code
@@ -80,7 +80,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Wrapper for native C method.
-	 * 
+	 *
 	 * @param session
 	 * @return error code
 	 */
@@ -93,7 +93,7 @@ public class GpibAgilentE5810A extends GpibBase {
 		// Load in VISA wrapper library.
 		System.loadLibrary("AgilentE5810A");
 	}
-	
+
 	@Override
 	public void configure(){
 		// no configuration required
@@ -117,7 +117,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Method which requests the ID string of the GPIB device.
-	 * 
+	 *
 	 * @return ID string
 	 */
 	public String getID() {
@@ -127,7 +127,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Finds GPIB board/device.
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the device/board to be found
 	 * @return The handle to the device/board
@@ -140,7 +140,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Conducts a serial poll, which fetches a single byte from the GPIB device.
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the device to be polled
 	 * @return The poll byte
@@ -153,7 +153,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Clears a specific device.
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the device to be cleared
 	 * @throws DeviceException
@@ -165,7 +165,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Assert interface clear.
-	 * 
+	 *
 	 * @param interFaceName
 	 * @throws DeviceException
 	 */
@@ -176,7 +176,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Change the I/O timeout period.
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the GPIB device
 	 * @param timeout
@@ -190,7 +190,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Gets the time allowed for reads/writes in milliseconds.
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the GPIB device
 	 * @return timeout the allowed for reads/writes in milliseconds
@@ -203,7 +203,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Sets read/write termination character.
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the GPIB device
 	 * @param term
@@ -217,7 +217,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Gets read/write termination character.
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the GPIB device
 	 * @return the termination character
@@ -230,7 +230,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Sets read termination for talkers.
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the GPIB device
 	 * @param terminate
@@ -244,7 +244,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Sets write termination for listeners.
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the GPIB device
 	 * @param terminate
@@ -258,7 +258,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Gets read termination for talkers.
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the GPIB device
 	 * @return if true termination chracter is used to terminate reads, if false no read termination is performed
@@ -271,7 +271,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Gets write termination for listeners.
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the GPIB device
 	 * @return if true termination chracter is used to terminate write, if false no write termination is performed
@@ -284,7 +284,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Reads the reply string from GPIB.
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the GPIB device
 	 * @return the reply
@@ -297,7 +297,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Reads a string of specified length.
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the GPIB device
 	 * @param strLength
@@ -312,7 +312,7 @@ public class GpibAgilentE5810A extends GpibBase {
 
 	/**
 	 * Writes a String to the GPIB device.
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the GPIB device
 	 * @param buffer

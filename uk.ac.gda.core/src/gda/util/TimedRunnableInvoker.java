@@ -29,14 +29,14 @@ import org.slf4j.LoggerFactory;
  * Findable object used to invoke Runnable objects and then wait for a time
  */
 public class TimedRunnableInvoker extends DeviceBase {
-	private static final Logger logger = LoggerFactory.getLogger(TimedRunnableInvoker.class);	
+	private static final Logger logger = LoggerFactory.getLogger(TimedRunnableInvoker.class);
 	Integer waitTime=1000; //1m
 	boolean running=true;
 	List<Runnable> runnables;
 	Thread t;
 
 	/**
-	 * 
+	 *
 	 */
 	public TimedRunnableInvoker(){
 		setLocal(true);

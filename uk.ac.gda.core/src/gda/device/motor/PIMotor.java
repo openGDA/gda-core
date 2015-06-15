@@ -19,16 +19,16 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.factory.Finder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Class to implement PI piezo controllers that use the E-816 command set.
- * 
+ *
  * @see PIController
  */
 public class PIMotor extends MotorBase {
@@ -112,7 +112,7 @@ public class PIMotor extends MotorBase {
 	/**
 	 * This method queries the error code first to see if an error has been recorded. If it has, a second command is
 	 * sent to query the system status.
-	 * 
+	 *
 	 * @return MotorStatus equivalent to the error code reading
 	 */
 	@Override

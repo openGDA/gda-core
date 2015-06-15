@@ -110,7 +110,7 @@ public class PlotTreeLegend extends JPanel implements XYDataHandlerLegend {
 		menuUnshowNew.setMnemonic(KeyEvent.VK_N);
 		menuUnshowNew.setToolTipText("Hide plots from new scans.");
 		menuUnshowNew.setSelected(false);
-		
+
 		JMenuItem menuHideAll = new JMenuItem("Hide all");
 		menuHideAll.setMnemonic(KeyEvent.VK_H);
 		menuHideAll.setToolTipText("Hide all plots");
@@ -122,7 +122,7 @@ public class PlotTreeLegend extends JPanel implements XYDataHandlerLegend {
 				treeArea.getModel().makeAllVisible(false);
 			}
 		});
-		
+
 		JMenuItem menuTreeVisible = new JMenuItem("Show All");
 		menuTreeVisible.setMnemonic(KeyEvent.VK_S);
 		menuTreeVisible.setSelected(true);
@@ -154,15 +154,15 @@ public class PlotTreeLegend extends JPanel implements XYDataHandlerLegend {
 	}
 
 	@Override
-	public void addScan(String currentFilename, String topGrouping, String [] subGrouping, 
+	public void addScan(String currentFilename, String topGrouping, String [] subGrouping,
 			String itemName, boolean visible, String id, int lineNumber,
 			Color color, Marker marker, boolean onlyOne, String xLabel, boolean reloadLegendModel){
 		boolean menuUnshowNewVal = getMenuUnShowNewVal();
-		DefaultMutableTreeNode node = model.addScanLine(currentFilename, topGrouping, subGrouping, 
-				new ScanLine(itemName, !menuUnshowNewVal & visible, id, lineNumber, color, marker, xLabel), 
+		DefaultMutableTreeNode node = model.addScanLine(currentFilename, topGrouping, subGrouping,
+				new ScanLine(itemName, !menuUnshowNewVal & visible, id, lineNumber, color, marker, xLabel),
 				onlyOne, getMenuAutoCollapseTreeOnAdd(), getMenuUnshowLast(),
 				menuUnshowNewVal, reloadLegendModel);
-		
+
 		treeArea.addScan(node, getMenuAutoCollapseTreeOnAdd());
 	}
 	protected boolean getMenuUnshowLast() {
@@ -186,7 +186,7 @@ public class PlotTreeLegend extends JPanel implements XYDataHandlerLegend {
 	public Vector<String> getNamesOfLinesInPreviousScan(boolean visibility) {
 		return model.getNamesOfLinesInPreviousScan(visibility);
 	}
-	
+
 }
 
 class TreeArea extends JScrollPane {
@@ -222,7 +222,7 @@ class TreeArea extends JScrollPane {
 	public ScanTree getModel() {
 		return model;
 	}
-	
+
 }
 
 class ScanTreeRenderer implements TreeCellRenderer {
@@ -250,7 +250,7 @@ class ScanTreeRenderer implements TreeCellRenderer {
 		if (value != null && value instanceof ScanPair) {
 			scanPairRenderer.configure((ScanPair) value);
 			returnValue = scanPairRenderer;
-		} 
+		}
 		else if (value != null && value instanceof ISelectableNode) {
 			selectableNodeRenderer.configure((ISelectableNode) value);
 			returnValue = selectableNodeRenderer;
@@ -449,14 +449,14 @@ class TreeListenerArea extends JScrollPane implements TreeSelectionListener {
 	static final String comment = "Select a line's marker to view details";
 	private ScanPair scanPair;
 	private JTree tree;
-	
+
 	void setTree(JTree tree){
 		this.tree = tree;
 		this.tree.addTreeSelectionListener(this);
 	}
-	
+
 	TreeListenerArea() {
-		
+
 		JMenuBar menuBar = new JMenuBar();
 		JMenuItem menuHideAll = new JMenuItem("Properties");
 		menuHideAll.setMnemonic(KeyEvent.VK_P);

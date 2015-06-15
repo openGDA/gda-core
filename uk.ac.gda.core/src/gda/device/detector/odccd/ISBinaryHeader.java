@@ -33,58 +33,58 @@ public class ISBinaryHeader {
 	// should theses really be public? They have accessor functions!
 
 	/**
-	 * 
+	 *
 	 */
 	public int mNameOffset = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	public int mNameLength = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	public int mDataOffset = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	public int mDataLength = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	public int[] mDataSize = new int[2];
 
 	/**
-	 * 
+	 *
 	 */
 	public int[] mDataDstOffset = new int[2];
 
 	/**
-	 * 
+	 *
 	 */
 	public int mUnitOffset = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	public int mUnitLength = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	public int mFrameLength = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	public int mFlags = 0;
 
 	/**
 	 * Get the data dst offset
-	 * 
+	 *
 	 * @return offset
 	 */
 	public int[] getDataDstOffset() {
@@ -93,7 +93,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Set the data dst offset
-	 * 
+	 *
 	 * @param dataDstOffset
 	 */
 	public void setDataDstOffset(int[] dataDstOffset) {
@@ -102,7 +102,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Get the size of the data buffer
-	 * 
+	 *
 	 * @return size of data buffer (bytes)
 	 */
 	public int getDataLength() {
@@ -111,7 +111,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Set the size of the data buffer
-	 * 
+	 *
 	 * @param dataLength
 	 *            (bytes)
 	 */
@@ -121,7 +121,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Get the offset of the data from the start of the buffer.
-	 * 
+	 *
 	 * @return offset (bytes)
 	 */
 	public int getDataOffset() {
@@ -130,7 +130,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Set the offset of the data from the start of the buffer.
-	 * 
+	 *
 	 * @param dataOffset
 	 */
 	public void setDataOffset(int dataOffset) {
@@ -139,7 +139,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Get the 2-D size of the data buffer
-	 * 
+	 *
 	 * @return 2-d size
 	 */
 	public int[] getDataSize() {
@@ -148,7 +148,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Set the 2-D size of the data buffer.
-	 * 
+	 *
 	 * @param dataSize
 	 */
 	public void setDataSize(int[] dataSize) {
@@ -157,7 +157,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Get the buffer flags
-	 * 
+	 *
 	 * @return flags
 	 */
 	public int getFlags() {
@@ -166,7 +166,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Set the buffer flags
-	 * 
+	 *
 	 * @param flags
 	 */
 	public void setFlags(int flags) {
@@ -175,7 +175,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Get the total frame/buffer length
-	 * 
+	 *
 	 * @return length (bytes)
 	 */
 	public int getFrameLength() {
@@ -184,7 +184,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Set the total frame/buffer length
-	 * 
+	 *
 	 * @param frameLength
 	 */
 	public void setFrameLength(int frameLength) {
@@ -193,7 +193,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Get the size of the name buffer
-	 * 
+	 *
 	 * @return size (bytes)
 	 */
 	public int getNameLength() {
@@ -202,7 +202,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Set the size of the name buffer
-	 * 
+	 *
 	 * @param nameLength
 	 */
 	public void setNameLength(int nameLength) {
@@ -211,7 +211,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Get the offset of the name buffer from the start of the buffer.
-	 * 
+	 *
 	 * @return offset (bytes)
 	 */
 	public int getNameOffset() {
@@ -220,7 +220,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Set the offset of the name buffer from the start of the buffer.
-	 * 
+	 *
 	 * @param nameOffset
 	 */
 	public void setNameOffset(int nameOffset) {
@@ -229,7 +229,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Get the size of the unit buffer
-	 * 
+	 *
 	 * @return size (bytes)
 	 */
 	public int getUnitLength() {
@@ -238,7 +238,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Set the size of the unit buffer
-	 * 
+	 *
 	 * @param unitLength
 	 *            (bytes)
 	 */
@@ -248,7 +248,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Get the unit buffer offset from the start of the buffer.
-	 * 
+	 *
 	 * @return offset (bytes)
 	 */
 	public int getUnitOffset() {
@@ -257,7 +257,7 @@ public class ISBinaryHeader {
 
 	/**
 	 * Set the unit buffer offset from the start of the buffer.
-	 * 
+	 *
 	 * @param unitOffset
 	 *            (bytes)
 	 */

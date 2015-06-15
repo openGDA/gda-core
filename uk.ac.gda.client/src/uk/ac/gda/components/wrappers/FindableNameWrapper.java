@@ -60,10 +60,10 @@ public class FindableNameWrapper extends TextWrapper {
 	public FindableNameWrapper(Composite parent, int style, final Class<? extends Object> findableClass) {
 		this(parent, style, findableClass, true);
 	}
-	
+
 	/**
 	 * Create widget which checks name defined is a findable instance of the class passed in.
-	 * 
+	 *
 	 * @param parent
 	 * @param style
 	 * @param findableClass
@@ -71,9 +71,9 @@ public class FindableNameWrapper extends TextWrapper {
 	public FindableNameWrapper(Composite parent, int style, final Class<? extends Object> findableClass,  boolean labelOnRight) {
 
 		super(parent, style);
-		
+
 		this.labelOnRight = labelOnRight;
-		
+
 		this.findableClass = findableClass;
 		if (labelOnRight) {
 			setLayout(new GridLayout(2, false));
@@ -93,7 +93,7 @@ public class FindableNameWrapper extends TextWrapper {
 		};
 		text.addModifyListener(modifyListener);
 	}
-	
+
 
 	@Override
 	public void dispose() {

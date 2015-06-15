@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 public class NXLinkCreator {
 
 	private static final Logger logger = LoggerFactory.getLogger(NXLinkCreator.class);
-	
+
 	List<SubEntryLink> links = new Vector<SubEntryLink>();
 	public NXLinkCreator() {
 	}

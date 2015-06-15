@@ -33,7 +33,7 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 /**
  * Makes a copy of the current folder/scan/run object at the same level
- * 
+ *
  */
 public class DuplicateCommandHandler extends AbstractExperimentCommandHandler {
 

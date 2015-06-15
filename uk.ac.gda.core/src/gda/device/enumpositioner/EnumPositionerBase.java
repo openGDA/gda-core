@@ -58,7 +58,7 @@ public abstract class EnumPositionerBase extends ScannableBase implements EnumPo
 
 	/**
 	 * Sets the positions of this positioner.
-	 * 
+	 *
 	 * @param positions
 	 *            the positions
 	 */

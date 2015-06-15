@@ -40,7 +40,7 @@ public class MonitorImpl extends CorbaMonitorPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param monitor
 	 *            the Monitor implementation object
 	 * @param poa
@@ -229,7 +229,7 @@ public class MonitorImpl extends CorbaMonitorPOA {
 			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return scannableImpl.getProtectionLevel();
@@ -244,12 +244,12 @@ public class MonitorImpl extends CorbaMonitorPOA {
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		scannableImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return scannableImpl.toFormattedString();
@@ -259,7 +259,7 @@ public class MonitorImpl extends CorbaMonitorPOA {
 	public void atLevelStart() throws CorbaDeviceException {
 		scannableImpl.atLevelStart();
 	}
-	
+
 	@Override
 	public void atLevelEnd() throws CorbaDeviceException {
 		scannableImpl.atLevelEnd();

@@ -34,7 +34,7 @@ import java.io.IOException;
 public class Differentiate {
 	/**
 	 * Differentiate using a standard numerical recipe.
-	 * 
+	 *
 	 * @param x
 	 *            x data
 	 * @param y
@@ -97,7 +97,7 @@ public class Differentiate {
 
 	/**
 	 * Differentiate using a standard numerical recipie
-	 * 
+	 *
 	 * @param x
 	 *            x data
 	 * @param y
@@ -118,7 +118,7 @@ public class Differentiate {
 
 	/**
 	 * Differentiate using Savitzky Galoy
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @param noOfPoints
@@ -245,7 +245,7 @@ public class Differentiate {
 
 	/**
 	 * Test Main method.
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {

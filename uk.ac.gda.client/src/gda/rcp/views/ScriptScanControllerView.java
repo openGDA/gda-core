@@ -41,7 +41,7 @@ public class ScriptScanControllerView extends ViewPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		
+
 		Composite container = new Composite(parent, SWT.NONE);
 		final GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 4;

@@ -75,7 +75,7 @@ public class BeamMonitor extends MonitorBase implements Runnable, Monitor, IObse
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param detectorName
 	 *            the name of the detector instance.
 	 * @param channel

@@ -42,12 +42,12 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.GDA_PYDEV_ADD_GDA_LIBS_JARS, false);
 		store.setDefault(PreferenceConstants.GDA_PYDEV_ADD_DEFAULT_JAVA_JARS, false);
 
-		
-		store.addPropertyChangeListener(new IPropertyChangeListener() {		
+
+		store.addPropertyChangeListener(new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
 				/**
-				 * if a new folder is to be created/deleted or syntax checking is changed 
+				 * if a new folder is to be created/deleted or syntax checking is changed
 				 * then rebuild the projects
 				 */
 				String prop = event.getProperty();

@@ -38,7 +38,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param simplePlot
 	 *            SimplePlot - used to allow calls to get ranges to go back to the plot window
 	 */
@@ -54,14 +54,14 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 			public double transformValueBack(double toBeTransformedBack) {
 				return toBeTransformedBack;
 			}
-			
+
 		};
 	}
 
 	/**
 	 * Adds an XYSeries to the collection. Overrides the super class method to ensure that only SimpleXYSeries can be
 	 * added.
-	 * 
+	 *
 	 * @param series
 	 *            the SimpleXYSeries to add
 	 */
@@ -73,7 +73,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 
 	/**
 	 * Finds a series representing a given lineNumber
-	 * 
+	 *
 	 * @param lineNumber
 	 * @return the series with that lineNumber or null
 	 */
@@ -87,13 +87,13 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 					break;
 				}
 			}
-		}			
+		}
 		return found;
 	}
 
 	/**
 	 * Deletes the series representing a given line number
-	 * 
+	 *
 	 * @param lineNumber
 	 * @return true if something was deleted
 	 */
@@ -114,7 +114,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 
 	/**
 	 * Returns the maximum y value of the data (part of the RangeInfo interface)
-	 * 
+	 *
 	 * @param includeInterval
 	 * @return the minimum y value
 	 */
@@ -129,7 +129,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 
 	/**
 	 * Returns the maximum y value of the data (part of the RangeInfo interface)
-	 * 
+	 *
 	 * @param includeInterval
 	 * @return the maximum y value
 	 */
@@ -144,7 +144,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 
 	/**
 	 * Returns the range of y values (part of the RangeInfo interface)
-	 * 
+	 *
 	 * @param includeInterval
 	 * @return a Range representing the range of y values
 	 */
@@ -179,7 +179,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 	 * DatasetUtilities static method of the same name. It works in the same except that it does not include series
 	 * which are invisible. If...then...elses referring to situations impossible for this class have been removed and
 	 * the code has been simplified to take advantage of the fact that it is working within an instance.
-	 * 
+	 *
 	 * @return The range (possibly <code>null</code>).
 	 */
 	private Range iterateXYRangeExtent() {
@@ -218,7 +218,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 	 * Overrides the super class method so that we can deal with invisible lines (by not including them). In
 	 * XYSeriesCollection getDomainRange is delegated to an XYIntervalDelegate so this method actually is copied from
 	 * that class.
-	 * 
+	 *
 	 * @param includeInterval
 	 * @return The range (possibly <code>null</code>).
 	 */
@@ -251,7 +251,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 	 * DatasetUtilities static method of the same name. It works in the same except that it does not inclued series
 	 * which are invisible. If...then...elses referring to situations impossible for this class have been removed and
 	 * the code has been simplified to take advantage of the fact that it is working within an instance.
-	 * 
+	 *
 	 * @return The range (possibly <code>null</code>).
 	 */
 	private Range iterateDomainExtent() {
@@ -291,7 +291,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 
 	/**
 	 * Returns the x value corresponding to the peak y value of a particular series.
-	 * 
+	 *
 	 * @param series
 	 *            the series
 	 * @return the x value corresponding to the peak y value of that series
@@ -302,7 +302,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 
 	/**
 	 * Returns the x value corresponding to the peak y value (within a given range) of a series.
-	 * 
+	 *
 	 * @param series
 	 *            the series
 	 * @param start
@@ -317,7 +317,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 
 	/**
 	 * Returns the x value corresponding to the peak y value of a particular series.
-	 * 
+	 *
 	 * @param text
 	 *            the name of the series
 	 * @return the x value corresponding to the peak y value of that series
@@ -333,7 +333,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 
 	/**
 	 * Returns the x value corresponding to the peak y value (within a given range) of a series.
-	 * 
+	 *
 	 * @param text
 	 *            the name of the series
 	 * @param start
@@ -353,7 +353,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 
 	/**
 	 * Returns the current X value transformer.
-	 * 
+	 *
 	 * @return the x value transformer.
 	 */
 	SimpleValueTransformer getXValueTransformer() {
@@ -362,7 +362,7 @@ public class SimpleXYSeriesCollection extends XYSeriesCollection implements Rang
 
 	/**
 	 * Sets a new xValueTransformer.
-	 * 
+	 *
 	 * @param valueTransformer
 	 *            the new value
 	 */

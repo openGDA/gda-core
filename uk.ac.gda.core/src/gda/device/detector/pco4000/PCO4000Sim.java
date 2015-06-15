@@ -37,9 +37,9 @@ public class PCO4000Sim implements IPCO4000Hardware {
 	String inData = "testfiles/gda/device/detector/pco4000/pco.tif";
 
 	/**
-	 * This constructor needs to load in some data and store it internaly, 
+	 * This constructor needs to load in some data and store it internaly,
 	 * so the objects saves out the data
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public PCO4000Sim() throws DeviceException {
 
@@ -72,11 +72,11 @@ public class PCO4000Sim implements IPCO4000Hardware {
 
 	/**
 	 * Implementation of the expose detector method
-	 * waits for a fake amount of time, and then copys a file to the 
+	 * waits for a fake amount of time, and then copys a file to the
 	 * output location
-	 * @param fileName 
-	 * @param exposureTime 
-	 * @throws DeviceException 
+	 * @param fileName
+	 * @param exposureTime
+	 * @throws DeviceException
 	 */
 	@Override
 	public void exposeDetector(String fileName, Double exposureTime) throws DeviceException{
@@ -111,7 +111,7 @@ public class PCO4000Sim implements IPCO4000Hardware {
 	}
 
 	/**
-	 * This method simply returns the value to let the user know that they are 
+	 * This method simply returns the value to let the user know that they are
 	 * using the simulator
 	 * @return "PCO4000 Simualtor"
 	 */

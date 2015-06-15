@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * is critical. Any class that overrides moveTo() and moveBy() MUST take care to accomodate backOffSteps - needed to
  * give a minimum move off a hard limit to stop the DOF preventing movements in both directions if limit is still
  * showing as on. It has been assumed that 608s will have similar constraints.
- * 
+ *
  * @see McLennanChannelSelector
  * @see McLennanController
  * @see McLennanServoMotor
@@ -241,7 +241,7 @@ public abstract class McLennanMotor extends MotorBase {
 	 * off hard limit, otherwise the combination of the Positioner and the motor replies will prevent further movements
 	 * in both directions. backOffSteps must always be +ve. It has a default of 1. The backlash move must be allowed to
 	 * happen.
-	 * 
+	 *
 	 * @param steps
 	 *            The number of steps to move BY
 	 * @throws MotorException
@@ -277,7 +277,7 @@ public abstract class McLennanMotor extends MotorBase {
 	 * off hard limit, otherwise the combination of the Positioner and the motor replies will prevent further movements
 	 * in both directions. backOffSteps must always be +ve. It has a default of 1. The backlash move must be allowed to
 	 * happen.
-	 * 
+	 *
 	 * @param steps
 	 *            The number of steps to move TO
 	 * @throws MotorException
@@ -340,7 +340,7 @@ public abstract class McLennanMotor extends MotorBase {
 	 * double value from the Positioner to int as McLennan sends a 32 bit value and trunkates any value beyond the
 	 * decimal point in a given command. Converting a double value to a String results in "1.2E9" for example, thus the
 	 * motor will only see 1 step rather than the 1,200,000,000 intended.
-	 * 
+	 *
 	 * @param minPosition
 	 *            amount to adjust lower softlimit
 	 * @param maxPosition
@@ -364,7 +364,7 @@ public abstract class McLennanMotor extends MotorBase {
 	/**
 	 * A wrapper method to enable getStatus() to throw a MotorException to a calling method. README: Perhaps can be
 	 * disposed of if getStatus() throws MotorException?.
-	 * 
+	 *
 	 * @return Motor
 	 * @exception MotorException
 	 */
@@ -381,7 +381,7 @@ public abstract class McLennanMotor extends MotorBase {
 
 	/**
 	 * Split reply from McLennan motor into axis and message components. Check that the correct axis has responded.
-	 * 
+	 *
 	 * @param reply
 	 *            Reply from motor
 	 * @return message component
@@ -416,7 +416,7 @@ public abstract class McLennanMotor extends MotorBase {
 
 	/**
 	 * Send a command to the motor and parse the reply to extract the integer value.
-	 * 
+	 *
 	 * @param command
 	 *            Command code
 	 * @param radix
@@ -447,7 +447,7 @@ public abstract class McLennanMotor extends MotorBase {
 
 	/**
 	 * Send a command to the motor and parse the replies to extract the integer value matching "param"
-	 * 
+	 *
 	 * @param command
 	 *            Command name
 	 * @param param
@@ -477,7 +477,7 @@ public abstract class McLennanMotor extends MotorBase {
 
 	/**
 	 * Get value from a name value string, for example where reply is "AP=1000".
-	 * 
+	 *
 	 * @param reply
 	 *            whole reply from motor, containing ONLY one name value pair.
 	 * @return parameter value component
@@ -503,7 +503,7 @@ public abstract class McLennanMotor extends MotorBase {
 	/**
 	 * Get the value for a particular name from a name value string, for example where the reply is "SV=200, SC=1,SA=20,
 	 * SD=21".
-	 * 
+	 *
 	 * @param reply
 	 *            whole reply from motor, containing MULTIPLE name value pairs.
 	 * @param param

@@ -50,7 +50,7 @@ public class SplitQuantitiesConverterTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public final void testUnits() {
 		GenQuantitiesConverter toSourceConverter = new GenQuantitiesConverter(new JEPQuantityConverter(testFileFolder

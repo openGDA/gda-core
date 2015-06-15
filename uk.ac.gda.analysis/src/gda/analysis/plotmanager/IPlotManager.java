@@ -51,27 +51,27 @@ public interface IPlotManager extends Findable, IObservable, Configurable, Local
 	 * @param dataSets
 	 */
 	public void plotImage(String panelName, Dataset... dataSets);
-	
+
 	/**
 	 * @param panelName
 	 * @param dataSets
 	 */
-	
+
 	public void plotImages(String panelName, Dataset... dataSets);
-	
+
 	/**
 	 * @param panelName
 	 * @param dataSets
 	 */
 	public void plot3D(String panelName, Dataset...dataSets);
-	
+
 	/**
 	 * @param panelName
 	 * @param useWindow
 	 * @param dataSets
 	 */
 	public void plot3D(String panelName, boolean useWindow, Dataset...dataSets);
-	
+
 	/**
 	 * @param panelName
 	 * @param dataSets

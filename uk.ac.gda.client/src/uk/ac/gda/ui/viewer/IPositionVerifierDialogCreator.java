@@ -21,6 +21,6 @@ package uk.ac.gda.ui.viewer;
 import org.eclipse.swt.widgets.Shell;
 
 public interface IPositionVerifierDialogCreator<E> {
-	
+
 	boolean userAccepts(Shell shell, E currentPosition, E desiredPosition);
 }

@@ -33,9 +33,9 @@ import java.util.Vector;
  * Provide a list of positions to make it a general dummy positioner
  */
 public class DummyValve extends ValveBase implements EnumPositioner, Scannable {
-	
+
 	String currentPosition;
-	
+
 	@Override
 	public void configure() throws FactoryException{
 		if(!configured){
@@ -59,14 +59,14 @@ public class DummyValve extends ValveBase implements EnumPositioner, Scannable {
 	public EnumPositionerStatus getStatus() throws DeviceException {
 		return EnumPositionerStatus.IDLE;
 	}
-	
+
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-		
+
 		String positionString = position.toString();
 		if( (currentPosition == null || !currentPosition.equals(positionString)) && positions.contains(positionString)){
 			currentPosition = positionString;
-			this.notifyIObservers(this, this.currentPosition); 
+			this.notifyIObservers(this, this.currentPosition);
 			this.notifyIObservers(this, new ScannablePositionChangeEvent(this.currentPosition));
 		}
 	}

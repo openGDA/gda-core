@@ -84,7 +84,7 @@ public class SesoXbpmDetector extends DetectorBase implements Detector {
 
 	/**
 	 * Set the host name of the Windows PC running the SESO Software. Used by castor for instantiation.
-	 * 
+	 *
 	 * @param host
 	 *            the IP host name of the controller
 	 */
@@ -94,7 +94,7 @@ public class SesoXbpmDetector extends DetectorBase implements Detector {
 
 	/**
 	 * Returns the host name of the Windows PC running ImagePro.
-	 * 
+	 *
 	 * @return the host name.
 	 */
 	public String getHost() {
@@ -103,7 +103,7 @@ public class SesoXbpmDetector extends DetectorBase implements Detector {
 
 	/**
 	 * Set the socket number for ethernet communications.
-	 * 
+	 *
 	 * @param port
 	 *            the socket number.
 	 */
@@ -113,7 +113,7 @@ public class SesoXbpmDetector extends DetectorBase implements Detector {
 
 	/**
 	 * Get the socket number for ethernet communications.
-	 * 
+	 *
 	 * @return the port number.
 	 */
 	public int getPort() {

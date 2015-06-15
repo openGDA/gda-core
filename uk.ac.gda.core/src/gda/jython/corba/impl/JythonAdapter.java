@@ -65,7 +65,7 @@ public class JythonAdapter implements Jython, EventSubscriber {
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name
@@ -152,7 +152,7 @@ public class JythonAdapter implements Jython, EventSubscriber {
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean isFinishEarlyRequested() {
 		for (int i = 0; i < NetService.RETRY; i++) {
@@ -706,7 +706,7 @@ public class JythonAdapter implements Jython, EventSubscriber {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public ClientDetails[] getOtherClientInformation(String myJSFIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {
@@ -750,7 +750,7 @@ public class JythonAdapter implements Jython, EventSubscriber {
 		}
 		return new ICommandThreadInfo[0];
 	}
-	
+
 	@Override
 	public boolean requestBaton(String uniqueIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {
@@ -902,7 +902,7 @@ public class JythonAdapter implements Jython, EventSubscriber {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public Vector<String> getAliasedCommands(String JSFIdentifier) {
 		for (int i = 0; i < NetService.RETRY; i++) {

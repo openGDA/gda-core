@@ -37,27 +37,27 @@ public class TfgScalerTest {
 
 	@Before
 	public void setup() throws FactoryException, DeviceException{
-		
+
 		daserver = new DummyDAServer();
 		daserver.setDataFile(TfgScalerTest.class.getResource("Mofoil2.dat").getFile());
 		daserver.configure();
-		
+
 		tfg = new Etfg();
 		tfg.configure();
-		
+
 		memory = new Scaler();
 		memory.setDaServer(daserver);
 		memory.setWidth(10);
 		memory.setHeight(1);
 		memory.setOpenCommand("tfg open-cc");
 		memory.configure();
-		
+
 		tfgscaler = new TfgScaler();
 		tfgscaler.setScaler(memory);
 		tfgscaler.setTimer(tfg);
-		
+
 	}
-	
+
 	@Test
 	public void testReadoutTFG1NoTimeAllAvailableChannels() throws FactoryException, DeviceException {
 		tfgscaler.setTFGv2(false);
@@ -78,7 +78,7 @@ public class TfgScalerTest {
 	}
 
 	@Test
-	public void testReadoutTFG1NoTimeAllChannels() throws FactoryException, DeviceException {		
+	public void testReadoutTFG1NoTimeAllChannels() throws FactoryException, DeviceException {
 		tfgscaler.setTFGv2(false);
 		tfgscaler.setNumChannelsToRead(3);
 		tfgscaler.setFirstDataChannel(0);
@@ -86,15 +86,15 @@ public class TfgScalerTest {
 		tfgscaler.setExtraNames(new String[]{"I0","It","Iref"});
 		tfgscaler.setOutputFormat(new String[]{"%.4f","%.2f","%.2f","%.2f"});
 		tfgscaler.configure();
-		
+
 		tfgscaler.setCollectionTime(1.0);
 		tfgscaler.collectData();
-		
+
 		double[] output = tfgscaler.readout();
-		
+
 		assertEquals(3,output.length);
 		assertEquals(19.9600579,output[0],1);
-		assertEquals(-2.7172,output[1],1); 
+		assertEquals(-2.7172,output[1],1);
 		assertEquals(99380,output[2],1);
 	}
 
@@ -107,16 +107,16 @@ public class TfgScalerTest {
 		tfgscaler.setExtraNames(new String[]{"Time","I0","It","Iref"});
 		tfgscaler.setOutputFormat(new String[]{"%.4f","%.2f","%.2f","%.2f","%.2f"});
 		tfgscaler.configure();
-		
+
 		tfgscaler.setCollectionTime(0.5);
 		tfgscaler.collectData();
-		
+
 		double[] output = tfgscaler.readout();
-		
+
 		assertEquals(4,output.length);
 		assertEquals(0.5,output[0],1);
 		assertEquals(19.9600579,output[1],1);
-		assertEquals(-2.7172,output[2],1); 
+		assertEquals(-2.7172,output[2],1);
 		assertEquals(99380,output[3],1);
 	}
 
@@ -129,14 +129,14 @@ public class TfgScalerTest {
 		tfgscaler.setExtraNames(new String[]{"I0","It","Iref"});
 		tfgscaler.setOutputFormat(new String[]{"%.4f","%.2f","%.2f","%.2f"});
 		tfgscaler.configure();
-		
+
 		tfgscaler.setCollectionTime(1.0);
 		tfgscaler.collectData();
-		
+
 		double[] output = tfgscaler.readout();
-		
+
 		assertEquals(3,output.length);
-		assertEquals(-2.7172,output[0],1); 
+		assertEquals(-2.7172,output[0],1);
 		assertEquals(99380,output[1],1);
 		assertEquals(1504410,output[2],1);
 	}
@@ -150,15 +150,15 @@ public class TfgScalerTest {
 		tfgscaler.setExtraNames(new String[]{"Time","I0","It","Iref"});
 		tfgscaler.setOutputFormat(new String[]{"%.4f","%.2f","%.2f","%.2f","%.2f"});
 		tfgscaler.configure();
-		
+
 		tfgscaler.setCollectionTime(0.5);
 		tfgscaler.collectData();
-		
+
 		double[] output = tfgscaler.readout();
-		
+
 		assertEquals(4,output.length);
 		assertEquals(0.00000020,output[0],0.00000001);
-		assertEquals(-2.7172,output[1],1); 
+		assertEquals(-2.7172,output[1],1);
 		assertEquals(99380,output[2],1);
 		assertEquals(1504410,output[3],1);
 	}
@@ -172,15 +172,15 @@ public class TfgScalerTest {
 		tfgscaler.setExtraNames(new String[]{"I1","I2"});
 		tfgscaler.setOutputFormat(new String[]{"%.4f","%.2f","%.2f"});
 		tfgscaler.configure();
-		
+
 		tfgscaler.setCollectionTime(1.0);
 		tfgscaler.collectData();
-		
+
 		double[] output = tfgscaler.readout();
-		
+
 		assertEquals(2,output.length);
 		assertEquals(-9,output[0],1);
-		assertEquals(147,output[1],1); 
+		assertEquals(147,output[1],1);
 	}
 
 	@Test
@@ -192,15 +192,15 @@ public class TfgScalerTest {
 		tfgscaler.setExtraNames(new String[]{"Time","I1","I2"});
 		tfgscaler.setOutputFormat(new String[]{"%.4f","%.2f","%.2f","%.2f"});
 		tfgscaler.configure();
-		
+
 		tfgscaler.setCollectionTime(0.5);
 		tfgscaler.collectData();
-		
+
 		double[] output = tfgscaler.readout();
-		
+
 		assertEquals(3,output.length);
 		assertEquals(0.5,output[0],1);
-		assertEquals(-9,output[1],1); 
+		assertEquals(-9,output[1],1);
 		assertEquals(147,output[2],1);
 	}
 
@@ -213,12 +213,12 @@ public class TfgScalerTest {
 		tfgscaler.setExtraNames(new String[]{"I1","I2"});
 		tfgscaler.setOutputFormat(new String[]{"%.4f","%.2f","%.2f"});
 		tfgscaler.configure();
-		
+
 		tfgscaler.setCollectionTime(1.0);
 		tfgscaler.collectData();
-		
+
 		double[] output = tfgscaler.readout();
-		
+
 		assertEquals(2,output.length);
 		assertEquals(147,output[0],1);
 		assertEquals(2502,output[1],1);
@@ -233,15 +233,15 @@ public class TfgScalerTest {
 		tfgscaler.setExtraNames(new String[]{"Time","I1","I2"});
 		tfgscaler.setOutputFormat(new String[]{"%.4f","%.2f","%.2f","%.2f"});
 		tfgscaler.configure();
-		
+
 		tfgscaler.setCollectionTime(0.5);
 		tfgscaler.collectData();
-		
+
 		double[] output = tfgscaler.readout();
-		
+
 		assertEquals(3,output.length);
 		assertEquals(0.000000020,output[0],1);
-		assertEquals(147,output[1],1); 
+		assertEquals(147,output[1],1);
 		assertEquals(2502,output[2],1);
 	}
 

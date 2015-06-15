@@ -73,7 +73,7 @@ public class NetService {
 	/**
 	 * Return a singleton instance of the initialised netservice. This method is synchronized so that other threads
 	 * cannot intervene after the instance==null check and create a second instance;
-	 * 
+	 *
 	 * @return the netservice singleton.
 	 * @throws FactoryException
 	 */
@@ -132,7 +132,7 @@ public class NetService {
 
 	/**
 	 * Get the naming context.
-	 * 
+	 *
 	 * @return the naming context
 	 */
 	public NamingContextExt getNamingContextExt() {
@@ -141,7 +141,7 @@ public class NetService {
 
 	/**
 	 * Get an object that is registered with the naming service.
-	 * 
+	 *
 	 * @param name
 	 *            the name of the object to retrieve
 	 * @param type
@@ -169,7 +169,7 @@ public class NetService {
 
 	/**
 	 * Put an object on the name service
-	 * 
+	 *
 	 * @param name
 	 *            the name of the object
 	 * @param object
@@ -210,7 +210,7 @@ public class NetService {
 
 	/**
 	 * Put an object on the name service
-	 * 
+	 *
 	 * @param name
 	 *            the name of the object
 	 * @param type
@@ -254,7 +254,7 @@ public class NetService {
 
 	/**
 	 * Remove the object from the name service
-	 * 
+	 *
 	 * @param name
 	 *            the name of the object to remove
 	 * @param type
@@ -266,7 +266,7 @@ public class NetService {
 		logger.debug("Unbinding name " + name);
 		Vector<String> names = getComponents(name, OBJECT_DELIMITER);
 		NameComponent[] bindingName = toBindingName(names, kind);
-		
+
 		// This method no longer unbinds all parent contexts above the object
 		// being removed. This has the undesired effect of removing all sibling
 		// objects
@@ -290,9 +290,9 @@ public class NetService {
 
 	/**
 	 * Get the names of all Findable objects on the name service under the specified context.
-	 * 
+	 *
 	 * @param contextPath context at which to start
-	 * 
+	 *
 	 * @return a list of all findable names on the name service
 	 */
 	public List<String> listAllFindables(String contextPath) throws FactoryException {
@@ -310,10 +310,10 @@ public class NetService {
 			throw new FactoryException("Unable to list findables under " + StringUtils.quote(contextPath), e);
 		}
 	}
-	
+
 	/**
 	 * Get the names of all Findable objects on the name service
-	 * 
+	 *
 	 * @return a list of all findable names on the name service
 	 */
 	public List<String> listAllFindables() throws FactoryException {
@@ -325,11 +325,11 @@ public class NetService {
 		listToArrayFindables(context, contextPath, names, false);
 		return names;
 	}
-	
+
 	/**
 	 * used by listAllFindables to fill a vector of all the object names in the nameserver. This function recursively
 	 * calls itself as it moves through the object heirarchy.
-	 * 
+	 *
 	 * @param n
 	 *            NamingContextExt
 	 * @param context
@@ -427,7 +427,7 @@ public class NetService {
 
 	/**
 	 * Get the components of the name
-	 * 
+	 *
 	 * @param name
 	 *            the full name
 	 * @param delim
@@ -452,7 +452,7 @@ public class NetService {
 
 	/**
 	 * Reconnect to the name service in the event of failure
-	 * 
+	 *
 	 * @param name
 	 *            the name of the object to reconnect
 	 * @return the reconnected object
@@ -470,7 +470,7 @@ public class NetService {
 
 	/**
 	 * Get the type of object specified by the name
-	 * 
+	 *
 	 * @param name
 	 *            the name of the object to get the type
 	 * @return the type of object.

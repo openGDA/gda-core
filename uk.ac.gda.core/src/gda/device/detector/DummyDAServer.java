@@ -82,7 +82,7 @@ public class DummyDAServer extends DAServer {
 	private int[] xspressScalerData = null;
 	private int scanPointCount;
 	private long[][] scanPointDataFileContent;
-	
+
 	/**
 	 * initialise array etc.
 	 */
@@ -149,11 +149,11 @@ public class DummyDAServer extends DAServer {
 		else if (command.startsWith("gdhist open") || command.startsWith("gdscaler open")) {
 			handles.put(++key, "gdhist");
 			rc = (fail) ? -1 : key;
-		} 
+		}
 		else if (command.startsWith("vvhist open")) {
 			handles.put(++key, "vvhist");
 			rc = (fail) ? -1 : key;
-		} 
+		}
 		else if (command.startsWith("vvhist"))
 			rc = (fail) ? -1 : key;
 		else if (command.startsWith("vtdc"))
@@ -161,7 +161,7 @@ public class DummyDAServer extends DAServer {
 		else if (command.startsWith("scaler")) {
 			handles.put(++key, "scaler");
 			rc = (fail) ? -1 : key;
-		} 
+		}
 		else if (command.startsWith("~"))
 			rc = (fail) ? -1 : 0;
 		else if (command.startsWith("gdhist get-mem-size") || command.startsWith("gdscaler get-mem-size")
@@ -175,7 +175,7 @@ public class DummyDAServer extends DAServer {
 			xspressMcaCommandReceived = false;
 			xspressScalerCommandReceived = false;
 			rc = (fail) ? -1 : 0;
-		} 
+		}
 		else if (command.startsWith("enable"))
 			rc = (fail) ? -1 : 0;
 		else if (command.startsWith("disable"))
@@ -189,7 +189,7 @@ public class DummyDAServer extends DAServer {
 			xspressMcaCommandReceived = false;
 			xspressScalerCommandReceived = false;
 			rc = (fail) ? -1 : 0;
-		} 
+		}
 		else if (command.startsWith("close")) {
 			StringTokenizer tokenizer = new StringTokenizer(command);
 			tokenizer.nextToken(); // close
@@ -302,7 +302,7 @@ public class DummyDAServer extends DAServer {
 		if ("format-run".equals(subCommand)) {
 			parseXspressFormatRunCommand(tokenizer);
 			rc = (fail) ? -1 : 0;
-		} 
+		}
 		else if ("get-res-mode".equals(subCommand))
 			rc = (fail) ? -1 : resMode;
 		else if ("get-res-bins".equals(subCommand))
@@ -324,19 +324,19 @@ public class DummyDAServer extends DAServer {
 			tokenizer.nextToken(); // path-name
 			Integer.valueOf(tokenizer.nextToken()); // number of detectors
 			rc = (fail) ? -1 : 0;
-		} 
+		}
 		else if ("open-mca".equals(subCommand)) {
 			if (!fail)
 				handles.put(++key, "xspress mca");
 			rc = (fail) ? -1 : key;
-		} 
+		}
 		else if ("open-scalers".equals(subCommand)) {
 			if (!fail)
 				handles.put(++key, "xspress scaler");
 			rc = (fail) ? -1 : key;
-		} 
+		}
 		// for xspress1
-		else if ("set-windows".equals(subCommand)) 
+		else if ("set-windows".equals(subCommand))
 			rc = (fail) ? -1 : 0;
 		else
 			rc = -1;
@@ -423,11 +423,11 @@ public class DummyDAServer extends DAServer {
 			if ("res-min-div-8".equals(token)) {
 				mcaGrades = 16;
 				resMode = token;
-			} 
+			}
 			else if ("res-none".equals(token)) {
 				mcaGrades = 1;
 				resMode = token;
-			} 
+			}
 			else if ("res-thres".equals(token)) {
 				mcaGrades = 2; // bad and good
 				resMode = token;
@@ -437,19 +437,19 @@ public class DummyDAServer extends DAServer {
 			else if ("res-log".equals(token)) {
 				mcaGrades = 16;
 				resMode = token;
-			} 
+			}
 			else if ("res-top".equals(token)) {
 				mcaGrades = 128;
 				resMode = token;
-			} 
+			}
 			else if ("res-bot".equals(token)) {
 				mcaGrades = 128;
 				resMode = token;
-			} 
+			}
 			else if ("res-min".equals(token)) {
 				mcaGrades = 128;
 				resMode = token;
-			} 
+			}
 			else if ("nbits-adc4".equals(token))
 				continue; // do nothing for now
 			else if ("nbits-adc8".equals(token))
@@ -570,7 +570,7 @@ public class DummyDAServer extends DAServer {
 			data[0] = 100000; // Live time
 			for (int i = 1; i <= ldata.length; i++)
 				data[i] = ldata[i - 1];
-		} 
+		}
 		else {
 			for (int i = 0; i < data.length; i++)
 				data[i] = ldata[i];
@@ -580,7 +580,7 @@ public class DummyDAServer extends DAServer {
 
 	/**
 	 * dummy close the server, resets open paths
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -669,7 +669,7 @@ public class DummyDAServer extends DAServer {
 	/**
 	 * Waits for a non-integral number of milli seconds by converting the value to be used in the two parameter version
 	 * of wait()
-	 * 
+	 *
 	 * @param milliSeconds
 	 * @throws InterruptedException
 	 */
@@ -701,7 +701,7 @@ public class DummyDAServer extends DAServer {
 	/**
 	 * Creates dummy data for a single detector. The data is a pair of overlapping Gaussians. The peak positions depend
 	 * on which detector is specified so that window and gain setting code can be tested.
-	 * 
+	 *
 	 * @param detector
 	 *            the detector number
 	 * @return suitable dummy data
@@ -744,7 +744,7 @@ public class DummyDAServer extends DAServer {
 			if (scanPointCount >= scanPointDataFileContent.length) {
 				// If we are asking for more point than scan data in file, the just show straight line.
 				data = scanPointDataFileContent[scanPointDataFileContent.length - 1];
-			} 
+			}
 			else
 				data = scanPointDataFileContent[scanPointCount];
 			++scanPointCount;
@@ -823,7 +823,7 @@ public class DummyDAServer extends DAServer {
 				gaussians[0] = new Gaussian(dx * dy / 3, dx * dy, 400.0);
 				// some for the show
 				for (int j = 1; j < gaussians.length; j++) {
-					gaussians[j] = new Gaussian(dx * dy * j / gaussians.length + (Math.random() - 0.5) * dx * dy 
+					gaussians[j] = new Gaussian(dx * dy * j / gaussians.length + (Math.random() - 0.5) * dx * dy
 							/ (20 * gaussians.length), dx * dy / (40 * gaussians.length), (Math.random() + 1) * 800);
 				}
 				middlegaussian = new Gaussian(dx / 2 + dx / 10 * Math.random(), dx / 7, 4.0);
@@ -882,7 +882,7 @@ public class DummyDAServer extends DAServer {
 
 	/**
 	 * Writes a dummy data file - the data is written in the same format as is used by the real daserver.
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @param frame
@@ -995,5 +995,5 @@ public class DummyDAServer extends DAServer {
 	public int getMemorySize() {
 		return memorySize;
 	}
-	
+
 }

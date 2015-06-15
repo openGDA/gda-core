@@ -103,7 +103,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * Main Method.
-	 * 
+	 *
 	 * @param args
 	 */
 	@SuppressWarnings("unused")
@@ -134,7 +134,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jContentPane
-	 * 
+	 *
 	 * @return JPanel
 	 */
 	private JPanel getJContentPane() {
@@ -163,7 +163,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jButton2
-	 * 
+	 *
 	 * @return JButton
 	 */
 	private JButton getJButton2() {
@@ -187,7 +187,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jButton3
-	 * 
+	 *
 	 * @return JButton
 	 */
 	private JButton getJButton3() {
@@ -216,7 +216,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jButton4
-	 * 
+	 *
 	 * @return JButton
 	 */
 	private JButton getJButton4() {
@@ -277,7 +277,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jButton5
-	 * 
+	 *
 	 * @return JButton
 	 */
 	private JButton getJButton5() {
@@ -305,7 +305,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jButton7
-	 * 
+	 *
 	 * @return JButton
 	 */
 	private JButton getJButton7() {
@@ -325,7 +325,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jButton
-	 * 
+	 *
 	 * @return JButton
 	 */
 	private JButton getJButton() {
@@ -359,7 +359,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jPanel1
-	 * 
+	 *
 	 * @return JPanel
 	 */
 	private JPanel getJPanel1() {
@@ -389,7 +389,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jPanel2
-	 * 
+	 *
 	 * @return JPane2
 	 */
 	private JPanel getJPanel2() {
@@ -406,7 +406,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jLabel
-	 * 
+	 *
 	 * @return JLabel
 	 */
 	private JLabel getJLabel() {
@@ -419,7 +419,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jTextField
-	 * 
+	 *
 	 * @return JTextField
 	 */
 	private JTextField getJTextField() {
@@ -434,7 +434,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jLabel1
-	 * 
+	 *
 	 * @return JLabel
 	 */
 	private JLabel getJLabel1() {
@@ -447,7 +447,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jTextField1
-	 * 
+	 *
 	 * @return JTextField
 	 */
 	private JTextField getJTextField1() {
@@ -460,7 +460,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jLabel2
-	 * 
+	 *
 	 * @return JLabel
 	 */
 	private JLabel getJLabel2() {
@@ -473,7 +473,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jTextField2
-	 * 
+	 *
 	 * @return JTextField
 	 */
 	private JTextField getJTextField2() {
@@ -487,7 +487,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jLabel3
-	 * 
+	 *
 	 * @return JLabel
 	 */
 	private JLabel getJLabel3() {
@@ -500,7 +500,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jTextField3
-	 * 
+	 *
 	 * @return JTextField
 	 */
 	private JTextField getJTextField3() {
@@ -513,7 +513,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jLabel4
-	 * 
+	 *
 	 * @return JLabel
 	 */
 	private JLabel getJLabel4() {
@@ -526,7 +526,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jTextField4
-	 * 
+	 *
 	 * @return JTextField
 	 */
 	private JTextField getJTextField4() {
@@ -539,7 +539,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jLabel5
-	 * 
+	 *
 	 * @return JLabel
 	 */
 	private JLabel getJLabel5() {
@@ -552,7 +552,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jTextField5
-	 * 
+	 *
 	 * @return JTextField
 	 */
 	private JTextField getJTextField5() {
@@ -565,7 +565,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jLabel6
-	 * 
+	 *
 	 * @return JLabel
 	 */
 	private JLabel getJLabel6() {
@@ -578,7 +578,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jTextField6
-	 * 
+	 *
 	 * @return JTextField
 	 */
 	private JTextField getJTextField6() {
@@ -591,7 +591,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jLabel7
-	 * 
+	 *
 	 * @return JLabel
 	 */
 	private JLabel getJLabel7() {
@@ -604,7 +604,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jTextField7
-	 * 
+	 *
 	 * @return JTextField
 	 */
 	private JTextField getJTextField7() {
@@ -618,7 +618,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jCheckBox
-	 * 
+	 *
 	 * @return JCheckBox
 	 */
 	private JCheckBox getJCheckBox() {
@@ -634,7 +634,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jLabel8
-	 * 
+	 *
 	 * @return JLabel
 	 */
 	private JLabel getJLabel8() {
@@ -647,7 +647,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jTextField8
-	 * 
+	 *
 	 * @return JTextField
 	 */
 	private JTextField getJTextField8() {
@@ -661,7 +661,7 @@ public class Counter6602GUI extends JFrame implements Runnable {
 
 	/**
 	 * This method initializes jTextField9
-	 * 
+	 *
 	 * @return JTextField
 	 */
 	private JTextField getJTextField9() {

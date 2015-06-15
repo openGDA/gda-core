@@ -27,5 +27,5 @@ public interface MvcExampleItem {
 	public static final String NAME_PROPERTY_NAME="name";
 	public void addPropertyChangeListener(PropertyChangeListener listener);
 	public void removePropertyChangeListener(PropertyChangeListener listener);
-	
+
 }

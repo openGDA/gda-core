@@ -101,12 +101,12 @@ import uk.ac.gda.common.rcp.util.GridUtils;
 import uk.ac.gda.preferences.PreferenceConstants;
 /**
  * Composite for displaying XY data from ScanDataPoints.
- * 
+ *
  * Currently a copy of XYPlotView which uses the new plotting.
- * 
+ *
  * TODO FIXME DO NOT COPY THIS CLASS. THIS IS A TEMPORARY MEASURE TO ALLOW
  * NEW PLOTTING TO WORK WITH VIEW SIMILAR TO XYPLOTVIEW. BECAUSE OF THE LIMITATIONS
- * OF THE OLD PLOTTING, THIS CLASS HAS DEPARTED FROM A GOOD DESIGN RELATIVE TO THE 
+ * OF THE OLD PLOTTING, THIS CLASS HAS DEPARTED FROM A GOOD DESIGN RELATIVE TO THE
  * NEW PLOTTING. PLANNED IS A SIMPLER ABSTRACT CLASS OR TOOL TO MONITOR SCANS
  */
 public class LivePlotComposite extends Composite {
@@ -131,12 +131,12 @@ public class LivePlotComposite extends Composite {
 	private SashForm sashForm;
 	private ActionGroup actionGroup;
 	private boolean showLegend;
-	
+
 	/*
 	 * Made final as the value is passed to members in constructors so a change at this level would be
 	 * invalid if not passed down to members as well.
 	 */
-	
+
 	private final String archiveFolder;
 	static LineAppearanceProvider lineAppearanceProvider = new LineAppearanceProvider();
 
@@ -154,7 +154,7 @@ public class LivePlotComposite extends Composite {
 
 	/**
 	 * Returns the tree viewer which shows the resource hierarchy.
-	 * 
+	 *
 	 * @return the tree viewer
 	 * @since 2.0
 	 */
@@ -272,14 +272,14 @@ public class LivePlotComposite extends Composite {
 	public void setHideOldestScan(Boolean value){
 		legend.setHideOldestScan(value);
 	}
-	
+
 	public boolean getHideOldestScan() {
 		return legend.getHideOldestScan();
 	}
-	
+
 	/**
 	 * remove the item from the tree whose filename equals the one specified
-	 * 
+	 *
 	 * @param filename
 	 */
 	public void removeScanGroup(String filename) {
@@ -390,7 +390,7 @@ public class LivePlotComposite extends Composite {
 					for(int i=1; i< parts.length-1;i++){
 						stepIds.add(parts[i]);
 					}
-					
+
 					if(visible ){
 						//if memento states visible then unarchive and simply add to the list of scans
 						scan.unarchive(archiveFolder);
@@ -399,11 +399,11 @@ public class LivePlotComposite extends Composite {
 							continue;
 						plotter.addData(scanIdentifier, dataFileName, stepIds, xdata,
 								scan.getArchive().getyVals(), xAxisHeader, yAxisHeader, true, false, axisSpec);
-						
+
 					}else {
 						/**
-						 * we do not want to unarchive the data is it is not visible so we make the system create a 
-						 * dummy line and then change it to archive state by setting archivefilename 
+						 * we do not want to unarchive the data is it is not visible so we make the system create a
+						 * dummy line and then change it to archive state by setting archivefilename
 						 */
 						int linenum = plotter.addData(scanIdentifier, dataFileName, stepIds, new DoubleDataset(1),
 							new DoubleDataset(1), xAxisHeader, yAxisHeader, false, false, axisSpec);
@@ -429,7 +429,7 @@ public class LivePlotComposite extends Composite {
 		});
 		//get the data plotter
 		plotView.onUpdate(true);
-		
+
 	}
 
 	String getArchiveFolder() {
@@ -458,7 +458,7 @@ public class LivePlotComposite extends Composite {
 
 	public void createScriptingConnection(String partName) {
 		plotView.createScriptingConnection(partName);
-		
+
 	}
 
 }
@@ -466,7 +466,7 @@ public class LivePlotComposite extends Composite {
 /**
  * TODO FIXME DO NOT COPY THIS CLASS. THIS IS A TEMPORARY MEASURE TO ALLOW
  * NEW PLOTTING TO WORK WITH VIEW SIMILAR TO XYPLOTVIEW. BECAUSE OF THE LIMITATIONS
- * OF THE OLD PLOTTING, THIS CLASS HAS DEPARTED FROM A GOOD DESIGN RELATIVE TO THE 
+ * OF THE OLD PLOTTING, THIS CLASS HAS DEPARTED FROM A GOOD DESIGN RELATIVE TO THE
  * NEW PLOTTING. PLANNED IS A SIMPLER ABSTRACT CLASS OR TOOL TO MONITOR SCANS
  */
 class SubLivePlotView extends Composite implements XYDataHandler {
@@ -485,7 +485,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 	private UpdatePlotQueue updateQueue = new UpdatePlotQueue();
 	private IPositionListener plottingSystemPositionListener;
 	private ScriptingConnection scriptingConnection;
-	
+
 	public SubLivePlotView(IWorkbenchPart parentPart, Composite parent, int style, String archiveFolder) {
 		super(parent, style);
 		this.archiveFolder = archiveFolder;
@@ -506,8 +506,8 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 			gridData.horizontalAlignment = SWT.FILL;
 			gridData.grabExcessHorizontalSpace = true;
 			positionLabel.setLayoutData(gridData);
-		}		
-		
+		}
+
 		Composite plotArea = new Composite(this, SWT.NONE);
 		plotArea.setLayout(new FillLayout());
 		{
@@ -520,7 +520,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		}
 
 		try {
-			// We always have a light weight one for this view as there is already 
+			// We always have a light weight one for this view as there is already
 			// another using DatasetPlot.
 			this.plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
 		} catch (Exception ne) {
@@ -534,18 +534,18 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		plottingSystem.setShowLegend(false);
 		plottingSystem.setXFirst(true);
 		plottingSystemPositionListener = new IPositionListener() {
-			
+
 			@Override
 			public void positionChanged(PositionEvent evt) {
 				positionLabel.setText(String.format("X:%.7g Y:%.7g", evt.x, evt.y));
 			}
 		};
-		plottingSystem.addPositionListener(plottingSystemPositionListener);		
-		
+		plottingSystem.addPositionListener(plottingSystemPositionListener);
+
 		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
 		int plotPeriodMS = preferenceStore.getInt(PreferenceConstants.GDA_CLIENT_PLOT_PERIOD_MS);
 		updateQueue.setPlotPeriodMS(plotPeriodMS);
-		
+
 	}
 
 	public void createScriptingConnection(String partName) {
@@ -798,7 +798,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		try {
 			/**
 			 * TODO FIXME This class taken from XYPlotComponent replots all the plots
-			 * if one point is added to the end of one plot. Instead it should just add the 
+			 * if one point is added to the end of one plot. Instead it should just add the
 			 * data to the one plot that is changing.
 			 */
 			List<LineData> xys = new Vector<LineData>();
@@ -814,7 +814,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 					if( archive == null)
 						continue;
 					if (sd.isVisible()) {
-						
+
 						xys.add( new LineData(archive.getAppearance(), archive.getxAxis().toDataset(),archive.getyVals(), sd.getyAxisSpec() ));
 						Dataset y = archive.getyVals();
 						if (y.getName()==null || "".equals(y.getName())) {
@@ -860,13 +860,13 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 		}
 	}
 
-	/** 
+	/**
 	 * Updates the plot in the UI Thread, creates new traces where required.
-	 * 
+	 *
        This horrendous way of doing it, results from the fact that we
-       reuse XYPlotComposite. A better way would be with updating and 
-       creating individual traces. TODO Convert to more logical design.	
-	 * @param additionalYAxes 
+       reuse XYPlotComposite. A better way would be with updating and
+       creating individual traces. TODO Convert to more logical design.
+	 * @param additionalYAxes
 	 */
 	private void createUpdatePlot(String xLabelIn, String yLabelIn, final List<LineData> xys, final List<String> invis, boolean additionalYAxes) {
 		final String xLabel = xLabelIn != null ? xLabelIn : UNKNOWN;
@@ -879,7 +879,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				plottingSystem.setTitle(title);
 				plottingSystem.getSelectedXAxis().setTitle(xLabel);
 				plottingSystem.getSelectedYAxis().setTitle(yLabel);
-				
+
 				IAxis defaultYAxis = null;
 				for(IAxis axis : plottingSystem.getAxes()){
 					if( axis.isPrimaryAxis() && axis.isYAxis()){
@@ -953,7 +953,7 @@ class SubLivePlotView extends Composite implements XYDataHandler {
 				 */
 				for (String traceName : invis) {
 					ITrace trace = plottingSystem.getTrace(traceName);
-					if (trace!=null) 
+					if (trace!=null)
 						plottingSystem.removeTrace(trace);
 				}
 
@@ -990,10 +990,10 @@ class SubLivePlotView extends Composite implements XYDataHandler {
  * The data can be archived to file, indicated by archiveFilename being non null
  * To allow mementos to be copied along with archive folders archiveFilename only holds the filename and not the
  * path. The unarchive, archive methods will need an archive folder.
- * 
+ *
  * TODO FIXME DO NOT COPY THIS CLASS. THIS IS A TEMPORARY MEASURE TO ALLOW
  * NEW PLOTTING TO WORK WITH VIEW SIMILAR TO XYPLOTVIEW. BECAUSE OF THE LIMITATIONS
- * OF THE OLD PLOTTING, THIS CLASS HAS DEPARTED FROM A GOOD DESIGN RELATIVE TO THE 
+ * OF THE OLD PLOTTING, THIS CLASS HAS DEPARTED FROM A GOOD DESIGN RELATIVE TO THE
  * NEW PLOTTING. PLANNED IS A SIMPLER ABSTRACT CLASS OR TOOL TO MONITOR SCANS
  */
 class LiveData {
@@ -1013,7 +1013,7 @@ class LiveData {
 	private final String dataFileName;
 
 	/**
-	 * 
+	 *
 	 * @param which - index in the array of xydata - used to get appearance and color
 	 * @param name - unique name, scanid: steps... ylabel
 	 * @param xLabel
@@ -1035,7 +1035,7 @@ class LiveData {
 
 	public void setArchive(LiveDataArchive archive) {
 		this.archive = archive;
-		
+
 	}
 
 	public AxisSpec getyAxisSpec() {
@@ -1045,11 +1045,11 @@ class LiveData {
 	public String getxLabel() {
 		return xLabel;
 	}
-	
+
 	public String getyLabel() {
 		return yLabel;
 	}
-	
+
 	public int getNumber() {
 		return number;
 	}
@@ -1057,7 +1057,7 @@ class LiveData {
 	public String getName() {
 		return name;
 	}
-	
+
 	public LiveDataArchive getArchive() {
 		return archive;
 	}
@@ -1079,7 +1079,7 @@ class LiveData {
 			//ensure the archive daya exists in case it is referenced somewhere
 			resetArchive(which);
 		}
-		
+
 	}
 
 	public boolean isArchived(){
@@ -1191,7 +1191,7 @@ class LiveData {
 							File f = new File(archiveFilenameCopy);
 							f.delete();
 						}
-							
+
 					}
 				}
 			}
@@ -1222,7 +1222,7 @@ class LiveData {
 		archive = new LiveDataArchive(appearance, new DoubleDataset(1), new AxisValues());
 		archiveFilename=null;
 	}
-	
+
 	private Color getLineColor(String lineLabel, int lineNumber) {
 		BundleContext context = GDAClientActivator.getBundleContext();
 		ServiceReference<IPlotLineColorService> serviceRef = context.getServiceReference(IPlotLineColorService.class);
@@ -1241,10 +1241,10 @@ class LiveData {
 	private String persistToFilePath(String archiveFolder, String target_filename) throws IOException {
 		// create a unique file in the workspace
 		String archivedFilePath = getArchivePath(archiveFolder, target_filename);
-		
+
 		if( this.isArchived()){
 			FileUtil.copy(archiveFolder + File.separator + this.archiveFilename, archivedFilePath);
-		} 
+		}
 		else {
 			File file = new File(archivedFilePath);
 			file.createNewFile();
@@ -1312,7 +1312,7 @@ class LiveData {
 			// first point
 			yvals_new = new double[] { y };
 			xvals_new = new double[] { x };
-		} 
+		}
 		else {
 			// not first so copy old to new before adding to end or inserting
 			yvals_new = Arrays.copyOf(yvals_old, old_length + 1);
@@ -1321,7 +1321,7 @@ class LiveData {
 				// add to the end
 				xvals_new[old_length] = x;
 				yvals_new[old_length] = y;
-			} 
+			}
 			else {
 				// insert at correct point
 				boolean added = false;
@@ -1364,19 +1364,19 @@ class LiveData {
 /**
  * TODO FIXME DO NOT COPY THIS CLASS. THIS IS A TEMPORARY MEASURE TO ALLOW
  * NEW PLOTTING TO WORK WITH VIEW SIMILAR TO XYPLOTVIEW. BECAUSE OF THE LIMITATIONS
- * OF THE OLD PLOTTING, THIS CLASS HAS DEPARTED FROM A GOOD DESIGN RELATIVE TO THE 
+ * OF THE OLD PLOTTING, THIS CLASS HAS DEPARTED FROM A GOOD DESIGN RELATIVE TO THE
  * NEW PLOTTING. PLANNED IS A SIMPLER ABSTRACT CLASS OR TOOL TO MONITOR SCANS
  */
 class LiveDataArchive implements Serializable {
-	
+
 	/**
 	 * Change the value of serialVersionUID is items in this class change
 	 */
 	static final long serialVersionUID = 42L;
-	
+
 	private Plot1DAppearance appearance;
 	private DoubleDataset yVals;
-	private AxisValues xAxis; 
+	private AxisValues xAxis;
 
 	public LiveDataArchive(Plot1DAppearance appearance, DoubleDataset yVals, AxisValues xAxis) {
 		super();
@@ -1430,7 +1430,7 @@ class XYLegendActionGroup extends ActionGroup {
 
 	/**
 	 * Adds the Open in New Window action to the context menu.
-	 * 
+	 *
 	 * @param menu
 	 *            the context menu
 	 * @param selection

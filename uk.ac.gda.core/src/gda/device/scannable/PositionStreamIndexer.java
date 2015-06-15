@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Used as a component in {@link PositionCallableProvider}s that implement {@link PositionInputStream}s an indexer can
  * be deferred to to very easily implement {@link PositionCallableProvider#getPositionCallable()}.
- * 
+ *
  * @param <T>
  */
 public class PositionStreamIndexer<T> implements PositionCallableProvider<T> {

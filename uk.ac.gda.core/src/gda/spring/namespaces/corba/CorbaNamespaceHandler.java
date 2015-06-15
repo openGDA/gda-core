@@ -44,12 +44,12 @@ public class CorbaNamespaceHandler extends NamespaceHandlerSupport {
 	 * Name for the {@link NetServiceFactoryBean} in the bean registry.
 	 */
 	public static final String NET_SERVICE_BEAN_NAME = "netService";
-	
+
 	/**
 	 * Ensures that the specified bean registry contains a {@link NetServiceFactoryBean} with the name
 	 * {@link #NET_SERVICE_BEAN_NAME}. If a bean already exists with that name, it ensures that the bean is a
 	 * {@link NetServiceFactoryBean}.
-	 * 
+	 *
 	 * @param registry the bean registry
 	 */
 	public static void registerNetServiceFactoryBean(BeanDefinitionRegistry registry) {
@@ -64,5 +64,5 @@ public class CorbaNamespaceHandler extends NamespaceHandlerSupport {
 			registry.registerBeanDefinition(NET_SERVICE_BEAN_NAME, beanDef);
 		}
 	}
-	
+
 }

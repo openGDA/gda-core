@@ -35,8 +35,8 @@ import org.springframework.util.StringUtils;
 
 public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(DefaultDataWriterFactory.class);
-	
-	
+
+
 	private String name;
 	private Map<String, IDataWriterExtender> dataWriterExtenders = new LinkedHashMap<String, IDataWriterExtender>();
 	private boolean configured;
@@ -50,9 +50,9 @@ public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Co
 		if (dataFormat == null) {
 			throw new FactoryException("Data writer format not specified ("  + StringUtils.quote(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT) + " property not found)");
 		}
-		
+
 		final String dataHandlerClassName = "gda.data.scan.datawriter." + dataFormat;
-		
+
 		// find data handler class
 		Class<?> dataHandlerClass;
 		try {
@@ -62,7 +62,7 @@ public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Co
 		} catch (Exception e) {
 			throw new FactoryException("Unable to load data handler class " + StringUtils.quote(dataHandlerClassName) + " (for data format " + StringUtils.quote(dataFormat) + ")", e);
 		}
-		
+
 		// create a data handler object
 		try {
 			dw = (DataWriter) dataHandlerClass.newInstance();
@@ -89,7 +89,7 @@ public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Co
 	 */
 	public void setDataWriterExtenders(Collection<IDataWriterExtender> dataWriterExtenders) {
 		this.dataWriterExtenders.clear();
-		for(IDataWriterExtender extender: dataWriterExtenders) { 
+		for(IDataWriterExtender extender: dataWriterExtenders) {
 			addDataWriterExtender(extender);
 		}
 	}
@@ -101,7 +101,7 @@ public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Co
 
 	/**GDA_DATA_SCAN_DATAWRITER_DATAFORMAT
 	 * Add extender to be attached to newly created DataWriters
-	 * 
+	 *
 	 * @param dataWriterExtender
 	 */
 	public void addDataWriterExtender(IDataWriterExtender dataWriterExtender) {
@@ -113,7 +113,7 @@ public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Co
 
 	/**
 	 * Remove the given DataWriterExtender from the list of extenders added to fresh DataWriters created
-	 * 
+	 *
 	 * @param dataWriterExtender
 	 */
 	public void removeDataWriterExtender(IDataWriterExtender dataWriterExtender) {
@@ -135,7 +135,7 @@ public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Co
 
 	/**
 	 * Add extender to be attached to newly created DataWriters
-	 * 
+	 *
 	 * @param dataWriterExtenderName
 	 */
 	public void addDataWriterExtender(String dataWriterExtenderName) {
@@ -154,7 +154,7 @@ public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Co
 
 	/**
 	 * Allow to retrieve the complete list of DataWriterExtenders configured
-	 * 
+	 *
 	 * @return list of DataWriterExtenders
 	 */
 	public Collection<IDataWriterExtender> getDataWriterExtenders() {
@@ -163,7 +163,7 @@ public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Co
 
 	/**
 	 * Allow to retrieve the complete list of DataWriterExtenders configured
-	 * 
+	 *
 	 * @return list of DataWriterExtenders
 	 */
 	public Collection<String> getDataWriterExtenderNames() {
@@ -188,10 +188,10 @@ public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Co
 		}
 		return null;
 	}
-		 
+
 	/**
 	 * Create a DataWriter object from the first findable DataWriterFactory
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	static public DataWriter createDataWriterFromFactory() throws Exception {
@@ -206,7 +206,7 @@ public class DefaultDataWriterFactory implements DataWriterFactory, Findable, Co
 		String factoryName = factoryMap.keySet().iterator().next();
 		if (factoryMap.size() > 1) {
 			logger.warn("more than one DataWriterFactory found, choosing " + factoryName);
-		} 
+		}
 		return  ((DataWriterFactory) factoryMap.get(factoryName)).createDataWriter();
 	}
 }

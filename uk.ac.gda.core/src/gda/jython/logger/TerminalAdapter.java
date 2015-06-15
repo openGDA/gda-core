@@ -18,14 +18,14 @@
 
 package gda.jython.logger;
 
-import java.io.UnsupportedEncodingException;
-
 import gda.jython.Terminal;
+
+import java.io.UnsupportedEncodingException;
 
 class TerminalAdapter implements Terminal{
 
 	final LineLogger logger;
-	
+
 	public TerminalAdapter(LineLogger logger) {
 		this.logger = logger;
 	}

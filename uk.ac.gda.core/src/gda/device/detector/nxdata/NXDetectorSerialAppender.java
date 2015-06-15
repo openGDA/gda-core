@@ -24,7 +24,7 @@ import gda.device.detector.NXDetectorData;
 import java.util.List;
 
 public class NXDetectorSerialAppender implements NXDetectorDataAppender {
-	
+
 	final private List<NXDetectorDataAppender> appenders;
 
 	public NXDetectorSerialAppender(List<NXDetectorDataAppender> appenders) {

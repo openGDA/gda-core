@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public class DummyNamedEnumPositioner extends DummyEnumPositioner implements NamedEnumPositioner {
 	private static final Logger logger = LoggerFactory.getLogger(DummyNamedEnumPositioner.class);
 
-	
+
 	private String currentPositionName = "";
 	private String startPositionName;
 
@@ -52,7 +52,7 @@ public class DummyNamedEnumPositioner extends DummyEnumPositioner implements Nam
 			logger.error("Start position name should be defined");
 		}
 	}
-	
+
 	protected HashMap<String, Double> positionsMap = new HashMap<String, Double>();
 
 	public ArrayList<String> getPositionNameArrayList() {
@@ -63,29 +63,29 @@ public class DummyNamedEnumPositioner extends DummyEnumPositioner implements Nam
 		}
 		return positionNamearray;
 	}
-	
+
 	@Override
 	public ArrayList<String> getPositionArrayList() {
 		ArrayList<String> positionArray = new ArrayList<String>();
-		
+
 		ArrayList<Double> values = (ArrayList<Double>) positionsMap.values();
 		for (Double value : values) {
 			positionArray.add(value.toString());
 		}
 		return positionArray;
 	}
-	
+
 	public void setValues(Map<String, Double> values) {
 		for (Entry<String, Double> entry : values.entrySet()) {
 			positionsMap.put(entry.getKey(), entry.getValue());
 			positions.add(entry.getKey());
 		}
 	}
-	
+
 	public void setStartPositionName(String positionName) {
 		this.startPositionName = positionName;
 	}
-	
+
 	@Override
 	public String getPosition() throws DeviceException {
 		if (positionsMap.containsKey(currentPositionName)) {
@@ -93,12 +93,12 @@ public class DummyNamedEnumPositioner extends DummyEnumPositioner implements Nam
 		}
 		throw new DeviceException("No position called " + currentPositionName + "found");
 	}
-	
+
 	@Override
 	public void moveTo(Object position) throws DeviceException {
-		
+
 		String positionString = position.toString();
-		
+
 		// find in the positionNames array the index of the string
 		if (positionsMap.containsKey(positionString) ) {
 			if( !currentPositionName.equals(positionString)){

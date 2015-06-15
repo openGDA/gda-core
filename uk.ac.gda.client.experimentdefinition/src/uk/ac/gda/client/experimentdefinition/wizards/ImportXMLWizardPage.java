@@ -66,7 +66,7 @@ public class ImportXMLWizardPage extends WizardPage {
 			    dialog
 			        .setFilterNames(new String[] { "XML Files", "All Files (*.*)" });
 			    dialog.setFilterExtensions(new String[] { "*.xml", "*.*" });
-			    dialog.setFilterPath(LocalProperties.getBaseDataDir()); 
+			    dialog.setFilterPath(LocalProperties.getBaseDataDir());
 			    dialog.open();
 				selectedFilenames = dialog.getFileNames();
 				selectedFolder = dialog.getFilterPath();

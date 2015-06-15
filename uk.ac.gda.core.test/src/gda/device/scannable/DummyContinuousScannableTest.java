@@ -60,7 +60,7 @@ public class DummyContinuousScannableTest {
 		} catch (InterruptedException e) {
 			fail(e.getMessage());
 		}
-		
+
 		try {
 			int[][] data = (int[][]) detector.readAllFrames();
 

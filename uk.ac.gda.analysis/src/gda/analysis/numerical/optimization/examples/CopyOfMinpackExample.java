@@ -41,7 +41,7 @@ public class CopyOfMinpackExample {
 		// I then define lower and upper bounds on the parameters.
 		// Defining lower and upper limits often makes the code run a bit better
 		// and in the
-		// 
+		//
 
 		function.addFunction("Gaussian1", new Gaussian1D(1.0, 1.0, 1.0));
 		// Set the upper and lower bounds on the parameters
@@ -80,7 +80,7 @@ public class CopyOfMinpackExample {
 			System.out.println("Minimum point\t" + i + "\t" + min.getBest()[i]);
 		}
 
-		// 
+		//
 		// change the data set to one a single gaussian
 		createDataSet1(xaxis, yaxis);
 		// Remove a gaussian from our function

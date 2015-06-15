@@ -26,7 +26,7 @@ import gda.analysis.utilities.Precision;
  * <p>
  * The original FORTRAN MINPACK package was produced by Burton S. Garbow, Kenneth E. Hillstrom, and Jorge J. More as
  * part of the Argonne National Laboratory MINPACK project, March 1980.
- * 
+ *
  * @author (translator)Steve Verrill
  * @version .5 --- November 3, 2000 Modified by Paul Quinn : Diamond Light Source 2006 Fixed arrays so the indexing no
  *          longer starts at 1 (Fortran leftover) Removed lmder and simplified lmdif calling method Added LSQFunction
@@ -48,7 +48,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 */
 	// private boolean autoDerivative = false;
 	/**
-	 * 
+	 *
 	 */
 	/**
 	 * Max step size
@@ -59,7 +59,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 */
 	// private double minStepSize;
 	/**
-	 * 
+	 *
 	 */
 	private double xTolerance = 1.0E-16;
 
@@ -74,29 +74,29 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	private double gTolerance = 1.0E-16;
 
 	/**
-	 * 
+	 *
 	 */
 	private int maxNoOfFunctionEvaluations = 10000;
 
 	/**
-	 * 
+	 *
 	 */
 	private double factor = 10.0;
 
 	/**
-	 * 
+	 *
 	 */
 	private double epsfcn = 0.0;
 
 	/**
-	 * 
+	 *
 	 */
 	private int nprint = 0;
 
 	private double[] functionAtDataPoints;
 
 	/**
-	 * 
+	 *
 	 */
 	private int mode = 1;
 
@@ -105,12 +105,12 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 */
 	// private double[] scaling=null;
 	/**
-	 * 
+	 *
 	 */
 	private int noOfParameters;
 
 	/**
-	 * 
+	 *
 	 */
 	private int noOfObservations;
 
@@ -187,7 +187,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void reset() {
 		noOfObservations = function.getNoOfDataPoints();
@@ -238,7 +238,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * Translated by Steve Verrill on November 14, 2000 from the FORTRAN MINPACK source produced by Garbow, Hillstrom,
 	 * and More.
 	 * <p>
-	 * 
+	 *
 	 * @param noOfParameters
 	 *            The length of the vector, x.
 	 * @param x
@@ -326,7 +326,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * translation from FORTRAN to Java of the LINPACK function DNRM2. In the LINPACK listing DNRM2 is attributed to
 	 * C.L. Lawson with a date of January 8, 1978. The routine below is based on a more recent DNRM2 version that is
 	 * attributed in LAPACK documentation to Sven Hammarling. Translated by Steve Verrill, June 3, 1997.
-	 * 
+	 *
 	 * @param noOfParameters
 	 *            The order of the vector x[ ]
 	 * @param x
@@ -353,7 +353,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * Translated by Steve Verrill on November 17, 2000 from the FORTRAN MINPACK source produced by Garbow, Hillstrom,
 	 * and More.
 	 * <p>
-	 * 
+	 *
 	 * @param noOfObservations
 	 *            The number of rows of A.
 	 * @param noOfParameters
@@ -480,11 +480,11 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * <p>
 	 * Given an noOfObservations by noOfParameters matrix A, an noOfParameters by noOfParameters diagonal matrix D, and
 	 * an noOfObservations-vector b, the problem is to determine an x which solves the system
-	 * 
+	 *
 	 * <pre>
 	 *         Ax = b ,     Dx = 0 ,
 	 * </pre>
-	 * 
+	 *
 	 * in the least squares sense.
 	 * <p>
 	 * This method completes the solution of the problem if it is provided with the necessary information from the QR
@@ -492,28 +492,28 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * columns, and R is an upper triangular matrix with diagonal elements of nonincreasing magnitude, then qrsolv
 	 * expects the full upper triangle of R, the permutation matrix P, and the first noOfParameters components of (Q
 	 * transpose)b. The system
-	 * 
+	 *
 	 * <pre>
 	 *                Ax = b, Dx = 0, is then equivalent to
-	 *     
+	 *
 	 *                      t     t
 	 *                Rz = Q b,  P DPz = 0 ,
 	 * </pre>
-	 * 
+	 *
 	 * where x = Pz. If this system does not have full rank, then a least squares solution is obtained. On output qrsolv
 	 * also provides an upper triangular matrix S such that
-	 * 
+	 *
 	 * <pre>
 	 *                 t  t              t
 	 *                P (A A + DD)P = S S .
 	 * </pre>
-	 * 
+	 *
 	 * S is computed within qrsolv and may be of separate interest.
 	 * <p>
 	 * Translated by Steve Verrill on November 17, 2000 from the FORTRAN MINPACK source produced by Garbow, Hillstrom,
 	 * and More.
 	 * <p>
-	 * 
+	 *
 	 * @param noOfParameters
 	 *            The order of r.
 	 * @param r
@@ -662,34 +662,34 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * Given an noOfObservations by noOfParameters matrix A, an noOfParameters by noOfParameters nonsingular diagonal
 	 * matrix D, an noOfObservations-vector b, and a positive number delta, the problem is to determine a value for the
 	 * parameter par such that if x solves the system
-	 * 
+	 *
 	 * <pre>
 	 *                A*x = b ,     sqrt(par)*D*x = 0
 	 * </pre>
-	 * 
+	 *
 	 * in the least squares sense, and dxnorm is the Euclidean norm of D*x, then either par is 0.0 and
-	 * 
+	 *
 	 * <pre>
 	 *                (dxnorm-delta) &lt;= 0.1*delta ,
 	 * </pre>
-	 * 
+	 *
 	 * or par is positive and
-	 * 
+	 *
 	 * <pre>
 	 *                abs(dxnorm-delta) &lt;= 0.1*delta .
 	 * </pre>
-	 * 
+	 *
 	 * This method (lmpar) completes the solution of the problem if it is provided with the necessary information from
 	 * the QR factorization, with column pivoting, of A. That is, if AP = QR, where P is a permutation matrix, Q has
 	 * orthogonal columns, and R is an upper triangular matrix with diagonal elements of nonincreasing magnitude, then
 	 * lmpar expects the full upper triangle of R, the permutation matrix P, and the first noOfParameters components of
 	 * (Q transpose)b. On output lmpar also provides an upper triangular matrix S such that
-	 * 
+	 *
 	 * <pre>
 	 *                 t  t                t
 	 *                P (A A + par*DD)P = S S .
 	 * </pre>
-	 * 
+	 *
 	 * S is employed within lmpar and may be of separate interest.
 	 * <p>
 	 * Only a few iterations are generally needed for convergence of the algorithm. If, however, the limit of 10
@@ -698,7 +698,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * Translated by Steve Verrill on November 17, 2000 from the FORTRAN MINPACK source produced by Garbow, Hillstrom,
 	 * and More.
 	 * <p>
-	 * 
+	 *
 	 * @param noOfParameters
 	 *            The order of r.
 	 * @param r
@@ -968,7 +968,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * Translated by Steve Verrill on November 24, 2000 from the FORTRAN MINPACK source produced by Garbow, Hillstrom,
 	 * and More.
 	 * <p>
-	 * 
+	 *
 	 * @param noOfObservations
 	 *            A positive integer set to the number of functions [number of observations]
 	 * @param noOfParameters
@@ -1010,7 +1010,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * <p>
 	 * Modified by paul quinn to allow bound constraints
 	 * <p>
-	 * 
+	 *
 	 * @param noOfObservations
 	 *            A positive integer set to the number of functions [number of observations]
 	 * @param noOfParameters
@@ -1694,7 +1694,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * matrix associated with a specified problem of noOfObservations functions in noOfParameters variables. Translated
 	 * by Steve Verrill on November 24, 2000 from the FORTRAN MINPACK source produced by Garbow, Hillstrom, and More.
 	 * PDQ ADDED CENTRED DIFFERENCE DIFFERENTIATION...seems faster and more reliable with it...
-	 * 
+	 *
 	 * @param noOfObservations
 	 *            A positive integer set to the number of functions [number of observations]
 	 * @param noOfParameters
@@ -1797,7 +1797,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	/**
 	 * Termination occurs when both the actual and predicted relative reductions in the sum of squares are at most
 	 * fTolerance. Therefore, fTolerance measures the relative error desired in the sum of squares.
-	 * 
+	 *
 	 * @param fTolerance
 	 */
 	public void setfTolerance(double fTolerance) {
@@ -1826,7 +1826,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * Termination occurs when the cosine of the angle between functionAtDataPoints and any column of the Jacobian is at
 	 * most gTolerance in absolute value. Therefore, gTolerance measures the orthogonality desired between the function
 	 * vector and the columns of the Jacobian.
-	 * 
+	 *
 	 * @return gTolerance
 	 */
 	public double getgTolerance() {
@@ -1847,7 +1847,7 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	 * A positive input variable used in determining the initial step bound. This bound is set to the product of factor
 	 * and the euclidean norm of diag*x if non 0.0, or else to factor itself. In most cases factor should lie in the
 	 * interval (.1,100). 100 is a generally recommended value.
-	 * 
+	 *
 	 * @return factor
 	 */
 	public double getFactor() {
@@ -1866,8 +1866,8 @@ public class minpackOptimizer implements IOptimizer, Runnable {
 	}
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	public void unsetScaling() {
 		this.mode = 1;

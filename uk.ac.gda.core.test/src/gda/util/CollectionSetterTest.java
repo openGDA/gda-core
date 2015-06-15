@@ -19,6 +19,9 @@
 
 package gda.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import gda.data.metadata.GdaMetadata;
 import gda.data.metadata.IMetadataEntry;
 import gda.data.metadata.NexusMetadataEntry;
@@ -34,10 +37,6 @@ import gda.util.converters.util.RangeandConverterNameHolder;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 
 
@@ -45,7 +44,7 @@ import org.junit.Test;
  * Tests that the newly-introduced setters for collection fields that are
  */
 public class CollectionSetterTest {
-	
+
 	@Test
 	public void testGdaMetadata() {
 		GdaMetadata gm = new GdaMetadata();
@@ -54,7 +53,7 @@ public class CollectionSetterTest {
 		gm.setMetadataEntries(arrayListOf(entry));
 		assertEquals(1, gm.getMetadataEntries().size());
 	}
-	
+
 	@Test
 	public void testNexusMetadataReader() {
 		NexusMetadataReader nmr = new NexusMetadataReader();
@@ -63,7 +62,7 @@ public class CollectionSetterTest {
 		nmr.setNexusMetadataEntries(arrayListOf(entry));
 		assertEquals(1, nmr.getNexusMetadataEntries().size());
 	}
-	
+
 	@Test
 	public void testScannableGroupMemberNames() {
 		ScannableGroup sg = new ScannableGroup();
@@ -71,7 +70,7 @@ public class CollectionSetterTest {
 		sg.setGroupMemberNames(arrayListOf("one", "two"));
 		assertEquals(2, sg.getGroupMemberNames().length);
 	}
-	
+
 	@Test
 	public void testCoupledScannableScannableNames() {
 		CoupledScannable cs = new CoupledScannable();
@@ -79,7 +78,7 @@ public class CollectionSetterTest {
 		cs.setScannableNames(arrayListOf("one", "two", "three"));
 		assertEquals(3, cs.getScannableNames().length);
 	}
-	
+
 	@Test
 	public void testCoupledScannableFunctions() {
 		CoupledScannable cs = new CoupledScannable();
@@ -88,7 +87,7 @@ public class CollectionSetterTest {
 		cs.setFunctions(arrayListOf(function));
 		assertEquals(1, cs.getFunctions().length);
 	}
-	
+
 	@Test
 	public void testDummyEnumPositioner() {
 		DummyEnumPositioner dep = new DummyEnumPositioner();
@@ -96,7 +95,7 @@ public class CollectionSetterTest {
 		dep.setPositions(arrayOf("1", "2", "3"));
 		assertEquals(3, dep.getPositionArrayList().size());
 	}
-	
+
 	@Test
 	public void testRangeConverterNameProviderConverters() {
 		RangeConverterNameProvider rcnp = new RangeConverterNameProvider("name", "converterName");
@@ -106,11 +105,11 @@ public class CollectionSetterTest {
 		rcnp.setConverters(arrayListOf(conv1, conv2));
 		assertEquals(2, rcnp.getConverterList().size());
 	}
-	
+
 	private <T> T[] arrayOf(T... items) {
 		return items;
 	}
-	
+
 	private <T> ArrayList<T> arrayListOf(T...items) {
 		ArrayList<T> list = new ArrayList<T>();
 		for (T i : items) {
@@ -118,5 +117,5 @@ public class CollectionSetterTest {
 		}
 		return list;
 	}
-	
+
 }

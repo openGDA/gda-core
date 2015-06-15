@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * A client side implementation of the adapter pattern for the DataManagerInterface class
  */
 public class DataManagerInterfaceAdapter implements DataManagerInterface {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DataManagerInterfaceAdapter.class);
 
 	private CorbaDataManagerInterface corbaData;
@@ -49,7 +49,7 @@ public class DataManagerInterfaceAdapter implements DataManagerInterface {
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

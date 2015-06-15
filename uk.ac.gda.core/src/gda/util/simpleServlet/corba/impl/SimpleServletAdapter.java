@@ -19,7 +19,6 @@
 
 package gda.util.simpleServlet.corba.impl;
 
-import java.io.Serializable;
 import gda.device.Device;
 import gda.device.DeviceException;
 import gda.device.corba.impl.DeviceAdapter;
@@ -27,13 +26,15 @@ import gda.factory.Findable;
 import gda.factory.Finder;
 import gda.factory.corba.util.NetService;
 
+import java.io.Serializable;
+
 /**
  * A client side implementation of the adapter pattern for the ControlPoint class
  */
 public class SimpleServletAdapter extends DeviceAdapter implements Findable, Device {
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name
@@ -47,7 +48,7 @@ public class SimpleServletAdapter extends DeviceAdapter implements Findable, Dev
 
 	/**
 	 * public method to ensure callers pass correct information
-	 * 
+	 *
 	 * @param servletName
 	 * @param className
 	 * @param methodName

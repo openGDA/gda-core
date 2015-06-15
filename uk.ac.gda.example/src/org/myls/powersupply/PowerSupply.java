@@ -31,5 +31,5 @@ public interface PowerSupply{
 	 * @return True is the psu is on
 	 */
 	boolean getOn();
-	
+
 }

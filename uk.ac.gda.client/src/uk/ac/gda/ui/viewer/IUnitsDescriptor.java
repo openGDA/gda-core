@@ -27,31 +27,31 @@ public interface IUnitsDescriptor extends IBasicDescriptor {
 
 	/**
 	 * Returns display format
-	 * 
+	 *
 	 * @return display format
 	 */
 	public String getDisplayFormat();
-	
+
 	/**
 	 * Returns unit string
-	 * 
+	 *
 	 * @return unit string
 	 */
 	public String getUnit();
 
 	/**
 	 * Returns the maximum limit
-	 * 
+	 *
 	 * @return maximum limit
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public double getMaximumLimit() throws DeviceException;
-	
+
 	/**
 	 * Returns the minimum limit
-	 * 
+	 *
 	 * @return minimum limit
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public double getMinimumLimit() throws DeviceException;
 }

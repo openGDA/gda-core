@@ -48,16 +48,16 @@ public class XMLIcat extends IcatBase {
 
 	@Override
 	protected String getValue(String visitIDFilter, String userNameFilter, String accessName) throws Exception {
-		
+
 		String filepath = "file:" + LocalProperties.get(URL_PROP);
 		Resource xmlfile = new FileSystemResourceLoader().getResource(filepath);
 		XmlBeanFactory bf = new XmlBeanFactory(xmlfile);
-		
+
 		long tolerance = LocalProperties.getAsInt(SHIFT_TOL_PROP,1440);
 
 		// if not filtering on visit ID
 		if (visitIDFilter == null || visitIDFilter.isEmpty()) {
-			
+
 			//loop over all the beans
 			String values = "";
 			Map<String, XMLIcatEntry> beans = bf.getBeansOfType(XMLIcatEntry.class);
@@ -81,7 +81,7 @@ public class XMLIcat extends IcatBase {
 					end.setTime(end.getTime() + tolerance * 60000); // tolerance is in minutes but getTime returns in ms
 
 					if (now.after(start) && now.before(end)) {
-						
+
 						// add to return string
 						try {
 							if (values.isEmpty()) {
@@ -113,8 +113,8 @@ public class XMLIcat extends IcatBase {
 				logger.warn("Exception trying to get property " + accessName + " from bean.", e);
 			}
 		}
-		
-		// else 
+
+		// else
 		return null;
 
 	}

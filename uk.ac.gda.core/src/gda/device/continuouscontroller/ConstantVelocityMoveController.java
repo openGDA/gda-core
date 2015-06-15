@@ -29,22 +29,22 @@ public interface ConstantVelocityMoveController extends ContinuousMoveController
 	/**
 	 * Set the start location for the move in hardware units/offset/scale.
 	 * @param start
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	void setStart(double start) throws DeviceException;
 
 	/**
 	 * Set the end location for the move in hardware units/offset/scale.
 	 * @param end
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	void setEnd(double end) throws DeviceException;
 
-	
+
 	/**
 	 * Set the step size for the move in hardware units/scale.
 	 * @param step
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	void setStep(double step) throws DeviceException;
 

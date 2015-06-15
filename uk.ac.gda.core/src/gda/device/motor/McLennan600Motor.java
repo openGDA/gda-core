@@ -19,16 +19,16 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.MotorException;
 import gda.device.MotorStatus;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class to implement McLennan PM600 series motion controllers. README: It may be necessary to rewrite some of these
  * methods and/or McLennanMotor methods to accomodate verbose and quiet modes.
- * 
+ *
  * @see McLennanMotor
  */
 public class McLennan600Motor extends McLennanMotor {
@@ -94,7 +94,7 @@ public class McLennan600Motor extends McLennanMotor {
 	/**
 	 * Sets the speed, Math.rint is used on the speed supplied for minimum surprise to the calling class (but it still
 	 * might not be exactly what is expected).
-	 * 
+	 *
 	 * @param stepsPerSecond
 	 *            the speed to set (motor units/second)
 	 * @throws MotorException
@@ -151,7 +151,7 @@ public class McLennan600Motor extends McLennanMotor {
 	/**
 	 * This overrides the super class method in order to remove any command echo which may be attached to the beginning
 	 * of the reply.
-	 * 
+	 *
 	 * @param reply
 	 *            Reply from motor
 	 * @return message component

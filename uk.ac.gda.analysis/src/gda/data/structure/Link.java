@@ -33,7 +33,7 @@ public class Link extends ManagedDataObject {
 
 	/**
 	 * Create the link;
-	 * 
+	 *
 	 * @param name
 	 * @param path
 	 */

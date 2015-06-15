@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Subclass of ThreadPoolExecutor that rejects any new task submissions following observation of an
  * exception a task.
- * 
+ *
  * The method raiseExceptionIfSeen will raise the Exception observed in the task.
  */
 public class NoExceptionThreadPoolExecutor extends ThreadPoolExecutor {
@@ -78,7 +78,7 @@ public class NoExceptionThreadPoolExecutor extends ThreadPoolExecutor {
 			shutdown();
 			if( positionCallableService != null)
 				positionCallableService.shutdown();
-			
+
 			int numberOfDumpedPoints = shutdownNow().size();
 			if (numberOfDumpedPoints > 0) {
 				logger.error("BroadcastQueue shutdown due following detection of exception. " + numberOfDumpedPoints

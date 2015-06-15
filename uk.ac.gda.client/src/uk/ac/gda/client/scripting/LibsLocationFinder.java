@@ -36,11 +36,11 @@ public class LibsLocationFinder {
 	/**
 	 * Method returns libs that should be used in the jython path so that the
 	 * jython editor autocompletes.
-	 * 
+	 *
 	 * @return list of jar paths
 	 */
 	public static final List<String> findGdaLibs() {
-		
+
 		final List<String> libs = new ArrayList<String>(31);
 		try{
 			String gdalibsPath = BundleUtils.getBundleLocation("uk.ac.gda.libs").getAbsolutePath();
@@ -70,7 +70,7 @@ public class LibsLocationFinder {
 	 * <p>
 	 * This is a way of making classes available to PyDev without exposing PyDev to the entire GDA codebase which caused
 	 * memory problems for PyDev.
-	 * 
+	 *
 	 * @return location or null if it does not exist.
 	 */
 	public static String findGdaInterface() {

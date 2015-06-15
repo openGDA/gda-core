@@ -26,5 +26,5 @@ import gda.device.Detector;
  */
 @Deprecated
 public abstract class PseudoDetector extends DetectorBase implements Detector {
-	
+
 }

@@ -31,13 +31,13 @@ public class AsciiWriterExtenderConfig {
 	String label;
 	String format;
 	String expression;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public AsciiWriterExtenderConfig(){
 	}
-	
+
 	/**
 	 * Should not be called with a null expression
 	 * @param label
@@ -53,14 +53,14 @@ public class AsciiWriterExtenderConfig {
 	 * @param label
 	 * @param format
 	 * @param expression JEP expression
-	 * @param scannableName 
+	 * @param scannableName
 	 */
 	public AsciiWriterExtenderConfig(String label, String format, String expression, String scannableName){
 		this.label = label;
 		this.format = format;
 		this.expression = expression==null ? scannableName : expression;
 	}
-	
+
 	/**
 	 * @return Returns the label.
 	 */
@@ -116,7 +116,7 @@ public class AsciiWriterExtenderConfig {
 		}
 		return String.format(format, val);
 	}
-	
+
 	private JEP CreateJEP(String expression, Map<String, Double>variablesToDoubleMap) {
 		JEP jep = new JEP();
 		jep.addStandardConstants();

@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * The actual commands are sent to hardware by the template methods which are implemented by the sub-classes.
  */
 public abstract class TemperatureBase extends ScannableMotionBase implements AlarmListener, Temperature, PollerListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(TemperatureBase.class);
 	protected final static long LONGPOLLTIME = 5000;
 	protected final static long SHORTPOLLTIME = 1000;
@@ -60,7 +60,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	protected ArrayList<TemperatureRamp> rampList = new ArrayList<TemperatureRamp>();
 	protected Poller poller;
 	private boolean running = false;
-	protected volatile boolean busy = false;	
+	protected volatile boolean busy = false;
 	protected int currentRamp = -1;
 	protected ArrayList<String> probeNameList = new ArrayList<String>();
 	private double accuracy = 0.1; // 0.05;
@@ -69,12 +69,12 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	protected DataWriter dataWriter = null;
 	protected ArrayList<double[]> bufferedData = new ArrayList<double[]>();
 	protected String fileSuffix = null;
-	
+
 	@Override
 	public void configure() throws FactoryException{
 		this.setInputNames(new String[]{"temperature"});
 		this.setOutputFormat(new String[]{"%5.2f"});
-		
+
 		poller = new Poller();
 		poller.setPollTime(longPolltime);
 		poller.addListener(this);
@@ -93,7 +93,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * Set the poll time for updates.
-	 * 
+	 *
 	 * @param polltime
 	 *            the poll time in msec
 	 */
@@ -103,7 +103,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * Get the poll time for update (used by Castor)
-	 * 
+	 *
 	 * @return the poll time in msec
 	 */
 	public long getPolltime() {
@@ -127,7 +127,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * Adds a ramp to the internal list of ramps
-	 * 
+	 *
 	 * @param ramp
 	 *            the TemperatureRamp to add
 	 */
@@ -138,7 +138,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * Called when the holdTimeAlarm goes off. See method startTimer(). This implements the AlarmListener interface.
-	 * 
+	 *
 	 * @param theAlarm
 	 *            the Alarm which has gone off
 	 */
@@ -195,7 +195,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * Gets the minimum temperature limit
-	 * 
+	 *
 	 * @return the minimum temperature obtainable
 	 * @throws DeviceException
 	 */
@@ -206,7 +206,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * Set the temperature probe names
-	 * 
+	 *
 	 * @param probeNames
 	 *            the probe name (used by Castor)
 	 */
@@ -221,18 +221,18 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * Get the target temperature
-	 * 
+	 *
 	 * @return the target temperature
 	 * @throws DeviceException
 	 */
 	@Override
 	public double getTargetTemperature() throws DeviceException {
-		return targetTemp; 
+		return targetTemp;
 	}
 
 	/**
 	 * Gets the maximum temperature limit
-	 * 
+	 *
 	 * @return the maximum temperature
 	 * @throws DeviceException
 	 */
@@ -261,7 +261,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * Sets the minimum temperature limit
-	 * 
+	 *
 	 * @param lowerTemp
 	 *            the minimum temperature
 	 * @throws DeviceException
@@ -273,7 +273,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * Add probe names one at a time
-	 * 
+	 *
 	 * @param probeName
 	 *            the probe name
 	 * @throws DeviceException
@@ -285,7 +285,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * Sets the maximum temperature limit obtainable
-	 * 
+	 *
 	 * @param upperTemp
 	 *            the maximum temperature
 	 * @throws DeviceException
@@ -294,7 +294,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	public void setUpperTemp(double upperTemp) throws DeviceException {
 		this.upperTemp = upperTemp;
 	}
-	
+
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		// FIXME needs implementing
@@ -313,7 +313,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	/**
 	 * Template method for starting a move towards a targetTemperature. Subclasses must provide method
 	 * startTowardsTarget which will send the necessary commands.
-	 * 
+	 *
 	 * @param targetTemp
 	 *            the target temperature
 	 * @throws DeviceException
@@ -338,7 +338,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * Sets the array of ramps.
-	 * 
+	 *
 	 * @param newRamps
 	 *            an ArrayList<TemperatureRamp> of ramps to be set
 	 */
@@ -380,7 +380,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void startHoldTimer() {
 		double holdTime;
@@ -423,7 +423,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	/**
 	 * perform the shutdown procedure of the temperature controller, i.e. properly running hardware warm-up or cool-down
 	 * procedures {@inheritDoc}
-	 * 
+	 *
 	 * @throws DeviceException
 	 * @see gda.device.Temperature#end()
 	 */
@@ -436,7 +436,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 	/**
 	 * perform the start/restart up procedure of the temperature controller properly running hardware warm-up or
 	 * cool-down procedures {@inheritDoc}
-	 * 
+	 *
 	 * @throws DeviceException
 	 * @see gda.device.Temperature#end()
 	 */
@@ -448,7 +448,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * Waits for the device to reach its target temperature
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -483,7 +483,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * Should send hardware commands to start heating or cooling towards a single targetTemp
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	protected abstract void startTowardsTarget() throws DeviceException;
@@ -505,14 +505,14 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * Run the ramp sequence.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public abstract void runRamp() throws DeviceException;
 
 	/**
 	 * Get the output file suffix.
-	 * 
+	 *
 	 * @return the file suffix (used by Castor)
 	 */
 	public String getFileSuffix() {
@@ -521,7 +521,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * Set the output file suffix.
-	 * 
+	 *
 	 * @param fileSuffix
 	 *            the file suffix
 	 */
@@ -531,7 +531,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * sets the ramp rate
-	 * 
+	 *
 	 * @param rate
 	 * @throws DeviceException
 	 */
@@ -542,7 +542,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * gets the ramp rate
-	 * 
+	 *
 	 * @return the ramp rate
 	 * @throws DeviceException
 	 */
@@ -555,7 +555,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 
 	/**
 	 * converts object to String array
-	 * 
+	 *
 	 * @param position
 	 * @param scannable
 	 * @return String Array
@@ -579,7 +579,7 @@ public abstract class TemperatureBase extends ScannableMotionBase implements Ala
 		return currentPosition;
 
 	}
-	
+
 	public Object readout() { return null;}
 
 	public int[] getDataDimensions() {

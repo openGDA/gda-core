@@ -21,10 +21,10 @@ package gda.device.scannable.scannablegroup;
 import gda.device.DeviceException;
 
 class DummyScannableFieldScannableMotion extends ScannableMotionWithScannableFieldsBase {
-	
+
 	Double[] inputPos;
 	Double[] extraPos;
-	
+
 	public DummyScannableFieldScannableMotion(String name, String[] inputNames, String[] extraNames) {
 		setName(name);
 		setInputNames(inputNames);
@@ -43,12 +43,12 @@ class DummyScannableFieldScannableMotion extends ScannableMotionWithScannableFie
 		}
 		setOutputFormat(formatArray);
 	}
-	
+
 	@Override
 	public void asynchronousMoveTo(Object position) throws gda.device.DeviceException {
-		inputPos = gda.device.scannable.ScannableUtils.objectToArray(position);			
+		inputPos = gda.device.scannable.ScannableUtils.objectToArray(position);
 	}
-	
+
 	@Override
 	public Object getPosition() throws DeviceException {
 		Double[] pos = new Double[inputPos.length + extraPos.length];
@@ -56,7 +56,7 @@ class DummyScannableFieldScannableMotion extends ScannableMotionWithScannableFie
 		System.arraycopy(extraPos, 0, pos, inputPos.length, inputPos.length);
 		return pos;
 	}
-	
+
 	@Override
 	public boolean isBusy() throws DeviceException {
 		return false;

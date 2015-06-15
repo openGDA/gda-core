@@ -30,9 +30,9 @@ import org.eclipse.swt.widgets.Composite;
 import uk.ac.gda.components.wrappers.FindableNameWrapper;
 
 public class DetectorManagerComposite extends Composite {
-	
+
 	private FindableNameWrapper detectorName;
-	
+
 	public DetectorManagerComposite(Composite parent, int style) {
 		super(parent, style);
 		final GridLayout gridLayout = new GridLayout();
@@ -53,7 +53,7 @@ public class DetectorManagerComposite extends Composite {
 			}
 		});
 	}
-	
+
 	public void selectionChanged(DetectorManagerBean bean) {
 		String name = detectorName.getValue().toString();
 		if (name != null && bean != null) {
@@ -61,7 +61,7 @@ public class DetectorManagerComposite extends Composite {
 			detectorName.refresh();
 		}
 	}
-	
+
 	public FindableNameWrapper getDetectorName() {
 		return detectorName;
 	}

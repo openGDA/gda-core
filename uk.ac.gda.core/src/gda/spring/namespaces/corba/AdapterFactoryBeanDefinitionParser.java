@@ -36,35 +36,35 @@ import org.w3c.dom.Element;
  * Spring {@link BeanDefinitionParser} for the {@code adapterfactory} element.
  */
 public class AdapterFactoryBeanDefinitionParser implements BeanDefinitionParser {
-	
+
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(AdapterFactoryBeanDefinitionParser.class);
-	
+
 	@Override
 	public AbstractBeanDefinition parse(Element element, ParserContext parserContext) {
-		
+
 		final String namespace = element.getAttribute("namespace");
-		
+
 		// Namespace is mandatory
 		if (!StringUtils.hasText(namespace)) {
 			throw new IllegalArgumentException("You must specify a namespace when using the <corba:adapterfactory> element");
 		}
 
 		CorbaNamespaceHandler.registerNetServiceFactoryBean(parserContext.getRegistry());
-		
+
 		final BeanReference netServiceBeanRef = new RuntimeBeanReference(CorbaNamespaceHandler.NET_SERVICE_BEAN_NAME);
-		
+
 		final AbstractBeanDefinition beanDef = new GenericBeanDefinition();
 		beanDef.setBeanClass(AdapterFactory.class);
 		beanDef.getConstructorArgumentValues().addGenericArgumentValue(namespace);
 		beanDef.getConstructorArgumentValues().addGenericArgumentValue(netServiceBeanRef);
-		
+
 		final BeanDefinitionRegistry beanDefRegistry = parserContext.getRegistry();
-		
+
 		final String beanName = parserContext.getReaderContext().generateBeanName(beanDef);
 		beanDefRegistry.registerBeanDefinition(beanName, beanDef);
-		
+
 		return beanDef;
 	}
-	
+
 }

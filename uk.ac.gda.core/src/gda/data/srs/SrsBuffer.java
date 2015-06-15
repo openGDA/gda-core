@@ -57,7 +57,7 @@ public class SrsBuffer {
 	/**
 	 * Constructor which takes in a GenericData. This will use the SrsBuffer#setGenericData(GenericData gdata) method to
 	 * fill this SRS buffer.
-	 * 
+	 *
 	 * @param gdata
 	 * @see SrsBuffer#setGenericData(GenericData)
 	 */
@@ -69,7 +69,7 @@ public class SrsBuffer {
 	/**
 	 * Put a variable and a corresponding data item into the buffer. It either adds the data to an existing variable
 	 * data list, or if the variable does not exist in the buffer it adds it in along with the data.
-	 * 
+	 *
 	 * @param var
 	 *            Variable name
 	 * @param data
@@ -89,7 +89,7 @@ public class SrsBuffer {
 
 	/**
 	 * Get a list of all the variables in this SRS file.
-	 * 
+	 *
 	 * @return Set - Variable list
 	 */
 	public Vector<String> getVariables() {
@@ -102,7 +102,7 @@ public class SrsBuffer {
 
 	/**
 	 * Get the data item for a variable.
-	 * 
+	 *
 	 * @param variable
 	 *            string array.
 	 * @return Vector<String>
@@ -121,7 +121,7 @@ public class SrsBuffer {
 	/**
 	 * Set a SRS header, and override any existing header. If the header does not contain the &SRS and &END flags, these
 	 * will be added by this method.
-	 * 
+	 *
 	 * @param header
 	 */
 	public void setHeader(String header) {
@@ -134,7 +134,7 @@ public class SrsBuffer {
 
 	/**
 	 * Get the SRS header
-	 * 
+	 *
 	 * @return header
 	 */
 	public String getHeader() {
@@ -143,7 +143,7 @@ public class SrsBuffer {
 
 	/**
 	 * Get the SRS trailer.
-	 * 
+	 *
 	 * @return trailer
 	 */
 	public String getTrailer() {
@@ -152,7 +152,7 @@ public class SrsBuffer {
 
 	/**
 	 * Set the SRS trailer
-	 * 
+	 *
 	 * @param trailer
 	 */
 	public void setTrailer(String trailer) {
@@ -161,7 +161,7 @@ public class SrsBuffer {
 
 	/**
 	 * Put a GenericData into the SRS buffer.
-	 * 
+	 *
 	 * @param gdata
 	 */
 	public void setGenericData(GenericData gdata) {
@@ -199,7 +199,7 @@ public class SrsBuffer {
 
 	/**
 	 * Return a GenericData object. This method converts this SRS buffer into a GenericData.
-	 * 
+	 *
 	 * @return GenericData
 	 */
 	public IGenericData getGenericData() {

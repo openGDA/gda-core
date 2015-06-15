@@ -23,7 +23,6 @@ import static gda.device.scannable.PositionConvertorFunctions.toParticularContai
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.continuouscontroller.ContinuousMoveController;
-import gda.device.continuouscontroller.TrajectoryMoveController;
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableMotionBase;
@@ -128,7 +127,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 		public boolean isBusy() throws DeviceException {
 			return parent.isBusy();
 		}
-		
+
 		@Override
 		public void waitWhileBusy() throws DeviceException, InterruptedException {
 			parent.waitWhileBusy();
@@ -240,7 +239,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 			}
 			return (parentOffsetArray[index]==null) ? null : new Double[] { parentOffsetArray[index] };
 		}
-		
+
 		@Override
 		public Double[] getScalingFactor() {
 			Double[] parentScalingFactor = parent.getScalingFactor();
@@ -249,8 +248,8 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 			}
 			return (parentScalingFactor[index]==null) ? null : new Double[] { parentScalingFactor[index] };
 		}
-		
-		
+
+
 		@Override
 		public void setLevel(int level) {
 			parent.setLevel(level);
@@ -271,8 +270,8 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 			parent.setTolerances(newTolerance);
 		}
 
-		
-		
+
+
 		@Override
 		public void setTolerances(Double[] tolerance) throws DeviceException {
 			if (!(tolerance.length == 1)) {
@@ -295,7 +294,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 			parentOffsetArray[index] = offsetArray[0];
 			parent.setOffset(parentOffsetArray);
 		}
-		
+
 		@Override
 		public void setScalingFactor(Double... scaleArray) {
 			if (!(scaleArray.length == 1)) {
@@ -309,7 +308,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 			parentScaleArray[index] = scaleArray[0];
 			parent.setScalingFactor(parentScaleArray);
 		}
-		
+
 		@Override
 		@Deprecated
 		public void atEnd() throws DeviceException {
@@ -437,7 +436,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 	private boolean awaitingPointEnd = false;
 
 	private boolean operatingContinuousely;
-	
+
 	private boolean autoCompletePartialMoveToTargets = false;
 
 	private ContinuousMoveController controller;
@@ -515,14 +514,14 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 		coordinatedScannableComponent.resetState();
 		resetState();
 	}
-	
-	
+
+
 	@Override
 	public void atScanEnd() throws DeviceException {
 		positionAtScanStart = null;
 		super.atScanEnd();
 	}
-	
+
 	/**
 	 * Returns the position sampled at the start of the scan, or null if operating in a scan.
 	 * @return position if in scan or null
@@ -530,11 +529,11 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 	public Object[] getPositionAtScanStart() {
 		return positionAtScanStart;
 	}
-	
+
 	/**
 	 * Calls asynchronousMovoTo on the DottedAccessScannable. Fills all fields but index with nulls. May be overridden
 	 * to improve performance.
-	 * 
+	 *
 	 * @param index
 	 * @param position
 	 * @throws DeviceException
@@ -570,7 +569,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 			}
 		}
 	}
-	
+
 	protected Object[] completePartialMoveTarget(Object[] externalTarget) throws DeviceException {
 		Object[] originalExternalTarget = Arrays.copyOf(externalTarget, externalTarget.length);
 		Object[] basePosition = (getPositionAtScanStart() != null) ? getPositionAtScanStart() : toObjectArray(getPosition());
@@ -589,7 +588,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 		}
 
 		return externalTarget;
-		
+
 	}
 
 	/**
@@ -620,7 +619,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 	 * Returns the ScannableField with the given name. As PseudoDevice does not extend PyObject, it is an 'old style'
 	 * class and the more appropriate __getattribute__ method won't get called. The problem with __getattr__ is that
 	 * defined methods (such as Scannable.a()) will block it. Then again, maybe this is not a problem!
-	 * 
+	 *
 	 * @param name
 	 */
 	public ScannableField __getattr__(String name) {
@@ -633,7 +632,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 
 	/**
 	 * Returns the ScannableField with the given name.
-	 * 
+	 *
 	 * @param name
 	 * @return the Scannablefield, or null if it could not be found.
 	 */
@@ -644,7 +643,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 	/**
 	 * Override this if there is a more efficient way for your Scannable to get the value of a field than than by
 	 * calling getPosition and picking out the ith object.
-	 * 
+	 *
 	 * @param index
 	 * @return position of ith field
 	 * @throws DeviceException
@@ -694,7 +693,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 	public ContinuousMoveController getContinuousMoveController() {
 		return controller;
 	}
-	
+
 	public void setContinuousMoveController(ContinuousMoveController controller) {
 		this.controller = controller;
 	}
@@ -708,7 +707,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 //			super.asynchronousMoveTo(position);
 //		}
 //	}
-	
+
 //	@Override
 //	public Object getPosition() throws DeviceException {
 //		if (isOperatingContinously()) {
@@ -716,15 +715,15 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 //		}
 //		return super.getPosition();
 //	}
-	
+
 	@Override
 	public boolean isBusy() throws DeviceException {
 		if (isOperatingContinously()) {
 			return controller.isMoving();
 		}
 		return super.isBusy();
-	}	
-	
+	}
+
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
 		if (isOperatingContinously()) {
@@ -733,7 +732,7 @@ public class ScannableMotionWithScannableFieldsBase extends ScannableMotionBase 
 			super.waitWhileBusy();
 		}
 	}
-	
+
 	@Override
 	public void stop() throws DeviceException {
 		positionAtScanStart = null;

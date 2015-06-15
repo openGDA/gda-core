@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Base class for DataWriterExtenders that helps with extending the extenders
- * 
+ *
  * extending classes need to call super.completeCollection and super.addData last in their
  * respective methods
  */
@@ -37,7 +37,7 @@ public class DataWriterExtenderBase implements IDataWriterExtender {
 
 	private static final Logger logger = LoggerFactory.getLogger(DataWriterExtenderBase.class);
 
-	private List<IDataWriterExtender> dataWriterExtenders = new ArrayList<IDataWriterExtender>();	
+	private List<IDataWriterExtender> dataWriterExtenders = new ArrayList<IDataWriterExtender>();
 
 	@Override
 	public void addDataWriterExtender(IDataWriterExtender dataWriterExtender) {
@@ -50,8 +50,8 @@ public class DataWriterExtenderBase implements IDataWriterExtender {
 	}
 
 	/**
-	 * Convenience method that calls addData(this, dataPoint) 
-	 * 
+	 * Convenience method that calls addData(this, dataPoint)
+	 *
 	 * @param dataPoint
 	 */
 	public void addData(IScanDataPoint dataPoint) {
@@ -62,7 +62,7 @@ public class DataWriterExtenderBase implements IDataWriterExtender {
 			// careful users of this class should use addData(this, dataPoint) directly
 		}
 	}
-	
+
 	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
 		Exception savedException = null;
@@ -74,17 +74,17 @@ public class DataWriterExtenderBase implements IDataWriterExtender {
 				if (savedException == null)
 					savedException = new Exception("Exception in "+dwe.toString()+": ",e);
 			}
-		}		
-		
+		}
+
 		if (savedException != null) {
 			// rethrowing first exception seen:
 			throw savedException;
 		}
 	}
-	
+
 	/**
-	 * Convenience method that calls completeCollection(this) 
-	 * 
+	 * Convenience method that calls completeCollection(this)
+	 *
 	 */
 	public void completeCollection() {
 		completeCollection(this);
@@ -94,6 +94,6 @@ public class DataWriterExtenderBase implements IDataWriterExtender {
 	public void completeCollection(IDataWriterExtender parent) {
 		for(IDataWriterExtender dwe : dataWriterExtenders) {
 			dwe.completeCollection(this);
-		}			
+		}
 	}
 }

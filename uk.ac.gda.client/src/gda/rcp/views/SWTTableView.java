@@ -77,10 +77,10 @@ public class SWTTableView extends ViewPart {
 	 * existing objects in adapters or simply return
 	 * objects as-is. These objects may be sensitive
 	 * to the current input of the view, or ignore
-	 * it and always show the same content 
+	 * it and always show the same content
 	 * (like Task List, for example).
 	 */
-	 
+
 	class ViewContentProvider implements IStructuredContentProvider {
 		@Override
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
@@ -132,13 +132,13 @@ public class SWTTableView extends ViewPart {
 		hookContextMenu();
 		hookDoubleClickAction();
 		contributeToActionBars();
-		
+
 //		GridLayout gridLayout = new GridLayout();
 //		gridLayout.numColumns = 2;
 //		gridLayout.makeColumnsEqualWidth = true;
 //		Composite composite = new Composite(parent, SWT.NULL);
 //		composite.setLayout(gridLayout);
-//		
+//
 //		Label label = new Label (composite, SWT.NONE);
 //		label.setText("label1");
 //		GridData data = new GridData();
@@ -178,7 +178,7 @@ public class SWTTableView extends ViewPart {
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
-	
+
 	private void fillLocalToolBar(IToolBarManager manager) {
 		manager.add(action1);
 		manager.add(action2);
@@ -195,7 +195,7 @@ public class SWTTableView extends ViewPart {
 		action1.setToolTipText("Action 1 tooltip");
 		action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-		
+
 		action2 = new Action() {
 			@Override
 			public void run() {

@@ -26,24 +26,24 @@ import java.util.Date;
 
 /**
  * Returns the current date/time
- * 
+ *
  * @see java.text.SimpleDateFormat
  */
 public class TimeScannable extends ScannableBase {
-	
+
 	String dateformat = "EEE, d MMM yyyy HH:mm:ss z";
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public TimeScannable(){
 		this.inputNames = new String[]{};
 		this.extraNames = new String[]{"time"};
 		this.outputFormat = new String[]{"%s"};
 	}
-	
+
 	/**
-	 * @param name 
+	 * @param name
 	 */
 	public TimeScannable(String name){
 		this();
@@ -52,7 +52,7 @@ public class TimeScannable extends ScannableBase {
 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-		// 
+		//
 	}
 
 	@Override

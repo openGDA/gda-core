@@ -27,40 +27,40 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class SpringBeanFactoryTest {
-	
+
 	private IConfigurationElement configElement;
-	
+
 	@Before
 	public void createConfigElement() {
 		final IContributor contributor = mock(IContributor.class);
 		when(contributor.getName()).thenReturn("uk.ac.gda.client.test");
-		
+
 		configElement = mock(IConfigurationElement.class);
 		when(configElement.getContributor()).thenReturn(contributor);
 	}
-	
+
 	@Test(expected=IllegalArgumentException.class)
 	public void callSetWithInvalidPropertyName() throws Exception {
 		SpringBeanFactory factory = new SpringBeanFactory();
 		factory.setInitializationData(configElement, "xyz", null);
 	}
-	
+
 	@Test(expected=IllegalArgumentException.class)
 	public void callSetWithNoData() throws Exception {
 		SpringBeanFactory factory = new SpringBeanFactory();
 		factory.setInitializationData(configElement, "class", null);
 	}
-	
+
 	@Test(expected=IllegalArgumentException.class)
 	public void callSetWithDataOfWrongType() throws Exception {
 		SpringBeanFactory factory = new SpringBeanFactory();
 		factory.setInitializationData(configElement, "class", 123);
 	}
-	
+
 	@Test
 	public void callSetWithValidData() throws Exception {
 		SpringBeanFactory factory = new SpringBeanFactory();
 		factory.setInitializationData(configElement, "class", "beanName");
 	}
-	
+
 }

@@ -19,9 +19,6 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.MotorException;
@@ -32,13 +29,16 @@ import gda.device.serial.StringWriter;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A controller class for Queensgate piezos. It manages serial communication with individual piezo command modules
  * (there can be up to three in a box), ensuring that replies return to the correct module. The class also manages the
  * tasks common to all piezos - converting to and from module replies.
  */
 public class QueensgateController extends DeviceBase implements PiezoController {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(QueensgateController.class);
 
 	private Serial serial;
@@ -117,7 +117,7 @@ public class QueensgateController extends DeviceBase implements PiezoController 
 	 * This method is required to setup the initial condition of the piezo. First, module 0 is selected (ie no modules)
 	 * then input from the command module is enabled on Ports Q through T. The positions are set to zero on all modules
 	 * then the modules are deselected and the input/output gate is disabled.
-	 * 
+	 *
 	 * @throws FactoryException
 	 */
 	private void initialiseModules() throws FactoryException {
@@ -151,7 +151,7 @@ public class QueensgateController extends DeviceBase implements PiezoController 
 
 	/**
 	 * Used to send a command to the piezo module that does not require a reply.
-	 * 
+	 *
 	 * @param module
 	 *            is the module number
 	 * @param positionCommand -
@@ -192,7 +192,7 @@ public class QueensgateController extends DeviceBase implements PiezoController 
 	/**
 	 * Sends the commands required to return the current rawPosition (offset), converts this value to a position
 	 * (offset) and compares with requested position (offset). Notifies when the process is complete.
-	 * 
+	 *
 	 * @param module
 	 *            the module to query the position and status
 	 * @return the reply string

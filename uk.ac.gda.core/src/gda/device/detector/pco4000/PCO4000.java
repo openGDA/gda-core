@@ -18,10 +18,10 @@
 
 package gda.device.detector.pco4000;
 
-import java.awt.Rectangle;
-
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
+
+import java.awt.Rectangle;
 
 /**
  * This class is designed to deal with the PCO4000 camera, primarily for the I12 beamline
@@ -36,39 +36,39 @@ public class PCO4000 extends DetectorBase {
 	private static final long serialVersionUID = 3992340275415676318L;
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String FILENAME = "filename";
 	/**
-	 * 
+	 *
 	 */
 	public static final String PATHNAME = "pathname";
 	/**
-	 * 
+	 *
 	 */
 	public static final String SET_COUNT = "setCount";
 	/**
-	 * 
+	 *
 	 */
 	public static final String SET_ROI = "setROI";
 	/**
-	 * 
+	 *
 	 */
 	public static final String CLEAR_ROI = "clearROI";
 	/**
-	 * 
+	 *
 	 */
 	public static final String SET_EXPOSURE_TIME = "setExposureTime";
 	/**
-	 * 
+	 *
 	 */
 	public static final String SET_DYNAMIC_RANGE = "setDynamicRange";
 	/**
-	 * 
+	 *
 	 */
 	public static final String SET_BINNING = "setBinning";
 	/**
-	 * 
+	 *
 	 */
 	public static final String SET_HARDWARE = "setHardware";
 
@@ -150,7 +150,7 @@ public class PCO4000 extends DetectorBase {
 	public void setExposureTime(Double time) throws DeviceException {
 		super.setAttribute(SET_EXPOSURE_TIME, time);
 	}
-	
+
 	/**
 	 * Setter
 	 * @param fileName
@@ -159,7 +159,7 @@ public class PCO4000 extends DetectorBase {
 	public void setFileName(String fileName) throws DeviceException {
 		super.setAttribute(FILENAME, fileName);
 	}
-	
+
 	/**
 	 * Setter
 	 * @param pathName
@@ -170,10 +170,10 @@ public class PCO4000 extends DetectorBase {
 	}
 
 	/**
-	 * This will be used to set all the main attributes of the 
+	 * This will be used to set all the main attributes of the
 	 * camera, as this means that the system is fully corbarized which
 	 * may be useful as the camera runs on windows, and may be running
-	 * on a seperate server 
+	 * on a seperate server
 	 */
 	@Override
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
@@ -243,7 +243,7 @@ public class PCO4000 extends DetectorBase {
 	}
 
 	/**
-	 * This should basicaly be set when the readout is occuring, 
+	 * This should basicaly be set when the readout is occuring,
 	 * this may well need to call on another method
 	 * 0 idle
 	 * 1 busy
@@ -275,7 +275,7 @@ public class PCO4000 extends DetectorBase {
 	/**
 	 * This tag is for nexus to let it know that this will generate a seperate file
 	 * @return true in this case
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Override
 	public boolean createsOwnFiles() throws DeviceException {
@@ -285,7 +285,7 @@ public class PCO4000 extends DetectorBase {
 	/**
 	 * Data collection for Nexus
 	 * @return the device description
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Override
 	public String getDescription() throws DeviceException {
@@ -295,7 +295,7 @@ public class PCO4000 extends DetectorBase {
 	/**
 	 * Data collection for Nexus
 	 * @return The ID of the device
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Override
 	public String getDetectorID() throws DeviceException {
@@ -305,7 +305,7 @@ public class PCO4000 extends DetectorBase {
 	/**
 	 * Data collection for Nexus
 	 * @return "CCD"
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Override
 	public String getDetectorType() throws DeviceException {

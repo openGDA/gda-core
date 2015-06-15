@@ -29,26 +29,26 @@ package gda.device.scannable;
 public abstract class SampleXYZAxis extends ScannableMotionUnitsBase {
 
 	/**
-	 * 
+	 *
 	 */
 	public static final int X = 0;
 	/**
-	 * 
+	 *
 	 */
 	public static final int Y = 1;
 	/**
-	 * 
+	 *
 	 */
 	public static final int Z = 2;
-	
-	
+
+
 	/**
 	 * The name of a ScannableGroup holding the three axes.
 	 */
 	public static final String XYZ_SCANNABLE = "samplexyz";
 
 	/**
-	 * The name of an alternative ScannableGroup holding three axes which achieve the same movement using different 
+	 * The name of an alternative ScannableGroup holding three axes which achieve the same movement using different
 	 * motors (e.g. goniometer support instead of sample stage).
 	 */
 	public static final String XYZ_SCANNABLE_ALT = "samplexyz_alt";

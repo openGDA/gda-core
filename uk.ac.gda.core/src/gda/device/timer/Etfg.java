@@ -44,15 +44,15 @@ public class Etfg extends Tfg {
 	public void setMaximumFrames(int max) {
 		MAXFRAMES = max;
 	}
-	
+
 	/**
 	 * Set attribute values for "Ext-Start", "Ext-Inhibit", "VME-Start" and "Auto-Continue"
-	 * 
+	 *
 	 * @param attributeName
 	 *            the attribute name
 	 * @param value
 	 *            the attribute value
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -133,7 +133,7 @@ public class Etfg extends Tfg {
 			}
 		}
 	}
-	
+
 	@Override
 	public Object getAttribute(String attributeName) {
 		if ("Version".equals(attributeName)) {

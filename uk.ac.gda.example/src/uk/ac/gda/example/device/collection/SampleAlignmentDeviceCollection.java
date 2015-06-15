@@ -71,16 +71,16 @@ public class SampleAlignmentDeviceCollection implements IDeviceCollection {
 	@Override
 	public void setName(String name) {
 		this.name = name;
-		
+
 	}
 
 	public void addListener(ISampleAlignmentDeviceCollectionListener collectionListener) {
 		if (collectionListener == null)
 			throw new NullPointerException();
-		
+
 		if (listeners.size() == 0) {
 			scannablemotorunits.addIObserver(new IObserver() {
-				
+
 				@Override
 				public void update(Object source, Object arg) {
 					if (source.equals(scannablemotorunits)){
@@ -92,15 +92,15 @@ public class SampleAlignmentDeviceCollection implements IDeviceCollection {
 								e.printStackTrace();
 							}
 						}
-					}	
-					
+					}
+
 				}
 			});
 			scannable.addIObserver(new IObserver() {
-				
+
 				@Override
 				public void update(Object source, Object arg) {
-					
+
 					if (source.equals(scannable)){
 						for (ISampleAlignmentDeviceCollectionListener listener : listeners) {
 							try {
@@ -111,11 +111,11 @@ public class SampleAlignmentDeviceCollection implements IDeviceCollection {
 							}
 						}
 					}
-				
+
 				}
 			});
 		}
-		
+
 		listeners.add(collectionListener);
 	}
 }

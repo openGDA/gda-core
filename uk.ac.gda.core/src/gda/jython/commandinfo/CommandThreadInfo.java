@@ -18,10 +18,9 @@
 
 package gda.jython.commandinfo;
 
-import gda.jython.commandinfo.ICommandThreadInfo;
 
 public class CommandThreadInfo implements ICommandThreadInfo {
-	
+
 	private String threadType;
 	private long id = -1;
 	private int priority = -1;
@@ -35,13 +34,13 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	public CommandThreadInfo() { }
 
 	public CommandThreadInfo(
-			String commandThreadType, 
+			String commandThreadType,
 			long   id,
 			int    priority,
 			String name,
 			String  state,
-			String date, 
-			String time, 
+			String date,
+			String time,
 			boolean isInterrupted,
 			String command) {
 		this.threadType = commandThreadType;
@@ -69,7 +68,7 @@ public class CommandThreadInfo implements ICommandThreadInfo {
 	public String getDate() {
 		return null==date ? "" : date;
 	}
-	
+
 	@Override
 	public long getId() {
 		return id;

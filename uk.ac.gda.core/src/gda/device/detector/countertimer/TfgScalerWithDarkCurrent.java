@@ -46,20 +46,20 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements Dark
 
 	/**
 	 * Reads and sets the darkCurrent
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void acquireDarkCurrent() throws Exception {
 		darkCurrent = null;
-		
-		
+
+
 		if (isBusy()){
 			logger.info(getName() + " acquiring dark current. Waiting until last collection is complete first.");
 			waitWhileBusy();
 		} else {
 			logger.info(getName() + " acquiring dark current.");
 		}
-		
+
 
 		clearFrameSets();
 
@@ -191,7 +191,7 @@ public abstract class TfgScalerWithDarkCurrent extends TfgScaler implements Dark
 	/**
 	 * True by default, set to false if the shutter used to collect the dark current should not have reset called before
 	 * opening.
-	 * 
+	 *
 	 * @param useReset
 	 */
 	public void setUseReset(boolean useReset) {

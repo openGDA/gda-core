@@ -26,11 +26,11 @@ import java.util.Map;
  * the interface that each object implements.
  */
 public interface RemoteObjectLister {
-	
+
 	/**
 	 * Returns a map of the available objects. The keys are object names, and
 	 * the values are class names.
-	 * 
+	 *
 	 * @return map of available objects
 	 */
 	public Map<String, String> getAvailableObjects();

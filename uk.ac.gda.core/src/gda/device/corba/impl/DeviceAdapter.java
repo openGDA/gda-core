@@ -60,7 +60,7 @@ public class DeviceAdapter extends PyObject implements Device, EventSubscriber, 
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name
@@ -78,17 +78,17 @@ public class DeviceAdapter extends PyObject implements Device, EventSubscriber, 
 			eventService.subscribe(this, new NameFilter(name, this.observableComponent));
 		}
 	}
-	
+
 	@Override
 	public org.omg.CORBA.Object getCorbaObject() {
 		return corbaDevice;
 	}
-	
+
 	@Override
 	public NetService getNetService() {
 		return netService;
 	}
-	
+
 	@Override
 	public void inform(Object message) {
 		logger.debug(LoggingConstants.FINEST, "DeviceAdapter: Received event for " + ((message != null) ? message.getClass() : "NULL"));
@@ -197,7 +197,7 @@ public class DeviceAdapter extends PyObject implements Device, EventSubscriber, 
 
 	/**
 	 * Notify observers of this class.
-	 * 
+	 *
 	 * @param source the observed object
 	 * @param arg the changed code
 	 */

@@ -31,12 +31,12 @@ import org.eclipse.ui.views.properties.PropertyDescriptor;
  *
  */
 public class ArrayPropertySource implements IPropertySource {
-	
+
 	private double[] array;
 	private String[] rawDescriptors;
 	private IPropertyDescriptor[] descriptors;
 
-	
+
 	/**
 	 * @param array
 	 * @param descrips
@@ -45,7 +45,7 @@ public class ArrayPropertySource implements IPropertySource {
 		this.array = array;
 		rawDescriptors = descrips;
 	}
-	
+
 	/**
 	 * @return The editablevalue of the object
 	 */
@@ -53,7 +53,7 @@ public class ArrayPropertySource implements IPropertySource {
 	public Object getEditableValue(){
 		return this;
 	}
-	
+
 	/**
 	 * @return propertydescriptor
 	 */
@@ -70,7 +70,7 @@ public class ArrayPropertySource implements IPropertySource {
 		}
 		return descriptors;
 	}
-	
+
 	private int getIndexOfProperty(Object id) {
 		for (int i = 0; i < descriptors.length; i++) {
 			IPropertyDescriptor desc = descriptors[i];
@@ -80,7 +80,7 @@ public class ArrayPropertySource implements IPropertySource {
 		}
 		return -1;
 	}
-	
+
 	/**
 	 * @param propName
 	 * @return propertyValue
@@ -94,7 +94,7 @@ public class ArrayPropertySource implements IPropertySource {
 		return null;
 	}
 
-	
+
 	/**
 	 * @see org.eclipse.ui.views.properties.IPropertySource#isPropertySet(Object)
 	 */
@@ -106,13 +106,13 @@ public class ArrayPropertySource implements IPropertySource {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * @param propName
 	 */
 	@Override
 	public void resetPropertyValue(Object propName){}
-	
+
 	/**
 	 * @param propName
 	 * @param value
@@ -120,12 +120,12 @@ public class ArrayPropertySource implements IPropertySource {
 	@Override
 	public void setPropertyValue(Object propName, Object value){
 	}
-	
+
 
 	@Override
 	public String toString(){
 		return Arrays.toString(array);
 	}
-	
+
 
 }

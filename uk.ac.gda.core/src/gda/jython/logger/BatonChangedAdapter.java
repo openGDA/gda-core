@@ -33,7 +33,7 @@ public class BatonChangedAdapter implements IObserver {
 	private final IBatonStateProvider batonStateProvider;
 
 	/**
-	 * 
+	 *
 	 * @param logger
 	 * @param batonStateProvider The GDA's {@link JythonServerFacade} singleton is often a good choice.
 	 */

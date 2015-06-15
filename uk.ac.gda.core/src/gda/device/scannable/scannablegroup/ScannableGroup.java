@@ -20,9 +20,9 @@ package gda.device.scannable.scannablegroup;
 
 import gda.device.DeviceException;
 import gda.device.Scannable;
+import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
-import gda.device.scannable.PositionConvertorFunctions;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -61,7 +61,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param name
 	 * @param groupMembers
 	 */
@@ -118,7 +118,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 	/**
 	 * Sets the group member names for this scannable group.
-	 * 
+	 *
 	 * @param groupMemberNames
 	 *            the group member names
 	 */
@@ -137,7 +137,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 	/**
 	 * Adds a scannable to this group. This will not add a Scannable if its name matches anther member's name, even if
 	 * they are different objects.
-	 * 
+	 *
 	 * @param groupMember
 	 */
 	public void addGroupMember(Scannable groupMember) {
@@ -194,7 +194,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 	/**
 	 * Sets the group members that make up this scannable group.
-	 * 
+	 *
 	 * @param groupMembers
 	 *            the group members
 	 */
@@ -205,13 +205,13 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 			setArrays();
 		}
 	}
-	
+
 	/**
-	 * Sets the members of this group. 
+	 * Sets the members of this group.
 	 * <p>
 	 * This is final, as for historical reasons there are two setters on here, and it is natural to extend just one.
 	 * <p>
-	 * 
+	 *
 	 * @param groupMembers
 	 */
 	final public void setGroupMembers(Scannable[] groupMembers) {
@@ -228,7 +228,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 	/**
 	 * Python method used by the interpreter to get attributes that are not defined on an object. Used here to provide
 	 * dotted access to member scannables.
-	 * 
+	 *
 	 * @param name
 	 * @return The named member scannable or null if it does not exist.
 	 */
@@ -317,7 +317,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 				Object[] memberPosition;
 				try {
-					
+
 					Object pos = member.getPosition();
 					if (pos != null) {
 						memberPosition = PositionConvertorFunctions.toObjectArray(pos);
@@ -330,7 +330,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 				}
 				memberPositions.add(memberPosition);
 			}
-			
+
 			int n = 0;
 			for (int i = 0; i < groupMembers.size(); i++) {
 				for (int j = 0; j < groupMembers.get(i).getInputNames().length; j++) {
@@ -376,7 +376,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 		//TODO this method does not provide correct indentation level for a scannable group inside another scannable group
 		//TODO the regex parser is unreliable as described by FIXME below
 		// IT would be better to create format message by delegate to individual members directly, rather than re-parsing output again.
-		
+
 		//TODO this works if the toFormattedString method of the members conforms to a standard. But I don't think there is one!
 		//Rather use getPosition and format here.
 		String membersOutput = getName() + " ::\n";
@@ -388,9 +388,9 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 		String[] namesToSplitOn = getInputNames();
 		String[] names = getGroupMemberNames();
 		String[] extras = getExtraNames();
-		
+
 		// FIXME regex-based splitting of membersOutput is broken if one group member name is a substring of another - e.g. "col_y" and "col_yaw"
-		
+
 		if (originalInputNames.length + extras.length == 0) {
 			return membersOutput;
 		}
@@ -446,7 +446,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 
 	/**
 	 * Acts as a fan-out for messages from the Scannables inside this group {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.observable.IObserver#update(java.lang.Object, java.lang.Object)
 	 */
 	@Override
@@ -543,7 +543,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 		}
 	}
 
-	
+
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		for (Scannable scannable : groupMembers) {

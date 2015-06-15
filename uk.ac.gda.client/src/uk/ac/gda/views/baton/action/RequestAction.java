@@ -34,15 +34,15 @@ public class RequestAction extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
+
 		final boolean gotIt = InterfaceProvider.getBatonStateProvider().requestBaton();
-		
+
 		if (!gotIt) {
 			MessageBox messageBox = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), SWT.OK | SWT.ICON_WARNING);
 			messageBox.setMessage("The current holder is aware of your request.\n\nNormally the baton is released within two minutes.");
 			messageBox.open();
 		}
-		
+
 		return Boolean.TRUE;
 	}
 

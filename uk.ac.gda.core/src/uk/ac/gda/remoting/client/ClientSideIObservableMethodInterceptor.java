@@ -37,23 +37,23 @@ public class ClientSideIObservableMethodInterceptor implements MethodInterceptor
 	 * interceptor.
 	 */
 	private ObservableComponent observableComponent = new ObservableComponent();
-	
+
 	public ObservableComponent getObservableComponent() {
 		return observableComponent;
 	}
-	
+
 	@Override
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		final Method method = invocation.getMethod();
 		final Class<?> declaringClass = method.getDeclaringClass();
-		
+
 		if (declaringClass.equals(IObservable.class)) {
 			// Invoke the method on our IObservable delegate
 			return method.invoke(observableComponent, invocation.getArguments());
 		}
-		
+
 		// Otherwise allow the method call to proceed
 		return invocation.proceed();
 	}
-	
+
 }

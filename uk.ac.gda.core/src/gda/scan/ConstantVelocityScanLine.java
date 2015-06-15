@@ -24,7 +24,6 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.continuouscontroller.ConstantVelocityMoveController;
 import gda.device.continuouscontroller.ConstantVelocityMoveController2;
-
 import gda.device.scannable.ContinuouslyScannableViaController;
 import gda.device.scannable.PositionConvertorFunctions;
 
@@ -37,7 +36,7 @@ public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 	protected Double start;
 	protected Double stop;
 	protected Double step;
-	
+
 
 	public ConstantVelocityScanLine(Object[] args) throws IllegalArgumentException {
 		super(args);
@@ -58,31 +57,31 @@ public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 		boolean allowDetectorCollectionTime = false;
 
 		for (int i = argIndex; i < args.length; i++) {
-			
+
 			if (args[i] instanceof ContinuouslyScannableViaController) {
 				allowDetectorCollectionTime = false;
-		
+
 			} else if (args[i] instanceof Detector) {
 				allowDetectorCollectionTime = true;
-			
+
 			} else if (isZeroInputExtraNamesScannable(args[i])) {
 				allowDetectorCollectionTime = false;
-				
+
 			} else if (allowDetectorCollectionTime) {
 				// This is neither a Detector, ContinuouslyScannableViaController, or zie scannable. It is probabaly a
 				// number and is allowed based on the nature of the previous arg.
 				allowDetectorCollectionTime = false;  // i.e. for the following element
-			
+
 			} else {
 				throw new IllegalArgumentException("Invalid argument " + args[i]);
 			}
-			
+
 		}
-		
+
 	}
 
 	private static boolean isZeroInputExtraNamesScannable(Object object) {
-		
+
 		if (object instanceof Scannable) {
 			Scannable scannable = (Scannable) object;
 			if ((scannable.getInputNames().length + scannable.getExtraNames().length) == 0) {
@@ -90,19 +89,19 @@ public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 			}
 		}
 		return false;
-		
+
 	}
 
 	@Override
 	protected ConstantVelocityMoveController getController() {
 		return (ConstantVelocityMoveController) super.getController();
 	}
-	
+
 	@Override
 	protected void extractScannablesToScan() {
 		super.extractScannablesToScan();
 	}
-	
+
 		@Override
 	protected void configureControllerTriggerTimes() throws DeviceException {
 		getController().setTriggerPeriod(extractCommonCollectionTimeFromDetectors());
@@ -112,12 +111,12 @@ public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 			cvmc2.setDetectors(detectors);
 		}
 	}
-	
-	
+
+
 	@Override
 	protected void callAtCommandFailureHooks() {
 		super.callAtCommandFailureHooks();
-		
+
 		try {
 			logger.info("Problem with scan, stopping and resetting controller: " + getController().getName());
 			getController().stopAndReset();
@@ -130,7 +129,7 @@ public class ConstantVelocityScanLine extends AbstractContinuousScanLine {
 
 	@Override
 	protected void configureControllerPositions(boolean detectorsIntegrateBetweenTriggers) throws DeviceException, InterruptedException {
-		
+
 		ConstantVelocityMoveController controller = getController();
 		controller.stopAndReset();
 		if( controller instanceof ConstantVelocityMoveController2){

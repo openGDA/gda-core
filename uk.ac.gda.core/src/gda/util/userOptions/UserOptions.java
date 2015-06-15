@@ -43,23 +43,23 @@ import org.slf4j.LoggerFactory;
  */
 @SuppressWarnings( { "unchecked", "rawtypes" })
 public class UserOptions extends java.util.TreeMap<String, UserOption> implements Serializable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(UserOptions.class);
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 8365539022259775645L;
 	/**
-	 * 
+	 *
 	 */
 	public String title;
 	/**
-	 * 
+	 *
 	 */
 	public Boolean containsDefault;
 	static String propTitle = "title", propDefValue = "defaultValue", propKeyName = "keyName", propValue = "value",
-			propType = "type", typeBoolean = "typeBoolean", typeString = "typeString", typeDouble = "typeDouble", 
+			propType = "type", typeBoolean = "typeBoolean", typeString = "typeString", typeDouble = "typeDouble",
 			typeInteger = "typeInteger",propDesc = "description";
 
 	public static UserOptions createFromTemplate(String configDir, String configName) throws ConfigurationException,
@@ -303,7 +303,7 @@ public class UserOptions extends java.util.TreeMap<String, UserOption> implement
 	 */
 	/**
 	 * this function runs on the ObjectServer
-	 * 
+	 *
 	 * @param args
 	 * @param options
 	 * @throws ConfigurationException
@@ -318,7 +318,7 @@ public class UserOptions extends java.util.TreeMap<String, UserOption> implement
 
 	/**
 	 * this function runs on the gui
-	 * 
+	 *
 	 * @param configDirValues
 	 * @param configNameValues
 	 * @throws DeviceException
@@ -364,7 +364,7 @@ public class UserOptions extends java.util.TreeMap<String, UserOption> implement
 		return UserOptions.getUserOptionsFromConfigFromGUI(configDirTemplate, configNameTemplate, configDirValues(),
 				configNameValues);
 	}
-	
+
 	public static UserOptions getUserOptionsFromRcpGui() throws DeviceException {
 		final String visitDirectory = PathConstructor.createFromRCPProperties();
 		final UserOptions options = getUserOptionsFromConfigFromGUI(configDirTemplate, configNameTemplate, visitDirectory, configNameValues);
@@ -378,7 +378,7 @@ public class UserOptions extends java.util.TreeMap<String, UserOption> implement
 	public static void saveUserOptionsFromGUI(UserOptions options) throws DeviceException {
 		options.saveValuesToConfigFromGUI(configDirValues(), configNameValues);
 	}
-	
+
 	public static void saveUserOptionsFromRcpGui(UserOptions options) throws DeviceException {
 		final String visitDirectory = PathConstructor.createFromRCPProperties();
 		options.saveValuesToConfigFromGUI(visitDirectory, configNameValues);

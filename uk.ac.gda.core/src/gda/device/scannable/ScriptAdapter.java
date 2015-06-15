@@ -43,7 +43,7 @@ public class ScriptAdapter extends ScannableBase implements Scannable {
 	JythonServerFacade scriptingmediator = JythonServerFacade.getInstance();
 
 	/**
-	 * 
+	 *
 	 */
 	public ScriptAdapter() {
 		level = 99;
@@ -51,7 +51,7 @@ public class ScriptAdapter extends ScannableBase implements Scannable {
 
 	/**
 	 * ScriptAdapter
-	 * 
+	 *
 	 * @param fileName
 	 *            This must be the name of a Jython script placed in a folder in the Jython path.
 	 */
@@ -61,7 +61,7 @@ public class ScriptAdapter extends ScannableBase implements Scannable {
 
 	/**
 	 * ScriptAdapter
-	 * 
+	 *
 	 * @param name
 	 *            The name of this object.
 	 * @param fileName
@@ -74,7 +74,7 @@ public class ScriptAdapter extends ScannableBase implements Scannable {
 
 	/**
 	 * Set the name of the script this object encapsulates.
-	 * 
+	 *
 	 * @param fileName
 	 */
 	public void setFileName(String fileName) {
@@ -83,7 +83,7 @@ public class ScriptAdapter extends ScannableBase implements Scannable {
 
 	/**
 	 * Get the full path of the script.
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getFileName() {

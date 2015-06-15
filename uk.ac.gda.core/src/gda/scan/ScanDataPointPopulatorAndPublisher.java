@@ -48,9 +48,9 @@ public class ScanDataPointPopulatorAndPublisher implements Callable<Void> {
 	public Void call() throws Exception {
 		if( logger.isDebugEnabled())
 			logger.debug("'{}': running", point.toString());
-	
+
 		convertPositionFuturesToPositions(point);
-		
+
 		if( logger.isDebugEnabled()){
 			logger.debug("'{}': futures converted", point.toString());
 			logger.debug("'{}' publishing", point.getUniqueName());
@@ -67,12 +67,12 @@ public class ScanDataPointPopulatorAndPublisher implements Callable<Void> {
 		convertDevices(point.getScannableNames(), point.getPositions());
 		convertDevices(point.getDetectorNames(), point.getDetectorData());
 	}
-	
+
 	private void convertDevices(Vector<String> names, Vector<Object> positions) throws Exception {
 		for (int i = 0; i < positions.size(); i++) {
 			Object possiblyFuture = positions.get(i);
 			String name = names.get(i);
-			
+
 			if( logger.isDebugEnabled())
 				logger.debug("'{}' converting '{}'", point.toString(), name);
 			Object pos = convertPositionFutureToPosition(name, possiblyFuture);
@@ -81,10 +81,10 @@ public class ScanDataPointPopulatorAndPublisher implements Callable<Void> {
 			positions.set(i, pos);
 		}
 	}
-	
+
 	private Object convertPositionFutureToPosition(String name, Object possiblyFuture) throws Exception {
 		if (!(possiblyFuture instanceof Future<?>)) return possiblyFuture;
-		
+
 		try {
 			return ((Future<?>) possiblyFuture).get();
 		} catch (ExecutionException e) {

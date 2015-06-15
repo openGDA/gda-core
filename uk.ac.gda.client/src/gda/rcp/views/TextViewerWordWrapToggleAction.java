@@ -27,17 +27,17 @@ import org.eclipse.jface.text.ITextViewer;
  * not persisted. The default setting is for word wrapping to be disabled.
  */
 public class TextViewerWordWrapToggleAction extends Action {
-	
+
 	private ITextViewer textViewer;
-	
+
 	public TextViewerWordWrapToggleAction(ITextViewer textViewer) {
 		super("Wrap Text", IAction.AS_CHECK_BOX);
 		this.textViewer = textViewer;
 	}
-	
+
 	@Override
 	public void run() {
 		textViewer.getTextWidget().setWordWrap(isChecked());
 	}
-	
+
 }

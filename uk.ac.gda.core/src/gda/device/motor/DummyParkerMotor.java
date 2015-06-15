@@ -19,18 +19,18 @@
 
 package gda.device.motor;
 
+import gda.device.MotorException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.device.MotorException;
 
 /**
  * A Dummy Parker motor class
  */
 public class DummyParkerMotor extends DummyMotor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DummyParkerMotor.class);
-	
+
 	// private boolean homeable;
 	private String storedPosLocation;
 
@@ -86,7 +86,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Sets the minimum speed (steps/sec?).
-	 * 
+	 *
 	 * @param minSpeed
 	 *            the minimum speed
 	 */
@@ -96,7 +96,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Get the minimum speed
-	 * 
+	 *
 	 * @return the minimum speed
 	 */
 	public double getMinSpeed() {
@@ -105,7 +105,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Sets the maximum speed (steps/sec?).
-	 * 
+	 *
 	 * @param maxSpeed
 	 *            the maximum speed
 	 */
@@ -115,7 +115,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Get the maximum speed
-	 * 
+	 *
 	 * @return the maximum speed
 	 */
 	public double getMaxSpeed() {
@@ -125,7 +125,7 @@ public class DummyParkerMotor extends DummyMotor {
 	/**
 	 * Set the axis number in the motor. Minimum value is 1 and the maximum depends on the maximum number of motors for
 	 * this unit.
-	 * 
+	 *
 	 * @see Parker6kController#getMaxNoOfMotors
 	 * @param axisNo
 	 *            the axis number
@@ -136,7 +136,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Get the axis number
-	 * 
+	 *
 	 * @return the axis number
 	 */
 	public int getAxisNo() {
@@ -145,17 +145,18 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Sets the minimum position.
-	 * 
+	 *
 	 * @param minPosition
 	 *            the minimum position
 	 */
+	@Override
 	public void setMinPosition(double minPosition) {
 		this.minPosition = minPosition;
 	}
 
 	/**
 	 * Get the minimum position
-	 * 
+	 *
 	 * @return the minimum position
 	 */
 	@Override
@@ -165,17 +166,18 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Sets the maximum position.
-	 * 
+	 *
 	 * @param maxPosition
 	 *            the maximum position
 	 */
+	@Override
 	public void setMaxPosition(double maxPosition) {
 		this.maxPosition = maxPosition;
 	}
 
 	/**
 	 * Get the minimum position
-	 * 
+	 *
 	 * @return the minimum position
 	 */
 	@Override
@@ -185,7 +187,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Set the motor type
-	 * 
+	 *
 	 * @param stepper
 	 *            true = stepper motor, false = servo motor
 	 */
@@ -195,7 +197,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Get the motor type
-	 * 
+	 *
 	 * @return true = stepper motor, false = servo motor
 	 */
 	public boolean isStepper() {
@@ -204,7 +206,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Set the controller name associated with the motor.
-	 * 
+	 *
 	 * @param parker6kControllerName
 	 *            the contorller name for the motor.
 	 */
@@ -214,7 +216,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Get the controller name associated with the motor.
-	 * 
+	 *
 	 * @return the controller name.
 	 */
 	public String getParker6kControllerName() {
@@ -223,7 +225,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Get the encoderScalingFactor.
-	 * 
+	 *
 	 * @return Returns the encoderScalingFactor.
 	 */
 	public double getEncoderScalingFactor() {
@@ -232,7 +234,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Set the encoderScalingFactor.
-	 * 
+	 *
 	 * @param encoderScalingFactor
 	 *            The encoderScalingFactor to set.
 	 */
@@ -242,7 +244,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Get the home command string.
-	 * 
+	 *
 	 * @return Returns the homeCommandString.
 	 */
 	public String getHomeCommandString() {
@@ -251,7 +253,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Set the home command string.
-	 * 
+	 *
 	 * @param homeCommandString
 	 *            The homeCommandString to set.
 	 */
@@ -261,7 +263,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Get the homing status location.
-	 * 
+	 *
 	 * @return Returns the homingStatusLocation.
 	 */
 	public String getHomingStatusLocation() {
@@ -270,7 +272,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Set hte homing status location.
-	 * 
+	 *
 	 * @param homingStatusLocation
 	 *            The homingStatusLocation to set.
 	 */
@@ -280,7 +282,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Get the stored position location.
-	 * 
+	 *
 	 * @return Returns the storedPosLocation.
 	 */
 	public String getStoredPosLocation() {
@@ -289,7 +291,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Set the stored position location.
-	 * 
+	 *
 	 * @param storedPosLocation
 	 *            The storedPosLocation to set.
 	 */
@@ -299,7 +301,7 @@ public class DummyParkerMotor extends DummyMotor {
 
 	/**
 	 * Set a flag to indicate whether the motor is homeable.
-	 * 
+	 *
 	 * @param homeable
 	 *            The homeable to set.
 	 */

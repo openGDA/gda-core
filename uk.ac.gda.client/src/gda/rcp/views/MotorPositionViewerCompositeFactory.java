@@ -39,7 +39,7 @@ public class MotorPositionViewerCompositeFactory implements CompositeFactory, In
 	private Integer decimalPlaces = null;
 	private static Boolean restoreValueWhenFocusLost;
 	private Boolean hideLabel = true;
-	
+
 	public Scannable getScannable() {
 		return scannable;
 	}
@@ -68,11 +68,11 @@ public class MotorPositionViewerCompositeFactory implements CompositeFactory, In
 	public void setLabel(String label) {
 		this.label = label;
 	}
-	
+
 	public void setDecimalPlaces(Integer dp) {
 		decimalPlaces = dp;
 	}
-	
+
 	public Integer getDecimalPlaces() {
 		return decimalPlaces;
 	}
@@ -83,16 +83,16 @@ public class MotorPositionViewerCompositeFactory implements CompositeFactory, In
 	}
 	@Override
 	public Composite createComposite(Composite parent, int style) {
-		return new MotorPositionViewerComposite(parent, style, scannable, layoutHoriz, label, 
+		return new MotorPositionViewerComposite(parent, style, scannable, layoutHoriz, label,
 				decimalPlaces, commandFormat, getRestoreValueWhenFocusLost(), hideLabel);
 	}
 
 	private String commandFormat;
-	
+
 	public void setCommandFormat(String commandFormat) {
 		this.commandFormat = commandFormat;
 	}
-	
+
 	public static Boolean getRestoreValueWhenFocusLost() {
 		return restoreValueWhenFocusLost;
 	}
@@ -100,7 +100,7 @@ public class MotorPositionViewerCompositeFactory implements CompositeFactory, In
 	public void setHideLabel(Boolean hideLabel) {
 		this.hideLabel = hideLabel;
 	}
-	
+
 	public void setRestoreValueWhenFocusLost(Boolean restoreValueWhenFocusLost) {
 		MotorPositionViewerCompositeFactory.restoreValueWhenFocusLost = restoreValueWhenFocusLost;
 	}
@@ -122,14 +122,14 @@ public class MotorPositionViewerCompositeFactory implements CompositeFactory, In
 		scannableMotor.setLowerGdaLimits(0.);
 		scannableMotor.setInitialUserUnits("mm");
 		scannableMotor.configure();
-		
+
 		DummyMonitor dummy = new DummyMonitor();
 		dummy.setName("dummy");
 		dummy.configure();
 		MotorPositionViewerCompositeFactory motorPositionViewFactory = new MotorPositionViewerCompositeFactory();
 		motorPositionViewFactory.setScannable(scannableMotor);
 		motorPositionViewFactory.afterPropertiesSet();
-		
+
 		Display display = new Display();
 		Shell shell = new Shell(display);
 		shell.setLayout(new BorderLayout());
@@ -143,5 +143,5 @@ public class MotorPositionViewerCompositeFactory implements CompositeFactory, In
 		shell.pack();
 		shell.setSize(400, 400);
 		SWTUtils.showCenteredShell(shell);
-	}	
+	}
 }

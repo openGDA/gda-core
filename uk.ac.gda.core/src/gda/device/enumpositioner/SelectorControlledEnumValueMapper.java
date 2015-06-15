@@ -35,9 +35,9 @@ public class SelectorControlledEnumValueMapper<T> implements EnumValueMapper<T>,
 	private static final Logger logger = LoggerFactory.getLogger(SelectorControlledEnumValueMapper.class);
 	private Map<String, Map<String,T>> mappings;
 	private Scannable selector;
-	
+
 	EnumValueMapper<T> mapper;
-	
+
 
 	public Map<String, Map<String, T>> getMappers() {
 		return mappings;
@@ -68,13 +68,13 @@ public class SelectorControlledEnumValueMapper<T> implements EnumValueMapper<T>,
 
 	private EnumValueMapper<T> getMapper() throws Exception {
 		if(mapper ==null){
-			
+
 			Map<String, T> map = mappings.get(selector.getPosition());
 			MapBasedEnumValueMapper<T> enumValueMapper = new MapBasedEnumValueMapper<T>();
 			enumValueMapper.setMap(map);
 			enumValueMapper.afterPropertiesSet();
 			mapper = enumValueMapper;
-			
+
 		}
 		return mapper;
 	}

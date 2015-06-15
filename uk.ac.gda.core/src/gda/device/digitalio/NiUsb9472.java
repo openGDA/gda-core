@@ -30,13 +30,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Specific to National Instrument's USB digital IO device model 9472, this class is responsible for sending (cannot
  * read) on/off bits to the device. Currently only operates on one channel.
- * 
+ *
  * @see JniDigitalIO
  */
 public class NiUsb9472 extends DigitalIOBase implements DigitalIO {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(NiUsb9472.class);
-	
+
 	private JniDigitalIO jniDigitalIO = new JniDigitalIO();
 
 	private int deviceNumber = 1;
@@ -151,7 +151,7 @@ public class NiUsb9472 extends DigitalIOBase implements DigitalIO {
 
 	/**
 	 * Sets the port numnber.
-	 * 
+	 *
 	 * @param portNumber
 	 */
 	public void setPortNumber(int portNumber) {
@@ -160,7 +160,7 @@ public class NiUsb9472 extends DigitalIOBase implements DigitalIO {
 
 	/**
 	 * Action method to return state of specified channel
-	 * 
+	 *
 	 * @param channelName
 	 *            name of channel
 	 * @return current logic state of channel
@@ -173,7 +173,7 @@ public class NiUsb9472 extends DigitalIOBase implements DigitalIO {
 
 	/**
 	 * Getter method for state information - hardware cannot be queried, so software must do work.
-	 * 
+	 *
 	 * @return current logic state of channel
 	 */
 	public int getState() {
@@ -182,7 +182,7 @@ public class NiUsb9472 extends DigitalIOBase implements DigitalIO {
 
 	/**
 	 * Action method to set state of specified channel
-	 * 
+	 *
 	 * @param channelName
 	 *            name of channel
 	 * @param stateToSet
@@ -219,7 +219,7 @@ public class NiUsb9472 extends DigitalIOBase implements DigitalIO {
 
 	/**
 	 * Returns the list of channel definitions available
-	 * 
+	 *
 	 * @return the ArrayList of channel setups
 	 */
 	public ArrayList<ChannelSetup> getChannelSetupList() {

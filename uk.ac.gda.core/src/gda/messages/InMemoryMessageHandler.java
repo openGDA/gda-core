@@ -18,6 +18,9 @@
 
 package gda.messages;
 
+import gda.jython.UserMessage;
+import gda.util.BoundedLinkedList;
+
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -28,23 +31,20 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import gda.jython.UserMessage;
-import gda.util.BoundedLinkedList;
-
 /**
  * {@link MessageHandler} that stores messages in memory. There is a limit to the number of messages stored per
  * visit (default 10).
  */
 public class InMemoryMessageHandler implements MessageHandler {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(InMemoryMessageHandler.class);
-	
+
 	private int maxMessagesPerVisit = 10;
-	
+
 	public void setMaxMessagesPerVisit(int maxMessagesPerVisit) {
 		this.maxMessagesPerVisit = maxMessagesPerVisit;
 	}
-	
+
 	private CacheLoader<String, List<UserMessage>> loader = new CacheLoader<String, List<UserMessage>>() {
 		@Override
 		public List<UserMessage> load(String visit) throws Exception {
@@ -52,9 +52,9 @@ public class InMemoryMessageHandler implements MessageHandler {
 			return visitMessages;
 		}
 	};
-	
+
 	private LoadingCache<String, List<UserMessage>> messages = CacheBuilder.newBuilder().build(loader);
-	
+
 	@Override
 	public void saveMessage(String visit, UserMessage message) {
 		try {
@@ -64,7 +64,7 @@ public class InMemoryMessageHandler implements MessageHandler {
 			logger.error("Unable to save message for visit " + visit, e);
 		}
 	}
-	
+
 	@Override
 	public List<UserMessage> getMessageHistory(String visit) {
 		try {

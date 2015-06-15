@@ -54,10 +54,10 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		public ScannableSpecificExecutorService(int positionCallableThreadPoolSize, ThreadFactory threadFactory) {
 			this.threadFactory = threadFactory;
 			service = Executors.newFixedThreadPool(positionCallableThreadPoolSize, threadFactory);
-			
+
 		}
 
-		
+
 		public void shutdown() {
 			service.shutdown();
 			for(Entry<String, ExecutorService> es : namedES.entrySet())
@@ -83,7 +83,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 			for(Entry<String, ExecutorService> es : namedES.entrySet())
 				terminated &= es.getValue().isTerminated();
 			return terminated;
-			
+
 		}
 
 		public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
@@ -91,7 +91,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 			for(Entry<String, ExecutorService> es : namedES.entrySet())
 				awaitTermination &= es.getValue().awaitTermination(timeout,unit);
 			return awaitTermination;
-			
+
 		}
 
 		public <T> Future<T> submit(Callable<T> task) {
@@ -104,7 +104,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 					es = Executors.newFixedThreadPool(task2.getThreadPoolSize(), threadFactory);
 					namedES.put(name, es);
 				}
-			}  
+			}
 			return es.submit(task);
 		}
 
@@ -126,7 +126,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 
 	/**
 	 * Creates a new MultithreadedScanDataPointPipeline and starts it up to accept points.
-	 * 
+	 *
 	 * @param broadcaster
 	 * @param positionCallableThreadPoolSize
 	 *            the number of threads used to process Callables
@@ -137,12 +137,12 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 			int scanDataPointPipelineLength, String scanName) {
 
 		this.broadcaster = broadcaster;
-		
+
 		if (scanDataPointPipelineLength == 0) {
 			logger.warn("A zero length pipeline was requested but this would be unable to accept ScanDataPoints. A pipeline of length one hase been created instead");
 			scanDataPointPipelineLength = 1;
 		}
-		
+
 		NamedThreadFactory threadFactory = new NamedThreadFactory(
 				" scan-" + scanName + "-MSDPP.positionCallableService-%d of " + positionCallableThreadPoolSize);
 		if (positionCallableThreadPoolSize > 0) {
@@ -153,16 +153,16 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		 * Uses a ThreadPoolExecutor with a custom queue designed to block rather than throw a RejectedExecutionException if
 		 * the thread is busy and queue is full. The total number of points in the Pipeline is the number of points in the
 		 * workQueue plus the one being worked on in the single thread.
-		 * @param positionCallableService 
+		 * @param positionCallableService
 		 */
 		BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
-		broadcasterQueue = new NoExceptionThreadPoolExecutor(workQueue,  
+		broadcasterQueue = new NoExceptionThreadPoolExecutor(workQueue,
 				new NamedThreadFactory(" scan-" + scanName + "-MSDPP.broadcaster"), positionCallableService )  ;
 	}
 
 	/**
 	 * Computes ScanDataPoints and broadcasts them using internally managed threads.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Override
 	public void put(IScanDataPoint point) throws DeviceException {
@@ -182,7 +182,7 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 			// If this has not been created we need not look for Callables
 			convertPositionCallablesToFutures(point);
 		}
-		
+
 		try {
 			broadcasterQueue.submit(new ScanDataPointPopulatorAndPublisher(getBroadcaster(),point));
 		} catch (RejectedExecutionException e) {
@@ -199,11 +199,11 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 		convertDevices(point.getPositions());
 		convertDevices(point.getDetectorData());
 	}
-	
+
 	private void convertDevices(Vector<Object> positions) throws RejectedExecutionException {
 		for (int i = 0; i < positions.size(); i++) {
 			Object possiblyCallable = positions.get(i);
-			
+
 			if (possiblyCallable instanceof Callable<?>) {
 				Future<?> future = positionCallableService.submit((Callable<?>) possiblyCallable);
 				positions.set(i, future);
@@ -214,14 +214,14 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 	/**
 	 * Politely shutdown the pipeline. Blocks until processing is complete. Calls shutdownNow if there is any problem or
 	 * if interrupted.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
 	public void shutdown(boolean waitForProcessingCompletion) throws Exception {
 
 		try {
-			broadcasterQueue.shutdown();//do not allow any more tasks are to be added 
+			broadcasterQueue.shutdown();//do not allow any more tasks are to be added
 			if(waitForProcessingCompletion) {
 				while( !broadcasterQueue.awaitTermination(1, TimeUnit.SECONDS)) {
 					checkForException();
@@ -232,8 +232,8 @@ public class MultithreadedScanDataPointPipeline implements ScanDataPointPipeline
 			//check for an existing exception as the code below may itself lead to an
 			//interrupted exception which we can ignore as we cause it
 			checkForException();
-			
-			
+
+
 			// 2. Force shutdown
 			try{
 				int numberOfDumpedPoints = broadcasterQueue.shutdownNow().size();

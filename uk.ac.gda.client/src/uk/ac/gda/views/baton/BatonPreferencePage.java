@@ -35,34 +35,34 @@ import uk.ac.gda.preferences.PreferenceConstants;
 public class BatonPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String ID = "uk.ac.gda.client.batonPreferences";
-	
+
 	private BooleanFieldEditor keepPrefEditor;
 	private IntegerFieldEditor timeoutFieldEditor;
 
 	/**
-	 * 
+	 *
 	 */
 	public BatonPreferencePage() {
 		super(GRID);
 		setPreferenceStore(GDAClientActivator.getDefault().getPreferenceStore());
 		setDescription("Preferences for the baton manager such as how long to hold the baton for if another user requests it.");
 	}
-	
+
 	@Override
 	protected void createFieldEditors() {
 		keepPrefEditor = new BooleanFieldEditor(PreferenceConstants.KEEP_BATON, "Always keep baton", getFieldEditorParent());
 		addField(keepPrefEditor);
 		keepPrefEditor.setPropertyChangeListener(this);
-		
+
 		timeoutFieldEditor = new IntegerFieldEditor(PreferenceConstants.BATON_REQUEST_TIMEOUT, "Request timeout (minutes)", getFieldEditorParent());
 		addField(timeoutFieldEditor);
 		timeoutFieldEditor.setPropertyChangeListener(this);
-		
+
 	}
-	
+
 	@Override
     public void propertyChange(PropertyChangeEvent event) {
         super.propertyChange(event);
@@ -70,7 +70,7 @@ public class BatonPreferencePage extends FieldEditorPreferencePage implements IW
         	timeoutFieldEditor.setEnabled((Boolean)event.getNewValue(), getFieldEditorParent());
         }
 	}
-	
+
 	@Override
 	protected void checkState() {
 		super.checkState();
@@ -84,10 +84,10 @@ public class BatonPreferencePage extends FieldEditorPreferencePage implements IW
 			setValid(false);
 			return;
 		}
-		
+
 		setErrorMessage(null);
 		setValid(true);
-		
+
 	}
 
 	@Override

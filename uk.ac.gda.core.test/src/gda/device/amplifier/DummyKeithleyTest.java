@@ -20,7 +20,6 @@
 package gda.device.amplifier;
 
 import gda.device.DeviceException;
-import gda.device.amplifier.Keithley;
 import gda.device.gpib.DummyGpib;
 import junit.framework.TestCase;
 
@@ -39,7 +38,7 @@ public class DummyKeithleyTest extends TestCase {
 	Keithley keithley = new Keithley();
 
 	/**
-	 * 
+	 *
 	 */
 	public void testKeithley() {
 		try {

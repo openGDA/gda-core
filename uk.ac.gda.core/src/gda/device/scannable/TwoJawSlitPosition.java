@@ -17,7 +17,7 @@
  */
 
 /**
- * 
+ *
  */
 package gda.device.scannable;
 
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObserver {
 
 	private static final Logger logger = LoggerFactory.getLogger(TwoJawSlitPosition.class);
-	
+
 	private double retryTimeout = 5;
 	protected ScannableMotionUnits firstJaw;
 	protected ScannableMotionUnits secondJaw;
@@ -58,11 +58,11 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 	@Override
 	public void configure() throws FactoryException {
 		// use the finder to get the Scannable objects
-		
+
 		if (firstJaw == null) {
 			firstJaw = (ScannableMotionUnits) Finder.getInstance().find(firstJawName);
 		}
-		
+
 		if (secondJaw == null) {
 			secondJaw = (ScannableMotionUnits) Finder.getInstance().find(secondJawName);
 		}
@@ -71,7 +71,7 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 		secondJaw.addIObserver(this);
 
 		this.inputNames = new String[] { this.getName() };
-		
+
 		if( getInitialUserUnits() == null){
 			try {
 				unitsComponent.setHardwareUnitString(firstJaw.getUserUnits());
@@ -80,31 +80,31 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 				throw new FactoryException(e.getMessage() + " " + getName(),e);
 			}
 		}
-		
+
 		//calculate the limits and give them to the limits component
 		calculateLimits();
 	}
-	
+
 	/**
 	 * If the numberTries and tolerance attributes have been set then repeatedly tries to move this Scannable until the
 	 * position is within the tolerance range.
-	 * 
+	 *
 	 * @see gda.device.scannable.ScannableBase#moveTo(java.lang.Object)
 	 */
 	@Override
 	public void moveTo(Object position) throws DeviceException {
 
-		if (this.numberTries <= 1) { 
+		if (this.numberTries <= 1) {
 			super.moveTo(position);
 		} else {
-			
+
 			int numberAttempts = 0;
-			
+
 			//note current value
 			Quantity initialPositionQuantity = getCurrentPosition();
 			double initialPositionUserUnits = unitsComponent.convertObjectToUserUnitsAssumeUserUnits(initialPositionQuantity);
 
-			try {	
+			try {
 				//calculate motor targets based on starting positions
 				Quantity[] targets = calculateTargets(position);
 				// loop for numberTries times until current position is within tolerance of the target
@@ -138,9 +138,9 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 	}
 
 	protected double[] getLimits(
-			Quantity firstJawMin, 
-			Quantity firstJawMax, 
-			Quantity secondJawMin, 
+			Quantity firstJawMin,
+			Quantity firstJawMax,
+			Quantity secondJawMin,
 			Quantity secondJawMax)
 	{
 		Unit<?> units = unitsComponent.getUserUnit();
@@ -148,7 +148,7 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 		double maximum = QuantityFactory.createFromObject(firstJawMax.plus(secondJawMax).divide(2.0),units).getAmount();
 		return new double[]{ minimum, maximum};
 	}
-	
+
 	protected void calculateLimits() {
 		try {
 			Double firstLowerLimit=null;
@@ -211,14 +211,14 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
-		
+
 		throwExceptionIfInvalidTarget(position);
-		
+
 		// perform the calculation
 		Quantity[] targets = calculateTargets(position);
 		moveJaws(targets);
 	}
-	
+
 	private void moveJaws(Quantity[] targets) throws DeviceException{
 		// move the Scannables
 		firstJaw.asynchronousMoveTo(targets[0]);
@@ -296,10 +296,10 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 		this.secondJawName = secondJawName;
 	}
 
-	// 
+	//
 	/**
 	 * given a position, where should the motors be moved to?
-	 * 
+	 *
 	 * @param position
 	 * @return Quantity[2]
 	 * @throws DeviceException
@@ -317,7 +317,7 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 
 	/**
 	 * what is the current position as a user unit quantity?
-	 * 
+	 *
 	 * @return Quantity
 	 * @throws DeviceException
 	 */
@@ -336,7 +336,7 @@ public class TwoJawSlitPosition extends ScannableMotionUnitsBase implements IObs
 
 	/**
 	 * what is the current position as a user unit quantity?
-	 * 
+	 *
 	 * @return Quantity
 	 * @throws DeviceException
 	 */

@@ -53,8 +53,8 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 	protected Dataset getDatasetFromNexusGroupData(NexusGroupData ngd)  throws Exception {
 		return ngd.toDataset(true);
 	}
-	
-	
+
+
 	@Override
 	public GDANexusDetectorData process(final GDANexusDetectorData nexusTreeProvider) throws Exception {
 		if( !isEnabled())
@@ -67,7 +67,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 		Dataset dataset = getDatasetFromNexusGroupData(ngd);
 		if( datasetCreator != null)
 			dataset = datasetCreator.createDataSet(dataset);
-		
+
 		GDANexusDetectorData result=null;
 		for (DataSetProcessor processor : processors) {
 			GDANexusDetectorData res = processor.isEnabled() ? processor.process(detName, dataName, dataset) : null;
@@ -128,7 +128,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 	public Collection<String> getExtraNames() {
 		if( !isEnabled())
 			return null;
-		
+
 		Collection<String> allExtraNames = new Vector<String>();
 		for (DataSetProcessor processor : processors) {
 			Collection<String> extraNames = processor.isEnabled() ? processor.getExtraNames() : null;
@@ -143,7 +143,7 @@ public class NexusProviderDatasetProcessor implements NexusTreeProviderProcessor
 	public Collection<String> getOutputFormat() {
 		if( !isEnabled())
 			return null;
-		
+
 		Collection<String> totalList = new Vector<String>();
 		for (DataSetProcessor processor : processors) {
 			Collection<String> itemList = processor.isEnabled() ? processor.getOutputFormat() : null;

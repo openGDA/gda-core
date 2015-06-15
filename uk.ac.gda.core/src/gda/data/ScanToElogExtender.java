@@ -38,11 +38,11 @@ public class ScanToElogExtender extends DataWriterExtenderBase {
 	}
 
 	private List<SDP2ElogInfo> extractorList;
-	
+
 	private Logger logger = LoggerFactory.getLogger(ScanToElogExtender.class);
-	
+
 	private IScanDataPoint lastScanDataPoint;
-	
+
 	String logID, groupID;
 
 	@Override
@@ -50,7 +50,7 @@ public class ScanToElogExtender extends DataWriterExtenderBase {
 		lastScanDataPoint = dataPoint;
 		super.addData(parent, dataPoint);
 	}
-	
+
 	@Override
 	public void completeCollection(IDataWriterExtender parent) {
 		if (lastScanDataPoint == null)
@@ -76,7 +76,7 @@ public class ScanToElogExtender extends DataWriterExtenderBase {
 		}
 
 		String subject = visit + "/" + scannumber + ": " + title + " (" + command + ")";
-		
+
 		StringBuilder body = new StringBuilder();
 
 		body.append("Filename: <a href=\"file://");
@@ -100,10 +100,10 @@ public class ScanToElogExtender extends DataWriterExtenderBase {
 			for(SDP2ElogInfo extractor: extractorList)
 				body.append(extractor.extractInfo(lastScanDataPoint));
 		}
-		
+
 		logger.info("posting to elog with title: {}",title);
 		ElogEntry.postAsyn(subject, body.toString(), userID, null, logID, groupID, null);
-		
+
 		lastScanDataPoint = null;
 		super.completeCollection(parent);
 	}

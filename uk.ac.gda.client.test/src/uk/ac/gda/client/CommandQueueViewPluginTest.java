@@ -44,8 +44,8 @@ import org.junit.Test;
 public class CommandQueueViewPluginTest {
 
 	static final long MAX_TIMEOUT_MS = 500;
-	
-	
+
+
 	/**
 	 */
 	@BeforeClass
@@ -70,11 +70,11 @@ public class CommandQueueViewPluginTest {
 		simpleProcessor.setLogFilePath(scratchFolder + File.separator + "commandQueue.log");
 		simpleProcessor.setStartImmediately(false);
 		simpleProcessor.afterPropertiesSet();
-		
+
 		Queue queue = new CommandQueue();
 		simpleProcessor.setQueue(queue);
 		Processor processor = simpleProcessor;
-	
+
 		OSGIServiceRegister processorReg = new OSGIServiceRegister();
 		processorReg.setClass(Processor.class);
 		processorReg.setService(processor);
@@ -84,25 +84,25 @@ public class CommandQueueViewPluginTest {
 		queueReg.setClass(Queue.class);
 		queueReg.setService(queue);
 		queueReg.afterPropertiesSet();
-		
+
 	}
 
 	/**
 	 */
 	@After
 	public void tearDown() {
-		
+
 	}
 
 	/**
 	 * Test method for {@link uk.ac.gda.client.CommandQueueView#createPartControl(org.eclipse.swt.widgets.Composite)}.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Test
 	public final void testShowView() throws Exception {
-		
-		
-		
+
+
+
 		final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		IViewPart part = window.getActivePage().showView(CommandQueueViewFactory.ID);
 		if( !(part instanceof CommandQueueView)){
@@ -119,14 +119,14 @@ public class CommandQueueViewPluginTest {
 			view.getQueue().addToTail(normalCommand);
 		}
 		Thread.sleep(500);
-		
-		
+
+
 		view.getProcessor().start(MAX_TIMEOUT_MS);
 		Thread.sleep(500);
-		
+
 //		Assert.assertEquals(Command.STATE.PAUSED, pauseCommand.getState());
 //		Assert.assertEquals(Command.STATE.NOT_STARTED, normalCommand.getState());
-		
+
 		PluginTestHelpers.delay(300000); //time to 'play with the graph if wanted
 	}
 

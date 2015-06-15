@@ -57,7 +57,7 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 		if (layout.getViewLayout(sidePlot) != null) {
 			layout.getViewLayout(sidePlot).setCloseable(false);
 		}
-		
+
 		IFolderLayout viewManagers = layout.createFolder("underEditors", IPageLayout.BOTTOM, 0.6f, editorArea);
 
 		String inspector = DatasetInspectorView.ID;

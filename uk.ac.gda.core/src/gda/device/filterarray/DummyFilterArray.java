@@ -29,7 +29,7 @@ public class DummyFilterArray extends FilterArrayBase implements FilterArray {
 	private double currentAbsorption = 0.5;
 
 	private double currentEnergy = 1.0;
-	
+
 	@Override
 	public void configure(){
 		// no configuration required

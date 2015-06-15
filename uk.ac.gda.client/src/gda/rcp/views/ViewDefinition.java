@@ -26,5 +26,5 @@ public class ViewDefinition {
 		this.viewId = viewId;
 		this.secondaryId = secondaryId;
 	}
-	
+
 }

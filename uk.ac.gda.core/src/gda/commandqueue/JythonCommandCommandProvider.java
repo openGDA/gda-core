@@ -36,7 +36,7 @@ public class JythonCommandCommandProvider implements CommandProvider, Serializab
 	String commandToRun;
 	String description;
 	String settingsPath;
-	
+
 	public JythonCommandCommandProvider(String commandToRun, String description, String settingsPath) {
 		super();
 		this.commandToRun = commandToRun;
@@ -46,7 +46,7 @@ public class JythonCommandCommandProvider implements CommandProvider, Serializab
 
 	@Override
 	public Command getCommand() throws IOException {
-		
+
 		/**
 		 * If the command is of the form "run 'script'" then use JythonScriptFileCommandProvider.getCommand as this handles
 		 * pauses whilst JythonCommandRunnerCommand does not
@@ -61,17 +61,17 @@ public class JythonCommandCommandProvider implements CommandProvider, Serializab
 				scriptPath = server.getJythonScriptPaths().pathToScript(scriptName);
 				if (scriptPath == null) {
 					throw new FileNotFoundException("Could not run " + scriptName + " script. File not found in " + server.getJythonScriptPaths().description() + ".");
-				}				
+				}
 			}
 		}
 		if( scriptPath == null){
 			final File tempFile = File.createTempFile("JythonCommandRunnerCommand_", ".py");
 			tempFile.deleteOnExit();
-			
+
 			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(tempFile)));
 			out.print(commandToRun);
 			out.flush();
-			out.close();	
+			out.close();
 			scriptPath = tempFile.getAbsolutePath();
 		}
 		String settings = StringUtils.hasLength(settingsPath)? settingsPath : scriptPath;

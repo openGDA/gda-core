@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
  * A timer class for the VME time frame generator card implemented using DA.Server
  */
 public class DummyTfg extends DeviceBase implements Timer, Runnable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DummyTfg.class);
-	
+
 	private static final int EC740_MAXFRAME = 1024;
 
 	private boolean extStart = false;
@@ -172,7 +172,7 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 	/**
 	 * {@inheritDoc} Create a single frameSet object for a specified live and dead time. A count for identical frames is
 	 * specified by the frameCount.
-	 * 
+	 *
 	 * @param requestedDeadTime
 	 *            the requested frame dead time in milliseconds
 	 * @param requestedLiveTime
@@ -189,7 +189,7 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 	/**
 	 * {@inheritDoc} Create a single frameSet object for a specified live and dead time. A count for identical frames is
 	 * specified by the frameCount.
-	 * 
+	 *
 	 * @param frameCount
 	 *            the requested number of frames required of this type
 	 * @param requestedDeadTime
@@ -242,7 +242,7 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 	/**
 	 * Initiates a single specified timing period and allows the timer to proceed asynchronously. The end of period can
 	 * be determined by calls to getStatus() returning IDLE.
-	 * 
+	 *
 	 * @param time
 	 *            the requested counting time in milliseconds
 	 */
@@ -272,7 +272,7 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 
 	/**
 	 * {@inheritDoc} Set attribute values for "Ext-Start", "Ext-Inhibit", "VME-Start".
-	 * 
+	 *
 	 * @param attributeName
 	 *            the attribute name to set.
 	 * @param value
@@ -294,7 +294,7 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 
 	/**
 	 * {@inheritDoc} Get attribute values for "Ext-Start", "Ext-Inhibit".
-	 * 
+	 *
 	 * @param attributeName
 	 *            the attribute name to get.
 	 * @return the attribute
@@ -354,7 +354,7 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 					}
 
 					notifyIObservers(this, timerStatus);
-	
+
 					wait(10);
 
 				}
@@ -366,7 +366,7 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 
 	private class TimeFrameGenerator implements Runnable {
 		/**
-		 * 
+		 *
 		 */
 		public TimeFrameGenerator() {
 			runner = uk.ac.gda.util.ThreadManager.getThread(this, getClass().getName());
@@ -374,7 +374,7 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 		}
 
 		/**
-		 * 
+		 *
 		 */
 		public synchronized void start() {
 			notify();
@@ -418,7 +418,7 @@ public class DummyTfg extends DeviceBase implements Timer, Runnable {
 	/**
 	 * Waits for a non-integral number of milli seconds by converting the value to be used in the two parameter version
 	 * of wait()
-	 * 
+	 *
 	 * @param milliSeconds
 	 * @throws InterruptedException
 	 */

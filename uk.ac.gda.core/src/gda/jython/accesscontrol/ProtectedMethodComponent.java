@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * been annotated as protected.
  */
 public class ProtectedMethodComponent {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ProtectedMethodComponent.class);
 
 	protected Vector<String> protectedMethodNames = new Vector<String>();
@@ -45,7 +45,7 @@ public class ProtectedMethodComponent {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param clazz
 	 *            - the Class of the object whose list of protected methods this object is to determine and store.
 	 */
@@ -68,7 +68,7 @@ public class ProtectedMethodComponent {
 	 * concrete class.
 	 * <p>
 	 * So this method does a comparison of method name and parameter types instead.
-	 * 
+	 *
 	 * @param calledMethod
 	 * @return true if the given method matches one of the list of protected methods held in this object
 	 */
@@ -111,7 +111,7 @@ public class ProtectedMethodComponent {
 	 * <p>
 	 * have a SuppressWarnings beacuase of call to Py.tojava(). This method is not really deprecated: its a typo in the
 	 * Jython code!
-	 * 
+	 *
 	 * @param obj
 	 * @param method
 	 * @param args
@@ -157,7 +157,7 @@ public class ProtectedMethodComponent {
 	/**
 	 * Looks at the object this object is acting as a proxy for and identify all the methods which are designated to be
 	 * protected by an annotation.
-	 * 
+	 *
 	 * @param clazz
 	 */
 	@SuppressWarnings("rawtypes")
@@ -175,7 +175,7 @@ public class ProtectedMethodComponent {
 
 	/**
 	 * Analyse the given class and add any methods annotated to be protected to the protectedMethods array.
-	 * 
+	 *
 	 * @param clazz
 	 */
 	@SuppressWarnings("rawtypes")
@@ -210,7 +210,7 @@ public class ProtectedMethodComponent {
 	/**
 	 * Adds the given method to the list of protected methods. The parameter types are also stored as this object does
 	 * not work simply on method names. This is done by using two internal hashmaps linked with a common index number.
-	 * 
+	 *
 	 * @param method
 	 */
 	private void addMethod(Method method) {
@@ -242,7 +242,7 @@ public class ProtectedMethodComponent {
 
 	/**
 	 * Element by element comparsion of two arrays of objects and return true if they are identical
-	 * 
+	 *
 	 * @param first
 	 * @param second
 	 * @return true if a match

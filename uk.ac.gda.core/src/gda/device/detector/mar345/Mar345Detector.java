@@ -69,7 +69,7 @@ public class Mar345Detector extends DetectorBase implements Configurable, Serial
 	}
 	/**
 	 * Initialize the detector passing mar log directory
-	 * 
+	 *
 	 * @param logDir
 	 *            mar log directory
 	 */
@@ -95,7 +95,7 @@ public class Mar345Detector extends DetectorBase implements Configurable, Serial
 
 	/**
 	 * Append keyowrds to the current keyword buffer
-	 * 
+	 *
 	 * @param keywords
 	 */
 	@Override
@@ -127,7 +127,7 @@ public class Mar345Detector extends DetectorBase implements Configurable, Serial
 
 	/**
 	 * Send a string to the mar controller
-	 * 
+	 *
 	 * @param keywords
 	 */
 	@Override
@@ -137,7 +137,7 @@ public class Mar345Detector extends DetectorBase implements Configurable, Serial
 
 	/**
 	 * Set the format for the mar files
-	 * 
+	 *
 	 * @param format
 	 */
 	@Override
@@ -161,7 +161,7 @@ public class Mar345Detector extends DetectorBase implements Configurable, Serial
 
 	/**
 	 * Set the scan mode Values from 0 - 7 see the mar documentation
-	 * 
+	 *
 	 * @param mode
 	 */
 	@Override
@@ -194,7 +194,7 @@ public class Mar345Detector extends DetectorBase implements Configurable, Serial
 
 	/**
 	 * Set the directory into which the mar files will be stored
-	 * 
+	 *
 	 * @param directory
 	 */
 	@Override
@@ -225,7 +225,7 @@ public class Mar345Detector extends DetectorBase implements Configurable, Serial
 
 	/**
 	 * Set the root name of the mar files
-	 * 
+	 *
 	 * @param rootName
 	 */
 	@Override

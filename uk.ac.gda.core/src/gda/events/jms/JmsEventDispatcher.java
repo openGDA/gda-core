@@ -33,7 +33,7 @@ import javax.jms.Topic;
  * An {@link EventDispatcher} that uses JMS to dispatch events.
  */
 public class JmsEventDispatcher extends JmsClient implements EventDispatcher {
-	
+
 	/**
 	 * Creates a JMS event dispatcher.
 	 */

@@ -17,7 +17,7 @@
  */
 
 /**
- * 
+ *
  */
 package gda.example.richbean;
 

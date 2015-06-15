@@ -94,7 +94,7 @@ public class JEPScannableTest {
 		}
 
 	}
-	
+
 	@Test
 	public void testWithJythonVariablesWithConstant()throws Exception {
 		JEPScannable jep = JEPScannable.createJEPScannable("test4", null, "%6.2f", null, "a + 10");

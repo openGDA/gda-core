@@ -42,7 +42,7 @@ public class SimpleCoordinateFormatter implements CoordinateFormatter {
 
 	/**
 	 * Formats the given coordinates into a String of the form "mouse position x y".
-	 * 
+	 *
 	 * @param sdc
 	 *            SimpleDataCoordinate object containing x and y
 	 * @return the String to represent them
@@ -68,7 +68,7 @@ public class SimpleCoordinateFormatter implements CoordinateFormatter {
 
 	/**
 	 * Sets the NumberFormat used for X values.
-	 * 
+	 *
 	 * @param numberFormat
 	 *            The numberFormat to set.
 	 */
@@ -78,7 +78,7 @@ public class SimpleCoordinateFormatter implements CoordinateFormatter {
 
 	/**
 	 * Sets the NumberFormat used for Y values.
-	 * 
+	 *
 	 * @param numberFormat
 	 *            The numberFormat to set.
 	 */
@@ -88,7 +88,7 @@ public class SimpleCoordinateFormatter implements CoordinateFormatter {
 
 	/**
 	 * Sets both X and Y NumberFormat to the given format.
-	 * 
+	 *
 	 * @param numberFormat
 	 *            The numberFormat to set.
 	 */
@@ -99,7 +99,7 @@ public class SimpleCoordinateFormatter implements CoordinateFormatter {
 
 	/**
 	 * Sets the number of digits to be used for X values.
-	 * 
+	 *
 	 * @param digits
 	 *            the number of digits to use.
 	 */
@@ -111,7 +111,7 @@ public class SimpleCoordinateFormatter implements CoordinateFormatter {
 
 	/**
 	 * Sets the number of digits to be used for Y values.
-	 * 
+	 *
 	 * @param digits
 	 *            the number of digits to use.
 	 */
@@ -123,7 +123,7 @@ public class SimpleCoordinateFormatter implements CoordinateFormatter {
 
 	/**
 	 * Sets the number of digits to be used for both X and Y values.
-	 * 
+	 *
 	 * @param digits
 	 *            the number of digits to use.
 	 */

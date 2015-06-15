@@ -31,7 +31,7 @@ public class BGAsymmetricGaussian1D extends AbstractFunction {
 	 * Gaussian1D() will set up a gaussian with area =1.0,position=0.0,sigma=1.0 or e.g. Gaussian1D = new
 	 * Gaussian1D(1.0,0.0,1.0) corresponding to area, position or sigma The lower bounds of the area and sigma
 	 * parameters are set to zero
-	 * 
+	 *
 	 * @param parms
 	 *            The parameters
 	 */

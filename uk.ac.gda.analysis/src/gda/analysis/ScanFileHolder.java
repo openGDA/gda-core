@@ -68,7 +68,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 			logger.info("this method is deprecated - use an Dataset", e);
 		}
 	}
-	
+
 	/**
 	 * Setup the logging facilities
 	 */
@@ -110,7 +110,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 
 	/**
 	 * Lowest level save routine
-	 * 
+	 *
 	 * @param saver
 	 *            An object which implements the IFileSaver interface this specifically designed to save in the
 	 *            appropriate file type
@@ -349,7 +349,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 
 	/**
 	 * Jython overloaded function to allow for data to be obtained as a jython container
-	 * 
+	 *
 	 * @param value
 	 *            The number of the point to be interrogated
 	 * @return the object containing true
@@ -361,7 +361,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 
 	/**
 	 * Jython overloaded function to allow for data to be obtained as a jython container
-	 * 
+	 *
 	 * @param value
 	 *            The number of the point to be interrogated
 	 * @return the object which is the result
@@ -376,7 +376,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 
 	/**
 	 * Python overloaded function to allow for the slicing of data from the ScanFileHolder
-	 * 
+	 *
 	 * @param slice
 	 *            The PySlice which is to be interrogated
 	 * @return A python list of datasets, which was asked for.
@@ -418,7 +418,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 
 	/**
 	 * Not implemented, as you cannot remove an element from this type of class
-	 * 
+	 *
 	 * @param value
 	 * @return null;
 	 */
@@ -429,7 +429,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 
 	/**
 	 * Not implemented as this is a read only class
-	 * 
+	 *
 	 * @param value
 	 * @param newValue
 	 */
@@ -440,7 +440,7 @@ public class ScanFileHolder implements Serializable, IScanFileHolder {
 
 	/**
 	 * Gets the number of objects in the class
-	 * 
+	 *
 	 * @return An object integer containing the number of elements.
 	 */
 	public Object __len__() {

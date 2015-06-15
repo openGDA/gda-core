@@ -19,15 +19,15 @@
 package gda.jython;
 
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.Assert;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ScriptPathsTest {
 
@@ -38,7 +38,7 @@ public class ScriptPathsTest {
 	private ScriptProject testfilesProject;
 	private String existsScriptLocation = "testfiles/gda/jython/JythonServerTest" + File.separator + "exists.py";
 	private String startupScript = "/some/folder/localStation.py";
-	
+
 	@Before
 	public void setUp() {
 		defaultPaths = new ScriptPaths();
@@ -64,47 +64,47 @@ public class ScriptPathsTest {
 		List<String> paths = defaultPaths.getPaths();
 		Assert.assertEquals(0, paths.size());
 	}
-	
+
 	@Test
 	public void testListConstructorKeepsList() {
 		ScriptPaths fromList = new ScriptPaths(nonsenseProjects);
 		Assert.assertArrayEquals(nonsensePathsList, fromList.getPaths().toArray(new String[0]));
 	}
-	
+
 	@Test
 	public void testListCanBePassedToObject() {
 		defaultPaths.setProjects(nonsenseProjects);
 		Assert.assertArrayEquals(nonsensePathsList, defaultPaths.getPaths().toArray(new String[0]));
 	}
-	
+
 	@Test
 	public void testScriptCannotBeFoundInEmptyPathList() {
 		Assert.assertNull(defaultPaths.pathToScript("hello"));
 	}
-	
+
 	@Test
 	public void testNoNameScriptCannotBeFound() {
 		Assert.assertNull(testfilesPaths.pathToScript(""));
 	}
-	
+
 	@Test
 	public void testRealScriptCanBeFound() {
 		String scriptPath = testfilesPaths.pathToScript("exists.py");
 		Assert.assertEquals(existsScriptLocation, scriptPath);
 	}
-	
+
 	@Test
 	public void testNonexistentScriptCannotBeFound() {
 		String scriptPath = testfilesPaths.pathToScript("doesnotexist.py");
 		Assert.assertNull(scriptPath);
 	}
-	
+
 	@Test
 	public void testAutomaticAdditionOfDotpyExtension() {
 		String scriptPath = testfilesPaths.pathToScript("exists");
 		Assert.assertEquals(existsScriptLocation, scriptPath);
 	}
-	
+
 	@Test
 	public void testThatDescriptionContainsAllOfThePaths() {
 		defaultPaths.setProjects(nonsenseProjects);
@@ -112,12 +112,12 @@ public class ScriptPathsTest {
 		Assert.assertTrue(description.contains("Hello"));
 		Assert.assertTrue(description.contains("Test"));
 	}
-	
+
 	@Test
 	public void testDefaultStartupScriptIsUnknown() {
 		Assert.assertNull(defaultPaths.getStartupScript());
 	}
-	
+
 	@Test
 	public void testScriptPathsObjectCanReportWhatStartupScriptToUse() {
 		Assert.assertEquals(startupScript, testfilesPaths.getStartupScript());

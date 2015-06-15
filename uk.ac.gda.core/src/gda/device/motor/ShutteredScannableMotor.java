@@ -34,7 +34,7 @@ public class ShutteredScannableMotor extends DeviceBase implements ShutteredMoto
 	private static final Logger logger = LoggerFactory.getLogger(ShutteredScannableMotor.class);
 
 	public double acceleration = 10;
-	
+
 	private double startPosition = 0, endPosition = 0, closePosition = 0, moveDistance = 0;
 
 	private double shutterOpenTriggeredPosition = 0, minimumStartToOpenPositionDifference = 0.01;
@@ -56,7 +56,7 @@ public class ShutteredScannableMotor extends DeviceBase implements ShutteredMoto
 	private double shutterIsOpenPosition;
 
 	private double shutterOpenTime;
-	
+
 	@Override
 	public void configure() throws FactoryException {
 	}
@@ -65,7 +65,7 @@ public class ShutteredScannableMotor extends DeviceBase implements ShutteredMoto
 	 * The fudge factor is for making sure we start outside of the open range
 	 */
 	private double positionFudgeFactor = 0.0;
-	
+
 	//the origin of much of the code below is the gda/px/camera/MXCamera class.
 	/**
 	 * Calculates the start/stop and shutter open/close parameters during the exposure. This should be automatically
@@ -93,7 +93,7 @@ public class ShutteredScannableMotor extends DeviceBase implements ShutteredMoto
 
 	protected void calculateDesiredAccelerationTime() {
 		desiredTimeToVelocity = desiredVelocity / acceleration;
-		
+
 		// time must be greater than twice the Ixx21 value in the PMAC
 		// (effectively a maximum acceleration of the motor)
 		if (desiredTimeToVelocity < minimumTimeToVelocity) {
@@ -101,11 +101,11 @@ public class ShutteredScannableMotor extends DeviceBase implements ShutteredMoto
 			desiredTimeToVelocity = minimumTimeToVelocity;
 		}
 	}
-	
+
 	protected void calculatePositionWhereShutterIsTriggeredToOpen() {
 		shutterOpenTriggeredPosition = shutterIsOpenPosition - (desiredVelocity * shutterOpenTime);
 	}
-	
+
 	protected double calculateStartPosition() {
 
 		double safetyFactor = desiredVelocity * startTimeFudgeFactor;
@@ -148,22 +148,22 @@ public class ShutteredScannableMotor extends DeviceBase implements ShutteredMoto
 		setMotorSpeed(defaultSpeed);
 		setMotorTimeToVelocity(defaultTimeToVelocity);
 	}
-	
+
 	public void setDesiredSpeeds() throws DeviceException {
 		setMotorSpeed(getDesiredSpeed());
 		setMotorTimeToVelocity(getDesiredTimeToVelocity());
 	}
-	
+
 	private void setMotorSpeed(double speed) throws DeviceException {
 		logger.debug("SSM.setMotorSpeed: setting speed to " + speed);
 		theMotor.setSpeed(speed);
 	}
-	
+
 	private void setMotorTimeToVelocity(double ttv) throws DeviceException {
 		logger.debug("SSM.setMotorTimeToVelocity: setting timeToVelocity to " + ttv);
 		theMotor.setTimeToVelocity(ttv);
 	}
-	
+
 	@Override
 	public double getDefaultSpeed() {
 		return defaultSpeed;
@@ -274,7 +274,7 @@ public class ShutteredScannableMotor extends DeviceBase implements ShutteredMoto
 		this.closePosition = this.shutterIsOpenPosition + this.moveDistance;
 		doCalculations();
 	}
-	
+
 	public void setShutterOpenTime(double openTime) {
 		this.shutterOpenTime = openTime;
 		doCalculations();
@@ -332,11 +332,11 @@ public class ShutteredScannableMotor extends DeviceBase implements ShutteredMoto
 	public double getMinimumStartToOpenPositionDifference() {
 		return minimumStartToOpenPositionDifference;
 	}
-	
+
 	public Object getPosition() throws DeviceException {
 		return theMotor.getPosition();
 	}
-	
+
 	public void asynchronousMoveTo(Object newPosition) throws DeviceException {
 		theMotor.asynchronousMoveTo(newPosition);
 	}
@@ -344,7 +344,7 @@ public class ShutteredScannableMotor extends DeviceBase implements ShutteredMoto
 	public double getPositionFudgeFactor() {
 		return positionFudgeFactor;
 	}
-	
+
 	public void setPositionFudgeFactor(double positionFudgeFactor) {
 		this.positionFudgeFactor = positionFudgeFactor;
 	}

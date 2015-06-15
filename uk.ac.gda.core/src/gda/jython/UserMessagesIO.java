@@ -27,36 +27,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserMessagesIO {
-	
+
 	public static void writeMessages(List<UserMessage> messages, OutputStream os) throws IOException{
-		
+
 		// version number
 		os.write(1);
-		
+
 		DataOutputStream dos = new DataOutputStream(os);
-		
+
 		dos.writeInt(messages.size());
-		
+
 		for (UserMessage msg : messages) {
 			dos.writeInt(msg.sourceClientNumber);
 			dos.writeUTF(msg.sourceUsername);
 			dos.writeUTF(msg.message);
 			dos.writeLong(msg.timestamp);
 		}
-		
+
 		dos.flush();
 	}
-	
+
 	public static List<UserMessage> readMessages(InputStream is) throws IOException {
-		
+
 		@SuppressWarnings("unused")
 		final int version = is.read();
-		
+
 		DataInputStream dis = new DataInputStream(is);
-		
+
 		final int numMessages = dis.readInt();
 		List<UserMessage> messages = new ArrayList<UserMessage>(numMessages);
-		
+
 		for (int i=0; i<numMessages; i++) {
 			final int sourceClientNumber = dis.readInt();
 			final String sourceUsername = dis.readUTF();
@@ -65,7 +65,7 @@ public class UserMessagesIO {
 			UserMessage um = new UserMessage(sourceClientNumber, sourceUsername, message, timestamp);
 			messages.add(um);
 		}
-		
+
 		return messages;
 	}
 

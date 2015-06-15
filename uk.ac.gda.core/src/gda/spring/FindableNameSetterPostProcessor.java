@@ -43,21 +43,21 @@ public class FindableNameSetterPostProcessor extends BeanPostProcessorAdapter {
 		}
 		return bean;
 	}
-	
+
 	protected static void checkFindableName(String beanName, Findable findable) {
 		if (!beanName.equals(findable.getName())) {
-		
+
 			if (cannotSetObjectName(findable)) {
 				throw new RuntimeException("Bean " + StringUtils.quote(beanName) + " has name " + StringUtils.quote(findable.getName()) + "; you need to set the name manually");
 			}
-			
+
 			findable.setName(beanName);
 			if (!beanName.equals(findable.getName())) {
 				throw new RuntimeException("Name of bean " + StringUtils.quote(beanName) + " could not be set");
 			}
 		}
 	}
-	
+
 	protected static boolean cannotSetObjectName(Findable findable) {
 		return (findable instanceof JEPConverterHolder) || (findable instanceof LookupTableConverterHolder);
 	}

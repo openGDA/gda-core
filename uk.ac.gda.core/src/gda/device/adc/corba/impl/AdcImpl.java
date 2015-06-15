@@ -44,7 +44,7 @@ public class AdcImpl extends CorbaAdcPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param adc
 	 *            the dataLogger implementation object
 	 * @param poa
@@ -58,7 +58,7 @@ public class AdcImpl extends CorbaAdcPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Adc implementation object
 	 */
 	public Adc _delegate() {
@@ -67,7 +67,7 @@ public class AdcImpl extends CorbaAdcPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param adc
 	 *            set the Adc implementation object
 	 */

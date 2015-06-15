@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * MCACurveFit Class
  */
 public class MCACurveFit {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(MCACurveFit.class);
 
 	/**

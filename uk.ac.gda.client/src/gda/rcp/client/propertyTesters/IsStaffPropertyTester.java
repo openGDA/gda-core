@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class IsStaffPropertyTester extends PropertyTester {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
 	public IsStaffPropertyTester() {
@@ -44,7 +44,7 @@ public class IsStaffPropertyTester extends PropertyTester {
 			}
 		}
 		return false;
-		
+
 	}
 
 }

@@ -124,7 +124,7 @@ public class DummyKeithley extends AmplifierBase {
 
 	/**
 	 * Gets the status of the dummy amplifier
-	 * 
+	 *
 	 * @param command
 	 *            command whose status has to be checked
 	 * @return status

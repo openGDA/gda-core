@@ -26,7 +26,7 @@ package gda.device.adc;
 public interface DummyValueSuggester {
 	/**
 	 * Gets the suggested value.
-	 * 
+	 *
 	 * @return The suggested value
 	 */
 	public double getSuggestedValue();

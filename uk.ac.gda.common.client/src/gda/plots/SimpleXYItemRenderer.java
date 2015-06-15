@@ -59,7 +59,7 @@ public class SimpleXYItemRenderer extends StandardXYItemRenderer {
 			public double transformValueBack(double toBeTransformedBack) {
 				return toBeTransformedBack;
 			}
-			
+
 		};
 
 	}
@@ -68,7 +68,7 @@ public class SimpleXYItemRenderer extends StandardXYItemRenderer {
 	 * Draws the visual representation of a single data item. This mostly reproduces the code of StandardXYItemRenderer
 	 * but using the line by line information stored in the SimpleXYSeries instead of the series indexed information
 	 * stored in the Renderer itself.
-	 * 
+	 *
 	 * @param g2
 	 *            the graphics device.
 	 * @param state
@@ -230,7 +230,7 @@ public class SimpleXYItemRenderer extends StandardXYItemRenderer {
 	/**
 	 * Creates a LegendItem for a SimpleXYSeries in the dataset - note that here we create a SimpleLegendItem which
 	 * knows about the data it belongs to.
-	 * 
+	 *
 	 * @param datasetIndex
 	 *            which dataset (left or right effectively)
 	 * @param series
@@ -260,7 +260,7 @@ public class SimpleXYItemRenderer extends StandardXYItemRenderer {
 
 	/**
 	 * Gets the x value transformer
-	 * 
+	 *
 	 * @see #setXValueTransformer for an explanation of SimpleValueTransformer.
 	 * @return the x value transformer.
 	 */
@@ -270,7 +270,7 @@ public class SimpleXYItemRenderer extends StandardXYItemRenderer {
 
 	/**
 	 * Sets the x value transformer
-	 * 
+	 *
 	 * @see #setXValueTransformer for an explanation of SimpleValueTransformer.
 	 * @param valueTransformer
 	 *            the new xValueTransformer

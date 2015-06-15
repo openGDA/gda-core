@@ -26,11 +26,11 @@ public class Gaussian {
 	double centre, width, height, noise;
 
 	/**
-	 * 
+	 *
 	 */
 	public Gaussian() {
 	}
-	
+
 	/**
 	 * @param centre
 	 * @param width

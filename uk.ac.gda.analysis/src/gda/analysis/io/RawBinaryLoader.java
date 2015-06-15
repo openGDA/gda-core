@@ -21,9 +21,9 @@ package gda.analysis.io;
 
 /**
  * Load datasets in a Diamond specific raw format
- * 
+ *
  * All this is done in little-endian:
- * 
+ *
  * File format tag: 0x0D1A05C1 (4bytes - stands for Diamond Scisoft)
  * Dataset type: (1byte) -1 for old dataset
  * Item size: (1byte - number of elements per data item)

@@ -31,7 +31,7 @@ public class VortexDetector extends DetectorBase implements Detector, IObserver 
 
 	/**
 	 * Returns the time the detector collects for during a call to collectData()
-	 * 
+	 *
 	 * @return double
 	 */
 	@Override

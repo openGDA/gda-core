@@ -31,8 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 /**
  * Represents a single scan.
@@ -47,7 +47,7 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 public abstract class ExperimentObject implements IExperimentObject {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExperimentObject.class);
-	
+
 	public static String createCommandSummary(String folderName,String multiScanName, String scanName, int numberRepetitions, boolean hasBeenStarted){
 		String summary = folderName + "-" + multiScanName + "-" + scanName;
 		if (numberRepetitions > 1 && !hasBeenStarted) {
@@ -125,7 +125,7 @@ public abstract class ExperimentObject implements IExperimentObject {
 	public IFolder getFolder() {
 		return containingFolder;
 	}
-	
+
 	@Override
 	public void setFolder(IFolder containingFolder) {
 		this.containingFolder = containingFolder;
@@ -134,7 +134,7 @@ public abstract class ExperimentObject implements IExperimentObject {
 
 	/**
 	 * The id should be unique for each instance and even cloned ExperimentObjects should have different ids
-	 * 
+	 *
 	 * @return Returns the id of the run.
 	 */
 	@Override
@@ -221,7 +221,7 @@ public abstract class ExperimentObject implements IExperimentObject {
 //		final ExperimentObjectEvent evt = new ExperimentObjectEvent(this);
 //		evt.setPropertyName(propertyName);
 //		evt.setError(isError);
-//		
+//
 //		if (getRunFileManager() != null)
 //			this.getRunFileManager().notifyExperimentObjectListeners(evt);
 //	}
@@ -311,7 +311,7 @@ public abstract class ExperimentObject implements IExperimentObject {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String getCommandSummaryString(boolean hasBeenStarted) {
 		return createCommandSummary(folderName, getMultiScanName(),

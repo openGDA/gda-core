@@ -46,7 +46,7 @@ public class ZacScan extends ScanBase implements Scan {
 	 * The total time of the whole fast scan
 	 */
 	double totalTime;
-	
+
 	/**
 	 * The time spend passing each point
 	 */
@@ -68,11 +68,11 @@ public class ZacScan extends ScanBase implements Scan {
 
 	/**
 	 * Constructor.
-	 * @param start 
-	 * @param end 
-	 * @param time 
+	 * @param start
+	 * @param end
+	 * @param time
 	 * @param step
-	 * 
+	 *
 	 * @throws IllegalArgumentException
 	 */
 	public ZacScan(double start, double end, double time, double step) throws IllegalArgumentException {
@@ -84,12 +84,12 @@ public class ZacScan extends ScanBase implements Scan {
 
 	/**
 	 * Constructor.
-	 * @param scannable 
-	 * @param start 
-	 * @param end 
-	 * @param time 
+	 * @param scannable
+	 * @param start
+	 * @param end
+	 * @param time
 	 * @param step
-	 * 
+	 *
 	 * @throws IllegalArgumentException
 	 */
 	public ZacScan(Scannable scannable, double start, double end, double time, double step) throws IllegalArgumentException {
@@ -103,21 +103,21 @@ public class ZacScan extends ScanBase implements Scan {
 		super.setUp();
 
 	}
-	
+
 	/**
 	 * Constructor.
-	 * @param scannable 
-	 * @param start 
-	 * @param end 
-	 * @param time 
+	 * @param scannable
+	 * @param start
+	 * @param end
+	 * @param time
 	 * @param step
-	 * @param detector 
-	 * 
+	 * @param detector
+	 *
 	 * @throws IllegalArgumentException
 	 */
 	public ZacScan(Scannable scannable, double start, double end, double time, double step, Detector detector) throws IllegalArgumentException {
 		super();
-		
+
 		allScannables.add(detector);
 		allScannables.add(scannable);
 		allScanObjects.add(new ScanObject(scannable, start, end));
@@ -142,7 +142,7 @@ public class ZacScan extends ScanBase implements Scan {
 			JythonServerFacade.getInstance().print("fast scan built successfully.");
 		}
 	}
-	
+
 	/**
 	 * @param parameter
 	 * @return true
@@ -150,10 +150,10 @@ public class ZacScan extends ScanBase implements Scan {
 	public boolean buildFastScan(@SuppressWarnings("unused") Object parameter) {
 		return true;
 	}
-	
+
 	public void startFastScan() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -212,5 +212,5 @@ public class ZacScan extends ScanBase implements Scan {
 			return totalTime;
 		}
 	}
-	
+
 }

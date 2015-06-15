@@ -43,7 +43,7 @@ public class Parameter implements IParameter {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param p
 	 */
 	public Parameter(IParameter p) {
@@ -55,7 +55,7 @@ public class Parameter implements IParameter {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param value
 	 */
 	public Parameter(double value) {
@@ -65,7 +65,7 @@ public class Parameter implements IParameter {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param value
 	 * @param lowerLimit
 	 * @param upperLimit

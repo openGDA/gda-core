@@ -45,7 +45,7 @@ public class CountertimerImpl extends CorbaCounterTimerPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param countertimer
 	 *            the CounterTimer implementation object
 	 * @param poa
@@ -59,7 +59,7 @@ public class CountertimerImpl extends CorbaCounterTimerPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the CounterTimer implementation object
 	 */
 	public CounterTimer _delegate() {
@@ -68,7 +68,7 @@ public class CountertimerImpl extends CorbaCounterTimerPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param countertimer
 	 *            set the CounterTimer implementation object
 	 */
@@ -210,7 +210,7 @@ public class CountertimerImpl extends CorbaCounterTimerPOA {
 	public void setCollectionTime(double time) throws CorbaDeviceException {
 		detectorImpl.setCollectionTime(time);
 	}
-	
+
 	@Override
 	public double getCollectionTime() throws CorbaDeviceException {
 		return detectorImpl.getCollectionTime();
@@ -441,17 +441,17 @@ public class CountertimerImpl extends CorbaCounterTimerPOA {
 	public void setProtectionLevel(int newLevel) throws CorbaDeviceException {
 		detectorImpl.setProtectionLevel(newLevel);
 	}
-	
+
 	@Override
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		detectorImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		detectorImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return detectorImpl.toFormattedString();
@@ -473,7 +473,7 @@ public class CountertimerImpl extends CorbaCounterTimerPOA {
 			countertimer.setSlave(slave);
 		} catch (DeviceException e) {
 			throw new CorbaDeviceException(e.getMessage());
-		}		
+		}
 	}
 
 	@Override

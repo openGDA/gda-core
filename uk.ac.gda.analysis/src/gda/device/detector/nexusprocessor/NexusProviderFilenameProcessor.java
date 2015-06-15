@@ -36,7 +36,7 @@ import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 public class NexusProviderFilenameProcessor extends NexusProviderDatasetProcessor {
 
 	/**
-	 * 
+	 *
 	 * @param detName - name of detector in NexusTree. If null or empty the first detector entry is used
 	 * @param dataName
 	 * @param className
@@ -49,9 +49,9 @@ public class NexusProviderFilenameProcessor extends NexusProviderDatasetProcesso
 	}
 
 	int dataset_index=0;
-	
-	
-	
+
+
+
 	public int getDataset_index() {
 		return dataset_index;
 	}
@@ -74,7 +74,7 @@ public class NexusProviderFilenameProcessor extends NexusProviderDatasetProcesso
 				IDataHolder data=null;
 				while( data == null){
 					data = LoaderFactory.getData(path);
-					if(data == null){ 
+					if(data == null){
 						//TODO if( data == null)
 						//	logger.warn("Unable to find data at '" + path + "' within existing file:'" + path +"'");
 						try {

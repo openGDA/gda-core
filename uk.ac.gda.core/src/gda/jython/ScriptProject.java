@@ -20,29 +20,29 @@ package gda.jython;
 
 public class ScriptProject {
 	private String path;
-	private String name; 
+	private String name;
 	private ScriptProjectType type;
 
 	public ScriptProject() {}
-	
+
 	public ScriptProject(String path, String name, ScriptProjectType type) {
 		this.path = path;
 		this.name = name;
 		this.type = type;
 	}
-	
+
 	public void setPath(String path) {
 		this.path = path;
 	}
-	
+
 	public String getPath() {
 		return path;
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -50,19 +50,19 @@ public class ScriptProject {
 	public void setType (ScriptProjectType type) {
 		this.type = type;
 	}
-	
+
 	public ScriptProjectType type() {
 		return type;
 	}
-	
+
 	public Boolean isUserProject() {
 		return type == ScriptProjectType.USER;
 	}
-	
+
 	public Boolean isConfigProject() {
 		return type == ScriptProjectType.CONFIG;
 	}
-	
+
 	public Boolean isCoreProject() {
 		return type == ScriptProjectType.CORE;
 	}

@@ -31,5 +31,5 @@ public class RCPOpenViewCommand implements Serializable{
 	public String getId() {
 		return id;
 	}
-	
+
 }

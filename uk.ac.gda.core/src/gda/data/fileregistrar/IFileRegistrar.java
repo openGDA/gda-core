@@ -22,22 +22,22 @@ package gda.data.fileregistrar;
 import gda.factory.Findable;
 
 /**
- * File registration service that listens to scans (via DataWriterExtender) 
- * and can be used directly by detectors. Files will be archived and listed in 
- * icat and possibly post-processed. Whatever the pipeline is configured to do. 
+ * File registration service that listens to scans (via DataWriterExtender)
+ * and can be used directly by detectors. Files will be archived and listed in
+ * icat and possibly post-processed. Whatever the pipeline is configured to do.
  */
 public interface IFileRegistrar extends Findable {
 
 	/**
 	 * detectors writing files independently of scans.
-	 * 
+	 *
 	 * @param fileName <i>absolute</i> Pathname of file to register
 	 */
 	public void registerFile(String fileName);
-	
+
 	/**
 	 * detectors writing files independently of scans.
-	 * 
+	 *
 	 * @param fileNames An array of <i>absolute</i> Pathnames of files to register
 	 */
 	public void registerFiles(String[] fileNames);

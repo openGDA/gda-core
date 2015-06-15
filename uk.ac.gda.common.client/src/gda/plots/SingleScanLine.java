@@ -58,10 +58,10 @@ public class SingleScanLine extends ScanPair {
 				label += scanName.substring(lenOfScanName) + "..";
 			if( lenOfScanLineName >=0 )
 				label += scanLine.name.substring(lenOfScanLineName);
-		}		
+		}
 		return label;
 	}
-	
+
 	@Override
 	List<String> getParents() {
 		Vector<String> parents = new Vector<String>();
@@ -70,5 +70,5 @@ public class SingleScanLine extends ScanPair {
 	}
 	public String getName() {
 		return scanName + " - " + scanLine.name;
-	}	
+	}
 }

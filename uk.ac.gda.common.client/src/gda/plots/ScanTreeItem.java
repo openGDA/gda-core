@@ -99,6 +99,7 @@ public class ScanTreeItem extends ScanTreeM {
 		return currentFilename;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}

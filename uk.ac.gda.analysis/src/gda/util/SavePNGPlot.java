@@ -50,7 +50,7 @@ public class SavePNGPlot {
 	 * @param width - the width of the saved image in pixels
 	 * @param height - the height of the saved image in pixels
 	 * @param chartTitle
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static void save(String imageFile,
 			String dataFile, int width, int height, String chartTitle) throws IOException {
@@ -64,9 +64,9 @@ public class SavePNGPlot {
 		}
 		save(imageFile, scan, width, height, chartTitle);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param imageFile
 	 * @param scan
 	 * @param width
@@ -99,7 +99,7 @@ public class SavePNGPlot {
 			series.setKey(headings[seriesNum]);
 			dataset.addSeries(series);
 		}
-		
+
 		final JFreeChart chart = ChartFactory.createXYLineChart(chartTitle, // chart
 																			// title
 				headings[0], // x axis label

@@ -88,7 +88,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 
 	public LoggingScriptController() {
 		super();
-		
+
 		try {
 			Class.forName(DRIVER);
 		} catch (ClassNotFoundException e) {
@@ -129,7 +129,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 			if (result != null) {
 				notifyIObservers(this, result);
 			}
-			
+
 			float percent = ((ScriptControllerLoggingMessage) arg).getPercentDone();
 			String msg = ((ScriptControllerLoggingMessage) arg).getMsg();
 			try {
@@ -147,7 +147,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 		try {
 			ScriptControllerLogResults[] results = new ScriptControllerLogResults[] {};
 			String myVisit = InterfaceProvider.getBatonStateProvider().getBatonHolder().getVisitID();
-			
+
 			psSimpleListAll.setString(1, myVisit);
 			rs = psSimpleListAll.executeQuery();
 			Boolean atFirst = rs.next();
@@ -395,10 +395,10 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 
 		String fetchStatement = "SELECT * FROM " + tableName + " WHERE " + PK_COLUMNNAME + "= (?)";
 		psFetchEntry = conn.prepareStatement(fetchStatement);
-		
+
 		String fetchStartTimeStatement = "SELECT " + DATE_ADDED_COL_NAME + " FROM " + tableName + " WHERE " + PK_COLUMNNAME + "= (?)";
 		psFetchStartTime = conn.prepareStatement(fetchStartTimeStatement);
-		
+
 		String sqlColumns = "";
 		for (String columnName : refreshColumnGetters.values()) {
 			columnName = columnName.replace(" ", "_");
@@ -470,7 +470,7 @@ public class LoggingScriptController extends ScriptControllerBase implements ILo
 			System.out.println("something's wrong");
 			return null;
 		}
-		
+
 		psFetchStartTime.setString(1, arg.getUniqueID());
 		ResultSet rsStartTime = psFetchStartTime.executeQuery();
 		rsStartTime.next();

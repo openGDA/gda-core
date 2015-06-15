@@ -29,17 +29,17 @@ public class ScriptEvent implements Serializable {
 	 * Enumeration of the type of event described
 	 */
 	public enum Event {
-		
+
 		/**
 		 * Script has started
 		 */
 		Start,
-		
+
 		/**
 		 * Script has finished successfully
 		 */
 		End,
-		
+
 		/**
 		 * Script has ended with an exception
 		 */
@@ -55,7 +55,7 @@ public class ScriptEvent implements Serializable {
 	 * the type of event
 	 */
 	final public Event event;
-	
+
 	/**
 	 * some further information for the script Observers
 	 */
@@ -90,7 +90,7 @@ public class ScriptEvent implements Serializable {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("ScriptEvent[id=%s, event=%s, data=%s]", id, event, data);

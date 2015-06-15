@@ -31,14 +31,14 @@ public interface IPCO4000Hardware {
 	 * the filename specified
 	 * @param fileName
 	 * @param exposureTime
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public void exposeDetector(String fileName, Double exposureTime) throws DeviceException;
-	
+
 	/**
 	 * returns the ID of the device, this is device specific.
 	 * @return The ID to be given to Nexus.
 	 */
 	public String getDetectorID();
-	
+
 }

@@ -39,7 +39,7 @@ import java.util.Map;
  * Implementation of DataWriterExtender
  */
 public class AsciiWriterExtender extends DataWriterExtenderBase {
-	
+
 	protected String headerPrefix;
 	protected String filenameTemplate;
 	protected List<AsciiWriterExtenderConfig> configs;
@@ -47,7 +47,7 @@ public class AsciiWriterExtender extends DataWriterExtenderBase {
 	protected String sep;
 	protected NexusTreeNodeSelection metaDataSelectionTree = null;
 	protected boolean metaDataAsXML;
-	
+
 	protected Map<String, Double> variableToDoubleMap = new HashMap<String, Double>(31);
 	protected Map<String, String> fieldToVariableMap  = new HashMap<String, String>(31);
 	/**
@@ -64,7 +64,7 @@ public class AsciiWriterExtender extends DataWriterExtenderBase {
 	public AsciiWriterExtender(String filename, List<AsciiWriterExtenderConfig> configs, String sep,
 			                   NexusTreeNodeSelection metaDataSelectionTree,
 			                   boolean metaDataAsXML) {
-		
+
 		this.filenameTemplate = filename;
 		this.configs = configs;
 		this.sep = sep;
@@ -80,7 +80,7 @@ public class AsciiWriterExtender extends DataWriterExtenderBase {
 	 * @param fieldIndex
 	 */
 	public void addVariable(String varName, String scannableName, int fieldIndex) {
-		
+
 		final Scannable scannable = Finder.getInstance().find(scannableName);
 		final String    fieldName;
 		if (scannable != null) {
@@ -92,10 +92,10 @@ public class AsciiWriterExtender extends DataWriterExtenderBase {
 	 	} else { // Done to make pauls unit test work, normally scannable name if
 	 		     // not findable should not be allowed.
 	 		fieldName = scannableName;
-	 	}	
+	 	}
 		fieldToVariableMap.put(fieldName, varName);
 	}
-	
+
 	private void storeScannable(String name, Double position) {
 		/* if scannable is required get value and add to variables */
 		if (fieldToVariableMap.containsKey(name)) {
@@ -109,7 +109,7 @@ public class AsciiWriterExtender extends DataWriterExtenderBase {
 
 	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
-		
+
 		if (out == null) {
 			out = new BufferedWriter(new FileWriter(getFileName(parent)));
 			if (parent instanceof NexusDataWriter) {
@@ -130,15 +130,15 @@ public class AsciiWriterExtender extends DataWriterExtenderBase {
 				wl(line.toString());
 			}
 		}
-		
+
 		Double[] positions = dataPoint.getAllValuesAsDoubles();
 		String[] headerString = dataPoint.getNames().toArray(new String[0]);
-		
+
 		for (int i = 0; i < headerString.length; i++){
 			storeScannable(headerString[i], positions[i]);
 		}
-		
-		
+
+
 		/* evaluate the expressions in the Configs */
 		StringBuffer line = new StringBuffer();
 		for (AsciiWriterExtenderConfig config : configs) {
@@ -166,13 +166,13 @@ public class AsciiWriterExtender extends DataWriterExtenderBase {
 	 * is used directly however if you allow %d for the scan
 	 * number as with NexusDataWriter this getFileName() method
 	 * may be overridden.
-	 * 
+	 *
 	 * @return fileName
 	 */
 	protected String getFileName(@SuppressWarnings("unused") IDataWriterExtender parent) {
 		return filenameTemplate;
 	}
-	
+
 	@Override
 	public void completeCollection() {
 		if (out != null) {
@@ -188,7 +188,7 @@ public class AsciiWriterExtender extends DataWriterExtenderBase {
 
 	protected void writeVariableToDoubleMap(Scannable scannable, Object position) {
 		variableToDoubleMap.put(scannable.getName(), (Double)position);
-		
+
 	}
 
 	/**

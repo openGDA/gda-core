@@ -22,16 +22,16 @@ public enum ScriptProjectType {
 	/**
 	 * Scripts edited by users
 	 */
-	USER, 
+	USER,
 	/**
 	 * Scripts used to implement beamline functionality. Not user editable
 	 */
-	CONFIG, 
+	CONFIG,
 	/**
 	 * Scripts provided with GDA plugins. Not user editable
 	 */
-	CORE, 
-	
+	CORE,
+
 	/**
 	 * Scripts provided with GDA EPICS plugins. Not user editable. Treated as CORE
 	 * Use CORE rather than plugin specific values

@@ -47,7 +47,7 @@ public class UpdateQueue implements Runnable {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void dispose() {
 		killed = true;

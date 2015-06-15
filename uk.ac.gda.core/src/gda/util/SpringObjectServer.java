@@ -44,14 +44,14 @@ import org.springframework.util.StringUtils;
 public class SpringObjectServer extends ObjectServer {
 
 	private static final Logger logger = LoggerFactory.getLogger(SpringObjectServer.class);
-	
+
 	boolean allowExceptionInConfigure=LocalProperties.check(FactoryBase.GDA_FACTORY_ALLOW_EXCEPTION_IN_CONFIGURE);
 
 	private FileSystemXmlApplicationContext applicationContext;
 
 	/**
 	 * Creates an object server.
-	 * 
+	 *
 	 * @param xmlFile
 	 *            the XML configuration file
 	 */
@@ -61,7 +61,7 @@ public class SpringObjectServer extends ObjectServer {
 
 	/**
 	 * Creates an object server.
-	 * 
+	 *
 	 * @param xmlFile
 	 *            the XML configuration file
 	 * @param localObjectsOnly
@@ -78,18 +78,18 @@ public class SpringObjectServer extends ObjectServer {
 	protected void startServer() throws FactoryException {
 		addSpringBackedFactoryToFinder(applicationContext);
 		/*
-		 * We need to add the adapterFactory to the finder if present in the applicationContext to allow remote objects to 
-		 * be found during subsequent configureAllFindablesInApplicationContext. 
+		 * We need to add the adapterFactory to the finder if present in the applicationContext to allow remote objects to
+		 * be found during subsequent configureAllFindablesInApplicationContext.
 		 * The adapterFactory must be added after the spring backed objects as the latter may include those from corba:import. If
-		 * the order was otherwise we would duplicate adapters for remote objects. 
+		 * the order was otherwise we would duplicate adapters for remote objects.
 		 * This change is in anticipation of future changes to corba:import to only import named objects rather than all.
 		 */
-		addAdapterFactoryToFinder();		
+		addAdapterFactoryToFinder();
 		configureAllConfigurablesInApplicationContext(applicationContext);
 		startOrbRunThread();
 	}
 
-	
+
 	/**
 	 * Adds a Spring-backed {@link Factory} to the {@link Finder}.
 	 */
@@ -116,14 +116,14 @@ public class SpringObjectServer extends ObjectServer {
 		for (Map.Entry<String, Configurable> entry : configurables.entrySet()) {
 			String name = entry.getKey();
 			Configurable obj = entry.getValue();
-			
+
 			boolean willConfigure = true;
-			
+
 			if (obj instanceof ConditionallyConfigurable) {
 				final ConditionallyConfigurable cc = (ConditionallyConfigurable) obj;
 				willConfigure = cc.isConfigureAtStartup();
 			}
-			
+
 			if (willConfigure) {
 				logger.info("Configuring " + name);
 				try {
@@ -135,7 +135,7 @@ public class SpringObjectServer extends ObjectServer {
 					logger.error("Error in configure for " + name, e);
 				}
 			}
-			
+
 			else {
 				logger.info("Not configuring " + name);
 			}

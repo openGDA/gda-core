@@ -23,8 +23,8 @@ public interface BlockingMotor extends Motor {
 	/**
 	 * Blocks while the motors status is Busy
 	 * @return status after being busy
-	 * @throws InterruptedException 
-	 * @throws DeviceException 
+	 * @throws InterruptedException
+	 * @throws DeviceException
 	 */
 	MotorStatus waitWhileStatusBusy() throws InterruptedException, DeviceException;
 

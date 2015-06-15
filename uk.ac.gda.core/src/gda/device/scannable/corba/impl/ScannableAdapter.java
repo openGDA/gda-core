@@ -46,14 +46,14 @@ import org.slf4j.LoggerFactory;
  * Client-side implementation of distributed Scannable objects
  */
 public class ScannableAdapter extends DeviceAdapter implements Scannable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ScannableAdapter.class);
 
 	private CorbaScannable corbaScannable;
 
 	/**
 	 * Constructor. Calls DeviceAdapter contructor.
-	 * 
+	 *
 	 * @param obj
 	 * @param name
 	 * @param netService
@@ -204,7 +204,7 @@ public class ScannableAdapter extends DeviceAdapter implements Scannable {
 		}
 		throw new DeviceException("Communication failure: retry failed");
 	}
-	
+
 	@Override
 	public void atLevelStart() throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
@@ -221,7 +221,7 @@ public class ScannableAdapter extends DeviceAdapter implements Scannable {
 		}
 		throw new DeviceException("Communication failure: retry failed");
 	}
-	
+
 	@Override
 	public void atLevelEnd() throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
@@ -238,7 +238,7 @@ public class ScannableAdapter extends DeviceAdapter implements Scannable {
 		}
 		throw new DeviceException("Communication failure: retry failed");
 	}
-	
+
 	@Override
 	public String[] getExtraNames() {
 		for (int i = 0; i < NetService.RETRY; i++) {
@@ -522,7 +522,7 @@ public class ScannableAdapter extends DeviceAdapter implements Scannable {
 
 	/**
 	 * {@inheritDoc} Default behaviour is to return getName() : getPosition.toString()
-	 * 
+	 *
 	 * @see gda.device.Scannable#toString()
 	 */
 	@Override
@@ -696,7 +696,7 @@ public class ScannableAdapter extends DeviceAdapter implements Scannable {
 
 	/**
 	 * Jython method to return string description of the object
-	 * 
+	 *
 	 * @return the result of the toString method
 	 */
 	@Override
@@ -706,7 +706,7 @@ public class ScannableAdapter extends DeviceAdapter implements Scannable {
 
 	/**
 	 * Jython method to return a string representation of the object
-	 * 
+	 *
 	 * @return the result of the toString method
 	 */
 	@Override
@@ -745,7 +745,7 @@ public class ScannableAdapter extends DeviceAdapter implements Scannable {
 		if (ob_other != null) {
 			if (ob_other == this) {
 				return true;
-			}			
+			}
 			if (ob_other instanceof PyObject) {
 				PyInteger eqTest = (PyInteger) __eq__((PyObject) ob_other);
 				return (eqTest.getValue() == 1);

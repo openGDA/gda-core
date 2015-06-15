@@ -46,7 +46,7 @@ public class MetadataImpl extends CorbaMetadataPOA implements IObserver {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param metadata
 	 *            the Metadata implementation object
 	 * @param poa
@@ -62,7 +62,7 @@ public class MetadataImpl extends CorbaMetadataPOA implements IObserver {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Metadata implementation object
 	 */
 	public Metadata _delegate() {
@@ -71,7 +71,7 @@ public class MetadataImpl extends CorbaMetadataPOA implements IObserver {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param metadata
 	 *            set the Metadata implementation object
 	 */

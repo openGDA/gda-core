@@ -52,7 +52,7 @@ public class ODCCDNativeSock extends NativeSock {
 	 * This reads the input stream byte-by-byte searching for a pattern. This only works with ASCII characters (8 bits).
 	 * An exception is thrown if the method encounters an error from the IS software. The exception would contain
 	 * details of the error.
-	 * 
+	 *
 	 * @param pattern
 	 *            The pattern to read until.
 	 * @return The input stream in string format upto the end of the pattern.

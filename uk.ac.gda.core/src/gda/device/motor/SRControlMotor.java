@@ -19,20 +19,20 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.factory.Finder;
 import gda.util.Sleep;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * SRControl 'motor' class to drive SR control network virtual motor
  */
 public class SRControlMotor extends MotorBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(SRControlMotor.class);
 
 	private SRControlInterface srControl;
@@ -142,7 +142,7 @@ public class SRControlMotor extends MotorBase {
 
 	/**
 	 * Moves the motor by the specified number of units achieved by converting to an absolute move
-	 * 
+	 *
 	 * @param increment
 	 *            the number of units to move by
 	 * @throws MotorException
@@ -173,7 +173,7 @@ public class SRControlMotor extends MotorBase {
 
 	/**
 	 * Moves the motor to the specified position
-	 * 
+	 *
 	 * @param position
 	 *            the number of position to move to
 	 * @throws MotorException
@@ -198,7 +198,7 @@ public class SRControlMotor extends MotorBase {
 
 	/**
 	 * Not implemented
-	 * 
+	 *
 	 * @param direction
 	 *            the direction
 	 * @throws MotorException
@@ -211,7 +211,7 @@ public class SRControlMotor extends MotorBase {
 
 	/**
 	 * Not implemented
-	 * 
+	 *
 	 * @param steps
 	 *            the position to set
 	 * @throws MotorException
@@ -223,7 +223,7 @@ public class SRControlMotor extends MotorBase {
 
 	/**
 	 * Gets the current position of the motor
-	 * 
+	 *
 	 * @return the current position (integer truncation possible)
 	 * @throws MotorException
 	 */
@@ -262,7 +262,7 @@ public class SRControlMotor extends MotorBase {
 
 	/**
 	 * Not implemented
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override
@@ -272,7 +272,7 @@ public class SRControlMotor extends MotorBase {
 
 	/**
 	 * Not implemented
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override
@@ -282,7 +282,7 @@ public class SRControlMotor extends MotorBase {
 
 	/**
 	 * Gets the status of the motor
-	 * 
+	 *
 	 * @return a value from the MotorStatus enum
 	 * @throws MotorException
 	 */
@@ -355,7 +355,7 @@ public class SRControlMotor extends MotorBase {
 
 	/**
 	 * method to return state of motorMoving flag
-	 * 
+	 *
 	 * @return true if moving
 	 * @throws MotorException
 	 */
@@ -386,7 +386,7 @@ public class SRControlMotor extends MotorBase {
 
 	/**
 	 * method to set motor software limits to the values supplied
-	 * 
+	 *
 	 * @param minimum
 	 *            the minimum limit of motor travel
 	 * @param maximum
@@ -415,7 +415,7 @@ public class SRControlMotor extends MotorBase {
 
 	/**
 	 * method to get motor software limits
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void getSoftLimits() throws MotorException {

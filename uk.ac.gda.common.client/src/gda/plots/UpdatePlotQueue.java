@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class UpdatePlotQueue implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(UpdatePlotQueue.class);
-	
+
 	Vector<XYDataHandler> items = new Vector<XYDataHandler>();
 	private final XYDataHandler[] itemsToBeHandledType = new XYDataHandler[0];
 
@@ -94,7 +94,7 @@ public class UpdatePlotQueue implements Runnable {
 							logger.error( "exception " + ex.getMessage(), ex);
 						}
 					}
-				}				
+				}
 			} catch (Throwable th) {
 				logger.error(th.getMessage(),th);
 			}

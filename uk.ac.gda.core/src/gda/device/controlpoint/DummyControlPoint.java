@@ -19,12 +19,12 @@
 
 package gda.device.controlpoint;
 
-import org.python.core.PyString;
-
 import gda.device.ControlPoint;
 import gda.device.DeviceException;
 import gda.device.scannable.ScannableMotionBase;
 import gda.device.scannable.ScannablePositionChangeEvent;
+
+import org.python.core.PyString;
 
 /**
  * The Class DummyControlPoint.
@@ -56,7 +56,7 @@ public class DummyControlPoint extends ScannableMotionBase implements ControlPoi
 		} else if (position instanceof Number) {
 			setPoint = ((Number) position).doubleValue();
 		}
-		
+
 		if (Double.isNaN(setPoint)) {
 			throw new IllegalArgumentException("ControlPointAdapter.asynchronousMoveTo - invalid position type = "
 					+ position.toString());

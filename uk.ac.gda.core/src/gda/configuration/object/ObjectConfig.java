@@ -32,7 +32,7 @@ public interface ObjectConfig {
 
 	/**
 	 * Load in an object model from a specified Castor XML instance file.
-	 * 
+	 *
 	 * @param modelName
 	 *            the file pathname of the Castor XML instance file containing the object model to load in.
 	 */
@@ -49,7 +49,7 @@ public interface ObjectConfig {
 
 	/**
 	 * Builds a Java Swing tree model from the object model. For use with GUI applications.
-	 * 
+	 *
 	 * @return the Java Swing tree model of the object model data.
 	 */
 	public DefaultTreeModel buildGUITreeModel();
@@ -64,7 +64,7 @@ public interface ObjectConfig {
 	/**
 	 * Creates a new element to be attached to the object model. The element is inserted as a child of the specified
 	 * parent object.
-	 * 
+	 *
 	 * @param parent
 	 *            the parent element in the object model to attach the new object to.
 	 * @param name
@@ -77,7 +77,7 @@ public interface ObjectConfig {
 	/**
 	 * Delete an element from the object model. The element must be removed by specifying the name of the parent of the
 	 * element to be deleted.
-	 * 
+	 *
 	 * @param parent
 	 *            the parent element of the object to be deleted
 	 * @param name
@@ -90,7 +90,7 @@ public interface ObjectConfig {
 	/**
 	 * Delete an element from the object model. The element must be removed by specifying the name of the parent of the
 	 * element to be deleted.
-	 * 
+	 *
 	 * @param parent
 	 *            the parent element of the object to be deleted
 	 * @param node
@@ -104,7 +104,7 @@ public interface ObjectConfig {
 
 	/**
 	 * Load an XML Schema XSD file to represent a Castor data model.
-	 * 
+	 *
 	 * @param fileName
 	 *            the file pathname of the XSD schema file
 	 */
@@ -123,7 +123,7 @@ public interface ObjectConfig {
 
 	/**
 	 * Gets the metadata for an object's attribute (field).
-	 * 
+	 *
 	 * @param name
 	 *            the name of the object's attribute.
 	 * @return the metadata for the object's attribute.

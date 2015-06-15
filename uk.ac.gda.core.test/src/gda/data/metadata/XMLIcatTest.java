@@ -65,7 +65,7 @@ public class XMLIcatTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetValidInformationFromIcat() {

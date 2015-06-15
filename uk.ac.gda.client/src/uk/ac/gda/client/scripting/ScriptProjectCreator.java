@@ -101,7 +101,7 @@ public class ScriptProjectCreator implements IStartup {
 
 	/**
 	 * We programmatically create a Jython Interpreter so that the user does not have to.
-	 * 
+	 *
 	 * @throws CoreException
 	 */
 	static void createInterpreter(IProgressMonitor monitor) throws Exception {
@@ -276,7 +276,7 @@ public class ScriptProjectCreator implements IStartup {
 	/**
 	 * The method PydevPlugin.getJythonInterpreterManager().getInterpreterInfo(...) can never return in some
 	 * circumstances because of a bug in pydev.
-	 * 
+	 *
 	 * @return true if new interpreter required
 	 */
 	static boolean isInterpreter(final IProgressMonitor monitor) {

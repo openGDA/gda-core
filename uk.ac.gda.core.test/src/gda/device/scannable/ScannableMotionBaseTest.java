@@ -522,7 +522,7 @@ public class ScannableMotionBaseTest extends ScannableBaseTest {
 
 	@Test
 	public void testMoveToWithGoodScannableAndNoRetries() throws DeviceException {
-		getSM().setNumberTries(1); 
+		getSM().setNumberTries(1);
 		getSM().setTolerances(new Double[] { .1, .1 });
 		when(getSM().isBusy()).thenReturn(false);
 		when(getSMB().rawGetPosition()).thenReturn(new double[] { 11., 21. }, new double[] { 10., 20. });
@@ -635,7 +635,7 @@ public class ScannableMotionBaseTest extends ScannableBaseTest {
 		assertEquals(null, getSM().checkPositionValid(new Double[] { 0., 0., 0. }));// micron
 		assertEquals(null, getSM().checkPositionValid(new Double[] { -999., -999., -999. }));// micron
 		assertEquals(null, getSM().checkPositionValid(new Double[] { 799., 799., 799. }));// micron
-		
+
 		assertEquals("Scannable limit violation on name.i1: -1100.0 < -1000.0 (internal/hardware/dial values).", getSM().checkPositionValid(new Double[] { -1100., 0., 0. } ));// micron
 		assertEquals("Scannable limit violation on name.i1: 900.0 > 800.0 (internal/hardware/dial values).", getSM().checkPositionValid(new Double[] { 900., 0., 0. } ));// micron
 		assertEquals("Scannable limit violation on name.i2: -1100.0 < -1000.0 (internal/hardware/dial values).", getSM().checkPositionValid(new Double[] { 0., -1100., 0. } ));// micron

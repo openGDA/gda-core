@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 // TODO: SineDriveAngularScannable should extend ScannableMotionUnitsBase if it really wants to use units.
 public class SineDriveAngularScannable extends ScannableMotionBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(SineDriveAngularScannable.class);
 
 	// the motor

@@ -60,7 +60,7 @@ public final class ScriptExecutor implements IObserver {
 	/**
 	 * Method calls by the script controller. If the changeCode is a String the value is sent to the jythonServerFacade
 	 * which will display the string on the terminal
-	 * 
+	 *
 	 * @param changeCode
 	 *            The object being sent by the caller. We only act on String objects {@inheritDoc}
 	 * @see gda.observable.IObserver#update(java.lang.Object, java.lang.Object)
@@ -74,7 +74,7 @@ public final class ScriptExecutor implements IObserver {
 
 	/**
 	 * Starts a script
-	 * 
+	 *
 	 * @param scriptControllerName
 	 *            The name of the ScriptController on the ObjectServer. The ScriptController is used as a mechanism for
 	 *            communicating between the running script and any observers of the ScriptController.
@@ -147,7 +147,7 @@ public final class ScriptExecutor implements IObserver {
 	/**
 	 * Runs the command and blocks until the command is through. Therefore it also removes the IObserver after the
 	 * command is run.
-	 * 
+	 *
 	 * @param scriptControllerName
 	 * @param anIObserver
 	 * @param jythonObjects
@@ -221,7 +221,7 @@ public final class ScriptExecutor implements IObserver {
 
 	/**
 	 * Removes an IObserver object from the list of IObservers of a named ScriptController
-	 * 
+	 *
 	 * @param scriptControllerName
 	 *            The name of the ScriptController on the ObjectServer. The ScriptController is used as a mechanism for
 	 *            communicating between the running script and any observers of the ScriptController.
@@ -253,7 +253,7 @@ public final class ScriptExecutor implements IObserver {
 	/**
 	 * Halts the current script being run by JythonServerFacade and removes an IObserver object from the list of
 	 * IObservers of a named ScriptController
-	 * 
+	 *
 	 * @param scriptControllerName
 	 *            The name of the ScriptController on the ObjectServer. The ScriptController is used as a mechanism for
 	 *            communicating between the running script and any observers of the ScriptController.

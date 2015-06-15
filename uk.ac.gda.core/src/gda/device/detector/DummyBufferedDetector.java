@@ -36,7 +36,7 @@ public class DummyBufferedDetector extends DetectorBase implements SimulatedBuff
 	int[][] storedFrames = new int[0][];
 
 	/**
-	 * 
+	 *
 	 */
 	public DummyBufferedDetector() {
 		super();
@@ -53,7 +53,7 @@ public class DummyBufferedDetector extends DetectorBase implements SimulatedBuff
 		storedFrames = (int[][]) ArrayUtils.add(storedFrames, createFrame(numberFrames));
 		numberFrames++;
 	}
-	
+
 	private int[] createFrame(int frame){
 		// simulate a numChannels adc
 		int[] data = new int[numChannels];
@@ -96,7 +96,7 @@ public class DummyBufferedDetector extends DetectorBase implements SimulatedBuff
 		if (finalFrame >= storedFrames.length){
 			throw new DeviceException("requested frame number greater out of limits");
 		}
-		
+
 		int numFrames = (finalFrame - startFrame) + 1;
 
 		int[][] output = new int[numFrames][];
@@ -156,7 +156,7 @@ public class DummyBufferedDetector extends DetectorBase implements SimulatedBuff
 	@Override
 	public String[] getOutputFormat() {
 		String[] data = new String[numChannels + inputNames.length];
-		
+
 		for (Integer i = 0; i < inputNames.length; i++) {
 			data[i] = "%5.2g";
 		}
@@ -182,9 +182,9 @@ public class DummyBufferedDetector extends DetectorBase implements SimulatedBuff
 	@Override
 	public void setContinuousParameters(ContinuousParameters parameters) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 	@Override
 	public int maximumReadFrames() throws DeviceException {
 		return Integer.MAX_VALUE;

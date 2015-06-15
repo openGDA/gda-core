@@ -17,7 +17,7 @@
  */
 
 /**
- * 
+ *
  */
 package gda.device.scannable;
 
@@ -35,14 +35,14 @@ import org.jscience.physics.units.Unit;
  * Based on TwoJawSlitPosition.
  */
 public class TwoJawSlitGap extends TwoJawSlitPosition {
-	
+
 	private String xmlparametersfilename = null;
 
 	@Override
 	protected double[] getLimits(
-			Quantity firstJawMin, 
-			Quantity firstJawMax, 
-			Quantity secondJawMin, 
+			Quantity firstJawMin,
+			Quantity firstJawMax,
+			Quantity secondJawMin,
 			Quantity secondJawMax)
 	{
 		Unit<?> units = unitsComponent.getUserUnit();
@@ -50,7 +50,7 @@ public class TwoJawSlitGap extends TwoJawSlitPosition {
 		double maximum = QuantityFactory.createFromObject(firstJawMax.minus(secondJawMin),units).getAmount();
 		return new double[]{ minimum > 0. ? minimum : 0., maximum};
 	}
-	
+
 
 	@Override
 	public Object rawGetPosition() throws DeviceException {
@@ -62,9 +62,9 @@ public class TwoJawSlitGap extends TwoJawSlitPosition {
 	/**
 	 * This string is the name of the xml parameters file which is used to store the beam centre used by these slits.
 	 * If this value is set to a non-null value then the behaviour of this scannable is changed to move the gap based
-	 * on the beam centre in this xml file rather than use the current beam centre. This is useful for motors which 
-	 * drift or frequently fail. 
-	 * 
+	 * on the beam centre in this xml file rather than use the current beam centre. This is useful for motors which
+	 * drift or frequently fail.
+	 *
 	 * @param xmlparametersfilename
 	 *            The xmlparametersfilename to set.
 	 */
@@ -98,7 +98,7 @@ public class TwoJawSlitGap extends TwoJawSlitPosition {
 			} catch (Exception e) {
 				throw new DeviceException(e.getMessage(),e);
 			}
-			// 
+			//
 		} else {
 			// perform the calculation based on the current beam centre i.e. current motor positions
 			Quantity currentGap = getCurrentGap();

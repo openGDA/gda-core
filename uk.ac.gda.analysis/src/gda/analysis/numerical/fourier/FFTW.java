@@ -116,7 +116,7 @@ public class FFTW {
 
 	/**
 	 * Performs an inverse fft of real and imaginary parts to a a real data vector
-	 * 
+	 *
 	 * @param real
 	 *            real part (A data vector of 1,2 or 3 dimensions )
 	 * @param imag
@@ -184,7 +184,7 @@ public class FFTW {
 	// }
 	/**
 	 * Test Main method.
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -236,7 +236,7 @@ public class FFTW {
 	/**
 	 * FFT puts the DC component at index 0 sometimes you'd like this in the middle FFT images, for example, are usually
 	 * shown with zero shifted to the centre of the image. This routine will do that shift for you
-	 * 
+	 *
 	 * @param realData
 	 */
 	// public static void fftShift(DataVector realData) {
@@ -244,7 +244,7 @@ public class FFTW {
 	/**
 	 * FFT puts the DC component at index 0 sometimes you'd like this in the middle FFT images, for example, are usually
 	 * shown with zero shifted to the centre of the image. This routine will do that shift for you
-	 * 
+	 *
 	 * @param real
 	 * @param imag
 	 */

@@ -17,7 +17,7 @@
  */
 
 /**
- * 
+ *
  */
 package gda.example.richbean;
 
@@ -42,7 +42,7 @@ public final class ExampleExptEditor extends RichBeanMultiPageEditorPart {
 	@Override
 	public RichBeanEditorPart getRichBeanEditorPart(String path, Object editingBean) {
 //		return new ExampleExptUIEditor(path, getMappingUrl(), this, editingBean);
-		
+
 		DelegatingRichBeanEditorPart editor = new DelegatingRichBeanEditorPart(path,getMappingUrl(),this,editingBean);
 		editor.setEditorClass(ExampleExptComposite.class);
 		editor.setRichEditorTabText("Example Custom UI");

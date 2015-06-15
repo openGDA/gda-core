@@ -90,7 +90,7 @@ public enum Marker {
 
 	/**
 	 * Returns whether or not the marker is a filled shape
-	 * 
+	 *
 	 * @return true if filled, otherwise false
 	 */
 	public boolean isFilled() {
@@ -99,7 +99,7 @@ public enum Marker {
 
 	/**
 	 * Returns the Shape of the marker type for the given size
-	 * 
+	 *
 	 * @param size
 	 *            the size in pixels e.g. for CIRCLE this will become the diameter
 	 * @return a Shape object of the correct size
@@ -125,7 +125,7 @@ public enum Marker {
 
 	/**
 	 * Returns the display name (which may be different from the Enum name)
-	 * 
+	 *
 	 * @return the display name
 	 */
 	@Override
@@ -135,7 +135,7 @@ public enum Marker {
 
 	/**
 	 * Creates a Marker from the String given
-	 * 
+	 *
 	 * @param string
 	 *            the name
 	 * @return the Marker with that name (default BOX)
@@ -154,7 +154,7 @@ public enum Marker {
 
 	/**
 	 * Creates a Marker from the int given
-	 * 
+	 *
 	 * @param counter
 	 * @return the Marker with that ordinal (default BOX)
 	 */
@@ -245,7 +245,7 @@ public enum Marker {
 
 		/**
 		 * Creates the wrapper and adds elements to the path
-		 * 
+		 *
 		 * @param shapes
 		 *            an array of Shapes to put in the path
 		 */
@@ -337,7 +337,7 @@ public enum Marker {
 
 	/**
 	 * Returns a JComboBox which can be used to choose between the Markers
-	 * 
+	 *
 	 * @return a suitable JComboBox
 	 */
 	public static JComboBox getChooser() {

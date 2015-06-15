@@ -42,7 +42,7 @@ import org.junit.Test;
  * Test that the GeneralTranslator produces the expected translation
  */
 public class GeneralTranslatorTest {
-	
+
 	static String testScratchDirectoryName = null;
 	final static String TestFileFolder = "testfiles/gda/jython/translator/GeneralTranslatorTest/";
 	static GeneralTranslator translator;
@@ -91,7 +91,7 @@ public class GeneralTranslatorTest {
 		translator.translate("vararg_alias gscan");
 		translator.translate("vararg_alias tscan");
 		translator.translate("vararg_alias timescan");
-		
+
 		mockJythonServerFacade.setEvaluateCommandResult("['scan']");
 	}
 
@@ -133,12 +133,12 @@ public class GeneralTranslatorTest {
 	public void translateNapi() throws IOException {
 		translateTestRunner("napi.txt");
 	}
-	
+
 	@Test
 	public void translateStringLiterals() throws IOException {
 		translateTestRunner("stringliteral.txt");
 	}
-	
+
 	@Test
 	public void translatePosCommand() throws IOException {
 		translateTestRunner("poscommand.txt");
@@ -148,8 +148,8 @@ public class GeneralTranslatorTest {
 	public void translateSemiColonSplitCommands() throws IOException {
 		translateTestRunner("semicolonSplitCommands.txt");
 	}
-	
-	
+
+
 	public void translateTestRunner(String testFileName) throws IOException {
 
 		String translatedFilename = testScratchDirectoryName + testFileName + ".translated";
@@ -158,7 +158,7 @@ public class GeneralTranslatorTest {
 		StringBuffer fileBuffer;
 		String fileString = null;
 		String line;
-		
+
 		FileReader fr = new FileReader(TestFileFolder + testFileName);
 		BufferedReader dis = new BufferedReader(fr);
 		fileBuffer = new StringBuffer();
@@ -181,9 +181,9 @@ public class GeneralTranslatorTest {
 	@Test
 	public void testSimpleScanCommand(){
 		Assert.assertEquals("scan([a,1.,1.,1.])",translator.translate("scan a 1. 1. 1."));
-		
+
 	}
-	
+
 	@Test
 	public void test_splitGroup(){
 		Assert.assertArrayEquals(new String[]{"scan","a","1.","1","1.0","1.","'1'","'1 '","'1.'","' 1'"},
@@ -213,7 +213,7 @@ public class GeneralTranslatorTest {
 		Assert.assertEquals("pos([posname,(1.0,1.0)])",
 				translator.translate("pos posname ( 1.0 1.0)"));
 	}
-	
+
 	@Test
 	public void test_translate_GDA_4045(){
 		Assert.assertEquals("scan([scannablejumpscannable.ScJuSc(\"step\",4,5,x,-.9),0,10,1,x,bsdiode])",
@@ -222,7 +222,7 @@ public class GeneralTranslatorTest {
 		Assert.assertEquals("myfunkyalias(scannablejumpscannable.ScJuSc(\"step\",4,5,x,-.9),0,10,1,x,bsdiode)",
 				translator.translate("myfunkyalias scannablejumpscannable.ScJuSc(\"step\",4,5,x,-.9) 0 10 1 x bsdiode"));
 	}
-	
+
 	@Test
 	@Ignore("2010/10/26 Test ignored since not passing GDA-3703")
 	public void test_translateMultilineComment(){
@@ -234,38 +234,38 @@ public class GeneralTranslatorTest {
 				translator.translate(original_command));
 	}
 
-	
+
 	@Test
 	public void testSimpleScanCommand2(){
 		Assert.assertEquals("pos([posname,2,\"string with quote's\",5.0])",translator.translate("pos posname 2 \"string with quote's\" 5.0"));
 	}
-	
+
 	@Test
 	public void testStringWithMixOfQuotes1() {
 		final String text = "\"he'llo [a b c]\"";
 		assertEquals(text, translator.translate(text));
 	}
-	
+
 	@Test
 	public void testStringWithMixOfQuotes2() {
 		final String text = "'he\"llo [a b c]'";
 		assertEquals(text, translator.translate(text));
 	}
-	
+
 	@Test
 	public void testListContainingAdjacentLists() {
 		final String originalText = "[ [1] [2] ]";
 		final String expectedTranslation = "[ [1],[2] ]";
 		assertEquals(expectedTranslation, translator.translate(originalText));
 	}
-	
+
 	@Test
 	public void testRunStatement() {
 		final String originalText = "run \"CommentPD\"";
 		final String expectedTranslation = "run(\"CommentPD\")";
 		assertEquals(expectedTranslation, translator.translate(originalText));
 	}
-	
+
 	@Test
 	public void testLineWithComment() {
 		final String originalText = "cam.configure() # TODO Remove if not required 27-Jul-2011/ais";
@@ -273,5 +273,5 @@ public class GeneralTranslatorTest {
 		final String actualTranslation = translator.translate(originalText);
 		assertTrue(expectedTranslation.equals(actualTranslation));
 	}
-	
+
 }

@@ -79,7 +79,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 			PlatformUI.getPreferenceStore().setValue(IWorkbenchPreferenceConstants.SHOW_INTRO, useIntroScreen);
 		}
 	}
-	
+
 	@Override
 	public void postWindowOpen() {
 		boolean doMaximise = LocalProperties.check(LocalProperties.GDA_GUI_START_MAXIMISE,false);
@@ -90,7 +90,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		}
 		super.postWindowOpen();
 	}
-	
+
 	@Override
 	public boolean preWindowShellClose() {
 		SWTResourceManager.disposeColors();

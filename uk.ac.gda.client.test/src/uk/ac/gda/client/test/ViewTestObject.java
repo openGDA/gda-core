@@ -178,7 +178,7 @@ public class ViewTestObject implements IScanDataPointProvider {
 			scanEventObserverComponent.notifyIObservers(dataSource, data);
 		}
 	}
-	
+
 
 	@Override
 	public void addScanEventObserver(IObserver anObserver) {

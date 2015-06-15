@@ -30,19 +30,19 @@ import org.apache.commons.lang.ArrayUtils;
 public class StraightLineFit {
 
 	/**
-	 * 
+	 *
 	 * @param data - data[i] contains y values for a line
 	 * @param x
 	 * @return Array of Result of length equal to data.length
 	 */
 	public static Result[] fit(double[][] data, double[] x) {
-		
+
 		int numLines = data.length;
 		int pointsPerLine = x.length;
 		for( int i=0; i< numLines; i++){
 			if( data[i].length != pointsPerLine)
 				throw new IllegalArgumentException("The number of points in each line must be equal to the size of the x axis vector");
-			
+
 		}
 		double xAverage = getXAverage(x);
 		double x1 = getX(x, xAverage);
@@ -51,27 +51,27 @@ public class StraightLineFit {
 			double[] y = data[line];
 			results[line] = fit2(y, x, xAverage, x1);
 		}
-		return results;		
+		return results;
 	}
 
 	/**
-	 * 
+	 *
 	 * @param data Points on a line are the set data.get(i)[m] where i varies from point to point
 	 * on the line
 	 * @param x
 	 * @return Array of Result of length equal to the length of the data arrays
 	 */
 	public static Results fit(List<double[]> data, long [] dims, double[] x) {
-		
+
 		int numLines = data.get(0).length;
 		int pointsPerLine = x.length;
 		if( data.size() != pointsPerLine)
 			throw new IllegalArgumentException("data.size() != pointsPerLine");
-			
+
 		for( int i=0; i< pointsPerLine; i++){
 			if( data.get(i).length != numLines)
 				throw new IllegalArgumentException("data.get(i).length != numLines");
-			
+
 		}
 		double xAverage = getXAverage(x);
 		double x1 = getX(x, xAverage);
@@ -91,10 +91,10 @@ public class StraightLineFit {
 				offsets[line] = fit2.getOffset();
 			}
 		}
-		return new Results(offsets, slopes, dims, fitoks);		
+		return new Results(offsets, slopes, dims, fitoks);
 	}
 	public static Results fitInt(List<Object> data, long [] dims, double[] x) {
-		
+
 		Object object = data.get(0);
 		if( ! object.getClass().isArray()) {
 			throw new IllegalArgumentException("fitInt can only accept arrays");
@@ -103,23 +103,23 @@ public class StraightLineFit {
 		int pointsPerLine = x.length;
 		if( data.size() != pointsPerLine)
 			throw new IllegalArgumentException("data.size() != pointsPerLine");
-			
+
 		for( int i=0; i< pointsPerLine; i++){
 			if( ArrayUtils.getLength(data.get(i)) != numLines)
 				throw new IllegalArgumentException("data.get(i).length != numLines");
-			
+
 		}
-		
+
 		double [] slopes = new double[numLines];
 		double [] offsets = new double[numLines];
 		short [] fitoks = new short[numLines];
-		Arrays.fill(fitoks, (short)0);		
+		Arrays.fill(fitoks, (short)0);
 		if( pointsPerLine > 2){
 			double xAverage = getXAverage(x);
 			double x1 = getX(x, xAverage);
 			double[] y = new double[pointsPerLine];
 
-			
+
 			Arrays.fill(fitoks, (short)1);
 			for (int line = 0; line < numLines; line++) {
 				for( int point=0; point<pointsPerLine; point++){
@@ -131,24 +131,24 @@ public class StraightLineFit {
 			}
 		}
 		else if( pointsPerLine == 2){
-			
+
 			double[] y = new double[pointsPerLine];
 			Arrays.fill(fitoks, (short)1);
 			for (int line = 0; line < numLines; line++) {
 				for( int point=0; point<pointsPerLine; point++){
 					y[point] = Array.getDouble(data.get(point),line);
 				}
-				
+
 				slopes[line] = (y[1] - y[0])/(x[1]-x[0]);
 				offsets[line] = y[1] - slopes[line]*x[1];
 			}
 		}
-		return new Results(offsets, slopes, dims, fitoks);		
+		return new Results(offsets, slopes, dims, fitoks);
 	}
 
-	
+
 	/**
-	 * 
+	 *
 	 * @param data Points on a line are the set data.get(i)[m] where i varies from point to point
 	 * on the line
 	 * @param x
@@ -162,7 +162,7 @@ public class StraightLineFit {
 		}
 		return fitInt(data, dims, xDouble);
 	}
-	
+
 	private static double getXAverage(double[] x) {
 		double sumx = 0.0;
 		int n = 0;
@@ -183,7 +183,7 @@ public class StraightLineFit {
 		return xxbar;
 	}
 
-	
+
 	private static Result fit2(double[] y, double[] x, double xAvg, double xxBar) {
 		int n = 0;
 		double sumy = 0.0;

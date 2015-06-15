@@ -38,9 +38,9 @@ import org.slf4j.LoggerFactory;
  * Interface to the ImageProPlus package for data collection from a Photonics Science CCD.
  */
 public class IPPserver extends DetectorBase implements Detector {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(IPPserver.class);
-	
+
 	// Valid values for input parameter destVri in method IpAcqSnap
 	// private final int ACQ_CURRENT = 0;
 	// private final int ACQ_FILE = 1;
@@ -87,7 +87,7 @@ public class IPPserver extends DetectorBase implements Detector {
 
 		// sleep time interval for blocking reads
 		private int waitTime = 25; // (rdw) changed from 1000!
-		
+
 		private int ackTimeout = 0;
 
 		/**
@@ -167,7 +167,7 @@ public class IPPserver extends DetectorBase implements Detector {
 
 		/**
 		 * Write a string to socket. tries once to connect if not connected. Gives up if doesnt succeed.
-		 * 
+		 *
 		 * @param s
 		 *            string to write to socket
 		 * @return true if write succeeded (ie no IOException occurred). false if socket not connected.
@@ -193,7 +193,7 @@ public class IPPserver extends DetectorBase implements Detector {
 
 			return false;
 		}
-		
+
 		private String readWithTimeout(int timeout)throws IOException,InterruptedException
 		{
 			String returnString ="";
@@ -206,7 +206,7 @@ public class IPPserver extends DetectorBase implements Detector {
 		/**
 		 * Blocking read of a string from a socket. Tries once to connect if not connected. Gives up if doesnt succeed.
 		 * Blocks read until ready.
-		 * 
+		 *
 		 * @return string read from socket with terminators stripped.
 		 * @throws IOException
 		 * @throws InterruptedException
@@ -256,7 +256,7 @@ public class IPPserver extends DetectorBase implements Detector {
 		/**
 		 * Non-blocking read of a string from a socket. Tries once to connect if not connected. Gives up if doesnt
 		 * succeed. If not ready returns null.
-		 * 
+		 *
 		 * @return string read from socket. Returns null if socket not ready.
 		 * @throws IOException
 		 */
@@ -337,7 +337,7 @@ public class IPPserver extends DetectorBase implements Detector {
 		} catch (InterruptedException e) {
 			logger.error("IPPserver.reconfigure() caught InteruptedException: ", e);
 		}
-		logger.info("IPPServer.reconfigure() is calling configure.");	
+		logger.info("IPPServer.reconfigure() is calling configure.");
 		this.configure();
 		try {
 			Thread.sleep(100);
@@ -365,7 +365,7 @@ public class IPPserver extends DetectorBase implements Detector {
 	 * non-zero value, the ipAcqControl command is used to set an exposure time, before the image is aquired. N.B.
 	 * ipAcqSnap blocks until image acquisition is complete. If an error occurs, a DeviceException is generated and
 	 * thrown.
-	 * 
+	 *
 	 * @throws DeviceException
 	 * @throws DeviceBusyException
 	 *             If a request to send a command is made while a request is already being handled.
@@ -415,7 +415,7 @@ public class IPPserver extends DetectorBase implements Detector {
 	/**
 	 * Call ImagePro ipWsSaveAs to save current image to specified path/filename, using specified image format. N.B.
 	 * only supported ImagePro output formats are permitted. eg BMP, TIF, JPG, TGA, GIF, etc. (See ImagePro manual).
-	 * 
+	 *
 	 * @param theFileName
 	 *            filename. If file exists it will be oeverwritten.
 	 * @param theFileFormat
@@ -487,7 +487,7 @@ public class IPPserver extends DetectorBase implements Detector {
 	 * Wraps up sendCommandAndGetReply(). Makes up to two attempst to send the message. If the first fails the object is
 	 * reconfigured and a second attempt is made. If this fails instructions are presented to the user on how to
 	 * configure IPP to accept connections.
-	 * 
+	 *
 	 * @param command
 	 * @return The returned string from the underlying ImagePro API.
 	 * @throws DeviceException
@@ -526,7 +526,7 @@ public class IPPserver extends DetectorBase implements Detector {
 	/**
 	 * Send an ImagePro command string over socket to GDA ImagePro plugin and then waits first for an acknowledgement
 	 * from the plugin and then for a reply from the underlying ImagePro API.
-	 * 
+	 *
 	 * @param command
 	 * @return return value from API call. >= 0 = OK. -4 = function not found. -7 = invalid arguments. See ImagePro
 	 *         manual Appendix F p9-2 .
@@ -566,7 +566,7 @@ public class IPPserver extends DetectorBase implements Detector {
 					logger.error("IPPserver.sendCommandAndGetReply() expected 'MSG_ACK', but received: " + ack + " Raising DeviceException...");
 					unlock();
 					throw new DeviceException("IPPserver.sendCommandAndGetReply() expected 'MSG_ACK', but received: " + ack);
-					
+
 				}
 			} catch (InterruptedException e) {
 				unlock();
@@ -653,7 +653,7 @@ public class IPPserver extends DetectorBase implements Detector {
 
 	/**
 	 * Set the host name of the Windows PC running ImagePro. Used by castor for instantiation.
-	 * 
+	 *
 	 * @param host
 	 *            the IP host name of the controller
 	 */
@@ -663,7 +663,7 @@ public class IPPserver extends DetectorBase implements Detector {
 
 	/**
 	 * Returns the host name of the Windows PC running ImagePro.
-	 * 
+	 *
 	 * @return the host name.
 	 */
 	public String getHost() {
@@ -672,7 +672,7 @@ public class IPPserver extends DetectorBase implements Detector {
 
 	/**
 	 * Set the socket number for ethernet communications.
-	 * 
+	 *
 	 * @param port
 	 *            the socket number.
 	 */
@@ -682,7 +682,7 @@ public class IPPserver extends DetectorBase implements Detector {
 
 	/**
 	 * Get the socket number for ethernet communications.
-	 * 
+	 *
 	 * @return the port number.
 	 */
 	public int getPort() {
@@ -713,7 +713,7 @@ public class IPPserver extends DetectorBase implements Detector {
 	/**
 	 * Trys once to get a lock via the busy flag and hence lock access to the send. Returns true if succesful or false
 	 * if another thread has the lock.
-	 * 
+	 *
 	 * @return true if succesful
 	 */
 	private synchronized boolean tryToLock() {
@@ -728,7 +728,7 @@ public class IPPserver extends DetectorBase implements Detector {
 	/**
 	 * Can be called from inside Jython Terminal/Script to run specific ImagePro API. N.B. Only API calls supported by
 	 * GDA ImagePro plugin possible.
-	 * 
+	 *
 	 * @param command
 	 * @return command result
 	 * @throws DeviceException

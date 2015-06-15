@@ -24,27 +24,27 @@ import java.util.Collections;
 import java.util.UUID;
 
 /**
- * some string that is likely to be unique across machines 
- * 
+ * some string that is likely to be unique across machines
+ *
  * mainly used in the PathConstructor to generate a workspace path on a shared drive that is still unique to the machine
  */
 public class HostId {
-	
+
 	private String id;
 	private static HostId instance;
-	
+
 	public static String getId() {
 		if (instance == null)
 			instance = new HostId();
 		return instance.toString();
 	}
-	
+
 	public HostId() {
 		id = generateId();
 	}
 
 	private String generateId() {
-		
+
 		try {
 			for (NetworkInterface ni: Collections.list(NetworkInterface.getNetworkInterfaces())) {
 				if (!ni.isLoopback()) {
@@ -72,7 +72,7 @@ public class HostId {
 		/* at least make something unique for the session */
 		return UUID.randomUUID().toString();
 	}
-	
+
 	@Override
 	public String toString() {
 		return id;

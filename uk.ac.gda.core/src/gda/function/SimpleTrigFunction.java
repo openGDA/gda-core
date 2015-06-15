@@ -71,7 +71,7 @@ public class SimpleTrigFunction extends Function {
 
 	/**
 	 * Get the inner constant
-	 * 
+	 *
 	 * @return the innerConstant
 	 */
 	public String getInnerConstant() {
@@ -80,7 +80,7 @@ public class SimpleTrigFunction extends Function {
 
 	/**
 	 * Set the inner constant
-	 * 
+	 *
 	 * @param innerConstant
 	 *            the innerConstant
 	 */
@@ -91,7 +91,7 @@ public class SimpleTrigFunction extends Function {
 
 	/**
 	 * Get the outer constant
-	 * 
+	 *
 	 * @return the outerConstant
 	 */
 	public String getOuterConstant() {
@@ -100,7 +100,7 @@ public class SimpleTrigFunction extends Function {
 
 	/**
 	 * Set the outer constant
-	 * 
+	 *
 	 * @param outerConstant
 	 *            the outerConstant
 	 */
@@ -111,7 +111,7 @@ public class SimpleTrigFunction extends Function {
 
 	/**
 	 * Get the trig function
-	 * 
+	 *
 	 * @return the trig function
 	 */
 	public String getTrigFunc() {
@@ -120,7 +120,7 @@ public class SimpleTrigFunction extends Function {
 
 	/**
 	 * Set the trig function
-	 * 
+	 *
 	 * @param trigFunc
 	 *            the trig function
 	 */

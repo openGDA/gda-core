@@ -23,9 +23,9 @@ import java.io.Serializable;
 public class SimpleCommandDetails implements CommandDetails, Serializable{
 
 	String simpleDetails;
-	
-	
-	
+
+
+
 	public SimpleCommandDetails(String simpleDetails) {
 		super();
 		this.simpleDetails = simpleDetails;

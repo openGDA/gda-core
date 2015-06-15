@@ -36,11 +36,11 @@ import uk.ac.gda.client.UIObservableModel;
 
 public class ScannableWrapper extends UIObservableModel implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(ScannableWrapper.class);
-	
+
 	// TODO this should be declare at the source
 	private static final String LOWER_LIMIT_ATTRIBUTE_NAME = "lowerMotorLimit";
 	private static final String UPPER_LIMIT_ATTRIBUTE_NAME = "upperMotorLimit";
-	
+
 	private static final int CHECK_BUSY_STATUS_IN_MS = 50;
 	private static final int WAIT_FOR_MSG_UPDATE_IN_MS = 500;
 	private final Scannable scannable;
@@ -50,14 +50,14 @@ public class ScannableWrapper extends UIObservableModel implements IObserver {
 
 	public static final String TARGET_POSITION_PROP_NAME = "targetPosition";
 	private Double targetPosition;
-	
+
 	public static final String LOWER_LIMIT_PROP_NAME = "lowerLimit";
 	private Double lowerLimit;
-	
+
 	public static final String UPPER_LIMIT_PROP_NAME = "upperLimit";
 	private Double upperLimit;
 
-	
+
 	private PositionChecker scannablePositionChecker;
 
 	public ScannableWrapper(Scannable scannable) {

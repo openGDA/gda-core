@@ -28,33 +28,33 @@ import nvt4j.impl.Terminal;
 public class SocketServerWithTelnetNegotiationThread extends SocketServerThreadBase {
 
 	public SocketServerWithTelnetNegotiationThread(Socket socket) throws IOException {
-		
+
 		super(socket);
-		
+
 		setUseJline(true);
-		
+
 		// Using this Terminal subclass prevents the screen being cleared and
 		// the cursor being moved to the top left.
 		final Terminal terminal = new BetterTerminal(socket);
-		
+
 		// Also turn wrapping and the cursor on (these get disabled by the Terminal class).
 		terminal.put(Terminal.AUTO_WRAP_ON);
 		terminal.setCursor(true);
-		
+
 		final InputStream newInputStream = new InputStream() {
 			@Override
 			public int read() throws IOException {
 				return terminal.get();
 			}
 		};
-		
+
 		final OutputStream newOutputStream = new OutputStream() {
 			@Override
 			public void write(int b) throws IOException {
 				terminal.put(b);
 			}
 		};
-		
+
 		setOutputStream(newOutputStream);
 		setInputStream(newInputStream);
 	}
@@ -66,14 +66,14 @@ public class SocketServerWithTelnetNegotiationThread extends SocketServerThreadB
 	 * {@link #move(int, int)} do nothing.
 	 */
 	static class BetterTerminal extends Terminal {
-		
+
 		public BetterTerminal(Socket socket) throws IOException {
 			super(socket);
 		}
-		
+
 		boolean firstClearHappened;
 		boolean firstMoveHappened;
-		
+
 		@Override
 		public void clear() throws IOException {
 			if (firstClearHappened) {
@@ -82,7 +82,7 @@ public class SocketServerWithTelnetNegotiationThread extends SocketServerThreadB
 				firstClearHappened = true;
 			}
 		}
-		
+
 		@Override
 		public void move(int row, int column) throws IOException {
 			if (firstMoveHappened) {

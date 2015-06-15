@@ -29,14 +29,14 @@ import java.util.Set;
  * on eclipse/osgi of the gda core until it is ready.
  */
 public class GDAJythonClassLoader extends ClassLoader {
-	
+
 	private static ClassLoader classLoader;
 	private static Set<String> packages;
 	private static boolean allowAllPackages = false;
-	private static boolean staticInitialized = false; 
-	
-	
-	
+	private static boolean staticInitialized = false;
+
+
+
 	/**
 	 * Use the return value of this function to get all the packages available
 	 * to jython. Call PySystemState.add_package on each one
@@ -48,7 +48,7 @@ public class GDAJythonClassLoader extends ClassLoader {
 
 	/**
 	 * Use this function to check if the GDA Class Loader should be used.
-	 * 
+	 *
 	 * @return Returns initialized
 	 */
 	public static boolean useGDAClassLoader() {
@@ -68,7 +68,7 @@ public class GDAJythonClassLoader extends ClassLoader {
 		GDAJythonClassLoader.allowAllPackages = allowAllPackages;
 		staticInitialized = true;
 	}
-	
+
 	/**
 	 * Construct a new GDA Classloader with the access restrictions to the packages as initialized
 	 */
@@ -82,21 +82,21 @@ public class GDAJythonClassLoader extends ClassLoader {
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		if (name == null || name.length() == 0)
 			throw new ClassNotFoundException(name);
-		
+
 		// always allow core java packages and python specific ones
 		if (allowAllPackages || name.startsWith("java.") || name.startsWith("org.python."))
 			return super.loadClass(name);
-		
+
 		int lastDot = name.lastIndexOf('.');
 		String packageName;
 		if (lastDot - 1 < 0)
 			packageName = ".";
 		else
 			packageName = name.substring(0, lastDot);
-		
+
 		if (packages.contains(packageName))
 			return super.loadClass(name);
-		
+
 		// The requested class is not visible to the GDA Jython Class Loader
 		throw new ClassNotFoundException(name);
 	}

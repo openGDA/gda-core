@@ -42,11 +42,11 @@ import org.springframework.util.FileCopyUtils;
 public abstract class ServerThread extends Thread implements Terminal, SessionClosedCallback {
 
 	private static final Logger logger = LoggerFactory.getLogger(ServerThread.class);
-	
+
 	private static final String WELCOME_BANNER_FILENAME = "welcome_banner.txt";
-	
+
 	private static final String WELCOME_BANNER = readBanner();
-	
+
 	private static String readBanner() {
 		try {
 			InputStream is = ServerThread.class.getResourceAsStream(WELCOME_BANNER_FILENAME);
@@ -57,7 +57,7 @@ public abstract class ServerThread extends Thread implements Terminal, SessionCl
 			return "";
 		}
 	}
-	
+
 	protected JythonServerFacade command_server = JythonServerFacade.getInstance();
 
 	protected PrintWriter out = null;
@@ -66,14 +66,14 @@ public abstract class ServerThread extends Thread implements Terminal, SessionCl
 
 	protected ServerThread() {
 		super("CommandThread");
-		
+
 		// This also adds this instance to the JSF's list of terminals, so as to receive output
 		command_server.addIObserver(this);
 	}
-	
+
 	/**
 	 * Creates a server thread.
-	 * 
+	 *
 	 * @param inputStream client input stream
 	 * @param outputStream client output stream
 	 */
@@ -82,11 +82,11 @@ public abstract class ServerThread extends Thread implements Terminal, SessionCl
 		setOutputStream(outputStream);
 		setInputStream(inputStream);
 	}
-	
+
 	protected void setInputStream(InputStream inputStream) {
 		in = inputStream;
 	}
-	
+
 	protected void setOutputStream(OutputStream outputStream) {
 		out = new PrintWriter(outputStream, true);
 	}

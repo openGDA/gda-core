@@ -32,7 +32,7 @@ public class FileMountPoint extends Folder {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param filename
 	 * @param format
 	 */

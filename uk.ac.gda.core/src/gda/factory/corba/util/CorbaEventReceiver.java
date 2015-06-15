@@ -45,14 +45,14 @@ public class CorbaEventReceiver extends PushConsumerPOA implements EventReceiver
 	private Vector<Subscription> subscriptions = new Vector<Subscription>();
 
 	private ConsumerAdmin consumerAdmin;
-	
+
 	private ProxyPushSupplier supplier;
 
 	private static PushEventQueue pushEventQueue;
-	
+
 	/**
 	 * Create an event receiver instance for incoming events
-	 * 
+	 *
 	 * @param channel
 	 * @param orb
 	 */
@@ -78,7 +78,7 @@ public class CorbaEventReceiver extends PushConsumerPOA implements EventReceiver
 	public void disconnect() {
 		disconnect_push_consumer();
 	}
-	
+
 	@Override
 	public void disconnect_push_consumer() {
 		// supplier.disconnect_push_supplier();
@@ -87,7 +87,7 @@ public class CorbaEventReceiver extends PushConsumerPOA implements EventReceiver
 
 	/**
 	 * Register on the event channel using the filter to get the required events
-	 * 
+	 *
 	 * @param subscriber
 	 *            the subscriber
 	 * @param filter
@@ -105,7 +105,7 @@ public class CorbaEventReceiver extends PushConsumerPOA implements EventReceiver
 
 	/**
 	 * Unsubscribe from the event channel
-	 * 
+	 *
 	 * @param subscriber
 	 *            the subscriber
 	 * @param filter
@@ -151,12 +151,12 @@ public class CorbaEventReceiver extends PushConsumerPOA implements EventReceiver
  * Queue for handling Corba events
  */
 class PushEventQueue implements Runnable {
-	
+
 	public static final String GDA_EVENTRECEIVER_QUEUE_LENGTH_CHECK = "gda.eventreceiver.queue.length.check";
-	
+
 
 	private static final Logger logger = LoggerFactory.getLogger(PushEventQueue.class);
-	
+
 	Vector<TimedAny> items = new Vector<TimedAny>();
 	private boolean killed = false;
 	private Thread thread = null;
@@ -194,7 +194,7 @@ class PushEventQueue implements Runnable {
 					itemsToBeHandled = items;
 					items = new Vector<TimedAny>();
 				}
-				
+
 				List<TimedStructuredEvent> newEvents = new Vector<TimedStructuredEvent>();
 				for (TimedAny e : itemsToBeHandled) {
 					if (e.isStructuredEvent()) {
@@ -207,7 +207,7 @@ class PushEventQueue implements Runnable {
 						logger.warn("Received an object that is not a StructuredEvent");
 					}
 				}
-				
+
 				if (!newEvents.isEmpty()) {
 					int numItems = newEvents.size();
 					if( chkLengthLimit > 0 && numItems > chkLengthLimit && lastItemsHandled != null){
@@ -224,9 +224,9 @@ class PushEventQueue implements Runnable {
 						if( timeBeforeDispatching > 1000){
 							logger.warn(String.format("Event took %dms until dispatch (source=%s, type=%s)", timeBeforeDispatching, event.getHeader().eventName, event.getHeader().typeName));
 						}
-						
+
 						receiver.pushNow(event);
-						
+
 						long timeAfterDispatch = System.currentTimeMillis();
 						long timeToDispatch = timeAfterDispatch-timeOfDispatch;
 						if( timeToDispatch > 1000){

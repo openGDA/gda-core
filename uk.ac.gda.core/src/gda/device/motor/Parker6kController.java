@@ -19,33 +19,33 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceBase;
 import gda.device.MotorException;
 import gda.factory.Configurable;
 import gda.factory.Findable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Used by Parker6kMotor as the point of communication with the actual hardware. Base class to be enclosed within a
  * Parker6kMotor object as either an RS232 or Ethernet serial communications subclass instance.
- * 
+ *
  * @see Parker6kMotor
  * @see Parker6kControllerEnet
  * @see Parker6kControllerRS232
  */
 public abstract class Parker6kController extends DeviceBase implements Findable, Configurable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Parker6kController.class);
-	
+
 	private int controllerNo = 0;
 
 	private int maxNoOfMotors;
 
 	/**
 	 * Address of controller (set as default or by RS232 daisychain). Used by Castor for instantiation.
-	 * 
+	 *
 	 * @param controllerNo
 	 *            controller number
 	 */
@@ -55,7 +55,7 @@ public abstract class Parker6kController extends DeviceBase implements Findable,
 
 	/**
 	 * Return the address of this controller. Used by Castor for instantiation.
-	 * 
+	 *
 	 * @return the address of the controller
 	 */
 	public int getControllerNo() {
@@ -65,7 +65,7 @@ public abstract class Parker6kController extends DeviceBase implements Findable,
 	/**
 	 * max motors controlled, 2, 4 or 8 per-axis positions and speeds are stored to allow reply simulation. Used by
 	 * Castor for instantiation.
-	 * 
+	 *
 	 * @param maxNoOfMotors
 	 *            is the maximum number of motors this controller can support
 	 */
@@ -75,7 +75,7 @@ public abstract class Parker6kController extends DeviceBase implements Findable,
 
 	/**
 	 * Returns the maximum number of motors this controller will support Used by Castor for instantiation.
-	 * 
+	 *
 	 * @return the maximum number of motors this controller will support.
 	 */
 	public int getMaxNoOfMotors() {
@@ -84,7 +84,7 @@ public abstract class Parker6kController extends DeviceBase implements Findable,
 
 	/**
 	 * Subclass will provide a concrete Ethernet or RS232 i/o method.
-	 * 
+	 *
 	 * @param command
 	 *            parker command to send
 	 * @return a reply string

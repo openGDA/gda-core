@@ -29,7 +29,7 @@ import org.python.core.PyString;
 public class InputCommands {
 	/**
 	 * For use within scripts to request input from the Jython terminal
-	 * 
+	 *
 	 * @param promptString
 	 * @return Object
 	 * @throws InterruptedException
@@ -40,7 +40,7 @@ public class InputCommands {
 
 	/**
 	 * For use within scripts to request input from the Jython terminal
-	 * 
+	 *
 	 * @param promptString
 	 * @return Object
 	 * @throws InterruptedException

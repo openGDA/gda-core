@@ -27,29 +27,29 @@ import java.util.List;
 import junit.framework.TestCase;
 
 public class DLSIcatTest extends TestCase {
-	
+
 	public void testCreateShortQuery() {
 		final String accessName = "INV_NUMBER:investigation:id";
 		final String expectedQuery = "select distinct INV_NUMBER from investigation where id='INV001' OR id='INV002'";
-		
+
 		List<Shift> shifts = Arrays.asList(
 			new Shift("INV001", new Date(), new Date()),
 			new Shift("INV002", new Date(), new Date())
 		);
-		
+
 		String actualQuery = DLSIcat.createQuery(accessName, shifts);
 		assertEquals(expectedQuery, actualQuery);
 	}
-	
+
 	public void testCreateLongQuery() {
 		final String accessName = "first_name, middle_name, last_name:facility_user where facility_user_id in (select facility_user_id from investigator:investigation_id";
 		final String expectedQuery = "select distinct first_name, middle_name, last_name from facility_user where facility_user_id in (select facility_user_id from investigator where investigation_id='INV001' OR investigation_id='INV002')";
-		
+
 		List<Shift> shifts = Arrays.asList(
 			new Shift("INV001", new Date(), new Date()),
 			new Shift("INV002", new Date(), new Date())
 		);
-		
+
 		String actualQuery = DLSIcat.createQuery(accessName, shifts);
 		assertEquals(expectedQuery, actualQuery);
 	}

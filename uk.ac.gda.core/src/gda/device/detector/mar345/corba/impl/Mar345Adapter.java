@@ -42,7 +42,7 @@ public class Mar345Adapter extends DetectorAdapter implements Mar345, Detector, 
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

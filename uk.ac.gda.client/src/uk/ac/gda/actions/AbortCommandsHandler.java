@@ -34,7 +34,7 @@ public class AbortCommandsHandler extends AbstractHandler {
 
 	public static String id = "uk.ac.gda.actions.AbortCommandsHandler";
 	private static final Logger logger = LoggerFactory.getLogger(AbortCommandsHandler.class);
-	
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
@@ -48,7 +48,7 @@ public class AbortCommandsHandler extends AbstractHandler {
 			};
 			job.setUser(false);
 			job.schedule();
-			
+
 			return Boolean.TRUE;
 		} catch (Exception ne) {
 			throw new ExecutionException(ne.getMessage(), ne);

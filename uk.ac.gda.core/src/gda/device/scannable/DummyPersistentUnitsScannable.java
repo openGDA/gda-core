@@ -26,16 +26,16 @@ import org.jscience.physics.quantities.Quantity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO: Partially implemented class, does not extend 
+// TODO: Partially implemented class, does not extend
 public class DummyPersistentUnitsScannable extends DummyPersistentScannable implements ScannableMotionUnits {
 	private static final Logger mylogger = LoggerFactory.getLogger(DummyPersistentUnitsScannable.class);
-	
+
 	private String initialUnit = "mm";
-	
+
 	public void setInitialUnit(String initialUnit) {
 		this.initialUnit = initialUnit;
 	}
-	
+
 	@Override
 	public void configure() {
 		this.inputNames = new String[] { getName() };
@@ -88,7 +88,7 @@ public class DummyPersistentUnitsScannable extends DummyPersistentScannable impl
 			mylogger.error("Configuration exception in setUserUnits for DummyPersistentUnitsScannable",e);
 		}
 	}
-	
+
 	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
 		if (attributeName.equals(ScannableMotionUnits.USERUNITS)) {
@@ -98,7 +98,7 @@ public class DummyPersistentUnitsScannable extends DummyPersistentScannable impl
 		}
 		return super.getAttribute(attributeName);
 	}
-	
+
 	@Override
 	public void rawAsynchronousMoveTo(Object position) {
 		try {
@@ -112,7 +112,7 @@ public class DummyPersistentUnitsScannable extends DummyPersistentScannable impl
 		double toReturn = Double.parseDouble((String) super.rawGetPosition());
 		return toReturn;
 	}
-	
+
 	@Override
 	public String toString() {
 		String toReturn = super.toString();

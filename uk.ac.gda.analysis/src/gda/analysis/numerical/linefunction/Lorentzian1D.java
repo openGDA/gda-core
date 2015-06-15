@@ -31,7 +31,7 @@ public class Lorentzian1D extends AbstractFunction {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param parms
 	 */
 	public Lorentzian1D(double... parms) {

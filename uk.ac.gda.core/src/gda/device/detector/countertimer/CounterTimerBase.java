@@ -18,9 +18,6 @@
 
 package gda.device.detector.countertimer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.CounterTimer;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -29,16 +26,19 @@ import gda.device.detector.DetectorBase;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class CounterTimerBase extends DetectorBase implements CounterTimer {
 
 	private static final Logger logger = LoggerFactory.getLogger(TFGCounterTimer.class);
 
 	protected boolean slave = false;
-	
+
 	protected gda.device.Timer timer = null;
-	
+
 	private String timerName;
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		if (timer == null) {
@@ -60,7 +60,7 @@ public abstract class CounterTimerBase extends DetectorBase implements CounterTi
 	public void setSlave(boolean slave) {
 		this.slave = slave;
 	}
-	
+
 	@Override
 	public int getMaximumFrames() throws DeviceException {
 		return timer.getMaximumFrames();
@@ -82,7 +82,7 @@ public abstract class CounterTimerBase extends DetectorBase implements CounterTi
 			timer.setCycles(cycles);
 		}
 	}
-	
+
 	@Override
 	public void addFrameSet(int frameCount, double requestedLiveTime, double requestedDeadTime) throws DeviceException {
 		if (!slave){
@@ -127,7 +127,7 @@ public abstract class CounterTimerBase extends DetectorBase implements CounterTi
 			timer.start();
 		}
 	}
-	
+
 	@Override
 	public void stop() throws DeviceException {
 		if (!slave){
@@ -154,7 +154,7 @@ public abstract class CounterTimerBase extends DetectorBase implements CounterTi
 	public String getTimerName() {
 		return timerName;
 	}
-	
+
 	public gda.device.Timer getTimer() {
 		return timer;
 	}

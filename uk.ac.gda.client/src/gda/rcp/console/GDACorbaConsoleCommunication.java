@@ -110,7 +110,7 @@ public class GDACorbaConsoleCommunication implements IScriptConsoleCommunication
 		}
 		return x;
 	}
-	
+
 	@Override
 	public String getDescription(String text) throws Exception {
 		return "";

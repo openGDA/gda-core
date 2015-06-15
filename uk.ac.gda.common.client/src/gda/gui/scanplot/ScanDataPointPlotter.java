@@ -127,7 +127,7 @@ public class ScanDataPointPlotter {
 		String sourceToLineKey = point.getUniqueName() + outerScannablePosition;
 		if (sourceToLine.containsKey(sourceToLineKey)) {
 			addNewPoints(sourceToLine.get(sourceToLineKey), config.linesToAdd, xVal, dataPoints);
-		} 
+		}
 		else {
 			try {
 				plot.archive(false, archiveFolder);
@@ -167,13 +167,13 @@ public class ScanDataPointPlotter {
 	 * On the assumptions that all data from a single scan will always be in the same format, this method creates new
 	 * lines on the graph and makes references in the vectors and hashmaps. It then adds the first data points to those
 	 * lines.
-	 * @param xAxisHeader 
-	 * 
+	 * @param xAxisHeader
+	 *
 	 */
-	public int createNewLines(int scanIdentifier, String currentFilename, 
+	public int createNewLines(int scanIdentifier, String currentFilename,
 			Vector<String> stepIdsStrings, List<ConfigLine> linesToAdd, Double xVal,
 			Double[] dataPoints, boolean makeGroupAlways, String xAxisHeader, boolean reload) {
-		
+
 		int firstNewLineNumber = plot.getNextAvailableLine();
 		int lineNumber = firstNewLineNumber;
 		String topGrouping = "Scan:" + scanIdentifier;
@@ -217,7 +217,7 @@ public class ScanDataPointPlotter {
 		plot.setLineVisibility(lineNumber, visible);
 	}
 
-	public int addData(int scanIdentifier, String currentFileName, 
+	public int addData(int scanIdentifier, String currentFileName,
 			Vector<String> stepIdsStrings, DoubleDataset xData, DoubleDataset yData, String xAxisHeader, String yAxisHeader, boolean visible, boolean reload, AxisSpec yAxisSpec) {
 		String sourceToLineKey = scanIdentifier + yAxisHeader;
 		Vector<ConfigLine> linesToAdd = new Vector<ConfigLine>();

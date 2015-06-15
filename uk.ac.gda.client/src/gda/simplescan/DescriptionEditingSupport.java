@@ -26,7 +26,7 @@ import org.eclipse.jface.viewers.TextCellEditor;
 public class DescriptionEditingSupport extends EditingSupport {
 	private TableViewer viewer;
 	private SimpleScan bean;
-	
+
 	public DescriptionEditingSupport(TableViewer viewer, SimpleScan bean) {
 		super(viewer);
 		this.viewer = viewer;
@@ -62,7 +62,7 @@ public class DescriptionEditingSupport extends EditingSupport {
 		}
 		viewer.refresh();
 	}
-	
+
 	public SimpleScan getBean(){
 		return bean;
 	}

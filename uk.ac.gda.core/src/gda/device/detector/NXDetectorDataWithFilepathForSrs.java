@@ -45,7 +45,7 @@ public class NXDetectorDataWithFilepathForSrs extends NXDetectorData {
 		super(adDetector);
 	}
 	public NXDetectorDataWithFilepathForSrs() {
-		
+
 	}
 	@Override
 	public void addFileName(String detName, String filename) {
@@ -64,13 +64,13 @@ public class NXDetectorDataWithFilepathForSrs extends NXDetectorData {
 			filepaths.add(each);
 		}
 	}
-	
+
 	public void addScanFileLinks(String detName, String[] filenames) {
 		for (String each : filenames){
 			super.addScanFileLink(detName, each);
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 
@@ -98,7 +98,7 @@ public class NXDetectorDataWithFilepathForSrs extends NXDetectorData {
 			}
 		}
 		int pathsHandled = (filepath!=null ? 1: 0 ) + filepaths.size();
-		
+
 		//miss out justDoubles entry that represents the filepath
 		if (justTheDoubles.length > 0) {
 			Double[] extraDoubles = Arrays.copyOfRange(justTheDoubles, filepathOutputFieldIndex + pathsHandled,
@@ -133,7 +133,7 @@ public class NXDetectorDataWithFilepathForSrs extends NXDetectorData {
 	public void setFilepathOutputFieldIndex(int filepathOutputFiledIndex) {
 		this.filepathOutputFieldIndex = filepathOutputFiledIndex;
 	}
-	
+
 	public String getFilepath() {
 		return filepath;
 	}

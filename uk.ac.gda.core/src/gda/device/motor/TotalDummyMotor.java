@@ -30,7 +30,7 @@ import gda.util.Sleep;
  */
 public class TotalDummyMotor extends MotorBase implements Runnable, IObservable, Motor {
 	/**
-	 * 
+	 *
 	 */
 
 	double posn = 0.0;
@@ -42,7 +42,7 @@ public class TotalDummyMotor extends MotorBase implements Runnable, IObservable,
 	private boolean moving = false;
 
 	private int sleepTime = 0;
-	
+
 	@Override
 	public void configure(){
 		// no configuration required

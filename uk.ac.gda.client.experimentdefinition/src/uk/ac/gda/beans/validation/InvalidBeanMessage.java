@@ -30,7 +30,7 @@ public class InvalidBeanMessage {
     private String   primaryMessage;
     private String   label;
 	/**
-	 * 
+	 *
 	 * @param primaryMessage
 	 * @param m
 	 */
@@ -43,13 +43,13 @@ public class InvalidBeanMessage {
 		}
 	}
 	/**
-	 * 
+	 *
 	 * @param messages
 	 */
 	public InvalidBeanMessage(final String... messages) {
 		this.messages = messages;
 	}
-	
+
 	/**
 	 * @return Returns the messages.
 	 */
@@ -63,7 +63,7 @@ public class InvalidBeanMessage {
 	public void setMessages(String... messages) {
 		this.messages = messages;
 	}
-	
+
 	@Override
 	public String toString() {
 		final StringBuilder buf = new StringBuilder();

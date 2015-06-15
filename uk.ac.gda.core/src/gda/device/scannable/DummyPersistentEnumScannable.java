@@ -69,12 +69,12 @@ public class DummyPersistentEnumScannable extends ScannableBase {
 			mylogger.error("Configuration exception in rawAsynchronousMoveTo for DummyPersistentScannable",e);
 		}
 	}
-	
+
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		return configuration.getProperty(getName()+"PersistentPosition");
 	}
-	
+
 
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
@@ -82,7 +82,7 @@ public class DummyPersistentEnumScannable extends ScannableBase {
 		if (position instanceof PyString) {
 			position = position.toString();
 		}
-		
+
 		if (position instanceof String) {
 			if (ArrayUtils.contains(acceptableStrings, position)) {
 				configuration.setProperty(getName() + "PersistentPosition", position);
@@ -129,6 +129,6 @@ public class DummyPersistentEnumScannable extends ScannableBase {
 	public void setAcceptableStrings(String[] acceptableStrings) {
 		this.acceptableStrings = acceptableStrings;
 	}
-	
+
 
 }

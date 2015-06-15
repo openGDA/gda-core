@@ -50,7 +50,7 @@ public class AmplifierImpl extends CorbaAmplifierPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param amplifier
 	 *            the Amplifier implementation object
 	 * @param poa
@@ -66,7 +66,7 @@ public class AmplifierImpl extends CorbaAmplifierPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Amplifier implementation object
 	 */
 	public Amplifier _delegate() {
@@ -75,7 +75,7 @@ public class AmplifierImpl extends CorbaAmplifierPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param amplifier
 	 *            set the Amplifier implementation object
 	 */
@@ -85,7 +85,7 @@ public class AmplifierImpl extends CorbaAmplifierPOA {
 
 	/**
 	 * _default_POA method
-	 * 
+	 *
 	 * @return the POA
 	 */
 	@Override
@@ -288,7 +288,7 @@ public class AmplifierImpl extends CorbaAmplifierPOA {
 	public void close() throws CorbaDeviceException {
 		deviceImpl.close();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();

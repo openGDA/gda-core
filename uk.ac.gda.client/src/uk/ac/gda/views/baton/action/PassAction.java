@@ -35,15 +35,15 @@ public class PassAction extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
+
 		ClientDetails selectedDetails = getSelectedDetails();
-		
+
 		if (selectedDetails==null) {
 			MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Selection Required",
 					                                "Please select a user to pass the baton to.");
 			return Boolean.FALSE;
 		}
-		
+
 		try {
 			if (selectedDetails.getIndex()!=InterfaceProvider.getBatonStateProvider().getMyDetails().getIndex()) {
 				final boolean ok = MessageDialog.openConfirm(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
@@ -53,16 +53,16 @@ public class PassAction extends AbstractHandler {
 			} else {
 				MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Cannot Pass",
                                                                                                            "The selected user already has the baton.\n\nPlease select another user to pass the baton to.");
-			
+
 			}
 		} catch (Exception ne) {
 			throw new ExecutionException("Cannot check if current user is the same as selected user.", ne);
 		}
-		
+
 		InterfaceProvider.getBatonStateProvider().assignBaton(selectedDetails.getIndex());
 		return Boolean.TRUE;
 	}
-	
+
 	private ClientDetails getSelectedDetails() {
 		ClientDetails selectedDetails;
 		try {
@@ -78,8 +78,8 @@ public class PassAction extends AbstractHandler {
 //	public boolean isEnabled() {
 //		ClientDetails selectedDetails = getSelectedDetails();
 //		if (selectedDetails==null) return false;
-//		
+//
 //		return true;
-//	}  
+//	}
 
 }

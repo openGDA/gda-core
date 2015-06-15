@@ -78,8 +78,8 @@ import uk.ac.gda.client.experimentdefinition.components.ExperimentRunEditor;
 import uk.ac.gda.client.experimentdefinition.components.XMLFileDialog;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
-import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class ExperimentEditorManager implements IExperimentEditorManager {
 
@@ -262,7 +262,7 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 	/**
 	 * Belt and braces approach to ensuring of the editors are talking to the same resource.
-	 * 
+	 *
 	 * @param orig
 	 * @param cur
 	 * @return true if same file.
@@ -650,7 +650,7 @@ public class ExperimentEditorManager implements IExperimentEditorManager {
 
 	/**
 	 * Opens the editors for the first scan encountered.
-	 * 
+	 *
 	 * @param ob
 	 * @param checkCurrentPerspective
 	 * @return true if selected someone

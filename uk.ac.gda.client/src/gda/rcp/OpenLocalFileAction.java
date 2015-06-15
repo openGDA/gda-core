@@ -130,7 +130,7 @@ public class OpenLocalFileAction extends Action implements IWorkbenchWindowActio
 	private IJythonContext getJythonContext() {
 		return (jythonContext != null) ? jythonContext : JythonServerFacade.getInstance();
 	}
-	
+
 	void setJythonContextForTesting(IJythonContext context) {
 		this.jythonContext = context;
 	}

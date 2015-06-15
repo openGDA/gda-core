@@ -19,7 +19,6 @@
 package gda.rcp.views;
 
 import gda.configuration.properties.LocalProperties;
-import gda.rcp.views.JythonTerminalView;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +37,7 @@ public class JythonTerminalViewTest {
 	private File testDir;
 	private File bar;
 	private File baz;
-	
+
 	@Before
 	public void setUp() throws Exception {
 		terminalView = new JythonTerminalView();
@@ -49,11 +48,11 @@ public class JythonTerminalViewTest {
 		}
 		baz = new File("baz");
 		if(!(baz.mkdir())) {
-			throw new RuntimeException("Couldn't create folder at baz"); 
+			throw new RuntimeException("Couldn't create folder at baz");
 		}
 		bar = new File("bar");
 		if(!(bar.mkdir())) {
-			throw new RuntimeException("Couldn't create folder at bar"); 
+			throw new RuntimeException("Couldn't create folder at bar");
 		}
 		LocalProperties.set("gda.jython.terminalOutputDir", "foo");
 		LocalProperties.set("gda.jython.userScriptDir", "bar");
@@ -82,12 +81,12 @@ public class JythonTerminalViewTest {
 	public void testInstantiation() {
 		Assert.assertNotNull(terminalView);
 	}
-	
+
 	@Test
 	public void testTerminalOutputFileWhenNoFilesExistHasIndex1() {
 		Assert.assertEquals("files/terminal_output_1.txt", terminalView.findNextFileInSequence(testPath, "terminal_output", ".txt"));
 	}
-	
+
 	@Test
 	public void testTerminalOutputFileWhenFile1ExistsHasIndex2() throws IOException {
 		File firstFile = new File(testDir, "terminal_output_1.txt");
@@ -97,7 +96,7 @@ public class JythonTerminalViewTest {
 		Assert.assertEquals("files/terminal_output_2.txt", terminalView.findNextFileInSequence(testPath, "terminal_output", ".txt"));
 		firstFile.delete();
 	}
-	
+
 	@Test
 	public void testUserScriptDirNotUsedIfTerminalOutputFolderPropertyDefined() {
 		File foo = new File("foo");
@@ -105,7 +104,7 @@ public class JythonTerminalViewTest {
 		Assert.assertEquals("foo/", terminalView.getTerminalOutputDirName());
 		foo.delete();
 	}
-	
+
 	@Test
 	public void testUserScriptDirNotUsedForTerminalOutputFolder() {
 		String tod = LocalProperties.get("gda.jython.terminalOutputDir");
@@ -113,7 +112,7 @@ public class JythonTerminalViewTest {
 		Assert.assertFalse("Shouldn't get the folder 'bar'", terminalView.getTerminalOutputDirName().equals("bar/"));
 		LocalProperties.set("gda.jython.terminalOutputDir", tod);
 	}
-	
+
 	@Test
 	public void testUserScriptDirNotUsedForCommandHistoryFile() {
 		Assert.assertFalse("The folder 'bar' comes from gda.jython.userScriptDir", terminalView.getCommandFilename().startsWith("bar"));

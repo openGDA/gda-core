@@ -31,7 +31,7 @@ public class CubicSpline {
 	 * derivatives of the interpolating function at the tabulated points x_i. If yp_0 and/or yp_n-1 are equal to 1
 	 * \times 10^30 or larger, the routine is signaled to set the corresponding boundary condition for a natural spline,
 	 * with zero second derivative on that boundary.
-	 * 
+	 *
 	 * @param x
 	 *            x values
 	 * @param y
@@ -79,7 +79,7 @@ public class CubicSpline {
 	 * Given the arrays xa[0..n-1] and ya[0..n-1], which tabulate a function (with the xa_i¡¯s in order), and given the
 	 * array y2a[0..n-1], which is the output from spline above, and given a value of x, this routine returns a
 	 * cubic-spline interpolated value y.
-	 * 
+	 *
 	 * @param xa
 	 * @param ya
 	 * @param y2a

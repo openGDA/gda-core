@@ -18,14 +18,15 @@
 
 package gda.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
 
 
 /**
- * 
+ *
  */
 public class OSCommandRunnerTest {
 	final static String TestFileFolder = "gda/util/TestFiles/";
@@ -48,7 +49,7 @@ public class OSCommandRunnerTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testNoInputFile() {
@@ -59,7 +60,7 @@ public class OSCommandRunnerTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testNoOutputFile() {

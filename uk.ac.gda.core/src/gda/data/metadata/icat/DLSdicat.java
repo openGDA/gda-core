@@ -36,9 +36,9 @@ import com.google.common.base.Joiner;
 
 /**
  * The Icat which talks to the Diamond ICAT database.
- * 
+ *
  * <p>This is an abbreviated schema diagram for the ICAT4 database:
- * 
+ *
  * <pre>
  * +------------------+        +---------------+        +-------------------+
  * | SHIFT            |        | INVESTIGATION |        | INVESTIGATIONUSER |        +------------------+
@@ -58,7 +58,7 @@ public class DLSdicat extends IcatBase {
 	 * Name of the java property which defines the Icat database username
 	 */
 	public static final String USER_PROP = "gda.data.metadata.dlsicat.user";
-	
+
 	/**
 	 * Name of the java property which defines the Icat database password
 	 */
@@ -73,12 +73,12 @@ public class DLSdicat extends IcatBase {
 	 * The access string to retrieve the experiment ID from the database.
 	 */
 	private static final String TITLE_QUERY = "TITLE";
-	
+
 	@Override
 	protected String getVisitIDAccessName() {
 		return VISIT_QUERY;
 	}
-	
+
 	@Override
 	protected String getExperimentTitleAccessName() {
 		return TITLE_QUERY;
@@ -92,7 +92,7 @@ public class DLSdicat extends IcatBase {
 
 		try {
 			connection = connectToDatabase();
-			
+
 			prepared = connection.prepareStatement("select lower(visit_id) from icatdls42.investigation i "+
 						"inner join icatdls42.instrument ins on i.instrument_id = ins.id "+
 						"inner join icatdls42.shift s on s.investigation_id = i.id "+
@@ -110,11 +110,11 @@ public class DLSdicat extends IcatBase {
 
 			prepared.setFloat(3, tolerance/1440);
 			prepared.setFloat(4, tolerance/1440);
-			
+
 			resultSet = prepared.executeQuery();
-			
+
 			value = concatenateResultSet(resultSet);
-			
+
 			// append to the list extra options if local staff
 			if (AuthoriserProvider.getAuthoriser().isLocalStaff(user)) {
 				// allow beamline staff to use the current visit ID
@@ -125,7 +125,7 @@ public class DLSdicat extends IcatBase {
 					}
 				}
 			}
-			
+
 		} catch (Exception e) {
 			throw new Exception("Processing or reading data from dicat database", e);
 		} finally {
@@ -135,7 +135,7 @@ public class DLSdicat extends IcatBase {
 				} catch (SQLException e) {
 					logger.error("error closing database connection", e);
 				}
-			}	
+			}
 			if (prepared != null && !prepared.isClosed()) {
 				try {
 					prepared.close();
@@ -150,11 +150,11 @@ public class DLSdicat extends IcatBase {
 				}
 			}
 		}
-		
+
 		Joiner joiner = Joiner.on(", ");
 		return joiner.join(value);
 	}
-	
+
 	protected String getTitleForVisit(String visitID) throws Exception {
 		ResultSet resultSet = null;
 		Connection connection = null;
@@ -177,7 +177,7 @@ public class DLSdicat extends IcatBase {
 				} catch (SQLException e) {
 					logger.error("error closing database connection", e);
 				}
-			}	
+			}
 			if (prepared != null && !prepared.isClosed()) {
 				try {
 					prepared.close();
@@ -193,7 +193,7 @@ public class DLSdicat extends IcatBase {
 			}
 		}
 	}
-	
+
 	@Override
 	protected String getValue(String visitIDFilter, String userNameFilter, String accessName) throws Exception {
 		if (VISIT_QUERY.equals(accessName))
@@ -204,9 +204,9 @@ public class DLSdicat extends IcatBase {
 	}
 
 	private String getLatestVisitWithPrefix(Connection connection, String visitPrefix) throws SQLException {
-		
+
 		visitPrefix += "%";
-		
+
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		try {
@@ -231,33 +231,33 @@ public class DLSdicat extends IcatBase {
 				} catch (SQLException e) {
 					logger.error("error closing database connection", e);
 				}
-			}	
+			}
 			if (statement != null && !statement.isClosed()) {
 				try {
 					statement.close();
 				} catch (SQLException e) {
 					logger.error("error closing database connection", e);
 				}
-			}	
+			}
 		}
 	}
 
 	private Connection connectToDatabase() throws Exception {
 		Connection connection = null;
 		Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
-		
+
 		java.util.Properties info = new java.util.Properties();
-		
+
 		final String username = LocalProperties.get(USER_PROP);
 		if (username == null) {
 			throw new RuntimeException("DiCAT username not set. Have you set the " + USER_PROP + " property?");
 		}
-		
+
 		final String password = LocalProperties.get(PASSWORD_PROP);
 		if (password == null) {
 			throw new RuntimeException("DiCAT password not set. Have you set the " + PASSWORD_PROP + " property?");
 		}
-		
+
 		info.put ("user", username);
 		info.put ("password", password);
 		info.put ("oracle.jdbc.timezoneAsRegion", "false");

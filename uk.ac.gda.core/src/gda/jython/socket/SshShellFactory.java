@@ -20,13 +20,12 @@
 package gda.jython.socket;
 
 import org.apache.sshd.server.ShellFactory;
-import org.apache.sshd.server.ShellFactory.Shell;
 
 /**
- * A {@link ShellFactory} that creates GDA {@link Shell}s.
+ * A {@link ShellFactory} that creates GDA {@link org.apache.sshd.server.ShellFactory.Shell Shell}s.
  */
 public class SshShellFactory implements ShellFactory {
-	
+
 	private boolean useJline;
 
 	public SshShellFactory(boolean useJline) {
@@ -37,5 +36,5 @@ public class SshShellFactory implements ShellFactory {
 	public Shell createShell() {
 		return new SshShell(useJline);
 	}
-	
+
 }

@@ -18,46 +18,45 @@
 
 package gda.jython.accesscontrol;
 
-import junit.framework.TestCase;
 import gda.configuration.properties.LocalProperties;
 import gda.device.motor.DummyMotor;
 import gda.device.scannable.ScannableMotor;
-import gda.jython.accesscontrol.RbacUtils;
+import junit.framework.TestCase;
 
 public class Gda3879Test extends TestCase {
 
 	public void testGda3879() throws Exception {
-		
+
 		final double DELTA = 0.0001;
-		
+
 		LocalProperties.set(LocalProperties.GDA_ACCESS_CONTROL_ENABLED, "true");
-		
+
 		DummyMotor motor = new DummyMotor();
 		motor.setName("motor");
 		motor.setPosition(0.0);
 		motor.setSpeed(10.0);
-		
+
 		ScannableMotor bragg = new ScannableMotor();
 		bragg.setName("bragg");
 		bragg.setMotor(motor);
 		bragg.setScalingFactor(-1.0);
-		
+
 		ScannableMotor bragg2 = (ScannableMotor) RbacUtils.wrapFindableWithInterceptor(bragg);
 		assertTrue(RbacUtils.objectIsCglibProxy(bragg2));
-		
+
 		motor.configure();
 		bragg2.configure();
-		
+
 		assertEquals(0.0, (Double) bragg2.getPosition(), DELTA);
 		assertEquals(0.0, motor.getPosition(), DELTA);
-		
+
 		bragg2.moveTo(1.0);
-		
+
 		assertEquals(1.0, (Double) bragg2.getPosition(), DELTA);
 		assertEquals(-1.0, motor.getPosition(), DELTA);
-		
+
 		bragg2.moveTo(2.0);
-		
+
 		assertEquals(2.0, (Double) bragg2.getPosition(), DELTA);
 		assertEquals(-2.0, motor.getPosition(), DELTA);
 	}

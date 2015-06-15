@@ -137,7 +137,7 @@ public class Lowess {
 
 	/**
 	 * See class doc
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @param n
@@ -235,7 +235,7 @@ public class Lowess {
 
 	/**
 	 * See class doc
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @param f
@@ -385,7 +385,7 @@ public class Lowess {
 
 	/**
 	 * convenient method used to provide x cubed
-	 * 
+	 *
 	 * @param x
 	 * @return x**3
 	 */
@@ -395,7 +395,7 @@ public class Lowess {
 
 	/**
 	 * convenient method to provide x squared
-	 * 
+	 *
 	 * @param x
 	 * @return x**2
 	 */
@@ -408,7 +408,7 @@ public class Lowess {
 	//
 	/**
 	 * Test main method.
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {

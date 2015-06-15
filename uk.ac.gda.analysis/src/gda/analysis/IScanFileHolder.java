@@ -42,7 +42,7 @@ public interface IScanFileHolder {
 
 	/**
 	 * Most low level load function.
-	 * 
+	 *
 	 * @param loader
 	 *            An object which implements the IFileLoader interface this specifically designed to load in the
 	 *            appropriate file type
@@ -58,14 +58,14 @@ public interface IScanFileHolder {
 	public void load(IFileLoader loader, IMonitor mon) throws ScanFileHolderException;
 
 	/**
-	 * 
-	 * @return a IMeataData object 
+	 *
+	 * @return a IMeataData object
 	 */
 	public IMetadata getMetadata();
 
 	/**
 	 * Lowest level save routine
-	 * 
+	 *
 	 * @param saver
 	 *            An object which implements the IFileSaver interface this specifically designed to save in the
 	 *            appropriate file type
@@ -75,9 +75,9 @@ public interface IScanFileHolder {
 
 	/**
 	 * function to allow the location of the pilatus conversion program to be set.
-	 * 
+	 *
 	 * @param fileName
-	 * @throws ScanFileHolderException 
+	 * @throws ScanFileHolderException
 	 * @deprecated
 	 */
 	@Deprecated
@@ -86,9 +86,9 @@ public interface IScanFileHolder {
 
 	/**
 	 * Gets the location of the file where the Pilatus conversion software is
-	 * 
+	 *
 	 * @return A string containing the filename.
-	 * @throws ScanFileHolderException 
+	 * @throws ScanFileHolderException
 	 * @deprecated
 	 */
 	@Deprecated
@@ -98,7 +98,7 @@ public interface IScanFileHolder {
 	 * Loads a pilatus tiff from the specified file into the image dataset. See the preader source code:
 	 * /dls_sw/apps/PilatusReader/ for the transcription program which uses libtiff to read in a Pilatus tiff
 	 * and dumps a simplified binary formatted image
-	 * 
+	 *
 	 * @param fileName
 	 *            The filename of the Pilatus tiff file
 	 * @throws ScanFileHolderException
@@ -109,7 +109,7 @@ public interface IScanFileHolder {
 
 	/**
 	 * Loads data from the SRS datafile specified
-	 * 
+	 *
 	 * @param fileName
 	 *            Filename of the SRS file ###.dat
 	 * @throws ScanFileHolderException
@@ -123,7 +123,7 @@ public interface IScanFileHolder {
 
 	/**
 	 * gets the double value of a single pixel from the image data (in screen coordinates)
-	 * 
+	 *
 	 * @param xCoordinate
 	 *            The x coordinate of the Pixel
 	 * @param yCoordinate
@@ -136,7 +136,7 @@ public interface IScanFileHolder {
 
 	/**
 	 * Replace a dataset of axisName. Add a new axis if not exist
-	 * 
+	 *
 	 * @param axisName
 	 * @param inData
 	 * @throws ScanFileHolderException
@@ -147,7 +147,7 @@ public interface IScanFileHolder {
 	 * This function takes all the entries for the specified axis across all the lines in the file and returns the
 	 * result as a dataset. This will be 1D if all the data values are singles, and 2D if they are 1D vectors
 	 * themselves.
-	 * 
+	 *
 	 * @param axisName
 	 *            The name of the axis that is required
 	 * @return A copy of the dataset
@@ -158,7 +158,7 @@ public interface IScanFileHolder {
 
 	/**
 	 * Function that returns the appropriate dataset
-	 * 
+	 *
 	 * @param axisNumber
 	 *            The number associated with the wanted axis
 	 * @return A dataset which is a copy of the stored dataset
@@ -168,7 +168,7 @@ public interface IScanFileHolder {
 
 	/**
 	 * This function gets the X values of all the crossing points of the dataset with the particular Y value
-	 * 
+	 *
 	 * @param XAxis
 	 *            Name of the X axis that needs to be looked at
 	 * @param YAxis
@@ -182,7 +182,7 @@ public interface IScanFileHolder {
 	/**
 	 * Function that uses the getInterpolatedX function but prunes the result, so that multiple crossings within a
 	 * certain tolerance of the overall distance of the line length
-	 * 
+	 *
 	 * @param XAxis
 	 *            The name of the X axis
 	 * @param YAxis
@@ -215,7 +215,7 @@ public interface IScanFileHolder {
 	 * This function takes all the entries for the specified axis across all the lines in the file and returns the
 	 * result as a dataset. This will be 1D if all the data values are singles, and 2D if they are 1D vectors
 	 * themselves.
-	 * 
+	 *
 	 * @param deviceName
 	 *            The name of the axis that is required
 	 * @return A copy of the 1 or 2D dataset
@@ -239,7 +239,7 @@ public interface IScanFileHolder {
 
 	/**
 	 * Adds a dataset to the Lists
-	 * 
+	 *
 	 * @param name
 	 * @param inData
 	 * @throws ScanFileHolderException
@@ -258,7 +258,7 @@ public interface IScanFileHolder {
 
 	/**
 	 * Function that gets the minimum value in the dataset that corresponds to the Axis given
-	 * 
+	 *
 	 * @param Axis
 	 *            The name of the axis to be interrogated
 	 * @return A double value which is the minimum value
@@ -267,7 +267,7 @@ public interface IScanFileHolder {
 
 	/**
 	 * Function that gets the maximum value in the dataset that corresponds to the Axis given
-	 * 
+	 *
 	 * @param Axis
 	 *            The name of the axis to be interrogated
 	 * @return A double value which is the maximum value
@@ -276,7 +276,7 @@ public interface IScanFileHolder {
 
 	/**
 	 * Function that gets the position in the dataset of the minimum value of that dataset
-	 * 
+	 *
 	 * @param Axis
 	 *            The name of the axis to be interrogated
 	 * @return An integer which is the minimum position (in DataSet coordinates)
@@ -285,7 +285,7 @@ public interface IScanFileHolder {
 
 	/**
 	 * Function that gets the position in the dataset of the maximum value of that dataset
-	 * 
+	 *
 	 * @param Axis
 	 *            The name of the axis to be interrogated
 	 * @return An integer which is the maximum position (in DataSet coordinates)
@@ -295,7 +295,7 @@ public interface IScanFileHolder {
 	/**
 	 * Function that gets the position in terms of an X axis as to the location of the minimum value of a parameter
 	 * specified in the Y axis
-	 * 
+	 *
 	 * @param XAxis
 	 *            The name of the x axis where the data will be measured
 	 * @param YAxis
@@ -307,7 +307,7 @@ public interface IScanFileHolder {
 	/**
 	 * Function that gets the position in terms of an X axis as to the location of the maximum value of a parameter
 	 * specified in the Y axis
-	 * 
+	 *
 	 * @param XAxis
 	 *            The name of the x axis where the data will be measured
 	 * @param YAxis
@@ -318,7 +318,7 @@ public interface IScanFileHolder {
 
 	/**
 	 * Function that gets the centroid of a dataset Y when corresponding to the associated x values
-	 * 
+	 *
 	 * @param x
 	 *            A Dataset containing the positions values of the data
 	 * @param y

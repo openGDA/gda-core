@@ -22,7 +22,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -92,12 +91,12 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 		when(motor.getMaxPosition()).thenReturn(100.);
 		when(motor.getStatus()).thenReturn(MotorStatus.READY);
 		when(motor.getName()).thenReturn("motor" + name);
-		
+
 		ScannableMotor scn = new ScannableMotor();
 		scn.setName("scn" + name);
 		scn.setMotor(motor);
 		scn.configure();
-		
+
 		return scn;
 	}
 
@@ -210,12 +209,12 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 		wrapperac.setOperatingContinuously(true);
 		wrapperaa.atLevelMoveStart();
 		wrapperac.atLevelMoveStart();
-		
+
 		wrapperaa.asynchronousMoveTo(1.1);
 		wrapperac.asynchronousMoveTo(1.3);
 		assertFalse(trajgroup.isBusy());
 		trajgroup.waitWhileBusy();
-		
+
 		verify(motora, never()).moveTo(anyDouble());
 		verify(motorb, never()).moveTo(anyDouble());
 		verify(motorc, never()).moveTo(anyDouble());
@@ -241,7 +240,7 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 		((ContinuouslyScannableViaController) wrapperaa).setOperatingContinuously(true);
 		wrapperaa.atLevelMoveStart();
 		wrapperaa.asynchronousMoveTo(1.1);
-		
+
 		verify(controller).addPoint(new Double[] { -8.9, null, null });
 	}
 
@@ -258,14 +257,14 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 		trajgroup.setOperatingContinuously(true);
 		trajgroup.asynchronousMoveTo(new double[] { 1.1, 1.2, 1.3 });
 	}
-	
+
 	@Test(expected=DeviceException.class)
 	public void testTrajectoryScanOperationViolatesMotorLimit() throws Exception {
 		when(motora.getMaxPosition()).thenReturn(0.);
 		trajgroup.setOperatingContinuously(true);
 		trajgroup.asynchronousMoveTo(new double[] { 1.1, 1.2, 1.3 });
 	}
-	
+
 	@Test(expected=DeviceException.class)
 	public void testTrajectoryScanOperationViolatedScannableLimitViaElement() throws Exception {
 		scna.setUpperGdaLimits(0.);
@@ -275,7 +274,7 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 		wrapperaa.atLevelMoveStart();
 		wrapperaa.asynchronousMoveTo(1.1);
 	}
-	
+
 	@Test(expected=DeviceException.class)
 	public void testTrajectoryScanOperationViolatedScannableLimitViaElement2() throws Exception {
 		scnb.setUpperGdaLimits(0.);
@@ -285,7 +284,7 @@ public class DeferredAndTrajectoryScannableGroupIntegrationTest {
 		wrapperab.atLevelMoveStart();
 		wrapperab.asynchronousMoveTo(1.1);
 	}
-	
+
 	@Test(expected=DeviceException.class)
 	public void testTrajectoryScanOperationViolatesMotorLimitViaElement() throws Exception {
 		when(motora.getMaxPosition()).thenReturn(0.);

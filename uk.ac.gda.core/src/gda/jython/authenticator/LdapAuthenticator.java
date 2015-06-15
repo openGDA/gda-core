@@ -39,54 +39,54 @@ import org.slf4j.LoggerFactory;
  * Uses an ldap server for authentication of a username and password
  */
 public class LdapAuthenticator implements Authenticator, PasswordAuthenticator {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(LdapAuthenticator.class);
-	
+
 	/**
 	 * Property that holds a space-separated list of LDAP hostnames and/or IP addresses.
 	 */
 	public static final String LDAP_HOSTS_PROPERTY = "gda.jython.authenticator.ldap.hosts";
-	
+
 	public static final String DEFAULT_LDAP_HOST = "altfed.cclrc.ac.uk";
-	
+
 	/**
 	 * The java property to use to define the url of the ldap server
 	 */
 	public static final String LDAPURL_PROPERTY = "gda.jython.authenticator.ldap.url";
-	
+
 	/**
 	 * The java property to use to define the class of the initial context factory to use
 	 */
 	public static final String LDAPCONTEXT_PROPERTY = "gda.jython.authenticator.ldap.context";
-	
+
 	/**
 	 * The java property to use to define the string of the SECURITY_PRINCIPAL to use
 	 */
 	public static final String LDAPADMIN_PROPERTY = "gda.jython.authenticator.ldap.admin";
-	
+
 	final String ldapContext = LocalProperties.get(LDAPCONTEXT_PROPERTY, "com.sun.jndi.ldap.LdapCtxFactory");
 	final String adminName = LocalProperties.get(LDAPADMIN_PROPERTY, ",OU=DLS,DC=fed,DC=cclrc,DC=ac,DC=uk");
-	
+
 	private LdapMixin ldap = new LdapMixin();
-	
+
 	@Override
 	public boolean isAuthenticated(String fedId, String password) {
-		
+
 		//must have a password!
 		if (password.trim().equals("")){
 			return false;
 		}
-		
+
 		final List<String> urls = ldap.getUrlsToTry();
 		logger.debug("LDAP URLs: " + urls);
-		
+
 		if (urls.isEmpty()) {
 			logger.error("No LDAP servers defined");
 			return false;
 		}
-		
+
 		Exception lastException = null;
-		
+
 		for (String url : urls) {
 			try {
 				return checkAuthenticatedUsingServer(url, fedId, password);
@@ -96,13 +96,13 @@ public class LdapAuthenticator implements Authenticator, PasswordAuthenticator {
 				logger.info("Unable to use LDAP server with URL '{}' - will try next server", url, e);
 			}
 		}
-		
+
 		logger.error("Unable to connect to any LDAP server", lastException);
 		return false;
 	}
-	
+
 	private boolean checkAuthenticatedUsingServer(String ldapURL, String fedId, String password) throws NamingException {
-		
+
 		InitialLdapContext ctx = null;
 		try {
 			Hashtable<String, String> env = new Hashtable<String, String>();
@@ -127,7 +127,7 @@ public class LdapAuthenticator implements Authenticator, PasswordAuthenticator {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public Object authenticate(String username, String password, ServerSession session) {
 		return (isAuthenticated(username, password)) ? username : null;

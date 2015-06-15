@@ -161,7 +161,7 @@ public abstract class CollisionCheckerBase implements CollisionChecker {
 				// Double thisTestEnd = rangeEndSlice[i];
 				rangeEndSlice[i] = null; // This will not be varied (as the ith parameter is fixed)
 
-				// 
+				//
 				double startVal; // used later
 				for (startVal = rangeStart[i]; startVal <= rangeEnd[i]; startVal += sampleSize[i]) {
 					rangeStartSlice = rangeStart.clone();

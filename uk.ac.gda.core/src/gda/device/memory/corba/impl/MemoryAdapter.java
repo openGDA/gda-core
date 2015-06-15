@@ -38,7 +38,7 @@ public class MemoryAdapter extends DeviceAdapter implements Memory {
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

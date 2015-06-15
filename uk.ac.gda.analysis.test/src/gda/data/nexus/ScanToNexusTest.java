@@ -118,7 +118,7 @@ public class ScanToNexusTest {
 
 	/**
 	 * Creates a scan file using a simple detector and scannable. Checks content is correct
-	 * 
+	 *
 	 * @throws Exception
 	 *             if the test fails
 	 */
@@ -171,7 +171,7 @@ public class ScanToNexusTest {
 
 	/**
 	 * Creates a scan file using a simple detector and scannable. Checks content is correct
-	 * 
+	 *
 	 * @throws Exception
 	 *             if the test fails
 	 */
@@ -186,10 +186,10 @@ public class ScanToNexusTest {
 		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testCreateScanToSRSFile_expected.dat"),
 				new File(testScratchDirectoryName + "/Data/1.dat"));
 	}
-	
+
 	/**
 	 * Creates a scan file using a simple detector and scannable. Checks content is correct
-	 * 
+	 *
 	 * @throws Exception
 	 *             if the test fails
 	 */
@@ -207,7 +207,7 @@ public class ScanToNexusTest {
 
 	/**
 	 * Test the DataWriterExtender
-	 * 
+	 *
 	 * @throws Exception
 	 *             if the test fails
 	 */
@@ -335,7 +335,7 @@ public class ScanToNexusTest {
 
 	/**
 	 * Creates a scan file using a simple detector and scannable. Checks content is correct
-	 * 
+	 *
 	 * @throws Exception
 	 *             if the test fails
 	 */
@@ -345,9 +345,9 @@ public class ScanToNexusTest {
 		LocalProperties.set("gda.nexus.createSRS", "false");
 		runNestedScanToCreateFile(null);
 	}
-	
-	
-	
+
+
+
 	@Test
 	public void testNexusSubEntryCreator() throws Exception {
 		String testScratchDirectoryName = TestHelpers.setUpTest(ScanToNexusTest.class, "testNexusSubEntryCreator", true);
@@ -355,24 +355,24 @@ public class ScanToNexusTest {
 		LocalProperties.set("gda.nexus.createSRS", "false");
 
 		runScanToCreateFile(null, null);
-		
+
 		NXLinkCreator nxLinkCreator = new NXLinkCreator();
 		//create 3 links
 		nxLinkCreator.addLink("/entry2:NXentry/test", "/entry1:NXentry/default:NXdata/simpleScannable1:SDS");
-		//add link to simpleScannable1 in 1.nxs via nxfile 
-		nxLinkCreator.addLink("/entry2:NXentry/test2", 
+		//add link to simpleScannable1 in 1.nxs via nxfile
+		nxLinkCreator.addLink("/entry2:NXentry/test2",
 				"nxfile://" + (new File(testScratchDirectoryName + "/Data/1.nxs")).getAbsolutePath() + "#entry1/SimpleDetector1/simpleScannable1");
-		//add link to entry2/test2 in this file - which itself points to simpleScannable1 in 1.nxs using currentfile  
+		//add link to entry2/test2 in this file - which itself points to simpleScannable1 in 1.nxs using currentfile
 		nxLinkCreator.addLink("/entry2:NXentry/test3", "#entry2/test2");
 
-		
+
 
 		Scannable simpleScannable1 = TestHelpers.createTestScannable("SimpleScannable1", 0., new String[] {},
 				new String[] { "simpleScannable1" }, 0, new String[] { "%5.2g" }, new String[] { "\u212B" }); // Angstrom
 
 		Object[] args = new Object[] { simpleScannable1, 0., 10., 2. };
 		ConcurrentScan scan = new ConcurrentScan(args);
-		
+
 		DataWriter dw = DefaultDataWriterFactory.createDataWriterFromFactory();
 		IDataWriterExtender writer = new NXSubEntryWriter(nxLinkCreator);
 		dw.addDataWriterExtender(writer);
@@ -380,13 +380,13 @@ public class ScanToNexusTest {
 		scan.runScan();
 
 
-		//1. test points to 2.nxs 
+		//1. test points to 2.nxs
 		Hdf5HelperData helperData = Hdf5Helper.getInstance().readDataSetAll(testScratchDirectoryName + "/Data/2.nxs", "/entry2", "test", true);
 		double[] data = (double[]) helperData.data;
 		Assert.assertEquals(10.0, data[5], 1e-6);
 
-		
-		//2. test2 points to 1.nxs 
+
+		//2. test2 points to 1.nxs
 		helperData = Hdf5Helper.getInstance().readDataSetAll(testScratchDirectoryName + "/Data/2.nxs", "/entry2", "test2", true);
 		data = (double[]) helperData.data;
 		Assert.assertEquals(5.0, data[5], 1e-6);
@@ -395,46 +395,46 @@ public class ScanToNexusTest {
 		helperData = Hdf5Helper.getInstance().readDataSetAll(testScratchDirectoryName + "/Data/2.nxs", "/entry2", "test3", true);
 		data = (double[]) helperData.data;
 		Assert.assertEquals(5.0, data[5], 1e-6);
-		
+
 	}
-	
+
 	@Test
 	public void testNXTomoEntryLinkCreator() throws Exception {
 		String testScratchDirectoryName = TestHelpers.setUpTest(ScanToNexusTest.class, "testNXTomoEntryLinkCreator", true);
-		
+
 		String testFilesLocation = TestUtils.getGDALargeTestFilesLocation();
 		if( testFilesLocation == null){
 			Assert.fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
 		}
-		
+
 		NXTomoEntryLinkCreator nxLinkCreator = new NXTomoEntryLinkCreator();
 		nxLinkCreator.setInstrument_detector_data_target("!entry1:NXentry/instrument:NXinstrument/pco1_hw_hdf:NXdetector/data:SDS");
 		nxLinkCreator.afterPropertiesSet();
-		
+
 		String targetFilename = testScratchDirectoryName + File.separator + "tomoScan.nxs";
 		FileUtils.copy( new File(testFilesLocation + File.separator + "tomoScan.nxs"), new File(targetFilename));
 
 		String fileAbsolutePath = new File(targetFilename).getAbsolutePath();
 		nxLinkCreator.makelinks(fileAbsolutePath);
-		
+
 		// test 1: rotation angle data
 		Hdf5HelperData helperData = Hdf5Helper.getInstance().readDataSetAll(fileAbsolutePath, "/entry1/tomo_entry/sample", "rotation_angle", true);
 		double[] data = (double[]) helperData.data;
-		
+
 		Hdf5HelperData helperData_ref = Hdf5Helper.getInstance().readDataSetAll(fileAbsolutePath, "/entry1/tomo_entry_ref/sample", "rotation_angle", true);
 		double[] data_ref = (double[]) helperData_ref.data;
-		
+
 		// test equality of entries for a given index
 		int zidx = 7;
 		Assert.assertEquals(data[zidx], data_ref[zidx], 1e-16);
-		
+
 		/* Remainder of test commented out since it fails because the tomoScan.nxs test file has an absolute path link to a file that no longer exists.
 		 * Code can be re-enabled once suitable test file is available.
 
-		// test 2: detector data 
+		// test 2: detector data
 		helperData = Hdf5Helper.getInstance().readDataSetAll(fileAbsolutePath, "/entry1/tomo_entry/instrument/detector", "data", false);
 		helperData_ref = Hdf5Helper.getInstance().readDataSetAll(fileAbsolutePath, "/entry1/tomo_entry_ref/instrument/detector", "data", false);
-		
+
 		// test equality of dims of detector data
 		Assert.assertEquals(helperData.dims.length, helperData_ref.dims.length);
 		Assert.assertEquals(helperData.dims[0], helperData_ref.dims[0]);

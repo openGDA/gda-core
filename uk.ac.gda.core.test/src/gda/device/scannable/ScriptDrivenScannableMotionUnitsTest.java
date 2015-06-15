@@ -18,7 +18,10 @@
 
 package gda.device.scannable;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import gda.device.DeviceException;
 import gda.device.motor.DummyMotor;
 import gda.jython.ICommandRunner;
@@ -34,7 +37,7 @@ public class ScriptDrivenScannableMotionUnitsTest {
 	ScannableMotor scannableMotor;
 	ScriptDrivenScannableMotionUnits scannableUnderTest;
 	ScannableStatus status;
-	
+
 	@Before
 	public void setUp() throws Exception {
 		scannableUnderTest = new ScriptDrivenScannableMotionUnits();
@@ -49,25 +52,25 @@ public class ScriptDrivenScannableMotionUnitsTest {
 		scannableMotor.configure();
 		scannableUnderTest.setScannable(scannableMotor);
 		scannableUnderTest.setCommandRunner(new ICommandRunner() {
-			
+
 			@Override
 			public boolean runsource(String command, String source) {
 				return false;
 			}
-			
+
 			@Override
 			public void runScript(File script, String sourceName) {
 			}
-			
+
 			@Override
 			public void runCommand(String command, String scanObserver) {
 			}
-			
+
 			//mimic runCommand in jython server which always spawns a new thread to run the command
 			@Override
 			public void runCommand(final String command) {
 				Thread th = new Thread(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						Double newPos = Double.valueOf(command);
@@ -80,12 +83,12 @@ public class ScriptDrivenScannableMotionUnitsTest {
 				});
 				th.start();
 			}
-			
+
 			@Override
 			public String locateScript(String scriptToRun) {
 				return null;
 			}
-			
+
 			@Override
 			public String evaluateCommand(String command) {
 				Double newPos = Double.valueOf(command);
@@ -99,7 +102,7 @@ public class ScriptDrivenScannableMotionUnitsTest {
 		});
 		scannableUnderTest.afterPropertiesSet();
 		scannableUnderTest.addIObserver(new IObserver() {
-			
+
 			@Override
 			public void update(Object source, Object arg) {
 				if ( arg instanceof ScannableStatus){
@@ -108,7 +111,7 @@ public class ScriptDrivenScannableMotionUnitsTest {
 				}
 			}
 		});
-		
+
 	}
 
 	@Test
@@ -127,7 +130,7 @@ public class ScriptDrivenScannableMotionUnitsTest {
 			//do nothing
 		}
 	}
-	
+
 	@Test
 	public void testAsynchronousMoveTo() throws DeviceException, InterruptedException {
 		scannableUnderTest.asynchronousMoveTo(new Double[]{1.0d, 2.0d});
@@ -150,6 +153,6 @@ public class ScriptDrivenScannableMotionUnitsTest {
 		scannableUnderTest.asynchronousMoveTo(new Double[]{-1.0d, 2.0d});
 	}
 
-	
+
 }
 

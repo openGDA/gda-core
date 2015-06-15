@@ -107,6 +107,7 @@ public class MultithreadedScanDataPointPipelineTest extends AbstractTestBase {
 	private Callable<Object> callabledetb2;
 	private Callable<Object> callabledetb3;
 
+	@Override
 	@Before
 	public void setUp() {
 		mockDataWriter = mock(DataWriter.class);

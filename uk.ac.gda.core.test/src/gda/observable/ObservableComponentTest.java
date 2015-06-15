@@ -19,36 +19,36 @@
 
 package gda.observable;
 
-import org.springframework.util.StringUtils;
-
 import junit.framework.TestCase;
+
+import org.springframework.util.StringUtils;
 
 /**
  * Tests {@link ObservableComponent}.
  */
 public class ObservableComponentTest extends TestCase {
-	
+
 	/**
 	 * Tests that all observers of an observable component receive an update,
 	 * even if one of the observers deletes itself from the list of
 	 * observers when it gets an update.
 	 */
 	public void testAllObserversGetUpdateIfAnObserverDeletesItself() {
-		
+
 		TestObserver[] observers = new TestObserver[] {
 			new TestObserver("1"),
 			new DeleteSelfObserver("2"),
 			new TestObserver("3"),
 			new TestObserver("4")
 		};
-		
+
 		ObservableComponent oc = new ObservableComponent();
 		for (IObserver observer : observers) {
 			oc.addIObserver(observer);
 		}
-		
+
 		oc.notifyIObservers(oc, "test");
-		
+
 		for (TestObserver observer : observers) {
 			assertTrue("Observer " + StringUtils.quote(observer.getName()) + " didn't receive an update", observer.receivedUpdate());
 		}
@@ -59,40 +59,40 @@ public class ObservableComponentTest extends TestCase {
 	 * flag for indicating whether an update was received.
 	 */
 	static class TestObserver implements IObserver {
-		
+
 		protected String name;
-		
+
 		protected boolean receivedUpdate;
-		
+
 		public TestObserver(String name) {
 			this.name = name;
 		}
-		
+
 		public String getName() {
 			return name;
 		}
-		
+
 		@Override
 		public void update(Object theObserved, Object changeCode) {
 			System.out.println("[" + name + "] received update: " + StringUtils.quoteIfString(changeCode));
 			receivedUpdate = true;
 		}
-		
+
 		public boolean receivedUpdate() {
 			return receivedUpdate;
 		}
 	}
-	
+
 	/**
 	 * An {@link IObserver} that deletes itself from the observable's observers
 	 * when it receives an update.
 	 */
 	static class DeleteSelfObserver extends TestObserver {
-		
+
 		public DeleteSelfObserver(String name) {
 			super(name);
 		}
-		
+
 		@Override
 		public void update(Object theObserved, Object changeCode) {
 			super.update(theObserved, changeCode);
@@ -100,5 +100,5 @@ public class ObservableComponentTest extends TestCase {
 			((IObservable) theObserved).deleteIObserver(this);
 		}
 	}
-	
+
 }

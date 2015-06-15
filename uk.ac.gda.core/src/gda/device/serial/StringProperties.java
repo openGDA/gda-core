@@ -40,7 +40,7 @@ public class StringProperties {
 
 	/**
 	 * Sets default values bufferSize = 128, termination = on
-	 * 
+	 *
 	 * @param terminator
 	 *            the termination String
 	 */
@@ -50,7 +50,7 @@ public class StringProperties {
 
 	/**
 	 * Sets default value termination = on
-	 * 
+	 *
 	 * @param terminator
 	 *            the termination String
 	 * @param bufferSize
@@ -147,7 +147,7 @@ public class StringProperties {
 
 	/**
 	 * Check if the string is terminated by one of the characters specified terminator list
-	 * 
+	 *
 	 * @param terminator
 	 *            the string to check for termination
 	 * @return true if terminated

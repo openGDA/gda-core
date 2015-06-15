@@ -22,7 +22,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 public final class CrashTheVm {
-	
+
 	private CrashTheVm() {}
 
 	public static void crashTheVm() {

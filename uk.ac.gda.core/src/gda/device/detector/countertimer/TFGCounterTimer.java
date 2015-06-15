@@ -30,7 +30,7 @@ public abstract class TFGCounterTimer extends CounterTimerBase {
 	 * This affects whether the output always contains the live time in the first scaler channel.
 	 * <p>
 	 * The GdHist object will also need its width set to one more than the number of scalers to be read.
-	 * 
+	 *
 	 * @return true if this is talking to a TFG2
 	 */
 	public boolean isTFGv2() {
@@ -43,5 +43,5 @@ public abstract class TFGCounterTimer extends CounterTimerBase {
 	public void setTFGv2(boolean isTFGv2) {
 		this.isTFGv2 = isTFGv2;
 	}
-	
+
 }

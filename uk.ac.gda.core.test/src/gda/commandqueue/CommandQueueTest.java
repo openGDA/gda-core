@@ -69,7 +69,7 @@ public class CommandQueueTest {
 	 * adds an item to the queue
 	 * get list of descriptions
 	 * test list has 1 item and its description is that of the 1 added
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Test
 	public void testAddToEnd() throws Exception{
@@ -77,7 +77,7 @@ public class CommandQueueTest {
 		jythonCommand.setDescription("JythonCommand");
 		queue.addToTail(jythonCommand);
 		List<QueuedCommandSummary> summaryList = queue.getSummaryList();
-		Assert.assertEquals(jythonCommand.getDescription(), 
+		Assert.assertEquals(jythonCommand.getDescription(),
 				summaryList.get(summaryList.size()-1).getDescription());
 	}
 
@@ -85,7 +85,7 @@ public class CommandQueueTest {
 	 * adds an item to the queue
 	 * get list of descriptions
 	 * test list has 1 item and its description is that of the 1 added
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Test
 	public void testOrder() throws Exception{
@@ -96,9 +96,9 @@ public class CommandQueueTest {
 		jythonCommand2.setDescription("JythonCommand2");
 		queue.addToTail(jythonCommand2);
 		List<QueuedCommandSummary> summaryList = queue.getSummaryList();
-		Assert.assertEquals(jythonCommand1.getDescription(), 
+		Assert.assertEquals(jythonCommand1.getDescription(),
 				summaryList.get(0).getDescription());
-		Assert.assertEquals(jythonCommand2.getDescription(), 
+		Assert.assertEquals(jythonCommand2.getDescription(),
 				summaryList.get(summaryList.size()-1).getDescription());
 	}
 
@@ -118,7 +118,7 @@ public class CommandQueueTest {
 		Command head = queue.removeHead();
 		Assert.assertEquals(jythonCommand1, head);
 	}
-	
+
 	@Test
 	public void testMoveToBeforeLastTwoToBeforeFirst() throws Exception{
 		Vector<CommandPlusId> addQueueItems = addQueueItems();
@@ -131,12 +131,12 @@ public class CommandQueueTest {
 		Collection<CommandId> cmdIds = new Vector<CommandId>();
 		cmdIds.add(addQueueItems.get(addQueueItems.size()-2).id);
 		cmdIds.add(addQueueItems.get(addQueueItems.size()-1).id);
-		
+
 		/*
 		 * move the 2 items extracted to before the first item
 		 */
 		queue.moveToBefore(addQueueItems.firstElement().id, cmdIds);
-		
+
 		/*
 		 * get summary add to the end the 2 first items - which should now be the 2 extracted and move to the front
 		 */
@@ -165,8 +165,8 @@ public class CommandQueueTest {
 		Assert.assertEquals(summaryListBefore, summaryListAfter);
 
 	}
-	
-	
+
+
 	@Test
 	public void testRemoveByIndex0() throws Exception{
 		Vector<CommandPlusId> addQueueItems = addQueueItems();
@@ -175,21 +175,21 @@ public class CommandQueueTest {
 		List<QueuedCommandSummary> summaryListAfter = queue.getSummaryList();
 		summaryListBefore.remove(0);
 		Assert.assertEquals(summaryListBefore, summaryListAfter);
-		
+
 	}
-	
-	
-	
+
+
+
 	@Test
 	public void testReplaceFirst() throws Exception{
 		Vector<CommandPlusId> addQueueItems = addQueueItems();
 
 		List<QueuedCommandSummary> summaryListBefore = queue.getSummaryList();
 
-		
+
 		JythonScriptFileRunnerCommand cmd = new JythonScriptFileRunnerCommand();
 		cmd.setDescription("replacement JythonCommand");
-		
+
 		queue.replace(addQueueItems.get(0).id, cmd);
 
 		List<QueuedCommandSummary> summaryListAfter = queue.getSummaryList();
@@ -197,7 +197,7 @@ public class CommandQueueTest {
 		summaryListBefore.add(0, new QueuedCommandSummary(remove.id, cmd.getCommandSummary()));
 
 		Assert.assertEquals(summaryListBefore, summaryListAfter);
-		
+
 	}
 
 	@Test
@@ -206,10 +206,10 @@ public class CommandQueueTest {
 
 		List<QueuedCommandSummary> summaryListBefore = queue.getSummaryList();
 
-		
+
 		JythonScriptFileRunnerCommand cmd = new JythonScriptFileRunnerCommand();
 		cmd.setDescription("replacement JythonCommand");
-		
+
 		queue.replace(addQueueItems.get(addQueueItems.size()-1).id, cmd);
 
 		List<QueuedCommandSummary> summaryListAfter = queue.getSummaryList();
@@ -217,9 +217,9 @@ public class CommandQueueTest {
 		summaryListBefore.add(new QueuedCommandSummary(remove.id, cmd.getCommandSummary()));
 
 		Assert.assertEquals(summaryListBefore, summaryListAfter);
-		
+
 	}
-	
+
 	private Vector<CommandPlusId> addQueueItems() {
 		Vector<CommandPlusId> cmds = new Vector<CommandPlusId>();
 		for (int i = 0; i < 20; i++) {
@@ -241,7 +241,7 @@ public class CommandQueueTest {
 			public void update(Object source, Object arg) {
 				numQueueEvents++;
 			}
-			
+
 		};
 		queue.addIObserver(ql);
 		Vector<CommandPlusId> addQueueItems = addQueueItems();
@@ -257,7 +257,7 @@ public class CommandQueueTest {
 			public void update(Object source, Object arg) {
 				numQueueEvents++;
 			}
-			
+
 		};
 		queue.addIObserver(ql);
 		Vector<CommandPlusId> addQueueItems = addQueueItems();

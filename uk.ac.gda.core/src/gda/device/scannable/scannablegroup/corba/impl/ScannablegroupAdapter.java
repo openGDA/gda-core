@@ -45,7 +45,7 @@ public class ScannablegroupAdapter extends ScannableAdapter implements IScannabl
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name
@@ -95,7 +95,7 @@ public class ScannablegroupAdapter extends ScannableAdapter implements IScannabl
 	/**
 	 * expose your custom attribute lookup logic as __getattribute__ to ensure attribute lookups from Python code should
 	 * yield the same results as lookup from Java code
-	 * 
+	 *
 	 * @param arg
 	 */
 	@ExposedMethod

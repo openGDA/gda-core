@@ -90,7 +90,7 @@ public class XColors {
 
 	/**
 	 * Gets a Color given a name.
-	 * 
+	 *
 	 * @param colorName
 	 *            the name to look for
 	 * @return the corresponding Color, possibly null.
@@ -120,7 +120,7 @@ public class XColors {
 	/**
 	 * Creates a name for a given Color - either by finding it in the list of X11 colour definitions or defaulting to an
 	 * rgb string.
-	 * 
+	 *
 	 * @param color
 	 *            the Color
 	 * @return a name for Color

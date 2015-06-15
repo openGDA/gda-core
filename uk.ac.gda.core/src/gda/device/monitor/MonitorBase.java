@@ -22,7 +22,6 @@ import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.scannable.ScannableBase;
 import gda.device.scannable.ScannableUtils;
-import java.lang.System;
 
 import org.jscience.physics.units.Unit;
 
@@ -41,7 +40,7 @@ public abstract class MonitorBase extends ScannableBase implements Monitor {
 	 * If called with a position this triggers a delay. Very useful if the
 	 * monitor is hooked up to something that calculates a running average, or
 	 * that is not updated very often. {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#asynchronousMoveTo(java.lang.Object)
 	 */
 	@Override

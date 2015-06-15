@@ -49,10 +49,10 @@ public abstract class DataWriterBase implements DataWriter, IDataWriterExtender 
 
 	final protected ITerminalPrinter terminalPrinter;
 
-	private DataWriterExtenderBase extender; 
-	
+	private DataWriterExtenderBase extender;
+
 	/**
-	 * 
+	 *
 	 */
 	public DataWriterBase(){
 		terminalPrinter = InterfaceProvider.getTerminalPrinter();
@@ -62,7 +62,7 @@ public abstract class DataWriterBase implements DataWriter, IDataWriterExtender 
 	/**
 	 * To help write data to a data file. If its an array, then writes out each element of the array with a delimiter
 	 * mark between each.
-	 * 
+	 *
 	 * @param dataPoint
 	 *            An element of a vector passed from a scan object
 	 * @param isFirst
@@ -72,7 +72,7 @@ public abstract class DataWriterBase implements DataWriter, IDataWriterExtender 
 	public static String getDetectorData(Object dataPoint, boolean isFirst) {
 		StringBuilder output = new StringBuilder();
 		Class<? extends Object> dataClass = dataPoint.getClass();
-		
+
 		//TODO if possible (i.e. this information is not the only written to file) enforce reasonable limit on array length
 		// if this was overwritten in the actual datawriter and not used from the base the first decision would be easy to make
 		if (dataClass.isArray()) {
@@ -124,7 +124,7 @@ public abstract class DataWriterBase implements DataWriter, IDataWriterExtender 
 
 	/**
 	 * Returns the parts of this element of data as a string array.
-	 * 
+	 *
 	 * @param dataPoint
 	 *            The element of a vector from a scan
 	 * @return String[]
@@ -166,7 +166,7 @@ public abstract class DataWriterBase implements DataWriter, IDataWriterExtender 
 	public void setHeader(ArrayList<String> header) {
 		this.header = header;
 	}
-	
+
 	@Override
 	public ArrayList<String> getHeader() {
 		return header;
@@ -204,16 +204,16 @@ public abstract class DataWriterBase implements DataWriter, IDataWriterExtender 
 
 	@Override
 	public void removeDataWriterExtender(IDataWriterExtender dataWriterExtender) {
-		extender.removeDataWriterExtender(dataWriterExtender);	
+		extender.removeDataWriterExtender(dataWriterExtender);
 	}
-	
+
 	/**
 	 * If filenumber not set then read from scandatapoint or from num tracker
-	 * @throws InstantiationException 
+	 * @throws InstantiationException
 	 */
 	@Override
 	public void configureScanNumber(int scanNumber) throws Exception {
 		// do nothing - provide base implementation
-		
-	}	
+
+	}
 }

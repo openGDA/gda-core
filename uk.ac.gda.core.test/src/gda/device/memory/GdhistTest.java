@@ -39,7 +39,7 @@ public class GdhistTest {
 	private DummyDAServer dummyDAServer = new DummyDAServer();
 
 	/**
-	 * 
+	 *
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() {
@@ -88,7 +88,7 @@ public class GdhistTest {
 
 	/**
 	 * Test method for {@link gda.device.memory.Gdhist#close()}.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Test
 	public void testClose() throws DeviceException {
@@ -146,7 +146,7 @@ public class GdhistTest {
 
 	/**
 	 * Test method for {@link gda.device.memory.Gdhist#clear()}.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Test(expected = DeviceException.class)
@@ -157,7 +157,7 @@ public class GdhistTest {
 
 	/**
 	 * Test method for {@link gda.device.memory.Gdhist#clear()}.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Test(expected = DeviceException.class)
@@ -183,7 +183,7 @@ public class GdhistTest {
 
 	/**
 	 * Test method for {@link gda.device.memory.Gdhist#clear(int, int)}.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Test(expected = DeviceException.class)
@@ -208,7 +208,7 @@ public class GdhistTest {
 
 	/**
 	 * Test method for {@link gda.device.memory.Gdhist#clear(int, int, int, int, int, int)}.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Test(expected = DeviceException.class)
@@ -233,7 +233,7 @@ public class GdhistTest {
 
 	/**
 	 * Test method for {@link gda.device.memory.Gdhist#start()}.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Test(expected = DeviceException.class)
@@ -258,7 +258,7 @@ public class GdhistTest {
 
 	/**
 	 * Test method for {@link gda.device.memory.Gdhist#stop()}.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Test(expected = DeviceException.class)
@@ -399,7 +399,7 @@ public class GdhistTest {
 
 	/**
 	 * Test method for {@link gda.device.memory.Gdhist#output(java.lang.String)}.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Test(expected = DeviceException.class)
@@ -426,7 +426,7 @@ public class GdhistTest {
 
 	/**
 	 * Test method for {@link gda.device.memory.Gdhist#getMemorySize()}.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Test(expected = DeviceException.class)

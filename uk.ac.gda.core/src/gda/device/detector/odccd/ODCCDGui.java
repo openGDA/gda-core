@@ -79,7 +79,7 @@ public class ODCCDGui extends JFrame {
 
 	/**
 	 * Static method to create the GUI in a thread safe manner using <code>EventQueue.invokeLater()</code>
-	 * 
+	 *
 	 * @return ODCCDControlPanel
 	 */
 	static ODCCDGui createGui() {

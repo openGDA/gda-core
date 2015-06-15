@@ -24,13 +24,13 @@ import org.eclipse.core.runtime.IConfigurationElement;
 
 public abstract class AbstractFindableExecutableExtension implements FindableExecutableExtension{
 
-	
+
 	private String name;
-	
+
 	@Override
 	public void setName(String name) {
 		this.name = name;
-		
+
 	}
 
 	@Override
@@ -46,6 +46,6 @@ public abstract class AbstractFindableExecutableExtension implements FindableExe
 	@Override
 	public void afterPropertiesSet() throws Exception {
 	}
-	
+
 }
 

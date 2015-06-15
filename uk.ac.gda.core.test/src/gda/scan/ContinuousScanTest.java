@@ -37,14 +37,14 @@ public class ContinuousScanTest {
 
 	private static final int ScanBaseFirstScanNumber = 100;
 	/**
-	 * 
+	 *
 	 */
 
 	private DummyBufferedDetector detector;
 	private DummyContinuouslyScannable scannable;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public Scan beforeEachTest(){
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "SrsDataFile");
@@ -56,12 +56,12 @@ public class ContinuousScanTest {
 		scannable.addObserver(detector); // acts as a virtual trigger
 
 		return new ContinuousScan(scannable, 50., 200., 10, 0.1, new BufferedDetector[] { detector });
-		
+
 	}
 
 	/**
-	 * @throws Exception 
-	 * 
+	 * @throws Exception
+	 *
 	 */
 	@Test
 	public void simpleScanScanBaseSetsScanNumber() throws Exception {
@@ -100,10 +100,10 @@ public class ContinuousScanTest {
 		assertEquals(1, point.getScanIdentifier());
 		assertEquals(dir + "/Data/1.dat", scan.getDataWriter().getCurrentFileName());
 	}
-	
+
 	/**
-	 * @throws Exception 
-	 * 
+	 * @throws Exception
+	 *
 	 */
 	@Test
 	public void multiDimensionalScan() throws Exception {
@@ -133,10 +133,10 @@ public class ContinuousScanTest {
 		int[][] data = (int[][]) detector.readAllFrames();
 		assertEquals(10, data.length);
 	}
-	
+
 	/**
-	 * @throws Exception 
-	 * 
+	 * @throws Exception
+	 *
 	 */
 	@Test
 	public void concurrentScan() throws Exception {
@@ -159,12 +159,12 @@ public class ContinuousScanTest {
 		assertEquals(dir + "/Data/1.dat", point.getCurrentFilename());
 
 	}
-	
 
-	
+
+
 	/**
-	 * @throws Exception 
-	 * 
+	 * @throws Exception
+	 *
 	 */
 	@Test
 	public void anotherMultiDimensionalScan() throws Exception {
@@ -202,12 +202,12 @@ public class ContinuousScanTest {
 		assertEquals(10,detector.getNumberFrames());
 		assertEquals(3.0,temp03.getPosition());
 	}
-	
+
 	/**
-	 * @throws Exception 
-	 * 
+	 * @throws Exception
+	 *
 	 */
-	@Test 
+	@Test
 	public void multiDimensionalScanCount() throws Exception{
 		String dir = TestHelpers.setUpTest(ContinuousScanTest.class, "multiDimensionalScanCount", true);
 		LocalProperties.setScanSetsScanNumber(true);
@@ -237,18 +237,18 @@ public class ContinuousScanTest {
 		// but check that the detector has been triggered 150 times
 //		verify(detector, times(30)).addPoint();
 		assertEquals(10,detector.getNumberFrames());
-		
+
 		IScanDataPoint point = InterfaceProvider.getScanDataPointProvider().getLastScanDataPoint();
 		assertEquals(ScanBaseFirstScanNumber, point.getScanIdentifier());
 		assertEquals(dir + "/Data/" + ScanBaseFirstScanNumber + ".dat", point.getCurrentFilename());
-		
+
 	}
 
 	/**
-	 * @throws Exception 
-	 * 
+	 * @throws Exception
+	 *
 	 */
-	@Test 
+	@Test
 	public void multiDimensionalScanCountDataWriterSetsScanId() throws Exception{
 		String dir = TestHelpers.setUpTest(ContinuousScanTest.class, "multiDimensionalScanCountDataWriterSetsScanId", true);
 		LocalProperties.setScanSetsScanNumber(false);
@@ -297,7 +297,7 @@ public class ContinuousScanTest {
 
 		ContinuousScan scan = new ContinuousScan(scannable, 50., 200., 10, 0.1, new BufferedDetector[] { detector });
 		scan.setBiDirectional(true);
-		
+
 		DummyScannable temp01 = new DummyScannable();
 		temp01.setName("temp01");
 

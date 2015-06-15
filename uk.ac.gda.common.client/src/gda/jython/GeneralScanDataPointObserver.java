@@ -34,9 +34,9 @@ public class GeneralScanDataPointObserver implements INamedScanDataPointObserver
 	 */
 	public GeneralScanDataPointObserver(IObserver observer){
 		this.observer = observer;
-		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);		
+		InterfaceProvider.getScanDataPointProvider().addIScanDataPointObserver(this);
 	}
-	
+
 	@Override
 	public String getName() {
 		return JythonGuiConstants.TERMINALNAME;
@@ -54,6 +54,6 @@ public class GeneralScanDataPointObserver implements INamedScanDataPointObserver
 	 * can be registered with the command server.
 	 */
 	public void dispose() {
-		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);		
+		InterfaceProvider.getScanDataPointProvider().deleteIScanDataPointObserver(this);
 	}
 }

@@ -36,9 +36,9 @@ public class MapBasedEnumValueMapper<T> implements EnumValueMapper<T>, Initializ
 	private BiMap<String,T> externalToInternalMap;
 	private BiMap<T, String> internalToExternalMap;
 	private String[] externalValues;
-	
-	
-	
+
+
+
 	public void setMap(Map<String, T> map) {
 		this.map = map;
 	}

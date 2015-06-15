@@ -39,7 +39,7 @@ public class GdaRootPreferencePage extends FieldEditorPreferencePage implements 
 	private BooleanFieldEditor showMenuTextFieldEditor;
 
 	/**
-	 * 
+	 *
 	 */
 	public GdaRootPreferencePage() {
 		super(GRID);

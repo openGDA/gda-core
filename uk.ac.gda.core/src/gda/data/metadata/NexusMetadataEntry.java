@@ -24,7 +24,7 @@ import gda.factory.Findable;
 /**
  * A NexusMetadataEntry references to a named metadata entry with an access name
  * comprising a concatenated string of colon-separated (":") groups with each group possessing
- * a name and an NXclass separated by a percentage sign ("%") 
+ * a name and an NXclass separated by a percentage sign ("%")
  */
 public class NexusMetadataEntry implements Findable {
 	private String accessName = "";
@@ -49,7 +49,7 @@ public class NexusMetadataEntry implements Findable {
 
 	/**
 	 * Gets the access name.
-	 * 
+	 *
 	 * @return accessName
 	 */
 	public String getAccessName() {
@@ -58,7 +58,7 @@ public class NexusMetadataEntry implements Findable {
 
 	/**
 	 * Sets to access name.
-	 * 
+	 *
 	 * @param accessName
 	 */
 	public void setAccessName(String accessName) {

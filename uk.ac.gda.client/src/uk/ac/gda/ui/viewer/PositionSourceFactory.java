@@ -29,7 +29,7 @@ public class PositionSourceFactory {
 
 	/**
 	 * Returns an IPositionSource based on the scannable
-	 * @param scannable 
+	 * @param scannable
 	 * @return a suitable implementation of IPositionSource
 	 */
 	public static IPositionSource<? extends Object> getPositionSource(Scannable scannable){
@@ -43,5 +43,5 @@ public class PositionSourceFactory {
 		}
 		return motor;
 	}
-	
+
 }

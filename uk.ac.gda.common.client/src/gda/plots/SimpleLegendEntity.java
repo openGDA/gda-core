@@ -26,7 +26,7 @@ import org.jfree.chart.entity.ChartEntity;
 /**
  * Extends ChartEntity so that we can have ChartEntity objects which are connected with particular SimpleXYSeries in the
  * plot legend.
- * 
+ *
  * @see ChartEntity
  */
 public class SimpleLegendEntity extends ChartEntity {
@@ -34,7 +34,7 @@ public class SimpleLegendEntity extends ChartEntity {
 
 	/**
 	 * Creates a SimpleLegendEntity by adding a SimpleXYSeries to an ordinary ChartEntity
-	 * 
+	 *
 	 * @param area
 	 * @param toolTipText
 	 * @param urlText
@@ -47,7 +47,7 @@ public class SimpleLegendEntity extends ChartEntity {
 
 	/**
 	 * Creates a SimpleLegendEntity by creating a new ChartEntity from an existing one and adding an SimpleXYSeries.
-	 * 
+	 *
 	 * @param ce
 	 * @param sxys
 	 */
@@ -58,7 +58,7 @@ public class SimpleLegendEntity extends ChartEntity {
 
 	/**
 	 * Returns the SimpleXYSeries connected to this SimpleLegendEntity
-	 * 
+	 *
 	 * @return the SimpleXYSeries
 	 */
 	public SimpleXYSeries getSeries() {

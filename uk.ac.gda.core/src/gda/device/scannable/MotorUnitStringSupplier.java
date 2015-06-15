@@ -27,7 +27,7 @@ import gda.device.MotorException;
 public interface MotorUnitStringSupplier {
 	/**
 	 * @return unit as a String
-	 * @throws MotorException 
+	 * @throws MotorException
 	 */
 	String getUnitString() throws MotorException;
 }

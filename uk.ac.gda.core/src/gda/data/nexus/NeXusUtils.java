@@ -74,7 +74,7 @@ public class NeXusUtils {
 	 * Returns the number of dimensions (rank) required for the data section in a NeXus file. e.g. A single channel
 	 * counterTimer would have a rank=1. A multi channel counterTimer would have a rank=2. A two dimensional detector
 	 * (CCD) would have a rank=3.
-	 * 
+	 *
 	 * @param detector
 	 * @return int
 	 * @throws DeviceException
@@ -87,7 +87,7 @@ public class NeXusUtils {
 	 * Returns the number of dimensions (rank) required for the data section in a NeXus file. e.g. A single channel
 	 * counterTimer would have a rank=1. A multi channel counterTimer would have a rank=2. A two dimensional detector
 	 * (CCD) would have a rank=3.
-	 * @param detectorDataDimensions 
+	 * @param detectorDataDimensions
 	 * @return int
 	 */
 	public static int getRank(int[] detectorDataDimensions) {
@@ -97,12 +97,12 @@ public class NeXusUtils {
 		rank = detectorDataDimensions.length+1;
 		return rank;
 	}
-	
+
 	/**
 	 * Returns the number of dimensions (rank) required for the data section in a NeXus file. e.g. A single channel
 	 * counterTimer would have a rank=1. A multi channel counterTimer would have a rank=2. A two dimensional detector
 	 * (CCD) would have a rank=3.
-	 * 
+	 *
 	 * @param width
 	 * @param height
 	 * @return int
@@ -124,7 +124,7 @@ public class NeXusUtils {
 
 	/**
 	 * Returns the dimensions array for a given detector that can be used by the NeXus API to create a data section.
-	 * 
+	 *
 	 * @param detector
 	 * @return int[]
 	 * @throws DeviceException
@@ -143,7 +143,7 @@ public class NeXusUtils {
 	/**
 	 * Returns the dimensions array for a given width/height of data that can be used by the NeXus API to create a data
 	 * section.
-	 * 
+	 *
 	 * @param dimension
 	 * @return int[]
 	 */
@@ -160,7 +160,7 @@ public class NeXusUtils {
 
 	/**
 	 * Routine for writing the elements required for the XESraw definition to a given NX_ENTRY
-	 * 
+	 *
 	 * @param file
 	 * @param entryName
 	 * @throws NexusException
@@ -193,8 +193,8 @@ public class NeXusUtils {
 			}
 
 //			writeGeneralMetaData(file, metadata);
-						
-			
+
+
 		} catch (DeviceException e) {
 			logger.warn("XESraw: Problem reading one or more items of metadata.");
 		}
@@ -217,10 +217,10 @@ public class NeXusUtils {
 
 	/**
 	 * Creates an NXinstrument entry at the current position in the NeXus file.
-	 * 
+	 *
 	 * @param file
 	 *            The NeXus file handle
-	 * @param group 
+	 * @param group
 	 * @throws NexusException
 	 */
 	public static void write_NXinstrument(NexusFile file, GroupNode group) throws NexusException {
@@ -236,7 +236,7 @@ public class NeXusUtils {
 		write_NXmonochromator(file, group);
 
 		write_NXinsertion_device(file, group);
-		
+
 		// Make the source
 		write_NXsource(file, group);
 
@@ -247,10 +247,10 @@ public class NeXusUtils {
 
 	/**
 	 * Creates an NXuser(s) entry at the current position in the NeXus file.
-	 * 
+	 *
 	 * @param file
 	 *            The NeXus file handle
-	 * @param group 
+	 * @param group
 	 * @throws NexusException
 	 */
 	public static void write_NXuser(NexusFile file, GroupNode group) throws NexusException {
@@ -266,7 +266,7 @@ public class NeXusUtils {
 			logger.warn("NXuser: Problem reading one or more items of metadata.");
 		}
 	}
-		
+
 	/**
 	 * @param file
 	 * @throws NexusException
@@ -340,7 +340,7 @@ public class NeXusUtils {
 					NexusUtils.writeString(file, group, "name", metadata.getMetadataValue("instrument.monochromator.name"));
 				if (metadata.getMetadataValue("instrument.monochromator.energy") != null) {
 					NexusUtils.writeDouble(file, group, "energy", Double.parseDouble(metadata.getMetadataValue("instrument.monochromator.energy")), "keV");
-				} 
+				}
 				if (metadata.getMetadataValue("instrument.monochromator.wavelength") != null) {
 					NexusUtils.writeDouble(file, group, "wavelength", Double.parseDouble(metadata.getMetadataValue("instrument.monochromator.wavelength")), "Angstrom");
 				}
@@ -433,7 +433,7 @@ public class NeXusUtils {
 
 	/**
 	 * @param file
-	 * @param group 
+	 * @param group
 	 * @throws NexusException
 	 */
 	public static void write_NXbending_magnet(NexusFile file, GroupNode group) throws NexusException {
@@ -533,7 +533,7 @@ public class NeXusUtils {
 
 	/**
 	 * Routine for writing the elements required for Small Angle Scattering definition to a given NX_ENTRY.
-	 * 
+	 *
 	 * @param file
 	 * @param entryName
 	 */
@@ -544,7 +544,7 @@ public class NeXusUtils {
 
 	/**
 	 * Routine for writing the elements required for XAS/EXAFS definition to a given NX_ENTRY.
-	 * 
+	 *
 	 * @param file
 	 * @param entryName
 	 */

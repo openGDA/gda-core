@@ -85,7 +85,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testIsBusy() {
@@ -97,7 +97,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetPosition() {
@@ -109,7 +109,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testAsynchronousMoveTo() {
@@ -127,7 +127,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testMoveTo() {
@@ -144,7 +144,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testIsPositionValid() {
@@ -154,7 +154,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetNumberSteps() {
@@ -167,7 +167,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetCurrentPositionArray() {
@@ -179,7 +179,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetName() {
@@ -187,7 +187,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testSetName() {
@@ -196,7 +196,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testSetLevel() {
@@ -205,7 +205,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetLevel() {
@@ -213,7 +213,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetInputNames() {
@@ -223,7 +223,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetOutputFormat() {
@@ -231,7 +231,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetExtraNames() {
@@ -239,7 +239,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testSetExtraNames() {
@@ -249,7 +249,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testSetInputNames() {
@@ -258,7 +258,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testToString() {
@@ -267,7 +267,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void test__call__() {
@@ -275,7 +275,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void test__call__PyObject() {
@@ -297,7 +297,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void test__len__() {
@@ -305,7 +305,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void test__getitem__() {
@@ -314,7 +314,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void test__str__() {
@@ -323,7 +323,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void test__repr__() {
@@ -332,7 +332,7 @@ public class DummyMultiElementScannabletest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testValidatePositionObject() {

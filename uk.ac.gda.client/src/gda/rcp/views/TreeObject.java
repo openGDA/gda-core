@@ -17,7 +17,7 @@
  */
 
 /**
- * 
+ *
  */
 package gda.rcp.views;
 
@@ -29,7 +29,7 @@ class TreeObject implements IAdaptable {
 	private String name;
 	private TreeParent parent;
 	private GDAPropertySource propertySource;
-	
+
 	public TreeObject(String name) {
 		this.name = name;
 	}

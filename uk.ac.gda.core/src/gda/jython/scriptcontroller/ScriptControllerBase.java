@@ -48,12 +48,12 @@ public class ScriptControllerBase extends ObservableComponent implements Scriptc
 	public void configure() throws FactoryException {
 		doImport();
 	}
-	
+
 	@Override
 	public void reconfigure() throws FactoryException {
 		doImport();
 	}
-	
+
 	private void doImport() {
 		server = InterfaceProvider.getCommandRunner();
 
@@ -95,7 +95,7 @@ public class ScriptControllerBase extends ObservableComponent implements Scriptc
 
 	/**
 	 * Updates observers by distributing arg to them.
-	 * 
+	 *
 	 * @param o
 	 * @param arg
 	 */
@@ -116,7 +116,7 @@ public class ScriptControllerBase extends ObservableComponent implements Scriptc
 
 	/**
 	 * Sets if this object is for local access only.
-	 * 
+	 *
 	 * @param local
 	 */
 	@Override
@@ -126,7 +126,7 @@ public class ScriptControllerBase extends ObservableComponent implements Scriptc
 
 	/**
 	 * Return if this object is for local access only.
-	 * 
+	 *
 	 * @return true if the object is local (not distributed)
 	 */
 	@Override

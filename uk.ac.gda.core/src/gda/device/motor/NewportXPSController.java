@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * driver only works reliably with Newport XPS Firmware version 1.6.1
  */
 public class NewportXPSController extends DeviceBase implements Findable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(NewportXPSController.class);
 
 	private String xpsresult;
@@ -141,7 +141,7 @@ public class NewportXPSController extends DeviceBase implements Findable {
 		errorString.put(-75, "ERR_TRAJ_TIME Time delta of trajectory element is negative or null");
 		errorString.put(-99, " ERR_FATAL_EXTERNAL_MODULE_LOAD Fatal external module load : see error.log");
 	}
-	
+
 	@Override
 	public void configure(){
 		// no configuration required
@@ -149,7 +149,7 @@ public class NewportXPSController extends DeviceBase implements Findable {
 
 	/**
 	 * Asynchronous write
-	 * 
+	 *
 	 * @param message
 	 */
 	public synchronized void xpswritenowait(String message) {
@@ -186,7 +186,7 @@ public class NewportXPSController extends DeviceBase implements Findable {
 
 	/**
 	 * Asynchronous write
-	 * 
+	 *
 	 * @param message
 	 */
 	public synchronized void xpswritenowaitWithHalt(String message) {
@@ -223,7 +223,7 @@ public class NewportXPSController extends DeviceBase implements Findable {
 
 	/**
 	 * Set up synchronous read/write
-	 * 
+	 *
 	 * @param message
 	 */
 	public synchronized void xpswrite(String message) {
@@ -339,7 +339,7 @@ public class NewportXPSController extends DeviceBase implements Findable {
 
 		/**
 		 * Constructor
-		 * 
+		 *
 		 * @param socketBundle
 		 */
 		public PipeRwithHalt(SocketBundle socketBundle) {

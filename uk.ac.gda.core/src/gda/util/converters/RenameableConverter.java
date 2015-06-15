@@ -18,12 +18,12 @@
 
 package gda.util.converters;
 
+import gda.factory.Findable;
+
 import java.util.ArrayList;
 
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
-
-import gda.factory.Findable;
 
 /**
  * RenameableConverter Class
@@ -188,5 +188,5 @@ public class RenameableConverter implements IReloadableQuantitiesConverter, Find
 	public boolean handlesTtoS() {
 		return true;
 	}
-	
+
 }

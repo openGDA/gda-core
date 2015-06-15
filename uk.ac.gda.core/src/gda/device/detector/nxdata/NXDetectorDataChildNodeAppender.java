@@ -24,10 +24,10 @@ import gda.device.detector.NXDetectorData;
 public class NXDetectorDataChildNodeAppender implements NXDetectorDataAppender {
 
 	private final INexusTree treeToAppend;
-	
+
 	public NXDetectorDataChildNodeAppender(INexusTree treeToAppend) {
 		this.treeToAppend = treeToAppend;
-		
+
 	}
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) {

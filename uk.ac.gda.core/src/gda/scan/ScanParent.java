@@ -29,7 +29,7 @@ interface ScanParent { // TODO: Ideally this should not extend Scan
 
 	/**
 	 * To allow nests of scans to share a common status with each other.
-	 * 
+	 *
 	 * @param status
 	 */
 	public void setStatus(ScanStatus status);

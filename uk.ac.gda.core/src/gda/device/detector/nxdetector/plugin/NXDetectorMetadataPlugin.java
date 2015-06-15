@@ -35,13 +35,13 @@ import java.util.NoSuchElementException;
 public class NXDetectorMetadataPlugin implements NXPlugin {
 
 	protected boolean firstReadoutInScan;
-	
+
 	private NexusTreeProvider metaDataProvider;
 
 	public NXDetectorMetadataPlugin(NexusTreeProvider metaDataProvider) {
 		this.setMetaDataProvider(metaDataProvider);
 	}
-	
+
 	public void setMetaDataProvider(NexusTreeProvider metaDataProvider) {
 		this.metaDataProvider = metaDataProvider;
 	}
@@ -49,9 +49,9 @@ public class NXDetectorMetadataPlugin implements NXPlugin {
 	public NexusTreeProvider getMetaDataProvider() {
 		return metaDataProvider;
 	}
-	
+
 	//
-	
+
 	@Override
 	public String getName() {
 		return "metadata";
@@ -86,7 +86,7 @@ public class NXDetectorMetadataPlugin implements NXPlugin {
 	@Override
 	public void stop() throws Exception {
 	}
-	
+
 	@Override
 	public List<String> getInputStreamNames() {
 		return Arrays.asList();

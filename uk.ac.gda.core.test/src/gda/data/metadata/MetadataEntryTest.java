@@ -24,19 +24,19 @@ import java.util.Calendar;
 import junit.framework.TestCase;
 
 public class MetadataEntryTest extends TestCase {
-	
+
 	public void testDateMetadataEntry() {
 		DateMetadataEntry dme = new DateMetadataEntry("test", "yyyy-M-d");
-		
+
 		Calendar timeNow = Calendar.getInstance();
 		int year = timeNow.get(Calendar.YEAR);
 		int month = timeNow.get(Calendar.MONTH) + 1;
 		int day = timeNow.get(Calendar.DAY_OF_MONTH);
 		String expectedDate = year + "-" + month + "-" + day;
-		
+
 		assertEquals(expectedDate, dme.getMetadataValue());
 	}
-	
+
 	public void testPropertyMetadataEntry() {
 		PropertyMetadataEntry pme = new PropertyMetadataEntry("test", "user.name");
 		String expectedUsername = System.getProperty("user.name");

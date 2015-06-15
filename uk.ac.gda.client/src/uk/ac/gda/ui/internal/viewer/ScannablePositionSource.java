@@ -25,9 +25,9 @@ import uk.ac.gda.ui.viewer.IUnitsDescriptor;
 
 public class ScannablePositionSource implements IPositionSource<Double>, IUnitsDescriptor{
 	private String label=null;
-	
+
 	private boolean hideLabel = false;
-	
+
 	public String getLabel() {
 		return label;
 	}
@@ -35,8 +35,8 @@ public class ScannablePositionSource implements IPositionSource<Double>, IUnitsD
 		this.label = label;
 	}
 
-	protected Scannable scannable; 
-	
+	protected Scannable scannable;
+
 	public ScannablePositionSource(Scannable scannable){
 		this.scannable = scannable;
 	}
@@ -55,7 +55,7 @@ public class ScannablePositionSource implements IPositionSource<Double>, IUnitsD
 	public void setPosition(final Double value) throws DeviceException {
 		scannable.moveTo(value);
 	}
-	
+
 
 	@Override
 	public IUnitsDescriptor getDescriptor() {
@@ -98,6 +98,6 @@ public class ScannablePositionSource implements IPositionSource<Double>, IUnitsD
 	@Override
 	public boolean getHideLabel() {
 		return hideLabel;
-	}	
-	
+	}
+
 }

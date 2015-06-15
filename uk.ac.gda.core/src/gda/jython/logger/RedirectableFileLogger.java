@@ -41,9 +41,9 @@ import ch.qos.logback.core.FileAppender;
  * file in the current visit directory. This should typically be done in Spring by wiring into a server's
  * JythonServerFacade and command-server through adaptors. For example, given that a JythonServer has been made (always named
  * 'command_server'), try this to get a JythonServerFacade reference:
- * 
+ *
  * <p><code><pre>
- * 
+ *
  * <bean id="jython_server_facade" class="gda.jython.JythonServerFacade">
  *       <constructor-arg ref="command_server" />
  * </bean>
@@ -69,20 +69,20 @@ import ch.qos.logback.core.FileAppender;
  * 	     <constructor-arg ref="jython_server_facade" />
  *       <constructor-arg ref="terminal_logger"/>
  * 	</bean>
- * 
+ *
  * </pre></code><p>
- * 
- * where the terminallog_path_provider bean might be a dummy: 
- * 
+ *
+ * where the terminallog_path_provider bean might be a dummy:
+ *
  * <p><code><pre>
  * 	<bean id="terminallog_path_provider" class="gda.data.SimpleObservablePathProvider">
  * 		<property name="path" value="${gda.data.scan.datawriter.datadir}/gdaterminal.log" />
  * 		<property name="local" value="true" />
  * 	</bean>
 * </pre></code><p>
- * 
+ *
  * or a one that tracks the server's visit metadata:
- * 
+ *
  * <p><code><pre>
  *  	<bean id="terminallog_path_provider" class="gda.data.ObservablePathConstructor">
  * 		<property name="template" value="${gda.data.scan.datawriter.datadir}/gdaterminal.log" />

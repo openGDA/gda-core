@@ -19,10 +19,10 @@
 package uk.ac.gda.ui.viewer;
 
 /**
- * Minimal descriptor that can be used for widgets 
- * such as buttons. 
+ * Minimal descriptor that can be used for widgets
+ * such as buttons.
  * <p>
- * For example IBasicDescriptor is used with EnumSourceViewer 
+ * For example IBasicDescriptor is used with EnumSourceViewer
  */
 public interface IBasicDescriptor {
 
@@ -31,15 +31,15 @@ public interface IBasicDescriptor {
 	 * @return user friendly string
 	 */
 	public String getLabelText();
-	
+
 	/**
 	 * Return text to displayed in tool tips, or empty string
 	 * if none
-	 * 
+	 *
 	 * @return user friendly string
 	 */
 	public String getToolTipText();
-	
+
 	/**
 	 * Hide label of a viewer when one is created
 	 * @return hide label in viewer

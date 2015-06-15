@@ -39,7 +39,7 @@ public class DetectorDataWrapper implements PlottableDetectorData
 //	final boolean isCounterTimer;
 	private Object [] elements;
 	private Double [] doubleVals;
-	
+
 	/**
 	 * @param detectorDataVal - the value returned by readOut
 	 */
@@ -72,7 +72,7 @@ public class DetectorDataWrapper implements PlottableDetectorData
 				catch(Exception e){
 					//do nothing
 				}
-				
+
 			}
 			// try the ScannableUtils method which converts anythign it can into an array of Doubles
 			Double[] dataArray = ScannableUtils.objectToArray(data);
@@ -84,17 +84,17 @@ public class DetectorDataWrapper implements PlottableDetectorData
 		}
 		return null;
 	}
-	
+
 	Double [] calsDoubleVals(){
 		Object [] elements = getElements();
 		Double[] vals = new Double[elements.length];
 		int index=0;
 		for(Object object : elements){
 			vals[index] = convertDetectorDataToDouble(object);
-			index ++;			
+			index ++;
 		}
 		return vals;
-		
+
 	}
 
 	public int getElementCount() {
@@ -127,14 +127,14 @@ public class DetectorDataWrapper implements PlottableDetectorData
 				elements = new Object[len];
 				for (int i = 0; i < len; i++) {
 					elements[i] = seq.__finditem__(i);
-				}				
+				}
 			} else if ( detectorDataVal instanceof PyList){
 				PyList seq = (PyList)detectorDataVal;
 				int len = seq.__len__();
 				elements = new Object[len];
 				for (int i = 0; i < len; i++) {
 					elements[i] = seq.__finditem__(i);
-				}				
+				}
 			} else if ( detectorDataVal.getClass().isArray()){
 				int len = ArrayUtils.getLength(detectorDataVal);
 				elements = new Object[len];

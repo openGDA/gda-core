@@ -103,18 +103,18 @@ public class CrysalisRunListValidator {
 			}
 		}
 	}
-	
+
 	/**
 	 * @param configPath  Save validation criteria to an XML doc
 	 */
 	public void saveToConfig(String configPath){
 		if (configPath == null) {
 			configPath = LocalProperties.get(LocalProperties.GDA_CONFIG) + "/xml/CrysalisRunListValidator.xml";
-		}		
+		}
 		try {
 			XMLConfiguration config;
 			config = new XMLConfiguration();
-			
+
 			domegaindeg.addToConfig(config);
 			ddetectorindeg.addToConfig(config);
 			dkappaindeg.addToConfig(config);
@@ -140,7 +140,7 @@ public class CrysalisRunListValidator {
 		}
 
 		CrysalisRunListValidator other = (CrysalisRunListValidator) o;
-		return 
+		return
 			this.domegaindeg.equals(other.domegaindeg) &&
 			this.ddetectorindeg.equals(other.ddetectorindeg) &&
 			this.dkappaindeg.equals(other.dkappaindeg) &&
@@ -149,11 +149,11 @@ public class CrysalisRunListValidator {
 			this.dscanspeedratio.equals(other.dscanspeedratio) &&
 			this.dexposuretimeinsec.equals(other.dexposuretimeinsec);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return super.hashCode();
-	}	
+	}
 }
 
 class DoubleLimit {
@@ -175,7 +175,7 @@ class DoubleLimit {
 		if (val > max)
 			throw new CrysalisValidityException(name + "(" + val + ")" + " is greater than maximum value (" + max +")");
 	}
-	
+
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -189,7 +189,7 @@ class DoubleLimit {
 		}
 
 		DoubleLimit other = (DoubleLimit) o;
-		return 
+		return
 			this.name.equals(other.name) &&
 			this.min ==other.min &&
 			this.max == other.max;
@@ -197,6 +197,6 @@ class DoubleLimit {
 	@Override
 	public int hashCode() {
 		return super.hashCode();
-	}	
-	
+	}
+
 }

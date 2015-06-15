@@ -18,10 +18,10 @@
 
 package gda.device.scannable;
 
+import gda.device.DeviceException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.device.DeviceException;
 
 /**
  * Class to be derived from to allow quick creation of so called zero input zero extranames scannable
@@ -39,7 +39,7 @@ public abstract class ScanEventHandlerScannable extends ScannableBase {
 	public boolean isBusy() throws DeviceException {
 		return false;
 	}
-	
+
 	public ScanEventHandlerScannable(){
 		setInputNames(new String[0]);
 		setExtraNames(new String[0]);

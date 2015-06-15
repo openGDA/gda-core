@@ -21,13 +21,13 @@ package gda.device.scannable;
 import java.io.Serializable;
 
 public class ScannablePositionChangeEvent implements Serializable{
-	
+
 	final public Serializable newPosition;
-	
+
 	public ScannablePositionChangeEvent(Serializable newPosition){
 		this.newPosition = newPosition;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("%s(newPosition=%s)", getClass().getSimpleName(), newPosition);

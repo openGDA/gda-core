@@ -28,9 +28,9 @@ import org.slf4j.LoggerFactory;
  * DummySlaveMotor Class
  */
 public class DummySlaveMotor extends DummyMotor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DummySlaveMotor.class);
-	
+
 	private String serialControllerName;
 
 	private String moveCommand;
@@ -46,7 +46,7 @@ public class DummySlaveMotor extends DummyMotor {
 	/**
 	 * Get the command to send to the RS232 slave to move a motor without iterative positional searching (as defined in
 	 * XML)
-	 * 
+	 *
 	 * @return moveCommand String the move command
 	 */
 	public String getMoveCommand() {
@@ -56,7 +56,7 @@ public class DummySlaveMotor extends DummyMotor {
 	/**
 	 * Set the command to send to the RS232 slave to move a motor without iterative positional searching (as defined in
 	 * XML)
-	 * 
+	 *
 	 * @param command
 	 *            the String command to move a slave motor
 	 */
@@ -67,7 +67,7 @@ public class DummySlaveMotor extends DummyMotor {
 
 	/**
 	 * Get the serial controller name for this slave motor as defined in XML
-	 * 
+	 *
 	 * @return the serial controller name
 	 */
 	public String getSerialControllerName() {
@@ -76,7 +76,7 @@ public class DummySlaveMotor extends DummyMotor {
 
 	/**
 	 * Set the serial controller name for this slave motor as defined in XML
-	 * 
+	 *
 	 * @param s
 	 *            the serial controller name
 	 */
@@ -86,7 +86,7 @@ public class DummySlaveMotor extends DummyMotor {
 
 	/**
 	 * Get the command that needs to be issued to stop the slave motor (defind in XML)
-	 * 
+	 *
 	 * @return the stop command
 	 */
 	public String getStopCommand() {
@@ -95,7 +95,7 @@ public class DummySlaveMotor extends DummyMotor {
 
 	/**
 	 * Set the command that needs to be issued to stop the slave motor (defind in XML)
-	 * 
+	 *
 	 * @param command
 	 *            the stop command
 	 */
@@ -106,7 +106,7 @@ public class DummySlaveMotor extends DummyMotor {
 
 	/**
 	 * Get the Home command to move a motor using iterative positional searching.
-	 * 
+	 *
 	 * @return homeCommand the command to move a motor with positional searching
 	 */
 	public String getHomeCommand() {
@@ -115,7 +115,7 @@ public class DummySlaveMotor extends DummyMotor {
 
 	/**
 	 * Set the Home command to move a motor using iterative positional searching.
-	 * 
+	 *
 	 * @param s
 	 *            the home (move with iterative positional searching) command
 	 */
@@ -140,7 +140,7 @@ public class DummySlaveMotor extends DummyMotor {
 
 	/**
 	 * Return the string that will be returned from the slave on error (set in XML)
-	 * 
+	 *
 	 * @return slaveErrorString the error String
 	 */
 	public String getSlaveErrorString() {
@@ -149,7 +149,7 @@ public class DummySlaveMotor extends DummyMotor {
 
 	/**
 	 * Set the string that will be returned from the slave on error (set in XML)
-	 * 
+	 *
 	 * @param s
 	 *            the error string
 	 */

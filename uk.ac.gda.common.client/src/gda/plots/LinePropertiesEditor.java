@@ -225,7 +225,7 @@ public class LinePropertiesEditor extends JDialog implements ActionListener, Ser
 
 	/**
 	 * Sets the line whose properties are being edited
-	 * 
+	 *
 	 * @param newCurrentLine
 	 *            the line to be edited (a SimpleXYSeries)
 	 */

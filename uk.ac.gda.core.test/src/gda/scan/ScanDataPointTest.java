@@ -81,7 +81,7 @@ public class ScanDataPointTest {
 		sdp.addScannable(scannable3);
 		sdp.addScannablePosition(scannable3.getPosition(), scannable3.getOutputFormat());
 		return sdp;
-		
+
 	}
 	@Before
 	public void setup() {

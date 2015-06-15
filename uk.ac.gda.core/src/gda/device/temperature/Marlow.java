@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * Eurotherm2000 have been removed and there is no facility for writing to a file.
  */
 public class Marlow extends TemperatureBase implements ReplyChecker {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Marlow.class);
 
 	private final static double MINTEMP = -35.0;
@@ -201,7 +201,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Check a valid termination character has been received in the response.
-	 * 
+	 *
 	 * @param reply
 	 *            is the raw reply from the Marlow.
 	 * @throws DeviceException
@@ -220,7 +220,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 	/**
 	 * Decode the raw response from the Marlow, checking the checksum value and returns the decoded value in String
 	 * form.
-	 * 
+	 *
 	 * @param buffer
 	 *            reply from Marlow
 	 * @return decoded reply
@@ -248,7 +248,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Encode a mnemonic & parameter value for setting the value in the Marlow controller
-	 * 
+	 *
 	 * @param mnemonic
 	 *            is the two letter code.
 	 * @param value
@@ -272,7 +272,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Encode a mnemonic & parameter value for setting the value in the Marlow controller
-	 * 
+	 *
 	 * @param mnemonic
 	 *            is the two letter code.
 	 * @param status
@@ -288,7 +288,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Encode a mnemonic when requesting values from the Marlow controller
-	 * 
+	 *
 	 * @param mnemonic
 	 *            is the two letter code.
 	 * @return encoded reply
@@ -299,7 +299,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Gets the current temperature by asking the actual Marlow
-	 * 
+	 *
 	 * @return currentTemp
 	 * @throws DeviceException
 	 */
@@ -313,7 +313,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Get the identification number of the controller
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	private void getInstrumentIdentity() throws DeviceException {
@@ -325,7 +325,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Get the curent target temperature of the Marlow controller
-	 * 
+	 *
 	 * @return the target temperature
 	 * @throws DeviceException
 	 */
@@ -338,7 +338,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Get to the Xp parameter
-	 * 
+	 *
 	 * @return the Xp paramter
 	 * @throws DeviceException
 	 */
@@ -350,7 +350,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Hold at temperature
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -360,7 +360,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Executes when poll timer fires
-	 * 
+	 *
 	 * @param pe
 	 *            the polling event
 	 */
@@ -415,7 +415,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Get the SetPoint
-	 * 
+	 *
 	 * @return the set point
 	 * @throws DeviceException
 	 */
@@ -427,7 +427,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Get to the OutputPower This method needs re implementing, if necessary
-	 * 
+	 *
 	 * @return the output power
 	 * @throws DeviceException
 	 */
@@ -438,7 +438,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Tells the hardware to start heating or cooling
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	private void sendStart() throws DeviceException {
@@ -451,7 +451,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Set the proportional band control parameter Xp for the controller
-	 * 
+	 *
 	 * @param value
 	 *            of parameter Xp
 	 * @throws DeviceException
@@ -464,7 +464,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Implements methods from ReplyChecker class
-	 * 
+	 *
 	 * @param buffer
 	 *            the reply from the Eurotherm
 	 * @return true if reply is corretly formatted
@@ -482,7 +482,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Overrides the DeviceBase method to getAttribute.
-	 * 
+	 *
 	 * @param name
 	 *            the name of the attribute to obtain
 	 * @return the attribute
@@ -498,7 +498,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Overrides the DeviceBase method to setAttributes.
-	 * 
+	 *
 	 * @param name
 	 *            the name of the attribute to obtain
 	 * @param value
@@ -518,7 +518,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * This method needs re implementing, if necessary
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -528,7 +528,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Sets the stop flag to true. Should it set busy to false at this point?
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -559,7 +559,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 	/**
 	 * Starts a temperature change towards previously set target temperature. TargetTemp will have been set by the
 	 * TemperatureBase method: setTargetTemperature(). This method sends the command to the hardware.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -581,7 +581,7 @@ public class Marlow extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Is this method used now. If not - deprecate
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override

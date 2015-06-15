@@ -28,15 +28,15 @@ public class AutoCompletionParts {
 	 */
 	public String name;
 	/**
-	 * Type of object 
+	 * Type of object
 	 */
 	public int type;
 	/**
-	 * 
+	 *
 	 */
 	public String helpDoc;
 	/**
-	 * 
+	 *
 	 */
 	public String args;
 

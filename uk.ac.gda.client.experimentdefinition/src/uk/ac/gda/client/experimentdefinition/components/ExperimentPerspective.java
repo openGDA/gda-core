@@ -30,7 +30,7 @@ import uk.ac.gda.client.CommandQueueViewFactory;
 public class ExperimentPerspective implements IPerspectiveFactory {
 
 	public final static String ID = "uk.ac.gda.client.experimentdefinition.experimentperspective";
-	
+
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		// Get the editor area.

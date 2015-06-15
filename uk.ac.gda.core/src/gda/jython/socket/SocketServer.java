@@ -35,19 +35,19 @@ import org.slf4j.LoggerFactory;
  * Provides a socket for the GDA command server to accept commands from outside the GDA
  */
 public class SocketServer implements Runnable {
-	
+
 	/**
 	 * Represents a server type.
 	 */
 	public enum ServerType {
-	
+
 		/** Telnet server. */
 		TELNET,
-		
+
 		/** SSH server. */
 		SSH
 	}
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
 
 	/** set to false to close socket */
@@ -61,16 +61,16 @@ public class SocketServer implements Runnable {
 	String name = "command_socket";
 
 	private ServerType serverType = ServerType.TELNET;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public SocketServer() {
 	}
-	
+
 	/**
 	 * Sets the server type.
-	 * 
+	 *
 	 * @param serverType the server type
 	 */
 	public void setServerType(ServerType serverType) {
@@ -85,7 +85,7 @@ public class SocketServer implements Runnable {
 			runSshServer();
 		}
 	}
-	
+
 	private void runTelnetServer() {
 		ServerSocket serverSocket = null;
 
@@ -111,25 +111,25 @@ public class SocketServer implements Runnable {
 			// add an error!
 		}
 	}
-	
+
 	private void runSshServer() {
 		logger.debug("Starting SSH server on port " + port);
-		
+
 		if (authenticator == null) {
 			throw new IllegalArgumentException("Cannot start SSH server because a PasswordAuthenticator has not been provided");
 		}
-		
+
 		SshServer sshd = SshServer.setUpDefaultServer();
 		sshd.setPort(port);
-		
+
 		String gdaConfig = LocalProperties.get(LocalProperties.GDA_CONFIG);
 		File hostKey = new File(new File(gdaConfig, "etc"), "hostkey.ser");
 		sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(hostKey.getAbsolutePath()));
-		
+
 		sshd.setShellFactory(new SshShellFactory(useJline));
-		
+
 		sshd.setPasswordAuthenticator(authenticator);
-		
+
 		try {
 			sshd.start();
 		} catch (Exception e) {
@@ -140,7 +140,7 @@ public class SocketServer implements Runnable {
 
 	/**
 	 * Returns the port this object will open
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getPort() {
@@ -149,21 +149,21 @@ public class SocketServer implements Runnable {
 
 	/**
 	 * Sets the port this object will use.
-	 * 
+	 *
 	 * @param portNumber
 	 */
 	public void setPort(int portNumber) {
 		port = portNumber;
 	}
-	
+
 	public void setUseJline(boolean useJline) {
 		this.useJline = useJline;
 	}
 
 	private PasswordAuthenticator authenticator;
-	
+
 	public void setAuthenticator(PasswordAuthenticator authenticator) {
 		this.authenticator = authenticator;
 	}
-	
+
 }

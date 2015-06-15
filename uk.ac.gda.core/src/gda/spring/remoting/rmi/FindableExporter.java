@@ -37,17 +37,17 @@ import org.springframework.util.StringUtils;
 /**
  * A Spring {@link BeanFactoryPostProcessor} that exposes all {@link Findable}s
  * in a GDA {@link Factory} using RMI.
- * 
+ *
  * <p>Also exposes a {@link MapBackedRemoteObjectLister} that lists the
  * available objects and provides more information than the standard RMI
  * registry.
  */
 public class FindableExporter extends FindableExporterBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(FindableExporter.class);
 
 	private static final String BEAN_NAME_PREFIX = "rmiexporter-";
-	
+
 	@Override
 	protected void exportObject(Findable findable, Class<?> serviceInterface, ConfigurableListableBeanFactory beanFactory) {
 		final String rmiName = Constants.RMI_NAME_PREFIX + findable.getName();
@@ -67,7 +67,7 @@ public class FindableExporter extends FindableExporterBase {
 		BeanDefinition beanDefinition = createRmiServiceExporterBeanDefinition(rmiName, lister, RemoteObjectLister.class);
 		beanDefRegistry.registerBeanDefinition(exporterBeanName, beanDefinition);
 	}
-	
+
 	protected BeanDefinition createRmiServiceExporterBeanDefinition(String serviceName, Object service, Class<?> serviceInterface) {
 		BeanDefinition beanDefinition = new RootBeanDefinition(RmiServiceExporter.class);
 		beanDefinition.getPropertyValues().addPropertyValue("serviceName", serviceName);

@@ -46,7 +46,7 @@ public class EditPermissions extends javax.swing.JFrame implements ActionListene
 	private Vector<String> deletedEntries = new Vector<String>();
 	/**
 	 * Auto-generated main method to display this JFrame
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -72,7 +72,7 @@ public class EditPermissions extends javax.swing.JFrame implements ActionListene
 		try {
 			setTitle("Permissions Editor");
 			JScrollPane jScrollPane1 = new JScrollPane();
-			jScrollPane1.setViewportView(getPermissionsTable());			
+			jScrollPane1.setViewportView(getPermissionsTable());
 			getContentPane().add(jScrollPane1, BorderLayout.CENTER);
 			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			setSize(400, 300);
@@ -167,7 +167,7 @@ public class EditPermissions extends javax.swing.JFrame implements ActionListene
 		for (int row : selected) {
 			deletedEntries.add((String)jTable1Model.getValueAt(row, 0));
 			jTable1Model.removeRow(row);
-			
+
 		}
 		permissionsTable.addNotify();
 	}

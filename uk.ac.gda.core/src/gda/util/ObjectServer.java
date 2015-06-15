@@ -59,22 +59,22 @@ public abstract class ObjectServer implements Runnable {
 	protected boolean localObjectsOnly = false;
 
 	private static final Logger logger = LoggerFactory.getLogger(ObjectServer.class);
-	
+
 	/**
 	 * Complete list of factories that have been created for this object server.
 	 */
 	protected List<Factory> factories = new Vector<Factory>();
-	
+
 
 	/**
 	 * All {@link ImplFactory}s that have been created by this object server
 	 * to make objects remotely accessible.
 	 */
 	protected List<ImplFactory> implFactories = new Vector<ImplFactory>();
-	
+
 	/**
 	 * Creates an object server.
-	 * 
+	 *
 	 * @param xmlFile
 	 *            the XML configuration file
 	 * @param localObjectsOnly
@@ -84,31 +84,31 @@ public abstract class ObjectServer implements Runnable {
 		this.xmlFile = xmlFile;
 		this.localObjectsOnly = localObjectsOnly;
 	}
-	
+
 	/**
 	 * Returns the default server-side XML file to use if none is specified.
-	 * 
+	 *
 	 * @return the default server-side XML file
 	 */
 	private static String getDefaultServerSideXmlFile() {
 		return LocalProperties.get(LocalProperties.GDA_OBJECTSERVER_XML);
 	}
-	
+
 	/**
 	 * Returns the default client side XML file to use if none is specified.
-	 * 
+	 *
 	 * @return the default client-side XML file
 	 */
 	private static String getDefaultClientSideXmlFile() {
 		return LocalProperties.get(LocalProperties.GDA_GUI_XML);
 	}
-	
+
 	/**
 	 * Convenience method for constructing server side objects using the xml file names specified in the local
 	 * properties file
-	 * 
+	 *
 	 * @return the instance of the object server.
-	 * @throws FactoryException 
+	 * @throws FactoryException
 	 */
 	public static ObjectServer createServerImpl() throws FactoryException {
 		return ObjectServer.createServerImpl(getDefaultServerSideXmlFile());
@@ -116,13 +116,13 @@ public abstract class ObjectServer implements Runnable {
 
 	/**
 	 * Convenience method for constructing server side objects
-	 * 
+	 *
 	 * @param xmlFile
 	 *            fully qualified fileName to specifying in XML the objects to be created.
 	 * @param mappingFile
 	 *            the mapping file
 	 * @return the instance of the object server.
-	 * @throws FactoryException 
+	 * @throws FactoryException
 	 */
 	public static ObjectServer createServerImpl(String xmlFile, String mappingFile) throws FactoryException {
 		ObjectServer objectServer = createObjectServer(xmlFile, mappingFile, true, false);
@@ -133,11 +133,11 @@ public abstract class ObjectServer implements Runnable {
 
 	/**
 	 * Convenience method for constructing server side objects using the specified XML file.
-	 * 
+	 *
 	 * @param xmlFile
 	 *            the XML configuration file
 	 * @return the object server
-	 * @throws FactoryException 
+	 * @throws FactoryException
 	 */
 	public static ObjectServer createServerImpl(String xmlFile) throws FactoryException {
 		return ObjectServer.createServerImpl(xmlFile, null);
@@ -146,9 +146,9 @@ public abstract class ObjectServer implements Runnable {
 	/**
 	 * Convenience method for constructing client side objects using the xml file names specified in the local
 	 * properties file
-	 * 
+	 *
 	 * @return the instance of the object server.
-	 * @throws FactoryException 
+	 * @throws FactoryException
 	 */
 	public static ObjectServer createClientImpl() throws FactoryException {
 		return ObjectServer.createClientImpl(getDefaultClientSideXmlFile());
@@ -156,25 +156,25 @@ public abstract class ObjectServer implements Runnable {
 
 	/**
 	 * Convenience method for constructing client side objects, only for test suite programs!!!!!!!!!!!!!
-	 * 
+	 *
 	 * @param xmlFile
 	 *            fully qualified fileName to specifying in XML the objects to be created.
 	 * @return the instance of the object server.
-	 * @throws FactoryException 
+	 * @throws FactoryException
 	 */
 	public static ObjectServer createClientImpl(String xmlFile) throws FactoryException {
-		
+
 		// Nothing specified? - look up default
 		if (xmlFile == null) {
 			xmlFile = getDefaultClientSideXmlFile();
 		}
-		
+
 		// Check an XML file has been specified somewhere
 		if (!StringUtils.hasText(xmlFile)) {
 			final String msg = "No XML file specified - set the '%s' property, or use the -x option with the launcher";
 			throw new IllegalArgumentException(String.format(msg, LocalProperties.GDA_GUI_XML));
 		}
-		
+
 		ObjectServer objectServer = createObjectServer(xmlFile, null, false, isLocal());
 		objectServer.configure();
 		logger.info("Client initialisation complete");
@@ -183,11 +183,11 @@ public abstract class ObjectServer implements Runnable {
 
 	/**
 	 * Convenience method for constructing local objects, only for test suite programs!!!!!!!!!!!!!
-	 * 
+	 *
 	 * @param xmlFile
 	 *            fully qualified fileName to specifying in XML the objects to be created.
 	 * @return the instance of the object server.
-	 * @throws FactoryException 
+	 * @throws FactoryException
 	 */
 	public static ObjectServer createLocalImpl(String xmlFile) throws FactoryException {
 		ObjectServer objectServer = createObjectServer(xmlFile, null, false, true);
@@ -199,24 +199,24 @@ public abstract class ObjectServer implements Runnable {
 	private static ObjectServer createObjectServer(String xmlFile, String mappingFile, boolean serverSide, boolean localObjectsOnly) throws FactoryException {
 		File file = getAbsoluteFilePath(xmlFile);
 		logger.info("Starting ObjectServer using file " + xmlFile);
-		
+
 		if (!file.exists()) {
 			throw new FactoryException(String.format("File does not exist: %s", file));
 		}
-		
+
 		return new SpringObjectServer(file, localObjectsOnly);
 	}
-	
+
 	protected static BeanDefinitionRegistry loadBeanDefinitions(File file) {
 		BeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(registry);
 		reader.loadBeanDefinitions("file:" + file.getAbsolutePath());
 		return registry;
 	}
-	
+
 	/**
 	 * Configure the object server.
-	 * @throws FactoryException 
+	 * @throws FactoryException
 	 */
 	public void configure() throws FactoryException {
 		if (!localObjectsOnly) {
@@ -226,16 +226,16 @@ public abstract class ObjectServer implements Runnable {
 			EventService.getInstance();
 			logger.info("Completed EventService.getInstance()");
 		}
-		
+
 		LocalProperties.checkForObsoleteProperties();
 		// Dump out all of the properties to the logging system at objectserver startup
 		LocalProperties.dumpProperties();
-		
+
 		startServer();
-		
+
 		createNewStartupFile();
 	}
-	
+
 	private static File getStartupFile(String xmlFileNameWithExtension) {
 		String baseFileName = xmlFileNameWithExtension.substring(xmlFileNameWithExtension.lastIndexOf(File.separator) + 1,
 				xmlFileNameWithExtension.length()); //last part at end of path
@@ -263,7 +263,7 @@ public abstract class ObjectServer implements Runnable {
 			logger.info("Error creating startup file:" + oos.getAbsolutePath(),e);
 		}
 	}
-	
+
 	private static File getAbsoluteFilePath(String xmlFile) {
 		// Ensure we have an absolute path to the file
 		File file = new File(xmlFile);
@@ -277,13 +277,13 @@ public abstract class ObjectServer implements Runnable {
 		// so have to do this for all property strings.
 		// It would be nice to move client code over to using getPath instead!
 		fullPath = fullPath.replace('\\', '/');
-		
+
 		return new File(fullPath);
 	}
 
 	/**
 	 * Return the object specified by name by looking it up in the Finder.
-	 * 
+	 *
 	 * @param name
 	 *            the name of the Findable object to return
 	 * @return the Findable object or null if not found
@@ -296,7 +296,7 @@ public abstract class ObjectServer implements Runnable {
 	/**
 	 * Return a list of names of all objects created by this instance of the
 	 * object server.
-	 * 
+	 *
 	 * @return a list of names
 	 */
 	public List<String> getFindableNames() {
@@ -317,7 +317,7 @@ public abstract class ObjectServer implements Runnable {
 		Thread t = new Thread(this, getClass().getName());
 		t.start();
 	}
-	
+
 	/**
 	 * Initiates the server loop for remote objects. This method never returns.
 	 */
@@ -331,7 +331,7 @@ public abstract class ObjectServer implements Runnable {
 
 	/**
 	 * Parse command-line arguments; may alter the xmlFile and/or mappingFile options.
-	 * 
+	 *
 	 * @param args
 	 *            command-line arguments
 	 */
@@ -368,7 +368,7 @@ public abstract class ObjectServer implements Runnable {
 
 	/**
 	 * Determines whether this is a local or server/client setup by examining the {@code gda.oe.oefactory} property.
-	 * 
+	 *
 	 * @return {@code true} if this is a local setup; {@code false} otherwise
 	 */
 	public static boolean isLocal() {
@@ -384,27 +384,27 @@ public abstract class ObjectServer implements Runnable {
 	/**
 	 * Creates an implementation of local and server side objects as described by an XML file and associated mapping
 	 * file. Both defined in the local properties file but the command line options give preference.
-	 * 
+	 *
 	 * @param args
 	 *            the command line arguments
 	 */
 	public static void main(String[] args) {
 		LoggingUtils.setLogDirectory();
 		LogbackUtils.configureLoggingForServerProcess("objectserver");
-		
+
 		try {
-			
+
 			// Set default options...
 			commandLineXmlFile = getDefaultServerSideXmlFile();
 			// ...but possibly override them with command-line arguments
 			parseArgs(args);
-			
+
 			// Check an XML file has been specified somewhere
 			if (!StringUtils.hasText(commandLineXmlFile)) {
 				final String msg = "No XML file specified - set the '%s' property, or use the -x option with the launcher";
 				throw new IllegalArgumentException(String.format(msg, LocalProperties.GDA_OBJECTSERVER_XML));
 			}
-			
+
 			// delete an old file created at the end of the configure phase
 			File oos = getStartupFile(commandLineXmlFile);
 			if (oos.exists()){
@@ -413,7 +413,7 @@ public abstract class ObjectServer implements Runnable {
 			oos = null;
 
 			ObjectServer.createServerImpl(commandLineXmlFile, commandLineMappingFile);
-			
+
 
 		} catch (Exception e) {
 			final String msg = "Unable to start ObjectServer";
@@ -429,13 +429,13 @@ public abstract class ObjectServer implements Runnable {
 	 */
 	public void shutdown() {
 		logger.info("ObjectServer is shutting down");
-		
+
 		// Shutdown ImplFactorys, to unbind CORBA names
 		for (ImplFactory implFactory : implFactories) {
 			implFactory.shutdown();
 		}
 	}
-	
+
 	protected abstract void startServer() throws FactoryException;
-	
+
 }

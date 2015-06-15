@@ -42,22 +42,22 @@ import org.xml.sax.InputSource;
  * used in Castor XML files.
  */
 public class ObjectFactoryNamespaceHandler extends NamespaceHandlerSupport {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ObjectFactoryNamespaceHandler.class);
-	
+
 	/**
 	 * Location of the GDA Castor mapping file.
 	 */
 	protected static final String MAPPING_FILE_LOCATION = "../../factory/mapping.xml";
-	
+
 	protected MappingLoader mappingLoader;
-	
+
 	protected Map<String, XMLClassDescriptor> classDescsByElementName;
-	
+
 	@Override
 	public void init() {
 		ObjectFactoryParser parser = new ObjectFactoryParser(this);
-		
+
 		// Load the Castor mapping file
 		try {
 			logger.debug("Loading Castor mapping file from " + MAPPING_FILE_LOCATION);
@@ -69,7 +69,7 @@ public class ObjectFactoryNamespaceHandler extends NamespaceHandlerSupport {
 		} catch (Exception e) {
 			throw new RuntimeException("Could not load Castor mapping file", e);
 		}
-		
+
 		// Create a map of class descriptors keyed by element name. Also
 		// registers the parser to handle each element
 		classDescsByElementName = new HashMap<String, XMLClassDescriptor>();
@@ -78,7 +78,7 @@ public class ObjectFactoryNamespaceHandler extends NamespaceHandlerSupport {
 			classDescsByElementName.put(cd.getXMLName(), cd);
 			registerBeanDefinitionParser(cd.getXMLName(), parser);
 		}
-		
+
 		// TODO discover all elements in the schema and remove the (incomplete) hard-coded list
 		final String[] otherElementNames = {
 			"name",
@@ -97,43 +97,43 @@ public class ObjectFactoryNamespaceHandler extends NamespaceHandlerSupport {
 			"protectionLevel",
 			"moveableName"
 		};
-		
+
 		// Register the parser to handle other elements
 		for (String elementName : otherElementNames) {
 			registerBeanDefinitionParser(elementName, parser);
 		}
 	}
-	
+
 	/**
 	 * Determines if the given element corresponds to a class in the Castor
 	 * mapping file.
-	 * 
+	 *
 	 * @param elementName the name of the element
-	 * 
+	 *
 	 * @return {@code true} if the element corresponds to a class
 	 */
 	protected boolean doesElementCorrespondToClass(String elementName) {
 		return classDescsByElementName.containsKey(elementName);
 	}
-	
+
 	/**
 	 * Returns the class descriptor for the class that corresponds to the
 	 * given element.
-	 * 
+	 *
 	 * @param elementName the name of the element
-	 * 
+	 *
 	 * @return the class descriptor for the class that corresponds to the
 	 *         element
 	 */
 	protected XMLClassDescriptor getClassDescriptorForElement(String elementName) {
 		return classDescsByElementName.get(elementName);
 	}
-	
+
 	/**
 	 * Returns the class descriptor for the specified class.
-	 * 
+	 *
 	 * @param className the class name
-	 * 
+	 *
 	 * @return the class descriptor for the class
 	 */
 	protected XMLClassDescriptor getClassDescriptorForClass(String className) {

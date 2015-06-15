@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * This class supplies a namespace for volatile variables which scripts may want to refer to while running.
  */
 public abstract class ScriptBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ScriptBase.class);
 
 	/**
@@ -48,11 +48,11 @@ public abstract class ScriptBase {
 	public static boolean isPaused() {
 		return paused;
 	}
-	
+
 	/**
 	 * This should be called in frequent places during long scripts where the script's author wishes to allow the
 	 * ability to pause\resume the script
-	 * 
+	 *
 	 * @throws InterruptedException
 	 */
 	public static void checkForPauses() throws InterruptedException {

@@ -104,7 +104,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 	/**
 	 * Sets the 'var' directory used by this interpreter.
-	 * 
+	 *
 	 * @param gdaVarDirectory
 	 *            the 'var' directory
 	 */
@@ -116,7 +116,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 	/**
 	 * Sets the cache directory used by this interpreter.
-	 * 
+	 *
 	 * @param cacheDirectory
 	 *            the cache directory
 	 */
@@ -154,7 +154,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 		if( !(new File(jythonRoot)).exists())
 			throw new RuntimeException("Jython root not found  :" + jythonRoot);
-		
+
 		// something sets path to jython lib already!
 		// gdaCustomProperties.setProperty("python.path", jythonRoot + "Lib");
 		gdaCustomProperties.setProperty("python.home", jythonRoot);
@@ -162,9 +162,9 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		if (LocalProperties.check("python.options.showJavaExceptions", false)) {
 			gdaCustomProperties.setProperty("python.options.showJavaExceptions", "true");
 		}
-		
+
 		gdaCustomProperties.setProperty("python.options.includeJavaStackInExceptions", "false");
-		
+
 		if (LocalProperties.check("python.options.showPythonProxyExceptions", false)) {
 			gdaCustomProperties.setProperty("python.options.showPythonProxyExceptions", "true");
 		}
@@ -172,13 +172,13 @@ public class GDAJythonInterpreter extends ObservableComponent {
 		if (!verbose.isEmpty()) {
 			gdaCustomProperties.setProperty("python.verbose", verbose);
 		}
-		
+
 		// The command-line parameters should be a 1-element array containing
 		// an empty string. This is to be consistent with the Python
 		// interpreter and standalone Jython. Python libraries (e.g. warnings)
 		// assume sys.argv will contain at least one element.
 		final String[] argv = new String[] {""};
-		
+
 		// The GDA Class Loader is for OSGi server. If not using OSGI and the new
 		// services, the startup sequence is unchanged
 		if (GDAJythonClassLoader.useGDAClassLoader()) {
@@ -266,7 +266,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 							throw new FactoryException("Configured Jython script location " + scriptFolderName + " does not exist.");
 						}
 						logger.info("Adding " + scriptDir + " to the Command Server Jython path");
-						
+
 						if (!sys.path.contains(scriptFolderName)) {
 							removeAllJythonClassFiles(new File(path));
 							sys.path.append(scriptFolderName);
@@ -286,16 +286,16 @@ public class GDAJythonInterpreter extends ObservableComponent {
 				this.interp.runsource("import sys");
 				this.interp.runsource("import gda.jython");
 				this.interp.runsource("sys.displayhook=gda.jython.GDAInteractiveConsole.displayhook");
-				
+
 				// give Jython the reference to this wrapper object
 				this.interp.set("GDAJythonInterpreter", this);
-				
+
 				this.interp.set("command_server", jythonServer);
 				this.interp.runsource("import gda.jython");
 
 				// site import
 				this.interp.runsource("import site");
-		
+
 				// standard imports
 				this.interp.runsource("import java");
 				this.interp.runsource("from java.lang import Thread");
@@ -470,7 +470,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 	/**
 	 * Translates and then runs the given file through the Jython interpreter.
-	 * 
+	 *
 	 * @param input
 	 *            File
 	 */
@@ -489,10 +489,10 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 	/**
 	 * Runs the script updating the CommandServer status as it goes.
-	 * 
+	 *
 	 * @param input
 	 *            File
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	protected void runscript(File input) throws IOException {
 		// pass entire script to interpreter
@@ -507,7 +507,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 	/**
 	 * Gives the command to the JythonInterpreter's runsource method
-	 * 
+	 *
 	 * @param command
 	 *            String
 	 * @return boolean
@@ -526,7 +526,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 	/**
 	 * Get the object from the Jython namespace known by the given string.
-	 * 
+	 *
 	 * @param objectName
 	 * @return Object
 	 */
@@ -538,7 +538,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	 * Returns the contents of the top-level namespace.
 	 * <p>
 	 * This returns object references so cannot be distributed.
-	 * 
+	 *
 	 * @return PyObject
 	 */
 	public PyObject getAllFromJythonNamepsace() {
@@ -547,7 +547,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 	/**
 	 * Place an object into the Jython namespace.
-	 * 
+	 *
 	 * @param objectName
 	 *            What the object is to be known as.
 	 * @param obj
@@ -559,7 +559,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	/**
 	 * Runs a Jython command which returns some output. As the Jython engine is in a distributed environment, only
 	 * strings are returned. Object references will also be converted to strings.
-	 * 
+	 *
 	 * @param command
 	 *            String - must be python code - cannot run import javaclass - this results in fixParseError - unknown
 	 *            source
@@ -582,7 +582,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 
 	/**
 	 * Changes dynamically the translator being used.
-	 * 
+	 *
 	 * @param myTranslator
 	 */
 	protected void setTranslator(Translator myTranslator) {
@@ -603,7 +603,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	 * is from the input object. All lines are translated from GDA syntax into true Jython from GDA syntax where
 	 * necessary. A header and footer are then added to make the script run in a separate thread, so that the GUI does
 	 * not freeze up.
-	 * 
+	 *
 	 * @param input
 	 *            a Jython script
 	 * @return a string of the same Jython code (translated to true Jython where required) which will run in its own
@@ -642,7 +642,7 @@ public class GDAJythonInterpreter extends ObservableComponent {
 	 * This shouldn't really be needed, and in future Jython releases may not be a problem. But for now it solves an
 	 * observed problem on all beamlines that occasionally after a Command Server restart old versions of Jython modules
 	 * are in use rather than the latest ones.
-	 * 
+	 *
 	 * @param dir
 	 */
 	private void removeAllJythonClassFiles(File dir) {

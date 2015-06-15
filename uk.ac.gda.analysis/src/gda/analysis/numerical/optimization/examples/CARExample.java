@@ -37,7 +37,7 @@ import gda.analysis.numerical.optimization.optimizers.leastsquares.minpackOptimi
 public class CARExample {
 	/**
 	 * Just a method to create some fake data to fit
-	 * 
+	 *
 	 * @return x,y data
 	 */
 	public static DataVector[] createFakeData() {

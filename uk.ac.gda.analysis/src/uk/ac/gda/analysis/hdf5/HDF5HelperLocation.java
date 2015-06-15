@@ -33,5 +33,5 @@ public class HDF5HelperLocation {
 		return "HDF5HelperLocation [name=" + name + ", attributeName=" + attributeName + ", attributeValue="
 				+ attributeValue + "]";
 	}
-	
+
 }

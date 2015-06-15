@@ -41,7 +41,7 @@ public class MonitorAdapter extends ScannableAdapter implements Monitor, Findabl
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

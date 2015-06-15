@@ -82,7 +82,7 @@ public class PathConstructor implements IPathConstructor {
 
 	/**
 	 * Construct a path based on a template containing text and metadata item names.
-	 * 
+	 *
 	 * @return The constructed path.
 	 */
 	public static String createFromDefaultProperty() {
@@ -91,11 +91,11 @@ public class PathConstructor implements IPathConstructor {
 
 	/**
 	 * For client-side RCP classes wanting the data directory for this client (not necessarily the data directory in current use).
-	 * 
+	 *
 	 * Construct the path based on a template containing text and metadata item names. Override the metadata if values
 	 * placed in LocalProperties have been set by the RCP application - may not always want to use what's in the
 	 * metadata. In GDA ObjectServers the metadata for visit and user only relate to the current baton holder.
-	 * 
+	 *
 	 * @return The constructed path.
 	 */
 	public static String createFromRCPProperties() {
@@ -113,7 +113,7 @@ public class PathConstructor implements IPathConstructor {
 
 	/**
 	 * Construct a path based on a template containing text and metadata item names.
-	 * 
+	 *
 	 * @param property
 	 *            The name of a Java property from which to obtain the path template.
 	 * @return The constructed path.
@@ -124,7 +124,7 @@ public class PathConstructor implements IPathConstructor {
 
 	/**
 	 * Construct a path based on a template containing text and metadata item names.
-	 * 
+	 *
 	 * @param property
 	 *            The name of a Java property from which to obtain the path template.
 	 * @param overrides
@@ -141,7 +141,7 @@ public class PathConstructor implements IPathConstructor {
 
 	/**
 	 * Construct a path based on a template containing text and metadata item names.
-	 * 
+	 *
 	 * @param template
 	 *            The path template.
 	 * @return The constructed path.
@@ -152,7 +152,7 @@ public class PathConstructor implements IPathConstructor {
 
 	/**
 	 * Construct a path based on a template containing text and metadata item names.
-	 * 
+	 *
 	 * @param template
 	 *            The path template.
 	 * @param overrides
@@ -199,7 +199,7 @@ public class PathConstructor implements IPathConstructor {
 
 		return value;
 	}
-	
+
 	private static String getDefaultValue(String s) {
 		int tokenPosition = findToken(s);
 		String defaultValue = "";

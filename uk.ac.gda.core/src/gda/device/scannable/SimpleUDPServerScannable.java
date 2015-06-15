@@ -19,8 +19,6 @@
 package gda.device.scannable;
 
 import gda.device.DeviceException;
-import gda.device.scannable.ScannableBase;
-import gda.device.scannable.ScannablePositionChangeEvent;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 

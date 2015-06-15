@@ -40,7 +40,7 @@ public class ConsoleReader extends BufferedReader {
 
 	/**
 	 * Returns the instance (ConsoleReader is a singleton). Unnecessary since all methods are static.
-	 * 
+	 *
 	 * @return instance the one and only ConsoleReader
 	 */
 	public static ConsoleReader getInstance() {
@@ -57,7 +57,7 @@ public class ConsoleReader extends BufferedReader {
 
 	/**
 	 * Reads a string (up to CR/LF) from console and returns it.
-	 * 
+	 *
 	 * @return valueString the String read
 	 */
 	public static String readString() {
@@ -76,7 +76,7 @@ public class ConsoleReader extends BufferedReader {
 
 	/**
 	 * Prints a prompt and reads a double from the console.
-	 * 
+	 *
 	 * @param prompt
 	 *            string for console
 	 * @return the double read
@@ -89,7 +89,7 @@ public class ConsoleReader extends BufferedReader {
 
 	/**
 	 * Prints a prompt and reads an integer from the console.
-	 * 
+	 *
 	 * @param prompt
 	 *            string for console
 	 * @return the integer read
@@ -102,7 +102,7 @@ public class ConsoleReader extends BufferedReader {
 
 	/**
 	 * Prints a prompt and reads a character from the console.
-	 * 
+	 *
 	 * @param prompt
 	 *            string for console
 	 * @return the character read
@@ -120,7 +120,7 @@ public class ConsoleReader extends BufferedReader {
 
 	/**
 	 * Prints a prompt and reads a String from the console.
-	 * 
+	 *
 	 * @param prompt
 	 *            string for console
 	 * @return the String read

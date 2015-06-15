@@ -37,12 +37,12 @@ import org.springframework.web.context.support.GenericWebApplicationContext;
 public class DelegatingContextLoader extends ContextLoader {
 
 	protected BeanFactory beanFactory;
-	
+
 	/**
 	 * Creates a {@link DelegatingContextLoader} that will create an empty
 	 * {@link WebApplicationContext} with the specified bean factory as its
 	 * parent.
-	 * 
+	 *
 	 * @param beanFactory the parent bean factory
 	 */
 	public DelegatingContextLoader(BeanFactory beanFactory) {

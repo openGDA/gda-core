@@ -26,9 +26,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.times;
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Motor;
@@ -86,7 +86,7 @@ public class ScannableMotorTest {
 		assertFalse(sm.isReturningDemandPosition());
 	}
 
-	
+
 	@Test
 	public void testConfigureWithMotorName () throws FactoryException {
 		ObjectFactory factory = new ObjectFactory();
@@ -96,21 +96,21 @@ public class ScannableMotorTest {
 		TotalDummyMotor motor = new TotalDummyMotor();
 		motor.setName("motor");
 		factory.addFindable(motor);
-		
+
 		sm = new ScannableMotor();
 		sm.setMotorName("motor");
 		sm.configure();
 		assertEquals(motor, sm.getMotor());
 		assertEquals(sm.getMotorLimitsComponent(), sm.getAdditionalPositionValidators().get(0));
 	}
-	
+
 	@Test
 	public void testInputNames() {
 		assertEquals("sm", sm.getInputNames()[0]);
 		assertEquals(1, sm.getInputNames().length);
 		assertEquals(0, sm.getExtraNames().length);
 	}
-	
+
 	@Test
 	public void testSetUserUnitsWithWrongUnit() {
 		try {
@@ -120,13 +120,13 @@ public class ScannableMotorTest {
 			assertEquals("User unit eV is not acceptable. Try one of [m, nm, mm, µm, micron, um, Ang, Angstrom, micron, microns, m]", e.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testGetPosition() throws MotorException, DeviceException {
 		when(motor.getPosition()).thenReturn(1.); //mm
 		assertEquals(1000., sm.getPosition()); //micron
 	}
-	
+
 	@Test
 	public void testGetPositionWithOffset() throws MotorException, DeviceException {
 		sm.setOffset(1.);
@@ -142,8 +142,8 @@ public class ScannableMotorTest {
 		assertFalse(sm.isBusy());
 	}
 
-	
-	
+
+
 	@Test
 	public void testGetDemandPositionNoneSet() throws MotorException, DeviceException {
 		sm.setReturnDemandPosition(true);
@@ -155,7 +155,7 @@ public class ScannableMotorTest {
 		assertEquals(1.01, (Double) sm.rawGetDemandPosition(), .00001);
 		assertEquals(1010., (Double) sm.getDemandPosition(), .00001);
 	}
-	
+
 	@Test
 	public void testGetDemandPositionAtTarget() throws MotorException, DeviceException {
 		sm.setReturnDemandPosition(true);
@@ -168,7 +168,7 @@ public class ScannableMotorTest {
 		assertEquals(1., (Double) sm.rawGetDemandPosition(), .00001);
 		assertEquals(1000., (Double) sm.getDemandPosition(), .00001);
 	}
-	
+
 	@Test
 	public void testGetDemandPositionNotAtTargetMoving() throws MotorException, DeviceException {
 		sm.setReturnDemandPosition(true);
@@ -180,7 +180,7 @@ public class ScannableMotorTest {
 		assertEquals(1000., (Double) sm.getDemandPosition(), .00001);
 
 	}
-	
+
 	@Test
 	public void testGetDemandPositionNotAtTargetStationary() throws MotorException, DeviceException {
 		ITerminalPrinter mockedTerminalPrinter = mock(ITerminalPrinter.class);
@@ -195,8 +195,8 @@ public class ScannableMotorTest {
 				"WARNING: sm is returning a position based on its real motor position (1.11) rather than its last demanded position(1),\n"+
 		"as these differ by more than the configured demand position tolerance (0.1).");
 	}
-	
-	
+
+
 	@Test
 	public void testGetPositionWithDemandRequestedNoneSet() throws MotorException, DeviceException {
 		sm.setReturnDemandPosition(true);
@@ -206,7 +206,7 @@ public class ScannableMotorTest {
 		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
 		assertEquals(1010., (Double) sm.getPosition(), .00001);
 	}
-	
+
 	@Test
 	public void testGetPositionWithDemandRequestedAtTargetStationary() throws MotorException, DeviceException {
 		sm.setReturnDemandPosition(true);
@@ -224,7 +224,7 @@ public class ScannableMotorTest {
 		when(motor.getPosition()).thenReturn(1.01);
 		assertEquals(1010, (Double) sm.getPosition(), .00001);
 	}
-	
+
 	@Test
 	public void testGetPositionWithDemandRequestedNotAtTargetMoving() throws MotorException, DeviceException {
 		sm.setReturnDemandPosition(true);
@@ -233,9 +233,9 @@ public class ScannableMotorTest {
 		when(motor.getPosition()).thenReturn(1.11);
 		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
 		assertEquals(1110., (Double) sm.getPosition(), .00001);
-		
+
 	}
-	
+
 	@Test
 	public void testGetPositionWithDemandRequestedNotAtTargetStationary() throws MotorException, DeviceException {
 		ITerminalPrinter mockedTerminalPrinter = mock(ITerminalPrinter.class);
@@ -249,7 +249,7 @@ public class ScannableMotorTest {
 				"WARNING: sm is returning a position based on its real motor position (1.11) rather than its last demanded position(1),\n"+
 		"as these differ by more than the configured demand position tolerance (0.1).");
 	}
-	
+
 	@Test
 	public void testGetLimitsWithOfset() {
 		sm.setOffset(1.);
@@ -258,8 +258,8 @@ public class ScannableMotorTest {
 		assertEquals(-999., sm.getLowerGdaLimits()[0], .000001); //micron
 		assertEquals(-999., sm.getLowerGdaLimits()[0], .000001); //micron
 	}
-	
-	
+
+
 	@Test
 	public void testToFormattedString() throws MotorException {
 		when(motor.getPosition()).thenReturn(.01); //mm
@@ -294,7 +294,7 @@ public class ScannableMotorTest {
 		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
 		assertEquals("sm : 10.100micron (-1000.0:1000.0)", sm.toFormattedString());
 	}
-	
+
 	@Test
 	public void testToFormattedStringWhileReturningDemandPositionNotAtTargetAndStopped() throws DeviceException {
 		ITerminalPrinter mockedTerminalPrinter = mock(ITerminalPrinter.class);
@@ -305,7 +305,7 @@ public class ScannableMotorTest {
 		sm.setDemandPositionTolerance(.001);//mm
 		assertEquals("sm : 10.000micron (-1000.0:1000.0) *demand=200.00*", sm.toFormattedString());
 	}
-	
+
 	@Test
 	public void testToFormattedStringWhileReturningDemandPositionNotAtTargetAndMoving() throws DeviceException {
 		sm.asynchronousMoveTo(20); //um
@@ -315,8 +315,8 @@ public class ScannableMotorTest {
 		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
 		assertEquals("sm : 10.000micron (-1000.0:1000.0)", sm.toFormattedString());
 	}
-	
-	
+
+
 	@Test
 	public void testToStringWithNoMotorSet() {
 		try {
@@ -329,7 +329,7 @@ public class ScannableMotorTest {
 		}
 		fail("no exception thrown for malformed ScannbaleMotor - toString should thrown an exception");
 	}
-	
+
 	@Test
 	public void testToStringWithNoLimitsComponent() throws FactoryException {
 		sm = new ScannableMotor();
@@ -339,8 +339,8 @@ public class ScannableMotorTest {
 		sm.configure();
 		assertEquals("sm : 0.0000", sm.toFormattedString());
 	}
-	
-	
+
+
 	@Test
 	public void testToStringWithMotorLimits() throws MotorException {
 		when(motor.getPosition()).thenReturn(.01); //mm
@@ -357,8 +357,8 @@ public class ScannableMotorTest {
 		assertEquals(-999., sm.getLowerGdaLimits()[0], .000001); //micron
 		assertEquals("sm : 11.000micron(+1.0000) (-999.00:1001.0)", sm.toFormattedString());
 	}
-	
-	
+
+
 
 	@Test
 	public void testIsPositionValid() {
@@ -379,25 +379,25 @@ public class ScannableMotorTest {
 		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
 		assertTrue(sm.isBusy());
 	}
-	
+
 	@Test
 	public void testAsynchronousMoveTo() throws DeviceException, MotorException {
 		sm.asynchronousMoveTo(50); //micron
 		verify(motor).moveTo(.049999999999999996);
 	}
-	
+
 	@Test
 	public void testAsynchronousMoveTo2() throws DeviceException, MotorException {
 		sm.moveTo("0.9 mm");
 		verify(motor).moveTo(0.9000000000000001);
 	}
-	
+
 	@Test
 	public void testAsynchronousMoveTo3() throws DeviceException, MotorException {
 		sm.moveTo("5 micron");
 		verify(motor).moveTo(.004999999999999999);
 	}
-	
+
 	@Test
 	public void testIsAt1() throws DeviceException, MotorException {
 		sm.setTolerance(.1); //micron
@@ -411,9 +411,9 @@ public class ScannableMotorTest {
 		when(motor.getPosition()).thenReturn(.001); //mm
 		assertTrue(sm.isAt(Quantity.valueOf(0.001, MILLI(METER))));
 		assertFalse(sm.isAt(Quantity.valueOf(0.0012, MILLI(METER))));
-		
+
 	}
-	
+
 	@Ignore
 	@Test
 	public void testIsAt3() throws DeviceException, MotorException {
@@ -422,7 +422,7 @@ public class ScannableMotorTest {
 		assertTrue(sm.isAt("0.001 mm"));
 		assertFalse(sm.isAt("0.0012 mm"));
 	}
-	
+
 	@Test
 	public void testSetLowerGdaLimitsDouble() throws Exception {
 			assertTrue(sm.checkPositionValid(-99) == null);
@@ -472,54 +472,54 @@ public class ScannableMotorTest {
 			assertEquals("micron",sm.getHardwareUnitString());
 	}
 
-	
+
 	/**
 	 * Test with regular (dummy for example) motor.
 	 * @throws FactoryException
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Test
 	public void testConfigureWithMotor_setHwOnly() throws FactoryException, DeviceException {
-		
+
 		Motor mockedMotor = mock(Motor.class);
 		ScannableMotor scannable = new ScannableMotor();
 		scannable.setMotor(mockedMotor);
 		scannable.setName("scn_name");
-		scannable.setHardwareUnitString("eV"); 
+		scannable.setHardwareUnitString("eV");
 		scannable.configure();
 		assertEquals("eV", scannable.getHardwareUnitString());
 		assertEquals("eV", scannable.getUserUnits());
 		ArrayAssert.assertEquals(new String[] {"keV", "eV", "GeV"}, scannable.getAcceptableUnits());
 	}
-	
+
 	@Test
 	public void testConfigureWithMotor_setUserOnly() throws FactoryException, DeviceException {
 		Motor mockedMotor = mock(Motor.class);
 		ScannableMotor scannable = new ScannableMotor();
 		scannable.setMotor(mockedMotor);
 		scannable.setName("scn_name");
-		scannable.setUserUnits("eV"); 
+		scannable.setUserUnits("eV");
 		scannable.configure();
 		assertEquals("eV", scannable.getHardwareUnitString());
 		assertEquals("eV", scannable.getUserUnits());
 		ArrayAssert.assertEquals(new String[] {"keV", "eV", "GeV"}, scannable.getAcceptableUnits());
 	}
-	
+
 	@Test
 	public void testConfigureWithMotor_setUserAndHardware() throws FactoryException, DeviceException {
 		Motor mockedMotor = mock(Motor.class);
 		ScannableMotor scannable = new ScannableMotor();
 		scannable.setMotor(mockedMotor);
 		scannable.setName("scn_name");
-		scannable.setUserUnits("eV"); 
-		scannable.setHardwareUnitString("keV"); 
+		scannable.setUserUnits("eV");
+		scannable.setHardwareUnitString("keV");
 		scannable.configure();
 		assertEquals("keV", scannable.getHardwareUnitString());
 		assertEquals("eV", scannable.getUserUnits());
 		ArrayAssert.assertEquals(new String[] {"keV", "eV", "GeV"}, scannable.getAcceptableUnits());
 	}
-	
-	
+
+
 	@Test
 	public void testConfigureWithMotorThatImplementsMotorUnitStringSupplier () throws FactoryException, MotorException, DeviceException {
 		UnitStringProvidingMotor mockedMotor = mock(UnitStringProvidingMotor.class);
@@ -532,11 +532,11 @@ public class ScannableMotorTest {
 		assertEquals("keV", scannable.getUserUnits());
 		ArrayAssert.assertEquals(new String[] {"keV", "eV", "GeV"}, scannable.getAcceptableUnits());
 	}
-	
+
 	@Test
 	public void testAsyncronousMoveToExceptionIfMoving() throws MotorException {
 		when(motor.getStatus()).thenReturn(MotorStatus.BUSY);
-		
+
 		try {
 			sm.asynchronousMoveTo(50);
 			fail("DeviceExcetion expected.");
@@ -544,7 +544,7 @@ public class ScannableMotorTest {
 			assertEquals("Problem triggering sm move to 50: The motor sm was already busy so could not be moved", e.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testCheckLimitCodeIntegration() throws MotorException, DeviceException {
 		when(motor.getMinPosition()).thenReturn(-1.); //mm
@@ -552,7 +552,7 @@ public class ScannableMotorTest {
 		assertEquals(null, sm.checkPositionValid(499)); //micron
 		assertEquals("Motor limit violation on motor null: 0.501000 > 0.500000 (internal/hardware/dial values).", sm.checkPositionValid(501)); //micron
 	}
-	
+
 	@Test
 	public void testGetLowerInnerLimit() throws Exception {
 		Double nullDouble = null;
@@ -565,7 +565,7 @@ public class ScannableMotorTest {
 		when(motor.getMinPosition()).thenReturn(-.999); //mm
 		assertEquals(-999., sm.getLowerInnerLimit(), .00000001); //microns
 	}
-	
+
 	@Test
 	public void testGetUpperInnerLimit() throws Exception {
 		Double nullDouble = null;
@@ -578,8 +578,8 @@ public class ScannableMotorTest {
 		when(motor.getMaxPosition()).thenReturn(.999); //mm
 		assertEquals(999., sm.getUpperInnerLimit(), .00000001); //microns
 	}
-	
-	
+
+
 
 	@Test
 	public void testGetAttributeLimitsMin() throws Exception {
@@ -589,16 +589,16 @@ public class ScannableMotorTest {
 		when(motor.getMinPosition()).thenReturn(Double.NaN); //mm
 		when(motor.getMaxPosition()).thenReturn(Double.NaN); //mm
 		Assert.assertNull( sm.getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
-		
+
 		Double val1mm = new Double(-1.001);
 		when(motor.getMinPosition()).thenReturn(val1mm); //mm
 		Double val1microns = new Double(-1001.);
 
 		ScannableMotionUnitsBaseTest.assertAlmostEqual(new Double[] { val1microns, null}, (Double[]) sm.getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
-		
+
 		sm.setLowerGdaLimits(-1002.);//microns
 		ScannableMotionUnitsBaseTest.assertAlmostEqual(new Double[] { val1microns, null}, (Double[]) sm.getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
-		
+
 		Double val2 = new  Double(-999.);
 		sm.setLowerGdaLimits(val2);//microns
 		ScannableMotionUnitsBaseTest.assertAlmostEqual(new Double[] { val2, null}, (Double[]) sm.getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
@@ -607,7 +607,7 @@ public class ScannableMotorTest {
 		ScannableMotionUnitsBaseTest.assertAlmostEqual(new Double[] { val2, null}, (Double[]) sm.getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
 		ScannableMotionUnitsBaseTest.assertAlmostEqual(new Double[] { val2, null}, (Double[]) sm.getAttribute("limits"));
 		ScannableMotionUnitsBaseTest.assertAlmostEqual(new Double[] { val2, null},  sm.getFirstInputLimits());
-		
+
 	}
 		@Test
 		public void testGetAttributeLimitsMax() throws Exception {
@@ -616,27 +616,27 @@ public class ScannableMotorTest {
 			sm.setUpperGdaLimits(nullDouble);//microns
 			when(motor.getMinPosition()).thenReturn(Double.NaN); //mm
 			when(motor.getMaxPosition()).thenReturn(Double.NaN); //mm
-			
+
 			Double val1mm = new Double(1.001);
 			when(motor.getMaxPosition()).thenReturn(val1mm); //mm
 			Double val1microns = new Double(1001.);
 
 			ScannableMotionUnitsBaseTest.assertAlmostEqual(new Double[] { null, val1microns}, (Double[]) sm.getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
-			
+
 			sm.setUpperGdaLimits(1002.);//microns
 			ScannableMotionUnitsBaseTest.assertAlmostEqual(new Double[] { null, val1microns}, (Double[]) sm.getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
-			
+
 			Double val2 = new  Double(999.);
 			sm.setUpperGdaLimits(val2);//microns
 			ScannableMotionUnitsBaseTest.assertAlmostEqual(new Double[] { null, val2}, (Double[]) sm.getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
-			
+
 			when(motor.getMaxPosition()).thenReturn(Double.NaN); //mm
 			ScannableMotionUnitsBaseTest.assertAlmostEqual(new Double[] { null, val2},  (Double[]) sm.getAttribute(ScannableMotion.FIRSTINPUTLIMITS));
 			ScannableMotionUnitsBaseTest.assertAlmostEqual(new Double[] { null, val2},  (Double[]) sm.getAttribute("limits"));
 			ScannableMotionUnitsBaseTest.assertAlmostEqual(new Double[] { null, val2},  sm.getFirstInputLimits());
 	}
-	
-	
+
+
 		@Test
 		public void testGetMotorLimit() throws DeviceException, MotorException {
 			when(motor.getMinPosition()).thenReturn(-1.); //mm
@@ -644,13 +644,13 @@ public class ScannableMotorTest {
 			assertEquals(-1000., sm.getLowerMotorLimit(), .00001); //micorn
 			assertEquals(800., sm.getUpperMotorLimit(), .00001); //micorn
 		}
-		
+
 		@Test (expected=DeviceException.class)
 		public void testGetLowerMotorLimitWithNoMotorLimitsComponent() throws DeviceException {
 			sm.setMotorLimitsComponent(null);
 			sm.getLowerMotorLimit();
 		}
-		
+
 		@Test (expected=DeviceException.class)
 		public void testGetUpperMotorLimitWithNoMotorLimitsComponent() throws DeviceException {
 			sm.setMotorLimitsComponent(null);
@@ -666,7 +666,7 @@ public class ScannableMotorTest {
 			assertEquals(-800., sm.getLowerMotorLimit(), .00001); //micorn
 			assertEquals(1000., sm.getUpperMotorLimit(), .00001); //micorn
 		}
-		
+
 		@Test
 		public void testToStringWithNegativeScalingFactor() throws Exception {
 			when(motor.getPosition()).thenReturn(.01); //mm
@@ -677,7 +677,7 @@ public class ScannableMotorTest {
 			sm.setUpperGdaLimits(800.);
 			assertEquals("sm : -10.000micron (-1000.0:800.00) mot(-10.000:20.000)", sm.toFormattedString());
 		}
-		
+
 		@Test
 		public void testCheckPositionWithNegativeScalingFactor_MotorLimits() throws Exception {
 			Double nullDouble = null;
@@ -694,7 +694,7 @@ public class ScannableMotorTest {
 			assertEquals("Motor limit violation on motor motname: -0.021000 < -0.020000 (internal/hardware/dial values).", sm.checkPositionValid(21.));//micron
 			assertEquals("Motor limit violation on motor motname: 0.011000 > 0.010000 (internal/hardware/dial values).", sm.checkPositionValid(-11.));//micron
 		}
-		
+
 		@Test
 		public void testCheckPositionWithNegativeScalingFactor_ScannableLimits() throws Exception {
 			when(motor.getMinPosition()).thenReturn(Double.NaN);//mm
@@ -702,14 +702,14 @@ public class ScannableMotorTest {
 			sm.setScalingFactor(-1.);
 			sm.setLowerGdaLimits(-1000.);
 			sm.setUpperGdaLimits(800.);
-			
+
 			assertEquals(null, sm.checkPositionValid(0.));//micron
 			assertEquals(null, sm.checkPositionValid(-999));//micron
 			assertEquals(null, sm.checkPositionValid(799));//micron
 			assertEquals("Scannable limit violation on sm.sm: 1.001 > 1.0 (internal/hardware/dial values).", sm.checkPositionValid(-1001));//micron
 			assertEquals("Scannable limit violation on sm.sm: -0.8009999999999999 < -0.7999999999999999 (internal/hardware/dial values).", sm.checkPositionValid(801));//micron
 		}
-		
+
 		@Test
 		public void testCopyMotorLimitsIntoScannableLimitsAtConfiguration_Off() throws MotorException, FactoryException {
 			LocalProperties.set(ScannableMotor.COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS, "false");
@@ -722,8 +722,8 @@ public class ScannableMotorTest {
 			assertEquals(nullDouble,  sm.getLowerGdaLimits());
 			assertEquals(nullDouble,  sm.getUpperGdaLimits());
 		}
-		
-		
+
+
 		@Test
 		public void testCopyMotorLimitsIntoScannableLimitsAtConfiguration_Limits_ManuallySet() throws Exception {
 			LocalProperties.set(ScannableMotor.COPY_MOTOR_LIMITS_INTO_SCANNABLE_LIMITS, "true");
@@ -750,7 +750,7 @@ public class ScannableMotorTest {
 			assertEquals(-20. , sm.getLowerGdaLimits()[0], 0.001);
 			assertEquals(10., sm.getUpperGdaLimits()[0], 0.001);
 		}
-		
+
 		@Test
 		public void testCopyMotorLimitsIntoScannableLimitsAtConfiguration_OnUnitsAndOffset() throws MotorException, FactoryException, DeviceException {
 			LocalProperties.set("gda.device.scannable.ScannableMotor.copyMotorLimitsIntoScannableLimits", "true");
@@ -765,7 +765,7 @@ public class ScannableMotorTest {
 			assertEquals(-9000.,  sm.getLowerGdaLimits()[0], .0001);//micron
 			assertEquals(7000.,  sm.getUpperGdaLimits()[0], .00001);//micron
 		}
-		
+
 		@Test
 		public void testCopyMotorLimitsIntoScannableLimitsAtConfiguration_OnUnitsAndScale() throws MotorException, FactoryException, DeviceException {
 			LocalProperties.set("gda.device.scannable.ScannableMotor.copyMotorLimitsIntoScannableLimits", "true");
@@ -780,7 +780,7 @@ public class ScannableMotorTest {
 			assertEquals(-6000.,  sm.getLowerGdaLimits()[0], .0001);//micron
 			assertEquals(10000.,  sm.getUpperGdaLimits()[0], .00001);//micron
 		}
-		
+
 		@Test
 		public void testCopyMotorLimitsIntoScannableLimitsAtConfiguration_NoMotorLimits() throws MotorException, FactoryException {
 			LocalProperties.set("gda.device.scannable.ScannableMotor.copyMotorLimitsIntoScannableLimits", "true");
@@ -792,7 +792,7 @@ public class ScannableMotorTest {
 			assertEquals(-Double.MAX_VALUE, sm.getLowerGdaLimits()[0], .001);
 			assertEquals( Double.MAX_VALUE, sm.getUpperGdaLimits()[0], .001);
 		}
-		
+
 		@After
 		public void tearDown() {
 			LocalProperties.clearProperty("gda.device.scannable.ScannableMotor.copyMotorLimitsIntoScannableLimits");

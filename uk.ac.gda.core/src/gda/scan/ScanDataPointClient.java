@@ -37,14 +37,14 @@ public class ScanDataPointClient {
 	 */
 	public static IScanDataPoint convertToken(ScanDataPointVar sdpt) throws DeviceException {
 		if (lastScanData == null || !lastScanData.getUniqueName().equals(sdpt.getToken().getId())) {
-			
+
 			final IScanDataPointServer server = Finder.getInstance().findNoWarn(ScanDataPointServer.class.getSimpleName());
-			
+
 			if (server != null) {
 				// we have a client-side proxy to the real server
 				lastScanData = server.___convertTokenId(sdpt.getToken().getId());
 			}
-			
+
 			else {
 				// use the SimpleServlet
 				lastScanData = (ScanData) SimpleServletAdapter.runServlet(

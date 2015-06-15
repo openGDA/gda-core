@@ -19,16 +19,16 @@
 
 package gda.device.spin.corba.impl;
 
-import java.io.Serializable;
-
-import org.omg.CORBA.Any;
-
 import gda.device.DeviceException;
 import gda.device.ISpin;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.device.spin.corba.CorbaSpinPOA;
 import gda.factory.corba.CorbaFactoryException;
+
+import java.io.Serializable;
+
+import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed Spin class
@@ -43,7 +43,7 @@ public class SpinImpl extends CorbaSpinPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param spin
 	 *            the Spin implementation object
 	 * @param poa
@@ -57,7 +57,7 @@ public class SpinImpl extends CorbaSpinPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Robot implementation object
 	 */
 	public ISpin _delegate() {
@@ -66,7 +66,7 @@ public class SpinImpl extends CorbaSpinPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param spin
 	 *            set the Robot implementation object
 	 */
@@ -287,7 +287,7 @@ public class SpinImpl extends CorbaSpinPOA {
 	public void atStart() throws CorbaDeviceException {
 		scannableImpl.atStart();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return scannableImpl.getProtectionLevel();
@@ -297,17 +297,17 @@ public class SpinImpl extends CorbaSpinPOA {
 	public void setProtectionLevel(int newLevel) throws CorbaDeviceException {
 		scannableImpl.setProtectionLevel(newLevel);
 	}
-	
+
 	@Override
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		scannableImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return scannableImpl.toFormattedString();

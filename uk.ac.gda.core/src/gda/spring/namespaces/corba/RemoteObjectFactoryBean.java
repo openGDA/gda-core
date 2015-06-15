@@ -28,31 +28,31 @@ import org.springframework.beans.factory.FactoryBean;
 public class RemoteObjectFactoryBean implements FactoryBean<Findable>, BeanNameAware {
 
 	private String beanName;
-	
+
 	@Override
 	public void setBeanName(String beanName) {
 		this.beanName = beanName;
 	}
 
 	private NetService netService;
-	
+
 	public void setNetService(NetService netService) {
 		this.netService = netService;
 	}
-	
+
 	private String remoteName;
-	
+
 	public void setRemoteName(String remoteName) {
 		this.remoteName = remoteName;
 	}
-	
+
 	@Override
 	public Class<?> getObjectType() {
 		return Findable.class;
 	}
 
 	protected Findable adapter;
-	
+
 	@Override
 	public Findable getObject() throws Exception {
 		synchronized (this) {

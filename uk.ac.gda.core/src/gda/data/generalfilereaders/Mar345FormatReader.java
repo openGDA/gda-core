@@ -102,7 +102,7 @@ public class Mar345FormatReader {
 
 	/*******************************************************************************************************************
 	 * Function: unpack_word
-	 * 
+	 *
 	 * @param bufferedReader
 	 * @param x
 	 * @param y
@@ -182,7 +182,7 @@ public class Mar345FormatReader {
 
 	/**
 	 * Open an image file.
-	 * 
+	 *
 	 * @param filePath
 	 */
 	public static void openImage(String filePath) {

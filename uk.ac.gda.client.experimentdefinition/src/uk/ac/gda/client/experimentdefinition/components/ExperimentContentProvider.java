@@ -41,29 +41,29 @@ public class ExperimentContentProvider implements ITreeContentProvider {
 
 	private String            templateName;
 	private ExperimentObjectListener runObjectListener;
-	
+
 	public ExperimentContentProvider(final ExperimentObjectListener l) {
 		setTemplateName("Configuration");
 		this.runObjectListener = l;
 	}
-	
+
 	@Override
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement==null) return null;
-		
+
 		if (parentElement instanceof IFile) {
 		    throw new RuntimeException("Found IFile where not expected "+parentElement);
-		    
+
 		} else if (parentElement instanceof IFolder) {
-			
+
 			final IFolder folder = (IFolder)parentElement;
 			if (folder.getName().indexOf(' ')>-1) return null;
 			if (folder.getResourceAttributes().isReadOnly()) return null;
-		    
+
 			try {
 				final List<IFile> files = ISortingUtils.getSortedFileList(folder, ".scan");
 				if (files==null||files.size()<1) return null;
-				
+
 				final IExperimentObjectManager [] mans = new IExperimentObjectManager[files.size()];
 				for (int i = 0; i < files.size(); i++) {
 					try {
@@ -78,9 +78,9 @@ public class ExperimentContentProvider implements ITreeContentProvider {
 				ne.printStackTrace();
 				return null;
 			}
-			
+
 		} else if (parentElement instanceof IProject) {
-		   
+
 			try {
 				List<IFolder> files = ISortingUtils.getSortedFolderList((IProject)parentElement);
 				return files.toArray();
@@ -92,12 +92,12 @@ public class ExperimentContentProvider implements ITreeContentProvider {
 		} else if (parentElement instanceof IExperimentObjectManager) {
 			final IExperimentObjectManager manager = (IExperimentObjectManager)parentElement;
 			return manager.getExperimentList().toArray(new IExperimentObject[0]);
-			
+
 		} else if (parentElement instanceof IExperimentObject) {
 			// TODO Show files in tree?
 			return null;
 		}
-		
+
 		return null;
 	}
 
@@ -105,7 +105,7 @@ public class ExperimentContentProvider implements ITreeContentProvider {
 	public Object getParent(Object element) {
 		if (element==null)                        return null;
 		if (ExperimentFactory.getExperimentEditorManager().getProjectFolder().equals(element)) return null;
-		
+
 		if (element instanceof IExperimentObject) {
 			return ExperimentFactory.getManager((IExperimentObject) element);
 		}
@@ -132,7 +132,7 @@ public class ExperimentContentProvider implements ITreeContentProvider {
 		}
 		return getChildren(inputElement);
 	}
-	
+
 	public Object getRoot() {
 		return ExperimentFactory.getExperimentEditorManager().getCurrentProject();
 	}
@@ -144,7 +144,7 @@ public class ExperimentContentProvider implements ITreeContentProvider {
 	public void setTemplateName(String templateName) {
 		this.templateName = templateName;
 	}
-	
+
 	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
@@ -160,4 +160,3 @@ public class ExperimentContentProvider implements ITreeContentProvider {
 
 }
 
-	

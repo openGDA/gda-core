@@ -24,7 +24,7 @@ import gda.device.DeviceException;
 public class DummyHardwareTriggerableDetector extends HardwareTriggerableDetectorBase {
 
 	private boolean integrating = false;
-	
+
 	public DummyHardwareTriggerableDetector(String name) {
 		setName(name);
 		setInputNames(new String[] { name });
@@ -36,7 +36,7 @@ public class DummyHardwareTriggerableDetector extends HardwareTriggerableDetecto
 	public int[] getDataDimensions() throws DeviceException {
 		return new int[] { 1 };
 	}
-	
+
 	@Override
 	public void collectData() throws DeviceException {
 	}
@@ -74,12 +74,12 @@ public class DummyHardwareTriggerableDetector extends HardwareTriggerableDetecto
 	@Override
 	public void update(Object source, Object arg) {
 	}
-	
+
 	@Override
 	public boolean integratesBetweenPoints() {
 		return integrating;
 	}
-	
+
 	public void setIntegrating(boolean b) {
 		integrating = b;
 	}

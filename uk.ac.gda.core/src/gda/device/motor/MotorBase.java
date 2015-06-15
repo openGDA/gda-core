@@ -82,7 +82,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 
 	/**
 	 * Changes the maximum velocity fast speed setting.
-	 * 
+	 *
 	 * @param fastSpeed
 	 *            velocity in motor hardware units
 	 */
@@ -100,7 +100,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 
 	/**
 	 * Changes the maximum velocity medium speed setting.
-	 * 
+	 *
 	 * @param mediumSpeed
 	 *            velocity in motor hardware units
 	 */
@@ -118,7 +118,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 
 	/**
 	 * Changes the maximum velocity slow speed setting.
-	 * 
+	 *
 	 * @param slowSpeed
 	 *            velocity in motor hardware units
 	 */
@@ -136,7 +136,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 
 	/**
 	 * Changes the current backlash correction to the specified hardware units.
-	 * 
+	 *
 	 * @param backlashSteps
 	 *            backlash correction drive in motor hardware units
 	 */
@@ -154,7 +154,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 	/**
 	 * Checks whether this motor is allowed to change its hardware soft limits. Motor implementations should overide
 	 * this method if required.
-	 * 
+	 *
 	 * @return a default of false here, but would return true where limits are settable.
 	 */
 	@Override
@@ -164,7 +164,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 
 	/**
 	 * Sets whether this motor should change the hardware's soft limits.
-	 * 
+	 *
 	 * @param limitsSettable
 	 *            flag true if limits are settable
 	 */
@@ -174,7 +174,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 
 	/**
 	 * saves motor's current position, the persistence path is fixed by java.properties
-	 * 
+	 *
 	 * @param name
 	 *            of file for position save
 	 */
@@ -188,7 +188,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 
 	/**
 	 * saves motor's current position, the persistence path is fixed by java.properties
-	 * 
+	 *
 	 * @param name
 	 *            of file for position save
 	 * @param currentPosition
@@ -230,7 +230,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 	/**
 	 * loads motor's current position, the persistence path is fixed by java.properties FIXME perhaps loadPosition
 	 * should throw MotorBaseException but may have big impact on code base
-	 * 
+	 *
 	 * @param name
 	 *            persistent filename
 	 * @param defaultPosition
@@ -328,7 +328,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 	/**
 	 * The calculation used to determine the size of the first part of a backlash move and to set whether backlash is
 	 * required.
-	 * 
+	 *
 	 * @param increment
 	 *            requested size of move in hardware units
 	 * @return size of move adjusted for backlash correction if needed
@@ -346,7 +346,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 	/**
 	 * If backlash is required, this method instigates the final backlash move. This method works for motors which use
 	 * incremental moves and should be overridden by motors which use absolute encoder positions.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override
@@ -361,7 +361,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 	 * Sets the software limits. Some motors/motor controllers are capable of setting up softlimits in them so that the
 	 * so that the hard limit switch is never hit (at least theoretically) Such motor implementations should overide
 	 * this method if required.
-	 * 
+	 *
 	 * @param minPosition
 	 *            the minimum softlimit
 	 * @param maxPosition
@@ -391,7 +391,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 
 	/**
 	 * Checks if the motor is homeable or not. Motor implementations should overide this method if required.
-	 * 
+	 *
 	 * @return if the motor is homeable. Returns false!
 	 */
 	@Override
@@ -401,9 +401,9 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 
 	/**
 	 * Checks if the motor is homed or not. Motor implementations should overide this method if required.
-	 * 
+	 *
 	 * @return if the motor is homed. Returns false!
-	 * @throws MotorException 
+	 * @throws MotorException
 	 */
 	@Override
 	public boolean isHomed() throws MotorException {
@@ -412,7 +412,7 @@ public abstract class MotorBase extends DeviceBase implements Motor, Serializabl
 
 	/**
 	 * Moves the motor to a repeatable starting location. Motor implementations should overide this method if required.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override

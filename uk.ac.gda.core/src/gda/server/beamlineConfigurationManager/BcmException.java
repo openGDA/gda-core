@@ -27,9 +27,9 @@ import java.util.Collection;
 public class BcmException extends Exception {
 
 	private Collection<String> conflictingScannableNames = null;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public BcmException() {
 	}
@@ -64,7 +64,7 @@ public class BcmException extends Exception {
 	public Collection<String> getConflictingScannableNames() {
 		return conflictingScannableNames;
 	}
-	
+
 	/**
 	 * @param conflictingScannableNames
 	 */

@@ -30,14 +30,14 @@ public interface Filter {
 	/**
 	 * Event is not to be processed by this filter
 	 */
-	NOT, 
+	NOT,
 	/**
 	 *  Event is to be processed by this filter only
 	 */
 	EXCLUSIVE}
 	/**
 	 * Apply the filter to the event
-	 * 
+	 *
 	 * @param event
 	 *            the event to be tested
 	 * @return true if the event is desired, false otherwise

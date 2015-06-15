@@ -29,5 +29,5 @@ public class SimpleConverter extends SimpleConverterBase {
 	public void setConverter(IReloadableQuantitiesConverter converter) {
 		this.converter = converter;
 	}
-	
+
 }

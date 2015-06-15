@@ -25,18 +25,18 @@ public interface PositionConvertor {
 
 	/**
 	 * Converts a position array toward its internal (hardware) representation.
-	 * 
+	 *
 	 * @param externalPosition
-	 * 
+	 *
 	 * @return internalPosition
 	 */
 	Object externalTowardInternal(Object externalPosition);
 
 	/**
 	 * Converts a position array toward its external (user) representation.
-	 * 
+	 *
 	 * @param internalPosition
-	 * 
+	 *
 	 * @return externalPosition
 	 */
 	Object internalTowardExternal(Object internalPosition);

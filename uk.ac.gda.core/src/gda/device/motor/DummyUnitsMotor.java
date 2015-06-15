@@ -24,12 +24,13 @@ import gda.device.scannable.MotorUnitStringSupplier;
 public class DummyUnitsMotor extends DummyMotor implements MotorUnitStringSupplier {
 
 	String unitString = "mm";
-	
+
 	@Override
 	public String getUnitString() throws MotorException {
 		return unitString;
 	}
-	
+
+	@Override
 	public void setUnitString(String unitsName) {
 		unitString = unitsName;
 	}

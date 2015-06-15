@@ -32,29 +32,29 @@ import java.util.Vector;
  * Mainly for use outside of scans.
  */
 public class FileRegistrarHelper {
-	
+
 	private static List<IFileRegistrar> registrars;
-	
+
 	@SuppressWarnings("unchecked")
 	private static void fillRegistrars() {
 		if (registrars == null || registrars.isEmpty()) {
 			Map<String, Findable> findables = Finder.getInstance().getFindablesOfType(IFileRegistrar.class);
-			
+
 			registrars = new Vector<IFileRegistrar>((Collection<? extends IFileRegistrar>) findables.values());
 		}
 	}
-	
+
 	public static void forceRediscover() {
 		registrars = null;
 	}
-	
+
 	/**
 	 * Register file with all configured instances of IFileRegistrar
 	 * @param file
 	 */
 	public static void registerFile(String file) {
 		fillRegistrars();
-		
+
 		for (IFileRegistrar registry : registrars) {
 			registry.registerFile(file);
 		}

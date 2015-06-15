@@ -24,7 +24,7 @@ import org.eclipse.ui.part.ViewPart;
  * Interface to be implemented by objects that can create an Eclipse view.
  */
 public interface IViewFactory {
-	
+
 	public ViewPart createView();
 
 }

@@ -51,7 +51,7 @@ public class ConstantVelocityScanLineTest {
 			System.out.print(text);
 		}
 	}
-	
+
 	public static ContinuouslyScannableViaController createMockScannableViaController(String name, ContinuousMoveController controller) throws DeviceException {
 		ContinuouslyScannableViaController scn = mock(ContinuouslyScannableViaController.class, name);
 		when(scn.getName()).thenReturn(name);
@@ -77,37 +77,37 @@ public class ConstantVelocityScanLineTest {
 		when(det.getLevel()).thenReturn(100);
 		return det;
 	}
-	
+
 	private ContinuouslyScannableViaController mockscn;
 	private ConstantVelocityMoveController mockedController;
-	
+
 	private HardwareTriggerableDetector mockeddet1;
 	private HardwareTriggerableDetector mockeddet2;
-	
+
 	private DummyHardwareTriggerableAreaDetector dummydet1;
 	private DummyHardwareTriggerableAreaDetector dummydet2;
-	
+
 	@Before()
 	public void before() throws DeviceException {
-		
+
 		InterfaceProvider.setTerminalPrinterForTesting(new TerminalPrinter());
 
-		
+
 		mockedController = mock(ConstantVelocityMoveController.class);
 		when(mockedController.getName()).thenReturn("mockedController");
-		
+
 		mockscn = createMockScannableViaController("scn", mockedController);
-		
+
 		mockeddet1 = createMockDetector("mockeddet1");
 		when(mockeddet1.getHardwareTriggerProvider()).thenReturn(mockedController);
 		mockeddet2 = createMockDetector("mockeddet2");
 		when(mockeddet2.getHardwareTriggerProvider()).thenReturn(mockedController);
-		
+
 		dummydet1 = new DummyHardwareTriggerableAreaDetector("dummydet1");
 		dummydet1.setHardwareTriggerProvider(mockedController);
 		dummydet2 = new DummyHardwareTriggerableAreaDetector("dummydet2");
 		dummydet2.setHardwareTriggerProvider(mockedController);
-		
+
 	}
 
 	@Test
@@ -116,10 +116,10 @@ public class ConstantVelocityScanLineTest {
 		LocalProperties.set("gda.data.scan.datawriter.dataFormat", "DummyDataWriter");
 
 		ConstantVelocityScanLine scan = new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1., mockeddet1, 2., mockeddet2});
-		
+
 		scan.runScan();
 		InOrder inOrder = inOrder(mockscn, mockedController, mockeddet1, mockeddet2);
-		
+
 		inOrder.verify(mockeddet1).setCollectionTime(2.); // must be called in constructor!
 		inOrder.verify(mockscn).setOperatingContinuously(true);
 		inOrder.verify(mockeddet1).setHardwareTriggering(true);
@@ -133,13 +133,13 @@ public class ConstantVelocityScanLineTest {
 		inOrder.verify(mockedController).setEnd(2.);
 		inOrder.verify(mockedController).setStep(1.);
 		inOrder.verify(mockedController).prepareForMove();
-		
+
 		// inOrder.verify(mockeddet1).collectData(); // order unimportant, and can vary
 		// inOrder.verify(mockeddet2).collectData(); // order unimportant, and can vary
-		
+
 		inOrder.verify(mockedController).startMove();
 		inOrder.verify(mockedController).waitWhileMoving();
-		
+
 		verify(mockeddet1, times(1)).collectData();
 		verify(mockeddet2, times(1)).collectData();
 
@@ -149,7 +149,7 @@ public class ConstantVelocityScanLineTest {
 	public void singleLineScanMockScannablesAndTwoMockDetectorsIntegratingWhole() throws InterruptedException, Exception {
 		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "singleLineScanMockScannablesAndTwoMockDetectorsIntegrating", true);
 		InOrder inOrder = runSequence();
-		
+
 		inOrder.verify(mockeddet1).setCollectionTime(2.); // must be called in constructor!
 		inOrder.verify(mockscn).setOperatingContinuously(true);
 		inOrder.verify(mockeddet1).setHardwareTriggering(true);
@@ -159,20 +159,20 @@ public class ConstantVelocityScanLineTest {
 		inOrder.verify(mockscn).asynchronousMoveTo(0.);
 		inOrder.verify(mockscn).asynchronousMoveTo(1.);
 		inOrder.verify(mockscn).asynchronousMoveTo(2.);
-		
+
 		inOrder.verify(mockedController).stopAndReset();
 		inOrder.verify(mockedController).setStart(-.5);
 		inOrder.verify(mockedController).setEnd(1.5);
 		inOrder.verify(mockedController).setStep(1.);
-		
-		
+
+
 		inOrder.verify(mockedController).prepareForMove();
 //		inOrder.verify(mockeddet1).collectData();
 //		inOrder.verify(mockeddet2).collectData();
 		inOrder.verify(mockedController).startMove();
-		
+
 		inOrder.verify(mockedController).waitWhileMoving();
-		
+
 		verify(mockeddet1, times(1)).collectData();
 		verify(mockeddet2, times(1)).collectData();
 	}
@@ -196,7 +196,7 @@ public class ConstantVelocityScanLineTest {
 		inOrder.verify(mockeddet2).collectData();
 		inOrder.verify(mockedController).startMove();
 	}
-	
+
 	private InOrder runSequence() throws InterruptedException, Exception {
 		LocalProperties.set("gda.data.scan.datawriter.dataFormat", "DummyDataWriter");
 		when(mockeddet1.integratesBetweenPoints()).thenReturn(true);
@@ -208,13 +208,13 @@ public class ConstantVelocityScanLineTest {
 		InOrder inOrder = inOrder(mockscn, mockedController, mockeddet1, mockeddet2);
 		return inOrder;
 	}
-	
-	
+
+
 	@SuppressWarnings("unused")
 	public void testReadOnlyScannablesAllowed() throws Exception {
 		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "testReadOnlyScannablesAllowed", true);
 		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1, mockeddet1, 2., mockscn});
-		
+
 	}
 
 	@SuppressWarnings("unused")
@@ -222,9 +222,9 @@ public class ConstantVelocityScanLineTest {
 	public void testInvalidArgsNoDetector() throws Exception {
 		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "testInvalidArgsNoDetector", true);
 		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1});
-		
+
 	}
-	
+
 	@SuppressWarnings("unused")
 	@Test
 	public void testZIEScannablesAllowed() throws Exception {
@@ -233,24 +233,24 @@ public class ConstantVelocityScanLineTest {
 		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1, mockeddet1, 2., mockziescn, mockscn});
 		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1, mockeddet1, 2., mockziescn});
 		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1, mockeddet1, 2., mockscn, mockziescn, mockeddet2});
-		
+
 	}
-	
+
 	@SuppressWarnings("unused")
 	@Test (expected=IllegalArgumentException.class)
 	public void testInvalidArgsMovingScannablesWithinInnerLoop() throws Exception {
 		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "testInvalidArgsMovingScannablesThatMustBeReadOnly", true);
 		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1, mockeddet1, 2., mockscn, 999.});
-		
+
 	}
-	
+
 	@SuppressWarnings("unused")
 	@Test (expected=IllegalArgumentException.class)
 	public void testInvalidArgsMovingZIEScannablesWithinInnerLoop() throws Exception {
 		Scannable mockziescn = MockFactory.createMockZieScannable("zie", 5);
 		TestHelpers.setUpTest(ConstantVelocityScanLineTest.class, "testInvalidArgsMovingScannablesThatMustBeReadOnly", true);
 		new ConstantVelocityScanLine(new Object[]{mockscn, 0., 2., 1, mockeddet1, 2., mockscn, mockziescn, 999.});
-		
+
 	}
 
 }

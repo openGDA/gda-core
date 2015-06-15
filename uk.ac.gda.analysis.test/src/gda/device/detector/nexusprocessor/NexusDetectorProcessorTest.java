@@ -127,7 +127,7 @@ public class NexusDetectorProcessorTest {
 
 	/**
 	 * position should be the position returned from the processor only
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -149,7 +149,7 @@ public class NexusDetectorProcessorTest {
 
 	/**
 	 * position should be the position returned from the processor only
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -177,7 +177,7 @@ public class NexusDetectorProcessorTest {
 
 	/**
 	 * position should be the position returned from the processor only
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -314,7 +314,7 @@ public class NexusDetectorProcessorTest {
 		Assert.assertEquals(8, position.getDoubleVals().length);
 		Double calcCentreX = position.getDoubleVals()[0];
 		Assert.assertEquals(centreX, calcCentreX, centreX/10.);
-		
+
 		NexusGroupData dataX = position.getData(DETNAME, "data.1_centre", "SDS");
 		double calcCentreX_SDS = ((double[])dataX.getBuffer())[0];
 		Assert.assertEquals(centreX, calcCentreX_SDS, centreX/10.);
@@ -372,8 +372,8 @@ public class NexusDetectorProcessorTest {
 		GDANexusDetectorData position = (GDANexusDetectorData) ndp.getPosition();
 		Assert.assertEquals(0, position.getDoubleVals().length);
 	}
-	
-	
+
+
 	@Test
 	public void testDoubleCall() throws Exception {
 
@@ -394,12 +394,12 @@ public class NexusDetectorProcessorTest {
 		ndp.setMergeWithDetectorData(true);
 
 		DatasetCreatorFromROI dsroi = new DatasetCreatorFromROI();
-		
+
 		dsroi.setEnable(true);
 		Slice xSlice = new Slice(2, 6);
 		Slice[] sliceArray = new Slice[]{xSlice, xSlice};
 		dsroi.setSliceArray(sliceArray);
-		
+
 		DatasetStats stats = new DatasetStats();
 		List<DataSetProcessor> processors = new Vector<DataSetProcessor>();
 		processors.add(stats);
@@ -411,18 +411,18 @@ public class NexusDetectorProcessorTest {
 		NexusTreeProviderProcessors processor = new NexusTreeProviderProcessors();
 		processor.setProcessors(processorList);
 		ndp.setProcessor(processor);
-		
+
 		GDANexusDetectorData position = (GDANexusDetectorData) ndp.getPosition();
 		Assert.assertEquals(3, position.getDoubleVals().length);
 		Double sum = position.getDoubleVals()[1];
 		Double expected=(double) (xSlice.getNumSteps()*xSlice.getNumSteps());
 		Assert.assertEquals(expected, sum, 0.);
-		
+
 		NexusGroupData dataX = position.getData(DETNAME, "data.total", "SDS");
 		double sum_SDS = ((double[])dataX.getBuffer())[0];
 		Assert.assertEquals(expected, sum_SDS, 0.);
 
-		
+
 	}
 }
 

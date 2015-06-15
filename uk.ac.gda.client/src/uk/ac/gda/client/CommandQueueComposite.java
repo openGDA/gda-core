@@ -132,7 +132,7 @@ public class CommandQueueComposite extends Composite {
 				return (entry.id == CommandId.noneCommand) ? "" : Integer.toString(item.index);
 			}
 		});
-		
+
 		// add Label and Content providers for Description column
 		TableViewerColumn tableViewerColumn = new TableViewerColumn(tableViewer, SWT.LEFT);
 		TableColumn column = tableViewerColumn.getColumn();
@@ -286,12 +286,12 @@ public class CommandQueueComposite extends Composite {
 
 			@Override
 			public void dragStart(DragSourceEvent event) {
-				event.doit = true; 
+				event.doit = true;
 			}
 
 			@Override
 			public void dragSetData(DragSourceEvent event) {
-				event.data = null; 
+				event.data = null;
 				event.doit = false;
 				try {
 					if (FileTransfer.getInstance().isSupportedType(event.dataType)
@@ -490,12 +490,12 @@ class QueueContentProvider implements IStructuredContentProvider {
 	public Object[] getElements(Object inputElement) {
 		try {
 			List<QueuedCommandSummary> summaryList = currentQueue != null ? currentQueue.getSummaryList() : null;
-			
+
 			if (summaryList == null || summaryList.isEmpty()) {
 				final QueuedCommandSummary emptyEntry = new QueuedCommandSummary(CommandId.noneCommand, new SimpleCommandSummary("Empty"));
 				summaryList = Collections.singletonList(emptyEntry);
 			}
-			
+
 			// Wrap each QueuedCommandSummary in a NumberedQueueEntry
 			final NumberedQueueEntry[] numberedEntries = new NumberedQueueEntry[summaryList.size()];
 			for (ListIterator<QueuedCommandSummary> it = summaryList.listIterator(); it.hasNext(); ) {
@@ -505,9 +505,9 @@ class QueueContentProvider implements IStructuredContentProvider {
 				numberedEntries[index].index = (index + 1);
 				numberedEntries[index].entry = entry;
 			}
-			
+
 			return numberedEntries;
-			
+
 		} catch (Exception e) {
 			logger.error("Error in getElements", e);
 		}

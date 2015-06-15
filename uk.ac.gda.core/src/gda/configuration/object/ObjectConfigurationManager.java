@@ -55,7 +55,7 @@ public class ObjectConfigurationManager {
 
 	/**
 	 * returns the XML configuration data
-	 * 
+	 *
 	 * @param filename
 	 * @return XML configuration data
 	 * @throws FileNotFoundException

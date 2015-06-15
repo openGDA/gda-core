@@ -19,23 +19,23 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.MotorException;
 import gda.factory.Findable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides RS232 communications for Parker6kController and is embedded in Parker6kMotor instance. Currently this
  * provides a simulator class as base class methods are not overridden (i.e. sendCommand() and buildReply())
- * 
+ *
  * @see Parker6kMotor
  * @see Parker6kController
  */
 public class Parker6kControllerRS232 extends Parker6kController implements Findable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Parker6kControllerRS232.class);
-	
+
 	private String className = getClass().getName();
 
 	private String port = "none";

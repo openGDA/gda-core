@@ -31,11 +31,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ScanTree extends DefaultTreeModel {
-	private static final Logger logger = LoggerFactory.getLogger(ScanTree.class);	
+	private static final Logger logger = LoggerFactory.getLogger(ScanTree.class);
 	public XYDataHandler simplePlot;
 	private boolean hideOldestScan = false;
 	private int numberOfScansBeforeHiding = 0;
-	
+
 	/**
 	 * @param root
 	 * @param simplePlot
@@ -120,13 +120,13 @@ public class ScanTree extends DefaultTreeModel {
 				while (e.hasMoreElements()) {
 					TreeNode n = e.nextElement();
 					getNamesOfVisibleLinesInNode(names, (SelectableNode) n, visibility);
-				}	
+				}
 			} else if (nextLevelNode instanceof SelectableNode) {
 				getNamesOfVisibleLinesInNode(names, (SelectableNode)nextLevelNode, visibility);
 			}
 		}
 	}
-	
+
 	private void hideLastScan(ScanTreeM scanTreeM){
 		if(scanTreeM.getChildCount()>1){
 			SelectableNode selNode = (SelectableNode)scanTreeM.getChildAt(1);
@@ -134,7 +134,7 @@ public class ScanTree extends DefaultTreeModel {
 			reload(selNode);
 		}
 	}
-	
+
 	private void hideOldestScan(ScanTreeM scanTreeM){
 		int numberOfScans = scanTreeM.getChildCount();
 		if(numberOfScans>numberOfScansBeforeHiding && numberOfScansBeforeHiding!=0){
@@ -144,9 +144,9 @@ public class ScanTree extends DefaultTreeModel {
 			}
 		}
 	}
-	
+
 	/**
-	 * @param currentFilename 
+	 * @param currentFilename
 	 * @param topGrouping
 	 * @param subGrouping
 	 * @param scanLine
@@ -164,12 +164,12 @@ public class ScanTree extends DefaultTreeModel {
 
 		if(unshowLastScan)
 			hideLastScan(scanTreeM);
-		
-		
+
+
 		if(hideOldestScan){
 			hideOldestScan(scanTreeM);
 		}
-		
+
 		if(reloadLegendModel){
 			try {
 				if (autoCollapseTree)
@@ -180,19 +180,19 @@ public class ScanTree extends DefaultTreeModel {
 				logger.error(e.getMessage(),e);
 				// do nothing - a null pointer exception can be seen if the model is changed during editing.
 			}
-			
+
 		}
 
 		if(menuUnshowNewVal){
 			simplePlot.setLineVisibility(scanLine.line, false);
 		}
-		
+
 		return node;
 	}
 
 	/**
 	 * remove the item from the tree whose filename equals the one specified
-	 * @param filename 
+	 * @param filename
 	 */
 	public void removeScanGroup(String filename){
 		ScanTreeM scanTreeM = (ScanTreeM) getRoot();
@@ -214,14 +214,14 @@ public class ScanTree extends DefaultTreeModel {
 			}
 		}
 	}
-	
+
 	public void removeScanTreeObjects(Object []  objects) {
 		for(Object obj : objects){
 			removeScanTreeObject(obj);
 		}
 		reload();
 	}
-	
+
 	private void removeScanTreeObject(Object obj){
 		DefaultMutableTreeNode treeNode = null;
 		if (obj instanceof DefaultMutableTreeNode )
@@ -246,7 +246,7 @@ public class ScanTree extends DefaultTreeModel {
 			simplePlot.deleteLine(((ScanPair)item).scanLine.line);
 		}
 	}
-	
+
 	/**
 	 * @param visibleFLag
 	 */
@@ -270,5 +270,5 @@ public class ScanTree extends DefaultTreeModel {
 	public void setNumberOfScansBeforeHiding(int numberOfScansBeforeHiding) {
 		this.numberOfScansBeforeHiding = numberOfScansBeforeHiding;
 	}
-	
+
 }

@@ -20,7 +20,6 @@ package gda.rcp;
 
 import gda.configuration.properties.LocalProperties;
 import gda.jython.IJythonContext;
-import gda.rcp.OpenLocalFileAction;
 
 import org.eclipse.ui.IWorkbenchWindow;
 import org.junit.After;
@@ -35,7 +34,7 @@ public class OpenLocalFileActionTest {
 	private OpenLocalFileAction action;
 	private IWorkbenchWindow window;
 	private IJythonContext context;
-	
+
 	@Before
 	public void setUp() {
 		LocalProperties.set("gda.jython.userScriptDir", "gda.jython.userScriptDir");
@@ -57,12 +56,12 @@ public class OpenLocalFileActionTest {
 	public void testFilterPathNotBasedOnUserScriptDir() {
 		Assert.assertFalse("the action's filter path came from gda.jython.userScriptDir", action.getFilterPathForTesting().startsWith("gda.jython.userScriptDir"));
 	}
-	
+
 	@Test
 	public void testFilterPathUsesHomeFolderIfNoScriptPaths() {
 		Assert.assertEquals(System.getProperty("user.home"), action.getFilterPathForTesting());
 	}
-	
+
 	@Test
 	public void testFilterPathUsesScriptPathWhereAvailable() {
 		IJythonContext context = new MockJythonContext();

@@ -43,7 +43,7 @@ public class AnalyserAdapter extends DetectorAdapter implements Analyser, Detect
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

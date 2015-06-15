@@ -41,7 +41,7 @@ import org.junit.Test;
  */
 public class ScannableUtilsTest {
 
-	
+
 	private Scannable scannable;
 	private Scannable vectorscn;
 
@@ -54,14 +54,14 @@ public class ScannableUtilsTest {
 		when(scannable.getName()).thenReturn(new String("Alfred"));
 		when(scannable.getInputNames()).thenReturn(new String[] {"value"});
 		when(scannable.getExtraNames()).thenReturn(new String[] {});
-		
+
 		vectorscn = mock(Scannable.class);
 		when(vectorscn.getName()).thenReturn("abc");
 		when(vectorscn.getInputNames()).thenReturn(new String[]{"a","b","c"});
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -72,13 +72,13 @@ public class ScannableUtilsTest {
 		when(scannable.getOutputFormat()).thenReturn(format);
 
 		String formattedCurrentPosition = ScannableUtils.getFormattedCurrentPosition(scannable);
-		
+
 		String expected = String.format(format[0], position);
 		assertTrue(formattedCurrentPosition.contains(expected));
 	}
 
 	/**
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -87,14 +87,14 @@ public class ScannableUtilsTest {
 		when(scannable.getPosition()).thenReturn(position);
 		String[] format = new String[] {"%3.3f"};
 		when(scannable.getOutputFormat()).thenReturn(format);
-		
+
 		String[] formattedCurrentPositionArray = ScannableUtils.getFormattedCurrentPositionArray(scannable);
-		
+
 		assertEquals(formattedCurrentPositionArray[0], String.format(format[0], position));
 	}
 
 	/**
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -103,14 +103,14 @@ public class ScannableUtilsTest {
 		when(scannable.getPosition()).thenReturn(position);
 		String[] format = new String[] {"%d"};
 		when(scannable.getOutputFormat()).thenReturn(format);
-		
+
 		String[] formattedCurrentPositionArray = ScannableUtils.getFormattedCurrentPositionArray(scannable);
-		
+
 		assertEquals(formattedCurrentPositionArray[0], String.format(format[0], position));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -119,15 +119,15 @@ public class ScannableUtilsTest {
 		when(scannable.getPosition()).thenReturn(position);
 		String[] format = new String[] {"%10.1f"};
 		when(scannable.getOutputFormat()).thenReturn(format);
-		
+
 		String[] formattedCurrentPositionArray = ScannableUtils.getFormattedCurrentPositionArray(scannable);
-		
+
 		assertEquals(formattedCurrentPositionArray[0], String.format(format[0], position));
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -136,15 +136,15 @@ public class ScannableUtilsTest {
 		when(scannable.getPosition()).thenReturn(position);
 		String[] format = new String[] {"%s"};
 		when(scannable.getOutputFormat()).thenReturn(format);
-		
+
 		String[] formattedCurrentPositionArray = ScannableUtils.getFormattedCurrentPositionArray(scannable);
-		
+
 		assertEquals(formattedCurrentPositionArray[0], String.format(format[0], position));
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void testGetFormattedCurrentPositionArrayScannableDate() throws Exception {
@@ -152,14 +152,14 @@ public class ScannableUtilsTest {
 		when(scannable.getPosition()).thenReturn(position);
 		String[] format = new String[] {"%c"};
 		when(scannable.getOutputFormat()).thenReturn(format);
-		
+
 		String[] formattedCurrentPositionArray = ScannableUtils.getFormattedCurrentPositionArray(scannable);
-		
+
 		assertEquals(formattedCurrentPositionArray[0], String.format(format[0], position));
 	}
-		
+
 	/**
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -169,7 +169,7 @@ public class ScannableUtilsTest {
 		String[] format = new String[] {"%3.3f", "%d"};
 		when(scannable.getOutputFormat()).thenReturn(format);
 		when(scannable.getInputNames()).thenReturn(new String[] {"value0", "value1"});
-		
+
 		double[] actual = ScannableUtils.getCurrentPositionArray(scannable);
 		for (int i = 0; i < position.length; i++) {
 			assertEquals(position[i].doubleValue(), actual[i], 0);
@@ -177,7 +177,7 @@ public class ScannableUtilsTest {
 	}
 
 	/**
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void testGetCurrentPositionArray_InputsOnly() throws Exception {
@@ -188,9 +188,9 @@ public class ScannableUtilsTest {
 		when(scannable.getInputNames()).thenReturn(new String[] {"value0", "value1"});
 		when(scannable.getExtraNames()).thenReturn(new String[] {"value2", "value3"});
 
-		
+
 		double[] positionArray = ScannableUtils.getCurrentPositionArray_InputsOnly(scannable);
-		
+
 		assertEquals(2, positionArray.length);
 		assertEquals(position[0], positionArray[0]);
 		assertEquals(position[1], positionArray[1]);
@@ -202,7 +202,7 @@ public class ScannableUtilsTest {
 		String[] result = ScannableUtils.getFormattedCurrentPositionArray(position, 4, format);
 		ArrayAssert.assertEquals(new String[]{"12.0", "0.10", "-0.100", "3.1450"}, result);
 	}
-	
+
 	@Test
 	public void testGetCurrentPositionMultipleFieldsIncludingNulls() throws Exception {
 		Object position =  new Double[] {12.0, null, -0.1, 3.145};
@@ -217,20 +217,20 @@ public class ScannableUtilsTest {
 		String[] result = ScannableUtils.getFormattedCurrentPositionArray(position, 4, format);
 		ArrayAssert.assertEquals(new String[]{"12.0", "0.1", "-0.1", "3.1"}, result);
 	}
-	
+
 	public void testCalculateNextPoint() {
 		fail("Not yet implemented");
 	}
-	
+
 	@Test
 	public void testGetNumberSteps() throws Exception {
-		assertEquals(100, ScannableUtils.getNumberSteps(vectorscn, 
+		assertEquals(100, ScannableUtils.getNumberSteps(vectorscn,
 				new Double[]{-.05207, 4., 0.0}, new Double[]{.04793, 4., 0.0}, new Double[]{.001, 0., 0.0}));
 	}
-	
+
 	@Test
 	public void testGetNumberStepsWithSomeNegatives() throws Exception {
-		assertEquals(10, ScannableUtils.getNumberSteps(vectorscn, 
+		assertEquals(10, ScannableUtils.getNumberSteps(vectorscn,
 				new Double[]{-10., 0., 1.234567}, new Double[]{10., 5., 1.234567}, new Double[]{2., .5, 0.}));
 	}
 
@@ -253,64 +253,64 @@ public class ScannableUtilsTest {
 	public void testGetNumberStepsWithInnacurateEndPoint() throws Exception {
 		assertEquals(3, ScannableUtils.getNumberSteps(scannable, 0, 10, 3));
 	}
-	
+
 	@Test
 	public void testGetNumberStepsWithInnacurateEndPointWithVectorDevices() throws Exception {
-		assertEquals(100, ScannableUtils.getNumberSteps(vectorscn, 
+		assertEquals(100, ScannableUtils.getNumberSteps(vectorscn,
 				new Double[]{-.05207, 4., 0.0}, new Double[]{.04793, 4., 0.0}, new Double[]{.001, 0., 0.0}));
 	}
-	
+
 	@Test
 	public void testGetNumberStepsWithVectorGood1() throws Exception {
-		assertEquals(2, ScannableUtils.getNumberSteps(vectorscn, 
+		assertEquals(2, ScannableUtils.getNumberSteps(vectorscn,
 				new Double[]{0., 0., 0.}, new Double[]{2., 0., 2.}, new Double[]{1., 0., .7}));
-		assertEquals(2, ScannableUtils.getNumberSteps(vectorscn, 
+		assertEquals(2, ScannableUtils.getNumberSteps(vectorscn,
 				new Double[]{0., 0., 0.}, new Double[]{-2., 0., 2.}, new Double[]{-1., 0., .7}));
-		assertEquals(2, ScannableUtils.getNumberSteps(vectorscn, 
+		assertEquals(2, ScannableUtils.getNumberSteps(vectorscn,
 				new Double[]{0., 0., -2.}, new Double[]{2., 0., 0.}, new Double[]{1., 0., .7}));
 	}
-	
+
 	@Test
 	public void testGetNumberStepsWithVectorGood2() throws Exception {
-		assertEquals(2, ScannableUtils.getNumberSteps(vectorscn, 
+		assertEquals(2, ScannableUtils.getNumberSteps(vectorscn,
 				new Double[]{0., 0., 0.}, new Double[]{2., 0., 2.}, new Double[]{.7, 0., 1.}));
-		assertEquals(2, ScannableUtils.getNumberSteps(vectorscn, 
+		assertEquals(2, ScannableUtils.getNumberSteps(vectorscn,
 				new Double[]{0., 0., 0.}, new Double[]{-2., 0., 2.}, new Double[]{-.7, 0., 1.}));
-		assertEquals(2, ScannableUtils.getNumberSteps(vectorscn, 
+		assertEquals(2, ScannableUtils.getNumberSteps(vectorscn,
 				new Double[]{0., 0., -2.}, new Double[]{2., 0., 0.}, new Double[]{.7, 0., 1.}));
 	}
-	
+
 	@Test
 	public void testGetNumberStepsWithVectorGood3() throws Exception {
-		assertEquals(1, ScannableUtils.getNumberSteps(vectorscn, 
+		assertEquals(1, ScannableUtils.getNumberSteps(vectorscn,
 				new Double[]{0., 0., 0.}, new Double[]{2., 0., 2.}, new Double[]{1., 0., 1.1}));
-		assertEquals(1, ScannableUtils.getNumberSteps(vectorscn, 
+		assertEquals(1, ScannableUtils.getNumberSteps(vectorscn,
 				new Double[]{0., 0., 0.}, new Double[]{-2., 0., 2.}, new Double[]{-1., 0., 1.1}));
-		assertEquals(1, ScannableUtils.getNumberSteps(vectorscn, 
+		assertEquals(1, ScannableUtils.getNumberSteps(vectorscn,
 				new Double[]{0., 0., -2.}, new Double[]{2., 0., 0.}, new Double[]{1., 0., 1.1}));
 	}
-	
+
 	@Test
 	public void testGetNumberStepsWithVectorGood4() throws Exception {
-		assertEquals(1, ScannableUtils.getNumberSteps(vectorscn, 
+		assertEquals(1, ScannableUtils.getNumberSteps(vectorscn,
 				new Double[]{0., 0., 0.}, new Double[]{2., 0., 2.}, new Double[]{1.1, 0., 1.}));
-		assertEquals(1, ScannableUtils.getNumberSteps(vectorscn, 
+		assertEquals(1, ScannableUtils.getNumberSteps(vectorscn,
 				new Double[]{0., 0., 0.}, new Double[]{-2., 0., 2.}, new Double[]{-1.1, 0., 1.}));
-		assertEquals(1, ScannableUtils.getNumberSteps(vectorscn, 
+		assertEquals(1, ScannableUtils.getNumberSteps(vectorscn,
 				new Double[]{0., 0., -2.}, new Double[]{2., 0., 0.}, new Double[]{1.1, 0., 1.}));
 	}
-	
+
 	@Test
 	public void testGetNumberStepsWithVectorBadBecauseOfZeroStepsize()  {
 		try {
-			assertEquals(1, ScannableUtils.getNumberSteps(vectorscn, 
+			assertEquals(1, ScannableUtils.getNumberSteps(vectorscn,
 					new Double[]{0., 0., 0.}, new Double[]{2., 2., 2.}, new Double[]{1.1, 0., 1.}));
-			fail("Exception expected"); 
+			fail("Exception expected");
 		} catch (Exception e) {
 			assertEquals("a step field is zero despite there being a distance to move in that direction.", e.getMessage());
 		}
 	}
-	
+
 	public void testValidate() {
 		fail("Not yet implemented");
 	}
@@ -334,8 +334,8 @@ public class ScannableUtilsTest {
 	public void testGetMonitorFieldNames() {
 		fail("Not yet implemented");
 	}
-	
-	
+
+
 	@Test
 	public void testgetScannableFieldNames(){
 		when(scannable.getInputNames()).thenReturn(new String[] {"value0", "value1"});
@@ -350,46 +350,46 @@ public class ScannableUtilsTest {
 		when(detectorWithoutExtra.getName()).thenReturn(new String("detectorWithoutExtra"));
 		when(detectorWithoutExtra.getInputNames()).thenReturn(new String[] {"value"});
 		when(detectorWithoutExtra.getExtraNames()).thenReturn(new String[] {});
-		
+
 		Vector<Scannable> scannables = new Vector<Scannable>();
 		scannables.add(scannable);
 		scannables.add(detectorWithExtra);
 		scannables.add(detectorWithoutExtra);
 
 		List<String> scannableFieldNames = ScannableUtils.getScannableFieldNames(scannables);
-		
+
 		assertEquals(4+2+1, scannableFieldNames.size());
-		
+
 	}
-	
+
 	@Test
 	public void testGetExtraNamesFormatsShouldThrowException() {
-		
+
 		// Newly-created scannable has 1 input name, 0 extra names, and 1 output format
 		Scannable s = new DummyScannable("s");
 		assertEquals(1, s.getInputNames().length);
 		assertEquals(0, s.getExtraNames().length);
 		assertEquals(1, s.getOutputFormat().length);
-		
+
 		// Clear the output format
 		s.setOutputFormat(new String[] {});
 		assertEquals(1, s.getInputNames().length);
 		assertEquals(0, s.getExtraNames().length);
 		assertEquals(0, s.getOutputFormat().length);
-		
+
 		// Calling getExtraNamesFormats should fail
 		try {
 			ScannableUtils.getExtraNamesFormats(s);
 		} catch (IllegalStateException e) {
 			// expected
 		}
-		
+
 		// But put the output format back...
 		s.setOutputFormat(new String[] {"%.2f"});
 		assertEquals(1, s.getInputNames().length);
 		assertEquals(0, s.getExtraNames().length);
 		assertEquals(1, s.getOutputFormat().length);
-		
+
 		// ...and the getExtraNamesFormats call should succeed
 		ScannableUtils.getExtraNamesFormats(s);
 	}

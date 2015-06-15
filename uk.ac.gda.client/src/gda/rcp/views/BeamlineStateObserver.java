@@ -19,7 +19,7 @@
 package gda.rcp.views;
 
 public interface BeamlineStateObserver {
-	
+
 	/**
 	 * Provide an interface that may be used to control GUI state
 	 * @param hasBaton

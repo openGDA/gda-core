@@ -34,7 +34,7 @@ public interface XmapController  extends Device, Configurable, Findable{
 	 * @throws DeviceException
 	 */
 	public void clearAndStart() throws DeviceException;
-	
+
 	/**
 	 * Start data acquisition in all MCA's
 	 * @throws DeviceException
@@ -112,37 +112,37 @@ public interface XmapController  extends Device, Configurable, Findable{
 	 * @throws DeviceException
 	 */
 	public int[] getData(int mcaNumber)throws DeviceException;
-	
+
 	/**
 	 * Returns the twoD data array of the all the MCAs
 	 * @return data array
 	 * @throws DeviceException
 	 */
 	public int[][] getData()throws DeviceException;
-	
+
 	/**
 	 * Returns the Number of Regions of Interest
 	 * @return roi number
 	 */
 	public int getNumberOfROIs();
-	
+
 	/**
 	 * Sets the Number of Regions of Interest for all MCAs
-	 * @param numberOfROIs 
+	 * @param numberOfROIs
 	 */
 	public void setNumberOfROIs(int numberOfROIs);
-	
-	
+
+
 	/**
 	 * Returns the number of MCAs currently connected to the XMap detector
 	 * @return number of MCA
 	 * @throws DeviceException
 	 */
 	public int getNumberOfElements()throws DeviceException;
-	
+
 	/**
 	 * Sets the number of MCAs currently connected to the XMap detector
-	 * @param numberOfElements 
+	 * @param numberOfElements
 	 * @throws DeviceException
 	 */
 	public void setNumberOfElements(int numberOfElements) throws DeviceException;
@@ -158,16 +158,16 @@ public interface XmapController  extends Device, Configurable, Findable{
 	 * @throws DeviceException
 	 */
 	public void setReadRate(String readRate)throws DeviceException;
-	
+
 	/**
 	 * returns the sum of the regions of interest for each region of all MCAs
-	 * @return a double array e.g if there are 4 mcas and 3 ois each , it returns 
+	 * @return a double array e.g if there are 4 mcas and 3 ois each , it returns
 	 * [region1_sum, region2_sum, region3_sum]
 	 * @throws DeviceException
 	 */
 	public double[] getROIsSum()throws DeviceException;
 
-	
+
 	/**
 	 * Returns the roi count for the specified roiIndex in all MCAs
 	 * @param roiIndex
@@ -178,13 +178,13 @@ public interface XmapController  extends Device, Configurable, Findable{
 	public double[] getROICounts(int roiIndex)throws DeviceException;
 
 	/**
-	 * Sets the all ROIs of the specified MCA. 
+	 * Sets the all ROIs of the specified MCA.
 	 * @param rois array. Each roi should have a low and high value.
-	 * @param mcaIndex 
+	 * @param mcaIndex
 	 * @throws DeviceException
 	 */
 	public void setROI(double[][] rois, int mcaIndex)throws DeviceException;
-	
+
 	/**
 	 * Deletes all the current regions of interest on a give mca detector element.
 	 * @param mcaIndex
@@ -201,32 +201,32 @@ public interface XmapController  extends Device, Configurable, Findable{
 	/**
 	 * Sets the specified roi for all the mcas
 	 * @param rois array. Each roi should have a low and high value.
-	 * @param roiIndex 
+	 * @param roiIndex
 	 * @throws DeviceException
 	 */
 	public void setNthROI(double[][] rois, int roiIndex)throws DeviceException;
 
 	/**
-	 * 
+	 *
 	 * @param element
 	 * @return the total count for the last element
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public int getEvents(int element) throws DeviceException;
 
 	/**
 	 * Reads the input count rate for an element also known as
 	 * the fast filter rate outside EPICS
-	 * 
+	 *
 	 * @param element
 	 * @return rate
 	 */
 	public double getICR(int element) throws DeviceException;
-	
+
 	/**
 	 * Reads the output count rate for an element also known as
 	 * the slow filter rate outside EPICS
-	 * 
+	 *
 	 * @param element
 	 * @return rate
 	 */

@@ -32,7 +32,7 @@ import java.util.List;
 public class BatonStateProviderBean implements IBatonStateProvider{
 
 	private IBatonStateProvider runner;
-	
+
 	private IBatonStateProvider getRunner() {
 		if( runner == null){
 			runner = InterfaceProvider.getBatonStateProvider();
@@ -97,12 +97,12 @@ public class BatonStateProviderBean implements IBatonStateProvider{
 	public void sendMessage(String message) {
 		getRunner().sendMessage(message);
 	}
-	
+
 	@Override
 	public List<UserMessage> getMessageHistory() {
 		return getRunner().getMessageHistory();
 	}
-	
+
 	@Override
 	public boolean switchUser(String username, String password) {
 		return getRunner().switchUser(username, password);

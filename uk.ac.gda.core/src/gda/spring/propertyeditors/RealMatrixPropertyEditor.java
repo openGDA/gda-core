@@ -32,14 +32,14 @@ import org.apache.commons.math.linear.RealMatrix;
 public class RealMatrixPropertyEditor extends PropertyEditorSupport {
 
 	private TwoDDoubleArrayPropertyEditor arrayPropEditor;
-	
+
 	/**
 	 * Creates a matrix property editor.
 	 */
 	public RealMatrixPropertyEditor() {
 		this.arrayPropEditor = new TwoDDoubleArrayPropertyEditor();
 	}
-	
+
 	@Override
 	public void setAsText(String text) throws IllegalArgumentException {
 		arrayPropEditor.setAsText(text);
@@ -58,5 +58,5 @@ public class RealMatrixPropertyEditor extends PropertyEditorSupport {
 		final String s = getValue().toString();
 		return s.substring(s.indexOf('{'));
 	}
-	
+
 }

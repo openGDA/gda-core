@@ -44,7 +44,7 @@ public class FindableHashtableAdapter implements Findable, gda.util.findableHash
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

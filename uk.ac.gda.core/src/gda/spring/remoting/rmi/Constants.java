@@ -19,7 +19,7 @@
 package gda.spring.remoting.rmi;
 
 public final class Constants {
-	
+
 	// Prevent instantiation
 	private Constants() {}
 
@@ -27,7 +27,7 @@ public final class Constants {
 	 * Prefix to use for the names used when binding objects in the RMI registry.
 	 */
 	public static final String RMI_NAME_PREFIX = "gda/";
-	
+
 	/**
 	 * RMI name for the remote object lister object.
 	 */

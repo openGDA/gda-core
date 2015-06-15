@@ -65,7 +65,7 @@ public class BatonManager implements IBatonManager {
 	private boolean useBaton = false;
 
 	private boolean useRBAC = false;
-	
+
 	private boolean disableControlOverVisitMetadataEntry = false;
 
 	public BatonManager() {
@@ -126,7 +126,7 @@ public class BatonManager implements IBatonManager {
 
 			facadeNames.put(uniqueID, info.copy());
 
-			// if baton control not in use and this is the only client, the set this as the baton holder (meaning in 
+			// if baton control not in use and this is the only client, the set this as the baton holder (meaning in
 			// this case the only client. This is useful as it gives this client certain privileges in this class
 			// which subsequent clients do not have e.g. to set the visit ID).
 			if (!useBaton && leaseHolders.size() == 0 && !info.userID.equals("")) {
@@ -149,7 +149,7 @@ public class BatonManager implements IBatonManager {
 	public void switchUser(String uniqueFacadeName, String username, int accessLevel, String visitID) {
 		// overwrite the entry in facadeNames
 		ClientInfo info = getClientInfo(uniqueFacadeName);
-		
+
 		boolean changeMade = false;
 		//only change if information is supplied
 		if (username != null && !username.equals("")){
@@ -161,9 +161,9 @@ public class BatonManager implements IBatonManager {
 			info.visitID = visitID;
 			changeMade = true;
 		}
-		
+
 		facadeNames.put(uniqueFacadeName, info);
-		
+
 		// if the baton holder then ensure all information is refreshed
 		if (amIBatonHolder(uniqueFacadeName,false)){
 			changeBatonHolder(uniqueFacadeName);
@@ -204,28 +204,28 @@ public class BatonManager implements IBatonManager {
 	}
 
 	private boolean canTheseShareTheBaton(String myJSFIdentifier, String theirJSFIdentifier) {
-		
+
 		if (!LocalProperties.canShareBaton()){
 			return false;
 		}
-		
+
 		if (myJSFIdentifier.equals(theirJSFIdentifier))
 			return true;
 		if (myJSFIdentifier.isEmpty() || theirJSFIdentifier.isEmpty())
 			return false;
 		if (getClientInfo(theirJSFIdentifier) == null)
 			return false;
-		
+
 		String myFedID = getClientInfo(myJSFIdentifier).userID;
 		String theirFedID = getClientInfo(theirJSFIdentifier).userID;
 		String myVisitID = getClientInfo(myJSFIdentifier).visitID;
 		String theirVisitID = getClientInfo(theirJSFIdentifier).visitID;
-		
+
 		if (myFedID == null && theirFedID == null)
 			return true;
 		if (myFedID == null || theirFedID == null)
 			return false;
-		
+
 		return myFedID.equals(theirFedID) && myVisitID.equals(theirVisitID);
 	}
 
@@ -235,7 +235,7 @@ public class BatonManager implements IBatonManager {
 		ClientInfo info = getClientInfo(myJSFIdentifier);
 		return new ClientDetails(info, hasBaton);
 	}
-	
+
 	/*
 	 * Returns static information and does not say if this client holds the baton.
 	 */
@@ -361,11 +361,11 @@ public class BatonManager implements IBatonManager {
 							+ e.getMessage());
 		}
 	}
-	
+
 	private boolean metadataContainsKey(Metadata metadata, String key){
 		try {
 			ArrayList<IMetadataEntry> entries  = metadata.getMetadataEntries();
-			
+
 			for(IMetadataEntry entry : entries){
 				if (entry.getName().equals(key)){
 					return true;
@@ -376,11 +376,11 @@ public class BatonManager implements IBatonManager {
 			return false;
 		}
 	}
-	
+
 	@Override
 	public void returnBaton(String uniqueIdentifier) {
 		if (this.batonHolder.equals(uniqueIdentifier) && isJSFRegistered(uniqueIdentifier)) {
-			
+
 //			// test that no other JSF is registered which has  matching visit and FedID
 //			if (LocalProperties.canShareBaton()) {
 //				String newBatonHolder = "";
@@ -449,7 +449,7 @@ public class BatonManager implements IBatonManager {
 			InterfaceProvider.getJythonServerNotifer().notifyServer(this, new BatonLeaseRenewRequest());
 		}
 	}
-	
+
 	private synchronized void renewLease(String myJSFIdentifier) {
 		// update the start time of this lease, but only for clients
 		if (facadeNames.containsKey(myJSFIdentifier) && !getClientInfo(myJSFIdentifier).userID.equals("")) {
@@ -472,7 +472,7 @@ public class BatonManager implements IBatonManager {
 	 * lose the baton.
 	 */
 	private class leaseRefresher extends Thread {
-		
+
 		public leaseRefresher(){
 			super("BatonManagerLeaseRefresher");
 		}
@@ -502,14 +502,14 @@ public class BatonManager implements IBatonManager {
 		 * Remove from the list of leased clients those which have not communicated for some time.
 		 */
 		private void removeTimeoutLeases() {
-			
+
 			synchronized (BatonManager.this) {
-				
+
 				// refresh all other leases
 				Long now = new GregorianCalendar().getTimeInMillis();
-	
+
 				String[] clientIDs = leaseHolders.keySet().toArray(new String[0]);
-	
+
 				for (int i = 0; i < clientIDs.length; i++) {
 					Long leaseStart = leaseHolders.get(clientIDs[i]);
 					if (now - leaseStart > LEASETIMEOUT) {
@@ -524,7 +524,7 @@ public class BatonManager implements IBatonManager {
 			}
 		}
 	}
-	
+
 	@Override
 	public List<ClientDetails> getAllClients() {
 		final List<ClientDetails> clients = new ArrayList<ClientDetails>();

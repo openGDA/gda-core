@@ -49,20 +49,20 @@ import org.jscience.physics.units.Unit;
  * <p>
  * The object implements IQuantityConverter to allow the conversion to be easilty tested using the commands:
  * <p>
- * 
+ *
  * <pre>
  *   converter = finder.find(&quot;dcm_energy_perp_converter&quot;)
  *   import  org.jscience.physics.quantities.Quantity as Quantity
  *   q = Quantity.valueOf(-200, converter.AcceptableTargetUnits().get(0))
  *   converter.ToSource(q)
  * </pre>
- * 
+ *
  * <p>
  * The expression file is to be found in the folder pointed to be
  * LocalProperties.get(&quot;gda.function.columnDataFile.lookupDir&quot;).
  * <p>
  * The expression file is to be of the form:
- * 
+ *
  * <pre>
  *   &lt;JEPQuantityConverter&gt;
  *   &lt;ExpressionTtoS&gt;X/2&lt;/ExpressionTtoS&gt;
@@ -81,7 +81,7 @@ public final class JEPConverterHolder implements IReloadableQuantitiesConverter,
 	/**
 	 * Creates a JEPConverterHolder with the specified name which loads
 	 * converter information from the specified file.
-	 * 
+	 *
 	 * @param name the converter name
 	 * @param expressionFileName the converter expression filename
 	 */
@@ -89,17 +89,17 @@ public final class JEPConverterHolder implements IReloadableQuantitiesConverter,
 		this.name = name;
 		this.expressionFileName = determineFileLocation(expressionFileName);
 	}
-	
+
 	private String determineFileLocation(String filename) {
 		if (fileExists(filename)) {
 			return filename;
 		}
-		
+
 		String lookupTableFolder = LocalProperties.get("gda.function.columnDataFile.lookupDir");
 		File fullPath = new File(lookupTableFolder, filename);
 		return fullPath.getAbsolutePath();
 	}
-	
+
 	private boolean fileExists(String filename) {
 		return new File(filename).exists();
 	}
@@ -111,7 +111,7 @@ public final class JEPConverterHolder implements IReloadableQuantitiesConverter,
 
 	/**
 	 * Returns the filename of the expression file.
-	 * 
+	 *
 	 * @return the expression filename
 	 */
 	public String getExpressionFileName() {

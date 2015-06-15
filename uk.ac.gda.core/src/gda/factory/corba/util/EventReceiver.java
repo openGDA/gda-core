@@ -23,15 +23,15 @@ package gda.factory.corba.util;
  * Interface to be implemented by objects that receive events.
  */
 public interface EventReceiver {
-	
+
 	/**
 	 * Subscribes an object to events matching a filter.
-	 * 
+	 *
 	 * @param subscriber the subscriber object
 	 * @param filter the filter
 	 */
 	public void subscribe(EventSubscriber subscriber, Filter filter);
-	
+
 	/**
 	 * Disconnects from the source of events.
 	 */

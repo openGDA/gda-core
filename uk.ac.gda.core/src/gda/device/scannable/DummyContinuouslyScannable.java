@@ -37,8 +37,8 @@ public class DummyContinuouslyScannable extends ScannableMotionUnitsBase impleme
 
 	private volatile double currentPosition = 0;
 	private volatile boolean busy = false;
-	
-	
+
+
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
@@ -114,7 +114,7 @@ public class DummyContinuouslyScannable extends ScannableMotionUnitsBase impleme
 	/**
 	 * For testing and simulation only. Real hardware represented by the ContinuousScannable and DummyHistogramDetector
 	 * interfaces would be physically wired together.
-	 * 
+	 *
 	 * @param detector
 	 */
 	public void addObserver(final SimulatedBufferedDetector detector) {
@@ -125,7 +125,7 @@ public class DummyContinuouslyScannable extends ScannableMotionUnitsBase impleme
 
 	/**
 	 * For testing and simulation only.
-	 * 
+	 *
 	 * @param detector
 	 */
 	public void removeObserver(final SimulatedBufferedDetector detector) {

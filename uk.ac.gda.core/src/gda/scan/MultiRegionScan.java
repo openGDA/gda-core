@@ -34,16 +34,16 @@ import java.util.List;
  * using the addScan method. The order is important the make sure the scans do not create their own datahandler objects.
  */
 public class MultiRegionScan extends ScanBase {
-	
+
 	private List<ScanBase> listOfScans;
 
 	private int pointCount = -1;
-	
+
 	private double totalTime = 0;
 
 	/**
-	 * @param createScanDataPointPipeline 
-	 * @throws Exception 
+	 * @param createScanDataPointPipeline
+	 * @throws Exception
 	 */
 	public MultiRegionScan(boolean createScanDataPointPipeline) throws Exception {
 		super();
@@ -58,12 +58,12 @@ public class MultiRegionScan extends ScanBase {
 
 	/**
 	 * Constructor
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public MultiRegionScan() throws Exception {
 		this(true);
 	}
-	
+
 	/**
 	 * Add scan to scans that will be run.
 	 * @param toAdd
@@ -106,7 +106,7 @@ public class MultiRegionScan extends ScanBase {
 				allDetectors.add(detector);
 			}
 		}
-		
+
 		final int added = toAdd.getTotalNumberOfPoints();
 		if (added>0)    TotalNumberOfPoints += added;
 		if (stepTime>0) totalTime           += (added*stepTime);
@@ -122,7 +122,7 @@ public class MultiRegionScan extends ScanBase {
 	}
 	/**
 	 * Return the first scan to be operated on.
-	 * 
+	 *
 	 * @return Scan
 	 */
 	public Scan getFirstScan() {
@@ -131,7 +131,7 @@ public class MultiRegionScan extends ScanBase {
 
 	/**
 	 * Calls the doCollection method of all the scans in the array of scans in turn.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Override
@@ -174,7 +174,7 @@ public class MultiRegionScan extends ScanBase {
 		}
 
 	}
-	
+
 	/**
 	 * Access to all scans in the list.
 	 * @return List

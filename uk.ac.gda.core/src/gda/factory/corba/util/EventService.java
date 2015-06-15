@@ -55,7 +55,7 @@ public class EventService {
 
 	/**
 	 * Access method for the EventService singleton
-	 * 
+	 *
 	 * @return the EventService
 	 */
 	public synchronized static EventService getInstance() {
@@ -85,14 +85,14 @@ public class EventService {
 		logger.info("Successfully configured EventService using name '{}'", eventChannelName);
 		configured = true;
 	}
-	
+
 	public boolean isConfigured() {
 		return configured;
 	}
-	
+
 	/**
 	 * Associate a dispatcher with the event channel
-	 * 
+	 *
 	 * @return the event dispatcher
 	 */
 	public EventDispatcher getEventDispatcher() {
@@ -100,7 +100,7 @@ public class EventService {
 			//To prevent threads calling publish being blocked as the client responses one can opt to
 			//put the events onto a separate thread in a threadpool.
 			//To opt for this set gda.factory.corba.util.CorbaEventDispatcher.threadPoolSize to rather than 0, e.g 10
-			
+
 			eventDispatcher = new CorbaEventDispatcher(eventChannel, orb, LocalProperties.check("gda.factory.corba.util.CorbaEventDispatcher.allowBatchMode", true));
 		}
 		return eventDispatcher;
@@ -108,7 +108,7 @@ public class EventService {
 
 	/**
 	 * Associate an event subscriber with a receiver for an event channel
-	 * 
+	 *
 	 * @param eventSubscriber
 	 *            the event subscriber
 	 * @param filter

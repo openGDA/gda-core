@@ -38,9 +38,9 @@ public class PolarimeterTranslator extends TranslatorBase
    implements Translator
 {
 	private static final Logger logger=LoggerFactory.getLogger(PolarimeterTranslator.class);
-	 
+
 	@Override
-	public String getHelpMessage() 
+	public String getHelpMessage()
 	{
 		String helpString = new String("");
 
@@ -87,7 +87,7 @@ public class PolarimeterTranslator extends TranslatorBase
 	    * Translates a command identified by the translate() method. This ignores
 	    * any spaces at start or end of line - it assumes that translate() has
 	    * removed any significant \n or \t characters.
-	    * 
+	    *
 	    * @param thisGroup String
 	    * @return String
 	    */
@@ -389,16 +389,16 @@ public class PolarimeterTranslator extends TranslatorBase
 	      }
 	      return thisGroup;
 	   }
-	
-	
+
+
 	   /*
 		 * Handles Stokes paramter type scanes with two nested scans
 		 * Assumes inner scan comes first with  start stop step and time parameters
 		 * floowed by the inner scan which contains start stop and step fields
-		 * followed by an optional "f" and flux monitor pinhole size fields  
-		 * 
+		 * followed by an optional "f" and flux monitor pinhole size fields
+		 *
 		 */
-		   private String translateStokesScan(String thisGroup) 
+		   private String translateStokesScan(String thisGroup)
 		   {
 			   String command = thisGroup;
 			      try
@@ -439,9 +439,9 @@ public class PolarimeterTranslator extends TranslatorBase
 			         command += Double.toString(Double.valueOf(parts[i]) *1000) + ","; //Inner time converted to msecs
 			         i++;
 			         command += pinhole + "));"; //Flux monitor
-			         
+
 			         command += "stepscan=MultiRegionScan();stepscan.addScan(PolarimeterGridScan(";
-			         
+
 			         command += parts[i] + ","; // Inner dof name
 			         i++;
 			         command += parts[i] + ","; // Inner start
@@ -463,10 +463,10 @@ public class PolarimeterTranslator extends TranslatorBase
 			            "Error in Translator.translateStokesScan: {}", thisGroup);
 			         command = thisGroup;
 			      }
-			      
+
 			      return command;
 			   }
-		   
+
 		   /*
 		    * Based on translateScan. @param original_command String @return String
 		    */
@@ -496,7 +496,7 @@ public class PolarimeterTranslator extends TranslatorBase
 		          {
 		        	  pinhole = "0";
 		          }
-		         
+
 		         // build the command line (adding calls gda.scan.StepScan)
 		         command = "thisscan = PolarimeterConcurrentScan([";
 		         int i = 1;
@@ -512,7 +512,7 @@ public class PolarimeterTranslator extends TranslatorBase
 		         i++;
 		         command += pinhole + ","; //Flux monitor
 		         i++;
-		         
+
 		         for (int j = i-1 ; j < parts.length - 1; ++j)
 		         {
 		            String newPart = parts[j].trim();
@@ -535,12 +535,12 @@ public class PolarimeterTranslator extends TranslatorBase
 		      }
 		      return command;
 		   }
-	
+
 	/*
 	    * Translates scan command string for standard polaimeter scans with
 	    * or without optioanl flux monitoring. as idicated by f field
-	    * 
-	    *  @param original_command String 
+	    *
+	    *  @param original_command String
 	    *  @return String
 	    */
 	   private static String translateScan(String original_command)
@@ -550,7 +550,7 @@ public class PolarimeterTranslator extends TranslatorBase
 	      {
 	         // now split on spaces (there should not be any spaces inside []'s)
 	         String[] parts = command.split(" ");
-	         
+
 	         //	       now check to see if te scan has been appended with f xx
 	          // to give the pinhole to beused for flux monitoring
 	         String pinhole = null;
@@ -571,8 +571,8 @@ public class PolarimeterTranslator extends TranslatorBase
 	        	  pinhole = "0";
 	          }
 	          //Convert time to msecs
-	          parts[5]= Double.toString(Double.valueOf(parts[5]) *1000) + ","; 
-	          
+	          parts[5]= Double.toString(Double.valueOf(parts[5]) *1000) + ",";
+
 	         // build the command line (adding calls gda.scan.StepScan)
 	         command = "thisscan = PolarimeterGridScan(";
 	         for (int i = 1; i < parts.length ; ++i)
@@ -669,7 +669,7 @@ public class PolarimeterTranslator extends TranslatorBase
 	@Override
 	public void addAliasedVarargCommand(String commandName) {
 	}
-	
+
 	@Override
 	public boolean ignoreRestOfLine(String thisGroup) {
 		return thisGroup.trim().startsWith("#");

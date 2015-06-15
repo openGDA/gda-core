@@ -19,9 +19,6 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.MotorException;
@@ -30,14 +27,17 @@ import gda.factory.Configurable;
 import gda.factory.Finder;
 import gda.observable.IObservable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Motor class to drive Aerotech motors via the Aerotech 3200 software environment. Communication between this
  * environment and the motor proceeds via a singleton Aerotech3200Controller class.
  */
 public class AerotechMotor extends MotorBase implements Configurable, IObservable, Motor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(AerotechMotor.class);
-	
+
 	private Aerotech3200Controller controller = null;
 
 	private String aerotechControllerName = null;
@@ -121,7 +121,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 
 	/**
 	 * Moves the motor by the specified number of units
-	 * 
+	 *
 	 * @param steps
 	 *            the number of steps to move by
 	 * @throws MotorException
@@ -152,7 +152,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 
 	/**
 	 * Moves the motor to the specified target
-	 * 
+	 *
 	 * @param target
 	 *            the target to move to
 	 * @throws MotorException
@@ -187,7 +187,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 
 	/**
 	 * Moves the motor to a repeatable starting location
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override
@@ -203,7 +203,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 
 	/**
 	 * Sets the current position of the motor
-	 * 
+	 *
 	 * @param value
 	 *            the position to set the motor to
 	 * @throws MotorException
@@ -219,7 +219,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 
 	/**
 	 * Gets the current position of the motor
-	 * 
+	 *
 	 * @return the current position
 	 * @throws MotorException
 	 */
@@ -236,7 +236,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 
 	/**
 	 * Sets the specified motor speed
-	 * 
+	 *
 	 * @param stepsPerSecond
 	 *            the steps per second
 	 * @throws MotorException
@@ -251,7 +251,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 
 	/**
 	 * Checks if the motor is homeable or not. Motor implementations should overide this method if required.
-	 * 
+	 *
 	 * @return if the motor is homeable. Returns false!
 	 */
 	@Override
@@ -261,7 +261,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 
 	/**
 	 * Checks if the motor has been homed or not.
-	 * 
+	 *
 	 * @return if the motor is homed. Returns false!
 	 */
 	@Override
@@ -273,7 +273,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 
 	/**
 	 * Gets the motor speed
-	 * 
+	 *
 	 * @return the motor speed
 	 * @throws MotorException
 	 */
@@ -284,7 +284,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 
 	/**
 	 * Performs controlled stop of motor move
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override
@@ -298,7 +298,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 
 	/**
 	 * Performs immediate stop of motor move
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override
@@ -313,7 +313,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 	/**
 	 * Gets the current status message of the motor As the Motor interface does not allow exceptions to be thrown all
 	 * diagnostics must be thrown away
-	 * 
+	 *
 	 * @return a value from the MotorStatus enum
 	 */
 	@Override
@@ -387,7 +387,7 @@ public class AerotechMotor extends MotorBase implements Configurable, IObservabl
 
 	/**
 	 * method to return state of motorMoving flag
-	 * 
+	 *
 	 * @return true if moving
 	 * @throws MotorException
 	 */

@@ -29,11 +29,11 @@ import gda.factory.Localizable;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
+import gda.util.persistence.LocalDatabase.LocalDatabaseException;
 import gda.util.persistence.LocalObjectShelf;
 import gda.util.persistence.LocalObjectShelfManager;
 import gda.util.persistence.LocalPersistence;
 import gda.util.persistence.ObjectShelfException;
-import gda.util.persistence.LocalDatabase.LocalDatabaseException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -93,7 +93,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 	/**
 	 * {@inheritDoc} Reads from LocalParameters the last mode used on this beamline, and switches to it. If last mode
 	 * cannot be determined, then disables configuration management.
-	 * 
+	 *
 	 * @see gda.factory.Configurable#configure()
 	 */
 	@Override
@@ -129,7 +129,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 
 	/**
 	 * remove specified mode from the active set
-	 * 
+	 *
 	 * @param modeName
 	 * @throws ObjectShelfException
 	 */
@@ -149,7 +149,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 	/**
 	 * Default change-mode method. Changes mode and switches to the last configuration used in this mode. If last
 	 * configuration is not known then switch to this mode and then turn off configuration control.
-	 * 
+	 *
 	 * @param newModeName
 	 *            name of mode to switch to
 	 * @throws BcmException
@@ -199,7 +199,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 
 	/**
 	 * Add scannable to named mode's control
-	 * 
+	 *
 	 * @param modeName
 	 * @param scannable
 	 * @throws BcmException
@@ -225,7 +225,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 
 	/**
 	 * get a collection of scannable names that are controlled by the active modes
-	 * 
+	 *
 	 * @return set of scannable name
 	 */
 	public Collection<String> getAllScannableNames() {
@@ -239,16 +239,16 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 
 	/**
 	 * get a collection of scannable names that are controlled by an active mode
-	 * @param modeName 
+	 * @param modeName
 	 * @return set of scannable name
-	 * @throws BcmException 
+	 * @throws BcmException
 	 */
 	public Collection<String> getAllScannableNames(String modeName) throws BcmException {
 		if (modeName == null)
 			throw new BcmException("mode name null pointer.");
 		if (activeModes.get(modeName) == null)
 			throw new BcmException("Mode " + modeName + " is not active.");
-		
+
 		Set<String> allScannables = new HashSet<String>();
 
 		allScannables.addAll(activeModes.get(modeName).getScannables().keySet());
@@ -257,7 +257,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 	}
 	/**
 	 * see that all active modes are properly activated and safe
-	 * 
+	 *
 	 * @return okness
 	 */
 	public boolean okayToOpenShutter() {
@@ -271,7 +271,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 
 	/**
 	 * Creates a new mode entity in table, and loads it
-	 * 
+	 *
 	 * @param mname
 	 *            must not exist
 	 * @param shortDescription
@@ -487,7 +487,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 
 	/**
 	 * Deletes a mode entity. Mode entity must have no associated configurations.
-	 * 
+	 *
 	 * @param modeName
 	 *            name of mode to delete
 	 * @throws BcmException
@@ -513,7 +513,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 
 	/**
 	 * Gets the names of all modes.
-	 * 
+	 *
 	 * @return a list active mode names
 	 */
 	public Collection<String> getActiveModeList() {
@@ -527,7 +527,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 
 	/**
 	 * Gets the names of all modes.
-	 * 
+	 *
 	 * @return a list of mode name
 	 */
 	@SuppressWarnings("unchecked")
@@ -537,7 +537,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 
 		List<List<String>> results = q.getResultList();
 		List<String> modes = new ArrayList<String>();
-		
+
 		for (List<String> r : results) {
 			modes.add(r.get(0));
 		}
@@ -546,10 +546,10 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 
 	/**
 	 * Gets the names of the snapshots in a mode.
-	 * 
+	 *
 	 * @param modeName
 	 * @return a list of snapshot ids
-	 * @throws BcmException 
+	 * @throws BcmException
 	 */
 	public Collection<Date> getSnapshots(String modeName) throws BcmException {
 		if (modeName == null)
@@ -565,7 +565,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 	static EntityManager getEntityManager() {
 		return em;
 	}
-	
+
 	@Override
 	public void addIObserver(IObserver anIObserver) {
 		observableComponent.addIObserver(anIObserver);
@@ -583,7 +583,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 
 	/**
 	 * Notify all observers on the list of the requested change.
-	 * 
+	 *
 	 * @param theObserved
 	 *            the observed component
 	 * @param theArgument
@@ -592,7 +592,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 	public void notifyIObservers(Object theObserved, Object theArgument) {
 		observableComponent.notifyIObservers(theObserved, theArgument);
 	}
-	
+
 	// Implements Localizable interface.
 	@Override
 	public boolean isLocal() {
@@ -602,7 +602,7 @@ public class BeamlineConfigurationManager implements Findable, Configurable, Loc
 	public void setLocal(boolean local) {
 		this.local = local;
 	}
-	
+
 	// Implement Findable interface.
 	@Override
 	public String getName() {

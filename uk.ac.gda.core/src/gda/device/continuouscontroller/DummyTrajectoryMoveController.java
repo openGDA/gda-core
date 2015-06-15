@@ -38,16 +38,16 @@ public class DummyTrajectoryMoveController extends DeviceBase implements Traject
 	private int numberAxes;
 
 	Vector<Double[]> points = new Vector<Double[]>();
-	
+
 	double[] triggerDeltas;
-	
+
 	private Double triggerPeriod;
-	
+
 	private volatile boolean going = false;
 
 	private Thread goingThread;
 
-	
+
 	/**
 	 * If true simulate a move when asked to move.
 	 */
@@ -58,10 +58,10 @@ public class DummyTrajectoryMoveController extends DeviceBase implements Traject
 		stopAndReset();
 	}
 
-	
+
 	@Override
 	public void configure() throws FactoryException {
-		
+
 	}
 
 	@Override
@@ -86,7 +86,7 @@ public class DummyTrajectoryMoveController extends DeviceBase implements Traject
 		}
 		return s;
 	}
-	
+
 	@Override
 	public int getNumberAxes() {
 		return numberAxes;
@@ -134,7 +134,7 @@ public class DummyTrajectoryMoveController extends DeviceBase implements Traject
 					"{0}.startMove() with {1} points and {2} period.\n",
 					getName()==null ? "a DummyTrajectoryMoveController" : getName(), points.size(), triggerPeriod));
 		}
-		
+
 	}
 
 	/**
@@ -145,7 +145,7 @@ public class DummyTrajectoryMoveController extends DeviceBase implements Traject
 		public void run() {
 			InterfaceProvider.getTerminalPrinter().print(getName() + "s moving...\n");
 			going = true;
-			
+
 			for (int i = 0; i < getNumberTriggers(); i++) {
 				double deltaT = (triggerDeltas == null) ? triggerPeriod : triggerDeltas[i];
 				Double[] point = points.get(i);
@@ -166,7 +166,7 @@ public class DummyTrajectoryMoveController extends DeviceBase implements Traject
 			InterfaceProvider.getTerminalPrinter().print(getName() + " move complete\n");
 		}
 	}
-	
+
 	@Override
 	public boolean isMoving() {
 		return going;
@@ -198,7 +198,7 @@ public class DummyTrajectoryMoveController extends DeviceBase implements Traject
 			return triggerPeriod * getNumberTriggers();
 		}
 		throw new DeviceException ("Not trigger period or trigger deltas set.");
-		
+
 	}
 
 	@Override
@@ -211,32 +211,32 @@ public class DummyTrajectoryMoveController extends DeviceBase implements Traject
 	@Override
 	public void setTriggerDeltas(double[] triggerDeltas) {
 		triggerPeriod = null;
-		this.triggerDeltas = triggerDeltas;	
+		this.triggerDeltas = triggerDeltas;
 	}
-	
+
 	public Vector<Double[]> getPointsList() {
 		return points;
 	}
-	
+
 	@Override
 	public void setAxisTrajectory(int axisIndex, double[] trajectory) throws DeviceException {
-		// TODO: 
+		// TODO:
 		throw new DeviceException("Not implemented");
 	}
 
 	public void setNumberAxes(int numberAxes) {
 		this.numberAxes = numberAxes;
 	}
-	
+
 	public List<double[]>readActualPositionsFromHardware() {
 		ArrayList<double[]> wobbledPoints = new ArrayList<double[]>(getPointsList().size());
 		for (Double[] point : points) {
 			wobbledPoints.add(wobble(point));
 		}
 		return wobbledPoints;
-		
+
 	}
-	
+
 	private double[] wobble(Double[] a) {
 		double[] r = new double[a.length];
 		for (int i = 0; i < a.length; i++) {

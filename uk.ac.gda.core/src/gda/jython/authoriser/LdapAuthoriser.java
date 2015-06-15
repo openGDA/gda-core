@@ -60,7 +60,7 @@ public class LdapAuthoriser extends FileAuthoriser implements Authoriser {
 	private final String staffContext = LocalProperties.get(LDAPSTAFFCONTEXT_PROPERTY, "DC=fed,DC=cclrc,DC=ac,DC=uk");
 
 	private LdapMixin ldap = new LdapMixin();
-	
+
 	@Override
 	public boolean hasAuthorisationLevel(String username) {
 		// use the xml file as an override
@@ -128,17 +128,17 @@ public class LdapAuthoriser extends FileAuthoriser implements Authoriser {
 	}
 
 	private NamingEnumeration<SearchResult> searchLdapForUser(String fedId) {
-		
+
 		final List<String> urls = ldap.getUrlsToTry();
 		logger.debug("LDAP URLs: " + urls);
-		
+
 		if (urls.isEmpty()) {
 			logger.error("No LDAP servers defined");
 			return null;
 		}
-		
+
 		Exception lastException = null;
-		
+
 		for (String url : urls) {
 			try {
 				return searchOneLdapServerForUser(url, fedId);
@@ -148,13 +148,13 @@ public class LdapAuthoriser extends FileAuthoriser implements Authoriser {
 				logger.info("Unable to use LDAP server with URL '{}' - will try next server", url, e);
 			}
 		}
-		
+
 		logger.error("Unable to connect to any LDAP server", lastException);
 		return null;
 	}
-	
+
 	private NamingEnumeration<SearchResult> searchOneLdapServerForUser(String url, String fedId) throws NamingException {
-		
+
 		InitialLdapContext ctx = null;
 		try {
 			if( fedId == null || fedId.isEmpty())

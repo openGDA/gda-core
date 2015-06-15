@@ -27,7 +27,7 @@ public interface Function {
 
 	/**
 	 * x is a single point, but domain may be multidimensional
-	 * 
+	 *
 	 * @param x
 	 * @param parms
 	 * @return The function value

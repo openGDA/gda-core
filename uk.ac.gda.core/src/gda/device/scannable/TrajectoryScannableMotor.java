@@ -63,7 +63,7 @@ public class TrajectoryScannableMotor extends ScannableMotor implements Continuo
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		if (isOperatingContinously()) {
 			Double[] pointArray = new Double[controller.getNumberAxes()];
-			pointArray[getControllerMotorIndex()] = 
+			pointArray[getControllerMotorIndex()] =
 					PositionConvertorFunctions.toDouble(externalToInternal(position));
 			controller.addPoint(pointArray);
 		} else {
@@ -87,15 +87,15 @@ public class TrajectoryScannableMotor extends ScannableMotor implements Continuo
 		}
 		return super.getPosition();
 	}
-	
+
 	@Override
 	public boolean isBusy() throws DeviceException {
 		if (isOperatingContinously()) {
 			return controller.isMoving();
 		}
 		return super.isBusy();
-	}	
-	
+	}
+
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
 		if (isOperatingContinously()) {
@@ -126,10 +126,10 @@ public class TrajectoryScannableMotor extends ScannableMotor implements Continuo
 	public void setControllerMotorIndex(int controllerMoterIndex) {
 		this.controllerMotorIndex = controllerMoterIndex;
 	}
-	
+
 	public int getControllerMotorIndex() {
 		return controllerMotorIndex;
 	}
-	
+
 
 }

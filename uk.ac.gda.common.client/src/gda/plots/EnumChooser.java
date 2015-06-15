@@ -37,7 +37,7 @@ public class EnumChooser extends JComboBox implements ListCellRenderer {
 
 	/**
 	 * Constructor - not quite right yet!
-	 * 
+	 *
 	 * @param c
 	 *            the Class should be forced to be an Enum but isn't yet.
 	 */
@@ -71,7 +71,7 @@ public class EnumChooser extends JComboBox implements ListCellRenderer {
 
 	/**
 	 * Implements the ListCellRenderer interface to provide a suitable component to display the value.
-	 * 
+	 *
 	 * @param list
 	 *            The JList we're painting.
 	 * @param value

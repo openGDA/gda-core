@@ -37,7 +37,7 @@ public class ReloadScriptActionDelegate implements IEditorActionDelegate {
 	@Override
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
 		if (targetEditor != null){
-			ePart = targetEditor;		
+			ePart = targetEditor;
 		}
 	}
 
@@ -46,12 +46,12 @@ public class ReloadScriptActionDelegate implements IEditorActionDelegate {
 		ICommandRunner commandRunner = InterfaceProvider.getCommandRunner();
 		if (ePart != null){
 			final IEditorInput input = ePart.getEditorInput();
-			
+
 			final File fileToRun = EclipseUtils.getFile(input);
 			final String name = fileToRun.getName();
 			final String module = name.substring(0, name.indexOf('.'));
 			commandRunner.evaluateCommand("reload(" + module + ")");
-			
+
 		}
 	}
 

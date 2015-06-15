@@ -23,7 +23,7 @@ package gda.device.scannable.component;
  * A subclass of {@link ScannableLimitsComponent} that does not impose any limits on the position.
  */
 public class NonLimitingLimitsComponent extends ScannableLimitsComponent {
-	
+
 	@Override
 	public String checkInternalPosition(Object[] internalPosition) {
 		return null;

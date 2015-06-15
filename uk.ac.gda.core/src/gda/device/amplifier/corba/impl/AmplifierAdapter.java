@@ -36,13 +36,13 @@ import org.slf4j.LoggerFactory;
  * A client side implementation of the adapter pattern for the Amplifier class
  */
 public class AmplifierAdapter extends DeviceAdapter implements Amplifier {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(AmplifierAdapter.class);
-	
+
 	private CorbaAmplifier corbaAmplifier;
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

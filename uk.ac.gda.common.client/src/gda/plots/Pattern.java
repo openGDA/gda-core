@@ -60,7 +60,7 @@ public enum Pattern {
 
 	/**
 	 * Returns the actual array of floats which represents the pattern
-	 * 
+	 *
 	 * @return the array of floats
 	 */
 	public float[] getPattern() {
@@ -69,7 +69,7 @@ public enum Pattern {
 
 	/**
 	 * Returns the Stroke corresponding to the Pattern for a given lineWidth
-	 * 
+	 *
 	 * @param lineWidth
 	 *            the line width in pixels
 	 * @return a Stroke of the correct pattern
@@ -80,7 +80,7 @@ public enum Pattern {
 
 	/**
 	 * Returns the display name (which may be different from the Enum name)
-	 * 
+	 *
 	 * @return the display name
 	 */
 	@Override
@@ -90,7 +90,7 @@ public enum Pattern {
 
 	/**
 	 * Creates a Pattern from the String given
-	 * 
+	 *
 	 * @param string
 	 *            the name
 	 * @return the Patterb with that name (default null)
@@ -109,7 +109,7 @@ public enum Pattern {
 
 	/**
 	 * Creates a Marker from the int given
-	 * 
+	 *
 	 * @param counter
 	 * @return the Marker with that ordinal (default BOX)
 	 */
@@ -123,11 +123,11 @@ public enum Pattern {
 		}
 
 		return fromCounter;
-	}	
-	
+	}
+
 	/**
 	 * Returns a JComboBox which can be used to choose between the Patterns
-	 * 
+	 *
 	 * @return a suitable JComboBox
 	 */
 	public static JComboBox getChooser() {

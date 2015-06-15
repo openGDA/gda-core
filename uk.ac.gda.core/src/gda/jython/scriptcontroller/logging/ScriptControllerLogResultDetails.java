@@ -42,7 +42,7 @@ public class ScriptControllerLogResultDetails implements Serializable{
 	public String getUniqueID() {
 		return uniqueID;
 	}
-	
+
 	@Override
 	public String toString() {
 		String output = "";

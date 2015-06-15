@@ -28,11 +28,11 @@ public class SimpleServlet {
 	/**
 	 * Invokes a {@code static} method, that either takes no parameters, or
 	 * takes a single {@link String} parameter.
-	 * 
+	 *
 	 * @param params invocation parameters: {@code "class-name?method-name"} or {@code "class-name?method-name?string"}
-	 * 
+	 *
 	 * @return Object the object returned by the invoked method
-	 * 
+	 *
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws NoSuchMethodException
@@ -59,10 +59,10 @@ public class SimpleServlet {
 	/**
 	 * Invokes a {@code static} method, that either takes a single {@link Object},
 	 * or a {@link String} and an {@link Object}.
-	 * 
+	 *
 	 * @param params invocation parameters: {@code "class-name?method-name"} or {@code "class-name?method-name?string"}
 	 * @param object an object
-	 * 
+	 *
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
 	 * @throws NoSuchMethodException

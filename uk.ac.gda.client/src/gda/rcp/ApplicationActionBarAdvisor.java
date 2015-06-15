@@ -91,7 +91,7 @@ import uk.ac.gda.views.baton.BatonView;
 public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	public static final String NEW_GDA_EXT = "new.gda.ext"; // Group. //$NON-NLS-1$
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationActionBarAdvisor.class);
-	
+
 	/** Flag to add a developer test item to the File menu. The Action can be modified below. */
 	private static final boolean USE_TEST_ACTION = false;
 
@@ -155,7 +155,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		makeWindowActions(window);
 		makeHelpActions(window);
 		makeTestActions();
-		
+
 		// Some platform menus appear by default when certain workbench plug-ins are loaded
 		// Here we manually remove an action sets if a use property is set to false for it
 
@@ -172,7 +172,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("unused")
 	private boolean testActionSetProperty(String propertyId, String actionSetId, boolean bDefault, boolean doRemove) {
 		boolean useActionSet = LocalProperties.check(propertyId,bDefault);
@@ -181,7 +181,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		}
 		return useActionSet;
 	}
-	
+
 	private void makeHelpActions(final IWorkbenchWindow window) {
 		IntroDescriptor introDescriptor = ((Workbench) window.getWorkbench()).getIntroDescriptor();
 		if (introDescriptor == null)
@@ -208,7 +208,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		perspectiveCustomizeAction = ActionFactory.EDIT_ACTION_SETS.create(window);
 		register(perspectiveCustomizeAction);
 	}
-	
+
 	private void makeFileActions(final IWorkbenchWindow window) {
 		closeAction = ActionFactory.CLOSE.create(window);
 		register(closeAction);
@@ -230,14 +230,14 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 		exportWizardAction = ActionFactory.EXPORT.create(window);
 		register(exportWizardAction);
-		
+
 		importWizardAction = ActionFactory.IMPORT.create(window);
 		register(importWizardAction);
 
 		newWizardAction = ActionFactory.NEW.create(window);
 		register(newWizardAction);
 	}
-	
+
 	private void makeTestActions() {
 		// Action to use for testing. Modify it as needed.
 		if (USE_TEST_ACTION) {
@@ -264,7 +264,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			testAction.setText("Test...");
 		}
 	}
-	
+
 	private void makeWindowActions(final IWorkbenchWindow window) {
 		newWindowAction = ActionFactory.OPEN_NEW_WINDOW.create(getWindow());
 		newWindowAction.setText("New Window");
@@ -288,7 +288,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		perspectiveCloseAllAction = ActionFactory.CLOSE_ALL_PERSPECTIVES.create(window);
 		register(perspectiveCloseAllAction);
 	}
-	
+
 	/**
 	 * Fills the coolbar with the workbench actions.
 	 */
@@ -349,9 +349,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		// }
 		//
 		// coolBar.add(new GroupMarker(IWorkbenchActionConstants.GROUP_EDITOR));
-		//     
+		//
 		// coolBar.add(new GroupMarker(IWorkbenchActionConstants.GROUP_HELP));
-		//        
+		//
 		// { // Help group
 		// IToolBarManager helpToolBar = actionBarConfigurer.createToolBarManager();
 		// helpToolBar.add(new Separator(IWorkbenchActionConstants.GROUP_HELP));
@@ -439,7 +439,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 					return null;
 				}
 
-				
+
 				// update the GUI based on state of processor
 				void updateStatus(final Processor.STATE stateIn, final ProcessorCurrentItem item) {
 					Display.getDefault().asyncExec(new Runnable() {
@@ -578,7 +578,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			break;
 		}
 	}
-	
+
 	private void updateScanStatus(StatusLineContributionItem status) {
 		final int scan = InterfaceProvider.getScanStatusHolder().getScanStatus();
 		updateStatus(status, scan, "Scan");
@@ -707,7 +707,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		// menu.add(new Separator());
 		// menu.add(importResourcesAction);
 		// menu.add(exportResourcesAction);
-		
+
 		menu.add(new GroupMarker(IWorkbenchActionConstants.IMPORT_EXT));
 		menu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 
@@ -723,7 +723,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		if(LocalProperties.check(LocalProperties.GDA_GUI_USE_ACTIONS_IMPORT,true)) {
 			menu.add(importWizardAction);
 		}
-		
+
 		menu.add(new Separator());
 		// Add the test action here
 		if (USE_TEST_ACTION) {
@@ -922,7 +922,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	 * Adds a <code>GroupMarker</code> or <code>Separator</code> to a menu. The test for whether a separator should be
 	 * added is done by checking for the existence of a preference matching the string useSeparator.MENUID.GROUPID that
 	 * is set to <code>true</code>.
-	 * 
+	 *
 	 * @param menu
 	 *            the menu to add to
 	 * @param groupId
@@ -937,7 +937,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 			menu.add(new GroupMarker(groupId));
 		}
 	}
-	
+
     private IContributionItem getCutItem() {
 		return getItem(
 				ActionFactory.CUT.getId(),
@@ -947,7 +947,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 				WorkbenchMessages.Workbench_cut,
 				WorkbenchMessages.Workbench_cutToolTip, null);
 	}
-    
+
     private IContributionItem getCopyItem() {
 		return getItem(
 				ActionFactory.COPY.getId(),
@@ -957,7 +957,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 				WorkbenchMessages.Workbench_copy,
 				WorkbenchMessages.Workbench_copyToolTip, null);
 	}
-    
+
     private IContributionItem getPasteItem() {
 		return getItem(
 				ActionFactory.PASTE.getId(),
@@ -966,26 +966,26 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 				ISharedImages.IMG_TOOL_PASTE_DISABLED,
 				WorkbenchMessages.Workbench_paste,
 				WorkbenchMessages.Workbench_pasteToolTip, null);
-	}	
-    
+	}
+
     private IContributionItem getDeleteItem() {
         return getItem(ActionFactory.DELETE.getId(),
         		ActionFactory.DELETE.getCommandId(),
         		ISharedImages.IMG_TOOL_DELETE,
         		ISharedImages.IMG_TOOL_DELETE_DISABLED,
         		WorkbenchMessages.Workbench_delete,
-        		WorkbenchMessages.Workbench_deleteToolTip, 
+        		WorkbenchMessages.Workbench_deleteToolTip,
         		IWorkbenchHelpContextIds.DELETE_RETARGET_ACTION);
-    }    
-    
+    }
+
     private IContributionItem getSelectAllItem() {
 		return getItem(
 				ActionFactory.SELECT_ALL.getId(),
 				ActionFactory.SELECT_ALL.getCommandId(),
 				null, null, WorkbenchMessages.Workbench_selectAll,
 				WorkbenchMessages.Workbench_selectAllToolTip, null);
-	}    
-    
+	}
+
     private IContributionItem getItem(String actionId, String commandId,
     		String image, String disabledImage, String label, String tooltip, String helpContextId) {
 		ISharedImages sharedImages = getWindow().getWorkbench()
@@ -1001,6 +1001,6 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 						.getImageDescriptor(disabledImage), null, label, null,
 				tooltip, CommandContributionItem.STYLE_PUSH, helpContextId, false);
 		return new CommandContributionItem(commandParm);
-	}    
+	}
 
 }

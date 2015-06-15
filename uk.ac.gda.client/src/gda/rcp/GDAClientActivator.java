@@ -35,18 +35,18 @@ import uk.ac.gda.common.rcp.NamedServiceProvider;
 
 /**
  * The activator class controls the plug-in life cycle.
- * 
+ *
  * This is the main GDA Client activator and is called when the client
  * plugin is loaded. It connects the UIScanDataPointEventService to the server
  * which then listens to scan data points coming in. These can then be plotted later.
- * 
- * This step is required because Eclipse uses lazy loading so unless a view that is 
+ *
+ * This step is required because Eclipse uses lazy loading so unless a view that is
  * dealing with points has been started, they would be lost. Instead UIScanDataPointEventService
  * listens to everything. It can be configured in size using an extension point.
  */
 public class GDAClientActivator extends AbstractUIPlugin {
-	
- 	
+
+
 	// The plug-in ID - corresponds to name in plugin.xml file
 	/**
 	 *
@@ -67,11 +67,11 @@ public class GDAClientActivator extends AbstractUIPlugin {
 
 	@Override
 	public void start(final BundleContext context) throws Exception {
-		
+
 		super.start(context);
 		plugin = this;
 		plugin.context=context;
-		
+
 	}
 
 	@Override
@@ -139,15 +139,15 @@ public class GDAClientActivator extends AbstractUIPlugin {
 			reg.put(imgPath, imageDescriptorFromPlugin(PLUGIN_ID, imgPath));
 		}
 	}
-	
+
 	private static NamedServiceProvider namedServiceProvider;
-	
+
 	public static Object getNamedService(@SuppressWarnings("rawtypes") Class clzz, final String name) {
 		if(namedServiceProvider == null){
 			namedServiceProvider = new NamedServiceProvider(plugin.context);
 		}
 		return namedServiceProvider.getNamedService(clzz, "SERVICE_NAME", name);
-		
-	}	
-	
+
+	}
+
 }

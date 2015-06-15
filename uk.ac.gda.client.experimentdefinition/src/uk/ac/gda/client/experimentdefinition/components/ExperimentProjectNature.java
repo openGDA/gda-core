@@ -112,10 +112,10 @@ public class ExperimentProjectNature implements IProjectNature {
 	/**
 	 * Call to create a default scan in a folder. Does not open editors. Setting scanName also assumes that name is
 	 * unique - use with care.
-	 * 
+	 *
 	 * @param dir
 	 * @return the ScanObjectManager
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	private static IExperimentObjectManager createNewScan(final IFolder dir, final String name) throws Exception
 			 {
@@ -139,7 +139,7 @@ public class ExperimentProjectNature implements IProjectNature {
 	/**
 	 * Call to create a New empty scan in a folder. Does not open editors. Setting scanName also assumes that name is
 	 * unique - use with care.
-	 * 
+	 *
 	 * @param dir
 	 * @return the ScanObjectManager
 	 * @throws Exception

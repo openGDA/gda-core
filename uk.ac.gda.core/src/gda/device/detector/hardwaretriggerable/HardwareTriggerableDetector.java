@@ -27,7 +27,7 @@ public interface HardwareTriggerableDetector extends HardwareTriggeredDetector {
 
 	/**
 	 * Configure the Detector to trigger on hardware triggers, or not.
-	 * 
+	 *
 	 * @param b
 	 * @throws DeviceException
 	 */

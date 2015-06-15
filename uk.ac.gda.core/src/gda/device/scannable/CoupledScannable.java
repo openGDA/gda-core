@@ -17,7 +17,7 @@
  */
 
 /**
- * 
+ *
  */
 package gda.device.scannable;
 
@@ -56,7 +56,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 	private Scannable[] theScannables = new Scannable[0];
 	private Function[] theFunctions = new Function[0];
 	private String[] scannableNames;
-	
+
 	/**
 	 * Keeps track of whether each of the underlying scannables is moving, if this scannable is moved.
 	 */
@@ -64,7 +64,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 
 	/**
 	 * This must be called after all Scannables and Functions added {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.DeviceBase#configure()
 	 */
 	@Override
@@ -79,7 +79,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 				if (scannable == null || !(scannable instanceof Scannable)) {
 					logger.warn("Error during configure of " + name + ": scannable " + name
 							+ " could not be found!");
-				}					
+				}
 				theScannables = (Scannable[]) ArrayUtils.add(theScannables, finder.find(name));
 			}
 		}
@@ -112,7 +112,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 
 	/**
 	 * Adds a Scannable.
-	 * 
+	 *
 	 * @param newScannable
 	 */
 	public void addScannable(Scannable newScannable) {
@@ -128,7 +128,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 
 	/**
 	 * Sets the scannables this object uses. Use this instead of multiple calls to addScannable.
-	 * 
+	 *
 	 * @param theScannables
 	 */
 	public void setScannables(Scannable[] theScannables) {
@@ -137,7 +137,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 
 	/**
 	 * Adds a function to the list
-	 * 
+	 *
 	 * @param newFunction
 	 */
 	public void addFunction(Function newFunction) {
@@ -148,7 +148,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 
 	/**
 	 * Sets the functions in this coupled scannable.
-	 * 
+	 *
 	 * @param functions
 	 *            the functions
 	 */
@@ -190,7 +190,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 
 	/**
 	 * Sets the scannable names for this coupled scannable.
-	 * 
+	 *
 	 * @param scannableNames
 	 *            the scannable names
 	 */
@@ -203,7 +203,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 
 	/**
 	 * Alternate setter to match the getter
-	 * 
+	 *
 	 * @param scannableNames
 	 */
 	public void setScannableNames(String[] scannableNames) {
@@ -219,7 +219,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 		asynchronousMoveTo(position);
 	}
 
-	
+
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 
@@ -253,7 +253,7 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 		// if get here without an exception then perform the moves
 		moveUnderlyingScannables(targets);
 	}
-	
+
 	private void moveUnderlyingScannables(Object[] targets) throws DeviceException {
 		Arrays.fill(scannablesMoving, true);
 		for (int i = 0; i < theScannables.length; i++) {
@@ -268,12 +268,12 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 		Object posAmount =  ScannableUtils.getCurrentPositionArray(theScannables[0])[0];
 		if( first instanceof ScannableMotionUnits ){
 			Quantity sourcePositionQuantity = QuantityFactory.createFromObject(posAmount, QuantityFactory
-					.createUnitFromString(((ScannableMotionUnits)first).getUserUnits()));	
+					.createUnitFromString(((ScannableMotionUnits)first).getUserUnits()));
 			return (sourcePositionQuantity.to(unitsComponent.getUserUnit())).getAmount();
-		} 
+		}
 		return posAmount;
 	}
-	
+
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		// replicate behaviour of old DOF. This is probably not ideal...
@@ -295,11 +295,11 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 
 		boolean scannableReady = true;
 		if ( changeCode instanceof ScannableStatus) {
-			
+
 			int scanStatus = ((ScannableStatus) changeCode).getStatus();
 			if(scanStatus == ScannableStatus.BUSY ||  scanStatus== ScannableStatus.FAULT)
 				notifyIObservers(this,new ScannableStatus(getName(), scanStatus));
-			
+
 
 			else if(scanStatus == ScannableStatus.IDLE)
 			{
@@ -316,14 +316,14 @@ public class CoupledScannable extends ScannableMotionUnitsBase implements IObser
 
 		}
 	}
-	
+
 	@Override
 	public void stop() throws DeviceException {
 		for (Scannable thisScannable : theScannables) {
 			thisScannable.stop();
 		}
-	
+
 	}
-	
+
 
 }

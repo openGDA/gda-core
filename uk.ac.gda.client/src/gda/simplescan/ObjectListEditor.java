@@ -18,7 +18,7 @@ import org.eclipse.swt.widgets.TableColumn;
 public class ObjectListEditor extends FieldBeanComposite {
 	protected TableViewer viewer;
 	private String title;
-	
+
 	public ObjectListEditor(Composite parent, int style, String title) {
 		super(parent, style);
 		this.title = title;
@@ -66,5 +66,5 @@ public class ObjectListEditor extends FieldBeanComposite {
 	public int[] getSelected() {
 		return viewer.getTable().getSelectionIndices();
 	}
-	
+
 }

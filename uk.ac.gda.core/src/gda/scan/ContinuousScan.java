@@ -199,7 +199,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 		ContinuousParameters params = new ContinuousParameters();
 		params.setStartPosition(start);
 		params.setEndPosition(stop);
-		
+
 		if (biDirectional && lastCollectionInPositiveDirection){
 			// shift by one pixel when going in the reverse direction (seen to be necessary on I18)
 			double stepSize = (stop- start) / numberScanpoints;
@@ -209,7 +209,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 		} else {
 			lastCollectionInPositiveDirection = true;
 		}
-		
+
 		params.setNumberDataPoints(numberScanpoints);
 		params.setTotalTime(time);
 		params.setContinuouslyScannableName(qscanAxis.getName());
@@ -239,7 +239,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 
 	private void checkForMotionTimeout() throws ContinuousScanTimeoutException, DeviceException {
 		if (qscanAxis.isBusy()) return;
-		
+
 		Date now = new Date();
 		if (timeMotionFinished == null){
 			logger.info("Motion has finished, now waiting for detectors to readout");
@@ -250,7 +250,7 @@ public class ContinuousScan extends ConcurrentScanChild {
 			logger.error(msg);
 			throw new ContinuousScanTimeoutException(msg);
 		}
-		
+
 	}
 
 	private int findLowest(int[] framesReachedArray) {
@@ -399,12 +399,12 @@ public class ContinuousScan extends ConcurrentScanChild {
 			//FIXME GDA should not need two messages sent out here. This needs resolving. The UI should also have to resolve its own updating.
 		}
 	}
-	
+
 	private void notifyScanEvent() {
-		// as this can happen very frequently for ContinuousScans, only notify every second 
+		// as this can happen very frequently for ContinuousScans, only notify every second
 		long now = new Date().getTime();
 		if (now - timeOfLastUpdatedScanEvent  > 1000) {
-			sendScanEvent(ScanEvent.EventType.UPDATED); // for the ApplicationActionToolBar 
+			sendScanEvent(ScanEvent.EventType.UPDATED); // for the ApplicationActionToolBar
 			timeOfLastUpdatedScanEvent = now;
 		}
 	}
@@ -419,9 +419,9 @@ public class ContinuousScan extends ConcurrentScanChild {
 	 * <p>
 	 * NB: as the data will be coming out in the reversed direction for every other scan then a custom DataWriter will
 	 * need to be used to perform the corrections to the data.
-	 * 
+	 *
 	 * TODO move the functionality in XasAsciiNexusDatapointCompletingDataWriter in the exafs.datawriter plugin to core.
-	 * 
+	 *
 	 * @param biDirectional
 	 */
 	public void setBiDirectional(boolean biDirectional) {
@@ -439,5 +439,5 @@ class ContinuousScanTimeoutException extends Exception {
 	public ContinuousScanTimeoutException(String msg) {
 		super(msg);
 	}
-	
+
 }

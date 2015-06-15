@@ -36,9 +36,9 @@ public class MoveUpHandler extends AbstractHandler {
 		// Get current dashboard view.
 		DashboardView dashboard = (DashboardView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
 		if (dashboard==null) return Boolean.FALSE;
-		
+
 		dashboard.move(-1);
-		
+
 		return Boolean.TRUE;
 	}
 

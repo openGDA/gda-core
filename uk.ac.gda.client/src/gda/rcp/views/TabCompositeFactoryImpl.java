@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 public class TabCompositeFactoryImpl implements TabCompositeFactory {
-	
+
 	private Image image;
 	private CompositeFactory compositeFactory;
 	private String imagePluginId;
@@ -33,8 +33,8 @@ public class TabCompositeFactoryImpl implements TabCompositeFactory {
 	private String tooltip;
 	private String label;
 	private boolean enabled=true;
-	
-	
+
+
 
 	public CompositeFactory getCompositeFactory() {
 		return compositeFactory;

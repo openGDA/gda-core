@@ -103,7 +103,7 @@ public class BatonManagerTest {
 		manager.requestBaton("rst");
 		assertTrue(manager.amIBatonHolder("rst"));
 	}
-	
+
 	@Test
 	public void testSwitchUser() {
 		manager.requestBaton("xyz");
@@ -111,7 +111,7 @@ public class BatonManagerTest {
 		manager.switchUser("opq", "abc123", 3, null);
 		manager.requestBaton("opq");
 		assertTrue(manager.amIBatonHolder("opq"));
-		
+
 	}
 
 	@Test

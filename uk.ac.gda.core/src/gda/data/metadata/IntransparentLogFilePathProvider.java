@@ -43,7 +43,7 @@ public class IntransparentLogFilePathProvider extends MetadataBlaster implements
 		super.configure();
 		InterfaceProvider.getBatonStateProvider().addBatonChangedObserver(this);
 	}
-	
+
 	public void setPathTemplate(String pathTemplate) {
 		this.pathTemplate = pathTemplate;
 	}
@@ -52,7 +52,7 @@ public class IntransparentLogFilePathProvider extends MetadataBlaster implements
 	public String getPath() {
 		return PathConstructor.createFromTemplate(pathTemplate);
 	}
-	
+
 	@Override
 	public void update(Object source, Object arg) {
 		notifyIObservers(this, new PathChanged(getPath()));

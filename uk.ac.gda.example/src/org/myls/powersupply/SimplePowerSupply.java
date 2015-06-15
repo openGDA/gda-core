@@ -38,6 +38,6 @@ public class SimplePowerSupply implements IPowerSupply{
 	public String toString() {
 		return "[SimplePowerSupply:" + (on ? "On" : "Off") + "]";
 	}
-	
-	
+
+
 }

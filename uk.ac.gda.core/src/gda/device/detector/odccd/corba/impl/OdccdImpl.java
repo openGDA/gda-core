@@ -20,9 +20,9 @@
 package gda.device.detector.odccd.corba.impl;
 
 import gda.device.DeviceException;
+import gda.device.ODCCD;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.detector.corba.impl.DetectorImpl;
-import gda.device.ODCCD;
 import gda.device.detector.odccd.ODCCDImage;
 import gda.device.detector.odccd.corba.CorbaODCCDPOA;
 import gda.factory.corba.CorbaFactoryException;
@@ -44,7 +44,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param odccd
 	 *            the ODCCDController implementation object
 	 * @param poa
@@ -58,7 +58,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the ODCCDController implementation object
 	 */
 	public ODCCD _delegate() {
@@ -67,7 +67,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param odccd
 	 *            set the ODCCDController implementation object
 	 */
@@ -205,7 +205,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 		}
 
 	}
-	
+
 	@Override
 	public double getCollectionTime() throws CorbaDeviceException {
 		try {
@@ -444,7 +444,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 	public String getDetectorType() throws CorbaDeviceException {
 		return detectorImpl.getDetectorType();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return detectorImpl.getProtectionLevel();
@@ -459,7 +459,7 @@ public class OdccdImpl extends CorbaODCCDPOA {
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		detectorImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		detectorImpl.atCommandFailure();

@@ -43,7 +43,7 @@ public class PositionStreamingTfgScaler extends TfgScalerWithLogValues implement
 	private PositionStreamIndexer<double[]> indexer;
 	private Double[] times;
 	private int nextFrameToRead = 0;
-	
+
 	public Double[] getTimes() {
 		return times;
 	}
@@ -73,7 +73,7 @@ public class PositionStreamingTfgScaler extends TfgScalerWithLogValues implement
 			highestFrameNumAvailable = nextFrameToRead;
 		}
 		logger.info("readout from " + nextFrameToRead + " to " + highestFrameNumAvailable);
-		
+
 		double[][] frames = readoutFrames(nextFrameToRead,highestFrameNumAvailable);
 		for (double[] frame : frames){
 			double[] corrected = performCorrections(frame);
@@ -82,7 +82,7 @@ public class PositionStreamingTfgScaler extends TfgScalerWithLogValues implement
 		nextFrameToRead = highestFrameNumAvailable + 1;
 		return listOfTress;
 	}
-	
+
 	@Override
 	public void collectData() throws DeviceException {
 		if (timer.getAttribute("TotalFrames").equals(0)) {
@@ -96,7 +96,7 @@ public class PositionStreamingTfgScaler extends TfgScalerWithLogValues implement
 	public Callable<double[]> getPositionCallable() throws DeviceException {
 		return indexer.getPositionCallable();
 	}
-	
+
 	@Override
 	public void atScanLineStart() throws DeviceException {
 
@@ -122,7 +122,7 @@ public class PositionStreamingTfgScaler extends TfgScalerWithLogValues implement
 //		daServer.sendCommand("tfg arm");
 		daServer.sendCommand("tfg start");  // this is the bit which is different, I want to arm and start before any data collection
 	}
-	
+
 	@Override
 	public void atScanLineEnd() throws DeviceException {
 		indexer = null;
@@ -130,23 +130,23 @@ public class PositionStreamingTfgScaler extends TfgScalerWithLogValues implement
 		super.atScanLineEnd();
 //		timer.clearFrameSets(); // FIXME should be at scan end
 	}
-	
+
 	private int getNumberFrames() throws DeviceException {
-		
+
 		String[] cmds = new String[]{"status show-armed","progress","status","full","lap","frame"};
 		HashMap <String,String> currentVals = new HashMap<String,String>();
 		for (String cmd : cmds){
 			currentVals.put(cmd, daServer.sendCommand("tfg read " + cmd).toString());
 			logger.info("tfg read "+ cmd + ": " + currentVals.get(cmd));
 		}
-		
+
 		if (currentVals.isEmpty()){
 			return 0;
 		}
-		
-		
+
+
 		// else either scan not started (return -1) or has finished (return continuousParameters.getNumberDataPoints())
-		
+
 		// if started but nothing collected yet
 		if (currentVals.get("status show-armed").equals("EXT-ARMED") /*&& currentVals.get("status").equals("IDLE")*/ ){
 			return 0;

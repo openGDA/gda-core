@@ -17,7 +17,7 @@
  */
 
 /**
- * 
+ *
  */
 package gda.util.userOptions;
 
@@ -27,19 +27,19 @@ import gda.TestHelpers;
 import org.junit.Test;
 
 /**
- * 
+ *
  */
 public class UserOptionsTest {
 	final static String TestFileFolder = "test/gda/util/userOptions";
 
 	/**
 	 * Test method for {@link gda.util.userOptions}.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Test
 	public void testLoadConfig() throws Exception {
 		String testScratchDirectoryName = TestHelpers.setUpTest(UserOptionsTest.class, "testLoadConfig", true);
-		
+
 		UserOptions options = new UserOptions();
 		options.title = "Test options";
 		options.put("key1", new UserOption<String, Boolean>("Boolean", true));

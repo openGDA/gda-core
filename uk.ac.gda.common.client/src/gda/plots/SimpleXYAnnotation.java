@@ -50,7 +50,7 @@ public class SimpleXYAnnotation extends XYTextAnnotation implements ChartMouseLi
 
 	/**
 	 * Same as the super constructor, creates an XYAnnotation with the given string and position.
-	 * 
+	 *
 	 * @param string
 	 *            the text of the XYAnnotation
 	 * @param x
@@ -64,7 +64,7 @@ public class SimpleXYAnnotation extends XYTextAnnotation implements ChartMouseLi
 
 	/**
 	 * Same as the super constructor, but adds a value for clickable.
-	 * 
+	 *
 	 * @param string
 	 *            the text of the XYAnnotation
 	 * @param x
@@ -83,7 +83,7 @@ public class SimpleXYAnnotation extends XYTextAnnotation implements ChartMouseLi
 	 * Implements the XYAnnotation interface. This is actually a copy of the superclass method EXCEPT: it adds the shape
 	 * to the entity list based on the value of clickable and not whether or not there is a ToolTip; and it save the
 	 * hotpsot so that it can recognize when it is the clicked entity.
-	 * 
+	 *
 	 * @param g2
 	 *            the graphics device.
 	 * @param plot
@@ -132,7 +132,7 @@ public class SimpleXYAnnotation extends XYTextAnnotation implements ChartMouseLi
 
 	/**
 	 * Implements the ChartMouseListener interface, called if there is a mouse click event over the annotation.
-	 * 
+	 *
 	 * @param event
 	 *            the ChartMouseEvent
 	 */
@@ -146,7 +146,7 @@ public class SimpleXYAnnotation extends XYTextAnnotation implements ChartMouseLi
 
 	/**
 	 * Implements the ChartMouseListener interface, called if there is a mouse moved event over the annotation.
-	 * 
+	 *
 	 * @param event
 	 *            the ChartMouseEvent
 	 */
@@ -157,7 +157,7 @@ public class SimpleXYAnnotation extends XYTextAnnotation implements ChartMouseLi
 
 	/**
 	 * Returns whether or not the SimpleXYAnnotation responds to mouse clicks.
-	 * 
+	 *
 	 * @return true if clickable
 	 */
 	public boolean isClickable() {
@@ -166,7 +166,7 @@ public class SimpleXYAnnotation extends XYTextAnnotation implements ChartMouseLi
 
 	/**
 	 * Sets whether or not the SimpleXYAnnotation responds to mouse clicks.
-	 * 
+	 *
 	 * @param clickable
 	 *            true if this should respond to clicks
 	 */

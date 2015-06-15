@@ -69,7 +69,7 @@ public class DataVectorTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void testAllocation() {
 		if (dv0 == null) {
@@ -95,7 +95,7 @@ public class DataVectorTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void testGetMin() {
 		assertEquals(dv0.getMin(), 1.0, 0.00001);
@@ -106,7 +106,7 @@ public class DataVectorTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void testGetMax() {
 		assertEquals(dv0.getMax(), 3.0, 0.00001);
@@ -117,7 +117,7 @@ public class DataVectorTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void testGetMean() {
 		assertEquals(dv0.getMean(), 2.0, 0.00001);
@@ -128,7 +128,7 @@ public class DataVectorTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void testGetRMS() {
 		assertEquals(dv0.getRMS(), 2.160246899, 0.00001);
@@ -139,7 +139,7 @@ public class DataVectorTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void testGetSubset() {
 		// first check basic subsetting

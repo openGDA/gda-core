@@ -19,7 +19,6 @@
 
 package gda.jscience.physics.quantities;
 
-import gda.jscience.physics.quantities.BraggAngle;
 import junit.framework.TestCase;
 
 import org.jscience.physics.quantities.Angle;

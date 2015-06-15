@@ -82,7 +82,7 @@ public final class SimpleScanParametersComposite extends Composite {
 		label.setText("seconds");
 		this.seconds = new SpinnerWrapper(this, SWT.NONE);
 		seconds.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("On");
@@ -98,7 +98,7 @@ public final class SimpleScanParametersComposite extends Composite {
 		labelWrapper.setNotifyType(NOTIFY_TYPE.VALUE_CHANGED);
 		labelWrapper.setDecimalPlaces(6);
 		labelWrapper.setValue(999.9);
-		
+
 
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -126,8 +126,8 @@ public final class SimpleScanParametersComposite extends Composite {
 				layout();
 			}
 		});
-		
-		
+
+
 	}
 
 	public FieldComposite getName() {

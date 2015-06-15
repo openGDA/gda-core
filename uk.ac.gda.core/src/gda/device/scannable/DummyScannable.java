@@ -48,7 +48,7 @@ public class DummyScannable extends ScannableMotionBase {
 		super.setName(name);
 		setInputNames(new String[] {name});
 	}
-	
+
 	public DummyScannable(String string, double d) {
 		this(string);
 		this.currentPosition = d;

@@ -29,14 +29,14 @@ import java.util.List;
 import java.util.Vector;
 
 /**
- * CommandQueue is an implementation of Queue for handling Command objects 
+ * CommandQueue is an implementation of Queue for handling Command objects
  */
 public class CommandQueue implements Queue {
 	ObservableComponent obsComp = new ObservableComponent();
 	HashMap<CommandId, Command> commands = new HashMap<CommandId, Command>();
 	List<CommandId> queue = new LinkedList<CommandId>();
 	CommandId headID;
-	
+
 	@Override
 	public CommandId addToTail(Command command) {
 		CommandId generateCommandId = CommandId.generateCommandId();
@@ -47,7 +47,7 @@ public class CommandQueue implements Queue {
 		notifyListeners();
 		return generateCommandId;
 	}
-	
+
 	@Override
 	public List<QueuedCommandSummary> getSummaryList() throws Exception {
 		synchronized (queue){
@@ -60,19 +60,19 @@ public class CommandQueue implements Queue {
 			return summaries;
 		}
 	}
-	
+
 	@Override
 	public void moveToBefore(CommandId id, Collection<CommandId> cmdIds) {
 		/*
-		 * extract all cmds into a local collection 
+		 * extract all cmds into a local collection
 		 * insert after id get index, extract and put back
 		 * synchronize all actions
-		 * 
+		 *
 		 */
 		synchronized (queue) {
 			//remove them all and then add back
 			/*
-			 * If id given then first check it is ok. If not then 
+			 * If id given then first check it is ok. If not then
 			 */
 			int indexOfId=-1;
 			if( id != null){
@@ -103,7 +103,7 @@ public class CommandQueue implements Queue {
 		moveToBefore(null, cmdIds);
 	}
 
-	
+
 	@Override
 	public Command removeHead() {
 		Command cmd=null;
@@ -111,7 +111,7 @@ public class CommandQueue implements Queue {
 			if( queue.size()>0)
 				cmd= commands.remove(headID=queue.remove(0));
 		}
-		if(cmd!=null)	
+		if(cmd!=null)
 			notifyListeners();
 		return cmd;
 	}
@@ -144,7 +144,7 @@ public class CommandQueue implements Queue {
 		notifyListeners();
 		return cmds;
 	}
-	
+
 	@Override
 	public void replace(CommandId id, Command cmd) {
 		synchronized (queue){
@@ -190,7 +190,7 @@ public class CommandQueue implements Queue {
 	@Override
 	public void setCommandDetails(CommandId id, String details) throws Exception {
 		commands.get(id).setDetails(details);
-		
+
 	}
 
 	@Override

@@ -25,17 +25,17 @@ import org.eclipse.ui.IPerspectiveFactory;
 public class MVCExamplePerspective implements IPerspectiveFactory {
 
 	/**
-	 * Creates and adds a new folder with the given id to this page layout. 
-	 * The position and relative size of the folder is expressed relative to a reference part. 
-	 * Parameters: folderId the id for the new folder. 
-	 * This must be unique within the layout to avoid collision with other parts. 
+	 * Creates and adds a new folder with the given id to this page layout.
+	 * The position and relative size of the folder is expressed relative to a reference part.
+	 * Parameters: folderId the id for the new folder.
+	 * This must be unique within the layout to avoid collision with other parts.
 	 * relationship the position relative to the reference part;
 	 * one of TOP, BOTTOM, LEFT, or RIGHT ratio a ratio specifying how to divide the space currently occupied by the
 	 * reference part, in the range 0.05f to 0.95f. Values outside this range will be clipped to facilitate direct
 	 * manipulation. For a vertical split, the part on top gets the specified ratio of the current space and the part on
 	 * bottom gets the rest. Likewise, for a horizontal split, the part at left gets the specified ratio of the current
 	 * space and the part at right gets the rest. refId the id of the reference part; either a view id, a folder id, or
-	 * the special editor area id returned by getEditorArea 
+	 * the special editor area id returned by getEditorArea
 	 * Returns:the new folder
 	 **/
 

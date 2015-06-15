@@ -26,7 +26,7 @@ import java.io.File;
 public class CommandRunnerBean implements ICommandRunner{
 
 	private ICommandRunner runner;
-	
+
 	private ICommandRunner getRunner() {
 		if( runner == null){
 			runner = InterfaceProvider.getCommandRunner();
@@ -35,8 +35,8 @@ public class CommandRunnerBean implements ICommandRunner{
 	}
 	CommandRunnerBean(){
 	}
-	
-	
+
+
 	@Override
 	public void runCommand(String command) {
 		getRunner().runCommand(command);
@@ -61,6 +61,6 @@ public class CommandRunnerBean implements ICommandRunner{
 	public String locateScript(String scriptToRun) {
 		return getRunner().locateScript(scriptToRun);
 	}
-	
-	
+
+
 }

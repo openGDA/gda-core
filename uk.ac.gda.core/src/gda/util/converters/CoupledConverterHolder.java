@@ -83,10 +83,10 @@ public final class CoupledConverterHolder implements IReloadableQuantitiesConver
 		this.sourceConverterName = sourceConverterName;
 		this.targetConverterName = targetConverterName;
 	}
-	
+
 	/**
 	 * Creates a coupled converter holder which uses the specified source and target converters.
-	 * 
+	 *
 	 * @param name the converter name
 	 * @param sourceConverter the source converter
 	 * @param targetConverter the target converter
@@ -260,5 +260,5 @@ public final class CoupledConverterHolder implements IReloadableQuantitiesConver
 	public boolean handlesTtoS() {
 		return getIQuantityConverter(getConverter()).handlesTtoS();
 	}
-	
+
 }

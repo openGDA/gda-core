@@ -18,8 +18,8 @@
 
 package gda.jython.scriptcontroller.logging;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.junit.Assert.*;
 import gda.TestHelpers;
 import gda.factory.FactoryException;
 
@@ -136,7 +136,7 @@ public class MessageBeanTest {
 		msg2.setPercentComplete("100%");
 		msg2.setProgressMessage("Done!");
 		controller.update(this.getClass(), msg2);
-		
+
 		String id2 = "unique_id2";
 		TestMessageBean msg3 = new TestMessageBean();
 		msg3.setUniqueID(id2);
@@ -163,7 +163,7 @@ public class MessageBeanTest {
 	public void TestRetrieveLatestRun() throws Exception {
 		setUp("TestRetrieveLatestRun");
 		LoggingScriptController controller = createDatabase();
-		
+
 		String id = "unique_id1";
 		TestMessageBean msg1 = new TestMessageBean();
 		msg1.setUniqueID(id);
@@ -177,7 +177,7 @@ public class MessageBeanTest {
 		msg2.setPercentComplete("100%");
 		msg2.setProgressMessage("Done!");
 
-		
+
 		String id2 = "unique_id2";
 		TestMessageBean msg3 = new TestMessageBean();
 		msg3.setUniqueID(id2);
@@ -191,9 +191,9 @@ public class MessageBeanTest {
 		msg4.setPercentComplete("50%");
 		msg4.setProgressMessage("Halfway");
 		controller.update(this.getClass(), msg4);
-		
+
 		ScriptControllerLogResultDetails latest = controller.getMostRecentRun();
-		
+
 		assertEquals("50%",latest.getDetails().get("Complete"));
 	}
 }

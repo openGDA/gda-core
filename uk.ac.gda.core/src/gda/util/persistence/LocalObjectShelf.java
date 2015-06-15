@@ -54,7 +54,7 @@ public class LocalObjectShelf {
 	/**
 	 * Creates an object to access a shelf entity and its entries. Will create the underlying shelf entity if it does
 	 * not exists. More than one object may safely connect to the same underlying shelf.
-	 * 
+	 *
 	 * @param _shelfPrefix
 	 * @param _shelfName
 	 * @throws ObjectShelfException
@@ -103,7 +103,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Returns the shelf's name.
-	 * 
+	 *
 	 * @return shelf name
 	 */
 	public String getName() {
@@ -112,7 +112,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Checks if an entry with key keyName exists.
-	 * 
+	 *
 	 * @param keyName
 	 * @return true if key exists.
 	 */
@@ -125,7 +125,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Checks if an entry with key keyName exists. (Jython convention)
-	 * 
+	 *
 	 * @param keyName
 	 * @return true if key exists.
 	 */
@@ -140,7 +140,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Returns a list of all keys.
-	 * 
+	 *
 	 * @return a list of key names.
 	 */
 	synchronized public List<String> keys() {
@@ -171,7 +171,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Changes the entry for keyName to value. Will not create a new key/value pair if this one does not exist.
-	 * 
+	 *
 	 * @param keyName
 	 * @param data
 	 *            Any serializable object. All Jython objects are serializable.
@@ -188,7 +188,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Sets a value, creating it if necessary.
-	 * 
+	 *
 	 * @param keyName
 	 * @param data
 	 * @throws ObjectShelfException
@@ -248,7 +248,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Gets a value, returning a specified default if it does not exist.
-	 * 
+	 *
 	 * @param keyName
 	 * @param defaultVal
 	 * @return An object.
@@ -264,7 +264,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Gets a value, (Jython named)
-	 * 
+	 *
 	 * @param keyName
 	 * @return Object
 	 * @throws ObjectShelfException
@@ -284,7 +284,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Retrieves the value of the entry with key keyName.
-	 * 
+	 *
 	 * @param keyName
 	 * @return The stored object.
 	 * @throws ObjectShelfException
@@ -332,7 +332,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Deletes the entry with key keyName.
-	 * 
+	 *
 	 * @param keyName
 	 * @throws ObjectShelfException
 	 */
@@ -365,7 +365,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Deletes all the keys in shelf, but not the shelf itself.
-	 * 
+	 *
 	 * @throws ObjectShelfException
 	 */
 	synchronized public void clearShelf() throws ObjectShelfException {
@@ -378,7 +378,7 @@ public class LocalObjectShelf {
 	/**
 	 * Exports the entire shelf as a dictionary. This can then be re-imorted, or even saved in another shelf for a rainy
 	 * day. (Jython name)
-	 * 
+	 *
 	 * @return A dictionary of key/object pairs.
 	 * @throws ObjectShelfException
 	 */
@@ -394,7 +394,7 @@ public class LocalObjectShelf {
 	/**
 	 * Exports the entire shelf as a dictionary. This can then be re-imorted, or even saved in another shelf for a rainy
 	 * day.
-	 * 
+	 *
 	 * @return A dictionary of key/object pairs.
 	 * @throws ObjectShelfException
 	 */
@@ -405,7 +405,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Imports a dictionary of key/object pairs into the shelf. The pre-existing values are all cleared.
-	 * 
+	 *
 	 * @param dict
 	 *            Expects a java dictionary, not a Jython one. A full one can be obtained using exportValues(), or an
 	 *            empty on with getDictionaryForImport(). These dictionaries can be used in Jython just like standard
@@ -423,7 +423,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Jython collection method.
-	 * 
+	 *
 	 * @param key
 	 * @return true if key exists.
 	 */
@@ -433,7 +433,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Jython collection method.
-	 * 
+	 *
 	 * @param key
 	 * @throws ObjectShelfException
 	 */
@@ -443,7 +443,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Jython collection method.
-	 * 
+	 *
 	 * @param key
 	 * @throws ObjectShelfException
 	 */
@@ -453,7 +453,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Jython collection method.
-	 * 
+	 *
 	 * @param key
 	 * @return An object
 	 * @throws ObjectShelfException
@@ -464,7 +464,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Jython collection method.
-	 * 
+	 *
 	 * @return number of elements.
 	 */
 	public Integer __len__() {
@@ -473,7 +473,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Jython collection method.
-	 * 
+	 *
 	 * @param key
 	 * @param item
 	 * @throws ObjectShelfException
@@ -505,7 +505,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Jython collection method.
-	 * 
+	 *
 	 * @return a string representation of object
 	 */
 	public String __str__() {
@@ -514,7 +514,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Jython collection method.
-	 * 
+	 *
 	 * @return a string representation of shelf
 	 */
 	public String __repr__() {
@@ -547,7 +547,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Short cut method to get an entity manager and begin a transaction.
-	 * 
+	 *
 	 * @return the entity manager
 	 */
 	private EntityManager beginTransaction() {
@@ -561,7 +561,7 @@ public class LocalObjectShelf {
 
 	/**
 	 * Short cut method to commit a transaction and close the entity manager..
-	 * 
+	 *
 	 * @param em
 	 */
 	private void commitTransaction(EntityManager em) {

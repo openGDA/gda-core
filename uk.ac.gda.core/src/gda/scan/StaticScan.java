@@ -37,15 +37,15 @@ public class StaticScan extends ScanBase {
 				super.allDetectors.add((Detector) device);
 			} else {
 				super.allScannables.add(device);
-			} 
+			}
 		}
 		super.setUp();
 		currentPointCount = 0;
 		TotalNumberOfPoints = 1;
 		command = "static readout";
 	}
-	
-	
+
+
 	@Override
 	public void doCollection() throws Exception {
 		collectData();

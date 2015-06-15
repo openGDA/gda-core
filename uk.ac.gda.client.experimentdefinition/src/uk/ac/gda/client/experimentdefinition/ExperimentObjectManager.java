@@ -72,7 +72,7 @@ public abstract class ExperimentObjectManager implements IExperimentObjectManage
 	 * Instantiates a new IExperimentObject of the type referenced in the uk.ac.gda.client.experimentdefinition
 	 * extension point. You would need to call IExperimentObject.createFilesFromTemplates() to create the xml files
 	 * which the instance references.
-	 * 
+	 *
 	 * @return IExperimentObject
 	 */
 	protected IExperimentObject createNewExperimentObject() {
@@ -302,7 +302,7 @@ public abstract class ExperimentObjectManager implements IExperimentObjectManage
 
 	/**
 	 * returns true if no runs in this multiscan.
-	 * 
+	 *
 	 * @return true/false
 	 */
 	@Override
@@ -412,7 +412,7 @@ public abstract class ExperimentObjectManager implements IExperimentObjectManage
 		if (!file.equals(to))
 			file.move(to.getFullPath(), true, null);
 		this.file = to;
-		
+
 		for (IExperimentObject line : lines){
 			line.setMultiScanName(text);
 		}

@@ -36,11 +36,11 @@ public class AccessDeniedException extends DeviceException implements Serializab
 	 * Error message to use when a method call has been denied due to lack of baton
 	 */
 	public static final String NOBATON_EXCEPTION_MESSAGE = "You do not hold the baton, so cannot perform this operation!";
-	
+
 
 	/**
 	 * Create an exception.
-	 * 
+	 *
 	 * @param reason
 	 */
 	public AccessDeniedException(String reason) {

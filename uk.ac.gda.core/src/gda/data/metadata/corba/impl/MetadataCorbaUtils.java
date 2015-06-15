@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 public class MetadataCorbaUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(MetadataCorbaUtils.class);
-	
+
 	protected static CorbaMetadataEntry marshal(IMetadataEntry me) throws DeviceException {
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -54,7 +54,7 @@ public class MetadataCorbaUtils {
 			throw new DeviceException(msg, ioe);
 		}
 	}
-	
+
 	protected static IMetadataEntry unmarshal(CorbaMetadataEntry cme) throws DeviceException {
 		try {
 			ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(cme.data));

@@ -19,9 +19,6 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Serial;
@@ -29,13 +26,16 @@ import gda.device.serial.StringReader;
 import gda.device.serial.StringWriter;
 import gda.factory.Finder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * CrystalLogicController Class
  */
 public class CrystalLogicController extends DeviceBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(CrystalLogicController.class);
-	
+
 	private String serialDeviceName = null;
 
 	private Serial serial = null;
@@ -78,7 +78,7 @@ public class CrystalLogicController extends DeviceBase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void sendEscape() {
 		sendCommand("\033");
@@ -135,7 +135,7 @@ public class CrystalLogicController extends DeviceBase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void purge() {
 		while (getChar() != '\0')

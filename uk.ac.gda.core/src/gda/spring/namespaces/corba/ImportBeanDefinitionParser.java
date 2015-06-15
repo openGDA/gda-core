@@ -46,7 +46,7 @@ public class ImportBeanDefinitionParser implements BeanDefinitionParser {
 
 		String namespace = element.getAttribute("namespace");
 		String namelist = element.getAttribute("names");
-		
+
 		// Must specify either 'namespace', or 'name', but not both
 		if (StringUtils.hasText(namespace) && StringUtils.hasText(fullname)) {
 			throw new IllegalArgumentException("You cannot specify both a namespace and a name when using the <corba:import> element");
@@ -64,12 +64,12 @@ public class ImportBeanDefinitionParser implements BeanDefinitionParser {
 		if (StringUtils.hasText(namelist) && !StringUtils.hasText(namespace)) {
 			throw new IllegalArgumentException("You must specify a namespace when specifying names with the <corba:import> element");
 		}
-		
+
 		CorbaNamespaceHandler.registerNetServiceFactoryBean(parserContext.getRegistry());
-		
-		
+
+
 		final BeanDefinitionRegistry beanDefRegistry = parserContext.getRegistry();
-		
+
 		if (StringUtils.hasText(fullname)) {
 			addBeanDefinitionForObject(fullname, beanDefRegistry);
 		} else {
@@ -100,12 +100,12 @@ public class ImportBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		return null;
 	}
-	
+
 	private static void addBeanDefinitionForObject(String fullName, BeanDefinitionRegistry registry) {
 		logger.debug("Registering bean for remote object " + fullName);
-		
+
 		String objectName = fullName.substring(fullName.lastIndexOf('/') + 1);
-		
+
 		AbstractBeanDefinition beanDef = new GenericBeanDefinition();
 		beanDef.setBeanClass(RemoteObjectFactoryBean.class);
 		beanDef.getPropertyValues().addPropertyValue("remoteName", fullName);

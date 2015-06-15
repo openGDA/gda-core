@@ -64,7 +64,7 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 
 	@Override
 	public void scanDataPointChanged(ScanDataPointEvent e) {
-		
+
 		if (cachedX == null)
 			cachedX = new ArrayList<Double>(89);
 		if (cachedY == null)
@@ -86,7 +86,7 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 		while (continueCalculations) {
 			if (updateCachedValues() && !waitingForRefresh) {
 				y = getY((IScanDataPoint[]) null);
-				x = getX((IScanDataPoint[]) null); 
+				x = getX((IScanDataPoint[]) null);
 				if (y != null && x != null) {
 					waitingForRefresh = true;
 					PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
@@ -120,11 +120,11 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 	 * <p>
 	 * Implementations of this should be aware that the latestEvent attribute will be updated by a different thread so
 	 * should operate with a copy of the attribute.
-	 * 
+	 *
 	 * @return boolean - true if the cache was updated
 	 */
 	private boolean updateCachedValues() {
-		
+
 		if (lastEventUsedInACalculation!= null && latestEvent == lastEventUsedInACalculation){
 			return false;
 		}
@@ -161,16 +161,16 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 			// nothing new
 			return false;
 		}
-		
+
 		int startIndex = 0;
 		if (previousCacheSize > 0){
 			startIndex = previousCacheSize - 1;
 		}
-		
+
 		if (startIndex == newCacheSize -1){
 			return false;
 		}
-		
+
 		updateCache(allSDPs,startIndex);
 		return true;
 	}
@@ -179,7 +179,7 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 	 * Using the latest data points, update a local cache of data.
 	 * <p>
 	 * It is then expected that the next calls to getX and getY will reflect the latest cache contents.
-	 * 
+	 *
 	 * @param collection
 	 */
 	protected abstract void updateCache(ArrayList<IScanDataPoint> collection, int startIndex);
@@ -189,12 +189,12 @@ public abstract class AbstractCachedScanPlotView extends AbstractScanPlotView im
 
 		if (cachedX == null)
 			cachedX = new ArrayList<Double>(89);
-		
+
 		Double[] values = cachedX.toArray(new Double[]{});
 		double[] primitiveValues = ArrayUtils.toPrimitive(values, values.length);
 		Dataset xValues = new DoubleDataset(primitiveValues,primitiveValues.length);
 		xValues.setName(getXAxisName());
-		return new DataSetPlotData(getXAxisName(), xValues);	
+		return new DataSetPlotData(getXAxisName(), xValues);
 	}
 
 	@Override

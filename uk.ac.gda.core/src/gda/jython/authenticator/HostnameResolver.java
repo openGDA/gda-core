@@ -28,7 +28,7 @@ public interface HostnameResolver {
 
 	/**
 	 * Resolves a hostname.
-	 * 
+	 *
 	 * @param hostname hostname
 	 * @return list of IP addresses
 	 */

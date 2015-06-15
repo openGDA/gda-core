@@ -32,7 +32,7 @@ import org.jfree.chart.renderer.xy.XYBarRenderer;
 public class SimpleXYBarRenderer extends XYBarRenderer {
 	/**
 	 * Creates a SimpleLegendItem for a SimpleXYSeries in the dataset.
-	 * 
+	 *
 	 * @param datasetIndex
 	 *            which dataset (left or right effectively)
 	 * @param series

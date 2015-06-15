@@ -33,9 +33,9 @@ public class DummyNXDetector implements NexusDetector {
 
 	private String name;
 	int numElements=1;
-	
+
 	/**
-	 * 
+	 *
 	 * @param name - prefix for each element
 	 * @param numElements  - number of elements - if 1 then the name is simply the value of name
 	 */
@@ -53,14 +53,14 @@ public class DummyNXDetector implements NexusDetector {
 			if( numElements == 1)
 				elementName = name;
 			data.addNote(elementName,"Just a test");
-			
+
 			double[] dataVals = {1.1,2.2,3.3,4.4,5.5,6.6,7.7,8.8,9.9,0.0};
 			data.addData(elementName, new NexusGroupData(dataVals), "counts", 1);
-			
+
 			int[] axis = {100,200,300,400,500,600,700,800,900,1000};
 			data.addAxis(elementName,"useless", new NexusGroupData(axis), 1, 1, "pixels", false);
-			
-			
+
+
 			{
 				NexusGroupData dead_time_data = new NexusGroupData(0.11);
 				dead_time_data.isDetectorEntryData = true;
@@ -70,11 +70,11 @@ public class DummyNXDetector implements NexusDetector {
 				data.getDetTree(elementName).addChildNode(dead_time);
 			}
 		}
-		
+
 		return data;
 	}
-	
-	
+
+
 	@Override
 	public void collectData() throws DeviceException {
 		// TODO Auto-generated method stub
@@ -166,13 +166,13 @@ public class DummyNXDetector implements NexusDetector {
 		// TODO Auto-generated method stub
 
 	}
-	
+
 	@Override
 	public void atLevelStart() throws DeviceException {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 	@Override
 	public void atLevelEnd() throws DeviceException {
 	}
@@ -352,12 +352,12 @@ public class DummyNXDetector implements NexusDetector {
 
 
 	}
-	
+
 	@Override
 	public String toString() {
 		return getName() + "<" + this.getClass().toString() + ">";
 	}
-	
+
 	@Override
 	public String toFormattedString() {
 		try {

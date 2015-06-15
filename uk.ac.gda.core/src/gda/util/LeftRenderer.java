@@ -30,7 +30,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 /**
  * Provides a renderer for JTables that render cell contents left justified, rather than default right justified.
  * Overrides DefaultTableCellRenderer's getTableCellRendererComponent method.
- * 
+ *
  * @see javax.swing.table.DefaultTableCellRenderer
  */
 public class LeftRenderer extends DefaultTableCellRenderer {

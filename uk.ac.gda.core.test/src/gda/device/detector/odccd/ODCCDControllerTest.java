@@ -19,8 +19,8 @@
 
 package gda.device.detector.odccd;
 
-import static org.junit.Assert.*;
-import gda.device.detector.odccd.ODCCDController;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 

@@ -34,7 +34,7 @@ import javax.swing.Icon;
 /**
  * Class to provide very simple icons which can be used, for example, on the menus used to choose Markers, Types,
  * Patterns.
- * 
+ *
  * @see LinePropertiesEditor
  */
 public class SimpleIcon implements Icon {
@@ -50,7 +50,7 @@ public class SimpleIcon implements Icon {
 
 	/**
 	 * Creates a SimpleIcon to represent a line.
-	 * 
+	 *
 	 * @param width
 	 *            the width for the Icon
 	 * @param height
@@ -64,7 +64,7 @@ public class SimpleIcon implements Icon {
 
 	/**
 	 * Creates a SimpleIcon to represent a (line) Type.
-	 * 
+	 *
 	 * @param type
 	 *            the Type
 	 * @param width
@@ -87,7 +87,7 @@ public class SimpleIcon implements Icon {
 
 	/**
 	 * Creates a SimpleIcon to represent a Pattern.
-	 * 
+	 *
 	 * @param pattern
 	 *            the Pattern
 	 * @param width
@@ -101,7 +101,7 @@ public class SimpleIcon implements Icon {
 
 	/**
 	 * Creates a SimpleIcon to represent a Marker.
-	 * 
+	 *
 	 * @param marker
 	 *            the Marker
 	 * @param width
@@ -118,7 +118,7 @@ public class SimpleIcon implements Icon {
 
 	/**
 	 * Creates a SimpleIcon to represent a particular value of an Enum.
-	 * 
+	 *
 	 * @param e
 	 *            the Enum
 	 * @param width
@@ -162,7 +162,7 @@ public class SimpleIcon implements Icon {
 
 	/**
 	 * Part of Icon interface, returns the width.
-	 * 
+	 *
 	 * @return the width
 	 */
 	@Override
@@ -172,7 +172,7 @@ public class SimpleIcon implements Icon {
 
 	/**
 	 * Part of Icon interface, returns the height.
-	 * 
+	 *
 	 * @return the height
 	 */
 	@Override
@@ -183,7 +183,7 @@ public class SimpleIcon implements Icon {
 	/**
 	 * Part of the Icon interface, paints the Icon in the given Component with the given Graphics at the given x and y
 	 * position.
-	 * 
+	 *
 	 * @param c
 	 *            the Component being painted into
 	 * @param g

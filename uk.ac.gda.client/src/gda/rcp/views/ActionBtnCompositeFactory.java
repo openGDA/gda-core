@@ -39,16 +39,16 @@ import org.springframework.beans.factory.InitializingBean;
 
 public class ActionBtnCompositeFactory implements CompositeFactory, InitializingBean{
 
-	
+
 	private String tooltipText;
 	private String buttonText;
 	private String buttonImagePath;
 	private Integer foregroundColorId; //e.g. SWT.COLOR_RED
 	private String actionId;
 
-	
-	
-	
+
+
+
 	public void setTooltipText(String tooltipText) {
 		this.tooltipText = tooltipText;
 	}
@@ -80,7 +80,7 @@ public class ActionBtnCompositeFactory implements CompositeFactory, Initializing
 			throw new IllegalArgumentException("actionId is null");
 	}
 
-	
+
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		Image buttonImage = buttonImagePath != null ? GDAClientActivator.getImageDescriptor(buttonImagePath).createImage() : null;
@@ -106,7 +106,7 @@ class ActionBtnComposite extends Composite{
 		if( foregroundColor != null)
 			btn.setForeground(foregroundColor);
 		btn.addSelectionListener(new SelectionListener() {
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				ICommandService cmdService = (ICommandService) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(ICommandService.class);
@@ -118,11 +118,11 @@ class ActionBtnComposite extends Composite{
 					logger.error("Error executing command " + actionId, ex);
 				}
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
 	}
-	
+
 }

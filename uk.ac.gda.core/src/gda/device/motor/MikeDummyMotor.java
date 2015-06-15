@@ -19,18 +19,18 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.MotorException;
 import gda.device.MotorStatus;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Dummy motor class
  */
 public class MikeDummyMotor extends MotorBase {
 	private static final Logger logger = LoggerFactory.getLogger(MikeDummyMotor.class);
-	
+
 	private double currentposition;
 
 	private volatile boolean motorMoving = false;

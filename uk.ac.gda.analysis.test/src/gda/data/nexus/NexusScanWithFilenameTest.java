@@ -67,7 +67,7 @@ public class NexusScanWithFilenameTest {
 		scan.runScan();
 		scan.getDataWriter().completeCollection();
 	}
-	
+
 	@Before
 	public void beforeEachTest() {
 		Metadata metadata = new GdaMetadata();
@@ -76,7 +76,7 @@ public class NexusScanWithFilenameTest {
 
 	/**
 	 * Creates a scan file using a simple detector and scannable. Checks content is correct
-	 * 
+	 *
 	 * @throws Exception
 	 *             if the test fails
 	 */

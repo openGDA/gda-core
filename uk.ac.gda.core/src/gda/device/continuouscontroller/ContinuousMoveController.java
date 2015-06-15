@@ -22,14 +22,14 @@ import gda.device.DeviceException;
 
 /**
  * A continuous move controller represents a motor controller capable of moving one or axes while generating hardware
- * triggers. 
+ * triggers.
  */
 public interface ContinuousMoveController extends HardwareTriggerProvider {
 
 	/**
 	 * Prepare the already configured controller to move, waiting until ready.
 	 * Normally this should move motors to the start position.
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void prepareForMove() throws DeviceException, InterruptedException;
 
@@ -55,7 +55,7 @@ public interface ContinuousMoveController extends HardwareTriggerProvider {
 	/**
 	 * Stop a move if one is in progress and then reset the controller.
 	 * @throws DeviceException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void stopAndReset() throws DeviceException, InterruptedException;
 

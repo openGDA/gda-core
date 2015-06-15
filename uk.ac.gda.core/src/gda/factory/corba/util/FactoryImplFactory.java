@@ -30,11 +30,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 public class FactoryImplFactory extends ImplFactory {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(FactoryImplFactory.class);
 
 	private Factory factory;
-	
+
 	/**
 	 * @param factory the factory delegate
 	 * @param netService the NetService
@@ -43,22 +43,22 @@ public class FactoryImplFactory extends ImplFactory {
 		super(netService);
 		this.factory = factory;
 	}
-	
+
 	@Override
 	protected List<Findable> getFindablesToMakeAvailable() {
 		return factory.getFindables();
 	}
-	
+
 	@Override
 	protected String getNamespace() {
 		return factory.getName();
 	}
-	
+
 	public void configure() throws FactoryException {
 		logger.info("Making objects in factory " + StringUtils.quote(factory.getName()) + " (of type " + factory.getClass().getSimpleName() + ") available through CORBA...");
 		makeObjectsAvailable();
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("FactoryImplFactory[namespace=%s, factory=(%s, name=%s)]",

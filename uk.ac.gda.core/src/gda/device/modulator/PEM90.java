@@ -40,9 +40,9 @@ import org.slf4j.LoggerFactory;
  */
 
 public class PEM90 extends DeviceBase implements Modulator {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(PEM90.class);
-	
+
 	private static final double MAXWAVELENGTH = 19999.9;
 
 	private static final double MINWAVELENGTH = 00000.0;
@@ -125,7 +125,7 @@ public class PEM90 extends DeviceBase implements Modulator {
 
 	/**
 	 * gets the current wavelength from the serial
-	 * 
+	 *
 	 * @return current Wavelength in nanometers
 	 */
 	@Override
@@ -156,7 +156,7 @@ public class PEM90 extends DeviceBase implements Modulator {
 
 	/**
 	 * Sets the wavelenth between(00000.0 - 19999.9)
-	 * 
+	 *
 	 * @param wavelen
 	 *            the wavelength to be set
 	 * @throws DeviceException
@@ -201,7 +201,7 @@ public class PEM90 extends DeviceBase implements Modulator {
 
 	/**
 	 * gets the current retardation set in the device
-	 * 
+	 *
 	 * @return retardation
 	 */
 	@Override
@@ -225,7 +225,7 @@ public class PEM90 extends DeviceBase implements Modulator {
 
 	/**
 	 * sets the retardation between (0000 to 1000)
-	 * 
+	 *
 	 * @param retard
 	 *            amount of retardation
 	 * @throws DeviceException
@@ -265,7 +265,7 @@ public class PEM90 extends DeviceBase implements Modulator {
 
 	/**
 	 * Controls the ON/OFF of echo
-	 * 
+	 *
 	 * @param echocommand
 	 *            boolean to switch echo
 	 */
@@ -284,7 +284,7 @@ public class PEM90 extends DeviceBase implements Modulator {
 
 	/**
 	 * reads the reference frequency
-	 * 
+	 *
 	 * @param numberOfTimes
 	 *            can be one /two
 	 * @return Frequency in KiloHertz
@@ -321,7 +321,7 @@ public class PEM90 extends DeviceBase implements Modulator {
 
 	/**
 	 * sets the retardation to INHIBIT/NORMAL mode
-	 * 
+	 *
 	 * @param inhibitRetardation
 	 *            boolean
 	 */

@@ -42,9 +42,9 @@ import org.slf4j.LoggerFactory;
  * Base class for scan classes which can act as a dimension in a multi-dimensional concurrentscan
  */
 public abstract class ConcurrentScanChild extends ScanBase implements IConcurrentScanChild {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ConcurrentScanChild.class);
-	
+
 	protected TreeMap<Integer, Scannable[]> scannableLevels;
 	// the list of movements that this scan will perform in the context of the a multi-dimensional set of nested scans
 	protected Vector<ScanObject> allScanObjects = new Vector<ScanObject>();
@@ -54,17 +54,17 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	private boolean mustBeFinal = false;
 
 	protected FutureTask<Void> detectorReadoutTask;
-	
+
 	private Boolean readoutConcurrently; // readout detectors in concurrent threads while the next point is started
 
 	protected enum PointPositionInLine {
 		FIRST, MIDDLE, LAST
 	}
-	
+
 	private PointPositionInLine pointPositionInLine;
 
 	private boolean detectorWithReadoutDeprecationWarningGiven = false;
-	
+
 	final protected PointPositionInLine getPointPositionInLine() {
 		return pointPositionInLine;
 	}
@@ -84,8 +84,8 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 		}
 		return readoutConcurrently;
 	}
-	
-	
+
+
 	@Override
 	public IConcurrentScanChild getChild() {
 		return (IConcurrentScanChild) super.getChild();
@@ -94,7 +94,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	@Override
 	public void setChild(IConcurrentScanChild child) {
 		super.setChild(child);
-	}	
+	}
 
 	@Override
 	public TreeMap<Integer, Scannable[]> getScannableLevels() {
@@ -150,10 +150,10 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	public String getCommand() {
 		return command;
 	}
-	
+
 	@Override
 	public void setCommand(String command) {
-		this.command = command;		
+		this.command = command;
 	}
 
 	public void setMustBeFinal(boolean mustBeFinal) {
@@ -164,7 +164,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	public boolean isMustBeFinal() {
 		return mustBeFinal;
 	}
-	
+
 	@Override
 	public void setTotalNumberOfPoints(int totalNumberOfPoints) {
 		TotalNumberOfPoints = totalNumberOfPoints;
@@ -175,14 +175,14 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	 * @throws Exception
 	 */
 	protected void acquirePoint(boolean start, boolean collectDetectors) throws Exception {
-		
+
 		TreeMap<Integer, Scannable[]> devicesToMoveByLevel;
 		if(collectDetectors) {
 			devicesToMoveByLevel = generateDevicesToMoveByLevel(scannableLevels, allDetectors);
 		} else {
 			devicesToMoveByLevel = scannableLevels;
 		}
-		
+
 		for (Integer thisLevel : devicesToMoveByLevel.keySet()) {
 
 			Scannable[] scannablesAtThisLevel = devicesToMoveByLevel.get(thisLevel);
@@ -195,12 +195,12 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 				}
 			}
 			checkThreadInterrupted();
-			
+
 			// trigger at level start on all Scannables
 			for (Scannable scannable : scannablesAtThisLevel) {
 				scannable.atLevelStart();
 			}
-			
+
 			// trigger at level move start on all Scannables
 			for (Scannable scannable : scannablesAtThisLevel) {
 				if (isScannableToBeMoved(scannable) != null) {
@@ -209,7 +209,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 					}
 				}
 			}
-			
+
 			// on detectors (technically scannables) that implement DetectorWithReadout call waitForReadoutComplete
 			for (Scannable scannable : scannablesAtThisLevel) {
 				if (scannable instanceof DetectorWithReadout) {
@@ -220,7 +220,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 					((DetectorWithReadout) scannable).waitForReadoutCompletion();
 				}
 			}
-			
+
 			for (Scannable device : scannablesAtThisLevel) {
 				if (!(device instanceof Detector)) {
 					// does this scan (is a hierarchy of nested scans) operate this scannable?
@@ -254,7 +254,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 				scannable.atLevelEnd();
 			}
 		}
-		
+
 	}
 
 	TreeMap<Integer, Scannable[]> generateDevicesToMoveByLevel(TreeMap<Integer, Scannable[]> scannableLevels,
@@ -283,7 +283,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	/**
 	 * Asks if the given scannable is part of the array of scannables which this scan is to operate in its moveToStarts
 	 * and moveBySteps methods. If true returns the ScanObject else returns null.
-	 * 
+	 *
 	 * @param scannable
 	 * @return the ScanObject
 	 */
@@ -295,12 +295,12 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 		}
 		return null;
 	}
-	
+
 	final protected boolean isScannableActuallyToBeMoved(Scannable scannable) {
 		ScanObject scannableToBeMoved = isScannableToBeMoved(scannable);
 		return (scannableToBeMoved) == null ? false : scannableToBeMoved.hasStart();
 	}
-	
+
 	/*
 	 * Waits until all the scannables of this scan are no longer moving. @throws InterruptedException
 	 */
@@ -313,7 +313,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 			}
 		}
 	}
-	
+
 	@Override
 	protected synchronized void setUp() {
 		super.setUp();
@@ -321,7 +321,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 		// This scan needs its allScanObjects vector to keep to the same order as allScannables // TODO: very dangerous!
 		reorderAllScanObjects();
 	}
-	
+
 	/*
 	 * Called during instantiation but after the setUp method has been called. The setUp method will have edited and
 	 * reordered the allScannables vector. The allScanObjects vector must now be reordered to keep track of this. In
@@ -357,7 +357,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 				scannableLevels.put(thisLevel, levelArray);
 			}
 		}
-		
+
 	}
 
 	private class ReadoutDetector implements Callable<Object> {
@@ -389,15 +389,15 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 	 * <p>
 	 * If the property {@link LocalProperties#GDA_SCAN_CONCURRENTSCAN_READOUT_CONCURRENTLY} is its default false value
 	 * then simply block while reading out each detector in series and then adding the ScanDataPoint to the pipeline.
-	 * 
+	 *
 	 * @param point
 	 * @throws Exception
 	 */
 	@Override
 	protected void readoutDetectorsAndPublish(final ScanDataPoint point) throws Exception {
-		
+
 		final boolean lastPointInLine = (getPointPositionInLine() == PointPositionInLine.LAST); // latch value
-		
+
 		if (!isReadoutConcurrent()) {
 			super.readoutDetectorsAndPublish(point);
 			return;
@@ -426,7 +426,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 					if (detectors.size() != 0) {
 
 						readoutTasks = new ArrayList<Future<Object>>(detectors.size());
-						
+
 						// Start readout tasks
 						for (Detector detector : point.getDetectors()) {
 							FutureTask<Object> readoutTask = new FutureTask<Object>(new ReadoutDetector(detector));
@@ -447,15 +447,15 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 					checkThreadInterrupted(); // probably voodoo and not required here
 					scanDataPointPipeline.put(point); // may block
 					checkThreadInterrupted(); // probably voodoo and not required here
-					
+
 					// The main scan thread cannot call atPointEnd (and subsequently atPointStart) in the correct order
 					// with respect to readout so call these here instead.
-					
+
 					for (Detector detector : detectors) {
 						detector.atPointEnd();
 					}
-					
-					
+
+
 					// unless this is the last point in the line, call atPointStart hooks for the next point (the one
 					// that main scan thread is now working on.
 					if (! lastPointInLine) {
@@ -477,7 +477,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 				return null;
 			}
 		});
-		
+
 		new Thread(detectorReadoutTask, threadName).start();
 	}
 
@@ -505,7 +505,7 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 			throw e;
 		}
 	}
-	
+
 	/**
 	 * Cancels readout and publish completion task.
 	 */
@@ -515,5 +515,5 @@ public abstract class ConcurrentScanChild extends ScanBase implements IConcurren
 			detectorReadoutTask.cancel(true);
 		}
 	}
-	
+
 }

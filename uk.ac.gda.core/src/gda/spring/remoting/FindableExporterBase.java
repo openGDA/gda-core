@@ -43,17 +43,17 @@ import uk.ac.gda.remoting.ServiceInterface;
  * Base class to be extended by classes that can import remote objects into a Spring application context.
  */
 public abstract class FindableExporterBase implements BeanFactoryPostProcessor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(FindableExporterBase.class);
-	
+
 	private static final String INTERFACE_MAPPING_FILE = "interfaces.properties";
 
 	private Properties interfaces;
-	
+
 	public FindableExporterBase() {
 		interfaces = loadInterfaceMappings();
 	}
-	
+
 	protected Properties loadInterfaceMappings() {
 		Properties mappings = new Properties();
 		try {
@@ -64,24 +64,24 @@ public abstract class FindableExporterBase implements BeanFactoryPostProcessor {
 		}
 		return mappings;
 	}
-	
+
 	// FIXME If object creators are being used, the factories aren't directly available
 	private Factory factory;
-	
+
 	/**
 	 * Sets the factory containing {@link Findable}s that will be exported.
-	 * 
+	 *
 	 * @param factory the GDA factory
 	 */
 	public void setFactory(Factory factory) {
 		this.factory = factory;
 	}
-	
+
 	protected Map<String, String> availableObjects;
-	
+
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-		
+
 		Collection<Findable> findables;
 		if (factory != null) {
 			logger.info("Exporting objects in factory " + StringUtils.quote(factory.getName()));
@@ -90,7 +90,7 @@ public abstract class FindableExporterBase implements BeanFactoryPostProcessor {
 			logger.info("Exporting objects from Spring context");
 			findables = beanFactory.getBeansOfType(Findable.class).values();
 		}
-		
+
 		availableObjects = new LinkedHashMap<String, String>();
 		beforeExportingObjects(beanFactory);
 		for (Findable findable : findables) {
@@ -106,50 +106,50 @@ public abstract class FindableExporterBase implements BeanFactoryPostProcessor {
 		}
 		afterExportingObjects(beanFactory);
 	}
-	
+
 	/**
 	 * Can be overridden by subclasses to perform work before the objects are exported.
-	 * 
+	 *
 	 * @param beanFactory the bean factory in which this exporter is defined
 	 */
 	protected void beforeExportingObjects(@SuppressWarnings("unused") ConfigurableListableBeanFactory beanFactory) {
 		// do nothing by default
 	}
-	
+
 	/**
 	 * Must be implemented by subclasses to export each object.
-	 * 
+	 *
 	 * @param findable the object to export
 	 * @param serviceInterface the interface which the object implements
 	 * @param beanFactory the bean factory in which this exporter is defined
 	 */
 	protected abstract void exportObject(Findable findable, Class<?> serviceInterface, ConfigurableListableBeanFactory beanFactory);
-	
+
 	/**
 	 * Can be overridden by subclasses to perform work after the objects have been exported.
-	 * 
+	 *
 	 * @param beanFactory the bean factory in which this exporter is defined
 	 */
 	protected void afterExportingObjects(@SuppressWarnings("unused") ConfigurableListableBeanFactory beanFactory) {
 		// do nothing by default
 	}
-	
+
 	protected Class<?> getInterfaceImplementedByFindable(Findable findable) throws ClassNotFoundException {
-		
+
 		// Look for annotation first
 		final Class<?> findableClass = findable.getClass();
 		if (findableClass.isAnnotationPresent(ServiceInterface.class)) {
 			return findableClass.getAnnotation(ServiceInterface.class).value();
 		}
-		
+
 		// If annotation not found, look in interface mappings
 		String classOfFindable = findable.getClass().getName();
 		if (interfaces.containsKey(classOfFindable)) {
 			String interfaceOfFindable = interfaces.getProperty(classOfFindable);
 			return Class.forName(interfaceOfFindable);
 		}
-		
+
 		throw new RuntimeException("Cannot determine the service interface for class " + findableClass.getName() + ": you need to add a @ServiceInterface annotation to it, or add it to " + INTERFACE_MAPPING_FILE);
 	}
-	
+
 }

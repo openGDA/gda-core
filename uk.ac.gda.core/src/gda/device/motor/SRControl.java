@@ -19,11 +19,11 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple device class for Windows systems to interface to the SR control system at DL. It uses the Java native
@@ -32,9 +32,9 @@ import gda.device.DeviceException;
  * combination needs also needs to be registered with the control network.
  */
 public class SRControl extends DeviceBase implements SRControlInterface {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(SRControl.class);
-	
+
 	final private int READ = 0;
 
 	final private int WRITE = 1;
@@ -69,7 +69,7 @@ public class SRControl extends DeviceBase implements SRControlInterface {
 	/**
 	 * Initialise call to Control network, not strictly necessary though can be used to see if network operating
 	 * correctly.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 
@@ -87,7 +87,7 @@ public class SRControl extends DeviceBase implements SRControlInterface {
 
 	/**
 	 * Writes the given data value for the specified property of a control system parameter
-	 * 
+	 *
 	 * @param parameter -
 	 *            string containing name of control systeme parameter
 	 * @param setProperty -
@@ -103,7 +103,7 @@ public class SRControl extends DeviceBase implements SRControlInterface {
 
 	/**
 	 * Reads the data value for the specified property of a control system parameter
-	 * 
+	 *
 	 * @param parameter -
 	 *            string containing name of control systeme parameter
 	 * @param getProperty -
@@ -119,7 +119,7 @@ public class SRControl extends DeviceBase implements SRControlInterface {
 
 	/**
 	 * Returns a string description of the input status code for the control parameter in question
-	 * 
+	 *
 	 * @param parameter -
 	 *            string containing name of control systeme parameter
 	 * @param code -
@@ -139,7 +139,7 @@ public class SRControl extends DeviceBase implements SRControlInterface {
 
 	/**
 	 * Returns the units string description for the control parameter in question
-	 * 
+	 *
 	 * @param parameter -
 	 *            string containing name of control systeme parameter
 	 * @param unitsString -
@@ -155,7 +155,7 @@ public class SRControl extends DeviceBase implements SRControlInterface {
 
 	/**
 	 * Returns a byte containing the decimal points descriptor for the control parameter in question
-	 * 
+	 *
 	 * @param parameter -
 	 *            string containing name of control systeme parameter
 	 * @return decimal points descriptor

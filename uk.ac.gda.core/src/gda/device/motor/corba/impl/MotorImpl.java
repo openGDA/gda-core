@@ -46,7 +46,7 @@ public class MotorImpl extends CorbaMotorPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param motor
 	 *            the Motor implementation object
 	 * @param poa
@@ -60,7 +60,7 @@ public class MotorImpl extends CorbaMotorPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Motor implementation object
 	 */
 	public Motor _delegate() {
@@ -69,7 +69,7 @@ public class MotorImpl extends CorbaMotorPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param motor
 	 *            set the Motor implementation object
 	 */

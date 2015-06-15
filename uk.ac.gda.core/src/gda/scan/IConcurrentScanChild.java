@@ -100,7 +100,7 @@ public interface IConcurrentScanChild extends NestableScan {
 	/**
 	 * The total number of points in the multi-dimesional scan i.e. the number of ScanDataPoints which would need
 	 * displaying/recording
-	 * 
+	 *
 	 * @return int
 	 */
 	@Override
@@ -117,7 +117,7 @@ public interface IConcurrentScanChild extends NestableScan {
 	/**
 	 * Enables parent scans, when creating the list of nested scans, to tell child scans the totalnumber of points in
 	 * the overall multi-dimensional scan
-	 * 
+	 *
 	 * @param totalNumberOfPoints
 	 */
 	public void setTotalNumberOfPoints(int totalNumberOfPoints);

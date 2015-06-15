@@ -65,7 +65,7 @@ public abstract class ScannableUtils {
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param message
 		 */
 		public ScannableValidationException(String message) {
@@ -77,7 +77,7 @@ public abstract class ScannableUtils {
 	 * Returns the current position of the Scannable as an HTML string. This is mainly used in gda.gui.utils.WatchPanel.
 	 * <p>
 	 * Use this for pretty-printing Scannables.
-	 * 
+	 *
 	 * @param scannable
 	 * @return string pretty representation of this scannable's position
 	 * @throws DeviceException
@@ -106,7 +106,7 @@ public abstract class ScannableUtils {
 	 * Returns the current position of the Scannable as a string.
 	 * <p>
 	 * Use this for pretty-printing Scannables.
-	 * 
+	 *
 	 * @param scannable
 	 * @return string representation of this Scannable
 	 * @throws DeviceException
@@ -142,7 +142,7 @@ public abstract class ScannableUtils {
 	 * Returns the current position of the Scannable as a string including units.
 	 * <p>
 	 * Use this for pretty-printing Scannables.
-	 * 
+	 *
 	 * @param scannable
 	 * @param unitStringArray
 	 *            may be null otherwise must match length of input and extra fields
@@ -166,7 +166,7 @@ public abstract class ScannableUtils {
 	 * Returns the current position of the Scannable as a string including units.
 	 * <p>
 	 * Use this for pretty-printing Scannables.
-	 * 
+	 *
 	 * @param position
 	 * @param scannable
 	 * @param unitStringArray
@@ -266,7 +266,7 @@ public abstract class ScannableUtils {
 	/**
 	 * Breaks currentPositionObj into the required number of parts. For each part if formatString given return
 	 * String.format(formatString, part) else if String return as as else return toString value
-	 * 
+	 *
 	 * @param positionObject
 	 * @param numberOfParts
 	 * @param formats
@@ -293,7 +293,7 @@ public abstract class ScannableUtils {
 	 * Returns the current position of the Scannable as a formatted array of Strings.
 	 * <p>
 	 * Use this for pretty-printing Scannables.
-	 * 
+	 *
 	 * @param scannable
 	 * @return formatted array of Strings
 	 * @throws DeviceException
@@ -319,7 +319,7 @@ public abstract class ScannableUtils {
 
 	/**
 	 * Returns the current position of the given Scannable as an array of doubles
-	 * 
+	 *
 	 * @param scannable
 	 * @return the position as an array of doubles
 	 * @throws DeviceException
@@ -349,7 +349,7 @@ public abstract class ScannableUtils {
 	/**
 	 * Returns the current position of the given Scannable as an array of doubles. This will not call the scannable's
 	 * getPosition() method.
-	 * 
+	 *
 	 * @param currentPositionObj
 	 * @param scannable
 	 * @return the position as an array of doubles
@@ -363,7 +363,7 @@ public abstract class ScannableUtils {
 
 	/**
 	 * Returns an array which is the current position, but with the 'extra' fields removed
-	 * 
+	 *
 	 * @param scannable
 	 * @return the position as an array of doubles
 	 * @throws Exception
@@ -399,7 +399,7 @@ public abstract class ScannableUtils {
 	 * <p>
 	 * This assumes that both objects are of the same type and are one of: number, Java array of numbers, Jython array
 	 * of numbers
-	 * 
+	 *
 	 * @param previousPoint
 	 * @param step
 	 * @return the target position of the relative move
@@ -433,7 +433,7 @@ public abstract class ScannableUtils {
 
 	/**
 	 * Element by element addition of two arrays
-	 * 
+	 *
 	 * @param length
 	 * @param previous
 	 * @param step
@@ -481,7 +481,7 @@ public abstract class ScannableUtils {
 	/**
 	 * Assuming the objects can be converted into doubles, this calculates the number of steps for the given Scannables
 	 * based on the given start, stop and step values.
-	 * 
+	 *
 	 * @param theScannable
 	 *            Scannable
 	 * @param start
@@ -499,7 +499,7 @@ public abstract class ScannableUtils {
 		int numArgs = theScannable.getInputNames().length;
 
 		int numArrayParam = 0;
-		
+
 		if (start.getClass().isArray()) {
 			numArrayParam = ((Object[]) start).length;
 		} else if (start instanceof PySequence) {
@@ -516,7 +516,7 @@ public abstract class ScannableUtils {
 			int numSteps = getNumberSteps(startValue, stopValue, stepValue);
 			return numSteps;
 		}
-		
+
 		// if there is a mismatch to the position object and the Scannable, throw an error
 		if (numArgs != numArrayParam) {
 			throw new Exception("Position arguments do not match size of Pseudo Device: " + theScannable.getName()
@@ -591,7 +591,7 @@ public abstract class ScannableUtils {
 	 * the end of every Scannable's constructor.
 	 * <p>
 	 * If the validation fails then an exception with an explanatory message is thrown.
-	 * 
+	 *
 	 * @param theScannable
 	 * @throws ScannableUtils.ScannableValidationException
 	 */
@@ -640,7 +640,7 @@ public abstract class ScannableUtils {
 	/**
 	 * Converts a position object to an array of doubles. It position is an Angle quantity it is converted to degrees,
 	 * if a linear quantity it is converted to mm, else it is just treated as a number.
-	 * 
+	 *
 	 * @param position
 	 * @return array of doubles
 	 */
@@ -720,7 +720,7 @@ public abstract class ScannableUtils {
 	 * dealt with in the Jython environment i.e. Strings, integers, floats (doubles) and arrays of these.
 	 * <P>
 	 * If this fails or cannot work for any reason then null is returned.
-	 * 
+	 *
 	 * @param object
 	 * @return Java equivalent object
 	 */
@@ -859,7 +859,7 @@ public abstract class ScannableUtils {
 
 	/**
 	 * Call to get the position with unit as a string. The units, if any, will be added on without a space.
-	 * 
+	 *
 	 * @param name
 	 * @return String position
 	 * @throws DeviceException
@@ -895,7 +895,7 @@ public abstract class ScannableUtils {
 
 	/**
 	 * Returns of the scannable is busy if it can. Otherwise returns false without an exception being thrown.
-	 * 
+	 *
 	 * @param scannableName
 	 * @return true if busy
 	 */
@@ -911,7 +911,7 @@ public abstract class ScannableUtils {
 	/**
 	 * NOTE: Instead of giving an exception of the EpicsMonitor is not in a valid state, this methods returns the
 	 * message from the exception.
-	 * 
+	 *
 	 * @param name
 	 * @return value or exception message or null.
 	 */
@@ -928,7 +928,7 @@ public abstract class ScannableUtils {
 	 * strips off the formatting strings for the input names.
 	 * <p>
 	 * This is useful for adding detector data formatting information into the ScanDataPoint
-	 * 
+	 *
 	 * @param scannable
 	 * @return String[]
 	 */

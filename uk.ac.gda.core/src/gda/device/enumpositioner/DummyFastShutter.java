@@ -38,9 +38,9 @@ import java.util.List;
 public class DummyFastShutter extends ScannableBase {
 
 	private boolean shutterOpen;
-	
+
 	private static final List<String> VALID_POSITIONS = Arrays.asList(new String[] {"Open", "Close", "AUTO"});
-	
+
 	@Override
 	public Object getPosition() throws DeviceException {
 		return shutterOpen ? "Open" : "Closed";
@@ -51,9 +51,9 @@ public class DummyFastShutter extends ScannableBase {
 		if (VALID_POSITIONS.contains(illDefinedPosObject)){
 			return null;
 		}
-		
+
 		return illDefinedPosObject.toString() + "not a valid position string";
-		
+
 	}
 
 	@Override

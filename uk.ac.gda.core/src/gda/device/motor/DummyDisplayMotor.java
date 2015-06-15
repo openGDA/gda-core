@@ -19,23 +19,23 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.factory.Finder;
 import gda.observable.IObservable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A Dummy version of the specialised Motor class that reads feedback from a Protrura encoder display module. It has two
  * motors associated with it and these MUST be configured BEFORE this module.
  */
 public class DummyDisplayMotor extends MotorBase implements Runnable, IObservable, Motor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DummyDisplayMotor.class);
-	
+
 	private double currentPosition;
 
 	private Motor motorOne;

@@ -37,17 +37,17 @@ public class DimensionPropertyEditor extends PropertyEditorSupport {
 			try {
 				// remove spaces
 				text = text.replace(" ", "");
-				
+
 				String[] numbers = text.split(",");
-				
+
 				if (numbers.length != 2) {
 					throw new IllegalArgumentException("Could not convert " + StringUtils.quote(text) + " to a Dimension; it does not consist of two numbers");
 				}
-				
+
 				Dimension d = new Dimension();
 				d.width = Integer.parseInt(numbers[0]);
 				d.height = Integer.parseInt(numbers[1]);
-				
+
 				setValue(d);
 			} catch (Throwable e) {
 				throw new IllegalArgumentException("Could not convert " + StringUtils.quote(text) + " to a Dimension", e);

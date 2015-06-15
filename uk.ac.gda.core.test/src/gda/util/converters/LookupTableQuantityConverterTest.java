@@ -32,12 +32,12 @@ import org.junit.Test;
  * LookupTableQuantityConverterTest Class. It is assumed the that working directory points to the test folder above gda
  */
 public class LookupTableQuantityConverterTest {
-	
+
 	/**
 	 * Delta to use when comparing doubles.
 	 */
 	private static final double DELTA = 0.001;
-	
+
 	public LookupTableQuantityConverterTest() {
 	}
 
@@ -143,7 +143,7 @@ public class LookupTableQuantityConverterTest {
 		target = converter.toTarget(source);
 		assertEquals(1.4, target.getAmount(),1E-10);
 	}
-	
+
 	/**
 	 * Out of order meaning one ascending while other descending. sourceMinIsTargetMax should be true
 	 */
@@ -161,7 +161,7 @@ public class LookupTableQuantityConverterTest {
 		}
 	}
 
-	
+
 	/**
 	 * Descending target with a duplicate value
 	 */
@@ -181,7 +181,7 @@ public class LookupTableQuantityConverterTest {
 			assertEquals("", e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Test similar situation to that on I24 with descending source with a duplicate value
 	 */
@@ -201,7 +201,7 @@ public class LookupTableQuantityConverterTest {
 			assertEquals("", e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Test whether a non-ordered source causes the expected exception
 	 */
@@ -333,7 +333,7 @@ public class LookupTableQuantityConverterTest {
 			fail(e.getMessage());
 		}
 	}
-	
+
 	@Test
 	public final void testSourceMinIsTargetMax() {
 		assertEquals(false, new LookupTableQuantityConverter("Simple.txt", false, 0, 1).sourceMinIsTargetMax());

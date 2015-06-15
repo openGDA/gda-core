@@ -44,7 +44,7 @@ public class CurrentamplifierImpl extends CorbaCurrentAmplifierPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param amp
 	 *            the CurrentAmplifier implementation object
 	 * @param poa
@@ -58,7 +58,7 @@ public class CurrentamplifierImpl extends CorbaCurrentAmplifierPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the CurrentAmplifier implementation object
 	 */
 	public CurrentAmplifier _delegate() {
@@ -67,7 +67,7 @@ public class CurrentamplifierImpl extends CorbaCurrentAmplifierPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param amp
 	 *            set the CurrentAmplifier implementation object
 	 */
@@ -360,7 +360,7 @@ public class CurrentamplifierImpl extends CorbaCurrentAmplifierPOA {
 	public void stop() throws CorbaDeviceException {
 		scannableImpl.stop();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return scannableImpl.getProtectionLevel();
@@ -375,12 +375,12 @@ public class CurrentamplifierImpl extends CorbaCurrentAmplifierPOA {
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		scannableImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return scannableImpl.toFormattedString();
@@ -390,7 +390,7 @@ public class CurrentamplifierImpl extends CorbaCurrentAmplifierPOA {
 	public void atLevelStart() throws CorbaDeviceException {
 		scannableImpl.atLevelStart();
 	}
-	
+
 	@Override
 	public void atLevelEnd() throws CorbaDeviceException {
 		scannableImpl.atLevelEnd();

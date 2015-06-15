@@ -36,7 +36,7 @@ public interface Lookup extends Findable, IObservable {
 
 	/**
 	 * returns an arrayList of scannable names in the lookup table.
-	 * 
+	 *
 	 * @return ArrayList of scannable names
 	 */
 	public abstract ArrayList<String> getScannableNames() throws DeviceException;
@@ -44,7 +44,7 @@ public interface Lookup extends Findable, IObservable {
 	/**
 	 * lookup and returns the value corresponding to the specified key (row name), such as energy, and column name, such
 	 * as scannable name
-	 * 
+	 *
 	 * @param energy
 	 * @param scannableName
 	 * @return value for the named scannable
@@ -53,7 +53,7 @@ public interface Lookup extends Findable, IObservable {
 
 	/**
 	 * Returns the physical unit for a particular scannable name which its value is in
-	 * 
+	 *
 	 * @param scannableName
 	 * @return the Unit
 	 */
@@ -61,23 +61,23 @@ public interface Lookup extends Findable, IObservable {
 
 	/**
 	 * returns the number of decimal places of the value for a given scannable name.
-	 * 
+	 *
 	 * @param scannableName
 	 * @return decimal places
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public abstract int lookupDecimalPlaces(String scannableName) throws DeviceException;
 
 	/**
 	 * Returns the number of value rows in the table.
-	 * 
+	 *
 	 * @return the number of x values
 	 */
 	public abstract int getNumberOfRows()  throws DeviceException;
 
 	/**
 	 * Sets the lookup table data filename
-	 * 
+	 *
 	 * @param filename
 	 *            the filename
 	 */
@@ -85,7 +85,7 @@ public interface Lookup extends Findable, IObservable {
 
 	/**
 	 * Returns the lookup table (data) filename
-	 * 
+	 *
 	 * @return the filename
 	 */
 	public abstract String getFilename();

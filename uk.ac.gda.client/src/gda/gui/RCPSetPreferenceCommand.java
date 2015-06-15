@@ -23,12 +23,12 @@ import java.io.Serializable;
 public class RCPSetPreferenceCommand implements Serializable {
 	String id;
 	Object value;
-	
+
 	public RCPSetPreferenceCommand(String id, Object value) {
 		this.id = id;
 		this.value = value;
 	}
-	
+
 	public String getId() {
 		return id;
 	}
@@ -41,5 +41,5 @@ public class RCPSetPreferenceCommand implements Serializable {
 	public void setValue(Object value) {
 		this.value = value;
 	}
-	
+
 }

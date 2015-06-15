@@ -38,11 +38,11 @@ public class LineData {
 	public Plot1DAppearance getAppearance() {
 		return appearance;
 	}
-	
+
 	public AxisSpec getyAxisSpec() {
 		return yAxisSpec;
 	}
-	
+
 	public LineData(Plot1DAppearance appearance, Dataset x, Dataset y, AxisSpec yAxisSpec) {
 		super();
 		this.appearance = appearance;
@@ -50,5 +50,5 @@ public class LineData {
 		this.y = y;
 		this.yAxisSpec = yAxisSpec;
 	}
-	
+
 }

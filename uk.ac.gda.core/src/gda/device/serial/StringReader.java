@@ -35,7 +35,7 @@ public class StringReader {
 	private String readString;
 
 	/**
-	 * 
+	 *
 	 */
 	public StringProperties stringProps = new StringProperties();
 
@@ -124,7 +124,7 @@ public class StringReader {
 
 	/**
 	 * FIXME - Please specify units for param time
-	 * 
+	 *
 	 * @param timeout
 	 * @throws DeviceException
 	 */

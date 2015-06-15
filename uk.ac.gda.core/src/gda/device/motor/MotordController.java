@@ -42,9 +42,9 @@ import org.slf4j.LoggerFactory;
  * separate monitoring thread.
  */
 public class MotordController extends DeviceBase implements Configurable, Findable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(MotordController.class);
-	
+
 	private MonitorThread monitorThread;
 
 	private int MONITORING_TIMEOUT = 1000;
@@ -236,7 +236,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Attempt to connect to the motord daemon. If something is already connected this will produce an IOException.
-	 * 
+	 *
 	 * @return true if connected
 	 */
 	private boolean reconnect() {
@@ -262,7 +262,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Attempt to connect to the motord daemon. If something is already connected this will produce an IOException.
-	 * 
+	 *
 	 * @return true if connected
 	 */
 	private boolean connect() {
@@ -307,7 +307,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Send a message to the motord daemon.
-	 * 
+	 *
 	 * @param msg
 	 *            The message to be sent.
 	 */
@@ -337,7 +337,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Receive a message from the motord daemon.
-	 * 
+	 *
 	 * @return the reply string
 	 */
 	/*
@@ -347,7 +347,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Receive a message from the motord daemon, with a timeout.
-	 * 
+	 *
 	 * @param time_out
 	 *            Socket read time out.
 	 * @return the reply string
@@ -370,7 +370,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Checks if a motor is known by this motor daemon.
-	 * 
+	 *
 	 * @param mnemonic
 	 *            Mnemonic of the required motor.
 	 * @return true if motor is supported
@@ -381,7 +381,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Gets the drive step rate of a motor.
-	 * 
+	 *
 	 * @param mnemonic
 	 *            Mnemonic of the required motor.
 	 * @return the drive step rate (speed) of a motor
@@ -393,7 +393,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Sets the drive step rate of a motor.
-	 * 
+	 *
 	 * @param mnemonic
 	 *            Mnemonic of the required motor.
 	 * @param stepsPerSecond
@@ -419,7 +419,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Sets the step position of a motor.
-	 * 
+	 *
 	 * @param mnemonic
 	 *            Mnemonic of the required motor.
 	 * @param steps
@@ -437,7 +437,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Obtains the step position of a motor.
-	 * 
+	 *
 	 * @param mnemonic
 	 *            Mnemonic of the required motor.
 	 */
@@ -450,7 +450,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Obtains the step position of a motor.
-	 * 
+	 *
 	 * @param mnemonic
 	 *            Mnemonic of the required motor.
 	 * @return the step position of a motor
@@ -462,7 +462,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Obtains the status of a motor.
-	 * 
+	 *
 	 * @param mnemonic
 	 *            Mnemonic of the required motor.
 	 * @return the MotorStatus of the motor
@@ -485,7 +485,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Moves a motor by a requested step increment.
-	 * 
+	 *
 	 * @param mnemonic
 	 *            Mnemonic of the required motor.
 	 * @param steps
@@ -502,7 +502,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Moves a motor to a requested steps position.
-	 * 
+	 *
 	 * @param mnemonic
 	 *            Mnemonic of the required motor.
 	 * @param steps
@@ -519,7 +519,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Simulates a continuous move by sending a large number of steps to a connected motor.
-	 * 
+	 *
 	 * @param mnemonic
 	 *            Mnemonic of the required motor.
 	 * @param direction
@@ -540,7 +540,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Returns whether or not motor is actually moving.
-	 * 
+	 *
 	 * @param mnemonic
 	 *            Mnemonic of the required motor.
 	 * @return true if motor is moving.
@@ -564,7 +564,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Returns status of connection to motord daemon.
-	 * 
+	 *
 	 * @return true if motor is connected
 	 */
 	public boolean isConnected() {
@@ -573,7 +573,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * Returns whether or not a list of supported motors has been established.
-	 * 
+	 *
 	 * @return true if motors are supported
 	 */
 	public boolean areMotorsSupported() {
@@ -593,7 +593,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 		/**
 		 * The monitoring thread get replys and interprets each in turn. {@inheritDoc}
-		 * 
+		 *
 		 * @see java.lang.Thread#run()
 		 */
 		@Override
@@ -624,7 +624,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 		/**
 		 * Repsonsible for interpreting the motor daemon reply messages.
-		 * 
+		 *
 		 * @param message
 		 *            Motor daemon reply message.
 		 */
@@ -734,7 +734,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 		/**
 		 * Updates positions of moving motors.
-		 * 
+		 *
 		 * @return the number of moving motors
 		 */
 		private int monitorMovingMotors() {
@@ -759,7 +759,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 		/**
 		 * Utilise string contained in STATUS type responses to update the motor's status.
-		 * 
+		 *
 		 * @param mnemonic
 		 *            Motor's mnemonic with motord daemon.
 		 * @param message
@@ -793,7 +793,7 @@ public class MotordController extends DeviceBase implements Configurable, Findab
 
 		/**
 		 * Utilise code contained in MENU type responses to update the motor's status.
-		 * 
+		 *
 		 * @param mnemonic
 		 *            Motor's mnemonic with motord daemon.
 		 * @param statusCode

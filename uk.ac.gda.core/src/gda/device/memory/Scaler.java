@@ -64,17 +64,17 @@ public class Scaler extends Gdhist {
 		} catch (Exception e) {
 			throwDeviceException(e);
 		}
-		
+
 		if (data == null) {
 			throwNullException();
 		}
 		return data;
 	}
-	
+
 	private void throwDeviceException(Exception e) throws DeviceException {
 		throw new DeviceException(e.getMessage(),e);
 	}
-	
+
 	private void throwNullException() throws DeviceException {
 		close();
 		throw new DeviceException("read null from daserver");

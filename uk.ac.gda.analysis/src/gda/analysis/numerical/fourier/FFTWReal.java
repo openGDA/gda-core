@@ -6,7 +6,7 @@ package gda.analysis.numerical.fourier;
  * Class to implement simple one-off Real to Complex and Complex to RealFourier transforms uwing jfftw as a native
  * library. A new plan is created for each FFT. This is sub-optimal for a large number of FFTs, but reasonable for
  * ``one-off''.
- * 
+ *
  * @author Will Hossack, The Univesrity of Edinburgh
  * @version 1.0
  */
@@ -16,7 +16,7 @@ public class FFTWReal extends FFTW3 {
 	 * Method to take a one dimensional Forward DFT of a real data array of n elements. The output is Complex, held in a
 	 * double array with alternative real/imaginary parts with a total of n/2+1 complex pairs. Note the input and output
 	 * arrays are of different length. This method inplements out-of-place transfroms.
-	 * 
+	 *
 	 * @param realArray
 	 *            the input real array (not changed)
 	 * @return double[] holding the DFT
@@ -35,7 +35,7 @@ public class FFTWReal extends FFTW3 {
 
 	/**
 	 * Private native implement the oneDimensionalForward
-	 * 
+	 *
 	 * @param in
 	 * @param out
 	 * @param flag
@@ -47,7 +47,7 @@ public class FFTWReal extends FFTW3 {
 	 * is held as double array with alternative real/imaginary parts with a total of n/2+1 complex pairs. The output is
 	 * a double array of n elements. Note the input and output arrays are of different length. This method inplements
 	 * out-of-place transfroms.
-	 * 
+	 *
 	 * @param complexArray
 	 *            array of n/2+1 complex paris
 	 * @return double[] real array of n real values
@@ -63,7 +63,7 @@ public class FFTWReal extends FFTW3 {
 
 	/**
 	 * Private native implement the oneDimensionalForward
-	 * 
+	 *
 	 * @param in
 	 * @param out
 	 * @param flag
@@ -75,7 +75,7 @@ public class FFTWReal extends FFTW3 {
 	 * of the real image is located in array element j*width + i The Complex DFT is returned in a double array with
 	 * real/imag parts in even/odd elements, with the i,j Complex components in Real part 2*(j*wft + i) Imag part
 	 * 2*(j*wft + i) + 1 where wft = width/2 + 1
-	 * 
+	 *
 	 * @param width
 	 *            the image width
 	 * @param height
@@ -93,7 +93,7 @@ public class FFTWReal extends FFTW3 {
 
 	/**
 	 * Private native implement the twoDimensionalForward
-	 * 
+	 *
 	 * @param width
 	 * @param height
 	 * @param realArray
@@ -108,7 +108,7 @@ public class FFTWReal extends FFTW3 {
 	 * parts in even/odd elements, with the i,j Complex components in Real part 2*(j*wft + i) Imag part 2*(j*wft + i) +
 	 * 1 where wft = width/2 + 1 The transformd real data is returned in a one-dimensioal double array with pixel i,j
 	 * located at element j*width + i.
-	 * 
+	 *
 	 * @param width
 	 *            the image width
 	 * @param height
@@ -124,7 +124,7 @@ public class FFTWReal extends FFTW3 {
 
 	/**
 	 * Private native implement the twoDimensionalBackward
-	 * 
+	 *
 	 * @param width
 	 * @param height
 	 * @param complexArray
@@ -139,7 +139,7 @@ public class FFTWReal extends FFTW3 {
 	 * pixel of the real cube is located in array element k*width*height + j*width + i The Complex DFT is returned in a
 	 * double array with real/imag parts in even/odd elements, with the i,j Complex components in : * Real part
 	 * 2*(k*wft*height + j*wft + i) Imag part 2*(k*wft*height + j*wft + i) + 1 where wft = width/2 + 1
-	 * 
+	 *
 	 * @param width
 	 *            the cube width
 	 * @param height
@@ -159,7 +159,7 @@ public class FFTWReal extends FFTW3 {
 
 	/**
 	 * Private native method to implement the three-dimensional FFT
-	 * 
+	 *
 	 * @param width
 	 * @param height
 	 * @param depth
@@ -175,7 +175,7 @@ public class FFTWReal extends FFTW3 {
 	 * real/imag parts in even/odd elements, with the i,j Complex components in : * Real part 2*(k*wft*height + j*wft +
 	 * i) Imag part 2*(k*wft*height + j*wft + i) + 1 where wft = width/2 + 1 The transformd real data is returned in a
 	 * one-dimensioal double array with pixel i,j located at element k*width*height + j*width + i.
-	 * 
+	 *
 	 * @param width
 	 *            the cube width
 	 * @param height
@@ -194,7 +194,7 @@ public class FFTWReal extends FFTW3 {
 
 	/**
 	 * Private native method to implement the three-dimensional FFT
-	 * 
+	 *
 	 * @param width
 	 * @param height
 	 * @param depth

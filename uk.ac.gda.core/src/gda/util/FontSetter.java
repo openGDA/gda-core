@@ -46,7 +46,7 @@ public class FontSetter {
 
 	/**
 	 * Gets a list of all available fonts in the current graphics environment.
-	 * 
+	 *
 	 * @return Vector of all available fonts in the current graphics environment.
 	 */
 	public Vector<String> getAvailableFonts() {
@@ -55,7 +55,7 @@ public class FontSetter {
 
 	/**
 	 * Constructs a font based on name, style and point size.
-	 * 
+	 *
 	 * @param fontName
 	 *            The font name.
 	 * @param fontStyle

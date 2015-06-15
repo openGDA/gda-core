@@ -28,7 +28,7 @@ public class PearsonVII extends AbstractFunction {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param parms
 	 */
 	public PearsonVII(double... parms) {
@@ -55,7 +55,7 @@ public class PearsonVII extends AbstractFunction {
 	/**
 	 * Purpose: Y(X;A) is Pearson VII. The amplitude. centre and widths of the Pearson VII are stored in consecutive
 	 * locations of A: A(1) = H, A(2) = P, A(3) = FWHM, A(4) = S
-	 * 
+	 *
 	 * @param positions
 	 * @return pearson vii at x
 	 */

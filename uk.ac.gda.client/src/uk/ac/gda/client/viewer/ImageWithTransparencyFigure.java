@@ -23,12 +23,12 @@ import org.eclipse.draw2d.ImageFigure;
 
 public class ImageWithTransparencyFigure extends ImageFigure {
 	double transparency = 0;
-	
+
 	public void setTransparency(double transparency) {
 		this.transparency = transparency;
 		super.repaint();
 	}
-	
+
 	@Override
 	public void paintFigure(Graphics graphics) {
 		int alpha = (int) ((1.0-transparency) * 255.0);

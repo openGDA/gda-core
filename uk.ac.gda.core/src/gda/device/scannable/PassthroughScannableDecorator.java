@@ -34,7 +34,7 @@ public class PassthroughScannableDecorator implements Scannable {
 	public PassthroughScannableDecorator(Scannable delegate) {
 		this.delegate = delegate;
 	}
-	
+
 	@Override
 	public void setName(String name) {
 		getDelegate().setName(name);
@@ -224,7 +224,7 @@ public class PassthroughScannableDecorator implements Scannable {
 	public void atLevelStart() throws DeviceException {
 		getDelegate().atLevelStart();
 	}
-	
+
 	@Override
 	public void atLevelEnd() throws DeviceException {
 		getDelegate().atLevelEnd();

@@ -23,7 +23,7 @@ import java.io.Serializable;
 public class SimpleCommandSummary implements CommandSummary, Serializable{
 
 	String description;
-	
+
 	public SimpleCommandSummary(String description) {
 		super();
 		this.description = description;

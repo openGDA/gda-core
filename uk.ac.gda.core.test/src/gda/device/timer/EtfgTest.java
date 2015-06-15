@@ -55,7 +55,7 @@ public class EtfgTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public EtfgTest() {
 		tfg.setDaServer(daserver);
@@ -65,7 +65,7 @@ public class EtfgTest {
 	/**
 	 * Test method for {@link gda.device.timer.Tfg#setAttribute(java.lang.String, java.lang.Object)} and for
 	 * {@link gda.device.timer.Tfg#getAttribute(java.lang.String)}.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Test
 	public void testSetAttribute() throws DeviceException {
@@ -105,7 +105,7 @@ public class EtfgTest {
 
 	/**
 	 * Test method for {@link gda.device.timer.Tfg#getStatus()}.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Test
 	public void testGetStatus() throws DeviceException {
@@ -116,7 +116,7 @@ public class EtfgTest {
 
 	/**
 	 * Test method for {@link gda.device.timer.Tfg#stop()}.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Test
 	public void testStop() throws DeviceException {
@@ -136,7 +136,7 @@ public class EtfgTest {
 	 * {@link gda.device.timer.Tfg#addFrameSet(int, double, double)},
 	 * {@link gda.device.timer.Tfg#addFrameSet(int, double, double, int, int, int, int)}
 	 * {@link gda.device.timer.Tfg#clearFrameSets()}, {@link gda.device.timer.Tfg#loadFrameSets()}.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Test
 	public void testGetTotalFrames() throws DeviceException {
@@ -199,7 +199,7 @@ public class EtfgTest {
 
 	/**
 	 * Test method for {@link gda.device.timer.Tfg#getCurrentFrame()}.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Test
 	public void testGetCurrentFrame() throws DeviceException {
@@ -210,7 +210,7 @@ public class EtfgTest {
 
 	/**
 	 * Test method for {@link gda.device.timer.Tfg#getCurrentCycle()}.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Test
 	public void testGetCurrentCycle() throws DeviceException {
@@ -221,7 +221,7 @@ public class EtfgTest {
 
 	/**
 	 * Test method for {@link gda.device.timer.Tfg#output(java.lang.String)}.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Test
 	public void testOutput() throws DeviceException {
@@ -240,7 +240,7 @@ public class EtfgTest {
 
 	/**
 	 * Test method for {@link gda.device.timer.Tfg#start()}.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Test
 	public void testStart() throws DeviceException {

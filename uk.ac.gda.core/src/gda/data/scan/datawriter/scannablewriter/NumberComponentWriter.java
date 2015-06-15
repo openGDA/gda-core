@@ -89,7 +89,7 @@ public class NumberComponentWriter extends DefaultComponentWriter {
 		} catch (Exception e) {
 			logger.error("Problem writing data: {}", aPath, e);
 		}
-		
+
 		if (componentName != null) {
 			NexusUtils.writeStringAttribute(file, data, "local_name", scannableName + "." + componentName);
 		}

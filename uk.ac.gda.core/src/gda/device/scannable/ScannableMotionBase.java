@@ -77,7 +77,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 
 	/**
 	 * Sets the limits component used by this object.
-	 * 
+	 *
 	 * @param limitsComponent
 	 *            the limits component
 	 */
@@ -85,11 +85,11 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 		this.limitsComponent = limitsComponent;
 		this.limitsComponent.setHostScannable(this);
 	}
-	
+
 	public ScannableLimitsComponent getLimitsComponent() {
 		return limitsComponent;
 	}
-	
+
 
 	public void setOffsetAndScalingComponent(ScannableOffsetAndScalingComponent offsetAndScalingComponent) {
 		this.offsetAndScalingComponent = offsetAndScalingComponent;
@@ -111,7 +111,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 
 	/**
 	 * {@inheritDoc}. Calls onto rawIsBusy for historical reasons, although there is currently no need for this.
-	 * 
+	 *
 	 * @see gda.device.Scannable#isBusy()
 	 */
 	@Override
@@ -122,7 +122,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 
 	/**
 	 * Should be implemented by inheriting classes
-	 * 
+	 *
 	 * @return true if busy and last action started by asynchronousMoveTo not completed yet
 	 * @see gda.device.Scannable#isBusy()
 	 * @throws DeviceException
@@ -138,7 +138,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 	/**
 	 * If the numberTries and tolerance attributes have been set then repeatedly tries to move this Scannable until the
 	 * position is within the tolerance range.
-	 * 
+	 *
 	 * @see gda.device.scannable.ScannableBase#moveTo(java.lang.Object)
 	 */
 	@Override
@@ -174,7 +174,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 
 	/**
 	 * Quick-to-type version of asynchronousMoveTo for use in Jython environment
-	 * 
+	 *
 	 * @param position
 	 * @throws DeviceException
 	 */
@@ -185,7 +185,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 
 	/**
 	 * Quick-to-type version of a relative move for use in Jython environment
-	 * 
+	 *
 	 * @param amount
 	 * @throws DeviceException
 	 */
@@ -208,7 +208,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 
 	/**
 	 * Quick-to-type version of an asynchronous relative move for use in Jython environment
-	 * 
+	 *
 	 * @param amount
 	 * @throws DeviceException
 	 */
@@ -418,7 +418,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 	 * are within the tolerance specified in the scannable's tolerance array. Both values are first converted to arrays
 	 * using objectToArray() from ScannableUtils.
 	 * <p>
-	 * 
+	 *
 	 * @see gda.device.Scannable#isAt(java.lang.Object)
 	 */
 	@Override
@@ -452,7 +452,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 	/**
 	 * WARNING: This method will not work with units.
 	 * <p>
-	 * 
+	 *
 	 * @param tolerance
 	 * @throws DeviceException
 	 */
@@ -482,7 +482,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 	/**
 	 * WARNING: This method will not work with units.
 	 * <p>
-	 * 
+	 *
 	 * @see gda.device.ScannableMotion#getTolerances()
 	 * @return double[]
 	 */
@@ -516,7 +516,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 
 	/**
 	 * {@inheritDoc} To distributed some of the extra methods in the ScannableMotion interface
-	 * 
+	 *
 	 * @throws DeviceException
 	 * @see gda.device.DeviceBase#getAttribute(java.lang.String)
 	 */
@@ -550,7 +550,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 	 * <p>
 	 * It will do things such as validate that the class instantiated was valid, register the scannable with other
 	 * objects and generally complete the instantiation of the object.
-	 * 
+	 *
 	 * @throws InstantiationException
 	 */
 	protected void completeInstantiation() throws InstantiationException {
@@ -603,7 +603,7 @@ public class ScannableMotionBase extends ScannableBase implements ScannableMotio
 	public void addPositionValidator(PositionValidator validator) {
 		additionalPositionValidators.add(validator);
 	}
-	
+
 	public void setAdditionalPositionValidators(List<PositionValidator> additionalPositionValidators) {
 		this.additionalPositionValidators = additionalPositionValidators;
 	}

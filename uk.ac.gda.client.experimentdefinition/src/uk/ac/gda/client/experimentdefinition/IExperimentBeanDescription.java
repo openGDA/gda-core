@@ -28,7 +28,7 @@ public interface IExperimentBeanDescription extends IXMLFileListProvider {
 
 	/**
 	 * Get the bean class we are describing
-	 * 
+	 *
 	 * @return the bean class, will not be <code>null</code>
 	 */
 	public Class<? extends XMLRichBean> getBeanClass();
@@ -36,14 +36,14 @@ public interface IExperimentBeanDescription extends IXMLFileListProvider {
 	/**
 	 * Return the command id (org.eclipse.ui.commands) that corresponds to this
 	 * describer.
-	 * 
+	 *
 	 * @return command id, or null if there is no corresponding command
 	 */
 	public String getCommandId();
 
 	/**
 	 * Get the content type for this bean.
-	 * 
+	 *
 	 * @return content type, or <code>null</code> if bean is not registered with
 	 *         Eclipse
 	 */
@@ -51,14 +51,14 @@ public interface IExperimentBeanDescription extends IXMLFileListProvider {
 
 	/**
 	 * Should return which Exafs type of top level bean this is.
-	 * 
+	 *
 	 * @return applicable type, must not return <code>null</code>
 	 */
 	public String getBeanType();
 
 	/**
 	 * Returns the user displayed name for this Bean.
-	 * 
+	 *
 	 * @return name, will not be <code>null</code> or empty string
 	 */
 	public String getName();
@@ -68,7 +68,7 @@ public interface IExperimentBeanDescription extends IXMLFileListProvider {
 	 * this describer.
 	 * <p>
 	 * The implementer should cache the result and return it each time.
-	 * 
+	 *
 	 * @return XMLCommandHandler. Must not return <code>null</code>
 	 */
 	public XMLCommandHandler getXmlCommandHander();
@@ -76,7 +76,7 @@ public interface IExperimentBeanDescription extends IXMLFileListProvider {
 	/**
 	 * Returns whether the bean described by this description should be included
 	 * in a newly created (default) scan
-	 * 
+	 *
 	 * @return whether to include in a new scan
 	 */
 	public boolean includeInNew();

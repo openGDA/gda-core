@@ -24,24 +24,24 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.TypeCode;
 
 class TimedAny {
-	
+
 	public Any event;
-	
+
 	public long timeReceivedMs;
-	
+
 	public TimedAny(Any event,long timeReceivedMS){
 		this.event = event;
 		this.timeReceivedMs = timeReceivedMS;
 	}
-	
+
 	public boolean isStructuredEvent() {
 		TypeCode typeCode = event.type();
 		return typeCode != null && typeCode.equivalent(StructuredEventHelper.type());
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("TimedAny(time=%d)", timeReceivedMs);
 	}
-	
+
 }

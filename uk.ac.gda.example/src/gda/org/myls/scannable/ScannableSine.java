@@ -35,7 +35,7 @@ public class ScannableSine extends SimpleScannable {
 	double period, phase, magnitude, offset, noise;
 
 	/**
-	 * 
+	 *
 	 */
 	public ScannableSine() {
 		this(new SineWave(1, 0, 1, 0, 0));
@@ -55,7 +55,7 @@ public class ScannableSine extends SimpleScannable {
 		// System.out.println("ScannableSine(" + sineWave + ")");
 		this.setSineWave(sineWave);
 	}
-	
+
 	@Override
 	public Object getPosition() throws DeviceException {
 		double x = (Double) super.getPosition();
@@ -64,7 +64,7 @@ public class ScannableSine extends SimpleScannable {
 		y += noiseVal;
 		return new Double[] { x, y };
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ScannableSine: " + name + ", sw: " + sineWave;

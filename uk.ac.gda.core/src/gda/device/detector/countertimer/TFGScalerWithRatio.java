@@ -46,7 +46,7 @@ public class TFGScalerWithRatio extends TfgScalerWithDarkCurrent implements Dark
 
 	/**
 	 * When set to true I0/It will be added to the output columns
-	 * 
+	 *
 	 * @param outputRatio
 	 *            The outputLogValues to set.
 	 */
@@ -76,7 +76,7 @@ public class TFGScalerWithRatio extends TfgScalerWithDarkCurrent implements Dark
 	@Override
 	public double[] readout() throws DeviceException {
 		double[] output = super.readout();
-		
+
 		if (getDarkCurrent() != null) {
 			output = adjustForDarkCurrent(output, getCollectionTime());
 		}

@@ -34,9 +34,9 @@ import org.slf4j.LoggerFactory;
  * A Dummy motor class.
  */
 public class AerotechDummyMotor extends MotorBase implements Runnable, Configurable, IObservable, Motor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(AerotechDummyMotor.class);
-	
+
 	// README: This is used to ensure that the waiting thread know it has
 	// been
 	// woken for the correct reason, and that a move is requested. It is
@@ -332,7 +332,7 @@ public class AerotechDummyMotor extends MotorBase implements Runnable, Configura
 
 	/**
 	 * returns the motor to a initial repeatable starting location
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override
@@ -341,7 +341,7 @@ public class AerotechDummyMotor extends MotorBase implements Runnable, Configura
 
 	/**
 	 * checks if the motor is homeable or not
-	 * 
+	 *
 	 * @return if the motor is homeable
 	 */
 	@Override

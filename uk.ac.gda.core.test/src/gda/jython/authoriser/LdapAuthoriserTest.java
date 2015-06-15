@@ -23,8 +23,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import gda.util.TestUtils;
 import gda.configuration.properties.LocalProperties;
+import gda.util.TestUtils;
 import gda.util.exceptionUtils;
 
 import org.junit.BeforeClass;
@@ -44,7 +44,7 @@ public class LdapAuthoriserTest {
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		
+
 		//create the underlying xml file
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(FileAuthoriserTest.class
 				.getCanonicalName());
@@ -60,15 +60,15 @@ public class LdapAuthoriserTest {
 		fileAuthoriser.addEntry("testStaffNotInLdap", 2, true);
 		LocalProperties.set(FileAuthoriser.DEFAULTLEVELPROPERTY, "3");
 		LocalProperties.set(FileAuthoriser.DEFAULTSTAFFLEVELPROPERTY, "5");
-		
+
 		//then switch to using ldap
 		LocalProperties.set(Authoriser.AUTHORISERCLASS_PROPERTY, "gda.jython.authoriser.LdapAuthoriser");
 		authoriser = new LdapAuthoriser();
 
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetAuthorisationLevel() {
@@ -80,7 +80,7 @@ public class LdapAuthoriserTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testIsLocalStaff() {
@@ -92,7 +92,7 @@ public class LdapAuthoriserTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testHasAuthorisationLevel() {

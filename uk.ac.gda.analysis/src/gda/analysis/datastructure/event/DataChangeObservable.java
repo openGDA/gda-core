@@ -25,14 +25,14 @@ package gda.analysis.datastructure.event;
 public interface DataChangeObservable {
 	/**
 	 * Returns the flag that controls whether or not change events are sent to registered listeners.
-	 * 
+	 *
 	 * @return A boolean.
 	 */
 	public boolean getNotify();
 
 	/**
 	 * Sets the flag that controls whether or not change events are sent to registered listeners.
-	 * 
+	 *
 	 * @param notify
 	 *            the new value of the flag.
 	 */
@@ -42,7 +42,7 @@ public interface DataChangeObservable {
 	 * Registers an object with this series, to receive notification whenever the series changes.
 	 * <P>
 	 * Objects being registered must implement the {@link DataChangeObserver} interface.
-	 * 
+	 *
 	 * @param listener
 	 *            the listener to register.
 	 */
@@ -50,7 +50,7 @@ public interface DataChangeObservable {
 
 	/**
 	 * Deregisters an object, so that it not longer receives notification whenever the series changes.
-	 * 
+	 *
 	 * @param listener
 	 *            the listener to deregister.
 	 */
@@ -58,7 +58,7 @@ public interface DataChangeObservable {
 
 	/**
 	 * Sends a change event to all registered listeners.
-	 * 
+	 *
 	 * @param event
 	 *            contains information about the event that triggered the notification.
 	 */

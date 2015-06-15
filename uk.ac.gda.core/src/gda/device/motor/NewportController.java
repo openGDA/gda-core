@@ -19,9 +19,6 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.MotorException;
@@ -33,14 +30,17 @@ import gda.factory.Configurable;
 import gda.factory.Findable;
 import gda.factory.Finder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Used by NewportMotor as the point of communication with the actual hardware. class to be enclosed within a
  * NewportMotor object as an RS232 communications instance.
  */
 public class NewportController extends DeviceBase implements Configurable, Findable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(NewportController.class);
-	
+
 	// set static parameters for timeout, error handling and delimiters:
 	private static final int READ_TIMEOUT = 1000;
 
@@ -96,7 +96,7 @@ public class NewportController extends DeviceBase implements Configurable, Finda
 
 	/**
 	 * Set the serial device name
-	 * 
+	 *
 	 * @param serialDeviceName
 	 *            the serial device name
 	 */
@@ -106,7 +106,7 @@ public class NewportController extends DeviceBase implements Configurable, Finda
 
 	/**
 	 * Get the serial device name
-	 * 
+	 *
 	 * @return the serial device name
 	 */
 	public String getSerialDeviceName() {
@@ -115,7 +115,7 @@ public class NewportController extends DeviceBase implements Configurable, Finda
 
 	/**
 	 * Close the serial port connection.
-	 * 
+	 *
 	 * @see gda.device.serial.SerialComm
 	 */
 	@Override
@@ -126,7 +126,7 @@ public class NewportController extends DeviceBase implements Configurable, Finda
 	/**
 	 * Transmits a command string to a single motor on the serial line. This method is synchronised to ensure the
 	 * correct reply returns, to the correct Object.
-	 * 
+	 *
 	 * @param command
 	 *            Command code string
 	 * @throws MotorException
@@ -153,7 +153,7 @@ public class NewportController extends DeviceBase implements Configurable, Finda
 	/**
 	 * Transmits a command string to a single motor on the serial line. This method is synchronised to ensure the
 	 * correct reply returns, to the correct Object.
-	 * 
+	 *
 	 * @param command
 	 *            Command code string
 	 * @return motor reply string

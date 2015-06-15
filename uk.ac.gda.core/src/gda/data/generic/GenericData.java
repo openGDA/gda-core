@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * <b>NOTE: </b>This generic data structure does not allow <code>null</code> keys or values.
  * </p>
- * 
+ *
  * @see java.util.concurrent.ConcurrentHashMap
  */
 
@@ -67,7 +67,7 @@ public class GenericData implements IGenericData {
 	/**
 	 * This produces a formatted representation of the map contents. Each element of the returned <code>Vector</code>
 	 * will contain "key : value"
-	 * 
+	 *
 	 * @return Vector<String>
 	 */
 	@Override
@@ -82,7 +82,7 @@ public class GenericData implements IGenericData {
 	/**
 	 * This method will return a new object that has the same contents as this object. This is meant to be a substitute
 	 * for Jython copy.deepcopy()
-	 * 
+	 *
 	 * @return GenericData
 	 */
 	@Override
@@ -95,7 +95,7 @@ public class GenericData implements IGenericData {
 	/**
 	 * This method will return a <code>Vector</code> containing the key/value pairs in a string representation. This
 	 * is meant to replicate the Jython dictionary method items()
-	 * 
+	 *
 	 * @return Vector<String>
 	 */
 	@Override
@@ -110,7 +110,7 @@ public class GenericData implements IGenericData {
 	/**
 	 * This will return a <code>Vector</code> containing the key in a string representation. This is meant to
 	 * replicate the Jython dictionary method keys()
-	 * 
+	 *
 	 * @return Vector<String>
 	 */
 	@Override
@@ -124,7 +124,7 @@ public class GenericData implements IGenericData {
 
 	/**
 	 * Returns true if this map contains a mapping for the specified key.
-	 * 
+	 *
 	 * @param key
 	 * @return boolean
 	 */
@@ -135,7 +135,7 @@ public class GenericData implements IGenericData {
 
 	/**
 	 * Returns the value to which this map maps the specified key.
-	 * 
+	 *
 	 * @param key
 	 * @return Object
 	 */
@@ -154,7 +154,7 @@ public class GenericData implements IGenericData {
 
 	/**
 	 * Returns true if this map contains a mapping for the specified key.
-	 * 
+	 *
 	 * @param key
 	 * @return boolean
 	 */
@@ -165,7 +165,7 @@ public class GenericData implements IGenericData {
 
 	/**
 	 * Returns true if this map maps one or more keys to the specified value.
-	 * 
+	 *
 	 * @param value
 	 * @return boolean
 	 */
@@ -176,7 +176,7 @@ public class GenericData implements IGenericData {
 
 	/**
 	 * Returns a set view of the mappings contained in this map.
-	 * 
+	 *
 	 * @return Set<Map.Entry<String, Object>>
 	 */
 	@Override
@@ -186,7 +186,7 @@ public class GenericData implements IGenericData {
 
 	/**
 	 * Returns the value to which this map maps the specified key.
-	 * 
+	 *
 	 * @param key
 	 * @return Object
 	 */
@@ -197,7 +197,7 @@ public class GenericData implements IGenericData {
 
 	/**
 	 * Returns true if this map contains no key-value mappings.
-	 * 
+	 *
 	 * @return boolean
 	 */
 	@Override
@@ -207,7 +207,7 @@ public class GenericData implements IGenericData {
 
 	/**
 	 * Returns a set view of the keys contained in this map.
-	 * 
+	 *
 	 * @return Set
 	 */
 	@Override
@@ -217,7 +217,7 @@ public class GenericData implements IGenericData {
 
 	/**
 	 * Associates the specified value with the specified key in this map (optional operation).
-	 * 
+	 *
 	 * @param key
 	 * @param value
 	 * @return Object
@@ -229,7 +229,7 @@ public class GenericData implements IGenericData {
 
 	/**
 	 * Copies all of the mappings from the specified map to this map (optional operation).
-	 * 
+	 *
 	 * @param t
 	 */
 	@Override
@@ -239,7 +239,7 @@ public class GenericData implements IGenericData {
 
 	/**
 	 * Removes the mapping for this key from this map if it is present (optional operation).
-	 * 
+	 *
 	 * @param key
 	 * @return Object
 	 */
@@ -250,7 +250,7 @@ public class GenericData implements IGenericData {
 
 	/**
 	 * Returns the number of key-value mappings in this map.
-	 * 
+	 *
 	 * @return int
 	 */
 	@Override
@@ -260,7 +260,7 @@ public class GenericData implements IGenericData {
 
 	/**
 	 * Returns a collection view of the values contained in this map.
-	 * 
+	 *
 	 * @return Collection
 	 */
 	@Override

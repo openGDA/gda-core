@@ -95,7 +95,7 @@ public class GenericObjectConfigDataElement {
 
 	/**
 	 * Gets a string collection, containing the values of all the attributes contained in this object.
-	 * 
+	 *
 	 * @return a string collection of the attribute values
 	 */
 	public Collection<String> getAttributes() {
@@ -104,7 +104,7 @@ public class GenericObjectConfigDataElement {
 
 	/**
 	 * Adds a GenericObjectConfigDataElement object as a child of this object.
-	 * 
+	 *
 	 * @param value
 	 *            the child object to be added
 	 */
@@ -114,7 +114,7 @@ public class GenericObjectConfigDataElement {
 
 	/**
 	 * Removes a named object which is a child of this object.
-	 * 
+	 *
 	 * @param theName
 	 *            the name of the child object to be removed.
 	 */
@@ -130,7 +130,7 @@ public class GenericObjectConfigDataElement {
 
 	/**
 	 * Removes a child object reference from this object.
-	 * 
+	 *
 	 * @param value
 	 *            the reference of the child object to be removed.
 	 */
@@ -140,7 +140,7 @@ public class GenericObjectConfigDataElement {
 
 	/**
 	 * Gets a list of GenericObjectConfigDataElement objects which are children of this object.
-	 * 
+	 *
 	 * @return a list of GenericObjectConfigDataElement of child objects.
 	 */
 	public List<GenericObjectConfigDataElement> getChildren() {
@@ -150,7 +150,7 @@ public class GenericObjectConfigDataElement {
 	/**
 	 * implemented so GenericObjectConfigDataElement's can display information in the JTree GUI nodes which they are
 	 * attached to.
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

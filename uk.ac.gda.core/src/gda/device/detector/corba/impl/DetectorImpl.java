@@ -47,7 +47,7 @@ public class DetectorImpl extends CorbaDetectorPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param detector
 	 *            the Detector implementation object
 	 * @param poa
@@ -61,7 +61,7 @@ public class DetectorImpl extends CorbaDetectorPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Detector implementation object
 	 */
 	public Detector _delegate() {
@@ -70,7 +70,7 @@ public class DetectorImpl extends CorbaDetectorPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param detector
 	 *            set the Detector implementation object
 	 */
@@ -100,7 +100,7 @@ public class DetectorImpl extends CorbaDetectorPOA {
 			throw new CorbaDeviceException(de.getMessage());
 		}
 	}
-	
+
 	@Override
 	public double getCollectionTime() throws CorbaDeviceException {
 		try {
@@ -351,7 +351,7 @@ public class DetectorImpl extends CorbaDetectorPOA {
 			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return scannableImpl.getProtectionLevel();
@@ -366,17 +366,17 @@ public class DetectorImpl extends CorbaDetectorPOA {
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		scannableImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return scannableImpl.toFormattedString();
 	}
-	
+
 	@Override
 	public void atLevelStart() throws CorbaDeviceException {
 		scannableImpl.atLevelStart();

@@ -75,7 +75,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Constructs an empty GenericDataVector with the specified initial capacity and capacity increment.
-	 * 
+	 *
 	 * @param dimensions
 	 * @exception IllegalArgumentException
 	 *                if the specified initial capacity is negative
@@ -168,7 +168,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Create an empty data set to start with
-	 * 
+	 *
 	 * @param dimensions
 	 *            The size of the array to set to zero
 	 */
@@ -182,7 +182,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Creates the datavector from a single dimentional array of doubles
-	 * 
+	 *
 	 * @param data
 	 *            the data to put in the 1D array
 	 */
@@ -193,7 +193,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Creates the datavector from a two dimentional array of doubles
-	 * 
+	 *
 	 * @param data
 	 *            the 2D array which holds teh data to be put into the datavector;
 	 */
@@ -205,7 +205,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Create an empty data set to start with
-	 * 
+	 *
 	 * @param data
 	 */
 	public void createListFromArray(double[][][] data) {
@@ -217,7 +217,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Returns the flag that controls whether or not change events are sent to registered listeners.
-	 * 
+	 *
 	 * @return A boolean.
 	 */
 	@Override
@@ -227,7 +227,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Sets the flag that controls whether or not change events are sent to registered listeners.
-	 * 
+	 *
 	 * @param notify
 	 *            the new value of the flag.
 	 */
@@ -243,7 +243,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 * Registers an object with this series, to receive notification whenever the series changes.
 	 * <P>
 	 * Objects being registered must implement the {@link DataChangeObserver} interface.
-	 * 
+	 *
 	 * @param listener
 	 *            the listener to register.
 	 */
@@ -256,7 +256,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Deregisters an object, so that it not longer receives notification whenever the series changes.
-	 * 
+	 *
 	 * @param listener
 	 *            the listener to deregister.
 	 */
@@ -276,7 +276,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Sends a change event to all registered listeners.
-	 * 
+	 *
 	 * @param event
 	 *            contains information about the event that triggered the notification.
 	 */
@@ -299,7 +299,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Return the min of the data set
-	 * 
+	 *
 	 * @return The min of the data set
 	 */
 	public synchronized double getMin() {
@@ -346,7 +346,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	/**
 	 * Takes variable arguments.... The data is stored in a 1D list. In 2D to find point (nx,ny) we need to convert the
 	 * 2D indices to 1D Again in 3D (nx,ny,nz) is converted to 1D.
-	 * 
+	 *
 	 * @param n
 	 * @return The index in the 1D List containing the data.
 	 */
@@ -370,7 +370,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Fixed data size means if we insert an element we remove {@inheritDoc}
-	 * 
+	 *
 	 * @see java.util.Vector#insertElementAt(java.lang.Object, int)
 	 */
 	@Override
@@ -385,7 +385,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Fixed data size means if we insert an element we remove {@inheritDoc}
-	 * 
+	 *
 	 * @see java.util.Vector#insertElementAt(java.lang.Object, int)
 	 */
 	@Override
@@ -399,7 +399,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	// }
 	/**
 	 * Fixed data size means if we insert an element we remove
-	 * 
+	 *
 	 * @param obj
 	 * @return
 	 * @see java.util.Vector#insertElementAt(java.lang.Object, int)
@@ -419,7 +419,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Fixed data size means if we insert an element we remove
-	 * 
+	 *
 	 * @param obj
 	 * @return boolean
 	 * @see java.util.Vector#insertElementAt(java.lang.Object, int)
@@ -445,7 +445,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Get the data at the indices given by n
-	 * 
+	 *
 	 * @param n
 	 *            variable length parameter so for 1d .... getData(5); (index along dimension 1) for 2d ....
 	 *            getData(5,6); (index along dimensions 1 & 2) for 3d .... getData(5,6,1); (index dimensions 1 & 2 & 3)
@@ -457,7 +457,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Sets the value of the data at the specified point to value
-	 * 
+	 *
 	 * @param value
 	 *            The double which the point will be changed to
 	 * @param n
@@ -469,7 +469,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * Get the data at the indices given by n
-	 * 
+	 *
 	 * @param n
 	 *            variable length parameter so for 1d .... getData(5); (index along dimension 1) for 2d ....
 	 *            getData(5,6); (index along dimensions 1 & 2) for 3d .... getData(5,6,1); (index dimensions 1 & 2 & 3)
@@ -600,7 +600,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 
 	/**
 	 * pulled out of PySequence
-	 * 
+	 *
 	 * @param index
 	 * @param defaultValue
 	 * @return int
@@ -751,7 +751,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
 	 *  <b>[2.0, 4.0, 6.0, 8.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The Datavector after the '+' sign
 	 * @return DataVector1D containg the element by element summation of the this object with the object passed
@@ -776,7 +776,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
 	 *  <b>[3.0, 4.0, 5.0, 6.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The Double after the '+' sign
 	 * @return DataVector1D containg the element by element summation of the this object with the double passed
@@ -806,7 +806,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
 	 *  <b>[2.0, 4.0, 6.0, 8.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The Datavector1D after the '+=' sign
 	 * @return DataVector1D containg the element by element summation of the this object with the object passed
@@ -833,7 +833,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
 	 *  <b>[6.0, 7.0, 8.0, 9.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The Double value after the '+=' sign
 	 * @return DataVector1D containg the element by element summation of the this object with the double passed
@@ -865,7 +865,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [2.0, 3.0, 4.0, 5.0]<br>
 	 *  <b>[-1.0, -1.0, -1.0, -1.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The Datavector1D after the '-' sign
 	 * @return DataVector1D containg the element by element subtraction of the this object with the object passed
@@ -891,7 +891,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
 	 *  <b>[0.0, 1.0, 2.0, 3.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The Double after the '-' sign
 	 * @return DataVector1D containg the element by element subtraction of the this object with the double passed
@@ -920,7 +920,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [1.0, 1.0, 2.0, 2.0]<br>
 	 *  <b>[0.0, 1.0, 1.0, 2.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The Datavector1D after the '-=' sign
 	 * @return DataVector1D containg the element by element subtraction of the this object with the object passed
@@ -947,7 +947,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
 	 *  <b>[-1.0, 0.0, 1.0, 2.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The Double value after the '-=' sign
 	 * @return DataVector1D containg the element by element subtraction of the this object with the double passed
@@ -978,7 +978,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
 	 *  <b>[1.0, 1.0, 1.0, 1.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The DataVector1D value after the '/' sign
 	 * @return DataVector1D containg the element by element division of the this object with the object passed
@@ -1004,7 +1004,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
 	 *  <b>[0.5, 1.0, 1.5, 2.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The double value after the '/' sign
 	 * @return DataVector1D containg the element by element division of the this object with the Double passed
@@ -1033,7 +1033,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
 	 *  <b>[1.0, 1.0, 1.0, 1.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The DataVector1D value after the '/=' sign
 	 * @return DataVector1D containg the element by element division of the this object with the object passed
@@ -1058,7 +1058,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
 	 *  <b>[0.5, 1.0, 1.5, 2.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The double value after the '/=' sign
 	 * @return DataVector1D containg the element by element division of the this object with the Double passed
@@ -1088,7 +1088,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
 	 *  <b>[1.0, 4.0, 9.0, 16.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The DataVector1D value after the '*' sign
 	 * @return DataVector1D containg the element by element multiplication of the this object with the object passed
@@ -1114,7 +1114,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
 	 *  <b>[2.0, 4.0, 6.0, 8.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The double value after the '*' sign
 	 * @return DataVector1D containg the element by element multiplication of the this object with the Double passed
@@ -1143,7 +1143,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
 	 *  <b>[1.0, 4.0, 9.0, 16.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The DataVector1D value after the '*=' sign
 	 * @return DataVector1D containg the element by element multiplication of the this object with the object passed
@@ -1170,7 +1170,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 *  [1.0, 2.0, 3.0, 4.0]<br>
 	 *  <b>[2.0, 4.0, 6.0, 8.0]</b><br>
 	 *  </code><br>
-	 * 
+	 *
 	 * @param other
 	 *            The double value after the '*=' sign
 	 * @return DataVector1D containg the element by element multiplication of the this object with the Double passed
@@ -1189,7 +1189,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 * <br>
 	 * <i><b>Warning!! as this is using floating point accurasy, two processed <br>
 	 * vecors are very unlikely to be equal, so be carefull using this!</b></i><br>
-	 * 
+	 *
 	 * @param other
 	 *            The DataVector1D value after the '==' sign
 	 * @return PyInteger, containing 1 for true, and 0 for false.
@@ -1220,7 +1220,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 * <br>
 	 * <i><b>Warning!! as this is using floating point accurasy, two processed <br>
 	 * vecors are very unlikely to be equal, so be carefull using this!</b></i><br>
-	 * 
+	 *
 	 * @param other
 	 *            The DataVector1D value after the '!=' sign
 	 * @return PyInteger, containing 1 for true, and 0 for false.
@@ -1249,7 +1249,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 * <br>
 	 * This returns true if the first vecotors is greater than the magnitude of the second vector<br>
 	 * <br>
-	 * 
+	 *
 	 * @param other
 	 *            The DataVector1D value after the '>' sign
 	 * @return PyInteger, containing 1 for true, and 0 for false.
@@ -1278,7 +1278,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 * <br>
 	 * This returns false if the first vecotors is greater than the magnitude of the second vector<br>
 	 * <br>
-	 * 
+	 *
 	 * @param other
 	 *            The DataVector1D value after the '<' sign
 	 * @return PyInteger, containing 1 for true, and 0 for false.
@@ -1307,7 +1307,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 * <br>
 	 * This returns true if the first vecotor is greater than or equal to the magnitude of the second vector<br>
 	 * <br>
-	 * 
+	 *
 	 * @param other
 	 *            The DataVector1D value after the '>=' sign
 	 * @return PyInteger, containing 1 for true, and 0 for false.
@@ -1336,7 +1336,7 @@ public class DataVector extends Vector<Double> implements java.io.Serializable, 
 	 * <br>
 	 * This returns true if the first vecotors is less than or equal to the magnitude of the second vector<br>
 	 * <br>
-	 * 
+	 *
 	 * @param other
 	 *            The DataVector1D value after the '<=' sign
 	 * @return PyInteger, containing 1 for true, and 0 for false.

@@ -110,7 +110,7 @@ public class ExperimentBeanDescription implements IExperimentBeanDescription {
 
 	/**
 	 * Formats the toString output in Title Case
-	 * 
+	 *
 	 * @return title case of the enum name
 	 */
 	@Override
@@ -158,7 +158,7 @@ public class ExperimentBeanDescription implements IExperimentBeanDescription {
 	/**
 	 * Retrieve all the Bean Descriptions provided by {@link ExperimentBeanManager#getBeanDescriptions()} filtered
 	 * by receivers bean type
-	 * 
+	 *
 	 * @return unmodifiable collection of matching descriptions
 	 */
 	public Collection<IExperimentBeanDescription> getBeanDescriptions() {
@@ -178,7 +178,7 @@ public class ExperimentBeanDescription implements IExperimentBeanDescription {
 
 	/**
 	 * Retrieve all content types provided by {@link #getBeanDescriptions()}
-	 * 
+	 *
 	 * @return unmodifiable collection of content types
 	 */
 	public Collection<IContentType> getContentTypes() {

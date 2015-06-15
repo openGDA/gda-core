@@ -35,7 +35,7 @@ public class ScriptingPerspective implements IPerspectiveFactory {
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
-		
+
 		layout.createFolder("bottom", IPageLayout.BOTTOM, (float)0.80, editorArea);
 
 	}

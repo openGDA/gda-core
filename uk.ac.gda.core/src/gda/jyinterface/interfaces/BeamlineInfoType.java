@@ -20,7 +20,7 @@
 package gda.jyinterface.interfaces;
 
 /**
- * 
+ *
  */
 public interface BeamlineInfoType {
 	/**

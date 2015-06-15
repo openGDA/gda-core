@@ -20,7 +20,6 @@
 package gda.device.corba.impl;
 
 import gda.device.Device;
-import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.CorbaDevicePOA;
@@ -57,7 +56,7 @@ public class DeviceImpl extends CorbaDevicePOA implements IObserver {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param device
 	 *            the Device implementation object
 	 * @param poa
@@ -73,7 +72,7 @@ public class DeviceImpl extends CorbaDevicePOA implements IObserver {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the device implementation object
 	 */
 	public Device _delegate() {
@@ -82,7 +81,7 @@ public class DeviceImpl extends CorbaDevicePOA implements IObserver {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param device
 	 *            set the Device implementation object
 	 */

@@ -34,7 +34,7 @@ public class TakeAction extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
+
 		if (!InterfaceProvider.getBatonStateProvider().requestBaton()) {
 			MessageBox messageBox = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), SWT.OK | SWT.ICON_WARNING);
 			messageBox.setMessage("You do not have enough authorisation to take the baton from the current holder.\n\n"+
@@ -43,7 +43,7 @@ public class TakeAction extends AbstractHandler {
 			messageBox.open();
 			return Boolean.FALSE;
 		}
-		
+
 		return RefreshBatonAction.refresh();
 	}
 

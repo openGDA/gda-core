@@ -39,9 +39,9 @@ import org.slf4j.LoggerFactory;
  * An implementation of the Serial class
  */
 public class SerialComm extends SerialBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(SerialComm.class);
-	
+
 	private SerialPort serialPort;
 
 	private OutputStream outputStream;
@@ -111,7 +111,7 @@ public class SerialComm extends SerialBase {
 
 	/**
 	 * Open the named serial port
-	 * 
+	 *
 	 * @param name
 	 *            the name of the port to open
 	 */
@@ -138,7 +138,7 @@ public class SerialComm extends SerialBase {
 
 	/**
 	 * set the baudrate
-	 * 
+	 *
 	 * @param baudRate
 	 * @throws DeviceException
 	 */
@@ -186,7 +186,7 @@ public class SerialComm extends SerialBase {
 
 	/**
 	 * Set the number of data bits for data transfer
-	 * 
+	 *
 	 * @param byteSize
 	 * @throws DeviceException
 	 */
@@ -227,7 +227,7 @@ public class SerialComm extends SerialBase {
 
 	/**
 	 * This method only exists for castor instantiation, it does not physically set the parity
-	 * 
+	 *
 	 * @param parity
 	 * @throws DeviceException
 	 */
@@ -283,7 +283,7 @@ public class SerialComm extends SerialBase {
 
 	/**
 	 * set the number of stop bits to be used in data transfer
-	 * 
+	 *
 	 * @param stopBits
 	 *            int the no. stop bits
 	 * @throws DeviceException

@@ -92,12 +92,12 @@ final class GenQuantitiesConverter implements IQuantitiesConverter {
 	public boolean sourceMinIsTargetMax() {
 		return converter.sourceMinIsTargetMax();
 	}
-	
+
 
 	public boolean handlesStoT(){
 		return converter.handlesStoT();
 	}
-	
+
 	public boolean handlesTtoS(){
 		return converter.handlesTtoS();
 	}

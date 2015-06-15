@@ -43,7 +43,7 @@ import org.apache.commons.configuration.ConfigurationException;
  */
 public class UserOptionsDialog extends JDialog implements ActionListener {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -184,7 +184,7 @@ public class UserOptionsDialog extends JDialog implements ActionListener {
 
 	/**
 	 * Create the GUI and show it. For thread safety, this method should be invoked from the event-dispatching thread.
-	 * 
+	 *
 	 * @throws ConfigurationException
 	 * @throws IOException
 	 * @throws Exception

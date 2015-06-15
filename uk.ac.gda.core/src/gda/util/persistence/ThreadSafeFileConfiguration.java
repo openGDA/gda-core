@@ -44,7 +44,7 @@ public class ThreadSafeFileConfiguration implements FileConfiguration {
 
 	private final FileConfiguration config;
 	private final Object lock;
-	
+
 	public ThreadSafeFileConfiguration(FileConfiguration config, Object lock) {
 		this.config = config;
 		this.lock = lock;

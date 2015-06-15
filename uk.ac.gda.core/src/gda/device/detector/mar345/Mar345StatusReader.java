@@ -20,6 +20,7 @@
 package gda.device.detector.mar345;
 
 import gda.device.Detector;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,7 +32,7 @@ import java.io.IOException;
  */
 public class Mar345StatusReader {
 	/**
-	 * 
+	 *
 	 */
 	public final String statusFileName;
 
@@ -41,7 +42,7 @@ public class Mar345StatusReader {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param fileName
 	 *            The full path of the mar status file
 	 */
@@ -53,7 +54,7 @@ public class Mar345StatusReader {
 	 * Obtains detector status from the mar.message file. If the text contains line 'mar345: Task SCAN...' (or '...Task
 	 * CHANGE' or '...Task CHANGE') and is not followed by the word 'ENDED', then the status is taken to be busy, else
 	 * idle.
-	 * 
+	 *
 	 * @return Returns the detector status (as per detector interface)
 	 * @throws FileNotFoundException
 	 * @throws IOException
@@ -78,7 +79,7 @@ public class Mar345StatusReader {
 			while (statusFile.ready()) {
 				line = statusFile.readLine();
 				if (line.matches(".*345:[ \\t]+Task[ \\t]+(SCAN|CHANGE|ERASE).*")) {
-					
+
 					thisStatus = Detector.BUSY;
 					if (line.contains("ENDED")) {
 						thisStatus = Detector.IDLE;

@@ -27,24 +27,24 @@ import java.util.TreeSet;
  * A client of Alarm has to instantiate an Alarm object with a specified amount of time and a callback
  * {@link AlarmListener} object. Optionally an argument to be passed on the callback can be specified.
  * </p>
- * 
+ *
  * <pre>
  * Alarm alarm = new Alarm(5000, new AlarmListener() {
  * 	public void alarm(Alarm anAlarm) {
  * 		// do something here
  * 	}
  * });
- * 
+ *
  * // reschedule the alarm on the previously specified time.
  * alarm.reschedule();
- * 
+ *
  * // reschedule the alarm on another time
  * alarm.reschedule(3000);
- * 
+ *
  * // cancel the callback before it is executed
  * alarm.cancel();
  * </pre>
- * 
+ *
  * <h3>Implementation</h3>
  * One thread loops infinitely executing expired alarms and sleeping until the next alarm expires and must be executed.
  * <h3>Concurrency</h3>
@@ -56,7 +56,7 @@ import java.util.TreeSet;
 public class Alarm implements Comparable<Object> {
 	/**
 	 * Create an alarm call at a specified time from now.
-	 * 
+	 *
 	 * @param aTimeMillis
 	 *            time in milliseconds from now of the alarm call
 	 * @param aListener
@@ -68,7 +68,7 @@ public class Alarm implements Comparable<Object> {
 
 	/**
 	 * Create an alarm call at a specified time from now.
-	 * 
+	 *
 	 * @param aTimeMillis
 	 *            time in milliseconds from now of the alarm call
 	 * @param aListener
@@ -91,7 +91,7 @@ public class Alarm implements Comparable<Object> {
 
 	/**
 	 * Return the number of currently pending Alarms.
-	 * 
+	 *
 	 * @return number of alarms
 	 */
 	public static int getAlarmSize() {
@@ -100,7 +100,7 @@ public class Alarm implements Comparable<Object> {
 
 	/**
 	 * Return the string representing the time the execution of the last invoked Alarm started.
-	 * 
+	 *
 	 * @return string time representation
 	 */
 	public static String getEndLastExecute() {
@@ -109,7 +109,7 @@ public class Alarm implements Comparable<Object> {
 
 	/**
 	 * Return the string representing the time the execution of the last invoked Alarm ended.
-	 * 
+	 *
 	 * @return string time representation
 	 */
 	public static String getStartLastExecute() {
@@ -118,7 +118,7 @@ public class Alarm implements Comparable<Object> {
 
 	/**
 	 * Return the interval for the Alarm.
-	 * 
+	 *
 	 * @return millisecond interval
 	 */
 	public long getIntervalMillis() {
@@ -138,7 +138,7 @@ public class Alarm implements Comparable<Object> {
 
 	/**
 	 * Compare the expiry time to that of another Alarm.
-	 * 
+	 *
 	 * @param anObject
 	 *            an alarm instance
 	 * @return the result of the comparison of time
@@ -172,7 +172,7 @@ public class Alarm implements Comparable<Object> {
 
 	/**
 	 * Get the optional call-back argument.
-	 * 
+	 *
 	 * @return call-back argument
 	 */
 	public Object getArgument() {
@@ -188,7 +188,7 @@ public class Alarm implements Comparable<Object> {
 
 	/**
 	 * Reschedule an alarm call for a given time period.
-	 * 
+	 *
 	 * @param aTimeMillis
 	 *            time in milliseconds from now of the alarm call
 	 */
@@ -241,7 +241,7 @@ public class Alarm implements Comparable<Object> {
 
 	/**
 	 * Get the remaining millis before expiration.
-	 * 
+	 *
 	 * @return remaining time in milliseconds
 	 */
 	private long getRemainingMillis() {
@@ -250,7 +250,7 @@ public class Alarm implements Comparable<Object> {
 
 	/**
 	 * Is this alarm call expired?
-	 * 
+	 *
 	 * @return true if alarm call is expired
 	 */
 	private boolean isExpired() {
@@ -267,7 +267,7 @@ public class Alarm implements Comparable<Object> {
 	 * <p>
 	 * Special effort has been made to enable cancellations or rescheduling of alarm calls by clients within a alarm
 	 * callback.
-	 * 
+	 *
 	 * @author Just van den Broecke
 	 * @version $Revision: 30585 $ $Date: 2010-10-14 16:48:24 +0100 (Thu, 14 Oct 2010) $
 	 */

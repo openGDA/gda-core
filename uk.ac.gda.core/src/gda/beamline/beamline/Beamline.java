@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class provides access methods for users to query or change beamline parameters used in data collection, such as
  * current data directory, file prefix, etc.
- * 
+ *
  */
 @SuppressWarnings("serial")
 public class Beamline implements BeamlineInfo, Configurable, Localizable {
@@ -202,7 +202,7 @@ public class Beamline implements BeamlineInfo, Configurable, Localizable {
 	/**
 	 * Checks to see if the created object should be local to the server or whether a corba impl should be instantiated
 	 * and placed on the name server.
-	 * 
+	 *
 	 * @return true for local only objects
 	 */
 	@Override
@@ -213,7 +213,7 @@ public class Beamline implements BeamlineInfo, Configurable, Localizable {
 	/**
 	 * Sets a flag to inform the server that the created object should be local to itself or whether a corba impl should
 	 * be instantiated and placed on the name server.
-	 * 
+	 *
 	 * @param local
 	 *            true if a local only implementation.
 	 */
@@ -224,7 +224,7 @@ public class Beamline implements BeamlineInfo, Configurable, Localizable {
 
 	/**
 	 * Check whether the configure method should be called when the server is instantiated.
-	 * 
+	 *
 	 * @return true if configuration is required at startup.
 	 */
 	public boolean isConfigureAtStartup() {
@@ -233,7 +233,7 @@ public class Beamline implements BeamlineInfo, Configurable, Localizable {
 
 	/**
 	 * Set a flag to inform the server whether the configure method should be called at startup.
-	 * 
+	 *
 	 * @param configureAtStartup
 	 *            true to configure at startup.
 	 */
@@ -258,7 +258,7 @@ public class Beamline implements BeamlineInfo, Configurable, Localizable {
 
 	/**
 	 * Notify all observers on the list of the requested change.
-	 * 
+	 *
 	 * @param theObserved
 	 *            the observed component
 	 * @param theArgument

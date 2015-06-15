@@ -32,7 +32,7 @@ import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 /**
  * Class that saves data from DataHolder and writes the output as delimited
  * ACSII output
- * 
+ *
  */
 public class RawOutput implements IFileSaver {
 
@@ -43,7 +43,7 @@ public class RawOutput implements IFileSaver {
 	 * and output them as a width X height array called 'filename'.dat. The
 	 * double is written to 12 dp. If there are multiple datasets in a
 	 * ScanFileHolder then the class will save each in a separate file.
-	 * 
+	 *
 	 * @param filename
 	 */
 	public RawOutput(String filename) {
@@ -51,8 +51,8 @@ public class RawOutput implements IFileSaver {
 	}
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	@Override
 	public void saveFile(IDataHolder dh) throws ScanFileHolderException {

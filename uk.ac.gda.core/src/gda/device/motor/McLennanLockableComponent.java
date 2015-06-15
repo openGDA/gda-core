@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Carries out proper locking for an object using the Lockable interface.
- * 
+ *
  */
 public class McLennanLockableComponent {
 	private static final Logger logger = LoggerFactory.getLogger(McLennanLockableComponent.class);

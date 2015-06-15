@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * An item of metadata. The user does not need to know the means of access to the metadata value. This is based on the
  * type of this metadata. The current value can be retrieved by by the {@link MetadataEntry#getMetadataValue()} method
  * or via a containing Metadata object and it's {@link Metadata#getMetadataValue(String)} method.
- * 
+ *
  * @see Metadata
  * @see GdaMetadata
  */
@@ -52,7 +52,7 @@ public abstract class MetadataEntry implements Findable, IObservable, Serializab
 
 	/**
 	 * Configure Method.
-	 * 
+	 *
 	 * @throws FactoryException
 	 */
 	@Override
@@ -80,18 +80,18 @@ public abstract class MetadataEntry implements Findable, IObservable, Serializab
 				logger.error( "Error getting value for " + name, e2);
 			}
 		}
-		
-		
+
+
 		return value == null ? "" : value;
 	}
-	
+
 	/**
 	 * Returns the actual value of the metadata entry. Any exception can be
 	 * thrown by this method, which will cause {@link #getMetadataValue()} to
 	 * look for a default value (if one is specified).
-	 * 
+	 *
 	 * @return the entry's actual value
-	 * 
+	 *
 	 * @throws Exception if the value cannot be retrieved
 	 */
 	protected abstract String readActualValue() throws Exception;
@@ -133,7 +133,7 @@ public abstract class MetadataEntry implements Findable, IObservable, Serializab
 
 	/**
 	 * Notify all observers on the list of the requested change.
-	 * 
+	 *
 	 * @param theObserved
 	 *            the observed component
 	 * @param theArgument
@@ -151,7 +151,7 @@ public abstract class MetadataEntry implements Findable, IObservable, Serializab
 	@Override
 	public boolean canStoreValue() {
 		return false;
-	}	
+	}
 
 
 }

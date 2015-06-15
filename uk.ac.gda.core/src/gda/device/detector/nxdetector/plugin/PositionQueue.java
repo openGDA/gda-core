@@ -35,7 +35,7 @@ public class PositionQueue<T> implements PositionInputStream<T>{
 	public PositionQueue() {
 		super();
 	}
-	
+
 	List<T> cache = new ArrayList<T> ();
 	@Override
 	public List<T> read(int maxToRead) throws NoSuchElementException, InterruptedException,

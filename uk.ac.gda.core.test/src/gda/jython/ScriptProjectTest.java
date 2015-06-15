@@ -19,11 +19,12 @@
 package gda.jython;
 
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.hamcrest.core.Is.is;
 
 public class ScriptProjectTest {
 
@@ -50,25 +51,25 @@ public class ScriptProjectTest {
 		assertThat(userProject.getPath(), is("/tmp"));
 		assertThat(userProject.getName(), is("Scripts - User"));
 	}
-	
+
 	@Test
 	public void testUserProjectHasUserBit() {
 		assertThat(userProject.isUserProject(), is(true));
 	}
-	
+
 	@Test
 	public void testNonUserProjectsHaveNoUserBit() {
 		assertThat(configProject.isUserProject(), is(false));
 		assertThat(coreProject.isUserProject(), is(false));
 	}
-	
+
 	@Test
 	public void testConfigProjectBit() {
 		assertThat(userProject.isConfigProject(), is(false));
 		assertThat(configProject.isConfigProject(), is(true));
 		assertThat(coreProject.isConfigProject(), is(false));
 	}
-	
+
 	@Test
 	public void testCoreProjectBit() {
 		assertThat(userProject.isCoreProject(), is(false));

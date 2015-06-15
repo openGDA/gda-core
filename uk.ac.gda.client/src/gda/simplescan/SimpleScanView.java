@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class SimpleScanView extends ViewPart {
-	
+
 	public static final String ID = "gda.simplescan.SimpleScanView"; //$NON-NLS-1$
 	private static final Logger logger = LoggerFactory.getLogger(SimpleScanView.class);
 	private String path;
@@ -49,8 +49,8 @@ public class SimpleScanView extends ViewPart {
 
 	public SimpleScanView() {
 	}
-	
-	
+
+
 	private IPartListener partListener = new IPartListener() {
 		@Override
 		public void partActivated(IWorkbenchPart part) {}
@@ -76,7 +76,7 @@ public class SimpleScanView extends ViewPart {
 	public void dispose(){
 		getSite().getPage().removePartListener(partListener);
 	}
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
         path = LocalProperties.getConfigDir() + File.separator+ "templates" + File.separator+ "simpleScan.xml";
@@ -86,7 +86,7 @@ public class SimpleScanView extends ViewPart {
 		} catch (Exception e) {
 			logger.error("Could not load xml " + path + " into bean", e);
 		}
-        
+
         GridLayout gl = new GridLayout(1, false);
         gl.verticalSpacing = 0;
         gl.marginWidth = 0;
@@ -96,9 +96,9 @@ public class SimpleScanView extends ViewPart {
         GridData gd = new GridData(SWT.LEFT, SWT.TOP, true, false, 1, 1);
         gd.horizontalIndent=0;
         gd.verticalIndent=0;
-        
+
         parent.setLayoutData(gd);
-		
+
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridData gd_composite = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
 		gd_composite.widthHint = 900;
@@ -109,12 +109,12 @@ public class SimpleScanView extends ViewPart {
 		gl_composite.marginWidth = 0;
 		gl_composite.marginHeight = 0;
 		composite.setLayout(gl_composite);
-        
+
         posComposite = new PosComposite(composite, SWT.NONE, bean);
         addDevicesComposite = new AddDevicesComposite(composite, SWT.NONE, bean);
 		simpleScanComposite = new SimpleScanComposite(parent, SWT.NONE, bean);
-		
-		
+
+
 		addDevicesComposite.getAddScannable().addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -126,7 +126,7 @@ public class SimpleScanView extends ViewPart {
 				}
 				updateBeans();
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
@@ -142,7 +142,7 @@ public class SimpleScanView extends ViewPart {
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
-		
+
 
 		addDevicesComposite.getAddDetector().addSelectionListener(new SelectionListener() {
 			@Override
@@ -160,7 +160,7 @@ public class SimpleScanView extends ViewPart {
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
-		
+
 		addDevicesComposite.getRemoveDetector().addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -172,7 +172,7 @@ public class SimpleScanView extends ViewPart {
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
-		
+
 		getSite().getPage().addPartListener(partListener);
 	}
 
@@ -180,15 +180,15 @@ public class SimpleScanView extends ViewPart {
 		posComposite.setBean(bean);
 		addDevicesComposite.setBean(bean);
 		simpleScanComposite.setBean(bean);
-		
+
 		addDevicesComposite.updateScannables();
 		posComposite.updateScannables();
 		simpleScanComposite.updateScannables();
-		
+
 		addDevicesComposite.updateDetectors();
 		simpleScanComposite.updateDetectors();
 	}
-	
+
 	@Override
 	public void setFocus() {
 	}

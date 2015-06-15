@@ -36,7 +36,7 @@ public class IcatProvider {
 	/**
 	 * Returns the singleton instance. If not already defined then uses the given IcatConnectionDetails when creating
 	 * the singleton.
-	 * 
+	 *
 	 * @return a new Icat instance based on the given connection details
 	 * @throws Exception
 	 */
@@ -65,13 +65,13 @@ public class IcatProvider {
 					+ Icat.ICAT_TYPE_PROP + ")", e);
 		}
 
-		
+
 		return theInstance;
 	}
 
 	/**
 	 * clears the singleton instance, if it exists. Used to re-initialise the environment for testing.
-	 * 
+	 *
 	 */
 	public static synchronized void deleteInstance() {
 		if (theInstance != null) {

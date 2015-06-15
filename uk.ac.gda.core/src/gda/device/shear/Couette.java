@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
  * Class to control the Couette shear cell
  */
 public class Couette extends DeviceBase implements Runnable, Shear {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Couette.class);
-	
+
 	private final static int IDLE = 0;
 
 	private final static int CONTINUOUS = 1;

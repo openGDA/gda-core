@@ -43,7 +43,7 @@ public class EnumpositionerAdapter extends ScannableAdapter implements EnumPosit
 
 	/**
 	 * Constructor. Calls super contructor.
-	 * 
+	 *
 	 * @param obj
 	 * @param name
 	 * @param netService

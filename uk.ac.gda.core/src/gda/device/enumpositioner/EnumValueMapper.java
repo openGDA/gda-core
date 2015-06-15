@@ -23,7 +23,7 @@ import gda.device.DeviceException;
 public interface EnumValueMapper<T> {
 
 	/**
-	 * 
+	 *
 	 * @param internalValue value for which external value is to be found
 	 * @return External representation of internalValue
 	 * @throws IllegalArgumentException - if there is no external representation for internalValue
@@ -31,7 +31,7 @@ public interface EnumValueMapper<T> {
 	String getExternalValue(T internalValue) throws IllegalArgumentException;
 
 	/**
-	 * 
+	 *
 	 * @param externalValue value for which internal value is to be found
 	 * @return Internal representation of externalValue
 	 * @throws IllegalArgumentException - if there is no internal representation for externalValue
@@ -39,7 +39,7 @@ public interface EnumValueMapper<T> {
 	T getInternalValue(String externalValue) throws IllegalArgumentException;
 
 	/**
-	 * 
+	 *
 	 * @param externalValueToCheck
 	 * @return true if valid, false if not
 	 * @throws IllegalArgumentException - if not valid

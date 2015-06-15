@@ -45,14 +45,14 @@ public abstract class DetectorConfiguration implements Configurable, Findable {
 		if (var != null && getBeanClass().isInstance(var)){
 			return var;
 		}
-		
+
 		String path;
 		if (var != null){
 			 path = dir + var;
 		} else {
 			path = dir;
 		}
-		
+
 		if (!path.endsWith(".xml")){
 			path = path + ".xml";
 		}
@@ -63,7 +63,7 @@ public abstract class DetectorConfiguration implements Configurable, Findable {
 
 	/**
 	 * Writes the bean to file and deals with any synchronisation if needed.
-	 * 
+	 *
 	 * @param bean
 	 * @param templateFile
 	 * @throws Exception

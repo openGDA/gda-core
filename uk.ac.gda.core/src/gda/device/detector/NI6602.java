@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
  * jNI6602 need to be in the Windows system directory.
  */
 public class NI6602 extends gda.device.detector.DetectorBase implements Detector {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(NI6602.class);
-	
+
 	private static final String NI6602LibraryName = "jNI6602_GDA_v6.12.0";
 
 	// Local variables
@@ -230,7 +230,7 @@ public class NI6602 extends gda.device.detector.DetectorBase implements Detector
 	/**
 	 * Sets up a single specified timing period and allows the counter-timer to proceed asynchronously. The end of
 	 * period can be determined by calls to getStatus() returning 0 if idle, 1 if counting or 2 if paused.
-	 * 
+	 *
 	 * @param time
 	 *            the requested counting time in milliseconds
 	 * @throws DeviceException
@@ -314,7 +314,7 @@ public class NI6602 extends gda.device.detector.DetectorBase implements Detector
 
 	/**
 	 * Returns the current counting state of the counter-timer All counter-timers must fully implement this.
-	 * 
+	 *
 	 * @return BUSY if the counter-timer has not finished the requested operation(s), IDLE if in an completely idle
 	 *         state and PAUSED if temporarily suspended.
 	 * @throws DeviceException
@@ -342,7 +342,7 @@ public class NI6602 extends gda.device.detector.DetectorBase implements Detector
 
 	/**
 	 * Starts the counter counting for the period set up by the countAsync method
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void start() throws DeviceException {
@@ -363,7 +363,7 @@ public class NI6602 extends gda.device.detector.DetectorBase implements Detector
 	/**
 	 * Aborts any current counter-timing operations and returns it to an idle state. This should not register errors if
 	 * there are no current operations in progress. All counter-timers must fully implement this.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -383,7 +383,7 @@ public class NI6602 extends gda.device.detector.DetectorBase implements Detector
 
 	/**
 	 * Returns an array of size give by getTotalChans method containing the latest measured counts.
-	 * 
+	 *
 	 * @return array of all channel readout values
 	 * @throws DeviceException
 	 */
@@ -409,7 +409,7 @@ public class NI6602 extends gda.device.detector.DetectorBase implements Detector
 
 	/**
 	 * Returns the data array converted to a String (mostly for debugging purposes
-	 * 
+	 *
 	 * @return a string version of the data array
 	 */
 	private String dataToString() {

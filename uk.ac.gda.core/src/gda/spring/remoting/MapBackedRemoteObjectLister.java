@@ -26,11 +26,11 @@ import java.util.Map;
 public class MapBackedRemoteObjectLister implements RemoteObjectLister {
 
 	private Map<String, String> availableObjects;
-	
+
 	public MapBackedRemoteObjectLister(Map<String, String> objects) {
 		availableObjects = objects;
 	}
-	
+
 	@Override
 	public Map<String, String> getAvailableObjects() {
 		return availableObjects;

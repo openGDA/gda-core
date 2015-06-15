@@ -45,8 +45,8 @@ public class ModifyCrysalisHeader implements Closeable {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 
 	public void editIntHeader(String field, int newVal) throws IOException {
 		int generalOffset = 256;

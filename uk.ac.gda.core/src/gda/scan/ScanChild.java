@@ -18,8 +18,8 @@
 
 package gda.scan;
 
-public interface ScanChild { 
-	
+public interface ScanChild {
+
 	/**
 	 * @return The parent scan if this scan is nested
 	 */
@@ -30,6 +30,6 @@ public interface ScanChild {
 	 *            The parent of this scan if this scan is nested
 	 */
 	void setParent(NestableScan parent);
-	
+
 
 }

@@ -32,7 +32,7 @@ public class SimpleLegendItem extends LegendItem {
 
 	/**
 	 * Creates a LegendItem by extracting the necessary information from the supplied SimpleXYSeries.
-	 * 
+	 *
 	 * @param sxys
 	 *            the SimpleXYSeries
 	 */
@@ -45,7 +45,7 @@ public class SimpleLegendItem extends LegendItem {
 
 	/**
 	 * Returns the SimpleXYSeries
-	 * 
+	 *
 	 * @return the SimpleXYSeries
 	 */
 	public SimpleXYSeries getSeries() {

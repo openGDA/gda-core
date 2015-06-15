@@ -35,24 +35,24 @@ public class RbacBeanPostProcessor extends BeanPostProcessorAdapter {
 	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (bean instanceof Findable) {
 			Findable f = (Findable) bean;
-			
+
 			// Don't wrap the Findable if it is a cglib proxy
 			if (RbacUtils.objectIsCglibProxy(f)) {
 				return bean;
 			}
-			
+
 			// Handle adapters, as done by AdapterFactory
 			else if (CorbaUtils.isCorbaAdapter(f)) {
 				bean = RbacUtils.buildProxy(f);
 			}
-			
+
 			// Handle 'standard' objects, as done by ObjectFactory.buildProxies
 			else {
 				bean = RbacUtils.wrapFindableWithInterceptor(f);
 			}
 		}
-		
+
 		return bean;
 	}
-	
+
 }

@@ -42,7 +42,7 @@ class Path {
 
 	/**
 	 * Create an new path from a start point and a relative or absolute path.
-	 * 
+	 *
 	 * @param start
 	 * @param path
 	 */
@@ -97,7 +97,7 @@ class Path {
 
 	/**
 	 * To String method.
-	 * 
+	 *
 	 * @param start
 	 * @param stop
 	 * @return string

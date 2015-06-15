@@ -60,7 +60,7 @@ public class ScanFileContainer {
 
 	/**
 	 * Gets a copy of the Image data, in a 2D DataVector format.
-	 * 
+	 *
 	 * @return A new Datavector containing the image information.
 	 */
 	public DataVector getImage() {
@@ -69,7 +69,7 @@ public class ScanFileContainer {
 
 	/**
 	 * function to allow the location of the pilatus Conversion program to be set.
-	 * 
+	 *
 	 * @param fileName
 	 */
 	public void setPilatusConversionLocation(String fileName) {
@@ -79,19 +79,19 @@ public class ScanFileContainer {
 	/**
 	 * Loads a pilatus tiff from the specified file into the image datavector. This function curently requires the
 	 * collowing c++ program to be available
-	 * 
+	 *
 	 * <pre>
 	 *  #include &lt;stdio.h&gt;
 	 *  #include &lt;stdlib.h&gt;
 	 *  #include &quot;tiffio.h&quot;
-	 *  
+	 *
 	 *  //int main() {
-	 *  int main(int argc, char* argv[]) { 
-	 *  
+	 *  int main(int argc, char* argv[]) {
+	 *
 	 *  printf(&quot;TIFF Loader by Mark Basham\n&quot;);
-	 *  
+	 *
 	 *    TIFF* tif = TIFFOpen(argv[1], &quot;r&quot;);
-	 *  
+	 *
 	 *    if (tif) {
 	 *      //tdata_t *buf;
 	 *      uint8 *buf;
@@ -99,21 +99,21 @@ public class ScanFileContainer {
 	 *      uint32 i,j;
 	 *      uint32 pixelnumber;
 	 *      uint32 w, h;
-	 *      
+	 *
 	 *      uint32 * pixels;
-	 *  
-	 *      
+	 *
+	 *
 	 *      TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &amp;w);
 	 *      TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &amp;h);
-	 *      
+	 *
 	 *      pixels = (uint32*) malloc(w*h*sizeof(uint32));
-	 *  
+	 *
 	 *     printf(&quot;Size of image = %i %i total number of pixels = %i\n&quot;,w,h,w*h);
-	 *  
+	 *
 	 *      pixelnumber = 0;
-	 *  
+	 *
 	 *      buf = (uint8*)_TIFFmalloc(TIFFStripSize(tif));
-	 *      
+	 *
 	 *    for (strip = 0; strip &lt; TIFFNumberOfStrips(tif); strip++){
 	 *        uint32 size = TIFFReadEncodedStrip(tif,strip,buf,(tsize_t) -1);
 	 *        //printf(&quot;Strip number %i with %i bytes of data\n&quot;,strip,size);
@@ -125,50 +125,50 @@ public class ScanFileContainer {
 	 *       value = value + ((uint32)(buf[(j*4)+1]))*255;
 	 *       value = value + ((uint32)(buf[(j*4)+2]))*65025;
 	 *       value = value + ((uint32)(buf[(j*4)+3]))*16581375;
-	 *  
+	 *
 	 *       pixels[pixelnumber] = value;
-	 *  
+	 *
 	 *       //printf(&quot; 4 BYTE Sequence %i = %i %i %i %i %i\n&quot;,pixelnumber,buf[j*4],buf[(j*4)+1],buf[(j*4)+2],buf[(j*4)+3],value);
-	 *  
+	 *
 	 *     };
 	 *     pixelnumber++;
 	 *        };
 	 *      };
 	 *      _TIFFfree(buf);
-	 *      
+	 *
 	 *      printf(&quot;Size of image = %i %i total number of pixels = %i\n&quot;,w,h,w*h);
-	 *  
+	 *
 	 *      printf(&quot;Now save out the image as a basic file&quot;);
-	 *      
+	 *
 	 *      FILE *fp;
-	 *  
+	 *
 	 *      fp = fopen(argv[2],&quot;w&quot;);
-	 *  
+	 *
 	 *      // first print out the height, followed by the width of the image
 	 *      fprintf(fp,&quot;%i %i\n&quot;,h,w);
-	 *  
+	 *
 	 *      for(j = 0; j &lt; h; j++) {
 	 *        for(i = 0; i &lt; w ; i++) {
-	 *  
+	 *
 	 *     fprintf(fp,&quot;%i &quot;, pixels[(j*w)+i]);
 	 *        };
 	 *        fprintf(fp,&quot;\n&quot;);
 	 *      };
-	 *  
-	 *  
+	 *
+	 *
 	 *      fclose(fp);
-	 *  
+	 *
 	 *      free(pixels);
-	 *  
+	 *
 	 *    }
-	 *   
+	 *
 	 *    TIFFClose(tif);
-	 *  
+	 *
 	 *    return(0);
-	 *  
+	 *
 	 *  };
 	 * </pre>
-	 * 
+	 *
 	 * @param fileName
 	 *            The filename of the Pilatus tiff file
 	 */
@@ -230,7 +230,7 @@ public class ScanFileContainer {
 	/**
 	 * Loads data from the SRS datafile specified ! it is immportant however to understand that due to the limitations
 	 * of the SRS format, all the hardware devices used in the scan must still be present to read in the data.
-	 * 
+	 *
 	 * @param fileName
 	 *            Filename of the SRS file ###.dat
 	 */
@@ -278,7 +278,7 @@ public class ScanFileContainer {
 
 	/**
 	 * gets the double value of a single pixel from the image data
-	 * 
+	 *
 	 * @param xCoordinate
 	 *            The x coordinate of the Pixel
 	 * @param yCoordinate
@@ -295,7 +295,7 @@ public class ScanFileContainer {
 	 * This function takes all the entries for the specified axis accross all the lines in the file and returns the
 	 * result as a DataVector. This will be 1D if all the datavalues are singles, and 2D if they are 1D vectors
 	 * themselves.
-	 * 
+	 *
 	 * @param AxisName
 	 *            The name of the axis that is required
 	 * @return A copy of the 1 or 2D DataVector
@@ -349,7 +349,7 @@ public class ScanFileContainer {
 
 	/**
 	 * This function gets the axis information but transposes it, as to make for easier ploting
-	 * 
+	 *
 	 * @param AxisName
 	 *            the axis to grab
 	 * @return the transposed datavector
@@ -403,7 +403,7 @@ public class ScanFileContainer {
 
 	/**
 	 * Plots the axis named on the DataVectoer Gui
-	 * 
+	 *
 	 * @param axisName
 	 *            Name of the axis to plot
 	 */
@@ -441,7 +441,7 @@ public class ScanFileContainer {
 
 	/**
 	 * Plots the y axis against the x axis value, the x axis must be a 1D datavector
-	 * 
+	 *
 	 * @param xAxis
 	 *            Name of the axis whihc will be the x axis
 	 * @param yAxis
@@ -819,7 +819,7 @@ public class ScanFileContainer {
 
 	}
 
-	// FIXME this method doesn't do anything! I've put the @SuppressWarnings taggs in place rather than delete the 
+	// FIXME this method doesn't do anything! I've put the @SuppressWarnings taggs in place rather than delete the
 	// method as its usage suggest that it isa intended to do something...
 	private void sendToGui(@SuppressWarnings("unused") DataVector sendVector, @SuppressWarnings("unused") String Header) {
 
@@ -838,7 +838,7 @@ public class ScanFileContainer {
 
 	/**
 	 * This function gets the Y values of all the crossing points of the datavector with the particular X coordinate.
-	 * 
+	 *
 	 * @param XAxis
 	 *            Name of the X axis that needs to be looked at
 	 * @param YAxis
@@ -887,7 +887,7 @@ public class ScanFileContainer {
 
 	/**
 	 * This function gets the X values of all the crossing points of the datavector with the particular Y coordinate.
-	 * 
+	 *
 	 * @param XAxis
 	 *            Name of the X axis that needs to be looked at
 	 * @param YAxis
@@ -938,7 +938,7 @@ public class ScanFileContainer {
 	 * This function takes all the entries for the specified axis accross all the lines in the file and returns the
 	 * result as a DataVector. This will be 1D if all the datavalues are singles, and 2D if they are 1D vectors
 	 * themselves.
-	 * 
+	 *
 	 * @param deviceName
 	 *            The name of the axis that is required
 	 * @return A copy of the 1 or 2D DataVector

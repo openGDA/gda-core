@@ -22,18 +22,18 @@ package gda.jython.accesscontrol;
 import gda.device.Device;
 import gda.device.corba.impl.DeviceAdapter;
 import gda.factory.corba.util.NetService;
-import gda.jython.JythonServerFacade;
 import gda.jython.JythonServer.JythonServerThread;
+import gda.jython.JythonServerFacade;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import org.python.core.PyObject;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+
+import org.python.core.PyObject;
 
 /**
  * Implementation of the CGLIB MethodInterceptor interface. This object acts as a proxy around other objects and
@@ -49,7 +49,7 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 	/**
 	 * Factory method to create a copy of the supplied object encapsulated by an RBACInterceptor object. This object
 	 * should be used as a proxy to the original.
-	 * 
+	 *
 	 * @param theObject
 	 * @return the wrapped object
 	 */
@@ -73,7 +73,7 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 
 	/**
 	 * Factory method to create a DeviceAdapter wrapped in a CGLIB proxy for method interception.
-	 * 
+	 *
 	 * @param theCorbaDevice
 	 * @param theDevice
 	 * @param name
@@ -104,7 +104,7 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param theDevice
 	 */
 	public DeviceInterceptor(Device theDevice) {
@@ -140,7 +140,7 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see net.sf.cglib.proxy.MethodInterceptor#intercept(java.lang.Object, java.lang.reflect.Method,
 	 *      java.lang.Object[], net.sf.cglib.proxy.MethodProxy)
 	 */
@@ -203,7 +203,7 @@ public class DeviceInterceptor extends PyObject implements MethodInterceptor {
 		if (obj == this) {
 			return true;
 		}
-		
+
 		if (theObject instanceof DeviceAdapter && !(obj instanceof net.sf.cglib.proxy.Factory)) {
 			return this.theObject.equals(obj);
 		}

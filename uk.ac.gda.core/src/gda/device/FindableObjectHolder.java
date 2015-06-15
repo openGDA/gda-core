@@ -26,7 +26,7 @@ import java.util.Set;
 import org.python.core.PyString;
 import org.springframework.beans.factory.InitializingBean;
 
-/** 
+/**
  * Spring configurable Findable to hold a map of objects which are themselves not findable.
  */
 public class FindableObjectHolder implements InitializingBean, Findable{
@@ -37,7 +37,7 @@ public class FindableObjectHolder implements InitializingBean, Findable{
 	@Override
 	public void setName(String name) {
 		this.name =name;
-		
+
 	}
 
 	@Override
@@ -50,13 +50,13 @@ public class FindableObjectHolder implements InitializingBean, Findable{
 	public void setMap(Map<String, Object> map) {
 		this.map = map;
 	}
-	
-	
+
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if( object == map)
 			throw new IllegalArgumentException("map is null");
-		
+
 	}
 
 
@@ -67,14 +67,14 @@ public class FindableObjectHolder implements InitializingBean, Findable{
 	public Set<String> keySet() {
 		return map.keySet();
 	}
-	
-	
+
+
 	final Object __getattr__(String name) {
 		return map.get(name);
 	}
-	
+
 	public Object __getattr__(PyString name) {
 		return map.get(name.internedString());
-	}	
+	}
 
 }

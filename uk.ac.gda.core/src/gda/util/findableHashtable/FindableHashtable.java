@@ -25,7 +25,7 @@ import gda.factory.Findable;
 import gda.factory.Localizable;
 
 /**
- * 
+ *
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class FindableHashtable extends java.util.Hashtable implements gda.util.findableHashtable.Hashtable, Findable,

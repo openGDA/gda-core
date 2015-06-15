@@ -27,7 +27,7 @@ import gda.device.DeviceException;
 public interface Hashtable {
 	/**
 	 * Add a boolean entry to the hashtable.
-	 * 
+	 *
 	 * @param key
 	 *            Key for entry in hashtable.
 	 * @param value
@@ -38,7 +38,7 @@ public interface Hashtable {
 
 	/**
 	 * Get the value of a boolean entry from the hashtable.
-	 * 
+	 *
 	 * @param key
 	 *            Key for entry in hashtable.
 	 * @return Value for entry in hashtable.
@@ -48,7 +48,7 @@ public interface Hashtable {
 
 	/**
 	 * Add an integer entry to the hashtable.
-	 * 
+	 *
 	 * @param key
 	 *            Key for entry in hashtable.
 	 * @param value
@@ -59,7 +59,7 @@ public interface Hashtable {
 
 	/**
 	 * Get the value of an integer entry from the hashtable.
-	 * 
+	 *
 	 * @param key
 	 *            Key for entry in hashtable.
 	 * @return Value for entry in hashtable.
@@ -69,7 +69,7 @@ public interface Hashtable {
 
 	/**
 	 * Add a long entry to the hashtable.
-	 * 
+	 *
 	 * @param key
 	 *            Key for entry in hashtable.
 	 * @param value
@@ -80,7 +80,7 @@ public interface Hashtable {
 
 	/**
 	 * Get the value of a long entry from the hashtable.
-	 * 
+	 *
 	 * @param key
 	 *            Key for entry in hashtable.
 	 * @return Value for entry in hashtable.
@@ -90,7 +90,7 @@ public interface Hashtable {
 
 	/**
 	 * Add a float entry to the hashtable.
-	 * 
+	 *
 	 * @param key
 	 *            Key for entry in hashtable.
 	 * @param value
@@ -101,7 +101,7 @@ public interface Hashtable {
 
 	/**
 	 * Get the value of a float entry from the hashtable.
-	 * 
+	 *
 	 * @param key
 	 *            Key for entry in hashtable.
 	 * @return Value for entry in hashtable.
@@ -111,7 +111,7 @@ public interface Hashtable {
 
 	/**
 	 * Add a double entry to the hashtable.
-	 * 
+	 *
 	 * @param key
 	 *            Key for entry in hashtable.
 	 * @param value
@@ -122,7 +122,7 @@ public interface Hashtable {
 
 	/**
 	 * Get the value of a double entry from the hashtable.
-	 * 
+	 *
 	 * @param key
 	 *            Key for entry in hashtable.
 	 * @return Value for entry in hashtable.
@@ -132,7 +132,7 @@ public interface Hashtable {
 
 	/**
 	 * Add a string entry to the hashtable.
-	 * 
+	 *
 	 * @param key
 	 *            Key for entry in hashtable.
 	 * @param value
@@ -143,7 +143,7 @@ public interface Hashtable {
 
 	/**
 	 * Get the value of a string entry from the hashtable.
-	 * 
+	 *
 	 * @param key
 	 *            Key for entry in hashtable.
 	 * @return Value for entry in hashtable.
@@ -153,7 +153,7 @@ public interface Hashtable {
 
 	/**
 	 * Add an entry to the hashtable. The object needs to implement {@link java.io.Serializable}.
-	 * 
+	 *
 	 * @param key
 	 *            Key for entry in hashtable.
 	 * @param value
@@ -164,7 +164,7 @@ public interface Hashtable {
 
 	/**
 	 * Get the value of an entry from the hashtable.
-	 * 
+	 *
 	 * @param key
 	 *            Key for entry in hashtable.
 	 * @return Value for entry in hashtable.

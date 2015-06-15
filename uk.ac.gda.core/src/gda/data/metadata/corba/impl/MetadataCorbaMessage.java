@@ -23,10 +23,10 @@ import gda.data.metadata.corba.CorbaMetadataEntry;
 import java.io.Serializable;
 
 public class MetadataCorbaMessage implements Serializable{
-	
+
 	CorbaMetadataEntry metadataObj;
 	Serializable arg;
-	
+
 	public MetadataCorbaMessage(CorbaMetadataEntry metadataObj, Serializable arg) {
 		super();
 		this.metadataObj = metadataObj;

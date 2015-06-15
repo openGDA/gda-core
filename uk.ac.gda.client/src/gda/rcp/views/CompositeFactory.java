@@ -21,7 +21,7 @@ package gda.rcp.views;
 import org.eclipse.swt.widgets.Composite;
 
 /**
- * Interface for Factories that create composites. 
+ * Interface for Factories that create composites.
  * Part of work to allow views to be configured in Spring
  */
 

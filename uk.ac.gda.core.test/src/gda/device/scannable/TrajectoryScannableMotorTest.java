@@ -34,7 +34,7 @@ import org.junit.Test;
 public class TrajectoryScannableMotorTest {
 
 	TrajectoryScannableMotor tsm;
-	
+
 	private TrajectoryMoveController controller;
 
 	private Motor motor;
@@ -60,7 +60,7 @@ public class TrajectoryScannableMotorTest {
 		tsm.asynchronousMoveTo(2.1);
 		assertFalse(tsm.isBusy());
 		tsm.waitWhileBusy();
-		
+
 		verify(motor, never()).moveTo(anyDouble());
 		verify(controller).addPoint(new Double[] {null, null, 1.1, null});
 		verify(controller).addPoint(new Double[] {null, null, 2.1, null});

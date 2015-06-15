@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * nothing.
  */
 public class TfgEncoderCounter extends TFGCounterTimer implements CounterTimer {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(TfgEncoderCounter.class);
 
 	private Memory encoderCounter = null;
@@ -67,7 +67,7 @@ public class TfgEncoderCounter extends TFGCounterTimer implements CounterTimer {
 	 * Returns the total number of available counter-timer readout channels that will be returned by calls to
 	 * readChans() For a time-framing device it is the number of channels per frame. All counter-timers must fully
 	 * implement this.
-	 * 
+	 *
 	 * @return total number of readout channels
 	 * @throws DeviceException
 	 */
@@ -103,7 +103,7 @@ public class TfgEncoderCounter extends TFGCounterTimer implements CounterTimer {
 	 * Obtain an array of available readout channels. This should be available at any time. If the hardware does not
 	 * allow it during active counter-timing periods, it should return zero values. High level counter-timers may return
 	 * values in user units. All counter-timers must fully implement this.
-	 * 
+	 *
 	 * @return array of all channel readout values
 	 * @throws DeviceException
 	 */
@@ -114,7 +114,7 @@ public class TfgEncoderCounter extends TFGCounterTimer implements CounterTimer {
 	/**
 	 * For a time framing counter-timer, read out a specified channel beginning from the specified start frame number
 	 * using the requested frame count.
-	 * 
+	 *
 	 * @return array of requested readout counter-timer data
 	 * @param startFrame
 	 *            starting frame number (1st=0)
@@ -132,7 +132,7 @@ public class TfgEncoderCounter extends TFGCounterTimer implements CounterTimer {
 	/**
 	 * For a time framing counter-timer, read out a specified channel beginning from the specified start frame number
 	 * using the requested frame count.
-	 * 
+	 *
 	 * @return array of requested readout counter-timer data
 	 * @param startChannel
 	 *            starting channel number (1st=0)

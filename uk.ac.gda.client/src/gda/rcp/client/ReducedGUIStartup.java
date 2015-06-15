@@ -94,7 +94,7 @@ public class ReducedGUIStartup implements IStartup {
 	}
 
 	private boolean checkRunFullGUI() {
-		
+
 		// Override any baton behaviour if member of local staff and *do* run full gui.
 		try {
 			if (AuthoriserProvider.getAuthoriser().isLocalStaff(UserAuthentication.getUsername())) {

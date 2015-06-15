@@ -29,11 +29,11 @@ public class FindableGroupCompositeFactory extends GroupCompositeFactory impleme
 //	}
 
 	private String name;
-	
+
 	@Override
 	public void setName(String name) {
 		this.name = name;
-		
+
 	}
 
 	@Override
@@ -43,7 +43,7 @@ public class FindableGroupCompositeFactory extends GroupCompositeFactory impleme
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		
+
 	}
 
 

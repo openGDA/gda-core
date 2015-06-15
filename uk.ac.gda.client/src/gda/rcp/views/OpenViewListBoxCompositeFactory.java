@@ -41,7 +41,7 @@ public class OpenViewListBoxCompositeFactory implements CompositeFactory, Initia
 			throw new IllegalArgumentException("label is null");
 		if( options == null)
 			throw new IllegalArgumentException("options is null");
-		
+
 	}
 
 	@Override

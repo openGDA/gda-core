@@ -47,7 +47,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param analyser
 	 *            the Analyser implementation object
 	 * @param poa
@@ -61,7 +61,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Analyser implementation object
 	 */
 	public Analyser _delegate() {
@@ -70,7 +70,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param analyser
 	 *            set the Analyser implementation object
 	 */
@@ -288,12 +288,12 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 		detectorImpl.setCollectionTime(time);
 
 	}
-	
+
 	@Override
 	public double getCollectionTime() throws CorbaDeviceException {
 		return detectorImpl.getCollectionTime();
 	}
-	
+
 	@Override
 	public int getStatus() throws CorbaDeviceException {
 		try {
@@ -566,7 +566,7 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 	public boolean isAt(Any arg0) throws CorbaDeviceException {
 		return detectorImpl.isAt(arg0);
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return detectorImpl.getProtectionLevel();
@@ -576,12 +576,12 @@ public class AnalyserImpl extends CorbaAnalyserPOA {
 	public void setProtectionLevel(int newLevel) throws CorbaDeviceException {
 		detectorImpl.setProtectionLevel(newLevel);
 	}
-	
+
 	@Override
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		detectorImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		detectorImpl.atCommandFailure();

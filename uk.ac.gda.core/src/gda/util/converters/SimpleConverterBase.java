@@ -26,7 +26,7 @@ import org.jscience.physics.quantities.Quantity;
  * {@link IReloadableQuantitiesConverter} interface.
  */
 public abstract class SimpleConverterBase implements IConverter<Quantity, Quantity> {
-	
+
 	protected IReloadableQuantitiesConverter converter;
 
 	@Override
@@ -51,5 +51,5 @@ public abstract class SimpleConverterBase implements IConverter<Quantity, Quanti
 	public IReloadableQuantitiesConverter getConverter() {
 		return converter;
 	}
-	
+
 }

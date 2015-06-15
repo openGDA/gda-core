@@ -19,9 +19,6 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
@@ -29,19 +26,22 @@ import gda.factory.Finder;
 import gda.observable.IObservable;
 import gda.util.Sleep;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * CrystalLogicMotor Class
  */
 public class CrystalLogicMotor extends MotorBase implements IObservable, Motor, Runnable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(CrystalLogicMotor.class);
-	
+
 	private enum commandStatus {
 		/**
-		 * 
+		 *
 		 */
 		SUCCESS, /**
-		 * 
+		 *
 		 */
 		TIMEOUT
 	}

@@ -52,7 +52,7 @@ public class ChannelServer {
 
 	/**
 	 * Main entry point for running the channel server as a standalone application.
-	 * 
+	 *
 	 * @param args
 	 *            command-line arguments
 	 */
@@ -96,7 +96,7 @@ public class ChannelServer {
 
 	/**
 	 * Creates a new channel server with the specified name.
-	 * 
+	 *
 	 * @param eventChannelName
 	 *            the event channel name
 	 * @param orb
@@ -109,7 +109,7 @@ public class ChannelServer {
 
 	/**
 	 * Sets the event channel name for this channel server.
-	 * 
+	 *
 	 * @param eventChannelName
 	 *            the event channel name
 	 */
@@ -119,7 +119,7 @@ public class ChannelServer {
 
 	/**
 	 * Sets the ORB that the channel server should use.
-	 * 
+	 *
 	 * @param orb
 	 *            an ORB
 	 */
@@ -151,7 +151,7 @@ public class ChannelServer {
 			}
 			if (fileDir == null)
 				fileDir = "/tmp";
-			
+
 			// Create 'initialisation complete' folder if it doesn't exist
 			final File fileDirAsFile = new File(fileDir);
 			if (!fileDirAsFile.exists()) {
@@ -161,7 +161,7 @@ public class ChannelServer {
 					logger.error(fileDirAsFile + " didn't exist and it could not be created");
 				}
 			}
-			
+
 			File oos = new File(fileDir + File.separator + "event_server_startup");
 			try {
 				oos.createNewFile();

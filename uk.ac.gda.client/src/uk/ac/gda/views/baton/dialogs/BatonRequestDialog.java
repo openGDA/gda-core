@@ -42,12 +42,12 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.preferences.PreferenceConstants;
 import uk.ac.gda.views.baton.BatonView;
 
-public class BatonRequestDialog extends Dialog {	
+public class BatonRequestDialog extends Dialog {
 	private static final Logger logger = LoggerFactory.getLogger(BatonRequestDialog.class);
 	private Label lblARequestFor;
 	private ClientDetails request;
 	private boolean open = true;
-	
+
 	public static void doPassBaton(Shell shell, final BatonRequested request) {
 		final boolean keepBaton = GDAClientActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.KEEP_BATON);
 		BatonRequestDialog.openPassBatonForm(shell, request.getRequester(), keepBaton);
@@ -68,9 +68,9 @@ public class BatonRequestDialog extends Dialog {
 	 */
 	@Override
 	protected Control createDialogArea(Composite parent) {
-		
+
 		getShell().setText(String.format("%s has requested the baton", request.getUserID()));
-		
+
 		Composite container = (Composite) super.createDialogArea(parent);
 		{
 			lblARequestFor = new Label(container, SWT.NONE);
@@ -98,21 +98,21 @@ public class BatonRequestDialog extends Dialog {
 	protected Point getInitialSize() {
 		return new Point(450, 177);
 	}
-	
+
 	public static void openPassBatonForm(final Shell shell, final ClientDetails request, boolean batonAlwaysHeld) {
-				
+
 		final BatonRequestDialog currentOpenDialog = new BatonRequestDialog(shell, request);
-		
+
 		if (!batonAlwaysHeld) { // We close it in 2 minutes.
 			Job job = new Job("Automatically accepting baton change.") {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
- 					
+
 					if (!currentOpenDialog.isOpen()) {
 						return new Status(IStatus.OK, BatonView.ID, "Choosing ok for the user.");
 					}
 					try {
-						
+
 						final Shell shell = currentOpenDialog.getShell();
 						if (shell==null) return new Status(IStatus.OK, BatonView.ID, "Choosing ok for the user.");
 						shell.getDisplay().asyncExec(new Runnable() {
@@ -122,7 +122,7 @@ public class BatonRequestDialog extends Dialog {
 							}
 						});
 						return new Status(IStatus.OK, BatonView.ID, "Choosing ok for the user.");
-						
+
 					} catch (Exception ne) {
 						logger.error("Cannot process dialog kill", ne);
 						return  new Status(IStatus.ERROR, BatonView.ID, "Choosing ok for the user.");
@@ -132,11 +132,11 @@ public class BatonRequestDialog extends Dialog {
 			job.setUser(false);
 			job.setSystem(true);
 			job.setThread(Display.getDefault().getThread());
-			
+
 			final int minutes = GDAClientActivator.getDefault().getPreferenceStore().getInt(PreferenceConstants.BATON_REQUEST_TIMEOUT);
 			job.schedule(minutes*60*1000);// 2 minutes.
 		}
- 		
+
 		final int returnCode = currentOpenDialog.open();
 		currentOpenDialog.setOpen(false);
 		doPass(request, returnCode == OK);

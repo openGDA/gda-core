@@ -28,14 +28,14 @@ import org.slf4j.LoggerFactory;
 
 class CVScannable extends ScannableBase implements ConstantVelocityMoveController{
 	private static final Logger logger = LoggerFactory.getLogger(CVScannable.class);
-	
+
 	private double triggerPeriod;
 	private double end;
 	private double step;
 	private double start;
 	Scannable scannableBeingMoved;
-	
-	
+
+
 	public Scannable getScannableBeingMoved() {
 		return scannableBeingMoved;
 	}
@@ -100,7 +100,7 @@ class CVScannable extends ScannableBase implements ConstantVelocityMoveControlle
 
 	@Override
 	public void setStart(double start) throws DeviceException {
-		logger.info("setStart:" + start); 
+		logger.info("setStart:" + start);
 		this.start = start;
 	}
 
@@ -116,5 +116,5 @@ class CVScannable extends ScannableBase implements ConstantVelocityMoveControlle
 		this.step = step;
 
 	}
-	
+
 }

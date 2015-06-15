@@ -84,7 +84,7 @@ public class ConvertorScannableTest {
 		scannable = new ConvertorScannable("beamstopToSample", bsx, converterx);
 		assertTrue(scannable.checkPositionValid(4.5) == null);
 		assertTrue(scannable.checkPositionValid(5.5) != null);
-		
+
 		scannable.setUserUnits("micron");
 		assertTrue(scannable.checkPositionValid(4500) == null);
 		assertTrue(scannable.checkPositionValid(5500) != null);
@@ -120,7 +120,7 @@ public class ConvertorScannableTest {
 		assertEquals(0.22419773646390695, bsx.getPosition());
 
 	}
-	
+
 	@Test
 	public void testConverterDoesNotHandleTtoS() throws DeviceException {
 		bsx = new DummyUnitsScannable("bsx", 0, "mm", "mm");
@@ -132,14 +132,14 @@ public class ConvertorScannableTest {
 		scannable = new ConvertorScannable("beamstopToSample", bsx, converterx);
 		Double valToSend = new Double(5000.);
 		scannable.asynchronousMoveTo(valToSend);
-		
+
 		//move outside of the convertorscannable
 		bsx.asynchronousMoveTo(10.);
 
 		Object position = scannable.getPosition();
 		//should return last value sent rather than convert the position of the underlying scannable
 		assertEquals(valToSend, position);
-		
+
 	}
 
 	@Test
@@ -155,18 +155,18 @@ public class ConvertorScannableTest {
 		Double valToSendToBSX = new Double(10.);
 		bsx.asynchronousMoveTo(valToSendToBSX);
 		Object valForBSX10 = scannable.getPosition();
-		
+
 		Double valToSend = new Double(5000.);
 		scannable.asynchronousMoveTo(valToSend);
 
 		//move outside of the converter
 		bsx.asynchronousMoveTo(valToSendToBSX);
-		
-		
+
+
 		Object position = scannable.getPosition();
 		//should return converted the position of the underlying scannable
 		assertEquals(valForBSX10, position);
-		
+
 	}
 
 }

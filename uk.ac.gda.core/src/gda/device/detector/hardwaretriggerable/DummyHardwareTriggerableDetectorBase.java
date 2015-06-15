@@ -31,16 +31,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class DummyHardwareTriggerableDetectorBase extends HardwareTriggerableDetectorBase implements SimulatedTriggerObserver {
-	private static final Logger logger = LoggerFactory.getLogger(DummyHardwareTriggerableDetectorBase.class);	
+	private static final Logger logger = LoggerFactory.getLogger(DummyHardwareTriggerableDetectorBase.class);
 	final ITerminalPrinter terminal = InterfaceProvider.getTerminalPrinter();
-	
+
 	public boolean simulate = false;
-	
+
 	public CountDownLatch simulatedCollectionComplete;
 
 	private int status = Detector.IDLE;
 	private boolean integrating = false;
-	
+
 	@Override
 	public void collectData() throws DeviceException {
 		if (simulate) {
@@ -61,14 +61,14 @@ public abstract class DummyHardwareTriggerableDetectorBase extends HardwareTrigg
 	public int getStatus() {
 		return status;
 	}
-	
+
 	void setStatus(int status) {
 		this.status = status;
 	}
 
 	class MakeIdleWhenSimulatedCollectionComplete implements Runnable {
 
-		
+
 		private final String name;
 		public MakeIdleWhenSimulatedCollectionComplete(String name) {
 			this.name = name;
@@ -85,7 +85,7 @@ public abstract class DummyHardwareTriggerableDetectorBase extends HardwareTrigg
 			}
 		}
 	}
-	
+
 	@Override
 	public void update(Object source, Object arg){
 		try {
@@ -97,14 +97,14 @@ public abstract class DummyHardwareTriggerableDetectorBase extends HardwareTrigg
 	}
 
 	abstract void simulatedTriggerRecieved() throws DeviceException ;
-	
+
 	@Override
 	public boolean integratesBetweenPoints() {
 		return integrating;
 	}
-	
+
 	public void setIntegrating(boolean b) {
 		integrating = b;
 	}
-	
+
 }

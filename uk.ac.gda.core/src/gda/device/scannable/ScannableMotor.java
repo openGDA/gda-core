@@ -79,7 +79,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	private MotorLimitsComponent motorLimitsComponent;
 
 	private static final String IS_BUSY_THROWS_EXCEPTION_WHEN_MOTOR_GOES_INTO_FAULT = "gda.device.scannable.ScannableMotor.isBusyThrowsExceptionWhenMotorGoesIntoFault";
-	
+
 	private boolean isBusyThrowsExceptionWhenMotorGoesIntoFault = LocalProperties.check(IS_BUSY_THROWS_EXCEPTION_WHEN_MOTOR_GOES_INTO_FAULT, true);
 
 	private boolean returnDemandPosition = false;
@@ -94,7 +94,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	private boolean isDemandPositionToleranceSet = false;
 
 	private boolean pollBlockingMotorsStatus = false;
-	
+
 	private boolean logMoveRequestsWithInfo = false;
 
 	/**
@@ -105,7 +105,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	/**
 	 * Sets the motor used by this scannable motor.
-	 * 
+	 *
 	 * @param motor
 	 *            the motor
 	 */
@@ -118,7 +118,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	/**
 	 * Method required by scripts which need to access the real motor at times. Before the script could get the motor
 	 * name but now that the motor may be set by spring, scripts cannot get the underlying motor.
-	 * 
+	 *
 	 * @return Motor
 	 */
 	public Motor getMotor() {
@@ -279,7 +279,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	 * Return the last demanded motor/internal position if one has been set, otherwise return the current position. If
 	 * the motor is stopped, and the actual position is not close to the the demand position, then the current position
 	 * is returned instead.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public Object rawGetDemandPosition() throws DeviceException {
@@ -328,7 +328,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	/**
 	 * Set the position
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void setPosition(Object position) throws DeviceException {
@@ -341,7 +341,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	/**
 	 * Return the last demanded user/external position if one has been set. If the motor is stopped, and the actual
 	 * position is not close to the the demand position, then the current position is returned instead.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public Object getDemandPosition() throws DeviceException {
@@ -408,7 +408,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	/**
 	 * Returns the lower motor limit in its external representation. Null if there is no lower Motor limit.
-	 * 
+	 *
 	 * @return limit in external representation
 	 * @throws DeviceException
 	 */
@@ -427,7 +427,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	/**
 	 * Returns the upper motor limit in its external representation. Null if there is no upper Motor limit.
-	 * 
+	 *
 	 * @return limit in external representation
 	 * @throws DeviceException
 	 */
@@ -446,7 +446,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	/**
 	 * Returns the innermost (i.e. the most limiting) of the lower Scannable and Motor limits.
-	 * 
+	 *
 	 * @return the highest minimum limit, or null if neither are set.
 	 * @throws DeviceException
 	 */
@@ -465,7 +465,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	/**
 	 * Returns the innermost (i.e. the most limiting) of the upper Scannable and Motor limits.
-	 * 
+	 *
 	 * @return the lowest maximum limit, or null if neither are set.
 	 * @throws DeviceException
 	 */
@@ -537,7 +537,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	/**
 	 * Get the speed of the underlying motor
-	 * 
+	 *
 	 * @return speed in the motor's units
 	 * @throws DeviceException
 	 */
@@ -556,7 +556,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 
 	/**
 	 * Set the speed of the underlying motor
-	 * 
+	 *
 	 * @param theSpeed
 	 *            in the motor's units
 	 * @throws DeviceException
@@ -675,7 +675,7 @@ public class ScannableMotor extends ScannableMotionUnitsBase implements IObserve
 	 * If true, calls to {@link #rawGetPosition()} will return the last demanded position. If the current position is
 	 * greater than demandPositionTolerance from the last demanded position the actual current position is returned and
 	 * a warning logged and displayed on the console.
-	 * 
+	 *
 	 * @param returnDemandPosition
 	 */
 	public void setReturnDemandPosition(boolean returnDemandPosition) {

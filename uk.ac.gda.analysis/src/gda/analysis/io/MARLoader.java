@@ -20,7 +20,7 @@ package gda.analysis.io;
 
 /**
  * This class will read the MAR 300 image file type
- * 
+ *
  * This class is a sub class of the JavaImageLoader class. This reads the image
  * data. The following method initially reads the default tiff header while the
  * following reads the MAR specific headers. All information is read into a

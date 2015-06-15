@@ -33,7 +33,7 @@ public class ProjectObjectAlreadyExistException extends IllegalArgumentException
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param text
 	 */
 	public ProjectObjectAlreadyExistException(String text) {

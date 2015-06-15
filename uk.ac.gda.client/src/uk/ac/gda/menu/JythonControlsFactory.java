@@ -34,15 +34,15 @@ import org.eclipse.ui.services.IServiceLocator;
 import com.swtdesigner.ResourceManager;
 
 /**
- * We have to implement these actions in code because they connect to the server and 
+ * We have to implement these actions in code because they connect to the server and
  * have complex logic as to when they are enabled.
  */
 public class JythonControlsFactory extends ExtensionContributionFactory {
-	
+
 	private static ActionContributionItem pauseScan;
 	private static ActionContributionItem haltScan;
 	private static Boolean controlsEnabled = true;
-	
+
 	public static void enableUIControls(){
 		controlsEnabled = true;
 		enableControls();
@@ -52,13 +52,13 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 		enableControl(pauseScan);
 		enableControl(haltScan);
 	}
-	
+
 	private static void enableControl(ActionContributionItem item) {
 		if (item != null) {
 			item.getAction().setEnabled(controlsEnabled);
 		}
 	}
-	
+
 	public static void disableUIControls(){
 		controlsEnabled = false;
 		enableControls();
@@ -66,25 +66,25 @@ public class JythonControlsFactory extends ExtensionContributionFactory {
 
 	@Override
 	public void createContributionItems(final IServiceLocator serviceLocator, IContributionRoot additions) {
-		
+
 		additions.addContributionItem(new Separator(), Expression.TRUE);
 
 		haltScan = createHaltAction(serviceLocator, "Fast forward to end of scan", "uk.ac.gda.client.jython.HaltScan", "/control_fastforward_blue.png");
 		additions.addContributionItem(haltScan, Expression.TRUE);
-		
+
 		additions.addContributionItem(new Separator(), Expression.TRUE);
 
 		pauseScan = createPauseAction(serviceLocator, "Pause Current Scan/Script", "uk.ac.gda.client.jython.PauseScan", "/control_pause_blue.png");
 		additions.addContributionItem(pauseScan, Expression.TRUE);
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);
-		
+
 		CommandContributionItemParameter abortCommandsAction = new CommandContributionItemParameter(serviceLocator, null, "uk.ac.gda.client.AbortCommands", null, ResourceManager.getImageDescriptor(JythonControlsFactory.class, "/control_stop_blue.png"), null, null, "Abort all running commands, scripts and scans", null, null, SWT.PUSH, null, false);
 		final CommandContributionItem    abortCommandsItem = new CommandContributionItem(abortCommandsAction);
 		additions.addContributionItem(abortCommandsItem, Expression.TRUE);
 
 		CommandContributionItemParameter beamlineHaltAction = new CommandContributionItemParameter(serviceLocator, null, "uk.ac.gda.client.StopAll", null, ResourceManager.getImageDescriptor(JythonControlsFactory.class, "/stop.png"), null, null, "Call stop on all beamline commands and hardware", null, null, SWT.PUSH, null, false);
-		final CommandContributionItem    beamlineHaltItem = new CommandContributionItem(beamlineHaltAction);		
+		final CommandContributionItem    beamlineHaltItem = new CommandContributionItem(beamlineHaltAction);
 		additions.addContributionItem(beamlineHaltItem, Expression.TRUE);
 
 		additions.addContributionItem(new Separator(), Expression.TRUE);

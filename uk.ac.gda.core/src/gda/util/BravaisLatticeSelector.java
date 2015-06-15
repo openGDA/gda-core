@@ -41,9 +41,9 @@ import org.slf4j.LoggerFactory;
  * A class for selection of a space group.
  */
 public class BravaisLatticeSelector extends JButton implements MouseListener, ActionListener, IObservable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(BravaisLatticeSelector.class);
-	
+
 	private static String unknown = "unknown";
 
 	private String[] primitiveTriclinic = { "P1" };
@@ -147,7 +147,7 @@ public class BravaisLatticeSelector extends JButton implements MouseListener, Ac
 
 	/**
 	 * Make set of MenuItems and add to the JMenu menu then adds the JMenu to JPopupMenu popup
-	 * 
+	 *
 	 * @param items
 	 *            String names of MenuItems to be added
 	 * @param menu

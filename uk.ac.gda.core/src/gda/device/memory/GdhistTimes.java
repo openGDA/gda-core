@@ -46,7 +46,7 @@ public class GdhistTimes extends Scaler {
 			sendAndParse("startup script", command);
 		}
 	}
-	
+
 	@Override
 	public void clear() throws DeviceException {
 	}

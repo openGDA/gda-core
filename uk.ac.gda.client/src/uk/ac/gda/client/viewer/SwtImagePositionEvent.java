@@ -26,25 +26,25 @@ import org.eclipse.dawnsci.plotting.api.jreality.tool.IImagePositionEvent;
 public class SwtImagePositionEvent implements IImagePositionEvent {
 
 	private int[] imagePosition;
-	private double[] position; 
+	private double[] position;
 	private short flags;
 	private Mode mode;
 	private SwtHitTestCalculator hitTestCalculator;
-	
-	
+
+
 	public SwtImagePositionEvent(double[] pos, int[] imagePos, SwtHitTestCalculator hitTestCalculator) {
 		this.position = pos;
 		this.imagePosition = imagePos;
 		this.hitTestCalculator = hitTestCalculator;
 	}
-	
+
 
 	public SwtImagePositionEvent(double[] pos, int[] imagePos, short flags, Mode mode, SwtHitTestCalculator hitTestCalculator) {
 		this(pos, imagePos, hitTestCalculator);
 		this.flags = flags;
 		this.mode = mode;
 	}
-	
+
 	@Override
 	public short getFlags() {
 		return flags;
@@ -74,7 +74,7 @@ public class SwtImagePositionEvent implements IImagePositionEvent {
 	public double[] getPosition() {
 		return position;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("%s[position=(%.1f, %.1f), imagePosition=(%d, %d)]",

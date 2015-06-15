@@ -19,21 +19,21 @@
 
 package gda.analysis;
 
+import gda.device.DeviceException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.device.DeviceException;
 
 /**
  * This class extends the PlotXY class allowing the user to add the new data specified to the curent plot.
  */
 public class PlotOverXY extends PlotXY {
-	
+
 	protected static Logger logger = LoggerFactory.getLogger(PlotOverXY.class);
 
 	/**
 	 * Constructor, this specifies which axes should be plotted
-	 * 
+	 *
 	 * @param x
 	 *            The string containing the X axis name
 	 * @param y
@@ -46,7 +46,7 @@ public class PlotOverXY extends PlotXY {
 	/**
 	 * Function that is called at the start of the scan. In this object this is used to set up the data vector plot
 	 * window to be ready to recieve the data being sent to it.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override

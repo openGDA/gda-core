@@ -57,18 +57,18 @@ import org.eclipse.swt.widgets.Display;
 public class SWT2DOverlayProvider implements Overlay2DProvider {
 
 	private IFigure topFigure;
-	/* We attempt to sort figures by Z-order by storing in a sorted map. 
+	/* We attempt to sort figures by Z-order by storing in a sorted map.
 	 * We use the index as the Z-order indication. This can fail though as
 	 * the index wraps. There is also no defined API issue on the expected Z-order,
 	 * so we are a bit free to do what we want?
 	 */
 	private Map<Integer, IFigure> figures;
-	
+
 	private boolean overlayInOperation = false;
 	private int primKeyID = 0;
 	private Cursor defaultCursor;
 	Map<Color, org.eclipse.swt.graphics.Color> colorToSwtColorMap = new HashMap<Color, org.eclipse.swt.graphics.Color>();
-	
+
 	public SWT2DOverlayProvider(IFigure topFigure) {
 		figures = new TreeMap<Integer, IFigure>(new Comparator<Integer>() {
 
@@ -77,7 +77,7 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 				// sort in reverse order, see hitTest for iteration order use
 				return o2.compareTo(o1);
 			}
-			
+
 		});
 		this.topFigure = topFigure;
 		this.defaultCursor = topFigure.getCursor();
@@ -89,7 +89,7 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 			colour.dispose();
 		}
 	}
-	
+
 	@Override
 	public void drawArrow(int primID, double sx, double sy, double ex, double ey) {
 		// This should be the following exception, or ideally implemented because the line profile for
@@ -110,7 +110,7 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 			if (figure != null) {
 				Rectangle bounds = topFigure.getBounds();
 				figure.setBounds(new Rectangle(bounds.x + (int)lux, bounds.y + (int)luy, (int)(rlx-lux), (int)(rly-luy) ));
-			}	
+			}
 		}
 	}
 
@@ -152,7 +152,7 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 				poly.removeAllPoints();
 				poly.addPoint(new Point((int) sx, (int) sy));
 				poly.addPoint(new Point((int) ex, (int) ey));
-			}	
+			}
 		}
 	}
 
@@ -231,19 +231,19 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 	// method public?
 	private int registerPrimitive(IFigure figure) {
 		primKeyID++;
-		
-		while (figures.containsKey(primKeyID)) 
+
+		while (figures.containsKey(primKeyID))
 		{
 			primKeyID = (primKeyID + 1)%Integer.MAX_VALUE;
-		}	
-		
+		}
+
 		figures.put(primKeyID, figure);
 		topFigure.add(figure);
 
-		
+
 		return primKeyID;
 	}
-	
+
 	@Override
 	public int registerPrimitive(PrimitiveType primType, boolean fixedSize) {
 		if (fixedSize)
@@ -256,7 +256,7 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 				figure = new PolylineShape();
 			break;
 			case BOX:
-				figure = new RectangleFigure();				
+				figure = new RectangleFigure();
 			break;
 			case ARROW:
 				figure = new RectangleFigure();
@@ -289,7 +289,7 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 				figure = new ImageWithTransparencyFigure();
 			break;
 		}
-		
+
 		return registerPrimitive(figure);
 	}
 
@@ -306,7 +306,7 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 		}
 		return swtColour;
 	}
-	
+
 	@Override
 	public void setColour(int primID, Color colour) {
 		IFigure fig = figures.get(primID);
@@ -427,7 +427,7 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 		return false;
 	}
 
-	
+
 	@Override
 	public void unregisterPrimitive(int primID) {
 		IFigure figure = figures.remove(primID);
@@ -470,7 +470,7 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 			topFigure.setCursor(tempCursor);
 	}
 
-	
+
 	/**
 	 * Returns the primitive ID at the coordinates specified.
 	 * @param x to lookup
@@ -499,13 +499,13 @@ public class SWT2DOverlayProvider implements Overlay2DProvider {
 				image1.setImage(image);
 				Rectangle bounds = topFigure.getBounds();
 				image1.setBounds(new Rectangle(bounds.x + (int)lux, bounds.y + (int)luy, (int)(rlx-lux), (int)(rly-luy) ));
-			}	
+			}
 			else if (figure instanceof ImageFigure) {
 				ImageFigure image1 = (ImageFigure) figure;
 				image1.setImage(image);
 				Rectangle bounds = topFigure.getBounds();
 				image1.setBounds(new Rectangle(bounds.x + (int)lux, bounds.y + (int)luy, (int)(rlx-lux), (int)(rly-luy) ));
-			}	
+			}
 		}
 	}
 

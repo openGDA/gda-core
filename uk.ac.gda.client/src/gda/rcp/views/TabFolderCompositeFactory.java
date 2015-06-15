@@ -61,17 +61,17 @@ public class TabFolderCompositeFactory implements CompositeFactory, Initializing
 }
 
 class TabFolderComposite extends Composite {
-	
+
 	private CTabFolder tabFolder;
 	protected TabCompositeFactory[] availableModes;
 	private HashMap<TabCompositeFactory, CTabItem> tabs;
-	
+
 	public TabFolderComposite(Composite parent, int style, TabCompositeFactory[] availableModes) {
 		super(parent, style);
 		this.availableModes = availableModes;
-	}	
-	
-	
+	}
+
+
 	public CTabFolder getTabFolder() {
 		return tabFolder;
 	}
@@ -79,11 +79,11 @@ class TabFolderComposite extends Composite {
 
 	void createControls() {
 		GridLayoutFactory.fillDefaults().numColumns(1).margins(0,0).spacing(0,0).applyTo(this);
-		GridDataFactory.fillDefaults().applyTo(this);		
+		GridDataFactory.fillDefaults().applyTo(this);
 		tabFolder = new CTabFolder(this, SWT.TOP | SWT.BORDER);
 		GridLayoutFactory.fillDefaults().numColumns(1).margins(0,0).spacing(0,0).applyTo(tabFolder);
 		GridDataFactory.fillDefaults().applyTo(tabFolder);
-		
+
 		tabs = new HashMap<TabCompositeFactory, CTabItem>();
 		for (int i = 0; i < availableModes.length; i++) {
 			TabCompositeFactory mode = availableModes[i];
@@ -99,11 +99,11 @@ class TabFolderComposite extends Composite {
 				cTab.setControl(control);
 				tabs.put(mode, cTab);
 			}
-			
+
 		}
 		tabFolder.setSelection(0);
 		setVisible(true);
-		
+
 	}
 
 }

@@ -49,7 +49,7 @@ public class NexusTreeWriterTest {
 		NexusTreeWriter.writeHere(file, file.getGroup("/", true), tree_in);
 		file.close();
 		INexusTree tree_out = NexusTreeBuilder.getNexusTree(filename, NexusTreeNodeSelection.createTreeForAllData());
-		
+
 		( new NexusTreeSplicer()).MergeTwo(tree_in, tree_out);
 		Assert.assertEquals(tree_out.getName(), tree_in.getName());
 	}

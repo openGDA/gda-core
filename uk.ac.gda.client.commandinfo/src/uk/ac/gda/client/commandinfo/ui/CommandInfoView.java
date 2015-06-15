@@ -21,23 +21,30 @@ package uk.ac.gda.client.commandinfo.ui;
 import gda.jython.commandinfo.CommandThreadEvent;
 import gda.jython.commandinfo.ICommandThreadObserver;
 
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.part.*;
-import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.jface.action.*;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.ui.*;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.SWT;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.ViewPart;
 
 import uk.ac.gda.client.commandinfo.CommandInfoController;
 
 public class CommandInfoView extends ViewPart implements ICommandThreadObserver {
 
 	public static final String ID = "uk.ac.gda.client.commandinfo.ui.CommandInfoView";
-	
+
 	private CommandInfoController controller = null;
 	private CommandInfoComposite comCommandInfo = null;
 	private boolean eventsEnabled = false;
@@ -50,6 +57,7 @@ public class CommandInfoView extends ViewPart implements ICommandThreadObserver 
 		this.controller.addCommandThreadObserver(this);
 	}
 
+	@Override
 	public void createPartControl(Composite parent) {
 		Composite container = new Composite(parent, SWT.NONE);
 		container.setLayout(new GridLayout());
@@ -65,17 +73,17 @@ public class CommandInfoView extends ViewPart implements ICommandThreadObserver 
 		hookContextMenu();
 		hookDoubleClickAction();
 		contributeToolbars();
-		
+
 	}
-	
+
 	private void disableEvents() {
 		eventsEnabled = false;
 	}
-	
+
 	private void enableEvents() {
 		eventsEnabled = true;
 	}
-	
+
 	private void initialiseData() {
 		disableEvents();
 		if(null==controller) {
@@ -85,6 +93,7 @@ public class CommandInfoView extends ViewPart implements ICommandThreadObserver 
 		enableEvents();
 	}
 
+	@Override
 	public void dispose() {
 		if (null!=controller) {
 			this.controller.deleteCommandThreadObserver(this);
@@ -97,6 +106,7 @@ public class CommandInfoView extends ViewPart implements ICommandThreadObserver 
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
+			@Override
 			public void menuAboutToShow(IMenuManager manager) {
 				CommandInfoView.this.fillContextMenu(manager);
 			}
@@ -122,7 +132,7 @@ public class CommandInfoView extends ViewPart implements ICommandThreadObserver 
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
-	
+
 	private void fillLocalToolBar(IToolBarManager manager) {
 		//manager.add(action1);
 	}
@@ -130,12 +140,13 @@ public class CommandInfoView extends ViewPart implements ICommandThreadObserver 
 
 	private void hookDoubleClickAction() {
 		comCommandInfo.getViewer().addDoubleClickListener(new IDoubleClickListener() {
+			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				//doubleClickAction.run();
 			}
 		});
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void showMessage(String message) {
 		MessageDialog.openInformation(
@@ -147,6 +158,7 @@ public class CommandInfoView extends ViewPart implements ICommandThreadObserver 
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
+	@Override
 	public void setFocus() {
 		comCommandInfo.getViewer().getControl().setFocus();
 	}
@@ -162,7 +174,7 @@ public class CommandInfoView extends ViewPart implements ICommandThreadObserver 
 					@SuppressWarnings("unused")
 					int debug = 0;
 				}
-			});	
+			});
 		}
 	}
 }

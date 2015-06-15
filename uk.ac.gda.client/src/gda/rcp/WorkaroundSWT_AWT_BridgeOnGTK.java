@@ -30,7 +30,7 @@ import org.eclipse.swt.SWT;
 
 /**
  * This code is adopted from https://bugs.eclipse.org/bugs/show_bug.cgi?id=171432#c15
- *   
+ *
 ------- Comment  #15 From Karl Tauber  2008-06-24 09:51:39 -0400  -------
 
 Created an attachment (id=105699) [details]
@@ -110,7 +110,7 @@ public class WorkaroundSWT_AWT_BridgeOnGTK {
 					} catch( Exception ex ) {
 						ex.printStackTrace();
 					}
-					
+
 				}
 			} );
 			timer.start();

@@ -31,7 +31,7 @@ import org.springframework.util.StringUtils;
 public class ViewUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(ViewUtils.class);
-	
+
 	/**
 	 * Sets a view's name (using reflection).
 	 */
@@ -44,5 +44,5 @@ public class ViewUtils {
 			logger.error("Unable to set view name to " + StringUtils.quote(name), e);
 		}
 	}
-	
+
 }

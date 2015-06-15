@@ -30,12 +30,12 @@ import org.springframework.beans.factory.InitializingBean;
 /**
  * Registers the specified service object with the specified properties
  * under the specified class name with the Framework.
- * 
+ *
  */
 public class OSGIServiceRegister implements InitializingBean{
 	private static final Logger logger = LoggerFactory.getLogger(OSGIServiceRegister.class);
 	private String className;
-	
+
 	/**
 	 * @param clazz The class name under which the service can be located.
 	 */
@@ -47,7 +47,7 @@ public class OSGIServiceRegister implements InitializingBean{
 	private Object service;
 
 	/**
-	 * 
+	 *
 	 * @param service The service object or a <code>ServiceFactory</code> object
 	 */
 	public void setService(Object service) {
@@ -57,7 +57,7 @@ public class OSGIServiceRegister implements InitializingBean{
 	private Dictionary<String, ?> properties;
 
 	/**
-	 * 
+	 *
 	 * @param properties The properties for this service
 	 */
 	public void setProperties(Dictionary<String, ?> properties) {

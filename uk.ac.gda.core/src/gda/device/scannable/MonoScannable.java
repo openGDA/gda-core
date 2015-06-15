@@ -46,7 +46,7 @@ import org.springframework.util.StringUtils;
  * This can accept and return the mono position as angle, wavelength or energy.
  */
 public class MonoScannable extends ScannableMotionUnitsBase implements ScannableMotionUnits {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(MonoScannable.class);
 
 	// attributes describing the crystal in use
@@ -246,7 +246,7 @@ public class MonoScannable extends ScannableMotionUnitsBase implements Scannable
 		} else {
 			throw new DeviceException("MonoScannable.rawAsynchronousMoveTo(): Null position/quantity specified.");
 		}
-		
+
 	}
 
 	@Override
@@ -266,7 +266,7 @@ public class MonoScannable extends ScannableMotionUnitsBase implements Scannable
 		}
 		return twoD;
 	}
-	
+
 	@Override
 	public Object getAttribute(String name) throws DeviceException {
 		Object attribute = null;

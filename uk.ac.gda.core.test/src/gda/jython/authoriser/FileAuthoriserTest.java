@@ -23,8 +23,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import gda.util.TestUtils;
 import gda.configuration.properties.LocalProperties;
+import gda.util.TestUtils;
 import gda.util.exceptionUtils;
 
 import org.junit.BeforeClass;
@@ -58,7 +58,7 @@ public class FileAuthoriserTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetEntries() {
@@ -73,7 +73,7 @@ public class FileAuthoriserTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testAddEntry() {
@@ -82,7 +82,7 @@ public class FileAuthoriserTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetAuthorisationLevel() {
@@ -91,7 +91,7 @@ public class FileAuthoriserTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testHasAuthorisationLevel() {
@@ -100,7 +100,7 @@ public class FileAuthoriserTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testUsersAreStaff() {

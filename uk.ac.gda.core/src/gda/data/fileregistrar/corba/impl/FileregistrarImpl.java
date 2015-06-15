@@ -34,7 +34,7 @@ public class FileregistrarImpl extends CorbaFileRegistrarPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param fileRegistrar
 	 *            the Timer implementation object
 	 * @param poa

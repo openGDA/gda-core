@@ -26,7 +26,7 @@ import org.slf4j.MarkerFactory;
  * Constants related to logging.
  */
 public abstract class LoggingConstants {
-	
+
 	/**
 	 * FINE marker
 	 */

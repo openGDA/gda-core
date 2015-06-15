@@ -38,7 +38,7 @@ public class SimpleLegendTitle extends LegendTitle {
 	/**
 	 * Exactly the same as the SuperClass constructor - necessary because there is no default constructor in
 	 * LegendTitle.
-	 * 
+	 *
 	 * @param source
 	 *            a source of LegendItems
 	 */
@@ -51,7 +51,7 @@ public class SimpleLegendTitle extends LegendTitle {
 	 * SimpleLegendLabelBlock instead of a LabelBlock (otherwise identical except private field names replaced with
 	 * method calls). Assumes it will be passed a SimpleLegendItem and uses it to get the SimpleXYSeries to pass on to
 	 * the SimpleLegendGraphic and SimpleLegendLabelBlock.
-	 * 
+	 *
 	 * @param item
 	 *            the LegendItem for which the LegendItemBlock is to be created
 	 * @return the LegendItemBlock created

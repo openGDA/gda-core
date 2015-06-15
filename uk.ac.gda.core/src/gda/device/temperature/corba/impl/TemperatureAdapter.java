@@ -47,7 +47,7 @@ public class TemperatureAdapter extends ScannableAdapter implements Temperature,
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

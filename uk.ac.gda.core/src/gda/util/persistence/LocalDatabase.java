@@ -50,14 +50,14 @@ import org.slf4j.LoggerFactory;
 
  */
 public class LocalDatabase {
-	
-	
+
+
 	public static final String DB_PATH_PROP = "gda.util.persistence.database.dbpath";
 	public static final String DB_USERNAME_PROP = "gda.util.persistence.database.username";
 	public static final String DB_PASSWORD_PROP = "gda.util.persistence.database.password";
 	public static final String DB_DRIVER_PROP = "gda.util.persistence.database.driver";
 	public static final String DB_PROTOCOL_PROP = "gda.util.persistence.database.protocol";
-	
+
 	public static final String DB_PATH_DEFAULT = "${gda.var}/gdaDatabase";
 	public static final String DB_USERNAME_DEFAULT = "gda";
 	public static final String DB_PASSWORD_DEFAULT = "gda";
@@ -69,7 +69,7 @@ public class LocalDatabase {
 
 	/**
 	 * Creates a JDBC connection to the local database
-	 * 
+	 *
 	 * @return Connection
 	 * @throws LocalDatabaseException
 	 */
@@ -90,7 +90,7 @@ public class LocalDatabase {
 	/**
 	 * Gets the local database driver string configured in java.properties using
 	 * the property {@code gda.util.persistence.database.driver}.
-	 * 
+	 *
 	 * @return The local database's driver
 	 * @throws LocalDatabaseException
 	 * @throws LocalDatabaseException
@@ -106,7 +106,7 @@ public class LocalDatabase {
 	/**
 	 * Gets the local database protocol string configured in java.properties
 	 * using the property {@code gda.util.persistence.database.protocol}.
-	 * 
+	 *
 	 * @return The local database's protocol
 	 * @throws LocalDatabaseException
 	 * @throws LocalDatabaseException
@@ -123,7 +123,7 @@ public class LocalDatabase {
 	/**
 	 * Gets the local database path string configured in java.properties using
 	 * the property {@code gda.util.persistence.database.dbpath}.
-	 * 
+	 *
 	 * @return The local database's path
 	 * @throws LocalDatabaseException
 	 * @throws LocalDatabaseException
@@ -139,13 +139,13 @@ public class LocalDatabase {
 	/**
 	 * Returns a string describing the JDBC URL for the local database. This
 	 * has the form {@code "<protocol><dbpath>;create=true"}.
-	 * 
-	 * 
+	 *
+	 *
 	 * <p>For example:
 	 * <p>
 	 * <code>jdbc:derby:/dls/i01/software/gda/config/var/gdaDatabase;create=true</code> *
 	 * <p>
-	 * 
+	 *
 	 * @return The local database's JDBC URL
 	 * @throws LocalDatabaseException
 	 */
@@ -156,7 +156,7 @@ public class LocalDatabase {
 	/**
 	 * Gets the local database username configured in java.properties using
 	 * the property {@code gda.util.persistence.database.username}.
-	 * 
+	 *
 	 * @return The local database's username
 	 * @throws LocalDatabaseException
 	 */
@@ -171,7 +171,7 @@ public class LocalDatabase {
 	/**
 	 * Gets the local database password configured in java.properties using the
 	 * property {@code gda.util.persistence.database.password}.
-	 * 
+	 *
 	 * @return The local database's password
 	 * @throws LocalDatabaseException
 	 * @throws LocalDatabaseException
@@ -204,7 +204,7 @@ public class LocalDatabase {
 
 		/**
 		 * Create a data table exception with another Throwable as the cause.
-		 * 
+		 *
 		 * @param message
 		 *            the message for this Exception
 		 * @param cause

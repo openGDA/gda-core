@@ -71,7 +71,7 @@ public class MatlabListenThread extends Thread {
 
 	/**
 	 * MatlabListenThread
-	 * 
+	 *
 	 * @param in
 	 *            from a SocketClient object which the local process has used to open up the socket connection.
 	 */
@@ -109,7 +109,7 @@ public class MatlabListenThread extends Thread {
 
 	/**
 	 * Returns the scan data buffer. This will be all scan data since the last time the clear() method was called.
-	 * 
+	 *
 	 * @return String[][]
 	 */
 	public String[][] readData() {

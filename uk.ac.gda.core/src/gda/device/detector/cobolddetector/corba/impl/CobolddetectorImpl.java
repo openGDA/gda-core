@@ -47,7 +47,7 @@ public class CobolddetectorImpl extends CorbaCoboldDetectorPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param cobolddetector
 	 *            the CoboldDetector implementation object
 	 * @param poa
@@ -61,7 +61,7 @@ public class CobolddetectorImpl extends CorbaCoboldDetectorPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the CoboldDetector implementation object
 	 */
 	public CoboldDetector _delegate() {
@@ -70,7 +70,7 @@ public class CobolddetectorImpl extends CorbaCoboldDetectorPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param cobolddetector
 	 *            set the CoboldDetector implementation object
 	 */
@@ -101,7 +101,7 @@ public class CobolddetectorImpl extends CorbaCoboldDetectorPOA {
 	public void setCollectionTime(double time) throws CorbaDeviceException {
 		detectorImpl.setCollectionTime(time);
 	}
-	
+
 	@Override
 	public double getCollectionTime() throws CorbaDeviceException {
 		return detectorImpl.getCollectionTime();
@@ -369,7 +369,7 @@ public class CobolddetectorImpl extends CorbaCoboldDetectorPOA {
 	public void atCommandFailure() throws CorbaDeviceException {
 		detectorImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return detectorImpl.toFormattedString();

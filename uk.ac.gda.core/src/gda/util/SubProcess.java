@@ -102,7 +102,7 @@ public class SubProcess {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void destroy() {
 		process.destroy();

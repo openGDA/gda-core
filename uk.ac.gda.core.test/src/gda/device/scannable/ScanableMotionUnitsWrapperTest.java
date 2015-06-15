@@ -18,8 +18,9 @@
 
 package gda.device.scannable;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import gda.device.ScannableMotionUnits;
 
 import org.junit.Before;
@@ -27,7 +28,7 @@ import org.junit.Test;
 
 public class ScanableMotionUnitsWrapperTest {
 
-	
+
 	private ScannableMotionUnitsWrapper wrapper;
 	private ScannableMotionUnits delegate;
 
@@ -53,7 +54,7 @@ public class ScanableMotionUnitsWrapperTest {
 		wrapper.setInputNames(new String[] {"c","d"});
 		assertEquals(new String[] {"c","d"}, wrapper.getInputNames());
 	}
-	
+
 	@Test
 	public void testSetGetName() {
 		when(delegate.getName()).thenReturn("ab");

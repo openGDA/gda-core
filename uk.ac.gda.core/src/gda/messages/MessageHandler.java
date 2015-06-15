@@ -18,17 +18,17 @@
 
 package gda.messages;
 
-import java.util.List;
-
 import gda.jython.UserMessage;
 
+import java.util.List;
+
 public interface MessageHandler {
-	
+
 	/**
 	 * Save a message - e.g. to disk.
 	 */
 	public void saveMessage(String visit, UserMessage message);
-	
+
 	/**
 	 * Get previous messages for a visit.
 	 */

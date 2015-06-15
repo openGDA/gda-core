@@ -46,21 +46,21 @@ public class DummyShutteredScannableMotorTest extends TestCase {
 		shutteredMotor = new ShutteredScannableMotor();
 		shutteredMotor.setMotor(scannableMotor);
 	}
-	
+
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public void testSetUp() {
 		assertNotNull(dummyMotor);
 		assertNotNull(scannableMotor);
 		assertNotNull(shutteredMotor);
 	}
-	
+
 	public void testDoCalculations() {
 		//three cases:
 		//1. very long exposure - slow movement
@@ -91,7 +91,7 @@ public class DummyShutteredScannableMotorTest extends TestCase {
 		assertEquals(-20.85, shutteredMotor.getStartPosition(), 0.01);
 		assertEquals(21.85, shutteredMotor.getEndPositionOffset(), 0.01);
 		assertEquals(41.85, shutteredMotor.getEndPosition(), 0.01);
-		
+
 		//3. normal (1 degree/sec) exposure
 		System.out.println("Test 3");
 		shutteredMotor.setOpenPosition(0);
@@ -105,7 +105,7 @@ public class DummyShutteredScannableMotorTest extends TestCase {
 		assertEquals(-0.25, shutteredMotor.getStartPosition(), 0.01);
 		assertEquals(0.25, shutteredMotor.getEndPositionOffset(), 0.01);
 		assertEquals(1.25, shutteredMotor.getEndPosition(), 0.01);
-		
+
 		//4. faster (5 degree/sec) exposure
 		System.out.println("test 4");
 		shutteredMotor.setOpenPosition(0);
@@ -119,8 +119,8 @@ public class DummyShutteredScannableMotorTest extends TestCase {
 		assertEquals(-2.25, shutteredMotor.getStartPosition(), 0.01);
 		assertEquals(2.25, shutteredMotor.getEndPositionOffset(), 0.01);
 		assertEquals(7.25, shutteredMotor.getEndPosition(), 0.01);
-		
-		//MXCamera test - same parameters as 
+
+		//MXCamera test - same parameters as
 		shutteredMotor.setOpenPosition(0);
 		shutteredMotor.setClosePosition(5);
 		shutteredMotor.setExposureTime(1); //setImageTime(2) / setNumberPasses(2)
@@ -130,7 +130,7 @@ public class DummyShutteredScannableMotorTest extends TestCase {
 		assertEquals(-2.272, shutteredMotor.getStartPosition(), 0.01);
 		assertEquals(2.25, shutteredMotor.getEndPositionOffset(),0.01);
 		assertEquals(7.25, shutteredMotor.getEndPosition(),0.01);
-		
+
 		//use the same sequence of commands used by MXCameraTest. Should be the same results as the previous test
 		shutteredMotor = new ShutteredScannableMotor();
 		shutteredMotor.setMotor(scannableMotor);
@@ -144,7 +144,7 @@ public class DummyShutteredScannableMotorTest extends TestCase {
 		assertEquals(7.25, shutteredMotor.getEndPosition(), 0.01);
 		assertEquals(2.4044, shutteredMotor.getMinExposeTime(), 0.01);
 		System.out.println(shutteredMotor.getClosePosition());
-		
+
 		System.out.println("all done!");
 	}
 }

@@ -32,17 +32,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class DataDispenserAbstractHandler extends AbstractHandler implements IHandler {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DataDispenserAbstractHandler.class);
 	private static final String DATA_DISPENSER_BROWSER_ID = "data.dispenser.browser";
-	
+
 	public static final String DATA_DISPENSER_CONTROLLER_URL_PREF= "datadispenser.controller.url";
 	public static final String DATA_DISPENSER_MEDIA_URL_PREF = "datadispenser.media.url";
 	public static final String DATA_DISPENSER_DEFAULT_PREF = "data.dispenser.default";
-	
+
 	/**
 	 * Open the given url in the data dispenser browser
-	 * 
+	 *
 	 * @param url
 	 *            destination link
 	 */

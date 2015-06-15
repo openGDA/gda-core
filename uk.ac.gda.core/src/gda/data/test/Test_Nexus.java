@@ -36,7 +36,7 @@ public class Test_Nexus {
 
 	/**
 	 * main()
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {

@@ -31,7 +31,7 @@ public abstract class AbstractCompositeFunction {
 
 	/**
 	 * Get the value of the multifunction (sum of the individual functions) at positions
-	 * 
+	 *
 	 * @param positions
 	 * @return function value at positions
 	 */
@@ -39,7 +39,7 @@ public abstract class AbstractCompositeFunction {
 
 	/**
 	 * Add a function called name to the multifunction object
-	 * 
+	 *
 	 * @param name
 	 * @param function
 	 */
@@ -49,7 +49,7 @@ public abstract class AbstractCompositeFunction {
 
 	/**
 	 * Remove the function at index from the multifunction
-	 * 
+	 *
 	 * @param index
 	 *            Index of function to be removed
 	 */
@@ -59,7 +59,7 @@ public abstract class AbstractCompositeFunction {
 
 	/**
 	 * Remove the function at index from the multifunction
-	 * 
+	 *
 	 * @param name
 	 *            Name of the function to be removed
 	 */

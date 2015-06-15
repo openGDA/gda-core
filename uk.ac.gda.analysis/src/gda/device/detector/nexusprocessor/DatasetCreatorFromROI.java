@@ -18,19 +18,19 @@
 
 package gda.device.detector.nexusprocessor;
 
+import gda.factory.Findable;
+
 import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.api.dataset.Slice;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-
-import gda.factory.Findable;
 
 public class DatasetCreatorFromROI implements DatasetCreator, Findable {
 
 	private Slice[] sliceArray;
 
 	public void setROI( int startX, int stopX, int startY, int stopY){
-		setSliceArray( new Slice[]{ new Slice(startX, stopX, 1),new Slice(startY, stopY, 1)}); 
+		setSliceArray( new Slice[]{ new Slice(startX, stopX, 1),new Slice(startY, stopY, 1)});
 		setEnable(true);
 	}
 	@Override
@@ -40,7 +40,7 @@ public class DatasetCreatorFromROI implements DatasetCreator, Findable {
 			if( sliceArray.length != ds.getRank())
 				throw new IllegalArgumentException("sliceArray.length :" +  sliceArray.length + " != ds.getRank() : " + ds.getRank());
 			result = ds.getSlice(sliceArray);
-			
+
 		}
 		return result;
 	}
@@ -64,7 +64,7 @@ public class DatasetCreatorFromROI implements DatasetCreator, Findable {
 	public String getName() {
 		return name;
 	}
-	
+
 	private boolean enable;
 
 	public boolean getEnable() {
@@ -79,5 +79,5 @@ public class DatasetCreatorFromROI implements DatasetCreator, Findable {
 		return "DatasetCreatorFromROI [sliceArray=" + Arrays.toString(sliceArray) + ", enable="
 				+ enable + "]";
 	}
-	
+
 }

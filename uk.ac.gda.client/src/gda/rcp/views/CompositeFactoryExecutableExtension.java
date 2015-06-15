@@ -24,10 +24,10 @@ import org.eclipse.core.runtime.CoreException;
 
 public class CompositeFactoryExecutableExtension extends AbstractFindableExecutableExtension{
 
-	
+
 	String viewTitle;
-	
-	
+
+
 	public String getViewTitle() {
 		return viewTitle;
 	}
@@ -37,7 +37,7 @@ public class CompositeFactoryExecutableExtension extends AbstractFindableExecuta
 	}
 
 	List<CompositeFactory> compositeFactories= null;
-	
+
 	public List<CompositeFactory> getCompositeFactories() {
 		return compositeFactories;
 	}
@@ -53,7 +53,7 @@ public class CompositeFactoryExecutableExtension extends AbstractFindableExecuta
 		view.setCompositeFactories(compositeFactories);
 		return view;
 	}
-	
+
 	protected CompositeFactoryView createView() {
 		CompositeFactoryView view = new CompositeFactoryView();
 		return view;

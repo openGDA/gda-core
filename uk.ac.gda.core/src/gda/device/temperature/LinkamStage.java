@@ -34,7 +34,7 @@ public interface LinkamStage {
 
 	/**
 	 * LinkamCI will call this before sending a ramp
-	 * 
+	 *
 	 * @param ramp
 	 */
 	public void sendRamp(TemperatureRamp ramp);
@@ -56,14 +56,14 @@ public interface LinkamStage {
 
 	/**
 	 * LinkamCI will call this from within its own pollDone
-	 * 
+	 *
 	 * @param pe
 	 */
 	public void pollDone(PollerEvent pe);
 
 	/**
 	 * LinkamCI will used this if asked for a file name for the temperature data
-	 * 
+	 *
 	 * @return data filename
 	 */
 	public String getDataFileName();

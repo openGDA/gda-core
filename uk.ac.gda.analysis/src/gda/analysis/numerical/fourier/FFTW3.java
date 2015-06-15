@@ -12,7 +12,7 @@ import java.io.FileWriter;
  * Basic class for Java access to the fftw3 library to take Fourier Transform This class set Java package defaults,
  * manages the wisdom information and loads the sharable library. Actual numerical use of this package is via the
  * extending classes.
- * 
+ *
  * @author Will Hossack, The University of Edinburgh
  * @version 1.0 Altered by Paul Quinn DLS. I'm using the jfftw lib of Will Hossack as a basis and aim to improve its
  *          basic functionality. For example currently only FFTW.Estimate works as a plan flag The jni interface needs
@@ -39,7 +39,7 @@ public abstract class FFTW3 extends Object {
 	public final static int EXHAUSTIVE = 8; // (1<<3)
 
 	/**
-	 * 
+	 *
 	 */
 	public final static int MEASURE = 0;
 
@@ -54,7 +54,7 @@ public abstract class FFTW3 extends Object {
 	public final static int ESTIMATE = 64;// (1 << 6);
 
 	/**
-	 * 
+	 *
 	 */
 	public final static int ESTIMATE_PATIENT = 128;// (1 << 6);
 
@@ -64,7 +64,7 @@ public abstract class FFTW3 extends Object {
 
 	/**
 	 * Method to set the plan flag
-	 * 
+	 *
 	 * @param flag
 	 *            the plan flag
 	 */
@@ -74,7 +74,7 @@ public abstract class FFTW3 extends Object {
 
 	/**
 	 * Method to add to the plan flag
-	 * 
+	 *
 	 * @param addition
 	 *            the addition to add
 	 */
@@ -84,7 +84,7 @@ public abstract class FFTW3 extends Object {
 
 	/**
 	 * Method to get the plan flag
-	 * 
+	 *
 	 * @return int the plan flag
 	 */
 	public static int getPlanFlag() {
@@ -93,7 +93,7 @@ public abstract class FFTW3 extends Object {
 
 	/**
 	 * Method to reset the system widsom file location. Note this does not load the file.
-	 * 
+	 *
 	 * @param fileName
 	 *            name of default widsom file
 	 */
@@ -103,7 +103,7 @@ public abstract class FFTW3 extends Object {
 
 	/**
 	 * Boolean method to load system widsom file
-	 * 
+	 *
 	 * @return boolean true for success, false for failure
 	 */
 	public boolean loadWisdom() {
@@ -112,7 +112,7 @@ public abstract class FFTW3 extends Object {
 
 	/**
 	 * Boolean method to load wisdom file from specifed File
-	 * 
+	 *
 	 * @param file
 	 *            the wisdom file
 	 * @return boolean true for sucess, false for failure
@@ -123,7 +123,7 @@ public abstract class FFTW3 extends Object {
 
 	/**
 	 * Boolean method to load (or add) wisdom from a String.
-	 * 
+	 *
 	 * @param wisdom
 	 *            the wisdom String
 	 * @return boolean true for success, false for failure
@@ -134,7 +134,7 @@ public abstract class FFTW3 extends Object {
 
 	/**
 	 * Private native method load wisdom from file
-	 * 
+	 *
 	 * @param fileName
 	 * @return boolean
 	 */
@@ -142,7 +142,7 @@ public abstract class FFTW3 extends Object {
 
 	/**
 	 * Private native method load wisdom from String
-	 * 
+	 *
 	 * @param wisdom
 	 * @return boolean
 	 */
@@ -162,7 +162,7 @@ public abstract class FFTW3 extends Object {
 
 	/**
 	 * Boolean method to export the current wisdom to a file
-	 * 
+	 *
 	 * @param file
 	 *            the output file
 	 * @return boolean true if successful, else false
@@ -174,7 +174,7 @@ public abstract class FFTW3 extends Object {
 
 	/**
 	 * Private native method to export wther wisdom to a file
-	 * 
+	 *
 	 * @param fileName
 	 * @return boolean
 	 */
@@ -189,14 +189,14 @@ public abstract class FFTW3 extends Object {
 
 	/**
 	 * Private native method to get the wisdom as a Java string
-	 * 
+	 *
 	 * @return Wisdom as a String.
 	 */
 	private native String nativeGetWisdom();
 
 	/**
 	 * Static method to read a Wisdom file into a String
-	 * 
+	 *
 	 * @param file
 	 *            the wisdom file
 	 * @return String the wisdom as a String
@@ -220,7 +220,7 @@ public abstract class FFTW3 extends Object {
 
 	/**
 	 * Static method to write wisdom String to a file
-	 * 
+	 *
 	 * @param wisdom
 	 *            the wisdom String
 	 * @param file

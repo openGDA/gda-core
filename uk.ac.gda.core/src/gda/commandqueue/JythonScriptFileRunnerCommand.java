@@ -49,7 +49,7 @@ public class JythonScriptFileRunnerCommand extends CommandBase implements Serial
 
 	/**
 	 * do not return until script and scan state are both IDLE
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Override

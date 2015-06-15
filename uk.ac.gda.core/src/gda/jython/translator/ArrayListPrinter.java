@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 /**
  * Converts a generic array of objects to a series of strings. Used by the list command
- * 
+ *
  * @param <T>
  */
 public class ArrayListPrinter<T> {

@@ -43,7 +43,7 @@ public class DeferredScannable extends ScannableMotionUnitsBase {
 	private String controlPointScannableName;
 
 	/**
-	 * 
+	 *
 	 */
 	public DeferredScannable() {
 
@@ -87,13 +87,13 @@ public class DeferredScannable extends ScannableMotionUnitsBase {
 		}
 		setDefer(false);
 	}
-	
+
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		return controlPointScannable.getPosition();
 	}
 
-	
+
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		stop();
@@ -111,7 +111,7 @@ public class DeferredScannable extends ScannableMotionUnitsBase {
 		}
 	}
 
-	
+
 	/**
 	 * stop all axes and turn off defer flag
 	 */

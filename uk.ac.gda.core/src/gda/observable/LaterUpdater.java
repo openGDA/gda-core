@@ -24,7 +24,7 @@ import javax.swing.SwingUtilities;
 /**
  * Class for calling an IObserver's update method in the EventDispatchThread. The recomended way of updating GUI
  * components to avoid thread problems.
- * 
+ *
  * @see gda.observable.UpdateDelayer
  */
 public class LaterUpdater implements Runnable {
@@ -37,7 +37,7 @@ public class LaterUpdater implements Runnable {
 	/**
 	 * Constructor where objectOne is usually an IObservable passed on from a directly called update() and objectTwo the
 	 * second argument of that call.
-	 * 
+	 *
 	 * @param iObserver
 	 *            the IObserver whose update will be called
 	 * @param objectOne

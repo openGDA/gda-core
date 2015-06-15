@@ -33,14 +33,14 @@ public class GDAScannablePropertySource implements IPropertySource {
 
 	private Scannable scannable;
 	protected static IPropertyDescriptor[] descriptors;
-	
+
 	static{
 		descriptors = new IPropertyDescriptor[] {
 				new PropertyDescriptor(ID_NAME,"Name"),
 				new PropertyDescriptor(ID_POSITION,"Position")
 		};
-	}	
-	
+	}
+
 	public GDAScannablePropertySource(Scannable scannable) {
 		this.scannable = scannable;
 	}

@@ -19,30 +19,30 @@
 package uk.ac.gda.client.scripting;
 
 public class PreferenceConstants {
-	
+
 	/**
 	 * Create projects linking to beamline specific scripts. Not user editable
 	 */
 	public static final String SHOW_CONFIG_SCRIPTS     = "uk.ac.gda.pydev.show.python.config.project";
-	
+
 	/**
 	 * Create projects linking to GDA plugin scripts. Not user editable
 	 */
 	public static final String SHOW_GDA_SCRIPTS        = "uk.ac.gda.pydev.show.python.gda.project";
 
 	public static final String SHOW_XML_CONFIG         = "uk.ac.gda.pydev.show.xml.config.project";
-	
+
 
 	/**
 	 * Syntax check scripts during file editing
-	 * 
+	 *
 	 * Also add PyDev Jython  nature to project on creation.
 	 * Ensures a Jython interpreter exists
-	 * 
+	 *
 	 * Default is false
 	 */
 	public static final String CHECK_SCRIPT_SYNTAX = "uk.ac.gda.pydev.check.script.syntax";
-	
+
 	/**
 	 * Name of preference to set TRUE if java jars in gda.libs are to be added to ClassPath for PyDev interpreter Taken
 	 * to be FALSE if not set.

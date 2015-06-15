@@ -58,7 +58,7 @@ public class ScannableStatus implements Serializable {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param name
 	 * @param status
 	 */
@@ -69,7 +69,7 @@ public class ScannableStatus implements Serializable {
 
 	/**
 	 * The status value this object represents
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getStatus() {
@@ -78,16 +78,16 @@ public class ScannableStatus implements Serializable {
 
 	/**
 	 * The name of the Scannable this object represents
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getScannableName() {
 		return scannable;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("ScannableStatus(%s, %d)", scannable, status);
 	}
-	
+
 }

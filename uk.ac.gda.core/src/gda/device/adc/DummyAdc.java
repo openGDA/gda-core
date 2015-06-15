@@ -54,7 +54,7 @@ public class DummyAdc extends DeviceBase implements Adc {
 			_range[i] = ranges[0];
 		}
 	}
-	
+
 	@Override
 	public void configure(){
 		// no configuration required
@@ -139,7 +139,7 @@ public class DummyAdc extends DeviceBase implements Adc {
 
 	/**
 	 * Set the method used to generate an appropriate value
-	 * 
+	 *
 	 * @param vs
 	 *            DummyValueSuggester to be used.
 	 */

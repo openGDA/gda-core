@@ -21,12 +21,11 @@ package gda.device.detector;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-
-import java.io.File;
-
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.util.TestUtils;
+
+import java.io.File;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -49,8 +48,8 @@ public class DummyImageCreatorTest {
 	}
 
 	/**
-	 * @throws DeviceException 
-	 * 
+	 * @throws DeviceException
+	 *
 	 */
 	@Test
 	public void testGetCollectionTime() throws DeviceException {
@@ -59,8 +58,8 @@ public class DummyImageCreatorTest {
 	}
 
 	/**
-	 * @throws DeviceException 
-	 * 
+	 * @throws DeviceException
+	 *
 	 */
 	@Test
 	public void testSetCollectionTime() throws DeviceException {
@@ -217,7 +216,7 @@ public class DummyImageCreatorTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetFormat() {

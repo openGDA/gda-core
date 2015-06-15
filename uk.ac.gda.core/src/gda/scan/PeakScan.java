@@ -48,9 +48,9 @@ import org.slf4j.LoggerFactory;
  * then no peak finding calculation will be made and the position of the maximum detector readout will be the peak.
  */
 public class PeakScan extends ConcurrentScan implements Scan {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(PeakScan.class);
-	
+
 	/**
 	 * no peak fitting algorithm used - just use highest point
 	 */
@@ -214,7 +214,7 @@ public class PeakScan extends ConcurrentScan implements Scan {
 	 * The elements of the yValues vector are stored as strings produced by the DataWriterBase getDetectorData method.
 	 * Whatever the original form of the data, the data would now be delimited strings. This method splits the string by
 	 * the delimiter and returns the appropriate channel convert to a double.
-	 * 
+	 *
 	 * @param yval
 	 *            String
 	 * @return double

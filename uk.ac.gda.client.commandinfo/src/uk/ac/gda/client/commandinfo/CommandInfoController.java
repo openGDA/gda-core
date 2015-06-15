@@ -18,9 +18,6 @@
 
 package uk.ac.gda.client.commandinfo;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import gda.jython.InterfaceProvider;
 import gda.jython.commandinfo.CommandThreadEvent;
 import gda.jython.commandinfo.CommandThreadEventType;
@@ -28,10 +25,13 @@ import gda.jython.commandinfo.ICommandThreadInfo;
 import gda.jython.commandinfo.ICommandThreadInfoProvider;
 import gda.jython.commandinfo.ICommandThreadObserver;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CommandInfoController implements ICommandThreadObserver, ICommandThreadInfoProvider {
-	
+
 	static private CommandInfoController self = null;
-	
+
 	static public CommandInfoController getInstance() {
 		if (null==self) {
 			self = new CommandInfoController();
@@ -45,7 +45,7 @@ public class CommandInfoController implements ICommandThreadObserver, ICommandTh
 	private CommandInfoController() {
 		this.configure();
 	}
-	
+
 	@Override
 	public void addCommandThreadObserver(ICommandThreadObserver anObserver) {
 		localObservers.add(anObserver);
@@ -56,7 +56,7 @@ public class CommandInfoController implements ICommandThreadObserver, ICommandTh
 		this.updateModel(event);
 		this.updateObservers(event);
 	}
-	
+
 	public void configure() {
 		InterfaceProvider.getCommandThreadInfoProvider().addCommandThreadObserver(this);
 		this.initialiseModel();
@@ -66,7 +66,7 @@ public class CommandInfoController implements ICommandThreadObserver, ICommandTh
 	public void deleteCommandThreadObserver(ICommandThreadObserver anObserver) {
 		localObservers.remove(localObservers);
 	}
-	
+
 	public void disconnect() {
 		InterfaceProvider.getCommandThreadInfoProvider().deleteCommandThreadObserver(this);
 	}
@@ -100,7 +100,7 @@ public class CommandInfoController implements ICommandThreadObserver, ICommandTh
 			observer.update(this,event);
 		}
 	}
-	
+
 	public int refreshCommandList() {
 		CommandThreadEvent event = new CommandThreadEvent(CommandThreadEventType.REFRESH,null);
 		this.updateModel(event);

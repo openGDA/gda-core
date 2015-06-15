@@ -41,17 +41,17 @@ public class SocketClient {
 	private static final Logger logger = LoggerFactory.getLogger(SocketClient.class);
 
 	/**
-	 * 
+	 *
 	 */
 	public Socket socket = null;
 
 	/**
-	 * 
+	 *
 	 */
 	public PrintWriter out = null;
 
 	/**
-	 * 
+	 *
 	 */
 	public BufferedReader in = null;
 
@@ -60,7 +60,7 @@ public class SocketClient {
 	int port = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	public SocketClient() {
 	}

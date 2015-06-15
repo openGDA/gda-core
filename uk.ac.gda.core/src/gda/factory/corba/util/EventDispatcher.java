@@ -26,7 +26,7 @@ public interface EventDispatcher {
 
 	/**
 	 * Dispatches a message.
-	 * 
+	 *
 	 * @param sourceName name of the source of the message
 	 * @param message the message
 	 */

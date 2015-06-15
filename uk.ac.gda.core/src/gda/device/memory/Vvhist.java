@@ -44,7 +44,7 @@ public class Vvhist extends Gdhist {
 			}
 		} else {
 			logger.error("Invalid open command for " + getName());
-			throw new DeviceException("Vvhist: Invalid open command for " + this.getName());			
+			throw new DeviceException("Vvhist: Invalid open command for " + this.getName());
 		}
 		handle = ((Integer) sendAndParse("open", cmd)).intValue();
 

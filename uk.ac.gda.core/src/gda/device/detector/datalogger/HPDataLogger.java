@@ -41,13 +41,13 @@ import org.slf4j.LoggerFactory;
  * An implementation for Agilent HP34970A Data Acquisition unit (Data Logger). It has a Poller, which has a default
  * pollTime of 1 second and the implemented pollDone() method changes the dataValues array and notifies the DataLogger's
  * observers.
- * 
+ *
  * @see gda.device.serial.SerialComm
  */
 public class HPDataLogger extends DetectorBase implements DataLogger, Detector, Findable, Runnable, Scannable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(HPDataLogger.class);
-	
+
 	// Commands and settings for the Data Logger
 	private final String GET_NO_OF_CHANNELS = "ROUTe:SCAN:SIZE?";
 
@@ -175,7 +175,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 
 	/**
 	 * Returns the name of this logger device.
-	 * 
+	 *
 	 * @return Returns the serialDeviceName.
 	 */
 	public String getSerialDeviceName() {
@@ -184,7 +184,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 
 	/**
 	 * Sets the name of this logger device.
-	 * 
+	 *
 	 * @param serialDeviceName
 	 *            The serialDeviceName to set.
 	 */
@@ -194,7 +194,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 
 	/**
 	 * Returns the value of the class pollTime variable.
-	 * 
+	 *
 	 * @return pollTime.
 	 */
 	public long getPolltime() {
@@ -203,7 +203,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 
 	/**
 	 * Sets the class pollTime variable.
-	 * 
+	 *
 	 * @param pollTime
 	 *            The pollTime to set.
 	 */
@@ -216,7 +216,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 	/**
 	 * Sends the command to see if an error has occurred. The error messages from the logger device consist of a string
 	 * and a code. If no error has occurred, the code value is 0.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	private void checkForError() throws DeviceException {
@@ -264,7 +264,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 
 	/**
 	 * Method to fufil the gda.device.detector.Detector interface
-	 * 
+	 *
 	 * @return the status as either STANDBY or IDLE
 	 * @throws DeviceException
 	 */
@@ -287,7 +287,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 	/**
 	 * Clears the error log queue and sets the connected flag to true. This will enable the poller allowing
 	 * notifications to observers.
-	 * 
+	 *
 	 * @exception DeviceException
 	 *                if the device cannot be found
 	 */
@@ -304,7 +304,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 
 	/**
 	 * Sets the "connected" flag to false, thus disabling the poller notifications to the observers.
-	 * 
+	 *
 	 * @exception DeviceException
 	 */
 	@Override
@@ -314,7 +314,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 
 	/**
 	 * Returns the value of the class variable noOfChannels.
-	 * 
+	 *
 	 * @return number of channels
 	 */
 	@Override
@@ -326,7 +326,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 	 * Sends a command to get the number of channels included in the scan. The reply from the logger device is preceeded
 	 * with a +/- sign. This must be removed for positive numbers to avoid a NumberFormatException when using the
 	 * parseInt() method. There will never be a negative number.
-	 * 
+	 *
 	 * @return number of channels being used
 	 * @exception DeviceException
 	 */
@@ -338,7 +338,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 
 	/**
 	 * This method is currently disabled
-	 * 
+	 *
 	 * @return deviceTimeout
 	 */
 	public int readTimeout() {
@@ -349,7 +349,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 	 * Sends a command to read the scan values from the logger device before filling a double array with the values from
 	 * the Read Buffer. Used for generating data to pass back in response to a Scan collectData call. N.B. Fills out
 	 * class dataDoubleValues array.
-	 * 
+	 *
 	 * @exception DeviceException
 	 */
 	private void readValuesToDoubles() throws DeviceException {
@@ -368,7 +368,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 	 * Sends a command to read the scan values from the logger device before filling a String array with the values from
 	 * the Read Buffer. Used for generating data to update the DataLoggerMonitor with. N.B. Fills out class
 	 * dataStringValues array.
-	 * 
+	 *
 	 * @exception DeviceException
 	 */
 	private void readValuesToStrings() throws DeviceException {
@@ -388,7 +388,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 	 * calling the method checkForError(), as error replies are not returned via the same route. The datalogger returns
 	 * a null reply when CLEAR_ERROR_QUEUE * commands are sent, which manifests as a Device Exception that is thrown to
 	 * the calling method.
-	 * 
+	 *
 	 * @param command
 	 *            to be sent to the logger
 	 * @return data logger reply
@@ -413,7 +413,7 @@ public class HPDataLogger extends DetectorBase implements DataLogger, Detector, 
 	/**
 	 * Sends the timeout value to set the timeout of the logger device, then checks for errors. This method is currently
 	 * disabled.
-	 * 
+	 *
 	 * @param timeout
 	 *            the timeout to be set
 	 */

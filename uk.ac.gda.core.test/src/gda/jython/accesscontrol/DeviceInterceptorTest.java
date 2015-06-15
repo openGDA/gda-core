@@ -39,7 +39,7 @@ public class DeviceInterceptorTest {
 
 	/**
 	 * Test of equals operator
-	 * 
+	 *
 	 */
 	@Test
 	public void testEqualsObject() {
@@ -49,11 +49,11 @@ public class DeviceInterceptorTest {
 
 		assertFalse(dev1.equals(null));
 		assertFalse(dev1.equals(1));
-		
+
 		SimpleDevice simpleDevice2 = new SimpleDevice();
 		simpleDevice2.setName("SimpleDevice2");
 		Device dev2 = DeviceInterceptor.newDeviceInstance(simpleDevice2);
-		
+
 		assertFalse(dev1.equals(dev2));
 		assertFalse(dev1.hashCode() == dev2.hashCode());
 
@@ -61,12 +61,12 @@ public class DeviceInterceptorTest {
 		assertEquals(dev1, dev2);
 		assertEquals(simpleDevice1, simpleDevice2);
 		assertEquals(dev1.hashCode(),dev2.hashCode());
-		
+
 	}
 
 	/**
 	 * Test of equals operator of class derived from DeviceBase
-	 * 
+	 *
 	 */
 	@Test
 	public void testDeviceBase() {
@@ -76,11 +76,11 @@ public class DeviceInterceptorTest {
 
 		assertFalse(dev1.equals(null));
 		assertFalse(dev1.equals(1));
-		
+
 		SimpleDeviceBase simpleDevice2 = new SimpleDeviceBase();
 		simpleDevice2.setName("SimpleDevice2");
 		Device dev2 = DeviceInterceptor.newDeviceInstance(simpleDevice2);
-		
+
 		assertFalse(dev1.equals(dev2));
 		assertFalse(dev1.hashCode() == dev2.hashCode());
 
@@ -88,11 +88,11 @@ public class DeviceInterceptorTest {
 		assertEquals(dev1, dev2);
 		assertEquals(dev1.hashCode(),dev2.hashCode());
 
-	}	
-	
+	}
+
 	/**
 	 * Test of equals operator
-	 * 
+	 *
 	 */
 	@Test
 	public void testArrayCopy() {
@@ -104,19 +104,19 @@ public class DeviceInterceptorTest {
 		Object [] deviceArrayTarget = new Object[]{null};
 		System.arraycopy(deviceArraySrc, 0, deviceArrayTarget, 0, 1);
 		assertEquals(dev1, deviceArrayTarget[0]);
-		
-	}	
-	
+
+	}
+
 	/**
 	 * Test of equals operator in JythonServerThread
-	 * 
+	 *
 	 * @throws Exception if the test fails
 	 */
 	@Test
 	public void testEqualsObjectInJythonServerThread() throws Exception {
 		int authorisationLevel =1;
 		TestRunner runner = new TestRunner(null, null, authorisationLevel);
-		
+
 		runner.start();
 		runner.join();
 		if(runner.ex != null){
@@ -132,7 +132,7 @@ public class DeviceInterceptorTest {
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param interpreter
 		 * @param command
 		 * @param authorisationLevel
@@ -154,7 +154,7 @@ public class DeviceInterceptorTest {
 				dev1.setProtectionLevel(2);
 				dev1.setAttribute("Test", 2);
 				throw new Exception("Should not have allowed me to call setAttribute");
-			
+
 			}
 			catch(AccessDeniedException ex){
 				//do nothing - this is correct
@@ -174,7 +174,7 @@ class SimpleDevice implements Device{
 	@Override
 	public void close() throws DeviceException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -191,31 +191,31 @@ class SimpleDevice implements Device{
 	@Override
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setProtectionLevel(int newLevel) throws DeviceException {
 		protectionLevel = newLevel;
-		
+
 	}
 
 	@Override
 	public void addIObserver(IObserver anIObserver) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deleteIObserver(IObserver anIObserver) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deleteIObservers() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -231,7 +231,7 @@ class SimpleDevice implements Device{
 	@Override
 	public void reconfigure() throws FactoryException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -255,15 +255,15 @@ class SimpleDevice implements Device{
 	@Override
 	public int hashCode() {
 		return name == null ? 42 : name.hashCode();
-	}	
-	
+	}
+
 }
 
 class SimpleDeviceBase extends DeviceBase{
 
 	SimpleDeviceBase(){
 	}
-	
+
 	@Override
 	public void configure(){
 		// no configuration required
@@ -290,6 +290,6 @@ class SimpleDeviceBase extends DeviceBase{
 	@Override
 	public int hashCode() {
 		return getName() == null ? 42 : getName().hashCode();
-	}		
+	}
 }
 

@@ -56,10 +56,10 @@ public class MessageView extends ViewPart implements IObserver {
 	private static final Logger logger = LoggerFactory.getLogger(MessageView.class);
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String ID = "uk.ac.gda.rcp.views.baton.MessageView"; //$NON-NLS-1$
-	
+
 	private StyledText history;
 	private Text text;
 	private KeyListener keyListener;
@@ -80,37 +80,37 @@ public class MessageView extends ViewPart implements IObserver {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		
+
 /*		if (!LocalProperties.isAccessControlEnabled()) {
 			final Label error = new Label(parent, SWT.NONE);
 			error.setText();
 			return;
 		}*/
-		
 
-		
+
+
 		Composite container = new Composite(parent, SWT.NONE);
 		container.setLayout(new GridLayout());
-		
+
 		history = new StyledText(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.SEARCH | SWT.CANCEL | SWT.MULTI | SWT.WRAP);
 		history.setEditable(false);
 		history.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
+
 		Composite composite = new Composite(container, SWT.NONE);
 		composite.setLayout(new GridLayout(2, false));
 		GridData textCompositeData = new GridData(SWT.FILL, SWT.BOTTOM, true, false);
 		textCompositeData.minimumHeight = 35;
 		textCompositeData.heightHint = 35;
 		composite.setLayoutData(textCompositeData);
-		
+
 		text = new Text(composite, SWT.BORDER | SWT.MULTI);
 		text.setToolTipText("Enter message and ENTER to send.");
 		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		keyListener = new KeyListener() {
-			
+
 			@Override
 			public void keyReleased(KeyEvent e) {}
-			
+
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.character=='\r') {
@@ -126,7 +126,7 @@ public class MessageView extends ViewPart implements IObserver {
 				text.removeKeyListener(keyListener);
 			}
 		});
-		
+
 		btnSend = new Button(composite, SWT.NONE);
 		btnSend.setText("Send");
 		selectionListener = new SelectionAdapter() {
@@ -135,16 +135,16 @@ public class MessageView extends ViewPart implements IObserver {
 				sendMessage();
 			}
 		};
-		
+
 		btnSend.addSelectionListener(selectionListener);
-		
+
 		btnSend.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				btnSend.removeSelectionListener(selectionListener);
 			}
 		});
-		
+
 		if(!LocalProperties.isBatonManagementEnabled()){
 			UserMessage msg = new UserMessage(-1, "", "Baton control is not enabled for this beam line.");
 			addUserMessageText(msg);
@@ -159,7 +159,7 @@ public class MessageView extends ViewPart implements IObserver {
 			}
 		}
 	}
-	
+
 	private void sendMessage() {
 		InterfaceProvider.getBatonStateProvider().sendMessage(text.getText());
 		text.setText("");
@@ -169,7 +169,7 @@ public class MessageView extends ViewPart implements IObserver {
 	public void setFocus() {
 		this.text.setFocus();
 	}
-	
+
 	@Override
 	public void dispose() {
 		try {
@@ -179,15 +179,15 @@ public class MessageView extends ViewPart implements IObserver {
 		}
 		super.dispose();
 	}
-	
+
 
 	protected void addUserMessageText(UserMessage message) {
-		
+
 		if (history.getCharCount() > 0) {
 			// add newline to end of previous message - if there is one
 			history.append("\n");
 		}
-		
+
 		StyleRange style = new StyleRange();
 		style.font = new Font(history.getDisplay(), "Monospace", 0, SWT.NORMAL);
 		style.start = history.getCharCount();
@@ -196,7 +196,7 @@ public class MessageView extends ViewPart implements IObserver {
 		style.length = dateTime.length();
 		history.append(dateTime);
 		history.setStyleRange(style);
-		
+
 		style = new StyleRange();
 		style.fontStyle = SWT.BOLD;
 		style.start = history.getCharCount();
@@ -209,12 +209,12 @@ public class MessageView extends ViewPart implements IObserver {
 		style.start = history.getCharCount();
 		style.fontStyle = SWT.BOLD;
 		// CadetBlue from http://www.wilsonmar.com/1colors.htm#TopMenu
-		style.foreground = new Color(this.getSite().getShell().getDisplay(),95,158,160); 
+		style.foreground = new Color(this.getSite().getShell().getDisplay(),95,158,160);
 		history.append(" "); history.append(message.getMessage());
 		style.length = 1 + message.getMessage().length();
 		history.setStyleRange(style);
 	}
-	
+
 	private void scrollToEndOfHistory() {
 		history.setTopIndex(history.getLineCount() - 1);
 	}
@@ -229,7 +229,7 @@ public class MessageView extends ViewPart implements IObserver {
 					addUserMessageText(message);
 					scrollToEndOfHistory();
 				}
-			});	
+			});
 		}
 	}
 

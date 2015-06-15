@@ -49,7 +49,7 @@ public class ScannableCommandsTest extends TestCase {
 
 	/**
 	 * Setups of environment for the tests
-	 * 
+	 *
 	 * @throws Exception
 	 *             if setup fails
 	 */
@@ -84,7 +84,7 @@ public class ScannableCommandsTest extends TestCase {
 	public void testPosWithTripleConcurrentMove() throws Exception {
 		ScannableCommands.pos(lev5a, 1.3, lev6, 1.4, lev5b, 1.35, lev4, 1.2);
 		InOrder inOrder = inOrder(lev4, lev5a, lev5b, lev6);
-		
+
 		// NOTE: The order of this four is unimportant
 		inOrder.verify(lev5a).checkPositionValid(1.3);
 		inOrder.verify(lev6).checkPositionValid(1.4);
@@ -136,7 +136,7 @@ public class ScannableCommandsTest extends TestCase {
 	 */
 	public void testPosWithTripleConcurrentMoveAndFailingScannable() throws Exception {
 		doThrow(new DeviceException("lev5a move failed")).when(lev5a).waitWhileBusy();
-		
+
 		try {
 			ScannableCommands.pos(lev5a, 1.3, lev6, 1.4, lev5b, 1.35, lev4, 1.2);
 			assertFalse(false); // DeviceException expected
@@ -178,7 +178,7 @@ public class ScannableCommandsTest extends TestCase {
 		inOrder.verify(lev5b, never()).getPosition();
 		inOrder.verify(lev4, never()).getPosition();
 	}
-	
+
 	/**
 	 * @throws InterruptedException
 	 * @throws Exception
@@ -197,7 +197,7 @@ public class ScannableCommandsTest extends TestCase {
 		Scannable failer = MockFactory.createMockScannable("failer");
 		doThrow(new DeviceException("Planned failure for test")).when(failer).asynchronousMoveTo(anyObject());
 
-		
+
 		try{
 			ScannableCommands.pos(lev5a, 1.3, lev6, 1.4, failer, 1.35, lev4, 1.2);
 			Assert.fail("InterruptedException expected");
@@ -208,5 +208,5 @@ public class ScannableCommandsTest extends TestCase {
 		for (Scannable scn : Arrays.asList(lev4, lev5a, failer, lev6)) {
 			verify(scn, times(1)).atCommandFailure();
 		}
-	}	
+	}
 }

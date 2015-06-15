@@ -50,7 +50,7 @@ public class ScannableOffsetAndScalingComponent implements PositionConvertor {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	final private void checkPositionLength(Object[] positionArray) {
 		if ((positionArray.length != getHostScannable().getInputNames().length)

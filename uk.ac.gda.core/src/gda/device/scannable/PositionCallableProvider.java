@@ -25,5 +25,5 @@ import java.util.concurrent.Callable;
 public interface PositionCallableProvider<T> {
 
 	public Callable<T> getPositionCallable() throws DeviceException;
-	
+
 }

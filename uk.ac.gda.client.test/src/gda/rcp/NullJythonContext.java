@@ -18,9 +18,9 @@
 
 package gda.rcp;
 
-import java.util.List;
-
 import gda.jython.IJythonContext;
+
+import java.util.List;
 
 public class NullJythonContext implements IJythonContext {
 

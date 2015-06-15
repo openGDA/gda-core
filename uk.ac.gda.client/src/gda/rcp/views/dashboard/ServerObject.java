@@ -32,14 +32,14 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * A class to hold information about the object viewed in the dashboard.
- * 
+ *
  * Will be serialized to XML.
  */
 public abstract class ServerObject implements IObserver {
-	
-	// Only one 
+
+	// Only one
 	private static transient Timer                timer;
-	
+
 	// Not XML serializable.
 	protected transient Set<ServerObjectListener> listeners;
 	protected transient TimerTask currentTask;
@@ -53,11 +53,11 @@ public abstract class ServerObject implements IObserver {
 	protected boolean error;
 	protected String  className;
 	protected String  description;
-	
+
 	// Abstract
 	protected abstract void updateValue(final Object scannable);
     protected abstract void connect() throws Exception;
- 	
+
 	/**
 	 * @return Returns the label.
 	 */
@@ -100,7 +100,7 @@ public abstract class ServerObject implements IObserver {
 	public void setUnit(String unit) {
 		this.unit = unit;
 	}
-	
+
 	/**
 	 * @param l
 	 */
@@ -108,7 +108,7 @@ public abstract class ServerObject implements IObserver {
 		if (listeners==null) listeners = new HashSet<ServerObjectListener>(7);
 		listeners.add(l);
 	}
-	
+
 	/**
 	 * @param l
 	 */
@@ -116,7 +116,7 @@ public abstract class ServerObject implements IObserver {
 		if (listeners==null) return;
 		listeners.remove(l);
 	}
-	
+
 	/**
 	 * May be called by any thread, ends up notifying on the display thread.
 	 * @param evt
@@ -138,7 +138,7 @@ public abstract class ServerObject implements IObserver {
 	private void notifyUprotected(ServerObjectEvent evt) {
 		for (ServerObjectListener l : listeners) l.serverObjectChangePerformed(evt);
 	}
-		
+
 	@Override
 	public void update(final Object theObserved, final Object changeCode) {
 
@@ -149,31 +149,31 @@ public abstract class ServerObject implements IObserver {
 		    } else {
 		    	updateValue(theObserved);
 		    }
-		    
+
 		} else if (changeCode instanceof EnumPositionerStatus) {
 		    doSingleTask(theObserved);
 		}
 	}
-	
+
 	private void stopUpdateTask(Object theObserved) {
 		if (currentTask!=null) {
 			currentTask.cancel();
 			currentTask = null;
 		}
-		
+
 		// Sometimes we get told it stopped moving without being
 		// told it started.
 		doSingleTask(theObserved);
 	}
-	
+
 	protected void doSingleTask(final Object theObserved) {
 		// Creates thread and has it wait for tasks so
 		// we only create the timer if it is really needed.
 		// The thread only exists while the object is added to the dashboard.
 		// If the user deletes it, the thread is terminated. The thread
-		// is not paused using a sleep, it only wakes up when the 
-		// timer task runs. 
-		if (timer==null) timer = new Timer("Dashboard Timer", true); 
+		// is not paused using a sleep, it only wakes up when the
+		// timer task runs.
+		if (timer==null) timer = new Timer("Dashboard Timer", true);
    	    currentTask = new TimerTask() {
     		@Override
 			public void run() {
@@ -182,8 +182,8 @@ public abstract class ServerObject implements IObserver {
     	};
     	timer.schedule(currentTask, 0);
 	}
-	
-	
+
+
 	protected static void cancelTimer() {
 		if (timer!=null) {
 			timer.cancel();
@@ -199,7 +199,7 @@ public abstract class ServerObject implements IObserver {
     		currentTask.cancel();
     	}
     }
-	
+
 	/**
 	 * Called if the object is deleted from the dashboard.
 	 * Stops any monitor threads.

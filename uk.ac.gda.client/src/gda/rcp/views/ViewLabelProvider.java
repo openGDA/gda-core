@@ -24,7 +24,7 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 public class ViewLabelProvider extends LabelProvider {
-	
+
 	@Override
 	public String getText(Object obj) {
 		return obj.toString();
@@ -39,5 +39,5 @@ public class ViewLabelProvider extends LabelProvider {
 		}
 		return PlatformUI.getWorkbench().getSharedImages().getImage(imageKey);
 	}
-	
+
 }

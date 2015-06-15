@@ -34,16 +34,16 @@ import org.springframework.context.ApplicationContextAware;
 
 /**
  * Extension of {@link ImplFactory} that makes all objects in a Spring {@link ApplicationContext} available.
- * 
+ *
  * <p>The {@code <corba:export />} element should be used to add an instance of this class to your
  * Spring context. There is no need to manually add a bean definition.
  */
 public class SpringImplFactory extends ImplFactory implements ApplicationContextAware, Configurable {
 
 	private static final Logger logger = LoggerFactory.getLogger(SpringImplFactory.class);
-	
+
 	private ApplicationContext applicationContext;
-	
+
 	private String namespace;
 
 	@Override
@@ -65,11 +65,11 @@ public class SpringImplFactory extends ImplFactory implements ApplicationContext
 		logger.info("Making objects in Spring context available through CORBA...");
 		makeObjectsAvailable();
 	}
-	
+
 	@Override
 	protected List<Findable> getFindablesToMakeAvailable() {
 		Map<String, Findable> findables = applicationContext.getBeansOfType(Findable.class);
 		return new Vector<Findable>(findables.values());
 	}
-	
+
 }

@@ -33,7 +33,7 @@ public class AutoCompletionGetter {
 	final List<AutoCompletionParts> options;
 
 	/**
-	 * @param commandRunner 
+	 * @param commandRunner
 	 * @param lastWord
 	 */
 	public AutoCompletionGetter(ICommandRunner commandRunner,  String lastWord) {

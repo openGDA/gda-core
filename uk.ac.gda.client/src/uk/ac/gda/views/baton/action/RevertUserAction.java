@@ -31,10 +31,10 @@ public class RevertUserAction extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
+
 		InterfaceProvider.getBatonStateProvider().revertToOriginalUser();
 		return RefreshBatonAction.refresh();
-	
+
 	}
 
 }

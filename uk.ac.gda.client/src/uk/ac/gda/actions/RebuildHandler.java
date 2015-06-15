@@ -41,16 +41,16 @@ public class RebuildHandler extends AbstractHandler {
 			if (page != null) {
 				page.saveAllEditors(false);
 			}
-			
+
 			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			GlobalBuildAction build = new GlobalBuildAction(window, IncrementalProjectBuilder.FULL_BUILD);
 			build.doBuild();
 
 			return Boolean.TRUE;
-			
+
 		} catch (Exception ne) {
 			throw new ExecutionException(ne.getMessage(), ne);
-			
+
 		}
 	}
 

@@ -38,9 +38,9 @@ import org.slf4j.LoggerFactory;
  * without reading it in again etc... for example....curve fitting of data etc...
  */
 public class Project extends ManagedDataObject implements Configurable, Serializable, Findable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Project.class);
-	
+
 	private Folder root;
 
 	private Path currentPath;
@@ -57,7 +57,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * Create a new Project.
-	 * 
+	 *
 	 * @param name
 	 */
 	public Project(String name) {
@@ -73,7 +73,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * Finds an object from given path
-	 * 
+	 *
 	 * @param path
 	 * @return A ManagedObject. This could be a Folder, data object etc..
 	 * @throws IllegalArgumentException
@@ -97,7 +97,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 	/**
 	 * Get the Object at a given path in the Project. The path can either be absolute or relative to the current working
 	 * directory.
-	 * 
+	 *
 	 * @param path
 	 *            The path.
 	 * @return The corresponding ManagedDataObject.
@@ -115,7 +115,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * Get the Project at a given mount point.
-	 * 
+	 *
 	 * @param path
 	 *            Mount Point.
 	 * @return The corresponding Project.
@@ -131,7 +131,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * Change to a given directory.
-	 * 
+	 *
 	 * @param path
 	 *            The absolute or relative path of the directory we are changing to.
 	 * @throws IllegalArgumentException
@@ -158,7 +158,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * Get the path of the current working directory.
-	 * 
+	 *
 	 * @return The path of the current working directory.
 	 */
 	public String pwd() {
@@ -167,7 +167,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * List, into a given output stream Non-recursive
-	 * 
+	 *
 	 * @throws IllegalArgumentException
 	 *             If the path does not exist.
 	 */
@@ -178,7 +178,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 	/**
 	 * List, into a given output stream, all the ManagedObjects, including directories (but not "." and ".."), in a
 	 * given path. Directories end with "/". Non-recursive
-	 * 
+	 *
 	 * @param path
 	 *            The path where the list has to be performed (by default the current directory "."). in all the
 	 *            directories under path (the default is <code>false</code>.
@@ -192,7 +192,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 	/**
 	 * List, into a given output stream, all the ManagedObjects, including directories (but not "." and ".."), in a
 	 * given path. Directories end with "/". The list can be recursive.
-	 * 
+	 *
 	 * @param path
 	 *            The path where the list has to be performed (by default the current directory ".").
 	 * @param recursive
@@ -258,7 +258,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 	/**
 	 * Create a new directory. Given a path only the last directory in it is created if all the intermediate
 	 * subdirectories already exist.
-	 * 
+	 *
 	 * @param path
 	 *            The absolute or relative path of the new directory.
 	 * @throws IllegalArgumentException
@@ -300,7 +300,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 	/**
 	 * Create a directory recursively. Given a path the last directory and all the intermediate non-existing
 	 * subdirectories are created.
-	 * 
+	 *
 	 * @param path
 	 *            The absolute or relative path of the new directory.
 	 * @throws IllegalArgumentException
@@ -337,7 +337,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * Remove a directory and all the contents underneath.
-	 * 
+	 *
 	 * @param path
 	 *            The absolute or relative path of the directory to be removed.
 	 * @throws IllegalArgumentException
@@ -364,7 +364,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 	/**
 	 * Remove an Object by specifying its path. If the path points to a mount point, the mount point should first
 	 * commit, then close and delete the project object.
-	 * 
+	 *
 	 * @param path
 	 *            The absolute or relative path of the Object to be removed.
 	 * @throws IllegalArgumentException
@@ -393,7 +393,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * Move an Object or a directory from one directory to another.
-	 * 
+	 *
 	 * @param oldPath
 	 *            The path of the Object or direcoty to be moved.
 	 * @param newPath
@@ -498,7 +498,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * Set the strategy of what should happen if two objects have the same path. Default is overwrite.
-	 * 
+	 *
 	 * @param overwrite
 	 *            <code>true</code> to enable overwriting.
 	 */
@@ -508,7 +508,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * Copy an object from a path to another.
-	 * 
+	 *
 	 * @param oldPath
 	 *            The path of the object to be copied.
 	 * @param newPath
@@ -522,7 +522,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * Copy an object from a path to another.
-	 * 
+	 *
 	 * @param oldPath
 	 *            The path of the object to be copied.
 	 * @param newPath
@@ -597,7 +597,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * Create a symbolic link to an object in the Iproject.
-	 * 
+	 *
 	 * @param path
 	 *            The absolute or relative path of the object to be linked.
 	 * @param alias
@@ -668,11 +668,11 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * Mounts a project within another (target) project. A project can only be mounted once. Example:
-	 * 
+	 *
 	 * <pre>
 	 * target.mount(&quot;/home/tonyj&quot;, project, &quot;/&quot;);
 	 * </pre>
-	 * 
+	 *
 	 * @param path
 	 *            The path in the target project
 	 * @param project
@@ -726,11 +726,11 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * Mounts a project within another (target) project. A project can only be mounted once. Example:
-	 * 
+	 *
 	 * <pre>
 	 * target.mount(&quot;/home/tonyj&quot;, project, &quot;/&quot;);
 	 * </pre>
-	 * 
+	 *
 	 * @param path
 	 *            The path in the target project
 	 * @param filename
@@ -761,7 +761,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 	/**
 	 * Unmount a subproject at a given path (mount point). Whenever a project is destroyed it first unmounts all
 	 * dependent projects.
-	 * 
+	 *
 	 * @param path
 	 *            The path of the subproject to be unmounted.
 	 * @throws IllegalArgumentException
@@ -790,7 +790,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * Method to check if it is read only.
-	 * 
+	 *
 	 * @return If it is read only.
 	 */
 	public boolean isReadOnly() {
@@ -800,7 +800,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 	/**
 	 * This "add" method is called from the IStore, and can create new folders if it is needed. Does not overwrite
 	 * existing objects, just skip them.
-	 * 
+	 *
 	 * @param path
 	 * @param name
 	 * @param child
@@ -812,7 +812,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 	/**
 	 * This "add" method is called from Factories (HistogramFactory, ...), and can create new folders if it is needed.
 	 * It does overwrite existing objects.
-	 * 
+	 *
 	 * @param path
 	 * @param name
 	 * @param child
@@ -860,7 +860,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 	 * Return all Object in the path, from the Root down to the last path node (inclusive). No interaction with the
 	 * Store - no new objects are created here. If some objects in the path do not exist in the project, fill "null".
 	 * This method can be used on folder or object
-	 * 
+	 *
 	 * @param path
 	 * @return all Object in the path,
 	 */
@@ -893,7 +893,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 
 	/**
 	 * Returns the last object in the Path, the object must be a folder
-	 * 
+	 *
 	 * @param path
 	 *            Path to the folder that needs to be checked and, possibly, filled.
 	 * @return the last object in the Path, the object must be a folder. If object is a Folder, check if it has been
@@ -970,7 +970,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 	 * Get the list of names of the Objects under a given path, including directories (but not "." and "..").
 	 * Directories end with "/". The returned names are appended to the given path unless the latter is ".". in all the
 	 * directories under path (the default is <code>false</code>.
-	 * 
+	 *
 	 * @return list of names of objects
 	 * @throws IllegalArgumentException
 	 *             If the path does not exist.
@@ -982,7 +982,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 	/**
 	 * Get the list of names of the Objects under a given path, including directories (but not "." and "..").
 	 * Directories end with "/". The returned names are appended to the given path unless the latter is ".".
-	 * 
+	 *
 	 * @param path
 	 *            The path where the list has to be performed (by default the current directory "."). in all the
 	 *            directories under path (the default is <code>false</code>.
@@ -997,7 +997,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 	/**
 	 * Get the list of names of the Objects under a given path, including directories (but not "." and "..").
 	 * Directories end with "/". The returned names are appended to the given path unless the latter is ".".
-	 * 
+	 *
 	 * @param path
 	 *            The path where the list has to be performed (by default the current directory ".").
 	 * @param recursive
@@ -1044,7 +1044,7 @@ public class Project extends ManagedDataObject implements Configurable, Serializ
 	/**
 	 * Returns the last object in the Path. If object is a Folder, check if it has been filled and fill it from the
 	 * Store if needed.
-	 * 
+	 *
 	 * @param path
 	 *            Path to the folder that needs to be checked and, possibly, filled.
 	 * @return Object The last object in the path.

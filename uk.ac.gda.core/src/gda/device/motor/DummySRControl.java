@@ -19,11 +19,11 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple device class for Windows systems to interface to the SR control system at DL. It uses the Java native
@@ -32,9 +32,9 @@ import gda.device.DeviceException;
  * combination needs also needs to be registered with the control network.
  */
 public class DummySRControl extends DeviceBase implements SRControlInterface {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DummySRControl.class);
-	
+
 	// Unless these values are reset by XML an exception will be thrown
 	// roughly
 	// every 200th (1 / exceptionLevel) call of setValue or getValue. Once
@@ -68,7 +68,7 @@ public class DummySRControl extends DeviceBase implements SRControlInterface {
 	/**
 	 * Initialise call to Control network, not strictly necessary though can be used to see if network operating
 	 * correctly.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -77,7 +77,7 @@ public class DummySRControl extends DeviceBase implements SRControlInterface {
 
 	/**
 	 * Writes the given data value for the specified property of a control system parameter
-	 * 
+	 *
 	 * @param parameter -
 	 *            string containing name of control systeme parameter
 	 * @param setProperty -
@@ -120,7 +120,7 @@ public class DummySRControl extends DeviceBase implements SRControlInterface {
 
 	/**
 	 * Reads the data value for the specified property of a control system parameter
-	 * 
+	 *
 	 * @param parameter -
 	 *            string containing name of control systeme parameter
 	 * @param getProperty -
@@ -163,7 +163,7 @@ public class DummySRControl extends DeviceBase implements SRControlInterface {
 
 	/**
 	 * Returns a string description of the input status code for the control parameter in question
-	 * 
+	 *
 	 * @param parameter -
 	 *            string containing name of control systeme parameter
 	 * @param code -
@@ -331,7 +331,7 @@ public class DummySRControl extends DeviceBase implements SRControlInterface {
 
 	/**
 	 * Get the value used in the test to determine whether an exception is thrown.
-	 * 
+	 *
 	 * @return exception level value which should be between 0 and 1
 	 */
 	public double getExceptionLevel() {
@@ -341,7 +341,7 @@ public class DummySRControl extends DeviceBase implements SRControlInterface {
 	/**
 	 * Sets the value used in the test to determine whether an exception is thrown. An exception will be thrown roughly
 	 * every 1/exceptionLevel calls to setValue and getValue.
-	 * 
+	 *
 	 * @param exceptionLevel
 	 *            a value between 0 (off) and 1.
 	 */
@@ -351,7 +351,7 @@ public class DummySRControl extends DeviceBase implements SRControlInterface {
 
 	/**
 	 * Get the number of broken exceptions raised.
-	 * 
+	 *
 	 * @return the number of broken exception
 	 */
 	public int getNumberOfBrokenExceptions() {
@@ -360,7 +360,7 @@ public class DummySRControl extends DeviceBase implements SRControlInterface {
 
 	/**
 	 * Set the number of broken exceptions raised.
-	 * 
+	 *
 	 * @param numberOfBrokenExceptions
 	 */
 	public void setNumberOfBrokenExceptions(int numberOfBrokenExceptions) {

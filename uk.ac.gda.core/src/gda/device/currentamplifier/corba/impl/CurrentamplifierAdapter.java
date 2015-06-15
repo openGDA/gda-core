@@ -41,7 +41,7 @@ public class CurrentamplifierAdapter extends ScannableAdapter implements Current
 	private CorbaCurrentAmplifier corbaCurrAmp;
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

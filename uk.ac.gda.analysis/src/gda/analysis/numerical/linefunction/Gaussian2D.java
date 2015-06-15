@@ -28,7 +28,7 @@ public class Gaussian2D extends AbstractFunction {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param parms
 	 */
 	public Gaussian2D(double... parms) {

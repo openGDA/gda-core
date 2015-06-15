@@ -31,7 +31,7 @@ import org.apache.sshd.server.ShellFactory.Shell;
  * Represents a GDA SSH {@link Shell}.
  */
 public class SshShell implements Shell {
-	
+
 	private boolean useJline;
 
 	public SshShell(boolean useJline) {
@@ -39,9 +39,9 @@ public class SshShell implements Shell {
 	}
 
 	private InputStream inputStream;
-	
+
 	private OutputStream outputStream;
-	
+
 	private ExitCallback exitCallback;
 
 	private ServerThread serverThread;
@@ -72,7 +72,7 @@ public class SshShell implements Shell {
 		serverThread.setUseJline(useJline);
 		serverThread.start();
 	}
-	
+
 	@Override
 	public void destroy() {
 		// TODO SshShell: implement destroy()

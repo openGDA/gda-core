@@ -18,18 +18,18 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.MotorException;
 import gda.device.MotorStatus;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A temporary fix for certain unstable Newport XPS motors. When moves are made the KI value in the PID integration time
  * must be adjusted before making the move and then reset after the move has completed.
  */
 public final class NewportXPSMotor_VaryIntegration extends NewportXPSMotor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(NewportXPSMotor_VaryIntegration.class);
 
 	private double KIWhenMoving = 0;

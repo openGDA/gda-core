@@ -19,20 +19,20 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.factory.Findable;
 import gda.util.Sleep;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Singleton class to control communication between the Aerotech 3200 software motor control envronment and an Aerotech
  * motor class.
  */
 public class Aerotech3200Controller extends DeviceBase implements Findable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Aerotech3200Controller.class);
 
 	final private int NOERROR = 0;
@@ -55,22 +55,22 @@ public class Aerotech3200Controller extends DeviceBase implements Findable {
 	private int numMotors = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	final public int READY = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	final public int BUSY = 1;
 
 	/**
-	 * 
+	 *
 	 */
 	final public int CWLIMIT = 2;
 
 	/**
-	 * 
+	 *
 	 */
 	final public int CCWLIMIT = 3;
 
@@ -230,7 +230,7 @@ public class Aerotech3200Controller extends DeviceBase implements Findable {
 
 	/**
 	 * Stops the Aerotech 3200 software system
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void stopSystem() throws DeviceException {
@@ -253,7 +253,7 @@ public class Aerotech3200Controller extends DeviceBase implements Findable {
 
 	/**
 	 * Moves chosen motor axis to absolute target position at requested speed
-	 * 
+	 *
 	 * @param axis
 	 *            the axis
 	 * @param target
@@ -291,7 +291,7 @@ public class Aerotech3200Controller extends DeviceBase implements Findable {
 
 	/**
 	 * Moves chosen motor axis by required steps at requested speed
-	 * 
+	 *
 	 * @param axis
 	 *            the axis
 	 * @param steps
@@ -312,7 +312,7 @@ public class Aerotech3200Controller extends DeviceBase implements Findable {
 
 	/**
 	 * Performs emergency abort on chosen motor axis
-	 * 
+	 *
 	 * @param axis
 	 *            the axis
 	 * @throws DeviceException
@@ -329,7 +329,7 @@ public class Aerotech3200Controller extends DeviceBase implements Findable {
 
 	/**
 	 * Homes chosen motor axis movemeint
-	 * 
+	 *
 	 * @param axis
 	 *            the axis
 	 * @throws DeviceException
@@ -355,7 +355,7 @@ public class Aerotech3200Controller extends DeviceBase implements Findable {
 
 	/**
 	 * Performs controlled halt on chosen motor axis movement
-	 * 
+	 *
 	 * @param axis
 	 *            the axis
 	 * @throws DeviceException
@@ -372,7 +372,7 @@ public class Aerotech3200Controller extends DeviceBase implements Findable {
 
 	/**
 	 * Retruns current motor position of chosen motor axis
-	 * 
+	 *
 	 * @param axis
 	 *            the axis
 	 * @return the current motor position
@@ -413,7 +413,7 @@ public class Aerotech3200Controller extends DeviceBase implements Findable {
 
 	/**
 	 * Sets motor position of chosen motor axis to input value
-	 * 
+	 *
 	 * @param axis
 	 *            the axis
 	 * @param value
@@ -433,7 +433,7 @@ public class Aerotech3200Controller extends DeviceBase implements Findable {
 
 	/**
 	 * Returns a string description of the input axis status
-	 * 
+	 *
 	 * @param axis
 	 *            motor axis of interest
 	 * @return the input axis status string
@@ -464,7 +464,7 @@ public class Aerotech3200Controller extends DeviceBase implements Findable {
 
 	/**
 	 * Returns true if motor has been homed
-	 * 
+	 *
 	 * @param axis
 	 *            the axis
 	 * @return true if motor has been homed

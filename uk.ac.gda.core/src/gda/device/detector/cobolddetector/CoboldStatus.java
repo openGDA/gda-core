@@ -51,7 +51,7 @@ public class CoboldStatus {
 
 	/**
 	 * Get the integer value of the Cobold status message
-	 * 
+	 *
 	 * @param s
 	 *            the status string
 	 * @return value int value of the status

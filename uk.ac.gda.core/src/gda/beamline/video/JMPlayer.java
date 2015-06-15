@@ -106,7 +106,7 @@ public class JMPlayer {
 
 	/**
 	 * Sets the path to the MPlayer executable.
-	 * 
+	 *
 	 * @param mplayerPath
 	 *            the new MPlayer path; this will be actually efective after {@link #close() closing} the currently
 	 *            running player.
@@ -179,7 +179,7 @@ public class JMPlayer {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void close() {
 		if (mplayerProcess != null) {
@@ -201,7 +201,7 @@ public class JMPlayer {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void togglePlay() {
 		execute("pause");
@@ -294,7 +294,7 @@ public class JMPlayer {
 
 	/**
 	 * Sends a command to MPlayer..
-	 * 
+	 *
 	 * @param command
 	 *            the command to be sent
 	 */
@@ -304,7 +304,7 @@ public class JMPlayer {
 
 	/**
 	 * Sends a command to MPlayer and waits for an answer.
-	 * 
+	 *
 	 * @param command
 	 *            the command to be sent
 	 * @param expected
@@ -330,7 +330,7 @@ public class JMPlayer {
 
 	/**
 	 * Read from the MPlayer standard output and error a line that starts with the given parameter and return it.
-	 * 
+	 *
 	 * @param expected
 	 *            the expected starting string for the line
 	 * @return the entire line from the standard output or error of MPlayer

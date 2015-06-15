@@ -47,9 +47,9 @@ import org.slf4j.LoggerFactory;
  */
 
 public class ODCCDController extends DetectorBase implements Configurable, Serializable, Findable, Detector, ODCCD {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ODCCDController.class);
-	
+
 	// Private data members. These may contain some hard coded parameters
 	// to enable communication to IS software.
 
@@ -127,7 +127,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Connect to the IS software on remote host.
-	 * 
+	 *
 	 * @param host
 	 *            The remote host IS is running on.
 	 * @throws IOException
@@ -139,7 +139,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 		try {
 			// Connect to IS software on remote host at 9120.
-			getODCCDNativeSock().connect(host, Port); 
+			getODCCDNativeSock().connect(host, Port);
 
 			// Read first line
 			theInput = getODCCDNativeSock().readUntil(mEndChar);
@@ -185,7 +185,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Method to connect for the first time the GDA client.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	private synchronized void newConnectProcedure() throws IOException {
@@ -218,7 +218,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Is the CCD control object connected to the CCD?
-	 * 
+	 *
 	 * @return true or false
 	 */
 	@Override
@@ -228,7 +228,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Send a command to IS. All commands sent to IS go through this method.
-	 * 
+	 *
 	 * @param command
 	 */
 	private synchronized void writeCommand(String command) {
@@ -248,7 +248,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Read input stream until <code>str</code> is found.
-	 * 
+	 *
 	 * @param str
 	 *            The string to search for.
 	 * @return input data
@@ -260,7 +260,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * What command do we want to use here? Don't forget to call super.collectData()
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -270,7 +270,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * How do we decide when we are in what status? Don't forget to call super.getStatus()
-	 * 
+	 *
 	 * @return the status
 	 * @throws DeviceException
 	 */
@@ -281,7 +281,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * What is this used for? Is this used with this.collectData() in a scan? Don't forget to call super.readout();
-	 * 
+	 *
 	 * @return the data
 	 * @throws DeviceException
 	 */
@@ -292,7 +292,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Returns the name of the last data read from the CCD.
-	 * 
+	 *
 	 * @return The data name.
 	 */
 	@Override
@@ -302,7 +302,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Read the CCD temperature.
-	 * 
+	 *
 	 * @return The CCD temperature.
 	 */
 	@Override
@@ -319,7 +319,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Read the chiller unit water temperature.
-	 * 
+	 *
 	 * @return The water temperature.
 	 */
 	@Override
@@ -334,7 +334,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Take a single image.
-	 * 
+	 *
 	 * @param secs
 	 *            Time of exposure.
 	 * @return The image data
@@ -347,7 +347,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Take a darkcurrent
-	 * 
+	 *
 	 * @param secs
 	 *            Time of exposure
 	 * @return The dark current image data.
@@ -361,7 +361,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	/**
 	 * Use this method to call a user script on the IS host. Example 1: call save_dark 1.0 2 \"d:/dark2.img\" Example 3:
 	 * call dark_cor 10.0 2 "//root/Darks/"
-	 * 
+	 *
 	 * @param command
 	 *            The command to run on IS
 	 */
@@ -372,7 +372,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Reads the data from an IS database node.
-	 * 
+	 *
 	 * @param pathname
 	 *            The location of the data
 	 * @return The data in a <code>byte[]</code> array.
@@ -386,7 +386,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Read an image by reading several data frames from IS and appending the data buffers.
-	 * 
+	 *
 	 * @return The image in a ODCCDImage object.
 	 */
 	public synchronized ODCCDImage readImage() {
@@ -398,7 +398,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 		} while (mBinaryHeader.getFlags() >> 12 != 4);
 		return image;
 	}
-	
+
 	/**
 	 * @return int
 	 */
@@ -428,7 +428,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	}
 	/**
 	 * Read the shutter status
-	 * 
+	 *
 	 * @return OPEN or CLOSED
 	 */
 	@Override
@@ -455,7 +455,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Method to open the shutter. It returns the status of the shutter.
-	 * 
+	 *
 	 * @return OPEN
 	 */
 	@Override
@@ -466,7 +466,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Method to close the shutter. It returns the status of the shutter.
-	 * 
+	 *
 	 * @return CLOSED
 	 */
 	@Override
@@ -478,7 +478,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 	/**
 	 * Send a command to IS if IS is running in binary mode. This method reads the IS binary header data (and fills the
 	 * header data object). It also reads any padding, up to the start of the data buffer.
-	 * 
+	 *
 	 * @param command
 	 */
 	private synchronized void binaryCommand(String command) {
@@ -532,7 +532,7 @@ public class ODCCDController extends DetectorBase implements Configurable, Seria
 
 	/**
 	 * Read the binary image, using the previously read header information
-	 * 
+	 *
 	 * @return The image in a byte[] array.
 	 */
 	public synchronized byte[] readBinaryFrame() {

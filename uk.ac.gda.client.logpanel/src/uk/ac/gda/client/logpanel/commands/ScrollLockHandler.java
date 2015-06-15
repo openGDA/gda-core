@@ -37,7 +37,7 @@ public class ScrollLockHandler extends AbstractHandler {
 		 * and perhaps Logpanel.createScrollLockCheckBox created Buttons using IElementUpdater(?)
 		 * but I couldn't get it to work.
 		 */
-		State state = event.getCommand().getState(SCROLL_LOCK_TOGGLE_STATE_ID); 
+		State state = event.getCommand().getState(SCROLL_LOCK_TOGGLE_STATE_ID);
 		state.setValue(!(Boolean) state.getValue());
 		Logpanel logpanel = ((LogpanelView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().findView(LogpanelView.ID)).getLogpanel();
 		logpanel.setScrollLockChecked((Boolean) state.getValue());

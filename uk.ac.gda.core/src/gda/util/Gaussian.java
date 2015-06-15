@@ -60,7 +60,7 @@ public class Gaussian {
 
 	/**
 	 * Constructor which creates a Gaussian by directly specifying its position, width and height.
-	 * 
+	 *
 	 * @param position
 	 *            the position of the peak
 	 * @param width
@@ -77,7 +77,7 @@ public class Gaussian {
 	/**
 	 * Constructor which creates a Gaussian by the three point fit method or least squares fit method from sets of x and
 	 * y data.
-	 * 
+	 *
 	 * @param xvals
 	 *            the array of xvalues
 	 * @param yvals
@@ -104,7 +104,7 @@ public class Gaussian {
 
 	/**
 	 * Initializes using a simple three point fit method.
-	 * 
+	 *
 	 * @param x
 	 *            array of three x values
 	 * @param y
@@ -130,7 +130,7 @@ public class Gaussian {
 
 	/**
 	 * Calculates the y value at a given x value
-	 * 
+	 *
 	 * @param xVal
 	 *            the x value to be used
 	 * @return the calculated y value
@@ -145,7 +145,7 @@ public class Gaussian {
 
 	/**
 	 * Calculates the derivative at a given x value
-	 * 
+	 *
 	 * @param xVal
 	 *            the x value to be used
 	 * @return the calculated derivative
@@ -162,7 +162,7 @@ public class Gaussian {
 
 	/**
 	 * Calculates the x value at a given y value
-	 * 
+	 *
 	 * @param yVal
 	 *            the y value to be used
 	 * @param side
@@ -181,7 +181,7 @@ public class Gaussian {
 
 	/**
 	 * Calculates the derivative at a given y value
-	 * 
+	 *
 	 * @param yVal
 	 *            the y value to be used
 	 * @param side

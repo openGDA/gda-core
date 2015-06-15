@@ -84,10 +84,10 @@ public class ConcurrentScanTest {
 			return name;
 		}
 	}
-	
-	
-	
-	
+
+
+
+
 	interface DetectorWithReadoutDetector extends Detector, DetectorWithReadout{}
 	static String testScratchDirectoryName;
 
@@ -103,7 +103,7 @@ public class ConcurrentScanTest {
 
 	/**
 	 * Setups of environment for the tests
-	 * 
+	 *
 	 * @throws Exception
 	 *             if setup fails
 	 */
@@ -126,7 +126,7 @@ public class ConcurrentScanTest {
 		testScratchDirectoryName = TestHelpers.setUpTest(this.getClass(),
 				"testExceptionInPositionCallables", true);
 		setLocalProperties();
-		
+
 		Scannable ix = MockFactory.createMockScannable("ix");
 		PositionCallableProvidingScannable scn1 = MockFactory.createMockScannable(PositionCallableProvidingScannable.class, "s1",
 				new String[] { "scn1" }, new String[] {}, new String[] { "formatc" }, 5, null);
@@ -134,10 +134,10 @@ public class ConcurrentScanTest {
 		/*		PositionCallableProvidingScannable scn2 = MockFactory.createMockScannable(PositionCallableProvidingScannable.class, "s1",
 				new String[] { "scn2" }, new String[] {}, new String[] { "formatc" }, 5, null);
 */
-		
 
 
-		
+
+
 		Callable<Double> myCallable = new Callable<Double>() {
 
 			@Override
@@ -145,7 +145,7 @@ public class ConcurrentScanTest {
 //				Thread.sleep(5000);
 				throw new Exception("Error in call");
 			}
-			
+
 		};
 /*		NamedObject posc1 = new NamedObject("posc1");
 		NamedObject posc2 = new NamedObject("posc2");
@@ -155,11 +155,11 @@ public class ConcurrentScanTest {
 		when(callablec3.call()).thenThrow(new Exception("callablec3 throws exception in call method"));
 		Callable callablec3a = mock(Callable.class);
 		when(callablec3a.call()).thenThrow(new Exception("callablec3 throws exception in call method"));
-		when(scn1.getPositionCallable()).thenReturn(callablec3);		
-		when(scn2.getPositionCallable()).thenReturn(callablec3a);		
-*/		
-		when(scn1.getPositionCallable()).thenReturn(myCallable);		
-		
+		when(scn1.getPositionCallable()).thenReturn(callablec3);
+		when(scn2.getPositionCallable()).thenReturn(callablec3a);
+*/
+		when(scn1.getPositionCallable()).thenReturn(myCallable);
+
 		final ConcurrentScan scan = new ConcurrentScan(new Object[] { ix, 0., 100., 1., scn1});
 		Thread thread = new Thread( new Runnable() {
 
@@ -170,19 +170,19 @@ public class ConcurrentScanTest {
 				} catch (Exception e) {
 					logger.error("Exception seen in runScan", e);
 				}
-				
+
 			}});
-		
+
 		thread.start();
 		thread.join();
 		System.out.println("end");
-			
-	}	
-	
-	
+
+	}
+
+
 	/**
 	 * Verify the appropriate bits on a scannable are called in a scan for command: scan smoved 0 10 1 sread
-	 * 
+	 *
 	 * @throws InterruptedException
 	 * @throws Exception
 	 */
@@ -312,7 +312,7 @@ public class ConcurrentScanTest {
 		inOrder.verify(detlev9b).waitWhileBusy();
 		inOrder.verify(detlev9a).atLevelEnd();
 		inOrder.verify(detlev9b).atLevelEnd();
-		
+
 	}
 	protected void verifyBigScanMoveLevel4Scannables(InOrder inOrder, double pos4)
 			throws DeviceException, InterruptedException {
@@ -330,7 +330,7 @@ public class ConcurrentScanTest {
 		inOrder.verify(lev6).getPosition();
 		inOrder.verify(lev6b).getPosition();
 	}
-	
+
 	protected void verifyBigScanReadout(InOrder inOrder) throws DeviceException {
 		inOrder.verify(detlev9a).readout();
 		inOrder.verify(detlev9b).readout();
@@ -369,7 +369,7 @@ public class ConcurrentScanTest {
 		inOrder.verify(detlev9b).atScanEnd();
 		inOrder.verify(detlev5).atScanEnd();
 	}
-	
+
 	protected InOrder runBigScan() throws InterruptedException, Exception {
 		setLocalProperties();
 		new ConcurrentScan(
@@ -509,7 +509,7 @@ public class ConcurrentScanTest {
 		verify(detlev9a, times(2)).atPointEnd();
 		verify(detlev9b, times(2)).atPointEnd();
 		verify(detlev5, times(2)).atPointEnd();
-		
+
 	}
 
 	@Test
@@ -532,7 +532,7 @@ public class ConcurrentScanTest {
 
 		verifyBigScanAtScanLineStart(inOrder);
 		verifyBigScanAtPointStart(inOrder);
-		
+
 		verifyBigScanMoveLevel5AndAboveScannablesAndcollectDetectors(inOrder,  10., 2., 3.);
 		verifyBigScanGetPosition(inOrder);
 		verifyBigScanReadout(inOrder);
@@ -547,7 +547,7 @@ public class ConcurrentScanTest {
 		verifyBigScanAtScanLineEnd(inOrder);
 
 		// Second line lev4 = 1.
-		
+
 		verifyBigScanMoveLevel4Scannables(inOrder, 1.);
 
 		verifyBigScanAtScanLineStart(inOrder);
@@ -596,7 +596,7 @@ public class ConcurrentScanTest {
 
 		// The first point (special case in code)
 		inOrder = inOrder(lev4, lev5a, lev5b, lev6);
-		
+
 		inOrder.verify(lev4).atLevelStart();
 		inOrder.verify(lev4).atLevelMoveStart();
 		inOrder.verify(lev4).asynchronousMoveTo(0.);
@@ -783,7 +783,7 @@ public class ConcurrentScanTest {
 		verify(lev5a, never()).atLevelMoveStart();
 		verify(lev5b, times(4)).atLevelMoveStart();
 		verify(lev4, times(4)).atLevelMoveStart();
-		
+
 		//// verify(lev6, times(2)).atLevelStart(); // TODO: only twice as this is part of the outer scan
 		verify(lev5a, times(4)).atLevelStart();
 		verify(lev5b, times(4)).atLevelStart();
@@ -933,7 +933,7 @@ public class ConcurrentScanTest {
 		verify(lev5a, times(2)).atLevelMoveStart();
 		verify(lev5b, times(2)).atLevelMoveStart();
 		verify(lev6, times(2)).atLevelMoveStart();
-		
+
 		verify(lev5a, times(2)).atLevelStart();
 		verify(lev5b, times(2)).atLevelStart();
 		verify(lev6, times(2)).atLevelStart();
@@ -1273,7 +1273,7 @@ public class ConcurrentScanTest {
 		scan.runScan();
 
 	}
-	
+
 	@Test
 	public void testReportDevicesByLevel() throws Exception {
 		testScratchDirectoryName = TestHelpers.setUpTest(this.getClass(),

@@ -52,7 +52,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param scannable
 	 *            the Scannable implementation object
 	 * @param poa
@@ -66,7 +66,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Scannable implementation object
 	 */
 	public Scannable _delegate() {
@@ -75,7 +75,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param scannable
 	 *            set the Scannable implementation object
 	 */
@@ -122,7 +122,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
 		}
 	}
-	
+
 	@Override
 	public void atLevelStart() throws CorbaDeviceException {
 		try {
@@ -132,7 +132,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
 		}
 	}
-	
+
 	@Override
 	public void atLevelEnd() throws CorbaDeviceException {
 		try {
@@ -142,7 +142,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
 		}
 	}
-	
+
 	@Override
 	public void atPointStart() throws CorbaDeviceException {
 		try {
@@ -311,7 +311,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			} else {
 				any.insert_Value(ret);
 			}
-			return any; 
+			return any;
 		} catch (Exception e) {
 			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
 		}
@@ -354,7 +354,7 @@ public class ScannableImpl extends CorbaScannablePOA {
 			throw new CorbaDeviceException(exceptionUtils.getFullStackMsg(e));
 		}
 	}
-	
+
 
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {

@@ -19,19 +19,6 @@
 
 package gda.server.collisionAvoidance;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import java.util.Set;
-
-import org.python.core.PyString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.scannable.CheckedScannableMotion;
 import gda.factory.Configurable;
@@ -39,8 +26,18 @@ import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.factory.Localizable;
 import gda.jython.JythonServerFacade;
-import gda.server.collisionAvoidance.ArrayToString;
-import gda.server.collisionAvoidance.HelperFunctions;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.python.core.PyString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -60,7 +57,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 
 	/**
 	 * Shortcut method to get a link the collision avoidance controller from the finder.
-	 * 
+	 *
 	 * @return the CAC
 	 * @throws CacException
 	 */
@@ -76,7 +73,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 	}
 
 	/*
-	 * 
+	 *
 	 */
 	private CollisionAvoidanceController() {
 		// Singleton
@@ -98,7 +95,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 
 	/**
 	 * Registers a CheckedScannable. Until it registered CheckedScannables won't move.
-	 * 
+	 *
 	 * @param scannableObject
 	 * @throws CacException
 	 */
@@ -115,7 +112,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 	/**
 	 * Unregisters a CheckedScannable. The CheckedScannables won't move. Make sure to unregister any Checkers that are
 	 * tied to the scannable too.
-	 * 
+	 *
 	 * @param scannableName
 	 * @throws CacException
 	 */
@@ -132,7 +129,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 	/**
 	 * Registers a checker with the CAC and ties it to fields from registers scannables. When a request to move one of
 	 * these tied fields is made, the checker is called. a scannable's field
-	 * 
+	 *
 	 * @param checkerObject
 	 * @param scannableNames
 	 * @param paramNames
@@ -153,7 +150,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 
 	/**
 	 * Unregister a checker. If the CAC contains the last link to the actual checker, the checker will be deleted too.
-	 * 
+	 *
 	 * @param checkerName
 	 * @throws CacException
 	 */
@@ -169,7 +166,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 
 	/**
 	 * Checks to see if a move is allowed.
-	 * 
+	 *
 	 * @param scannableName
 	 * @param pos
 	 * @return empty string if okay, otherwise returns a list of strings of the rules this move breaks
@@ -256,7 +253,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 	 * TO BE REMOVED: a null value in pos indicates that the corresponding position of the scannable will not be moved
 	 * from its current value. (For future expandability). This method trhows an exception if the move is not performed
 	 * for any reason.
-	 * 
+	 *
 	 * @param scannableName
 	 * @param pos
 	 * @throws CacException
@@ -368,7 +365,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 
 	/**
 	 * {@inheritDoc} Shows the state of the contoller, including that of its registered scannables and checkers.
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -397,7 +394,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 
 	/**
 	 * Jython method to return string description of the object
-	 * 
+	 *
 	 * @return the result of the toString method
 	 */
 	public PyString __str__() {
@@ -406,7 +403,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 
 	/**
 	 * Jython method to return a string representation of the object
-	 * 
+	 *
 	 * @return the result of the toString method
 	 */
 	public PyString __repr__() {
@@ -454,7 +451,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 	}
 
 	/********************************************************************************
-	 * 
+	 *
 	 ********************************************************************************/
 	class CacChecker {
 		CollisionChecker checkerObject = null; // The external checker object
@@ -521,7 +518,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 
 		/**
 		 * Ask a checker if its safe to move a scannable it is tied to.
-		 * 
+		 *
 		 * @param scannableName
 		 *            The scannable to be moved
 		 * @param position
@@ -605,7 +602,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 	} // end class CacChecker
 
 	/*********************************************************************************
-	 * 
+	 *
 	 **********************************************************************************/
 	class CacScannable {
 		CheckedScannableMotion scannableObject = null; // The external scannable
@@ -624,7 +621,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 		List<String>[] registeredCheckers;
 
 		/*
-		 * 
+		 *
 		 */
 		@SuppressWarnings("unchecked")
 		CacScannable(CheckedScannableMotion _scannableObject) {
@@ -649,7 +646,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 		}
 
 		/*
-		 * 
+		 *
 		 */
 		String[] getParameterNames() {
 			return parameterNames;
@@ -660,7 +657,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 		}
 
 		/*
-		 * 
+		 *
 		 */
 		int getNumberParameters() {
 			return nParameters;
@@ -787,7 +784,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 		}
 
 		/*
-		 * 
+		 *
 		 */
 		private int paramIndex(String paramName) throws CacException {
 			int index = -1;
@@ -804,7 +801,7 @@ public class CollisionAvoidanceController implements Findable, Configurable, Loc
 	} // end class cacScannable
 
 	/*********************************************************************************
-	 * 
+	 *
 	 *********************************************************************************/
 	class CheckedScannableMover extends Thread {
 		CacScannable cacScannable;

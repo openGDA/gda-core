@@ -21,12 +21,12 @@ package gda.scan;
 import java.util.concurrent.SynchronousQueue;
 
 public class SynchronousQueueWithBlockingOffer<E> extends SynchronousQueue<E> {
-	
+
 
 	/**
 	 * Overridden offer now blocks if queue is full. Returns true if offer was accepted, or
 	 * false if the underlying put was interrupted before it succeeded.
-	 * 
+	 *
 	 */
 	@Override
 	public boolean offer(E element) {

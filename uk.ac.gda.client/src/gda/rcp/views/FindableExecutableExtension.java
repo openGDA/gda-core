@@ -30,5 +30,5 @@ import org.springframework.beans.factory.InitializingBean;
  */
 
 public interface FindableExecutableExtension extends Findable, IExecutableExtensionFactory, IExecutableExtension, InitializingBean{
-	
+
 }

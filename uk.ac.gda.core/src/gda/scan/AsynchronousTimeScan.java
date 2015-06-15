@@ -37,9 +37,9 @@ import org.slf4j.LoggerFactory;
  * collection
  */
 public class AsynchronousTimeScan extends ScanBase implements Scan {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(AsynchronousTimeScan.class);
-	
+
 	private double totalTime;
 
 	protected Vector<Detector> asynchronousDetectors = new Vector<Detector>();
@@ -58,7 +58,7 @@ public class AsynchronousTimeScan extends ScanBase implements Scan {
 	/**
 	 * Create an asynchronous timeScan that can be started collecting data and read out at intervals during continuous
 	 * data collection
-	 * 
+	 *
 	 * @param detector
 	 *            the detector to be scanned
 	 * @param totalTime
@@ -80,7 +80,7 @@ public class AsynchronousTimeScan extends ScanBase implements Scan {
 	/**
 	 * Collect the data asynchronously i.e. let the detector do all point iterations. In this case readout() will behave
 	 * in an unusual way and will be detector specific, real data read out being handled by the detector itself
-	 * 
+	 *
 	 * @see gda.scan.Scan#doCollection()
 	 * @throws InterruptedException
 	 * @throws DeviceException
@@ -101,7 +101,7 @@ public class AsynchronousTimeScan extends ScanBase implements Scan {
 		logger.debug("Collecting data at " + df.format(rightNow) + "\n");
 
 		// start data Collection
-		
+
 		waitIfPaused();
 		for (Detector detector : asynchronousDetectors) {
 			checkThreadInterrupted();
@@ -121,7 +121,7 @@ public class AsynchronousTimeScan extends ScanBase implements Scan {
 	/**
 	 * readout whatever pseudo-data the detector has to offer whilst it is continually collecting (might not be the raw
 	 * data!)
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	protected void readout() throws Exception {
@@ -144,7 +144,7 @@ public class AsynchronousTimeScan extends ScanBase implements Scan {
 	/**
 	 * Given a Java time in seconds, wait until that point and then return. If that time has passed, then return
 	 * immediately;
-	 * 
+	 *
 	 * @param targetTime
 	 *            time in milli-seconds
 	 * @throws InterruptedException
@@ -167,7 +167,7 @@ public class AsynchronousTimeScan extends ScanBase implements Scan {
 
 	/**
 	 * Create and run a scan
-	 * 
+	 *
 	 * @param detector
 	 *            the detector object to be scanned
 	 * @param totalTime

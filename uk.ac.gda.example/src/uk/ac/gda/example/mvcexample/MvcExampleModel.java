@@ -29,17 +29,17 @@ import uk.ac.gda.client.observablemodels.ScannableWrapper;
 public interface MvcExampleModel {
 	boolean isSelected() throws DeviceException;
 	void setSelected(boolean selected) throws DeviceException;
-	
+
 	double getPosition() throws DeviceException;
 	void setPosition(double position) throws DeviceException;
-	
-	
+
+
 	public void addPropertyChangeListener(PropertyChangeListener listener);
 	public void removePropertyChangeListener(PropertyChangeListener listener);
 	public static final String SELECTED_PROPERTY_NAME="selected";
 	public static final String POSITION_PROPERTY_NAME="position";
 	ScannableWrapper getScannableWrapper() throws DeviceException, Exception;
-	
+
 	//To allow the list to be updated outside of the UI we need to return an ObservableList whose getElementType returns MvcExampleItem
 	//rather than a List
 	IObservableList getItems();

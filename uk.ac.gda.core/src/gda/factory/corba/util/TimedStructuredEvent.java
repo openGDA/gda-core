@@ -24,7 +24,7 @@ import gda.factory.corba.StructuredEventHelper;
 import gda.util.Serializer;
 
 class TimedStructuredEvent {
-	
+
 	private long timeReceivedMs;
 	private StructuredEvent event;
 	private Object payload;
@@ -33,19 +33,19 @@ class TimedStructuredEvent {
 		this.timeReceivedMs = event.timeReceivedMs;
 		this.event = StructuredEventHelper.extract(event.event);
 	}
-	
+
 
 	public EventHeader getHeader() {
 		return event.eventHeader;
 	}
-	
+
 	public synchronized Object getPayload() {
 		if (payload == null) {
 			payload = Serializer.toObject(event.byteData);
 		}
 		return payload;
 	}
-	
+
 	public long getTimeReceivedMs() {
 		return timeReceivedMs;
 	}

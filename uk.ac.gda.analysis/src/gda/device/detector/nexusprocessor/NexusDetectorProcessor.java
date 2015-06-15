@@ -52,7 +52,7 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 	private boolean readoutDone;
 
 	boolean enableProcessing=true;
-	
+
 	public boolean isEnableProcessing() {
 		return enableProcessing;
 	}
@@ -227,8 +227,8 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 	public void stop() throws DeviceException {
 		detector.stop();
 	}
-	
-	
+
+
 
 	@Override
 	public boolean isBusy() throws DeviceException {
@@ -394,12 +394,12 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 	public void atLevelMoveStart() throws DeviceException {
 		detector.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atLevelStart() throws DeviceException {
 		detector.atLevelStart();
 	}
-	
+
 	@Override
 	public void atLevelEnd() throws DeviceException {
 		detector.atLevelEnd();
@@ -479,7 +479,7 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 						if( result == null){
 							result = new NXDetectorData();
 						}
-						
+
 					}
 				}
 				return result;
@@ -526,7 +526,7 @@ public class NexusDetectorProcessor implements NexusDetector, PositionCallablePr
 		return getHardDet().integratesBetweenPoints();
 	}
 
-	
-	
-	
+
+
+
 }

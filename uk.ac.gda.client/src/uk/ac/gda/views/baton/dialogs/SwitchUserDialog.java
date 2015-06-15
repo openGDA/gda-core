@@ -50,7 +50,7 @@ public class SwitchUserDialog extends Dialog {
 
 	/**
 	 * Create the dialog.
-	 * 
+	 *
 	 * @param parentShell
 	 */
 	public SwitchUserDialog(Shell parentShell) {
@@ -64,7 +64,7 @@ public class SwitchUserDialog extends Dialog {
 	public boolean isAuthenticated() {
 		return authenticated;
 	}
-	
+
 	/**
 	 * @return user name
 	 */
@@ -74,12 +74,12 @@ public class SwitchUserDialog extends Dialog {
 
 	/**
 	 * Create contents of the dialog.
-	 * 
+	 *
 	 * @param parent
 	 */
 	@Override
 	protected Control createDialogArea(Composite parent) {
-		
+
 		Composite container = (Composite) super.createDialogArea(parent);
 		container.setLayout(new GridLayout(2, false));
 		{
@@ -117,7 +117,7 @@ public class SwitchUserDialog extends Dialog {
 
 	/**
 	 * Create contents of the button bar.
-	 * 
+	 *
 	 * @param parent
 	 */
 	@Override
@@ -147,13 +147,13 @@ public class SwitchUserDialog extends Dialog {
 	}
 
 	protected void do_button_widgetSelected(@SuppressWarnings("unused") SelectionEvent e) {
-		
+
 		if (username==null||password==null) {
 			authenticated = false;
 		} else {
 		    authenticated = InterfaceProvider.getBatonStateProvider().switchUser(username, password);
 		}
-		
+
 		if (!authenticated) {
 			MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
 					                     "Authentication Failed",

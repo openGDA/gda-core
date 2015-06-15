@@ -67,7 +67,7 @@ public class TestHelpers {
 	 * Sets up of environment for the a test Set property so that output is to Nexus format file Uses
 	 * MockJythonServerFacade and MockJythonServer to configure InterfaceProvider Configure logging so that DEBUG and
 	 * above go to log.txt in output folder
-	 * 
+	 *
 	 * @param testClass
 	 *            e.g. gda.data.nexus.ScanToNexusTest
 	 * @param nameOfTest
@@ -86,7 +86,7 @@ public class TestHelpers {
 	 * Sets up of environment for the a test Set property so that output is to Nexus format file Uses
 	 * MockJythonServerFacade and MockJythonServer to configure InterfaceProvider Configure logging so that DEBUG and
 	 * above go to log.txt in output folder
-	 * 
+	 *
 	 * @param testClass
 	 *            e.g. gda.data.nexus.ScanToNexusTest
 	 * @param nameOfTest
@@ -221,7 +221,7 @@ public class TestHelpers {
 	 */
 	public static Factory createTestFactory(String name) {
 		return new TestFactory(name);
-	}	
+	}
 }
 
 class SimpleScannable implements Scannable, INeXusInfoWriteable {
@@ -287,11 +287,11 @@ class SimpleScannable implements Scannable, INeXusInfoWriteable {
 	@Override
 	public void atLevelMoveStart() {
 	}
-	
+
 	@Override
 	public void atLevelStart() {
 	}
-	
+
 	@Override
 	public void atLevelEnd() {
 	}
@@ -779,11 +779,11 @@ class SimpleDetector implements Detector {
 	public void atLevelMoveStart() {
 
 	}
-	
+
 	@Override
 	public void atLevelStart() {
 	}
-	
+
 	@Override
 	public void atLevelEnd() {
 	}

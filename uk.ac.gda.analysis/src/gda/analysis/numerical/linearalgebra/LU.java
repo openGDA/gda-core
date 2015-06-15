@@ -36,7 +36,7 @@ public class LU {
 
 	/**
 	 * Returns the Row Permutation
-	 * 
+	 *
 	 * @return indx[] Row Permutation
 	 */
 	public static int[] getRowPermutation() {
@@ -45,7 +45,7 @@ public class LU {
 
 	/**
 	 * Returns the sign.
-	 * 
+	 *
 	 * @return double sign
 	 */
 	public static double getSign() {
@@ -154,7 +154,7 @@ public class LU {
 
 	/**
 	 * Test Main method.
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {

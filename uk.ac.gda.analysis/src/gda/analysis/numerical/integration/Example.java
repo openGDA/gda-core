@@ -28,7 +28,7 @@ import gda.analysis.numerical.linefunction.Gaussian1D;
 public class Example {
 	/**
 	 * Main Method.
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {

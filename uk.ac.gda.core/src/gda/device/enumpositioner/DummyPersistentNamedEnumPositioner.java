@@ -36,11 +36,11 @@ public class DummyPersistentNamedEnumPositioner extends DummyNamedEnumPositioner
 
 	private String configurationName;
 	private String propertyName;
-	
+
 	public DummyPersistentNamedEnumPositioner() {
 		super();
 	}
-	
+
 	@Override
 	public void configure() {
 			super.configure();
@@ -63,12 +63,12 @@ public class DummyPersistentNamedEnumPositioner extends DummyNamedEnumPositioner
 		}
 		super.moveTo(position);
 	}
-	
+
 	@Override
 	public String getPosition() throws DeviceException {
 		return super.getPosition();
 	}
-	
+
 	public String getConfigurationName() {
 		return configurationName;
 	}

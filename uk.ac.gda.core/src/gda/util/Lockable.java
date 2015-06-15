@@ -27,16 +27,16 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public interface Lockable {
-	
+
 	/**
 	 * @param timeout
-	 * @param unit 
+	 * @param unit
 	 * @return boolean true if locked
 	 * @throws InterruptedException
 	 */
 	public boolean tryLock(long timeout, TimeUnit unit) throws InterruptedException;
 	/**
-	 * 
+	 *
 	 */
 	public void unlock();
 }

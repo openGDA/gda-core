@@ -36,9 +36,9 @@ import org.slf4j.LoggerFactory;
  * called.
  */
 public class GridScan extends ScanBase implements Scan {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(GridScan.class);
-	
+
 	protected Object start;
 
 	protected Object stop;
@@ -62,7 +62,7 @@ public class GridScan extends ScanBase implements Scan {
 	private Object attrValue;
 
 	/**
-	 * 
+	 *
 	 */
 	public GridScan() {
 		super();
@@ -70,7 +70,7 @@ public class GridScan extends ScanBase implements Scan {
 
 	/**
 	 * Creates a scan object
-	 * 
+	 *
 	 * @param ve
 	 *            the scannable
 	 * @param start
@@ -94,7 +94,7 @@ public class GridScan extends ScanBase implements Scan {
 	/**
 	 * Creates a scan object. This constructor added to allow detector counting time to be set. Probably this should be
 	 * done in ScanBase somehow.
-	 * 
+	 *
 	 * @param ve
 	 *            the scannable
 	 * @param start
@@ -121,7 +121,7 @@ public class GridScan extends ScanBase implements Scan {
 	/**
 	 * Creates a scan object. This constructor added to allow detector counting time to be set. Probably this should be
 	 * done in ScanBase somehow.
-	 * 
+	 *
 	 * @param ve
 	 *            the scannable
 	 * @param start
@@ -168,7 +168,7 @@ public class GridScan extends ScanBase implements Scan {
 	/**
 	 * Creates a scan object. This constructor added to allow detector counting time to be set. Probably this should be
 	 * done in ScanBase somehow.
-	 * 
+	 *
 	 * @param ve
 	 *            the scannable
 	 * @param start
@@ -203,7 +203,7 @@ public class GridScan extends ScanBase implements Scan {
 	 * A static method to create a scan which has a nested scan inside it. To run the scan, call the doScan() method.
 	 * For example, in Jython: from gda.scan import Scan; myScan = Scan.create(tth,10,12,0.1,Scan.create(phi,20,30,1));
 	 * myScan.doScan()
-	 * 
+	 *
 	 * @param ve
 	 *            the scannable
 	 * @param start
@@ -228,7 +228,7 @@ public class GridScan extends ScanBase implements Scan {
 
 	/**
 	 * A static method to create a scan which has a nested scan inside it. To run the scan, call the doScan() method.
-	 * 
+	 *
 	 * @param ve
 	 *            Scannable
 	 * @param start
@@ -313,17 +313,17 @@ public class GridScan extends ScanBase implements Scan {
 
 		// make subsequent steps
 		for (int i = 1; i <= numberSteps; ++i) {
-			
+
 			// test no reason to exit or wait
 			if (isFinishEarlyRequested()){
 				return;
 			}
 			waitIfPaused();
 			checkThreadInterrupted();
-				
+
 			moveStepIncrement(i);
 			checkThreadInterrupted();
-			
+
 			if (this.childScan != null) {
 				// The following line is required to ensure that for
 				// nested scans
@@ -396,7 +396,7 @@ public class GridScan extends ScanBase implements Scan {
 
 	/**
 	 * Move the object of this scan to its initial position.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void moveToStart() throws Exception {
@@ -412,9 +412,9 @@ public class GridScan extends ScanBase implements Scan {
 			// savedUnits = theScannable.getReportingUnits();
 			// theScannable.setReportingUnits(QuantityFactory
 			// .createUnitFromString((String) units));
-			
+
 			if (attrName!=null) theScannable.setAttribute(attrName, attrValue);
-		
+
 		} catch (Exception e) {
 			if (e instanceof InterruptedException) {
 				throw e;
@@ -425,7 +425,7 @@ public class GridScan extends ScanBase implements Scan {
 
 	/**
 	 * Run the nested scan
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	protected void runChildScan() throws Exception {
 		// before running the child scan, make sure it is sharing the same
@@ -458,8 +458,8 @@ public class GridScan extends ScanBase implements Scan {
 	 * This should be run after the base class setup() method.
 	 */
 	protected void setupGridScan() {
-		
-		
+
+
 		try {
 			if (start instanceof Number && stop instanceof Number && step instanceof Number) {
 				final double s = ((Number)start).doubleValue();
@@ -510,7 +510,7 @@ public class GridScan extends ScanBase implements Scan {
 
 	/**
 	 * Returns whether a child scan has been requested.
-	 * 
+	 *
 	 * @return a boolean indicating whether the gridscan has an associated childscan
 	 */
 	public boolean hasChild() {

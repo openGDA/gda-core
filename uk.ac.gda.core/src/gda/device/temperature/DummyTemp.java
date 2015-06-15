@@ -37,9 +37,9 @@ import org.slf4j.LoggerFactory;
  * Simulator device for temperature controllers
  */
 public class DummyTemp extends TemperatureBase implements Runnable, Temperature {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DummyTemp.class);
-	
+
 	private final static double MAXTEMP = 200.0;
 
 	private final static double MINTEMP = -35.0;
@@ -102,7 +102,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Set the upper operating temperature. It must be in the range -35C and 200C when simulating a Lauda bath.
-	 * 
+	 *
 	 * @param upperLimit
 	 *            the upper temperature limit in degrees C
 	 * @throws DeviceException
@@ -115,7 +115,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Switch control variable another source.
-	 * 
+	 *
 	 * @param name
 	 *            the probe name
 	 * @throws DeviceException
@@ -127,7 +127,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Set the proportional band control paramter Xp for the controller.
-	 * 
+	 *
 	 * @param temp
 	 *            the Xp (degrees)
 	 */
@@ -136,7 +136,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Set the control parameter Tn for the controller.
-	 * 
+	 *
 	 * @param time
 	 *            the Time (secs)
 	 */
@@ -145,7 +145,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Set the control paramter Tv for the controller
-	 * 
+	 *
 	 * @param time
 	 *            the Tv parameter(secs)
 	 */
@@ -155,7 +155,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 	/**
 	 * Program a timed temperature ramp. This does not initiate the program. Unrealistically short times will generate
 	 * an error and the parameters will not be set.
-	 * 
+	 *
 	 * @param finalTemp
 	 *            is the desired temperature in degrees C acceptable values are between -35C and 200C.
 	 * @param rate
@@ -180,7 +180,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Initiate the programmed temperature ramp.
-	 * 
+	 *
 	 * @param which
 	 *            the current ramp
 	 * @throws DeviceException
@@ -215,7 +215,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Start ramping.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public synchronized void runRamps() throws DeviceException {
@@ -253,7 +253,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Read the temperature of the Lauda bath.
-	 * 
+	 *
 	 * @return the Lauda water bath temperature
 	 * @throws DeviceException
 	 * @throws NumberFormatException
@@ -265,7 +265,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Read the temperature of the controlling device either internal bath external probe1 or external probe2.
-	 * 
+	 *
 	 * @return the control temperature
 	 * @throws NumberFormatException
 	 */
@@ -275,7 +275,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Read the temperature of the external probe 1. FIXME: Lauda specific ?
-	 * 
+	 *
 	 * @return the external probe 1 temperature
 
 	 */
@@ -285,7 +285,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Get the current setpoint temperature.
-	 * 
+	 *
 	 * @return the setpoint temperature
 	 * @throws DeviceException
 	 */
@@ -296,7 +296,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Get the status signal
-	 * 
+	 *
 	 * @return the status
 	 */
 	public String getStatusSignal()  {
@@ -305,7 +305,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Read the temperature of the external probe 2.
-	 * 
+	 *
 	 * @return the external probe 2 temperature
 	 */
 	public double getExtProbe2() {
@@ -314,7 +314,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Only to fullfill interface
-	 * 
+	 *
 	 * @return 0.0
 	 */
 	public double getXp(){
@@ -323,7 +323,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Only to fullfill interface
-	 * 
+	 *
 	 * @return 0.0
 	 */
 	public double getTn() {
@@ -332,7 +332,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Only to fullfill interface
-	 * 
+	 *
 	 * @return 0.0
 	 */
 	public double getTv(){
@@ -424,7 +424,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Method for the poller (started in TemperatureBase)
-	 * 
+	 *
 	 * @param pe
 	 *            the polling event
 	 */
@@ -469,12 +469,12 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 		if (dataFileWriter != null) {
 			dataFileWriter.write(dataString);
 		}
-		
+
 		double data[] = new double[2];
 		data[0] = currentTemp;
 		data[1] = timeSinceStart / 1000.0;
 		bufferedData.add(data);
-		
+
 		if (isBeingObserved()) {
 			notifyIObservers(this, ts);
 		}
@@ -486,7 +486,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 
 	/**
 	 * Would send the commands to set up a ramp to the actual hardware.
-	 * 
+	 *
 	 * @param which
 	 *            the ramp number
 	 */
@@ -515,7 +515,7 @@ public class DummyTemp extends TemperatureBase implements Runnable, Temperature 
 			return null;
 		}
 	}
-	
+
 	@Override
 	public Object readout() {
 		int dims[] = getDataDimensions();

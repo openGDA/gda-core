@@ -19,7 +19,7 @@
 package gda.util.persistence;
 
 /**
- * 
+ *
  */
 public class ObjectShelfException extends Exception {
 	/**
@@ -37,7 +37,7 @@ public class ObjectShelfException extends Exception {
 
 	/**
 	 * Create a shelf exception with another Throwable as the cause.
-	 * 
+	 *
 	 * @param message
 	 *            the message for this Exception
 	 * @param cause

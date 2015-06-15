@@ -61,7 +61,7 @@ public class XMLStringInterpolationProcessor {
 
 	/**
 	 * Reads byte from in and write to out until start pattern found.
-	 * 
+	 *
 	 * @return true if next header found
 	 * @throws IOException
 	 */
@@ -98,7 +98,7 @@ public class XMLStringInterpolationProcessor {
 	/**
 	 * Reads in text into a string until a terminator character found, thus forming a property key to be substituted
 	 * with its value.
-	 * 
+	 *
 	 * @return property key name if found. null if not found.
 	 * @throws IOException
 	 */
@@ -132,7 +132,7 @@ public class XMLStringInterpolationProcessor {
 	 * same name and replace the pattern instance with the value of that property using string interpolation. N.B.
 	 * Should handle multiple pattern instances per property value, but doesnt handle recursive interpolation yet (i.e.
 	 * a pattern containing a property with a value containing further patterns).
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	private void doProcessing() throws IOException {
@@ -188,7 +188,7 @@ public class XMLStringInterpolationProcessor {
 
 	/**
 	 * Property String interpolation in an XML input stream, eg Castor instance file.
-	 * 
+	 *
 	 * @param xmlSourceName
 	 *            name of XML data source to be processed
 	 * @param input
@@ -234,7 +234,7 @@ public class XMLStringInterpolationProcessor {
 
 	/**
 	 * Property String interpolation in an XML file, eg Castor instance file.
-	 * 
+	 *
 	 * @param xmlFile
 	 *            XML file to be processed
 	 * @return InputSource containing processed output
@@ -249,7 +249,7 @@ public class XMLStringInterpolationProcessor {
 
 	/**
 	 * Property String interpolation in an XML data source, eg Castor instance file.
-	 * 
+	 *
 	 * @param input
 	 *            XML InputSource to be processed
 	 * @return InputSource containing processed output
@@ -272,7 +272,7 @@ public class XMLStringInterpolationProcessor {
 	 * <p>
 	 * -Dgda.src.java=D:\\GDA\\dev\\src\\java
 	 * <p>
-	 * 
+	 *
 	 * @param args
 	 * @throws Exception
 	 */

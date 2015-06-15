@@ -36,7 +36,7 @@ public class TestsUtil {
 	 * <p>
 	 * gda.tests set to /home/shk/gda_6_12_branch/src results in
 	 * /home/shk/gda_6_12_branch/src/tests/gda/ddh/DDHTest/java.properties
-	 * 
+	 *
 	 * @param filename
 	 *            The file's name.
 	 * @param object
@@ -46,12 +46,12 @@ public class TestsUtil {
 	public static String constructTestPath(String filename, Object object) {
 		return constructTestPath(filename,object.getClass());
 	}
-	
+
 	/**
 	 * @param filename
 	 * @param classunderTest
 	 * @return A complete path to the file.
-	 * 
+	 *
 	 * @see TestsUtil#constructTestPath
 	 */
 	public static String constructTestPath(String filename, Class<? extends Object> classunderTest) {
@@ -77,6 +77,6 @@ public class TestsUtil {
 		return path;
 	}
 
-	
-	
+
+
 }

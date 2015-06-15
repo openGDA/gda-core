@@ -62,9 +62,9 @@ public interface Pilatus extends Detector {
 	public abstract void setDelayTime(double delaySec) throws DeviceException;
 
 	public abstract double getDelayTime() throws DeviceException;
-	
+
 	public void setGeneralText(String toSend);
-	
+
 	public void sendGeneralText();
 
 }

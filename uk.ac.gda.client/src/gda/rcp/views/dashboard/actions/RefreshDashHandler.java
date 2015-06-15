@@ -36,9 +36,9 @@ public class RefreshDashHandler extends AbstractHandler {
 		// Get current dashboard view.
 		DashboardView dashboard = (DashboardView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
 		if (dashboard==null) return Boolean.FALSE;
-		
+
 		dashboard.refresh();
-		
+
 		return Boolean.TRUE;
 	}
 

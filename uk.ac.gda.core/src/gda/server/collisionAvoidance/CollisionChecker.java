@@ -28,7 +28,7 @@ public interface CollisionChecker extends Findable {
 
 	/**
 	 * Checks to see if a move is safe. This will be called by the CAC with which the checker will have been registered.
-	 * 
+	 *
 	 * @param currentRangeStart
 	 *            Each value will be either the corresponding field's current position or, if the field is moving, the
 	 *            position where it began its move.
@@ -46,7 +46,7 @@ public interface CollisionChecker extends Findable {
 
 	/**
 	 * Returns a useful description of the checker's configuration.
-	 * 
+	 *
 	 * @return the string
 	 */
 	@Override

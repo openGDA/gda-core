@@ -37,11 +37,11 @@ public class HDF5HelperLocations extends Vector<HDF5HelperLocation>{
 		add( new HDF5HelperLocation(name, attributeName, attributeValue));
 		return this;
 	}
-	
+
 	public HDF5HelperLocations(String name){
 		add(name);
 	}
 	public HDF5HelperLocations(){
 	}
-	
+
 }

@@ -43,25 +43,25 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
  * NOTE For this UI test to work properly we need to ensure that LD_LIBRARY_PATH is set.
  */
 public class NexusViewPluginTest implements IScanDataPointProvider {
-	
-	
+
+
 	@Before
 	public void setup() {
 		ClientManager.setTestingMode(true);
-		
-		// Set to stop the JythonTerminalView complaining 
+
+		// Set to stop the JythonTerminalView complaining
 		InterfaceProvider.setScanDataPointProviderForTesting(this);
 	}
-	
+
 	public void selecteNexusFile() throws Exception {
 
 		final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		
+
 		// Open scripts perspective
 		final IPerspectiveDescriptor scripts = PlatformUI.getWorkbench().getPerspectiveRegistry().findPerspectiveWithId("uk.ac.gda.client.scripting.JythonPerspective");
 		window.getActivePage().setPerspective(scripts);
 		EclipseUtils.delay(500);
-		
+
 		final URL dataDir   = ExafsScanDataPlotPluginTest.class.getResource("data");
 		final String dir = (new File(EclipseUtils.getAbsoluteUrl(dataDir).getFile())).getAbsolutePath();
 		DataNavigator.setDefaultDataFolder(dir);
@@ -69,7 +69,7 @@ public class NexusViewPluginTest implements IScanDataPointProvider {
 		// Open data perspective
 		final IPerspectiveDescriptor data = PlatformUI.getWorkbench().getPerspectiveRegistry().findPerspectiveWithId("uk.ac.diamond.scisoft.analysis.rcp.results");
 		window.getActivePage().setPerspective(data);
-		
+
 		// We select the 101 plot
 		final DataNavigator part = (DataNavigator)window.getActivePage().findView(DataNavigator.ID);
 		part.setSelected("/FeKedge_1_98.nxs");
@@ -80,12 +80,12 @@ public class NexusViewPluginTest implements IScanDataPointProvider {
 
 	@Test
 	public void testPerspectiveChange() throws Exception {
-		
+
 		// Loop to try and break the loading
 		for (int i = 0; i < 100; i++) {
 			selecteNexusFile();
 		}
-		
+
 		// We get to here is passed! Failior kills the VM.
 	}
 
@@ -113,5 +113,5 @@ public class NexusViewPluginTest implements IScanDataPointProvider {
 	public void deleteScanEventObserver(IObserver anObserver) {
 		// Intentional do nothing
 	}
-	
+
 }

@@ -24,17 +24,17 @@ import java.util.Date;
 
 /**
  * Date class used for pretty printing, i.e. we mostly override toString here
- * 
+ *
  */
 public class BcmDate extends Date {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 5290207432221195793L;
 
 	/**
-	 * 
+	 *
 	 */
 	public BcmDate() {
 		super();

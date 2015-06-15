@@ -36,7 +36,7 @@ public class QR {
 		/**
 		 * Singularity returns as true (1) if singularity is encountered during the decomposition, but the decomposition
 		 * is still completed in this case; otherwise it returns false (0).
-		 * 
+		 *
 		 * @return true(1) or false(0) if a singularity is encountered.
 		 */
 		public int getSingularity() {
@@ -100,7 +100,7 @@ public class QR {
 	 * Solves the set of n linear equations A ¡¤ x = b. a[0..n-1][0..n-1], c[0..n-1], and d[0..n-1] are input as the
 	 * output of the routine qrdcmp and are not modified. b[0..n-1] is input as the right-hand side vector, and is
 	 * overwritten with the solution vector on output.
-	 * 
+	 *
 	 * @param a
 	 * @param n
 	 * @param c
@@ -125,7 +125,7 @@ public class QR {
 
 	/**
 	 * Used in qrsolv
-	 * 
+	 *
 	 * @param a
 	 * @param n
 	 * @param d

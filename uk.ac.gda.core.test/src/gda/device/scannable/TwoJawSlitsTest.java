@@ -45,13 +45,13 @@ public class TwoJawSlitsTest {
 
 	String gapName = "slitGap";
 	String positionName = "slitPosition";
-	
+
 	ScannableMotor scannableMotor1;
 	ScannableMotor scannableMotor2;
 
 	TwoJawSlitGap gap;
 	TwoJawSlitPosition position;
-	
+
 
 	/**
 	 * @throws Exception
@@ -69,28 +69,28 @@ public class TwoJawSlitsTest {
 		TotalDummyMotor motor2 = new TotalDummyMotor();
 		motor2.setName(motorName2);
 		factory.addFindable(motor2);
-		
+
 		scannableMotor1 = new ScannableMotor();
 		scannableMotor1.setMotorName(motorName1);
 		scannableMotor1.setName(scannableMotorName1);
 		scannableMotor1.setHardwareUnitString("mm"); // hardware will return mm's
 		scannableMotor1.setUserUnits("mm");
-		scannableMotor1.setUpperGdaLimits(5.0); 
+		scannableMotor1.setUpperGdaLimits(5.0);
 		scannableMotor1.setLowerGdaLimits(-1.0);
 		factory.addFindable(scannableMotor1);
 		scannableMotor1.configure();
 
-		
+
 		scannableMotor2 = new ScannableMotor();
 		scannableMotor2.setMotorName(motorName2);
 		scannableMotor2.setName(scannableMotorName2);
 		scannableMotor2.setHardwareUnitString("mm"); // hardware will return mm's
 		scannableMotor2.setUserUnits("mm");
-		scannableMotor2.setUpperGdaLimits(1.0); 
+		scannableMotor2.setUpperGdaLimits(1.0);
 		scannableMotor2.setLowerGdaLimits(-5.0);
 		factory.addFindable(scannableMotor2);
 		scannableMotor2.configure();
-		
+
 		// so from these limits, position should be +/-5mm and gap should be up to 10 mm when position = 0
 
 		gap = new TwoJawSlitGap();
@@ -109,9 +109,9 @@ public class TwoJawSlitsTest {
 		position.setInitialUserUnits("mm"); // we talk in mm
 		position.configure();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testInputNames() {
@@ -125,7 +125,7 @@ public class TwoJawSlitsTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testToString() {
@@ -139,10 +139,10 @@ public class TwoJawSlitsTest {
 		assertEquals(0., gap.getPosition());
 		assertEquals(0., position.getPosition());
 	}
-	
+
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testIsPositionValid() {
@@ -151,19 +151,19 @@ public class TwoJawSlitsTest {
 			assertTrue(gap.checkPositionValid(9) == null);
 			assertTrue(gap.checkPositionValid("9 mm") == null);
 			assertTrue(gap.checkPositionValid("1.1 cm") != null);
-			
+
 			assertTrue(position.checkPositionValid("6 mm") != null);
 			assertTrue(position.checkPositionValid("-4500 micron") != null);
 		} catch (DeviceException e) {
 			fail(e.getMessage());
 		}
-		
+
 		double positionMax = position.getUpperGdaLimits()[0];
 		double positionMin = position.getLowerGdaLimits()[0];
 
 		double gapMax = gap.getUpperGdaLimits()[0];
 		double gapMin = gap.getLowerGdaLimits()[0];
-		
+
 		//asserts here!
 		assertEquals(3, positionMax, 0);
 		assertEquals(-3, positionMin, 0);
@@ -172,7 +172,7 @@ public class TwoJawSlitsTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testAsynchronousMoveTo() {
@@ -208,7 +208,7 @@ public class TwoJawSlitsTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testSetHardwareUnitString() {

@@ -25,7 +25,7 @@ package gda.util;
 public class ReturnOutOfRangeException extends RuntimeException {
 	/**
 	 * Constructs an output OutOfRange exception with the specified detail message.
-	 * 
+	 *
 	 * @param message
 	 *            the detail message.
 	 */
@@ -35,7 +35,7 @@ public class ReturnOutOfRangeException extends RuntimeException {
 
 	/**
 	 * Constructs an output OutOfRange exception with the specified detail message and throwable.
-	 * 
+	 *
 	 * @param message
 	 *            the detail message.
 	 * @param cause

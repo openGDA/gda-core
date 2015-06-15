@@ -25,8 +25,8 @@ import uk.ac.gda.ui.viewer.IUnitsDescriptor;
 
 public class ScannableMotionUnitsPositionSource extends ScannablePositionSource  {
 
-	private ScannableMotionUnits scannableMotionUnits; 
-	
+	private ScannableMotionUnits scannableMotionUnits;
+
 	public ScannableMotionUnitsPositionSource(ScannableMotionUnits scannable){
 		super(scannable);
 		this.scannableMotionUnits = scannable;
@@ -64,6 +64,6 @@ public class ScannableMotionUnitsPositionSource extends ScannablePositionSource 
 	public String getUnit() {
 		return scannableMotionUnits.getUserUnits();
 	}
-	
+
 
 }

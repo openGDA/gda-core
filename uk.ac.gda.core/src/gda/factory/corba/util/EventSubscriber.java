@@ -25,7 +25,7 @@ package gda.factory.corba.util;
 public interface EventSubscriber {
 	/**
 	 * Informs the Subscriber of an event
-	 * 
+	 *
 	 * @param message the message
 	 */
 	public void inform(Object message);

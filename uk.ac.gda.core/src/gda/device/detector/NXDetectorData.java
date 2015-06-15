@@ -68,7 +68,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	}
 
 	/**
-	 * Passing in the detector helps setting up the plotable data array and does some 
+	 * Passing in the detector helps setting up the plotable data array and does some
 	 * useful checking
 	 * @param detector
 	 */
@@ -76,12 +76,12 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		this(detector.getExtraNames(),detector.getOutputFormat(),detector.getName());
 		if (detector.getInputNames() != null && detector.getInputNames().length > 0) logger.warn("Dubious detector "+detector.getName()+" with input names.\nAnticipate plotting problems.");
 	}
-	
+
 	/**
 	 * Basic constructor
 	 */
 	public NXDetectorData() {
-		tree = new NexusTreeNode("", NexusExtractor.NXInstrumentClassName, null); 
+		tree = new NexusTreeNode("", NexusExtractor.NXInstrumentClassName, null);
 	}
 
 	/**
@@ -99,7 +99,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 
 	/**
 	 * returns the names detectors tree
-	 * @param detName if null or empty it returns the first 
+	 * @param detName if null or empty it returns the first
 	 * @return the NexusTree associated with the named detector
 	 */
 	@Override
@@ -120,7 +120,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 
 	/**
 	 * @param parent
-	 * @param data 
+	 * @param data
 	 * @return The node added.
 	 */
 	public INexusTree addData(String parent, NexusGroupData data) {
@@ -129,7 +129,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 
 	/**
 	 * @param parent
-	 * @param data 
+	 * @param data
 	 * @param units
 	 * @return The node added.
 	 */
@@ -139,7 +139,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 
 	/**
 	 * @param parent
-	 * @param data 
+	 * @param data
 	 * @return The node added.
 	 */
 	public INexusTree addData(String parent, String dataName, NexusGroupData data) {
@@ -148,7 +148,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 
 	/**
 	 * @param parent
-	 * @param data 
+	 * @param data
 	 * @param units
 	 * @return The node added.
 	 */
@@ -158,7 +158,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 
 	/**
 	 * @param parent
-	 * @param data 
+	 * @param data
 	 * @param units
 	 * @param signalVal
 	 * @return The node added.
@@ -168,10 +168,10 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param parent
 	 * @param dataName
-	 * @param data 
+	 * @param data
 	 * @param units
 	 * @param signalVal
 	 * @return The node added.
@@ -233,7 +233,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 			node.addChildNode(new NexusTreeNode("signal",NexusExtractor.AttrClassName, node, new NexusGroupData(signalVal)));
 		}
 		if (interpretation != null) {
-			node.addChildNode(new NexusTreeNode("interpretation",NexusExtractor.AttrClassName, node, 
+			node.addChildNode(new NexusTreeNode("interpretation",NexusExtractor.AttrClassName, node,
 					new NexusGroupData(interpretation)));
 		}
 		parent.addChildNode(node);
@@ -254,19 +254,19 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		node.setIsPointDependent(true);
 		file_name.setIsPointDependent(true);
 		node.addChildNode( file_name);
-		detTree.addChildNode(node);			
+		detTree.addChildNode(node);
 	}
-	
+
 	/**
 	 * Adds a DATA_FILE_SDS_NAME SDS item for the collection of filenames as a child of the portion of the tree for a detector.
-	 * 
+	 *
 	 * This is useful when a detector creates its own data file or a collection of data files
-	 * 
+	 *
 	 * @param detName  The name of the detector to add data to
-	 * @param nodeName The name of the created 
+	 * @param nodeName The name of the created
 	 * @param filenames filenames collection of filenames to add to section
-	 * @param isPointDependent boolean to signal is the data is to be provided for each point in a scan. 
-	 * @param isDetectorEntryData  Flag to indicate that when writing this value to a file the entry is to linked to the 
+	 * @param isPointDependent boolean to signal is the data is to be provided for each point in a scan.
+	 * @param isDetectorEntryData  Flag to indicate that when writing this value to a file the entry is to linked to the
 	 * NXEntry/NXDetector section as a variable of the scan
 	 */
 	public NexusTreeNode addFileNames(String detName, String nodeName, String[] filenames, boolean isPointDependent, boolean isDetectorEntryData){
@@ -276,7 +276,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		file_name_sds.isDetectorEntryData=isDetectorEntryData;
 		file_name.addChildNode(new NexusTreeNode(DATA_FILENAME_ATTR_NAME,NexusExtractor.AttrClassName, file_name,new NexusGroupData(1)));
 		INexusTree detTree = getDetTree(detName);
-		detTree.addChildNode(file_name);	
+		detTree.addChildNode(file_name);
 		return file_name;
 	}
 
@@ -316,9 +316,9 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	 * @param detName The name of the detector to add data to
 	 * @param name The name of the Axis
 	 * @param axis_sds The implementation of NexusGroupData to be reported as the axis data
-	 * @param axisValue The dimension which this axis relates to <b>from the detector point of view</b>, 
-	 * 						i.e. 1 is the first detector axis, scan dimensions will be added as required 
-	 * 						by the DataWriter	 
+	 * @param axisValue The dimension which this axis relates to <b>from the detector point of view</b>,
+	 * 						i.e. 1 is the first detector axis, scan dimensions will be added as required
+	 * 						by the DataWriter
 	 * @param primaryValue The importance of this axis, 1 is the most relevant, then 2 etc.
 	 * @param units The units the axis is specified in
 	 * @param isPointDependent If this data should be added to the nexus at every point set this to true, if its a one off, make this false
@@ -348,7 +348,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		axis.setIsPointDependent(isPointDependent);
 		getDetTree(detName).addChildNode(axis);
 	}
-	
+
 	/**
 	 * Adds a simple note to the detector
 	 * @param detName the name of the detector
@@ -368,7 +368,7 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 		noteNode.addChildNode(new NexusTreeNode("type", NexusExtractor.SDSClassName, noteNode, new NexusGroupData("text/plain")));
 		// just add the note as description, then I don't have to worry about character encoding
 		noteNode.addChildNode(new NexusTreeNode("description", NexusExtractor.SDSClassName, noteNode, new NexusGroupData(note)));
-		
+
 		detTree.addChildNode(noteNode);
 	}
 
@@ -381,48 +381,48 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 	@Override
 	public NexusGroupData getData(String detName, String dataName, String className) {
 		INexusTree detTree = getDetTree(detName);
-		
+
 		for(int i = 0; i < detTree.getNumberOfChildNodes(); i++) {
 			INexusTree dataTree = detTree.getChildNode(i);
 			if(dataTree.getName().equals(dataName) && dataTree.getNxClass().equals(className)) {
 				return dataTree.getData();
 			}
 		}
-		
-		return null;		
+
+		return null;
 	}
 
 	/**
-	 * Sets the Double in the PlottableDataArray the is associated with the 
+	 * Sets the Double in the PlottableDataArray the is associated with the
 	 * passed in extraName to the value handed in.
-	 * 
+	 *
 	 * @param forExtraName
 	 * @param value
 	 */
 	public void setPlottableValue(String forExtraName, Double value) {
-	
+
 		for (int i = 0; i < extraNames.length; i++) {
 			if (extraNames[i].equals(forExtraName)) {
 				doubleData[i] = value;
 				return;
 			}
 		}
-		logger.error("extraName "+forExtraName+" not registered for detector"); 
+		logger.error("extraName "+forExtraName+" not registered for detector");
 	}
-	
+
 	@Override
 	public Double[] getDoubleVals() {
 		return doubleData ;
 	}
-	
-	/** 
-	 * Use this to set the plottable Double values, if you prefer that over the 
+
+	/**
+	 * Use this to set the plottable Double values, if you prefer that over the
 	 * convenience methods that use the scannable constructor of this class.
 	 * Consider checking your extraNames and providing an outputFormat as well then.
-	 * 
-	 * Using this method makes it difficult in inheriting classes to provide additional 
+	 *
+	 * Using this method makes it difficult in inheriting classes to provide additional
 	 * information, hence the use is not recommended. Use setPlottableValue instead.
-	 * 
+	 *
 	 * @param vals
 	 */
 	@Deprecated
@@ -432,12 +432,12 @@ public class NXDetectorData implements GDANexusDetectorData, Serializable {
 
 	@Override
 	public String toString() {
-		
+
 		// if the doubleData has never been filled then the string this method would return may be misleading, so return nothing
 		if (doubleData ==null || doubleData.length == 0 || doubleData[0] == null){
 			return "";
 		}
-		
+
 		StringBuilder output = new StringBuilder();
 		try {
 			String[] formatted = ScannableUtils.getFormattedCurrentPositionArray(doubleData, doubleData.length, outputFormat);

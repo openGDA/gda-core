@@ -41,7 +41,7 @@ public class DetectorAdapter extends ScannableAdapter implements Detector, Finda
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

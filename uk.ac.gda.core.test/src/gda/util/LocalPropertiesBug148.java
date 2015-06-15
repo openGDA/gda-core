@@ -50,7 +50,7 @@ public class LocalPropertiesBug148 extends TestCase {
 
 	/**
 	 * Constructor for LocalPropertiesBug148.
-	 * 
+	 *
 	 * @param arg0
 	 */
 	public LocalPropertiesBug148(String arg0) {

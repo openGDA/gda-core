@@ -27,13 +27,13 @@ import java.io.Serializable;
  * Observers of the script, via the Scriptcontroller, should also observer the JythonServer to receive the relevant
  * ScanDataPoints.
  * <p>
- * Example usage in a Jython script: 
+ * Example usage in a Jython script:
  * <pre>
  * {@code
- * controller = Finder.getInstance().find("MyScriptObserver") 
- * controller.update(None,ScriptProgressEvent("Running scan")) 
+ * controller = Finder.getInstance().find("MyScriptObserver")
+ * controller.update(None,ScriptProgressEvent("Running scan"))
  * thisscan = ConcurrentScan(scan_args)
- * controller.update(None,ScanCreationEvent(thisscan.getName())) 
+ * controller.update(None,ScanCreationEvent(thisscan.getName()))
  * thisscan.runScan()
  * controller.update(None,ScanFinishEvent(thisscan.getName(),ScanFinishEvent.FinishType.OK));
  * }

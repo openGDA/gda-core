@@ -42,7 +42,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.corba.CorbaPlotServerHelper;
 
 /**
  * A client side implementation of the adapter pattern for the PlotServer class
- * 
+ *
  * For a view whose name matches the regular expression given in property GDA_LOCALPLOTVIEWS_REGEX
  * this class acts as a local plotserver; for others it acts as the adapter to the server based plotserver.
  */
@@ -55,7 +55,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name
@@ -73,7 +73,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 		if( localplotviews != null && localplotviews.length()>0){
 			delegate = new SimplePlotServer(true);
 			delegate.addIObserver(new IObserver() {
-				
+
 				@Override
 				public void update(Object source, Object arg) {
 					notifyIObservers(source, arg);
@@ -94,7 +94,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 				throw new DeviceException(e.getMessage());
 			}
 		}
-		
+
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				org.omg.CORBA.Any any = corbaPlotServer.getGuiState(guiName);
@@ -122,7 +122,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 				throw new DeviceException(e.getMessage());
 			}
 		}
-		
+
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				org.omg.CORBA.Any any = corbaPlotServer.getPlotData(guiName);
@@ -171,7 +171,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 	@Override
 	public void updateGui(String guiName, GuiBean guiData) throws DeviceException {
 		if(delegate != null && viewIsLocal(guiName)){
-			
+
 			try {
 				delegate.updateGui(guiName, guiData);
 				return;
@@ -230,9 +230,9 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 
 	@Override
 	public String[] getGuiNames() throws Exception {
-		
+
 		final List<String> guiNames = new ArrayList<String>();
-		
+
 		if(delegate != null){
 			try {
 				final String[] delegateGuiNames = delegate.getGuiNames();
@@ -243,7 +243,7 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 				throw new DeviceException(e.getMessage());
 			}
 		}
-		
+
 
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
@@ -265,6 +265,6 @@ public class PlotserverAdapter extends DeviceAdapter implements PlotServer {
 		}
 		throw new DeviceException("Retrieve data error in the PlotServerAdapter");
 	}
-	
-	
+
+
 }

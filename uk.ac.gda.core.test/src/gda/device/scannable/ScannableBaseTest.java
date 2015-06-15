@@ -43,9 +43,9 @@ import org.python.core.PyString;
 public class ScannableBaseTest {
 
 	public static class TestableScannableBase extends ScannableBase implements Testable{
-		
+
 		public ScannableBase delegate = mock(ScannableBase.class);
-		
+
 		@Override
 		public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 			delegate.rawAsynchronousMoveTo(position);
@@ -66,18 +66,18 @@ public class ScannableBaseTest {
 
 	/**
 	 * Casts scannable to ScannableBase. Allows this test class to be extended.
-	 * 
+	 *
 	 * @return scannable as ScannableBase
 	 */
 	public ScannableBase getSB() {
 		return scannable;
 	}
-	
+
 	public ScannableBase getDelegate() {
 		return scannable.delegate;
 	}
-	
-	
+
+
 	// ScannableBase
 
 	@Before
@@ -85,7 +85,7 @@ public class ScannableBaseTest {
 		createScannableToTest();
 		configureTwoInputFields();
 	}
-	
+
 	public void createScannableToTest() {
 		scannable = new TestableScannableBase();
 	}
@@ -96,14 +96,14 @@ public class ScannableBaseTest {
 		when(getSB().getPosition()).thenReturn( new Double[] { 1., 2. } );
 		// Note that an outputFormat has not been set. The default is checked in testDefaultValues
 	}
-	
+
 	protected void configureOneInputField() throws DeviceException {
 		getSB().setName("name");
 		when(getSB().getPosition()).thenReturn( new Double[] { 1. } );
 		getSB().setInputNames(new String[] { "i1"});
 		// Note that an outputFormat has not been set. The default is checked in testDefaultValues
 	}
-	
+
 	protected void configureTwoExtraFields() throws DeviceException {
 		getSB().setExtraNames(new String[] { "e1", "e2" });
 		when(getSB().getPosition()).thenReturn( new Double[] { 1., 2., 3., 4. } );
@@ -132,11 +132,11 @@ public class ScannableBaseTest {
 		list.add(new PyFloat(2));
 		getSB().__call__(list); // moves the thing and returns a string
 		verify(getDelegate()).rawAsynchronousMoveTo(list);
-		verify(getDelegate(), times(2)).isBusy();	
+		verify(getDelegate(), times(2)).isBusy();
 	}
 
-	
-	
+
+
 	// Tests to ScannableBase
 
 	@Test
@@ -160,7 +160,7 @@ public class ScannableBaseTest {
 		assertEquals(5, getSB().getLevel());
 	}
 
-	
+
 
 
 
@@ -255,9 +255,9 @@ public class ScannableBaseTest {
 		when(getSB().getPosition()).thenReturn( new Double[] { 1., 2., 3., 4. } );
 		getSB().setOutputFormat(new String[] { "%1.1g", "%1.2g", "%1.3g", "%1.4g" });
 		assertEquals("name : i1: 1 i2: 2.0 e1: 3.00 e2: 4.000", getSB().toFormattedString());
-		
+
 	}
-	
+
 	@Test
 	public void testToStringWithZieScannable() throws DeviceException {
 		getSB().setInputNames(new String[]{});
@@ -266,7 +266,7 @@ public class ScannableBaseTest {
 		when(getDelegate().rawGetPosition()).thenReturn(null);
 		assertEquals("name : ---", getSB().toFormattedString());
 	}
-	
+
 	@Test
 	public void testToStringWithIncorrectOutputFormatSetSingleField() throws DeviceException {
 		createScannableToTest();
@@ -281,8 +281,8 @@ public class ScannableBaseTest {
 		configureOneInputField();
 		getSB().setOutputFormat(new String[] { "%1.4g" });
 		assertEquals("name : i1: 1.000", getSB().toFormattedString());
-	}	
-	
+	}
+
 	@Test
 	public void testToStringSingleFieldMatchingName() throws DeviceException {
 		createScannableToTest();
@@ -290,8 +290,8 @@ public class ScannableBaseTest {
 		getSB().setInputNames(new String[] {"name"});
 		getSB().setOutputFormat(new String[] { "%1.4g" });
 		assertEquals("name : 1.000", getSB().toFormattedString());
-	}	
-	
+	}
+
 	@Test
 	public void test__str__() throws DeviceException {
 		configureTwoExtraFields();
@@ -318,27 +318,27 @@ public class ScannableBaseTest {
 		getSB().waitWhileBusy();
 		verify(getDelegate(), times(2)).isBusy();
 	}
-	
+
 	@Test
 	public void testWaitWhileBusyWithTimeout() throws DeviceException, InterruptedException {
 		when(getSB().isBusy()).thenReturn(true, false);
 		getSB().waitWhileBusy(.150);
 	}
-	
+
 	@Test(expected = DeviceException.class)
 	public void testWaitWhileBusyWithTimeoutFailure() throws DeviceException, InterruptedException {
 		when(getSB().isBusy()).thenReturn(true, false);
 		getSB().waitWhileBusy(.050);
 	}
-	
+
 	@Test
 	public void testMoveToWhenStartingBusy() throws DeviceException {
 		when(getSB().isBusy()).thenReturn(true, false, false);
 		getSB().moveTo(new Double[] {1.,2.});
 		verify(getDelegate()).rawAsynchronousMoveTo(new Double[] {1.,2.});
-		verify(getDelegate(), times(2)).isBusy();	
+		verify(getDelegate(), times(2)).isBusy();
 	}
-	
+
 	@Test
 	public void testIsAtWithStrings() throws DeviceException {
 		getSB().setInputNames(new String[]{"i1"});
@@ -346,7 +346,7 @@ public class ScannableBaseTest {
 		assertTrue(getSB().isAt("open"));
 		assertFalse(getSB().isAt("closed"));
 	}
-	
+
 	@Test
 	public void testIsAtWithArrays() throws DeviceException {
 		when(getSB().getPosition()).thenReturn(new Double[] {1.,2.});
@@ -360,17 +360,17 @@ public class ScannableBaseTest {
 		assertTrue(getSB().isAt(new Double[] {1.,2.}));
 		assertFalse(getSB().isAt(new Double[] {1.,2.1}));
 	}
-	
+
 	@Test
 	public void testIsAtWithIntegerArrays() throws DeviceException {
 		when(getSB().getPosition()).thenReturn(new int[] {1,2});
 		assertTrue(getSB().isAt(new int[] {1,2}));
 		assertFalse(getSB().isAt(new int[] {11,21}));
 	}
-	
+
 	@Test
 	public void testExternalToInternalWithNoConversionObject() throws DeviceException {
-		
+
 		Object object1 = new Object();
 		configureOneInputField();
 		assertEquals(object1, getSB().externalToInternal(object1));

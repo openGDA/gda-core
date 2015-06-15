@@ -52,9 +52,9 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 		IIsBeingObserved
 
 {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ScriptcontrollerAdapter.class);
-	
+
 	private final Vector<IObserver> myIObservers = new Vector<IObserver>();
 
 	CorbaScriptController controller;
@@ -67,7 +67,7 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name
@@ -96,7 +96,7 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 			logger.error(e.getMessage(),e);
 		}
 	}
-	
+
 	@Override
 	public void reconfigure() throws FactoryException {
 		for (int i = 0; i < NetService.RETRY; i++) {
@@ -113,7 +113,7 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 		}
 		throw new FactoryException("Communication failure: retry failed");
 	}
-	
+
 	@Override
 	public void setName(String name) {
 		// see bugzilla bug #443
@@ -238,7 +238,7 @@ public class ScriptcontrollerAdapter implements Findable, Scriptcontroller, Even
 
 	/**
 	 * Notify all observers on the list of the requested change.
-	 * 
+	 *
 	 * @param theObserved
 	 *            the observed component
 	 * @param changeCode

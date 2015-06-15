@@ -19,21 +19,21 @@
 
 package gda.device.motor;
 
+import gda.device.MotorException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gda.device.MotorException;
-
 /**
  * Class to implement the ChannelSelect interface for McLennan motion controllers that have multiple channels.
- * 
+ *
  * @see McLennanController
  * @see McLennanMotor
  */
 public class McLennanChannelSelector implements ChannelSelector {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(McLennanChannelSelector.class);
-	
+
 	private IMcLennanController controller;
 
 	private String command;

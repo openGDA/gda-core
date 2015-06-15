@@ -185,7 +185,7 @@ public class DummyCounterTimer extends TFGCounterTimer implements Runnable, IObs
 
 	/**
 	 * Returns the data array converted to a String (mostly for debugging purposes
-	 * 
+	 *
 	 * @param values
 	 *            the values to convert
 	 * @return a string version of the data array
@@ -412,10 +412,10 @@ public class DummyCounterTimer extends TFGCounterTimer implements Runnable, IObs
 	/**
 	 * Overrides the DetectorBase method in order to set up the counters for the dummy data. This is the only place to
 	 * do this but means that the dummy data mechanisms really only work in scans.
-	 * 
+	 *
 	 * @param collectionTime
 	 *            the collectionTime in mS
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {

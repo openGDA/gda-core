@@ -20,12 +20,12 @@
 package gda.beamline.beamline.corba.impl;
 
 import gda.beamline.BeamlineInfo;
+import gda.beamline.corba.CorbaBeamlineInfo;
+import gda.beamline.corba.CorbaBeamlineInfoHelper;
 import gda.factory.corba.util.EventService;
 import gda.factory.corba.util.EventSubscriber;
 import gda.factory.corba.util.NameFilter;
 import gda.factory.corba.util.NetService;
-import gda.beamline.corba.CorbaBeamlineInfo;
-import gda.beamline.corba.CorbaBeamlineInfoHelper;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
 import gda.util.LoggingConstants;
@@ -50,7 +50,7 @@ public class BeamlineAdapter implements BeamlineInfo, EventSubscriber {
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name
@@ -366,7 +366,7 @@ public class BeamlineAdapter implements BeamlineInfo, EventSubscriber {
 
 	/**
 	 * Notify observers of this class.
-	 * 
+	 *
 	 * @param theObserved
 	 *            the observed class
 	 * @param changeCode

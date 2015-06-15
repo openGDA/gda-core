@@ -29,7 +29,7 @@ import javax.swing.JFrame;
  */
 public class SimplePlotFrame extends JFrame {
 	/**
-	 * 
+	 *
 	 */
 	public final SimplePlot simplePlot;
 
@@ -42,7 +42,7 @@ public class SimplePlotFrame extends JFrame {
 	/**
 	 * Constructor
 	 * @param type SimplePlot.LINECHART or SimplePlot.BARCHART
-	 * @param autoRange 
+	 * @param autoRange
 	 */
 	public SimplePlotFrame(int type, boolean autoRange) {
 		super();

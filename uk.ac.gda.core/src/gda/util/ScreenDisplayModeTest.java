@@ -71,32 +71,32 @@ public class ScreenDisplayModeTest extends JFrame implements ActionListener, Lis
 	private boolean isFullScreen = false;
 
 	/**
-	 * 
+	 *
 	 */
 	public static final int INDEX_WIDTH = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	public static final int INDEX_HEIGHT = 1;
 
 	/**
-	 * 
+	 *
 	 */
 	public static final int INDEX_BITDEPTH = 2;
 
 	/**
-	 * 
+	 *
 	 */
 	public static final int INDEX_REFRESHRATE = 3;
 
 	/**
-	 * 
+	 *
 	 */
 	public static final int[] COLUMN_WIDTHS = new int[] { 100, 100, 100, 100 };
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String[] COLUMN_NAMES = new String[] { "Width", "Height", "Bit Depth", "Refresh Rate" };
 
@@ -216,7 +216,7 @@ public class ScreenDisplayModeTest extends JFrame implements ActionListener, Lis
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void begin() {
 		isFullScreen = device.isFullScreenSupported();

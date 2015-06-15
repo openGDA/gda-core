@@ -32,7 +32,7 @@ public class RangeandConverterNameHolder implements Findable {
 	private String converterName;
 
 	/**
-	 * 
+	 *
 	 */
 	public String name;
 

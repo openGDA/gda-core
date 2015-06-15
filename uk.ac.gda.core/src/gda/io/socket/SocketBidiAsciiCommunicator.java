@@ -89,7 +89,7 @@ public class SocketBidiAsciiCommunicator implements BidiAsciiCommunicator, Initi
 	}
 
 	public void closeConnection() throws IOException {
-		//do not use lock here as the point of this method is to allow another thread to forcibly close the connection 
+		//do not use lock here as the point of this method is to allow another thread to forcibly close the connection
 		if (socket != null) {
 			reader = null;
 			writer = null;

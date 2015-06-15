@@ -44,7 +44,7 @@ public class SocketServer implements Runnable {
 
 	/**
 	 * Main method.
-	 * 
+	 *
 	 * @param args
 	 */
 	@SuppressWarnings("unused")

@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * <li>wavelength (</li>
  * <li>energy</li>
  * </ul>
- * 
+ *
  */
 public class Beam implements BeamInfo, Configurable, Localizable {
 	private static final Logger logger = LoggerFactory.getLogger(Beam.class);
@@ -123,7 +123,7 @@ public class Beam implements BeamInfo, Configurable, Localizable {
 		}
 	}
 	/**
-	 * sets the beam energy using Mono's enegy setting. 
+	 * sets the beam energy using Mono's enegy setting.
 	 */
 	@Override
 	public void setEnergy() throws DeviceException {
@@ -173,7 +173,7 @@ public class Beam implements BeamInfo, Configurable, Localizable {
 	/**
 	 * Checks to see if the created object should be local to the server or whether a corba impl should be instantiated
 	 * and placed on the name server.
-	 * 
+	 *
 	 * @return true for local only objects
 	 */
 	@Override
@@ -184,7 +184,7 @@ public class Beam implements BeamInfo, Configurable, Localizable {
 	/**
 	 * Sets a flag to inform the server that the created object should be local to itself or whether a corba impl should
 	 * be instantiated and placed on the name server.
-	 * 
+	 *
 	 * @param local
 	 *            true if a local only implementation.
 	 */
@@ -195,7 +195,7 @@ public class Beam implements BeamInfo, Configurable, Localizable {
 
 	/**
 	 * Check whether the configure method should be called when the server is instantiated.
-	 * 
+	 *
 	 * @return true if configuration is required at startup.
 	 */
 	public boolean isConfigureAtStartup() {
@@ -204,7 +204,7 @@ public class Beam implements BeamInfo, Configurable, Localizable {
 
 	/**
 	 * Set a flag to inform the server whether the configure method should be called at startup.
-	 * 
+	 *
 	 * @param configureAtStartup
 	 *            true to configure at startup.
 	 */
@@ -229,7 +229,7 @@ public class Beam implements BeamInfo, Configurable, Localizable {
 
 	/**
 	 * Notify all observers on the list of the requested change.
-	 * 
+	 *
 	 * @param theObserved
 	 *            the observed component
 	 * @param theArgument

@@ -48,24 +48,24 @@ public class ObservablePathConstructorTest {
 		gdaMetadata = new GdaMetadata();
 		gdaMetadata.addMetadataEntry(meta1);
 		gdaMetadata.addMetadataEntry(meta2);
-		
+
 		opc = new ObservablePathConstructor();
 		opc.setName("pathname");
 		opc.setTemplate("/root/$meta1$/$meta2$"); //e.g. /dls/b16/data/$year$/$visit$/$subdirectory$
 		opc.setGdaMetadata(gdaMetadata);
 		opc.configure();
-		
+
 		GDAMetadataProvider.setInstanceForTesting(gdaMetadata);
 	}
-	
+
 	@Test
 	public void testGetPath() {
 		assertEquals("/root/value1/value2", opc.getPath());
 		meta1.setValue("value1new");
 		meta2.setValue("value2new");
-		assertEquals("/root/value1new/value2new", opc.getPath());	
+		assertEquals("/root/value1new/value2new", opc.getPath());
 	}
-	
+
 	@Test
 	public void testUpdatesOberversWhenMetadataUpdates() {
 		IObserver mockObserver = mock(IObserver.class);
@@ -73,13 +73,13 @@ public class ObservablePathConstructorTest {
 		meta1.setValue("value1new");
 		verify(mockObserver).update(opc, new PathChanged("/root/value1new/value2"));
 	}
-	
+
 	@Test
 	public void testGetReferedMetadataEntries() {
 		List<IMetadataEntry> referedEntries = opc.getReferedMetadataEntries();
 		assertEquals(meta1, referedEntries.get(0));
 		assertEquals(meta2, referedEntries.get(1));
-		
+
 		StoredMetadataEntry meta3 = new StoredMetadataEntry("meta3", "value3");
 		gdaMetadata.addMetadataEntry(meta3);
 		opc.setTemplate("/root/$meta1$/$meta2$/$meta3$");
@@ -88,5 +88,5 @@ public class ObservablePathConstructorTest {
 		assertEquals(meta2, referedEntries.get(1));
 		assertEquals(meta3, referedEntries.get(2));
 	}
-	
+
 }

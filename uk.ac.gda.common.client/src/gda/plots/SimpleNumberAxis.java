@@ -38,7 +38,7 @@ public class SimpleNumberAxis extends NumberAxis {
 
 	/**
 	 * Same as super constructor but also initializes number of digits to 1.
-	 * 
+	 *
 	 * @param label
 	 *            the axis label
 	 */
@@ -50,7 +50,7 @@ public class SimpleNumberAxis extends NumberAxis {
 	/**
 	 * Extends the superclass method in order to keep track of the format of the axis labels. If the TickUnit has
 	 * changed then recalculate the number of digits being displayed.
-	 * 
+	 *
 	 * @param g2
 	 *            the 2D graphics context
 	 * @param state
@@ -90,7 +90,7 @@ public class SimpleNumberAxis extends NumberAxis {
 
 	/**
 	 * Gets the number of digits to be displayed
-	 * 
+	 *
 	 * @return the number of digits to be displayed
 	 */
 	public int getDigits() {

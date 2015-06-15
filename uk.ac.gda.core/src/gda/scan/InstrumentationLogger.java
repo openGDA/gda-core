@@ -22,9 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class InstrumentationLogger {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(InstrumentationLogger.class);
-	
+
 	public static Logger getLogger() {
 		return logger;
 	}

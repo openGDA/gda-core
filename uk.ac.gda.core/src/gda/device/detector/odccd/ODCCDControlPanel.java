@@ -84,7 +84,7 @@ public class ODCCDControlPanel extends JPanel {
 
 	/**
 	 * Contructor. This takes in a reference to the CCD control object.
-	 * 
+	 *
 	 * @param ccd
 	 */
 	public ODCCDControlPanel(ODCCD ccd) {
@@ -208,7 +208,7 @@ public class ODCCDControlPanel extends JPanel {
 
 	/**
 	 * Write a message to the output text area.
-	 * 
+	 *
 	 * @param msg
 	 *            The message to write
 	 */
@@ -351,7 +351,7 @@ public class ODCCDControlPanel extends JPanel {
 
 	/**
 	 * Is the CCD object connected to the CCD?
-	 * 
+	 *
 	 * @return true or false
 	 */
 	public boolean isConnected() {
@@ -367,7 +367,7 @@ public class ODCCDControlPanel extends JPanel {
 
 	/**
 	 * Returns the hostname that the CCD object is connected to.
-	 * 
+	 *
 	 * @return hostname
 	 */
 	public String getHostname() {
@@ -376,7 +376,7 @@ public class ODCCDControlPanel extends JPanel {
 
 	/**
 	 * Set the object reference to the CCD.
-	 * 
+	 *
 	 * @param ccd
 	 *            The object reference.
 	 */

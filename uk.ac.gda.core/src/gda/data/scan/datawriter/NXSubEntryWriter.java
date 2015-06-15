@@ -31,8 +31,8 @@ public class NXSubEntryWriter extends DataWriterExtenderBase{
 	String filename;
 
 	private NXLinkCreator linkCreator;
-	
-	
+
+
 	public NXSubEntryWriter(NXLinkCreator linkCreator) {
 		super();
 		this.linkCreator = linkCreator;

@@ -39,7 +39,7 @@ public @interface ScriptControllerLogColumn {
 	 * @return true if the column would be expected to be updated in every message sent out e.g. percent complete
 	 */
 	boolean refresh();
-	
+
 	/**
 	 * @return to provide an order for the information to be displayed to users
 	 */

@@ -30,7 +30,7 @@ import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.swt.SWT;
 
 public class SwtImagePositionTool {
-	
+
 	private static class ListenerPair
 	{
 		ImagePositionListener listener;
@@ -40,7 +40,7 @@ public class SwtImagePositionTool {
 			this.provider = swtProvider;
 		}
 	}
-	
+
 	private LinkedList<ListenerPair> listeners;
 
 	public SwtImagePositionTool(){
@@ -52,18 +52,18 @@ public class SwtImagePositionTool {
 	 * image/canvas pixels).
 	 */
 	private int[] getImagePosHelper(MouseEvent event, int dbx, int dby, float zoomLevel) {
-		
+
 		// Position in view pixels
 		int x = event.x;
 		int y = event.y;
-		
+
 		// Take into account the digital zoom to convert to canvas pixels
 		x /= zoomLevel;
 		y /= zoomLevel;
-		
+
 		// Convert to an offset from the top-left of the image, in canvas pixels
 		int imagePos[] = { x - dbx, y - dby};
-		
+
 		return imagePos;
 	}
 
@@ -71,17 +71,17 @@ public class SwtImagePositionTool {
 	 * Converts the position of the mouse in the view, in view/screen pixels, to image/canvas pixels.
 	 */
 	private int[] getZoomedPosHelper(MouseEvent event, float zoomLevel) {
-		
+
 		// Position in view pixels
 		int x = event.x;
 		int y = event.y;
-		
+
 		// Take into account the digital zoom to convert to canvas pixels
 		x /= zoomLevel;
 		y /= zoomLevel;
-		
+
 		int zoomedPostition[] = { x, y};
-		
+
 		return zoomedPostition;
 	}
 
@@ -89,7 +89,7 @@ public class SwtImagePositionTool {
 		double pos[] = {event.x, event.y };
 		int imagePos[] = getImagePosHelper(event, dbx, dby, zoomLevel);
 		int zoomedPos[] = getZoomedPosHelper(event, zoomLevel);
-		
+
 		short flags = getFlagsHelper(event);
 
 
@@ -106,10 +106,10 @@ public class SwtImagePositionTool {
 	public void deactivate(MouseEvent event, int dbx, int dby, float zoomLevel) {
 		double pos[] = {event.x, event.y };
 		int zoomedPos[] = getZoomedPosHelper(event, zoomLevel);
-		
+
 		int imagePos[] = getImagePosHelper(event, dbx, dby, zoomLevel);
 		short flags = getFlagsHelper(event);
-		
+
 		for (ListenerPair pair : listeners) {
 			SwtHitTestCalculator calculator = null;
 			if (pair.provider != null) {
@@ -121,9 +121,9 @@ public class SwtImagePositionTool {
 	}
 
 	private static final boolean DEBUG = false;
-	
+
 	public void perform(MouseEvent event, int dbx, int dby, float zoomLevel) {
-		
+
 		// Terminology:
 		//
 		//  * Canvas: the stuff actually being drawn in the view. This changes size when the digital zoom (scroll
@@ -133,7 +133,7 @@ public class SwtImagePositionTool {
 		//
 		//  * View: displays the canvas at different (digital) zoom levels. The amount of canvas it shows varies
 		//    depending on the digital zoom level.
-		
+
 		// Parameters:
 		//
 		//  * event contains the coordinates of the mouse in the view, in screen pixels. Top left is (0, 0).
@@ -142,18 +142,18 @@ public class SwtImagePositionTool {
 		//
 		//  * zoomLevel is the *digital* zoom level. It's (view size ÷ visible canvas size): as you zoom out, the
 		//    visible canvas gets larger, so the zoom level gets smaller.
-		
+
 		// pos is the position of the mouse within the *view*, in view/screen pixels. Top left of the view is (0, 0).
 		double pos[] = {event.x, event.y };
-		
+
 		// imagePos is the position of the mouse within the *image*, in canvas/image pixels. Top left of the image is
 		// (0, 0). Bottom right will be the 'real' size of the image.
 		int imagePos[] = getImagePosHelper(event, dbx, dby, zoomLevel);
-		
+
 		// zoomedPos is the position of the mouse within the view, in canvas/image pixels. Top left of the view is
 		// (0, 0). (Similar to pos, but in canvas/image pixels, not view/screen pixels.)
 		int zoomedPos[] = getZoomedPosHelper(event, zoomLevel);
-		
+
 		if (DEBUG) {
 			System.out.printf("perform:    %-25s%-20s%-20s%s%n",
 				String.format("pos=(%.1f, %.1f)", pos[0], pos[1]),
@@ -163,7 +163,7 @@ public class SwtImagePositionTool {
 				String.format("zoomedPos=%s", Arrays.toString(zoomedPos))
 			);
 		}
-		
+
 		for (ListenerPair pair : listeners) {
 			SwtHitTestCalculator calculator = null;
 			if (pair.provider != null) {
@@ -171,9 +171,9 @@ public class SwtImagePositionTool {
 			}
 			IImagePositionEvent iEvent = new SwtImagePositionEvent(pos, imagePos, calculator);
 			pair.listener.imageDragged(iEvent);
-		}			
+		}
 	}
-	
+
 
 	private short getFlagsHelper(MouseEvent event) {
 		short flags = 0;
@@ -182,7 +182,7 @@ public class SwtImagePositionTool {
 		if ((event.getState() & SWT.CONTROL) != 0) flags += IImagePositionEvent.CTRLKEY;
 		if ((event.getState() & SWT.SHIFT) != 0) flags += IImagePositionEvent.SHIFTKEY;
 		return flags;
-	}	
+	}
 
 	/**
 	 * Add another ImagePositionListener to the listener list
@@ -193,7 +193,7 @@ public class SwtImagePositionTool {
 	{
 		listeners.add(new ListenerPair(newListener, swtProvider));
 	}
-	
+
 
 	/**
 	 * Remove an ImagePositionListener from the listener list

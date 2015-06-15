@@ -41,9 +41,9 @@ import org.springframework.util.StringUtils;
 
 /**
  * The Icat which talks to the Diamond ICAT database.
- * 
+ *
  * <p>This is an abbreviated schema diagram for the ICAT database:
- * 
+ *
  * <pre>
  * +------------------+        +---------------+        +------------------+
  * | SHIFT            |        | INVESTIGATION |        | INVESTIGATOR     |        +------------------+
@@ -61,29 +61,29 @@ public class DLSIcat extends IcatBase {
 	private static final Logger logger = LoggerFactory.getLogger(DLSIcat.class);
 
 	protected static class Shift {
-		
+
 		private String investigationId;
 		private Date startDate;
 		private Date endDate;
-		
+
 		public Shift(String investigationId, Date startDate, Date endDate) {
 			this.investigationId = investigationId;
 			this.startDate = startDate;
 			this.endDate = endDate;
 		}
-		
+
 		public String getInvestigationId() {
 			return investigationId;
 		}
-		
+
 		public Date getStartDate() {
 			return startDate;
 		}
-		
+
 		public Date getEndDate() {
 			return endDate;
 		}
-		
+
 		@Override
 		public String toString() {
 			return String.format("Shift(investigationId=%s, startDate=%s, endDate=%s)",
@@ -92,12 +92,12 @@ public class DLSIcat extends IcatBase {
 				endDate);
 		}
 	}
-	
+
 	/**
 	 * Name of the java property which defines the Icat database username
 	 */
 	public static final String USER_PROP = "gda.data.metadata.dlsicat.user";
-	
+
 	/**
 	 * Name of the java property which defines the Icat database password
 	 */
@@ -117,7 +117,7 @@ public class DLSIcat extends IcatBase {
 	protected String getVisitIDAccessName() {
 		return VISIT_QUERY;
 	}
-	
+
 	@Override
 	protected String getExperimentTitleAccessName() {
 		return TITLE_QUERY;
@@ -133,7 +133,7 @@ public class DLSIcat extends IcatBase {
 		try {
 			connection = connectToDatabase();
 			statement = connection.createStatement();
-			
+
 			List<Shift> shifts = findAllShiftsForUser(statement, userNameFilter);
 
 			if (shifts.size() > 0) {
@@ -165,7 +165,7 @@ public class DLSIcat extends IcatBase {
 	private Connection connectToDatabase() throws Exception {
 		Connection connection = null;
 		Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
-		
+
 		java.util.Properties info = new java.util.Properties();
 		info.put ("user", LocalProperties.get(USER_PROP));
 		info.put ("password", LocalProperties.get(PASSWORD_PROP));
@@ -192,53 +192,53 @@ public class DLSIcat extends IcatBase {
 			Shift s = SHIFT_ROW_MAPPER.mapRow(resultSet, 0);
 			shifts.add(s);
 		}
-		
+
 		return shifts;
 	}
-	
+
 	private static final RowMapper<Shift> SHIFT_ROW_MAPPER = new RowMapper<Shift>() {
 		@Override
 		public Shift mapRow(ResultSet rs, int rowNum) throws SQLException {
 			String investigationId = rs.getString("INVESTIGATION_ID");
-			
+
 			String startDateString = rs.getString("START_DATE");
 			String endDateString = rs.getString("END_DATE");
-			
+
 			SimpleDateFormat format = new SimpleDateFormat(ORACLE_DATE_FORMAT);
-			
+
 			Date startDate;
 			Date endDate;
-			
+
 			try {
 				startDate = format.parse(startDateString);
 			} catch (ParseException e) {
 				throw new RuntimeException(String.format("Unable to parse start date %s", StringUtils.quote(startDateString)));
 			}
-			
+
 			try {
 				endDate = format.parse(endDateString);
 			} catch (ParseException e) {
 				throw new RuntimeException(String.format("Unable to parse end date %s", StringUtils.quote(endDateString)));
 			}
-			
+
 			Shift s = new Shift(investigationId, startDate, endDate);
 			return s;
 		}
 	};
-	
+
 	/**
 	 * Dates are returned from the icat. An example is "2006-12-5.0.0. 0. 0" We believe the last two zeros
 	 * in the case are seconds and milli-seconds. Neither of these are relevant for our purposes here, which
 	 * are based on coarser time scales. Therefore our date format class instance ignores these.
 	 */
 	private static final String ORACLE_DATE_FORMAT = "yyyy-M-d H:m:";
-	
+
 	/**
 	 * From a set of allocated shifts determine which are current on the instrument in use. Instrument equates to an end
 	 * station on the facility. The instrument is assumed to be stored in another metadata item, name instrument. At the
 	 * end the ArrayLists ids, shiftStart and shiftEnd will be updated to contain investigations currently scheduled on
 	 * this instrument. A tolerance can be applied to the shift periods via the XML element <shiftTolerance>.
-	 * 
+	 *
 	 * @param filterByVisitID
 	 *            Whether to use the stored visitID to filter the investigation value
 	 * @param statement
@@ -249,10 +249,10 @@ public class DLSIcat extends IcatBase {
 
 	/**
 	 * Filters the list of {@link Shift}s, keeping only the shifts that are currently in progress.
-	 * 
+	 *
 	 * <p>If {@link IcatBase#setOperatingDate(Date) operatingDate} has been set, only the visits in progress at that
 	 * time will be retained.
-	 * 
+	 *
 	 * @param visitId an optional visit ID; if specified, only that visit will be kept
 	 */
 	private void filterShiftsByTimeAndVisit(String visitId, Statement statement, List<Shift> shifts) throws SQLException {
@@ -297,20 +297,20 @@ public class DLSIcat extends IcatBase {
 	/**
 	 * Create an SQL query to get the actual item of metadata for a required investigation. This relies upon the
 	 * metadata accessName obtained via XML configuration. The query will be of the form
-	 * 
+	 *
 	 * <pre>
 	 *   select distinct columns from table where name=id1 or name=id2 ....
 	 * </pre>
-	 * 
+	 *
 	 * Elements of this query will be determined using the accessName, assumed to be of the form columns:table:name.
-	 * 
+	 *
 	 * <pre>
 	 *   columns: should be a single column name or a comma separated list of
 	 *   columns from a database table.
 	 *   table: the name of the database table.
 	 *   name: the name used to refer to investigation id in the table.
 	 * </pre>
-	 * 
+	 *
 	 * @return The SQL query.
 	 */
 	protected static String createQuery(String accessName, List<Shift> shifts) {
@@ -325,7 +325,7 @@ public class DLSIcat extends IcatBase {
 		for (Shift s : shifts) {
 			query += name + "='" + s.getInvestigationId() + "' OR ";
 		}
-		
+
 		// remove trailing " OR "
 		query = query.substring(0, query.length() - 4);
 
@@ -341,7 +341,7 @@ public class DLSIcat extends IcatBase {
 	/**
 	 * An sql query may result in a table of results. This method concatenates those results into a single string.
 	 * Columns in each row are space separated. Each row is comma separated.
-	 * 
+	 *
 	 * @param resultSet
 	 *            A set of results from a JDBC sql command.
 	 * @return The concatented contents of the input result set.

@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Remote factory to resolve object references and create client side adapter interfaces
- * 
+ *
  * This class holds remote objects and prevents those objects being referenced
  * in Spring configuration files. Use {@code <corba:import namespace="..." />} instead,
  * which imports remote objects directly into the Spring application context and allows
@@ -55,7 +55,7 @@ public class AdapterFactory implements Factory {
 
 	/**
 	 * Create a factory for client side adapters.
-	 * 
+	 *
 	 * @param name
 	 *            the name of the adapter factory
 	 * @param netService
@@ -73,7 +73,7 @@ public class AdapterFactory implements Factory {
 
 	/**
 	 * Find adapter object or create it.
-	 * 
+	 *
 	 * @param <T>
 	 * @param objectName
 	 *            the name of the object to find
@@ -102,7 +102,7 @@ public class AdapterFactory implements Factory {
 			return (T) findable;
 		}
 	}
-	
+
 	public static Findable createRbacWrappedAdapter(NetService netService, String fullName, String objectName) throws Exception {
 		Findable findable = createAdapter(netService, fullName, objectName);
 		if (LocalProperties.isAccessControlEnabled()) {
@@ -114,7 +114,7 @@ public class AdapterFactory implements Factory {
 		}
 		return findable;
 	}
-	
+
 	public static Findable createAdapter(NetService netService, String fullName, String objectName) throws Exception {
 		String adapterName = netService.getType(fullName);
 		org.omg.CORBA.Object obj = netService.retrieve(fullName, adapterName);

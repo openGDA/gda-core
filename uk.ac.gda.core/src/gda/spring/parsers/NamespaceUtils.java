@@ -31,14 +31,14 @@ public class NamespaceUtils {
 	/**
 	 * Adds an object to a Spring {@link ManagedList}. Encapsulated in a
 	 * method as this action involves the use of a raw type.
-	 * 
+	 *
 	 * @param list the list
 	 * @param obj the object to add to the list
 	 */
 	public static <T> void addToManagedList(ManagedList<T> list, T obj) {
 		list.add(obj);
 	}
-	
+
 	public static <T> void addAllToManagedList(ManagedList<T> list, List<T> objects) {
 		list.addAll(objects);
 	}

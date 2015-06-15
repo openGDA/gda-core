@@ -31,7 +31,7 @@ public class Gaussian1D extends AbstractFunction {
 	 * Gaussian1D() will set up a gaussian with area =1.0,position=0.0,sigma=1.0 or e.g. Gaussian1D = new
 	 * Gaussian1D(1.0,0.0,1.0) corresponding to area, position or sigma The lower bounds of the area and sigma
 	 * parameters are set to zero
-	 * 
+	 *
 	 * @param parms
 	 *            The parameters
 	 */
@@ -64,7 +64,7 @@ public class Gaussian1D extends AbstractFunction {
 	/**
 	 * This constructor generates a gausian with a good set of limits, and sets the values to be in the centre of the
 	 * limits. This should enable a quick setup of constrained boundrys
-	 * 
+	 *
 	 * @param minPeakPosition
 	 *            The minimum possible position of the peak
 	 * @param maxPeakPosition

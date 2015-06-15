@@ -67,7 +67,7 @@ import uk.ac.gda.common.rcp.util.ISortingUtils;
 
 /**
  * Will make this more of an editor later, allowing new XML and deletion / backup.
- * 
+ *
  * @author Matthew Gerring
  *
  */
@@ -78,12 +78,12 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 	static {
 		XMLBeanContentDescriberFactory.getInstance().addFileExtension(".scan", ExperimentRunEditor.ID);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public static final String ID = "uk.ac.gda.client.experimentdefinition.FolderEditor"; //$NON-NLS-1$
-	
+
 	private TableViewer fileViewer;
 	private IFolder     currentDirectory;
 
@@ -93,7 +93,7 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		
+
 		final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
@@ -101,9 +101,9 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 		Composite container = new Composite(scrolledComposite, SWT.NONE);
 		container.setLayout(new FillLayout());
 		scrolledComposite.setContent(container);
-		
+
 		this.fileViewer = new TableViewer(container, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		
+
         createContentProvider();
         ExperimentProviderUtils.createExafsLabelProvider(fileViewer);
 		fileViewer.setInput(new Object());
@@ -114,11 +114,11 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
         createEditor();
 
 		scrolledComposite.setMinSize(container.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		
+
 		getSite().setSelectionProvider(fileViewer);
 	}
-	
-	
+
+
 	@Override
 	public void dispose() {
 		super.dispose();
@@ -135,7 +135,7 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 		}
 	}
 
-	
+
 	private boolean canModify = false;
 
 	private IDoubleClickListener doubleClickListener;
@@ -143,9 +143,9 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 		CellEditor[] editors  = new CellEditor[1];
 		final TextCellEditor nameEd = new TextCellEditor(fileViewer.getTable());
 		((Text)nameEd.getControl()).setTextLimit(60);
-		editors[0] = nameEd;	
+		editors[0] = nameEd;
 		fileViewer.setCellEditors(editors);
-		
+
 		fileViewer.setColumnProperties(new String[]{"File Name"});
 		fileViewer.setCellModifier(new ICellModifier() {
 			@Override
@@ -166,7 +166,7 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 
 					if (value==null||"".equals(value)||!value.toString().matches("\\w+\\.\\w+")) return;
 					if (value.equals(orig.getName())) return;
-					
+
 					try {
 						ExperimentFactory.refactorFile(orig, value.toString());
 						tableItem.setData(orig);
@@ -179,7 +179,7 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 					canModify = false;
 				}
 			}
-			
+
 		});
 	}
 
@@ -189,7 +189,7 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 			public void doubleClick(DoubleClickEvent event) {
 				final IFile file = (IFile)((IStructuredSelection)fileViewer.getSelection()).getFirstElement();
 				ExperimentFactory.getExperimentEditorManager().openEditor(file);
-			}		
+			}
 		};
 		fileViewer.addDoubleClickListener(doubleClickListener);
 	}
@@ -218,7 +218,7 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 			public void dragFinished(DragSourceEvent event) {
 				// Do nothing
 			}
-			
+
 		});
 	}
 
@@ -231,26 +231,26 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 
 			@Override
 			public Object[] getElements(Object inputElement) {
-				
+
 				if (!currentDirectory.exists()) return new Object[]{new Object()};
-				
+
 			    Comparator<IResource> comp =  new Comparator<IResource>() {
 					@Override
 					public int compare(IResource o1, IResource o2) {
 						boolean scan1 = o1.getName().endsWith(".scan");
 						boolean scan2 = o2.getName().endsWith(".scan");
 						if (scan1&&!scan2) return -1;
-						if (!scan1&&scan2) return  1;							
-						
+						if (!scan1&&scan2) return  1;
+
 						boolean xml1 = o1.getName().endsWith(".xml");
 						boolean xml2 = o2.getName().endsWith(".xml");
 						if (xml1&&!xml2) return -1;
-						if (!xml1&&xml2) return  1;							
-						
+						if (!xml1&&xml2) return  1;
+
 						return o1.getLocation().toString().compareTo(o2.getLocation().toString());
-					}			    	
+					}
 			    };
-			    
+
 				try {
 					List<IResource> files = ISortingUtils.getSortedFileList(currentDirectory, comp);
 				    if (files==null) return new Object[]{new Object()};
@@ -260,7 +260,7 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 					return new Object[]{new Object()};
 				}
 			}
-			
+
 		});
 	}
 
@@ -275,7 +275,7 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 	}
 
 
-	private void createRightClickMenu() {	
+	private void createRightClickMenu() {
 	    final MenuManager menuManager = new MenuManager();
 		final Menu        menu        = menuManager.createContextMenu(fileViewer.getControl());
 		fileViewer.getControl().setMenu (menu);
@@ -302,11 +302,11 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 		setSite(site);
 		setInput(input);
 	}
-	
+
 	@Override
 	public void setInput(IEditorInput input) {
 		super.setInput(input);
-		
+
 		final String name            = EclipseUtils.getFile(getEditorInput()).getName();
 	    this.currentDirectory        = ExperimentFactory.getExperimentEditorManager().getIFolder(name);
         setPartName(currentDirectory.getName());
@@ -317,7 +317,7 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 		}
 
 	}
-	
+
 	@Override
 	public void runChangePerformed(ExperimentObjectEvent e) {
 		if (fileViewer!=null&&!fileViewer.getControl().isDisposed()) {
@@ -350,7 +350,7 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void editSelectedElement() {
 		setCanModify(true);
@@ -382,4 +382,3 @@ public class ExperimentFolderEditor extends EditorPart implements ExperimentObje
 
 }
 
-	

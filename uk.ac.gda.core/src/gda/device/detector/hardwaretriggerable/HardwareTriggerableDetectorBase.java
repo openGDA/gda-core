@@ -26,7 +26,7 @@ import gda.device.detector.DetectorBase;
 public abstract class HardwareTriggerableDetectorBase extends DetectorBase implements HardwareTriggerableDetector, SimulatedTriggerObserver {
 
 	private HardwareTriggerProvider triggerProvider;
-	
+
 	private boolean hardwareTriggering;
 
 	private int numberImagesToCollect = 1;
@@ -42,14 +42,14 @@ public abstract class HardwareTriggerableDetectorBase extends DetectorBase imple
 
 	@Override
 	public void setHardwareTriggering(boolean b) throws DeviceException {
-		hardwareTriggering = b;		
+		hardwareTriggering = b;
 	}
 
 	@Override
 	public boolean isHardwareTriggering() {
 		return hardwareTriggering;
 	}
-	
+
 	@Override
 	public void setNumberImagesToCollect(int numberImagesToCollect) {
 		this.numberImagesToCollect = numberImagesToCollect;

@@ -37,7 +37,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * @param currentPosition  Used at instantiation only. From then use asynchronousMoveTo
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public void setCurrentPosition(Object currentPosition)  throws DeviceException {
 		asynchronousMoveTo(currentPosition);
@@ -49,7 +49,7 @@ public class SimpleScannable extends ScannableBase {
 			currentPosition = position;
 			notifyIObservers(this, new ScannablePositionChangeEvent((Serializable)currentPosition));
 		}
-		
+
 	}
 
 	@Override

@@ -29,7 +29,7 @@ public class DarkCurrentReader {
 
 	/**
 	 * Returns the complete counts
-	 * 
+	 *
 	 * @param bean
 	 * @return complete data array from counter timer
 	 * @throws Exception

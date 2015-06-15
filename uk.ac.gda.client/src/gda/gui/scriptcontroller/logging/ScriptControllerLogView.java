@@ -54,8 +54,8 @@ public class ScriptControllerLogView extends ViewPart implements SelectionListen
 		cmbFilter.setItems(scriptTypes);
 		cmbFilter.select(0);
 		cmbFilter.addSelectionListener(this);
-		
-		
+
+
 
 		treeViewer = new TreeViewer(parent);
 		treeViewer.addFilter(filter);

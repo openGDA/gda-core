@@ -18,15 +18,15 @@
 
 package gda.device.scannable;
 
-import org.jscience.physics.quantities.Quantity;
-
 import gda.device.DeviceException;
 import gda.device.ScannableMotionUnits;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
 
+import org.jscience.physics.quantities.Quantity;
+
 /**
- * Wraps and then delegates many method calls to a ScannableMotionUnits instance. If the name, 
+ * Wraps and then delegates many method calls to a ScannableMotionUnits instance. If the name,
  * inputNames or extraNames fields are set in the wrapper, calls to get these will not be
  * delegated (this list may be extended in the future). This class is useful for presenting a user
  * with a Scannable that may operate one of many underlying scannables.

@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * Message.debug("First Value added\t"+mymap.); I originally wrote this so that you could get functions or function
  * parameters by name or index in a neat way for the curve fitting codes but it can be used for anything....... Generic
  * Types
- * 
+ *
  * @param <K>
  * @param <V>
  */
@@ -167,7 +167,7 @@ public class OrderedHashMap<K, V> extends HashMap<K, V> {
 
 	/**
 	 * Check the index is in range.
-	 * 
+	 *
 	 * @param index
 	 */
 	public void checkIndex(int index) {
@@ -182,7 +182,7 @@ public class OrderedHashMap<K, V> extends HashMap<K, V> {
 
 	/**
 	 * Main method used for testing.
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {

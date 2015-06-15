@@ -39,7 +39,7 @@ public interface XYDataHandler {
 	public Color getLineColor(int which);
 	public Marker getLineMarker(int which);
 	public static int LEFTYAXIS = 0; //taken from SimplePlot
-	
+
 	//needed by ScanPlot
 	public void setTurboMode(boolean turboMode);
 	public void setLegendVisible(boolean newValue);
@@ -55,20 +55,20 @@ public interface XYDataHandler {
 	public void deleteAllLines();
 	public void setLeftRangeBounds(Range leftRangeBounds);
 	public void setRightRangeBounds(Range rightRangeBounds);
-	
-	
+
+
 	//needed by SimplePlot
 	public NumberFormat getXAxisNumberFormat();
 	public NumberFormat getYAxisNumberFormat();
 	public Range getLeftDomainBounds();
 	public Double getStripWidth();
-	
+
 	//needed by PlotTreeLegend
 	public void setLineColor(int which, Color color);
 	public void setLineMarker(int which, Marker marker);
 	public void initializeLine(int which, int axis, String name, String xLabel, String yLabel, String dataFileName, AxisSpec yAxisSpec);
 	public void deleteLine(int which);
-	
+
 	void onUpdate(boolean force);
 	public void setsPointsForLine(int which, DoubleDataset xData, DoubleDataset yData);
 

@@ -19,13 +19,13 @@
 
 package gda.util.simpleServlet.corba.impl;
 
-import gda.util.simpleServlet.*;
-import org.omg.CORBA.Any;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.CorbaDevicePOA;
-
 import gda.device.corba.impl.DeviceImpl;
 import gda.factory.corba.CorbaFactoryException;
+import gda.util.simpleServlet.FindableSimpleServlet;
+
+import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed EpicsDevice class
@@ -43,7 +43,7 @@ public class SimpleServletImpl extends CorbaDevicePOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param findableServlet
 	 * @param poa
 	 *            the portable object adapter
@@ -77,7 +77,7 @@ public class SimpleServletImpl extends CorbaDevicePOA {
 	public void reconfigure() throws CorbaFactoryException {
 		deviceImpl.reconfigure();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();

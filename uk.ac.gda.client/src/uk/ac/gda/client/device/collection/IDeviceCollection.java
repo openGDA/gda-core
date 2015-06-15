@@ -23,7 +23,7 @@ import gda.factory.Findable;
 /**
  * This interface represents a collection of devices such as
  * scannables, motors,etc. A device collection typically represents devices
- * that are logically grouped to provide specific functionality, for 
+ * that are logically grouped to provide specific functionality, for
  * example, a FluorescenceDeviceCollection.
  * <p>
  * An example implementation can be found in uk.ac.gda.example plug-in

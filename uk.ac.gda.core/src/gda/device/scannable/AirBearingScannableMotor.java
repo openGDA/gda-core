@@ -18,15 +18,15 @@
 
 package gda.device.scannable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.IAirBearingScannableMotor;
 import gda.device.Scannable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
- * An extended {@link ScannableMotor} implementation that provides control to switch on/off air supply to 
- * the motor's air bearing mechanism automatically when motion is requested. 
+ * An extended {@link ScannableMotor} implementation that provides control to switch on/off air supply to
+ * the motor's air bearing mechanism automatically when motion is requested.
  */
 public class AirBearingScannableMotor extends ScannableMotor implements IAirBearingScannableMotor {
 	private static final Logger logger=LoggerFactory.getLogger(AirBearingScannableMotor.class);

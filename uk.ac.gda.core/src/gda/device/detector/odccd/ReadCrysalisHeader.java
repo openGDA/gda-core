@@ -57,7 +57,7 @@ public class ReadCrysalisHeader {
 			b[0] = header[specialOffset + 531];
 			result = Integer.toString(byteArrayToInt(b));
 		}
-		
+
 		if (field.equals("imon2")) {
 			byte[] b = new byte[4];
 			b[3] = header[specialOffset + 532];

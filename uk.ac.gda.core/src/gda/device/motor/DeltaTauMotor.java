@@ -19,9 +19,6 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.Motor;
 import gda.device.MotorException;
 import gda.device.MotorStatus;
@@ -29,13 +26,16 @@ import gda.factory.Configurable;
 import gda.factory.Finder;
 import gda.observable.IObservable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A class to control Delta Tau PMAC motors
  */
 public class DeltaTauMotor extends MotorBase implements Configurable, IObservable, Motor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DeltaTauMotor.class);
-	
+
 	private String deltaTauControllerName = null;
 
 	private DeltaTauController deltaTauController = null;

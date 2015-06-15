@@ -21,7 +21,7 @@
  * <code>gda.util.converters</code> is a set of code for general purpose conversion between objects. It was written to
  * allow <code>gda.oe.dofs</code> to be related to other DOFs. It is used by the class
  * <code>gda.oe.dofs.CombinedDOF</code>.
- * 
+ *
  *      <p>
  *      The design philosophy is that within the ObjectServer of GDA there will be instances of classes that implement
  *      interfaces IReloadableQuantitiesConverter and Findable. These instances are findable by any other classes using
@@ -51,7 +51,7 @@
  *      for both source to target and target to source and the Y values change direction within a table, a coupled converter must
  *      be formed with another LookupTableQuantityConverter object. We use a mode flag to indicate how the object is to be
  *      used to control which checks of the data in the table are performed. For example InterpolationFunction will throw
- *      an exception if the xvalues change direction *      
- *      
+ *      an exception if the xvalues change direction *
+ *
  */
 package gda.util.converters;

@@ -26,8 +26,8 @@ import gda.device.DeviceException;
 public interface IPositionSource<E> {
 
 	/**
-	 * Returns the units descriptor of the position source. 
-	 * 
+	 * Returns the units descriptor of the position source.
+	 *
 	 * @return the units descriptor of the position source
 	 */
 	public IUnitsDescriptor getDescriptor();
@@ -35,16 +35,16 @@ public interface IPositionSource<E> {
 	/**
 	 * Returns true if the position source is busy, for example,
 	 * it is in the middle of changing position
-	 * 
+	 *
 	 * @return true if busy, otherwise false
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public boolean isBusy() throws DeviceException;
 
 	/**
 	 * Returns the current position
-	 * 
+	 *
 	 * @return double current position
 	 * @throws DeviceException
 	 */

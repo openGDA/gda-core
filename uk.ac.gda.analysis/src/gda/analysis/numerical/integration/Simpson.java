@@ -27,7 +27,7 @@ public class Simpson {
 	 * simpsonNE approximates the integral of an unevenly spaced data. The routine repeatedly interpolates a 3-point
 	 * Lagrangian polynomial to the data and integrates that exactly. Based on Reference: Philip Davis, Philip
 	 * Rabinowitz, Methods of Numerical Integration, Second Edition, Dover, 2007, ISBN: 0486453391, LC: QA299.3.D28.
-	 * 
+	 *
 	 * @param x
 	 *            x values
 	 * @param y

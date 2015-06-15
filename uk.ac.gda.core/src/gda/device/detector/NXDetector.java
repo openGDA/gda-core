@@ -136,7 +136,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 
 	/**
 	 * Set plugins in addition to the collection-strategy plugin.
-	 * 
+	 *
 	 * @param additionalPluginList
 	 */
 	public void setAdditionalPluginList(List<NXPluginBase> additionalPluginList) {
@@ -214,15 +214,15 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 		return new PyString(string);
 	}
-	
+
 	/**
 	 * Returns the NXPlugin with the given name (configuration methods will have prevented
 	 * duplicate plugin names).
-	 * 
+	 *
 	 * @param name
 	 */
 	public NXPluginBase __getattr__(String name) {
-		
+
 		// As DetectorBase does not extend PyObject, it is an 'old style' class and the more
 		// appropriate __getattribute__ method won't get called. The problem with __getattr__
 		// is that defined methods (such as Scannable.a()) will block it. Then again, maybe
@@ -270,7 +270,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		// should be operated only in a scan
 		throw new RuntimeException(UNSUPPORTED_PART_OF_SCANNABLE_INTERFACE);
 	}
-	
+
 	@Override
 	final public void prepareForCollection() throws DeviceException {
 		// atScanLineStart implemented instead
@@ -337,13 +337,13 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		} catch (Exception e) {
 			throw new DeviceException(e);
 		}
-		
-		
+
+
 
 		List<PositionInputStream<NXDetectorDataAppender>> asynchronousPositionInputStreams = new Vector<PositionInputStream<NXDetectorDataAppender>>();
 
 		pluginPositionQueueMap = new HashMap<NonAsynchronousNXPlugin, PositionQueue<NXDetectorDataAppender>>();
-		
+
 		boolean requiresStreamingPlugins = getCollectionStrategy().requiresAsynchronousPlugins();
 		for (NXPluginBase plug : getPluginList()) {
 			if (plug instanceof NonAsynchronousNXPlugin) {
@@ -363,8 +363,8 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		PositionInputStreamCombiner<NXDetectorDataAppender> combinedStream = new PositionInputStreamCombiner<NXDetectorDataAppender>(asynchronousPositionInputStreams);
 		pluginStreamsIndexer = new PositionStreamIndexer<List<NXDetectorDataAppender>>(combinedStream);
 	}
-	
-	
+
+
 	protected void prepareCollectionStrategyAtScanStart(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception, DeviceException {
 		getCollectionStrategy().setGenerateCallbacks(areCallbacksRequired());
 		getCollectionStrategy().prepareForCollection(getCollectionTime(), numberImagesPerCollection, scanInfo);
@@ -389,7 +389,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 			}
 		}
 	}
-	
+
 	@Override
 	public void collectData() throws DeviceException {
 		if(addCollectTimeMs){
@@ -435,7 +435,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 		return lastReadoutValue;
 	}
-	
+
 	@Override
 	public Callable<NexusTreeProvider> getPositionCallable() throws DeviceException {
 
@@ -562,7 +562,7 @@ public class NXDetector extends DetectorBase implements InitializingBean, NexusD
 		}
 		return pluginNames;
 	}
-	
+
 }
 
 class NXDetectorDataCompletingCallable implements Callable<NexusTreeProvider> {
@@ -572,17 +572,17 @@ class NXDetectorDataCompletingCallable implements Callable<NexusTreeProvider> {
 	private final Callable<List<NXDetectorDataAppender>> appendersCallable;
 
 	private final String detectorName;
-	
+
 	private volatile boolean called = false;
-	private Object lock = new Object();	
-	
+	private Object lock = new Object();
+
 	public void waitForCompletion() throws InterruptedException {
 		synchronized (lock) {
 			while (!called) {
 				lock.wait(1000);
 			}
 		}
-	}	
+	}
 
 	public NXDetectorDataCompletingCallable(NXDetectorData emptyNXDetectorData,
 			Callable<List<NXDetectorDataAppender>> appendersCallable, String detectorName) {

@@ -84,7 +84,7 @@ public class AutoCompleter {
 				}
 			}
 		});
-		
+
 		try {
 			installContentProposalAdapter(txtInput, new TextContentAdapter());
 		} catch (ParseException e) {
@@ -105,7 +105,7 @@ public class AutoCompleter {
 		setupContentPropoasalAdapter(ctrlSpaceAdapter);
 
 	}
-	
+
 	private void setupContentPropoasalAdapter(ContentProposalAdapter cpa) {
 		boolean propagate = true;
 		int autoActivationDelay = 0;
@@ -285,7 +285,7 @@ public class AutoCompleter {
 
 		/**
 		 * Return an array of Objects representing the valid content proposals for a field.
-		 * 
+		 *
 		 * @param contents
 		 *            the current contents of the field (only consulted if filtering is set to <code>true</code>)
 		 * @param position
@@ -309,7 +309,7 @@ public class AutoCompleter {
 
 		/**
 		 * Set the Strings to be used as content proposals.
-		 * 
+		 *
 		 * @param items
 		 *            the array of Strings to be used as proposals.
 		 */

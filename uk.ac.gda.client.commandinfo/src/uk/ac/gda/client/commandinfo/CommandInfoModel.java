@@ -27,11 +27,11 @@ import java.util.List;
 public class CommandInfoModel extends HashMap<Long,ICommandThreadInfo> {
 
 	private static final long serialVersionUID = -7113504880257550153L;
-	
+
 	public List<ICommandThreadInfo> getCommandList() {
 		return Arrays.asList(getCommandElements());
 	}
-	
+
 	public ICommandThreadInfo[] getCommandElements() {
 		return this.values().toArray(new ICommandThreadInfo[this.size()]);
 	}

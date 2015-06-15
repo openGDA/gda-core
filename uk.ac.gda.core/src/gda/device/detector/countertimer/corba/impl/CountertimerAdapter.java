@@ -41,7 +41,7 @@ public class CountertimerAdapter extends DetectorAdapter implements CounterTimer
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

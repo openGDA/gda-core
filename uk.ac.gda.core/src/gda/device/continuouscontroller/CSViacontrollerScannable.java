@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 class CSViacontrollerScannable extends SimpleScannable implements ContinuouslyScannableViaController, PositionCallableProvider<Double>{
 	private static final Logger logger = LoggerFactory.getLogger(CSViacontrollerScannable.class);
 	ContinuousMoveController cmc;
-	
+
 
 	public ContinuousMoveController getCmc() {
 		return cmc;
@@ -67,8 +67,8 @@ class CSViacontrollerScannable extends SimpleScannable implements ContinuouslySc
 	public ContinuousMoveController getContinuousMoveController() {
 		return cmc;
 	}
-	
-	
+
+
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		addPoint(PositionConvertorFunctions.toDouble(externalToInternal(position)));
@@ -85,8 +85,8 @@ class CSViacontrollerScannable extends SimpleScannable implements ContinuouslySc
 			return pos[0];
 		}
 		return super.getPosition();
-	}	
-	
+	}
+
 	List<Double> points = null;
 
 

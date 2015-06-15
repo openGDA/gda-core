@@ -49,7 +49,7 @@ public class DataFileWriter {
 
 	/**
 	 * Create a data file writer.
-	 * 
+	 *
 	 * @param filePrefix
 	 *            the file prefix, to be added before the run number.
 	 * @param fileExtension
@@ -67,7 +67,7 @@ public class DataFileWriter {
 
 	/**
 	 * Constructs next file name
-	 * 
+	 *
 	 * @return the next datafile name
 	 */
 	private String nextDataFileName() {
@@ -88,7 +88,7 @@ public class DataFileWriter {
 
 	/**
 	 * Writes a string to the data file.
-	 * 
+	 *
 	 * @param toWrite
 	 *            the string to write
 	 */
@@ -119,7 +119,7 @@ public class DataFileWriter {
 
 	/**
 	 * Get the current data filename. This may be null if not open.
-	 * 
+	 *
 	 * @return the current data file name.
 	 */
 	public String getDataFileName() {

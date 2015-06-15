@@ -37,9 +37,9 @@ import org.slf4j.LoggerFactory;
  * data bits with a baud rate selected between 300 & 9600
  */
 public class Newtronic extends TemperatureBase implements ReplyChecker {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Newtronic.class);
-	
+
 	private final static double MAXTEMP = 999.0;
 
 	private final static double MINTEMP = 0.0;
@@ -198,7 +198,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Check a valid termination character has been received in the response.
-	 * 
+	 *
 	 * @param reply
 	 *            is the raw reply from the Eurotherm.
 	 * @throws DeviceException
@@ -217,7 +217,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 	/**
 	 * Decode the raw response from the Eurotherm, checking the checksum value and returns the decoded value in String
 	 * form.
-	 * 
+	 *
 	 * @param buffer
 	 *            the response from the Eurotherm
 	 * @return the decoded value
@@ -255,7 +255,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Encode a mnemonic & parameter value for setting the value in the eurotherm controller
-	 * 
+	 *
 	 * @param mnemonic
 	 *            is the two letter code.
 	 * @param value
@@ -280,7 +280,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Encode a mnemonic when requesting values from the Eurotherm controller
-	 * 
+	 *
 	 * @param mnemonic
 	 *            is the two letter code.
 	 * @return encode command
@@ -291,7 +291,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Gets the current temperature by asking the actual Eurotherm
-	 * 
+	 *
 	 * @return currentTemp
 	 * @throws DeviceException
 	 */
@@ -305,7 +305,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Gets the current temperature without asking the actual Eurotherm
-	 * 
+	 *
 	 * @return temperature (in degreesC)
 	 */
 	public double getTemperature() {
@@ -314,7 +314,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Get the curent set point temperature of the EuroTherm controller
-	 * 
+	 *
 	 * @return the current setpoint temperature
 	 * @throws DeviceException
 	 * @throws NumberFormatException
@@ -327,7 +327,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Get to the Xp parameter
-	 * 
+	 *
 	 * @return the Xp paramter
 	 * @throws DeviceException
 	 */
@@ -339,7 +339,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Executes when poll timer fires
-	 * 
+	 *
 	 * @param pe
 	 *            the polling event
 	 */
@@ -400,7 +400,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Set the temperature of the Eurotherm controller.
-	 * 
+	 *
 	 * @param temp
 	 *            is the required temparature.
 	 * @throws DeviceException
@@ -422,7 +422,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Set the proportional band control paramter Xp for the controller
-	 * 
+	 *
 	 * @param temp
 	 *            (the Xp temperature degrees)
 	 * @throws DeviceException
@@ -435,7 +435,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Initiate the programmed temperature ramp in the Lauda bath.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void sendStart() throws DeviceException {
@@ -487,7 +487,7 @@ public class Newtronic extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Overrides the DeviceBase method to get current DSC dataset name.
-	 * 
+	 *
 	 * @param name
 	 *            the name of the attribute requested
 	 * @return the attribute requested

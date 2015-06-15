@@ -43,7 +43,7 @@ public class EtldetectorAdapter extends DetectorAdapter implements EtlDetector, 
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

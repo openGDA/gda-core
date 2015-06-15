@@ -174,7 +174,7 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 	/**
 	 * Reads the lookup table file and put them into a multi-Valued Map for looking up value for the specified energy
 	 * and scannable name.
-	 * 
+	 *
 	 * @param filePath
 	 */
 	private void readTheFile(String filePath) {
@@ -188,7 +188,7 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 		ArrayList<String> lines = new ArrayList<String>();
 		try {
 			// Find out lookup table folder
-			
+
 			logger.info("loading the look up table file {} ", filePath);
 
 			br = new BufferedReader(new FileReader(filePath));
@@ -271,7 +271,7 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 
 	/**
 	 * the energy value needs to be Double parseable, otherwise the method
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -298,7 +298,7 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 	/**
 	 * @param scannableName
 	 * @return Unit
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@SuppressWarnings("unchecked")
 	public Unit<? extends Quantity> lookupUnit(String scannableName) throws DeviceException {
@@ -332,7 +332,7 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 
 	/**
 	 * returns or find the index of a scannable name in an Arraylist of Scannable names
-	 * 
+	 *
 	 * @param scannableNames
 	 * @param scannableName
 	 * @return index
@@ -343,7 +343,7 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 
 	/**
 	 * Takes a string of comma, space or tab separated values and parses it into an array of doubles
-	 * 
+	 *
 	 * @param string
 	 *            the input string
 	 * @return an array of doubles found in the string
@@ -420,7 +420,7 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 	/**
 	 * @return array of the values in the first column, considering that the first three rows are ScannableNames,
 	 *         ScannableUnits, and DecimalPlaces
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Override
 	public double[] getLookupKeys() throws DeviceException {
@@ -444,7 +444,7 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 	// below is testing code used in this class internally only
 	/**
 	 * configures the object, used by this class's main test method only
-	 * 
+	 *
 	 * @param filename
 	 */
 	private void configure(String filename) {
@@ -458,7 +458,7 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 
 	/**
 	 * returns the keys of map in its original order in the map
-	 * 
+	 *
 	 * @return array list of keys
 	 */
 	private ArrayList<Object> getKeys() {
@@ -467,9 +467,9 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 
 	/**
 	 * Tests this class
-	 * 
+	 *
 	 * @param args
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public static void main(String[] args) throws DeviceException {
 		System.out.println("testing LookupTable file reading ....");
@@ -506,7 +506,7 @@ public class LookupTable implements Findable, Configurable, Lookup, Localizable 
 
 	/**
 	 * Notify all observers on the list of the requested change.
-	 * 
+	 *
 	 * @param theObserved
 	 *            the observed component
 	 * @param theArgument

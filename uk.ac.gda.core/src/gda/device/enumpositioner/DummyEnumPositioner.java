@@ -51,7 +51,7 @@ public class DummyEnumPositioner extends EnumPositionerBase implements EditableE
 
 	/**
 	 * Add a possible position to the list of positions.
-	 * 
+	 *
 	 * @param position
 	 */
 	public void addPosition(String position) {
@@ -71,7 +71,7 @@ public class DummyEnumPositioner extends EnumPositionerBase implements EditableE
 		}
 		return array;
 	}
-	
+
 	public void setPositions(ArrayList<String> positionsArray ) {
 		Vector<String> array = new Vector<String>();
 		for (String position : positionsArray) {
@@ -83,7 +83,7 @@ public class DummyEnumPositioner extends EnumPositionerBase implements EditableE
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		moveTo(position);
-	}	
+	}
 
 	@Override
 	public String getPosition() throws DeviceException {
@@ -102,9 +102,9 @@ public class DummyEnumPositioner extends EnumPositionerBase implements EditableE
 
 	@Override
 	public void moveTo(Object position) throws DeviceException {
-		
+
 		String positionString = position.toString();
-		
+
 		// find in the positionNames array the index of the string
 		if (positions.contains(positionString) ) {
 			if( !getPosition().equals(positionString)){

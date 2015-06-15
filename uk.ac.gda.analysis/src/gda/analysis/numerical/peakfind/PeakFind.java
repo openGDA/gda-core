@@ -43,7 +43,7 @@ public class PeakFind {
 	 * Mariscotti peak search algorithm... implemented based on original paper "A method for automatic identification of
 	 * peaks" Nucl. Instruments and Methods 1967 (50) page 309-320 This is very slow but its worth looking at to
 	 * understand the paper....
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @param g
@@ -84,7 +84,7 @@ public class PeakFind {
 	 * it is Sqrt(signal) (which is what is assumed in the original paper) but in others it won't. So I introduced a
 	 * figure called noiselevel. standard dev = Math.sqrt (Sum of the filter coeffs * noiselevel * y(i)) Try values <
 	 * 1e-4 to start with. Overall the difficulty will be defining this level.
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @param noiselevel
@@ -249,7 +249,7 @@ public class PeakFind {
 
 	/**
 	 * Main method used for testing.
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {

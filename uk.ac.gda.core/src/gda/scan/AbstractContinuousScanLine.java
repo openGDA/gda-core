@@ -43,7 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 
@@ -59,7 +59,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 	protected Vector<ContinuouslyScannableViaController> scannablesToMove = new Vector<ContinuouslyScannableViaController>();
 
 	protected boolean detectorsIntegrateBetweenTriggers;
-	
+
 	public AbstractContinuousScanLine(Object[] args) throws IllegalArgumentException {
 		super(args);
 		callCollectDataOnDetectors = false;
@@ -78,7 +78,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 	public boolean isReadoutConcurrent() {
 		return false;  // should be false even if enabled for beamline
 	}
-	
+
 	protected void extractScannablesToScan() {
 		for (Scannable scn : allScannables) {
 			if ((scn.getInputNames().length + scn.getExtraNames().length) != 0 ) {
@@ -150,7 +150,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 			}
 		}
 	}
-	
+
 	@Override
 	protected void prepareDevicesForCollection() throws Exception {
 		try {
@@ -172,7 +172,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 			}
 
 			super.prepareDevicesForCollection();
-			
+
 		} catch (Exception e) {
 			logger.info("problem in prepareDevicesForCollection()");
 			for (ContinuouslyScannableViaController scn : scannablesToMove) {
@@ -191,12 +191,12 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 			}
 		}
 	}
-	
+
 	@Override
 	public void doCollection() throws Exception {
 
 		logger.info("Starting AbstractContinuousScanLine for scan: '" + getName() + "' (" + getCommand() + ")" );
-		
+
 		getController().stopAndReset(); // should be ready anyway
 
 		try {
@@ -217,7 +217,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 			// 4a. Prepare the controller and move to the start position
 			// (some detectors timeout waiting for a first trigger once armed)
 			getController().prepareForMove();
-			
+
 			// 4b. Prepare hardware in parallel and wait for it all to be ready
 			armDetectors();
 
@@ -272,7 +272,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 		}
 		return period;
 	}
-	
+
 	protected abstract void configureControllerTriggerTimes() throws DeviceException ;
 
 	private String scannablesToString(Vector<? extends Scannable> scannables) {
@@ -311,7 +311,7 @@ public abstract class AbstractContinuousScanLine extends ConcurrentScan {
 			futureTasks.add(new FutureTask<Void>(new ArmDetector(det)));
 			(new Thread(futureTasks.getLast(), "AbstractContinuousScanLine.ArmDetector-" + det.getName())).start();
 		}
-		
+
 		// Wait for each detector to arm (cancelling other arm-tasks and stopping all detectors on a failure.
 		try {
 			while(!futureTasks.isEmpty()) {

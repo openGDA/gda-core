@@ -25,20 +25,20 @@ import gda.jython.JythonServerFacade;
  * A {@link MetadataEntry} that evaluates a Jython command.
  */
 public class JythonMetadataEntry extends MetadataEntry {
-	
+
 	private String command;
-	
+
 	/**
 	 * Creates a Jython metadata entry.
 	 */
 	public JythonMetadataEntry() {
 		// do nothing
 	}
-	
+
 	/**
 	 * Creates a Jython metadata entry that will evaluate the specified Jython
 	 * command.
-	 * 
+	 *
 	 * @param name the metadata entry name
 	 * @param command the Jython command
 	 */
@@ -46,16 +46,16 @@ public class JythonMetadataEntry extends MetadataEntry {
 		setName(name);
 		setCommand(command);
 	}
-	
+
 	/**
 	 * Sets the Jython command that this entry will evaluate.
-	 * 
+	 *
 	 * @param command the Jython command
 	 */
 	public void setCommand(String command) {
 		this.command = command;
 	}
-	
+
 	@Override
 	public String readActualValue() {
 		return JythonServerFacade.getInstance().evaluateCommand(command);

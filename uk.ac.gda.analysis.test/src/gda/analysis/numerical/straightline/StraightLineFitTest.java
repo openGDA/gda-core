@@ -30,7 +30,7 @@ public class StraightLineFitTest {
 	@Test
 	public void testSimple1LineFit() {
 		//supply a single line from with 2 points 0,0 and 1,1
-		double [] line1 = new double[]{0,1}; 
+		double [] line1 = new double[]{0,1};
 		Result[] results = StraightLineFit.fit(new double[][]{line1}, new double[]{0,1});
 		Assert.assertEquals(1, results.length);
 		Assert.assertEquals(1.0, results[0].getSlope(), 1e-6);
@@ -39,7 +39,7 @@ public class StraightLineFitTest {
 
 	@Test
 	public void testSimple1LineFit2() {
-		
+
 		double slope=23;
 		double offset = -12.2;
 		int numPoints = 200;
@@ -57,7 +57,7 @@ public class StraightLineFitTest {
 
 	@Test
 	public void testSimple1LineFit3() {
-		
+
 		double slope=23;
 		double offset = -12.2;
 		int numPoints = 20;

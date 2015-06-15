@@ -28,7 +28,7 @@ package ide;
 public abstract class NewClassTest {
 
 	/**
-	 * 
+	 *
 	 */
 	public NewClassTest() {
 		super();

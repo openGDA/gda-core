@@ -42,9 +42,9 @@ import org.slf4j.LoggerFactory;
  * A Dummy class that will create an image file of a specified format.
  */
 public class DummyImageCreator extends DetectorBase implements Detector {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DummyImageCreator.class);
-	
+
 	/**
 	 * Static string to define PNG format.
 	 */

@@ -42,7 +42,7 @@ public class ImportExperimentWizardPage extends WizardPage {
 	private List years;
 	private List visits;
 	private List experiments;
-	
+
 	public IWorkspace getWorkspace() {
 		return workspace;
 	}
@@ -139,7 +139,7 @@ public class ImportExperimentWizardPage extends WizardPage {
 				}
 			}
 		});
-		
+
 		experiments.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {

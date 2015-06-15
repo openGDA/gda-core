@@ -41,20 +41,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 /**
- * Displays a button with title - when pressed opens the view specified in the selected option 
- * 
- * The options are of type OpenViewOption. 
+ * Displays a button with title - when pressed opens the view specified in the selected option
+ *
+ * The options are of type OpenViewOption.
  */
 class OpenViewListBoxComposite extends Composite{
-	
+
 	private ComboViewer comboShow;
 	private OpenViewOption openViewOption;
-	
+
 	OpenViewOption defOption;
-	
+
 	IObservableValue showOptionObserveValue;
 	IObservableValue comboShowObservableValue;
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(OpenViewListBoxComposite.class);
 	public OpenViewListBoxComposite(Composite parent, int style, String label, String tooltipText, List<OpenViewOption> options) {
 		super(parent, style);
@@ -66,7 +66,7 @@ class OpenViewListBoxComposite extends Composite{
 		grpShow.setLayoutData(gd_grpShow);
 		grpShow.setText(label);
 		grpShow.setLayout(new FillLayout(SWT.HORIZONTAL));
-		
+
 		comboShow = new ComboViewer(grpShow, SWT.READ_ONLY);
 		comboShow.getControl().setToolTipText(tooltipText);
 		comboShow.setContentProvider(ArrayContentProvider.getInstance());
@@ -114,6 +114,6 @@ class OpenViewListBoxComposite extends Composite{
 			}
 			comboShowObservableValue.setValue(defOption);
 		}
-	}	
-	
+	}
+
 }

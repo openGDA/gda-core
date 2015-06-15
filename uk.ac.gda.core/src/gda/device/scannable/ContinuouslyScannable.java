@@ -31,7 +31,7 @@ public interface ContinuouslyScannable extends ScannableMotionUnits {
 
 	/**
 	 * Sets the parameters which define the continuous movement to use
-	 * 
+	 *
 	 * @param parameters
 	 */
 	public void setContinuousParameters(ContinuousParameters parameters);
@@ -51,28 +51,28 @@ public interface ContinuouslyScannable extends ScannableMotionUnits {
 	/**
 	 * The actual hardware might not be able to return exactly the numbner of points requested. This method returns the
 	 * actaul number the scan should expect.
-	 * 
+	 *
 	 * @return int - the number of data points which would be actually returned based on the given ContinuousParameters
 	 */
 	public int getNumberOfDataPoints();
-	
+
 	/**
 	 * Perform the move based on the supplied continuous parameters.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void performContinuousMove() throws DeviceException;
 
 	/**
 	 * Once move and data collection complete, reverts any hardware settings etc. set for the move.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void continuousMoveComplete() throws DeviceException;
-	
+
 	/**
 	 * As this scannable controls the motion, it is responsible for knowing the energy at each frame
-	 * 
+	 *
 	 * @param frameIndex
 	 * @return double energy in eV of the given frame
 	 */

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * Class to implement McLennan PM300 and PM304 servo motor controllers These motors can operate in Master/Slave mode -
  * in which case a a bool value for "IsMaster" and the int value of the "SlaveAxis" will need to be added to the XML
  * file under the Master motor. Sometimes these motors have an offset.
- * 
+ *
  * @see McLennanMotor
  */
 public class McLennanServoMotor extends McLennanMotor {
@@ -117,7 +117,7 @@ public class McLennanServoMotor extends McLennanMotor {
 
 	/**
 	 * Method for motors running in master/slave mode. Checks slave motor is in gearbox mode.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public synchronized void checkSlaveGearBox() throws MotorException {
@@ -162,7 +162,7 @@ public class McLennanServoMotor extends McLennanMotor {
 	/**
 	 * CARE MUST BE TAKEN WHEN USING THIS METHOD. McLennan motors are optimised for performance and changing the speed
 	 * setting alters this optimisation.
-	 * 
+	 *
 	 * @param stepsPerSecond
 	 *            the speed to set
 	 * @throws MotorException
@@ -247,7 +247,7 @@ public class McLennanServoMotor extends McLennanMotor {
 	/**
 	 * Moves the motor in a continuous mode Code not written as soft limits do not apply in this mode and it is
 	 * considered an unacceptable risk.
-	 * 
+	 *
 	 * @param direction
 	 *            the direction
 	 * @throws MotorException

@@ -34,7 +34,7 @@ public class BeamlineHaltHandler extends AbstractHandler {
 
 	public static String id = "uk.ac.gda.client.StopAll";
 	private static final Logger logger = LoggerFactory.getLogger(BeamlineHaltHandler.class);
-	
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
@@ -48,7 +48,7 @@ public class BeamlineHaltHandler extends AbstractHandler {
 			};
 			job.setUser(false);
 			job.schedule();
-			
+
 			return Boolean.TRUE;
 		} catch (Exception ne) {
 			throw new ExecutionException(ne.getMessage(), ne);

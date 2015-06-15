@@ -92,7 +92,7 @@ public class AutoCompleter {
 		};
 		keystrokeSpace = KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK, false);
 		textField.registerKeyboardAction(actionListenerSpaceShift, keystrokeSpace, JComponent.WHEN_FOCUSED);
-		
+
 		FocusListener focusListener = new FocusListener() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -156,9 +156,9 @@ public class AutoCompleter {
 		 * set the string that is to be replaced by the users selection - this is substring after the last period
 		 */
 		prefixOfLastWord = "";
-		
-		
-		
+
+
+
 		int lastDot = lastWord.lastIndexOf(".");
 		if (lastDot >= 0) {
 			prefixOfLastWord = lastWord.substring(0, lastDot + 1);

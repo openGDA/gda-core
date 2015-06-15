@@ -49,6 +49,6 @@ public class CorbaImplBase implements IObserver{
 	@Override
 	public void update(java.lang.Object o, java.lang.Object arg) {
 		dispatcher.publish(name,arg);
-	}	
-	
+	}
+
 }

@@ -81,14 +81,14 @@ public class SWTTreeView extends ViewPart {
 	 * existing objects in adapters or simply return
 	 * objects as-is. These objects may be sensitive
 	 * to the current input of the view, or ignore
-	 * it and always show the same content 
+	 * it and always show the same content
 	 * (like Task List, for example).
 	 */
-	 
+
 	class TreeObject implements IAdaptable {
 		private String name;
 		private TreeParent parent;
-		
+
 		public TreeObject(String name) {
 			this.name = name;
 		}
@@ -111,7 +111,7 @@ public class SWTTreeView extends ViewPart {
 			return null;
 		}
 	}
-	
+
 	class TreeParent extends TreeObject {
 		private ArrayList<TreeObject> children;
 		public TreeParent(String name) {
@@ -134,7 +134,7 @@ public class SWTTreeView extends ViewPart {
 		}
 	}
 
-	class ViewContentProvider implements IStructuredContentProvider, 
+	class ViewContentProvider implements IStructuredContentProvider,
 										   ITreeContentProvider {
 		private TreeParent invisibleRoot;
 
@@ -185,15 +185,15 @@ public class SWTTreeView extends ViewPart {
 			p1.addChild(to1);
 			p1.addChild(to2);
 			p1.addChild(to3);
-			
+
 			TreeObject to4 = new TreeObject("Leaf 4");
 			TreeParent p2 = new TreeParent("Parent 2");
 			p2.addChild(to4);
-			
+
 			TreeParent root = new TreeParent("Root");
 			root.addChild(p1);
 			root.addChild(p2);
-			
+
 			invisibleRoot = new TreeParent("");
 			invisibleRoot.addChild(root);
 		}
@@ -273,7 +273,7 @@ public class SWTTreeView extends ViewPart {
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
-	
+
 	private void fillLocalToolBar(IToolBarManager manager) {
 		manager.add(action1);
 		manager.add(action2);
@@ -292,7 +292,7 @@ public class SWTTreeView extends ViewPart {
 		action1.setToolTipText("Action 1 tooltip");
 		action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-		
+
 		action2 = new Action() {
 			@Override
 			public void run() {

@@ -26,7 +26,7 @@ public class HDF5NexusLocation extends HDF5HelperLocation {
 	public HDF5NexusLocation(String name) {
 		super(name,  null, null);
 	}
-	
+
 	public static HDF5HelperLocations makeNXEntry(){
 		HDF5HelperLocations loc = new HDF5HelperLocations();
 		loc.add(new HDF5NexusLocation("entry1","NXentry"));

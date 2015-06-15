@@ -28,7 +28,7 @@ package gda.device.scannable;
  * The base class CheckedScannableBase which extends ScannableBase (@see gda.jython.scannable.CheckedScannableBase)
  * redefines the AsyncrhonousMoveTo and IsBusy methods to handoff control to the singleton CollisionAvoidanceController
  * object. (As well as moveTo(), moveBy()and asynchronousMoveBy()).
- * 
+ *
  * @see gda.device.Scannable
  * @see gda.device.scannable.ScannableBase
  * @see gda.server.collisionAvoidance.CollisionAvoidanceController
@@ -44,7 +44,7 @@ public interface CheckedScannableMotion extends gda.device.ScannableMotion {
 
 	/**
 	 * User written move command. In CheckedDofAdapeter should call DofAdapter.asynchMoveTo()
-	 * 
+	 *
 	 * @param position
 	 * @throws Exception
 	 */
@@ -52,7 +52,7 @@ public interface CheckedScannableMotion extends gda.device.ScannableMotion {
 
 	/**
 	 * User written is busy command.
-	 * 
+	 *
 	 * @return True if underling system is busy
 	 */
 	public boolean rawIsBusy();

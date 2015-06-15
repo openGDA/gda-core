@@ -32,15 +32,15 @@ public class SocketServerThread extends SocketServerThreadBase {
 
 	/**
 	 * Creates a server thread.
-	 * 
+	 *
 	 * @param socket client socket
 	 */
 	public SocketServerThread(Socket socket) {
-		
+
 		super(socket);
-		
+
 		setUseJline(false);
-		
+
 		try {
 			setOutputStream(socket.getOutputStream());
 			setInputStream(socket.getInputStream());

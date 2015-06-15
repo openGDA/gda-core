@@ -27,18 +27,18 @@ import gda.data.metadata.VisitEntry;
 public class DLSdicatTest {
 
 	public static void main(String[] args) throws Exception {
-		
+
 		// You'll want to change these
 		final String username = "qny31541";
 		for (String instrument : new String[] {"i02", "i03", "i04", "i04-1", "i23", "i24"}) {
-			
+
 			System.setProperty(LocalProperties.GDA_PROPERTIES_FILE, "src/gda/data/metadata/icat/DLSdicatTest.properties");
-			
+
 			final DLSdicat dicat = new DLSdicat();
 			dicat.setInstrumentName(instrument);
-			
+
 			final VisitEntry[] visits = dicat.getMyValidVisits(username);
-			
+
 			if (visits.length == 0) {
 				System.out.println("No visits.");
 			} else {

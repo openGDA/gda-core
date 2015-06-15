@@ -118,7 +118,7 @@ public class ImageViewer {
 	private boolean keepZoomFit = false;
 	private float zoomLevel;
 	//private Cursor cursor;
-	
+
 	private static Group listenersGroup;
 	private static Text eventConsole;
 	private static boolean logging;
@@ -127,7 +127,7 @@ public class ImageViewer {
 
 	/**
 	 * Constructor for the image viewer
-	 * 
+	 *
 	 * @param parent
 	 *            the parent of this viewer
 	 * @param style
@@ -156,7 +156,7 @@ public class ImageViewer {
 		});
 
 		imgFig = new ImageFigure();
-		
+
 		topFig = new Figure();
 		topFig.setLayoutManager(new XYLayout());
 		topFig.add(imgFig, new Rectangle(0, 0, -1, -1));
@@ -178,7 +178,7 @@ public class ImageViewer {
 		fig.add(zoomContainer);
 		layout.setConstraint(zoomContainer, BorderLayout.CENTER);
 		zoomContainer.setClippingStrategy(new IClippingStrategy() {
-			
+
 			@Override
 			public Rectangle[] getClip(IFigure childFigure) {
 				return new Rectangle[]{ zoomContainer.getClientArea()};
@@ -259,7 +259,7 @@ public class ImageViewer {
 
 	/**
 	 * Returns the current location of the viewport for scrolling
-	 * 
+	 *
 	 * @return viewLocation
 	 */
 	private Point getViewLocation() {
@@ -269,7 +269,7 @@ public class ImageViewer {
 
 	/**
 	 * Returns the bounds of the drawn image
-	 * 
+	 *
 	 * @return Point image bounds
 	 */
 	public Rectangle getImageBounds() {
@@ -308,7 +308,7 @@ public class ImageViewer {
 
 	/**
 	 * Reload image from a file This method must be called from the UI thread
-	 * 
+	 *
 	 * @param filename
 	 *            image file
 	 */
@@ -324,7 +324,7 @@ public class ImageViewer {
 
 	/**
 	 * Reload image from a provided ImageData
-	 * 
+	 *
 	 * @param imageDataIn
 	 *            ImageData
 	 */
@@ -355,7 +355,7 @@ public class ImageViewer {
 
 	/**
 	 * Returns the underlying canvas of this viewer
-	 * 
+	 *
 	 * @return canvas
 	 */
 	public Canvas getCanvas() {
@@ -364,7 +364,7 @@ public class ImageViewer {
 
 	/**
 	 * Causes this viewer to have focus
-	 * 
+	 *
 	 * @return true if the viewer gained focus, false otherwise
 	 */
 	public boolean setFocus() {
@@ -438,7 +438,7 @@ public class ImageViewer {
 
 	/**
 	 * Returns the imagedata of the last displayed image in the viewer
-	 * 
+	 *
 	 * @return ImageData
 	 */
 	public ImageData getImageData() {
@@ -499,16 +499,16 @@ public class ImageViewer {
 		Shell shell = new Shell(display);
 		shell.setLayout(new org.eclipse.swt.layout.GridLayout(4, false));
 		shell.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
-		
+
 		final SashForm sashForm = new SashForm (shell, SWT.HORIZONTAL | SWT.SMOOTH);
 		sashForm.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL));
 		final ImageViewer imageViewer = new ImageViewer(sashForm, SWT.DOUBLE_BUFFERED);
-		
-		
+
+
 		Composite composite = new Group(sashForm, SWT.NONE);
 		composite.setLayout(new GridLayout(2, true));
 		composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL));
-		
+
 		sashForm.setWeights(new int[] {75,25});
 
 		Button loadButton = new Button(composite, SWT.PUSH);
@@ -553,11 +553,11 @@ public class ImageViewer {
 		sendImagesBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				Dimension imageSize = new Dimension(640, 480);
 				final Image image = new Image(display, imageSize.width, imageSize.height);
 				GC gc = new GC(image);
-				
+
 				Color backgroundColour = display.getSystemColor(SWT.COLOR_BLUE);
 				gc.setBackground(backgroundColour);
 				gc.fillOval(0, 0, Math.min(size,imageSize.width), Math.min(size,imageSize.height));
@@ -576,33 +576,33 @@ public class ImageViewer {
 								public void run() {
 									imageViewer.resetView();
 									TestFigure testFigure = new TestFigure();
-									Rectangle testFigurePosition = new Rectangle(0, 0, -1, -1);		
+									Rectangle testFigurePosition = new Rectangle(0, 0, -1, -1);
 									imageViewer.getTopFigure().add( testFigure, testFigurePosition);
 								}
 							});
-						}						
+						}
 					}
-					
+
 				});
 			}
 		});
-		
+
 		// Label to show status and cursor location in image.
 		statusLabel = new Label(composite, SWT.NONE);
 		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
 		statusLabel.setLayoutData(gridData);
 		gridData.horizontalSpan = 2;
 		statusLabel.setText("Mouse position at: ");
-		
+
 		imageLabel = new Label(composite, SWT.NONE);
 		gridData = new GridData(GridData.FILL_HORIZONTAL);
 		gridData.horizontalSpan = 2;
 		imageLabel.setLayoutData(gridData);
-		imageLabel.setText("Image position at: ");		
-		
+		imageLabel.setText("Image position at: ");
+
 		createListenersGroup(composite);
 		initializeListeners(imageViewer);
-		
+
 
 		shell.open();
 
@@ -622,7 +622,7 @@ public class ImageViewer {
 		}
 		display.dispose();
 	}
-	
+
 	private static void initializeListeners(ImageViewer viewer){
 		viewer.getCanvas().addMouseListener(new MouseAdapter() {
 			@Override
@@ -636,29 +636,29 @@ public class ImageViewer {
 			@Override
 			public void mouseDoubleClick(MouseEvent event) {
 				log(event, "Mouse Double Clicked");
-			}			
+			}
 		});
-		
-		viewer.getCanvas().addListener(SWT.MouseWheel, new Listener() {			
+
+		viewer.getCanvas().addListener(SWT.MouseWheel, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
 				log(event, "Mouse Wheel");
 			}
 		});
-		
-		ImagePositionListener newListener = new ImagePositionListener() {			
+
+		ImagePositionListener newListener = new ImagePositionListener() {
 			@Override
 			public void imageStart(IImagePositionEvent event) {
 				double[] position = event.getPosition();
 				int[] imagePosition = event.getImagePosition();
-				updateStatus((int) position[0], (int) position[1], imagePosition[0], imagePosition[1]);			
-			}		
+				updateStatus((int) position[0], (int) position[1], imagePosition[0], imagePosition[1]);
+			}
 			@Override
 			public void imageFinished(IImagePositionEvent event) {
 				double[] position = event.getPosition();
 				int[] imagePosition = event.getImagePosition();
 				updateStatus((int) position[0], (int) position[1], imagePosition[0], imagePosition[1]);
-			}			
+			}
 			@Override
 			public void imageDragged(IImagePositionEvent event) {
 				double[] position = event.getPosition();
@@ -666,27 +666,27 @@ public class ImageViewer {
 				updateStatus((int) position[0], (int) position[1], imagePosition[0], imagePosition[1]);
 			}
 		};
-		viewer.getPositionTool().addImagePositionListener(newListener, null);		
+		viewer.getPositionTool().addImagePositionListener(newListener, null);
 	}
 	private static void createListenersGroup(Composite composite) {
 		listenersGroup = new Group (composite, SWT.NONE);
 		listenersGroup.setLayout (new GridLayout (1, false));
-		listenersGroup.setLayoutData (new GridData (SWT.FILL, SWT.FILL, true, true, 2, 1));		
+		listenersGroup.setLayoutData (new GridData (SWT.FILL, SWT.FILL, true, true, 2, 1));
 		listenersGroup.setText ("Listeners");
-		
+
 		/*
 		 * Create the checkbox to add/remove listeners to/from the example widgets.
 		 */
 		final Button listenCheckbox = new Button (listenersGroup, SWT.CHECK);
 		listenCheckbox.setText ("Listen");
 		listenCheckbox.addSelectionListener (new SelectionAdapter () {
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				logging = listenCheckbox.getSelection ();
 			}
-		});	
-		
+		});
+
 		/*
 		 * Create the button to clear the text.
 		 */
@@ -698,35 +698,35 @@ public class ImageViewer {
 			public void widgetSelected (SelectionEvent e) {
 				eventConsole.setText ("");
 			}
-		});	
-		
+		});
+
 		eventConsole = new Text (listenersGroup, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 		GridData data = new GridData (GridData.FILL_BOTH);
 		data.horizontalSpan = 3;
 		data.heightHint = 80;
-		eventConsole.setLayoutData (data);		
+		eventConsole.setLayoutData (data);
 	}
-	
+
 	private static void log(MouseEvent event, String tag){
 		if (logging){
 			String toString = tag + " " + (event.button == 1 ? "Left" : event.button == 3 ? "Right" : event.button) + " button x=" + event.x + " y=" + event.y + " count=" + event.count;
 			if (eventConsole != null){
 				eventConsole.append(toString);
 				eventConsole.append("\n");
-			}			
+			}
 		}
-	}	
-	
+	}
+
 	private static void log(Event event, String tag){
 		if (logging){
 			String toString = tag + " x=" + event.x + " y=" + event.y + " count=" + event.count;
 			if (eventConsole != null){
 				eventConsole.append(toString);
 				eventConsole.append("\n");
-			}			
+			}
 		}
 	}
-	
+
 	private static void updateStatus(int x, int y, int ix, int iy){
 		statusLabel.setText("Mouse position at: (" + x + ", " + y + ")" );
 		imageLabel.setText("Image position at: (" + ix + ", " + iy + ")");
@@ -747,9 +747,9 @@ public class ImageViewer {
 		}
 		loadImage(defaultImageData);
 		zoomFit();
-		
+
 	}
-	
+
 	public boolean isShowingDefault(){
 		return imageData != null ? imageData == defaultImageData : false;
 	}
@@ -760,26 +760,26 @@ class TestFigure extends Figure{
 	private Polyline horz;
 	private Polyline vert;
 	private Dimension crossHairSize = new Dimension(100, 100);
-	
+
 	public TestFigure(){
 		setLayoutManager(new XYLayout());
 
 		horz = new Polyline();
 		horz.setLineWidth(2);
 		add(horz, new Rectangle(0, 0, -1, -1));
-		
+
 		vert = new Polyline();
 		vert.setLineWidth(2);
 		add(vert, new Rectangle(0, 0, -1, -1));
-		
+
 		update();
 	}
-	
+
 	@Override
 	protected boolean useLocalCoordinates() {
 		return true;
 	}
-	
+
 	/**
 	 * Updates label contents and box size
 	 * This needs to be called from UI thread
@@ -787,23 +787,23 @@ class TestFigure extends Figure{
 	private void update() {
 		PointList horzPl = new PointList(2);
 		horzPl.addPoint(new Point(0, crossHairSize.width/2));
-		horzPl.addPoint(new Point(crossHairSize.width, crossHairSize.width/2));		
+		horzPl.addPoint(new Point(crossHairSize.width, crossHairSize.width/2));
 		horz.setPoints(horzPl);
-		
+
 		PointList vertPl = new PointList(2);
 		vertPl.addPoint(new Point(crossHairSize.height/2, 0));
-		vertPl.addPoint(new Point(crossHairSize.height/2, crossHairSize.height));		
+		vertPl.addPoint(new Point(crossHairSize.height/2, crossHairSize.height));
 		vert.setPoints(vertPl);
-	}	
-	
+	}
+
 	public void setBeamSize(int size){
 		this.crossHairSize.height = size;
 		this.crossHairSize.width = size;
 		update();
 	}
-	
+
 	 public Dimension getCrossHairSize() {
 		 return crossHairSize;
-	 }	
-	
+	 }
+
 }

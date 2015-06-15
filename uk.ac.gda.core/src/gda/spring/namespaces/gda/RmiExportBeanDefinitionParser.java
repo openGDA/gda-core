@@ -36,23 +36,23 @@ public class RmiExportBeanDefinitionParser implements BeanDefinitionParser {
 
 	@Override
 	public AbstractBeanDefinition parse(Element element, ParserContext parserContext) {
-		
+
 		final String service = element.getAttribute("service");
 		final String serviceName = element.getAttribute("serviceName");
 		final String serviceInterface = element.getAttribute("serviceInterface");
-		
+
 		boolean events = true;
 		if (element.hasAttribute("events")) {
 			final String eventsAttr = element.getAttribute("events");
 			events = Boolean.valueOf(eventsAttr);
 		}
-		
+
 		AbstractBeanDefinition beanDef = new GenericBeanDefinition();
 		beanDef.setBeanClass(events ? GdaRmiServiceExporter.class : RmiServiceExporter.class);
 		beanDef.getPropertyValues().addPropertyValue("service", new RuntimeBeanReference(service));
 		beanDef.getPropertyValues().addPropertyValue("serviceName", serviceName);
 		beanDef.getPropertyValues().addPropertyValue("serviceInterface", serviceInterface);
-		
+
 		BeanDefinitionRegistry registry = parserContext.getRegistry();
 		int counter = -1;
 		String beanName;

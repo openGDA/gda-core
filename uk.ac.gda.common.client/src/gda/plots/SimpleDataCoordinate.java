@@ -38,7 +38,7 @@ public class SimpleDataCoordinate {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param x
 	 *            the x coordinate
 	 * @param y
@@ -72,7 +72,7 @@ public class SimpleDataCoordinate {
 		this.seeForYAxis = seeForYAxis;
 		this.dependentYAvailable = true;
 	}
-	
+
 	/**
 	 * @return boolean
 	 */
@@ -89,7 +89,7 @@ public class SimpleDataCoordinate {
 	}
 	/**
 	 * Returns the x value.
-	 * 
+	 *
 	 * @return the x value
 	 */
 	public double getX() {
@@ -98,13 +98,13 @@ public class SimpleDataCoordinate {
 
 	/**
 	 * Returns the y value.
-	 * 
+	 *
 	 * @return the y value
 	 */
 	public double getY() {
 		return y;
 	}
-	
+
 	/**
 	 * @return value of dependent x axis
 	 */
@@ -122,7 +122,7 @@ public class SimpleDataCoordinate {
 
 	/**
 	 * Returns the coordinates as an array of doubles.
-	 * 
+	 *
 	 * @return the array of doubles
 	 */
 	public double[] toArray() {

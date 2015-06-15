@@ -33,60 +33,60 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 public class SpringBeanFactory implements IExecutableExtension, IExecutableExtensionFactory {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(SpringBeanFactory.class);
-	
+
 	// from ConfigurableOsgiBundleApplicationContext
 	private static final String APPLICATION_CONTEXT_SERVICE_PROPERTY_NAME = "org.eclipse.gemini.blueprint.context.service.name";
-	
+
 	private String bundleName;
-	
+
 	private String beanName;
-	
+
 	private ApplicationContext appContext;
-	
+
 	@Override
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data) throws CoreException {
-		
+
 		bundleName = config.getContributor().getName();
-		
+
 		if (!propertyName.equals("class")) {
 			throw new IllegalArgumentException(String.format("Unexpected property '%s'", propertyName));
 		}
-		
+
 		if (data == null) {
 			throw new IllegalArgumentException("No data");
 		}
-		
+
 		if (!(data instanceof String)) {
 			throw new IllegalArgumentException("Unexpected data type: " + data.getClass());
 		}
-		
+
 		beanName = (String) data;
 	}
-	
+
 	@Override
 	public Object create() throws CoreException {
-		
+
 		final Bundle bundle = Platform.getBundle(bundleName);
-		
+
 		final String filterText = String.format("(&(objectClass=%s)(%s=%s))",
 			ApplicationContext.class.getName(),
 			APPLICATION_CONTEXT_SERVICE_PROPERTY_NAME,
 			bundleName);
-		
+
 		Filter filter = null;
 		try {
 			filter = FrameworkUtil.createFilter(filterText);
 		} catch (InvalidSyntaxException e) {
 			throw new RuntimeException(e);
 		}
-		
+
 		final ServiceTracker<Void, ApplicationContext> tracker = new ServiceTracker<Void, ApplicationContext>(bundle.getBundleContext(), filter, null);
 		logger.info("Waiting for Spring application context for '{}' bundle", bundleName);
-		
+
 		tracker.open();
-		
+
 		while (appContext == null) {
 			try {
 				appContext = tracker.waitForService(1000);
@@ -97,11 +97,11 @@ public class SpringBeanFactory implements IExecutableExtension, IExecutableExten
 				logger.info("Spring application context for '{}' bundle has not yet appeared; continuing to wait...", bundleName);
 			}
 		}
-		
+
 		tracker.close();
-		
+
 		logger.info("Spring application context for '{}' bundle has appeared", bundleName);
-		
+
 		final Object bean = appContext.getBean(beanName);
 		return bean;
 	}

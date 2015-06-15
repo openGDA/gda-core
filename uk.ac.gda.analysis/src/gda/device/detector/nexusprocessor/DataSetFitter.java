@@ -44,15 +44,15 @@ public class DataSetFitter extends DataSetProcessorBase implements InitializingB
 	private static final String[] NAMES_PER_DIM = { "centre", "fwhm", "area", "offset" };
 
 	private static final Logger logger = LoggerFactory.getLogger(DataSetFitter.class);
-	
+
 	List<String> extraNames;
 	List<String> formats;
 
 	int dimensions=2;
-	
+
 	String prefix="";
-	
-	
+
+
 	public String getPrefix() {
 		return prefix;
 	}
@@ -77,7 +77,7 @@ public class DataSetFitter extends DataSetProcessorBase implements InitializingB
 		if(!enable)
 			return null;
 		int numFits = Math.min(dimensions, dataset.getShape().length);
-		
+
 		Double[] vals = new Double[extraNames.size()];
 		Arrays.fill(vals, -1.0); //means failed or data not present
 		try {

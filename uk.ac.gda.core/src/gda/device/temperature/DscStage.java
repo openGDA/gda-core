@@ -34,9 +34,9 @@ import org.slf4j.LoggerFactory;
  */
 
 public class DscStage implements LinkamStage {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DscStage.class);
-	
+
 	private String debugName = "DscStage";
 
 	private LinkamCI linkamCI = null;
@@ -68,7 +68,7 @@ public class DscStage implements LinkamStage {
 
 	/**
 	 * Extracts DCS value from four byte string.
-	 * 
+	 *
 	 * @param string
 	 *            the four byte string
 	 * @return the DSC value
@@ -90,7 +90,7 @@ public class DscStage implements LinkamStage {
 
 	/**
 	 * Set the sampling time
-	 * 
+	 *
 	 * @param samplingTime
 	 *            the time in seconds???
 	 */
@@ -184,7 +184,7 @@ public class DscStage implements LinkamStage {
 
 	/**
 	 * Called by controlling LinkamCI from within its own pollDone.
-	 * 
+	 *
 	 * @param pe
 	 *            the PollerEvent which caused the LinkamCI pollDone to be called
 	 */

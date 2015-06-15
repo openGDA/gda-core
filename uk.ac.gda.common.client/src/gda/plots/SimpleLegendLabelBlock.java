@@ -37,7 +37,7 @@ public class SimpleLegendLabelBlock extends LabelBlock {
 
 	/**
 	 * Extends the LabelBlock constructor to allow a SimpleXYSeries to be specified.
-	 * 
+	 *
 	 * @param text
 	 *            the text
 	 * @param font
@@ -55,7 +55,7 @@ public class SimpleLegendLabelBlock extends LabelBlock {
 	/**
 	 * Overrides super class method to provide a BlockResult which contains a SimpleLegendEntity instead of an ordinary
 	 * ChartEntity.
-	 * 
+	 *
 	 * @param g2
 	 *            the Graphics to use
 	 * @param area

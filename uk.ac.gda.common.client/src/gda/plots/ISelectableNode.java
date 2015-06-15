@@ -40,13 +40,13 @@ public interface ISelectableNode {
 	 * @return indication of whether the item and its children at selected
 	 */
 	public Selected getSelected();
-	
+
 	/**
 	 * @param maxlength
 	 * @return string to be used as a label
 	 */
 	public String toLabelString(int maxlength);
-	
+
 	/**
 	 * @return color to be used for the label
 	 */

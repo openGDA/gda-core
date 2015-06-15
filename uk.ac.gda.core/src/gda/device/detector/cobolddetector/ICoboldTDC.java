@@ -22,7 +22,7 @@ package gda.device.detector.cobolddetector;
  * Interface necessary for Jython scripts to CoboldTDC Update from script definitions in GdaTdcJythonScripts
  */
 public interface ICoboldTDC {
-	/** 
+	/**
 	 *
 	 */
 	public void endCollection();
@@ -32,12 +32,12 @@ public interface ICoboldTDC {
 	 */
 	public void setStandAlone(boolean b);
 
-	/** 
+	/**
 	 *
 	 */
 	public void saveCurrentDcf();
 
-	/** 
+	/**
 	 *
 	 */
 	public void start();
@@ -47,12 +47,12 @@ public interface ICoboldTDC {
 	 */
 	public void setComment(String s);
 
-	/** 
+	/**
 	 *
 	 */
 	public void showSpectra();
 
-	/** 
+	/**
 	 *
 	 */
 	public void updateSpectrum();
@@ -62,7 +62,7 @@ public interface ICoboldTDC {
 	 */
 	public void setClearSpectrumBetweenRuns(boolean b);
 
-	/** 
+	/**
 	 *
 	 */
 	public void restart();
@@ -72,7 +72,7 @@ public interface ICoboldTDC {
 	 */
 	public void executeCoboldCommandFile(String file);
 
-	/** 
+	/**
 	 *
 	 */
 	public void showParams();

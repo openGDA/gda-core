@@ -138,7 +138,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		// This may have other effects of causing "cheese" to appear.
 		System.setProperty("sun.awt.noerasebackground", "true");
 
-		 // Option to save and restore the GUI state between sessions. Default 'true'. 
+		 // Option to save and restore the GUI state between sessions. Default 'true'.
 		 // If 'true' the setting to force the Intro/Welcome Screen may have no effect
 		boolean doSaveRestore = LocalProperties.check(LocalProperties.GDA_GUI_SAVE_RESTORE,true);
 		configurer.setSaveAndRestore(doSaveRestore);
@@ -151,7 +151,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
 		if (preferenceStore.getBoolean(PreferenceConstants.GDA_DISABLE_LAUNCH_CONFIGS))
 			disableLaunchConfigs();
-		
+
 		removeUnusedPreferencePages();
 	}
 
@@ -160,7 +160,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		//Print available preference pages
 		//IPreferenceNode[] arr = pm.getRootSubNodes();
 			//for(IPreferenceNode pn:arr)
-			//    System.out.println("Label:" + pn.getLabelText() + " ID:" + pn.getId()); 
+			//    System.out.println("Label:" + pn.getLabelText() + " ID:" + pn.getId());
 		pm.remove("org.eclipse.jdt.ui.preferences.JavaBasePreferencePage");//Remove Java preference page
 		pm.remove("org.eclipse.ant.ui.AntPreferencePage");//Remove Ant preference page
 		pm.remove("org.eclipse.team.ui.TeamPreferences");//Remove Team preference page
@@ -171,7 +171,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		pm.remove("org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage");//Remove another Install/Update preference page
 		pm.remove("net.sf.py4j.defaultserver.preferences.DefaultServerPreferencePage");//Remove Py4J preference page
 	}
-	
+
 	private void disableLaunchConfigs() {
 		// GDA-3307: Remove Debug/Run menu items from the GUI.
 		// There are a few different ways to achieve this removal
@@ -361,7 +361,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
 			listenForUserMessages();
 			listenForBatonMessages();
-			
+
 			// should these two be done during initialize instead of now when Windows have been created?
 			final WorkspaceModifyOperation wkspaceModifyOperation = new WorkspaceModifyOperation() {
 				@Override
@@ -395,7 +395,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	}
 
 	private void listenForUserMessages() {
-		
+
 		final IObserver messageObserver = new IObserver() {
 			@Override
 			public void update(Object source, Object arg) {
@@ -414,10 +414,10 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 				}
 			}
 		};
-		
+
 		InterfaceProvider.getJSFObserver().addIObserver(messageObserver);
 	}
-	
+
 	private void listenForBatonMessages() {
 
 		final IObserver batonObserver = new IObserver() {
@@ -471,7 +471,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 	/**
 	 * This method adds a part listener which enables the text next to the icon in the views' toolbar. Also enables the
 	 * text for the views that are open during workbench window creation(for the default perspective).
-	 * 
+	 *
 	 * @param workbenchWindow
 	 */
 	private void applyViewMenuText(final IWorkbenchWindow workbenchWindow) {
@@ -586,7 +586,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
 	/**
 	 * Reuse some default icons defined in the eclipse IDE plugins that are used in default browsers that we extend.
-	 * 
+	 *
 	 * @param configurer
 	 */
 	private void declareDefaultImages(IWorkbenchConfigurer configurer) {

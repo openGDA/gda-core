@@ -29,27 +29,27 @@ import gda.jython.commands.ScannableCommands;
 import java.util.Vector;
 
 /**
- * RepeatScan contains the static command repscan originally written to allow a detector to be exposed 
+ * RepeatScan contains the static command repscan originally written to allow a detector to be exposed
  * multiple times and results written to a scan file by a command of the form:
- * 
+ *
  * repscan 10 det 0.1
- * 
+ *
  * hence removing the need for a dummy variable and use a command of the
  * form:
  * 		scan dummy 1 10 1 det 0.1
- * 
- *  repscan also handles detectors that can have their own internal frame advance mechanism by 
- *  sending the repeat number to all scannables/detectors that support the interface 
+ *
+ *  repscan also handles detectors that can have their own internal frame advance mechanism by
+ *  sending the repeat number to all scannables/detectors that support the interface
  *  gda.device.detector.DetectorFrameController to allow detectors/scannables to be configured correctly
  *  to generate the required number of frames.
  *  Note that detectors that support  gda.device.detector.DetectorFrameController would normally support
  *  gda.device.scannable.PositionCallableProvider as well as frame advance would not normally be controlled by the
  *  scan command.
- *  
+ *
  *  repscan can be used to repeated call pos on any scannable and get the results written to a scan file
- *  
+ *
  *  repscan CANNOT be used to repeat an inner scan e.g.
- *  
+ *
  *   	repscan 1000 pos1 1 10 1  - WILL THROW EXCEPTION
  */
 public class RepeatScan {
@@ -60,12 +60,12 @@ public class RepeatScan {
 			throw new IllegalArgumentException("args is null");
 		if( args.length == 0)
 			throw new IllegalArgumentException("No arguments given to createSnapScan");
-		
+
 		int repeatCount = 1;
 		int offsetIntoArgs = 0;
 		// try to get repeat number  - if not possible add repeat of 1
 		if( !( args[0] instanceof Scannable)){
-			//allow NumberFormatException to be visible to caller 
+			//allow NumberFormatException to be visible to caller
 			repeatCount  = Integer.valueOf(args[0].toString());
 			offsetIntoArgs = 1;
 		}
@@ -82,7 +82,7 @@ public class RepeatScan {
 		ConcurrentScan scan =  ScannableCommands.createConcurrentScan(newargs);
 		if ( scan.getChild() != null)
 			throw new IllegalArgumentException("repscan cannot be used to repeat an inner scan");
-		
+
 		ns.setRepeatCount(repeatCount);
 		ns.setAllDetectors(scan.allDetectors);
 		ns.setAllScannables(scan.allScannables);
@@ -92,7 +92,7 @@ public class RepeatScan {
 			if( det instanceof PositionCallableProvider){
 				numPositionCallableProvider++;
 			}
-		}		
+		}
 		for(Scannable scannable : scan.allScannables){
 			if( scannable instanceof PositionCallableProvider){
 				numPositionCallableProvider++;
@@ -109,14 +109,14 @@ public class RepeatScan {
 		ConcurrentScan scan = create_repscan(args);
 		scan.runScan();
 	}
-	
+
 }
 class NumberOfFramesScannable extends ScannableBase {
 
 	int repeatCount=0;
 	Vector<Scannable> allScannables = null;
 	Vector<Detector> allDetectors = null;
-	
+
 	public int getRepeatCount() {
 		return repeatCount;
 	}
@@ -159,7 +159,7 @@ class NumberOfFramesScannable extends ScannableBase {
 				if( det instanceof RepScanScannable){
 					((RepScanScannable)det).atRepScanStart(repeatCount);
 				}
-			}		
+			}
 		}
 		if( allScannables != null){
 			for(Scannable scannable : allScannables){
@@ -177,15 +177,15 @@ class NumberOfFramesScannable extends ScannableBase {
 		allDetectors = null;
 		allScannables = null;
 	}
-	
-	
+
+
 
 }
 
 class FrameProvider implements ScanPositionProvider {
 
 	int totalFrames=0;
-	
+
 	public FrameProvider(int totalFrames) {
 		super();
 		if( totalFrames <0)

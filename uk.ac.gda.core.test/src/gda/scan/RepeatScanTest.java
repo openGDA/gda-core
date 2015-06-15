@@ -54,7 +54,7 @@ public class RepeatScanTest {
 		}
 	}
 
-	
+
 	public class CallableImpl implements Callable<Double> {
 
 		private final Double val;
@@ -87,11 +87,11 @@ public class RepeatScanTest {
 		when(s1.getExtraNames()).thenReturn(new String[] { });
 		when(s1.getOutputFormat()).thenReturn(new String[] { "%5.1f" });
 		when(s1.getPosition()).thenReturn(0.);
-		
+
 		d1 = mock(Detector.class);
 		when(d1.getName()).thenReturn("d1");
 		when(d1.readout()).thenReturn(0.);
-		
+
 
 		d2 = mock(DetectorFrameControllerImpl.class, Mockito.withSettings().extraInterfaces(Detector.class));
 		Detector d2det = (Detector)d2;
@@ -111,7 +111,7 @@ public class RepeatScanTest {
 		Mockito.doCallRealMethod().when(d3).atRepScanStart(Matchers.anyInt());
 		Mockito.doCallRealMethod().when(d3).getNumberOfFrames();
 		when(d3PositionCallableProvider.getPositionCallable()).thenReturn(new CallableImpl(new Double(1.0)));
-		
+
 	}
 
 	@Test
@@ -192,7 +192,7 @@ public class RepeatScanTest {
 		scan.runScan();
 		assertEquals( 10,d2.getNumberOfFrames());
 	}
-	
+
 	@Test
 	public void testPositionCallableProvider() throws Exception {
 		setupTest("testPositionCallableProvider");
@@ -229,13 +229,13 @@ public class RepeatScanTest {
 		//value increased by createConcurrentScan to 3
 		assertEquals( 3, outer.getPositionCallableThreadPoolSize());
 		assertEquals( 10, outer.getScanDataPointQueueLength());
-		
+
 		junitx.framework.FileAssert.assertEquals(new File(TestFileFolder + "testOuterScan/Data/expected.dat"),
 			new File(testScratchDirectoryName + "/Data/" + ScanBaseFirstScanNumber + ".dat"));
-		
+
 	}
 	final static String TestFileFolder = "testfiles/gda/scan/RepeatScanTest/";
-	
+
 	private String setupTest(String name) throws Exception{
 		String scratchDir = TestHelpers.setUpTest(RepeatScanTest.class,name , true);
 		LocalProperties.set(LocalProperties.GDA_DATA_SCAN_DATAWRITER_DATAFORMAT, "SrsDataFile");
@@ -251,5 +251,5 @@ public class RepeatScanTest {
 			//ok
 		}
 	}
-	
+
 }

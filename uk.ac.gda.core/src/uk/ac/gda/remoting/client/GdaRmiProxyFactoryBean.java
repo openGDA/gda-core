@@ -34,43 +34,43 @@ import org.springframework.util.ClassUtils;
  * GDA event system.
  */
 public class GdaRmiProxyFactoryBean extends RmiClientInterceptor implements BeanNameAware, FactoryBean<Object> {
-	
+
 	// TODO allow manipulation of parameters/return value/exceptions, to retain CORBA adapter class behaviour
-	
+
 	/**
 	 * Name of the remote object.
 	 */
 	private String objectName;
-	
+
 	/**
 	 * Sets the name of the remote object.
 	 */
 	public void setObjectName(String objectName) {
 		this.objectName = objectName;
 	}
-	
+
 	@Override
 	public void setBeanName(String name) {
 		setObjectName(name);
 	}
-	
+
 	private Object serviceProxy;
-	
+
 	@Override
 	public void afterPropertiesSet() {
 		super.afterPropertiesSet();
-		
+
 		if (objectName == null) {
 			throw new IllegalStateException("Property 'objectName' is required");
 		}
-		
+
 		if (getServiceInterface() == null) {
 			throw new IllegalArgumentException("Property 'serviceInterface' is required");
 		}
-		
+
 		// This is our custom interceptor, which handles calls to methods in the IObservable interface
 		ClientSideIObservableMethodInterceptor interceptor = new ClientSideIObservableMethodInterceptor();
-		
+
 		// Create the proxy. It will implement all the methods on the service interface (that the object itself
 		// implements).
 		ProxyFactory pf = new ProxyFactory();
@@ -80,7 +80,7 @@ public class GdaRmiProxyFactoryBean extends RmiClientInterceptor implements Bean
 		// Then the RMI interceptor runs, doing a RMI for all other method calls
 		pf.addAdvice(this);
 		this.serviceProxy = pf.getProxy(getBeanClassLoader());
-		
+
 		// If the remote object is observable, create an event receiver object that will receive events relating to
 		// the remote object.
 		if (remoteObjectIsObservable()) {
@@ -95,21 +95,21 @@ public class GdaRmiProxyFactoryBean extends RmiClientInterceptor implements Bean
 			}
 		}
 	}
-	
+
 	private boolean remoteObjectIsObservable() {
 		return ClassUtils.isAssignable(IObservable.class, getServiceInterface());
 	}
-	
+
 	@Override
 	public Object getObject() throws Exception {
 		return this.serviceProxy;
 	}
-	
+
 	@Override
 	public Class<?> getObjectType() {
 		return getServiceInterface();
 	}
-	
+
 	@Override
 	public boolean isSingleton() {
 		return true;

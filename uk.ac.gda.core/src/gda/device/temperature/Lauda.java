@@ -38,9 +38,9 @@ import org.slf4j.LoggerFactory;
  * Class to control the Lauda Compact Low-Temperature Thermostat.
  */
 public class Lauda extends TemperatureBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Lauda.class);
-	
+
 	private double startTime = 0;
 
 	private final static double MAXTEMP = 200.0;
@@ -119,7 +119,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Set the name of the serial communication port on the host computer.
-	 * 
+	 *
 	 * @param serialDeviceName
 	 *            the name of the serial port
 	 */
@@ -129,7 +129,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Get the name of the serial communication port on the host computer.
-	 * 
+	 *
 	 * @return the name of the serial port
 	 */
 	public String getSerialDeviceName() {
@@ -150,7 +150,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Read the temperature of the Lauda bath.
-	 * 
+	 *
 	 * @return the Lauda water bath temperature
 	 * @throws DeviceException
 	 * @throws NumberFormatException
@@ -174,7 +174,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Set the temperature of the Lauda bath in the range -20C to 150C.
-	 * 
+	 *
 	 * @param temp
 	 *            required temparature of the Lauda water bath.
 	 * @throws DeviceException
@@ -197,7 +197,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Get the current setpoint temperature.
-	 * 
+	 *
 	 * @return the setpoint temperature
 	 * @throws DeviceException
 	 */
@@ -209,7 +209,7 @@ public class Lauda extends TemperatureBase {
 	/**
 	 * Set the switching point for undertemperature (usually set to the lower operating temperature of the Lauda bath
 	 * thermostat, it must be in the range -35C and 200C.
-	 * 
+	 *
 	 * @param lowLimit
 	 *            the lower temperature limit in degrees C
 	 * @throws DeviceException
@@ -228,7 +228,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Set the upper operating temperature of the Lauda bath, it must be in the range -35C and 200C.
-	 * 
+	 *
 	 * @param upperLimit
 	 *            the upper temperature limit in degrees C
 	 * @throws DeviceException
@@ -258,7 +258,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Switch control variable to source external Pt 100 T1
-	 * 
+	 *
 	 * @param name
 	 *            the probe name
 	 * @throws DeviceException
@@ -287,7 +287,7 @@ public class Lauda extends TemperatureBase {
 	/**
 	 * Program a timed temperature ramp into the Lauda bath. This does not initiate the program. Unrealistically short
 	 * times will generate an error and the parameters will not be set.
-	 * 
+	 *
 	 * @param which
 	 *            is the required ramp to load
 	 * @throws DeviceException
@@ -326,7 +326,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Initiate the programmed temperature ramp in the Lauda bath.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void sendStart() throws DeviceException {
@@ -339,7 +339,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Switch control variable to source external Pt 100 T1
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void setExtProbe1() throws DeviceException {
@@ -356,7 +356,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Switch control variable to source external Pt 100 T2
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void setExtProbe2() throws DeviceException {
@@ -375,7 +375,7 @@ public class Lauda extends TemperatureBase {
 	/**
 	 * Switch control variable to source Ti (probe in the bath); control according to bath temperature (Default setting
 	 * at power on)
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void setIntProbe() throws DeviceException {
@@ -390,7 +390,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Read the temperature of the controlling device either internal bath external probe1 or external probe2.
-	 * 
+	 *
 	 * @return the control temperature
 	 * @throws DeviceException
 	 * @throws NumberFormatException
@@ -402,7 +402,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Read the temperature of the external probe 1.
-	 * 
+	 *
 	 * @return the external probe 1 temperature
 	 * @throws DeviceException
 	 */
@@ -416,7 +416,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Read the temperature of the external probe 2.
-	 * 
+	 *
 	 * @return the external probe 2 temperature
 	 * @throws DeviceException
 	 */
@@ -430,7 +430,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Set the proportional band control paramter Xp for the controller
-	 * 
+	 *
 	 * @param temp
 	 *            the Xp (degrees)
 	 * @throws DeviceException
@@ -443,7 +443,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Set the control paramter Tn for the controller
-	 * 
+	 *
 	 * @param time
 	 *            Control parameter Tn (secs)
 	 * @throws DeviceException
@@ -456,7 +456,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Set the control paramter Tv for the controller
-	 * 
+	 *
 	 * @param time
 	 *            the Tv (secs)
 	 * @throws DeviceException
@@ -469,7 +469,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Get the control parameter Xp for the controller.
-	 * 
+	 *
 	 * @return the control parameter Xp
 	 * @throws DeviceException
 	 */
@@ -480,7 +480,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Get the control parameter Tn for the controller.
-	 * 
+	 *
 	 * @return the control parameter Tn
 	 * @throws DeviceException
 	 */
@@ -491,7 +491,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Get the control parameter Tv for the controller.
-	 * 
+	 *
 	 * @return the control parameter Tv
 	 * @throws DeviceException
 	 */
@@ -502,7 +502,7 @@ public class Lauda extends TemperatureBase {
 
 	/**
 	 * Get the status signal
-	 * 
+	 *
 	 * @return the status
 	 * @throws DeviceException
 	 */

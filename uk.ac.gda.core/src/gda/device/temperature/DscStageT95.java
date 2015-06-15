@@ -35,8 +35,8 @@ import org.slf4j.LoggerFactory;
  */
 
 public class DscStageT95 implements LinkamStage {
-	
-	private static final Logger logger = LoggerFactory.getLogger(DscStageT95.class);	
+
+	private static final Logger logger = LoggerFactory.getLogger(DscStageT95.class);
 	private String debugName = "DscStage";
 	private LinkamT95 linkamT95 = null;
 	private SerialReaderWriter rw = null;
@@ -63,7 +63,7 @@ public class DscStageT95 implements LinkamStage {
 	 * (32769) to FFFF (65535).
 	 * NB value 32768 is not mentioned in the instructions and so will,
 	 * of course, never appear.
-	 * 
+	 *
 	 * @param string
 	 *            the four byte string
 	 * @return the DSC value
@@ -147,7 +147,7 @@ public class DscStageT95 implements LinkamStage {
 
 	/**
 	 * Called by controlling LinkamT95 from within its own pollDone.
-	 * 
+	 *
 	 * @param pe
 	 *            the PollerEvent which caused the LinkamT95 pollDone to be called
 	 */

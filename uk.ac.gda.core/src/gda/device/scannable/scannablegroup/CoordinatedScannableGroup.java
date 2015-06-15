@@ -25,10 +25,8 @@ import gda.device.ScannableMotion;
 import gda.device.ScannableMotionUnits;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.ScannableBase;
-import gda.device.scannable.ScannableUtils;
 import gda.device.scannable.component.PositionValidator;
 import gda.factory.FactoryException;
-import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.observable.IObserver;
 
 import java.text.MessageFormat;
@@ -40,13 +38,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.jscience.physics.quantities.Quantity;
-import org.python.core.PyArray;
-import org.python.core.PyFloat;
-import org.python.core.PyInteger;
-import org.python.core.PyLong;
-import org.python.core.PyNone;
-import org.python.core.PyObject;
-import org.python.core.PySlice;
 import org.python.core.PyString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,14 +57,14 @@ interface ICoordinatedParent {
 	/**
 	 * Puts the group into targeting mode if it is not already, and tells the group to await for a setElementTarget()
 	 * call from that element before triggering the coordinated move.
-	 * 
+	 *
 	 * @param childScannable
 	 */
 	void addChildToMove(ICoordinatedChildScannable childScannable);
 
 	/**
 	 * Set the target for a given element. addElementToMove() must first have been called.
-	 * 
+	 *
 	 * @param childScannable
 	 * @param position
 	 * @throws DeviceException
@@ -83,10 +74,10 @@ interface ICoordinatedParent {
 
 	/**
 	 * Get the position for a given element
-	 * 
+	 *
 	 * @param childScannable
 	 * @return current position (used
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	Object getPositionWhileMovingContinuousely(ICoordinatedScannableGroupChildScannable childScannable) throws DeviceException;
 
@@ -108,15 +99,15 @@ interface ICoordinatedParentScannable extends ICoordinatedParent, Scannable{
  * <p>
  * Members passed in to be added to the group will be wrapped in one of CoordinatedElementScannableMotionUnits,
  * CoordinatedElementScannableMotion or CoordinatedElementScannable determined by the interface they support. This means
- * that any methods not in one of these interfaces will not be accessible. 
+ * that any methods not in one of these interfaces will not be accessible.
  */
 
 public class CoordinatedScannableGroup extends ScannableGroup implements ICoordinatedParentScannable {
-	
+
 	protected CoordinatedParentScannableComponent coordinatedScannableComponent;
 
 	private LinkedHashMap<String, PositionValidator> additionalPositionValidators = new LinkedHashMap<String, PositionValidator>();
-	
+
 	/**
 	 * Create the group. Members must be added for the group to do anything useful.
 	 */
@@ -125,7 +116,7 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 		coordinatedScannableComponent = new CoordinatedParentScannableComponent(this);
 	}
 	// /// ICoordinatedScannableGroup interface /////
-	
+
 	@Override
 	public String checkPositionValid(Object pos) throws DeviceException {
 		String msg = super.checkPositionValid(pos); // Checks with each motor who's position element is non-null
@@ -134,7 +125,7 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 		}
 		return checkAdditionalPositionValidators(pos); // Checks with each motor who's position element is non-null
 	}
-	
+
 	@Override
 	public void setGroupMembers(List<Scannable> groupMembers) {
 		ArrayList<Scannable> wrappedGroupMembers = new ArrayList<Scannable>();
@@ -150,16 +141,16 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 		super.addGroupMember(wrapScannable(groupMember));
 		setMembersInCoordinatedScannableComponent();
 	}
-	
+
 	private void setMembersInCoordinatedScannableComponent() {
 		List<ICoordinatedChildScannable> coordinated = new ArrayList<ICoordinatedChildScannable>();
 		for (Scannable scn : getGroupMembers()) {
 			coordinated.add((ICoordinatedChildScannable) scn);
-			
+
 		}
 		coordinatedScannableComponent.setMembers(coordinated);
 	}
-	
+
 	/**
 	 * Wraps a scannable with an ICoordinatedScannableElement to mediates access to the 'real' delegate scannable.
 	 * coordinated moves. Note that only methods on ScannableMotionUnits, ScannableMotion or Scannable will be brought
@@ -193,18 +184,18 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 		}
 		super.asynchronousMoveTo(position);
 	}
-	
+
 	private String representPositionToUser(Double[] position) {
 		String s = "";
 		for (int i = 0; i < position.length; i++) {
 			if (position[i] != null) {
 				s += getGroupMembers().get(i).getName() + " = " + position[i] + ",";
 			}
-			
+
 		}
 		return s;
 	}
-	
+
 	@Override
 	public boolean isBusy() throws DeviceException {
 		for (Scannable member : groupMembers) {
@@ -244,18 +235,18 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 		int index = groupMembers.indexOf(childScannable);
 		return PositionConvertorFunctions.toObjectArray(getPosition())[index];
 	}
-	
+
 	//
 	//TODO: This class should be made to extend ScannableMotion and this functionality moved out into
 	//      a generic 'additional-validator' (However this is quite involved!). RobW
 	String checkAdditionalPositionValidators(Object externalPos) throws DeviceException {
-		
+
 		if (getAdditionalPositionValidators().size() < 1) {
 			return null;
 		}
 		Double[] externalPositionArray = PositionConvertorFunctions.toDoubleArray(externalPos);
 		Double[] internalPositionArray = new Double[externalPositionArray.length];
-		
+
 		// check there is one element per (assumed to be single input) scannable group member
 		if (externalPositionArray.length != getGroupMembers().size()) {
 			throw new DeviceException("Position does not have correct number of fields. Expected = " + getGroupMembers().size()
@@ -267,13 +258,13 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 				externalPositionArray[i] = PositionConvertorFunctions.toDouble(getGroupMembers().get(i).getPosition());
 			}
 		}
-		
+
 		// change to internal positions
 		for (int i = 0; i < externalPositionArray.length; i++) {
 			ScannableBase physicalScannable = (ScannableBase) ((ICoordinatedScannableGroupChildScannable) getGroupMembers().get(i)).getPhysicalScannable();
 			internalPositionArray[i] = PositionConvertorFunctions.toDouble(physicalScannable.externalToInternal(externalPositionArray[i]));
 		}
-		
+
 		// perform the check
 		for (PositionValidator validator : additionalPositionValidators.values()) {
 			String msg = validator.checkInternalPosition(internalPositionArray);
@@ -281,10 +272,10 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 				return msg;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Set the additional position validators. An ordered map is used so that the validators
 	 * can be compared in the same order each time. NOTE: Spring uses ordered maps by default when
@@ -294,7 +285,7 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 	public void setAdditionalPositionValidators(LinkedHashMap<String, PositionValidator> additionalPositionValidators) {
 		this.additionalPositionValidators = additionalPositionValidators;
 	}
-	
+
 	/**
 	 * Validators will be tested in the order that they have been added.
 	 * @param name
@@ -307,7 +298,7 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 	public LinkedHashMap<String, PositionValidator> getAdditionalPositionValidators() {
 		return additionalPositionValidators;
 	}
-	
+
 	@Override
 	public PyString __str__() {
 		String output = getName() + " :: (collision avoidance rules)\n";
@@ -329,7 +320,7 @@ public class CoordinatedScannableGroup extends ScannableGroup implements ICoordi
 	public PyString __repr__() {
 		return __str__();
 	}
-	
+
 }
 
 
@@ -353,7 +344,7 @@ class CoordinatedParentScannableComponent implements ICoordinatedParent {
 
 	/**
 	 * Must be called with the list of ICoordinatedScannableElements that map to the fields in the containing scannable.
-	 * 
+	 *
 	 * @param members
 	 */
 	public void setMembers(List<ICoordinatedChildScannable> members) {
@@ -390,7 +381,7 @@ class CoordinatedParentScannableComponent implements ICoordinatedParent {
 			startMove();
 		}
 	}
-	
+
 	/**
 	 * Do not use this method, as the component does not know about the group. // TODO: flakey
 	 */
@@ -437,7 +428,7 @@ interface ICoordinatedChildScannable extends Scannable {
 	// /// Overridden behaviours from Scannable /////
 	/**
 	 * If the parent is targeting calls parent.setElementTarget(), otherwise triggers the move.
-	 * 
+	 *
 	 * @param position
 	 * @throws DeviceException if move threw one, or if this is an input field.
 	 */
@@ -472,7 +463,7 @@ interface ICoordinatedChildScannable extends Scannable {
 
 	/**
 	 * Sets the element's parent
-	 * 
+	 *
 	 * @param parent
 	 *            the parent ICoordinatedScannable
 	 */
@@ -480,7 +471,7 @@ interface ICoordinatedChildScannable extends Scannable {
 
 	/**
 	 * Gets the element's parent
-	 * 
+	 *
 	 * @return the parent CoordinatedScannableGroup
 	 */
 	public ICoordinatedParent getParent();
@@ -494,21 +485,21 @@ interface ICoordinatedScannableGroupChildScannable extends ICoordinatedChildScan
 	/**
 	 * Returns true if the wrapped scannable is busy. Required as the wrapped scannable's isBusy() is always
 	 * delegated to the parent.
-	 * @return true 
-	 * @throws DeviceException 
+	 * @return true
+	 * @throws DeviceException
 	 */
 	public boolean physicalIsBusy() throws DeviceException;
-	
+
 	/**
 	 * Gets the scannable wrapped by the child
 	 * @return scannable
 	 */
 	public Scannable getPhysicalScannable();
-	
+
 	/**
 	 * Moves the scannable wrapped by child
 	 * @param position
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public void physicalAsynchronousMoveTo(Object position) throws DeviceException;
 }
@@ -519,9 +510,9 @@ interface ICoordinatedScannableGroupChildScannable extends ICoordinatedChildScan
  */
 class CoordinatedChildScannable extends ScannableBase implements Scannable, ICoordinatedScannableGroupChildScannable {
 
-	// ScannableBAse provides Jython functionality, e.g. __call__ 
+	// ScannableBAse provides Jython functionality, e.g. __call__
 	private static final Logger logger = LoggerFactory.getLogger(ScannableBase.class);
-	
+
 	protected ICoordinatedParentScannable group;
 	protected Scannable delegate;
 
@@ -559,9 +550,9 @@ class CoordinatedChildScannable extends ScannableBase implements Scannable, ICoo
 	@Override
 	public void physicalAsynchronousMoveTo(Object position) throws DeviceException {
 		delegate.asynchronousMoveTo(position);
-		
+
 	}
-	
+
 	// /// Scannable interface methods not directly delegated /////
 
 	@Override
@@ -756,7 +747,7 @@ class CoordinatedChildScannable extends ScannableBase implements Scannable, ICoo
 	public String toFormattedString() {
 		return delegate.toFormattedString();
 	}
-	
+
 	@Override
 	public String toString() {
 		return delegate.toFormattedString();
@@ -861,7 +852,7 @@ class CoordinatedChildScannableMotion extends CoordinatedChildScannable implemen
 	@Override
 	public void a(Object position) throws DeviceException {
 		asynchronousMoveTo(position);
-		
+
 	}
 
 	@Override
@@ -949,7 +940,7 @@ class CoordinatedChildScannableMotionUnits extends CoordinatedChildScannableMoti
 	@Override
 	public void setOffset(Object offsetPositionInExternalUnits) {
 		((ScannableMotionUnits) delegate).setOffset(offsetPositionInExternalUnits);
-		
+
 	}
 }
 

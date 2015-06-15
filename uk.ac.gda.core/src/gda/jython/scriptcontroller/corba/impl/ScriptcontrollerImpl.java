@@ -34,7 +34,7 @@ import gda.scan.ScanDataPointServer;
  * A server side implementation for a distributed Scriptcontroller class
  */
 public class ScriptcontrollerImpl extends CorbaScriptControllerPOA implements IObserver {
-	
+
 	private Scriptcontroller controller;
 
 	private org.omg.PortableServer.POA poa;
@@ -45,7 +45,7 @@ public class ScriptcontrollerImpl extends CorbaScriptControllerPOA implements IO
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param controller
 	 *            the Scriptcontroller implementation object
 	 * @param poa
@@ -75,7 +75,7 @@ public class ScriptcontrollerImpl extends CorbaScriptControllerPOA implements IO
 			throw new CorbaDeviceException(de.getMessage());
 		}
 	}
-	
+
 	@Override
 	public void reconfigure() throws CorbaFactoryException {
 		try {
@@ -84,7 +84,7 @@ public class ScriptcontrollerImpl extends CorbaScriptControllerPOA implements IO
 			throw new CorbaFactoryException(ex.getMessage());
 		}
 	}
-	
+
 	@Override
 	public void setCommand(String scriptName) throws CorbaDeviceException {
 		try {

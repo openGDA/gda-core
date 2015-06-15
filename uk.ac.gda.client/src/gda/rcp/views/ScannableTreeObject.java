@@ -44,7 +44,7 @@ public class ScannableTreeObject extends TreeObject {
 	}
 
 	public Scannable getScannable() {
-		return scannable;		
+		return scannable;
 	}
 
 

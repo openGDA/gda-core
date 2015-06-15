@@ -18,9 +18,9 @@
 
 package uk.ac.gda.client.test;
 
-import java.util.List;
-
 import gda.jython.IJythonContext;
+
+import java.util.List;
 
 public class MockJythonContext implements IJythonContext {
 

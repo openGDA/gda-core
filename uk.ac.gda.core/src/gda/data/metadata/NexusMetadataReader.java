@@ -33,9 +33,9 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
  * NexusMetadataReader class.
  */
 public class NexusMetadataReader implements Findable {
-	
+
 //	private static final Logger logger = LoggerFactory.getLogger(NexusMetadataReader.class);
-	
+
 	NexusFile nf = null;
 
 	String filename = null;
@@ -52,7 +52,7 @@ public class NexusMetadataReader implements Findable {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param filename
 	 */
 	public NexusMetadataReader(String filename) {
@@ -61,10 +61,10 @@ public class NexusMetadataReader implements Findable {
 
 	/**
 	 * Gets the metadata item with a given name.
-	 * 
+	 *
 	 * @param name
 	 * @return metadata
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	public String getNamedNexusMetadata(String name) throws NexusException {
 
@@ -90,10 +90,10 @@ public class NexusMetadataReader implements Findable {
 
 	/**
 	 * Gets the metadata item at a given location.
-	 * 
+	 *
 	 * @param location
 	 * @return metadata
-	 * @throws NexusException 
+	 * @throws NexusException
 	 */
 	public String getNexusMetadata(String location) throws NexusException {
 		nf = NexusUtils.openNexusFileReadOnly(filename);
@@ -112,7 +112,7 @@ public class NexusMetadataReader implements Findable {
 
 	/**
 	 * Adds a metadata entry.
-	 * 
+	 *
 	 * @param entry
 	 */
 	public void addNexusMetadataEntry(NexusMetadataEntry entry) {
@@ -132,10 +132,10 @@ public class NexusMetadataReader implements Findable {
 			nexusMetadataEntries.add(entry);
 		}
 	}
-	
+
 	/**
 	 * Sets the entries within this metadata.
-	 * 
+	 *
 	 * @param entries the metadata entries
 	 */
 	public void setNexusMetadataEntries(List<NexusMetadataEntry> entries) {
@@ -147,7 +147,7 @@ public class NexusMetadataReader implements Findable {
 
 	/**
 	 * Gets a list of NexusMetadataEntry.
-	 * 
+	 *
 	 * @return ArrayList of nexus metadata entries.
 	 */
 	public ArrayList<NexusMetadataEntry> getNexusMetadataEntries() {
@@ -156,7 +156,7 @@ public class NexusMetadataReader implements Findable {
 
 	/**
 	 * Set the filename.
-	 * 
+	 *
 	 * @param filename
 	 */
 	public void setFilename(String filename) {

@@ -26,6 +26,6 @@ import gda.device.Scannable;
  * A dummy class for valves. It has two positions: Open and Close.
  */
 public class DummyPositioner extends DummyValve implements EnumPositioner, Scannable {
-	
+
 
 }

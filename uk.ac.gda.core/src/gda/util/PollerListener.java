@@ -25,7 +25,7 @@ package gda.util;
 public interface PollerListener {
 	/**
 	 * Method to be called automatically by Poller at regular, preset intervals
-	 * 
+	 *
 	 * @param pe
 	 *            PollerEvent,
 	 * @see PollerEvent

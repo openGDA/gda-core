@@ -27,17 +27,17 @@ import gda.data.metadata.icat.IcatProvider;
 public class IcatMetadataEntry extends MetadataEntry {
 
 	protected String query;
-	
+
 	/**
 	 * Creates an ICAT metadata entry.
 	 */
 	public IcatMetadataEntry() {
 		// do nothing
 	}
-	
+
 	/**
 	 * Creates an ICAT metadata entry with the specified name and query.
-	 * 
+	 *
 	 * @param name the metadata entry name
 	 * @param query the value
 	 */
@@ -45,16 +45,16 @@ public class IcatMetadataEntry extends MetadataEntry {
 		setName(name);
 		setQuery(query);
 	}
-	
+
 	/**
 	 * Sets the query that will be executed.
-	 * 
+	 *
 	 * @param query the query
 	 */
 	public void setQuery(String query) {
 		this.query = query;
 	}
-	
+
 	@Override
 	public String readActualValue() throws Exception {
 		return IcatProvider.getInstance().getCurrentInformation(query);

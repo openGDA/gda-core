@@ -31,21 +31,21 @@ import java.util.Vector;
 public class MapFactory implements Factory {
 
 	private String name;
-	
+
 	private Map<String, Findable> findables;
-	
+
 	/**
 	 * Creates a {@link MapFactory}.
-	 * 
+	 *
 	 * @param name the factory name
 	 */
 	public MapFactory(String name) {
 		this(name, null);
 	}
-	
+
 	/**
 	 * Creates a {@link MapFactory}.
-	 * 
+	 *
 	 * @param name the factory name
 	 * @param findables the map of findables
 	 */
@@ -53,14 +53,14 @@ public class MapFactory implements Factory {
 		setName(name);
 		setFindables(findables);
 	}
-	
+
 	private void setFindables(Map<String, Findable> findables) {
 		this.findables = new HashMap<String, Findable>();
 		if (findables != null) {
 			this.findables.putAll(findables);
 		}
 	}
-	
+
 	@Override
 	public String getName() {
 		return name;

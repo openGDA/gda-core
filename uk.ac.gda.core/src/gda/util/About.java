@@ -45,7 +45,7 @@ import javax.swing.event.HyperlinkListener;
 
 /**
  * A simple About box telling people stuff about this project
- * 
+ *
  * @author Paul Smith <psmith@apache.org>
  */
 public class About extends JDialog {
@@ -65,7 +65,7 @@ public class About extends JDialog {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param parent
 	 */
 	public About(JFrame parent) {

@@ -29,7 +29,7 @@ public class CrysalisRun {
 
 	/**
 	 * Performs a deep copy of the given CrysalisRun
-	 * 
+	 *
 	 * @param run
 	 * @return CrysalisRun
 	 */
@@ -312,7 +312,7 @@ public class CrysalisRun {
 
 	/**
 	 * Returns the step size based on start, end and number of steps.
-	 * 
+	 *
 	 * @return double
 	 */
 	public double getStepSize() {
@@ -326,11 +326,11 @@ public class CrysalisRun {
 		/**
 		 * Scan neither PHI nor OMEGA
 		 */
-		UNKNOWN, 
+		UNKNOWN,
 		/**
 		 * Scan in oemga
 		 */
-		OMEGA, 
+		OMEGA,
 		/**
 		 * Scan in phi
 		 */
@@ -339,7 +339,7 @@ public class CrysalisRun {
 
 	/**
 	 * Returns the type of scan defined by this CrysalisRun
-	 * 
+	 *
 	 * @return SCANTYPE
 	 */
 	public SCANTYPE scanType() {

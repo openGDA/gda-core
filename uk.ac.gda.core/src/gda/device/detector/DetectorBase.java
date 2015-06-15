@@ -58,7 +58,7 @@ public abstract class DetectorBase extends ScannableBase implements Serializable
 
 	/**
 	 * Default which should be overridden by subclasses.
-	 * 
+	 *
 	 * @see gda.device.Detector#getDataDimensions()
 	 */
 	@Override
@@ -69,7 +69,7 @@ public abstract class DetectorBase extends ScannableBase implements Serializable
 	/**
 	 * By default, the position will be the collection time. So test to see if the supplied object can be converted to a
 	 * double.
-	 * 
+	 *
 	 *@see gda.device.Scannable#checkPositionValid(Object)
 	 */
 	@Override
@@ -89,7 +89,7 @@ public abstract class DetectorBase extends ScannableBase implements Serializable
 
 	/**
 	 * Default which should be overridden by subclasses.
-	 * 
+	 *
 	 * @see gda.device.Detector#endCollection()
 	 */
 	@Override
@@ -98,7 +98,7 @@ public abstract class DetectorBase extends ScannableBase implements Serializable
 
 	/**
 	 * Default which should be overridden by subclasses.
-	 * 
+	 *
 	 * @see gda.device.Detector#prepareForCollection()
 	 */
 	@Override
@@ -107,7 +107,7 @@ public abstract class DetectorBase extends ScannableBase implements Serializable
 
 	/**
 	 * Default implementation is to set the collection time and to call the collectData method
-	 * 
+	 *
 	 * @see gda.device.Scannable#asynchronousMoveTo(java.lang.Object)
 	 */
 	@Override
@@ -122,7 +122,7 @@ public abstract class DetectorBase extends ScannableBase implements Serializable
 	 * {@inheritDoc} Also, if createsOwnFiles attempts to register the file with all FileRegistrars (primarily for data
 	 * archiving). Note that this method will be called if the detector is triggered from a 'pos' command but not if the
 	 * detector is triggered by the scan command (which ignores the detector's scannable interface).
-	 * 
+	 *
 	 * @see gda.device.Scannable#getPosition()
 	 */
 	@Override
@@ -144,7 +144,7 @@ public abstract class DetectorBase extends ScannableBase implements Serializable
 
 	/**
 	 * {@inheritDoc} default implementation is to call the getStatus method
-	 * 
+	 *
 	 * @see gda.device.Scannable#isBusy()
 	 */
 	@Override
@@ -197,5 +197,5 @@ public abstract class DetectorBase extends ScannableBase implements Serializable
 	public String getDetectorType() throws DeviceException {
 		return "DetectorBase";
 	}
-	
+
 }

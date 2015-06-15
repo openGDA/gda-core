@@ -27,13 +27,13 @@ import gda.device.scannable.ScannableMotor;
  * of a move based on the desired time-to-velocity, desired velocity, and fudge factors added
  * to make sure that the motors are up to speed. Assumes that the shutter will be triggered open slightly before
  * openPosition and triggered to close slightly before closePosition.
- * 
+ *
  *   /---------------\
  *  /                 \
  * /                   \
  * 1   2   3 - 4   5   6
  * (Figure indicates velocity of the axis and keys to the points are given below.)
- * 
+ *
  * Point 1: actual start position (open position - start position offset)
  * Point 2: time after motor has reached desired speed, before it reaches the desired start position
  * Points 3 and 4: at velocity, the start point (shutterIsOpenPosition) and end point of the desired
@@ -44,70 +44,70 @@ import gda.device.scannable.ScannableMotor;
  * Point 6: decelerating to final stop position (close position + end position offset)
  */
 public interface ShutteredMotorController extends Device {
-	
+
 	public void setMotor(ScannableMotor theMotor);
 	/**
 	 * Move the motor to the actual start position required for proper run-up to the desired velocity.
 	 * Set speed and time to velocity on underlying motor to accomplish the move properly.
 	 * Done after setDefaultSpeeds() to ensure that axes are moving fast to the start position.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public void prepareForExposure() throws DeviceException;
-	
+
 	/**
 	 * Perform the calculations necessary to get the actual start position of the move, and the final
 	 * end position.
 	 */
 	public void doCalculations();
-	
+
 	/**
 	 * Perform the actual move, once the exposure has been prepared with prepareForExposure()
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public void expose() throws DeviceException;
 
 	/**
 	 * Reset to the default speed and default time to velocity, usually done after an exposure()
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public void setDefaultSpeeds() throws DeviceException;
 	/**
 	 * @param desiredSpeed
 	 */
 	public void setDesiredSpeed(double desiredSpeed);
-	
+
 	/**
 	 * @return speed
 	 */
 	public double getDesiredSpeed();
-	
+
 	/**
 	 * @param defaultSpeed
 	 */
 	public void setDefaultSpeed(double defaultSpeed);
-	
+
 	public double getDefaultSpeed();
-	
+
 	/**
 	 * @param desiredTimeToVelocity
 	 */
 	public void setDesiredTimeToVelocity(double desiredTimeToVelocity);
-	
+
 	/**
 	 * @return desiredTimeToVelocity
 	 */
 	public double getDesiredTimeToVelocity();
-	
+
 	/**
 	 * @param desiredTimeToVelocity
 	 */
 	public void setDefaultTimeToVelocity(double desiredTimeToVelocity);
-	
+
 	/**
 	 * @return defaultTimeToVelocity
 	 */
 	public double getDefaultTimeToVelocity();
-	
+
 	/**
 	 * The minimum time to velocity.
 	 * @param minimumTimeToVelocity
@@ -122,7 +122,7 @@ public interface ShutteredMotorController extends Device {
 	 * @param openPosition
 	 */
 	public void setOpenPosition(double openPosition);
-	
+
 	/**
 	 * The initial position at which the shutter is expected to be open
 	 */
@@ -138,18 +138,18 @@ public interface ShutteredMotorController extends Device {
 	 * The final position at which the shutter is expected to be open
 	 */
 	public double getClosePosition();
-	
+
 	/**
 	 * @return startPositionOffset the offset from the actual start position when prepareForExposure() is done
 	 */
 	public double getStartPositionOffset();
-	
+
 	/**
 	 * @return endPositionOffset the offset from the close position that expose() will move to
 	 */
 	public double getEndPositionOffset();
-	
-	
+
+
 	/**
 	 * The minimum difference between the start and open positions.
 	 * Also used for end and close positions.
@@ -160,53 +160,53 @@ public interface ShutteredMotorController extends Device {
 	 * @param exposureTime
 	 */
 	public void setExposureTime(double exposureTime);
-	
+
 	/**
 	 * @param fudgeTime
 	 */
 	public void setStartTimeFudgeFactor(double fudgeTime);
-	
+
 	/**
 	 * @return fudgeTime the time allowed between the axis reaching full velocity and reaching the start position
 	 */
 	public double getStartTimeFudgeFactor();
-	
+
 	/**
 	 * @param fudgeTime
 	 */
 	public void setEndTimeFudgeFactor(double fudgeTime);
-	
+
 	/**
 	 * Retrieve the time between the close position and when the deceleration should start
 	 * @return fudgeTime
 	 */
 	public double getEndTimeFudgeFactor();
-	
+
 	/**
 	 * The actual position where the move will start
 	 * @return start position
 	 */
 	public double getStartPosition();
-	
+
 	/**
 	 * The actual position where the move will conclude
 	 * @return final position
 	 */
 	public double getEndPosition();
-	
+
 	/**
 	 * The distance between the open and close positions
 	 * @param moveDistance
 	 */
 	public void setMoveDistance(double moveDistance);
-	
+
 	/**
-	 * 
+	 *
 	 * @return distance between open and close positions
 	 */
 	public double getMoveDistance();
-	
+
 	public void setAcceleration(double acceleration);
-	
+
 	public double getAcceleration();
 }

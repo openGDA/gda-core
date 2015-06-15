@@ -27,12 +27,12 @@ import gda.device.DeviceException;
 public class DummyCurrentAmplifier extends CurrentAmplifierBase{
 	private volatile String gain = "";
 	private volatile String gainUnit = "";
-	
+
 	@Override
 	public void setName(String name){
 		super.setName(name);
 		this.inputNames = new String[]{name};
-		
+
 	}
 
 	@Override

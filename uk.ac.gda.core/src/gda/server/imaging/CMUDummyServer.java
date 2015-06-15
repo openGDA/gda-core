@@ -59,7 +59,7 @@ public class CMUDummyServer implements Findable, Configurable {
 
 	/**
 	 * Test harness.
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -111,19 +111,19 @@ public class CMUDummyServer implements Findable, Configurable {
 			// for (JDC1394VideoMode mode : availableModes)
 			// {
 			// System.out.println(mode.getDescription() + " Frame rates:");
-			//            
+			//
 			// List rates = mode.frameRates;
-			//            
+			//
 			// for (int i =0 ; i < rates.size() ; i++)
 			// {
 			// System.out.println("\t" + rates.get(i));
 			// }
 			// }
-			// 
+			//
 			// System.out.println("\nusing mode #6.");
 			//
 			// JDC1394VideoMode desiredMode = availableModes[6];
-			//         
+			//
 			// camera.getVideoModes().setVideoMode(desiredMode);
 			//
 			// /**
@@ -307,7 +307,7 @@ public class CMUDummyServer implements Findable, Configurable {
 
 		/**
 		 * Constructor
-		 * 
+		 *
 		 * @param reader
 		 */
 		public ListenForCommandsThread(BufferedReader reader) {

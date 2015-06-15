@@ -30,9 +30,9 @@ import org.slf4j.LoggerFactory;
  * DummySocketExecutor Class
  */
 public class DummySocketExecutor implements SocketExecutor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DummySocketExecutor.class);
-	
+
 	@Override
 	public Status execute(String command, BufferedWriter writer) {
 		logger.info("DummySocketExecutor executing socket command " + command);

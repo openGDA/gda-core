@@ -20,7 +20,7 @@
 package gda.analysis.numerical.linefunction;
 
 /**
- * 
+ *
  */
 public class PsuedoVoight1D extends AbstractFunction {
 	// The parameter names

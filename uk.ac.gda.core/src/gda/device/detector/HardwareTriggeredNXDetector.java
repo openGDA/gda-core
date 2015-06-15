@@ -28,19 +28,19 @@ import gda.scan.ScanInformation;
 public class HardwareTriggeredNXDetector extends NXDetector implements HardwareTriggeredDetector , HardwareTriggerableDetector {
 
 	private HardwareTriggerProvider triggerProvider;
-	
+
 	private int numberImagesToCollect;
 
 	public void setHardwareTriggerProvider(HardwareTriggerProvider hardwareTriggerProvider) {
 		this.triggerProvider = hardwareTriggerProvider;
 	}
-	
+
 	@Override
 	protected void prepareCollectionStrategyAtScanStart(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception,
 			DeviceException {
 		super.prepareCollectionStrategyAtScanStart(numberImagesPerCollection, scanInfo);
 	}
-	
+
 	@Override
 	public void setNumberImagesToCollect(int numberImagesToCollect) {
 		this.numberImagesToCollect = numberImagesToCollect;
@@ -49,7 +49,7 @@ public class HardwareTriggeredNXDetector extends NXDetector implements HardwareT
 	public int getNumberImagesToCollect() {
 		return this.numberImagesToCollect ;
 	}
-	
+
 	@Override
 	public void collectData() throws DeviceException {
 		lastReadoutValue = null;
@@ -63,13 +63,13 @@ public class HardwareTriggeredNXDetector extends NXDetector implements HardwareT
 		}
 
 	}
-	
+
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		lastReadoutValue = null; // outside a HW scan this would be called in collectData
 		return super.readout();
 	}
-	
+
 	@Override
 	public HardwareTriggerProvider getHardwareTriggerProvider() {
 		return triggerProvider;
@@ -83,7 +83,7 @@ public class HardwareTriggeredNXDetector extends NXDetector implements HardwareT
 	@Override
 	public void setHardwareTriggering(boolean b) throws DeviceException {
 		//do nothing it is always hardwareTriggered
-		
+
 	}
 
 	@Override

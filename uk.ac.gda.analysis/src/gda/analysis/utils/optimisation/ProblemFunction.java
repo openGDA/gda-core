@@ -123,7 +123,7 @@ public class ProblemFunction implements IFunction {
 	@Override
 	public void setDescription(String newDescription) {
 		this.description = newDescription;
-		
+
 	}
 
 	@Override

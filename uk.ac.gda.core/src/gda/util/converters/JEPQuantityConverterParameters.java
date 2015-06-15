@@ -91,7 +91,7 @@ final class JEPQuantityConverterParameters {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	static public final String jUnitTestFileName = "JUnitTest";
 

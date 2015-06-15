@@ -57,7 +57,7 @@ public class FileAuthoriser implements Authoriser {
 
 	/**
 	 * Program to print out what's in a password file
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -106,7 +106,7 @@ public class FileAuthoriser implements Authoriser {
 
 	/**
 	 * Adds an entry to the file
-	 * 
+	 *
 	 * @param username
 	 * @param newLevel
 	 * @param isStaff
@@ -133,7 +133,7 @@ public class FileAuthoriser implements Authoriser {
 
 	/**
 	 * Removes an entry from the file
-	 * 
+	 *
 	 * @param username
 	 */
 	public void deleteEntry(String username) {

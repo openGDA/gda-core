@@ -34,7 +34,7 @@ public class NullIcat extends IcatBase implements Icat {
 	public boolean icatInUse() {
 		return false;
 	}
-	
+
 	/**
 	 * Return the default experiment defined by either the metadata or the java property
 	 */
@@ -45,12 +45,12 @@ public class NullIcat extends IcatBase implements Icat {
 		if (defVisit != null && !defVisit.equals("")) {
 			defVisit = LocalProperties.get("gda.defVisit");
 		}
-		
+
 		VisitEntry[] out = new VisitEntry[1];
 		out[0] = new VisitEntry(defVisit, "");
 		return out;
 	}
-	
+
 	@Override
 	public String getCurrentInformation(String accessName) throws Exception {
 		return "";

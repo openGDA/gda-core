@@ -32,10 +32,10 @@ import org.xml.sax.helpers.XMLFilterImpl;
  * An {@link XMLFilter} that removes schema declarations from an XML document.
  */
 public class SchemaDeclarationRemovingXmlFilter extends XMLFilterImpl {
-	
+
 	/** Has the first element been seen? */
 	private boolean seenFirstElement;
-	
+
 	@Override
 	public void startDocument() throws SAXException {
 		seenFirstElement = false;
@@ -54,7 +54,7 @@ public class SchemaDeclarationRemovingXmlFilter extends XMLFilterImpl {
 			for (int i=0; i<atts.getLength(); i++) {
 				attrNames.add(atts.getQName(i));
 			}
-			
+
 			// Create new list of attributes; only include xmlns:xsd, if present
 			AttributesImpl newAttrs = new AttributesImpl();
 			for (int i=0; i<atts.getLength(); i++) {
@@ -63,12 +63,12 @@ public class SchemaDeclarationRemovingXmlFilter extends XMLFilterImpl {
 				}
 			}
 			atts = newAttrs;
-			
+
 			seenFirstElement = true;
 		}
 		super.startElement(null, localName, qName, atts);
 	}
-	
+
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		super.endElement(null, localName, qName);

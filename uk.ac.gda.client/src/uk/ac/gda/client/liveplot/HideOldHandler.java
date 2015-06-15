@@ -27,7 +27,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 public class HideOldHandler extends AbstractHandler {
 
 	public static final String ID = "uk.ac.gda.client.xyPlotHideOldCommand";
-	
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IWorkbenchPart view = HandlerUtil.getActivePartChecked(event);

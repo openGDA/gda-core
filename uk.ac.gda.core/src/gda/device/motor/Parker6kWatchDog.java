@@ -83,7 +83,7 @@ class Parker6kWatchDog implements Runnable {
 
 	/**
 	 * set up initial connections to 6k watchdog port and wrap the stream in buffered reader and writer
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public synchronized void connect() throws Exception {
@@ -94,7 +94,7 @@ class Parker6kWatchDog implements Runnable {
 
 	/**
 	 * send heartbeat packet to 6k watchdog port
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public synchronized void sendHeartbeat() throws Exception {
@@ -126,7 +126,7 @@ class Parker6kWatchDog implements Runnable {
 
 	/**
 	 * tidy up all streams before ending program due to flawed architecture, this can never be called.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public synchronized void disconnect() throws IOException {

@@ -45,7 +45,7 @@ public class BlockWrapper extends Title implements Block, ImageObserver {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param jc
 	 *            the component which is to be wrapped
 	 */
@@ -63,7 +63,7 @@ public class BlockWrapper extends Title implements Block, ImageObserver {
 
 	/**
 	 * Should set the ID (currently not working)
-	 * 
+	 *
 	 * @param id
 	 *            the id
 	 */
@@ -74,7 +74,7 @@ public class BlockWrapper extends Title implements Block, ImageObserver {
 	/**
 	 * Usually this returns the Size2D that the object would like to have given the constraints applied - we just return
 	 * the width and height of our wrapped JComponent.
-	 * 
+	 *
 	 * @param g2
 	 *            the Graphics2D into which the object will be drawn
 	 * @return a Size2D that the object requires for successful drawing.
@@ -87,7 +87,7 @@ public class BlockWrapper extends Title implements Block, ImageObserver {
 	/**
 	 * Usually this returns the Size2D that the object would like to have given the constraints applied - we just return
 	 * the width and height of our wrapped JComponent.
-	 * 
+	 *
 	 * @param g2
 	 *            the Graphics2D into which the object will be drawn
 	 * @param constraint
@@ -107,7 +107,7 @@ public class BlockWrapper extends Title implements Block, ImageObserver {
 
 	/**
 	 * Returns the current bounds of the block (currently null).
-	 * 
+	 *
 	 * @return The bounds.
 	 */
 	@Override
@@ -118,7 +118,7 @@ public class BlockWrapper extends Title implements Block, ImageObserver {
 
 	/**
 	 * Sets the bounds of the block (currently does nothing).
-	 * 
+	 *
 	 * @param bounds
 	 *            the bounds.
 	 */
@@ -132,7 +132,7 @@ public class BlockWrapper extends Title implements Block, ImageObserver {
 	 * Our JComponent will already have been drawn as a consequence of being a simple child of the ChartPanel (which
 	 * extends JPanel). However we can use the information passed to the Block here to get the JComponents bounds set
 	 * correctly.
-	 * 
+	 *
 	 * @param g2
 	 *            the Graphics2D into which to draw (not used here)
 	 * @param area
@@ -156,7 +156,7 @@ public class BlockWrapper extends Title implements Block, ImageObserver {
 	/**
 	 * Draws the block within the specified area. Refer to the documentation for the implementing class for information
 	 * about the <code>params</code> and return value supported.
-	 * 
+	 *
 	 * @param g2
 	 *            the graphics device.
 	 * @param area

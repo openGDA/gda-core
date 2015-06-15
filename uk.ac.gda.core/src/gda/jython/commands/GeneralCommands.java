@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * Holder for a series of static methods to operate Scannable objects
  */
 public class GeneralCommands {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(GeneralCommands.class);
 
 	/**
@@ -117,7 +117,7 @@ public class GeneralCommands {
 
 	/**
 	 * Lists all the available types of objects or objects of a given type
-	 * 
+	 *
 	 * @param interfaceName
 	 */
 	public static void ls(String interfaceName) {
@@ -182,9 +182,9 @@ public class GeneralCommands {
 
 	/**
 	 * List all the instances of a particular type (interface) of object
-	 * 
+	 *
 	 * @param theInterface
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public static void ls(Class<Findable> theInterface) throws DeviceException {
 		Map<String, Object> map = InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace();
@@ -207,16 +207,16 @@ public class GeneralCommands {
 
 	/**
 	 * List the names of all Scannables whose name does not startwith __
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public static void ls_names() throws DeviceException {
 		ls_names(Scannable.class);
-	}	
+	}
 	/**
 	 * List all the instances of a particular type (interface) of object which are also Findable
-	 * 
+	 *
 	 * @param theInterface
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public static void ls_names(Class<? extends Object> theInterface) throws DeviceException {
 		Map<String, Object> map = InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace();
@@ -233,10 +233,10 @@ public class GeneralCommands {
 		}
 		InterfaceProvider.getTerminalPrinter().print(output);
 	}
-	
+
 	/**
 	 * To allow the list function to be used all the way to the bottom of the object tree.
-	 * 
+	 *
 	 * @param theScannable
 	 */
 	public static void ls(Scannable theScannable) {
@@ -249,7 +249,7 @@ public class GeneralCommands {
 	 * <p>
 	 * If the interrupt flag has been set then an exception will be thrown. This will still be thrown if this method is
 	 * in the middle of waiting to resume.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public static void pause() throws Exception {
@@ -261,15 +261,15 @@ public class GeneralCommands {
 	 * or the beamline script directory.
 	 * <p>
 	 * This method is for typing convenience. Most scripts should really be imported and their method called directly.
-	 * 
+	 *
 	 * @param scriptName
 	 * @throws Exception
 	 */
 	public static void run(String scriptName) throws Exception {
-		// NOTE: ideally this method would try the entire python sys.path, but this would 
+		// NOTE: ideally this method would try the entire python sys.path, but this would
 		//       require making a breaking change and possibly be overkill!
 		JythonServer server = (JythonServer) Finder.getInstance().find(JythonServer.SERVERNAME);
-		
+
 		// allow full paths to be given to this method
 		String path = scriptName;
 		if (!scriptName.startsWith(File.separator)) { // if path starts with a backslash assume a full path has been given
@@ -279,7 +279,7 @@ public class GeneralCommands {
 						+ server.getJythonScriptPaths().description() + ".");
 			}
 		}
-		
+
 		// Run the file
 		logger.info("<<< Running " + scriptName + " (" + path + ")");
 		server.runCommandSynchronously(path);
@@ -296,7 +296,7 @@ public class GeneralCommands {
 		((JythonServer) Finder.getInstance().find(JythonServer.SERVERNAME)).restart();
 		reconfigureScriptControllers();
 	}
-	
+
 	private static void reconfigureScriptControllers() {
 		Map<String, Findable> scriptControllers = Finder.getInstance().getFindablesOfType(Scriptcontroller.class);
 		for (Findable f : scriptControllers.values()) {
@@ -312,7 +312,7 @@ public class GeneralCommands {
 
 	/**
 	 * Add a new aliased command.
-	 * 
+	 *
 	 * @param commandName
 	 */
 	public static void alias(String commandName) {
@@ -321,7 +321,7 @@ public class GeneralCommands {
 
 	/**
 	 * Add a new vararg aliased command
-	 * 
+	 *
 	 * @param commandName
 	 */
 	@Deprecated
@@ -331,16 +331,16 @@ public class GeneralCommands {
 
 	/**
 	 * Add a new vararg aliased command
-	 * 
+	 *
 	 * @param commandName
 	 */
 	public static void vararg_alias(String commandName) {
 		gda.jython.JythonServerFacade.getInstance().addAliasedVarargCommand(commandName);
 	}
-	
+
 	/**
 	 * runs system command which input as string
-	 * 
+	 *
 	 * @param command
 	 */
 	public static void cmd(String command) {
@@ -361,7 +361,7 @@ public class GeneralCommands {
 			}
 
 			JythonServerFacade.getInstance().print("\n");
-			
+
 			// read any errors from the attempted command
 			JythonServerFacade.getInstance().print("Here is the standard error of the command (if any):\n");
 			while ((s = stdError.readLine()) != null) {

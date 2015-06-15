@@ -54,7 +54,7 @@ public class DeferredScannableGroupTest {
 		createGroup();
 		getGroup().configure();
 	}
-	
+
 	void createGroup() {
 		group = new DeferredScannableGroup();
 		getGroup().setGroupMembers(new Scannable[] { rawa, rawb, rawc });
@@ -64,7 +64,7 @@ public class DeferredScannableGroupTest {
 	DeferredScannableGroup getGroup() {
 		return group;
 	}
-	
+
 	@Test
 	public void testAtCommandFailure() throws DeviceException {
 
@@ -119,25 +119,25 @@ public class DeferredScannableGroupTest {
 		Scannable a =  (getGroup().getGroupMembers().get(0));
 		Scannable c =  (getGroup().getGroupMembers().get(2));
 		InOrder inOrder = inOrder(mockedControlPoint, rawa, rawb, rawc);
-		
+
 		a.atLevelMoveStart();
 		c.atLevelMoveStart();
 		a.asynchronousMoveTo(1.);
 		c.asynchronousMoveTo(3.);
-		
+
 		inOrder.verify(mockedControlPoint).setValue(1.);
 		inOrder.verify(rawa).asynchronousMoveTo(1.);
 		inOrder.verify(rawc).asynchronousMoveTo(3.);
 		inOrder.verify(mockedControlPoint).setValue(0.);
 	}
-	
+
 	@Test
 	public void testIsBusy() throws DeviceException {
 		when(rawa.isBusy()).thenReturn(false);
 		when(rawb.isBusy()).thenReturn(true);
 		when(rawc.isBusy()).thenReturn(false);
 		assertTrue(getGroup().isBusy());
-		
+
 	}
 
 }

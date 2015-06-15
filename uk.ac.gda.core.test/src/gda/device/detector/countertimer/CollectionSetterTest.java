@@ -25,7 +25,7 @@ import junit.framework.TestCase;
  * Tests that the newly-introduced setters for collection fields that are
  */
 public class CollectionSetterTest extends TestCase {
-	
+
 	/**
 	 */
 	public void testCounterTimerBase() {
@@ -34,5 +34,5 @@ public class CollectionSetterTest extends TestCase {
 		ctb.setExtraNames(new String[]{"one", "two"});
 		assertEquals(2, ctb.getExtraNames().length);
 	}
-	
+
 }

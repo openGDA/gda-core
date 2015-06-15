@@ -21,6 +21,7 @@ package gda.spring;
 
 import gda.data.metadata.GDAMetadataProvider;
 import gda.data.metadata.Metadata;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -34,13 +35,13 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 public class SingletonRegistrationPostProcessor implements BeanFactoryPostProcessor {
 	private Logger logger = LoggerFactory.getLogger(SingletonRegistrationPostProcessor.class);
 	private BeanFactory beanFactory;
-	
+
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		this.beanFactory = beanFactory;
 		registerGdaMetadata();
 	}
-	
+
 	private void registerGdaMetadata() {
 		if (beanFactory.containsBean(GDAMetadataProvider.GDAMETADATANAME)) {
 			Metadata metadata = beanFactory.getBean(GDAMetadataProvider.GDAMETADATANAME, Metadata.class);

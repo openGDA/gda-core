@@ -48,7 +48,7 @@ public class ScannablegroupImpl extends CorbaScannablegroupPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param scannableGroup
 	 *            the scannableGroup implementation object
 	 * @param poa
@@ -63,7 +63,7 @@ public class ScannablegroupImpl extends CorbaScannablegroupPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the scannableGroup implementation object
 	 */
 	public ScannableGroup _delegate() {
@@ -72,7 +72,7 @@ public class ScannablegroupImpl extends CorbaScannablegroupPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param scannableGroup
 	 *            set the scannableGroup implementation object
 	 */
@@ -251,7 +251,7 @@ public class ScannablegroupImpl extends CorbaScannablegroupPOA {
 	public boolean isAt(Any arg0) throws CorbaDeviceException {
 		return scannableImpl.isAt(arg0);
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();
@@ -261,7 +261,7 @@ public class ScannablegroupImpl extends CorbaScannablegroupPOA {
 	public void setProtectionLevel(int newLevel) throws CorbaDeviceException {
 		deviceImpl.setProtectionLevel(newLevel);
 	}
-	
+
 	@Override
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		scannableImpl.atLevelMoveStart();
@@ -271,17 +271,17 @@ public class ScannablegroupImpl extends CorbaScannablegroupPOA {
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return scannableImpl.toFormattedString();
 	}
-	
+
 	@Override
 	public void atLevelStart() throws CorbaDeviceException {
 		scannableImpl.atLevelStart();
 	}
-	
+
 	@Override
 	public void atLevelEnd() throws CorbaDeviceException {
 		scannableImpl.atLevelEnd();

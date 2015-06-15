@@ -50,7 +50,7 @@ public class FileRegistrarTest {
 
 	/**
 	 * Setups of environment for the tests
-	 * 
+	 *
 	 * @param name
 	 *            of test
 	 * @param makedir

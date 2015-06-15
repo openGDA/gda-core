@@ -19,9 +19,6 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.MotorException;
@@ -31,16 +28,19 @@ import gda.device.serial.StringReader;
 import gda.device.serial.StringWriter;
 import gda.factory.Finder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Single point of access to a shared Serial connection for Delta Tau motor controllers.
- * 
+ *
  * @see McLennanMotor
  * @see McLennanServoMotor
  */
 public class DeltaTauController extends DeviceBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DeltaTauController.class);
-	
+
 	private static final int READ_TIMEOUT = 1000;
 
 	private static final String WRITE_TERMINATOR = "\r"; // carriage
@@ -95,7 +95,7 @@ public class DeltaTauController extends DeviceBase {
 
 	/**
 	 * Set the serial device name
-	 * 
+	 *
 	 * @param serialDeviceName
 	 *            the serial device name
 	 */
@@ -105,7 +105,7 @@ public class DeltaTauController extends DeviceBase {
 
 	/**
 	 * Get the serial device name
-	 * 
+	 *
 	 * @return the serial device name
 	 */
 	public String getSerialDeviceName() {
@@ -114,7 +114,7 @@ public class DeltaTauController extends DeviceBase {
 
 	/**
 	 * Close the serial port connection.
-	 * 
+	 *
 	 * @see gda.device.serial.SerialComm
 	 */
 	@Override
@@ -127,7 +127,7 @@ public class DeltaTauController extends DeviceBase {
 	 * correct reply returns, to the correct Object. DeltaTau replies, particularly errors, are generously sprinkled
 	 * with carriage returns (without line feeds). These mess up the output, hence the replaceAll() in the printing out
 	 * of replies.
-	 * 
+	 *
 	 * @param command
 	 *            Command code string
 	 * @return reply from motor

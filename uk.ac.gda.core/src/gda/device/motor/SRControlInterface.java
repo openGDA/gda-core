@@ -107,14 +107,14 @@ public interface SRControlInterface {
 
 	/**
 	 * Initialize SRControl
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void initialise() throws DeviceException;
 
 	/**
 	 * Set a Value
-	 * 
+	 *
 	 * @param parameter
 	 *            name of parameter
 	 * @param setProperty
@@ -127,7 +127,7 @@ public interface SRControlInterface {
 
 	/**
 	 * Get a Value
-	 * 
+	 *
 	 * @param parameter
 	 *            name of parameter
 	 * @param getProperty
@@ -140,7 +140,7 @@ public interface SRControlInterface {
 
 	/**
 	 * Returns a string description of the input status code for the control parameter in question
-	 * 
+	 *
 	 * @param parameter -
 	 *            string containing name of control systeme parameter
 	 * @param code -
@@ -156,7 +156,7 @@ public interface SRControlInterface {
 
 	/**
 	 * Returns the units string description for the control parameter in question
-	 * 
+	 *
 	 * @param parameter -
 	 *            string containing name of control systeme parameter
 	 * @param unitsString -
@@ -169,7 +169,7 @@ public interface SRControlInterface {
 
 	/**
 	 * Returns a byte containing the decimal points descriptor for the control parameter in question
-	 * 
+	 *
 	 * @param parameter -
 	 *            string containing name of control systeme parameter
 	 * @return the decimal points descriptor

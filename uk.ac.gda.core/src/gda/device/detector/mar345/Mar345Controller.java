@@ -96,7 +96,7 @@ public class Mar345Controller extends Observable implements Runnable {
 
 	/**
 	 * Constructor passing local of mar log directory
-	 * 
+	 *
 	 * @param logDir
 	 *            mar log directory
 	 */
@@ -106,7 +106,7 @@ public class Mar345Controller extends Observable implements Runnable {
 
 	/**
 	 * Sets up status file and command file names, and status monitor.
-	 * 
+	 *
 	 * @param logDir
 	 *            mar log directory
 	 */
@@ -146,7 +146,7 @@ public class Mar345Controller extends Observable implements Runnable {
 
 	/**
 	 * If the controller step is idle, return status of idle, else busy.
-	 * 
+	 *
 	 * @return Returns the detector status (as per detector interface)
 	 */
 	public int getDetectorStatus() {
@@ -191,7 +191,7 @@ public class Mar345Controller extends Observable implements Runnable {
 	/**
 	 * Updates the controller step depending on the current step and the new status obtained from the
 	 * Mar345StatusReader.
-	 * 
+	 *
 	 * @param newStatus
 	 *            the new mar status
 	 */
@@ -242,7 +242,7 @@ public class Mar345Controller extends Observable implements Runnable {
 	/**
 	 * Send an individual string to the Mar345. The list of commands can be found in the scan345.ps doc on the mar
 	 * installation cd, under the docs folder in the mar directory or online at mar research
-	 * 
+	 *
 	 * @param keywords
 	 *            mar keywords (see documentation)
 	 */

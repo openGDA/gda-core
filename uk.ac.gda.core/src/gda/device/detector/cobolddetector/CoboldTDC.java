@@ -105,7 +105,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 
 	/**
 	 * Set the value of 1st hit on channel z1 via parameter 99 to stream data into the current LMF event
-	 * 
+	 *
 	 * @param z1
 	 *            the value to set z1 to in LMF event
 	 */
@@ -161,7 +161,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 
 	/**
 	 * Get the label string for the channel specified
-	 * 
+	 *
 	 * @return label the label string
 	 * @throws DeviceException
 //	 * @see gda.device.CounterTimer#getChannelLabel(int)
@@ -177,7 +177,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 
 	/**
 	 * Add channel label
-	 * 
+	 *
 	 * @param label
 	 *            the label string
 	 */
@@ -187,7 +187,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 
 	/**
 	 * Set the label string for the channel specified
-	 * 
+	 *
 	 * @param channel
 	 *            int
 	 * @param label
@@ -202,7 +202,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 
 	/**
 	 * Get the label string for the channel specified
-	 * 
+	 *
 	 * @param channel
 	 *            who's label is to be returned
 	 * @return label the label string
@@ -226,7 +226,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 	 * wait until collection finished (status != BUSY) before detector readout. Note this does not work properly because
 	 * readout will only occur if isActive (isUsedByDefault()) is true but in this case the detector may be scanned
 	 * synchronously in small time between asynchronous scans.
-	 * 
+	 *
 	 * @param collectionTime
 	 *            double data collection time in milli-secs
 	 * @param synchronousScan
@@ -271,7 +271,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 	/**
 	 * Create a unique lmf name in a file series from a series name and using an lmf run tracker file to check track of
 	 * file number
-	 * 
+	 *
 	 * @return String a unique lmf file name
 	 */
 	private String getNextLmfName() {
@@ -372,7 +372,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 
 	/**
 	 * Start counting asynchronously (don't wit till finished) {@inheritDoc}
-	 * 
+	 *
 	 * @throws DeviceException
 	 * @see gda.device.AsynchronousDetector#countAsync(double)
 	 */
@@ -383,7 +383,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 
 	/**
 	 * Send a command to CoboldPC without waiting for command to execute
-	 * 
+	 *
 	 * @param command
 	 *            the CoboldPC command String
 	 */
@@ -398,7 +398,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 
 	/**
 	 * Send a command to CoboldPC waiting for it to finish execution
-	 * 
+	 *
 	 * @param command
 	 *            String containing the CoboldPC command
 	 */
@@ -414,7 +414,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 
 	/**
 	 * Start the Cobold scan letting the scanTimer alarm end the collection and scheduling regular spectrum updates
-	 * 
+	 *
 	 * @param newCommand
 	 */
 	public void startCoboldScan(String newCommand) {
@@ -505,7 +505,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 
 	/**
 	 * End the Cobold data collection by sending STOP_COMMAND and cancelling the timer and the spectrum updater
-	 * 
+	 *
 	 * @see gda.device.Detector#endCollection()
 	 */
 	@Override
@@ -599,7 +599,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 
 	/**
 	 * Save current Cobold Document File
-	 * 
+	 *
 	 * @return String name of DCF file
 	 */
 	public String saveCurrentDcf() {
@@ -627,7 +627,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 
 	/**
 	 * Set LMF name
-	 * 
+	 *
 	 * @param name
 	 *            String full path name of lmf file to be used in creation of New Acquisition command
 	 */
@@ -637,7 +637,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 
 	/**
 	 * Set whether to auto-save DCFs between runs
-	 * 
+	 *
 	 * @param b
 	 */
 	public void setSaveDCFsBetweenRuns(boolean b) {
@@ -660,7 +660,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 
 	/**
 	 * Set the comment to be used in the LMF header
-	 * 
+	 *
 	 * @param comment
 	 *            String the user defined comment
 	 */
@@ -672,7 +672,7 @@ public class CoboldTDC extends DetectorBase implements AsynchronousDetector, Cob
 	/**
 	 * Execute a file of Cobold commands for setting up an experiment in terms of pareameters, coordinates, conditions
 	 * and spectra. Correct syntax assumed (see CoboldPC user manual)
-	 * 
+	 *
 	 * @param ccf
 	 */
 	public void executeCoboldCommandFile(String ccf) {

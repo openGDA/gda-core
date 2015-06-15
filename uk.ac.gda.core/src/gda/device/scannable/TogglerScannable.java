@@ -27,7 +27,7 @@ import gda.device.Scannable;
 public class TogglerScannable extends ScannableBase {
 
 	private Scannable delegate;
-	
+
 	public enum Hook {
 		AT_SCAN,
 		AT_LINE,
@@ -38,7 +38,7 @@ public class TogglerScannable extends ScannableBase {
 	private Hook hook;
 
 	private Object startValue;
-	
+
 	private Object initialValue;
 
 	private Object stopValue = null;
@@ -74,7 +74,7 @@ public class TogglerScannable extends ScannableBase {
 	}
 	public Object getEndValue() {
 		return endValue;
-	}	
+	}
 
 	/**
 	 * Sets the value the toggled scannable should move to when stop() or atCommandFailure() are called.
@@ -187,17 +187,17 @@ public class TogglerScannable extends ScannableBase {
 	public void asynchronousMoveTo(Object target) throws DeviceException {
 		throw new DeviceException("Unsupported operation. Use underlying scannable directly if necessary (getDelegate()).");
 	}
-	
+
 	@Override
 	public void moveTo(Object target) throws DeviceException {
 		throw new DeviceException("Unsupported operation. Use underlying scannable directly if necessary (getDelegate()).");
 	}
-	
+
 	@Override
 	public String[] getInputNames() {
 		return new String[] {};
 	}
-	
+
 	@Override
 	public String[] getExtraNames() {
 		return new String[] {};

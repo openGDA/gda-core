@@ -40,7 +40,7 @@ public class ControlpointAdapter extends ScannableAdapter implements ControlPoin
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

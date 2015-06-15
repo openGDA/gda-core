@@ -29,7 +29,7 @@ import gda.analysis.datastructure.DataVectorMath;
 public class Linear {
 	/**
 	 * Given datavectors x and y and given a value of x, this routine returns a linear interpolated value of y
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @param xpoint

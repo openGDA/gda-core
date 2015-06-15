@@ -55,7 +55,7 @@ public class RedirectableFileLoggerTest {
 	public void testConstruction() throws Exception {
 		String logfile = concat(TestHelpers.setUpTest(RedirectableFileLoggerTest.class, "testConfigure", true), FILENAME);
 		when(mockPathProvider.getPath()).thenReturn(logfile);
-		
+
 		assertFalse(new File(logfile).exists());
 		logger = new RedirectableFileLogger(mockPathProvider);
 		assertTrue(new File(logfile).exists());
@@ -75,7 +75,7 @@ public class RedirectableFileLoggerTest {
 	public void testLog() throws Exception {
 		String logfile = concat(TestHelpers.setUpTest(RedirectableFileLoggerTest.class, "testLog", true), FILENAME);
 		createLogger(logfile);
-		
+
 		logger.log("abcd1234");
 		assertEquals("abcd1234", readLogLine(logfile, 0));
 
@@ -84,18 +84,18 @@ public class RedirectableFileLoggerTest {
 	public void testMultipleLog() throws Exception {
 		String logfile = concat(TestHelpers.setUpTest(RedirectableFileLoggerTest.class, "testTwice", true), FILENAME);
 		createLogger(logfile);
-		
+
 		logger.log("abcd1234");
 		logger.log("efgh4567");
 		assertEquals("abcd1234", readLogLine(logfile, 0));
 		assertEquals("efgh4567", readLogLine(logfile, 1));
 	}
-	
+
 	@Test
 	public void testLogMultiline() throws Exception {
 		String logfile = concat(TestHelpers.setUpTest(RedirectableFileLoggerTest.class, "testLogMultiline", true), FILENAME);
 		createLogger(logfile);
-		
+
 		logger.log("abcd1234\nefgh4567");
 		assertEquals("abcd1234", readLogLine(logfile, 0));
 		assertEquals("efgh4567", readLogLine(logfile, 1));

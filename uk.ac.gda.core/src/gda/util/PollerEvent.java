@@ -31,7 +31,7 @@ public class PollerEvent {
 
 	/**
 	 * Constructs a PollerEvent with the specified Poller and pollTime.
-	 * 
+	 *
 	 * @param poller
 	 *            the Poller
 	 * @param pollTime
@@ -44,7 +44,7 @@ public class PollerEvent {
 
 	/**
 	 * Gets the Poller
-	 * 
+	 *
 	 * @return the Poller
 	 */
 	public Poller getPoller() {
@@ -53,7 +53,7 @@ public class PollerEvent {
 
 	/**
 	 * Gets the polling time
-	 * 
+	 *
 	 * @return the polling time (mS)
 	 */
 	public long getPollTime() {

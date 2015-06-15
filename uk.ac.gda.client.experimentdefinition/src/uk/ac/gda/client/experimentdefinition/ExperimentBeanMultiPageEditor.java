@@ -57,7 +57,7 @@ public abstract class ExperimentBeanMultiPageEditor extends RichBeanMultiPageEdi
 
 	@Override
 	protected boolean confirmFileNameChange(final File oldName, final File newName) throws Exception {
-		
+
 		// Save as is not allowed to change the directory for these editors
 		if (!oldName.getParent().equals(newName.getParent())) {
 			if (oldName.getParentFile().getAbsolutePath() != newName.getParentFile().getAbsolutePath()) {

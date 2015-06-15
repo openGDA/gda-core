@@ -23,11 +23,11 @@ import gda.observable.ObservableComponent;
 
 /**
  * Implementation of RCPController to run on the server.
- * 
+ *
  * To send a command to the client in a script
- * 
+ *
  * from gda.gui import RCPController
- * 
+ *
  * 	rcpController = finder.find("RCPController")
  *	if rcpController != None:
  *		rcpController.openView("gda.rcp.mx.views.AlignmentPlot")
@@ -78,7 +78,7 @@ public class RCPControllerImpl implements RCPController {
 	@Override
 	public void openPerspective(String id) {
 		notifyIObservers(this, new RCPOpenPerspectiveCommand(id));
-		
+
 	}
 
 	@Override

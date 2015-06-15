@@ -22,7 +22,7 @@ package gda.observable;
 /**
  * Stands between an IObserver and and IObservable and ensures that the IObservers's update method is only called in the
  * EventDispatchThread.
- * 
+ *
  * @see gda.observable.LaterUpdater
  */
 public class UpdateDelayer implements IObserver {
@@ -32,7 +32,7 @@ public class UpdateDelayer implements IObserver {
 	 * Constructor. An IObserver which wants to IObserve an IObservable but be sure that its update method is only
 	 * called in the Swing EventDispatch Thread should create an UpdateDelayer instead of adding itself as an IObserver.
 	 * Replace: iObservable.addIObserver(this); with: ud = new UpdateDelayer(this, iObservable);
-	 * 
+	 *
 	 * @param iObserver
 	 *            the observer
 	 * @param iObservable
@@ -47,7 +47,7 @@ public class UpdateDelayer implements IObserver {
 
 	/**
 	 * Implements IObserver interface - called by the IObservable.
-	 * 
+	 *
 	 * @param observable
 	 *            the IObservable
 	 * @param argument

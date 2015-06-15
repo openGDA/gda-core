@@ -35,8 +35,8 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 	static Queue queue;
 	static Boolean openProcessorServiceAlreadyAttempted = false;
 	static Boolean openQueueServiceAlreadyAttempted = false;
-	
-	
+
+
 	/**
 	 * @return Returns the processor.
 	 */
@@ -61,7 +61,7 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 			openQueueServiceAlreadyAttempted = true;
 			ServiceTracker queueTracker;
 			queueTracker = new ServiceTracker(GDAClientActivator.getBundleContext(), gda.commandqueue.Queue.class.getName(), null);
-			queueTracker.open();		
+			queueTracker.open();
 			queue = (gda.commandqueue.Queue)queueTracker.getService();
 		}
 		return queue;
@@ -74,7 +74,7 @@ public class CommandQueueViewFactory implements IExecutableExtensionFactory {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 	}
 	public CommandQueueViewFactory() {
 		if( getProcessor() == null || getQueue() == null){

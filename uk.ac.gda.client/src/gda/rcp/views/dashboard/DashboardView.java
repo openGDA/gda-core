@@ -75,7 +75,7 @@ public final class DashboardView extends ViewPart implements ServerObjectListene
 	private static final Logger logger = LoggerFactory.getLogger(DashboardView.class);
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String ID = "uk.ac.gda.exafs.ui.dashboardView"; //$NON-NLS-1$
 
@@ -85,7 +85,7 @@ public final class DashboardView extends ViewPart implements ServerObjectListene
 
 	/**
 	 * Create contents of the view part
-	 * 
+	 *
 	 * @param parent
 	 */
 	@Override
@@ -325,7 +325,7 @@ public final class DashboardView extends ViewPart implements ServerObjectListene
 
 	/**
 	 * Add an object to listen to.
-	 * 
+	 *
 	 * @param toAdd
 	 */
 	public void addServerObject(final ServerObject toAdd) {
@@ -343,7 +343,7 @@ public final class DashboardView extends ViewPart implements ServerObjectListene
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void deleteSelectedObject() {
 		try {
@@ -388,7 +388,7 @@ public final class DashboardView extends ViewPart implements ServerObjectListene
 
 	/**
 	 * Called to refresh all the values in the table.
-	 * 
+	 *
 	 * @param moveAmount
 	 */
 	public void move(final int moveAmount) {
@@ -405,7 +405,7 @@ public final class DashboardView extends ViewPart implements ServerObjectListene
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void clearSelectedObjects() {
 		final boolean ok = MessageDialog.openConfirm(getSite().getShell(), "Please confirm clear",

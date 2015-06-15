@@ -24,7 +24,7 @@ package gda.analysis.numerical.straightline;
 public class Results {
 	final double[] offsets;
 	final double[] slopes;
-	final short[] fitok; 
+	final short[] fitok;
 	final long [] dims;
 	public Results(double[] offsets, double[] slopes, long [] dims, short[] fitok) {
 		super();
@@ -45,5 +45,5 @@ public class Results {
 	public short[] getFitok() {
 		return fitok;
 	}
-	
+
 }

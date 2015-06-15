@@ -41,14 +41,14 @@ import org.springframework.util.StringUtils;
  * object to its containing {@link BeanFactory} for each of the remote objects.
  */
 public class RemoteObjectImporter implements BeanFactoryPostProcessor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(RemoteObjectImporter.class);
-	
+
 	private String host;
-	
+
 	/**
 	 * Sets the host from which remote objects will be imported.
-	 * 
+	 *
 	 * @param host the host
 	 */
 	public void setHost(String host) {
@@ -58,11 +58,11 @@ public class RemoteObjectImporter implements BeanFactoryPostProcessor {
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		BeanDefinitionRegistry beanDefRegistry = (BeanDefinitionRegistry) beanFactory;
-		
+
 		// Get remote object lister
 		String listerUrl = String.format("rmi://%s/%s%s", host, Constants.RMI_NAME_PREFIX, Constants.REMOTE_OBJECT_LISTER_RMI_NAME);
 		RemoteObjectLister lister = getRmiServiceProxy(listerUrl, RemoteObjectLister.class);
-		
+
 		// Get available objects
 		Map<String, String> availableObjects = lister.getAvailableObjects();
 
@@ -80,14 +80,14 @@ public class RemoteObjectImporter implements BeanFactoryPostProcessor {
 			}
 		}
 	}
-	
+
 	/**
-	 * Gets a proxy for a remote service, which implements the specified interface and is located at the specified URL. 
-	 * 
+	 * Gets a proxy for a remote service, which implements the specified interface and is located at the specified URL.
+	 *
 	 * @param <T> the type implemented by the remote service
 	 * @param serviceUrl the service URL
 	 * @param serviceInterface the type implemented by the remote service
-	 * 
+	 *
 	 * @return a proxy for the remote service
 	 */
 	@SuppressWarnings("unchecked")
@@ -98,12 +98,12 @@ public class RemoteObjectImporter implements BeanFactoryPostProcessor {
 		proxyBean.afterPropertiesSet();
 		return (T) proxyBean.getObject();
 	}
-	
+
 	protected BeanDefinition createRmiProxyFactoryBeanDefinition(String serviceUrl, Class<?> objectInterface) {
 		BeanDefinition beanDefinition = new RootBeanDefinition(RmiProxyFactoryBean.class);
 		beanDefinition.getPropertyValues().addPropertyValue("serviceUrl", serviceUrl);
 		beanDefinition.getPropertyValues().addPropertyValue("serviceInterface", objectInterface.getName());
 		return beanDefinition;
 	}
-	
+
 }

@@ -57,7 +57,7 @@ public class DatasetStats extends DataSetProcessorBase {
 	List<String> outputNames;
 	private boolean profileX;
 	private boolean profileY;
-	
+
 	@Override
 	public GDANexusDetectorData process(String detectorName, String dataName, Dataset dataset) throws Exception {
 		if(!enable)
@@ -116,9 +116,9 @@ public class DatasetStats extends DataSetProcessorBase {
 		if( outputNames == null){
 			outputNames = java.util.Arrays.asList(new String[] { totalName, averageName });
 		}
-		return outputNames; 
+		return outputNames;
 	}
-	
+
 	@Override
 	protected Collection<String> _getExtraNames() {
 		return getOutputNames();

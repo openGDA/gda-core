@@ -19,9 +19,6 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.MotorException;
@@ -31,16 +28,19 @@ import gda.device.serial.StringReader;
 import gda.device.serial.StringWriter;
 import gda.factory.Finder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Single point of access to a shared Serial connection for McLennan motor controllers.
- * 
+ *
  * @see McLennanMotor
  * @see McLennanServoMotor
  */
 public class McLennanController extends DeviceBase implements IMcLennanController {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(McLennanController.class);
-	
+
 	private static final int DEFAULT = -1;
 
 	private static final int READ_TIMEOUT = 1000;
@@ -101,7 +101,7 @@ public class McLennanController extends DeviceBase implements IMcLennanControlle
 
 	/**
 	 * Set the serial device name
-	 * 
+	 *
 	 * @param serialDeviceName
 	 *            the serial device name
 	 */
@@ -111,7 +111,7 @@ public class McLennanController extends DeviceBase implements IMcLennanControlle
 
 	/**
 	 * Get the serial device name
-	 * 
+	 *
 	 * @return the serial device name
 	 */
 	public String getSerialDeviceName() {
@@ -120,7 +120,7 @@ public class McLennanController extends DeviceBase implements IMcLennanControlle
 
 	/**
 	 * Close the serial port connection.
-	 * 
+	 *
 	 * @see gda.device.serial.SerialComm
 	 */
 	@Override
@@ -130,7 +130,7 @@ public class McLennanController extends DeviceBase implements IMcLennanControlle
 
 	/**
 	 * Issue a single character command to the connected serial device that acts on all motors with immediate effect.
-	 * 
+	 *
 	 * @param command
 	 *            Global command character
 	 * @throws MotorException
@@ -149,7 +149,7 @@ public class McLennanController extends DeviceBase implements IMcLennanControlle
 	 * correct reply returns, to the correct Object. McLennan replies, particularly errors, are generously sprinkled
 	 * with carriage returns (without line feeds). These mess up the output, hence the replaceAll() in the printing out
 	 * of replies.
-	 * 
+	 *
 	 * @param command
 	 *            Command code string
 	 * @return reply from motor

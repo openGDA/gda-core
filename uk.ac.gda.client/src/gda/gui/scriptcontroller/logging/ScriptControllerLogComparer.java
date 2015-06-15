@@ -31,12 +31,12 @@ public class ScriptControllerLogComparer implements IElementComparer {
 			return ((ScriptControllerLogResults)a).getUniqueID().equals(((ScriptControllerLogResults)b).getUniqueID());
 		}
 		if (a instanceof ScriptControllerLogResults[] && b instanceof ScriptControllerLogResults[]){
-			
+
 			ScriptControllerLogResults[] aArray = ((ScriptControllerLogResults[])a);
 			ScriptControllerLogResults[] bArray = ((ScriptControllerLogResults[])b);
-			
+
 			if (aArray.length != bArray.length) return false;
-			
+
 			for (int element = 0; element < aArray.length; element++){
 				if (!aArray[element].equals(bArray[element])) return false;
 			}

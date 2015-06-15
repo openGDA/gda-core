@@ -18,18 +18,6 @@
 
 package gda.scan;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.math.linear.MatrixUtils;
-import org.apache.commons.math.linear.RealVector;
-
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.continuouscontroller.ContinuousMoveController;
@@ -42,22 +30,34 @@ import gda.device.scannable.PositionConvertorFunctions;
 import gda.device.scannable.VariableCollectionTimeDetector;
 import gda.jython.commands.ScannableCommands;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.math.linear.MatrixUtils;
+import org.apache.commons.math.linear.RealVector;
+
 public class TrajectoryScanLine extends AbstractContinuousScanLine {
 
 
 //	interface ContinuouslyScannableCallableProviderViaController<T> extends ContinuouslyScannableViaController, PositionCallableProvider<T> {}
 
 	private static class PassthroughContinouselyScannableViaControllerDecorator extends PassthroughScannableDecorator implements ContinuouslyScannableViaController {
-		
+
 		public PassthroughContinouselyScannableViaControllerDecorator(ContinuouslyScannableViaController delegate) {
 			super(delegate);
 		}
-		
+
 		@Override
 		public ContinuouslyScannableViaController getDelegate() {
 			return (ContinuouslyScannableViaController) super.getDelegate();
 		}
-		
+
 		@Override
 		public void setOperatingContinuously(boolean b) throws DeviceException {
 			getDelegate().setOperatingContinuously(b);
@@ -72,11 +72,11 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 		public ContinuousMoveController getContinuousMoveController() {
 			return getDelegate().getContinuousMoveController();
 		}
-		
+
 	}
-	
+
 	private static class PositionGrabbingDecorator<T> extends PassthroughContinouselyScannableViaControllerDecorator {
-		
+
 		private ScanPositionRecorder recorder;
 
 		public PositionGrabbingDecorator(ContinuouslyScannableViaController delegate) {
@@ -86,7 +86,7 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 		public void setRecorder(ScanPositionRecorder recorder) {
 			this.recorder = recorder;
 		}
-		
+
 		@Override
 		public void asynchronousMoveTo(Object position) throws DeviceException {
 			if (recorder != null) {
@@ -95,7 +95,7 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 			getDelegate().asynchronousMoveTo(position);
 		}
 	}
-	
+
 	private static class PositionGrabbingCallableDecorator<T> extends PositionGrabbingDecorator<T> implements PositionCallableProvider<T> {
 
 		public PositionGrabbingCallableDecorator(ContinuouslyScannableViaController delegate) {
@@ -110,30 +110,30 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 		public Callable<T> getPositionCallable() throws DeviceException {
 			return ((PositionCallableProvider<T>) getDelegate()).getPositionCallable();
 		}
-		
+
 	}
 
 	class ScanPositionRecorder {
-		
-		LinkedList<Map<Scannable, RealVector>> points = 
+
+		LinkedList<Map<Scannable, RealVector>> points =
 			new LinkedList<Map<Scannable, RealVector>>();
 
 		void startNewPoint() {
 			points.add(new HashMap<Scannable, RealVector>());
 		}
-		
+
 		void addPositionToCurrentPoint(Scannable scannable, Object demandPosition) {
 			double[] doublePosition = ArrayUtils.toPrimitive(PositionConvertorFunctions.toDoubleArray(demandPosition));
 			RealVector positionVector = MatrixUtils.createRealVector(doublePosition);
 			points.getLast().put(scannable, positionVector);
 		}
-		
+
 		List<Map<Scannable, RealVector>> getPoints() {
 			return points;
 		}
 
 	}
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static Object[] wrapContinuouslyScannables(Object[] args) {
 		for (int i = 0; i < args.length; i++) {
@@ -148,10 +148,10 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 		}
 		return args;
 	}
-	
+
 	ScanPositionRecorder scanPositionRecorder;
-	
-	
+
+
 	public TrajectoryScanLine(Object[] args) throws IllegalArgumentException {
 		super(wrapContinuouslyScannables(args));
 	}
@@ -160,7 +160,7 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 	protected TrajectoryMoveController getController() {
 		return (TrajectoryMoveController) super.getController();
 	}
-	
+
 	@Override
 	protected void configureControllerTriggerTimes() throws DeviceException {
 		// 3. Configure either the single trigger period or an array of trigger delta-times on the controller
@@ -170,7 +170,7 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 			getController().setTriggerPeriod(extractCommonCollectionTimeFromDetectors());
 		}
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void doCollection() throws Exception {
@@ -182,7 +182,7 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 		}
 		super.doCollection();
 	}
-	
+
 	@Override
 	protected void callAtPointStartHooks() throws DeviceException {
 		super.callAtPointStartHooks();
@@ -190,7 +190,7 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 			scanPositionRecorder.startNewPoint();
 		}
 	}
-	
+
 	/**
 	 * @return true if all Detectors support variable collection time profiles and have them set, false if non do.
 	 * @throws IllegalArgumentException
@@ -215,8 +215,8 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 		throw new IllegalArgumentException("Some detectors have collection time profiles configured, but not all.");
 
 	}
-	
-	private double[] extractCommonCollectionTimeProfilesFromDetectors() throws DeviceException {		
+
+	private double[] extractCommonCollectionTimeProfilesFromDetectors() throws DeviceException {
 		double[] profile = ((VariableCollectionTimeDetector) detectors.get(0)).getCollectionTimeProfile();
 		for (HardwareTriggeredDetector det : detectors.subList(1, detectors.size())) {
 			double[] detsProfile = ((VariableCollectionTimeDetector) det).getCollectionTimeProfile();
@@ -246,19 +246,19 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 			// Do nothing. The process of 'scanning' the Scannables will have resulted in calls to the
 			// underlying TrajectoryMoveConroller
 		}
-		
+
 	}
 
 	List<Map<Scannable,double[]>> generateTrajectoryForDetectorsThatIntegrateBetweenTriggers() {
-		List<Map<Scannable, double[]>> triggers = 
+		List<Map<Scannable, double[]>> triggers =
 			new LinkedList<Map<Scannable, double[]>>();
-		List<Map<Scannable, RealVector>> binCentres = 
+		List<Map<Scannable, RealVector>> binCentres =
 			scanPositionRecorder.getPoints();
-		
+
 		HashMap<Scannable, double[]> pointToAdd;
-		
+
 		Set<Scannable> scannables = binCentres.get(0).keySet();
-		
+
 		// Add first trigger: xtrig[0] = bincentre[0] - (bincentre[1] - bincentre[0]) / 2
 		pointToAdd = new HashMap<Scannable, double[]>();
 		for (Scannable scannable : scannables) {
@@ -267,8 +267,8 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 			double[] firstTrigger = first.subtract(second.subtract(first).mapDivide(2.)).toArray();
 			pointToAdd.put(scannable, firstTrigger );
 		}
-		triggers.add(pointToAdd);	
-		
+		triggers.add(pointToAdd);
+
 		// Add middle triggers: xtrig[i] = (bincentre[i] + bincentre[i+1]) / 2
 		for (int i = 0; i < binCentres.size() -1 ; i++) { // not the last one
 			pointToAdd = new HashMap<Scannable, double[]>();
@@ -278,9 +278,9 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 				double[] trigger = current.add(next).mapDivide(2.).toArray();
 				pointToAdd.put(scannable, trigger);
 			}
-			triggers.add(pointToAdd);	
+			triggers.add(pointToAdd);
 		}
-		
+
 		// Add last trigger: xtrig[n+1] = bincentre[n] + (bincentre[n] - bincentre[n-1]) / 2
 		pointToAdd = new HashMap<Scannable, double[]>();
 		for (Scannable scannable : scannables) {
@@ -290,13 +290,13 @@ public class TrajectoryScanLine extends AbstractContinuousScanLine {
 			double[] lastTrigger = last.add(last.subtract(secondLast).mapDivide(2.)).toArray();
 			pointToAdd.put(scannable, lastTrigger );
 		}
-		triggers.add(pointToAdd);	
-		
+		triggers.add(pointToAdd);
+
 		return triggers;
 	}
 
-	
-	
+
+
 	private void moveMotorsToPositions(Map<Scannable, double[]> scannablePositions) throws Exception {
 		ArrayList<Object> posArgs = new ArrayList<Object>(scannablePositions.size() * 2);
 		for (Scannable scn : scannablePositions.keySet()) {

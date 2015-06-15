@@ -37,13 +37,13 @@ public class DataDispenserExtMediaHandler extends DataDispenserAbstractHandler {
 
 		Preferences preferences = new DefaultScope().getNode(GDAClientActivator.PLUGIN_ID);
 		String string = preferences.get(DATA_DISPENSER_MEDIA_URL_PREF, DATA_DISPENSER_DEFAULT_PREF);
-		
+
 		if (string.equals(DATA_DISPENSER_DEFAULT_PREF)){
 			MessageDialog.openError(shell, "Error Opening Data Dispenser", "No value for the data dispenser external media url has been set (in plugin_customization.ini)");
 		} else {
 			openInBrowser(string);
 		}
-		
+
 		return null;
 
 	}

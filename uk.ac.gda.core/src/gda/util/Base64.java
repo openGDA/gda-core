@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * href="http://iharder.net/xmlizable">http://iharder.net/xmlizable</a> periodically to check for updates or to
  * contribute improvements.
  * </p>
- * 
+ *
  * @author Robert Harder
  * @author rob@iharder.net
  * @version 1.4
@@ -121,7 +121,7 @@ public class Base64 {
 
 	/**
 	 * Encodes the first three bytes of array <var>threeBytes</var> and returns a four-byte array in Base64 notation.
-	 * 
+	 *
 	 * @param threeBytes
 	 *            the array to convert
 	 * @return four byte array in Base64 notation.
@@ -136,7 +136,7 @@ public class Base64 {
 	 * Encodes up to the first three bytes of array <var>threeBytes</var> and returns a four-byte array in Base64
 	 * notation. The actual number of significant bytes in your array is given by <var>numSigBytes</var>. The array
 	 * <var>threeBytes</var> needs only be as big as <var>numSigBytes</var>.
-	 * 
+	 *
 	 * @param threeBytes
 	 *            the array to convert
 	 * @param numSigBytes
@@ -157,7 +157,7 @@ public class Base64 {
 	 * are large enough to accomodate <var>srcOffset</var> + 3 for the <var>source</var> array or <var>destOffset</var> +
 	 * 4 for the <var>destination</var> array. The actual number of significant bytes in your array is given by
 	 * <var>numSigBytes</var>.
-	 * 
+	 *
 	 * @param source
 	 *            the array to convert
 	 * @param srcOffset
@@ -218,7 +218,7 @@ public class Base64 {
 	/**
 	 * Serializes an object and returns the Base64-encoded version of that serialized object. If the object cannot be
 	 * serialized or there is another error, the method will return <tt>null</tt>.
-	 * 
+	 *
 	 * @param serializableObject
 	 *            The object to encode
 	 * @return The Base64-encoded object
@@ -231,7 +231,7 @@ public class Base64 {
 	/**
 	 * Serializes an object and returns the Base64-encoded version of that serialized object. If the object cannot be
 	 * serialized or there is another error, the method will return <tt>null</tt>.
-	 * 
+	 *
 	 * @param serializableObject
 	 *            The object to encode
 	 * @param breakLines
@@ -284,7 +284,7 @@ public class Base64 {
 	/**
 	 * Encodes a byte array into Base64 notation. Equivalent to calling
 	 * <code>encodeBytes( source, 0, source.length )</code>
-	 * 
+	 *
 	 * @param source
 	 *            The data to convert
 	 * @return string form of encoding
@@ -296,7 +296,7 @@ public class Base64 {
 	/**
 	 * Encodes a byte array into Base64 notation. Equivalen to calling
 	 * <code>encodeBytes( source, 0, source.length )</code>
-	 * 
+	 *
 	 * @param source
 	 *            The data to convert
 	 * @param breakLines
@@ -309,7 +309,7 @@ public class Base64 {
 
 	/**
 	 * Encodes a byte array into Base64 notation.
-	 * 
+	 *
 	 * @param source
 	 *            The data to convert
 	 * @param off
@@ -324,7 +324,7 @@ public class Base64 {
 
 	/**
 	 * Encodes a byte array into Base64 notation.
-	 * 
+	 *
 	 * @param source
 	 *            The data to convert
 	 * @param off
@@ -367,7 +367,7 @@ public class Base64 {
 	/**
 	 * Encodes a string in Base64 notation with line breaks after every 75 Base64 characters. Of course you probably
 	 * only need to encode a string if there are non-ASCII characters in it such as many non-English languages.
-	 * 
+	 *
 	 * @param s
 	 *            the string to encode
 	 * @return the encoded string
@@ -380,7 +380,7 @@ public class Base64 {
 	/**
 	 * Encodes a string in Base64 notation with line breaks after every 75 Base64 characters. Of course you probably
 	 * only need to encode a string if there are non-ASCII characters in it such as many non-English languages.
-	 * 
+	 *
 	 * @param s
 	 *            the string to encode
 	 * @param breakLines
@@ -394,7 +394,7 @@ public class Base64 {
 
 	/**
 	 * Reads a file and either encodes or decodes it.
-	 * 
+	 *
 	 * @param file
 	 *            The file to read
 	 * @param encode
@@ -408,7 +408,7 @@ public class Base64 {
 
 	/**
 	 * Reads a file and either encodes or decodes it.
-	 * 
+	 *
 	 * @param file
 	 *            The file to read
 	 * @param encode
@@ -465,7 +465,7 @@ public class Base64 {
 
 	/**
 	 * Writes a byte array to a file either encoding it or decoding it as specified.
-	 * 
+	 *
 	 * @param data
 	 *            The array to write to a file.
 	 * @param file
@@ -481,7 +481,7 @@ public class Base64 {
 
 	/**
 	 * Writes a byte array to a file either encoding it or decoding it as specified.
-	 * 
+	 *
 	 * @param data
 	 *            The array to write to a file.
 	 * @param file
@@ -497,7 +497,7 @@ public class Base64 {
 
 	/**
 	 * Writes a byte array to a file either encoding it or decoding it as specified.
-	 * 
+	 *
 	 * @param data
 	 *            The array to write to a file.
 	 * @param offset
@@ -541,7 +541,7 @@ public class Base64 {
 	/**
 	 * Simple helper method that Base64-encodes a file and returns the encoded string or <tt>null</tt> if there was an
 	 * error.
-	 * 
+	 *
 	 * @param rawfile
 	 *            The file to read
 	 * @return The encoded file or <tt>null</tt> if there was an error.
@@ -556,7 +556,7 @@ public class Base64 {
 	/**
 	 * Simple helper method that Base64-decodes a file and returns the decoded data or <tt>null</tt> if there was an
 	 * error.
-	 * 
+	 *
 	 * @param encfile
 	 *            The file to read
 	 * @return The decoded file or <tt>null</tt> if there was an error.
@@ -568,7 +568,7 @@ public class Base64 {
 
 	/**
 	 * Simple helper method that Base64-encodes data to a file.
-	 * 
+	 *
 	 * @param rawdata
 	 *            The data to write.
 	 * @param file
@@ -582,7 +582,7 @@ public class Base64 {
 
 	/**
 	 * Simple helper method that Base64-decodes data to a file.
-	 * 
+	 *
 	 * @param encdata
 	 *            The data to write.
 	 * @param file
@@ -599,7 +599,7 @@ public class Base64 {
 	/**
 	 * Decodes the first four bytes of array <var>fourBytes</var> and returns an array up to three bytes long with the
 	 * decoded values.
-	 * 
+	 *
 	 * @param fourBytes
 	 *            the array with Base64 content
 	 * @return array with decoded values
@@ -623,7 +623,7 @@ public class Base64 {
 	 * are large enough to accomodate <var>srcOffset</var> + 4 for the <var>source</var> array or <var>destOffset</var> +
 	 * 3 for the <var>destination</var> array. This method returns the actual number of bytes that were converted from
 	 * the Base64 encoding.
-	 * 
+	 *
 	 * @param source
 	 *            the array to convert
 	 * @param srcOffset
@@ -700,7 +700,7 @@ public class Base64 {
 
 	/**
 	 * Decodes data from Base64 notation.
-	 * 
+	 *
 	 * @param s
 	 *            the string to decode
 	 * @return the decoded data
@@ -714,7 +714,7 @@ public class Base64 {
 	/**
 	 * Decodes data from Base64 notation and returns it as a string. Equivlaent to calling
 	 * <code>new String( decode( s ) )</code>
-	 * 
+	 *
 	 * @param s
 	 *            the strind to decode
 	 * @return The data as a string
@@ -751,7 +751,7 @@ public class Base64 {
 
 	/**
 	 * Decodes Base64 content in byte array format and returns the decoded byte array.
-	 * 
+	 *
 	 * @param source
 	 *            The Base64 encoded data
 	 * @param off
@@ -809,7 +809,7 @@ public class Base64 {
 	/**
 	 * A InputStream will read data from another {@link java.io.InputStream}, given in the constructor, and
 	 * encode/decode to/from Base64 notation on the fly.
-	 * 
+	 *
 	 * @see Base64
 	 * @see java.io.FilterInputStream
 	 * @since 1.3
@@ -834,7 +834,7 @@ public class Base64 {
 
 		/**
 		 * Constructs a InputStream in DECODE mode.
-		 * 
+		 *
 		 * @param in
 		 *            the {@link java.io.InputStream} from which to read data.
 		 * @since 1.3
@@ -845,7 +845,7 @@ public class Base64 {
 
 		/**
 		 * Constructs an InputStream in either ENCODE or DECODE mode.
-		 * 
+		 *
 		 * @param in
 		 *            the java.io.InputStream from which to read data.
 		 * @param encode
@@ -860,7 +860,7 @@ public class Base64 {
 
 		/**
 		 * Constructs a InputStream in either ENCODE or DECODE mode.
-		 * 
+		 *
 		 * @param in
 		 *            the java.io.InputStream from which to read data.
 		 * @param encode
@@ -883,7 +883,7 @@ public class Base64 {
 
 		/**
 		 * Reads enough of the input stream to convert to/from Base64 and returns the next byte.
-		 * 
+		 *
 		 * @return next byte
 		 * @throws java.io.IOException
 		 * @since 1.3
@@ -988,7 +988,7 @@ public class Base64 {
 		/**
 		 * Calls {@link #read()} repeatedly until the end of stream is reached or <var>len</var> bytes are read.
 		 * Returns number of bytes read into array or -1 if end of stream is encountered.
-		 * 
+		 *
 		 * @param dest
 		 *            array to hold values
 		 * @param off
@@ -1026,7 +1026,7 @@ public class Base64 {
 	/**
 	 * A OutputStream will write data to another java.io.OutputStream, given in the constructor, and encode/decode
 	 * to/from Base64 notation on the fly.
-	 * 
+	 *
 	 * @see Base64
 	 * @see java.io.FilterOutputStream
 	 * @since 1.3
@@ -1046,7 +1046,7 @@ public class Base64 {
 
 		/**
 		 * Constructs a OutputStream in ENCODE mode.
-		 * 
+		 *
 		 * @param out
 		 *            the java.io.OutputStream to which data will be written.
 		 * @since 1.3
@@ -1057,7 +1057,7 @@ public class Base64 {
 
 		/**
 		 * Constructs a OutputStream in either ENCODE or DECODE mode.
-		 * 
+		 *
 		 * @param out
 		 *            the java.io.OutputStream to which data will be written.
 		 * @param encode
@@ -1072,7 +1072,7 @@ public class Base64 {
 
 		/**
 		 * Constructs a OutputStream in either ENCODE or DECODE mode.
-		 * 
+		 *
 		 * @param out
 		 *            the java.io.OutputStream to which data will be written.
 		 * @param encode
@@ -1097,7 +1097,7 @@ public class Base64 {
 		 * Writes the byte to the output stream after converting to/from Base64 notation. When encoding, bytes are
 		 * buffered three at a time before the output stream actually gets a write() call. When decoding, bytes are
 		 * buffered four at a time.
-		 * 
+		 *
 		 * @param theByte
 		 *            the byte to write
 		 * @throws java.io.IOException
@@ -1140,7 +1140,7 @@ public class Base64 {
 
 		/**
 		 * Calls {@link #write(byte[],int,int)} repeatedly until <var>len</var> bytes are written.
-		 * 
+		 *
 		 * @param theBytes
 		 *            array from which to read bytes
 		 * @param off
@@ -1162,7 +1162,7 @@ public class Base64 {
 		/**
 		 * Appropriately pads Base64 notation when encoding or throws an exception if Base64 input is not properly
 		 * padded when decoding.
-		 * 
+		 *
 		 * @throws java.io.IOException
 		 * @since 1.3
 		 */
@@ -1185,7 +1185,7 @@ public class Base64 {
 
 		/**
 		 * Flushes and closes (I think, in the superclass) the stream.
-		 * 
+		 *
 		 * @throws java.io.IOException
 		 * @since 1.3
 		 */

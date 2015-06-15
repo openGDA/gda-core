@@ -33,20 +33,20 @@ import javax.swing.JLabel;
 public class SimpleXYSeriesColours {
 
 	public static void main(String[] args) {
-		
+
 		final Paint[] colours = SimpleXYSeries.defaultPaints;
-		
+
 		final int width = 300;
 		final int spacing = 40;
 		final int height = spacing * (colours.length + 1);
-		
+
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics g = image.getGraphics();
-		
+
 		// white background
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, width, height);
-		
+
 		// draw line for each colour
 		for (int i=0; i<colours.length; i++) {
 			final Color c = (Color) colours[i];
@@ -56,7 +56,7 @@ public class SimpleXYSeriesColours {
 			final String text = String.format("%d: (%d, %d, %d)", i, c.getRed(), c.getGreen(), c.getBlue());
 			g.drawString(text, spacing, y-4);
 		}
-		
+
 		JLabel label = new JLabel(new ImageIcon(image));
 		JFrame frame = new JFrame("SimpleXYSeries colours");
 		frame.add(label);

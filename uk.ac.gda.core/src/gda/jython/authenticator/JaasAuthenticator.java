@@ -32,7 +32,7 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 /**
- * Provides authentication within the Authenticator interface using JAAS. 
+ * Provides authentication within the Authenticator interface using JAAS.
  */
 public class JaasAuthenticator implements Authenticator, CallbackHandler {
 
@@ -43,25 +43,25 @@ public class JaasAuthenticator implements Authenticator, CallbackHandler {
 	private boolean authenticated = false;
 
 	public static final String GDA_ACCESSCONTROL_JAAS_REALM = "gda.accesscontrol.jaas.realm";
-	
+
 	public static final String GDA_ACCESSCONTROL_JAAS_KDC = "gda.accesscontrol.jaas.kdc";
-	
+
 	public static final String GDA_ACCESSCONTROL_JAAS_CONFFILE = "gda.accesscontrol.jaas.confFile";
-	
+
 	/**
 	 * Constructor. Throws exception if java properties defining the Kerberos authentication are missing.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public JaasAuthenticator() throws Exception {
 		String realm = LocalProperties.get(GDA_ACCESSCONTROL_JAAS_REALM);
 		String kdc = LocalProperties.get(GDA_ACCESSCONTROL_JAAS_KDC);
 		String confFile = LocalProperties.get(GDA_ACCESSCONTROL_JAAS_CONFFILE);
-		
+
 		if (realm == null || kdc == null || confFile == null){
 			throw new Exception("Missing java properties for Jass configuration!");
 		}
-		 
+
 		System.setProperty("java.security.krb5.realm", realm);
 		System.setProperty("java.security.krb5.kdc", kdc);
 		System.setProperty("java.security.auth.login.config", confFile);
@@ -78,7 +78,7 @@ public class JaasAuthenticator implements Authenticator, CallbackHandler {
 
 			// if this fails, a LoginException will be thrown
 			lc.login();
-			
+
 			authenticated = true;
 		} catch (LoginException e) {
 			authenticated = false;

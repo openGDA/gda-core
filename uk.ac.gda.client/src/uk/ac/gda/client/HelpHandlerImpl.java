@@ -33,29 +33,29 @@ public class HelpHandlerImpl implements HelpHandler{
 
 
 	String filePath;
-	
+
 	public String getFilePath() {
 		return filePath;
 	}
 
 	/**
-	 * 
-	 * @param filePath - path to file containing topics help entries. Follows structure 
+	 *
+	 * @param filePath - path to file containing topics help entries. Follows structure
 	 */
 	public void setFilePath(String filePath) {
 		this.filePath = filePath;
 	}
 
 	PropertiesConfiguration config;
-	
+
 	private void loadAddressMap() throws ConfigurationException{
 		config = new PropertiesConfiguration(filePath);
 	}
 
-	
+
 	@Override
 	public boolean handle(String text, StringBuffer buf) throws IOException, PartInitException, ConfigurationException {
-		
+
 		String[] parts = text.trim().split(" ",2); //remove whitespace before or after
 		String topic = parts.length>1 ? parts[1] : "default";
 		if( topic.equals("reloadHelp")){
@@ -109,7 +109,7 @@ public class HelpHandlerImpl implements HelpHandler{
 			}
 			return true;
 		}
-		return false; 
+		return false;
 	}
 
 }

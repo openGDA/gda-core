@@ -37,7 +37,7 @@ public class DataManagerInterfaceImpl extends CorbaDataManagerInterfacePOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param data
 	 *            the DataManagerInterface implementation object
 	 * @param poa
@@ -50,7 +50,7 @@ public class DataManagerInterfaceImpl extends CorbaDataManagerInterfacePOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the DataManagerInterface implementation object
 	 */
 	public DataManagerInterface _delegate() {
@@ -59,7 +59,7 @@ public class DataManagerInterfaceImpl extends CorbaDataManagerInterfacePOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param data
 	 *            set the DataManagerInterface implementation object
 	 */

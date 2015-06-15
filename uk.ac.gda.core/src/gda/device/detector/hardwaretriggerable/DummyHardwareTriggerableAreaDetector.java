@@ -32,7 +32,7 @@ public class DummyHardwareTriggerableAreaDetector extends DummyHardwareTriggerab
 
 	public DummyHardwareTriggerableAreaDetector()
 	{
-		
+
 	}
 
 	public DummyHardwareTriggerableAreaDetector(String name) {

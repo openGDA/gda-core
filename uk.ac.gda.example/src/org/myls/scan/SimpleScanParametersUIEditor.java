@@ -52,7 +52,7 @@ public final class SimpleScanParametersUIEditor extends RichBeanEditorPart {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public void createPartControl(Composite comp) {
@@ -67,7 +67,7 @@ public final class SimpleScanParametersUIEditor extends RichBeanEditorPart {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public void setFocus() {
@@ -90,5 +90,5 @@ public final class SimpleScanParametersUIEditor extends RichBeanEditorPart {
 		return beanComposite.getStart();
 	}
 
-	
+
 }

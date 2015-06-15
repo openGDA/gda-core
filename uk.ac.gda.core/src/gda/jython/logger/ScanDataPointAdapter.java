@@ -13,7 +13,7 @@ public class ScanDataPointAdapter implements IScanDataPointObserver {
 	private final LineLogger logger;
 
 	/**
-	 * 
+	 *
 	 * @param logger
 	 * @param scanDataPointProvider The GDA's {@link JythonServerFacade} singleton is often a good choice.
 	 */

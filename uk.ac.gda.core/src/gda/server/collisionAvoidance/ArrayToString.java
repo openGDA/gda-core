@@ -11,7 +11,7 @@ import java.lang.reflect.Array;
  * <li>empty array: []
  * <li>null array: null
  * </ul>
- * 
+ *
  * @author Jerome Lacoste
  * @author www.javapractices.com
  */
@@ -20,7 +20,7 @@ public final class ArrayToString {
 	/**
 	 * <code>aArray</code> is a possibly-null array whose elements are primitives or objects; arrays of arrays are
 	 * also valid, in which case <code>aArray</code> is rendered in a nested, recursive fashion.
-	 * 
+	 *
 	 * @param aArray
 	 * @return Array if possible
 	 */
@@ -69,7 +69,7 @@ public final class ArrayToString {
 
 	/**
 	 * Test harness.
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String... args) {

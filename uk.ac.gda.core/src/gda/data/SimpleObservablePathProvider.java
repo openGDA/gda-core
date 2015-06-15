@@ -34,7 +34,7 @@ public class SimpleObservablePathProvider extends DeviceBase implements Observab
 	public String getPath() {
 		return path ;
 	}
-	
+
 
 	@Override
 	public void configure() throws FactoryException {

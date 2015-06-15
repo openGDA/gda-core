@@ -41,19 +41,19 @@ public class SampleAlignmentViewer implements ISampleAlignmentViewer {
 		public void valueChangePerformed(ValueEvent e) {
 			for (ISampleAlignmentViewerListener listener : listeners) {
 				listener.newXMotorValue(setXBox.getNumericValue());
-			}					
+			}
 		}
 	}
 
 	private List<ISampleAlignmentViewerListener> listeners = new LinkedList<ISampleAlignmentViewerListener>();
 	ISampleAlignmentViewerProvider deviceModelProvider;
-	
+
 	private Text currentXPosition;
 	private Composite parent;
-	
+
 	private StandardBox setXBox;
 	private StandardBox setYBox;
-	
+
 	@Override
 	public void createContents(Composite parent){
 		this.parent = parent;
@@ -62,22 +62,22 @@ public class SampleAlignmentViewer implements ISampleAlignmentViewer {
 		layout.numColumns = 2;
 		mainGroup.setLayout(layout);
 		GridData gridData = new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL);
-		mainGroup.setLayoutData(gridData);	
+		mainGroup.setLayoutData(gridData);
 		mainGroup.setText("Sample Alignment");
-	
+
 		Label curPosLabel = new Label(mainGroup, SWT.NONE);
 		curPosLabel.setText("Sample Position: ");
 		currentXPosition = new Text(mainGroup, SWT.BORDER | SWT.SINGLE);
 		GridData gridData2 = new GridData();
 		gridData2.widthHint = 65;
-		currentXPosition.setLayoutData(gridData2);	
-		
+		currentXPosition.setLayoutData(gridData2);
+
 		Label setXPos = new Label(mainGroup, SWT.SINGLE);
 		setXPos.setText("Set X Position:");
 		setXBox = new StandardBox(mainGroup, SWT.NONE);
 		setXBox.setMaximum(360);
 		setXBox.setUnit("°");
-	
+
 		Label setYPos = new Label(mainGroup, SWT.SINGLE);
 		setYPos.setText("Set Y Position:");
 		setYBox = new StandardBox(mainGroup, SWT.NONE);
@@ -85,39 +85,39 @@ public class SampleAlignmentViewer implements ISampleAlignmentViewer {
 		setYBox.setUnit("°");
 
 		setXBox.addValueListener(new ValueListenerClass());
-		
-		setYBox.addValueListener(new ValueAdapter() {			
+
+		setYBox.addValueListener(new ValueAdapter() {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				for (ISampleAlignmentViewerListener listener : listeners) {
 					listener.newYMotorValue(setYBox.getNumericValue());
-				}					
+				}
 			}
 		});
-		
+
 		setYBox.on();
-		setXBox.on();	
+		setXBox.on();
 	}
 
 	@Override
 	public void addListener(ISampleAlignmentViewerListener viewerListener) {
 		listeners.add(viewerListener);
-		
+
 	}
 
 	@Override
 	public void refresh() {
 		final Object xmotorValue = deviceModelProvider.getXMotorValue();
 		final Object ymotorValue = deviceModelProvider.getYMotorValue();
-		parent.getDisplay().asyncExec(new Runnable() {	
+		parent.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				currentXPosition.setText(xmotorValue.toString() + "," + ymotorValue.toString());	
+				currentXPosition.setText(xmotorValue.toString() + "," + ymotorValue.toString());
 			}
 		});
-		
 
-		
+
+
 	}
 
 	@Override
@@ -128,7 +128,7 @@ public class SampleAlignmentViewer implements ISampleAlignmentViewer {
 	@Override
 	public void setContentProvider(ISampleAlignmentViewerProvider viewerContentProvider) {
 		this.deviceModelProvider = viewerContentProvider;
-		
+
 	}
 
 	@Override

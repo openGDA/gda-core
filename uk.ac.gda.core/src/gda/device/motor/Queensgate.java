@@ -19,12 +19,12 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.factory.Finder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Common base class for real Queensgate and DummyQueensgate. NB. The Piezo documentation and nomenclature use Offset to
@@ -101,7 +101,7 @@ public class Queensgate extends MotorBase {
 	/**
 	 * Returns the position, this is equal to the requested offset if rawPosition reply is as expected but is just
 	 * assumption really.
-	 * 
+	 *
 	 * @return The position as an offset.
 	 */
 	@Override
@@ -113,7 +113,7 @@ public class Queensgate extends MotorBase {
 	 * Returns the module number of this Queensgate. For modules 1 and 2 the number returned is the same but if the
 	 * module is 3 as specified by the user in the XML configuration file, the number returned is 4 as this is the
 	 * number required to communicate with the Queensgate. The Queensgate module is the equivalent of the motor axis.
-	 * 
+	 *
 	 * @return The Queensgate module number.
 	 */
 	public int getAxis() {
@@ -123,7 +123,7 @@ public class Queensgate extends MotorBase {
 	/**
 	 * Returns the expected Front Panel Voltage calculated from the returned rawPosition. This method currently only
 	 * works for Front Panel Voltage, which will return the voltage, otherwise returns null.
-	 * 
+	 *
 	 * @param name
 	 *            The attribute be returned.
 	 * @return The attribute value.
@@ -142,7 +142,7 @@ public class Queensgate extends MotorBase {
 	/**
 	 * Converts the status (0 for good, 1 for bad) to a motorStatus for the positioner to use. The Queensgate is
 	 * emulating a motor.
-	 * 
+	 *
 	 * @return The status of the Queensgate.
 	 */
 	@Override
@@ -159,7 +159,7 @@ public class Queensgate extends MotorBase {
 	/**
 	 * Converts a fourteen bit integer into the required four digit string for sending to device. The number is
 	 * converted to two's complement form before converting to a hexadecimal string.
-	 * 
+	 *
 	 * @param i
 	 *            An integer to convert.
 	 * @return The converted number string.
@@ -194,7 +194,7 @@ public class Queensgate extends MotorBase {
 	 * A request from a program to set the offset of the Queensgate, which is the equivalent of a moveTo in a motor. The
 	 * range is assumed to be -8192 to 8191. Requested positions outside this range are sent to the relevant minimum or
 	 * maximum position. This position then needs converting to a string readable by the Queensgate controller.
-	 * 
+	 *
 	 * @param steps
 	 *            the requested offset position
 	 * @throws MotorException
@@ -236,7 +236,7 @@ public class Queensgate extends MotorBase {
 	/**
 	 * A request from a program to change the offset, which is the equivalent of a moveBy in a motor. This method calls
 	 * MoveTo.
-	 * 
+	 *
 	 * @param change
 	 *            the required offset change
 	 * @throws MotorException
@@ -249,7 +249,7 @@ public class Queensgate extends MotorBase {
 	/**
 	 * Sends the commands required to return the current rawPosition (offset), converts this value to a position
 	 * (offset) and compares with requested position (offset). Notifies when the process is complete.
-	 * 
+	 *
 	 * @return The Queensgate controller reply.
 	 * @throws MotorException
 	 */
@@ -264,7 +264,7 @@ public class Queensgate extends MotorBase {
 	 * Examine the Queensgate controller reply, extracting the raw position and status. The returned position value is
 	 * not as fine-grained as the desired position, so the difference is examined. If the error is too large (greater
 	 * than 4), then the status flag is set to indicate an error condition.
-	 * 
+	 *
 	 * @param reply
 	 *            The Queensgate controller reply.
 	 * @throws MotorException
@@ -333,7 +333,7 @@ public class Queensgate extends MotorBase {
 	 * Examine the Queensgate controller reply, extracting the raw position and status. The returned position value is
 	 * not as fine-grained as the desired position, so the difference is examined. If the error is too large (greater
 	 * than 4), then the status flag is set to indicate an error condition.
-	 * 
+	 *
 	 * @param reply
 	 *            The Queensgate controller reply.
 	 * @throws MotorException
@@ -406,7 +406,7 @@ public class Queensgate extends MotorBase {
 
 	/**
 	 * Sets the module number of this Queensgate. The Queensgate module is the equivalent of the motor axis.
-	 * 
+	 *
 	 * @param axis
 	 *            The Queensgate module number to set.
 	 */

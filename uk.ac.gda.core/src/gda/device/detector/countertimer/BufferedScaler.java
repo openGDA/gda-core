@@ -43,7 +43,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	private int ttlSocket = 0; // the TTL Trig In socket [0-3] default is 0
 	private Boolean returnCountRates = false;
 	private double[][] framesRead;
-	
+
 	public BufferedScaler(){
 		try {
 			framesRead = new double[getNumberFrames()][5];
@@ -51,11 +51,11 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 			logger.error("Cannot construct BufferedScaler, something wrong with TFG", e);
 		}
 	}
-	
+
 	public double[][] getFramesRead() {
 		return framesRead;
 	}
-	
+
 	public void clearFramesRead(){
 		framesRead = null;
 	}
@@ -67,21 +67,21 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 			return;
 		}
 		super.collectData();
-	}	
-	
+	}
+
 	@Override
 	public Object[] readAllFrames() throws DeviceException {
 		Integer lastFrame = getNumberFrames() - 1;
 		return readoutCorrectedFrames(0, lastFrame);
 	}
-	
+
 	@Override
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
 		double[][] frame = readoutCorrectedFrames(startFrame, finalFrame);
 		framesRead=frame;
 		return frame;
 	}
-	
+
 	@Override
 	public double[] readout() throws DeviceException {
 		if (continuousMode){
@@ -94,7 +94,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		}
 		return readoutCorrectedFrames(0,0)[0];
 	}
-	
+
 	private double[][] readoutCorrectedFrames(int startFrame, int finalFrame) throws DeviceException {
 		// make sure performCorrections from TfgScalerWithLogValues is called on every frame
 		double[][] frames = readoutFrames(startFrame, finalFrame);
@@ -122,7 +122,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 
 		// tfg setup-trig
 		switchOnExtTrigger();
-		
+
 		//Send as a single command. Otherwise DAServer reply timeouts are seen and the 3 commands take about 10s!
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("tfg setup-groups ext-start cycles 1"+"\n");
@@ -152,12 +152,12 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	@Override
 	public void clearMemory() throws DeviceException {
 		scaler.clear();
-		scaler.start(); 
+		scaler.start();
 	}
 
 	/**
 	 * switch off external triggering by the TTL0 input
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	private void switchOffExtTrigger() throws DeviceException {
 		daserver.sendCommand("tfg setup-trig start");
@@ -165,7 +165,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 
 	/**
 	 * switch on external triggering by the TTL0 input
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	private void switchOnExtTrigger() throws DeviceException {
 		daserver.sendCommand("tfg setup-trig start ttl" + ttlSocket);
@@ -183,9 +183,9 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 		}
 		if (currentVals.isEmpty())
 			return 0;
-		
+
 		// else either scan not started (return -1) or has finished (return continuousParameters.getNumberDataPoints())
-		
+
 		// if started but nothing collected yet
 		if (currentVals.get("status show-armed").equals("EXT-ARMED") /*&& currentVals.get("status").equals("IDLE")*/ ){
 			return 0;
@@ -201,10 +201,10 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 				throw new DeviceException(numFrames);
 			}
 		}
-		
+
 		return parameters.getNumberDataPoints();
 	}
-	
+
 	private int extractCurrentFrame(int frameValue){
 		if (isEven(frameValue)) {
 			Integer numFrames = frameValue / 2;
@@ -226,7 +226,7 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	 * The excess time to collect data for above the movement time. This ensures all motor encoder data has been read.
 	 * <p>
 	 * Default is 0.1;
-	 * 
+	 *
 	 * @return double time in seconds
 	 */
 	public double getOverrunTime() {
@@ -271,5 +271,5 @@ public class BufferedScaler extends TfgScalerWithLogValues implements BufferedDe
 	public void setTtlSocket(int ttlSocket) {
 		this.ttlSocket = ttlSocket;
 	}
-	
+
 }

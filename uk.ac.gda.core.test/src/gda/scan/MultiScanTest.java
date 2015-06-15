@@ -57,25 +57,25 @@ import org.slf4j.LoggerFactory;
 
 public class MultiScanTest {
 
-	
+
 	@Before
 	public void setUp() {
 	}
-	
-	
+
+
 	@Test
 	public void simplestScan() throws Exception {
-		
-		
+
+
 		TestHelpers.setUpTest(MultiScanTest.class, "simplestScan2", true, "INFO");
 		LocalProperties.setScanSetsScanNumber(true);
-		
+
 		Scannable simpleScannable1 = TestHelpers.createTestScannable("csvc", 0., new String[] {},
 				new String[] { "csvc" }, 0, new String[] { "%5.2g" }, null);
 
 		Scannable simpleScannable2 = TestHelpers.createTestScannable("SimpleScannable1", 0., new String[] {},
 				new String[] { "simpleScannable1" }, 0, new String[] { "%5.2g" }, null);
-		
+
 		int totalLength;
 		int[] dims2 = new int[] { 2, 3 };
 		totalLength = NexusExtractor.calcTotalLength(dims2);
@@ -84,13 +84,13 @@ public class MultiScanTest {
 			outputFormat[index] =  "%5.2g";
 		}
 		outputFormat[totalLength] =  "%5.2g"; //for collectionTime
-		
-		
+
+
 		Detector det = TestHelpers.createTestDetector("htd", 0., new String[] {},
 				new String[] { "htd" }, 0, outputFormat, TestHelpers.createTestNexusGroupData(
 						dims2, Dataset.INT32, true), null, "description2", "detectorID2",
-				"detectorType2");	
-		
+				"detectorType2");
+
 		ConcurrentScan scan2 = new ConcurrentScan(new Object[]{simpleScannable2, 0, 20, 2, det, .1});
 		MyCMC cmc = new MyCMC();
 		My my = new My();
@@ -99,7 +99,7 @@ public class MultiScanTest {
 		my.setCmc(cmc);
 		my.configure();
 		cmc.setScannableBeingMoved(my);
-		
+
 		HardwareTriggeredNXDetector htd = new HardwareTriggeredNXDetector();
 		htd.setName("htd");
 		htd.setHardwareTriggerProvider(cmc);
@@ -107,7 +107,7 @@ public class MultiScanTest {
 		htd.setAdditionalPluginList(Arrays.asList(new NXPluginBase[]{new MyNXPlugin()}));
 		htd.afterPropertiesSet();
 		htd.configure();
-		
+
 		ConcurrentScan scan1 = new ConcurrentScan(new Object[]{simpleScannable1, 0, 10, 1, htd, .1});
 		ConstantVelocityScanLine cvls = new ConstantVelocityScanLine(new Object[]{my, 0, 10, 1, htd, .1});
 //		MultiScan ms = new MultiScan(Arrays.asList(new ScanBase[]{scan1,scan2, cvls}));
@@ -122,7 +122,7 @@ public class MultiScanTest {
 class My extends ScannableMotor implements ContinuouslyScannableViaController, PositionCallableProvider<Double>{
 	private static final Logger logger = LoggerFactory.getLogger(My.class);
 	ContinuousMoveController cmc;
-	
+
 
 
 	public ContinuousMoveController getCmc() {
@@ -156,7 +156,7 @@ class My extends ScannableMotor implements ContinuouslyScannableViaController, P
 	public ContinuousMoveController getContinuousMoveController() {
 		return cmc;
 	}
-	
+
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		if (isOperatingContinously()) {
@@ -176,8 +176,8 @@ class My extends ScannableMotor implements ContinuouslyScannableViaController, P
 			return pos[0];
 		}
 		return super.getPosition();
-	}	
-	
+	}
+
 	List<Double> points = null;
 
 
@@ -194,19 +194,19 @@ class My extends ScannableMotor implements ContinuouslyScannableViaController, P
 			return null;
 		}
 		return points.get(points.size() - 1);
-	}	
-	
+	}
+
 }
 class MyCMC extends ScannableBase implements ConstantVelocityMoveController{
 	private static final Logger logger = LoggerFactory.getLogger(MyCMC.class);
-	
+
 	private double triggerPeriod;
 	private double end;
 	private double step;
 	private double start;
 	Scannable scannableBeingMoved;
-	
-	
+
+
 	public Scannable getScannableBeingMoved() {
 		return scannableBeingMoved;
 	}
@@ -271,7 +271,7 @@ class MyCMC extends ScannableBase implements ConstantVelocityMoveController{
 
 	@Override
 	public void setStart(double start) throws DeviceException {
-		logger.info("setStart:" + start); 
+		logger.info("setStart:" + start);
 		this.start = start;
 	}
 
@@ -287,7 +287,7 @@ class MyCMC extends ScannableBase implements ConstantVelocityMoveController{
 		this.step = step;
 
 	}
-	
+
 }
 
 
@@ -394,11 +394,11 @@ class MyCSP implements NXCollectionStrategyPlugin, NXPlugin {
 	public int getNumberImagesPerCollection(double collectionTime) throws Exception {
 		return 0;
 	}
-	
+
 	@Override
 	public boolean requiresAsynchronousPlugins() {
 		return true;
-	}	
+	}
 }
 
 class MyNXPlugin implements NXPlugin{

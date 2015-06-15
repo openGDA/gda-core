@@ -46,7 +46,7 @@ public class ObjectShelfEntry {
 
 	/**
 	 * Will be generated automatically, no need to use this method explicitely.
-	 * 
+	 *
 	 * @param id
 	 *            The id to set.
 	 */

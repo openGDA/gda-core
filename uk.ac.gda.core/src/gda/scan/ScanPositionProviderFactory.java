@@ -102,7 +102,7 @@ class ScanPositionProviderFromRegionalList implements ScanPositionProvider {
 
 	@SuppressWarnings("rawtypes")
 	List points=new ArrayList();
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	ScanPositionProviderFromRegionalList(List regionList){
 		Iterator it = regionList.iterator();
@@ -112,18 +112,18 @@ class ScanPositionProviderFromRegionalList implements ScanPositionProvider {
 			Object stop = l.get(1);
 			Object step = l.get(2);
 			ScanRegion nextRegion= new ScanRegion(start,stop,step);
-			
+
 			Vector<Object> vol=nextRegion.getPoints();
 			points.addAll(vol);
 		}
-		
+
 	}
-	
+
 	@Override
 	public Object get(int index) {
 		return points.get(index);
 	}
-	
+
 	@Override
 	public int size() {
 		return points.size();
@@ -144,27 +144,27 @@ class ScanRegion{
 		this.step = step;
 		// ensure step is in the right direction
 		this.step = ScanBase.sortArguments(this.start, this.stop, this.step);
-		
+
 		//to calculate the number of points:
 		if (stop == null || step == null) {
 			numberOfPoints = 0;
 		}
-		
+
 		try {
 			int len = getLength(start);
 			if(len != getLength(stop) || len != getLength(step)){
 				numberOfPoints = 0;
 			}
-			
+
 			numberOfPoints = this.getNumberSteps(len);
 			numberOfPoints += 1;
-			
+
 		} catch (Exception e) {
 			numberOfPoints = 0;
 		}
-		
+
 		//To fill the scan points
-		calculateScanPoints();		
+		calculateScanPoints();
 	}
 
 	public Vector<Object> getPoints(){
@@ -172,7 +172,7 @@ class ScanRegion{
 	}
 	/**
 	 * Assuming the objects can be converted into doubles, this calculates the number of steps for the given InputLength
-	 * 
+	 *
 	 * @return int
 	 * @throws Exception
 	 */
@@ -274,7 +274,7 @@ class ScanRegion{
 		}
 		throw new IllegalArgumentException("getDouble. Object cannot be converted to Double");
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	private int getLength(Object val) {
 		int len=0;
@@ -292,7 +292,7 @@ class ScanRegion{
 		}
 		return len;
 	}
-	
+
 	/**
 	 * Fill the array of points from this region setting
 	 */

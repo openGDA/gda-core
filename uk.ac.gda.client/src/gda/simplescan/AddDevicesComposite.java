@@ -278,7 +278,7 @@ public class AddDevicesComposite extends Composite {
 	public Button getRemoveScannable() {
 		return removeScannable;
 	}
-	
+
 	public Button getRemoveDetector() {
 		return removeDetector;
 	}
@@ -294,7 +294,7 @@ public class AddDevicesComposite extends Composite {
 	public void setRemoveScannable(Button removeScannable) {
 		this.removeScannable = removeScannable;
 	}
-	
+
 	public void setBean(SimpleScan bean) {
 		this.bean = bean;
 	}

@@ -23,17 +23,17 @@ package uk.ac.gda.example.device.collection;
  * has a change of interest
  */
 public interface ISampleAlignmentDeviceCollectionListener {
-	
+
 	/**
 	 * Notifies that motor X has moved to a new position
-	 * 
+	 *
 	 * @param val the new position of motor X
 	 */
 	public void motorXHasMovedTo(double val);
-	
+
 	/**
 	 * Notifies that motor Y has moved to a new position
-	 * 
+	 *
 	 * @param val the new position of motor Y
 	 */
 	public void motorYHasMovedTo(double val);

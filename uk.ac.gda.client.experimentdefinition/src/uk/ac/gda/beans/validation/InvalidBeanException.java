@@ -24,7 +24,7 @@ import java.util.List;
 public class InvalidBeanException extends Exception {
 
 	private List<InvalidBeanMessage> messages;
-	
+
     public InvalidBeanException(final String message) {
     	super(message);
     	setMessages(new ArrayList<InvalidBeanMessage>(1));
@@ -48,7 +48,7 @@ public class InvalidBeanException extends Exception {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param messages
 	 */
 	public void setMessages(List<InvalidBeanMessage> messages) {
@@ -61,7 +61,7 @@ public class InvalidBeanException extends Exception {
 	public List<InvalidBeanMessage> getMessages() {
 		return messages;
 	}
-	
+
 	@Override
 	public String getMessage() {
 		final StringBuilder buf = new StringBuilder();

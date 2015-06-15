@@ -63,7 +63,7 @@ public class DummyPersistentScannable extends DummyScannable {
 			mylogger.error("Configuration exception in rawAsynchronousMoveTo for DummyPersistentScannable",e);
 		}
 	}
-	
+
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		String propertyName = getName() + "PersistentPosition";
@@ -78,6 +78,6 @@ public class DummyPersistentScannable extends DummyScannable {
 		}
 		return configuration.getProperty(getName()+"PersistentPosition");
 	}
-	
-	
+
+
 }

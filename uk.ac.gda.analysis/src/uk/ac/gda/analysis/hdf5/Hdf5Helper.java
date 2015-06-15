@@ -311,7 +311,7 @@ public class Hdf5Helper {
 			throws Exception {
 		try{
 			return readDataSet(fileName, location, dataSetName, null, null, null, null, null, null, 0, null, getData);
-		} 
+		}
 		catch(Exception e){
 			logger.error("Error reading " + location + "/" + dataSetName + " from " + fileName, e);
 			throw e;
@@ -319,10 +319,10 @@ public class Hdf5Helper {
 	}
 
 	/**
-	 * 
-	 * @param fileName 
+	 *
+	 * @param fileName
 	 * @param location
-	 * @return  list of names of H5 DATASETS within the group specified by the location 
+	 * @return  list of names of H5 DATASETS within the group specified by the location
 	 * @throws Exception
 	 */
 	public String [] getListOfDatasets(String fileName, String location) throws Exception {

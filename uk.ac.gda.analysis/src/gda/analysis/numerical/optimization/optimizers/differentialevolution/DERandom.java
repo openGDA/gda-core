@@ -15,7 +15,7 @@ public class DERandom extends Random
 {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -28,7 +28,7 @@ public class DERandom extends Random
 
 	/**
 	 * Random initialization. Hence your optimization results may differ from run to run.
-	 * 
+	 *
 	 * @param seed
 	 */
 	public void setMySeed(long seed) {

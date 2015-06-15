@@ -21,7 +21,7 @@ package gda.scan;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class ArrayBlockingQueueWithBlockingOffer<E> extends ArrayBlockingQueue<E> {
-	
+
 	public ArrayBlockingQueueWithBlockingOffer(int capacity) {
 		super(capacity);
 	}
@@ -29,7 +29,7 @@ public class ArrayBlockingQueueWithBlockingOffer<E> extends ArrayBlockingQueue<E
 	/**
 	 * Overridden offer now blocks if queue is full. Returns true if offer was accepted, or
 	 * false if the underlying put was interrupted before it succeeded.
-	 * 
+	 *
 	 */
 	@Override
 	public boolean offer(E element) {

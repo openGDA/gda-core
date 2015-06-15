@@ -36,37 +36,37 @@ import uk.ac.gda.preferences.PreferenceConstants;
 public class DashboardPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String ID = "uk.ac.gda.client.dashboardPreferences";
-	
+
 	private StringFieldEditor formatFieldEditor;
 
 	/**
-	 * 
+	 *
 	 */
 	public DashboardPreferencePage() {
 		super(GRID);
 		setPreferenceStore(GDAClientActivator.getDefault().getPreferenceStore());
 		setDescription("Preferences for the dashboard view such as the format for the values and bounds and visibility controls.");
 	}
-	
+
 	@Override
 	protected void createFieldEditors() {
 		formatFieldEditor = new StringFieldEditor(PreferenceConstants.DASHBOARD_FORMAT, "Dashboard number format", getFieldEditorParent());
 		addField(formatFieldEditor);
-				
+
 		final BooleanFieldEditor showBounds = new BooleanFieldEditor(PreferenceConstants.DASHBOARD_BOUNDS, "Show bounds", getFieldEditorParent());
 		addField(showBounds);
-		
+
 		final BooleanFieldEditor showDes = new BooleanFieldEditor(PreferenceConstants.DASHBOARD_DESCRIPTION, "Show description", getFieldEditorParent());
 		addField(showDes);
 	}
-	
+
 	@Override
 	protected void checkState() {
 		super.checkState();
-		
+
 		try {
 			DecimalFormat format = new DecimalFormat(formatFieldEditor.getStringValue());
 			format.format(100.001);
@@ -75,10 +75,10 @@ public class DashboardPreferencePage extends FieldEditorPreferencePage implement
 			setValid(false);
 			return;
 		}
-		
+
 		setErrorMessage(null);
 		setValid(true);
-		
+
 	}
 
 	@Override

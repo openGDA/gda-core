@@ -127,7 +127,7 @@ public class DisplayMotor extends MotorBase {
 	/**
 	 * This method sends the command to get the position from the encoder display. It assumes that this will always
 	 * return an integer value corresponding to nanometres.
-	 * 
+	 *
 	 * @param command
 	 * @return the position in nanometres
 	 */

@@ -39,7 +39,7 @@ public class JSeam {
 
 	/**
 	 * JNI C method provided by "seam.dll"
-	 * 
+	 *
 	 * @param moduleStr
 	 *            full path name of PINCER SEAM '.lib' type library
 	 * @param readWrite
@@ -72,7 +72,7 @@ public class JSeam {
 	/**
 	 * singleton pattern constructor called from here make and store a single JSeam object only This is the only way to
 	 * access a JSeam object
-	 * 
+	 *
 	 * @return singleton object reference of JSeam object
 	 */
 	public static JSeam getInstance() {
@@ -81,7 +81,7 @@ public class JSeam {
 
 	/**
 	 * Java SEAM1 format call. Dummy arguments are set for the JNI call
-	 * 
+	 *
 	 * @param moduleStr
 	 *            full path name of PINCER SEAM1 '.lib' type library
 	 * @param cmdStr
@@ -115,7 +115,7 @@ public class JSeam {
 
 	/**
 	 * Java SEAM2 format call.
-	 * 
+	 *
 	 * @param moduleStr
 	 *            full path name of PINCER SEAM1 '.lib' type library
 	 * @param cmdStr

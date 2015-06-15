@@ -25,24 +25,24 @@ public interface ConstantVelocityRasterMoveController extends ConstantVelocityMo
 	/**
 	 * Set the outer dimension's start location for the move in hardware units/offset/scale.
 	 * @param start
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	void setOuterStart(double start) throws DeviceException;
 
 	/**
 	 * Set the outer dimension's end location for the move in hardware units/offset/scale.
 	 * @param end
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	void setOuterEnd(double end) throws DeviceException;
 
-	
+
 	/**
 	 * Set the outer dimension's step size for the move in hardware units/scale.
 	 * @param step
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	void setOuterStep(double step) throws DeviceException;
-	
-	
+
+
 }

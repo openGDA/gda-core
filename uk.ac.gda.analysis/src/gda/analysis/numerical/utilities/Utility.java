@@ -25,12 +25,12 @@ public class Utility {
 	public static final double K_BOLTZMANN = 1.380650324e-23; /* J K^-1 */
 
 	/**
-	 * 
+	 *
 	 */
 	public static final double H_PLANCK = 6.6260687652e-34; /* J s */
 
 	/**
-	 * 
+	 *
 	 */
 	public static final double H_PLANCK_RED = H_PLANCK / (2 * Math.PI); /* J s */
 
@@ -38,12 +38,12 @@ public class Utility {
 	public static final double C_LIGHT = 2.99792458e8; /* m s^-1 */
 
 	/**
-	 * 
+	 *
 	 */
 	public static final double R_GAS = 8.31447215; /* J K^-1 mol^-1 */
 
 	/**
-	 * 
+	 *
 	 */
 	public static final double F_FARADAY = 9.6485341539e4; /* C mol^-1 */
 
@@ -63,12 +63,12 @@ public class Utility {
 	public static final double M_NEUTRON = 1.6749271613e-27; /* kg */
 
 	/**
-	 * 
+	 *
 	 */
 	public static final double EPSILON_0 = 8.854187817e-12; /* F m^-1 */
 
 	/**
-	 * 
+	 *
 	 */
 	public static final double MU_0 = Math.PI * 4e-7; /* H m^-1 (N A^-2) */
 
@@ -243,7 +243,7 @@ public class Utility {
 
 	/**
 	 * argument and return are integer, therefore limited to 0<=n<=12 see below for long and double arguments
-	 * 
+	 *
 	 * @param n
 	 * @return factorial of n
 	 */
@@ -261,7 +261,7 @@ public class Utility {
 
 	/**
 	 * argument and return are long, therefore limited to 0<=n<=20 see below for double argument
-	 * 
+	 *
 	 * @param n
 	 * @return factorial of n
 	 */
@@ -283,7 +283,7 @@ public class Utility {
 	/**
 	 * Argument is of type double but must be, numerically, an integer factorial returned as double but is, numerically,
 	 * should be an integer numerical rounding may makes this an approximation after n = 21
-	 * 
+	 *
 	 * @param n
 	 * @return factorial of n
 	 */
@@ -302,7 +302,7 @@ public class Utility {
 
 	/**
 	 * log[e](factorial) returned as double numerical rounding may makes this an approximation
-	 * 
+	 *
 	 * @param n
 	 * @return log to base e of the factorial of n
 	 */
@@ -319,7 +319,7 @@ public class Utility {
 	/**
 	 * Argument is of type double but must be, numerically, an integer log[e](factorial) returned as double numerical
 	 * rounding may makes this an approximation
-	 * 
+	 *
 	 * @param n
 	 * @return og to base e of the factorial of n
 	 */
@@ -339,7 +339,7 @@ public class Utility {
 	/**
 	 * Argument is of type double but must be, numerically, an integer log[e](factorial) returned as double numerical
 	 * rounding may makes this an approximation
-	 * 
+	 *
 	 * @param n
 	 * @return log to base e of the factorial of n
 	 */
@@ -386,7 +386,7 @@ public class Utility {
 
 	/**
 	 * Maximum of a 1D array of ints, aa
-	 * 
+	 *
 	 * @param aa
 	 * @return Maximum of a 1D array of ints, aa
 	 */
@@ -402,7 +402,7 @@ public class Utility {
 
 	/**
 	 * Section of a 1D array of ints, aa
-	 * 
+	 *
 	 * @param aa
 	 * @param start
 	 *            start index
@@ -421,7 +421,7 @@ public class Utility {
 
 	/**
 	 * Section of a 1D array of floats, aa
-	 * 
+	 *
 	 * @param aa
 	 * @param start
 	 *            start index
@@ -440,7 +440,7 @@ public class Utility {
 
 	/**
 	 * Section of a 1D array of doubles, aa
-	 * 
+	 *
 	 * @param aa
 	 * @param start
 	 *            start index
@@ -895,7 +895,7 @@ public class Utility {
 
 	/**
 	 * Finds the value of nearest element value in array to the argument value.
-	 * 
+	 *
 	 * @param array
 	 * @param value
 	 * @return the value of nearest element value in array to the argument value
@@ -1048,7 +1048,7 @@ public class Utility {
 
 	/**
 	 * Finds the index of nearest higher element value in array to the argument value.
-	 * 
+	 *
 	 * @param array
 	 * @param value
 	 * @return the index of nearest higher element value in array to the argument value
@@ -1616,7 +1616,7 @@ public class Utility {
 	/**
 	 * sort elements in an array of doubles into ascending order using selection sort method returns Vector containing
 	 * the original array, the sorted array and an array of the indices of the sorted array
-	 * 
+	 *
 	 * @param aa
 	 * @param bb
 	 * @param indices
@@ -1653,7 +1653,7 @@ public class Utility {
 	 * sort the elements of an array into ascending order with matching switches in an array of the length using
 	 * selection sort method array determining the order is the first argument matching array is the second argument
 	 * sorted arrays returned as third and fourth arguments resopectively
-	 * 
+	 *
 	 * @param aa
 	 * @param bb
 	 * @param cc
@@ -2480,7 +2480,7 @@ public class Utility {
 
 	/**
 	 * Converts litres per kilometre to UK gallons per mile
-	 * 
+	 *
 	 * @param litrePkm
 	 * @return UK gallons per mile
 	 */
@@ -2490,7 +2490,7 @@ public class Utility {
 
 	/**
 	 * Converts miles per UK gallons to kilometres per litre
-	 * 
+	 *
 	 * @param milePgall
 	 * @return kilometres per litre
 	 */
@@ -2500,7 +2500,7 @@ public class Utility {
 
 	/**
 	 * Converts kilometres per litre to miles per UK gallons
-	 * 
+	 *
 	 * @param kmPlitre
 	 * @return miles per UK gallons
 	 */
@@ -2510,7 +2510,7 @@ public class Utility {
 
 	/**
 	 * Converts UK fluid ounce to American fluid ounce
-	 * 
+	 *
 	 * @param flOzUK
 	 * @return American fluid ounce
 	 */
@@ -2520,7 +2520,7 @@ public class Utility {
 
 	/**
 	 * Converts American fluid ounce to UK fluid ounce
-	 * 
+	 *
 	 * @param flOzUS
 	 * @return UK fluid ounce
 	 */
@@ -2530,7 +2530,7 @@ public class Utility {
 
 	/**
 	 * Converts UK pint to American liquid pint
-	 * 
+	 *
 	 * @param pintUK
 	 * @return American pints
 	 */
@@ -2540,7 +2540,7 @@ public class Utility {
 
 	/**
 	 * Converts American liquid pint to UK pint
-	 * 
+	 *
 	 * @param pintUS
 	 * @return UK pint
 	 */
@@ -2550,7 +2550,7 @@ public class Utility {
 
 	/**
 	 * Converts UK quart to American liquid quart
-	 * 
+	 *
 	 * @param quartUK
 	 * @return American liquid quart
 	 */
@@ -2560,7 +2560,7 @@ public class Utility {
 
 	/**
 	 * Converts American liquid quart to UK quart
-	 * 
+	 *
 	 * @param quartUS
 	 * @return UK quart
 	 */
@@ -2570,7 +2570,7 @@ public class Utility {
 
 	/**
 	 * Converts UK gallon to American gallon
-	 * 
+	 *
 	 * @param gallonUK
 	 * @return American gallon
 	 */
@@ -2580,7 +2580,7 @@ public class Utility {
 
 	/**
 	 * Converts American gallon to UK gallon
-	 * 
+	 *
 	 * @param gallonUS
 	 * @return UK gallon
 	 */
@@ -2590,7 +2590,7 @@ public class Utility {
 
 	/**
 	 * Converts UK pint to American cup
-	 * 
+	 *
 	 * @param pintUK
 	 * @return American cup
 	 */
@@ -2600,7 +2600,7 @@ public class Utility {
 
 	/**
 	 * Converts American cup to UK pint
-	 * 
+	 *
 	 * @param cupUS
 	 * @return UK pint
 	 */
@@ -2610,7 +2610,7 @@ public class Utility {
 
 	/**
 	 * Calculates body mass index (BMI) from height (m) and weight (kg)
-	 * 
+	 *
 	 * @param height
 	 * @param weight
 	 * @return body mass index (bmi)
@@ -2621,7 +2621,7 @@ public class Utility {
 
 	/**
 	 * Calculates body mass index (BMI) from height (ft) and weight (lbs)
-	 * 
+	 *
 	 * @param height
 	 * @param weight
 	 * @return body mass index (bmi)
@@ -2634,7 +2634,7 @@ public class Utility {
 
 	/**
 	 * Calculates weight (kg) to give a specified BMI for a given height (m)
-	 * 
+	 *
 	 * @param bmi
 	 * @param height
 	 * @return weight (kg)
@@ -2645,7 +2645,7 @@ public class Utility {
 
 	/**
 	 * Calculates weight (lbs) to give a specified BMI for a given height (ft)
-	 * 
+	 *
 	 * @param bmi
 	 * @param height
 	 * @return weight (lbs)
@@ -2662,7 +2662,7 @@ public class Utility {
 	/**
 	 * Returns the length of the hypotenuse of a and b i.e. sqrt(a*a+b*b) [without unecessary overflow or underflow]
 	 * double version
-	 * 
+	 *
 	 * @param aa
 	 * @param bb
 	 * @return length of the hypotenuse
@@ -2798,7 +2798,7 @@ public class Utility {
 
 	/**
 	 * Cosine given angle in radians for completion
-	 * 
+	 *
 	 * @param arg
 	 * @return Math.cos(arg)
 	 */
@@ -2808,7 +2808,7 @@ public class Utility {
 
 	/**
 	 * Inverse cosine, checks limits
-	 * 
+	 *
 	 * @param a
 	 * @return Math.acos(a)
 	 */
@@ -2846,7 +2846,7 @@ public class Utility {
 
 	/**
 	 * Tangent given angle in radians for completion
-	 * 
+	 *
 	 * @param arg
 	 * @return Math.tan(arg)
 	 */
@@ -2856,7 +2856,7 @@ public class Utility {
 
 	/**
 	 * Inverse tangent for completion
-	 * 
+	 *
 	 * @param a
 	 * @return Math.atan(a)
 	 */
@@ -2866,7 +2866,7 @@ public class Utility {
 
 	/**
 	 * Inverse tangent - ratio numerator and denominator provided for completion.
-	 * 
+	 *
 	 * @param a
 	 * @param b
 	 * @return Math.atan2(a, b)
@@ -3145,7 +3145,7 @@ public class Utility {
 
 	/**
 	 * Rounds the mantissa of a double to prec places
-	 * 
+	 *
 	 * @param x
 	 * @param prec
 	 * @return x rounded to prec places
@@ -3179,7 +3179,7 @@ public class Utility {
 
 	/**
 	 * Rounds the mantissa of a float to prec places
-	 * 
+	 *
 	 * @param x
 	 * @param prec
 	 * @return x rounded to prec places

@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
  * Class that implements the keithley Amplifier
  */
 public class Keithley extends AmplifierBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Keithley.class);
-	
+
 	private static final double VOLTAGEBIAS_MAX = 5.0;
 
 	private static final double VOLTAGEBIAS_MIN = -5.0;
@@ -164,7 +164,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * Sets the gpib interface name.
-	 * 
+	 *
 	 * @param gpibInterfaceName
 	 *            the gpib interface name
 	 */
@@ -174,7 +174,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * Gets the gpib interface name.
-	 * 
+	 *
 	 * @return the gpib interface name
 	 */
 	public String getGpibInterfaceName() {
@@ -183,7 +183,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * Sets the device name.
-	 * 
+	 *
 	 * @param deviceName
 	 *            The device name
 	 */
@@ -193,7 +193,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * Gets the device name.
-	 * 
+	 *
 	 * @return The device name
 	 */
 	public String getDeviceName() {
@@ -202,7 +202,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * Sets the device timeout.
-	 * 
+	 *
 	 * @param timeout
 	 *            The device timeout
 	 */
@@ -212,7 +212,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * Gets the device timeout.
-	 * 
+	 *
 	 * @return The device timeout
 	 */
 	public int getTimeout() {
@@ -221,7 +221,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * gets the current suppress value
-	 * 
+	 *
 	 * @return the current suppress value in Amps
 	 * @throws DeviceException
 	 */
@@ -236,7 +236,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * gets the Filter rise time
-	 * 
+	 *
 	 * @return filter rise time as a double in seconds
 	 * @throws DeviceException
 	 */
@@ -250,7 +250,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * Gets the total gain of the amplifier in V/A
-	 * 
+	 *
 	 * @return gain as a string
 	 * @throws DeviceException
 	 */
@@ -262,7 +262,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * Gets the status of the amplifier
-	 * 
+	 *
 	 * @return status ready if ready to accept a command or error status if error has occured
 	 * @throws DeviceException
 	 */
@@ -294,7 +294,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * Gets the status of the amplifier
-	 * 
+	 *
 	 * @param checkCommand
 	 *            command whose status has to be checked
 	 * @return status
@@ -322,7 +322,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * gets the Voltage bias value in Volts
-	 * 
+	 *
 	 * @return voltage bias
 	 * @throws DeviceException
 	 */
@@ -333,7 +333,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * sets the autofilter on/off
-	 * 
+	 *
 	 * @param onOff
 	 * @throws DeviceException
 	 */
@@ -345,7 +345,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * sets the current suppress on/off
-	 * 
+	 *
 	 * @param onOff
 	 * @throws DeviceException
 	 */
@@ -357,7 +357,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * sets the current suppression params
-	 * 
+	 *
 	 * @param value
 	 *            in Amps
 	 * @throws DeviceException
@@ -375,7 +375,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * sets the Current suppression params
-	 * 
+	 *
 	 * @param value
 	 *            in amps
 	 * @param range
@@ -392,7 +392,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * enable/disable X10 gain
-	 * 
+	 *
 	 * @param onOff
 	 * @throws DeviceException
 	 */
@@ -404,7 +404,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * enable/disable filter
-	 * 
+	 *
 	 * @param onOff
 	 * @throws DeviceException
 	 */
@@ -416,7 +416,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * sets the rise time of the filter
-	 * 
+	 *
 	 * @param level
 	 * @throws DeviceException
 	 */
@@ -432,7 +432,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * sets instrument gain
-	 * 
+	 *
 	 * @param level
 	 * @throws DeviceException
 	 */
@@ -448,7 +448,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * Enable/disable voltage bias output
-	 * 
+	 *
 	 * @param voltageBias
 	 * @throws DeviceException
 	 */
@@ -460,7 +460,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * sets the voltage bias in Volts
-	 * 
+	 *
 	 * @param value
 	 *            is the voltagebias
 	 * @throws DeviceException
@@ -483,7 +483,7 @@ public class Keithley extends AmplifierBase {
 
 	/**
 	 * enable/disable zero check
-	 * 
+	 *
 	 * @param onOff
 	 * @throws DeviceException
 	 */

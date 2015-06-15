@@ -28,9 +28,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class LdapMixinTest {
-	
+
 	private static HostnameResolver resolver;
-	
+
 	@BeforeClass
 	public static void createTestResolver() {
 		TestHostnameResolver r = new TestHostnameResolver();
@@ -38,14 +38,14 @@ public class LdapMixinTest {
 		r.addEntry("ldap.example.com", "3.3.3.3", "4.4.4.4");
 		resolver = r;
 	}
-	
+
 	@Test
 	public void testHostToLdapUrl() {
 		final String host = "hostname";
 		final String url = LdapMixin.hostToLdapUrl(host);
 		Assert.assertEquals("ldap://hostname:389", url);
 	}
-	
+
 	@Test
 	public void testBuildUrlsForHostWithHostname() throws Exception {
 		LdapMixin ldap = new LdapMixin();
@@ -53,14 +53,14 @@ public class LdapMixinTest {
 		List<String> urls = ldap.buildUrlsForHost("localhost");
 		assertUrlsEqual(urls, "ldap://127.0.0.1:389", "ldap://[::1]:389");
 	}
-	
+
 	@Test
 	public void testBuildUrlsForHostWithIpAddress() throws Exception {
 		LdapMixin ldap = new LdapMixin();
 		List<String> urls = ldap.buildUrlsForHost("240.0.0.0");
 		assertUrlsEqual(urls, "ldap://240.0.0.0:389");
 	}
-	
+
 	@Test
 	public void testGetUrlsToTryWithOldUrlPropertySet() {
 		try {
@@ -73,7 +73,7 @@ public class LdapMixinTest {
 			LocalProperties.clearProperty(LdapAuthenticator.LDAPURL_PROPERTY);
 		}
 	}
-	
+
 	@Test
 	public void testGetUrlsToTryWithNewHostPropertySetToSingleHost() {
 		try {
@@ -86,7 +86,7 @@ public class LdapMixinTest {
 			LocalProperties.clearProperty(LdapAuthenticator.LDAP_HOSTS_PROPERTY);
 		}
 	}
-	
+
 	@Test
 	public void testGetUrlsToTryWithNewHostPropertySetToMultipleHosts() {
 		try {
@@ -100,7 +100,7 @@ public class LdapMixinTest {
 			LocalProperties.clearProperty(LdapAuthenticator.LDAP_HOSTS_PROPERTY);
 		}
 	}
-	
+
 	@Test
 	public void testGetUrlsToTryWithNoPropertiesSet() {
 		LdapMixin ldap = new LdapMixin();
@@ -108,12 +108,12 @@ public class LdapMixinTest {
 		List<String> urls = ldap.getUrlsToTry();
 		assertUrlsEqual(urls, "ldap://1.1.1.1:389", "ldap://2.2.2.2:389");
 	}
-	
+
 	private static void assertUrlsEqual(List<String> actualUrls, String... expectedUrls) {
 		Assert.assertEquals(expectedUrls.length, actualUrls.size());
 		for (String u : expectedUrls) {
 			Assert.assertTrue("missing URL: '" + u + "'", actualUrls.contains(u));
 		}
 	}
-	
+
 }

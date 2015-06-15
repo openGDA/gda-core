@@ -28,19 +28,19 @@ import ch.qos.logback.core.Layout;
 		 /**
 		 * An appender for Logback to send ELog messages.
 		 * This Appender can be set up in LogServer.xml where:
-		 * 
+		 *
 		 * 		<Visit>12ab34</Visit> is the visit and can also be left blank
 		 * 		<LogID>OPR</LogID> is the log ID
 		 * 		<GroupID>DA</GroupID> is the group ID
 		 * 		<UserID>gda</UserID> is the user ID, please ensure this is lower case for it to work in the production database
-		 * 
+		 *
 		 * 		<layout class="ch.qos.logback.classic.PatternLayout">
 		 * 		<pattern>%-5level [%logger] %ex - %m%n</pattern>
 		 * 		</layout>
-		 * 
+		 *
 		 * The layout is used to format the messages that are sent to ELog, where pattern defines the format codes.
 		 * Please see the manual at http://logback.qos.ch/manual/index.html for more information.
-		 * 
+		 *
 		 */
 		public class ElogAppender extends AppenderBase<ILoggingEvent> {
 			String
@@ -48,7 +48,7 @@ import ch.qos.logback.core.Layout;
 			logID="",
 			groupID="",
 			userID="";
-			
+
 			static final Logger logger = LoggerFactory.getLogger("gda.util.ElogAppender");
 			@Override
 			protected void append(ILoggingEvent eventObject) {
@@ -73,7 +73,7 @@ import ch.qos.logback.core.Layout;
 					logger.warn(e.getMessage());
 				}
 			}
-			
+
 			/**
 			 * @param visit
 			 * Sets the visit. The visit is defined in the configuration file.
@@ -81,7 +81,7 @@ import ch.qos.logback.core.Layout;
 			public void setVisit(String visit) {
 				this.visit = visit;
 			}
-			
+
 			/**
 			 * @return
 			 * Returns the visit.
@@ -89,7 +89,7 @@ import ch.qos.logback.core.Layout;
 			public String getVisit() {
 				 return visit;
 			}
-			
+
 			/**
 			 * @param logID
 			 * Sets the log ID. The log ID is defined in the configuration file.
@@ -97,7 +97,7 @@ import ch.qos.logback.core.Layout;
 			public void setLogID(String logID) {
 				this.logID = logID;
 			}
-			
+
 			/**
 			 * @return
 			 * Returns the log ID.
@@ -105,7 +105,7 @@ import ch.qos.logback.core.Layout;
 			public String getLogID() {
 				 return logID;
 			}
-			
+
 			/**
 			 * @param groupID
 			 * Sets the group ID. The group ID is defined in the configuration file.
@@ -113,7 +113,7 @@ import ch.qos.logback.core.Layout;
 			public void setGroupID(String groupID) {
 				this.groupID = groupID;
 			}
-			
+
 			/**
 			 * @return
 			 * Returns the group ID
@@ -121,7 +121,7 @@ import ch.qos.logback.core.Layout;
 			public String getGroupID() {
 				 return groupID;
 			}
-			
+
 			/**
 			 * @param userID
 			 * Sets the user ID. The user ID is defined in the configuration file.
@@ -129,7 +129,7 @@ import ch.qos.logback.core.Layout;
 			public void setUserID(String userID) {
 				this.userID = userID;
 			}
-			
+
 			/**
 			 * @return
 			 * Returns the user ID.
@@ -137,9 +137,9 @@ import ch.qos.logback.core.Layout;
 			public String getUserID() {
 				 return userID;
 			}
-			
+
 			private Layout<ILoggingEvent> layout;
-			
+
 			public void setLayout(Layout<ILoggingEvent> layout) {
 				this.layout = layout;
 			}

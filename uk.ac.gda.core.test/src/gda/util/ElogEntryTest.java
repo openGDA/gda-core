@@ -40,22 +40,22 @@ public class ElogEntryTest {
 
 	/**
 	 * Determines the absolute path to the test files.
-	 * @throws URISyntaxException 
+	 * @throws URISyntaxException
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws URISyntaxException {
 		testfile1 = ElogEntryTest.class.getResource("TestFiles/Elog1.jpeg").toURI().getPath();
 		testfile2 = ElogEntryTest.class.getResource("TestFiles/Elog2.jpeg").toURI().getPath();
 		testfile2wrong = ElogEntryTest.class.getResource("TestFiles/").toURI().getPath() + "Elog2wrong.jpeg";
-	}	
-	
+	}
+
 	/**
 	 * Tests that when the correct parameters are used, the ELog will successfully send.
 	 */
 	@Test
 	public void testElogEntryOK() {
-		
-		String 
+
+		String
 		visit = "aa34bg",
 		logID = "OPR",
 		groupID = "DA",
@@ -77,7 +77,7 @@ public class ElogEntryTest {
 	 */
 	@Test
 	public void testElogEntryFailGroupID() {
-		
+
 		String
 		visit = "aa34bg",
 		logID = "OPR",
@@ -85,7 +85,7 @@ public class ElogEntryTest {
 		userID = "gda",
 		title = "java multipart try - should fail",
 		content = "please ignore - should fail due to an invalid catergory";
-		
+
 		String[] fileLocations = {(testfile1), (testfile2)};
 
 		try {
@@ -94,14 +94,14 @@ public class ElogEntryTest {
 		} catch (Exception e) {
 		}
 	}
-	
+
 
 	/**
 	 * Tests that when an invalid logID is entered then the ELog will not send.
 	 */
 	@Test
 	public void testElogEntryFailLogID() {
-		
+
 		String
 		visit = "aa34bg",
 		logID = "OPRRRRRRRRRRRRR",
@@ -109,7 +109,7 @@ public class ElogEntryTest {
 		userID = "gda",
 		title = "java multipart try - should fail",
 		content = "please ignore - should fail due to an invalid operation";
-		
+
 		String[] fileLocations = {(testfile1), (testfile2)};
 
 		try {
@@ -118,14 +118,14 @@ public class ElogEntryTest {
 		} catch (Exception e) {
 		}
 	}
-	
-	
+
+
 	/**
 	 * Tests that when an invalid userID is entered then the ELog will not send.
 	 */
 	@Test
 	public void testElogEntryFailUserID() {
-		
+
 		String
 		visit = "aa34bg",
 		logID = "OPR",
@@ -133,7 +133,7 @@ public class ElogEntryTest {
 		userID = "gdaaaaaaaaa",
 		title = "java multipart try - should fail",
 		content = "please ignore - should fail due to an invalid ID";
-		
+
 		String[] fileLocations = {(testfile1), (testfile2)};
 
 		try {
@@ -143,13 +143,13 @@ public class ElogEntryTest {
 		}
 	}
 
-	
+
 	/**
 	 * Tests that when an invalid file names or directories are entered then the ELog will not send.
 	 */
 	@Test
 	public void testElogEntryFailImages() {
-		
+
 		String
 		visit = "aa34bg",
 		logID = "OPR",
@@ -166,13 +166,13 @@ public class ElogEntryTest {
 		} catch (Exception e) {
 		}
 	}
-	
+
 	/**
 	 * Tests that when fileLocations is null, i.e no images are to be sent. The text only ELog will still send.
 	 */
 	@Test
 	public void testElogEntryNoImages() {
-		
+
 		String
 		visit = "aa34bg",
 		logID = "OPR",
@@ -180,20 +180,20 @@ public class ElogEntryTest {
 		userID = "gda",
 		title = "java multipart try - no images",
 		content = "please ignore - should be post with no images";
-		
+
 		try {
 			ElogEntry.post(title, content,userID, visit, logID, groupID, null);
 		} catch (Exception e) {
 			fail("Should have sent ELog without any images");
 		}
 	}
-	
+
 	/**
 	 * Tests that an asynchronous ELog entry works.
 	 */
 	@Test
 	public void testElogEntryAsyn() {
-		
+
 		String
 		visit = "aa34bg",
 		logID = "OPR",
@@ -207,7 +207,7 @@ public class ElogEntryTest {
 		ElogEntry.postAsyn(title, content,userID, visit, logID, groupID, fileLocations);
 		Sleep.sleep(1000);
 	}
-	
+
 	@Test
 	public void testElogEntryNonStaticOK() {
 		String
@@ -216,7 +216,7 @@ public class ElogEntryTest {
 		groupID = "DA",
 		userID = "gda",
 		title = "java multipart posting non-static post";
-		
+
 		try {
 			ElogEntry log = new ElogEntry(title, userID, visit, logID, groupID);
 			log.addText("Please ignore this string");

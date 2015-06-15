@@ -44,7 +44,7 @@ public class SerialImpl extends CorbaSerialPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param serial
 	 *            the Serial implementation object
 	 * @param poa
@@ -58,7 +58,7 @@ public class SerialImpl extends CorbaSerialPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Serial implementation object
 	 */
 	public Serial _delegate() {
@@ -67,7 +67,7 @@ public class SerialImpl extends CorbaSerialPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param serial
 	 *            set the Serial implementation object
 	 */
@@ -194,7 +194,7 @@ public class SerialImpl extends CorbaSerialPOA {
 	public void reconfigure() throws CorbaFactoryException {
 		deviceImpl.reconfigure();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();

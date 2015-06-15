@@ -57,7 +57,7 @@ public class PathConstructorTest {
 
 	/**
 	 * Test setup to be run once at the start.
-	 * @throws FactoryException 
+	 * @throws FactoryException
 	 */
 	@BeforeClass()
 	public static void setUpBeforeClass() throws FactoryException {
@@ -80,7 +80,7 @@ public class PathConstructorTest {
 	/**
 	 * Test the construction of paths from templates. This test concentrates on the use of default Java properties where
 	 * the special cases for properties do not exist in GDA metadata.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Test()
@@ -124,7 +124,7 @@ public class PathConstructorTest {
 	/**
 	 * Test the construction of paths from templates. This test concentrates on the substitution of GDA metadata items
 	 * that are of type MetadataEntry.ICAT.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	// These tests are not working. There does not appear to be entries for proposal or visit.
 	// @Test

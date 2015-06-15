@@ -31,7 +31,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Class to perform conversion between a Source and Target quantity using a lookup table
- * 
+ *
  * @see gda.util.converters.LookupTableConverterHolder
  * @see org.nfunk.jep.JEP
  */
@@ -102,7 +102,7 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 			Mode mode) {
 		this(columnDataFileName, filenameIsFull, sColumn, tColumn, mode, true);
 	}
-	
+
 	public LookupTableQuantityConverter(String columnDataFileName, boolean filenameIsFull, int sColumn, int tColumn,
 			Mode mode, boolean extrapolate) {
 		this.sColumn = sColumn;
@@ -145,7 +145,7 @@ public final class LookupTableQuantityConverter implements IQuantityConverter {
 							.getColumn(sColumn), columnDataFile.getColumnUnits(tColumn), columnDataFile
 							.getColumnUnits(sColumn));
 				}
-				
+
 				double firstT = columnDataFile.getColumn(tColumn)[0];
 				double lastT = columnDataFile.getColumn(tColumn)[columnDataFile.getColumn(tColumn).length - 1];
 				double firstS = columnDataFile.getColumn(sColumn)[0];

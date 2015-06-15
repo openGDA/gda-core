@@ -29,17 +29,17 @@ import java.util.Date;
 public class DateMetadataEntry extends MetadataEntry {
 
 	protected String dateFormat;
-	
+
 	/**
 	 * Creates a date metadata entry.
 	 */
 	public DateMetadataEntry() {
 		// do nothing
 	}
-	
+
 	/**
 	 * Creates a date metadata entry with the specified date format.
-	 * 
+	 *
 	 * @param name the metadata entry name
 	 * @param dateFormat the date format string
 	 */
@@ -47,16 +47,16 @@ public class DateMetadataEntry extends MetadataEntry {
 		setName(name);
 		setDateFormat(dateFormat);
 	}
-	
+
 	/**
 	 * Sets the date format.
-	 * 
+	 *
 	 * @param dateFormat the date format
 	 */
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
 	}
-	
+
 	@Override
 	public String readActualValue() throws Exception {
 		Date date = new Date();

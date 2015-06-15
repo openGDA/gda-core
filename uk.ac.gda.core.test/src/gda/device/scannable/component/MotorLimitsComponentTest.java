@@ -18,12 +18,14 @@
 
 package gda.device.scannable.component;
 
-import static org.junit.Assert.*;
-import junitx.framework.ArrayAssert;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import gda.device.DeviceException;
 import gda.device.Motor;
 import gda.device.MotorException;
-import static org.mockito.Mockito.*;
+import junitx.framework.ArrayAssert;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +64,7 @@ public class MotorLimitsComponentTest {
 		when(motor.getMaxPosition()).thenReturn(Double.NaN);
 		assertEquals(null, lc.checkInternalPosition(new Double[]{1.}));
 	}
-	
+
 	@Test
 	public void testCheckInternalPositionBothLimits() throws MotorException, DeviceException {
 		when(motor.getMinPosition()).thenReturn(-1.);
@@ -71,7 +73,7 @@ public class MotorLimitsComponentTest {
 		assertEquals("Motor limit violation on motor name: 1.100000 > 1.000000 (internal/hardware/dial values).", lc.checkInternalPosition(new Double[]{1.1}));
 		assertEquals("Motor limit violation on motor name: -1.100000 < -1.000000 (internal/hardware/dial values).", lc.checkInternalPosition(new Double[]{-1.1}));
 	}
-	
+
 	@Test
 	public void testCheckInternalPositionLowLimits() throws MotorException, DeviceException {
 		when(motor.getMinPosition()).thenReturn(-1.);
@@ -79,7 +81,7 @@ public class MotorLimitsComponentTest {
 		assertEquals(null, lc.checkInternalPosition(new Double[]{0.}));
 		assertEquals("Motor limit violation on motor name: -1.100000 < -1.000000 (internal/hardware/dial values).", lc.checkInternalPosition(new Double[]{-1.1}));
 	}
-	
+
 	@Test
 	public void testCheckInternalPositionHighLimits() throws MotorException, DeviceException {
 		when(motor.getMinPosition()).thenReturn(Double.NaN);
@@ -87,7 +89,7 @@ public class MotorLimitsComponentTest {
 		assertEquals(null, lc.checkInternalPosition(new Double[]{0.}));
 		assertEquals("Motor limit violation on motor name: 1.100000 > 1.000000 (internal/hardware/dial values).", lc.checkInternalPosition(new Double[]{1.1}));
 	}
-	
+
 	@Test
 	public void testSetInternalLower1() throws MotorException, DeviceException {
 		when(motor.getMaxPosition()).thenReturn(1.);
@@ -103,7 +105,7 @@ public class MotorLimitsComponentTest {
 		lc.setInternalLower(new Double[] {-2.});
 		verify(motor).setSoftLimits(-2, Double.NaN);
 	}
-	
+
 	@Test
 	public void testSetInternalUpper1() throws MotorException, DeviceException {
 		when(motor.getMinPosition()).thenReturn(-1.);

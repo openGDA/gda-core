@@ -45,7 +45,7 @@ public class IffcoExample {
 		// I then define lower and upper bounds on the parameters.
 		// Defining lower and upper limits often makes the code run a bit better
 		// and in the
-		// 
+		//
 
 		function.addFunction("Gaussian1", new Gaussian1D(3.0, 3.0, 3.0));
 		// Set the upper and lower bounds on the parameters
@@ -87,7 +87,7 @@ public class IffcoExample {
 		for (int i = 0; i < min.getBest().length; i++) {
 			System.out.println("Minimum point\t" + i + "\t" + min.getBest()[i]);
 		}
-		// 
+		//
 		// // change the data set to one a single gaussian
 		// createDataSet1(xaxis, yaxis);
 		// // Remove a gaussian from our function

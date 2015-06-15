@@ -56,7 +56,7 @@ public abstract class AbstractParameter {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param p
 	 */
 	public AbstractParameter(IParameter p) {
@@ -68,7 +68,7 @@ public abstract class AbstractParameter {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param value
 	 */
 	public AbstractParameter(double value) {
@@ -77,7 +77,7 @@ public abstract class AbstractParameter {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param value
 	 * @param lowerLimit
 	 * @param upperLimit
@@ -118,7 +118,7 @@ public abstract class AbstractParameter {
 
 	/**
 	 * Set the parameter to be fixed or free
-	 * 
+	 *
 	 * @param b
 	 */
 	public void setFixed(boolean b) {
@@ -128,7 +128,7 @@ public abstract class AbstractParameter {
 
 	/**
 	 * Set the lower limit on the parameter
-	 * 
+	 *
 	 * @param lowerLimit
 	 */
 	public void setLowerLimit(double lowerLimit) {
@@ -148,7 +148,7 @@ public abstract class AbstractParameter {
 
 	/**
 	 * Set the upper limit of the parameter
-	 * 
+	 *
 	 * @param upperLimit
 	 */
 	public void setUpperLimit(double upperLimit) {
@@ -170,7 +170,7 @@ public abstract class AbstractParameter {
 
 	/**
 	 * Set the value of the parameter
-	 * 
+	 *
 	 * @param value
 	 */
 	public void setValue(double value) {

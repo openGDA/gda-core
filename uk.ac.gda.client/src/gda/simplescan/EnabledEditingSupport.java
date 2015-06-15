@@ -27,7 +27,7 @@ import org.eclipse.swt.SWT;
 public class EnabledEditingSupport extends EditingSupport {
 	private TableViewer viewer;
 	private SimpleScan bean;
-	
+
 	public EnabledEditingSupport(TableViewer viewer, SimpleScan bean) {
 		super(viewer);
 		this.viewer = viewer;
@@ -64,7 +64,7 @@ public class EnabledEditingSupport extends EditingSupport {
 		}
 		viewer.refresh();
 	}
-	
+
 	public SimpleScan getBean(){
 		return bean;
 	}

@@ -30,7 +30,7 @@ public class PassthroughDetectorWrapper implements Detector {
 	public PassthroughDetectorWrapper(Detector delegate) {
 		this.delegate = delegate;
 	}
-	
+
 	public Detector getDelegate() {
 		return delegate;
 	}

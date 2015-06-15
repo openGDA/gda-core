@@ -48,7 +48,7 @@ public class MinpackExample {
 		// I then define lower and upper bounds on the parameters.
 		// Defining lower and upper limits often makes the code run a bit better
 		// and in the
-		// 
+		//
 
 		function.addFunction("Gaussian1", new BGAsymmetricGaussian1D(1.0, 1.0, 1.0, 1.0, 1.0));
 		// Set the upper and lower bounds on the parameters

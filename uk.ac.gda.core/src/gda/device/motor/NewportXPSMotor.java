@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * NewportXPSMotor Class
  */
 public class NewportXPSMotor extends MotorBase implements Configurable, IObservable, Motor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(NewportXPSMotor.class);
 
 	String xpsGroupName;
@@ -75,7 +75,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 	private boolean safeToAutoHome = false;
 
 	/**
-	 * 
+	 *
 	 */
 	public boolean controllerAvailable = false;
 
@@ -127,7 +127,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Sets the name of the Newport XPS Controller.
-	 * 
+	 *
 	 * @param newportControllerName
 	 */
 	public void setNewportXpsControllerName(String newportControllerName) {
@@ -136,7 +136,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Gets the name of the Newport XPS Controller.
-	 * 
+	 *
 	 * @return Returns the NewportXpsControllerName
 	 */
 	public String getNewportXpsControllerName() {
@@ -152,7 +152,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Sets the group name of the motor as known in the Newport hardware
-	 * 
+	 *
 	 * @param xpsGroupName
 	 */
 	public void setXpsGroupName(String xpsGroupName) {
@@ -168,7 +168,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Sets the positioner name of the motor as know in the Newport hardware
-	 * 
+	 *
 	 * @param xpsPositionerName
 	 */
 	public void setXpsPositionerName(String xpsPositionerName) {
@@ -177,7 +177,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Returns true if this object will home the motor during the configure method (ie at GDA startup).
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public boolean isSafeToAutoHome() {
@@ -186,7 +186,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Sets the safeToAutoHome attribute. If true then the motor will be homed during the configure method.
-	 * 
+	 *
 	 * @param safeToAutoHome
 	 */
 	public void setSafeToAutoHome(boolean safeToAutoHome) {
@@ -195,7 +195,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Sends command to hardware to initialise the motor.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void initializeMotor() throws MotorException {
@@ -368,7 +368,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Checks if the motor is homed or not. Motor implementations should overide this method if required.
-	 * 
+	 *
 	 * @return if the motor is homed. Returns false!
 	 */
 	@Override
@@ -475,7 +475,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Moves the motor to a repeatable starting location allows homing only once after a power cycle.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override
@@ -495,7 +495,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * sets the soft limits of the motor itself (i.e. NOT limits in our software)
-	 * 
+	 *
 	 * @param minPosition
 	 *            minimum software limit
 	 * @param maxPosition
@@ -518,7 +518,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Turns on data gathering by the XPS for the CurrentPosition.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void gatherCurrentPosition() throws MotorException {
@@ -529,7 +529,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Turns on data gathering by the XPS for the CurrentVelocity.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void gatherCurrentVelocity() throws MotorException {
@@ -540,7 +540,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Turns on data gathering by the XPS for the CurrentAcceleration.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void gatherCurrentAcceleration() throws MotorException {
@@ -551,7 +551,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Turns on data gathering by the XPS for the SetpointPosition.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void gatherSetpointPosition() throws MotorException {
@@ -562,7 +562,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Turns on data gathering by the XPS for the SetpointVelocity.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void gatherSetpointVelocity() throws MotorException {
@@ -573,7 +573,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Turns on data gathering by the XPS for the SetpointAcceleration.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void gatherSetpointAcceleration() throws MotorException {
@@ -584,7 +584,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Turns on data gathering by the XPS for the FollowingError.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void gatherFollowingError() throws MotorException {
@@ -595,7 +595,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Adds an event to start internal triggered data gathering for the case of a MotionStart.
-	 * 
+	 *
 	 * @param numberOfPoints
 	 * @param divisor
 	 * @throws MotorException
@@ -608,7 +608,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Adds an event to start internal triggered data gathering for the case of a MotionStart.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void gatherAddMotionStartEvent() throws MotorException {
@@ -618,7 +618,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 	/**
 	 * Stops internal triggered data gathering and saves data to the XPS controller. Data is stored in the file
 	 * GATHERING.DAT in the "..\PUBLIC" folder of the XPS controller.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void gatheringStopAndSave() throws MotorException {
@@ -629,7 +629,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 	/**
 	 * Transfers the internal data gathering data file from the XPS controller and save it as a file with the specified
 	 * filename.
-	 * 
+	 *
 	 * @param filename
 	 */
 	public void getGatheringData(String filename) {
@@ -673,7 +673,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Sets the values used (ie min, max and step) for the Position Compare output.
-	 * 
+	 *
 	 * @param minPosition
 	 * @param maxPosition
 	 * @param positionStep
@@ -697,7 +697,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Gets the parameters (ie min,max and step) used for Position Compare output.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void getPositionCompare() throws MotorException {
@@ -721,7 +721,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Enables the Positioner Compare output.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void enablePositionerCompare() throws MotorException {
@@ -738,7 +738,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Disables the Positioner Compare output.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	public void disablePositionerCompare() throws MotorException {
@@ -789,7 +789,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Gets current state of Position compare output.
-	 * 
+	 *
 	 * @return State of Position Compare Output
 	 */
 	public boolean isPcoEnableState() {
@@ -798,7 +798,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Gets PCO maximum position.
-	 * 
+	 *
 	 * @return maximum position
 	 */
 	public double getPcoMaximumPosition() {
@@ -807,7 +807,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Gets PCO minimum position.
-	 * 
+	 *
 	 * @return minimum position
 	 */
 	public double getPcoMinimumPosition() {
@@ -816,7 +816,7 @@ public class NewportXPSMotor extends MotorBase implements Configurable, IObserva
 
 	/**
 	 * Gets PCO step size.
-	 * 
+	 *
 	 * @return step size
 	 */
 	public double getPcoPositionStep() {

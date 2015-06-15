@@ -24,20 +24,19 @@ import static org.mockito.Mockito.when;
 import gda.MockFactory;
 import gda.device.DeviceException;
 import gda.device.Scannable;
-import gda.device.scannable.scannablegroup.CoordinatedScannableGroup;
 import junit.framework.TestCase;
 
 /**
- * 
+ *
  */
 public class CoordinatedScannableElementTest extends TestCase{
-	
+
 	Scannable wrapped;
 	CoordinatedScannableGroup mockedGroup;
 	CoordinatedChildScannable element;
 
 	@Override
-	public void setUp() throws Exception {	
+	public void setUp() throws Exception {
 		wrapped = MockFactory.createMockScannable("wrapped");
 		mockedGroup = mock(CoordinatedScannableGroup.class, "mockGroup");
 		element = new CoordinatedChildScannable(wrapped, mockedGroup);
@@ -48,43 +47,43 @@ public class CoordinatedScannableElementTest extends TestCase{
 //		Scannable multi = MockFactory.createMockScannable("multi", new String [] {"i1","i2"}, new String [] {}, new String [] {"%f","%f"}, 5, new int []{0,0});
 //		new CoordinatedElementScannable(multi, mockedGroup);
 //	}
-	
+
 	public void testPhysicalAsynchronousMoveTo() throws DeviceException {
 		element.physicalAsynchronousMoveTo(1);
 		verify(wrapped).asynchronousMoveTo(1);
 	}
-	
+
 	public void testPhysicalIsBusy() throws DeviceException {
 		element.physicalIsBusy();
 		verify(wrapped).isBusy();
 	}
-	
+
 	public void testAtLevelMoveStart() throws DeviceException {
 		element.atLevelMoveStart();
 		verify(mockedGroup).addChildToMove(element);
 	}
-	
+
 	public void testAsynchronousMoveToWhenGroupTargeting() throws DeviceException {
 		when(mockedGroup.isTargeting()).thenReturn(true);
 		element.asynchronousMoveTo(1);
 		verify(mockedGroup).setChildTarget(element, 1);
 	}
-	
+
 	public void testAsynchronousMoveToWhenGroupNotTargeting() throws DeviceException {
 		when(mockedGroup.isTargeting()).thenReturn(false);
 		element.asynchronousMoveTo(1);
 		verify(wrapped).asynchronousMoveTo(1);
 	}
-	
+
 
 	public void testIsBusy() throws DeviceException {
 		element.isBusy();
 		verify(mockedGroup).isBusy();
 	}
-	
+
 	public void testAtCommandFailure() throws DeviceException {
 		element.atCommandFailure();
 		verify(mockedGroup).atCommandFailure();
-	}	
+	}
 
 }

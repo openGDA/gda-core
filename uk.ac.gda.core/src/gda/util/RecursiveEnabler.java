@@ -29,7 +29,7 @@ import java.awt.Container;
 public class RecursiveEnabler {
 	/**
 	 * Sets the enabled state of a Component and (recursively) all its descendents.
-	 * 
+	 *
 	 * @param component
 	 *            the Component to be changed
 	 * @param enabled

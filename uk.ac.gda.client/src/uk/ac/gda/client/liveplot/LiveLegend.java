@@ -73,7 +73,7 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 	private CellEditor[] cellEditors;
 	private boolean autoHideNewScan = false;
 	private boolean autoHideLastScan = false;
-	
+
 	/**
 	 * @param parent
 	 * @param style
@@ -89,14 +89,14 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 		tv.setLabelProvider(new ScanTreeLabelProvider());
 		tv.setColumnProperties(new String[] { VISIBLE });
 		model = new ScanTree(new ScanTreeM(), simplePlot);
-		
+
 		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
 		String hideScanThreshold = preferenceStore.getString(PreferenceConstants.HIDE_SCAN_THRESHOLD);
 		int hideScanThresholdVal = Integer.parseInt(hideScanThreshold);
 		model.setNumberOfScansBeforeHiding(hideScanThresholdVal);
-		
+
 		preferenceStore.addPropertyChangeListener(new IPropertyChangeListener() {
-			
+
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
 				if( event.getProperty().equals(PreferenceConstants.HIDE_SCAN_THRESHOLD)) {
@@ -106,7 +106,7 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 				}
 			}
 		});
-		
+
 		tv.setInput(model); // pass a non-null that will be ignored
 		CheckboxCellEditor chk = new CheckboxCellEditor(tv.getTree());
 		cellEditors = new CellEditor[] { chk };
@@ -139,7 +139,7 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 
 		});
 	}
-	
+
 	/**
 	 * @param node
 	 * @param value
@@ -150,7 +150,7 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 			model.valueForPathChanged(new TreePath(node.getPath()), node);
 		}
 	}
-	
+
 	/**
 	 * @param path
 	 * @param newValue
@@ -158,7 +158,7 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 	public void valueForPathChanged(TreePath path, Object newValue){
 		model.valueForPathChanged(path, newValue);
 	}
-	
+
     /**
      * Returns the tree viewer which shows the resource hierarchy.
      * @return the tree viewer
@@ -167,9 +167,9 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
     public TreeViewer getTreeViewer() {
         return tv;
     }
-	
+
 	@Override
-	public void addScan(final String currentFilename, final String topGrouping, final String [] subGrouping, 
+	public void addScan(final String currentFilename, final String topGrouping, final String [] subGrouping,
 			String itemName, boolean visible, String id, int lineNumber,
 			Color color, Marker marker, final boolean onlyOne, String xLabel, final boolean reloadLegendModel){
 		if (isDisposed())
@@ -184,26 +184,26 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 			}
 		});
 	}
-	
+
 	/**
 	 * update the model to cause the legend to be re-displayed
 	 */
 	public void reload(){
 		model.reload();
 	}
-	
+
 	/**
 	 * remove the item from the tree whose filename equals the one specified
-	 * @param filename 
+	 * @param filename
 	 */
 	public void removeScanGroup(String filename){
 		model.removeScanGroup(filename);
 	}
-	
+
 	public void removeScanTreeObjects(Object []  selectedItems) {
 		model.removeScanTreeObjects(selectedItems);
 	}
-	
+
 	@Override
 	public void removeAllItems() {
 		if (isDisposed())
@@ -252,11 +252,11 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 	public void setHideOldestScan(Boolean value){
 		model.setHideOldestScan(value);
 	}
-	
+
 	public boolean getHideOldestScan() {
 		return model.getHideOldestScan();
 	}
-	
+
 	/**
 	 * Hide all scans
 	 */
@@ -274,7 +274,7 @@ public class LiveLegend extends Composite implements XYDataHandlerLegend {
 	public ScanTree getModel() {
 		return model;
 	}
-	
+
 }
 
 /**
@@ -290,7 +290,7 @@ class ScanTreeContentProvider implements ITreeContentProvider, TreeModelListener
 
 	/**
 	 * Gets the children of the specified object
-	 * 
+	 *
 	 * @param parent
 	 *            the parent object
 	 * @return Object[]
@@ -306,7 +306,7 @@ class ScanTreeContentProvider implements ITreeContentProvider, TreeModelListener
 
 	/**
 	 * Gets the parent of the specified object
-	 * 
+	 *
 	 * @param arg0
 	 *            the object
 	 * @return Object
@@ -320,7 +320,7 @@ class ScanTreeContentProvider implements ITreeContentProvider, TreeModelListener
 
 	/**
 	 * Returns whether the passed object has children
-	 * 
+	 *
 	 * @param parent
 	 *            the parent object
 	 * @return boolean
@@ -332,7 +332,7 @@ class ScanTreeContentProvider implements ITreeContentProvider, TreeModelListener
 
 	/**
 	 * Gets the root element(s) of the tree
-	 * 
+	 *
 	 * @param arg0
 	 *            the input data
 	 * @return Object[]
@@ -358,7 +358,7 @@ class ScanTreeContentProvider implements ITreeContentProvider, TreeModelListener
 
 	/**
 	 * Called when the input changes
-	 * 
+	 *
 	 * @param viewer
 	 *            the viewer
 	 * @param arg1
@@ -454,7 +454,7 @@ class ScanTreeLabelProvider implements ILabelProvider, ITreePathLabelProvider {
 
 	/**
 	 * Adds a listener to this label provider
-	 * 
+	 *
 	 * @param arg0
 	 *            the listener
 	 */
@@ -479,7 +479,7 @@ class ScanTreeLabelProvider implements ILabelProvider, ITreePathLabelProvider {
 
 	/**
 	 * Returns whether changes to the specified property on the specified element would affect the label for the element
-	 * 
+	 *
 	 * @param arg0
 	 *            the element
 	 * @param arg1
@@ -493,7 +493,7 @@ class ScanTreeLabelProvider implements ILabelProvider, ITreePathLabelProvider {
 
 	/**
 	 * Removes the listener
-	 * 
+	 *
 	 * @param arg0
 	 *            the listener to remove
 	 */

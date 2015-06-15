@@ -81,7 +81,7 @@ public class MvcExampleViewPluginUnitTest {
 		Assert.assertEquals(false, view.btn1.getSelection());
 		model.setSelected(true);
 		Assert.assertEquals(true, view.btn1.getSelection());
-		
+
 	}
 
 	@Test
@@ -96,8 +96,8 @@ public class MvcExampleViewPluginUnitTest {
 		model.setPosition(10.);
 		Assert.assertEquals("10", view.numberControl._getTextForTesting());
 	}
-	
-	
+
+
 	@Test
 	public void testItems() throws Exception {
 		ObservableList items = model.getItems();
@@ -120,12 +120,12 @@ public class MvcExampleViewPluginUnitTest {
 			items.add(e);
 		}
 		delay(1000);
-		
+
 	}
-	
+
 	/**
 	 * Process UI input but do not return for the specified time interval.
-	 * 
+	 *
 	 * @param waitTimeMillis
 	 *            the number of milliseconds
 	 */
@@ -193,7 +193,7 @@ class MyMvcExampleModel  extends ObservableModel  implements MvcExampleModel {
 	}
 	protected DummyMotor dummyMotor;
 	protected ScannableMotor scannable;
-	
+
 	@Override
 	public ScannableWrapper getScannableWrapper() throws Exception {
 		if (wrapper == null) {
@@ -211,7 +211,7 @@ class MyMvcExampleModel  extends ObservableModel  implements MvcExampleModel {
 	}
 
 	WritableList items = new WritableList(new ArrayList<MvcExampleItem>(), MvcExampleItem.class);
-	
+
 	@Override
 	public WritableList getItems() {
 		return items;
@@ -230,7 +230,7 @@ class MyMvcExampleItem extends ObservableModel implements MvcExampleItem {
 	public double getValue() {
 		return value;
 	}
-	
+
 
 	public void setValue(double newVal){
 		firePropertyChange(MvcExampleItem.VALUE_PROPERTY_NAME,

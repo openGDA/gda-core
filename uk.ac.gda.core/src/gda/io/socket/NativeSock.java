@@ -70,7 +70,7 @@ public class NativeSock {
 
 	/**
 	 * Connect to the remote host
-	 * 
+	 *
 	 * @param host
 	 *            The remote hostname
 	 * @param port
@@ -117,7 +117,7 @@ public class NativeSock {
 	/**
 	 * Write a string (it will be terinputStreamated with a carriage return and end-of-line). This will only work with
 	 * ASCII characters.
-	 * 
+	 *
 	 * @param s
 	 *            The string to write.
 	 * @throws IOException
@@ -131,7 +131,7 @@ public class NativeSock {
 	/**
 	 * Read a line of text. This assumes the text is in ASCII format. The method returns the result if a carriage return
 	 * <code>\n</code> is reached.
-	 * 
+	 *
 	 * @return The resulting string.
 	 * @throws IOException
 	 */
@@ -154,7 +154,7 @@ public class NativeSock {
 
 	/**
 	 * Reads the input stream with a length <code>len</code>.
-	 * 
+	 *
 	 * @param buf
 	 *            The buffer to fill
 	 * @param len
@@ -167,7 +167,7 @@ public class NativeSock {
 
 	/**
 	 * Reads the input stream with a length <code>len</code> at offset <code>offset</code>.
-	 * 
+	 *
 	 * @param buf
 	 *            The buffer to fill.
 	 * @param off
@@ -182,7 +182,7 @@ public class NativeSock {
 
 	/**
 	 * Reads 2 bytes (a unicode char in little endian format) and returns them as a big endian char.
-	 * 
+	 *
 	 * @return big endian char
 	 * @throws IOException
 	 */
@@ -192,7 +192,7 @@ public class NativeSock {
 
 	/**
 	 * Reads 4 bytes (an int in little endian format) and returns them as a big endian integer.
-	 * 
+	 *
 	 * @return big endian integer
 	 * @throws IOException
 	 */
@@ -202,7 +202,7 @@ public class NativeSock {
 
 	/**
 	 * Reads 8 bytes (a long in little endian format) and returns them as a big endian long.
-	 * 
+	 *
 	 * @return big endian long
 	 * @throws IOException
 	 */
@@ -212,7 +212,7 @@ public class NativeSock {
 
 	/**
 	 * Reads 4 bytes (a IEEE float in little endian format) and returns them as a big endian float.
-	 * 
+	 *
 	 * @return big endian float
 	 * @throws IOException
 	 */
@@ -222,7 +222,7 @@ public class NativeSock {
 
 	/**
 	 * Reads 8 bytes (a IEEE double in little endian format) and returns them as a big endian double.
-	 * 
+	 *
 	 * @return double
 	 * @throws IOException
 	 */
@@ -232,7 +232,7 @@ public class NativeSock {
 
 	/**
 	 * This reads the input stream byte-by-byte searching for a pattern. This only works with ASCII characters (8 bits).
-	 * 
+	 *
 	 * @param pattern
 	 *            The pattern to read until.
 	 * @return The input stream in string format upto the end of the pattern.
@@ -263,7 +263,7 @@ public class NativeSock {
 
 	/**
 	 * Use this to set the socket timeout
-	 * 
+	 *
 	 * @param timeout
 	 */
 	public void setSocketTimeOut(int timeout) {
@@ -279,7 +279,7 @@ public class NativeSock {
 
 	/**
 	 * Use this to read the socket timeout
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getSocketTimeOut() {

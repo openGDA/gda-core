@@ -19,15 +19,15 @@
 
 package gda.device.memory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Memory;
 import gda.device.detector.DAServer;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A memory class for the VME Generic data acquisition histogramming memory card implemented using DA.Server
@@ -112,7 +112,7 @@ public class Gdhist extends DeviceBase implements Memory {
 
 	/**
 	 * send a command and report error/throw exception when operation fails, i.e. daserver replies -1
-	 * 
+	 *
 	 * @param operation
 	 *            descriptive name of the operation attempted for logging
 	 * @param command
@@ -132,11 +132,11 @@ public class Gdhist extends DeviceBase implements Memory {
 
 		if(obj.equals("IDLE"))
 			return obj;
-		
+
 		if(!(obj instanceof Integer)) {
 			return obj;
 		}
-		
+
 		if (((Integer) obj).intValue() == -1) {
 			logger.error(getName() + ": " + operation + " failed");
 			close();
@@ -375,7 +375,7 @@ public class Gdhist extends DeviceBase implements Memory {
 
 	/**
 	 * Set attribute values for "User", "Password", "Host", "TotalFrames", "Endian".
-	 * 
+	 *
 	 * @see gda.device.DeviceBase#setAttribute(java.lang.String, java.lang.Object)
 	 */
 	@Override
@@ -417,7 +417,7 @@ public class Gdhist extends DeviceBase implements Memory {
 
 	/**
 	 * set the number of pixel settings the detector can work at. assumes a 2d detector with identical axis.
-	 * 
+	 *
 	 * @param d
 	 */
 	public void setSupportedDimensions(int[] d) {
@@ -476,7 +476,7 @@ public class Gdhist extends DeviceBase implements Memory {
 
 	/**
 	 * Set the name of the daServer instance
-	 * 
+	 *
 	 * @param daServerName
 	 *            the server name
 	 */
@@ -486,7 +486,7 @@ public class Gdhist extends DeviceBase implements Memory {
 
 	/**
 	 * Get the name of the daServer instance.
-	 * 
+	 *
 	 * @return the server name
 	 */
 	public String getDaServerName() {
@@ -495,7 +495,7 @@ public class Gdhist extends DeviceBase implements Memory {
 
 	/**
 	 * Set the startup script command
-	 * 
+	 *
 	 * @param startupScript
 	 *            the startup script command
 	 */
@@ -505,7 +505,7 @@ public class Gdhist extends DeviceBase implements Memory {
 
 	/**
 	 * Get the startup script command
-	 * 
+	 *
 	 * @return the startup script command
 	 */
 	public String getStartupScript() {
@@ -514,7 +514,7 @@ public class Gdhist extends DeviceBase implements Memory {
 
 	/**
 	 * Set the command to obtain the size of memory
-	 * 
+	 *
 	 * @param sizeCommand
 	 *            the command to obtain the size of memory
 	 */
@@ -524,7 +524,7 @@ public class Gdhist extends DeviceBase implements Memory {
 
 	/**
 	 * Get the command which obtains the size of memory
-	 * 
+	 *
 	 * @return the command
 	 */
 	public String getSizeCommand() {
@@ -533,7 +533,7 @@ public class Gdhist extends DeviceBase implements Memory {
 
 	/**
 	 * Set the command (if necessary) for opening the memory
-	 * 
+	 *
 	 * @param openCommand
 	 *            the open command
 	 */
@@ -543,7 +543,7 @@ public class Gdhist extends DeviceBase implements Memory {
 
 	/**
 	 * Get the open command
-	 * 
+	 *
 	 * @return the command
 	 */
 	public String getOpenCommand() {
@@ -553,7 +553,7 @@ public class Gdhist extends DeviceBase implements Memory {
 	// this method is only for Junit testing
 	/**
 	 * for use by junit tests
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	protected void setFail() throws DeviceException {
 		if (daServer != null && daServer.isConnected()) {

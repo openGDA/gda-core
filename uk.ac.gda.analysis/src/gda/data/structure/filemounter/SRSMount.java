@@ -63,7 +63,7 @@ public class SRSMount extends Folder {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param filename
 	 */
 	public SRSMount(String filename) {
@@ -238,7 +238,7 @@ public class SRSMount extends Folder {
 
 	/**
 	 * Returns no of data columns in the SRS file
-	 * 
+	 *
 	 * @return Number of columns
 	 */
 	@Override

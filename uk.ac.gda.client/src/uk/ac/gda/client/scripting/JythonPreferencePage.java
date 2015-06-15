@@ -35,7 +35,7 @@ public class JythonPreferencePage extends FieldEditorPreferencePage implements I
 		setPreferenceStore(GDAClientActivator.getDefault().getPreferenceStore());
 		setDescription("Preferences for the Scripts perspective. For instance it automatically closes XML file editors for the GDA confguration.");
 	}
-	
+
 	@Override
 	protected void createFieldEditors() {
 		BooleanFieldEditor showConfig = new BooleanFieldEditor(PreferenceConstants.SHOW_CONFIG_SCRIPTS,

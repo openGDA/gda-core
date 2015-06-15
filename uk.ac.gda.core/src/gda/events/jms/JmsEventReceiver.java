@@ -35,7 +35,7 @@ import javax.jms.Topic;
  * An {@link EventReceiver} that receives messages using JMS.
  */
 public class JmsEventReceiver extends JmsClient implements EventReceiver {
-	
+
 	/**
 	 * Creates a JMS event receiver.
 	 */
@@ -47,7 +47,7 @@ public class JmsEventReceiver extends JmsClient implements EventReceiver {
 			throw new RuntimeException("Unable to create JMS event receiver", e);
 		}
 	}
-	
+
 	@SuppressWarnings("unused")
 	@Override
 	public void subscribe(EventSubscriber eventSubscriber, Filter filter) {
@@ -65,13 +65,13 @@ public class JmsEventReceiver extends JmsClient implements EventReceiver {
 	class EventTopicListener implements MessageListener {
 
 		private EventSubscriber eventSubscriber;
-		
+
 		public EventTopicListener(Topic topic, EventSubscriber eventSubscriber) throws JMSException {
 			this.eventSubscriber = eventSubscriber;
 			MessageConsumer consumer = session.createConsumer(topic);
 			consumer.setMessageListener(this);
 		}
-		
+
 		@Override
 		public void onMessage(Message message) {
 			if (message instanceof ObjectMessage) {
@@ -84,7 +84,7 @@ public class JmsEventReceiver extends JmsClient implements EventReceiver {
 				}
 			}
 		}
-		
+
 	}
 
 	@Override

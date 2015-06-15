@@ -19,8 +19,6 @@
 
 package gda.jython.socket;
 
-import gda.jython.socket.SocketClient;
-import gda.jython.socket.SocketServer;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -73,7 +71,7 @@ public class CommandSocketTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void testServerAndClient() {
 		client2 = new SocketClient();
@@ -81,7 +79,7 @@ public class CommandSocketTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void testSendBasicMessage() {
 		// create a CommandClient instance

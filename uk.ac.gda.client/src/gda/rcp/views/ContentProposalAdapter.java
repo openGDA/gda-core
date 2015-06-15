@@ -6,11 +6,11 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Hannes Erven <hannes@erven.at> - Bug 293841 - [FieldAssist] NumLock keyDown event should not close the proposal popup [with patch]
- ****************************************************************************** 
+ ******************************************************************************
  * </pre>
  **/
 
@@ -67,7 +67,7 @@ import org.eclipse.swt.widgets.Text;
  * <p>
  * This class provides some overridable methods to allow clients to manually control the popup. However, most of the
  * implementation remains private.
- * 
+ *
  * @since 3.2 * @author rsr31645 - R Somayaji - Had to copy this class from jface because there was no way to control
  *        the display of infopopup. Once GDA requirement have sorted out the need to use the info popup (the tooltip
  *        that appears next to the content assist) then GDA can delete this class and use the
@@ -78,7 +78,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Set whether the info popup is required
-	 * 
+	 *
 	 * @param infoPopupRequired
 	 */
 	public void setInfoPopupRequired(boolean infoPopupRequired) {
@@ -581,7 +581,7 @@ public class ContentProposalAdapter {
 		/**
 		 * Constructs a new instance of this popup, specifying the control for which this popup is showing content, and
 		 * how the proposals should be obtained and displayed.
-		 * 
+		 *
 		 * @param infoText
 		 *            Text to be shown in a lower info area, or <code>null</code> if there is no info area.
 		 */
@@ -864,7 +864,7 @@ public class ContentProposalAdapter {
 		/**
 		 * Opens this ContentProposalPopup. This method is extended in order to add the control listener when the popup
 		 * is opened and to invoke the secondary popup if applicable.
-		 * 
+		 *
 		 * @return the return code
 		 * @see org.eclipse.jface.window.Window#open()
 		 */
@@ -884,7 +884,7 @@ public class ContentProposalAdapter {
 
 		/**
 		 * Closes this popup. This method is extended to remove the control listener.
-		 * 
+		 *
 		 * @return <code>true</code> if the window is (or was already) closed, and <code>false</code> if it is still
 		 *         open
 		 */
@@ -1080,11 +1080,12 @@ public class ContentProposalAdapter {
 	/**
 	 * Indicates that a cumulative filter applies as keys are typed in the popup. That is, each character typed will be
 	 * added to the filter.
-	 * 
+	 *
 	 * @deprecated As of 3.4, filtering that is sensitive to changes in the control content should be performed by the
 	 *             supplied {@link IContentProposalProvider}, such as that performed by
 	 *             {@link SimpleContentProposalProvider}
 	 */
+	@Deprecated
 	public static final int FILTER_CUMULATIVE = 3;
 
 	/*
@@ -1227,7 +1228,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Construct a content proposal adapter that can assist the user with choosing content for the field.
-	 * 
+	 *
 	 * @param control
 	 *            the control for which the adapter is providing content assist. May not be <code>null</code>.
 	 * @param controlContentAdapter
@@ -1266,7 +1267,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Get the control on which the content proposal adapter is installed.
-	 * 
+	 *
 	 * @return the control on which the proposal adapter is installed.
 	 */
 	public Control getControl() {
@@ -1275,7 +1276,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Get the label provider that is used to show proposals.
-	 * 
+	 *
 	 * @return the {@link ILabelProvider} used to show proposals, or <code>null</code> if one has not been installed.
 	 */
 	public ILabelProvider getLabelProvider() {
@@ -1284,7 +1285,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Return a boolean indicating whether the receiver is enabled.
-	 * 
+	 *
 	 * @return <code>true</code> if the adapter is enabled, and <code>false</code> if it is not.
 	 */
 	public boolean isEnabled() {
@@ -1294,7 +1295,7 @@ public class ContentProposalAdapter {
 	/**
 	 * Set the label provider that is used to show proposals. The lifecycle of the specified label provider is not
 	 * managed by this adapter. Clients must dispose the label provider when it is no longer needed.
-	 * 
+	 *
 	 * @param labelProvider
 	 *            the (@link ILabelProvider} used to show proposals.
 	 */
@@ -1305,7 +1306,7 @@ public class ContentProposalAdapter {
 	/**
 	 * Return the proposal provider that provides content proposals given the current content of the field. A value of
 	 * <code>null</code> indicates that there are no content proposals available for the field.
-	 * 
+	 *
 	 * @return the {@link IContentProposalProvider} used to show proposals. May be <code>null</code>.
 	 */
 	public IContentProposalProvider getContentProposalProvider() {
@@ -1314,7 +1315,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Set the content proposal provider that is used to show proposals.
-	 * 
+	 *
 	 * @param proposalProvider
 	 *            the {@link IContentProposalProvider} used to show proposals
 	 */
@@ -1324,7 +1325,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Return the array of characters on which the popup is autoactivated.
-	 * 
+	 *
 	 * @return An array of characters that trigger auto-activation of content proposal. If specified, these characters
 	 *         will trigger auto-activation of the proposal popup, regardless of whether an explicit invocation
 	 *         keyStroke was specified. If this parameter is <code>null</code>, then only a specified keyStroke will
@@ -1340,7 +1341,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Set the array of characters that will trigger autoactivation of the popup.
-	 * 
+	 *
 	 * @param autoActivationCharacters
 	 *            An array of characters that trigger auto-activation of content proposal. If specified, these
 	 *            characters will trigger auto-activation of the proposal popup, regardless of whether an explicit
@@ -1358,7 +1359,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Set the delay, in milliseconds, used before any autoactivation is triggered.
-	 * 
+	 *
 	 * @return the time in milliseconds that will pass before a popup is automatically opened
 	 */
 	public int getAutoActivationDelay() {
@@ -1368,7 +1369,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Set the delay, in milliseconds, used before autoactivation is triggered.
-	 * 
+	 *
 	 * @param delay
 	 *            the time in milliseconds that will pass before a popup is automatically opened
 	 */
@@ -1379,7 +1380,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Get the integer style that indicates how an accepted proposal affects the control's content.
-	 * 
+	 *
 	 * @return a constant indicating how an accepted proposal should affect the control's content. Should be one of
 	 *         <code>PROPOSAL_INSERT</code>, <code>PROPOSAL_REPLACE</code>, or <code>PROPOSAL_IGNORE</code>. (Default is
 	 *         <code>PROPOSAL_INSERT</code>).
@@ -1390,7 +1391,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Set the integer style that indicates how an accepted proposal affects the control's content.
-	 * 
+	 *
 	 * @param acceptance
 	 *            a constant indicating how an accepted proposal should affect the control's content. Should be one of
 	 *            <code>PROPOSAL_INSERT</code>, <code>PROPOSAL_REPLACE</code>, or <code>PROPOSAL_IGNORE</code>
@@ -1401,7 +1402,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Return the integer style that indicates how keystrokes affect the content of the proposal popup while it is open.
-	 * 
+	 *
 	 * @return a constant indicating how keystrokes in the proposal popup affect filtering of the proposals shown.
 	 *         <code>FILTER_NONE</code> specifies that no filtering will occur in the content proposal list as keys are
 	 *         typed. <code>FILTER_CHARACTER</code> specifies the content of the popup will be filtered by the most
@@ -1420,7 +1421,7 @@ public class ContentProposalAdapter {
 	 * that automatic filtering is not used to achieve content-sensitive filtering such as auto-completion. Filtering
 	 * that is sensitive to changes in the control content should be performed by the supplied
 	 * {@link IContentProposalProvider}.
-	 * 
+	 *
 	 * @param filterStyle
 	 *            a constant indicating how keystrokes received in the proposal popup affect filtering of the proposals
 	 *            shown. <code>FILTER_NONE</code> specifies that no automatic filtering of the content proposal list
@@ -1435,7 +1436,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Return the size, in pixels, of the content proposal popup.
-	 * 
+	 *
 	 * @return a Point specifying the last width and height, in pixels, of the content proposal popup.
 	 */
 	public Point getPopupSize() {
@@ -1445,7 +1446,7 @@ public class ContentProposalAdapter {
 	/**
 	 * Set the size, in pixels, of the content proposal popup. This size will be used the next time the content proposal
 	 * popup is opened.
-	 * 
+	 *
 	 * @param size
 	 *            a Point specifying the desired width and height, in pixels, of the content proposal popup.
 	 */
@@ -1456,7 +1457,7 @@ public class ContentProposalAdapter {
 	/**
 	 * Get the boolean that indicates whether key events (including auto-activation characters) received by the content
 	 * proposal popup should also be propagated to the adapted control when the proposal popup is open.
-	 * 
+	 *
 	 * @return a boolean that indicates whether key events (including auto-activation characters) should be propagated
 	 *         to the adapted control when the proposal popup is open. Default value is <code>true</code>.
 	 */
@@ -1467,7 +1468,7 @@ public class ContentProposalAdapter {
 	/**
 	 * Set the boolean that indicates whether key events (including auto-activation characters) received by the content
 	 * proposal popup should also be propagated to the adapted control when the proposal popup is open.
-	 * 
+	 *
 	 * @param propagateKeys
 	 *            a boolean that indicates whether key events (including auto-activation characters) should be
 	 *            propagated to the adapted control when the proposal popup is open.
@@ -1479,7 +1480,7 @@ public class ContentProposalAdapter {
 	/**
 	 * Return the content adapter that can get or retrieve the text contents from the adapter's control. This method is
 	 * used when a client, such as a content proposal listener, needs to update the control's contents manually.
-	 * 
+	 *
 	 * @return the {@link IControlContentAdapter} which can update the control text.
 	 */
 	public IControlContentAdapter getControlContentAdapter() {
@@ -1488,7 +1489,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Set the boolean flag that determines whether the adapter is enabled.
-	 * 
+	 *
 	 * @param enabled
 	 *            <code>true</code> if the adapter is enabled and responding to user input, <code>false</code> if it is
 	 *            ignoring user input.
@@ -1507,7 +1508,7 @@ public class ContentProposalAdapter {
 	/**
 	 * Add the specified listener to the list of content proposal listeners that are notified when content proposals are
 	 * chosen. </p>
-	 * 
+	 *
 	 * @param listener
 	 *            the IContentProposalListener to be added as a listener. Must not be <code>null</code>. If an attempt
 	 *            is made to register an instance which is already registered with this instance, this method has no
@@ -1521,7 +1522,7 @@ public class ContentProposalAdapter {
 	/**
 	 * Removes the specified listener from the list of content proposal listeners that are notified when content
 	 * proposals are chosen. </p>
-	 * 
+	 *
 	 * @param listener
 	 *            the IContentProposalListener to be removed as a listener. Must not be <code>null</code>. If the
 	 *            listener has not already been registered, this method has no effect.
@@ -1535,7 +1536,7 @@ public class ContentProposalAdapter {
 	/**
 	 * Add the specified listener to the list of content proposal listeners that are notified when a content proposal
 	 * popup is opened or closed. </p>
-	 * 
+	 *
 	 * @param listener
 	 *            the IContentProposalListener2 to be added as a listener. Must not be <code>null</code>. If an attempt
 	 *            is made to register an instance which is already registered with this instance, this method has no
@@ -1550,7 +1551,7 @@ public class ContentProposalAdapter {
 	/**
 	 * Remove the specified listener from the list of content proposal listeners that are notified when a content
 	 * proposal popup is opened or closed. </p>
-	 * 
+	 *
 	 * @param listener
 	 *            the IContentProposalListener2 to be removed as a listener. Must not be <code>null</code>. If the
 	 *            listener has not already been registered, this method has no effect.
@@ -1719,7 +1720,7 @@ public class ContentProposalAdapter {
 
 			/**
 			 * Dump the given events to "standard" output.
-			 * 
+			 *
 			 * @param who
 			 *            who is dumping the event
 			 * @param e
@@ -1754,7 +1755,7 @@ public class ContentProposalAdapter {
 	 * Open the proposal popup and display the proposals provided by the proposal provider. If there are no proposals to
 	 * be shown, do not show the popup. This method returns immediately. That is, it does not wait for the popup to open
 	 * or a proposal to be selected.
-	 * 
+	 *
 	 * @param autoActivated
 	 *            a boolean indicating whether the popup was autoactivated. If false, a beep will sound when no
 	 *            proposals can be shown.
@@ -1808,7 +1809,7 @@ public class ContentProposalAdapter {
 	 * Close the proposal popup without accepting a proposal. This method returns immediately, and has no effect if the
 	 * proposal popup was not open. This method is used by subclasses to explicitly close the popup based on additional
 	 * logic.
-	 * 
+	 *
 	 * @since 3.3
 	 */
 	public void closeProposalPopup() {
@@ -2000,7 +2001,7 @@ public class ContentProposalAdapter {
 	/**
 	 * Returns whether the content proposal popup has the focus. This includes both the primary popup and any secondary
 	 * info popup that may have focus.
-	 * 
+	 *
 	 * @return <code>true</code> if the proposal popup or its secondary info popup has the focus
 	 * @since 3.4
 	 */
@@ -2055,7 +2056,7 @@ public class ContentProposalAdapter {
 	/**
 	 * Sets focus to the proposal popup. If the proposal popup is not opened, this method is ignored. If the secondary
 	 * popup has focus, focus is returned to the main proposal popup.
-	 * 
+	 *
 	 * @since 3.6
 	 */
 	public void setProposalPopupFocus() {
@@ -2065,7 +2066,7 @@ public class ContentProposalAdapter {
 
 	/**
 	 * Answers a boolean indicating whether the main proposal popup is open.
-	 * 
+	 *
 	 * @return <code>true</code> if the proposal popup is open, and <code>false</code> if it is not.
 	 * @since 3.6
 	 */

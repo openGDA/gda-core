@@ -18,17 +18,17 @@
 
 /**
  * <code>gda.data.fileregistrar</code> contains code used for notifying (possibly external) entities
- * when files are created. Main purpose is archiving and indexing, but data processing could also be 
- * triggered. 
- * 
- * 
+ * when files are created. Main purpose is archiving and indexing, but data processing could also be
+ * triggered.
+ *
+ *
  *      <p> There are two main routes. One is directly by a detector, a processing task or anything else
  *      that creates a file that needs archiving to find classes implementing IFileRegistrar from the Finder
  *      and call their registerFile method(s) or use the FileRegistrarHelper class to ease that task.
- *      <p> The other route is implemented in the concrete FileRegistrar class which also implements 
+ *      <p> The other route is implemented in the concrete FileRegistrar class which also implements
  *      DataWriterExtender. If that extender is added to a DataWriter (via a DataWriterFactory for example)
- *      it receives ScanDataPoints through it. The SDP are inspected and Filenames in it that originate from 
- *      file-writing detectors are registered automatically. 
- *      
+ *      it receives ScanDataPoints through it. The SDP are inspected and Filenames in it that originate from
+ *      file-writing detectors are registered automatically.
+ *
  */
 package gda.data.fileregistrar;

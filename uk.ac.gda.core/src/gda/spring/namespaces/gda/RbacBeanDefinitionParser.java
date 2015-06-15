@@ -33,13 +33,13 @@ public class RbacBeanDefinitionParser implements BeanDefinitionParser {
 	@Override
 	public AbstractBeanDefinition parse(Element element, ParserContext parserContext) {
 		AbstractBeanDefinition beanDef = createRbacBeanPostProcessorBeanDefinition();
-		
+
 		String beanName = parserContext.getReaderContext().generateBeanName(beanDef);
 		parserContext.getRegistry().registerBeanDefinition(beanName, beanDef);
-		
+
 		return beanDef;
 	}
-	
+
 	private AbstractBeanDefinition createRbacBeanPostProcessorBeanDefinition() {
 		AbstractBeanDefinition beanDef = new GenericBeanDefinition();
 		beanDef.setBeanClass(RbacBeanPostProcessor.class);

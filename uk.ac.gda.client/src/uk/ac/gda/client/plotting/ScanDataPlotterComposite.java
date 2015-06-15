@@ -155,7 +155,7 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 				}
 			}
 		});
-		
+
 		rootDataNode.addPropertyChangeListener(Node.SCAN_ADDED_PROP_NAME, new PropertyChangeListener() {
 			@Override
 			public void propertyChange(final PropertyChangeEvent evt) {
@@ -357,7 +357,7 @@ public class ScanDataPlotterComposite extends ResourceComposite {
 					public void handleAdd(int index, Object element) {
 						updateSelection(element, true);
 					}
-					
+
 					private void updateSelection(Object element, boolean highlighted) {
 						if (element instanceof LineTraceProviderNode && dataTreeViewer.getChecked(element)) {
 							LineTraceProviderNode lineTraceProvider = (LineTraceProviderNode) element;

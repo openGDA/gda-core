@@ -39,7 +39,7 @@ public class FileUtil {
 	/**
 	 * Calculate a checksum for a file, based on the Adler32 algorithm invented by Mark Adler. This is almost as
 	 * reliable as a 32-bit cyclic redundancy check for protecting against accidental modification of data.
-	 * 
+	 *
 	 * @param filename
 	 *            The name of the file to be checksummed.
 	 * @return The Adler32 checksum.
@@ -78,7 +78,7 @@ public class FileUtil {
 		if( fromFileName.equals(toFileName))
 			return;
 
-		
+
 		File toFile = new File(toFileName);
 
 		if (!fromFile.canRead())
@@ -135,8 +135,8 @@ public class FileUtil {
 
 	/**
 	 * copy one file from one place to another
-	 * @param fromURL 
-	 * @param toFile 
+	 * @param fromURL
+	 * @param toFile
 	 * @throws IOException
 	 */
 	public static void copy(URL fromURL, File toFile) throws IOException {

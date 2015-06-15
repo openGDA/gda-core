@@ -33,13 +33,13 @@ public class ScannableRotationSource extends ScannableMotionUnitsPositionSource 
 	public double calcMoveMinusRelative(double value) throws DeviceException {
 		double currentPosition = ScannableUtils.getCurrentPositionArray(scannable)[0];
 		return currentPosition - value;
-		
+
 	}
 
 	@Override
 	public double calcMovePlusRelative(double value) throws DeviceException {
 		double currentPosition = ScannableUtils.getCurrentPositionArray(scannable)[0];
-		return currentPosition + value;	
+		return currentPosition + value;
 	}
 
 }

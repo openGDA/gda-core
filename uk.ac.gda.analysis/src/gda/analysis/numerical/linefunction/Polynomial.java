@@ -28,7 +28,7 @@ public class Polynomial extends AbstractFunction {
 	/**
 	 * Initial values for a polynomial This also create Parameter objects for each value. The Parameter objects can
 	 * contain upper and lower bounding info
-	 * 
+	 *
 	 * @param parms
 	 */
 	public Polynomial(double... parms) {
@@ -53,7 +53,7 @@ public class Polynomial extends AbstractFunction {
 
 	/**
 	 * Create a polynomial with a given order The parameters of the polynomial are chosen randomly
-	 * 
+	 *
 	 * @param order
 	 */
 	public Polynomial(int order) {
@@ -67,7 +67,7 @@ public class Polynomial extends AbstractFunction {
 	/**
 	 * Create a Polynomial with random starting positions, but with a variance defining the boundrys of the parameters,
 	 * this variance decreases with the order of the polyunomial, as larger powers require smaller factors
-	 * 
+	 *
 	 * @param order
 	 *            The Order of the Polynomial
 	 * @param Variance
@@ -89,7 +89,7 @@ public class Polynomial extends AbstractFunction {
 
 	/**
 	 * Horners method for evaluating a polynomial
-	 * 
+	 *
 	 * @param x
 	 *            positions
 	 * @return The value of the polynomial at positions x

@@ -39,7 +39,7 @@ public class AsciiFile {
 
 	/**
 	 * Append String line to ascii file
-	 * 
+	 *
 	 * @param file
 	 *            String file name of file
 	 * @param text
@@ -53,7 +53,7 @@ public class AsciiFile {
 
 	/**
 	 * Append single integer as line in ascii file
-	 * 
+	 *
 	 * @param file
 	 *            String file name of file
 	 * @param value
@@ -66,7 +66,7 @@ public class AsciiFile {
 
 	/**
 	 * Append single double value as line in ascii file
-	 * 
+	 *
 	 * @param file
 	 *            String file name of file
 	 * @param value
@@ -79,7 +79,7 @@ public class AsciiFile {
 
 	/**
 	 * Append single java.awt.Dimension value as 2 lines in ascii file
-	 * 
+	 *
 	 * @param file
 	 *            String file name of file
 	 * @param d
@@ -93,7 +93,7 @@ public class AsciiFile {
 
 	/**
 	 * Append String to ascii file without formatting (& without EOL)
-	 * 
+	 *
 	 * @param file
 	 *            String file name of file
 	 * @param text
@@ -108,7 +108,7 @@ public class AsciiFile {
 
 	/**
 	 * Opens file for input. Note that there is only one BufferedReader per AsciiFile.
-	 * 
+	 *
 	 * @param file
 	 *            String name of file
 	 * @throws IOException
@@ -119,7 +119,7 @@ public class AsciiFile {
 
 	/**
 	 * Read String from file previously opened for input
-	 * 
+	 *
 	 * @see gda.util.AsciiFile#openForInput
 	 * @see gda.util.AsciiFile#readString
 	 * @return String read from file
@@ -131,7 +131,7 @@ public class AsciiFile {
 
 	/**
 	 * Read lines of data from file to end of file (one line per arrary element of String[])
-	 * 
+	 *
 	 * @return String[]
 	 * @throws IOException
 	 */
@@ -146,7 +146,7 @@ public class AsciiFile {
 
 	/**
 	 * Read String from file using {@link java.io.BufferedReader#readLine()} up to EOL
-	 * 
+	 *
 	 * @return string String read from file or null
 	 * @throws IOException
 	 */
@@ -162,7 +162,7 @@ public class AsciiFile {
 
 	/**
 	 * Read next line from file and interprets as integer
-	 * 
+	 *
 	 * @return value int parsed from file, zero if file not open!
 	 * @throws IOException
 	 * @throws NumberFormatException
@@ -181,7 +181,7 @@ public class AsciiFile {
 
 	/**
 	 * Read next line from file and interprets as double
-	 * 
+	 *
 	 * @return value double parsed from file, zero if file not open!
 	 * @throws IOException
 	 * @throws NumberFormatException
@@ -200,7 +200,7 @@ public class AsciiFile {
 
 	/**
 	 * Read next line from file and interprets as java.awt.Dimension
-	 * 
+	 *
 	 * @return value java.awt.Dimension parsed from file, zero, zero if file not open!
 	 * @throws IOException
 	 * @throws NumberFormatException
@@ -222,7 +222,7 @@ public class AsciiFile {
 
 	/**
 	 * Close file
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public void close() throws IOException {

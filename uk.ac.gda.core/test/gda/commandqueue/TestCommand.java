@@ -86,5 +86,5 @@ public class TestCommand extends CommandBase {
 	public void setDetails(String details) throws Exception {
 	}
 
-	
+
 }

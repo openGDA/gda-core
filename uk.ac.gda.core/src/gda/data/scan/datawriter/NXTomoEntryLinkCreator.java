@@ -29,32 +29,32 @@ import org.springframework.beans.factory.InitializingBean;
  *
  */
 public class NXTomoEntryLinkCreator extends NXLinkCreator implements InitializingBean {
-	
+
 	private String control_data_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/current:SDS";
-	
+
 	private String data_data_target = "entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/data:SDS";
 	private String data_rotation_angle_target = "entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/rotation_angle:SDS";
-	
+
 	private String instrument_detector_data_target = "entry1:NXentry/instrument:NXinstrument/pco1_hw_hdf:NXdetector/data:SDS";
 	private String instrument_detector_distance_target = "entry1:NXentry/scan_identifier:SDS";
 	private String instrument_detector_image_key_target = "entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/image_key:SDS";
 	private String instrument_detector_x_pixel_size_target = "entry1:NXentry/scan_identifier:SDS";
 	private String instrument_detector_y_pixel_size_target = "entry1:NXentry/scan_identifier:SDS";
-	
+
 	private String instrument_source_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource";
 	private String instrument_source_current_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/current:SDS";
 	private String instrument_source_energy_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/energy:SDS";
 	private String instrument_source_name_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/name:SDS";
 	private String instrument_source_probe_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/probe:SDS";
 	private String instrument_source_type_target = "entry1:NXentry/instrument:NXinstrument/source:NXsource/type:SDS";
-	
+
 	private String sample_rotation_angle_target = "entry1:NXentry/instrument:NXinstrument/tomoScanDevice:NXpositioner/ss1_rot:SDS";
 	private String sample_x_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplex:SDS";
 	private String sample_y_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_sampley:SDS";
 	private String sample_z_translation_target = "entry1:NXentry/instrument:NXinstrument/sample_stage:NXpositioner/ss1_samplez:SDS";
-	
+
 	private String title_target = "entry1:NXentry/scan_identifier:SDS";
-	
+
 	public String getControl_data_target() {
 		return control_data_target;
 	}
@@ -103,7 +103,7 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 	public void setInstrument_detector_y_pixel_size_target(String instrument_detector_y_pixel_size_target) {
 		this.instrument_detector_y_pixel_size_target = instrument_detector_y_pixel_size_target;
 	}
-	
+
 	public String getSample_rotation_angle_target() {
 		return sample_rotation_angle_target;
 	}
@@ -111,21 +111,21 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 	public void setSample_rotation_angle_target(String sample_rotation_angle_target) {
 		this.sample_rotation_angle_target = sample_rotation_angle_target;
 	}
-	
+
 	public String getInstrument_source_target() {
 		return instrument_source_target;
 	}
 
 	public void setInstrument_source_target(String instrument_source_target) {
 		this.instrument_source_target = instrument_source_target;
-		
+
 		this.instrument_source_current_target = this.instrument_source_target + "/current:SDS";
 		this.instrument_source_energy_target = this.instrument_source_target + "/energy:SDS";
 		this.instrument_source_name_target = this.instrument_source_target + "/name:SDS";
 		this.instrument_source_probe_target = this.instrument_source_target + "/probe:SDS";
 		this.instrument_source_type_target = this.instrument_source_target + "/type:SDS";
 	}
-	
+
 	public String getSample_x_translation_target() {
 		return sample_x_translation_target;
 	}
@@ -157,39 +157,39 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 	public void setTitle_target(String title_target) {
 		this.title_target = title_target;
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		// control/data
 		if (this.getControl_data_target() == null)
 			throw new IllegalStateException("control_data_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/control:NXMonitor/data", getControl_data_target());
-		
+
 		// instrument/detector/data
 		if (this.getInstrument_detector_data_target() == null)
 			throw new IllegalStateException("instrument_detector_data_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/data", getInstrument_detector_data_target());
-				
+
 		// instrument/detector/distance
 		if (this.getInstrument_detector_distance_target() == null)
 			throw new IllegalStateException("instrument_detector_distance_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/distance", getInstrument_detector_distance_target());
-		
+
 		// instrument/detector/image_key
 		if (this.getInstrument_detector_image_key_target() == null)
 			throw new IllegalStateException("instrument_detector_image_key_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/image_key", getInstrument_detector_image_key_target());
-		
+
 		// instrument/detector/x_pixel_size
 		if (this.getInstrument_detector_x_pixel_size_target() == null)
 			throw new IllegalStateException("instrument_detector_x_pixel_size_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/x_pixel_size", getInstrument_detector_x_pixel_size_target());
-		
+
 		// instrument/detector/y_pixel_size
 		if (this.getInstrument_detector_x_pixel_size_target() == null)
 			throw new IllegalStateException("instrument_detector_y_pixel_size_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/detector:NXdetector/y_pixel_size", getInstrument_detector_y_pixel_size_target());
-		
+
 		// instrument/source
 		if (this.getInstrument_source_target() == null)
 			throw new IllegalStateException("instrument_source_target is not set");
@@ -199,44 +199,44 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/source:NXsource/name", this.instrument_source_name_target);
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/source:NXsource/probe", this.instrument_source_probe_target);
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/instrument:NXinstrument/source:NXsource/type", this.instrument_source_type_target);
-		
+
 		// sample/rotation_angle
 		if (this.getSample_rotation_angle_target() == null)
 			throw new IllegalStateException("sample_rotation_angle_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/rotation_angle", getSample_rotation_angle_target());
-		
+
 		// sample/x_translation
 		if (this.getSample_x_translation_target() == null)
 			throw new IllegalStateException("sample_x_translation_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/x_translation", getSample_x_translation_target());
-		
+
 		// sample/y_translation
 		if (this.getSample_y_translation_target() == null)
 			throw new IllegalStateException("sample_y_translation_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/y_translation", getSample_y_translation_target());
-		
+
 		// sample/z_translation
 		if (this.getSample_z_translation_target() == null)
 			throw new IllegalStateException("sample_z_translation_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/sample:NXsample/z_translation", getSample_z_translation_target());
-		
+
 		// title
 		if (this.getTitle_target() == null)
 			throw new IllegalStateException("title_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/title", getTitle_target());
-		
-		
+
+
 		// data/data
 		if (this.data_data_target == null)
 			throw new IllegalStateException("data_data_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/data:NXdata/data", this.data_data_target);
-		
+
 		// data/rotation_angle
 		if (this.data_rotation_angle_target == null)
 			throw new IllegalStateException("data_rotation_angle_target is not set");
 		addLink("/entry1:NXentry/tomo_entry:NXsubentry/data:NXdata/rotation_angle", this.data_rotation_angle_target);
 	}
-	
+
 	public void writeStringData(String filename, String dataName, String dataValue ) throws Exception {
 		NexusFile file = NexusUtils.openNexusFile(filename);
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), "entry1", NexusExtractor.NXEntryClassName);
@@ -246,13 +246,13 @@ public class NXTomoEntryLinkCreator extends NXLinkCreator implements Initializin
 		NexusUtils.writeString(file, group, dataName, dataValue);
 		file.close();
 	}
-	
+
 	@Override
 	public void makelinks(String filename) throws Exception {
-		
+
 		super.makelinks(filename);
-		
+
 		// workaround: make non-link(s) as well
-		writeStringData(filename, "definition", "NXtomo");	
+		writeStringData(filename, "definition", "NXtomo");
 	}
 }

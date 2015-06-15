@@ -19,12 +19,12 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.factory.Finder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A SRS122 VME motor class. This implementation uses a motord process running on VME for low level control of the

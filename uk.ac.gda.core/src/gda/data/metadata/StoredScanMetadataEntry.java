@@ -35,7 +35,7 @@ public class StoredScanMetadataEntry extends StoredMetadataEntry implements IObs
 
 	private String resetValue = "";
 	private boolean scanRunning = false;
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();

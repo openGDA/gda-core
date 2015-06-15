@@ -40,7 +40,7 @@ public class TestObjectAssistant {
 	boolean createOnStartup = false;
 
 	/**
-	 * 
+	 *
 	 */
 	public void createLocalObjects() {
 		// Create an instance of the local factory with create on
@@ -59,7 +59,7 @@ public class TestObjectAssistant {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void createRemoteObjects() {
 		// Create an instance of the local factory with create on

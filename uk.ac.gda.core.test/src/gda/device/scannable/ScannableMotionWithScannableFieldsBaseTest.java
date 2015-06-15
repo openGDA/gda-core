@@ -18,7 +18,6 @@
 
 package gda.device.scannable;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -120,7 +119,7 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		e2.atCommandFailure();
 		verify(scn, times(4)).atCommandFailure();
 	}
-	
+
 	@Test
 	public void testFullCoordinatedMoveOutsideScanWithAutoComplete() throws DeviceException {
 		scn.setAutoCompletePartialMoveToTargets(true);
@@ -142,7 +141,7 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		verify(scn).rawAsynchronousMoveTo(new Double[] { 10., 10.1 });
 		assertFalse(scn.isTargeting());
 	}
-	
+
 	@Test
 	public void testFullCoordinatedMoveOutsideScan() throws DeviceException {
 		i1.atLevelMoveStart();
@@ -178,14 +177,14 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		scn.atCommandFailure();
 		assertEquals(null, (Object) scn.getPositionAtScanStart());
 	}
-	
+
 	@Test
 	public void testGetPositionAtScanStartAfterScanEnd() throws DeviceException {
 		scn.atScanStart();
 		scn.atScanEnd();
 		assertEquals(null, (Object) scn.getPositionAtScanStart());
 	}
-	
+
 	@Test
 	public void testPartialCoordinatedMoveInScanWithAutoComplete() throws DeviceException {
 		scn.setAutoCompletePartialMoveToTargets(true);
@@ -198,7 +197,7 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		verify(scn).rawAsynchronousMoveTo(new Double[] { 10., 91. });
 		assertFalse(scn.isTargeting());
 	}
-	
+
 	@Test
 	public void testPartialCoordinatedMoveOutsideScan() throws DeviceException {
 		i1.atLevelMoveStart();
@@ -206,7 +205,7 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		verify(scn).rawAsynchronousMoveTo(new Double[] { 10., null });
 		assertFalse(scn.isTargeting());
 	}
-	
+
 	@Test
 	public void testPartialCoordinatedMoveOutsideScanWithUnits() throws DeviceException {
 		i1.setHardwareUnitString("m");
@@ -225,7 +224,7 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		doReturn(new Double[] { 5., 1., 2., 3. }).when(scn).rawGetPosition();
 		assertEquals(5000., i1.getPosition());
 	}
-	
+
 	@Test
 	public void testUncoordinatedMove() throws DeviceException {
 		doNothing().when(scn).asynchronousMoveFieldTo(anyInt(), anyObject());
@@ -245,7 +244,7 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 					.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testDefaultAsynchronousMoveFieldToOutsideScanWithAutoComplete() throws DeviceException {
 		scn.setAutoCompletePartialMoveToTargets(true);
@@ -253,7 +252,7 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		scn.asynchronousMoveFieldTo(0, 1.);
 		verify(scn).rawAsynchronousMoveTo(new Object[] { 1., 91.});
 	}
-	
+
 	@Test
 	public void testDefaultAsynchronousMoveFieldToOutsideScan() throws DeviceException {
 		scn.asynchronousMoveFieldTo(0, 1.);
@@ -347,7 +346,7 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		i1.setTolerance(2.);
 		verify(scn).setTolerances(new Double[] {2., 0.});
 	}
-	
+
 	@Test(expected = DeviceException.class)
 	public void testSFSetToleranceDoubleSettingNonInput() throws DeviceException {
 		e1.setTolerance(2.);
@@ -359,8 +358,8 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		i1.setTolerances(new Double[] {2.});
 		verify(scn).setTolerances(new Double[] {2., 0.});
 	}
-	
-	
+
+
 	@Test(expected = DeviceException.class)
 	public void testSFSetToleranceDoubleArrayLongerThanOne() throws DeviceException {
 		i1.setTolerances(new Double[] {2., 0.});
@@ -374,28 +373,28 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		assertEquals(1, result.length);
 		assertEquals(1., result[0], .0001);
 	}
-	
+
 	@Test
 	public void testSFGetOffset() {
 		when(scn.getOffset()).thenReturn(new Double[] { 1., null });
 		ArrayAssert.assertEquals(new Double[]{1.}, i1.getOffset());
 		ArrayAssert.assertEquals(null, i2.getOffset());
 	}
-	
+
 	@Test
 	public void testSFGetOffsetWithNoOffsetsOnParent() {
 		when(scn.getOffset()).thenReturn(null);
 		ArrayAssert.assertEquals(null, i1.getOffset());
 		ArrayAssert.assertEquals(null, i2.getOffset());
 	}
-	
+
 	@Test
 	public void testSFGetScalingFactor() {
 		when(scn.getScalingFactor()).thenReturn(new Double[] { 1., null });
 		ArrayAssert.assertEquals(new Double[]{1.}, i1.getScalingFactor());
 		ArrayAssert.assertEquals(null, i2.getScalingFactor());
 	}
-	
+
 	@Test
 	public void testSFGetScalingFactorNoOffsetsOnParent() {
 		when(scn.getOffset()).thenReturn(null);
@@ -410,35 +409,35 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 //		i2.setOffset(2.);
 //		verify(scn).setOffset(new Double[] { 1., 2. });
 //	}
-//	
+//
 //	@Test
 //	public void testSFSetOffsetWithNoOffsetsOnParent() {
 //		when(scn.getOffset()).thenReturn(null);
 //		i2.setOffset(2.);
 //		verify(scn).setOffset(new Double[] { null, 2., null, null });
 //	}
-//	
+//
 //	@Test
 //	public void testSFSetScalingFactor() {
 //		when(scn.getScalingFactor()).thenReturn(new Double[] { 1., null });
 //		ArrayAssert.assertEquals(new Double[]{1.}, i1.getScalingFactor());
 //		ArrayAssert.assertEquals(null, i2.getScalingFactor());
 //	}
-//	
+//
 //	@Test
 //	public void testSFSetScalingFactorNoOffsetsOnParent() {
 //		when(scn.getOffset()).thenReturn(null);
 //		ArrayAssert.assertEquals(null, i1.getScalingFactor());
 //		ArrayAssert.assertEquals(null, i2.getScalingFactor());
 //	}
-	
+
 	@Test
 	public void testSFStop() throws DeviceException {
 		i1.stop();
 		e1.stop();
 		verify(scn, times(2)).stop();
 	}
-	
+
 	@Test
 	public void testGetFieldPositionWithArray() throws Exception {
 		doReturn(new Double[] { 0., 1., 2., 3. }).when(scn).rawGetPosition();
@@ -474,7 +473,7 @@ public class ScannableMotionWithScannableFieldsBaseTest {
 		assertEquals(new PyFloat(2.), scn.getFieldPosition(2));
 		assertEquals(new PyInteger(3), scn.getFieldPosition(3));
 	}
-	
+
 	@Test
 	public void testGetFieldPositionWithSinglePyInput() throws Exception {
 		scn.setInputNames(new String[] { "i1"});

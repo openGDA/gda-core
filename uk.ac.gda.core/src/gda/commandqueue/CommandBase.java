@@ -26,19 +26,19 @@ import java.io.Serializable;
 /**
  * The class provides default implementations Command interface methods:
  * getDescription and getState
- * 
+ *
  * The developer need only subclass this class and define the <code>run</code> method.
- * It is assumed that the run method was take a while to execute. 
+ * It is assumed that the run method was take a while to execute.
  * Wrap the code in the run method in calls to  beginRun and endRun to ensure the state
  * is set correctly
- * 
+ *
  */
 public abstract class CommandBase implements Command, Serializable {
 	protected ObservableComponent obsComp = new ObservableComponent();
 
 	STATE state=STATE.NOT_STARTED;
 	private String description;
-	
+
 	public CommandBase() {
 		setDescription("CommandBase");
 	}
@@ -50,7 +50,7 @@ public abstract class CommandBase implements Command, Serializable {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "CommandBase [description=" + description + "]";
@@ -81,7 +81,7 @@ public abstract class CommandBase implements Command, Serializable {
 	public void beginRun() {
 		setState(STATE.RUNNING);
 	}
-	
+
 	public void endRun() {
 		setState(STATE.COMPLETED);
 	}
@@ -99,11 +99,11 @@ public abstract class CommandBase implements Command, Serializable {
 	@Override
 	public void deleteIObservers() {
 		obsComp.deleteIObservers();
-	}	
-	
+	}
+
 	@Override
 	public void resume() throws Exception {
 		run();
 	}
-	
+
 }

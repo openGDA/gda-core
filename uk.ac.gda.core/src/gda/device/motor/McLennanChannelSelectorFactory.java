@@ -35,7 +35,7 @@ public class McLennanChannelSelectorFactory {
 
 	/**
 	 * returns the relevant ChannelSelector
-	 * 
+	 *
 	 * @param controller
 	 *            McLennanController
 	 * @param axis

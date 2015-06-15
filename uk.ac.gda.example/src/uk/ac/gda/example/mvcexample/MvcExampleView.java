@@ -80,7 +80,7 @@ public class MvcExampleView extends ViewPart {
 
 	/**
 	 * Create contents of the view part.
-	 * 
+	 *
 	 * @param parent
 	 */
 	@Override
@@ -186,7 +186,7 @@ public class MvcExampleView extends ViewPart {
 
 		column0.setLabelProvider(new ObservableMapColumnLabelProvider(values0));
 
-		
+
 		TableViewerColumn column1 = new TableViewerColumn(viewer, SWT.NONE);
 		column1.getColumn().setWidth(100);
 		column1.getColumn().setText(MvcExampleItem.VALUE_PROPERTY_NAME);
@@ -213,7 +213,7 @@ public class MvcExampleView extends ViewPart {
 			@Override
 			public void updateControl(Control control, Object value) {
 				((ProgressBar)control).setSelection( ((Double) value).intValue());
-				
+
 			}
 		};
 		column2.setLabelProvider(new ObservableMapCellControlProvider(values, factory, "Column2"));
@@ -249,7 +249,7 @@ public class MvcExampleView extends ViewPart {
 			}
 		};
 		column3.setLabelProvider(new ObservableMapCellControlProvider(values, factory2, "Column3"));
-		
+
 
 		TableViewerColumn column4 = new TableViewerColumn(viewer, SWT.NONE);
 		column4.getColumn().setText("Done");
@@ -285,8 +285,8 @@ public class MvcExampleView extends ViewPart {
 				event.gc.setBackground(complete? green : yellow);
 				event.gc.fillRectangle(event.getBounds());
 			}});
-		
-		
+
+
 		viewer.getTable().setHeaderVisible(true);
 		viewer.setContentProvider(contentProvider);
 		viewer.setInput(input);

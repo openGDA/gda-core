@@ -56,7 +56,7 @@ final public class MCAStatus implements Serializable {
 
 	/**
 	 * Constructor used internally to construct the allowed instances.
-	 * 
+	 *
 	 * @param value
 	 */
 	protected MCAStatus(int value) {
@@ -66,7 +66,7 @@ final public class MCAStatus implements Serializable {
 
 	/**
 	 * Returns the actual value.
-	 * 
+	 *
 	 * @return the value
 	 */
 	public int value() {
@@ -75,7 +75,7 @@ final public class MCAStatus implements Serializable {
 
 	/**
 	 * Returns one of the possible instances.
-	 * 
+	 *
 	 * @param value
 	 *            the value for which the corresponding instance should be returned
 	 * @return the relevant instance

@@ -61,44 +61,44 @@ public class ObjectFactoryValidationTest extends TestCase {
 	 */
 	private static final File DIRECTORY_TO_SEARCH_FOR_XML_FILES = null;
 	/* private static final File DIRECTORY_TO_SEARCH_FOR_XML_FILES = new File("/scratch/workspace/configurations/diamond"); */
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ObjectFactoryValidationTest.class);
-	
+
 	private static final String SCHEMA_LOCATION = ObjectServer.class.getResource("../configuration/object/schema/GDASchema.xsd").getFile();
-	
+
 	private static final String SCHEMA_LANGUAGE_ATTRIBUTE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
-	
+
 	private static final String XSD_SCHEMA_LANGUAGE = "http://www.w3.org/2001/XMLSchema";
-	
+
 	private DocumentBuilder nonValidatingDocumentBuilder;
-	
+
 	private DocumentBuilder validatingDocumentBuilder;
-	
+
 	private List<String> ignoredFiles;
-	
+
 	private static class Results {
 		public int totalFiles = 0;
-		
+
 		public int totalObjectFactoryFiles = 0;
-		
+
 		public List<String> failed = new Vector<String>();
-		
+
 		public List<String> valid = new Vector<String>();
-		
+
 		public List<String> invalid = new Vector<String>();
 	}
-	
+
 	private static Results results = new Results();
-	
+
 	private File directoryToSearch;
-	
+
 	@Override
 	protected void setUp() throws Exception {
 		ignoredFiles = readListOfIgnoredObjectFactoryFiles();
 		nonValidatingDocumentBuilder = createDocumentBuilder(false);
 		validatingDocumentBuilder = createDocumentBuilder(true);
 	}
-	
+
 	private static List<String> readListOfIgnoredObjectFactoryFiles() throws Exception {
 		String invalidFilesFile = ObjectFactoryValidationTest.class.getResource("ignored-ObjectFactory-files.txt").getFile();
 		List<String> lines= FileUtils.readFileAsList(new File(invalidFilesFile));
@@ -110,11 +110,11 @@ public class ObjectFactoryValidationTest extends TestCase {
 		}
 		return ignoredFiles;
 	}
-	
+
 	/**
 	 * Ensures that all ObjectFactory XML files (except those known to fail)
 	 * validate against the GDA schema.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void testThatAllObjectFactoryFilesValidate() throws Exception {
@@ -122,43 +122,43 @@ public class ObjectFactoryValidationTest extends TestCase {
 		if (basedir != null) {
 			directoryToSearch = new File(basedir, "../../configurations/diamond").getCanonicalFile();
 		}
-		
+
 		if (basedir == null) {
 			assertNotNull("Could not automatically determine the configurations directory. You need to set DIRECTORY_TO_SEARCH_FOR_XML_FILES in " + getClass().getSimpleName(), DIRECTORY_TO_SEARCH_FOR_XML_FILES);
 			directoryToSearch = DIRECTORY_TO_SEARCH_FOR_XML_FILES;
 		}
-		
+
 		logger.info("Searching for XML files in " + directoryToSearch);
 		searchDirectory(directoryToSearch);
-		
+
 		logger.info(results.totalFiles + " XML files checked");
-		
+
 		if (!results.failed.isEmpty()) {
 			logger.error(results.failed.size() + " file(s) failed:");
 			for (String file : results.failed) {
 				logger.error("  " + file);
 			}
 		}
-		
+
 		logger.info(results.totalObjectFactoryFiles + " ObjectFactory files checked");
-		
+
 		logger.info(ignoredFiles.size() + " file(s) skipped");
-		
+
 		if (!results.invalid.isEmpty()) {
 			logger.error(results.invalid.size() + " invalid ObjectFactory files:");
 			for (String file : results.invalid) {
 				logger.error("  " + file);
 			}
 		}
-		
+
 		logger.info(results.valid.size() + " valid ObjectFactory files");
-		
+
 		assertTrue("One or more XML files failed: " + results.failed.toString() + " in " + directoryToSearch + "/",
 			results.failed.isEmpty());
 		assertTrue("One or more ObjectFactory files were invalid: " + results.invalid.toString()  + " in " + directoryToSearch + "/",
 			results.invalid.isEmpty());
 	}
-	
+
 	private static DocumentBuilder createDocumentBuilder(boolean validating) throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
@@ -168,19 +168,19 @@ public class ObjectFactoryValidationTest extends TestCase {
 		builder.setErrorHandler(new SimpleErrorHandler());
 		return builder;
 	}
-	
+
 	private void searchDirectory(File dir) throws Exception {
 		File[] contents = dir.listFiles();
 		assertNotNull("Couldn't get list of files in " + dir + " - is the pathname valid?", contents);
-		
+
 		for (File f : contents) {
-			
+
 			if (f.isDirectory()) {
 				if (!f.getName().equals(".svn")) {
 					searchDirectory(f);
 				}
 			}
-			
+
 			else if (f.isFile()) {
 				if (f.getName().toLowerCase().endsWith(".xml")) {
 					doXmlFile(f);
@@ -191,11 +191,11 @@ public class ObjectFactoryValidationTest extends TestCase {
 
 	private void doXmlFile(File file) throws Exception {
 		results.totalFiles++;
-		
+
 		final String relativeFilePath = getRelativePath(file, directoryToSearch);
-		
+
 		Document doc;
-		
+
 		try {
 			doc = nonValidatingDocumentBuilder.parse(file);
 		} catch (Exception e) {
@@ -203,16 +203,16 @@ public class ObjectFactoryValidationTest extends TestCase {
 			results.failed.add(relativeFilePath);
 			return;
 		}
-		
+
 		if (isObjectFactoryFile(doc)) {
-			
+
 			results.totalObjectFactoryFiles++;
-			
+
 			if (ignoredFiles.contains(relativeFilePath)) {
 				logger.info("Skipping " + file);
 				return;
 			}
-			
+
 			String newDocument;
 			try {
 				removeAllRootElementAttributes(doc);
@@ -223,7 +223,7 @@ public class ObjectFactoryValidationTest extends TestCase {
 				results.failed.add(relativeFilePath);
 				return;
 			}
-			
+
 			try {
 				doc = validatingDocumentBuilder.parse(new InputSource(new StringReader(newDocument)));
 				results.valid.add(relativeFilePath);
@@ -233,34 +233,34 @@ public class ObjectFactoryValidationTest extends TestCase {
 			}
 		}
 	}
-	
+
 	private static boolean isObjectFactoryFile(Document doc) {
 		return doc.getDocumentElement().getLocalName().equals("ObjectFactory");
 	}
-	
+
 	private void removeAllRootElementAttributes(Document doc) {
 		final Element rootElement = doc.getDocumentElement();
-		
+
 		// Get names of all attributes
 		Set<String> attributeNames = new LinkedHashSet<String>();
 		NamedNodeMap rootElementAttributes = rootElement.getAttributes();
 		for (int i=0; i<rootElementAttributes.getLength(); i++) {
 			attributeNames.add(rootElementAttributes.item(i).getNodeName());
 		}
-		
+
 		// Remove each attribute
 		for (String attributeName : attributeNames) {
 			rootElement.removeAttribute(attributeName);
 		}
-		
+
 		assertTrue("Root element still has attributes after they were all removed?!", rootElement.getAttributes().getLength() == 0);
 	}
-	
+
 	private void setNamespaceAttributes(Document doc) {
 		doc.getDocumentElement().setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
 		doc.getDocumentElement().setAttribute("xsi:noNamespaceSchemaLocation", SCHEMA_LOCATION);
 	}
-	
+
 	private String convertDocumentToText(Document doc) throws Exception {
 		DOMSource originalDocument = new DOMSource(doc);
 		StringWriter newDocument = new StringWriter();
@@ -268,28 +268,28 @@ public class ObjectFactoryValidationTest extends TestCase {
 		transformer.transform(originalDocument, new StreamResult(newDocument));
 		return newDocument.getBuffer().toString();
 	}
-	
+
 	private static String getRelativePath(File file, File relativeTo) {
 		return file.getAbsolutePath().substring(relativeTo.getAbsolutePath().length() + 1);
 	}
 }
 
 class SimpleErrorHandler implements ErrorHandler {
-	
+
 	private void rethrow(SAXParseException exception) throws SAXException {
 		throw new SAXException("Error at line " + exception.getLineNumber() + " column " + exception.getColumnNumber(), exception);
 	}
-	
+
 	@Override
 	public void error(SAXParseException exception) throws SAXException {
 		rethrow(exception);
 	}
-	
+
 	@Override
 	public void fatalError(SAXParseException exception) throws SAXException {
 		rethrow(exception);
 	}
-	
+
 	@Override
 	public void warning(SAXParseException exception) throws SAXException {
 		rethrow(exception);

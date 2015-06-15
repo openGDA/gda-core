@@ -25,7 +25,7 @@ package gda.device;
 public interface Mar345 extends Device, Detector {
 	/**
 	 * Append keyowrds to the current keyword buffer
-	 * 
+	 *
 	 * @param keywords
 	 *            the keywords to append
 	 */
@@ -43,7 +43,7 @@ public interface Mar345 extends Device, Detector {
 
 	/**
 	 * Send a string to the mar controller
-	 * 
+	 *
 	 * @param keywords
 	 *            the string to send
 	 */
@@ -51,7 +51,7 @@ public interface Mar345 extends Device, Detector {
 
 	/**
 	 * Set the format for the mar files - see the mar documentation
-	 * 
+	 *
 	 * @param format
 	 *            the format
 	 */
@@ -59,7 +59,7 @@ public interface Mar345 extends Device, Detector {
 
 	/**
 	 * Set the scan mode, values from 0 - 7 see the mar documentation
-	 * 
+	 *
 	 * @param mode
 	 *            the mode to set
 	 */
@@ -67,7 +67,7 @@ public interface Mar345 extends Device, Detector {
 
 	/**
 	 * Set the directory into which the mar files will be stored
-	 * 
+	 *
 	 * @param directory
 	 *            the directory name
 	 */
@@ -75,7 +75,7 @@ public interface Mar345 extends Device, Detector {
 
 	/**
 	 * Set the root name of the mar files
-	 * 
+	 *
 	 * @param rootName
 	 *            the root name
 	 */
@@ -83,28 +83,28 @@ public interface Mar345 extends Device, Detector {
 
 	/**
 	 * Gets the current format
-	 * 
+	 *
 	 * @return the format
 	 */
 	public String getFormat();
 
 	/**
 	 * Gets the current mode.
-	 * 
+	 *
 	 * @return the mode
 	 */
 	public int getMode();
 
 	/**
 	 * Gets the current data directory.
-	 * 
+	 *
 	 * @return the directory name
 	 */
 	public String getDirectory();
 
 	/**
 	 * Gets the current root name.
-	 * 
+	 *
 	 * @return the root name
 	 */
 	public String getRootName();

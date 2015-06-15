@@ -39,7 +39,7 @@ public class ImageViewerTest {
 			this.minimum = minimum;
 			this.maximum = maximum;
 		}
-		
+
 		/**
 		 * Scroll the range model to a position. If the position is
 		 * out of range, snaps into a valid position.
@@ -48,7 +48,7 @@ public class ImageViewerTest {
 		 * way to the left.
 		 */
 		public void scrollTo(int position) {
-			 
+
 			if (position > maximum - extent)
 				value = maximum - extent;
 			else if (position < minimum)
@@ -56,7 +56,7 @@ public class ImageViewerTest {
 			else
 				value = position;
 		}
-		
+
 		@Override
 		public int getExtent() {
 			return extent;
@@ -127,7 +127,7 @@ public class ImageViewerTest {
 		double factor = ImageViewer.calcScrollFactor(t1);
 		Assert.assertEquals(0.05, factor, 0);
 	}
-	
+
 	@Test
 	public void testCalcPositionFromScrollFactor() {
 		RangeModelDummy t1 = new RangeModelDummy(10, 0, 115);
@@ -136,7 +136,7 @@ public class ImageViewerTest {
 		int value = ImageViewer.calcPositionFromScrollFactor(t1, factor);
 		Assert.assertEquals(5, value);
 	}
-	
+
 	@Test
 	public void testScrollFactor_Identity() {
 		RangeModelDummy t1 = new RangeModelDummy(10, 0, 115);
@@ -144,7 +144,7 @@ public class ImageViewerTest {
 		int value = ImageViewer.calcPositionFromScrollFactor(t1, ImageViewer.calcScrollFactor(t1));
 		Assert.assertEquals(5, value);
 	}
-	
+
 	@Test
 	public void testScrollFactor_Identity_NegativeMin() {
 		RangeModelDummy t1 = new RangeModelDummy(10, -12, 115);
@@ -152,7 +152,7 @@ public class ImageViewerTest {
 		int value = ImageViewer.calcPositionFromScrollFactor(t1, ImageViewer.calcScrollFactor(t1));
 		Assert.assertEquals(5, value);
 	}
-	
+
 	@Test
 	public void testScrollFactor_Identity_NegativeValue() {
 		RangeModelDummy t1 = new RangeModelDummy(10, -12, 115);
@@ -160,7 +160,7 @@ public class ImageViewerTest {
 		int value = ImageViewer.calcPositionFromScrollFactor(t1, ImageViewer.calcScrollFactor(t1));
 		Assert.assertEquals(-5, value);
 	}
-	
+
 	@Test
 	public void testScrollFactor_ScrollFarRight() {
 		RangeModelDummy t1 = new RangeModelDummy(10, 0, 115);
@@ -170,7 +170,7 @@ public class ImageViewerTest {
 		int value = ImageViewer.calcPositionFromScrollFactor(t1, factor);
 		Assert.assertEquals(105, value);
 	}
-	
+
 	@Test
 	public void testScrollFactor_ScrollFarLeft() {
 		RangeModelDummy t1 = new RangeModelDummy(10, 0, 115);
@@ -180,6 +180,6 @@ public class ImageViewerTest {
 		int value = ImageViewer.calcPositionFromScrollFactor(t1, factor);
 		Assert.assertEquals(0, value);
 	}
-	
-	
+
+
 }

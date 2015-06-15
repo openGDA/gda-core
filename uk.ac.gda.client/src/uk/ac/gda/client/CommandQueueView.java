@@ -39,7 +39,7 @@ public class CommandQueueView extends ViewPart {
 	private Queue queue;
 	private CommandProcessorComposite commandProcessorComposite;
 	private CommandQueueComposite commandQueueComposite;
-	
+
 	public void setProcessor(Processor processor) {
 		this.processor = processor;
 	}
@@ -47,7 +47,7 @@ public class CommandQueueView extends ViewPart {
 	public void setQueue(Queue queue) {
 		this.queue = queue;
 	}
-	
+
 
 	public Processor getProcessor() {
 		return processor;

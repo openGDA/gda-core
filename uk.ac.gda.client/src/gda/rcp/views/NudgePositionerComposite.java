@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * stop button to abort moves.
  */
 public class NudgePositionerComposite extends Composite{
-	private static final Logger logger = LoggerFactory.getLogger(NudgePositionerComposite.class);	
+	private static final Logger logger = LoggerFactory.getLogger(NudgePositionerComposite.class);
 	private Text increment;
 	private Text position;
 	private Button btnStop;
@@ -71,7 +71,7 @@ public class NudgePositionerComposite extends Composite{
 	private double defaultIncrement = 1;
 
 	/**Simple constructor for a NudgePositionerComposite only requires the specification of minimal
-	 * parameters. 
+	 * parameters.
 	 * @param parent
 	 * @param style (Typically SWT.NONE)
 	 * @param scannable Scannable to be controlled
@@ -79,7 +79,7 @@ public class NudgePositionerComposite extends Composite{
 	public NudgePositionerComposite(Composite parent, int style, Scannable scannable) {
 		this(parent, style, scannable, true, null, false, true, true);
 	}
-	
+
 	/**Constructor for a NudgePositionerComposite which allows additional control over the GUI
 	 * @param parent
 	 * @param style (Typically SWT.NONE)
@@ -100,7 +100,7 @@ public class NudgePositionerComposite extends Composite{
 	public NudgePositionerComposite(Composite parent, int style, Scannable scannable, String overrideName, boolean showStop) {
 		this(parent, style, scannable, true, overrideName, false, true, showStop);
 	}
-	
+
 	public NudgePositionerComposite(Composite parent, int style, Scannable scannable, final boolean showName, String overrideName, final boolean positionOnly, boolean moveEnabled) {
 		this(parent, style, scannable, showName, overrideName, positionOnly, moveEnabled, true);
 	}
@@ -140,7 +140,7 @@ public class NudgePositionerComposite extends Composite{
 				lblScannableName.setText(overrideName);
 			lblScannableName.setLayoutData(gd_position);
 		}
-		
+
 		position = new Text(this, SWT.BORDER);
 		position.setTextLimit(10);
 		position.addKeyListener(new KeyAdapter() {
@@ -155,12 +155,12 @@ public class NudgePositionerComposite extends Composite{
 				}
 				if (!positionOnly) {
 					//If up was pressed increment position and move
-					if (keyCode == 16777217) { //up arrow pressed 
+					if (keyCode == 16777217) { //up arrow pressed
 						double newPosition = Double.valueOf(position.getText().split(" ")[0]) + Double.valueOf(increment.getText());
 						move(newPosition);
 					}
 					//If down was pressed decrement position and move
-					if (keyCode == 16777218) { //down arrow pressed 
+					if (keyCode == 16777218) { //down arrow pressed
 						double newPosition = Double.valueOf(position.getText().split(" ")[0]) - Double.valueOf(increment.getText());
 						move(newPosition);
 					}
@@ -208,7 +208,7 @@ public class NudgePositionerComposite extends Composite{
 					//Get the keyCode
 					int keyCode = key.keyCode;
 					//If enter was pressed switch focus to position box to allow up down tapping.
-					if(keyCode==13 || keyCode == 16777296){ //enter or numpad enter pressed 
+					if(keyCode==13 || keyCode == 16777296){ //enter or numpad enter pressed
 						position.setFocus();
 					}
 				}
@@ -229,7 +229,7 @@ public class NudgePositionerComposite extends Composite{
 			btnIncrement.setText("+");
 
 			// Stop button
-			
+
 			if (showStop) {
 				btnStop = new Button(this, SWT.NONE);
 				btnStop.addSelectionListener(new SelectionAdapter() {
@@ -288,7 +288,7 @@ public class NudgePositionerComposite extends Composite{
 		};
 		scannable.addIObserver(iObserver);
 
-		this.addDisposeListener(new DisposeListener() {		
+		this.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				NudgePositionerComposite.this.scannable.deleteIObserver(iObserver);
@@ -430,9 +430,9 @@ public class NudgePositionerComposite extends Composite{
 					}
 				}
 			}
-			
+
 		}
-		
+
 	}
 
 	/**

@@ -38,11 +38,11 @@ public class PauseScriptHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		try {
-			
+
 			logger.debug("Pause/Resume Script button pressed");
-			
+
 			final JythonServerFacade facade = JythonServerFacade.getCurrentInstance();
-			
+
 			if (facade.getScriptStatus()==Jython.IDLE) {
 				return Boolean.FALSE;
 			}
@@ -50,10 +50,10 @@ public class PauseScriptHandler extends AbstractHandler {
 				facade.pauseCurrentScript();
 				return Boolean.TRUE;
 			}
-				
+
 			facade.resumeCurrentScript();
 			return Boolean.FALSE;
-			
+
 		} catch (Exception ne) {
 			throw new ExecutionException(ne.getMessage(), ne);
 		}

@@ -30,14 +30,14 @@ final public class MCAException extends Exception {
 	public String message;
 
 	/**
-	 * 
+	 *
 	 */
 	public MCAException() {
 	}
 
 	/**
 	 * Create an MCA exception
-	 * 
+	 *
 	 * @param stat
 	 *            the MCA status
 	 * @param msg

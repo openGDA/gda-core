@@ -24,15 +24,15 @@ import org.apache.commons.beanutils.BeanUtils;
 
 public class ScannableManagerBean implements Serializable{
 	private String scannableName;
-	
+
 	public ScannableManagerBean() {
-		
+
 	}
-	
+
 	public ScannableManagerBean(String scannableName) {
 		this.scannableName = scannableName;
 	}
-	
+
 	/**
 	 * @return Returns the scannableName.
 	 */
@@ -46,7 +46,7 @@ public class ScannableManagerBean implements Serializable{
 	public void setScannableName(String scannableName) {
 		this.scannableName = scannableName;
 	}
-	
+
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -58,7 +58,7 @@ public class ScannableManagerBean implements Serializable{
 	public void clear(){
 		scannableName = null;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -75,7 +75,7 @@ public class ScannableManagerBean implements Serializable{
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		try {

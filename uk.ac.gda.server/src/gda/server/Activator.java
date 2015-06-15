@@ -67,7 +67,7 @@ public class Activator extends Plugin {
 
 	// The shared instance
 	private static Activator plugin;
-	
+
 	/**
 	 * The constructor
 	 */
@@ -78,11 +78,11 @@ public class Activator extends Plugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		
+
 		// Collect list of packages to make available to Jython by looking through the list
 		// of Register Buddys of the Libs plugin.
 		// NOTE: this code is here instead of the Libs plugin so that we don't introduce
-		// a dependency on OSGI/Eclipse for the normal server, eventually this would be moved 
+		// a dependency on OSGI/Eclipse for the normal server, eventually this would be moved
 		// into the libs plugin.
 		Bundle libsBundle = null;
 		Bundle[] bundles = context.getBundles();
@@ -97,11 +97,11 @@ public class Activator extends Plugin {
 
 		if (libsBundle == null)
 			throw new BundleException("Expected to find the uk.ac.gda.libs plugin, but didn't");
-		
+
 		// Now we have a valid libsBundle. Of course when the code get moved into the libs,
 		// all that will be needed to get the libs bundle is:
 		//   libsBundle = context.getBundle()
-		
+
 
 		Set<String> visiblePackages;
 		Set<String> allPackages = new HashSet<String>();
@@ -109,7 +109,7 @@ public class Activator extends Plugin {
 		State state = Platform.getPlatformAdmin().getState(false);
 		BundleDescription libsBundleDescription = state.getBundle(libsBundle.getBundleId());
 		processBundle(allPackages, libsBundleDescription);
-		
+
 		BundleDescription[] dependents = libsBundleDescription.getDependents();
 		for (int i = 0; i < dependents.length; i++) {
 			processBundle(allPackages, dependents[i]);
@@ -123,7 +123,7 @@ public class Activator extends Plugin {
 				IExtension[] extensions = Platform. getExtensionRegistry().getExtensionPoint(VISIBLE_JYTHON_PACKAGES).getExtensions();
 				for(int i=0; i<extensions.length; i++) {
 					IExtension extension = extensions[i];
-					IConfigurationElement[] configElements = extension.getConfigurationElements();	
+					IConfigurationElement[] configElements = extension.getConfigurationElements();
 					for(int j=0; j<configElements.length; j++) {
 						IConfigurationElement configElement = configElements[j];
 						if (configElement.getName().equals(VISIBLE_PACKAGE)) {
@@ -131,7 +131,7 @@ public class Activator extends Plugin {
 							if (allPackages.contains(pack)) {
 								visiblePackages.add(pack);
 							} else {
-								throw new Exception("Package '" + pack + "' is listed as a Jython Visible Package, " + 
+								throw new Exception("Package '" + pack + "' is listed as a Jython Visible Package, " +
 										"but the package is not exported in any dependent plug-in of gda.libs");
 							}
 						}
@@ -143,10 +143,10 @@ public class Activator extends Plugin {
 					processXJythonDirective(visiblePackages, context.getBundle(dependents[i].getBundleId()));
 				}
 			}
-			
+
 		}
-		
-		// Because we are not yet running in gda.libs Activator we can't just do 
+
+		// Because we are not yet running in gda.libs Activator we can't just do
 		//    ClassLoader cl = this.getClass().getClassLoader();
 		// Instead we have to create a class via the right classloader
 		ClassLoader cl = (new jython()).getClass().getClassLoader();

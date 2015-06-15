@@ -23,7 +23,7 @@ import java.util.List;
 
 
 /**
- * Interface to control the Vortex XMAP detector. This detector has a 
+ * Interface to control the Vortex XMAP detector. This detector has a
  * collection of MCAs which can all be triggered at the same time.
  */
 public interface XmapDetector extends Detector {
@@ -131,7 +131,7 @@ public interface XmapDetector extends Detector {
 	 */
 	public double[] getROIsSum()throws DeviceException;
 	/**
-	 * Sets the ROIs of all the MCA. Use this method only if you want to set all the MCA with the 
+	 * Sets the ROIs of all the MCA. Use this method only if you want to set all the MCA with the
 	 * same ROIs.To set different ROI for each of the MCA use setNthROI method.
 	 * @param rois array. Each roi should have a low and high value.
 	 * @throws DeviceException
@@ -150,30 +150,30 @@ public interface XmapDetector extends Detector {
 	 */
 	public int getNumberOfMca()throws DeviceException;
 	/**
-	 * Sets a ROI for all of the MCAs 
+	 * Sets a ROI for all of the MCAs
 	 * @param rois This array length should be same as the number of MCAs
 	 * @param roiIndex
 	 * @throws DeviceException
 	 */
 	public void setNthROI(double[][]rois, int roiIndex)throws DeviceException;
-	
+
 	/**
 	 * Lightly to be only implemented on the server.
 	 * @return the labels for the channels defined by the user.
 	 */
 	public List<String> getChannelLabels();
-	
+
 	/**
 	 * Gets the count for each mca for a given ROI.
 	 * @param iRoi
 	 * @return double[] of counts per mca for this roi
 	 */
 	public double[] getROICounts(int iRoi) throws DeviceException;
-	
+
 	/**
 	 * Reads out the scaler data of the roi counts, corrects for deadtime
 	 * and returns the sum.
-	 * 
+	 *
 	 * @return The FF data
 	 */
 	public double readoutScalerData() throws DeviceException;

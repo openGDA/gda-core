@@ -126,11 +126,11 @@ public class PosComposite extends Composite {
 		textTo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		createEmptyLabel(textTo);
 		createEmptyLabel(composite_2);
-		
+
 		Button btnGo = new Button(composite_2, SWT.NONE);
 		btnGo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		btnGo.setText("Go");
-		
+
 		btnGo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -138,8 +138,8 @@ public class PosComposite extends Composite {
 			}
 		});
 		btnGo.setEnabled(true);
-		
-		
+
+
 		Label lblReadback = new Label(composite_2, SWT.NONE);
 		lblReadback.setText("Readback");
 		createEmptyLabel(composite_2);
@@ -184,7 +184,7 @@ public class PosComposite extends Composite {
 		btnIncrement.setText("+");
 		btnIncrement.setFont(SWTResourceManager.getFont("Sans", 12, SWT.BOLD));
 		createEmptyLabel(composite_2);
-		
+
 		final Button btnStop = new Button(composite_2, SWT.NONE);
 		GridData gd_btnStop = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_btnStop.widthHint = 55;
@@ -208,13 +208,13 @@ public class PosComposite extends Composite {
 		createEmptyLabel(composite_2);
 
 		updateScannables();
-		
+
 		final Label lblStatus = new Label(composite_2, SWT.NONE);
 		GridData gd_lblStatus = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
 		gd_lblStatus.widthHint = 55;
 		lblStatus.setLayoutData(gd_lblStatus);
 		lblStatus.setText("     Idle     ");
-		
+
 		try {
 			setMotorLimits(bean.getScannableName(), textTo);
 		} catch (Exception e2) {
@@ -383,10 +383,10 @@ public class PosComposite extends Composite {
 	public void setBean(SimpleScan bean) {
 		this.bean = bean;
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void createEmptyLabel(Composite composite){
 		new Label(composite, SWT.NONE);
 	}
-	
+
 }

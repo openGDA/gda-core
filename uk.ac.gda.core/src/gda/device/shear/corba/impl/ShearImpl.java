@@ -44,7 +44,7 @@ public class ShearImpl extends CorbaShearPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param shear
 	 *            the Shear implementation object
 	 * @param poa
@@ -58,7 +58,7 @@ public class ShearImpl extends CorbaShearPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Shear implementation object
 	 */
 	public Shear _delegate() {
@@ -67,7 +67,7 @@ public class ShearImpl extends CorbaShearPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param shear
 	 *            set the Shear implementation object
 	 */
@@ -180,7 +180,7 @@ public class ShearImpl extends CorbaShearPOA {
 	public void close() throws CorbaDeviceException {
 		deviceImpl.close();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();

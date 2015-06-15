@@ -38,7 +38,7 @@ public abstract class AbstractValidator {
 	/**
 	 * Call to validate, throws various exceptions. The ValidationBean can contain many fields to validate when the
 	 * beans being checked need to look at each others values.
-	 * 
+	 *
 	 * @param bean
 	 * @throws InvalidBeanException
 	 */

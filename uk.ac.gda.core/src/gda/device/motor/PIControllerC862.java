@@ -19,9 +19,6 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.MotorException;
@@ -31,15 +28,18 @@ import gda.device.serial.StringReader;
 import gda.device.serial.StringWriter;
 import gda.factory.Finder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Single point of access to a shared Serial connection for PI piezo controllers.
- * 
+ *
  * @see PIMotor
  */
 public class PIControllerC862 extends DeviceBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(PIControllerC862.class);
-	
+
 	private static final int READ_TIMEOUT = 5000;
 
 	private static final String TERMINATOR = "\r"; // Carrage Reture
@@ -77,7 +77,7 @@ public class PIControllerC862 extends DeviceBase {
 
 	/**
 	 * Set the serial device name
-	 * 
+	 *
 	 * @param serialDeviceName
 	 *            the serial device name
 	 */
@@ -87,7 +87,7 @@ public class PIControllerC862 extends DeviceBase {
 
 	/**
 	 * Get the serial device name
-	 * 
+	 *
 	 * @return the serial device name
 	 */
 	public String getSerialDeviceName() {
@@ -96,7 +96,7 @@ public class PIControllerC862 extends DeviceBase {
 
 	/**
 	 * Close the serial port connection.
-	 * 
+	 *
 	 * @see gda.device.serial.SerialComm
 	 */
 	@Override
@@ -107,7 +107,7 @@ public class PIControllerC862 extends DeviceBase {
 	/**
 	 * Transmits a command string to a single piezo on the serial line. This method is synchronised to ensure the
 	 * correct reply returns, to the correct Object.
-	 * 
+	 *
 	 * @param command
 	 *            Command code string
 	 * @param replyGenerated

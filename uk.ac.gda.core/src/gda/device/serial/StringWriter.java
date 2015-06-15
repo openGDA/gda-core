@@ -29,7 +29,7 @@ public class StringWriter {
 	private CharWriteableDev charWritebleDev;
 
 	/**
-	 * 
+	 *
 	 */
 	public StringProperties stringProps = new StringProperties();
 

@@ -36,12 +36,12 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	public static final String DATA_PROJECT_NAME_AS_VISIT = "$visit$";
 	private Collection<String> integerPrefs;
 	private Collection<String> booleanPrefs;
-	
+
 	@Override
 	public void initializeDefaultPreferences() {
-		
+
 		IPreferenceStore store = gda.rcp.GDAClientActivator.getDefault().getPreferenceStore();
-		
+
 		// Booleans
 		booleanPrefs = new HashSet<String>(7);
 		store.setDefault(PreferenceConstants.KEEP_BATON,             false);
@@ -59,10 +59,10 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		integerPrefs.add(PreferenceConstants.BATON_REQUEST_TIMEOUT);
 		store.setDefault(PreferenceConstants.MAX_SIZE_CACHED_DATA_POINTS, 25);
 		integerPrefs.add(PreferenceConstants.MAX_SIZE_CACHED_DATA_POINTS);
-		
+
 		// Strings
 		store.setDefault(PreferenceConstants.DASHBOARD_FORMAT, "#0.00");
-		
+
 		store.setDefault(PreferenceConstants.GDA_DATA_PROJECT_CREATE_ON_STARTUP, true);
 		store.setDefault(PreferenceConstants.GDA_DATA_PROJECT_NAME, DATA_PROJECT_NAME_AS_VISIT);
 		store.setDefault(PreferenceConstants.GDA_DATA_PROJECT_FILTER, ".*xml");
@@ -74,20 +74,20 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.GDA_OPEN_XYPLOT_ON_SCAN_START_ID, LivePlotView.ID);
 		store.setDefault(PreferenceConstants.GDA_CLIENT_PLOT_AUTOHIDE_LAST_SCAN, true);
 		store.setDefault(PreferenceConstants.GDA_CLIENT_PLOT_PERIOD_MS, 500);
-		
-		
+
+
 		store.setDefault(PreferenceConstants.GDA_COMMAND_QUEUE_SHOW_TEXT, false);
 		store.setDefault(PreferenceConstants.GDA_COMMAND_QUEUE_DISABLE_JYTHON_CONTROLS, false);
 
 		store.setDefault(PreferenceConstants.HIDE_SCAN_THRESHOLD, 100);
-		
+
 		readExtensionPoints(store);
 	}
 
 	private void readExtensionPoints(final IPreferenceStore store) {
-		
+
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.gda.client.preferences");
-		
+
 		for (IConfigurationElement e : config) {
 			final String name     = e.getAttribute("name");
 			if (isInt(name)) {
@@ -98,7 +98,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 				store.setValue(name, e.getAttribute("value"));
 			}
 		}
-		
+
 	}
 
 	private boolean isInt(String name) {
@@ -108,5 +108,5 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	private boolean isBoolean(String name) {
 		return booleanPrefs.contains(name);
 	}
-	
+
 }

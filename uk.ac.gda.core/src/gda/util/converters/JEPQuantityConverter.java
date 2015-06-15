@@ -20,14 +20,15 @@
 package gda.util.converters;
 
 import java.util.ArrayList;
-import org.nfunk.jep.JEP;
+
 import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.Unit;
+import org.nfunk.jep.JEP;
 
 /**
  * Class to perform conversion between a Source and Target quantity using a Java Expression Parser expression The
  * conversion is defined in an expression file.
- * 
+ *
  * @see gda.util.converters.JEPConverterHolder
  * @see org.nfunk.jep.JEP
  */
@@ -147,5 +148,5 @@ final class JEPQuantityConverter implements IQuantityConverter {
 	public boolean handlesTtoS() {
 		return true;
 	}
-	
+
 }

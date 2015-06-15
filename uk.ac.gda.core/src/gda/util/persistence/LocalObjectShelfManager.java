@@ -48,9 +48,9 @@ import org.slf4j.LoggerFactory;
  * configured.
  */
 public abstract class LocalObjectShelfManager {
-	
+
 	public static Writer DerbyLogStream = new LoggerWriter(LoggerFactory.getLogger("derby"));
-	
+
 	// Only one of these for all instances or static requests
 	protected static EntityManagerFactory emf = null;
 
@@ -77,7 +77,7 @@ public abstract class LocalObjectShelfManager {
 
 	/**
 	 * Static method to return list of shelves with a given prefix that might be opened.
-	 * 
+	 *
 	 * @param shelfNamePrefix
 	 * @return List of names
 	 * @throws LocalDatabaseException
@@ -103,7 +103,7 @@ public abstract class LocalObjectShelfManager {
 
 	/**
 	 * A static method to check if a certain shelf exists in the store.
-	 * 
+	 *
 	 * @param name
 	 * @return true if shelf exists.
 	 * @throws LocalDatabaseException
@@ -114,7 +114,7 @@ public abstract class LocalObjectShelfManager {
 
 	/**
 	 * A static method to check if a certain shelf with a given prefix exists in the store.
-	 * 
+	 *
 	 * @param shelfNamePrefix
 	 * @param name
 	 * @return true if shelf exists.
@@ -127,7 +127,7 @@ public abstract class LocalObjectShelfManager {
 
 	/**
 	 * A static method to remove a shelf.
-	 * 
+	 *
 	 * @param name
 	 *            shelf to remove
 	 * @throws LocalDatabaseException
@@ -139,7 +139,7 @@ public abstract class LocalObjectShelfManager {
 
 	/**
 	 * A static method to remove a shelf with a prefix.
-	 * 
+	 *
 	 * @param shelfNamePrefix
 	 * @param name
 	 *            shelf to remove
@@ -159,7 +159,7 @@ public abstract class LocalObjectShelfManager {
 
 	/**
 	 * Static method to return an empty dictionary of the type expected by importValues().
-	 * 
+	 *
 	 * @return An empty dictionary
 	 */
 	public static Dictionary<String, Serializable> getDictionaryForImport() {
@@ -191,7 +191,7 @@ public abstract class LocalObjectShelfManager {
 
 	/**
 	 * Returns an instance of an ObjectShelfSinglton.
-	 * 
+	 *
 	 * @param shelfName
 	 * @return the object shelf singleton
 	 * @throws LocalDatabaseException
@@ -206,7 +206,7 @@ public abstract class LocalObjectShelfManager {
 
 	/**
 	 * Returns an instance of an LocalObjectShelf.
-	 * 
+	 *
 	 * @param shelfName
 	 * @return the object shelf singleton
 	 * @throws LocalDatabaseException
@@ -218,7 +218,7 @@ public abstract class LocalObjectShelfManager {
 
 	/**
 	 * Returns an instance of an LocalObjectShelf with a given prefix.
-	 * 
+	 *
 	 * @param shelfNamePrefix
 	 * @param shelfName
 	 * @return the object shelf singleton

@@ -32,7 +32,7 @@ public class NXDetectorDataTAppender <T> implements NXDetectorDataAppender {
 	private final List<String> elementNames;
 	private final List<T> elementValues;
 	private final List<String> elementUnits;
-	
+
 	public NXDetectorDataTAppender(List<String> elementNames, List<T> elementValues) {
 		if (elementNames.size() != elementValues.size()) {
 			throw new IllegalArgumentException(MessageFormat.format(
@@ -41,8 +41,8 @@ public class NXDetectorDataTAppender <T> implements NXDetectorDataAppender {
 		this.elementNames = elementNames;
 		this.elementValues = elementValues;
 		this.elementUnits=null;
-	}	
-	
+	}
+
 	public NXDetectorDataTAppender(List<String> elementNames, List<T> elementValues, List<String> elementUnits) {
 		if (elementNames.size() != elementValues.size()) {
 			throw new IllegalArgumentException(MessageFormat.format(
@@ -62,7 +62,7 @@ public class NXDetectorDataTAppender <T> implements NXDetectorDataAppender {
 			String unit=null;
 			if (elementUnits != null && !elementUnits.isEmpty()) {
 				unit=elementUnits.get(i);
-			}			
+			}
 			if( t instanceof Double){
 				data.setPlottableValue(name, (Double)t);
 				valdata = data.addData(detectorName, name, new NexusGroupData((Double) t), unit, null);

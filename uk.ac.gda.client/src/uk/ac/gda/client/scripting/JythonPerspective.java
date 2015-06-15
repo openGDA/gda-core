@@ -48,7 +48,7 @@ public class JythonPerspective implements IPerspectiveFactory {
 		IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, (float)0.2, editorArea); //$NON-NLS-1$
         topLeft.addView(IPageLayout.ID_PROJECT_EXPLORER);
         topLeft.addPlaceholder(GDA_NAVIGATOR_ID);
-        
+
         IFolderLayout outputfolder= layout.createFolder("bottom", IPageLayout.BOTTOM, (float)0.7, editorArea); //$NON-NLS-1$
         outputfolder.addView("gda.rcp.jythonterminalview");
         outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);
@@ -56,16 +56,16 @@ public class JythonPerspective implements IPerspectiveFactory {
         outputfolder.addPlaceholder(IConsoleConstants.ID_CONSOLE_VIEW);
         outputfolder.addPlaceholder(IPageLayout.ID_BOOKMARKS);
         outputfolder.addPlaceholder(IProgressConstants.PROGRESS_VIEW_ID);
-        
+
         layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, (float)0.65, editorArea);
 
 	}
 
 	private void defineLayout(IPageLayout layout) {
-        layout.addNewWizardShortcut(PythonProjectWizard.WIZARD_ID); //$NON-NLS-1$        
-        layout.addNewWizardShortcut(PythonSourceFolderWizard.WIZARD_ID); //$NON-NLS-1$        
-        layout.addNewWizardShortcut(PythonPackageWizard.WIZARD_ID); //$NON-NLS-1$        
-        layout.addNewWizardShortcut(PythonModuleWizard.WIZARD_ID); //$NON-NLS-1$        
+        layout.addNewWizardShortcut(PythonProjectWizard.WIZARD_ID); //$NON-NLS-1$
+        layout.addNewWizardShortcut(PythonSourceFolderWizard.WIZARD_ID); //$NON-NLS-1$
+        layout.addNewWizardShortcut(PythonPackageWizard.WIZARD_ID); //$NON-NLS-1$
+        layout.addNewWizardShortcut(PythonModuleWizard.WIZARD_ID); //$NON-NLS-1$
         layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");//$NON-NLS-1$
         layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");//$NON-NLS-1$
         layout.addNewWizardShortcut("org.eclipse.ui.editors.wizards.UntitledTextFileWizard");//$NON-NLS-1$
@@ -80,8 +80,8 @@ public class JythonPerspective implements IPerspectiveFactory {
         layout.addShowViewShortcut("org.python.pydev.views.PyRefactorView");
         layout.addShowViewShortcut("org.python.pydev.views.PyCodeCoverageView");
         layout.addShowViewShortcut("org.eclipse.ui.navigator.ProjectExplorer");
-        
+
         layout.addActionSet(IDebugUIConstants.LAUNCH_ACTION_SET);
-        layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);	
+        layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
     }
 }

@@ -30,12 +30,12 @@ public class NXDetectorSnapper implements DetectorSnapper {
 	private final NXCollectionStrategyPlugin collectionStrategy;
 
 	/**
-	 * Controls whether the driver does callbacks with the array data to registered plugins. 0=No, 1=Yes. 
+	 * Controls whether the driver does callbacks with the array data to registered plugins. 0=No, 1=Yes.
 	 * Setting this to 0 can reduce overhead in the case that the driver is being used only to control the device, and not to make the data available to plugins or to EPICS clients.
 	 */
 	private boolean disableCallbacks = false;
 
-	
+
 	public NXDetectorSnapper(NXCollectionStrategyPlugin collectionStrategy, NXFileWriterPlugin fileWriter) {
 		this.collectionStrategy = collectionStrategy;
 		this.fileWriter = fileWriter;
@@ -44,7 +44,7 @@ public class NXDetectorSnapper implements DetectorSnapper {
 	public NXFileWriterPlugin getFileWriter() {
 		return fileWriter;
 	}
-	
+
 	public NXCollectionStrategyPlugin getCollectionStrategy() {
 		return collectionStrategy;
 	}
@@ -57,7 +57,7 @@ public class NXDetectorSnapper implements DetectorSnapper {
 		this.disableCallbacks = disableCallbacks;
 	}
 
-	
+
 	@Override
 	public void prepareForAcquisition(double collectionTime) throws Exception {
 		// NOTE: copied from ADDetector.atScanStart()
@@ -82,7 +82,7 @@ public class NXDetectorSnapper implements DetectorSnapper {
 
 	/**
 	 * Acquire and return a list of resulting files.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Override
 	public String[] acquire() throws Exception {

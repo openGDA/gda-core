@@ -42,7 +42,7 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 		cflags.encoding = "utf-8";
 		cflags.source_is_utf8 = true;
 	}
-	
+
 	/**
 	 * Custom displayhook to print unicode values in unicode
 	 * @see <a href="http://www.python.org/dev/peps/pep-0217/">PEP-217 for more details on displayhook</a>
@@ -66,7 +66,7 @@ public class GDAInteractiveConsole extends InteractiveConsole {
         currentBuiltins.__setitem__("_", o);
     }
 
-	
+
 	/**
 	 * Show syntax error messages in the Terminal This is to work around an apparent bug in jython. showexception will
 	 * print to the terminal for ordinary stuff, just not PySyntaxErrors.
@@ -103,18 +103,18 @@ public class GDAInteractiveConsole extends InteractiveConsole {
 				msg = arg0.getCause().getMessage();
 		} else
 			msg = arg0.getMessage();
-		
+
 		if (arg0.getCause() instanceof ScanInterruptedException) {
 			logger.info("InteractiveConsole exception: " + msg);
 		} else {
 			logger.error("InteractiveConsole exception: " + msg, arg0);
 		}
 	}
-	
+
 	// All of our strings are unicode potentially, so create a unicode PyString
 	@Override
 	public PyObject eval(String s) {
 		return eval(new PyUnicode(s));
 	}
-	
+
 }

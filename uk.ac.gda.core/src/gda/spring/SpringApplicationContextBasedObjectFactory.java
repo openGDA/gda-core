@@ -19,17 +19,17 @@
 
 package gda.spring;
 
+import gda.factory.Factory;
+import gda.factory.FactoryBase;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
 import org.springframework.context.ApplicationContext;
-
-import gda.factory.Factory;
-import gda.factory.FactoryBase;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
 
 /**
  * A GDA {@link Factory} that wraps a Spring {@link ApplicationContext},
@@ -38,13 +38,13 @@ import gda.factory.Findable;
 public class SpringApplicationContextBasedObjectFactory extends FactoryBase {
 
 	private ApplicationContext applicationContext;
-	
+
 	private String name;
-	
+
 	public void setApplicationContext(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
 	}
-	
+
 	@Override
 	public void setName(String name) {
 		this.name = name;
@@ -80,7 +80,7 @@ public class SpringApplicationContextBasedObjectFactory extends FactoryBase {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public boolean containsExportableObjects() {
 		return true;

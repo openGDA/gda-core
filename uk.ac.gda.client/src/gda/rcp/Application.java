@@ -85,7 +85,7 @@ public class Application implements IApplication {
 
 			LogbackUtils.configureLoggingForClientProcess("rcp");
 			LogbackUtils.configureLoggingForClientBeagle();
-			
+
 			authenticateUser(display);
 
 			if(!localObjectsOnly ){
@@ -102,20 +102,20 @@ public class Application implements IApplication {
 				objectFactory.configure();
 
 			}
-			
-			
+
+
 			if (identifyVisitID(display) == EXIT_OK) {
 				return EXIT_OK;
 			}
 
 			//set workspace before creating items in call to createObjectFactory as the latter
 			//may cause the accessing of preferences which is not possible until the workspace is set
-			final String workspacePath = getWorkSpacePath(); 
+			final String workspacePath = getWorkSpacePath();
 			createVisitBasedWorkspace(workspacePath);
 
 			createObjectFactory(display, localObjectsOnly);
 
-			// To break the dependency of uk.ac.gda.common.BeansFactory of RCP/Eclipse, we 
+			// To break the dependency of uk.ac.gda.common.BeansFactory of RCP/Eclipse, we
 			// manually force initialisation here. In the object server this is handled
 			// by Spring, in Eclipse we use the registry
 			try {
@@ -124,15 +124,15 @@ public class Application implements IApplication {
 				logger.error("Failed to initalize Beans Factory", e);
 				throw new RuntimeException("Failed to initalize Beans Factory", e);
 			}
-			
+
 			IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
 			if (preferenceStore.getBoolean(PreferenceConstants.GDA_USE_SCANDATAPOINT_SERVICE)) {
 				createScanDataPointService();
 			}
-			
+
 			fixVisitID();
-			
-			int returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor());			
+
+			int returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor());
 
 			// the workbench doesn't support relaunch yet (bug 61809) so
 			// for now restart is used, and exit data properties are checked
@@ -396,7 +396,7 @@ public class Application implements IApplication {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param workspacePath
 	 * @throws Exception if the workspace failed to be set
 	 */
@@ -430,17 +430,17 @@ public class Application implements IApplication {
 				instanceLocation.set(url, false);
 			} else {
 				// generally it is expected that the instanceLocation is only set in development environment
-				
+
 				if (instanceLocation.getURL().equals(instanceLocation.getDefault())) {
 					// If you get this exception you have hit a race condition similar to what was reported in GDA-3414.
-					// This has probably occurred because some Eclipse component was run prior to the workbench being 
+					// This has probably occurred because some Eclipse component was run prior to the workbench being
 					// fully initialised. To track down the area, place a breakpoint in BasicLocation#getUrl()'s if statement
 					// that controls if the Location has not been initialised. Once you know who is calling getUrl too early,
 					// figure out how to delay it until the workbench has been started.
 					// NOTE: this check may be brittle as it is dependent on current implementation of LocationManager#initializeLocations
 					throw new Exception("Workspace has already been set when trying to set visit based workspace location.");
 				}
-				
+
 				logger.info("Workspace instance location has been set with -data command line argument to " + instanceLocation.getURL());
 				// for correct reporting further on
 				url = instanceLocation.getURL();
@@ -458,13 +458,13 @@ public class Application implements IApplication {
 	}
 
 	private String getWorkSpacePath() {
-		
+
 		// ensure we do not take these values from the metadata when defining the workspace that this client will use
 		HashMap<String,String> metadataOverrides = new HashMap<String,String>();
 		metadataOverrides.put("visit", LocalProperties.get(LocalProperties.RCP_APP_VISIT));
 		metadataOverrides.put("federalid", UserAuthentication.getUsername());
 		metadataOverrides.put("user", UserAuthentication.getUsername());
-		
+
 		String path = null;
 		try {
 			path = PathConstructor.createFromProperty("gda.rcp.workspace",metadataOverrides);
@@ -487,7 +487,7 @@ public class Application implements IApplication {
 	 * The intention is this project is stored outside the workspace to allow the workspace to be deleted without losing
 	 * the user created XML files. The path can be set via the gda.rcp.xmlproject property, or it will be created in the
 	 * users visit.
-	 * 
+	 *
 	 * @return the path to the xmlproject
 	 */
 	public static String getXmlPath() {
@@ -511,11 +511,11 @@ public class Application implements IApplication {
 						LocalProperties.GDA_GUI_BEANS_XML,
 						LocalProperties.get(LocalProperties.GDA_GUI_XML));
 					if (gda_gui_beans != null) {
-						// remove existing factories first 
+						// remove existing factories first
 						Finder.getInstance().removeAllFactories();
 						SpringObjectServer s = new SpringObjectServer(new File(gda_gui_beans), localObjectsOnly);
 						s.configure();
-						
+
 					}
 					started = true;
 			}

@@ -131,7 +131,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param args
 	 *            Object[]
 	 * @throws IllegalArgumentException
@@ -152,7 +152,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 				command = command + " " + args[i];
 			}
 		}
-		
+
 		logger.info("Command to run: " +command);
 
 		try {
@@ -333,10 +333,10 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 
 			// create a structure of child scans from the vector of scans
 			nestChildScans();
-			
+
 			// check if return to original positions flag has been set
 			checkReturnToOriginalPositionsFlag();
-			
+
 		} catch (Exception e) {
 			//Log here as the exception will not be passed fully to GDA from Jython
 			String message = e.getMessage();
@@ -347,7 +347,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 			logger.error(message, e);
 			throw new IllegalArgumentException(message, e);
 		}
-		
+
 		ScannableCommands.configureScanPipelineParameters(this);
 	}
 
@@ -384,7 +384,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 		String sMonitor =  StringUtils.join(toMonitor, ", ");
 		return (sMoved + ((sMonitor.equals("")) ? " |" : (" || " + sMonitor + " |"))).trim();
 	}
-	
+
 	@Override
 	public void doCollection() throws Exception {
 		try {
@@ -398,7 +398,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 			if (!isChild && isReturnScannablesToOrginalPositions()) {
 				recordOriginalPositions();
 			}
-			
+
 			// *** First point in this scan ***
 			setPointPositionInLine(PointPositionInLine.FIRST);
 			if (getChild() == null) {
@@ -407,11 +407,11 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 				currentPointCount++;
 				acquirePoint(true, true);  // start point, collect detectors
 				checkThreadInterrupted();
-				
+
 				readDevicesAndPublishScanDataPoint();
 				callAtPointEndHooks();
 				sendScanEvent(ScanEvent.EventType.UPDATED);
-				
+
 				checkThreadInterrupted();
 				waitIfPaused();
 				if (isFinishEarlyRequested()) {
@@ -438,15 +438,15 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 			}
 
 			// *** Subsequent points in this scan ***
-			
+
 			for (int step = 0; step < numberSteps; step++) {
 				waitIfPaused();
 				if (isFinishEarlyRequested()) {
 					return;
 				}
-				
+
 				setPointPositionInLine((step == (numberSteps - 1)) ? PointPositionInLine.LAST : PointPositionInLine.MIDDLE);
-			 
+
 				if (getChild() == null) {
 					callAtPointStartHooks();
 					// make all these increments
@@ -497,27 +497,27 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 		for (Scannable scannable : this.allScannables) {
 			scannable.atPointEnd();
 		}
-		
+
 		// With concurrent readout enabled detectors will be readout and atPointEnds called for
-		// the next point within the readout thread. Therefore only call atPointEnds if 
+		// the next point within the readout thread. Therefore only call atPointEnds if
 		// concurrent readout is disabled.
 		if (!isReadoutConcurrent()) {
 			for (Scannable scannable : this.allDetectors) {
 				scannable.atPointEnd();
 			}
 		}
-		
+
 	}
 
 	protected void callAtPointStartHooks() throws DeviceException {
 		for (Scannable scannable : this.allScannables) {
 			scannable.atPointStart();
 		}
-		
+
 		// With concurrent readout enabled detectors will be readout and atPointStarts called for
 		// for the next point within the readout thread. Therefore only call atPointStarts concurrent
 		// readout is disabled or, if enabled if this is the first point in the scan line.
-		
+
 		if (!isReadoutConcurrent() || (getPointPositionInLine() == PointPositionInLine.FIRST)){
 			for (Scannable detector : this.allDetectors) {
 				detector.atPointStart();
@@ -553,7 +553,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 
 	/**
 	 * Gets the number of points visited by this scan
-	 * 
+	 *
 	 * @return the number of points in visited by this scan
 	 */
 	public int getNumberPoints() {
@@ -693,7 +693,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 	/**
 	 * Calculates the number of points this concurrent scan would visit. Works on single dimensional scans and on
 	 * multidimensional scans containing children.
-	 * 
+	 *
 	 * @return integer - the number of points in the scans
 	 */
 	private int calculateNumberPoints() {
@@ -714,7 +714,7 @@ public class ConcurrentScan extends ConcurrentScanChild implements Scan {
 	 * Rebuild the scannablesOriginalPositions array with the current location of every scannable. This should be done
 	 * at the start of doCollection if the scan is to return all scannables to their original locations at the end of
 	 * the scan.
-	 * 
+	 *
 	 * @throws DeviceException
 	 *             - thrown if a scannable getPosition fails
 	 */

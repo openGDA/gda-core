@@ -174,18 +174,18 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	private boolean remoteServerUsesJline=true;
 
 	private String gdaStationScript;
-	
+
 	// configure whether #panicStop() tries to stop all Scannables found in the Jython namespace
 	private boolean stopJythonScannablesOnStopAll = true;
 
 	Vector<Terminal> myTerminals = new Vector<Terminal>();
-	
+
 	ObservableComponent jythonServerStatusObservers = new ObservableComponent();
 
-	
+
 	/**
 	 * Provide access to the Jython interpreter, so we can test whether it's configured correctly.
-	 * 
+	 *
 	 * @return This object's Jython interpreter instance.
 	 */
 	GDAJythonInterpreter getJythonInterpreter() {
@@ -207,7 +207,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	/**
 	 * Get the jython script folder object.
-	 * 
+	 *
 	 * @return This object's jython script path finder.
 	 */
 	public ScriptPaths getJythonScriptPaths() {
@@ -216,7 +216,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	/**
 	 * Set this object's jython script folder list.
-	 * 
+	 *
 	 * @param jythonScriptPaths
 	 *            A jython script finder instance.
 	 */
@@ -226,7 +226,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	/**
 	 * Sets the 'var' directory used by this Jython server.
-	 * 
+	 *
 	 * @param gdaVarDirectory
 	 *            the 'var' directory
 	 */
@@ -236,7 +236,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	/**
 	 * Sets the cache directory used by this Jython server.
-	 * 
+	 *
 	 * @param cacheDirectory
 	 *            the cache directory
 	 */
@@ -246,7 +246,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	/**
 	 * Sets the station startup script used by this Jython server.
-	 * 
+	 *
 	 * @param gdaStationScript
 	 *            the station script
 	 */
@@ -256,7 +256,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	/**
 	 * Removes the Pseudo device from ths list of defaults
-	 * 
+	 *
 	 * @param scannable
 	 */
 	public void removeDefault(Scannable scannable) {
@@ -267,7 +267,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	/**
 	 * Sets the remote server type.
-	 * 
+	 *
 	 * @param remoteServerType
 	 *            the remote server type
 	 */
@@ -285,7 +285,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	/**
 	 * Sets the port number that will accept connections to this server.
-	 * 
+	 *
 	 * @param remotePort
 	 *            the port number
 	 */
@@ -299,7 +299,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	/**
 	 * Add a Pseudo Device to the list of defaults
-	 * 
+	 *
 	 * @param scannable
 	 */
 	public void addDefault(Scannable scannable) {
@@ -310,7 +310,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	/**
 	 * Returns a vector of all the names of the default scannables for display purposes.
-	 * 
+	 *
 	 * @return Vector<String>
 	 */
 	public Vector<String> getDefaultScannableNames() {
@@ -349,11 +349,11 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	private MessageHandler messageHandler;
-	
+
 	public void setMessageHandler(MessageHandler messageHandler) {
 		this.messageHandler = messageHandler;
 	}
-	
+
 	// to fulfil the Configurable interface
 
 	@Override
@@ -361,13 +361,13 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		if (!configured) {
 			// force garbage collect (useful if doing a restart)
 			System.gc();
-			
+
 			if (messageHandler == null) {
 				final InMemoryMessageHandler messageHandler = new InMemoryMessageHandler();
 				messageHandler.setMaxMessagesPerVisit(10);
 				setMessageHandler(messageHandler);
 			}
-			
+
 			// reset the defaultScannables array
 			defaultScannables = new Vector<Scannable>();
 
@@ -432,7 +432,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	 * Runs a command in the same thread and only returns when the command completed. This method is not distributed and
 	 * is only for use by the "run" command which runs scripts from within other scripts or from the GDA terminal. It
 	 * assumes that the contents of this file have not been translated yet.
-	 * 
+	 *
 	 * @param scriptFullPath
 	 * @throws Exception
 	 */
@@ -614,7 +614,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			}
 		} catch (UnsupportedEncodingException e) {
 			logger.error("Problem extracting UTF8 byte array from command: " + s, e);
-		}		
+		}
 	}
 
 	@Override
@@ -630,7 +630,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	/**
 	 * when users ask for command_line input during a script, this gives the Jython the response
-	 * 
+	 *
 	 * @param prompt
 	 *            - string to print out asking for the information
 	 * @return - the output from the user
@@ -759,12 +759,12 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 		@Override
 		public void write(char[] cbuf, int off, int len) throws IOException {
-			
+
 			final String str = new String(cbuf, off, len);
 			final TerminalOutput output = new TerminalOutput(str);
-			
+
 			updateIObservers(output);
-			
+
 			if (runningLocalStation) {
 				bufferedLocalStationOutput += str;
 			}
@@ -901,7 +901,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	 * Returns the contents of the top-level namespace.
 	 * <p>
 	 * This returns object references so cannot be distributed.
-	 * 
+	 *
 	 * @return PyObject
 	 */
 	@Override
@@ -924,7 +924,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 	/**
 	 * Changes dynamically the syntax translator to use.
-	 * 
+	 *
 	 * @param newTranslator
 	 */
 	public void setTranslator(Translator newTranslator) {
@@ -977,7 +977,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	public ClientDetails getClientInformation(String myJSFIdentifier) {
 		return this.batonManager.getClientInformation(myJSFIdentifier);
 	}
-	
+
 	@Override
 	public ClientDetails[] getOtherClientInformation(String myJSFIdentifier) {
 		return this.batonManager.getOtherClientInformation(myJSFIdentifier);
@@ -1007,21 +1007,21 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	public void sendMessage(String myJSFIdentifier, String message) {
 		ClientDetails details = this.batonManager.getClientInformation(myJSFIdentifier);
 		final UserMessage msg = new UserMessage(details.getIndex(), details.getUserID(), message);
-		
+
 		// Save message first...
 		saveMessage(details, msg);
-		
+
 		// ...before notifying clients
 		updateIObservers(msg);
 	}
-	
+
 	private void saveMessage(ClientDetails details, UserMessage message) {
 		final String visit = details.getVisitID();
 		if (StringUtils.hasText(visit)) {
 			messageHandler.saveMessage(visit, message);
 		}
 	}
-	
+
 	@Override
 	public List<UserMessage> getMessageHistory(String myJSFIdentifier) {
 		final ClientDetails details = this.batonManager.getClientInformation(myJSFIdentifier);
@@ -1032,7 +1032,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		}
 		return null;
 	}
-	
+
 	private void updateIObservers(Object messageObject) {
 		// localFacade will be null during configure phase, and before implFactory made
 		if (localFacade != null) {
@@ -1094,7 +1094,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		if (!stoppables.isEmpty()) {
 			InterfaceProvider.getTerminalPrinter().print("!!! Stopping stoppables");
 		}
-		
+
 		for (Findable f : stoppables) {
 			try {
 				Stoppable s = (Stoppable) f;
@@ -1107,9 +1107,9 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		InterfaceProvider.getTerminalPrinter().print("!!! Stop-all complete");
 		logger.info("... Stop complete");
 	}
-	
+
 	private void stopMotorsInFinder() {
-		
+
 		class StopMotor implements Callable<Void> {
 			private final Motor motor;
 
@@ -1230,7 +1230,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		 */
 		public int authorisationLevel;
 
-		/** 
+		/**
 		 * Access the command responsible for the thread
 		 * @return command string
 		 */
@@ -1255,7 +1255,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param interpreter
 		 * @param command
 		 * @param authorisationLevel
@@ -1279,7 +1279,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param server
 		 * @param command
 		 * @param authorisationLevel
@@ -1310,7 +1310,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param server
 		 * @param command
 		 * @param authorisationLevel
@@ -1363,7 +1363,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param interpreter
 		 * @param command
 		 * @param authorisationLevel
@@ -1468,7 +1468,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		return info;
 	}
 
-	@SuppressWarnings("unused") // future feature 
+	@SuppressWarnings("unused") // future feature
 	private void notifyClearCommandThreads() {
 		this.updateIObservers(new CommandThreadEvent(CommandThreadEventType.CLEAR,null));
 	}
@@ -1485,7 +1485,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 		this.updateIObservers(new CommandThreadEvent(CommandThreadEventType.TERMINATE,info));
 	}
 
-	@SuppressWarnings("unused") // future feature 
+	@SuppressWarnings("unused") // future feature
 	private CommandThreadInfo notifyUpdateCommandThread(CommandThreadType comType, JythonServerThread thread) {
 		return this.notifyCommandThreadEvent(CommandThreadEventType.UPDATE, comType, thread);
 	}
@@ -1524,12 +1524,12 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	public boolean isStoppingJythonScannablesOnStopAll() {
 		return stopJythonScannablesOnStopAll;
 	}
-	
+
 	@Override
 	public ScanInformation getCurrentScanInformation() {
 		return currentScan == null ? null : currentScan.getScanInformation();
 	}
-	
+
 	@Override
 	public boolean isFinishEarlyRequested() {
 		//TODO: Potential NPE?
@@ -1557,7 +1557,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	public void deleteIObservers() {
 		myTerminals.removeAllElements();
 	}
-	
+
 	public void setDisableBatonControlOverVisitMetadataEntry(boolean disable) {
 		batonManager.setDisableControlOverVisitMetadataEntry(disable);
 	}
@@ -1565,7 +1565,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	public boolean isDisableBatonControlOverVisitMetadataEntry() {
 		return batonManager.isDisableControlOverVisitMetadataEntry();
 	}
-	
+
 	@Override
 	public void addInputTerminal(Terminal term) {
 		addIObserver(term);
@@ -1592,25 +1592,25 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 	}
 
 	public void showUsers() {
-		
+
 		final ITerminalPrinter tp = InterfaceProvider.getTerminalPrinter();
-		
+
 		final List<ClientDetails> clients = batonManager.getAllClients();
-		
+
 		tp.print(String.format("%d client%s connected%s",
 			clients.size(),
 			(clients.size() == 1) ? "" : "s",
 			(clients.size() > 0) ? ":" : "."));
-		
+
 		if (!clients.isEmpty()) {
-			
+
 			tp.print("");
-			
+
 			tp.print(String.format("%-6s   %-15s   %-20s   %-10s   %s",
 				"Number", "Username", "Hostname", "Visit", "Holds baton?"));
-			
+
 			tp.print("=============================================================================");
-			
+
 			for (ClientDetails c : clients) {
 				tp.print(String.format("%-6d   %-15s   %-20s   %-10s   %s",
 					c.getIndex(),
@@ -1621,7 +1621,7 @@ public class JythonServer implements Jython, LocalJython, Configurable, Localiza
 			}
 		}
 	}
-	
+
 	@Override
 	public PyObject eval(String s) {
 		return interp.getInterp().eval(s);

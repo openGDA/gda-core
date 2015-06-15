@@ -40,12 +40,12 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	private ScanBase first;
 	private ScanBase lastscan;
 	protected ParentScanComponent parentComponent = new ParentScanComponent(ScanStatus.NOTSTARTED);
-	
+
 	public MultiScanRunner(List<MultiScanItem> scans) {
 		super();
 		this.scans = scans;
 	}
-	
+
 	@Override
 	public void runScan() throws InterruptedException, Exception {
 
@@ -58,13 +58,13 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 
 			for (MultiScanItem item : scans) {
 				TotalNumberOfPoints += item.scan.getTotalNumberOfPoints();
-			}			
-			
+			}
+
 			MultiScanItem multiScanItem = scans.get(0);
 			first =  multiScanItem.scan;
 			first.prepareScanForCollection();
 			int pointCount = -1;
-			
+
 			for (MultiScanItem item : scans) {
 				ScanBase scan = item.scan;
 				lastscan=scan;
@@ -124,28 +124,28 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 			default:
 				throw new AssertionError("Unexpected status at the end of scan:" + getStatus().toString());
 			}
-			
-			
+
+
 			if( lastscan != null){
 				lastscan.signalScanComplete();
 			}
 		}
 	}
-	
+
 	@Override
 	public ScanInformation getScanInformation() {
 		ScanInformation info = first.getScanInformation();
-		
+
 		int[] dimensions = info.getDimensions();
 		dimensions = ArrayUtils.add(dimensions, 0, scans.size());
 		info.setDimensions(dimensions);
-		
+
 		int points = 0;
 		for(MultiScanItem scan : scans){
 			points += scan.scan.getScanInformation().getNumberOfPoints();
 		}
 		info.setNumberOfPoints(points);
-		
+
 		return info;
 	}
 
@@ -162,22 +162,22 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	@Override
 	public void pause() {
 		// TODO Auto-generated method stub
-		
+
 	}
 	@Override
 	public void resume() {
 		// TODO Auto-generated method stub
-		
+
 	}
 	@Override
 	public void doCollection() throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 	@Override
 	public void prepareForCollection() throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 	@Override
 	public Vector<Scannable> getScannables() {
@@ -187,7 +187,7 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	@Override
 	public void setScannables(Vector<Scannable> allScannables) {
 		// TODO Auto-generated method stub
-		
+
 	}
 	@Override
 	public Vector<Detector> getDetectors() {
@@ -197,7 +197,7 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	@Override
 	public void setDetectors(Vector<Detector> allDetectors) {
 		// TODO Auto-generated method stub
-		
+
 	}
 	@Override
 	public boolean isChild() {
@@ -207,7 +207,7 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	@Override
 	public void setIsChild(boolean child) {
 		// TODO Auto-generated method stub
-		
+
 	}
 	@Override
 	public DataWriter getDataWriter() {
@@ -217,12 +217,12 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	@Override
 	public void setDataWriter(DataWriter dh) {
 		// TODO Auto-generated method stub
-		
+
 	}
 	@Override
 	public void setScanDataPointPipeline(ScanDataPointPipeline scanDataPointPipeline) {
 		// TODO Auto-generated method stub
-		
+
 	}
 	@Override
 	public ScanDataPointPipeline getScanDataPointPipeline() {
@@ -242,7 +242,7 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	@Override
 	public void setParent(NestableScan parent) {
 		// TODO Auto-generated method stub
-		
+
 	}
 	@Override
 	public Scan getChild() {
@@ -252,7 +252,7 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	@Override
 	public void setChild(Scan child) {
 		// TODO Auto-generated method stub
-		
+
 	}
 	@Override
 	public IScanStepId getStepId() {
@@ -262,12 +262,12 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	@Override
 	public void setStepId(IScanStepId IScanStepId) {
 		// TODO Auto-generated method stub
-		
+
 	}
 	@Override
 	public void setScanPlotSettings(ScanPlotSettings scanPlotSettings) {
 		// TODO Auto-generated method stub
-		
+
 	}
 	@Override
 	public ScanPlotSettings getScanPlotSettings() {
@@ -294,7 +294,7 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	@Override
 	public void requestFinishEarly() {
 		parentComponent.requestFinishEarly();
-		
+
 	}
 	@Override
 	public boolean isFinishEarlyRequested() {
@@ -307,6 +307,6 @@ public class MultiScanRunner implements NestableScan, ContiguousScan{
 	@Override
 	public void setStatus(ScanStatus status) {
 		parentComponent.setStatus(status);
-		
+
 	}
 }

@@ -63,7 +63,7 @@ public class MVCExampleView extends ViewPart {
 
 	/**
 	 * Create contents of the view part.
-	 * 
+	 *
 	 * @param parent
 	 */
 	@Override

@@ -83,7 +83,7 @@ public class CastorConfigClassLoader extends /* URL */ClassLoader /* SecureClass
 
 	/**
 	 * try to load class using default parent/system classloader
-	 * 
+	 *
 	 * @param className
 	 *            class to load
 	 * @return the loaded Class derivative
@@ -106,7 +106,7 @@ public class CastorConfigClassLoader extends /* URL */ClassLoader /* SecureClass
 	/**
 	 * Try to load class from a .class file and generate a Java class from it file is attempted to be loaded using dot
 	 * package convention, relative to specified classFileRootFolder.
-	 * 
+	 *
 	 * @param className
 	 *            the name of the requested class
 	 * @return an instance of the requested Class derivative
@@ -163,7 +163,7 @@ public class CastorConfigClassLoader extends /* URL */ClassLoader /* SecureClass
 	/**
 	 * Prepend class root folder. Then combine the offset package path and requested className and extract dotted
 	 * package/class strings and create a file path.
-	 * 
+	 *
 	 * @param className
 	 *            the name of the class
 	 * @return the class root folder path combined with offset path and the requested class name.
@@ -182,7 +182,7 @@ public class CastorConfigClassLoader extends /* URL */ClassLoader /* SecureClass
 
 	/**
 	 * Combine offset package path with requested classname.
-	 * 
+	 *
 	 * @param className
 	 *            name of the class
 	 * @return the combined offset path with the class name

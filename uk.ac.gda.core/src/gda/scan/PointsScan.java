@@ -27,7 +27,7 @@ import java.util.Vector;
  * Wrapper for the ConcurrentScan, except it takes start,step,number of points as arguments.
  */
 public class PointsScan extends PassthroughScanAdapter implements Scan {
-	
+
 
 	/**
 	 * Expect arguments in the format:
@@ -35,7 +35,7 @@ public class PointsScan extends PassthroughScanAdapter implements Scan {
 	 * scannbleObject1 start step [number points] scannbleObject2 start [step] scannbleObject3 start [step]
 	 * <P>
 	 * All scannables are assumed to use the same number of steps.
-	 * 
+	 *
 	 * @param args
 	 *            Object[]
 	 * @throws IllegalArgumentException
@@ -119,7 +119,7 @@ public class PointsScan extends PassthroughScanAdapter implements Scan {
 	}
 	/**
 	 * Creates and runs a scan.
-	 * 
+	 *
 	 * @param args
 	 *            String[]
 	 * @throws InterruptedException

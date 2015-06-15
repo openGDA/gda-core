@@ -24,15 +24,15 @@ package gda.scan;
  */
 public class ScanDataPlotConfigLine {
 	/**
-	 * 
+	 *
 	 */
 	public final Integer indexToData;
 	/**
-	 * 
+	 *
 	 */
 	public final String label;
 	/**
-	 * 
+	 *
 	 */
 	public final boolean visible;
 

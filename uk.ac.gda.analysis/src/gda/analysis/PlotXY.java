@@ -35,7 +35,7 @@ public class PlotXY extends PseudoDevice {
 
 	/**
 	 * Constructor which takes in the axis to plot as strings
-	 * 
+	 *
 	 * @param x
 	 *            The X axis plot string
 	 * @param y
@@ -76,7 +76,7 @@ public class PlotXY extends PseudoDevice {
 
 	/**
 	 * Function that move the device, in this case it dose nothing, as the device is a detector in essence
-	 * 
+	 *
 	 * @param position
 	 *            the position to move to (not used)
 	 * @throws DeviceException
@@ -138,7 +138,7 @@ public class PlotXY extends PseudoDevice {
 	/**
 	 * Function that is called at the start of the scan. In this object this is used to set up the data vector plot
 	 * window to be ready to recieve the data being sent to it.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override

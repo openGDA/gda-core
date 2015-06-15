@@ -26,6 +26,7 @@ import gda.factory.corba.util.EventService;
 import gda.function.Lookup;
 import gda.function.lookup.corba.CorbaLookupPOA;
 import gda.observable.IObserver;
+
 import org.omg.CORBA.Any;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ public class LookupImpl extends CorbaLookupPOA implements IObserver {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param object
 	 *            the BeamInfo implementation object
 	 * @param poa
@@ -59,7 +60,7 @@ public class LookupImpl extends CorbaLookupPOA implements IObserver {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the BeamInfo implementation object
 	 */
 	public Lookup _delegate() {
@@ -68,7 +69,7 @@ public class LookupImpl extends CorbaLookupPOA implements IObserver {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param theobject
 	 *            set the BeamInfo implementation object
 	 */

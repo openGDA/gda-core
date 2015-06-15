@@ -38,7 +38,7 @@ public abstract class Function implements Findable, Configurable {
 
 	/**
 	 * Evaluates the function at the given xValue.
-	 * 
+	 *
 	 * @param xValue
 	 *            the xValue (a Quantity)
 	 * @return the value of the function at xValue

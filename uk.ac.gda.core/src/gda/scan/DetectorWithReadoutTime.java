@@ -22,9 +22,9 @@ package gda.scan;
 public interface DetectorWithReadoutTime {
 
 	/**
-	 * 
+	 *
 	 * @return DeadTime after an exposure before another image can be triggered in seconds
 	 */
 	double getReadOutTime();
-	
+
 }

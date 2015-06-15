@@ -44,7 +44,7 @@ public class Folder extends ManagedDataObject {
 
 	/**
 	 * Add a managed object to the folder
-	 * 
+	 *
 	 * @param objectName
 	 * @param object
 	 */
@@ -59,7 +59,7 @@ public class Folder extends ManagedDataObject {
 
 	/**
 	 * Removed an object from the folder
-	 * 
+	 *
 	 * @param objectName
 	 */
 	public void remove(Object objectName) {
@@ -70,7 +70,7 @@ public class Folder extends ManagedDataObject {
 
 	/**
 	 * Get a managed object
-	 * 
+	 *
 	 * @param name
 	 * @return managed object
 	 */
@@ -80,7 +80,7 @@ public class Folder extends ManagedDataObject {
 
 	/**
 	 * Get a managed object name in the hash map
-	 * 
+	 *
 	 * @param child
 	 * @return Key of this object in hashmap
 	 */
@@ -90,7 +90,7 @@ public class Folder extends ManagedDataObject {
 
 	/**
 	 * Get a managed object name in the hash map
-	 * 
+	 *
 	 * @param i
 	 * @return Key of this object in hashmap
 	 */
@@ -100,7 +100,7 @@ public class Folder extends ManagedDataObject {
 
 	/**
 	 * Get a managed object name in the hash map
-	 * 
+	 *
 	 * @param name
 	 * @return Key of this object in hashmap
 	 */
@@ -130,7 +130,7 @@ public class Folder extends ManagedDataObject {
 
 	/**
 	 * Get child Object for a given index.
-	 * 
+	 *
 	 * @param index
 	 * @return child Object.
 	 */
@@ -151,7 +151,7 @@ public class Folder extends ManagedDataObject {
 
 	/**
 	 * Test to see if name is a Folder.
-	 * 
+	 *
 	 * @param name
 	 * @return Is name is a Folder.
 	 */
@@ -161,7 +161,7 @@ public class Folder extends ManagedDataObject {
 
 	/**
 	 * Test to see if name is a Link.
-	 * 
+	 *
 	 * @param name
 	 * @return Is name a Link.
 	 */

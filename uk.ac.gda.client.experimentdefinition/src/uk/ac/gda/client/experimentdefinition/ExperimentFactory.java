@@ -60,7 +60,7 @@ public class ExperimentFactory {
 
 	/**
 	 * Add an ExperimentObjectManager to a cache of available managers. Each one represents a group of scans.
-	 * 
+	 *
 	 * @param runObjectManager
 	 */
 	public static void addManager(IExperimentObjectManager runObjectManager) {
@@ -76,7 +76,7 @@ public class ExperimentFactory {
 
 	/**
 	 * Adds an observer for a specific experiment (run).
-	 * 
+	 *
 	 * @param targetFolder
 	 * @param l
 	 * @throws Exception
@@ -107,7 +107,7 @@ public class ExperimentFactory {
 
 	/**
 	 * Create a new multiscan in the given location.
-	 * 
+	 *
 	 * @param file
 	 * @return the manager object of the new multiscan
 	 * @throws Exception
@@ -125,7 +125,7 @@ public class ExperimentFactory {
 	/**
 	 * Delete the manager file and any .xml files in the same multiscan that are no longer referenced by other
 	 * multiscans.
-	 * 
+	 *
 	 * @param file
 	 * @throws Exception
 	 */
@@ -214,7 +214,7 @@ public class ExperimentFactory {
 	 * The IExperimentObjectManager exists once for any .scan file in the workspace. If files that the manager
 	 * references become stale then the old manager is deleted and a new one created. The Factory has all the RunObjects
 	 * in the the file as a collection and can rewrite the file by calling the write() method.
-	 * 
+	 *
 	 * @param file
 	 * @return IExperimentObjectManager
 	 * @throws Exception
@@ -343,7 +343,7 @@ public class ExperimentFactory {
 
 	/**
 	 * Rename the file and inform its object manager and the editor manager
-	 * 
+	 *
 	 * @param orig
 	 * @param name
 	 * @throws Exception

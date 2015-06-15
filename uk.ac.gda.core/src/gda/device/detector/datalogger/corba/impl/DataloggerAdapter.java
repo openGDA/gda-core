@@ -41,7 +41,7 @@ public class DataloggerAdapter extends DetectorAdapter implements DataLogger, De
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

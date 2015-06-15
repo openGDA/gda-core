@@ -39,7 +39,7 @@ public interface IExperimentObjectManager extends Serializable{
 
 	/**
 	 * Creates a new IExperimentObject which references the same xml files and uses the same name.
-	 * 
+	 *
 	 * @param original
 	 * @return IExperimentObject
 	 */
@@ -48,7 +48,7 @@ public interface IExperimentObjectManager extends Serializable{
 	/**
 	 * Creates a new IExperimentObject, with new xml files which are identical to the supplied original except the names
 	 * of the xml files and the name of the experiment has been incremented.
-	 * 
+	 *
 	 * @param original
 	 * @return IExperimentObject
 	 * @throws CoreException
@@ -102,7 +102,7 @@ public interface IExperimentObjectManager extends Serializable{
 	 * order that they will be presented to the user (in both the Experiment perspective and the ExperimentRunEditor).
 	 * <p>
 	 * These strings match the values returned from the getBeanType method in IExperimentBeanDescription
-	 * 
+	 *
 	 * @return - String[]
 	 */
 	public String[] getOrderedColumnBeanTypes();

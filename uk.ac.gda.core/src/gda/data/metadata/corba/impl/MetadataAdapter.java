@@ -52,7 +52,7 @@ public class MetadataAdapter implements Metadata, Findable, EventSubscriber {
 	protected ObservableComponent observableComponent = new ObservableComponent();
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name
@@ -64,7 +64,7 @@ public class MetadataAdapter implements Metadata, Findable, EventSubscriber {
 		corbaMetadata = CorbaMetadataHelper.narrow(obj);
 		this.netService = netService;
 		this.name = name;
-		
+
 		EventService eventService = EventService.getInstance();
 		if (eventService != null) {
 			eventService.subscribe(this, new NameFilter(name, this.observableComponent));
@@ -186,7 +186,7 @@ public class MetadataAdapter implements Metadata, Findable, EventSubscriber {
 
 	/**
 	 * Notify observers of this class.
-	 * 
+	 *
 	 * @param source the observed object
 	 * @param arg the changed code
 	 */

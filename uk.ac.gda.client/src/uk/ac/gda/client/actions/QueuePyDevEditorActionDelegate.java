@@ -41,7 +41,7 @@ public class QueuePyDevEditorActionDelegate implements IEditorActionDelegate {
 	@Override
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
 		if (targetEditor != null){
-			ePart = targetEditor;		
+			ePart = targetEditor;
 		}
 	}
 
@@ -58,7 +58,7 @@ public class QueuePyDevEditorActionDelegate implements IEditorActionDelegate {
 			}
 		} catch (Exception e){
 			logger.error("QueuePyDevEditorActionDelegate.run", e);
-			
+
 		}
 	}
 
@@ -66,7 +66,7 @@ public class QueuePyDevEditorActionDelegate implements IEditorActionDelegate {
 	public void selectionChanged(IAction action, ISelection selection) {
 		action.setEnabled(isEnabled(selection));
 	}
-	
+
 	private boolean isEnabled(@SuppressWarnings("unused") ISelection selection) {
 		if( CommandQueueViewFactory.getQueue() == null)
 			return false;

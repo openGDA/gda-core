@@ -37,15 +37,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Provides Ethernet communications for Parker6kController.
- * 
+ *
  * @see gda.device.motor.Parker6kMotor
  * @see gda.device.motor.Parker6kController
  * @see gda.util.BusyFlag
  */
 public class Parker6kControllerEnet extends Parker6kController implements Runnable, Configurable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Parker6kControllerEnet.class);
-	
+
 	private String debugName;
 
 	private String host;
@@ -83,7 +83,7 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 
 	/**
 	 * Set the host name of the controller. Used by castor for instantiation.
-	 * 
+	 *
 	 * @param host
 	 *            the IP host name of the controller
 	 */
@@ -93,7 +93,7 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 
 	/**
 	 * Returns the host name of the controller.
-	 * 
+	 *
 	 * @return the host name.
 	 */
 	public String getHost() {
@@ -102,7 +102,7 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 
 	/**
 	 * Set the socket number for ethernet communications. By default this is 5002 for the Parker Controllers.
-	 * 
+	 *
 	 * @param port
 	 *            the socket number.
 	 */
@@ -112,7 +112,7 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 
 	/**
 	 * Get the socket number for ethernet communications. By default this is 5002 for the Parker Controllers.
-	 * 
+	 *
 	 * @return the port number.
 	 */
 	public int getPort() {
@@ -122,7 +122,7 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 	/**
 	 * Used by the run() thread to append characters to the reply buffer. Synchronized because it sets
 	 * bufferContainsReply flag.
-	 * 
+	 *
 	 * @param cchar
 	 *            the character to be appended
 	 * @exception IOException
@@ -201,7 +201,7 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 
 	/**
 	 * Replaces all <cr>and <lf>in input string with "{" and "}" for use in displaying Parker replies.
-	 * 
+	 *
 	 * @param inStr
 	 *            the input string
 	 * @return the modified string
@@ -213,7 +213,7 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 	/**
 	 * Creates a Parker6kCommand from a string and sends it. FIXME: This exists as a stop-gap to allow controllers to
 	 * send startup commands - normally commands are created and sent by a Parker6kMotor.
-	 * 
+	 *
 	 * @param stringCommand
 	 *            the string part of the command
 	 */
@@ -252,7 +252,7 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 	/**
 	 * Waits for the reply to a command and returns it as a Parker6kReply. All execptions are converted to
 	 * MotorExceptions. Synchronized because it needs safe access to bufferContainsReply and because it calls wait.
-	 * 
+	 *
 	 * @param command
 	 *            the parker command
 	 * @return the reply
@@ -310,7 +310,7 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 
 	/**
 	 * Creates the socket and its associated input and output streams
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	private void openSocket() throws IOException {
@@ -406,7 +406,7 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 
 	/**
 	 * Sends a List of commands to the 6k controller.
-	 * 
+	 *
 	 * @param command
 	 *            the parker command
 	 * @return a reply string
@@ -475,7 +475,7 @@ public class Parker6kControllerEnet extends Parker6kController implements Runnab
 
 	/**
 	 * Creates and starts a Parker6kWatchDog
-	 * 
+	 *
 	 * @see Parker6kWatchDog
 	 */
 	private void startWatchDog() {

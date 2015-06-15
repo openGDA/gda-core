@@ -20,8 +20,6 @@ package gda.device.detector.odccd;
 
 import gda.util.TestUtils;
 
-import java.net.URL;
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -29,25 +27,25 @@ import org.junit.Test;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
- * 
+ *
  */
 public class CrysalisRunListTest {
 	static String testScratchDirectoryName = null;
 
 	/**
 	 * Creates an empty directory for use by test code.
-	 * 
+	 *
 	 * @throws Exception if setup fails
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(CrysalisRunListTest.class.getCanonicalName());
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);
-	}	
+	}
 
 	/**
 	 * Test writing/reading and comparison on Crysalis RunLists
-	 * 
+	 *
 	 * @throws Exception if the test fails
 	 */
 	@Test

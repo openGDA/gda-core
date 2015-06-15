@@ -186,7 +186,7 @@ public final class SplitConverterHolder implements IReloadableQuantitiesConverte
 	public boolean sourceMinIsTargetMax() {
 		return getConverter().sourceMinIsTargetMax();
 	}
-	
+
 	@Override
 	public boolean handlesStoT() {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).handlesStoT();
@@ -196,5 +196,5 @@ public final class SplitConverterHolder implements IReloadableQuantitiesConverte
 	public boolean handlesTtoS() {
 		return CoupledConverterHolder.getIQuantityConverter(getConverter()).handlesTtoS();
 	}
-	
+
 }

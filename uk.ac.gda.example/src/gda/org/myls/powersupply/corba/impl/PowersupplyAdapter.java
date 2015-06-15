@@ -43,7 +43,7 @@ public class PowersupplyAdapter implements IObservablePowerSupply, Findable, Eve
 
 	protected String name;
 
-	protected ObservableComponent observableComponent = new ObservableComponent();	
+	protected ObservableComponent observableComponent = new ObservableComponent();
 	/**
 	 * @param obj
 	 * @param name
@@ -53,13 +53,13 @@ public class PowersupplyAdapter implements IObservablePowerSupply, Findable, Eve
 		corbaPowerSupply = CorbaPowerSupplyHelper.narrow(obj);
 		this.netService = netService;
 		this.name = name;
-		
+
 		EventService eventService = EventService.getInstance();
 		if (eventService != null) {
 			eventService.subscribe(this, new NameFilter(name, this.observableComponent));
-		}		
+		}
 	}
-	
+
 	@Override
 	public boolean getOn() {
 		for (int i = 0; i < NetService.RETRY; i++) {
@@ -111,10 +111,10 @@ public class PowersupplyAdapter implements IObservablePowerSupply, Findable, Eve
 	@Override
 	public void inform(Object obj) {
 		observableComponent.notifyIObservers(this, obj);
-	}	
-	
+	}
+
 	@Override
 	public String toString() {
 		return "[PowerSupply:" + name + (getOn() ? "On" : "Off") + "]";
-	}	
+	}
 }

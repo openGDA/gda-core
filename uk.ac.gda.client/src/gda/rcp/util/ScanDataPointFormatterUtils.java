@@ -26,12 +26,12 @@ import org.eclipse.core.runtime.Platform;
 
 public final class ScanDataPointFormatterUtils {
 
-	
+
 	/**
-	 * 
+	 *
 	 * Reads the extension point so see if the configuration defined has a formatter.
-	 * @throws CoreException 
-	 * 
+	 * @throws CoreException
+	 *
 	 */
 	public static final ScanDataPointFormatter getDefinedFormatter() throws CoreException {
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor("gda.scan.scan.data.point.formatter");

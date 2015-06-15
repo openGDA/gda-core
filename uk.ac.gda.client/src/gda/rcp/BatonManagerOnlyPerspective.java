@@ -32,7 +32,7 @@ import uk.ac.gda.views.baton.MessageView;
 public class BatonManagerOnlyPerspective implements IPerspectiveFactory {
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String ID = "gda.rcp.batonmanageronlyperspective"; //$NON-NLS-1$
 

@@ -22,7 +22,7 @@ class MetaDataUserSuppliedItem {
 	private String key;
 	private Object value;
 	private String units;
-	
+
 	public MetaDataUserSuppliedItem(String key, Object value, String units) {
 		super();
 		this.setKey(key);

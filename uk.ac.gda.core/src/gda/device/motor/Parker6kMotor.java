@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Parker6kMotor Motor class using an enclosed derived instance of Parker6kController base class for communications via
  * Ethernet or RS232 (both may be wired at once).
- * 
+ *
  * @see gda.device.Motor
  * @see gda.device.motor.Parker6kController
  * @see gda.device.motor.Parker6kControllerEnet
@@ -43,7 +43,7 @@ public class Parker6kMotor extends MotorBase {
 	private static final Logger logger = LoggerFactory.getLogger(MotorBase.class);
 
 	/**
-	 * 
+	 *
 	 */
 	public static final int SOFT_LIMIT_ENABLE = 3;
 
@@ -126,7 +126,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Sets the minimum speed (steps/sec?).
-	 * 
+	 *
 	 * @param minSpeed
 	 *            the minimum speed
 	 */
@@ -136,7 +136,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Get the minimum speed
-	 * 
+	 *
 	 * @return the minimum speed
 	 */
 	public double getMinSpeed() {
@@ -145,7 +145,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Sets the maximum speed (steps/sec?).
-	 * 
+	 *
 	 * @param maxSpeed
 	 *            the maximum speed
 	 */
@@ -155,7 +155,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Get the maximum speed
-	 * 
+	 *
 	 * @return the maximum speed
 	 */
 	public double getMaxSpeed() {
@@ -165,7 +165,7 @@ public class Parker6kMotor extends MotorBase {
 	/**
 	 * Set the axis number in the motor, the minimum value is 1 and the maximum depends on the number of motors this
 	 * unit can support.
-	 * 
+	 *
 	 * @see Parker6kController#getMaxNoOfMotors
 	 * @param axisNo
 	 *            the axis number
@@ -176,7 +176,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Get the axis number
-	 * 
+	 *
 	 * @return the axis number
 	 */
 	public int getAxisNo() {
@@ -185,7 +185,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Sets the minimum position.
-	 * 
+	 *
 	 * @param minPosition
 	 *            the minimum position
 	 */
@@ -195,7 +195,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Get the minimum position
-	 * 
+	 *
 	 * @return the minimum position
 	 */
 	@Override
@@ -205,7 +205,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Sets the maximum position.
-	 * 
+	 *
 	 * @param maxPosition
 	 *            the maximum position
 	 */
@@ -215,7 +215,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Get the minimum position
-	 * 
+	 *
 	 * @return the minimum position
 	 */
 	@Override
@@ -225,7 +225,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Set the motor type
-	 * 
+	 *
 	 * @param stepper
 	 *            true = stepper motor, false = servo motor
 	 */
@@ -235,7 +235,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Get the motor type
-	 * 
+	 *
 	 * @return true = stepper motor, false = servo motor
 	 */
 	public boolean isStepper() {
@@ -244,7 +244,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Set the controller name associated with the motor.
-	 * 
+	 *
 	 * @param parker6kControllerName
 	 *            the contorller name for the motor.
 	 */
@@ -254,7 +254,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Get the controller name associated with the motor.
-	 * 
+	 *
 	 * @return the controller name.
 	 */
 	public String getParker6kControllerName() {
@@ -263,7 +263,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Get the encoderScalingFactor.
-	 * 
+	 *
 	 * @return Returns the encoderScalingFactor.
 	 */
 	public double getEncoderScalingFactor() {
@@ -272,7 +272,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Set the encoderScalingFactor.
-	 * 
+	 *
 	 * @param encoderScalingFactor
 	 *            The encoderScalingFactor to set.
 	 */
@@ -282,7 +282,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Get the home command string.
-	 * 
+	 *
 	 * @return Returns the homeCommandString.
 	 */
 	public String getHomeCommandString() {
@@ -291,7 +291,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Set the home command string.
-	 * 
+	 *
 	 * @param homeCommandString
 	 *            The homeCommandString to set.
 	 */
@@ -301,7 +301,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Get the homing status location.
-	 * 
+	 *
 	 * @return Returns the homingStatusLocation.
 	 */
 	public String getHomingStatusLocation() {
@@ -310,7 +310,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Set hte homing status location.
-	 * 
+	 *
 	 * @param homingStatusLocation
 	 *            The homingStatusLocation to set.
 	 */
@@ -320,7 +320,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Get the stored position location.
-	 * 
+	 *
 	 * @return Returns the storedPosLocation.
 	 */
 	public String getStoredPosLocation() {
@@ -329,7 +329,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Set the stored position location.
-	 * 
+	 *
 	 * @param storedPosLocation
 	 *            The storedPosLocation to set.
 	 */
@@ -339,7 +339,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Set a falg to indicate whether the motor is homeable.
-	 * 
+	 *
 	 * @param homeable
 	 *            The homeable to set.
 	 */
@@ -349,7 +349,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Moves the motor by the specified number of steps achieved by converting to an absolute move
-	 * 
+	 *
 	 * @param steps
 	 *            the number of steps to move by
 	 * @throws MotorException
@@ -362,7 +362,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Moves the motor to the specified number of steps
-	 * 
+	 *
 	 * @param steps
 	 *            the number of steps to move to
 	 * @throws MotorException
@@ -390,7 +390,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Sets the current position of the motor
-	 * 
+	 *
 	 * @param steps
 	 *            the position to be set as current
 	 * @throws MotorException
@@ -410,7 +410,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Gets the current position of the motor
-	 * 
+	 *
 	 * @return the current position (integer truncation possible)
 	 * @throws MotorException
 	 */
@@ -429,7 +429,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Sets the speed of the motor
-	 * 
+	 *
 	 * @param stepsPerSecond
 	 *            the speed in steps per second
 	 * @throws MotorException
@@ -455,7 +455,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Gets the current speed setting of the motor
-	 * 
+	 *
 	 * @return the speed in steps per second (int truncation possible)
 	 * @throws MotorException
 	 */
@@ -472,7 +472,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Brings the motor to a controlled stop if possible
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override
@@ -484,7 +484,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Brings the motor to an uncontrolled stop if necessary and tidyup
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override
@@ -508,7 +508,7 @@ public class Parker6kMotor extends MotorBase {
 	/**
 	 * Gets the state of the motor As the Motor interface does not allow exceptions to be thrown all diagnostics must be
 	 * thrown away
-	 * 
+	 *
 	 * @return a value from the MotorStatus enum
 	 */
 	@Override
@@ -564,7 +564,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * new Motor method to return state of motorMoving flag
-	 * 
+	 *
 	 * @return true if the motor is moving
 	 */
 	@Override
@@ -574,7 +574,7 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * checks if the motor is homeable or not
-	 * 
+	 *
 	 * @return if the motor is homeable
 	 */
 	@Override
@@ -586,7 +586,7 @@ public class Parker6kMotor extends MotorBase {
 	 * returns the motor to a initial repeatable starting location Parker motors homing operation has several homing
 	 * functions that can be customized to suit the needs of the application. For each motor in a controller a seperate
 	 * program for homing should be stored in the controller. This method simply calls that program to perform homing
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override
@@ -608,7 +608,7 @@ public class Parker6kMotor extends MotorBase {
 	/**
 	 * changes the software limits in the motor This method should be used to set the soft limits in the controller, if
 	 * hitting hard limits should be avoided
-	 * 
+	 *
 	 * @param minimum
 	 *            the minimum softlimit
 	 * @param maximum
@@ -706,7 +706,7 @@ public class Parker6kMotor extends MotorBase {
 	/**
 	 * correctBacklash in MotorBase cannot not be used as the parker motors use encoder position for performing a moveBy
 	 * operation.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override
@@ -719,13 +719,13 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Extract position values as Doubles from the matched input command string.
-	 * 
+	 *
 	 * <pre>
-	 *    
-	 *       e.g. *2TPE+80 &lt;eot&gt;&lt;errok&gt;  
-	 *     
+	 *
+	 *       e.g. *2TPE+80 &lt;eot&gt;&lt;errok&gt;
+	 *
 	 * </pre>
-	 * 
+	 *
 	 * @param reply
 	 *            the reply from the Parker motor
 	 * @param commandEcho
@@ -767,13 +767,13 @@ public class Parker6kMotor extends MotorBase {
 
 	/**
 	 * Extract Motor status from the matched input command string via filtered status string.
-	 * 
+	 *
 	 * <pre>
-	 *    
-	 *         e.g. &quot;00000000000000000000000000000000&quot; 
-	 *     
+	 *
+	 *         e.g. &quot;00000000000000000000000000000000&quot;
+	 *
 	 * </pre>
-	 * 
+	 *
 	 * @param reply
 	 *            the reply from the Parker motor
 	 * @param commandEcho
@@ -822,7 +822,7 @@ public class Parker6kMotor extends MotorBase {
 	/**
 	 * Extract Boolean binary status from the matched input command string e.g.
 	 * "*TAS0000_0000_0000_0000_0000_0000_0000_0000" is returned as "00000000000000000000000000000000"
-	 * 
+	 *
 	 * @param reply
 	 *            the reply from the Parker motor
 	 * @param commandEcho

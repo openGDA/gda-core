@@ -28,13 +28,13 @@ import gda.observable.ObservableComponent;
 public class SimpleEventSubscriber implements EventSubscriber {
 
 	private final Object source;
-	
+
 	private final ObservableComponent observableComponent;
-	
+
 	/**
 	 * Creates an event subscriber that receives events, and notifies observers through the specified
 	 * {@link ObservableComponent}, using the specified source object.
-	 * 
+	 *
 	 * @param source the object that events should appear to have been sent from
 	 * @param observableComponent the component through which to dispatch events to observers
 	 */
@@ -42,7 +42,7 @@ public class SimpleEventSubscriber implements EventSubscriber {
 		this.source = source;
 		this.observableComponent = observableComponent;
 	}
-	
+
 	@Override
 	public void inform(Object message) {
 		observableComponent.notifyIObservers(source, message);

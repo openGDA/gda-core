@@ -31,8 +31,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 
 import uk.ac.gda.client.commandinfo.CommandInfoModel;
-import uk.ac.gda.client.commandinfo.ui.CommandInfoContentProvider;
-import uk.ac.gda.client.commandinfo.ui.CommandInfoLabelProvider;
 
 public class CommandInfoComposite extends Composite implements ICommandThreadObserver {
 
@@ -65,7 +63,7 @@ public class CommandInfoComposite extends Composite implements ICommandThreadObs
 			this.tooltip = tooltip;
 		}
 	}
-	
+
 	private CommandInfoContentProvider contentProvider= new CommandInfoContentProvider();
 	private CommandInfoLabelProvider labelProvider= new CommandInfoLabelProvider();
 	private TableViewer viewer = null;
@@ -89,25 +87,25 @@ public class CommandInfoComposite extends Composite implements ICommandThreadObs
 		this.createTablePanel(this,SWT.FILL);
 		this.addInternalListeners();
 	}
-	
+
 	private void createTableColumns(TableViewer viewer) {
 		for (CiColumn column : CiColumn.values()) {
 			this.createTableViewerColumn(viewer,column);
 		}
 	}
-	
+
 	private void createTablePanel(Composite parent, int tableStyle) {
 		GridLayout layoutTable = new GridLayout(1,false);
 		layoutTable.marginWidth = 0;
 		layoutTable.marginHeight = 0;
 		layoutTable.horizontalSpacing = 1;
 		layoutTable.verticalSpacing = 1;
-		
+
 		Composite comTable = new Composite(parent,tableStyle);
 		comTable.setLayout(layoutTable);
 		comTable.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true));
 
-		// int style = SWT.VIRTUAL | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER; //SWT.FULL_SELECTION | SWT.SINGLE		
+		// int style = SWT.VIRTUAL | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER; //SWT.FULL_SELECTION | SWT.SINGLE
 		viewer = new TableViewer(comTable,tableStyle);
 		viewer.getControl().setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true));
 		createTableColumns(viewer);
@@ -119,7 +117,7 @@ public class CommandInfoComposite extends Composite implements ICommandThreadObs
 		table.setVisible(true);
 		table.setHeaderVisible(true);
 	}
-	
+
 	private TableViewerColumn createTableViewerColumn(TableViewer viewer, CiColumn cic) {
 		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer,SWT.NONE);
 		final TableColumn column = viewerColumn.getColumn();
@@ -139,7 +137,7 @@ public class CommandInfoComposite extends Composite implements ICommandThreadObs
 	public TableViewer getViewer() {
 		return viewer;
 	}
-	
+
 	public void refresh() {
 		viewer.refresh();
 	}
@@ -151,7 +149,7 @@ public class CommandInfoComposite extends Composite implements ICommandThreadObs
 			}
 		}
 	}
-	
+
 	// Respond to Command Info events
 	@Override
 	public void update(Object source, Object arg) {

@@ -33,69 +33,69 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.preferences.PreferenceConstants;
 
 public class ExafsScanDataPlotPluginTest  implements ViewTestObject.AscciLineParser{
-	
+
 	private ViewTestObject testObject;
 
 	@Before
 	public void setUp() throws Exception {
-		
+
 		ClientManager.setTestingMode(true);
-		
-		GDAClientActivator.getDefault().getPreferenceStore().setValue(PreferenceConstants.MAX_SIZE_CACHED_DATA_POINTS,1000);	
-		
+
+		GDAClientActivator.getDefault().getPreferenceStore().setValue(PreferenceConstants.MAX_SIZE_CACHED_DATA_POINTS,1000);
+
 		final URL data  = ExafsScanDataPlotPluginTest.class.getResource("Mofoil2.dat");
 		this.testObject = new ViewTestObject(this, data);
 	}
 
 	@Test
 	public void testLnIoIt() throws Exception {
-		
+
 		final AbstractCachedScanPlotView part = (AbstractCachedScanPlotView)testObject.openView("gda.rcp.views.scan.LnI0ItScanPlotView");
 		testObject.createAndMonitorPoints();
-		
+
 		System.out.println("Sent "+testObject.getLineIndex()+" ScanDataPoints to "+part.getClass().getName());
-		
+
 		testObject.checkData(part);
-		
+
 		EclipseUtils.delay(2000);
 	}
 
 	@Test
 	public void testDerivative() throws Exception {
-		
+
 		final AbstractCachedScanPlotView part = (AbstractCachedScanPlotView)testObject.openView("gda.rcp.views.scan.DerivativeScanPlotView");
 		testObject.createAndMonitorPoints();
-		
+
 		System.out.println("Sent "+testObject.getLineIndex()+" ScanDataPoints to "+part.getClass().getName());
-		
+
 		testObject.checkData(part, 395);
-		
+
 		EclipseUtils.delay(2000);
 	}
-	
+
 	@Test
 	public void testFourier() throws Exception {
-		
+
 		final AbstractCachedScanPlotView part = (AbstractCachedScanPlotView)testObject.openView("gda.rcp.views.scan.FourierScanPlotView");
 		testObject.createAndMonitorPoints();
-		
+
 		System.out.println("Sent "+testObject.getLineIndex()+" ScanDataPoints to "+part.getClass().getName());
-		
+
 		testObject.checkData(part);
-		
+
 		EclipseUtils.delay(2000);
 	}
-	
+
 	@Test
 	public void testExafs() throws Exception {
-		
+
 		final AbstractCachedScanPlotView part = (AbstractCachedScanPlotView)testObject.openView("gda.rcp.views.scan.ExafsScanPlotView");
 		testObject.createAndMonitorPoints();
-		
+
 		System.out.println("Sent "+testObject.getLineIndex()+" ScanDataPoints to "+part.getClass().getName());
-		
+
 		testObject.checkData(part);
-		
+
 		EclipseUtils.delay(2000);
 	}
 
@@ -107,5 +107,5 @@ public class ExafsScanDataPlotPluginTest  implements ViewTestObject.AscciLinePar
 		point.addDetectorData(Double.parseDouble(d[2]),null);
 		point.addDetectorData(Double.parseDouble(d[3]),null);
 		point.setDetectorHeader(new String[]{"I0","It"});
-	}	
+	}
 }

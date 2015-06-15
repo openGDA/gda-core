@@ -48,7 +48,7 @@ public class ODCCDImage implements Serializable {
 
 	/**
 	 * Add a byte buffer to the image buffer. This method will append data to the image buffer sequentially.
-	 * 
+	 *
 	 * @param dataBlock
 	 *            The byte buffer to use.
 	 * @param headerInfo
@@ -60,7 +60,7 @@ public class ODCCDImage implements Serializable {
 
 	/**
 	 * Write the image buffer to a file.
-	 * 
+	 *
 	 * @param filename
 	 *            The filename to use.
 	 */

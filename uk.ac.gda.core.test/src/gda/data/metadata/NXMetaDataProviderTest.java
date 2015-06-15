@@ -95,7 +95,7 @@ public class NXMetaDataProviderTest {
 		// when(testScn.getUserUnits()).thenReturn("mm");
 		when(testScn.getAttribute(ScannableMotionUnits.USERUNITS)).thenReturn("GeV");
 		// when(testScn.getOutputFormat()).thenReturn(new String[] { "%5.2g" });
-		// when(testScn.getPosition()).thenReturn(6.0);		
+		// when(testScn.getPosition()).thenReturn(6.0);
 
 		try {
 			String name = "mscnIn3Ex0";
@@ -110,7 +110,7 @@ public class NXMetaDataProviderTest {
 			// TODO Auto-generated catch block
 			// logger.error("TODO put description of error here", e);
 		}
-		
+
 		try {
 			String name = "mscnIn3Ex2";
 			mscnIn3Ex2 = MockFactory.createMockScannable(name // String name
@@ -141,12 +141,12 @@ public class NXMetaDataProviderTest {
 
 		scnGroup = new ScannableGroup("scnGroup", new Scannable[] { bsx, mscnIn3Ex2 });
 	}
-	
+
 	@After
-	public void tearDown() { 
+	public void tearDown() {
 		LocalProperties.set("gda.nexus.metadata.provider.name", "");
 	}
-	
+
 	private void populateNXMetaDataProvider(NXMetaDataProvider metaDataProvider, int numEntries, String entryKeyRoot,
 			String entryValueRoot) {
 
@@ -420,7 +420,7 @@ public class NXMetaDataProviderTest {
 		String valueMappedToAddedKey = valueWithUnitsMappedToAddedKey.getFirst().toString();
 		Assert.assertEquals(addedValue, valueMappedToAddedKey);
 	}
-	
+
 
 	@Test
 	public void testRemove() throws InterruptedException, Exception {
@@ -459,7 +459,7 @@ public class NXMetaDataProviderTest {
 		for (MetaDataUserSuppliedItem item : userSuppliedItems) {
 			metaDataProvider.add(item);
 		}
-		
+
 		// list
 		boolean withValues = false;
 
@@ -1237,7 +1237,7 @@ public class NXMetaDataProviderTest {
 		Scannable scannable = bsx;
 		metaDataProvider.add(scannable);
 		InterfaceProvider.getJythonNamespace().placeInJythonNamespace("bsx", bsx);
-		
+
 		// list
 		boolean withValues = false;
 

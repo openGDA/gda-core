@@ -31,7 +31,7 @@ import gda.factory.corba.util.CorbaImplClass;
 public class ScannableRandom extends SimpleScannable {
 
 	/**
-	 * 
+	 *
 	 */
 	public ScannableRandom() {
 		// TODO Auto-generated constructor stub

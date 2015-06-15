@@ -20,7 +20,7 @@ import Jama.QRDecomposition;
  * Fit polynomial line to a set of data points. Implements the Fit interface.
  */
 public class FitPoly{
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(FitPoly.class);
 
 	/**
@@ -32,7 +32,7 @@ public class FitPoly{
 	 * The solution to the LSQ fit uses the open source JAMA - "A Java Matrix Package" classes. See
 	 * http://math.nist.gov/javanumerics/jama/ for description.<br>
 	 * <br>
-	 * 
+	 *
 	 * @param parameters -
 	 *            first half of the array holds the coefficients for the polynomial. The second half holds the errors on
 	 *            the coefficients.

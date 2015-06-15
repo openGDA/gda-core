@@ -67,7 +67,7 @@ public class VideoTransmit {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param locator -
 	 *            descriptor of the camera e.g. j1394://0,1,5,4
 	 * @param ipAddress -
@@ -85,7 +85,7 @@ public class VideoTransmit {
 	/**
 	 * Starts the transmission. Returns null if transmission started ok. Otherwise it returns a string with the reason
 	 * why the setup failed.
-	 * 
+	 *
 	 * @return null or reason why setup failed
 	 */
 	public synchronized String start() {
@@ -236,7 +236,7 @@ public class VideoTransmit {
 
 	/**
 	 * Setting the encoding quality to the specified value on the JPEG encoder. 0.5 is a good default.
-	 * 
+	 *
 	 * @param p
 	 * @param val
 	 */
@@ -341,7 +341,7 @@ public class VideoTransmit {
 
 	/**
 	 * Starts the stream
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {

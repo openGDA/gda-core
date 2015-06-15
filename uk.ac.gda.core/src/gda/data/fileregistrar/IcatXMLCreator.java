@@ -150,17 +150,17 @@ public class IcatXMLCreator {
 	private class AtomicWriter extends OutputStreamWriter {
 		String finalFileName;
 		File file;
-		
+
 		public AtomicWriter(String fileName) throws UnsupportedEncodingException, FileNotFoundException {
 			this(new File(fileName+"."));
 			this.finalFileName = fileName;
 		}
-		
+
 		private AtomicWriter(File file) throws UnsupportedEncodingException, FileNotFoundException {
 			super(new FileOutputStream(file), "UTF-8");
 			this.file = file;
 		}
-		
+
 		@Override
 		public void close() throws IOException {
 			super.close();
@@ -171,7 +171,7 @@ public class IcatXMLCreator {
 	/**
 	 * creates an XML file in the configured location with the required information for an ICAT XML ingest with the data
 	 * file information
-	 * 
+	 *
 	 * @param datasetId
 	 *            name that will allow to group related files
 	 * @param files
@@ -280,7 +280,7 @@ public class IcatXMLCreator {
 
 	/**
 	 * the directory to create the XML in
-	 * 
+	 *
 	 * @param directory
 	 */
 	public void setDirectory(String directory) {

@@ -20,8 +20,8 @@
 package gda.jython.authoriser;
 
 import static org.junit.Assert.fail;
-import gda.util.TestUtils;
 import gda.configuration.properties.LocalProperties;
+import gda.util.TestUtils;
 import gda.util.exceptionUtils;
 
 import org.junit.BeforeClass;
@@ -62,7 +62,7 @@ public class EditPermissionsTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testCanSee() {

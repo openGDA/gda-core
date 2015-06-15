@@ -21,7 +21,7 @@ package gda.device.detector.nxdata;
 import gda.device.detector.NXDetectorData;
 
 public class NXDetectorDataNullAppender implements NXDetectorDataAppender {
-	
+
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) {
 		// do nothing
@@ -42,5 +42,5 @@ public class NXDetectorDataNullAppender implements NXDetectorDataAppender {
 	public int hashCode() {
 		return super.hashCode();
 	}
-	
+
 }

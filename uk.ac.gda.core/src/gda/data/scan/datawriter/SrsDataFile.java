@@ -36,9 +36,9 @@ import org.slf4j.LoggerFactory;
  * which created this datahandler to determine which columns to have in the output. The header information is passed as
  * an ArrayList<String> with: <LI>element 0 is title element 1 is condition1 element 2 is condition2 element 3 is
  * condition3 element 4 - n are comments</LI>
- * 
+ *
  * <PRE>
- * 
+ *
  * &amp;SRS SRSRUN=129283,SRSDAT=040910,SRSTIM=181147,
  * SRSSTN='W164',SRSPRJ='POWDERDF',SRSEXP='12345432', SRSTLE='k733a ',
  * SRSCN1='k733 aft',SRSCN2='room tem',SRSCN3='drot 3 s', &amp;END Calib A with
@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * Set Point 0.0000 Active segment 0.0000 Active program 0.0000 Program Elapsed
  * time 0.0000 Time parameters read TEMP/TIME DISABLED DEDS time stamp Fri Sep
  * 10 18:13:49 2004 119. 70. 51. 49. 42. 29. 47. 45. etc...
- * 
+ *
  * </PRE>
  * <p>
  * The columns may be automatically aligned to the headers by setting the java property
@@ -65,7 +65,7 @@ public class SrsDataFile extends IncrementalFile {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @throws InstantiationException
 	 */
 	public SrsDataFile() throws InstantiationException {
@@ -82,7 +82,7 @@ public class SrsDataFile extends IncrementalFile {
 	 * <P>
 	 * data should be in the form of a double array. This data will be tab separated, terminated with an "\n", and
 	 * appended to the open file.
-	 * 
+	 *
 	 * @param dataPoint
 	 *            Object
 	 * @throws Exception
@@ -95,7 +95,7 @@ public class SrsDataFile extends IncrementalFile {
 		// Do this before calling prepareForCollection so as not to risk creating
 		// an empty file.
 		String lineToAdd;
-		
+
 		try {
 			if (alignColumns) {
 				lineToAdd = dataPoint.toFormattedString() + "\n";
@@ -108,11 +108,11 @@ public class SrsDataFile extends IncrementalFile {
 			throw new Exception(msg , e);
 		}
 
-		
+
 		// Check that the datapoint returns a header before creating a file,
 		// so as not to risk writing a dodgy one.
 		getHeaderLine();
-		
+
 		if (firstData) {
 			this.prepareForCollection();
 			firstData = false;
@@ -249,7 +249,7 @@ public class SrsDataFile extends IncrementalFile {
 			logger.error("Error when writing SrsDataFile header: " + ex.getMessage());
 		}
 	}
-	
+
 	private String getHeaderLine() {
 		if (alignColumns) {
 			return latestPoint.getHeaderString();

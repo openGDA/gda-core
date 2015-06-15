@@ -57,7 +57,7 @@ public class LookupAdapter implements Lookup, EventSubscriber, Findable {
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name
@@ -95,8 +95,8 @@ public class LookupAdapter implements Lookup, EventSubscriber, Findable {
 	}
 
 	/**
-	 * @param anIObserver 
-	 * 
+	 * @param anIObserver
+	 *
 	 * @see gda.observable.IObservable#addIObserver(gda.observable.IObserver)
 	 */
 	@Override
@@ -105,7 +105,7 @@ public class LookupAdapter implements Lookup, EventSubscriber, Findable {
 	}
 
 	/**
-	 * @param anIObserver 
+	 * @param anIObserver
 	 *
 	 * @see gda.observable.IObservable#deleteIObserver(gda.observable.IObserver)
 	 */
@@ -125,7 +125,7 @@ public class LookupAdapter implements Lookup, EventSubscriber, Findable {
 
 	/**
 	 * Notify observers of this class.
-	 * 
+	 *
 	 * @param theObserved
 	 *            the observed class
 	 * @param changeCode
@@ -236,7 +236,7 @@ public class LookupAdapter implements Lookup, EventSubscriber, Findable {
 		}
 		return -1.0;
 	}
-	
+
 	@Override
 	public double[] getLookupKeys() throws DeviceException {
 		for (int i = 0; i < NetService.RETRY; i++) {
@@ -252,8 +252,8 @@ public class LookupAdapter implements Lookup, EventSubscriber, Findable {
 		}
 		return null;
 	}
-	
-	
+
+
 
 	@Override
 	public void setFilename(String filename) {
@@ -268,7 +268,7 @@ public class LookupAdapter implements Lookup, EventSubscriber, Findable {
 			}
 		}
 	}
-	
+
 	@Override
 	public void reload() {
 		for (int i = 0; i < NetService.RETRY; i++) {
@@ -280,7 +280,7 @@ public class LookupAdapter implements Lookup, EventSubscriber, Findable {
 			} catch (TRANSIENT ct) {
 				paramsObj = CorbaLookupHelper.narrow(netService.reconnect(name));
 			}
-		}		
+		}
 	}
 
 }

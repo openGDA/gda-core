@@ -5,7 +5,7 @@ package gda.analysis.numerical.fourier;
 /**
  * Class to implement simple one-off Complex to Complex Fourier transforms uwing jfftw as a native library. A new plan
  * is created for each FFT. This is sub-optimal for a large number of FFTs, but reasonable for ``one-off''.
- * 
+ *
  * @author Will Hossack, The Univesrity of Edinburgh
  * @version 1.0
  */
@@ -14,7 +14,7 @@ public class FFTWComplex extends FFTW3 {
 	/**
 	 * Method to take one-dimensional Complex FFT with the data supplied in a one-dimensional double array with real
 	 * parts in even elements, and imaginary in the odd.
-	 * 
+	 *
 	 * @param data
 	 *            the data to be transformed
 	 * @param dirn
@@ -39,7 +39,7 @@ public class FFTWComplex extends FFTW3 {
 
 	/**
 	 * nativeOneDimensional method to do the work
-	 * 
+	 *
 	 * @param in
 	 * @param out
 	 * @param dirn
@@ -51,7 +51,7 @@ public class FFTWComplex extends FFTW3 {
 	 * Method to take two-dimensional Complex FFT with the data supplied in a one-dimensional double array with real
 	 * parts in even elements, and imaginary in the odd. Element i,j is located at Real part 2*(j*width + i) Imag part
 	 * 2*(j*width + i) + 1
-	 * 
+	 *
 	 * @param width
 	 *            the width of the image data
 	 * @param height
@@ -78,7 +78,7 @@ public class FFTWComplex extends FFTW3 {
 
 	/**
 	 * nativeTwoDimensional method to do the work
-	 * 
+	 *
 	 * @param width
 	 * @param height
 	 * @param in
@@ -92,7 +92,7 @@ public class FFTWComplex extends FFTW3 {
 	 * Method to take three-dimensional Complex FFT with the data supplied in a one-dimensional double array with real
 	 * parts in even elements, and imaginary in the odd. Element (i,j,k) is located at: RealPart 2*(k*width*height +
 	 * j*width + i) ImagPart 2*(k*width*height + j*width + i) + 1
-	 * 
+	 *
 	 * @param width
 	 *            the width of the image data
 	 * @param height
@@ -120,7 +120,7 @@ public class FFTWComplex extends FFTW3 {
 
 	/**
 	 * nativeTwoDimensional method to do the work
-	 * 
+	 *
 	 * @param width
 	 * @param height
 	 * @param depth

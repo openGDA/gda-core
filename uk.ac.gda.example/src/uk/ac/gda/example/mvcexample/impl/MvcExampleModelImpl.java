@@ -67,9 +67,9 @@ public class MvcExampleModelImpl  extends ObservableModel  implements MvcExample
 		scannable.asynchronousMoveTo(position);
 	}
 	ScannableMotionUnits scannable;
-	
-	
-	
+
+
+
 	public ScannableMotionUnits getScannable() {
 		return scannable;
 	}
@@ -114,7 +114,7 @@ public class MvcExampleModelImpl  extends ObservableModel  implements MvcExample
 				}
 			};
 			timer.scheduleAtFixedRate(task, 0, 1000);
-			
+
 		}
 		return items;
 	}
@@ -124,17 +124,17 @@ public class MvcExampleModelImpl  extends ObservableModel  implements MvcExample
 		if( scannable == null)
 			throw new Exception("scannable == null");
 		scannable.addIObserver(new IObserver() {
-			
+
 			@Override
 			public void update(Object source, Object arg) {
 				if( arg instanceof ScannablePositionChangeEvent) {
-					
+
 					Serializable newPosition = ((ScannablePositionChangeEvent)arg).newPosition;
 					firePropertyChange(MvcExampleModel.POSITION_PROPERTY_NAME,
 							newPosition, newPosition);
 				}
 				else if( arg instanceof ScannableStatus) {
-					
+
 					try {
 						Double newPosition;
 						newPosition = getPosition();
@@ -163,7 +163,7 @@ class MyMvcExampleItem extends ObservableModel implements MvcExampleItem {
 	public double getValue() {
 		return value;
 	}
-	
+
 
 	public void setValue(double newVal){
 		firePropertyChange(MvcExampleItem.VALUE_PROPERTY_NAME,

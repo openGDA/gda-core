@@ -22,17 +22,17 @@ package gda.util.fit;
 // (and put it on the web).
 //
 // ----------------------------------------------------------------
-// 
+//
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
 // License as published by the Free Software Foundation; either
 // version 2 of the License, or (at your option) any later version.
-// 
+//
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // Library General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Library General Public
 // License along with this library; if not, write to the
 // Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -59,13 +59,13 @@ import Jama.Matrix;
  * variables. The NR code assumes a statistical context, e.g. returns covariance of parameter errors; we do not do this.
  */
 public final class LM {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(LM.class);
 
 	/**
 	 * calculate the current sum-squared-error (Chi-squared is the distribution of squared Gaussian errors, thus the
 	 * name)
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @param a
@@ -88,7 +88,7 @@ public final class LM {
 	/**
 	 * Minimize E = sum {(y[k] - f(x[k],a)) / s[k]}^2 The individual errors are optionally scaled by s[k]. Note that
 	 * LMfunc implements the value and gradient of f(x,a), NOT the value and gradient of E with respect to a!
-	 * 
+	 *
 	 * @param x
 	 *            array of domain points, each may be multidimensional
 	 * @param y

@@ -84,7 +84,7 @@ public class DefaultStageT95 implements LinkamStage {
 
 	/**
 	 * Executes when poll timer fires
-	 * 
+	 *
 	 * @param pe
 	 *            the polling event
 	 */

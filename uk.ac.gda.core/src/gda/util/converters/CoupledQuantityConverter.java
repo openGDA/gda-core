@@ -98,6 +98,6 @@ final class CoupledQuantityConverter implements IQuantityConverter {
 		return sourceConverter.handlesTtoS() && targetConverter.handlesTtoS();
 	}
 
-	
-	
+
+
 }

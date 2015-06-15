@@ -46,7 +46,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	public static final String EXT_INHIBIT_ATTR_NAME = "Ext-Inhibit";
 
 	public static final String VME_START_ATTR_NAME = "VME-Start";
-	
+
 	public static final String SOFTWARE_START_AND_TRIG_ATTR_NAME = "software triggering";
 
 	private static final Logger logger = LoggerFactory.getLogger(Tfg.class);
@@ -60,10 +60,10 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	protected boolean vmeStart = true;
 	//if true auto-rearm to added to the end of the setup-groups command rather than cycles
 	protected boolean autoReArm = false;
-	// if true then send tfg arm, tfg start. For the system to work correctly in 
+	// if true then send tfg arm, tfg start. For the system to work correctly in
 	// this situation then there must be a pause in every frame, including the first frame.
 	protected boolean softwareTriggering = false;
-	
+
 	protected boolean extInh = false;
 	protected int cycles = 1;
 	private int totalCycles = 0;
@@ -203,7 +203,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 
 	/**
 	 * get the tfg progress message
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public String getProgress() throws DeviceException {
 		if (daServer != null && daServer.isConnected()) {
@@ -282,12 +282,12 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 		if (!framesLoaded) {
 			throw new DeviceException(getName() + " no frames loaded");
 		}
-		
+
 		daServer.sendCommand("tfg cont");
 	}
 
 	/**
-	 * Starts or arms (or both) a predefine frameset 
+	 * Starts or arms (or both) a predefine frameset
 	 */
 	@Override
 	public synchronized void start() throws DeviceException {
@@ -296,7 +296,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 			//loadFrameSets();
 			throw new DeviceException(getName() + " no frames loaded");
 		}
-		
+
 		if (softwareTriggering){
 			daServer.sendCommand("tfg arm");
 			daServer.sendCommand("tfg start");
@@ -307,7 +307,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 			daServer.sendCommand("tfg arm");
 			waitingForExtStart = true;
 		}
-		
+
 		Date d = new Date();
 		startTime = d.getTime();
 		elapsedTime = 0;
@@ -354,9 +354,9 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 
 	@Override
 	public void loadFrameSets() throws DeviceException {
-		
+
 		checkOKToSendCommand();
-		
+
 		StringBuffer sb = new StringBuffer();
 
 		sb.append("tfg setup-groups");
@@ -401,13 +401,13 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 		daServer.sendCommand(sb.toString());
 		totalExptTime *= cycles;
 		framesLoaded = true;
-			
+
 		notifyIObservers(this, timeFrameProfile);
 	}
 
 	/**
 	 * Count the specified time (in ms)
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Override
 	public synchronized void countAsync(double time) throws DeviceException {
@@ -455,12 +455,12 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 
 	/**
 	 * Set attribute values for "Ext-Start", "Ext-Inhibit", "VME-Start" and "Auto-Continue"
-	 * 
+	 *
 	 * @param attributeName
 	 *            the attribute name
 	 * @param value
 	 *            the attribute value
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Override
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
@@ -491,7 +491,7 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 
 	/**
 	 * Get attribute values for "Ext-Start", "Ext-Inhibit".
-	 * 
+	 *
 	 * @param attributeName
 	 *            the attribute name
 	 * @return the attribute value
@@ -664,12 +664,12 @@ public class Tfg extends DeviceBase implements Timer, Runnable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param monitorInBackground if true (default) the tfg state is monitored regularly and observers are notified of changes.
 	 */
 	public void setMonitorInBackground(boolean monitorInBackground) {
 		this.monitorInBackground = monitorInBackground;
 	}
-	
-	
+
+
 }

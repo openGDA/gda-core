@@ -101,7 +101,7 @@ public class MountPoint extends Folder {
 
 	/**
 	 * Get the project.
-	 * 
+	 *
 	 * @return project
 	 */
 	public Project getProject() {

@@ -25,11 +25,11 @@ public interface PositionValidator {
 	/**
 	 * Returns null if position is valid, otherwise a description of problem. Position is specified in its internal
 	 * representation (i.e. with units stripped and offsets and other filters applied).
-	 * 
+	 *
 	 * @param internalPosition in its internal representation.
 	 * @return null if position is valid
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public String checkInternalPosition(Object[] internalPosition) throws DeviceException;
-	
+
 }

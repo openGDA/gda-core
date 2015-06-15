@@ -29,7 +29,7 @@ public class XMapLoader extends uk.ac.diamond.scisoft.analysis.io.XMapLoader {
 
 	/**
 	 * Constructor which takes a filename
-	 * 
+	 *
 	 * @param fileName
 	 */
 	public XMapLoader(String fileName) {

@@ -27,20 +27,20 @@ import gda.jython.JythonServerFacade;
  * its value.
  */
 public class ScannableMetadataEntry extends MetadataEntry {
-	
+
 	private String scannableName;
-	
+
 	/**
 	 * Creates a scannable metadata entry.
 	 */
 	public ScannableMetadataEntry() {
 		// do nothing
 	}
-	
+
 	/**
 	 * Creates a scannable metadata entry that will read the position of the
 	 * specified scannable.
-	 * 
+	 *
 	 * @param name the metadata entry name
 	 * @param scannableName the name of the scannable
 	 */
@@ -48,16 +48,16 @@ public class ScannableMetadataEntry extends MetadataEntry {
 		setName(name);
 		setScannableName(scannableName);
 	}
-	
+
 	/**
 	 * Sets the name of the scannable that this metadata entry will read.
-	 * 
+	 *
 	 * @param scannableName the name of the scannable
 	 */
 	public void setScannableName(String scannableName) {
 		this.scannableName = scannableName;
 	}
-	
+
 	@Override
 	public String readActualValue() {
 		String command = scannableName + ".getPosition()";

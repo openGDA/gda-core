@@ -24,7 +24,7 @@ package gda.scan;
  */
 public class TrajectoryScanProperties {
 	/**
-	 * 
+	 *
 	 */
 	public enum TrajectoryScanProperty {
 		/** */

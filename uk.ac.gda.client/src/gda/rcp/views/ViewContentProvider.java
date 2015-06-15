@@ -36,21 +36,21 @@ import org.eclipse.ui.IViewSite;
  * existing objects in adapters or simply return
  * objects as-is. These objects may be sensitive
  * to the current input of the view, or ignore
- * it and always show the same content 
+ * it and always show the same content
  * (like Task List, for example).
  */
 
 public class ViewContentProvider implements IStructuredContentProvider,
 		ITreeContentProvider {
-	
+
 	private TreeParent invisibleRoot;
 	private IViewSite viewSite;
-	
+
 	public ViewContentProvider(IViewSite viewSite) {
 		super();
 		this.viewSite = viewSite;
-	}	
-	
+	}
+
 	@Override
 	public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 	}

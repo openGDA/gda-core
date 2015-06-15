@@ -51,7 +51,7 @@ public class AutoRenameableConverter implements IReloadableQuantitiesConverter, 
 	private ConverterNameProvider provider;
 
 	/**
-	 * @param name 
+	 * @param name
 	 * @param providerName
 	 * @param autoConversion
 	 */
@@ -250,14 +250,14 @@ public class AutoRenameableConverter implements IReloadableQuantitiesConverter, 
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void enableAutoConversion() {
 		autoConversion = true;
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void disableAutoConversion() {
 		autoConversion = false;

@@ -19,9 +19,6 @@
 
 package gda.device.temperature;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.Serial;
 import gda.device.TemperatureRamp;
@@ -30,14 +27,17 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.util.PollerEvent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Class to control a LinkamCI Those computer interface boxes control the Linkam range of heating/freezing stages. They
  * offer a serial connection.
  */
 public class LinkamCI extends TemperatureBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(LinkamCI.class);
-	
+
 	private final static double MAXTEMP = 900.0;
 
 	private final static double MINTEMP = -35.0;
@@ -108,7 +108,7 @@ public class LinkamCI extends TemperatureBase {
 			if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
 				logger.error("Serial Device " + serialDeviceName + " not found");
 			}
-		} 
+		}
 		if (serial != null) {
 			logger.debug("LinkamCI configure called");
 			// debugName is used in error output
@@ -214,7 +214,7 @@ public class LinkamCI extends TemperatureBase {
 
 	/**
 	 * Checks the value of the error byte and takes appropriate action.
-	 * 
+	 *
 	 * @param errorByte
 	 *            the error byte
 	 */
@@ -236,7 +236,7 @@ public class LinkamCI extends TemperatureBase {
 
 	/**
 	 * Extracts the current temperature from a four byted string (from either a T or D reply)
-	 * 
+	 *
 	 * @param string
 	 *            the four byte substring
 	 * @return the current temperature
@@ -267,7 +267,7 @@ public class LinkamCI extends TemperatureBase {
 
 	/**
 	 * Gets the current temperature by asking the actual LinkamCI
-	 * 
+	 *
 	 * @return currentTemp
 	 * @throws DeviceException
 	 */
@@ -283,7 +283,7 @@ public class LinkamCI extends TemperatureBase {
 
 	/**
 	 * Gets the current temperature without asking the actual LinkamCI
-	 * 
+	 *
 	 * @return temperature (in degreesC)
 	 */
 	public double getTemperature() {
@@ -292,7 +292,7 @@ public class LinkamCI extends TemperatureBase {
 
 	/**
 	 * Sends the ramps to the hardware.
-	 * 
+	 *
 	 * @param which
 	 *            the current ramp
 	 */
@@ -315,7 +315,7 @@ public class LinkamCI extends TemperatureBase {
 
 	/**
 	 * Get the Linkam status
-	 * 
+	 *
 	 * @return the status string
 	 * @throws DeviceException
 	 */
@@ -334,7 +334,7 @@ public class LinkamCI extends TemperatureBase {
 
 	/**
 	 * Called each time the poller goes round. Implements PollerListener interface.
-	 * 
+	 *
 	 * @param pe
 	 *            a PollerEvent constructed by the Poller which calls this
 	 */
@@ -354,7 +354,7 @@ public class LinkamCI extends TemperatureBase {
 
 	/**
 	 * Sends a notifyIObservers with a TemperatureStatus. Used by stages to notify IObservers of the Controller.
-	 * 
+	 *
 	 * @param additionalData
 	 *            set as the additionalData field of the TemperatureStatus which is sent in the notify.
 	 */
@@ -383,7 +383,7 @@ public class LinkamCI extends TemperatureBase {
 
 	/**
 	 * Set limit temperature for given ramp.
-	 * 
+	 *
 	 * @param rampNumber
 	 *            the current ramp number
 	 * @param limit
@@ -404,7 +404,7 @@ public class LinkamCI extends TemperatureBase {
 
 	/**
 	 * Set rate (in degrees/minute) for current ramp.
-	 * 
+	 *
 	 * @param rampNumber
 	 *            the current ramp number
 	 * @param rate
@@ -444,7 +444,7 @@ public class LinkamCI extends TemperatureBase {
 	/**
 	 * Creates a dsc if the reply to the ? command demands it. Eventually Dsc should be replaced by a more general Stage
 	 * class.
-	 * 
+	 *
 	 * @return an intance of the created stage
 	 */
 	private LinkamStage createStage() {
@@ -536,7 +536,7 @@ public class LinkamCI extends TemperatureBase {
 
 	/**
 	 * Set the value of liquid nitrogen pump automation.
-	 * 
+	 *
 	 * @param value
 	 *            the new value
 	 */
@@ -552,7 +552,7 @@ public class LinkamCI extends TemperatureBase {
 
 	/**
 	 * Sets the liquid nitrogen pump speed.
-	 * 
+	 *
 	 * @param speed
 	 *            the new speed
 	 */
@@ -571,7 +571,7 @@ public class LinkamCI extends TemperatureBase {
 
 	/**
 	 * Overrides the DeviceBase method to provide commands for a liquid nitrogen pump
-	 * 
+	 *
 	 * @param name
 	 *            the name of the attribute to set
 	 * @param value
@@ -594,7 +594,7 @@ public class LinkamCI extends TemperatureBase {
 
 	/**
 	 * Overrides the DeviceBase method to get current DSC dataset name.
-	 * 
+	 *
 	 * @param name
 	 *            the attribute name to get
 	 * @return the attribute value

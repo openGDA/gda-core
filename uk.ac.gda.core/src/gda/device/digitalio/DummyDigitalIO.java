@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
  */
 // FIXME remove implements DigitalIO not needed
 public class DummyDigitalIO extends DigitalIOBase implements DigitalIO {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DummyDigitalIO.class);
-	
+
 	// 3 lines are provided which are input and output and have their
 	// state maintained between calls. They are stored in a HashMap
 	// with the channel name as the key and Integer state as the value
@@ -50,7 +50,7 @@ public class DummyDigitalIO extends DigitalIOBase implements DigitalIO {
 		hMap.put("chan1", new Integer(HIGH_STATE));
 		hMap.put("tfgStart", new Integer(LOW_STATE));
 	}
-	
+
 	@Override
 	public void configure(){
 		// no configuration required

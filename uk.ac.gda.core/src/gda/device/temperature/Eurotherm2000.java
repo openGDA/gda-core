@@ -38,9 +38,9 @@ import org.slf4j.LoggerFactory;
  * rate selected between 300 & 9600
  */
 public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Eurotherm2000.class);
-	
+
 	private final static double MAXTEMP = 900.0;
 
 	private final static double MINTEMP = -35.0;
@@ -107,7 +107,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Check a valid termination character has been received in the response.
-	 * 
+	 *
 	 * @param reply
 	 *            is the raw reply from the Eurotherm.
 	 * @throws DeviceException
@@ -131,7 +131,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 			if ((serial = (Serial) Finder.getInstance().find(serialDeviceName)) == null) {
 				logger.error("Serial Device " + serialDeviceName + " not found");
 			}
-		} 
+		}
 		if (serial != null) {
 			logger.debug("Eurotherm configure called");
 			// debugName is used in error output
@@ -231,7 +231,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 	/**
 	 * Decode the raw response from the Eurotherm, checking the checksum value and returns the decoded value in String
 	 * form.
-	 * 
+	 *
 	 * @param buffer
 	 *            the raw repsonse from the Eurotherm
 	 * @return decoded value
@@ -259,7 +259,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Encode a mnemonic & parameter value for setting the value in the eurotherm controller
-	 * 
+	 *
 	 * @param mnemonic
 	 *            is the two letter code.
 	 * @param value
@@ -284,7 +284,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Encode a mnemonic when requesting values from the Eurotherm controller
-	 * 
+	 *
 	 * @param mnemonic
 	 *            is the two letter code.
 	 * @return the encoded string
@@ -295,7 +295,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Gets the current temperature by asking the actual Eurotherm
-	 * 
+	 *
 	 * @return currentTemp
 	 * @throws DeviceException
 	 */
@@ -320,7 +320,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Get to the lower operating temperature
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	private void getInstrumentIdentity() throws DeviceException {
@@ -336,7 +336,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Get the curent target temperature of the EuroTherm controller
-	 * 
+	 *
 	 * @return the target temperature
 	 * @throws DeviceException
 	 */
@@ -349,7 +349,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Get to the Xp parameter
-	 * 
+	 *
 	 * @return the Xp paramter
 	 * @throws DeviceException
 	 */
@@ -361,7 +361,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Hold at temperature
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -375,7 +375,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Is at the set point. This overrides the method in TemperatureBase.
-	 * 
+	 *
 	 * @return true if it is
 	 * @throws DeviceException
 	 */
@@ -396,7 +396,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Executes when poll timer fires
-	 * 
+	 *
 	 * @param pe
 	 *            the polling event
 	 */
@@ -456,7 +456,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Get the SetPoint
-	 * 
+	 *
 	 * @return the set point
 	 * @throws DeviceException
 	 */
@@ -468,7 +468,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Get to the OutputPower
-	 * 
+	 *
 	 * @return the output power
 	 * @throws DeviceException
 	 */
@@ -480,7 +480,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Tells the hardware to start heating or cooling
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	private void sendStart() throws DeviceException {
@@ -511,7 +511,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Hold at temperature
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void sendStop() throws DeviceException {
@@ -527,7 +527,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Set the proportional band control parameter Xp for the controller
-	 * 
+	 *
 	 * @param value
 	 *            of parameter Xp
 	 * @throws DeviceException
@@ -540,7 +540,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Implements methods from ReplyChecker class
-	 * 
+	 *
 	 * @param buffer
 	 *            the reply from the Eurotherm
 	 * @return true if reply is corretly formatted
@@ -558,7 +558,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Overrides the DeviceBase method to getAttribute.
-	 * 
+	 *
 	 * @param name
 	 *            the name of the attribute to obtain
 	 * @return the attribute
@@ -576,7 +576,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Overrides the DeviceBase method to setAttributes.
-	 * 
+	 *
 	 * @param name
 	 *            the name of the attribute to obtain
 	 * @param value
@@ -629,7 +629,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Sends the ramps to the hardware.
-	 * 
+	 *
 	 * @param which
 	 *            the temperature ramp
 	 * @throws DeviceException
@@ -678,7 +678,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Starts the next ramp in the rampList.
-	 * 
+	 *
 	 * @throws DeviceException
 	 * @see #sendRamp(int)
 	 */
@@ -697,7 +697,7 @@ public class Eurotherm2000 extends TemperatureBase implements ReplyChecker {
 
 	/**
 	 * Starts a temperature change towards previously set target temperature
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override

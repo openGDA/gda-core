@@ -18,17 +18,13 @@
 
 package gda.device.scannable;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import gda.device.DeviceException;
-
-import java.util.ArrayList;
-import static java.util.Arrays.asList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import org.junit.Before;
 import org.junit.Test;

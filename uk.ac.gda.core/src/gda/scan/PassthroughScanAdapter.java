@@ -25,13 +25,13 @@ import gda.device.Scannable;
 import java.util.Vector;
 
 public class PassthroughScanAdapter implements NestableScan {
-	
+
 	private final NestableScan delegate;
 
 	public PassthroughScanAdapter(NestableScan delegate) {
 		this.delegate = delegate;
 	}
-	
+
 	@Override
 	public void pause() {
 		delegate.pause();

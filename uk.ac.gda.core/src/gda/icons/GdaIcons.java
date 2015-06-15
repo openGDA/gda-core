@@ -32,7 +32,7 @@ public class GdaIcons {
 	public static Image getWindowIcon() {
 		return getLogo(16);
 	}
-	
+
 	public static Image getLogo(int size) {
 		final String filename = "GDALogo" + size + ".png";
 		final URL url = GdaIcons.class.getResource(filename);

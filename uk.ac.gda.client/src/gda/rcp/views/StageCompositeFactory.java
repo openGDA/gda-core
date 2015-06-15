@@ -120,7 +120,7 @@ public class StageCompositeFactory implements CompositeFactory {
 		Label sep = new Label(cmp, SWT.SEPARATOR | SWT.HORIZONTAL);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(sep);
 		for (StageCompositeDefinition s : stageCompositeDefinitions) {
-			
+
 			try {
 				Composite motorComp = new Composite(cmp, SWT.NONE);
 				GridDataFactory.fillDefaults().grab(true, false).applyTo(motorComp);
@@ -129,7 +129,7 @@ public class StageCompositeFactory implements CompositeFactory {
 				Label label = new Label(motorComp, SWT.NONE);
 				label.setText( s.label != null ? s.label :s.scannable.getName());
 				GridDataFactory.swtDefaults().hint(labelWidth != null ? labelWidth : 120, SWT.DEFAULT).applyTo(label);
-				
+
 				MotorPositionEditorControl motorPosControl;
 				motorPosControl = new MotorPositionEditorControl(motorComp, SWT.NONE, new ScannableWrapper(s.scannable), true, false);
 				motorPosControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -139,8 +139,8 @@ public class StageCompositeFactory implements CompositeFactory {
 			} catch (Exception e1) {
 				logger.error("Error creating control for '", s.scannable.getName() + "'");
 			}
-			
-			
+
+
 			Label sep1 = new Label(cmp, SWT.SEPARATOR | SWT.HORIZONTAL);
 			GridDataFactory.fillDefaults().grab(true, false).applyTo(sep1);
 		}

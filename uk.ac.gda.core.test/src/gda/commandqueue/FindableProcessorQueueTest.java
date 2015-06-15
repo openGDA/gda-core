@@ -85,8 +85,8 @@ public class FindableProcessorQueueTest implements IObserver {
 		processor.start(MAX_TIMEOUT_MS);
 		Thread.sleep(500);
 	}
-	
-	
+
+
 	@Test
 	public void testSkip() throws Exception {
 		setUp("testSkip");
@@ -103,7 +103,7 @@ public class FindableProcessorQueueTest implements IObserver {
 		Assert.assertEquals(Command.STATE.COMPLETED, normalCommand.getState());
 	}
 
-	
+
 	@Test
 	public void testStartWithQueueEmpty() throws Exception {
 		setUp("testStartWithQueueEmpty");
@@ -111,7 +111,7 @@ public class FindableProcessorQueueTest implements IObserver {
 		processor.start(MAX_TIMEOUT_MS);
 		TestCommand command = new TestCommand(processor,MAX_TIMEOUT_MS, 0);
 		command.addIObserver(new IObserver() {
-			
+
 			@Override
 			public void update(Object source, Object arg) {
 				System.out.print(arg.toString());
@@ -120,7 +120,7 @@ public class FindableProcessorQueueTest implements IObserver {
 		queue.addToTail(command);
 		Thread.sleep(500);
 		Assert.assertEquals(Command.STATE.COMPLETED, command.getState());
-		
+
 	}
 
 	@Test
@@ -132,9 +132,9 @@ public class FindableProcessorQueueTest implements IObserver {
 		processor.start(MAX_TIMEOUT_MS);
 		Thread.sleep(500);
 		Assert.assertEquals(Command.STATE.COMPLETED, command.getState());
-		
+
 	}
-	
+
 	@Test
 	public void testStop() throws Exception {
 		setUp("testStop");
@@ -145,13 +145,13 @@ public class FindableProcessorQueueTest implements IObserver {
 
 		Assert.assertEquals(STATE.WAITING_START, state);
 	}
-	
+
 	STATE state = STATE.UNKNOWN;
 	@Override
 	public void update(Object source, Object arg) {
 		if( source == processor && arg instanceof Processor.STATE)
 			this.state = (Processor.STATE)arg;
-		
-	}	
+
+	}
 
 }

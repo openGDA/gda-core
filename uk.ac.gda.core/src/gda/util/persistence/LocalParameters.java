@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * The default behaviour is to create a requested configuration file if it does not exist. NOTE: make sure to use the
  * save() method after setting a property!
- * 
+ *
  * @see "http://commons.apache.org/configuration/userguide/user_guide.html"
  */
 public class LocalParameters {
@@ -70,7 +70,7 @@ public class LocalParameters {
 
 	/**
 	 * Gets the single instance of the default XML configuration. Will create one if it does not exist.
-	 * 
+	 *
 	 * @return XMLConfiguration
 	 * @throws IOException
 	 * @throws ConfigurationException
@@ -81,7 +81,7 @@ public class LocalParameters {
 
 	/**
 	 * Gets the single instance of the named XML configuration. Will create one if it does not exist.
-	 * 
+	 *
 	 * @param configName
 	 *            The name of the configuration to load (with no trailing .xml)
 	 * @return An XMLConfiguration
@@ -95,7 +95,7 @@ public class LocalParameters {
 	/**
 	 * Gets the single instance of the named XML configuration. If createIfMissing is true then will create one if it
 	 * does not exist.
-	 * 
+	 *
 	 * @param configName
 	 *            The name of the configuration to load (with no trailing .xml)
 	 * @param createIfMissing
@@ -107,14 +107,14 @@ public class LocalParameters {
 			throws ConfigurationException, IOException {
 		return getXMLConfiguration(getDefaultConfigDir(), configName, createIfMissing);
 	}
-	
+
 	private static String getDefaultConfigDir() {
 		return LocalProperties.getVarDir();
 	}
-	
+
 	/**
 	 * Rereads the xml file come what may.
-	 * 
+	 *
 	 * @param configName
 	 * @return XMLConfiguration
 	 * @throws ConfigurationException
@@ -126,7 +126,7 @@ public class LocalParameters {
 		}
 		return getXMLConfiguration(configName);
 	}
-	
+
 	private static XMLConfiguration loadConfigurationFromFile(String filename) throws ConfigurationException {
 		XMLConfiguration config = new XMLConfiguration();
 		config.setDelimiterParsingDisabled(false); // This needs to change if GDA-2492 is fixed
@@ -134,19 +134,19 @@ public class LocalParameters {
 		config.load();
 		return config;
 	}
-	
+
 	/**
 	 * Warning - this may return a cached version of the object and does not re-read the underlying xml file.
-	 * 
+	 *
 	 * @param configDir
 	 * @param configName
 	 * @param createIfMissing
 	 * @return XMLConfiguration
 	 * @throws ConfigurationException
 	 * @throws IOException
-	 */	
+	 */
 	public static XMLConfiguration getXMLConfiguration(String configDir, String configName, Boolean createIfMissing)
-	throws ConfigurationException, IOException 
+	throws ConfigurationException, IOException
 	{
 		return getXMLConfiguration(configDir, configName, createIfMissing, false);
 	}
@@ -169,7 +169,7 @@ public class LocalParameters {
 		final String fullName = getFullName(configDir, configName);
 		if (createAlways && configList.containsKey(fullName)){
 			configList.remove(fullName);
-		}		
+		}
 		if (configList.containsKey(fullName) == false) {
 			XMLConfiguration config;
 
@@ -225,25 +225,25 @@ public class LocalParameters {
 		// return the configuration object
 		return configList.get(fullName);
 	}
-	
+
 	private static String getFullName(String configDir, String configName) {
 		String fullName = configDir + configName + ".xml";
 		return fullName;
 	}
-	
+
 	public static FileConfiguration getThreadSafeXmlConfiguration(String configName) throws ConfigurationException, IOException {
 		return getThreadSafeXmlConfiguration(configName, true);
 	}
-	
+
 	public static FileConfiguration getThreadSafeXmlConfiguration(String configName, boolean createIfMissing) throws ConfigurationException, IOException {
 		return getThreadSafeXmlConfiguration(getDefaultConfigDir(), configName, createIfMissing);
 	}
-	
+
 	public static FileConfiguration getThreadSafeXmlConfiguration(String configDir, String configName, boolean createIfMissing) throws ConfigurationException, IOException {
 		final String fullName = getFullName(configDir, configName);
-		
+
 		final FileConfiguration fileConfig = getXMLConfiguration(configDir, configName, createIfMissing);
-		
+
 		// Get the lock for this configuration. Create it if it doesn't exist.
 		Object lockForThisConfig = locks.get(fullName);
 		if (lockForThisConfig == null) {
@@ -253,11 +253,11 @@ public class LocalParameters {
 				lockForThisConfig = value;
 			}
 		}
-		
+
 		ThreadSafeFileConfiguration threadSafeConfig = new ThreadSafeFileConfiguration(fileConfig, lockForThisConfig);
 		return threadSafeConfig;
 	}
-	
+
 	/** Lock objects used to enforce thread safety. */
 	private static ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<String, Object>();
 

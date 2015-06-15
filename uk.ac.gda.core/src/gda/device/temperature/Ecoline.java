@@ -38,9 +38,9 @@ import org.slf4j.LoggerFactory;
  * Class to control the Integra Compact Low-Temperature Thermostat.
  */
 public class Ecoline extends TemperatureBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Ecoline.class);
-	
+
 	private double startTime = 0;
 
 	private final static double MAXTEMP = 200.0;
@@ -131,7 +131,7 @@ public class Ecoline extends TemperatureBase {
 
 	/**
 	 * Set the name of the serial communication port on the host computer.
-	 * 
+	 *
 	 * @param serialDeviceName
 	 *            the name of the serial port
 	 */
@@ -141,7 +141,7 @@ public class Ecoline extends TemperatureBase {
 
 	/**
 	 * Get the name of the serial communication port on the host computer.
-	 * 
+	 *
 	 * @return the name of the serial port
 	 */
 	public String getSerialDeviceName() {
@@ -165,7 +165,7 @@ public class Ecoline extends TemperatureBase {
 
 	/**
 	 * Get the current setpoint temperature.
-	 * 
+	 *
 	 * @return the setpoint temperature
 	 * @throws DeviceException
 	 */
@@ -177,7 +177,7 @@ public class Ecoline extends TemperatureBase {
 	/**
 	 * {@inheritDoc} Set the switching point for undertemperature (usually set to the lower operating temperature of the
 	 * bath thermostat, it must be in the range -35C and 200C.
-	 * 
+	 *
 	 * @see gda.device.temperature.TemperatureBase#setHWLowerTemp(double)
 	 */
 	@Override
@@ -187,7 +187,7 @@ public class Ecoline extends TemperatureBase {
 
 	/**
 	 * Set the upper operating temperature of the water bath, it must be in the range -35C and 200C. {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.temperature.TemperatureBase#setHWUpperTemp(double)
 	 */
 	@Override
@@ -197,7 +197,7 @@ public class Ecoline extends TemperatureBase {
 
 	/**
 	 * Switch control variable to source external Pt 100 T1
-	 * 
+	 *
 	 * @param name
 	 *            the probe name
 	 * @throws DeviceException
@@ -221,7 +221,7 @@ public class Ecoline extends TemperatureBase {
 	/**
 	 * Program a timed temperature ramp into the water bath. This does not initiate the program. Unrealistically short
 	 * times will generate an error and the parameters will not be set.
-	 * 
+	 *
 	 * @param which
 	 *            is the desired ramp to load
 	 * @throws DeviceException
@@ -257,7 +257,7 @@ public class Ecoline extends TemperatureBase {
 
 	/**
 	 * Initiate the programmed temperature ramp in the water bath.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void sendStart() throws DeviceException {
@@ -278,7 +278,7 @@ public class Ecoline extends TemperatureBase {
 	/**
 	 * Switch control variable to source Ti (probe in the bath); control according to bath temperature (Default setting
 	 * at power on)
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void setIntProbe() throws DeviceException {
@@ -293,7 +293,7 @@ public class Ecoline extends TemperatureBase {
 
 	/**
 	 * Read the temperature of the controlling device either internal bath external probe1 or external probe2.
-	 * 
+	 *
 	 * @return the control temperature
 	 * @throws DeviceException
 	 * @throws NumberFormatException
@@ -305,7 +305,7 @@ public class Ecoline extends TemperatureBase {
 
 	/**
 	 * Read the temperature of the external temperature.
-	 * 
+	 *
 	 * @return the external temperature
 	 */
 	public double getExtTemp() {
@@ -332,7 +332,7 @@ public class Ecoline extends TemperatureBase {
 
 	/**
 	 * Get the status signal
-	 * 
+	 *
 	 * @return the status
 	 * @throws DeviceException
 	 */
@@ -430,7 +430,7 @@ public class Ecoline extends TemperatureBase {
 
 	/**
 	 * Set the temperature of the water bath in the range -20C to 150C.
-	 * 
+	 *
 	 * @param temp
 	 *            required temparature of the water bath.
 	 * @throws DeviceException

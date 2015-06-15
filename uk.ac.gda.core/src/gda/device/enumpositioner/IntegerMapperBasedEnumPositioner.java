@@ -27,7 +27,7 @@ public class IntegerMapperBasedEnumPositioner extends MapperBasedEnumPositionerB
 	protected String getExternalValueFromMonitor() throws IllegalArgumentException, DeviceException {
 		return getExternalValue((Integer) monitor.getPosition());
 	}
-	
+
 	@Override
 	protected ScannablePositionChangeEvent getScannablePositionChangeEvent(Object source, Object arg) {
 		if (arg instanceof Integer) {
@@ -35,5 +35,5 @@ public class IntegerMapperBasedEnumPositioner extends MapperBasedEnumPositionerB
 			return new ScannablePositionChangeEvent(externalValue);
 		}
 		return null;
-	}	
+	}
 }

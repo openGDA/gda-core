@@ -30,7 +30,7 @@ public class TFG2NXHardwareTriggerProvider implements HardwareTriggerProvider{
 	@MethodAccessProtected(isProtected = true)
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -42,14 +42,14 @@ public class TFG2NXHardwareTriggerProvider implements HardwareTriggerProvider{
 	@Override
 	public void close() throws DeviceException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	@MethodAccessProtected(isProtected = true)
 	public void setProtectionLevel(int newLevel) throws DeviceException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class TFG2NXHardwareTriggerProvider implements HardwareTriggerProvider{
 	@Override
 	public void setName(String name) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -73,31 +73,31 @@ public class TFG2NXHardwareTriggerProvider implements HardwareTriggerProvider{
 	@Override
 	public void addIObserver(IObserver observer) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deleteIObserver(IObserver observer) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deleteIObservers() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void reconfigure() throws FactoryException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setTriggerPeriod(double seconds) throws DeviceException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

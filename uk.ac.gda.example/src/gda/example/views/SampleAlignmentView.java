@@ -39,15 +39,15 @@ public class SampleAlignmentView extends ViewPart {
 
 	private ISampleAlignmentViewer sampleViewer;
 	private SampleAlignmentDeviceCollection collection;
-	
+
 	private static String ID = "gda.example.views.samplealignment";
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 		sampleViewer = new SampleAlignmentViewer();
 		sampleViewer.addListener(new ViewerListener());
-		
-		
+
+
 		collection = (SampleAlignmentDeviceCollection) DeviceCollectionFactory.INSTANCE.getDeviceCollection(ID);
 		collection.addListener(new SampleAlignmentDeviceCollectionListener());
 		sampleViewer.setContentProvider(new SampleAlignmentViewerContentProvider(collection));
@@ -59,7 +59,7 @@ public class SampleAlignmentView extends ViewPart {
 	public void setFocus() {
 		sampleViewer.setFocus();
 	}
-	
+
 	class ViewerListener implements ISampleAlignmentViewerListener {
 		@Override
 		public void newXMotorValue(final double val) {
@@ -73,11 +73,11 @@ public class SampleAlignmentView extends ViewPart {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					return Status.OK_STATUS; 
-				}			
+					return Status.OK_STATUS;
+				}
 			};
 			job.setUser(true);
-			job.schedule();			
+			job.schedule();
 		}
 
 		@Override
@@ -91,8 +91,8 @@ public class SampleAlignmentView extends ViewPart {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					return Status.OK_STATUS; 
-				}				
+					return Status.OK_STATUS;
+				}
 			};
 
 			job.setUser(true);
@@ -104,15 +104,15 @@ public class SampleAlignmentView extends ViewPart {
 		@Override
 		public void motorXHasMovedTo(double val) {
 			sampleViewer.refresh();
-			
+
 		}
 
 		@Override
 		public void motorYHasMovedTo(double val) {
-			
+
 			sampleViewer.refresh();
-			
+
 		}
-	}	
+	}
 
 }

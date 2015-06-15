@@ -33,18 +33,18 @@ public class ScriptPaths {
 
 	private List<ScriptProject> projects;
 	private String _startupScript;
-	
+
 	/* TODO
 	 * Move the gda var folder and cache folder to here from the JythonServer class.
 	 */
-	
+
 	/**
 	 * Default constructor provides an empty list of paths.
 	 */
 	public ScriptPaths() {
 		projects = Arrays.asList(new ScriptProject[] {});
 	}
-	
+
 	/**
 	 * Take a list of the script folder projects.
 	 * @param projects The list of paths to script folders, with names and project types..
@@ -52,7 +52,7 @@ public class ScriptPaths {
 	public ScriptPaths(List<ScriptProject> projects) {
 		this.projects = projects;
 	}
-	
+
 	/**
 	 * The list of paths to script folders.
 	 */
@@ -70,7 +70,7 @@ public class ScriptPaths {
 	public void setProjects(List<ScriptProject> projects) {
 		this.projects = projects;
 	}
-	
+
 	/**
 	 * The script that should be executed to initialise the Jython namespace.
 	 * @return The full path to a Jython script.
@@ -86,7 +86,7 @@ public class ScriptPaths {
 	public void setStartupScript(String startupScript) {
 		_startupScript = startupScript;
 	}
-	
+
 	/**
 	 * Find a Jython script in this object's list of folders.
 	 * @param script The name of the script, optionally without the ".py"
@@ -124,7 +124,7 @@ public class ScriptPaths {
 		builder.append(".");
 		return builder.toString();
 	}
-	
+
 	/**
 	 * A debugging description.
 	 */
@@ -138,7 +138,7 @@ public class ScriptPaths {
 		if (project == null) return null;
 		return project.getName();
 	}
-	
+
 	ScriptProject getProject(int index) {
 		return projects.get(index);
 	}

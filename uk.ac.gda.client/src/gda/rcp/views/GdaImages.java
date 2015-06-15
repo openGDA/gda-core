@@ -29,16 +29,16 @@ import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 
 public class GdaImages {
-	
+
 	// The plugin registry
 	private static ImageRegistry imageRegistry = new ImageRegistry();
-	
+
 	// Subdirectory (under the package containing this class) where 16 color images are
 	private static URL fgIconBaseURL;
 	static {
 		try {
 			fgIconBaseURL = new URL(GDAClientActivator.getDefault().getBundle().getEntry("/"), "icons/" ); //$NON-NLS-1$ //$NON-NLS-2$
-			
+
 			createImage("", "user_gray.png");
 			createImage("", "computer_go.png");
 			createImage("", "control_pause_blue.png");
@@ -46,21 +46,21 @@ public class GdaImages {
 			createImage("", "arrow_right.png");
 		} catch (MalformedURLException e) {
 		}
-	}	
-	
+	}
+
 	private static final String NAME_PREFIX =
 		GDAClientActivator.PLUGIN_ID + '.';
-	private static final int NAME_PREFIX_LENGTH = NAME_PREFIX.length();	
-	
+	private static final int NAME_PREFIX_LENGTH = NAME_PREFIX.length();
+
 	public static final String VIEWER = "viewer/"; //$NON-NLS-1$
 
-	public static final String IMG_LIBRARY = NAME_PREFIX + "library_obj.gif"; //$NON-NLS-1$	
+	public static final String IMG_LIBRARY = NAME_PREFIX + "library_obj.gif"; //$NON-NLS-1$
 	public static final ImageDescriptor DESC_IMG_LIBRARY_MACRO = createImage(VIEWER, IMG_LIBRARY);
 
-	public static final String IMG_SW_BOX = NAME_PREFIX + "movingBox.gif"; //$NON-NLS-1$	
+	public static final String IMG_SW_BOX = NAME_PREFIX + "movingBox.gif"; //$NON-NLS-1$
 	public static final ImageDescriptor IMG_SW_BOX_MACRO = createImage(VIEWER, IMG_SW_BOX);
-	
-	public static final String IMG_GREEN_DOT = NAME_PREFIX + "public_co.gif"; //$NON-NLS-1$	
+
+	public static final String IMG_GREEN_DOT = NAME_PREFIX + "public_co.gif"; //$NON-NLS-1$
 	public static final ImageDescriptor IMG_GREEN_DOT_MACRO = createImage(VIEWER, IMG_GREEN_DOT);
 
 
@@ -115,5 +115,5 @@ public class GdaImages {
 	 */
 	static ImageRegistry getImageRegistry() {
 		return imageRegistry;
-	}	
+	}
 }

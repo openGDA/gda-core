@@ -65,14 +65,14 @@ import org.jscience.physics.units.Unit;
  * <p>
  * The object implements IQuantityConverter to allow the conversion to be easily tested using the commands:
  * <p>
- * 
+ *
  * <pre>
  *      converter = finder.find(&quot;dcm_energy_perp_converter&quot;)
  *      import  org.jscience.physics.quantities.Quantity as Quantity
  *      q = Quantity.valueOf(-200, converter.AcceptableTargetUnits().get(0))
  *      converter.ToSource(q)
  * </pre>
- * 
+ *
  * @see gda.util.converters.LookupTableQuantityConverter#getMode( String modeString )
  */
 public final class LookupTableConverterHolder implements IReloadableQuantitiesConverter, Findable, IQuantityConverter {
@@ -120,7 +120,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 
 	/**
 	 * Castor function. - I am using the constructor mapping option for set-methods so that members can be final
-	 * 
+	 *
 	 * @return Lookup table filename. The lookup table is to be found in the folder pointed to be
 	 *         LocalProperties.get("gda.function.columnDataFile.lookupDir")
 	 */
@@ -130,7 +130,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 
 	/**
 	 * Castor function. - I am using the constructor mapping option for set-methods so that members can be final
-	 * 
+	 *
 	 * @return The column of the lookup table that contains the source values. First column is 0.
 	 */
 	public int getSColumn() {
@@ -139,7 +139,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 
 	/**
 	 * Castor function. - I am using the constructor mapping option for set-methods so that members can be final
-	 * 
+	 *
 	 * @return The column of the lookup table that contains the target values. First column is 0.
 	 */
 	public int getTColumn() {
@@ -148,13 +148,13 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 
 	/**
 	 * Castor function. - I am using the constructor mapping option for set-methods so that members can be final
-	 * 
+	 *
 	 * @return The column of the lookup table that contains the target values. First column is 0.
 	 */
 	public String getMode() {
 		return modeString;
 	}
-	
+
 	public boolean isInterpolateNotExtrapolate() {
 		return interpolateNotExtrapolate;
 	}
@@ -165,7 +165,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 
 	/**
 	 * Castor function. - This should never be called and will throw an exception if it is. {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.factory.Findable#setName(java.lang.String)
 	 */
 	@Override
@@ -223,7 +223,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 
 	/**
 	 * Re-reads the lookup table. Note that the units of the lookup must not change. {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.util.converters.IReloadableQuantitiesConverter#reloadConverter()
 	 */
 	@Override
@@ -231,7 +231,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 		// To reduce race conditions create a brand new converter rather than
 		// change existing which may be already being accessed on other threads
 		try {
-			
+
 			final boolean filenameIsFull = checkWhetherFilenameIsFull(columnDataFileName);
 			GenQuantitiesConverter newConverter = new GenQuantitiesConverter(new LookupTableQuantityConverter(
 					columnDataFileName, filenameIsFull, sColumn, tColumn, LookupTableQuantityConverter.getMode(modeString), !interpolateNotExtrapolate));
@@ -243,7 +243,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 			throw new RuntimeException("Could not reload lookup table converter (" + toString(false) + ")", e);
 		}
 	}
-	
+
 	protected static boolean checkWhetherFilenameIsFull(String filename) {
 		return new File(filename).isAbsolute();
 	}
@@ -266,7 +266,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 
 	/**
 	 * Uses the lookup table to calculate values for the moveables given the values in sources.
-	 * 
+	 *
 	 * @see gda.util.converters.IQuantitiesConverter#calculateMoveables(org.jscience.physics.quantities.Quantity[],
 	 *      java.lang.Object[])
 	 */
@@ -277,7 +277,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 
 	/**
 	 * Uses the lookup table to calculate values for the sources given the values in targets.
-	 * 
+	 *
 	 * @see gda.util.converters.IQuantitiesConverter#toSource(org.jscience.physics.quantities.Quantity[],
 	 *      java.lang.Object[])
 	 */
@@ -331,7 +331,7 @@ public final class LookupTableConverterHolder implements IReloadableQuantitiesCo
 
 	/**
 	 * Helper function to ensure the converter is created before any attempt to use it.
-	 * 
+	 *
 	 * @return QuantityConverter
 	 */
 	private synchronized GenQuantitiesConverter getConverter() {

@@ -41,7 +41,7 @@ public class Mar345Impl extends CorbaMar345POA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param mar345
 	 *            the Mar345Detector implementation object
 	 * @param poa
@@ -55,7 +55,7 @@ public class Mar345Impl extends CorbaMar345POA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Mar345 implementation object
 	 */
 	public Mar345 _delegate() {
@@ -64,7 +64,7 @@ public class Mar345Impl extends CorbaMar345POA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param mar345
 	 *            set the Mar345 implementation object
 	 */
@@ -96,7 +96,7 @@ public class Mar345Impl extends CorbaMar345POA {
 		}
 
 	}
-	
+
 	@Override
 	public double getCollectionTime() throws CorbaDeviceException {
 		try {
@@ -462,7 +462,7 @@ public class Mar345Impl extends CorbaMar345POA {
 	public String getDetectorType() throws CorbaDeviceException {
 		return detectorImpl.getDetectorType();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return detectorImpl.getProtectionLevel();
@@ -477,12 +477,12 @@ public class Mar345Impl extends CorbaMar345POA {
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		detectorImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		detectorImpl.atCommandFailure();
-	}	
-	
+	}
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return detectorImpl.toFormattedString();

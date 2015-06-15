@@ -62,7 +62,7 @@ public class SimpleScannableObject extends ServerObject {
 	private IObserver pseudoObserver;
 
 	/**
-	 * 
+	 *
 	 */
 	public SimpleScannableObject() {
 		super();

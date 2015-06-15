@@ -49,7 +49,7 @@ import uk.ac.gda.util.map.MapUtils;
 public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanDataPoint.class);
-	
+
 	private ScanInformation scanInfo = new ScanInformation();
 
 	/**
@@ -164,7 +164,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	private boolean hasChild = false;
 
 	/**
-	 * 
+	 *
 	 */
 	public ScanDataPoint() {
 	}
@@ -173,7 +173,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * Unpack the ScanData object to fill this sdp rather than using accessor functions.
 	 * <p>
 	 * protected as only intended for use by the scandatapointserver
-	 * 
+	 *
 	 * @param point
 	 * @param sdpt
 	 */
@@ -217,7 +217,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * addScannable,addScannablePosition,addDetector,addDetectorData.
 	 * <p>
 	 * Note this makes calls to getPosition() in the scannables and readout() in the detectors.
-	 * 
+	 *
 	 * @param allScannables
 	 * @param allDetectors
 	 * @throws DeviceException
@@ -242,7 +242,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * Gets a Scannables position and adds it to the data point. Does not ass the Scannable itself.
-	 * 
+	 *
 	 * @param scannable
 	 * @throws DeviceException
 	 */
@@ -253,7 +253,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * Reads data from a detector and adds it to the point. Does not add the detector itself.
-	 * 
+	 *
 	 * @param detector
 	 * @throws DeviceException
 	 */
@@ -266,7 +266,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	/**
 	 * Call getPosition on the zero-input-extra-names scannable. The zie must return null. This hook is used by some
 	 * Scannables to perform a task in a scan but return nothing.
-	 * 
+	 *
 	 * @param zie
 	 * @throws DeviceException
 	 */
@@ -291,7 +291,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * Add a piece of data to this object. Calls to this method must be made in the same order as calls to addDetector
 	 * to associate the data with the detector.
 	 * <p>
-	 * 
+	 *
 	 * @param data
 	 */
 	@Override
@@ -306,13 +306,13 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	}
 
 
-	
+
 	/**
 	 * Replaces the detector data held by the object. The replacement vector must be the same length as the previous for
 	 * this sdp to be self-consistent.
 	 * <p>
 	 * protected as only intended for use by the scandatapointserver
-	 * 
+	 *
 	 * @param newdata
 	 */
 	protected void setDetectorData(Vector<Object> newdata, String[][] format) {
@@ -325,7 +325,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * addScannable to associate the array of numbers with the scannable.
 	 * <p>
 	 * It is recommended to call setScannables instead.
-	 * 
+	 *
 	 * @param data
 	 */
 	@Override
@@ -341,7 +341,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * previous for this sdp to be self-consistent.
 	 * <p>
 	 * protected as only for use by the scandatapointserver
-	 * 
+	 *
 	 * @param positions
 	 * @param formats
 	 */
@@ -372,7 +372,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * detectorHeader and detectorNames arrays will be different if the detector is a countertimer.
 	 * <p>
 	 * Note this does not readout the detector! Data must be added by using the addData method.
-	 * 
+	 *
 	 * @param det
 	 */
 	@Override
@@ -392,7 +392,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 * Add a scannable to the list of scannables this object holds data on.
 	 * <p>
 	 * Note that this does not read the current position of the scannable.
-	 * 
+	 *
 	 * @param scannable
 	 */
 	@Override
@@ -414,7 +414,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * Set the name of the panel which requested the scan which created this data point.
-	 * 
+	 *
 	 * @return String
 	 */
 	@Override
@@ -440,7 +440,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * Return the vector of detector data which this object is a carrier of.
-	 * 
+	 *
 	 * @return Vector<Object>
 	 */
 	@Override
@@ -451,7 +451,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	Double [] allValuesAsDoubles=null;
 	/**
 	 * Returns the values held by this ScanDataPoint of Scannables, Monitors and Detectors.
-	 * 
+	 *
 	 * @return an array of Double of length getMonitorHeader().size() + getPositionHeader().size() +
 	 *         getDetectorHeader().size() if the conversion of a field to Double is not possible then the element of the
 	 *         array will be null
@@ -476,7 +476,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * Just returns array of detector data.
-	 * 
+	 *
 	 * @return all detector data.
 	 */
 	@Override
@@ -500,7 +500,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * returns a vector of expanded detector header string for each data point.
-	 * 
+	 *
 	 * @return a vector of expanded detector header string for each data point.
 	 */
 	@Override
@@ -510,7 +510,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * Return the list of names of detectors which this object holds data from.
-	 * 
+	 *
 	 * @return Vector<String>
 	 */
 	@Override
@@ -520,7 +520,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * The list of detectors this object refers to.
-	 * 
+	 *
 	 * @return list of detectors this object refers to.
 	 */
 	@Override
@@ -536,7 +536,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	/**
 	 * Returns a string whose elements are separated by a mixture of tabs and spaces so that the columns are aligned
 	 * with the output from toString()
-	 * 
+	 *
 	 * @return String - which could be used in an ascii print out of all the scan points from the same scan
 	 */
 	@Override
@@ -693,7 +693,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * Just returns array of positions. Strings will be an empty element.
-	 * 
+	 *
 	 * @return all scannable positions.
 	 */
 	@Override
@@ -741,7 +741,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * The list of scannables this object refers to.
-	 * 
+	 *
 	 * @return list of scannables this object refers to.
 	 */
 	@Override
@@ -774,7 +774,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	 */
 	@Override
 	public String toString() {
-		
+
 		String identifier = getCurrentFilename() != null ?  getCurrentFilename() : uniqueName;
 		return "point " + (currentPointNumber) + " of " + scanInfo.getNumberOfPoints() + " for scan " + identifier;
 	}
@@ -826,7 +826,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * Returns a string of the information held by this object delimited by the static variable.
-	 * 
+	 *
 	 * @return String
 	 */
 	@Override
@@ -918,7 +918,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	public void setHasChild(boolean hasChild) {
 		this.hasChild = hasChild;
 	}
-	
+
 	@Override
 	public void setInstrument(String instrument) {
 		scanInfo.setInstrument(instrument);
@@ -990,7 +990,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * Searches the scannables for one of a given name. Used to avoid searches being in many places.
-	 * 
+	 *
 	 * @param name
 	 * @return Scannable if it exists or null
 	 */
@@ -1008,7 +1008,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	/**
 	 * Searches the scannables for one of a given name. Works for scannables where name is declared and the actual
 	 * scannable is not sent over.
-	 * 
+	 *
 	 * @param name
 	 * @return true if it exists or false
 	 */
@@ -1025,7 +1025,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 
 	/**
 	 * Searches the detectors for one of a given name. Used to avoid searches being in many places.
-	 * 
+	 *
 	 * @param name
 	 * @return Detector if it exists or null
 	 */
@@ -1043,7 +1043,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	/**
 	 * Searches the detectors for one of a given name. Works for detectors where name is declared and the actual
 	 * detector is not sent over.
-	 * 
+	 *
 	 * @param name
 	 * @return true if it exists or false
 	 */
@@ -1062,7 +1062,7 @@ public class ScanDataPoint implements Serializable, IScanDataPoint {
 	public ScanInformation getScanInformation() {
 		return scanInfo;
 	}
-	
+
 	public void setScanInformation(ScanInformation newScanInfo){
 		scanInfo = newScanInfo;
 	}

@@ -45,28 +45,28 @@ public interface IParameter {
 
 	/**
 	 * Set the parameter to be fixed
-	 * 
+	 *
 	 * @param b
 	 */
 	void setFixed(boolean b);
 
 	/**
 	 * Set lower limit on this parameter
-	 * 
+	 *
 	 * @param value
 	 */
 	void setLowerLimit(double value);
 
 	/**
 	 * Set upper limit on this parameter
-	 * 
+	 *
 	 * @param value
 	 */
 	void setUpperLimit(double value);
 
 	/**
 	 * Set the value of the parameter.
-	 * 
+	 *
 	 * @param value
 	 */
 	void setValue(double value);

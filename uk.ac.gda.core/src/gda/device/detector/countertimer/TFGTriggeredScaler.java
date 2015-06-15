@@ -25,7 +25,6 @@ import gda.device.detector.hardwaretriggerable.HardwareTriggeredDetector;
 import gda.device.scannable.PositionCallableProvider;
 import gda.device.scannable.PositionInputStream;
 import gda.device.scannable.PositionStreamIndexer;
-import gda.scan.ScanBase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -142,14 +141,14 @@ public class TFGTriggeredScaler extends TfgScalerWithLogValues implements Hardwa
 			numberOfChannelsToRead = scaler.getDimension()[0];
 		} else {
 			numberOfChannelsToRead = numChannelsToRead;
-			// add on the time channel 
+			// add on the time channel
 			if (isTFGv2){
 				numberOfChannelsToRead++;
 			}
 		}
-		
+
 		scalerReadings = scaler.read(0, 0, startFrame, numberOfChannelsToRead, 1, numberOfFrames);
-		
+
 		int numberOfValuesPerFrame = this.getExtraNames().length; // assuming the instance is properly setup
 
 		// loop over frames, extract each frame and add log values to the end
@@ -254,7 +253,7 @@ public class TFGTriggeredScaler extends TfgScalerWithLogValues implements Hardwa
 					for (int i = 0; i < dataRead.length; i++) {
 						container.add(dataRead[i]);
 					}
-					
+
 					// add log on totalCollectedByHarwdare and readOutFromHardwareSoFar
 					logger.debug("readOutFromHardwareSoFar=" + readOutFromHardwareSoFar + ", totalCollectedByHarwdare="
 							+ totalCollectedByHardware);
@@ -287,7 +286,7 @@ public class TFGTriggeredScaler extends TfgScalerWithLogValues implements Hardwa
 			readingOut.set(false);
 		}
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		readingOut.set(false);

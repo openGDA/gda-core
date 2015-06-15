@@ -21,7 +21,6 @@ package gda.scan;
 import static org.junit.Assert.assertEquals;
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
-import gda.data.nexus.extractor.NexusExtractor;
 import gda.device.Detector;
 import gda.device.Scannable;
 import gda.jython.commands.ScannableCommands;
@@ -40,7 +39,7 @@ public class ScanPlotSettingsScanTest {
 
 	/**
 	 * Setups of environment for the tests
-	 * 
+	 *
 	 * @param name
 	 *            of test
 	 * @param makedir
@@ -59,7 +58,7 @@ public class ScanPlotSettingsScanTest {
 	/**
 	 * Creates a scan and tests the generated ScanPlotSettings when GDA_PLOT_SCAN_PLOT_SETTINGS_FROM_USER_LIST is True
 	 * and XAXIS_INDEX is 1
-	 * 
+	 *
 	 * @throws Exception
 	 *             if the test fails
 	 */
@@ -84,7 +83,7 @@ public class ScanPlotSettingsScanTest {
 	/**
 	 * Creates a scan and tests the generated ScanPlotSettings when GDA_PLOT_SCAN_PLOT_SETTINGS_FROM_USER_LIST is True
 	 * and XAXIS_INDEX is -2
-	 * 
+	 *
 	 * @throws Exception
 	 *             if the test fails
 	 */
@@ -121,7 +120,7 @@ public class ScanPlotSettingsScanTest {
 	/**
 	 * Creates a scan and tests the generated ScanPlotSettings when GDA_PLOT_SCAN_PLOT_SETTINGS_FROM_USER_LIST is True
 	 * and XAXIS_INDEX is 1 for a nested scan
-	 * 
+	 *
 	 * @throws Exception
 	 *             if the test fails
 	 */

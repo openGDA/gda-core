@@ -45,7 +45,7 @@ public class DataloggerImpl extends CorbaDataLoggerPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param dataLogger
 	 *            the DataLogger implementation object
 	 * @param poa
@@ -59,7 +59,7 @@ public class DataloggerImpl extends CorbaDataLoggerPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the DataLogger implementation object
 	 */
 	public DataLogger _delegate() {
@@ -68,7 +68,7 @@ public class DataloggerImpl extends CorbaDataLoggerPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param dataLogger
 	 *            set the DataLogger implementation object
 	 */
@@ -117,7 +117,7 @@ public class DataloggerImpl extends CorbaDataLoggerPOA {
 	public void setCollectionTime(double time) throws CorbaDeviceException {
 		detectorImpl.setCollectionTime(time);
 	}
-	
+
 	@Override
 	public double getCollectionTime() throws CorbaDeviceException {
 		return detectorImpl.getCollectionTime();
@@ -332,7 +332,7 @@ public class DataloggerImpl extends CorbaDataLoggerPOA {
 	public String getDetectorType() throws CorbaDeviceException {
 		return detectorImpl.getDetectorType();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return detectorImpl.getProtectionLevel();
@@ -342,12 +342,12 @@ public class DataloggerImpl extends CorbaDataLoggerPOA {
 	public void setProtectionLevel(int newLevel) throws CorbaDeviceException {
 		detectorImpl.setProtectionLevel(newLevel);
 	}
-	
+
 	@Override
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		detectorImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		detectorImpl.atCommandFailure();

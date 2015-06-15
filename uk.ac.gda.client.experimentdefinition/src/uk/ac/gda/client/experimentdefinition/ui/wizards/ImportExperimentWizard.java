@@ -43,7 +43,7 @@ import uk.ac.gda.client.experimentdefinition.components.ExperimentFolderEditor;
 public class ImportExperimentWizard extends Wizard implements IWizard {
 
 	ImportExperimentWizardPage page;
-	
+
 	@Override
 	public boolean performFinish() {
 
@@ -95,7 +95,7 @@ public class ImportExperimentWizard extends Wizard implements IWizard {
 		page = new ImportExperimentWizardPage();
 		addPage(page);
 	}
-	
+
 	public void copyDirectory(File srcPath, File dstPath) throws IOException {
 
 		if (srcPath.isDirectory()) {
@@ -110,9 +110,9 @@ public class ImportExperimentWizard extends Wizard implements IWizard {
 
 		else {
 			if (!srcPath.exists()) {
-				
+
 			}
-			
+
 			else{
 				InputStream in = new FileInputStream(srcPath);
 				OutputStream out = new FileOutputStream(dstPath);

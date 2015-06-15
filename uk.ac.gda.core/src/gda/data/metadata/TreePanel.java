@@ -46,7 +46,7 @@ public class TreePanel extends JPanel {
 	private String fedid = null;
 
 	/**
-	 * 
+	 *
 	 */
 	public TreePanel() {
 		configure();
@@ -90,7 +90,7 @@ public class TreePanel extends JPanel {
 
 	/**
 	 * Gets the model.
-	 * 
+	 *
 	 * @return the model
 	 */
 	public DefaultTreeModel getModel() {
@@ -99,7 +99,7 @@ public class TreePanel extends JPanel {
 
 	/**
 	 * Gets the top node.
-	 * 
+	 *
 	 * @return the top node
 	 */
 	public DefaultMutableTreeNode getTopNode() {
@@ -108,7 +108,7 @@ public class TreePanel extends JPanel {
 
 	/**
 	 * Gets the tree.
-	 * 
+	 *
 	 * @return the tree
 	 */
 	public JTree getTree() {

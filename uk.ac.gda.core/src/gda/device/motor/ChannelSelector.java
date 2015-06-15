@@ -23,7 +23,7 @@ import gda.device.MotorException;
 
 /**
  * Interface to provide a channel selection mechanism for McLennan motion controllers
- * 
+ *
  * @see DummyChannelSelector also
  * @see McLennanChannelSelector also
  * @see McLennanChannelSelectorFactory
@@ -31,7 +31,7 @@ import gda.device.MotorException;
 public interface ChannelSelector {
 	/**
 	 * Select the motor channel to use
-	 * 
+	 *
 	 * @param motor
 	 *            the motor
 	 * @param channel
@@ -43,7 +43,7 @@ public interface ChannelSelector {
 
 	/**
 	 * Release the motor channel previously selected
-	 * 
+	 *
 	 * @param motor
 	 *            the motor
 	 * @throws MotorException
@@ -52,7 +52,7 @@ public interface ChannelSelector {
 
 	/**
 	 * Get the name of the channel selector
-	 * 
+	 *
 	 * @return the name of the channel selector
 	 */
 	public String getName();

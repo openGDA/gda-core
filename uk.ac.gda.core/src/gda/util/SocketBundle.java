@@ -45,7 +45,7 @@ public class SocketBundle {
 
 	/**
 	 * Opens the socket and creates the buffered reader and writer
-	 * 
+	 *
 	 * @param host
 	 * @param port
 	 * @throws IOException

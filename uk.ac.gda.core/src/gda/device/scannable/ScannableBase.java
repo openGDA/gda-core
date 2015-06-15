@@ -43,7 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A base implementation for a {@link Scannable} {@link Device}. 
+ * A base implementation for a {@link Scannable} {@link Device}.
  * <p>
  * Routes calls to asynchronousMoveTo through an externalToInternal method to rawAsynchronousMoveTo; and, vice-versa, calls to
  * getPosition through an internalToExternal method from rawGetPosition. The protected methods externalArrayToInternal
@@ -53,9 +53,9 @@ import org.slf4j.LoggerFactory;
 public abstract class ScannableBase extends DeviceBase implements Scannable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableBase.class);
-	
+
 	private static final long pollTimeMillis = LocalProperties.getAsInt(LocalProperties.GDA_SCANNABLEBASE_POLLTIME, 100);
-	
+
 	public static final String DEFAULT_INPUT_NAME = "value";
 
 	/**
@@ -68,16 +68,16 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	 * should not operate the scannable by calling getPosition().
 	 * <p>
 	 * It will set the internal arrays of strings to defaults to prevent NPE where appropriate.
-	 * 
+	 *
 	 * @param scannable
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public static void validateScannable(Scannable scannable) throws DeviceException {
 
 		if (scannable.getName() == null) {
 			throw new DeviceException("getName() returns null");
 		}
-		
+
 		//create sensible defaults if set to null
 		if (scannable.getExtraNames() == null) {
 			scannable.setExtraNames(new String[0]);
@@ -108,7 +108,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 		//check final array lengths are consistent
 		int length_diff = scannable.getInputNames().length + scannable.getExtraNames().length - scannable.getOutputFormat().length;
 		if (length_diff != 0) {
-			String message = scannable.getName() +".getOutputFormat().length " + 
+			String message = scannable.getName() +".getOutputFormat().length " +
 					( length_diff > 0 ? "<" : ">") + " getInputNames().length + getExtraNames().length";
 			message += format("\ninputNames: (%d) %s", scannable.getInputNames().length, Arrays.toString(scannable.getInputNames()));
 			message += format("\nextraNames: (%d) %s", scannable.getExtraNames().length, Arrays.toString(scannable.getExtraNames()));
@@ -142,14 +142,14 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	 * <p>
 	 * This implementation is provided so authors of Scannables do not have to write this method - it is not always
 	 * required for Scannables.
-	 * @throws FactoryException 
-	 * 
+	 * @throws FactoryException
+	 *
 	 * @see gda.factory.Configurable#configure()
 	 */
 	@Override
 	public void configure() throws FactoryException {
 	}
-	
+
 	/**
 	 * {@inheritDoc} Converts the external (user) position to an internal position and passes this to
 	 * rawAsynchronousMoveTo.
@@ -157,7 +157,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	// TODO: make final
 	@Override
 	public void asynchronousMoveTo(Object externalPosition) throws DeviceException {
-	
+
 		try {
 			rawAsynchronousMoveTo(externalToInternal(externalPosition));
 		} catch (DeviceException e) {
@@ -177,7 +177,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 
 	/**
 	 * [Consider abstract] Trigger a move/operation to an internal/hardware position and return immediately.
-	 * 
+	 *
 	 * @see gda.device.Scannable#asynchronousMoveTo(java.lang.Object) asynchronousMoveTo
 	 * @param position
 	 *            Position in its internal/hardware representation. e.g. with units and offsets removed
@@ -192,7 +192,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 
 	/**
 	 * [Consider abstract] Read the position in its internal (user) representation.
-	 * 
+	 *
 	 * @return the value represented by this Scannable
 	 * @throws DeviceException
 	 * @see gda.device.Scannable#getPosition()
@@ -211,7 +211,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	 * Verifies that the object (represented as an array) has the same number of fields as the scannable has input
 	 * fields, or the total number of fields of the scannable. The later allows scripts to provide the output of
 	 * getPosition to moveTo methods, e.g. "pos scannable_with_extra_fields scannable_with_extra_fields()".
-	 * 
+	 *
 	 * @param externalPosition
 	 *            an object array if the Scannable has multiple input fields, otherwise an object. The length must match
 	 *            the number of the Scannables input fields.
@@ -230,7 +230,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	 * Converts a position in its internal representation to its external representation.
 	 * <p>
 	 * Verifies that the object (represented as an array) has the same number of fields as the scannable.
-	 * 
+	 *
 	 * @param internalPosition
 	 * @return an object array if the scannable has multiple fields, otherwise an object.
 	 */
@@ -246,7 +246,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 		final int numInputNames = getInputNames().length;
 		final int numExtraNames = getExtraNames().length;
 		final int numTotalNames = numInputNames + numExtraNames;
-		
+
 		if (numExtraNames == 0) {
 			if (length != numInputNames) {
 				throw new IllegalArgumentException(
@@ -256,7 +256,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 						getName()));
 			}
 		}
-		
+
 		else {
 			if ((length != numInputNames) && (length != numTotalNames)) {
 				throw new IllegalArgumentException(
@@ -272,7 +272,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 //	/**
 //	 * Converts and array of objects representing an external position, to an array of objects representing an internal
 //	 * position. Called by {@link ScannableBase#externalToInternal(Object)}.
-//	 * 
+//	 *
 //	 * @param externalPositionArray
 //	 * @return internal position array
 //	 */
@@ -283,7 +283,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 //	/**
 //	 * Converts and array of objects representing an internal position, to an array of objects representing an external
 //	 * position. Called by {@link ScannableBase#internalToExternal(Object)}.
-//	 * 
+//	 *
 //	 * @param internalPositionArray
 //	 * @return external position array
 //	 */
@@ -294,7 +294,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	/**
 	 * Replaced by atScanGroupStart Default behaviour is to do nothing. Inheriting classes have the option to implement
 	 * this if their specific behaviour requires it.
-	 * 
+	 *
 	 * @throws DeviceException
 	 * @deprecated
 	 */
@@ -307,7 +307,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
-	 * 
+	 *
 	 * @see gda.device.Scannable#atEnd()
 	 */
 	@Override
@@ -319,7 +319,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
-	 * 
+	 *
 	 * @see gda.device.Scannable#atPointEnd()
 	 */
 	@Override
@@ -329,7 +329,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
-	 * 
+	 *
 	 * @see gda.device.Scannable#atPointStart()
 	 */
 	@Override
@@ -339,7 +339,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
-	 * 
+	 *
 	 * @see gda.device.Scannable#atScanLineEnd()
 	 */
 	@Override
@@ -350,27 +350,27 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
-	 * 
+	 *
 	 * @see gda.device.Scannable#atScanEnd()
 	 */
 	@Override
 	public void atScanEnd() throws DeviceException {
 	}
-	
+
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
-	 * 
+	 *
 	 * @see gda.device.Scannable#atLevelStart()
 	 */
 	@Override
 	public void atLevelStart() throws DeviceException {
 	}
-	
+
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
-	 * 
+	 *
 	 * @see gda.device.Scannable#atLevelMoveStart()
 	 */
 	@Override
@@ -380,17 +380,17 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
-	 * 
+	 *
 	 * @see gda.device.Scannable#atLevelEnd()
 	 */
 	@Override
 	public void atLevelEnd() throws DeviceException {
 	}
-	
+
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
-	 * 
+	 *
 	 * @see gda.device.Scannable#atCommandFailure()
 	 */
 	@Override
@@ -400,7 +400,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
-	 * 
+	 *
 	 * @see gda.device.Scannable#atScanStart()
 	 */
 	@Override
@@ -410,7 +410,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
-	 * 
+	 *
 	 * @see gda.device.Scannable#atScanLineStart()
 	 */
 	@Override
@@ -473,14 +473,14 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	/**
 	 * {@inheritDoc} Default behaviour is to do nothing. Inheriting classes have the option to implement this if their
 	 * specific behaviour requires it.
-	 * 
+	 *
 	 * @see gda.device.Scannable#stop()
 	 */
 	@Override
 	public void stop() throws DeviceException {
 	}
 
-	
+
 	@Override
 	public String toString() {
 		return getName() + "<" + this.getClass().toString() + ">";
@@ -507,7 +507,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 
 	/**
 	 * Its like waitWhileBusy, has a timeout and will throws a DeviceException if the time limit is reached.
-	 * 
+	 *
 	 * @param timeoutInSeconds
 	 * @throws DeviceException
 	 * @throws InterruptedException
@@ -528,15 +528,15 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 
 	/**
 	 * This default behaviour should be extended by most subclasses! {@inheritDoc}
-	 * @throws DeviceException 
-	 * 
+	 * @throws DeviceException
+	 *
 	 * @see gda.device.Scannable#checkPositionValid(java.lang.Object)
 	 */
 	@Override
 	public String checkPositionValid(Object illDefinedPosObject) throws DeviceException {
 		return null;
 	}
-	
+
 	protected void throwExceptionIfInvalidTarget(Object position) throws DeviceException {
 		String reason = checkPositionValid(position);
 		if (reason != null){
@@ -552,7 +552,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 	 * first pushed both values through objectToArray() from ScannableUtils.
 	 * <p>
 	 * This behaviour should be extended where possible, and has been in ScannableMotionBase
-	 * 
+	 *
 	 * @see gda.device.Scannable#isAt(java.lang.Object)
 	 */
 	@Override
@@ -584,7 +584,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 		Object position;
 		try {
 			position = getPosition();
-		} catch (Exception e) { 
+		} catch (Exception e) {
 			if (e instanceof NullPointerException || e.getMessage().isEmpty()){
 				throw new RuntimeException("exception in " + getName() + ".getPosition()",e);
 			}
@@ -650,7 +650,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 
 	/**
 	 * Moves the scannable to new_position when a scannable(new_position) call is made from Python
-	 * 
+	 *
 	 * @see org.python.core.PyObject#__call__(org.python.core.PyObject)
 	 * @param new_position
 	 * @return a message explaining what happened
@@ -750,7 +750,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 
 	/**
 	 * Jython method to return string description of the object
-	 * 
+	 *
 	 * @return the result of the toString method
 	 */
 	public PyString __str__() {
@@ -759,7 +759,7 @@ public abstract class ScannableBase extends DeviceBase implements Scannable {
 
 	/**
 	 * Jython method to return a string representation of the object
-	 * 
+	 *
 	 * @return the result of the toString method
 	 */
 	public PyString __repr__() {

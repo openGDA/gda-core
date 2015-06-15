@@ -56,7 +56,7 @@ public class DataDimension implements Serializable {
 
 	/**
 	 * Get the detector size.
-	 * 
+	 *
 	 * @return the detector size as a Dimension
 	 */
 	public DataDimension getSize() {

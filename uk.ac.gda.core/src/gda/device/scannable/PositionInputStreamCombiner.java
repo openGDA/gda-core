@@ -35,20 +35,20 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class PositionInputStreamCombiner<T> implements PositionInputStream<List<T>> {
 
-	
+
 	private List<PositionInputStream<T>> streams;
-	
+
 	private List<Queue<T>> streamsQueues = new ArrayList<Queue<T>>();
-	
+
 	private Lock fairReadLock = new ReentrantLock(true);
-	
+
 	public PositionInputStreamCombiner(List<PositionInputStream<T>> streams) {
 		this.streams = streams;
 		for (int i = 0; i < streams.size(); i++) {
 			streamsQueues.add(new ConcurrentLinkedQueue<T>());
 		}
 	}
-	
+
 	private int minimumQueueLength() {
 		int min = Integer.MAX_VALUE;
 		for (Queue<T> queue : streamsQueues) {
@@ -58,7 +58,7 @@ public class PositionInputStreamCombiner<T> implements PositionInputStream<List<
 		}
 		return min;
 	}
-	
+
 	@Override
 	public List<List<T>> read(int maxToRead) throws NoSuchElementException, InterruptedException, DeviceException {
 

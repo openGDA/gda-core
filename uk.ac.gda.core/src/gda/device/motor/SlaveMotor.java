@@ -19,13 +19,13 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.MotorException;
 import gda.device.MotorStatus;
 import gda.device.serial.SerialController;
 import gda.factory.Finder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Generic class to implement an RS232 Slave motor interface
@@ -70,7 +70,7 @@ public class SlaveMotor extends MotorBase {
 	/**
 	 * Get the command to send to the RS232 slave to move a motor without iterative positional searching (as defined in
 	 * XML)
-	 * 
+	 *
 	 * @return moveCommand String the move command
 	 */
 	public String getMoveCommand() {
@@ -80,7 +80,7 @@ public class SlaveMotor extends MotorBase {
 	/**
 	 * Set the command to send to the RS232 slave to move a motor without iterative positional searching (as defined in
 	 * XML)
-	 * 
+	 *
 	 * @param command
 	 *            the String command to move a slave motor
 	 */
@@ -91,7 +91,7 @@ public class SlaveMotor extends MotorBase {
 
 	/**
 	 * Return the string that will be returned from the slave on error (set in XML)
-	 * 
+	 *
 	 * @return slaveErrorString the error String
 	 */
 	public String getSlaveErrorString() {
@@ -100,7 +100,7 @@ public class SlaveMotor extends MotorBase {
 
 	/**
 	 * Set the string that will be returned from the slave on error (set in XML)
-	 * 
+	 *
 	 * @param s
 	 *            the error string
 	 */
@@ -111,7 +111,7 @@ public class SlaveMotor extends MotorBase {
 
 	/**
 	 * Get the command that needs to be issued to stop the slave motor (defind in XML)
-	 * 
+	 *
 	 * @return the stop command
 	 */
 	public String getStopCommand() {
@@ -120,7 +120,7 @@ public class SlaveMotor extends MotorBase {
 
 	/**
 	 * Set the command that needs to be issued to stop the slave motor (defind in XML)
-	 * 
+	 *
 	 * @param command
 	 *            the stop command
 	 */
@@ -131,7 +131,7 @@ public class SlaveMotor extends MotorBase {
 
 	/**
 	 * Get the Home command to move a motor using iterative positional searching.
-	 * 
+	 *
 	 * @return homeCommand the command to move a motor with positional searching
 	 */
 	public String getHomeCommand() {
@@ -140,7 +140,7 @@ public class SlaveMotor extends MotorBase {
 
 	/**
 	 * Set the Home command to move a motor using iterative positional searching.
-	 * 
+	 *
 	 * @param s
 	 *            the home (move with iterative positional searching) command
 	 */
@@ -165,7 +165,7 @@ public class SlaveMotor extends MotorBase {
 
 	/**
 	 * Get the serial controller name for this slave motor as defined in XML
-	 * 
+	 *
 	 * @return the serial controller name
 	 */
 	public String getSerialControllerName() {
@@ -174,7 +174,7 @@ public class SlaveMotor extends MotorBase {
 
 	/**
 	 * Set the serial controller name for this slave motor as defined in XML
-	 * 
+	 *
 	 * @param s
 	 *            the serial controller name
 	 */

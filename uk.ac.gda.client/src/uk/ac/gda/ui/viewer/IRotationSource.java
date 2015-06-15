@@ -30,11 +30,11 @@ public interface IRotationSource extends IPositionSource<Double> {
 	 * @param value the value to be moved by
 	 */
 	public double calcMovePlusRelative(double value) throws DeviceException;
-	
+
 	/**
 	 * Move the source by minusing a relative amount from the
 	 * current position
 	 * @param value the value to be moved by
-	 */	
+	 */
 	public double calcMoveMinusRelative(double value) throws DeviceException;
 }

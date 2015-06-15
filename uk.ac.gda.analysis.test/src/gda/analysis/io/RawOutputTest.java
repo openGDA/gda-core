@@ -45,7 +45,7 @@ public class RawOutputTest {
 
 	/**
 	 * Creates an empty directory for use by test code.
-	 * 
+	 *
 	 * @throws Exception
 	 *             if the directory is not created
 	 */
@@ -68,7 +68,7 @@ public class RawOutputTest {
 
 	/**
 	 * @throws ScanFileHolderException
-	 * 
+	 *
 	 * Creates a random dataset and tries to save it as ASCII in a file
 	 */
 	@Test
@@ -98,7 +98,7 @@ public class RawOutputTest {
 					"Problem testing rawOutput class", e);
 		}
 	}
-	
+
 	@Test
 	public void testLoaderFactory() throws Exception {
 		IDataHolder dh = LoaderFactory.getData(testpath + "F6_1_001.cbf", null);

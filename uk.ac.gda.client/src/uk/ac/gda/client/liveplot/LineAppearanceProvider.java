@@ -35,7 +35,7 @@ import org.springframework.util.StringUtils;
 import uk.ac.gda.preferences.PreferenceConstants;
 
 public class LineAppearanceProvider {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(LineAppearanceProvider.class);
 
 	public LineAppearanceProvider() {

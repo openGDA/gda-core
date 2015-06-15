@@ -38,7 +38,7 @@ public class SimpleLegendGraphic extends LegendGraphic {
 
 	/**
 	 * Extends the LegendGraphic constructor to allow a SimpleXYSeries to be specified.
-	 * 
+	 *
 	 * @param shape
 	 *            the Shape which is drawn
 	 * @param fillPaint
@@ -54,7 +54,7 @@ public class SimpleLegendGraphic extends LegendGraphic {
 	/**
 	 * Overrides the super class method but is the same except that it creates a SimpleLegendEntity for itself and then
 	 * returns a non-null BlockResult containing the entity.
-	 * 
+	 *
 	 * @param g2
 	 *            the Graphics2D to use
 	 * @param area

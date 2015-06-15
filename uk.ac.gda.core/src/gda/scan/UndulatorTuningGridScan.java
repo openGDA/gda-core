@@ -19,10 +19,10 @@
 
 package gda.scan;
 
+import gda.device.Scannable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.device.Scannable;
 
 /**
  * Class to control the stepped movement of a Scannable object.
@@ -31,9 +31,9 @@ import gda.device.Scannable;
  * called.
  */
 public class UndulatorTuningGridScan extends GridScanMoveToOnly {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(UndulatorTuningGridScan.class);
-	
+
 	private Scannable extraScannable;
 
 	private double freq;

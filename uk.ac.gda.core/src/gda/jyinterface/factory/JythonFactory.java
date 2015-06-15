@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class JythonFactory {
 	private static final Logger logger = LoggerFactory.getLogger(JythonFactory.class);
@@ -43,7 +43,7 @@ public class JythonFactory {
 
 	/**
 	 * converts jython object to java object
-	 * 
+	 *
 	 * @param interfaceName
 	 * @param pathToJythonModule
 	 * @return Object

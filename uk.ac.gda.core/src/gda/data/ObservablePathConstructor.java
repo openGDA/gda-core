@@ -42,13 +42,13 @@ import org.springframework.beans.factory.InitializingBean;
 public class ObservablePathConstructor extends DeviceBase implements ObservablePathProvider, Findable, IObserver, InitializingBean  {
 
 	private static final Logger logger = LoggerFactory.getLogger(ObservablePathConstructor.class);
-	
+
 	private String template;
-	
+
 	private GdaMetadata gdaMetadata;
 
 	private List<IMetadataEntry> referedMetadataEntries;
-			
+
 	public String getTemplate() {
 		return template;
 	}
@@ -64,13 +64,13 @@ public class ObservablePathConstructor extends DeviceBase implements ObservableP
 		extractReferedMetadataEntries();
 		registerWithReferedMetadataEntries();
 	}
-	
+
 	private void extractReferedMetadataEntries() {
 		referedMetadataEntries =  new ArrayList<IMetadataEntry>();
 		if (gdaMetadata == null) {
 			return;
 		}
-		
+
 		StringTokenizer st = new StringTokenizer(template, "$");
 		ArrayList<IMetadataEntry> allEntries = gdaMetadata.getMetadataEntries();
 		while (st.hasMoreTokens()) {
@@ -80,13 +80,13 @@ public class ObservablePathConstructor extends DeviceBase implements ObservableP
 			}
 		}
 	}
-	
+
 	private void registerWithReferedMetadataEntries() {
 		for (IMetadataEntry entry : getReferedMetadataEntries()) {
 			entry.addIObserver(this);
-		}	
+		}
 	}
-	
+
 	private IMetadataEntry pickMetadataEntry(List<IMetadataEntry> entries, String name) {
 		for (IMetadataEntry entry : entries) {
 			if (entry.getName().equals(name)) {
@@ -103,9 +103,9 @@ public class ObservablePathConstructor extends DeviceBase implements ObservableP
 
 	public void setGdaMetadata(GdaMetadata gdaMetadata) {
 		this.gdaMetadata = gdaMetadata;
-		
+
 	}
-	
+
 	public GdaMetadata getGdaMetadata() {
 		return gdaMetadata;
 	}
@@ -131,5 +131,5 @@ public class ObservablePathConstructor extends DeviceBase implements ObservableP
 			throw new FactoryException("ObservablePathConstructor " + getName() + " template property has not been set");
 		}
 	}
-	
+
 }

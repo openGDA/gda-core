@@ -39,24 +39,24 @@ import uk.ac.diamond.scisoft.analysis.io.PilatusTiffLoader;
 
 public class SphericalTransformation {
 
-	
+
 	public static void stitchImages(String[] inputFiles, String image, int imagesX, int imagesY) throws IOException {
 		int[][] stitched = stitch(inputFiles, image, imagesX, imagesY);
 		convert(stitched, image);
 	}
-	
+
 	public void flattenImages(String[] inputFiles, String image, int imagesX, int imagesY, double x1, double y1, double x2, double y2) throws IOException {
 		int[][] stitched = flatten(inputFiles, image, imagesX, imagesY, x1,y1,x2,y2);
 		convert(stitched, image);
 	}
-	
+
 	public void unflattenImages(String[] inputFiles, String image, int imagesX, int imagesY, double x1, double y1, double x2, double y2) throws IOException {
 		int[][] stitched = unflatten(inputFiles, image, imagesX, imagesY, x1,y1,x2,y2);
 		convert(stitched, image);
 	}
-	
-	
-		
+
+
+
 	@SuppressWarnings("null")
 	public static void convert(int[][] stitched, String image) throws IOException{
 		int width = stitched[0].length;
@@ -89,7 +89,7 @@ public class SphericalTransformation {
 
 		int offsetX = (size-width)/2;
 		int offsetY = (size-height)/2;
-		
+
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
 				if (((j > offsetX)&&( j < width+offsetX)) && ((i > offsetY)&&(i < height+offsetY))){
@@ -105,12 +105,12 @@ public class SphericalTransformation {
 				}
 			}
 		}
-		
+
 		int ASCII_HEADER_SIZE = 256;
 		int BIN_HEADER_SIZE = 4864;
 		int COMBINED_HEADER_SIZE = ASCII_HEADER_SIZE + BIN_HEADER_SIZE;
 		byte[] header = new byte[COMBINED_HEADER_SIZE];
-		
+
 		File inputFile = new File(image);
 		InputStream is = null;
 		try {
@@ -119,15 +119,15 @@ public class SphericalTransformation {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		writeFile(image, header, data);
 	}
 
 	public static void writeFile(String inputFileName, byte[] header, byte[] data){
-		
-		
 
-		
+
+
+
 		File outputImage = new File(inputFileName);
 		try {
 			outputImage.createNewFile();
@@ -140,7 +140,7 @@ public class SphericalTransformation {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static byte[] intToByteArray(int value, int length) {
 		byte[] b = new byte[length];
 		for (int i = 0; i < length; i++) {
@@ -289,7 +289,7 @@ public class SphericalTransformation {
 				newImage[i][j] = -127;
 			}
 		}
-		
+
 		for (double lat = radStartX; lat <= radEndX; lat += pixel_to_angle_ratio_x) {
 			for (double lon = radStartY; lon <= radEndY; lon += pixel_to_angle_ratio_y) {
 
@@ -360,7 +360,7 @@ public class SphericalTransformation {
 				newImage[i][j] = -127;
 			}
 		}
-		
+
 		for (double lat = radStartX; lat <= radEndX; lat += pixel_to_angle_ratio_x) {
 			for (double lon = radStartY; lon <= radEndY; lon += pixel_to_angle_ratio_y) {
 

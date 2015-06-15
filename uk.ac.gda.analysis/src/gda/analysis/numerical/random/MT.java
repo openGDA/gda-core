@@ -85,7 +85,7 @@ public class MT extends Random {
 	 * <p>
 	 * Whilst useful for ensuring backwards compatibility, it is advised that this feature not be used unless
 	 * specifically required, due to the reduction in strength of the seed value.
-	 * 
+	 *
 	 * @param compatible
 	 *            Compatibility flag for replicating original behaviour.
 	 */
@@ -98,7 +98,7 @@ public class MT extends Random {
 	/**
 	 * This version of the constructor simply initialises the class with the given 64 bit seed value. For a better
 	 * random number sequence this seed value should contain as much entropy as possible.
-	 * 
+	 *
 	 * @param seed
 	 *            The seed value with which to initialise this class.
 	 */
@@ -109,7 +109,7 @@ public class MT extends Random {
 	/**
 	 * This version of the constructor initialises the class with the given byte array. All the data will be used to
 	 * initialise this instance.
-	 * 
+	 *
 	 * @param buf
 	 *            The non-empty byte array of seed information.
 	 * @throws NullPointerException
@@ -125,7 +125,7 @@ public class MT extends Random {
 	/**
 	 * This version of the constructor initialises the class with the given integer array. All the data will be used to
 	 * initialise this instance.
-	 * 
+	 *
 	 * @param buf
 	 *            The non-empty integer array of seed information.
 	 * @throws NullPointerException
@@ -167,7 +167,7 @@ public class MT extends Random {
 	 * If this instance was initialised in 'compatibility' mode then this method will only use the lower 32 bits of any
 	 * seed value passed in and will match the behaviour of the original C code exactly with respect to state
 	 * initialisation.
-	 * 
+	 *
 	 * @param seed
 	 *            The 64 bit value used to initialise the random number generator state.
 	 */
@@ -198,7 +198,7 @@ public class MT extends Random {
 	 * restarted then it would be more efficient to use the "pack()" method to convert it into an integer array first
 	 * and then use that to re-seed the instance. The behaviour of the class will be the same in both cases but it will
 	 * be more efficient.
-	 * 
+	 *
 	 * @param buf
 	 *            The non-empty byte array of seed information.
 	 * @throws NullPointerException
@@ -213,7 +213,7 @@ public class MT extends Random {
 	/**
 	 * This method resets the state of this instance using the integer array of seed data provided. This is the
 	 * canonical way of resetting the pseudo random number sequence.
-	 * 
+	 *
 	 * @param buf
 	 *            The non-empty integer array of seed information.
 	 * @throws NullPointerException
@@ -258,19 +258,19 @@ public class MT extends Random {
 	 * <p>
 	 * Note that where the number of bits requested is not equal to 32 then bits will simply be masked out from the top
 	 * of the returned integer value. That is to say that:
-	 * 
+	 *
 	 * <pre>
 	 * mt.setSeed(12345);
 	 * int foo = mt.nextInt(16) + (mt.nextInt(16) &lt;&lt; 16);
 	 * </pre>
-	 * 
+	 *
 	 * will not give the same result as
-	 * 
+	 *
 	 * <pre>
 	 * mt.setSeed(12345);
 	 * int foo = mt.nextInt(32);
 	 * </pre>
-	 * 
+	 *
 	 * @param bits
 	 *            The number of significant bits desired in the output.
 	 * @return The next value in the pseudo random sequence with the specified number of bits in the lower part of the
@@ -325,21 +325,21 @@ public class MT extends Random {
 	 * <p>
 	 * If the length of the byte array is not a multiple of 4 then it is implicitly padded with zeros as necessary. For
 	 * example:
-	 * 
+	 *
 	 * <pre>
 	 *       byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 }
 	 * </pre>
-	 * 
+	 *
 	 * becomes
-	 * 
+	 *
 	 * <pre>
 	 *       int[]  { 0x04030201, 0x00000605 }
 	 * </pre>
-	 * 
+	 *
 	 * <p>
 	 * Note that this method will not complain if the given byte array is empty and will produce an empty integer array,
 	 * but the setSeed() method will throw an exception if the empty integer array is passed to it.
-	 * 
+	 *
 	 * @param buf
 	 *            The non-null byte array to be packed.
 	 * @return A non-null integer array of the packed bytes.

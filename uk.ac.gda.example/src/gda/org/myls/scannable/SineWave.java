@@ -25,7 +25,7 @@ public class SineWave {
 	double period, phase, magnitude, offset, noise;
 
 	/**
-	 * 
+	 *
 	 */
 	public SineWave() {
 		this(1, 0, 1, 0, 0);

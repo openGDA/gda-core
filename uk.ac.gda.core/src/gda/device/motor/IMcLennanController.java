@@ -30,7 +30,7 @@ public interface IMcLennanController {
 	 * correct reply returns, to the correct Object. McLennan replies, particularly errors, are generously sprinkled
 	 * with carriage returns (without line feeds). These mess up the output, hence the replaceAll() in the printing out
 	 * of replies.
-	 * 
+	 *
 	 * @param command
 	 *            Command code string
 	 * @return reply from motor
@@ -40,7 +40,7 @@ public interface IMcLennanController {
 
 	/**
 	 * Issue a single character command to the connected serial device that acts on all motors with immediate effect.
-	 * 
+	 *
 	 * @param command
 	 *            Global command character
 	 * @throws MotorException

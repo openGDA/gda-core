@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * Class to implement McLennan PM301, PM341 and PM381 stepper motor controllers. PM341 motor controllers can operate as
  * closed loop or open loop, which is established by checking a status bit. PM381 motor controllers are multichannel and
  * need to have a "Channel" number added to the XML file.
- * 
+ *
  * @see McLennanMotor
  */
 public class McLennanStepperMotor extends McLennanMotor {
@@ -127,7 +127,7 @@ public class McLennanStepperMotor extends McLennanMotor {
 	 * Positioner to int as McLennan sends a 32 bit value and trunkates any value beyond the decimal point in a given
 	 * command. Converting a double value to a String results in "1.2E9" for example, thus the motor will only see 1
 	 * step rather than the 1,200,000,000 intended.
-	 * 
+	 *
 	 * @param steps
 	 *            The amount of steps to set as the position.
 	 * @throws MotorException
@@ -163,7 +163,7 @@ public class McLennanStepperMotor extends McLennanMotor {
 	 * Positioner to int as McLennan sends a 32 bit value and trunkates any value beyond the decimal point in a given
 	 * command. Converting a double value to a String results in "1.2E9" for example, thus the motor will only see 1
 	 * step rather than the 1,200,000,000 intended.
-	 * 
+	 *
 	 * @param stepsPerSecond
 	 *            The velocity value
 	 * @throws MotorException
@@ -250,7 +250,7 @@ public class McLennanStepperMotor extends McLennanMotor {
 	/**
 	 * Gets a status string and checks if loop is active. Used to establish if 341 stepper controllers are acting in
 	 * closed loop mode.
-	 * 
+	 *
 	 * @return boolean
 	 * @exception MotorException
 	 */
@@ -275,7 +275,7 @@ public class McLennanStepperMotor extends McLennanMotor {
 
 	/**
 	 * Constructs a command to query the ROM version of the firmware.
-	 * 
+	 *
 	 * @return the ROM Version or a default value when not found
 	 * @throws MotorException
 	 */
@@ -313,7 +313,7 @@ public class McLennanStepperMotor extends McLennanMotor {
 	/**
 	 * Moves the motor in a continuous mode Code not written as soft limits do not apply in this mode and it is
 	 * considered an unacceptable risk.
-	 * 
+	 *
 	 * @param direction
 	 *            the direction of travel
 	 * @throws MotorException

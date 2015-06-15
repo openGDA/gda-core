@@ -25,24 +25,24 @@ import gda.device.DeviceException;
  * A dummy scannable for testing / simulations which uses units.
  */
 public class DummyUnitsScannable extends ScannableMotionUnitsBase {
-	
+
 	private double currentPosition = 0;
-	
+
 	/**
 	 * Castor constructor
 	 */
 	public DummyUnitsScannable(){
 	}
 
-	
+
 	/**
 	 * Constructor with minimal required settings.
-	 * 
+	 *
 	 * @param name
 	 * @param initialPosition
 	 * @param hardwareUnits
 	 * @param userUnits
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public DummyUnitsScannable(String name, double initialPosition, String hardwareUnits, String userUnits) throws DeviceException{
 		setName(name);
@@ -52,7 +52,7 @@ public class DummyUnitsScannable extends ScannableMotionUnitsBase {
 		setInitialUserUnits(userUnits);
 		configured = true;
 	}
-	
+
 	@Override
 	public void configure(){
 		//everything done in setters

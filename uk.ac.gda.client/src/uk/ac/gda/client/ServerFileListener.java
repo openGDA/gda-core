@@ -44,9 +44,9 @@ public class ServerFileListener implements IObserver, Configurable {
 	private String clientFileAnnouncerName;
 
 	private IFolder link;
-	
+
 	private RefreshJob refreshJob = new RefreshJob("data project refresh job");
-	
+
 	private class RefreshJob extends Job {
 
 		public RefreshJob(String name) {
@@ -64,9 +64,9 @@ public class ServerFileListener implements IObserver, Configurable {
 			}
 			return Status.OK_STATUS;
 		}
-		
+
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		findDataProject();
@@ -79,7 +79,7 @@ public class ServerFileListener implements IObserver, Configurable {
 	public void findDataProject() {
 		dataProject = DataProject.getDataProjectIfExists();
 	}
-	
+
 	@Override
 	public void update(Object source, Object arg) {
 		if (dataProject == null) {
@@ -94,7 +94,7 @@ public class ServerFileListener implements IObserver, Configurable {
 		// as you can see below I tried only updating what is needed, but due to linked resources (I think)
 		// (for now) only the full refresh seems to work, but at least we've put this in a jobs now
 		refreshJob.schedule(500);
-		
+
 //		String[] files = (String[]) arg;
 //		for (String path : files) {
 //			IFile file = dataProject.getFile(path);

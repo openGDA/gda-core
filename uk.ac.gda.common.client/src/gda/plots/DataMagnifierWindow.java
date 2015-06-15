@@ -59,7 +59,7 @@ public class DataMagnifierWindow extends JDialog implements Magnifier {
 	private class DataMagnifierPanel extends JPanel {
 		/**
 		 * Overrides the super class method to get the magnified plot to draw itself
-		 * 
+		 *
 		 * @param g
 		 *            the Graphics to paint with
 		 */
@@ -73,10 +73,10 @@ public class DataMagnifierWindow extends JDialog implements Magnifier {
 
 	/**
 	 * Sets the SimplePlot to be magnified.
-	 * 
+	 *
 	 * @param simplePlot
 	 *            the SimplePlot which the magnifier will be Magnifying
-	 * @param collection 
+	 * @param collection
 	 */
 	@Override
 	public void setSimplePlot(SimplePlot simplePlot, XYSeriesCollection collection) {
@@ -99,7 +99,7 @@ public class DataMagnifierWindow extends JDialog implements Magnifier {
 
 	/**
 	 * The SimplePlot will call this method when the Rectangle to be magnified has changed.
-	 * 
+	 *
 	 * @param magnifyRectangle
 	 *            the Rectangle to be magnified
 	 */

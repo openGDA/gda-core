@@ -45,7 +45,7 @@ public class EtldetectorImpl extends CorbaEtlDetectorPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param etldetector
 	 *            the Detector implementation object
 	 * @param poa
@@ -59,7 +59,7 @@ public class EtldetectorImpl extends CorbaEtlDetectorPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Detector implementation object
 	 */
 	public Detector _delegate() {
@@ -68,7 +68,7 @@ public class EtldetectorImpl extends CorbaEtlDetectorPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param etldetector
 	 *            set the Detector implementation object
 	 */
@@ -168,7 +168,7 @@ public class EtldetectorImpl extends CorbaEtlDetectorPOA {
 	public void setCollectionTime(double time) throws CorbaDeviceException {
 		detectorImpl.setCollectionTime(time);
 	}
-	
+
 	@Override
 	public double getCollectionTime() throws CorbaDeviceException {
 		return detectorImpl.getCollectionTime();
@@ -203,7 +203,7 @@ public class EtldetectorImpl extends CorbaEtlDetectorPOA {
 	public String getDetectorType() throws CorbaDeviceException {
 		return detectorImpl.getDetectorType();
 	}
-	
+
 	// implement inherited Scannable interface methods delegation
 	@Override
 	public String _toString() {
@@ -354,7 +354,7 @@ public class EtldetectorImpl extends CorbaEtlDetectorPOA {
 	public void close() throws CorbaDeviceException {
 		detectorImpl.close();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return detectorImpl.getProtectionLevel();
@@ -364,17 +364,17 @@ public class EtldetectorImpl extends CorbaEtlDetectorPOA {
 	public void setProtectionLevel(int newLevel) throws CorbaDeviceException {
 		detectorImpl.setProtectionLevel(newLevel);
 	}
-	
+
 	@Override
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		detectorImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		detectorImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return detectorImpl.toFormattedString();

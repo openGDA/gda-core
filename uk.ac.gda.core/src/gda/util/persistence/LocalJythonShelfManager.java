@@ -45,7 +45,7 @@ public abstract class LocalJythonShelfManager extends LocalObjectShelfManager {
 
 	/**
 	 * A static method to remove a shelf.
-	 * 
+	 *
 	 * @param name
 	 *            shelf to remove
 	 * @throws LocalDatabaseException
@@ -65,7 +65,7 @@ public abstract class LocalJythonShelfManager extends LocalObjectShelfManager {
 
 	/**
 	 * Returns an instance of an LocalObjectShelf.
-	 * 
+	 *
 	 * @param shelfName
 	 * @return the object shelf singleton
 	 * @throws LocalDatabaseException

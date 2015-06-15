@@ -46,7 +46,7 @@ public class FilterarrayImpl extends CorbaFilterArrayPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param filterarray
 	 *            the FilterArray implementation object
 	 * @param poa
@@ -60,7 +60,7 @@ public class FilterarrayImpl extends CorbaFilterArrayPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the FilterArray implementation object
 	 */
 	public FilterArray _delegate() {
@@ -69,7 +69,7 @@ public class FilterarrayImpl extends CorbaFilterArrayPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param filterarray
 	 *            set the FilterArray implementation object
 	 */
@@ -191,7 +191,7 @@ public class FilterarrayImpl extends CorbaFilterArrayPOA {
 	public void close() throws CorbaDeviceException {
 		deviceImpl.close();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();

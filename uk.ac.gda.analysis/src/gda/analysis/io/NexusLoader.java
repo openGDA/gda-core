@@ -46,7 +46,7 @@ public class NexusLoader extends uk.ac.diamond.scisoft.analysis.io.NexusLoader {
 	}
 
 	/*
-	 * Helper method to extract DataSetNames from a NexusFile that can then be used to build a list of wanted names 
+	 * Helper method to extract DataSetNames from a NexusFile that can then be used to build a list of wanted names
 	 * in subsequent calls to NexusLoader(file, dataSetNames)
 	 */
 	static public List<String> getDataSetNames( String nexusFilename, IMonitor mon) throws NexusException, NexusExtractorException, Exception {

@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * if an error occurs, then the string is returned untouched.
  */
 public class GeneralTranslator extends TranslatorBase implements Translator {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(GeneralTranslator.class);
 
 	static private final String symbols = "-+*/%><=,[]()";
@@ -44,7 +44,7 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 	/**
 	 * Translates a command identified by the translate() method. This ignores any spaces at start or end of line - it
 	 * assumes that translate() has removed any significant \n or \t characters.
-	 * 
+	 *
 	 * @param thisGroup
 	 *            String
 	 * @return String
@@ -154,7 +154,7 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 				thisGroup = args[0] + "()";
 			} else if (startsWithVarArgAlias(args[0])){
 				int bracketIndex = args[0].indexOf("(");
-				
+
 				if (!thisGroup.substring(bracketIndex + 1, bracketIndex + 2).equals("[")) {
 
 					String firstPart = args[0].substring(0, bracketIndex + 1);
@@ -176,14 +176,14 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 						thisGroup += ",";
 						thisGroup += args[i];
 					}
-				}	
+				}
 			}
-			
+
 
 			if (thisGroup.startsWith("help(")) {
 				// this parses to a call to a Jython function defined in GDAJythonInterpreter.initialise
 				thisGroup = "_gda" + thisGroup;
-			} 
+			}
 
 		} catch (Exception e) {
 
@@ -229,7 +229,7 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 		int index = string.indexOf("(");
 		if (index == -1){
 			return false;
-		}		
+		}
 		String firstPart = string.substring(0,index);
 		return vararg_aliases.contains(firstPart);
 	}
@@ -238,7 +238,7 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 	 * Removes everything after any hash symbol
 	 * <p>
 	 * Be careful that
-	 * 
+	 *
 	 * @param command
 	 * @return the command without the trailing comment
 	 */
@@ -252,7 +252,7 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 	/**
 	 * inside pairs of brackets replaces spaces with commas. So when the command is later split by spaces, each bracket
 	 * group looks like a single element in the returned array.
-	 * 
+	 *
 	 * @param original_command
 	 *            String
 	 * @return String
@@ -350,7 +350,7 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 
 	/**
 	 * Ignoring whitespace, the is next character in the string after currentlocation an operator symbol or a comma?
-	 * 
+	 *
 	 * @param string
 	 * @param currentlocation
 	 * @return boolean
@@ -363,7 +363,7 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 	/**
 	 * Ignoring whitespace, the is previous character in the string before currentlocation an operator symbol or a
 	 * comma?
-	 * 
+	 *
 	 * @param string
 	 * @param currentlocation
 	 * @return boolean
@@ -372,19 +372,19 @@ public class GeneralTranslator extends TranslatorBase implements Translator {
 		char previousPart = previousPart(string, currentlocation);
 		return StringUtils.contains(symbols, previousPart);
 	}
-	
+
 	static char nextPart(String string, int currentlocation) {
 		String rightOfStart = StringUtils.stripToEmpty(StringUtils.substring(string, currentlocation));
 		char nextPart = rightOfStart.charAt(0);
 		return nextPart;
 	}
-	
+
 	static char previousPart(String string, int currentlocation) {
 		String leftOfStart = StringUtils.stripToEmpty(StringUtils.substring(string, 0, currentlocation));
 		char previousPart = leftOfStart.charAt(leftOfStart.length() - 1);
 		return previousPart;
 	}
-	
+
 	protected String removeComments(String command) {
 		int dblquoteLocation = command.lastIndexOf("\"");
 		int quoteLocation = command.lastIndexOf("'");

@@ -61,7 +61,7 @@ public class MultiScan extends ScanBase implements ContiguousScan{
 				}
 			}
 		}
-		
+
 		setChild(scans.get(0)); //prevent calling of callScannablesAtScanLineStart in ScanBase.prepareDevicesForCollection
 	}
 
@@ -106,12 +106,12 @@ public class MultiScan extends ScanBase implements ContiguousScan{
 			scan.currentPointCount = pointCount;
 			scan.name = name;
 			scan.setScanNumber(getScanNumber());
-			
+
 			scan.callScannablesAtScanLineStart();
 			scan.doCollection();
 			scan.callScannablesAtScanLineEnd();
 
-			
+
 			pointCount = scan.currentPointCount;
 
 		}

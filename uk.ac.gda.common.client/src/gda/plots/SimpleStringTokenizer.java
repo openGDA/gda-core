@@ -27,7 +27,7 @@ import java.util.StringTokenizer;
 public class SimpleStringTokenizer extends StringTokenizer {
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param theString
 	 *            the string to tokenize
 	 */
@@ -37,7 +37,7 @@ public class SimpleStringTokenizer extends StringTokenizer {
 
 	/**
 	 * Concatenates the rest of the tokens.
-	 * 
+	 *
 	 * @return any remaining tokens concatenated into a single string.
 	 */
 	public String restOfTokens() {

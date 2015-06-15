@@ -30,7 +30,7 @@ import gda.device.Scannable;
 public class GridScanMoveToOnly extends GridScan {
 	/**
 	 * Creates a scan object
-	 * 
+	 *
 	 * @param ve
 	 *            the scannable
 	 * @param start
@@ -47,7 +47,7 @@ public class GridScanMoveToOnly extends GridScan {
 	/**
 	 * Creates a scan object. This constructor added to allow detector counting time to be set. Probably this should be
 	 * done in ScanBase somehow.
-	 * 
+	 *
 	 * @param ve
 	 *            the scannable
 	 * @param start
@@ -66,7 +66,7 @@ public class GridScanMoveToOnly extends GridScan {
 	/**
 	 * Creates a scan object. This constructor added to allow detector counting time to be set. Probably this should be
 	 * done in ScanBase somehow.
-	 * 
+	 *
 	 * @param ve
 	 *            the scannable
 	 * @param start
@@ -88,7 +88,7 @@ public class GridScanMoveToOnly extends GridScan {
 	/**
 	 * Creates a scan object. This constructor added to allow detector counting time to be set. Probably this should be
 	 * done in ScanBase somehow.
-	 * 
+	 *
 	 * @param ve
 	 *            the scannable
 	 * @param start
@@ -112,7 +112,7 @@ public class GridScanMoveToOnly extends GridScan {
 	 * A static method to create a scan which has a nested scan inside it. To run the scan, call the doScan() method.
 	 * For example, in Jython: from gda.scan import Scan; myScan = Scan.create(tth,10,12,0.1,Scan.create(phi,20,30,1));
 	 * myScan.doScan()
-	 * 
+	 *
 	 * @param ve
 	 *            the scannable
 	 * @param start
@@ -155,7 +155,7 @@ public class GridScanMoveToOnly extends GridScan {
 	 * A static method to create a scan which has a nested scan inside it. To run the scan, call the doScan() method.
 	 * For example, in Jython: from gda.scan import Scan; myScan = Scan.create(tth,10,12,0.1,Scan.create(phi,20,30,1));
 	 * myScan.doScan()
-	 * 
+	 *
 	 * @param ve
 	 *            the scannable
 	 * @param start

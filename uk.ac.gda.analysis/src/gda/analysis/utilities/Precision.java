@@ -44,7 +44,7 @@ public final class Precision {
 	 * common system in use today, uses base ten, hence the maximum number a single digit will ever reach is 9, after
 	 * which it is necessary to add another digit to achieve a higher number. For the binary system this is 2 but being
 	 * really pedantic most machine precision computing codes go ahead and compute it anyway
-	 * 
+	 *
 	 * @return the radix
 	 */
 	private static int computeRadix() {
@@ -69,7 +69,7 @@ public final class Precision {
 	 * Work out the machine precision This basically involves reducing some number to smaller and smaller values to the
 	 * point where 1+number - 1 = 0.0. In other words the machine precision is the smallest number that can be added to
 	 * a number that changes the value (to the computer anyway) of that number.
-	 * 
+	 *
 	 * @return the machine precision
 	 */
 	private static double computeMachinePrecision() {
@@ -110,7 +110,7 @@ public final class Precision {
 
 	/**
 	 * Compares to values a and b to see if the difference between them is less than the default numerical precision
-	 * 
+	 *
 	 * @param a
 	 * @param b
 	 * @return true if the difference between a and b is less than the default numerical precision
@@ -121,7 +121,7 @@ public final class Precision {
 
 	/**
 	 * Compares the values a and b to see if the difference between them is less than than precision
-	 * 
+	 *
 	 * @param a
 	 * @param b
 	 * @param precision
@@ -134,7 +134,7 @@ public final class Precision {
 
 	/**
 	 * Test main method.
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {

@@ -33,23 +33,23 @@ import gda.factory.corba.util.CorbaImplClass;
 public class ScannableGaussian extends SimpleScannable {
 	double centre, width, height, noise;
 	Gaussian gaussian;
-	// 
+	//
 
 	/**
-	 * 
+	 *
 	 */
 	public ScannableGaussian() {
 		this(new Gaussian(0.0, 1.0, 1.0, 0.0));
 	}
-	
+
 	/**
-	 * @param g 
+	 * @param g
 	 */
 	public ScannableGaussian(final Gaussian g) {
 		this(g.centre, g.width, g.height, g.noise);
 		this.setGaussian(gaussian);
 	}
-	
+
 	/**
 	 * @param centre
 	 * @param width
@@ -73,7 +73,7 @@ public class ScannableGaussian extends SimpleScannable {
 	 * @param yName
 	 * @param centre
 	 * @param width
-	 * @param height 
+	 * @param height
 	 * @param noise
 	 * @param level
 	 * @param outputFormatx

@@ -28,40 +28,40 @@ public class SimpleServletTest extends TestCase {
 
 	/**
 	 * Method used in tests.
-	 * 
+	 *
 	 * @return a fixed string
 	 */
 	public static String noArgsMethod() {
 		return "noargresult";
 	}
-	
+
 	/**
 	 * Method used in tests.
-	 * 
+	 *
 	 * @param str a string
-	 * 
+	 *
 	 * @return the string parameter
 	 */
 	public static String oneStringArgMethod(String str) {
 		return str;
 	}
-	
+
 	static String str;
-	
+
 	static Object obj;
-	
+
 	/**
 	 * Method used in tests.
-	 * 
+	 *
 	 * @param o an object
 	 */
 	public static void oneObjectArgMethod(Integer o) {
 		obj = o;
 	}
-	
+
 	/**
 	 * Method used in tests.
-	 * 
+	 *
 	 * @param s a string parameter
 	 * @param o an object parameter
 	 */
@@ -69,20 +69,20 @@ public class SimpleServletTest extends TestCase {
 		str = s;
 		obj = o;
 	}
-	
+
 	/**
 	 * Tests invoking a method with no arguments.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void testInvokingNoArgsMethod() throws Exception {
 		Object o = SimpleServlet.execute(SimpleServletTest.class.getName() + "?noArgsMethod");
 		assertEquals("noargresult", o);
 	}
-	
+
 	/**
 	 * Tests invoking a method with a single String parameter.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void testInvokingOneStringArgMethod() throws Exception {
@@ -90,10 +90,10 @@ public class SimpleServletTest extends TestCase {
 		Object o = SimpleServlet.execute(SimpleServletTest.class.getName() + "?oneStringArgMethod?" + arg);
 		assertEquals(arg, o);
 	}
-	
+
 	/**
 	 * Tests invoking a method with a single Object parameter.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void testInvokingOneObjectArgMethod() throws Exception {
@@ -103,10 +103,10 @@ public class SimpleServletTest extends TestCase {
 		SimpleServlet.execute(SimpleServletTest.class.getName() + "?oneObjectArgMethod", arg);
 		assertEquals(arg, obj);
 	}
-	
+
 	/**
 	 * Tests invoking a method with a String and Object parameter.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void testInvokingTwoObjectArgMethod() throws Exception {
@@ -120,5 +120,5 @@ public class SimpleServletTest extends TestCase {
 		assertEquals(arg1, str);
 		assertEquals(arg2, obj);
 	}
-	
+
 }

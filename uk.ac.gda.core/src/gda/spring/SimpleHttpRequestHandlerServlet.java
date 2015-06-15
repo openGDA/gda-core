@@ -31,7 +31,7 @@ import org.springframework.web.context.support.HttpRequestHandlerServlet;
 
 /**
  * A {@link HttpServlet} that delegates to a {@link HttpRequestHandler}.
- * 
+ *
  * <p>Unlike  Spring's {@link HttpRequestHandlerServlet}, the target request
  * handler must be specified when this class is instantiated: it does not
  * retrieve the request handler from a Spring application context.
@@ -39,10 +39,10 @@ import org.springframework.web.context.support.HttpRequestHandlerServlet;
 public class SimpleHttpRequestHandlerServlet extends HttpServlet {
 
 	private HttpRequestHandler target;
-	
+
 	/**
 	 * Creates a servlet that delegates to the specified request handler.
-	 * 
+	 *
 	 * @param target the request handler
 	 */
 	public SimpleHttpRequestHandlerServlet(HttpRequestHandler target) {

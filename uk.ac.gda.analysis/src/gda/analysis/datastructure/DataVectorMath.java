@@ -36,7 +36,7 @@ public class DataVectorMath {
 	// case------------------
 	/**
 	 * Checks for compatability of two data sets if they're not the same size you can't add or delete them..etc..
-	 * 
+	 *
 	 * @param g1
 	 * @param g2
 	 * @throws IllegalArgumentException
@@ -51,7 +51,7 @@ public class DataVectorMath {
 
 	/**
 	 * Adds two DataVectors
-	 * 
+	 *
 	 * @param g1 :
 	 *            dataset 1
 	 * @param g2 :
@@ -74,7 +74,7 @@ public class DataVectorMath {
 
 	/**
 	 * Adds two DataVectors
-	 * 
+	 *
 	 * @param g :
 	 *            dataset
 	 * @param val :
@@ -94,7 +94,7 @@ public class DataVectorMath {
 
 	/**
 	 * Subtracts two 1D Histogram
-	 * 
+	 *
 	 * @param g1 :
 	 *            dataset 1
 	 * @param g2 :
@@ -118,7 +118,7 @@ public class DataVectorMath {
 
 	/**
 	 * Subtracts two 1D Histogram
-	 * 
+	 *
 	 * @param g :
 	 *            dataset
 	 * @param val :
@@ -138,7 +138,7 @@ public class DataVectorMath {
 
 	/**
 	 * Multiplies two DataVectors
-	 * 
+	 *
 	 * @param g1 :
 	 *            dataset 1
 	 * @param g2 :
@@ -162,7 +162,7 @@ public class DataVectorMath {
 
 	/**
 	 * Multiplies a DataVector by a constant
-	 * 
+	 *
 	 * @param g :
 	 *            dataset 1
 	 * @param val :
@@ -183,7 +183,7 @@ public class DataVectorMath {
 
 	/**
 	 * Divides two DataVectors
-	 * 
+	 *
 	 * @param g1
 	 *            First data vector
 	 * @param g2
@@ -206,7 +206,7 @@ public class DataVectorMath {
 
 	/**
 	 * Divides a DataVector by a number
-	 * 
+	 *
 	 * @param g
 	 * @param val
 	 * @return g/val
@@ -224,7 +224,7 @@ public class DataVectorMath {
 
 	/**
 	 * log 10 of a data vector
-	 * 
+	 *
 	 * @param g
 	 * @return log10 of a data vector
 	 */
@@ -664,7 +664,7 @@ public class DataVectorMath {
 
 	/**
 	 * NOT IMPLEMENTED
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @return 0.0

@@ -93,6 +93,6 @@ public class StageCompositeDefinition {
 		this.label = label;
 	}
 
-	
+
 
 }

@@ -88,10 +88,10 @@ public class Hdf5HelperLazyLoader implements ILazyLoader {
 			throw new ScanFileHolderException("Error reading from " + fileName,e);
 		}
 	}
-	
+
 	public ILazyDataset getLazyDataSet() throws Exception{
 		checkConfigured();
-		
+
 		int [] dims = new int[helperData.dims.length];
 		for( int i=0; i< dims.length;i++){
 			dims[i] = (int) helperData.dims[i];

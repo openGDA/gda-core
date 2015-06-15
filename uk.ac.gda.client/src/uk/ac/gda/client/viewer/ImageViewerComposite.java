@@ -246,7 +246,7 @@ public class ImageViewerComposite extends Composite {
 
 	/**
 	 * Constructor for the image viewer
-	 * 
+	 *
 	 * @param parent
 	 *            the parent of this viewer
 	 * @param style
@@ -259,7 +259,7 @@ public class ImageViewerComposite extends Composite {
 
 	/**
 	 * Creates the widget/tools for zooming in, out etc.
-	 * 
+	 *
 	 * @param sashForm
 	 */
 	private void createZoomWidgetComposite(final SashForm sashForm) {
@@ -446,7 +446,7 @@ public class ImageViewerComposite extends Composite {
 
 	/**
 	 * Returns the current location of the viewport for scrolling
-	 * 
+	 *
 	 * @return viewLocation
 	 */
 	private Point getViewLocation() {
@@ -456,7 +456,7 @@ public class ImageViewerComposite extends Composite {
 
 	/**
 	 * Returns the bounds of the drawn image
-	 * 
+	 *
 	 * @return Point image bounds
 	 */
 	public Rectangle getImageBounds() {
@@ -466,7 +466,7 @@ public class ImageViewerComposite extends Composite {
 
 	/**
 	 * Reload image from a file This method must be called from the UI thread
-	 * 
+	 *
 	 * @param filename
 	 *            image file
 	 */
@@ -488,7 +488,7 @@ public class ImageViewerComposite extends Composite {
 
 	/**
 	 * Reload image from a provided ImageData
-	 * 
+	 *
 	 * @param imageDataIn
 	 *            ImageData
 	 */
@@ -521,7 +521,7 @@ public class ImageViewerComposite extends Composite {
 
 	/**
 	 * Returns the underlying canvas of this viewer
-	 * 
+	 *
 	 * @return canvas
 	 */
 	public Canvas getCanvas() {
@@ -595,7 +595,7 @@ public class ImageViewerComposite extends Composite {
 
 	/**
 	 * Returns the imagedata of the last displayed image in the viewer
-	 * 
+	 *
 	 * @return ImageData
 	 */
 	public ImageData getImageData() {
@@ -794,7 +794,7 @@ public class ImageViewerComposite extends Composite {
 	/**
 	 * Returns the IFigure of the image being drawn. The figure has an XYLayout and the layout manager should not be
 	 * changed.
-	 * 
+	 *
 	 * @return top IFigure
 	 */
 	public IFigure getTopFigure() {

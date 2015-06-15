@@ -49,20 +49,20 @@ import uk.ac.gda.ui.internal.viewer.ScannablePositionSource;
 
 /**
  * A concrete viewer that displays position information about an underlying motor.
- * Users may use the viewer to change position of the motor, in which case this 
+ * Users may use the viewer to change position of the motor, in which case this
  * viewer displays the target position as well as the updating position.
  * <p>
  * This class is designed to be instantiated with a pre-existing{@link Scannable}
  * which supplies the position information. The viewer registers a listener to receive
- * position updates from the underlying scannable. 
+ * position updates from the underlying scannable.
  * </p>
  * <p>
  * This class is  not intended to be subclassed outside the viewer framework.
  * </p>
  */
 public class MotorPositionViewer {
-	private static final Logger logger = LoggerFactory.getLogger(MotorPositionViewer.class);	
-	
+	private static final Logger logger = LoggerFactory.getLogger(MotorPositionViewer.class);
+
 	private IPositionSource<Double> motor;
 
 	private DemandBox motorBox;
@@ -70,7 +70,7 @@ public class MotorPositionViewer {
 
 	private Scannable scannable;
 	private double demandPrev;
-	
+
 	private String commandFormat;
 
 	private MotorPositionDemandChangedCallback callback;
@@ -78,18 +78,18 @@ public class MotorPositionViewer {
 	private Job motorPositionJob;
 
 	private boolean restoreValueWhenFocusLost;
-	
+
 	private IPositionVerifierDialogCreator newPositionDialog;
 
 	private Object labelLayoutData;
 
 	private EventListenersDelegate valueEventDelegate;
-	
+
 
 	public MotorPositionViewer(Composite parent, Scannable scannable){
 		this(parent, scannable, null, false, null);
 	}
-	
+
 	public MotorPositionViewer(Composite parent, Scannable scannable, String label){
 		this(parent, scannable, label, false, null);
 	}
@@ -97,7 +97,7 @@ public class MotorPositionViewer {
 	public MotorPositionViewer(Composite parent, Scannable scannable, String label, boolean hideLabel){
 		this(parent, scannable, label, hideLabel, null);
 	}
-	
+
 	public MotorPositionViewer(Composite parent, Scannable scannable, String label, boolean hideLabel, Object labelLayoutData){
 		this.scannable = scannable;
 		this.labelLayoutData = labelLayoutData;
@@ -115,47 +115,47 @@ public class MotorPositionViewer {
 		motor = positionSource;
 		this.parent = parent;
 		createControls(parent);
-		
+
 		valueEventDelegate = new EventListenersDelegate();
 		motorBox.addValueListener(new ValueAdapter() {
-			
+
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				valueEventDelegate.notifyValueListeners(e);
 			}
 		});
 	}
-	
+
 	/**
 	 * @see EventListenersDelegate#addValueListener(ValueListener)
 	 */
 	public void addValueListener(final ValueListener l) {
 		valueEventDelegate.addValueListener(l);
 	}
-	
+
 	/**
 	 * @see EventListenersDelegate#removeValueListener(ValueListener)
 	 */
 	public void removeValueListener(final ValueListener l) {
 		valueEventDelegate.removeValueListener(l);
 	}
-	
+
 	public void setCommandFormat(String commandFormat) {
 		this.commandFormat = commandFormat;
 	}
-	
+
 	public void setCallback(MotorPositionDemandChangedCallback callback) {
 		this.callback = callback;
 	}
-	
+
 	private void setDemandPrev() {
 		try {
 			demandPrev = motor.getPosition();
 		} catch (DeviceException e1) {
 			logger.error("Error setting current value of demandBox", e1);
-		}		
+		}
 	}
-		
+
 	private void createControls(Composite comp){
 		createReadbacksGroup(comp);
 		motorBox.setUnit(motor.getDescriptor().getUnit());
@@ -167,10 +167,10 @@ public class MotorPositionViewer {
 		}
 		setDemandPrev();
 
-		motorBox.addValueListener(new ValueAdapter("MotorPositionviewer") {			
-			
+		motorBox.addValueListener(new ValueAdapter("MotorPositionviewer") {
+
 			@Override
-			public void valueChangePerformed(ValueEvent e) {	
+			public void valueChangePerformed(ValueEvent e) {
 				final double demand = motorBox.getNumericValue();
 				setDemandPrev();
 				if(Double.isNaN(demand))
@@ -193,14 +193,14 @@ public class MotorPositionViewer {
 					motorBox.setValue(demandPrev);
 					return;
 				}
-				
+
 				if (newPositionDialog != null) {
 					Shell shell = Display.getCurrent().getActiveShell();
 					if (!newPositionDialog.userAccepts(shell, demandPrev, demand)) {
 						return;
 					}
 				}
-				
+
 				if (demand != demandPrev){
 					motorBox.demandBegin(demandPrev);
 					final String msg = "Moving " + motor.getDescriptor().getLabelText() + " to " + demand;
@@ -219,23 +219,23 @@ public class MotorPositionViewer {
 								if (callback != null) {
 									callback.call(demand);
 								}
-								
+
 								else if (commandFormat == null) {
 									motor.setPosition(demand);
 								}
-								
+
 								else {
 									final String commandToRun = String.format(commandFormat, demand);
 									InterfaceProvider.getCommandRunner().evaluateCommand(commandToRun);
 								}
-								
+
 								demandPrev = demand;
 							} catch (DeviceException e) {
 								logger.error("Exception: " + msg + " " + e.getMessage(),e);
 							}
 							refresh();
-							return Status.OK_STATUS; 
-						}			
+							return Status.OK_STATUS;
+						}
 					};
 					job.setUser(true);
 					job.schedule();
@@ -243,24 +243,24 @@ public class MotorPositionViewer {
 			}
 		});
 		motorBox.on();
-		
+
 		final IObserver iObserver = new IObserver() {
 			@Override
 			public void update(final Object source, Object arg) {
 				refresh();
 			}
 		};
-		
-		scannable.addIObserver(iObserver);	
-		motorBox.addDisposeListener(new DisposeListener() {		
+
+		scannable.addIObserver(iObserver);
+		motorBox.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				scannable.deleteIObserver(iObserver);
 				motorPositionJob.cancel();
 			}
 		});
-		
-		
+
+
 		motorPositionJob = new Job("Motor Position " + motor.getDescriptor().getLabelText()) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -292,17 +292,17 @@ public class MotorPositionViewer {
 		};
 		refresh();//get initial values
 	}
-	
+
 
 	public void refresh() {
 		motorPositionJob.cancel();
 		motorPositionJob.schedule();
 	}
-	
+
 	public void setFocus() {
 		if (motorBox != null) motorBox.setFocus();
 	}
-	
+
 	private void createReadbacksGroup(Composite readBacksGroup) {
 		if (!motor.getDescriptor().getHideLabel()) {
 			Label label = new Label(readBacksGroup, SWT.NONE);
@@ -312,12 +312,12 @@ public class MotorPositionViewer {
 		motorBox = new DemandBox(readBacksGroup, SWT.NONE, 60);
 		GridDataFactory.swtDefaults().hint(120, SWT.DEFAULT).applyTo(motorBox);
 	}
-	
+
 	@Override
 	public String toString() {
 		return "MotorPositionViewer for " + scannable.getName();
 	}
-	
+
 	/**
 	 * Return the underlying demandBox for this viewer
 	 * @return DemandBox for this viewer
@@ -325,12 +325,12 @@ public class MotorPositionViewer {
 	public DemandBox getDemandBox(){
 		return motorBox;
 	}
-	
+
 	public void setDecimalPlaces(int dp) {
 		motorBox.setDecimalPlaces(dp);
 		motorBox.setValue(demandPrev);
 	}
-	
+
 	public void setEnabled(boolean enabled) {
 		if (motorBox != null) motorBox.setEnabled(enabled);
 	}
@@ -347,11 +347,11 @@ public class MotorPositionViewer {
 	public void setNewPositionDialog(IPositionVerifierDialogCreator newPositionDialog) {
 		this.newPositionDialog = newPositionDialog;
 	}
-	
+
 	public void setPermanentlyEnabled(boolean enabled) {
 		motorBox.setPermanentlyEnabled(enabled);
 	}
-	
+
 	public void setEditable(boolean editable) {
 		motorBox.setEditable(editable);
 	}

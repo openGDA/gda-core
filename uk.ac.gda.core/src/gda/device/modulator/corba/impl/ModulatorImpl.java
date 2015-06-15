@@ -44,7 +44,7 @@ public class ModulatorImpl extends CorbaModulatorPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param modulator
 	 *            the Modulator implementation object
 	 * @param poa
@@ -58,7 +58,7 @@ public class ModulatorImpl extends CorbaModulatorPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Modulator implementation object
 	 */
 	public Modulator _delegate() {
@@ -67,7 +67,7 @@ public class ModulatorImpl extends CorbaModulatorPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param modulator
 	 *            set the Modulator implementation object
 	 */
@@ -171,7 +171,7 @@ public class ModulatorImpl extends CorbaModulatorPOA {
 	public void close() throws CorbaDeviceException {
 		deviceImpl.close();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();

@@ -70,7 +70,7 @@ public class ColumnDataFile implements Findable, Configurable {
 
 	/**
 	 * Returns the (data) filename
-	 * 
+	 *
 	 * @return the filename
 	 */
 	public String getFilename() {
@@ -79,7 +79,7 @@ public class ColumnDataFile implements Findable, Configurable {
 
 	/**
 	 * Returns the name of this instance
-	 * 
+	 *
 	 * @return the name.
 	 */
 	@Override
@@ -98,7 +98,7 @@ public class ColumnDataFile implements Findable, Configurable {
 
 	/**
 	 * Sets the filename
-	 * 
+	 *
 	 * @param filename
 	 *            the filename
 	 */
@@ -108,7 +108,7 @@ public class ColumnDataFile implements Findable, Configurable {
 
 	/**
 	 * Sets the filename
-	 * 
+	 *
 	 * @param filename
 	 *            the filename
 	 * @param filenameIsFull
@@ -221,7 +221,7 @@ public class ColumnDataFile implements Findable, Configurable {
 
 	/**
 	 * Converts an array of doubles into a string. Exists mainly for debugging.
-	 * 
+	 *
 	 * @param values
 	 *            the array of doubles
 	 * @return a string containing the doubles separated by commas.
@@ -236,7 +236,7 @@ public class ColumnDataFile implements Findable, Configurable {
 
 	/**
 	 * Returns a particular column of data
-	 * 
+	 *
 	 * @param which
 	 * @return a double array of the values in the column
 	 */
@@ -246,7 +246,7 @@ public class ColumnDataFile implements Findable, Configurable {
 
 	/**
 	 * Returns the units a particular column claims to be in
-	 * 
+	 *
 	 * @param which
 	 * @return the Unit
 	 */
@@ -256,7 +256,7 @@ public class ColumnDataFile implements Findable, Configurable {
 
 	/**
 	 * Returns the number of decimal places originally specified for a column
-	 * 
+	 *
 	 * @param which
 	 * @return the numberOfDecimalPlaces
 	 */
@@ -266,7 +266,7 @@ public class ColumnDataFile implements Findable, Configurable {
 
 	/**
 	 * Takes a string of comma, space or tab separated values and parses it into an array of doubles
-	 * 
+	 *
 	 * @param string
 	 *            the input string
 	 * @return an array of doubles found in the string
@@ -288,7 +288,7 @@ public class ColumnDataFile implements Findable, Configurable {
 
 	/**
 	 * Returns the number of x values. Since this is columnar data this will be the number of ROWS in the file
-	 * 
+	 *
 	 * @return the number of x values
 	 */
 	public int getNumberOfXValues() {

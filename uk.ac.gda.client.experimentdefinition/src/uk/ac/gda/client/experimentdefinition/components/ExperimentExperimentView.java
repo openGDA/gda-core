@@ -71,9 +71,9 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.util.io.FileUtils;
 
 /**
- * View which shows a tree of the experiments in the project. 
+ * View which shows a tree of the experiments in the project.
  * <p>
- * Selection on parts of the tree changes which editors are opened. 
+ * Selection on parts of the tree changes which editors are opened.
  */
 public class ExperimentExperimentView extends ViewPart implements ExperimentObjectListener {
 
@@ -266,7 +266,7 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 					} else if (itemData instanceof IFolder){
 						targetMultiScan = ExperimentFactory.getRunManagers((IFolder) itemData).get(0).getExperimentList().get(0);
 					}
-					
+
 					moveExperiment(scanToBeMoved, pt, bounds, targetMultiScan, items, index);
 				} catch (Exception e) {
 					logger.warn("Exception while trying to move IExperimentObject:" + e.getMessage());
@@ -376,7 +376,7 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 	/**
 	 * Rather complex method. Need to extract this functionality to a generic common class to make making views for
 	 * controlling editors easy.
-	 * 
+	 *
 	 * @param treeViewer
 	 */
 	private void addSelectionListener(final TreeViewer treeViewer) {
@@ -396,7 +396,7 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 
 		};
 		treeViewer.addSelectionChangedListener(selectionChangedListener);
-		
+
 		this.selectionMouseListener = new MouseListener() {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
@@ -415,7 +415,7 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 			public void mouseUp(MouseEvent e) {
 			}
 		};
-		treeViewer.getTree().addMouseListener(this.selectionMouseListener);	
+		treeViewer.getTree().addMouseListener(this.selectionMouseListener);
 	}
 
 	private void updateSelected(ISelection sel, boolean openEditors) {
@@ -538,11 +538,11 @@ public class ExperimentExperimentView extends ViewPart implements ExperimentObje
 		}
 		return null;
 	}
-	
+
 	public void collapseAllTree() {
 		treeViewer.collapseAll();
 	}
-	
+
 	public void expandAllTree() {
 		treeViewer.expandAll();
 	}

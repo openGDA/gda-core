@@ -37,10 +37,10 @@ public class TestQBPM {
 
 	/**
 	 * The main method.
-	 * 
+	 *
 	 * @param args
 	 *            the args
-	 * @throws FactoryException 
+	 * @throws FactoryException
 	 */
 	public static void main(String[] args) throws FactoryException {
 		double x, y;

@@ -26,5 +26,5 @@ public class MultiScanItem {
 		this.scan = scan;
 		this.prescan = prescan;
 	}
-	
+
 }

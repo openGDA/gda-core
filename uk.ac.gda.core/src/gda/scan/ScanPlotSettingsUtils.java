@@ -30,7 +30,7 @@ public abstract class ScanPlotSettingsUtils {
 	/**
 	 * Returns a ScanPlotSettings objects. If any of XaxisIndex, YAxesShownIndices or YAxesNotShownIndices are Null, the
 	 * corresponding value in the resulting ScanPlotSettings will also be null.
-	 * 
+	 *
 	 * @param fieldsToChange
 	 *            Input fields (only) of scannables to be scanned over
 	 * @param fields
@@ -129,7 +129,7 @@ public abstract class ScanPlotSettingsUtils {
 	/**
 	 * Method to set the xaxis Name and y axis names 2 mode - 1. Based on order they type them 2. Based on order
 	 * executed
-	 * 
+	 *
 	 * @param allScannables
 	 * @param allDetectors
 	 * @param numberOfChildScans
@@ -157,7 +157,7 @@ public abstract class ScanPlotSettingsUtils {
 	/**
 	 * Method to set the xaxis Name and y axis names 2 mode - 1. Based on order they type them 2. Based on order
 	 * executed
-	 * 
+	 *
 	 * @param userListedScannablesToScan
 	 * @param userListedScannablesToRead
 	 * @param numberOfChildScans

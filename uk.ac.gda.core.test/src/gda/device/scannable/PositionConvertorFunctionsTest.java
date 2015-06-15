@@ -66,13 +66,13 @@ public class PositionConvertorFunctionsTest {
 		Double[] array = new Double[] { 1., 2., null} ;
 		ArrayAssert.assertEquals(array, PositionConvertorFunctions.toObjectArray(array));
 	}
-	
+
 	@Test
 	public void testToObjectArrayWithString() {
 		ArrayAssert.assertEquals(new Object[] {"string"}, PositionConvertorFunctions.toObjectArray("string"));
 		ArrayAssert.assertEquals(new Object[] {new String("string")}, PositionConvertorFunctions.toObjectArray(new String("string")));
 	}
-	
+
 	@Test
 	public void testToObjectArrayWithPySequences() {
 		PyObject[] array = new PyObject[] { new PyInteger(1), new PyFloat(2.), new PyString("abc") };
@@ -84,7 +84,7 @@ public class PositionConvertorFunctionsTest {
 		double[] array = new double[] { 1., 2.} ;
 		ArrayAssert.assertEquals(new Double[] {1., 2.}, PositionConvertorFunctions.toObjectArray(array));
 	}
-	
+
 	@Test
 	public void testToObjectArrayWithArrayTypeCollections() {
 		List<Object> list = new ArrayList<Object>();
@@ -96,8 +96,8 @@ public class PositionConvertorFunctionsTest {
 		assertEquals(2, objectArray[1]);
 		assertEquals("abc", objectArray[2]);
 	}
-	
-	
+
+
 	@Test
 	public void testToObject() {
 		assertEquals(1, PositionConvertorFunctions.toObject(new Object[] { 1 }));
@@ -110,18 +110,18 @@ public class PositionConvertorFunctionsTest {
 	public void testToDoubleArray() {
 		ArrayAssert.assertEquals(new Double[] { 1., 2., null },
 				PositionConvertorFunctions.toDoubleArray(new Object[] { 1., 2, null }));
-		ArrayAssert.assertEquals(new Double[] { 1., 2., 3. }, 
+		ArrayAssert.assertEquals(new Double[] { 1., 2., 3. },
 				PositionConvertorFunctions.toDoubleArray(new Object[] {"1", "2.", "3.00" }));
-		ArrayAssert.assertEquals(new Double[] { 1., 2.}, 
+		ArrayAssert.assertEquals(new Double[] { 1., 2.},
 				PositionConvertorFunctions.toDoubleArray(new Object[] {new PyInteger(1), new PyFloat(2.)}));
 	}
 
 	@Test
 	public void testToDoubleArrayWithPyStrings() {
-		ArrayAssert.assertEquals(new Double[] { 1.}, 
+		ArrayAssert.assertEquals(new Double[] { 1.},
 				PositionConvertorFunctions.toDoubleArray(new Object[] { new PyString("1.") }));
 	}
-	
+
 	// Test all with nulls
 	@Test
 	public void testToDoubleArrayWithNull() {
@@ -133,7 +133,7 @@ public class PositionConvertorFunctionsTest {
 		assertEquals(null, PositionConvertorFunctions.toObject(nullObjectArray) );
 		ArrayAssert.assertEquals(null, PositionConvertorFunctions.toObjectArray(nullObject) );
 	}
-	
+
 	@Test
 	public void testToDoubleWithVariousJava() {
 		assertEquals(new Double(1.), PositionConvertorFunctions.toDouble(1.));
@@ -141,7 +141,7 @@ public class PositionConvertorFunctionsTest {
 		assertEquals(new Double(1.), PositionConvertorFunctions.toDouble(1));
 		assertEquals(new Double(1.), PositionConvertorFunctions.toDouble(new Integer(1)));
 	}
-	
+
 	@Test
 	public void testToDoubleWithVariousPyObject() {
 		assertEquals(new Double(1.), PositionConvertorFunctions.toDouble(1.));
@@ -149,42 +149,42 @@ public class PositionConvertorFunctionsTest {
 		assertEquals(new Double(1.), PositionConvertorFunctions.toDouble(1));
 		assertEquals(new Double(1.), PositionConvertorFunctions.toDouble(new PyInteger(1)));
 	}
-	
+
 	@Test
 	public void testToQuantityWithQuantities() {
-		assertEquals(Quantity.valueOf(1., MILLI(METER)), 
+		assertEquals(Quantity.valueOf(1., MILLI(METER)),
 				PositionConvertorFunctions.toQuantity(Quantity.valueOf(1., MILLI(METER)), MILLI(METER)));
-		assertEquals(Quantity.valueOf(1., METER), 
+		assertEquals(Quantity.valueOf(1., METER),
 				PositionConvertorFunctions.toQuantity(Quantity.valueOf(1000., MILLI(METER)), METER));
-		assertEquals(Quantity.valueOf(1., METER), 
+		assertEquals(Quantity.valueOf(1., METER),
 				PositionConvertorFunctions.toQuantity(Quantity.valueOf(1., Unit.ONE), METER));
 	}
-	
+
 	@Test
 	public void testToQuantityWithStrings() {
-		assertEquals(Quantity.valueOf(1., MILLI(METER)), 
+		assertEquals(Quantity.valueOf(1., MILLI(METER)),
 				PositionConvertorFunctions.toQuantity("1 mm", MILLI(METER)));
-		assertEquals(Quantity.valueOf(1., METER), 
+		assertEquals(Quantity.valueOf(1., METER),
 				PositionConvertorFunctions.toQuantity("1 m", METER));
-		assertEquals(Quantity.valueOf(1., METER), 
+		assertEquals(Quantity.valueOf(1., METER),
 				PositionConvertorFunctions.toQuantity("1", METER));
 	}
-	
+
 	@Test(expected = IllegalArgumentException.class)
 	public void testToQuantityWithStringsUnParsableString() {
 		PositionConvertorFunctions.toQuantity("closed", METER );
 	}
-	
+
 	@Test
 	public void testToQuantityWithPyStrings() {
-		assertEquals(Quantity.valueOf(1., MILLI(METER)), 
+		assertEquals(Quantity.valueOf(1., MILLI(METER)),
 				PositionConvertorFunctions.toQuantity(new PyString("1 mm"), MILLI(METER)));
-		assertEquals(Quantity.valueOf(1., METER), 
+		assertEquals(Quantity.valueOf(1., METER),
 				PositionConvertorFunctions.toQuantity(new PyString("1 m"), METER));
-		assertEquals(Quantity.valueOf(1., METER), 
+		assertEquals(Quantity.valueOf(1., METER),
 				PositionConvertorFunctions.toQuantity(new PyString("1"), METER));
 	}
-	
+
 	@Test
 	public void testToQuantityArray() {
 		Quantity[] expected = new Quantity[]{Quantity.valueOf(1., METER), Quantity.valueOf(1., METER), null};
@@ -192,13 +192,13 @@ public class PositionConvertorFunctionsTest {
 				new Quantity[]{Quantity.valueOf(1., METER), Quantity.valueOf(1000., MILLI(METER)), null}, METER);
 		ArrayAssert.assertEquals(expected, actual);
 	}
-	
+
 	@Test
 	public void testToAmmountArray() {
 		Double[] actual = PositionConvertorFunctions.toAmountArray(
 				new Quantity[]{Quantity.valueOf(1., METER), Quantity.valueOf(1000., MILLI(METER)), null});
 		ArrayAssert.assertEquals(new Double[]{1., 1000., null}, actual);
 	}
-	
+
 }
 

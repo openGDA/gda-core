@@ -39,7 +39,7 @@ public class ScanLine {
 		this.xAxisHeader = xAxisHeader;
 		this.marker = marker != null ? marker : Marker.CROSS;
 	}
-	
+
 	public ScanLine copy(){
 		return new ScanLine(name, visible, id, line, lineColor, marker, xAxisHeader);
 	}

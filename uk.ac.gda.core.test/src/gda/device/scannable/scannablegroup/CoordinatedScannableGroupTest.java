@@ -68,7 +68,7 @@ public class CoordinatedScannableGroupTest {
 		c = (ICoordinatedChildScannable) (group.getGroupMembers().get(2));
 		validator1 = mock(PositionValidator.class);
 		validator2 = mock(PositionValidator.class);
-		
+
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class CoordinatedScannableGroupTest {
 		wrapped = group.wrapScannable(rawa);
 		assertEquals(rawa, ((ICoordinatedScannableGroupChildScannable) wrapped).getPhysicalScannable());
 	}
-	
+
 
 	@Test
 	public void testSetGroupMembers() {
@@ -102,7 +102,7 @@ public class CoordinatedScannableGroupTest {
 
 	@Test
 	public void testStartMove() throws DeviceException {
-		
+
 		doNothing().when(group).asynchronousMoveTo(anyObject());
 		group.addChildToMove(a);
 		group.addChildToMove(b);
@@ -143,9 +143,9 @@ public class CoordinatedScannableGroupTest {
 		when(rawb.isBusy()).thenReturn(true);
 		when(rawc.isBusy()).thenReturn(false);
 		assertTrue(group.isBusy());
-		
+
 	}
-	
+
 	@Test
 	public void testCheckPositionOkay() throws DeviceException {
 		assertEquals(null, group.checkPositionValid(new Double[] {1., 2., 3.}));
@@ -153,7 +153,7 @@ public class CoordinatedScannableGroupTest {
 		verify(rawb).checkPositionValid(new Double[] {2.});
 		verify(rawc).checkPositionValid(new Double[] {3.});
 	}
-	
+
 	@Test
 	public void testCheckPositionFailForFailingMember() throws DeviceException {
 		when(rawc.checkPositionValid(any())).thenReturn("c position is bad");
@@ -177,13 +177,13 @@ public class CoordinatedScannableGroupTest {
 		verify(validator1).checkInternalPosition(new Double[] {1., 12.5, 3.});
 		verify(validator2).checkInternalPosition(new Double[] {1., 12.5, 3.});
 	}
-	
+
 	@Test
 	public void testCheckPositionWithAdditionalValidatorsFailForFailingValidator() throws DeviceException {
 		testCheckPositionWithAdditionalValidatorOkay(); //for setup
 		when(validator2.checkInternalPosition(new Double[] {1., 12.5, 3.})).thenReturn("validator2 problem");
 		assertEquals("validator2 problem", group.checkPositionValid(new Double[] {1., null, 3.}));
-	
+
 	}
 
 	private void configureWithmocksOfScannableBase() throws DeviceException {
@@ -193,9 +193,9 @@ public class CoordinatedScannableGroupTest {
 		group = new CoordinatedScannableGroup();
 		group.setGroupMembers(new Scannable[] { rawa, rawb, rawc });
 	}
-	
-	
-	
-	
+
+
+
+
 
 }

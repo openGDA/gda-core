@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * Base class for object factories.
  */
 public abstract class FactoryBase implements Factory {
-	
+
 	/**
 	 * Property to control if exceptions are allowed in configure method of devices- useful for testing. Values are True or False[Default]
 	 */
@@ -40,10 +40,10 @@ public abstract class FactoryBase implements Factory {
 	private static final Logger logger = LoggerFactory.getLogger(FactoryBase.class);
 
 	boolean allowExceptionInConfigure=LocalProperties.check(GDA_FACTORY_ALLOW_EXCEPTION_IN_CONFIGURE);
-	
+
 	/**
 	 * Configures this factory.
-	 * 
+	 *
 	 * @throws FactoryException if an object cannot be configured
 	 */
 	@Override
@@ -82,5 +82,5 @@ public abstract class FactoryBase implements Factory {
 	public void setAllowExceptionInConfigure(boolean allowExceptionInConfigure) {
 		this.allowExceptionInConfigure = allowExceptionInConfigure;
 	}
-	
+
 }

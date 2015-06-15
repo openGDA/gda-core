@@ -53,7 +53,7 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup 
 		}
 		super.setGroupMembers(groupMembers);
 	}
-	
+
 	public ArrayList<ScannableMotor> getScannableMotors() {
 		ArrayList<ScannableMotor> members = new ArrayList<ScannableMotor>();
 		for (Scannable wrappedScannable : getGroupMembers()) {
@@ -62,7 +62,7 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup 
 		}
 		return members;
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		assertGroupMembersAllHaveOnlyOneInputField();
@@ -141,7 +141,7 @@ public class DeferredAndTrajectoryScannableGroup extends DeferredScannableGroup 
 		}
 		return posForUnderlyingMotors;
 	}
-	
+
 	public Double[] positionForUnderlyingMotorsToScannable(Double[] posForUnderlyingMotors) {
 		Double[] posForScannableMotors = new Double[posForUnderlyingMotors.length];
 		ArrayList<ScannableMotor> scannableMotors = getScannableMotors();

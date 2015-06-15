@@ -39,7 +39,7 @@ public class FilterarrayAdapter extends DeviceAdapter implements FilterArray, Fi
 	private CorbaFilterArray corbaFilterArray;
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

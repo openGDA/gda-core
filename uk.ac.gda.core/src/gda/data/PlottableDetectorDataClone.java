@@ -21,7 +21,7 @@ package gda.data;
 
 /**
  * Simplifies a possibly richer detector return object into something that only holds
- * doubles for plotting and the String to print on the Terminal. This object will be 
+ * doubles for plotting and the String to print on the Terminal. This object will be
  * sent to the GUI client.
  */
 public class PlottableDetectorDataClone implements PlottableDetectorData {
@@ -31,10 +31,10 @@ public class PlottableDetectorDataClone implements PlottableDetectorData {
 
 	@SuppressWarnings("unused") // that's th whole idea
 	private PlottableDetectorDataClone() {}
-	
+
 	/**
 	 * build one from an existing
-	 * 
+	 *
 	 * @param pdd
 	 */
 	public PlottableDetectorDataClone(PlottableDetectorData pdd) {

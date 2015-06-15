@@ -42,7 +42,7 @@ public class JythonScriptProgressProvider implements IObservable {
 
 	/**
 	 * Updates observers, pauses if required and throws exception if stopped
-	 * 
+	 *
 	 * @param percentDone
 	 * @param msg
 	 * @throws InterruptedException
@@ -54,7 +54,7 @@ public class JythonScriptProgressProvider implements IObservable {
 
 	/**
 	 * Updates observers, pauses if required and throws exception if stopped
-	 * 
+	 *
 	 * @param percentDone
 	 * @param msg
 	 * @throws InterruptedException
@@ -66,7 +66,7 @@ public class JythonScriptProgressProvider implements IObservable {
 
 	/**
 	 * Updates observers, does not check for pauses if requested
-	 * 
+	 *
 	 * @param percentDone
 	 * @param msg
 	 * @param checkForPause
@@ -83,7 +83,7 @@ public class JythonScriptProgressProvider implements IObservable {
 
 	/**
 	 * Updates observers, does not check for pauses if requested
-	 * 
+	 *
 	 * @param percentDone
 	 * @param msg
 	 * @param checkForPause

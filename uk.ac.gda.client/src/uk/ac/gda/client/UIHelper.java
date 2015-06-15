@@ -131,7 +131,7 @@ public class UIHelper {
 		}
 		return "#" + redHexadecimal + greenHexadecimal + blueHexadecimal;
 	}
-	
+
 	public static String getRandomColor() {
 		Random rand = new Random();
 		float r = rand.nextFloat();

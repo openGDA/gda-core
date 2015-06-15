@@ -44,7 +44,7 @@ public class RobotImpl extends CorbaRobotPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param robot
 	 *            the Robot implementation object
 	 * @param poa
@@ -58,7 +58,7 @@ public class RobotImpl extends CorbaRobotPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Robot implementation object
 	 */
 	public Robot _delegate() {
@@ -67,7 +67,7 @@ public class RobotImpl extends CorbaRobotPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param robot
 	 *            set the Robot implementation object
 	 */
@@ -353,22 +353,22 @@ public class RobotImpl extends CorbaRobotPOA {
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		scannableImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
-	}	
-	
+	}
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return scannableImpl.toFormattedString();
 	}
-	
+
 	@Override
 	public void atLevelStart() throws CorbaDeviceException {
 		scannableImpl.atLevelStart();
 	}
-	
+
 	@Override
 	public void atLevelEnd() throws CorbaDeviceException {
 		scannableImpl.atLevelEnd();

@@ -38,9 +38,9 @@ import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
 
 /**
  * Save datasets in a Diamond specific raw format
- * 
+ *
  * All this is done in little-endian:
- * 
+ *
  * File format tag: 0x0D1A05C1 (4bytes - stands for Diamond Scisoft)
  * Dataset type: -1 for old dataset
  * Item size: (1byte - number of elements per data item)
@@ -65,7 +65,7 @@ public class RawBinarySaver implements IFileSaver {
 
 	/**
 	 * Takes the dataset from a scan file holder and save it as our own Diamond Scisoft format
-	 * 
+	 *
 	 * @param filename
 	 */
 	public RawBinarySaver(String filename) {
@@ -97,7 +97,7 @@ public class RawBinarySaver implements IFileSaver {
 			} catch (Exception e) {
 				throw new ScanFileHolderException("Error saving file '" + filename + "'", e);
 			}
-			
+
 			Dataset adata = DatasetUtils.convertToDataset(dh.getDataset(i));
 			DoubleDataset data = (DoubleDataset)adata.cast(Dataset.FLOAT64);
 			byte dtype = -1;

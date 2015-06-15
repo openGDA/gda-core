@@ -48,7 +48,7 @@ public class GdaSocketFactory extends javax.net.SocketFactory {
 
 	/**
 	 * Creates a socket and connects it to the specified remote host at the specified remote port.
-	 * 
+	 *
 	 * @param host
 	 *            The hostname.
 	 * @param port
@@ -64,7 +64,7 @@ public class GdaSocketFactory extends javax.net.SocketFactory {
 	/**
 	 * Creates a socket and connects it to the specified remote host on the specified remote port. The socket will also
 	 * be bound to the local address and port supplied.
-	 * 
+	 *
 	 * @param host
 	 *            The hostname.
 	 * @param port
@@ -85,7 +85,7 @@ public class GdaSocketFactory extends javax.net.SocketFactory {
 
 	/**
 	 * Creates a socket and connects it to the specified port number at the specified address.
-	 * 
+	 *
 	 * @param host
 	 *            The hostname.
 	 * @param port
@@ -117,7 +117,7 @@ public class GdaSocketFactory extends javax.net.SocketFactory {
 	/**
 	 * Creates a socket and connect it to the specified remote address on the specified remote port. The socket will
 	 * also be bound to the local address and port suplied.
-	 * 
+	 *
 	 * @param host
 	 *            The hostname.
 	 * @param port
@@ -139,7 +139,7 @@ public class GdaSocketFactory extends javax.net.SocketFactory {
 
 	/**
 	 * Bind the socket to local host and port.
-	 * 
+	 *
 	 * @param localHost
 	 * @param localPort
 	 */
@@ -156,7 +156,7 @@ public class GdaSocketFactory extends javax.net.SocketFactory {
 
 	/**
 	 * Private socket address factory method.
-	 * 
+	 *
 	 * @param host
 	 *            The host.
 	 * @param port

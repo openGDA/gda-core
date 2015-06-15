@@ -20,7 +20,6 @@ package gda.device.scannable.component;
 
 import gda.device.Scannable;
 import gda.device.scannable.PositionConvertorFunctions;
-import gda.device.scannable.component.LimitsComponent;
 
 /**
  * All setters, getters and messages work with external positions.
@@ -102,7 +101,7 @@ public class ScannableLimitsComponent implements LimitsComponent {
 							+ getHostScannable().getExtraNames().length, positionArray.length));
 		}
 	}
-	
+
 	@Override
 	public Double[] getInternalLower() {
 		return internalLowerLim;
@@ -134,13 +133,13 @@ public class ScannableLimitsComponent implements LimitsComponent {
 			setInternalUpper(new Double[length]);
 		this.internalUpperLim[index] = internalUpperLim;
 	}
-	
+
 	public void setInternalLower(Double internalLowerLim, int index, int length) {
 		if (this.internalLowerLim == null)
 			setInternalLower(new Double[length]);
 		this.internalLowerLim[index] = internalLowerLim;
 	}
-	
+
 	public void setHostScannable(Scannable hostScannable) {
 		this.hostScannable = hostScannable;
 	}

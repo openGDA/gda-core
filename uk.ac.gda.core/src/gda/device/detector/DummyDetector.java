@@ -31,16 +31,16 @@ public class DummyDetector extends DetectorBase implements Detector {
 	protected int[] dims/* = {100, 100}*/;
 	protected double[] data;
 	protected int status;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public DummyDetector(){
 	}
 
 	/**
 	 * With name and dimensions of output
-	 * 
+	 *
 	 * @param string
 	 * @param is
 	 */
@@ -56,7 +56,7 @@ public class DummyDetector extends DetectorBase implements Detector {
 
 	/**
 	 * Set the data dimensions for this dummy detector
-	 * 
+	 *
 	 * @param dims
 	 */
 	public void setDataDimensions(int[] dims) {

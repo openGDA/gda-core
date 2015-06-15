@@ -29,13 +29,14 @@ public class SimpleCommandProgress implements Serializable, CommandProgress {
 		this.percentDone = percentDone;
 		this.msg = msg;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param percentDone
 	 * @param msg
 	 * @deprecated use floats for percentDone
 	 */
+	@Deprecated
 	public SimpleCommandProgress(int percentDone, String msg) {
 		super();
 		this.percentDone = percentDone;
@@ -58,6 +59,7 @@ public class SimpleCommandProgress implements Serializable, CommandProgress {
 	 * @param percentDone The percentDone to set.
 	 * @deprecated use floats
 	 */
+	@Deprecated
 	public void setPercentDone(int percentDone) {
 		this.percentDone = percentDone;
 	}
@@ -87,5 +89,5 @@ public class SimpleCommandProgress implements Serializable, CommandProgress {
 	public String getName() {
 		// TODO Auto-generated method stub
 		return null;
-	}	
+	}
 }

@@ -22,11 +22,11 @@ package gda.scan;
 import gda.jython.InterfaceProvider;
 
 /**
- * 
+ *
  */
 public class TestScan extends ConcurrentScan {
 	/**
-	 * 
+	 *
 	 */
 	public TestScan() {
 		super();
@@ -34,7 +34,7 @@ public class TestScan extends ConcurrentScan {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param args
 	 *            Object[]
 	 * @throws IllegalArgumentException

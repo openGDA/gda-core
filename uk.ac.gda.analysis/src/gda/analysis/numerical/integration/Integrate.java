@@ -27,7 +27,7 @@ import gda.analysis.datastructure.DataVector;
 public class Integrate {
 	/**
 	 * Integrate using simpsons algorithm adapted for unequally spaced data
-	 * 
+	 *
 	 * @param x
 	 *            x data
 	 * @param y
@@ -40,7 +40,7 @@ public class Integrate {
 
 	/**
 	 * Integrate using simpsons algorithm adapted for unequally spaced data
-	 * 
+	 *
 	 * @param x
 	 *            x data
 	 * @param y
@@ -53,7 +53,7 @@ public class Integrate {
 
 	/**
 	 * Integrate using simpsons algorithm adapted for unequally spaced data
-	 * 
+	 *
 	 * @param y
 	 *            y data
 	 * @param h

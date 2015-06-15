@@ -36,33 +36,33 @@ import org.slf4j.LoggerFactory;
  * NavitarMotor Class
  */
 public class NavitarMotor extends MotorBase implements IObservable, Motor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(NavitarMotor.class);
-	
+
 	private enum CommandType {
 		/**
-		 * 
+		 *
 		 */
 		GET_STATUS, /**
-		 * 
+		 *
 		 */
 		GET_CURRENT, /**
-		 * 
+		 *
 		 */
 		SET_TARGET_ABSOLUTE, /**
-		 * 
+		 *
 		 */
 		SET_TARGET_INCREMENT, /**
-		 * 
+		 *
 		 */
 		SET_TARGET_LIMIT, /**
-		 * 
+		 *
 		 */
 		SET_MAX_VELOCITY, /**
-		 * 
+		 *
 		 */
 		GET_MAX_VELOCITY, /**
-		 * 
+		 *
 		 */
 		SET_CURRENT
 	}
@@ -71,13 +71,13 @@ public class NavitarMotor extends MotorBase implements IObservable, Motor {
 
 	private enum commandStatus {
 		/**
-		 * 
+		 *
 		 */
 		SUCCESS, /**
-		 * 
+		 *
 		 */
 		TIMEOUT, /**
-		 * 
+		 *
 		 */
 		CHECKSUM_ERROR
 	}
@@ -181,7 +181,7 @@ public class NavitarMotor extends MotorBase implements IObservable, Motor {
 	/**
 	 * The Navitar checksum is the seventh byte of the command. This checksum is calculated so that all seven bytes sum
 	 * to 0.
-	 * 
+	 *
 	 * @param command
 	 *            A string containing the string for which the checksum is to be calculated.
 	 * @return The calculated command checksum.

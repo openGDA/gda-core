@@ -18,18 +18,18 @@
 
 package gda.scan;
 
-import java.util.Vector;
-
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
-import gda.scan.ScanBase;
+
+import java.util.Vector;
+
 import junit.framework.TestCase;
 
 public class ScanBaseTest extends TestCase {
-	
+
 	public void testReorderScannables() {
-		
+
 		// create out-of-order list of Scannables
 		Vector<Scannable> scannables = new Vector<Scannable>();
 		scannables.add(new DummyScannable(5));
@@ -37,11 +37,11 @@ public class ScanBaseTest extends TestCase {
 		scannables.add(new DummyScannable(4));
 		scannables.add(new DummyScannable(1));
 		scannables.add(new DummyScannable(2));
-		
+
 		// create scan containing scannables
 		DummyScan scan = new DummyScan();
 		scan.setScannables(scannables);
-		
+
 		// reorder the scannables
 		scan.reorderScannables();
 
@@ -50,7 +50,7 @@ public class ScanBaseTest extends TestCase {
 			assertEquals(scan.getScannables().get(i).getLevel(), i+1);
 		}
 	}
-	
+
 	/**
 	 * A simple {@link Scannable} implementation for testing purposes.
 	 */
@@ -58,13 +58,13 @@ public class ScanBaseTest extends TestCase {
 
 		/**
 		 * Creates a {@link DummyScannable} with the specified level.
-		 * 
+		 *
 		 * @param level the level
 		 */
 		public DummyScannable(int level) {
 			setLevel(level);
 		}
-		
+
 		@Override
 		public void asynchronousMoveTo(Object position) throws DeviceException {
 			// do nothing
@@ -79,21 +79,21 @@ public class ScanBaseTest extends TestCase {
 		public boolean isBusy() throws DeviceException {
 			return false;
 		}
-		
+
 	}
-	
+
 	/**
 	 * A simple {@link Scan} implementation for testing purposes.
 	 */
 	static class DummyScan extends ScanBase {
-		
+
 		private static final long serialVersionUID = 1L;
 
 		@Override
 		public void doCollection() throws Exception {
 			// do nothing
 		}
-		
+
 	}
 
 }

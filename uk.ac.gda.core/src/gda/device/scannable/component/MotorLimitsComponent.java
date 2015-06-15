@@ -164,7 +164,7 @@ public class MotorLimitsComponent implements LimitsComponent {
 	 *            null will clear the limit
 	 * @param max
 	 *            null will clear the limit
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	private void setMotorLimits(Double min, Double max) throws DeviceException {
 		if (min == null) {

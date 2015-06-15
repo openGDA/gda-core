@@ -28,7 +28,7 @@ public class OVPerspective implements IPerspectiveFactory {
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
-		
+
 		IFolderLayout topRight = layout.createFolder("topRight", IPageLayout.TOP, (float)0.75, editorArea);
 		topRight.addView("gda.rcp.views.PeripheralView");
 

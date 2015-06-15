@@ -34,7 +34,7 @@ public class NXMultipleFileLinkWriter extends DataWriterExtenderBase{
 	private NXLinkCreator linkCreator;
 
 	private Vector<String> detectorHeader;
-	
+
 	public NXMultipleFileLinkWriter(NXLinkCreator linkCreator) {
 		super();
 		this.linkCreator = linkCreator;

@@ -39,9 +39,9 @@ import org.slf4j.LoggerFactory;
  * Allows you to pretend to be a serial device
  */
 public class DummySerialDevice extends SerialBase implements ActionListener, KeyListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DummySerialDevice.class);
-	
+
 	// private SerialPort serialPort;
 	// private OutputStream outputStream;
 	// private InputStream inputStream;
@@ -171,7 +171,7 @@ public class DummySerialDevice extends SerialBase implements ActionListener, Key
 
 	/**
 	 * Add EOL char to the end of the input buffer
-	 * 
+	 *
 	 * @param toBeAdded
 	 *            char
 	 */

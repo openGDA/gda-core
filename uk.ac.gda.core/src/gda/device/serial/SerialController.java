@@ -19,21 +19,21 @@
 
 package gda.device.serial;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Serial;
 import gda.factory.Finder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A Distributed Controller class for Serial devices
  */
 public class SerialController extends DeviceBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(SerialController.class);
-	
+
 	private StringReader reader;
 
 	private StringWriter writer;
@@ -249,7 +249,7 @@ public class SerialController extends DeviceBase {
 
 	/**
 	 * Send a command to the serial port
-	 * 
+	 *
 	 * @param command
 	 *            String serial device command
 	 * @throws DeviceException

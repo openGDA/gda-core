@@ -23,13 +23,14 @@ package gda.data.metadata;
  */
 public class DummyMetadataEntry extends MetadataEntry {
 	private String value;
-	
+
 
 	public String getValue() {
 		return value;
 	}
 
 
+	@Override
 	public void setValue(String value) {
 		this.value = value;
 	}

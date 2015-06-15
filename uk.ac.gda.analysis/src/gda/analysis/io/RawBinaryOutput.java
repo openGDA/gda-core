@@ -23,14 +23,14 @@ package gda.analysis.io;
  */
 @Deprecated
 public class RawBinaryOutput extends RawBinarySaver {
-	
+
 	/**
 	 * Takes the dataset from a scan file holder which is hopefully
-	 * array of doubles and output them as a width X height array 
+	 * array of doubles and output them as a width X height array
 	 * called 'filename'.raw to binary (Java byte order)
 	 * The out line of the file is first 4 bytes (int) number of dimensions
 	 * then length of each dimensions 4 bytes (int)
-	 * Data block as double (8 bytes)  
+	 * Data block as double (8 bytes)
 	 * <p>
 	 * <b>Deprecated</b> - use RawBinarySaver instead
 	 * @param filename

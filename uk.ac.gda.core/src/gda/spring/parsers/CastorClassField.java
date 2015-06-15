@@ -26,28 +26,28 @@ import org.exolab.castor.xml.XMLFieldDescriptor;
  * Holds the names of a field and the class in which it appears.
  */
 class CastorClassField {
-	
+
 	private String className;
-	
+
 	private String fieldName;
-	
+
 	public CastorClassField(Class<?> clazz, String fieldName) {
 		this.className = clazz.getName();
 		this.fieldName = fieldName;
 	}
-	
+
 	/**
 	 * Determines whether the given field matches this field.
-	 * 
+	 *
 	 * @param field a Castor field descriptor
-	 * 
+	 *
 	 * @return {@code true} if the Castor field descriptor matches this field
 	 */
 	public boolean matches(XMLFieldDescriptor field) {
 		XMLClassDescriptor classDesc = (XMLClassDescriptor) field.getContainingClassDescriptor();
 		return classDesc.getJavaClass().getName().equals(className) && field.getFieldName().equals(fieldName);
 	}
-	
+
 	@Override
 	public String toString() {
 		return className + "." + fieldName;

@@ -37,7 +37,7 @@ public class GroupCompositeFactory implements CompositeFactory {
 
 	String label;
 	private boolean controlledByBaton = false;
-	
+
 	public boolean isControlledByBaton() {
 		return controlledByBaton;
 	}
@@ -55,7 +55,7 @@ public class GroupCompositeFactory implements CompositeFactory {
 	}
 
 	Integer columns = 1;
-	
+
 	public Integer getColumns() {
 		return columns;
 	}
@@ -65,7 +65,7 @@ public class GroupCompositeFactory implements CompositeFactory {
 	}
 
 	List<CompositeFactory> compositeFactories= null;
-	
+
 	public List<CompositeFactory> getCompositeFactories() {
 		return compositeFactories;
 	}
@@ -73,7 +73,7 @@ public class GroupCompositeFactory implements CompositeFactory {
 	public void setCompositeFactories(List<CompositeFactory> compositeFactories) {
 		this.compositeFactories = compositeFactories;
 	}
-	
+
 	@Override
 	public Composite createComposite(Composite parent, int style) {
 		Composite cmp;
@@ -82,20 +82,20 @@ public class GroupCompositeFactory implements CompositeFactory {
 			grp.setText(label);
 			cmp = grp;
 			GridLayoutFactory.swtDefaults().applyTo(cmp);
-			GridDataFactory.swtDefaults().applyTo(cmp);		
+			GridDataFactory.swtDefaults().applyTo(cmp);
 		} else {
 			cmp = new Composite(parent, SWT.NONE);
 			GridLayoutFactory.fillDefaults().applyTo(cmp);
-			GridDataFactory.fillDefaults().applyTo(cmp);		
+			GridDataFactory.fillDefaults().applyTo(cmp);
 		}
-		
+
 		int columnIndex=0;
 		Composite currentComp=null;
 		for(CompositeFactory compositeFactory : compositeFactories){
 			if(currentComp == null){
 				currentComp = new Composite(cmp, SWT.NONE);
 				GridLayoutFactory.fillDefaults().numColumns(columns).applyTo(currentComp);
-				GridDataFactory.fillDefaults().applyTo(currentComp);		
+				GridDataFactory.fillDefaults().applyTo(currentComp);
 			}
 			compositeFactory.createComposite(currentComp, SWT.NONE);
 			columnIndex++;
@@ -104,30 +104,30 @@ public class GroupCompositeFactory implements CompositeFactory {
 				currentComp = null;
 			}
 		}
-		
+
 		if (controlledByBaton)
 			setBatonControl(cmp);
 
 		return cmp;
 	}
-	
+
 	private void setBatonControl(final Composite comp) {
 		InterfaceProvider.getBatonStateProvider().addBatonChangedObserver(new IObserver() {
-			
+
 			@Override
 			public void update(Object observed, Object changeCode) {
 				if (changeCode instanceof BatonChanged) {
 					Display.getDefault().asyncExec(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							boolean batonHeld = InterfaceProvider.getBatonStateProvider().amIBatonHolder();
 							comp.setEnabled(batonHeld);
 						}
 					});
-					
+
 				}
 			}
-		});	
+		});
 	}
 }

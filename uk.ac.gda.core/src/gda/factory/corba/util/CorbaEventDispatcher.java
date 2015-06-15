@@ -58,19 +58,19 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 	private boolean batchMode;
 
 	private ExecutorCompletionService<Void> execCompletionService;
-	
+
 	private Object lock = new Object();
-	
+
 	private Map<String, EventCollection> sourceEventsMap;
-	
+
 	private boolean killed = false;
-	
+
 	private Thread thread = null;
 
 	private int eventsPublishedWithinTime = 0;
-	
+
 	private Object previousEvent;
-	
+
 	public CorbaEventDispatcher(EventChannel eventChannel, ORB orb, boolean batchMode) {
 		this.batchMode = batchMode;
 
@@ -79,7 +79,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 			threadPoolSize = LocalProperties.getAsInt("gda.factory.corba.util.CorbaEventDispatcher.threadPoolSize", 5);
 			execCompletionService = new ExecutorCompletionService<Void>(Executors.newFixedThreadPool(threadPoolSize));
 		}
-		
+
 		supplierAdmin = eventChannel.for_suppliers();
 		consumer = supplierAdmin.obtain_push_consumer();
 		try {
@@ -111,7 +111,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 								eventList.set(eventList.size()-1, message);
 								added =true;
 							}
-						} 
+						}
 						if(!added)
 							eventList.add(message);
 					}
@@ -190,19 +190,19 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 	}
 
 	private static Optional<OutgoingTimedStructuredEvent> makeTimedStructuredEvent(String sourceName, Object message) {
-		
+
 		final byte[] byteData = Serializer.toByte(message);
 		if (byteData == null) {
 			logger.error("Error dispatch event:" + sourceName + " serializer returned null");
 			return Optional.absent();
 		}
-		
+
 		final String argClass = (message == null) ? "null" : message.getClass().toString();
 		final String id = NameFilter.MakeEventChannelName(sourceName);
 		final EventHeader eventHeader = new EventHeader(argClass, id);
-		
+
 		final StructuredEvent event = new StructuredEvent(eventHeader, byteData);
-		
+
 		final long timeReceived = logger.isDebugEnabled() ? System.currentTimeMillis() : 0;
 		final OutgoingTimedStructuredEvent timeEvent = new OutgoingTimedStructuredEvent(event, timeReceived);
 		return Optional.of(timeEvent);
@@ -232,7 +232,7 @@ public class CorbaEventDispatcher extends PushSupplierPOA implements EventDispat
 				if (logger.isDebugEnabled()) {
 					long timeAfterPublish = System.currentTimeMillis();
 					long timeToPublish = timeAfterPublish - timeOfDispatch;
-					if (timeToPublish >= 500) { 
+					if (timeToPublish >= 500) {
 						logger.debug(String.format("[%s] Event took %dms to publish %s. ", Thread.currentThread()
 								.getName(), timeToPublish, timeEvent.toString()));
 					}

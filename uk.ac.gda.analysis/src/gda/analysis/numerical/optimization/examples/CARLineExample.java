@@ -30,7 +30,7 @@ public class CARLineExample extends AbstractFunction {
 	// | | |
 	//
 	// I don't understand this functions
-	//  
+	//
 	// s/4p*b/4 is the same as c/16 where c = sb/p
 	//
 	// you can't fit s,p and b because you can have
@@ -46,7 +46,7 @@ public class CARLineExample extends AbstractFunction {
 	 * Initialise the Angular distribution function. To set up the function you can specify with no parameters e.g.
 	 * CARLineExample = new CARLineExample() will set up a function with some default values (1.0) or e.g.
 	 * CARLineExample = new CARLineExample(1.0,1.0) to set the initial values
-	 * 
+	 *
 	 * @param parms
 	 *            The parameters
 	 */
@@ -85,7 +85,7 @@ public class CARLineExample extends AbstractFunction {
 
 	/**
 	 * {@inheritDoc} This calculates I(q) assuming q is in radians
-	 * 
+	 *
 	 * @see gda.analysis.numerical.linefunction.AbstractFunction#val(double[])
 	 */
 	@Override

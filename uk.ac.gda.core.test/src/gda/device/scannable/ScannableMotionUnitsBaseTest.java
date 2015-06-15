@@ -41,7 +41,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 	static class TestableScannableMotionUnitsBase extends ScannableMotionUnitsBase implements Testable {
 
 		public ScannableBase delegate = mock(ScannableBase.class);
-		
+
 		@Override
 		public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 			delegate.rawAsynchronousMoveTo(position);
@@ -58,8 +58,8 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		}
 
 
-		
-		
+
+
 	}
 
 	private TestableScannableMotionUnitsBase scannable;
@@ -68,7 +68,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 	public ScannableBase getDelegate() {
 		return scannable.delegate;
 	}
-	
+
 	@Override
 	public ScannableBase getSB() {
 		return scannable;
@@ -82,12 +82,12 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 	public ScannableMotionUnits getSMU() {
 		return scannable;
 	}
-	
+
 	@Override
 	public ScannableMotionUnitsBase getSMB() {
 		return scannable;
 	}
-	
+
 	public ScannableMotionUnitsBase getSMUB() {
 		return scannable;
 	}
@@ -107,12 +107,12 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		assertEquals("", getSMU().getUserUnits());
 		super.testDefaultValues();
 	}
-	
+
 //	@Test (expected=DeviceException.class)
 //	public void testSetUserUnitsWhenNoHardwareUnitsExplitelySet() throws DeviceException {
 //		getSMU().setUserUnits("mm");
 //	}
-	
+
 	@Test
 	public void testSetUserUnitsWithWrongUnit() throws DeviceException {
 		getSMU().setHardwareUnitString("eV");
@@ -123,7 +123,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 			assertEquals("User unit mm is not acceptable. Try one of [keV, eV, GeV]", e.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testSetUserUnitsWithWrongUnit2() throws DeviceException {
 		getSMU().setHardwareUnitString("");
@@ -134,20 +134,20 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 			assertEquals("User unit mm is not acceptable. The current hardware unit is at its dimensionless default of ONE (settable with an empty string ''). Make sure that a sensible hardware unit has been set.", e.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testSetGetUserUnits () throws DeviceException {
 		getSMU().setHardwareUnitString("m");
 		getSMU().setUserUnits("mm");
 		assertEquals("mm", getSMU().getUserUnits());
 	}
-	
+
 	@Test
 	public void testSetHardwareUnit () throws DeviceException {
 		getSMU().setHardwareUnitString("keV");
 		ArrayAssert.assertEquals(new String[] {"keV", "eV", "GeV"}, getSMU().getAcceptableUnits());
 	}
-	
+
 	@Test
 	public void testSetInitialUserUnits() throws DeviceException{
 		getSMUB().setInitialUserUnits("");
@@ -157,17 +157,17 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		assertEquals("eV", getSMU().getUserUnits());
 		assertEquals("eV", getSMUB().getInitialUserUnits());
 	}
-	
+
 	public static  void assertAlmostEqual(Double [] expected, Double [] actual){
 		for( int i=0; i< expected.length;i++){
 			Double expectVal = expected[i];
 			Double actualVal = actual[i];
 			if( expectVal == null)
 				Assert.assertNull(actualVal);
-			else 
+			else
 				Assert.assertEquals(expectVal.doubleValue(), actualVal.doubleValue(), 0.000001);
 		}
-	}	
+	}
 	@Override
 	@Test
 	public void testGetAttribute() throws Exception {
@@ -182,43 +182,43 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		assertAlmostEqual(new Double[] { .001, .003 }, getSMB().getInputLimits(0));
 		assertAlmostEqual(new Double[] { .002, .004 }, getSMB().getInputLimits(1));
 	}
-	
+
 	@Test
 	public void testSetGetHardwareUnits() throws DeviceException {
 		getSMU().setHardwareUnitString("mm");
-		assertEquals("mm", getSMU().getHardwareUnitString());	
+		assertEquals("mm", getSMU().getHardwareUnitString());
 		getSMU().setHardwareUnitString("m");
 		assertEquals("m", getSMU().getHardwareUnitString());
 	}
-	
+
 	@Test
 	public void testSetHardwareUnitIfUserUnitNotExplicitelySet() throws DeviceException {
 		getSMU().setHardwareUnitString("mm");
-		assertEquals("mm", getSMU().getHardwareUnitString());	
-		assertEquals("mm", getSMU().getUserUnits()); 
-	}	
-	
+		assertEquals("mm", getSMU().getHardwareUnitString());
+		assertEquals("mm", getSMU().getUserUnits());
+	}
+
 	@Test
 	public void testSetHardwareUnitIfUserUnitExplicitelySet() throws DeviceException {
 		getSMU().setUserUnits("m");
 		getSMU().setHardwareUnitString("mm");
-		assertEquals("mm", getSMU().getHardwareUnitString());	
+		assertEquals("mm", getSMU().getHardwareUnitString());
 		assertEquals("m", getSMU().getUserUnits());
 	}
-	
+
 	@Test
 	public void testSetUserUnitIfHardwareUnitNotExplicitelySet() throws DeviceException {
 		getSMU().setUserUnits("m");
-		assertEquals("m", getSMU().getHardwareUnitString());	
-		assertEquals("m", getSMU().getUserUnits()); 
+		assertEquals("m", getSMU().getHardwareUnitString());
+		assertEquals("m", getSMU().getUserUnits());
 	}
-	
+
 	@Test
 	public void testSetUserUnitIfHardwareUnitExplicitelySet() throws DeviceException {
 		getSMU().setHardwareUnitString("mm");
 		getSMU().setUserUnits("m");
-		assertEquals("mm", getSMU().getHardwareUnitString());	
-		assertEquals("m", getSMU().getUserUnits()); 
+		assertEquals("mm", getSMU().getHardwareUnitString());
+		assertEquals("m", getSMU().getUserUnits());
 	}
 
 	@Override
@@ -226,8 +226,8 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 	public void testIsAtWithStrings() throws DeviceException {
 		super.testIsAtWithStrings();
 	}
-	
-	
+
+
 	@Test
 	public void testGetOffset() throws DeviceException {
 		ScannableOffsetAndScalingComponent mock = mock(ScannableOffsetAndScalingComponent.class);
@@ -247,7 +247,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		getSMU().setUserUnits("m");
 		ArrayAssert.assertEquals(new Double[]{1., 2., null}, getSMU().getOffset());
 	}
-	
+
 	@Test
 	public void testSetOffsetMultipleFields() throws DeviceException {
 		// Mockito fails with varargs
@@ -261,7 +261,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		smub.setOffset(new Double[]{1., 2., null});
 		verify(mock, times(2)).setOffset(new Double[]{1000., 2000., null});
 	}
-	
+
 	@Test
 	public void testSetOffsetMultipleFieldsViaObject() throws DeviceException {
 		// Mockito fails with varargs
@@ -274,7 +274,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		smub.setOffset(new Object[]{Quantity.valueOf(1000000, MICRO(METER)), "2m", null});
 		verify(mock, times(1)).setOffset(new Double[]{1000., 2000., null});
 	}
-	
+
 	@Test
 	public void testSetOffsetSingleField() throws DeviceException {
 		// Mockito fails with varargs
@@ -289,10 +289,10 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		smub.setOffset(1);
 		smub.setOffset("1");
 		smub.setOffset("1m");
-		
+
 		verify(mock, times(5)).setOffset(new Double[]{1000.});
 	}
-	
+
 	@Override
 	@Test
 	public void testToStringWithOffsets() throws DeviceException {
@@ -315,8 +315,8 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 		getSB().setOutputFormat(new String[] { "%1.2g"});
 		assertEquals("i1 : 1.1mm(+0.10)", getSMUB().toFormattedString());
 	}
-	
-	
+
+
 }
 //	@Test
 //	public void testIsAtWithUnits() throws DeviceException {
@@ -326,7 +326,7 @@ public class ScannableMotionUnitsBaseTest extends ScannableMotionBaseTest {
 //		getSMU().setUserUnits("keV");
 //		assertTrue(getSMU().isAt(1.));
 //	}
-	
+
 
 //	@Test
 //	public void testAddGetAcceptableUnit() throws DeviceException {

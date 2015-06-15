@@ -21,7 +21,7 @@ package uk.ac.gda.client.device.collection;
 import gda.factory.Findable;
 
 public class DeviceCollectionMapping implements Findable{
-	
+
 	private String id;
 	private IDeviceCollection collection;
 	private String name;

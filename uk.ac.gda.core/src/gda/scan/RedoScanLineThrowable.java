@@ -29,5 +29,5 @@ public class RedoScanLineThrowable extends DeviceException {
 	public RedoScanLineThrowable(String message, RedoScanLineThrowable e) {
 		super(message, e);
 	}
-	
+
 }

@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  * Base class for all classes using the Translator interface. This supplies the functionality for the translate method.
  */
 public abstract class TranslatorBase implements Translator {
-	
+
 	protected Vector<String> aliases = new Vector<String>();
 
 	protected Vector<String> vararg_aliases = new Vector<String>();
@@ -48,7 +48,7 @@ public abstract class TranslatorBase implements Translator {
 	 * <P>
 	 * The full string will be split first by ;'s, then by \n's. Each sub section will be translated individually, then
 	 * the translated sub-sections are recombined with the \n's or \t's replaced.
-	 * 
+	 *
 	 * @param original_command
 	 *            String
 	 * @return String

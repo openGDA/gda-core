@@ -33,8 +33,8 @@ public class ScanDataPointEvent extends EventObject {
 	private IScanDataPoint             currentPoint;
 
 	/**
-	 * @param dataPoints 
-	 * @param currentPoint 
+	 * @param dataPoints
+	 * @param currentPoint
 	 */
 	public ScanDataPointEvent(Collection<IScanDataPoint> dataPoints, IScanDataPoint currentPoint) {
 		super(currentPoint!=null?currentPoint:dataPoints);
@@ -43,7 +43,7 @@ public class ScanDataPointEvent extends EventObject {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param points
 	 */
 	public ScanDataPointEvent(List<IScanDataPoint> points) {

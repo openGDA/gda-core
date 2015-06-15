@@ -30,13 +30,13 @@ public class InterceptorUtils {
 	/**
 	 * Invokes a method on the specified object with the specified parameters.
 	 * If the underlying method throws an exception, it is rethrown.
-	 * 
+	 *
 	 * @param method the method to invoke
 	 * @param theObject object to invoke the method on
 	 * @param args parameters for the method call
-	 * 
+	 *
 	 * @return result of invoking the method
-	 * 
+	 *
 	 * @throws Throwable if the underlying method throws an exception
 	 */
 	public static Object invokeMethod(Method method, Object theObject, Object[] args) throws Throwable {

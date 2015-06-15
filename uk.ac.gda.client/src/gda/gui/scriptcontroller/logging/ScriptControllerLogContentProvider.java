@@ -214,7 +214,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 
 								Object[] expandedElements = view.getTreeViewer().getExpandedElements();
 								expandedElements  = ArrayUtils.add(expandedElements, temp);
-								
+
 								view.getTreeViewer()
 										.setInput(ScriptControllerLogContentProvider.this.getElements(null));
 								view.getTreeViewer().refresh(results[0]);
@@ -244,7 +244,7 @@ public class ScriptControllerLogContentProvider implements ITreeContentProvider,
 		if (results == null){
 			return false;
 		}
-		
+
 		for (ScriptControllerLogResults res : results) {
 			if (res.getUniqueID().equals(arg.getUniqueID())) {
 				return true;

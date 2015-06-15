@@ -18,12 +18,12 @@
 
 package gda.spring.propertyeditors;
 
-import org.apache.commons.math.linear.RealVector;
-
 import junit.framework.TestCase;
 
+import org.apache.commons.math.linear.RealVector;
+
 public class RealVectorPropertyEditorTest extends TestCase {
-	
+
 	public void testConversion() {
 		RealVectorPropertyEditor pe = new RealVectorPropertyEditor();
 		assertNull(pe.getValue());
@@ -34,7 +34,7 @@ public class RealVectorPropertyEditorTest extends TestCase {
 		assertVectorsEqual(expectedValues, vector);
 		assertEquals(text, pe.getAsText());
 	}
-	
+
 	protected void assertVectorsEqual(double[] expected, RealVector actual) {
 		assertEquals("Length does not match", expected.length, actual.getDimension());
 		for (int i=0; i<expected.length; i++) {

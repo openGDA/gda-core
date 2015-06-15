@@ -32,7 +32,7 @@ public class ScannablePosTest {
 
 	private class BareScannable extends ScannableBase {
 		int getPosUsage = 0;
-		
+
 		@Override
 		public void asynchronousMoveTo(Object position) throws DeviceException {
 			return;
@@ -48,7 +48,7 @@ public class ScannablePosTest {
 		public boolean isBusy() throws DeviceException {
 			return false;
 		}
-		
+
 		public int reportGetPosUsage() {
 			return getPosUsage;
 		}
@@ -58,7 +58,7 @@ public class ScannablePosTest {
 	/**
 	 * This test ensures that getPosition is called exactly once per pos call
 	 * (getPosition is a potentially expensive operation).
-	 * 
+	 *
 	 */
 	@Test
 	public void testPos() {

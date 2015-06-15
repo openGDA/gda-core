@@ -38,23 +38,23 @@ public class PyDataSet extends PyObject {
 	// repr([1]). */
 	// static PyFunction [] str_functions = {null, null};
 	/**
-	 * 
+	 *
 	 */
 	public static int maxLineWidth = 77;
 
 	/**
-	 * 
+	 *
 	 */
 	public static int precision = 8;
 
 	/**
-	 * 
+	 *
 	 */
 	public static boolean suppressSmall = false;
 
 	/**
 	 * Python class of PyDataSet.
-	 * 
+	 *
 	 * @see PyObject
 	 */
 	//public static PyClass __class__;

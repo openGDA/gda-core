@@ -32,7 +32,7 @@ public abstract class AbstractFunction {
 
 	/**
 	 * Setup the parameter list
-	 * 
+	 *
 	 * @param names
 	 */
 	public AbstractFunction(String[] names) {
@@ -44,7 +44,7 @@ public abstract class AbstractFunction {
 
 	/**
 	 * return the value of the function at position
-	 * 
+	 *
 	 * @param position
 	 * @return value of the function at position
 	 */
@@ -68,7 +68,7 @@ public abstract class AbstractFunction {
 
 	/**
 	 * Get the parameters
-	 * 
+	 *
 	 * @return Array of IParameters
 	 */
 	public IParameter[] getParameters() {
@@ -90,7 +90,7 @@ public abstract class AbstractFunction {
 	 * Set the parameter values The number of parameters specified must equal the no of parameters of the function You
 	 * can get the inidividual parameters and set the values but this is just a convenient method to set them all at
 	 * once...
-	 * 
+	 *
 	 * @param params
 	 */
 	public void setParameterValues(double... params) {

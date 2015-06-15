@@ -43,7 +43,7 @@ public class NexusFileFactory {
 
 	/**
 	 * Create a Nexus file.
-	 * 
+	 *
 	 * @param fileUrl
 	 *            String The full filename of the file to create.
 	 * @param instrumentFileApi  - if true the nexus api is instrumented
@@ -60,7 +60,7 @@ public class NexusFileFactory {
 		logger.debug("Creating HDF5 format NeXus file.");
 		NexusFile nf = NexusUtils.createNexusFile(fileUrl);
 		nf.setDebug(instrumentFileApi);
-		
+
 		// For now we will assume that all the NeXus files have a single
 		// NXentry called "entry1". This is because of the way that the
 		// metadata classes have been written (i.e. they expect an entry called entry1!)

@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * the counter timer would need to be set to count for a fixed time (like we assume the detectors do), or the
  * controller would need to send out an inhibit line.
  * <p>
- * IMPORTANT: Detectors will not recieve synchronised calls to atLineStart()! An example consequence is that 
+ * IMPORTANT: Detectors will not recieve synchronised calls to atLineStart()! An example consequence is that
  * plugins must be setup to handle all points made during the scan, not just those from one line.
  */
 public class ConstantVelocityRasterScan extends ConstantVelocityScanLine {
@@ -45,16 +45,16 @@ public class ConstantVelocityRasterScan extends ConstantVelocityScanLine {
 	private Double outerStart;
 	private Double outerStop;
 	private Double outerStep;
-	
+
 	public ConstantVelocityRasterScan(Object[] args) throws IllegalArgumentException {
 		// ConstantVelocityRasterScan([outer, start, stop, step, RasterScanLine([inner, start, stop, step ...]))
 		super(createNestedScan(args));
-		
+
 		// args[0] is outer scannable
 		outerStart = PositionConvertorFunctions.toDouble(args[1]);
 		outerStop = PositionConvertorFunctions.toDouble(args[2]);
 		outerStep = PositionConvertorFunctions.toDouble(args[3]);
-		
+
 		// args[4] is inner scannable
 		start = PositionConvertorFunctions.toDouble(args[5]);
 		stop = PositionConvertorFunctions.toDouble(args[6]);
@@ -63,13 +63,13 @@ public class ConstantVelocityRasterScan extends ConstantVelocityScanLine {
 
 	private static Object[] createNestedScan(Object[] args) {
 		// TODO Check args
-		
+
 		checkRemainingArgs(args, 8);
 
 		List<Object> argList = Arrays.asList(args);
 		List<Object> outerScanArgs = argList.subList(0, 4); // outerscannable start stop step
 		List<Object> innerScanArgs = argList.subList(4, argList.size()); // remaining
-		
+
 		List<Object> superArgs = new ArrayList<Object>();
 		superArgs.addAll(outerScanArgs);
 		superArgs.add(new RasterScanLine(innerScanArgs.toArray()));
@@ -79,7 +79,7 @@ public class ConstantVelocityRasterScan extends ConstantVelocityScanLine {
 	@Override
 	protected void parseArgsAgain(Object[] args) {
 	}
-	
+
 	@Override
 	protected ConstantVelocityRasterMoveController getController() {
 		return (ConstantVelocityRasterMoveController) super.getController();
@@ -89,16 +89,16 @@ public class ConstantVelocityRasterScan extends ConstantVelocityScanLine {
 //		} // else
 //		throw new IllegalArgumentException("ConstantVelocityRasterScan requires a ConstantVelocityRasterMoveController controller");
 	}
-	
+
 	@Override
 	protected void configureControllerPositions(boolean detectorsIntegrateBetweenTriggers) throws DeviceException, InterruptedException {
-		
+
 		getController().stopAndReset();
-		
+
 		getController().setOuterStart(outerStart);
 		getController().setOuterEnd(outerStop);
 		getController().setOuterStep(outerStep);
-	
+
 		// Please see class comment!
 		if (detectorsIntegrateBetweenTriggers) {
 			getController().setStart(start); // - step / 2.);
@@ -107,7 +107,7 @@ public class ConstantVelocityRasterScan extends ConstantVelocityScanLine {
 			throw new IllegalArgumentException("The controller we have so far advances triggers by half a point, so detectors must integrate between triggers");
 		}
 		getController().setStep(step);
-		
+
 	}
 
 }
@@ -118,10 +118,10 @@ class RasterScanLine extends ConcurrentScan {
 		super(args);
 		callCollectDataOnDetectors = false;
 	}
-	
+
 	@Override
 	public boolean isReadoutConcurrent() {
 		return false;  // should be false even if enabled for beamline
 	}
-	
+
 }

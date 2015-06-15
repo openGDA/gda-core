@@ -35,8 +35,8 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import org.junit.Ignore;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +64,7 @@ public class ScanTest {
 
 	/**
 	 * Test suite setup.
-	 * @throws FactoryException 
+	 * @throws FactoryException
 	 */
 	@BeforeClass()
 	public static void setup() throws FactoryException {
@@ -201,7 +201,7 @@ public class ScanTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test()
 	public void testDatafilePositions() {
@@ -210,7 +210,7 @@ public class ScanTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test()
 	public void testDatafileData() {
@@ -220,7 +220,7 @@ public class ScanTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test()
 	public void testDatafiles() {
@@ -230,7 +230,7 @@ public class ScanTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test()
 	public void testDdhDropFile() {

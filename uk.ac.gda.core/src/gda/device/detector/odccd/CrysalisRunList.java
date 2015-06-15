@@ -42,11 +42,11 @@ public class CrysalisRunList {
 	ArrayList<CrysalisRun> runlist;
 
 	/**
-	 * 
+	 *
 	 */
 	static public URL mappingURL = CrysalisRunList.class.getResource("CrysalisRunListMapping.xml");
 	/**
-	 * 
+	 *
 	 */
 	static public URL schemaURL = null; // CrysalisRunList.class.getResource("CrysalisRunListSchema.xsd");
 

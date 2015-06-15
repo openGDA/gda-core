@@ -36,7 +36,7 @@ public class TwoDDoubleArrayPropertyEditor extends PropertyEditorSupport {
 			try {
 				// remove spaces
 				text = text.replace(" ", "");
-				
+
 				String[] rows = text.split("\\},\\{");
 				double[][] values = new double[rows.length][];
 				for (int i=0; i<rows.length; i++) {

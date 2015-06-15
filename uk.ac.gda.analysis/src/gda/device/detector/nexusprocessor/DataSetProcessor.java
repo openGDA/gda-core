@@ -37,9 +37,9 @@ public interface DataSetProcessor {
 	Collection<String> getExtraNames();
 
 	Collection<String> getOutputFormat();
-	
+
 	boolean isEnabled();
 
-	void setEnable(boolean enable);	
+	void setEnable(boolean enable);
 
 }

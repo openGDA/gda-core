@@ -179,7 +179,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Setup a neldermead optimization
-	 * 
+	 *
 	 * @param function
 	 */
 	public NelderMeadOptimizer(AbstractObjectiveFunction function) {
@@ -188,7 +188,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void reset() {
 		IParameter[] params = function.getParameters();
@@ -582,7 +582,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Calculate the function value for minimisation
-	 * 
+	 *
 	 * @param x
 	 *            The parameter values
 	 * @return The function value with parameters x
@@ -611,7 +611,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Get the minimisation status
-	 * 
+	 *
 	 * @return true if convergence was achieved false if convergence not achieved before maximum number of iterations
 	 *         current values then returned
 	 */
@@ -621,7 +621,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Reset scaling factors (scalingOption 0 and 1, see below for scalingOption 2)
-	 * 
+	 *
 	 * @param n
 	 *            The scaling option 0 no scaling 1 intial estimates all scaled to unity
 	 */
@@ -648,7 +648,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Set default step size the initial points of the simplex are defaultStep*startingpoint
-	 * 
+	 *
 	 * @param steps
 	 */
 	public void setSteps(double[] steps) {
@@ -657,7 +657,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Set default step size the initial points of the simplex are defaultStep*startingpoint
-	 * 
+	 *
 	 * @return the step size
 	 */
 	public double[] getSteps() {
@@ -666,7 +666,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Set default step size the initial points of the simplex are defaultStep*startingpoint
-	 * 
+	 *
 	 * @param stepSize
 	 */
 	public void setDefaultStep(double stepSize) {
@@ -675,7 +675,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Set default step size the initial points of the simplex are defaultStep*startingpoint
-	 * 
+	 *
 	 * @return the step size
 	 */
 	public double getDefaultStep() {
@@ -684,7 +684,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Set scaling factors (scalingOption 2, see above for scalingOption 0 and 1)
-	 * 
+	 *
 	 * @param sc
 	 */
 	public void setScaling(double[] sc) {
@@ -724,7 +724,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Set the maximum number of iterations allowed in Nelder and Mead
-	 * 
+	 *
 	 * @param maxNoOfIterations
 	 */
 	public void setMaxNoOfIterations(int maxNoOfIterations) {
@@ -747,7 +747,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Set the maximum number of restarts allowed in Nelder and Mead
-	 * 
+	 *
 	 * @param nrs
 	 *            no of restarts
 	 */
@@ -764,7 +764,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Set the Nelder and Mead reflection coefficient [alpha]
-	 * 
+	 *
 	 * @param refl
 	 */
 	public void setReflectionCoefficient(double refl) {
@@ -780,7 +780,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Set the Nelder and Mead extension coefficient [beta]
-	 * 
+	 *
 	 * @param ext
 	 */
 	public void setExpansionCoefficient(double ext) {
@@ -796,7 +796,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Set the Nelder and Mead contraction coefficient [gamma]
-	 * 
+	 *
 	 * @param con
 	 */
 	public void setContractionCoeff(double con) {
@@ -812,7 +812,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Set the minimisation tolerance to tol
-	 * 
+	 *
 	 * @param tol
 	 */
 	public void setTolerance(double tol) {
@@ -844,7 +844,7 @@ public class NelderMeadOptimizer implements Runnable, IOptimizer {
 
 	/**
 	 * Set the starting point...overriding the values set in the AbstractCostFunction and AbstractMultiFunction
-	 * 
+	 *
 	 * @param startingPoint
 	 */
 	public void setStartPoint(double[] startingPoint) {

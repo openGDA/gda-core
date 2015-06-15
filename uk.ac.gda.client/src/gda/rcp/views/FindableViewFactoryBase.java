@@ -28,17 +28,17 @@ import org.eclipse.ui.part.ViewPart;
 public abstract class FindableViewFactoryBase implements IViewFactory, Findable {
 
 	private String name;
-	
+
 	@Override
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	/**
 	 * Creates the view. Subclasses must override this method.
 	 */

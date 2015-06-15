@@ -113,7 +113,7 @@ public class DummyQueensgateController extends DeviceBase implements PiezoContro
 
 	/**
 	 * Used to send a command to the piezo module that does not require a reply.
-	 * 
+	 *
 	 * @param module
 	 *            is the module number
 	 * @param positionCommand
@@ -141,7 +141,7 @@ public class DummyQueensgateController extends DeviceBase implements PiezoContro
 	/**
 	 * Sends the commands required to return the current rawPosition (offset), converts this value to a position
 	 * (offset) and compares with requested position (offset). Notifies when the process is complete.
-	 * 
+	 *
 	 * @param module
 	 *            the module nos.
 	 * @return string representation of current position
@@ -275,7 +275,7 @@ public class DummyQueensgateController extends DeviceBase implements PiezoContro
 
 		/**
 		 * Prints an error message for unexpected input.
-		 * 
+		 *
 		 * @param s
 		 *            the unexpected input
 		 */
@@ -286,7 +286,7 @@ public class DummyQueensgateController extends DeviceBase implements PiezoContro
 
 		/**
 		 * Decodes an offset request string to extract the requested offset.
-		 * 
+		 *
 		 * @param s
 		 *            the incoming string
 		 * @return the offset
@@ -318,7 +318,7 @@ public class DummyQueensgateController extends DeviceBase implements PiezoContro
 		 * Handles strings coming in from program, this is a simple but tedious finite state machine which expects to
 		 * get the same command strings as are sent to the real Queensgate and puts itself into suitable states as it
 		 * goes.
-		 * 
+		 *
 		 * @param s
 		 *            the incoming string
 		 */
@@ -477,7 +477,7 @@ public class DummyQueensgateController extends DeviceBase implements PiezoContro
 		/**
 		 * Converts a 12 bit integer into a three digit string, only used here to imitate how the real Queensgate would
 		 * send back its position.
-		 * 
+		 *
 		 * @param i
 		 *            the integer to convert
 		 * @return the three digit string
@@ -507,7 +507,7 @@ public class DummyQueensgateController extends DeviceBase implements PiezoContro
 
 		/**
 		 * Reads a character from the device
-		 * 
+		 *
 		 * @return the character read
 		 */
 		public char readChar() {
@@ -532,7 +532,7 @@ public class DummyQueensgateController extends DeviceBase implements PiezoContro
 
 		/**
 		 * Writes a character to the device
-		 * 
+		 *
 		 * @param c
 		 *            The character to write
 		 */

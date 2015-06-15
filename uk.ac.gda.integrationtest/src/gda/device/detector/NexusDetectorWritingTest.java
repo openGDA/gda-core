@@ -81,7 +81,7 @@ public class NexusDetectorWritingTest {
 
 	/**
 	 * Creates a scan file using a simple detector and scannable. Checks content is correct
-	 * 
+	 *
 	 * @throws Exception
 	 *             if the test fails
 	 */
@@ -96,7 +96,7 @@ public class NexusDetectorWritingTest {
 		metadata.addMetadataEntry(new StoredMetadataEntry(GDAMetadataProvider.COLLECTION_DESCRIPTION,"Description of Collection"));
 		metadata.addMetadataEntry(new StoredMetadataEntry(GDAMetadataProvider.EXPERIMENT_DESCRIPTION,"Description of Experiment"));
 		metadata.addMetadataEntry(new StoredMetadataEntry(GDAMetadataProvider.SCAN_IDENTIFIER,"12345678"));
-		
+
 		runScanToCreateFile(1);
 		String filename = testScratchDirectoryName + "/Data/" + "1.nxs";
 
@@ -132,5 +132,5 @@ public class NexusDetectorWritingTest {
 		Assert.assertFalse("sorted trees are not the same: sort(" + filename_expected + ") NE (" + filename + ")", !tree_expected.equals(tree, true));
 
 	}
-	
+
 }

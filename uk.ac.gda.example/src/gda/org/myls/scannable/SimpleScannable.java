@@ -38,7 +38,7 @@ public class SimpleScannable extends ScannableBase {
 	String[] units;
 
 	/**
-	 * 
+	 *
 	 */
 	public SimpleScannable() {
 	}
@@ -66,7 +66,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#asynchronousMoveTo(java.lang.Object)
 	 */
 	@Override
@@ -80,7 +80,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#atEnd()
 	 */
 	@Override
@@ -89,7 +89,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#atPointEnd()
 	 */
 	@Override
@@ -98,7 +98,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#atPointStart()
 	 */
 	@Override
@@ -107,7 +107,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#atScanEnd()
 	 */
 	@Override
@@ -116,7 +116,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#atScanLineEnd()
 	 */
 	@Override
@@ -125,7 +125,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#atScanLineStart()
 	 */
 	@Override
@@ -134,7 +134,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#atScanStart()
 	 */
 	@Override
@@ -143,7 +143,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#atStart()
 	 */
 	@Override
@@ -152,7 +152,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#getExtraNames()
 	 */
 	@Override
@@ -162,7 +162,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#getInputNames()
 	 */
 	@Override
@@ -172,7 +172,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#getLevel()
 	 */
 	@Override
@@ -182,7 +182,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#getOutputFormat()
 	 */
 	@Override
@@ -192,18 +192,18 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#getPosition()
 	 */
 	@Override
 	public Object getPosition() throws DeviceException {
 		return position;
-		
+
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#isAt(java.lang.Object)
 	 */
 	@Override
@@ -213,7 +213,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#isBusy()
 	 */
 	@Override
@@ -223,7 +223,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#moveTo(java.lang.Object)
 	 */
 	@Override
@@ -233,7 +233,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#setExtraNames(java.lang.String[])
 	 */
 	@Override
@@ -243,7 +243,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#setInputNames(java.lang.String[])
 	 */
 	@Override
@@ -253,7 +253,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#setLevel(int)
 	 */
 	@Override
@@ -263,7 +263,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#setOutputFormat(java.lang.String[])
 	 */
 	@Override
@@ -273,7 +273,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#stop()
 	 */
 	@Override
@@ -282,7 +282,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#waitWhileBusy()
 	 */
 	@Override
@@ -291,7 +291,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Device#close()
 	 */
 	@Override
@@ -300,7 +300,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Device#getAttribute(java.lang.String)
 	 */
 	@Override
@@ -310,7 +310,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Device#getProtectionLevel()
 	 */
 	@Override
@@ -320,7 +320,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Device#setAttribute(java.lang.String, java.lang.Object)
 	 */
 	@Override
@@ -330,7 +330,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Device#setProtectionLevel(int)
 	 */
 	@Override
@@ -339,7 +339,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.factory.Findable#getName()
 	 */
 	@Override
@@ -349,7 +349,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.factory.Findable#setName(java.lang.String)
 	 */
 	@Override
@@ -359,7 +359,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.observable.IObservable#addIObserver(gda.observable.IObserver)
 	 */
 	@Override
@@ -368,7 +368,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.observable.IObservable#deleteIObserver(gda.observable.IObserver)
 	 */
 	@Override
@@ -377,7 +377,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.observable.IObservable#deleteIObservers()
 	 */
 	@Override
@@ -386,7 +386,7 @@ public class SimpleScannable extends ScannableBase {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.factory.Reconfigurable#reconfigure()
 	 */
 	@Override

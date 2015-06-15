@@ -31,12 +31,12 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
 /**
- * part of 
+ * part of
  */
 public class SimpleMotor implements Motor, InitializingBean{
 
 	SimpleMotorController smc;
-	
+
 	@Override
 	@MethodAccessProtected(isProtected = true)
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
@@ -259,8 +259,8 @@ public class SimpleMotor implements Motor, InitializingBean{
 		return maxPosition;
 	}
 
-	
-	
+
+
 
 	public SimpleMotorController getSmc() {
 		return smc;
@@ -294,7 +294,7 @@ public class SimpleMotor implements Motor, InitializingBean{
 	}
 
 	double resolution=.001; //1 micron
-	
+
 	@Override
 	public double getMotorResolution() throws MotorException {
 		return resolution;
@@ -311,7 +311,7 @@ public class SimpleMotor implements Motor, InitializingBean{
 			throw new Exception("smc is null");
 		if( !StringUtils.hasText(name))
 			throw new Exception("name is not set");
-		
+
 	}
 
 }

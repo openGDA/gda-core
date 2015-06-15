@@ -57,7 +57,7 @@ public class JythonServerTest {
 		pathsList = new ScriptPaths(projects);
 		pathsList.setStartupScript("/some/folder/localStation.py");
 		jythonServer.setJythonScriptPaths(pathsList);
-		
+
 		InterfaceProvider.setTerminalPrinterForTesting(new ITerminalPrinter() {
 			@Override
 			public void print(String text) {
@@ -65,14 +65,14 @@ public class JythonServerTest {
 			}
 		});
 	}
-	
+
 	@After
 	public void tearDown() {
 		jythonServer = null;
 		pathsList = null;
 		pathsArray = null;
 	}
-	
+
 	@Test
 	public void testConfiguringServerPassesPathsToInterpreter() {
 		try {
@@ -84,7 +84,7 @@ public class JythonServerTest {
 		Assert.assertNotNull(interpreter);
 		Assert.assertEquals(pathsList, interpreter.getJythonScriptPaths());
 	}
-	
+
 	@Test
 	public void testLocateStringUsesScriptPathsObject() {
 		ScriptProject realProject = new ScriptProject("testfiles/gda/jython/JythonServerTest", "Real Project", ScriptProjectType.CONFIG);
@@ -92,12 +92,12 @@ public class JythonServerTest {
 		jythonServer.setJythonScriptPaths(realPath);
 		Assert.assertNotNull(jythonServer.locateScript("exists"));
 	}
-	
+
 	@Test
 	public void testDefaultScriptFolderIsTheFirstEntryInTheList() {
 		Assert.assertEquals("Nonesuch", jythonServer.getDefaultScriptProjectFolder());
 	}
-	
+
 	@Test
 	public void testBeamlineHalt_StopsMotors() throws MotorException, InterruptedException {
 		Factory factory = mock(Factory.class);
@@ -106,21 +106,21 @@ public class JythonServerTest {
 		Motor mockMotor3 = mock(Motor.class);
 		when(factory.getFindables()).thenReturn(Arrays.asList((Findable)mockMotor1, (Findable)mockMotor2, (Findable)mockMotor3));
 		Finder.getInstance().addFactory(factory );
-		
+
 		jythonServer.beamlineHalt("Unused JSFIdentifier");
 		Thread.sleep(1000);
 		verify(mockMotor1).stop();
 		verify(mockMotor2).stop();
 		verify(mockMotor3).stop();
 	}
-	
+
 	@Test
 	public void testBeamlineHalt_StopsMotorsDespiteADelayAndExceptionFromOne() throws MotorException, InterruptedException {
 		Factory factory = mock(Factory.class);
 		Motor mockMotor1 = mock(Motor.class);
 		Motor mockMotor2 = mock(Motor.class);
 		Motor mockMotor3 = mock(Motor.class);
-		
+
 		when(mockMotor1.getName()).thenReturn("disconnected_motor");
 		class BeSlowAndThenFailAnswer implements Answer<Void> {
 			@Override
@@ -129,12 +129,12 @@ public class JythonServerTest {
 				throw new Exception("bang");
 			}
 		}
-		
+
 		doAnswer(new BeSlowAndThenFailAnswer()).when(mockMotor1).stop();
-		
+
 		when(factory.getFindables()).thenReturn(Arrays.asList((Findable)mockMotor1, (Findable)mockMotor2, (Findable)mockMotor3));
 		Finder.getInstance().addFactory(factory );
-		
+
 		jythonServer.beamlineHalt("Unused JSFIdentifier");
 		Thread.sleep(3000);
 		verify(mockMotor1).stop();

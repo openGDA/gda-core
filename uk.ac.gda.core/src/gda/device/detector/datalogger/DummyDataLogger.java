@@ -19,9 +19,6 @@
 
 package gda.device.detector.datalogger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DataLogger;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -29,11 +26,14 @@ import gda.device.Scannable;
 import gda.device.detector.DetectorBase;
 import gda.factory.Findable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A simulator class for a DataLogger. It has four arrays of eight numbers which change according to the
  * "countStrings"/"countDoubles" variables. It also has a Poller, which has a default pollTime of 10 seconds. The
  * pollDone() method changes the dataValues in rotation and notifies the DataLogger's observers.
- * 
+ *
  */
 public class DummyDataLogger extends DetectorBase implements DataLogger, Detector, Findable, Runnable, Scannable {
 
@@ -111,7 +111,7 @@ public class DummyDataLogger extends DetectorBase implements DataLogger, Detecto
 
 	/**
 	 * Returns the name of this logger device.
-	 * 
+	 *
 	 * @return Returns the serialDeviceName.
 	 */
 	public String getSerialDeviceName() {
@@ -120,7 +120,7 @@ public class DummyDataLogger extends DetectorBase implements DataLogger, Detecto
 
 	/**
 	 * Sets the name of this logger device.
-	 * 
+	 *
 	 * @param serialDeviceName
 	 *            The serialDeviceName to set.
 	 */
@@ -130,7 +130,7 @@ public class DummyDataLogger extends DetectorBase implements DataLogger, Detecto
 
 	/**
 	 * Returns the value of the local pollTime variable.
-	 * 
+	 *
 	 * @return pollTime.
 	 */
 	public long getPolltime() {
@@ -139,7 +139,7 @@ public class DummyDataLogger extends DetectorBase implements DataLogger, Detecto
 
 	/**
 	 * Sets the local pollTime variable.
-	 * 
+	 *
 	 * @param pollTime
 	 *            The pollTime to set.
 	 */
@@ -151,7 +151,7 @@ public class DummyDataLogger extends DetectorBase implements DataLogger, Detecto
 
 	/**
 	 * Real logger opens port connection to the logger device. This just sets the "connected" flag to true.
-	 * 
+	 *
 	 * @exception DeviceException
 	 *                if the device cannot be found
 	 */
@@ -163,7 +163,7 @@ public class DummyDataLogger extends DetectorBase implements DataLogger, Detecto
 
 	/**
 	 * Real logger closes the port connection to the logger device. This just sets the "connected" flag to false.
-	 * 
+	 *
 	 * @exception DeviceException
 	 *                if the device cannot be found
 	 */
@@ -174,7 +174,7 @@ public class DummyDataLogger extends DetectorBase implements DataLogger, Detecto
 
 	/**
 	 * Sets the local timeout variable.
-	 * 
+	 *
 	 * @param timeout
 	 *            is the value to be set
 	 */
@@ -184,7 +184,7 @@ public class DummyDataLogger extends DetectorBase implements DataLogger, Detecto
 
 	/**
 	 * Gets the value of the local timeout variable.
-	 * 
+	 *
 	 * @return timeout
 	 */
 	public int getTimeout() {
@@ -193,7 +193,7 @@ public class DummyDataLogger extends DetectorBase implements DataLogger, Detecto
 
 	/**
 	 * Gets the value of the local noOfChannels variable.
-	 * 
+	 *
 	 * @return noOfChannels
 	 * @exception DeviceException
 	 *                if the device cannot be found

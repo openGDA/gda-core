@@ -49,7 +49,7 @@ public class TemperatureImpl extends CorbaTemperaturePOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param temperature
 	 *            the Temperature implementation object
 	 * @param poa
@@ -63,7 +63,7 @@ public class TemperatureImpl extends CorbaTemperaturePOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Temperature implementation object
 	 */
 	public Temperature _delegate() {
@@ -72,7 +72,7 @@ public class TemperatureImpl extends CorbaTemperaturePOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param temperature
 	 *            set the Temperature implementation object
 	 */
@@ -480,17 +480,17 @@ public class TemperatureImpl extends CorbaTemperaturePOA {
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		scannableImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return scannableImpl.toFormattedString();
 	}
-	
+
 	@Override
 	public void atLevelStart() throws CorbaDeviceException {
 		scannableImpl.atLevelStart();

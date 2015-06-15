@@ -48,7 +48,7 @@ public class EDXD extends DetectorBase {
 
 	/**
 	 * May need to be a filename sometimes, or other modes may return the values.
-	 * 
+	 *
 	 * @return The filename of the output file, or the real data
 	 * @throws DeviceException
 	 */

@@ -35,7 +35,7 @@ public class SimpleScan implements Serializable{
 	private Double acqTime;
 	private List<ScannableManagerBean> scannables;
 	private List<DetectorManagerBean> detectors;
-	
+
 	public SimpleScan(){
 		scannables = new ArrayList<ScannableManagerBean>(50);
 		detectors = new ArrayList<DetectorManagerBean>(50);
@@ -44,7 +44,7 @@ public class SimpleScan implements Serializable{
 		stepSize=0.0;
 		acqTime=0.0;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -60,9 +60,9 @@ public class SimpleScan implements Serializable{
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) 
+		if (this == obj)
 			return true;
-		if (obj == null) 
+		if (obj == null)
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
@@ -96,7 +96,7 @@ public class SimpleScan implements Serializable{
 		if (detectors == null) {
 			if (other.detectors != null)
 				return false;
-		} 
+		}
 		else if (!detectors.equals(other.detectors))
 			return false;
 		return true;
@@ -110,7 +110,7 @@ public class SimpleScan implements Serializable{
 			return e.getMessage();
 		}
 	}
-	
+
 	public void clear(){
 		fromPos=null;
 		toPos=null;
@@ -120,7 +120,7 @@ public class SimpleScan implements Serializable{
 		detectors.clear();
 		scannableName=null;
 	}
-	
+
 	public String getScannableName() {
 		return scannableName;
 	}
@@ -167,11 +167,11 @@ public class SimpleScan implements Serializable{
 	public void setScannables(List<ScannableManagerBean> scannables) {
 		this.scannables = scannables;
 	}
-	
+
 	public void addScannable(ScannableManagerBean scannable) {
 		scannables.add(scannable);
 	}
-	
+
 	public void removeScannable(int[] index) {
 		for(int i=0;i<index.length;i++)
 			if(index.length<=1)
@@ -184,15 +184,15 @@ public class SimpleScan implements Serializable{
 	public void setDetectors(List<DetectorManagerBean> detectors) {
 		this.detectors = detectors;
 	}
-	
+
 	public void addDetector(DetectorManagerBean detector) {
 		detectors.add(detector);
 	}
-	
+
 	public void removeDetector(int[] index) {
 		for(int i=0;i<index.length;i++)
 			if(index.length<=1)
 				detectors.remove(index[i]);
-		
+
 	}
 }

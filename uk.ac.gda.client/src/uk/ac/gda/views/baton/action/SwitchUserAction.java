@@ -33,14 +33,14 @@ public class SwitchUserAction extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
+
 		SwitchUserDialog dialog = new SwitchUserDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
 		dialog.open();
 
 		if (dialog.isAuthenticated()) {
 		    return RefreshBatonAction.refresh();
-		} 
-		
+		}
+
 		return Boolean.FALSE;
 	}
 

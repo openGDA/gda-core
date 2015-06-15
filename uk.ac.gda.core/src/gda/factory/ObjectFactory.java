@@ -30,14 +30,14 @@ import java.util.Map;
 /**
  * A class to instantiate objects defined in the XML, using Castor. Objects are stored in a LinkedHashMap, with the
  * object name as the key, to preserve the order of creation as defined by the XML.
- * 
+ *
  * @since GDA 4.0
  */
 public class ObjectFactory extends FactoryBase implements Factory, Configurable, Serializable, Reconfigurable {
 
 	private String name;
 	private Map<String, Findable> findablesByName = new LinkedHashMap<String, Findable>();
-	
+
 	/**
 	 * Null argument constructor required by Castor in the instantiation phase.
 	 */
@@ -63,7 +63,7 @@ public class ObjectFactory extends FactoryBase implements Factory, Configurable,
 	public List<Findable> getFindables() {
 		return new ArrayList<Findable>(findablesByName.values());
 	}
-	
+
 	@Override
 	@SuppressWarnings( { "unchecked" })
 	public <T extends Findable> T getFindable(String name) {
@@ -92,7 +92,7 @@ public class ObjectFactory extends FactoryBase implements Factory, Configurable,
 		// rebuild every device object inside an RBACProxy
 		for (String findableName : findablesByName.keySet()) {
 			Findable findable = getFindable(findableName);
-			findablesByName.remove(findable);			
+			findablesByName.remove(findable);
 			findablesByName.put(findableName, RbacUtils.wrapFindableWithInterceptor(findable));
 		}
 	}

@@ -19,13 +19,13 @@
 package gda.scan;
 
 class Position {
-	
+
 	public final String name;
-	
+
 	public Position(String name) {
 		this.name = name;
 	}
-	
+
 	@Override
 	public String toString() {
 		return name;

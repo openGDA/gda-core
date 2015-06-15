@@ -41,16 +41,16 @@ public class DummyHardwareTriggerableAreaDetectorTest {
 		det = new DummyHardwareTriggerableAreaDetector("det");
 		det.simulate = true;
 	}
-	
+
 	@Test
 	public void testOperationInEmulatedStepScan() throws Exception {
 		HardwareTriggerProvider triggerProvider = mock(HardwareTriggerProvider.class);
 		det.setHardwareTriggerProvider(triggerProvider);
 		det.configure();
-		
+
 		assertEquals(det.getStatus(), Detector.IDLE);
 		assertEquals(det.isHardwareTriggering(), false);
-		
+
 		det.atScanLineStart();
 		det.setCollectionTime(.2);
 		det.collectData();
@@ -61,7 +61,7 @@ public class DummyHardwareTriggerableAreaDetectorTest {
 		det.waitWhileBusy();
 		assertEquals("det/image2.img",  det.readout());
 		det.atScanLineEnd();
-		
+
 		verifyZeroInteractions(triggerProvider);
 	}
 
@@ -70,22 +70,22 @@ public class DummyHardwareTriggerableAreaDetectorTest {
 	public void testOperationInEmulatedScanWithHardwareTriggering() throws DeviceException, InterruptedException {
 		HardwareTriggerProvider triggerProvider = mock(HardwareTriggerProvider.class);
 		det.setHardwareTriggerProvider(triggerProvider);
-		
+
 		det.setHardwareTriggering(true);
 		assertEquals(true, det.isHardwareTriggering());
 		assertEquals(Detector.IDLE, det.getStatus());
-		
+
 		det.atScanLineStart();
 		det.setCollectionTime(.2);
 		assertEquals(Detector.IDLE, det.getStatus());
 		det.waitWhileBusy();
-		assertEquals("det/image1.img",  det.readout());	
+		assertEquals("det/image1.img",  det.readout());
 		det.setCollectionTime(.2);
 		assertEquals(Detector.IDLE, det.getStatus());
 		det.waitWhileBusy();
 		assertEquals("det/image2.img",  det.readout());
 		det.atScanLineEnd();
-		
+
 		det.collectData();
 		assertEquals(det.getStatus(), Detector.BUSY);
 		det.update(null, null);
@@ -93,9 +93,9 @@ public class DummyHardwareTriggerableAreaDetectorTest {
 		det.update(null, null);
 		Thread.sleep(1000);
 		assertEquals(det.getStatus(), Detector.IDLE);
-		
+
 	}
-	
+
 	private void setupTerminal() {
 		ITerminalPrinter terminalPrinter = new ITerminalPrinter(){
 			@Override
@@ -105,5 +105,5 @@ public class DummyHardwareTriggerableAreaDetectorTest {
 		};
 		InterfaceProvider.setTerminalPrinterForTesting(terminalPrinter );
 	}
-	
+
 }

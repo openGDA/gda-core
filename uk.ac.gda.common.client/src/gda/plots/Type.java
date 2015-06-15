@@ -53,7 +53,7 @@ public enum Type {
 
 	/**
 	 * Returns whether or not this Type requires the points to be drawn
-	 * 
+	 *
 	 * @return true if the points should be drawn
 	 */
 	public boolean getDrawPoints() {
@@ -62,7 +62,7 @@ public enum Type {
 
 	/**
 	 * Returns whether or not this Type requires the line to be drawn
-	 * 
+	 *
 	 * @return true if the line should be drawn
 	 */
 	public boolean getDrawLine() {
@@ -71,7 +71,7 @@ public enum Type {
 
 	/**
 	 * Returns the display name of this type (which may not be the same as the enum name).
-	 * 
+	 *
 	 * @return the display name
 	 */
 	@Override
@@ -81,7 +81,7 @@ public enum Type {
 
 	/**
 	 * Creates a Type from a String (defaults to LINEONLY).
-	 * 
+	 *
 	 * @param string
 	 *            the String
 	 * @return the Type
@@ -100,7 +100,7 @@ public enum Type {
 
 	/**
 	 * Returns a JComboBox suitable for choosing a line type.
-	 * 
+	 *
 	 * @return the JComboBox
 	 */
 	public static JComboBox getChooser() {
@@ -114,7 +114,7 @@ public enum Type {
 	}
 }
 
-class TypeCellRenderer implements ListCellRenderer 
+class TypeCellRenderer implements ListCellRenderer
 {
 	HashMap<Type, JLabel>comps = new HashMap<Type, JLabel>(); //http://www.blogjava.net/rednight/archive/2007/01/16/94089.html
 	@Override

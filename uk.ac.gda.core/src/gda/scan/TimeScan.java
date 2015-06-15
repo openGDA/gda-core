@@ -38,9 +38,9 @@ import org.slf4j.LoggerFactory;
  * Time units are seconds.
  */
 public class TimeScan extends ScanBase implements Scan {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(TimeScan.class);
-	
+
 	// CounterTimer extends Detector interface. So all CounterTimer classes
 	// should extend DetectorBase class.
 	private Detector detector;
@@ -66,7 +66,7 @@ public class TimeScan extends ScanBase implements Scan {
 
 	/**
 	 * Create a TimeScan object to scan the detector specified
-	 * 
+	 *
 	 * @param ct
 	 *            the detector (counterTimer) to scan
 	 * @param numberOfPoints
@@ -93,7 +93,7 @@ public class TimeScan extends ScanBase implements Scan {
 
 	/**
 	 * Create a TimeScan object to scan the detector specified
-	 * 
+	 *
 	 * @param ct
 	 *            the detector (counterTimer) to scan
 	 * @param numberOfPoints
@@ -119,7 +119,7 @@ public class TimeScan extends ScanBase implements Scan {
 
 	/**
 	 * Create a TimeScan object to scan the detector specified
-	 * 
+	 *
 	 * @param ct
 	 *            the detector (counterTimer) to scan
 	 * @param numberOfPoints
@@ -137,7 +137,7 @@ public class TimeScan extends ScanBase implements Scan {
 
 	/**
 	 * Create a TimeScan object to scan all active detectors
-	 * 
+	 *
 	 * @param numberOfPoints
 	 *            the number of data points to collect
 	 * @param pause
@@ -168,8 +168,8 @@ public class TimeScan extends ScanBase implements Scan {
 
 	/**
 	 * Collect the data
-	 * @throws Exception 
-	 * 
+	 * @throws Exception
+	 *
 	 * @see gda.scan.Scan#doCollection()
 	 */
 	@Override
@@ -233,7 +233,7 @@ public class TimeScan extends ScanBase implements Scan {
 	/**
 	 * Given a Java time in miliseconds, waits until that point and then returns. If that time has passed, then returns
 	 * immediately;
-	 * 
+	 *
 	 * @param targetTime
 	 *            time in seconds
 	 * @throws InterruptedException
@@ -256,7 +256,7 @@ public class TimeScan extends ScanBase implements Scan {
 
 	/**
 	 * Creates and runs a scan
-	 * 
+	 *
 	 * @param detector
 	 *            the device for data collection
 	 * @param numberOfPoints
@@ -276,7 +276,7 @@ public class TimeScan extends ScanBase implements Scan {
 
 	/**
 	 * Creates and runs a scan
-	 * 
+	 *
 	 * @param numberOfPoints
 	 *            the number of data points to collect
 	 * @param pauseTime

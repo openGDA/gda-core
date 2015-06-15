@@ -40,7 +40,7 @@ public interface IExperimentObject extends Serializable{
 
 	/**
 	 * Views may not work correctly if this is not implemented
-	 * 
+	 *
 	 * @see Object#equals(Object)
 	 */
 	@Override
@@ -48,7 +48,7 @@ public interface IExperimentObject extends Serializable{
 
 	/**
 	 * Views may not work correctly if this is not implemented
-	 * 
+	 *
 	 * @see Object#hashCode()
 	 */
 	@Override
@@ -56,7 +56,7 @@ public interface IExperimentObject extends Serializable{
 
 	/**
 	 * Prediction in milliseconds of the duration of this experiment
-	 * 
+	 *
 	 * @return long
 	 * @throws Exception
 	 */
@@ -64,7 +64,7 @@ public interface IExperimentObject extends Serializable{
 
 	/**
 	 * FIXME should probably be renamed.
-	 * 
+	 *
 	 * @return validates and returns error if any problems
 	 */
 	public String getErrorMessage();
@@ -89,13 +89,13 @@ public interface IExperimentObject extends Serializable{
 	public List<XMLRichBean> getParameters() throws Exception;
 
 	public IFolder getFolder();
-	
+
 	public void setFolder(IFolder containingFolder);
 
 	public String getRunName();
-	
+
 	public String getMultiScanName();
-	
+
 	public void setMultiScanName(String multiScanName);
 
 	public boolean isFileUsed(IFile xmlFile);
@@ -113,14 +113,14 @@ public interface IExperimentObject extends Serializable{
 	/**
 	 * When the ExperimentObjectManager persists all of its scans to file, each object must return a space-separated
 	 * list of the xml files it represents.
-	 * 
+	 *
 	 * @return String
 	 */
 	public String toPersistenceString();
 
 	/**
 	 * The command to run the script, calling the relevant xml files.
-	 * 
+	 *
 	 * @return the Jython command to run the experiment defined by this object
 	 * @throws Exception
 	 */
@@ -136,7 +136,7 @@ public interface IExperimentObject extends Serializable{
 	 * temp file.
 	 * <p>
 	 * This method should be called to update the command string and command summary string if the file is edited.
-	 * 
+	 *
 	 * @param fileName
 	 * @throws Exception
 	 */

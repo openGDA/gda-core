@@ -49,7 +49,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	private IScanDataPoint lastScanDataPoint = null;
 
 	private IcatXMLCreator icatXMLCreator = new IcatXMLCreator();
-	
+
 	private DeviceBase sockPuppet;
 
 	private Vector<String> files = new Vector<String>();
@@ -171,7 +171,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 
 	/**
 	 * mainly for testing
-	 * 
+	 *
 	 * @return the xml creator instance
 	 */
 	protected IcatXMLCreator getIcatXMLCreator() {
@@ -180,7 +180,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 
 	/**
 	 * used for testing
-	 * 
+	 *
 	 * @param icatXMLCreator
 	 */
 	protected void setIcatXMLCreator(IcatXMLCreator icatXMLCreator) {
@@ -189,7 +189,7 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 
 	/**
 	 * the directory to create the XML in
-	 * 
+	 *
 	 * @param directory
 	 */
 	public void setDirectory(String directory) {
@@ -218,8 +218,8 @@ public class FileRegistrar extends DataWriterExtenderBase implements IFileRegist
 	}
 
 	/**
-	 * Clients can listen to this DeviceBase object for 
-	 * String arrays with filenames of recently created files 
+	 * Clients can listen to this DeviceBase object for
+	 * String arrays with filenames of recently created files
 	 * to update their data projects.
 	 * @param clientFileAnnouncer
 	 */

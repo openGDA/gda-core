@@ -146,7 +146,7 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 
 	/**
 	 * Allows tests to change authorisation level returned by getAuthorisationLevel
-	 * 
+	 *
 	 * @param authorisationLevel
 	 */
 	public void setAuthorisationLevel(int authorisationLevel) {
@@ -261,7 +261,7 @@ public class MockJythonServerFacade implements IDefaultScannableProvider, ICurre
 	public String evaluateCommand(String command) {
 		return evaluateCommandResult;
 	}
-	
+
 	public void setEvaluateCommandResult(String evaluateCommandResult) {
 		this.evaluateCommandResult = evaluateCommandResult;
 	}

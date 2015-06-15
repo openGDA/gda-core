@@ -42,11 +42,11 @@ public class ScanDataPointPublisher {
 		synchronized(dataWriter) {
 			dataWriter.addData(point);
 		}
-	
+
 		// update the filename (if this was the first data point and so
 		// filename would never be defined until first data added
 		point.setCurrentFilename(dataWriter.getCurrentFileName());
-	
+
 		// notify IObservers of this scan (e.g. GUI panels)
 		getJythonServerNotifer().notifyServer(dataSourceForObservers, point);
 	}
@@ -54,7 +54,7 @@ public class ScanDataPointPublisher {
 	public DataWriter getDataWriter() {
 		return dataWriter;
 	}
-	
+
 	public void shutdown() throws DeviceException {
 		try {
 			logger.debug("Calling data writer complete collection from SDPPL");

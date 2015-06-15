@@ -37,7 +37,7 @@ public class StaticScanNoCollection extends ScanBase {
 
 	/**
 	 * Expects detectors, scannables, or monitors in any order
-	 * 
+	 *
 	 * @param args
 	 *            Device[]
 	 * @throws IllegalArgumentException
@@ -48,7 +48,7 @@ public class StaticScanNoCollection extends ScanBase {
 				super.allDetectors.add((Detector) device);
 			} else {
 				super.allScannables.add(device);
-			} 
+			}
 		}
 		super.setUp();
 		currentPointCount = 0;

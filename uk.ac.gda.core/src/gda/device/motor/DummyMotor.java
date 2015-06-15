@@ -21,8 +21,8 @@ package gda.device.motor;
 
 import gda.device.Motor;
 import gda.device.MotorException;
-import gda.device.MotorStatus;
 import gda.device.MotorProperties.MotorEvent;
+import gda.device.MotorStatus;
 import gda.device.scannable.MotorUnitStringSupplier;
 import gda.observable.IObservable;
 
@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
  * A Dummy motor class
  */
 public class DummyMotor extends MotorBase implements Runnable, IObservable, Motor, MotorUnitStringSupplier {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DummyMotor.class);
-	
+
 	// Moves are simulated in a separate Thread (see run()) which
 	// add positionIncrement to currentPosition numberOfIncrements times
 	// at intervals of incrementalSleepTime.
@@ -72,7 +72,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	private volatile int status;
 
 	private double speed = 0;
-	
+
 	private double timeToVelocity = 0.1;
 
 	private double targetPosition;
@@ -83,7 +83,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	//dimensionless ( == 1) by default
 	private String unitString = "";
-	
+
 	// If randomlyProduceExceptions is true then a limit will be generated
 	// during a move if random.nextGaussian() produces a value greater
 	// than randomLimitTriggerLevel. When a limit is set limitCount is set
@@ -91,7 +91,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	// first
 	// 4 incremental moves will still show the limit and then it will clear.
 	private boolean randomlyProduceLimits = false;
-	
+
 	private boolean randomPositionVariation=false;
 	private double randomPositionVariationAmount = 0.;
 
@@ -151,7 +151,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 		if (Double.isNaN(minPosition)) {
 			this.minPosition = -Double.MAX_VALUE;
 		}
-		
+
 		if (Double.isNaN(maxPosition)) {
 			this.maxPosition = Double.MAX_VALUE;
 		}
@@ -162,14 +162,14 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	public void setMinPosition(double minPosition) {
 		this.minPosition = minPosition;
 	}
-	
+
 	public void setMaxPosition(double maxPosition) {
 		this.maxPosition = maxPosition;
 	}
-	
+
 	/**
 	 * Returns a string to represent the motor.
-	 * 
+	 *
 	 * @return a string to represent the motor
 	 */
 	@Override
@@ -179,7 +179,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Starts a move to requestedPosition
-	 * 
+	 *
 	 * @param requestedPosition
 	 * @throws MotorException
 	 */
@@ -240,13 +240,13 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 				notifyAll();
 			}
 		} else {
-			notifyIObservers(this, MotorEvent.MOVE_COMPLETE);			
+			notifyIObservers(this, MotorEvent.MOVE_COMPLETE);
 		}
 	}
 
 	/**
 	 * Starts the motor moving continuously
-	 * 
+	 *
 	 * @param direction
 	 *            the direction to move in
 	 */
@@ -268,7 +268,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Moves the motor by the specified amount.
-	 * 
+	 *
 	 * @param amount
 	 *            the specified amount.
 	 * @throws MotorException
@@ -280,7 +280,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Sets the current position (i.e. changes the value without actually moving).
-	 * 
+	 *
 	 * @param newPosition
 	 *            the current position
 	 */
@@ -295,7 +295,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Returns the current position
-	 * 
+	 *
 	 * @return the current position
 	 */
 	@Override
@@ -305,7 +305,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Set the speed
-	 * 
+	 *
 	 * @param stepsPerSecond
 	 *            the new speed
 	 * @throws MotorException
@@ -317,7 +317,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Return the current speed.
-	 * 
+	 *
 	 * @return the current speed
 	 * @throws MotorException
 	 */
@@ -325,20 +325,20 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	public double getSpeed() throws MotorException {
 		return speed;
 	}
-	
+
 	@Override
 	public void setTimeToVelocity(double timeToVelocity) throws MotorException {
 		this.timeToVelocity = timeToVelocity;
 	}
-	
+
 	@Override
 	public double getTimeToVelocity() throws MotorException {
 		return timeToVelocity;
 	}
-	
+
 	/**
 	 * Stop the motor
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override
@@ -350,7 +350,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Should do an immediate stop but actually does the same as stop() *
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override
@@ -361,7 +361,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Returns the current status.
-	 * 
+	 *
 	 * @return the current status
 	 */
 	@Override
@@ -371,7 +371,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Returns whether or not the motor is moving.
-	 * 
+	 *
 	 * @return true if the motor is moving
 	 */
 	@Override
@@ -500,7 +500,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Returns whether the motor will randomly produce exceptions. Stupid name of method forced by the conventions.
-	 * 
+	 *
 	 * @return whether the motor will randomly produce exceptions
 	 */
 	public boolean isRandomlyProduceExceptions() {
@@ -509,7 +509,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Sets the randomlyProduceExceptions flag.
-	 * 
+	 *
 	 * @param randomlyProduceExceptions
 	 */
 	public void setRandomlyProduceExceptions(boolean randomlyProduceExceptions) {
@@ -519,7 +519,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	/**
 	 * Returns whether or not the motor is homeable. For real motors this is a fixed property however DummyMotor allows
 	 * it to be set in XML.
-	 * 
+	 *
 	 * @return true if motor is homeable
 	 */
 	@Override
@@ -529,7 +529,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Tells the motor to home itself.
-	 * 
+	 *
 	 * @throws MotorException
 	 */
 	@Override
@@ -541,7 +541,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Returns whether or not the motor has been homed.
-	 * 
+	 *
 	 * @return true if motor is already homed
 	 */
 	@Override
@@ -551,7 +551,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Gets the value of the trigger level for randomly produced expections.
-	 * 
+	 *
 	 * @return the trigger level
 	 */
 	public double getRandomExceptionTriggerLevel() {
@@ -561,7 +561,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	/**
 	 * Sets the trigger level for randomly produced exceptions. The value is used in the same way as the
 	 * randomLimitTriggerLevel. See setRandomLimitTriggerLevel() for an explanation.
-	 * 
+	 *
 	 * @param randomExceptionTriggerLevel
 	 *            the new value
 	 */
@@ -571,7 +571,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Gets the trigger level for randomly produced limits.
-	 * 
+	 *
 	 * @return the trigger level for randomly produced limits
 	 */
 	public double getRandomLimitTriggerLevel() {
@@ -583,7 +583,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 	 * distribution with centre 0.0 and sigma 1.0. A random limit is triggered if abs(random number) is greater than
 	 * trigger level. This means a value of 1.0 will trigger roughly 40% of the time, 2.0 roughly 5% and 3.0 roughly
 	 * 0.3%. The default value of 10.0 has a negligable chance of triggering an event.
-	 * 
+	 *
 	 * @param randomLimitTriggerLevel
 	 */
 	public void setRandomLimitTriggerLevel(double randomLimitTriggerLevel) {
@@ -592,7 +592,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Gets the value of the randomlyProduceLimits flag. Stupid name because of conventions.
-	 * 
+	 *
 	 * @return true if motor produces ramndom limits
 	 */
 	public boolean isRandomlyProduceLimits() {
@@ -601,7 +601,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Sets randomlyProduceLimits flag.
-	 * 
+	 *
 	 * @param randomlyProduceLimits
 	 */
 	public void setRandomlyProduceLimits(boolean randomlyProduceLimits) {
@@ -610,7 +610,7 @@ public class DummyMotor extends MotorBase implements Runnable, IObservable, Moto
 
 	/**
 	 * Sets the isHomeable flag - real motors would not allow this of course.
-	 * 
+	 *
 	 * @param isHomeable
 	 */
 	public void setHomeable(boolean isHomeable) {

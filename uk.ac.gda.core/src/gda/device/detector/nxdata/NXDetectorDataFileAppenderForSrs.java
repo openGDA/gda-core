@@ -59,7 +59,7 @@ public class NXDetectorDataFileAppenderForSrs implements NXDetectorDataAppender 
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) {

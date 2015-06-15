@@ -28,13 +28,13 @@ public class SimpleScanParameters implements Serializable {
 	private Double start;
 	private Double end;
 	private Integer seconds;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	static public final URL mappingURL = SimpleScanParameters.class.getResource("SimpleScanParametersMapping.xml");
 	/**
-	 * 
+	 *
 	 */
 	static public final URL schemaURL  = SimpleScanParameters.class.getResource("SimpleScanParametersMapping.xsd");
 	public String getName() {
@@ -102,7 +102,7 @@ public class SimpleScanParameters implements Serializable {
 			return false;
 		return true;
 	}
-	
+
 	/**
 	 * Must implement clear() method on beans being used with BeanUI.
 	 */
@@ -111,8 +111,8 @@ public class SimpleScanParameters implements Serializable {
 		seconds    = null;
 		start   = null;
 		name    = null;
-	}	
-	
+	}
+
 	/**
 	 *
 	 */
@@ -123,5 +123,5 @@ public class SimpleScanParameters implements Serializable {
 		} catch (Exception e) {
 			return e.getMessage();
 		}
-	}	
+	}
 }

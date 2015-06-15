@@ -26,7 +26,7 @@ import java.io.Serializable;
  */
 public class UserOption<S, T> implements Serializable {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 3868569116255386440L;
 
@@ -46,7 +46,7 @@ public class UserOption<S, T> implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public T value;
 
@@ -108,6 +108,6 @@ public class UserOption<S, T> implements Serializable {
 	public int hashCode() {
 		return super.hashCode();
 	}
-	
-	
+
+
 }

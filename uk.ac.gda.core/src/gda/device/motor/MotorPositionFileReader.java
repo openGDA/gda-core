@@ -122,7 +122,7 @@ public class MotorPositionFileReader extends JFrame {
 
 		/**
 		 * Creates and sets layout for the file parameters panel
-		 * 
+		 *
 		 * @return panelFileParameters
 		 */
 		private JPanel createFileParametersPanel() {
@@ -157,7 +157,7 @@ public class MotorPositionFileReader extends JFrame {
 
 		/**
 		 * Creates and sets out the panel for the stored values to be displayed.
-		 * 
+		 *
 		 * @return panelStoredValues
 		 */
 		private JPanel createStoredValuesPanel() {
@@ -225,7 +225,7 @@ public class MotorPositionFileReader extends JFrame {
 
 		/**
 		 * Checks to whether text fields have content and prompts for action if not.
-		 * 
+		 *
 		 * @return valid if content is present in both fields
 		 */
 		private boolean validateFileFields() {
@@ -244,7 +244,7 @@ public class MotorPositionFileReader extends JFrame {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public MotorPositionFileReader() {
 		super("Motor Position Reader");

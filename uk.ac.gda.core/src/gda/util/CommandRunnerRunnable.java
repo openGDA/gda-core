@@ -26,21 +26,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Findable implementer of Runnable whose run method calls InterfaceProvider.getCommandRunner().runCommand() 
+ * Findable implementer of Runnable whose run method calls InterfaceProvider.getCommandRunner().runCommand()
  * with the command property set by setCommand
  * Simple set the command to null or empty for the pollDone method to do nothing
  */
 public class CommandRunnerRunnable extends DeviceBase implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(CommandRunnerRunnable.class);
-	
+
 	String command;
 	/**
-	 * 
+	 *
 	 */
 	public CommandRunnerRunnable(){
 		setLocal(true);
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		setConfigured(true);
@@ -51,7 +51,7 @@ public class CommandRunnerRunnable extends DeviceBase implements Runnable {
 	public String getCommand() {
 		return command;
 	}
-	
+
 	/**
 	 * @param command that is sent to InterfaceProvider.getCommandRunner().runCommand()
 	 */
@@ -75,5 +75,5 @@ public class CommandRunnerRunnable extends DeviceBase implements Runnable {
 			}
 		}
 	}
-	
+
 }

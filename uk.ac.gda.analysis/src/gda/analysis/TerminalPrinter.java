@@ -61,7 +61,7 @@ public class TerminalPrinter {
 	/**
 	 * @param output The string to write to the terminal
 	 */
-	public static void print(String output) {	
+	public static void print(String output) {
 		if (print == null) findPrinter();
 		if (print != null) {
 			try {

@@ -47,7 +47,7 @@ public class DummyCallable implements Callable<Object> {
 	public Boolean isReady() {
 		return (readySignal.getCount()==0);
 	}
-	
+
 	@Override
 	public String toString() {
 		return "DummyCallable: " + id + (isReady() ? " is ready" : " is not ready");

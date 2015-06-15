@@ -41,7 +41,7 @@ public class GdaSubProcessBuilder {
 	private String reply = "";
 
 	/**
-	 * 
+	 *
 	 */
 	public GdaSubProcessBuilder() {
 		pb = new ProcessBuilder();
@@ -50,7 +50,7 @@ public class GdaSubProcessBuilder {
 
 	/**
 	 * Run the command
-	 * 
+	 *
 	 * @param proc
 	 * @param sync
 	 * @param options

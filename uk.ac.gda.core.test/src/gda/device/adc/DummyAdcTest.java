@@ -19,16 +19,16 @@
 
 package gda.device.adc;
 
-import static org.junit.Assert.*;
-import gda.device.adc.DummyAdc;
-import gda.device.adc.DummyValueSuggester;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import gda.device.DeviceException;
 
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * 
+ *
  */
 public class DummyAdcTest implements DummyValueSuggester {
 	private DummyAdc dummyAdc;
@@ -45,7 +45,7 @@ public class DummyAdcTest implements DummyValueSuggester {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testDummyAdc() {

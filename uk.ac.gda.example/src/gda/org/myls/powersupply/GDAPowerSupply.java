@@ -51,5 +51,5 @@ public class GDAPowerSupply extends  CorbarisablePowerSupplyBase implements IObs
 	@Override
 	public String toString() {
 		return "[PowerSupply:" + name + (getOn() ? "On" : "Off") + "]";
-	}		
+	}
 }

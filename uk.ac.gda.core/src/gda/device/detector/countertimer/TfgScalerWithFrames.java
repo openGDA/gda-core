@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
  * time frames so that timing grousp are used across the scan instead of doing a tfg generate command at each point.
  */
 public class TfgScalerWithFrames extends TfgScalerWithLogValues {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(TfgScalerWithFrames.class);
-	
+
 	private Double[] times; // milliseconds
 
 	public Double[] getTimes() {
@@ -78,19 +78,19 @@ public class TfgScalerWithFrames extends TfgScalerWithLogValues {
 		super.atCommandFailure();
 		stop();
 	}
-	
+
 	@Override
 	public void stop() throws DeviceException {
 		clearTimesArray();
 		super.stop();
 	}
-	
+
 	@Override
 	public void clearFrameSets() throws DeviceException {
 		clearTimesArray();
 		super.clearFrameSets();
 	}
-	
+
 	private void clearTimesArray() {
 		times = null;
 		logger.debug("array of frame times cleared in " + getName());

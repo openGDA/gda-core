@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 @Deprecated
 public class GenericDataHandler extends DataWriterBase implements DataWriter {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(GenericDataHandler.class);
 
 	private IScanDataPoint mDataPoint = null;
@@ -81,9 +81,9 @@ public class GenericDataHandler extends DataWriterBase implements DataWriter {
 
 	/**
 	 * Add a data point to the structure.
-	 * 
+	 *
 	 * @param newData
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -131,7 +131,7 @@ public class GenericDataHandler extends DataWriterBase implements DataWriter {
 
 	/**
 	 * Add the GenericData object to the DataManager.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Override
 	public void completeCollection() throws Exception {
@@ -180,7 +180,7 @@ public class GenericDataHandler extends DataWriterBase implements DataWriter {
 		// Now add the current data structure to the data manager again, but
 		// using the new run number.
 		mDataManager.add(new Long(mRuns.getCurrentFileNumber()).toString(), mData);
-		
+
 		super.completeCollection();
 	}
 
@@ -191,7 +191,7 @@ public class GenericDataHandler extends DataWriterBase implements DataWriter {
 
 	/**
 	 * Return a reference to the GenericData structure.
-	 * 
+	 *
 	 * @return Object
 	 */
 	public Object getData() {
@@ -236,7 +236,7 @@ public class GenericDataHandler extends DataWriterBase implements DataWriter {
 
 	/**
 	 * Set the header to be written to the data structure, which will be labelled "header".
-	 * 
+	 *
 	 * @param header
 	 */
 	@Override

@@ -41,15 +41,15 @@ public class DummyHardwareTriggerableDetectorTest {
 		det = new DummyHardwareTriggerableSimpleDetector("det");
 	}
 
-	
-	
+
+
 	@Test
 	public void testOperationInEmulatedScan() throws Exception {
 		assertEquals(det.getStatus(), Detector.IDLE);
 		HardwareTriggerProvider triggerProvider = mock(HardwareTriggerProvider.class);
 		det.setHardwareTriggerProvider(triggerProvider);
 		assertEquals(det.isHardwareTriggering(), false);
-		
+
 		det.atScanLineStart();
 		det.setCollectionTime(.2);
 		det.collectData();
@@ -61,18 +61,18 @@ public class DummyHardwareTriggerableDetectorTest {
 		assertEquals(Math.cos(.4),  det.getPositionCallable().call(), .0001);
 		det.atScanLineEnd();
 	}
-	
+
 	@Test
 	public void testOperationInEmulatedScanWithHardwareTriggering() throws Exception {
 		HardwareTriggerProvider triggerProvider = mock(HardwareTriggerProvider.class);
 		when(triggerProvider.getNumberTriggers()).thenReturn(2);
 		det.setHardwareTriggerProvider(triggerProvider);
-		
+
 		det.setHardwareTriggering(true);
 		det.simulate = true;
 		assertEquals(true, det.isHardwareTriggering());
 		assertEquals(Detector.IDLE, det.getStatus());
-		
+
 		det.atScanLineStart();
 		det.setCollectionTime(.2);
 		assertEquals(Detector.IDLE, det.getStatus());
@@ -83,7 +83,7 @@ public class DummyHardwareTriggerableDetectorTest {
 		det.waitWhileBusy();
 		Callable<Double> positionCallable2 = det.getPositionCallable();
 		det.atScanLineEnd();
-		
+
 		det.collectData();
 		assertEquals(Detector.BUSY, det.getStatus());
 		det.update(null, null);
@@ -91,12 +91,12 @@ public class DummyHardwareTriggerableDetectorTest {
 		det.update(null, null);
 		Thread.sleep(1000);
 		assertEquals(Detector.IDLE, det.getStatus());
-		
-				
+
+
 		assertEquals(Math.cos(.2),  positionCallable1.call(), .0001);
 		assertEquals(Math.cos(.4),  positionCallable2.call(), .0001);
 	}
-	
+
 	private void setupTerminal() {
 		ITerminalPrinter terminalPrinter = new ITerminalPrinter(){
 			@Override
@@ -106,5 +106,5 @@ public class DummyHardwareTriggerableDetectorTest {
 		};
 		InterfaceProvider.setTerminalPrinterForTesting(terminalPrinter );
 	}
-	
+
 }

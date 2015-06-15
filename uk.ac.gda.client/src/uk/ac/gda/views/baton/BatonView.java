@@ -55,14 +55,14 @@ import com.swtdesigner.SWTResourceManager;
 public class BatonView extends ViewPart implements IObserver{
 
 	private static final Logger logger = LoggerFactory.getLogger(BatonView.class);
-	
+
 	public static final String ID = "gda.rcp.views.baton.BatonView"; //$NON-NLS-1$
-	
+
 	protected TableViewer userTable;
 
 	private static enum columnType {CLIENT_NUMBER, USER, NAME, HOSTNAME, VISIT, HOLDING_BATON, AUTH_LEVEL}
 	private static String[] columnToolTip = {"Client\nNumber", "User", "Name", "Hostname", "Visit", "Holding\nBaton", "Authorisation\nLevel"};
-	
+
 	public BatonView() {
 		try {
 			GDAClientActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.KEEP_BATON);
@@ -71,7 +71,7 @@ public class BatonView extends ViewPart implements IObserver{
 			logger.error("Cannot connect to JythonServerFacade from BatonView", e);
 		}
 	}
-	
+
 	@Override
 	public void init(final IViewSite site) throws PartInitException {
 		super.init(site);
@@ -87,21 +87,21 @@ public class BatonView extends ViewPart implements IObserver{
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		
+
 		if (!LocalProperties.isBatonManagementEnabled()) {
 			final Label error = new Label(parent, SWT.NONE);
 			error.setText("Baton control is not enabled for this beam line.");
 			return;
 		}
-		
+
 		Composite container = new Composite(parent, SWT.NONE);
 		container.setLayout(new GridLayout());
-		
+
 		final Table    table    = new Table(container, SWT.SINGLE | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.HIDE_SELECTION);
 		final GridData gridData = new GridData(GridData.FILL_BOTH);
 		gridData.grabExcessVerticalSpace = true;
 		gridData.horizontalSpan = 3;
-		table.setLayoutData(gridData);						
+		table.setLayoutData(gridData);
 		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
 
@@ -110,21 +110,21 @@ public class BatonView extends ViewPart implements IObserver{
 		createTableColumns();
 		createContentProvider();
 
-		
+
 		getSite().setSelectionProvider(userTable);
 		try {
 			userTable.setInput(InterfaceProvider.getBatonStateProvider().getMyDetails());
 		} catch (Exception e) {
 			logger.error("Cannot connect to Jython Server Facade from "+getClass().getName());
 		}
-		
+
 		createRightClickMenu();
 		initializeToolBar();
 		initializeMenu();
 	}
-	
-	
-	private void createRightClickMenu() {	
+
+
+	private void createRightClickMenu() {
 	    final MenuManager menuManager = new MenuManager();
 	    userTable.getControl().setMenu (menuManager.createContextMenu(userTable.getControl()));
 		getSite().registerContextMenu(menuManager, userTable);
@@ -155,9 +155,9 @@ public class BatonView extends ViewPart implements IObserver{
 	}
 
 	private void createTableColumns() {
-		
+
 		ColumnViewerToolTipSupport.enableFor(userTable,ToolTip.NO_RECREATE);
-    
+
 		int first = columnType.CLIENT_NUMBER.ordinal();
 		final TableViewerColumn number = new TableViewerColumn(userTable, SWT.NONE, first);
 		number.getColumn().setText(columnToolTip[first]);
@@ -169,13 +169,13 @@ public class BatonView extends ViewPart implements IObserver{
 		userName.getColumn().setText(columnToolTip[second]);
 		userName.getColumn().setWidth(150);
 		userName.setLabelProvider(new BatonColumnLabelProvider(second));
-		
+
 		int nameIndex = columnType.NAME.ordinal();
 		final TableViewerColumn nameColumn = new TableViewerColumn(userTable, SWT.NONE, nameIndex);
 		nameColumn.getColumn().setText(columnToolTip[nameIndex]);
 		nameColumn.getColumn().setWidth(200);
 		nameColumn.setLabelProvider(new BatonColumnLabelProvider(nameIndex));
-		
+
 		int third = columnType.HOSTNAME.ordinal();
 		final TableViewerColumn hostName = new TableViewerColumn(userTable, SWT.NONE, third);
 		hostName.getColumn().setText(columnToolTip[third]);
@@ -193,7 +193,7 @@ public class BatonView extends ViewPart implements IObserver{
 		hasBaton.getColumn().setText(columnToolTip[fifth]);
 		hasBaton.getColumn().setWidth(100);
 		hasBaton.setLabelProvider(new BatonColumnLabelProvider(fifth));
-		
+
 		int sixth = columnType.AUTH_LEVEL.ordinal();
 		final TableViewerColumn authLevel = new TableViewerColumn(userTable, SWT.NONE, sixth);
 		authLevel.getColumn().setText(columnToolTip[sixth]);
@@ -202,14 +202,14 @@ public class BatonView extends ViewPart implements IObserver{
 	}
 
 	private class BatonColumnLabelProvider extends ColumnLabelProvider {
-		
+
 		private int columnIndex;
 		BatonColumnLabelProvider(int columnIndex) {
 			this.columnIndex = columnIndex;
 		}
-		
+
 	    final Image flagGreen     = SWTResourceManager.getImage(BatonView.class,   "/flag_green.png");
-		
+
 	    @Override
 		public Image getImage(Object element) {
 			if (!(element instanceof ClientDetails)) return super.getImage(element);
@@ -217,10 +217,10 @@ public class BatonView extends ViewPart implements IObserver{
 			final ClientDetails detail = (ClientDetails)element;
 			if (detail.isHasBaton()) {
 				return flagGreen;
-			} 
+			}
 			return null;
 		}
-	    
+
 		@Override
 		public String getText(Object element) {
 			if (!(element instanceof ClientDetails)) return super.getText(element);
@@ -246,7 +246,7 @@ public class BatonView extends ViewPart implements IObserver{
 			}
 			return null;
 		}
-		
+
 		@Override
 		public String getToolTipText(Object element) {
 			if (!(element instanceof ClientDetails)) return super.getToolTipText(element);
@@ -272,7 +272,7 @@ public class BatonView extends ViewPart implements IObserver{
 		}
 
 	}
-	
+
 	private void initializeToolBar() {
 		@SuppressWarnings("unused")
 		IToolBarManager toolbarManager = getViewSite().getActionBars()
@@ -302,7 +302,7 @@ public class BatonView extends ViewPart implements IObserver{
 			});
 		}
 	}
-	
+
 	@Override
 	public void dispose() {
 		try {

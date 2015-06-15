@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
  * This is findable and configurable, so it may be started by an ObjectServer,
  * but it is not intended to be operated over CORBA.
  * J1394 protocol string explaination
- * 
+ *
  * j1394://0,1,4,3
  * first number represents camera index
  * second number represents CMU format
@@ -76,7 +76,7 @@ import org.slf4j.LoggerFactory;
  * 1024 X 768 = 1
  * 1280 X 960 = 2
  * 1600 X 1200 = 2
- * 
+ *
  * CMU Mode
  * 160 X 120(3)YUV = 0
  * 320 X 240(2)YUV = 1
@@ -99,13 +99,13 @@ import org.slf4j.LoggerFactory;
  * 1600 X 1200(2)YUV = 3
  * 1600 X 1200(3)RGB = 4
  * 1600 X 1200(1)Y   = 5
- * 
+ *
  * CMU Frame Rate
- *  0 = 1.875  
- *  1 = 3.75  
- *  2 = 7.5  
- *  3 = 15  
- *  4 = 30  
+ *  0 = 1.875
+ *  1 = 3.75
+ *  2 = 7.5
+ *  3 = 15
+ *  4 = 30
  *  5 = 60
  */
 public class CMUServer implements Findable, Configurable {
@@ -182,7 +182,7 @@ public class CMUServer implements Findable, Configurable {
 
 	/**
 	 * To run this as an independent program
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -248,16 +248,16 @@ public class CMUServer implements Findable, Configurable {
 
 			/**
 			 * Sets the video FrameRate. <br/> Valid values are
-			 * 
+			 *
 			 * <pre>
-			 *      Code | Rate (fps)  
-			 *       0   | 1.875  
-			 *       1   | 3.75  
-			 *       2   | 7.5  
-			 *       3   | 15  
-			 *       4   | 30  
+			 *      Code | Rate (fps)
+			 *       0   | 1.875
+			 *       1   | 3.75
+			 *       2   | 7.5
+			 *       3   | 15
+			 *       4   | 30
 			 *       5   | 60
-			 * 
+			 *
 			 */
 			// camera.getVideoModes().setVideoFrameRate(desiredMode.selectedFrameRate);
 			camera.getVideoModes().setVideoFrameRate(1);
@@ -461,7 +461,7 @@ public class CMUServer implements Findable, Configurable {
 
 		/**
 		 * Constructor
-		 * 
+		 *
 		 * @param reader
 		 */
 		public ListenForCommandsThread(BufferedReader reader) {

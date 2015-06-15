@@ -72,12 +72,12 @@ import org.slf4j.LoggerFactory;
 public class ScannableCommands {
 
 	private static final Logger logger = LoggerFactory.getLogger(ScannableCommands.class);
-	
+
 	private static boolean posCommandIsInTheProcessOfListingAllScannables = false;
 
 	/**
 	 * The pos command. Reports the current position of a scannable or moves one or more scannables concurrently.
-	 * 
+	 *
 	 * @param args
 	 * @return String reporting final positions
 	 * @throws Exception
@@ -127,10 +127,10 @@ public class ScannableCommands {
 					}
 					scannablesByLevel.get(level).add(scn);
 				}
-				
+
 				// Move scannables of the same level concurrently
 				String output = "Move completed: "; // KLUDGE
-				
+
 				for (Entry<Integer, List<Scannable>> currentLevelScannables:scannablesByLevel.entrySet() ){
 					for (Scannable scn1: currentLevelScannables.getValue()){
 						scn1.atLevelStart();
@@ -191,7 +191,7 @@ public class ScannableCommands {
 				if (scannableList.length > 1){
 					output += "\n";
 				}
-				
+
 				// return position
 				for (Scannable scn3: scannableList){
 					output += ScannableUtils.getFormattedCurrentPosition(scn3) + "\n";
@@ -225,10 +225,10 @@ public class ScannableCommands {
 		}
 	}
 
-	
+
 	/**
 	 * The pos command. Reports the current position of a scannable or moves one or more scannables concurrently.
-	 * 
+	 *
 	 * @param args
 	 * @throws Exception
 	 *             - any exception within this method
@@ -293,10 +293,10 @@ public class ScannableCommands {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Single argument version of pos - used by the pos.py script
-	 * 
+	 *
 	 * @param args
 	 * @return String reporting final positions
 	 */
@@ -313,7 +313,7 @@ public class ScannableCommands {
 	 * Gets a list of names of all the scannables on the server
 	 */
 	public static List<String> getScannableNames() throws DeviceException {
-		
+
 		List<String> scannables = new ArrayList<String>();
 
 		Map<String, Object> map = InterfaceProvider.getJythonNamespace().getAllFromJythonNamespace();
@@ -323,14 +323,14 @@ public class ScannableCommands {
 				scannables.add(((Scannable) obj).getName());
 			}
 		}
-		
+
 		return scannables;
-		
+
 	}
-	
+
 	/**
 	 * prints to console all the scannables and their current position in the system
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public static void pos() throws DeviceException {
 		posCommandIsInTheProcessOfListingAllScannables = true;
@@ -346,7 +346,7 @@ public class ScannableCommands {
 							.getGroupMemberNames());
 				}
 			}
-			
+
 			// remove those members from the global list, if they are there
 			for (String groupMember : scannableGroupMembers){
 				if (map.keySet().contains(groupMember))
@@ -354,7 +354,7 @@ public class ScannableCommands {
 					map.remove(groupMember);
 				}
 			}
-			
+
 			// find the longest name, to help with formatting the output
 			int longestName = 0;
 			for (String objName : map.keySet()){
@@ -363,8 +363,8 @@ public class ScannableCommands {
 					longestName = objName.length();
 				}
 			}
-			
-			
+
+
 			// then loop over the reduced list and print each item separately, logging any errors if they occur
 			for (String objName : map.keySet()) {
 				Object obj = map.get(objName);
@@ -390,10 +390,10 @@ public class ScannableCommands {
 	public static boolean isPosCommandIsInTheProcessOfListingAllScannables() {
 		return posCommandIsInTheProcessOfListingAllScannables;
 	}
-	
+
 	/**
 	 * Relative move version of pos.
-	 * 
+	 *
 	 * @param args
 	 * @return String - reporting final positions
 	 * @throws Exception
@@ -452,7 +452,7 @@ public class ScannableCommands {
 
 	/**
 	 * Relative move version of pos.
-	 * 
+	 *
 	 * @param args
 	 * @throws Exception
 	 */
@@ -555,7 +555,7 @@ public class ScannableCommands {
 
 	/**
 	 * Sets up and operates a ConcurrentScan. The scan which should be used most of the time.
-	 * 
+	 *
 	 * @param args
 	 * @throws Exception
 	 */
@@ -569,7 +569,7 @@ public class ScannableCommands {
 		doCommandLineSpecificConcurrentScanSetup(scan);
 		return scan;
 	}
-	
+
 	/**
 	 * Warning: anything done in this method will not be done for scans created programmatically (e.g. in scripts).
 	 */
@@ -589,14 +589,14 @@ public class ScannableCommands {
 		// scannables as typed by the user (ignoring levels, and default scannables) rather
 		// than to the list generated internally by ConcurrentScan.
 		boolean fromUserList = LocalProperties.check(GDA_PLOT_SCAN_PLOT_SETTINGS_FROM_USER_LIST, true);
-		
+
 		// get index of x-axis field, defaulting to -1 indicating the last)
 		Integer XaxisIndex = LocalProperties.getAsInt(GDA_PLOT_SCAN_PLOT_SETTINGS_XAXIS, -1);
-		
+
 		// get index of y-axis fields to make visible, defaulting to [-1]
 		List<Integer> YAxesShownIndices = LocalProperties.getAsIntList(GDA_PLOT_SCAN_PLOT_SETTINGS_YAXES,
 				new Integer[] { -1 });
-		
+
 		// Get index of y-axis fields to show but make invisible, defaulting to null which will cause
 		// all y axes to be shown and made invisible, except those set explicitly visible
 		List<Integer> YAxesNotShownIndices = LocalProperties.getAsIntList(GDA_PLOT_SCAN_PLOT_SETTINGS_YAXES_INVISIBLE);
@@ -615,13 +615,13 @@ public class ScannableCommands {
 		}
 		return sps;
 	}
-	
+
 	public static void configureScanPipelineParameters(ScanBase scan) {
 		int scanDataPointQueueLength = LocalProperties.getInt(
 				LocalProperties.GDA_SCAN_MULTITHREADED_SCANDATA_POINT_PIPElINE_LENGTH, 4);
 		int pointsToComputeSimultaneousely = LocalProperties.getInt(
 				LocalProperties.GDA_SCAN_MULTITHREADED_SCANDATA_POINT_PIPElINE_POINTS_TO_COMPUTE_SIMULTANEOUSELY, 3);
-		int positionCallableThreadPoolSize = pointsToComputeSimultaneousely * 
+		int positionCallableThreadPoolSize = pointsToComputeSimultaneousely *
 				scan.numberOfScannablesThatCanProvidePositionCallables();
 
 		/*
@@ -645,7 +645,7 @@ public class ScannableCommands {
 
 	/**
 	 * Sets up and operates a PointsScan.
-	 * 
+	 *
 	 * @param args
 	 * @throws Exception
 	 */
@@ -656,7 +656,7 @@ public class ScannableCommands {
 
 	/**
 	 * Sets up and operates a CentroidScan.
-	 * 
+	 *
 	 * @param args
 	 * @throws Exception
 	 */
@@ -668,7 +668,7 @@ public class ScannableCommands {
 
 	/**
 	 * Sets up and operates a StaticScan.
-	 * 
+	 *
 	 * @param args
 	 * @throws Exception
 	 */
@@ -681,7 +681,7 @@ public class ScannableCommands {
 	 * Creates and runs a grid scan.
 	 * <p>
 	 * I'm not sure how much this is used so I haven't included all GridScan constructors.
-	 * 
+	 *
 	 * @param args
 	 * @throws Exception
 	 */
@@ -707,7 +707,7 @@ public class ScannableCommands {
 
 	/**
 	 * Time scan
-	 * 
+	 *
 	 * @param args
 	 * @throws Exception
 	 */
@@ -770,7 +770,7 @@ public class ScannableCommands {
 
 	/**
 	 * Time scan
-	 * 
+	 *
 	 * @param args
 	 * @throws Exception
 	 */
@@ -816,7 +816,7 @@ public class ScannableCommands {
 
 	/**
 	 * Sets up and operates a TestScan.
-	 * 
+	 *
 	 * @param args
 	 * @throws Exception
 	 */
@@ -830,19 +830,19 @@ public class ScannableCommands {
 	 * <p>
 	 * This command can be used within a 'scan' command so that a continuousscan can be used within a multi-dimension
 	 * step scan.
-	 * 
+	 *
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void cv(Object... args) throws Exception {
-		
+
 		String usageMessage = "continuousscan continuouslyScannable start stop numberPoints totaltime bufferedDetector(s) ";
-		
+
 		//test correct number of args
 		if (args.length < 6 || !(args[0] instanceof ContinuouslyScannable)) {
 			throw new IllegalArgumentException(usageMessage);
 		}
-		
+
 		//unpack array of detectors. This may be in an array of Java objects or a Jython list
 		BufferedDetector[] detectors;
 		if (args[5] instanceof BufferedDetector) {
@@ -870,7 +870,7 @@ public class ScannableCommands {
 			throw new IllegalArgumentException(usageMessage);
 		}
 
-		
+
 		double start = ScannableUtils.objectToArray(args[1])[0];
 		double stop = ScannableUtils.objectToArray(args[2])[0];
 		int numberSteps = ScannableUtils.objectToArray(args[3])[0].intValue();
@@ -883,7 +883,7 @@ public class ScannableCommands {
 	/**
 	 * Accessor method for the level attribute of Scannables. This dictates the order in which Scannables are operated
 	 * at each node of a scan.
-	 * 
+	 *
 	 * @param args
 	 * @return null or the level of the scannable
 	 * @throws IllegalArgumentException

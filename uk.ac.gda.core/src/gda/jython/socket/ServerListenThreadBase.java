@@ -62,7 +62,7 @@ public abstract class ServerListenThreadBase extends Thread {
 		} catch (IOException ex) {
 			logger.error("Error while communicating with CommandServer via socket: " + ex.getMessage());
 		}
-		
+
 		sessionClosedCallback.sessionClosed();
 	}
 

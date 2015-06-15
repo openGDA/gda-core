@@ -64,7 +64,7 @@ public class DummyPEM90 extends DeviceBase implements Modulator, Findable {
 	 */
 	public DummyPEM90() {
 	}
-	
+
 	@Override
 	public void configure(){
 		// no configuration required
@@ -72,7 +72,7 @@ public class DummyPEM90 extends DeviceBase implements Modulator, Findable {
 
 	/**
 	 * gets the current wavelength from the device
-	 * 
+	 *
 	 * @return current Wavelength in nanometers
 	 */
 	@Override
@@ -82,7 +82,7 @@ public class DummyPEM90 extends DeviceBase implements Modulator, Findable {
 
 	/**
 	 * Sets the wavelenth between(00000.0 - 19999.9)
-	 * 
+	 *
 	 * @param wavelen
 	 *            the wavelength to be set
 	 * @throws DeviceException
@@ -99,7 +99,7 @@ public class DummyPEM90 extends DeviceBase implements Modulator, Findable {
 
 	/**
 	 * gets the current retardation set in the device
-	 * 
+	 *
 	 * @return retardation
 	 */
 	@Override
@@ -112,7 +112,7 @@ public class DummyPEM90 extends DeviceBase implements Modulator, Findable {
 
 	/**
 	 * sets the retardation between (0000 to 1000)
-	 * 
+	 *
 	 * @param retard
 	 *            amount of retardation
 	 * @throws DeviceException
@@ -143,7 +143,7 @@ public class DummyPEM90 extends DeviceBase implements Modulator, Findable {
 
 	/**
 	 * Controls the ON/OFF of echo
-	 * 
+	 *
 	 * @param echocommand
 	 *            boolean to switch echo
 	 */
@@ -154,7 +154,7 @@ public class DummyPEM90 extends DeviceBase implements Modulator, Findable {
 
 	/**
 	 * reads the reference frequency
-	 * 
+	 *
 	 * @param numberOfTimes
 	 *            can be one /two
 	 * @return Frequency in KiloHertz
@@ -166,7 +166,7 @@ public class DummyPEM90 extends DeviceBase implements Modulator, Findable {
 
 	/**
 	 * sets the retardation to INHIBIT/NORMAL mode
-	 * 
+	 *
 	 * @param inhibitRetardation
 	 *            boolean
 	 */

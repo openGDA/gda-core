@@ -28,7 +28,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
  *
  */
 public class LivePlotHideAllHandler extends AbstractHandler {
-	
+
 	/**
 	 * ID of command
 	 */
@@ -36,8 +36,8 @@ public class LivePlotHideAllHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
-		
+
+
 			IWorkbenchPart view = HandlerUtil.getActivePartChecked(event);
 			if(view instanceof LivePlotView){
 				LivePlotView livePlotView = (LivePlotView)view;

@@ -39,7 +39,7 @@ public class ObjectCloner {
 
 	/**
 	 * Returns a deep copy of an object.
-	 * 
+	 *
 	 * @param oldObj
 	 * @return Object
 	 * @throws Exception

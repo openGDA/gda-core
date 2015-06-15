@@ -44,7 +44,7 @@ public class DigitalioImpl extends CorbaDigitalIOPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param digitalio
 	 *            the DigitalIO implementation object
 	 * @param poa
@@ -58,7 +58,7 @@ public class DigitalioImpl extends CorbaDigitalIOPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the DigitalIO implementation object
 	 */
 	public DigitalIO _delegate() {
@@ -67,7 +67,7 @@ public class DigitalioImpl extends CorbaDigitalIOPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param digitalio
 	 *            set the DigitalIO implementation object
 	 */
@@ -196,7 +196,7 @@ public class DigitalioImpl extends CorbaDigitalIOPOA {
 	public void close() throws CorbaDeviceException {
 		deviceImpl.close();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();

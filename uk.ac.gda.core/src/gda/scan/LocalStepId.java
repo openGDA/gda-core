@@ -18,7 +18,6 @@
 
 package gda.scan;
 
-import gda.scan.IScanStepId;
 
 /**
  * Test implementation of IScanStepId.
@@ -33,5 +32,5 @@ public class LocalStepId implements IScanStepId{
 	public String asLabel() {
 		return label;
 	}
-	
+
 }

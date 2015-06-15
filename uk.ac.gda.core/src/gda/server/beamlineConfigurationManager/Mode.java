@@ -75,7 +75,7 @@ public class Mode {
 
 	/**
 	 * This is the real constructor. It creates the necessary snapshot too.
-	 * 
+	 *
 	 * @param name
 	 * @param shortDescription
 	 */
@@ -147,7 +147,7 @@ public class Mode {
 
 	/**
 	 * Lists the snapshot of current mode
-	 * 
+	 *
 	 * @return list of snapshots
 	 */
 	@SuppressWarnings("unchecked")
@@ -157,7 +157,7 @@ public class Mode {
 		Query q = em.createNativeQuery(qs);
 		List<List<Date>> results = q.getResultList();
 		List<Date> shots = new ArrayList<Date>();
-		
+
 		for (List<Date> r : results) {
 			shots.add(new BcmDate(r.get(0)));
 		}
@@ -166,7 +166,7 @@ public class Mode {
 
 	/**
 	 * load snapshot by id (date)
-	 * 
+	 *
 	 * @param d
 	 * @throws BcmException
 	 */
@@ -182,7 +182,7 @@ public class Mode {
 
 	/**
 	 * load snapshot by id (date)
-	 * 
+	 *
 	 * @param d
 	 * @throws BcmException
 	 * @throws DeviceException
@@ -192,9 +192,9 @@ public class Mode {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param s snapshot
-	 * @param upgrade whether to add missing scannables automatically 
+	 * @param upgrade whether to add missing scannables automatically
 	 * @throws BcmException
 	 * @throws DeviceException
 	 */
@@ -301,7 +301,7 @@ public class Mode {
 
 	/**
 	 * set the label (tag) of the currently loaded snapshot
-	 * 
+	 *
 	 * @param tag
 	 */
 	protected void tagSnapshot(String tag) {
@@ -310,7 +310,7 @@ public class Mode {
 
 	/**
 	 * Prints out a list of violated limits to the terminal.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void reportViolatedLimits() throws DeviceException {
@@ -352,7 +352,7 @@ public class Mode {
 
 	/**
 	 * Prints a list of motors in non-nominal positions to the terminal
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void reportNonNominalPositions() throws DeviceException {
@@ -463,7 +463,7 @@ public class Mode {
 
 	/**
 	 * Add a scannable to this mode's control
-	 * 
+	 *
 	 * @param scannable
 	 * @throws BcmException
 	 */
@@ -472,7 +472,7 @@ public class Mode {
 		if (!isSafe()) {
 			throw new BcmException("Some mode limits are violated, refusing to take action.");
 		}
-		
+
 		String sname = scannable.getName();
 		// test everything is fine
 		if (!Util.isScannableNameValid(scannable))
@@ -496,7 +496,7 @@ public class Mode {
 
 	/**
 	 * Finds the Snapshot with the smallest id (timestamp) bigger or equal to the the one handed in
-	 * 
+	 *
 	 * @param id
 	 *            date
 	 * @return s snapshot object
@@ -522,7 +522,7 @@ public class Mode {
 
 	/**
 	 * set to active state (i.e. load snapshot and do necessary checks)
-	 * 
+	 *
 	 * @throws BcmException
 	 */
 	protected void activate() throws BcmException {

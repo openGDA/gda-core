@@ -53,7 +53,7 @@ public class LinearFunction extends Function {
 
 	/**
 	 * Another constructor.
-	 * 
+	 *
 	 * @param slope
 	 *            the slope
 	 * @param intercept

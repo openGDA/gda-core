@@ -22,7 +22,7 @@ public class StopCommand extends CommandBase{
 
 	Processor processor;
 	long max_time_out;
-	
+
 	public StopCommand(Processor processor, long max_time_out) {
 		super();
 		this.processor = processor;

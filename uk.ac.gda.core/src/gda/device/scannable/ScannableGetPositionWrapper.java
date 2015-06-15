@@ -69,7 +69,7 @@ public class ScannableGetPositionWrapper implements ScannableGetPosition
 	Object [] calcElements(){
 		if( scannableGetPositionVal == null)
 			return new Object[]{};
-		
+
 		Object [] elements = new Object[]{scannableGetPositionVal};
 		if(scannableGetPositionVal instanceof Object[]){
 			elements = (Object [])scannableGetPositionVal;
@@ -79,14 +79,14 @@ public class ScannableGetPositionWrapper implements ScannableGetPosition
 			elements = new Object[len];
 			for (int i = 0; i < len; i++) {
 				elements[i] = seq.__finditem__(i);
-			}				
+			}
 		} else if ( scannableGetPositionVal instanceof PyList){
 			PyList seq = (PyList)scannableGetPositionVal;
 			int len = seq.__len__();
 			elements = new Object[len];
 			for (int i = 0; i < len; i++) {
 				elements[i] = seq.__finditem__(i);
-			}				
+			}
 		} else if ( scannableGetPositionVal.getClass().isArray()){
 			int len = ArrayUtils.getLength(scannableGetPositionVal);
 			elements = new Object[len];
@@ -98,7 +98,7 @@ public class ScannableGetPositionWrapper implements ScannableGetPosition
 		}
 		return elements;
 	}
-	
+
 	String [] calStringFormattedValues(){
 		Object [] elements = getElements();
 		String[] stringFormattedValues = new String[elements.length];
@@ -122,7 +122,7 @@ public class ScannableGetPositionWrapper implements ScannableGetPosition
 							transformedObject = ((PyInteger)object).__tojava__(Integer.class);
 						} else if ( object instanceof PyObject){
 							transformedObject = ((PyObject)object).__str__().__tojava__(String.class);
-							
+
 							try {
 								transformedObject = Double.parseDouble((String) transformedObject);
 							} catch (Exception e) {

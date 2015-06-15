@@ -24,18 +24,18 @@ import java.util.LinkedList;
  * Subclass of {@link LinkedList} that enforces a maximum size on the list.
  */
 public class BoundedLinkedList<E> extends LinkedList<E> {
-	
+
 	private int maxSize;
-	
+
 	public BoundedLinkedList(int maxSize) {
 		super();
 		this.maxSize = maxSize;
 	}
-	
+
 	@Override
 	public synchronized boolean add(E e) {
 		removeRange(0, size() - maxSize + 1);
 		return super.add(e);
 	}
-	
+
 }

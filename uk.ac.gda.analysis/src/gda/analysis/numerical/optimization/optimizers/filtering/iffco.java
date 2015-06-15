@@ -161,7 +161,7 @@ public class iffco implements IOptimizer {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void reset() {
 		IParameter[] params = function.getParameters();
@@ -195,7 +195,7 @@ public class iffco implements IOptimizer {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void iffco_run() {
 
@@ -1791,7 +1791,7 @@ public class iffco implements IOptimizer {
 	 * ----------------------------------------------------------------- takeminIF This routine replaces the current
 	 * point with the point stored in xminIF(n) if fminIF < f_unscaled(x). If so it records the minimim value in fhist.
 	 * -----------------------------------------------------------------
-	 * 
+	 *
 	 * @param x
 	 * @param f
 	 * @param fhist
@@ -1874,7 +1874,7 @@ public class iffco implements IOptimizer {
 	 * file pointsOutputFilename. The first column will be the function evaluation count, the second will be the
 	 * function value, and the next n columns will be the components of x (unscaled).
 	 * -----------------------------------------------------------------
-	 * 
+	 *
 	 * @param x_orig
 	 */
 	private void pointsIF(double[] x_orig) {
@@ -1911,25 +1911,25 @@ public class iffco implements IOptimizer {
 
 	@Override
 	public boolean isRunning() {
-		// 
+		//
 		return false;
 	}
 
 	@Override
 	public void optimize() {
-		// 
+		//
 		iffco_run();
 	}
 
 	@Override
 	public void start() {
-		// 
+		//
 
 	}
 
 	@Override
 	public void stop() {
-		// 
+		//
 
 	}
 

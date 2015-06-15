@@ -47,7 +47,7 @@ import uk.ac.gda.ui.internal.viewer.EnumPositionerSource;
 /**
  * MotorPositionViewer for EnumPositioner scannables
  * <p>
- * 
+ *
  * @see MotorPositionViewer
  */
 public class EnumPositionViewer {
@@ -284,7 +284,7 @@ public class EnumPositionViewer {
 
 	/**
 	 * Return the underlying demandBox for this viewer
-	 * 
+	 *
 	 * @return DemandBox for this viewer
 	 */
 	public ComboWrapper getComboWrapper() {

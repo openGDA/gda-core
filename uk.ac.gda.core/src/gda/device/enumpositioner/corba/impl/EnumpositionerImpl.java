@@ -19,10 +19,6 @@
 
 package gda.device.enumpositioner.corba.impl;
 
-import java.io.Serializable;
-
-import org.omg.CORBA.Any;
-
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.corba.CorbaDeviceException;
@@ -30,6 +26,10 @@ import gda.device.enumpositioner.corba.CorbaEnumPositionerPOA;
 import gda.device.enumpositioner.corba.CorbaEnumPositionerStatus;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
+
+import java.io.Serializable;
+
+import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed EnumPositioner class
@@ -44,7 +44,7 @@ public class EnumpositionerImpl extends CorbaEnumPositionerPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param enumpositioner
 	 *            the EnumPositioner implementation object
 	 * @param poa
@@ -58,7 +58,7 @@ public class EnumpositionerImpl extends CorbaEnumPositionerPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the EnumPositioner implementation object
 	 */
 	public EnumPositioner _delegate() {
@@ -67,7 +67,7 @@ public class EnumpositionerImpl extends CorbaEnumPositionerPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param enumpositioner
 	 *            set the EnumPositioner implementation object
 	 */
@@ -100,7 +100,7 @@ public class EnumpositionerImpl extends CorbaEnumPositionerPOA {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param position
 	 * @throws CorbaDeviceException
 	 */
@@ -290,17 +290,17 @@ public class EnumpositionerImpl extends CorbaEnumPositionerPOA {
 	public void setProtectionLevel(int newLevel) throws CorbaDeviceException {
 		scannableImpl.setProtectionLevel(newLevel);
 	}
-	
+
 	@Override
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		scannableImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return scannableImpl.toFormattedString();

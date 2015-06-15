@@ -46,7 +46,7 @@ public class DummyMultiElementScannable extends ScannableMotionBase implements S
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param name
 	 * @param initialPosition
 	 * @param elementNames

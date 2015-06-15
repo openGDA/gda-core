@@ -19,8 +19,6 @@
 
 package gda.plots;
 
-import gda.plots.Marker;
-
 import java.awt.Color;
 import java.util.Vector;
 
@@ -41,24 +39,24 @@ public interface XYDataHandlerLegend {
 	 * @param marker
 	 * @param onlyOne - only 1 line exists in the scan so do not create a top group
 	 * @param xLabel - the x axis label
-	 * @param reloadLegendModel - normally the legend model needs to be reload but if you are restoring a whole legend by a 
-	 *                            calling addScan many times in a single event just restore after the calls to improve 
-	 *                            performance 
+	 * @param reloadLegendModel - normally the legend model needs to be reload but if you are restoring a whole legend by a
+	 *                            calling addScan many times in a single event just restore after the calls to improve
+	 *                            performance
 	 */
-	public void addScan(String currentFilename, String topGrouping, String [] subGrouping, 
+	public void addScan(String currentFilename, String topGrouping, String [] subGrouping,
 			String itemName, boolean visible, String id, int lineNumber,
 			Color color, Marker marker, boolean onlyOne, String xLabel, boolean reloadLegendModel);
-	
+
 	//needed by ScanPlot
 	/**
-	 * 
+	 *
 	 */
 	public void removeAllItems();
-	
+
 	/**
 	 * To allow the visibility of the new scan to be the same as the previous scan
 	 * @param visibility - used to specify the visibility of the lines for which the names are required
-	 * @return list of yLabels of specified visibility in previous scan 
+	 * @return list of yLabels of specified visibility in previous scan
 	 */
 	Vector<String> getNamesOfLinesInPreviousScan( boolean visibility);
 }

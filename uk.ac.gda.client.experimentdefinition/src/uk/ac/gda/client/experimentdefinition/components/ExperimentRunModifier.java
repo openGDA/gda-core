@@ -34,7 +34,7 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 public class ExperimentRunModifier implements ICellModifier {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExperimentRunModifier.class);
-	
+
 	private ExperimentExperimentView controller;
 
 	private boolean enabled;
@@ -68,7 +68,7 @@ public class ExperimentRunModifier implements ICellModifier {
 
 		} else if (element instanceof IExperimentObjectManager) {
 			return ((IExperimentObjectManager)element).getName();
-			
+
 		} else if (element instanceof IExperimentObject) {
 			return ((IExperimentObject)element).getRunName();
 		}
@@ -78,9 +78,9 @@ public class ExperimentRunModifier implements ICellModifier {
 
 	@Override
 	public void modify(Object item, String property, Object value) {
-		
+
 		String[] illegalChars = {"!","£","$","%","^","&","*","(",")","¬","#~","@","'",",",".","/","`","{","}","|","?","<",">","+","=","-","\\"," "};
-		
+
 		// Validation
 		String text = (String)value;
 		int numberofIllegalCharsFound=0;
@@ -90,34 +90,34 @@ public class ExperimentRunModifier implements ICellModifier {
 				illegalCharsFound+=illegalChars[i] + " ";
 				numberofIllegalCharsFound++;
 			}
-			
+
 		}
-		
+
 		if (numberofIllegalCharsFound>0) {
 			MessageDialog.openError(controller.getSite().getShell(), "Rename Contains Illegal Charachters ", "The scan rename contains the following illegal charachters " + illegalCharsFound.toString() + "and will not be renamed. Please use letters, numbers and underscores only.");
 			this.enabled = false;
 			return;
 		}
-		
+
 		final TreeItem treeItem = (TreeItem)item;
 		Object         element  = treeItem.getData();
 		try {
 			if (element instanceof IFolder) {
 			    if (value==null||"".equals(value)||!value.toString().matches("\\w+\\.?\\w*")) return;
-				
+
 			    final IFolder folder    = (IFolder)element;
 			    final String origName   = folder.getName();
-			    
+
 			    final IFolder to        = ((IProject)folder.getParent()).getFolder(text);
 			    if (to.exists()) return;
 				folder.move(to.getFullPath(), true, null);
 
 				ExperimentFactory.emptyManagers();
-			    controller.refreshTree();		    
+			    controller.refreshTree();
 				controller.setSelected(to);
-				
+
 				ExperimentFactory.getExperimentEditorManager().notifyFileNameChange(origName, to);
-				
+
 			} else {
 			    if (value==null||"".equals(value)||!value.toString().matches("\\w+")) return;
 				if (element instanceof IExperimentObjectManager) {
@@ -126,21 +126,21 @@ public class ExperimentRunModifier implements ICellModifier {
 					final ExperimentLabelProvider prov = controller.getLabelProvider();
 					text = prov.getText(element);
 					treeItem.setText(text);
-					
+
 				} else if (element instanceof IExperimentObject) {
 					final IExperimentObject runOb = (IExperimentObject)element;
 					runOb.setRunName(text);
-					
+
 					final ExperimentLabelProvider prov = controller.getLabelProvider();
 					text = prov.getText(element);
 					treeItem.setText(text);
-					
+
 					ExperimentFactory.getManager(runOb).write();
 				}
 				ExperimentFactory.emptyManagers();
 				controller.refreshTree();
 			}
-		
+
 		} catch (Exception ne) {
 			logger.error("Cannot modify "+element, ne);
 		}

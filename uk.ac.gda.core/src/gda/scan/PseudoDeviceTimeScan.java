@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
  * It makes no attempt to move them.
  */
 public class PseudoDeviceTimeScan extends ScanBase implements Scan {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(PseudoDeviceTimeScan.class);
-	
+
 	private int collectIntervalMilliSeconds = 1000;
 
 	private double collectIntervalSeconds = 1000;
@@ -56,7 +56,7 @@ public class PseudoDeviceTimeScan extends ScanBase implements Scan {
 	 * @param numberPoints -
 	 *            the number of points to collect for - if this is set to 0 then the scan will not stop until the user
 	 *            tells it to.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public PseudoDeviceTimeScan(Scannable[] pseudoDevices, double collectInterval, int numberPoints) throws Exception {
 		this.collectIntervalSeconds = collectInterval;
@@ -111,7 +111,7 @@ public class PseudoDeviceTimeScan extends ScanBase implements Scan {
 	/**
 	 * Given a Java time in seconds, waits until that point and then returns. If that time has passed, then returns
 	 * immediately;
-	 * 
+	 *
 	 * @param targetTime
 	 *            time in seconds
 	 * @throws InterruptedException

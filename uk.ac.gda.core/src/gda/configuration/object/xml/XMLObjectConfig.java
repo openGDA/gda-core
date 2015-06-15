@@ -57,9 +57,9 @@ import uk.ac.gda.util.beans.xml.XMLObjectConfigFileValidator;
  * ObjectConfig implementor responsible for owning the object data model.
  */
 public class XMLObjectConfig implements ObjectConfig {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(XMLObjectConfig.class);
-	
+
 	private GenericObjectConfigDataElement objectModelRoot = null;
 
 	private CastorSchemaAdapter schemaAdapter = null;
@@ -141,7 +141,7 @@ public class XMLObjectConfig implements ObjectConfig {
 	 * JAXP/Xerces Validation before load - using GDA schema. This is only done if the property
 	 * dl.configuration.object.xml.doXMLInstanceValidation is set to true. A ValidationException is thrown if the
 	 * validation test fails.
-	 * 
+	 *
 	 * @param source
 	 *            SAX InputSource for XML to be processed
 	 * @return a useable InputSource guaranteed to contain same data as input.
@@ -179,7 +179,7 @@ public class XMLObjectConfig implements ObjectConfig {
 	/**
 	 * String interpolation of properties in Castor XML instance file. This is only done if the property
 	 * dl.configuration.object.xml.doStringInterpolation is set to true.
-	 * 
+	 *
 	 * @param source
 	 *            SAX InputSource for XML to be processed
 	 * @return SAX InputSource of processed XML

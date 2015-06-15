@@ -27,10 +27,10 @@ public interface RbacEnabledAdapter {
 	 * Returns the underlying CORBA {@link org.omg.CORBA.Object Object} for the adapter.
 	 */
 	public org.omg.CORBA.Object getCorbaObject();
-	
+
 	/**
 	 * Returns the {@link NetService} used by the adapter.
 	 */
 	public NetService getNetService();
-	
+
 }

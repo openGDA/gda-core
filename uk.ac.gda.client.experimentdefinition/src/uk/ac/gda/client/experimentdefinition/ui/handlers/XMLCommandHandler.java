@@ -38,8 +38,8 @@ import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentBeanDescription;
 import uk.ac.gda.client.experimentdefinition.components.ExperimentFolderEditor;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.io.FileUtils;
 
 public class XMLCommandHandler extends AbstractExperimentCommandHandler {
@@ -181,11 +181,11 @@ public class XMLCommandHandler extends AbstractExperimentCommandHandler {
 
 //	public String getTemplateDirPath() {
 ////		change this to be configurable, and keep config dir to be the default
-////		
+////
 ////		and merge this method and the one below!!!
 ////		return LocalProperties.getConfigDir() + File.separator + "templates" + File.separator;
-//		
-//		
+//
+//
 //
 //	}
 

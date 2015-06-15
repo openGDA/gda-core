@@ -36,11 +36,11 @@ public class DeferredScannableGroup extends CoordinatedScannableGroup {
 	private static final Logger logger = LoggerFactory.getLogger(DeferredScannableGroup.class);
 	ControlPoint deferredControlPoint;
 	String deferredControlPointName;
-	
+
 	private boolean logDefFlagChangesAsInfo = false;
 
 	/**
-	 * 
+	 *
 	 */
 	public DeferredScannableGroup() {
 

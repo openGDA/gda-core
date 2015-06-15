@@ -54,9 +54,9 @@ public class BatonChangedLoggerAdapterTest {
 		ClientDetails mockClientDetails = mock(ClientDetails.class);
 		when(mockBatonStateProvider.getBatonHolder()).thenReturn(mockClientDetails);
 		when(mockClientDetails.toString()).thenReturn("somestring");
-		
+
 		adapter.update(null, mock(BatonChanged.class));
 		verify(mockLogger).log("<<<Baton acquired by: 'somestring' >>>");
-	
+
 	}
 }

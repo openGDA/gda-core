@@ -80,10 +80,10 @@ public class RangeConverterNameProvider implements ConverterNameProvider, Findab
 	public void addConverter(RangeandConverterNameHolder rcnh) {
 		converterList.add(rcnh);
 	}
-	
+
 	/**
 	 * Sets the converters for this name provider.
-	 * 
+	 *
 	 * @param converters the list of converters
 	 */
 	public void setConverters(ArrayList<RangeandConverterNameHolder> converters) {

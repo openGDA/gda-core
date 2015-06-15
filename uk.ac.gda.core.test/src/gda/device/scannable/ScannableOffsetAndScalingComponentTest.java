@@ -32,12 +32,12 @@ import org.junit.Test;
  * Note: this is largely tested through ScannableMotionUnitsBaseTeast
  */
 public class ScannableOffsetAndScalingComponentTest {
-	
-	
+
+
 	ScannableOffsetAndScalingComponent oc;
 	private Scannable mockHostScannable;
-	
-	
+
+
 	@Before
 	public void setUp() {
 		mockHostScannable = mock(Scannable.class);
@@ -45,7 +45,7 @@ public class ScannableOffsetAndScalingComponentTest {
 		oc = new ScannableOffsetAndScalingComponent();
 		oc.setHostScannable(mockHostScannable);
 	}
-	
+
 	@Test
 	public void testExternalTowardInternalNothingSet() {
 		Object object = new Object();
@@ -57,7 +57,7 @@ public class ScannableOffsetAndScalingComponentTest {
 		Object object = new Object();
 		assertEquals(object, oc.internalTowardExternal(object));
 	}
-	
+
 	@Test
 	public void testExternalTowardInternalWithOffsetOnly() {
 		Object object = new Object();
@@ -82,7 +82,7 @@ public class ScannableOffsetAndScalingComponentTest {
 		oc.setScalingFactor(new Double[]{2., null});
 		ArrayAssert.assertEquals(new Object[]{20., object}, (Object[]) oc.internalTowardExternal(new Object[]{10, object}));
 	}
-	
+
 	@Test
 	public void testExternalTowardInternalWithBoth() {
 		when(mockHostScannable.getInputNames()).thenReturn(new String[]{"i1", "i2", "i3", "i4"});
@@ -91,7 +91,7 @@ public class ScannableOffsetAndScalingComponentTest {
 		oc.setOffset(new Double[]{20., null, 50., null});
 		ArrayAssert.assertEquals(new Object[]{40., 25., 50., object}, (Object[]) oc.externalTowardInternal(new Object[]{100, 100, 100, object}));
 	}
-	
+
 	@Test
 	public void testInternaltowardExternalWithBoth() {
 		when(mockHostScannable.getInputNames()).thenReturn(new String[]{"i1", "i2", "i3", "i4"});
@@ -100,7 +100,7 @@ public class ScannableOffsetAndScalingComponentTest {
 		oc.setOffset(new Double[]{20., null, 50., null});
 		ArrayAssert.assertEquals(new Object[]{100., 100., 100., object}, (Object[]) oc.internalTowardExternal(new Object[]{40., 25., 50., object}));
 	}
-	
-	
-	
+
+
+
 }

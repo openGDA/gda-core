@@ -78,7 +78,7 @@ public class WavelengthTest
       twoD = Quantity.valueOf(6.271, NonSI.ANGSTROM);
       braggAngle = Quantity.valueOf(12787.5, SI.MILLI(NonSI.DEGREE_ANGLE));
       wavelength = Quantity.valueOf(1.388, NonSI.ANGSTROM);
-      
+
       result = Wavelength.wavelengthOf(braggAngle, twoD);
       assertEquals(wavelength.doubleValue(), result.doubleValue(), 0.0000000000001);
 

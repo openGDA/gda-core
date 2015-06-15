@@ -39,7 +39,7 @@ public class ColorFactory {
 
 	/**
 	 * Tries to find a static field in the Color class with the given name.
-	 * 
+	 *
 	 * @param colorName
 	 *            the name
 	 * @return the Color (if found)
@@ -70,7 +70,7 @@ public class ColorFactory {
 	/**
 	 * Tries to construct a Color from a String assumed to be in one of the hexadecimal forms which Color.decode()
 	 * understands
-	 * 
+	 *
 	 * @param colorName
 	 *            the hexadecimal specification
 	 * @return the Color (if the specification was valid)
@@ -89,7 +89,7 @@ public class ColorFactory {
 
 	/**
 	 * Tries to find a Color in the XColors class assuming colorName is an X11 color name.
-	 * 
+	 *
 	 * @param colorName
 	 *            the color name
 	 * @return the Color (if found)
@@ -100,7 +100,7 @@ public class ColorFactory {
 
 	/**
 	 * Tries to translate a String into a Color by various means.
-	 * 
+	 *
 	 * @param colorString
 	 *            the String
 	 * @return the Color (if one of the translations succeeds)

@@ -67,7 +67,7 @@ public abstract class ScanBase implements NestableScan {
 
 
 	public static final String GDA_SCANBASE_FIRST_SCAN_NUMBER_FOR_TEST = "gda.scanbase.firstScanNumber";
-	
+
 	public static final String GDA_SCANBASE_PRINT_TIMESTAMP_TO_TERMINAL= "gda.scanbase.printTimestamp";
 
 	private static final Logger logger = LoggerFactory.getLogger(ScanBase.class);
@@ -81,7 +81,7 @@ public abstract class ScanBase implements NestableScan {
 		String message = (e instanceof PyException) ? e.toString() : e.getMessage();
 		return e.getClass().getSimpleName() + ":" + message;
 	}
-	
+
 	/**
 	 * all the detectors being operated in this scan. This vector is generated from detectors in this.allScannables and
 	 * DetetcorBase.activeDetectors This list is to be used by DataHandlers when writing out the data.
@@ -167,7 +167,7 @@ public abstract class ScanBase implements NestableScan {
 	public int getScanNumber() {
 		return scanNumber;
 	}
-	
+
 	public void setScanNumber(int scanNumber){
 		this.scanNumber = scanNumber;
 	}
@@ -190,7 +190,7 @@ public abstract class ScanBase implements NestableScan {
 			threadHasBeenAuthorised = false;
 		}
 	}
-	
+
 	@Override
 	public void requestFinishEarly() {
 		if (isChild()){
@@ -199,7 +199,7 @@ public abstract class ScanBase implements NestableScan {
 			parentComponent.requestFinishEarly();
 		}
 	}
-	
+
 	@Override
 	public boolean isFinishEarlyRequested() {
 		if (isChild()){
@@ -217,7 +217,7 @@ public abstract class ScanBase implements NestableScan {
 		}
 		sendScanEvent(ScanEvent.EventType.UPDATED);
 	}
-	
+
 	@Override
 	public ScanStatus getStatus() {
 		if (isChild()){
@@ -225,7 +225,7 @@ public abstract class ScanBase implements NestableScan {
 		}
 		return parentComponent.getStatus();
 	}
-	
+
 	protected void waitIfPaused() throws InterruptedException{
 		while (getStatus() == ScanStatus.PAUSED) {
 			if (isFinishEarlyRequested()) {
@@ -237,7 +237,7 @@ public abstract class ScanBase implements NestableScan {
 
 	/**
 	 * Returns true if the scan baton has been claimed by a scan that has already started.
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public boolean scanRunning() {
@@ -269,7 +269,7 @@ public abstract class ScanBase implements NestableScan {
 
 	/**
 	 * Makes sure the step has the correct sign.
-	 * 
+	 *
 	 * @param _start
 	 *            Object
 	 * @param _stop
@@ -357,38 +357,38 @@ public abstract class ScanBase implements NestableScan {
 	 * DetectorBase.ActiveDetectors static arraylist. Throws two types of errors as scans may want to handle these
 	 * differently.
 	 * <p>
-	 * NOTE: Used only by a few scans, not ScanBase or ConcurrentScan 
+	 * NOTE: Used only by a few scans, not ScanBase or ConcurrentScan
 	 * @throws Exception
 	 */
 	protected void collectData() throws Exception {
-		
+
 		checkThreadInterrupted();
 		waitIfPaused();
 		if (isFinishEarlyRequested()){
 			return;
 		}
-		
+
 		// collect data
 		for (Detector detector : allDetectors) {
 			if (callCollectDataOnDetectors) {
 				detector.collectData();
 			}
 		}
-		
+
 		checkThreadInterrupted();
 
 		// check that all detectors have completed data collection
 		for (Detector detector : allDetectors) {
 			detector.waitWhileBusy();
 		}
-		
+
 		readDevicesAndPublishScanDataPoint();
-		
+
 		sendScanEvent(ScanEvent.EventType.UPDATED);
 
 		checkThreadInterrupted();
 	}
-	
+
 	protected void setScanIdentifierInScanDataPoint(IScanDataPoint point) {
 		//the scanIdentifier returned by getDataWriter().getCurrentScanIdentifier() should match this.scanNumber
 		if(LocalProperties.isScanSetsScanNumber() ){
@@ -400,7 +400,7 @@ public abstract class ScanBase implements NestableScan {
 			//TODO only do this if not already set
 		}
 	}
-	
+
 	/**
 	 * Samples the position of Scannables (via getPosition()), readouts detectors (via readout) and creates a ScanDataPoint
 	 * @throws Exception
@@ -431,7 +431,7 @@ public abstract class ScanBase implements NestableScan {
 		for (Detector scannable : allDetectors) {
 			point.addDetector(scannable);
 		}
-		
+
 		try {
 			populateScannablePositions(point);
 		} catch (Exception e) {
@@ -440,7 +440,7 @@ public abstract class ScanBase implements NestableScan {
 
 		readoutDetectorsAndPublish(point);
 	}
-	
+
 	/**
 	 * Readout detectors into ScanDataPoint and add to pipeline for possible completion and publishing.
 	 * @param point
@@ -455,20 +455,20 @@ public abstract class ScanBase implements NestableScan {
 		scanDataPointPipeline.put(point);
 	}
 
-	
+
 	/**
 	 * Blocks while detectors are readout and point is added to pipeline (for the previous point).
-	 * @throws ExecutionException 
-	 * @throws InterruptedException 
+	 * @throws ExecutionException
+	 * @throws InterruptedException
 	 */
 	public void waitForDetectorReadoutAndPublishCompletion() throws InterruptedException, ExecutionException {
 		// Do nothing as readoutDetectorsAndPublish blocks until complete.
 	}
-	
+
 	protected void cancelReadoutAndPublishCompletion () {
 		// Do nothing as readoutDetectorsAndPublish blocks until complete.
 	}
-	
+
 	protected static DeviceException wrappedException(Throwable e) {
 		String message = (e instanceof PyException) ? e.toString() : e.getMessage();
 		if (message == null) {
@@ -505,13 +505,13 @@ public abstract class ScanBase implements NestableScan {
 			point.addDetectorData(data, ScannableUtils.getExtraNamesFormats(detector));
 		}
 	}
-	
+
 	protected void createScanDataPointPipeline() throws Exception {
 		DataWriter dataWriter = (manuallySetDataWriter == null) ? DefaultDataWriterFactory
 				.createDataWriterFromFactory() : manuallySetDataWriter;
 		createScanDataPointPipeline(dataWriter);
 	}
-	
+
 	protected void createScanDataPointPipeline(DataWriter dataWriter) {
 
 		float estimatedPointsToComputeSimultaneousely;
@@ -537,7 +537,7 @@ public abstract class ScanBase implements NestableScan {
 
 	/**
 	 * This should be called by all scans when they have finished, including when an exception has been raised.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	protected void endScan() throws DeviceException, InterruptedException {
@@ -610,7 +610,7 @@ public abstract class ScanBase implements NestableScan {
 			}
 		} catch( DeviceException th){
 			/*
-			 * If any of the above throws an exception such as an InterruptedException due 
+			 * If any of the above throws an exception such as an InterruptedException due
 			 * to the thread being interrupted as a result of the user requesting an abort
 			 * due to the position providers hanging then we need to ensure the pipeline is closed down.
 			 */
@@ -620,7 +620,7 @@ public abstract class ScanBase implements NestableScan {
 			throw th;
 		}
 	}
-	
+
 	protected void signalScanStarted() {
 		sendScanEvent(ScanEvent.EventType.STARTED);
 	}
@@ -630,7 +630,7 @@ public abstract class ScanBase implements NestableScan {
 			logger.info("Scan '{}' complete: {}", getName(), getDataWriter().getCurrentFileName());
 		} catch (IllegalStateException e) {
 			logger.info("Scan '{}' complete", getName());
-			
+
 		}
 
 		getTerminalPrinter().print("Scan complete.");
@@ -644,7 +644,7 @@ public abstract class ScanBase implements NestableScan {
 	protected void sendScanEvent(ScanEvent.EventType reason){
 		getJythonServerNotifer().notifyServer(this, new ScanEvent(reason, getScanInformation(),getStatus(),currentPointCount));
 	}
-	
+
 	@Override
 	public ScanInformation getScanInformation() {
 		ScanInformation currentInfo = new ScanInformation();
@@ -721,12 +721,12 @@ public abstract class ScanBase implements NestableScan {
 	public Scan getChild() {
 		return child;
 	}
-	
-	
+
+
 
 	/**
 	 * Gets the reference to the dataHandler object which this scan uses.
-	 * 
+	 *
 	 * @return DataWriter
 	 */
 	@Override
@@ -750,7 +750,7 @@ public abstract class ScanBase implements NestableScan {
 	/**
 	 * default implementation. Classes that derive from ScanBase which want to support the reporting of scan dimensions
 	 * -@see getDimensions need to override this method
-	 * 
+	 *
 	 * @see ConcurrentScan
 	 * @return the number of points of this scan object - the whole scan execution can be a hierarchy of parent scan
 	 *         objects and layers of child scan objects
@@ -801,7 +801,7 @@ public abstract class ScanBase implements NestableScan {
 
 	/**
 	 * Returns the unique identifier for this scan. Nested (child) scans share the same identifier as their parents.
-	 * 
+	 *
 	 * @return String
 	 */
 	@Override
@@ -872,10 +872,10 @@ public abstract class ScanBase implements NestableScan {
 		Scan outerMostScan = getOuterMostScan();
 		if( outerMostScan != null && outerMostScan instanceof ContiguousScan)
 			return ((ContiguousScan)outerMostScan).getNumberOfContiguousPoints();
-		
+
 		return TotalNumberOfPoints;
 	}
-	
+
 	@Override
 	public boolean isChild() {
 		// FIXME: isChild boolean not required. Could we return (parent != null) instead?
@@ -888,7 +888,7 @@ public abstract class ScanBase implements NestableScan {
 
 	/**
 	 * Give the command server the latest data object to fan out to its observers.
-	 * 
+	 *
 	 * @param data
 	 * @deprecated Behaviour now in {@link ScanDataPointPipeline} implementations
 	 */
@@ -899,7 +899,7 @@ public abstract class ScanBase implements NestableScan {
 
 	/**
 	 * A better way to notify the observer which allows users to specify source of the data, not like the one above.
-	 * 
+	 *
 	 * @param source
 	 * @param data
 	 * @deprecated Behaviour now in {@link ScanDataPointPipeline} implementations
@@ -933,9 +933,9 @@ public abstract class ScanBase implements NestableScan {
 	}
 
 	protected void prepareDevicesForCollection() throws Exception {
-		
+
 		// Deliberately do *not* complete scan early if requested, once preparation has begun
-		
+
 		// prepare to collect data
 		for (Detector detector : allDetectors) {
 			detector.prepareForCollection();
@@ -946,7 +946,7 @@ public abstract class ScanBase implements NestableScan {
 			callScannablesAtScanStart();
 		}
 		if (getChild() == null) {
-			
+
 			callScannablesAtScanLineStart();
 		}
 	}
@@ -964,7 +964,7 @@ public abstract class ScanBase implements NestableScan {
 		for (Scannable scannable : this.allScannables) {
 			scannable.atScanLineStart();
 		}
-		
+
 		for (Scannable scannable : this.allDetectors) {
 			scannable.atScanLineStart();
 		}
@@ -973,7 +973,7 @@ public abstract class ScanBase implements NestableScan {
 	/**
 	 * This should called by all scans just before they start to collect data. It resets the static variable which the
 	 * scan classes use and creates a dataHandler if one has not been created yet.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Override
@@ -1022,7 +1022,7 @@ public abstract class ScanBase implements NestableScan {
 			scanNumber = getOuterMostScan().getScanNumber();
 		}
 	}
-	
+
 	protected synchronized void prepareStaticVariables() {
 		getCurrentScanInformationHolder().setCurrentScan(this);
 	}
@@ -1086,12 +1086,12 @@ public abstract class ScanBase implements NestableScan {
 					setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
 					throw new Exception("Exception while preparing for scan collection: " + createMessage(e), e);
 				}
-				
+
 				if (getScannables().size() == 0 && getDetectors().size() == 0) {
 					setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
 					throw new IllegalStateException("ScanBase: No scannables, detectors or monitors to be scanned!");
 				}
-				
+
 				try {
 					if (isFinishEarlyRequested()){
 						return;
@@ -1122,7 +1122,7 @@ public abstract class ScanBase implements NestableScan {
 					setStatus(ScanStatus.TIDYING_UP_AFTER_FAILURE);
 					throw new Exception("during scan collection: " + createMessage(e), e);
 				}
-				
+
 			} catch (ScanInterruptedException e) {
 				throw e;
 			} catch (RedoScanLineThrowable e){
@@ -1134,7 +1134,7 @@ public abstract class ScanBase implements NestableScan {
 				InterfaceProvider.getTerminalPrinter().print("====================================================================================================");
 				logger.error(createMessage(e) + ": calling atCommandFailure hooks and then interrupting scan.",e);
 				report(createMessage(e));
-				
+
 				logger.info("Calling stop() on Scannables and Detectors used in scan, followed by atCommandFailure().");
 				cancelReadoutAndPublishCompletion();
 				callAtCommandFailureHooks();
@@ -1151,10 +1151,10 @@ public abstract class ScanBase implements NestableScan {
 
 				logger.info("Ending scan and rethrowing exception");
 
-				throw e; 
+				throw e;
 			} finally {
 				try {
-					// TODO: endScan now duplicates some of the exception handling performed above. 
+					// TODO: endScan now duplicates some of the exception handling performed above.
 					// I do not understand the paths that result inScanBase.interupted being set well enough to
 					// change the logic here. RobW
 					endScan();
@@ -1171,7 +1171,7 @@ public abstract class ScanBase implements NestableScan {
 					}
 				}
 			}
-			
+
 		} while (lineScanNeedsDoing && !isFinishEarlyRequested());
 	}
 
@@ -1179,11 +1179,11 @@ public abstract class ScanBase implements NestableScan {
 		InterfaceProvider.getTerminalPrinter().print(msg);
 		logger.info(msg);
 	}
-	
-	
+
+
 	@Override
 	public void runScan() throws InterruptedException, Exception {
-		
+
 		int currentStatus = getScanStatusHolder().getScanStatus();
 		if (currentStatus != Jython.IDLE) {
 			throw new Exception("Scan not started as there is already a scan running (could be paused).");
@@ -1353,9 +1353,9 @@ public abstract class ScanBase implements NestableScan {
 	public boolean wasScanExplicitlyHalted() {
 		return (getStatus() == ScanStatus.COMPLETED_EARLY);
 	}
-	
+
 	/**
-	 * Returns for example "ErrorType: message" 
+	 * Returns for example "ErrorType: message"
 	 * @param e
 	 * @return message
 	 */
@@ -1391,7 +1391,7 @@ class ParentScanComponent implements ScanParent{
 	 * code, but skip the remaining data points.
 	 */
 	private boolean finishEarlyRequested;
-	
+
 	public ParentScanComponent(ScanStatus initialStatus) {
 		super();
 		this.status = initialStatus;
@@ -1403,11 +1403,11 @@ class ParentScanComponent implements ScanParent{
 			setStatus(ScanStatus.FINISHING_EARLY);
 		}
 	}
-	
+
 	public boolean isFinishEarlyRequested() {
 		return finishEarlyRequested;
 	}
-	
+
 	public ScanStatus getStatus() {
 		return status;
 	}

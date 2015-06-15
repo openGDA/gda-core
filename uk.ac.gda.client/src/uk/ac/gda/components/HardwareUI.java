@@ -39,7 +39,7 @@ public class HardwareUI {
 	public static void setHardwareLimits(final NumberBox box, final String motorName) throws Exception {
 		HardwareUI.setHardwareLimits(box, Finder.getInstance().find(motorName));
 	}
-	
+
 	/**
 	 * Sets up the limits from the hardware object
 	 * @param box
@@ -47,22 +47,22 @@ public class HardwareUI {
 	 * @throws Exception
 	 */
 	public static void setHardwareLimits(final NumberBox box, final Object motor) throws Exception {
-		
+
 		double lowerLimit = Double.NaN;
 		double upperLimit = Double.NaN;
-		
+
 		// NOTE: Could use reflection instead of casting to do this...
 		if (motor instanceof ScannableMotor) {
 			final ScannableMotor sm = (ScannableMotor)motor;
 			lowerLimit = sm.getLowerMotorLimit();
 			upperLimit = sm.getUpperMotorLimit();
-			
+
 		} else if (motor instanceof Scannable){
 			final Scannable sm = (Scannable)motor;
 			Object ll = sm.getAttribute("lowerGdaLimits");
 			if (ll != null && ll instanceof Double[]){
 				lowerLimit = ((Double[])ll)[0];
-			}			
+			}
 			Object ul = sm.getAttribute("upperGdaLimits");
 			if (ul != null && ul instanceof Double[]){
 				upperLimit = ((Double[])ul)[0];
@@ -70,7 +70,7 @@ public class HardwareUI {
 		} else {
 			throw new Exception("Unsupported hardware "+motor.getClass().getName());
 		}
-		
+
 		if (!Double.isNaN(lowerLimit)) box.setMinimum(lowerLimit);
 		if (!Double.isNaN(upperLimit)) box.setMaximum(upperLimit);
 

@@ -25,16 +25,16 @@ import org.eclipse.ui.views.properties.PropertyDescriptor;
 public class GDAPropertySource implements IPropertySource {
 
 	public static String ID_NAME = "Name"; //$NON-NLS-1$
-	
+
 	private Object object;
 	protected static IPropertyDescriptor[] descriptors;
-	
+
 	static{
 		descriptors = new IPropertyDescriptor[] {
 			new PropertyDescriptor(ID_NAME,"name"),
 		};
-	}	
-	
+	}
+
 	public GDAPropertySource(Object adapter) {
 		this.object = adapter;
 	}

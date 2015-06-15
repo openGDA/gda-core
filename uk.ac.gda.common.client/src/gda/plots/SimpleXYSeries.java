@@ -80,7 +80,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Constructor creates a new SimpleXYSeries to represent a line.
-	 * 
+	 *
 	 * @param name
 	 *            the string which will appear in legends
 	 * @param lineNumber
@@ -191,7 +191,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Use this method to get the data to ensure it has been unarchived.
-	 * 
+	 *
 	 * @return list of data
 	 */
 	@SuppressWarnings("unchecked")
@@ -218,7 +218,7 @@ public class SimpleXYSeries extends XYSeries {
 	 * Adds an XYDataItem to the data list. This overrides the super class method in order to remove the checking of the
 	 * ordering of X values. Note that this method is not directly called by our code but should NOT be removed - all
 	 * the add methods of XYSeries eventually call this one.
-	 * 
+	 *
 	 * @param item
 	 *            the XYDataItem to add
 	 * @param notify
@@ -269,7 +269,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Returns the lineNumber
-	 * 
+	 *
 	 * @return the lineNumber
 	 */
 	public int getLineNumber() {
@@ -290,7 +290,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Gets the Paint which should be used to draw the line.
-	 * 
+	 *
 	 * @return the Paint (which is usually just a Color)
 	 */
 	public Paint getPaint() {
@@ -299,7 +299,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Sets the Paint which should be used to draw the line.
-	 * 
+	 *
 	 * @param paint
 	 *            the Paint value to use (which is usually just a Color)
 	 */
@@ -313,7 +313,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Returns the parameter which specifies whether the marker is filled.
-	 * 
+	 *
 	 * @return current value of filled.
 	 */
 	public boolean getFilled() {
@@ -322,7 +322,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Returns the current symbol used to mark points
-	 * 
+	 *
 	 * @return the symbol
 	 */
 	public Shape getSymbol() {
@@ -331,7 +331,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Sets the Marker
-	 * 
+	 *
 	 * @param marker
 	 *            the marker
 	 */
@@ -343,7 +343,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Gets the symbol size
-	 * 
+	 *
 	 * @return symbol size
 	 */
 	public int getSymbolSize() {
@@ -352,7 +352,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Sets the symbol size
-	 * 
+	 *
 	 * @param symbolSize
 	 *            the new value
 	 */
@@ -364,7 +364,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Gets the Paint used for marker symbols
-	 * 
+	 *
 	 * @return the marker symbol Paint
 	 */
 	public Paint getSymbolPaint() {
@@ -373,7 +373,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Sets the Paint used to draw marker symbols
-	 * 
+	 *
 	 * @param symbolPaint
 	 *            the new value
 	 */
@@ -385,7 +385,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Gets the lineWidth
-	 * 
+	 *
 	 * @return the line width
 	 */
 	public int getLineWidth() {
@@ -394,7 +394,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Sets the line width
-	 * 
+	 *
 	 * @param lineWidth
 	 *            the new value (pixels)
 	 */
@@ -408,7 +408,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Gets the current Stroke used to draw lines
-	 * 
+	 *
 	 * @return the stroke.
 	 */
 	public Stroke getStroke() {
@@ -417,7 +417,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Sets the line Pattern.
-	 * 
+	 *
 	 * @param pattern
 	 *            the new value
 	 */
@@ -429,7 +429,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Returns the line Pattern.
-	 * 
+	 *
 	 * @return the Pattern
 	 */
 	public Pattern getPattern() {
@@ -438,7 +438,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Returns the Marker used for points on the line.
-	 * 
+	 *
 	 * @return the Marker
 	 */
 	public Marker getMarker() {
@@ -447,7 +447,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Sets the line Type.
-	 * 
+	 *
 	 * @param type
 	 *            the new value
 	 */
@@ -459,7 +459,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Returns the line Type.
-	 * 
+	 *
 	 * @return the Type
 	 */
 	public Type getType() {
@@ -468,7 +468,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Returns whether or not lines are drawn
-	 * 
+	 *
 	 * @return true if lines are drawn
 	 */
 	public boolean isDrawLines() {
@@ -477,7 +477,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Returns whether or not markers are drawn
-	 * 
+	 *
 	 * @return true if markers are drawn
 	 */
 	public boolean isDrawMarkers() {
@@ -486,7 +486,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Sets all the points at once.
-	 * 
+	 *
 	 * @param xVals
 	 *            array of x values
 	 * @param yVals
@@ -517,7 +517,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Returns whether or not the line is visible
-	 * 
+	 *
 	 * @return true if visible
 	 */
 	public boolean isVisible() {
@@ -526,7 +526,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Sets whether or not the line is visible
-	 * 
+	 *
 	 * @param visible
 	 *            the new value.
 	 */
@@ -555,7 +555,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Gets whether or not the line is visible in the legend
-	 * 
+	 *
 	 * @return true if visible
 	 */
 	public boolean isVisibleInLegend() {
@@ -564,7 +564,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Sets whether or not the line is visible in the legend
-	 * 
+	 *
 	 * @param visibleInLegend
 	 *            the new value
 	 */
@@ -574,7 +574,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Gets the axis number for this line
-	 * 
+	 *
 	 * @return the axis number
 	 */
 	public int getAxis() {
@@ -583,7 +583,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Returns the X value corresponding to the peak Y value in the series.
-	 * 
+	 *
 	 * @return the X value of the peak
 	 */
 	public double getXValueOfPeak() {
@@ -605,7 +605,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * Returns the X value corresponding to the peak Y value within a particular X range.
-	 * 
+	 *
 	 * @param start
 	 *            the start of the X range
 	 * @param end
@@ -636,7 +636,7 @@ public class SimpleXYSeries extends XYSeries {
 	/**
 	 * Gets the name. From 1.0.0 onwards the XYSeries has a key and a description instead of just a name. This method
 	 * and the corresponding setter hide this from the rest of gda.plots.
-	 * 
+	 *
 	 * @return the name of the line
 	 */
 	public String getName() {
@@ -646,7 +646,7 @@ public class SimpleXYSeries extends XYSeries {
 	/**
 	 * Sets the name. From 1.0.0 onwards the XYSeries has a key and a description instead of just a name. This method
 	 * and the corresponding getter hide this from the rest of gda.plots.
-	 * 
+	 *
 	 * @param name
 	 *            the name
 	 */
@@ -683,7 +683,7 @@ public class SimpleXYSeries extends XYSeries {
 
 	/**
 	 * function to return the min/max X and Y over range of items from start to end
-	 * 
+	 *
 	 * @param start
 	 * @param end
 	 * @return elements 0 - minX, 1-maxX, 2-minY, 3-maxY

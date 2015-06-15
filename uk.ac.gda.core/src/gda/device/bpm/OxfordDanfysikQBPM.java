@@ -19,9 +19,6 @@
 
 package gda.device.bpm;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.Serial;
 import gda.device.serial.StringReader;
@@ -29,13 +26,16 @@ import gda.device.serial.StringWriter;
 import gda.factory.Finder;
 import gda.util.Sleep;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * OxfordDanfysik QBPM.
  */
 public class OxfordDanfysikQBPM extends BPMBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(OxfordDanfysikQBPM.class);
-	
+
 	private StringReader reader;
 
 	private StringWriter writer;
@@ -147,7 +147,7 @@ public class OxfordDanfysikQBPM extends BPMBase {
 
 	/**
 	 * Sets the serial device name.
-	 * 
+	 *
 	 * @param serialDeviceName
 	 *            the serial device name
 	 */
@@ -157,7 +157,7 @@ public class OxfordDanfysikQBPM extends BPMBase {
 
 	/**
 	 * Gets the serial device name.
-	 * 
+	 *
 	 * @return the serial device name
 	 */
 	public String getSerialDeviceName() {
@@ -166,7 +166,7 @@ public class OxfordDanfysikQBPM extends BPMBase {
 
 	/**
 	 * Sets the device's address.
-	 * 
+	 *
 	 * @param address
 	 *            The device's address
 	 */
@@ -176,7 +176,7 @@ public class OxfordDanfysikQBPM extends BPMBase {
 
 	/**
 	 * Gets the device's address.
-	 * 
+	 *
 	 * @return The device's address
 	 */
 	public int getAddress() {
@@ -185,7 +185,7 @@ public class OxfordDanfysikQBPM extends BPMBase {
 
 	/**
 	 * Sets the timeout.
-	 * 
+	 *
 	 * @param timeout
 	 *            The timeout
 	 */
@@ -195,7 +195,7 @@ public class OxfordDanfysikQBPM extends BPMBase {
 
 	/**
 	 * Gets the timeout.
-	 * 
+	 *
 	 * @return The timeout
 	 */
 	public int getTimeout() {

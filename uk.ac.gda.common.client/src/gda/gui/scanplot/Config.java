@@ -169,7 +169,7 @@ public class Config {
 		if (scanPlotSettings != null){
 			unlistedBehaviour = scanPlotSettings.getUnlistedColumnBehaviour();
 		}
-		
+
 		initialDataAsDoubles = point.getAllValuesAsDoubles();
 		if (initialDataAsDoubles[xAxisIndex] != null) {
 			for (int j = 0; j < numberOfScannables; j++, index++) {
@@ -186,7 +186,7 @@ public class Config {
 		}
 		id = point.getUniqueName();
 	}
-	
+
 	// FIXME this logic lifted from from ScanDataPointPlotConfig to handle correct behaviour of 'unlisted' columns, but
 	// there seems to be some duplication here which needs resolving
 	private void addIfWanted(Vector<ConfigLine> linesToAdd, Double val, Vector<String> yAxesShown,

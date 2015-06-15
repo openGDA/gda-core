@@ -44,7 +44,7 @@ public class GpibImpl extends CorbaGpibPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param gpib
 	 *            the Gpib implementation object
 	 * @param poa
@@ -58,7 +58,7 @@ public class GpibImpl extends CorbaGpibPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Gpib implementation object
 	 */
 	public Gpib _delegate() {
@@ -67,7 +67,7 @@ public class GpibImpl extends CorbaGpibPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param gpib
 	 *            set the Gpib implementation object
 	 */
@@ -241,7 +241,7 @@ public class GpibImpl extends CorbaGpibPOA {
 	public void close() throws CorbaDeviceException {
 		deviceImpl.close();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();

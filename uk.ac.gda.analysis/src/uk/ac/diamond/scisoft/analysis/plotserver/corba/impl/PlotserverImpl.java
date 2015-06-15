@@ -19,21 +19,21 @@
 
 package uk.ac.diamond.scisoft.analysis.plotserver.corba.impl;
 
+import gda.device.DeviceException;
+import gda.device.corba.CorbaDeviceException;
+import gda.device.corba.impl.DeviceImpl;
+import gda.factory.FactoryException;
+import gda.factory.corba.CorbaFactoryException;
+
 import java.io.Serializable;
 
 import org.omg.CORBA.Any;
 
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerDevice;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.corba.CorbaPlotServerPOA;
-
-import gda.device.DeviceException;
-import gda.device.corba.CorbaDeviceException;
-import gda.device.corba.impl.DeviceImpl;
-import gda.factory.FactoryException;
-import gda.factory.corba.CorbaFactoryException;
 
 /**
  * A server side implementation for a distributed Motor class
@@ -58,7 +58,7 @@ public class PlotserverImpl extends CorbaPlotServerPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param plotServer
 	 *            The phantom object which has been passed by corba
 	 * @param poa
@@ -72,7 +72,7 @@ public class PlotserverImpl extends CorbaPlotServerPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Motor implementation object
 	 */
 	public PlotServer _delegate() {
@@ -81,7 +81,7 @@ public class PlotserverImpl extends CorbaPlotServerPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param plotServer
 	 */
 	public void _delegate(PlotServerDevice plotServer) {
@@ -110,7 +110,7 @@ public class PlotserverImpl extends CorbaPlotServerPOA {
 	public Any getPlotData(String arg0) throws CorbaDeviceException {
 		org.omg.CORBA.Any any = org.omg.CORBA.ORB.init().create_any();
 		try {
-			java.lang.Object obj = plotServer.getData(arg0);	
+			java.lang.Object obj = plotServer.getData(arg0);
 			any.insert_Value((Serializable) obj);
 		} catch (Exception ex) {
 			throw new CorbaDeviceException(gda.util.exceptionUtils
@@ -209,7 +209,7 @@ public class PlotserverImpl extends CorbaPlotServerPOA {
 		} catch (Exception ex) {
 			throw new CorbaDeviceException(ex.getMessage());
 		}
-		
+
 	}
 
 	@Override

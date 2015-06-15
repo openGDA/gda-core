@@ -58,8 +58,8 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 	private Long rate = 1200L; // by default refresh all 2D plotter is 1.2 s
 	private Long timeElapsed;
 	private Long timeInit;
-	
-	
+
+
 
 	public TwoDScanPlotter() {
 		this.inputNames = new String[] {};
@@ -124,7 +124,7 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 					timeInit = System.currentTimeMillis();
 				}
 				logger.debug(getName() + " - Plotting map after receiving point " + currentPoint + " of " + totalPoints);
-				
+
 				if (currentPoint == (totalPoints - 1)) {
 					plot(); //plot last points
 					logger.debug(getName() + " - last point received; deregistering as SDP listener.");
@@ -147,7 +147,7 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 			intensity = new DoubleDataset(sdp.getScanDimensions()[0], sdp.getScanDimensions()[1]);
 			// Fill with NaN to allow auto histogramming to work. Otherwise values are zero.
 			intensity.fill(Double.NaN);
-			
+
 			// if xstart,xstop,xstep values not defined then simply use an index
 			if (xStart == null) {
 				x = createTwoDset(0.0, (double) sdp.getScanDimensions()[0], 1.0, false);
@@ -201,10 +201,10 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 		}
 	}
 
-	
+
 	/**
 	 * Call this before the scan if you want to plot actual motor positions, not just indexes
-	 * 
+	 *
 	 * @param xStart
 	 * @param xStop
 	 * @param xStep
@@ -217,7 +217,7 @@ public class TwoDScanPlotter extends ScannableBase implements IAllScanDataPoints
 
 	/**
 	 * Call this before the scan if you want to plot actual motor positions, not just indexes
-	 * 
+	 *
 	 * @param yStart
 	 * @param yStop
 	 * @param yStep

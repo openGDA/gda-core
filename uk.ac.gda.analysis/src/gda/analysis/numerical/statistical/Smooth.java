@@ -32,7 +32,7 @@ public class Smooth {
 	/**
 	 * Apply SavityzkyGolay smoothing with default parameters (5 points, order 2) Note : data must be equally spaced (or
 	 * very close to..) for this algorithm to work
-	 * 
+	 *
 	 * @param g
 	 *            input datavector
 	 * @return smoothed data vector
@@ -43,7 +43,7 @@ public class Smooth {
 
 	/**
 	 * Apply SavityzkyGolay smoothing Note : data must be equally spaced (or very close to..) for this algorithm to work
-	 * 
+	 *
 	 * @param g
 	 *            input datavector
 	 * @param noOfPoints
@@ -99,7 +99,7 @@ public class Smooth {
 	/**
 	 * Appky average smoothing to a data vector. A data point point is replaced by the average of n surrounding points
 	 * Works for equally and unequally spaced data
-	 * 
+	 *
 	 * @param g
 	 * @param noOfPoints
 	 * @return smoothed data vector
@@ -112,7 +112,7 @@ public class Smooth {
 	/**
 	 * Appky average smoothing to a data vector. A data point point is replaced by the average of 3 surrounding points
 	 * Works for equally and unequally spaced data
-	 * 
+	 *
 	 * @param g
 	 * @return smoothed data vector
 	 */
@@ -122,7 +122,7 @@ public class Smooth {
 
 	/**
 	 * Apply lowess smoothing Works for equally and unequally spaced data
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @return smoothed data
@@ -133,7 +133,7 @@ public class Smooth {
 
 	/**
 	 * Apply lowess smoothing Works for equally and unequally spaced data
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @param f

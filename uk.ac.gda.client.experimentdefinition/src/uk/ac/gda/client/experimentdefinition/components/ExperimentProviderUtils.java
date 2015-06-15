@@ -88,7 +88,7 @@ public class ExperimentProviderUtils {
 
 	/**
 	 * Creates a label provider on the file viewer for showing any exafs file.
-	 * 
+	 *
 	 * @param fileViewer
 	 */
 	public static void createExafsLabelProvider(final TableViewer fileViewer) {

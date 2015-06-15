@@ -21,5 +21,5 @@ package uk.ac.gda.ui.viewer;
 public interface MotorPositionDemandChangedCallback {
 
 	public void call(double demand);
-	
+
 }

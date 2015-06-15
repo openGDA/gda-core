@@ -39,7 +39,7 @@ public class ScalerTest {
 	private DummyDAServer dummyDAServer = new DummyDAServer();
 
 	/**
-	 * 
+	 *
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() {
@@ -106,7 +106,7 @@ public class ScalerTest {
 			fail("FactoryException should not happen");
 		}
 	}
-	
+
 	/**
 	 * Test method for {@link gda.device.memory.Gdhist#read(int)}.
 	 */

@@ -38,7 +38,7 @@ public class BpmImpl extends CorbaBPMPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param bpm
 	 *            the Bpm implementation object
 	 * @param poa
@@ -52,7 +52,7 @@ public class BpmImpl extends CorbaBPMPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Bpm implementation object
 	 */
 	public BPM _delegate() {
@@ -61,7 +61,7 @@ public class BpmImpl extends CorbaBPMPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param bpm
 	 *            set the Bpm implementation object
 	 */
@@ -119,7 +119,7 @@ public class BpmImpl extends CorbaBPMPOA {
 	public void close() throws CorbaDeviceException {
 		deviceImpl.close();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();

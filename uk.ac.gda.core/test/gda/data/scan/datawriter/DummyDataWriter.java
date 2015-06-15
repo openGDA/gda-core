@@ -50,10 +50,10 @@ public class DummyDataWriter extends DataWriterBase {
 		System.out.println(s);
 		super.addData(newData);
 	}
-	
+
 	@Override
 	public void configureScanNumber(int scanNumber) {
 		scanId = scanNumber;
-	}	
+	}
 
 }

@@ -44,7 +44,7 @@ public class RegexFormatter extends DefaultFormatter {
 	/**
 	 * Creates a regular expression based AbstractFormatter. pattern specifies the regular expression that will be used
 	 * to determine if a value is legal.
-	 * 
+	 *
 	 * @param pattern
 	 * @throws PatternSyntaxException
 	 */
@@ -56,7 +56,7 @@ public class RegexFormatter extends DefaultFormatter {
 	/**
 	 * Creates a regular expression based AbstractFormatter. pattern specifies the regular expression that will be used
 	 * to determine if a value is legal.
-	 * 
+	 *
 	 * @param pattern
 	 */
 	public RegexFormatter(Pattern pattern) {
@@ -66,7 +66,7 @@ public class RegexFormatter extends DefaultFormatter {
 
 	/**
 	 * Sets the pattern that will be used to determine if a value is legal.
-	 * 
+	 *
 	 * @param pattern
 	 */
 	public void setPattern(Pattern pattern) {
@@ -75,7 +75,7 @@ public class RegexFormatter extends DefaultFormatter {
 
 	/**
 	 * Returns the Pattern used to determine if a value is legal.
-	 * 
+	 *
 	 * @return the Pattern used to determine if a value is legal.
 	 */
 	public Pattern getPattern() {
@@ -84,7 +84,7 @@ public class RegexFormatter extends DefaultFormatter {
 
 	/**
 	 * Sets the Matcher used in the most recent test if a value is legal.
-	 * 
+	 *
 	 * @param matcher
 	 */
 	protected void setMatcher(Matcher matcher) {
@@ -93,7 +93,7 @@ public class RegexFormatter extends DefaultFormatter {
 
 	/**
 	 * Returns the Matcher from the most test.
-	 * 
+	 *
 	 * @return the Matcher from the most test.
 	 */
 	protected Matcher getMatcher() {
@@ -103,7 +103,7 @@ public class RegexFormatter extends DefaultFormatter {
 	/**
 	 * Parses text returning an arbitrary Object. Some formatters may return null. If a Pattern has been specified and
 	 * the text completely matches the regular expression this will invoke setMatcher. {@inheritDoc}
-	 * 
+	 *
 	 * @see javax.swing.text.DefaultFormatter#stringToValue(java.lang.String)
 	 */
 	@Override

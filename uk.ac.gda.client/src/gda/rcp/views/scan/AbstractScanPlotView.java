@@ -81,13 +81,13 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 	protected abstract IPlotData getY(IScanDataPoint... point);
 
 	protected abstract String getCurrentPlotName(int scanNumber);
-	
+
 
 	@Override
 	protected String getGraphTitle() {
 		return getCurrentPlotName(scanNumber);
 	}
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
@@ -171,12 +171,12 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 	/**
 	 * Class which listens implements scanDataPointChanged(). Do not call programmatically, use plotPointsFromService()
 	 * instead to create a plot from the last scan.
-	 * 
+	 *
 	 * @param e
 	 */
 	@Override
 	public void scanDataPointChanged(final ScanDataPointEvent e) {
-		
+
 		showPlotter();
 
 		// This was slowing down everything, so calculate x and y in a separate thread
@@ -236,7 +236,7 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 
 	/**
 	 * Used for sending data to the plot programmatically. Currently for testing only.
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @param mode
@@ -277,7 +277,7 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 			system.createPlot1D(x.getDataSet(), y.getDataSets(), null);
 			system.setShowLegend(false);
 			system.setTitle(getCurrentPlotName(scanNumber));
-			
+
 			if (timer != null)
 				timer.start();
 			return true;
@@ -285,7 +285,7 @@ public abstract class AbstractScanPlotView extends AbstractPlotView implements S
 
 		return false;
 	}
-	
+
 	public AxisValues getXAxisValues() {
 		return new AxisValues(xSaved.getDataSet());
 	}

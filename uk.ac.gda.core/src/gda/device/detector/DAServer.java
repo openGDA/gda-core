@@ -72,7 +72,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 	/**
 	 * Set the host on which da.server is running
-	 * 
+	 *
 	 * @param host
 	 */
 	public void setHost(String host) {
@@ -88,7 +88,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 	/**
 	 * Set the port on which da.server is listening
-	 * 
+	 *
 	 * @param port
 	 */
 	public void setPort(int port) {
@@ -104,7 +104,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 	/**
 	 * Set the data port on which da.server can make socket connection back to this.
-	 * 
+	 *
 	 * @param dataPort
 	 */
 	public void setDataPort(int dataPort) {
@@ -258,7 +258,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 	/**
 	 * Tidy existing socket streams and try to connect them again within the thread. This method is synchronized as both
 	 * the main thread and run thread use this method.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public synchronized void reconnect() throws DeviceException {
@@ -278,7 +278,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 	/**
 	 * {@inheritDoc} tidy up all streams before ending program
-	 * 
+	 *
 	 * @see gda.device.DeviceBase#close()
 	 */
 	@Override
@@ -314,7 +314,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 	/**
 	 * Returns the state of the socket connection
-	 * 
+	 *
 	 * @return true if connected
 	 */
 	public boolean isConnected() {
@@ -372,7 +372,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 	/**
 	 * Send command to the server and specify a timeout on this command
-	 * 
+	 *
 	 * @param msg
 	 *            an unterminated command
 	 * @param timeout
@@ -395,7 +395,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 	/**
 	 * Send command to the server.
-	 * 
+	 *
 	 * @param msg
 	 *            an unterminated command
 	 * @return the reply which may be integer or string.
@@ -426,7 +426,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 	/**
 	 * Get data from the server.
-	 * 
+	 *
 	 * @param msg
 	 *            an unterminated command
 	 * @return returns data as an array of string objects.
@@ -472,7 +472,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 				String message = readLine();
 				logger.trace(getName() + ": getReply message received : " + message);
-				
+
 				if (isPrompt(message)) {
 					// we got a prompt, so the last message was the return value
 					return reply;
@@ -618,7 +618,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 			}
 
 			dataSocket.close();
-			// get message from da.server over the comms socket about the outputted data. 
+			// get message from da.server over the comms socket about the outputted data.
 			getReply(false);
 
 		} catch (IOException e) {
@@ -661,7 +661,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 	/**
 	 * Get binary data from the server and transform to double
-	 * 
+	 *
 	 * @param message
 	 *            an unterminated command
 	 * @param ndata
@@ -717,7 +717,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 	/**
 	 * Get binary data from the server as float
-	 * 
+	 *
 	 * @param message
 	 *            an unterminated command
 	 * @param ndata
@@ -741,7 +741,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 	/**
 	 * Get binary data from the server and transform to long (64bit) *
-	 * 
+	 *
 	 * @param message
 	 *            an unterminated command
 	 * @param ndata
@@ -765,7 +765,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 	/**
 	 * Get binary data from the server and transform to int[] (32bit)
-	 * 
+	 *
 	 * @param message
 	 *            an unterminated command
 	 * @param ndata
@@ -806,7 +806,7 @@ public class DAServer extends DeviceBase implements Configurable, Findable {
 
 	/**
 	 * test method
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void test() throws Exception {

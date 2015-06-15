@@ -36,7 +36,7 @@ public class DummyChannelSelector implements ChannelSelector {
 
 	/**
 	 * getName
-	 * 
+	 *
 	 * @return String
 	 */
 	@Override
@@ -46,7 +46,7 @@ public class DummyChannelSelector implements ChannelSelector {
 
 	/**
 	 * selectChannel
-	 * 
+	 *
 	 * @param motor
 	 *            Object
 	 * @param channel

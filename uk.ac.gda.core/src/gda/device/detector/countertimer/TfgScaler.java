@@ -93,7 +93,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 
 	/**
 	 * Set the name of the scaler for the Finder
-	 * 
+	 *
 	 * @param scalerName
 	 */
 	public void setScalerName(String scalerName) {
@@ -102,7 +102,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 
 	/**
 	 * Used by Castor for instantiation.
-	 * 
+	 *
 	 * @return the scaler name
 	 */
 	public String getScalerName() {
@@ -129,7 +129,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	 * Returns the total number of available counter-timer readout channels that will be returned by calls to
 	 * readChans() For a time-framing device it is the number of channels per frame. All counter-timers must fully
 	 * implement this.
-	 * 
+	 *
 	 * @return total number of readout channels
 	 * @throws DeviceException
 	 */
@@ -147,7 +147,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	/**
 	 * Initiates a single specified timing period and allows the counter-timer to proceed asynchronously. The end of
 	 * period can be determined by calls to isCounting() returning false. All counter-timers must fully implement this.
-	 * 
+	 *
 	 * @param time
 	 *            the requested counting time in milliseconds
 	 * @throws DeviceException
@@ -228,7 +228,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	 * Obtain an array of available readout channels. This should be available at any time. If the hardware does not
 	 * allow it during active counter-timing periods, it should return zero values. High level counter-timers may return
 	 * values in user units. All counter-timers must fully implement this.
-	 * 
+	 *
 	 * @return array of all channel readout values
 	 * @throws DeviceException
 	 */
@@ -253,7 +253,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 	/**
 	 * For a time framing counter-timer, read out from channel 0 beginning from the specified start frame number using
 	 * all the scaler dimensions.
-	 * 
+	 *
 	 * @param frame
 	 *            read this frame
 	 * @return array of requested readout counter-timer data
@@ -312,7 +312,7 @@ public class TfgScaler extends TFGCounterTimer implements CounterTimer {
 
 	/**
 	 * Returns the current data but does not increment the frame counter if frames are being used.
-	 * 
+	 *
 	 * @return double[]
 	 * @throws DeviceException
 	 */

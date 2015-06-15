@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
 public class TargetFolderPage extends WizardPage {
-	
+
 	protected String targetDir = "";
 	private Text txtFilenames;
 
@@ -64,13 +64,13 @@ public class TargetFolderPage extends WizardPage {
 				DirectoryDialog  dialog = new DirectoryDialog (PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
 						SWT.OPEN);
 				dialog.setFilterPath(PathConstructor.createFromRCPProperties() + "/xml");
-				
+
 				targetDir = dialog.open();
-				
+
 				txtFilenames.setText(targetDir);
 			}
 		});
-		
+
 		Label warning = new Label(composite, SWT.NONE);
 		warning.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,3,1));
 		warning.setText("NOTE: If the target folder contains files with the same names\nas the originals then the new files will be renamed by adding\nan integer to the end of the name.");

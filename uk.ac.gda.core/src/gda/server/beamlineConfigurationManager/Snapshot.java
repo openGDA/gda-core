@@ -115,7 +115,7 @@ class Snapshot {
 
 	/**
 	 * This is the method to get the scannable nominal positions used within the BCM
-	 * 
+	 *
 	 * @return Returns the entries.
 	 */
 	@OneToMany(cascade = CascadeType.ALL)

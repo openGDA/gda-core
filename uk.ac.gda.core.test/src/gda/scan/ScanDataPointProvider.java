@@ -27,20 +27,20 @@ import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 
 public class ScanDataPointProvider {
 	ScanDataPoint[] points;
-	Scannable scannable1 = TestHelpers.createTestScannable("scannable1", 
+	Scannable scannable1 = TestHelpers.createTestScannable("scannable1",
 			new double[] { 1, 2, 3 }, new String[] { "s1_E1" }, new String[] { "s1_I1", "s1_I2" },
 			1, new String[] { "%5.1g", "%5.1g", "%5.1g" }, null);
 
-	Scannable scannable2 = TestHelpers.createTestScannable("scannable2", 
+	Scannable scannable2 = TestHelpers.createTestScannable("scannable2",
 			new double[] { 4, 5, 6 }, new String[] { "s2_E1", "s2_E2", "s2_E3"}, new String[] {  },
 			1, new String[] { "%5.1g", "%5.1g", "%5.1g" }, null);
 
-	Scannable scannable3 = TestHelpers.createTestScannable("scannable3", 
+	Scannable scannable3 = TestHelpers.createTestScannable("scannable3",
 			new double[]  { 7}, new String[] { }, new String[] { "s3_I1" },
 			1, new String[] { "%5.1g" }, null);
 	int[] data2In;
-	
-	
+
+
 	public void preparePoints(int num){
 		int[] dims2 = new int[] { 2, 3 };
 
@@ -52,7 +52,7 @@ public class ScanDataPointProvider {
 
 		points = new ScanDataPoint[num];
 		String uniqueName = Long.toString(System.currentTimeMillis());
-		
+
 		for (int i = 0; i < num; i++) {
 
 			ScanDataPoint sdp = new ScanDataPoint();

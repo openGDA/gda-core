@@ -42,7 +42,7 @@ public class PositionConvertorFunctions {
 	/**
 	 * Converts an object to an object array. If the object is an array it is caste directly to an array, otherwise it
 	 * is put into a single element array. No length checking is performed.
-	 * 
+	 *
 	 * @param object
 	 * @return definitely an object array.
 	 */
@@ -100,7 +100,7 @@ public class PositionConvertorFunctions {
 	 * PyTuple. Returns a PyList if the target is any other PySequence (includes PyList, but by special exception, not
 	 * PyString). Returns an Object[] if the target is a List or array. Otherwise assumes the target was a single
 	 * element and returns the first element of objectArray.
-	 * 
+	 *
 	 * @param objectArray
 	 * @param targetObject
 	 * @return object
@@ -188,7 +188,7 @@ public class PositionConvertorFunctions {
 
 	/**
 	 * Returns the length of the Array/List that the object would be coerced into.
-	 * 
+	 *
 	 * @param object
 	 * @return length
 	 */
@@ -199,7 +199,7 @@ public class PositionConvertorFunctions {
 	/**
 	 * Converts an array to an object. If the array has only one element then this element is returned otherwise the
 	 * array is simply down-casted to an object.
-	 * 
+	 *
 	 * @param objectArray
 	 * @return either an object, or an object array.
 	 */
@@ -220,7 +220,7 @@ public class PositionConvertorFunctions {
 	 * Double, or a Quantity (where the Amount will be taken).
 	 * <p>
 	 * Note: May throw various Unchecked exceptions!
-	 * 
+	 *
 	 * @param object
 	 * @return a Double
 	 */
@@ -250,7 +250,7 @@ public class PositionConvertorFunctions {
 
 	/**
 	 * Converts an array of Objects to an array of Doubles if possible.
-	 * 
+	 *
 	 * @param objectArray
 	 */
 	static public Double[] toDoubleArray(Object[] objectArray) {
@@ -269,7 +269,7 @@ public class PositionConvertorFunctions {
 
 	/**
 	 * Converts an Object List to a Double array if possible.
-	 * 
+	 *
 	 * @param objectList
 	 * @return a Double array
 	 */
@@ -279,11 +279,11 @@ public class PositionConvertorFunctions {
 
 	}
 
-	// 
+	//
 
 	/**
 	 * Converts an Object to a Double array if possible. Uses toDouble() for conversion.
-	 * 
+	 *
 	 * @param objectArray
 	 * @return A Double array
 	 */
@@ -340,10 +340,10 @@ public class PositionConvertorFunctions {
 
 		throw new IllegalArgumentException("Could not convert " + object.toString() + " to an integer.");
 	}
-	
+
 	/**
 	 * Converts an array of Objects to an array of Integers if possible.
-	 * 
+	 *
 	 * @param objectArray
 	 */
 	static public Integer[] toIntegerArray(Object[] objectArray) {
@@ -357,7 +357,7 @@ public class PositionConvertorFunctions {
 		}
 		return integerArray;
 	}
-	
+
 	static public Integer[] toIntegerArray(Object objectArray) {
 
 		if (objectArray == null) {
@@ -365,8 +365,8 @@ public class PositionConvertorFunctions {
 		}
 		return toIntegerArray(toObjectArray(objectArray));
 	}
-	
-	
+
+
 	static public Quantity toQuantity(final Object object, final Unit<?> targetUnit) {
 
 		if (object == null) {

@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
  * Wrapper for the ConcurrentScan, except it takes centroid, width, step as arguments.
  */
 public class CentroidScan extends ScanBase implements Scan {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(CentroidScan.class);
-	
+
 	// the object this class wraps
 	ConcurrentScan concurrentScan = null;
 
@@ -49,7 +49,7 @@ public class CentroidScan extends ScanBase implements Scan {
 	 * If width defined, then step must be defined, else an error is thrown.
 	 * <P>
 	 * The number of steps for each scannable must be the same, or an error will be thrwon.
-	 * 
+	 *
 	 * @param args
 	 *            Object[]
 	 * @throws IllegalArgumentException
@@ -166,7 +166,7 @@ public class CentroidScan extends ScanBase implements Scan {
 
 	/**
 	 * Creates and runs a scan.
-	 * 
+	 *
 	 * @param args
 	 *            String[]
 	 * @throws InterruptedException
@@ -208,14 +208,14 @@ public class CentroidScan extends ScanBase implements Scan {
 						+ e.getMessage());
 			}
 		}
-		
+
 		concurrentScan.endScan();
 	}
-	
-	
+
+
 	/**
 	 * Move all objects involved in the scan back to their initial positions.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	private void moveToCentroids() throws Exception {

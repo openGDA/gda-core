@@ -26,9 +26,9 @@ import gda.factory.FactoryException;
  * Simulated axis for testing
  */
 public class DummySampleAxis extends SampleXYZAxis {
-	
+
 	double positionInMicrons = 0.0;
-	
+
 	@Override
 	public void configure() throws FactoryException{
 		try {

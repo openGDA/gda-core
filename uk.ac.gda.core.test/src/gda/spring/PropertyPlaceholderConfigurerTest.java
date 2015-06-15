@@ -18,44 +18,45 @@
 
 package gda.spring;
 
+import gda.util.TestUtils;
+
 import java.io.File;
 
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-
-import gda.util.TestUtils;
 import junit.framework.TestCase;
+
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class PropertyPlaceholderConfigurerTest extends TestCase {
 
 	static class Bean {
-		
+
 		String name;
-		
+
 		public void setName(String name) {
 			this.name = name;
 		}
-		
+
 	}
-	
+
 	public void testPropertyPlaceholderElementCanAppearAfterBeanDefinitionUsingPlaceholder() throws Exception {
 		File f = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, "placeholder-test-1.xml");
 		FileSystemXmlApplicationContext x = new FileSystemXmlApplicationContext("file:" + f.getAbsolutePath());
 		Bean b = (Bean) x.getBean("b");
 		assertEquals("value", b.name);
 	}
-	
+
 	public void testPropertyPlaceholderElementAffectsImportedBeanDefinitions() throws Exception {
 		File f = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, "placeholder-test-2a.xml");
 		FileSystemXmlApplicationContext x = new FileSystemXmlApplicationContext("file:" + f.getAbsolutePath());
 		Bean b = (Bean) x.getBean("b");
 		assertEquals("value", b.name);
 	}
-	
+
 	public void testImportedPropertyPlaceholderElementAffectsNonImportedBeanDefinitions() throws Exception {
 		File f = TestUtils.getResourceAsFile(PropertyPlaceholderConfigurerTest.class, "placeholder-test-3a.xml");
 		FileSystemXmlApplicationContext x = new FileSystemXmlApplicationContext("file:" + f.getAbsolutePath());
 		Bean b = (Bean) x.getBean("b");
 		assertEquals("value", b.name);
 	}
-	
+
 }

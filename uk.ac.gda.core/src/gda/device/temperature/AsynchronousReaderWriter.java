@@ -62,7 +62,7 @@ public class AsynchronousReaderWriter implements Runnable {
 
 	/**
 	 * Create the reader/writer.
-	 * 
+	 *
 	 * @param device
 	 *            the serial communication device.
 	 */
@@ -86,7 +86,7 @@ public class AsynchronousReaderWriter implements Runnable {
 	 * Used by the run() thread to append characters to the reply buffer. Synchronized because it sets
 	 * bufferContainsReply flag. Throws IOException if the buffer overflows (usually this indicates something seriously
 	 * wrong).
-	 * 
+	 *
 	 * @param cchar
 	 *            the character to be appended
 	 * @throws IOException
@@ -113,7 +113,7 @@ public class AsynchronousReaderWriter implements Runnable {
 
 	/**
 	 * Set the reply string termination
-	 * 
+	 *
 	 * @param replyEndString
 	 *            temination of reply
 	 */
@@ -123,7 +123,7 @@ public class AsynchronousReaderWriter implements Runnable {
 
 	/**
 	 * Set the string termination for a command
-	 * 
+	 *
 	 * @param commandEndString
 	 *            termination of command
 	 */
@@ -133,7 +133,7 @@ public class AsynchronousReaderWriter implements Runnable {
 
 	/**
 	 * Set the reply checker
-	 * 
+	 *
 	 * @param replyChecker
 	 */
 	public void setReplyChecker(ReplyChecker replyChecker) {
@@ -151,7 +151,7 @@ public class AsynchronousReaderWriter implements Runnable {
 
 	/**
 	 * Handles commands which do not need a reply.
-	 * 
+	 *
 	 * @param command
 	 *            the command to send
 	 */
@@ -166,7 +166,7 @@ public class AsynchronousReaderWriter implements Runnable {
 
 	/**
 	 * Locks use of this for current thread
-	 * 
+	 *
 	 * @see BusyFlag
 	 */
 	public void lock() {
@@ -176,7 +176,7 @@ public class AsynchronousReaderWriter implements Runnable {
 	/**
 	 * Extracts reply from replyBuffer. Must be synchronized because accesses replyBuffer and bufferContainsReply and
 	 * also calls wait.
-	 * 
+	 *
 	 * @return the reply string
 	 * @throws DeviceException
 	 */
@@ -271,7 +271,7 @@ public class AsynchronousReaderWriter implements Runnable {
 
 	/**
 	 * Actually writes a string to the device.
-	 * 
+	 *
 	 * @param command
 	 *            the command
 	 * @throws DeviceException
@@ -290,7 +290,7 @@ public class AsynchronousReaderWriter implements Runnable {
 
 	/**
 	 * Sends a command to the hardware and reads back a data reply.
-	 * 
+	 *
 	 * @param command
 	 *            the command sent to the hardware
 	 * @return the reply
@@ -308,7 +308,7 @@ public class AsynchronousReaderWriter implements Runnable {
 
 	/**
 	 * Releases this so that other threads can access it
-	 * 
+	 *
 	 * @see BusyFlag
 	 */
 	public void unLock() {

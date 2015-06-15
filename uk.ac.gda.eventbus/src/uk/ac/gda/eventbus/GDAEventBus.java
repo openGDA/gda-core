@@ -18,6 +18,9 @@
 
 package uk.ac.gda.eventbus;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Sets.newHashSet;
+
 import java.io.Serializable;
 import java.util.Set;
 
@@ -29,8 +32,8 @@ import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
 import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
@@ -43,27 +46,24 @@ import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Sets.newHashSet;
-
 /**
  * A Java-friendly route to a publish-subscribe message-oriented architecture
  * changes forshadowed by Eclipse 4. For general EventBus rationale please read:
  * https://code.google.com/p/guava-libraries/wiki/EventBusExplained
- * 
+ *
  * For intra-process event delivery GDAEventBus delegates to a Guava EventBus, as this
  * offers type-guarding and coercion (so code is navigable), allows flexible method naming,
  * and provides a mechanism for discovery of unhandled events.
- * 
+ *
  * For inter-process communication
  * (e.g. between GDA clients and the server, Global Phasing's ASTRA project and GDA, or GDA and RESTful webservices for ISPyB/VMXi),
  * multiple GDAEventBus instances send AND consume JMS messages on an ActiveMQ topic "GDA",
  * sending each posted event out only and forwarding received messages to subscribers.
  * Having multiple GDAEventBus instances publishing on same topic means that subscribers to one
  * are subscribed to all.
- * 
+ *
  * JavaDoc: http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/eventbus/EventBus.html
- * 
+ *
  * AsyncEventBus: http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/eventbus/AsyncEventBus.html
  */
 public class GDAEventBus extends EventBus {
@@ -92,7 +92,7 @@ public class GDAEventBus extends EventBus {
 
 	public GDAEventBus(String identifier) {
 		this.identifier = identifier;
-		
+
 		delegate = new EventBus(); //TODO use AsyncEventBus instead?
 	}
 
@@ -122,41 +122,41 @@ public class GDAEventBus extends EventBus {
 
 	public GDAEventBus(String identifier, ConnectionFactory connectionFactory, String destinationName, boolean isDestinationTopicElseQueue) {
 		this(identifier);
-		
+
 		// publish(Serializable event) { producer.send(ObjectMessage message) }
-		
+
 		// ConsumerMessageListener.onMessage(Message message) { post(((ObjectMessage) message).getObject()) }
-		
+
 		// create JMS components for forwarding GDAEventBus events to ActiveMQ
 		// adapted from HelloWorld{Producer,Consumer} here: http://activemq.apache.org/hello-world.html
 		try {
 			// Create a Connection
 			connection = connectionFactory.createConnection();
 			connection.start();
-			
+
 			connection.setExceptionListener(new ExceptionListener() {
 				@Override
 				public synchronized void onException(JMSException e) {
 					logger.error("JMS Exception occured.", e);
 				}
 			});
-			
+
 			// Create a Session
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			
+
 			// Create the destination (Topic or Queue)
 			Destination destination = isDestinationTopicElseQueue ? session.createTopic(destinationName) : session.createQueue(destinationName);
-			
+
 			// Create a MessageProducer from the Session to the Topic or Queue
 			producer = session.createProducer(destination);
 			producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-			
+
 			// Create a MessageConsumer from the Session to the Topic or Queue
 			consumer = session.createConsumer(destination);
-			
+
 			// Forward messages to EventBus delegate
 			consumer.setMessageListener(new ConsumerMessageListener());
-			
+
 			// Clean up
 			// cleanUp(); //TODO when?
 		} catch (JMSException e) {
@@ -229,7 +229,7 @@ public class GDAEventBus extends EventBus {
 	@SuppressWarnings("unused")
 	private static void example() {
 		GDAEventBus bus = new GDAEventBus(); // identifier "default"
-		
+
 		// Simple handlers might be anonymous sub types of Object
 		bus.register(new Object() {
 			@Subscribe
@@ -237,7 +237,7 @@ public class GDAEventBus extends EventBus {
 				logger.info("read " + (s.trim().split("\\s").length == 1 ? "single " : "multi-") + "word String: \"{}\"", s);
 			}
 		});
-		
+
 		// Subscribers to Object will receive any (and all!) events
 		class AnyEventHandler {
 			@Subscribe
@@ -245,7 +245,7 @@ public class GDAEventBus extends EventBus {
 				logger.debug("saw {}: {}", o.getClass().getName(), o.toString());
 			}
 		}
-		
+
 		// Handlers can subscribe to multiple event types/subtypes
 		class NumericEventHandler<T> { // parameterised for demonstration purposes
 			@Subscribe
@@ -261,19 +261,19 @@ public class GDAEventBus extends EventBus {
 				logger.debug("passed object of type " + n.getClass().getName() + ": {}", n);
 			}
 		}
-		
+
 		// Instantiate super type handlers as needed for debugging
 		final AnyEventHandler anyEventHandler = new AnyEventHandler();
 		bus.register(anyEventHandler);
 		// but keep a reference for when you are done
 		bus.unregister(anyEventHandler);
-		
+
 		// DefaultDeadEventHandler receives events without subscribers
 		bus.register(new DefaultDeadEventHandler(logger));
-		
+
 		// Having left generic handlers until it was unavoidable...
 		bus.register(new NumericEventHandler<Number>());
-		
+
 		// Let's test
 		bus.post(1);
 		bus.post(-2.0);
@@ -308,13 +308,13 @@ public class GDAEventBus extends EventBus {
 	}
 
 	private static void testActiveMq() throws InterruptedException, JMSException {
-		
+
 		// create
 		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
 		GDAEventBus eventBus1 = new GDAEventBus("eventBus1", connectionFactory);
 		GDAEventBus eventBus2 = new GDAEventBus("eventBus2", connectionFactory);
 //		eventBus2 = eventBus1; // can be the same!
-		
+
 		// ready
 		Object handler = new Object() {
 			@Subscribe
@@ -323,24 +323,24 @@ public class GDAEventBus extends EventBus {
 				System.out.println(event);
 			}
 		};
-		
+
 		// set
 		eventBus1.register(handler);
 		eventBus2.register(handler);
-		
+
 		// go
 		eventBus1.post("String from eventBus1");
 		eventBus2.publish("String from eventBus2");
 		eventBus1.publish(1);
 		eventBus2.post(2);
-		
+
 		// wait expectantly
 		Thread.sleep(3000);
-		
+
 		eventBus1.cleanUp();
 		eventBus2.cleanUp();
 	}
-		
+
 	public void cleanUp/*closeConnection*/() throws JMSException {
 		if (producer != null) producer.close();
 		if (consumer != null) consumer.close();

@@ -25,7 +25,7 @@ public class DummyPilatus extends DetectorBase implements Pilatus {
 
 	private String gain = "Medium - 10-14 KeV";
 	private String mode = "Internal";
-	
+
 	private double thresholdEnergy = 6340;
 	private double delayTime;
 	private String[] gainLabels;
@@ -156,13 +156,13 @@ public class DummyPilatus extends DetectorBase implements Pilatus {
 	public double getDelayTime() throws DeviceException {
 		return delayTime;
 	}
-	
+
 	@Override
 	public void setGeneralText(String toSend) {
 	}
-	
+
 	@Override
 	public void sendGeneralText() {
 	}
-	
+
 }

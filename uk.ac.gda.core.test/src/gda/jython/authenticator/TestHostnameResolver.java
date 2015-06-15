@@ -31,7 +31,7 @@ import java.util.Map;
 public class TestHostnameResolver implements HostnameResolver {
 
 	private Map<String, List<String>> entries;
-	
+
 	/**
 	 * Creates a new resolver that can resolve "localhost".
 	 */
@@ -39,10 +39,10 @@ public class TestHostnameResolver implements HostnameResolver {
 		entries = new HashMap<String, List<String>>();
 		addEntry("localhost", "127.0.0.1", "[::1]");
 	}
-	
+
 	/**
 	 * Adds a new entry to this resolver.
-	 * 
+	 *
 	 * @param hostname the hostname
 	 * @param addresses IP addresses for the hostname
 	 */
@@ -50,7 +50,7 @@ public class TestHostnameResolver implements HostnameResolver {
 		final List<String> addressList = Collections.unmodifiableList(Arrays.asList(addresses));
 		entries.put(hostname, addressList);
 	}
-	
+
 	@Override
 	public List<String> resolveHostname(String hostname) throws UnknownHostException {
 		if (!entries.containsKey(hostname)) {

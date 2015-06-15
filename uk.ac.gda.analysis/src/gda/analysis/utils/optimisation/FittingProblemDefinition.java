@@ -34,7 +34,7 @@ public class FittingProblemDefinition implements ProblemDefinition {
 	 * Basic constructor, which requires all the input for the function
 	 * @param coords the values of the input variables to the function to be fitted
 	 * @param data the data to be fitted
-	 * @param function the composite function which will be fitted to the data 
+	 * @param function the composite function which will be fitted to the data
 	 */
 	public FittingProblemDefinition(DoubleDataset[] coords, DoubleDataset data, IFunction function) {
 		this.values = coords;

@@ -26,7 +26,7 @@ package gda.plots;
 public interface CoordinateFormatter {
 	/**
 	 * Should produce a string representation of the given SimpleDataCoordinate
-	 * 
+	 *
 	 * @param sdc
 	 *            the SimpleDataCoordinate to be formatted
 	 * @return a String containing the formatted values
@@ -35,7 +35,7 @@ public interface CoordinateFormatter {
 
 	/**
 	 * Should set the number of digits used (for both X and Y values).
-	 * 
+	 *
 	 * @param digits
 	 *            the number of digits.
 	 */
@@ -43,7 +43,7 @@ public interface CoordinateFormatter {
 
 	/**
 	 * Should set the number of digits used for X value.
-	 * 
+	 *
 	 * @param digits
 	 *            the number of digits.
 	 */
@@ -51,7 +51,7 @@ public interface CoordinateFormatter {
 
 	/**
 	 * Should set the number of digits used for Y value.
-	 * 
+	 *
 	 * @param digits
 	 *            the number of digits.
 	 */

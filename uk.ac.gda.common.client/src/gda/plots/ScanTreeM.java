@@ -109,7 +109,7 @@ public class ScanTreeM extends SelectableNode {
 		String text = toString();
 		if (text.length() > maxlength) {
 			text = "." + text.substring(text.length() - maxlength + 1);
-		}	
+		}
 		return text;
 	}
 

@@ -28,7 +28,7 @@ public class Polynomial {
 	 * <summary> Given arrays xa[0..n-1] and ya[0..n-1], and given a value x, this routine returns a value y, and an
 	 * error estimate dy. If P(x) is the polynomial of degree n - 1 such that P(xai) = yai, i = 0,..., n-1, then the
 	 * returned value y = P(x). </summary> see numerical recipies polint
-	 * 
+	 *
 	 * @param xa
 	 * @param ya
 	 * @param x

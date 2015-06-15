@@ -21,8 +21,8 @@ package gda.device.detector.pco4000;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import gda.util.TestUtils;
 import gda.device.DeviceException;
+import gda.util.TestUtils;
 
 import java.io.File;
 
@@ -30,7 +30,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * 
+ *
  */
 public class PCO4000Test {
 	static String testScratchDirectoryName = null;
@@ -39,18 +39,18 @@ public class PCO4000Test {
 
 	/**
 	 * Creates an empty directory for use by test code.
-	 * 
+	 *
 	 * @throws Exception if setup fails
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		testScratchDirectoryName = TestUtils.generateDirectorynameFromClassname(PCO4000Test.class.getCanonicalName());
 		TestUtils.makeScratchDirectory(testScratchDirectoryName);
-	}	
+	}
 
 	/**
 	 * Initial test which checks out the basic methods to make the detector read out
-	 * 
+	 *
 	 * @throws Exception if the test fails
 	 */
 	@Test
@@ -101,7 +101,7 @@ public class PCO4000Test {
 
 	/**
 	 * This test simply calls all the Nexus routines which set up the metadata
-	 * 
+	 *
 	 * @throws Exception if the test fails
 	 */
 	@Test
@@ -168,7 +168,7 @@ public class PCO4000Test {
 	/**
 	 * This test should go through all the set attribute methods and make sure they return the right errors when the
 	 * wrong objects are passed in
-	 * 
+	 *
 	 * @throws Exception if the test fails
 	 */
 	@Test

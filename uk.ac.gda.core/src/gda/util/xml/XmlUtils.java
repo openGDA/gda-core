@@ -45,11 +45,11 @@ public class XmlUtils {
 
 	/**
 	 * Reads the XML document and returns it as a {@link String}.
-	 * 
+	 *
 	 * @param url the URL of the XML document
-	 * 
+	 *
 	 * @return the XML document, as a {@link String}
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public static String readXmlDocument(URL url) throws IOException {
@@ -58,14 +58,14 @@ public class XmlUtils {
 		FileCopyUtils.copy(in, out);
 		return out.toString();
 	}
-	
+
 	/**
 	 * Reads an XML document and returns it as a {@link String}.
-	 * 
+	 *
 	 * @param source the input source for the XML document
-	 * 
+	 *
 	 * @return the XML document, as a {@link String}
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public static String readXmlDocument(InputSource source) throws IOException {
@@ -73,15 +73,15 @@ public class XmlUtils {
 		FileCopyUtils.copy(source.getCharacterStream(), out);
 		return out.toString();
 	}
-	
+
 	/**
 	 * Filters an XML document.
-	 * 
+	 *
 	 * @param source the input source for the XML document
 	 * @param filter the filter
-	 * 
+	 *
 	 * @return an input source for the resulting document
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public static InputSource filterXml(InputSource source, XMLFilter filter) throws Exception {
@@ -89,16 +89,16 @@ public class XmlUtils {
 		// attributes
 		XMLReader reader = XMLReaderFactory.createXMLReader();
 		filter.setParent(reader);
-		
+
 		// Create a Transformer
 		TransformerFactory tf = TransformerFactory.newInstance();
 		Transformer t = tf.newTransformer();
-		
+
 		// Transform the source tree, applying the filter, and store the result
 		// tree in a character array
 		CharArrayWriter writer = new CharArrayWriter();
 		t.transform(new SAXSource(filter, source), new StreamResult(writer));
-		
+
 		// Return a new InputSource using the result tree
 		return new InputSource(new CharArrayReader(writer.toCharArray()));
 	}
@@ -106,9 +106,9 @@ public class XmlUtils {
 	/**
 	 * Creates an {@link InputSource} for the XML document in the given
 	 * {@link String}.
-	 * 
+	 *
 	 * @param xml the XML document as a {@link String}
-	 * 
+	 *
 	 * @return an input source for the XML document
 	 */
 	public static InputSource stringInputSource(String xml) {

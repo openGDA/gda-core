@@ -36,49 +36,49 @@ import uk.ac.gda.remoting.ServiceInterface;
  * RMI. Also creates an observer for the 'real' object that injects events into the GDA event system.
  */
 public class GdaRmiServiceExporter implements InitializingBean {
-	
+
 	// TODO allow manipulation of parameters/return value/exceptions, to retain CORBA impl class behaviour
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(GdaRmiServiceExporter.class);
-	
+
 	private Class<?> serviceInterface;
-	
+
 	public void setServiceInterface(Class<?> serviceInterface) {
 		this.serviceInterface = serviceInterface;
 	}
-	
+
 	public Class<?> getServiceInterface() {
 		return serviceInterface;
 	}
-	
+
 	private Object service;
-	
+
 	public void setService(Object service) {
 		this.service = service;
 	}
-	
+
 	public Object getService() {
 		return service;
 	}
-	
+
 	private String serviceName;
-	
+
 	public void setServiceName(String serviceName) {
 		this.serviceName = serviceName;
 	}
-	
+
 	public String getServiceName() {
 		return serviceName;
 	}
-	
+
 	private RmiServiceExporter serviceExporter = new RmiServiceExporter();
-	
+
 	@Override
 	public void afterPropertiesSet() throws RemoteException {
 		if (getService() == null) {
 			throw new RemoteException("The 'service' property is required");
 		}
-		
+
 		// If a service name hasn't been explicitly set, try to determine it automatically
 		if (getServiceName() == null) {
 			if (getService() instanceof Findable) {
@@ -91,7 +91,7 @@ public class GdaRmiServiceExporter implements InitializingBean {
 				throw new RemoteException("Property 'serviceName' is not set, and as the object doesn't implement Findable (which has the getName() method), I can't determine a name automatically");
 			}
 		}
-		
+
 		// If the service interface hasn't been explicitly set, try to determine it automatically by looking for
 		// a @ServiceInterface annotation
 		if (getServiceInterface() == null) {
@@ -104,13 +104,13 @@ public class GdaRmiServiceExporter implements InitializingBean {
 			logger.debug("Automatically determined the service interface for {} to be {}", serviceClass.getName(), serviceInterface.getName());
 			setServiceInterface(serviceInterface);
 		}
-		
+
 		// Initialise the real service exporter
 		serviceExporter.setService(getService());
 		serviceExporter.setServiceName(getServiceName());
 		serviceExporter.setServiceInterface(getServiceInterface());
 		serviceExporter.afterPropertiesSet();
-		
+
 		try {
 			setupEventDispatch();
 			logger.debug("Service " + getServiceName() + " exported");
@@ -118,19 +118,19 @@ public class GdaRmiServiceExporter implements InitializingBean {
 			throw new RemoteException("Unable to export service", e);
 		}
 	}
-	
+
 	private void setupEventDispatch() throws Exception {
 		final Object service = getService();
 		if (service instanceof IObservable && service instanceof Findable) {
 			final Findable findable = (Findable) service;
 			final IObservable observable = (IObservable) service;
-			
+
 			ServerSideEventDispatcher observer = new ServerSideEventDispatcher();
 			observer.setSourceName(findable.getName());
 			observer.setObject(observable);
 			observer.afterPropertiesSet();
 		}
-		
+
 		else {
 			throw new RuntimeException("Object " + serviceName + " must implement IObservable and Findable in order for events to be sent over CORBA. Use " + RmiServiceExporter.class.getName() + " instead of " + getClass().getSimpleName() + " if event handling is not necessary.");
 		}

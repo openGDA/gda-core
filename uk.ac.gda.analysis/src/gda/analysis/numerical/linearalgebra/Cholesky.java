@@ -27,7 +27,7 @@ public class Cholesky {
 	 * Given a positive-definite symmetric matrix a[0..n-1][0..n-1], this routine constructs its Cholesky decomposition,
 	 * A = L ¡¤ L^T . On input, only the upper triangle of a need be given; it is not modified. The Cholesky factor L is
 	 * returned in the lower triangle of a, except for its diagonal elements which are returned in p[0..n-1].
-	 * 
+	 *
 	 * @param a
 	 *            a positive-definite symmetric matrix (input)
 	 * @param p
@@ -64,7 +64,7 @@ public class Cholesky {
 	 * of a is accessed. b[0..n-1] is input as the right-hand side vector. The solution vector is returned in x[0..n-1].
 	 * a, n, and p are not modified and can be left in place for successive calls with different right-hand sides b. b
 	 * is not modified unless you identify b and x in the calling sequence, which is allowed.
-	 * 
+	 *
 	 * @param a
 	 * @param p
 	 * @param b

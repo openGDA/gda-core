@@ -31,10 +31,10 @@ import org.slf4j.LoggerFactory;
 /**
  * This class can be used to get the next number to use for an experiment using incrementing numbers
  * stored on disk.
- * 
+ *
  * <p>The numbers are stored in a filename, with an experiment-specific file extension. Filenames have the format
  * {@code "<number>.<extension>"}. Examples include {@code "123.tmp"} and {@code "765.cd"}.
- * 
+ *
  * <p>The files are stored in the directory specified by the <code>gda.data.numtracker</code> property if set
  * otherwise in the directory specified by the <code>gda.var</code> property.
  */
@@ -42,7 +42,7 @@ public class NumTracker {
 	private static final Logger logger = LoggerFactory.getLogger(NumTracker.class);
 
 	private static final String FILE_PATTERN_TEMPLATE = "(\\d+)(\\.%s)$";
-	
+
 	private File dir;
 
 	private String extension;
@@ -50,9 +50,9 @@ public class NumTracker {
 	private FilenameFilter filter;
 
 	/**
-	 * Creates a {@code NumTracker} with extension set to tmp or value of java property 
+	 * Creates a {@code NumTracker} with extension set to tmp or value of java property
 	 * LocalProperties.GDA_DATA_NUMTRACKER_EXTENSION,
-	 * 
+	 *
 	 * @throws IOException if the property is not set or the directory cannot be created
 	 */
 	public NumTracker() throws IOException {
@@ -65,9 +65,9 @@ public class NumTracker {
 	}
 	/**
 	 * Creates a {@code NumTracker} with the specified extension.
-	 * 
+	 *
 	 * @param extension the file extension to use if not set in java property LocalProperties.GDA_DATA_NUMTRACKER_EXTENSION, e.g. {@code "tmp"}
-	 * 
+	 *
 	 * @throws IOException if the property is not set or the directory cannot be created
 	 */
 	public NumTracker(String extension) throws IOException {
@@ -82,7 +82,7 @@ public class NumTracker {
 			throw new IOException(msg);
 		}
 		openDir(dirname);
-		
+
 	}
 
 	private void openDir(String dirname) throws IOException{
@@ -95,7 +95,7 @@ public class NumTracker {
 				logger.error(msg);
 				throw new IOException(msg);
 			}
-		}		
+		}
 	}
 	/**
 	 * @return the current file number
@@ -106,7 +106,7 @@ public class NumTracker {
 
 	/**
 	 * Increments the number, replaces the file on disk, and returns the new number.
-	 * 
+	 *
 	 * @return the new number (or zero if a problem occurs)
 	 */
 	public int incrementNumber() {
@@ -120,7 +120,7 @@ public class NumTracker {
 
 	/**
 	 * Set the file number to a new value.
-	 * 
+	 *
 	 * @param number the new file number
 	 */
 	public void setFileNumber(long number) {
@@ -146,7 +146,7 @@ public class NumTracker {
 
 	/**
 	 * Set the file extension.
-	 * 
+	 *
 	 * @param extension the file extension
 	 */
 	private void setFileExtension(String extension) {
@@ -156,7 +156,7 @@ public class NumTracker {
 			extension = extension.substring(1);
 		}
 		this.extension = extension;
-		
+
 		// Set the pattern matching to use, based on the file extension.
 		String filePattern = String.format(FILE_PATTERN_TEMPLATE, extension);
 		filter = new NumTrackerFilenameFilter(filePattern);
@@ -164,9 +164,9 @@ public class NumTracker {
 
 	/**
 	 * Delete the file for the specified number.
-	 * 
+	 *
 	 * @param number the number of the file to delete
-	 * 
+	 *
 	 * @return true if deletion worked; false otherwise
 	 */
 	private boolean deleteNumberedFile(long number) {
@@ -185,7 +185,7 @@ public class NumTracker {
 
 	/**
 	 * Finds the largest number for which a file exists.
-	 * 
+	 *
 	 * @return the largest number found, or zero if the directory doesn't exist, or no files are found
 	 */
 	private int findBiggestNumber() {
@@ -206,9 +206,9 @@ public class NumTracker {
 	/**
 	 * Write a new file (in {number}.extension format) in the directory. This method will create the directory
 	 * if it does not exist.
-	 * 
+	 *
 	 * @param number the number of the file to create
-	 * 
+	 *
 	 * @return true if the file was successfully created; false otherwise
 	 */
 	private boolean writeNewFile(long number) {
@@ -224,7 +224,7 @@ public class NumTracker {
 		}
 		return false;
 	}
-	
+
 	protected File makeFile(long number) {
 		return new File(dir, Long.toString(number) + "." + extension);
 	}
@@ -233,13 +233,13 @@ public class NumTracker {
 	 * {@link FilenameFilter} that accepts files matching the current file pattern.
 	 */
 	private class NumTrackerFilenameFilter implements FilenameFilter {
-		
+
 		private String pattern;
-		
+
 		public NumTrackerFilenameFilter(String pattern) {
 			this.pattern = pattern;
 		}
-		
+
 		@Override
 		public boolean accept(File dir, String name) {
 			return name.matches(pattern);

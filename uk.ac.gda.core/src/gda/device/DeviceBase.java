@@ -34,11 +34,11 @@ import org.slf4j.LoggerFactory;
  * A base implementation for all devices
  */
 public abstract class DeviceBase implements Device, ConditionallyConfigurable, Localizable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DeviceBase.class);
-	
+
 	private String name;
-	
+
 	private int protectionLevel = 1;
 
 	private boolean local = false;
@@ -56,7 +56,7 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 
 	/**
 	 * Get the name of the device
-	 * 
+	 *
 	 * @return Returns the name.
 	 */
 	@Override
@@ -69,7 +69,7 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 
 	/**
 	 * Set the name of the device
-	 * 
+	 *
 	 * @param name
 	 *            The name to set.
 	 */
@@ -82,12 +82,12 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 	/**
 	 * Checks to see if the created object should be local to the server or whether a corba impl should be instantiated
 	 * and placed on the name server.
-	 * 
+	 *
 	 * @return true for local only objects
 	 */
 	@Override
 	public boolean isLocal() {
-		return local;	
+		return local;
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 	/**
 	 * Sets a flag to inform the server that the created object should be local to itself or whether a corba impl should
 	 * be instantiated and placed on the name server.
-	 * 
+	 *
 	 * @param local
 	 *            true if a local only implementation.
 	 */
@@ -120,7 +120,7 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 
 	/**
 	 * Set a flag to inform the server whether the configure method should be called at startup.
-	 * 
+	 *
 	 * @param configureAtStartup
 	 *            true to configure at startup.
 	 */
@@ -132,10 +132,10 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 	public void reconfigure() throws FactoryException {
 		// do nothing. its up to the sub-classes
 	}
-	
+
 	/**
 	 * Checks to see if the object is already configured.
-	 * 
+	 *
 	 * @return boolean value of whether the device has been configured or not
 	 */
 	public boolean isConfigured() {
@@ -189,30 +189,30 @@ public abstract class DeviceBase implements Device, ConditionallyConfigurable, L
 	}
 	/**
 	 * Notify all observers on the list of the requested change.
-	 * 
+	 *
 	 * @param source the observed component
 	 * @param arg the data to be sent to the observer.
 	 */
 	public void notifyIObservers(Object source, Object arg) {
 		observableComponent.notifyIObservers(source, arg);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if(this == obj){
 					return true;
 		}
-		
+
 		//must match class
 		if((obj == null) || (obj.getClass() != this.getClass())){
 			return false;
 		}
-		
+
 
 		Device test = (Device) obj;
 		if( getName() == null){
 			return test.getName() == null ? true : false;
-		} 
+		}
 		return test.getName() == null ? false : getName().equals(test.getName());
 	}
 

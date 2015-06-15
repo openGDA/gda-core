@@ -31,13 +31,13 @@ public interface SocketExecutor {
 	 */
 	public enum Status {
 		/**
-		 * 
+		 *
 		 */
 		BUSY, /**
-		 * 
+		 *
 		 */
 		SUCCESS, /**
-		 * 
+		 *
 		 */
 		FAILURE
 	}

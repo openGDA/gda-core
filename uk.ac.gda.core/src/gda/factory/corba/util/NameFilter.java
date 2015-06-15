@@ -26,9 +26,9 @@ import gda.observable.IIsBeingObserved;
  * NameFilter Class
  */
 public final class NameFilter implements Filter {
-	
+
 	private final String shortName;
-	
+
 	private final String name;
 
 	private static String eventChannelName = LocalProperties.get("gda.eventChannelName", "local.eventChannel");
@@ -58,13 +58,13 @@ public final class NameFilter implements Filter {
 
 	/**
 	 * Returns the object name used by this name filter.
-	 * 
+	 *
 	 * @return the object name
 	 */
 	public String getName() {
 		return shortName;
 	}
-	
+
 	/**
 	 * @param shortName
 	 * @return short name plus event channel name
@@ -79,7 +79,7 @@ public final class NameFilter implements Filter {
 	static public String getEventChannelName() {
 		return eventChannelName;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("NameFilter(name=%s)", getName());

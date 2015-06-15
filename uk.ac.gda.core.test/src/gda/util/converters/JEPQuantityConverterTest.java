@@ -48,7 +48,7 @@ public class JEPQuantityConverterTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void testToSource() {
 		JEPQuantityConverter converter = new JEPQuantityConverter(JEPQuantityConverterParameters.jUnitTestFileName);
@@ -59,7 +59,7 @@ public class JEPQuantityConverterTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public final void testReal() {
 		JEPQuantityConverter converter = new JEPQuantityConverter(testFileFolder + "/Simple.xml");
@@ -70,7 +70,7 @@ public class JEPQuantityConverterTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public final void testSourceMinIsTargetMax() {
 		assertEquals(false, new JEPQuantityConverter(testFileFolder + "/Simple.xml").sourceMinIsTargetMax());
@@ -81,7 +81,7 @@ public class JEPQuantityConverterTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public final void testComplex() {
 		JEPQuantityConverter converter = new JEPQuantityConverter(testFileFolder + "/Complex.xml");
@@ -92,7 +92,7 @@ public class JEPQuantityConverterTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public final void testCoupled() {
 		JEPQuantityConverter converterTarget = new JEPQuantityConverter(testFileFolder + "/DegToAngstrom.xml");
@@ -115,7 +115,7 @@ public class JEPQuantityConverterTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@SuppressWarnings("unused")
 	public final void testBadCoupled() {
@@ -135,7 +135,7 @@ public class JEPQuantityConverterTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public final void testUnits() {
 		JEPQuantityConverter converter = new JEPQuantityConverter(testFileFolder + "/mmToDeg.xml");

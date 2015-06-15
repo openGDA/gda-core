@@ -40,13 +40,13 @@ import org.springframework.util.StringUtils;
  * FindableProcessorQueue implements Processor and Queue
  * The implementation of Queue is done using delegation to the Queue
  * object set using the setQueue method
- * 
+ *
  */
 public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable, IObserver, InitializingBean {
 	ObservableComponent obsComp = new ObservableComponent();
 
 	private static final Logger logger = LoggerFactory.getLogger(FindableProcessorQueue.class);
-	
+
 	enum COMMAND { NONE, START, STOP, PAUSE}
 
 	/*
@@ -66,13 +66,13 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 	Processor.STATE state=Processor.STATE.WAITING_START;
 
 	/*
-	 * As the object can be called in many threads we need to synchronize access 
-	 * to fields used to communicate with the managerThread 
+	 * As the object can be called in many threads we need to synchronize access
+	 * to fields used to communicate with the managerThread
 	 */
 	Object lock=new Object();
 
 	/*
-	 * The last Command removed from the Queue for processing and has not 
+	 * The last Command removed from the Queue for processing and has not
 	 * yet been fully processed
 	 */
 	private Command cmdBeingProcessed;
@@ -94,14 +94,14 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 	Boolean skip=false;
 
 	/*
-	 * Allows a mode where the users expect to always have to manually start the queue  
+	 * Allows a mode where the users expect to always have to manually start the queue
 	 */
 	boolean pauseWhenQueueEmpty = false;
 
 	boolean startImmediately=false;
 
 	private PrintWriter writer;
-	
+
 	public void setQueue(Queue queue) {
 		if(this.queue != null)
 			this.queue.deleteIObserver(this);
@@ -142,7 +142,7 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 					lock.notifyAll();
 				}
 			}
-		
+
 		}
 		if(cmd.equals(COMMAND.START) ){
 			long time_ms=0;
@@ -163,7 +163,7 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 			}
 		}
 	}
-	
+
 	@Override
 	public void pause(long timeout_ms) throws Exception {
 		sendCommandToManagerThread(timeout_ms, COMMAND.PAUSE);
@@ -177,7 +177,7 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 			skip = true;
 			lock.notifyAll();
 		}
-		
+
 	}
 
 	@Override
@@ -258,11 +258,11 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 					notifyListeners();
 				}
 			}
-			
+
 		}
 		obsComp.notifyIObservers(this, arg);
 	}
-	
+
 	private void notifyObserversOfProgress(float percentDone, String msg){
 		obsComp.notifyIObservers(this, new SimpleCommandProgress(percentDone, msg));
 	}
@@ -271,8 +271,8 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 	public void run() {
 		cmdBeingProcessed = null;
 		while(true){
-			
-			//enter region of waiting for a change to the queue or a change of started 
+
+			//enter region of waiting for a change to the queue or a change of started
 			boolean notifyListenersNeeded=false;
 			synchronized (lock) {
 				if(commandToBeProcessed.compareTo(COMMAND.START)==0){
@@ -303,7 +303,7 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 				}
 				skip = false; // acknowledge
 				queueChanged = false; //acknowledge the queueChanged event
-				
+
 				if(commandToBeProcessed.compareTo(COMMAND.START)==0){
 					running=true;
 				}
@@ -365,7 +365,7 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 				 */
 				setState();
 				notifyListeners();
-				
+
 			}
 		}
 	}
@@ -542,7 +542,7 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 	}
 
 	String logFilePath;
-	
+
 	@Override
 	public String getLogFilePath() {
 		return logFilePath;
@@ -561,18 +561,18 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 
 	/**
 	 * Auto pause the queue when it empties
-	 * 
+	 *
 	 * @param pauseWhenQueueEmpty
 	 */
 	public void setPauseWhenQueueEmpty(boolean pauseWhenQueueEmpty) {
 		this.pauseWhenQueueEmpty = pauseWhenQueueEmpty;
 	}
-	
+
 	private void log(String msg){
 		writer.println(getDateTime() + ": " + msg);
 		writer.flush();
 	}
-	
+
 	private void log(CommandProgress p){
 		log(p.getPercentDone() + "%: " + p.getMsg());
 	}
@@ -588,11 +588,11 @@ public class FindableProcessorQueue implements IFindableQueueProcessor, Runnable
 		if( !StringUtils.hasText(logFilePath)){
 			throw new Exception("logFilePath is null or empty");
 		}
-		
+
 		File logFile  = new File(logFilePath);
 		File parentDir = logFile.getParentFile();
 		parentDir.mkdirs();
-		
+
 		writer = new PrintWriter(new FileWriter(logFilePath, true));
 		if( startImmediately)
 			start(5000);

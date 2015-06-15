@@ -67,9 +67,9 @@ public class MACLoader extends uk.ac.diamond.scisoft.analysis.io.SRSLoader {
 		this.fileName = fileName;
 		logger.info("Load MAC data file from {}", fileName);
 	}
-	
+
 	/**
-	 * Constructor for MAC file loader using relative (negative value) and absolute file number without the full path, 
+	 * Constructor for MAC file loader using relative (negative value) and absolute file number without the full path,
 	 * default data directory will be applied. This method can only handle externally rebinned data in "processing" directory.
 	 * @param fileNumber
 	 */
@@ -82,7 +82,7 @@ public class MACLoader extends uk.ac.diamond.scisoft.analysis.io.SRSLoader {
 		}
 	}
 	/** Constructor for load file with name in the pattern of <code> fileNumber-mac-collectionNumber.dat</code>.
-	 * 
+	 *
 	 * @param fileNumber
 	 * @param collectionNumber
 	 */
@@ -101,7 +101,7 @@ public class MACLoader extends uk.ac.diamond.scisoft.analysis.io.SRSLoader {
 
 	/**
 	 * Function that loads in the MAC data format
-	 * 
+	 *
 	 * @return The package which contains the data that has been loaded
 	 */
 	@Override
@@ -126,7 +126,7 @@ public class MACLoader extends uk.ac.diamond.scisoft.analysis.io.SRSLoader {
 
 	/**
 	 * Using the GDA rule to get get the current file name, without incrementing file number
-	 * 
+	 *
 	 * @return current file name
 	 */
 	@SuppressWarnings("null")

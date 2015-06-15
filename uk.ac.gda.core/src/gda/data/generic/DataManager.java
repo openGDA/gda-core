@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class DataManager implements Configurable, Serializable, Findable, gda.data.DataManagerInterface {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DataManager.class);
 
 	private HashMap<String, IGenericData> mList = new HashMap<String, IGenericData>();
@@ -58,7 +58,7 @@ public class DataManager implements Configurable, Serializable, Findable, gda.da
 	/**
 	 * Called by the object server after instantiation to setup the object. This places this object (the DataManager
 	 * object) into the Jython namespace by using <code>JythonServerFacade</code>.
-	 * 
+	 *
 	 * @see JythonServerFacade
 	 */
 	@Override
@@ -94,7 +94,7 @@ public class DataManager implements Configurable, Serializable, Findable, gda.da
 
 	/**
 	 * Create a new <code>GenericData</code> object and give it a name.
-	 * 
+	 *
 	 * @param name
 	 *            The name of the object to create.
 	 * @return A reference to the object.
@@ -108,7 +108,7 @@ public class DataManager implements Configurable, Serializable, Findable, gda.da
 
 	/**
 	 * Add an object to the list
-	 * 
+	 *
 	 * @param name
 	 *            The name of the object to add.
 	 * @param data
@@ -122,7 +122,7 @@ public class DataManager implements Configurable, Serializable, Findable, gda.da
 
 	/**
 	 * Remove this object from the list.
-	 * 
+	 *
 	 * @param name
 	 *            The name of the object to remove.
 	 */
@@ -134,7 +134,7 @@ public class DataManager implements Configurable, Serializable, Findable, gda.da
 
 	/**
 	 * Return a Vector of strings containing the names of all the objects in the list.
-	 * 
+	 *
 	 * @return The names of the objects.
 	 */
 	@Override
@@ -149,7 +149,7 @@ public class DataManager implements Configurable, Serializable, Findable, gda.da
 
 	/**
 	 * Returns a reference to the object of this name.
-	 * 
+	 *
 	 * @param name
 	 *            The name of the object.
 	 * @return The object reference.

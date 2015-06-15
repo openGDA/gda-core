@@ -22,7 +22,6 @@ package gda.data.scan.datawriter;
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
-import gda.util.exceptionUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -39,15 +38,15 @@ import org.slf4j.LoggerFactory;
  * The files created use names which are an increment from the last name. Files are named in the format 0001.dat
  */
 public abstract class IncrementalFile extends DataWriterBase implements DataWriter {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(IncrementalFile.class);
-	
+
 	// the number of the file being written to
 	// (format is 0001.dat, new files have an incremental increase)
 	protected int thisFileNumber = 0;
-	
+
 	protected boolean fileNumberConfigured=false;
-	
+
 	// file extension to use
 	protected String fileExtension = null;
 
@@ -71,7 +70,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 
 	/**
 	 * Constructor which determines the name of the next file.
-	 * 
+	 *
 	 * @throws InstantiationException
 	 */
 	public IncrementalFile() throws InstantiationException {
@@ -99,7 +98,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 
 	/**
 	 * Open files and writes out headers.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	void prepareForCollection() throws Exception {
 		createNextFile();
@@ -110,7 +109,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 
 	/**
 	 * Writes any file footers and closes file.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Override
 	public void completeCollection() throws Exception {
@@ -121,7 +120,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 		super.completeCollection();
 	}
 
-	
+
 
 	@Override
 	public void configureScanNumber(int scanNumber) throws Exception {
@@ -139,7 +138,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 				}
 			}
 			fileNumberConfigured = true;
-		} 
+		}
 	}
 
 	public void setFilePrefix(String filePrefix) {
@@ -149,14 +148,14 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 	/**
 	 * Closes current file and opens a new file with an incremental number. For use when many files being created
 	 * instead of a single file being appended to.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public void createNextFile() throws Exception {
 		try {
 			if (file != null) {
 				file.close();
 			}
-			
+
 			// subclasses may have already set this
 			if (this.currentFileName == null) {
 				currentFileName = getFileNumber() + "." + this.fileExtension;
@@ -171,13 +170,13 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 			}
 
 			fileName = currentFileName;
-			
+
 			// don't use File.extension as the print out will not work in windows - and Java will know what to do with a
 			// / on Windows.
 			if (!dataDir.endsWith("/")){
 				dataDir += "/";
 			}
-			
+
 			fileUrl = dataDir + currentFileName;
 			// Check to see if the file(s) already exists!
 			File f = new File(fileUrl);
@@ -186,7 +185,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 			}
 			File fparent = new File(f.getParent());
 			if( !fparent.exists()){
-				fparent.mkdirs();	
+				fparent.mkdirs();
 			}
 			file = new FileWriter(f);
 			terminalPrinter.print("Writing data to file:" + fileUrl);
@@ -229,7 +228,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 
 	/**
 	 * Returns the full path of the folder which data files are written to.
-	 * 
+	 *
 	 * @return the full path of the folder which data files are written
 	 */
 	public String getDataDir() {
@@ -238,7 +237,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 
 	/**
 	 * Get the delimiter used between columns
-	 * 
+	 *
 	 * @return the delimiter used between columns
 	 */
 	public String getDelimiter() {
@@ -247,7 +246,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 
 	/**
 	 * Set the delimiter used between columns (default is a tab '\t')
-	 * 
+	 *
 	 * @param delimiter
 	 *            String
 	 */
@@ -257,9 +256,9 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 
 	/**
 	 * Returns the number of the last file written to.
-	 * 
+	 *
 	 * @return Long
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public int getFileNumber() throws Exception {
 		configureScanNumber(-1); //ensure it has been configured
@@ -270,7 +269,7 @@ public abstract class IncrementalFile extends DataWriterBase implements DataWrit
 	public String getCurrentFileName() {
 		return fileUrl;
 	}
-	
+
 	@Override
 	public int getCurrentScanIdentifier() {
 		return thisFileNumber;

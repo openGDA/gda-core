@@ -19,20 +19,20 @@
 
 package gda.device.camac;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.Camac;
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.Gpib;
 import gda.factory.Finder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Kinetic Systems 3988 Camac Controller device
  */
 public class KineticSystems3988 extends DeviceBase implements Camac {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(KineticSystems3988.class);
 
 	private Gpib gpib;
@@ -158,7 +158,7 @@ public class KineticSystems3988 extends DeviceBase implements Camac {
 	/**
 	 * converts camac stn (N), subaddress (A) and fn_code (F) to a binary string for gpib 3988. Has mods to set up
 	 * initialisation data for ZINHOF function which is specific to GPIB 3988.
-	 * 
+	 *
 	 * @param station
 	 *            camac station
 	 * @param subAddress
@@ -195,7 +195,7 @@ public class KineticSystems3988 extends DeviceBase implements Camac {
 
 	/**
 	 * converts a long 32 bit int to gpib 24bit camac data string for Kinetic Systems 3988 CAMAC controller.
-	 * 
+	 *
 	 * @param input
 	 *            32bit integer
 	 * @return 24bits camac data string
@@ -227,7 +227,7 @@ public class KineticSystems3988 extends DeviceBase implements Camac {
 
 	/**
 	 * Converts a gpib 24bit camac data string to a long 32 bit int.
-	 * 
+	 *
 	 * @param input
 	 *            24bits camac data string
 	 * @return converted 32bit integer
@@ -272,7 +272,7 @@ public class KineticSystems3988 extends DeviceBase implements Camac {
 	/**
 	 * Do a read camac gpib cycle. Camac always transfers 24 bits to avoid slow transfer size switching at 3988
 	 * controller. Calling routine sets to <= 16 bits.
-	 * 
+	 *
 	 * @param naf
 	 *            string of binary camac NAF
 	 * @param camacData
@@ -303,7 +303,7 @@ public class KineticSystems3988 extends DeviceBase implements Camac {
 	 * Do a write camac gpib cycle for KS 3988 crate cntlr. Real writes are in range F16 - F23 and involve 24 bits of
 	 * data transferred while other functions are control with no data. calling routine sets bits above 16 to zero.
 	 * 24-bit transfers always to reduce switching time. naf string must be long enough for naf + 3 bytes data
-	 * 
+	 *
 	 * @param naf
 	 *            NAF string for cycle
 	 * @param camacData
@@ -334,7 +334,7 @@ public class KineticSystems3988 extends DeviceBase implements Camac {
 	/**
 	 * Do a read camac gpib CFUBC block transfer in (repeated) Q-stop mode or timeout after 10 attempted transfers have
 	 * failed.
-	 * 
+	 *
 	 * @param nCycle
 	 *            no. of CAMAC cycles reqd
 	 * @param naf
@@ -472,7 +472,7 @@ public class KineticSystems3988 extends DeviceBase implements Camac {
 
 	/**
 	 * Tidy up after a block read - set single transfer mode again.
-	 * 
+	 *
 	 * @return 1 if successful.
 	 * @throws DeviceException
 	 */
@@ -489,7 +489,7 @@ public class KineticSystems3988 extends DeviceBase implements Camac {
 
 	/**
 	 * read status register of 3988 and return flag containing last Q status found.
-	 * 
+	 *
 	 * @return return Q status - true if set
 	 * @throws DeviceException
 	 */
@@ -547,7 +547,7 @@ public class KineticSystems3988 extends DeviceBase implements Camac {
 
 	/**
 	 * Gets the status of the Camac controller
-	 * 
+	 *
 	 * @return status
 	 */
 	public boolean getStatus() {

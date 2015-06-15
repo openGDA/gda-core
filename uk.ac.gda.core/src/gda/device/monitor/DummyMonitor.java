@@ -19,22 +19,22 @@
 
 package gda.device.monitor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.Scannable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A dummy implementation of the Monitor interface for testing / development.
  */
 public class DummyMonitor extends MonitorBase implements Monitor, Runnable, Scannable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DummyMonitor.class);
-	
+
 	double latestValue = 0.0;
-	
+
 	private Double constantValue;
 
 	/**
@@ -47,7 +47,7 @@ public class DummyMonitor extends MonitorBase implements Monitor, Runnable, Scan
 	public void configure() {
 		this.inputNames = new String[]{};
 		this.extraNames = new String[]{this.getName()};
-		// TODO Do not need separate threads in all monitors since 
+		// TODO Do not need separate threads in all monitors since
 		// thread just used to assign value. Could use single thread
 		// and process all DummyMonitors in it.
 		uk.ac.gda.util.ThreadManager.getThread(this).start();
@@ -77,7 +77,7 @@ public class DummyMonitor extends MonitorBase implements Monitor, Runnable, Scan
 
 	/**
 	 * Sets the starting value
-	 * 
+	 *
 	 * @param value
 	 */
 	public void setValue(double value) {

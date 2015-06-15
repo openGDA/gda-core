@@ -30,7 +30,7 @@ public class Util {
 
 	/**
 	 * output a string to the JythonTerminal(s)
-	 * 
+	 *
 	 * @param toPrint
 	 */
 	public static void printTerm(String toPrint) {
@@ -39,7 +39,7 @@ public class Util {
 
 	/**
 	 * Returns a scannable from the Jython names space.
-	 * 
+	 *
 	 * @param name
 	 *            The name of the scannable as referred to in the Jython namespace.
 	 * @return ScannableMotion The scannable.
@@ -66,7 +66,7 @@ public class Util {
 
 	/**
 	 * Return true if the incoming scannable can be found in the JythonNamespace using its .getName() name
-	 * 
+	 *
 	 * @param foo
 	 *            scannable
 	 * @return validness

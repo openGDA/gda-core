@@ -19,7 +19,7 @@
 package gda.analysis.utils.optimisation;
 
 /**
- * 
+ *
  */
 public interface ProblemDefinition {
 
@@ -30,10 +30,10 @@ public interface ProblemDefinition {
 
 	/**
 	 * Evaluate a single objective function
-	 * 
+	 *
 	 * @param parameters
 	 * @return the fitness of the function, remember lower is better!
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public double eval(double[] parameters) throws Exception;
 

@@ -19,10 +19,10 @@
 
 package gda.device.detector.mar345;
 
+import gda.configuration.properties.LocalProperties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.configuration.properties.LocalProperties;
 
 /**
  * The mar software runs on a server/workstation connected directly to the mar detector and the GDA client and server
@@ -34,7 +34,7 @@ import gda.configuration.properties.LocalProperties;
  */
 
 public class Mar345RemoteUnixCall {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Mar345RemoteUnixCall.class);
 
 	private static Runtime runtime = Runtime.getRuntime();

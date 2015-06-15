@@ -40,7 +40,7 @@ public class Interpolator {
 
 	/**
 	 * Interpolate an x,y data set to a desired x spacing
-	 * 
+	 *
 	 * @param input_x
 	 * @param input_y
 	 * @param desired_x
@@ -67,7 +67,7 @@ public class Interpolator {
 	/**
 	 * Find y for a given point desired_x in the dataset an input_x,input_y Using polynomial interpolation This routine
 	 * will try to use 7 points adjacent to the desired x point
-	 * 
+	 *
 	 * @param input_x
 	 * @param input_y
 	 * @param desired_x
@@ -125,7 +125,7 @@ public class Interpolator {
 
 	/**
 	 * Find y for a given point desired_x in the dataset an input_x,input_y Using rational interpolation
-	 * 
+	 *
 	 * @param input_x
 	 * @param input_y
 	 * @param desired_x

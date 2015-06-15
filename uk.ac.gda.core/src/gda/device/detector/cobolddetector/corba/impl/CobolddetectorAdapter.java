@@ -44,7 +44,7 @@ public class CobolddetectorAdapter extends DetectorAdapter implements CoboldDete
 
 	/**
 	 * Create client side interface to the CORBA package.
-	 * 
+	 *
 	 * @param obj
 	 *            the CORBA object
 	 * @param name

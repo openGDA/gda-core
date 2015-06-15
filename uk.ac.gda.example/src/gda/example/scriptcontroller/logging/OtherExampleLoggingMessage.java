@@ -54,7 +54,7 @@ public class OtherExampleLoggingMessage implements ScriptControllerLoggingMessag
 	public String getProgress() {
 		return progress;
 	}
-	
+
 	@Override
 	public float getPercentDone() {
 		return 0f;  // no progress value in this bean, so show nothing in the bar

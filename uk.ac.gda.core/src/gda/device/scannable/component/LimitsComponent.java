@@ -27,7 +27,7 @@ import gda.device.DeviceException;
 public interface LimitsComponent extends PositionValidator {
 
 	/**
-	 * Get lower limits in the their external representation. 
+	 * Get lower limits in the their external representation.
 	 * @return Null if no limits set. Any value within array may also be null.
 	 */
 	public abstract Double[] getInternalLower() throws DeviceException;
@@ -49,6 +49,6 @@ public interface LimitsComponent extends PositionValidator {
 	 * also be null.
 	 */
 	public abstract void setInternalUpper(Double[] internalUpperLim) throws DeviceException;
-		
+
 
 }

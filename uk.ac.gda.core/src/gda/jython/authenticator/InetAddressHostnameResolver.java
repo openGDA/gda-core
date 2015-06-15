@@ -29,25 +29,25 @@ public class InetAddressHostnameResolver implements HostnameResolver {
 
 	@Override
 	public List<String> resolveHostname(String hostname) throws UnknownHostException {
-		
+
 		InetAddress[] addresses = InetAddress.getAllByName(hostname);
-		
+
 		List<String> ips = new ArrayList<String>();
-		
+
 		for (InetAddress addr : addresses) {
-			
+
 			if (addr instanceof Inet4Address) {
 				String ip = addr.getHostAddress();
 				ips.add(ip);
 			}
-			
+
 			else if (addr instanceof Inet6Address) {
 				String ip = addr.getHostAddress();
 				ip = "[" + ip + "]"; // RFC 3986
 				ips.add(ip);
 			}
 		}
-		
+
 		return ips;
 	}
 

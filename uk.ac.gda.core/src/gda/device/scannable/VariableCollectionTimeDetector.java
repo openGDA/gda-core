@@ -35,15 +35,15 @@ public interface VariableCollectionTimeDetector extends Detector {
 
 	/**
 	 * Set a profile of collection times used for successive calls to {@link #collectData()} or in a continuous scan.
-	 * 
+	 *
 	 * @param times times in seconds or null
 	 * @throws DeviceException
 	 */
 	public void setCollectionTimeProfile(double[] times) throws DeviceException;
-	
+
 	/**
 	 * Get the profile of collection times used for successive calls to {@link #collectData()} or in a continuous scan.
-	 * 
+	 *
 	 * @throws DeviceException times in seconds or null
 	 */
 	public double[] getCollectionTimeProfile() throws DeviceException;

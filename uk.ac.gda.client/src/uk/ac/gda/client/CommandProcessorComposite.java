@@ -66,12 +66,12 @@ import uk.ac.gda.preferences.PreferenceConstants;
 
 public class CommandProcessorComposite extends Composite {
 	private static final Logger logger = LoggerFactory.getLogger(CommandProcessorComposite.class);
-	
+
 	final String strPause = "Pause Queue";
 	final String strRun = "  Start Queue  ";
 	Boolean runPauseIsPaused = false;
 	Boolean showText = false;
-	
+
 	private IObserver processorObserver;
 	private Processor processor;
 	private Label txtCurrentDescription;
@@ -108,9 +108,9 @@ public class CommandProcessorComposite extends Composite {
 		final ImageDescriptor addImage = GDAClientActivator.getImageDescriptor("icons/add.png");
 		final ImageDescriptor showLogImage = GDAClientActivator.getImageDescriptor("icons/book_open.png");
 
-		
+
 		createComponents();
-		
+
 		btnRunPause = new Action(null, SWT.NONE) {
 			@Override
 			public void run() {
@@ -230,7 +230,7 @@ public class CommandProcessorComposite extends Composite {
 		btnShowLog.setImageDescriptor(showLogImage);
 		toolBarManager.add(btnShowLog);
 		toolBarManager.update(true);
-		
+
 		txtCurrentDescription.setText("Description");
 
 		progressBar.setMinimum(0);
@@ -265,7 +265,7 @@ public class CommandProcessorComposite extends Composite {
 								progressBarText = progress.getMsg();
 								progressBar.setSelection((int) (progress.getPercentDone()*20));
 								progressBar.redraw();//this is needed to cope with a change in text but no change in percentage
-								
+
 							}
 						});
 					}
@@ -288,26 +288,26 @@ public class CommandProcessorComposite extends Composite {
 
 		updateStateAndDescription(null);
 	}
-	
+
 	private void createComponents() {
 		GridLayoutFactory.swtDefaults().applyTo(this);
-		
+
 		final Group statusGroup = new Group(this, SWT.BORDER);
 		statusGroup.setText("Queue status");
 		GridLayoutFactory.swtDefaults().margins(3, 3).applyTo(statusGroup);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(statusGroup);
-		
+
 		final Group currentTaskGroup = new Group(this, SWT.BORDER);
 		currentTaskGroup.setText("Current task");
 		GridLayoutFactory.swtDefaults().applyTo(currentTaskGroup);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(currentTaskGroup);
-		
+
 		txtState = new Label(statusGroup, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtState);
-		
+
 		txtCurrentDescription = new Label(currentTaskGroup, SWT.WRAP);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(txtCurrentDescription);
-		
+
 		progressBar = new ProgressBar(currentTaskGroup, SWT.SMOOTH | SWT.BORDER);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(progressBar);
 	}
@@ -330,7 +330,7 @@ public class CommandProcessorComposite extends Composite {
 			btnRunPause.setToolTipText("Pause current task if possible. Stop queue");
 		}
 	}
-	
+
 	protected void setRun(boolean run) {
 		String commandId = run ? CommandQueueContributionFactory.UK_AC_GDA_CLIENT_START_COMMAND_QUEUE
 				: CommandQueueContributionFactory.UK_AC_GDA_CLIENT_PAUSE_COMMAND_QUEUE;

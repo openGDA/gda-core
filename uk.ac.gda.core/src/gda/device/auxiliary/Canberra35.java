@@ -39,9 +39,9 @@ import org.slf4j.LoggerFactory;
 // FIXME this class needs refactoring possibly to implement the Memmory
 // interface and remove unnecessary system.out's and then comment it.
 public class Canberra35 extends DeviceBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Canberra35.class);
-	
+
 	private final static int READ_TIMEOUT = 1000;
 
 	private final static int WORDSIZE = 6;
@@ -130,7 +130,7 @@ public class Canberra35 extends DeviceBase {
 
 	/**
 	 * Sets the serial device name.
-	 * 
+	 *
 	 * @param serialDeviceName
 	 *            The serial device name
 	 */
@@ -140,7 +140,7 @@ public class Canberra35 extends DeviceBase {
 
 	/**
 	 * Gets the serial device name.
-	 * 
+	 *
 	 * @return The serial device name
 	 */
 	public String getSerialDeviceName() {

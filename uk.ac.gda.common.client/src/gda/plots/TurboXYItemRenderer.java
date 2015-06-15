@@ -52,7 +52,7 @@ import org.jfree.util.ShapeUtilities;
 public class TurboXYItemRenderer extends SimpleXYItemRenderer {
 
 	/**
-	 * Ratio of space between markers to width of marker below which marker are not shown. 
+	 * Ratio of space between markers to width of marker below which marker are not shown.
 	 * If not set then 1 is used. 0 means always show markers
 	 */
 	public static final String GDA_PLOT_TURBO_X_Y_ITEM_RENDERER_TOOLTIP_THRESHOLD = "gda.plot.TurboXYItemRenderer.tooltipThreshold";
@@ -71,7 +71,7 @@ public class TurboXYItemRenderer extends SimpleXYItemRenderer {
 	 * Draws the visual representation of a single data item. This mostly reproduces the code of StandardXYItemRenderer
 	 * but using the line by line information stored in the SimpleXYSeries instead of the series indexed information
 	 * stored in the Renderer itself.
-	 * 
+	 *
 	 * @param g2
 	 *            the graphics device.
 	 * @param state
@@ -283,7 +283,7 @@ public class TurboXYItemRenderer extends SimpleXYItemRenderer {
 	/**
 	 * Creates a LegendItem for a SimpleXYSeries in the dataset - note that here we create a SimpleLegendItem which
 	 * knows about the data it belongs to.
-	 * 
+	 *
 	 * @param datasetIndex
 	 *            which dataset (left or right effectively)
 	 * @param series

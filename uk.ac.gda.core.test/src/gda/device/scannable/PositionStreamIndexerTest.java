@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 import gda.device.DeviceException;
 
 import java.util.ArrayList;
@@ -34,9 +33,9 @@ import org.junit.Test;
 
 public class PositionStreamIndexerTest {
 	interface SimplePositionInputStream extends PositionInputStream<Object> {
-		
+
 	}
-	
+
 	class NamedObject {
 		final private String name;
 
@@ -44,17 +43,17 @@ public class PositionStreamIndexerTest {
 			super();
 			this.name = name;
 		}
-		
+
 		@Override
 		public String toString() {
 			return name;
 		}
 	}
-	
+
 	private PositionInputStream<Object> stream;
 	private PositionStreamIndexer<Object> indexer;
 	private List<Object> objects;
-	
+
 	@Before
 	public void setUp() {
 		stream = mock(SimplePositionInputStream.class);
@@ -64,7 +63,7 @@ public class PositionStreamIndexerTest {
 		}
 		indexer = new PositionStreamIndexer<Object>(stream);
 	}
-	
+
 	@Test(expected=IllegalStateException.class)
 	public void testExceptionWhenReadingEmptyList() throws Exception {
 		when(stream.read(anyInt())).thenReturn(new ArrayList<Object>());
@@ -84,7 +83,7 @@ public class PositionStreamIndexerTest {
 		streamReturnOneBigChunk();
 		checkWithCreationFollowedImmediatelyByCall();
 	}
-	
+
 	@Test
 	public void testGetInOneBigChunckWithMixedOrder() throws Exception {
 		streamReturnChunks();
@@ -104,13 +103,13 @@ public class PositionStreamIndexerTest {
 		streamReturnChunks();
 		checkWithCreationFollowedImmediatelyByCall();
 	}
-	
+
 	@Test
 	public void testGetInMultipleChunksWithMixedOrder() throws Exception {
 		streamReturnOneBigChunk();
 		checkWithMixedOrder();
 	}
-	
+
 	private void checkWithCreationFollowedImmediatelyByCall() throws Exception, DeviceException {
 		for (int i = 0; i < 10; i++) {
 			Callable<Object> positionCallable = indexer.getPositionCallable();

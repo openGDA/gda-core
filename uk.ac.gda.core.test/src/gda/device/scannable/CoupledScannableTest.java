@@ -50,9 +50,9 @@ public class CoupledScannableTest {
 		bsx.setUserUnits("m");
 
 		Object posWithUserUnits_m = scannable.getPosition();
-		
+
 		assertEquals(posWithUserUnits_mm, posWithUserUnits_m);
-		
+
 	}
 
 	@Test
@@ -72,9 +72,9 @@ public class CoupledScannableTest {
 		bsx.setUserUnits("m");
 
 		Object posWithUserUnits_m = scannable.getPosition();
-		
+
 		assertEquals(posWithUserUnits_mm, posWithUserUnits_m);
-		
+
 	}
 
 }

@@ -36,7 +36,7 @@ public class PanicStopEvent extends EventObject implements Serializable {
 		// as simple lightweight string for now.
 		this("Panic Stop Pressed");
 	}
-	
+
 	@Override
 	public String toString() {
 		return getClass().getName();

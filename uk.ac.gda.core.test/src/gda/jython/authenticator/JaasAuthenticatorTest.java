@@ -19,7 +19,8 @@
 
 package gda.jython.authenticator;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import gda.configuration.properties.LocalProperties;
 
 import org.junit.Test;
@@ -43,7 +44,7 @@ public class JaasAuthenticatorTest {
 	}
 
 	/**
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Test
 	public void testIsAuthenticated() throws Exception {

@@ -132,7 +132,7 @@ public abstract class IcatBase implements Icat {
 
 		return visitEntries.toArray(new VisitEntry[] {});
 	}
-	
+
 	private static void addVisitIfNotNullOrEmpty(String visit, Set<String> visits) {
 		if (StringUtils.hasText(visit)) {
 			visits.add(visit.trim());
@@ -166,7 +166,7 @@ public abstract class IcatBase implements Icat {
 
 	/**
 	 * Inject the metadata object for testing. If not defined this gets the Metadata object from GDAMetadataProvider.
-	 * 
+	 *
 	 * @param metadata
 	 */
 	public void setMetadata(Metadata metadata) {
@@ -185,7 +185,7 @@ public abstract class IcatBase implements Icat {
 
 	/**
 	 * Returns the SQL result for the given accessName string filtered by beamline, username and (optionally) visitID.
-	 * 
+	 *
 	 * @param visitIDFilter
 	 * @param userNameFilter
 	 * @param accessName
@@ -204,7 +204,7 @@ public abstract class IcatBase implements Icat {
 	/**
 	 * Inject the beamline (instrument) name for testing. If not defined this looks for the name in first metadata and
 	 * then in java properties.
-	 * 
+	 *
 	 * @param instrumentName
 	 */
 	public void setInstrumentName(String instrumentName) {

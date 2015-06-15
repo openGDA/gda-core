@@ -44,7 +44,7 @@ public class MemoryImpl extends CorbaMemoryPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param memory
 	 *            the Memory implementation object
 	 * @param poa
@@ -58,7 +58,7 @@ public class MemoryImpl extends CorbaMemoryPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Memory implementation object
 	 */
 	public Memory _delegate() {
@@ -67,7 +67,7 @@ public class MemoryImpl extends CorbaMemoryPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param memory
 	 *            set the Memory implementation object
 	 */
@@ -234,7 +234,7 @@ public class MemoryImpl extends CorbaMemoryPOA {
 			throw new CorbaDeviceException(ex.getMessage());
 		}
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();

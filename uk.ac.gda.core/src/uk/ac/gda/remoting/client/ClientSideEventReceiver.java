@@ -34,44 +34,44 @@ import org.springframework.beans.factory.InitializingBean;
  * observers.
  */
 public class ClientSideEventReceiver implements InitializingBean {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ClientSideEventReceiver.class);
-	
+
 	private String objectName;
-	
+
 	public void setObjectName(String objectName) {
 		this.objectName = objectName;
 	}
-	
+
 	private Object proxy;
-	
+
 	public void setProxy(Object proxy) {
 		this.proxy = proxy;
 	}
-	
+
 	private ObservableComponent observableComponent;
-	
+
 	public void setObservableComponent(ObservableComponent observableComponent) {
 		this.observableComponent = observableComponent;
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (objectName == null) {
 			throw new IllegalStateException("The 'objectName' property is required");
 		}
-		
+
 		if (proxy == null) {
 			throw new IllegalStateException("The 'proxy' property is required");
 		}
-		
+
 		if (observableComponent == null) {
 			throw new IllegalStateException("The 'observableComponent' property is required");
 		}
-		
+
 		// This is the EventSubscriber implementation that most existing CORBA adapters use
 		EventSubscriber eventSubscriber = new SimpleEventSubscriber(proxy, observableComponent);
-		
+
 		// Register to receive events from the event system
 		final EventService eventService = EventService.getInstance();
 		if (!eventService.isConfigured()) {
@@ -81,5 +81,5 @@ public class ClientSideEventReceiver implements InitializingBean {
 		eventService.subscribe(eventSubscriber, filter);
 		logger.debug("Now subscribed to events from '{}'", objectName);
 	}
-	
+
 }

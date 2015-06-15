@@ -20,7 +20,6 @@
 package gda.device.temperature;
 
 import gda.device.DeviceException;
-import gda.device.temperature.DummyTemperature;
 import junit.framework.TestCase;
 
 /**
@@ -96,7 +95,7 @@ public class DummyTemperatureTest extends TestCase {
 
 	/**
 	 * setLowerTemp() test method.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public final void testSetLowerTemp() throws Exception {
@@ -120,7 +119,7 @@ public class DummyTemperatureTest extends TestCase {
 
 	/**
 	 * setUpperTemp() test method.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public final void testSetUpperTemp() throws Exception {

@@ -45,7 +45,7 @@ public class DataProject {
 	private static final Logger logger = LoggerFactory.getLogger(DataProject.class);
 
 	private static IPreferenceStore preferenceStore;
-	
+
 	private static IPreferenceStore getPreferenceStore() {
 		if (preferenceStore == null)
 			preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();
@@ -53,7 +53,7 @@ public class DataProject {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return name of project (no guarantee if that exists)
 	 */
 	public static String getDataProjectName() {
@@ -63,28 +63,28 @@ public class DataProject {
 		}
 		return projName;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return data project or null
 	 */
 	public static IProject getDataProjectIfExists() {
 		IProject dataProject = ResourcesPlugin.getWorkspace().getRoot().getProject(getDataProjectName());
-		if (dataProject.exists()) 
+		if (dataProject.exists())
 			return dataProject;
 		return null;
 	}
 
 	/**
 	 * create the data project as configured
-	 * 
+	 *
 	 * @param monitor
 	 * @return data project
 	 * @throws CoreException
 	 */
 	public static IProject create(IProgressMonitor monitor) throws CoreException {
 		String projName = getDataProjectName();
-		
+
 		IProject project = getDataProjectIfExists();
 		if (project != null)
 			return project;
@@ -108,7 +108,7 @@ public class DataProject {
 					GDADataNature.ID, resourceFilterWrapper, monitor);
 	}
 
-	/** 
+	/**
 	 * creates the data project if configured to do so during startup
 	 * @param monitor
 	 * @return data project
@@ -120,7 +120,7 @@ public class DataProject {
 			} catch (CoreException e) {
 				logger.error("Error creating data project", e);
 			}
-		}	
+		}
 		return null;
 	}
 }

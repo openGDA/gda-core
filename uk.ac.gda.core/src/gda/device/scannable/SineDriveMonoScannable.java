@@ -33,7 +33,7 @@ public class SineDriveMonoScannable extends ScannableMotionBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(SineDriveMonoScannable.class);
 
-	
+
 	// convert between user values and motor motion
 	private double sineArmLength;
 	private double gratingDensity;

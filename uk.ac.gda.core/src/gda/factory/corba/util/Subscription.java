@@ -31,7 +31,7 @@ final class Subscription {
 
 	/**
 	 * Create the subscription holder
-	 * 
+	 *
 	 * @param subscriber
 	 *            the subscriber to the event channel
 	 * @param filter
@@ -47,7 +47,7 @@ final class Subscription {
 
 	/**
 	 * Filter incoming event and inform the subscriber.
-	 * 
+	 *
 	 * @param event
 	 *            the incoming event
 	 * @return Type to indicate whether the event is to be processed by the object associated with this filer

@@ -22,11 +22,11 @@ import gda.device.Device;
 import gda.device.DeviceException;
 
 public interface HardwareTriggerProvider extends Device {
-	
+
 	public void setTriggerPeriod(double seconds) throws DeviceException;
-	
+
 	public int getNumberTriggers();
-	
+
 	public double getTotalTime() throws DeviceException;
 
 }

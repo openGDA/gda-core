@@ -52,7 +52,7 @@ public interface HardwareTriggeredDetector extends Detector {
 
 	/**
 	 * Get the {@link HardwareTriggerProvider} that represents the controller this Detector is wired to.
-	 * 
+	 *
 	 * @return the trigger provider
 	 */
 	public HardwareTriggerProvider getHardwareTriggerProvider();
@@ -62,7 +62,7 @@ public interface HardwareTriggeredDetector extends Detector {
 	 * @param numberImagesToCollect
 	 */
 	public void setNumberImagesToCollect(int numberImagesToCollect);
-	
+
 	/**
 	 * Detectors that sample some value at the time of a trigger should return False. Detectors such as counter timers
 	 * should return True. If true ,TrajectoryScanLine will generate a trigger half a point before the motor reaches a
@@ -71,5 +71,5 @@ public interface HardwareTriggeredDetector extends Detector {
 	 * @return true for detectors that integrates b
 	 */
 	public boolean integratesBetweenPoints();
-	
+
 }

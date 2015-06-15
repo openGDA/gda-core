@@ -37,16 +37,16 @@ public class RealVectorPropertyEditor extends PropertyEditorSupport {
 			try {
 				// remove spaces
 				text = text.replace(" ", "");
-				
+
 				// remove leading/trailing braces
 				text = text.replace("{", "").replace("}", "");
-				
+
 				String[] valueStrings = text.split(",");
 				double[] values = new double[valueStrings.length];
 				for (int j=0; j<valueStrings.length; j++) {
 					values[j] = Double.valueOf(valueStrings[j]);
 				}
-				
+
 				RealVector vector = MatrixUtils.createRealVector(values);
 				setValue(vector);
 			} catch (Throwable e) {
@@ -56,15 +56,15 @@ public class RealVectorPropertyEditor extends PropertyEditorSupport {
 			setValue(null);
 		}
 	}
-	
+
 	@Override
 	public RealVector getValue() {
 		return (RealVector) super.getValue();
 	}
-	
+
 	@Override
 	public String getAsText() {
 		return getValue().toString().replace(';', ',').replace(" ", "");
 	}
-	
+
 }

@@ -21,11 +21,11 @@ package gda.example.richbean;
 import java.io.Serializable;
 import java.net.URL;
 
-import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class ExampleExpt implements XMLRichBean, Serializable {
-	
+
 	private double startEnergy;
 	private double finalEnergy;
 
@@ -44,9 +44,9 @@ public class ExampleExpt implements XMLRichBean, Serializable {
 	public double getStartEnergy() {
 		return startEnergy;
 	}
-	
+
 	// the following associates this bean to the Java to xml mapping files:
-	
+
 	static public final URL mappingURL = ExampleExpt.class.getResource("ExampleExptMapping.xml");
 	static public final URL schemaURL  = ExampleExpt.class.getResource("ExampleExptMapping.xsd");
 

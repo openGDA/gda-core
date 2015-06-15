@@ -27,7 +27,7 @@ public class DetectorManagerBean implements Serializable{
 	private boolean enabled;
 	private String detectorName;
 	private String description;
-	
+
 	@Override
 	public int hashCode() {
 		return 1;
@@ -37,7 +37,7 @@ public class DetectorManagerBean implements Serializable{
 		detectorName = description = null;
 		enabled=false;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -66,7 +66,7 @@ public class DetectorManagerBean implements Serializable{
 		}
 		return true;
 	}
-	
+
 	/**
 	 *
 	 */
@@ -78,7 +78,7 @@ public class DetectorManagerBean implements Serializable{
 			return e.getMessage();
 		}
 	}
-	
+
 	public String getDetectorName() {
 		return detectorName;
 	}

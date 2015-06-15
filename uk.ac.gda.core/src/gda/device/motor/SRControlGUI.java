@@ -100,7 +100,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jContentPane
-	 * 
+	 *
 	 * @return javax.swing.JPanel
 	 */
 	private javax.swing.JPanel getJContentPane() {
@@ -115,7 +115,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jPanel
-	 * 
+	 *
 	 * @return javax.swing.JPanel
 	 */
 	private javax.swing.JPanel getJPanel() {
@@ -131,7 +131,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jButton
-	 * 
+	 *
 	 * @return javax.swing.JButton
 	 */
 	private javax.swing.JButton getJButton() {
@@ -194,7 +194,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jButton1
-	 * 
+	 *
 	 * @return javax.swing.JButton
 	 */
 	private javax.swing.JButton getJButton1() {
@@ -238,7 +238,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jButton2
-	 * 
+	 *
 	 * @return javax.swing.JButton
 	 */
 	private javax.swing.JButton getJButton2() {
@@ -257,7 +257,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jPanel1
-	 * 
+	 *
 	 * @return javax.swing.JPanel
 	 */
 	private javax.swing.JPanel getJPanel1() {
@@ -275,7 +275,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jLabel
-	 * 
+	 *
 	 * @return javax.swing.JLabel
 	 */
 	private javax.swing.JLabel getJLabel() {
@@ -288,7 +288,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jTextField
-	 * 
+	 *
 	 * @return javax.swing.JTextField
 	 */
 	private javax.swing.JTextField getJTextField() {
@@ -303,7 +303,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jLabel1
-	 * 
+	 *
 	 * @return javax.swing.JLabel
 	 */
 	private javax.swing.JLabel getJLabel1() {
@@ -316,7 +316,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jTextField1
-	 * 
+	 *
 	 * @return javax.swing.JTextField
 	 */
 	private javax.swing.JTextField getJTextField1() {
@@ -331,7 +331,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jLabel2
-	 * 
+	 *
 	 * @return javax.swing.JLabel
 	 */
 	private javax.swing.JLabel getJLabel2() {
@@ -344,7 +344,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jTextField2
-	 * 
+	 *
 	 * @return javax.swing.JTextField
 	 */
 	private javax.swing.JTextField getJTextField2() {
@@ -359,7 +359,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jPanel2
-	 * 
+	 *
 	 * @return javax.swing.JPanel
 	 */
 	private javax.swing.JPanel getJPanel2() {
@@ -379,7 +379,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jLabel3
-	 * 
+	 *
 	 * @return javax.swing.JLabel
 	 */
 	private javax.swing.JLabel getJLabel3() {
@@ -392,7 +392,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jLabel4
-	 * 
+	 *
 	 * @return javax.swing.JLabel
 	 */
 	private javax.swing.JLabel getJLabel4() {
@@ -405,7 +405,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jTextField3
-	 * 
+	 *
 	 * @return javax.swing.JTextField
 	 */
 	private javax.swing.JTextField getJTextField3() {
@@ -420,7 +420,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jTextField4
-	 * 
+	 *
 	 * @return javax.swing.JTextField
 	 */
 	private javax.swing.JTextField getJTextField4() {
@@ -433,7 +433,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jButton3
-	 * 
+	 *
 	 * @return javax.swing.JButton
 	 */
 	private javax.swing.JButton getJButton3() {
@@ -462,7 +462,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jList
-	 * 
+	 *
 	 * @return javax.swing.JList
 	 */
 	private javax.swing.JList getJList() {
@@ -474,7 +474,7 @@ public class SRControlGUI extends JFrame {
 
 	/**
 	 * This method initializes jComboBox
-	 * 
+	 *
 	 * @return javax.swing.JComboBox
 	 */
 	private javax.swing.JComboBox getJComboBox() {

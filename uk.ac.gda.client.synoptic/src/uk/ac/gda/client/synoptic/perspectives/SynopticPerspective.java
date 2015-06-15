@@ -1,29 +1,27 @@
 package uk.ac.gda.client.synoptic.perspectives;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.configuration.properties.LocalProperties;
-
 import gda.jython.authenticator.UserAuthentication;
 import gda.jython.authoriser.AuthoriserProvider;
-
-import uk.ac.gda.dal.DALStartup;
 
 import org.csstudio.sds.ui.runmode.RunModeService;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.ac.gda.dal.DALStartup;
 
 
 public class SynopticPerspective implements IPerspectiveFactory {
-	
+
 	public static final String ID = "uk.ac.gda.beamline.client.synoptic.synopticperspective";
 	public static final String STAFF_PATH = "gda.client.synopticpath.staff";
 	public static final String USER_PATH = "gda.client.synopticpath.user";
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(SynopticPerspective.class);
-	
+
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		layout.setEditorAreaVisible(false);
@@ -33,7 +31,7 @@ public class SynopticPerspective implements IPerspectiveFactory {
 		RunModeService.getInstance().openDisplayViewInRunMode(sdsDisplay);
 	}
 
-	
+
 	public static String getSynopticPath() {
 		try {
 			// find our permission level
@@ -42,7 +40,7 @@ public class SynopticPerspective implements IPerspectiveFactory {
 
 			if (isStaff) {
 				return LocalProperties.get(STAFF_PATH);
-			} 
+			}
 			return LocalProperties.get(USER_PATH);
 		} catch (ClassNotFoundException e) {
 			logger.error("Exception trying to identify if user is staff", e);

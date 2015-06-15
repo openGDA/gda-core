@@ -47,7 +47,7 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 
 	/**
 	 * When set to true ln(I0/It) and ln(I0/Iref) will be added to the output columns
-	 * 
+	 *
 	 * @param outputLogValues
 	 *            The outputLogValues to set.
 	 */
@@ -104,8 +104,8 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 
 	@Override
 	public double[] readout() throws DeviceException {
-		double[] output = super.readout(); 
-		
+		double[] output = super.readout();
+
 		return performCorrections(output);
 	}
 
@@ -119,7 +119,7 @@ public class TfgScalerWithLogValues extends TfgScalerWithDarkCurrent {
 		}
 		return output;
 	}
-	
+
 	@Override
 	public double[] readFrame(int frame) throws DeviceException {
 		// For legacy XAFS scans the time channel is in column 1

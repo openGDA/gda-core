@@ -54,7 +54,7 @@ public class ControlpointImpl extends CorbaControlPointPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param controlpoint
 	 *            the Controlpoint implementation object
 	 * @param poa
@@ -68,7 +68,7 @@ public class ControlpointImpl extends CorbaControlPointPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the ControlPoint implementation object
 	 */
 	public ControlPoint _delegate() {
@@ -77,7 +77,7 @@ public class ControlpointImpl extends CorbaControlPointPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param controlpoint
 	 *            set the ControlPoint implementation object
 	 */
@@ -259,7 +259,7 @@ public class ControlpointImpl extends CorbaControlPointPOA {
 	public void atStart() throws CorbaDeviceException {
 		scannableImpl.atStart();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return scannableImpl.getProtectionLevel();
@@ -274,7 +274,7 @@ public class ControlpointImpl extends CorbaControlPointPOA {
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		scannableImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
@@ -293,7 +293,7 @@ public class ControlpointImpl extends CorbaControlPointPOA {
 	@Override
 	public void atLevelEnd() throws CorbaDeviceException {
 		scannableImpl.atLevelEnd();
-		
+
 	}
 
 }

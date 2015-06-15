@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
  * Is a JComboBox which allows selection of a space group based on bravais lattice.
  */
 public class BravaisLatticeComboBox extends JComboBox implements IObservable, ItemListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(BravaisLatticeComboBox.class);
-	
+
 	private String unknownString = "unknown";
 
 	private Group unknown = new Group(unknownString, unknownString);
@@ -129,7 +129,7 @@ public class BravaisLatticeComboBox extends JComboBox implements IObservable, It
 
 	/**
 	 * Set Menu to show parameter spaceGroup as selected item
-	 * 
+	 *
 	 * @param spaceGroup
 	 *            String spaceGroup to be shown as selected
 	 */

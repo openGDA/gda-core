@@ -24,7 +24,7 @@ package gda.server.collisionAvoidance;
  */
 public class CacException extends Exception {
 	/**
-	 * 
+	 *
 	 */
 	public CacException() {
 	}

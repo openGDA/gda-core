@@ -26,7 +26,7 @@ package gda.plots;
 public interface SimpleValueTransformer {
 	/**
 	 * Should return a transformed value.
-	 * 
+	 *
 	 * @param toBeTransformed
 	 *            the x value in the data
 	 * @return the x value to be used in output

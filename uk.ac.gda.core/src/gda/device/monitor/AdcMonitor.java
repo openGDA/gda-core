@@ -19,24 +19,24 @@
 
 package gda.device.monitor;
 
-import org.jscience.physics.units.Unit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.Adc;
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.Scannable;
 import gda.factory.Finder;
 
+import org.jscience.physics.units.Unit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Class to monitor an ADC
  */
 
 public class AdcMonitor extends MonitorBase implements Monitor, Runnable, Scannable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(AdcMonitor.class);
-	
+
 	private Thread runner;
 
 	private Adc adc;
@@ -128,7 +128,7 @@ public class AdcMonitor extends MonitorBase implements Monitor, Runnable, Scanna
 
 	/**
 	 * Returns the latest value of the ADC's channel this class is monitoring {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#getPosition()
 	 */
 	@Override

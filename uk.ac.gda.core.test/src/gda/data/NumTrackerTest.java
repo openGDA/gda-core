@@ -41,8 +41,8 @@ public class NumTrackerTest {
 		}
 		NumTracker tracker2 = new NumTracker("ext", testDirName);
 		Assert.assertEquals(1000, tracker2.getCurrentFileNumber());
-		
+
 	}
 
-	
+
 }

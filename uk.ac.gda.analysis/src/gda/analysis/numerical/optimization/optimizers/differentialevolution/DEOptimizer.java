@@ -59,7 +59,7 @@ public class DEOptimizer implements Runnable {
 
 	// functions
 	/**
-	 * 
+	 *
 	 */
 	private int defaultPopulationFactor = 50;
 
@@ -135,7 +135,7 @@ public class DEOptimizer implements Runnable {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param function
 	 */
 	public DEOptimizer(AbstractObjectiveFunction function) {
@@ -199,7 +199,7 @@ public class DEOptimizer implements Runnable {
 
 	/**
 	 * Assign array from to
-	 * 
+	 *
 	 * @param to
 	 * @param from
 	 */
@@ -209,7 +209,7 @@ public class DEOptimizer implements Runnable {
 
 	/**
 	 * The central component which actually does the DE optimization.
-	 * 
+	 *
 	 * @return result
 	 */
 	public double runDE() {
@@ -381,7 +381,7 @@ public class DEOptimizer implements Runnable {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void optimize() {
 		while (true) {
@@ -417,7 +417,7 @@ public class DEOptimizer implements Runnable {
 	 * Set a strategy See startegy code or documentation for details 0 : Best1Bin 1 : Best1Exp 2 : Best2Bin 3 : Best2Exp
 	 * 4 : Best3Bin 5 : Current2Rand 6 : Rand1Bin 7 : Rand1Exp 8 : Rand2Bin 9 : Rand2Exp 10 : RandRandBin 11 :
 	 * RandToBest1Bin 12 : RandToBest1BinExp default : 6
-	 * 
+	 *
 	 * @param index
 	 */
 	public void setStrategy(int index) {
@@ -469,7 +469,7 @@ public class DEOptimizer implements Runnable {
 
 	/**
 	 * Set the strategy
-	 * 
+	 *
 	 * @param deStrategy
 	 */
 	public void setStrategy(DEStrategy deStrategy) {
@@ -524,7 +524,7 @@ public class DEOptimizer implements Runnable {
 
 	/**
 	 * Allows to update the trial vector from outside.
-	 * 
+	 *
 	 * @param x
 	 */
 	public void updateTrialVector(double x[]) {
@@ -535,7 +535,7 @@ public class DEOptimizer implements Runnable {
 
 	/**
 	 * Determines if optimization should be terminated
-	 * 
+	 *
 	 * @return true if optimzation completed
 	 */
 
@@ -564,7 +564,7 @@ public class DEOptimizer implements Runnable {
 
 	/**
 	 * Set the population size Default = 10*noOfParamters
-	 * 
+	 *
 	 * @param popsize
 	 */
 	public void setPopulationSize(int popsize) {
@@ -580,7 +580,7 @@ public class DEOptimizer implements Runnable {
 
 	/**
 	 * Set the weighting factor F Default : 0.8
-	 * 
+	 *
 	 * @param F
 	 */
 	public void setWeightingFactor(double F) {
@@ -598,7 +598,7 @@ public class DEOptimizer implements Runnable {
 
 	/**
 	 * Set the crossover factor, Cr Default : 0.9
-	 * 
+	 *
 	 * @param Cr
 	 */
 	public void setCrossoverFactor(double Cr) {

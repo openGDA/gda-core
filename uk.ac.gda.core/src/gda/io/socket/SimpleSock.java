@@ -47,7 +47,7 @@ public class SimpleSock {
 
 	/**
 	 * Initialise the connection
-	 * 
+	 *
 	 * @param address
 	 * @param port
 	 * @throws IOException
@@ -64,7 +64,7 @@ public class SimpleSock {
 
 	/**
 	 * Write a string into the socket
-	 * 
+	 *
 	 * @param s
 	 * @throws IOException
 	 */
@@ -76,7 +76,7 @@ public class SimpleSock {
 
 	/**
 	 * Read a 64 byte block from the socket.
-	 * 
+	 *
 	 * @return String
 	 * @throws IOException
 	 */

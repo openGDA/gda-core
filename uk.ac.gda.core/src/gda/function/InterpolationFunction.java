@@ -62,7 +62,7 @@ public class InterpolationFunction extends Function implements Configurable {
 
 	/**
 	 * Create an interpolation function for a series of x and y values
-	 * 
+	 *
 	 * @param xvalues
 	 *            the x values
 	 * @param yvalues
@@ -93,7 +93,7 @@ public class InterpolationFunction extends Function implements Configurable {
 
 	/**
 	 * Create an interpolation function for a series of x and y values with no rounding
-	 * 
+	 *
 	 * @param xvalues
 	 *            the x values
 	 * @param yvalues
@@ -210,7 +210,7 @@ public class InterpolationFunction extends Function implements Configurable {
 		}
 		return new int[] {before, after};
 	}
-	
+
 	@Override
 	public Quantity evaluate(Quantity xValue) {
 		Quantity rtrn = null;
@@ -264,7 +264,7 @@ public class InterpolationFunction extends Function implements Configurable {
 		rtrn = Math.round(rtrn) / factor;
 		return rtrn;
 	}
-	
+
 	/**
 	 * Make sure each point is greater than or equal to next
 	 * @return isAscending
@@ -273,14 +273,14 @@ public class InterpolationFunction extends Function implements Configurable {
 		double previous = xValues[0];
 		for (double next : xValues) {
 			if (previous > next) {
-				return false;	
+				return false;
 			}
 			previous = next;
 		}
 		return true;
 	}
 	/**
-	 * Make sure each point is smaller than or equal to next 
+	 * Make sure each point is smaller than or equal to next
 	 * @return isDescending
 	 **/
 	private boolean isDescending() {

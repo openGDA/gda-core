@@ -31,7 +31,7 @@ import gda.factory.corba.util.CorbaImplClass;
 public class ScannableGaussianDev extends SimpleScannable {
 
 	/**
-	 * 
+	 *
 	 */
 	public ScannableGaussianDev() {
 	}

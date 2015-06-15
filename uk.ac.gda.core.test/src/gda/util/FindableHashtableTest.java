@@ -20,9 +20,9 @@
 package gda.util;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
@@ -60,7 +60,7 @@ public class FindableHashtableTest {
 
 	/**
 	 * Test setup to be run once at the start.
-	 * @throws FactoryException 
+	 * @throws FactoryException
 	 */
 	@BeforeClass()
 	public static void setUpBeforeClass() throws FactoryException {
@@ -79,7 +79,7 @@ public class FindableHashtableTest {
 
 	/**
 	 * Test storing and retrieving data from the hashtable.
-	 * 
+	 *
 	 * @throws DeviceException
 	 *             the device exception
 	 */

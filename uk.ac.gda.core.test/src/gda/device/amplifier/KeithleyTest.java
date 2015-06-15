@@ -20,7 +20,6 @@
 package gda.device.amplifier;
 
 import gda.device.DeviceException;
-import gda.device.amplifier.Keithley;
 import gda.factory.Finder;
 import junit.framework.TestCase;
 
@@ -30,7 +29,7 @@ import junit.framework.TestCase;
 public class KeithleyTest extends TestCase {
 
 	/**
-	 * 
+	 *
 	 */
 	public void testKeithley() {
 

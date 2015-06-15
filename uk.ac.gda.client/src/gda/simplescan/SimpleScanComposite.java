@@ -79,7 +79,7 @@ public final class SimpleScanComposite extends Composite {
 	private Job scanStatusJob;
 	private Button scan;
 	private Button stop;
-	
+
 	public SimpleScanComposite(Composite parent, int style, Object editingBean) {
 		super(parent, style);
 
@@ -208,12 +208,12 @@ public final class SimpleScanComposite extends Composite {
 		}
 		if (!found)
 			scannableName.select(0);
-		
+
 		scanStatusJob = new Job("updateScanStatus") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				boolean moving = true;
-				
+
 				while (moving) {
 					try {
 						Thread.sleep(500);
@@ -288,7 +288,7 @@ public final class SimpleScanComposite extends Composite {
 		if (bean.getDetectors().size() == 0) {
 			String command = "scan " + scannable_name + " " + from + " " + to + " " + step;
 			JythonServerFacade.getInstance().runCommand(command);
-		} 
+		}
 		else {
 			List<DetectorManagerBean> detectors = bean.getDetectors();
 			String detList = "";
@@ -319,7 +319,7 @@ public final class SimpleScanComposite extends Composite {
 		scannableName = new ComboWrapperWithGetCombo(comp, SWT.NONE);
 		GridData gd_scannableName = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_scannableName.widthHint = 161;
-		scannableName.setLayoutData(gd_scannableName);	
+		scannableName.setLayoutData(gd_scannableName);
 		scannableName.getCombo().addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -372,7 +372,7 @@ public final class SimpleScanComposite extends Composite {
 		((GridData) acqTime.getControl().getLayoutData()).widthHint = 71;
 		acqTime.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 		createEmptyLabel(composite_3);
-		
+
 		scan = new Button(composite_3, SWT.NONE);
 		scan.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, true, 1, 1));
 		scan.setText("Scan");
@@ -387,7 +387,7 @@ public final class SimpleScanComposite extends Composite {
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 			}
 		});
-		
+
 		stop = new Button(composite_3, SWT.NONE);
 		stop.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
 		stop.setText("Stop");
@@ -408,7 +408,7 @@ public final class SimpleScanComposite extends Composite {
 		gl_composite_4.marginWidth = 0;
 		gl_composite_4.horizontalSpacing = 0;
 		composite_4.setLayout(gl_composite_4);
-		
+
 		viewer = new TableViewer(composite_4, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 
 		TableViewerColumn enabledCol = new TableViewerColumn(viewer, SWT.NONE);
@@ -462,7 +462,7 @@ public final class SimpleScanComposite extends Composite {
 			@Override
 			public void update(ViewerCell cell) {
 				bean = des.getBean();
-				for (int i = 0; i < bean.getDetectors().size(); i++) 
+				for (int i = 0; i < bean.getDetectors().size(); i++)
 					if (bean.getDetectors().get(i).getDetectorName().equals(cell.getItem().getData().toString()))
 						cell.setText(bean.getDetectors().get(i).getDetectorDescription());
 			}
@@ -484,7 +484,7 @@ public final class SimpleScanComposite extends Composite {
 	private void performStop() {
 		JythonServerFacade.getInstance().requestFinishEarly(); // finish early instead of a quick stop with exception
 	}
-	
+
 	public SimpleScan getBean() {
 		return bean;
 	}
@@ -508,14 +508,14 @@ public final class SimpleScanComposite extends Composite {
 	public FieldComposite getScannableName() {
 		return scannableName;
 	}
-	
+
 	public void setBean(SimpleScan bean) {
 		this.bean = bean;
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void createEmptyLabel(Composite composite){
 		new Label(composite, SWT.NONE);
 	}
-	
+
 }

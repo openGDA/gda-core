@@ -45,7 +45,7 @@ abstract class SelectableNode extends DefaultMutableTreeNode implements ISelecta
 		}
 		return parents;
 	}
-	
+
 	@Override
 	public Color getColor() {
 		return Color.BLACK;

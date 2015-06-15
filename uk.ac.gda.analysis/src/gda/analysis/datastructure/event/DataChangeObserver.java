@@ -20,7 +20,7 @@
 package gda.analysis.datastructure.event;
 
 /**
- * 
+ *
  */
 
 import java.util.EventListener;
@@ -32,7 +32,7 @@ public interface DataChangeObserver extends EventListener {
 
 	/**
 	 * Called when an observed data changes in some way.
-	 * 
+	 *
 	 * @param event
 	 *            information about the change.
 	 */

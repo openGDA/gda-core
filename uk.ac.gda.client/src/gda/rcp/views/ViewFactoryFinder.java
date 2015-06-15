@@ -34,9 +34,9 @@ import org.springframework.util.StringUtils;
 /**
  * Class that can be used in an Eclipse view extension to locate a factory
  * object that can create an Eclipse view.
- * 
+ *
  * <p>To use this:</p>
- * 
+ *
  * <ol>
  * <li>Add a bean to your Spring context that implements {@link Findable} (so it can be found by the Finder) and
  * {@link IViewFactory}. ({@link FindableViewFactoryBase} can be used as a starting point.)
@@ -44,35 +44,35 @@ import org.springframework.util.StringUtils;
  * </ol>
  */
 public class ViewFactoryFinder implements IExecutableExtensionFactory, IExecutableExtension {
-	
+
 	private String factoryBeanName;
-	
+
 	@Override
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data) throws CoreException {
 		if (propertyName.equals("class") && data instanceof String) {
 			factoryBeanName = (String) data;
 		}
 	}
-	
+
 	@Override
 	public Object create() throws CoreException {
-		
+
 		if (!StringUtils.hasText(factoryBeanName)) {
 			final String msg = String.format("View factory bean name not specified");
 			throw new CoreException(new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID, msg));
 		}
-		
+
 		Findable findable = Finder.getInstance().find(factoryBeanName);
 		if (findable == null) {
 			final String msg = String.format("No view factory bean with the name %s", StringUtils.quote(factoryBeanName));
 			throw new CoreException(new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID, msg));
 		}
-		
+
 		if (!(findable instanceof IViewFactory)) {
 			final String msg = String.format("Bean %s is not a view factory", StringUtils.quote(factoryBeanName));
 			throw new CoreException(new Status(IStatus.ERROR, GDAClientActivator.PLUGIN_ID, msg));
 		}
-		
+
 		IViewFactory viewFactory = (IViewFactory) findable;
 		ViewPart view = viewFactory.createView();
 		return view;

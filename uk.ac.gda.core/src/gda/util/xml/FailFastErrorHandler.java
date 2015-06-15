@@ -31,16 +31,16 @@ import org.xml.sax.SAXParseException;
 public class FailFastErrorHandler implements ErrorHandler {
 
 	private Logger logger;
-	
+
 	/**
 	 * Creates a fail-fast error handler that logs to the specified logger.
-	 * 
+	 *
 	 * @param logger a {@link Logger}
 	 */
 	public FailFastErrorHandler(Logger logger) {
 		this.logger = logger;
 	}
-	
+
 	@Override
 	public void warning(SAXParseException exception) throws SAXException {
 		logger.warn("Warning while parsing XML (line " + exception.getLineNumber() + " column " + exception.getColumnNumber() + ")");

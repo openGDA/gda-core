@@ -22,7 +22,7 @@ package gda.util;
 /**
  * Class to allow several Threads to access the same object without interfering with one another and without using
  * sychronization. An example of its use can be found in AsynchronousReaderWriter.
- * 
+ *
  */
 public class BusyFlag {
 	private Thread busyflag = null;
@@ -45,7 +45,7 @@ public class BusyFlag {
 	 * Checks whether it is possible for the current thread to become the busyflag owner and if it is makes it so. The
 	 * busycount mechanism allows Threads already owning the flag to call getBusyFlag without becoming deadlocked
 	 * (waiting for themselves to free the flag).
-	 * 
+	 *
 	 * @return true if busy
 	 */
 	private synchronized boolean tryGetBusyFlag() {
@@ -82,7 +82,7 @@ public class BusyFlag {
 
 	/**
 	 * Find the Thread that currently owns the BusyFlag
-	 * 
+	 *
 	 * @return busyFlag Thread that owns the BusyFlag
 	 */
 	private synchronized Thread getBusyFlagOwner() {

@@ -38,7 +38,7 @@ public class RunScriptActionDelegate implements IEditorActionDelegate {
 	@Override
 	public void setActiveEditor(IAction action, IEditorPart targetEditor) {
 		if (targetEditor != null){
-			ePart = targetEditor;		
+			ePart = targetEditor;
 		}
 	}
 

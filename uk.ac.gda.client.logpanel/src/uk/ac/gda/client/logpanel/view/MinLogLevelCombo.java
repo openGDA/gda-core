@@ -14,24 +14,24 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 
 public class MinLogLevelCombo extends WorkbenchWindowControlContribution {
-	
+
 	public static final String ID = "uk.ac.gda.client.logpanel.view.MinLogLevelCombo";
-	
+
 	@Override
 	protected Control createControl(Composite parent) {
-		
+
 		Composite container = new Composite(parent, SWT.NONE);
-		
+
 		Label label = new Label(container, SWT.NONE);
 		label.setText("Minimum log level:");
-		
+
 		final Combo control = new Combo(container, SWT.BORDER | SWT.READ_ONLY | SWT.DROP_DOWN);
 		control.setItems(Logpanel.LOG_LEVELS.values().toArray(new String[] {}));
-		
+
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(container);
 		GridDataFactory.swtDefaults().applyTo(label);
 		GridDataFactory.swtDefaults().applyTo(control);
-		
+
 		getWorkbenchWindow().getPartService().addPartListener(new IPartListener2() {
 			@Override public void partOpened(IWorkbenchPartReference partRef) {
 				if (partRef.getId().equals(LogpanelView.ID)) {
@@ -54,8 +54,8 @@ public class MinLogLevelCombo extends WorkbenchWindowControlContribution {
 			@Override public void partBroughtToTop(IWorkbenchPartReference partRef) {}
 			@Override public void partVisible(IWorkbenchPartReference partRef) {}
 		});
-		
+
 		return container;
 	}
-	
+
 }

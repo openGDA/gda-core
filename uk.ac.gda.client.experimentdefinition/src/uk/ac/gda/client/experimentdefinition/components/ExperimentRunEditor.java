@@ -88,7 +88,7 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 	private final static Logger logger = LoggerFactory.getLogger(ExperimentRunEditor.class);
 
 	public static final String ID = "gda.gui.eclipse.editors.scan.experimentdefinition.ExperimentRunEditor";
-	
+
 	private IExperimentObjectManager runObjectManager;
 	private TableViewer tableViewer;
 
@@ -251,7 +251,7 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 			String[] columnNames = runObjectManager.getOrderedColumnBeanTypes();
 			for (int index = 0; index < columnNames.length; index++){
 				String columnName = columnNames[index];
-				for (IExperimentBeanDescription type : beanTypes) { 
+				for (IExperimentBeanDescription type : beanTypes) {
 					if (type.includeInNew() && columnName.equals(type.getBeanType())) {
 
 					IExperimentBeanDescription[] beanTypesToFilterOn = new IExperimentBeanDescription[0];
@@ -297,7 +297,7 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 		String[] columnNames = runObjectManager.getOrderedColumnBeanTypes();
 		for (int index = 0; index < columnNames.length; index++){
 			String columnName = columnNames[index];
-			for (IExperimentBeanDescription type : beanTypes) { 
+			for (IExperimentBeanDescription type : beanTypes) {
 				if (type.includeInNew() && columnName.equals(type.getBeanType())) {
 					TableViewerColumn thisColumn = new TableViewerColumn(table, SWT.LEFT,
 							index+1);
@@ -547,7 +547,7 @@ public class ExperimentRunEditor extends EditorPart implements ExperimentObjectL
 
 	/**
 	 * Returns the folder selected
-	 * 
+	 *
 	 * @return the folder.
 	 */
 	public IFolder getCurrentDirectory() {

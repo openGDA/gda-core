@@ -28,7 +28,7 @@ import org.jfree.data.xy.XYDataset;
 public class SimpleXYToolTipGenerator extends StandardXYToolTipGenerator {
 	/**
 	 * Generates a tool tip text item for a particular item within a series.
-	 * 
+	 *
 	 * @param data
 	 *            the dataset.
 	 * @param series

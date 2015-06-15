@@ -37,7 +37,7 @@ public class FindableHashtableImpl extends CorbaFindableHashtablePOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param hashtable
 	 *            the FindableHashtable implementation object
 	 * @param poa
@@ -50,7 +50,7 @@ public class FindableHashtableImpl extends CorbaFindableHashtablePOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Metadata implementation object
 	 */
 	public FindableHashtable _delegate() {
@@ -59,7 +59,7 @@ public class FindableHashtableImpl extends CorbaFindableHashtablePOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param hashtable
 	 *            set the FindaleHashtable implementation object
 	 */

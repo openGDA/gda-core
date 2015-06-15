@@ -29,7 +29,7 @@ public class Rational {
 	 * Given arrays xa[0..n-1] and ya[0..n-1], and given a value of x, this routine returns a value of y and an accuracy
 	 * estimate dy. The value returned is that of the diagonal rational function, evaluated at x, which passes through
 	 * the n points (xai, yai), i = 0,...,n-1. (see numerical recipies ratint)
-	 * 
+	 *
 	 * @param xa
 	 * @param ya
 	 * @param x

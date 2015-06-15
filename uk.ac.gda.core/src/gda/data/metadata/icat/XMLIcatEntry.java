@@ -23,14 +23,14 @@ package gda.data.metadata.icat;
  * Bean which holds the information for a single experiment. Used by the XMLIcat class.
  */
 public class XMLIcatEntry {
-	
+
 	private String experimentalTitle;
 	private String visitID;
 	private String usernames;
 	private String experimentStart;
 	private String experimentStop;
 	private String beamline;
-	
+
 	public XMLIcatEntry(){
 	}
 
@@ -81,7 +81,7 @@ public class XMLIcatEntry {
 	public void setBeamline(String beamline) {
 		this.beamline = beamline;
 	}
-	
-	
+
+
 
 }

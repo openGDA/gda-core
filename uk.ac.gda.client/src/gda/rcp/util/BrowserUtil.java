@@ -33,13 +33,13 @@ public class BrowserUtil {
 
 	/**
 	 * Open a web browser given the url string in a workbench view. An optional browser id can be
-	 * provided to reuse the same browser repeatedly. 
-	 * 
+	 * provided to reuse the same browser repeatedly.
+	 *
 	 * @param urlText url to open in browser, or null for empty browser
 	 * @param browserId id of an existing browser to reuse, or null for a new one
 	 * @param name name used for the presentation of the internal browser
 	 * @param tooltip tooltip used for the presentation of the internal browser
-	 * 
+	 *
 	 * @return the web browser instance
 	 * @throws PartInitException if the browser fails to open for any reason
 	 * @throws MalformedURLException if the string speficies an unknown protocol
@@ -52,16 +52,16 @@ public class BrowserUtil {
 
 		return openBrowser(url, browserId, name, tooltip, false);
 	}
-	
+
 	/**
 	 * Open a web browser given the url string as an editor. An optional browser id can be
-	 * provided to to reuse the same browser repeatedly. 
-	 * 
+	 * provided to to reuse the same browser repeatedly.
+	 *
 	 * @param urlText url to open in browser, or null for empty browser
 	 * @param browserId id of an existing browser to reuse, or null for a new one
 	 * @param name name used for the presentation of the internal browser
 	 * @param tooltip tooltip used for the presentation of the internal browser
-	 *  
+	 *
 	 * @return the web browser instance
 	 * @throws PartInitException if the browser fails to open for any reason
 	 * @throws MalformedURLException if the string speficies an unknown protocol
@@ -73,15 +73,15 @@ public class BrowserUtil {
 		}
 
 		return openBrowser(url, browserId, name, tooltip, true);
-	}	
+	}
 
 	/**
 	 * Opens a web browser using the given parameters
 	 * <p>
-	 * Browser is opened according to the browser support provided in the 
+	 * Browser is opened according to the browser support provided in the
 	 * Platform (as defined by browserSupport extension points)
 	 * <p>
-	 * @param url url to open in browser, or null for empty browser	 * 
+	 * @param url url to open in browser, or null for empty browser	 *
 	 * @param browserId id of an existing browser to reuse, or null for a new one
 	 * @param name name used for the presentation of the internal browser
 	 * @param tooltip tooltip used for the presentation of the internal browser
@@ -91,10 +91,10 @@ public class BrowserUtil {
 	 */
 	public static IWebBrowser openBrowser(URL url, String browserId, String name, String tooltip, boolean openAsEditor) throws PartInitException {
 		IWorkbenchBrowserSupport browserSupport = PlatformUI.getWorkbench().getBrowserSupport();
-		
+
 		int styleBit = IWorkbenchBrowserSupport.LOCATION_BAR | IWorkbenchBrowserSupport.NAVIGATION_BAR ;
 		if (!openAsEditor)styleBit |=  IWorkbenchBrowserSupport.AS_VIEW;
-			 
+
 		IWebBrowser browser = browserSupport.createBrowser(styleBit, browserId, name, tooltip);
 		browser.openURL(url);
 		return browser;

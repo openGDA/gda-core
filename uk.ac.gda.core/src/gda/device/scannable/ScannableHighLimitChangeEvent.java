@@ -21,9 +21,9 @@ package gda.device.scannable;
 import java.io.Serializable;
 
 public class ScannableHighLimitChangeEvent implements Serializable {
-	
+
 	public final Serializable newHighLimits[];
-	
+
 	/**
 	 * Reported limits are in their external (user) representation.
 	 * @param newLimits

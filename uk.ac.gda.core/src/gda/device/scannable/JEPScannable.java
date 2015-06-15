@@ -40,8 +40,8 @@ import org.nfunk.jep.SymbolTable;
  * Jep stands for Java equation parsing.
  */
 public class JEPScannable extends ScannableBase {
-	
-	
+
+
 	public static JEPScannable createJEPScannable(String label,String scannableName, String format, String variableName, String expression) throws ParseException{
 		JEPScannable newOne = new JEPScannable();
 		if (label != null )	newOne.setLabel(label);
@@ -49,7 +49,7 @@ public class JEPScannable extends ScannableBase {
 		if (format != null )	newOne.setGivenFormat(format);
 		if (variableName != null )	newOne.setVariableName(variableName);
 		if (expression != null )	newOne.setExpression(expression);
-		return newOne;		
+		return newOne;
 	}
 
 	private String scannableName;
@@ -128,26 +128,26 @@ public class JEPScannable extends ScannableBase {
 	public void setVariableName(String variableName) {
 		this.variableName = variableName;
 	}
-	
+
 	@Override
 	public String toString(){
 		try {
 			Object currentPosition = getPosition();
-			
-			// if its not a string then assume its a double or something which can be formatted directly 
+
+			// if its not a string then assume its a double or something which can be formatted directly
 			if (!(currentPosition instanceof String)){
 				return label + " : " + String.format(outputFormat[0], getPosition());
 			}
-			
+
 			// else are we expecting a String?
 			if (outputFormat[0].contains("d")){
 				return label + " : " + String.format(outputFormat[0], getPosition());
 			}
-			
-			// else its a double which needs converting to a number first			
+
+			// else its a double which needs converting to a number first
 			Double dblPosition = Double.valueOf((String) currentPosition);
 			return label + " : " + String.format(outputFormat[0], dblPosition);
-			
+
 		} catch (DeviceException e) {
 			return label;
 		}
@@ -210,7 +210,7 @@ public class JEPScannable extends ScannableBase {
 					Double value = ScannableUtils.getCurrentPositionArray((Scannable) position)[0];
 					map.put(var, value);
 				} else if (position == null) {
-						
+
 					if (scannableInfinder()) {
 
 						Scannable scannble = (Scannable)InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
@@ -256,13 +256,13 @@ public class JEPScannable extends ScannableBase {
 	 * @throws ParseException
 	 */
 	private SymbolTable parseSymbols(String expression) throws ParseException {
-		
+
 		JEP jepParser = new JEP();
 		jepParser.addStandardFunctions();
 		jepParser.addStandardConstants();
 		jepParser.setAllowUndeclared(true);
 		jepParser.setImplicitMul(true);
-		
+
 	    jepParser.parse(expression);
 	    return jepParser.getSymbolTable();
 
@@ -275,7 +275,7 @@ public class JEPScannable extends ScannableBase {
 	private boolean expressionDefined() {
 		return expression != null && !expression.equals("");
 	}
-	
+
 	private boolean variableDefined(){
 		return variableName != null && !variableName.equals("");
 	}

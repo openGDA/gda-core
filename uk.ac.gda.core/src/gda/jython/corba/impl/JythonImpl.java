@@ -54,7 +54,7 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param jythonServer
 	 *            the JythonServer implementation object
 	 * @param poa
@@ -76,7 +76,7 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the JythonServer implementation object
 	 */
 	public Jython _delegate() {
@@ -85,7 +85,7 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param jythonServer
 	 *            set the JythonServer implementation object
 	 */
@@ -379,7 +379,7 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 			throw new CorbaDeviceException(de.getMessage());
 		}
 	}
-	
+
 	@Override
 	public Any getClientInformation(String arg0) throws CorbaDeviceException {
 		try {
@@ -470,7 +470,7 @@ public class JythonImpl extends CorbaJythonPOA implements IObserver {
 			throw new CorbaDeviceException(de.getMessage());
 		}
 	}
-	
+
 	@Override
 	public Any getMessageHistory(String myJSFIdentifier) throws CorbaDeviceException {
 		try {

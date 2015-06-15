@@ -19,8 +19,12 @@
 
 package gda.device;
 
-import static org.junit.Assert.*;
-import gda.device.DeviceException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import gda.device.adc.DummyAdc;
 import gda.factory.FactoryException;
 import gda.observable.IObserver;
@@ -43,7 +47,7 @@ public class DeviceBaseTest implements IObserver {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testDummyAdc() {
@@ -51,7 +55,7 @@ public class DeviceBaseTest implements IObserver {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testDeviceBase() {
@@ -69,7 +73,7 @@ public class DeviceBaseTest implements IObserver {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testIsLocal() {
@@ -78,7 +82,7 @@ public class DeviceBaseTest implements IObserver {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testSetLocal() {
@@ -87,7 +91,7 @@ public class DeviceBaseTest implements IObserver {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testIsConfigureAtStartup() {
@@ -96,7 +100,7 @@ public class DeviceBaseTest implements IObserver {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testSetConfigureAtStartup() {
@@ -160,7 +164,7 @@ public class DeviceBaseTest implements IObserver {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testAddIObserver() {
@@ -169,7 +173,7 @@ public class DeviceBaseTest implements IObserver {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testDeleteIObserver() {
@@ -181,7 +185,7 @@ public class DeviceBaseTest implements IObserver {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testDeleteIObservers() {

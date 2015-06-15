@@ -27,7 +27,7 @@ import gda.device.MotorException;
 public interface PiezoController {
 	/**
 	 * Used to send a command to the piezo module that does not require a reply.
-	 * 
+	 *
 	 * @param module
 	 *            is the module number
 	 * @param positionCommand -
@@ -39,7 +39,7 @@ public interface PiezoController {
 	/**
 	 * Sends the commands required to return the current rawPosition (offset), converts this value to a position
 	 * (offset) and compares with requested position (offset). Notifies when the process is complete.
-	 * 
+	 *
 	 * @param module
 	 *            the module to query the position and status
 	 * @return the reply string

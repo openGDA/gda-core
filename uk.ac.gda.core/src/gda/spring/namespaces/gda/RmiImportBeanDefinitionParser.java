@@ -34,23 +34,23 @@ public class RmiImportBeanDefinitionParser implements BeanDefinitionParser {
 
 	@Override
 	public AbstractBeanDefinition parse(Element element, ParserContext parserContext) {
-		
+
 		final String id = element.getAttribute("id");
 		final String serviceUrl = element.getAttribute("serviceUrl");
 		final String serviceInterface = element.getAttribute("serviceInterface");
-		
+
 		boolean events = true;
 		if (element.hasAttribute("events")) {
 			final String eventsAttr = element.getAttribute("events");
 			events = Boolean.valueOf(eventsAttr);
 		}
-		
+
 		AbstractBeanDefinition beanDef = new GenericBeanDefinition();
 		beanDef.setBeanClass(events ? GdaRmiProxyFactoryBean.class : RmiProxyFactoryBean.class);
 		beanDef.getPropertyValues().addPropertyValue("serviceUrl", serviceUrl);
 		beanDef.getPropertyValues().addPropertyValue("serviceInterface", serviceInterface);
 		beanDef.getPropertyValues().addPropertyValue("refreshStubOnConnectFailure", true);
-		
+
 		parserContext.getRegistry().registerBeanDefinition(id, beanDef);
 
 		return null;

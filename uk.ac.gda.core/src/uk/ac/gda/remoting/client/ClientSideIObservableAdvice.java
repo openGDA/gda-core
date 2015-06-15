@@ -18,14 +18,14 @@
 
 package uk.ac.gda.remoting.client;
 
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
 
 /**
  * Advice that can be applied to client-side proxies, so that the proxy maintains its own list of observers and doesn't
@@ -33,43 +33,43 @@ import gda.observable.ObservableComponent;
  */
 @Aspect
 public class ClientSideIObservableAdvice {
-	
+
 	private ObservableComponent observableComponent = new ObservableComponent();
-	
+
 	public ObservableComponent getObservableComponent() {
 		return observableComponent;
 	}
-	
+
 	@Pointcut("execution(* gda.observable.IObservable.addIObserver(..))")
 	@SuppressWarnings("unused")
 	private void addIObserver() {}
-	
+
 	@Around("addIObserver()")
 	public Object addIObserver(ProceedingJoinPoint pjp) {
 		final IObserver observer = (IObserver) pjp.getArgs()[0];
 		observableComponent.addIObserver(observer);
 		return null;
 	}
-	
+
 	@Pointcut("execution(* gda.observable.IObservable.deleteIObserver(..))")
 	@SuppressWarnings("unused")
 	private void deleteIObserver() {}
-	
+
 	@Around("deleteIObserver()")
 	public Object deleteIObserver(ProceedingJoinPoint pjp) {
 		final IObserver observer = (IObserver) pjp.getArgs()[0];
 		observableComponent.deleteIObserver(observer);
 		return null;
 	}
-	
+
 	@Pointcut("execution(* gda.observable.IObservable.deleteIObservers())")
 	@SuppressWarnings("unused")
 	private void deleteIObservers() {}
-	
+
 	@Around("deleteIObservers()")
 	public Object deleteIObservers(@SuppressWarnings("unused") ProceedingJoinPoint pjp) {
 		observableComponent.deleteIObservers();
 		return null;
 	}
-	
+
 }

@@ -33,10 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DataDispenserControllerHandler extends DataDispenserAbstractHandler {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DataDispenserControllerHandler.class);
-	private static final String VISIT_METADATA = "visit";	
-	
+	private static final String VISIT_METADATA = "visit";
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
@@ -44,7 +44,7 @@ public class DataDispenserControllerHandler extends DataDispenserAbstractHandler
 
 		Preferences preferences = new DefaultScope().getNode(GDAClientActivator.PLUGIN_ID);
 		String string = preferences.get(DATA_DISPENSER_CONTROLLER_URL_PREF, DATA_DISPENSER_DEFAULT_PREF);
-		
+
 		if (string.equals(DATA_DISPENSER_DEFAULT_PREF)){
 			MessageDialog.openError(shell, "Error Opening Data Dispenser", "No value for the data dispenser controller url has been set (in plugin_customization.ini)");
 		} else {
@@ -55,11 +55,11 @@ public class DataDispenserControllerHandler extends DataDispenserAbstractHandler
 				logger.warn("Error getting visit number", e);
 			}
 			if (visit != null && !visit.isEmpty()){
-				string = string + "/visit/" + visit; 
-			}			
+				string = string + "/visit/" + visit;
+			}
 			openInBrowser(string);
 		}
-		
+
 		return null;
 
 	}

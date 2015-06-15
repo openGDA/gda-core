@@ -37,8 +37,8 @@ import org.springframework.beans.factory.InitializingBean;
  * offer a serial connection.
  */
 public class LinkamT95 extends TemperatureBase implements InitializingBean {
-	
-	private static final Logger logger = LoggerFactory.getLogger(LinkamT95.class);	
+
+	private static final Logger logger = LoggerFactory.getLogger(LinkamT95.class);
 	private final static double MAXTEMP = 900.0;
 	private final static double MINTEMP = -35.0;
 	private String debugName;
@@ -178,7 +178,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	/**
 	 * Checks the value of the error byte and takes appropriate action.
-	 * 
+	 *
 	 * @param errorByte
 	 *            the error byte
 	 */
@@ -200,7 +200,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	/**
 	 * Extracts the current temperature from a four byted string (from either a T or D reply)
-	 * 
+	 *
 	 * @param string
 	 *            the four byte substring
 	 * @return the current temperature
@@ -231,7 +231,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	/**
 	 * Gets the current temperature by asking the actual LinkamCI
-	 * 
+	 *
 	 * @return currentTemp
 	 * @throws DeviceException
 	 */
@@ -247,7 +247,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	/**
 	 * Gets the current temperature without asking the actual LinkamCI
-	 * 
+	 *
 	 * @return temperature (in degreesC)
 	 */
 	public double getTemperature() {
@@ -256,7 +256,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	/**
 	 * Sends the ramps to the hardware.
-	 * 
+	 *
 	 * @param which
 	 *            the current ramp
 	 */
@@ -283,7 +283,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	/**
 	 * Get the Linkam status
-	 * 
+	 *
 	 * @return the status string
 	 * @throws DeviceException
 	 */
@@ -298,7 +298,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	/**
 	 * Called each time the poller goes round. Implements PollerListener interface.
-	 * 
+	 *
 	 * @param pe a PollerEvent constructed by the Poller which calls this
 	 */
 	@Override
@@ -319,7 +319,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	/**
 	 * Sends a notifyIObservers with a TemperatureStatus. Used by stages to notify IObservers of the Controller.
-	 * 
+	 *
 	 * @param additionalData
 	 *            set as the additionalData field of the TemperatureStatus which is sent in the notify.
 	 */
@@ -348,7 +348,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	/**
 	 * Set limit temperature.
-	 * 
+	 *
 	 * @param limit is the temperature limit to a resolution of 0.1degC, max value 99.9
 	 */
 	public void sendLimit(double limit) {
@@ -359,7 +359,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	/**
 	 * Set rate (in degrees/minute).
-	 * 
+	 *
 	 * @param rate is the heating/cooling rate. The rate is 0.01degC/min. The maximum is 99.99degC/min.
 	 */
 	public void sendRate(double rate) {
@@ -387,7 +387,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 	/**
 	 * Creates a dsc if the reply to the ? command demands it. Eventually Dsc should be replaced by a more general Stage
 	 * class.
-	 * 
+	 *
 	 * @return an intance of the created stage
 	 */
 	private LinkamStage createStage() {
@@ -481,7 +481,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	/**
 	 * Set the value of liquid nitrogen pump automation.
-	 * 
+	 *
 	 * @param value
 	 *            the new value
 	 */
@@ -497,7 +497,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	/**
 	 * Sets the liquid nitrogen pump speed.
-	 * 
+	 *
 	 * @param speed the new speed
 	 */
 	private void setPumpSpeed(int speed) {
@@ -515,7 +515,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	/**
 	 * Overrides the DeviceBase method to provide commands for a liquid nitrogen pump
-	 * 
+	 *
 	 * @param name
 	 *            the name of the attribute to set
 	 * @param value
@@ -536,7 +536,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 
 	/**
 	 * Overrides the DeviceBase method to get current DSC dataset name.
-	 * 
+	 *
 	 * @param name
 	 *            the attribute name to get
 	 * @return the attribute value
@@ -567,7 +567,7 @@ public class LinkamT95 extends TemperatureBase implements InitializingBean {
 		this.targetTemp = targetTemp;
 		startTowardsTarget();
 	}
-	
+
 	@Override
 	protected void setHWLowerTemp(double lowerTemp) throws DeviceException {
 	}

@@ -19,12 +19,11 @@
 
 package gda.scan;
 
-import java.util.HashMap;
-import java.util.Vector;
-
 import gda.device.DeviceBase;
 import gda.device.DeviceException;
-import gda.scan.ScanDataPoint;
+
+import java.util.HashMap;
+import java.util.Vector;
 
 /**
  * Device that acts as a store for information about a ScanDataPoint Runs on server and client. On the server it accepts
@@ -33,18 +32,18 @@ import gda.scan.ScanDataPoint;
 public class ScanDataPointServer extends DeviceBase implements IScanDataPointServer {
 	HashMap<String, ScanData> store = new HashMap<String, ScanData>();
 	Vector<String> storeOrder = new Vector<String>();
-	
+
 	private static final ScanDataPointServer INSTANCE = new ScanDataPointServer();
-	
+
 	public static ScanDataPointServer getInstance() {
 		return INSTANCE;
 	}
-	
+
 	public ScanDataPointServer() {
 		setName(getClass().getSimpleName());
 	}
 
-	
+
 	@Override
 	public void configure(){
 		// no configuration required
@@ -60,7 +59,7 @@ public class ScanDataPointServer extends DeviceBase implements IScanDataPointSer
 			//If plotting is held up on client and scans are gnerated in quick succession
 			//the server may not have the token in its store when needed by the client
 			//unless we increase the store size to 100
-			while (storeOrder.size() > 100) { 
+			while (storeOrder.size() > 100) {
 				store.remove(storeOrder.get(0));
 				storeOrder.remove(0);
 			}
@@ -69,11 +68,11 @@ public class ScanDataPointServer extends DeviceBase implements IScanDataPointSer
 		}
 		return new ScanDataPointVar(sdp);
 	}
-	
+
 	public static ScanDataPointVar getToken(ScanDataPoint sdp) {
 		return INSTANCE.___getToken(sdp);
 	}
-	
+
 
 	@Override
 	public ScanData ___convertTokenId(String tokenId) throws DeviceException {

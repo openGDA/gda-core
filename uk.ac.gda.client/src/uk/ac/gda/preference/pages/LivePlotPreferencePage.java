@@ -31,7 +31,7 @@ import uk.ac.gda.preferences.PreferenceConstants;
 public class LivePlotPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
 	private IntegerFieldEditor threshold;
-	
+
 	@Override
 	public void init(IWorkbench workbench) {
 		IPreferenceStore preferenceStore = GDAClientActivator.getDefault().getPreferenceStore();

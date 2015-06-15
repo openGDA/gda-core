@@ -36,9 +36,9 @@ public class MetadataTest {
 
 	/**
 	 * Main test method.
-	 * 
+	 *
 	 * @param args
-	 * @throws FactoryException 
+	 * @throws FactoryException
 	 */
 	public static void main(String[] args) throws FactoryException {
 		MetadataEntry entry;

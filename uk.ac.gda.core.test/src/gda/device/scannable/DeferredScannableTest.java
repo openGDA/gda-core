@@ -48,7 +48,7 @@ public class DeferredScannableTest {
 		createScannable();
 		getScannable().configure();
 	}
-	
+
 	void createScannable() {
 		dScannable = new DeferredScannable();
 		dScannable.setName("DeferTestScannable");
@@ -59,7 +59,7 @@ public class DeferredScannableTest {
 	DeferredScannable getScannable() {
 		return dScannable;
 	}
-	
+
 	@Test
 	public void testAtCommandFailure() throws DeviceException {
 
@@ -102,12 +102,12 @@ public class DeferredScannableTest {
 	}
 
 
-	
+
 	@Test
 	public void testIsBusy() throws DeviceException {
 		when(rawa.isBusy()).thenReturn(true);
 		assertTrue(getScannable().isBusy());
-		
+
 	}
 
 

@@ -45,9 +45,9 @@ import org.slf4j.LoggerFactory;
 public class ExternalJavaClient implements Terminal
 
 {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ExternalJavaClient.class);
-	
+
 	private JythonServerFacade facade = null;
 
 	Vector<String[]> dataBuffer = new Vector<String[]>();
@@ -61,8 +61,8 @@ public class ExternalJavaClient implements Terminal
 	private int status;
 
 	/**
-	 * @throws FactoryException 
-	 * 
+	 * @throws FactoryException
+	 *
 	 */
 	public ExternalJavaClient() throws FactoryException {
 
@@ -89,7 +89,7 @@ public class ExternalJavaClient implements Terminal
 
 	/**
 	 * Run a command.
-	 * 
+	 *
 	 * @param comm -
 	 *            the command to run.
 	 */
@@ -100,7 +100,7 @@ public class ExternalJavaClient implements Terminal
 
 	/**
 	 * Retrieve an object of the data from the last scan in string form.
-	 * 
+	 *
 	 * @return a array of array of string.
 	 */
 	public String[][] getData() {

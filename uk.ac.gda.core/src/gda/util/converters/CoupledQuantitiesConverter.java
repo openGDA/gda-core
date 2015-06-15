@@ -99,7 +99,7 @@ final class CoupledQuantitiesConverter implements IQuantitiesConverter , IQuanti
 			throw new IllegalArgumentException(
 					"CoupledQuantitiesConverter.toSource: targetConverter does not support IQuantityConverter ");
 		}
-		Quantity intermediate = ((IQuantityConverter) targetConverter).toSource(target);	
+		Quantity intermediate = ((IQuantityConverter) targetConverter).toSource(target);
 		if (!(sourceConverter instanceof IQuantityConverter)) {
 			throw new IllegalArgumentException(
 					"CoupledQuantitiesConverter.toSource: sourceConverter does not support IQuantityConverter ");
@@ -113,7 +113,7 @@ final class CoupledQuantitiesConverter implements IQuantitiesConverter , IQuanti
 			throw new IllegalArgumentException(
 					"CoupledQuantitiesConverter.toTarget: sourceConverter does not support IQuantityConverter ");
 		}
-		Quantity intermediate = ((IQuantityConverter) sourceConverter).toTarget(source);	
+		Quantity intermediate = ((IQuantityConverter) sourceConverter).toTarget(source);
 		if (!(targetConverter instanceof IQuantityConverter)) {
 			throw new IllegalArgumentException(
 					"CoupledQuantitiesConverter.toTarget: targetConverter does not support IQuantityConverter ");

@@ -29,7 +29,7 @@ import uk.ac.gda.client.experimentdefinition.ui.wizards.ImportExperimentWizard;
 
 
 public class ImportExperimentCommandHandler extends AbstractExperimentCommandHandler {
-	
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IWorkbench workbench = PlatformUI.getWorkbench();
@@ -38,7 +38,7 @@ public class ImportExperimentCommandHandler extends AbstractExperimentCommandHan
 		//wizard.init(workbench, new StructuredSelection());
 		WizardDialog dialog = new WizardDialog(shell, wizard);
 		dialog.create();
-		dialog.open(); 
+		dialog.open();
 		return null;
 	}
 

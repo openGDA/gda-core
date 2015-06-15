@@ -64,7 +64,7 @@ public abstract class CorbarisablePowerSupplyBase implements ICorbarisablePowerS
 	public void deleteIObservers() {
 		obs.deleteIObservers();
 	}
-	
+
 	protected void notifyObservers(){
 		obs.notifyIObservers(this, null);
 	}

@@ -31,36 +31,36 @@ import org.slf4j.LoggerFactory;
  * class that holds information on which data from a scandata point is to be plotted and where to get that data
  */
 public class ScanDataPointPlotConfig {
-	private static final Logger logger = LoggerFactory.getLogger(ScanDataPointPlotConfig.class);	
+	private static final Logger logger = LoggerFactory.getLogger(ScanDataPointPlotConfig.class);
 	/**
-	 * 
+	 *
 	 */
 	public final int xAxisIndex;
 	/**
-	 * 
+	 *
 	 */
 	public final String xAxisHeader;
 	/**
-	 * 
+	 *
 	 */
 	public final Vector<ScanDataPlotConfigLine> linesToAdd;
 	String id = "";
 	/**
-	 * 
+	 *
 	 */
 	public final ScanPlotSettings scanPlotSettings;
 	/**
-	 * 
+	 *
 	 */
 	int numberOfScannables;
 	/**
-	 * 
+	 *
 	 */
 	public final int numberofChildScans;
 	/**
 	 * data from point used to construct this config
 	 */
-	public final Double[] initialDataAsDoubles;	
+	public final Double[] initialDataAsDoubles;
 
 	/**
 	 * @param pt
@@ -72,7 +72,7 @@ public class ScanDataPointPlotConfig {
 
 	/**
 	 * @param point
-	 * @param scanPlotSettings 
+	 * @param scanPlotSettings
 	 */
 	public ScanDataPointPlotConfig(ScanDataPoint point, ScanPlotSettings scanPlotSettings) {
 		numberOfScannables = point.getPositionHeader().size();

@@ -37,17 +37,17 @@ public class PointPropertyEditor extends PropertyEditorSupport {
 			try {
 				// remove spaces
 				text = text.replace(" ", "");
-				
+
 				String[] numbers = text.split(",");
-				
+
 				if (numbers.length != 2) {
 					throw new IllegalArgumentException("Could not convert " + StringUtils.quote(text) + " to a Point; it does not consist of two numbers");
 				}
-				
+
 				Point p = new Point();
 				p.x = Integer.parseInt(numbers[0]);
 				p.y = Integer.parseInt(numbers[1]);
-				
+
 				setValue(p);
 			} catch (Throwable e) {
 				throw new IllegalArgumentException("Could not convert " + StringUtils.quote(text) + " to a Point", e);

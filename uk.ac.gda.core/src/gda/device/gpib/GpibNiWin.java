@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
  */
 
 public class GpibNiWin extends GpibBase {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(GpibNiWin.class);
-	
+
 	private final int READ = 0x1400;
 
 	private final int WRITE = 0x1800;
@@ -58,7 +58,7 @@ public class GpibNiWin extends GpibBase {
 		deviceIndex = new HashMap<String, Integer>();
 		logger.debug("GPIB Constructor");
 	}
-	
+
 	@Override
 	public void configure(){
 		// no configuration required
@@ -66,7 +66,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * Finds GPIB board/device
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the device/borad to be found
 	 * @return integer representing the handle to the device/board
@@ -89,7 +89,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * Conducts a serial poll
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the device to be polled
 	 * @return returns the poll byte
@@ -109,7 +109,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * Clears a specific device
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the device to be cleared
 	 * @exception DeviceException
@@ -124,7 +124,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * Assert interface clear
-	 * 
+	 *
 	 * @param interfaceName
 	 * @exception DeviceException
 	 *                if the GPIB is in an error state
@@ -138,7 +138,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * Change the I/O timeout period
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the Gpib device
 	 * @param timeout
@@ -154,7 +154,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * Gets the time aollowed for reads/writes in milliseconds
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the Gpib device
 	 * @return timeout the allowed for reads/writes in milliseconds
@@ -171,7 +171,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * Sets read/write termination chracter
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the Gpib device
 	 * @param cterm
@@ -188,7 +188,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * Gets read/write termination character
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the Gpib device
 	 * @return the termination character
@@ -206,7 +206,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * Sets read termination for talkers
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the Gpib device
 	 * @param terminate
@@ -221,7 +221,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * Sets write termination for listeners
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the Gpib device
 	 * @param terminate
@@ -256,7 +256,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * Gets read termination for talkers
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the Gpib device
 	 * @return if true, termination chracter is used to terminate reads if false , no read termination is performed
@@ -272,7 +272,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * Gets write termination for listeners
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the Gpib device
 	 * @return if true, termination chracter is used to terminate write if false , no write termination is performed
@@ -288,7 +288,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * Reads the reply string from gpib
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the Gpib device
 	 * @return the reply
@@ -301,7 +301,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * Reads a string of specified length
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the Gpib device
 	 * @param strLength
@@ -324,7 +324,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * Writes a String
-	 * 
+	 *
 	 * @param deviceName
 	 *            name of the Gpib device
 	 * @param command
@@ -345,7 +345,7 @@ public class GpibNiWin extends GpibBase {
 
 	/**
 	 * returns an array of device names found
-	 * 
+	 *
 	 * @param attributeName
 	 *            should be 'DeviceNameList'
 	 * @return device names as Object[]

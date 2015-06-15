@@ -69,8 +69,8 @@ public enum ExperimentBeanManager {
 					String contentTypeId = config.getAttribute(ATT_CONTENT_TYPE);
 					String commandId = config.getAttribute(ATT_COMMAND_ID);
 					String includeInNewString = config.getAttribute(ATT_INCLUDE_IN_NEW);
-					
-					
+
+
 					Class<? extends XMLRichBean> beanClass = null;
 					try {
 						beanClass = (Class<? extends XMLRichBean>) config.createExecutableExtension(ATT_BEAN).getClass();
@@ -80,10 +80,10 @@ public enum ExperimentBeanManager {
 					IContentType contentType = Platform.getContentTypeManager().getContentType(contentTypeId);
 					XMLCommandHandler handler = new XMLCommandHandler(template);
 					boolean includeInNew = Boolean.parseBoolean(includeInNewString);
-					
+
 					IExperimentBeanDescription exafsBeanDescription = new ExperimentBeanDescription(name, typeId, commandId,
 							handler, beanClass, contentType, includeInNew);
-					
+
 					descList.add(exafsBeanDescription);
 
 				}

@@ -174,7 +174,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 		Object namedService = GDAClientActivator.getNamedService(HelpHandler.class, null);
 		if( namedService != null)
 			helpHandler = (HelpHandler)namedService;
-		
+
 		fetchOldHistory();
 
 		// start the thread to update the output area from the buffer
@@ -661,7 +661,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 		else if (e.stateMask == SWT.CTRL && e.keyCode == 'u') {
 			txtInput.setText("");
 		}
-		
+
 		else if (e.stateMask == SWT.CTRL && (e.keyCode == 'd' || e.keyCode == 'z')) {
 			txtInput.setText("");
 			currentCmd = "";
@@ -684,7 +684,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 		if (parts[0].toLowerCase().compareTo("watch") == 0) {
 			// print out what was typed
 			appendOutput(this.txtPrompt.getText() + inputText + "\n");
-			
+
 			try {
 				DashboardView dashboard = (DashboardView)PlatformUI.
 					getWorkbench().getActiveWorkbenchWindow().getActivePage().
@@ -770,12 +770,12 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 		}
 		// record output to a text file
 		else if (parts[0].toLowerCase().compareTo("record") == 0) {
-			
+
 			// print out what was typed
 			appendOutput(this.txtPrompt.getText() + inputText + "\n");
-			
+
 			addCommandToHistory(inputText);
-			
+
 			if (parts.length == 2 && parts[1].toLowerCase().compareTo("on") == 0) {
 				startNewOutputFile();
 				txtInput.setText("");
@@ -848,7 +848,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 	 * Given a file name pattern and a folder, return a file name in the folder that is unique and related to any
 	 * existing file names via an incremental index. So if you ask for the prefix "foo", suffix ".txt", and nothing
 	 * already exists, you would get the name "foo_1.txt". Then "foo_2.txt", and so on.
-	 * 
+	 *
 	 * @note There's a clear time-of-checking-time-of-use vulnerability. An attacker can arrange the source folder such
 	 *       that this code returns a name of the attacker's choosing, which can then be used to perform truncation
 	 *       attacks. I haven't (yet) addressed that.
@@ -968,7 +968,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 						Thread.sleep(50);
 					}
 					outputBufferUpdated = false;
-					//if there is not already a SimpleOutputUpdater on the UIThread queue then add one 
+					//if there is not already a SimpleOutputUpdater on the UIThread queue then add one
 					if( latestUpdater ==null || !latestUpdater.inqueue){
 						latestUpdater = new SimpleOutputUpdater(JythonTerminalView.this);
 						if (!PlatformUI.getWorkbench().getDisplay().isDisposed()) {
@@ -1075,7 +1075,7 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 
 	/**
 	 * Overwrites the text in the JTextArea with the supplied string starting at the location defined by caretPosition.
-	 * 
+	 *
 	 * @param theString
 	 */
 	private void addToOutputBuffer(String theString) {
@@ -1136,13 +1136,13 @@ public class JythonTerminalView extends ViewPart implements Runnable, IAllScanDa
 	public void clearConsole() {
 		setOutputText("");
 	}
-	
+
 	@Override
 	public void dispose() {
 		if(autoCompleter!=null){
 			autoCompleter.dispose();
 		}
-			
+
 		super.dispose();
 	}
 
@@ -1162,7 +1162,7 @@ class SimpleOutputUpdater implements Runnable {
 
 	@Override
 	public void run() {
-		inqueue = false; 
+		inqueue = false;
 		// On Windows, newlines are \r\n terminated, when you call setText() or append()
 		// \n is replaced with \r\n, so this sequence unexpectedly may return false:
 		// txtOutput.setText(newOutput);
@@ -1204,6 +1204,6 @@ class SimpleOutputUpdater implements Runnable {
 			}
 		}
 	}
-	
-	
+
+
 }

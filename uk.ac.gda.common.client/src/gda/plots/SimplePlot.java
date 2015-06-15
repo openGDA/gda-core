@@ -202,7 +202,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 		/**
 		 * Returns a suitable string representation
-		 * 
+		 *
 		 * @return the formatted string representation of the axis limits
 		 */
 		@Override
@@ -246,7 +246,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		 * Implements the ChartMouseListener interface. Called when the mouse is moved. NB this is one step removed from
 		 * directly overriding the MouseMoved method. (Which is actually overriden in the main SimplePlot class - this
 		 * inconsistency ought to be sorted out).
-		 * 
+		 *
 		 * @param cme
 		 *            a ChartMouseEvent representing the move.
 		 */
@@ -294,7 +294,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 		/**
 		 * Implements the ChartMouseListener interface, called when a mouse button is clicked.
-		 * 
+		 *
 		 * @see org.jfree.chart.ChartMouseListener#chartMouseClicked(org.jfree.chart.ChartMouseEvent)
 		 */
 		@Override
@@ -350,7 +350,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 		/**
 		 * Returns the cursor coordinates of the last mouse click
-		 * 
+		 *
 		 * @return double[] x and y coordinates of mouse click
 		 */
 		private double[] getCursorCoordinates() {
@@ -364,7 +364,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 		/**
 		 * Returns the coordinates of the chart entity nearest the last mouse click.
-		 * 
+		 *
 		 * @return double[] x and y coordinates of entity
 		 */
 		private double[] getEntityCoordinates() {
@@ -391,7 +391,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 		/**
 		 * Implements the Runnable interface. Just waits for the mouse to be clicked.
-		 * 
+		 *
 		 * @see java.lang.Runnable#run()
 		 */
 		@Override
@@ -446,7 +446,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 		/**
 		 * Returns the coordinates of the chart entities nearest to the corners of the dragged rectangle
-		 * 
+		 *
 		 * @return EntityOneX, EntityOneY, EntityTwoX, EntityTwoY
 		 */
 		private double[] getEntityValues() {
@@ -467,7 +467,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 		/**
 		 * Returns the corners of the dragged rectangle
-		 * 
+		 *
 		 * @return array of minX, maxX, minY, maxY
 		 */
 		private double[] getValues() {
@@ -492,7 +492,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 		/**
 		 * Returns the actual dragged area (in Java coordinates)
-		 * 
+		 *
 		 * @return the actual dragged area
 		 */
 		public Rectangle2D getDragArea() {
@@ -515,7 +515,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		/**
 		 * SimplePlot calls this in place of the super class method when a rectangle is being dragged. See
 		 * SimplePlot.mouseDragged.
-		 * 
+		 *
 		 * @param e
 		 *            the MouseEvent
 		 */
@@ -549,7 +549,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		/**
 		 * SimplePlot calls this in place of the super class method when a rectangle is being dragged. See
 		 * SimplePlot.mousePressed.
-		 * 
+		 *
 		 * @param e
 		 *            the MouseEvent
 		 */
@@ -565,7 +565,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		/**
 		 * SimplePlot calls this in place of the super class method when a rectangle is being dragged. See
 		 * SimplePlot.mouseReleased.
-		 * 
+		 *
 		 * @param e
 		 *            the MouseEvent
 		 */
@@ -602,7 +602,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		}
 
 		/**
-		 * 
+		 *
 		 */
 		@Override
 		public void run() {
@@ -674,25 +674,25 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public static int LINECHART = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	public static int BARCHART = 1;
 
 	/**
-	 * 
+	 *
 	 */
 	public static int LEFTYAXIS = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	public static int RIGHTYAXIS = 1;
-	
+
 	private HashMap<Integer, SimpleXYSeries> seriesStore = new HashMap<Integer, SimpleXYSeries>();
 
 	protected SimpleXYSeriesCollection leftSeriesCollection = new SimpleXYSeriesCollection(this);
@@ -862,7 +862,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		XYItemRenderer xyrenderer = xYPlot.getRenderer();
 		if(showToolTip)
 			xyrenderer.setToolTipGenerator(new SimpleXYToolTipGenerator());
-		
+
 		else
 			xyrenderer.setToolTipGenerator(null);
 		xYPlot.setRenderer(xyrenderer);
@@ -877,7 +877,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Constructor which creates either a LINECHART or a BARCHART
-	 * 
+	 *
 	 * @param type
 	 *            either SimplePlot.LINECHART or SimplePlot.BARCHART
 	 */
@@ -890,7 +890,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	/**
 	 * @param type
 	 * @param autoRange
-	 * @param enableHistory 
+	 * @param enableHistory
 	 */
 	public SimplePlot(int type, boolean autoRange, boolean enableHistory ) {
 
@@ -1006,7 +1006,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	XYItemRenderer nonTurboSecondaryRenderer;
 	TurboXYItemRenderer turboRenderer;
 	TurboXYItemRenderer turboSecondaryRenderer;
-	
+
 	/**
 	 * @param turboMode
 	 *            When in TurboMode then: 1. rendering is done by TurboXYItemRenderer 2. addPoints does not directly
@@ -1035,7 +1035,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 				if( this.yAxisTwoOn ){
 					nonTurboSecondaryRenderer = xYPlot.getRenderer(secondaryDataSetIndex);
 				}
-			} 
+			}
 			{
 				XYItemRenderer renderer = turboMode ? turboRenderer : nonTurboRenderer;
 				if( renderer != null ){
@@ -1054,7 +1054,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 					xYPlot.setRenderer(secondaryDataSetIndex, renderer);
 				}
 			}
-			
+
 		}
 		if (turboMode){
 			setZooming(true);
@@ -1089,7 +1089,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Creates the linear and logarithmic x axes
-	 * 
+	 *
 	 * @param autoRange
 	 */
 	private void createXAxes(boolean autoRange) {
@@ -1105,7 +1105,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Creates the linear and logarithmic y axes
-	 * 
+	 *
 	 * @param autoRange
 	 */
 	private void createYAxes(boolean autoRange) {
@@ -1121,7 +1121,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Creates the linear and logarithmic second y axes
-	 * 
+	 *
 	 * @param autoRange
 	 */
 	private void createYAxesTwo(boolean autoRange) {
@@ -1138,7 +1138,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	/**
 	 * Allows any old JComponent to be displayed on a SimplePlot. There are currently layout problems if you use this
 	 * method. See PCS for details.
-	 * 
+	 *
 	 * @param jc
 	 *            the JComponent
 	 * @param re
@@ -1156,7 +1156,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	/**
 	 * Creates the JPopupMenu, overrides (but uses) the super class method adding items for the Magnification and
 	 * Logarithmic axes.
-	 * 
+	 *
 	 * @param properties
 	 *            boolean if true appears on menu
 	 * @param save
@@ -1280,7 +1280,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 								"Enter the min x value - clear for autorange", minStr);
 						if(minStr == null) //cancel
 							return;
-						
+
 					}
 					String maxStr = "";
 					if(!minStr.isEmpty()){
@@ -1305,7 +1305,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 			jpm.add(xLimitsButton);
 
 		}
-		
+
 		jpm.add(new JSeparator());
 
 		xLogLinButton = new JMenuItem("Logarithmic X axis");
@@ -1360,7 +1360,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		});
 		jpm.add(xFormatButton);
 
-		
+
 		// Adding a new button to allow the user to select the formatting they
 		// want on the x and y axis
 		yFormatButton = new JMenuItem("Y Axis Format");
@@ -1468,7 +1468,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		for (SimpleXYSeries s : history){
 			leftSeriesCollection.removeSeries(s);
 			seriesStore.remove(s.getLineNumber());
-			
+
 		}
 		lastLineAdded -= history.size();
 	}
@@ -1488,7 +1488,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void historyRemoveFirst() {
 		historyCleanse();
@@ -1499,7 +1499,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void historyRemoveLast() {
 		historyCleanse();
@@ -1510,7 +1510,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void historyClear() {
 		if( history == null)
@@ -1580,8 +1580,8 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Adds a single data point to a line. The line must already have been initialized.
-	 * @param scanId 
-	 * 
+	 * @param scanId
+	 *
 	 * @param which
 	 *            the line
 	 * @param x
@@ -1604,7 +1604,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Adds a single data point to a line. The line must already have been initialized.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 * @param x
@@ -1647,7 +1647,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	/**
 	 * Adds a second y axis on the right of the chart. This will be completely independent of the first y axis and can
 	 * have data independently referred to it.
-	 * 
+	 *
 	 * @see #addDependentYAxis
 	 */
 	public void addYAxisTwo() {
@@ -1687,7 +1687,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Converts the (pixel) coordinates of a MouseEvent into their actual plot value equivalents
-	 * 
+	 *
 	 * @param me
 	 *            the MouseEvent to be converted
 	 * @return SimpleDataCoordinate object containing the converted coordinates
@@ -1711,7 +1711,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Deletes a line
-	 * 
+	 *
 	 * @param which
 	 *            the line to delete
 	 */
@@ -1742,7 +1742,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 			rightSeriesCollection.removeAllSeries();
 		}
 		seriesStore.clear();
-		
+
 		// all lines deleted, so set highest used line number to 0
 		// (meaning the next line number will be 1)
 		highestUsedLineNumber = 0;
@@ -1752,7 +1752,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 * Adds a second x axis which has values dependent on those of the first xaxis. This allows different units to be
 	 * shown for the same data. The x values of this axis are related to those of the first xaxis by: xtwo = em * xone +
 	 * see
-	 * 
+	 *
 	 * @param em
 	 *            the gradient of the expression relating the two axes
 	 * @param see
@@ -1810,7 +1810,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 * Adds a second y axis which has values dependent on those of the first xaxis. This allows different units to be
 	 * shown for the same data. The y values of this axis are related to those of the first yaxis by: ytwo = em * yone +
 	 * see
-	 * 
+	 *
 	 * @see #addYAxisTwo()
 	 * @param em
 	 *            the gradient of the expression relating the two axes
@@ -1866,7 +1866,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Allows a rectangle to be dragged out on the plot and returns maximum and minimum x and y coordinates.
-	 * 
+	 *
 	 * @return the coordinates in order minX, maxX, minY, maxY
 	 */
 	public double[] dragRectangle() {
@@ -1886,7 +1886,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	/**
 	 * Allows a rectangle to be dragged out on the plot and returns the coordinates of two ChartEntity objects, one at
 	 * bottom left, one at top right.
-	 * 
+	 *
 	 * @return x position of bottom left entity, x position of top right entity, y position of bottom right entity, y
 	 *         position of top right entity.
 	 */
@@ -1906,7 +1906,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Allows a rectangle to be dragged out on the plot and returns the actual Rectangle2D which is dragged
-	 * 
+	 *
 	 * @return the dragged rectangle
 	 */
 	public Rectangle2D dragRectangleRaw() {
@@ -1932,7 +1932,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void stopObservingDragging() {
 		rd.stop();
@@ -1941,7 +1941,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Waits for the next mouse click and returns its coordinates.
-	 * 
+	 *
 	 * @return coordinates of cursor at mouse click
 	 */
 	public double[] getCursorCoordinates() {
@@ -1953,7 +1953,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Returns the last known position of the cursor
-	 * 
+	 *
 	 * @return coordinates.
 	 */
 	public double[] getCoordinates() {
@@ -1967,7 +1967,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Waits for the next mouse click and returns the coordinates of the entity nearest to it.
-	 * 
+	 *
 	 * @return coordinates of entity.
 	 */
 	public double[] getEntityCoordinates() {
@@ -1980,7 +1980,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	/**
 	 * A tricky little service method which searches the static int fields of a class for one called fieldName and
 	 * returns its integer value.
-	 * 
+	 *
 	 * @param fieldName
 	 *            the field name to get
 	 * @param theClass
@@ -2005,7 +2005,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Gets the number of lines
-	 * 
+	 *
 	 * @return the number of lines
 	 */
 	@Override
@@ -2014,7 +2014,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	}
 	/**
 	 * Returns the maximum value of the Y axis
-	 * 
+	 *
 	 * @return Y axis maximum value
 	 */
 	public double getYAxisMax() {
@@ -2026,7 +2026,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Returns the minimum value of the Y axis
-	 * 
+	 *
 	 * @return Y axis minimum value
 	 */
 	public double getYAxisMin() {
@@ -2035,7 +2035,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Returns the maximum value of the X axis
-	 * 
+	 *
 	 * @return X axis maximum value
 	 */
 	public double getXAxisMax() {
@@ -2048,7 +2048,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Returns the minimum value of the X axis
-	 * 
+	 *
 	 * @return X axis minimum value
 	 */
 	public double getXAxisMin() {
@@ -2057,7 +2057,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Initialises a line using LEFTYAXIS for its y values.
-	 * 
+	 *
 	 * @param which
 	 *            the line to initialise (numbered from 0)
 	 */
@@ -2067,7 +2067,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Initialises a line using specified axis for its y values
-	 * 
+	 *
 	 * @param which
 	 *            the line to initialise (numbered from 0)
 	 * @param axis
@@ -2079,7 +2079,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Initialises a line using specified axis for its y values and name
-	 * 
+	 *
 	 * @param which
 	 *            the line to initialise (numbered from 0)
 	 * @param axis
@@ -2093,18 +2093,18 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Initialises a line using specified SimpleXYSeries
-	 * 
+	 *
 	 * @param s
 	 */
 	public void initializeLine(SimpleXYSeries s) {
 		initializeLineImpl(s.getLineNumber(), s.getAxis(), null, s);
 	}
-	
+
 	private int lastLineAdded = 0; // last line added
-	
+
 	/** Highest line number used so far */
 	private int highestUsedLineNumber=0;
-	
+
 	private void initializeLineImpl(int which, int axis, String name, SimpleXYSeries s) {
 
 		if (lineExists(which)) {
@@ -2133,7 +2133,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the data points for a line - the line must already have been initialized.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 * @param x
@@ -2151,7 +2151,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets a line to be drawn as both markers at the individual points and lines joining them.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 */
@@ -2161,7 +2161,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Checks whether a line exists
-	 * 
+	 *
 	 * @param lineNumber
 	 *            the line to check
 	 * @return true if there is a line with the given number
@@ -2172,7 +2172,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets a line to be drawn only as the lines joining individual points.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 */
@@ -2183,7 +2183,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	/**
 	 * Part of the implementation of MouseMotionListener - overrides the super class (ChartPanel) implementation so that
 	 * the mouse can be used to select a rectangle as well as for zooming.
-	 * 
+	 *
 	 * @param e
 	 *            the mouse event which caused the call
 	 */
@@ -2228,7 +2228,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	/**
 	 * Part of the implementation of MouseListener - overrides the super class (ChartPanel) implementation so that the
 	 * mouse can be used to select a rectangle as well as for zooming.
-	 * 
+	 *
 	 * @param e
 	 *            the mouse event which caused the call
 	 */
@@ -2262,7 +2262,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	/**
 	 * Part of the implementation of MouseListener. Overrides the super class (ChartPanel) implementation so that the
 	 * mouse can be used to select a rectangle as well as for zooming.
-	 * 
+	 *
 	 * @see #mousePressed(java.awt.event.MouseEvent)
 	 * @see #mouseDragged(java.awt.event.MouseEvent)
 	 * @param e
@@ -2308,7 +2308,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	/**
 	 * Part of the implementation of MouseListener - overrides the super class (ChartPanel) implementation but currently
 	 * does nothing.
-	 * 
+	 *
 	 * @param e
 	 *            the mouse event which caused the call
 	 */
@@ -2319,7 +2319,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Recalculates the rectangle which should be magnified.
-	 * 
+	 *
 	 * @param e
 	 *            the MouseEvent which triggered the recalculation
 	 */
@@ -2370,7 +2370,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets a line to be drawn as individual point markers only
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 */
@@ -2402,7 +2402,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the visibility of the Legend
-	 * 
+	 *
 	 * @param newValue
 	 *            true or false
 	 */
@@ -2418,7 +2418,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 * Sets the colour used to draw the line - NB this also sets the colour used to draw the point markers since this is
 	 * the behaviour most people will want - to use different colours each call of setLineColor must be followed by a
 	 * call of setLineMarkerColor.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 * @param color
@@ -2436,7 +2436,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Gets the reference to a particular line
-	 * 
+	 *
 	 * @param which
 	 *            The number of the line which is required
 	 * @return A SimpleXYSeries which is the line specified
@@ -2447,7 +2447,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Finds a line from left or right series collections
-	 * 
+	 *
 	 * @param which
 	 *            the line number
 	 * @return the SimpleXYSeries which represents the line (or null)
@@ -2456,10 +2456,10 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		return seriesStore.get(which);
 	}
 
-	
+
 	/**
 	 * Sets the colour used to draw the line.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 * @param colorName
@@ -2472,7 +2472,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the Marker for a line.
-	 * 
+	 *
 	 * @param which
 	 * @param marker
 	 */
@@ -2487,7 +2487,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the marker shape used for the points on a line.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 * @param name
@@ -2499,7 +2499,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the colour used to draw the marker symbol.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 * @param color
@@ -2515,7 +2515,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the colour used to draw the marker symbol.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 * @param colorName
@@ -2528,7 +2528,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the size of the marker for a line.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 * @param size
@@ -2544,7 +2544,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the name of a line - this is what will appear next to it in the legend.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 * @param name
@@ -2560,7 +2560,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the pattern used to draw the line.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 * @param simpleStroke
@@ -2576,7 +2576,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the pattern used to draw the line.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 * @param name
@@ -2588,7 +2588,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Set the line type (points, points and line, line).
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 * @param type
@@ -2617,7 +2617,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	}
 	/**
 	 * Sets the line type.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 * @param name
@@ -2629,7 +2629,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets whether or not line is visible.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 * @param visibility
@@ -2650,7 +2650,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 				if(visibility){
 					rightSeriesCollection.addSeries(s);
 				}
-				
+
 			} else {
 				if(isVisible){
 					leftSeriesCollection.removeSeries(s);
@@ -2667,7 +2667,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	/**
 	 * Sets whether or not the line is part of the data, this should be set to false for lines which are only markers on
 	 * the plot.
-	 * 
+	 *
 	 * @param which
 	 *            the line
 	 * @param includedInData
@@ -2682,7 +2682,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the thickness of a line.
-	 * 
+	 *
 	 * @param which
 	 *            the line to change
 	 * @param width
@@ -2698,7 +2698,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the title of the plot.
-	 * 
+	 *
 	 * @param title
 	 *            the title to use
 	 */
@@ -2714,7 +2714,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the visibility of the title of the plot.
-	 * 
+	 *
 	 * @param newValue
 	 */
 	public void setTitleVisible(boolean newValue) {
@@ -2734,7 +2734,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Toggles display of pointer position.
-	 * 
+	 *
 	 * @param toggle
 	 *            true to display, false to hide
 	 */
@@ -2751,7 +2751,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the x axis autoscaling.
-	 * 
+	 *
 	 * @param newValue
 	 *            the new value (true or false)
 	 */
@@ -2762,7 +2762,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets whether the x axis autoscaling always includes zero.
-	 * 
+	 *
 	 * @param newValue
 	 *            the new value (true or false)
 	 */
@@ -2773,7 +2773,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the x axis label.
-	 * 
+	 *
 	 * @param label
 	 *            the label
 	 */
@@ -2785,7 +2785,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the x axis limits.
-	 * 
+	 *
 	 * @param xmin
 	 *            the minimum x value
 	 * @param xmax
@@ -2798,7 +2798,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the y axis autoscaling.
-	 * 
+	 *
 	 * @param newValue
 	 *            the new value (true or false)
 	 */
@@ -2809,7 +2809,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets whehter the y axis autoscaling always includes zero.
-	 * 
+	 *
 	 * @param newValue
 	 *            the new value (true or false)
 	 */
@@ -2820,7 +2820,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the y axis label.
-	 * 
+	 *
 	 * @param label
 	 *            the label
 	 */
@@ -2832,7 +2832,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the y axis limits.
-	 * 
+	 *
 	 * @param ymin
 	 *            the minimum y value
 	 * @param ymax
@@ -2845,7 +2845,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the second y axis autoscaling.
-	 * 
+	 *
 	 * @param newValue
 	 *            the new value (true or false)
 	 */
@@ -2856,7 +2856,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets whehter the second y axis autoscaling always includes zero.
-	 * 
+	 *
 	 * @param newValue
 	 *            the new value (true or false)
 	 */
@@ -2867,7 +2867,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the second y axis label.
-	 * 
+	 *
 	 * @param label
 	 *            the label
 	 */
@@ -2878,7 +2878,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the second y axis limits.
-	 * 
+	 *
 	 * @param ymin
 	 *            the minimum y value
 	 * @param ymax
@@ -2891,7 +2891,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Gets the current CoordinateFormatter.
-	 * 
+	 *
 	 * @return current value of coordinateFormatter
 	 */
 	public CoordinateFormatter getCoordinateFormatter() {
@@ -2900,7 +2900,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the current CoordinateFormatter.
-	 * 
+	 *
 	 * @param coordinateFormatter
 	 *            the CoordinateFormatter to set as current.
 	 */
@@ -2910,7 +2910,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Returns the current axis limits.
-	 * 
+	 *
 	 * @return AxisLimits
 	 */
 	private AxisLimits getAxisLimits() {
@@ -2923,7 +2923,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	/**
 	 * Overrides the super class method in order to deal with remembering the previous axis limits (which are pushed
 	 * onto a stack).
-	 * 
+	 *
 	 * @param selection
 	 *            is the Rectangle2D selected for zooming but is only actually used in the super class
 	 */
@@ -2946,7 +2946,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the axis limits (both axes).
-	 * 
+	 *
 	 * @param newLimits
 	 *            an AxisLimits object containing the information
 	 */
@@ -2986,7 +2986,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Determines if X (Domain) axis has autoRange set.
-	 * 
+	 *
 	 * @return autoRange true or false
 	 */
 	public boolean isXAxisAutoRange() {
@@ -2996,7 +2996,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Determines if Y (Range) axis has autoRange set.
-	 * 
+	 *
 	 * @return autoRange true or false
 	 */
 	public boolean isYAxisAutoRange() {
@@ -3044,7 +3044,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Overrides super class method in order to paint image for magnfication.
-	 * 
+	 *
 	 * @param g
 	 *            the Graphics into which this should paint itself
 	 */
@@ -3065,7 +3065,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		axis.setUpperMargin(0.);
 		axis.setAutoRangeIncludesZero(false);
 		axis.setNumberFormatOverride(formatter);
-	}		
+	}
 	/**
 	 * @return Returns the zooming.
 	 */
@@ -3075,7 +3075,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the value of zooming.
-	 * 
+	 *
 	 * @param zooming
 	 *            The new value.
 	 */
@@ -3090,7 +3090,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		// Stop the other buttons being used while zooming is true
 		magnifyDataButton.setEnabled(!zooming);
 		magnifier = null;
-		
+
 	}
 
 	/**
@@ -3103,7 +3103,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	/**
 	 * Sets the magnfiyingData flag - this magnfying mode uses a window containing another plot which has its axis
 	 * limits set to display the magnfied data.
-	 * 
+	 *
 	 * @param magnifyingData
 	 *            The new value.
 	 */
@@ -3144,7 +3144,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Gets the x value at which a line has its maximum y value.
-	 * 
+	 *
 	 * @param line
 	 *            the line
 	 * @return the x value corresponding to the maximum y value of this line
@@ -3155,7 +3155,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Gets the x value at which a line has its maximum y value.
-	 * 
+	 *
 	 * @param text
 	 *            the name of the line
 	 * @return the x value corresponding to the maximum y value of this line
@@ -3167,7 +3167,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Temporary main for speed testing purposes only
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String args[]) {
@@ -3295,7 +3295,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Adds an item to the popup menu.
-	 * 
+	 *
 	 * @param jmi
 	 *            the new menu item
 	 */
@@ -3307,7 +3307,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 * Set a SimpleValueTransformer for x coordinates - the SimpleValueTransformer will allow x values to be transformed
 	 * on output only (not affecting the actual data)- this is useful, for example, in allowing a choice of units for x
 	 * axis displays.
-	 * 
+	 *
 	 * @param xValueTransformer
 	 *            the SimpleValueTransformer to use
 	 */
@@ -3328,7 +3328,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Returns the x axis number format.
-	 * 
+	 *
 	 * @return xAxisNumberFormat
 	 */
 	@Override
@@ -3346,7 +3346,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Function to set up the X axis with scientific notation. With the specified number Format.
-	 * 
+	 *
 	 * @param inFormat
 	 *            the new formating for the X axis
 	 */
@@ -3366,7 +3366,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Function to set up the Y axis with scientific notation. With the inputed numberformat
-	 * 
+	 *
 	 * @param inFormat
 	 *            the new formating for the Y axis
 	 */
@@ -3379,7 +3379,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Returns the y axis number format.
-	 * 
+	 *
 	 * @return yAxisNumberFormat
 	 */
 	@Override
@@ -3389,7 +3389,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Returns the second y axis number format.
-	 * 
+	 *
 	 * @return yAxisTwoNumberFormat
 	 */
 	public NumberFormat getYAxisTwoNumberFormat() {
@@ -3398,7 +3398,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * specifies whether the X axis ticks are vertical or horizontal.
-	 * 
+	 *
 	 * @param value
 	 */
 	@Override
@@ -3423,7 +3423,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets whether or not x axis is logarithmic.
-	 * 
+	 *
 	 * @param xAxisLogarithmic
 	 *            true makes the axis logarithmic
 	 */
@@ -3440,7 +3440,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets whether or not first (left) y axis is logarithmic.
-	 * 
+	 *
 	 * @param yAxisLogarithmic
 	 *            true makes the axis logarithmic
 	 */
@@ -3464,7 +3464,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets whether or not second (right) y axis is logarithmic.
-	 * 
+	 *
 	 * @param yAxisTwoLogarithmic
 	 *            true makes the axis logarithmic
 	 */
@@ -3481,10 +3481,10 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Allows anything implementing the XYAnnotation interface to be added to the plot.
-	 * 
+	 *
 	 * <p>See the {@code org.jfree.chart.annotations} package for wrappers which implement
 	 * the interface and wrap various types of object
-	 * 
+	 *
 	 * @param annotation
 	 *            the annotation
 	 */
@@ -3496,7 +3496,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the label for the dependent x axis.
-	 * 
+	 *
 	 * @param string
 	 *            the label
 	 */
@@ -3506,7 +3506,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Sets the label for the dependent y axis.
-	 * 
+	 *
 	 * @param string
 	 *            the label
 	 */
@@ -3516,7 +3516,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * Specifies weather the graph is in batching mode or not
-	 * 
+	 *
 	 * @return true if the graph is batching.
 	 */
 	public boolean isBatching() {
@@ -3527,7 +3527,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	 * Sets whether the graph is batching or not. When the graph is batching, any new data sent to the graph is not
 	 * displayed, therefore speeding up the process. Once batching is set to false, all the data put into the graph is
 	 * displayed in one redraw.
-	 * 
+	 *
 	 * @param batching
 	 *            sets the batching flag to true or false
 	 */
@@ -3550,7 +3550,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	Range lastRangeBoundsRight = null;
 	Range leftRangeBounds = null;
 	Range rightRangeBounds = null;
-	
+
 	/**
 	 * @param collection
 	 * @param includeInterval
@@ -3584,7 +3584,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 					SimpleXYSeries sxys = collection.find(iter.next());
 					// is it in this collection?
 					if (sxys != null && sxys.isVisible()) {
-						
+
 						Double sxys_min, sxys_max;
 						Double sxys_Xmax = sxys.getMaxX();
 						if (Double.isInfinite(sxys_Xmax))
@@ -3629,7 +3629,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 						}
 					}
 				}
-			}			
+			}
 		}
 		if (Double.isInfinite(min) || Double.isInfinite(max))
 			return null;
@@ -3650,9 +3650,9 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 	private Range lastDomainBoundsRight = null;
 	private Range leftDomainBounds = null;
 	private Range rightDomainBounds = null;
-	private Double stripWidth=null; //width in domain axis from last point value to min val 
-	
-	
+	private Double stripWidth=null; //width in domain axis from last point value to min val
+
+
 	/**
 	 * @param collection
 	 * @param includeInterval
@@ -3664,12 +3664,12 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		Double max = Double.NEGATIVE_INFINITY;
 		if (!isTurboMode())
 			return null;
-		
+
 		if ( collection == leftSeriesCollection && leftDomainBounds != null )
 			return leftDomainBounds;
 		if ( collection == rightSeriesCollection && rightDomainBounds != null )
 			return rightDomainBounds;
-		
+
 		if (isStripMode()) {
 			/*
 			 * In stripMode get max of changed lines - min will be the max minus the stripWidth
@@ -3713,7 +3713,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 		Double maxTransformed = valTrans.transformValue(max);
 		Double minTransformed = stripWidth != null ? maxTransformed - stripWidth : valTrans.transformValue(min);
 		Range newRange = new Range(minTransformed, maxTransformed);
-		
+
 		if ( collection == leftSeriesCollection )
 			lastDomainBoundsLeft = newRange;
 		if ( collection == rightSeriesCollection )
@@ -3742,7 +3742,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 			while (iter.hasNext()) {
 				SimpleXYSeries sxys = findLine(iter.next());
 				if (sxys != null) {
-					sxys.fireSeriesChanged(); 
+					sxys.fireSeriesChanged();
 				}
 			}
 		}
@@ -3750,8 +3750,8 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 
 	/**
 	 * gives opportunity to plot to archive date not visible to reduce memory usage
-	 * @param all 
-	 * 
+	 * @param all
+	 *
 	 * @throws IOException
 	 */
 	@Override
@@ -3765,7 +3765,7 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 			}
 		}
 	}
-	
+
 	/**
 	 */
 	@Override
@@ -3780,25 +3780,25 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 				}
 			}
 		}
-		
+
 	}
-	
+
 	/**
 	 * @param leftRangeBounds
 	 */
 	@Override
 	public void setLeftRangeBounds(Range leftRangeBounds) {
 		this.leftRangeBounds = leftRangeBounds;
-	}	
+	}
 	/**
 	 * @param rightRangeBounds
 	 */
 	@Override
 	public void setRightRangeBounds(Range rightRangeBounds) {
 		this.rightRangeBounds = rightRangeBounds;
-	}	
+	}
 	/**
-	 * @param domainBounds  The same value is used for both left and rigth series 
+	 * @param domainBounds  The same value is used for both left and rigth series
 	 */
 	@Override
 	public void setDomainBounds(Range domainBounds) {
@@ -3812,10 +3812,10 @@ public class SimplePlot extends ChartPanel implements Printable, XYDataHandler {
 			setStripWidth(null);
 		}
 		onUpdate(true);
-	}	
-	
+	}
+
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public void dispose(){

@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
  * Default Linkam Stage. (i.e. one with no commands of its own) FIXME what is a stage ?
  */
 public class DefaultStage implements LinkamStage {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DefaultStage.class);
-	
+
 	private long startTime = 0;
 
 	private double timeSinceStart = -1000.0;
@@ -87,7 +87,7 @@ public class DefaultStage implements LinkamStage {
 
 	/**
 	 * Executes when poll timer fires
-	 * 
+	 *
 	 * @param pe
 	 *            the polling event
 	 */

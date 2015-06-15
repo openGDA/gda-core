@@ -19,11 +19,11 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.serial.SerialController;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -38,7 +38,7 @@ public class SlaveCommandThread extends Thread {
 	SerialController serialController;
 
 	/**
-	 * 
+	 *
 	 */
 	public SlaveCommandThread() {
 		super("commandThread");

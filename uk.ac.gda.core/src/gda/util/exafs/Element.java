@@ -45,9 +45,9 @@ import uk.ac.gda.util.io.TokenFileParser;
  * To provide information about the chemical elements.
  */
 public final class Element {
-	
+
 	private static Logger logger = LoggerFactory.getLogger(Element.class);
-	
+
 	final static Integer NUMBER_OF_ELEMENTS = 103;
 
 	/**
@@ -122,32 +122,32 @@ public final class Element {
 			m1EdgeEnergies, m2EdgeEnergies, m3EdgeEnergies, m4EdgeEnergies, m5EdgeEnergies };
 
 	/**
-	 * 
+	 *
 	 */
 	public static final int METAL = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	public static final int NONMETAL = 1;
 
 	/**
-	 * 
+	 *
 	 */
 	public static final int METALLOID = 2;
 
 	/**
-	 * 
+	 *
 	 */
 	public static final int NOBLEGAS = 3;
 
 	/**
-	 * 
+	 *
 	 */
 	public static final int LANTHANIDE = 4;
 
 	/**
-	 * 
+	 *
 	 */
 	public static final int ACTINIDE = 5;
 
@@ -187,7 +187,7 @@ public final class Element {
 	/**
 	 * Constructs an Element from its atomic number. The constructor is private because a static array of all the
 	 * elements is created in the static initializer.
-	 * 
+	 *
 	 * @param atomicNumber
 	 *            the atomic number in periodic table
 	 */
@@ -197,7 +197,7 @@ public final class Element {
 
 	/**
 	 * Returns the Collection<Element> of all elements in order of atomic number.
-	 * 
+	 *
 	 * @return the Collection<Element> of all elements
 	 */
 	public static Collection<Element> getAllElements() {
@@ -221,7 +221,7 @@ public final class Element {
 
 	/**
 	 * Gets the edge name "K" etc which corresponds to the given integer value.
-	 * 
+	 *
 	 * @param edge
 	 *            integer edge value
 	 * @return the edge name corresponding to the given integer value
@@ -232,7 +232,7 @@ public final class Element {
 
 	/**
 	 * Gets the atomic number of the element
-	 * 
+	 *
 	 * @return atomic number
 	 */
 	public int getAtomicNumber() {
@@ -241,7 +241,7 @@ public final class Element {
 
 	/**
 	 * Gets the symbol of the element
-	 * 
+	 *
 	 * @return element symbol
 	 */
 	public String getSymbol() {
@@ -250,7 +250,7 @@ public final class Element {
 
 	/**
 	 * Gets the name of the element
-	 * 
+	 *
 	 * @return element name
 	 */
 	public String getName() {
@@ -259,7 +259,7 @@ public final class Element {
 
 	/**
 	 * Gets the type of element (METAL etc)
-	 * 
+	 *
 	 * @return element type
 	 */
 	public int getType() {
@@ -268,7 +268,7 @@ public final class Element {
 
 	/**
 	 * Gets the atomic radius of the element
-	 * 
+	 *
 	 * @return atomic radius
 	 */
 	public double getAtomicRadius() {
@@ -277,7 +277,7 @@ public final class Element {
 
 	/**
 	 * Gets the covalent radius of the element
-	 * 
+	 *
 	 * @return covalent radius
 	 */
 	public double getCovalentRadius() {
@@ -286,7 +286,7 @@ public final class Element {
 
 	/**
 	 * Gets the atomic mass of the element
-	 * 
+	 *
 	 * @return atomic mass
 	 */
 	public double getAtomicMass() {
@@ -295,7 +295,7 @@ public final class Element {
 
 	/**
 	 * Gets the boiling point of the element
-	 * 
+	 *
 	 * @return boiling point
 	 */
 	public double getBoilingPT() {
@@ -304,7 +304,7 @@ public final class Element {
 
 	/**
 	 * Gets the melting point of the element
-	 * 
+	 *
 	 * @return melting point
 	 */
 	public double getMeltingPT() {
@@ -313,7 +313,7 @@ public final class Element {
 
 	/**
 	 * Gets the density of the element
-	 * 
+	 *
 	 * @return density
 	 */
 	public double getDensity() {
@@ -322,7 +322,7 @@ public final class Element {
 
 	/**
 	 * Gets the atomic volume of the element
-	 * 
+	 *
 	 * @return atomic volume
 	 */
 	public double getAtomicVolume() {
@@ -331,7 +331,7 @@ public final class Element {
 
 	/**
 	 * Returns the iterator of a vector of the names of the edges which are in the given energy range.
-	 * 
+	 *
 	 * @param minEnergy
 	 *            the beginning of the energy range in eV
 	 * @param maxEnergy
@@ -342,10 +342,10 @@ public final class Element {
 		List<String> edges = getListOfEdgesInEnergyRange(minEnergy, maxEnergy);
 		return (edges.isEmpty()) ? null : edges.iterator();
 	}
-	
+
 	/**
 	 * Returns of the names of the edges which are in the given energy range.
-	 * 
+	 *
 	 * @param minEnergy the beginning of the energy range in eV
 	 * @param maxEnergy the end of the energy range in eV
 	 */
@@ -362,7 +362,7 @@ public final class Element {
 
 	/**
 	 * Checks whether a particular edge exists or not
-	 * 
+	 *
 	 * @param edge
 	 *            the selected edge
 	 * @return true if edge exists, false if it does not
@@ -373,7 +373,7 @@ public final class Element {
 
 	/**
 	 * Checks whether a particular edge exists or not
-	 * 
+	 *
 	 * @param edgeName
 	 *            the selected edge
 	 * @return true if edge exists, false if it does not
@@ -388,7 +388,7 @@ public final class Element {
 
 	/**
 	 * Gets the energy of the given edge in eV
-	 * 
+	 *
 	 * @param edge
 	 *            the edge (KEDGE, LONEEDGE etc)
 	 * @return the energy
@@ -401,7 +401,7 @@ public final class Element {
 
 	/**
 	 * Gets the energy of the given edge in eV
-	 * 
+	 *
 	 * @param edgeName
 	 *            the edge ("K", "L1" etc)
 	 * @return energy value
@@ -417,7 +417,7 @@ public final class Element {
 
 	/**
 	 * Gets the energy of the given edge in keV
-	 * 
+	 *
 	 * @param edgeName
 	 *            the edge ("K", "L1" etc)
 	 * @return energy value
@@ -428,7 +428,7 @@ public final class Element {
 
 	/**
 	 * Returns an estimation in eV of the initial energy to start a monochromatic specroscopy scan.
-	 * 
+	 *
 	 * @param edge
 	 * @return double eV
 	 */
@@ -438,7 +438,7 @@ public final class Element {
 
 	/**
 	 * Returns an estimation in eV of the final energy to end a monochromatic spectroscopy scan.
-	 * 
+	 *
 	 * @param edge
 	 * @return double eV
 	 */
@@ -470,13 +470,13 @@ public final class Element {
 
 		} else if ("M2".equals(edge)) { // M2
 			return (getEdgeEnergy("M1")) - 10;
-			
+
 		} else if ("M3".equals(edge)) { // M3
 			return (getEdgeEnergy("M2")) - 10;
-			
+
 		} else if ("M4".equals(edge)) { // M4
 			return (getEdgeEnergy("M3")) - 10;
-			
+
 		} else if ("M5".equals(edge)) { // M5
 			return (getEdgeEnergy("M4")) - 10;
 		}
@@ -485,7 +485,7 @@ public final class Element {
 
 	/**
 	 * Returns the allowable edges for an elements
-	 * 
+	 *
 	 * @return the edges
 	 */
 	public List<String> getAllowedEdges() {
@@ -536,7 +536,7 @@ public final class Element {
 
 	/**
 	 * Creates and returns an AbsorptionEdge
-	 * 
+	 *
 	 * @param edgeName
 	 *            the edge name ("K", "L1", "L2", "L3")
 	 * @return an AbsorptionEdge containing the relevant information or null if the edge does not exist
@@ -704,7 +704,7 @@ public final class Element {
 
 	/**
 	 * Returns the symbols sorted alphabetically.
-	 * 
+	 *
 	 * @return String[]
 	 */
 	@SuppressWarnings("cast")
@@ -722,7 +722,7 @@ public final class Element {
 
 	/**
 	 * Return elements sorted in atomic number range.
-	 * 
+	 *
 	 * @param fromSymbol
 	 *            (atomic symbol)
 	 * @param toSymbol

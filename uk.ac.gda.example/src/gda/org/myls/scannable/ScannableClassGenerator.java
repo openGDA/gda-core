@@ -26,7 +26,7 @@ import gda.device.Scannable;
 public class ScannableClassGenerator {
 
 	/**
-	 * 
+	 *
 	 */
 	public ScannableClassGenerator() {
 	}

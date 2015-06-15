@@ -27,7 +27,7 @@ public class CommandId {
 
 	/**
 	 * Returns the next id
-	 * 
+	 *
 	 * @return id the next id
 	 */
 	public static int next() {

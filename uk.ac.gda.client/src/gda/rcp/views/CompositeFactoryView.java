@@ -28,10 +28,10 @@ import org.eclipse.ui.part.ViewPart;
 import org.springframework.beans.factory.InitializingBean;
 
 public class CompositeFactoryView extends ViewPart implements InitializingBean{
-	
+
 	String viewTitle;
-	
-	
+
+
 	public String getViewTitle() {
 		return viewTitle;
 	}
@@ -39,10 +39,10 @@ public class CompositeFactoryView extends ViewPart implements InitializingBean{
 	public void setViewTitle(String viewTitle) {
 		this.viewTitle = viewTitle;
 	}
-	
+
 
 	List<CompositeFactory> compositeFactories= null;
-	
+
 	public List<CompositeFactory> getCompositeFactories() {
 		return compositeFactories;
 	}
@@ -51,14 +51,14 @@ public class CompositeFactoryView extends ViewPart implements InitializingBean{
 		this.compositeFactories = compositeFactories;
 	}
 
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
-		
+
 		GridLayoutFactory.swtDefaults().applyTo(parent);
-		
+
 		setPartName(viewTitle);
-		
+
 		Composite top = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().margins(0, 0).numColumns(compositeFactories.size()).applyTo(top);
 		GridDataFactory.swtDefaults().align(SWT.LEFT, SWT.CENTER).grab(true, true).applyTo(top);
@@ -68,7 +68,7 @@ public class CompositeFactoryView extends ViewPart implements InitializingBean{
 			GridDataFactory.fillDefaults().applyTo(composite);
 		}
 	}
-	
+
 	@Override
 	public void setFocus() {
 		// TODO Auto-generated method stub

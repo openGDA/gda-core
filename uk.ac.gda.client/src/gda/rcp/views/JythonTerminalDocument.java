@@ -28,9 +28,9 @@ import org.slf4j.LoggerFactory;
  * method.
  */
 public class JythonTerminalDocument extends Document {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(JythonTerminalDocument.class);
-	
+
 	/**
 	 * Appends the given text to the end of this document.
 	 */

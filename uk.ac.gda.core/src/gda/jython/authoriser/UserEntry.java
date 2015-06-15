@@ -26,12 +26,12 @@ public class UserEntry {
 	private String userName;
 
 	private Integer authorisationLevel;
-	
+
 	private Boolean staff;
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param userName
 	 * @param authorisationLevel
 	 * @param staff
@@ -71,7 +71,7 @@ public class UserEntry {
 	protected void setAuthorisationLevel(int authorisationLevel) {
 		this.authorisationLevel = authorisationLevel;
 	}
-	
+
 	/**
 	 * @return Returns the staff.
 	 */

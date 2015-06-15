@@ -31,40 +31,40 @@ public class CalculatorView extends ViewPart {
 
 	public CalculatorView() {
 	}
-	
+
 	private Text firstNumberTextBox;
-	
+
 	@SuppressWarnings("unused")
 	private Text secondNumberTextBox;
-	
+
 	@SuppressWarnings("unused")
 	private Text totalTextBox;
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
-		
+
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(parent);
-		
+
 		Label firstNumberLabel = new Label(parent, SWT.NONE);
 		firstNumberLabel.setText("First number:");
-		
+
 		firstNumberTextBox = new Text(parent, SWT.BORDER);
-		
+
 		Label secondNumberLabel = new Label(parent, SWT.NONE);
 		secondNumberLabel.setText("Second number:");
-		
+
 		secondNumberTextBox = new Text(parent, SWT.BORDER);
-		
+
 		Button addNumbersButton = new Button(parent, SWT.PUSH);
 		addNumbersButton.setText("Add numbers");
 		GridDataFactory.fillDefaults().span(2, 1).grab(false, false).applyTo(addNumbersButton);
-		
+
 		Label totalLabel = new Label(parent, SWT.NONE);
 		totalLabel.setText("Total:");
-		
+
 		totalTextBox = new Text(parent, SWT.BORDER | SWT.READ_ONLY);
 	}
-	
+
 	@Override
 	public void setFocus() {
 		firstNumberTextBox.forceFocus();

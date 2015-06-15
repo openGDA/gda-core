@@ -27,15 +27,15 @@ import java.io.Serializable;
 public class ScanFinishEvent implements Serializable{
 
 	public static enum FinishType {OK,INTERRUPTED,ERROR}
-	
+
 	String scanName;
 	FinishType finishType;
-	
+
 	public ScanFinishEvent(String scanName, FinishType finishType) {
 		this.scanName = scanName;
 		this.finishType = finishType;
 	}
-	
+
 	public String getScanName() {
 		return scanName;
 	}
@@ -48,5 +48,5 @@ public class ScanFinishEvent implements Serializable{
 	public void setFinishType(FinishType finishType) {
 		this.finishType = finishType;
 	}
-	
+
 }

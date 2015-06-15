@@ -19,7 +19,6 @@
 package gda.data.scan.datawriter;
 
 import gda.device.DeviceException;
-import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 
 import java.util.ArrayList;
@@ -35,17 +34,17 @@ import org.slf4j.LoggerFactory;
 public class DatapointCompletingDataWriter extends DataWriterBase implements DataWriter {
 
 	private DataWriter sink;
-	
+
 	ExecutorService datapointCompleterSingleThreadpool;
 
 	private Throwable exception;
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DatapointCompletingDataWriter.class);
 
 	public DatapointCompletingDataWriter() {
 		datapointCompleterSingleThreadpool = Executors.newFixedThreadPool(1);
 	}
-	
+
 	private boolean pointContainsCallablePosition(IScanDataPoint point) {
 		Vector<Object> positions = point.getPositions();
 		for (Object position : positions) {
@@ -55,7 +54,7 @@ public class DatapointCompletingDataWriter extends DataWriterBase implements Dat
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void addDataWriterExtender(IDataWriterExtender dataWriterExtender) {
 		// don't hold it here but pass it to the sink so that super.addData(point) is called at the right point
@@ -78,10 +77,10 @@ public class DatapointCompletingDataWriter extends DataWriterBase implements Dat
 		logger.info("Storing an Exception caught computing a point: " + e.getMessage());
 		shutdownNow();
 	}
-	
+
 	/**
 	 * If an exception has been caught then throw it.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	private void throwException() throws Exception {
@@ -89,21 +88,21 @@ public class DatapointCompletingDataWriter extends DataWriterBase implements Dat
 			throw new Exception("Exception caught completing datapoint in datawriter", exception);
 		}
 	}
-	
+
 	private void shutdownNow() {
 		if (!datapointCompleterSingleThreadpool.isShutdown()) {
 			logger.info("Shutting down datapointCompleterExecutor NOW.");
 			datapointCompleterSingleThreadpool.shutdownNow();
 		}
 	}
-	
+
 	private void shutdown() {
 		if (datapointCompleterSingleThreadpool.isShutdown())
 			return;
-		
+
 		logger.debug("Shutting down datapointCompleterThreadPool gently.");
 		datapointCompleterSingleThreadpool.shutdown();
-		
+
 		try {
 			datapointCompleterSingleThreadpool.awaitTermination(10, TimeUnit.MINUTES);
 		} catch (InterruptedException e) {
@@ -159,7 +158,7 @@ public class DatapointCompletingDataWriter extends DataWriterBase implements Dat
 		return sink;
 	}
 
-	
+
 	class DatapointCompleterTask implements Runnable {
 
 		private IScanDataPoint point;
@@ -176,7 +175,7 @@ public class DatapointCompletingDataWriter extends DataWriterBase implements Dat
 
 		@Override
 		public void run() {
-		
+
 			Vector<Object> positions = point.getPositions();
 			for (int i = 0; i < positions.size(); i++) {
 				if (positions.get(i) instanceof Callable<?>) {

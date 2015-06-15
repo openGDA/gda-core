@@ -42,7 +42,7 @@ public class Poller implements Runnable {
 
 	/**
 	 * Constructor which specifies a PollerListener and uses the default polling time.
-	 * 
+	 *
 	 * @param pollerListener
 	 *            the PollerListener
 	 */
@@ -52,7 +52,7 @@ public class Poller implements Runnable {
 
 	/**
 	 * Constructor which specifies a PollerListener and a polling time
-	 * 
+	 *
 	 * @param pollerListener
 	 *            the PollerListener
 	 * @param pollTime
@@ -66,7 +66,7 @@ public class Poller implements Runnable {
 	/**
 	 * Adds another PollerListener. Must be synchronized to prevent it being called while notifyListeners is accessing
 	 * the listeners list.
-	 * 
+	 *
 	 * @param pollerListener
 	 *            the new PollerListener
 	 */
@@ -77,7 +77,7 @@ public class Poller implements Runnable {
 	/**
 	 * Deletes a PollerListener. Must be synchronized to prevent it being called while notifyListeners is accessing the
 	 * listeners list.
-	 * 
+	 *
 	 * @param pollerListener
 	 *            the PollerListener to be deleted
 	 */
@@ -115,7 +115,7 @@ public class Poller implements Runnable {
 
 	/**
 	 * Sets the poll time interval.
-	 * 
+	 *
 	 * @param newPollTime
 	 *            the new polling time (mS)
 	 */
@@ -157,7 +157,7 @@ public class Poller implements Runnable {
 	public void setPollerRunning(boolean isPollerRunning) {
 		this.isPollerRunning = isPollerRunning;
 	}
-	
+
 	/**
 	 * stops poller thread run
 	 */

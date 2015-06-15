@@ -29,12 +29,12 @@ import gda.observable.IObserver;
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
 public class MetadataBlaster extends DeviceBase implements IObserver {
-	
+
 	private MetadataEntry sme;
-	
+
 	@Override
 	public void configure() throws FactoryException {
-		
+
 		if (sme != null)
 			sme.addIObserver(this);
 	}

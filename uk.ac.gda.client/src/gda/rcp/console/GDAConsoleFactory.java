@@ -45,7 +45,7 @@ public class GDAConsoleFactory implements IConsoleFactory {
     public void openConsole() {
         createConsole();
     }
-    
+
     /**
      * @return a new PydevConsole or null if unable to create it (user cancels it)
      */
@@ -67,13 +67,13 @@ public class GDAConsoleFactory implements IConsoleFactory {
 
     /**
      * @return A PydevConsoleInterpreter with its communication configured.
-     * 
+     *
      * @throws CoreException
      * @throws IOException
      * @throws UserCanceledException
      */
     @SuppressWarnings("unused")
-	public static PydevConsoleInterpreter createDefaultPydevInterpreter() throws Exception, 
+	public static PydevConsoleInterpreter createDefaultPydevInterpreter() throws Exception,
             UserCanceledException {
 
 //            import sys; sys.ps1=''; sys.ps2=''
@@ -83,13 +83,13 @@ public class GDAConsoleFactory implements IConsoleFactory {
 //                print >> sys.stderr,  p
 //
 //            print >> sys.stderr, 'Ok, all set up... Enjoy'
-        
+
     	IScriptConsoleCommunication protocol = new GDACorbaConsoleCommunication();
 
         PydevConsoleInterpreter consoleInterpreter = new PydevConsoleInterpreter();
 		consoleInterpreter.setConsoleCommunication(protocol);
         consoleInterpreter.setNaturesUsed(new ArrayList<IPythonNature>());
-  
+
         return consoleInterpreter;
 
     }

@@ -36,7 +36,7 @@ public class chisquared extends AbstractLSQObjectiveFunction {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param function
 	 * @param dataSets
 	 */
@@ -84,7 +84,7 @@ public class chisquared extends AbstractLSQObjectiveFunction {
 
 	/**
 	 * A special case for the least sqaure algorithm For the least square code you must return the
-	 * 
+	 *
 	 * @param parameters
 	 * @return A double array containing the difference between the function and the data AT EACH DATA POINT
 	 */
@@ -123,7 +123,7 @@ public class chisquared extends AbstractLSQObjectiveFunction {
 
 	/**
 	 * Sets the Datasets.
-	 * 
+	 *
 	 * @param dataSets
 	 */
 	public void setDatasets(DataVector... dataSets) {
@@ -134,7 +134,7 @@ public class chisquared extends AbstractLSQObjectiveFunction {
 
 	/**
 	 * Returns the number of data points.
-	 * 
+	 *
 	 * @return Number of data points.
 	 */
 	@Override
@@ -144,7 +144,7 @@ public class chisquared extends AbstractLSQObjectiveFunction {
 
 	/**
 	 * Returns the composite function.
-	 * 
+	 *
 	 * @return composite function.
 	 */
 	public AbstractCompositeFunction getCompositeFunction() {
@@ -153,7 +153,7 @@ public class chisquared extends AbstractLSQObjectiveFunction {
 
 	/**
 	 * Sets the composite function.
-	 * 
+	 *
 	 * @param function
 	 */
 	public void setCompositeFunction(AbstractCompositeFunction function) {

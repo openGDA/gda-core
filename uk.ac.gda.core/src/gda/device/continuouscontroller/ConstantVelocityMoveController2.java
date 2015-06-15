@@ -25,12 +25,12 @@ import gda.device.scannable.ContinuouslyScannableViaController;
 import java.util.Collection;
 
 /**
- * Extension of ConstantVelocityMoveController that requires knowledge of 
+ * Extension of ConstantVelocityMoveController that requires knowledge of
  * scannables and detectors
- * 
+ *
  * The start, and stop values are the values around which the exposures
  * are to take place irrespective of whether the detector is integration or not
- * 
+ *
  */
 
 public interface ConstantVelocityMoveController2 extends ConstantVelocityMoveController{

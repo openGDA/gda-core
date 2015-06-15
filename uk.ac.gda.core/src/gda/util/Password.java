@@ -35,7 +35,7 @@ public class Password {
 
 	/**
 	 * Encrypt a password string.
-	 * 
+	 *
 	 * @param password
 	 *            The ascii password string.
 	 * @return The encrypted password string.
@@ -52,7 +52,7 @@ public class Password {
 
 	/**
 	 * Decrypt a password string.
-	 * 
+	 *
 	 * @param password
 	 *            The encrypted password string
 	 * @return The decrypted password string.
@@ -70,7 +70,7 @@ public class Password {
 
 	/**
 	 * Decrypt a password string.
-	 * 
+	 *
 	 * @param passwordFile
 	 *            The encrypted password string
 	 * @return The decrypted password string.

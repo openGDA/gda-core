@@ -17,7 +17,7 @@
  */
 
 /**
- * 
+ *
  */
 package gda.device.scannable;
 
@@ -46,7 +46,7 @@ import org.python.core.PyException;
  * By default the hardware and user units are the dimensionless ONE. The hardware and user unit cannot be configured to
  * be incompatible.
  */
-public abstract class ScannableMotionUnitsBase extends ScannableMotionBase implements ScannableMotionUnits {	
+public abstract class ScannableMotionUnitsBase extends ScannableMotionBase implements ScannableMotionUnits {
 
 	// handles user-unit to motor-unit conversion
 	protected UnitsComponent unitsComponent = new UnitsComponent();
@@ -88,7 +88,7 @@ public abstract class ScannableMotionUnitsBase extends ScannableMotionBase imple
 			return this.getUserUnits();
 		} else if (attributeName.equals(HARDWAREUNITS)) {
 			return this.getHardwareUnitString();
-		} 
+		}
 		return super.getAttribute(attributeName);
 	}
 
@@ -133,7 +133,7 @@ public abstract class ScannableMotionUnitsBase extends ScannableMotionBase imple
 
 	/**
 	 * Sets the initial user units.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void setInitialUserUnits(String initialUserUnits) throws DeviceException {

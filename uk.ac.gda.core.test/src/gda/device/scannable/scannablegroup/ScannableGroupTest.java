@@ -18,6 +18,7 @@
 
 package gda.device.scannable.scannablegroup;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,8 +29,6 @@ import gda.device.Scannable;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * Integration type test of CoordinatedScannableGroup and CoordinatedScannableElements.

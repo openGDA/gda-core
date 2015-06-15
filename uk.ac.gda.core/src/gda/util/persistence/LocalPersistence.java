@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Provides a static method to access the gda's local database using the Java Persistence API (aka Glassfish).
- * 
+ *
  * @see gda.util.persistence.LocalDatabase
  */
 public class LocalPersistence {
@@ -42,7 +42,7 @@ public class LocalPersistence {
 
 	/**
 	 * Creates a Java Persistence API (aka Glassfish) EntityManagerFactory associated with the GDA's local database.
-	 * 
+	 *
 	 * @param persistenceUnitName
 	 *            The name of the persistent unit matching the xml entry in /srv/META-INF/persistence.xml
 	 * @return An EntityManagerFactory
@@ -51,9 +51,9 @@ public class LocalPersistence {
 	public static EntityManagerFactory createPersistenceEntityManagerFactory(String persistenceUnitName)
 	throws LocalDatabaseException {
 		Properties properties = new Properties();
-		
+
 		File toplinkApplicationLocation = determineTopLinkApplicationLocation();
-		if (!toplinkApplicationLocation.exists()) { 
+		if (!toplinkApplicationLocation.exists()) {
 			toplinkApplicationLocation.mkdirs();
 		}
 
@@ -68,20 +68,20 @@ public class LocalPersistence {
 
 		return Persistence.createEntityManagerFactory(persistenceUnitName, properties);
 	}
-	
+
 	private static final String TOPLINK_APPLICATION_LOCATION = "toplink.application-location";
-	
+
 	/**
 	 * Returns the TopLink application location.
 	 */
 	private static File determineTopLinkApplicationLocation() {
-		
+
 		// Use the value of the TopLink property, if it's been set
 		final String applicationLocation = LocalProperties.get(TOPLINK_APPLICATION_LOCATION);
 		if (applicationLocation != null) {
 			return new File(applicationLocation);
 		}
-		
+
 		// Otherwise, fall back to ${gda.var}/toplink
 		File toplinkApplicationLocation = new File(new File(LocalProperties.getVarDir()), "toplink");
 		return toplinkApplicationLocation;

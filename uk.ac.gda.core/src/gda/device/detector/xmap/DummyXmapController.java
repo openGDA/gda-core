@@ -19,12 +19,11 @@
 
 package gda.device.detector.xmap;
 
-import java.util.Random;
-
 import gda.device.Detector;
-import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
+
+import java.util.Random;
 
 /**
  * Should set in the XML this class to be always local. There is no corba implementation for it.
@@ -175,7 +174,7 @@ public class DummyXmapController extends DetectorBase implements XmapController 
 			roiSum[k] = generator.nextInt(new Double(realTime).intValue() * 10000);
 		return roiSum;
 	}
-	
+
 	@Override
 	public double[] getROIsSum() throws DeviceException {
 		double[] roiSum = new double[actualNumberOfROIs];
@@ -229,11 +228,11 @@ public class DummyXmapController extends DetectorBase implements XmapController 
 	private void startDummyAcquisition() {
 		acquisitionStartedTimeMillis = System.currentTimeMillis();
 	}
-	
+
 	private void stopDummyAcquisition() {
 		acquisitionStartedTimeMillis = null;
 	}
-	
+
 	private boolean isDummyAcquisitionDone() {
 		if (acquisitionStartedTimeMillis==null)
 			return true;
@@ -248,7 +247,7 @@ public class DummyXmapController extends DetectorBase implements XmapController 
 	@Override
 	public void collectData() throws DeviceException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

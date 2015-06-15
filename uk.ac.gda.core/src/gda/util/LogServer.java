@@ -26,10 +26,10 @@ import ch.qos.logback.core.joran.spi.JoranException;
 
 /**
  * A simple {@link SocketNode} based server for Logging.
- * 
+ *
  * <pre>
  *     &lt;b&gt;Usage:&lt;/b&gt; java gda.util.LogServer port configFile
- * 
+ *
  *     where
  * <em>
  * port
@@ -40,9 +40,9 @@ import ch.qos.logback.core.joran.spi.JoranException;
  * </em>
  *     is an xml configuration file fed to {@link JoranConfigurator}.
  * </pre>
- * 
+ *
  * or
- * 
+ *
  * <pre>
  * you need to set the following java properties
  * <em>
@@ -69,7 +69,7 @@ public class LogServer implements Configurable, BeanNameAware {
 
 	/**
 	 * Entry point for starting up the log server as a standalone application.
-	 * 
+	 *
 	 * @param argv
 	 *            command-line arguments
 	 * @throws JoranException
@@ -119,7 +119,7 @@ public class LogServer implements Configurable, BeanNameAware {
 
 	/**
 	 * Creates a new log server.
-	 * 
+	 *
 	 * @param port
 	 *            the port on which the log server will listen
 	 * @param configFile
@@ -140,7 +140,7 @@ public class LogServer implements Configurable, BeanNameAware {
 
 	/**
 	 * Sets the port on which the log server listens.
-	 * 
+	 *
 	 * @param port
 	 *            the port on which the log server listens
 	 */
@@ -150,7 +150,7 @@ public class LogServer implements Configurable, BeanNameAware {
 
 	/**
 	 * Sets the configuration file used by the log server.
-	 * 
+	 *
 	 * @param configFile
 	 *            the log server's configuration file
 	 */
@@ -168,12 +168,12 @@ public class LogServer implements Configurable, BeanNameAware {
 	}
 
 	private String name;
-	
+
 	@Override
 	public void setBeanName(String name) {
 		this.name = name;
 	}
-	
+
 	/**
 	 * Configures this log server, and starts a thread to run it.
 	 */

@@ -44,7 +44,7 @@ public abstract class DigitalIOBase extends DeviceBase implements DigitalIO {
 
 	/**
 	 * Set the required delay after edge sync operations
-	 * 
+	 *
 	 * @param edgeSyncDelayTime
 	 *            the required 2 line sync timeout in msecs
 	 * @throws DeviceException
@@ -56,7 +56,7 @@ public abstract class DigitalIOBase extends DeviceBase implements DigitalIO {
 
 	/**
 	 * Get the current delay time after edge sync operations
-	 * 
+	 *
 	 * @return the current edge sync delay time in msecs
 	 * @throws DeviceException
 	 */
@@ -67,7 +67,7 @@ public abstract class DigitalIOBase extends DeviceBase implements DigitalIO {
 
 	/**
 	 * Set the required timeout for 2 line sync operations
-	 * 
+	 *
 	 * @param twoLineSyncTimeout
 	 *            the required 2 line sync timeout in msecs
 	 * @throws DeviceException
@@ -79,7 +79,7 @@ public abstract class DigitalIOBase extends DeviceBase implements DigitalIO {
 
 	/**
 	 * Get the current timeout for 2 line sync operations
-	 * 
+	 *
 	 * @return current 2 line sync timeout in msecs
 	 * @throws DeviceException
 	 */
@@ -90,7 +90,7 @@ public abstract class DigitalIOBase extends DeviceBase implements DigitalIO {
 
 	/**
 	 * Get the current logic state for the specified channel
-	 * 
+	 *
 	 * @param channelName
 	 *            digital i/o channel name to read
 	 * @return current TTL line state
@@ -101,7 +101,7 @@ public abstract class DigitalIOBase extends DeviceBase implements DigitalIO {
 
 	/**
 	 * Set the current logic state for the specified channel
-	 * 
+	 *
 	 * @param channelName
 	 *            digital i/o channel name to write to
 	 * @param state
@@ -113,7 +113,7 @@ public abstract class DigitalIOBase extends DeviceBase implements DigitalIO {
 
 	/**
 	 * Carries out a negative edge sync operation
-	 * 
+	 *
 	 * @param channelName
 	 *            digital i/o channel name to write to
 	 * @throws DeviceException
@@ -133,7 +133,7 @@ public abstract class DigitalIOBase extends DeviceBase implements DigitalIO {
 
 	/**
 	 * Carries out a positive edge sync operation
-	 * 
+	 *
 	 * @param channelName
 	 *            digital i/o channel name to write to
 	 * @throws DeviceException
@@ -153,7 +153,7 @@ public abstract class DigitalIOBase extends DeviceBase implements DigitalIO {
 
 	/**
 	 * Carries out a 2 line handshake with an external device which obeys the protocol rules.
-	 * 
+	 *
 	 * @param inputChannelName
 	 *            digital i/o channel name to read input line state
 	 * @param outputChannelName
@@ -181,7 +181,7 @@ public abstract class DigitalIOBase extends DeviceBase implements DigitalIO {
 
 	/**
 	 * Carries out a 2 line handshake with an external device which obeys the protocol rules.
-	 * 
+	 *
 	 * @param inputChannelName
 	 *            digital i/o channel name to read input line state
 	 * @param outputChannelName
@@ -215,7 +215,7 @@ public abstract class DigitalIOBase extends DeviceBase implements DigitalIO {
 	/**
 	 * Waits for a named input line name to reach a specified state or generate an exception if outside the timeout
 	 * period. In this case a message is generated using the string form of the required state.
-	 * 
+	 *
 	 * @param inputChannelName
 	 *            required input channel name
 	 * @param requiredState

@@ -24,7 +24,7 @@ import java.util.Collection;
 
 public abstract class DataSetProcessorBase extends Object implements DataSetProcessor, Findable {
 
-	private String name; 
+	private String name;
 	@Override
 	public void setName(String name) {
 		this.name = name;
@@ -36,7 +36,7 @@ public abstract class DataSetProcessorBase extends Object implements DataSetProc
 	}
 
 	boolean enable=true;
-	
+
 	@Override
 	public boolean isEnabled() {
 		return enable;
@@ -60,5 +60,5 @@ public abstract class DataSetProcessorBase extends Object implements DataSetProc
 		return enable ?  _getOutputFormat() : null;
 	}
 
-	
+
 }

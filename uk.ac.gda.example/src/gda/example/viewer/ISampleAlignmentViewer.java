@@ -32,7 +32,7 @@ public interface ISampleAlignmentViewer {
 	 * @param parent the parent composite
 	 */
 	public void createContents(Composite parent);
-	
+
 	/**
 	 * Registers a listener with this viewer
 	 * @param viewerListener IDeviceViewerListener to register
@@ -44,10 +44,10 @@ public interface ISampleAlignmentViewer {
 	 * @param viewerListener IDeviceViewerListener to remove
 	 */
 	void removeListener(ISampleAlignmentViewerListener viewerListener);
-	
+
 	/**
 	 * Sets the content provider used by this viewer
-	 * 
+	 *
 	 * @param viewerContentProvider the content provider
 	 */
 	void setContentProvider(ISampleAlignmentViewerProvider viewerContentProvider);

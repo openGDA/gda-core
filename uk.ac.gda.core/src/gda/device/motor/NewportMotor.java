@@ -173,7 +173,7 @@ public class NewportMotor extends MotorBase {
 	/**
 	 * A wrapper method to enable getStatus() to throw a MotorException to a calling method. FIXME: Can be disposed of
 	 * if getStatus() throws MotorException.
-	 * 
+	 *
 	 * @return the motor status
 	 * @throws MotorException
 	 */
@@ -194,7 +194,7 @@ public class NewportMotor extends MotorBase {
 
 	/**
 	 * Sets the current position of the motor
-	 * 
+	 *
 	 * @param steps
 	 *            the position to be set as current
 	 * @throws MotorException
@@ -206,7 +206,7 @@ public class NewportMotor extends MotorBase {
 
 	/**
 	 * Gets the current position of the motor
-	 * 
+	 *
 	 * @return the current position
 	 * @throws MotorException
 	 */
@@ -220,7 +220,7 @@ public class NewportMotor extends MotorBase {
 
 	/**
 	 * Sets the speed of the motor
-	 * 
+	 *
 	 * @param stepsPerSecond
 	 *            the speed in steps per second
 	 * @throws MotorException
@@ -232,7 +232,7 @@ public class NewportMotor extends MotorBase {
 
 	/**
 	 * Gets the current speed setting of the motor
-	 * 
+	 *
 	 * @return the speed in steps per second
 	 * @throws MotorException
 	 */
@@ -247,7 +247,7 @@ public class NewportMotor extends MotorBase {
 	/**
 	 * Gets the state of the motor As the Motor interface does not allow exceptions to be thrown all diagnostics must be
 	 * thrown away
-	 * 
+	 *
 	 * @return a value from the MotorStatus enum
 	 */
 	@Override

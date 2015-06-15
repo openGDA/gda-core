@@ -18,7 +18,7 @@
 
 package gda.device.scannable.component;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 //import static org.mockito.Mockito.mock;
@@ -33,12 +33,12 @@ import org.junit.Test;
 //import static org.mockito.Mockito.mock;
 //import static org.mockito.Mockito.when;
 public class RelativeLimitValidatorTest {
-	
+
 	ScannableMotionBase reference;
 	private RelativeLimitValidator validator;
 	private Scannable mockedHost;
-	
-	
+
+
 	@Before
 	public void setUp() {
 		validator = new RelativeLimitValidator();
@@ -48,18 +48,18 @@ public class RelativeLimitValidatorTest {
 		validator.setaIndex(2);
 		validator.setbName("e");
 		validator.setbIndex(4);
-	} 
-	
+	}
+
 	@Test
 	public void testGetaIndex() {
 		assertEquals(2, validator.getaIndex());
 	}
-	
+
 	@Test
 	public void testGetBIndex() {
 		assertEquals(4, validator.getbIndex());
 	}
-	
+
 	@Test
 	public void testToStringNoLimits() {
 		assertEquals("", validator.toString());
@@ -80,12 +80,12 @@ public class RelativeLimitValidatorTest {
 		validator.setMaximumDifference(10.);
 		assertEquals("5.0 <= c - e <= 10.0", validator.toString());
 	}
-	
+
 	@Test
 	public void testCheckNoLimits() throws DeviceException {
 		assertEquals(null, validator.checkInternalPosition(new Double[] {0., 1., 2., 3., 4., 5.}));
 	}
-	
+
 	@Test
 	public void testCheckLowerLimits() throws DeviceException {
 		validator.setMinimumDifference(5.);
@@ -101,5 +101,5 @@ public class RelativeLimitValidatorTest {
 		assertEquals(null, validator.checkInternalPosition(new Double[] {0., 1., 9., 3., 4., 5.}));
 		assertEquals("Upper relative limit violation of '5.0 <= c - e <= 10.0', where c = 14.1 and e = 4", validator.checkInternalPosition(new Double[] {0., 1., 14.1, 3., 4., 5.}));
 	}
-	
+
 }

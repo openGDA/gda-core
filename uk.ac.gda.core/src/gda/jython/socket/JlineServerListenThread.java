@@ -33,13 +33,13 @@ public class JlineServerListenThread extends ServerListenThreadBase {
 	private ConsoleReader cr;
 
 	public JlineServerListenThread(InputStream in, PrintWriter out, SessionClosedCallback sessionClosedCallback) throws IOException {
-		
+
 		super(sessionClosedCallback);
-		
+
 		Terminal.setupTerminal();
-		
+
 		this.cr = new ConsoleReader(in, out);
-		
+
 		final String gdaVar = LocalProperties.getVarDir();
 		final File historyFile = new File(gdaVar, "server.history");
 		cr.getHistory().setHistoryFile(historyFile);

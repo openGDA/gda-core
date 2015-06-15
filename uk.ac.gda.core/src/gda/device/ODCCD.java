@@ -30,7 +30,7 @@ public interface ODCCD extends Device, Detector {
 
 	/**
 	 * Connect to the IS software on remote host.
-	 * 
+	 *
 	 * @param host
 	 *            The remote host IS is running on.
 	 * @throws IOException
@@ -44,28 +44,28 @@ public interface ODCCD extends Device, Detector {
 
 	/**
 	 * Is the CCD control object connected to the CCD?
-	 * 
+	 *
 	 * @return true or false
 	 */
 	public boolean isConnected();
 
 	/**
 	 * Returns the name of the last data read from the CCD.
-	 * 
+	 *
 	 * @return The data name.
 	 */
 	public String getDataName();
 
 	/**
 	 * Read the CCD temperature.
-	 * 
+	 *
 	 * @return The CCD temperature.
 	 */
 	public double temperature();
 
 	/**
 	 * Read the chiller unit water temperature.
-	 * 
+	 *
 	 * @return The water temperature.
 	 */
 	public double waterTemperature();
@@ -73,7 +73,7 @@ public interface ODCCD extends Device, Detector {
 	/**
 	 * Use this method to call a user script on the IS host. Example 1: call save_dark 1.0 2 \"d:/dark2.img\" Example 3:
 	 * call dark_cor 10.0 2 "//root/Darks/"
-	 * 
+	 *
 	 * @param command
 	 *            The command to run on IS
 	 */
@@ -81,28 +81,28 @@ public interface ODCCD extends Device, Detector {
 
 	/**
 	 * Read the shutter status
-	 * 
+	 *
 	 * @return OPEN or CLOSED
 	 */
 	public String shutter();
 
 	/**
 	 * Method to open the shutter. It returns the status of the shutter.
-	 * 
+	 *
 	 * @return OPEN
 	 */
 	public String openShutter();
 
 	/**
 	 * Method to close the shutter. It returns the status of the shutter.
-	 * 
+	 *
 	 * @return CLOSED
 	 */
 	public String closeShutter();
 
 	/**
 	 * Reads the data from an IS database node.
-	 * 
+	 *
 	 * @param pathname
 	 *            The location of the data
 	 * @return The image data in a ODCCDImage object.

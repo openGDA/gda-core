@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
  * A memory class for the HY8513 Hytec Incremental Counter Encoder implemented using DA.Server
  */
 public class EncoderCounter extends Gdhist implements Memory {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(EncoderCounter.class);
-	
+
 	@Override
 	public void clear(int start, int count) {
 		logger.error("Not implemented by da.server");

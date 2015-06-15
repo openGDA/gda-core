@@ -61,7 +61,7 @@ public class ScannableManagerComposite extends Composite {
 			scannableName.refresh();
 		}
 	}
-	
+
 	public FindableNameWrapper getScannableName() {
 		return scannableName;
 	}

@@ -45,41 +45,41 @@ public abstract class ImplFactory {
 	public ImplFactory(NetService netService) {
 		this.netService = netService;
 	}
-	
+
 	public ImplFactory() {
 		// do nothing
 	}
-	
+
 	public void setNetService(NetService netService) {
 		this.netService = netService;
 	}
-	
+
 	/**
 	 * Names of objects that should not be made remotely available.
 	 */
 	private List<String> excludedObjects;
-	
+
 	public void setExcludedObjects(List<String> excludedObjects) {
 		this.excludedObjects = excludedObjects;
 	}
-	
+
 	/**
 	 * Returns the list of {@link Findable}s that will be made remotely available.
-	 * 
+	 *
 	 * @return a list of Findables
 	 */
 	protected abstract List<Findable> getFindablesToMakeAvailable();
-	
+
 	/**
 	 * Returns the namespace into which the objects will be exported, e.g. "stnBase".
-	 * 
+	 *
 	 * @return the namespace
 	 */
 	protected abstract String getNamespace();
-	
+
 	protected void makeObjectsAvailable() throws FactoryException {
 		POA poa = netService.getPOA();
-		
+
 		//TODO All errors should lead to throwing a FactoryException - check error then lead to system exit
 		org.omg.PortableServer.Servant servant;
 
@@ -89,37 +89,37 @@ public abstract class ImplFactory {
 				shutdown();
 			}
 		}, getNamespace() + " ImplFactory shutdown"));
-		
+
 		List<Findable> findables = getFindablesToMakeAvailable();
 		for (Findable findable : findables) {
 			String name = findable.getName();
 			if (findable instanceof Localizable && !((Localizable) findable).isLocal()) {
-				
+
 				if (excludedObjects != null && excludedObjects.contains(name)) {
 					logger.info(String.format("Not exporting %s - it has been excluded", name));
 					continue;
 				}
-				
+
 				Class<?> type = findable.getClass();
 				if (RbacUtils.objectIsCglibProxy(findable)) {
 					// Object has been proxied. Get its original type
 					type = type.getSuperclass();
 				}
-				
+
 				String implName = CorbaUtils.getImplementationClassName(type);
 				String adapterClassName = CorbaUtils.getAdapterClassName(type);
-				
+
 				org.omg.CORBA.Object obj=null;
 				try {
 					Class<?> classDef = Class.forName(implName);
 					Constructor<?>[] ctors = classDef.getDeclaredConstructors();
 					Constructor<?> ctor = ctors[0];
-					
+
 					final Object[] args = new Object[] {findable, poa};
 					if (!ClassUtils.isAssignable(ClassUtils.toClass(args), ctor.getParameterTypes())) {
 						logger.warn("Class " + implName + " is unsuitable for " + name + ", so it will be a local object");
 					}
-					
+
 					else {
 						servant = (org.omg.PortableServer.Servant) ctor.newInstance(args);
 						obj = poa.servant_to_reference(servant);
@@ -141,13 +141,13 @@ public abstract class ImplFactory {
 					logger.warn("No CORBA object created for " + fullName);
 				}
 			}
-			
+
 			else {
 				logger.debug(String.format("Not exporting %s - it is local (or does not implement Localizable)", name));
 			}
 		}
 	}
-	
+
 	/**
 	 * Shuts down this ImplFactory, unregistering names from CORBA.
 	 */
@@ -174,7 +174,7 @@ class CorbaBoundObject {
 	public String fullName;
 	public String type;
 	public org.omg.CORBA.Object object;
-	
+
 	public CorbaBoundObject(String fullName, String type, org.omg.CORBA.Object object) {
 		this.fullName = fullName;
 		this.type = type;

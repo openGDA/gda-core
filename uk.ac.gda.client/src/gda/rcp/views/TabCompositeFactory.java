@@ -30,7 +30,7 @@ public interface TabCompositeFactory extends CompositeFactory{
 	 * @return String name
 	 */
 	public abstract String getTooltip();
-	
+
 
 	/**
 	 * Returns the image to be used when displaying the tab
@@ -42,13 +42,13 @@ public interface TabCompositeFactory extends CompositeFactory{
 	 * @return a tab image, or null to use default image
 	 */
 	public abstract Image getImage();
-	
-	
+
+
 	/**
-	 * The label displayed on the tab 
+	 * The label displayed on the tab
 	 */
 	public abstract String getLabel();
-	
+
 
 	public abstract boolean isEnabled();
 
