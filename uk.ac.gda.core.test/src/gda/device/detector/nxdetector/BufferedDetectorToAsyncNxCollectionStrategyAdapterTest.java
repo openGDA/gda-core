@@ -249,6 +249,7 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 		when(bufferedDetector.getExtraNames()).thenReturn(new String[] { "First extra name" });
 
 		List<NXDetectorDataAppender> result = adapter.read(1);
+		verify(bufferedDetector).readFrames(0, 0); // BufferedDetector uses inclusive final index
 		assertThat(result.size(), is(equalTo(1)));
 	}
 
@@ -285,8 +286,8 @@ public class BufferedDetectorToAsyncNxCollectionStrategyAdapterTest {
 	@Test
 	public void withThreeFramesAvailableReadTwoShouldReturnTwoFramesThenOne() throws Exception {
 		when(bufferedDetector.getNumberFrames()).thenReturn(3);
-		when(bufferedDetector.readFrames(0, 2)).thenReturn(TWO_DOUBLE_VALUES);
-		when(bufferedDetector.readFrames(eq(2), anyInt())).thenReturn(ONE_DOUBLE_VALUE);
+		when(bufferedDetector.readFrames(0, 1)).thenReturn(TWO_DOUBLE_VALUES);
+		when(bufferedDetector.readFrames(2, 2)).thenReturn(ONE_DOUBLE_VALUE);
 		when(bufferedDetector.getExtraNames()).thenReturn(new String[] { "First extra name" });
 
 		List<NXDetectorDataAppender> result = adapter.read(2);
