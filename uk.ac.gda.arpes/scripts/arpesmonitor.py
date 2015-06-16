@@ -1,3 +1,4 @@
+from gda.device.detector.areadetector.v17 import ImageMode
 import gda.factory.Finder
 from time import sleep
 
@@ -17,10 +18,8 @@ class ARPESMonitor:
         self.scienta.getNdProc().setResetFilter(1);
         # Set exposures to 1 and change to continuous acquisition
         self.scienta.getAdBase().setNumExposures(1)
-        self.scienta.getAdBase().setImageMode(2)
-        # Pause to allow values to be set. Would be better to use setImageModeWait(ImageMode.CONTINUOUS)
-        # however the enum constant isn't available in jython see GDA-6152
-        sleep(0.25)
+        self.scienta.getAdBase().setImageModeWait(ImageMode.CONTINUOUS)
+        sleep(0.1) # Allow time for values to be set
 
     def start(self):
         self.configure()
