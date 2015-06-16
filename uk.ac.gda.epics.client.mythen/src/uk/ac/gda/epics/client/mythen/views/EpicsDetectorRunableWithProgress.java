@@ -19,6 +19,7 @@
 package uk.ac.gda.epics.client.mythen.views;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.device.scannable.EpicsScannable;
 
 import java.lang.reflect.InvocationTargetException;
@@ -87,7 +88,7 @@ public class EpicsDetectorRunableWithProgress implements IRunnableWithProgress, 
 	private EpicsDoubleDataListener exposureTimeListener;
 	private EpicsDoubleDataListener timeRemainingListener;
 	private String epicsProcessName; //task name
-	private EpicsEnumPVScannable stopScannable;
+	private Scannable stopScannable;
 	
 	public EpicsDetectorRunableWithProgress() {
 	}
@@ -158,11 +159,11 @@ public class EpicsDetectorRunableWithProgress implements IRunnableWithProgress, 
 		this.timeRemainingListener = timeRemainingListener;
 	}
 
-	public EpicsEnumPVScannable getStopScannable() {
+	public Scannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
+	public void setStopScannable(Scannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 }

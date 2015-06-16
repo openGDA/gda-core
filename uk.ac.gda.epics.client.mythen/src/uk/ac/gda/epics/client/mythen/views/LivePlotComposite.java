@@ -18,6 +18,7 @@
 
 package uk.ac.gda.epics.client.mythen.views;
 
+import gda.device.Scannable;
 import gda.device.detector.mythen.data.MythenDataFileUtils;
 import gda.factory.Finder;
 import gda.jython.scriptcontroller.Scriptcontroller;
@@ -32,12 +33,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlotType;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
@@ -53,7 +54,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
-import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 import uk.ac.gda.devices.mythen.visualisation.event.PlotDataFileEvent;
 
 /**
@@ -82,7 +82,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 	private EpicsDetectorProgressMonitor progressMonitor;
 	private EpicsDoubleDataListener exposureTimeListener;
 	private EpicsDoubleDataListener timeRemainingListener;
-	private EpicsEnumPVScannable stopScannable; 
+	private Scannable stopScannable; 
 	private String taskName;
 
 	public LivePlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
@@ -292,11 +292,11 @@ public class LivePlotComposite extends Composite implements IObserver {
 		this.startListener = startListener;
 	}
 
-	public EpicsEnumPVScannable getStopScannable() {
+	public Scannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
+	public void setStopScannable(Scannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 

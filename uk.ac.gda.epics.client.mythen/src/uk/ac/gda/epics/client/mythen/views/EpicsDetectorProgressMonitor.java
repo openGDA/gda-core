@@ -19,6 +19,7 @@
 package uk.ac.gda.epics.client.mythen.views;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.observable.IObserver;
 
 import java.util.concurrent.Callable;
@@ -63,7 +64,7 @@ public class EpicsDetectorProgressMonitor extends Composite implements IObserver
 	private EpicsEnumDataListener startListener;
 	private EpicsDoubleDataListener exposureTimeListener;
 	private EpicsDoubleDataListener timeRemainingListener;
-	private EpicsEnumPVScannable stopScannable;  
+	private Scannable stopScannable;  
 	private String taskName;
 	
 	private ProgressMonitorPart monitor;
@@ -155,11 +156,11 @@ public class EpicsDetectorProgressMonitor extends Composite implements IObserver
 		return this.taskName;
 	}
 
-	public EpicsEnumPVScannable getStopScannable() {
+	public Scannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
+	public void setStopScannable(Scannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 

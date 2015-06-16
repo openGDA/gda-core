@@ -18,6 +18,7 @@
 
 package uk.ac.gda.epics.client.mythen.viewfactories;
 
+import gda.device.Scannable;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.rcp.views.FindableExecutableExtension;
 
@@ -30,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
-import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 import uk.ac.gda.epics.client.mythen.views.EpicsDetectorRunableWithProgress;
 import uk.ac.gda.epics.client.mythen.views.LivePlotView;
 /**
@@ -96,7 +96,7 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 	
 	private EpicsDoubleDataListener exposureTimeListener;
 	private EpicsDoubleDataListener timeRemainingListener;
-	private EpicsEnumPVScannable stopScannable;
+	private Scannable stopScannable;
 	private String taskName;
 
 	private String name;
@@ -171,11 +171,11 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 		this.epicsProgressMonitor = epicsProgressMonitor;
 	}
 
-	public EpicsEnumPVScannable getStopScannable() {
+	public Scannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
+	public void setStopScannable(Scannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 
