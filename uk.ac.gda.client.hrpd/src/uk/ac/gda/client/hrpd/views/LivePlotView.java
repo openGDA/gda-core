@@ -1,5 +1,6 @@
 package uk.ac.gda.client.hrpd.views;
 
+import gda.device.Scannable;
 import gda.jython.scriptcontroller.Scriptcontroller;
 
 import java.util.ArrayList;
@@ -8,7 +9,6 @@ import java.util.List;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IProgressService;
@@ -20,7 +20,6 @@ import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataArrayListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsIntegerDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
-import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
 /**
  * Live plotting of detector data during acquisition. 
@@ -80,7 +79,7 @@ public class LivePlotView extends ViewPart {
 	private EpicsIntegerDataListener totalWorkListener;
 	private EpicsIntegerDataListener workListener;
 	private EpicsStringDataListener messageListener;
-	private EpicsEnumPVScannable stopScannable;	
+	private Scannable stopScannable;	
 
 	public LivePlotView() {
 		setTitleToolTip("live display of 1D detector data");
@@ -104,6 +103,7 @@ public class LivePlotView extends ViewPart {
 			plotComposite.setDetectorStateListener(getDetectorStateListener());
 			plotComposite.setDetectorStateToPlotReducedData(getDetectorStateToPlotReducedData());
 			plotComposite.setDetectorStateToRunProgressService(getDetectorStateToRunProgressService());
+			plotComposite.setEpicsProgressMonitor(epicsProgressMonitor);
 			plotComposite.setDataFilenameObserverName(getDataFilenameObserverName());
 			plotComposite.setLowDataBound(getLowDataBound());
 			plotComposite.setHighDataBound(getHighDataBound());
@@ -234,11 +234,11 @@ public class LivePlotView extends ViewPart {
 		this.messageListener = messageListener;
 	}
 
-	public EpicsEnumPVScannable getStopScannable() {
+	public Scannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
+	public void setStopScannable(Scannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 

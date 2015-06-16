@@ -47,7 +47,6 @@ public abstract class EpicsPVScannable extends ScannableBase implements PutListe
 	protected boolean readOnly=false;
 	protected String pvName = "";
 
-
 	/**
 	 * @see gda.device.DeviceBase#configure()
 	 */

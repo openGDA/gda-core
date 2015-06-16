@@ -19,6 +19,7 @@
 package uk.ac.gda.client.hrpd.views;
 
 import gda.device.DeviceException;
+import gda.device.Scannable;
 import gda.observable.IObserver;
 import gov.aps.jca.event.MonitorListener;
 
@@ -46,7 +47,6 @@ import org.springframework.beans.factory.InitializingBean;
 
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsIntegerDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsStringDataListener;
-import uk.ac.gda.client.hrpd.typedpvscannables.EpicsEnumPVScannable;
 
 /**
  * A progress monitor for monitoring or reporting an EPICS process progress state. It provides a label displaying the
@@ -68,7 +68,7 @@ public class EpicsProcessProgressMonitor extends ProgressMonitorPart implements 
 	private EpicsIntegerDataListener totalWorkListener; // must have
 	private EpicsIntegerDataListener workedSoFarListener; // must have
 	private EpicsStringDataListener messageListener; // optional, must handle null
-	private EpicsEnumPVScannable stopScannable; // optional if no Cancel,
+	private Scannable stopScannable; // optional if no Cancel,
 	private Button stopButton;
 	private boolean hasStopButton = false;
 
@@ -245,11 +245,11 @@ public class EpicsProcessProgressMonitor extends ProgressMonitorPart implements 
 		this.workedSoFarListener = workedSoFarListener;
 	}
 
-	public EpicsEnumPVScannable getStopScannable() {
+	public Scannable getStopScannable() {
 		return stopScannable;
 	}
 
-	public void setStopScannable(EpicsEnumPVScannable stopScannable) {
+	public void setStopScannable(Scannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
 
