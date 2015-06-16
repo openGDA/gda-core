@@ -205,7 +205,10 @@ public class BufferedDetectorToAsyncNXCollectionStrategyAdapter implements Async
 		// Read the new frames from the detector
 		int framesToRead = Math.min(newFramesAvailable, maxToRead);
 		int lastFrameToRead = framesAlreadyRead + framesToRead;
-		Object[] newFrames = bufferedDetector.readFrames(framesAlreadyRead, lastFrameToRead);
+		// Subtract one from last frame index when calling readFrames because BufferedDetector uses an inclusive
+		// final index. (We could instead subtract it when assigning the value to lastFrameToRead, but would then need
+		// to add it back when updating the value of framesAlreadyRead below. This way is simpler, but still confusing!)
+		Object[] newFrames = bufferedDetector.readFrames(framesAlreadyRead, lastFrameToRead - 1);
 
 		if (newFrames == null || newFrames.length == 0) {
 			throw new NoSuchElementException(bufferedDetector.getName() + " has returned no frames");
