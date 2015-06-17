@@ -22,7 +22,7 @@
                 <property key="product.ws" value="gtk" />
                 <property key="product.arch" value="x86" />
                 <property key="profile" value="GDA-synoptic" />
-                <property key="iu" value="uk.ac.gda.beamline.synoptic.product" />
+                <property key="iu" value="uk.ac.gda.client.synoptic.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
@@ -44,7 +44,7 @@
                 <property key="product.ws" value="gtk" />
                 <property key="product.arch" value="x86_64" />
                 <property key="profile" value="GDA-synoptic" />
-                <property key="iu" value="uk.ac.gda.beamline.synoptic.product" />
+                <property key="iu" value="uk.ac.gda.client.synoptic.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
@@ -66,7 +66,7 @@
                 <property key="product.ws" value="gtk" />
                 <property key="product.arch" value="x86_64" />
                 <property key="profile" value="GDA-synoptic" />
-                <property key="iu" value="uk.ac.gda.beamline.synoptic.product" />
+                <property key="iu" value="uk.ac.gda.client.synoptic.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
@@ -88,7 +88,7 @@
                 <property key="product.ws" value="win32" />
                 <property key="product.arch" value="x86" />
                 <property key="profile" value="GDA-synoptic" />
-                <property key="iu" value="uk.ac.gda.beamline.synoptic.product" />
+                <property key="iu" value="uk.ac.gda.client.synoptic.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
@@ -110,7 +110,7 @@
                 <property key="product.ws" value="win32" />
                 <property key="product.arch" value="x86_64" />
                 <property key="profile" value="GDA-synoptic" />
-                <property key="iu" value="uk.ac.gda.beamline.synoptic.product" />
+                <property key="iu" value="uk.ac.gda.client.synoptic.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
@@ -132,7 +132,7 @@
                 <property key="product.ws" value="cocoa" />
                 <property key="product.arch" value="x86_64" />
                 <property key="profile" value="GDA-synoptic" />
-                <property key="iu" value="uk.ac.gda.beamline.synoptic.product" />
+                <property key="iu" value="uk.ac.gda.client.synoptic.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
@@ -154,7 +154,7 @@
                 <property key="product.ws" value="gtk" />
                 <property key="product.arch" value="x86" />
                 <property key="profile" value="GDA-synoptic" />
-                <property key="iu" value="uk.ac.gda.beamline.synoptic.product" />
+                <property key="iu" value="uk.ac.gda.client.synoptic.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
@@ -176,7 +176,7 @@
                 <property key="product.ws" value="gtk" />
                 <property key="product.arch" value="x86_64" />
                 <property key="profile" value="GDA-synoptic" />
-                <property key="iu" value="uk.ac.gda.beamline.synoptic.product" />
+                <property key="iu" value="uk.ac.gda.client.synoptic.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
@@ -198,7 +198,7 @@
                 <property key="product.ws" value="win32" />
                 <property key="product.arch" value="x86" />
                 <property key="profile" value="GDA-synoptic" />
-                <property key="iu" value="uk.ac.gda.beamline.synoptic.product" />
+                <property key="iu" value="uk.ac.gda.client.synoptic.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
@@ -221,7 +221,7 @@
                 <property key="product.ws" value="win32" />
                 <property key="product.arch" value="x86_64" />
                 <property key="profile" value="GDA-synoptic" />
-                <property key="iu" value="uk.ac.gda.beamline.synoptic.product" />
+                <property key="iu" value="uk.ac.gda.client.synoptic.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
@@ -244,7 +244,7 @@
                 <property key="product.ws" value="cocoa" />
                 <property key="product.arch" value="x86_64" />
                 <property key="profile" value="GDA-synoptic" />
-                <property key="iu" value="uk.ac.gda.beamline.synoptic.product" />
+                <property key="iu" value="uk.ac.gda.client.synoptic.product" />
             </properties>
             <prerequisites>
                 <attribute name="create.product.setup" />
