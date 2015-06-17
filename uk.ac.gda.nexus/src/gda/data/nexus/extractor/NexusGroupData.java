@@ -294,6 +294,10 @@ public class NexusGroupData implements Serializable {
 		dtype = Dataset.INT16;
 	}
 
+	public NexusGroupData(int i) {
+		this(new int[] { 1 }, i);
+	}
+
 	public NexusGroupData(int... i) {
 		this(new int[] { i.length }, i);
 	}
