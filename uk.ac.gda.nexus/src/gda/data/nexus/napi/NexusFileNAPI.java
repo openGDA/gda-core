@@ -871,7 +871,8 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			}
 			int type = getType(data);
 			NexusGroupData ngd = NexusGroupData.createFromDataset(data);
-			int[] shape = data.getRank() == 0 ? new int[] {1} : ngd.getDimensions();
+			//Strings are fixed later on
+			int[] shape = data.getRank() == 0 && !ngd.isChar() ? new int[] {1} : ngd.getDimensions();
 			Serializable blob = ngd.getBuffer(true);
 			file.makedata(name, type, shape.length, shape);
 			file.opendata(name);
