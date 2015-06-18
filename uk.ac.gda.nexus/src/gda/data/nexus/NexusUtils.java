@@ -239,7 +239,21 @@ public class NexusUtils {
 	
 		Dataset a = DatasetFactory.createFromObject(value);
 		a.setName(name);
-		return file.createData(group, a);
+
+		DataNode d = null;
+		try {
+			d = file.createData(group, a);
+		} catch (NexusException e) {
+			d = file.getData(group, name);
+			ILazyWriteableDataset wd = d.getWriteableDataset();
+			try {
+				wd.setSlice(null, a, null);
+			} catch (Exception ex) {
+				throw new NexusException("Could not set slice", ex);
+			}
+		}
+
+		return d;
 	}
 
 	/**

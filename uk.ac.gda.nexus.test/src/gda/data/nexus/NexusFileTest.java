@@ -21,7 +21,6 @@ package gda.data.nexus;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import gda.data.nexus.NexusUtils;
 
 import java.net.URI;
 
@@ -69,6 +68,12 @@ public class NexusFileTest {
 		LazyWriteableDataset t = new LazyWriteableDataset("t", Dataset.STRING, shape, mshape, null, null);
 		nf.createData(g, t);
 
+		a = DatasetFactory.createRange(10, Dataset.FLOAT32).reshape(2, 5);
+		a.setName("value");
+		nf.createData("/entry", a, true);
+		a.iadd(1);
+		nf.createData("/entry", a, false);
+
 		nf.close();
 
 		SliceND slice = new SliceND(shape, new Slice(2), new Slice(10, 11));
@@ -113,6 +118,13 @@ public class NexusFileTest {
 
 		n = nf.getData("/g");
 		checkData(n, shape);
+
+		n = nf.getData("/entry/value");
+		IDataset b = n.getDataset().getSlice();
+		assertArrayEquals(new int[] {2, 5}, b.getShape());
+		assertEquals(Float.class, b.elementClass());
+		assertEquals(1.0, b.getDouble(0, 0), 1e-15);
+		assertEquals(10.0, b.getDouble(1, 4), 1e-15);
 		nf.close();
 	}
 

@@ -753,6 +753,10 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		if (name == null || name.isEmpty()) {
 			throw new NullPointerException("Dataset name must be defined");
 		}
+		if (isPathValid(tuple.path + name)) {
+			logger.error("Dataset already exists: {}", name);
+			throw new NexusException("Dataset already exists");
+		}
 		int type = getType(data);
 
 		NAPILazySaver saver = new NAPILazySaver(file, tree, tuple.path, name, data.getShape(), AbstractDataset.getDType(data), false);
@@ -864,6 +868,11 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		String name = data.getName();
 		if (name == null || name.isEmpty()) {
 			throw new NullPointerException("Dataset name must be defined");
+		}
+
+		if (isPathValid(tuple.path + name)) {
+			logger.error("Dataset already exists: {}", name);
+			throw new NexusException("Dataset already exists");
 		}
 		try {
 			if (debug) {
