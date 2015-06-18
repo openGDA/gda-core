@@ -295,7 +295,7 @@ public class NexusGroupData implements Serializable {
 	}
 
 	public NexusGroupData(int i) {
-		this(new int[] { 1 }, i);
+		this(new int[] { 1 }, new int[] { i });
 	}
 
 	public NexusGroupData(int... i) {
