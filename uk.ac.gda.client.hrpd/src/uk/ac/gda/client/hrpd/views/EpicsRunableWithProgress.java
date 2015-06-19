@@ -104,7 +104,7 @@ public class EpicsRunableWithProgress implements IRunnableWithProgress, Initiali
 				if (monitor.isCanceled()) {
 					if (getStopScannable() != null) {
 						try {
-							getStopScannable().moveTo(1);
+							getStopScannable().stop();
 						} catch (DeviceException e) {
 							logger.error("Failed to stop EPICS operation.", e);
 						}

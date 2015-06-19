@@ -34,12 +34,12 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
+import gov.aps.jca.dbr.DBR_String;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
-import java.text.MessageFormat;
 import java.util.Vector;
 
 import org.slf4j.Logger;
@@ -63,7 +63,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	private volatile boolean busy = false;
 
 	private StateListener statel;
-	// private MessageListener messagel;
+//	private MessageListener messagel;
 	private ProfileListener pfl;
 	// control channels
 	private Channel timechannel;
@@ -76,10 +76,9 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	private Channel abort;
 	private Channel currentstatechannel;
 //	private Channel statusmessagechannel;
-//	private Channel pulsesnumberdonechannel;
-//	private Channel puslestotalnumberchannel;
+	// private Channel pulsesnumberdonechannel;
+	// private Channel puslestotalnumberchannel;
 	private volatile boolean GDAScanning = false;
-	
 
 	public boolean isGDAScanning() {
 		return GDAScanning;
@@ -112,7 +111,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	private boolean local;
 	private long collectionNumber;
 	private long fileNumber;
-	
+
 	private IScanStatusProvider jythonScanStatus;
 
 	public long getFileNumber() {
@@ -136,7 +135,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
 		statel = new StateListener();
-		// messagel = new MessageListener();
+//		messagel = new MessageListener();
 		startcallbacklistener = new StartCallbackListener();
 		pausecallbacklistener = new PauseCallbackListener();
 		abortcallbacklistener = new AbortCallbackListener();
@@ -153,7 +152,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 				logger.error("Missing EPICS configuration for {}", getName());
 				throw new FactoryException("Missing EPICS interface configuration for " + getName());
 			}
-			jythonScanStatus=new ScanStatusProvider();
+			jythonScanStatus = new ScanStatusProvider();
 			configured = true;
 		}
 	}
@@ -172,7 +171,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 			pause = channelManager.createChannel(pvRoot + ":PAUSE", false);
 			abort = channelManager.createChannel(pvRoot + ":ABORT", false);
 			currentstatechannel = channelManager.createChannel(pvRoot + ":STATE", statel, false);
-			// statusmessagechannel = channelManager.createChannel(pvRoot + ":MESSAGE", messagel, false);
+//			statusmessagechannel = channelManager.createChannel(pvRoot + ":MESSAGE", messagel, false);
 			// Raw 2theta positions where scaler was triggered
 			rawx = channelManager.createChannel(pvRoot + ":RAWX", false);
 			// X scale of the combined, rebinned data
@@ -400,7 +399,6 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 		return currentstate;
 	}
 
-
 	/****************** Access CVScan data *****************************/
 	/**
 	 * gets the raw two-theta position where scalers/detectors are triggered.
@@ -525,13 +523,13 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	public void setBusy(boolean b) {
 		busy = b;
 	}
-	private boolean first=true;
+
 
 	/**
 	 * Monitor Current State in EPICS, and update cached state variable.
 	 */
 	private class StateListener implements MonitorListener {
-
+		private boolean first = true;
 
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
@@ -572,9 +570,9 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 			}
 			logger.info("Current State from EPICS {} update to {}", ((Channel) arg0.getSource()).getName(),
 					currentstate);
-			
+
 			if (first) { // do not propagate 1st connection event to the observer
-				first=false;
+				first = false;
 				return;
 			}
 			notifyIObservers(currentstate);
@@ -585,28 +583,29 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 		notifyIObservers(this, currentstate);
 	}
 
-	/**
-	 * Monitor Status Message in EPICS, and update cached message variable.
-	 */
-	// private class MessageListener implements MonitorListener {
-	// boolean first=true;
-	// @Override
-	// public void monitorChanged(MonitorEvent arg0) {
-	// if (first) {
-	// first=false;
-	// return;
-	// }
-	// DBR dbr = arg0.getDBR();
-	// if (dbr.isSTRING()) {
-	// message = ((DBR_String) dbr).getStringValue()[0];
-	// if (InterfaceProvider.getTerminalPrinter() != null) {
-	// InterfaceProvider.getTerminalPrinter().print(getName() +": " + message);
-	// }
-	// } else {
-	// logger.error("{} : MessageListener expect String type but got {} type.", getName(), dbr.getType());
-	// }
-	// }
-	// }
+//	/**
+//	 * Monitor Status Message in EPICS, and update cached message variable.
+//	 */
+//	private class MessageListener implements MonitorListener {
+//		boolean first = true;
+//
+//		@Override
+//		public void monitorChanged(MonitorEvent arg0) {
+//			if (first) {
+//				first = false;
+//				return;
+//			}
+//			DBR dbr = arg0.getDBR();
+//			if (dbr.isSTRING()) {
+//				message = ((DBR_String) dbr).getStringValue()[0];
+//				if (InterfaceProvider.getTerminalPrinter() != null) {
+//					InterfaceProvider.getTerminalPrinter().print(getName() + ": " + message);
+//				}
+//			} else {
+//				logger.error("{} : MessageListener expect String type but got {} type.", getName(), dbr.getType());
+//			}
+//		}
+//	}
 
 	/**
 	 * Monitor the total number of pulses in EPICS Constant Velocity scan, and update cached total number of pulse
@@ -656,9 +655,7 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 			} catch (InterruptedException e) {
 				logger.error("InterruptedException  on getting current state from " + currentstatechannel.getName(), e);
 			}
-
 		}
-
 	}
 
 	public class PauseCallbackListener implements PutListener {
@@ -704,7 +701,5 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 		}
 
 	}
-
-
 
 }

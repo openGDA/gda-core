@@ -57,8 +57,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.hrpd.cvscan.event.FileNumberEvent;
 
-import com.google.common.base.Joiner;
-
 /**
  * * <li>Specify {@link Scriptcontroller} instance to handle data file name changed event {@link FileNumberEvent} which
  * facilitate server to client communication</li>
@@ -550,9 +548,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	}
 
 	private String appendToFileName(String dir, String filename, long collectionNumber, String ext) {
-		Joiner stringJioner = Joiner.on("-").skipNulls();
-		String fname = stringJioner.join(dir, filename, String.format("%03d", collectionNumber), ext);
-		return fname;
+		return dir.concat(filename).concat("-").concat(String.format("%03d", collectionNumber)).concat(".").concat(ext);
 	}
 
 	private void startBeamMonitor() {
@@ -708,8 +704,8 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 	 */
 	@Override
 	public void update(Object source, Object arg) {
-		if (source == controller && arg instanceof CurrentState) {
-			if ((CurrentState) arg == CurrentState.Reduction) {
+		if (source == controller && arg instanceof EpicsCVScanState) {
+			if ((EpicsCVScanState) arg == EpicsCVScanState.Reduction) {
 				// sometime can not receive this from EPICS, so move raw data writer to FLYBACK
 				logger.info("{}: data reduction", getName());
 				if (isBeamMonitorRunning) {
@@ -726,7 +722,7 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 				Callable<String> worker = new SaveRawData();
 				Future<String> submit = executor.submit(worker);
 				list.add(submit);
-			} else if ((CurrentState) arg == CurrentState.Flyback) {
+			} else if ((EpicsCVScanState) arg == EpicsCVScanState.Flyback) {
 				logger.info("{}: flyback", getName());
 				if (isBeamMonitorRunning) {
 					stopBeamMonitor();
@@ -742,10 +738,10 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 				Callable<String> worker = new SaveRebinnedData();
 				Future<String> submit = executor.submit(worker);
 				list.add(submit);
-			} else if ((CurrentState) arg == CurrentState.Paused) {
+			} else if ((EpicsCVScanState) arg == EpicsCVScanState.Paused) {
 				InterfaceProvider.getTerminalPrinter().print(getName() + ": Paused");
 				logger.info("{}: paused", getName());
-			} else if ((CurrentState) arg == CurrentState.Fault) {
+			} else if ((EpicsCVScanState) arg == EpicsCVScanState.Fault) {
 				String message = controller.getMessage();
 				InterfaceProvider.getTerminalPrinter().print(getName() + ": Status=Fault, " + "message=" + message);
 				logger.error("Current State at {}, message = {}", ((CurrentState) arg).toString(), message);
@@ -774,24 +770,24 @@ public class CVScan extends ScannableMotionBase implements IObserver {
 				if (isBeamMonitorRunning) {
 					stopBeamMonitor();
 				}
-			} else if ((CurrentState) arg == CurrentState.Done) {
+			} else if ((EpicsCVScanState) arg == EpicsCVScanState.Done) {
 				InterfaceProvider.getTerminalPrinter().print(getName() + ": Completed");
 				logger.info("{}: completed", getName());
 				if (isBeamMonitorRunning) {
 					stopBeamMonitor();
 				}
 				retrycount = 0;
-			} else if ((CurrentState) arg == CurrentState.Aborted) {
+			} else if ((EpicsCVScanState) arg == EpicsCVScanState.Aborted) {
 				InterfaceProvider.getTerminalPrinter().print(getName() + ": Aborted");
 				logger.info("{}: aborted", getName());
 				if (isBeamMonitorRunning) {
 					stopBeamMonitor();
 				}
 				retrycount = 0;
-			} else if ((CurrentState) arg == CurrentState.Executing) {
+			} else if ((EpicsCVScanState) arg == EpicsCVScanState.Executing) {
 				InterfaceProvider.getTerminalPrinter().print(getName() + ": Executing");
 				logger.info("{}: executing", getName());
-			} else if ((CurrentState) arg == CurrentState.LVIO) {
+			} else if ((EpicsCVScanState) arg == EpicsCVScanState.LVIO) {
 				InterfaceProvider.getTerminalPrinter().print(getName() + ": Limit Violation");
 				InterfaceProvider
 						.getTerminalPrinter()

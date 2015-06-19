@@ -79,6 +79,7 @@ public class LivePlotView extends ViewPart {
 	private EpicsIntegerDataListener totalWorkListener;
 	private EpicsIntegerDataListener workListener;
 	private EpicsStringDataListener messageListener;
+	private String taskName;
 	private Scannable stopScannable;	
 
 	public LivePlotView() {
@@ -110,6 +111,7 @@ public class LivePlotView extends ViewPart {
 			plotComposite.setTotalWorkListener(getTotalWorkListener());
 			plotComposite.setWorkListener(getWorkListener());
 			plotComposite.setMessageListener(getMessageListener());
+			plotComposite.setTaskName(getTaskName());
 			plotComposite.setStopScannable(getStopScannable());
 			plotComposite.initialise();
 		} catch (Exception e) {
@@ -257,5 +259,15 @@ public class LivePlotView extends ViewPart {
 	public void setDetectorStateToRunProgressService(String detectorStateToRunProgressService) {
 		this.detectorStateToRunProgressService = detectorStateToRunProgressService;
 	}
+
+	public String getTaskName() {
+		return taskName;
+	}
+
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
+	}
+
+
 
 }

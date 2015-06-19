@@ -25,5 +25,6 @@ Import-Package: com.google.common.base;version="15.0.0",
  org.apache.commons.io,
  org.slf4j;version="[1.7.6,1.7.7)",
  org.springframework.beans.factory;version="3.2.2.RELEASE"
+Eclipse-RegisterBuddy: uk.ac.gda.api
 Export-Package: uk.ac.gda.hrpd.cvscan,
  uk.ac.gda.hrpd.cvscan.event

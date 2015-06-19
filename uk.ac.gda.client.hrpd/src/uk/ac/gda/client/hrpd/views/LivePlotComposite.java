@@ -115,6 +115,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 	private EpicsIntegerDataListener totalWorkListener;
 	private EpicsIntegerDataListener workListener;
 	private EpicsStringDataListener messageListener;
+	private String taskName;
 	private Scannable stopScannable;	
 
 	public LivePlotComposite(IWorkbenchPart part, Composite parent, int style) throws Exception {
@@ -141,17 +142,14 @@ public class LivePlotComposite extends Composite implements IObserver {
 		plottingSystem.getSelectedXAxis().setFormatPattern("###.###");
 		plottingSystem.setShowLegend(true);
 		plottingSystem.getSelectedXAxis().setRange(getxAxisMin(), getxAxisMax());
-
+		plottingSystem.getSelectedXAxis().setTitle("tth (deg)");
+		
 		Composite progressComposite=new Composite(this, SWT.None);
 		data = new GridData (SWT.FILL, SWT.CENTER, true, false);
 		progressComposite.setLayoutData(data);
 		progressComposite.setLayout(new FillLayout());
-		progressComposite.setBackground(ColorConstants.cyan);
-		progressMonitor=new EpicsProcessProgressMonitor(progressComposite, null, true);
-		progressMonitor.setTotalWorkListener(getTotalWorkListener());
-		progressMonitor.setWorkedSoFarListener(getWorkListener());
-		progressMonitor.setMessageListener(getMessageListener());
-		progressMonitor.setStopScannable(getStopScannable());
+		progressComposite.setBackground(ColorConstants.blue);
+		progressMonitor=new EpicsProcessProgressMonitor(progressComposite, SWT.None, true);
 }
 
 	public void initialise() {
@@ -175,7 +173,13 @@ public class LivePlotComposite extends Composite implements IObserver {
 		}
 		// must have live updated data available observing
 		dataUpdatedListener.addIObserver(this);
+		progressMonitor.setTotalWorkListener(getTotalWorkListener());
+		progressMonitor.setWorkedSoFarListener(getWorkListener());
+		progressMonitor.setMessageListener(getMessageListener());
+		progressMonitor.setStopScannable(getStopScannable());
+		progressMonitor.setTaskName(getTaskName());
 		progressMonitor.addIObservers();
+		progressMonitor.initialise();
 	}
 
 	@Override
@@ -230,18 +234,16 @@ public class LivePlotComposite extends Composite implements IObserver {
 					plottingSystem.clear();
 					for (Triplet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener> item : getLiveDataListeners()) {
 						ILineTrace trace = plottingSystem.createLineTrace(item.getValue0());
-						Quartet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, ILineTrace> with = item
-								.add(trace);
 						plottingSystem.addTrace(trace);
-						dataDisplayers.add(with);
+						dataDisplayers.add(Quartet.with(item.getValue0(), item.getValue1(), item.getValue2(), trace));
 					}
 					plottingSystem.setTitle(PLOT_TITLE);
 				}
 			});
 		}
 	}
-
 	private List<Quartet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, ILineTrace>> dataDisplayers = new ArrayList<Quartet<String, EpicsDoubleDataArrayListener, EpicsDoubleDataArrayListener, ILineTrace>>();
+	private String datafilename;
 
 	private void updateLivePlot() {
 		if (!getDisplay().isDisposed()) {
@@ -258,14 +260,15 @@ public class LivePlotComposite extends Composite implements IObserver {
 							ILineTrace trace = listener.getValue3();
 							if (traceName.equalsIgnoreCase("mac1")) {
 								trace.setData(new DoubleDataset(x.getValue()).getSlice(new int[] { getLowDataBound() },
-										new int[] { getHighDataBound() }, new int[] { 1 }),
+										new int[] { getHighDataBound() }, null).flatten(),
 										new DoubleDataset(y.getValue()).getSlice(new int[] { getLowDataBound() },
-												new int[] { getHighDataBound() }, new int[] { 1 }));
+												new int[] { getHighDataBound() }, null).flatten());
 							} else {
 								trace.setData(new DoubleDataset(x.getValue()), new DoubleDataset(y.getValue()));
 							}
 
 						}
+						plottingSystem.setTitle(PLOT_TITLE);
 						plottingSystem.repaint();
 					}
 				}
@@ -273,7 +276,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 		}
 	}
 
-	private void plotFinalData(final String legend) {
+	private void plotFinalData(final String datafilename) {
 		if (!getDisplay().isDisposed()) {
 			getDisplay().asyncExec(new Runnable() {
 
@@ -282,15 +285,15 @@ public class LivePlotComposite extends Composite implements IObserver {
 					boolean visible = LivePlotComposite.this.isVisible();
 					if (visible) {
 						plottingSystem.clear();
-						plottingSystem.setTitle(PLOT_TITLE);
 						DoubleDataset x = new DoubleDataset(getFinalDataListener().getValue0().getValue());
 						DoubleDataset y = new DoubleDataset(getFinalDataListener().getValue1().getValue());
 						DoubleDataset error = new DoubleDataset(getFinalDataListener().getValue2().getValue());
 						y.setError(error);
-						y.setName(legend);
+						x.setName("tth (deg)");
+						y.setName(datafilename);
 						List<Dataset> plotDatasets = new ArrayList<Dataset>();
 						plotDatasets.add(y);
-						plottingSystem.createPlot1D(x, plotDatasets, PLOT_TITLE, new NullProgressMonitor());
+						plottingSystem.createPlot1D(x, plotDatasets, "Reduced MAC data" , new NullProgressMonitor());
 					}
 				}
 			});
@@ -341,24 +344,27 @@ public class LivePlotComposite extends Composite implements IObserver {
 			}
 		} else if (scriptController != null && source == scriptController && arg instanceof FileNumberEvent) {
 			Joiner stringJoiner = Joiner.on("-").skipNulls();
-			PLOT_TITLE = stringJoiner.join(((FileNumberEvent) arg).getFilename(),
+			datafilename = stringJoiner.join(((FileNumberEvent) arg).getFilename(),
 					String.format("%03d", ((FileNumberEvent) arg).getCollectionNumber()));
-			plottingSystem.setTitle(PLOT_TITLE);
 		} else if (detectorStateListener != null && source == detectorStateListener && arg instanceof Short) {
 			short shortValue = ((Short) arg).shortValue();
 			if (detectorStateListener.getPositions()[shortValue].equals(getDetectorStateToPlotReducedData()) && getFinalDataListener() != null) {
-				String legend = PLOT_TITLE;
-				PLOT_TITLE = "Reduced MAC Data";
-				plotFinalData(legend);
+				plotFinalData(datafilename);
 			} else if (detectorStateListener.getPositions()[shortValue].equals(getDetectorStateToRunProgressService())) {
-				if (getEpicsProgressMonitor() != null) {
-					try { 
-						IProgressService service = (IProgressService) workbenchpart.getSite().getService(IProgressService.class);
-						service.run(true, true, getEpicsProgressMonitor());
-					} catch (InvocationTargetException | InterruptedException e) {
-						logger.error("TODO put description of error here", e);
-					}
-				}
+//				if (getEpicsProgressMonitor() != null) {
+//						final IProgressService service = (IProgressService) workbenchpart.getSite().getService(IProgressService.class);
+//						getDisplay().asyncExec(new Runnable() {
+//							
+//							@Override
+//							public void run() {
+//								try { 
+//									service.run(true, true, getEpicsProgressMonitor());
+//								} catch (InvocationTargetException | InterruptedException e) {
+//									logger.error("TODO put description of error here", e);
+//								}
+//							}
+//						});
+//				}
 			}
 		}
 	}
@@ -467,4 +473,14 @@ public class LivePlotComposite extends Composite implements IObserver {
 	public void setStopScannable(Scannable stopScannable) {
 		this.stopScannable = stopScannable;
 	}
+
+	public String getTaskName() {
+		return taskName;
+	}
+
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
+	}
+
+
 }
