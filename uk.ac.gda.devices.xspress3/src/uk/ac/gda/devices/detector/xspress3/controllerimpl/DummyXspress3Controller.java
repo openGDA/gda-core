@@ -10,6 +10,7 @@ import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.DummyDAServer;
 import gda.device.timer.Tfg;
+import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import uk.ac.gda.beans.DetectorROI;
@@ -29,7 +30,7 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
  * @author rjw82
  *
  */
-public class DummyXspress3Controller implements Xspress3Controller, Findable {
+public class DummyXspress3Controller implements Xspress3Controller, Findable, Configurable {
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyXspress3Controller.class);
 
@@ -491,7 +492,6 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 
 	public void setNumberOfChannels(int numberOfChannels) {
 		this.numberOfChannels = numberOfChannels;
-		enabledChannels = new boolean[numberOfChannels];
 	}
 
 	@Override
