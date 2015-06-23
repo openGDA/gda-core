@@ -695,6 +695,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 	private void writeNexusDetector(NexusDetector detector) throws NexusException {
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
+		GroupNode pg = file.getGroup(path.toString(), false);
 		NexusUtils.addToAugmentPath(path, "instrument", NexusExtractor.NXInstrumentClassName);
 		GroupNode g = file.getGroup(path.toString(), false);
 		INexusTree tree = extractNexusTree(detector.getName());
@@ -702,7 +703,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			if (subTree.getNxClass().equals(NexusExtractor.NXDetectorClassName))
 				writeHere(file, g, subTree, false, false, null);
 			else if (subTree.getNxClass().equals(NexusExtractor.NXMonitorClassName)) {
-				writeHere(file, g, subTree, false, false, null);
+				writeHere(file, pg, subTree, false, false, null);
 			}
 		}
 	}
