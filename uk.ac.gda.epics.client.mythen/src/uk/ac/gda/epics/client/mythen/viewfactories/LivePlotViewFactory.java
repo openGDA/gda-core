@@ -29,6 +29,7 @@ import org.eclipse.ui.ExtensionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsByteArrayAsStringDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
 import uk.ac.gda.epics.client.mythen.views.EpicsDetectorRunableWithProgress;
@@ -96,10 +97,12 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 	
 	private EpicsDoubleDataListener exposureTimeListener;
 	private EpicsDoubleDataListener timeRemainingListener;
+	private EpicsByteArrayAsStringDataListener messageListener;
 	private Scannable stopScannable;
 	private String taskName;
 
 	private String name;
+
 
 
 	@Override
@@ -109,13 +112,14 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 		liveplotview.setPlotName(getPlotName());
 		liveplotview.setxAxisMin(getxAxisMin());
 		liveplotview.setxAxisMax(getxAxisMax());
-		liveplotview.setEventAdminName(eventAdminName);
+		liveplotview.setEventAdminName(getEventAdminName());
 		liveplotview.setEpicsProgressMonitor(getEpicsProgressMonitor());
-		liveplotview.setStartListener(startListener);
-		liveplotview.setExposureTimeListener(exposureTimeListener);
-		liveplotview.setTimeRemainingListener(timeRemainingListener);
+		liveplotview.setStartListener(getStartListener());
+		liveplotview.setExposureTimeListener(getExposureTimeListener());
+		liveplotview.setTimeRemainingListener(getTimeRemainingListener());
+		liveplotview.setMessageListener(getMessageListener());
 		liveplotview.setStopScannable(getStopScannable());
-		liveplotview.setTaskName(taskName);
+		liveplotview.setTaskName(getTaskName());
 		
 		return liveplotview;
 	}
@@ -227,6 +231,14 @@ public class LivePlotViewFactory implements FindableExecutableExtension {
 
 	public void setTaskName(String taskName) {
 		this.taskName = taskName;
+	}
+
+	public EpicsByteArrayAsStringDataListener getMessageListener() {
+		return messageListener;
+	}
+
+	public void setMessageListener(EpicsByteArrayAsStringDataListener messageListener) {
+		this.messageListener = messageListener;
 	}
 
 	
