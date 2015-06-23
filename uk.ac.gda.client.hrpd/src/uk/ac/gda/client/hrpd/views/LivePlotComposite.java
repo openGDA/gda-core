@@ -23,7 +23,6 @@ import gda.factory.Finder;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -287,8 +286,8 @@ public class LivePlotComposite extends Composite implements IObserver {
 						plottingSystem.clear();
 						DoubleDataset x = new DoubleDataset(getFinalDataListener().getValue0().getValue());
 						DoubleDataset y = new DoubleDataset(getFinalDataListener().getValue1().getValue());
-						DoubleDataset error = new DoubleDataset(getFinalDataListener().getValue2().getValue());
-						y.setError(error);
+//						DoubleDataset error = new DoubleDataset(getFinalDataListener().getValue2().getValue());
+//						y.setError(error);
 						x.setName("tth (deg)");
 						y.setName(datafilename);
 						List<Dataset> plotDatasets = new ArrayList<Dataset>();
@@ -352,18 +351,19 @@ public class LivePlotComposite extends Composite implements IObserver {
 				plotFinalData(datafilename);
 			} else if (detectorStateListener.getPositions()[shortValue].equals(getDetectorStateToRunProgressService())) {
 //				if (getEpicsProgressMonitor() != null) {
-//						final IProgressService service = (IProgressService) workbenchpart.getSite().getService(IProgressService.class);
-//						getDisplay().asyncExec(new Runnable() {
-//							
-//							@Override
-//							public void run() {
-//								try { 
-//									service.run(true, true, getEpicsProgressMonitor());
-//								} catch (InvocationTargetException | InterruptedException e) {
-//									logger.error("TODO put description of error here", e);
-//								}
+//					final IProgressService service = (IProgressService) workbenchpart.getSite().getService(
+//							IProgressService.class);
+//					getDisplay().asyncExec(new Runnable() {
+//
+//						@Override
+//						public void run() {
+//							try {
+//								service.run(true, true, getEpicsProgressMonitor());
+//							} catch (InvocationTargetException | InterruptedException e) {
+//								logger.error("TODO put description of error here", e);
 //							}
-//						});
+//						}
+//					});
 //				}
 			}
 		}

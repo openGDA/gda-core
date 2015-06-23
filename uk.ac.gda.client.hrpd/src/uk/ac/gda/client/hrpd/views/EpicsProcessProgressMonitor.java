@@ -63,16 +63,15 @@ public class EpicsProcessProgressMonitor extends Composite implements IObserver,
 	private EpicsIntegerDataListener totalWorkListener; // must have
 	private EpicsIntegerDataListener workedSoFarListener; // must have
 	private EpicsStringDataListener messageListener; // optional, must handle null
-	private Scannable stopScannable; // optional if no Cancel,
+	private Scannable stopScannable; 
 	private Button stopButton;
-	private boolean hasStopButton = false;
 	// The progress monitor
 //	private ProgressMonitorPart progressMonitorPart;
 	private ProgressIndicator progressIndicator;
 	private String taskName;
 	private Label fLabel;
 
-	public EpicsProcessProgressMonitor(Composite parent, int style , boolean allowStopButton) {
+	public EpicsProcessProgressMonitor(Composite parent, int style, boolean allowStopButton) {
 		super(parent, style);
 
 		GridLayout layout = new GridLayout();
@@ -277,7 +276,7 @@ public class EpicsProcessProgressMonitor extends Composite implements IObserver,
 		if (workedSoFarListener == null) {
 			throw new IllegalArgumentException("workedSoFarListener must not be null.");
 		}
-		if (hasStopButton && stopScannable == null) {
+		if (stopScannable == null) {
 			throw new IllegalArgumentException("stopScannable must not be null.");
 		}
 	}
