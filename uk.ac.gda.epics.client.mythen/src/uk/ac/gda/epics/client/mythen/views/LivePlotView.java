@@ -10,6 +10,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsByteArrayAsStringDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsDoubleDataListener;
 import uk.ac.gda.client.hrpd.epicsdatamonitor.EpicsEnumDataListener;
 
@@ -32,11 +33,12 @@ public class LivePlotView extends ViewPart {
 	
 	private LivePlotComposite plotComposite;
 
-	private EpicsDetectorProgressMonitor progressMonitor;
 	private EpicsDoubleDataListener exposureTimeListener;
 	private EpicsDoubleDataListener timeRemainingListener;
+	private EpicsByteArrayAsStringDataListener messageListener;
 	private Scannable stopScannable;
 	private String taskName;
+
 
 
 	public LivePlotView() {
@@ -61,6 +63,7 @@ public class LivePlotView extends ViewPart {
 			plotComposite.setStartListener(getStartListener());
 			plotComposite.setExposureTimeListener(getExposureTimeListener());
 			plotComposite.setTimeRemainingListener(getTimeRemainingListener());
+			plotComposite.setMessageListener(getMessageListener());
 			plotComposite.setStopScannable(getStopScannable());
 			plotComposite.setTaskName(getTaskName());
 			plotComposite.initialise();
@@ -152,6 +155,14 @@ public class LivePlotView extends ViewPart {
 
 	public void setTaskName(String taskName) {
 		this.taskName = taskName;
+	}
+
+	public EpicsByteArrayAsStringDataListener getMessageListener() {
+		return messageListener;
+	}
+
+	public void setMessageListener(EpicsByteArrayAsStringDataListener messageListener) {
+		this.messageListener = messageListener;
 	}
 
 }

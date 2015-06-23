@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.gda.epics,
  uk.ac.gda.api,
  org.eclipse.draw2d,
- uk.ac.gda.devices.mythen.visualisation
+ uk.ac.gda.devices.mythen.visualisation,
+ org.eclipse.swt
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: gda.observable,
