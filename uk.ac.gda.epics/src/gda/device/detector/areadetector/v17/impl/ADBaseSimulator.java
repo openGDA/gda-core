@@ -817,4 +817,10 @@ public class ADBaseSimulator implements ADBase {
 		return gda.device.detector.areadetector.v17.NDPluginBase.DataType.INT8;
 	}
 
+	@Override
+	public void startAcquiringWait() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
