@@ -21,7 +21,11 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+/**
+ * This View component requires the HidenRGA scannable on the GDA server to be called 'rga'.
+ * 
+ *
+ */
 public class RGASetup extends ViewPart implements IObserver {
 
 	public static String ID = "uk.ac.gda.devices.hidenrga.rgasetup";
@@ -200,7 +204,7 @@ public class RGASetup extends ViewPart implements IObserver {
 	}
 
 	/**
-	 * Apply the masses shown in th UI to the server-side object
+	 * Apply the masses shown in the UI to the server-side object
 	 */
 	public void apply() {
 		if (rga != null) {

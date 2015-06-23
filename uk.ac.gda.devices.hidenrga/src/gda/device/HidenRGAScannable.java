@@ -69,6 +69,7 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 	private static final Logger logger = LoggerFactory.getLogger(HidenRGAScannable.class);
 	private static final String FORMAT = "%.3f";
 	private static final String DATE_FORMAT = "HH:mm:ss:SSS d MMM yyyy ";
+	private boolean useAuxiliaryInputs=true;
 
 	private class HidenFileWriter extends Thread {
 
@@ -178,8 +179,10 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 			for (int chan = 0; chan < masses.size(); chan++) {
 				massesData[chan] = controller.dataPVs[chan].get();
 			}
-			valveData = controller.valveDataPV.get(availableDataPoints);
-			tempData = controller.tempDataPV.get(availableDataPoints);
+			if (isUseAuxiliaryInputs()) {
+				valveData = controller.valveDataPV.get(availableDataPoints);
+				tempData = controller.tempDataPV.get(availableDataPoints);
+			}
 			timeStampData = controller.timestampPV.get(availableDataPoints);
 
 			for (int cycle = lastDataPoint; cycle < availableDataPoints; cycle++) {
@@ -190,7 +193,11 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 				}
 				long relativeTime = timeStampData[cycle].longValue() - timeStampData[0].longValue();
 
-				recordSingleEntry(buffer, latestMasses, valveData[cycle], tempData[cycle], relativeTime);
+				if (isUseAuxiliaryInputs()) {
+					recordSingleEntry(buffer, latestMasses, valveData[cycle], tempData[cycle], relativeTime);
+				} else {
+					recordSingleEntry(buffer, latestMasses, null, null, relativeTime);
+				}
 			}
 			lastDataPoint = availableDataPoints;
 		}
@@ -205,10 +212,14 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 				lineToWrite.append(String.format(FORMAT, mass));
 				lineToWrite.append("\t");
 			}
-			lineToWrite.append(String.format(FORMAT, valve));
-			lineToWrite.append("\t");
-			lineToWrite.append(String.format(FORMAT, temp));
-			lineToWrite.append("\n");
+			if (valve!=null) {
+				lineToWrite.append(String.format(FORMAT, valve));
+				lineToWrite.append("\t");
+			}
+			if (temp!=null) {
+				lineToWrite.append(String.format(FORMAT, temp));
+				lineToWrite.append("\n");
+			}
 
 			buffer.write(lineToWrite.toString());
 		}
@@ -217,9 +228,12 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 			Date now = new Date();
 			long timesinceStart = now.getTime() - startTime.getTime();
 			double[] latestMasses = controller.readout();
-			double valve = controller.readValve();
-			double temp = controller.readtemp();
-
+			Double valve =null;
+			Double temp=null;
+			if (isUseAuxiliaryInputs()) {
+				valve = controller.readValve();
+				temp = controller.readtemp();
+			}
 			StringBuffer lineToWrite = new StringBuffer();
 			lineToWrite.append(String.format("%d", timesinceStart));
 			lineToWrite.append("\t");
@@ -227,10 +241,14 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 				lineToWrite.append(String.format(FORMAT, mass));
 				lineToWrite.append("\t");
 			}
-			lineToWrite.append(String.format(FORMAT, valve));
-			lineToWrite.append("\t");
-			lineToWrite.append(String.format(FORMAT, temp));
-			lineToWrite.append("\n");
+			if (valve!=null) {
+				lineToWrite.append(String.format(FORMAT, valve));
+				lineToWrite.append("\t");
+			}
+			if (temp!=null) {
+				lineToWrite.append(String.format(FORMAT, temp));
+				lineToWrite.append("\n");
+			}
 
 			buffer.write(lineToWrite.toString());
 		}
@@ -256,13 +274,16 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 
 	@Override
 	public void configure() throws FactoryException {
-		try {
-			controller.connect();
-			controller.addIObserver(this);
-			InterfaceProvider.getTerminalPrinter().print(getName() + " connected to Epics");
-			configured = true;
-		} catch (CAException e) {
-			throw new FactoryException("CAException when trying to connect ot RGA", e);
+		if (!configured) {
+			try {
+				controller.setUseAuxiliaryInputs(isUseAuxiliaryInputs());//this must be called before connect.
+				controller.connect();
+				controller.addIObserver(this);
+				InterfaceProvider.getTerminalPrinter().print(getName() + " connected to Epics");
+				configured = true;
+			} catch (CAException e) {
+				throw new FactoryException("CAException when trying to connect ot RGA", e);
+			}
 		}
 	}
 
@@ -386,12 +407,13 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 			
 			try {
 				double[] latestMasses = controller.readout();
-				double valve = controller.readValve();
-				double temp = controller.readtemp();
+				if (isUseAuxiliaryInputs()) {
+					double valve = controller.readValve();
+					double temp = controller.readtemp();
 
-				latestMasses = ArrayUtils.add(latestMasses, valve);
-				latestMasses = ArrayUtils.add(latestMasses, temp);
-
+					latestMasses = ArrayUtils.add(latestMasses, valve);
+					latestMasses = ArrayUtils.add(latestMasses, temp);
+				}
 				return latestMasses;
 			} catch (IOException e) {
 				throw new DeviceException("IOException while reading from " + getName(), e);
@@ -455,11 +477,12 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 			newNames[index] = it.next() + "_amu";
 			outputFormat[index] = FORMAT;
 		}
-		newNames = (String[]) ArrayUtils.add(newNames, "rga_valve");
-		outputFormat = (String[]) ArrayUtils.add(outputFormat, FORMAT);
-		newNames = (String[]) ArrayUtils.add(newNames, "rga_temp");
-		outputFormat = (String[]) ArrayUtils.add(outputFormat, FORMAT);
-
+		if (isUseAuxiliaryInputs()) {
+			newNames = (String[]) ArrayUtils.add(newNames, "rga_valve");
+			outputFormat = (String[]) ArrayUtils.add(outputFormat, FORMAT);
+			newNames = (String[]) ArrayUtils.add(newNames, "rga_temp");
+			outputFormat = (String[]) ArrayUtils.add(outputFormat, FORMAT);
+		}
 		this.setExtraNames(newNames);
 		this.setOutputFormat(outputFormat);
 	}
@@ -481,5 +504,13 @@ public class HidenRGAScannable extends ScannableBase implements IObserver , Hide
 		if (inAScan || isRecording()) {
 			lastScanCycleSeen = (int) arg;
 		}
+	}
+
+	public boolean isUseAuxiliaryInputs() {
+		return useAuxiliaryInputs;
+	}
+
+	public void setUseAuxiliaryInputs(boolean useAuxiliaryInputs) {
+		this.useAuxiliaryInputs = useAuxiliaryInputs;
 	}
 }
