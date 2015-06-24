@@ -18,11 +18,13 @@
 
 package uk.ac.gda.client.hrpd.views;
 
+import gda.data.NumTracker;
 import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.observable.IObserver;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -235,6 +237,12 @@ public class LivePlotComposite extends Composite implements IObserver {
 						ILineTrace trace = plottingSystem.createLineTrace(item.getValue0());
 						plottingSystem.addTrace(trace);
 						dataDisplayers.add(Quartet.with(item.getValue0(), item.getValue1(), item.getValue2(), trace));
+					}
+					try {
+						long scanNumber=new NumTracker("i11").getCurrentFileNumber();
+						PLOT_TITLE=PLOT_TITLE+" ("+scanNumber+")";
+					} catch (IOException e) {
+						logger.warn("Failed to create Number tracker object", e);
 					}
 					plottingSystem.setTitle(PLOT_TITLE);
 				}

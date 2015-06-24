@@ -323,23 +323,16 @@ public class EpicsCVScan extends DeviceBase implements InitializationListener, C
 	 * @throws InterruptedException
 	 */
 	public void start() throws CAException, InterruptedException {
-		if (InterfaceProvider.getJythonServerStatusProvider().getJythonServerStatus().areScriptAndScanIdle()) {
-			if (currentstate == EpicsCVScanState.Done || currentstate == EpicsCVScanState.Aborted
-					|| currentstate == EpicsCVScanState.Paused || currentstate == EpicsCVScanState.Fault) {
-				busy = true;
-				controller.caput(start, 1, startcallbacklistener);
-				jythonScanStatus.setStatus(ScanStatus.RUNNING);
-				logger.info("{}: Start CV scan", getName());
-			} else {
-				InterfaceProvider.getTerminalPrinter().print(
-						"EPICS CVScan is busy, its current state is " + currentstate.toString());
-				logger.warn("EPICS CVScan is busy. its current state is {}", currentstate.toString());
-			}
+		if (currentstate == EpicsCVScanState.Done || currentstate == EpicsCVScanState.Aborted
+				|| currentstate == EpicsCVScanState.Paused || currentstate == EpicsCVScanState.Fault) {
+			busy = true;
+			controller.caput(start, 1, startcallbacklistener);
+//			jythonScanStatus.setStatus(ScanStatus.RUNNING);
+			logger.info("{}: Start CV scan", getName());
 		} else {
 			InterfaceProvider.getTerminalPrinter().print(
-					"There is a scan or script already running on the command server");
-			logger.warn("command server status: scan status = {}, script status = {}.", InterfaceProvider
-					.getScanStatusHolder().getScanStatus(), InterfaceProvider.getScriptController().getScriptStatus());
+					"EPICS CVScan is busy, its current state is " + currentstate.toString());
+			logger.warn("EPICS CVScan is busy. its current state is {}", currentstate.toString());
 		}
 	}
 
