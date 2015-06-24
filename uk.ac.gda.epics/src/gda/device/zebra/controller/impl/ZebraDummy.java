@@ -380,4 +380,8 @@ public class ZebraDummy implements Zebra, Findable, InitializingBean {
 		return null;
 	}
 
+	@Override
+	public void reset() throws IOException {
+		// TODO Auto-generated method stub
+	}
 }
