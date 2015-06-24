@@ -46,7 +46,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -218,9 +220,15 @@ public class LivePlotComposite extends Composite implements IObserver {
 			plottingSystem.clear();
 		}
 		plotDatasets.add(y);
+		openView();
 		plottingSystem.createPlot1D(x, plotDatasets, PLOT_TITLE, new NullProgressMonitor());
 	}
 
+	private void openView() {
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		page.activate(this.workbenchpart);
+	}
+	
 	public String getPlotName() {
 		return plotName;
 	}
