@@ -43,7 +43,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
 import org.javatuples.Quartet;
 import org.javatuples.Triplet;
@@ -244,6 +246,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 					} catch (IOException e) {
 						logger.warn("Failed to create Number tracker object", e);
 					}
+					openView();
 					plottingSystem.setTitle(PLOT_TITLE);
 				}
 			});
@@ -300,6 +303,7 @@ public class LivePlotComposite extends Composite implements IObserver {
 						y.setName(datafilename);
 						List<Dataset> plotDatasets = new ArrayList<Dataset>();
 						plotDatasets.add(y);
+						openView();
 						plottingSystem.createPlot1D(x, plotDatasets, "Reduced MAC data" , new NullProgressMonitor());
 					}
 				}
@@ -307,7 +311,10 @@ public class LivePlotComposite extends Composite implements IObserver {
 		}
 
 	}
-
+	private void openView() {
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		page.activate(workbenchpart);
+	}
 	public String getPlotName() {
 		return plotName;
 	}
