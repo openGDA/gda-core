@@ -570,7 +570,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					Path nxsParent = nxsFile.getParent();
 					Path relativize = nxsParent.relativize(absExtPath);
 					String relativeLink = "nxfile://" + relativize + "#" + address;
-					file.linkExternal(new URI(relativeLink), name, false);
+					String path = file.getPath(group);
+					file.linkExternal(new URI(relativeLink), path + name, false);
 					links.add(new ExternalNXlink(name, relativeLink));
 				} catch (URISyntaxException e) {
 					throw new NexusException(
