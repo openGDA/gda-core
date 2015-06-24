@@ -133,6 +133,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 	 * EPICS controller
 	 */
 	private EpicsController controller;
+	private String basePVName=null;
 
 	/**
 	 * EPICS Channel Manager
@@ -181,6 +182,9 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 					throw new FactoryException("Missing EPICS XML configuration for EpicsEurotherm2kController :  "
 							+ getDeviceName());
 				}
+			} else if (getBasePVName()!=null) {
+				createChannelAccess(getBasePVName());
+				channelManager.tryInitialize(100);
 			}
 			// Nothing specified in Server XML file
 			else {
@@ -233,6 +237,37 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 		}
 	}
 
+	/**
+	 * create channel access using PV root name.
+	 * 
+	 * @param pvroot
+	 * @throws FactoryException
+	 */
+	private void createChannelAccess(String pvroot) throws FactoryException {
+		try {
+			setpoint = channelManager.createChannel(pvroot+":SP", false);
+			setpointrbv = channelManager.createChannel(pvroot+":SP:RBV", false);
+			ramprate = channelManager.createChannel(pvroot+":RR", null, false);
+			rampraterbv = channelManager.createChannel(pvroot+":RR:RBV", false);
+			output = channelManager.createChannel(pvroot+":O", false);
+			outputrbv = channelManager.createChannel(pvroot+":O:RBV", false);
+			temp = channelManager.createChannel(pvroot+":PV:RBV", ctl, false);
+			p = channelManager.createChannel(pvroot+":P", null, false);
+			prbv = channelManager.createChannel(pvroot+":P:RBV", false);
+			i = channelManager.createChannel(pvroot+":I", null, false);
+			irbv = channelManager.createChannel(pvroot+":I:RBV", false);
+			d = channelManager.createChannel(pvroot+":D", null, false);
+			drbv = channelManager.createChannel(pvroot+":D:RBV", false);
+			error = channelManager.createChannel(pvroot+":ERR", el, true);
+			disable=channelManager.createChannel(pvroot+":DISABLE", cl, true);
+
+			// acknowledge that creation phase is completed
+			channelManager.creationPhaseCompleted();
+		} catch (Throwable th) {
+			configured = false;
+			throw new FactoryException("failed to create reuqired connections for " + getName(), th);
+		}
+	}
 	/**
 	 * sets the target temperature and start ramp to it, ramp rate must be set first.
 	 * 
@@ -630,5 +665,13 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 		} catch (Throwable e) {
 			throw new DeviceException("failed to get from DISABLE PV.", e);
 		}
+	}
+
+	public String getBasePVName() {
+		return basePVName;
+	}
+
+	public void setBasePVName(String basePVName) {
+		this.basePVName = basePVName;
 	}
 }
