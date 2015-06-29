@@ -156,7 +156,7 @@ public class ScannableGroup extends ScannableBase implements Configurable, IScan
 	}
 
 	public void removeGroupMember(Scannable groupMember) {
-		if (!this.groupMembers.contains(groupMember)) {
+		if (this.groupMembers.contains(groupMember)) {
 			this.groupMembers.remove(groupMember);
 			if (configured) {
 				setGroupMemberNamesArrayUsingGroupMembersList();
