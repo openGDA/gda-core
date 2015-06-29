@@ -164,6 +164,7 @@ public class VortexParameters implements Serializable, FluorescenceDetectorParam
 		this.collectionTime = collectionTime;
 	}
 
+	@Override
 	public String getDetectorName() {
 		return detectorName;
 	}

@@ -22,6 +22,8 @@ import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
+import gda.factory.Findable;
+import gda.factory.Finder;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,13 +68,13 @@ import uk.ac.gda.exafs.ui.detector.wizards.ImportFluoDetROIWizard;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 
 /**
- * Provides control logic for a FluorescenceDetectorComposite. To use this class, create a new controller and then
- * call setEditorUI() to provide a FluorescenceDetectorComposite. If necessary (e.g. if using in an editor where the
- * parameters object has already been created from a file) call setEditingBean() to set the initial parameters.
- * Finally call initialise() to start the controller.
+ * Provides control logic for a FluorescenceDetectorComposite. To use this class, create a new controller and then call
+ * setEditorUI() to provide a FluorescenceDetectorComposite. If necessary (e.g. if using in an editor where the
+ * parameters object has already been created from a file) call setEditingBean() to set the initial parameters. Finally
+ * call initialise() to start the controller.
  */
-public abstract class FluorescenceDetectorCompositeController implements ValueListener, BeanSelectionListener,
-		IROIListener {
+// TODO clarify creation logic for detector and parameters
+public class FluorescenceDetectorCompositeController implements ValueListener, BeanSelectionListener, IROIListener {
 
 	private static Logger logger = LoggerFactory.getLogger(FluorescenceDetectorCompositeController.class);
 
@@ -102,7 +104,7 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 	/**
 	 * Set the FluorescenceDetectorComposite to be controlled. Call this after GUI construction but before calling
 	 * initialise()
-	 * 
+	 *
 	 * @param ui the FluorescenceDetectorComposite object
 	 */
 	public void setEditorUI(FluorescenceDetectorComposite ui) {
@@ -119,9 +121,9 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 	}
 
 	/**
-	 * Set the detector parameters bean to be edited by the FluorescenceDetectorComposite. Call this (if required)
-	 * after GUI construction but before calling initialise()
-	 * 
+	 * Set the detector parameters bean to be edited by the FluorescenceDetectorComposite. Call this (if required) after
+	 * GUI construction but before calling initialise()
+	 *
 	 * @param bean the detector parameters bean. Must be an implementation of FluorescenceDetectorParameters
 	 */
 	public void setEditingBean(Object bean) {
@@ -135,10 +137,12 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 	private void setDetectorParameters(FluorescenceDetectorParameters parameters) {
 		detectorParameters = parameters;
 		updateDataBindingController();
+		checkDetectorMatchesParameters();
 
 		if (fluorescenceDetectorComposite != null) {
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-				@Override public void run() {
+				@Override
+				public void run() {
 					updateUIFromBean();
 					plotDataAndUpdateCounts();
 					updatePlottedRegion();
@@ -147,19 +151,60 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 		}
 	}
 
+	private void checkDetectorMatchesParameters() {
+		if (theDetector != null && detectorParameters != null) {
+			if (!theDetector.getName().equals(detectorParameters.getDetectorName())) {
+				logger.warn("Names do not match! Detector being configured: {}, detector named in parameters: {}", theDetector.getName(),
+						detectorParameters.getDetectorName());
+			}
+
+			if (theDetector.getNumberOfElements() != detectorParameters.getDetectorList().size()) {
+				logger.warn("Sizes do not match! Detector {} has {} elements but the parameters object has {} elements", theDetector.getName(),
+						theDetector.getNumberOfElements(), detectorParameters.getDetectorList().size());
+			}
+		}
+	}
+
+	/**
+	 * Set the detector to be configured by this controller. Call this (if required) after GUI construction but before
+	 * calling initialise()
+	 *
+	 * @param detector the FluorescenceDetector instance to be configured
+	 */
+	public void setDetector(FluorescenceDetector detector) {
+		this.theDetector = detector;
+	}
+
 	/**
 	 * Call this method from the UI thread once the GUI has been fully constructed and the detector parameters object
 	 * has been set (if desired; otherwise the current parameters will be fetched from the detector but this risks
 	 * losing synchronisation between parameter objects if a different one is held by a containing editor)
 	 */
 	public void initialise() {
-		theDetector = getDetectorInstance();
+
+		// Make sure we have a detector and a parameters object if possible
+		if (theDetector == null && detectorParameters != null) {
+			String detectorName = detectorParameters.getDetectorName();
+			logger.debug("No detector set; trying to get detector named in parameters: '{}'", detectorName);
+			Findable namedObject = Finder.getInstance().find(detectorName);
+			if (namedObject instanceof FluorescenceDetector) {
+				theDetector = (FluorescenceDetector) namedObject;
+			}
+		}
+
+		if (theDetector == null) {
+			fluorescenceDetectorComposite.setDetectorName("No detector found!");
+			logger.warn("No detector found");
+			return;
+		}
 
 		if (detectorParameters == null) {
 			fetchConfigurationFromDetector(); // initialises the dataBindingController as a side effect
 		}
 
-		fluorescenceDetectorComposite.setDetectorElementListSize(detectorParameters.getDetectorList().size());
+		// Set up the composite with information about the detector
+		fluorescenceDetectorComposite.setDetectorName(theDetector.getName());
+		fluorescenceDetectorComposite.setDetectorElementListSize(theDetector.getNumberOfElements());
 		fluorescenceDetectorComposite.setMCASize(theDetector.getMCASize());
 
 		// Add listeners
@@ -174,19 +219,22 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 		fluorescenceDetectorComposite.addBeanSelectionListener(this);
 
 		fluorescenceDetectorComposite.addLoadButtonListener(new SelectionAdapter() {
-			@Override public void widgetSelected(SelectionEvent event) {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
 				loadAcquireDataFromFile();
 			}
 		});
 
 		fluorescenceDetectorComposite.addSaveButtonListener(new SelectionAdapter() {
-			@Override public void widgetSelected(SelectionEvent event) {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
 				saveDataToFile();
 			}
 		});
 
 		fluorescenceDetectorComposite.addAcquireButtonListener(new SelectionAdapter() {
-			@Override public void widgetSelected(SelectionEvent event) {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
 				if (fluorescenceDetectorComposite.getContinuousModeSelection()) {
 					continuousAcquire(fluorescenceDetectorComposite.getAcquisitionTime());
 				} else {
@@ -197,7 +245,8 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 		});
 
 		fluorescenceDetectorComposite.addContinuousModeButtonListener(new SelectionAdapter() {
-			@Override public void widgetSelected(SelectionEvent event) {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
 				if (fluorescenceDetectorComposite.getContinuousModeSelection()) {
 					fluorescenceDetectorComposite.setContinuousAcquireMode();
 				} else {
@@ -207,11 +256,11 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 		});
 
 		fluorescenceDetectorComposite.addRegionImportButtonSelectionListener(new SelectionAdapter() {
-			@Override public void widgetSelected(SelectionEvent event) {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
 				WizardDialog dialog = new WizardDialog(fluorescenceDetectorComposite.getShell(),
 						new ImportFluoDetROIWizard(fluorescenceDetectorComposite.getRegionList(),
-								fluorescenceDetectorComposite.getDetectorList(),
-								detectorParameters.getClass()));
+								fluorescenceDetectorComposite.getDetectorList(), detectorParameters.getClass()));
 				dialog.create();
 				dialog.open();
 			}
@@ -240,13 +289,6 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 	}
 
 	/**
-	 * Override this method to return the specific FluorescenceDetector that is to be configured with this composite
-	 * 
-	 * @return the FluorescenceDetector
-	 */
-	protected abstract FluorescenceDetector getDetectorInstance();
-
-	/**
 	 * Fetch the current configuration from the detector.
 	 * <p>
 	 * Be careful calling this when the FluorescenceDetectorComposite is being used in an editor - it will cause the
@@ -271,9 +313,8 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 	private void setRegionEditableFromPreference() {
 		// Bug in dawn stops this working correctly when preference is changed at runtime
 		// See DAWNSCI-5843 for latest status on a possible fix
-		fluorescenceDetectorComposite.setPlottedRegionMobile(
-				ExafsActivator.getDefault().getPreferenceStore()
-						.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED));
+		fluorescenceDetectorComposite.setPlottedRegionMobile(ExafsActivator.getDefault().getPreferenceStore()
+				.getBoolean(ExafsPreferenceConstants.DETECTOR_OVERLAY_ENABLED));
 	}
 
 	private void createDataStore() {
@@ -369,7 +410,7 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 
 	/**
 	 * Start/stop continuous acquisition
-	 * 
+	 *
 	 * @param collectionTime
 	 */
 	public synchronized void continuousAcquire(final double collectionTime) {
@@ -409,8 +450,7 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 			continuousThread.start();
 		} catch (IllegalThreadStateException e) {
 			logger.error("Problem starting continuous acquire thread.", e);
-			displayErrorMessage("Exception starting continuous acquire",
-					"Internal error while trying to start continuous acquisition. See log for details.");
+			displayErrorMessage("Exception starting continuous acquire", "Internal error while trying to start continuous acquisition. See log for details.");
 		}
 	}
 
@@ -431,18 +471,19 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 
 	/**
 	 * Acquire a single frame from the detector
-	 * 
+	 *
 	 * @param collectionTimeValue the time to collect for (in milliseconds)
 	 * @param writeToDisk set <code>true</code> to save data automatically after collection
 	 */
 	public void singleAcquire(final double collectionTimeValue, final boolean writeToDisk) {
 		IProgressService service = (IProgressService) PlatformUI.getWorkbench().getService(IProgressService.class);
 		try {
-		service.run(true, false, new IRunnableWithProgress() {
-			@Override public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-				acquire(monitor, collectionTimeValue, writeToDisk);
-			}
-		});
+			service.run(true, false, new IRunnableWithProgress() {
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					acquire(monitor, collectionTimeValue, writeToDisk);
+				}
+			});
 		} catch (InterruptedException cancellationIgnored) {
 		} catch (InvocationTargetException ex) {
 			logger.error("Error acquiring data from fluorescence detector: {}", theDetector, ex);
@@ -458,6 +499,7 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 
 		try {
 			theData = theDetector.getMCAData(collectionTimeValue);
+			checkDataDimensionsMatchDetectorSize();
 			dataStore.writeDataToFile(theData);
 
 			if (monitor != null) {
@@ -487,6 +529,18 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 		}
 	}
 
+	private void checkDataDimensionsMatchDetectorSize() {
+		if (theData.length != theDetector.getNumberOfElements()) {
+			logger.warn("Detector {} has returned data for {} elements, but should have {} elements", theDetector.getName(), theData.length,
+					theDetector.getNumberOfElements());
+		}
+
+		if (theData[0].length != theDetector.getMCASize()) {
+			logger.warn("Detector {} has returned {} channels of MCA data, but should have {} channels", theDetector.getName(), theData[0].length,
+					theDetector.getMCASize());
+		}
+	}
+
 	private void updatePlotTitle() {
 		Date now = new Date();
 		SimpleDateFormat dt = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
@@ -497,8 +551,7 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-						uiTitle, uiMessage);
+				MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), uiTitle, uiMessage);
 			}
 		});
 	}
@@ -573,8 +626,7 @@ public abstract class FluorescenceDetectorCompositeController implements ValueLi
 			logAndAppendStatus(msg);
 		} catch (IOException ie) {
 			logger.error("Exception writing out detector data.", ie);
-			displayErrorMessage("Exception writing out detector data",
-					"Problem recording data. See log for details.");
+			displayErrorMessage("Exception writing out detector data", "Problem recording data. See log for details.");
 		}
 	}
 

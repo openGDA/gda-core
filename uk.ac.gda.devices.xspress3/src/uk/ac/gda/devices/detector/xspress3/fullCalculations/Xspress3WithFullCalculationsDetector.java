@@ -7,6 +7,7 @@ import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
 import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
 import uk.ac.gda.devices.detector.xspress3.Xspress3;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
@@ -211,7 +212,9 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 
 	@Override
 	public FluorescenceDetectorParameters getConfigurationParameters() {
-		return dataOperations.getConfigurationParameters();
+		Xspress3Parameters parameters = dataOperations.getConfigurationParameters();
+		parameters.setDetectorName(getName());
+		return parameters;
 	}
 
 }

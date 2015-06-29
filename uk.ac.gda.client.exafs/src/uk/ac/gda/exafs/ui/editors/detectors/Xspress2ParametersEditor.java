@@ -21,8 +21,6 @@ package uk.ac.gda.exafs.ui.editors.detectors;
 import java.net.URL;
 
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorCompositeController;
-import uk.ac.gda.exafs.ui.composites.detectors.Xspress2CompositeController;
 
 /**
  * Configures the parameters of an Xspress2 detector
@@ -49,10 +47,5 @@ public final class Xspress2ParametersEditor extends FluorescenceDetectorParamete
 	@Override
 	protected String getRichEditorTabText() {
 		return "Xspress2";
-	}
-
-	@Override
-	protected FluorescenceDetectorCompositeController getNewController() {
-		return new Xspress2CompositeController();
 	}
 }

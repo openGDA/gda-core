@@ -368,7 +368,7 @@ public class Xspress3DataOperations {
 		rois = regionList;
 	}
 
-	public FluorescenceDetectorParameters getConfigurationParameters() {
+	public Xspress3Parameters getConfigurationParameters() {
 		DetectorROI[] regions = getRegionsOfInterest();
 		if (regions == null){
 			regions = new DetectorROI[0];

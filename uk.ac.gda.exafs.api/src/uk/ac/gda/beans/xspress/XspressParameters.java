@@ -148,6 +148,7 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 		}
 	}
 
+	@Override
 	public String getDetectorName() {
 		return detectorName;
 	}

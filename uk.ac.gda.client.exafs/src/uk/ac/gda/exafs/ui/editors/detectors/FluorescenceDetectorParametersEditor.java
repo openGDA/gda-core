@@ -29,7 +29,7 @@ import uk.ac.gda.richbeans.editors.RichBeanMultiPageEditorPart;
 
 /**
  * Configures the parameters of a fluorescence detector. Subclasses should override getBeanClass(), getMappingUrl(),
- * getSchemaUrl(), getRichEditorTabText() and getNewController() with specific implementations.
+ * getSchemaUrl() and getRichEditorTabText() with specific implementations.
  */
 public abstract class FluorescenceDetectorParametersEditor extends RichBeanMultiPageEditorPart implements
 		CompositeFactory {
@@ -48,7 +48,9 @@ public abstract class FluorescenceDetectorParametersEditor extends RichBeanMulti
 
 	protected abstract String getRichEditorTabText();
 
-	protected abstract FluorescenceDetectorCompositeController getNewController();
+	protected FluorescenceDetectorCompositeController getNewController() {
+		return new FluorescenceDetectorCompositeController();
+	}
 
 	@Override
 	public Composite createComposite(Composite parent, int style) {

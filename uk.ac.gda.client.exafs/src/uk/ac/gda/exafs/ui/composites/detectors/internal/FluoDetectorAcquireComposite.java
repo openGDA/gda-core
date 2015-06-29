@@ -26,12 +26,15 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 
 import com.swtdesigner.SWTResourceManager;
 
 public class FluoDetectorAcquireComposite extends Composite {
 
+	private Label detectorNameLabel;
 	private NumberBox acquireTime;
 	private Button loadButton;
 	private Button saveButton;
@@ -48,6 +51,10 @@ public class FluoDetectorAcquireComposite extends Composite {
 		acquireGroup.setText("Acquire Spectra");
 
 		GridLayoutFactory.swtDefaults().numColumns(3).applyTo(acquireGroup);
+
+		detectorNameLabel = new Label(acquireGroup, SWT.NONE);
+		GridDataFactory.swtDefaults().span(3, 1).applyTo(detectorNameLabel);
+		detectorNameLabel.setVisible(false);
 
 		loadButton = new Button(acquireGroup, SWT.NONE);
 		GridDataFactory.swtDefaults().applyTo(loadButton);
@@ -86,6 +93,17 @@ public class FluoDetectorAcquireComposite extends Composite {
 
 	private void setAcquireImageToStop() {
 		acquireButton.setImage(SWTResourceManager.getImage(FluoDetectorAcquireComposite.class, "/icons/control_stop_blue.png"));
+	}
+
+	public void setDetectorNameLabel(String label) {
+		if (label != null && label.length() > 0) {
+			detectorNameLabel.setText(label);
+			detectorNameLabel.setVisible(true);
+		} else {
+			detectorNameLabel.setText("");
+			detectorNameLabel.setVisible(false);
+		}
+		this.layout(new Control[] { detectorNameLabel });
 	}
 
 	public NumberBox getCollectionTime() {

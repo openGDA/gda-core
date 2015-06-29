@@ -88,17 +88,10 @@
             restorable="true">
       </view>
       <view
-            allowMultiple="false"
-            class="uk.ac.gda.exafs.ui.views.detectors.Xspress3ConfigurationView"
-            id="uk.ac.gda.client.exafs.ui.views.detectors.xspress3"
-            name="Xspress3 Configuration"
-            restorable="false">
-      </view>
-      <view
-            allowMultiple="false"
-            class="uk.ac.gda.exafs.ui.views.detectors.Xspress2ConfigurationView"
-            id="uk.ac.gda.client.exafs.ui.views.detectors.xspress2"
-            name="Xspress2 Configuration"
+            allowMultiple="true"
+            class="uk.ac.gda.exafs.ui.views.detectors.FluorescenceDetectorConfigurationView"
+            id="uk.ac.gda.exafs.ui.views.detectors.FluorescenceDetectorConfigurationView"
+            name="Fluorescence Detector Configuration"
             restorable="false">
       </view>
    </extension>

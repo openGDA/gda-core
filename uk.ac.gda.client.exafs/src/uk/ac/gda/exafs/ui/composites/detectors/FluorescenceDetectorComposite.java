@@ -139,6 +139,15 @@ public class FluorescenceDetectorComposite extends Composite {
 		regionsComposite.getRoiEnd().setMaximum(mcaSize);
 	}
 
+	// TODO move the label outside the acquire composite?
+	public void setDetectorName(String name) {
+		if (name != null && name.length() > 0) {
+			acquireComposite.setDetectorNameLabel("Detector: " + name);
+		} else {
+			acquireComposite.setDetectorNameLabel("");
+		}
+	}
+
 	/**
 	 * For access by BeanUI only. This name must match the field name in VortexParameters.
 	 */

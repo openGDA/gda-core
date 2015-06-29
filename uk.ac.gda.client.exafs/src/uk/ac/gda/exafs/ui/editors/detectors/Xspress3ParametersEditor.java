@@ -21,8 +21,6 @@ package uk.ac.gda.exafs.ui.editors.detectors;
 import java.net.URL;
 
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
-import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorCompositeController;
-import uk.ac.gda.exafs.ui.composites.detectors.Xspress3CompositeController;
 
 /**
  * Configures the parameters of an Xspress3 detector
@@ -49,10 +47,5 @@ public final class Xspress3ParametersEditor extends FluorescenceDetectorParamete
 	@Override
 	protected String getRichEditorTabText() {
 		return "Xspress3";
-	}
-
-	@Override
-	protected FluorescenceDetectorCompositeController getNewController() {
-		return new Xspress3CompositeController();
 	}
 }
