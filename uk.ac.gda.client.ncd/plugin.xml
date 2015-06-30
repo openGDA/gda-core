@@ -21,7 +21,7 @@
       <perspective
             class="gda.rcp.ncd.perspectives.SaxsProcessingPerspective"
             id="gda.rcp.ncd.perspectives.SaxsProcessingPerspective"
-            name="Saxs Processing">
+            name="Saxs Calibration">
       </perspective>
       <perspective
             class="gda.rcp.ncd.perspectives.WaxsPerspective"
