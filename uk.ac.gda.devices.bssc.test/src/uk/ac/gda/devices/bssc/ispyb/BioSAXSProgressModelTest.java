@@ -96,14 +96,6 @@ public class BioSAXSProgressModelTest {
 					.getReductionStatusInfo());
 			assertEquals(expectedReductionStatus, modelReductionStatus.getStatus());
 
-			// Check analysis status of model object is the same as the status
-			// in ISpyB
-			ISpyBStatus expectedAnalysisStatus = (ISpyBStatus) iSpyBSAXSDataCollections
-					.get(i).getAnalysisStatus().getStatus();
-			ISpyBStatusInfo modelAnalysisStatus = ((ISpyBStatusInfo) modelProgressItem
-					.getAnalysisStatusInfo());
-			assertEquals(expectedAnalysisStatus, modelAnalysisStatus.getStatus());
-
 			// Check collection progress in model is same as collection progress
 			// in ISpyB
 			double expectedCollectionProgress = iSpyBSAXSDataCollections.get(i)
@@ -121,13 +113,6 @@ public class BioSAXSProgressModelTest {
 					.getReductionStatusInfo();
 			assertEquals(expectedReductionProgress, modelReductionProgress.getProgress(), 0.0);
 
-			// Check analysis progress in model is same as analysis progress in
-			// ISpyB
-			double expectedAnalysisProgress = iSpyBSAXSDataCollections.get(i)
-					.getAnalysisStatus().getProgress();
-			ISpyBStatusInfo modelAnalysisProgress = modelProgressItem
-					.getAnalysisStatusInfo();
-			assertEquals(expectedAnalysisProgress, modelAnalysisProgress.getProgress(), 0.0);
 		}
 	}
 
@@ -147,7 +132,6 @@ public class BioSAXSProgressModelTest {
 		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(modelIndex);
 		assertEquals(33, modelProgressItem.getCollectionStatusInfo().getProgress(), 0.0);
 		assertEquals(0, modelProgressItem.getReductionStatusInfo().getProgress(), 0.0);
-		assertEquals(0, modelProgressItem.getAnalysisStatusInfo().getProgress(), 0.0);
 	}
 
 	@Test
@@ -165,7 +149,6 @@ public class BioSAXSProgressModelTest {
 		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(modelIndex);
 		assertEquals(66, modelProgressItem.getCollectionStatusInfo().getProgress(), 0.0);
 		assertEquals(0, modelProgressItem.getReductionStatusInfo().getProgress(), 0.0);
-		assertEquals(0, modelProgressItem.getAnalysisStatusInfo().getProgress(), 0.0);
 	}
 
 	@Test
@@ -184,7 +167,6 @@ public class BioSAXSProgressModelTest {
 		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(modelIndex);
 		assertEquals(100, modelProgressItem.getCollectionStatusInfo().getProgress(), 0.0);
 		assertEquals(0, modelProgressItem.getReductionStatusInfo().getProgress(), 0.0);
-		assertEquals(0, modelProgressItem.getAnalysisStatusInfo().getProgress(), 0.0);
 	}
 
 	@Test
@@ -205,27 +187,6 @@ public class BioSAXSProgressModelTest {
 		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(modelIndex);
 		assertEquals(66, modelProgressItem.getCollectionStatusInfo().getProgress(), 0.0);
 		assertEquals(100, modelProgressItem.getReductionStatusInfo().getProgress(), 0.0);
-		assertEquals(0, modelProgressItem.getAnalysisStatusInfo().getProgress(), 0.0);
-	}
-
-	@Test
-	public void testAnalysisProgress() {
-		// launch python script to send a datagram
-		long dataCollectionId = 0;
-		int modelIndex = ((Long) dataCollectionId).intValue();
-
-		try {
-			long analysisId = bioSAXSISPyB.createDataAnalysis(dataCollectionId);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// assert model is updated with new value from ISpyB
-		ISAXSProgress modelProgressItem = (ISAXSProgress) model.get(modelIndex);
-		assertEquals(66, modelProgressItem.getCollectionStatusInfo().getProgress(), 0.0);
-		assertEquals(100, modelProgressItem.getReductionStatusInfo().getProgress(), 0.0);
-		assertEquals(100, modelProgressItem.getAnalysisStatusInfo().getProgress(), 0.0);
 	}
 
 	@AfterClass
@@ -249,7 +210,6 @@ class MockSAXSDataCollection implements ISAXSDataCollection {
 	private String sampleName;
 	private ISpyBStatusInfo collectionStatus;
 	private ISpyBStatusInfo reductionStatus;
-	private ISpyBStatusInfo analysisStatus;
 	private long blSessionId;
 	private long experimentId;
 	private long saxsCollectionId;
@@ -275,11 +235,6 @@ class MockSAXSDataCollection implements ISAXSDataCollection {
 	}
 
 	@Override
-	public ISpyBStatusInfo getAnalysisStatus() {
-		return analysisStatus;
-	}
-
-	@Override
 	public void setCollectionStatus(ISpyBStatusInfo collectionStatus) {
 		this.collectionStatus = collectionStatus;
 	}
@@ -287,11 +242,6 @@ class MockSAXSDataCollection implements ISAXSDataCollection {
 	@Override
 	public void setReductionStatus(ISpyBStatusInfo reductionStatus) {
 		this.reductionStatus = reductionStatus;
-	}
-
-	@Override
-	public void setAnalysisStatus(ISpyBStatusInfo analysisStatus) {
-		this.analysisStatus = analysisStatus;
 	}
 
 	@Override

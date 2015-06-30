@@ -26,7 +26,6 @@ public class BioSAXSDataCollectionBean implements ISAXSDataCollection {
 	private String sampleName;
 	private ISpyBStatusInfo collectionStatusInfo;
 	private ISpyBStatusInfo reductionStatusInfo;
-	private ISpyBStatusInfo analysisStatusInfo;
 	private String visit;
 	private long experimentId;
 	private long blSessionId;
@@ -41,8 +40,6 @@ public class BioSAXSDataCollectionBean implements ISAXSDataCollection {
 		collectionStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
 		reductionStatusInfo = new ISpyBStatusInfo();
 		reductionStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
-		analysisStatusInfo = new ISpyBStatusInfo();
-		analysisStatusInfo.setStatus(ISpyBStatus.NOT_STARTED);
 	}
 
 	@Override
@@ -83,16 +80,6 @@ public class BioSAXSDataCollectionBean implements ISAXSDataCollection {
 	@Override
 	public void setReductionStatus(ISpyBStatusInfo reductionStatus) {
 		this.reductionStatusInfo = reductionStatus;
-	}
-
-	@Override
-	public ISpyBStatusInfo getAnalysisStatus() {
-		return analysisStatusInfo;
-	}
-
-	@Override
-	public void setAnalysisStatus(ISpyBStatusInfo analysisStatus) {
-		this.analysisStatusInfo = analysisStatus;
 	}
 
 	public String getVisit() {
