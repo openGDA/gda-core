@@ -9,7 +9,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: uk.ac.gda.test.helpers;bundle-version="1.0.0",
  org.junit;bundle-version="[4.10.0,5.0.0)",
  uk.ac.diamond.org.powermock;bundle-version="[1.5.1,1.5.2)",
- javassist;bundle-version="[3.18.0,3.18.1)",
+ javassist;bundle-version="[3.20.0,3.21.0)",
  org.mockito.mockito-core
 Import-Package: gda.commandqueue,
  gda.device.scannable
