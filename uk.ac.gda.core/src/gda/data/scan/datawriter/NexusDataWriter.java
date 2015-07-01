@@ -597,7 +597,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 						NexusUtils.writeStringAttribute(file, node, name, axisno.toString());
 					} else {
 						if (data.isChar()) {
-							NexusUtils.writeStringAttribute(file, node, name, data.toString());
+							NexusUtils.writeStringAttribute(file, node, name, (String) data.getFirstValue());
 						} else {
 							NexusUtils.writeAttribute(file, node, name, data.toDataset());
 						}
