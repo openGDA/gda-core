@@ -17,7 +17,7 @@
    <extension point="org.eclipse.emf.ecore.extension_parser">
       <!-- @generated sampledefinition -->
       <parser
-            type="ldeexperiments"
+            type="lde"
             class="org.opengda.lde.model.ldeexperiment.util.LDEExperimentsResourceFactoryImpl"/>
    </extension>
 

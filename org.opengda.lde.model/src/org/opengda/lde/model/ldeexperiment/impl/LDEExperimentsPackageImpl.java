@@ -1,3 +1,23 @@
+/*******************************************************************************
+ * Copyright © 2009, 2014 Diamond Light Source Ltd
+ *
+ * This file is part of GDA.
+ *  
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ * 	Diamond Light Source Ltd
+ *******************************************************************************/
 /**
  */
 package org.opengda.lde.model.ldeexperiment.impl;
@@ -8,14 +28,14 @@ import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
-
 import org.eclipse.emf.ecore.impl.EPackageImpl;
-
+import org.opengda.lde.model.ldeexperiment.Cell;
+import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
 import org.opengda.lde.model.ldeexperiment.Sample;
-import org.opengda.lde.model.ldeexperiment.SampleList;
+import org.opengda.lde.model.ldeexperiment.Stage;
 
 /**
  * <!-- begin-user-doc -->
@@ -36,7 +56,21 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	private EClass sampleListEClass = null;
+	private EClass experimentEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass stageEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass cellEClass = null;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -127,7 +161,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getExperimentDefinition_Samplelist() {
+	public EReference getExperimentDefinition_Experiments() {
 		return (EReference)experimentDefinitionEClass.getEStructuralFeatures().get(0);
 	}
 
@@ -136,8 +170,8 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EClass getSampleList() {
-		return sampleListEClass;
+	public EOperation getExperimentDefinition__GetExperiment__String() {
+		return experimentDefinitionEClass.getEOperations().get(0);
 	}
 
 	/**
@@ -145,8 +179,8 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSampleList_Filename() {
-		return (EAttribute)sampleListEClass.getEStructuralFeatures().get(0);
+	public EClass getExperiment() {
+		return experimentEClass;
 	}
 
 	/**
@@ -154,8 +188,8 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getSampleList_Samples() {
-		return (EReference)sampleListEClass.getEStructuralFeatures().get(1);
+	public EAttribute getExperiment_Name() {
+		return (EAttribute)experimentEClass.getEStructuralFeatures().get(0);
 	}
 
 	/**
@@ -163,8 +197,8 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EOperation getSampleList__GetSampleById__String() {
-		return sampleListEClass.getEOperations().get(0);
+	public EReference getExperiment_Stages() {
+		return (EReference)experimentEClass.getEStructuralFeatures().get(1);
 	}
 
 	/**
@@ -172,8 +206,278 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EOperation getSampleList__GetSampleByName__String() {
-		return sampleListEClass.getEOperations().get(1);
+	public EAttribute getExperiment_Filename() {
+		return (EAttribute)experimentEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EOperation getExperiment__GetStageByID__String() {
+		return experimentEClass.getEOperations().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EClass getStage() {
+		return stageEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getStage_StageID() {
+		return (EAttribute)stageEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getStage_Cells() {
+		return (EReference)stageEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getStage_Detector_x() {
+		return (EAttribute)stageEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getStage_Detector_y() {
+		return (EAttribute)stageEClass.getEStructuralFeatures().get(4);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getStage_Detector_z() {
+		return (EAttribute)stageEClass.getEStructuralFeatures().get(5);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getStage_Camera_x() {
+		return (EAttribute)stageEClass.getEStructuralFeatures().get(6);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getStage_Camera_y() {
+		return (EAttribute)stageEClass.getEStructuralFeatures().get(7);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getStage_Camera_z() {
+		return (EAttribute)stageEClass.getEStructuralFeatures().get(8);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getStage_Experiment() {
+		return (EReference)stageEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EOperation getStage__GetCellByID__String() {
+		return stageEClass.getEOperations().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EClass getCell() {
+		return cellEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getCell_Stage() {
+		return (EReference)cellEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getCell_Samples() {
+		return (EReference)cellEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_CellID() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_Name() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_VisitID() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(4);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_Email() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(5);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_StartDate() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(6);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_EndDate() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(7);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_EnableAutoEmail() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(8);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_Calibrant() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(9);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_Calibrant_x() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(10);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_Calibrant_y() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(11);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_Calibrant_exposure() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(12);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_EnvSamplingInterval() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(13);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getCell_EvnScannableNames() {
+		return (EAttribute)cellEClass.getEStructuralFeatures().get(14);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EOperation getCell__GetSampleById__String() {
+		return cellEClass.getEOperations().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EOperation getCell__GetSampleByName__String() {
+		return cellEClass.getEOperations().get(1);
 	}
 
 	/**
@@ -190,8 +494,17 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EReference getSample_Cell() {
+		return (EReference)sampleEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EAttribute getSample_SampleID() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(0);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(4);
 	}
 
 	/**
@@ -226,16 +539,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_CellID() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(4);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getSample_VisitID() {
+	public EAttribute getSample_Sample_x_start() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(5);
 	}
 
@@ -244,7 +548,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_Calibrant() {
+	public EAttribute getSample_Sample_x_stop() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(6);
 	}
 
@@ -253,7 +557,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_Calibrant_x() {
+	public EAttribute getSample_Sample_x_step() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(7);
 	}
 
@@ -262,7 +566,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_Calibrant_y() {
+	public EAttribute getSample_Sample_y_start() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(8);
 	}
 
@@ -271,7 +575,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_Calibrant_exposure() {
+	public EAttribute getSample_Sample_y_stop() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(9);
 	}
 
@@ -280,7 +584,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_Sample_x_start() {
+	public EAttribute getSample_Sample_y_step() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(10);
 	}
 
@@ -289,7 +593,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_Sample_x_stop() {
+	public EAttribute getSample_Sample_exposure() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(11);
 	}
 
@@ -298,7 +602,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_Sample_x_step() {
+	public EAttribute getSample_Command() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(12);
 	}
 
@@ -307,7 +611,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_Sample_y_start() {
+	public EAttribute getSample_Comment() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(13);
 	}
 
@@ -316,125 +620,8 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getSample_Sample_y_stop() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(14);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getSample_Sample_y_step() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(15);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getSample_Sample_exposure() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(16);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getSample_Detector_x() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(17);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getSample_Detector_y() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(18);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getSample_Detector_z() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(19);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getSample_Email() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(20);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getSample_StartDate() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(21);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getSample_EndDate() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(22);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getSample_Command() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(23);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getSample_MailCount() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(24);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getSample_DataFileCount() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(25);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EAttribute getSample_Comment() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(26);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	public EAttribute getSample_DataFilePath() {
-		return (EAttribute)sampleEClass.getEStructuralFeatures().get(27);
+		return (EAttribute)sampleEClass.getEStructuralFeatures().get(14);
 	}
 
 	/**
@@ -475,25 +662,52 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 
 		// Create classes and their features
 		experimentDefinitionEClass = createEClass(EXPERIMENT_DEFINITION);
-		createEReference(experimentDefinitionEClass, EXPERIMENT_DEFINITION__SAMPLELIST);
+		createEReference(experimentDefinitionEClass, EXPERIMENT_DEFINITION__EXPERIMENTS);
+		createEOperation(experimentDefinitionEClass, EXPERIMENT_DEFINITION___GET_EXPERIMENT__STRING);
 
-		sampleListEClass = createEClass(SAMPLE_LIST);
-		createEAttribute(sampleListEClass, SAMPLE_LIST__FILENAME);
-		createEReference(sampleListEClass, SAMPLE_LIST__SAMPLES);
-		createEOperation(sampleListEClass, SAMPLE_LIST___GET_SAMPLE_BY_ID__STRING);
-		createEOperation(sampleListEClass, SAMPLE_LIST___GET_SAMPLE_BY_NAME__STRING);
+		experimentEClass = createEClass(EXPERIMENT);
+		createEAttribute(experimentEClass, EXPERIMENT__NAME);
+		createEReference(experimentEClass, EXPERIMENT__STAGES);
+		createEAttribute(experimentEClass, EXPERIMENT__FILENAME);
+		createEOperation(experimentEClass, EXPERIMENT___GET_STAGE_BY_ID__STRING);
+
+		stageEClass = createEClass(STAGE);
+		createEAttribute(stageEClass, STAGE__STAGE_ID);
+		createEReference(stageEClass, STAGE__EXPERIMENT);
+		createEReference(stageEClass, STAGE__CELLS);
+		createEAttribute(stageEClass, STAGE__DETECTOR_X);
+		createEAttribute(stageEClass, STAGE__DETECTOR_Y);
+		createEAttribute(stageEClass, STAGE__DETECTOR_Z);
+		createEAttribute(stageEClass, STAGE__CAMERA_X);
+		createEAttribute(stageEClass, STAGE__CAMERA_Y);
+		createEAttribute(stageEClass, STAGE__CAMERA_Z);
+		createEOperation(stageEClass, STAGE___GET_CELL_BY_ID__STRING);
+
+		cellEClass = createEClass(CELL);
+		createEReference(cellEClass, CELL__STAGE);
+		createEReference(cellEClass, CELL__SAMPLES);
+		createEAttribute(cellEClass, CELL__CELL_ID);
+		createEAttribute(cellEClass, CELL__NAME);
+		createEAttribute(cellEClass, CELL__VISIT_ID);
+		createEAttribute(cellEClass, CELL__EMAIL);
+		createEAttribute(cellEClass, CELL__START_DATE);
+		createEAttribute(cellEClass, CELL__END_DATE);
+		createEAttribute(cellEClass, CELL__ENABLE_AUTO_EMAIL);
+		createEAttribute(cellEClass, CELL__CALIBRANT);
+		createEAttribute(cellEClass, CELL__CALIBRANT_X);
+		createEAttribute(cellEClass, CELL__CALIBRANT_Y);
+		createEAttribute(cellEClass, CELL__CALIBRANT_EXPOSURE);
+		createEAttribute(cellEClass, CELL__ENV_SAMPLING_INTERVAL);
+		createEAttribute(cellEClass, CELL__EVN_SCANNABLE_NAMES);
+		createEOperation(cellEClass, CELL___GET_SAMPLE_BY_ID__STRING);
+		createEOperation(cellEClass, CELL___GET_SAMPLE_BY_NAME__STRING);
 
 		sampleEClass = createEClass(SAMPLE);
-		createEAttribute(sampleEClass, SAMPLE__SAMPLE_ID);
+		createEReference(sampleEClass, SAMPLE__CELL);
 		createEAttribute(sampleEClass, SAMPLE__STATUS);
 		createEAttribute(sampleEClass, SAMPLE__ACTIVE);
 		createEAttribute(sampleEClass, SAMPLE__NAME);
-		createEAttribute(sampleEClass, SAMPLE__CELL_ID);
-		createEAttribute(sampleEClass, SAMPLE__VISIT_ID);
-		createEAttribute(sampleEClass, SAMPLE__CALIBRANT);
-		createEAttribute(sampleEClass, SAMPLE__CALIBRANT_X);
-		createEAttribute(sampleEClass, SAMPLE__CALIBRANT_Y);
-		createEAttribute(sampleEClass, SAMPLE__CALIBRANT_EXPOSURE);
+		createEAttribute(sampleEClass, SAMPLE__SAMPLE_ID);
 		createEAttribute(sampleEClass, SAMPLE__SAMPLE_XSTART);
 		createEAttribute(sampleEClass, SAMPLE__SAMPLE_XSTOP);
 		createEAttribute(sampleEClass, SAMPLE__SAMPLE_XSTEP);
@@ -501,15 +715,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		createEAttribute(sampleEClass, SAMPLE__SAMPLE_YSTOP);
 		createEAttribute(sampleEClass, SAMPLE__SAMPLE_YSTEP);
 		createEAttribute(sampleEClass, SAMPLE__SAMPLE_EXPOSURE);
-		createEAttribute(sampleEClass, SAMPLE__DETECTOR_X);
-		createEAttribute(sampleEClass, SAMPLE__DETECTOR_Y);
-		createEAttribute(sampleEClass, SAMPLE__DETECTOR_Z);
-		createEAttribute(sampleEClass, SAMPLE__EMAIL);
-		createEAttribute(sampleEClass, SAMPLE__START_DATE);
-		createEAttribute(sampleEClass, SAMPLE__END_DATE);
 		createEAttribute(sampleEClass, SAMPLE__COMMAND);
-		createEAttribute(sampleEClass, SAMPLE__MAIL_COUNT);
-		createEAttribute(sampleEClass, SAMPLE__DATA_FILE_COUNT);
 		createEAttribute(sampleEClass, SAMPLE__COMMENT);
 		createEAttribute(sampleEClass, SAMPLE__DATA_FILE_PATH);
 
@@ -548,29 +754,62 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 
 		// Initialize classes, features, and operations; add parameters
 		initEClass(experimentDefinitionEClass, ExperimentDefinition.class, "ExperimentDefinition", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEReference(getExperimentDefinition_Samplelist(), this.getSampleList(), null, "samplelist", null, 0, 1, ExperimentDefinition.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getExperimentDefinition_Experiments(), this.getExperiment(), null, "experiments", null, 0, -1, ExperimentDefinition.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
-		initEClass(sampleListEClass, SampleList.class, "SampleList", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getSampleList_Filename(), ecorePackage.getEString(), "filename", "samples", 0, 1, SampleList.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEReference(getSampleList_Samples(), this.getSample(), null, "samples", null, 0, -1, SampleList.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		EOperation op = initEOperation(getExperimentDefinition__GetExperiment__String(), this.getExperiment(), "getExperiment", 0, 1, IS_UNIQUE, IS_ORDERED);
+		addEParameter(op, ecorePackage.getEString(), "name", 0, 1, IS_UNIQUE, IS_ORDERED);
 
-		EOperation op = initEOperation(getSampleList__GetSampleById__String(), this.getSample(), "getSampleById", 0, 1, IS_UNIQUE, IS_ORDERED);
-		addEParameter(op, ecorePackage.getEString(), "regionID", 0, 1, IS_UNIQUE, IS_ORDERED);
+		initEClass(experimentEClass, Experiment.class, "Experiment", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEAttribute(getExperiment_Name(), ecorePackage.getEString(), "name", null, 0, 1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getExperiment_Stages(), this.getStage(), this.getStage_Experiment(), "stages", null, 0, -1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getExperiment_Filename(), ecorePackage.getEString(), "filename", "samples", 0, 1, Experiment.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
-		op = initEOperation(getSampleList__GetSampleByName__String(), this.getSample(), "getSampleByName", 0, 1, IS_UNIQUE, IS_ORDERED);
+		op = initEOperation(getExperiment__GetStageByID__String(), this.getStage(), "getStageByID", 0, 1, IS_UNIQUE, IS_ORDERED);
+		addEParameter(op, ecorePackage.getEString(), "stageId", 0, 1, IS_UNIQUE, IS_ORDERED);
+
+		initEClass(stageEClass, Stage.class, "Stage", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEAttribute(getStage_StageID(), ecorePackage.getEString(), "stageID", "", 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getStage_Experiment(), this.getExperiment(), this.getExperiment_Stages(), "experiment", null, 1, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getStage_Cells(), this.getCell(), this.getCell_Stage(), "cells", null, 0, -1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStage_Detector_x(), ecorePackage.getEDouble(), "detector_x", "0.0", 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStage_Detector_y(), ecorePackage.getEDouble(), "detector_y", "0.0", 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStage_Detector_z(), ecorePackage.getEDouble(), "detector_z", "400.0", 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStage_Camera_x(), ecorePackage.getEDouble(), "camera_x", null, 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStage_Camera_y(), ecorePackage.getEDouble(), "camera_y", null, 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getStage_Camera_z(), ecorePackage.getEDouble(), "camera_z", null, 0, 1, Stage.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		op = initEOperation(getStage__GetCellByID__String(), this.getCell(), "getCellByID", 0, 1, IS_UNIQUE, IS_ORDERED);
+		addEParameter(op, ecorePackage.getEString(), "cellId", 0, 1, IS_UNIQUE, IS_ORDERED);
+
+		initEClass(cellEClass, Cell.class, "Cell", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEReference(getCell_Stage(), this.getStage(), this.getStage_Cells(), "stage", null, 1, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getCell_Samples(), this.getSample(), this.getSample_Cell(), "samples", null, 0, -1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_CellID(), ecorePackage.getEString(), "cellID", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_Name(), ecorePackage.getEString(), "name", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_VisitID(), ecorePackage.getEString(), "visitID", "", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_Email(), ecorePackage.getEString(), "email", "", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_StartDate(), ecorePackage.getEDate(), "startDate", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_EndDate(), ecorePackage.getEDate(), "endDate", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_EnableAutoEmail(), ecorePackage.getEBoolean(), "enableAutoEmail", "false", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_Calibrant(), ecorePackage.getEString(), "calibrant", "Si(NIST SRM 640c)", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_Calibrant_x(), ecorePackage.getEDouble(), "calibrant_x", "0", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_Calibrant_y(), ecorePackage.getEDouble(), "calibrant_y", "0", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_Calibrant_exposure(), ecorePackage.getEDouble(), "calibrant_exposure", "1.0", 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_EnvSamplingInterval(), ecorePackage.getEDouble(), "envSamplingInterval", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCell_EvnScannableNames(), ecorePackage.getEString(), "evnScannableNames", null, 0, 1, Cell.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		op = initEOperation(getCell__GetSampleById__String(), this.getSample(), "getSampleById", 0, 1, IS_UNIQUE, IS_ORDERED);
+		addEParameter(op, ecorePackage.getEString(), "sampleId", 0, 1, IS_UNIQUE, IS_ORDERED);
+
+		op = initEOperation(getCell__GetSampleByName__String(), this.getSample(), "getSampleByName", 0, 1, IS_UNIQUE, IS_ORDERED);
 		addEParameter(op, ecorePackage.getEString(), "sampleName", 0, 1, IS_UNIQUE, IS_ORDERED);
 
 		initEClass(sampleEClass, Sample.class, "Sample", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
-		initEAttribute(getSample_SampleID(), ecorePackage.getEString(), "sampleID", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getSample_Cell(), this.getCell(), this.getCell_Samples(), "cell", null, 1, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Status(), this.getSTATUS(), "status", "READY", 0, 1, Sample.class, IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Active(), ecorePackage.getEBoolean(), "active", "false", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Name(), ecorePackage.getEString(), "name", "new_sample", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_CellID(), ecorePackage.getEString(), "cellID", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_VisitID(), ecorePackage.getEString(), "visitID", "0-0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_Calibrant(), ecorePackage.getEString(), "calibrant", "Si(NIST SRM 640c)", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_Calibrant_x(), ecorePackage.getEDouble(), "calibrant_x", "0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_Calibrant_y(), ecorePackage.getEDouble(), "calibrant_y", "0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_Calibrant_exposure(), ecorePackage.getEDouble(), "calibrant_exposure", "1.0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getSample_SampleID(), ecorePackage.getEString(), "sampleID", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Sample_x_start(), ecorePackage.getEDoubleObject(), "sample_x_start", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Sample_x_stop(), ecorePackage.getEDoubleObject(), "sample_x_stop", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Sample_x_step(), ecorePackage.getEDoubleObject(), "sample_x_step", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -578,15 +817,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 		initEAttribute(getSample_Sample_y_stop(), ecorePackage.getEDoubleObject(), "sample_y_stop", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Sample_y_step(), ecorePackage.getEDoubleObject(), "sample_y_step", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Sample_exposure(), ecorePackage.getEDouble(), "sample_exposure", "5.0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_Detector_x(), ecorePackage.getEDouble(), "detector_x", "0.0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_Detector_y(), ecorePackage.getEDouble(), "detector_y", "0.0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_Detector_z(), ecorePackage.getEDouble(), "detector_z", "100.0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_Email(), ecorePackage.getEString(), "email", "chiu.tang@diamond.ac.uk", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_StartDate(), ecorePackage.getEDate(), "startDate", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_EndDate(), ecorePackage.getEDate(), "endDate", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Command(), ecorePackage.getEString(), "command", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_MailCount(), ecorePackage.getEInt(), "mailCount", "0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getSample_DataFileCount(), ecorePackage.getEInt(), "dataFileCount", "0", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_Comment(), ecorePackage.getEString(), "comment", "comment here", 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getSample_DataFilePath(), ecorePackage.getEString(), "dataFilePath", null, 0, 1, Sample.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 

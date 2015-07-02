@@ -11,6 +11,12 @@ import org.opengda.lde.model.ldeexperiment.LDEExperimentsFactory;
  * <!-- begin-user-doc -->
  * A test case for the model object '<em><b>Experiment Definition</b></em>'.
  * <!-- end-user-doc -->
+ * <p>
+ * The following operations are tested:
+ * <ul>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiment(java.lang.String) <em>Get Experiment</em>}</li>
+ * </ul>
+ * </p>
  * @generated
  */
 public class ExperimentDefinitionTest extends TestCase {
@@ -82,6 +88,19 @@ public class ExperimentDefinitionTest extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		setFixture(null);
+	}
+
+	/**
+	 * Tests the '{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiment(java.lang.String) <em>Get Experiment</em>}' operation.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiment(java.lang.String)
+	 * @generated
+	 */
+	public void testGetExperiment__String() {
+		// TODO: implement this operation test method
+		// Ensure that you remove @generated or mark it @generated NOT
+		fail();
 	}
 
 } //ExperimentDefinitionTest

@@ -8,6 +8,7 @@ import gda.device.scannable.scannablegroup.corba.impl.ScannablegroupImpl;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 
+import org.opengda.lde.model.ldeexperiment.Cell;
 import org.opengda.lde.model.ldeexperiment.Sample;
 import org.springframework.beans.factory.InitializingBean;
 @CorbaAdapterClass(ScannablegroupAdapter.class)
@@ -50,8 +51,8 @@ public class SampleStage extends ScannableGroup implements InitializingBean {
 	public boolean isAtYPosition(double demandPosition) throws DeviceException {
 		return ((Double)(getYMotor().getPosition())-demandPosition)<=getPositionTolerance();
 	}
-	public boolean isAtCalibrantPosition(Sample sample) throws DeviceException {
-		return isAtXPosition(sample.getCalibrant_x()) && isAtYPosition(sample.getCalibrant_y());
+	public boolean isAtCalibrantPosition(Cell cell) throws DeviceException {
+		return isAtXPosition(cell.getCalibrant_x()) && isAtYPosition(cell.getCalibrant_y());
 	}
 	public boolean isAtSamplePosition(Sample sample) throws DeviceException {
 		if (sample.getSample_x_start()!=Double.NaN && sample.getSample_y_start()!=Double.NaN)

@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
-    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/org.opengda.lde.model/src" modelPluginID="org.opengda.lde.model"
-    modelName="Sampledefinition" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" copyrightText="Copyright ©2015 Diamond Light Source Ltd&#xA;&#xA;This file is part of GDA.&#xA; &#xA;GDA is free software: you can redistribute it and/or modify it under the&#xA;terms of the GNU General Public License version 3 as published by the Free&#xA;Software Foundation.&#xA;&#xA;GDA is distributed in the hope that it will be useful, but WITHOUT ANY&#xA;WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS&#xA;FOR A PARTICULAR PURPOSE. See the GNU General Public License for more&#xA;details.&#xA;&#xA;You should have received a copy of the GNU General Public License along&#xA;with GDA. If not, see &lt;http://www.gnu.org/licenses/>.&#xA;&#xA;Contributors:&#xA;&#x9;Fajin Yuan"
+    modelDirectory="/org.opengda.lde.model/src" modelPluginID="org.opengda.lde.model"
+    templateDirectory="" redirection="" modelName="Sampledefinition" modelPluginClass=""
+    rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container" rootImplementsInterface=""
     featureMapWrapperInterface="" featureMapWrapperInternalInterface="" featureMapWrapperClass=""
-    importerID="org.eclipse.emf.importer.ecore" complianceLevel="7.0" copyrightFields="false"
-    interfaceNamePattern="" operationReflection="true" importOrganizing="true">
+    booleanFlagsField="" importerID="org.eclipse.emf.importer.ecore" complianceLevel="7.0"
+    copyrightFields="false" providerRootExtendsClass="" tableProviders="true" language=""
+    interfaceNamePattern="" classNamePattern="" operationReflection="true" importOrganizing="true">
   <foreignModel>sampledefinition.ecore</foreignModel>
   <genPackages prefix="LDEExperiments" basePackage="org.opengda.lde.model" resource="XML"
-      disposableProviderFactory="true" ecorePackage="sampledefinition.ecore#/">
+      disposableProviderFactory="true" contentTypeIdentifier="" fileExtensions="lde"
+      ecorePackage="sampledefinition.ecore#/" publicationLocation="">
     <genEnums typeSafeEnumCompatible="false" ecoreEnum="sampledefinition.ecore#//STATUS">
       <genEnumLiterals ecoreEnumLiteral="sampledefinition.ecore#//STATUS/READY"/>
       <genEnumLiterals ecoreEnumLiteral="sampledefinition.ecore#//STATUS/RUNNING"/>
@@ -17,29 +21,62 @@
       <genEnumLiterals ecoreEnumLiteral="sampledefinition.ecore#//STATUS/ERROR"/>
     </genEnums>
     <genClasses ecoreClass="sampledefinition.ecore#//ExperimentDefinition">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//ExperimentDefinition/samplelist"/>
-    </genClasses>
-    <genClasses ecoreClass="sampledefinition.ecore#//SampleList">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//SampleList/filename"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//SampleList/samples"/>
-      <genOperations ecoreOperation="sampledefinition.ecore#//SampleList/getSampleById">
-        <genParameters ecoreParameter="sampledefinition.ecore#//SampleList/getSampleById/regionID"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//ExperimentDefinition/experiments"/>
+      <genOperations ecoreOperation="sampledefinition.ecore#//ExperimentDefinition/getExperiment">
+        <genParameters ecoreParameter="sampledefinition.ecore#//ExperimentDefinition/getExperiment/name"/>
       </genOperations>
-      <genOperations ecoreOperation="sampledefinition.ecore#//SampleList/getSampleByName">
-        <genParameters ecoreParameter="sampledefinition.ecore#//SampleList/getSampleByName/sampleName"/>
+    </genClasses>
+    <genClasses ecoreClass="sampledefinition.ecore#//Experiment">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Experiment/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//Experiment/stages"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Experiment/filename"/>
+      <genOperations ecoreOperation="sampledefinition.ecore#//Experiment/getStageByID">
+        <genParameters ecoreParameter="sampledefinition.ecore#//Experiment/getStageByID/stageId"/>
+      </genOperations>
+    </genClasses>
+    <genClasses ecoreClass="sampledefinition.ecore#//Stage">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/stageID"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference sampledefinition.ecore#//Stage/experiment"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//Stage/cells"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/detector_x"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/detector_y"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/detector_z"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/camera_x"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/camera_y"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Stage/camera_z"/>
+      <genOperations ecoreOperation="sampledefinition.ecore#//Stage/getCellByID">
+        <genParameters ecoreParameter="sampledefinition.ecore#//Stage/getCellByID/cellId"/>
+      </genOperations>
+    </genClasses>
+    <genClasses ecoreClass="sampledefinition.ecore#//Cell">
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference sampledefinition.ecore#//Cell/stage"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference sampledefinition.ecore#//Cell/samples"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/cellID"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/visitID"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/email"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/startDate"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/endDate"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/enableAutoEmail"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/calibrant"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/calibrant_x"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/calibrant_y"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/calibrant_exposure"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/envSamplingInterval"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Cell/evnScannableNames"/>
+      <genOperations ecoreOperation="sampledefinition.ecore#//Cell/getSampleById">
+        <genParameters ecoreParameter="sampledefinition.ecore#//Cell/getSampleById/sampleId"/>
+      </genOperations>
+      <genOperations ecoreOperation="sampledefinition.ecore#//Cell/getSampleByName">
+        <genParameters ecoreParameter="sampledefinition.ecore#//Cell/getSampleByName/sampleName"/>
       </genOperations>
     </genClasses>
     <genClasses ecoreClass="sampledefinition.ecore#//Sample">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sampleID"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference sampledefinition.ecore#//Sample/cell"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/status"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/active"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/name"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/cellID"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/visitID"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/calibrant"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/calibrant_x"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/calibrant_y"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/calibrant_exposure"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sampleID"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sample_x_start"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sample_x_stop"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sample_x_step"/>
@@ -47,15 +84,7 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sample_y_stop"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sample_y_step"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/sample_exposure"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/detector_x"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/detector_y"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/detector_z"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/email"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/startDate"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/endDate"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/command"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/mailCount"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/dataFileCount"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/comment"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute sampledefinition.ecore#//Sample/dataFilePath"/>
     </genClasses>

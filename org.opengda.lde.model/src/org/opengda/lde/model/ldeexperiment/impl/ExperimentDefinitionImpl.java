@@ -1,16 +1,39 @@
+/*******************************************************************************
+ * Copyright © 2009, 2014 Diamond Light Source Ltd
+ *
+ * This file is part of GDA.
+ *  
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ * 	Diamond Light Source Ltd
+ *******************************************************************************/
 /**
  */
 package org.opengda.lde.model.ldeexperiment.impl;
 
-import org.eclipse.emf.common.notify.Notification;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import org.eclipse.emf.common.notify.NotificationChain;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
-import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
+import org.eclipse.emf.ecore.util.EObjectContainmentEList;
+import org.eclipse.emf.ecore.util.InternalEList;
+import org.opengda.lde.model.ldeexperiment.Experiment;
 import org.opengda.lde.model.ldeexperiment.ExperimentDefinition;
 import org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage;
-import org.opengda.lde.model.ldeexperiment.SampleList;
 
 /**
  * <!-- begin-user-doc -->
@@ -19,7 +42,7 @@ import org.opengda.lde.model.ldeexperiment.SampleList;
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentDefinitionImpl#getSamplelist <em>Samplelist</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.impl.ExperimentDefinitionImpl#getExperiments <em>Experiments</em>}</li>
  * </ul>
  * </p>
  *
@@ -27,15 +50,14 @@ import org.opengda.lde.model.ldeexperiment.SampleList;
  */
 public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container implements ExperimentDefinition {
 	/**
-	 * The cached value of the '{@link #getSamplelist() <em>Samplelist</em>}' containment reference.
+	 * The cached value of the '{@link #getExperiments() <em>Experiments</em>}' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getSamplelist()
+	 * @see #getExperiments()
 	 * @generated
 	 * @ordered
 	 */
-	protected SampleList samplelist;
-
+	protected EList<Experiment> experiments;
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -60,8 +82,11 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public SampleList getSamplelist() {
-		return samplelist;
+	public EList<Experiment> getExperiments() {
+		if (experiments == null) {
+			experiments = new EObjectContainmentEList<Experiment>(Experiment.class, this, LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS);
+		}
+		return experiments;
 	}
 
 	/**
@@ -69,33 +94,10 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public NotificationChain basicSetSamplelist(SampleList newSamplelist, NotificationChain msgs) {
-		SampleList oldSamplelist = samplelist;
-		samplelist = newSamplelist;
-		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST, oldSamplelist, newSamplelist);
-			if (msgs == null) msgs = notification; else msgs.add(notification);
-		}
-		return msgs;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setSamplelist(SampleList newSamplelist) {
-		if (newSamplelist != samplelist) {
-			NotificationChain msgs = null;
-			if (samplelist != null)
-				msgs = ((InternalEObject)samplelist).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST, null, msgs);
-			if (newSamplelist != null)
-				msgs = ((InternalEObject)newSamplelist).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST, null, msgs);
-			msgs = basicSetSamplelist(newSamplelist, msgs);
-			if (msgs != null) msgs.dispatch();
-		}
-		else if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST, newSamplelist, newSamplelist));
+	public Experiment getExperiment(String name) {
+		// TODO: implement this method
+		// Ensure that you remove @generated or mark it @generated NOT
+		throw new UnsupportedOperationException();
 	}
 
 	/**
@@ -106,8 +108,8 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
-				return basicSetSamplelist(null, msgs);
+			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS:
+				return ((InternalEList<?>)getExperiments()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -120,8 +122,8 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
-				return getSamplelist();
+			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS:
+				return getExperiments();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -131,11 +133,13 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
-				setSamplelist((SampleList)newValue);
+			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS:
+				getExperiments().clear();
+				getExperiments().addAll((Collection<? extends Experiment>)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -149,8 +153,8 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
-				setSamplelist((SampleList)null);
+			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS:
+				getExperiments().clear();
 				return;
 		}
 		super.eUnset(featureID);
@@ -164,10 +168,24 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__SAMPLELIST:
-				return samplelist != null;
+			case LDEExperimentsPackage.EXPERIMENT_DEFINITION__EXPERIMENTS:
+				return experiments != null && !experiments.isEmpty();
 		}
 		return super.eIsSet(featureID);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Object eInvoke(int operationID, EList<?> arguments) throws InvocationTargetException {
+		switch (operationID) {
+			case LDEExperimentsPackage.EXPERIMENT_DEFINITION___GET_EXPERIMENT__STRING:
+				return getExperiment((String)arguments.get(0));
+		}
+		return super.eInvoke(operationID, arguments);
 	}
 
 } //ExperimentDefinitionImpl

@@ -73,17 +73,17 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements
 			case SampleTableConstants.COL_SAMPLE_NAME:
 				return sample.getName();
 			case SampleTableConstants.COL_CELL_ID:
-				return sample.getCellID();
+				return sample.getCell().getCellID();
 			case SampleTableConstants.COL_VISIT_ID:
-				return sample.getVisitID();
+				return sample.getCell().getVisitID();
 			case SampleTableConstants.COL_CALIBRANT_NAME:
-				return sample.getCalibrant();
+				return sample.getCell().getCalibrant();
 			case SampleTableConstants.COL_CALIBRANT_X:
-				return String.valueOf(sample.getCalibrant_x());
+				return String.valueOf(sample.getCell().getCalibrant_x());
 			case SampleTableConstants.COL_CALIBRANT_Y:
-				return String.valueOf(sample.getCalibrant_y());
+				return String.valueOf(sample.getCell().getCalibrant_y());
 			case SampleTableConstants.COL_CALIBRANT_EXPOSURE:
-				return String.valueOf(sample.getCalibrant_exposure());
+				return String.valueOf(sample.getCell().getCalibrant_exposure());
 			case SampleTableConstants.COL_SAMPLE_X_START:
 				return String.valueOf(sample.getSample_x_start());
 			case SampleTableConstants.COL_SAMPLE_X_STOP:
@@ -99,25 +99,21 @@ public class SampleGroupViewLabelProvider extends LabelProvider implements
 			case SampleTableConstants.COL_SAMPLE_EXPOSURE:
 				return String.valueOf(sample.getSample_exposure());
 			case SampleTableConstants.COL_DETECTOR_X:
-				return String.valueOf(sample.getDetector_x());
+				return String.valueOf(sample.getCell().getStage().getDetector_x());
 			case SampleTableConstants.COL_DETECTOR_Y:
-				return String.valueOf(sample.getDetector_y());
+				return String.valueOf(sample.getCell().getStage().getDetector_y());
 			case SampleTableConstants.COL_DETECTOR_Z:
-				return String.valueOf(sample.getDetector_z());
+				return String.valueOf(sample.getCell().getStage().getDetector_z());
 			case SampleTableConstants.COL_EMAIL:
-				return sample.getEmail();
+				return sample.getCell().getEmail();
 			case SampleTableConstants.COL_START_DATE:
-				return DateFormat.getInstance().format(sample.getStartDate());
+				return DateFormat.getInstance().format(sample.getCell().getStartDate());
 			case SampleTableConstants.COL_END_DATE:
-				return DateFormat.getInstance().format(sample.getEndDate());
+				return DateFormat.getInstance().format(sample.getCell().getEndDate());
 			case SampleTableConstants.COL_COMMAND:
 				return sample.getCommand();
 			case SampleTableConstants.COL_COMMENT:
 				return sample.getComment();
-			case SampleTableConstants.COL_MAIL_COUNT:
-				return Integer.toString(sample.getMailCount());
-			case SampleTableConstants.COL_DATA_FILE_COUNT:
-				return Integer.toString(sample.getDataFileCount());
 			}
 		}
 		return null;

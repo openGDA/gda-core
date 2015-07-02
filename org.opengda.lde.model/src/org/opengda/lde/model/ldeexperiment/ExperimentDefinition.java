@@ -1,7 +1,6 @@
-/**
- */
 package org.opengda.lde.model.ldeexperiment;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
 /**
@@ -12,7 +11,7 @@ import org.eclipse.emf.ecore.EObject;
  * <p>
  * The following features are supported:
  * <ul>
- *   <li>{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getSamplelist <em>Samplelist</em>}</li>
+ *   <li>{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getExperiments <em>Experiments</em>}</li>
  * </ul>
  * </p>
  *
@@ -22,29 +21,27 @@ import org.eclipse.emf.ecore.EObject;
  */
 public interface ExperimentDefinition extends EObject {
 	/**
-	 * Returns the value of the '<em><b>Samplelist</b></em>' containment reference.
+	 * Returns the value of the '<em><b>Experiments</b></em>' containment reference list.
+	 * The list contents are of type {@link org.opengda.lde.model.ldeexperiment.Experiment}.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Samplelist</em>' containment reference isn't clear,
+	 * If the meaning of the '<em>Experiments</em>' containment reference list isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Samplelist</em>' containment reference.
-	 * @see #setSamplelist(SampleList)
-	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperimentDefinition_Samplelist()
+	 * @return the value of the '<em>Experiments</em>' containment reference list.
+	 * @see org.opengda.lde.model.ldeexperiment.LDEExperimentsPackage#getExperimentDefinition_Experiments()
 	 * @model containment="true"
 	 * @generated
 	 */
-	SampleList getSamplelist();
+	EList<Experiment> getExperiments();
 
 	/**
-	 * Sets the value of the '{@link org.opengda.lde.model.ldeexperiment.ExperimentDefinition#getSamplelist <em>Samplelist</em>}' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Samplelist</em>' containment reference.
-	 * @see #getSamplelist()
+	 * @model
 	 * @generated
 	 */
-	void setSamplelist(SampleList value);
+	Experiment getExperiment(String name);
 
 } // ExperimentDefinition

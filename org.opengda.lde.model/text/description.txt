@@ -8,25 +8,52 @@ This can be disabled with -vmargs -Dorg.eclipse.emf.examples.generator.validator
 Package ldeexperiment <http://www.opengda.org/LDEExperiments>
 
   Class ExperimentDefinition
-    Reference samplelist : SampleList
+    Reference experiments : Experiment<<0..*>>
+    Operation getExperiment(EString) : Experiment
 
-  Class SampleList
-    Attribute filename : EString
-    Reference samples : Sample<<0..*>>
-    Operation getSampleById(EString) : Sample
-    Operation getSampleByName(EString) : Sample
-
-  Class Sample
-    Attribute sampleID : EString
-    Attribute status : STATUS
-    Attribute active : EBoolean
+  Class Experiment
     Attribute name : EString
+    Reference stages : Stage<<0..*>>
+    Attribute filename : EString
+    Operation getStageByID(EString) : Stage
+
+  Class Stage
+    Attribute stageID : EString
+    Reference experiment : Experiment<<1..1>>
+    Reference cells : Cell<<0..*>>
+    Attribute detector_x : EDouble
+    Attribute detector_y : EDouble
+    Attribute detector_z : EDouble
+    Attribute camera_x : EDouble
+    Attribute camera_y : EDouble
+    Attribute camera_z : EDouble
+    Operation getCellByID(EString) : Cell
+
+  Class Cell
+    Reference stage : Stage<<1..1>>
+    Reference samples : Sample<<0..*>>
     Attribute cellID : EString
+    Attribute name : EString
     Attribute visitID : EString
+    Attribute email : EString
+    Attribute startDate : EDate
+    Attribute endDate : EDate
+    Attribute enableAutoEmail : EBoolean
     Attribute calibrant : EString
     Attribute calibrant_x : EDouble
     Attribute calibrant_y : EDouble
     Attribute calibrant_exposure : EDouble
+    Attribute envSamplingInterval : EDouble
+    Attribute evnScannableNames : EString
+    Operation getSampleById(EString) : Sample
+    Operation getSampleByName(EString) : Sample
+
+  Class Sample
+    Reference cell : Cell<<1..1>>
+    Attribute status : STATUS
+    Attribute active : EBoolean
+    Attribute name : EString
+    Attribute sampleID : EString
     Attribute sample_x_start : EDoubleObject
     Attribute sample_x_stop : EDoubleObject
     Attribute sample_x_step : EDoubleObject
@@ -34,15 +61,7 @@ Package ldeexperiment <http://www.opengda.org/LDEExperiments>
     Attribute sample_y_stop : EDoubleObject
     Attribute sample_y_step : EDoubleObject
     Attribute sample_exposure : EDouble
-    Attribute detector_x : EDouble
-    Attribute detector_y : EDouble
-    Attribute detector_z : EDouble
-    Attribute email : EString
-    Attribute startDate : EDate
-    Attribute endDate : EDate
     Attribute command : EString
-    Attribute mailCount : EInt
-    Attribute dataFileCount : EInt
     Attribute comment : EString
     Attribute dataFilePath : EString
 

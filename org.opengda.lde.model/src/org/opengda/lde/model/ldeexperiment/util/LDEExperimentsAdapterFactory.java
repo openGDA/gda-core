@@ -1,5 +1,24 @@
-/**
- */
+/*******************************************************************************
+ * Copyright © 2009, 2014 Diamond Light Source Ltd
+ *
+ * This file is part of GDA.
+ *  
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ * 	Diamond Light Source Ltd
+ *******************************************************************************/
+
 package org.opengda.lde.model.ldeexperiment.util;
 
 import org.eclipse.emf.common.notify.Adapter;
@@ -72,8 +91,16 @@ public class LDEExperimentsAdapterFactory extends AdapterFactoryImpl {
 				return createExperimentDefinitionAdapter();
 			}
 			@Override
-			public Adapter caseSampleList(SampleList object) {
-				return createSampleListAdapter();
+			public Adapter caseExperiment(Experiment object) {
+				return createExperimentAdapter();
+			}
+			@Override
+			public Adapter caseStage(Stage object) {
+				return createStageAdapter();
+			}
+			@Override
+			public Adapter caseCell(Cell object) {
+				return createCellAdapter();
 			}
 			@Override
 			public Adapter caseSample(Sample object) {
@@ -114,16 +141,44 @@ public class LDEExperimentsAdapterFactory extends AdapterFactoryImpl {
 	}
 
 	/**
-	 * Creates a new adapter for an object of class '{@link org.opengda.lde.model.ldeexperiment.SampleList <em>Sample List</em>}'.
+	 * Creates a new adapter for an object of class '{@link org.opengda.lde.model.ldeexperiment.Experiment <em>Experiment</em>}'.
 	 * <!-- begin-user-doc -->
 	 * This default implementation returns null so that we can easily ignore cases;
 	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
 	 * <!-- end-user-doc -->
 	 * @return the new adapter.
-	 * @see org.opengda.lde.model.ldeexperiment.SampleList
+	 * @see org.opengda.lde.model.ldeexperiment.Experiment
 	 * @generated
 	 */
-	public Adapter createSampleListAdapter() {
+	public Adapter createExperimentAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.opengda.lde.model.ldeexperiment.Stage <em>Stage</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.opengda.lde.model.ldeexperiment.Stage
+	 * @generated
+	 */
+	public Adapter createStageAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.opengda.lde.model.ldeexperiment.Cell <em>Cell</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.opengda.lde.model.ldeexperiment.Cell
+	 * @generated
+	 */
+	public Adapter createCellAdapter() {
 		return null;
 	}
 

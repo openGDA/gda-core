@@ -1,3 +1,23 @@
+/*******************************************************************************
+ * Copyright © 2009, 2014 Diamond Light Source Ltd
+ *
+ * This file is part of GDA.
+ *  
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ * 	Diamond Light Source Ltd
+ *******************************************************************************/
 /**
  */
 package org.opengda.lde.model.ldeexperiment.impl;
@@ -58,7 +78,9 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	public EObject create(EClass eClass) {
 		switch (eClass.getClassifierID()) {
 			case LDEExperimentsPackage.EXPERIMENT_DEFINITION: return createExperimentDefinition();
-			case LDEExperimentsPackage.SAMPLE_LIST: return createSampleList();
+			case LDEExperimentsPackage.EXPERIMENT: return createExperiment();
+			case LDEExperimentsPackage.STAGE: return createStage();
+			case LDEExperimentsPackage.CELL: return createCell();
 			case LDEExperimentsPackage.SAMPLE: return createSample();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
@@ -110,9 +132,29 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public SampleList createSampleList() {
-		SampleListImpl sampleList = new SampleListImpl();
-		return sampleList;
+	public Experiment createExperiment() {
+		ExperimentImpl experiment = new ExperimentImpl();
+		return experiment;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Stage createStage() {
+		StageImpl stage = new StageImpl();
+		return stage;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Cell createCell() {
+		CellImpl cell = new CellImpl();
+		return cell;
 	}
 
 	/**

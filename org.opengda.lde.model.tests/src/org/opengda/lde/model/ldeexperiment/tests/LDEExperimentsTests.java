@@ -31,7 +31,10 @@ public class LDEExperimentsTests extends TestSuite {
 	 */
 	public static Test suite() {
 		TestSuite suite = new LDEExperimentsTests("ldeexperiment Tests");
-		suite.addTestSuite(SampleListTest.class);
+		suite.addTestSuite(ExperimentDefinitionTest.class);
+		suite.addTestSuite(ExperimentTest.class);
+		suite.addTestSuite(StageTest.class);
+		suite.addTestSuite(CellTest.class);
 		return suite;
 	}
 

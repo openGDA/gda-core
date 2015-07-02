@@ -210,6 +210,7 @@ public class ReducedDataPlotComposite extends Composite implements IObserver {
 					}
 				});
 			}
+			//TODO handling FAIL and WARN event.
 		}
 	}
 

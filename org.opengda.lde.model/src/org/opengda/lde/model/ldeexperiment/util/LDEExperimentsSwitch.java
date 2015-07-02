@@ -1,3 +1,23 @@
+/*******************************************************************************
+ * Copyright © 2009, 2014 Diamond Light Source Ltd
+ *
+ * This file is part of GDA.
+ *  
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ * 	Diamond Light Source Ltd
+ *******************************************************************************/
 /**
  */
 package org.opengda.lde.model.ldeexperiment.util;
@@ -72,9 +92,21 @@ public class LDEExperimentsSwitch<T> extends Switch<T> {
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
-			case LDEExperimentsPackage.SAMPLE_LIST: {
-				SampleList sampleList = (SampleList)theEObject;
-				T result = caseSampleList(sampleList);
+			case LDEExperimentsPackage.EXPERIMENT: {
+				Experiment experiment = (Experiment)theEObject;
+				T result = caseExperiment(experiment);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case LDEExperimentsPackage.STAGE: {
+				Stage stage = (Stage)theEObject;
+				T result = caseStage(stage);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case LDEExperimentsPackage.CELL: {
+				Cell cell = (Cell)theEObject;
+				T result = caseCell(cell);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -104,17 +136,47 @@ public class LDEExperimentsSwitch<T> extends Switch<T> {
 	}
 
 	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Sample List</em>'.
+	 * Returns the result of interpreting the object as an instance of '<em>Experiment</em>'.
 	 * <!-- begin-user-doc -->
 	 * This implementation returns null;
 	 * returning a non-null result will terminate the switch.
 	 * <!-- end-user-doc -->
 	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Sample List</em>'.
+	 * @return the result of interpreting the object as an instance of '<em>Experiment</em>'.
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public T caseSampleList(SampleList object) {
+	public T caseExperiment(Experiment object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Stage</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Stage</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseStage(Stage object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Cell</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Cell</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseCell(Cell object) {
 		return null;
 	}
 
