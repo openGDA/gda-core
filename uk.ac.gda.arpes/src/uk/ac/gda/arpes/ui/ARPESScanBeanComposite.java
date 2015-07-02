@@ -18,9 +18,11 @@
 
 package uk.ac.gda.arpes.ui;
 
+import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.jython.JythonServerFacade;
+import gda.observable.IObserver;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -342,7 +344,27 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		
 		//Call to get current PSU mode as panel is building
 		//Only call after creating all GUI objects
-		updatePsuMode(); 
+		updatePsuMode();
+
+		// This is to allow dynamic updates of PSU mode from EPICS
+		// Create a scannable to allow an observer to be added
+		Scannable psuModeScannable = (Scannable) (Finder.getInstance().find("psu_mode"));
+
+		// Create an observer that updates the PSU mode when fired
+		final IObserver psuModeObserver = new IObserver() {
+			@Override
+			public void update(Object source, Object arg) {
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						updatePsuMode();
+					}
+				});
+			}
+		};
+
+		// Connect observer to scannable.
+		psuModeScannable.addIObserver(psuModeObserver);
 	}
 
 	private void updatePsuMode() {
@@ -377,7 +399,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 			passMap.remove("100 eV"); // PE=100 eV not possible in Low Pass
 		}
 		else {
-			logger.warn("PSU mode not matched! Got PSU mode = " + psuMode.getText());
+			logger.error("Failed to match psu_mode! Not all pass energies avaliable are valid!");
 		}
 		passEnergy.setItems(passMap);
 	}
