@@ -103,13 +103,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="org.hamcrest.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="uk.ac.diamond.org.jacorb"
          download-size="0"
          install-size="0"
@@ -130,13 +123,6 @@
 
    <plugin
          id="uk.ac.diamond.org.jfree"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.mockito.mockito-core"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -182,13 +168,6 @@
          download-size="0"
          install-size="0"
          version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.objenesis"
-         download-size="0"
-         install-size="0"
-         version="2.1.0"
          unpack="false"/>
 
    <plugin

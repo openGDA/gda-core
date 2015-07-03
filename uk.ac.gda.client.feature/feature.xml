@@ -244,27 +244,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.mockito.mockito-core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.objenesis"
-         download-size="0"
-         install-size="0"
-         version="2.1.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.hamcrest.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.pde.runtime"
          download-size="0"
          install-size="0"
