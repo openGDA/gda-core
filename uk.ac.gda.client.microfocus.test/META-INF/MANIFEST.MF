@@ -10,5 +10,5 @@ Require-Bundle: uk.ac.diamond.org.powermock;bundle-version="[1.5.1,1.5.2)",
  javassist;bundle-version="[3.20.0,3.21.0)",
  uk.ac.gda.server.exafs,
  uk.ac.diamond.org.springframework;bundle-version="4.0.6",
- org.mockito.mockito-core;bundle-version="1.9.5",
+ org.mockito.mockito-core;bundle-version="[1.9.5,2.0.0)",
  org.junit;bundle-version="4.10.0"
