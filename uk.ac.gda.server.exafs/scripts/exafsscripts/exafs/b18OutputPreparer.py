@@ -6,7 +6,7 @@ class B18OutputPreparer:
     def __init__(self, datawriterconfig):
         self.datawriterconfig = datawriterconfig
     
-    def prepare(self, outputParameters, scanBean):
+    def prepare(self, outputParameters, scanBean, sampleBean):
         metadata = outputParameters.getMetadataList()
         meta=Metadata(self.datawriterconfig)
         if len(metadata)>0:
@@ -26,4 +26,7 @@ class B18OutputPreparer:
         meta_clear_alldynamical()
     
     def _resetNexusStaticMetadataList(self):
+        pass
+    
+    def _resetAsciiStaticMetadataList(self):
         pass
