@@ -1,5 +1,6 @@
 package uk.ac.gda.devices.detector.xspress3;
 
+import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
@@ -8,12 +9,13 @@ import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
+import gda.device.detector.NexusDetector;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.nexusformat.NexusFile;
@@ -34,12 +36,12 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * @author rjw82
  * 
  */
-public class Xspress3Detector extends DetectorBase implements Xspress3 {
-
+public class Xspress3Detector extends DetectorBase implements Xspress3, FluorescenceAcquire {
+	
 	public static final String ALL_ELEMENT_SUM_LABEL = "AllElementSum_";
 	public static int SUM_ALL_ROI = 0;
 	public static int SUM_FIRST_ROI = 1;
-	public static int MAX_ROI_PER_CHANNEL = 10;
+	public static int MAX_ROI_PER_CHANNEL = 4;
 
 	protected Xspress3Controller controller;
 	private String channelLabelPrefix = "FF channel ";
@@ -47,38 +49,17 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	private String unitsLabel = "counts";
 	private int framesRead = 0;
 	private int firstChannelToRead = 0;
+	private int numberOfChannelsToRead = 1;
 	private int summingMethod = SUM_ALL_ROI;
 
 	private boolean writeHDF5Files = false;
 	private String filePath = "";
 	private String filePrefix = "";
-	// private String numTrackerExtension = "nxs";
-	// private NumTracker numTracker;
+	private String numTrackerExtension = "nxs";
+	private NumTracker numTracker;
 	private int currentScanNumber = -1;
-
+	
 	private String configFileName;
-	private String[] regionNames;
-	private int rowBeingCollected;
-	private int[] currentDimensions;
-
-	/**
-	 * For a given row in a multiDimensional scan , this returns the name of the
-	 * subentry in the Nexus file which contains all the MCAs for that row.
-	 * <p>
-	 * This will become redundant when SWMR is available and all Mca data can be
-	 * placed in the same HDF5 file by the Area Detector EPICS plugin, so there
-	 * will be no need to put MCA data in different files and Nexus nodes.
-	 * 
-	 * @param rowNumber
-	 * @return
-	 */
-	public static String getNameOfRowSubNode(int rowNumber) {
-		return "mcas_row_" + String.format("%04d", rowNumber);
-	}
-
-	public static String getNameOfAllElementSumRowSubNode(int rowNumber) {
-		return ALL_ELEMENT_SUM_LABEL + "row_" + String.format("%04d", rowNumber);
-	}
 
 	public Xspress3Detector() {
 		super();
@@ -88,58 +69,43 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	public void configure() throws FactoryException {
 		controller.configure();
 		super.configure();
-		// if (numTracker == null) {
-		// createNumTracker();
-		// }
+		if (numTracker == null) {
+			createNumTracker();
+		}
 		if (filePrefix.isEmpty() && !getName().isEmpty()) {
 			filePrefix = getName();
 		}
 		inputNames = new String[] {};
-
-		configureExtraNames();
 	}
 
-	// private void createNumTracker() {
-	// if (numTrackerExtension != null && !numTrackerExtension.isEmpty()) {
-	// try {
-	// numTracker = new NumTracker(numTrackerExtension);
-	// } catch (IOException e) {
-	// throw new IllegalArgumentException(
-	// "NumTracker with extension '" + numTrackerExtension
-	// + "' could not be created.", e);
-	// }
-	// }
-	// }
+	private void createNumTracker() {
+		if (numTrackerExtension != null && !numTrackerExtension.isEmpty()) {
+			try {
+				numTracker = new NumTracker(numTrackerExtension);
+			} catch (IOException e) {
+				throw new IllegalArgumentException(
+						"NumTracker with extension '" + numTrackerExtension
+								+ "' could not be created.", e);
+			}
+		}
+	}
 
 	@Override
 	public void atScanStart() throws DeviceException {
-		ScanInformation currentscan = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
+		ScanInformation currentscan = InterfaceProvider
+				.getCurrentScanInformationHolder().getCurrentScanInformation();
 		currentScanNumber = currentscan.getScanNumber();
-		currentDimensions = currentscan.getDimensions();
-
 		int numDimensions = currentscan.getDimensions().length;
 		int lengthOfEachScanLine = currentscan.getDimensions()[numDimensions - 1];
 		setNumberOfFramesToCollect(lengthOfEachScanLine);
 		stop();
-		prepareFileWriting(currentDimensions);
-
-		rowBeingCollected = -1;
+		prepareFileWriting();
 	}
 
 	@Override
 	public void atScanLineStart() throws DeviceException {
 		framesRead = 0;
 		startRunningXspress3FrameSet();
-		rowBeingCollected++;
-
-		// for when we have SWMR and can write to a multi-dimensional HDF5 file
-		// only start the xspress3 during the first row of a multi-dimensional
-		// scan
-		// if (newScan){
-		// framesRead = 0;
-		// startRunningXspress3FrameSet();
-		// newScan = false;
-		// }
 	}
 
 	protected void startRunningXspress3FrameSet() throws DeviceException {
@@ -156,7 +122,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	public void atScanEnd() throws DeviceException {
 		currentScanNumber = -1;
 	}
-
+	
 	@Override
 	public void atPointEnd() throws DeviceException {
 		if (controller.getNumFramesToAcquire() > 1) {
@@ -164,37 +130,27 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		}
 	}
 
-	private void prepareFileWriting(int[] numDimensions) throws DeviceException {
+	private void prepareFileWriting() throws DeviceException {
 		if (writeHDF5Files) {
 			// set file path name, number here if known or set
-
-			String scanNumber = getScanNumber();
-			String subFolder = "";
-			if (currentDimensions.length > 1) {
-				subFolder = scanNumber;
-			}
-
-			filePath = PathConstructor.createFromRCPProperties();
-			filePath += getName() + File.separator + subFolder;
-			File filePathTester = new File(filePath);
-			if (!filePathTester.exists()) {
-				filePathTester.mkdirs();
-			}
-			controller.setFilePath(filePath);
-
-			if (!scanNumber.isEmpty()) {
-				controller.setFilePrefix(scanNumber + "_");
+			if (filePath != null && !filePath.isEmpty()) {
+				controller.setFilePath(filePath);
 			} else {
-				controller.setFilePrefix(getName() + "_");
+				controller.setFilePath(PathConstructor
+						.createFromDefaultProperty());
+			}
+
+			if (filePrefix != null && !filePrefix.isEmpty()) {
+				String scanNumber = getScanNumber();
+				if (!scanNumber.isEmpty()) {
+					scanNumber = "_" + scanNumber;
+				}
+				controller.setFilePrefix(filePrefix + scanNumber + "_");
+			} else {
+				controller.setFilePrefix("xspress3_");
 			}
 
 			controller.setNextFileNumber(0);
-			controller.setHDFFileAutoIncrement(true);
-			controller.setHDFNumFramesToAcquire(currentDimensions[currentDimensions.length - 1]);
-
-			// for future use with SWMR
-			// controller.setNextFileNumber(Integer.parseInt(getScanNumber()));
-			// controller.setHDFFileDimensions(numDimensions);
 		}
 	}
 
@@ -222,7 +178,8 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	@Override
 	public int getStatus() throws DeviceException {
 		int controllerStatus = controller.getStatus();
-		if (controllerStatus == Detector.FAULT || controllerStatus == Detector.STANDBY) {
+		if (controllerStatus == Detector.FAULT
+				|| controllerStatus == Detector.STANDBY) {
 			return controllerStatus;
 		}
 		// This detector class is completely passive and is dependent on being
@@ -236,6 +193,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return false; // false as this will return data for the GDA to write
 						// itself.
 	}
+	
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
@@ -272,14 +230,16 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * <p>
 	 * Returns the FF (sum of ROI) in the plottable values. May want the option
 	 * in the future to return the individual ROI values instead.
+	 * <p>
+	 * TODO add a link to the HDF5 file created by underlying controller instead
+	 * of adding more data to this Nexus tree.
 	 * 
 	 * @param firstFrame
 	 * @param lastFrame
 	 * @return NexusTreeProvider array for every frame
 	 * @throws DeviceException
 	 */
-	@Override
-	public NXDetectorData[] readFrames(int firstFrame, int lastFrame) throws DeviceException {
+	public NexusTreeProvider[] readFrames(int firstFrame, int lastFrame) throws DeviceException {
 		int numFramesAvailable = controller.getTotalFramesAvailable();
 		if (lastFrame > numFramesAvailable) {
 			throw new DeviceException("Only " + numFramesAvailable + " frames available, cannot return frames "
@@ -287,83 +247,50 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		}
 
 		// readout ROI in format [frame][detector channel][ROIs]
-		Double[][][] data = controller.readoutDTCorrectedROI(firstFrame, lastFrame, firstChannelToRead,
-				controller.getNumberOfChannels() + firstChannelToRead - 1);
-		// calc FF from ROI
+		int finalChannelToRead = numberOfChannelsToRead + firstChannelToRead - 1;
 		int numFramesRead = lastFrame - firstFrame + 1;
-		Double[][] FFs = calculateFFs(data, numFramesRead);
+		
+		// derive FFs from ROIs on MCAs
+		// Double[][][] data = controller.readoutDTCorrectedROI(firstFrame,
+		// lastFrame, firstChannelToRead, finalChannelToRead);
+		// calc FF from ROI
+		// Double[][] FFs = calculateFFs(data, numFramesRead);
+		
+		// read out FFs from sca5
+		Double[][] FFs_sca5 = controller.readoutDTCorrectedSCA1(firstFrame, lastFrame, firstChannelToRead,
+				finalChannelToRead);
+		Double[][] FFs_sca6 = controller.readoutDTCorrectedSCA2(firstFrame, lastFrame, firstChannelToRead,
+				finalChannelToRead);
+		Double[][] FFs = new Double[numFramesRead][numberOfChannelsToRead];
+		for (int frame = 0; frame < numFramesRead; frame++) {
+			for (int channel = 0; channel < numberOfChannelsToRead; channel++) {
+				// TODO summing all ROIs here - should check current value of summingMethod!
+				FFs[frame][channel] = FFs_sca5[frame][channel] + FFs_sca6[frame][channel];
+			}
+		}
 
 		// create trees
-		NXDetectorData[] results = new NXDetectorData[numFramesRead];
+		NexusTreeProvider[] results = new NexusTreeProvider[numFramesRead];
 
 		for (int frame = 0; frame < numFramesRead; frame++) {
 			NXDetectorData thisFrame = new NXDetectorData(this);
 			INexusTree detTree = thisFrame.getDetTree(getName());
-
-			// add FF (all ROI, all channels)
-			thisFrame.addData(detTree, sumLabel, new int[] { controller.getNumberOfChannels() }, NexusFile.NX_FLOAT64,
+			thisFrame.addData(detTree, sumLabel, new int[] { numberOfChannelsToRead }, NexusFile.NX_FLOAT64,
 					FFs[frame], unitsLabel, 1);
-
-			// add regions of interest for each channel
-			Double[][] thisFrameData = data[frame];
-			for (int region = 0; region < regionNames.length; region++) {
-				Double[] countsPerChannel = new Double[controller.getNumberOfChannels()];
-
-				for (int channel = 0; channel < controller.getNumberOfChannels(); channel++) {
-					countsPerChannel[channel] = thisFrameData[channel][region];
-				}
-				thisFrame.addData(detTree, regionNames[region], new int[] { controller.getNumberOfChannels() },
-						NexusFile.NX_FLOAT64, countsPerChannel, unitsLabel, 2);
+			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
+				thisFrame.setPlottableValue(getExtraNames()[chan], FFs[frame][chan]);
 			}
 
-			// // add the FFs as the plottable values (seen in Jython Terminal
-			// and ASCII files)
-			// for (int chan = 0; chan < controller.getNumberOfChannels();
-			// chan++) {
-			// thisFrame.setPlottableValue(getExtraNames()[chan],
-			// FFs[frame][chan]);
-			// }
-
-			// add all the rois as plottable values, plus a final FF.
-			int index = 0;
-			double ffSum = 0;
-			String[] extraNames = getExtraNames();
-			for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
-				for (int roi = 0; roi < controller.getNumberROIToRead(); roi++) {
-					double roiCounts = data[frame][chan][roi];
-					ffSum += roiCounts;
-					thisFrame.setPlottableValue(extraNames[index], roiCounts);
-					index++;
-				}
+			double totalFF = 0;
+			for (Double ff : FFs[frame]){
+				totalFF += ff;
 			}
-			thisFrame.setPlottableValue("FF", ffSum);
+			thisFrame.setPlottableValue(getExtraNames()[numberOfChannelsToRead], totalFF);
 
-			// Add link to MCA data files
-			// Only need to do this for the very first frame of a file. This
-			// assumes a 2D scan.
-			if (rowBeingCollected == 0 && (frame + firstFrame) == 0) {
-				// There will be a new file per row, so create a new link per
-				// row.
-				// This must be done first time, as new links in later frames
-				// will be ignored when data is appended in the Nexus file.
-				int numRows = currentDimensions[0];
-				String path = controller.getFilePath();
-				String prefix = controller.getFilePrefix();
-				
-				String allElementPath = path;
-				String allElementPrefix = "AllElementSum_"+prefix;
-				
-				for (int row = 0; row < numRows; row++) {
-					String hdf5FileName = path + prefix + String.format("%04d", row) + ".hdf5";
-					String nodeName = getNameOfRowSubNode(row);
-					String fullLink = "nxfile://" + hdf5FileName + "#entry/instrument/detector/data";
-					thisFrame.addExternalFileLink(getName(), nodeName, fullLink, false, false);
-					
-					String allElementFileName = allElementPath + allElementPrefix + String.format("%04d", row) + ".hdf5";
-					String allElementNodeName = getNameOfAllElementSumRowSubNode(row);
-					String allElementFullLink = "nxfile://" + allElementFileName + "#entry/instrument/detector/data";
-					thisFrame.addExternalFileLink(getName(), allElementNodeName, allElementFullLink, false, false);
-				}
+			// TODO this needs fixing at some point - currently writes an absolute path when better to use relative in Nexus
+			// Also, deriveFilename() only gives the correct name in step scans when Auto Increment is switched off in EPICS
+			if (writeHDF5Files) {
+				thisFrame.addScanFileLink(getName(), "nxfile://" + deriveFilename() + "#entry/instrument/detector/data");
 			}
 
 			results[frame] = thisFrame;
@@ -371,19 +298,33 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return results;
 	}
 
-	public Double[] readoutFF() throws DeviceException {
-		// assume that this is readout before the full readout() is called!!
-		Double[][][] data = controller.readoutDTCorrectedROI(framesRead, framesRead, firstChannelToRead,
-				controller.getNumberOfChannels() + firstChannelToRead - 1);
-		return calculateFFs(data, 1)[0];
+	/**
+	 * For use by Xspress3FFOverI0Detector only. Not intended for use in continuous scans. Largely duplicates code
+	 * used in Xspress3FFoverI0BufferedDetector.getFF().
+	 */
+	public double readoutFFTotal() throws DeviceException {
+
+		// inefficient to call this whole method just to get the FF, but easiest option for now
+		NXDetectorData xspressFrame = (NXDetectorData) readout();
+
+		Double[] xspressOutput = xspressFrame.getDoubleVals();
+		String[] names = getExtraNames();
+
+		double ffTotal = 0;
+		for (int index = 0; index < names.length; index++) {
+			if (names[index].equals("FF")) {
+				ffTotal = xspressOutput[index];
+			}
+		}
+		return ffTotal;
 	}
 
+	@SuppressWarnings("unused") // still used in commented code in readoutFrames()
 	private Double[][] calculateFFs(Double[][][] data, int numFramesRead) {
-		Double[][] FFs = new Double[numFramesRead][controller.getNumberOfChannels()]; // [frame][detector
-		// channel]
+		Double[][] FFs = new Double[numFramesRead][numberOfChannelsToRead]; // [frame][detector channel]
 		for (int frame = 0; frame < numFramesRead; frame++) {
-			for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
-				if (summingMethod == 1) {
+			for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
+				if (summingMethod == SUM_FIRST_ROI) {
 					FFs[frame][chan] = data[frame][chan][0];
 				} else {
 					FFs[frame][chan] = sumArray(data[frame][chan]);
@@ -393,28 +334,23 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return FFs;
 	}
 
+	private String deriveFilename() throws DeviceException {
+		String path = controller.getFilePath();
+		String prefix = controller.getFilePrefix();
+		String scanNumber = Integer.toString(controller.getNextFileNumber());
+		String xspress3File =  path + prefix + scanNumber + ".hdf5";
+		return xspress3File;
+	}
+
 	@Override
 	public String[] getExtraNames() {
-		// // these are the plottable values. For this detector it is the FF for
-		// // each channel
-		// String[] extraNames = new String[controller.getNumberOfChannels()];
-		// for (int i = 0; i < controller.getNumberOfChannels(); i++) {
-		// extraNames[i] = "Chan" + (firstChannelToRead + i);
-		// }
-		// return extraNames;
-
-		int numExtraNames = (controller.getNumberROIToRead() * controller.getNumberOfChannels()) + 1;
-		String[] extraNames = new String[numExtraNames];
-		int index = 0;
-		for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
-			for (int roi = 0; roi < controller.getNumberROIToRead(); roi++) {
-				String valueName = "Chan" + chan + "_" + regionNames[roi];
-				extraNames[index] = valueName;
-				index++;
-			}
+		// these are the plottable values. For this detector it is the FF for
+		// each channel
+		String[] extraNames = new String[numberOfChannelsToRead + 1];
+		for (int i = 0; i < numberOfChannelsToRead; i++) {
+			extraNames[i] = "Chan" + (firstChannelToRead + i);
 		}
-		extraNames[numExtraNames - 1] = "FF";
-
+		extraNames[numberOfChannelsToRead] = "FF";
 		return extraNames;
 	}
 
@@ -428,31 +364,30 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 	public void setRegionsOfInterest(ROI[] regionList) throws DeviceException {
 		if (regionList.length > MAX_ROI_PER_CHANNEL) {
-			throw new DeviceException("Too many regions! Only " + MAX_ROI_PER_CHANNEL + " allowed.");
+			throw new DeviceException("Too many regions! Only "
+					+ MAX_ROI_PER_CHANNEL + " allowed.");
 		}
-
-		defineRegionNames(regionList);
-
-		for (int chan = firstChannelToRead; chan < controller.getNumberOfChannels() + firstChannelToRead; chan++) {
+		for (int chan = firstChannelToRead; chan < numberOfChannelsToRead
+				+ firstChannelToRead; chan++) {
 			for (int roiNum = 0; roiNum < MAX_ROI_PER_CHANNEL; roiNum++) {
+				// 'soft' ROIs on MCAs
 				if (roiNum < regionList.length) {
 					controller.setROILimits(chan, roiNum,
-							new int[] { regionList[roiNum].getStart(), regionList[roiNum].getEnd() });
+							new int[] { regionList[roiNum].getStart(),
+									regionList[roiNum].getEnd() });
 				} else {
 					controller.setROILimits(chan, roiNum, new int[] { 0, 0 });
+				}
+				if (roiNum < 2 && roiNum < regionList.length) {
+					controller.setWindows(chan, roiNum,
+							new int[] { regionList[roiNum].getStart(),
+									regionList[roiNum].getEnd() });
+				} else if (roiNum < 2) {
+					controller.setWindows(chan, roiNum, new int[] { 0, 0 });
 				}
 			}
 		}
 		controller.setNumberROIToRead(regionList.length);
-
-	}
-
-	private void defineRegionNames(ROI[] regionList) {
-		regionNames = new String[regionList.length];
-
-		for (int region = 0; region < regionList.length; region++) {
-			regionNames[region] = regionList[region].getName();
-		}
 	}
 
 	/**
@@ -463,59 +398,45 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * @throws DeviceException
 	 */
 	public ROI[] getRegionsOfInterest() throws DeviceException {
-		// assume that the ROIs were defined via this class and so the
-		// regionNames array kept in this class has the same size as the regions
-		// defined in the controller
 		ROI[] rois = new ROI[controller.getNumberROIToRead()];
 
 		for (int roiNum = 0; roiNum < rois.length; roiNum++) {
 			rois[roiNum] = new ROI();
-			rois[roiNum].setName(regionNames[rois.length]);
+			rois[roiNum].setName("ROI" + roiNum);
 			Integer[] limits = controller.getROILimits(0, roiNum);
 			rois[roiNum].setStart(limits[0]);
 			rois[roiNum].setEnd(limits[1]);
 		}
 		return rois;
 	}
-
+	
 	public void clearAndStart() throws DeviceException {
 		controller.doErase();
 		controller.doStart();
 	}
-
-	public int[][] getData() throws DeviceException {
-
-		double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestMCA(firstChannelToRead,
-				controller.getNumberOfChannels() - 1);
+	
+	public int[][] getData() throws DeviceException{
+		
+		double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
 		int[][] deadTimeCorrectedDataInt = new int[deadTimeCorrectedData.length][deadTimeCorrectedData[0].length];
-		for (int i = 0; i < deadTimeCorrectedData.length; i++) {
-			for (int j = 0; j < deadTimeCorrectedData[0].length; j++) {
-				deadTimeCorrectedDataInt[i][j] = (int) Math.round(deadTimeCorrectedData[i][j]);
+		for(int i=0;i<deadTimeCorrectedData.length;i++){
+			for(int j=0;j<deadTimeCorrectedData[0].length;j++){
+				deadTimeCorrectedDataInt[i][j]= (int) Math.round(deadTimeCorrectedData[i][j]);
 			}
 		}
 		return deadTimeCorrectedDataInt;
 	}
-
+	
 	/**
-	 * @param time
-	 *            - milliseconds
+	 * @param time - milliseconds
 	 * @return
 	 * @throws DeviceException
 	 */
 	public double[][] getMCData(double time) throws DeviceException {
 		controller.doErase();
 		controller.doStart();
-		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only
-																		// want
-																		// to
-																		// collect
-																		// a
-																		// frame
-																		// at a
-																		// time
-		((Timer) Finder.getInstance().find("tfg")).countAsync(time); // run tfg
-																		// for
-																		// time
+		((Timer) Finder.getInstance().find("tfg")).clearFrameSets(); // we only want to collect a frame at a time
+		((Timer) Finder.getInstance().find("tfg")).countAsync(time); //run tfg for time
 		do {
 			synchronized (this) {
 				try {
@@ -527,7 +448,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
 		controller.doStop();
 
-		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, controller.getNumberOfChannels() - 1);
+		return controller.readoutDTCorrectedLatestMCA(firstChannelToRead, getNumberOfChannelsToRead() - 1);
 	}
 
 	public int getFirstChannelToRead() {
@@ -538,14 +459,19 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		this.firstChannelToRead = firstChannelToRead;
 	}
 
-	private void configureExtraNames() {
+	public int getNumberOfChannelsToRead() {
+		return numberOfChannelsToRead;
+	}
+
+	public void setNumberOfChannelsToRead(int numberOfChannelsToRead) {
+		this.numberOfChannelsToRead = numberOfChannelsToRead;
 		// this defines the number of extraNames as currently extraNames = FF
 		// per channel
-		String[] newExtraNames = new String[controller.getNumberOfChannels()];
-		String[] newoutputFormat = new String[controller.getNumberOfChannels()];
+		String[] newExtraNames = new String[numberOfChannelsToRead];
+		String[] newoutputFormat = new String[numberOfChannelsToRead];
 		newoutputFormat[0] = this.outputFormat[0];
 
-		for (int chan = 0; chan < controller.getNumberOfChannels(); chan++) {
+		for (int chan = 0; chan < numberOfChannelsToRead; chan++) {
 			String label = channelLabelPrefix + (chan + firstChannelToRead);
 			newExtraNames[chan] = label;
 			newoutputFormat[chan] = this.outputFormat[0];
@@ -558,7 +484,8 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return controller.getNumFramesToAcquire();
 	}
 
-	public void setNumberOfFramesToCollect(int numberOfFramesToCollect) throws DeviceException {
+	public void setNumberOfFramesToCollect(int numberOfFramesToCollect)
+			throws DeviceException {
 		controller.setNumFramesToAcquire(numberOfFramesToCollect);
 	}
 
@@ -617,19 +544,18 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	public void setFilePrefix(String filePrefix) {
 		this.filePrefix = filePrefix;
 	}
+	
+	public String getNumTrackerExtension() {
+		return numTrackerExtension;
+	}
 
-	// public String getNumTrackerExtension() {
-	// return numTrackerExtension;
-	// }
-	//
-	// public void setNumTrackerExtension(String numTrackerExtension) {
-	// this.numTrackerExtension = numTrackerExtension;
-	// createNumTracker();
-	// }
+	public void setNumTrackerExtension(String numTrackerExtension) {
+		this.numTrackerExtension = numTrackerExtension;
+		createNumTracker();
+	}
 
 	@Override
 	public Object getCountRates() throws DeviceException {
-		// is this ever called??? Should it be removed from the interface???
 		return null;
 	}
 
@@ -648,22 +574,44 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		if (getConfigFileName() == null)
 			return;
 
-		Xspress3Parameters vortexParameters = (Xspress3Parameters) XMLHelpers.createFromXML(
-				Xspress3Parameters.mappingURL, Xspress3Parameters.class, Xspress3Parameters.schemaURL,
-				getConfigFileName());
+		Xspress3Parameters vortexParameters = (Xspress3Parameters) XMLHelpers.createFromXML(Xspress3Parameters.mappingURL,
+				Xspress3Parameters.class, Xspress3Parameters.schemaURL, getConfigFileName());
 
+		
 		List<VortexROI> vortexRois = vortexParameters.getDetector(0).getRegionList();
 		ROI[] rois = new ROI[vortexRois.size()];
 		for (int index = 0; index < vortexRois.size(); index++) {
-			rois[index] = new ROI(vortexRois.get(index).getRoiName(), vortexRois.get(index).getRoiStart(), vortexRois
-					.get(index).getRoiEnd());
-		}
-
-		for (int channel = 0; channel < vortexParameters.getDetectorList().size(); channel++) {
-			boolean channelDisabled = vortexParameters.getDetectorList().get(channel).isExcluded();
-			controller.enableChannel(channel, !channelDisabled);
+			rois[index] = new ROI(vortexRois.get(index).getRoiName(),
+					vortexRois.get(index).getRoiStart(), vortexRois.get(index)
+							.getRoiEnd());
 		}
 
 		setRegionsOfInterest(rois);
 	}
+	
+	/**
+	 * For a given row in a multiDimensional scan , this returns the name of the
+	 * subentry in the Nexus file which contains all the MCAs for that row.
+	 * <p>
+	 * This will become redundant when SWMR is available and all Mca data can be
+	 * placed in the same HDF5 file by the Area Detector EPICS plugin, so there
+	 * will be no need to put MCA data in different files and Nexus nodes.
+	 * 
+	 * @param rowNumber
+	 * @return
+	 */
+	public static String getNameOfRowSubNode(int rowNumber) {
+		return "mcas_row_" + String.format("%04d", rowNumber);
+	}
+
+	public static String getNameOfAllElementSumRowSubNode(int rowNumber) {
+		return ALL_ELEMENT_SUM_LABEL + "row_" + String.format("%04d", rowNumber);
+	}
+
+	@Override
+	public double readoutFF() throws DeviceException {
+		// TODO Auto-generated method stub
+		return readoutFFTotal();
+	}
+
 }

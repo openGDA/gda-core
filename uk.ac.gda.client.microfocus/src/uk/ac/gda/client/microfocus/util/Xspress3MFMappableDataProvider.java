@@ -33,6 +33,8 @@ import uk.ac.gda.beans.IRichBean;
 import uk.ac.gda.beans.vortex.VortexROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
+import uk.ac.gda.devices.detector.xspress3.fullCalculations.Xspress3WithFullCalculationsDetector;
+
 
 public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvider {
 

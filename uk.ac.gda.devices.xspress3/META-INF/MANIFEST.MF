@@ -18,3 +18,4 @@ Require-Bundle: uk.ac.gda.server.exafs;bundle-version="1.0.0",
 Export-Package: uk.ac.gda.devices.detector.xspress3,
  uk.ac.gda.devices.detector.xspress3.controllerimpl,
  uk.ac.gda.devices.detector.xspress3.fullCalculations
+Import-Package: uk.ac.gda.devices.detector.xspress3
