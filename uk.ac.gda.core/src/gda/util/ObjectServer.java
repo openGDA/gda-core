@@ -228,6 +228,8 @@ public abstract class ObjectServer implements Runnable {
 		}
 		
 		LocalProperties.checkForObsoleteProperties();
+		// Dump out all of the properties to the logging system at objectserver startup
+		LocalProperties.dumpProperties();
 		
 		startServer();
 		
