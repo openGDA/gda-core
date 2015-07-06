@@ -20,6 +20,7 @@
 package gda.configuration.properties;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -196,7 +197,6 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 		
 		((ch.qos.logback.classic.Logger)logger).setLevel(ch.qos.logback.classic.Level.DEBUG);
 		
-		@SuppressWarnings("unchecked")
 		Iterator<String> keyIterator = config.getKeys();
 
 		while (keyIterator.hasNext()) {
@@ -204,6 +204,10 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 
 			Object o = config.getProperty(key);
 			if (o != null) {
+				// Check for multiple setting of properties
+				if (o instanceof  ArrayList) {
+					logger.info(key + " is set multiple times the value used will be the first! This maybe ok if deliberately overridden");
+				}
 				if (o instanceof String) {
 					// Calling getString method ensures value has any
 					// processing
