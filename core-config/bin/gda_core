@@ -1,17 +1,47 @@
 #!/bin/bash
 
-# Expects the following environment variables to be set:
-# (1) $GDA_WORKSPACE_PARENT
-# (2) $GDA_WORKSPACE_GIT_NAME  (will normally be "workspace_git", will always end with "_git")
-# (3) $GDA_INSTANCE_CONFIG_rel
-# (4) $GDA_GROUP_CONFIG_rel  (must be set, but can be an empty string)
-# (5) $GDA_FACILITY_CONFIG_rel  (must be set, but can be an empty string)
-# (6) $GDA_CORE_CONFIG_rel
-
 # Expects a parameter line that can be passed on to the gda python script
 
-
+. ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/bashlog_function
 bashlog debug "gda_core" "Start of gda_core script"
+
+function gda_core_help {
+	cat 1>&2 <<EOF
+Usage: gda_core [OPTION]... COMPONENT 
+
+Start the specified GDA component, where COMPONENT can be
+    logpanel|servers|client
+    logserver|nameserver|eventserver|objectserver
+
+Required Environment variables:
+    GDA_WORKSPACE_PARENT     The root directory of the deployment, parent of
+                             workspace and prefix of all _rel variables below.
+    GDA_WORKSPACE_GIT_NAME   Should be workspace_git, must end with _git
+    GDA_INSTANCE_CONFIG_rel  Location of BEAMLINE-config.
+    GDA_GROUP_CONFIG_rel     Location of GROUP-config, may be empty.
+    GDA_FACILITY_CONFIG_rel  Location of FACILITY-config, may be empty.
+    GDA_CORE_CONFIG_rel      Location of core-config.
+
+OPTIONS:
+    --restart   Stop and restart component (default)
+    --start     Start component
+    --stop      Stop component
+    --mode=     Specify a mode (default to GDA_MODE if set, dummy otherwise)
+    -*          Other options will be passed to the gda_*_core scripts and then
+                on to the core python gda script.
+
+EXAMPLES:
+
+    gda servers
+
+        This will (re)start the GDA servers.
+
+    gda --mode=dummy --start client
+
+        This will start the client in dummy mode.
+
+EOF
+}
 
 # Validate environment variables
 for env_var_name in GDA_WORKSPACE_PARENT GDA_WORKSPACE_GIT_NAME GDA_INSTANCE_CONFIG_rel GDA_GROUP_CONFIG_rel GDA_FACILITY_CONFIG_rel GDA_CORE_CONFIG_rel; do
@@ -20,12 +50,14 @@ done
 for env_var_name in GDA_WORKSPACE_PARENT GDA_WORKSPACE_GIT_NAME GDA_INSTANCE_CONFIG_rel GDA_CORE_CONFIG_rel; do
     if [[ -z "${!env_var_name}" ]]; then
         bashlog error "gda_core" "\${${env_var_name}} is not set (or is null) - exiting"
+        gda_core_help
         exit 2
     fi
 done
 for env_var_name in GDA_GROUP_CONFIG_rel GDA_FACILITY_CONFIG_rel; do
     if [[ -z "${!env_var_name=set_but_empty_ok}" ]]; then
         bashlog error "gda_core" "\${${env_var_name}} is not set - exiting"
+        gda_core_help
         exit 2
     fi
 done
@@ -36,7 +68,10 @@ bashlog debug "gda_core" "Parsing: $@"
 
 unset GDA_OPERATION GDA_COMPONENT
 for word in "$@"; do
-    if [[ "${word}" == --mode=* ]]; then
+    if [[ "${word}" == --help ]]; then
+        gda_core_help
+        #exit 1
+    elif [[ "${word}" == --mode=* ]]; then
         export GDA_MODE=${word:7}
     fi
     if [[ "${word}" != -* ]]; then
@@ -57,9 +92,13 @@ if [[ -n "${GDA_COMPONENT-}" ]]; then
         logserver|nameserver|eventserver|objectserver) GDA_COMPONENT_CATEGORY=servers ;;
         logpanel|servers|client) GDA_COMPONENT_CATEGORY=${GDA_COMPONENT} ;;
         *) bashlog error "gda_core" "${GDA_COMPONENT} not recognised. Valid task names are logpanel, servers, client, logserver, nameserver, eventserver, objectserver"
-        
+        gda_core_help
         exit 2;;
     esac
+else
+    bashlog error "gda_core" "GDA component is required"
+    gda_core_help
+    exit 1
 fi
 
 if [[ -n "${GDA_COMPONENT-}" ]]; then
