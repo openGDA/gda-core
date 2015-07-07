@@ -9,7 +9,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<context:property-placeholder location="file:${gda.config}/properties/java.properties" />
-	
+
 	<bean class="gda.spring.FindableNameSetterPostProcessor" />
 
 	<bean id="GDAMetadata" class="gda.data.metadata.GdaMetadata"/>
@@ -32,15 +32,15 @@
 
 
 	<import resource="commandQueueProcessor.xml"/>
-	
+
 
 
 <!--for an 'empty' configuration, remove the imports below, and the other xml files and directories inside the xml/server directory-->
-	<import resource="demonstration.xml" />     
-	<import resource="jack.xml" />     
-	<import resource="jaw.xml" />     
-	<import resource="detectors.xml" />     
-	<import resource="LoggingScriptController.xml" />     
+	<import resource="demonstration.xml" />
+	<import resource="jack.xml" />
+	<import resource="jaw.xml" />
+	<import resource="detectors.xml" />
+	<import resource="LoggingScriptController.xml" />
 	<import resource="scriptcontroller.xml" />
 	<import resource="../mvc_example_model.xml"/>
 
@@ -48,5 +48,9 @@
 	<import resource="jythonServerFacade.xml" />
 	<corba:export namespace="gda" />
 
+	<gda:rmi-export
+		service="plot_server"
+		serviceName="gda/plotserver"
+		serviceInterface="uk.ac.diamond.scisoft.analysis.PlotServer" />
 
 </beans>

@@ -20,6 +20,8 @@ Important
 New Features
 ~~~~~~~~~~~~
 
+- Enable plot server to use RMI. The example beamline has been updated to show the necessary Spring configuration. See JIRA ticket `GDA-6171 <http://jira.diamond.ac.uk/browse/GDA-6171>`_ for details.
+
 Fixes
 ~~~~~
 

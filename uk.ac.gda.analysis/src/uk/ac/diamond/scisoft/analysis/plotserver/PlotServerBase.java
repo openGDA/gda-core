@@ -19,8 +19,9 @@
 
 package uk.ac.diamond.scisoft.analysis.plotserver;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceBase;
 import gda.factory.Finder;
 import gda.observable.IObserver;
@@ -34,15 +35,28 @@ import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
  * should be displayed on all the GUI windows.
  */
 public class PlotServerBase extends DeviceBase implements PlotServerDevice {
-	PlotServer plotServerImpl = new GDASimplePlotServer();
+
+	private static final Logger logger = LoggerFactory.getLogger(PlotServerBase.class);
+
+	PlotServer plotServerImpl;
+
+	{
+		try {
+			plotServerImpl = new RMIPlotServer();
+
+		} catch (Exception e) {
+			logger.warn("Not creating RMI PlotServer. May be disabled.", e);
+			plotServerImpl = new GDASimplePlotServer();
+		}
+	}
 
 	@Override
-	public void configure(){
+	public void configure() {
 		PlotServerProvider.setPlotServer(this);
 	}
 
-	public static PlotServer getPlotServer(){
-		return (PlotServer)Finder.getInstance().find("plot_server");
+	public static PlotServer getPlotServer() {
+		return (PlotServer) Finder.getInstance().find("plot_server");
 	}
 
 	@Override
@@ -95,22 +109,8 @@ public class PlotServerBase extends DeviceBase implements PlotServerDevice {
 		return plotServerImpl.getGuiNames();
 	}
 
-}
-
-class GDASimplePlotServer extends SimplePlotServer {
-
-	GDASimplePlotServer(){
-		super();
-		setBasePath(LocalProperties.getBaseDataDir());
-	}
-
 	@Override
-	protected String getDefaultDataDir() {
-		return PathConstructor.createFromDefaultProperty();
-	}
-
-	@Override
-	public boolean isServerLocal() {
-		return false;
+	public String toString() {
+		return "PlotServerBase wrapping " + plotServerImpl.toString();
 	}
 }
