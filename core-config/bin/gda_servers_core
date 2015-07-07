@@ -56,20 +56,6 @@ else
 	    rm -fv ${OBJECT_SERVER_STARTUP_FILE}
 	fi
 
-    # Set up the directory and file in which to write the console log
-    # We only invoke one script to do this (the most specific one)
-    for filename in \
-      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_setup_consolelog_instance" \
-      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_setup_consolelog_group" \
-      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_setup_consolelog_facility"
-    do
-        if [ -e "${filename}" ]; then
-            bashlog debug "gda_servers_core" "sourcing ${filename}"
-            . ${filename} servers
-            break
-        fi
-    done
-
     umask 0002
     # This should fix a problem where sub-directories created in a visit folder end up
     # with a different mask to the default.
