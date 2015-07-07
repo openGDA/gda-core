@@ -81,9 +81,12 @@ for word in "$@"; do
         export GDA_OPERATION=${word:2}
     fi
 done
-# Default mode is dummy
+# Default mode is dummy and operation is restart
 if [[ -z "${GDA_MODE-}" ]]; then
 	export GDA_MODE=dummy
+fi
+if [[ -z "${GDA_OPERATION-}" ]]; then
+	export GDA_OPERATION=restart
 fi
 
 if [[ -n "${GDA_COMPONENT-}" ]]; then
