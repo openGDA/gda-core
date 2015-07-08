@@ -26,7 +26,7 @@ import org.springframework.beans.factory.InitializingBean;
 public class SimplePVProvider implements IPVProvider, PVProvider, InitializingBean {
 
 	String prefix;
-	
+
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
 	}
@@ -46,5 +46,5 @@ public class SimplePVProvider implements IPVProvider, PVProvider, InitializingBe
 	@Override
 	public String getPV() throws Exception {
 		return prefix;
-	}	
+	}
 }

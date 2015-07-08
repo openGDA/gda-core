@@ -31,7 +31,7 @@ public class NDROIPVsImpl implements NDROIPVs, InitializingBean {
 
 	public static NDROIPVs createFromBasePVName(String basePVName) {
 		NDPluginBasePVsImpl pluginBasePVs =  NDPluginBasePVsImpl.createFromBasePVName(basePVName);
-		
+
 		NDROIPVsImpl ndroiPVsImpl = new NDROIPVsImpl();
 		ndroiPVsImpl.setBasePVName(basePVName);
 		ndroiPVsImpl.setPluginBasePVs(pluginBasePVs);
@@ -42,13 +42,13 @@ public class NDROIPVsImpl implements NDROIPVs, InitializingBean {
 		}
 		return ndroiPVsImpl;
 	}
-	
+
 	private NDPluginBasePVs pluginBasePvs;
-	
+
 	private String basePVName;
-	
+
 	//
-	
+
 	private PV<String> namePV;
 
 	private PV<NDDataType> dataTypeOutPV;
@@ -63,16 +63,16 @@ public class NDROIPVsImpl implements NDROIPVs, InitializingBean {
 
 	private ROIDimensionPVs zDimensionPVs;
 
-		
+
 	public void setPluginBasePVs(NDPluginBasePVs pluginBasePvs) {
 		this.pluginBasePvs = pluginBasePvs;
 	}
-	
+
 	@Override
 	public NDPluginBasePVs getPluginBasePVs() {
 		return pluginBasePvs;
 	}
-	
+
 	public String getBasePVName() {
 		return basePVName;
 	}
@@ -80,7 +80,7 @@ public class NDROIPVsImpl implements NDROIPVs, InitializingBean {
 	public void setBasePVName(String basePVName) {
 		this.basePVName = basePVName;
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (getBasePVName() == null) {
@@ -91,7 +91,7 @@ public class NDROIPVsImpl implements NDROIPVs, InitializingBean {
 
 	private void createLazyPvs() {
 		namePV = LazyPVFactory.newStringPV(basePVName +"Name");
-		
+
 		dataTypeOutPV = LazyPVFactory.newEnumPV(basePVName +"DataTypeOut", NDDataType.class);
 
 		enableScalePVPair = new PVWithSeparateReadback<Boolean>(
@@ -101,15 +101,15 @@ public class NDROIPVsImpl implements NDROIPVs, InitializingBean {
 		scalePVPair = new PVWithSeparateReadback<Integer>(
 				LazyPVFactory.newIntegerPV(basePVName +"Scale"),
 				LazyPVFactory.newReadOnlyIntegerPV(basePVName +"Scale_RBV"));
-		
+
 		xDimensionPVs = new ROIDimensionPVsImpl(basePVName, "X");
 
 		yDimensionPVs = new ROIDimensionPVsImpl(basePVName, "Y");
-		
+
 		zDimensionPVs = new ROIDimensionPVsImpl(basePVName, "Z");
 
 	}
-	
+
 	@Override
 	public PV<String> getNamePV() {
 		return namePV;
@@ -148,15 +148,15 @@ public class NDROIPVsImpl implements NDROIPVs, InitializingBean {
 }
 
 class ROIDimensionPVsImpl implements ROIDimensionPVs {
-	
+
 	public PV<Boolean> enablePVPair;
 
 	public PV<Integer> minPVPair;
 
 	public PV<Integer> sizePVPair;
-	
+
 	public ROIDimensionPVsImpl(String basePVName, String dim) {
-		
+
 		enablePVPair = new PVWithSeparateReadback<Boolean>(
 				LazyPVFactory.newBooleanFromEnumPV(basePVName + "Enable" + dim),
 				LazyPVFactory.newReadOnlyBooleanFromEnumPV(basePVName + "Enable" + dim + "_RBV"));

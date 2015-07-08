@@ -34,7 +34,7 @@ public class HardwareTriggeredAndor extends HardwareTriggeredStandard {
 		INTERNAL, EXTERNAL, EXTERNAL_START, EXTERNAL_EXPOSURE, EXTERNAL_FVP, SOFTWARE
 	}
 
-	
+
 
 	public HardwareTriggeredAndor(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
@@ -47,7 +47,7 @@ public class HardwareTriggeredAndor extends HardwareTriggeredStandard {
 
 	/**
 	 * Create a collection strategy for use with EXTERNAL_EXPOSURE mode where no readout time is specified.
-	 * 
+	 *
 	 * @param adBase
 	 */
 	public HardwareTriggeredAndor(ADBase adBase) {
@@ -75,7 +75,7 @@ public class HardwareTriggeredAndor extends HardwareTriggeredStandard {
 	public void setTriggerMode(AndorTriggerMode triggerMode) {
 		this.data.triggerMode = triggerMode;
 	}
-	
+
 	@Override
 	public void completeCollection() throws Exception {
 		super.completeCollection();

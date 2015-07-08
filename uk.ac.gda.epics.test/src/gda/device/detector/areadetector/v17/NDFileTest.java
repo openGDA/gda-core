@@ -18,14 +18,14 @@
 
 package gda.device.detector.areadetector.v17;
 
-import static org.junit.Assert.*;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import gda.device.detector.areadetector.v17.impl.NDFileImpl;
 import gda.device.detector.areadetector.v17.impl.NDPluginBaseImpl;
 import gda.util.TestUtils;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -61,7 +61,7 @@ public class NDFileTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Before
 	public void setUp() throws Exception {

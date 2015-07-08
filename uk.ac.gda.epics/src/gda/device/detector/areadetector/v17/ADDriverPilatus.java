@@ -27,7 +27,7 @@ import gda.device.DeviceException;
  */
 public interface ADDriverPilatus {
 
-	
+
 	enum PilatusTriggerMode {
 		/**
 		 * External signal not used
@@ -50,7 +50,7 @@ public interface ADDriverPilatus {
 		 */
 		ALIGNMENT
 	}
-	
+
 	enum Gain {
 		/**
 		 * ("Fast/Low") Fastest shaping time (~125ns) and lowest gain.
@@ -69,12 +69,12 @@ public interface ADDriverPilatus {
 		 */
 		ULTRAHIGH
 	}
-	
+
 	/**
 	 * Flag to indicate when the Pilatus is ready to accept external trigger signals (0=not ready, 1=ready). This should
 	 * be used by clients to indicate when it is OK to start sending trigger pulses to the Pilatus. If pulses are send
 	 * before Armed=1 then the Pilatus may miss them, leading to DMA timeout errors from camserver
-	 * 
+	 *
 	 * @return true if armed
 	 */
 	boolean isArmed() throws DeviceException;
@@ -83,7 +83,7 @@ public interface ADDriverPilatus {
 	/**
 	 * Delay in seconds between the external trigger and the start of image acquisition. It only applies in External
 	 * Trigger mode
-	 * 
+	 *
 	 * @param delayTimeSeconds
 	 */
 	void setDelayTime(float delayTimeSeconds) throws DeviceException;
@@ -92,7 +92,7 @@ public interface ADDriverPilatus {
 
 	/**
 	 * Set Threshold energy in keV
-	 * 
+	 *
 	 * @param thresholdEnergy
 	 *            in keV
 	 */
@@ -101,8 +101,8 @@ public interface ADDriverPilatus {
 	float getThresholdEnergy_RBV() throws DeviceException;
 
 	/**
-	 * Gain menu. Controls the value of Vrf, which determines the shaping time and gain of the input amplifiers. 
-	 * 
+	 * Gain menu. Controls the value of Vrf, which determines the shaping time and gain of the input amplifiers.
+	 *
 	 * @param gain
 	 */
 	void setGain(Gain gain) throws DeviceException;
@@ -114,7 +114,7 @@ public interface ADDriverPilatus {
 	 * delays for various reasons. One reason is that there is sometimes a delay between when an External Enable
 	 * acquisition is started and when the first external pulse occurs. Another is that it can take some time for
 	 * camserver processes to finish writing the files.
-	 * 
+	 *
 	 * @param timeoutSeconds
 	 */
 	void setImageFileTmot(float timeoutSeconds) throws DeviceException;
@@ -123,7 +123,7 @@ public interface ADDriverPilatus {
 	 * Name of a file to be used to replace bad pixels. If this record does not point to a valid bad pixel file then no
 	 * bad pixel mapping is performed. The bad pixel map is used before making the NDArray callbacks. It does not modify
 	 * the data in the files that camserver writes. This is a simple ASCII file with the following format: <code>
-	 * badX1,badY1 replacementX1,replacementY1 
+	 * badX1,badY1 replacementX1,replacementY1
 	 * badX2,badY2 replacementX2,replacementY2
 	 * ...
 	 * </code> The X and Y coordinates range from 0 to NXPixels-1 and NYPixels-1. Up to 100 bad pixels can be defined.
@@ -138,7 +138,7 @@ public interface ADDriverPilatus {
 	 * 300,86  299,86
 	 * 471,129 472,129
 	 * </code>
-	 * 
+	 *
 	 * @param filename
 	 */
 	void setBadPixelFile(String filename) throws DeviceException;
@@ -146,7 +146,7 @@ public interface ADDriverPilatus {
 	/**
 	 * The number of bad pixels defined in the bad pixel file. Useful for seeing if the bad pixel file was read
 	 * correctly.
-	 * 
+	 *
 	 * @return number of bad pixels
 	 */
 	int getNumBadPixels() throws DeviceException;
@@ -160,11 +160,11 @@ public interface ADDriverPilatus {
 	 * pixels with intensities >PilatusMinFlatField. All pixels with intensity <PilatusMinFlatField in the flat field
 	 * are replaced with averageFlatField. When images are collected before the NDArray callbacks are performed the
 	 * following per-pixel correction is applied: <code>
-	 * ImageData[i] = 
-	 *    (averageFlatField * 
+	 * ImageData[i] =
+	 *    (averageFlatField *
 	 *    ImageData[i])/flatField[i];
 	 * </code>
-	 * 
+	 *
 	 * @param filename
 	 */
 	void setFlatFieldFile(String filename) throws DeviceException;
@@ -173,7 +173,7 @@ public interface ADDriverPilatus {
 	 * The minimum valid intensity in the flat field. This value must be set > 0 to prevent divide by 0 errors. If the
 	 * flat field was collected with some pixels having very low intensity then this value can be used to replace those
 	 * pixels with the average response.
-	 * 
+	 *
 	 * @param minIntensity
 	 */
 	void setMinFlatField(int minIntensity) throws DeviceException;
@@ -182,7 +182,7 @@ public interface ADDriverPilatus {
 
 	/**
 	 * This record indicates if a valid flat field file has been read. 0=No, 1=Yes.
-	 * 
+	 *
 	 * @return true if flat field file was read.
 	 */
 	boolean getFlatFieldValid() throws DeviceException;

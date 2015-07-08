@@ -30,11 +30,11 @@ public class EpicsSTS extends EpicsDBR implements Serializable {
 	@SuppressWarnings("hiding")
 	final static long serialVersionUID = 1;
 	/**
-	 * 
+	 *
 	 */
 	final public EpicsValuedEnum _status;
 	/**
-	 * 
+	 *
 	 */
 	final public EpicsValuedEnum _severity;
 

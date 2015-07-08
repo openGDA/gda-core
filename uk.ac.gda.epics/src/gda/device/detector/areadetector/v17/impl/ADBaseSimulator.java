@@ -21,7 +21,6 @@ package gda.device.detector.areadetector.v17.impl;
 import gda.device.detector.areadetector.AreaDetectorBin;
 import gda.device.detector.areadetector.AreaDetectorROI;
 import gda.device.detector.areadetector.v17.ADBase;
-import gda.device.detector.areadetector.v17.ImageMode;
 import gda.observable.Observable;
 import gda.observable.ObservableUtil;
 

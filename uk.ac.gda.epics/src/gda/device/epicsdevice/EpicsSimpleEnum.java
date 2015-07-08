@@ -25,7 +25,7 @@ import java.io.Serializable;
  */
 public class EpicsSimpleEnum implements Serializable {
 	/**
-	 * 
+	 *
 	 */
 	final public String _name;
 

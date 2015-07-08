@@ -49,7 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-public class ZebraConstantVelocityMoveController extends ScannableBase implements ConstantVelocityMoveController2, 
+public class ZebraConstantVelocityMoveController extends ScannableBase implements ConstantVelocityMoveController2,
 						PositionCallableProvider<Double>, ContinuouslyScannableViaController, InitializingBean {
 	private static final Logger logger = LoggerFactory.getLogger(ZebraConstantVelocityMoveController.class);
 
@@ -109,7 +109,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			zebra.setPCCaptureBitField(pcCaptureBitField);
 			zebra.setPCEnc(zebraMotorInfoProvider.getPcEnc()); // Default is Zebra.PC_ENC_ENC1
 			zebra.setPCDir(step>0 ? Zebra.PC_DIR_POSITIVE : Zebra.PC_DIR_NEGATIVE);
-			
+
 			zebra.setPCGateNumberOfGates(1);
 			double pcGateWidth=0.;
 			double pcGateStart=0.;
@@ -123,12 +123,12 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				double maxCollectionTimeFromDetectors = 0.;
 				double minCollectionTimeFromDetectors = Double.MAX_VALUE;
 				double minimumAccelerationTime = Double.MAX_VALUE;
-				
+
 				for( Detector det : detectors){
 					double collectionTime = det.getCollectionTime();
 					maxCollectionTimeFromDetectors = Math.max(maxCollectionTimeFromDetectors, collectionTime);
 					minCollectionTimeFromDetectors = Math.min(minCollectionTimeFromDetectors, collectionTime);
-					
+
 					if (det instanceof NXDetector) {
 						NXDetector nxdet = (NXDetector) det;
 						NXCollectionStrategyPlugin nxcs = nxdet.getCollectionStrategy();
@@ -150,14 +150,14 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				}
 				if( Math.abs(minCollectionTimeFromDetectors-maxCollectionTimeFromDetectors) > 1e-8){
 					/*
-					 * To support 2 collection times we need to use the pulse block to offset the triggers from the 
+					 * To support 2 collection times we need to use the pulse block to offset the triggers from the
 					 * main PC pulse used by the det with the longest collection time. The offset is half the difference in the collection
 					 * times each from the start
 					 */
 					throw new IllegalArgumentException("ZebraConstantVelocityMoveController cannot handle 2 collection times");
 				}
 				double timeUnitConversion;
-				
+
 				// Maximise the resolution of the timing by selecting the fastest timebase for the maximum collection time.
 				if (maxCollectionTimeFromDetectors > 200000) {
 					throw new IllegalArgumentException("ZebraConstantVelocityMoveController cannot handle collection times over 200000 seconds");
@@ -172,31 +172,31 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				}
 				/**
 				 * There are 2 modes of operation:
-				 * a)The exposure time of the detector and the distance between pulses are given. 
+				 * a)The exposure time of the detector and the distance between pulses are given.
 				 * The speed of the motor is simply distance/exposureTime
-				 * 
-				 * b) The exposure time of the detector, the distance between pulses are given AND so is the size of the step of the motor to move during exposure. 
-				 * The total time between pulses is the exposureTime + detector readout Time. 
+				 *
+				 * b) The exposure time of the detector, the distance between pulses are given AND so is the size of the step of the motor to move during exposure.
+				 * The total time between pulses is the exposureTime + detector readout Time.
 				 * The distance travelled between pulses is the step size + the speed of the motor * (readout time + inactiveTime)
-				 * The distance travelled must equal the specific distance between pulses so 
+				 * The distance travelled must equal the specific distance between pulses so
 				 * the inactiveTime = ((distance between pulses - exposure step size) / speed of motor) - readout time
 				 * inactiveTime must be >= 0.
-				 * 
+				 *
 				 * Note the first pulse is sent 1/2 exposure step before the start position. The position capture is delay to half way through the exposure = collectionTime/2
 				 **/
 				boolean exposureStepDefined = zebraMotorInfoProvider.isExposureStepDefined();
 				double exposureStep, pcPulseStepRaw;
 				if( exposureStepDefined){
-					// case B - The exposure time of the detector, the distance between pulses are given AND so is the size of the step of the motor to move during exposure. 
+					// case B - The exposure time of the detector, the distance between pulses are given AND so is the size of the step of the motor to move during exposure.
 					exposureStep = zebraMotorInfoProvider.getExposureStep();
 					requiredSpeed = zebraMotorInfoProvider.getExposureStep()/maxCollectionTimeFromDetectors;
 					double triggerPeriodFromSpeed = step/requiredSpeed;
 					if( triggerPeriodFromSpeed < triggerPeriod )
 						throw new IllegalArgumentException("ZebraConstantVelocityMoveController exposureStep, step and collectionTime do not give enough readout time for detectors. Increase collectionTime or reduce exposureStep");
 					pcPulseStepRaw = triggerPeriodFromSpeed*timeUnitConversion;
-				} 
+				}
 				else {
-					// case A - The exposure time of the detector and the distance between pulses are given. 
+					// case A - The exposure time of the detector and the distance between pulses are given.
 					requiredSpeed = (Math.abs(step)/triggerPeriod);
 					exposureStep = maxCollectionTimeFromDetectors*requiredSpeed;
 					pcPulseStepRaw = triggerPeriod*timeUnitConversion;
@@ -208,10 +208,10 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				final double pcPulseStepRBVRaw= zebra.getPCPulseStepRBV();
 				checkRBV(pcPulseStepRaw, pcPulseStepRBVRaw, 0.0001, "pcPulseStep");
 				pcPulseStepRBV = pcPulseStepRBVRaw/timeUnitConversion;
-				
+
 				logger.info("pcPulseStepRaw="+pcPulseStepRaw+" exposureStep="+exposureStep+" requiredSpeed="+requiredSpeed);
 				logger.info("pcPulseStepRBVRaw="+pcPulseStepRBVRaw+" pcPulseStepRBV="+pcPulseStepRBV);
-				
+
 				double accelerationDistance = zebraMotorInfoProvider.distanceToAccToVelocity(requiredSpeed);
 				logger.info("accelerationDistance=" + accelerationDistance + " minimumAccelerationDistance=" + minimumAccelerationDistance);
 				if (accelerationDistance < minimumAccelerationDistance) {
@@ -222,27 +222,27 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 					double timeAtVelocity = distanceAtVelocity / requiredSpeed;
 					double totalTime = timeToVelocity + timeAtVelocity;
 					logger.info("Setting accelerationDistance to minimumAccelerationDistance: timeToVelocity=" + timeToVelocity +
-							" distanceAtVelocity=" + distanceAtVelocity + " timeAtVelocity=" + timeAtVelocity + 
+							" distanceAtVelocity=" + distanceAtVelocity + " timeAtVelocity=" + timeAtVelocity +
 							" totalTime=" + totalTime + " minimumAccelerationTime=" + minimumAccelerationTime);
 					if ((timeToVelocity + timeAtVelocity) > (minimumAccelerationTime*0.9)) // 90% before, 10% after
 						throw new IllegalArgumentException("\n Minimum acceleration distance " + minimumAccelerationDistance +
-							" takes too long (" + totalTime + "s) at speed " + requiredSpeed + 
+							" takes too long (" + totalTime + "s) at speed " + requiredSpeed +
 							"\n Either increase rock size, decrease collection time or increase CollectionExtensionTime " +
 							"\n and take a new dark (currently extension time=" + minimumAccelerationTime + "s) e.g.:" +
 							"\n  <detector>.getCollectionStrategy().setCollectionExtensionTimeS(" + (int)(totalTime*2+1) + ")");
 					accelerationDistance = minimumAccelerationDistance;
 				}
-				
+
 				pcGateStart = start - (step>0 ? 1.0 : -1.0)*exposureStep/2;
-				
+
 				scannableMotor.asynchronousMoveTo(pcGateStart - (step>0 ? 1.0 : -1.0)*accelerationDistance);
-				
+
 				logger.info("firstPulsePos="+pcGateStart+" accelerationDistance="+accelerationDistance);
-				
+
 				// Capture positions half way through collection time
 				double pcPulseDelayRaw=timeUnitConversion*maxCollectionTimeFromDetectors/2.;
 				zebra.setPCPulseDelay(pcPulseDelayRaw);
-				
+
 				double pcPulseWidthRaw;
 				if ( !isPcPulseGateNotTrigger() ) {
 					pcPulseWidthRaw =0.0001; // This is the minimum on any time unit range
@@ -254,42 +254,42 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 				logger.info("isPcPulseGateNotTrigger="+isPcPulseGateNotTrigger()+", maxCollectionTimeFromDetectors="+
 						maxCollectionTimeFromDetectors+", pcPulseWidthRaw="+pcPulseWidthRaw);
 				zebra.setPCPulseWidth(pcPulseWidthRaw);
-				
+
 				Thread.sleep(1); // TODO: Remove when the bug in zebra RBV handling is fixed
-				
+
 				double pcPulseWidthRBVRaw = zebra.getPCPulseWidthRBV();
 				checkRBV(pcPulseWidthRaw, pcPulseWidthRBVRaw, 0.0001, "pcPulseWidth");
 				pcPulseWidthRBV = pcPulseWidthRBVRaw/timeUnitConversion;
-				
+
 				double pcPulseDelayRBVRaw = zebra.getPCPulseDelayRBV();
 				checkRBV(pcPulseDelayRaw, pcPulseDelayRBVRaw, 0.0001, "pcPulseDelay");
 				pcPulseDelayRBV = pcPulseDelayRBVRaw/timeUnitConversion;
-				
+
 				gateWidthTime = pcPulseDelayRBV +  pcPulseStepRBV*(getNumberTriggers()-1) + pcPulseWidthRBV;
 				// TODO: It appears that the above can now be simplified to pcPulseStepRBV*getNumberTriggers (as below) but this
 				//       needs to be tested before being deployed to Trigger detectors.
 				if ( isPcPulseGateNotTrigger() ) gateWidthTime = pcPulseStepRBV*getNumberTriggers();
 				// How about: gateWidthTime = pcPulseStepRBV*(getNumberTriggers()-1) + min (pcPulseDelayRBV + pcPulseWidthRBV, pcPulseStepRBV);
-				
+
 				// Why do we recalculate requiredSpeed here? We have already used it for calculating other things above and this
 				// can result in motors running faster than we assumed they would move.
 				requiredSpeed = (Math.abs(step)/pcPulseStepRBV);
 				pcGateWidth=(gateWidthTime * requiredSpeed)+accelerationDistance;
 				// Why do we add accelerationDistance to the gate width? We add it to the moveTo in ExecuteMoveTask anyway
-				
+
 				// Note that this setPCGateWidth is pointless, since we haven't setPCGateSource yet (and setupGateAndArm does a setPCGateWidth later)
 				zebra.setPCGateWidth((gateWidthTime * requiredSpeed)+accelerationDistance);
 				Thread.sleep(1); // TODO: Remove when the bug in zebra RBV handling is fixed
 				// Note, all Zebra support modules deployed at version 0.2 or later should be Ok, and should not need this cludge.
 				// Reviewing the zebra support modules deployed on dls_sw, not are earlier than 1.3, so this should be safe to remove now.
 				logger.info("New requiredSpeed="+requiredSpeed);
-				
+
 				/*
 				 * To ensure the detector exposure straddles equally across the mid point we should use the PULSE1 block with
 				 * PC_PULSE as the input and delay before set to (pulse step size - collection time)/2
 				 */
 				/* Code of the form below is needed - but it has to be repeated for each detector with readouttime >0.
-				zebra.setOutTTL(1, 52); //PULSE1 
+				zebra.setOutTTL(1, 52); //PULSE1
 				zebra.setPulseInput(1, 31); //PC_PULSE
 				zebra.setPulseTimeUnit(1, Zebra.PC_TIMEUNIT_SEC);
 				zebra.setPulseDelay(1, (pcPulseStepRBVRaw - 10)/2000); //10 is a hardcoded collection time in ms
@@ -308,8 +308,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			zebra.setPCPulseMax(numberTriggers);
 
 			setupGateAndArm(pcGateStart,pcGateWidth, step, gateWidthTime );
-			
-			
+
+
 			if( timeSeriesCollection != null){
 				for(ZebraCaptureInputStreamCollection ts : timeSeriesCollection){
 					ts.start(numberTriggers);
@@ -325,17 +325,17 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	protected void setupGateAndArm(double pcGateStart, double pcGateWidth, @SuppressWarnings("unused") double step2, @SuppressWarnings("unused") double gateWidthTimeInS) throws Exception {
 		// The difference between requested and RBV positions should never be more than double the motor resolution.
 		double tolerance = scannableMotor.getMotorResolution()*2;
-		
+
 		zebra.setPCGateSource(Zebra.PC_GATE_SOURCE_POSITION);
 		zebra.setPCGateStart(pcGateStart);
 		zebra.setPCGateWidth(pcGateWidth);
-		
+
 		// We need to read back values relating to a physical motor, as they will be quantised to the resolution of the motor.
 		pcGateStartRBV = zebra.getPCGateStartRBV();
 		pcGateWidthRBV = zebra.getPCGateWidthRBV();
 		logger.info("setupGateAndArm: pcGateStart=" + pcGateStart + " pcGateWidth=" + pcGateWidth + " tolerance=" + tolerance +
 				" pcGateWidthRBV=" + pcGateWidthRBV + " pcGateStartRBV=" + pcGateStartRBV + " - Arming...");
-		
+
 		double rawDiff = Math.abs(pcGateWidth - pcGateWidthRBV);
 		if (rawDiff > tolerance) {
 			logger.warn("setupGateAndArm: Wrote "+pcGateWidth+" to pcGateWidth but read back "+pcGateWidthRBV+" (diff="+rawDiff+") Let's try that again...");
@@ -355,7 +355,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		 */
 		checkRBV(pcGateStart, pcGateStartRBV, tolerance, "pcGateStart");
 		checkRBV(pcGateWidth, pcGateWidthRBV, tolerance, "pcGateWidth");
-		
+
 		zebra.pcArm();
 	}
 
@@ -395,7 +395,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 					scannableMotor.setSpeed(requiredSpeed);
 					scannableMotor.moveTo(pcGateStartRBV + ((step>0 ? 1.0 : -1.0)*pcGateWidthRBV +
 															(step>0 ? 1.0 : -1.0)*accelerationDistance ));
-					
+
 				} finally {
 					scannableMotor.setSpeed(speed);
 				}
@@ -496,7 +496,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 
 	@Override
 	public void setStart(double start) throws DeviceException {
-		logger.info("setStart:" + start); 
+		logger.info("setStart:" + start);
 		this.start = start;
 	}
 
@@ -597,8 +597,8 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 			}
 			if( timeSeriesCollection == null)
 				timeSeriesCollection = new Vector<ZebraCaptureInputStreamCollection>();
-			
-				
+
+
 			ZebraCaptureInputStreamCollection sc = new ZebraCaptureInputStreamCollection(zebra.getNumberOfPointsDownloadedPV(), rdDblArrayPV);
 			lastImageNumberStreamIndexer[index] = new PositionStreamIndexer<Double>(sc);
 			timeSeriesCollection.add(sc);
@@ -607,7 +607,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		return lastImageNumberStreamIndexer[index];
 	}
 
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void atScanLineStart() throws DeviceException {
@@ -654,7 +654,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	@Override
 	public void setOperatingContinuously(boolean b) throws DeviceException {
 		operatingContinously = b;
-		
+
 	}
 
 	@Override
@@ -681,7 +681,7 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 		ContinuouslyScannableViaController continuouslyScannableViaController = array[0];
 		if( ! (continuouslyScannableViaController instanceof ZebraMotorInfoProvider))
 			throw new IllegalArgumentException("First scannable is not a ZebraMotorInfoProvider");
-		setZebraMotorInfoProvider((ZebraMotorInfoProvider)continuouslyScannableViaController);	
+		setZebraMotorInfoProvider((ZebraMotorInfoProvider)continuouslyScannableViaController);
 	}
 
 	@Override
@@ -692,13 +692,13 @@ public class ZebraConstantVelocityMoveController extends ScannableBase implement
 	/**
 	 * Set the minimum allowable acceleration distance. If this value is less than distanceToAccToVelocity at the
 	 * requiredSpeed then it will be used instead of the calculated value.
-	 * 
+	 *
 	 * Note: This will result in a change to the time it takes for the motor to get to the start position.
-	 * 
+	 *
 	 * This value defaults to .5 ("degrees otherwise we may get error due to encoder noise") but should never be
 	 * less than the deadband of the motor, otherwise the motor may already be in the gated area at the start of
-	 * the move and the gate (and this pulse) will never be triggered. 
-	 * 
+	 * the move and the gate (and this pulse) will never be triggered.
+	 *
 	 * @param minimumAccelerationDistance
 	 */
 	public final void setMinimumAccelerationDistance(double minimumAccelerationDistance) {

@@ -43,7 +43,7 @@ public class PVWithSeparateReadback<T> implements PV<T> {
 		this.putPV = putPV;
 		this.getPV = getPV;
 	}
-	
+
 	@Override
 	public String toString() {
 		return MessageFormat.format("PVWithSeparateReadback({0}, {1})", putPV, getPV);
@@ -53,7 +53,7 @@ public class PVWithSeparateReadback<T> implements PV<T> {
 	public void addObserver(Observer<T> observer) throws Exception {
 		getPV.addObserver(observer);
 	}
-	
+
 	@Override
 	public void addObserver(Observer<T> observer, Predicate<T> predicate) throws Exception {
 		getPV.addObserver(observer);

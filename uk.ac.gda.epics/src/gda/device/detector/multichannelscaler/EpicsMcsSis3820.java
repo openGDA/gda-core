@@ -27,7 +27,7 @@ import gda.device.DeviceException;
 public interface EpicsMcsSis3820 extends Detector {
 
 	/**
-	 * 
+	 *
 	 */
 	public static final int MAX_NUMBER_MCA = EpicsDlsMcsSis3820Controller.MAXIMUM_NUMBER_OF_MCA;
 
@@ -38,7 +38,7 @@ public interface EpicsMcsSis3820 extends Detector {
 	// public void stop() throws DeviceException;
 	/**
 	 * read data from the specified channel.
-	 * 
+	 *
 	 * @param channel
 	 * @return data[channel]
 	 * @throws DeviceException

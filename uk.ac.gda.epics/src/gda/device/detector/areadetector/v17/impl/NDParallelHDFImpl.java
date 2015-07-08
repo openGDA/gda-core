@@ -24,7 +24,7 @@ import gda.epics.CachedLazyPVFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
- * class to implement the Area Detector Parallel-HDF plugin 
+ * class to implement the Area Detector Parallel-HDF plugin
  */
 public class NDParallelHDFImpl extends NDFileImpl implements NDParallelHDF, InitializingBean {
 
@@ -69,8 +69,8 @@ public class NDParallelHDFImpl extends NDFileImpl implements NDParallelHDF, Init
 		dev = new CachedLazyPVFactory(prefix);
 
 	}
-	
-	
+
+
 	@Override
 	public double getTransferRate() throws Exception {
 		return dev.getReadOnlyPVDouble(TRANSFER_RATE_RBV).get();
@@ -235,5 +235,5 @@ public class NDParallelHDFImpl extends NDFileImpl implements NDParallelHDF, Init
 	public void setRoiPos2(int value) throws Exception {
 		dev.getPVInteger(ROI_POS2).putWait(value);
 	}
-	
+
 }

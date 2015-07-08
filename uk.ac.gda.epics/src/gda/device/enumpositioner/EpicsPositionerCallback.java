@@ -18,15 +18,15 @@
 
 package gda.device.enumpositioner;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.EnumPositionerStatus;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A version of EpicsPositioner which does not use DMOV at all but relies on the callback mecnanism to determine when

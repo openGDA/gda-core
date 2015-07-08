@@ -34,15 +34,15 @@ public final class MultipleExposureSoftwareTriggerAutoModeUnsynchronisedExternal
 
 	/**
 	 * Override MultipleExposureSoftwareTriggerAutoMode in order to silently extend detector acquisition time.
-	 * 
+	 *
 	 * On beamlines where an external shutter is used to control the length of an exposure and the trigger/gate for the shutter
 	 * is not also sent to the detector, the acquisition must enclose the shutter acquisition time. Thus the actual acquisition
 	 * needs to be the requested acquisition time, plus the time of the longest possible run-up.
-	 * 
+	 *
 	 * Since the actual time of the run-up is variable, based on the target speed and timeToVelocity of the motor, and some
 	 * detectors need a constant acquire time (PE needs a new dark to be taken every time the acquire time changes for instance)
 	 * for the moment we have to use a single fixed time for the triggering strategy.
-	 * 
+	 *
 	 * Note, the collectionExtensionTimeS value should be as short as possible to prevent unnecessary delays.
 	 */
 
@@ -60,7 +60,7 @@ public final class MultipleExposureSoftwareTriggerAutoModeUnsynchronisedExternal
 	public double getAcquirePeriod() throws Exception {
 		double acquirePeriod_RBV = super.getAcquirePeriod();
 		if (getReadoutTime() > 0) acquirePeriod_RBV -= collectionExtensionTimeS;
-		return acquirePeriod_RBV; 
+		return acquirePeriod_RBV;
 	}
 
 	/* Getters and setters for private fields. */

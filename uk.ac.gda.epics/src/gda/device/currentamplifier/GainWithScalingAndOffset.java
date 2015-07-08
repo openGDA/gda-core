@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 @CorbaImplClass(ScannableImpl.class)
 public class GainWithScalingAndOffset extends ScannableBase implements Scannable, Findable, ScalingAndOffset, MonitorListener {
 	private static final Logger logger = LoggerFactory.getLogger(GainWithScalingAndOffset.class);
-	
+
 	public class OptionsExhausedException extends DeviceException {
 		public OptionsExhausedException(String message) {
 			super(message);
@@ -60,17 +60,17 @@ public class GainWithScalingAndOffset extends ScannableBase implements Scannable
 	private String[] labellist;
 	private int gain;
 	private EpicsController ec;
-	private Channel channel; 
+	private Channel channel;
 	private boolean busy = false;
 	boolean fixed = false;
 	private Map<Integer, ScalingAndOffsetParameters> gaintosando;
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
-		
+
 		ec = EpicsController.getInstance();
-		
+
 		try {
 			channel = ec.createChannel(pvName);
 			ec.setMonitor(channel, this);
@@ -84,20 +84,20 @@ public class GainWithScalingAndOffset extends ScannableBase implements Scannable
 	public boolean isBusy() throws DeviceException {
 		return busy;
 	}
-	
+
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		if (fixed)
 			throw new MoveProhibitedException("gain change prohibited by configuration (scan might be running)");
-		
+
 		int newgain=0;
-		
+
 		if (position instanceof Number) {
 			newgain = ((Number) position).intValue();
 		} else {
 			newgain = str2int(position.toString());
 		}
-		
+
 		try {
 			busy = true;
 			ec.caput(channel, newgain);
@@ -105,12 +105,12 @@ public class GainWithScalingAndOffset extends ScannableBase implements Scannable
 			throw new DeviceException(getName() +" exception in rawAsynchronousMoveTo", e);
 		}
 	}
-	
+
 	@Override
 	public String rawGetPosition() {
 		return labellist[gain];
 	}
-	
+
 	public int str2int(String setting){
 		for (int i = 0; i < labellist.length; i++) {
 			if (labellist[i].equalsIgnoreCase(setting))
@@ -118,7 +118,7 @@ public class GainWithScalingAndOffset extends ScannableBase implements Scannable
 		}
 		return -1;
 	}
-	
+
 	public String getPvName() {
 		return pvName;
 	}
@@ -131,7 +131,7 @@ public class GainWithScalingAndOffset extends ScannableBase implements Scannable
 	public Double getScaling() {
 		if (gaintosando == null || !gaintosando.containsKey(gain))
 			return 1.0;
-		
+
 		return gaintosando.get(gain).scaling;
 	}
 
@@ -139,7 +139,7 @@ public class GainWithScalingAndOffset extends ScannableBase implements Scannable
 	public Double getOffset() {
 		if (gaintosando == null || !gaintosando.containsKey(gain))
 			return 0.0;
-		
+
 		return gaintosando.get(gain).offset;
 	}
 
@@ -147,13 +147,13 @@ public class GainWithScalingAndOffset extends ScannableBase implements Scannable
 	public String getDescription() {
 		if (gaintosando == null || !gaintosando.containsKey(gain))
 			return String.format("Unknown gain setting \"%s\": defaulting to raw data.", rawGetPosition());
-		
+
 		return String.format("Data scaled by %5.5g and offset by %5.5g for gainsetting \"%s\".", getScaling(), getOffset(), rawGetPosition());
 	}
-	
+
 	@Override
 	public void monitorChanged(MonitorEvent mev) {
-		try { 
+		try {
 			DBR dbr = mev.getDBR();
 			gain = ((DBR_Enum) dbr).getEnumValue()[0];
 		} catch (Exception e) {
@@ -161,7 +161,7 @@ public class GainWithScalingAndOffset extends ScannableBase implements Scannable
 		}
 		busy = false;
 	}
-	
+
 	public String[] getPositions() {
 		return labellist;
 	}
@@ -171,7 +171,7 @@ public class GainWithScalingAndOffset extends ScannableBase implements Scannable
 	public void setGaintosando(Map<Integer, ScalingAndOffsetParameters> gaintosando) {
 		this.gaintosando = gaintosando;
 	}
-	
+
 	private boolean looksLikeSimilarSettings(int g1, int g2) {
 		int count=0;
 		String s1 = labellist[g1];
@@ -186,7 +186,7 @@ public class GainWithScalingAndOffset extends ScannableBase implements Scannable
 			return true;
 		return false;
 	}
-	
+
 	private Integer findNext(int higher) throws DeviceException {
 
 		Integer solution = null;
@@ -204,10 +204,10 @@ public class GainWithScalingAndOffset extends ScannableBase implements Scannable
 		}
 		if (solution != null)
 			return solution;
-		
+
 		throw new OptionsExhausedException("no better gain found");
 	}
-	
+
 	public void decreaseAmplification() throws DeviceException {
 		rawAsynchronousMoveTo(findNext(-1));
 	}

@@ -18,8 +18,9 @@
 
 package gda.device.epicsdevice;
 
+import gov.aps.jca.dbr.DBR_STS_Enum;
+
 import java.io.Serializable;
-import gov.aps.jca.dbr.*;
 
 /**
  * EpicsEnum Class
@@ -29,7 +30,7 @@ public class EpicsEnum implements Serializable {
 	final EpicsValuedEnum _status;
 	final EpicsValuedEnum _severity;
 	/**
-	 * 
+	 *
 	 */
 	final public EpicsDBR _dbr;
 

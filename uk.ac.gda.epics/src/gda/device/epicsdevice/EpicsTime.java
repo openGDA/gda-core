@@ -28,11 +28,11 @@ import java.io.Serializable;
 public class EpicsTime extends EpicsSTS implements Serializable {
 	// public final TimeStamp _stamp;
 	/**
-	 * 
+	 *
 	 */
 	final public long _secPastEpoch;
 	/**
-	 * 
+	 *
 	 */
 	final public long _nsec;
 

@@ -69,7 +69,7 @@ public class TrajScanBuild implements InitializationListener {
 
 	/**
 	 * starts the build process in EPICS.
-	 * 
+	 *
 	 * @param pv
 	 */
 	public void build(String pv) {

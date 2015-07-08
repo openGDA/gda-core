@@ -61,7 +61,7 @@ public class ADPilatusTest extends ADDetectorTest {
 	private ADDriverPilatus mockAdDriverPilatus;
 
 	private HardwareTriggerProvider triggerProvider;
-	
+
 	private NDFile ndFile;
 
 	public ADPilatusTest() {
@@ -77,7 +77,7 @@ public class ADPilatusTest extends ADDetectorTest {
 	public ADDetector adDet() {
 		return adPilatus;
 	}
-	
+
 	public HardwareTriggerableADDetector pil() {
 		return adPilatus;
 	}
@@ -130,8 +130,8 @@ public class ADPilatusTest extends ADDetectorTest {
 //	getAdDriverPilatus().setDelayTime(0);
 //	getAdBase().setImageModeWait(ImageMode.MULTIPLE);
 //	getAdBase().setArrayCallbacks((short) 1); // TODO: move from here propbably
-	
-	
+
+
 	@Test
 	public void testArm() throws Exception {
 		when(triggerProvider.getNumberTriggers()).thenReturn(11); // one to close at end

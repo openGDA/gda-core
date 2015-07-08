@@ -29,7 +29,7 @@ public class RectangularIntegerROIIndexer implements RectangularROIProvider<Inte
 		this.roiProvider = roiProvider;
 		this.roiProviderIndex = roiProviderIndex;
 	}
-	
+
 	@Override
 	public RectangularROI<Integer> getRoi() throws IllegalArgumentException, IndexOutOfBoundsException, Exception {
 		return roiProvider.getRoi(roiProviderIndex);

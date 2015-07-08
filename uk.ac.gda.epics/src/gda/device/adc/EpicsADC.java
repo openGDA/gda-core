@@ -46,9 +46,9 @@ import org.slf4j.LoggerFactory;
  * EpicsADC Class.
  */
 public class EpicsADC extends DeviceBase implements Adc, Findable, InitializationListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsADC.class);
-	
+
 	/**
 	 * Gains
 	 */
@@ -90,57 +90,57 @@ public class EpicsADC extends DeviceBase implements Adc, Findable, Initializatio
 
 	// private int connectedState = Channel.CONNECTED.getValue();
 	/**
-	 * 
+	 *
 	 */
 	public static String GAIN = "gain";
 
 	/**
-	 * 
+	 *
 	 */
 	public static String OFFSET = "offset";
 
 	/**
-	 * 
+	 *
 	 */
 	public static String LLD = "lld";
 
 	/**
-	 * 
+	 *
 	 */
 	public static String ULD = "uld";
 
 	/**
-	 * 
+	 *
 	 */
 	public static String ZERO = "zero";
 
 	/**
-	 * 
+	 *
 	 */
 	public static String AMOD = "amod";
 
 	/**
-	 * 
+	 *
 	 */
 	public static String CMOD = "cmod";
 
 	/**
-	 * 
+	 *
 	 */
 	public static String PMOD = "pmod";
 
 	/**
-	 * 
+	 *
 	 */
 	public static String GMOD = "gmod";
 
 	/**
-	 * 
+	 *
 	 */
 	public static String TMOD = "tmod";
 
 	/**
-	 * 
+	 *
 	 */
 	public static String GAIN_VALUES = "gain_values";
 
@@ -154,10 +154,10 @@ public class EpicsADC extends DeviceBase implements Adc, Findable, Initializatio
 	 */
 	public enum gmodEnum implements Serializable {
 		/**
-		 * 
+		 *
 		 */
 		Coincidence, /**
-		 * 
+		 *
 		 */
 		AntiCoincidence
 	}
@@ -167,10 +167,10 @@ public class EpicsADC extends DeviceBase implements Adc, Findable, Initializatio
 	 */
 	public enum cmodEnum {
 		/**
-		 * 
+		 *
 		 */
 		Early, /**
-		 * 
+		 *
 		 */
 		Late
 	}
@@ -180,10 +180,10 @@ public class EpicsADC extends DeviceBase implements Adc, Findable, Initializatio
 	 */
 	public enum pmodEnum {
 		/**
-		 * 
+		 *
 		 */
 		Auto, /**
-		 * 
+		 *
 		 */
 		Delayed
 	}
@@ -193,10 +193,10 @@ public class EpicsADC extends DeviceBase implements Adc, Findable, Initializatio
 	 */
 	public enum amodEnum implements Serializable {
 		/**
-		 * 
+		 *
 		 */
 		PHA, /**
-		 * 
+		 *
 		 */
 		SVA
 	}
@@ -206,10 +206,10 @@ public class EpicsADC extends DeviceBase implements Adc, Findable, Initializatio
 	 */
 	public enum tmodEnum {
 		/**
-		 * 
+		 *
 		 */
 		Overlapped, /**
-		 * 
+		 *
 		 */
 		NonOverlapped
 	}
@@ -221,11 +221,11 @@ public class EpicsADC extends DeviceBase implements Adc, Findable, Initializatio
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
 	}
-	
+
 	public void setAdcRecordName(String adcRecordName) {
 		this.adcRecordName = adcRecordName;
 	}
-	
+
 	private String getAdcRecordName() {
 		return adcRecordName;
 	}
@@ -277,11 +277,11 @@ public class EpicsADC extends DeviceBase implements Adc, Findable, Initializatio
 				}
 
 			}
-			
+
 			else if (adcRecordName != null) {
 				createChannelAccess(adcRecordName);
 			}
-			
+
 			// Nothing specified in Server XML file
 			else {
 				logger.error("Missing EPICS interface configuration for the motor " + getName());
@@ -377,7 +377,7 @@ public class EpicsADC extends DeviceBase implements Adc, Findable, Initializatio
 	/**
 	 * @param gain
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setGain(double gain) throws CAException, InterruptedException {
 		int i = 0;

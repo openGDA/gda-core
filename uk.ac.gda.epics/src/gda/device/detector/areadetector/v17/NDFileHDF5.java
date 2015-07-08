@@ -26,7 +26,7 @@ public interface NDFileHDF5 {
 	int getNumRowChunks() throws Exception;
 
 	void setNumRowChunks(int value) throws Exception;
-	
+
 	int getNumColChunks() throws Exception;
 
 	void setNumColChunks(int value) throws Exception;
@@ -34,11 +34,11 @@ public interface NDFileHDF5 {
 	int getNumFramesChunks() throws Exception;
 
 	void setNumFramesChunks(int value) throws Exception;
-	
+
 	int getNumFramesFlush() throws Exception;
 
 	void setNumFramesFlush(int value) throws Exception;
-	
+
 	int getNumExtraDims() throws Exception;
 
 	void setNumExtraDims(int value) throws Exception;
@@ -140,19 +140,19 @@ public interface NDFileHDF5 {
 	short getCapture_RBV() throws Exception;
 
 	int getNumCaptured_RBV() throws Exception;
-	
+
 	String getArrayPort() throws Exception ;
-	
+
 	void setLazyOpen(boolean open) throws Exception;
 	boolean isLazyOpen() throws Exception;
-	
+
 
 	/**
-	 * 
+	 *
 	 * @param boundaryAlign - added in AreaDetector 1-9 . Should be set to 1024*1024
 	 * @throws Exception
 	 */
 	void setBoundaryAlign(int boundaryAlign) throws Exception;
 	int getBoundaryAlign() throws Exception;
-	
+
 }

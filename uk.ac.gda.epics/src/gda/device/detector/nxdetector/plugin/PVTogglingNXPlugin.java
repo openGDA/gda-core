@@ -33,20 +33,20 @@ import java.util.NoSuchElementException;
 
 public class PVTogglingNXPlugin implements NXPlugin {
 
-	
+
 	private final String name;
-	
+
 	private Double valueDuringCollection;
 
 	private Double valueOutsideCollection;
 
 	private final PV<Double> pv;
-	
+
 	public PVTogglingNXPlugin(String name, String pvName) {
 		this.name = name;
 		pv = LazyPVFactory.newDoublePV(pvName);
 	}
-	
+
 	public Double getValueDuringCollection() {
 		return valueDuringCollection;
 	}
@@ -62,8 +62,8 @@ public class PVTogglingNXPlugin implements NXPlugin {
 	public void setValueOutsideCollection(Double valueOutsideCollection) {
 		this.valueOutsideCollection = valueOutsideCollection;
 	}
-	
-	
+
+
 	@Override
 	public String getName() {
 		return name;
@@ -122,13 +122,13 @@ public class PVTogglingNXPlugin implements NXPlugin {
 		List<NXDetectorDataAppender> list = new ArrayList<NXDetectorDataAppender>();
 		list.add(new NXDetectorDataNullAppender());
 		return list;
-				
+
 	}
-	
+
 	public void i() throws Exception { // for in!
 		prepareForCollection(1, null);
 	}
-	
+
 	public void o() throws Exception { // for out!
 		completeCollection();
 	}

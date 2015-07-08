@@ -32,7 +32,7 @@ public class EpicsMCAAdc implements Serializable {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param gain
 	 * @param offset
 	 * @param lld

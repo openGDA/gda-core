@@ -70,10 +70,11 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 	/**
 	 * Returns the physcal motor position for the supplied position string Note
 	 * cannot read them directly from the EPICS positioner
-	 * 
+	 *
 	 * @param position
 	 * @return monitorLabel
 	 */
+	@Override
 	public Double getPositionValue(String position) {
 		Double value = 0.0;
 
@@ -88,10 +89,10 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 
 	/**
 	 * lect Sets the physical motor value for the supplied position string
-	 * 
+	 *
 	 * @param position
 	 * @param value
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public void setPositionValue(String position, String value) throws DeviceException {
 
@@ -122,7 +123,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 
 	/**
 	 * Returns detector channel label for flux monitoring.
-	 * 
+	 *
 	 * @return monitorLabel
 	 */
 	public String getFluxMonitorChannelLabel() {
@@ -131,7 +132,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 
 	/**
 	 * Returns detector channel label for flux monitoring.
-	 * 
+	 *
 	 * @param monitorLabel
 	 */
 	public void setFluxMonitorChannelLabel(String monitorLabel) {
@@ -140,7 +141,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 
 	/**
 	 * Returns number of piholes
-	 * 
+	 *
 	 * @return numberPinholes
 	 */
 	public int getNumPinholes() {
@@ -149,7 +150,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 
 	/**
 	 * Returns detector channel label for flux monitoring.
-	 * 
+	 *
 	 * @param numPinholes
 	 */
 	public void setNumPinholes(int numPinholes) {
@@ -158,7 +159,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 
 	/**
 	 * Add a possible position to the list of positions.
-	 * 
+	 *
 	 * @param position
 	 */
 	public void addPosition(String position) {
@@ -169,7 +170,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 
 	/**
 	 * Add a physical position value to the list of values.
-	 * 
+	 *
 	 * @param value
 	 */
 	public void addValue(String value) {
@@ -180,7 +181,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 
 	/**
 	 * Sets the values for this positioner.
-	 * 
+	 *
 	 * @param values the values
 	 */
 	public void setValues(Vector<String> values) {
@@ -192,7 +193,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 
 	/**
 	 * values
-	 * 
+	 *
 	 * @return ArrayList<String> the values this device can move to.
 	 */
 	public ArrayList<String> getValueArrayList() {
@@ -206,7 +207,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 
 	/**
 	 * positions
-	 * 
+	 *
 	 * @return ArrayList<String> the positions this device can move to.
 	 */
 	public ArrayList<String> getPositionArrayList() {
@@ -218,7 +219,7 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 
 	/**
 	 * Add a possible label to the list of labels.
-	 * 
+	 *
 	 * @param label
 	 */
 	public void addLabel(String label) {
@@ -226,10 +227,10 @@ public class PolarimeterPinholeEnumPositioner extends EpicsPositioner implements
 			labels.add(label);
 		}
 	}
-	
+
 	/**
 	 * Sets the list of labels for this positioner.
-	 * 
+	 *
 	 * @param labels the labels
 	 */
 	public void setLabels(Vector<String> labels) {

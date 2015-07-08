@@ -82,7 +82,7 @@ public class ADPilatusFreerunControllerPlugin extends NullNXPlugin {
 	public ADBase getAdBase() {
 		return adBase;
 	}
-	
+
 	@Override
 	public String toString() {
 		String str = "";

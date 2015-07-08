@@ -118,7 +118,7 @@ public class PolarimeterEpicsMotor extends EpicsMotor {
 
 	/**
 	 * This method returns the homing direction of the motor.
-	 * 
+	 *
 	 * @return the motor homing direction.
 	 */
 	public String getHomingDirection() {
@@ -127,7 +127,7 @@ public class PolarimeterEpicsMotor extends EpicsMotor {
 
 	/**
 	 * This method sets the homing direction of the motor.
-	 * 
+	 *
 	 * @param direction
 	 * @direction the motor homing direction.
 	 */

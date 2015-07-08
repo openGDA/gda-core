@@ -18,17 +18,17 @@
 
 package gda.device.detector.analyser;
 
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.jython.ITerminalPrinter;
+import gda.jython.InterfaceProvider;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.jython.ITerminalPrinter;
-import gda.jython.InterfaceProvider;
 
 public class DummyEpicsMcaForXmap extends AnalyserBase {
 
@@ -38,7 +38,7 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 	private Roi[] regions = new Roi[32];
 
 	private long numberOfChannels = 1024;
-	
+
 	private double[] lastCollectedSpectrum = new double[0];
 
 	private EpicsMCAPresets presets;
@@ -55,7 +55,7 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 	@Override
 	public void stopAcquisition() throws DeviceException {
 		log(".stopAcquisition()");
-		
+
 	}
 
 	@Override
@@ -83,12 +83,12 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 		presets = (EpicsMCAPresets) data;
 		log(".setPresets() <-- " + presets);
 	}
-	
+
 	@Override
 	public Object getPresets() throws DeviceException {
 		return presets;
 	}
-	
+
 	@Override
 	public void collectData() throws DeviceException {
 		//log(".collectData()");
@@ -203,7 +203,7 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 	public Object getRegionsOfInterest() throws DeviceException {
 		throw new RuntimeException("Not supported");
 	}
-	
+
 	@Override
 	public void setRegionsOfInterest(Object lowHigh) throws DeviceException {
 		throw new RuntimeException("Not supported");
@@ -213,16 +213,16 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 	public void setSequence(long sequence) throws DeviceException {
 		throw new RuntimeException("Not supported");
 	}
-	
+
 	class Roi {
-		
+
 		private final int regionIndex;
 		private final double regionLow;
 		private final double regionHigh;
 		private final int regionBackground;
 		private final double regionPreset;
 		private final String regionName;
-	
+
 		public Roi(int regionIndex, double regionLow, double regionHigh, int regionBackground,
 				double regionPreset, String regionName) {
 					this.regionIndex = regionIndex;
@@ -232,8 +232,8 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 					this.regionPreset = regionPreset;
 					this.regionName = regionName;
 		}
-		
-		
+
+
 		@Override
 		public String toString() {
 			String s = " regionIndex:" + regionIndex;
@@ -244,62 +244,62 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 			s += " regionName:" + regionName ;
 			return s;
 		}
-		
+
 		public int getRegionIndex() {
 			return regionIndex;
 		}
-	
+
 		public double getRegionLow() {
 			return regionLow;
 		}
-	
+
 		public double getRegionHigh() {
 			return regionHigh;
 		}
-	
+
 		public int getRegionBackground() {
 			return regionBackground;
 		}
-	
+
 		public double getRegionPreset() {
 			return regionPreset;
 		}
-	
+
 		public String getRegionName() {
 			return regionName;
 		}
 	}
 
 	public int scanWidth = 10;
-	
+
 	public int scanHeight = 10;
-	
+
 	private int pointsSinceScanStart = 0;
-	
+
 	@Override
 	public void atScanStart() throws DeviceException {
 		pointsSinceScanStart = 0;
 	}
-	
+
 	double getX() {
 		return (pointsSinceScanStart % scanWidth) / ((double) scanWidth);
 	}
-	
+
 	double getY() {
 		return ((pointsSinceScanStart / scanHeight) % scanWidth) / ((double) scanHeight);
 	}
-	
+
 	public double[] createSpectrum() throws DeviceException {
 		Random random = new Random();
 		double[] counts = new double[(int) getNumberOfChannels()];
-		
+
 		double p1mu = .2;
 		double p1sigma = .02;
 		double p2mu = .3;
 		double p2sigma = .01;
 		double p1amp = getX();
-		double p2amp = getY(); 
-		
+		double p2amp = getY();
+
 		for (int channel = 0; channel < counts.length; channel++) {
 			double x = (float) channel / getNumberOfChannels();
 			double noise = random.nextDouble();
@@ -308,16 +308,16 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 			counts[channel] = (noise + p1 + p2) * 1000;
 		}
 		return counts;
-		
+
 	}
-	
+
 	private double gaussian(double x, double mu, double sigma) {
 		double a = 1/ (sigma * Math.sqrt(2*Math.PI));
 		double b = mu;
 		double c = sigma;
 		return a * Math.exp(-1 * (x-b) * (x-b) / (2*c*c));
 	}
-	
+
 	private void log(String msg) {
 		ITerminalPrinter terminalPrinter = InterfaceProvider.getTerminalPrinter();
 		msg = getName() + msg;
@@ -327,7 +327,7 @@ public class DummyEpicsMcaForXmap extends AnalyserBase {
 		} catch (java.lang.IllegalStateException e) {
 			// ignore, as print fails during configure
 		}
-		
+
 	}
 
 }

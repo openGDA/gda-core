@@ -23,7 +23,7 @@ import gda.device.motor.EpicsMotor;
 import junit.framework.TestCase;
 
 public class ConfiguratorTest extends TestCase {
-	
+
 	public void testMeaningfulExceptionWhenInterfacePropertyUndefined() {
 		try {
 			LocalProperties.clearProperty(Configurator.INTERFACE_CONFIGURATION_XML_KEY);

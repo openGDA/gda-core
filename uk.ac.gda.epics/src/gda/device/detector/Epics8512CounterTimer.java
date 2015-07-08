@@ -37,13 +37,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class to use a Hytec 8512 scaler board as a counter timer via EPICS
- * 
+ *
  * It can be used as a dummy counter timer if the appropriate xml variable is
  * set.
- * 
+ *
  * The collection time needs to be set in msecs though in non-dummy, real mode
  * this is converted into seconds.
- * 
+ *
  */
 
 public class Epics8512CounterTimer extends gda.device.detector.DetectorBase implements
@@ -128,7 +128,7 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 
 	/**
 	 * Sets EPICS record name
-	 * 
+	 *
 	 * @param name
 	 */
 	public void setEpicsRecordName(String name) {
@@ -137,7 +137,7 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 
 	/**
 	 * Returns EPICS record name
-	 * 
+	 *
 	 * @return Record Name
 	 */
 	public String getEpicsRecordName() {
@@ -145,9 +145,9 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 	}
 
 	/**
-	 * 
+	 *
 	 * If dummy set class acts as dummy counter timer
-	 * 
+	 *
 	 * @param dummy
 	 */
 
@@ -157,7 +157,7 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 
 	/**
 	 * Returns whether this acts as a dummy counter timer.
-	 * 
+	 *
 	 * @return {@code true} if this is a dummy counter timer
 	 */
 	public boolean isDummyOperation() {
@@ -213,9 +213,9 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 	/**
 	 * Returns the time in msec the detector collects for during a call to
 	 * collectData()
-	 * 
+	 *
 	 * @return double
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Override
 	public double getCollectionTime() throws DeviceException  {
@@ -233,10 +233,10 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 	/**
 	 * Sets the time in msecs the detector collects for during a call to
 	 * collectData()
-	 * 
+	 *
 	 * @param collectionTime
-	 * @throws DeviceException 
-	 * 
+	 * @throws DeviceException
+	 *
 	 */
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
@@ -253,7 +253,7 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 
 	/**
 	 * Reads and returns the measured data counts()
-	 * 
+	 *
 	 * @return data
 	 * @throws DeviceException
 	 */
@@ -271,7 +271,7 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 			} else
 			/**
 			 * Reads and returns the measured data counts()
-			 * 
+			 *
 			 * @return data
 			 * @throws DeviceException
 			 */
@@ -295,9 +295,9 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 
 	/**
 	 * Returns the last stored data counts()
-	 * 
+	 *
 	 * (use readChans() to read in and return recently measured data counts)
-	 * 
+	 *
 	 * @return data
 	 * @throws DeviceException
 	 */
@@ -308,7 +308,7 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 
 	/**
 	 * Returns whether a time channel is required.
-	 * 
+	 *
 	 * @return {@code true} if a time channel is required
 	 */
 	public boolean isTimeChannelRequired() {
@@ -317,7 +317,7 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 
 	/**
 	 * Sets whether a time channel is required.
-	 * 
+	 *
 	 * @param timeChannelRequired {@code true} if a time channel is required
 	 */
 	public void setTimeChannelRequired(boolean timeChannelRequired) {
@@ -326,7 +326,7 @@ public class Epics8512CounterTimer extends gda.device.detector.DetectorBase impl
 
 	/**
 	 * getStatus returns 0 if idle, 1 if busy
-	 * 
+	 *
 	 * @see gda.device.Detector#getStatus()
 	 */
 	@Override

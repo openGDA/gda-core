@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * The Class EpicsControlPoint.
  */
 public class EpicsControlPoint extends ScannableMotionBase implements ControlPoint, InitializationListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsControlPoint.class);
 
 	private double sensitivity = 0.0;
@@ -82,7 +82,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 	protected EpicsChannelManager channelManager;
 
 	protected EpicsController controller;
-	
+
 	//if true the channels are monitored and observers notified of changes
 	boolean monitorChannels=true;
 
@@ -96,7 +96,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	@Override
 	public void configure() throws FactoryException {
-		
+
 		this.inputNames = new String[]{getName()};
 
 		// String recordName = null;
@@ -107,7 +107,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 				if (getEpicsRecordNameSetPoint().equals(getEpicsRecordNameGetPoint())) {
 					logger.warn("The EPICS record name set/set points may not be the same");
 				}
-				
+
 				// Set point
 				epicsRecordSetPoint = (EpicsRecord) Finder.getInstance().find(epicsRecordNameSetPoint);
 				if (epicsRecordSetPoint != null) {
@@ -146,24 +146,24 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 					SimplePvType simplePv = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.SimplePvType.class);
 					recordNameSetPoint = simplePv.getRECORD().getPv();
 					theChannelSet = channelManager.createChannel(recordNameSetPoint, getMonitorListener(), false);
-					
+
 					recordNameGetPoint = recordNameSetPoint;
 					theChannelGet = theChannelSet;
-					
+
 					channelManager.creationPhaseCompleted();
 				} catch (CAException e) {
 					throw new FactoryException("failed to create Channel for Control Point", e);
 				} catch (ConfigurationNotFoundException e) {
 					throw new FactoryException("No SimplePv for Control Point", e);
 				}
-			}			
+			}
 			// Two different deviceNames are used for get and set point respectively
 			else if ((getDeviceNameSetPoint() != null) & (getDeviceNameGetPoint() != null)) {
 
 				if (getDeviceNameSetPoint().equals(getDeviceNameGetPoint())) {
 					logger.warn("The device name set point and device name get point may not be the same");
 				}
-				
+
 				// Set point
 				try {
 					SimplePvType simplePvSet = Configurator.getConfiguration(getDeviceNameSetPoint(),
@@ -194,7 +194,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 					recordNameSetPoint = getPvName();
 					theChannelSet = channelManager.createChannel(recordNameSetPoint, getMonitorListener(), false);
 					channelManager.creationPhaseCompleted();
-					
+
 					recordNameGetPoint = recordNameSetPoint;
 					theChannelGet = theChannelSet;
 				} catch (CAException e) {
@@ -205,7 +205,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 				if (getPvNameSetPoint().equals(getPvNameGetPoint())) {
 					logger.warn("The PV name set point and PV name get point may not be the same");
 				}
-				
+
 				try {
 					recordNameSetPoint = getPvNameSetPoint();
 					theChannelSet = channelManager.createChannel(recordNameSetPoint, getMonitorListener(), false);
@@ -254,7 +254,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	/**
 	 * Returns the name of the pv this object is monitoring
-	 * 
+	 *
 	 * @return the name of the pv
 	 */
 	public String getPvNameSetPoint() {
@@ -264,7 +264,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 	/**
 	 * Sets the name of the pv this object monitors. This must be called before the configure method makes the
 	 * connections to the pv.
-	 * 
+	 *
 	 * @param pvNameSetPoint
 	 */
 
@@ -275,7 +275,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 	/**
 	 * Sets the name of the pv this object monitors. This must be called before the configure method makes the
 	 * connections to the pv.
-	 * 
+	 *
 	 * @param pvNameGetPoint
 	 */
 	public void setPvNameGetPoint(String pvNameGetPoint) {
@@ -284,7 +284,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	/**
 	 * Returns the name of the pv this object is monitoring
-	 * 
+	 *
 	 * @return the name of the pv
 	 */
 	public String getPvNameGetPoint() {
@@ -302,7 +302,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 	/**
 	 * Returns the sensitivity of updates from this monitor. The sensitivity is the percentage change which must occur
 	 * in the pv value for the IObservers to be informed. This prevents unneccessary updating.
-	 * 
+	 *
 	 * @return the sensitivity of updates from this monitor
 	 */
 	public double getSensitivity() {
@@ -311,7 +311,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	/**
 	 * Sets the sensitivity level of updates to IObservers from this object.
-	 * 
+	 *
 	 * @param sensitivity
 	 */
 	public void setSensitivity(double sensitivity) {
@@ -320,7 +320,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	/**
 	 * Gets the epics record name set point.
-	 * 
+	 *
 	 * @return The epics record name set point
 	 */
 	public String getEpicsRecordNameSetPoint() {
@@ -329,7 +329,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	/**
 	 * Sets the epics record name set point.
-	 * 
+	 *
 	 * @param epicsRecordNameSetPoint
 	 *            The epics record name set point
 	 */
@@ -339,25 +339,25 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	/**
 	 * gets the short or EPICS-GDA shared name of the device
-	 * 
+	 *
 	 * @return device name
 	 */
 	public String getDeviceName(){
 		return deviceName;
 	}
-	
+
 	/**
 	 * sets the short or EPICS-GDA shared name for this device
-	 * 
+	 *
 	 * @param deviceName
 	 */
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
 	}
-	
+
 	/**
 	 * gets the short or EPICS-GDA shared name of the device
-	 * 
+	 *
 	 * @return device name
 	 */
 	public String getDeviceNameSetPoint() {
@@ -366,7 +366,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	/**
 	 * sets the short or EPICS-GDA shared name for this device
-	 * 
+	 *
 	 * @param deviceName
 	 */
 	public void setDeviceNameSetPoint(String deviceName) {
@@ -375,7 +375,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	/**
 	 * Gets the epics record name get point.
-	 * 
+	 *
 	 * @return The epics record name get point
 	 */
 	public String getEpicsRecordNameGetPoint() {
@@ -384,7 +384,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	/**
 	 * Sets the epics record name get point.
-	 * 
+	 *
 	 * @param epicsRecordNameGetPoint
 	 *            The epics record name get point
 	 */
@@ -394,7 +394,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	/**
 	 * gets the short or EPICS-GDA shared name of the device
-	 * 
+	 *
 	 * @return device name
 	 */
 	public String getDeviceNameGetPoint() {
@@ -403,7 +403,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 
 	/**
 	 * sets the short or EPICS-GDA shared name for this device
-	 * 
+	 *
 	 * @param deviceName
 	 */
 	public void setDeviceNameGetPoint(String deviceName) {
@@ -458,7 +458,7 @@ public class EpicsControlPoint extends ScannableMotionBase implements ControlPoi
 	public void setMonitorChannels(boolean monitorChannels) {
 		this.monitorChannels = monitorChannels;
 	}
-	
-	
-	
+
+
+
 }

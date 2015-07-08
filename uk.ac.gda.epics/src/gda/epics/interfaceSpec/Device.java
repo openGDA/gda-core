@@ -45,13 +45,13 @@ public interface Device {
 	 * @return Iterator field names
 	 */
 	public Iterator<String> getFieldNames();
-	
+
 	/**
 	 * @param attributeName
 	 * @return String - value of attribute or null if not found
 	 */
 	public String getAttributeValue(String attributeName);
-	
+
 	/**
 	 * @return The value of the desc attribute if given else an empty string
 	 */

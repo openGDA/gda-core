@@ -134,7 +134,7 @@ public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase imple
 		if( data_index != arraySize )
 			throw new DeviceException("Error converting regionsOfInterest");
 		return data;
-		
+
 	}
 	/*
 	 * return java.util.Vector<double[][]>. Each member of the vector represents a single mca data[n][0] is the total
@@ -151,7 +151,7 @@ public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase imple
 
 	@Override
 	public Object readout() throws DeviceException {
-		return (readoutMode == READOUT_MODE.SUM_OF_ALL_DATA) ? sumOfAllData() : 
+		return (readoutMode == READOUT_MODE.SUM_OF_ALL_DATA) ? sumOfAllData() :
 			(readoutMode == READOUT_MODE.REGIONS_OF_INTEREST_AS_FLAT_ARRAY) ? regionsOfInterestAsFlatArray() :
 				regionsOfInterestCounts();
 	}
@@ -182,8 +182,8 @@ public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase imple
 	}
 
 	private READOUT_MODE readoutMode = READOUT_MODE.REGIONS_OF_INTEREST;
-	
-	
+
+
 
 	private static final String sumOfAllDatastring = "SUM_OF_ALL_DATA",
 			regionsOfInterestString = "REGIONS_OF_INTEREST",
@@ -212,13 +212,13 @@ public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase imple
 			return sumOfAllDatastring;
 		else if(readoutMode == READOUT_MODE.REGIONS_OF_INTEREST_AS_FLAT_ARRAY)
 			return regionsOfInterestAsFlatArrayString;
-	
+
 		return regionsOfInterestString;
 	}
 
 	/**
 	 * Gets an arraylist of all the names of the EpicsMCAs that are used with the countertimer.
-	 * 
+	 *
 	 * @return ArrayList of all the EpicsMCA names.
 	 */
 	public ArrayList<String> getEpicsMcaNameList() {
@@ -227,7 +227,7 @@ public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase imple
 
 	/**
 	 * Sets an arraylist of EpicsMCAs.
-	 * 
+	 *
 	 * @param epicsMcaList the list of EpicsMCASimples
 	 */
 	public void setEpicsMCASimpleList(ArrayList<EpicsMCASimple> epicsMcaList) {
@@ -235,7 +235,7 @@ public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase imple
 	}
 	/**
 	 * Gets the EpicsMCA name for a given channel.
-	 * 
+	 *
 	 * @param channel
 	 * @return The EpicsMCA name
 	 */
@@ -253,10 +253,10 @@ public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase imple
 	public void addEpicsMcaName(String epicsMcaName) {
 		epicsMcaNameList.add(epicsMcaName);
 	}
-	
+
 	/**
 	 * Sets the EPICS MCA names.
-	 * 
+	 *
 	 * @param epicsMcaNames the names
 	 */
 	public void setEpicsMcaNames(ArrayList<String> epicsMcaNames) {
@@ -264,7 +264,7 @@ public class EpicsMCACounterTimer extends gda.device.detector.DetectorBase imple
 	}
 	/**
 	 * Sets the EPICS MCA names.
-	 * 
+	 *
 	 * @param epicsMcaNames the names
 	 */
 	public void setEpicsMcaNameList(ArrayList<String> epicsMcaNames) {

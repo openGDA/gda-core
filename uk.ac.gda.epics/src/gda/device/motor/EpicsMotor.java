@@ -142,7 +142,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	protected Channel hlm = null; // User High Limit .HLM, FLOAT
 
 	protected Channel llm = null; // User Lower Limit .LLM, FLOAT
-	
+
 	protected Channel hls;
 
 	protected Channel lls;
@@ -190,7 +190,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * Monitor EPICS motor dial lower limit
 	 */
 	protected DLLMMonitorListener dialLowLimitMonitor;
-	
+
 	protected MSTAMonitorListener mstaMonitorListener;
 	/**
 	 * Monitor EPICS motor limit violation
@@ -202,11 +202,11 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	*/
 	protected LLSMonitorListener lowLimitStateMonitor;
 	protected HLSMonitorListener highLimitStateMonitor;
-	
-	
+
+
 	protected Channel setPv;
 	protected SetUseMonitorListener setUseListener;
-	
+
 	/**
 	 * EPICS Put call back handler
 	 */
@@ -298,14 +298,14 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Sets the record name that this motor will link to.
-	 * 
+	 *
 	 * @param pvName
 	 *            the record name
 	 */
 	public void setPvName(String pvName) {
 		this.pvName = pvName;
 	}
-	
+
 	public String getPvName() {
 		return pvName;
 	}
@@ -315,7 +315,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Sets the EpicsConfiguration to use when looking up PV from deviceName.
-	 * 
+	 *
 	 * @param epicsConfiguration
 	 *            the EpicsConfiguration
 	 */
@@ -325,7 +325,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Sets the access control object used by this motor.
-	 * 
+	 *
 	 * @param accessControl
 	 *            the access control object
 	 */
@@ -466,7 +466,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * gets the unit string from EPICS motor.
-	 * 
+	 *
 	 * @return unit string
 	 */
 	@Override
@@ -497,7 +497,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Gets the current speed of the motor in mm/second
-	 * 
+	 *
 	 * @return double the motor speed in revolution per second
 	 */
 	@Override
@@ -531,7 +531,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Gets the retry dead band for this motor from EPICS.
-	 * 
+	 *
 	 * @return double - the retry dead band.
 	 */
 	@Override
@@ -546,7 +546,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Gets the motor resolution from EPICS motor.
-	 * 
+	 *
 	 * @return double - the motor resolution
 	 */
 	@Override
@@ -644,7 +644,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	/**
 	 * Relative move, moves the motor by the specified mount in user coordinate system units, specified in the .EGU
 	 * field of the Motor record.
-	 * 
+	 *
 	 * @note The target position is re-checked before move as many limits in the EPICS motor changes dynamically.
 	 * @param increament
 	 *            - double the distance that motor need to travel in EGU
@@ -661,22 +661,22 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	}
 
 	enum STATUSCHANGE_REASON {
-		
+
 		START_MOVETO,
-		
+
 		MOVETO,
-		
+
 		INITIALISE,
-		
+
 		CAPUT_MOVECOMPLETE,
-		
+
 		/**
 		 * Like CAPUT_MOVECOMPLETE but the msta has to be queried in a separate thread to prevent EPICS timeouts
 		 */
 		CAPUT_MOVECOMPLETE_IN_ERROR,
-		
+
 		DMOV_MOVECOMPLETE,
-		
+
 		NEWSTATUS
 
 	}
@@ -790,16 +790,16 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	/**
 	 * Absolute move, moves the motor to the specified position in user coordinate system units, specified by .EGU field
 	 * of the Motor Record.
-	 * 
+	 *
 	 * @note The target position is re-checked before move as many limits in the EPICS motor changes dynamically.
 	 * @param position
 	 *            - double - the absolute position of the motor in EGU (
 	 */
 	@Override
 	public void moveTo(double position) throws MotorException {
-		
+
 		setUseListener.checkMotorIsInUseMode();
-		
+
 		targetPosition = position;
 		targetRangeCheck(position);
 		logger.debug("{}: moveto {}", getName(), position);
@@ -823,13 +823,13 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	/**
 	 * moves motor to the specified position with timeout in seconds. If motor does not callback within the specified
 	 * time, this method time-out.
-	 * 
+	 *
 	 * @note The target position is re-checked before move as many limits in the EPICS motor changes dynamically.
 	 */
 	public void moveTo(double position, double timeout) throws MotorException, TimeoutException, InterruptedException {
-		
+
 		setUseListener.checkMotorIsInUseMode();
-		
+
 		// final long timeout1 = (long) timeout * 1000;
 		targetPosition = position;
 		targetRangeCheck(position);
@@ -846,7 +846,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	/**
 	 * Asynchronously moves the motor to the specified position in EGU with a specified PutListener. You must handle the
 	 * callback in your PutListener code.
-	 * 
+	 *
 	 * @note The target position is re-checked before move as many limits in the EPICS motor changes dynamically.
 	 * @param position
 	 *            the absolute position of the motor in EGU
@@ -855,9 +855,9 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	 * This moveTo does not change motorStatus.
 	 */
 	public void moveTo(double position, PutListener moveListener) throws MotorException {
-		
+
 		setUseListener.checkMotorIsInUseMode();
-		
+
 		try {
 			targetRangeCheck(position);
 			// to reduce the race condition between EPICS Control and
@@ -879,7 +879,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Reads the motor's dial low limit (DLLM).
-	 * 
+	 *
 	 * @return the dial low limit
 	 */
 	protected double getDialLowLimit() throws MotorException {
@@ -892,7 +892,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Reads the motor's dial high limit (DHLM).
-	 * 
+	 *
 	 * @return the dial high limit
 	 */
 	protected double getDialHighLimit() throws MotorException {
@@ -905,7 +905,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * This method check the target position is within the limit range.
-	 * 
+	 *
 	 * @param requestedPosition
 	 *            absolute requested target to validate within limits
 	 */
@@ -932,7 +932,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	/**
 	 * Checks if limits should be checked. The Epics convention is that if the dial high/low limits are zero, this means
 	 * there are no limits.
-	 * 
+	 *
 	 * @return true unless both dial limits are 0
 	 */
 	private boolean hasLimitsToCheck() throws MotorException {
@@ -944,7 +944,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Sets the minimum position. This does write to EPICS database.
-	 * 
+	 *
 	 * @param minimumPosition
 	 *            the minimum position
 	 */
@@ -959,7 +959,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * {@inheritDoc} Get the minimum position from EPICS database.
-	 * 
+	 *
 	 * @return the minimum position, or NaN if limits are not be checked
 	 */
 	@Override
@@ -976,7 +976,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Sets the maximum position. This does write to EPICS database.
-	 * 
+	 *
 	 * @param maximumPosition
 	 *            the maximum position
 	 */
@@ -991,7 +991,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * {@inheritDoc} Get the maximum position from EPICS database.
-	 * 
+	 *
 	 * @return the maximum position, or NaN if limits are not be checked
 	 */
 	@Override
@@ -1062,7 +1062,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * This method sets the current position of the motor without moving it, in user coordinates.
-	 * 
+	 *
 	 * @param position
 	 *            - the new position in motor units
 	 */
@@ -1078,7 +1078,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * This method returns the current position of the motor in user coordinates.
-	 * 
+	 *
 	 * @return the current position
 	 */
 	@Override
@@ -1126,7 +1126,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 	}
 
 	private class RBVMonitorListener implements MonitorListener {
-		
+
 		private boolean alarmRaised = false;
 
 		@Override
@@ -1312,89 +1312,89 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 		SET,
 		USE
 	}
-	
+
 	private class SetUseMonitorListener implements MonitorListener {
-		
+
 		private static final short SET_USE_PV_USE_VALUE = 0;
-		
+
 		private static final short SET_USE_PV_SET_VALUE = 1;
-		
+
 		private SetUseState setUseMode = SetUseState.UNKNOWN;
-		
+
 		private final ReadWriteLock setUseLock = new ReentrantReadWriteLock();
-		
+
 		@Override
 		public void monitorChanged(MonitorEvent event) {
-			
+
 			final DBR dbr = event.getDBR();
-			
+
 			if (!dbr.isENUM()) {
 				logger.error(String.format("New value for %s SET PV has type %s; expected %s", getName(), dbr.getType().getName(), DBRType.ENUM.getName()));
 				return;
 			}
-			
+
 			final DBR_Enum dbrEnum = (DBR_Enum) dbr;
 			final short[] values = dbrEnum.getEnumValue();
-			
+
 			if (values.length != 1) {
 				logger.error(String.format("New value for %s SET PV has %d value(s); expected 1", getName(), values.length));
 				return;
 			}
-			
+
 			final short newValue = values[0];
-			
+
 			if (newValue != SET_USE_PV_USE_VALUE && newValue != SET_USE_PV_SET_VALUE) {
 				logger.error(String.format("New value for %s SET PV is %d; expected %d or %d", getName(), newValue, SET_USE_PV_USE_VALUE, SET_USE_PV_SET_VALUE));
 				return;
 			}
-			
+
 			try {
 				setUseLock.writeLock().lock();
-				
+
 				final boolean firstUpdate = (setUseMode == SetUseState.UNKNOWN);
-				
+
 				final SetUseState newState = (newValue == SET_USE_PV_USE_VALUE) ? SetUseState.USE : SetUseState.SET;
-				
+
 				final boolean stateChanged = !firstUpdate && (setUseMode != newState);
-				
+
 				final boolean logNewState = (firstUpdate && newState == SetUseState.SET) || stateChanged;
-				
+
 				if (logNewState) {
-					
+
 					if (newState == SetUseState.USE) {
 						logger.info(String.format("Motor %s is now in 'Use' mode", getName()));
 					}
-					
+
 					else if (newState == SetUseState.SET) {
 						logger.error(String.format("Motor %s is now in 'Set' mode - this will cause moves to fail", getName()));
 					}
 				}
-				
+
 				setUseMode = newState;
 			}
-			
+
 			finally {
 				setUseLock.writeLock().unlock();
 			}
 		}
-		
+
 		private void checkMotorIsInUseMode() throws MotorException {
-			
+
 			try {
 				setUseLock.readLock().lock();
-				
+
 				if (setUseMode == SetUseState.SET) {
 					throw new MotorException(getStatus(), String.format("Motor %s is in 'Set' mode - check the Set/Use PV in the motor's EDM screen", getName()));
 				}
 			}
-			
+
 			finally {
 				setUseLock.readLock().unlock();
 			}
 		}
-	
+
 	}
-	
+
 	private class MSTAMonitorListener implements MonitorListener {
 		private MotorStatus mstaStatus = MotorStatus.READY;
 
@@ -1471,7 +1471,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 			}
 		}
 	}
-	
+
 	/**
 		 * update upper dial alarm when and if it changes in EPICS.
 		 */
@@ -1489,7 +1489,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 				}
 			}
 		}
-	
+
 		/**
 		 * update lower dial alarm when and if it changes in EPICS.
 		 */
@@ -1506,7 +1506,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 					logger.error("Error: expecting Int type but got " + dbr.getType() + " type.");
 				}
 			}
-	}	
+	}
 	/**
 	 * updates limit violation status from EPICS.
 	 */
@@ -1608,7 +1608,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * gets the short or EPICS-GDA shared name of the device
-	 * 
+	 *
 	 * @return device name
 	 */
 	public String getDeviceName() {
@@ -1624,7 +1624,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * gets EPICS access control name.
-	 * 
+	 *
 	 * @return name of the access control.
 	 */
 	public String getAccessControlName() {
@@ -1664,7 +1664,7 @@ public class EpicsMotor extends MotorBase implements Motor, BlockingMotor, Initi
 
 	/**
 	 * Constructor taking a PV name
-	 * 
+	 *
 	 * @param name
 	 *            - String, the PV name
 	 */

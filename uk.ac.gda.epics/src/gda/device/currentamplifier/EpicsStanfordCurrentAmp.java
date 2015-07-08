@@ -46,11 +46,11 @@ public class EpicsStanfordCurrentAmp extends CurrentAmplifierBase implements Ini
 
 	private static final String[] positionLabels = {"1","2","5","10","20","50","100","200","500"};
 	private static final String[] unitLabels = {"pA/V","nA/V","\u03BCA/V","mA/V"};
-	
+
 	private String deviceName = null;
 	private EpicsChannelManager channelManager;
 	private EpicsController controller;
-	
+
 	private volatile String gain = "";
 	private volatile String gainUnit = "";
 
@@ -71,7 +71,7 @@ public class EpicsStanfordCurrentAmp extends CurrentAmplifierBase implements Ini
 	/**
 	 * Configures the class with the PV information from the gda-interface.xml file. Vendor and model are available
 	 * through EPICS but are currently not supported in GDA.
-	 * 
+	 *
 	 * @see gda.device.DeviceBase#configure()
 	 */
 	@Override
@@ -92,7 +92,7 @@ public class EpicsStanfordCurrentAmp extends CurrentAmplifierBase implements Ini
 				throw new FactoryException("Missing EPICS interface configuration for the current amplifier "
 						+ getName());
 			}
-			
+
 			configured = true;
 		}// end of if (!configured)
 	}
@@ -109,7 +109,7 @@ public class EpicsStanfordCurrentAmp extends CurrentAmplifierBase implements Ini
 
 	/**
 	 * returns a parsed list of gains available for this amplifier.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -142,7 +142,7 @@ public class EpicsStanfordCurrentAmp extends CurrentAmplifierBase implements Ini
 	@Override
 	public void setGainUnit(String unit) throws DeviceException {
 		int index = 0;
-		
+
 		// Some kind of unicode problem with the unit being sent over corba.
 		if ("¼A/V".equals(unit)) unit = "\u03BCA/V";
 		for (String unitLabel : gainUnits) {
@@ -160,7 +160,7 @@ public class EpicsStanfordCurrentAmp extends CurrentAmplifierBase implements Ini
 		// if get here then wrong position name supplied
 		throw new DeviceException("SetUnit called: " + unit + " not found.");
 	}
-	
+
 	@Override
 	public String getGain() throws DeviceException {
 		return gain;
@@ -179,7 +179,7 @@ public class EpicsStanfordCurrentAmp extends CurrentAmplifierBase implements Ini
 
 	/**
 	 * gets device name.
-	 * 
+	 *
 	 * @return device name
 	 */
 	public String getDeviceName() {
@@ -188,7 +188,7 @@ public class EpicsStanfordCurrentAmp extends CurrentAmplifierBase implements Ini
 
 	/**
 	 * sets device name.
-	 * 
+	 *
 	 * @param name
 	 */
 	public void setDeviceName(String name) {
@@ -197,7 +197,7 @@ public class EpicsStanfordCurrentAmp extends CurrentAmplifierBase implements Ini
 
 	/**
 	 * creates channel access to amplifier
-	 * 
+	 *
 	 * @param currAmpConfig
 	 * @throws FactoryException
 	 */
@@ -236,7 +236,7 @@ public class EpicsStanfordCurrentAmp extends CurrentAmplifierBase implements Ini
 	}
 
 	@Override
-	public void initializationCompleted() {		
+	public void initializationCompleted() {
 	}
 
 }

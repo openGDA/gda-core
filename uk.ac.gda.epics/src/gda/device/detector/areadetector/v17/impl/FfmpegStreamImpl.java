@@ -13,7 +13,7 @@
  * details.
  *
  * You should have received a copy of the GNU General Public License along
- * with GDA. If not, see <http://www.gnu.org/licenses/>. 
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package gda.device.detector.areadetector.v17.impl;
@@ -52,7 +52,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
 
 	private FfmpegStreamType config;
-	
+
 	private String deviceName;
 
 	private double initialQuality = Double.NaN;
@@ -356,11 +356,11 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 	}
 	/**
 	 * This method allows to toggle between the method in which the PV is acquired.
-	 * 
+	 *
 	 * @param pvElementName
 	 * @param args
 	 * @return {@link Channel} to talk to the relevant PV.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	private String getFullPV(String pvElementName, String... args) throws Exception{
 		String pvPostFix = null;
@@ -381,7 +381,7 @@ public class FfmpegStreamImpl extends NDBaseImpl implements InitializingBean, Ff
 	}
 	/**
 	 * This method allows to toggle between the method in which the PV is acquired.
-	 * 
+	 *
 	 * @param pvElementName
 	 * @param args
 	 * @return {@link Channel} to talk to the relevant PV.

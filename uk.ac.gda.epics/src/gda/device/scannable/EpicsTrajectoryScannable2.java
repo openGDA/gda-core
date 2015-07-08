@@ -58,7 +58,7 @@ public class EpicsTrajectoryScannable2 extends ScannableMotionUnitsBase implemen
 	}
 	@Override
 	public void configure() throws FactoryException {
-	
+
 		tracController = (TrajectoryScanController)Finder.getInstance().find("epicsTrajectoryScanController");
 		tracController.addIObserver(this);
 		this.setInputNames(new String[]{this.getName()});
@@ -67,7 +67,7 @@ public class EpicsTrajectoryScannable2 extends ScannableMotionUnitsBase implemen
 	public void continuousMoveComplete() throws DeviceException {
 		try {
 			tracController.read();
-			while (tracController.isReading()){ 
+			while (tracController.isReading()){
 				Thread.sleep(1);
 			}
 			//check the read status from the controller
@@ -118,39 +118,39 @@ public class EpicsTrajectoryScannable2 extends ScannableMotionUnitsBase implemen
 		super.stop();
 	}
 
-	
+
 	@Override
 	public void prepareForContinuousMove() throws DeviceException {
 		// build the trajectory
 		if(mode == TWODMODE && trajectoryBuildDone)
 			return;
-		
+
 		try {
 			for(int i =1 ; i <= TrajectoryScanController.MAX_TRAJECTORY; i++)
-			{	
-				tracController.setMMove(i, false);				
+			{
+				tracController.setMMove(i, false);
 			}
 			tracController.setMMove(3, true);
 			Trajectory trajectory = new Trajectory();
 			trajectory.setTotalElementNumber(continuousParameters.getNumberDataPoints() + 1);
 			trajectory.setTotalPulseNumber(continuousParameters.getNumberDataPoints()+ 1 );
 			double timePerPoint = continuousParameters.getTotalTime() / continuousParameters.getNumberDataPoints();
-			double[] path = trajectory.defineCVPath(continuousParameters.getStartPosition(), 
+			double[] path = trajectory.defineCVPath(continuousParameters.getStartPosition(),
 					continuousParameters.getEndPosition(), (continuousParameters.getTotalTime() + timePerPoint));
-			
+
 			tracController.setMTraj(3,path);
-			
+
 			tracController.setNumberOfElements((int)trajectory.getElementNumbers());
 			tracController.setNumberOfPulses((int) trajectory.getPulseNumbers());
 			tracController.setStartPulseElement((int) trajectory.getStartPulseElement());
 			tracController.setStopPulseElement((int) trajectory.getStopPulseElement());
 
 			if (tracController.getStopPulseElement() != (int) (trajectory.getStopPulseElement())){
-				tracController.setStopPulseElement((int) (trajectory.getStopPulseElement()));	
+				tracController.setStopPulseElement((int) (trajectory.getStopPulseElement()));
 			}
 			tracController.setTime((trajectory.getTotalTime()));
-   
-			
+
+
 			tracController.build();
 			while(tracController.isBuilding()){
 				//wait for the build to finsih
@@ -192,11 +192,11 @@ public class EpicsTrajectoryScannable2 extends ScannableMotionUnitsBase implemen
 					{
 						trajMoveComplete = false;
 					}
-							
+
 				}
 			}
 		}
-		
+
 	}
 	@Override
 	public double calculateEnergy(int frameIndex) {
@@ -220,14 +220,14 @@ public class EpicsTrajectoryScannable2 extends ScannableMotionUnitsBase implemen
 		}
 
 	}
-	
+
 	@Override
 	public void atScanEnd() throws DeviceException {
 		trajectoryBuildDone = false;
 
 	}
 	@Override
-	public void atCommandFailure() 
+	public void atCommandFailure()
 	{
 		trajectoryBuildDone = false;
 	}

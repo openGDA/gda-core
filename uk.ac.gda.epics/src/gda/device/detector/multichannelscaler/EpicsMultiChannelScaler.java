@@ -39,9 +39,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A Multi-channel scaler class that implements the Detector interface in GDA framework. 
- * Apart from implementing framework API, it also contains a map object that maps 
- * scaler channel and detector name label to MCA count array. An integer value is 
+ * A Multi-channel scaler class that implements the Detector interface in GDA framework.
+ * Apart from implementing framework API, it also contains a map object that maps
+ * scaler channel and detector name label to MCA count array. An integer value is
  * used for the map key so the order of detector outputs from totally independent detectors
  * can be easily sorted in output.
  */
@@ -97,7 +97,7 @@ public class EpicsMultiChannelScaler extends DetectorBase implements Configurabl
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public EpicsMultiChannelScaler() {
 		// dm = new DataMonitor[MAX_NUMBER_MCA];

@@ -39,7 +39,7 @@ public interface IEpicsChannel extends IObservable, Scannable {
 	public void setValue(Object position) throws DeviceException;
 
 	/**
-	 * 
+	 *
 	 */
 	public void dispose();
 }

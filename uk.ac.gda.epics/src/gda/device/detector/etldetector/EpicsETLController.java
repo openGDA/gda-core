@@ -139,7 +139,7 @@ public class EpicsETLController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * creates channel access implementing phase I beamline EPICS interfaces.
-	 * 
+	 *
 	 * @param recordName
 	 * @throws FactoryException
 	 */
@@ -162,7 +162,7 @@ public class EpicsETLController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * create channel access implementing phase II beamline EPICS interfaces.
-	 * 
+	 *
 	 * @param etlConfig
 	 * @throws FactoryException
 	 */
@@ -186,11 +186,11 @@ public class EpicsETLController extends DeviceBase implements Configurable, Find
 	/**
 	 * Set HV Control voltage setting in mV to ETL Detector. Setting the HV above 2000V will cause damage to the HV
 	 * circuit. The pmt maximum voltage rating may restrict this limit further.
-	 * 
+	 *
 	 * @param hv
 	 * @throws CAException
 	 * @throws OutOfRangeException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setHighVoltage(int hv) throws CAException, OutOfRangeException, InterruptedException {
 		if (hv > 2000000 || hv < 0) {
@@ -204,11 +204,11 @@ public class EpicsETLController extends DeviceBase implements Configurable, Find
 	/**
 	 * Get HV control voltage setting from the ETL Detector. This returns the contents of the control register, not the
 	 * actual HV voltage.
-	 * 
+	 *
 	 * @return int
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public int getHighVoltage() throws CAException, TimeoutException, InterruptedException {
 		return controller.cagetInt(ctrlrbv);
@@ -216,10 +216,10 @@ public class EpicsETLController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * Set the upper threashold in mV.
-	 * 
+	 *
 	 * @param hv
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setUpperLimit(int hv) throws CAException, InterruptedException {
 		controller.caput(ulim, hv, channelManager);
@@ -228,11 +228,11 @@ public class EpicsETLController extends DeviceBase implements Configurable, Find
 	/**
 	 * Get the Upper Threshold in mV. This is the setting value stored in the control register, not a measure of the
 	 * actual voltage.
-	 * 
+	 *
 	 * @return int
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public int getUpperLimit() throws CAException, TimeoutException, InterruptedException {
 		return controller.cagetInt(ulimrbv);
@@ -240,10 +240,10 @@ public class EpicsETLController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * Set the lower threshold in mV for the detector.
-	 * 
+	 *
 	 * @param hv
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setLowerLimit(int hv) throws CAException, InterruptedException {
 		controller.caput(llim, hv, channelManager);
@@ -252,11 +252,11 @@ public class EpicsETLController extends DeviceBase implements Configurable, Find
 	/**
 	 * Get the lower threshold in mV. This is the setting value stored in the control register, NOT a measure of the
 	 * actual voltage.
-	 * 
+	 *
 	 * @return int
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public int getLowerLimit() throws CAException, TimeoutException, InterruptedException {
 		return controller.cagetInt(llimrbv);
@@ -264,11 +264,11 @@ public class EpicsETLController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * Get the actual HV output voltage. This reads ADC channel 3.
-	 * 
+	 *
 	 * @return int
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public int getActualHVOutput() throws CAException, TimeoutException, InterruptedException {
 		return controller.cagetInt(hvadc);
@@ -322,7 +322,7 @@ public class EpicsETLController extends DeviceBase implements Configurable, Find
 
 	public void setPvRoot(String pv) {
 		this.pvRoot=pv;
-		
+
 	}
 
 }

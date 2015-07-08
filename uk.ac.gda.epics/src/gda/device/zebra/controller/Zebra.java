@@ -172,14 +172,14 @@ public interface Zebra {
 	 */
 	void setPCDir(int i)  throws Exception;
 	int getPCDir()  throws Exception;
-	
+
 	void setPulseInput(int pulseId, int input) throws Exception;
 	void setPulseDelay(int pulseId, double delay) throws Exception;
 	void setPulseWidth(int pulseId, double width) throws Exception;
 	void setPulseTimeUnit(int pulseId, int timeunit) throws Exception;
-	
+
 	void setOutTTL(int outId, int val) throws Exception;
-	
+
 	/**
 	 * Returns the state of the specified TTL output.
 	 */
@@ -204,7 +204,7 @@ public interface Zebra {
 
 	/**
 	 * Reset the zebra box and all internal counters.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void reset() throws IOException;
 }

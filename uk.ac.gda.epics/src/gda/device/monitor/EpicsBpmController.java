@@ -88,12 +88,12 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 		intensityMonitorListener = new IntensityMonitorListener();
 		xPosMonitorListener = new XPosMonitorListener();
 		yPosMonitorListener = new YPosMonitorListener();
-		
+
 		setInputNames(new String[0]);
 		setExtraNames(new String[]{ "intensityTotal", "xPosition", "yPosition" });
 
 		outputFormat = new String[inputNames.length + extraNames.length];
-		
+
 		for (int i = 0; i < outputFormat.length; i++) {
 			outputFormat[i] = "%4.10f";
 		}
@@ -176,7 +176,7 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 
 		return value;
 	}
-	
+
 	@Override
 	public boolean isBusy() throws DeviceException {
 		// TODO Auto-generated method stub
@@ -277,7 +277,7 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 
 	/**
 	 * @return intensity total
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public double getIntensityTotal() throws DeviceException {
 		if (isPoll()) {
@@ -299,7 +299,7 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 
 	/**
 	 * @return x position
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public double getXPosition() throws DeviceException {
 		if (isPoll()) {
@@ -321,7 +321,7 @@ public class EpicsBpmController extends ScannableBase implements Monitor, Initia
 
 	/**
 	 * @return y position
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public double getYPosition() throws  DeviceException {
 		if (isPoll()) {

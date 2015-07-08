@@ -21,11 +21,11 @@ package gda.device.detector.nxdetector.roi;
 public interface RectangularROI<T extends Number> {
 
 	public T getXstart();
-	
+
 	public T getXsize();
 
 	public T getYstart();
-	
+
 	public T getYsize();
 
 	String getName();

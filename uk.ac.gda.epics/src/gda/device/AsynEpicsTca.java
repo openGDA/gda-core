@@ -42,11 +42,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class AsynEpicsTca extends DeviceBase implements Device, Findable, MonitorListener, ConnectionListener,
 		PutListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(AsynEpicsTca.class);
 
 	private EpicsRecord epicsTcaRecord;
@@ -98,7 +98,7 @@ public class AsynEpicsTca extends DeviceBase implements Device, Findable, Monito
 	private HashSet<Channel> monitorInstalledSet;
 
 	/**
-	 * 
+	 *
 	 */
 	public enum purEnableEnum {
 		/** */
@@ -108,7 +108,7 @@ public class AsynEpicsTca extends DeviceBase implements Device, Findable, Monito
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum scalerEnableEnum {
 		/** */
@@ -118,7 +118,7 @@ public class AsynEpicsTca extends DeviceBase implements Device, Findable, Monito
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum polarityEnum {
 		/** */
@@ -128,7 +128,7 @@ public class AsynEpicsTca extends DeviceBase implements Device, Findable, Monito
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum scalerGateEnum {
 		/** */
@@ -138,7 +138,7 @@ public class AsynEpicsTca extends DeviceBase implements Device, Findable, Monito
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum scalerPurEnum {
 		/** */
@@ -148,7 +148,7 @@ public class AsynEpicsTca extends DeviceBase implements Device, Findable, Monito
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum tcaSelectEnum {
 		/** */
@@ -158,7 +158,7 @@ public class AsynEpicsTca extends DeviceBase implements Device, Findable, Monito
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum purAmpEnum {
 		/** */
@@ -168,7 +168,7 @@ public class AsynEpicsTca extends DeviceBase implements Device, Findable, Monito
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum statusEnum {
 		/** */
@@ -182,7 +182,7 @@ public class AsynEpicsTca extends DeviceBase implements Device, Findable, Monito
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public AsynEpicsTca() {
 		controller = EpicsController.getInstance();
@@ -498,7 +498,7 @@ public class AsynEpicsTca extends DeviceBase implements Device, Findable, Monito
 	 * @param scalerNo
 	 * @param value
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setScalerHigh(int scalerNo, double value) throws CAException, InterruptedException {
 		switch (scalerNo) {
@@ -614,7 +614,7 @@ public class AsynEpicsTca extends DeviceBase implements Device, Findable, Monito
 	/**
 	 * @param value
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setStatus(statusEnum value) throws CAException, InterruptedException {
 		controller.caput(statusChannel, value.ordinal(), this);
@@ -648,7 +648,7 @@ public class AsynEpicsTca extends DeviceBase implements Device, Findable, Monito
 
 	/**
 	 * Connection callback
-	 * 
+	 *
 	 * @param ev
 	 */
 	private void onConnectionChanged(ConnectionEvent ev) {

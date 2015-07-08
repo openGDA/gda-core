@@ -18,11 +18,6 @@
 
 package gda.device.enumpositioner;
 
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.EnumPositionerStatus;
@@ -41,6 +36,11 @@ import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
+
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPositioner, InitializationListener {
 
@@ -64,7 +64,7 @@ public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPo
 		readPvMonitor = new ReadPvMonitorListener();
 		pcbl = new PutCallbackListener();
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		if (!configured) {
@@ -113,7 +113,7 @@ public class EpicsAirBearingControl extends EnumPositionerBase implements EnumPo
 			throw new DeviceException(getName() + " exception in getPositions",e);
 		}
 	}
-	
+
 	private String[] getReadPositions() throws DeviceException {
 		try {
 			return controller.cagetLabels(readChannel);

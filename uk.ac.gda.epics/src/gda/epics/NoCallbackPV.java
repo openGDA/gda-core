@@ -27,7 +27,7 @@ public interface NoCallbackPV<T> extends ReadOnlyPV<T> {
 
 	/**
 	 * Put a value over CA and return immediately.
-	 * 
+	 *
 	 * @param value
 	 *            the value to put across CA
 	 * @throws IOException
@@ -41,7 +41,7 @@ public interface NoCallbackPV<T> extends ReadOnlyPV<T> {
 	/**
 	 * Put a value over CA and return immediately specifying a {@link PutListener} which will be called when the put is
 	 * complete.
-	 * 
+	 *
 	 * @param value
 	 *            the value to put across CA
 	 * @throws IOException

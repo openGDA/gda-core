@@ -61,7 +61,7 @@ public class PolarimeterConcurrentScan extends PolarimeterGridScan implements Sc
 	TreeMap<Integer, Integer> scannableLevels;
 
 	/**
-* 
+*
 */
 	public PolarimeterConcurrentScan() {
 		super();
@@ -69,7 +69,7 @@ public class PolarimeterConcurrentScan extends PolarimeterGridScan implements Sc
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param args
 	 *            Object[]
 	 * @throws IllegalArgumentException
@@ -254,7 +254,7 @@ public class PolarimeterConcurrentScan extends PolarimeterGridScan implements Sc
 	/**
 	 * Calculates the number of points this concurrent scan would visit. Works on single dimensional scans and on
 	 * multidimensional scans containing children.
-	 * 
+	 *
 	 * @return integer - the number of points in the scans
 	 */
 	private int calculateNumberPoints() {
@@ -318,7 +318,7 @@ public class PolarimeterConcurrentScan extends PolarimeterGridScan implements Sc
 
 	/**
 	 * Moves all the scannable objects to their start positions.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	protected void moveToStarts() throws Exception {
@@ -337,7 +337,7 @@ public class PolarimeterConcurrentScan extends PolarimeterGridScan implements Sc
 				// does this scan (is a heirarchy of nested scans) operate this
 				// scannable?
 				ScanObject scanObject = isScannableToBeMoved(scannable);
-				
+
 				if (scanObject != null) {
 					checkThreadInterrupted();
 					scanObject.moveToStart();
@@ -380,7 +380,7 @@ public class PolarimeterConcurrentScan extends PolarimeterGridScan implements Sc
 
 	/**
 	 * This is called at each subsequent step in the scan.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	protected void moveBySteps() throws Exception {

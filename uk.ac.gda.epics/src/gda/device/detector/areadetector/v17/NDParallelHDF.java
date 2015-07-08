@@ -19,13 +19,13 @@
 package gda.device.detector.areadetector.v17;
 
 public interface NDParallelHDF extends NDFile{
-	
+
 	double getTransferRate() throws Exception;
-	
+
 	double getTransferRateAverage() throws Exception;
-	
+
 	int getConnectionState() throws Exception;
-	
+
 	int getStoreAttr() throws Exception;
 
 	void setStoreAttr(int storeAttr) throws Exception;
@@ -33,23 +33,23 @@ public interface NDParallelHDF extends NDFile{
 	int getStorePerform() throws Exception;
 
 	void setStorePerform(int storePerform) throws Exception;
-	
+
 	double getRuntime() throws Exception;
 
 	double getIOSpeed() throws Exception;
-	
+
 	public enum ChunkSizeMode {
 		AUTO,
 		MANUAL,
 		NDATTR
 	}
-	
+
 
 	int getChunkSizeMode() throws Exception;
-	
+
 	void setChunkSizeMode(int chunkSizeMode) throws Exception;
-	
-	
+
+
 	int getChunkSize0() throws Exception;
 
 	void setChunkSize0(int value) throws Exception;
@@ -67,12 +67,12 @@ public interface NDParallelHDF extends NDFile{
 		MANUAL,
 		NDATTR
 	}
-	
+
 
 	int getDsetSizeMode() throws Exception;
-	
+
 	void setDsetSizeMode(int dsetSizeMode) throws Exception;
-	
+
 	int getDsetSize0() throws Exception;
 
 	void setDsetSize0(int value) throws Exception;
@@ -84,19 +84,19 @@ public interface NDParallelHDF extends NDFile{
 	int getDsetSize2() throws Exception;
 
 	void setDsetSize2(int value) throws Exception;
-	
+
 
 	public enum RoiPosMode {
 		AUTO,
 		MANUAL,
 		NDATTR
 	}
-	
+
 
 	int getRoiPosMode() throws Exception;
-	
+
 	void setRoiPosMode(int dsetSizeMode) throws Exception;
-	
+
 	int getRoiPos0() throws Exception;
 
 	void setRoiPos0(int value) throws Exception;
@@ -108,5 +108,5 @@ public interface NDParallelHDF extends NDFile{
 	int getRoiPos2() throws Exception;
 
 	void setRoiPos2(int value) throws Exception;
-	
+
 }

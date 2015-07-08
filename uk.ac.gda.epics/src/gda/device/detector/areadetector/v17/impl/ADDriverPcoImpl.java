@@ -18,19 +18,19 @@
 
 package gda.device.detector.areadetector.v17.impl;
 
-import org.springframework.beans.factory.InitializingBean;
-
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.epics.CachedLazyPVFactory;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
+
+import org.springframework.beans.factory.InitializingBean;
 
 public class ADDriverPcoImpl implements ADDriverPco, InitializingBean{
 
 
 	private String basePvName;
 	CachedLazyPVFactory dev;
-	
+
 	private PV<Boolean> armModePV;
 
 	@Deprecated // replace with a proper ADDriverPco - when it has been written!
@@ -41,15 +41,15 @@ public class ADDriverPcoImpl implements ADDriverPco, InitializingBean{
 	public String getArmModePvName() {
 		return basePvName;
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (basePvName == null) {
 			throw new IllegalArgumentException("armModePvName must be set");
 		}
-		armModePV = LazyPVFactory.newBooleanFromEnumPV(basePvName + ":ARM_MODE"); 
+		armModePV = LazyPVFactory.newBooleanFromEnumPV(basePvName + ":ARM_MODE");
 		dev = new CachedLazyPVFactory(basePvName+":");
-		
+
 	}
 
 	@Override
@@ -101,6 +101,6 @@ public class ADDriverPcoImpl implements ADDriverPco, InitializingBean{
 	public PV<Integer> getSizeYPV() {
 		return dev.getPVInteger("SizeY");
 	}
-	
-	
+
+
 }

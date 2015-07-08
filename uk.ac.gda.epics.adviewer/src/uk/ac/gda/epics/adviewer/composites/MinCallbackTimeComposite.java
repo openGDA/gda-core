@@ -48,28 +48,28 @@ public class MinCallbackTimeComposite extends Composite {
 	private NDPluginBase pluginBase;
 
 	public MinCallbackTimeComposite(Composite parent, int style) {
-		
+
 		super(parent, style);
 		setLayout(new FillLayout(SWT.HORIZONTAL));
-		
+
 		Group grpMaxUpdateRate = new Group(this, SWT.NONE);
 		grpMaxUpdateRate.setText("Min Update Time");
 		GridLayout gl_grpMaxUpdateRate = new GridLayout(1, false);
 		gl_grpMaxUpdateRate.marginHeight = 0;
 		gl_grpMaxUpdateRate.marginWidth = 0;
 		grpMaxUpdateRate.setLayout(gl_grpMaxUpdateRate);
-		
+
 		valueBox = new ValueBox(grpMaxUpdateRate, SWT.NONE);
 //		valueBox.setLabelWidth(30);
 		valueBox.setLabel("Time");
 		valueBox.setDecimalPlaces(1);
 		valueBox.setMaximum(Double.MAX_VALUE);
-		valueBox.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
+		valueBox.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));
 		valueBox.setUnit("s");
-		
-		
+
+
 		addDisposeListener(new DisposeListener() {
-			
+
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if(minTimeObservable != null && minTimeObserver != null ){
@@ -77,14 +77,14 @@ public class MinCallbackTimeComposite extends Composite {
 				}
 			}
 		});
-		
-		
+
+
 	}
-	
+
 	void setPluginBase(NDPluginBase pluginBase){
 		this.pluginBase = pluginBase;
 		valueBox.addValueListener(new ValueListener() {
-			
+
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				try {
@@ -93,24 +93,24 @@ public class MinCallbackTimeComposite extends Composite {
 					logger.error("Error setting min update time", e1);
 				}
 			}
-			
+
 			@Override
 			public String getValueListenerName() {
 				return "MinCallbackTime";
 			}
 		});
 		valueBox.on();
-		
+
 	}
-	
+
 	void setMinTimeObservable(Observable<Double> observable) throws Exception{
 		this.minTimeObservable = observable;
 		minTimeObserver = new Observer<Double>() {
-			
+
 			@Override
 			public void update(Observable<Double> source, final Double arg) {
 				Display.getDefault().asyncExec(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						valueBox.off();
@@ -118,7 +118,7 @@ public class MinCallbackTimeComposite extends Composite {
 						valueBox.on();
 					}
 				});
-				
+
 			}
 		};
 		observable.addObserver(minTimeObserver);

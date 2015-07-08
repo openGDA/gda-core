@@ -38,7 +38,7 @@ public class EpicsDeferredScannableGroup extends CoordinatedScannableGroup {
 	String deferredControlPointName;
 
 	/**
-	 * 
+	 *
 	 */
 	public EpicsDeferredScannableGroup() {
 

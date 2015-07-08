@@ -86,7 +86,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 	/**
 	 * Sets the PV name that this object will link to. The control and status PVs will be formed by appending ":CON" and
 	 * ":STA" to the specified PV name. If these names are not correct the control/status PVs can be set separately.
-	 * 
+	 *
 	 * @param pvName
 	 *            the record name
 	 */
@@ -96,7 +96,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 
 	/**
 	 * Sets the control PV used by this object.
-	 * 
+	 *
 	 * @param controlPv
 	 *            the control PV
 	 */
@@ -106,7 +106,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 
 	/**
 	 * Sets the status PV used by this object.
-	 * 
+	 *
 	 * @param statusPv
 	 *            the status PV
 	 */
@@ -191,7 +191,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 
 	/**
 	 * gets the current status position of this device.
-	 * 
+	 *
 	 * @return position in String
 	 * @throws DeviceException
 	 */
@@ -212,7 +212,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 
 	/**
 	 * gets the current status of this device from EPICS, i.e poll it.
-	 * 
+	 *
 	 * @return EnumPositionerStatus
 	 * @throws DeviceException
 	 */
@@ -262,7 +262,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 
 	/**
 	 * gets the available positions from this device. {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.enumpositioner.EnumPositionerBase#getPositions()
 	 */
 	@Override
@@ -278,7 +278,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 
 	/**
 	 * gets the available status positions from this device.
-	 * 
+	 *
 	 * @return the available status positions from this device.
 	 */
 	public String[] getStatusPositions() {
@@ -342,7 +342,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 
 	/**
 	 * gets Epics record name
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getEpicsRecordName() {
@@ -351,7 +351,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 
 	/**
 	 * sets EPICS record name
-	 * 
+	 *
 	 * @param epicsRecordName
 	 */
 	public void setEpicsRecordName(String epicsRecordName) {
@@ -360,7 +360,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 
 	/**
 	 * gets the short device name
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getDeviceName() {
@@ -369,7 +369,7 @@ public class EpicsPneumatic extends EnumPositionerBase implements EnumPositioner
 
 	/**
 	 * sets the short device name
-	 * 
+	 *
 	 * @param deviceName
 	 */
 	public void setDeviceName(String deviceName) {

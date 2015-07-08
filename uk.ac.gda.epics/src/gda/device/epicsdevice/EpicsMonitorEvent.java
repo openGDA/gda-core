@@ -29,11 +29,11 @@ import java.io.Serializable;
 public class EpicsMonitorEvent implements Serializable {
 	final static long serialVersionUID = 1;
 	/**
-	 * 
+	 *
 	 */
 	final public Object caStatus;
 	/**
-	 * 
+	 *
 	 */
 	final public Object epicsDbr;
 
@@ -53,7 +53,7 @@ public class EpicsMonitorEvent implements Serializable {
 		caStatus = null;
 		epicsDbr = object;
 	}
-	
+
 	@Override
 	public String toString() {
 		return caStatus.toString() + " : " + epicsDbr.toString();

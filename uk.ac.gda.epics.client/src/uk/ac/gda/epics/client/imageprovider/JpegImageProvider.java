@@ -73,7 +73,7 @@ public class JpegImageProvider {
 
 	/**
 	 * Add listener to the images
-	 * 
+	 *
 	 * @param imgListener
 	 */
 	public void addJpegImageListener(JpegImageListener imgListener) {
@@ -82,7 +82,7 @@ public class JpegImageProvider {
 
 	/**
 	 * Remove image listener from the list
-	 * 
+	 *
 	 * @param imgListener
 	 */
 	public void removeJpegImageListener(JpegImageListener imgListener) {

@@ -35,21 +35,21 @@ import gda.scan.ScanInformation;
  * Each TFG trigger results in a single exposure if the camera is ready to accept the trigger. Multiple exposures are added together in the proc plugin
  * and the result is the image to be saved.
  * The trigger is busy until N images are summed together by the proc plugin
- * 
+ *
  */
 public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftwareTriggerAutoMode {
 
 	private final ADDriverPco adDriverPco;
 	private Etfg etfg;
-	
+
 	//time in s between detecting trigger (PCO Trigger Out) and sending trigger to PCO (PCO Trigger In)
 	private double delayTime=0;
 	private Integer adcMode=1; //2 ADCs
 	private Integer timeStamp=1; // BCD
-	
-	String tfgTriggerSetupCommand = "tfg setup-trig start adc4 alternate 1";// PCO Trigger Out on TFg2 TF3_OUT4 
+
+	String tfgTriggerSetupCommand = "tfg setup-trig start adc4 alternate 1";// PCO Trigger Out on TFg2 TF3_OUT4
 	int livePort = 64;//set exposure TFG2 User Out 6
-	
+
 	public double getDelayTime() {
 		return delayTime;
 	}
@@ -115,7 +115,7 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 		numberImagesPerCollection = calcNumberImagesPerCollection(collectionTime, localExposureTime);
 		if( !isReadAcquireTimeFromHardware())
 			getAdBase().setAcquireTime(numberImagesPerCollection > 1 ? localExposureTime : collectionTime);
- 
+
 		if (ndProcess != null) {
 
 			ndProcess.getPluginBase().disableCallbacks();
@@ -139,7 +139,7 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 			 * if tfg is present we can use autoreset
 			 */
 		}
-		
+
 		if( etfg != null){
 			etfg.stop();
 
@@ -150,11 +150,11 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 			etfg.setAttribute(Tfg.AUTO_CONTINUE_ATTR_NAME, false);
 
 			etfg.clearFrameSets();
-			etfg.getDaServer().sendCommand(tfgTriggerSetupCommand); 
-			etfg.addFrameSet(1, delayTime*1000, localExposureTime * 1000., 0, livePort, 0, 0); 
+			etfg.getDaServer().sendCommand(tfgTriggerSetupCommand);
+			etfg.addFrameSet(1, delayTime*1000, localExposureTime * 1000., 0, livePort, 0, 0);
 			etfg.setCycles(1); //the number of cycles is not used
 			etfg.loadFrameSets();
-			
+
 			etfg.setAttribute(Tfg.EXT_START_ATTR_NAME, false);
 			etfg.setAttribute(Tfg.EXT_INHIBIT_ATTR_NAME, false);
 			etfg.setAttribute(Tfg.VME_START_ATTR_NAME, true);
@@ -167,13 +167,13 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 			// actually PCO Busy
 			etfg.addFrameSet(1, delayTime*1000, localExposureTime * 1000., 0, livePort, 0, 0); // set exposure trigger
 			short noLongerBusyTriggerInVal = 39; // Falling edge on adc5
-			
+
 			etfg.addFrameSet(1, 0.0001, 0., 0, 0, noLongerBusyTriggerInVal, 0); // wait for PCo Trigger Out which is
 																				// actually PCO Busy
 			etfg.setCycles(numberImagesPerCollection);
 			etfg.loadFrameSets();
-			
-			
+
+
 		}
 		// we want 1 image per trigger - there will be multiple triggers per collection
 		getAdBase().setNumImages(1);
@@ -182,14 +182,14 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 		// delay
 		adDriverPco.getAdcModePV().putNoWait(adcMode); // 2 adcs
 		adDriverPco.getTimeStampModePV().putNoWait(timeStamp); // BCD - if set to None then the image is blank. BCD means no timestamp
-		
+
 		getAdBase().setTriggerMode(PcoTriggerMode.EXTERNAL_AND_SOFTWARE.ordinal()); // exposure time set by camera
 																					// rather than trigger
 		enableOrDisableCallbacks();
 
 		//toggle armed state to clear memory of images taken at last position
 		if( etfg != null)
-			etfg.stop(); 
+			etfg.stop();
 		adDriverPco.getArmModePV().putWait(false);
 		adDriverPco.getArmModePV().putWait(true);
 		// the callback is coming back before the camera is ready as seen by the BUSY out is still high
@@ -198,7 +198,7 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 			Thread.sleep(50);
 		}
 
-		Thread.sleep(2000); // without this the first trigger seems to be ignored		
+		Thread.sleep(2000); // without this the first trigger seems to be ignored
 
 		if( ndProcess != null){
 			ndProcess.setResetFilter(1);
@@ -207,7 +207,7 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 				Thread.sleep(50); // should use wait in setFilter
 			}
 		}
-		
+
 	}
 
 	@Override
@@ -241,7 +241,7 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 		int cycle = etfg != null ? etfg.getCurrentCycle() : 0;
 		if (cycle < 0)
 			throw new DeviceException("TFG returned frame<0");
-		boolean triggersSent = cycle == 0; 
+		boolean triggersSent = cycle == 0;
 		if( triggersSent ){
 			if( ndProcess != null){
 				try {
@@ -260,7 +260,7 @@ public class PCOMultipleExposureHardwareTrigger extends MultipleExposureSoftware
 				Thread.sleep(50);
 			}
 		collectingData = false;
-		
+
 	}
 	@Override
 	public boolean requiresAsynchronousPlugins() {

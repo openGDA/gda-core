@@ -42,12 +42,12 @@ public class ADDetectorIntegrationWithSingleImagePerFileWriterTest {
 		ADDetector adDetector = new ADDetector();
 		ADBaseSimulator adBaseSimulator = new ADBaseSimulator();
 		adDetector.setAdBase(adBaseSimulator);
-		
-		
+
+
 		NDPluginBaseSimulator pluginBase = new NDPluginBaseSimulator();
 		pluginBase.setDims(new int[]{1000,1000});
 		pluginBase.setDatatype(NDPluginBase.DataType.UINT8 );
-		
+
 		NDFileSimulator ndFileSimulator = new NDFileSimulator(pluginBase);
 		adDetector.setNdFile(ndFileSimulator);
 		NDArraySimulator ndArraySimulator = new NDArraySimulator();
@@ -69,17 +69,17 @@ public class ADDetectorIntegrationWithSingleImagePerFileWriterTest {
 		}
 		fileWriter.setFileNumberAtScanStart(0);
 		fileWriter.afterPropertiesSet();
-		
+
 		adDetector.setFileWriter(fileWriter);
 		adDetector.setName(name);
 		adDetector.afterPropertiesSet();
 		adDetector.configure();
 		ConcurrentScan scan = RepeatScan.create_repscan(10, adDetector, .1);
 		InterfaceProvider.getCurrentScanInformationHolder().setCurrentScan(scan);
-		scan.runScan();	
+		scan.runScan();
 		scan.getScanNumber();
 		return ndFileSimulator.getFullFileName_RBV();
-		
+
 	}
 
 	@Test

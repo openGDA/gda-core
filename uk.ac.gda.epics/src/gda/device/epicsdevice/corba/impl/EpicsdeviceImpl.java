@@ -18,13 +18,13 @@
 
 package gda.device.epicsdevice.corba.impl;
 
-import gda.device.epicsdevice.*;
-import org.omg.CORBA.Any;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.CorbaDevicePOA;
-
 import gda.device.corba.impl.DeviceImpl;
+import gda.device.epicsdevice.FindableEpicsDevice;
 import gda.factory.corba.CorbaFactoryException;
+
+import org.omg.CORBA.Any;
 
 /**
  * A server side implementation for a distributed EpicsDevice class
@@ -42,7 +42,7 @@ public class EpicsdeviceImpl extends CorbaDevicePOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param epicsdevice
 	 *            the Controlpoint implementation object
 	 * @param poa
@@ -77,7 +77,7 @@ public class EpicsdeviceImpl extends CorbaDevicePOA {
 	public void reconfigure() throws CorbaFactoryException {
 		deviceImpl.reconfigure();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();

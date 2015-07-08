@@ -116,7 +116,7 @@ public class EpicsSimpleBinary extends ScannableBase implements EnumPositioner, 
 						if (epicsRecordName.endsWith(":")) {
 							epicsRecordName = epicsRecordName.substring(0, epicsRecordName.lastIndexOf(":"));
 						}
-						
+
 						createChannelAccess(epicsRecordName);
 					} catch (Exception e) {
 						logger.error("Error while trying to configure: " + getName() + " : " + e.getMessage());
@@ -130,7 +130,7 @@ public class EpicsSimpleBinary extends ScannableBase implements EnumPositioner, 
 					} catch (ConfigurationNotFoundException e) {
 						logger.error("Can NOT find EPICS configuration for motor " + getDeviceName(), e);
 					}
-					
+
 				}
 			}
 			this.inputNames = new String[] { getName() };
@@ -185,7 +185,7 @@ public class EpicsSimpleBinary extends ScannableBase implements EnumPositioner, 
 
 	/**
 	 * The defaults are { "Out", "In" }. Use this method to override.
-	 * 
+	 *
 	 * @param newPositions
 	 * @throws DeviceException
 	 */
@@ -277,7 +277,7 @@ public class EpicsSimpleBinary extends ScannableBase implements EnumPositioner, 
 
 	/**
 	 * Set to true to prevent attempts to change the pv through this class
-	 * 
+	 *
 	 * @param readonly
 	 */
 	public void setReadonly(boolean readonly) {

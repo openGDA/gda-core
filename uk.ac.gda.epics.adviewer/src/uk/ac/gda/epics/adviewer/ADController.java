@@ -63,7 +63,7 @@ public interface ADController {
 
 	/**
 	 * Sets exposure time and puts camera into continuous mode
-	 * 
+	 *
 	 * @param d
 	 * @throws Exception
 	 */
@@ -123,5 +123,5 @@ public interface ADController {
 	public boolean isConnectToPlotServer();
 
 	public String getSetExposureTimeCmd();
-	
+
 }

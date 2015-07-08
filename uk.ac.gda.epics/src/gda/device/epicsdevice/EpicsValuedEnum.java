@@ -26,7 +26,7 @@ import java.io.Serializable;
 public class EpicsValuedEnum extends EpicsSimpleEnum implements Serializable {
 	final static long serialVersionUID = 1;
 	/**
-	 * 
+	 *
 	 */
 	final public int _value;
 

@@ -26,7 +26,7 @@ import java.util.Date;
  */
 public class JCAUtils {
 	/**
-	 * 
+	 *
 	 */
 	public static final SimpleDateFormat defaultFormatter = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss.SSS");
 
@@ -38,7 +38,7 @@ public class JCAUtils {
 
 	/**
 	 * Generates a timestamp
-	 * 
+	 *
 	 * @return String timestamp with the current time
 	 */
 	public static String timeStamp() {
@@ -48,7 +48,7 @@ public class JCAUtils {
 
 	/**
 	 * Generates a timestamp given a pattern
-	 * 
+	 *
 	 * @param pattern
 	 *            appropriate for SimpleDateFormat
 	 * @return String timestamp with the current time

@@ -18,8 +18,8 @@
 
 package gda.device.epicsdevice;
 
-import gda.device.detector.DetectorBase;
 import gda.device.DeviceException;
+import gda.device.detector.DetectorBase;
 
 /**
  * Epics Detector Class

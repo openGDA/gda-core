@@ -100,7 +100,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param listener
 	 *            initialization listener.
 	 */
@@ -118,7 +118,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Create channel.
-	 * 
+	 *
 	 * @param pvName
 	 * @param monitorListener
 	 * @param optional
@@ -138,7 +138,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Create channel with Monitor type.
-	 * 
+	 *
 	 * @param pvName
 	 * @param monitorListener
 	 * @param monitorType
@@ -180,7 +180,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Create channel.
-	 * 
+	 *
 	 * @param pvName
 	 * @param monitorListener
 	 * @param optional
@@ -198,7 +198,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Create channel.
-	 * 
+	 *
 	 * @param pvName
 	 * @param monitorListener
 	 * @param optional
@@ -216,7 +216,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Create channel.
-	 * 
+	 *
 	 * @param pvName
 	 * @param monitorListener
 	 * @param optional
@@ -234,7 +234,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Create channel.
-	 * 
+	 *
 	 * @param pvName
 	 * @param monitorListener
 	 * @param optional
@@ -252,7 +252,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Create channel.
-	 * 
+	 *
 	 * @param pvName
 	 * @param monitorListener
 	 * @param optional
@@ -270,7 +270,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Create channel.
-	 * 
+	 *
 	 * @param pvName
 	 * @param monitorListener
 	 * @param optional
@@ -288,7 +288,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Create channel.
-	 * 
+	 *
 	 * @param pvName
 	 * @param monitorListener
 	 * @param optional
@@ -306,7 +306,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Creates channel without monitor listener.
-	 * 
+	 *
 	 * @param pvName
 	 * @param optional
 	 * @return JCA channel instance.
@@ -318,7 +318,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Creates (optional) channel without monitor listener.
-	 * 
+	 *
 	 * @param pvName
 	 * @return JCA channel instance.
 	 * @throws CAException
@@ -329,7 +329,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Creates (optional) channel with monitor.
-	 * 
+	 *
 	 * @param pvName
 	 * @param listener
 	 * @return JCA channel instance.
@@ -405,10 +405,10 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Set a value.
-	 * 
+	 *
 	 * @param channel
 	 * @param initialValue
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	private void setInitialValue(Channel channel, Object initialValue) throws InterruptedException {
 		try {
@@ -448,7 +448,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 		boolean notify = false;
 		// not needed since called from sync already, but here so that the method can be reused
 		synchronized (unconnectedCriticalChannels) {
-			// channels are removed from unconnectedCriticalChannels by monitored ConnectionEvent changes 
+			// channels are removed from unconnectedCriticalChannels by monitored ConnectionEvent changes
 			if (!initialized && creationPhaseCompleted && unconnectedCriticalChannels.size() == 0) {
 				notify = true;
 				initialized = true;
@@ -485,7 +485,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Checks if initialized (all critical channels are connected), if not waits until done or for timeoutInMs ms.
-	 * 
+	 *
 	 * @param timeoutInMs
 	 * @return initialization status
 	 */
@@ -508,7 +508,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Default (convenience) put listener - only prints out a message.
-	 * 
+	 *
 	 * @see gov.aps.jca.event.PutListener#putCompleted(gov.aps.jca.event.PutEvent)
 	 */
 	@Override
@@ -528,7 +528,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Get channel (if created by this instance).
-	 * 
+	 *
 	 * @param pvName
 	 * @return channel instance or <code>null</code>
 	 */
@@ -540,7 +540,7 @@ public class EpicsChannelManager implements ConnectionListener, PutListener {
 
 	/**
 	 * Map of all handled channels
-	 * 
+	 *
 	 * @return map of all handled channels.
 	 */
 	public Map<String, Channel> getChannels() {

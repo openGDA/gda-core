@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * (MCA).
  */
 public class EpicsMCA extends AnalyserBase implements Analyser, Detector, InitializationListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMCA.class);
 
 	private static final long serialVersionUID = 1L;
@@ -167,9 +167,9 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 	private Channel presetSweepChannel;
 
 	// private Monitor acqgStatusMonitor;
-	
+
 	private String pvName;
-	
+
 	private String epicsMcaRecordName;
 
 //	private EpicsRecord epicsMcaRecord;
@@ -208,10 +208,10 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 		channelManager = new EpicsChannelManager(this);
 		timeLock = new Object();
 	}
-	
+
 	/**
 	 * Sets the PV name used by this object.
-	 * 
+	 *
 	 * @param pvName the PV name
 	 */
 	public void setPvName(String pvName) {
@@ -220,7 +220,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 
 	/**
 	 * Constructor taking a PV name
-	 * 
+	 *
 	 * @param name
 	 *            String, the PV name
 	 */
@@ -356,7 +356,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 
 	/**
 	 * Clears the mca, but does not return until the clear has been done.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void clearWaitForCompletion() throws DeviceException {
@@ -499,7 +499,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 
 	/**
 	 * Gets the Dwell Time (DWEL).
-	 * 
+	 *
 	 * @return Dwell Time
 	 * @throws DeviceException
 	 */
@@ -666,7 +666,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 
 	/**
 	 * Sets the dwell time (DWEL)
-	 * 
+	 *
 	 * @param time
 	 * @throws DeviceException
 	 */
@@ -702,7 +702,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Analyser#setRegionsOfInterest(java.lang.Object)
 	 * the intput parameter highLow object should actually be an array of EpicsMCARegionsOfInterest objects
 	 */
@@ -742,7 +742,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 
 	/**
 	 * Activates the MCA using the Erase & Start button.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void eraseStartAcquisition() throws DeviceException {
@@ -973,7 +973,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 
 	/**
 	 * Sets the MCA Record's Name.
-	 * 
+	 *
 	 * @param name
 	 */
 	public void setMcaRecordName(String name) {
@@ -1128,7 +1128,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 
 	/**
 	 * Gets the MCA record name.
-	 * 
+	 *
 	 * @return the Epics MCA record name.
 	 */
 	public String getEpicsMcaRecordName() {
@@ -1137,7 +1137,7 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 
 	/**
 	 * Sets the MCA record name.
-	 * 
+	 *
 	 * @param epicsMcaRecordName
 	 */
 	public void setEpicsMcaRecordName(String epicsMcaRecordName) {
@@ -1145,15 +1145,15 @@ public class EpicsMCA extends AnalyserBase implements Analyser, Detector, Initia
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String channelToEnergyPrefix = "channelToEnergy:";
 	/**
-	 * 
+	 *
 	 */
 	public static final String numberOfChannelsAttr = "NumberOfChannels";
 	/**
-	 * 
+	 *
 	 */
 	public static final String energyToChannelPrefix = "energyToChannel";
 

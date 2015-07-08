@@ -19,11 +19,11 @@
 package gda.device.detector.nxdetector.plugin.areadetector.filewriter;
 
 public class SingleImagePerFileWriterWithNumTracker extends gda.device.detector.addetector.filewriter.SingleImagePerFileWriterWithNumTracker {
-	
-	
+
+
 	public SingleImagePerFileWriterWithNumTracker() {
 	}
-	
+
 	SingleImagePerFileWriterWithNumTracker(String detectorName) {
 		super(detectorName);
 	}

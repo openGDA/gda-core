@@ -128,7 +128,7 @@ public class Spin extends ScannableBase implements Configurable, Findable, ISpin
 
 	/**
 	 * creates all required channels
-	 * 
+	 *
 	 * @param speed
 	 *            config2
 	 * @throws FactoryException
@@ -165,7 +165,7 @@ public class Spin extends ScannableBase implements Configurable, Findable, ISpin
 
 	/**
 	 * enable spinning
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	private void enable() throws DeviceException {
@@ -178,7 +178,7 @@ public class Spin extends ScannableBase implements Configurable, Findable, ISpin
 
 	/**
 	 * disable spinning
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	private void disable() throws DeviceException {
@@ -200,9 +200,9 @@ public class Spin extends ScannableBase implements Configurable, Findable, ISpin
 
 	/**
 	 * gets the available positions from this device.
-	 * 
+	 *
 	 * @return available positions
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public String[] getPositions() throws DeviceException {
 		String[] positionLabels = new String[positions.size()];

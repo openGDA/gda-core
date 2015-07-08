@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * EpicsQbpm Class
  */
 public class EpicsQbpm extends EnumPositionerBase implements Monitor, InitializationListener, EnumPositioner, Qbpm {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsQbpm.class);
 
 	private String bpmName = null;
@@ -79,7 +79,7 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 			} else {
 				extraNames = bpmController.getInputNames();
 			}
-			
+
 			configured = true;
 		}// end of if (!configured)
 	}
@@ -227,7 +227,7 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 
 	/**
 	 * converts object to String array
-	 * 
+	 *
 	 * @param scannable
 	 * @return String Array
 	 * @throws Exception
@@ -251,7 +251,7 @@ public class EpicsQbpm extends EnumPositionerBase implements Monitor, Initializa
 		return currentPosition;
 
 	}
-	
+
 	public EpicsCurrAmpQuadController getCurrAmpController() {
 		return currAmpController;
 	}

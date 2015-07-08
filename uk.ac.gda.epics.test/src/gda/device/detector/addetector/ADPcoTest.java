@@ -54,12 +54,12 @@ public class ADPcoTest extends ADDetectorTest {
 		super.setUp();
 		LocalProperties.set("gda.mode", "live");
 	}
-	
+
 	@After
 	public void tearDown() {
 		LocalProperties.clearProperty("gda.mode");
 	}
-	
+
 	@Override
 	public ADDetector det() {
 		return adPco;
@@ -93,7 +93,7 @@ public class ADPcoTest extends ADDetectorTest {
 		mockNdFilePluginBase = mock(NDPluginBase.class);
 
 	}
-	
+
 	@Override
 	@Test
 	public void testAtScanStart() throws Exception {
@@ -103,7 +103,7 @@ public class ADPcoTest extends ADDetectorTest {
 		det().setReadFilepath(true);
 		super.testAtScanStart();
 		InOrder inOrder = inOrder(adBase, mockArmModePv, fileWriter, mockNdFilePluginBase);
-		
+
 		// Triggering
 		inOrder.verify(adBase).stopAcquiring();
 		inOrder.verify(adBase).setTriggerMode(1);
@@ -112,12 +112,12 @@ public class ADPcoTest extends ADDetectorTest {
 
 		// Arming
 		inOrder.verify(mockArmModePv).putWait(true);
-		
+
 		// File writing
 //		inOrder.verify(mockNdFilePluginBase).enableCallbacks();
 //		inOrder.verify(mockNdFilePluginBase).setBlockingCallbacks(1);
 	}
-	
+
 	@Test
 	public void testAtScanEnd() throws Exception {
 		pco().setReadFilepath(true);

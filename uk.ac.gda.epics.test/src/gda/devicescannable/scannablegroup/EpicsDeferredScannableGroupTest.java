@@ -108,25 +108,25 @@ public class EpicsDeferredScannableGroupTest {
 		Scannable a =  (group.getGroupMembers().get(0));
 		Scannable c =  (group.getGroupMembers().get(2));
 		InOrder inOrder = inOrder(mockedControlPoint, rawa, rawb, rawc);
-		
+
 		a.atLevelMoveStart();
 		c.atLevelMoveStart();
 		a.asynchronousMoveTo(1.);
 		c.asynchronousMoveTo(3.);
-		
+
 		inOrder.verify(mockedControlPoint).setValue(1.);
 		inOrder.verify(rawa).asynchronousMoveTo(1.);
 		inOrder.verify(rawc).asynchronousMoveTo(3.);
 		inOrder.verify(mockedControlPoint).setValue(0.);
 	}
-	
+
 	@Test
 	public void testIsBusy() throws DeviceException {
 		when(rawa.isBusy()).thenReturn(false);
 		when(rawb.isBusy()).thenReturn(true);
 		when(rawc.isBusy()).thenReturn(false);
 		assertTrue(group.isBusy());
-		
+
 	}
 
 }

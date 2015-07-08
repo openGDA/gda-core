@@ -23,12 +23,13 @@ import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.PVWithSeparateReadback;
 import gda.epics.ReadOnlyPV;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 public class NDPluginBasePVsImpl implements NDPluginBasePVs, InitializingBean {
-	
+
 	static final Logger logger = LoggerFactory.getLogger(NDPluginBasePVsImpl.class);
 
 	public static NDPluginBasePVsImpl createFromBasePVName(String basePVName) {
@@ -41,7 +42,7 @@ public class NDPluginBasePVsImpl implements NDPluginBasePVs, InitializingBean {
 		}
 		return pluginBasePVs;
 	}
-	
+
 	/**
 	 * Map to PV names
 	 */
@@ -58,7 +59,7 @@ public class NDPluginBasePVsImpl implements NDPluginBasePVs, InitializingBean {
 	private PV<Boolean> droppedArraysPVPair;
 
 	private PV<Boolean> arrayCounterPVPair;
-	
+
 	private PV<String> ndArrayPortPVPair;
 
 	private ReadOnlyPV<String> portNamePV;
@@ -84,19 +85,19 @@ public class NDPluginBasePVsImpl implements NDPluginBasePVs, InitializingBean {
 		enableCallbacksPVPair = new PVWithSeparateReadback<Boolean>(
 				LazyPVFactory.newBooleanFromEnumPV(fullname(PVNames.EnableCallbacks)),
 				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullname(PVNames.EnableCallbacks_RBV)));
-		
+
 		blockingCallbacksPVPair = new PVWithSeparateReadback<Boolean>(
 				LazyPVFactory.newBooleanFromEnumPV(fullname(PVNames.BlockingCallbacks)),
 				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullname(PVNames.BlockingCallbacks_RBV)));
-		
+
 		droppedArraysPVPair = new PVWithSeparateReadback<Boolean>(
 				LazyPVFactory.newBooleanFromEnumPV(fullname(PVNames.DroppedArrays)),
 				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullname(PVNames.DroppedArrays_RBV)));
-		
+
 		arrayCounterPVPair = new PVWithSeparateReadback<Boolean>(
 				LazyPVFactory.newBooleanFromEnumPV(fullname(PVNames.ArrayCounter)),
 				LazyPVFactory.newReadOnlyBooleanFromEnumPV(fullname(PVNames.ArrayCounter_RBV)));
-		
+
 		ndArrayPortPVPair = new PVWithSeparateReadback<String>(
 				LazyPVFactory.newStringPV(fullname(PVNames.NDArrayPort)),
 				LazyPVFactory.newReadOnlyStringPV(fullname(PVNames.NDArrayPort_RBV)));

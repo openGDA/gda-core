@@ -42,22 +42,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase implements NXPlugin{
-	
+
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(MultipleImagesPerParallelHDF5FileWriter.class);
 
 	private NDParallelHDF ndFilePHDF5;
-	
+
 	private boolean blocking = true;
-	
+
 	private boolean firstReadoutInScan;
-	
+
 	@Override
 	public String getName() {
 		return "hdfwriter"; // TODO: Multiple filewriters require different names.
 	}
 	private boolean alreadyPrepared=false;
-	
+
 	public NDParallelHDF getNdFilePHDF5() {
 		return ndFilePHDF5;
 	}
@@ -82,7 +82,7 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 	}
 
 	/**
-	 * 
+	 *
 	 * @param blocking If true(default) the file plugin is blocking. It is better to pause the scan someother way than rely on teh buffre which can overrun anyway
 	 */
 	public void setBlocking(boolean blocking) {
@@ -106,7 +106,7 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 	private int dsetSize2;
 
 	private RoiPosMode roisPosMode;
-	
+
 	private int roiPos0;
 	private int roiPos1;
 	private int roiPos2;
@@ -114,7 +114,7 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 	private String expectedFullFileName;
 
 	private boolean checkPathExists=true;
-	
+
 	public boolean isCheckPathExists() {
 		return checkPathExists;
 	}
@@ -130,7 +130,7 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 	}
 
 	/**
-	 * 
+	 *
 	 * @param storeAttr if true the hdf5 plugin stores metadata in image file
 	 */
 	public void setStoreAttr(boolean storeAttr) {
@@ -142,17 +142,17 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 	}
 
 	/**
-	 * 
+	 *
 	 * @param storePerform if true the hdf5 plugin stores performance data in image file
 	 */
 	public void setStorePerform(boolean storePerform) {
 		this.storePerform = storePerform;
 	}
 
-	
-	
-	
-	
+
+
+
+
 	public NDParallelHDF.ChunkSizeMode getChunkSizeMode() {
 		return chunkSizeMode;
 	}
@@ -279,13 +279,13 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 			return;
 		if( alreadyPrepared)
 			return;
-		
+
 		setNDArrayPortAndAddress();
 		getNdFile().getPluginBase().disableCallbacks();
-		getNdFile().getPluginBase().setBlockingCallbacks(blocking ? 1:0); //use camera memory 
+		getNdFile().getPluginBase().setBlockingCallbacks(blocking ? 1:0); //use camera memory
 //		getNdFilePHDF5().setStoreAttr(storeAttr? 1:0);
 //		getNdFilePHDF5().setStorePerform(storePerform?1:0);
-		getNdFile().setFileWriteMode(FileWriteMode.STREAM); 
+		getNdFile().setFileWriteMode(FileWriteMode.STREAM);
 		ScanInformation scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
 		//if not scan setup then act as if this is a 1 point scan
 		setScanDimensions(scanInformation == null ? new int []{1}: scanInformation.getDimensions(), numberImagesPerCollection);
@@ -298,9 +298,9 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 		getNdFile().getPluginBase().enableCallbacks();
 		firstReadoutInScan = true;
 		alreadyPrepared=true;
-		
+
 	}
-	
+
 	private void setScanDimensions(int[] dimensions, int numberImagesPerCollection) throws Exception {
 		int [] actualDims = dimensions;
 		if( numberImagesPerCollection > 1){
@@ -308,15 +308,15 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 			actualDims[dimensions.length] = numberImagesPerCollection;
 		}
 /*		if( actualDims.length > 3)
-			throw new Exception("Maximum dimensions for storing in hdf is currently 3. Value specified = " + actualDims.length);			
+			throw new Exception("Maximum dimensions for storing in hdf is currently 3. Value specified = " + actualDims.length);
 		if( actualDims.length==1 ){
-			getNdFilePHDF5().setNumExtraDims(0); 
+			getNdFilePHDF5().setNumExtraDims(0);
 		} else	if( actualDims.length==2 ){
-			getNdFileHDF5().setNumExtraDims(1); 
+			getNdFileHDF5().setNumExtraDims(1);
 			getNdFileHDF5().setExtraDimSizeN(actualDims[1]);
 			getNdFileHDF5().setExtraDimSizeX(actualDims[0]);
 		} else	if( actualDims.length==3 ){
-			getNdFileHDF5().setNumExtraDims(2); 
+			getNdFileHDF5().setNumExtraDims(2);
 			getNdFileHDF5().setExtraDimSizeN(actualDims[2]);
 			getNdFileHDF5().setExtraDimSizeX(actualDims[1]);
 			getNdFileHDF5().setExtraDimSizeY(actualDims[0]);
@@ -345,7 +345,7 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 		}
 		getNdFilePHDF5().setNumCapture(numberOfAcquires);
 	}
-	
+
 	private void setupFilename() throws Exception {
 		getNdFile().setFileName(getFileName());
 		getNdFile().setFileTemplate(getFileTemplate());
@@ -360,17 +360,17 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 				throw new Exception("Path does not exist on IOC '" + filePath + "'");
 
 		long scanNumber = getScanNumber();
-		
-		getNdFile().setFileNumber((int)scanNumber);	
+
+		getNdFile().setFileNumber((int)scanNumber);
 		getNdFile().setAutoSave((short) 0);
 		getNdFile().setAutoIncrement((short) 0);
 
 	}
-	
+
 	private void startRecording() throws Exception {
-		if (getNdFilePHDF5().getCapture() == 1) 
+		if (getNdFilePHDF5().getCapture() == 1)
 				throw new DeviceException("detector found already saving data when it should not be");
-		
+
 		getNdFilePHDF5().startCapture();
 		int totalmillis = 60 * 1000;
 		int grain = 25;
@@ -381,23 +381,23 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 		throw new TimeoutException("Timeout waiting for phdf file creation.");
 	}
 
-	
+
 	private void resetCounters() throws Exception {
 		getNdFile().getPluginBase().setDroppedArrays(0);
 		getNdFile().getPluginBase().setArrayCounter(0);
 	}
 
-	
-	
-	
+
+
+
 	@Override
 	public void disableFileWriting() throws Exception {
 		getNdFile().getPluginBase().disableCallbacks();
 		getNdFile().getPluginBase().setBlockingCallbacks((short) 0);
 //		getNdFile().setFileWriteMode(FileWriteMode.STREAM);
 	}
-	
-	
+
+
 	@Override
 	public void completeCollection() throws Exception{
 		alreadyPrepared=false;
@@ -407,17 +407,17 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 		endRecording();
 		disableFileWriting();
 	}
-	
+
 	private void endRecording() throws Exception {
 		while (getNdFilePHDF5().getCapture_RBV() != 0) {
 			Thread.sleep(1000);
 		}
 		getNdFilePHDF5().stopCapture();
-		
+
 		if (getNdFilePHDF5().getPluginBase().getDroppedArrays_RBV() > 0)
 			throw new DeviceException("sorry, we missed some frames");
 	}
-	
+
 	@Override
 	public boolean appendsFilepathStrings() {
 		return false;
@@ -429,7 +429,7 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 		if(!isEnabled())
 			return;
 		getNdFilePHDF5().stopCapture();
-		
+
 	}
 
 	@Override
@@ -439,7 +439,7 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 			return;
 		stop();
 	}
-	
+
 	@Override
 	public List<String> getInputStreamNames() {
 		return Arrays.asList();
@@ -452,15 +452,15 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 
 	private int numToBeCaptured;
 
-	private int numCaptured;	
-	
-	
+	private int numCaptured;
+
+
 	@Override
 	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
 		NXDetectorDataAppender dataAppender;
 		if(isEnabled())
-		{	
+		{
 			//wait until the NumCaptured_RBV is equal to or exceeds maxToRead.
 			checkErrorStatus();
 			try {
@@ -493,5 +493,5 @@ public class MultipleImagesPerParallelHDF5FileWriter extends FileWriterBase impl
 		appenders.add(dataAppender);
 		return appenders;
 	}
-	
+
 }

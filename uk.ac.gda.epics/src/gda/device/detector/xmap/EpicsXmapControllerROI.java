@@ -78,7 +78,7 @@ public class EpicsXmapControllerROI extends EpicsXmapController {
 	/**
 	 * Set rois the array can be of size [maximum number rois][2] if it is lower for instance
 	 * [actual number of rois][2] then the other possible rois will be set to zero.
-	 * 
+	 *
 	 * The actual number of rois is also taken from the length of the first dimension of this array
 	 * so it should always be passed in with size of the actual number of rois.
 	 */

@@ -18,8 +18,6 @@
 
 package gda.device.scannable;
 
-import java.io.Serializable;
-
 import gda.device.DeviceException;
 import gda.device.epicsdevice.EpicsDBR;
 import gda.epics.PVProvider;
@@ -45,6 +43,8 @@ import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
+import java.io.Serializable;
+
 import org.jscience.physics.quantities.Quantity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,13 +52,13 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
 /* EpicsScannable is a ScannableMotionUnits implementation giving access to a PV
- * The class is for local use only as sending monitor events from EPICS over Corba 
+ * The class is for local use only as sending monitor events from EPICS over Corba
  * can be very ineffecient
- * 
+ *
  * To use with an ENUM it may be useful to set getAsString as true, and set hasUnits=false
- * 
+ *
  * The connection to the channel is only first made when access to the PV is required
- * 
+ *
  * The monitor is only set on the channel if the class is being observed.
  */
 public class EpicsScannable extends ScannableMotionUnitsBase implements InitializingBean{
@@ -78,7 +78,7 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 	}
 
 	boolean hasUnits=true; //set false to not convert value to units - useful for enum with getAsString=true
-	
+
 	PVProvider pvProvider;
 	String pvName="";
 	private boolean getAsString=false;
@@ -110,7 +110,7 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 
 	boolean useNameAsInputName=false;
 	boolean useNameAsExtraName=false;
-	
+
 	public EpicsScannable() {
 		super();
 		setLocal(true);
@@ -132,7 +132,7 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 				notifyIObservers(this, arg);//TODO remove this.
 				notifyIObservers(this, new ScannablePositionChangeEvent((Serializable) arg));
 			}
-			
+
 			Object valFromDBR(DBR dbr){
 				Object value = dbr.getValue();
 				if (elementCount > 1)
@@ -186,7 +186,7 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 			}
 			setExtraNames(new String[]{getName()});
 		}
-		
+
 		if(hasUnits && !unitsComponent.unitHasBeenSet()){
 			try {
 				unitsComponent.setHardwareUnitString(getUnits());
@@ -255,15 +255,15 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 		}
 	}
 
-	
+
 	@Override
 	public Object internalToExternal(Object internalPosition) {
 		if( !hasUnits)
 			return internalPosition;
 		return super.internalToExternal(internalPosition);
 	}
-	
-	
+
+
 
 	@Override
 	public Object externalToInternal(Object externalPosition) {
@@ -312,8 +312,8 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 		} catch (Exception e) {
 			throw new DeviceException("Error in caget to " + getPV() + " for " + getName(), e);
 		}
-		
-		
+
+
 	}
 
 	private String convertDBRToString(DBR dbr) {
@@ -412,7 +412,7 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 				} else if (dbr.isCTRL() && dbr.isENUM()) {
 					units = "";
 				} else if (dbr.isBYTE()) {
-					units = ((DBR_CTRL_Byte) dbr).getUnits();				
+					units = ((DBR_CTRL_Byte) dbr).getUnits();
 				} else {
 					units="";
 				}
@@ -420,7 +420,7 @@ public class EpicsScannable extends ScannableMotionUnitsBase implements Initiali
 					Quantity quantity = QuantityFactory.createFromTwoStrings("1.0", units);
 					units = quantity.getUnit().toString();
 				}
-			} 
+			}
 		}
 		return units;
 	}

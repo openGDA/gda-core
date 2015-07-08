@@ -55,7 +55,7 @@ public class NDFileSimulator extends NDBaseImpl implements NDFile{
 	String fileTemplate="";
 
 	@Override
-	public String getFullFileName_RBV() throws Exception { 
+	public String getFullFileName_RBV() throws Exception {
 		return String.format(fileTemplate, getFilePath(), getFileName(), getFileNumber());
 	}
 
@@ -173,7 +173,7 @@ public class NDFileSimulator extends NDBaseImpl implements NDFile{
 	@Override
 	public void setFileWriteMode(int filewritemode) throws Exception {
 		fileWriteMode = (short)filewritemode;
-		
+
 	}
 
 	@Override
@@ -229,7 +229,7 @@ public class NDFileSimulator extends NDBaseImpl implements NDFile{
 
 	@Override
 	public void reset() throws Exception {
-		
+
 	}
 
 	@Override
@@ -282,7 +282,7 @@ public class NDFileSimulator extends NDBaseImpl implements NDFile{
 	@Override
 	public void setAutoIncrement(int autoincrement) throws Exception {
 		autoIncrement = (short)autoincrement;
-		
+
 	}
 
 	@Override
@@ -298,13 +298,13 @@ public class NDFileSimulator extends NDBaseImpl implements NDFile{
 	@Override
 	public void setAutoSave(int autosave) throws Exception {
 		autosave= (short)autosave;
-		
+
 	}
 
 	@Override
 	public void setWriteFile(int writefile) throws Exception {
 		writeFile = (short)writefile;
-		
+
 	}
 
 	@Override
@@ -315,7 +315,7 @@ public class NDFileSimulator extends NDBaseImpl implements NDFile{
 	public Boolean filePathExists() throws Exception {
 		return true;
 	}
-	
+
 	@Override
 	public Observable<String> createWriteMessageObservable() throws Exception {
 		return new ObservableUtil<String>();

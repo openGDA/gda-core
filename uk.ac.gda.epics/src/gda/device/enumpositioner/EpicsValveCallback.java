@@ -87,7 +87,7 @@ public class EpicsValveCallback extends EpicsValve implements EnumPositioner, Mo
 			logger.debug(e.getClass() + " while updating EpicsPositioner " + getName() + " : " + e.getMessage());
 		}
 	}
-	
+
 	public class PutCallbackListener implements PutListener {
 		@Override
 		public void putCompleted(PutEvent event) {

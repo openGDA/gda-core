@@ -18,9 +18,6 @@
 
 package gda.device.detector.addetector.filewriter;
 
-import java.io.File;
-import java.text.MessageFormat;
-
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.NDFile;
@@ -30,19 +27,22 @@ import gda.observable.Observable;
 import gda.observable.Observer;
 import gda.scan.ScanInformation;
 
+import java.io.File;
+import java.text.MessageFormat;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 
 public abstract class FileWriterBase implements NXFileWriterPlugin, InitializingBean{
 
 	private NDFile ndFile;
-	
+
 	protected String fileTemplate;
-	
+
 	private String filePathTemplate;
-	
+
 	private String fileNameTemplate;
-	
+
 	private Long fileNumberAtScanStart;
 
 	private boolean enableDuringScan = true;
@@ -58,7 +58,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	private Observer<Short>  statusObserver;
 
 	abstract protected void disableFileWriting() throws Exception;
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (ndFile == null)
@@ -73,7 +73,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 			throw new IllegalStateException("fileNumberAtScanStart is null");
 		writeStatusObservable = getNdFile().createWriteStatusObservable();
 	}
-	
+
 
 	private boolean writeErrorStatusSupported=true;
 
@@ -84,14 +84,14 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	public void setWriteErrorStatusSupported(boolean writeErrorStatusSupported) {
 		this.writeErrorStatusSupported = writeErrorStatusSupported;
 	}
-	
+
 	public Boolean isWriteStatusErr() throws Exception {
 		if( !writeErrorStatusSupported)
 			return false;
-		
+
 		if( statusObserver == null){
 			statusObserver = new Observer<Short>() {
-				
+
 				@Override
 				public void update(Observable<Short> source, Short arg) {
 					writeStatusErr = arg==1;
@@ -123,10 +123,10 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 
 	/**
 	 * Use this method to clear writeStatus ready for next scan.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	protected void clearWriteStatusErr() throws DeviceException{
-		
+
 		boolean isErr;
 		try{
 			isErr = isWriteStatusErr();
@@ -145,22 +145,22 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	public void setNdFile(NDFile ndFile) {
 		this.ndFile = ndFile;
 	}
-	
+
 	/**
 	 * File template to pass directly to AreaDetector. AreaDetector's NDFilePlugin
 	 * (http://cars.uchicago.edu/software/epics/NDPluginFile.html) will always apply arguments to the template in the
 	 * order filepath, filename, filenumber
-	 * 
+	 *
 	 * @param fileTemplate
 	 */
 	public void setFileTemplate(String fileTemplate) {
 		this.fileTemplate = fileTemplate;
 	}
-	
+
 	/**
 	 * The file path to pass to AreadDetector, with $scan$ resolving to the currently running scan number, and $datadir$
 	 * to the current scan file's directory.
-	 * 
+	 *
 	 * @param filePathTemplate
 	 */
 	public void setFilePathTemplate(String filePathTemplate) {
@@ -170,13 +170,13 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	/**
 	 * The file name to pass to AreadDetector, with $scan$ resolving to the currently running scan number, and $datadir$
 	 * to the current scan file's directory.
-	 * 
+	 *
 	 * @param fileNameTemplate
 	 */
 	public void setFileNameTemplate(String fileNameTemplate) {
 		this.fileNameTemplate = fileNameTemplate;
 	}
-	
+
 	/**
 	 * If non-negative, the file number to preset in AreaDetector before staring the exposure
 	 * @param fileNumberAtScanStart
@@ -188,7 +188,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	public void setSetFileNameAndNumber(boolean setFileNameAndNumber) {
 		this.setFileNameAndNumber = setFileNameAndNumber;
 	}
-	
+
 	public NDFile getNdFile() {
 		return ndFile;
 	}
@@ -203,7 +203,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	public String getFilePathTemplate() {
 		return filePathTemplate;
 	}
-	
+
 
 	public String getFileNameTemplate() {
 		return fileNameTemplate;
@@ -232,7 +232,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 		return substituteScan(substituteDatadir(getFilePathTemplate()));
 	}
 
-	/** 
+	/**
 	 * Only if the path template starts with the datadir, return a path relative to it, otherwise
 	 * return an absolute path.
 	 */
@@ -265,7 +265,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	}
 
 	private String substituteDatadir(String template) {
-		
+
 		if (StringUtils.contains(template, "$datadir$")) {
 			template = StringUtils.replace(template, "$datadir$", PathConstructor.createFromDefaultProperty());
 		}
@@ -276,9 +276,9 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	protected String getAbsoluteFilePath(String filePathRelativeToDataDir) {
 		return PathConstructor.createFromDefaultProperty() + File.separator + filePathRelativeToDataDir;
 	}
-	
+
 	private String substituteScan(String template) {
-		
+
 		if (StringUtils.contains(template, "$scan$")) {
 			long scanNumber;
 			try {
@@ -297,12 +297,12 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	protected String getFileName() {
 		return substituteScan(substituteDatadir(getFileNameTemplate()));
 	}
-	
+
 	/**
 	 * Value of Input Array port in plugin
 	 */
 	private String ndArrayPortVal="";
-	
+
 
 	public String getNdArrayPortVal() {
 		return ndArrayPortVal;
@@ -323,7 +323,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 		if(isEnabled())
 			stop();
 	}
-	
+
 	public void setEnabled(boolean enableDuringScan) {
 		this.enableDuringScan = enableDuringScan;
 	}
@@ -337,12 +337,12 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 			ndFile.getPluginBase().enableCallbacks();
 		else
 			ndFile.getPluginBase().disableCallbacks();
-	}	
-	
+	}
+
 	/**
-	 * 
+	 *
 	 * @return The unique scanNubmer from the current scan.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	protected long getScanNumber() throws Exception{
 		ScanInformation scanInformation = InterfaceProvider.getCurrentScanInformationHolder().getCurrentScanInformation();
@@ -357,8 +357,8 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 	public String getFullFileName() throws Exception {
 		return ndFile.getFullFileName_RBV();
 	}
-	
-	
+
+
 	protected void setNDArrayPortAndAddress() throws Exception {
 		if( ndArrayPortVal != null && ndArrayPortVal.length()>0)
 			ndFile.getPluginBase().setNDArrayPort(ndArrayPortVal);
@@ -372,7 +372,7 @@ public abstract class FileWriterBase implements NXFileWriterPlugin, Initializing
 
 	@Override
 	public void prepareForLine() throws Exception {
-		
+
 	}
 
 	@Override

@@ -54,7 +54,7 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 	private String nextSampleNumberControllerName;
 
 	private String currentSampleNumberControllerName;
-	
+
 	private RobotNX100Controller robotController;
 
 	private RobotSampleState sampleStateController;
@@ -155,7 +155,7 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 					throw new FactoryException("Cannot find the Door Latch state object.");
 			}
 			doorLatch.addIObserver(this);
-			
+
 			configured = true;
 		}
 	}
@@ -193,7 +193,7 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 	public void setBusy(boolean b) {
 		this.busy = b;
 	}
-	
+
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
 		while (isBusy()) {
@@ -250,7 +250,7 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 
 	/**
 	 * runs the job
-	 * 
+	 *
 	 * @param job
 	 * @throws DeviceException
 	 */
@@ -267,7 +267,7 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 
 	/**
 	 * polls error code from Robot. {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Robot#getError()
 	 */
 	@Override
@@ -277,7 +277,7 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 
 	/**
 	 * finish robot action and power it down. {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Robot#finish()
 	 */
 	@Override
@@ -289,7 +289,7 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 
 	/**
 	 * polls sample position number from robot {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Robot#getSamplePosition()
 	 */
 	@Override
@@ -299,7 +299,7 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 
 	/**
 	 * polls the sample state from robot {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Robot#getSampleState()
 	 */
 	@Override
@@ -326,12 +326,12 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 			runJob(Job.PLACEC);
 		} else if (state == SampleState.CAROUSEL) {
 			// do nothing
-		} else if (state == SampleState.UNKNOWN) 
+		} else if (state == SampleState.UNKNOWN)
 		{
 			logger.error("UNKNOWN Sample state from robot, exit");
 			throw new DeviceException("UNKNOWN Sample state from robot");
 		}
-		else 
+		else
 		{
 			logger.error("Trying a pick from carousel with sample={}, state={}, exit", n, state.value());
 			throw new DeviceException("Trying a pick from carousel with sample=" + n + ", state=" + state.value());
@@ -386,7 +386,7 @@ public class I11Robot extends ScannableBase implements Robot, IObserver {
 
 	/**
 	 * check if error code is empty, print error message to users, then terminate.
-	 * 
+	 *
 	 * @param job
 	 */
 	private void error(Job job) {

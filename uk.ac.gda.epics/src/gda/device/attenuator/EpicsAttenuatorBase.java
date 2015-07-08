@@ -48,24 +48,24 @@ public abstract class EpicsAttenuatorBase implements Attenuator, MonitorListener
 		channelManager = new EpicsChannelManager(this);
 
 	}
-	
+
 	private String name;
-	
+
 	@Override
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	@Override
 	public double getClosestMatchTransmission(double transmission) throws DeviceException {
 		try {
 			controller.caputWait(desiredTransmission, transmission);
-			//this is crap but the caputcallback will not work in the same method... 
+			//this is crap but the caputcallback will not work in the same method...
 			Thread.sleep(250);
 			return controller.cagetDouble(actualTransmission);
 		} catch (Exception e) {

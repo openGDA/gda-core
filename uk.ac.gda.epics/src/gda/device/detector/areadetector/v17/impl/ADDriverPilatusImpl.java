@@ -26,11 +26,11 @@ import gda.device.detector.areadetector.v17.ADDriverPilatus;
 import gda.epics.LazyPVFactory;
 import gda.epics.NoCallbackPV;
 import gda.epics.PV;
-import gda.observable.Predicate;
 import gda.epics.ReadOnlyPV;
 import gda.epics.interfaces.ADPilatusType;
 import gda.epics.interfaces.ElementType;
 import gda.factory.FactoryException;
+import gda.observable.Predicate;
 
 import java.io.IOException;
 
@@ -77,7 +77,7 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 	private ReadOnlyPV<Integer> pvMinFlatField_RBV;
 
 	private ReadOnlyPV<Boolean> pvFlatFieldValid;
-	
+
 
 	public void setDeviceName(String deviceName) throws FactoryException {
 		this.deviceName = deviceName;
@@ -128,7 +128,7 @@ public class ADDriverPilatusImpl implements ADDriverPilatus, InitializingBean {
 	}
 
 	private void createLazyPvs() throws Exception {
-		
+
 		pvArmed = LazyPVFactory.newReadOnlyBooleanFromIntegerPV((config == null) ?
 				fullname("Armed") : getPvName(config.getArmed()));
 

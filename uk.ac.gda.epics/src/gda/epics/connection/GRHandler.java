@@ -35,13 +35,13 @@ public class GRHandler extends STSHandler {
 
 	/**
 	 * returns the unit of this channel directly from EPICS server via compound DBR access.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return The Unit of this channel
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public String getUnits(Channel ch) throws CAException, TimeoutException, InterruptedException {
 		return ((GR) getCompoundData(ch)).getUnits();
@@ -50,13 +50,13 @@ public class GRHandler extends STSHandler {
 	/**
 	 * returns the lower display limit of this channel as {@link Number} directly from EPICS server via compound DBR
 	 * access.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the lower display limit, i.e. LOPR
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public Number getLowerDispLimit(Channel ch) throws CAException, TimeoutException, InterruptedException {
 		return (((GR) getCompoundData(ch)).getLowerDispLimit());
@@ -65,13 +65,13 @@ public class GRHandler extends STSHandler {
 	/**
 	 * returns the upper display limit of this channel as {@link Number} directly from EPICS server via compound DBR
 	 * access.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the upper display limit, i.e. HOPR
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public Number getUpperDispLimit(Channel ch) throws CAException, TimeoutException, InterruptedException {
 		return (((GR) getCompoundData(ch)).getUpperDispLimit());
@@ -80,13 +80,13 @@ public class GRHandler extends STSHandler {
 	/**
 	 * returns the lower Alarm limit of this channel as {@link Number} directly from EPICS server via compound DBR
 	 * access.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the lower alarm limit
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public Number getLowerAlarmLimit(Channel ch) throws CAException, TimeoutException, InterruptedException {
 		return (((GR) getCompoundData(ch)).getLowerAlarmLimit());
@@ -95,13 +95,13 @@ public class GRHandler extends STSHandler {
 	/**
 	 * returns the upper alarm limit of this channel as {@link Number} directly from EPICS server via compound DBR
 	 * access.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the upper alarm limit
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public Number getUpperAlarmLimit(Channel ch) throws CAException, TimeoutException, InterruptedException {
 		return (((GR) getCompoundData(ch)).getUpperAlarmLimit());
@@ -110,13 +110,13 @@ public class GRHandler extends STSHandler {
 	/**
 	 * returns the lower warning limit of this channel as {@link Number} directly from EPICS server via compound DBR
 	 * access.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the lower warning limit
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public Number getLowerWarningLimit(Channel ch) throws CAException, TimeoutException, InterruptedException {
 		return (((GR) getCompoundData(ch)).getLowerWarningLimit());
@@ -125,13 +125,13 @@ public class GRHandler extends STSHandler {
 	/**
 	 * returns the upper warning limit of this channel as {@link Number} directly from EPICS server via compound DBR
 	 * access.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the upper warning limit
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public Number getUpperWarningLimit(Channel ch) throws CAException, TimeoutException, InterruptedException {
 		return (((GR) getCompoundData(ch)).getUpperWarningLimit());
@@ -139,7 +139,7 @@ public class GRHandler extends STSHandler {
 
 	/**
 	 * returns the unit of the DBR if the DBR is of GR type.
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound GR type DBR, i.e. DBR_GR_XXXX
 	 * @return the unit string
@@ -150,7 +150,7 @@ public class GRHandler extends STSHandler {
 
 	/**
 	 * returns the lower display limit of the DBR in {@link Number} type if the DBR is of GR type.
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound GR type DBR, i.e. DBR_GR_XXXX
 	 * @return the lower display limit, i.e. LOPR
@@ -162,7 +162,7 @@ public class GRHandler extends STSHandler {
 
 	/**
 	 * returns the upper display limit of the DBR in {@link Number} type if the DBR is of GR type.
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound GR type DBR, i.e. DBR_GR_XXXX
 	 * @return the upper display limit, i.e. HOPR
@@ -174,7 +174,7 @@ public class GRHandler extends STSHandler {
 
 	/**
 	 * returns the lower alarm limit of the DBR in {@link Number} type if the DBR is of GR type.
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound GR type DBR, i.e. DBR_GR_XXXX
 	 * @return the lower alarm limit
@@ -186,7 +186,7 @@ public class GRHandler extends STSHandler {
 
 	/**
 	 * returns the upper alarm limit of the DBR as {@link Number} if the DBR is of GR type.
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound GR type DBR, i.e. DBR_GR_XXXX
 	 * @return the upper alarm limit
@@ -198,7 +198,7 @@ public class GRHandler extends STSHandler {
 
 	/**
 	 * returns the lower warning limit of the DBR in {@link Number} type if the DBR is of GR type.
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound GR type DBR, i.e. DBR_GR_XXXX
 	 * @return the lower warning limit
@@ -210,7 +210,7 @@ public class GRHandler extends STSHandler {
 
 	/**
 	 * returns the upper warning limit of the DBR in {@link Number} type if the DBR is of GR type.
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound GR type DBR, i.e. DBR_GR_XXXX
 	 * @return the upper warning limit.
@@ -223,13 +223,13 @@ public class GRHandler extends STSHandler {
 	/**
 	 * returns a compound DBR value of the channel, including value, alarm status, alarm severity, units, display
 	 * precision, and graphic limits. implements the abstract base class method.
-	 * 
+	 *
 	 * @param ch
 	 *            channel
 	 * @return a compound DBR value
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	@Override
 	protected DBR getCompoundData(Channel ch) throws CAException, TimeoutException, InterruptedException {
@@ -240,7 +240,7 @@ public class GRHandler extends STSHandler {
 	/**
 	 * returns the GR DBRType of the channel that corresponds to its native primiary type. This method ensures the
 	 * automatic type conversion between primiary types is always avoided during the channel request.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the GR DBRType, i.e. DBR_GR_XXXX

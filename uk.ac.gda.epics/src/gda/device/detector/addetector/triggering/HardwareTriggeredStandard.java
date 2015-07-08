@@ -25,7 +25,7 @@ import gda.scan.ScanInformation;
 
 public class HardwareTriggeredStandard extends SimpleAcquire {
 
-	
+
 	public HardwareTriggeredStandard(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
 	}
@@ -38,11 +38,11 @@ public class HardwareTriggeredStandard extends SimpleAcquire {
 		getAdBase().setNumImages(numImages);
 		enableOrDisableCallbacks();
 	}
-	
+
 	protected void configureTriggerMode() throws Exception {
 		getAdBase().setTriggerMode(StandardTriggerMode.EXTERNAL.ordinal());
 	}
-	
+
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		if (getReadoutTime() < 0) {

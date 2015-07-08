@@ -37,18 +37,18 @@ import org.slf4j.LoggerFactory;
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
 public class EpicsCurrAmpGain extends ScannableBase implements Scannable, Findable, IObserver {
-	
+
 	private Object pvName;
 	private CAClient ca_client = new CAClient();
 	String[] epicsnamelist = {".ZRST", ".ONST", ".TWST", ".THST", ".FRST", ".FVST", ".SXST", ".SVST", ".EIST", ".NIST", ".TEST", ".ELST", ".TVST", ".TTST", ".FFST"};
-	private static final Logger logger = LoggerFactory.getLogger(EpicsCurrAmpGain.class);  		
+	private static final Logger logger = LoggerFactory.getLogger(EpicsCurrAmpGain.class);
 //	private boolean busy;
-	
+
 	@Override
 	public boolean isBusy() throws DeviceException {
 		return false;
 	}
-	
+
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		try {
@@ -62,7 +62,7 @@ public class EpicsCurrAmpGain extends ScannableBase implements Scannable, Findab
 			throw new DeviceException(getName() +" exception in rawAsynchronousMoveTo", e);
 		}
 	}
-	
+
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		try {
@@ -78,7 +78,7 @@ public class EpicsCurrAmpGain extends ScannableBase implements Scannable, Findab
 		}
 		return null;
 	}
-	
+
 	public String int2str(int num){
 		for(int i=0;i<epicsnamelist.length;i++){
 			if(num==i)
@@ -95,7 +95,7 @@ public class EpicsCurrAmpGain extends ScannableBase implements Scannable, Findab
 		}
 		return null;
 	}
-	
+
 	public Object getPvName() {
 		return pvName;
 	}

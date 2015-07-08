@@ -22,8 +22,8 @@ import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
-import gda.epics.connection.InitializationListener;
 import gda.epics.connection.EpicsController.MonitorType;
+import gda.epics.connection.InitializationListener;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
@@ -41,16 +41,16 @@ public class EpicsBinaryFromBits extends EnumPositionerBase implements EnumPosit
 	private static final Logger logger = LoggerFactory.getLogger(EpicsBinaryFromBits.class);
 
 	private String recordName;
-	
+
 	private String[] positionNames;
-	
+
 	private int bitToCheck;
-	
+
 	private EpicsController controller;
 
 	private EpicsChannelManager channelManager;
 	private Channel controlChnl;
-	
+
 	/**
 	 * Constructor
 	 */
@@ -69,7 +69,7 @@ public class EpicsBinaryFromBits extends EnumPositionerBase implements EnumPosit
 		}
 		configured = true;
 	}
-	
+
 	private void createChannelAccess(String pv) throws FactoryException {
 		try {
 			controlChnl = channelManager.createChannel(pv, this,MonitorType.STS, false);
@@ -80,12 +80,12 @@ public class EpicsBinaryFromBits extends EnumPositionerBase implements EnumPosit
 			throw new FactoryException("failed to connect to all channels", th);
 		}
 	}
-	
+
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
 		logger.error("this class does not implement a moveTo method");
 	}
-	
+
 	/**
 	 * @see gda.device.Scannable#getPosition()
 	 */
@@ -98,7 +98,7 @@ public class EpicsBinaryFromBits extends EnumPositionerBase implements EnumPosit
 		} catch (Exception e) {
 			throw new DeviceException(e.getMessage(), e);
 		}
-		
+
 		//TODO the procedure below is not optimal
 		String intString = String.format("%16d",Integer.valueOf(Integer.toBinaryString(intValue)));
 		assert(intString.length()>=bitToCheck);
@@ -110,7 +110,7 @@ public class EpicsBinaryFromBits extends EnumPositionerBase implements EnumPosit
 		return positionNames[0];
 
 	}
-	
+
 	void checkConfigured() throws DeviceException {
 		if (!configured)
 			throw new DeviceException(getName() + " is not yet configured");
@@ -144,7 +144,7 @@ public class EpicsBinaryFromBits extends EnumPositionerBase implements EnumPosit
 	@Override
 	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
 		// TODO Auto-generated method stub
-		
+
 	}
 	/**
 	 * @see gov.aps.jca.event.MonitorListener#monitorChanged(gov.aps.jca.event.MonitorEvent)
@@ -159,5 +159,5 @@ public class EpicsBinaryFromBits extends EnumPositionerBase implements EnumPosit
 			logger.error("error with MonitorEvent from" + recordName + "should return INT type value.");
 		}
 	}
-	
+
 }

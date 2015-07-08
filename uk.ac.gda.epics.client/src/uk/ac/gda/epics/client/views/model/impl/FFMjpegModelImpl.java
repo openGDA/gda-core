@@ -183,7 +183,7 @@ public class FFMjpegModelImpl extends EPICSBaseModel<FfmpegStreamType> implement
 
 	/**
 	 * This PV does not need to be monitored, so passing null as argument value for the monitor
-	 * 
+	 *
 	 * @return URL for video streaming
 	 */
 	@Override
@@ -202,7 +202,7 @@ public class FFMjpegModelImpl extends EPICSBaseModel<FfmpegStreamType> implement
 
 	/**
 	 * This PV does not need to be monitored, so passing null as argument value for the monitor
-	 * 
+	 *
 	 * @return URL for video streaming
 	 */
 	@Override

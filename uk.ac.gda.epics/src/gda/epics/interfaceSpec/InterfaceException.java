@@ -24,7 +24,7 @@ package gda.epics.interfaceSpec;
 public class InterfaceException extends Exception {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 5234801437340312472L;
 

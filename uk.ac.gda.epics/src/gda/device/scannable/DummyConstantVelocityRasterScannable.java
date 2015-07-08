@@ -22,15 +22,10 @@ import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.continuouscontroller.ConstantVelocityRasterMoveController;
 import gda.device.scannable.scannablegroup.ScannableMotionWithScannableFieldsBase;
-import gda.epics.LazyPVFactory;
-import gda.epics.PV;
-import gda.epics.PVWithSeparateReadback;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
 import gda.scan.ConstantVelocityRasterScan;
 
-import java.io.IOException;
 import java.text.MessageFormat;
 
 import org.slf4j.Logger;
@@ -109,12 +104,12 @@ public class DummyConstantVelocityRasterScannable extends ScannableMotionWithSca
 			throw new DeviceException(e);
 		}
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		stop();
 	}
-	
+
 	class DummyConstantVelocityRasterMoveController extends DeviceBase implements ConstantVelocityRasterMoveController {
 
 		private boolean hasBeenStarted = false;
@@ -132,7 +127,7 @@ public class DummyConstantVelocityRasterScannable extends ScannableMotionWithSca
 		private double ystep;
 
 		private double periodS;
-		
+
 		public DummyConstantVelocityRasterMoveController() {
 		}
 
@@ -140,7 +135,7 @@ public class DummyConstantVelocityRasterScannable extends ScannableMotionWithSca
 		public String getName() {
 			return "dummy_controller";
 		}
-		
+
 		@Override
 		public void setTriggerPeriod(double seconds) throws DeviceException {
 			periodS = seconds;
@@ -185,7 +180,7 @@ public class DummyConstantVelocityRasterScannable extends ScannableMotionWithSca
 
 			InterfaceProvider.getTerminalPrinter().print(msg);
 		}
-		
+
 		@Override
 		public void startMove() throws DeviceException {
 			log(".startMove()");

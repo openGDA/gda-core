@@ -22,20 +22,20 @@ import gda.device.detector.areadetector.AreaDetectorROI;
 
 
 public class AreaDetectorROIImpl implements AreaDetectorROI{
-	
+
 
 	private int minX;
 	private int minY;
 	private int sizeX;
 	private int sizeY;
-	
+
 	public AreaDetectorROIImpl(int minx, int miny, int sizex, int sizey) {
 		this.minX = minx;
 		this.minY = miny;
 		this.sizeX = sizex;
 		this.sizeY = sizey;
 	}
-	
+
 	@Override
 	public int getMinX() {
 		return minX;
@@ -68,7 +68,7 @@ public class AreaDetectorROIImpl implements AreaDetectorROI{
 	public void setSizeY(int sizeY) {
 		this.sizeY = sizeY;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "("+minX+","+minY+"),("+sizeX+","+sizeY+")";

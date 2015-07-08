@@ -42,12 +42,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Write each image to a separate file.
- * 
+ *
  * Note that if using an NDFile with no PluginBase (one integrated into the camserver) then this class will not attempt to
  * enable or disable callbacks and blocking callbacks.
- * 
+ *
  * Constructors:
- * 
+ *
  *   SingleImagePerFileWriter();
  *   SingleImagePerFileWriter("detectorName");
  */
@@ -65,7 +65,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 	private boolean firstReadoutInScan=true;
 
 	private long nextExpectedFileNumber = 0;
-	boolean blocking = true;  
+	boolean blocking = true;
 
 	private boolean returnPathRelativeToDatadir = false; // TODO: should really be enabled by default RobW
 	private boolean fullFileNameFromRBV = false;
@@ -85,9 +85,9 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 	private String keyNameForMetadataPathTemplate = "";
 
 	private FileWriteMode fileWriteMode = FileWriteMode.SINGLE;
-	
+
 	private boolean filePathInaccessibleFromServer = false;
-	
+
 	private String lastExpectedFullFilepath = null;
 
 	@Override
@@ -116,7 +116,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 	private String xPixelSizeUnit=null;
 
 	private String yPixelSizeUnit=null;
-	
+
 	/**
 	 * Creates a SingleImageFileWriter with ndFile, fileTemplate, filePathTemplate, fileNameTemplate and
 	 * fileNumberAtScanStart yet to be set.
@@ -152,7 +152,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 	/**
 	 * Creates a SingleImageFileWriter which writes folders of files alongside the current file in the 'standard'
 	 * location (ndFile must still be configured). e.g. <blockquote>
-	 * 
+	 *
 	 * <pre>
 	 * datadir
 	 *    123.dat
@@ -205,7 +205,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		if( alreadyPrepared)
 			return;
 		// Create filePath directory if required
-		
+
 		if (!isFilePathInaccessibleFromServer()) {
 			File f = new File(getFilePath());
 			if (!f.exists()) {
@@ -231,7 +231,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 			pluginBase.enableCallbacks();
 			if (blocking) {
 				logger.warn("Detector will block the AreaDetectors acquisition thread while writing files");
-			} 
+			}
 			pluginBase.setBlockingCallbacks((short)(blocking? 1:0));
 			// It should be possible to avoid blocking the acquisition thread
 			// and use the pipeline by setting BlockingCallbacks according to
@@ -249,7 +249,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 			addPathTemplateToMetadata();
 		}
 		firstReadoutInScan = true;
-		alreadyPrepared=true;		
+		alreadyPrepared=true;
 	}
 
 	private void addPathTemplateToMetadata() {
@@ -325,7 +325,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		alreadyPrepared=false;
 		if (!isEnabled())
 			return;
-		
+
 		if (isWaitForFileArrivalInCompleteCollection() && (lastExpectedFullFilepath != null)) {
 			checkErrorStatus();
 			waitForFile(lastExpectedFullFilepath);
@@ -381,7 +381,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		l.add(readNXDetectorDataAppender());
 		return l;
 	}
-	
+
 	/**
 	 * Returns a single NXDetectorDataAppender for the current image with each call. If isWaitForFileArrival is true,
 	 * then waits for the file to become visible before returning the appender.
@@ -417,11 +417,11 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 		} else {
 			nxDetectorDataFileAppenderForSrs = new NXDetectorDataFileAppenderForSrs(filepath, getInputStreamNames().get(0));
 		}
-		
+
 
 		// Multiple filewriters require different file writer names and extra names
 		return nxDetectorDataFileAppenderForSrs;
-		
+
 	}
 
 	private void waitForFile(String fullFilePath) throws DeviceException {
@@ -464,10 +464,10 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 	/**
 	 * Set this filewriter to get the full filename from the Epics readback. This is needed for detectors which add a different
 	 * extension depending on their mode of operation, such as the Mar Area Detector, which adds .mar3450 or .mar2300 etc.
-	 * 
+	 *
 	 * Note, when this option is in use, only the name of the current image can be returned, the names of future images cannot
 	 * be inferred, so this option is incompatible with the continuous scan mechanism.
-	 * 
+	 *
 	 * @param fullFileNameFromRBV defaults to false.
 	 */
 	public void setFullFileNameFromRBV(boolean fullFileNameFromRBV) {
@@ -509,7 +509,7 @@ public class SingleImagePerFileWriter extends FileWriterBase implements NXPlugin
 
 	public void setyPixelSizeUnit(String yPixelSizeUnit) {
 		this.yPixelSizeUnit=yPixelSizeUnit;
-		
+
 	}
 
 	public String getyPixelSizeUnit() {

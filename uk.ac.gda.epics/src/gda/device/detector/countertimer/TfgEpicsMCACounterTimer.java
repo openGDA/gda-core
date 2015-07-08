@@ -173,7 +173,7 @@ public class TfgEpicsMCACounterTimer extends TFGCounterTimer implements CounterT
 
 	/**
 	 * Sets the collection times for the Epics MCAs.
-	 * 
+	 *
 	 * @param collectionTime
 	 * @throws DeviceException
 	 */
@@ -209,7 +209,7 @@ public class TfgEpicsMCACounterTimer extends TFGCounterTimer implements CounterT
 
 	/**
 	 * Clear and start detector.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void clearAndStart() throws DeviceException {
@@ -287,7 +287,7 @@ public class TfgEpicsMCACounterTimer extends TFGCounterTimer implements CounterT
 
 	/**
 	 * Gets an arraylist of all the names of the EpicsMCAs that are used with the countertimer.
-	 * 
+	 *
 	 * @return ArrayList of all the EpicsMCA names.
 	 */
 	public ArrayList<String> getEpicsMcaNameList() {
@@ -296,7 +296,7 @@ public class TfgEpicsMCACounterTimer extends TFGCounterTimer implements CounterT
 
 	/**
 	 * Gets the EpicsMCA name for a given channel.
-	 * 
+	 *
 	 * @param channel
 	 * @return The EpicsMCA name
 	 * @throws DeviceException
@@ -321,7 +321,7 @@ public class TfgEpicsMCACounterTimer extends TFGCounterTimer implements CounterT
 
 	/**
 	 * Sets the EPICS MCA names.
-	 * 
+	 *
 	 * @param epicsMcaNames
 	 *            the names
 	 */

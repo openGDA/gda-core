@@ -27,31 +27,31 @@ public class EpicsRegistrationRequest implements Serializable {
 	final static long serialVersionUID = 1;
 
 	/**
-	 * 
+	 *
 	 */
 	public final String record;
 	/**
-	 * 
+	 *
 	 */
 	public final String field;
 
 	/**
-	 * 
+	 *
 	 */
 	public final ReturnType returnType;
 
 	/**
-	 * 
+	 *
 	 */
 	public final String pvName;
 
 	/**
-	 * 
+	 *
 	 */
 	public final boolean toWrap;
 
 	/**
-	 * 
+	 *
 	 */
 	public final Double putTimeout;
 

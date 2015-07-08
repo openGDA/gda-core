@@ -65,7 +65,7 @@ public class StatisticsStatus extends Composite {
 		gl_stateGroup.marginWidth = 0;
 		gl_stateGroup.marginHeight = 0;
 		stateGroup.setLayout(gl_stateGroup);
-		
+
 		composite_1 = new Composite(stateGroup, SWT.NONE);
 		GridLayout gl_composite_1 = new GridLayout(2, false);
 		gl_composite_1.verticalSpacing = 0;
@@ -76,60 +76,60 @@ public class StatisticsStatus extends Composite {
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 		monitoringLbl = new Label(composite_1, SWT.CENTER);
 		monitoringLbl.setText("Running__");
-		
+
 		monitoringBtn = new Button(composite_1, SWT.NONE);
 		monitoringBtn.setAlignment(SWT.LEFT);
 		monitoringBtn.setText("Start");
-		
+
 		min = new ValueBox(stateGroup, SWT.NONE);
 		((GridData) min.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
 		min.setLabel("Min");
 		min.setLabelWidth(60);
 		min.setDecimalPlaces(1);
 		min.setMaximum(Double.MAX_VALUE);
-		min.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
+		min.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));
 		createEmptyLabel(min);
-		
+
 		max = new ValueBox(stateGroup, SWT.NONE);
 		((GridData) max.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
 		max.setLabel("Max");
 		max.setLabelWidth(60);
 		max.setDecimalPlaces(1);
 		max.setMaximum(Double.MAX_VALUE);
-		max.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
+		max.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));
 		createEmptyLabel(max);
-		
+
 		mean = new ValueBox(stateGroup, SWT.NONE);
 		((GridData) mean.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
 		mean.setLabelWidth(60);
 		mean.setLabel("Mean");
 		mean.setDecimalPlaces(1);
 		mean.setMaximum(Double.MAX_VALUE);
-		mean.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
+		mean.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));
 		createEmptyLabel(mean);
-		
+
 		total = new ValueBox(stateGroup, SWT.NONE);
 		((GridData) total.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
 		total.setLabelWidth(60);
 		total.setLabel("Total");
 		total.setMaximum(Double.MAX_VALUE);
-		total.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
+		total.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));
 		total.setNumberFormat(new DecimalFormat("0.###E0"));
 		total.setDecimalPlaces(3);
 		createEmptyLabel(total);
-		
+
 		sigma = new ValueBox(stateGroup, SWT.NONE);
 		((GridData) sigma.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
 		sigma.setLabelWidth(60);
 		sigma.setLabel("Sigma");
 		sigma.setMaximum(Double.MAX_VALUE);
-		sigma.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));		
+		sigma.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false,1,1));
 		sigma.setNumberFormat(new DecimalFormat("0.###E0"));
 		sigma.setDecimalPlaces(3);
 		createEmptyLabel(sigma);
-		
+
 		addDisposeListener(new DisposeListener() {
-			
+
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if(enableObservable != null && enableObserver != null ){
@@ -154,8 +154,8 @@ public class StatisticsStatus extends Composite {
 		};
 		enableObservable.addObserver(enableObserver);
 	}
-	
-	
+
+
 	void setComputeObservable(Observable<String> computeObservable) throws Exception{
 		this.computeObservable = computeObservable;
 		computeObserver = new Observer<String>() {
@@ -179,7 +179,7 @@ public class StatisticsStatus extends Composite {
 			public void run() {
 				setStarted(enableRBV && compute);
 			}
-			
+
 		});
 	}
 
@@ -225,7 +225,7 @@ public class StatisticsStatus extends Composite {
 	public boolean getMonitoring() {
 		return monitoring;
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void createEmptyLabel(Composite composite){
 		new Label(composite, SWT.NONE);
@@ -245,9 +245,9 @@ class ValueBox extends StandardBox{
 		gridLayout.marginWidth = 2;
 		gridLayout.marginHeight = 2;
 		gridLayout.horizontalSpacing = 5;
-		setLayout(gridLayout);		
+		setLayout(gridLayout);
 		addDisposeListener( new DisposeListener() {
-			
+
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if(observable != null && observer != null )
@@ -278,11 +278,11 @@ class ValueBox extends StandardBox{
 						};
 					}
 					Display.getDefault().asyncExec(runnable);
-					
+
 				}
 			}
 		};
 		observable.addObserver(observer);
 	}
-		
+
 }

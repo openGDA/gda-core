@@ -202,7 +202,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 
 	/**
 	 * Sets the control PV used by this object.
-	 * 
+	 *
 	 * @param controlPv
 	 *            the control PV
 	 */
@@ -213,7 +213,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 
 	/**
 	 * Sets the status PV used by this object.
-	 * 
+	 *
 	 * @param statusPv
 	 *            the status PV
 	 */
@@ -231,7 +231,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 
 	/**
 	 * gets the current status position of this device.
-	 * 
+	 *
 	 * @return position in String
 	 * @throws DeviceException
 	 */
@@ -252,7 +252,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 
 	/**
 	 * gets the current status of this device from EPICS, i.e poll it.
-	 * 
+	 *
 	 * @return EnumPositionerStatus
 	 * @throws DeviceException
 	 */
@@ -318,7 +318,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 
 	/**
 	 * gets the available positions from this device.
-	 * 
+	 *
 	 * @return the available positions from this device.
 	 * @throws DeviceException
 	 */
@@ -333,7 +333,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 
 	/**
 	 * gets the available status positions from this device.
-	 * 
+	 *
 	 * @return the available status positions from this device.
 	 * @throws DeviceException
 	 */
@@ -427,7 +427,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 
 	/**
 	 * gets Epics record name
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getEpicsRecordName() {
@@ -436,7 +436,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 
 	/**
 	 * sets EPICS record name
-	 * 
+	 *
 	 * @param epicsRecordName
 	 */
 	public void setEpicsRecordName(String epicsRecordName) {
@@ -445,7 +445,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 
 	/**
 	 * gets the short device name
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getDeviceName() {
@@ -454,7 +454,7 @@ public class EpicsPneumaticCallback extends EnumPositionerBase implements EnumPo
 
 	/**
 	 * sets the short device name
-	 * 
+	 *
 	 * @param deviceName
 	 */
 	public void setDeviceName(String deviceName) {

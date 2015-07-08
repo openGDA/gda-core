@@ -28,8 +28,10 @@ import gda.factory.FactoryException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -156,7 +158,7 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 
 	/**
 	 * This method allows to toggle between the method in which the PV is acquired.
-	 * 
+	 *
 	 * @param pvElementName
 	 * @param args
 	 * @return {@link Channel} to talk to the relevant PV.
@@ -282,7 +284,7 @@ public class NDArrayImpl extends NDBaseImpl implements NDArray, InitializingBean
 	public Object getImageData(int expectedNumPixels) throws Exception {
 		Channel ch = getChannel(ARRAY_DATA);
 		return EPICS_CONTROLLER.getDBR(ch, ch.getFieldType(),expectedNumPixels).getValue();
-	}	
-	
-	
+	}
+
+
 }

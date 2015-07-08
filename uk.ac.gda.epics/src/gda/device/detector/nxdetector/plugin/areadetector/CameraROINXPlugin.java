@@ -125,7 +125,7 @@ public class CameraROINXPlugin implements NXPlugin{
 				data.addData(detectorName, "region_size", new NexusGroupData(sizeX_rbv, sizeY_rbv));
 				}
 			} : new NXDetectorDataNullAppender();
-		firstReadoutInScan = false; 
+		firstReadoutInScan = false;
 		return Arrays.asList(new NXDetectorDataAppender[]{ dataAppender});
 	}
 

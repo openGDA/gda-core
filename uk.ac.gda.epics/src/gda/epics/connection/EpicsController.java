@@ -50,10 +50,12 @@ import gov.aps.jca.event.GetListener;
 import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
+
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +71,7 @@ import org.slf4j.LoggerFactory;
  * <code>int</code> taking place on the Channel Access servers, and ensure no unpredicted precesion loss during the
  * operation. The automatic type conversions are considered undesirable.
  * </p>
- * 
+ *
  * @Dependence This class requires the properties file JCALibrary.properties which is stored in $GDA_PROPERTIES
  *             directory.
  */
@@ -79,7 +81,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	private AtomicInteger monitorCount = new AtomicInteger(0);
 	private Context context = null;
 	private ThreadPoolExecutor threadPool = null;
-	
+
 	/**
 	 * An enumerated type for DBR from EPICS.
 	 */
@@ -114,7 +116,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Singleton pattern to get instance of EpicsController.
-	 * 
+	 *
 	 * @return <code>EpicsController</code> instance.
 	 */
 	public static synchronized EpicsController getInstance()
@@ -125,7 +127,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * Singleton pattern to get instance of EpicsController.
 	 * @param contextRequired is normally True, but False for testing, to avoid leaving a orphan process.
-	 * 
+	 *
 	 * @return <code>EpicsController</code> instance.
 	 */
 	public static synchronized EpicsController getInstance(boolean contextRequired){
@@ -142,7 +144,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Protected constructor.
-	 * 
+	 *
 	 * @throws CAException
 	 */
 	@SuppressWarnings("unused")
@@ -153,7 +155,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * Protected constructor.
 	 * @param contextRequired is normally True, but False for testing, to avoid leaving a orphan process.
-	 * 
+	 *
 	 * @throws CAException
 	 */
 	protected EpicsController(boolean contextRequired) throws CAException {
@@ -166,7 +168,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Execute task in a separate thread.
-	 * 
+	 *
 	 * @param task
 	 *            task to be executed.
 	 */
@@ -177,7 +179,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * Create a CA context. This context controls all IO operations and circuits through which Channels will be created
 	 * and connected between GDA and EPICS server.
-	 * 
+	 *
 	 * @throws CAException
 	 */
 	protected void initializeContext() throws CAException {
@@ -202,7 +204,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Create channel asynchronously, user need to provide connection listener.
-	 * 
+	 *
 	 * @param pvname
 	 *            the process variable name
 	 * @param cl
@@ -241,7 +243,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Create CA channel synchronously,users must specify the time to wait in seconds.
-	 * 
+	 *
 	 * @param pvname
 	 *            the process variable name
 	 * @param timeoutInS
@@ -297,7 +299,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * creates a CA channel using default timeout.
-	 * 
+	 *
 	 * @param pvname
 	 * @return channel
 	 * @throws CAException
@@ -310,7 +312,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * Clear the resources used by the specified channel. It wraps the CA channel destroy method to handle CA
 	 * exceptions.
-	 * 
+	 *
 	 * @param ch
 	 */
 	public void destroy(Channel ch) {
@@ -335,13 +337,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * gets current value in double from the specified channel, Note type conversion may be performed by EPICS server if
 	 * the underlying native type is not double.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel.
 	 * @return double - the channel's value
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public double cagetDouble(Channel ch) throws TimeoutException, CAException, InterruptedException {
 		return ((DOUBLE) getDBR(ch, DBRType.DOUBLE, 1)).getDoubleValue()[0];
@@ -350,7 +352,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * gets current value in float from the specified channel, Note type conversion may be performed by EPICS server if
 	 * the underlying native type is not float.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel.
 	 * @return float - the channel's value
@@ -364,7 +366,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * gets current value in short from the specified channel, Note type conversion may be performed by EPICS server if
 	 * the underlying native type is not short.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel.
 	 * @return short - the channel's value
@@ -377,7 +379,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * gets current enum position value in short from the specified channel.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel.
 	 * @return short - the channel's enumerated position value
@@ -390,7 +392,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * gets labels in String for enumerated positions from the specified channel.
-	 * 
+	 *
 	 * @param ch
 	 *            the specified channel
 	 * @return String[] - the labels
@@ -412,7 +414,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * gets current value in int from the specified channel, Note type conversion may be performed by EPICS server if
 	 * the underlying native type is not int.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel.
 	 * @return int - the channel's value
@@ -426,7 +428,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * gets current value in byte from the specified channel, Note type conversion may be performed by EPICS server if
 	 * the underlying native type is not byte.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel.
 	 * @return byte - the channel's value
@@ -440,13 +442,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * gets current value in String from the specified channel, Note type conversion may be performed by EPICS server if
 	 * the underlying native type is not String. Precision will affect the result.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel.
 	 * @return String - the channel's value
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public String cagetString(Channel ch) throws TimeoutException, CAException, InterruptedException {
 		return ((STRING) getDBR(ch, DBRType.STRING, 1)).getStringValue()[0];
@@ -455,13 +457,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * a handy method to return everything in String type for console display, to emulate terminal command 'caget'
 	 * gets the current value of the specified channel, returns it as String without implicit type conversion.
-	 * 
+	 *
 	 * @param ch
 	 *            the specified channel
 	 * @return String - the value of the channel
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public String caget(Channel ch) throws TimeoutException, CAException, InterruptedException {
 		String value = null;
@@ -506,13 +508,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * gets a string value array from this channel without implicit CA data type conversion, return the results as a
 	 * String array.
-	 * 
+	 *
 	 * @param ch
 	 * @param elementCount
 	 * @return String[]
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public String[] caget(Channel ch, int elementCount) throws TimeoutException, CAException, InterruptedException {
 		checkConnection(ch);
@@ -556,13 +558,13 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Gets the specified CA compound type DBR from this channel.
-	 * 
+	 *
 	 * @param ch
 	 * @param type
 	 * @return specified CA compound type DBR from this channel
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public DBR caget(Channel ch, MonitorType type) throws CAException, TimeoutException, InterruptedException {
 		DBR dbr = null;
@@ -592,7 +594,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	// ******** channel access methods that returns multi-element array *********
 	/**
 	 * Gets an array of short (enumerated positions) from enumerated field of this channel.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel.
 	 * @return short[] - the channel's value, enumeration returned as an array of short
@@ -606,10 +608,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	public short[] cagetEnumArray(Channel ch, int count) throws TimeoutException, CAException, InterruptedException {
 		return ((ENUM) getDBR(ch, DBRType.ENUM, count)).getEnumValue();
 	}
-	
+
 	/**
 	 * gets a double array from the specified channel.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel.
 	 * @return double[] - the channel's values
@@ -622,7 +624,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * gets a fixed length double array from the specified channel.
-	 * 
+	 *
 	 * @param theChannel
 	 *            the CA Channel.
 	 * @param numberOfElements
@@ -630,16 +632,16 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @return double[] - the channel's values
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public double[] cagetDoubleArray(Channel theChannel, int numberOfElements) throws TimeoutException, CAException, InterruptedException {
 		return ((DOUBLE) getDBR(theChannel, DBRType.DOUBLE, numberOfElements)).getDoubleValue();
 	}
-	
-	
+
+
 	/**
 	 * gets a float array from the specified channel.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel.
 	 * @return float[] - the channel's values
@@ -656,7 +658,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * gets a short array from the specified channel.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel.
 	 * @return short[] - the channel's values
@@ -670,10 +672,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	public short[] cagetShortArray(Channel ch, int count) throws TimeoutException, CAException, InterruptedException {
 		return ((SHORT) getDBR(ch, DBRType.SHORT,count)).getShortValue();
 	}
-	
+
 	/**
 	 * gets a integer array from the specified channel.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel.
 	 * @return int[] - the channel's values
@@ -686,7 +688,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * gets a integer array from the specified channel.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel.
 	 * @param elementCount
@@ -700,7 +702,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	}
 	/**
 	 * gets a byte array from the specified channel.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel.
 	 * @return byte[] - the channel's values
@@ -710,10 +712,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	public byte[] cagetByteArray(Channel ch) throws TimeoutException, CAException, InterruptedException {
 		return ((BYTE) getDBR(ch, DBRType.BYTE)).getByteValue();
 	}
-	
+
 	/**
 	 * gets a fixed length byte array from the specified channel.
-	 * 
+	 *
 	 * @param theChannel
 	 *            the CA Channel.
 	 * @param numberOfElements
@@ -725,10 +727,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	public byte[] cagetByteArray(Channel theChannel, int numberOfElements) throws TimeoutException, CAException, InterruptedException {
 		return ((BYTE) getDBR(theChannel, DBRType.BYTE, numberOfElements)).getByteValue();
 	}
-	
+
 	/**
 	 * gets a String array from the specified channel.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel. Created by
 	 * @return the channel's values
@@ -742,12 +744,12 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	public String[] cagetStringArray(Channel ch, int count) throws TimeoutException, CAException, InterruptedException {
 		return ((STRING) getDBR(ch, DBRType.STRING, count)).getStringValue();
 	}
-	
+
 	// ******** wrapper method to handle CA exceptions *******************
 
 	/**
 	 * Synchronously reads this Channel's value using the specified DBR type and native element count.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @param type
@@ -760,7 +762,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		return getDBR(ch, type, ch.getElementCount());
 	}
 
-	
+
 	/**
 	 * Anonymous Get Listener used by caget methods.
 	 */
@@ -790,7 +792,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * Synchronously reads this Channel's value using the specified DBR type and element count. Wait time is set in
 	 * {@link gda.epics.util.EpicsGlobals} or in properties file .i.e <code>gda.epics.request.timeout</code>.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param type -
@@ -800,7 +802,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @return DBR the channel's value in specified DBR type.
 	 * @throws CAException
 	 * @throws IllegalStateException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public DBR getDBR(Channel ch, DBRType type, int count) throws TimeoutException, CAException, InterruptedException {
 		checkConnection(ch);
@@ -849,12 +851,12 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			throw new RuntimeException("unexpected exception", ex);
 		}
 	}
-	
+
 	// ******* Channel Access methods that returns CA compound data type *******
 	/**
 	 * returns a STS typed DBR value of the channel. This STS type contains the channel's value, alarm status, and alarm
 	 * severity. These individual properties can then be accessed using static methods in {@link STSHandler}.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @return DBR - the DBR_STS value
@@ -871,7 +873,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * returns a GR typed DBR value of the channel. This GR type contains the channel's value, alarm status, alarm
 	 * severity, units, display precision, and graphic limits. Units, display precision, and graphic limits properties
 	 * can then be accessed using static methods in {@link GRHandler}.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @return DBR - the DBR_GR value
@@ -893,7 +895,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * returns a CTRL typed DBR value of the channel. This CTRL type contains the channel's value, alarm status, alarm
 	 * severity, units, display precision, graphic limits, and control limits. Control limits properties can then be
 	 * accessed using static methods in {@link CTRLHandler}.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @return DBR - the DBR_CTRL value
@@ -910,7 +912,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * returns a TIME typed DBR value of the channel. This TIME type contains the channel's value, alarm status, alarm
 	 * severity, and timestamp. The timestamp properties can then be accessed using static methods in
 	 * {@link TIMEHandler}.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @return DBR - the DBR_TIME value
@@ -926,7 +928,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * adds a monitor listener to the specified channel using the channel's native count. The method is designed to
 	 * return a monitor object.
-	 * 
+	 *
 	 * @param ch -
 	 *            the channel to be monitored
 	 * @param type -
@@ -957,7 +959,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			throw ex;
 		}
 	}
-	
+
 	/**
 	 * adds a VALUE monitor to the specified channel using the specified MonitorType.
 	 * <p>
@@ -968,7 +970,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * <li>GR - contains value, alarm status, alarm severity,units, display precision, and graphic limits</li>
 	 * <li>CTRL - contains value, alarm status, alarm severity,units, display precision, graphic limits, and control
 	 * limits</li>
-	 * 
+	 *
 	 * @param ch -
 	 *            the channel to be monitored
 	 * @param ml -
@@ -979,7 +981,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @throws CAException
 	 */
 	public Monitor setMonitor(Channel ch, MonitorListener ml, MonitorType type) throws CAException, InterruptedException {
-		return setMonitor(ch, ml, type, ch.getElementCount()); 
+		return setMonitor(ch, ml, type, ch.getElementCount());
 	}
 
 	public Monitor setMonitor(Channel ch, MonitorListener ml, MonitorType type, int count) throws CAException, InterruptedException {
@@ -1007,10 +1009,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		}
 		return mnt;
 	}
-	
+
 	/**
 	 * convenient method to support a deprecated interface
-	 * 
+	 *
 	 * @param ch
 	 * @param ml
 	 * @param type
@@ -1027,11 +1029,11 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 		return null;
 
 	}
-	
+
 	/**
 	 * Sets a VALUE monitor to the specified channel. The monitor event returns the default/native DBR type and element
 	 * count.
-	 * 
+	 *
 	 * @param ch
 	 * @param ml
 	 * @return monitor
@@ -1044,7 +1046,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	public Monitor setMonitor(Channel ch, MonitorListener ml, int count) throws CAException, InterruptedException {
 		return setMonitor(ch, ml, MonitorType.NATIVE, count);
 	}
-	
+
 	/**
 	 * adds a ALARM monitor to the specified channel using the specified MonitorType. Valid MonitorType includes:
 	 * <li>NATIVE - the native DBR type, value only</li>
@@ -1053,7 +1055,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * <li>GR - contains value, alarm status, alarm severity,units, display precision, and graphic limits</li>
 	 * <li>CTRL - contains value, alarm status, alarm severity,units, display precision, graphic limits, and control
 	 * limits</li>
-	 * 
+	 *
 	 * @param ch -
 	 *            the channel to be monitored
 	 * @param ml -
@@ -1091,7 +1093,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * Adds a ALARM monitor to the specified channel. The monitor event returns the default/native DBR type and element
 	 * count.
-	 * 
+	 *
 	 * @param ch
 	 * @param ml
 	 * @return monitor
@@ -1103,7 +1105,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * This method removes the monitor of a channel.
-	 * 
+	 *
 	 * @param mntr
 	 */
 	// TODO Check if Monitor.clear() destroys the monitor?
@@ -1120,7 +1122,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	// --------- PUT & Forget methods ---------------------
 	/**
 	 * writes a value to this channel without waiting for completion.
-	 * 
+	 *
 	 * @param ch
 	 *            the EPICS channel
 	 * @param value
@@ -1144,7 +1146,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * writes a value to this channel without waiting for completion.
-	 * 
+	 *
 	 * @param ch
 	 *            the EPICS channel
 	 * @param value
@@ -1168,7 +1170,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * writes a value to this channel without waiting for completion.
-	 * 
+	 *
 	 * @param ch
 	 *            the EPICS channel
 	 * @param value
@@ -1192,7 +1194,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * writes a value to this channel without waiting for completion.
-	 * 
+	 *
 	 * @param ch
 	 *            the EPICS channel
 	 * @param value
@@ -1216,7 +1218,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * writes a value to this channel without waiting for completion.
-	 * 
+	 *
 	 * @param ch
 	 *            the EPICS channel
 	 * @param value
@@ -1240,7 +1242,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * writes a value array to this channel without waiting for completion.
-	 * 
+	 *
 	 * @param ch
 	 *            the EPICS channel
 	 * @param value
@@ -1270,7 +1272,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * writes a value array to this channel without waiting for completion.
-	 * 
+	 *
 	 * @param ch
 	 *            the EPICS channel
 	 * @param value
@@ -1294,7 +1296,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * writes a value array to this channel without waiting for completion.
-	 * 
+	 *
 	 * @param ch
 	 *            the EPICS channel
 	 * @param value
@@ -1318,7 +1320,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * writes a value array to this channel without waiting for completion.
-	 * 
+	 *
 	 * @param ch
 	 *            the EPICS channel
 	 * @param value
@@ -1342,7 +1344,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * writes a value array to this channel without waiting for completion.
-	 * 
+	 *
 	 * @param ch
 	 *            the EPICS channel
 	 * @param value
@@ -1365,7 +1367,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	}
 	/**
 	 * writes a byte array to this channel without waiting for completion.
-	 * 
+	 *
 	 * @param ch
 	 *            the EPICS channel
 	 * @param value
@@ -1389,7 +1391,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * converts a string to an int array, then writes to this channel without waiting for completion.
-	 * 
+	 *
 	 * @param ch
 	 *            the EPICS channel
 	 * @param value
@@ -1417,7 +1419,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * <code>
 	 * gda.epics.request.timeout</code> property in java.properties file, or the default value set in
 	 * {@link gda.epics.util.EpicsGlobals} (30 seconds).
-	 * 
+	 *
 	 * @param ch -
 	 *            the EPICS channel
 	 * @param value -
@@ -1434,7 +1436,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * <code>
 	 * gda.epics.request.timeout</code> property in java.properties file, or the default value set in
 	 * {@link gda.epics.util.EpicsGlobals} (30 seconds).
-	 * 
+	 *
 	 * @param ch -
 	 *            the EPICS channel
 	 * @param value -
@@ -1451,7 +1453,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * <code>
 	 * gda.epics.request.timeout</code> property in java.properties file, or the default value set in
 	 * {@link gda.epics.util.EpicsGlobals} (30 seconds).
-	 * 
+	 *
 	 * @param ch -
 	 *            the EPICS channel
 	 * @param value -
@@ -1468,7 +1470,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * <code>
 	 * gda.epics.request.timeout</code> property in java.properties file, or the default value set in
 	 * {@link gda.epics.util.EpicsGlobals} (30 seconds).
-	 * 
+	 *
 	 * @param ch -
 	 *            the EPICS channel
 	 * @param value -
@@ -1488,7 +1490,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * <code>
 	 * gda.epics.request.timeout</code> property in java.properties file, or the default value set in
 	 * {@link gda.epics.util.EpicsGlobals} (30 seconds).
-	 * 
+	 *
 	 * @param ch
 	 * @param value
 	 * @throws TimeoutException
@@ -1503,7 +1505,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * <code>
 	 * gda.epics.request.timeout</code> property in java.properties file, or the default value set in
 	 * {@link gda.epics.util.EpicsGlobals} (30 seconds).
-	 * 
+	 *
 	 * @param ch
 	 * @param value
 	 * @throws TimeoutException
@@ -1516,14 +1518,14 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	public void caputWait(Channel ch, byte[] value) throws TimeoutException, CAException, InterruptedException {
 		caput(ch, value, timeout);
 	}
-	
-	
+
+
 	/**
 	 * Synchronously puts a value array to this channel and wait for return before timeout This timeout in GDA is set by
 	 * <code>
 	 * gda.epics.request.timeout</code> property in java.properties file, or the default value set in
 	 * {@link gda.epics.util.EpicsGlobals} (30 seconds).
-	 * 
+	 *
 	 * @param ch
 	 * @param value
 	 * @throws TimeoutException
@@ -1538,7 +1540,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * <code>
 	 * gda.epics.request.timeout</code> property in java.properties file, or the default value set in
 	 * {@link gda.epics.util.EpicsGlobals} (30 seconds).
-	 * 
+	 *
 	 * @param ch
 	 * @param value
 	 * @throws TimeoutException
@@ -1553,7 +1555,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * <code>
 	 * gda.epics.request.timeout</code> property in java.properties file, or the default value set in
 	 * {@link gda.epics.util.EpicsGlobals} (30 seconds).
-	 * 
+	 *
 	 * @param ch
 	 * @param value
 	 * @throws TimeoutException
@@ -1568,7 +1570,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * <code>
 	 * gda.epics.request.timeout</code> property in java.properties file, or the default value set in
 	 * {@link gda.epics.util.EpicsGlobals} (30 seconds).
-	 * 
+	 *
 	 * @param ch
 	 * @param value
 	 * @throws TimeoutException
@@ -1594,7 +1596,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Writes a double value to the channel with the user specified timeout in seconds.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -1640,7 +1642,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Writes a float value to the channel with the user specified timeout in seconds.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -1686,7 +1688,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Writes a short value to the channel with the user specified timeout in seconds.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -1732,7 +1734,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Writes a int value to the channel with the user specified timeout in seconds.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -1778,7 +1780,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Writes a String value to the channel with the user specified timeout in seconds.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -1824,7 +1826,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Writes a double array to the channel with user specified timeout in seconds.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -1870,7 +1872,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Writes a int array to the channel with user specified timeout in seconds.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -1916,7 +1918,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Writes a short array to the channel with user specified timeout in seconds.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -1962,7 +1964,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Writes a float array to the channel with user specified timeout in seconds.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -2008,7 +2010,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Writes a String array to the channel with user specified timeout in seconds.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -2055,7 +2057,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	// ---------- Put & Listen -----------------------------
 	/**
 	 * Asynchronously writes a double value to this channel with user provided put listener for callback.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -2085,7 +2087,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * Asynchronously writes a float value to this channel with user provided put listener which handles the
 	 * put-callback.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -2115,7 +2117,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * Asynchronously writes a short value to this channel with user provided put listener which handles the
 	 * put-callback.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -2144,7 +2146,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Asynchronously writes a int value to this channel with user provided put listener which handles the put-callback.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -2174,7 +2176,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * Asynchronously writes a String value to this channel with user provided put listener which handles the
 	 * put-callback.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -2204,7 +2206,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * Asynchronously writes a double array to this channel with user provided put listener which handles the
 	 * put-callback.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -2233,7 +2235,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * Asynchronously writes a int array to this channel with user provided put listener which handles the put-callback.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -2263,7 +2265,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * Asynchronously writes a float array to this channel with user provided put listener which handles the
 	 * put-callback.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -2293,7 +2295,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * Asynchronously writes a short array to this channel with user provided put listener which handles the
 	 * put-callback.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -2323,7 +2325,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * Asynchronously writes a String array to this channel with user provided put listener which handles the
 	 * put-callback.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -2386,7 +2388,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	/**
 	 * Asynchronously writes a String array to this channel with user provided put listener which handles the
 	 * put-callback.
-	 * 
+	 *
 	 * @param ch -
 	 *            the CA channel
 	 * @param value -
@@ -2394,7 +2396,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	 * @param pl -
 	 *            the listener of this put action - callback
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void caput(Channel ch, byte[] value, PutListener pl) throws CAException, InterruptedException{
 		checkConnection(ch);
@@ -2452,7 +2454,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * A handler for non-exception asynchronous message from the Context. It prints to the log.
-	 * 
+	 *
 	 * @param cme -
 	 *            context message event
 	 */
@@ -2463,7 +2465,7 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 
 	/**
 	 * returns monitor count from EPICS controller
-	 * 
+	 *
 	 * @return monitor count
 	 */
 	public int getMonitorCount() {
@@ -2481,10 +2483,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 	}
 
 	public void caputWait(Channel channel, String value, double timeout) throws CAException, TimeoutException, InterruptedException {
-		caput(channel,value, timeout);		
+		caput(channel,value, timeout);
 	}
 
 	public void caputWait(Channel channel, Double value, double timeout) throws CAException, TimeoutException, InterruptedException {
-		caput(channel,value.doubleValue(), timeout);		
+		caput(channel,value.doubleValue(), timeout);
 	}
 }

@@ -55,7 +55,7 @@ public class JCAPut {
 
 	/**
 	 * Main entry point
-	 * 
+	 *
 	 * @param args
 	 *            arguments
 	 */
@@ -177,7 +177,7 @@ public class JCAPut {
 
 	/**
 	 * Parse the command line
-	 * 
+	 *
 	 * @param args
 	 * @return success or failure
 	 */

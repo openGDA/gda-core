@@ -47,19 +47,19 @@ import org.springframework.util.StringUtils;
 @CorbaImplClass(ScannableImpl.class)
 @CorbaAdapterClass(ScannableAdapter.class)
 public class EpicsDouble extends ScannableBase implements Configurable, InitializationListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsDouble.class);
-	
+
 	private String pvName;
-	
+
 	private EpicsChannelManager channelManager;
-	
+
 	private EpicsController controller;
-	
+
 	private Channel valChannel;
-	
+
 	private MonitorListener valMonitor;
-	
+
 	private double value;
 
 	/**
@@ -70,16 +70,16 @@ public class EpicsDouble extends ScannableBase implements Configurable, Initiali
 		controller = EpicsController.getInstance();
 		valMonitor = new ValMonitorListener();
 	}
-	
+
 	/**
 	 * Sets the PV name that this object will connect to.
-	 * 
+	 *
 	 * @param pvName the PV name
 	 */
 	public void setPvName(String pvName) {
 		this.pvName = pvName;
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		if (!configured) {
@@ -88,7 +88,7 @@ public class EpicsDouble extends ScannableBase implements Configurable, Initiali
 			configured = true;
 		}
 	}
-	
+
 	private void createChannels() throws FactoryException {
 		try {
 			valChannel = channelManager.createChannel(pvName + ".VAL", valMonitor, false);
@@ -102,13 +102,13 @@ public class EpicsDouble extends ScannableBase implements Configurable, Initiali
 	public void initializationCompleted() {
 		logger.info(getClass().getSimpleName() + " " + StringUtils.quote(getName()) + " is connected");
 	}
-	
+
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		final double target = ScannableUtils.objectToArray(position)[0];
 		setValue(target);
 	}
-	
+
 	private void setValue(double d) throws DeviceException {
 		try {
 			controller.caput(valChannel, d);
@@ -139,5 +139,5 @@ public class EpicsDouble extends ScannableBase implements Configurable, Initiali
 			}
 		}
 	}
-	
+
 }

@@ -18,14 +18,6 @@
 
 package gda.device.detector.addetector.triggering;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
@@ -37,6 +29,14 @@ import gda.util.Sleep;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SingleExposureEpicsShutter extends SimpleAcquire {
 
@@ -127,7 +127,7 @@ public class SingleExposureEpicsShutter extends SimpleAcquire {
 			}
 		}
 		closeShutterTask = new FutureTask<Void>(new CloseShutterAfterCollectionTime());
-		
+
 		(new Thread(closeShutterTask, "SingleExposureEpicsShutter."+
 			"CloseShutterAfterCollectionTime-" + shutterPV)).start();
 	}
@@ -182,7 +182,7 @@ public class SingleExposureEpicsShutter extends SimpleAcquire {
 
 	protected void configureTriggerMode() throws Exception {
 		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal());
-		
+
 		if (shutter == null) {
 			try {
 				shutter = EPICS_CONTROLLER.createChannel(shutterPV);
@@ -201,55 +201,55 @@ public class SingleExposureEpicsShutter extends SimpleAcquire {
 		logger.info("SingleExposureEpicsShutter:collectData() start " +
 			"collectionTime {}s  shutterOpenDelay {}s shutterCloseDelay {}s",
 			new Object[] { collectionTime, shutterOpenDelay, shutterCloseDelay });
-		
+
 		checkForCloseShutterTaskErrors();
-		
+
 		logger.info("collectData() before open caput {} = {}",
 				shutterPV, EPICS_CONTROLLER.caget(shutter));
 		// Open the shutter
 		EPICS_CONTROLLER.caput(shutter, shutterOpenValue);
-		
+
 		logger.info("collectData() after open caput {} = {}",
 				shutterPV, EPICS_CONTROLLER.caget(shutter));
-		
+
 		if (shutterCloseDelay > 0) {
 			// Start close task after start of acquisition.
 			Sleep.sleep((int) (shutterOpenDelay*1000));
-			
+
 			logger.info("collectData() after {}s sleep {} = {}",
 					new Object[] { shutterOpenDelay, shutterPV,
 						EPICS_CONTROLLER.caget(shutter) });
-			
+
 			getAdBase().startAcquiring();
-			
+
 			logger.info("collectData() after startAcquiring {} = {}",
 					shutterPV, EPICS_CONTROLLER.caget(shutter));
-			
+
 			startCloseShutterTask();
-			
+
 			logger.info("collectData() after startCloseShutterTask {} = {}",
 					shutterPV, EPICS_CONTROLLER.caget(shutter));
 		} else {
-			// Start close BEFORE start of acquisition.!!! 
+			// Start close BEFORE start of acquisition.!!!
 			double sleepFor = shutterOpenDelay+shutterCloseDelay;
 			Sleep.sleep((int) (sleepFor*1000));
-			
+
 			logger.info("collectData() after {}s sleep {} = {}",
 					new Object[] { sleepFor, shutterPV, EPICS_CONTROLLER.caget(shutter) });
-			
+
 			EPICS_CONTROLLER.caput(shutter, shutterCloseValue);
-			
+
 			logger.info("CloseShutterAfterCollectionTime.call() after close caput {} = {}",
 				shutterPV, EPICS_CONTROLLER.caget(shutter));
-			
+
 			sleepFor = -shutterCloseDelay;
 			Sleep.sleep((int) (sleepFor*1000));
-			
+
 			logger.info("collectData() after {}s sleep {} = {}",
 					new Object[] { sleepFor, shutterPV, EPICS_CONTROLLER.caget(shutter) });
-			
+
 			getAdBase().startAcquiring();
-			
+
 			logger.info("collectData() after startAcquiring {} = {}", shutterPV,
 					EPICS_CONTROLLER.caget(shutter));
 		}
@@ -260,12 +260,12 @@ public class SingleExposureEpicsShutter extends SimpleAcquire {
 		logger.info("SingleExposureEpicsShutter:endCollection() start");
 
 		getAdBase().stopAcquiring();
-		
+
 		logger.info("getAdBase().endCollection() after stopAcquiring {} = {}", shutterPV,
 				EPICS_CONTROLLER.caget(shutter));
 
 		checkForCloseShutterTaskErrors();
-		
+
 		logger.info("getAdBase().endCollection() after checkForCloseShutterTaskErrors get{} = {}", shutterPV,
 				EPICS_CONTROLLER.caget(shutter));
 	}

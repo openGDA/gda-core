@@ -30,24 +30,24 @@ import org.springframework.beans.factory.FactoryBean;
 public class EpicsMonitorFactoryBean extends EpicsConfigurationFactoryBeanBase<EpicsMonitor> {
 
 	private String deviceName;
-	
+
 	/**
 	 * Sets the EPICS device name which will be used to obtain the PV record
 	 * name.
-	 * 
+	 *
 	 * @param deviceName the EPICS device name
 	 */
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
 	}
-	
+
 	@Override
 	public Class<?> getObjectType() {
 		return EpicsMonitor.class;
 	}
 
 	private EpicsMonitor epicsMonitor;
-	
+
 	@Override
 	protected void createObject() throws ConfigurationNotFoundException {
 		SimplePvType simplePv = getEpicsConfiguration().getConfiguration(deviceName, SimplePvType.class);

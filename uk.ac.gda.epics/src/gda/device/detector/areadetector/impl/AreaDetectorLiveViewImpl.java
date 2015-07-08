@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AreaDetectorLiveViewImpl extends DeviceBase implements AreaDetectorLiveView{
-	
+
 	// Setup the logging facilities
 	transient private static final Logger logger = LoggerFactory.getLogger(AreaDetectorLiveViewImpl.class);
 
@@ -41,7 +41,7 @@ public class AreaDetectorLiveViewImpl extends DeviceBase implements AreaDetector
 	private EpicsAreaDetectorROIElement imageROI;
 	private int refreshTime;
 	private String plotName;
-	
+
 	private boolean liveThreadRunning = false;
 
 	private gda.device.detector.areadetector.impl.AreaDetectorLiveViewImpl.LiveThread liveThread;
@@ -69,7 +69,7 @@ public class AreaDetectorLiveViewImpl extends DeviceBase implements AreaDetector
 	@Override
 	public void setPlotName(String plotName) {
 		this.plotName = plotName;
-	}	
+	}
 	@Override
 	public EpicsAreaDetectorROIElement getImageROI() {
 		return imageROI;
@@ -78,7 +78,7 @@ public class AreaDetectorLiveViewImpl extends DeviceBase implements AreaDetector
 	public void setImageROI(EpicsAreaDetectorROIElement imageROI) {
 		this.imageROI = imageROI;
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		// start the thread
@@ -86,10 +86,10 @@ public class AreaDetectorLiveViewImpl extends DeviceBase implements AreaDetector
 			//this.start();
 		} catch (Exception e) {
 			throw new FactoryException("Failed to start polling thread in configure", e);
-		} 
+		}
 	}
-	
-	
+
+
 	@Override
 	public void start() throws CAException, TimeoutException, InterruptedException {
 
@@ -105,9 +105,9 @@ public class AreaDetectorLiveViewImpl extends DeviceBase implements AreaDetector
 			liveThread.start();
 
 		}
-		
+
 	}
-	
+
 	@Override
 	public void stop() throws CAException, InterruptedException, TimeoutException {
 
@@ -120,8 +120,8 @@ public class AreaDetectorLiveViewImpl extends DeviceBase implements AreaDetector
 
 	}
 
-	
-	
+
+
 	private class LiveThread extends Thread {
 
 		int binX;
@@ -142,13 +142,13 @@ public class AreaDetectorLiveViewImpl extends DeviceBase implements AreaDetector
 		public void run() {
 
 			while (parent.liveThreadRunning) {
-				
+
 				try {
-					
+
 					if(parent.getImage().getTimeStamp() > this.lastTimeStamp) {
-					
+
 						this.lastTimeStamp = parent.getImage().getTimeStamp();
-						
+
 						double scalefactor = binX*binY;
 						// the division here is to normalise the data so it always appears to be plain 16bit
 						DoubleDataset data = image.getImage().idivide(scalefactor);
@@ -157,9 +157,9 @@ public class AreaDetectorLiveViewImpl extends DeviceBase implements AreaDetector
 						data.set(0, 0, 0);
 						data.set(65536, 0, 1);
 						RCPPlotter.imagePlot(parent.getPlotName(), data);
-						
+
 					}
-						
+
 				} catch (Exception e) {
 					logger.warn("Failure send PCO update to PCOPlot, with error",e);
 					try {

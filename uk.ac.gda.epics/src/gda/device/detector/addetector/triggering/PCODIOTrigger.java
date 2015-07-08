@@ -27,7 +27,7 @@ import gov.aps.jca.event.PutListener;
 
 /*
  * Class of detector  to drive the PCO4000 camera using a DIOTrigger
- * 
+ *
  */
 public class PCODIOTrigger extends PCOHWTriggerBase {
 //	private static Logger logger = LoggerFactory.getLogger(PCODIOTrigger.class);
@@ -40,7 +40,7 @@ public class PCODIOTrigger extends PCOHWTriggerBase {
 	PV<Integer> dioTrigger = LazyPVFactory.newIntegerPV("BL12I-EA-DET-02:DIO:CAPTURE");
 
 	private PutListener dioTriggerPutListener = new PutListener() {
-		
+
 		@Override
 		public void putCompleted(PutEvent arg0) {
 			setCollectingData(false);
@@ -59,7 +59,7 @@ public class PCODIOTrigger extends PCOHWTriggerBase {
 			setCollectingData(false);
 			throw ex;
 		}
-		
+
 	}
 
 }

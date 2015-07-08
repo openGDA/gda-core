@@ -18,17 +18,17 @@
 
 package gda.device.detector.addetector.triggering;
 
-import java.text.MessageFormat;
-
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.scan.ScanInformation;
 
+import java.text.MessageFormat;
+
 public class MultipleExposurePerCollectionStandard extends SimpleAcquire {
 
 	private int numberOfImagesPerCollection = 1;
-	
+
 	public MultipleExposurePerCollectionStandard(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
 	}
@@ -41,19 +41,19 @@ public class MultipleExposurePerCollectionStandard extends SimpleAcquire {
 			throw new AssertionError(MessageFormat.format("numImages ({0}) != numberOfImagesPerCollection ({1})",
 					numImages, numberOfImagesPerCollection));
 		}
-	
+
 		enableOrDisableCallbacks();
 		configureAcquireAndPeriodTimes(collectionTime);
-		
+
 		configureTriggerMode();
-		getAdBase().setImageModeWait(ImageMode.MULTIPLE); 
+		getAdBase().setImageModeWait(ImageMode.MULTIPLE);
 		getAdBase().setNumImages(numberOfImagesPerCollection);
 	}
 
 	protected void configureTriggerMode() throws Exception {
 		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal());
 	}
-	
+
 	@Override
 	public int getNumberImagesPerCollection(double unusedCollectionTime) throws Exception {
 		return getNumberOfImagesPerCollection();
@@ -66,10 +66,10 @@ public class MultipleExposurePerCollectionStandard extends SimpleAcquire {
 	public void setNumberOfImagesPerCollection(int numberOfImagesPerCollection) {
 		this.numberOfImagesPerCollection = numberOfImagesPerCollection;
 	}
-	
+
 	@Override
 	public String toString() {
-		return MessageFormat.format("driver.numberOfImagesPerCollection = {0}, driver.readoutTime = {1} (acquisition_period = acquisition_time + driver.readoutTime)", numberOfImagesPerCollection, getReadoutTime()); 
+		return MessageFormat.format("driver.numberOfImagesPerCollection = {0}, driver.readoutTime = {1} (acquisition_period = acquisition_time + driver.readoutTime)", numberOfImagesPerCollection, getReadoutTime());
 	}
 
 }

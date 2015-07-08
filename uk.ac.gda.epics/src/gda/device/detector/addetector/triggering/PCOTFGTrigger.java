@@ -38,22 +38,22 @@ import org.slf4j.LoggerFactory;
 
 /*
  * Class of detector  to drive the PCO4000 camera using a TFG2
- * 
+ *
  * The TFG is configured for 1 cycle per image with each cycle containg the 3 frames:
  * 0 - wait for software continue
  * 1 - output trigger to camera for collection time
  * 2 - wait for busy signal from camera to go low
- * 
+ *
  * The tfg is started in prepareforCollection. So it is starts in frame 0
- * 
+ *
  * In collectData we call tfg.cont() to move to frame 1
  * IsBusy returns true if in frame 1. This allows the scannables in the next point to be moved
- * 
+ *
  * in following collectData we check that the tfg has completed the current cycle ( hence can now accept another trigger)
  * before we called tfg.cont()
- * 
+ *
  * The ADDetector should be set with usePipeline to not hold up the triggering through waiting/checking files.
- * 
+ *
  */
 public class PCOTFGTrigger extends SimpleAcquire {
 	private String shutterPVName = "BL13I-EA-FSHTR-01:CONTROL";
@@ -252,7 +252,7 @@ public class PCOTFGTrigger extends SimpleAcquire {
 		// open the shutter
 		openShutter(true);
 		logger.error("etg.cont");
-		etfg.cont(); 
+		etfg.cont();
 		collectingData = true;
 		expectedExposureEndTime = System.currentTimeMillis() + (long) (collectionTime * 1000.);
 		expectedCycle--;

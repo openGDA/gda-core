@@ -21,10 +21,11 @@ package gda.configuration.epics;
 import gda.configuration.properties.LocalProperties;
 
 import java.io.FileNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.exolab.castor.xml.MarshalException;
 import org.exolab.castor.xml.ValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * EPICS interface configuration logic.
@@ -40,18 +41,18 @@ public class Configurator {
 	 * Property name for the EPICS XML configuration file.
 	 */
 	public final static String INTERFACE_CONFIGURATION_XML_KEY = "gda.epics.interface.xml";
-	
+
 	/**
 	 * Property name for the unchecked EPICS XML configuration file.
 	 */
 	public final static String INTERFACE_UNCHECKED_CONFIGURATION_XML_KEY = INTERFACE_CONFIGURATION_XML_KEY + ".unchecked";
 
 	private static EpicsConfiguration instance;
-	
+
 
 	/**
 	 * Get configuration for device. *
-	 * 
+	 *
 	 * @param <T>
 	 * @param name
 	 *            name of the device (configuration id).
@@ -64,13 +65,13 @@ public class Configurator {
 		if( instance == null){
 			// Load GDA_EPICS_interface configuration file if present.
 			String interfaceConfigFile = LocalProperties.get(Configurator.INTERFACE_CONFIGURATION_XML_KEY);
-			
+
 			if (interfaceConfigFile == null) {
 				throw new ConfigurationNotFoundException(String.format(
 					"Could not read EPICS configuration: %s is not set",
 					Configurator.INTERFACE_CONFIGURATION_XML_KEY));
 			}
-			
+
 			try {
 				logger.info("Configure EPICS interface");
 				instance = new EpicsConfiguration(interfaceConfigFile);
@@ -82,7 +83,7 @@ public class Configurator {
 			} catch (FileNotFoundException e) {
 				logger.error("Can not find file " + interfaceConfigFile, e);
 			}
-			
+
 		}
 		return instance.getConfiguration(name, clazz);
 	}

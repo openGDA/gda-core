@@ -45,7 +45,7 @@ public abstract class EpicsBase implements Epics {
 
 	/**
 	 * configure the object after instantiation.
-	 * 
+	 *
 	 * @throws FactoryException
 	 */
 	@Override

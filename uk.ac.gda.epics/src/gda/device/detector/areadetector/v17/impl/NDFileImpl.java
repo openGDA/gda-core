@@ -13,7 +13,7 @@
  * details.
  *
  * You should have received a copy of the GNU General Public License along
- * with GDA. If not, see <http://www.gnu.org/licenses/>. 
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package gda.device.detector.areadetector.v17.impl;
@@ -71,7 +71,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	private String basePVName;
 
 	private IPVProvider pvProvider;
-	
+
 
 	/**
 	 * Map that stores the channel against the PV name
@@ -156,7 +156,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 
 	/**
 	 * Sets the EpicsConfiguration to use when looking up PV from deviceName.
-	 * 
+	 *
 	 * @param epicsConfiguration the EpicsConfiguration
 	 */
 	public void setEpicsConfiguration(EpicsConfiguration epicsConfiguration) {
@@ -662,12 +662,12 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 			throw ex;
 		}
 	}
-	
+
 	@Override
 	public void setFileWriteMode(FileWriteMode mode) throws Exception {
 		setFileWriteMode((short) mode.ordinal());
 	}
-	
+
 	@Override
 	public void setFileWriteMode(int filewritemode) throws Exception {
 		logger.info("Setting file-write-mode to: " + filewritemode);
@@ -1054,7 +1054,7 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 	}
 	/**
 	 * This method allows to toggle between the method in which the PV is acquired.
-	 * 
+	 *
 	 * @param pvElementName
 	 * @param args
 	 * @return {@link Channel} to talk to the relevant PV.
@@ -1081,11 +1081,11 @@ public class NDFileImpl extends NDBaseImpl implements InitializingBean, NDFile {
 			this.statusMonitor.notifyAll();
 		}
 	}
-	
+
 	@Override
 	public void waitWhileStatusBusy() throws InterruptedException {
 		synchronized (statusMonitor) {
-			while (status == Detector.BUSY) { 
+			while (status == Detector.BUSY) {
 				try {
 					statusMonitor.wait(1000);
 				} catch (InterruptedException e) {

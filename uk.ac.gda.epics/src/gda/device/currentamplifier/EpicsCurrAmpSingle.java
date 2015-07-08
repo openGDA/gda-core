@@ -22,8 +22,6 @@ import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.CurrentAmplifier;
 import gda.device.DeviceException;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Monitor;
 import gda.device.Scannable;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
@@ -32,7 +30,9 @@ import gda.epics.connection.InitializationListener;
 import gda.epics.interfaces.CurrAmpSingleType;
 import gda.factory.FactoryException;
 import gda.jython.JythonServerFacade;
+import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
+import gov.aps.jca.Monitor;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.dbr.DBR_CTRL_Double;
@@ -95,7 +95,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 	/**
 	 * Configures the class with the PV information from the gda-interface.xml file. Vendor and model are available
 	 * through EPICS but are currently not supported in GDA.
-	 * 
+	 *
 	 * @see gda.device.DeviceBase#configure()
 	 */
 	@Override
@@ -137,7 +137,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 
 	/**
 	 * returns a parsed list of gains available for this amplifier.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -274,7 +274,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 
 	/**
 	 * gets device name.
-	 * 
+	 *
 	 * @return device name
 	 */
 	public String getDeviceName() {
@@ -283,7 +283,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 
 	/**
 	 * sets device name.
-	 * 
+	 *
 	 * @param name
 	 */
 	public void setDeviceName(String name) {
@@ -292,7 +292,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 
 	/**
 	 * creates channel access to amplifier
-	 * 
+	 *
 	 * @param currAmpConfig
 	 * @throws FactoryException
 	 */
@@ -328,7 +328,7 @@ public class EpicsCurrAmpSingle extends CurrentAmplifierBase implements Initiali
 
 	/**
 	 * Overload status monitor.
-	 * 
+	 *
 	 * @author fy65
 	 */
 	public class OverloadMonitorListener implements MonitorListener {

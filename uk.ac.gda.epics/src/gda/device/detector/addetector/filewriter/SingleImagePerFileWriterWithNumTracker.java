@@ -25,11 +25,11 @@ import java.io.IOException;
 public class SingleImagePerFileWriterWithNumTracker extends SingleImagePerFileWriter {
 
 	private NumTracker numTracker = null;
-	
+
 	/**
 	 * Creates a SingleImagePerFileWriterWithNumTracker which writes folders of files alongside the current file in the 'standard'
 	 * location (ndFile and numTracker must still be configured). e.g. <blockquote>
-	 * 
+	 *
 	 * <pre>
 	 * datadir
 	 *    snapped-data
@@ -43,7 +43,7 @@ public class SingleImagePerFileWriterWithNumTracker extends SingleImagePerFileWr
 		setFileNameTemplate("");
 		setFileNumberAtScanStart(1);
 	}
-	
+
 	/**
 	 * 	/**
 	 * Creates a SingleImageFileWriter with ndFile, fileTemplate, filePathTemplate, fileNameTemplate,
@@ -52,7 +52,7 @@ public class SingleImagePerFileWriterWithNumTracker extends SingleImagePerFileWr
 	public SingleImagePerFileWriterWithNumTracker() {
 		super();
 	}
-	
+
 	public void setNumTrackerExtension(String numTrackerExtension) {
 		try {
 			numTracker = new NumTracker(numTrackerExtension);
@@ -60,7 +60,7 @@ public class SingleImagePerFileWriterWithNumTracker extends SingleImagePerFileWr
 			throw new IllegalArgumentException("NumTracker with extension '" + numTrackerExtension + "' could not be created.", e);
 		}
 	}
-	
+
 		//this(ndFile, "%s%s%5.5d.jpg", "$datadir$/snapped-data/" + detectorName, "", numTrackerExtension);
 
 	@Override

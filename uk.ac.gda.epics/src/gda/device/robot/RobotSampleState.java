@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * RobotSampleState Class
  */
 public class RobotSampleState extends DeviceBase implements Configurable, Findable, InitializationListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(RobotSampleState.class);
 
 	// control fields
@@ -105,7 +105,7 @@ public class RobotSampleState extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * creates all required channels
-	 * 
+	 *
 	 * @param config
 	 * @throws FactoryException
 	 */
@@ -121,7 +121,7 @@ public class RobotSampleState extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * gets the raw value from sample state from Robot.
-	 * 
+	 *
 	 * @return the raw value from sample state from Robot
 	 * @throws DeviceException
 	 */
@@ -135,7 +135,7 @@ public class RobotSampleState extends DeviceBase implements Configurable, Findab
 
 	/**
 	 * gets the state of sample for the robot - where is the sample?
-	 * 
+	 *
 	 * @return the state of sample for the robot - where is the sample
 	 * @throws DeviceException
 	 */

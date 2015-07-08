@@ -40,15 +40,15 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 		PositionCallableProvider<NexusTreeProvider> {
 
 	private static Logger logger = LoggerFactory.getLogger(ADDetector.class);
-	
+
 	private static int SECONDS_BETWEEN_SLOW_FILE_ARRIVAL_MESSAGES = 5;
-	
+
 	private HardwareTriggerProvider triggerProvider;
 
 	private NXCollectionStrategyPlugin hardwareTriggeredCollectionStrategy;
-	
+
 	private NXCollectionStrategyPlugin nonHardwareTriggeredCollectionStrategy;
-	
+
 	private boolean exposureCompleteWhenFileIsVisible = false;
 
 	private boolean exposureCompleteWhenArrayCounterSaysSo = false;
@@ -58,10 +58,10 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 	private boolean hardwareTriggering;
 
 	private String baseFilepathForMultipleExposure;
-	
+
 	private Object createFileNameGuard = new Object();
 
-	
+
 	/**
 	 * The exposure number to put in the next positionCallable when hardware triggering. These start at 0 and are
 	 * initialised in atScanLineStart() (arm() is too late).
@@ -130,7 +130,7 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 			setCollectionStrategy(getNonHardwareTriggeredCollectionStrategy());
 		}
 	}
-	
+
 	@Override
 	public void setNumberImagesToCollect(int numberImagesToCollect) {
 		this.numberImagesToCollect = numberImagesToCollect;
@@ -139,17 +139,17 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 	public int getNumberImagesToCollect() {
 		return numberImagesToCollect;
 	}
-	
-	
+
+
 	@Override
-	public void atScanStart() throws DeviceException 
+	public void atScanStart() throws DeviceException
 	{
 		if (!isHardwareTriggering()) {
 			super.atScanStart();
 		}
-		
+
 	}
-	
+
 	@Override
 	public boolean isHardwareTriggering() {
 		return hardwareTriggering;
@@ -165,7 +165,7 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 			String fileTemplate_RBV = getNdFile().getFileTemplate_RBV();
 			String filePath_RBV = getNdFile().getFilePath_RBV();
 			String fileName_RBV = getNdFile().getFileName_RBV();
-			
+
 			baseFilepathForMultipleExposure = String.format(fileTemplate_RBV, filePath_RBV, fileName_RBV, fileNumber_RBV);
 			getAdBase().setArrayCounter(0);
 		} catch (Exception e) {
@@ -254,7 +254,7 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 		long startTimeMillis = System.currentTimeMillis();
 		long remainingMillis;
 		boolean firstTimeRoundLoop = true;
-		
+
 		while ((remainingMillis = timeoutS*1000 - (System.currentTimeMillis() - startTimeMillis)) >= 0) {
 			if (!firstTimeRoundLoop) {
 				// message if no file yet
@@ -272,7 +272,7 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 			if (waitFor(new File(pathname), nextWaitTimeS)) {
 				return;
 			}
-			
+
 		}
 		// error if no file after timoutS
 		throw new IOException("The file '" + pathname + "' did not exist despite waiting " + timeoutS
@@ -288,7 +288,7 @@ public class HardwareTriggerableADDetector extends ADDetector implements Hardwar
 		if (!this.isHardwareTriggering() && nonHardwareTriggeredCollectionStrategy == null)
 			throw new IllegalStateException("nonHardwareTriggeredCollectionStrategy is not defined");
 	}
-	
+
 	public NXCollectionStrategyPlugin getHardwareTriggeredCollectionStrategy() {
 		return hardwareTriggeredCollectionStrategy;
 	}

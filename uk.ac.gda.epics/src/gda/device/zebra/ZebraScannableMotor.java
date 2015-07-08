@@ -31,8 +31,8 @@ import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Class to use with ZebraConstantVelocityMoveController and ConstantVelocityScanLine to perform flyscans
- * 
- * 
+ *
+ *
  */
 public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyScannableViaController, ZebraMotorInfoProvider, PositionCallableProvider<Double>, InitializingBean{
 //	private static final Logger logger = LoggerFactory.getLogger(ZebraScannableMotor.class);
@@ -66,8 +66,8 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 			throw new Exception("continuousMoveController == null");
 		}
 	}
-	
-	
+
+
 
 	// Scannable //
 	@Override
@@ -87,7 +87,7 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 
 	@Override
 	public Callable<Double> getPositionCallable() throws DeviceException {
-		return continuousMoveController.getPositionSteamIndexer(getPcEnc()).getNamedPositionCallable(getName(),1); 
+		return continuousMoveController.getPositionSteamIndexer(getPcEnc()).getNamedPositionCallable(getName(),1);
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 
 
 	/**
-	 * 
+	 *
 	 * @param velocity  in units of motor units/second e.g. mm/s
 	 * @return distance in motor units e.g. mm
 	 */
@@ -112,15 +112,15 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	}
 
 	/**
-	 * 
-	 * @param scurveTimeToVelocity - if using linear acceleration this is the ACCEL field of the 
+	 *
+	 * @param scurveTimeToVelocity - if using linear acceleration this is the ACCEL field of the
 	 * motor in EPICS (Time to Velocity)
 	 */
 	public void setScurveTimeToVelocity(double scurveTimeToVelocity) {
 		this.scurveTimeToVelocity = scurveTimeToVelocity;
 	}
 
-	
+
 	@Override
 	public int getPcEnc() {
 		return pcEnc;
@@ -141,7 +141,7 @@ public class ZebraScannableMotor extends ScannableMotor implements ContinuouslyS
 	}
 	private double exposureStep;
 	private boolean exposureStepDefined=false;
-	
+
 	@Override
 	public double getExposureStep() {
 		return Math.abs(exposureStep);

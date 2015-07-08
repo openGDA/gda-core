@@ -26,7 +26,7 @@ import java.io.Serializable;
 public class EpicsException extends Exception implements Serializable {
 	/**
 	 * Create a EPICS exception.
-	 * 
+	 *
 	 * @param message
 	 *            the exception message to be passed to the receiver
 	 * @param th

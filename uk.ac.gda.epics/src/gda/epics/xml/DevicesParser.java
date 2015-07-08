@@ -55,7 +55,7 @@ public class DevicesParser {
 	/**
 	 * Convenience method for constructing a DevicesParser object for the EPICS devices.xml file specified in the local
 	 * properties file
-	 * 
+	 *
 	 * @return the instance of the devices parser.
 	 */
 	public static DevicesParser createDevicesParser() {
@@ -66,7 +66,7 @@ public class DevicesParser {
 
 	/**
 	 * Convenience method for constructing a DevicesParser object, only for test suite programs!!!!!!!!!!!!!
-	 * 
+	 *
 	 * @param devicesFile
 	 *            fully qualified fileName to specifying in EPICS devices.xml file ServerImpl
 	 * @return the instance of the devices parser.
@@ -78,7 +78,7 @@ public class DevicesParser {
 
 	/**
 	 * Convenience method for constructing a DevicesParser object with command line arguments
-	 * 
+	 *
 	 * @param args
 	 *            command line arguments
 	 * @return the instance of the devices parser.
@@ -91,7 +91,7 @@ public class DevicesParser {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @return devicesFile fully qualified fileName to specifying in XML the EPICS devices to be parsed. If null is
 	 *         specified the default types file from the classpath or jar file is used.
 	 */
@@ -128,7 +128,7 @@ public class DevicesParser {
 
 	/**
 	 * Return all the sections in an array for a beamline.
-	 * 
+	 *
 	 * @return the device array
 	 */
 	public Section[] getAllSections() {
@@ -178,7 +178,7 @@ public class DevicesParser {
 
 	/**
 	 * return the device object for a given device name. All the devices on a beamline must be uniquely named.
-	 * 
+	 *
 	 * @param name
 	 *            the short name or GDA name of the device.
 	 * @return the specific named device instance
@@ -212,7 +212,7 @@ public class DevicesParser {
 	/**
 	 * Return the Device object for a given Epics device name. All Epics Name for the devices on a single beamline must
 	 * be unique.
-	 * 
+	 *
 	 * @param epicsname
 	 *            the unique EPICS name of the device.
 	 * @return the specified device instance.
@@ -246,7 +246,7 @@ public class DevicesParser {
 	/**
 	 * Returns the EPICS name of a device given its GDA name. Both EPICS name and GDA name must be uniquely defined for
 	 * a specific device on a beamline.
-	 * 
+	 *
 	 * @param deviceGDAname
 	 *            the device name sepcified in GDA
 	 * @return the EPICS name of this device
@@ -257,7 +257,7 @@ public class DevicesParser {
 
 	/**
 	 * returns the EPICS name of a given device object.
-	 * 
+	 *
 	 * @param device
 	 *            the Device object
 	 * @return the EPICS name for the device
@@ -269,7 +269,7 @@ public class DevicesParser {
 	/**
 	 * returns the GDA name of the device given its EPICS name. It assumes that both names are uniquely defined for a
 	 * specific device on a beamline.
-	 * 
+	 *
 	 * @param deviceEpicsname
 	 *            the EPICS name of the device
 	 * @return the GDA name of the specified EPICS name for the device
@@ -280,7 +280,7 @@ public class DevicesParser {
 
 	/**
 	 * returns the GDA name of the specifid device object.
-	 * 
+	 *
 	 * @param device
 	 *            the specified device object
 	 * @return the GDA name of the specified device object
@@ -291,7 +291,7 @@ public class DevicesParser {
 
 	/**
 	 * returns the description for a device specified by its name.
-	 * 
+	 *
 	 * @param name
 	 *            the GDA name or EPICS name of the device
 	 * @return the description of the named device
@@ -317,7 +317,7 @@ public class DevicesParser {
 
 	/**
 	 * returns the desription of the specified device.
-	 * 
+	 *
 	 * @param device
 	 *            the specified device object
 	 * @return the description for this device
@@ -328,7 +328,7 @@ public class DevicesParser {
 
 	/**
 	 * Returns an array of interface types for the specified device.
-	 * 
+	 *
 	 * @param device -
 	 *            the given device
 	 * @return the interface type array for the device
@@ -339,7 +339,7 @@ public class DevicesParser {
 
 	/**
 	 * returns an array of interface types for the device specified by the name.
-	 * 
+	 *
 	 * @param name
 	 *            the GDA name of the device
 	 * @return the interface type array for the device
@@ -351,7 +351,7 @@ public class DevicesParser {
 
 	/**
 	 * returns an array of interface types for the device specified by its EPICS name.
-	 * 
+	 *
 	 * @param epicsname
 	 *            the EPICS name of the device
 	 * @return the interface type array of this EPICS named device
@@ -363,7 +363,7 @@ public class DevicesParser {
 
 	/**
 	 * returns the interface type specified at index for the device
-	 * 
+	 *
 	 * @param device
 	 *            the specified device
 	 * @param index
@@ -376,7 +376,7 @@ public class DevicesParser {
 
 	/**
 	 * returns the interface type specified at index for the device specified by the name.
-	 * 
+	 *
 	 * @param name -
 	 *            the GDA name of the device
 	 * @param index -
@@ -390,7 +390,7 @@ public class DevicesParser {
 
 	/**
 	 * returns the interface type specified at index for the device named by EPICS name.
-	 * 
+	 *
 	 * @param epicsname
 	 *            the EPICS name of the device
 	 * @param index
@@ -412,7 +412,7 @@ public class DevicesParser {
 
 	/**
 	 * returns the name of the interface type at index specified for the specified device.
-	 * 
+	 *
 	 * @param device
 	 *            the specified device.
 	 * @param index
@@ -425,7 +425,7 @@ public class DevicesParser {
 
 	/**
 	 * returns the name of the interface type at index specified for the device specified by the name.
-	 * 
+	 *
 	 * @param name
 	 *            the GDA name or EPICS name of the device
 	 * @param index

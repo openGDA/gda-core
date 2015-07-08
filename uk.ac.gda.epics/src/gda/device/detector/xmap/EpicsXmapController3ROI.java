@@ -40,7 +40,7 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 	private double[][][] controlRois;
 	private int actualNumberOfROIs;
 	private static final Logger logger = LoggerFactory.getLogger(EpicsXmapController3ROI.class);
-	
+
 	public String getEdxdControllerName() {
 		return edxdControllerName;
 	}
@@ -56,12 +56,12 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 			configureNumberOfMca();
 		}
 	}
-	
+
 	public void configureNumberOfMca(){
 		numberOfMca = edxdController.getNumberOfElements();
 		controlRois = new double[numberOfMca][][];
 	}
-   
+
 	@Override
 	public void clearAndStart() throws DeviceException {
 		//logger.info("Setting the mode for the xmap");
@@ -73,7 +73,7 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 	@Override
 	public void deleteROIs(int mcaIndex) throws DeviceException {
 		controlRois[mcaIndex] = null;
-		
+
 	}
 
 	@Override
@@ -110,7 +110,7 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 	@Override
 	public void setNumberOfBins(int numberOfBins) throws DeviceException {
 		edxdController.setBins(numberOfBins);
-		
+
 	}
 
 	/**
@@ -130,7 +130,7 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 
 	/**
 	 * Returns a count for each mca for a given roi number
-	 * For instance if roi=0 the first roi 
+	 * For instance if roi=0 the first roi
 	 */
 	@Override
 	public double[] getROICounts(int roiIndex) throws DeviceException {
@@ -156,14 +156,14 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 		}
 		return roiSums;
 	}
-	
+
 	@Override
 	public double[] getROIs(int mcaNumber, int[][] data) throws DeviceException {
 		int[] mcaData = data[mcaNumber];
 		double[] roiSums = new double[controlRois[mcaNumber].length];
 
-		
-		
+
+
 		for (int i = 0; i < controlRois[mcaNumber].length; i++) {
 			int min = (int)controlRois[mcaNumber][i][0];
 			int max = (int)controlRois[mcaNumber][i][1];
@@ -171,8 +171,8 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 		}
 		return roiSums;
 	}
-	
-	
+
+
 	private double calcROICounts(int min, int max, int[] data) {
 		double sum = 0;
 		for (int i = min; i <= max; i++) {
@@ -201,15 +201,15 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 		// Not implemented in the new Interface
 		return 0;
 	}
-	
-	
+
+
 
 
 	@Override
 	public double getRealTime() throws DeviceException {
 		return getRealTime(0);
 	}
-	
+
 	/**
 	 * Get the real time for the mca element
 	 * @param mcaNumber
@@ -247,7 +247,7 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 		}
 		actualNumberOfROIs = roiIndex + 1;
 	}
-	
+
 	/**
 	 * @param roi
 	 * @param roiIndex
@@ -279,8 +279,8 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 			controlRois[mcaIndex] = new double[edxdController.getMaxAllowedROIs()][];
 		controlRois[mcaIndex][roiIndex] = new double []{roiLow[roiIndex], roiHigh[roiIndex]};
 		edxdController.activateROI();
-		
-		
+
+
 	}
 
 	@Override
@@ -292,19 +292,19 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 	@Override
 	public void setNumberOfROIs(int numberOfROIs) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	/**
 	 * Set rois the array can be of size [maximum number rois][2] if it is lower for instance
 	 * [actual number of rois][2] then the other possible rois will be set to zero.
-	 * 
+	 *
 	 * The actual number of rois is also taken from the length of the first dimension of this array
 	 * so it should always be passed in with size of the actual number of rois.
 	 */
 	@Override
 	public void setROI(final double[][] actualRois, int mcaIndex) throws DeviceException {
-		
+
 		// The ROIS might not be scaled to the max ROI size, so we ensure that this has been done
 		final double[][] rois = new double[edxdController.getMaxAllowedROIs()][2];
 		for (int i = 0; i < actualRois.length; i++) {
@@ -326,7 +326,7 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 	@Override
 	public void setReadRate(double readRate) throws DeviceException {
 		// Not implemented in new xmap epics interface
-		
+
 	}
 
 	@Override
@@ -342,7 +342,7 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 	@Override
 	public void setStatusRate(String statusRate) throws DeviceException {
 		// Not implemented in new xmap epics interface
-		
+
 	}
 
 	@Override
@@ -354,7 +354,7 @@ public class EpicsXmapController3ROI extends DeviceBase implements XmapControlle
 	@Override
 	public void stop() throws DeviceException {
 		edxdController.stop();
-		
+
 	}
 
 	/**

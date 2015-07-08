@@ -67,7 +67,7 @@ public class PhaseContrastCalculationPlugin extends NullNXPlugin {
 		public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
 
 			// Read the relevant stats added by the four roi/stats pairs
-			
+
 			double quad1;
 			double quad2;
 			double quad3;
@@ -93,7 +93,7 @@ public class PhaseContrastCalculationPlugin extends NullNXPlugin {
 			//double vertical = Math.abs((left_pair - right_pair) / total);
 			double horizontal = (top_pair - bottom_pair);
 			double vertical = (left_pair - right_pair);
-			
+
 			List<Double> values = new Vector<Double>();
 			values.add(horizontal);
 			values.add(vertical);

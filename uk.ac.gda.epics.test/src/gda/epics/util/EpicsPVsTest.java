@@ -18,7 +18,6 @@
 
 package gda.epics.util;
 
-import gda.epics.util.EpicsPVs;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -49,7 +48,7 @@ public class EpicsPVsTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void testAddPV() {
 		int i;
@@ -63,7 +62,7 @@ public class EpicsPVsTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void testPreScanSave() {
 		this.testAddPV();
@@ -73,7 +72,7 @@ public class EpicsPVsTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void testAfterScanSave() {
 		this.testAddPV();

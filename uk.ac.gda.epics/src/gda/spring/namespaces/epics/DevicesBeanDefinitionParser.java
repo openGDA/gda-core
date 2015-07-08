@@ -37,7 +37,7 @@ public class DevicesBeanDefinitionParser implements BeanDefinitionParser {
 	@Override
 	public AbstractBeanDefinition parse(Element element, ParserContext parserContext) {
 		boolean simulated = false;
-		
+
 		try {
 			List<String> deviceNames = GDAEpicsInterfaceReader.getAllDeviceNames();
 			for (String devName : deviceNames) {

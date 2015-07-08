@@ -350,30 +350,30 @@ public class LazyPVFactoryTest {
 		final PV<Integer> mockIntPV = mock(PV.class);
 		when(mockIntPV.get()).thenReturn(123);
 		ArgumentCaptor<PutListener> putListenerArgument = ArgumentCaptor.forClass(PutListener.class);
-		
+
 		PutEvent mockPutEvent = mock(PutEvent.class);
 		when(mockPutEvent.getStatus()).thenReturn(CAStatus.NORMAL);
-		
+
 		FutureTask<PVValues> futureTask = new FutureTask<PVValues>(new Callable<PVValues>() {
 			@Override
 			public PVValues call() throws Exception {
 				return pv.putWait(1, mockIntPV);
 			}
 		});
-		
+
 		(new Thread(futureTask)).start();
-		
+
 		Thread.sleep(500);
 		verify(mockEpicsController, times(1)).caput(eq(mockChannel), eq(1), putListenerArgument.capture());
 		PutListener putListener = putListenerArgument.getValue();
 		assertFalse(futureTask.isDone());
-		
+
 		putListener.putCompleted(mockPutEvent);
 		PVValues putCallbackResult = futureTask.get();
 		assertEquals((Integer) 123, putCallbackResult.get(mockIntPV));
-		
+
 	}
-	
+
 	@Test
 	public void testPutCallbackNoTimeout() {
 

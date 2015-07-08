@@ -417,7 +417,7 @@ public class ADBaseModelImpl extends EPICSBaseModel<ADBaseType> implements Initi
 
 	/**
 	 * Sets the exposure time
-	 * 
+	 *
 	 * @param exposureTime
 	 * @throws Exception
 	 */

@@ -30,24 +30,24 @@ import org.springframework.beans.factory.FactoryBean;
 public class EpicsMotorFactoryBean extends EpicsConfigurationFactoryBeanBase<EpicsMotor> {
 
 	private String deviceName;
-	
+
 	/**
 	 * Sets the EPICS device name which will be used to obtain the PV record
 	 * name.
-	 * 
+	 *
 	 * @param deviceName the EPICS device name
 	 */
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
 	}
-	
+
 	@Override
 	public Class<?> getObjectType() {
 		return EpicsMotor.class;
 	}
 
 	private EpicsMotor epicsMotor;
-	
+
 	@Override
 	protected void createObject() throws ConfigurationNotFoundException {
 		SimpleMotorType motorConfig = getEpicsConfiguration().getConfiguration(deviceName, SimpleMotorType.class);

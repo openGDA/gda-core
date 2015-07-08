@@ -33,7 +33,6 @@ import gda.jython.JythonServerFacade;
 import gda.jython.ScriptBase;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-import gda.scan.ScanBase;
 
 import java.lang.reflect.Array;
 
@@ -96,7 +95,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param detectorName
 	 *            the name of the detector instance.
 	 * @param threshold
@@ -133,7 +132,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void startMonitoring() {
 		if (configured && monitorOn) {
@@ -200,7 +199,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 	/**
 	 * defines actions of the beam monitor thread. On beam down, all scans in jython pause; on beam back, the scan
 	 * resumes or restart; on interruption, abort any scan. {@inheritDoc}
-	 * 
+	 *
 	 * @see java.lang.Runnable#run()
 	 */
 	@Override
@@ -263,7 +262,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * {@inheritDoc}a given number (the default is 5) consecutive
-	 * 
+	 *
 	 * @see gda.observable.IObserver#update(java.lang.Object, java.lang.Object)
 	 */
 	@Override
@@ -286,16 +285,17 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * checks beam monitor flag
-	 * 
+	 *
 	 * @return boolean
 	 */
+	@Override
 	public boolean isMonitorOn() {
 		return monitorOn;
 	}
 
 	/**
 	 * set beam monitor flag
-	 * 
+	 *
 	 * @param monitorOn
 	 */
 	public void setMonitorOn(boolean monitorOn) {
@@ -380,7 +380,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * gets monitor name
-	 * 
+	 *
 	 * @return monitor name
 	 */
 	public String getMonitorName() {
@@ -389,7 +389,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * sets monitor name
-	 * 
+	 *
 	 * @param monitorName
 	 */
 	public void setMonitorName(String monitorName) {
@@ -398,7 +398,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * gets the current amplifier object
-	 * 
+	 *
 	 * @return the current amplifier object
 	 */
 	public CurrentAmplifier getMonitor() {
@@ -407,7 +407,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * sets the current amplifier object
-	 * 
+	 *
 	 * @param monitor
 	 */
 	public void setMonitor(CurrentAmplifier monitor) {
@@ -431,7 +431,7 @@ public class IonChamberBeamMonitor extends MonitorBase implements Monitor, Scann
 
 	/**
 	 * Returns the current value of this monitor.
-	 * 
+	 *
 	 * @return the current value
 	 */
 	public double getCurrentValue() {

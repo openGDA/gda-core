@@ -32,11 +32,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ADArrayPlugin implements NonAsynchronousNXPlugin {
-	
+
 	final private NDArray ndArray;
 
 	private boolean enableDuringScan = true;
-	
+
 	private boolean writeDataToFile=true;
 
 	private boolean firstReadoutInScan = true;
@@ -69,7 +69,7 @@ public class ADArrayPlugin implements NonAsynchronousNXPlugin {
 			return;
 		setNDArrayPortAndAddress();
 		getNdArray().getPluginBase().disableCallbacks();
-		getNdArray().getPluginBase().setBlockingCallbacks(isBlocking() ? 1:0); //use camera memory 
+		getNdArray().getPluginBase().setBlockingCallbacks(isBlocking() ? 1:0); //use camera memory
 		resetCounters();
 		getNdArray().getPluginBase().enableCallbacks();
 		firstReadoutInScan = true;
@@ -119,7 +119,7 @@ public class ADArrayPlugin implements NonAsynchronousNXPlugin {
 	public List<String> getInputStreamFormats() {
 		return Arrays.asList();
 	}
-	
+
 	@Override
 	public NXDetectorDataAppender read() throws DeviceException {
 		firstReadoutInScan = false;
@@ -169,7 +169,7 @@ public class ADArrayPlugin implements NonAsynchronousNXPlugin {
 	public void setNdArrayPortVal(String ndArrayPortVal) {
 		this.ndArrayPortVal = ndArrayPortVal;
 	}
-	
+
 }
 class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
 	private boolean firstReadoutInScan=true;
@@ -179,7 +179,7 @@ class NXDetectorDataArrayAppender implements NXDetectorDataAppender {
 		arrayData = arrayData2;
 		this.firstReadoutInScan = firstReadoutInScan;
 	}
-	
+
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException{
 		try {

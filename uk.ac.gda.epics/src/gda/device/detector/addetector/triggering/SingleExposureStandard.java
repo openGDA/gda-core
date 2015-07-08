@@ -26,12 +26,12 @@ import gda.scan.ScanInformation;
 public class SingleExposureStandard extends SimpleAcquire {
 
 	private final int triggerMode;
-	
+
 	public SingleExposureStandard(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
 		triggerMode = StandardTriggerMode.INTERNAL.ordinal();
 	}
-	
+
 	public SingleExposureStandard(ADBase adBase, double readoutTime, int triggerMode) {
 		super(adBase, readoutTime);
 		this.triggerMode = triggerMode;

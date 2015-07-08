@@ -33,20 +33,20 @@ public class EpicsMetadataEntry extends MetadataEntry {
 	protected static double EPICS_TIMEOUT = 0.5;
 
 	private String pvName;
-	
+
 	private transient EpicsController controller;
-	
+
 	/**
 	 * Creates an EPICS metadata entry.
 	 */
 	public EpicsMetadataEntry() {
 		// do nothing
 	}
-	
+
 	/**
 	 * Creates an EPICS metadata entry with the specified name that will
 	 * fetch the value of the specified PV.
-	 * 
+	 *
 	 * @param name the metadata entry name
 	 * @param pvName the EPICS PV name
 	 */
@@ -54,16 +54,16 @@ public class EpicsMetadataEntry extends MetadataEntry {
 		setName(name);
 		setPvName(pvName);
 	}
-	
+
 	/**
 	 * Sets the PV from which this metadata entry will retrieve its value.
-	 * 
+	 *
 	 * @param pvName the EPICS PV name
 	 */
 	public void setPvName(String pvName) {
 		this.pvName = pvName;
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();

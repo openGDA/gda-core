@@ -58,7 +58,7 @@ public class SimpleReaderTest {
 			fields.add(new _SimpleField("F2", attributes));
 		}
 		Vector<Attribute> attributes = new Vector<Attribute>();
-		
+
 		Device devExpected = new _SimpleDevice("xiaArray.1", "xiaArray", attributes, fields );
 		Device dev = null;
 		try {
@@ -79,7 +79,7 @@ public class SimpleReaderTest {
 	}
 
 	/**
-	 * @throws InterfaceException 
+	 * @throws InterfaceException
 	 */
 	@Test
 	public void testDescValidDeviceUsingFullNameAndType() throws InterfaceException {
@@ -90,7 +90,7 @@ public class SimpleReaderTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetValidDeviceUsingFullNameOnly1() {
@@ -98,7 +98,7 @@ public class SimpleReaderTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetValidDeviceUsingFullNameOnly2() {
@@ -106,8 +106,8 @@ public class SimpleReaderTest {
 	}
 
 	/**
-	 * @throws InterfaceException 
-	 * 
+	 * @throws InterfaceException
+	 *
 	 */
 	@Test
 	public void testGetNonExistentDevice() throws InterfaceException {
@@ -119,8 +119,8 @@ public class SimpleReaderTest {
 	}
 
 	/**
-	 * @throws InterfaceException 
-	 * 
+	 * @throws InterfaceException
+	 *
 	 */
 	@Test
 	public void testGetNonExistentDeviceType() throws InterfaceException {
@@ -132,8 +132,8 @@ public class SimpleReaderTest {
 	}
 
 	/**
-	 * @throws InterfaceException 
-	 * 
+	 * @throws InterfaceException
+	 *
 	 */
 	@Test
 	public void testGetDeviceWithTypeUnSpecified() throws InterfaceException {
@@ -144,7 +144,7 @@ public class SimpleReaderTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@SuppressWarnings("unused")
 	@Test
@@ -158,7 +158,7 @@ public class SimpleReaderTest {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@SuppressWarnings("unused")
 	@Test
@@ -196,7 +196,7 @@ class _SimpleAttribute implements Attribute {
 class _SimpleAttributes extends Vector<_SimpleAttribute> {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -6722376235262372958L;
 }
@@ -257,7 +257,7 @@ class _SimpleField implements Field {
 class _SimpleFields extends Vector<_SimpleField> {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 3170191421245247251L;
 
@@ -268,7 +268,7 @@ class _SimpleDevice implements Device {
 	private final String type;
 	private final _SimpleFields fields;
 	private final Vector<String> fieldNames;
-	private final Vector<Attribute> attributes;	
+	private final Vector<Attribute> attributes;
 
 	_SimpleDevice(String name, String type,  Vector<Attribute> attributes , _SimpleFields fields) {
 		this.name = name;
@@ -281,7 +281,7 @@ class _SimpleDevice implements Device {
 		this.attributes = new Vector<Attribute>();
 		for(Attribute attribute : attributes){
 			this.attributes.add(attribute);
-		}		
+		}
 	}
 
 	@Override

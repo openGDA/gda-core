@@ -59,7 +59,7 @@ public class ADDetectorTest {
 	@Mock protected NDStats ndStats;
 	@Mock protected NDPluginBase ndArrayBase;
 	@Mock protected NDPluginBase ndStatsBase;
-	
+
 	protected static String[] STATS_NAMES = new String[] { "min", "max", "total", "net", "mean", "sigma" };
 	protected static String[] STATS_FORMATS = new String[] { "%5.5g", "%5.5g", "%5.5g", "%5.5g", "%5.5g", "%5.5g" };
 	protected static String[] CENTROID_NAMES = new String[] { "centroidX", "centroidY", "centroid_sigmaX",
@@ -67,9 +67,9 @@ public class ADDetectorTest {
 	protected static String[] CENTROID_FORMATS = new String[] { "%5.5g", "%5.5g", "%5.5g", "%5.5g", "%5.5g" };
 
 	protected double READOUT_TIME = 0.1;
-	
+
 	protected ScanInformation scanInfo;
-	
+
 	public Detector det() {
 		return adDet;
 	}
@@ -117,20 +117,20 @@ public class ADDetectorTest {
 		adDet().setComputeStats(computeStats);
 		adDet().setComputeCentroid(computeCentroid);
 	}
-	
+
 	protected void enableArrayReadout(boolean enableArrayReadout) {
 		adDet().setReadArray(enableArrayReadout);
 	}
-	
+
 	protected void enableReadAcquisitionTimeAndPeriod(boolean enableTime, boolean enablePeriod) {
 		adDet().setReadAcquisitionTime(enableTime);
 		adDet().setReadAcquisitionPeriod(enablePeriod);
 	}
-	
+
 	protected void enableFileWriter(boolean enableFileWriter) throws Exception {
 		adDet().setReadFilepath(enableFileWriter);
 	}
-	
+
 	@Test
 	public void testConstructor() throws Exception {
 		setUpNoConfigure();
@@ -142,34 +142,34 @@ public class ADDetectorTest {
 		assertFalse(adDet().isReadAcquisitionPeriod());
 		assertFalse(adDet().isReadFilepath());
 	}
-	
+
 	@Test
 	public void testReadsArrayByDefault() throws Exception {
 		setUpNoConfigure();
 		assertTrue(adDet().isReadArray());
 	}
-	
+
 	// The behaviour expected in this test is different from what DetectorBase does.
 	// Having this throw exceptions lead to a 7GB logfile in 1 day on I05, because
-	// under certain conditions the exception is logged, then ignored and isBusy() 
-	// called again immediately. Finding and fixing that loop would be a good idea, 
-	// but for consistency (see first sentence) not throwing an exception here is 
+	// under certain conditions the exception is logged, then ignored and isBusy()
+	// called again immediately. Finding and fixing that loop would be a good idea,
+	// but for consistency (see first sentence) not throwing an exception here is
 	// also reasonable.
 //	@Test(expected=RuntimeException.class)
 //	public void testAsynchronousMoveTo() throws DeviceException {
 //		det().asynchronousMoveTo(1.);
 //	}
-	
+
 	@Test(expected=RuntimeException.class)
 	public void testGetPosition() throws DeviceException {
 		det().getPosition();
 	}
-	
+
 	// The behaviour expected in this test is different from what DetectorBase does.
 	// Having this throw exceptions lead to a 7GB logfile in 1 day on I05, because
-	// under certain conditions the exception is logged, then ignored and isBusy() 
-	// called again immediately. Finding and fixing that loop would be a good idea, 
-	// but for consistency (see first sentence) not throwing an exception here is 
+	// under certain conditions the exception is logged, then ignored and isBusy()
+	// called again immediately. Finding and fixing that loop would be a good idea,
+	// but for consistency (see first sentence) not throwing an exception here is
 	// also reasonable.
 //	@Test(expected=RuntimeException.class)
 //	public void testIsBusy() throws DeviceException {
@@ -212,7 +212,7 @@ public class ADDetectorTest {
 		enableFileWriter(true);
 		assertArrayEquals(new String[] {"count_time", "period", "filepath" }, det().getExtraNames());
 	}
-	
+
 	@Test
 	public void testGetExtraNamesCentroid() {
 		enableStatsAndCentroid(false, true);
@@ -263,7 +263,7 @@ public class ADDetectorTest {
 		assertArrayEquals(new String[] { "%.2f", "%.2f", "%5.5g", "%5.5g", "%5.5g", "%5.5g", "%5.5g", "%5.5g", "%5.5g",
 				"%5.5g", "%5.5g", "%5.5g", "%5.5g" }, det().getOutputFormat());
 	}
-	
+
 	@Test
 	public void testStatus() throws Exception {
 		when(collectionStrategy.getStatus()).thenReturn(Detector.IDLE);
@@ -272,12 +272,12 @@ public class ADDetectorTest {
 		when(collectionStrategy.getStatus()).thenReturn(Detector.BUSY);
 		assertEquals(Detector.BUSY, det().getStatus());
 	}
-	
+
 	@Test
 	public void waitWhileBusy() throws Exception {
 		det().waitWhileBusy();
 		verify(collectionStrategy).waitWhileBusy();
-		
+
 	}
 
 	@Test
@@ -321,8 +321,8 @@ public class ADDetectorTest {
 		verify(ndStatsBase).setBlockingCallbacks((short) 0);
 	}
 
-	
-	
+
+
 	@Test
 	public void testCollectData() throws Exception {
 		enableStatsAndCentroid(true, true);
@@ -479,7 +479,7 @@ public class ADDetectorTest {
 		det().atScanStart();
 		NXDetectorData readout = (NXDetectorData) det().readout();
 		Double[] doubleVals = readout.getDoubleVals();
-		assertArrayEquals(new Double[] { 0.0 }, doubleVals); 
+		assertArrayEquals(new Double[] { 0.0 }, doubleVals);
 		assertEquals("/full/path/to/file99.cbf", readout.toString());
 		INexusTree rootNode = readout.getNexusTree().getChildNode(0);
 		assertEquals("testdet", rootNode.getName());
@@ -526,6 +526,6 @@ public class ADDetectorTest {
 	public void testStop() throws Exception {
 		det().stop();
 		verify(collectionStrategy).stop();
-		
+
 	}
 }

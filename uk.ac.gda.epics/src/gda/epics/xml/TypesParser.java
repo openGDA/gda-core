@@ -52,7 +52,7 @@ public class TypesParser {
 	/**
 	 * Convenience method for constructing a DevicesParser object for the EPICS devices.xml file specified in the local
 	 * properties file
-	 * 
+	 *
 	 * @return the instance of the devices parser.
 	 */
 	public static TypesParser createTypesParser() {
@@ -63,7 +63,7 @@ public class TypesParser {
 
 	/**
 	 * Convenience method for constructing a DevicesParser object, only for test suite programs!!!!!!!!!!!!!
-	 * 
+	 *
 	 * @param devicesFile
 	 *            fully qualified fileName to specifying in EPICS devices.xml file ServerImpl
 	 * @return the instance of the devices parser.
@@ -75,7 +75,7 @@ public class TypesParser {
 
 	/**
 	 * Convenience method for constructing a DevicesParser object with command line arguments
-	 * 
+	 *
 	 * @param args
 	 *            command line arguments
 	 * @return the instance of the devices parser.
@@ -88,7 +88,7 @@ public class TypesParser {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @return devicesFile fully qualified fileName to specifying in XML the EPICS devices to be parsed. If null is
 	 *         specified the default types file from the classpath or jar file is used.
 	 */
@@ -140,7 +140,7 @@ public class TypesParser {
 
 	/**
 	 * returns all interfaces in an array that contained in the types.xml file.
-	 * 
+	 *
 	 * @return the EPICS interface array
 	 */
 	public Interface[] getAllInterfaces() {
@@ -149,7 +149,7 @@ public class TypesParser {
 
 	/**
 	 * returns a specific interface at the specified index from the types.xml file.
-	 * 
+	 *
 	 * @param index
 	 *            the array idex of the interface
 	 * @return the interface at index
@@ -160,7 +160,7 @@ public class TypesParser {
 
 	/**
 	 * returns the interface object of the specified type name
-	 * 
+	 *
 	 * @param typename
 	 *            the type-name for the interface
 	 * @return the interface object
@@ -186,7 +186,7 @@ public class TypesParser {
 
 	/**
 	 * returns the name value of a given interface object
-	 * 
+	 *
 	 * @param itf
 	 *            the specified interface object
 	 * @return the value of the name attribute
@@ -197,7 +197,7 @@ public class TypesParser {
 
 	/**
 	 * returns the label value of a given interface object
-	 * 
+	 *
 	 * @param itf
 	 *            the specified interface
 	 * @return the value of the label attribute
@@ -208,7 +208,7 @@ public class TypesParser {
 
 	/**
 	 * returns the type value of a given interface object
-	 * 
+	 *
 	 * @param itf
 	 *            the specified interface
 	 * @return the value of the type attribute
@@ -219,7 +219,7 @@ public class TypesParser {
 
 	/**
 	 * return the description value of a given interface object
-	 * 
+	 *
 	 * @param itf
 	 *            the specified interface
 	 * @return the value of the description attribute in the interface
@@ -230,7 +230,7 @@ public class TypesParser {
 
 	/**
 	 * returns the label value of a given interface name
-	 * 
+	 *
 	 * @param itfname
 	 *            the name of the interface
 	 * @return the value of the label attribute
@@ -241,7 +241,7 @@ public class TypesParser {
 
 	/**
 	 * returns the type value of a given interface name
-	 * 
+	 *
 	 * @param itfname
 	 *            the name of the interface
 	 * @return the value of the type attribute
@@ -252,7 +252,7 @@ public class TypesParser {
 
 	/**
 	 * returns the description value of a given interface name
-	 * 
+	 *
 	 * @param itfname
 	 *            the name of the interface
 	 * @return the value of the description attribute
@@ -263,7 +263,7 @@ public class TypesParser {
 
 	/**
 	 * returns a list of subsystem in an array of a given interface object
-	 * 
+	 *
 	 * @param itf
 	 *            the sepcified interface object
 	 * @return an array of the subsystem the given interface contains
@@ -274,7 +274,7 @@ public class TypesParser {
 
 	/**
 	 * returns a list of subsystem in an array of a given interface name
-	 * 
+	 *
 	 * @param itfname
 	 *            the sepcified interface name
 	 * @return an array of the subsystem the given interface contains
@@ -285,7 +285,7 @@ public class TypesParser {
 
 	/**
 	 * returns a subsystem object at specified index of a given interface object
-	 * 
+	 *
 	 * @param itf
 	 *            the sepcified interface object
 	 * @param index
@@ -298,7 +298,7 @@ public class TypesParser {
 
 	/**
 	 * returns a subsystem object at specified index of a given interface name
-	 * 
+	 *
 	 * @param name
 	 *            the sepcified interface name
 	 * @param index
@@ -311,7 +311,7 @@ public class TypesParser {
 
 	/**
 	 * returns the name of the subsystem at specified index of a given interface object
-	 * 
+	 *
 	 * @param itf
 	 *            the sepcified interface object
 	 * @param index
@@ -324,7 +324,7 @@ public class TypesParser {
 
 	/**
 	 * returns the name of the subsystem at specified index of a given interface name
-	 * 
+	 *
 	 * @param itfname
 	 *            the sepcified interface name
 	 * @param index
@@ -337,7 +337,7 @@ public class TypesParser {
 
 	/**
 	 * returns an array of names of all the subsystem contained in a given interface object
-	 * 
+	 *
 	 * @param itf
 	 *            the interface object
 	 * @return the array of names of all subsystems
@@ -352,7 +352,7 @@ public class TypesParser {
 
 	/**
 	 * returns an array of names of all the subsystem contained in a given interface name
-	 * 
+	 *
 	 * @param typename
 	 *            the interface name
 	 * @return the array of names of all subsystems
@@ -364,7 +364,7 @@ public class TypesParser {
 
 	/**
 	 * returns the Epics record name of the subsystem at specified index of a given interface object
-	 * 
+	 *
 	 * @param itf
 	 *            the sepcified interface object
 	 * @param index
@@ -377,7 +377,7 @@ public class TypesParser {
 
 	/**
 	 * returns the Epics record name of the subsystem at specified index of a given interface name
-	 * 
+	 *
 	 * @param typename
 	 *            the sepcified interface name
 	 * @param index
@@ -390,7 +390,7 @@ public class TypesParser {
 
 	/**
 	 * returns an array of EPICS record names of all the subsystem contained in a given interface object
-	 * 
+	 *
 	 * @param itf
 	 *            the interface object
 	 * @return the array of EPICS record names of all subsystems
@@ -405,7 +405,7 @@ public class TypesParser {
 
 	/**
 	 * returns an array of EPICS record names of all the subsystem contained in a given interface name
-	 * 
+	 *
 	 * @param typename
 	 *            the interface name
 	 * @return the array of EPICS record names of all subsystems
@@ -417,7 +417,7 @@ public class TypesParser {
 
 	/**
 	 * returns the value of the subsystem type at specified index of a given interface object
-	 * 
+	 *
 	 * @param itf
 	 *            the sepcified interface object
 	 * @param index
@@ -430,7 +430,7 @@ public class TypesParser {
 
 	/**
 	 * returns the value of the subsystem type at specified index of a given interface name
-	 * 
+	 *
 	 * @param typename
 	 *            the sepcified interface name
 	 * @param index
@@ -443,7 +443,7 @@ public class TypesParser {
 
 	/**
 	 * returns an array of subsystem types contained in a given interface object
-	 * 
+	 *
 	 * @param itf
 	 *            the interface object
 	 * @return the array of values of all subsystem types
@@ -458,7 +458,7 @@ public class TypesParser {
 
 	/**
 	 * returns an array of subsystem types contained in a given interface name
-	 * 
+	 *
 	 * @param typename
 	 *            the interface name
 	 * @return the array of values of all subsystem types
@@ -470,7 +470,7 @@ public class TypesParser {
 
 	/**
 	 * returns the value of the subsystem description at specified index of a given interface object
-	 * 
+	 *
 	 * @param itf
 	 *            the sepcified interface object
 	 * @param index
@@ -483,7 +483,7 @@ public class TypesParser {
 
 	/**
 	 * returns the value of the subsystem description at specified index of a given interface name
-	 * 
+	 *
 	 * @param typename
 	 *            the sepcified interface name
 	 * @param index
@@ -496,7 +496,7 @@ public class TypesParser {
 
 	/**
 	 * returns an array of values of all subsystem descriptions of a given interface object
-	 * 
+	 *
 	 * @param itf
 	 *            the sepcified interface object
 	 * @return the array of values of the subsystem description
@@ -511,7 +511,7 @@ public class TypesParser {
 
 	/**
 	 * returns the array of values of the subsystem descriptions of a given interface name
-	 * 
+	 *
 	 * @param typename
 	 *            the sepcified interface name
 	 * @return the array of values of the subsystem description
@@ -523,7 +523,7 @@ public class TypesParser {
 
 	/**
 	 * returns the name of the given subsystem
-	 * 
+	 *
 	 * @param subsys
 	 *            the specified subsystem
 	 * @return the name of the subsystem
@@ -534,7 +534,7 @@ public class TypesParser {
 
 	/**
 	 * returns the EPICS record name of the given subsystem
-	 * 
+	 *
 	 * @param subsys
 	 *            the specified subsystem
 	 * @return the EPICS record name of the subsystem
@@ -545,7 +545,7 @@ public class TypesParser {
 
 	/**
 	 * returns the type name of the given subsystem
-	 * 
+	 *
 	 * @param subsys
 	 *            the specified subsystem
 	 * @return the name of the subsystem type
@@ -556,7 +556,7 @@ public class TypesParser {
 
 	/**
 	 * returns the description of the given subsystem
-	 * 
+	 *
 	 * @param subsys
 	 *            the specified subsystem
 	 * @return the description string of the subsystem
@@ -567,7 +567,7 @@ public class TypesParser {
 
 	/**
 	 * returns the subsystem object for a given subsystem name and interface name
-	 * 
+	 *
 	 * @param subsysname
 	 *            the name of teh subsystem
 	 * @param itfname
@@ -596,7 +596,7 @@ public class TypesParser {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void printTypeList() {
 		Interface type[] = types.getInterface();

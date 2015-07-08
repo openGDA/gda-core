@@ -678,7 +678,7 @@ public class CAClientTest {
 	public void testGetLoop() throws FactoryException, CAException, TimeoutException, InterruptedException {
 		TestUtils.skipTestIf(skipBL11test,
 				this.getClass().getCanonicalName() + ".testGetLoop skipped, since test IOC not available");
-		
+
 		CAClient cac = new CAClient(pvName);
 		assertNotNull(cac);
 		try {

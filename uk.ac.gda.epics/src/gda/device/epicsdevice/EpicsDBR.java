@@ -29,12 +29,12 @@ public class EpicsDBR implements Serializable {
 	final static long serialVersionUID = 1;
 
 	/**
-	 * 
+	 *
 	 */
 	final public int _count;
 
 	/**
-	 * 
+	 *
 	 */
 	final public Object _value;
 

@@ -55,19 +55,19 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class AreaDetectorIOCIntegrationTest {
-	
+
 	final String BASE_PV_NAME = "BLRWI-DI-CAM-01:";
-	
+
 	final String STAT1_INITIAL_ARRAY_PORT = "DCAM1.ROI1";
-	
+
 	private ADBaseImpl adBase;
 
 	private NXCollectionStrategyPlugin collectionStrategy;
-	
+
 	private NDPluginBasePVsImpl stat1basePVs;
-	
+
 	private NDStatsPVsImpl stat1PVs;
-	
+
 	private NXDetector det;
 
 	private ADTimeSeriesStatsPlugin adTimeSeriesStatsPlugin;
@@ -83,7 +83,7 @@ public class AreaDetectorIOCIntegrationTest {
 	private ADRectangularROIPlugin adRoiPlugin;
 
 	private ADRoiStatsPair adStatsROIPair;
-	
+
 	private RectangularROIProvider<Integer> roiProvider = new SimpleRectangularROIProvider();
 
 	@BeforeClass
@@ -92,7 +92,7 @@ public class AreaDetectorIOCIntegrationTest {
 		String file = resource.getFile();
 		System.setProperty("gov.aps.jca.JCALibrary.properties", file);
 	}
-	
+
 	@Before
 	public void verifyConnection() throws IOException {
 		try {
@@ -101,55 +101,55 @@ public class AreaDetectorIOCIntegrationTest {
 			throw new IOException("Representative PV required for test unavailable: ", e);
 		}
 	}
-	
+
 	@Before
 	public void setUp() throws Exception {
-		
+
 		scanInfo = mock(ScanInformation.class);
 		ICurrentScanInformationHolder scanInfoHolder = mock(ICurrentScanInformationHolder.class);
 		when(scanInfoHolder.getCurrentScanInformation()).thenReturn(scanInfo );
 		InterfaceProvider.setCurrentScanInformationHolderForTesting(scanInfoHolder);
-		
+
 		adBase = new ADBaseImpl();
 		adBase.setBasePVName(BASE_PV_NAME + "CAM");
-		
+
 		stat1basePVs = new NDPluginBasePVsImpl();
 		stat1basePVs.setBasePVName(BASE_PV_NAME + "STAT1");
 		stat1basePVs.afterPropertiesSet();
-		
+
 		stat1PVs = new NDStatsPVsImpl();
 		stat1PVs.setBasePVName(BASE_PV_NAME + "STAT1");
 		stat1PVs.setPluginBasePVs(stat1basePVs);
 		stat1PVs.afterPropertiesSet();
-		
+
 		roi1basePVs = new NDPluginBasePVsImpl();
 		roi1basePVs.setBasePVName(BASE_PV_NAME + "ROI1");
 		roi1basePVs.afterPropertiesSet();
-		
+
 		roi1PVs = new NDROIPVsImpl();
 		roi1PVs.setBasePVName(BASE_PV_NAME + "ROI1");
 		roi1PVs.setPluginBasePVs(roi1basePVs);
 		roi1PVs.afterPropertiesSet();
-		
+
 		collectionStrategy = new SingleExposureStandard(adBase, 0);
 		adTimeSeriesStatsPlugin = new ADTimeSeriesStatsPlugin(stat1PVs, "stat1", roiProvider);
 		adRoiPlugin = new ADRectangularROIPlugin(roi1PVs, "roi1", roiProvider);
 		adStatsROIPair = new ADRoiStatsPair("pair1", adRoiPlugin, adTimeSeriesStatsPlugin, null, roiProvider);
-		
+
 		det = new NXDetector();
 		det.setCollectionStrategy(collectionStrategy);
-		
+
 		stat1basePVs.getNDArrayPortPVPair().putWait(STAT1_INITIAL_ARRAY_PORT);
-		
+
 		resetPV = LazyPVFactory.newBooleanFromShortPV(BASE_PV_NAME + "CAMReset");
-		
+
 		adBase.setDataType("Int8");
 		adBase.setSizeX(100);
 		adBase.setSizeY(100);
 		det.stop();
 		resetPV.putWait(true);
 	}
-	
+
 	@Test
 	public void verifyAdBaseConnection() throws Exception {
 		System.out.println(adBase.getAcquirePeriod());
@@ -160,7 +160,7 @@ public class AreaDetectorIOCIntegrationTest {
 		String x = stat1basePVs.getNDArrayPortPVPair().get();
 		System.out.println(x);
 	}
-	
+
 	@Test
 	public void testScanEmulation() throws Exception {
 
@@ -175,7 +175,7 @@ public class AreaDetectorIOCIntegrationTest {
 		assertEquals("0.50", det.readout().toString());
 	}
 
-	
+
 	@Test
 	public void testWithStat1WiredToCAMDelayedRead() throws Exception {
 		stat1basePVs.getNDArrayPortPVPair().putWait("DCAM1.CAM");

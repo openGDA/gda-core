@@ -20,6 +20,7 @@ package gda.scan;
 
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
+
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -40,7 +41,7 @@ import java.util.Vector;
  * <p>
  * This implementation currently only provides calculation for constant velocity path. To provide other type of paths
  * developer must add his/her own path calculation methods.
- * 
+ *
  * @see gda.scan.EpicsTrajectoryScanController
  */
 public class Trajectory implements Configurable {
@@ -94,7 +95,7 @@ public class Trajectory implements Configurable {
 	private ArrayList<Double> oscilation = new ArrayList<Double>();
 
 	private TrajectoryScanController controller;
-	
+
 	/**
 	 * total time that takes to complete the trajectory
 	 */
@@ -112,12 +113,12 @@ public class Trajectory implements Configurable {
 		//TODO below hard coded object name epicsTrajectoryScanController
 		//Finder finder = Finder.getInstance();
 		//controller = (TrajectoryScanController) finder.find("epicsTrajectoryScanController");
-		
+
 	}
 
 	/**
 	 * default constructor required by CASTOR if used.
-	 * 
+	 *
 	 * @param offset
 	 */
 	public Trajectory(@SuppressWarnings("unused") double offset) {
@@ -142,7 +143,7 @@ public class Trajectory implements Configurable {
 
 	/**
 	 * calculate and define the constant velocity trajectory path
-	 * 
+	 *
 	 * @param start
 	 * @param end
 	 * @param time
@@ -157,7 +158,7 @@ public class Trajectory implements Configurable {
 	}
 	/**
 	 * defines the oscillation path
-	 * 
+	 *
 	 * @param start
 	 * @param end
 	 * @param time
@@ -187,7 +188,7 @@ public class Trajectory implements Configurable {
 	}
 	/**
 	 * defines the oscillation path
-	 * 
+	 *
 	 * @param start
 	 * @param end
 	 * @param time
@@ -220,7 +221,7 @@ public class Trajectory implements Configurable {
 
 	/**
 	 * gets the total element number for this trajectory
-	 * 
+	 *
 	 * @return total element number
 	 */
 	public long getElementNumbers() {
@@ -231,7 +232,7 @@ public class Trajectory implements Configurable {
 
 	/**
 	 * gets total output pulse number i.e. data points for this trajectory.
-	 * 
+	 *
 	 * @return total pulse number
 	 */
 	public long getPulseNumbers() {
@@ -242,7 +243,7 @@ public class Trajectory implements Configurable {
 
 	/**
 	 * gets the element number at which output pulse starts.
-	 * 
+	 *
 	 * @return element number
 	 */
 	public long getStartPulseElement() {
@@ -253,7 +254,7 @@ public class Trajectory implements Configurable {
 
 	/**
 	 * gets the element number at which output pulse stops.
-	 * 
+	 *
 	 * @return element number
 	 */
 	public long getStopPulseElement() {
@@ -264,7 +265,7 @@ public class Trajectory implements Configurable {
 
 	/**
 	 * gets the total trajectory time
-	 * 
+	 *
 	 * @return total time
 	 */
 	public double getTotalTime() {
@@ -275,7 +276,7 @@ public class Trajectory implements Configurable {
 
 	/**
 	 * gets the defined trajectory path
-	 * 
+	 *
 	 * @return double array defining the path
 	 */
 	public double[] getPath() {
@@ -293,7 +294,7 @@ public class Trajectory implements Configurable {
 
 	/**
 	 * calculates the number of elements in the constant velocity section of the trajectory.
-	 * 
+	 *
 	 * @return number of constant velocity elements in the trajectory
 	 */
 	private long calculateN() {
@@ -307,7 +308,7 @@ public class Trajectory implements Configurable {
 	/**
 	 * calculates the trajectory path from given start, end, number of constant velocity points, and number of
 	 * acceleration/deceleration points
-	 * 
+	 *
 	 * @param start
 	 * @param end
 	 * @param n
@@ -328,14 +329,14 @@ public class Trajectory implements Configurable {
 		for (x = (int) (s + n + 1); x < s + n + s + 1; x++)
 			path[x - 1] = (end - start) * ((s + n) * (s + n) + (4 * s + 2 * n) * (x - s - n) - x * x)
 					/ (2 * s * (n - 1)) + end;
-		
+
 		if (x < totalNumElements)
 			for (int i = x; i < totalNumElements; i++)
 				path[i] = 0;
-			
+
 		return path;
 	}
-	
+
 	private double[] scurve(double start, double end, long n, long s) {
 		int x = -1;
 		Vector<Double> spath = new Vector<Double>();
@@ -357,7 +358,7 @@ public class Trajectory implements Configurable {
 
 	/**
 	 * calculate the total time for this trajectory
-	 * 
+	 *
 	 * @param time
 	 * @return total trajectory time
 	 */
@@ -368,7 +369,7 @@ public class Trajectory implements Configurable {
 
 	/**
 	 * gets the acceleration time of the motor
-	 * 
+	 *
 	 * @return acceleration time
 	 */
 	public double getAccelerationTime() {
@@ -377,13 +378,13 @@ public class Trajectory implements Configurable {
 
 	/**
 	 * sets the acceleration time of the motor
-	 * 
+	 *
 	 * @param accelerationTime
 	 */
 	public void setAccelerationTime(double accelerationTime) {
 		this.accelerationTime = accelerationTime;
 	}
-	
+
 	public int getTotalElementNumber() {
 		return totalElementNumber;
 	}

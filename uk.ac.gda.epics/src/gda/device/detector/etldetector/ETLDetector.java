@@ -40,15 +40,15 @@ import org.slf4j.LoggerFactory;
  * Scaler card.
  */
 public class ETLDetector extends DetectorBase implements EtlDetector, Detector, Scannable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ETLDetector.class);
-	
+
 	private String name;
 
 	private String scalerName;
 
 	private String detectorName;
-	
+
 	private int scalerChannelIndex;
 
 	private EpicsScaler scaler;
@@ -64,7 +64,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 	public void setFastshutter(EpicsSimpleMbbinary fastshutter) {
 		this.fastshutter = fastshutter;
 	}
-	
+
 	private boolean shutterOpened=false;
 
 	public boolean isShutterOpened() {
@@ -147,7 +147,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 
 	/**
 	 * Sets the collection time for the scalers
-	 * 
+	 *
 	 * @param time
 	 *            period to count
 	 */
@@ -182,7 +182,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 		return scaler.getDataDimensions();
 		 * would be correct (as scaler.readout() returns an int[]
 		 * and scaler.getDataDimensions returns { getTotalChans() }.
-		 * Unfortunately, scaler.readout(x) returns an int, so 
+		 * Unfortunately, scaler.readout(x) returns an int, so
 		 * we should say this.readout() is 1D. */
 		return new int[] { 1 };
 	}
@@ -194,7 +194,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 
 	/**
 	 * Sets the high voltage input in millivolt for the detector.
-	 * 
+	 *
 	 * @param mv
 	 * @throws DeviceException
 	 */
@@ -209,7 +209,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 
 	/**
 	 * Gets the actual output high voltage at the detector.
-	 * 
+	 *
 	 * @return actual output high voltage at the detector
 	 * @throws DeviceException
 	 */
@@ -225,7 +225,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 
 	/**
 	 * Gets the requested High Voltage from the detector register.
-	 * 
+	 *
 	 * @return requested High Voltage from the detector register
 	 * @throws DeviceException
 	 */
@@ -240,7 +240,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 
 	/**
 	 * Sets the window's upper threshold for the detector.
-	 * 
+	 *
 	 * @param ulim
 	 * @throws DeviceException
 	 */
@@ -255,7 +255,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 
 	/**
 	 * Gets the window's upper threshold from the detector.
-	 * 
+	 *
 	 * @return window's upper threshold from the detector
 	 * @throws DeviceException
 	 */
@@ -270,7 +270,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 
 	/**
 	 * Sets the window's lower threshold of the detector.
-	 * 
+	 *
 	 * @param llim
 	 * @throws DeviceException
 	 */
@@ -285,7 +285,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 
 	/**
 	 * Gets window's lower threshold from the detector.
-	 * 
+	 *
 	 * @return window's lower threshold from the detector
 	 * @throws DeviceException
 	 */
@@ -341,7 +341,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 	 * Does the same job as the other formatPosition method except rather than using a supplied format string, use the
 	 * index of the array of formats this object holds. This is to be used when an object has multiple elements which
 	 * descibe its position and those element require different formatting.
-	 * 
+	 *
 	 * @param format
 	 *            the index in the array of formats to use
 	 * @param number
@@ -405,7 +405,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 
 	/**
 	 * Sets the scaler name.
-	 * 
+	 *
 	 * @param scalerName
 	 *            The scaler name
 	 */
@@ -415,7 +415,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 
 	/**
 	 * Gets the detector name.
-	 * 
+	 *
 	 * @return The detector name
 	 */
 	public String getDetectorName() {
@@ -424,7 +424,7 @@ public class ETLDetector extends DetectorBase implements EtlDetector, Detector, 
 
 	/**
 	 * Sets the detector name.
-	 * 
+	 *
 	 * @param detectorName
 	 *            The detector name
 	 */

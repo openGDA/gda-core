@@ -165,7 +165,7 @@ public class EPICSAreaDetectorImageImpl implements EPICSAreaDetectorImage {
 
 	/**
 	 * Gets the most recent image which has been put to the image plug-in in the Epics environment
-	 * 
+	 *
 	 * @return a 2D dataset containing the image data
 	 * @throws TimeoutException
 	 *             if the data cannot be retrieved in time

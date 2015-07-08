@@ -41,10 +41,10 @@ public interface AreaDetectorLiveView {
 
 	/**
 	 * Invoke the AreaDetector live view to start
-	 * 
+	 *
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void start() throws CAException, TimeoutException, InterruptedException;
 

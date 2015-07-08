@@ -105,7 +105,7 @@ public interface IAdBaseViewController {
 
 		@Override
 		public void updateNumImages(int i) {
-			
+
 		}
 
 	}

@@ -23,9 +23,9 @@ import gda.observable.Observable;
 import gda.observable.ObservableUtil;
 
 /**
- * Simulation of NDPligin. 
- * NDPluginBaseSimulator pluginBase = new NDPluginBaseSimulator(); 
- * pluginBase.setDims(new * int[]{1000,1000}); 
+ * Simulation of NDPligin.
+ * NDPluginBaseSimulator pluginBase = new NDPluginBaseSimulator();
+ * pluginBase.setDims(new * int[]{1000,1000});
  * pluginBase.setDatatype(NDPluginBase.DataType.UINT32 );
  */
 public class NDPluginBaseSimulator implements NDPluginBase {

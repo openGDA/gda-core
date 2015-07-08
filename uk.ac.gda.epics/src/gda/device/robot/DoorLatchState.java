@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * Class for the experimental hutch door latch state, used by robot to decide when safety needs to be checked.
  */
 public class DoorLatchState extends DeviceBase implements Configurable, Findable, InitializationListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DoorLatchState.class);
 
 	// control fields
@@ -103,7 +103,7 @@ public class DoorLatchState extends DeviceBase implements Configurable, Findable
 
 	/**
 	 * creates all required channels
-	 * 
+	 *
 	 * @param config
 	 * @throws FactoryException
 	 */
@@ -119,7 +119,7 @@ public class DoorLatchState extends DeviceBase implements Configurable, Findable
 
 	/**
 	 * gets the raw value from sample state from Robot.
-	 * 
+	 *
 	 * @return the raw value from sample state from Robot
 	 * @throws DeviceException
 	 */

@@ -37,7 +37,7 @@ public class EpicsMCACalibration implements Serializable {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param egu
 	 * @param calo
 	 * @param cals

@@ -63,7 +63,7 @@ public class EpicsMCAPresets implements Serializable {
 		s += "presetSweeps" + presetSweeps;
 		return s;
 	}
-	
+
 	/**
 	 * @return presetCountHigh
 	 */

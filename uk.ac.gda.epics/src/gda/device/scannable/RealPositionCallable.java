@@ -35,16 +35,16 @@ public class RealPositionCallable implements Callable<Double>, Serializable {
 	public Double call() throws Exception {
 		return (Double)this.reader.get(index);
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void writeObject(java.io.ObjectOutputStream out)throws IOException
     {
-		
+
     }
 	@SuppressWarnings("unused")
 	private void readObject( java.io.ObjectInputStream in)throws IOException, ClassNotFoundException
     {
-	
+
     }
 
 

@@ -21,9 +21,9 @@ package gda.device.detector.addetector.triggering;
 import gda.device.detector.areadetector.v17.ADBase;
 
 /**
- * When hardware triggering the acquire period ( which normally would have no effect) has to be set to 
+ * When hardware triggering the acquire period ( which normally would have no effect) has to be set to
  * acquireTime + a 'readout' time.
- * 
+ *
  * Also the time between subsequent triggers pulses must be within 10% time of the acquirePeriod
  */
 public class HardwareTriggeredPixium extends HardwareTriggeredStandard {

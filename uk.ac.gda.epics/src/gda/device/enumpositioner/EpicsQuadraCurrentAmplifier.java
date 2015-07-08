@@ -72,7 +72,7 @@ public class EpicsQuadraCurrentAmplifier extends EnumPositionerBase implements E
 	/**
 	 * Configures the class with the PV information from the gda-interface.xml file. Vendor and model are available
 	 * through EPICS but are currently not supported in GDA.
-	 * 
+	 *
 	 * @see gda.device.DeviceBase#configure()
 	 */
 	@Override
@@ -116,8 +116,8 @@ public class EpicsQuadraCurrentAmplifier extends EnumPositionerBase implements E
 
 			channelManager.creationPhaseCompleted();
 			channelManager.tryInitialize(100);
-		
-		
+
+
 		} catch (Throwable th) {
 			throw new FactoryException("failed to connect to all channels", th);
 		}
@@ -136,7 +136,7 @@ public class EpicsQuadraCurrentAmplifier extends EnumPositionerBase implements E
 
 	/**
 	 * gets the current status position of this device.
-	 * 
+	 *
 	 * @return position in String
 	 * @throws DeviceException
 	 */
@@ -166,7 +166,7 @@ public class EpicsQuadraCurrentAmplifier extends EnumPositionerBase implements E
 			} catch (Throwable th) {
 				throw new DeviceException(chRange.getName() + " failed to moveTo " + position.toString(), th);
 			}
-			
+
 			return;
 		}
 		// if get here then wrong position name supplied
@@ -200,7 +200,7 @@ public class EpicsQuadraCurrentAmplifier extends EnumPositionerBase implements E
 
 	/**
 	 * @return range values
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public String[] getRangeValues() throws DeviceException {
 		return getPositions();

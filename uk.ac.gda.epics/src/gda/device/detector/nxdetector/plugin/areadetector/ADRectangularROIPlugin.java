@@ -37,13 +37,13 @@ public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
 	private final NDROIPVs pvs;
 
 	private final String pluginName;
-	
+
 	private final RectangularROIProvider<Integer> roiProvider; // optional
-	
+
 	public final String INACTIVE_ROI_NAME = "gda_inactive";
 
 	private String ndInputArrayPort;
-	
+
 	private boolean EnablePVPairSupported = true; //this flag is introduced because xmap detector used an old EPICs version
 
 	public ADRectangularROIPlugin(NDROIPVs ndROIPVs, String pluginName, RectangularROIProvider<Integer> roiProvider) {
@@ -51,11 +51,11 @@ public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
 		this.roiProvider = roiProvider;
 		this.pluginName = pluginName;
 	}
-	
+
 	public RectangularROI<Integer> getRoi() throws IllegalArgumentException, IndexOutOfBoundsException, Exception {
 		return roiProvider.getRoi();
 	}
-	
+
 	@Override
 	public String getName() {
 		return pluginName;
@@ -69,7 +69,7 @@ public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
 			throw new IllegalStateException("Could not get ROI", e);
 		}
 	}
-	
+
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		if (getRoi() != null) {
@@ -93,7 +93,7 @@ public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
 			pvs.getXDimension().getEnablePVPair().putWait(false);
 			pvs.getYDimension().getEnablePVPair().putWait(false);
 			pvs.getZDimension().getEnablePVPair().putWait(false);
-			
+
 			// Push these all to zero to make it _really_ clear the region is unused.
 			// This will also implicitly disable those Epics rectangular overlays which have had their DB link fields set to
 			// follow this ROI's PV's.
@@ -106,17 +106,17 @@ public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @return ndArrayPort name that will be configured during prepareforCollection if an roi were configured.
 	 */
 	@Override
 	public String getInputNDArrayPort() {
-		return ndInputArrayPort; 
+		return ndInputArrayPort;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @param nDArrayPort ndArrayPort name that will be configured during prepareforCollection if an roi were configured.
 	 */
 	@Override
@@ -127,7 +127,7 @@ public class ADRectangularROIPlugin extends NullNXPlugin implements NDPlugin{
 	/**
 	 * Get the permanent Epics port name.
 	 * @return portName
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@Override
 	public String getPortName() throws IOException {

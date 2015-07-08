@@ -55,9 +55,9 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 	 * GDA device Name
 	 */
 	private String deviceName;
-	
+
 	protected EpicsConfiguration epicsConfiguration;
-	
+
 	private boolean poll=false;
 
 	private gov.aps.jca.Monitor intensityMonitor, xMonitor, yMonitor;
@@ -110,13 +110,13 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 		setExtraNames(new String[]{ preName+"intensity", preName+"x", preName+"y"});
 
 		outputFormat = new String[inputNames.length + extraNames.length];
-		
+
 		for (int i = 0; i < outputFormat.length; i++) {
 			outputFormat[i] = "%4.10f";
 		}
 		setOutputFormat(outputFormat);
 	}
-	
+
 
 	private void createChannelAccess(String intensityRec, String xPosRec, String yPosRec) throws FactoryException {
 		try {
@@ -135,14 +135,14 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 		value[0] = getIntensity();
 		value[1] = getXPosition();
 		value[2] = getYPosition();
-		
+
 		return value;
 	}
-	
-	
+
+
 	private class DoubleValueMonitorListener implements MonitorListener {
 		/**
-		 * 
+		 *
 		 * @see gov.aps.jca.event.MonitorListener#monitorChanged(gov.aps.jca.event.MonitorEvent)
 		 */
 		private double value;
@@ -156,16 +156,16 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 				logger.error("Error: .RBV should return DOUBLE type value.");
 			}
 		}
-		
+
 		public double getValue(){
 			return value;
 		}
-		
+
 	}
-	
+
 	/**
 	 * @return intensity total
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public double getIntensity() throws DeviceException {
 		if (isPoll()) {
@@ -177,10 +177,10 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 		}
 		return intensityMonitorListener.getValue();
 	}
-	
+
 	/**
 	 * @return x position
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public double getXPosition() throws DeviceException {
 		if (isPoll()) {
@@ -192,10 +192,10 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 		}
 		return xMonitorListener.getValue();
 	}
-	
+
 	/**
 	 * @return y position
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public double getYPosition() throws DeviceException {
 		if (isPoll()) {
@@ -207,7 +207,7 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 		}
 		return yMonitorListener.getValue();
 	}
-	
+
 	@Override
 	public void initializationCompleted() {
 		if (isPoll()) {
@@ -215,9 +215,9 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 		} else {
 			disablePoll();
 		}
-		
+
 	}
-	
+
 	public void disablePoll() {
 		setPoll(false);
 		if (intensityCh != null && intensityMonitorListener != null) {
@@ -266,7 +266,7 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 	public String getDeviceName() {
 		return deviceName;
 	}
-	
+
 	@Override
 	public void setDeviceName(String name) {
 		this.deviceName = name;
@@ -274,7 +274,7 @@ public class EpicsBeamPositionMonitor extends MonitorBase implements Monitor, In
 
 	/**
 	 * Sets the EpicsConfiguration to use.
-	 * 
+	 *
 	 * @param epicsConfiguration the EpicsConfiguration
 	 */
 	public void setEpicsConfiguration(EpicsConfiguration epicsConfiguration) {

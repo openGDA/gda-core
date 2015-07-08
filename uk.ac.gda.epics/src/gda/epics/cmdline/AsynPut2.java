@@ -101,7 +101,7 @@ public class AsynPut2 {
 
 	/**
 	 * Main entry point
-	 * 
+	 *
 	 * @param args
 	 *            arguments
 	 */
@@ -214,7 +214,7 @@ public class AsynPut2 {
 
 	/**
 	 * Connection callback
-	 * 
+	 *
 	 * @param ev
 	 */
 	private void onConnectionChanged(ConnectionEvent ev) {
@@ -269,7 +269,7 @@ public class AsynPut2 {
 
 	/**
 	 * Monitor callback
-	 * 
+	 *
 	 * @param ev
 	 */
 	private void onValueChanged(MonitorEvent ev) {
@@ -292,7 +292,7 @@ public class AsynPut2 {
 
 	/**
 	 * Parse the command line
-	 * 
+	 *
 	 * @param args
 	 * @return success or failure
 	 */
@@ -354,7 +354,7 @@ public class AsynPut2 {
 	// //////////////////////////////////////////////////////////////////
 	/**
 	 * Set process variable name
-	 * 
+	 *
 	 * @param name
 	 *            process variable name
 	 */
@@ -364,7 +364,7 @@ public class AsynPut2 {
 
 	/**
 	 * Get process variable name
-	 * 
+	 *
 	 * @return process variable name
 	 */
 	public String getName() {
@@ -373,7 +373,7 @@ public class AsynPut2 {
 
 	/**
 	 * Set timeout
-	 * 
+	 *
 	 * @param timeout
 	 *            timeout in sec
 	 */
@@ -383,7 +383,7 @@ public class AsynPut2 {
 
 	/**
 	 * Get timeout
-	 * 
+	 *
 	 * @return timeout in sec
 	 */
 	public double getTimeout() {

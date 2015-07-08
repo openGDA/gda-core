@@ -29,11 +29,11 @@ import gov.aps.jca.TimeoutException;
 import gov.aps.jca.event.PutListener;
 
 /**
- * Decorator for EPICS Motor which checks IOC status before connecting and accessing EPICS motor PVs. 
- * This class doesn't decorate all the methods in an {@link EpicsMotor}, but only those methods that 
- * access to EPICS PVs in the specified IOC. If IOC is up and running, access is delegated to the 
+ * Decorator for EPICS Motor which checks IOC status before connecting and accessing EPICS motor PVs.
+ * This class doesn't decorate all the methods in an {@link EpicsMotor}, but only those methods that
+ * access to EPICS PVs in the specified IOC. If IOC is up and running, access is delegated to the
  * decorated motor instance; If IOC is down, any access to PVs in the specified IOC will throw {@link MotorException}
- * except for {@link EpicsMotorDecorator#configure()} which throws {@link FactoryException} if 
+ * except for {@link EpicsMotorDecorator#configure()} which throws {@link FactoryException} if
  * {@link EpicsMotorDecorator#isConfigureAtStartup()} is set to true, otherwise it just delays the configure later.
  * <p>
  * Spring XML configuration example:
@@ -342,7 +342,7 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean isHomed() throws MotorException {
 		if (isIocRunning()) {
@@ -361,6 +361,6 @@ public class EpicsMotorDecorator extends MotorIocDecorator implements MotorUnitS
 	@Override
 	public void update(Object theObserved, Object changeCode) {
 		notifyIObservers(theObserved, changeCode);
-	}	
+	}
 
 }

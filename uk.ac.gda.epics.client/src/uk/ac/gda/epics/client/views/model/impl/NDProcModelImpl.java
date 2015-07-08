@@ -183,7 +183,7 @@ public class NDProcModelImpl extends EPICSBaseModel<NDProcessType> implements Nd
 
 	/**
 	 * Sets the offset value in EPICS
-	 * 
+	 *
 	 * @param offsetValue
 	 * @throws Exception
 	 */

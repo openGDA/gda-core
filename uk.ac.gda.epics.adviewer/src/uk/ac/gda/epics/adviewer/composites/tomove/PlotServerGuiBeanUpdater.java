@@ -40,7 +40,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 
 /**
  * On Observer<Map<GuiParameters, Serializable>> which updates a named {@link GuiBean} on the PlotServer.
- * 
+ *
  * @author zrb13439
  */
 public class PlotServerGuiBeanUpdater implements Observer<Map<GuiParameters, Serializable>> {
@@ -51,7 +51,7 @@ public class PlotServerGuiBeanUpdater implements Observer<Map<GuiParameters, Ser
 
 	/**
 	 * Create the PlotServerGuiBeanUpdater for the named gui.
-	 * 
+	 *
 	 * @param guiName
 	 */
 	public PlotServerGuiBeanUpdater(String guiName) {

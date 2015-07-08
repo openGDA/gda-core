@@ -18,11 +18,11 @@
 
 package gda.device.currentamplifier;
 
-import gda.device.DeviceException;
-import gda.device.scannable.EpicsScannable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.scannable.EpicsScannable;
 
 public class CalibratedAmplifier extends EpicsScannable {
 	private static final Logger logger = LoggerFactory.getLogger(CalibratedAmplifier.class);
@@ -32,8 +32,8 @@ public class CalibratedAmplifier extends EpicsScannable {
 	private long settletime = 150;
 	private boolean autoGain = true;
 	private boolean unidirectrional = true;
-	
-	
+
+
 	public boolean isUnidirectrional() {
 		return unidirectrional;
 	}
@@ -76,9 +76,9 @@ public class CalibratedAmplifier extends EpicsScannable {
 
 	@Override
 	public void asynchronousMoveTo(Object externalPosition) throws DeviceException {
-		throw new DeviceException(getName() + " - I do not move");
+		throw new DeviceException("I do not move");
 	}
-	
+
 	@Override
 	public synchronized Object getPosition() throws DeviceException {
 		double value;
@@ -102,21 +102,21 @@ public class CalibratedAmplifier extends EpicsScannable {
 					scalingAndOffset.increaseAmplification();
 					scalingAndOffset.waitWhileBusy();
 					lastStepDirection = 1;
-				} else 
+				} else
 					break;
 				Thread.sleep(settletime);
 			} catch (GainWithScalingAndOffset.OptionsExhausedException e) {
 				// this is normal when no beam for overloaded
 				break;
 			} catch (GainWithScalingAndOffset.MoveProhibitedException e) {
-				logger.trace("{} - gain change currently prohibited", getName());
+				logger.debug("gain change currently probitited");
 				break;
 			} catch (DeviceException e) {
-				logger.info("{} - exception received trying to adjust gain", getName(), e);
+				logger.info("exception received trying to adjust gain", e);
 				break;
 			} catch (InterruptedException e) {
-				throw new DeviceException(getName() + " - interrupted waiting for gain to be set", e);
-			} 
+				throw new DeviceException("interrupted waiting for gain to be set", e);
+			}
 		} while (true);
 		return scalingAndOffset.getOffset() + value * scalingAndOffset.getScaling();
 	}

@@ -26,7 +26,7 @@ import gda.scan.ScanInformation;
 
 public class SimpleAcquire extends AbstractADTriggeringStrategy {
 
-	
+
 	public SimpleAcquire(ADBase adBase, double readoutTime) {
 		super(adBase);
 		setReadoutTime(readoutTime);
@@ -62,22 +62,22 @@ public class SimpleAcquire extends AbstractADTriggeringStrategy {
 	public int getStatus() throws DeviceException {
 		return getAdBase().getStatus();
 	}
-	
+
 	@Override
 	public void waitWhileBusy() throws InterruptedException, DeviceException {
 		getAdBase().waitWhileStatusBusy();
 	}
-	
+
 	@Override
 	public void stop() throws Exception {
 		completeCollection();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws Exception {
 		completeCollection();
 	}
-	
+
 	@Override
 	public void completeCollection() throws Exception {
 		getAdBase().stopAcquiring();

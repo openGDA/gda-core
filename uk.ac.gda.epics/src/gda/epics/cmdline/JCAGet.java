@@ -55,7 +55,7 @@ public class JCAGet {
 
 	/**
 	 * Main entry point
-	 * 
+	 *
 	 * @param args
 	 *            arguments
 	 */
@@ -145,7 +145,7 @@ public class JCAGet {
 
 	/**
 	 * Parse the command line
-	 * 
+	 *
 	 * @param args
 	 * @return success or failure
 	 */

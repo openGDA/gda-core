@@ -86,7 +86,7 @@ public class EpicsAreaDetectorROIImpl implements EpicsAreaDetectorROI{
 
 	@Override
 	public void reset() throws CAException, InterruptedException {
-		setEnable(true);		
+		setEnable(true);
 	}
 
 
@@ -98,6 +98,6 @@ public class EpicsAreaDetectorROIImpl implements EpicsAreaDetectorROI{
 		} else {
 			ecl.caput(channelEnable, "No");
 		}
-	}	
+	}
 
 }

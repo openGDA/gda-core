@@ -113,7 +113,7 @@ public class AdBaseModelSimulator implements AdBaseModel {
 	@Override
 	public void setAcqPeriod(double periodTime) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

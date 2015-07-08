@@ -18,11 +18,11 @@
 
 package gda.device.scannable;
 
-import java.io.IOException;
-
 import gda.device.DeviceException;
 import gda.epics.LazyPVFactory;
 import gda.epics.PVWithSeparateReadback;
+
+import java.io.IOException;
 
 public class PIE725ConstantVelocityRasterScannable3Axis extends PIE725ConstantVelocityRasterScannable {
 

@@ -18,11 +18,6 @@
 
 package gda.device.zebra;
 
-import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.enumpositioner.ValveBase;
@@ -31,6 +26,11 @@ import gda.device.zebra.controller.impl.ZebraImpl;
 import gda.factory.FactoryException;
 import gda.observable.Observable;
 import gda.observable.Observer;
+
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An {@link EnumPositioner} that operates a Zebra soft input.
@@ -53,9 +53,9 @@ public class ZebraShutterPositioner extends ValveBase {
 
 	@Override
 	public void configure() throws FactoryException {
-		
+
 		setPositions(new String[] {OPEN, CLOSE});
-		
+
 		try {
 			zebra.getSoftInputObservable().addObserver(new Observer<SoftInputChangedEvent>() {
 				@Override
@@ -81,13 +81,13 @@ public class ZebraShutterPositioner extends ValveBase {
 
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-		
+
 		final String newPos = position.toString();
-		
+
 		if (!newPos.equals(OPEN) && !newPos.equals(CLOSE)) {
 			throw new DeviceException("Invalid position: " + position);
 		}
-		
+
 		set(newPos.equals(OPEN));
 	}
 

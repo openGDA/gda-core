@@ -18,10 +18,10 @@
 
 package gda.spring;
 
-import java.util.HashMap;
-
 import gda.device.epicsdevice.EpicsDevice;
 import gda.device.epicsdevice.FindableEpicsDevice;
+
+import java.util.HashMap;
 
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
@@ -30,13 +30,13 @@ import org.springframework.util.StringUtils;
 
 /**
  * Spring {@link FactoryBean} for creating {@link FindableEpicsDevice}s.
- * 
+ *
  * Either recordPvs or deviceName must be specified, setting both or neither will cause an exception.
  */
 public class FindableEpicsDeviceFactoryBean implements FactoryBean<FindableEpicsDevice>, InitializingBean, BeanNameAware {
 
 	protected String name;
-	
+
 	@Override
 	public void setBeanName(String name) {
 		this.name = name;
@@ -44,9 +44,9 @@ public class FindableEpicsDeviceFactoryBean implements FactoryBean<FindableEpics
 
 	protected HashMap<String, String> recordPvs;
 	private String deviceName;
-	
+
 	boolean local=false;
-	
+
 	public boolean isLocal() {
 		return local;
 	}
@@ -56,31 +56,31 @@ public class FindableEpicsDeviceFactoryBean implements FactoryBean<FindableEpics
 	}
 
 	protected boolean dummyMode;
-	
+
 	/**
 	 * Sets the PVs held by the EPICS device.
-	 * 
+	 *
 	 * @param recordPvs the PVs
 	 */
 	public void setRecordPvs(HashMap<String, String> recordPvs) {
 		this.recordPvs = recordPvs;
 	}
-	
+
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
 	}
-	
+
 	/**
 	 * Sets whether the EPICS device should be in dummy mode.
-	 * 
+	 *
 	 * @param dummyMode {@code true} to put the EPICS device into dummy mode
 	 */
 	public void setDummyMode(boolean dummyMode) {
 		this.dummyMode = dummyMode;
 	}
-	
+
 	protected FindableEpicsDevice findableEpicsDevice;
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (recordPvs == null && deviceName == null) {
@@ -89,7 +89,7 @@ public class FindableEpicsDeviceFactoryBean implements FactoryBean<FindableEpics
 		if (recordPvs != null && deviceName != null) {
 			throw new IllegalStateException("Both recordPVs and deviceName have been set for EPICS device " + StringUtils.quote(name));
 		}
-		
+
 		String safeName = name.replace(".", "_");
 		if (deviceName != null) {
 			findableEpicsDevice = new FindableEpicsDevice();

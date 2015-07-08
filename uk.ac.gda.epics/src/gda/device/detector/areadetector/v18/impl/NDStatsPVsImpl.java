@@ -41,7 +41,7 @@ public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 
 	public static NDStatsPVsImpl createFromBasePVName(String basePVName) {
 		NDPluginBasePVsImpl pluginBasePVs =  NDPluginBasePVsImpl.createFromBasePVName(basePVName);
-		
+
 		NDStatsPVsImpl statsPVsImpl = new NDStatsPVsImpl();
 		statsPVsImpl.setBasePVName(basePVName);
 		statsPVsImpl.setPluginBasePVs(pluginBasePVs);
@@ -50,10 +50,10 @@ public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		
+
 		return statsPVsImpl;
 	}
-	
+
 	/**
 	 * Map to PV names
 	 */
@@ -121,7 +121,7 @@ public class NDStatsPVsImpl implements InitializingBean, NDStatsPVs {
 		tsNumPointsPV = LazyPVFactory.newIntegerPV(fullname(PVNames.TSNumPoints.name()));
 
 		tsCurrentPointPV = LazyPVFactory.newReadOnlyIntegerPV(fullname(PVNames.TSCurrentPoint.name()));
-		
+
 		tsReadScanPV = LazyPVFactory.newIntegerPV(fullname("TSRead.SCAN"));
 
 		tsArrayPVMap = new HashMap<NDStatsPVs.Stat, ReadOnlyPV<Double[]>>();

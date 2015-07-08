@@ -21,7 +21,7 @@ package gda.device.detector.nxdetector.roi;
 public class SimpleRectangularROIProvider implements RectangularROIProvider<Integer> {
 
 	private RectangularROI<Integer> roi;
-	
+
 	public void setRoi(RectangularROI<Integer> roi) {
 		this.roi = roi;
 	}

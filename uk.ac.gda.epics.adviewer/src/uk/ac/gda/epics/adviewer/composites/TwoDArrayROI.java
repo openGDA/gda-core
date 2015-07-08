@@ -94,8 +94,8 @@ public class TwoDArrayROI extends Composite {
 		monitoringBtn = new Button(runningCmp, SWT.NONE);
 		monitoringBtn.setAlignment(SWT.LEFT);
 		monitoringBtn.setText(SWITCH_OFF);
-		
-		
+
+
 		minmaxAndBtnCmp = new Composite(stateGroup, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true,false).applyTo(minmaxAndBtnCmp);
 		GridLayout gl_composite_2 = new GridLayout(2, false);
@@ -105,7 +105,7 @@ public class TwoDArrayROI extends Composite {
 		gl_composite_2.marginWidth = 0;
 		gl_composite_2.horizontalSpacing = 0;
 		minmaxAndBtnCmp.setLayout(gl_composite_2);
-		
+
 		minmaxcmp = new Composite(minmaxAndBtnCmp, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true,false).applyTo(minmaxcmp);
 
@@ -123,9 +123,9 @@ public class TwoDArrayROI extends Composite {
 		});
 		btnSetToView.setText("Use\nVisible\nand\nStart");
 		GridDataFactory.fillDefaults().applyTo(btnSetToView);
-		
-		
-		
+
+
+
 		GridLayout gl_composite = new GridLayout(1, false);
 		gl_composite.verticalSpacing = 0;
 		gl_composite.marginWidth = 0;
@@ -133,9 +133,9 @@ public class TwoDArrayROI extends Composite {
 		gl_composite.horizontalSpacing = 0;
 		minmaxcmp.setLayout(gl_composite);
 
-		
-		
-		
+
+
+
 		minX = new ValueBox1<Integer>(minmaxcmp, SWT.NONE);
 		((GridData) minX.getControl().getLayoutData()).horizontalAlignment = SWT.LEFT;
 		minX.setLabel("Min X");
@@ -325,7 +325,7 @@ public class TwoDArrayROI extends Composite {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				try {
 					if (getMonitoring()) {
 						ndRoi.disableX();
@@ -336,12 +336,12 @@ public class TwoDArrayROI extends Composite {
 				} catch (Exception ex) {
 					logger.error("Error responding to start_stop button", ex);
 				}
-				
+
 			}
 		});
 
 		plottingSystem = abstractPlottingSystem;
-		
+
 	}
 
 	public void addMonitoringbtnSelectionListener(SelectionListener listener) {
@@ -372,12 +372,12 @@ public class TwoDArrayROI extends Composite {
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void createEmptyLabel(Composite composite){
 		new Label(composite, SWT.NONE);
 	}
-	
+
 }
 
 class ValueBox1<T> extends StandardBox {
@@ -428,5 +428,5 @@ class ValueBox1<T> extends StandardBox {
 		};
 		observable.addObserver(observer);
 	}
-	
+
 }

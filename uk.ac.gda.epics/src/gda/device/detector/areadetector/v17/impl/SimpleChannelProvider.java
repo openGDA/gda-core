@@ -38,9 +38,9 @@ public class SimpleChannelProvider {
 	SimpleChannelProvider( EpicsController epicsController, IPVProvider pvProvider){
 		this.epicsController = epicsController;
 		this.pvProvider = pvProvider;
-		
+
 	}
-	
+
 	/**
 	 * Map that stores the channel against the PV name
 	 */

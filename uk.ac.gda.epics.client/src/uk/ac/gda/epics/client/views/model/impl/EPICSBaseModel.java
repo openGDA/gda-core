@@ -42,7 +42,7 @@ import org.springframework.beans.factory.InitializingBean;
 /**
  * Base model class - model represents the data that is retrieved from EPICS to be represented on the client side UI.
  * This class provides the basic functionality for the rest of the models to inherit.
- * 
+ *
  * @author rsr31645
  */
 public abstract class EPICSBaseModel<T> implements InitializingBean, InitializationListener, Findable {
@@ -103,7 +103,7 @@ public abstract class EPICSBaseModel<T> implements InitializingBean, Initializat
 
 	/**
 	 * The plugins composites the NDPluginBaseType, the device name is the same
-	 * 
+	 *
 	 * @return {@link NDPluginBaseType}
 	 * @throws FactoryException
 	 */

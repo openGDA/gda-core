@@ -25,5 +25,5 @@ public class Ids {
 	public static final String COMMANDS_SET_LIVEVIEW_SCALE="uk.ac.gda.epics.adviewer.commands.setLiveViewScale";
 	public static final String COMMANDS_SHOW_LIVEVIEW="uk.ac.gda.epics.adviewer.showLiveView";
 	public static final String COMMANDS_FIT_IMAGE_TO_WINDOW="uk.ac.gda.epics.adviewer.command.zoomToFit";
-	
+
 }

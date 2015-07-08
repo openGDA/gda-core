@@ -18,12 +18,12 @@
 
 package uk.ac.gda.epics.client.views.model;
 
-import uk.ac.gda.epics.client.views.controllers.IAdBaseViewController;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
+import uk.ac.gda.epics.client.views.controllers.IAdBaseViewController;
 
 public interface AdBaseModel {
-	
+
 	String getPortName() throws Exception;
 
 	/**
@@ -59,7 +59,7 @@ public interface AdBaseModel {
 
 	/**
 	 * Sets the exposure time
-	 * 
+	 *
 	 * @param exposureTime
 	 * @throws Exception
 	 */

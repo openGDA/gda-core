@@ -33,7 +33,7 @@ public class MerlinThresholdSweepTrigger extends SimpleAcquire {
 	private static final Logger logger = LoggerFactory.getLogger(MerlinThresholdSweepTrigger.class);
 
 	private final ADDriverMerlinThresholdSweep sweepDriver;
-	
+
 	private Integer imagesPerSweep;
 
 	public MerlinThresholdSweepTrigger(ADBase adBase, ADDriverMerlinThresholdSweep sweepDriver) {
@@ -58,12 +58,12 @@ public class MerlinThresholdSweepTrigger extends SimpleAcquire {
 		logger.info("images per sweep = " + numImages);
 		configureAcquireAndPeriodTimes(collectionTime);
 		getAdBase().setNumImages(1);  // the threshold scan itself creates multiple images
-		
+
 		if (sweepDriver.isUseTriggerModeNotStartThresholdScanning()) {
 			getAdBase().setImageMode(ADDriverMerlinThresholdSweep.MerlinThresholdSweepImageMode.THRESHOLD.ordinal());
 		}
 	}
-	
+
 	@Override
 	public void collectData() throws Exception {
 		if (sweepDriver.isUseTriggerModeNotStartThresholdScanning()) {
@@ -79,15 +79,15 @@ public class MerlinThresholdSweepTrigger extends SimpleAcquire {
 		logger.warn(msg);
 		//InterfaceProvider.getTerminalPrinter().print(msg);
 		Thread.sleep(2000);
-		
+
 		sweepDriver.getStartThresholdScanningPV().putNoWait(true);
-		
+
 		msg = "Sleeping for 1s after starting threshold scan to allow DetectotState_RBV to read busy";
 		//InterfaceProvider.getTerminalPrinter().print(msg);
 		logger.warn(msg);
 		Thread.sleep(1000);
 	}
-	
+
 	@Override
 	public int getNumberImagesPerCollection(double collectionTime) throws IOException {
 		return sweepDriver.getNumberPointsPerSweep();

@@ -103,7 +103,7 @@ public class CurrentSamplePosition extends DeviceBase implements Configurable, F
 
 	/**
 	 * creates all required channels
-	 * 
+	 *
 	 * @param config
 	 * @throws FactoryException
 	 */
@@ -119,7 +119,7 @@ public class CurrentSamplePosition extends DeviceBase implements Configurable, F
 
 	/**
 	 * gets the actual sample position number
-	 * 
+	 *
 	 * @return actual sample position
 	 * @throws DeviceException
 	 */

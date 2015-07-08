@@ -22,15 +22,15 @@ import gda.device.detector.areadetector.v17.NDStats;
 
 
 public interface NDStatsGroup {
-	
+
 	String getName();
-	
+
 	String[] getFieldNames();
 
 	String[] getFieldFormats();
 
 	Double[] getCurrentDoubleVals() throws Exception;
-	
+
 	NDStats getNdStats();
-	
+
 }

@@ -18,10 +18,10 @@
 
 package gda.device.detector.areadetector.v17;
 
-/** 
+/**
  * The ADCommon interface allows beans whose classes implement either the ADBase or GetPluginBaseAvailable
  * interfaces to be referenced by beans which could take either as their input.
- * 
+ *
  * For instance an NDFile could be told to take it's input either direct from the camera (an ADBaseImpl)
  * or from an NDProcessImpl, thus configure its NDArrayPort from it's inputs actual PortName_RBV, rather
  * than having the port name string hard coded into the bean.
@@ -30,12 +30,12 @@ public interface ADCommon {
 
 	/**
 	 * Get the port name used to connect this NDPluginBase/ADBase to downstream plugins by their
-	 * 
+	 *
 	 */
 	String getPortName_RBV() throws Exception;
 
 	/* Comparing ADBase & NDPluginBase interfaces, possible candidates to move in here are:
-	 * 
+	 *
 	 * getArrayRate_RBV
 	 * getArrayCounter_RBV
 	 * getArrayCounter

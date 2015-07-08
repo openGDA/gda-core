@@ -19,7 +19,6 @@
 package gda.device.detector.nxdetector.plugin.areadetector;
 
 import gda.device.DeviceException;
-import gda.device.detector.NXDetectorData;
 import gda.device.detector.areadetector.v18.NDStatsPVs.BasicStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.CentroidStat;
 import gda.device.detector.areadetector.v18.NDStatsPVs.Stat;
@@ -52,7 +51,7 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 	final private String name;
 
 	private final String roiInputPort;
-	
+
 	private final RectangularROIProvider<Integer> roiProvider;
 
 	private PositionInputStream<List<NXDetectorDataAppender>> combinedInputStream;
@@ -62,12 +61,12 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 			String roiInputPort, RectangularROIProvider<Integer> roiProvider) {
 		super();
 		this.name = name;
-		this.roiPlugin = roiPlugin; 
+		this.roiPlugin = roiPlugin;
 		this.statsPlugin = statsPlugin;
 		this.roiInputPort = roiInputPort;
 		this.roiProvider = roiProvider;
 	}
-	
+
 	@Override
 	public String toString() {
 		String str = "";
@@ -79,8 +78,8 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 		}
 		for (CentroidStat stat : getEnabledCentroidStats()) {
 			names.add(stat.name().toLowerCase());
-		} 
-		
+		}
+
 		str += Arrays.toString(names.toArray());
 		if (roi == null) {
 			str += " *disabled*";
@@ -89,7 +88,7 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 		}
 		return str;
 	}
-	
+
 	public ADRectangularROIPlugin getRoiPlugin() {
 		return roiPlugin;
 	}
@@ -129,7 +128,7 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 		} else {
 			throw new IllegalStateException("Not configured to have a manually configurable roi");
 		}
-	}	
+	}
 
 	@Override
 	public RectangularROI<Integer> getRoi() {
@@ -139,7 +138,7 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 			throw new RuntimeException("Problem querying the configured roiProvider: " + e.getMessage(), e);
 		}
 	}
-	
+
 	public void setRoi(Integer xstart, Integer ystart, Integer xsize, Integer ysize, String name) {
 		setRoi(new ImutableRectangularIntegerROI(xstart, ystart, xsize, ysize, name));
 	}
@@ -163,7 +162,7 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 //		if (!getEnabledStats().isEmpty() && (getRoi()!=null)) {
 //			throw new IllegalStateException("An ROI was configured, but no stats enabled");
 //		}
-		
+
 		boolean enabled = (!getEnabledStats().isEmpty() && (getRoi()!=null));
 
 		if (enabled) {
@@ -171,9 +170,9 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 			String roiPortName = getRoiPlugin().getPortName();
 			getStatsPlugin().setInputNDArrayPort(roiPortName);
 		}
-		
+
 		// prepare even if disabled as preparation will in this case disable the plugins
-		
+
 		getRoiPlugin().prepareForCollection(numberImagesPerCollection, scanInfo);
 		getStatsPlugin().prepareForCollection(numberImagesPerCollection, scanInfo);
 		List<PositionInputStream<NXDetectorDataAppender>> streams = new ArrayList<PositionInputStream<NXDetectorDataAppender>>();
@@ -224,12 +223,12 @@ public class ADRoiStatsPair implements NXPlugin, RectangularROIProvider<Integer>
 	public List<String> getInputStreamFormats() {
 		return getStatsPlugin().getInputStreamFormats();
 	}
-	
+
 	@Override
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
 		List<List<NXDetectorDataAppender>> newAppenderPairs = combinedInputStream.read(maxToRead);
-		
+
 		List<NXDetectorDataAppender> appenders = new ArrayList<NXDetectorDataAppender>();
 		for (List<NXDetectorDataAppender> appenderPair : newAppenderPairs) {
 			appenders.add(new NXDetectorSerialAppender(appenderPair));

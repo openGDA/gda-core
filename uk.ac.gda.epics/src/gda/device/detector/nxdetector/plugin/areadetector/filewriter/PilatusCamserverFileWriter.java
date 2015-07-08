@@ -19,15 +19,15 @@
 package gda.device.detector.nxdetector.plugin.areadetector.filewriter;
 
 public class PilatusCamserverFileWriter extends SingleImagePerFileWriter {
-	
+
 	public PilatusCamserverFileWriter() {
 		super();
 	}
-	
+
 	PilatusCamserverFileWriter(String detectorName) {
 		super(detectorName);
 	}
-	
+
 	@Override
 	public boolean willRequireCallbacks() {
 		return false;

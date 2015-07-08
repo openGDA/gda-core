@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Class to communicate with an epics MCA record. The MCA record controls and acquires data from a multi-channel
  * analyser (MCA).
- * 
+ *
  * @see <a href="http://cars9.uchicago.edu/software/epics/mcaRecord.html">MCARecord</a>
  * @since 7.3
  */
@@ -478,7 +478,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * Constructor taking a PV name, you must run .configure() to fully initialise the object
-	 * 
+	 *
 	 * @param name
 	 *            String, the PV name
 	 */
@@ -490,7 +490,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	/**
 	 * constructor allowing setting of object name and MCA record name, you must run .configure() to fully initialise
 	 * the object
-	 * 
+	 *
 	 * @param name -
 	 *            the object name
 	 * @param recordName -
@@ -504,7 +504,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * object initialisation - create all EPICS channels required
-	 * 
+	 *
 	 * @see gda.device.DeviceBase#configure()
 	 */
 	@Override
@@ -548,7 +548,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * actually create most channels provides MCA records
-	 * 
+	 *
 	 * @param mcaRecordName
 	 * @throws FactoryException
 	 */
@@ -620,7 +620,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	// **************** Control fields ********************************
 	/**
 	 * starts data acquisition
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void startAcquisition() throws DeviceException {
@@ -635,7 +635,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * stops data acquisition
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void stopAcquisition() throws DeviceException {
@@ -649,7 +649,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * Activates the MCA using the Erase & Start acquire.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void eraseStartAcquisition() throws DeviceException {
@@ -664,7 +664,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets acquire status from MCA (poll from hardware)
-	 * 
+	 *
 	 * @return 0 done, 1 Acquire
 	 * @throws DeviceException
 	 */
@@ -678,7 +678,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * get current MCA status
-	 * 
+	 *
 	 * @return MCA status
 	 * @throws DeviceException
 	 */
@@ -698,7 +698,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * initiates record process
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void processRecord() throws DeviceException {
@@ -712,7 +712,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * initiates reading of the MCA's data.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void read() throws DeviceException {
@@ -726,7 +726,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * erases the data array of the MCA
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void clear() throws DeviceException {
@@ -740,7 +740,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the channel advance source in MCS mode
-	 * 
+	 *
 	 * @return 0 - Internal clock, 1 - external signal
 	 * @throws DeviceException
 	 */
@@ -755,7 +755,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets channel advance source in MCS mode
-	 * 
+	 *
 	 * @param s
 	 *            0 - Internal clock or 1 - External signal.
 	 * @throws DeviceException
@@ -776,7 +776,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the number of channels to use for spectrum acquisition
-	 * 
+	 *
 	 * @return the number of channels to use
 	 * @throws DeviceException
 	 */
@@ -791,7 +791,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the number of channels (array elements) to use for spectrum acquisition
-	 * 
+	 *
 	 * @param channels
 	 * @throws DeviceException
 	 */
@@ -813,7 +813,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	 * sets the time sequence number which tell the hardware which memory region to use for data acquisition, readout
 	 * and erasing. The main use of this field is for time-resolved spectroscopy, since it permits rapidly changing the
 	 * location of data acquisition, without having to read and erase the acquisition memory between successive spectra.
-	 * 
+	 *
 	 * @param sequence
 	 * @throws DeviceException
 	 */
@@ -828,7 +828,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the time sequence number which is the memory region hardware used for data acquisition
-	 * 
+	 *
 	 * @return the time sequence number
 	 * @throws DeviceException
 	 */
@@ -845,7 +845,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * Gets the Dwell Time (DWEL) per channel, used only in MCS mode and CHAS is internal.
-	 * 
+	 *
 	 * @return Dwell Time
 	 * @throws DeviceException
 	 */
@@ -863,7 +863,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	/**
 	 * Sets the dwell time (DWEL) to tell the hardware how many seconds to spend in each channel when the hardware is in
 	 * MCS mode and the channel advance source is "Internal"
-	 * 
+	 *
 	 * @param time
 	 * @throws DeviceException
 	 */
@@ -879,7 +879,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the Channel Advance Pre-Scale Factor when in MCS mode and source is "External". Default is 1.
-	 * 
+	 *
 	 * @return the channel advance pre-scale factor
 	 * @throws DeviceException
 	 */
@@ -895,7 +895,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	/**
 	 * sets the Channel Advance pre-Scale factor when in MCS mode and source is "External". The hardware will advance to
 	 * the next channel after receiving PSCL external pulses. Default is 1.
-	 * 
+	 *
 	 * @param n
 	 * @throws DeviceException
 	 */
@@ -911,7 +911,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	/**
 	 * gets the preset real time from hardware for how many seconds to acquire data according to a free running clock
 	 * (real time).
-	 * 
+	 *
 	 * @return preset real time
 	 * @throws DeviceException
 	 */
@@ -927,7 +927,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	/**
 	 * sets the preset real time to the hardware for how many seconds to acquire data according to a free running clock
 	 * (real time). sets 0.0 instructs the hardware to ignore it.
-	 * 
+	 *
 	 * @param time
 	 * @throws DeviceException
 	 */
@@ -943,7 +943,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	/**
 	 * gets the preset live time from hardware for how many seconds to acquire data according to a clock which counts
 	 * only when hardware is ready to accept data (live time).
-	 * 
+	 *
 	 * @return preset live time
 	 * @throws DeviceException
 	 */
@@ -959,7 +959,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	/**
 	 * sets the preset live time to the hardware for how many seconds to acquire data according to a clock which counts
 	 * only when hardware is ready to accept data (live time). Sets it to 0.0 instructs the hardware to ignore it.
-	 * 
+	 *
 	 * @param time
 	 * @throws DeviceException
 	 */
@@ -974,7 +974,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the preset counts from hardware
-	 * 
+	 *
 	 * @return preset counts
 	 * @throws DeviceException
 	 */
@@ -991,7 +991,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	 * sets the preset counts which tells the hardware that data acquisition is to be halted when the sum of the numbers
 	 * of counts acquired in channels PCTL through PCTH inclusive reaches this value. Sets it to 0.0 instructs the
 	 * hardware to ignore it.
-	 * 
+	 *
 	 * @param counts
 	 * @throws DeviceException
 	 */
@@ -1006,7 +1006,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the preset count low channel from hardware
-	 * 
+	 *
 	 * @return preset count low channel
 	 * @throws DeviceException
 	 */
@@ -1021,7 +1021,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the preset count low channel
-	 * 
+	 *
 	 * @param channel
 	 * @throws DeviceException
 	 */
@@ -1036,7 +1036,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the preset count high channel from hardware
-	 * 
+	 *
 	 * @return preset count high channel
 	 * @throws DeviceException
 	 */
@@ -1051,7 +1051,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the preset count high channel
-	 * 
+	 *
 	 * @param channel
 	 * @throws DeviceException
 	 */
@@ -1066,7 +1066,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the preset number of sweeps from hardware
-	 * 
+	 *
 	 * @return number of sweeps
 	 * @throws DeviceException
 	 */
@@ -1082,7 +1082,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	/**
 	 * sets the preset number of sweeps which tell the hardware that data acquisition in MCS mode is to continue until
 	 * the preset number of sweeps have completed.
-	 * 
+	 *
 	 * @param sweeps
 	 * @throws DeviceException
 	 */
@@ -1097,7 +1097,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the the operation mode of the MCA
-	 * 
+	 *
 	 * @param mode
 	 * @throws DeviceException
 	 */
@@ -1112,7 +1112,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the the operation mode of the MCA
-	 * 
+	 *
 	 * @return mode
 	 * @throws DeviceException
 	 */
@@ -1140,7 +1140,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	// ************** Calibration fields ******************************
 	/**
 	 * gets calibration units name from hardware
-	 * 
+	 *
 	 * @return calibration units name
 	 * @throws DeviceException
 	 */
@@ -1155,7 +1155,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the calibration units name
-	 * 
+	 *
 	 * @param unitName
 	 * @throws DeviceException
 	 */
@@ -1170,7 +1170,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets calibration offset from hardware
-	 * 
+	 *
 	 * @return calibration offset
 	 * @throws DeviceException
 	 */
@@ -1185,7 +1185,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the calibration offset
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 */
@@ -1200,7 +1200,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets calibration slope from hardware
-	 * 
+	 *
 	 * @return calibration slope
 	 * @throws DeviceException
 	 */
@@ -1215,7 +1215,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the calibration slope
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 */
@@ -1230,7 +1230,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets calibration Quadratic from hardware
-	 * 
+	 *
 	 * @return calibration quadratic
 	 * @throws DeviceException
 	 */
@@ -1245,7 +1245,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the calibration Quadratic
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 */
@@ -1261,7 +1261,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	/**
 	 * /** gets calibration Two Theta i.e the two theta angle of the detector useful in energy-dispersive diffraction
 	 * experiments
-	 * 
+	 *
 	 * @return two theta angle of the detector
 	 * @throws DeviceException
 	 */
@@ -1277,7 +1277,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	/**
 	 * sets the calibration Two Theta, i.e the two theta angle of the detector useful in energy-dispersive diffraction
 	 * experiments
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 */
@@ -1293,7 +1293,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 	// **************** Status Fields ***********************************
 	/**
 	 * gets the elapsed real time from hardware
-	 * 
+	 *
 	 * @return elapsed real time
 	 * @throws DeviceException
 	 */
@@ -1308,7 +1308,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the elapsed live time from hardware
-	 * 
+	 *
 	 * @return elapsed live time
 	 * @throws DeviceException
 	 */
@@ -1323,7 +1323,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the number of actual counts in preset region
-	 * 
+	 *
 	 * @return number of actual counts
 	 * @throws DeviceException
 	 */
@@ -1338,7 +1338,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the average dead time of the detector
-	 * 
+	 *
 	 * @return average dead time of the detector
 	 * @throws DeviceException
 	 */
@@ -1353,7 +1353,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the instantaneous dead time of the detector
-	 * 
+	 *
 	 * @return instantaneous dead time of the detector
 	 * @throws DeviceException
 	 */
@@ -1368,7 +1368,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the absolute acquisition start time from IOC
-	 * 
+	 *
 	 * @return absolute acquisition start time
 	 * @throws DeviceException
 	 */
@@ -1383,7 +1383,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the low channel for the specified region.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @return the region's low channel
 	 * @throws DeviceException
@@ -1402,7 +1402,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the low channel for the specified region.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @param lowChannel
 	 * @throws DeviceException
@@ -1421,7 +1421,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the high channel for the specified region.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @return the region's high channel
 	 * @throws DeviceException
@@ -1440,7 +1440,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the high channel for the specified region.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @param highChannel
 	 * @throws DeviceException
@@ -1459,7 +1459,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the Background for the specified region.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @return the region's high channel
 	 * @throws DeviceException
@@ -1478,7 +1478,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the Background for the specified region.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @param highChannel
 	 * @throws DeviceException
@@ -1497,7 +1497,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the is-preset for the specified region.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @return true or false
 	 * @throws DeviceException
@@ -1516,7 +1516,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the is-preset for the specified region.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @param b
 	 *            true or false
@@ -1539,7 +1539,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the total number of counts in the specified region.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @return the region's counts
 	 * @throws DeviceException
@@ -1558,7 +1558,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the net number of counts in the specified region.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @return the region's counts
 	 * @throws DeviceException
@@ -1577,7 +1577,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the preset count of the specified region.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @return the region's preset count
 	 * @throws DeviceException
@@ -1596,7 +1596,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the preset count of the specified region.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @param count
 	 * @throws DeviceException
@@ -1615,7 +1615,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the preset count of the specified region.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @return the region's name
 	 * @throws DeviceException
@@ -1634,7 +1634,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the name of the specified region.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @param name
 	 * @throws DeviceException
@@ -1672,7 +1672,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets data array to the MCA
-	 * 
+	 *
 	 * @param data
 	 * @throws DeviceException
 	 */
@@ -1687,7 +1687,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the maximum number of channels (array elements) allocated at iocInit.
-	 * 
+	 *
 	 * @return Maximum number of channels
 	 * @throws DeviceException
 	 */
@@ -1702,7 +1702,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the number of channels read.
-	 * 
+	 *
 	 * @return number of channels read
 	 * @throws DeviceException
 	 */
@@ -1717,7 +1717,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * Sets number of region of interest
-	 * 
+	 *
 	 * @param numberOfRegions
 	 */
 	public void setNumberOfRegions(int numberOfRegions){
@@ -1726,7 +1726,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets number of region of interest
-	 * 
+	 *
 	 * @return number of regions
 	 */
 	public int getNumberOfRegions() {
@@ -1913,7 +1913,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * Gets the MCA record name - shared name between GDA and EPICS for phase I beamlines.
-	 * 
+	 *
 	 * @return the Epics MCA record name.
 	 */
 	public String getEpicsMcaRecordName() {
@@ -1922,7 +1922,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * Sets the MCA record name - shared name between GDA and EPICS for phase I beamlines.
-	 * 
+	 *
 	 * @param epicsMcaRecordName
 	 */
 	public void setEpicsMcaRecordName(String epicsMcaRecordName) {
@@ -1931,7 +1931,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the device name shared by GDA and EPICS
-	 * 
+	 *
 	 * @return device name
 	 */
 	public String getDeviceName() {
@@ -1940,7 +1940,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets the device name which is shared by GDA and EPICS
-	 * 
+	 *
 	 * @param deviceName
 	 */
 	public void setDeviceName(String deviceName) {
@@ -1949,7 +1949,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets MCA record name - the actual EPICS Record name after remove field name
-	 * 
+	 *
 	 * @return MCA record name
 	 */
 	public String getMcaRecordName() {
@@ -1958,7 +1958,7 @@ public class EpicsMcaController extends DeviceBase implements Configurable, Find
 
 	/**
 	 * sets MCA record name - the actual EPICS Record name after remove field name
-	 * 
+	 *
 	 * @param mcaRecordName
 	 */
 	public void setMcaRecordName(String mcaRecordName) {

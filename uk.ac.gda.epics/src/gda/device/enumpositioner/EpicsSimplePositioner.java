@@ -21,7 +21,6 @@ package gda.device.enumpositioner;
 import gda.device.DeviceException;
 import gda.device.EnumPositionerStatus;
 import gda.epics.connection.EpicsController;
-import gda.epics.connection.STSHandler;
 import gda.epics.util.JCAUtils;
 import gda.factory.FactoryException;
 import gov.aps.jca.CAStatus;
@@ -42,7 +41,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.python.antlr.PythonParser.if_stmt_return;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +57,7 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 	protected EpicsController controller;
 	protected Channel currentPositionChnl;
 	private PutCallbackListener pcbl;
-	
+
 	private Map<String, String> values;
 	private Map<String, String> reverseValues;
 	protected HashSet<Channel> monitorInstalledSet;
@@ -70,10 +68,10 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 	}
 	@Override
 	public void configure() throws FactoryException {
-		
+
 		// cf. ScannableMotor.configure
 		this.inputNames = new String[] { getName() };
-		
+
 		this.outputFormat = new String[]{"%s"};
 
 		try {
@@ -105,13 +103,13 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 				positionerStatus=EnumPositionerStatus.ERROR;
 				throw new DeviceException("failed to moveTo", th);
 			}
-			
+
 		} else {
 			// if get here then wrong position name supplied
 			throw new DeviceException("Position called: " + positionString + " not found.");
 		}
 	}
-	
+
 	@Override
 	public String getPosition() throws DeviceException {
 		try {
@@ -251,7 +249,7 @@ public class EpicsSimplePositioner extends EnumPositionerBase implements Connect
 			}
 			positionerStatus=EnumPositionerStatus.IDLE;
 		}
-		
+
 	}
 
 }

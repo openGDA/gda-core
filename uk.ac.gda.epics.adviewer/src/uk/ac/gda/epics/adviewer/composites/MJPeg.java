@@ -196,7 +196,7 @@ public class MJPeg extends Composite {
 				txtTime.setText(df.format(new Date(ctime)));
 				txtRate.setText(String.format("%3.3g", 1000.0 / (ctime - timeOfLastImage)));
 				timeOfLastImage = ctime;
-				
+
 				for(NewImageListener listener : newImageListeners ){
 					listener.handlerNewImageNotification(lastImage2);
 				}
@@ -269,7 +269,7 @@ public class MJPeg extends Composite {
 	public void removeNewImageListener(NewImageListener listener){
 		newImageListeners.remove(listener);
 	}
-	
+
 	public void setADController(ADController config) {
 		this.config = config;
 		try {

@@ -29,7 +29,7 @@ public class SimplePVScannable extends ScannableBase implements Scannable {
 
 	private Object pvName;
 	private CAClient ca_client = new CAClient();
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
@@ -38,7 +38,7 @@ public class SimplePVScannable extends ScannableBase implements Scannable {
 			setInputNames(new String[] { getName() });
 		}
 	}
-	
+
 	@Override
 	public boolean isBusy() throws DeviceException {
 		return false;
@@ -54,7 +54,7 @@ public class SimplePVScannable extends ScannableBase implements Scannable {
 			throw new DeviceException(getName() +" exception in rawAsynchronousMoveTo", e);
 		}
 	}
-	
+
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		try {

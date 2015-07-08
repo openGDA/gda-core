@@ -50,7 +50,7 @@ public class EpicsTypedMonitor extends EpicsMonitor {
 		try {
 
 			DBR dbr = controller.getDBR(theChannel, getEpicsType());
-			
+
 			switch (thisType) {
 
 			case DBR_STRING:
@@ -131,7 +131,7 @@ public class EpicsTypedMonitor extends EpicsMonitor {
 
 	/**
 	 * Corresponds to the TYPEs enum in this class
-	 * 
+	 *
 	 * @return index in the TYPES enum of the type to be returned by the getPosition method
 	 */
 	public int getType() {

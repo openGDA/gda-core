@@ -45,7 +45,7 @@ public class QbpmImpl extends CorbaQbpmPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param qbpm
 	 *            the qbpm implementation object
 	 * @param poa
@@ -341,7 +341,7 @@ public class QbpmImpl extends CorbaQbpmPOA {
 			throw new CorbaDeviceException(e.getMessage());
 		}
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();
@@ -351,17 +351,17 @@ public class QbpmImpl extends CorbaQbpmPOA {
 	public void setProtectionLevel(int newLevel) throws CorbaDeviceException {
 		deviceImpl.setProtectionLevel(newLevel);
 	}
-	
+
 	@Override
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		enumpositionerImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		enumpositionerImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return enumpositionerImpl.toFormattedString();

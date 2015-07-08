@@ -60,7 +60,7 @@ public class TfgXmap extends TFGCounterTimer implements CounterTimer, Detector {
 
 	/**
 	 * Set the Xspress system name
-	 * 
+	 *
 	 * @param xspressSystemName
 	 *            the Xspress system name
 	 */
@@ -70,7 +70,7 @@ public class TfgXmap extends TFGCounterTimer implements CounterTimer, Detector {
 
 	/**
 	 * Get the Xspress system name
-	 * 
+	 *
 	 * @return the Xspress system name.
 	 */
 	public String getXmapName() {
@@ -139,7 +139,7 @@ public class TfgXmap extends TFGCounterTimer implements CounterTimer, Detector {
 	public double[] readFrame(int startChannel, int channelCount, int frame) throws DeviceException {
 		return null;
 	}
-	
+
 	@Override
 	public void atScanStart() throws DeviceException {
 		CAClient caclient = new CAClient();
@@ -210,7 +210,7 @@ public class TfgXmap extends TFGCounterTimer implements CounterTimer, Detector {
 	public void setMinimumReadoutDelay(int minimumReadoutDelay) {
 		this.minimumReadoutDelay = minimumReadoutDelay;
 	}
-	
+
 	public String getCollectionModePV() {
 		return collectionModePV;
 	}

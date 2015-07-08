@@ -26,7 +26,7 @@ public interface NDPlugin {
 	/**
 	 * Get Asyn port name for NDArray driver that will make callbacks to this plugin. This port can be changed at run
 	 * time, connecting the plugin to a different NDArray driver.
-	 * 
+	 *
 	 * @return NDArrayPort.
 	 */
 	String getInputNDArrayPort();
@@ -34,16 +34,16 @@ public interface NDPlugin {
 	/**
 	 * Set Asyn port name for NDArray driver that will make callbacks to this plugin. This port can be changed at run
 	 * time, connecting the plugin to a different NDArray driver.
-	 * 
+	 *
 	 * @param nDArrayPort
 	 */
 	void setInputNDArrayPort(String nDArrayPort);
 
 	/**
 	 * Asyn port name of this plugin.
-	 * 
+	 *
 	 * @return PortName
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	String getPortName() throws IOException;
 

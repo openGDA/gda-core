@@ -47,7 +47,7 @@ public abstract class CompoundDataTypeHandler {
 	/**
 	 * returns the values of this channel directly from EPICS server via compound DBR if the channel's native primiary
 	 * type is double.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the channel's values in an array.
@@ -61,7 +61,7 @@ public abstract class CompoundDataTypeHandler {
 	/**
 	 * returns the values of this channel directly from EPICS server via compound DBR if the channel's native primiary
 	 * type is float.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the channel's values in an array.
@@ -75,7 +75,7 @@ public abstract class CompoundDataTypeHandler {
 	/**
 	 * returns the values of this channel directly from EPICS server via compound DBR if the channel's native primiary
 	 * type is integer.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the channel's values in an array.
@@ -89,7 +89,7 @@ public abstract class CompoundDataTypeHandler {
 	/**
 	 * returns the values of this channel directly from EPICS server via compound DBR if the channel's native primiary
 	 * type is short.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the channel's values in an array.
@@ -103,7 +103,7 @@ public abstract class CompoundDataTypeHandler {
 	/**
 	 * returns the values of this channel directly from EPICS server via compound DBR if the channel's native primiary
 	 * type is byte.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the channel's values in an array.
@@ -117,7 +117,7 @@ public abstract class CompoundDataTypeHandler {
 	/**
 	 * returns the values of this channel directly from EPICS server via compound DBR if the channel's native primiary
 	 * type is String.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the channel's values in an array.
@@ -131,13 +131,13 @@ public abstract class CompoundDataTypeHandler {
 	/**
 	 * returns the values of this channel directly from EPICS server via compound DBR if the channel's native primiary
 	 * type is enum.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the channel's values in an array.
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public short[] getEnum(Channel ch) throws CAException, TimeoutException, InterruptedException {
 		return ((ENUM) getCompoundData(ch)).getEnumValue();
@@ -145,7 +145,7 @@ public abstract class CompoundDataTypeHandler {
 
 	/**
 	 * returns the values of this compound DBR if the DBR is of the type double.
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound DBR
 	 * @return the DBR's values in an array.
@@ -156,7 +156,7 @@ public abstract class CompoundDataTypeHandler {
 
 	/**
 	 * returns the values of this compound DBR if the DBR is of the type float.
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound DBR
 	 * @return the DBR's values in an array.
@@ -167,7 +167,7 @@ public abstract class CompoundDataTypeHandler {
 
 	/**
 	 * returns the values of this compound DBR if the DBR is of the type integer.
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound DBR
 	 * @return the DBR's values in an array.
@@ -178,7 +178,7 @@ public abstract class CompoundDataTypeHandler {
 
 	/**
 	 * returns the values of this compound DBR if the DBR is of the type short.
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound DBR
 	 * @return the DBR's values in an array.
@@ -189,7 +189,7 @@ public abstract class CompoundDataTypeHandler {
 
 	/**
 	 * returns the values of this compound DBR if the DBR is of the type byte.
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound DBR
 	 * @return the DBR's values in an array.
@@ -200,7 +200,7 @@ public abstract class CompoundDataTypeHandler {
 
 	/**
 	 * returns the values of this compound DBR if the DBR is of the type String.
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound DBR
 	 * @return the DBR's values in an array.
@@ -211,7 +211,7 @@ public abstract class CompoundDataTypeHandler {
 
 	/**
 	 * returns the values of this compound DBR if the DBR is of the type enum.
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound DBR
 	 * @return the DBR's values in an array.
@@ -222,13 +222,13 @@ public abstract class CompoundDataTypeHandler {
 
 	/**
 	 * returns a compound DBR value of this channel, using compound data type. Subclasses must implement this method.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the Channel's value
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	protected abstract DBR getCompoundData(Channel ch) throws CAException, TimeoutException, InterruptedException;
 }

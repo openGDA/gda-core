@@ -158,7 +158,7 @@ public class FfmpegStreamSimulator extends NDBaseImpl implements FfmpegStream {
 	@Override
 	public void setMAXH(int maxh) throws Exception {
 		this.maxh = maxh;
-		
+
 	}
 
 

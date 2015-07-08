@@ -135,7 +135,7 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 
 	/**
 	 * Initialise the cryo controller object.Monitor
-	 * 
+	 *
 	 * @throws FactoryException
 	 */
 	@Override
@@ -176,7 +176,7 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 
 	/**
 	 * create channel access implementing phase II beamline EPICS interfaces.
-	 * 
+	 *
 	 * @param config
 	 * @throws FactoryException
 	 */
@@ -225,7 +225,7 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 	/**
 	 * switches the Cryostream on, executing the start-up phase or current Phase Table. It is also used to re-start the
 	 * control program after it has been halted.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void start() throws DeviceException {
@@ -239,7 +239,7 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 	/**
 	 * halt the Cryostream Plus, turn off the pump and all the heaters. The controller may then be safely switches off,
 	 * or re-started by start().
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void stop() throws DeviceException {
@@ -548,7 +548,7 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 			logger.error("failed to initialise run mode labels.", e);
 			e.printStackTrace();
 		}
-			
+
 		if (connState.equals("Enabled"))
 			logger.info("{} is initialised.", getName());
 		else if (connState.equals("Disabled"))
@@ -607,7 +607,7 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 			}
 		}
 	}
-	
+
 	/**
 	 * @return Disabled or Enabled
 	 */
@@ -636,7 +636,7 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 	}
 
 	/**
-	 * sets EPICS hardware connection state 
+	 * sets EPICS hardware connection state
 	 * @param connected
 	 */
 	public void setConnected(boolean connected) {
@@ -662,7 +662,7 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 		throw new DeviceException("failed to set DISABLE PV.", e);
 		}
 	}
-	
+
 	/**
 	 * gets the EPICS hardware connection state.
 	 * @return Disabled or Enabled
@@ -675,5 +675,5 @@ public class CryoController extends DeviceBase implements Configurable, Findable
 			throw new DeviceException("failed to get from DISABLE PV.", e);
 		}
 	}
-	
+
 }

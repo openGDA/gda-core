@@ -52,8 +52,8 @@ public class SimpleReader implements Reader {
 	 * Name of description attribute for a device - normally equals desc
 	 */
 	public static final String DESC_ATTRIBUTE_NAME = "desc";
-	
-	
+
+
 	private static final Logger logger = LoggerFactory.getLogger(SimpleReader.class);
 
 	private final String pathToXML;
@@ -243,7 +243,7 @@ class SimpleAttribute implements Attribute {
 class SimpleAttributes extends Vector<SimpleAttribute> {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -6722376235262372958L;
 }
@@ -304,7 +304,7 @@ class SimpleField implements Field {
 class SimpleFields extends Vector<SimpleField> {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 3170191421245247251L;
 

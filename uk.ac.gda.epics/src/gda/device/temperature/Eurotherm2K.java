@@ -63,7 +63,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 	 * Constructor
 	 */
 	public Eurotherm2K() {
-		
+
 		setInputNames(new String[] {"Temperature"});
 		//setExtraNames(new String[] {"Status", "Time Elapsed"});
 		String[] outputFormat = new String[inputNames.length + extraNames.length];
@@ -87,11 +87,11 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 			if ((filePrefix != null) && (fileSuffix != null)) {
 				dataFileWriter = new DataFileWriter(filePrefix, fileSuffix);
 			}
-			
+
 			if (controller == null) {
 				setController( (EpicsEurotherm2kController)Finder.getInstance().find(controllerName) );
 			}
-			
+
 			if (controller != null) {
 				logger.debug("Controller {} found", controllerName);
 				if (controller.isConfigureAtStartup()) {
@@ -148,7 +148,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 
 	/**
 	 * Get the target temperature
-	 * 
+	 *
 	 * @return the target temperature
 	 * @throws DeviceException
 	 */
@@ -179,7 +179,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 	/**
 	 * program a temperature ramp into hardware, this does not initiate the program, it validates the target temperature
 	 * and ramp rate. {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.temperature.TemperatureBase#sendRamp(int)
 	 */
 	@Override
@@ -208,7 +208,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 
 	/**
 	 * Initiate the programmed temperature ramp in the hardware.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void sendStart() throws DeviceException {
@@ -238,7 +238,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 
 	/**
 	 * on stop temperature ramp it sets to hold.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	private void sendStop() throws DeviceException {
@@ -251,7 +251,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 
 	/**
 	 * starts towards a single target temperature at current ramp rate {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.temperature.TemperatureBase#startTowardsTarget()
 	 */
 	@Override
@@ -296,7 +296,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 
 	/**
 	 * sets the ramp rate
-	 * 
+	 *
 	 * @param rate
 	 * @throws DeviceException
 	 */
@@ -307,7 +307,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 
 	/**
 	 * gets the ramp rate
-	 * 
+	 *
 	 * @return rate
 	 * @throws DeviceException
 	 */
@@ -318,7 +318,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 
 	/**
 	 * move device to room temperature {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.temperature.TemperatureBase#end()
 	 */
 	@Override
@@ -392,8 +392,8 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 		return controller;
 	}
 
-	
-	
+
+
 
 	@Override
 	public void update(Object theObserved, Object changeCode) {
@@ -425,7 +425,7 @@ public class Eurotherm2K extends TemperatureBase implements IObserver {
 				logger.info("{} is current temperature controller.", getName() );
 			}
 		}
-		
+
 	}
 
 	@Override

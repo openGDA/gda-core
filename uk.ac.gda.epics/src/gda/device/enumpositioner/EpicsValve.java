@@ -170,7 +170,7 @@ public class EpicsValve extends ValveBase implements EnumPositioner, MonitorList
 
 	/**
 	 * Returns the name of the Epics valve/shutter template this object is using
-	 * 
+	 *
 	 * @return the name of the Epics valve/shutter template
 	 */
 	public String getEpicsRecordName() {
@@ -179,7 +179,7 @@ public class EpicsValve extends ValveBase implements EnumPositioner, MonitorList
 
 	/**
 	 * Sets the name of the Epics valve/shutter template to use.
-	 * 
+	 *
 	 * @param recordName
 	 */
 	public void setEpicsRecordName(String recordName) {

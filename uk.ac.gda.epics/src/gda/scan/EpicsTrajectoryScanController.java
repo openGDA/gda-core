@@ -67,9 +67,9 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	private String name = null;
 
 	// GDA names map to EPICS trajectory move axis for CASTOR config
-	
+
 	private String maxis[] = new String[MAX_TRAJECTORY];
-	
+
 	//TODO This is not used!
 	/**
 	 * the acceleration time for the motor
@@ -81,7 +81,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	 */
 	public static  int MAXIMUM_ELEMENT_NUMBER = 1500;
 
-	
+
 	public static int getMAXIMUM_ELEMENT_NUMBER() {
 		return MAXIMUM_ELEMENT_NUMBER;
 	}
@@ -119,9 +119,9 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	private Channel apulses = null; // actual number of output pulses pv
 
 	private Channel time = null; // trajectory time mbbinary
-	
+
 	private Channel mmove[]= new Channel[MAX_TRAJECTORY];
-	private Channel mtraj[] = new Channel[MAX_TRAJECTORY];	
+	private Channel mtraj[] = new Channel[MAX_TRAJECTORY];
 
 	private Channel build = null; // build and check trajectory PV
 
@@ -143,7 +143,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	private Channel read = null; // read back actual positions PV
 
-	private Channel rstate = null; // read back state mbbinary 
+	private Channel rstate = null; // read back state mbbinary
 
 	private Channel rstatus = null; // read back status mbbinary
 
@@ -152,7 +152,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	private Channel mactual[] = new Channel[MAX_TRAJECTORY];
 
 	private Channel mname[] = new Channel[MAX_TRAJECTORY]; //actual positions array
-	
+
 	private Channel m2error = null; // M2 actual positions array
 
 	/**
@@ -218,7 +218,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	private String readState = null;
 
 	private String readMessage = "not set in EPICS";
-	
+
 	public EpicsTrajectoryScanController() {
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
@@ -259,7 +259,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * create channel access implementing phase II beamline EPICS interfaces.
-	 * 
+	 *
 	 * @param tsConfig
 	 * @throws FactoryException
 	 */
@@ -325,10 +325,10 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 			throw new FactoryException("failed to create reuqired channels", th);
 		}
 	}
-	
+
 	/**
 	 * sets trajectory path for motor 1.
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 */
@@ -344,7 +344,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets trajectory path for motor 1.
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 */
@@ -359,10 +359,10 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets trajectory path for motor 2.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setM2Traj(double[] value) throws CAException, InterruptedException {
 		controller.caput(mtraj[1], value);
@@ -370,11 +370,11 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets trajectory path for motor 3.
-	 * 
+	 *
 	 * @param value
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
-	
+
 	public void setM3Traj(double[] value) throws DeviceException, InterruptedException {
 		try {
 			controller.caput(mtraj[2], value);
@@ -386,7 +386,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets trajectory path for motor 4.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 */
@@ -396,7 +396,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets trajectory path for motor 5.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 */
@@ -406,7 +406,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets trajectory path for motor 6.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 */
@@ -416,7 +416,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets trajectory path for motor 7.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 */
@@ -426,7 +426,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets trajectory path for motor 8.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 */
@@ -436,7 +436,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the specified trajectory path for motor 1.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -447,11 +447,11 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the specified trajectory path for motor 2.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public double[] getM2Traj() throws CAException, TimeoutException, InterruptedException {
 		return controller.cagetDoubleArray(mtraj[1]);
@@ -459,7 +459,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the specified trajectory path for motor 3.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -470,7 +470,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the specified trajectory path for motor 4.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -481,7 +481,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the specified trajectory path for motor 5.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -492,7 +492,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the specified trajectory path for motor 6.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -503,7 +503,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the specified trajectory path for motor 7.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -514,7 +514,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the specified trajectory path for motor 8.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -524,17 +524,17 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	}
 	/**
 	 * enable (true) or disable (false) trajectory move for motor .
-	 * 
+	 *
 	 * @param b
 	 * @throws DeviceException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	@Override
 	public void setMMove(int motorIndex, boolean b) throws DeviceException, InterruptedException {
 		try {if (b == true) {
-			
+
 				controller.caput(mmove[motorIndex - 1], 1);
-			
+
 		} else {
 			controller.caput(mmove[0], 0);
 		}
@@ -546,16 +546,16 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * enable (true) or disable (false) trajectory move for motor 1.
-	 * 
+	 *
 	 * @param b
 	 * @throws DeviceException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setM1Move(boolean b) throws DeviceException, InterruptedException {
 		try {if (b == true) {
-			
+
 				controller.caput(mmove[0], 1);
-			
+
 		} else {
 			controller.caput(mmove[0], 0);
 		}
@@ -567,13 +567,13 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * enable (true) or disable (false) trajectory move for motor 2.
-	 * 
+	 *
 	 * @param b
 	 * @throws DeviceException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setM2Move(boolean b) throws DeviceException, InterruptedException {
-		
+
 		try{
 			if (b == true) {
 			controller.caput(mmove[1], 1);
@@ -588,10 +588,10 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * enable (true) or disable (false) trajectory move for motor 3.
-	 * 
+	 *
 	 * @param b
 	 * @throws DeviceException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setM3Move(boolean b) throws DeviceException, InterruptedException {
 		try{
@@ -608,10 +608,10 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * enable (true) or disable (false) trajectory move for motor 4.
-	 * 
+	 *
 	 * @param b
 	 * @throws DeviceException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setM4Move(boolean b) throws DeviceException, InterruptedException {
 		try{
@@ -628,10 +628,10 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * enable (true) or disable (false) trajectory move for motor 5.
-	 * 
+	 *
 	 * @param b
 	 * @throws DeviceException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setM5Move(boolean b) throws DeviceException, InterruptedException {
 		try{
@@ -648,13 +648,13 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * enable (true) or disable (false) trajectory move for motor 6.
-	 * 
+	 *
 	 * @param b
 	 * @throws DeviceException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setM6Move(boolean b) throws DeviceException, InterruptedException {
-		
+
 		try{
 			if (b == true) {
 			controller.caput(mmove[5], 1);
@@ -669,10 +669,10 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * enable (true) or disable (false) motor 7 move.
-	 * 
+	 *
 	 * @param b
 	 * @throws DeviceException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setM7Move(boolean b) throws DeviceException, InterruptedException {
 		try{
@@ -689,10 +689,10 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * enable (true) or disable (false) motor 8 move.
-	 * 
+	 *
 	 * @param b
 	 * @throws DeviceException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setM8Move(boolean b) throws DeviceException, InterruptedException {
 		try{
@@ -709,7 +709,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * query if motor 1 moves to its trajectory or no, return Yes or No.
-	 * 
+	 *
 	 * @return true or false
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -725,7 +725,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * query if motor 2 moves to its trajectory or no, return Yes or No.
-	 * 
+	 *
 	 * @return true or false
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -741,7 +741,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * query if motor 3 moves to its trajectory or no, return Yes or No.
-	 * 
+	 *
 	 * @return true or false
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -757,7 +757,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * query if motor 4 moves to its trajectory or no, return Yes or No.
-	 * 
+	 *
 	 * @return true or false
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -773,7 +773,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * query if motor 5 moves to its trajectory or no, return Yes or No.
-	 * 
+	 *
 	 * @return true or false
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -789,7 +789,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * query if motor 6 moves to its trajectory or no, return Yes or No.
-	 * 
+	 *
 	 * @return true or false
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -804,7 +804,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * query if motor 7 moves to its trajectory or no, return Yes or No.
-	 * 
+	 *
 	 * @return true or false
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -819,7 +819,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * query if motor 8 moves to its trajectory or no, return Yes or No.
-	 * 
+	 *
 	 * @return true or false
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -834,11 +834,11 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets the number of elements in the trajectory to look at for all motors (maximum is 2000).
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 * @throws OutOfRangeException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	@Override
 	public void setNumberOfElements(int value) throws DeviceException, OutOfRangeException, InterruptedException {
@@ -855,11 +855,11 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets number of elements in the defined trajectory from EPICS
-	 * 
+	 *
 	 * @return total element number
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public int getNumberOfElements() throws TimeoutException, CAException, InterruptedException {
 		return controller.cagetInt(nelm);
@@ -867,11 +867,11 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets the number of output pulses for triggering the detector.
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 * @throws OutOfRangeException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	@Override
 	public void setNumberOfPulses(int value) throws DeviceException, OutOfRangeException, InterruptedException {
@@ -888,11 +888,11 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the number of pulses in the trajectory
-	 * 
+	 *
 	 * @return number of pulses
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public int getNumberOfPulses() throws TimeoutException, CAException, InterruptedException {
 		return controller.cagetInt(npulses);
@@ -900,14 +900,14 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets the element number at which output pulses starts, i.e. the element that starts the triggering pulses.
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	@Override
 	public void setStartPulseElement(int value) throws DeviceException, InterruptedException {
-		
+
 		try{controller.caput(spulses, value);
 	} catch (CAException e) {
 		logger.error("Error setting m1Move " , e);
@@ -917,7 +917,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the elements number that starts the output pulses.
-	 * 
+	 *
 	 * @return pulse-starting element
 	 * @throws TimeoutException
 	 * @throws CAException
@@ -928,10 +928,10 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets the element number at which output pulses stops, i.e. the element that stops the triggering pulses.
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	@Override
 	public void setStopPulseElement(int value) throws DeviceException, InterruptedException {
@@ -945,7 +945,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the element number that stops the ouptput pulses.
-	 * 
+	 *
 	 * @return element where pulse stops
 	 * @throws TimeoutException
 	 * @throws DeviceException
@@ -964,10 +964,10 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets the trajectory time, i.e. the time to execute the trajectory.
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	@Override
 	public void setTime(double value) throws DeviceException, InterruptedException {
@@ -981,11 +981,11 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the total time for the trajectory.
-	 * 
+	 *
 	 * @return total trajectory time
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public double getTime() throws TimeoutException, CAException, InterruptedException {
 		return controller.cagetDouble(time);
@@ -993,8 +993,8 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * starts the build process in EPICS.
-	 * @throws DeviceException 
-	 * @throws InterruptedException 
+	 * @throws DeviceException
+	 * @throws InterruptedException
 	 */
 	@Override
 	public void build() throws DeviceException, InterruptedException {
@@ -1019,8 +1019,8 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * starts the execute process in EPICS.
-	 * @throws DeviceException 
-	 * @throws InterruptedException 
+	 * @throws DeviceException
+	 * @throws InterruptedException
 	 */
 	@Override
 	public void execute() throws DeviceException, InterruptedException {
@@ -1049,8 +1049,8 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * starts the read process in EPICS.
-	 * @throws DeviceException 
-	 * @throws InterruptedException 
+	 * @throws DeviceException
+	 * @throws InterruptedException
 	 */
 	@Override
 	public void read() throws DeviceException, InterruptedException {
@@ -1066,7 +1066,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	 * @return short
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public short getRead() throws TimeoutException, CAException, InterruptedException {
 		short num =  controller.cagetEnum(read);
@@ -1075,7 +1075,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the build message
-	 * 
+	 *
 	 * @return String the message
 	 */
 	public String getBuildMessage() {
@@ -1086,7 +1086,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	 * @return build message
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public String getBuildMessageFromEpics() throws TimeoutException, CAException, InterruptedException {
 		return controller.caget(bmess);
@@ -1094,7 +1094,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * returns the build status
-	 * 
+	 *
 	 * @return build status
 	 */
 	@Override
@@ -1102,7 +1102,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 		short value;
 		try {
 			value = controller.cagetEnum(bstatus);
-		
+
 			if (value == 1) {
 				buildStatus = BuildStatus.SUCCESS;
 			} else if (value == 2) {
@@ -1129,7 +1129,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	 * @return build status
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public short getBuildStatusFromEpics() throws TimeoutException, CAException, InterruptedException {
 		return controller.cagetEnum(bstatus);
@@ -1137,7 +1137,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the build state
-	 * 
+	 *
 	 * @return build state
 	 */
 	public String getBuildState() {
@@ -1155,7 +1155,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the execute message
-	 * 
+	 *
 	 * @return String the message
 	 */
 	public String getExecuteMessage() {
@@ -1173,7 +1173,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * returns the Execute status
-	 * 
+	 *
 	 * @return Execute status
 	 */
 	@Override
@@ -1192,7 +1192,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the Execute state
-	 * 
+	 *
 	 * @return Execute state
 	 */
 	public String getExecuteState() {
@@ -1210,7 +1210,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the Read message
-	 * 
+	 *
 	 * @return String the message
 	 */
 	public String getReadMessage() {
@@ -1228,7 +1228,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * returns the Read status
-	 * 
+	 *
 	 * @return Read status
 	 */
 	@Override
@@ -1236,7 +1236,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 		short value;
 		try {
 			value = controller.cagetEnum(rstatus);
-		
+
 			if (value == 1) {
 				readStatus = ReadStatus.SUCCESS;
 			} else if (value == 2) {
@@ -1270,7 +1270,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the Read state
-	 * 
+	 *
 	 * @return Read state
 	 */
 	public String getReadState() {
@@ -1288,7 +1288,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the actual output pulses
-	 * 
+	 *
 	 * @return number of actual pulses
 	 * @throws TimeoutException
 	 * @throws DeviceException
@@ -1306,7 +1306,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	}
 	/**
 	 * gets the Actual trajectory path for motor .
-	 * 
+	 *
 	 * @return double value array
 	 * @throws DeviceException
 	 * @throws TimeoutException
@@ -1325,7 +1325,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the Actual trajectory path for motor 1.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1336,7 +1336,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the Actual trajectory path for motor 2.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1347,7 +1347,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the Actual trajectory path for motor 2.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1358,14 +1358,14 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the Actual trajectory path for motor 3.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws DeviceException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
-	 */	
+	 * @throws InterruptedException
+	 */
 	public double[] getM3Actual() throws DeviceException, TimeoutException, InterruptedException {
-		
+
 		try{
 			return controller.cagetDoubleArray(mactual[2]);
 		}
@@ -1377,7 +1377,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the Actual trajectory path for motor 4.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1388,7 +1388,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the Actual trajectory path for motor 5.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1399,7 +1399,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the Actual trajectory path for motor 6.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1410,7 +1410,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the Actual trajectory path for motor 7.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1421,7 +1421,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the Actual trajectory path for motor 8.
-	 * 
+	 *
 	 * @return double value array
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1432,7 +1432,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the motor name for motor .
-	 * 
+	 *
 	 * @return name
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1443,7 +1443,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the motor name for motor 1.
-	 * 
+	 *
 	 * @return name
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1454,7 +1454,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the motor name for motor 2.
-	 * 
+	 *
 	 * @return name
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1465,7 +1465,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the motor name for motor 3.
-	 * 
+	 *
 	 * @return name
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1476,7 +1476,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the motor name for motor 4.
-	 * 
+	 *
 	 * @return name
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1487,7 +1487,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the motor name for motor 5.
-	 * 
+	 *
 	 * @return name
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1498,7 +1498,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the motor name for motor 6.
-	 * 
+	 *
 	 * @return name
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1509,7 +1509,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the motor name for motor 7.
-	 * 
+	 *
 	 * @return name
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1520,7 +1520,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the motor name for motor 8.
-	 * 
+	 *
 	 * @return name
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1531,7 +1531,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * stop or abort the trajectory scan.
-	 * 
+	 *
 	 * @throws DeviceException
 	 * @throws InterruptedException
 	 */
@@ -1847,7 +1847,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets acceleration for motor 1.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1863,7 +1863,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets acceleration for motor 2.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1879,7 +1879,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets acceleration for motor 3.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1895,7 +1895,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets acceleration for motor 4.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1911,7 +1911,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets acceleration for motor 5.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1927,7 +1927,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets acceleration for motor 6.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1943,7 +1943,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets acceleration for motor 7.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1959,7 +1959,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets acceleration for motor 8.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1974,7 +1974,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	}
 	/**
 	 * sets acceleration for motor.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -1990,7 +1990,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the acceleration of motor .
-	 * 
+	 *
 	 * @return acceleration
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -2006,7 +2006,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the acceleration of motor 1.
-	 * 
+	 *
 	 * @return acceleration
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -2022,7 +2022,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the acceleration of motor 2.
-	 * 
+	 *
 	 * @return acceleration
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -2038,7 +2038,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the acceleration of motor 3.
-	 * 
+	 *
 	 * @return acceleration
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -2054,7 +2054,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the acceleration of motor 4.
-	 * 
+	 *
 	 * @return acceleration
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -2070,7 +2070,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the acceleration of motor 5.
-	 * 
+	 *
 	 * @return acceleration
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -2086,7 +2086,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the acceleration of motor 6.
-	 * 
+	 *
 	 * @return acceleration
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -2102,7 +2102,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the acceleration of motor 7.
-	 * 
+	 *
 	 * @return acceleration
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -2118,7 +2118,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the acceleration of motor 8.
-	 * 
+	 *
 	 * @return acceleration
 	 * @throws CAException
 	 * @throws TimeoutException
@@ -2134,7 +2134,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * returns the device name
-	 * 
+	 *
 	 * @return deviceName
 	 */
 	public String getDeviceName() {
@@ -2144,7 +2144,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets device name
-	 * 
+	 *
 	 * @param name
 	 */
 	public void setDeviceName(String name) {
@@ -2174,7 +2174,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	{
 		return maxis[motorIndex -1];
 	}
-	
+
 	/**
 	 * @param maxis
 	 */

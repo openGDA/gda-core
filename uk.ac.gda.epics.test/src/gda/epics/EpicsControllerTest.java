@@ -28,7 +28,7 @@ import junit.framework.TestCase;
 public class EpicsControllerTest extends TestCase {
 
 	/**
-	 * 
+	 *
 	 */
 	public void testEpicsControllerInstance() {
 		EpicsController con = EpicsController.getInstance(false);
@@ -37,7 +37,7 @@ public class EpicsControllerTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void testEpicsControllerForScriptInstance() {
 		EpicsControllerForScript con = EpicsControllerForScript.getInstance(false);
@@ -46,7 +46,7 @@ public class EpicsControllerTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void testEpicsControllerSynergy() {
 		EpicsController con = EpicsController.getInstance(false);

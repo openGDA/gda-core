@@ -18,8 +18,10 @@
 
 package gda.device.epicsdevice;
 
+import gov.aps.jca.dbr.DBR_LABELS_Enum;
+import gov.aps.jca.dbr.LABELS;
+
 import java.io.Serializable;
-import gov.aps.jca.dbr.*;
 
 /**
  * EpicsLabelsEnum Class

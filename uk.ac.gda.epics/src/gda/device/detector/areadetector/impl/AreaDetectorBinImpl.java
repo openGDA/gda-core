@@ -24,7 +24,7 @@ public class AreaDetectorBinImpl implements AreaDetectorBin{
 
 	private int binX;
 	private int binY;
-	
+
 	public AreaDetectorBinImpl(int binx, int biny) {
 		this.binX = binx;
 		this.binY = biny;
@@ -49,7 +49,7 @@ public class AreaDetectorBinImpl implements AreaDetectorBin{
 	public void setBinY(int binY) {
 		this.binY = binY;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "("+binX+","+binY+")";

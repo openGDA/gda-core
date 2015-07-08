@@ -40,11 +40,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class implements EPICS SimpleArray interface (record type in GDA interface is 'array', in EPICS is 'waveform').
- * It supports variable length String IO to EPICS waveform record. It has build-in string to/from int array conversion. 
+ * It supports variable length String IO to EPICS waveform record. It has build-in string to/from int array conversion.
  * The object of this class will monitor changes in waveform as well.
  */
 public class EpicsSimpleArray extends ScannableBase implements SimpleArray, InitializationListener, Scannable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsSimpleArray.class);
 
 	private String pvName;
@@ -58,7 +58,7 @@ public class EpicsSimpleArray extends ScannableBase implements SimpleArray, Init
 	protected EpicsChannelManager channelManager;
 
 	protected EpicsController controller;
-	
+
 	private ValueMonitorListener valueMonitor;
 
 	/**
@@ -72,7 +72,7 @@ public class EpicsSimpleArray extends ScannableBase implements SimpleArray, Init
 
 	@Override
 	public void configure() throws FactoryException {
-		
+
 		this.inputNames = new String[]{getName()};
 
 		if (!configured) {
@@ -81,7 +81,7 @@ public class EpicsSimpleArray extends ScannableBase implements SimpleArray, Init
 					gda.epics.interfaces.SimpleArrayType simpleArray = Configurator.getConfiguration(getDeviceName(), gda.epics.interfaces.SimpleArrayType.class);
 					pvName = simpleArray.getRECORD().getPv();
 					theChannel = channelManager.createChannel(pvName, valueMonitor, false);
-					
+
 				} catch (CAException e) {
 					throw new FactoryException("Failed to create channel for SimpleArray " + getName(), e);
 				} catch (ConfigurationNotFoundException e) {
@@ -133,7 +133,7 @@ public class EpicsSimpleArray extends ScannableBase implements SimpleArray, Init
 
 	/**
 	 * Returns the name of the pv this object is monitoring
-	 * 
+	 *
 	 * @return the name of the pv
 	 */
 	public String getPvName() {
@@ -143,7 +143,7 @@ public class EpicsSimpleArray extends ScannableBase implements SimpleArray, Init
 	/**
 	 * Sets the name of the pv this object monitors. This must be called before the configure method makes the
 	 * connections to the pv.
-	 * 
+	 *
 	 * @param pvName
 	 */
 
@@ -153,22 +153,22 @@ public class EpicsSimpleArray extends ScannableBase implements SimpleArray, Init
 
 	/**
 	 * gets the short or EPICS-GDA shared name of the device
-	 * 
+	 *
 	 * @return device name
 	 */
 	public String getDeviceName(){
 		return deviceName;
 	}
-	
+
 	/**
 	 * sets the short or EPICS-GDA shared name for this device
-	 * 
+	 *
 	 * @param deviceName
 	 */
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
 	}
-	
+
 	@Override
 	public void initializationCompleted() {
 		logger.debug("SimpleArray - {} is initialised.", getName());
@@ -189,7 +189,7 @@ public class EpicsSimpleArray extends ScannableBase implements SimpleArray, Init
 			latestValue = new String(value);
 		}
 	}
-	
+
 	public void destroy() throws IllegalStateException, CAException {
 		theChannel.destroy();
 	}

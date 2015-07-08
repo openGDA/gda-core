@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 @Deprecated
 public class SpeedController extends DeviceBase implements Configurable, Findable, InitializationListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(NextSamplePosition.class);
 
 	// control fields
@@ -98,7 +98,7 @@ public class SpeedController extends DeviceBase implements Configurable, Findabl
 
 	/**
 	 * creates all required channels
-	 * 
+	 *
 	 * @param config
 	 * @throws FactoryException
 	 */

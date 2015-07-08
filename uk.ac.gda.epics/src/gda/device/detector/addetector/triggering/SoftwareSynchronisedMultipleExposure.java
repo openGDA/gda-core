@@ -18,15 +18,14 @@
 
 package gda.device.detector.addetector.triggering;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import gda.device.DeviceBase;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADBase.StandardTriggerMode;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.scan.ScanInformation;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A collection strategy that sets the detector during the first collectData in a scan line
@@ -35,7 +34,7 @@ import gda.scan.ScanInformation;
 public class SoftwareSynchronisedMultipleExposure extends HardwareTriggeredStandard {
 
 	private static final Logger logger = LoggerFactory.getLogger(SoftwareSynchronisedMultipleExposure.class);
-	
+
 	private boolean currentLineStarted;
 
 	public SoftwareSynchronisedMultipleExposure(ADBase adBase, double readoutTime) {
@@ -45,7 +44,7 @@ public class SoftwareSynchronisedMultipleExposure extends HardwareTriggeredStand
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored, ScanInformation scanInfo) throws Exception {
 		getAdBase().stopAcquiring(); //to get out of armed state
- 
+
 		configureAcquireAndPeriodTimes(collectionTime);
 		getAdBase().setImageModeWait(ImageMode.MULTIPLE);
 		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal()); // *does* wait
@@ -53,7 +52,7 @@ public class SoftwareSynchronisedMultipleExposure extends HardwareTriggeredStand
 		int[] dimensions = scanInfo.getDimensions();
 		int pointsInLine = dimensions[dimensions.length - 1];
 		getAdBase().setNumImages(pointsInLine);
-		
+
 		enableOrDisableCallbacks();
 		logger.info(getName() + " configured to take " + pointsInLine + " images for this scan line in MULTIPLE, INTERNAL triggered mode");
 	}
@@ -66,12 +65,12 @@ public class SoftwareSynchronisedMultipleExposure extends HardwareTriggeredStand
 		}
 		currentLineStarted = true;
 	}
-	
+
 	@Override
 	public void prepareForLine() throws Exception {
 		currentLineStarted = false;
 	}
-	
+
 	@Override
 	public void completeCollection() throws Exception {
 		logger.info(getName() + " waiting for line to complete");
@@ -79,7 +78,7 @@ public class SoftwareSynchronisedMultipleExposure extends HardwareTriggeredStand
 		logger.info(getName() + " line completed");
 		stop();
 	}
-	
+
 	@Override
 	public void stop() throws Exception {
 		getAdBase().stopAcquiring();
@@ -90,7 +89,7 @@ public class SoftwareSynchronisedMultipleExposure extends HardwareTriggeredStand
 	public void atCommandFailure() throws Exception {
 		stop();
 	}
-	
+
 	@Override
 	public void waitWhileBusy() throws InterruptedException, DeviceException {
 		// Needs to let the scan thread keep moving. Instead waits in completeCollection()

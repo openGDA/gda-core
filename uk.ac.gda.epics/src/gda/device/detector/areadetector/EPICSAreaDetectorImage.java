@@ -18,11 +18,12 @@
 
 package gda.device.detector.areadetector;
 
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import gda.factory.Configurable;
 import gda.factory.Localizable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
+
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
 public interface EPICSAreaDetectorImage extends Localizable, Configurable {
 
@@ -56,7 +57,7 @@ public interface EPICSAreaDetectorImage extends Localizable, Configurable {
 
 	/**
 	 * Gets the most recent image which has been put to the image plug-in in the Epics environment
-	 * 
+	 *
 	 * @return a 2D dataset containing the image data
 	 * @throws TimeoutException if the data cannot be retrieved in time
 	 * @throws CAException if there are any other CA errors

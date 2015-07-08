@@ -72,7 +72,7 @@ public class EnablerController extends DeviceBase implements Configurable, Finda
 	private String deviceName;
 
 	private Vector<String> positions = new Vector<String>();
-	
+
 	private StateMonitorListener sml;
 
 	/**
@@ -110,7 +110,7 @@ public class EnablerController extends DeviceBase implements Configurable, Finda
 
 	/**
 	 * creates all required channels
-	 * 
+	 *
 	 * @param config
 	 * @throws FactoryException
 	 */
@@ -160,11 +160,11 @@ public class EnablerController extends DeviceBase implements Configurable, Finda
 
 	/**
 	 * gets the available positions from this device.
-	 * 
+	 *
 	 * @return available positions
-	 * @throws InterruptedException 
-	 * @throws CAException 
-	 * @throws TimeoutException 
+	 * @throws InterruptedException
+	 * @throws CAException
+	 * @throws TimeoutException
 	 */
 	public String[] getPositions() throws TimeoutException, CAException, InterruptedException {
 		return controller.cagetLabels(enableChannel);
@@ -180,7 +180,7 @@ public class EnablerController extends DeviceBase implements Configurable, Finda
 		}
 		logger.info("{} is initialised.", getName());
 	}
-	
+
 	private class StateMonitorListener implements MonitorListener {
 
 		@Override
@@ -195,7 +195,7 @@ public class EnablerController extends DeviceBase implements Configurable, Finda
 				logger.error("{} : ProfileListener expect Enum type but got {} type.", getName(), dbr.getType());
 			}
 		}
-		
+
 	}
 
 	public void notifyIObservers(String position) {

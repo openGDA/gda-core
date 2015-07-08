@@ -22,6 +22,15 @@ import gda.device.detector.areadetector.v17.NDStats;
 import gda.observable.Observable;
 import gda.observable.Observer;
 
+import org.eclipse.core.commands.Command;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.IParameter;
+import org.eclipse.core.commands.Parameterization;
+import org.eclipse.core.commands.ParameterizedCommand;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.dawnsci.analysis.api.dataset.Slice;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
@@ -37,15 +46,6 @@ import org.eclipse.dawnsci.plotting.api.region.IRegion;
 import org.eclipse.dawnsci.plotting.api.region.ROIEvent;
 import org.eclipse.dawnsci.plotting.api.region.RegionUtils;
 import org.eclipse.dawnsci.plotting.api.trace.ILineTrace;
-import org.eclipse.core.commands.Command;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.IParameter;
-import org.eclipse.core.commands.Parameterization;
-import org.eclipse.core.commands.ParameterizedCommand;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -114,7 +114,7 @@ public class Histogram extends Composite {
 		super(parent, style);
 		this.parentViewPart =parentViewPart;
 		setLayout(new GridLayout(3, false));
-		
+
 		leftScrolledComposite= new ScrolledComposite(this, SWT.V_SCROLL| SWT.H_SCROLL);
 		GridDataFactory.fillDefaults().grab(false, true).applyTo(leftScrolledComposite);
 		Composite left = new Composite(leftScrolledComposite, SWT.NONE);
@@ -144,7 +144,7 @@ public class Histogram extends Composite {
 		gl_histogramStatus.marginWidth = 2;
 		gl_histogramStatus.marginHeight = 2;
 		histogramStatus.setLayout(gl_histogramStatus);
-		
+
 		@SuppressWarnings("unused")
 		Label label = new Label(histogramStatus, SWT.SEPARATOR | SWT.HORIZONTAL);
 
@@ -167,7 +167,7 @@ public class Histogram extends Composite {
 		autoScaleBtn = new Button(grpMjpegRange, SWT.PUSH);
 		autoScaleBtn.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		autoScaleBtn.setText("Auto-Scale");
-	
+
 		//now all components are added to left we can set the size
 		left.setSize(left.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
@@ -182,7 +182,7 @@ public class Histogram extends Composite {
 				showLeft(!getShowLeft());
 			}});
 
-		Composite right = new Composite(this, SWT.NONE);		
+		Composite right = new Composite(this, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
 		GridLayoutFactory.fillDefaults().applyTo(right);
 
@@ -199,8 +199,8 @@ public class Histogram extends Composite {
 			gridData.grabExcessVerticalSpace = true;
 			gridData.verticalAlignment = SWT.FILL;
 			plotArea.setLayoutData(gridData);
-		}		
-		
+		}
+
 
 		this.plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
 		plottingSystem.createPlotPart(plotArea, "", parentViewPart.getViewSite().getActionBars(), PlotType.XY,
@@ -208,7 +208,7 @@ public class Histogram extends Composite {
 		plottingSystem.setXFirst(true);
 		plottingSystem.setShowLegend(false);
 		plottingSystemPositionListener = new IPositionListener() {
-			
+
 			@Override
 			public void positionChanged(PositionEvent evt) {
 				txtPos.setText(String.format("X:%.7g Y:%.7g", evt.x, evt.y));
@@ -250,7 +250,7 @@ public class Histogram extends Composite {
 	private boolean showLeft;
 
 	//Do not update the plot whilst the roi is being changed as otherwise the
-	//region suddenly changed 
+	//region suddenly changed
 	protected boolean roiBeingChanged=false;
 
 	/**
@@ -262,7 +262,7 @@ public class Histogram extends Composite {
         data.exclude = !showLeft;
         leftScrolledComposite.setVisible(showLeft);
 		middle.setText(showLeft ? "<" : ">");
-        layout(false);		
+        layout(false);
 	}
 
 	/**
@@ -271,7 +271,7 @@ public class Histogram extends Composite {
 	public Boolean getShowLeft() {
 		return showLeft;
 	}
-	
+
 	public void setADController(ADController config) {
 		this.adController = config;
 
@@ -280,8 +280,8 @@ public class Histogram extends Composite {
 		} catch (Exception e1) {
 			logger.error("Error creating region", e1);
 		}
-		
-		
+
+
 		try {
 			NDStats imageNDStats = config.getImageNDStats();
 			statusComposite.setObservable(imageNDStats.getPluginBase().createConnectionStateObservable());
@@ -477,7 +477,7 @@ public class Histogram extends Composite {
 										}
 									}
 
-									
+
 									if (histogramTrace == null) {
 										histogramTrace = plottingSystem.createLineTrace(PROFILE);
 										histogramTrace.setTraceColor(ColorConstants.blue);

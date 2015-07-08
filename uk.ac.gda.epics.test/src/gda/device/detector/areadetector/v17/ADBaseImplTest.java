@@ -19,12 +19,11 @@
 package gda.device.detector.areadetector.v17;
 
 import static org.junit.Assert.assertEquals;
+import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
+import gda.util.TestUtils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
-import gda.device.detector.areadetector.v17.impl.ADBaseImpl;
-import gda.util.TestUtils;
 
 import org.junit.Before;
 import org.junit.BeforeClass;

@@ -25,7 +25,7 @@ import gda.scan.ScanInformation;
 
 /*
  * Class to run a camera continuously with software trigger
- * 
+ *
  * Use prepareForCollection and then collectData
  */
 public class SoftwareContinuous extends SimpleAcquire {
@@ -37,10 +37,10 @@ public class SoftwareContinuous extends SimpleAcquire {
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored, ScanInformation scanInfo) throws Exception {
 		getAdBase().stopAcquiring(); //to get out of armed state
- 
-		super.prepareForCollection(collectionTime, numImagesIgnored, scanInfo); 
+
+		super.prepareForCollection(collectionTime, numImagesIgnored, scanInfo);
 		getAdBase().setImageMode(ImageMode.CONTINUOUS.ordinal());
-		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal()); 
+		getAdBase().setTriggerMode(StandardTriggerMode.INTERNAL.ordinal());
 	}
 
 	@Override

@@ -34,7 +34,7 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	private final ADBase adBase;
 
 	private double readoutTime = 0.1; // TODO: Should default to 0, change setReadoutTime javadoc if this changes.
-	
+
 	private boolean readAcquisitionTime = true;
 	private String acquisitionTimeUnit="s";
 
@@ -42,12 +42,12 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	private String acquisitionPeriodUnit="s";
 
 	private Boolean generateCallbacks = null;
-	
+
 	/**
 	 * Each exposure lasts for acc_expo_time. Exp per Image is set to int(collection_time/acc_expo_time + 0.5)
 	 */
 	boolean accumlationMode = false;
-	
+
 	/**
 	 * @see gda.device.detector.addetector.triggering.AbstractADTriggeringStrategy#accumlationMode
 	 */
@@ -64,13 +64,13 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 
 	/**
 	 * @see gda.device.detector.addetector.triggering.AbstractADTriggeringStrategy#accumlationMode
-	 * 
+	 *
 	 * default value is 10ms
 	 */
-	double acc_expo_time=0.01; 
-	
+	double acc_expo_time=0.01;
+
 	/**
-	 * 
+	 *
 	 * @see gda.device.detector.addetector.triggering.AbstractADTriggeringStrategy#accumlationMode
 	 */
 	public double getAcc_expo_time() {
@@ -78,30 +78,30 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	}
 
 	/**
-	 * 
+	 *
 	 * @see gda.device.detector.addetector.triggering.AbstractADTriggeringStrategy#accumlationMode
 	 */
 	public void setAcc_expo_time(double acc_expo_time) {
 		this.acc_expo_time = acc_expo_time;
 	}
 
-	private String timeFormat = "%.2f"; 
-	
+	private String timeFormat = "%.2f";
+
 	AbstractADTriggeringStrategy(ADBase adBase) {
 		this.adBase = adBase;
 	}
-	
+
 	/**
 	 * Sets the required readout/dwell time (t_period - t_acquire).
 	 * <p>
 	 * Defaults to 0.1 (Should be 0)
-	 * 
+	 *
 	 * @param readoutTime
 	 */
 	public void setReadoutTime(double readoutTime) {
 		this.readoutTime = readoutTime;
 	}
-	
+
 	public void setReadAcquisitionTime(boolean readAcquisitionTime) {
 		this.readAcquisitionTime = readAcquisitionTime;
 	}
@@ -113,7 +113,7 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	@Override
 	public void setGenerateCallbacks(boolean b) {
 		this.generateCallbacks = b;
-		
+
 	}
 
 	@Override
@@ -126,15 +126,15 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	public double getReadoutTime() {
 		return readoutTime;
 	}
-	
+
 	public ADBase getAdBase() {
 		return adBase;
 	}
-	
+
 	public boolean isReadAcquisitionTime() {
 		return readAcquisitionTime;
 	}
-	
+
 	public boolean isReadAcquisitionPeriod() {
 		return readAcquisitionPeriod;
 	}
@@ -157,7 +157,7 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 			getAdBase().setArrayCallbacks(isGenerateCallbacks() ? 1 : 0);
 		}
 	}
-	
+
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		double expoTime = isAccumlationMode() ? acc_expo_time : collectionTime;
@@ -169,14 +169,14 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 		getAdBase().setAcquireTime(expoTime);
 		getAdBase().setNumExposures(isAccumlationMode() ? (int)(collectionTime / acc_expo_time + 0.5) : 1);
 	}
-	
-	
+
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if( adBase == null)
 			throw new RuntimeException("adBase is not set");
 	}
-	
+
 	@Override
 	public String getName() {
 		return "driver";
@@ -186,7 +186,7 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	public boolean willRequireCallbacks() {
 		return false;
 	}
-	
+
 	@Override
 	public void prepareForLine() throws Exception {
 	}
@@ -194,7 +194,7 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 	@Override
 	public void completeLine() throws Exception {
 	}
-	
+
 	@Override
 	public List<String> getInputStreamNames() {
 		List<String> fieldNames = new ArrayList<String>();
@@ -209,7 +209,7 @@ abstract public class AbstractADTriggeringStrategy implements CollectionStrategy
 
 	public List<String> getInputStreamUnits() {
 		List<String> fieldUnits = new ArrayList<String>();
-		
+
 		if (isReadAcquisitionTime()) {
 			if (getAcquisitionTimeUnit()!=null) {
 				fieldUnits.add(getAcquisitionTimeUnit());

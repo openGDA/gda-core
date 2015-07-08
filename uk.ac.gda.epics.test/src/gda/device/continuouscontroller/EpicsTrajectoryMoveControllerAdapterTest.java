@@ -18,24 +18,28 @@
 
 package gda.device.continuouscontroller;
 
-import static org.junit.Assert.*;
-
-import java.util.List;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.util.OutOfRangeException;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
 
+import java.util.List;
+
+import junitx.framework.ArrayAssert;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
-import junitx.framework.ArrayAssert;
-import static org.mockito.Mockito.*;
 
 public class EpicsTrajectoryMoveControllerAdapterTest {
 
@@ -72,7 +76,7 @@ public class EpicsTrajectoryMoveControllerAdapterTest {
 		assertEquals(adapter.motorFromIndex(1), 2);
 		assertEquals(adapter.motorFromIndex(2), 3);
 	}
-	
+
 	@Test
 	public void testMotorFromIndexWithAxisMotorOrder() {
 		assertEquals(adapter.motorFromIndex(0), 4);
@@ -80,7 +84,7 @@ public class EpicsTrajectoryMoveControllerAdapterTest {
 		assertEquals(adapter.motorFromIndex(2), 2);
 		assertEquals(adapter.motorFromIndex(3), 1);
 	}
-	
+
 	@Test
 	public void testStopAndReset() throws DeviceException, InterruptedException {
 		adapter.stopAndReset();
@@ -101,12 +105,12 @@ public class EpicsTrajectoryMoveControllerAdapterTest {
 		adapter.setAxisTrajectory(0, new double[] {1.,2.,3.});
 		verify(mockedController).setMTraj(4, new double[] {1.,2.,3.});
 	}
-	
+
 	@Test
 	public void getNumberAxis() {
 		assertEquals(adapter.getNumberAxes(), 4);
 	}
-	
+
 	@Test(expected=DeviceException.class)
 	public void testAddPointWrongSize() throws DeviceException {
 		adapter.addPoint(new Double[]{1., 2., 3.}); // 4 expected
@@ -142,7 +146,7 @@ public class EpicsTrajectoryMoveControllerAdapterTest {
 		when(mockedController.isMMove(3)).thenReturn(true);
 		when(mockedController.isMMove(2)).thenReturn(true);
 		when(mockedController.isMMove(1)).thenReturn(true);
-		
+
 		adapter.prepareForMove();
 		verify(mockedController).setMTraj(4, new double[]{1., 1.1});
 		verify(mockedController).setMTraj(3, new double[]{2., 2.1});
@@ -160,19 +164,19 @@ public class EpicsTrajectoryMoveControllerAdapterTest {
 		verify(mockedController).setMMove(6, false);
 		verify(mockedController).setMMove(7, false);
 		verify(mockedController).setMMove(8, false);
-		
+
 		verify(mockedController).setNumberOfElements(2);
 		verify(mockedController).setNumberOfPulses(2);
 		verify(mockedController).setTrajectoryTime(2.);
 		verify(mockedController).build();
-		
+
 	}
 	@Test
 	public void testPrepareForMoveWithNonMovingAxes() throws DeviceException, OutOfRangeException, InterruptedException, CAException, TimeoutException {
 		adapter.addPoint(new Double[]{1., null, null, 4.});
 		adapter.addPoint(new Double[]{1.1, null, null, 4.1});
 		adapter.setTriggerPeriod(2.);
-		
+
 		when(mockedController.getMaximumNumberElements()).thenReturn(4);
 		when(mockedController.getMTraj(4)).thenReturn(new double[]{1., 1.1, 0., 0.});
 		when(mockedController.getMTraj(3)).thenReturn(new double[]{0., 0., 0., 0.});
@@ -188,7 +192,7 @@ public class EpicsTrajectoryMoveControllerAdapterTest {
 		when(mockedController.getTrajectoryTime()).thenReturn(2.);
 		when(mockedController.isMMove(4)).thenReturn(true);
 		when(mockedController.isMMove(1)).thenReturn(true);
-		
+
 		adapter.prepareForMove();
 		verify(mockedController).setMTraj(4, new double[]{1., 1.1});
 		verify(mockedController).setMTraj(3, new double[]{});
@@ -214,7 +218,7 @@ public class EpicsTrajectoryMoveControllerAdapterTest {
 	@Test
 	public void testPrepareForMoveNoPoints() throws DeviceException, OutOfRangeException, InterruptedException {
 		adapter.setTriggerPeriod(1);
-		
+
 		when(mockedController.getMaximumNumberElements()).thenReturn(4);
 		when(mockedController.getMTraj(4)).thenReturn(new double[]{0., 0., 0., 0.});
 		when(mockedController.getMTraj(3)).thenReturn(new double[]{0., 0., 0., 0.});
@@ -228,7 +232,7 @@ public class EpicsTrajectoryMoveControllerAdapterTest {
 		when(mockedController.getStartPulseElement()).thenReturn(1);
 		when(mockedController.getStopPulseElement()).thenReturn(0);
 		when(mockedController.getTrajectoryTime()).thenReturn(0.);
-		
+
 		adapter.prepareForMove();
 		verify(mockedController).setMTraj(4, new double[]{});
 		verify(mockedController).setMTraj(3, new double[]{});
@@ -251,8 +255,8 @@ public class EpicsTrajectoryMoveControllerAdapterTest {
 		verify(mockedController).setTrajectoryTime(0.);
 		verify(mockedController).build(); // Would throw an exception with real controller
 	}
-	
-	
+
+
 	@Ignore
 	@Test
 	public void testSetTriggerDeltas() throws DeviceException {
@@ -263,16 +267,16 @@ public class EpicsTrajectoryMoveControllerAdapterTest {
 	@Test
 	public void testStartMove() throws DeviceException, InterruptedException {
 		doAnswer(new SleepStub()).when(mockedController).execute();
-		
+
 		long startMillis = System.currentTimeMillis();
 		adapter.startMove();
 		adapter.waitWhileMoving();
 		assertTrue((System.currentTimeMillis() - startMillis) >= 2000);
-		
+
 		verify(mockedController).execute();
-		
+
 	}
-	
+
 	@Test
 	public void testIsMoving() throws DeviceException,  InterruptedException{
 		doAnswer(new SleepStub()).when(mockedController).execute();

@@ -32,7 +32,7 @@ public class PVValueCache<T> implements Observer<T> {
 		this.pv = pv;
 		pv.addObserver(this);
 	}
-	
+
 	public void putWait(T arg) throws IOException{
 		if( !arg.equals(cache)){
 			if( cache != null && arg instanceof Double){
@@ -51,10 +51,10 @@ public class PVValueCache<T> implements Observer<T> {
 		}
 		return cache;
 	}
-	
+
 	@Override
 	public void update(Observable<T> source, T arg) {
 		cache=arg;
-		
+
 	}
 }

@@ -45,31 +45,31 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 		NDStatsPVs statsPVs = NDStatsPVsImpl.createFromBasePVName(basePVName);
 		return new ADTimeSeriesStatsPlugin(statsPVs, pluginName, roiProvider);
 	}
-	
+
 	private final NDStatsPVs pvs;
 
 	private final String name;
-	
+
 	private final RectangularROIProvider<Integer> roiProvider;
 
 	private List<BasicStat> enabledBasicStats = Arrays.asList();
 
 	private List<CentroidStat> enabledCentroidStats = Arrays.asList();
-	
+
 	private ScanInformation scanInfo;
 
 	private TimeSeriesInputStreamCollection timeSeriesCollection;
 
 	private String inputNdArrayPort;
-	
+
 	private boolean oneTimeSeriesCollectionPerLine = true;
-	
+
 	public ADTimeSeriesStatsPlugin(NDStatsPVs statsPVs, String name, RectangularROIProvider<Integer> roiProvider) {
 		this.pvs = statsPVs;
 		this.name = name;
 		this.roiProvider = roiProvider;
 	}
-	
+
 	public boolean isEnabled() {
 		try {
 			return ((this.roiProvider.getRoi() != null) && (!getEnabledStats().isEmpty()));
@@ -107,17 +107,17 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @return ndArrayPort name that *will be configured* during prepareforCollection if an roi were configured.
 	 */
 	@Override
 	public String getInputNDArrayPort() {
-		return inputNdArrayPort; 
+		return inputNdArrayPort;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @param nDArrayPort ndArrayPort name that *will be configured* during prepareforCollection if an roi were configured.
 	 */
 	@Override
@@ -128,14 +128,14 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 	/**
 	 * Get the permanent Epics port name.
 	 * @return portName
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@Override
 	public String getPortName() throws IOException {
 		return pvs.getPluginBasePVs().getPortNamePV().get();
 	}
-	
-	
+
+
 	public List<Stat> getEnabledStats() {
 		List<Stat> enabledStats = new ArrayList<NDStatsPVs.Stat>();
 		enabledStats.addAll(getEnabledBasicStats());
@@ -192,7 +192,7 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 		pvs.getPluginBasePVs().getEnableCallbacksPVPair().putWait(isEnabled());
 		pvs.getComputeStatistsicsPVPair().putWait(!getEnabledBasicStats().isEmpty() && isEnabled());
 		pvs.getComputeCentroidPVPair().putWait(!getEnabledCentroidStats().isEmpty() && isEnabled());
-		
+
 		if (!isOneTimeSeriesCollectionPerLine()){
 			startNewTimeSeriesCollectionIfRequested();
 		}
@@ -221,7 +221,7 @@ public class ADTimeSeriesStatsPlugin implements NXPlugin, NDPlugin {
 			numPointsToCollect = getNumPointsInLine();
 		} else {
 			numPointsToCollect = getNumPointsInScan();
-			
+
 		}
 		List<ReadOnlyPV<Double[]>> tsArrayPVList = new ArrayList<ReadOnlyPV<Double[]>>();
 		for (Stat stat: getEnabledStats()) {

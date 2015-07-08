@@ -68,7 +68,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Converts a DBR object from a MonitorEvent to a string
-	 * 
+	 *
 	 * @param dbr
 	 * @return string
 	 */
@@ -106,7 +106,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Gets the EpicsController of this client
-	 * 
+	 *
 	 * @return the Epics controller
 	 */
 
@@ -117,7 +117,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Gets the channel of this client
-	 * 
+	 *
 	 * @return the Epics channel
 	 */
 
@@ -128,7 +128,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Gets the channels of this client
-	 * 
+	 *
 	 * @return the Epics channels
 	 */
 
@@ -139,13 +139,13 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Gets the value of the specified PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the EPICS PV name
 	 * @return the value of the PV in String format
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public String caget(String pv) throws CAException, TimeoutException, InterruptedException {
 		Channel channel = null;
@@ -334,16 +334,16 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 			caClient.clearup();
 		}
 	}
-	
+
 	/**
 	 * Gets values of a list of PVs from EPICS servers.
-	 * 
+	 *
 	 * @param pvs
 	 *            the list of PVs
 	 * @return the values of these PVs
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public String[] caget(String... pvs) throws CAException, TimeoutException, InterruptedException {
 		String[] values = new String[pvs.length];
@@ -357,7 +357,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @return String[]
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public String[] cagetArray(String pv) throws CAException, TimeoutException, InterruptedException {
 		Channel channel = channelmanager.createChannel(pv);
@@ -371,7 +371,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * adding a specified CA monitor listener to the PV specified, users need to specify a proper monitor handler that implement
 	 * MonitorChanged(MonitorEvent ev) method.
-	 * 
+	 *
 	 * @param ml
 	 * @return Monitor
 	 * @throws CAException
@@ -384,7 +384,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * start the default CA monitor Listener to this PV, the default behaviour is the monitor prints PV name and value to
 	 * Jython Terminal.
-	 * 
+	 *
 	 * @return Monitor
 	 * @throws CAException
 	 */
@@ -394,7 +394,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	}
 	/**
 	 * Sets the value of the specified PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -408,7 +408,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value of the specified PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -422,7 +422,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value of the specified PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -436,7 +436,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value of the specified PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -450,7 +450,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value of the PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -465,13 +465,13 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value of the PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
 	 *            the value
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void caput(String pv, byte[] value, PutListener lstnr) throws CAException, InterruptedException {
 		Channel channel = channelmanager.createChannel(pv);
@@ -480,7 +480,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	}
 	/**
 	 * Sets the value of the PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -493,7 +493,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	}
 	/**
 	 * Sets the value of the PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -506,7 +506,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	}
 	/**
 	 * Sets the value of the PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -519,7 +519,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	}
 	/**
 	 * Sets the value of the PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -533,7 +533,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value of the PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -547,7 +547,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	}
 	/**
 	 * Sets the value of the PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -560,7 +560,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	}
 	/**
 	 * Sets the value of the PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -573,7 +573,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	}
 	/**
 	 * Sets the value of the PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -586,7 +586,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	}
 	/**
 	 * Sets the value of the PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -599,7 +599,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	}
 	/**
 	 * Sets a list of values to the specified list of PVs, respectively.
-	 * 
+	 *
 	 * @param pvs
 	 *            this list of PVs
 	 * @param values
@@ -613,7 +613,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets a list of values to the specified list of PVs, respectively.
-	 * 
+	 *
 	 * @param pvs
 	 *            this list of PVs
 	 * @param values
@@ -627,7 +627,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets a list of values to the specified list of PVs, respectively.
-	 * 
+	 *
 	 * @param pvs
 	 *            this list of PVs
 	 * @param values
@@ -641,7 +641,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value of the specified PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -649,7 +649,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @param timeoutinsecond
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void caput(String pv, double value, double timeoutinsecond) throws CAException, TimeoutException, InterruptedException {
 		Channel channel = channelmanager.createChannel(pv);
@@ -659,7 +659,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value of the specified PV with put call back listener, this listener must implemenets
 	 * putCompleted(PutEvent pe) method to handle the call-back.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -675,7 +675,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value of the specified PV with put call back listener, this listener must implemenets
 	 * putCompleted(PutEvent pe) method to handle the call-back.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -691,7 +691,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value of the specified PV with put call back listener, this listener must implemenets
 	 * putCompleted(PutEvent pe) method to handle the call-back.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -707,7 +707,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value of the specified PV with put call back listener, this listener must implemenets
 	 * putCompleted(PutEvent pe) method to handle the call-back.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -723,7 +723,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value of the PV and wait for callback.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -757,7 +757,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value of the specified PV with put call back listener, this listener must implemenets
 	 * putCompleted(PutEvent pe) method to handle the call-back.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -773,7 +773,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets a list of values to the specified list of PVs, respectively and wait for callback.
-	 * 
+	 *
 	 * @param pvs
 	 *            this list of PVs
 	 * @param values
@@ -790,7 +790,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value of the specified PV with put call back listener, this listener must implemenets
 	 * putCompleted(PutEvent pe) method to handle the call-back.
-	 * 
+	 *
 	 * @param pvs
 	 *            the PV name array
 	 * @param values
@@ -806,7 +806,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets a list of values to the specified list of PVs, respectively and wait for callback.
-	 * 
+	 *
 	 * @param pvs
 	 *            this list of PVs
 	 * @param values
@@ -823,7 +823,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value of the specified PV with put call back listener, this listener must implemenets
 	 * putCompleted(PutEvent pe) method to handle the call-back.
-	 * 
+	 *
 	 * @param pvs
 	 *            the PV name array
 	 * @param values
@@ -838,7 +838,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	}
 	/**
 	 * caput a string value as waveform to the corresponding PVs in EPICS server.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 */
@@ -850,7 +850,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets a string as waveform to the PV on EPICS server with a put callback listener, which must implements the
 	 * putCompleted(PutEvent pe) method to handle the callback.
-	 * 
+	 *
 	 * @param value
 	 *            the input string value
 	 * @param lstnr
@@ -865,7 +865,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Constructor that initialises a PV name.
-	 * 
+	 *
 	 * @param pv
 	 */
 	public CAClient(String pv) {
@@ -874,7 +874,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Constructor that initialises a list of PV names.
-	 * 
+	 *
 	 * @param pvs
 	 */
 	public CAClient(String... pvs) {
@@ -885,7 +885,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * configure the channel access for EPICS PV or PVs. This method must be called before caget() or caput().
-	 * 
+	 *
 	 * @throws FactoryException
 	 */
 	@Override
@@ -916,7 +916,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * adding a specified CA monitor to this Channel, users need to specify a proper monitor handler that implement
 	 * MonitorChanged(MonitorEvent ev) method.
-	 * 
+	 *
 	 * @param ml
 	 * @return Monitor
 	 * @throws CAException
@@ -931,7 +931,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * start the default CA monitor to this Channel, the default behaviour is the monitor prints PV name and value to
 	 * Jython Terminal.
-	 * 
+	 *
 	 * @return Monitor
 	 * @throws CAException
 	 */
@@ -941,7 +941,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Remove a monitor from this channel
-	 * 
+	 *
 	 * @param m
 	 */
 	public void removeMonitor(Monitor m) {
@@ -950,11 +950,11 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Gets the value from EPICS Server.
-	 * 
+	 *
 	 * @return the value
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public String caget() throws CAException, TimeoutException, InterruptedException {
 		return controller.caget(theChannel);
@@ -989,7 +989,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @return String[]
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public String[] cagetArray() throws CAException, TimeoutException, InterruptedException {
 		int elementCount = theChannel.getElementCount();
@@ -1002,7 +1002,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @return double[]
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public double[] cagetArrayDouble() throws CAException, TimeoutException, InterruptedException {
 		double[] values = controller.cagetDoubleArray(theChannel);
@@ -1014,7 +1014,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @return int[]
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public int[] cagetArrayUnsigned(int numberOfElements) throws CAException, TimeoutException, InterruptedException {
 		byte[] values = controller.cagetByteArray(theChannel, numberOfElements);
@@ -1029,7 +1029,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @return int[]
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public int[] cagetArrayUnsigned() throws CAException, TimeoutException, InterruptedException {
 		byte[] values = controller.cagetByteArray(theChannel);
@@ -1041,13 +1041,13 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	}
 
 
-	
+
 	/**
 	 * @param numberOfElements
 	 * @return byte[]
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public byte[] cagetArrayByte(int numberOfElements) throws CAException, TimeoutException, InterruptedException {
 		byte[] values = controller.cagetByteArray(theChannel, numberOfElements);
@@ -1058,7 +1058,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @return byte[]
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public byte[] cagetArrayByte() throws CAException, TimeoutException, InterruptedException {
 		byte[] values = controller.cagetByteArray(theChannel);
@@ -1070,7 +1070,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @return double[]
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public double[] cagetArrayDouble(int numberOfElements) throws CAException, TimeoutException, InterruptedException {
 		double[] values = controller.cagetDoubleArray(theChannel, numberOfElements);
@@ -1082,7 +1082,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @return double[]
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public float[] cagetArrayFloat(int numberOfElements) throws CAException, TimeoutException, InterruptedException {
 		float[] values = controller.cagetFloatArray(theChannel, numberOfElements);
@@ -1092,7 +1092,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @return double
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public double cagetMax() throws CAException, TimeoutException, InterruptedException {
 		return max(cagetArrayDouble());
@@ -1102,7 +1102,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	 * @return int
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public int cagetPeakPosition() throws CAException, TimeoutException, InterruptedException {
 		return peakPosition(cagetArrayDouble());
@@ -1110,11 +1110,11 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Gets the values from EPICS servers.
-	 * 
+	 *
 	 * @return the value array
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public String[] cagetAllChannels() throws CAException, TimeoutException, InterruptedException {
 		String[] values = new String[chs.length];
@@ -1125,7 +1125,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value to the PV on EPICS server.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 */
@@ -1135,7 +1135,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value to the PV on EPICS server.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 */
@@ -1148,7 +1148,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value to the PV on EPICS server.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 */
@@ -1158,7 +1158,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value to the PV on EPICS server.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 */
@@ -1170,7 +1170,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	}
 	/**
 	 * Sets the value to the PV on EPICS server.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 */
@@ -1180,7 +1180,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value to the PV in EPICS server.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 */
@@ -1190,7 +1190,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the values to the corresponding PVs in EPICS server.
-	 * 
+	 *
 	 * @param values
 	 * @throws CAException
 	 */
@@ -1208,7 +1208,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the values to the corresponding PVs in EPICS server.
-	 * 
+	 *
 	 * @param values
 	 * @throws CAException
 	 */
@@ -1226,7 +1226,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the values to the corresponding PVs in EPICS server.
-	 * 
+	 *
 	 * @param values
 	 * @throws CAException
 	 */
@@ -1244,7 +1244,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the values to the corresponding PVs in EPICS server.
-	 * 
+	 *
 	 * @param values
 	 * @throws CAException
 	 */
@@ -1262,7 +1262,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the values to the corresponding PVs in EPICS server.
-	 * 
+	 *
 	 * @param values
 	 * @throws CAException
 	 */
@@ -1280,7 +1280,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the values to the corresponding PVs in EPICS server.
-	 * 
+	 *
 	 * @param values
 	 * @throws CAException
 	 */
@@ -1298,7 +1298,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value to the PV on EPICS server and wait for callback.
-	 * 
+	 *
 	 * @param value
 	 * @param timeoutinsecond
 	 * @throws CAException
@@ -1311,7 +1311,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value to the PV on EPICS server with a put callback listener, which must implements the
 	 * putCompleted(PutEvent pe) method to handle the callback.
-	 * 
+	 *
 	 * @param value
 	 * @param lstnr
 	 * @throws CAException
@@ -1322,7 +1322,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value to the PV on EPICS server and wait for callback.
-	 * 
+	 *
 	 * @param value
 	 * @param timeoutinsecond
 	 * @throws CAException
@@ -1335,7 +1335,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value to the PV on EPICS server with a put callback listener, which must implements the
 	 * putCompleted(PutEvent pe) method to handle the callback.
-	 * 
+	 *
 	 * @param value
 	 * @param lstnr
 	 * @throws CAException
@@ -1346,7 +1346,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value to the PV on EPICS server and wait for callback.
-	 * 
+	 *
 	 * @param value
 	 * @param timeoutinsecond
 	 * @throws CAException
@@ -1359,7 +1359,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value to the PV on EPICS server with a put callback listener, which must implements the
 	 * putCompleted(PutEvent pe) method to handle the callback.
-	 * 
+	 *
 	 * @param value
 	 * @param lstnr
 	 * @throws CAException
@@ -1370,7 +1370,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value to the PV on EPICS server and wait for callback.
-	 * 
+	 *
 	 * @param value
 	 * @param timeoutinsecond
 	 * @throws CAException
@@ -1383,7 +1383,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value to the PV on EPICS server with a put callback listener, which must implements the
 	 * putCompleted(PutEvent pe) method to handle the callback.
-	 * 
+	 *
 	 * @param value
 	 * @param lstnr
 	 * @throws CAException
@@ -1394,7 +1394,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value to the PV on EPICS server and wait for callback.
-	 * 
+	 *
 	 * @param value
 	 * @param timeoutinsecond
 	 * @throws CAException
@@ -1407,7 +1407,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value to the PV on EPICS server with a put callback listener, which must implements the
 	 * putCompleted(PutEvent pe) method to handle the callback.
-	 * 
+	 *
 	 * @param value
 	 * @param lstnr
 	 * @throws CAException
@@ -1418,7 +1418,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the value to the PV in EPICS server and wait for callback.
-	 * 
+	 *
 	 * @param timeoutinsecond
 	 * @param value
 	 * @throws CAException
@@ -1431,7 +1431,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value to the PV on EPICS server with a put callback listener, which must implements the
 	 * putCompleted(PutEvent pe) method to handle the callback.
-	 * 
+	 *
 	 * @param value
 	 * @param lstnr
 	 * @throws CAException
@@ -1442,7 +1442,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the values to the corresponding PVs in EPICS server and wait for callback.
-	 * 
+	 *
 	 * @param timeoutinsecond
 	 * @param values
 	 * @throws CAException
@@ -1456,7 +1456,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value to the PV on EPICS server with a put callback listener, which must implements the
 	 * putCompleted(PutEvent pe) method to handle the callback.
-	 * 
+	 *
 	 * @param values
 	 *            array
 	 * @param lstnr
@@ -1469,7 +1469,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the values to the corresponding PVs in EPICS server and wait for callback.
-	 * 
+	 *
 	 * @param timeoutinsecond
 	 * @param values
 	 * @throws CAException
@@ -1483,7 +1483,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value to the PV on EPICS server with a put callback listener, which must implements the
 	 * putCompleted(PutEvent pe) method to handle the callback.
-	 * 
+	 *
 	 * @param values
 	 *            array
 	 * @param lstnr
@@ -1503,7 +1503,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the values to the corresponding PVs in EPICS server and wait for callback.
-	 * 
+	 *
 	 * @param timeoutinsecond
 	 * @param values
 	 * @throws CAException
@@ -1517,7 +1517,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value to the PV on EPICS server with a put callback listener, which must implements the
 	 * putCompleted(PutEvent pe) method to handle the callback.
-	 * 
+	 *
 	 * @param values
 	 *            array
 	 * @param lstnr
@@ -1530,7 +1530,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the values to the corresponding PVs in EPICS server and wait for callback.
-	 * 
+	 *
 	 * @param timeoutinsecond
 	 * @param values
 	 * @throws CAException
@@ -1544,7 +1544,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value to the PV on EPICS server with a put callback listener, which must implements the
 	 * putCompleted(PutEvent pe) method to handle the callback.
-	 * 
+	 *
 	 * @param values
 	 *            array
 	 * @param lstnr
@@ -1557,7 +1557,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the values to the corresponding PVs in EPICS server and wait for callback.
-	 * 
+	 *
 	 * @param timeoutinsecond
 	 * @param values
 	 * @throws CAException
@@ -1571,7 +1571,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value to the PV on EPICS server with a put callback listener, which must implements the
 	 * putCompleted(PutEvent pe) method to handle the callback.
-	 * 
+	 *
 	 * @param values
 	 *            array
 	 * @param lstnr
@@ -1584,7 +1584,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Sets the values to the corresponding PVs in EPICS server.
-	 * 
+	 *
 	 * @param timeoutinsecond
 	 * @param values
 	 * @throws CAException
@@ -1598,12 +1598,12 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets the value to the PV on EPICS server with a put callback listener, which must implements the
 	 * putCompleted(PutEvent pe) method to handle the callback.
-	 * 
+	 *
 	 * @param values
 	 *            array
 	 * @param lstnr
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void caput(String[] values, PutListener lstnr) throws CAException, InterruptedException {
 		for (int i = 0; i < chs.length; i++)
@@ -1611,7 +1611,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	}
 	/**
 	 * caput a string value as waveform to the corresponding PVs in EPICS server.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 */
@@ -1622,7 +1622,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 	/**
 	 * Asynchronously sets a string as waveform to the PV on EPICS server with a put callback listener, which must implements the
 	 * putCompleted(PutEvent pe) method to handle the callback.
-	 * 
+	 *
 	 * @param value
 	 *            the input string value
 	 * @param lstnr
@@ -1658,7 +1658,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Gets the configuration state of the object.
-	 * 
+	 *
 	 * @return true if configured, false if not.
 	 */
 	public boolean isConfigured() {
@@ -1667,7 +1667,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * Set the configuration state of the object.
-	 * 
+	 *
 	 * @param configstate
 	 */
 	public void setConfigured(boolean configstate) {
@@ -1707,7 +1707,7 @@ public class CAClient extends EpicsBase implements Epics, MonitorListener, Conne
 
 	/**
 	 * This is the default Monitor handler that simply print the PV name and value on the JythonTerminal. {@inheritDoc}
-	 * 
+	 *
 	 * @see gov.aps.jca.event.MonitorListener#monitorChanged(gov.aps.jca.event.MonitorEvent)
 	 */
 	@Override

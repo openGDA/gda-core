@@ -22,8 +22,8 @@ public class ADUtils {
 	private static final String COLON_REPLACEMENT = "@";
 	public static final String PV_TYPE = "pv//";
 
-	public enum ViewType {MPEG, STATS, ARRAY};	
-	
+	public enum ViewType {MPEG, STATS, ARRAY};
+
 	public static String getViewId(ViewType viewType) {
 		String viewId="";
 		switch (viewType){
@@ -38,12 +38,12 @@ public class ADUtils {
 			break;
 		}
 		return viewId;
-	}	
-	
+	}
+
 	public static String getPVServiceName(String detectorName, String pvPrefix, String suffixType) {
 		return ADUtils.PV_TYPE + detectorName + "//" + pvPrefix.replace(":", COLON_REPLACEMENT) + "//" + suffixType;
 	}
-	
+
 	public static String getDetectorNameFromPVServiceName(String pvServiceName) throws Exception{
 		String name = pvServiceName;
 		if(pvServiceName.startsWith(PV_TYPE)){
@@ -78,7 +78,7 @@ public class ADUtils {
 		if( splitAgain.length < 2)
 			throw new Exception("serviceName should be of form pv//detectorName//pvPrefix[//suffixType]  actual value is '" + pvServiceName +"'");
 		return splitAgain[1].replace(COLON_REPLACEMENT, ":");
-	}	
-	
-	
+	}
+
+
 }

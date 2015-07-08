@@ -51,7 +51,7 @@ public class MultichannelscalerImpl extends CorbaMultiChannelScalerPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param mcs
 	 *            the EpicsMcsSis3820 implementation object
 	 * @param poa
@@ -67,7 +67,7 @@ public class MultichannelscalerImpl extends CorbaMultiChannelScalerPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the EpicsMcsSis3820 implementation object
 	 */
 	public EpicsMcsSis3820 _delegate() {
@@ -76,7 +76,7 @@ public class MultichannelscalerImpl extends CorbaMultiChannelScalerPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param mcs
 	 *            set the EpicsMcsSis3820 implementation object
 	 */
@@ -139,7 +139,7 @@ public class MultichannelscalerImpl extends CorbaMultiChannelScalerPOA {
 	public void setAttribute(String attributeName, org.omg.CORBA.Any value) throws CorbaDeviceException {
 		deviceImpl.setAttribute(attributeName, value);
 	}
-	
+
 	@Override
 	public double getCollectionTime() throws CorbaDeviceException {
 		return detectorImpl.getCollectionTime();
@@ -350,7 +350,7 @@ public class MultichannelscalerImpl extends CorbaMultiChannelScalerPOA {
 	public String getDetectorType() throws CorbaDeviceException {
 		return detectorImpl.getDetectorType();
 	}
-	
+
 	@Override
 	public int getProtectionLevel() throws CorbaDeviceException {
 		return deviceImpl.getProtectionLevel();
@@ -365,12 +365,12 @@ public class MultichannelscalerImpl extends CorbaMultiChannelScalerPOA {
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		scannableImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return scannableImpl.toFormattedString();

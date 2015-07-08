@@ -64,9 +64,9 @@ import org.springframework.util.StringUtils;
  */
 @ExposedType(name="epicsdevice")
 public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsDevice.class);
-	
+
 	private EpicsController controller;
 
 	/*
@@ -95,14 +95,14 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 	private HashMap<String, DummyChannel> dummyChannels = new HashMap<String, DummyChannel>();
 	private HashMap<String, Object> fields = new HashMap<String, Object>();
 
-	
+
 	@Override
 	public void configure(){
 		// no configuration required
 	}
 
 	/**
-	 * @return docString 
+	 * @return docString
 	 */
 	public String getDocString() {
 		return docString;
@@ -118,23 +118,23 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 	private String docString;
 	private enum SetMode {
 		/**
-		 * 
+		 *
 		 */
 		VALUE, /**
-		 * 
+		 *
 		 */
 		ADDOBSERVER, /**
-		 * 
+		 *
 		 */
 		DELETEOBSERVER, /**
-		 * 
+		 *
 		 */
 		CLOSECHANNEL
 	}
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param name
 	 * @param recordPVs
 	 * @param InDummyMode
@@ -437,7 +437,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 			throw new DeviceException(msg, e);
 		}
 	}
-	
+
 	/**
 	 * @see gda.device.DeviceBase#getAttribute(java.lang.String)
 	 */
@@ -961,11 +961,11 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 					+ obj.getClass().getName());
 		return (Double) obj;
 	}
-	
-	
 
-	
-	
+
+
+
+
 	/**
 	 * See __findattr__(String name)
 	 * @param name
@@ -1053,7 +1053,7 @@ public class EpicsDevice extends DeviceBase implements IEpicsDevice, IObserver {
 			String msg = "EpicsDevice.setValue failed for " + pvName + " with value = " + value.toString();
 			throw new DeviceException(msg, e);
 		}
-		
+
 	}
 }
 
@@ -1083,7 +1083,7 @@ final class MonitorListenerImpl implements MonitorListener {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void sendLastEvent() {
 		// I need to use a separate thread otherwise this is part of the
@@ -1171,7 +1171,7 @@ final class DummyMonitorListener implements IObserver {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void sendLastEvent() {
 		epicsDevice.notifyIObservers(this, lastEvent);

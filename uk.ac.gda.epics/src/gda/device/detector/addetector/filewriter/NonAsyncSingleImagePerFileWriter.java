@@ -28,7 +28,7 @@ public class NonAsyncSingleImagePerFileWriter extends SingleImagePerFileWriter i
 
 	public NonAsyncSingleImagePerFileWriter() {
 	}
-	
+
 	public NonAsyncSingleImagePerFileWriter(String detectorName) {
 		super(detectorName);
 	}
@@ -42,6 +42,6 @@ public class NonAsyncSingleImagePerFileWriter extends SingleImagePerFileWriter i
 	public String getFullFileName() throws Exception {
 		return getNdFile().getFullFileName_RBV();
 	}
-	
-	
+
+
 }

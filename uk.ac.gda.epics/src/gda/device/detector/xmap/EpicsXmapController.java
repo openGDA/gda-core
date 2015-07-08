@@ -23,7 +23,6 @@ import gda.device.DeviceException;
 import gda.device.detector.xmap.edxd.EDXDElement;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.factory.FactoryException;
-import gda.factory.Finder;
 import gda.observable.IObserver;
 
 import org.slf4j.Logger;
@@ -167,7 +166,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController, I
 
 	/**
 	 * Get the real time for the mca element
-	 * 
+	 *
 	 * @param mcaNumber
 	 * @return real time
 	 * @throws DeviceException
@@ -301,7 +300,7 @@ public class EpicsXmapController extends DeviceBase implements XmapController, I
 
 	/**
 	 * Returns the total events recorded
-	 * 
+	 *
 	 * @param mcaNumber
 	 * @throws DeviceException
 	 */

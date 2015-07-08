@@ -47,7 +47,7 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 
 	/**
 	 * Gets the EpicsController of this client
-	 * 
+	 *
 	 * @return the Epics controller
 	 */
 
@@ -57,7 +57,7 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 
 	/**
 	 * Gets the channel of this client
-	 * 
+	 *
 	 * @return the Epics channel
 	 */
 
@@ -67,7 +67,7 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 
 	/**
 	 * Gets the channels of this client
-	 * 
+	 *
 	 * @return the Epics channels
 	 */
 
@@ -77,13 +77,13 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 
 	/**
 	 * Gets the value of the specified PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the EPICS PV name
 	 * @return the value of the PV in String format
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public String caget(String pv) throws CAException, TimeoutException, InterruptedException {
 		Channel channel = null;
@@ -98,7 +98,7 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 	 * @return String[]
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public String[] cagetArray(String pv) throws CAException, TimeoutException, InterruptedException {
 		Channel channel = channelmanager.createChannel(pv);
@@ -111,7 +111,7 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 	/**
 	 * start the default CA monitor Listener to this PV, the default behaviour is the monitor prints PV name and value to
 	 * Jython Terminal.
-	 * 
+	 *
 	 * @return Monitor
 	 * @throws CAException
 	 */
@@ -165,7 +165,7 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 		if (charString) {
 			int[] waveform = JCAUtils.getIntArrayFromWaveform(value);
 			caput(pv, waveform, wait);
-		} 
+		}
 		else
 			caput(pv, value, wait);
 	}
@@ -178,7 +178,7 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 	}
 	/**
 	 * caput a string value as waveform to the corresponding PVs in EPICS server.
-	 * 
+	 *
 	 * @param value
 	 * @throws CAException
 	 */
@@ -188,7 +188,7 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 	}
 	/**
 	 * Sets the value of the PV.
-	 * 
+	 *
 	 * @param pv
 	 *            the PV name
 	 * @param value
@@ -202,7 +202,7 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 
 	/**
 	 * This is the default Monitor handler that simply print the PV name and value on the JythonTerminal. {@inheritDoc}
-	 * 
+	 *
 	 * @see gov.aps.jca.event.MonitorListener#monitorChanged(gov.aps.jca.event.MonitorEvent)
 	 */
 	@Override
@@ -217,5 +217,5 @@ public class ChannalAccessCommands extends EpicsBase implements Epics, MonitorLi
 	public void connectionChanged(ConnectionEvent arg0) {
 		arg0.getSource();
 	}
-	
+
 }

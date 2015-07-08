@@ -126,7 +126,7 @@ public class TwoDArray extends Composite {
 	private ScrolledComposite leftScrolledComposite;
 
 	private Button middle;
-	
+
 	UpdateArrayJob updateArrayJob;
 
 	private IOCStatus statusComposite;
@@ -157,13 +157,13 @@ public class TwoDArray extends Composite {
 	// id used in DataBinding
 	static final String showOptionName = "showOption";
 	private Button btnSnapshot;
-	
+
 	public TwoDArray(IViewPart parentViewPart, Composite parent, int style, ADController adController) throws Exception {
 		super(parent, style);
 		this.plottingSystem = PlottingFactory.getLightWeightPlottingSystem();
 
 		this.setLayout(new GridLayout(3,false));
-		
+
 		leftScrolledComposite= new ScrolledComposite(this,SWT.V_SCROLL| SWT.H_SCROLL);
 		GridDataFactory.fillDefaults().grab(false, true).applyTo(leftScrolledComposite);
 		left = new Composite(leftScrolledComposite, SWT.NONE);
@@ -197,7 +197,7 @@ public class TwoDArray extends Composite {
 		GridData gd_arrayMonitoringBtn = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
 		gd_arrayMonitoringBtn.widthHint = 48;
 		arrayMonitoringBtn.setLayoutData(gd_arrayMonitoringBtn);
-		
+
 				grpStores = new Group(left, SWT.NONE);
 				GridData gd_grpStores = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
 				gd_grpStores.widthHint = 151;
@@ -205,7 +205,7 @@ public class TwoDArray extends Composite {
 				RowLayout rl_grpStores = new RowLayout(SWT.HORIZONTAL);
 				grpStores.setLayout(rl_grpStores);
 				grpStores.setText("Store I as");
-				
+
 						btnA = new Button(grpStores, SWT.NONE);
 						btnA.addSelectionListener(new SelectionAdapter() {
 							@Override
@@ -216,10 +216,10 @@ public class TwoDArray extends Composite {
 							}
 						});
 						btnA.setText("A");
-						
+
 								btnB = new Button(grpStores, SWT.NONE);
 								btnB.setText("B");
-								
+
 										btnB.addSelectionListener(new SelectionAdapter() {
 											@Override
 											public void widgetSelected(SelectionEvent e) {
@@ -296,7 +296,7 @@ public class TwoDArray extends Composite {
 		left.setSize(left.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
 
-		
+
 		middle = new Button(this,SWT.PUSH | SWT.TOP);
 		GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.BEGINNING).applyTo(middle);
 		middle.setText(">");
@@ -306,16 +306,16 @@ public class TwoDArray extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				super.widgetSelected(e);
 				showLeft(!getShowLeft());
-			}});		
-		
+			}});
+
 /*		Composite right = new Composite(this, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
 		right.setLayout(new FillLayout());
 */
-		Composite right = new Composite(this, SWT.NONE);		
+		Composite right = new Composite(this, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).applyTo(right);
 		GridLayoutFactory.fillDefaults().applyTo(right);
-		
+
 		Composite plotArea = new Composite(right, SWT.NONE);
 		plotArea.setLayout(new FillLayout());
 		{
@@ -325,7 +325,7 @@ public class TwoDArray extends Composite {
 			gridData.grabExcessVerticalSpace = true;
 			gridData.verticalAlignment = SWT.FILL;
 			plotArea.setLayoutData(gridData);
-		}		
+		}
 
 
 		plottingSystem.createPlotPart(plotArea, "", parentViewPart.getViewSite().getActionBars(), PlotType.IMAGE,
@@ -333,8 +333,8 @@ public class TwoDArray extends Composite {
 		for (IAxis axis : plottingSystem.getAxes()) {
 			axis.setTitle("");
 		}
-		
-		
+
+
 		addDisposeListener(new DisposeListener() {
 
 			@Override
@@ -555,7 +555,7 @@ public class TwoDArray extends Composite {
 		if( !viewIsVisible){
 			arrayMonitoringLbl.setText("INACTIVE");
 		}
-		arrayMonitoringLbl.setForeground(getDisplay().getSystemColor(viewIsVisible ? 
+		arrayMonitoringLbl.setForeground(getDisplay().getSystemColor(viewIsVisible ?
 				(arrayMonitoring ? SWT.COLOR_GREEN: SWT.COLOR_BLACK) : SWT.COLOR_RED));
 	}
 
@@ -624,7 +624,7 @@ public class TwoDArray extends Composite {
 						String[] entries = fullPath.split("/");
 						String dsName = entries[entries.length - 1];
 						if (dsName.equals("A-B")) continue;
-						
+
 						ILazyDataset lazy = new H5LazyDataset(reader, fullPath);
 						Dataset store = DatasetUtils.convertToDataset(lazy.getSlice((Slice) null));
 						store.setName(dsName);

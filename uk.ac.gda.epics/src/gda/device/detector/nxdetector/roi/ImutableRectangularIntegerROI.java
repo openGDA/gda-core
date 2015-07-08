@@ -37,7 +37,7 @@ public class ImutableRectangularIntegerROI implements RectangularROI<Integer> {
 		int ysize = (int) Math.round(scisoftRoi.getLength(1));
 		return new ImutableRectangularIntegerROI(xstart, ystart, xsize, ysize, name);
 	}
-	
+
 	public ImutableRectangularIntegerROI(Integer xstart, Integer ystart, Integer xsize, Integer ysize, String name) {
 		this.xstart = xstart;
 		this.ystart = ystart;
@@ -70,7 +70,7 @@ public class ImutableRectangularIntegerROI implements RectangularROI<Integer> {
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public String toString() {
 		return MessageFormat.format(

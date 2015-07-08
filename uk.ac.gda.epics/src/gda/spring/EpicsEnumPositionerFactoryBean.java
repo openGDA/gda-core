@@ -32,14 +32,14 @@ public class EpicsEnumPositionerFactoryBean extends EpicsConfigurationFactoryBea
 
 	private String pvBase;
 	private Integer protectionLevel = null;
-	
+
 	@Override
 	public Class<?> getObjectType() {
 		return EpicsEnumPositioner.class;
 	}
 
 	private EpicsEnumPositioner epicsEnumPositioner;
-	
+
 	@Override
 	protected void createObject() throws ConfigurationNotFoundException {
 		epicsEnumPositioner = new EpicsEnumPositioner();

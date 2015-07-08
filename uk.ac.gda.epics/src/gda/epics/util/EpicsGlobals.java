@@ -72,7 +72,7 @@ public final class EpicsGlobals {
 
 	/**
 	 * Size of buffer to use when reading & writing files.
-	 * 
+	 *
 	 * @return int
 	 */
 	public static int getBUFFERSIZE() {
@@ -82,7 +82,7 @@ public final class EpicsGlobals {
 	/**
 	 * Name of the configuration class for the DDH (ie. that used by <code>DdhMonitor</code>, and which is normally
 	 * specified in java.properties).
-	 * 
+	 *
 	 * @return String
 	 */
 	public static String getCASTOR_CODE_GENERATOR_CLASS() {
@@ -91,7 +91,7 @@ public final class EpicsGlobals {
 
 	/**
 	 * Name of the Meta data configuration class for files. (This is normally specified in java.properties file.)
-	 * 
+	 *
 	 * @return String
 	 */
 	public static String getCASTOR_CODE_GENERATOR_BINDING_FILE() {
@@ -100,7 +100,7 @@ public final class EpicsGlobals {
 
 	/**
 	 * Name of the Nexus file configuration class. (This is normally specified in java.properties file.)
-	 * 
+	 *
 	 * @return String
 	 */
 	public static String getCASTOR_CODE_GENERATOR_SRC_DEST_DIR() {
@@ -109,7 +109,7 @@ public final class EpicsGlobals {
 
 	/**
 	 * Identifier string for EPICS Devices XML file specified in java.properties.
-	 * 
+	 *
 	 * @return String
 	 */
 	public static String getDEVICES_XML_FILE() {
@@ -118,7 +118,7 @@ public final class EpicsGlobals {
 
 	/**
 	 * Identifier string for EPICS Device Types XML file specified in java.properties.
-	 * 
+	 *
 	 * @return String
 	 */
 	public static String getTYPES_XML_FILE() {
@@ -127,7 +127,7 @@ public final class EpicsGlobals {
 
 	/**
 	 * The minimum time allowed between the creation of a file and any copy operation on that file.
-	 * 
+	 *
 	 * @return long
 	 */
 	public static String getDEVICES_XML_SCHEMA_FILE() {
@@ -136,7 +136,7 @@ public final class EpicsGlobals {
 
 	/**
 	 * The minimum frequency allowed for polling.
-	 * 
+	 *
 	 * @return long
 	 */
 	public static String getTYPES_XML_SCHEMA_FILE() {
@@ -145,7 +145,7 @@ public final class EpicsGlobals {
 
 	/**
 	 * The debug level to use with <code>DdhMessage</code> (and <code>Message</code>).
-	 * 
+	 *
 	 * @return String
 	 */
 	public static String getDEBUG_LEVEL() {
@@ -154,7 +154,7 @@ public final class EpicsGlobals {
 
 	/**
 	 * The path separator for use in URIs.
-	 * 
+	 *
 	 * @return Character to use for path separators in URIs.
 	 */
 	public static char getDH_URI_PATH_SEPARATOR() {
@@ -164,7 +164,7 @@ public final class EpicsGlobals {
 	/**
 	 * The character encoding to use when encoding URIs from Strings. This is used at the highest level in
 	 * DdhMonitorConfig.
-	 * 
+	 *
 	 * @return the char encoding
 	 */
 	public static String getCHAR_ENCODING() {

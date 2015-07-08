@@ -18,14 +18,14 @@
 
 package gda.device.detector.nxdetector.plugin.areadetector;
 
+import gda.device.detector.areadetector.v17.NDProcess;
+import gda.device.detector.nxdetector.NXPluginBase;
+import gda.scan.ScanInformation;
+
 import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.InitializingBean;
-
-import gda.device.detector.areadetector.v17.NDProcess;
-import gda.device.detector.nxdetector.NXPluginBase;
-import gda.scan.ScanInformation;
 
 /**
  * An NXPlugin to configure the proc plugin for Area Detectors.

@@ -31,62 +31,62 @@ final public class ReturnType implements Serializable {
 	private int value_;
 
 	/**
-	 * 
+	 *
 	 */
 	public final static int _DBR_NATIVE = 0;
 
 	/**
-	 * 
+	 *
 	 */
 	public final static int _DBR_STS = 1;
 
 	/**
-	 * 
+	 *
 	 */
 	public final static int _DBR_TIME = 2;
 
 	/**
-	 * 
+	 *
 	 */
 	public final static int _DBR_CTRL = 3;
 
 	/**
-	 * 
+	 *
 	 */
 	public final static int _DBR_GR = 4;
 
 	/**
-	 * 
+	 *
 	 */
 	public final static int _DBR_UNKNOWN = 5;
 
 	/**
-	 * 
+	 *
 	 */
 	public final static ReturnType DBR_NATIVE = new ReturnType(_DBR_NATIVE);
 
 	/**
-	 * 
+	 *
 	 */
 	public final static ReturnType DBR_STS = new ReturnType(_DBR_STS);
 
 	/**
-	 * 
+	 *
 	 */
 	public final static ReturnType DBR_TIME = new ReturnType(_DBR_TIME);
 
 	/**
-	 * 
+	 *
 	 */
 	public final static ReturnType DBR_CTRL = new ReturnType(_DBR_CTRL);
 
 	/**
-	 * 
+	 *
 	 */
 	public final static ReturnType DBR_GR = new ReturnType(_DBR_GR);
 
 	/**
-	 * 
+	 *
 	 */
 	public final static ReturnType DBR_UNKNOWN = new ReturnType(_DBR_UNKNOWN);
 

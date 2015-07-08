@@ -21,6 +21,7 @@ package uk.ac.gda.epics.adviewer;
 import gda.rcp.util.OSGIServiceRegister;
 
 import java.util.Dictionary;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -30,7 +31,7 @@ import uk.ac.gda.util.dictionary.MapBasedDictionary;
 
 public class ADControllerFactory {
 	private static final Logger logger = LoggerFactory.getLogger(ADControllerFactory.class);
-	
+
 	//TODO Make the following match convention
 
 	private static ADControllerFactory instance;
@@ -43,7 +44,7 @@ public class ADControllerFactory {
 	}
 
 	public void registerADController(String serviceName) throws Exception{
-		
+
 		String detectorName = ADUtils.getDetectorNameFromPVServiceName(serviceName);
 		String suffixType = ADUtils.getSuffixTypeFromPVServiceName(serviceName);
 		//from pv prefix get plugin suffixes
@@ -56,7 +57,7 @@ public class ADControllerFactory {
 			adPVSuffixes = new DLSADPVSuffixes();
 		}
 		DynamicADControllerImpl impl = new DynamicADControllerImpl(serviceName, detectorName, ADUtils.getPVFromPVServiceName(serviceName), adPVSuffixes);
-		
+
 		OSGIServiceRegister modelReg = new OSGIServiceRegister();
 		modelReg.setClass(ADController.class);
 		modelReg.setService(impl);

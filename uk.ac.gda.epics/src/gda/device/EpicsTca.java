@@ -39,12 +39,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class EpicsTca extends DeviceBase implements Device, Findable, InitializationListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsTca.class);
-	
+
 	private String epicsTcaRecordName;
 	private String tcaRecordName;
 	private Channel scaler1HighChannel;
@@ -78,7 +78,7 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 	private EpicsChannelManager channelManager;
 
 	/**
-	 * 
+	 *
 	 */
 	public enum purEnableEnum {
 		/** */
@@ -88,7 +88,7 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum scalerEnableEnum {
 		/** */
@@ -98,7 +98,7 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum polarityEnum {
 		/** */
@@ -108,7 +108,7 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum scalerGateEnum {
 		/** */
@@ -118,7 +118,7 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum scalerPurEnum {
 		/** */
@@ -128,7 +128,7 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum tcaSelectEnum {
 		/** */
@@ -138,7 +138,7 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum purAmpEnum {
 		/** */
@@ -148,7 +148,7 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum thresholdEnum {
 		/** */
@@ -158,7 +158,7 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum roiScaEnableEnum {
 		/** */
@@ -168,7 +168,7 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public enum statusEnum {
 		/** */
@@ -182,17 +182,17 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public EpicsTca() {
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
 	}
-	
+
 	public void setTcaRecordName(String tcaRecordName) {
 		this.tcaRecordName = tcaRecordName;
 	}
-	
+
 	/**
 	 * @param fullPVName
 	 * @throws CAException
@@ -253,11 +253,11 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String channelToEnergyPrefix = "channelToEnergy:";
 	/**
-	 * 
+	 *
 	 */
 	public static final String energyToChannelPrefix = "energyToChannel";
 
@@ -621,7 +621,7 @@ public class EpicsTca extends DeviceBase implements Device, Findable, Initializa
 	 * @param scalerNo
 	 * @param value
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public void setScalerLow(int scalerNo, double value) throws CAException, InterruptedException {
 		switch (scalerNo) {

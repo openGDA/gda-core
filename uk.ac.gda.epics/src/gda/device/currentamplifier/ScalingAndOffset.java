@@ -35,16 +35,16 @@ public interface ScalingAndOffset {
 	 * @return description
 	 */
 	public String getDescription();
-	
+
 	/**
 	 * query if the device is configured for automatically changing gain
-	 * 
+	 *
 	 * @return autoscale enable status
 	 */
 	public boolean isFixed();
-	
+
 	/**
-	 * configure device to inhibit auto scale (optional operation, may not be supported) 
+	 * configure device to inhibit auto scale (optional operation, may not be supported)
 	 * @param auto
 	 */
 	public void setFixed(boolean auto);

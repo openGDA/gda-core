@@ -37,7 +37,6 @@ import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBRType;
-import gov.aps.jca.dbr.DBR_CTRL_Double;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
@@ -107,7 +106,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 	 * Constructor
 	 */
 	public EpicsCurrAmpQuadController() {
-		
+
 		controller = EpicsController.getInstance();
 		channelManager = new EpicsChannelManager(this);
 		i1MonitorListener = new Current1MonitorListener();
@@ -115,7 +114,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		i3MonitorListener = new Current3MonitorListener();
 		i4MonitorListener = new Current4MonitorListener();
 		rangeMonitor = new RangeMonitorListener();
-		
+
 		setInputNames(new String[]{"rangeValue"});
 		setExtraNames(new String[]{ "current1", "current2", "current3", "current4"});
 
@@ -130,7 +129,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 	/**
 	 * Configures the class with the PV information from the gda-interface.xml file. Vendor and model are available
 	 * through EPICS but are currently not supported in GDA.
-	 * 
+	 *
 	 * @see gda.device.DeviceBase#configure()
 	 */
 	@Override
@@ -198,7 +197,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 				super.positions.add(position[i]);
 			}
 		}
-		
+
 		if (isPoll()) {
 			disablePoll();
 		} else {
@@ -206,7 +205,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		}
 		logger.info("{} initialisation completed", getName());
 	}
-	
+
 	public void disablePoll() {
 		setPoll(false);
 		if (current1Ch != null && i1MonitorListener != null) {
@@ -306,7 +305,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 		// if get here then wrong position name supplied
 		throw new DeviceException("Position called: " + position.toString() + " not found.");
 	}
-	
+
 	// need independent monitors for each current value
 	private class Current1MonitorListener implements MonitorListener {
 		@Override
@@ -417,7 +416,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 	}
 	/**
 	 * @return current1
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public double getCurrent1() throws DeviceException {
 		if (isPoll()) {
@@ -439,7 +438,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 
 	/**
 	 * @return current2
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public double getCurrent2() throws DeviceException {
 		if (isPoll()) {
@@ -461,7 +460,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 
 	/**
 	 * @return current3
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public double getCurrent3() throws DeviceException {
 		if (isPoll()) {
@@ -483,7 +482,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 
 	/**
 	 * @return current4
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public double getCurrent4() throws DeviceException {
 		if (isPoll()) {
@@ -558,7 +557,7 @@ public class EpicsCurrAmpQuadController extends EnumPositionerBase implements Mo
 
 	/**
 	 * converts object to String array
-	 * 
+	 *
 	 * @param scannable
 	 * @return position array
 	 * @throws Exception

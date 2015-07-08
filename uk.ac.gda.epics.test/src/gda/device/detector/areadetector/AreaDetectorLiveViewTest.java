@@ -47,7 +47,7 @@ public class AreaDetectorLiveViewTest {
 		EPICSAreaDetectorImage epicsAreaDetectorImage2 = createEPICSAreaDetectorImage();
 
 		areaDetectorLiveView.setImage(epicsAreaDetectorImage2);
-		
+
 		EpicsAreaDetectorROIElement epicsAreaDetectorROIElement = new EpicsAreaDetectorROIElementImpl();
 		epicsAreaDetectorROIElement.setBasePVName("TEST:ROI:1:");
 		epicsAreaDetectorROIElement.setInitialDataType("UInt32");
@@ -57,7 +57,7 @@ public class AreaDetectorLiveViewTest {
 		epicsAreaDetectorROIElement.setInitialSizeY(2672);
 		epicsAreaDetectorROIElement.setInitialBinX(4);
 		epicsAreaDetectorROIElement.setInitialBinY(4);
-		
+
 		areaDetectorLiveView.setImageROI(epicsAreaDetectorROIElement);
 	}
 

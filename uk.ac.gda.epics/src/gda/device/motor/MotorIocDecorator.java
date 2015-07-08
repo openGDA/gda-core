@@ -18,12 +18,7 @@
 
 package gda.device.motor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-
 import gda.device.Motor;
-import gda.device.motor.MotorBase;
 import gda.device.scannable.MotorUnitStringSupplier;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
@@ -34,6 +29,10 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Abstract decorator class for {@link EpicsMotor} that initialises and monitors IOC status PV.
@@ -47,7 +46,7 @@ public abstract class MotorIocDecorator extends MotorBase implements Motor,Motor
 	private EpicsController controller;
 	private EpicsChannelManager channelManager;
 	private IOCStatusMonitorListener isml;
-	
+
 	public String getIocPv() {
 		return iocPv;
 	}
@@ -74,13 +73,13 @@ public abstract class MotorIocDecorator extends MotorBase implements Motor,Motor
 	public void setIocRunning(boolean iocRunning) {
 		this.iocRunning = iocRunning;
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (decoratedMotor == null) {
 			throw new IllegalStateException("Motor to be detecorated must not be null");
 		}
-		
+
 		if (iocPv == null) {
 			throw new IllegalStateException("IOC status PV must not be null");
 		}
@@ -107,7 +106,7 @@ public abstract class MotorIocDecorator extends MotorBase implements Motor,Motor
 				setIocRunning(true);
 				if (decoratedMotor instanceof EpicsMotor) {
 					new Thread(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							EpicsMotor decoratedMotor2 = (EpicsMotor)decoratedMotor;
@@ -118,7 +117,7 @@ public abstract class MotorIocDecorator extends MotorBase implements Motor,Motor
 									logger.error("reconfigure motor "+decoratedMotor.getName()+"failed.", e);
 								}
 							}
-							
+
 						}
 					}).start();
 				}
@@ -133,7 +132,7 @@ public abstract class MotorIocDecorator extends MotorBase implements Motor,Motor
 				}
 			}
 		}
-		
+
 	}
 
 	public Motor getDecoratedMotor() {
@@ -143,5 +142,5 @@ public abstract class MotorIocDecorator extends MotorBase implements Motor,Motor
 	public void setDecoratedMotor(Motor decoratedMotor) {
 		this.decoratedMotor = decoratedMotor;
 	}
-	
+
 }

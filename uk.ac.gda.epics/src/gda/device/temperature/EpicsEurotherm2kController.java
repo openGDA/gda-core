@@ -159,7 +159,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * Initialise the cryo controller object.
-	 * 
+	 *
 	 * @throws FactoryException
 	 */
 	@Override
@@ -207,7 +207,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 	}
 	/**
 	 * create channel access implementing phase II beamline EPICS interfaces.
-	 * 
+	 *
 	 * @param config
 	 * @throws FactoryException
 	 */
@@ -270,7 +270,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 	}
 	/**
 	 * sets the target temperature and start ramp to it, ramp rate must be set first.
-	 * 
+	 *
 	 * @param temp
 	 * @throws DeviceException
 	 */
@@ -287,7 +287,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * gets the target temperature
-	 * 
+	 *
 	 * @return the set point
 	 * @throws DeviceException
 	 */
@@ -301,7 +301,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * sets the temperature ramp rate
-	 * 
+	 *
 	 * @param rate
 	 * @throws DeviceException
 	 */
@@ -318,7 +318,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * gets the temperature ramp rate
-	 * 
+	 *
 	 * @return ramp rate
 	 * @throws DeviceException
 	 */
@@ -332,7 +332,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * sets the power output in percentage (max 35%)
-	 * 
+	 *
 	 * @param output
 	 * @throws DeviceException
 	 */
@@ -349,7 +349,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * gets the power output in percentage
-	 * 
+	 *
 	 * @return power output
 	 * @throws DeviceException
 	 */
@@ -363,7 +363,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * gets the current temperature
-	 * 
+	 *
 	 * @return run mode
 	 * @throws DeviceException
 	 */
@@ -377,7 +377,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * sets the PID proportional parameter P
-	 * 
+	 *
 	 * @param p
 	 * @throws DeviceException
 	 */
@@ -391,7 +391,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * gets the PID proportional parameter P
-	 * 
+	 *
 	 * @return proportional
 	 * @throws DeviceException
 	 */
@@ -405,7 +405,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * sets the PID integral parameter P
-	 * 
+	 *
 	 * @param integral
 	 * @throws DeviceException
 	 */
@@ -422,7 +422,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 	 * setMaxRampRate(double maxRampRate) { this.maxRampRate = maxRampRate; } public double getMinRampRate() { return
 	 * minRampRate; } public void setMinRampRate(double minRampRate) { this.minRampRate = minRampRate; } public double
 	 * getMaxOutput() { return maxOutput; } public void setMaxOutput(double maxOutput) { this.maxOutput = maxOutput; }
-	 * 
+	 *
 	 * @return integral
 	 * @throws DeviceException
 	 */
@@ -436,7 +436,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * sets the PID differential parameter P
-	 * 
+	 *
 	 * @param differential
 	 * @throws DeviceException
 	 */
@@ -450,7 +450,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * gets the PID differential parameter D
-	 * 
+	 *
 	 * @return remaining
 	 * @throws DeviceException
 	 */
@@ -464,7 +464,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * gets the error string
-	 * 
+	 *
 	 * @return error string
 	 * @throws DeviceException
 	 */
@@ -478,7 +478,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * clear the error string
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void clear() throws DeviceException {
@@ -568,7 +568,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * returns the maximum ramp rate of this device.
-	 * 
+	 *
 	 * @return maximum ramp rate
 	 */
 	public double getMaxRampRate() {
@@ -577,7 +577,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * sets the maximum ramp rate of this device - used only by Castor
-	 * 
+	 *
 	 * @param maxRampRate
 	 */
 	public void setMaxRampRate(double maxRampRate) {
@@ -586,7 +586,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * returns the minimum ramp rate of the device
-	 * 
+	 *
 	 * @return minimum ramp rate
 	 */
 	public double getMinRampRate() {
@@ -602,7 +602,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * returns the maximum output
-	 * 
+	 *
 	 * @return maximum output
 	 */
 	public double getMaxOutput() {
@@ -611,7 +611,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 
 	/**
 	 * sets the maximum output
-	 * 
+	 *
 	 * @param maxOutput
 	 */
 	public void setMaxOutput(double maxOutput) {
@@ -626,7 +626,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 	}
 
 	/**
-	 * sets EPICS hardware connection state 
+	 * sets EPICS hardware connection state
 	 * @param connected
 	 */
 	public void setConnected(boolean connected) {
@@ -653,7 +653,7 @@ public class EpicsEurotherm2kController extends DeviceBase implements Configurab
 		throw new DeviceException("failed to set DISABLE PV.", e);
 		}
 	}
-	
+
 	/**
 	 * gets the EPICS hardware connection state.
 	 * @return Disabled or Enabled

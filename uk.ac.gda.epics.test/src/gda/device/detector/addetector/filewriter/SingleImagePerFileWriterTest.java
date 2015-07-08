@@ -18,10 +18,10 @@
 
 package gda.device.detector.addetector.filewriter;
 
-import static org.junit.Assert.*;
-
-import java.util.List;
-
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import gda.configuration.properties.LocalProperties;
 import gda.data.PathConstructor;
 import gda.device.detector.NXDetectorDataWithFilepathForSrs;
@@ -36,10 +36,10 @@ import gda.jython.InterfaceProvider;
 import gda.observable.ObservableUtil;
 import gda.scan.ScanInformation;
 
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.*;
 
 
 // TODO: Tests here are minimal
@@ -47,12 +47,12 @@ import static org.mockito.Mockito.*;
 public class SingleImagePerFileWriterTest {
 
 	private NDPluginBase mockNDPluginBase;
-	
+
 	private NDFile mockNdFile;
 
 	private SingleImagePerFileWriter writer;
 
-	
+
 	@Before
 	public void setUp() throws Exception {
 		mockNDPluginBase = mock(NDPluginBase.class);
@@ -68,7 +68,7 @@ public class SingleImagePerFileWriterTest {
 		LocalProperties.set(PathConstructor.getDefaultPropertyName(), "absolute/path/to/datadir");
 		configureScanInformationHolder();
 		InterfaceProvider.setTerminalPrinterForTesting(mock(ITerminalPrinter.class));
-		
+
 	}
 
 	private void configureScanInformationHolder() {
@@ -79,7 +79,7 @@ public class SingleImagePerFileWriterTest {
 		InterfaceProvider.setCurrentScanInformationHolderForTesting(currentScanHolder);
 		InterfaceProvider.setTerminalPrinterForTesting(mock(ITerminalPrinter.class));
 	}
-	
+
 	@Test
 	public void testGetFileTemplateDefault() {
 		assertEquals("%s%s%05d.tif", writer.getFileTemplate());
@@ -89,12 +89,12 @@ public class SingleImagePerFileWriterTest {
 	public void testGetFilePathDefault() {
 		assertEquals("absolute/path/to/datadir/12345-detname-files", writer.getFilePath());
 	}
-	
+
 	@Test
 	public void testGetFileNameDefault() {
 		assertEquals("", writer.getFileName());
 	}
-	
+
 	@Test
 	public void testPrepareforCollectionSetsNextNumberDefault() throws Exception {
 		writer.prepareForCollection(1, null);
@@ -107,19 +107,19 @@ public class SingleImagePerFileWriterTest {
 		writer.prepareForCollection(1, null);
 		verify(mockNdFile).setFileNumber(54321);
 	}
-	
+
 	@Test
 	public void atScanStartConfiguresMetadataPathTemplate() throws Exception {
 		IJythonNamespace namespace = mock(IJythonNamespace.class);
 		InterfaceProvider.setJythonNamespaceForTesting(namespace);
 		when(namespace.getFromJythonNamespace("SRSWriteAtFileCreation")).thenReturn("existing\n");
-		
+
 		writer.setKeyNameForMetadataPathTemplate("detector_path_template");
 		writer.prepareForCollection(1, null);
-		
+
 		String expected = "existing\ndetector_path_template='12345-detname-files/%05d.tif'\n";
 		verify(namespace).placeInJythonNamespace("SRSWriteAtFileCreation", expected);
-		
+
 	}
 
 	@Test
@@ -127,13 +127,13 @@ public class SingleImagePerFileWriterTest {
 		IJythonNamespace namespace = mock(IJythonNamespace.class);
 		InterfaceProvider.setJythonNamespaceForTesting(namespace);
 		when(namespace.getFromJythonNamespace("SRSWriteAtFileCreation")).thenReturn(null);
-		
+
 		writer.setKeyNameForMetadataPathTemplate("detector_path_template");
 		writer.prepareForCollection(1, null);
-		
+
 		String expected = "detector_path_template='12345-detname-files/%05d.tif'\n";
 		verify(namespace).placeInJythonNamespace("SRSWriteAtFileCreation", expected);
-		
+
 	}
 
 	@Test

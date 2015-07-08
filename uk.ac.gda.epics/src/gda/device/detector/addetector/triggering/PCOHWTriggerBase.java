@@ -33,10 +33,10 @@ import org.slf4j.LoggerFactory;
 /*
  * Class of detector  to drive the PCO4000 camera using an external trigger
  * This class sets up the camera not the trigger source
- * 
+ *
  * Derived classes should override collectData ( call base version) and set collectingData to true
  * and collectingData to false when appropriate
- * 
+ *
  */
 public class PCOHWTriggerBase extends SimpleAcquire {
 	private static Logger logger = LoggerFactory.getLogger(PCOHWTriggerBase.class);
@@ -62,7 +62,7 @@ public class PCOHWTriggerBase extends SimpleAcquire {
 	private boolean checkCameraUsage = true;
 	private Double cameraUsageUpperLimit = 90.;
 	private Double cameraUsageLowerLimit = 25.;
-	
+
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored, ScanInformation scanInfo) throws Exception {
 		getAdBase().stopAcquiring();
@@ -135,7 +135,7 @@ public class PCOHWTriggerBase extends SimpleAcquire {
 				Thread.sleep(5000); // reading out the memory will take some time
 			}
 		}
-		
+
 		expectedExposureEndTime = System.currentTimeMillis() + (long) (collectionTime * 1000.);
 	}
 

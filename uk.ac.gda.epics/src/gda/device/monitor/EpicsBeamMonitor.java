@@ -18,8 +18,6 @@
 
 package gda.device.monitor;
 
-import java.lang.reflect.Array;
-
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.DeviceException;
@@ -39,6 +37,8 @@ import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
+import java.lang.reflect.Array;
+
 import org.jscience.physics.units.Unit;
 import org.python.core.PySequence;
 import org.slf4j.Logger;
@@ -54,9 +54,9 @@ import org.slf4j.LoggerFactory;
  * reads before the scan is resumed.
  */
 public class EpicsBeamMonitor extends MonitorBase implements Runnable, Monitor, MonitorListener, Scannable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsBeamMonitor.class);
-	
+
 	private double threshold = 1.0;
 
 	private int waitTime = 1;
@@ -86,7 +86,7 @@ public class EpicsBeamMonitor extends MonitorBase implements Runnable, Monitor, 
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param detectorName
 	 *            the name of the detector instance.
 	 * @param channel
@@ -375,7 +375,7 @@ public class EpicsBeamMonitor extends MonitorBase implements Runnable, Monitor, 
 
 	/**
 	 * checks beam monitor flag
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public boolean isMonitorOn() {
@@ -384,7 +384,7 @@ public class EpicsBeamMonitor extends MonitorBase implements Runnable, Monitor, 
 
 	/**
 	 * set beam monitor flag
-	 * 
+	 *
 	 * @param monitorOn
 	 */
 	public void setMonitorOn(boolean monitorOn) {

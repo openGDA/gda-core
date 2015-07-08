@@ -83,7 +83,7 @@ public class EpicsEditablePositionerCallback extends EpicsPositionerCallback imp
 
 	/**
 	 * Change the label of a single position in the positioner.
-	 * 
+	 *
 	 * @param index
 	 * @param newPosition
 	 * @throws DeviceException

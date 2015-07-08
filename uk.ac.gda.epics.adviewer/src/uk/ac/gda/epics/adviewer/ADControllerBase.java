@@ -19,11 +19,11 @@
 package uk.ac.gda.epics.adviewer;
 
 import gda.device.DeviceException;
-import gda.device.detector.areadetector.v17.impl.NDUtils;
 import gda.device.detector.areadetector.v17.FfmpegStream;
 import gda.device.detector.areadetector.v17.ImageMode;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.NDProcess;
+import gda.device.detector.areadetector.v17.impl.NDUtils;
 import gda.jython.InterfaceProvider;
 import gda.observable.Observable;
 import gda.observable.Observer;
@@ -59,7 +59,7 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 			throw new IllegalArgumentException("ffmpegImageOutHeightMax < 1");
 		if (ffmpegImageOutWidthMax < 1)
 			throw new IllegalArgumentException("ffmpegImageOutWidthMax < 1");
-		
+
 	}
 
 	protected int[] getDataDimensions(NDPluginBase pluginBase) throws Exception {
@@ -418,8 +418,8 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 	}
 
 
-	
-	
+
+
 	@Override
 	public int getImageHistSize() throws Exception {
 		return imageHistSize;
@@ -428,7 +428,7 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 	public void setImageHistSize(int imageHistSize) {
 		this.imageHistSize = imageHistSize;
 	}
-	
+
 	@Override
 	public double getImageMin() {
 		return imageMin;
@@ -447,7 +447,7 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 
 	public void setConnectToPlotServer(boolean connectToPlotServer) {
 		this.connectToPlotServer = connectToPlotServer;
-	}	
+	}
 
 	@Override
 	public String getImageNDArrayPortInput() throws Exception {
@@ -457,7 +457,7 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 		if( !StringUtils.hasText(portNameRBV))
 			throw new Exception("The portNameRBV of adBase is empty");
 		return portNameRBV;
-		
+
 	}
 
 	public void setImageNDArrayPortInput(String imageNDarrayPortInput) {
@@ -483,5 +483,5 @@ public abstract class ADControllerBase implements ADController, InitializingBean
 		this.detectorName = detectorName;
 	}
 
-	
+
 }

@@ -156,7 +156,7 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 
 	/**
 	 * Returns the name of the Epics Positioner template this object is using
-	 * 
+	 *
 	 * @return the name of the Epics Positioner template
 	 */
 	public String getEpicsRecordName() {
@@ -165,7 +165,7 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 
 	/**
 	 * Sets the name of the Epics Positioner template to use.
-	 * 
+	 *
 	 * @param recordName
 	 */
 	public void setEpicsRecordName(String recordName) {
@@ -262,7 +262,7 @@ public class EpicsEnumPositioner extends EnumPositionerBase implements EnumPosit
 
 	/**
 	 * Connection callback
-	 * 
+	 *
 	 * @param ev
 	 */
 	private void onConnectionChanged(ConnectionEvent ev) {

@@ -18,46 +18,48 @@
 
 package gda.device.epicsdevice;
 
+import gov.aps.jca.dbr.GR;
+import gov.aps.jca.dbr.PRECISION;
+
 import java.io.Serializable;
-import gov.aps.jca.dbr.*;
 
 /**
  * EpicsGR Class
  */
 public class EpicsGR extends EpicsTime implements Serializable {
 	/**
-	 * 
+	 *
 	 */
 	final public String _unit = "";
 	/**
-	 * 
+	 *
 	 */
 	/**
-	 * 
+	 *
 	 */
 	final public Number _udl;
 	/**
-	 * 
+	 *
 	 */
 	final public Number _ldl;
 	/**
-	 * 
+	 *
 	 */
 	final public Number _ual;
 	/**
-	 * 
+	 *
 	 */
 	final public Number _uwl;
 	/**
-	 * 
+	 *
 	 */
 	final public Number _lwl;
 	/**
-	 * 
+	 *
 	 */
 	final public Number _lal;
 	/**
-	 * 
+	 *
 	 */
 	final public short _precision;
 

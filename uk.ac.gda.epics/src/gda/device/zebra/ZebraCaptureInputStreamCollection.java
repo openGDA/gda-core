@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Represents a single one-off collection from an Epics time series array, or arrays that hang off the same
- * control PVs. 
+ * control PVs.
  */
 class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 	private static final Logger logger = LoggerFactory.getLogger(ZebraCaptureInputStreamCollection.class);
@@ -37,7 +37,7 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 
 	/**
 	 * Create and start a time series collection.
-	 * 
+	 *
 	 */
 	public ZebraCaptureInputStreamCollection(ReadOnlyPV<Integer> numDownloadedPV,  ReadOnlyPV<Double[]> tsArrayPV){
 		this.numDownloadedPV = numDownloadedPV;
@@ -105,8 +105,8 @@ class ZebraCaptureInputStreamCollection implements PositionInputStream<Double> {
 		Double[] completeArray;
 		try {
 			//TODO Speak to Tom as this is a bug
-			Thread.sleep(100); //allow time for array pv is to setup properly 
-			completeArray = tsArrayPV.get(numPointsAvailable);  
+			Thread.sleep(100); //allow time for array pv is to setup properly
+			completeArray = tsArrayPV.get(numPointsAvailable);
 		} catch (IOException e) {
 			throw new DeviceException(e);
 		}

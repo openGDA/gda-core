@@ -38,9 +38,9 @@ public class ZebraCollectionStrategy implements NXCollectionStrategyPlugin, NXPl
 
 	private int pulsesRead;
 	private long linestarttime;
-	
+
 	int numPulsesPerLine=0;
-	
+
 
 	public int getNumPulsesPerLine() {
 		return numPulsesPerLine;

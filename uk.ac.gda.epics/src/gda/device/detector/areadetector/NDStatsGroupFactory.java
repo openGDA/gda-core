@@ -25,7 +25,7 @@ public class NDStatsGroupFactory {
 	/**
 	 * Returns an {@link NDStatsGroup} representing for the 'stats' portion of the provided {@link NDStats} plugin.
 	 * Filed names are: "min", "max", "total", "net", "mean" and "sigma.
-	 * 
+	 *
 	 * @param ndStats
 	 * @return An NDStatsGroup
 	 */

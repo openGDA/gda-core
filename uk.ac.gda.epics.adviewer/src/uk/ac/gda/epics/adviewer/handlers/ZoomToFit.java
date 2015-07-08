@@ -31,7 +31,7 @@ public class ZoomToFit extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		MJPegView mjpegview = (MJPegView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
 		if (mjpegview==null) return Boolean.FALSE;
-		
+
 		mjpegview.zoomToFit();
 		return Boolean.TRUE;
 	}

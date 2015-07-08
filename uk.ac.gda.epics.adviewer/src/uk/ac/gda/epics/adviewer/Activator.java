@@ -18,7 +18,7 @@ public class Activator extends AbstractUIPlugin {
 
 	// The shared instance
 	private static Activator plugin;
-	
+
 	/**
 	 * The constructor
 	 */
@@ -46,7 +46,7 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
-	
+
 	private static BundleContext bundleContext;
 
 
@@ -71,16 +71,16 @@ public class Activator extends AbstractUIPlugin {
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
-	
+
 
 	private static NamedServiceProvider namedServiceProvider;
-	
+
 	public static Object getNamedService(@SuppressWarnings("rawtypes") Class clzz, final String name) {
 		if(namedServiceProvider == null){
 			namedServiceProvider = new NamedServiceProvider(bundleContext);
 		}
 		return namedServiceProvider.getNamedService(clzz, SERVICE_NAME, name);
-		
+
 	}
 	public static ImageDescriptor getHistogramViewImage(){
 		return getImageDescriptor("icons/AreaDetectorProfileView.gif");

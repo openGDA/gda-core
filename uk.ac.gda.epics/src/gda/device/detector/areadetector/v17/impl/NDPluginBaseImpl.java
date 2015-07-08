@@ -13,7 +13,7 @@
  * details.
  *
  * You should have received a copy of the GNU General Public License along
- * with GDA. If not, see <http://www.gnu.org/licenses/>. 
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package gda.device.detector.areadetector.v17.impl;
@@ -691,7 +691,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 
 	/**
 	 * This method allows to toggle between the method in which the PV is acquired.
-	 * 
+	 *
 	 * @param pvElementName
 	 * @param args
 	 * @return {@link Channel} to talk to the relevant PV.
@@ -765,7 +765,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 		if (initialBlockingCallbacks != null){
 			setBlockingCallbacks((short) (initialBlockingCallbacks ?  1 : 0));
 		}
-		
+
 		if (initialEnableCallbacks != null) {
 			if (initialEnableCallbacks > 0) {
 				enableCallbacks();
@@ -854,7 +854,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 		}
 		return fullPvName;
 	}
-	
+
 	@Override
 	public Observable<Integer> createArrayCounterObservable() throws Exception {
 		return LazyPVFactory.newReadOnlyIntegerPV(getChannelName(ArrayCounter_RBV));
@@ -880,9 +880,9 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 		return LazyPVFactory.newReadOnlyIntegerPV(getChannelName(DroppedArrays_RBV));
 	}
 
-	private Observable<Integer> droppedFramesObservable; 
+	private Observable<Integer> droppedFramesObservable;
 	private Observer<Integer>  droppedFramesObserver;
-	
+
 	protected Integer droppedFrames=0;
 
 	private int getDroppedFrames() throws Exception {
@@ -891,7 +891,7 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 		}
 		if( droppedFramesObserver == null){
 			droppedFramesObserver = new Observer<Integer>() {
-				
+
 				@Override
 				public void update(Observable<Integer> source, Integer arg) {
 					droppedFrames = arg;
@@ -901,8 +901,8 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 			droppedFrames = getDroppedArrays_RBV();
 		}
 		return droppedFrames;
-	}	
-	
+	}
+
 	@Override
 	public void checkDroppedFrames() throws Exception {
 		int droppedFrames2 = getDroppedFrames();
@@ -913,31 +913,31 @@ public class NDPluginBaseImpl implements InitializingBean, NDPluginBase {
 }
 
 class ConnectionStateObservable implements Observable<Boolean>{
-	
+
 	Channel ch;
-	
+
 	ObservableUtil<Boolean> delegate= new ObservableUtil<Boolean>();
-	
+
 	ConnectionStateObservable(String pv) throws Exception{
 		EpicsController.getInstance().createChannel(pv, new ConnectionListener() {
-			
+
 			@Override
 			public void connectionChanged(ConnectionEvent arg0) {
 				delegate.notifyIObservers(ConnectionStateObservable.this, arg0.isConnected());
 			}
 		});
 	}
-	
+
 	@Override
 	public void addObserver(Observer<Boolean> observer) {
 		delegate.addObserver(observer);
 	}
-	
+
 	@Override
 	public void addObserver(Observer<Boolean> observer, Predicate<Boolean> predicate) {
 		delegate.addObserver(observer, predicate);
 	}
-	
+
 	@Override
 	public void removeObserver(Observer<Boolean> observer) {
 		delegate.removeObserver(observer);
@@ -951,7 +951,7 @@ class ConnectionStateObservable implements Observable<Boolean>{
 		}
 		super.finalize();
 	}
-	
-	
-	
+
+
+
 }

@@ -21,9 +21,9 @@ package gda.device.detector.areadetector.v17;
 public interface GetPluginBaseAvailable extends ADCommon {
 	/**
 	 * All plugins have an 'NDPluginBase' which is an object representing the elements all plugins have in common.
-	 * 
+	 *
 	 * This should not be confused with a 'base class' in the OO sense.
-	 * 
+	 *
 	 * @return {@link NDPluginBase}
 	 */
 	NDPluginBase getPluginBase();

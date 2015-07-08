@@ -33,11 +33,11 @@ public interface ADBase extends ADCommon {
 	public enum StandardTriggerMode {
 		INTERNAL, EXTERNAL
 	}
-	
+
 	/**
 	 * List all the PVs
 	 */
-	
+
 	public final String PortName_RBV = "PortName_RBV";
 
 	public final String Manufacturer_RBV = "Manufacturer_RBV";
@@ -240,10 +240,10 @@ public interface ADBase extends ADCommon {
 	 */
 	short getDataType_RBV() throws Exception;
 
-	
+
 	DataType getDataType_RBV2() throws Exception;
-	
-	
+
+
 	/**
 	 *
 	 */
@@ -469,7 +469,7 @@ public interface ADBase extends ADCommon {
 	 */
 	short getImageMode() throws Exception;
 
-	
+
 	/**
 	 *
 	 */
@@ -809,7 +809,7 @@ public interface ADBase extends ADCommon {
 	String getInitialDataType();
 
 	/**
-	 * 
+	 *
 	 */
 	void reset() throws Exception;
 
@@ -828,15 +828,15 @@ public interface ADBase extends ADCommon {
 	 * array callbacks must be enabled with {@link #setArrayCallbacks(int)} for this to return, and
 	 * that it monitors the RBV field.
 	 * @param exposureNumber
-	 * @throws Exception 
-	 * @throws InterruptedException 
+	 * @throws Exception
+	 * @throws InterruptedException
 	 * @throws TimeoutException if it takes more than timeoutMilliS for the counter to reach the required value
 	 */
 	void waitForArrayCounterToReach(int exposureNumber, double timeoutS) throws InterruptedException, Exception, java.util.concurrent.TimeoutException;
 
 	void setImageModeWait(ImageMode imagemode) throws Exception;
-	
-	
+
+
 	Observable<Short> createAcquireStateObservable() throws Exception;
 	Observable<Double> createAcquireTimeObservable() throws Exception;
 

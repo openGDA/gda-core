@@ -187,7 +187,7 @@ public interface NDFile extends GetPluginBaseAvailable {
 
 	/**
 	 * blocking call to start capturing
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	void startCaptureSynchronously() throws Exception;

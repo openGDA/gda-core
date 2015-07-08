@@ -23,74 +23,74 @@ package gda.epics.interfaceSpec;
  */
 public class Xml {
 	/**
-	 * 
+	 *
 	 */
 	public static final String pv_name = "pv";
 	/**
-	 * 
+	 *
 	 */
 	public static final String ro_name = "ro";
 	/**
-	 * 
+	 *
 	 */
 	public static final String desc_name = "desc";
 	/**
-	 * 
+	 *
 	 */
 	public static final String isReadonly_value = "true";
 	/**
-	 * 
+	 *
 	 */
 	public static final String type_name = "type";
 	/**
-	 * 
+	 *
 	 */
 	public static final String isBinary_value = "binary";
 	/**
-	 * 
+	 *
 	 */
 	public static final String devices_name = "devices";
 	/**
-	 * 
+	 *
 	 */
 	public static final String deviceFindByTypeAndName = "//devices/%s[@name='%s']";
 	/**
-	 * 
+	 *
 	 */
 	public static final String deviceFindByName = "//devices/*[@name='%s']";
 	/**
-	 * 
+	 *
 	 */
 	public static final String allDevices = "//devices/*[@name]/@name";
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String positioner_type_name = "positioner";
 	/**
-	 * 
+	 *
 	 */
 	public static final String simplePvType_type_name = "simplePv";
 	/**
-	 * 
+	 *
 	 */
 	public static final String simpleMotor_type_name = "simpleMotor";
 	/**
-	 * 
+	 *
 	 */
 	public static final String simpleScaler_type_name = "simpleScaler";
 	/**
-	 * 
+	 *
 	 */
 	public static final String pneumatic_type_name = "pneumatic";
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public static final String pneumaticCallback_type_name="pneumaticCallback";
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String simpleMbbinary_type_name = "simpleMbbinary";
 }

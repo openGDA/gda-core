@@ -31,7 +31,7 @@ public interface NDPluginBasePVs {
 	/**
 	 * Enable (1) or disable (0) callbacks from the driver to this plugin. If callbacks are disabled then the plugin
 	 * will normally be idle and consume no CPU resources.
-	 * 
+	 *
 	 * @return EnableCallbacks / EnableCallbacks_RBV pair.
 	 */
 	PV<Boolean> getEnableCallbacksPVPair();
@@ -39,7 +39,7 @@ public interface NDPluginBasePVs {
 	/**
 	 * 0 = callbacks from the driver do not block; the NDArray data is put on a queue and the callback processes in its
 	 * own thread. 1 = callbacks from the driver block; the callback processes in the driver callback thread.
-	 * 
+	 *
 	 * @return BlockingCallbacks / BlockingCallbacks_RBV pair.
 	 */
 	PV<Boolean> getBlockingCallbacksPVPair();
@@ -47,7 +47,7 @@ public interface NDPluginBasePVs {
 	/**
 	 * Counter that increments by 1 each time an NDArray callback occurs when NDPluginDriverBlockingCallbacks=0 and the
 	 * plugin driver queue is full, so the callback cannot be processed.
-	 * 
+	 *
 	 * @return DroppedArrays / DroppedArrays_RBV pair.
 	 */
 	PV<Boolean> getDroppedArraysPVPair();
@@ -55,7 +55,7 @@ public interface NDPluginBasePVs {
 	/**
 	 * Counter that increments by 1 each time an NDArray callback occurs when NDPluginDriverBlockingCallbacks=0 and the
 	 * plugin driver queue is full, so the callback cannot be processed.
-	 * 
+	 *
 	 * @return ArrayCounter / ArrayCounter pair.
 	 */
 	PV<Boolean> getArrayCounterPVPair();
@@ -63,11 +63,11 @@ public interface NDPluginBasePVs {
 	/**
 	 * Asyn port name for NDArray driver that will make callbacks to this plugin. This port can be changed at run time,
 	 * connecting the plugin to a different NDArray driver.
-	 * 
+	 *
 	 * @return NDArrayPort / NDArrayPort_RBV pair.
 	 */
 	PV<String> getNDArrayPortPVPair();
-	
+
 	/**
 	 * Asyn port name of this plugin.
 	 * @return PortName

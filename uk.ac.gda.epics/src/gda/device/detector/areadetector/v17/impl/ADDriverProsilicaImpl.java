@@ -66,7 +66,7 @@ public class ADDriverProsilicaImpl implements ADDriverProsilica, InitializingBea
 	private static final String SYNC_OUT3_MODE_RBV = "SyncOut3Mode_RBV";
 	private static final String SYNC_IN1_LEVEL_RBV = "SyncIn1Level_RBV";
 	private static final String SYNC_IN2_LEVEL_RBV = "SyncIn2Level_RBV";
-	
+
 	SimpleChannelProvider simpleChannelProvider;
 
 	private IPVProvider pvProvider;
@@ -74,7 +74,7 @@ public class ADDriverProsilicaImpl implements ADDriverProsilica, InitializingBea
 	public void setPvProvider(IPVProvider pvProvider) {
 		this.pvProvider = pvProvider;
 	}
-	
+
 	private EpicsController epicsController;
 
 	EpicsController getEpicsController() {
@@ -82,7 +82,7 @@ public class ADDriverProsilicaImpl implements ADDriverProsilica, InitializingBea
 			epicsController = EpicsController.getInstance();
 		}
 		return epicsController;
-	}	
+	}
 
 	SimpleChannelProvider getSimpleChannelProvider(){
 		if(simpleChannelProvider == null){
@@ -99,7 +99,7 @@ public class ADDriverProsilicaImpl implements ADDriverProsilica, InitializingBea
 			throw new DeviceException("Error getting value for " + pv, e);
 		}
 	}
-	
+
 	@Override
 	public SYNCIN_LEVEL getSyncIn1Level() throws DeviceException {
 		return getSyncInLevel(SYNC_IN1_LEVEL_RBV);
@@ -124,7 +124,7 @@ public class ADDriverProsilicaImpl implements ADDriverProsilica, InitializingBea
 			throw new DeviceException("Error getting value for " + pv, e);
 		}
 	}
-	
+
 	@Override
 	public SYNCOUT_MODE getSyncOut1Mode() throws DeviceException {
 		return getSyncOutMode(SYNC_OUT1_MODE_RBV);
@@ -156,13 +156,13 @@ public class ADDriverProsilicaImpl implements ADDriverProsilica, InitializingBea
 	public void setSyncOut1Mode(SYNCOUT_MODE mode) throws DeviceException {
 		setSyncOutMode(SYNC_OUT1_MODE, mode );
 	}
-	
+
 	@Override
 	public void setSyncOut2Mode(SYNCOUT_MODE mode) throws DeviceException {
 		setSyncOutMode(SYNC_OUT2_MODE, mode );
 	}
-	
-	
+
+
 	@Override
 	public void setSyncOut3Mode(SYNCOUT_MODE mode) throws DeviceException {
 		setSyncOutMode(SYNC_OUT3_MODE, mode );
@@ -176,7 +176,7 @@ public class ADDriverProsilicaImpl implements ADDriverProsilica, InitializingBea
 			throw new DeviceException("Error getting value for " + pv, e);
 		}
 	}
-	
+
 	@Override
 	public boolean getSyncOut1Level() throws DeviceException {
 		return getSyncOutLevel(SYNC_OUT1_LEVEL_RBV);
@@ -215,7 +215,7 @@ public class ADDriverProsilicaImpl implements ADDriverProsilica, InitializingBea
 	}
 
 
-	
+
 	boolean getSyncOutInvert(String pv) throws DeviceException {
 		try {
 			short val = getEpicsController().cagetByte(getSimpleChannelProvider().createChannel(pv));
@@ -224,7 +224,7 @@ public class ADDriverProsilicaImpl implements ADDriverProsilica, InitializingBea
 			throw new DeviceException("Error getting value for " + pv, e);
 		}
 	}
-	
+
 
 	@Override
 	public boolean getSyncOut1Invert() throws DeviceException {
@@ -247,7 +247,7 @@ public class ADDriverProsilicaImpl implements ADDriverProsilica, InitializingBea
 		}
 	}
 
-	
+
 	@Override
 	public void setSyncOut1Invert(boolean invert) throws DeviceException {
 		setSyncOutInvert(SYNC_OUT1_INVERT, invert);
@@ -262,7 +262,7 @@ public class ADDriverProsilicaImpl implements ADDriverProsilica, InitializingBea
 	public void setSyncOut3Invert(boolean invert) throws DeviceException {
 		setSyncOutInvert(SYNC_OUT3_INVERT, invert);
 	}
-	
+
 	static private STROBE_MODE[] strobeModes = new STROBE_MODE[]{STROBE_MODE.ACQ_TRIG_READY, STROBE_MODE.FRAME_TRIG_READY,
 		STROBE_MODE.FRAME_TRIGGER, STROBE_MODE.EXPOSING, STROBE_MODE.FRAME_READOUT, STROBE_MODE.ACQUIRING, STROBE_MODE.SYNCIN1,
 		STROBE_MODE.SYNCIN2, STROBE_MODE.SYNCIN3, STROBE_MODE.SYNCIN4};
@@ -277,7 +277,7 @@ public class ADDriverProsilicaImpl implements ADDriverProsilica, InitializingBea
 			throw new DeviceException("Error getting value for " + STROBE1_MODE_RBV, e);
 		}
 	}
-	
+
 	@Override
 	public void setStrobeMode(STROBE_MODE mode) throws DeviceException {
 		try {

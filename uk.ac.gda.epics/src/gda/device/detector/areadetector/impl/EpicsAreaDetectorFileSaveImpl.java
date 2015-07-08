@@ -153,7 +153,7 @@ public class EpicsAreaDetectorFileSaveImpl implements EpicsAreaDetectorFileSave{
 	@Override
 	public void setInitialNumCapture(Integer initialNumCapture) {
 		this.initialNumCapture = initialNumCapture;
-	}	
+	}
 
 	@Override
 	public String getInitialArrayPort() {
@@ -242,7 +242,7 @@ public class EpicsAreaDetectorFileSaveImpl implements EpicsAreaDetectorFileSave{
 		}
 	}
 
-	// Methods for manipulating the underlying channels	
+	// Methods for manipulating the underlying channels
 	@Override
 	public void setEnable(boolean enable) throws CAException, InterruptedException {
 		if(enable) {
@@ -268,13 +268,13 @@ public class EpicsAreaDetectorFileSaveImpl implements EpicsAreaDetectorFileSave{
 		String result = new String(ecl.cagetByteArray(channelFullFileName_RBV));
 		result = result.trim();
 		return result;
-	}	
+	}
 	@Override
 	public String getFileName() throws TimeoutException, CAException, InterruptedException {
 		String result = new String(ecl.cagetByteArray(channelFileName_RBV));
 		result = result.trim();
 		return result;
-	}	
+	}
 	@Override
 	public String getFilePath() throws TimeoutException, CAException, InterruptedException {
 		String result = new String(ecl.cagetByteArray(channelFilePath));
@@ -286,13 +286,13 @@ public class EpicsAreaDetectorFileSaveImpl implements EpicsAreaDetectorFileSave{
 		String nullterm = fileTemplate + '\0';
 		ecl.caput(channelFileTemplate, nullterm.getBytes());
 	}
-	
+
 	@Override
 	public String getFileTemplate() throws TimeoutException, CAException, InterruptedException {
 		String result = new String(ecl.cagetByteArray(channelFileTemplate_RBV));
 		result = result.trim();
 		return result;
-	}	
+	}
 	@Override
 	public double getTimeStamp() throws TimeoutException, CAException, InterruptedException {
 		return ecl.cagetDouble(channelTimeStamp_RBV);
@@ -300,7 +300,7 @@ public class EpicsAreaDetectorFileSaveImpl implements EpicsAreaDetectorFileSave{
 
 	@Override
 	public void setWriteMode(String writeMode) throws CAException, InterruptedException {
-		ecl.caput(channelFileWriteMode, writeMode);		
+		ecl.caput(channelFileWriteMode, writeMode);
 	}
 
 	@Override
@@ -310,37 +310,37 @@ public class EpicsAreaDetectorFileSaveImpl implements EpicsAreaDetectorFileSave{
 
 	@Override
 	public void setNumCapture(int numberOfFramesToCapture) throws CAException, InterruptedException {
-		ecl.caput(channelNumCapture, numberOfFramesToCapture);	
+		ecl.caput(channelNumCapture, numberOfFramesToCapture);
 	}
 
 	@Override
 	public void setframeCounter(int numberOfFrameToSetCounterTo) throws CAException, InterruptedException {
-		ecl.caput(channelFileNumber, numberOfFrameToSetCounterTo);	
-	}	
+		ecl.caput(channelFileNumber, numberOfFrameToSetCounterTo);
+	}
 
 	@Override
 	public void setAutoIncrement(String increment) throws CAException, InterruptedException {
-		ecl.caput(channelAutoIncrement, increment);	
+		ecl.caput(channelAutoIncrement, increment);
 	}
 
 	@Override
 	public void setAutoSave(String save) throws CAException, InterruptedException {
-		ecl.caput(channelAutoSave, save);	
-	}	
+		ecl.caput(channelAutoSave, save);
+	}
 
 	@Override
 	public int getFileNumber() throws TimeoutException, CAException, InterruptedException {
-		return ecl.cagetInt(channelFileNumber_RBV);		
+		return ecl.cagetInt(channelFileNumber_RBV);
 	}
 
 	@Override
 	public void setArrayPort(String channelArrayPortName) throws CAException, InterruptedException {
-		ecl.caput(channelArrayPort, channelArrayPortName);	
+		ecl.caput(channelArrayPort, channelArrayPortName);
 	}
 
 	@Override
 	public void setArrayAddress(int channelArrayAddressToUse) throws CAException, InterruptedException {
-		ecl.caput(channelArrayAddress, channelArrayAddressToUse);	
+		ecl.caput(channelArrayAddress, channelArrayAddressToUse);
 	}
 
 }

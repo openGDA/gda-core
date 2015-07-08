@@ -163,7 +163,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 			configured = true;
 		}
 	}
-	
+
 	/**
 	 * @return pv
 	 * @throws InterfaceException
@@ -171,7 +171,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 	String getPV() throws InterfaceException {
 		return GDAEpicsInterfaceReader.getPVFromSimplePVType(getDeviceName());
 	}
-	
+
 	private void fetchInitialValue() {
 		// fill the latestValue attribute in case its a while until an update
 		try {
@@ -198,16 +198,16 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 
 	@Override
 	public Object getPosition() throws DeviceException {
-		
+
 		if (!configured) {
 			return null;
 		}
-		
+
 		try {
 			waitForInitialisation();
 		} catch (Exception e) {
 			throw new DeviceException("Error waiting for initialisation for " + getName(),e);
-		}		
+		}
 		if (poll || latestValue == null) {
 			if (elementCount == 1)
 				return getSingularValue();
@@ -498,7 +498,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 	 * Does the same job as the other formatPosition method except rather than using a supplied format string, use the
 	 * index of the array of formats this object holds. This is to be used when an object has multiple elements which
 	 * describe its position and those element require different formatting.
-	 * 
+	 *
 	 * @param format
 	 *            the index in the array of formats to use
 	 * @param number
@@ -514,7 +514,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 
 	/**
 	 * Returns the name of the pv this object is monitoring
-	 * 
+	 *
 	 * @return the name of the pv
 	 */
 	public String getPvName() {
@@ -524,7 +524,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 	/**
 	 * Sets the name of the pv this object monitors. This must be called before the configure method makes the
 	 * connections to the pv.
-	 * 
+	 *
 	 * @param pvName
 	 */
 	public void setPvName(String pvName) {
@@ -534,7 +534,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 	/**
 	 * Returns the sensitivity of updates from this monitor. The sensitivity is the percentage change which must occur
 	 * in the pv value for the IObservers to be informed. This prevents unneccessary updating.
-	 * 
+	 *
 	 * @return the sensitivity of updates from this monitor
 	 */
 	public double getSensitivity() {
@@ -543,7 +543,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 
 	/**
 	 * Sets the sensitivity level of updates to IObservers from this object.
-	 * 
+	 *
 	 * @param sensitivity
 	 */
 	public void setSensitivity(double sensitivity) {
@@ -563,27 +563,27 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 	 */
 	public void setInitialised(boolean initialised) {
 		this.isInitialised = initialised;
-	}	
+	}
 	private void waitForInitialisation() throws TimeoutException, FactoryException{
 		ensuredConfigured();
 		long startTime_ms =	System.currentTimeMillis();
 		double timeout_s = EpicsGlobals.getTimeout();
 		long timeout_ms = (long)(timeout_s*1000.);
-		
+
 		while (!isInitialised() && (System.currentTimeMillis() - startTime_ms < timeout_ms) ){
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				//do nothing
 			}
-		}	
+		}
 		if(!isInitialised())
 			throw new TimeoutException(getName() + " not yet initalised. Does the PV " + pvName + " exist?");
 	}
-	
+
 	@Override
 	public void initializationCompleted() {
-		setInitialised(true);		
+		setInitialised(true);
 		DBR dbr = null;
 		try {
 			dbr = controller.getCTRL(theChannel);
@@ -639,7 +639,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 
 	/**
 	 * gets the name of the device.
-	 * 
+	 *
 	 * @return String name
 	 */
 	public String getDeviceName() {
@@ -648,7 +648,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 
 	/**
 	 * sets the name of the device.
-	 * 
+	 *
 	 * @param deviceName
 	 */
 	public void setDeviceName(String deviceName) {
@@ -695,7 +695,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 
 	/**
 	 * check the poll flag.
-	 * 
+	 *
 	 * @return Boolean
 	 */
 	public boolean isPoll() {
@@ -704,7 +704,7 @@ public class EpicsMonitor extends MonitorBase implements gda.device.Monitor, Ini
 
 	/**
 	 * Set poll to true to ensure Monitor.getPosition() always poll the data from hardware. The default is false.
-	 * 
+	 *
 	 * @param poll
 	 */
 	public void setPoll(boolean poll) {

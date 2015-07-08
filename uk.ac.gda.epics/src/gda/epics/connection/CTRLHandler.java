@@ -35,13 +35,13 @@ public class CTRLHandler extends GRHandler {
 	/**
 	 * a generic method returning the lower control limit of the channel directly from EPICS server via compound
 	 * DBR_CTRL type.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the lower control limit in {@link Number} type.
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 * @Note the return type is <code>Number</code>. This needs to be casted to java primiary type before use.
 	 */
 	public Number getLowerCrtlLimit(Channel ch) throws CAException, TimeoutException, InterruptedException {
@@ -51,13 +51,13 @@ public class CTRLHandler extends GRHandler {
 	/**
 	 * a generic method returning the upper control limit of the channel directly from EPICS server via compound
 	 * DBR_CTRL type.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the upper control limit in {@link Number} type.
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 * @Note the return type is <code>Number</code>. This needs to be casted to java primiary type before use.
 	 */
 	public Number getUpperCtrlLimit(Channel ch) throws CAException, TimeoutException, InterruptedException {
@@ -66,7 +66,7 @@ public class CTRLHandler extends GRHandler {
 
 	/**
 	 * a generic method returning the lower control limit of the DBR if the DBR request is of the CTRL type.
-	 * 
+	 *
 	 * @param dbr
 	 * @return the lower control limit in {@link Number} type.
 	 * @Note the return type is <code>Number</code>. This needs to be casted to java primiary type before use.
@@ -77,7 +77,7 @@ public class CTRLHandler extends GRHandler {
 
 	/**
 	 * a generic method returning the upper control limit of the DBR if the DBR is of the type CTRL.
-	 * 
+	 *
 	 * @param dbr
 	 * @return the upper control limit in {@link Number} type.
 	 * @Note the return type is <code>Number</code>. This needs to be casted to java primiary type before use.
@@ -89,13 +89,13 @@ public class CTRLHandler extends GRHandler {
 	/**
 	 * returns a compound DBR value of the channel, including value, alarm status, alarm severity, units, display
 	 * precision, graphic limits, and control limits implements the abstract base class method.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return DBR
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	@Override
 	protected DBR getCompoundData(Channel ch) throws CAException, TimeoutException, InterruptedException {
@@ -106,7 +106,7 @@ public class CTRLHandler extends GRHandler {
 	/**
 	 * returns the CTRL DBRType of the channel that corresponds to its native primiary type. This method ensures the
 	 * automatic type conversion between primiary types is always avoided during the channel request.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return The DBR type name for CTRL, i.e. DBR_CTRL_XXXX

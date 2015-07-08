@@ -63,7 +63,7 @@ public class PCOAutoContinuous extends SimpleAcquire {
 	@Override
 	public void prepareForCollection(double collectionTime, int numImagesIgnored, ScanInformation scanInfo) throws Exception {
 		getAdBase().stopAcquiring(); //to get out of armed state
-		super.prepareForCollection(collectionTime, numImagesIgnored, scanInfo); 
+		super.prepareForCollection(collectionTime, numImagesIgnored, scanInfo);
 		getAdBase().setImageMode(ImageMode.CONTINUOUS.ordinal());
 		getAdBase().setTriggerMode(triggerMode);
 		adDriverPco.getAdcModePV().putWait(adcMode); // 2 adcs

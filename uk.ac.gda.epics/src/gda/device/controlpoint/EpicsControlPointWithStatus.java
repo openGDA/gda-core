@@ -67,7 +67,7 @@ public class EpicsControlPointWithStatus extends EpicsControlPoint {
 	 * Sets the value of the status pv when the control point is operating.
 	 * <p>
 	 * Default is 1.
-	 * 
+	 *
 	 * @param statusPVName
 	 */
 	public void setStatusPVName(String statusPVName) {
@@ -80,11 +80,11 @@ public class EpicsControlPointWithStatus extends EpicsControlPoint {
 
 	@Override
 	public boolean isBusy() throws DeviceException {
-		
+
 		if (theStatusChannel ==null){
 			return false;
 		}
-		
+
 		try {
 			Integer latestValue = controller.cagetInt(theStatusChannel);
 			return latestValue == busyValue;

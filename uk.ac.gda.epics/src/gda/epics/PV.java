@@ -28,7 +28,7 @@ import java.io.InterruptedIOException;
 /**
  * An Epics Process Variable. The {@link LazyPVFactory} class provides convenient factory methods to create PVs which don't
  * connect until the first request across CA is to be made.
- * 
+ *
  * @param <T>
  */
 public interface PV<T> extends NoCallbackPV<T> {
@@ -40,7 +40,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 
 		/**
 		 * Returns the value to which the specified PV is mapped.
-		 * 
+		 *
 		 * @param pv
 		 *            the key whose associated value is to be returned
 		 * @return the value to which the specified key is mapped
@@ -57,7 +57,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * Currently, the {@link EpicsController} which backs PV's returned by {@link LazyPVFactory} will use
 	 * {@link EpicsGlobals#getTimeout()} to determine the default timeout. Currently this will be 30s unless
 	 * {@link LocalProperties} "gda.epics.request.timeout" was set at startup.
-	 * 
+	 *
 	 * @param value
 	 *            the value to put across CA
 	 * @throws IOException
@@ -69,7 +69,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 
 	/**
 	 * Put a value over CA and wait for callback.
-	 * 
+	 *
 	 * @param value
 	 *            the value to put across CA
 	 * @param timeoutS
@@ -90,7 +90,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * Currently, the {@link EpicsController} which backs PV's returned by {@link LazyPVFactory} will use
 	 * {@link EpicsGlobals#getTimeout()} to determine the default timeout. Currently this will be 30s unless
 	 * {@link LocalProperties} "gda.epics.request.timeout" was set at startup.
-	 * 
+	 *
 	 * @param value
 	 *            the value to put across CA
 	 * @throws IllegalStateException
@@ -106,7 +106,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * Waits for a previously made {@link #putAsyncStart} call to complete. Waits up to the default epics timeout
 	 * determined using {@link EpicsGlobals#getTimeout()}. Currently this will be 30s unless {@link LocalProperties}
 	 * "gda.epics.request.timeout" was set at startup.
-	 * 
+	 *
 	 * @throws IOException
 	 *             if an Epics CA exception of some sort has occurred
 	 * @throws InterruptedIOException
@@ -119,15 +119,15 @@ public interface PV<T> extends NoCallbackPV<T> {
 	 * @return true if a callback is pending
 	 */
 	boolean putAsyncIsWaiting();
-	
+
 	/**
 	 * Cancel a pending callback. This will cause waitForCallback() to return if blocked.
 	 */
 	void putAsyncCancel();
-	
+
 	/**
 	 * Waits for a previously made {@link #putAsyncStart} call to complete.
-	 * 
+	 *
 	 * @throws IOException
 	 *             if an Epics CA exception of some sort has occurred
 	 * @throws InterruptedIOException
@@ -139,7 +139,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 	/**
 	 * Put a value over CA and wait for callback, then return the values for PVs specified by toReturn at the time of
 	 * the callback.
-	 * 
+	 *
 	 * @param value
 	 *            the value to put across CA
 	 * @param toReturn
@@ -155,7 +155,7 @@ public interface PV<T> extends NoCallbackPV<T> {
 	/**
 	 * Put a value over CA and wait for callback with specified timeout, then return the values for PVs specified by
 	 * toReturn at the time of the callback.
-	 * 
+	 *
 	 * @param value
 	 *            the value to put across CA
 	 * @param toReturn

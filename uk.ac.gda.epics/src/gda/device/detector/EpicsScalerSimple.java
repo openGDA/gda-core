@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 public class EpicsScalerSimple extends DetectorBase {
 
 	private static final Logger logger = LoggerFactory.getLogger(EpicsScalerSimple.class);
-	
+
 	private static final String RECORD = "";
 	private static final String SCALER_FIELD = ".S";
 	private static final String START = ".CNT";
@@ -55,7 +55,7 @@ public class EpicsScalerSimple extends DetectorBase {
 	protected ArrayList<Integer> channelsToBeRead = new ArrayList<Integer>();
 	protected String[] fieldsToBeRead;
 	private boolean waitingForPutToStart = false;
-	
+
 	/**
 	 * @return Returns the channelsToBeRead.
 	 */
@@ -80,10 +80,10 @@ public class EpicsScalerSimple extends DetectorBase {
 	@Override
 	public void collectData() throws DeviceException {
 		try{
-			//set to true before call to setValue to ensure the change in PutListener is last 
+			//set to true before call to setValue to ensure the change in PutListener is last
 			waitingForPutToStart=true;
 			epicsDevice.setValue(RECORD, START, new Short((short) 1), 5, new PutListener() {
-				
+
 				@Override
 				public void putCompleted(PutEvent arg0) {
 					if( arg0 == null ){
@@ -114,11 +114,11 @@ public class EpicsScalerSimple extends DetectorBase {
 
 	/**
 	 * method used for testing only
-	 */	
+	 */
 	public void _setFieldValue(int fieldIndex, Double val) throws DeviceException{
 		epicsDevice.setValue(RECORD, fieldsToBeRead[fieldIndex], val);
 	}
-	
+
 	@Override
 	public Object readout() throws DeviceException {
 		Double[] channelReadings = new Double[fieldsToBeRead.length];
@@ -197,10 +197,10 @@ public class EpicsScalerSimple extends DetectorBase {
 		if (!configured) {
 			throw new DeviceException("EpicsScalerSimple " + getName() + ":" + nameOfCaller + " : - not yet configured");
 		}
-	}	
+	}
 	/**
 	 * Sets the collection time for the scalers
-	 * 
+	 *
 	 * @param time
 	 *            period to count
 	 */
@@ -216,7 +216,7 @@ public class EpicsScalerSimple extends DetectorBase {
 
 	/**
 	 * Gets the collection time from the scalers
-	 * 
+	 *
 	 * @return double collectionTime
 	 */
 	@Override
@@ -227,5 +227,5 @@ public class EpicsScalerSimple extends DetectorBase {
 		} catch (Throwable th) {
 			throw new RuntimeException("getCollectionTime: failed to get collection time:" + getName(), th);
 		}
-	}	
+	}
 }

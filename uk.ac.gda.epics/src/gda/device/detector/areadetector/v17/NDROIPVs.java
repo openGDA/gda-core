@@ -21,7 +21,7 @@ package gda.device.detector.areadetector.v17;
 import gda.epics.PV;
 
 public interface NDROIPVs {
-	
+
 	public enum NDDataType {
 		INT8,
 		UINT8,
@@ -32,27 +32,27 @@ public interface NDROIPVs {
 		FLOAT64,
 		AUTOMATIC
 	}
-	
-	public interface  ROIDimensionPVs { 
+
+	public interface  ROIDimensionPVs {
 		PV<Boolean> getEnablePVPair();
 		PV<Integer>  getMinPVPair();
 		PV<Integer>  getSizePVPair();
-	} 
-	
+	}
+
 	public NDPluginBasePVs getPluginBasePVs();
-	
+
 	PV<String> getNamePV();
-	
+
 	PV<NDDataType> getDataTypeOutPV();
 
 	PV<Boolean> getEnableScalePVPair();
-	
+
 	PV<Integer> getScalePVPair();
-	
+
 	ROIDimensionPVs getXDimension();
-	
+
 	ROIDimensionPVs getYDimension();
-	
+
 	ROIDimensionPVs getZDimension();
-	
+
 }

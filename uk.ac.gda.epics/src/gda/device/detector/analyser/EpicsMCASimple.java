@@ -252,7 +252,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	/**
 	 * Helper function to set a Double in the field of the single record in the epicsdevice
-	 * 
+	 *
 	 * @param field
 	 *            - suffix used to construct the pv name
 	 * @param value
@@ -265,7 +265,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	/**
 	 * Helper function to set an Integer in the field of the single record in the epicsdevice
-	 * 
+	 *
 	 * @param field
 	 *            - suffix used to construct the pv name
 	 * @param value
@@ -282,7 +282,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	/**
 	 * Helper function to set a short in the field of the single record in the epicsdevice
-	 * 
+	 *
 	 * @param field
 	 *            - suffix used to construct the pv name
 	 * @param value
@@ -296,10 +296,10 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	private void setShortFieldValueNoWait(String field, short value) throws DeviceException {
 		epicsDevice.setValueNoWait(SingleRecord, field, value);
 	}
-	
+
 	/**
 	 * Helper function to set String in the field of the single record in the epicsdevice
-	 * 
+	 *
 	 * @param field
 	 *            - suffix used to construct the pv name
 	 * @param value
@@ -312,7 +312,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	/**
 	 * Helper function to set the value in the field of the single record in the epicsdevice
-	 * 
+	 *
 	 * @param field
 	 *            - suffix used to construct the pv name
 	 * @param value
@@ -325,7 +325,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	/**
 	 * Helper function to get the value of the field of the single record in the epicsdevice as a double
-	 * 
+	 *
 	 * @param field
 	 *            - suffix used to construct the pv name
 	 * @return double
@@ -341,7 +341,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	/**
 	 * Helper function to get the value of the field of the single record in the epicsdevice as an int
-	 * 
+	 *
 	 * @param field
 	 *            - suffix used to construct the pv name
 	 * @return int
@@ -357,7 +357,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	/**
 	 * Helper function to get the value of the field of the single record in the epicsdevice as a short
-	 * 
+	 *
 	 * @param field
 	 *            - suffix used to construct the pv name
 	 * @return short
@@ -373,7 +373,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	/**
 	 * Helper function to get the value of the field of the single record in the epicsdevice as a string
-	 * 
+	 *
 	 * @param field
 	 *            - suffix used to construct the pv name
 	 * @return String
@@ -423,7 +423,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	/**
 	 * Clears the mca, but does not return until the clear has been done.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void clearWaitForCompletion() throws DeviceException {
@@ -481,7 +481,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	/**
 	 * Closes currently unused epics channels. Only run this if you suspect you need to as the next attempt to read a
 	 * value will re-create the channel.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void dispose() throws DeviceException {
@@ -505,7 +505,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	/**
 	 * Gets the Dwell Time (DWEL).
-	 * 
+	 *
 	 * @return Dwell Time
 	 * @throws DeviceException
 	 */
@@ -552,7 +552,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	 * When first developed I found that in the ACQG callback I need to perform
 	 * a Read request to ensure the data was correct. However when using this class with the
 	 * Epics DXP module that also support MCA it was not needed. The default value
-	 * gives the old behaviour 
+	 * gives the old behaviour
 	 */
 	private boolean readingDoneIfNotAquiring=false;
 
@@ -651,7 +651,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	/**
 	 * Sets the dwell time (DWEL)
-	 * 
+	 *
 	 * @param time
 	 * @throws DeviceException
 	 */
@@ -693,7 +693,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Analyser#setRegionsOfInterest(java.lang.Object) * the input parameter highLow object should
 	 *      actually be an array of EpicsMCARegionsOfInterest objects
 	 */
@@ -732,7 +732,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 
 	/**
 	 * Activates the MCA using the Erase & Start button.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -740,7 +740,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 		try {
 			readingDone = false;
 			acquisitionDone = false;
-			setIntFieldValueNoWait(eraseStartAcqField, 1); 
+			setIntFieldValueNoWait(eraseStartAcqField, 1);
 			if (epicsDevice.getDummy()) {
 				Thread.sleep((long) (getCollectionTime() * 1000));
 				_fireReadingDone();
@@ -915,15 +915,15 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String channelToEnergyPrefix = "channelToEnergy:";
 	/**
-	 * 
+	 *
 	 */
 	public static final String numberOfChannelsAttr = "NumberOfChannels";
 	/**
-	 * 
+	 *
 	 */
 	public static final String energyToChannelPrefix = "energyToChannel";
 
@@ -1052,11 +1052,11 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 		return "EPICS";
 	}
 
-	
+
 	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
 		synchronized(doneLock){
-			while( !(acquisitionDone & readingDone)){ 
+			while( !(acquisitionDone & readingDone)){
 				doneLock.wait();
 			}
 		}
@@ -1069,7 +1069,7 @@ public class EpicsMCASimple extends AnalyserBase implements IEpicsMCA, Detector,
 	public void setReadingDoneIfNotAquiring(boolean readingDoneIfNotAquiring) {
 		this.readingDoneIfNotAquiring = readingDoneIfNotAquiring;
 	}
-	
+
 }
 
 final class RegisterForEpicsUpdates implements Runnable {
@@ -1102,5 +1102,5 @@ final class RegisterForEpicsUpdates implements Runnable {
 			exceptionUtils.logException(logger, "Error in RegisterForEpicsUpdates", ex);
 		}
 	}
-	
+
 }

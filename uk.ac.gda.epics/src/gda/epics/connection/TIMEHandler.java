@@ -35,13 +35,13 @@ public class TIMEHandler extends STSHandler {
 
 	/**
 	 * returns a timestamp for the channel request directly from EPICS server via compound DBR_TIME_XXXX.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return timestamp of the channel request
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public TimeStamp getTimeStamp(Channel ch) throws CAException, TimeoutException, InterruptedException {
 		return ((TIME) getCompoundData(ch)).getTimeStamp();
@@ -49,7 +49,7 @@ public class TIMEHandler extends STSHandler {
 
 	/**
 	 * returns a timestamp for the DBR if the DBR is of the tyep TIME.
-	 * 
+	 *
 	 * @param dbr
 	 *            the coumpound DBR value
 	 * @return timestamp of the compound DBR
@@ -61,13 +61,13 @@ public class TIMEHandler extends STSHandler {
 	/**
 	 * returns a compound DBR value of the channel, including value, alarm status, alarm severity, timestamp. Implements
 	 * the abstract base class method.
-	 * 
+	 *
 	 * @param ch
 	 *            channel
 	 * @return a compound DBR value
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	@Override
 	protected DBR getCompoundData(Channel ch) throws CAException, TimeoutException, InterruptedException {
@@ -78,7 +78,7 @@ public class TIMEHandler extends STSHandler {
 	/**
 	 * returns the TIME DBRType of the channel that corresponds to its native primiary type. This method ensures the
 	 * automatic type conversion between primiary types is always avoided during the channel request.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the TIME DBRType, i.e. DBR_TIME_XXXX

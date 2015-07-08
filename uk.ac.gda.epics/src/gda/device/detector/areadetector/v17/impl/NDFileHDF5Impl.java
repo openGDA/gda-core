@@ -13,7 +13,7 @@
  * details.
  *
  * You should have received a copy of the GNU General Public License along
- * with GDA. If not, see <http://www.gnu.org/licenses/>. 
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package gda.device.detector.areadetector.v17.impl;
@@ -23,7 +23,6 @@ import gda.configuration.epics.Configurator;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDFileHDF5;
-import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.epics.connection.EpicsController;
 import gda.epics.interfaces.NDFileHDF5Type;
 import gda.factory.FactoryException;
@@ -126,7 +125,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	private static final String NumFramesFlush_RBV = "NumFramesFlush_RBV";
 
-	
+
 	private static final String NumExtraDims = "NumExtraDims";
 
 	private static final String NumExtraDims_RBV = "NumExtraDims_RBV";
@@ -174,7 +173,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 	private static final String BoundaryAlign = "BoundaryAlign";
 
 	private static final String BoundaryAlign_RBV = "BoundaryAlign_RBV";
-	
+
 	@Override
 	public int getNumRowChunks() throws Exception {
 		try {
@@ -666,7 +665,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 
 	/**
 	 * This method allows to toggle between the method in which the PV is acquired.
-	 * 
+	 *
 	 * @param pvElementName
 	 * @param args
 	 * @return {@link Channel} to talk to the relevant PV.
@@ -964,7 +963,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 			logger.warn("Cannot setNumFramesChunks", ex);
 			throw ex;
 		}
-		
+
 	}
 
 	@Override
@@ -992,7 +991,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 			logger.warn("Cannot setNumFramesFlush", ex);
 			throw ex;
 		}
-		
+
 	}
 
 	@Override
@@ -1017,7 +1016,7 @@ public class NDFileHDF5Impl implements InitializingBean, NDFileHDF5 {
 			throw new IllegalArgumentException("BoundaryAlign not yet in the interface file");
 		}
 		EPICS_CONTROLLER.caputWait(getChannel(BoundaryAlign), boundaryAlign);
-		
+
 	}
 
 	@Override

@@ -28,8 +28,8 @@ import gov.aps.jca.dbr.Severity;
 import gov.aps.jca.dbr.Status;
 
 /**
- * 
- * 
+ *
+ *
  */
 public class STSHandler extends CompoundDataTypeHandler {
 	public STSHandler() {
@@ -38,13 +38,13 @@ public class STSHandler extends CompoundDataTypeHandler {
 	/**
 	 * returns the Alarm Status of this channel directly from EPICS server. The Status are listed in
 	 * {@link gov.aps.jca.dbr.Status}.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA Channel
 	 * @return the Alarm Status of this channel
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public Status getStatus(Channel ch) throws CAException, TimeoutException, InterruptedException {
 		return ((STS) getCompoundData(ch)).getStatus();
@@ -54,13 +54,13 @@ public class STSHandler extends CompoundDataTypeHandler {
 	 * returns the Alarm Severity of this channel directly from EPICS server. There are four severity level for each
 	 * alarm in EPICS: INVALID_ALARM, MAJOR_ALARM, MINOR_ALARM, NO_ALARM. Based on the alarm severity different
 	 * responses can be implemented.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the Alarm severity of this channel
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public Severity getSeverity(Channel ch) throws CAException, TimeoutException, InterruptedException {
 		return ((STS) getCompoundData(ch)).getSeverity();
@@ -69,7 +69,7 @@ public class STSHandler extends CompoundDataTypeHandler {
 	/**
 	 * returns the Alarm Status of this compound BDR. Before call this method one must test the DBR type of dbr is at
 	 * least STS using <code>dbr.isSTS()</code> The Status are listed in {@link gov.aps.jca.dbr.Status}.
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound BDR value
 	 * @return the Alarm Status of this dbr
@@ -81,7 +81,7 @@ public class STSHandler extends CompoundDataTypeHandler {
 	/**
 	 * returns the Alarm Severity of this Compound DBR. Before call this method one must test the DBR type of dbr is at
 	 * least STS using <code>dbr.isSTS()</code>
-	 * 
+	 *
 	 * @param dbr
 	 *            the compound DBR value
 	 * @return the Alarm severity of the given dbr
@@ -93,13 +93,13 @@ public class STSHandler extends CompoundDataTypeHandler {
 	/**
 	 * returns a compound DBR value of this channel, including value, alarm status and alarm severity. implements the
 	 * abstract base class method.
-	 * 
+	 *
 	 * @param ch
 	 *            channel
 	 * @return a compound DBR value
 	 * @throws CAException
 	 * @throws TimeoutException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	@Override
 	protected DBR getCompoundData(Channel ch) throws CAException, TimeoutException, InterruptedException {
@@ -110,7 +110,7 @@ public class STSHandler extends CompoundDataTypeHandler {
 	/**
 	 * returns the STS DBRType of the channel that corresponds to its native primiary type. This method ensures the
 	 * automatic type conversion between primiary types is always avoided during the channel request.
-	 * 
+	 *
 	 * @param ch
 	 *            the CA channel
 	 * @return the STS DBRType, i.e. DBR_STS_XXXX

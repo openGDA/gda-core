@@ -18,8 +18,9 @@
 
 package gda.device.epicsdevice;
 
+import gov.aps.jca.dbr.DBR_CTRL_Enum;
+
 import java.io.Serializable;
-import gov.aps.jca.dbr.*;
 
 /**
  * EpicsCtrlEnum class

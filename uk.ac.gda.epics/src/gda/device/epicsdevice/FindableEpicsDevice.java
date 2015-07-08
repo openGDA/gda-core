@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 @ExposedType(name="findableepicsdevice")
 public class FindableEpicsDevice extends DeviceBase implements Device, Configurable, Localizable, IEpicsDevice {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(FindableEpicsDevice.class);
 
 	private EpicsDevice epicsDevice;
@@ -62,7 +62,7 @@ public class FindableEpicsDevice extends DeviceBase implements Device, Configura
 		configured = false;
 		// do nothing
 	}
-	
+
 	/**
 	 * Constructor to use when you have constructed the EpicsDEvice yourself - not by CASTOR
 	 */
@@ -293,7 +293,7 @@ public class FindableEpicsDevice extends DeviceBase implements Device, Configura
 		checkConfigured();
 		epicsDevice.setValue(record, field, val, connection_timeout, listener );
 	}
-	
+
 	public void setValue(String record, String field, Object val) throws DeviceException {
 		checkConfigured();
 		epicsDevice.setValue(null, record, field, val, 5.0);
@@ -303,7 +303,7 @@ public class FindableEpicsDevice extends DeviceBase implements Device, Configura
 		checkConfigured();
 		epicsDevice.setValue(null, record, field, val, -1.0);
 	}
-	
+
 	public void setValue(Object val) throws DeviceException {
 		checkConfigured();
 		setValue("", "", val);
@@ -368,8 +368,8 @@ public class FindableEpicsDevice extends DeviceBase implements Device, Configura
 	final Object __getattr__(String name) {
 		return epicsDevice.__getattr__(name);
 	}
-	
+
 	public Object __getattr__(PyString name) {
 		return epicsDevice.__getattr__(name.internedString());
-	}	
+	}
 }

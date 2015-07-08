@@ -23,7 +23,7 @@ import gda.epics.PVProvider;
 public class GDAEpicsInterfacePVProvider implements PVProvider {
 	private String deviceName;
 	private String fieldName;
-	
+
 	public String getDeviceName() {
 		return deviceName;
 	}

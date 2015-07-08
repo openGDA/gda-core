@@ -27,11 +27,11 @@ public interface EpicsInterfaceDevice {
 	 * Get the device name from the GDA/Epics interface file
 	 * @return deviceName
 	 */
-	public String getDeviceName(); 
-	
+	public String getDeviceName();
+
 	/**
 	 * set the device name from the GDA/Epics interface file
-	 * 
+	 *
 	 * @param name
 	 */
 	public void setDeviceName(String name);

@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * For situations where 'Open' and 'Close' are 'too confusing'...
  * <p>
- * 
+ *
  * @see EpicsSimplePositioner
  */
 public class NameMappedEpicsPneumaticCallback extends EpicsPneumaticCallback {
@@ -49,7 +49,7 @@ public class NameMappedEpicsPneumaticCallback extends EpicsPneumaticCallback {
 
 	/**
 	 * Map<String, String> - means <GDA name, EPICS name>
-	 * 
+	 *
 	 * @param values
 	 *            The values to set.
 	 */

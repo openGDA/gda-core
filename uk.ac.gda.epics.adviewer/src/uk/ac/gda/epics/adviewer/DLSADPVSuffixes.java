@@ -25,7 +25,7 @@ public class DLSADPVSuffixes implements ADPVSuffixes {
 	public static final String ARRAY_PLUGIN_SUFFIX = "ARR:";
 	public static final String STAT_PLUGIN_SUFFIX = "STAT:";
 	public static final String ADBASE_SUFFIX = "CAM:";
-	
+
 	@Override
 	public String getADBaseSuffix() {
 		return ADBASE_SUFFIX;

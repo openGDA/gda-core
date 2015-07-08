@@ -23,7 +23,7 @@ import gda.device.Detector;
 public interface EpicsAreaDetector extends Detector {
 	/**
 	 * specify the area detector acquisition control point.
-	 * If set to true, file saver capture control is used; 
+	 * If set to true, file saver capture control is used;
 	 * if set to false, detector acquire control is used.
 	 * @param captureMode
 	 */

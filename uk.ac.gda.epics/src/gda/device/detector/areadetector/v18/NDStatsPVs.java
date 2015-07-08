@@ -85,7 +85,7 @@ public interface NDStatsPVs {
 	 * <p>
 	 * The centroids are computed from the average row and column profiles above the centroid threshold. These
 	 * calculations are also quite fast, since they just involve addition operations for each array element.
-	 * 
+	 *
 	 */
 	public PV<Boolean> getComputeCentroidPVPair();
 

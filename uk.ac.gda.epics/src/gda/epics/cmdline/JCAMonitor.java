@@ -83,7 +83,7 @@ public class JCAMonitor {
 
 	/**
 	 * Main entry point
-	 * 
+	 *
 	 * @param args
 	 *            arguments
 	 */
@@ -161,7 +161,7 @@ public class JCAMonitor {
 
 	/**
 	 * Parse the command line
-	 * 
+	 *
 	 * @param args
 	 * @return success or failure
 	 */
@@ -216,7 +216,7 @@ public class JCAMonitor {
 	// //////////////////////////////////////////////////////////////////
 	/**
 	 * Set process variable name
-	 * 
+	 *
 	 * @param name
 	 *            process variable name
 	 */
@@ -226,7 +226,7 @@ public class JCAMonitor {
 
 	/**
 	 * Get process variable name
-	 * 
+	 *
 	 * @return process variable name
 	 */
 	public String getName() {
@@ -235,7 +235,7 @@ public class JCAMonitor {
 
 	/**
 	 * Set timeout
-	 * 
+	 *
 	 * @param timeout
 	 *            timeout in sec
 	 */
@@ -245,7 +245,7 @@ public class JCAMonitor {
 
 	/**
 	 * Get timeout
-	 * 
+	 *
 	 * @return timeout in sec
 	 */
 	public double getTimeout() {
@@ -264,7 +264,7 @@ public class JCAMonitor {
 
 	/**
 	 * Connection callback
-	 * 
+	 *
 	 * @param ev
 	 */
 	private void onConnectionChanged(ConnectionEvent ev) {
@@ -310,7 +310,7 @@ public class JCAMonitor {
 
 	/**
 	 * Monitor callback
-	 * 
+	 *
 	 * @param ev
 	 */
 	private void onValueChanged(MonitorEvent ev) {

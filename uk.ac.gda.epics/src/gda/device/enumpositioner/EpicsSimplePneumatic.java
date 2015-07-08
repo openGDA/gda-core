@@ -53,9 +53,9 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 	private EpicsChannelManager channelManager;
 
 	private Channel control = null;
-	
+
 	protected String pvName;
-	
+
 	private PutCallbackListener pcl;
 	private Status callbackstatus = Status.NO_ALARM;
 	private Severity callbackseverity = Severity.NO_ALARM;
@@ -65,7 +65,7 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 	private Object lock = new Object();
 
 	protected Vector<String> statuspositions = new Vector<String>();
-	
+
 	private boolean readOnly = false;
 
 	/**
@@ -89,7 +89,7 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 
 //				control = channelManager.createChannel(pvName, false);
 				control = channelManager.createChannel(pvName, statusMonitor, false);
-				
+
 				channelManager.creationPhaseCompleted();
 				channelManager.tryInitialize(100);
 
@@ -100,10 +100,10 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 			throw new FactoryException("failed to create channel " + pvName, th);
 		}
 	}
-	
+
 	/**
 	 * gets the current status position of this device.
-	 * 
+	 *
 	 * @return position in String
 	 * @throws DeviceException
 	 */
@@ -128,7 +128,7 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 		if (isReadOnly()) {
 			throw new DeviceException("Cannot move " + getName() + " as it is configured (within the gda software) to be read only");
 		}
-		
+
 		// find in the positionNames array the index of the string
 		if (positions.contains(position.toString())) {
 			int target = positions.indexOf(position.toString());
@@ -137,7 +137,7 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 					logger.warn("{} is busy", getName());
 					return;
 				}
-				
+
 				positionerStatus = EnumPositionerStatus.MOVING;
 				controller.caput(control, target, pcl);
 			} catch (CAException e) {
@@ -162,9 +162,9 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 
 	/**
 	 * gets the available positions from this device.
-	 * 
+	 *
 	 * @return the available positions from this device.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	@Override
 	public String[] getPositions() throws DeviceException {
@@ -177,9 +177,9 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 
 	/**
 	 * gets the available status positions from this device.
-	 * 
+	 *
 	 * @return the available status positions from this device.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public String[] getControlPositions() throws DeviceException {
 		try {
@@ -233,7 +233,7 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 			notifyIObservers(this, positionerStatus);
 		}
 	}
-	
+
 	private class PutCallbackListener implements PutListener {
 		volatile PutEvent event = null;
 
@@ -254,11 +254,11 @@ public class EpicsSimplePneumatic extends EnumPositionerBase implements EnumPosi
 
 				if (callbackstatus == Status.NO_ALARM && callbackseverity == Severity.NO_ALARM) {
 					logger.info("{} moves OK", getName());
-					positionerStatus=EnumPositionerStatus.IDLE;				
+					positionerStatus=EnumPositionerStatus.IDLE;
 				} else {
 					// if Alarmed, check and report MSTA status
 					logger.error("{} reports Alarm: {}", getName(), control);
-					positionerStatus=EnumPositionerStatus.ERROR;			
+					positionerStatus=EnumPositionerStatus.ERROR;
 				}
 
 			} catch (Exception ex) {

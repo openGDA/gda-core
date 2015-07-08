@@ -21,11 +21,11 @@ package gda.device.epicsdevice;
 import gda.device.DeviceException;
 
 /**
- * 
+ *
  */
 public interface IEpicsDevice {
 	/**
-	 * 
+	 *
 	 */
 	final static double defPutTimeOutInSec = 30.0;
 

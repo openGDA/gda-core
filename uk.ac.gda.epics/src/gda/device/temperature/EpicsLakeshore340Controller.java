@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EpicsLakeshore340Controller extends DeviceBase implements Configurable, Findable, InitializationListener {
 	/**
-	 * 
+	 *
 	 */
 	@SuppressWarnings("unused")
 	private static final long serialVersionUID = 6189569607134958641L;
@@ -55,11 +55,11 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(EpicsLakeshore340Controller.class);
 	/**
-	 * 
+	 *
 	 */
 	public final double MAX_RAMP_RATE = 2.0; // Kevin/min
 	/**
-	 * 
+	 *
 	 */
 	public final double MIN_RAMP_RATE = 2.0; // K/min
 	/**
@@ -117,7 +117,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 
 	/**
 	 * Initialise the cryo controller object.Monitor
-	 * 
+	 *
 	 * @throws FactoryException
 	 */
 	@Override
@@ -168,7 +168,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 
 	/**
 	 * create channel access implementing phase II beamline EPICS interfaces.
-	 * 
+	 *
 	 * @param config
 	 * @throws FactoryException
 	 */
@@ -189,7 +189,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 
 	/**
 	 * gets temperature ramp rate
-	 * 
+	 *
 	 * @return ramp rate
 	 * @throws DeviceException
 	 */
@@ -202,7 +202,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	// }
 	/**
 	 * gets the target temperature
-	 * 
+	 *
 	 * @return target temp
 	 * @throws DeviceException
 	 */
@@ -219,7 +219,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 
 	/**
 	 * gets current temperature
-	 * 
+	 *
 	 * @return temp
 	 * @throws DeviceException
 	 */
@@ -236,7 +236,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 
 	/**
 	 * gets channel 1 temperature
-	 * 
+	 *
 	 * @return channel 1 temperature
 	 * @throws DeviceException
 	 */
@@ -253,7 +253,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 
 	/**
 	 * gets channel 2 temperature
-	 * 
+	 *
 	 * @return channel 2 temperature
 	 * @throws DeviceException
 	 */
@@ -270,7 +270,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 
 	/**
 	 * gets channel 3 temperature
-	 * 
+	 *
 	 * @return channel 3 temperature
 	 * @throws DeviceException
 	 */
@@ -287,7 +287,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 
 	/**
 	 * set ramp rate
-	 * 
+	 *
 	 * @param K_hr
 	 * @throws DeviceException
 	 */
@@ -324,7 +324,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 
 	/**
 	 * monitors the current temperature
-	 * 
+	 *
 	 * @author fy65
 	 */
 	public class CurrentTempListener implements MonitorListener {
@@ -341,7 +341,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 
 	/**
 	 * Monitors the Hardware connection via EPICS
-	 * 
+	 *
 	 * @author fy65
 	 */
 	public class ConnectionListener implements MonitorListener {
@@ -366,7 +366,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 
 	/**
 	 * returns the Hardware connection status in EPICS interface
-	 * 
+	 *
 	 * @return Disabled or Enabled
 	 */
 	public String getConnectionState() {
@@ -377,7 +377,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 
 	/**
 	 * Sets the EpicsConfiguration to use when looking up PV from deviceName.
-	 * 
+	 *
 	 * @param epicsConfiguration the EpicsConfiguration
 	 */
 	public void setEpicsConfiguration(EpicsConfiguration epicsConfiguration) {
@@ -406,7 +406,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 	}
 
 	/**
-	 * sets EPICS hardware connection state 
+	 * sets EPICS hardware connection state
 	 * @param connected
 	 */
 	public void setConnected(boolean connected) {
@@ -433,7 +433,7 @@ public class EpicsLakeshore340Controller extends DeviceBase implements Configura
 		throw new DeviceException("failed to set DISABLE PV.", e);
 		}
 	}
-	
+
 	/**
 	 * gets the EPICS hardware connection state.
 	 * @return Disabled or Enabled

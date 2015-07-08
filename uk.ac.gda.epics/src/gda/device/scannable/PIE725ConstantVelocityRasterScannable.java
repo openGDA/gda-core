@@ -132,12 +132,12 @@ public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithSc
 			throw new DeviceException(e);
 		}
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		stop();
 	}
-	
+
 	class PIE725ConstantVelocityRasterMoveController extends DeviceBase implements ConstantVelocityRasterMoveController {
 
 		private PV<Boolean> sendStartCommandPv;
@@ -147,9 +147,9 @@ public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithSc
 		private PV<Boolean> sendWaveformSetupCommand;
 
 		private PV<String> startCommandStringPv;
-		
+
 		private PV<String> stopCommandStringPv;
-		
+
 		private PV<String> waveformSetupCommandString;
 
 		private boolean hasBeenStarted = false;
@@ -167,12 +167,12 @@ public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithSc
 		private double ystep;
 
 		private double periodS;
-		
+
 		public PIE725ConstantVelocityRasterMoveController(String pvName) {
 			sendStartCommandPv = LazyPVFactory.newBooleanFromEnumPV(pvName + "WFSTART:GO");
 			sendStopCommandPv = LazyPVFactory.newBooleanFromEnumPV(pvName + "WFSTOP:GO");
 			sendWaveformSetupCommand = LazyPVFactory.newBooleanFromEnumPV(pvName + "WFSETUP:GO");
-			
+
 			startCommandStringPv = LazyPVFactory.newStringFromWaveformPV(pvName + "WFSTART:WR");
 			stopCommandStringPv = LazyPVFactory.newStringFromWaveformPV(pvName + "WFSTOP:WR");
 			waveformSetupCommandString = LazyPVFactory.newStringFromWaveformPV(pvName + "WFSETUP:WR");
@@ -182,7 +182,7 @@ public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithSc
 		public String getName() {
 			return "pie725_controller";
 		}
-		
+
 		@Override
 		public void setTriggerPeriod(double seconds) throws DeviceException {
 			periodS = seconds;
@@ -247,8 +247,8 @@ public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithSc
 
 			String waveformSetupCommand = jsf.eval(logAndReturn("_rg.commands")).toString();
 			logger.info(waveformSetupCommand);
-			
-			
+
+
 			try {
 				logger.info("putting string commands");
 				startCommandStringPv.putWait(startCommand);
@@ -257,22 +257,22 @@ public class PIE725ConstantVelocityRasterScannable extends ScannableMotionWithSc
 //				Thread.sleep(1);
 				waveformSetupCommandString.putWait(waveformSetupCommand);
 //				Thread.sleep(1);
-				
+
 				logger.info("sending waveform string commands to controller");
 				sendWaveformSetupCommand.putWait(true);
 //				Thread.sleep(1);
-				
+
 				logger.info("complete");
-				
+
 			} catch (IOException e) {
 				throw new DeviceException(e);
 			}
 		}
-		
+
 		private String logAndReturn(String cmd) {
 			logger.info(">>> " + cmd);
 			return cmd;
-			
+
 		}
 
 		@Override

@@ -32,24 +32,24 @@ public class EpicsPneumaticFactoryBean extends EpicsConfigurationFactoryBeanBase
 	private String deviceName;
 	private boolean statusPvIndicatesPositionOnly=false;
 
-	
+
 	/**
 	 * Sets the EPICS device name which will be used to obtain the PV record
 	 * name.
-	 * 
+	 *
 	 * @param deviceName the EPICS device name
 	 */
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
 	}
-	
+
 	@Override
 	public Class<?> getObjectType() {
 		return EpicsPneumaticCallback.class;
 	}
 
 	private EpicsPneumaticCallback epicsPneumaticCallback;
-	
+
 	@Override
 	protected void createObject() throws ConfigurationNotFoundException {
 		PneumaticCallbackType config = getEpicsConfiguration().getConfiguration(deviceName, PneumaticCallbackType.class);

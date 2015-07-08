@@ -37,7 +37,7 @@ public class SingleExposurePilatus extends SingleExposureStandard {
 		getAdBase().stopAcquiring();
 		super.prepareForCollection(collectionTime, numImages, scanInfo);
 	}
-	
+
 	@Override
 	protected void configureTriggerMode() throws Exception {
 		getAdBase().setTriggerMode(PilatusTriggerMode.INTERNAL.ordinal());

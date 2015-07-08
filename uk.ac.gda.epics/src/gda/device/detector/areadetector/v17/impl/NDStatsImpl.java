@@ -13,7 +13,7 @@
  * details.
  *
  * You should have received a copy of the GNU General Public License along
- * with GDA. If not, see <http://www.gnu.org/licenses/>. 
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package gda.device.detector.areadetector.v17.impl;
@@ -47,7 +47,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 	private IPVProvider pvProvider;
 
 	private NDStatsType config;
-	
+
 	private String deviceName;
 
 	static final Logger logger = LoggerFactory.getLogger(NDStatsImpl.class);
@@ -1177,7 +1177,7 @@ public class NDStatsImpl extends NDBaseImpl implements InitializingBean, NDStats
 	}
 	/**
 	 * This method allows to toggle between the method in which the PV is acquired.
-	 * 
+	 *
 	 * @param pvElementName
 	 * @param args
 	 * @return {@link Channel} to talk to the relevant PV.

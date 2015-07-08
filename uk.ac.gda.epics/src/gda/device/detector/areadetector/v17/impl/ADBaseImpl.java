@@ -13,7 +13,7 @@
  * details.
  *
  * You should have received a copy of the GNU General Public License along
- * with GDA. If not, see <http://www.gnu.org/licenses/>. 
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package gda.device.detector.areadetector.v17.impl;
@@ -29,6 +29,7 @@ import gda.device.detector.areadetector.impl.AreaDetectorBinImpl;
 import gda.device.detector.areadetector.impl.AreaDetectorROIImpl;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ImageMode;
+import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.connection.EpicsController;
@@ -51,8 +52,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
-
-import  gda.device.detector.areadetector.v17.NDPluginBase;
 
 public class ADBaseImpl implements InitializingBean, ADBase {
 
@@ -114,7 +113,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 	private PV<Integer> pvDetectorState_RBV;
 
 	private Map<Short, gda.device.detector.areadetector.v17.NDPluginBase.DataType> dataTypeRBV_Map;
-	
+
 	/**
 	*
 	*/
@@ -242,8 +241,8 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			logger.warn("g.d.d.a.v.i.ADBaseImpl-> Cannot getDataType_RBV", ex);
 			throw ex;
 		}
-	}	
-	
+	}
+
 	/**
 	*
 	*/
@@ -2168,7 +2167,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 
 		pvArrayCounter_RBV = LazyPVFactory.newIntegerPV((config == null) ? genenerateFullPvName(ArrayCounter_RBV)
 				: config.getArrayCounter_RBV().getPv());
-		
+
 		pvDetectorState_RBV = LazyPVFactory.newIntegerPV((config == null) ? genenerateFullPvName(DetectorState_RBV)
 				: config.getDetectorState_RBV().getPv());
 	}
@@ -2190,7 +2189,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 
 	/**
 	 * This method allows to toggle between the method in which the PV is acquired.
-	 * 
+	 *
 	 * @param pvElementName
 	 * @param args
 	 * @return {@link Channel} to talk to the relevant PV.
@@ -2402,7 +2401,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 
 	/**
 	 * Sets the EpicsConfiguration to use when looking up PV from deviceName.
-	 * 
+	 *
 	 * @param epicsConfiguration
 	 *            the EpicsConfiguration
 	 */
@@ -2517,12 +2516,12 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		}, timeoutS);
 	}
 
-	
-	
+
+
 	private String getChannelName(String pvElementName, String... args)throws Exception{
 		return genenerateFullPvName(pvElementName, args);
-	}	
-	
+	}
+
 	@Override
 	public Observable<Short> createAcquireStateObservable() throws Exception {
 		return LazyPVFactory.newReadOnlyEnumPV(getChannelName(Acquire_RBV), Short.class);
@@ -2561,7 +2560,7 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 		}
 
 	}
-	
-	
+
+
 
 }

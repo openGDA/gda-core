@@ -175,15 +175,15 @@ public interface NDProcess extends GetPluginBaseAvailable {
 	static final String RecursiveAveDiffSeq = "RecursiveAveDiffSeq";
 
 	static final String CopyToFilterSeq = "CopyToFilterSeq";
-	
+
 	static final String AutoResetFilter = "AutoResetFilter";
 	static final String AutoResetFilter_RBV = "AutoResetFilter_RBV";
 	static final String FilterCallbacks = "FilterCallbacks";
 	static final String FilterCallbacks_RBV = "FilterCallbacks_RBV";
-	
+
 	static final int FilterCallback_EveryArray=0;
 	static final int FilterCallback_ArrayNOnly=1;
-	
+
 	static final int FilterType_UserDefined=0;
 	static final int FilterType_OffsetScale=1;
 	static final int FilterType_RecursiveAve=2;
@@ -207,7 +207,7 @@ public interface NDProcess extends GetPluginBaseAvailable {
 	static final int DatatypeOut_Float32=6;
 	static final int DatatypeOut_Float64=7;
 	static final int DatatypeOut_Automatic=8;
-	
+
 	/**
 	 *
 	 */
@@ -780,13 +780,13 @@ public interface NDProcess extends GetPluginBaseAvailable {
 	 * See Area Detector NDProcess FilterCallbacks doc. for version 1.8 and above
 	 */
 	void setFilterCallbacks(int filterCallback) throws Exception;
-	
+
 	int getFilterCallbacks() throws Exception;
-	
+
 	void setAutoResetFilter(int enable) throws Exception;
-	
+
 	int getAutoResetFilter() throws Exception;
 
-	Observable<Double> createScaleObservable() throws Exception;	
-	Observable<Double> createOffsetObservable() throws Exception;	
+	Observable<Double> createScaleObservable() throws Exception;
+	Observable<Double> createOffsetObservable() throws Exception;
 }

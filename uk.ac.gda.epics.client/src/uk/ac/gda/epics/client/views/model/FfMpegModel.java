@@ -34,14 +34,14 @@ public interface FfMpegModel {
 
 	/**
 	 * This PV does not need to be monitored, so passing null as argument value for the monitor
-	 * 
+	 *
 	 * @return URL for video streaming
 	 */
 	String getMjpegUrl() throws Exception;
 
 	/**
 	 * This PV does not need to be monitored, so passing null as argument value for the monitor
-	 * 
+	 *
 	 * @return URL for video streaming
 	 */
 	String getJpegUrl() throws Exception;

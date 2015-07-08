@@ -118,7 +118,7 @@ public class EpicsAttenuator extends EpicsAttenuatorBase implements MonitorListe
 			throw new DeviceException(getName() + " had Exception in getFilterPositions()", e);
 		}
 	}
-	
+
 	@Override
 	public boolean[] getDesiredFilterPositions() throws DeviceException {
 		try {

@@ -46,7 +46,7 @@ public class EpicsPilatus extends DetectorBase implements
 		InitializationListener, Pilatus {
 	private static final Logger logger = LoggerFactory
 			.getLogger(EpicsPilatus.class);
-	
+
 	private String modeRecordName;
 	private String gainRecordName;
 	private String thresholdRecordName;
@@ -230,7 +230,7 @@ public class EpicsPilatus extends DetectorBase implements
 		}
 		cached_exptime = t;
 	}
-	
+
 	/**
 	 * Dectris recommend using setting both collection time and collection period. Previous experiments seem to have used just collection time
 	 */
@@ -252,7 +252,7 @@ public class EpicsPilatus extends DetectorBase implements
 	public double getCollectionTime() {
 		return cached_exptime;
 	}
-	
+
 	/**
 	 *Returns the cached collection period because we cannot get this information directly from the detector
 	 */
@@ -260,12 +260,12 @@ public class EpicsPilatus extends DetectorBase implements
 	public double getCollectionPeriod() {
 		return cached_expperiod;
 	}
-	
+
 	@Override
 	public void stop() throws DeviceException {
 		stopCommand();
 	}
-	
+
 	@Override
 	public Object getPosition() throws DeviceException {
 		updateFilenumber();
@@ -273,7 +273,7 @@ public class EpicsPilatus extends DetectorBase implements
 		Object[] toReturn = new Object[]{cached_exptime, filenumberInt};
 		return toReturn;
 	}
-	
+
 	@Override
 	public void asynchronousMoveTo(Object time) throws DeviceException {
 		setCollectionTime((Double) time);
@@ -347,7 +347,7 @@ public class EpicsPilatus extends DetectorBase implements
 		// if get here then wrong position name supplied
 		throw new DeviceException("Gain called: " + gainName + " not found.");
 	}
-	
+
 	/**
 	 * Get acquisition mode of detector
 	 * @return acquireMode
@@ -362,7 +362,7 @@ public class EpicsPilatus extends DetectorBase implements
 			throw new DeviceException("Exception while getting mode ", e);
 		}
 	}
-	
+
 	@Override
 	public String getGain() throws DeviceException {
 		try {
@@ -372,7 +372,7 @@ public class EpicsPilatus extends DetectorBase implements
 			throw new DeviceException("Exception while getting gain ",e);
 		}
 	}
-	
+
 	@Override
 	public String[] getModeLabels() throws DeviceException {
 		String[] modeLabels = new String[5]; // TODO hard-coded value
@@ -383,7 +383,7 @@ public class EpicsPilatus extends DetectorBase implements
 		}
 		return modeLabels;
 	}
-	
+
 	@Override
 	public String[] getGainLabels() throws DeviceException {
 		String[] gainLabels = new String[4]; //TODO hard-coded value
@@ -395,7 +395,7 @@ public class EpicsPilatus extends DetectorBase implements
 		return gainLabels;
 	}
 	//commands that talk directly to the PVs
-	
+
 	@Override
 	public void setFilename(String filename) throws DeviceException {
 		try {
@@ -417,7 +417,7 @@ public class EpicsPilatus extends DetectorBase implements
 		}
 		this.fileformatString = fileformat;
 	}
-	
+
 	@Override
 	public void setFileHeader(String fileHeader) throws DeviceException {
 		try {
@@ -453,7 +453,7 @@ public class EpicsPilatus extends DetectorBase implements
 			throw new DeviceException("setFilenumber exception", th);
 		}
 	}
-	
+
 	/**
 	 * Returns the current file number stored by EPICS
 	 * @return fileNumber
@@ -491,7 +491,7 @@ public class EpicsPilatus extends DetectorBase implements
 			throw new DeviceException("setNumberImages exception", th);
 		}
 	}
-	
+
 	/**
 	 * This sets the collection time - the time the detector is actually exposing. Most useful for single images. Use collection period for multiple images
 	 * @param t
@@ -505,7 +505,7 @@ public class EpicsPilatus extends DetectorBase implements
 			throw new DeviceException("setCollectionTimeCommand exception", th);
 		}
 	}
-	
+
 	/**
 	 * Used for setting collection period. For multiple images, user would most likely define the period that they want the collection to work at.
 	 * The time should then be calculated based on the period.
@@ -520,7 +520,7 @@ public class EpicsPilatus extends DetectorBase implements
 			throw new DeviceException("setCollectionPeriodCommand exception", th);
 		}
 	}
-	
+
 	public boolean isBusyCommand () throws DeviceException {
 		try {
 			return !(controller.cagetInt(start)==0);
@@ -529,7 +529,7 @@ public class EpicsPilatus extends DetectorBase implements
 			throw new DeviceException("isBusyCommand exception", th);
 		}
 	}
-	
+
 	public void stopCommand () throws DeviceException {
 		try {
 			controller.caputWait(abort, 1);
@@ -551,7 +551,7 @@ public class EpicsPilatus extends DetectorBase implements
 			}
 		}
 	}
-	
+
 	@Override
 	public double getThresholdEnergy() throws DeviceException {
 		double returnValue;
@@ -564,7 +564,7 @@ public class EpicsPilatus extends DetectorBase implements
 		}
 		return returnValue;
 	}
-	
+
 	@Override
 	public void setThresholdEnergy(double energyValue) throws DeviceException {
 		try {
@@ -585,7 +585,7 @@ public class EpicsPilatus extends DetectorBase implements
 			throw new DeviceException("setDelayTime exception", th);
 		}
 	}
-	
+
 	@Override
 	public double getDelayTime() throws DeviceException {
 		try {
@@ -597,7 +597,7 @@ public class EpicsPilatus extends DetectorBase implements
 	}
 	/**
 	 * gets the name of the device.
-	 * 
+	 *
 	 * @return String name
 	 */
 	public String getDeviceName() {
@@ -606,7 +606,7 @@ public class EpicsPilatus extends DetectorBase implements
 
 	/**
 	 * sets the name of the device.
-	 * 
+	 *
 	 * @param deviceName
 	 */
 	public void setDeviceName(String deviceName) {
@@ -681,7 +681,7 @@ public class EpicsPilatus extends DetectorBase implements
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public void setGeneralText(String toSend) {
 		try {
@@ -705,10 +705,10 @@ public class EpicsPilatus extends DetectorBase implements
 			logger.error("EpicsGeneralBox: InterruptedException", e);
 		}
 	}
-	
+
 	@Override
 	public boolean isLocal() {
 		return true;
 	}
-	
+
 }

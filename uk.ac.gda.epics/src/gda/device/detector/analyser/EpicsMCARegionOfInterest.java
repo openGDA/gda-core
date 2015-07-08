@@ -48,7 +48,7 @@ public class EpicsMCARegionOfInterest implements Serializable {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @param regionLow
 	 * @param regionHigh
@@ -68,7 +68,7 @@ public class EpicsMCARegionOfInterest implements Serializable {
 	}
 	/**
 	 * Constructor with default values for preset and background
-	 * 
+	 *
 	 * @param regionIndex
 	 * @param regionLow
 	 * @param regionHigh

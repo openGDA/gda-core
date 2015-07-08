@@ -43,13 +43,13 @@ public class ArrayROI extends Composite {
 	public ArrayROI(Composite parent, int style) {
 		super(parent, style);
 		canvas = new Canvas(parent, SWT.NONE);
-		LightweightSystem lws = new LightweightSystem(canvas); 
+		LightweightSystem lws = new LightweightSystem(canvas);
 
 		fig1 = new Figure();
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(canvas);
 		lws.setContents(fig1);
 
-		
+
 		fig2 = new RectangleFigure();
 		fig2.setFill(true);
 		fig2.setSize(400, 50);
@@ -60,8 +60,8 @@ public class ArrayROI extends Composite {
 
 		fig1.setLayoutManager(new XYLayout());
 		fig1.add(fig2, new Rectangle(0, 0, -1, -1));
-		
-		
+
+
 		topFig = new RectangleFigure();
 		topFig.setFill(true);
 		topFig.setSize(80, 30);

@@ -16,7 +16,7 @@ import java.util.NoSuchElementException;
 
 /**
  * Represents a single one-off collection from an Epics time series array, or arrays that hang off the same
- * control PVs. 
+ * control PVs.
  */
 class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double>> {
 
@@ -38,7 +38,7 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 
 	/**
 	 * Create and start a time series collection.
-	 * 
+	 *
 	 * @param tsControlPV
 	 * @param tsNumPointsPV
 	 * @param tsCurrentPointPV
@@ -117,7 +117,7 @@ class TimeSeriesInputStreamCollection implements PositionInputStream<List<Double
 		} catch (Exception e) {
 			throw new DeviceException("Problem while waiting for point: " + desiredPoint, e);
 		}
-		
+
 		try {
 			// Jon Thompson and Giles Knap have discovered that this works around pushing 1 to the TSRead not updating
 			// the arrays.

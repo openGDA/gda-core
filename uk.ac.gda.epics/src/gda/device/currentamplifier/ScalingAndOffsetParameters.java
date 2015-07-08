@@ -19,13 +19,13 @@
 package gda.device.currentamplifier;
 
 public class ScalingAndOffsetParameters {
-	
+
 	public ScalingAndOffsetParameters() {}
 	public ScalingAndOffsetParameters(double scaling, double offset) {
 		this.scaling = scaling;
 		this.offset = offset;
 	}
-	
+
 	public double scaling = 1.0, offset = 0.0;
 
 	public double getScaling() {

@@ -21,8 +21,8 @@ package uk.ac.gda.epics.adviewer.views;
 import java.util.List;
 import java.util.Vector;
 
-import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.core.commands.common.NotDefinedException;
+import org.eclipse.dawnsci.plotting.api.tool.IToolPageSystem;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;

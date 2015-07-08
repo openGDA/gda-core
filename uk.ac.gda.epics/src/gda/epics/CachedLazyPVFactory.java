@@ -47,7 +47,7 @@ public class CachedLazyPVFactory {
 		}
 		return pv;
 	}
-	
+
 	public ReadOnlyPV<Double> getReadOnlyPVDouble(String suffix) {
 		if (pvReadOnlyDoubles == null)
 			pvReadOnlyDoubles = new HashMap<String, ReadOnlyPV<Double>>();
@@ -91,7 +91,7 @@ public class CachedLazyPVFactory {
 		}
 		return pv;
 	}
-	
+
 	public void set(String pv, double value) throws IOException{
 		getPVDouble(pv).putWait(value);
 	}
@@ -118,24 +118,24 @@ public class CachedLazyPVFactory {
 	public String toString() {
 		return "CachedLazyPVFactory [deviceprefix=" + deviceprefix + "]";
 	}
-	
+
 	public PVValueCache<Integer> getIntegerPVValueCache(String suffix) throws Exception{
 		if (pvValueCacheIntegers == null)
 			pvValueCacheIntegers = new HashMap<String, PVValueCache<Integer>>();
-		
+
 		PVValueCache<Integer> pv = pvValueCacheIntegers.get(suffix);
 		if (pv == null) {
 			pv = new PVValueCache<Integer>(getPVInteger(suffix));
 			pvValueCacheIntegers.put(suffix, pv);
 		}
 		return pv;
-		
+
 	}
 
 	public PVValueCache<Double> getDoublePVValueCache(String suffix) throws Exception{
 		if (pvValueCacheDoubles == null)
 			pvValueCacheDoubles = new HashMap<String, PVValueCache<Double>>();
-		
+
 		PVValueCache<Double> pv = pvValueCacheDoubles.get(suffix);
 		if (pv == null) {
 			pv = new PVValueCache<Double>(getPVDouble((suffix)));

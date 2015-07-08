@@ -50,8 +50,8 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 		} catch (FactoryException e) {
 			logger.error("Exception configuring the ROI mca s in Xmap" , e);
 			e.printStackTrace();
-		}		
-	}	
+		}
+	}
 
 	/**
 	 * Set rois the array must be of size [maximum number rois][2]
@@ -67,13 +67,13 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 		mergeRois(roiHigh, rois, 1);
 		setHighROIs(roiHigh);
 		final double[] curLow = getLowROIs();
-		if (!Arrays.equals(roiLow, curLow)) 
+		if (!Arrays.equals(roiLow, curLow))
 			throw new DeviceException("Did not set low rois!");
 		final double[] curHi = getHighROIs();
-		if (!Arrays.equals(curHi, roiHigh)) 
+		if (!Arrays.equals(curHi, roiHigh))
 			throw new DeviceException("Did not set high rois!");
 	}
-	
+
 	private void mergeRois(double[] curRois, double[][] rois, int i) {
 		for (int j = 0; j < curRois.length; j++)
 			curRois[j] = rois[j][i];
@@ -98,7 +98,7 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 			simpleMca.setRegionsOfInterest(roiLowObject);
 		}
 	}
-	
+
 	/**
 	 * get the roi low limit
 	 * @return roi low limit array
@@ -116,7 +116,7 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Set the roi high limit
 	 * @param roiHigh
@@ -134,7 +134,7 @@ public class EDXDMappingElement extends EDXDElement implements INeXusInfoWriteab
 		}
 		simpleMca.setRegionsOfInterest(roiHighObject);
 	}
-	
+
 	/**
 	 * get the roi High limit
 	 * @return high limit array

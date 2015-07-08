@@ -58,7 +58,7 @@ public class EpicsControllerForScript extends EpicsController {
 
 	/**
 	 * Protected constructor.
-	 * 
+	 *
 	 * @throws CAException
 	 */
 	protected EpicsControllerForScript(boolean contextRequired) throws CAException {

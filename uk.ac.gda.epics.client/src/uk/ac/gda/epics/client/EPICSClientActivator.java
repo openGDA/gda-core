@@ -32,7 +32,7 @@ public class EPICSClientActivator extends AbstractUIPlugin {
 
 	// The shared instance
 	private static EPICSClientActivator plugin;
-	
+
 	/**
 	 * The constructor
 	 */
@@ -67,7 +67,7 @@ public class EPICSClientActivator extends AbstractUIPlugin {
 	public static EPICSClientActivator getDefault() {
 		return plugin;
 	}
-	
+
 	@Override
 	protected void initializeImageRegistry(ImageRegistry reg) {
 		for (String imgPath : ImageConstants.IMAGES) {

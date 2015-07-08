@@ -18,21 +18,20 @@
 
 package gda.device.monitor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.device.Monitor;
 import gda.device.enumpositioner.EpicsQuadraCurrentAmplifier;
-import gda.device.monitor.EpicsBeamPositionMonitor;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * EpicsCurrAmpQuadController Class: A monitor type to get the beam intensity, beam positions and four currents
  */
 public class EpicsQuadrantBeamPositionMointor extends MonitorBase implements Monitor{
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsQuadrantBeamPositionMointor.class);
 
 	private String bpmName = null;
@@ -44,7 +43,7 @@ public class EpicsQuadrantBeamPositionMointor extends MonitorBase implements Mon
 	private EpicsBeamPositionMonitor bpm;
 
 	private Finder finder = Finder.getInstance();
-	
+
 	/**
 	 * Constructor
 	 */
@@ -78,17 +77,17 @@ public class EpicsQuadrantBeamPositionMointor extends MonitorBase implements Mon
 		setExtraNames(new String[]{ preName+"intensity", preName+"x", preName+"y", preName+"current1", preName+"current2", preName+"current3", preName+"current4"});
 
 		outputFormat = new String[inputNames.length + extraNames.length];
-		
+
 		for (int i = 0; i < outputFormat.length; i++) {
 			outputFormat[i] = "%4.10f";
 		}
 		setOutputFormat(outputFormat);
 	}
-	
-	
+
+
 	/**
 	 * @return String bpm name
-	 * 
+	 *
 	 */
 	public String getBpmName() {
 		return bpmName;
@@ -96,8 +95,8 @@ public class EpicsQuadrantBeamPositionMointor extends MonitorBase implements Mon
 
 	/**
 	 * @param name bpm
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	public void setBpmName(String name) {
 		this.bpmName = name;
@@ -111,7 +110,7 @@ public class EpicsQuadrantBeamPositionMointor extends MonitorBase implements Mon
 	}
 
 	/**
-	 * @param name 
+	 * @param name
 	 */
 	public void setCurrAmpQuadName(String name) {
 		this.qcaName = name;

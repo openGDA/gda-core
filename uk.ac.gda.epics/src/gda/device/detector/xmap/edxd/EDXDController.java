@@ -29,10 +29,10 @@ import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
 import gda.observable.IObserver;
+import gda.util.persistence.LocalDatabase.LocalDatabaseException;
 import gda.util.persistence.LocalObjectShelf;
 import gda.util.persistence.LocalObjectShelfManager;
 import gda.util.persistence.ObjectShelfException;
-import gda.util.persistence.LocalDatabase.LocalDatabaseException;
 import gov.aps.jca.dbr.DBR_Enum;
 
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	protected static final String EDXD_PLOT = "EDXD Plot";
 	protected int version  = 2;
 	protected FindableEpicsDevice xmap = null;
-	protected boolean isBusy = false; 
+	protected boolean isBusy = false;
 	protected String epicsDeviceName="edxd";
 	protected List<EDXDElement> subDetectors = new ArrayList<EDXDElement>();
 	protected DeviceException collectData_Exception;
@@ -65,15 +65,15 @@ public class EDXDController extends DetectorBase implements Configurable {
 	protected static String SETPRESETVALUE = "SETPRESETVALUE";
 	protected static String SETPRESETTYPE = "SETPRESETTYPE";
 	protected static String SCAELEMENTS = "SCAELEMENTS";
-	
-	
+
+
 	// TODO these are accessed directly and shouldn't be
 	public enum COLLECTION_MODES {MCA_SPECTRA, MCA_MAPPING, SCA_MAPPING , LIST_MAPPING}
 	public enum PRESET_TYPES {NO_PRESET, REAL_TIME, LIVE_TIME , EVENTS, TRIGGERS}
 	public enum PIXEL_ADVANCE_MODE { GATE, SYNC}
 	public enum NEXUS_FILE_MODE {SINGLE, CAPTURE, STREAM}
-	
-	public EDXDController() {	
+
+	public EDXDController() {
 	}
 
 	public String getEpicsDeviceName() {
@@ -98,19 +98,19 @@ public class EDXDController extends DetectorBase implements Configurable {
 			public void update(Object source, Object arg) {
 				logger.info("the status update from xmap is " + arg);
 				if(arg instanceof EpicsMonitorEvent){
-					EpicsMonitorEvent evt = (EpicsMonitorEvent) arg;					
+					EpicsMonitorEvent evt = (EpicsMonitorEvent) arg;
 					isBusy = ((DBR_Enum)evt.epicsDbr).getEnumValue()[0] == 1;
 				}
 				else {
 					isBusy = false;
 				}
 				try {
-					notifyIObservers(this, getStatusObject());			
+					notifyIObservers(this, getStatusObject());
 					logger.debug("acquisition status updated to {}", getStatus());
 				} catch (DeviceException e) {
 					logger.error("ln351 : AcqStatusListener , error ", e);
 				}
-				
+
 			}
 		});
 		// Add all the EDXD Elements to the detector
@@ -134,7 +134,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	protected int getStatusObject() {
 		return isBusy ? Detector.BUSY : Detector.IDLE;
 	}
-	
+
 	@Override
 	public void collectData() throws DeviceException {
 		collectData_Exception=null;
@@ -162,7 +162,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 				return;
 			}
 		}).start();
-		
+
 		// now give the thread enough time to start before returning
 		try {
 			Thread.sleep(100);
@@ -190,7 +190,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	public int getStatus() throws DeviceException {
 		return getStatusObject();
 	}
-	
+
 
 	/**
 	 * Get the acquisition/collection/preset  time in the hardware
@@ -254,8 +254,8 @@ public class EDXDController extends DetectorBase implements Configurable {
 	}
 
 	/**
-	 * 
-	 * @return The number of bins the xmap is curently set to 
+	 *
+	 * @return The number of bins the xmap is curently set to
 	 * @throws DeviceException
 	 */
 	public int getBins() throws DeviceException {
@@ -291,7 +291,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	public void setup(double maxEnergy, int numberOfBins ) throws DeviceException {
 		setDynamicRange(maxEnergy*2.0);// set the dynamic range to twice the max energy
 		int bins = setBins(numberOfBins);
-		setBinWidth((maxEnergy*1000.0)/bins);		
+		setBinWidth((maxEnergy*1000.0)/bins);
 	}
 
 	// All the saving and loading settings
@@ -325,7 +325,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	}
 
 	/**
-	 * Loads a setting from the persistance 
+	 * Loads a setting from the persistance
 	 * @param name
 	 * @return The description of the configuration loaded
 	 * @throws DeviceException
@@ -352,10 +352,10 @@ public class EDXDController extends DetectorBase implements Configurable {
 	/**
 	 * This method shows all the savefiles for the EDXD detector
 	 * @return a string containing all the files
-	 * @throws LocalDatabaseException 
-	 * @throws ObjectShelfException 
-	 * @throws LocalDatabaseException 
-	 * @throws ObjectShelfException 
+	 * @throws LocalDatabaseException
+	 * @throws ObjectShelfException
+	 * @throws LocalDatabaseException
+	 * @throws ObjectShelfException
 	 */
 	public String listSettings() throws ObjectShelfException, LocalDatabaseException{
 		String result = "";
@@ -373,11 +373,11 @@ public class EDXDController extends DetectorBase implements Configurable {
 		}
 		return result;
 	}
-	
+
 	// Setters for the various settings accross the board
 	/**
 	 * Set the preampGain for all elements
-	 * @param preampGain 
+	 * @param preampGain
 	 * @throws DeviceException
 	 */
 	public void setPreampGain(double preampGain) throws DeviceException {
@@ -495,7 +495,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 		if(subDetectors.size()>0)
 			return subDetectors.get(index);
 		return null;
-	}	
+	}
 
 	/**
 	* Controller has two modes of operation.
@@ -509,7 +509,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 			toset = 1;
 		xmap.setValue(RESUMEMODE  ,"",toset);
 	}
-	
+
 	/**
 	 * read the data from the specified mca element
 	 * @param mcaNumber
@@ -558,7 +558,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	public void activateROI() throws DeviceException{
 		xmap.setValue(SCAACTIVATE, "", 1);
 	}
-	
+
 
 	/** Disable  the ROI mode in the Controller
 	 * @throws DeviceException
@@ -597,7 +597,7 @@ public class EDXDController extends DetectorBase implements Configurable {
 	public double getICR(int mcaNumber) throws DeviceException{
 		return subDetectors.get(mcaNumber).getInputCountRate();
 	}
-	
+
 	public double getOCR(int mcaNumber) throws DeviceException{
 		return subDetectors.get(mcaNumber).getOutputCountRate();
 	}

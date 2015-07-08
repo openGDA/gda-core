@@ -25,8 +25,8 @@ import gda.configuration.properties.LocalProperties;
 import gda.epics.connection.EpicsController;
 import gda.epics.util.EpicsGlobals;
 import gda.observable.Observable;
-import gda.observable.Observer;
 import gda.observable.ObservableUtil;
+import gda.observable.Observer;
 import gda.observable.Predicate;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
@@ -79,12 +79,12 @@ import org.slf4j.LoggerFactory;
 public class LazyPVFactory {
 
 	private static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
-	
+
 	public static final String CHECK_CHANNELS_PROPERTY_NAME = "gda.epics.lazypvfactory.check.channels";
 
 	/**
 	 * Envisaged for testing only. EpicsController is a singleton.
-	 * 
+	 *
 	 * @param controller
 	 *            likely a mock controller!
 	 */
@@ -121,7 +121,7 @@ public class LazyPVFactory {
 	public static PV<Short> newShortPV(String pvName) {
 		return new LazyPV<Short>(EPICS_CONTROLLER, pvName, Short.class);
 	}
-	
+
 	/**
 	 * Create a new String PV that connects an EPICS STRING PV. DBR STRINGs support <40 useful characters.
 	 * @param pvName
@@ -370,7 +370,7 @@ public class LazyPVFactory {
 		private PVMonitor<T> observableMonitor;
 
 		private boolean showTypeMismatchWarnings = true;
-		
+
 		LazyPV(EpicsController controller, String pvName, Class<T> javaType) {
 			this.controller = controller;
 			this.pvName = pvName;
@@ -390,19 +390,19 @@ public class LazyPVFactory {
 					temp=null;
 				} catch (Exception e) {
 					logger.error("Could not connect to channel  : '" + pvName + "'", e);
-				}	
+				}
 			}
 		}
-		
+
 		void setShowTypeMismatchWarnings(boolean showTypeMismatchWarnings) {
 			this.showTypeMismatchWarnings = showTypeMismatchWarnings;
 		}
-		
+
 		@Override
 		public String toString() {
 			return MessageFormat.format("LazyPV({0}, {1})", pvName, javaType.getSimpleName());
 		}
-		
+
 		private double defaultTimeout() {
 			return EpicsGlobals.getTimeout();
 		}
@@ -425,7 +425,7 @@ public class LazyPVFactory {
 			logger.debug("'{}' get() <-- {}", pvName, value);
 			return value;
 		}
-		
+
 		@Override
 		public T getLast() throws IOException {
 			if (!isValueMonitoring()) {
@@ -643,7 +643,7 @@ public class LazyPVFactory {
 				throw new InterruptedIOException("Interupted while getting value from Epics pv '" + pvName + "'");
 			}
 		}
-		
+
 		private class ValueMonitorListener implements MonitorListener {
 
 			@Override
@@ -694,7 +694,7 @@ public class LazyPVFactory {
 				} else {
 					throw new IllegalStateException("Unexpected type configured");
 				}
-			
+
 			} catch (InterruptedException e) {
 				throw new InterruptedIOException(format(
 						"Interupted while putting value to EPICS pv ''{0}'', (value was: {1})", pvName, value));
@@ -793,7 +793,7 @@ public class LazyPVFactory {
 		public boolean putAsyncIsWaiting() {
 			return putCallbackListener.isCallbackPending();
 		}
-		
+
 		@Override
 		public void putAsyncCancel() {
 			if (putAsyncIsWaiting()) {
@@ -801,7 +801,7 @@ public class LazyPVFactory {
 			}
 			putCallbackListener.cancelPendingCallback();
 		}
-		
+
 		@Override
 		public void putAsyncWait(double timeoutS) throws IOException {
 			synchronized (putCallbackGuard) {
@@ -876,7 +876,7 @@ public class LazyPVFactory {
 			public boolean isCallbackPending() {
 				return callbackPending;
 			}
-			
+
 			public void cancelPendingCallback() {
 				synchronized (eventMonitor) {
 					callbackPending = false;
@@ -923,7 +923,7 @@ public class LazyPVFactory {
 		/**
 		 * When adding an observer we use the PVMonitor object to
 		 * add the monitor listener and notify the observer.
-		 * 
+		 *
 		 */
 		@Override
 		public void addObserver(Observer<T> observer) throws Exception {
@@ -955,7 +955,7 @@ public class LazyPVFactory {
 	static abstract private class AbstractReadOnlyAdapter<N, T> implements ReadOnlyPV<T> {
 
 		Observable<T> obs = null;
-		
+
 		abstract protected T innerToOuter(N innerValue);
 
 		abstract protected N outerToInner(T outerValue);
@@ -1047,14 +1047,14 @@ public class LazyPVFactory {
 		/**
 		 * As the Observer may be of a different type e.g. String to the
 		 * Observable e.g. Byte[] we need to adapter.
-		 * 
+		 *
 		 **/
 		private class GenericObservable implements Observable<T> {
 
 			private final Observable<N> stringFromWaveform;
-			
+
 			ObservableUtil<T> oc = new ObservableUtil<T>();
-			
+
 			private Observer<N> observerN;
 
 			public GenericObservable(Observable<N> stringFromWaveform) throws Exception {
@@ -1072,7 +1072,7 @@ public class LazyPVFactory {
 			public void addObserver(Observer<T> observer) throws Exception {
 				oc.addObserver(observer);
 			}
-			
+
 			@Override
 			public void addObserver(Observer<T> observer, Predicate<T> predicate) throws Exception {
 				oc.addObserver(observer, predicate);
@@ -1091,12 +1091,12 @@ public class LazyPVFactory {
 		public void addObserver(final Observer<T> observer) throws Exception {
 			createStringObservable(getPV()).addObserver(observer);
 		}
-		
+
 		@Override
 		public void addObserver(final Observer<T> observer, Predicate<T> predicate) throws Exception {
 			createStringObservable(getPV()).addObserver(observer, predicate);
 		}
-		
+
 		private Observable<T> createStringObservable(ReadOnlyPV<N> pv) throws Exception {
 			if( obs== null){
 				obs = new GenericObservable(pv);
@@ -1166,12 +1166,12 @@ public class LazyPVFactory {
 		public boolean putAsyncIsWaiting() {
 			return getPV().putAsyncIsWaiting();
 		}
-		
+
 		@Override
 		public void putAsyncCancel() {
 			getPV().putAsyncCancel();
 		}
-		
+
 		@Override
 		public PVValues putWait(T value, ReadOnlyPV<?>... toReturn) throws IOException {
 			return getPV().putWait(outerToInner(value), toReturn);
@@ -1189,7 +1189,7 @@ public class LazyPVFactory {
 		public ReadOnly(PV<T> pv) {
 			super(pv);
 		}
-		
+
 		@Override
 		public String toString() {
 			return MessageFormat.format("ReadOnly({0})", getPV().toString());
@@ -1204,12 +1204,12 @@ public class LazyPVFactory {
 		protected T outerToInner(T outerValue) {
 			return outerValue;
 		}
-		
+
 		@Override
 		public void addObserver(Observer<T> observer) throws Exception {
 			getPV().addObserver(observer);
 		}
-		
+
 		@Override
 		public void addObserver(Observer<T> observer, Predicate<T> predicate) throws Exception {
 			getPV().addObserver(observer, predicate);
@@ -1235,7 +1235,7 @@ public class LazyPVFactory {
 		public String toString() {
 			return MessageFormat.format("NoCallback({0})", getPV().toString());
 		}
-		
+
 		@Override
 		NoCallbackPV<T> getPV() {
 			return pv;
@@ -1263,7 +1263,7 @@ public class LazyPVFactory {
 		public String toString() {
 			return MessageFormat.format("StringFromWaveform({0})", getPV().toString());
 		}
-		
+
 		@Override
 		protected String innerToOuter(Byte[] innerValue) {
 			return new String(toPrimitive(innerValue)).trim();
@@ -1286,7 +1286,7 @@ public class LazyPVFactory {
 		public String toString() {
 			return MessageFormat.format("BooleanFromInteger({0})", getPV().toString());
 		}
-		
+
 		@Override
 		protected Boolean innerToOuter(Integer innerValue) {
 			return innerValue > 0;
@@ -1304,12 +1304,12 @@ public class LazyPVFactory {
 		private BooleanFromShort(LazyPV<Short> pv) {
 			super(pv);
 		}
-		
+
 		@Override
 		public String toString() {
 			return MessageFormat.format("BooleanFromShort({0})", getPV().toString());
 		}
-		
+
 		@Override
 		protected Boolean innerToOuter(Short innerValue) {
 			return innerValue > 0;
@@ -1319,7 +1319,7 @@ public class LazyPVFactory {
 		protected Short outerToInner(Boolean outerValue) {
 			return (short) (outerValue ? 1 : 0);
 		}
-		
+
 	}
 
 	static private class BooleanFromDouble extends AbstractPVAdapter<Double, Boolean> implements PV<Boolean> {
@@ -1332,7 +1332,7 @@ public class LazyPVFactory {
 		public String toString() {
 			return MessageFormat.format("BooleanFromDouble({0})", getPV().toString());
 		}
-		
+
 		@Override
 		protected Boolean innerToOuter(Double innerValue) {
 			return innerValue > 0;
@@ -1351,17 +1351,17 @@ public class LazyPVFactory {
  * @param <E>
  */
 class PVMonitor<E> implements Observable<E>{
-	
+
 	static final Logger logger = LoggerFactory.getLogger(PVMonitor.class);
-	
+
 	private final PV<E> pv;
-	
+
 	private final Observable<E> observable;
 
 	ObservableUtil<E> oc = null;
 
 	private boolean monitorAdded = false;
-	
+
 	MonitorListener monitorListener = new MonitorListener() {
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
@@ -1381,7 +1381,7 @@ class PVMonitor<E> implements Observable<E>{
 			}
 		}
 	};
-	
+
 	public PVMonitor(Observable<E> observable, PV<E> pv){
 		this.observable = observable;
 		this.pv = pv;
@@ -1398,7 +1398,7 @@ class PVMonitor<E> implements Observable<E>{
 		getObservableComponent().addObserver(observer, predicate);
 		addMonitorListenerIfRequired();
 	}
-	
+
 	private ObservableUtil<E> getObservableComponent() {
 		if (oc == null) {
 			oc = new ObservableUtil<E>();
@@ -1436,7 +1436,7 @@ class PVMonitor<E> implements Observable<E>{
 	}
 
 
-	
+
 }
 
 

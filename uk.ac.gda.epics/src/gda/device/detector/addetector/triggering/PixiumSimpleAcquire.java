@@ -18,8 +18,6 @@
 
 package gda.device.detector.addetector.triggering;
 
-import java.io.IOException;
-
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ImageMode;
@@ -28,36 +26,38 @@ import gda.epics.PV;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
 
+import java.io.IOException;
+
 
 public class PixiumSimpleAcquire extends SimpleAcquire {
-	
+
 	double maxExposureTime = Double.MAX_VALUE;
 	double exposureTime = maxExposureTime;
-	
+
 	int numberExposuresPerImage = 1;
 	/**
 	 * To allow for detectors with prefix acquire give option to read it at prepareForCollection
 	 */
 	private boolean readAcquireTimeFromHardware = true;
 	private String prefix;
-	
+
 	private String calibrationRequiredPVName = "CalibrationRequired_RBV";
 	private PV<Integer> calibrationRequiredPV;
-	
+
 	private String numberExposuresPerImagePVName = "NumExposures";
 	private PV<Integer> numberExposuresPerImagePV;
-	
+
 	public PixiumSimpleAcquire(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
 	}
-	
+
 	public PV<Integer> getCalibrationRequiredPV() {
 		if (calibrationRequiredPV == null) {
 			calibrationRequiredPV = LazyPVFactory.newIntegerPV(getPrefix()+calibrationRequiredPVName);
 		}
 		return calibrationRequiredPV;
 	}
-	
+
 	public PV<Integer> getNumberExposuresPerImagePV() {
 		if (numberExposuresPerImagePV == null) {
 			numberExposuresPerImagePV = LazyPVFactory.newIntegerPV(getPrefix()+numberExposuresPerImagePVName);
@@ -69,16 +69,16 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo_IGNORED) throws Exception {
 		if (getCalibrationRequiredPV().get() != 0) {
 			throw new DeviceException("Detector calibration required!");
-		} 
+		}
 		enableOrDisableCallbacks();
 		double localExposureTime = getExposureTime();
 		numberExposuresPerImage = calcNumberExposuresPerImage(collectionTime, localExposureTime);
-		getAdBase().stopAcquiring(); 
+		getAdBase().stopAcquiring();
 		setNumExposuresPerImage(numberExposuresPerImage);
 		getAdBase().setNumImages(numImages);
 		getAdBase().setImageModeWait(numImages > 1 ? ImageMode.MULTIPLE : ImageMode.SINGLE);
 	}
-	
+
 	public boolean isReadAcquireTimeFromHardware() {
 		return readAcquireTimeFromHardware;
 	}
@@ -86,7 +86,7 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 	public void setReadAcquireTimeFromHardware(boolean readAcquireTimeFromHardware) {
 		this.readAcquireTimeFromHardware = readAcquireTimeFromHardware;
 	}
-	
+
 	public double getMaxExposureTime() {
 		return maxExposureTime;
 	}
@@ -104,7 +104,7 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 			throw new IllegalArgumentException("Unable to set exposure time to " + exposureTime + ". max value = " + maxExposureTime);
 		this.exposureTime = exposureTime;
 	}
-	
+
 	@Override
 	public double getAcquireTime() throws Exception {
 		return getAdBase().getAcquireTime_RBV()*numberExposuresPerImage;
@@ -114,7 +114,7 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 	public double getAcquirePeriod() throws Exception {
 		return getAdBase().getAcquirePeriod_RBV()*numberExposuresPerImage;
 	}
-	
+
 	public int getNumberExposuresPerImage(double collectionTime){
 		try{
 			double localExposureTime = getExposureTime();
@@ -123,13 +123,13 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 			throw new IllegalArgumentException("Error in getNumberExposuresPerImage",e);
 		}
 	}
-	
+
 	protected int calcNumberExposuresPerImage(double collectionTime, double exposureTime) {
 		if (exposureTime > 0 && collectionTime > exposureTime)
 			return (int)(collectionTime/exposureTime + 0.5);
 		return 1;
 	}
-	
+
 	protected void setNumExposuresPerImage(int numExposuresPerImage) {
 		if (numExposuresPerImage > 0) {
 			try {
@@ -151,10 +151,10 @@ public class PixiumSimpleAcquire extends SimpleAcquire {
 		}
 		super.afterPropertiesSet();
 	}
-	
+
 	/**
 	 * method to print message to the Jython Terminal console.
-	 * 
+	 *
 	 * @param msg
 	 */
 	private void print(String msg) {

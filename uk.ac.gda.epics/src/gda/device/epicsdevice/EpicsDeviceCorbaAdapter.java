@@ -20,21 +20,24 @@ package gda.device.epicsdevice;
 
 import gda.device.DeviceException;
 import gda.device.epicsdevice.corba.impl.EpicsdeviceAdapter;
+import gda.device.scannable.ScannableBase;
 import gda.observable.IObservable;
 import gda.observable.IObserver;
 import gda.observable.ObservableComponent;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gda.device.scannable.*;
 
 /**
  * A client side implementation of the adapter pattern for the ControlPoint class
  */
 public class EpicsDeviceCorbaAdapter implements IEpicsDevice {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsDeviceCorbaAdapter.class);
 
 	private HashMap<EpicsRegistrationRequest, ChannelMonitorList> registrations = new HashMap<EpicsRegistrationRequest, ChannelMonitorList>();
@@ -216,9 +219,9 @@ public class EpicsDeviceCorbaAdapter implements IEpicsDevice {
 }
 
 final class CorbaEpicsRecord extends ScannableBase implements IEpicsChannel, IObserver {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(CorbaEpicsRecord.class);
-	
+
 	final ReturnType returnType;
 	final String record, field;
 	private ObservableComponent observableComponent = new ObservableComponent();

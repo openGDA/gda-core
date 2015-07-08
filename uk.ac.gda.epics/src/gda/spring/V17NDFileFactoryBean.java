@@ -18,11 +18,11 @@
 
 package gda.spring;
 
-import uk.ac.gda.util.FilePathConverter;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.detector.areadetector.v17.NDFile;
 import gda.device.detector.areadetector.v17.NDPluginBase;
 import gda.device.detector.areadetector.v17.impl.NDFileImpl;
+import uk.ac.gda.util.FilePathConverter;
 /**
  * FactoryBean to make the creation of an bean that implements NDFile easier
  */

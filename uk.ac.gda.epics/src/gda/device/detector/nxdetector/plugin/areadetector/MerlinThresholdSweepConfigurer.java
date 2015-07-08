@@ -36,23 +36,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MerlinThresholdSweepConfigurer extends NullNXPlugin {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(MerlinThresholdSweepConfigurer.class);
 
-	
+
 	private final ADDriverMerlinThresholdSweep sweepDriver;
-	
+
 	private boolean returnSweepSettings = false;
 
 	@Override
 	public String getName() {
 		return "threshold";
 	}
-	
+
 	public MerlinThresholdSweepConfigurer(ADDriverMerlinThresholdSweep sweepDriver) {
 		this.sweepDriver = sweepDriver;
 	}
-	
+
 	@Override
 	public String toString() {
 		Double start;
@@ -71,7 +71,7 @@ public class MerlinThresholdSweepConfigurer extends NullNXPlugin {
 			return " * Problem reading EPICS PVs";
 		}
 		return MessageFormat.format("estart:{0} estop:{1} estep:{2} enumber:{3} images_per_sweep: {4}", start, stop, step, number, numberPointsPerSweep);
-		
+
 	}
 	public void setEstep(Double step) throws IOException {
 		sweepDriver.setStep(step);
@@ -108,7 +108,7 @@ public class MerlinThresholdSweepConfigurer extends NullNXPlugin {
 	public Double getEnumber() throws IOException {
 		return sweepDriver.getNumber();
 	}
-	
+
 	@Override
 	public List<String> getInputStreamNames() {
 		if (isReturnSweepSettings()) {
@@ -124,7 +124,7 @@ public class MerlinThresholdSweepConfigurer extends NullNXPlugin {
 		}
 		return Arrays.asList();
 	}
-	
+
 	@Override
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {

@@ -130,7 +130,7 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 		/**
 		 * disabled Enum
 		 */
-		DISABLED, 
+		DISABLED,
 		/**
 		 * enabled enum
 		 */
@@ -152,7 +152,7 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 	private Status acStatus;
 
 	private boolean defaultAction = false;
-	
+
 	private int enableValue = 0;
 	private int disableValue = 1;
 
@@ -182,7 +182,7 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 
 	/**
 	 * configure the object
-	 * 
+	 *
 	 * @exception FactoryException
 	 */
 	@Override
@@ -200,7 +200,7 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 
 	/**
 	 * Creates EPICS Channel Access Objects
-	 * 
+	 *
 	 * @param pvName
 	 * @throws FactoryException
 	 */
@@ -218,7 +218,7 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 	/**
 	 * attach a Monitor to access control PV, users must provide its own event handler for process the Monitor event
 	 * properly.
-	 * 
+	 *
 	 * @param ml
 	 * @throws IllegalStateException
 	 * @throws CAException
@@ -229,11 +229,11 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 
 	/**
 	 * gets the EPICS access control state.
-	 * 
+	 *
 	 * @return the EPICS access control state.
 	 * @throws TimeoutException
 	 * @throws CAException
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	public Status getAccessControlState() throws TimeoutException, CAException, InterruptedException {
 		int value = controller.cagetInt(blctrl);
@@ -249,7 +249,7 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 
 	/**
 	 * implement initialisation after successful connections by polling EPICS PVs at the start once only.
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
 	@Override
 	public void initializationCompleted() throws InterruptedException {
@@ -261,7 +261,7 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 			logger.warn("Failed to initialise Access Control Status for " + getName(), e);
 		} catch (CAException e) {
 			logger.warn("Failed to initialise Access Control Status for " + getName(), e);
-		} 
+		}
 		logger.info("Beamline/MCR access control - " + getName() + " initialsed.");
 
 	}
@@ -324,7 +324,7 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 				logger.error("Error: illegal access status " + ((dbr != null) ? dbr.getValue() : "null")
 						+ " is returned.");
 			}
-			
+
 			if (!defaultAction)
 				notifyObservers(lastAccessControlStatus, acStatus);
 		}
@@ -348,7 +348,7 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 
 	/**
 	 * Add an object to this objects's list of IObservers.
-	 * 
+	 *
 	 * @param anIObserver
 	 *            object that implement IObserver and wishes to be notified by this object
 	 */
@@ -360,7 +360,7 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 
 	/**
 	 * Delete an object from this objects's list of IObservers.
-	 * 
+	 *
 	 * @param anIObserver
 	 *            object that implement IObserver and wishes to be notified by this object
 	 */
@@ -381,7 +381,7 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 
 	/**
 	 * Notify all observers on the list of the requested change.
-	 * 
+	 *
 	 * @param theObserved
 	 *            the observed component
 	 * @param theArgument
@@ -393,7 +393,7 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 
 	/**
 	 * get access control PV name.
-	 * 
+	 *
 	 * @return access control PV name.
 	 */
 	public String getAccessControlPvName() {
@@ -402,7 +402,7 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 
 	/**
 	 * sets the access control PV name, used by CASTOR.
-	 * 
+	 *
 	 * @param accessControlPvName
 	 */
 	public void setAccessControlPvName(String accessControlPvName) {
@@ -411,7 +411,7 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 
 	/**
 	 * method for check the default action on or off.
-	 * 
+	 *
 	 * @return the default action
 	 */
 	public boolean isDefaultAction() {
@@ -420,7 +420,7 @@ public class AccessControl implements Configurable, Findable, IObservable, Initi
 
 	/**
 	 * sets the default action switch, used by CASTOR and also provide a way to manually overwrite the value.
-	 * 
+	 *
 	 * @param defaultAction
 	 */
 	public void setDefaultAction(boolean defaultAction) {

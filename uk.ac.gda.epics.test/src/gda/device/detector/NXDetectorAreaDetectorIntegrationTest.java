@@ -96,23 +96,23 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 		when(adDetectorPlugin1.getName()).thenReturn("plugin1");
 		when(adDetectorPlugin2.getName()).thenReturn("plugin2");
 		when(collectionStrategy.getName()).thenReturn("collection");
-		
+
 		additionalPlugins.add(adArrayPlugin);
 		additionalPlugins.add(fileWriter);
 		additionalPlugins.add(adBasicStats);
 		additionalPlugins.add(adDetectorPlugin1);
 		additionalPlugins.add(adDetectorPlugin2);
-		
+
 		adDet = new NXDetector("testdet", collectionStrategy, additionalPlugins);
 		adArrayPlugin.setEnabled(true);
-		
+
 		byte[] byteArray = new byte[] { 0, 1, 2, 3, 4, 6 };
 		when(ndArrayBase.getNDimensions_RBV()).thenReturn(2);
 		when(ndArrayBase.getArraySize0_RBV()).thenReturn(2);
 		when(ndArrayBase.getArraySize1_RBV()).thenReturn(3);
 		when(ndArrayBase.getArraySize2_RBV()).thenReturn(0);
 		when(ndArray.getByteArrayData(Matchers.anyInt())).thenReturn(byteArray);
-		
+
 
 		enableAdditionalPlugins(false, false);
 		when(statsPlugin.getInputStreamFormats()).thenReturn(Arrays.asList(STATS_FORMATS));
@@ -244,9 +244,9 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 		enableAdditionalPlugins(true, false);
 		assertArrayEquals(PLUGIN1_NAMES, det().getExtraNames());
 	}
-	
+
 	private void enableAdditionalPlugins(boolean enable1, boolean enable2) throws Exception {
-		
+
 		if (enable1) {
 			when(adDetectorPlugin1.getInputStreamNames()).thenReturn(Arrays.asList(PLUGIN1_NAMES));
 			when(adDetectorPlugin1.getInputStreamFormats()).thenReturn(Arrays.asList(PLUGIN1_FORMATS));
@@ -259,7 +259,7 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
 			dataAppenders.add(new NXDetectorDataNullAppender());
 			when(adDetectorPlugin1.read(anyInt())).thenReturn(dataAppenders);
-		} 
+		}
 		if (enable2) {
 			when(adDetectorPlugin2.getInputStreamNames()).thenReturn(Arrays.asList(PLUGIN2_NAMES));
 			when(adDetectorPlugin2.getInputStreamFormats()).thenReturn(Arrays.asList(PLUGIN2_FORMATS));
@@ -272,8 +272,8 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 			Vector<NXDetectorDataAppender> dataAppenders = new Vector<NXDetectorDataAppender>();
 			dataAppenders.add(new NXDetectorDataNullAppender());
 			when(adDetectorPlugin2.read(anyInt())).thenReturn(dataAppenders);
-		} 
-		
+		}
+
 	}
 
 	@Test
@@ -392,7 +392,7 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 	public void testConfigure() throws Exception {
 		// ProvisionalADDetector constructor also configures
 	}
-	
+
 	@Override
 	@Test
 	public void testReset() throws Exception {
@@ -456,7 +456,7 @@ public class NXDetectorAreaDetectorIntegrationTest extends ADDetectorTest {
 				.getBuffer(), .001);
 
 	}
-	
+
 
 	@Override
 	@Test

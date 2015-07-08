@@ -267,7 +267,7 @@ public class EpicsAreaDetectorImpl implements EpicsAreaDetector {
 	public double getExpTime() throws TimeoutException, CAException, InterruptedException {
 		return ecl.cagetDouble(channelAcquireTime_RBV);
 	}
-	
+
 	@Override
 	public void setAcquirePeriod(double acquirePeriod) throws CAException, InterruptedException {
 		ecl.caput(channelAcquirePeriod, acquirePeriod);
@@ -276,7 +276,7 @@ public class EpicsAreaDetectorImpl implements EpicsAreaDetector {
 	@Override
 	public double getAquirePeriod() throws TimeoutException, CAException, InterruptedException {
 		return ecl.cagetDouble(channelAcquirePeriod_RBV);
-	}	
+	}
 
 	@Override
 	public String getPortName() throws TimeoutException, CAException, InterruptedException {
@@ -287,7 +287,7 @@ public class EpicsAreaDetectorImpl implements EpicsAreaDetector {
 	public void acquire() throws CAException, InterruptedException {
 		ecl.caput(channelAcquire, 1);
 	}
-	
+
 	@Override
 	public void stop() throws CAException, InterruptedException {
 		ecl.caput(channelAcquire, 0);
@@ -312,7 +312,7 @@ public class EpicsAreaDetectorImpl implements EpicsAreaDetector {
 	public int getArrayCounter() throws NumberFormatException, TimeoutException, CAException, InterruptedException {
 		return Integer.parseInt(ecl.caget(channelArrayCounter_RBV));
 	}
-	
+
 	@Override
 	public void setNumExposures(int NumberExposures) throws CAException, InterruptedException {
 		ecl.caput(channelNumExposures, NumberExposures);
@@ -322,7 +322,7 @@ public class EpicsAreaDetectorImpl implements EpicsAreaDetector {
 	public int getNumExposures() throws NumberFormatException, TimeoutException, CAException, InterruptedException {
 		return Integer.parseInt(ecl.caget(channelNumExposures_RBV));
 	}
-	
+
 	@Override
 	public void setNumImages(int NumberImages) throws CAException, InterruptedException {
 		ecl.caput(channelNumImages, NumberImages);
@@ -341,7 +341,7 @@ public class EpicsAreaDetectorImpl implements EpicsAreaDetector {
 	@Override
 	public int getAquireState() throws NumberFormatException, TimeoutException, CAException, InterruptedException {
 		return Integer.parseInt(ecl.caget(channelAcquire));
-		
+
 	}
 
 	@Override

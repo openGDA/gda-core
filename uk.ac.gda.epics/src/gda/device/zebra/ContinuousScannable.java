@@ -216,12 +216,12 @@ public class ContinuousScannable implements ContinuouslyScannableViaController {
 	public void atLevelMoveStart() throws DeviceException {
 		delegate.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atLevelStart() throws DeviceException {
 		delegate.atLevelStart();
 	}
-	
+
 	@Override
 	public void atLevelEnd() throws DeviceException {
 		delegate.atLevelEnd();

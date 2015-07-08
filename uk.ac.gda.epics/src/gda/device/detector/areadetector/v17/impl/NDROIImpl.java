@@ -13,7 +13,7 @@
  * details.
  *
  * You should have received a copy of the GNU General Public License along
- * with GDA. If not, see <http://www.gnu.org/licenses/>. 
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package gda.device.detector.areadetector.v17.impl;
@@ -1011,7 +1011,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 
 	/**
 	 * This method allows to toggle between the method in which the PV is acquired.
-	 * 
+	 *
 	 * @param pvElementName
 	 * @param args
 	 * @return {@link Channel} to talk to the relevant PV.
@@ -1378,7 +1378,7 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 		}
 	}
 
-	
+
 	private String getChannelName(String pvElementName, String... args)throws Exception{
 		String pvPostFix = null;
 		if (args.length > 0) {
@@ -1396,8 +1396,8 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 		}
 		return fullPvName;
 	}
-	
-	
+
+
 	@Override
 	public Observable<Integer> createMinXObservable() throws Exception {
 		return LazyPVFactory.newReadOnlyIntegerPV(getChannelName(MinX_RBV));
@@ -1426,6 +1426,6 @@ public class NDROIImpl extends NDBaseImpl implements InitializingBean, NDROI {
 	public Observable<String> createEnableYObservable() throws Exception {
 		return LazyPVFactory.newReadOnlyEnumPV(getChannelName(EnableY), String.class);
 	}
-	
-	
+
+
 }

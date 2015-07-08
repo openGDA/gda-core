@@ -31,7 +31,7 @@ import java.io.InterruptedIOException;
 /**
  * A read only Epics ProcessVariable. The {@link LazyPVFactory} class provides convenient factory methods to create lazy PVs
  * which don't connect until the first request across CA is to be made.
- * 
+ *
  * @param <T>
  */
 public interface ReadOnlyPV<T> extends Observable<T> {
@@ -40,7 +40,7 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 
 	/**
 	 * Get a value over CA.
-	 * 
+	 *
 	 * @throws IOException
 	 *             if an Epics CA exception of some sort has occurred
 	 * @throws InterruptedIOException
@@ -50,10 +50,10 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 
 	/**
 	 * Get numElements from the pv over CA.
-	 * 
+	 *
 	 * @param numElements
 	 *            Number of elements to be read
-	 * 
+	 *
 	 * @throws IOException
 	 *             if an Epics CA exception of some sort has occurred
 	 * @throws InterruptedIOException
@@ -64,7 +64,7 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 	/**
 	 * Get the most recent value monitored across CA. If no value has yet been received, then get a value across CA. The
 	 * PV must have been configured to monitor with {@link #setValueMonitoring(boolean)};
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if the PV is not configured to monitor with {@link #setValueMonitoring(boolean)};
 	 * @throws IOException
@@ -77,7 +77,7 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 	/**
 	 * Waits for a value that meets the given {@link Predicate} (if-statement-like) condition and then returns it. The
 	 * PV must have been configured to monitor with {@link #setValueMonitoring(boolean)};
-	 * 
+	 *
 	 * @param predicate
 	 *            The predicate used to test each value
 	 * @param timeoutS
@@ -90,7 +90,7 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 	 *             if a value that passes the predicate does not appear within the provided timeoutS
 	 * @throws IOException
 	 *             if an Epics CA exception of some sort has occurred
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 * @throws InterruptedIOException
 	 *             if an Epics CA operation has been interrupted
 	 */
@@ -101,7 +101,7 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 	/**
 	 * Configure this PV to start or stop monitoring. When monitoring, calls to {@link #get()} will returned the most
 	 * recent value monitored across CA.
-	 * 
+	 *
 	 * @param shouldMonitor
 	 *            true to start monitoring values and caching them internally
 	 * @throws IOException
@@ -113,14 +113,14 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 
 	/**
 	 * Check if this PV is monitoring. See {@link #setValueMonitoring(boolean)}
-	 * 
+	 *
 	 * @return true if monitoring
 	 */
 	public boolean isValueMonitoring();
 
 	/**
 	 * Add A MonitorListener to the channel associated with the PV. Will create the channel if required.
-	 * 
+	 *
 	 * @throws IOException
 	 *             if an Epics CA exception of some sort has occurred
 	 * @throws InterruptedIOException
@@ -132,10 +132,10 @@ public interface ReadOnlyPV<T> extends Observable<T> {
 
 	/**
 	 * Extacts a value from a {@link DBR}. Useful for writing MonitorListeners.
-	 * 
+	 *
 	 * @param dbr
 	 * @return the value
 	 */
 	public T extractValueFromDbr(DBR dbr);
-	
+
 }

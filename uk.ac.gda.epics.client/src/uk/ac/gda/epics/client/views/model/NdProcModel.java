@@ -30,7 +30,7 @@ public interface NdProcModel {
 
 	/**
 	 * Sets the offset value in EPICS
-	 * 
+	 *
 	 * @param offsetValue
 	 * @throws Exception
 	 */

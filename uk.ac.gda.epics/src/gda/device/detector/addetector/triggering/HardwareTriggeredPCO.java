@@ -37,10 +37,10 @@ public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 	private short exposeTriggerOutVal = 64; // TFG2 USER6 PCO TriggerIn
 
 	// The pause value used to detect that the camera is no longer busy
-	private short noLongerBusyTriggerInVal = 39; // Falling edge on adc5	
-	final int CYCLES = 100000;// should be enough!	
+	private short noLongerBusyTriggerInVal = 39; // Falling edge on adc5
+	final int CYCLES = 100000;// should be enough!
 	private int triggerInVal=8; //ttl0
-	
+
 	public HardwareTriggeredPCO(ADBase adBase, double readoutTime, ADDriverPco adDriverPco) {
 		super(adBase, readoutTime);
 		this.adDriverPco = adDriverPco;
@@ -120,7 +120,7 @@ public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
 		getAdBase().stopAcquiring();
-		
+
 		if(etfg != null){
 			etfg.stop();
 			etfg.getDaServer().sendCommand("tfg setup-trig ttl0 debounce 1.0e-6");
@@ -130,19 +130,19 @@ public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 			etfg.setAttribute(Tfg.AUTO_CONTINUE_ATTR_NAME, false);
 			etfg.setAttribute(Tfg.AUTO_REARM_ATTR_NAME, false);
 
-			etfg.clearFrameSets(); 
+			etfg.clearFrameSets();
 			etfg.addFrameSet(1, 0.0, 0.0, 0, 0, 0, 8); //leave dead time on ttl0
 			etfg.addFrameSet(1, 0.0, collectionTime * 1000., 0, exposeTriggerOutVal, 0, 0); // in live output trigger to camera
 			etfg.addFrameSet(1, 0.0, 0.0, 0, 0, 0, noLongerBusyTriggerInVal); // wait for PCo Busy out
 			etfg.setCycles(CYCLES);
-			etfg.loadFrameSets();		
+			etfg.loadFrameSets();
 			etfg.start();
 			while (etfg.getStatus() != 2) {
 				Thread.sleep(50);
-			}			
+			}
 		}
-		
-		
+
+
 		super.prepareForCollection(collectionTime, numImages,scanInfo);
 
 	}
@@ -151,20 +151,20 @@ public class HardwareTriggeredPCO extends HardwareTriggeredStandard {
 	public void configureAcquireAndPeriodTimes(double collectionTime) throws Exception {
 		getAdBase().setAcquirePeriod(0.0);
 		getAdBase().setAcquireTime(collectionTime);
-	}	
-	
-	
+	}
+
+
 	@Override
 	protected void configureTriggerMode() throws Exception {
-		adDriverPco.getAdcModePV().putWait(adcMode); 
-		adDriverPco.getTimeStampModePV().putWait(timeStamp); 
-		getAdBase().setTriggerMode(triggerMode.ordinal()); 
+		adDriverPco.getAdcModePV().putWait(adcMode);
+		adDriverPco.getTimeStampModePV().putWait(timeStamp);
+		getAdBase().setTriggerMode(triggerMode.ordinal());
 	}
-	
+
 	@Override
 	public void collectData() throws Exception {
 		super.collectData();
-		Thread.sleep(2000); // without this the first trigger seems to be ignored			
-	}	
-	
+		Thread.sleep(2000); // without this the first trigger seems to be ignored
+	}
+
 }

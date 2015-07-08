@@ -31,14 +31,14 @@ import java.util.Vector;
 import org.junit.Test;
 
 /**
- * 
+ *
  */
 public class EpicsMCASimpleTest {
 
 	/**
 	 * Test method for {@link gda.device.detector.analyser.EpicsMCASimple#configure()}.
-	 * @throws FactoryException 
-	 * @throws DeviceException 
+	 * @throws FactoryException
+	 * @throws DeviceException
 	 */
 	@Test
 	public void testConfigure() throws FactoryException, DeviceException {

@@ -93,7 +93,7 @@ public class NextSamplePosition extends DeviceBase implements Configurable, Find
 
 	/**
 	 * creates all required channels
-	 * 
+	 *
 	 * @param config
 	 * @throws FactoryException
 	 */
@@ -109,7 +109,7 @@ public class NextSamplePosition extends DeviceBase implements Configurable, Find
 
 	/**
 	 * gets the demanding sample position number
-	 * 
+	 *
 	 * @return sample position
 	 * @throws DeviceException
 	 */
@@ -123,7 +123,7 @@ public class NextSamplePosition extends DeviceBase implements Configurable, Find
 
 	/**
 	 * set the demanding sample position number
-	 * 
+	 *
 	 * @param pos
 	 * @throws DeviceException
 	 */

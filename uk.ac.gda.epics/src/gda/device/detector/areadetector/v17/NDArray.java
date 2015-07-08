@@ -23,7 +23,7 @@ package gda.device.detector.areadetector.v17;
  * Interface that corresponds to the 'arr' plugin on the edm screen.
  */
 public interface NDArray extends GetPluginBaseAvailable {
-	
+
 	static final String ARRAY_DATA = "ArrayData";
 
 	short[] getShortArrayData(int numberOfElements) throws Exception;
@@ -33,12 +33,12 @@ public interface NDArray extends GetPluginBaseAvailable {
 	int[] getIntArrayData(int numberOfElements) throws Exception;
 
 	float[] getFloatArrayData(int numberOfElements) throws Exception;
-	
+
 	float[] getFloatArrayData() throws Exception;
 
 	void reset() throws Exception;
 
 	byte[] getByteArrayData() throws Exception;
-	
+
 	Object getImageData(int expectedNumPixels) throws Exception;
 }

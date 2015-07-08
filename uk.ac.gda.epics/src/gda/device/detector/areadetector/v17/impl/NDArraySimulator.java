@@ -144,7 +144,7 @@ public class NDArraySimulator extends NDBaseImpl implements NDArray {
 		return bytes;
 	}
 
-	//currently we only return signed values so return max val that can fit into these 
+	//currently we only return signed values so return max val that can fit into these
 	private double getMaxHeightForType(short dataType) throws Exception {
 		double maxHeightForType;
 		switch (dataType) {

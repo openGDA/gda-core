@@ -18,11 +18,6 @@
 
 package gda.device.scannable;
 
-import java.io.Serializable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -42,6 +37,11 @@ import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
+import java.io.Serializable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Represents and controls a PV. Unlike gda.device.controlpoint classes, this operates a single pv.
  * <p>
@@ -52,7 +52,7 @@ import gov.aps.jca.event.PutListener;
  * There is also a canMove flag to restrict changes to the PV.
  */
 public class PVScannable extends ScannableBase implements MonitorListener, InitializationListener, PutListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(PVScannable.class);
 
 	/**
@@ -79,11 +79,11 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 	protected Channel theChannel;
 	protected EpicsController controller = EpicsController.getInstance();
 	private EpicsChannelManager channelManager;
-	
+
 	public PVScannable() {
 		channelManager = new EpicsChannelManager(this);
 	}
-	
+
 	public PVScannable(String name, String pv) {
 		setName(name);
 		this.pvName=pv;
@@ -107,7 +107,7 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 									+ e.getMessage(), e);
 					throw new FactoryException("Can NOT find EPICS configuration for PV scannable " + getDeviceName()
 							+ "." + e.getMessage(), e);
-				}	
+				}
 				pvName=config.getRECORD().getPv();
 			}
 			try {
@@ -198,16 +198,16 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 
 	@Override
 	public void monitorChanged(MonitorEvent event) {
-		
+
 		final DBR dbr = event.getDBR();
-		
+
 		if (!dbr.isDOUBLE()) {
 			return;
 		}
-		
+
 		final DOUBLE doubleDbr = (DOUBLE) dbr;
 		final double newPosition = doubleDbr.getDoubleValue()[0];
-		
+
 		// if there is a deadband then test if change is great enough
 		if (this.deadband > 0) {
 			if (Math.abs(newPosition - this.lastKnownValue) > this.deadband) {
@@ -217,7 +217,7 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 			notifyObserversOfNewPosition(newPosition);
 		}
 	}
-	
+
 	private void notifyObserversOfNewPosition(Serializable newPosition) {
 		this.notifyIObservers(this, newPosition);
 		this.notifyIObservers(this, new ScannablePositionChangeEvent(newPosition));
@@ -252,13 +252,13 @@ public class PVScannable extends ScannableBase implements MonitorListener, Initi
 		}
 		return null;
 	}
-	
+
 	@Override
 	public String toString(){
 		try {
 			String tostring = ScannableUtils.getFormattedCurrentPosition(this);
 			String units = (String) getAttribute(UNITSATTRIBUTE);
-			
+
 			if (units == null || units.isEmpty()){
 				return tostring;
 			}

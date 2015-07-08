@@ -48,9 +48,9 @@ public class EpicsConfiguration {
 
 	/**
 	 * Creates a new EPICS configuration object, reading the specified file.
-	 * 
+	 *
 	 * @param file the EPICS interface file
-	 * 
+	 *
 	 * @throws FileNotFoundException
 	 * @throws MarshalException
 	 * @throws ValidationException
@@ -58,14 +58,14 @@ public class EpicsConfiguration {
 	public EpicsConfiguration(String file) throws FileNotFoundException, MarshalException, ValidationException {
 		initializeConfiguration(file);
 	}
-	
+
 	/**
 	 * Reads interface configuration XML and generates hash map for fast look-ups. Methods requires schema to have
 	 * <code>devices</code> as root element and each device element has to have a <code>name</code> attribute as
 	 * identifier.
-	 * 
+	 *
 	 * @param xmlURI the EPICS interface file
-	 * 
+	 *
 	 * @throws FileNotFoundException
 	 * @throws MarshalException
 	 * @throws ValidationException
@@ -116,7 +116,7 @@ public class EpicsConfiguration {
 
 	/**
 	 * Get configuration for device. *
-	 * 
+	 *
 	 * @param <T>
 	 * @param name
 	 *            name of the device (configuration id).

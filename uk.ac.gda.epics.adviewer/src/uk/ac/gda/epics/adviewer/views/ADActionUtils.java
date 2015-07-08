@@ -37,9 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ADActionUtils {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ADActionUtils.class);
-	
+
 	static public IAction addAction(String name, final String commandId, final String commandParameterName, final String commandParameterValue) throws NotDefinedException{
 		IAction action = new Action(name, IAction.AS_PUSH_BUTTON) {
 			@Override
@@ -65,7 +65,7 @@ public class ADActionUtils {
 		action.setImageDescriptor(service.getImageDescriptor(commandId));
 		return action;
 	}
-	
+
 	static public IAction addShowViewAction(final String name, final String viewId, final String secondaryId, String description, ImageDescriptor imageDesc){
 		IAction action = new Action(name, IAction.AS_PUSH_BUTTON) {
 			@Override
@@ -90,5 +90,5 @@ public class ADActionUtils {
 			action.setImageDescriptor(imageDesc);
 		return action;
 	}
-	
+
 }

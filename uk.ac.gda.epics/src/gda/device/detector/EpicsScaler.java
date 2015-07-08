@@ -133,14 +133,14 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	/**
 	 * {@inheritDoc} initialisation - create all channels to PVs and setup monitoring.
-	 * 
+	 *
 	 */
 	@Override
 	public void configure() throws FactoryException {
 		if (!configured) {
-			
+
 			if (pvName == null) {
-				
+
 				// EPICS interface verion 2 for phase I beamlines + I22
 				if (getEpicsRecordName() != null) {
 					if ((epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName)) != null) {
@@ -171,7 +171,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 									+ e.getMessage(), ex);
 						}
 					}
-	
+
 				}
 				// Nothing specified in Server XML file
 				else {
@@ -179,9 +179,9 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 					throw new FactoryException("Missing EPICS interface configuration for the motor " + getName());
 				}
 			}
-			
+
 			createChannelAccess();
-			
+
 			configured = true;
 		}
 	}
@@ -240,7 +240,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	/**
 	 * Gets the total number of channels actually supported by the scaler hardware
-	 * 
+	 *
 	 * @return integer number of channels
 	 * @throws DeviceException
 	 */
@@ -260,7 +260,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 	 * scaler channel , then when the scaler channel reaches the preset count , all scaler channels will be disabled,
 	 * and the record will report counting has completed . When Preset changes to any positive value, the record will
 	 * set gate of that corresponding scaler channel to 1.
-	 * 
+	 *
 	 * @param value
 	 *            double array of the preset values
 	 * @throws DeviceException
@@ -278,7 +278,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	/**
 	 * Starts the counting in the Scaler
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void start() throws DeviceException {
@@ -296,7 +296,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	/**
 	 * Stops the counting in the Scaler
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -311,7 +311,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	/**
 	 * Reads the counts accumulated by all the scalers
-	 * 
+	 *
 	 * @return a double array of the scaler counts
 	 * @throws DeviceException
 	 */
@@ -335,7 +335,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	/**
 	 * Gets the user set name of the Channel
-	 * 
+	 *
 	 * @param channel
 	 *            integer channel number - zero based
 	 * @return the Name of the channel associated with a channel number
@@ -354,7 +354,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	/**
 	 * Sets the name of the Channel
-	 * 
+	 *
 	 * @param channel
 	 *            integer channel number - zero based
 	 * @param label
@@ -374,9 +374,9 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	/**
 	 * Gets the names of all the channels as a list
-	 * 
+	 *
 	 * @return list of all the channel names
-	 */	
+	 */
 	@Override
 	public String[] getExtraNames() {
 		if (!configured){
@@ -418,7 +418,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	/**
 	 * Sets the collection time for the scalers
-	 * 
+	 *
 	 * @param time
 	 *            period to count
 	 */
@@ -435,7 +435,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	/**
 	 * Gets the collection time from the scalers
-	 * 
+	 *
 	 * @return double collectionTime
 	 */
 	@Override
@@ -485,7 +485,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	/**
 	 * Gets the clock frequency of the Scaler
-	 * 
+	 *
 	 * @return double frequency
 	 */
 	public double getFrequency() {
@@ -494,7 +494,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	/**
 	 * Sets the clock frequency of the scaler
-	 * 
+	 *
 	 * @param frequency
 	 */
 	public void setFrequency(double frequency) {
@@ -523,7 +523,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	/**
 	 * adds a monitor to the specified channel
-	 * 
+	 *
 	 * @param channel
 	 * @param l
 	 * @throws DeviceException
@@ -574,7 +574,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 	 * Does the same job as the other formatPosition method except rather than using a supplied format string, use the
 	 * index of the array of formats this object holds. This is to be used when an object has multiple elements which
 	 * descibe its position and those element require different formatting.
-	 * 
+	 *
 	 * @param format
 	 *            the index in the array of formats to use
 	 * @param number
@@ -665,7 +665,7 @@ public class EpicsScaler extends gda.device.detector.DetectorBase implements Det
 
 	/**
 	 * Sets the EpicsConfiguration to use when looking up PV from deviceName.
-	 * 
+	 *
 	 * @param epicsConfiguration
 	 *            the EpicsConfiguration
 	 */

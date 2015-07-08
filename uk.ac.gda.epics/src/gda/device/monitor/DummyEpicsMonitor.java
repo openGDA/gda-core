@@ -18,21 +18,21 @@
 
 package gda.device.monitor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * 
+ *
  */
 public class DummyEpicsMonitor extends EpicsMonitor {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DummyEpicsMonitor.class);
 
 	private Object latestValue = 0;
-	
+
 	/**
 	 * Constructor
 	 */
@@ -40,10 +40,10 @@ public class DummyEpicsMonitor extends EpicsMonitor {
 		//controller = EpicsController.getInstance();
 		//channelManager = new EpicsChannelManager(this);
 	}
-	
+
 	/**
 	 * Sets the value of this monitor.
-	 * 
+	 *
 	 * @param newVal the value
 	 */
 	public void setValue(Object newVal) {

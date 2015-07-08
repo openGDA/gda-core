@@ -34,7 +34,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 
 public class PlotServerROISelectionProvider implements IndexedRectangularROIProvider<Integer>{
-	
+
 	private int maximumActiveRois;
 	private String viewName;
 	private static final String ROIViewNameSuffix = " Array";
@@ -45,7 +45,7 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 
 	public PlotServerROISelectionProvider() {
 	}
-	
+
 	public PlotServerROISelectionProvider(String detectorName, int maximumActiveRois) {
 		viewName = getGuiName(detectorName);
 		this.maximumActiveRois = maximumActiveRois;
@@ -54,7 +54,7 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 	/**
 	 * Returns a list of active Rois. This will have no more than maximumActiveRois elements.
 	 * @return a list of active rois.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public List<RectangularROI<Integer>> getActiveRoiList() throws Exception {
 		List<org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI> scisoftRoiList = getScisoftRoiListFromSDAPlotter();
@@ -73,10 +73,10 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 					"No gui bean for view named ''{0}'' available from SDAPlotter. Available: {1}",
 					viewName, Arrays.toString(SDAPlotter.getGuiNames())));
 		}
-		
+
 		GuiBean guiBean = SDAPlotter.getGuiBean(viewName);
 		Serializable serializable = guiBean.get(GuiParameters.ROIDATALIST);
-		
+
 		List<org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI> scisoftRoiList;
 		if (serializable instanceof PerimeterBoxROIList) {
 			scisoftRoiList = new Vector<org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI>((PerimeterBoxROIList) guiBean.get(GuiParameters.ROIDATALIST));
@@ -100,7 +100,7 @@ public class PlotServerROISelectionProvider implements IndexedRectangularROIProv
 		}
 		return ImutableRectangularIntegerROI.valueOf(scisoftRoiList.get(index));
 	}
-	
+
 	public PyString __str__() {
 		String str = "Regions from: '" + viewName +"'";
 		str += "\n";

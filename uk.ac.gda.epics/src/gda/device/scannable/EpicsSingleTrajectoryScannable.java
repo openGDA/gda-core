@@ -40,7 +40,7 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 	@SuppressWarnings("unused")
 	private static final int ONEDMODE = 1;
 	private static final int TWODMODE = 2;
-	
+
 	protected TrajectoryScanController tracController;
 	private double readTimeout = 60.0;
 
@@ -154,7 +154,7 @@ public class EpicsSingleTrajectoryScannable extends ScannableMotionUnitsBase imp
 
 			tracController.build();
 
-			
+
 			//wait for the build to finsih
 			while (tracController.isBuilding()) {
 				// wait for the build to finish

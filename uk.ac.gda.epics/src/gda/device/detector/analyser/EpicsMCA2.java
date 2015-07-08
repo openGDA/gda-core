@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * analyser (MCA).
  */
 public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(EpicsMCA2.class);
 
 	private static final long serialVersionUID = 1L;
@@ -153,7 +153,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * adds a region of interest.
-	 * 
+	 *
 	 * @param regionIndex
 	 * @param regionLow
 	 * @param regionHigh
@@ -186,7 +186,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * deletes a region of interest
-	 * 
+	 *
 	 * @param regionIndex
 	 * @throws DeviceException
 	 */
@@ -205,7 +205,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * returns calibration parameters - unit name, offset, slope, quadratic, and two theta angle of the detector
-	 * 
+	 *
 	 * @return calibration parameters
 	 * @throws DeviceException
 	 */
@@ -244,7 +244,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * Clears the mca, but does not return until the clear has been done.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void clear() throws DeviceException {
@@ -260,7 +260,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * gets elapsed parameters
-	 * 
+	 *
 	 * @return elapsed parameters
 	 * @throws DeviceException
 	 */
@@ -293,7 +293,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * gets regions of interest
-	 * 
+	 *
 	 * @return region of interest
 	 * @throws DeviceException
 	 */
@@ -303,7 +303,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * gets the total and net counts for each region of interest
-	 * 
+	 *
 	 * @return total and net counts for regions of interest
 	 * @throws DeviceException
 	 */
@@ -325,7 +325,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * sets calibration fields for MCA
-	 * 
+	 *
 	 * @param calibrate
 	 * @throws DeviceException
 	 */
@@ -346,7 +346,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * sets the preset parameters for MCA
-	 * 
+	 *
 	 * @param data
 	 * @throws DeviceException
 	 */
@@ -367,7 +367,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * sets region of interest
-	 * 
+	 *
 	 * @param highLow
 	 * @throws DeviceException
 	 */
@@ -518,7 +518,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * Gets the MCA record name - shared name between GDA and EPICS for phase I beamlines.
-	 * 
+	 *
 	 * @return the Epics MCA record name.
 	 */
 	public String getEpicsMcaRecordName() {
@@ -527,7 +527,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * Sets the MCA record name - shared name between GDA and EPICS for phase I beamlines.
-	 * 
+	 *
 	 * @param epicsMcaRecordName
 	 */
 	public void setEpicsMcaRecordName(String epicsMcaRecordName) {
@@ -536,7 +536,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * gets the device name shared by GDA and EPICS
-	 * 
+	 *
 	 * @return device name
 	 */
 	public String getDeviceName() {
@@ -545,7 +545,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * sets the device name which is shared by GDA and EPICS
-	 * 
+	 *
 	 * @param deviceName
 	 */
 	public void setDeviceName(String deviceName) {
@@ -554,7 +554,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * gets MCA record name - the actual EPICS Record name after remove field name
-	 * 
+	 *
 	 * @return MCA record name
 	 */
 	public String getMcaRecordName() {
@@ -563,7 +563,7 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 
 	/**
 	 * sets MCA record name - the actual EPICS Record name after remove field name
-	 * 
+	 *
 	 * @param mcaRecordName
 	 */
 	public void setMcaRecordName(String mcaRecordName) {
@@ -571,15 +571,15 @@ public class EpicsMCA2 extends DetectorBase implements Detector, IObserver {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String channelToEnergyPrefix = "channelToEnergy:";
 	/**
-	 * 
+	 *
 	 */
 	public static final String numberOfChannelsAttr = "NumberOfChannels";
 	/**
-	 * 
+	 *
 	 */
 	public static final String energyToChannelPrefix = "energyToChannel";
 

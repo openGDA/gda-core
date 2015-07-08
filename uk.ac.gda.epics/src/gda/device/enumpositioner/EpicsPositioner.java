@@ -18,8 +18,6 @@
 
 package gda.device.enumpositioner;
 
-import java.util.LinkedHashMap;
-
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceException;
@@ -36,7 +34,6 @@ import gda.util.exceptionUtils;
 import gov.aps.jca.CAException;
 import gov.aps.jca.CAStatus;
 import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
 import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Double;
 import gov.aps.jca.dbr.Severity;
@@ -46,14 +43,14 @@ import gov.aps.jca.event.MonitorListener;
 import gov.aps.jca.event.PutEvent;
 import gov.aps.jca.event.PutListener;
 
+import java.util.LinkedHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 /**
  * This class maps to EPICS positioner template.
- * 
+ *
  * @see <a href="http://serv0002.cs.diamond.ac.uk/cgi-bin/wiki.cgi/positioner">positioner module documentation</a>
  */
 public class EpicsPositioner extends EnumPositionerBase implements EnumPositioner, InitializationListener {
@@ -63,43 +60,43 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 	private static final Logger logger = LoggerFactory.getLogger(EpicsPositioner.class);
 
 	public static final String COULD_NOT_ESTABLISH_VALUE_CHANNEL_NAMES_WARNING = "could not establish channel names of position values";
-	
+
 	private LinkedHashMap<String,Channel> positionValueChannels = new LinkedHashMap<String,Channel>(16);
-	
+
 	/**
 	 * flag to set in Spring
 	 */
 	private boolean allowPositionValueReads = false;
-	
+
 	public boolean getAllowPositionValueReads() {
 		return allowPositionValueReads;
 	}
-	
+
 	public void setAllowPositionValueReads(boolean allowPositionValueReads) {
 		this.allowPositionValueReads = allowPositionValueReads;
 	}
-	
+
 
 	private String epicsRecordName;
 
 	private String deviceName;
-	
+
 	protected EpicsController controller;
 
 	protected EpicsChannelManager channelManager;
-	
+
 	private String recordName;
-	
+
 	private String selectRecordName;
-	
+
 	private String inPosRecordName;
-	
+
 	private String dMovRecordName;
-	
+
 	private String stopRecordName;
-	
+
 	private String errorRecordName;
-	
+
 	protected Channel select;
 
 	private Channel inPos;
@@ -121,9 +118,9 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 	private Severity severity = Severity.NO_ALARM;
 
 	private Object lock = new Object();
-	
+
 	protected PositionerType configuration;
-	
+
 	/**
 	 * Constructor
 	 */
@@ -136,41 +133,41 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 		errorMonitor = new ErrorMonitorListener();
 		putCallbackListener = new PutCallbackListener();
 	}
-	
+
 	/**
 	 * Sets the record name that this positioner will link to.
-	 * 
+	 *
 	 * @param recordName the record name
 	 */
 	public void setRecordName(String recordName) {
 		this.recordName = recordName;
 	}
-	
+
 	/**
 	 * Sets the configuration for this positioner.
 	 */
 	public void setConfiguration(PositionerType configuration) {
 		this.configuration = configuration;
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		this.setInputNames(new String[]{getName()});
 		this.setExtraNames(new String[0]);
 		if (!configured) {
-			
+
 			if (recordName != null) {
 				setRecordNamesUsingBasePv(recordName);
 			}
-			
+
 			else if (configuration != null) {
 				setRecordNamesUsingEpicsConfiguration(configuration);
 			}
-			
+
 			// EPICS interface version 2 for phase I beamlines + I22
 			else if (getEpicsRecordName() != null) {
 				EpicsRecord epicsRecord;
-				
+
 				if ((epicsRecord = (EpicsRecord) Finder.getInstance().find(epicsRecordName)) != null) {
 					String recordName = epicsRecord.getFullRecordName();
 					setRecordNamesUsingBasePv(recordName);
@@ -179,7 +176,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 					throw new FactoryException("Epics Record " + epicsRecordName + " not found");
 				}
 			}
-			
+
 			// EPICS interface version 3 for phase II beamlines (excluding I22).
 			else if (getDeviceName() != null) {
 				PositionerType pnrConfig;
@@ -190,23 +187,23 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 					logger.error("Can NOT find EPICS configuration for motor " + getDeviceName(), e);
 				}
 			}
-			
+
 			// Nothing specified in Server XML file
 			else {
 				logger.error("Missing EPICS interface configuration for the motor " + getName());
 				throw new FactoryException("Missing EPICS interface configuration for the motor " + getName());
 			}
-			
+
 			createChannelAccess();
 			channelManager.tryInitialize(100);
-			
+
 			// getPosition() returns a single String, so explain what it is
 			inputNames = new String[]{getName()};
-			
+
 			configured = true;
 		}
 	}
-	
+
 	/**
 	 * Retrieves the five PVs for this {@link EpicsPositioner} from the specified {@link PositionerType} object.
 	 */
@@ -217,7 +214,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 		stopRecordName = config.getSTOP().getPv();
 		errorRecordName = config.getERROR().getPv();
 	}
-	
+
 	/**
 	 * Builds the five PVs for this {@link EpicsPositioner} by appending suffixes to a base record name.
 	 */
@@ -228,7 +225,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 		stopRecordName = recordName + ":STOP.PROC";
 		errorRecordName = recordName + ":ERROR.K";
 	}
-	
+
 	protected void createChannelAccess() throws FactoryException {
 		try {
 			select = channelManager.createChannel(selectRecordName, false);
@@ -328,17 +325,17 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 		throw new DeviceException("Position called: " + position.toString()+ " not found.");
 
 	}
-	
+
 	private boolean acceptNewMoveToPositionWhileMoving;
-	
+
 	public boolean getAcceptNewMoveToPositionWhileMoving() {
 		return this.acceptNewMoveToPositionWhileMoving;
 	}
-	
+
 	public void setAcceptNewMoveToPositionWhileMoving(boolean acceptNewMoveToPositionWhileMoving) {
 		this.acceptNewMoveToPositionWhileMoving = acceptNewMoveToPositionWhileMoving;
 	}
-	
+
 
 	@Override
 	public void stop() throws DeviceException {
@@ -367,7 +364,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 				super.positions.add(position[i]);
 			}
 		}
-		
+
 		if (allowPositionValueReads) {
 			// establish position value channels
 			String basePV = recordName;
@@ -388,12 +385,12 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 					}
 					catch (CAException e) {
 						logger.error("could not create channel {}", positionValueChannelName);
-						
+
 						logger.info("destroying any position value channels that were created");
 						for (Channel positionValueChannel : positionValueChannels.values()) {
 							controller.destroy(positionValueChannel);
 						}
-						
+
 						throw new DeviceException(e);
 					}
 				}
@@ -402,13 +399,13 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 				logger.warn(COULD_NOT_ESTABLISH_VALUE_CHANNEL_NAMES_WARNING);
 			}
 		}
-		
+
 		logger.info("EpicsPositioner " + getName() + " is initialised");
 	}
-	
+
 	/**
 	 * @return the physical motor value for the supplied position string.
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public Double getPositionValue(String position) throws DeviceException {
 		if (!allowPositionValueReads) {
@@ -424,7 +421,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 			throw new DeviceException("could not get value of position " + position, e);
 		}
 	}
-	
+
 	/**
 	 * @return positions mapped to values in position order
 	 */
@@ -435,7 +432,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 		}
 		return positionsMap;
 	}
-	
+
 	/**
 	 * Reverse lookup - potentially flawed because several positions may have the same value.
 	 */
@@ -464,7 +461,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 					positionerStatus = EnumPositionerStatus.IDLE;
 				}
 			}
-			
+
 			sendUpdate();
 		}
 
@@ -486,7 +483,7 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 					positionerStatus = EnumPositionerStatus.MOVING;
 				}
 			}
-			
+
 			sendUpdate();
 		}
 	}
@@ -507,12 +504,12 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 					positionerStatus = EnumPositionerStatus.ERROR;
 				}
 			}
-			
+
 			sendUpdate();
 		}
 
 	}
-	
+
 	private void sendUpdate() {
 		notifyIObservers(this, positionerStatus);
 	}
@@ -565,11 +562,11 @@ public class EpicsPositioner extends EnumPositionerBase implements EnumPositione
 
 				if (status == Status.NO_ALARM && severity == Severity.NO_ALARM) {
 					logger.info("{} moves OK", getName());
-					positionerStatus=EnumPositionerStatus.IDLE;				
+					positionerStatus=EnumPositionerStatus.IDLE;
 				} else {
 					// if Alarmed, check and report MSTA status
 					logger.error("{} reports Alarm: {}", getName(), status);
-					positionerStatus=EnumPositionerStatus.ERROR;			
+					positionerStatus=EnumPositionerStatus.ERROR;
 				}
 
 			} catch (Exception ex) {

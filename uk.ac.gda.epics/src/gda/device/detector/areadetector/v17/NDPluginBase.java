@@ -28,7 +28,7 @@ import gda.observable.Observable;
 
 /**
  * All plugins have an 'NDPluginBase' which is represents the elements that all plugins have available.
- * 
+ *
  * This should not be confused with a 'base class' in the OO sense.
  */
 public interface NDPluginBase extends ADCommon {
@@ -86,7 +86,7 @@ public interface NDPluginBase extends ADCommon {
 
 	static final String NDAttributesFile = "NDAttributesFile";
 
-	
+
 	/**
 	 *
 	 */
@@ -231,7 +231,7 @@ public interface NDPluginBase extends ADCommon {
 	 * BL16I-EA-PILAT-01:image1:DataType_RBV
      * Data type:      DBR_CTRL_ENUM (native: DBF_ENUM)
      * Element count:  1
-     * Value:          Int32 (4) 
+     * Value:          Int32 (4)
      * Status:         NO_ALARM
      * Severity:       NO_ALARM
      * Enums:          ( 8)
@@ -243,7 +243,7 @@ public interface NDPluginBase extends ADCommon {
      *                 [ 5] UInt32
      *                 [ 6] Float32
      *                 [ 7] Float64
-     * 
+     *
 	 */
 	short getDataType_RBV() throws Exception;
 
@@ -288,7 +288,7 @@ public interface NDPluginBase extends ADCommon {
 	void enableCallbacks() throws Exception;
 
 	/**
-	 * 
+	 *
 	 */
 	void reset() throws Exception;
 
@@ -301,9 +301,9 @@ public interface NDPluginBase extends ADCommon {
 	 * @return initial array address.
 	 */
 	Integer getInitialArrayAddress();
-	
+
 	Observable<Integer> createArrayCounterObservable() throws Exception;
-	
+
 	Observable<Boolean> createConnectionStateObservable() throws Exception;
 
 	Observable<String> createEnableObservable() throws Exception;
@@ -311,10 +311,10 @@ public interface NDPluginBase extends ADCommon {
 	Observable<Double> createMinCallbackTimeObservable() throws Exception;
 
 	Observable<Integer> createDroppedFramesObservable()  throws Exception;
-	
+
 	public void checkDroppedFrames() throws Exception;
-	
-	
+
+
 
 
 }

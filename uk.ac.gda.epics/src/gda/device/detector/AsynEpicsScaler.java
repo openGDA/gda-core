@@ -47,9 +47,9 @@ import org.slf4j.LoggerFactory;
  */
 public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements Detector, MonitorListener, ConnectionListener,
 		PutListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(AsynEpicsScaler.class);
-	
+
 	private Channel count = null;
 
 	private Channel frequencyChannel = null;
@@ -92,7 +92,7 @@ public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements
 
 	/**
 	 * initialisation - create all channels to PVs and setup monitoring.
-	 * 
+	 *
 	 * @throws FactoryException
 	 */
 	@Override
@@ -169,7 +169,7 @@ public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements
 
 	/**
 	 * Gets the total number of channels actually supported by the scaler hardware
-	 * 
+	 *
 	 * @return integer number of channels
 	 * @throws DeviceException
 	 */
@@ -186,7 +186,7 @@ public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements
 	 * the scaler reaches the preset count , all scalers will be disabled, and the record will report counting has
 	 * completed . When Preset changes to any positive value, the record will set gate of that corresponding scaler to
 	 * 1.
-	 * 
+	 *
 	 * @param value
 	 *            double array of the preset values
 	 * @throws DeviceException
@@ -203,7 +203,7 @@ public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements
 
 	/**
 	 * Starts the counting in the Scaler
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void start() throws DeviceException {
@@ -216,7 +216,7 @@ public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements
 
 	/**
 	 * Stops the counting in the Scaler {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.scannable.ScannableBase#stop()
 	 */
 	@Override
@@ -230,7 +230,7 @@ public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements
 
 	/**
 	 * Reads the counts accumulated by all the scalers
-	 * 
+	 *
 	 * @return a double array of the scaler counts
 	 * @throws DeviceException
 	 */
@@ -251,7 +251,7 @@ public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements
 
 	/**
 	 * Sets the name of the Channel
-	 * 
+	 *
 	 * @param channel
 	 *            integer channel number
 	 * @param label
@@ -269,7 +269,7 @@ public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements
 
 	/**
 	 * Gets the names of all the channels as a list
-	 * 
+	 *
 	 * @return list of all the channel names
 	 */
 	@Override
@@ -296,7 +296,7 @@ public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements
 
 	/**
 	 * Sets the collection time for the scalers
-	 * 
+	 *
 	 * @param time
 	 *            period to count
 	 */
@@ -330,7 +330,7 @@ public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements
 
 	/**
 	 * Gets the clock frequency of the Scaler
-	 * 
+	 *
 	 * @return double frequency
 	 */
 	public double getFrequency() {
@@ -339,7 +339,7 @@ public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements
 
 	/**
 	 * Sets the clock frequency of the scaler
-	 * 
+	 *
 	 * @param frequency
 	 */
 	public void setFrequency(double frequency) {
@@ -417,7 +417,7 @@ public class AsynEpicsScaler extends gda.device.detector.DetectorBase implements
 
 	/**
 	 * Connection callback
-	 * 
+	 *
 	 * @param ev
 	 */
 	private void onConnectionChanged(ConnectionEvent ev) {

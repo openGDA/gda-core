@@ -38,15 +38,15 @@ public class ADArrayCounterMonitor implements NXPlugin {
 
 	//
 	private boolean waitForArrayCounter = true;
-	
+
 	private final ADBase adBase;
 
 	private Integer nextIndexToGiveOut;
-	
+
 	public ADArrayCounterMonitor(ADBase adBase) {
 		this.adBase = adBase;
 	}
-	
+
 	public boolean isWaitForArrayCounter() {
 		return waitForArrayCounter;
 	}
@@ -69,7 +69,7 @@ public class ADArrayCounterMonitor implements NXPlugin {
 	public void prepareForCollection(int numberImagesPerCollection, ScanInformation scanInfo) throws Exception {
 		nextIndexToGiveOut = adBase.getArrayCounter_RBV() + 1;
 	}
-	
+
 	@Override
 	public void prepareForLine() throws Exception {
 	}
@@ -90,7 +90,7 @@ public class ADArrayCounterMonitor implements NXPlugin {
 	@Override
 	public void stop() throws Exception {
 	}
-	
+
 	@Override
 	public List<String> getInputStreamNames() {
 		return Arrays.asList();
@@ -122,7 +122,7 @@ public class ADArrayCounterMonitor implements NXPlugin {
 }
 
 class ArrayCounterWaiter implements NXDetectorDataAppender {
-	
+
 	private final ADBase adBase;
 	private final int desiredCount;
 
@@ -135,19 +135,19 @@ class ArrayCounterWaiter implements NXDetectorDataAppender {
 
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException {
-		
+
 
 		// 1. Wait for the array counter
 		String msg = "waiting for '" + detectorName + "' array counter PV to reach " + desiredCount;
-		
+
 		logger.info(Thread.currentThread().getName() + " " + msg);
 		try {
 			adBase.waitForArrayCounterToReach(desiredCount, Double.MAX_VALUE);
 		} catch (Exception e) {
 			throw new DeviceException("Problem " + msg);
 		}
-		
+
 		// 2. do nothing to data
 	}
-	
+
 }

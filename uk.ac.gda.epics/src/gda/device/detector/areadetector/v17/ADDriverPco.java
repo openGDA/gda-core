@@ -33,7 +33,7 @@ public interface ADDriverPco {
 		 * In External Pulse the exposure length is controlled by the hardware trigger
 		 */
 		EXTERNAL_PULSE,
-		
+
 		/**
 		 * External trigger only
 		 */

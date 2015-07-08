@@ -43,7 +43,7 @@ public class DynamicADControllerImpl extends ADControllerBase {
 	private NDROI nDROI;
 	private NDProcess ndProc;
 
-	
+
 	public DynamicADControllerImpl(String serviceName, String detectorName, String pvPrefix, ADPVSuffixes adPVSuffixes) throws Exception {
 		this.pvPrefix = pvPrefix;
 		this.adPVSuffixes = adPVSuffixes;
@@ -80,8 +80,8 @@ public class DynamicADControllerImpl extends ADControllerBase {
 		}
 		return imageNDArray;
 	}
-	
-	
+
+
 	@Override
 	public ADBase getAdBase() throws Exception {
 		if( adBase == null){
@@ -89,7 +89,7 @@ public class DynamicADControllerImpl extends ADControllerBase {
 		}
 		return adBase;
 	}
-	
+
 	@Override
 	public FfmpegStream getFfmpegStream() throws Exception {
 		if( ffmpegStream == null){

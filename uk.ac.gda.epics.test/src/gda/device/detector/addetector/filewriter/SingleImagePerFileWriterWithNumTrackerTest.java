@@ -43,7 +43,7 @@ import org.mockito.InOrder;
 public class SingleImagePerFileWriterWithNumTrackerTest {
 
 	private NDPluginBase mockNDPluginBase;
-	
+
 	private NDFile mockNdFile;
 
 	private SingleImagePerFileWriterWithNumTracker writer;
@@ -51,7 +51,7 @@ public class SingleImagePerFileWriterWithNumTrackerTest {
 	private void setGdaVarDir(String path) {
 		LocalProperties.set(LocalProperties.GDA_VAR_DIR, path);
 	}
-	
+
 	@Before
 	public void setUp() throws Exception {
 		mockNDPluginBase = mock(NDPluginBase.class);
@@ -71,7 +71,7 @@ public class SingleImagePerFileWriterWithNumTrackerTest {
 		when(scanInfo.getScanNumber()).thenReturn(12345);
 		InterfaceProvider.setCurrentScanInformationHolderForTesting(currentScanHolder);
 	}
-	
+
 	@Test
 	public void testGetFileTemplateDefault() throws Exception {
 		setGdaVarDir(TestUtils.setUpTest(this.getClass(), "testGetFileTemplateDefault", true));
@@ -86,14 +86,14 @@ public class SingleImagePerFileWriterWithNumTrackerTest {
 		createWriter();
 		assertEquals("path/to/datadir/snapped-data/detname", writer.getFilePath());
 	}
-	
+
 	@Test
 	public void testGetFileNameDefault() throws Exception {
 		setGdaVarDir(TestUtils.setUpTest(this.getClass(), "testGetFileNameDefault", true));
 		createWriter();
 		assertEquals("", writer.getFileName());
 	}
-	
+
 	@Test
 	public void testPrepareforCollectionAdvancesImageNumber() throws Exception {
 		setGdaVarDir(TestUtils.setUpTest(this.getClass(), "testPrepareforCollectionSetsNextNumberDefault", true));

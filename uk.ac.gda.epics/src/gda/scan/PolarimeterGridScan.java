@@ -69,7 +69,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 	private Object attrValue;
 
 	/**
- * 
+ *
  */
 	public PolarimeterGridScan() {
 		super();
@@ -77,7 +77,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 
 	/**
 	 * Creates a scan object.Used for inner 2d GUI or single GUI scan
-	 * 
+	 *
 	 * @param ve
 	 *            the scannable
 	 * @param start
@@ -129,7 +129,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 
 	/**
 	 * Creates a scan object. Used for outer 2D GUI scan
-	 * 
+	 *
 	 * @param ve
 	 *            the scannable
 	 * @param start
@@ -179,7 +179,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 
 	/**
 	 * Creates a scan object. Used for outer scan scripting
-	 * 
+	 *
 	 * @param ve
 	 *            the scannable
 	 * @param start
@@ -204,7 +204,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 
 	/**
 	 * Creates a scan object. Used for simple and inner scripting
-	 * 
+	 *
 	 * @param ve
 	 *            the scannable
 	 * @param start
@@ -271,12 +271,12 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 		checkThreadInterrupted();
 		moveToStart();
 		checkThreadInterrupted();
-		
+
 		if (isFinishEarlyRequested()){
 			return;
 		}
-		waitIfPaused();		
-		
+		waitIfPaused();
+
 		if (this.childScan != null) {
 			// The following line is required to ensure that the data file has the
 			// the required columns and headers.
@@ -296,11 +296,11 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 				return;
 			}
 			waitIfPaused();
-			
+
 			checkThreadInterrupted();
 			moveStepIncrement(i);
 			checkThreadInterrupted();
-			
+
 			if (this.childScan != null) {
 				runChildScan();
 			} else {
@@ -316,7 +316,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 	 * be called at each node of the scan. The collectData method is called for all detetcors in the
 	 * DetectorBase.ActiveDetectors static arraylist. Throws two types of errors as scans may want to handle these
 	 * differently.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Override
 	protected void collectData() throws Exception {
@@ -402,7 +402,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 
 	/**
 	 * Move the object of this scan to its initial position.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	protected void moveToStart() throws Exception {
@@ -431,7 +431,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 
 	/**
 	 * Run the nested scan
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	protected void runChildScan() throws Exception {
 		// before running the child scan, make sure it is sharing the same
@@ -501,7 +501,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 
 	/**
 	 * Returns whether a child scan has been requested.
-	 * 
+	 *
 	 * @return a boolean indicating whether the gridscan has an associated childscan
 	 */
 	public boolean hasChild() {
@@ -510,7 +510,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 
 	/**
 	 * Swaps previously measured flux value in data point
-	 * 
+	 *
 	 * @param point
 	 *            current ScanDataPoint *
 	 */
@@ -530,7 +530,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 	/**
 	 * Measures flux value by moving pinhole with detector behind it into beam, taking measurement, then moving clear
 	 * pinhole into beam.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	protected void measureFluxValue() throws Exception {
@@ -574,7 +574,7 @@ public class PolarimeterGridScan extends ScanBase implements Scan {
 
 	/**
 	 * Gets measured flux value from data point
-	 * 
+	 *
 	 * @param point
 	 *            current ScanDataPoint *
 	 */

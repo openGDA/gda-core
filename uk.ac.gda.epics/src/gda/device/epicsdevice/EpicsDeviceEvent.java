@@ -23,11 +23,11 @@ import java.io.Serializable;
 class EpicsDeviceEvent implements Serializable {
 	final static long serialVersionUID = 1;
 	/**
-	 * 
+	 *
 	 */
 	final public EpicsRegistrationRequest request;
 	/**
-	 * 
+	 *
 	 */
 	final public EpicsMonitorEvent event;
 

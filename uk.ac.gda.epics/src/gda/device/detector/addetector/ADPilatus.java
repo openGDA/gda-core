@@ -24,7 +24,7 @@ public class ADPilatus extends HardwareTriggerableADDetector {
 
 	private ADDriverPilatus adDriverPilatus;
 
-	
+
 	public void setAdDriverPilatus(ADDriverPilatus adDriverPilatus) {
 		this.adDriverPilatus=adDriverPilatus;
 	}
@@ -32,7 +32,7 @@ public class ADPilatus extends HardwareTriggerableADDetector {
 	public ADDriverPilatus getAdDriverPilatus() {
 		return adDriverPilatus;
 	}
-	
+
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
 		this.collectionTime = collectionTime;
@@ -50,7 +50,7 @@ public class ADPilatus extends HardwareTriggerableADDetector {
 	public void setFilePath(String filepath) throws Exception {
 		getNdFile().setFilePath(filepath);
 	}
-	
+
 	public void setFileName(String filename) throws Exception {
 		getNdFile().setFileName(filename);
 	}

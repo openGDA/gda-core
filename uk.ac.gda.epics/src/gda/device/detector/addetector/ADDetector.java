@@ -69,19 +69,19 @@ import org.springframework.util.StringUtils;
  * are!</b>. The way it is configured is likely to change.
  * <p>
  * A {@link Scannable} {@link Detector} driver for Epics AreaDetectors suitable for use within {@link Scan}s that
- * support detectors that implement PositionCallableProvider<NexusTreeProvider>. 
+ * support detectors that implement PositionCallableProvider<NexusTreeProvider>.
  * <P>
  * The NexusTreeProvider returned by the call method of the PositionCallableProvider implements {@link GDANexusDetectorData}
  * which provides plottable and printable data as well as binary detector data and detector metadata. If configured to return
- * filepaths the object supports {@link NXDetectorDataWithFilepathForSrs} which will result in the filepath being 
+ * filepaths the object supports {@link NXDetectorDataWithFilepathForSrs} which will result in the filepath being
  * returned as the first Scannable extra field and printed to the terminal and SRS files.
  * <P>
- * The Epics AreaDetector software is very modular and this is reflected in the structure of this class. 
+ * The Epics AreaDetector software is very modular and this is reflected in the structure of this class.
  * As far as ADDetector is concerned an EPICS AreaDetector consists of 2 or 3 parts:
- * 1. A Base plugin that supports the source of the data, e.g. camera, The base is used to setup the acquisition, 
+ * 1. A Base plugin that supports the source of the data, e.g. camera, The base is used to setup the acquisition,
  * exposure time trigger mode, and start/stop acquisition. The result of an acquisition is a chunk of binary data.
- * 2. A NDArray plugin that makes the binary data available over channel access 
- * 3. A file writer plugin that will write the binary data to a file of some format. Either 1 file 
+ * 2. A NDArray plugin that makes the binary data available over channel access
+ * 3. A file writer plugin that will write the binary data to a file of some format. Either 1 file
  * per acquisition or 1 file per collection of acquisitions
  * <P>
  * This camera can be used by GDA in 2 different modes:
@@ -95,10 +95,10 @@ import org.springframework.util.StringUtils;
  * {@link NDArray} - handles the PV to read the binary data
  * {@link NXFileWriterPlugin} - used to handle the file writer plugin
  * <P>
- * The result of getPositionCallable is  the creation of an object that has sufficient information to allow creation of 
+ * The result of getPositionCallable is  the creation of an object that has sufficient information to allow creation of
  * a NexusTreeProvider in its call method. This object can take data from:
  * <P>
- * 1. The NDArray object if present and selected 
+ * 1. The NDArray object if present and selected
  * 2. An NDStats, that represents the NDStats plugin, if present and selected
  * 3. The ADTriggeringStrategy object if selected
  * 4. The FileWriter if selected
@@ -486,7 +486,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 			// in some cases this message can be logged twice every millisecond and fill up the disks
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-		} 
+		}
 		throw new RuntimeException("ADDetector does not support operation through its Scannable interface.");
 	}
 
@@ -780,7 +780,7 @@ public class ADDetector extends DetectorBase implements InitializingBean, NexusD
 
 	/**
 	 * This stub adds rather stupid axes. Overriding classes are highly encouraged to do better.
-	 * 
+	 *
 	 * @param data
 	 * @throws Exception
 	 */

@@ -18,8 +18,7 @@
 
 package gda.device.simplearray;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertTrue;
 import gda.device.DeviceException;
 
 import org.junit.After;

@@ -29,13 +29,13 @@ public class TFG2CVmoveController extends DeviceBase implements HardwareTriggerP
 	@Override
 	public void prepareForMove() throws DeviceException, InterruptedException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void startMove() throws DeviceException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -47,43 +47,43 @@ public class TFG2CVmoveController extends DeviceBase implements HardwareTriggerP
 	@Override
 	public void waitWhileMoving() throws DeviceException, InterruptedException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void stopAndReset() throws DeviceException, InterruptedException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void configure() throws FactoryException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setStart(double start) throws DeviceException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setEnd(double end) throws DeviceException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setStep(double step) throws DeviceException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setTriggerPeriod(double seconds) throws DeviceException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

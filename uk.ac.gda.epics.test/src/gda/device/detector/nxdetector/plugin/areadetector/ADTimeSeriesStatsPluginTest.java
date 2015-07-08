@@ -33,7 +33,6 @@ import gda.device.detector.areadetector.v18.NDStatsPVs.TSControlCommands;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
-import gda.device.detector.nxdetector.plugin.areadetector.ADTimeSeriesStatsPlugin;
 import gda.device.detector.nxdetector.roi.RectangularROIProvider;
 import gda.device.detector.nxdetector.roi.SimpleRectangularROIProvider;
 import gda.epics.PV;
@@ -84,23 +83,23 @@ public class ADTimeSeriesStatsPluginTest {
 
 	@Mock
 	private NDStatsPVs pvs;
-	
+
 	@Mock
 	private ScanInformation scanInfo;
 
 	@Mock
 	private NDPluginBasePVs pluginBasePVs;
-	
+
 	@Mock
 	private PV<Boolean> computeStatisticsPV;
-	
+
 	@Mock
 	private PV<Boolean> computeCentroidPV;
 
 	private ADTimeSeriesStatsPlugin plugin;
-	
+
 	private RectangularROIProvider<Integer> roiProvider = new SimpleRectangularROIProvider();
-	
+
 	@Before
 	public void setUp() {
 		when(pvs.getComputeStatistsicsPVPair()).thenReturn(computeStatisticsPV);
@@ -170,7 +169,7 @@ public class ADTimeSeriesStatsPluginTest {
 		when(scanInfo.getDimensions()).thenReturn(new int[] {99, 9, 3});
 		plugin.setEnabledBasicStats(asList(BasicStat.MaxValue));
 		plugin.prepareForCollection(1, scanInfo);
-		
+
 		plugin.prepareForLine();
 		InOrder inOrder = Mockito.inOrder(tsControlPV, tsNumPointsPV);
 
@@ -178,7 +177,7 @@ public class ADTimeSeriesStatsPluginTest {
 		inOrder.verify(tsNumPointsPV).setValueMonitoring(true);
 		inOrder.verify(tsControlPV).putWait(TSControlCommands.ERASE_AND_START);
 	}
-	
+
 	@Test
 	public void testPrepareForLineWhileDisabled() throws Exception {
 		when(tsNumPointsPV.get()).thenReturn(3);
@@ -233,7 +232,7 @@ public class ADTimeSeriesStatsPluginTest {
 		NXDetectorDataAppender nullAppender = new NXDetectorDataNullAppender();
 		assertEquals(asList(nullAppender, nullAppender, nullAppender), plugin.read(1000));
 	}
-	
+
 	@Test
 	public void testReadWhileEnabled() throws Exception {
 		when(pvs.getTSArrayPV(BasicStat.MaxValue).get()).thenReturn(new Double[] {0., 1., 2.});
@@ -250,7 +249,7 @@ public class ADTimeSeriesStatsPluginTest {
 		assertEquals(asList(appender1), plugin.read(1000));
 		assertEquals(asList(appender2, appender3), plugin.read(1000));
 	}
-	
+
 	@Test (expected = IllegalStateException.class)
 	public void testReadTooManyPoints() throws Exception {
 		testReadWhileEnabled();
@@ -277,7 +276,7 @@ public class ADTimeSeriesStatsPluginTest {
 		final NXDetectorDataDoubleAppender appender1 = new NXDetectorDataDoubleAppender(names, asList(0., 10.));
 		final NXDetectorDataDoubleAppender appender2 = new NXDetectorDataDoubleAppender(names, asList(1., 11.));
 		final NXDetectorDataDoubleAppender appender3 = new NXDetectorDataDoubleAppender(names, asList(2., 12.));
-		
+
 		Callable<Void> reader = new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {

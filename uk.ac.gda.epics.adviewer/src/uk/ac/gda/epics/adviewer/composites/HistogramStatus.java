@@ -66,11 +66,11 @@ public class HistogramStatus extends Composite {
 		histogramMonitoringLbl.setLayoutData(gd_histogramMonitoringLbl);
 		histogramMonitoringLbl.setAlignment(SWT.LEFT);
 		histogramMonitoringLbl.setText("Running");
-		
+
 		histogramMonitoringBtn = new Button(stateGroup, SWT.PUSH | SWT.CENTER);
 		histogramMonitoringBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 		histogramMonitoringBtn.setText("Start");
-		
+
 		btnFreezePlot = new Button(stateGroup, SWT.CHECK);
 		btnFreezePlot.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		btnFreezePlot.setText("Freeze Plot");
@@ -82,9 +82,9 @@ public class HistogramStatus extends Composite {
 				freezeSelected = btnFreezePlot.getSelection();
 			}});
 		btnFreezePlot.setSelection(false);
-		
+
 		addDisposeListener(new DisposeListener() {
-			
+
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if(enableObservable != null && enableObserver != null ){
@@ -97,8 +97,8 @@ public class HistogramStatus extends Composite {
 		});
 
 	}
-	
-	
+
+
 	void setEnableObservable(Observable<String> enableObservable) throws Exception{
 		this.enableObservable = enableObservable;
 		enableObserver = new Observer<String>() {
@@ -110,8 +110,8 @@ public class HistogramStatus extends Composite {
 		};
 		enableObservable.addObserver(enableObserver);
 	}
-	
-	
+
+
 	void setComputeHistogramObservable(Observable<String> computeHistogramObservable) throws Exception{
 		this.computeHistogramObservable = computeHistogramObservable;
 		computeHistogramObserver = new Observer<String>() {
@@ -135,7 +135,7 @@ public class HistogramStatus extends Composite {
 			public void run() {
 				setStarted(enableRBV && computeHistogram);
 			}
-			
+
 		});
 	}
 
@@ -147,7 +147,7 @@ public class HistogramStatus extends Composite {
 		histogramMonitoring = b;
 		histogramMonitoringBtn.setText(b ? "Stop" : "Start");
 		histogramMonitoringLbl.setText(b ? "Running" : "Stopped");
-		
+
 	}
 
 

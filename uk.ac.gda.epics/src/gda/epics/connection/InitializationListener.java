@@ -28,10 +28,10 @@ import gov.aps.jca.TimeoutException;
 public interface InitializationListener {
 	/**
 	 * Called when all critical channels are connected.
-	 * @throws InterruptedException 
-	 * @throws DeviceException 
-	 * @throws CAException 
-	 * @throws TimeoutException 
+	 * @throws InterruptedException
+	 * @throws DeviceException
+	 * @throws CAException
+	 * @throws TimeoutException
 	 */
 	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException;
 }

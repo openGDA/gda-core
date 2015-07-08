@@ -30,13 +30,13 @@ public class PlottingSystemIRegionPlotServerConnector {
 		regionParameterObservable = new RegionGuiParameterAdapter(plottingSystem);
 
 		plotServerGuiBeanUpdater = new PlotServerGuiBeanUpdater(guiName);
-		
+
 		try {
 			regionParameterObservable.addObserver(plotServerGuiBeanUpdater);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		regionParameterObservable.fireCurrentRegionList();	
+		regionParameterObservable.fireCurrentRegionList();
 	}
 
 	public void disconnect() {
@@ -45,6 +45,6 @@ public class PlottingSystemIRegionPlotServerConnector {
 		regionParameterObservable = null;
 		plotServerGuiBeanUpdater = null;
 	}
-	
+
 
 }

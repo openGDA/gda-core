@@ -43,12 +43,12 @@ public class ADStatsROIPairTest {
 
 	@Mock
 	private ADRectangularROIPlugin roiPlugin;
-	
+
 	@Mock
 	private ADTimeSeriesStatsPlugin statsPlugin;
-	
+
 	private ADRoiStatsPair pair;
-	
+
 	private SimpleRectangularROIProvider roiProvider = new SimpleRectangularROIProvider();
 
 	@Before
@@ -63,7 +63,7 @@ public class ADStatsROIPairTest {
 		assertFalse(pair.willRequireCallbacks());
 		pair.prepareForCollection(1, null);
 	}
-	
+
 	@Test
 	public void testPrepareForCollectionAndWillRequireCallbacksOn() throws Exception {
 		when(roiPlugin.getRoi()).thenReturn(new ImutableRectangularIntegerROI(0, 0, 0, 0, "name"));
@@ -74,7 +74,7 @@ public class ADStatsROIPairTest {
 		assertTrue(pair.willRequireCallbacks());
 		pair.prepareForCollection(1, null);
 	}
-	
+
 	@Test
 	public void testPrepareForCollectionAndWillRequireCallbacksInconsitant1() throws Exception {
 		when(roiPlugin.getRoi()).thenReturn(null);
@@ -84,7 +84,7 @@ public class ADStatsROIPairTest {
 		assertFalse(pair.willRequireCallbacks());
 		pair.prepareForCollection(1, null);
 	}
-	
+
 	@Test
 	public void testPrepareForCollectionAndWillRequireCallbacksInconsitant2() throws Exception {
 		when(roiPlugin.getRoi()).thenReturn(new ImutableRectangularIntegerROI(0, 0, 0, 0, "name"));

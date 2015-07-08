@@ -72,9 +72,9 @@ public class CameraComposite extends Composite {
 		});
 		zoomFit();
 		pack();
-		
+
 		addDisposeListener(new DisposeListener() {
-			
+
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				disconnectFromReceiver();
@@ -82,13 +82,13 @@ public class CameraComposite extends Composite {
 			}
 		});
 	}
-	
+
 	private void disconnectFromReceiver(){
 		if( videoReceiver != null && listener != null){
 			videoReceiver.removeImageListener(listener);
 			videoReceiver = null;
 		}
-		
+
 	}
 	public void setVideoReceiver(VideoReceiver<ImageData> videoReceiver) {
 		disconnectFromReceiver();
@@ -139,29 +139,29 @@ public class CameraComposite extends Composite {
 			return name;
 		}
 
-		
+
 		NewImageHandler latestUpdater = null;
 		@Override
 		public void processImage(final ImageData image) {
 			if (image == null)
 				return;
-			
-			
+
+
 			if (viewer != null) {
 				if(isDisposed())
 					return;
 				if( getDisplay().isDisposed())
 					return;
-				
+
 				lastImage=image;
-				
+
 				if( latestUpdater ==null || !latestUpdater.inqueue){
 					latestUpdater = new NewImageHandler(CameraComposite.this);
 					if (!PlatformUI.getWorkbench().getDisplay().isDisposed()) {
 						PlatformUI.getWorkbench().getDisplay().asyncExec(latestUpdater);
 					}
 				}
-				
+
 			}
 		}
 	}
@@ -193,10 +193,10 @@ class SWTImageDataConverter {
 class NewImageHandler implements Runnable{
 	public boolean inqueue;
 
-	
+
 	CameraComposite listener;
-	
-	
+
+
 	public NewImageHandler(CameraComposite listener) {
 		super();
 		this.listener = listener;
@@ -206,7 +206,7 @@ class NewImageHandler implements Runnable{
 
 	@Override
 	public void run() {
-		inqueue = false; 
+		inqueue = false;
 		boolean showingDefault = listener.viewer.isShowingDefault();
 		//ensure we don't miss an image that arrives while we process the first
 		ImageData lastImage2 = listener.lastImage;
@@ -227,7 +227,7 @@ class NewImageHandler implements Runnable{
 			}
 		}
 	}
-	
+
 }
 
 

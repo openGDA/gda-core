@@ -74,7 +74,7 @@ import uk.ac.gda.epics.client.ImageConstants;
 
 /**
  * EPICS Camera Preview view
- * 
+ *
  * @author rsr31645
  */
 public class CameraPreviewView extends ViewPart implements InitializingBean {
@@ -234,7 +234,7 @@ public class CameraPreviewView extends ViewPart implements InitializingBean {
 		});
 	}
 
-	
+
 	private void createBlankCompositePage(Composite pgBookComposite) {
 		noDataComposite = new Composite(pgBookComposite, SWT.None);
 		noDataComposite.setLayout(new GridLayout());
@@ -336,7 +336,7 @@ public class CameraPreviewView extends ViewPart implements InitializingBean {
 		createAdBasePage(controlsPageBook);
 
 	}
-	
+
 	/**
 	 * Uses the {@link Callable} API to invoke the calls to updateFields.
 	 */
@@ -467,7 +467,7 @@ public class CameraPreviewView extends ViewPart implements InitializingBean {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private Action playStreamAction = new Action() {
 		@Override
@@ -573,7 +573,7 @@ public class CameraPreviewView extends ViewPart implements InitializingBean {
 
 	/**
 	 * Composite page for the ADBase
-	 * 
+	 *
 	 * @param pgbook
 	 */
 	private void createAdBasePage(PageBook pgbook) {
@@ -943,7 +943,7 @@ public class CameraPreviewView extends ViewPart implements InitializingBean {
 
 	/**
 	 * Sets the value of the text fields - this needs to be done on the UI thread
-	 * 
+	 *
 	 * @param control
 	 * @param value
 	 */
@@ -979,7 +979,7 @@ public class CameraPreviewView extends ViewPart implements InitializingBean {
 
 	/**
 	 * Sets the value of the combo field - this needs to be done on the UI thread
-	 * 
+	 *
 	 * @param control
 	 * @param value
 	 */
@@ -1008,7 +1008,7 @@ public class CameraPreviewView extends ViewPart implements InitializingBean {
 
 	/**
 	 * Updates the stream url and set the video receiver url.
-	 * 
+	 *
 	 * @param streamUrl
 	 */
 	public void updateStreamerUrl(String streamUrl) {

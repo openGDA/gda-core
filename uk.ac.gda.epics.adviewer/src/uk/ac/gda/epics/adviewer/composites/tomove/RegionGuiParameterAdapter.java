@@ -49,9 +49,9 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
  * Adapts an {@link IRegionSystem} to an Observable<Map<GuiParameters,
  * Serializable>>, suitable for collecting parameter changes to put into a
  * {@link GuiBean}
- * 
+ *
  * @author zrb13439
- * 
+ *
  */
 public class RegionGuiParameterAdapter implements
 		Observable<Map<GuiParameters, Serializable>> {
@@ -77,17 +77,18 @@ public class RegionGuiParameterAdapter implements
 	 * region is updated, however the likely target of this class's updates is
 	 * the {@link PlotServer}'s GuiBean system which can only move the entire
 	 * GUI state about anyway.
-	 * 
+	 *
 	 * @param regionSystem
 	 *            {@link IRegionSystem} to adapt
 	 */
 	public RegionGuiParameterAdapter(final IRegionSystem regionSystem) {
-		
+
 		this.regionSystem = regionSystem;
 
 		observableComponent = new ObservableUtil<Map<GuiParameters, Serializable>>();
 
 		roiListener = new IROIListener.Stub() {
+			@Override
 			public void roiChanged(ROIEvent evt) {
 				logger.info("ROI changed in '" + evt.getSource() + "': "
 						+ evt.getROI().toString());
@@ -136,7 +137,7 @@ public class RegionGuiParameterAdapter implements
 	public void fireCurrentRegionList() {
 		fireChange(null, regionSystem.getRegions());
 	}
-	
+
 	private void fireChange(IROI changedRoi,
 			Collection<IRegion> roiCollection) {
 		HashMap<GuiParameters, Serializable> changedParameters = new HashMap<GuiParameters, Serializable>();
@@ -157,7 +158,7 @@ public class RegionGuiParameterAdapter implements
 	public void addObserver(Observer<Map<GuiParameters, Serializable>> observer,
 			Predicate<Map<GuiParameters, Serializable>> predicate) throws Exception {
 		observableComponent.addObserver(observer, predicate);
-		
+
 	}
 
 }

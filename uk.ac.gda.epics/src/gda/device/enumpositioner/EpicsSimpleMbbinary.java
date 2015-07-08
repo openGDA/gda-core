@@ -89,7 +89,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 
 	/**
 	 * Sets the record name that this object will connect to.
-	 * 
+	 *
 	 * @param recordName
 	 *            the record name
 	 */
@@ -195,7 +195,7 @@ public class EpicsSimpleMbbinary extends EnumPositionerBase implements EnumPosit
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void reset() {
 		if (positionerStatus == EnumPositionerStatus.ERROR) {

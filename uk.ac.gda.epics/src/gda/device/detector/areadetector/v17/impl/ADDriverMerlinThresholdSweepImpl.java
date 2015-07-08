@@ -32,7 +32,7 @@ public class ADDriverMerlinThresholdSweepImpl implements ADDriverMerlinThreshold
 
 	private String basePVName;
 	private boolean useTriggerModeNotStartThresholdScanning;
-	
+
 	private PV<Double> thresholdScanPVPair;
 	private PV<Double> startThresholdScanPVPair;
 	private PV<Double> stopThresholdScanPVPair;
@@ -47,7 +47,7 @@ public class ADDriverMerlinThresholdSweepImpl implements ADDriverMerlinThreshold
 	public void setBasePVName(String basePVName) {
 		this.basePVName = basePVName;
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (getBasePVName() == null) {
@@ -57,19 +57,19 @@ public class ADDriverMerlinThresholdSweepImpl implements ADDriverMerlinThreshold
 	}
 
 	private void createLazyPvs() {
-		
+
 		thresholdScanPVPair = new PVWithSeparateReadback<Double>(
 				LazyPVFactory.newDoublePV(basePVName + "ThresholdScan"),
 				LazyPVFactory.newReadOnlyDoublePV(basePVName + "ThresholdScan_RBV"));
-		
+
 		startThresholdScanPVPair = new PVWithSeparateReadback<Double>(
 				LazyPVFactory.newDoublePV(basePVName +"StartThresholdScan"),
 				LazyPVFactory.newReadOnlyDoublePV(basePVName +"StartThresholdScan_RBV"));
-		
+
 		stopThresholdScanPVPair = new PVWithSeparateReadback<Double>(
 				LazyPVFactory.newDoublePV(basePVName +"StopThresholdScan"),
 				LazyPVFactory.newReadOnlyDoublePV(basePVName +"StopThresholdScan_RBV"));
-		
+
 		stepThresholdScanPVPair = new PVWithSeparateReadback<Double>(
 				LazyPVFactory.newDoublePV(basePVName +"StepThresholdScan"),
 				LazyPVFactory.newReadOnlyDoublePV(basePVName +"StepThresholdScan_RBV"));
@@ -118,7 +118,7 @@ public class ADDriverMerlinThresholdSweepImpl implements ADDriverMerlinThreshold
 	public void setStep(Double step) throws IOException {
 		stepThresholdScanPVPair.putWait(step);
 	}
-	
+
 	@Override
 	public NoCallbackPV<Boolean> getStartThresholdScanningPV() {
 		return startThresholdScanningPV;

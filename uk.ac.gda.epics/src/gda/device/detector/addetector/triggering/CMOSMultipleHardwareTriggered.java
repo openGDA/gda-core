@@ -33,7 +33,7 @@ public class CMOSMultipleHardwareTriggered extends SimpleAcquire {
 	public CMOSMultipleHardwareTriggered(ADBase adBase, double readoutTime) {
 		super(adBase, readoutTime);
 	}
-	
+
 	@Override
 	public void collectData() throws Exception {
 		if (getAdBase().getAcquireState() == 0) {

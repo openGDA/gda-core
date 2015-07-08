@@ -70,7 +70,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	 * Maximum array size of the output pulses or the data points collected during the trajectory scan.
 	 */
 	public int MAXIMUM_PULSE_NUMBER = 60000;
-	
+
 	/**
 	 * Maximum number of motor permitted to participate in this trajectory scan
 	 */
@@ -85,7 +85,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	private static double READ_TIMEOUT = 60; //s
 
-	
+
 	private Channel nelm; // Number of element in trajectory pv
 
 	private Channel npulses; // number of output pulses pv
@@ -127,16 +127,16 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	private Channel read; // read back actual positions PV
 
 	@SuppressWarnings("unused")
-	private Channel rstate; // read back state mbbinary 
+	private Channel rstate; // read back state mbbinary
 
 	private Channel rstatus; // read back status mbbinary
 
 	@SuppressWarnings("unused")
 	private Channel rmess; // read back message mbbinary
 
-	
+
 	private Channel[] mactual= new Channel[MAXIMUM_MOTOR_NUMBER]; // Mx actual positions array
-	
+
 	private Channel[] mname= new Channel[MAXIMUM_MOTOR_NUMBER]; // Mx name
 
 	private String deviceName;
@@ -178,7 +178,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	private String readMessage = "not set in EPICS";
 
-	
+
 	/*
 	 * private static EpicsTrajectoryScanController instance = null; public static EpicsTrajectoryScanController
 	 * getInstance() { if(instance == null) { instance = new EpicsTrajectoryScanController(); } return instance; }
@@ -200,7 +200,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * Initialise the trajectory scan object.
-	 * 
+	 *
 	 * @throws FactoryException
 	 */
 	@Override
@@ -229,7 +229,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * create channel access implementing phase II beamline EPICS interfaces.
-	 * 
+	 *
 	 * @param tsConfig
 	 * @throws FactoryException
 	 */
@@ -242,7 +242,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 			apulses = channelManager.createChannel(tsConfig.getAPULSES().getPv(), false);
 			time = channelManager.createChannel(tsConfig.getTIME().getPv(), false);
 
-			
+
 			mmove[0] = channelManager.createChannel(tsConfig.getM1MOVE().getPv(), false);
 			mmove[1] = channelManager.createChannel(tsConfig.getM2MOVE().getPv(), false);
 			mmove[2] = channelManager.createChannel(tsConfig.getM3MOVE().getPv(), false);
@@ -251,24 +251,24 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 			mmove[5] = channelManager.createChannel(tsConfig.getM6MOVE().getPv(), false);
 			mmove[6] = channelManager.createChannel(tsConfig.getM7MOVE().getPv(), false);
 			mmove[7] = channelManager.createChannel(tsConfig.getM8MOVE().getPv(), false);
-			
+
 			build = channelManager.createChannel(tsConfig.getBUILD().getPv(), false);
 			bstate = channelManager.createChannel(tsConfig.getBSTATE().getPv(), bstatel, false);
 			bstatus = channelManager.createChannel(tsConfig.getBSTATUS().getPv(), false);
 			bmess = channelManager.createChannel(tsConfig.getBMESS().getPv(), bml, false);
-			
+
 			execute = channelManager.createChannel(tsConfig.getEXECUTE().getPv(), false);
 			estate = channelManager.createChannel(tsConfig.getESTATE().getPv(), estatel, false);
 			estatus = channelManager.createChannel(tsConfig.getESTATUS().getPv(), false);
 			emess = channelManager.createChannel(tsConfig.getEMESS().getPv(), eml, false);
-			
+
 			abort = channelManager.createChannel(tsConfig.getABORT().getPv(), false);
-			
+
 			read = channelManager.createChannel(tsConfig.getREAD().getPv(), rstatel, false);
 			rstate = channelManager.createChannel(tsConfig.getRSTATE().getPv(), false);
 			rstatus = channelManager.createChannel(tsConfig.getRSTATUS().getPv(), false);
 			rmess = channelManager.createChannel(tsConfig.getRMESS().getPv(), rml, false);
-			
+
 			mactual[0] = channelManager.createChannel(tsConfig.getM1ACTUAL().getPv(), false);
 			mactual[1] = channelManager.createChannel(tsConfig.getM2ACTUAL().getPv(), false);
 			mactual[2] = channelManager.createChannel(tsConfig.getM3ACTUAL().getPv(), false);
@@ -286,7 +286,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 			mtraj[5] = channelManager.createChannel(tsConfig.getM6TRAJ().getPv(), false);
 			mtraj[6] = channelManager.createChannel(tsConfig.getM7TRAJ().getPv(), false);
 			mtraj[7] = channelManager.createChannel(tsConfig.getM8TRAJ().getPv(), false);
-			
+
 			mname[0] = channelManager.createChannel(tsConfig.getM1NAME().getPv(), false);
 			mname[1] = channelManager.createChannel(tsConfig.getM2NAME().getPv(), false);
 			mname[2] = channelManager.createChannel(tsConfig.getM3NAME().getPv(), false);
@@ -295,7 +295,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 			mname[5] = channelManager.createChannel(tsConfig.getM6NAME().getPv(), false);
 			mname[6] = channelManager.createChannel(tsConfig.getM7NAME().getPv(), false);
 			mname[7] = channelManager.createChannel(tsConfig.getM8NAME().getPv(), false);
-			
+
 			channelManager.creationPhaseCompleted();
 			configured = true;
 		} catch (Throwable th) {
@@ -306,7 +306,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	public int getMaximumNumberMotors() {
 		return MAXIMUM_MOTOR_NUMBER;
 	}
-	
+
 	@Override
 	public void setMTraj(int motor, double[] path) throws DeviceException, InterruptedException {
 		try {
@@ -385,7 +385,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 			throw new DeviceException("Epics CA problem setting number of output pulses", e);
 		} catch (TimeoutException e) {
 			throw new DeviceException("Epics CA problem setting number of output pulses", e);
-		} 
+		}
 	}
 
 	@Override
@@ -431,7 +431,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 			throw new DeviceException("Epics CA problem getting start pulse element ", e);
 		}
 	}
-	
+
 	@Override
 	public int getStopPulseElement() throws DeviceException, InterruptedException {
 		try {
@@ -443,7 +443,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 		}
 	}
 
-	
+
 	@Override
 	public void setTrajectoryTime(double seconds) throws DeviceException, InterruptedException {
 		try {
@@ -467,7 +467,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	}
 
 	public void build() throws DeviceException, InterruptedException{
-		
+
 		try {
 			logger.debug("{} building trajectory", getName());
 			controller.caput(build, 1, BUILD_TIMEOUT);
@@ -490,7 +490,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 		}
 	}
 
-		
+
 	@Override
 	public String checkBuildOkay() {
 		return "deprecated";
@@ -517,12 +517,12 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 			throw new DeviceException(msg);
 		}
 	}
-	
+
 	@Override
 	public String checkExecuteOkay() {
 		return "Deprecated";
 	}
-	
+
 	@Override
 	public void read() throws DeviceException, InterruptedException {
 		try {
@@ -533,7 +533,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 			logger.debug("{} reading actual positions", getName());
 			controller.caput(read, 1, READ_TIMEOUT);
 			logger.debug("{} reading actual positions complete", getName());
-			
+
 		} catch (CAException e) {
 			throw new DeviceException("Epics CA problem while reading up actual positions", e);
 		} catch (TimeoutException e) {
@@ -556,7 +556,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	public String checkReadOkay() {
 		return "deprecated";
 	}
-	
+
 	@Override
 	public int getActualPulses() throws DeviceException, InterruptedException {
 		try {
@@ -635,9 +635,9 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	public void setMaximumNumberPulses(int max) {
 		MAXIMUM_PULSE_NUMBER = max;
 	}
-	
-	
-	
+
+
+
 	public String getBuildMessage() {
 		return buildMessage;
 	}
@@ -802,7 +802,7 @@ public class EpicsTrajectoryScanController extends DeviceBase implements Traject
 	}
 
 	private class ReadMessageListener implements MonitorListener {
-		
+
 		@Override
 		public void monitorChanged(MonitorEvent arg0) {
 			DBR dbr = arg0.getDBR();

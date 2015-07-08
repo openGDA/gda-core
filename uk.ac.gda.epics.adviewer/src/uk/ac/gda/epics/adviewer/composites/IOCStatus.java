@@ -39,16 +39,16 @@ public class IOCStatus extends Composite {
 	public IOCStatus(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new FillLayout(SWT.HORIZONTAL));
-		
+
 		Group group = new Group(this, SWT.NONE);
 		group.setText("IOC Status");
 		group.setLayout(new FillLayout(SWT.HORIZONTAL));
-		
+
 		label = new Label(group, SWT.CENTER);
 		label.setText("Not Connected");
-		
+
 		addDisposeListener(new DisposeListener() {
-			
+
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if( connectionStateObservable != null && observer!=null)
@@ -60,7 +60,7 @@ public class IOCStatus extends Composite {
 	public void setObservable(Observable<Boolean> connectionStateObservable) throws Exception {
 		this.connectionStateObservable = connectionStateObservable;
 		observer = new Observer<Boolean>() {
-			
+
 			@Override
 			public void update(Observable<Boolean> source, final Boolean arg) {
 				if(isDisposed())

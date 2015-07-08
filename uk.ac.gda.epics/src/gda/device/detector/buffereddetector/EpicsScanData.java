@@ -143,7 +143,7 @@ public class EpicsScanData extends DetectorBase implements BufferedDetector, Ini
 
 	@Override
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
-		
+
 		int numFramesInMemory = getNumberFrames();
 		if (numFramesInMemory < finalFrame) {
 			throw new DeviceException("requested frame number " + finalFrame + " does not exist! Only " + numFramesInMemory
@@ -158,7 +158,7 @@ public class EpicsScanData extends DetectorBase implements BufferedDetector, Ini
 			updateData();
 			controller.caput(startReadIndexChannel, startFrame);
 			controller.caput(numReadElementsChannel, numFramesToRead);
-			
+
 			numDetectors = Integer.parseInt(controller.caget(numDetectorsChannel));
 			results = new int[numDetectors][numFramesToRead];
 			for (int i = 0; i < numDetectors; i++) {
@@ -168,7 +168,7 @@ public class EpicsScanData extends DetectorBase implements BufferedDetector, Ini
 		} catch (Exception e) {
 			throw new DeviceException(e.getMessage(), e);
 		}
-		
+
 		// flip array to be [frame][detector] rather than [detector][frame]
 		int[][] output = new int[numFramesToRead][numDetectors];
 		for (int det = 0; det < numDetectors; det++){
@@ -176,7 +176,7 @@ public class EpicsScanData extends DetectorBase implements BufferedDetector, Ini
 				output[frame][det] = results[det][frame];
 			}
 		}
-		
+
 		return output;
 	}
 

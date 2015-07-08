@@ -18,6 +18,12 @@
 
 package gda.device.detector.multichannelscaler;
 
+import java.util.HashMap;
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.epics.ConfigurationNotFoundException;
 import gda.configuration.epics.Configurator;
 import gda.device.DeviceBase;
@@ -42,12 +48,6 @@ import gov.aps.jca.dbr.DBR_Float;
 import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import java.util.HashMap;
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * mapping class for EPICS dlsMcsSIS3820 template. Note the current implementation treats MCA records in this template
@@ -76,17 +76,17 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 	private double elapsedRealTimeValue;
 
 	/**
-	 * 
+	 *
 	 */
 	public enum AcquisitionProperty {
 		/**
-		 * 
+		 *
 		 */
 		STATUS, /**
-		 * 
+		 *
 		 */
 		ELAPSEDTIME, /**
-		 * 
+		 *
 		 */
 		DATA
 	}
@@ -118,9 +118,24 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 	private Channel nbinsChannel;
 
 	/**
+	 * Status update rate
+	 */
+	private Channel statrateChannel;
+
+	/**
 	 * data update rate
 	 */
 	private Channel readrateChannel;
+
+	/**
+	 * enable wait (synchronise) for client
+	 */
+	//private Channel enableclientwaitChannel;
+
+	/**
+	 * set client wait status
+	 */
+	//private Channel clientwaitChannel;
 
 	/**
 	 * real time since start of acquisition
@@ -200,7 +215,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 	private Monitor realtimemonitor;
 
 	/**
-	 * 
+	 *
 	 */
 	public EpicsDlsMcsSis3820Controller() {
 		controller = EpicsController.getInstance();
@@ -248,7 +263,10 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 			startChannel = channelManager.createChannel(config.getSTART().getPv(), false);
 			stopChannel = channelManager.createChannel(config.getSTOP().getPv(), false);
 			nbinsChannel = channelManager.createChannel(config.getNBINS().getPv(), false);
+			statrateChannel = channelManager.createChannel(config.getSTATRATE().getPv(), false);
 			readrateChannel = channelManager.createChannel(config.getREADRATE().getPv(), false);
+			//enableclientwaitChannel = channelManager.createChannel(config.getENACLIENTWAIT().getPv(), false);
+			//clientwaitChannel = channelManager.createChannel(config.getCLIENTWAIT().getPv(), false);
 			trealChannel = channelManager.createChannel(config.getTREAL().getPv(), rtimelistener, false);
 			acqChannel = channelManager.createChannel(config.getACQ().getPv(), acqlistener, false);
 			tacqChannel = channelManager.createChannel(config.getTACQ().getPv(), false);
@@ -302,7 +320,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * gets the data Channel ID.
-	 * 
+	 *
 	 * @param index
 	 * @return data channel ID
 	 */
@@ -313,7 +331,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 	// **************** Control fields ********************************
 	/**
 	 * Activates the MCA using the Erase & Start acquire.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void eraseStart() throws DeviceException {
@@ -328,7 +346,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * erases the data array of the MCA
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void erase() throws DeviceException {
@@ -342,7 +360,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * starts data acquisition
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void start() throws DeviceException {
@@ -357,7 +375,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * stops data acquisition
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void stop() throws DeviceException {
@@ -370,7 +388,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * gets the number of bins to use in spectrum.
-	 * 
+	 *
 	 * @return the number of channels to use
 	 * @throws DeviceException
 	 */
@@ -385,7 +403,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * sets the number of bins (array elements) to use in spectrum.
-	 * 
+	 *
 	 * @param nbins
 	 * @throws DeviceException
 	 */
@@ -402,10 +420,42 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 		}
 	}
 
+	/**
+	 * sets a new status update rate
+	 *
+	 * @param value
+	 * @throws DeviceException
+	 */
+	public void setStatusRate(String value) throws DeviceException {
+		if (!statusUpdateRates.contains(value)) {
+			throw new IllegalArgumentException("Input must be in range: " + getStatusRates());
+		}
+		try {
+			controller.caput(statrateChannel, value);
+		} catch (Throwable th) {
+			logger.error("failed to set status update rate on {}.", getName());
+			throw new DeviceException("failed to set status update rate", th);
+		}
+	}
+
+	/**
+	 * gets the current status update rate
+	 *
+	 * @return the current status update rate
+	 * @throws DeviceException
+	 */
+	public String getStatusRate() throws DeviceException {
+		try {
+			return controller.caget(statrateChannel);
+		} catch (Throwable th) {
+			logger.error("failed to get status update rate on {}.", getName());
+			throw new DeviceException("failed to get status update rate", th);
+		}
+	}
 
 	/**
 	 * sets a new read update rate for DlsMcsSIS3820.
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 */
@@ -423,7 +473,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * gets the current read update rate from DlsMcsSIS3820.
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 */
@@ -438,7 +488,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * enable wait for client on dlsMcsSIS3820 server. make server wait for client
-	 * 
+	 *
 	 * @param value -
 	 *            Enable or Disable
 	 * @throws DeviceException
@@ -457,7 +507,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * sets client wait status, i.e. make client wait for server
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 */
@@ -475,7 +525,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * gets the real time since the start of acquisition
-	 * 
+	 *
 	 * @return elapsed real time
 	 * @throws DeviceException
 	 */
@@ -490,7 +540,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * gets acquire status from MCA (poll from hardware)
-	 * 
+	 *
 	 * @return 0 done, 1 Acquire
 	 * @throws DeviceException
 	 */
@@ -504,7 +554,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * gets the total count/acquisition time
-	 * 
+	 *
 	 * @return elapsed real time
 	 * @throws DeviceException
 	 */
@@ -519,7 +569,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * sets the total count/acquisition time
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 */
@@ -534,7 +584,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * gets the integration time in seconds for incrementing bin number. i.e. the Dwell Time (DWEL) per bin.
-	 * 
+	 *
 	 * @return Dwell Time
 	 * @throws DeviceException
 	 */
@@ -549,7 +599,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * Sets the integration time in seconds for incrementing bin number, i.e.
-	 * 
+	 *
 	 * @param time
 	 * @throws DeviceException
 	 */
@@ -564,7 +614,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * gets the internal or external bin advance signal
-	 * 
+	 *
 	 * @return internal or external
 	 * @throws DeviceException
 	 */
@@ -580,7 +630,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * sets the internal or external bin advance signal
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 */
@@ -598,7 +648,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * gets the external bin advance pre-scaler, i.e. advance step.
-	 * 
+	 *
 	 * @return bin advance pre-scaler
 	 * @throws DeviceException
 	 */
@@ -614,7 +664,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * sets the external bin advance per-scaler, i.e. advance step size, default is 1.
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 */
@@ -629,7 +679,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * gets all spectrum data from all channels
-	 * 
+	 *
 	 * @return spectrum data
 	 * @throws DeviceException
 	 */
@@ -643,7 +693,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * gets the spectrum data for the specified channel
-	 * 
+	 *
 	 * @param channel
 	 * @return spectrum data
 	 * @throws DeviceException
@@ -674,7 +724,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * get current dlsMcsSIS3820 status
-	 * 
+	 *
 	 * @return MCA status
 	 */
 	public MCAStatus getStatus() {
@@ -685,6 +735,16 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 	@Override
 	public void initializationCompleted() {
 
+		try {
+			String[] position = getStatusRates();
+			for (int i = 0; i < position.length; i++) {
+				if (position[i] != null || position[i] != "") {
+					statusUpdateRates.add(position[i]);
+				}
+			}
+		} catch (DeviceException e) {
+			logger.error("failed to initialise available Status Update Rates.");
+		}
 		try {
 			String[] position = getReadRates();
 			for (int i = 0; i < position.length; i++) {
@@ -703,7 +763,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 		logger.info("{} is initialised.", getName());
 	}
-	
+
 	public void disablePollRealTime() {
 		if (trealChannel != null && rtimelistener != null) {
 			try {
@@ -724,17 +784,33 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 		}
 	}
 
+	/**
+	 * gets all available status update rates from EPICS IOC
+	 *
+	 * @return available status update rates
+	 * @throws DeviceException
+	 */
+	public String[] getStatusRates() throws DeviceException {
+		String[] positionLabels = new String[statusUpdateRates.size()];
+		try {
+			positionLabels = controller.cagetLabels(statrateChannel);
+		} catch (Throwable th) {
+			logger.error("failed to get status update rates avalable on {}.", getName());
+			throw new DeviceException("failed to set status update rates available.", th);
+		}
+		return positionLabels;
+	}
 
 	/**
 	 * gets all available read update rates from EPICS IOC
-	 * 
+	 *
 	 * @return available read update rates
 	 * @throws DeviceException
 	 */
 	public String[] getReadRates() throws DeviceException {
 		String[] positionLabels = new String[readUpdateRates.size()];
 		try {
-			positionLabels = controller.cagetLabels(readrateChannel);
+			positionLabels = controller.cagetLabels(statrateChannel);
 		} catch (Throwable th) {
 			logger.error("failed to get read update rates avalable on {}.", getName());
 			throw new DeviceException("failed to get read update rates avalable", th);
@@ -798,7 +874,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * gets device name - EPICS-GDA shared name
-	 * 
+	 *
 	 * @return device name
 	 */
 	public String getDeviceName() {
@@ -807,7 +883,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * sets the device name
-	 * 
+	 *
 	 * @param deviceName
 	 */
 	public void setDeviceName(String deviceName) {
@@ -816,7 +892,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * get Epics Record name
-	 * 
+	 *
 	 * @return record name
 	 */
 	public String getRecordName() {
@@ -825,7 +901,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * sets EPICS record name
-	 * 
+	 *
 	 * @param recordName
 	 */
 	public void setRecordName(String recordName) {
@@ -834,7 +910,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * gets number of MCA records in this template
-	 * 
+	 *
 	 * @return number of MCA record supported
 	 */
 	public int getNumberOfMca() {
@@ -843,7 +919,7 @@ public class EpicsDlsMcsSis3820Controller extends DeviceBase implements Configur
 
 	/**
 	 * sets number of MCA record in this template.
-	 * 
+	 *
 	 * @param numberOfMca
 	 */
 	public void setNumberOfMca(int numberOfMca) {

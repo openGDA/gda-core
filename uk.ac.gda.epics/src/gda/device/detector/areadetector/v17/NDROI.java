@@ -388,55 +388,55 @@ public interface NDROI extends GetPluginBaseAvailable {
 
 	/**
 	 * @return true if enabled
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	boolean isEnableX() throws Exception;
 
 	/**
 	 * @return true if enabled
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	boolean isEnableY() throws Exception;
 
 	/**
 	 * @return true if enabled
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	boolean isEnableZ() throws Exception;
 
 	/**
-	 * @throws Exception 
-	 * 
+	 * @throws Exception
+	 *
 	 */
 	void enableX() throws Exception;
 
 	/**
-	 * @throws Exception 
-	 * 
+	 * @throws Exception
+	 *
 	 */
 	void disableX() throws Exception;
 
 	/**
-	 * @throws Exception 
-	 * 
+	 * @throws Exception
+	 *
 	 */
 	void enableY() throws Exception;
 
 	/**
-	 * @throws Exception 
-	 * 
+	 * @throws Exception
+	 *
 	 */
 	void disableY() throws Exception;
 
 	/**
-	 * @throws Exception 
-	 * 
+	 * @throws Exception
+	 *
 	 */
 	void enableZ() throws Exception;
 
 	/**
-	 * @throws Exception 
-	 * 
+	 * @throws Exception
+	 *
 	 */
 	void disableZ() throws Exception;
 
@@ -453,7 +453,7 @@ public interface NDROI extends GetPluginBaseAvailable {
 	AreaDetectorROI getAreaDetectorROI() throws Exception;
 
 	/**
-	 * 
+	 *
 	 */
 	void reset() throws Exception;
 

@@ -36,7 +36,7 @@ public class GreaterThanOrEqualTo implements Predicate<Integer> {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "GreaterThanOrEqualTo(" + value + ")";

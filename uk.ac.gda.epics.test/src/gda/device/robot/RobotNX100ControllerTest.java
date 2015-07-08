@@ -25,8 +25,8 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  *
@@ -69,7 +69,7 @@ public class RobotNX100ControllerTest {
 		Assert.assertEquals("Command hold, Check Door Interlock Failed", robot.lookupErrorCode("2050"));
 	}
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void printTable() {
@@ -82,7 +82,7 @@ public class RobotNX100ControllerTest {
 	 * make your JUnit 4 test classes accessible to a TestRunner designed to work with earlier versions of JUnit.
 	 * @return @see junit.framework.Test
 	 */
-	public static junit.framework.Test suite() { 
-	    return new JUnit4TestAdapter(RobotNX100ControllerTest.class); 
+	public static junit.framework.Test suite() {
+	    return new JUnit4TestAdapter(RobotNX100ControllerTest.class);
 	}
 }

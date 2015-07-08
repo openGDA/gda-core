@@ -36,14 +36,14 @@ import org.springframework.context.ApplicationContextAware;
 public abstract class EpicsConfigurationFactoryBeanBase<T> implements ApplicationContextAware, BeanNameAware, InitializingBean, FactoryBean<T> {
 
 	protected ApplicationContext applicationContext;
-	
+
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
 	}
 
 	protected String name;
-	
+
 	@Override
 	public void setBeanName(String name) {
 		this.name = name;
@@ -53,7 +53,7 @@ public abstract class EpicsConfigurationFactoryBeanBase<T> implements Applicatio
 
 	/**
 	 * Sets the EpicsConfiguration to use when looking up PV from deviceName.
-	 * 
+	 *
 	 * @param epicsConfiguration the EpicsConfiguration
 	 */
 	public void setEpicsConfiguration(EpicsConfiguration epicsConfiguration) {
@@ -62,7 +62,7 @@ public abstract class EpicsConfigurationFactoryBeanBase<T> implements Applicatio
 
 	/**
 	 * Retrieves the {@link EpicsConfiguration} from the application context.
-	 * 
+	 *
 	 * @return the EPICS configuration
 	 */
 	protected EpicsConfiguration getEpicsConfiguration() {
@@ -78,15 +78,15 @@ public abstract class EpicsConfigurationFactoryBeanBase<T> implements Applicatio
 			return (EpicsConfiguration) applicationContext.getBean(epicsConfigBeans[0]);
 		}
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		createObject();
 	}
-	
+
 	/**
 	 * Creates the object managed by this factory.
-	 * 
+	 *
 	 * @throws ConfigurationNotFoundException if configuration information
 	 *         cannot be found for the device
 	 */
@@ -96,7 +96,7 @@ public abstract class EpicsConfigurationFactoryBeanBase<T> implements Applicatio
 	public boolean isSingleton() {
 		return true;
 	}
-	
+
 	public boolean isLocal() {
 		return local;
 	}

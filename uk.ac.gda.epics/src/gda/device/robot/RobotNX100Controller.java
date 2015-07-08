@@ -74,27 +74,27 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 	 * Jobs that robot performs
 	 */
 	public enum Job {
-		
+
 		/**
 		 * Recover from unknown state
 		 */
 		RECOVER,
-		
+
 		/**
 		 * Pick a sample from the carousel.
 		 */
 		PICKC,
-		
+
 		/**
 		 * Place a sample onto the carousel.
 		 */
 		PLACEC,
-		
+
 		/**
 		 * Pick a sample from the diffractometer.
 		 */
 		PICKD,
-		
+
 		/**
 		 * Place a sample onto the diffractometer.
 		 */
@@ -104,24 +104,24 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 		TABLEIN,
 		TABLEOUT,
 		UNLOAD
-		
+
 	}
 
 	/**
 	 * States that a sample can be in
 	 */
 	public enum SampleState {
-		
+
 		/**
 		 * Sample is on the carousel.
 		 */
 		ONCAROUSEL,
-		
+
 		/**
 		 * Sample is gripped by the robot.
 		 */
 		ONGRIP,
-		
+
 		/**
 		 * Sample is on the diffractometer.
 		 */
@@ -210,7 +210,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 	/**
 	 * Reads the lookup table file and put them into a multi-Valued Map for looking up value for the specified energy
 	 * and scannable name.
-	 * 
+	 *
 	 */
 	public void readTheFile() {
 		errorMap.clear();
@@ -284,7 +284,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 
 	/**
 	 * creates all required channels
-	 * 
+	 *
 	 * @param config
 	 * @throws FactoryException
 	 */
@@ -305,7 +305,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 
 	/**
 	 * sets the Job to do without apply it to robot controller
-	 * 
+	 *
 	 * @param job
 	 * @throws DeviceException
 	 */
@@ -336,7 +336,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 	}
 	/**
 	 * starts the robot motion after set Job.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void start() throws DeviceException {
@@ -379,7 +379,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 
 	/**
 	 * stop or hole robot arm, need to be released before continue.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void hold() throws DeviceException {
@@ -392,7 +392,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 
 	/**
 	 * release hold on robot arm
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void release() throws DeviceException {
@@ -405,7 +405,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 
 	/**
 	 * power on the robot.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void servoOn() throws DeviceException {
@@ -418,7 +418,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 
 	/**
 	 * power off the robot
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void servoOff() throws DeviceException {
@@ -431,7 +431,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 
 	/**
 	 * get the error code
-	 * 
+	 *
 	 * @return error code
 	 * @throws DeviceException
 	 */
@@ -446,7 +446,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 
 	/**
 	 * clear error string
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void clearError() throws DeviceException {
@@ -473,7 +473,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 			if (event.getStatus() != CAStatus.NORMAL) {
 				logger.error("Put failed. Channel {} : Status {}", ((Channel) event.getSource()).getName(), event
 						.getStatus());
-			} 
+			}
 			jobDone = true;
 
 			// for timeouted moveTo
@@ -510,7 +510,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 
 	/**
 	 * get device name
-	 * 
+	 *
 	 * @return device name
 	 */
 	public String getDeviceName() {
@@ -519,7 +519,7 @@ public class RobotNX100Controller extends DeviceBase implements Configurable, Fi
 
 	/**
 	 * set device name
-	 * 
+	 *
 	 * @param deviceName
 	 */
 	public void setDeviceName(String deviceName) {

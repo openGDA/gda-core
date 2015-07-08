@@ -47,7 +47,7 @@ public interface Epics extends Findable, Configurable, IObservable {
 	/**
 	 * Gets the EPICS Record name. Record name is device's EPICS name plus subsystem's record name without record's
 	 * field name. This method is required by EPICS integration through XML inferface files.
-	 * 
+	 *
 	 * @return the EPICS record name
 	 * @throws EpicsException
 	 *             if the EPICS record name can not be retrieved.
@@ -56,7 +56,7 @@ public interface Epics extends Findable, Configurable, IObservable {
 
 	/**
 	 * Sets the name of the EPICS Record. This method is required by EPICS integration through XML inferface files.
-	 * 
+	 *
 	 * @param epicsRecordName
 	 *            the name of the EPICS record
 	 * @throws EpicsException
@@ -67,7 +67,7 @@ public interface Epics extends Findable, Configurable, IObservable {
 	/**
 	 * Gets the full PV name. The Process Variable (PV) name is device's EPICS name plus subsystem record name plus
 	 * record's field name.
-	 * 
+	 *
 	 * @return the PV name
 	 * @throws EpicsException
 	 *             if the PV name can not be retrieved
@@ -76,7 +76,7 @@ public interface Epics extends Findable, Configurable, IObservable {
 
 	/**
 	 * Sets the full PV name.
-	 * 
+	 *
 	 * @param pvName
 	 *            the value of the PV name
 	 * @throws EpicsException
@@ -87,7 +87,7 @@ public interface Epics extends Findable, Configurable, IObservable {
 	/**
 	 * Gets a set of the EPICS Record names. Record name is device's EPICS name plus subsystem's record name without
 	 * record's field name.
-	 * 
+	 *
 	 * @return the EPICS record name
 	 * @throws EpicsException
 	 *             if the EPICS record name can not be retrieved.
@@ -96,7 +96,7 @@ public interface Epics extends Findable, Configurable, IObservable {
 
 	/**
 	 * Sets the multiple names of a set of EPICS Records.
-	 * 
+	 *
 	 * @param epicsRecordNames
 	 *            the name of the EPICS record
 	 * @throws EpicsException
@@ -107,7 +107,7 @@ public interface Epics extends Findable, Configurable, IObservable {
 	/**
 	 * Gets a list of the full PV names. The Process Variable (PV) name is device's EPICS name plus subsystem record
 	 * name plus record's field name.
-	 * 
+	 *
 	 * @return the PV name
 	 * @throws EpicsException
 	 *             if the PV name can not be retrieved
@@ -116,7 +116,7 @@ public interface Epics extends Findable, Configurable, IObservable {
 
 	/**
 	 * Sets a list of full PV names.
-	 * 
+	 *
 	 * @param pvNames
 	 *            the value of the PV name
 	 * @throws EpicsException

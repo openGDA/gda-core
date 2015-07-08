@@ -35,7 +35,7 @@ public class ADRoiStatsPairFactory implements FactoryBean<ADRoiStatsPair> {
 	private String baseRoiPVName;
 
 	private String baseStatsPVName;
-	
+
 	private RectangularROIProvider<Integer> roiProvider = new SimpleRectangularROIProvider();
 
 	/**
@@ -55,13 +55,13 @@ public class ADRoiStatsPairFactory implements FactoryBean<ADRoiStatsPair> {
 	}
 
 	private String roiInputNdArrayPort;
-	
+
 	private List<BasicStat> enabledBasicStats = Arrays.asList();
 
 	private List<CentroidStat> enabledCentroidStats = Arrays.asList();
-	
+
 	private Boolean oneTimeSeriesCollectionPerLine = null;
-	
+
 	private boolean EnableROIPVPairSupported = true; //this flag is introduced because xmap detector used an old EPICs version
 
 	public void setPluginName(String pluginName) {
@@ -79,7 +79,7 @@ public class ADRoiStatsPairFactory implements FactoryBean<ADRoiStatsPair> {
 	public void setRoiInputNdArrayPort(String roiInputNdArrayPort) {
 		this.roiInputNdArrayPort = roiInputNdArrayPort;
 	}
-	
+
 	public boolean isOneTimeSeriesCollectionPerLine() {
 		return oneTimeSeriesCollectionPerLine;
 	}
@@ -112,7 +112,7 @@ public class ADRoiStatsPairFactory implements FactoryBean<ADRoiStatsPair> {
 	public void setEnableROIPVPairSupported(boolean enableROIPVPairSupported) {
 		EnableROIPVPairSupported = enableROIPVPairSupported;
 	}
-	
+
 	@Override
 	public Class<?> getObjectType() {
 		return ADRoiStatsPair.class;

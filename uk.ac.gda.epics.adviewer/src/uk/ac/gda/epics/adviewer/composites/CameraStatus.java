@@ -57,23 +57,23 @@ public class CameraStatus extends Composite {
 	public CameraStatus(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new FillLayout(SWT.HORIZONTAL));
-		
+
 		Group group = new Group(this, SWT.NONE);
 		group.setText("Camera");
 		group.setLayout(new GridLayout(3, false));
-		
+
 		btnStart = new Button(group, SWT.NONE);
 
 		btnStart.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, false, false, 1, 1));
 		btnStart.setText("Start");
-		
+
 		btnStop = new Button(group, SWT.NONE);
 		btnStop.setText("Stop");
-		
-		
+
+
 		lblAcquireState = new Label(group, SWT.NONE);
 		lblAcquireState.setText("acquireState");
-		
+
 		acquireTimeBox = new StandardBox(group, SWT.NONE);
 		acquireTimeBox.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 		acquireTimeBox.setLabelWidth(60);
@@ -83,9 +83,9 @@ public class CameraStatus extends Composite {
 		acquireTimeBox.setLabel("Exp.Time");
 		acquireTimeBox.setToolTipText("Exposure time in seconds");
 		acquireTimeBox.setDecimalPlaces(3);
-		
+
 		addDisposeListener(new DisposeListener() {
-			
+
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				if( stateObservable != null && stateObserver != null)
@@ -99,11 +99,11 @@ public class CameraStatus extends Composite {
 	public void setADController(final ADController adController) throws Exception {
 		stateObservable = adController.getAdBase().createAcquireStateObservable();
 		stateObserver = new Observer<Short>() {
-			
+
 			@Override
 			public void update(Observable<Short> source, final Short arg) {
 				Display.getDefault().asyncExec(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						boolean acquisitionStopped = arg == 0;
@@ -116,11 +116,11 @@ public class CameraStatus extends Composite {
 		stateObservable.addObserver(stateObserver);
 		timeObservable =  adController.getAdBase().createAcquireTimeObservable();
 		timeObserver = new Observer<Double>() {
-			
+
 			@Override
 			public void update(Observable<Double> source, final Double arg) {
 				Display.getDefault().asyncExec(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						acquireTimeBox.off();
@@ -128,7 +128,7 @@ public class CameraStatus extends Composite {
 						acquireTimeBox.on();
 					}
 				});
-				
+
 			}
 		};
 		timeObservable.addObserver(timeObserver);

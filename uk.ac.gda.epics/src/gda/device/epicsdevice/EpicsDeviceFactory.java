@@ -56,7 +56,7 @@ public class EpicsDeviceFactory extends FactoryBase implements Factory {
 
 	/**
 	 * Constructor only used by this class's main method.
-	 * 
+	 *
 	 * @param devicesFile
 	 * @param typesFile
 	 * @throws DeviceException
@@ -169,7 +169,7 @@ public class EpicsDeviceFactory extends FactoryBase implements Factory {
 	public void setNameSuffix(String nameSuffix){
 		this.nameSuffix = nameSuffix;
 	}
-	
+
 	@Override
 	public boolean containsExportableObjects() {
 		// All objects in an EpicsDeviceFactory should be exported

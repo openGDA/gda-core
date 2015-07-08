@@ -325,7 +325,7 @@ public class StatusView extends ViewPart implements InitializingBean {
 
 	/**
 	 * Create the detector state composite - EPICS status for the detector ADBase
-	 * 
+	 *
 	 * @param detectorComposite
 	 */
 	private Composite createDetectorStatusComposite(Composite detectorComposite) {
@@ -417,7 +417,7 @@ public class StatusView extends ViewPart implements InitializingBean {
 
 	/**
 	 * Sets the label background colour to show the status - used for acquire status and capture status.
-	 * 
+	 *
 	 * @param control
 	 * @param statusInt
 	 * @param doneColour

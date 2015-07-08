@@ -43,14 +43,14 @@ import org.slf4j.LoggerFactory;
  * Detector data collection will be handled by MCA object.
  */
 public class DummyTrajectoryScanController extends DeviceBase implements TrajectoryScanController, Runnable, Configurable, Findable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(DummyTrajectoryScanController.class);
 
 	private String name = null;
 
 	// GDA names map to EPICS trajectory move axis for CASTOR config
 	private String[] maxis = new String[MAX_TRAJECTORY];
-	
+
 	private ScannableMotor motorToMove;
 	/**
 	 * the acceleration time for the motor
@@ -62,7 +62,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 	 */
 	public static  int MAXIMUM_ELEMENT_NUMBER = 3500;
 
-	
+
 	public static int getMAXIMUM_ELEMENT_NUMBER() {
 		return MAXIMUM_ELEMENT_NUMBER;
 	}
@@ -102,12 +102,12 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 	private double time ; // trajectory time mbbinary
 
 	private boolean mmove[] = new boolean[MAX_TRAJECTORY];
-	
+
 	private double[][] mtraj = new double[MAX_TRAJECTORY][];
-	
+
 	private BuildStatus build; // build and check trajectory PV
 
-	
+
 	private String bmess = null; // trajectory build message mbbinary
 	private String[] mname = new String[MAX_TRAJECTORY];
 	private double[] m2error = null; // M2 actual positions array
@@ -117,17 +117,17 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 	 */
 	private String deviceName = null;
 
-	
-	
+
+
 	/**
 	 * EPICS Put call back handler
 	 */
-	
+
 	protected boolean buildDone = true;
 
-	
+
 	protected boolean executeDone = true;
-	
+
 
 	protected boolean readDone = true;
 
@@ -138,7 +138,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	private String buildMessage = "not set in EPICS";
 
-	
+
 
 	private ExecuteStatus executeStatus = ExecuteStatus.UNDEFINED;
 
@@ -146,7 +146,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	private String executeMessage = "not set in EPICS";
 
-	
+
 	private ReadStatus readStatus = ReadStatus.UNDEFINED;
 
 	private String readState = null;
@@ -173,7 +173,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 	@SuppressWarnings("unused")
 	private boolean waiting;
 
-	
+
 	/*
 	 * private static EpicsTrajectoryScanController instance = null; public static EpicsTrajectoryScanController
 	 * getInstance() { if(instance == null) { instance = new EpicsTrajectoryScanController(); } return instance; }
@@ -183,12 +183,12 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 	 * default constructor
 	 */
 	public DummyTrajectoryScanController() {
-		
+
 	}
 
 	/**
 	 * Initialise the trajectory scan object.
-	 * 
+	 *
 	 * @throws FactoryException
 	 */
 	@Override
@@ -203,57 +203,57 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets trajectory path for motor 1.
-	 * 
-	 
+	 *
+
 	 */
 	@Override
 	public void setMTraj(int motorIndex, double[] path) throws DeviceException, InterruptedException {
-	
+
 		this.mtraj[motorIndex -1] =path;
 		actualTraj = this.mtraj[motorIndex -1];
 	}
-	
-	
+
+
 	/**
 	 * gets the specified trajectory path for motor 1.
-	 * 
+	 *
 	 * @return double value array
-	 
+
 	 */
 	public double[] getMTraj(int motorIndex) {
 		return mtraj[motorIndex - 1];
 	}
 
-	
+
 	@Override
 	public void setMMove(int motorIndex, boolean b) throws DeviceException, InterruptedException {
 		mmove[motorIndex - 1] = b;
-		
+
 	}
 	/**
 	 * query if motor  moves to its trajectory or no, return Yes or No.
-	 * 
+	 *
 	 * @return true or false
 	 */
 	public boolean isMMove(int motorIndex)  {
 		return mmove[motorIndex -1];
 	}
 
-	
+
 	/**
 	 * sets the number of elements in the trajectory to look at for all motors (maximum is 2000).
-	 * 
+	 *
 	 * @param value
 	 */
 	@Override
 	public void setNumberOfElements(int value) {
-		
+
 		nelm =  value;
 	}
 
 	/**
 	 * gets number of elements in the defined trajectory from EPICS
-	 * 
+	 *
 	 * @return total element number
 	 */
 	public int getNumberOfElements() {
@@ -262,7 +262,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets the number of output pulses for triggering the detector.
-	 * 
+	 *
 	 * @param value
 	 */
 	@Override
@@ -272,7 +272,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the number of pulses in the trajectory
-	 * 
+	 *
 	 * @return number of pulses
 	 */
 	public int getNumberOfPulses() {
@@ -281,7 +281,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets the element number at which output pulses starts, i.e. the element that starts the triggering pulses.
-	 * 
+	 *
 	 * @param value
 	 */
 	@Override
@@ -291,7 +291,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the elements number that starts the output pulses.
-	 * 
+	 *
 	 * @return pulse-starting element
 	 */
 	public int getStartPulseElement()  {
@@ -300,7 +300,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets the element number at which output pulses stops, i.e. the element that stops the triggering pulses.
-	 * 
+	 *
 	 * @param value
 	 */
 	@Override
@@ -310,7 +310,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the element number that stops the ouptput pulses.
-	 * 
+	 *
 	 * @return element where pulse stops
 	 */
 	@Override
@@ -320,7 +320,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets the trajectory time, i.e. the time to execute the trajectory.
-	 * 
+	 *
 	 * @param value
 	 */
 	@Override
@@ -330,7 +330,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the total time for the trajectory.
-	 * 
+	 *
 	 * @return total trajectory time
 	 */
 	public double getTime() {
@@ -368,7 +368,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 		 */
 		executeDone = false;
 		execute = ExecuteStatus.SUCCESS;
-		
+
 		synchronized (this) {
 			executeRequired = true;
 			notifyAll();
@@ -395,7 +395,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 		readDone = false;
 		readStatus =ReadStatus.SUCCESS;
 		readDone = true;
-	
+
 		/*synchronized (this) {
 			readRequired = true;
 			notifyAll();
@@ -411,7 +411,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the build message
-	 * 
+	 *
 	 * @return String the message
 	 */
 	public String getBuildMessage() {
@@ -427,7 +427,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * returns the build status
-	 * 
+	 *
 	 * @return build status
 	 */
 	@Override
@@ -435,34 +435,35 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 		return build;
 	}
 
-	
+
 	/**
 	 * gets the build state
-	 * 
+	 *
 	 * @return build state
 	 */
 	public String getBuildState() {
 		return buildState;
 	}
 
-	
+
 
 	/**
 	 * gets the execute message
-	 * 
+	 *
 	 * @return String the message
 	 */
 	public String getExecuteMessage() {
 		return executeMessage;
 	}
 
-	
+
 
 	/**
 	 * returns the Execute status
-	 * 
+	 *
 	 * @return Execute status
 	 */
+	@Override
 	public ExecuteStatus getExecuteStatus() {
 		return executeStatus;
 	}
@@ -470,51 +471,51 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the Execute state
-	 * 
+	 *
 	 * @return Execute state
 	 */
 	public String getExecuteState() {
 		return executeState;
 	}
 
-	
+
 
 	/**
 	 * gets the Read message
-	 * 
+	 *
 	 * @return String the message
 	 */
 	public String getReadMessage() {
 		return readMessage;
 	}
 
-	
+
 
 	/**
 	 * returns the Read status
-	 * 
+	 *
 	 * @return Read status
 	 */
 	@Override
 	public ReadStatus getReadStatus() {
 		return readStatus;
 	}
-	
+
 
 	/**
 	 * gets the Read state
-	 * 
+	 *
 	 * @return Read state
 	 */
 	public String getReadState() {
 		return readState;
 	}
 
-	
+
 
 	/**
 	 * gets the actual output pulses
-	 * 
+	 *
 	 * @return number of actual pulses
 	 */
 	@Override
@@ -522,45 +523,45 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 		return apulses;
 	}
 
-	
+
 	/**
 	 * gets the Actual trajectory path for motor 2.
-	 * 
+	 *
 	 * @return double value array
 	 */
 	public double[] getM2Error()  {
 		return m2error;
 	}
-	
+
 
 	@Override
 	public double[] getMActual(int motorIndex) throws DeviceException, TimeoutException, InterruptedException {
 		return mtraj[motorIndex -1];
 	}
 
-	
-	
+
+
 	/**
 	 * gets the motor name for motor.
-	 * 
+	 *
 	 * @return name
 	 */
 	public String getMName(int motorIndex)  {
 		return mname[motorIndex -1];
 	}
-	
+
 	/**
 	 * stop or abort the trajectory scan.
-	 * 
+	 *
 	 */
 	@Override
 	public void stop()  {
 		abort = true;
-	}	
-	
+	}
+
 	/**
 	 * sets acceleration for motor .
-	 * 
+	 *
 	 * @param value
 	 */
 	public void setM1Acceleration(int motorIndex, double[] value)  {
@@ -570,15 +571,15 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * gets the acceleration of motor 1.
-	 * 
+	 *
 	 * @return acceleration
 	 */
 	public double getMAcceleration(int motorIndex){
 		return maccl[motorIndex -1][0] ;
-	}	
+	}
 	/**
 	 * returns the device name
-	 * 
+	 *
 	 * @return deviceName
 	 */
 	public String getDeviceName() {
@@ -588,7 +589,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	/**
 	 * sets device name
-	 * 
+	 *
 	 * @param name
 	 */
 	public void setDeviceName(String name) {
@@ -596,7 +597,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 		this.deviceName = name;
 	}
 
-	
+
 
 	@Override
 	public String getName() {
@@ -613,7 +614,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 	{
 		return maxis[motorIndex -1];
 	}
-	
+
 	/**
 	 * @param maxis
 	 */
@@ -794,11 +795,11 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 						break;
 					}
 					executeStatus = ExecuteStatus.SUCCESS;
-					
+
 				}
 				executeDone = true;
 				notifyIObservers(TrajectoryScanProperty.EXECUTE,executeStatus );
-				
+
 			}
 			else if(readRequired)
 			{
@@ -812,10 +813,10 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 				}
 				readStatus = ReadStatus.SUCCESS;
 				readDone = true;
-				
+
 			}
 		}//end of while loop
-		
+
 	}
 
 	public void setMotorToMove(ScannableMotor motorToMove) {
@@ -836,7 +837,7 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 
 	@Override
 	public boolean isReading() {
-		
+
 		return false;
 	}
 
@@ -850,6 +851,6 @@ public class DummyTrajectoryScanController extends DeviceBase implements Traject
 		return mtraj[2];
 	}
 
-	
-	
+
+
 }

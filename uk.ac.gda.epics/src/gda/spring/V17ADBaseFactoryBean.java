@@ -31,7 +31,7 @@ public class V17ADBaseFactoryBean extends V17FactoryBeanBase<ADBase>{
 		ADBaseImpl plugin = new ADBaseImpl();
 		SimplePVProvider simplePVProvider = new SimplePVProvider();
 		simplePVProvider.setPrefix(getPrefix());
-		simplePVProvider.afterPropertiesSet();		
+		simplePVProvider.afterPropertiesSet();
 		plugin.setPvProvider(simplePVProvider);
 		plugin.afterPropertiesSet();
 		bean  = plugin;

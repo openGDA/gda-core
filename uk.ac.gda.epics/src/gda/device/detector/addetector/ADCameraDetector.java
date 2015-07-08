@@ -48,7 +48,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 /**
  * we assume the camera is in constant acquire mode, so we can just grab an image from the array plugin
- * 
+ *
  * this class only usefully writes to NeXus
  */
 public class ADCameraDetector extends DetectorBase implements InitializingBean, NexusDetector {
@@ -62,7 +62,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 	 * Map that stores the channel against the PV name
 	 */
 	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
-	
+
 	// Variables to hold the spring settings
 	private ADBase areaDetector;
 	private String basePVName = null;
@@ -80,7 +80,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 //			throw new FactoryException("enabling array callbacks", e);
 		}
 	}
-	
+
 	// Getters and Setters for Spring
 	public ADBase getAreaDetector() {
 		return areaDetector;
@@ -89,7 +89,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 	public void setAreaDetector(ADBase areaDetector) {
 		this.areaDetector = areaDetector;
 	}
-	
+
 	public NDOverlay getDraw() {
 		return draw;
 	}
@@ -114,7 +114,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 	public int getTriggerMode() throws Exception {
 		return areaDetector.getTriggerMode();
 	}
-	
+
 	public void setTriggerMode(int mode) throws Exception {
 		areaDetector.setTriggerMode((short) mode);
 	}
@@ -134,11 +134,11 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 	public int getNumImages() throws Exception {
 		return areaDetector.getNumImages();
 	}
-	
+
 	public void setAcquireTime(double time) throws Exception {
 		areaDetector.setAcquireTime(time);
 	}
-	
+
 	public double getAcquireTime() throws Exception {
 		return areaDetector.getAcquireTime();
 	}
@@ -175,7 +175,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 		if (areaDetector == null) {
 			throw new IllegalArgumentException("'areaDetector' needs to be declared");
 		}
-		
+
 		if (array == null) {
 			throw new IllegalArgumentException("'array' needs to be declared");
 		}
@@ -302,7 +302,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 				}
 			}
 		}
-		
+
 		// unitless metadata
 		for (String label : new String[] { "beam_center_x", "beam_center_y" }) {
 			if (attributeMap.containsKey(label)) {
@@ -322,7 +322,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 			}
 		}
 	}
-	
+
 	public IntegerDataset readLastImage() throws DeviceException {
 		try {
 			int[] arrayData = cagetArrayUnsigned();
@@ -335,7 +335,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 			throw new DeviceException("error reading image", e);
 		}
 	}
-	
+
 	@Override
 	public int[] getDataDimensions() throws DeviceException {
 		try {
@@ -344,7 +344,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 			throw new DeviceException("error getting camera dimensions", e);
 		}
 	}
-	
+
 	public int[] cagetArrayUnsigned() throws Exception {
 		byte[] values = array.getByteArrayData();
 		int[] uvalues = new int[values.length];
@@ -352,7 +352,7 @@ public class ADCameraDetector extends DetectorBase implements InitializingBean, 
 			uvalues[i] = values[i]&0xff;
 		return uvalues;
 	}
-	
+
 	@Override
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
 		if (value != null) {

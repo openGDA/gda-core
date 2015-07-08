@@ -135,7 +135,7 @@ public class EpicsTrajectoryScannable extends ScannableMotionUnitsBase implement
 			throw new DeviceException(getName() + " exception in performContinuousMove",e);
 		}
 	}
-	
+
 	@Override
 	public void continuousMoveComplete() throws DeviceException {
 		// nothing this class needs to do, I think.

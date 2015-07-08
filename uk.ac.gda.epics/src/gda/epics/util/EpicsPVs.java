@@ -80,7 +80,7 @@ public final class EpicsPVs {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void clearPVs() {
 		pvVector.clear();
@@ -88,7 +88,7 @@ public final class EpicsPVs {
 
 	/**
 	 * save the PVs in a file before next scan (using the next scan number)
-	 * 
+	 *
 	 * @return String
 	 */
 	public String preScanSave() {
@@ -101,7 +101,7 @@ public final class EpicsPVs {
 
 	/**
 	 * save the PVs in a file after current scan (using the current scan number)
-	 * 
+	 *
 	 * @return String
 	 */
 	public String afterScanSave() {

@@ -23,6 +23,7 @@ import gda.device.detector.areadetector.v17.ADBase;
 import gda.device.detector.areadetector.v17.ADDriverPco;
 import gda.device.detector.areadetector.v17.ADDriverPco.PcoTriggerMode;
 import gda.scan.ScanInformation;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,16 +55,16 @@ public class SingleExposurePcoSoftwareTrigger extends SingleExposureStandard {
 		super.completeCollection();
 		adDriverPco.getArmModePV().putWait(false);
 	}
-	
-	
+
+
 
 	@Override
 	protected void configureTriggerMode() throws Exception {
 		// Reported Epics bug: changing mode while acquiring causes an IOC crash (28oct2011 RobW)
-		getAdBase().stopAcquiring(); 
+		getAdBase().stopAcquiring();
 		getAdBase().setTriggerMode(PcoTriggerMode.AUTO.ordinal());
 	}
-	
+
 	@Override
 	public void collectData() throws Exception {
 		//wait for last busystate to clear from last acquire - as file is written and camera disarms
