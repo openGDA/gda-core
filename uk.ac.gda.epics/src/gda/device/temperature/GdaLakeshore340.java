@@ -233,6 +233,10 @@ public class GdaLakeshore340 extends TemperatureBase implements IObserver {
 
 	@Override
 	protected void doStop() throws DeviceException {
+		if (controller.getConnectionState().equals("Disabled")) {
+			//required to support Panic stop which does not handle Exception throws or do not check if device is enabled before calling stop on it.
+			return;
+		}
 		sendStop();
 //		poller.stop();
 	}

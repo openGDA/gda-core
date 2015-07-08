@@ -379,75 +379,75 @@ public class NDProcessSimulator extends NDBaseImpl implements NDProcess {
 	}
 
 	@Override
-	public String getOC1() throws Exception {
+	public double getOC1() throws Exception {
 
-		return null;
+		return 0;
 	}
 
 	@Override
-	public void setOC1(String oc1) throws Exception {
-
-
-	}
-
-	@Override
-	public String getOC1_RBV() throws Exception {
-
-		return null;
-	}
-
-	@Override
-	public String getOC2() throws Exception {
-
-		return null;
-	}
-
-	@Override
-	public void setOC2(String oc2) throws Exception {
+	public void setOC1(double oc1) throws Exception {
 
 
 	}
 
 	@Override
-	public String getOC2_RBV() throws Exception {
+	public double getOC1_RBV() throws Exception {
 
-		return null;
+		return 0;
 	}
 
 	@Override
-	public String getOC3() throws Exception {
+	public double getOC2() throws Exception {
 
-		return null;
+		return 0;
 	}
 
 	@Override
-	public void setOC3(String oc3) throws Exception {
-
-
-	}
-
-	@Override
-	public String getOC3_RBV() throws Exception {
-
-		return null;
-	}
-
-	@Override
-	public String getOC4() throws Exception {
-
-		return null;
-	}
-
-	@Override
-	public void setOC4(String oc4) throws Exception {
+	public void setOC2(double oc2) throws Exception {
 
 
 	}
 
 	@Override
-	public String getOC4_RBV() throws Exception {
+	public double getOC2_RBV() throws Exception {
 
-		return null;
+		return 0;
+	}
+
+	@Override
+	public double getOC3() throws Exception {
+
+		return 0;
+	}
+
+	@Override
+	public void setOC3(double oc3) throws Exception {
+
+
+	}
+
+	@Override
+	public double getOC3_RBV() throws Exception {
+
+		return 0;
+	}
+
+	@Override
+	public double getOC4() throws Exception {
+
+		return 0;
+	}
+
+	@Override
+	public void setOC4(double oc4) throws Exception {
+
+
+	}
+
+	@Override
+	public double getOC4_RBV() throws Exception {
+
+		return 0;
 	}
 
 	@Override

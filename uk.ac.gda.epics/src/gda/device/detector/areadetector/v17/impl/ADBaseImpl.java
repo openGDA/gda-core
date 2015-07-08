@@ -1377,6 +1377,16 @@ public class ADBaseImpl implements InitializingBean, ADBase {
 			throw e;
 		}
 	}
+	@Override
+	public void startAcquiringWait() throws Exception {
+		startAcquiring();
+		while (getStatus() != Detector.IDLE && getStatus() != Detector.FAULT) {
+			Sleep.sleep(100);
+		}
+		if (getStatus() == Detector.FAULT) {
+			logger.debug("detector in a fault state");
+		}
+	}
 
 	@Override
 	public void startAcquiringSynchronously() throws Exception {
