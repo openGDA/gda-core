@@ -19,6 +19,8 @@
 package uk.ac.gda.bimorph;
 
 import gda.data.NumTracker;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.device.DeviceException;
 import gda.jython.JythonServerFacade;
 
 import java.io.IOException;
@@ -344,10 +346,12 @@ public final class BimorphParametersComposite extends Composite {
 		}
 		else{
 			try {
-			NumTracker numTracker = new NumTracker();
-			currentScanNumber = numTracker.getCurrentFileNumber();
+				NumTracker numTracker = new NumTracker(GDAMetadataProvider.getInstance().getMetadataValue("instrument", "gda.instrument", "tmp"));
+				currentScanNumber = numTracker.getCurrentFileNumber();
 			} catch (IOException e) {
-			e.printStackTrace();
+				e.printStackTrace();
+			} catch (DeviceException e) {
+				e.printStackTrace();
 			}
 		}
 		return currentScanNumber;
