@@ -549,7 +549,7 @@ public class CirrusController implements IEvents {
 				// this will be updated by a call to OnControlling
 				// currentState.setHasControl(false);
 
-				sensor.Control("GDA", Version.getReleaseVersion());
+				sensor.Control("GDA", Version.getRelease());
 
 			}
 
