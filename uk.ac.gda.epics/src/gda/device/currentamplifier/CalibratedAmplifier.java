@@ -109,7 +109,7 @@ public class CalibratedAmplifier extends EpicsScannable {
 				// this is normal when no beam for overloaded
 				break;
 			} catch (GainWithScalingAndOffset.MoveProhibitedException e) {
-				logger.debug("{} - gain change currently probitited", getName());
+				logger.trace("{} - gain change currently prohibited", getName());
 				break;
 			} catch (DeviceException e) {
 				logger.info("{} - exception received trying to adjust gain", getName(), e);
