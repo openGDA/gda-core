@@ -26,10 +26,9 @@ import org.slf4j.LoggerFactory;
  * Version allows a code release string and number to be queried, which MUST be set by developers to match the gda tree
  * and therefore the gda.jar file in private fields 'RELEASE_VER' and 'RELEASE'.
  */
-
 public class Version {
 	private static final Logger logger = LoggerFactory.getLogger(Version.class);
-	public static final String RELEASE_VER = "8.40.0";
+	public static final String RELEASE_VER = "8.41.XAS";
 	private static final String RELEASE = RELEASE_VER;
 
 	/**
