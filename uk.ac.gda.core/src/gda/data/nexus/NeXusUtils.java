@@ -189,7 +189,7 @@ public class NeXusUtils {
 			if (LocalProperties.check("gda.data.scan.datawriter.setTime0")){
 				NexusUtils.writeString(file, group, "program_name", "GDA 7.11.0");
 			} else {
-				NexusUtils.writeString(file, group, "program_name", "GDA " + Version.getReleaseVersion());
+				NexusUtils.writeString(file, group, "program_name", "GDA " + Version.getRelease());
 			}
 
 //			writeGeneralMetaData(file, metadata);

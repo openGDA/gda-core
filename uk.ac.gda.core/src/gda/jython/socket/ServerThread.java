@@ -99,7 +99,7 @@ public abstract class ServerThread extends Thread implements Terminal, SessionCl
 
 	@Override
 	public synchronized void run() {
-		out.printf(WELCOME_BANNER, Version.RELEASE_VER);
+		out.printf(WELCOME_BANNER, Version.getRelease());
 		try {
 			if (useJline) {
 				new JlineServerListenThread(this.in, this.out, this).start();
