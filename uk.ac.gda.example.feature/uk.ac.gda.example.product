@@ -22,27 +22,26 @@ See &lt;http://www.opengda.org/&gt;
    <launcherArgs>
       <vmArgs>-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
 -Dorg.eclipse.swt.internal.gtk.useCairo=false
+-Dgda.root=${project_loc:uk.ac.gda.core}/../
+-Dgda.config=${project_loc:example-config}
+-Djava.library.path=${workspace_loc}/plugins/uk.ac.gda.nexus/lib/${target.os}-${target.arch}
+-Dgda.propertiesFile=${project_loc:example-config}/properties/dummy/dummy_instance_java.properties
+-Djacorb.config.dir=${project_loc:example-config}/properties/dummy/jacorb
+-Dgov.aps.jca.JCALibrary.properties=${project_loc:example-config}/properties/dummy/JCALibrary.properties
 -Dgda.mode=dummy
--Dosgi.locking=none
--Dgda.install.workspace.loc=${workspace_loc:uk.ac.gda.core}/../../
--Dgda.install.git.loc=${workspace_loc:uk.ac.gda.core}/../
--Dgda.config=${workspace_loc:example-config}
--Djava.library.path=${workspace_loc:uk.ac.gda.nexus}/lib/${target.os}-${target.arch}
--Dgda.propertiesFile=${workspace_loc:example-config}/properties/dummy/java.properties
--Djacorb.config.dir=${workspace_loc:example-config}/jacorb/dummy
--Dgov.aps.jca.JCALibrary.properties=${workspace_loc:example-config}/jca/dummy/JCALibrary.properties
 -Xms512m
--Xmx2048m
--XX:MaxPermSize=1024m
--XX:+DisableExplicitGC</vmArgs>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+-Xmx1024m
+-XX:MaxPermSize=256m
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
    </launcherArgs>
 
    <windowImages i16="/uk.ac.gda.core/icons/GDAlogos/GDALogo16.png" i32="/uk.ac.gda.core/icons/GDAlogos/GDALogo32.png" i48="/uk.ac.gda.core/icons/GDAlogos/GDALogo48.png" i64="/uk.ac.gda.core/icons/GDAlogos/GDALogo64.png" i128="/uk.ac.gda.core/icons/GDAlogos/GDALogo128.png"/>
 
    <splash
       location="uk.ac.gda.client" />
-   <launcher name="gda">
+   <launcher name="gda-example-config">
       <linux icon="/uk.ac.gda.core/icons/GDAlogos/GDALogo48.xpm"/>
       <solaris/>
       <win useIco="false">

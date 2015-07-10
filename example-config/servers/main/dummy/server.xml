@@ -3,12 +3,27 @@
 	xmlns:corba="http://www.diamond.ac.uk/schema/gda/corba"
 	xmlns:gda="http://www.diamond.ac.uk/schema/gda/gda"
 	xmlns:context="http://www.springframework.org/schema/context"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-		http://www.diamond.ac.uk/schema/gda/corba http://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.0.xsd
-		http://www.diamond.ac.uk/schema/gda/gda http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.1.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.diamond.ac.uk/schema/gda/corba
+	http://www.diamond.ac.uk/schema/gda/corba/gda-corba-1.0.xsd
+	http://www.diamond.ac.uk/schema/gda/gda
+	http://www.diamond.ac.uk/schema/gda/gda/gda-gda-1.1.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd" >
 
-	<context:property-placeholder location="file:${gda.config}/properties/java.properties" />
+	<context:property-placeholder location="file:${gda.config}/properties/${gda.mode}/${gda.mode}_instance_java.properties" />
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list value-type="java.lang.String">
+				<value>file:${gda.config}/properties/${gda.mode}/${gda.mode}_instance_java.properties</value>
+				<value>file:${gda.config}/properties/_common/common_instance_java.properties</value>
+			</list>
+		</property>
+	</bean>
+	
 
 	<bean class="gda.spring.FindableNameSetterPostProcessor" />
 
@@ -27,15 +42,11 @@
 		<property name="serviceInterface" value="gda.scan.IScanDataPointServer" />
 	</bean>
 
-
 	<bean id="plot_server" class="uk.ac.diamond.scisoft.analysis.plotserver.PlotServerBase"/>
-
 
 	<import resource="commandQueueProcessor.xml"/>
 
-
-
-<!--for an 'empty' configuration, remove the imports below, and the other xml files and directories inside the xml/server directory-->
+	<!--for an 'empty' configuration, remove the imports below, and the other xml files and directories inside the xml/server directory-->
 	<import resource="demonstration.xml" />
 	<import resource="jack.xml" />
 	<import resource="jaw.xml" />
@@ -48,9 +59,6 @@
 	<import resource="jythonServerFacade.xml" />
 	<corba:export namespace="gda" />
 
-	<gda:rmi-export
-		service="plot_server"
-		serviceName="gda/plotserver"
-		serviceInterface="uk.ac.diamond.scisoft.analysis.PlotServer" />
+	<import resource="file:${gda.config}/servers/main/_common/server.xml" />
 
 </beans>

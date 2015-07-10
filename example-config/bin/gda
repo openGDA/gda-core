@@ -1,0 +1,91 @@
+#!/bin/bash
+# Expects a parameter line that can be passed on to the gda python script
+
+here_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+set -o nounset  # Turn on nounset
+set -o errexit  # Turn on errexit
+
+# Define this instance's group, facility and core
+export GDA_WORKSPACE_PARENT=$(readlink -f ${here_dir}/../../../..)
+export GDA_WORKSPACE_GIT_NAME=$(basename $(readlink -f ${here_dir}/../../..))  # will normally be "workspace_git", will always end with "_git"
+export GDA_INSTANCE_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-core.git/example-config
+export GDA_GROUP_CONFIG_rel=no-group
+export GDA_FACILITY_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-diamond.git/dls-config
+export GDA_CORE_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-core.git/core-config
+
+export GDA_CLIENT=$GDA_WORKSPACE_PARENT/client/gda-example-config
+
+# Define a display name for use in messages
+export GDA_INSTANCE_NAME=example-config
+
+#Set GDA_VAR
+export GDA_VAR=${GDA_WORKSPACE_PARENT}/gda_var_non_live
+
+#Set GDA_LOGS_DIR
+export GDA_LOGS_DIR=${GDA_WORKSPACE_PARENT}/gda_logs_non_live
+
+#Set GDA_LOG_FILE
+# Parameter 2 is the console log folder name - {servers|client|logpanel}
+LOGNAME=gda_$2_output
+export GDA_LOG_FILE=${GDA_LOGS_DIR}/$LOGNAME/${LOGNAME}_`date +%F-%T`.txt
+consolelogfile_dir=$(dirname ${GDA_LOG_FILE})
+consolelogfile_name=$(basename ${GDA_LOG_FILE})
+
+# Create the parent directory for the console log file, and create an (initially empty) logfile
+if [[ ! -d "${consolelogfile_dir}" ]]; then
+    mkdir -pv -m 777 ${consolelogfile_dir}/
+fi
+touch $GDA_LOG_FILE
+[ -h $GDA_LOGS_DIR/$LOGNAME.txt ] && rm $GDA_LOGS_DIR/$LOGNAME.txt
+ln -s $GDA_LOG_FILE $GDA_LOGS_DIR/$LOGNAME.txt
+
+# Set OBJECT_SERVER_STARTUP_FILE
+export OBJECT_SERVER_STARTUP_FILE=${GDA_VAR}/object_server_startup_server_main
+
+# Source function to perform bash logging
+. ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/bashlog_function
+
+if [[ -z "${BEAMLINE-}" ]]; then
+    bashlog error "gda Bash script" '$BEAMLINE is not set (or is null) - exiting'
+    #echo 'gda Bash script: $BEAMLINE is not set (or is null) - exiting'
+    exit 2
+fi
+
+PARAMS=$@
+
+bashlog debug "gda Bash script" "Params = $@"
+
+if [[ "$PARAMS" != *"all"* ]]; then # '--start all' or 'all' not used, so just operate on single component
+    # Pass control to the gda_core bash script
+    . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_core "$@"
+else # all included as a parameter so start the logpanel, servers and client
+    if [[ "$PARAMS" == *"--start all"* ]]; then
+        PARAMS="${PARAMS/--start all/}"
+    elif [[ "$PARAMS" == *"all"* ]]; then
+        PARAMS="${PARAMS/all/}"
+    fi
+    
+    echo Ensure the Log panel is running...
+    . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_core logpanel
+    
+    echo
+    echo Making sure we want to restart GDA servers now...
+    echo
+
+    . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_core --restart servers ${PARAMS} 
+
+    # look for the output file which will tell us when the servers have started
+    ${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/utils/lookForFile $OBJECT_SERVER_STARTUP_FILE $HOSTNAME
+    (sleep 1 && wmctrl -a "Start the Client" -b add,above)&
+    zenity --title "Start the Client?" --question --text "The GDA servers have restarted. Click OK to start the GDA Client." --window-icon=question
+    if [ $? == 0 ] ; then # 0=Ok, 1=Cancel
+      echo Starting GDA RCP Client...
+      echo
+      . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_core client &
+      echo
+      echo Moving GDA Log Panel...
+      wmctrl -r "GDA Log Panel" -e 0,1921,0,1000,1000
+      echo
+      for i in {10..1}; do echo -n . ; sleep 1 ; done ; echo .
+    fi
+fi
