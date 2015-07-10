@@ -17,7 +17,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.diamond.com.jidesoft.docking;bundle-version="2.2.12",
  uk.ac.diamond.scisoft.analysis;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: gda.gui,
  gda.gui.scanplot,
  gda.gui.text.Formatter,

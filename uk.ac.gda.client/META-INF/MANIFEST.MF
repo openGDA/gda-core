@@ -105,7 +105,7 @@ Export-Package: com.swtdesigner,
  uk.ac.gda.views.baton.dialogs
 Bundle-ClassPath: .
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.gson.annotations;version="2.2.4",
  org.apache.commons.io;version="2.4.0",
  org.dawb.common.ui.plot,

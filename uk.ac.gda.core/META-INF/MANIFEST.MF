@@ -189,7 +189,7 @@ Export-Package: gda,
 Bundle-ClassPath: .,
  scripts/
 Bundle-Vendor: Diamond Light Source
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: ncsa.hdf.hdf5lib,
  ncsa.hdf.hdf5lib.structs,
  org.apache.commons.collections,
