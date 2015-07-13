@@ -9,7 +9,7 @@ set -o errexit  # Turn on errexit
 export GDA_WORKSPACE_PARENT=$(readlink -f ${here_dir}/../../../..)
 export GDA_WORKSPACE_GIT_NAME=$(basename $(readlink -f ${here_dir}/../../..))  # will normally be "workspace_git", will always end with "_git"
 export GDA_INSTANCE_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-core.git/example-config
-export GDA_GROUP_CONFIG_rel=no-group
+export GDA_GROUP_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-core.git/no-group
 export GDA_FACILITY_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-diamond.git/dls-config
 export GDA_CORE_CONFIG_rel=${GDA_WORKSPACE_GIT_NAME}/gda-core.git/core-config
 
@@ -17,30 +17,6 @@ export GDA_CLIENT=$GDA_WORKSPACE_PARENT/client/gda-example-config
 
 # Define a display name for use in messages
 export GDA_INSTANCE_NAME=example-config
-
-#Set GDA_VAR
-export GDA_VAR=${GDA_WORKSPACE_PARENT}/gda_var_non_live
-
-#Set GDA_LOGS_DIR
-export GDA_LOGS_DIR=${GDA_WORKSPACE_PARENT}/gda_logs_non_live
-
-#Set GDA_LOG_FILE
-# Parameter 2 is the console log folder name - {servers|client|logpanel}
-LOGNAME=gda_$2_output
-export GDA_LOG_FILE=${GDA_LOGS_DIR}/$LOGNAME/${LOGNAME}_`date +%F-%T`.txt
-consolelogfile_dir=$(dirname ${GDA_LOG_FILE})
-consolelogfile_name=$(basename ${GDA_LOG_FILE})
-
-# Create the parent directory for the console log file, and create an (initially empty) logfile
-if [[ ! -d "${consolelogfile_dir}" ]]; then
-    mkdir -pv -m 777 ${consolelogfile_dir}/
-fi
-touch $GDA_LOG_FILE
-[ -h $GDA_LOGS_DIR/$LOGNAME.txt ] && rm $GDA_LOGS_DIR/$LOGNAME.txt
-ln -s $GDA_LOG_FILE $GDA_LOGS_DIR/$LOGNAME.txt
-
-# Set OBJECT_SERVER_STARTUP_FILE
-export OBJECT_SERVER_STARTUP_FILE=${GDA_VAR}/object_server_startup_server_main
 
 # Source function to perform bash logging
 . ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/bashlog_function
