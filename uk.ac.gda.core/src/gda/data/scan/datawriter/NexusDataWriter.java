@@ -570,7 +570,8 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 					Path nxsParent = nxsFile.getParent();
 					Path relativize = nxsParent.relativize(absExtPath);
 					String relativeLink = "nxfile://" + relativize + "#" + address;
-					file.linkExternal(new URI(relativeLink), name, false);
+					String path = file.getPath(group);
+					file.linkExternal(new URI(relativeLink), path + name, false);
 					links.add(new ExternalNXlink(name, relativeLink));
 				} catch (URISyntaxException e) {
 					throw new NexusException(
@@ -596,7 +597,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 						NexusUtils.writeStringAttribute(file, node, name, axisno.toString());
 					} else {
 						if (data.isChar()) {
-							NexusUtils.writeStringAttribute(file, node, name, data.toString());
+							NexusUtils.writeStringAttribute(file, node, name, (String) data.getFirstValue());
 						} else {
 							NexusUtils.writeAttribute(file, node, name, data.toDataset());
 						}
@@ -695,6 +696,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 
 	private void writeNexusDetector(NexusDetector detector) throws NexusException {
 		StringBuilder path = NexusUtils.addToAugmentPath(new StringBuilder(), entryName, NexusExtractor.NXEntryClassName);
+		GroupNode pg = file.getGroup(path.toString(), false);
 		NexusUtils.addToAugmentPath(path, "instrument", NexusExtractor.NXInstrumentClassName);
 		GroupNode g = file.getGroup(path.toString(), false);
 		INexusTree tree = extractNexusTree(detector.getName());
@@ -702,7 +704,7 @@ public class NexusDataWriter extends DataWriterBase implements DataWriter {
 			if (subTree.getNxClass().equals(NexusExtractor.NXDetectorClassName))
 				writeHere(file, g, subTree, false, false, null);
 			else if (subTree.getNxClass().equals(NexusExtractor.NXMonitorClassName)) {
-				writeHere(file, g, subTree, false, false, null);
+				writeHere(file, pg, subTree, false, false, null);
 			}
 		}
 	}
