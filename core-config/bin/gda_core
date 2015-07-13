@@ -1,17 +1,47 @@
 #!/bin/bash
 
-# Expects the following environment variables to be set:
-# (1) $GDA_WORKSPACE_PARENT
-# (2) $GDA_WORKSPACE_GIT_NAME  (will normally be "workspace_git", will always end with "_git")
-# (3) $GDA_INSTANCE_CONFIG_rel
-# (4) $GDA_GROUP_CONFIG_rel  (must be set, but can be an empty string)
-# (5) $GDA_FACILITY_CONFIG_rel  (must be set, but can be an empty string)
-# (6) $GDA_CORE_CONFIG_rel
-
 # Expects a parameter line that can be passed on to the gda python script
 
-
+. ${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/bashlog_function
 bashlog debug "gda_core" "Start of gda_core script"
+
+function gda_core_help {
+	cat 1>&2 <<EOF
+Usage: gda_core [OPTION]... COMPONENT 
+
+Start the specified GDA component, where COMPONENT can be
+    logpanel|servers|client
+    logserver|nameserver|eventserver|objectserver
+
+Required Environment variables:
+    GDA_WORKSPACE_PARENT     The root directory of the deployment, parent of
+                             workspace and prefix of all _rel variables below.
+    GDA_WORKSPACE_GIT_NAME   Should be workspace_git, must end with _git
+    GDA_INSTANCE_CONFIG_rel  Location of BEAMLINE-config.
+    GDA_GROUP_CONFIG_rel     Location of GROUP-config, may be empty.
+    GDA_FACILITY_CONFIG_rel  Location of FACILITY-config, may be empty.
+    GDA_CORE_CONFIG_rel      Location of core-config.
+
+OPTIONS:
+    --restart   Stop and restart component (default)
+    --start     Start component
+    --stop      Stop component
+    --mode=     Specify a mode (default to GDA_MODE if set, dummy otherwise)
+    -*          Other options will be passed to the gda_*_core scripts and then
+                on to the core python gda script.
+
+EXAMPLES:
+
+    gda servers
+
+        This will (re)start the GDA servers.
+
+    gda --mode=dummy --start client
+
+        This will start the client in dummy mode.
+
+EOF
+}
 
 # Validate environment variables
 for env_var_name in GDA_WORKSPACE_PARENT GDA_WORKSPACE_GIT_NAME GDA_INSTANCE_CONFIG_rel GDA_GROUP_CONFIG_rel GDA_FACILITY_CONFIG_rel GDA_CORE_CONFIG_rel; do
@@ -20,12 +50,14 @@ done
 for env_var_name in GDA_WORKSPACE_PARENT GDA_WORKSPACE_GIT_NAME GDA_INSTANCE_CONFIG_rel GDA_CORE_CONFIG_rel; do
     if [[ -z "${!env_var_name}" ]]; then
         bashlog error "gda_core" "\${${env_var_name}} is not set (or is null) - exiting"
+        gda_core_help
         exit 2
     fi
 done
 for env_var_name in GDA_GROUP_CONFIG_rel GDA_FACILITY_CONFIG_rel; do
     if [[ -z "${!env_var_name=set_but_empty_ok}" ]]; then
         bashlog error "gda_core" "\${${env_var_name}} is not set - exiting"
+        gda_core_help
         exit 2
     fi
 done
@@ -36,7 +68,10 @@ bashlog debug "gda_core" "Parsing: $@"
 
 unset GDA_OPERATION GDA_COMPONENT
 for word in "$@"; do
-    if [[ "${word}" == --mode=* ]]; then
+    if [[ "${word}" == --help ]]; then
+        gda_core_help
+        #exit 1
+    elif [[ "${word}" == --mode=* ]]; then
         export GDA_MODE=${word:7}
     fi
     if [[ "${word}" != -* ]]; then
@@ -46,9 +81,12 @@ for word in "$@"; do
         export GDA_OPERATION=${word:2}
     fi
 done
-# Default mode is dummy
+# Default mode is dummy and operation is restart
 if [[ -z "${GDA_MODE-}" ]]; then
 	export GDA_MODE=dummy
+fi
+if [[ -z "${GDA_OPERATION-}" ]]; then
+	export GDA_OPERATION=restart
 fi
 
 if [[ -n "${GDA_COMPONENT-}" ]]; then
@@ -57,9 +95,13 @@ if [[ -n "${GDA_COMPONENT-}" ]]; then
         logserver|nameserver|eventserver|objectserver) GDA_COMPONENT_CATEGORY=servers ;;
         logpanel|servers|client) GDA_COMPONENT_CATEGORY=${GDA_COMPONENT} ;;
         *) bashlog error "gda_core" "${GDA_COMPONENT} not recognised. Valid task names are logpanel, servers, client, logserver, nameserver, eventserver, objectserver"
-        
+        gda_core_help
         exit 2;;
     esac
+else
+    bashlog error "gda_core" "GDA component is required"
+    gda_core_help
+    exit 1
 fi
 
 if [[ -n "${GDA_COMPONENT-}" ]]; then
@@ -84,8 +126,45 @@ if [[ -n "${GDA_COMPONENT-}" ]]; then
 fi
 echo '$@=' $@
 
+echo 'About to pick which console log file to run'
+
+# Set up the directory and file in which to write the console log
+# We only invoke one script to do this (the most specific one)
+for filename in \
+    "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_setup_consolelog_instance" \
+    "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_setup_consolelog_group" \
+    "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_setup_consolelog_facility"
+do
+    if [ -e "${filename}" ]; then
+        . ${filename} ${GDA_COMPONENT_CATEGORY}
+        echo 'just ran console log file ' ${filename} ${GDA_COMPONENT_CATEGORY}
+        break
+    fi
+done
+
 filename=${GDA_WORKSPACE_PARENT}/${GDA_CORE_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_core
 bashlog debug "gda_core" "sourcing ${filename}"
 . ${filename} "${extra_parameters-}$@"
+
+if [[ -n "${GDA_COMPONENT-}" ]]; then
+    # Run the "gda_<component>_post" scripts to clean up the environment and perform other functions as required
+    # For Facility, Group, and Instance, there can be a post-script, and a mode-specific post-script (all optional)
+    # Note that in "live" mode, these scripts are run twice, so they must be idempotent:
+    # (1) on the user machine, when the user issues the gda bash command
+    # (2) on the control machine, when remotestartupscript.sh issues the gda bash command
+    for filename in \
+      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_post_facility" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/etc/${GDA_MODE-ignore}/gda_${GDA_COMPONENT_CATEGORY}_post_facility" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_post_group" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/etc/${GDA_MODE-ignore}/gda_${GDA_COMPONENT_CATEGORY}_post_group" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_${GDA_COMPONENT_CATEGORY}_post_instance" \
+      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/etc/${GDA_MODE-ignore}/gda_${GDA_COMPONENT_CATEGORY}_post_instance"
+    do
+      if [ -e "${filename}" ]; then
+        bashlog debug "gda_core" "sourcing ${filename}"
+        . ${filename}
+      fi
+    done
+fi
 
 bashlog debug "gda_core" "Exited"

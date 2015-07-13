@@ -3,22 +3,6 @@ LOGPANELWINDOW=$(wmctrl -l | grep "GDA Log Panel" | grep -v grep) || true
 
 
 if [ "$LOGPANELWINDOW" == "" ] ; then
-echo 'About to pick which console log file to run'
-
-# Set up the directory and file in which to write the console log
-    # We only invoke one script to do this (the most specific one)
-    for filename in \
-      "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_setup_consolelog_instance" \
-      "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_setup_consolelog_group" \
-      "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_setup_consolelog_facility"
-    do
-      if [ -e "${filename}" ]; then
-        . ${filename} logpanel
-        echo "just ran ${filename}"
-        break
-      fi
-    done
-
   GDA_LOGPANEL_APP=/dls_sw/apps/gdalogpanel/gdalogpanel/gdalogpanel
 
   GDA_LOGPANEL_APP_ARGS="-vmargs -Dgda.propertiesFile=${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/properties/${GDA_MODE}/${GDA_MODE}_instance_java.properties"

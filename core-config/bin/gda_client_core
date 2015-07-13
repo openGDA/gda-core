@@ -1,19 +1,5 @@
 bashlog debug "gda_client_core" "Entered"
 
-# Set up the directory and file in which to write the console log
-# We only invoke one script to do this (the most specific one)
-for filename in \
-    "${GDA_WORKSPACE_PARENT}/${GDA_INSTANCE_CONFIG_rel}/bin/gda_setup_consolelog_instance" \
-    "${GDA_WORKSPACE_PARENT}/${GDA_GROUP_CONFIG_rel}/bin/gda_setup_consolelog_group" \
-    "${GDA_WORKSPACE_PARENT}/${GDA_FACILITY_CONFIG_rel}/bin/gda_setup_consolelog_facility"
-do
-    if [ -e "${filename}" ]; then
-        . ${filename} client
-        echo 'just ran console log file ' ${filename}
-        break
-    fi
-done
-
 export GDA_CLIENT_LOG_DIR=${GDA_LOGS_DIR}
 export GDA_CLIENT_WORKING_DIR=${GDA_WORKSPACE_PARENT}/client
 
