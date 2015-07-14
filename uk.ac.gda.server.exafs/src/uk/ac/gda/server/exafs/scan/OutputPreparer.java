@@ -34,7 +34,7 @@ public interface OutputPreparer {
 	 * Gives the preparer the parameters for the next experiment and do any preparation for the whole experiment.
 	 */
 	void configure(IOutputParameters outputParameters, IScanParameters scanBean, IDetectorParameters detectorBean) throws DeviceException;
-	
+
 	/**
 	 * Perform any beamline-specific set up before data collection.
 	 */

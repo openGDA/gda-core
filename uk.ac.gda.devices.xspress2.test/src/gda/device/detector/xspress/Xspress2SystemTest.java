@@ -20,14 +20,6 @@ package gda.device.detector.xspress;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import gda.device.DeviceException;
-import gda.device.detector.DUMMY_XSPRESS2_MODE;
-import gda.device.detector.DummyDAServer;
-import gda.device.detector.xspress.xspress2data.Xspress2DAServerController;
-import gda.device.timer.Etfg;
-import gda.factory.FactoryException;
-import gda.util.TestUtils;
-import gda.util.exceptionUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,6 +28,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.device.DeviceException;
+import gda.device.detector.DUMMY_XSPRESS2_MODE;
+import gda.device.detector.DummyDAServer;
+import gda.device.detector.xspress.xspress2data.Xspress2DAServerController;
+import gda.device.timer.Etfg;
+import gda.factory.FactoryException;
+import gda.util.TestUtils;
+import gda.util.exceptionUtils;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
 import uk.ac.gda.beans.xspress.DetectorElement;
@@ -76,7 +76,7 @@ public class Xspress2SystemTest {
 		daserver.setNonRandomTestData(true);
 		Etfg tfg = new Etfg();
 		tfg.setName("tfg");
-		
+
 		try {
 			controller.setDaServer(daserver);
 			controller.setTfg(tfg);
@@ -155,7 +155,7 @@ public class Xspress2SystemTest {
 
 	/**
 	 * Test method for {@link gda.device.detector.xspress.Xspress2Detector#clear()}.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Test(expected = DeviceException.class)
@@ -180,7 +180,7 @@ public class Xspress2SystemTest {
 
 	/**
 	 * Test method for {@link gda.device.detector.xspress.Xspress2Detector#start()}.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Test(expected = DeviceException.class)
@@ -208,7 +208,7 @@ public class Xspress2SystemTest {
 
 	/**
 	 * Test method for {@link gda.device.detector.xspress.Xspress2Detector#stop()}.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Test(expected = DeviceException.class)

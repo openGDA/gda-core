@@ -18,9 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.util.Converter;
-import gda.util.exafs.Element;
-
 import java.text.DecimalFormat;
 import java.util.EventObject;
 import java.util.List;
@@ -66,6 +63,8 @@ import org.eclipse.swt.widgets.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.util.Converter;
+import gda.util.exafs.Element;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
@@ -136,7 +135,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		updateExafsTimeType();
 		updateLayout();
 	}
-	
+
 	private void createShowHideLineAnnotationsButton() {
 		Action menuAction = new Action("Show labels", IAction.AS_CHECK_BOX) {
 			@Override
@@ -216,7 +215,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 	private abstract class RegionSynchronizer extends ValueAdapter implements IROIListener {
 		protected ScaleBox abc;
-		
+
 		RegionSynchronizer(IRegion line, ScaleBox abc) {
 			line.addROIListener(this);
 			this.abc = abc;
@@ -354,9 +353,9 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	}
 
 	private class CRegionSynchronizer extends RegionSynchronizer {
-		
+
 		private ScaleBox gaf;
-		
+
 		CRegionSynchronizer(IRegion line, ScaleBox abc, ScaleBox gaf3) {
 			super(line, abc);
 			gaf = gaf3;
@@ -385,7 +384,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				energy = abc.getNumericValue();
 				if (energyInK)
 					energy = getKInEv().getValue(energy);
-			} 
+			}
 			else
 				energy = calcC(gaf.getNumericValue());
 			return energy;
@@ -547,18 +546,18 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		createFinalEnergy(beamlineMaxEnergy);
 		Label edgeRegionLabel = new Label(topCentre, SWT.NONE);
 		edgeRegionLabel.setText("Edge Region");
-		
+
 		createAbGafChoice();
 		createGaf1();
 		createGaf2();
-		createGaf3();		
+		createGaf3();
 		createA();
 		createB();
 		a.setMaximum(b);
 		createC();
 		createK();
 	}
-	
+
 	private void createE0(){
 		e0Label = new Link(topCentre, SWT.NONE);
 		e0Label.setText("<a>Initial Energy</a>");
@@ -571,7 +570,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		};
 		e0Label.addSelectionListener(e0Listener);
 	}
-	
+
 	private void createE1(){
 		e1Label = new Link(topCentre, SWT.NONE);
 		e1Label.setText("<a>Final Energy</a>");
@@ -584,7 +583,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		};
 		e1Label.addSelectionListener(e1Listener);
 	}
-	
+
 	private void createInitialEnergy(int beamlineMinEnergy){
 		initialEnergy = new ScaleBox(topCentre, SWT.NONE);
 		initialEnergy.setDoNotUseExpressions(true);
@@ -606,7 +605,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			finalEnergy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			initialEnergy.setMaximum(beamlineMaxEnergy);
 			finalEnergy.setMinimum(0);
-		} 
+		}
 		else {
 			finalEnergy = new ScaleBoxAndFixedExpression(topCentre, SWT.NONE, getKProvider());
 			finalEnergy.setDoNotUseExpressions(true);
@@ -621,7 +620,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			finalEnergy.setMinimum(initialEnergy);
 		}
 	}
-	
+
 	private void createGaf1(){
 		Label gaf1Label = new Label(topCentre, SWT.NONE);
 		gaf1Label.setText("Gaf1");
@@ -640,27 +639,27 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 						newValue = (Double) e.getValue();
 					else
 						newValue = e.getDoubleValue();
-				} 
+				}
 				else
 					newValue = gaf1.getNumericValue();
 				double newA = calcAorB(newValue);
 				double minEnergy = getInitialEnergy().getNumericValue();
-				
+
 				b.off();
 				b.on();
-				
+
 				a.off();
 				if (newA > minEnergy)
 					a.setNumericValue(newA);
 				a.on();
-				
+
 				a.checkBounds();
 				b.checkBounds();
 				c.checkBounds();
 			}
 		});
 	}
-	
+
 	private void createGaf2(){
 		Label gaf2Label = new Label(topCentre, SWT.NONE);
 		gaf2Label.setText("Gaf2");
@@ -683,12 +682,12 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				else
 					newValue = gaf2.getNumericValue();
 				double newB = calcAorB(newValue);
-				
+
 				b.off();
 				b.setNumericValue(newB);
 				b.on();
 
-				
+
 				// change C as well if the preference has been set to do so
 				if (ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK)) {
 					c.off();
@@ -698,14 +697,14 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 					c.on();
 					gaf3.on();
 				}
-				
+
 				a.checkBounds();
 				b.checkBounds();
 				c.checkBounds();
 			}
 		});
 	}
-	
+
 	private void createGaf3(){
 		gaf3Label = new Label(topCentre, SWT.NONE);
 		gaf3Label.setText("Gaf3");
@@ -724,20 +723,20 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 						newValue = (Double) e.getValue();
 					else
 						newValue = e.getDoubleValue();
-				} 
+				}
 				else
 					newValue = gaf3.getNumericValue();
 				c.off();
 				c.setNumericValue(calcC(newValue));
 				c.on();
-				
+
 				a.checkBounds();
 				b.checkBounds();
 				c.checkBounds();
 			}
 		});
 	}
-	
+
 	private void createA(){
 		aLabel = new Link(topCentre, SWT.NONE);
 		aLabel.setText("<a>A</a>");
@@ -756,7 +755,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		a.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		a.setMinimum(initialEnergy);
 	}
-	
+
 	private void createB(){
 		bLabel = new Link(topCentre, SWT.NONE);
 		bLabel.setText("<a>B</a>");
@@ -775,7 +774,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		b.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		b.setMinimum(initialEnergy);
 	}
-	
+
 	private void createC(){
 		cLabel = new Link(topCentre, SWT.NONE);
 		cLabel.setText("<a>C</a>");
@@ -799,7 +798,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			c.setUnit("Å\u207B\u00b9");
 			c.setMinimum(0);
 			c.setMaximum(100);
-		} 
+		}
 		else {
 			c = new ScaleBoxAndFixedExpression(topCentre, SWT.NONE, getKProvider());
 			c.setDoNotUseExpressions(true);
@@ -814,7 +813,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			b.setMaximum(c);
 		}
 	}
-	
+
 	private void createK(){
 		kStartLabel = new Label(topCentre, SWT.NONE);
 		kStartLabel.setText("K Start");
@@ -840,7 +839,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			}
 		});
 	}
-	
+
 	private void createAbGafChoice(){
 		abGafChoice = new ComboWrapper(topCentre, SWT.READ_ONLY);
 		abGafChoice.setItems(new String[] { "A/B", "Gaf1/Gaf2" });
@@ -852,7 +851,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			}
 		});
 	}
-	
+
 	private ExpressionProvider getKProvider() {
 		return new ExpressionProvider() {
 			@Override
@@ -894,7 +893,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		try {
 			setPointsUpdate(false);
 			XasScanParameters scanParams = (XasScanParameters) editingBean;
-			
+
 			// Manually added parts for bounds and editor notifications.
 			// Get choices for edge from schema
 			// Set default values, bean may have changed
@@ -990,12 +989,12 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 					logger.error("Cannot update XAS points", e1);
 				} finally {
 					setPointsUpdate(true);
-					suspendGraphUpdate = false;					
+					suspendGraphUpdate = false;
 				}
 			}
 		});
 	}
-	
+
 	@Override
 	public void updatePlottedPoints() {
 		super.updatePlottedPoints();
@@ -1014,7 +1013,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 		double cEnergy = c.getNumericValue();
 		if (energyInK)
 			cEnergy = getKInEv().getValue(cEnergy);
-		
+
 		try {
 			plottingsystem.clearAnnotations();
 			IAnnotation aAnnotation = AnnotationUtils.replaceCreateAnnotation(plottingsystem, "A energy");
@@ -1067,7 +1066,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			exafsStepType.on();
 			getCoreHole().on();
 			getEdgeEnergy().on();
-		} 
+		}
 		else {
 			a.off();
 			b.off();
@@ -1266,7 +1265,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			boolean cMirrorsB = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK);
 			c.setActive(!cMirrorsB);
 			cLine.setMobile(!cMirrorsB);
-		} 
+		}
 		else
 			c.setActive(false);
 		getCoreHole().setActive(!isAB);
@@ -1276,7 +1275,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 			boolean cMirrorsB = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.C_MIRRORS_B_LINK);
 			gaf3.setActive(!cMirrorsB);
 			cLine.setMobile(!cMirrorsB);
-		} 
+		}
 		else
 			gaf3.setActive(false);
 	}
@@ -1329,7 +1328,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 
 	/**
 	 * Used during testing.
-	 * 
+	 *
 	 * @param ichoice
 	 *            0 for AB for Gaf
 	 */
@@ -1350,34 +1349,34 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 				initialEnergy.setEnabled(!isLink);
 				if (isLink)
 					initialEnergy.setValue(getInitialEnergyFromElement());
-			} 
+			}
 			else if (event.getProperty().equals(ExafsPreferenceConstants.FINAL_ENERGY_ELEMENT_LINK)) {
 				Boolean isLink = (Boolean) event.getNewValue();
 				getFinalEnergy().setEnabled(!isLink);
 				if (isLink)
 					finalEnergy.setValue(getFinalEnergyFromElement());
-			} 
+			}
 			else if (event.getProperty().equals(ExafsPreferenceConstants.A_ELEMENT_LINK)) {
 				Boolean isLink = (Boolean) event.getNewValue();
 				if (isLink)
 					a.setValue(getAfromElement());
-			} 
+			}
 			else if (event.getProperty().equals(ExafsPreferenceConstants.B_ELEMENT_LINK)) {
 				Boolean isLink = (Boolean) event.getNewValue();
 				if (isLink)
 					b.setValue(getBfromElement());
-			} 
+			}
 			else if (event.getProperty().equals(ExafsPreferenceConstants.C_ELEMENT_LINK)) {
 				Boolean isLink = (Boolean) event.getNewValue();
 				if (isLink)
 					c.setValue(getCfromElement());
-			} 
+			}
 			else if (event.getProperty().equals(ExafsPreferenceConstants.C_MIRRORS_B_LINK)) {
 				Boolean isLink = (Boolean) event.getNewValue();
 				if (isLink)
 					c.setValue(getCfromElement());
 				updateEdgeRegion();
-			} 
+			}
 			else if (event.getProperty().equals(ExafsPreferenceConstants.EXAFS_GRAPH_EDITABLE)) {
 				if (aLine != null)
 					aLine.setMobile((Boolean) event.getNewValue());
@@ -1466,7 +1465,7 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	public ComboWrapper getAbGafChoice() {
 		return abGafChoice;
 	}
-	
+
 	public ScaleBox getFinalEnergy() {
 		return finalEnergy;
 	}
@@ -1542,11 +1541,11 @@ public class XasScanParametersUIEditor extends ElementEdgeEditor implements IPro
 	public ScaleBox getKStart() {
 		return kStart;
 	}
-	
+
 	@Override
 	public void setFocus() {
 	}
-	
+
 	@Override
 	protected String getRichEditorTabText() {
 		return "XAS Scan";

@@ -41,4 +41,3 @@ public class XanesDescriber extends XMLBeanContentDescriber {
 
 }
 
-	

@@ -27,9 +27,9 @@ import gda.factory.Findable;
  * In GDA, arrays are zero based. In EPICS, arrays are 1 based. So input
  * parameters to this interface, and results from this interface are all zero
  * based.
- * 
+ *
  * @author rjw82
- * 
+ *
  */
 public interface Xspress3Controller extends Findable{
 
@@ -45,19 +45,19 @@ public interface Xspress3Controller extends Findable{
 	public boolean isSavingFiles() throws DeviceException;
 
 	public void setSavingFiles(Boolean saveFiles) throws DeviceException;
-	
+
 //	public void setHDFFileDimensions(int[] dimensions) throws DeviceException;
-//	
+//
 //	public int[] getHDFFileDimensions() throws DeviceException;
 
 	public void setHDFFileAutoIncrement(boolean b) throws DeviceException;
-	
+
 	public void setHDFNumFramesToAcquire(int i) throws DeviceException;
 
 	public Integer getNumFramesToAcquire() throws DeviceException;
 
 	public void setNumFramesToAcquire(Integer numFrames) throws DeviceException;
-	
+
 	// to switch on/off EPICS calculations. When off EPICS will perform much quicker, at the moment.
 	public void setPerformROICalculations(Boolean doCalcs) throws DeviceException;
 
@@ -96,7 +96,7 @@ public interface Xspress3Controller extends Findable{
 	 * <p>
 	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
 	 * will have valid data in
-	 * 
+	 *
 	 * @param startFrame
 	 * @param finalFrame
 	 * @param startChannel
@@ -111,7 +111,7 @@ public interface Xspress3Controller extends Findable{
 	 * <p>
 	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
 	 * will have valid data in
-	 * 
+	 *
 	 * @param startFrame
 	 * @param finalFrame
 	 * @param startChannel
@@ -126,7 +126,7 @@ public interface Xspress3Controller extends Findable{
 	 * <p>
 	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
 	 * will have valid data in
-	 * 
+	 *
 	 * @param startFrame
 	 * @param finalFrame
 	 * @param startChannel
@@ -142,7 +142,7 @@ public interface Xspress3Controller extends Findable{
 	 * <p>
 	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
 	 * will have valid data in
-	 * 
+	 *
 	 * @param startChannel
 	 * @param finalChannel
 	 * @return int[channel][allGoodGradient,allGoodOffset,inWindowGradient,
@@ -155,7 +155,7 @@ public interface Xspress3Controller extends Findable{
 	 * <p>
 	 * Use the value from {@link #getNumFramesAvailable()} to know what frames
 	 * will have valid data in
-	 * 
+	 *
 	 * @param startFrame
 	 * @param finalFrame
 	 * @param startChannel
@@ -187,7 +187,7 @@ public interface Xspress3Controller extends Findable{
 	 * a specific MCA spectrum.
 	 * <p>
 	 * The MCA will be written to file by the underlying EPICS.
-	 * 
+	 *
 	 * @param startChannel
 	 * @param finalChannel
 	 * @return Double[detector channel][mca channel]
@@ -195,8 +195,8 @@ public interface Xspress3Controller extends Findable{
 	public double[][] readoutDTCorrectedLatestMCA(int startChannel, int finalChannel) throws DeviceException;
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param startChannel
 	 * @param finalChannel
 	 * @return Double[detector channel][mca channel]
@@ -247,7 +247,7 @@ public interface Xspress3Controller extends Findable{
 	public String getFilePrefix() throws DeviceException;
 
 	public int getNextFileNumber() throws DeviceException;
-	
+
 	/**
 	 * @return String - the full file path of the HDF file being written, or the last one written
 	 * @throws DeviceException
@@ -257,10 +257,10 @@ public interface Xspress3Controller extends Findable{
 	public void configure() throws FactoryException;
 
 	public int getNumFramesPerReadout() throws DeviceException;
-	
+
 	public int getNumberOfChannels();
-	
+
 	public boolean isChannelEnabled(int channel) throws DeviceException;
-	
+
 	public void enableChannel(int channel, boolean doEnable) throws DeviceException;
 }

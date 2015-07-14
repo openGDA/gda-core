@@ -36,15 +36,15 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 	String edge;
 	Double coreHole;
 	boolean bothWays;
-	
+
 	private boolean shouldValidate = true;
 
 	/**
-	 * 
+	 *
 	 */
 	static public final URL mappingURL = QEXAFSParameters.class.getResource("ExafsParameterMapping.xml");
 	/**
-	 * 
+	 *
 	 */
 	static public final URL schemaURL = QEXAFSParameters.class.getResource("ExafsParameterMapping.xsd");
 
@@ -82,7 +82,7 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		
+
 		result = prime * result + ((initialEnergy == null) ? 0 : initialEnergy.hashCode());
 		result = prime * result + ((finalEnergy == null) ? 0 : finalEnergy.hashCode());
 		result = prime * result + ((speed == null) ? 0 : speed.hashCode());
@@ -102,43 +102,43 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 		if (getClass() != obj.getClass())
 			return false;
 		QEXAFSParameters other = (QEXAFSParameters) obj;
-		
+
 		if (initialEnergy == null) {
 			if (other.initialEnergy != null)
 				return false;
 		} else if (!initialEnergy.equals(other.initialEnergy))
 			return false;
-		
+
 		if (finalEnergy == null) {
 			if (other.finalEnergy != null)
 				return false;
 		} else if (!finalEnergy.equals(other.finalEnergy))
 			return false;
-		
+
 		if (speed == null) {
 			if (other.speed != null)
 				return false;
 		} else if (!speed.equals(other.speed))
 			return false;
-		
+
 		if (stepSize == null) {
 			if (other.stepSize != null)
 				return false;
 		} else if (!stepSize.equals(other.stepSize))
 			return false;
-		
+
 		if (time == null) {
 			if (other.stepSize != null)
 				return false;
 		} else if (!time.equals(other.time))
 			return false;
-		
+
 		if (shouldValidate != other.shouldValidate)
 			return false;
-		
+
 		if (bothWays != other.bothWays)
 			return false;
-		
+
 		return true;
 	}
 
@@ -165,7 +165,7 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 	public void setSpeed(double speed) {
 		this.speed = speed;
 	}
-	
+
 	public double getStepSize() {
 		return stepSize;
 	}
@@ -210,7 +210,7 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 	public void setEdge(String edge) {
 		this.edge = edge;
 	}
-	
+
 	public boolean isCoreGiven() {
 		return coreHole != null;
 	}
@@ -230,9 +230,9 @@ public class QEXAFSParameters implements Serializable, IScanParameters {
 	public boolean isBothWays() {
 		return bothWays;
 	}
-	
+
 	public void setBothWays(boolean bothWays) {
 		this.bothWays = bothWays;
 	}
-	
+
 }

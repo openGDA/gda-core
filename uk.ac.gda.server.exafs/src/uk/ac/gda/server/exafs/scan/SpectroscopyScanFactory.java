@@ -18,15 +18,15 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
+
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.device.Scannable;
 import gda.jython.IJythonNamespace;
 import gda.jython.InterfaceProvider;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
 
 public abstract class SpectroscopyScanFactory {
 
@@ -160,7 +160,7 @@ public abstract class SpectroscopyScanFactory {
 			throw new IllegalArgumentException("Failed to put scan '" + scanName + "' into the Jython namespace!");
 		}
 	});
-	
+
 	new Thread(placeInJythonTask, "placeEnergyScanIntoJythonNamespace").start();
 	}
 }

@@ -28,7 +28,7 @@ import java.text.NumberFormat;
 public class Formatter {
 	/**
 	 * Gets a formatted string value appropriate for the units
-	 * 
+	 *
 	 * @param value
 	 *            value to be formatted
 	 * @param units
@@ -51,7 +51,7 @@ public class Formatter {
 
 	/**
 	 * Gets a value rounded appropriately to the type of units
-	 * 
+	 *
 	 * @param value
 	 *            value to be formatted
 	 * @param units

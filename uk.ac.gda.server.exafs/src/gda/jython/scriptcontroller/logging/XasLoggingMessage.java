@@ -18,12 +18,11 @@
 
 package gda.jython.scriptcontroller.logging;
 
+import java.util.concurrent.TimeUnit;
+
 import gda.configuration.properties.LocalProperties;
 import gda.exafs.scan.ExafsTimeEstimator;
 import gda.exafs.scan.RepetitionsProperties;
-
-import java.util.concurrent.TimeUnit;
-
 import uk.ac.gda.beans.exafs.IScanParameters;
 
 public class XasLoggingMessage implements ScriptControllerLoggingMessage {
@@ -43,7 +42,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	private String outputFolder;
 	private String sampleName;
 	private int scanNumber;
-	
+
 	public XasLoggingMessage(String visit_id,String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete, String elaspedScanTime, String elaspedTotalTime, String predictedTotalTime, String outputFolder, String sampleName, int scanNumber) {
 		super();
 		this.visitID = visit_id;
@@ -62,7 +61,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 		this.sampleName = sampleName;
 		this.scanNumber = scanNumber;
 	}
-	
+
 	public XasLoggingMessage(String visit_id, String id, String scriptName, String message, String repetition, String scanRepetitions, String sampleEnvironmentRepetitionNumber, String sampleEnvironmentRepetitions, String percentComplete, String elaspedScanTime, String elaspedTotalTime, IScanParameters parameters, String outputFolder, String sampleName, int scanNumber) throws Exception {
 		super();
 		this.visitID = visit_id;
@@ -98,7 +97,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	public String getName() {
 		return scriptName;
 	}
-	
+
 	@ScriptControllerLogColumn(columnName = "Status", refresh = true, columnIndex = 4)
 	public String getMessage() {
 		return message;
@@ -108,11 +107,11 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	public String getRepetition() {
 		return scanRepetitionNumber + " of " + getScanRepetitions();
 	}
-	
+
 	public Integer getRepetitionNumber() {
 		return Integer.parseInt(getScanRepetitionNumber());
 	}
-	
+
 	public String getScanRepetitionNumber() {
 		return scanRepetitionNumber;
 	}
@@ -151,7 +150,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	public String getPredictedTotalTime() {
 		return predictedTotalTime;
 	}
-	
+
 	@ScriptControllerLogColumn(columnName = "Output folder", refresh = true, columnIndex = 3)
 	public String getOutputFolder() {
 		return outputFolder;
@@ -177,7 +176,7 @@ public class XasLoggingMessage implements ScriptControllerLoggingMessage {
 	public String getMsg() {
 		return getOutputFolder() + " - " + getPercentComplete();
 	}
-	
+
 	public void setVisitID(String visitID) {
 		this.visitID = visitID;
 	}

@@ -49,10 +49,10 @@ public class ElementPositionComposite extends Composite {
 
 		name = new TextWrapper(this, SWT.BORDER);
 		name.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
+
 		Label lblPrincipleElement = new Label(this, SWT.NONE);
 		lblPrincipleElement.setText("Principle Element");
-		
+
 		principleElement = new TextWrapper(this, SWT.BORDER);
 		principleElement.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 

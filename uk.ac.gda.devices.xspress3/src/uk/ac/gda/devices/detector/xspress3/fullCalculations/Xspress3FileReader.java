@@ -33,7 +33,7 @@ public class Xspress3FileReader {
 	/*
 	 * Reads the whole row (whole file) into memory
 	 * <p>
-	 * 
+	 *
 	 * @throws NexusException
 	 * @throws NexusExtractorException
 	 */
@@ -63,7 +63,7 @@ public class Xspress3FileReader {
 
 	/**
 	 * Assumes {@link #readFile()} has been called and returned normally.
-	 * 
+	 *
 	 * @param frameNumber
 	 * @return
 	 */

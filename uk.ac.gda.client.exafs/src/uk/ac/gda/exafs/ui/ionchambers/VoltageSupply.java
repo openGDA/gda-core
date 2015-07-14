@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class VoltageSupply extends Composite{
 	private Text text;
-	
+
 	public VoltageSupply(Composite parent, int style) {
 		super(parent, style);
 		GridLayout gridLayout = new GridLayout(1, false);
@@ -67,5 +67,5 @@ public class VoltageSupply extends Composite{
 		btnSet.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		btnSet.setText("Set");
 	}
-	
+
 }

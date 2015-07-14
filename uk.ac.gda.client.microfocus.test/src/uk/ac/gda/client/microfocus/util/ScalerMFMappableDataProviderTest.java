@@ -23,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import gda.util.TestUtils;
 
 import org.dawnsci.common.richbeans.beans.BeansFactory;
 import org.junit.After;
@@ -31,14 +30,15 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.util.TestUtils;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class ScalerMFMappableDataProviderTest {
-	
-	
+
+
 	private static ScalerMFMappableDataProvider scalerDataProvider;
 	static String TestFileFolder;
-	
+
 	@SuppressWarnings("unchecked")
 	@BeforeClass
 	public static void beforeClass() throws Exception{
@@ -48,7 +48,7 @@ public class ScalerMFMappableDataProviderTest {
 		Class<?> c2 = Class.forName("uk.ac.gda.beans.exafs.DetectorParameters");
 		BeansFactory.setClasses((Class<? extends XMLRichBean>[]) new Class<?>[]{c, c1, c2});
 	}
-	
+
 	@SuppressWarnings("unused")
 	@Before
 	public void setUp()throws Exception
@@ -60,20 +60,20 @@ public class ScalerMFMappableDataProviderTest {
 		scalerDataProvider.setSelectedElement("I0");
 		scalerDataProvider.setBeanFilePath("testfiles/uk/ac/gda/client/microfocus/util/ScalerMFMappableDataProviderTest/Detector_Parameters.xml");
 		scalerDataProvider.loadBean();
-		
+
 	}
-	
-	
+
+
 	@SuppressWarnings("unused")
 	@Test
 	public void testLoadBean() throws Exception
-	{		
+	{
 		String[] elementNames = scalerDataProvider.getElementNames();
 		assertEquals(3, elementNames.length);
 		assertEquals(elementNames[0], "I0");
 		assertEquals("Iref", elementNames[2]);
 	}
-	
+
 	@SuppressWarnings("unused")
 	@Test
 	public void testLoadData() throws Exception
@@ -87,10 +87,10 @@ public class ScalerMFMappableDataProviderTest {
 		Double[] y = scalerDataProvider.getYarray();
 		assertEquals(11, y.length);
 		assertArrayEquals(new Double[]{0.5, 0.55, 0.6, 0.6500000000000001, 0.7000000000000001, 0.75, 0.8, 0.8500000000000001, 0.9000000000000001, 0.9500000000000001, 1.0},x);
-		assertArrayEquals(new Double[]{ 3.0, 3.0500000000000003, 3.100000000000001, 3.1500000000000004, 3.2, 
+		assertArrayEquals(new Double[]{ 3.0, 3.0500000000000003, 3.100000000000001, 3.1500000000000004, 3.2,
 				3.250000000000001, 3.3000000000000003, 3.35, 3.4000000000000004, 3.45, 3.5}, y);
 		}
-	
+
 
 	@SuppressWarnings("unused")
 	@Test
@@ -108,8 +108,8 @@ public class ScalerMFMappableDataProviderTest {
 		double d1[][] = scalerDataProvider.constructMappableData();
 		assertEquals(99379.0, d1[0][0], 0.0);
 	}
-	
-	
+
+
 	@SuppressWarnings("unused")
 	@Test
 	public void testHasPlottableData() throws Exception
@@ -123,6 +123,6 @@ public class ScalerMFMappableDataProviderTest {
 	public void tearDown()throws Exception
 	{
 		scalerDataProvider = null;
-		
+
 	}
 }

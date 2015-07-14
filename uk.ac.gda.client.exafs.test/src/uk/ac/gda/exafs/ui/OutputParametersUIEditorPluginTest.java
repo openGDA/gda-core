@@ -36,14 +36,14 @@ import uk.ac.gda.util.PackageUtils;
  * Run as junit plugin test.
  */
 public class OutputParametersUIEditorPluginTest {
-	
+
 	/**
 	 * Force into testing mode.
 	 */
 	static {
 		ClientManager.setTestingMode(true);
 	}
-	
+
 	private OutputParametersEditor   editor;
 	private OutputParametersUIEditor uiEd;
 
@@ -51,16 +51,16 @@ public class OutputParametersUIEditorPluginTest {
 	public void setUp() throws Throwable {
 		ClientManager.setTestingMode(true);
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		File xml = new File(PackageUtils.getTestPath(OutputParametersUIEditorPluginTest.class)+"/Output_Parameters.xml");	
+		File xml = new File(PackageUtils.getTestPath(OutputParametersUIEditorPluginTest.class)+"/Output_Parameters.xml");
 		FileStoreEditorInput fileInput = new FileStoreEditorInput(EFS.getLocalFileSystem().fromLocalFile(xml));
 		editor = (OutputParametersEditor)window.getActivePage().openEditor(fileInput, OutputDescriber.ID);
 		uiEd = (OutputParametersUIEditor)editor.getRichBeanEditor();
 	}
-	
+
 	/**
 	 * Bounds working
 	 * @throws Throwable
-	 */ 
+	 */
 	@Test
 	public final void testAFewValues() throws Throwable {
 	    if (!uiEd.getAsciiDirectory().getValue().equals("ascii"))
@@ -68,5 +68,5 @@ public class OutputParametersUIEditorPluginTest {
 	    if (!uiEd.getNexusDirectory().getValue().equals("nexus"))
 	    	throw new Exception("The nexusDirectory was "+uiEd.getNexusDirectory().getValue()+" and not nexus");
 	}
-	
+
 }

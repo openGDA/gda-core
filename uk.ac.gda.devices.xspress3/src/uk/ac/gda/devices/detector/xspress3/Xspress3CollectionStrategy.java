@@ -1,5 +1,10 @@
 package uk.ac.gda.devices.detector.xspress3;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
@@ -9,14 +14,9 @@ import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.scan.ScanInformation;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
 /**
  * not used or tested yet.
- * 
+ *
  * @author rjw82
  *
  */
@@ -30,12 +30,12 @@ public class Xspress3CollectionStrategy implements AsyncNXCollectionStrategy, Co
 	Xspress3CollectionStrategy(Xspress3Controller controller) {
 		this.controller = controller;
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		controller.configure();
 	}
-	
+
 //	public boolean isWriteHDF5Files() {
 //		return writeHDF5Files;
 //	}
@@ -68,10 +68,10 @@ public class Xspress3CollectionStrategy implements AsyncNXCollectionStrategy, Co
 //			controller.setSavingFiles(writeHDF5Files);
 //		}
 		controller.doStart();
-		
+
 		//wait for 2s
 		Thread.sleep(2000);
-		
+
 		frameToLookFor = 0;
 	}
 
@@ -159,7 +159,7 @@ public class Xspress3CollectionStrategy implements AsyncNXCollectionStrategy, Co
 			}
 			Thread.sleep(100);
 		}
-		
+
 		testForErrorState();
 	}
 

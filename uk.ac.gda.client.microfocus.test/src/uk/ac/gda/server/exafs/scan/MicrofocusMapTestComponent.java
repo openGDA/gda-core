@@ -18,6 +18,15 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
+
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+
 import gda.commandqueue.Processor;
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.NXMetaDataProvider;
@@ -32,16 +41,6 @@ import gda.jython.JythonServer;
 import gda.jython.JythonServerFacade;
 import gda.jython.batoncontrol.ClientDetails;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
-
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
-
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.DetectorParameters;
@@ -135,7 +134,7 @@ public class MicrofocusMapTestComponent {
 
 		energy_scannable = createMockMotorScannable("energy_scannable");
 		energy_nogap_scannable = createMockMotorScannable("energy_nogap_scannable");
-		
+
 		y_scannable = createMockMotorScannable("y_scannable");
 		z_scannable = createMockMotorScannable("z_scannable");
 

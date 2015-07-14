@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package gda.device.detector.xmap;
 
@@ -21,24 +21,24 @@ import gov.aps.jca.TimeoutException;
 public class XBufferPlugin extends NullNXPlugin implements InitializingBean  {
 
 	/**
-	 * 
+	 *
 	 */
-	
+
 	String basePVName;
 	String fullPvName;
 	String fullPvName_RBV;
 	public final String EnableCallbacks = "EnableCallbacks";
 	public final String EnableCallbacks_RBV = "EnableCallbacks_RBV";
-	
-	
+
+
 	private EnableXBuf EnableXbuf;
 	public enum EnableXBuf {
-		DISABLE, ENABLE, 
+		DISABLE, ENABLE,
 	}
 	protected final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 
 	static final Logger logger = LoggerFactory.getLogger(XBufferPlugin.class);
-	
+
 	public String getBasePVName() {
 		return basePVName;
 	}
@@ -55,19 +55,19 @@ public class XBufferPlugin extends NullNXPlugin implements InitializingBean  {
 	public void setFullPvName() {
 		this.fullPvName = basePVName+EnableCallbacks;
 	}
-	 
+
 	public String getFullPvName() {
 		return fullPvName;
 	}
-	
+
 	public void setFullPvName_RBV() {
 		this.fullPvName_RBV = basePVName+EnableCallbacks_RBV;
 	}
-	
+
 	public String getFullPvName_RBV() {
 		return fullPvName_RBV;
 	}
-	
+
 	public EnableXBuf getEnable() {
 		return this.EnableXbuf;
 	}
@@ -75,11 +75,11 @@ public class XBufferPlugin extends NullNXPlugin implements InitializingBean  {
 	public void setEnableXBuf(EnableXBuf enable) {
 		this.EnableXbuf = enable;
 	}
-	
-	
+
+
 	public Channel createChannel(String fullPvName) throws CAException, TimeoutException {
 	 	Channel channel = null;
-	 	
+
 	 	try {
 	 		channel = EPICS_CONTROLLER.createChannel(fullPvName);
 	 	} catch (CAException cae){
@@ -87,7 +87,7 @@ public class XBufferPlugin extends NullNXPlugin implements InitializingBean  {
 	 	}
 	 	return channel;
 	 }
-	
+
 
 	 public void setEnabled() throws Exception {
 		 setFullPvName();
@@ -98,7 +98,7 @@ public class XBufferPlugin extends NullNXPlugin implements InitializingBean  {
 				throw ex;
 		 }
 	}
-	 
+
 	 public short getEnabled() throws Exception {
 		 setFullPvName_RBV();
 		 try{
@@ -108,9 +108,9 @@ public class XBufferPlugin extends NullNXPlugin implements InitializingBean  {
 				throw ex;
 		}
 	}
-	 
-	
-	
+
+
+
 	/* (non-Javadoc)
 	 * @see gda.device.detector.nxdetector.NXPluginBase#getName()
 	 */
@@ -118,8 +118,8 @@ public class XBufferPlugin extends NullNXPlugin implements InitializingBean  {
 	public String getName() {
 		return "XBuffer plugin";
 	}
-	
-	
+
+
 
 	/* (non-Javadoc)
 	 * @see gda.device.detector.nxdetector.NXPluginBase#willRequireCallbacks()
@@ -141,7 +141,7 @@ public class XBufferPlugin extends NullNXPlugin implements InitializingBean  {
 		if (basePVName == null) {
 			throw new IllegalArgumentException("'basePVName'needs to be declared");
 		}
-		
+
 	}
 
 }

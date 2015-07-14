@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
-import gda.configuration.properties.LocalProperties;
-
 import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
 import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
@@ -39,9 +37,10 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.exafs.ui.detector.DetectorEditor;
-
 import com.swtdesigner.SWTResourceManager;
+
+import gda.configuration.properties.LocalProperties;
+import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 
 public class FluoDetectorAcquireComposite extends Composite {
 
@@ -55,7 +54,7 @@ public class FluoDetectorAcquireComposite extends Composite {
 
 	public FluoDetectorAcquireComposite(Composite composite, final FluorescenceDetectorCompositeController controller) {
 		super(composite, SWT.NONE);
-		
+
 		this.setLayout(new FillLayout());
 
 		Group grpAcquire = new Group(this, SWT.NONE);
@@ -69,7 +68,7 @@ public class FluoDetectorAcquireComposite extends Composite {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				// TODO 
+				// TODO
 			}
 
 			@Override

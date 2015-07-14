@@ -49,59 +49,59 @@ public final class LakeshoreComposite extends FieldBeanComposite {
 		Label label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("Temperature 0");
-		
+
 		this.tempSelect0 = new BooleanWrapper(this, SWT.NONE);
 		tempSelect0.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("Temperature 1");
-	
+
 		this.tempSelect1 = new BooleanWrapper(this, SWT.NONE);
 		tempSelect1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("Temperature 2");
 
 		this.tempSelect2 = new BooleanWrapper(this, SWT.NONE);
 		tempSelect2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("Temperature 3");
-		
+
 		this.tempSelect3 = new BooleanWrapper(this, SWT.NONE);
 		tempSelect3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("Setpoint Set");
 		this.setPointSet = new ScaleBox(this, SWT.NONE);
 		setPointSet.setUnit("C");
 		setPointSet.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblTolerance = new Label(this, SWT.NONE);
 		lblTolerance.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblTolerance.setText("Tolerance");
 		tolerance = new ScaleBox(this, SWT.NONE);
 		tolerance.setUnit("C");
 		tolerance.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblTime = new Label(this, SWT.NONE);
 		lblTime.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblTime.setText("Wait for stability time");
 		time = new ScaleBox(this, SWT.NONE);
 		time.setUnit("s");
 		time.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		this.controlFlag = new BooleanWrapper(this, SWT.NONE);
-		controlFlag.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));	
+		controlFlag.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		controlFlag.setText("Only read, no control");
 	}
 
-	
-	
+
+
 	public FieldComposite getTempSelect0() {
 		return tempSelect0;
 	}
@@ -121,7 +121,7 @@ public final class LakeshoreComposite extends FieldBeanComposite {
 	public FieldComposite getSetPointSet() {
 		return setPointSet;
 	}
-	
+
 	public FieldComposite getTolerance(){
 		return tolerance;
 	}

@@ -31,7 +31,7 @@ abstract public class DetectorROIComposite extends Composite {
 		super(parent, style);
 	}
 
-	
+
 	public static class FieldWidgetsForDetectorElementsComposite {
 		public ScaleBox roiStart;
 		public ScaleBox roiEnd;
@@ -58,6 +58,6 @@ abstract public class DetectorROIComposite extends Composite {
 			return counts;
 		}
 	}
-	
+
 	abstract public FieldWidgetsForDetectorElementsComposite getFieldWidgetsForDetectorElementsComposite();
 }

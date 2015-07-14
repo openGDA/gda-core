@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.jython.JythonServerFacade;
-
 import java.io.File;
 import java.io.Serializable;
 import java.text.DateFormat;
@@ -33,6 +31,7 @@ import java.util.TimeZone;
 
 import org.eclipse.swt.widgets.Composite;
 
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.ClientManager;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
@@ -45,7 +44,7 @@ public final class EstimatePointsWidget extends QueuedCommandWidget {
 	private String             scriptName;
 	private RichBeanEditorPart editorPart;
 	private boolean timeMode = false;
-	
+
 	/**
 	 * @param parent
 	 * @param style
@@ -53,7 +52,7 @@ public final class EstimatePointsWidget extends QueuedCommandWidget {
 	public EstimatePointsWidget(Composite parent, int style) {
 		super(parent, style);
 	}
-	
+
 	/**
 	 * Designed to be run in another thread.
 	 * @return m
@@ -61,7 +60,7 @@ public final class EstimatePointsWidget extends QueuedCommandWidget {
 	@Override
 	protected String runCommand() throws Exception {
 		String command = getCommandLine();
-		if (ClientManager.isTestingMode()) 
+		if (ClientManager.isTestingMode())
 			return "Test";
 		// Run command and block.
         JythonServerFacade jythonServerFacade = JythonServerFacade.getInstance();
@@ -78,12 +77,12 @@ public final class EstimatePointsWidget extends QueuedCommandWidget {
 	 */
 	@SuppressWarnings("unchecked")
 	private Map<String, Serializable> getBean() {
-		if (!checkActive(this)) 
+		if (!checkActive(this))
 			return Collections.EMPTY_MAP;
 
 		final Map<String, Serializable> bean = new HashMap<String, Serializable>(1);
 		final File file = EclipseUtils.getFile(editorPart.getEditorInput());
-		
+
 		getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -112,15 +111,15 @@ public final class EstimatePointsWidget extends QueuedCommandWidget {
 			DateFormat format = DateFormat.getTimeInstance(DateFormat.MEDIUM, Locale.UK);
 			format.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("GMT")));
 			label.setText(format.format(date));
-		} 
+		}
 		else
 			super.setLabelText(status);
 	}
 
-	private Date getDate(long seconds) { 
-		return new Date(seconds * 1000); 
+	private Date getDate(long seconds) {
+		return new Date(seconds * 1000);
 	}
-	
+
 	public String getScriptName() {
 		return scriptName;
 	}
@@ -136,7 +135,7 @@ public final class EstimatePointsWidget extends QueuedCommandWidget {
 	public void setEditor(RichBeanEditorPart editor) {
 		this.editorPart = editor;
 	}
-	
+
 	private String getFileKey(final String fileName) {
 		return fileName.substring(0,fileName.indexOf("."));
 	}

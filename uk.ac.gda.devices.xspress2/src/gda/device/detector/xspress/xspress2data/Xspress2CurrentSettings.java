@@ -1,11 +1,10 @@
 package gda.device.detector.xspress.xspress2data;
 
-import gda.device.DeviceException;
-import gda.device.detector.xspress.Xspress2Detector;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import gda.device.DeviceException;
+import gda.device.detector.xspress.Xspress2Detector;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDetector;
@@ -16,9 +15,9 @@ import uk.ac.gda.beans.xspress.XspressParameters;
  * by the Xspress2System class which operates the hardware and
  * {@link Xspress2NexusTreeProvider} which converts the raw output from the hardware
  * into usable chunks for Nexus file.
- * 
+ *
  * @author rjw82
- * 
+ *
  */
 public class Xspress2CurrentSettings {
 
@@ -54,7 +53,7 @@ public class Xspress2CurrentSettings {
 
 	/*
 	 * @param channelLabels
-	 * 
+	 *
 	 * @param filteroutExcludedChannels - true if you only want included
 	 * detectors (elements)
 	 */

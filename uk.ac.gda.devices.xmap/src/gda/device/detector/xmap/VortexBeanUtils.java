@@ -24,14 +24,14 @@ import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class VortexBeanUtils {
-	
+
 	public VortexParameters createBeanFromXML(String xmlPath) throws Exception{
 		return (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL, VortexParameters.class, VortexParameters.schemaURL, new File(xmlPath));
 	}
-	
+
 	public void createXMLfromBean(Xmap xmap, VortexParameters vortexBean) throws Exception{
 		File file = new File(xmap.getConfigFileName());
 		XMLHelpers.writeToXML(VortexParameters.mappingURL, vortexBean, file);
 	}
-	
+
 }

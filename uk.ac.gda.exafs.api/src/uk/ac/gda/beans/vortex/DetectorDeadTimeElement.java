@@ -30,11 +30,11 @@ import org.apache.commons.beanutils.BeanUtils;
 public class DetectorDeadTimeElement  implements Serializable{
 
 	private String name;
-	
+
 	// Each detector knows its own number (counting from 0). This has little
 	// use within the software but helps to make the configuration file human
 	// readable and writeable.
-	private int number;	
+	private int number;
 	private double processDeadTimeAllEvent;
 	private double processDeadTimeInWindow;
 	/**
@@ -42,7 +42,7 @@ public class DetectorDeadTimeElement  implements Serializable{
 	 */
 	public DetectorDeadTimeElement() {
 	}
-	
+
 	/**
 	 *
 	 */
@@ -114,7 +114,7 @@ public class DetectorDeadTimeElement  implements Serializable{
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		long temp;		
+		long temp;
 		temp = Double.doubleToLongBits(processDeadTimeAllEvent);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(processDeadTimeInWindow);
@@ -153,5 +153,5 @@ public class DetectorDeadTimeElement  implements Serializable{
 			return false;
 		}
 		return true;
-	}	
+	}
 }

@@ -31,27 +31,27 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObjectManager;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 
 public class AddScanWizard extends Wizard implements INewWizard{
-	
+
 	AddScanWizardPageOne page1;
 	AddScanWizardPageTwo page2;
-	
+
 	@SuppressWarnings("unused")
 	private IStructuredSelection initialSelection;
 
 	private IExperimentEditorManager controller = null;
-	
+
 	@Override
 	public void init(IWorkbench arg0, IStructuredSelection selection) {
 		initialSelection = selection;
 	}
-	
+
 	protected IExperimentEditorManager getController() {
 		if (controller == null) {
 			this.controller = ExperimentFactory.getExperimentEditorManager();
 		}
 		return controller;
 	}
-	
+
 	@Override
 	public boolean performFinish() {
 		final IExperimentObjectManager man = getController().getSelectedMultiScan();
@@ -61,25 +61,25 @@ public class AddScanWizard extends Wizard implements INewWizard{
 		final IExperimentObject ob = getController().getSelectedScan();
 
 		final ScanObject created = (ScanObject) man.insertNewExperimentAfter(ob);
-		
+
 		if (getController().getActiveRunEditor() != null) {
 			getController().getActiveRunEditor().editRunName(created);
 		} else if (getController().getViewer() != null) {
 			getController().refreshViewers();
 			getController().setSelected(created);
 		}
-		
+
 		IFile newScanFile = page2.getNewScanFile();
-		
+
 		created.setScanFileName(newScanFile.getName());
-		
+
 		ExperimentFactory.getManager(ob).write();
 
 		controller.openDefaultEditors(created, true);
-		
+
 		return true;
 	}
-	
+
 	@Override
 	public void addPages() {
 		setWindowTitle("Add Scan");

@@ -28,7 +28,7 @@ import gda.factory.Configurable;
 
 /**
  * For using Xia XMap within the AbstractContinuousScanLine-style trajectory scans.
- * 
+ *
  * @author rjw82
  *
  */

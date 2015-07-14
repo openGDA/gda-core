@@ -26,19 +26,19 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 /**
  * Utility class to easily marshall / unmarshall xspress3 detector configuration parameters.
- * 
+ *
  * @author rjw82
  *
  */
 public class Xspress3BeanUtils {
-	
+
 	public Xspress3Parameters createBeanFromXML(String xmlPath) throws Exception{
 		return (Xspress3Parameters) XMLHelpers.createFromXML(Xspress3Parameters.mappingURL, Xspress3Parameters.class, VortexParameters.schemaURL, new File(xmlPath));
 	}
-	
+
 	public void createXMLfromBean(Xspress3 xmap, Xspress3Parameters vortexBean) throws Exception{
 		File file = new File(xmap.getConfigFileName());
 		XMLHelpers.writeToXML(Xspress3Parameters.mappingURL, vortexBean, file);
 	}
-	
+
 }

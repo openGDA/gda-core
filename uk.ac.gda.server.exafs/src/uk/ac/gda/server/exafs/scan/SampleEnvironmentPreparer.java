@@ -36,7 +36,7 @@ public interface SampleEnvironmentPreparer {
 	/**
 	 * Returns an Iterator object which loops over the different sample environment setings for this experiment e.g.
 	 * motor positions, temperatures, or a combination of these.
-	 * 
+	 *
 	 * @param experimentType
 	 * @return SampleEnvironmentIterator
 	 */

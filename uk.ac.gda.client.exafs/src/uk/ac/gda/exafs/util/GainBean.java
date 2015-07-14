@@ -31,22 +31,22 @@ import uk.ac.gda.beans.exafs.IonChamberParameters;
 public abstract class GainBean {
 
 	private Logger logger;
-	
+
 	// Vairables that change
 	private Double               energy;
     private IonChamberParameters ionChamber;
-	
+
     // Once set these stay.
 	private String scannableName;
     private Long   collectionTime = 1000L;
-    
+
     private Double referenceEdgeEnergy;
 	private Double sampleEdgeEnergy;
 	private Double finalEnergy;
 	private Double tolerance;
 
 	private IProgressMonitor monitor;
-	
+
 	/**
 	 * @return Returns the referenceEdgeEnergy.
 	 */
@@ -278,30 +278,30 @@ public abstract class GainBean {
 	public void setLogger(Logger logger) {
 		this.logger = logger;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param monitor
 	 */
 	public void setMonitor(IProgressMonitor monitor) {
 		this.monitor = monitor;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param message
 	 */
 	public void setMonitorMessage(final String message) {
 		if (monitor!=null) monitor.subTask(message);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public void worked() {
 		if (monitor!=null) monitor.worked(1);
 	}
-	
+
 	/**
 	 * Called to see if user cancelled it.
 	 * @return isCancelled
@@ -309,14 +309,14 @@ public abstract class GainBean {
 	public boolean isCancelled() {
 		return monitor!=null ? monitor.isCanceled() : false;
 	}
-	
+
 	/**
 	 * Call to log messages to the log file as info and to the user under the details toggle.
-	 * @param message 
+	 * @param message
 	 */
 	public void log(final String message) {
 		if (getLogger()!=null) getLogger().info(message);
-		
+
         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -324,7 +324,7 @@ public abstract class GainBean {
 			}
         });
 	}
-	
+
 	/**
 	 * Notified when message should be updated. Saves adding a full listener/event
 	 * capability to this class.

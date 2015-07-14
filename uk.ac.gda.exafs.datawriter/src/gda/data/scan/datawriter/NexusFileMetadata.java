@@ -22,21 +22,21 @@ package gda.data.scan.datawriter;
  * For use by the NexusExtraMetadataDateWriter to record the extra metadata and their location in a nexus file.
  */
 public class NexusFileMetadata {
-	
+
 	public EntryTypes nxEntryType = null;
 	public NXinstrumentSubTypes nxEntrySubType = null;
 	public String name = null;
 	public String value= null;
 	public String typeLabel = null;
-	
+
 	public enum EntryTypes {
-		NXinstrument, NXsample, NXmonitor, NXdata, NXevent_data, NXuser, 
+		NXinstrument, NXsample, NXmonitor, NXdata, NXevent_data, NXuser,
 		NXprocess, NXcharacterization
 	}
-	
+
 	public enum NXinstrumentSubTypes {
-		NXaperture, NXattenuator, NXbeam_stop, NXbending_magnet, NXcollimator, NXcrystal, NXdetector, NXdisk_chopper, 
-		NXfermi_chopper, NXfilter, NXflipper, NXguide, NXinsertion_device, NXmirror, NXmoderator, NXmonochromator, 
+		NXaperture, NXattenuator, NXbeam_stop, NXbending_magnet, NXcollimator, NXcrystal, NXdetector, NXdisk_chopper,
+		NXfermi_chopper, NXfilter, NXflipper, NXguide, NXinsertion_device, NXmirror, NXmoderator, NXmonochromator,
 		NXpolarizer, NXpositioner, NXsource, NXvelocity_selector, NXsample_stage
 	}
 
@@ -48,38 +48,38 @@ public class NexusFileMetadata {
 		this.name = name;
 		this.value = value;
 	}
-	
+
 	public String getUniqueCategory(){
 		return this.typeLabel;
 	}
-	
+
 	public EntryTypes getNxEntryType() {
 		return nxEntryType;
 	}
 	public void setNxEntryType(EntryTypes nxEntryType) {
 		this.nxEntryType = nxEntryType;
 	}
-	
+
 	public NXinstrumentSubTypes getNxEntrySubType() {
 		return nxEntrySubType;
 	}
-	
+
 	public void setNxEntrySubType(NXinstrumentSubTypes nxEntrySubType) {
 		this.nxEntrySubType = nxEntrySubType;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	public String getValue() {
 		return value;
 	}
-	
+
 	public void setValue(String value) {
 		this.value = value;
 	}

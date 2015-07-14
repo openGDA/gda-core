@@ -18,11 +18,11 @@
 
 package gda.device.detector.countertimer;
 
-import gda.device.DeviceException;
-import gda.device.scannable.PositionCallableProvider;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import gda.device.DeviceException;
+import gda.device.scannable.PositionCallableProvider;
 
 public class CallableTfgScalerWithLogValues extends TfgScalerWithLogValues implements PositionCallableProvider<double[]> {
 
@@ -37,7 +37,7 @@ public class CallableTfgScalerWithLogValues extends TfgScalerWithLogValues imple
 			setReadingOut(false);
 			return reply;
 			}
-		};		
+		};
 			return callable;
 	}
 
@@ -55,7 +55,7 @@ public class CallableTfgScalerWithLogValues extends TfgScalerWithLogValues imple
 		}
 
 	}
-	
+
 	protected double[] getSuperReadout() throws DeviceException {
 		return super.readout();
 	}

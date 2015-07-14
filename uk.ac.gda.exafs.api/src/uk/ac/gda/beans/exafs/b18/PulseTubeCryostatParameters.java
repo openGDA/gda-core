@@ -75,7 +75,7 @@ public class PulseTubeCryostatParameters implements Serializable {
 	public void setTemperature1(double temperature) {
 		this.temperature1 = temperature;
 	}
-	
+
 	public double getTemperature2() {
 		return temperature2;
 	}
@@ -119,7 +119,7 @@ public class PulseTubeCryostatParameters implements Serializable {
 	public void clear() {
 		temperature1 = temperature2 = time = tolerance = 0;
 	}
-	
+
 	public boolean isControlFlag() {
 		return controlFlag;
 	}

@@ -35,7 +35,7 @@ public class AbsorptionEdge {
 	 * <p>
 	 * No checking of values here but elementSymbol should be a standard symbol, edgeType should be one of "K", "LI",
 	 * "LII" or "LIII" and energy should be in keV.
-	 * 
+	 *
 	 * @param elementSymbol
 	 *            the element symbol - should be a standard symbol
 	 * @param edgeType
@@ -51,7 +51,7 @@ public class AbsorptionEdge {
 
 	/**
 	 * Constructs and AbsorptionEdge from a single string as produced by the toString() method.
-	 * 
+	 *
 	 * @param string
 	 */
 
@@ -64,7 +64,7 @@ public class AbsorptionEdge {
 
 	/**
 	 * Returns the element symbol
-	 * 
+	 *
 	 * @return the edge type
 	 */
 	public String getElementSymbol() {
@@ -73,7 +73,7 @@ public class AbsorptionEdge {
 
 	/**
 	 * Returns the type (K, LI etc.)
-	 * 
+	 *
 	 * @return the edge type
 	 */
 	public String getEdgeType() {
@@ -82,7 +82,7 @@ public class AbsorptionEdge {
 
 	/**
 	 * Returns the edge energy
-	 * 
+	 *
 	 * @return the edge energy in eV
 	 */
 	public double getEnergy() {
@@ -91,7 +91,7 @@ public class AbsorptionEdge {
 
 	/**
 	 * Returns a string representation of the edge.
-	 * 
+	 *
 	 * @return string representing the edge
 	 */
 	@Override

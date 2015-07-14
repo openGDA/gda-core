@@ -10,7 +10,7 @@ import uk.ac.gda.util.CorrectionUtils;
 
 /**
  * Provides tools to calculate the deadtime in Xspress2.
- * 
+ *
  * @author rjw82
  *
  */
@@ -20,7 +20,7 @@ public class Xspress2DeadtimeTools {
 	 * deadtime correction factor for each element.
 	 * <p>
 	 * The output includes excluded detectors (elements). These will have a deadtime of 0.0.
-	 * 
+	 *
 	 * @param hardwareScalerReadings
 	 * @return double[]
 	 */
@@ -45,7 +45,7 @@ public class Xspress2DeadtimeTools {
 				if (detector.isExcluded()) {
 					k += 4;
 					dataout[l] = 0.0;
-				} 
+				}
 				else {
 					all = hardwareScalerReadings[k++]; // total number of events
 					reset = hardwareScalerReadings[k++]; // TFG reset counts
@@ -64,21 +64,21 @@ public class Xspress2DeadtimeTools {
 			}
 		return dataout;
 	}
-	
+
 	private double calculateDetectorProcessDeadTimeAllEvent(DetectorDeadTimeElement detectorDte, Double deadtimeEnergy) {
 		Double grad = detectorDte.getProcessDeadTimeAllEventGradient();
 		if (grad == null || grad == 0.0 || deadtimeEnergy == null || deadtimeEnergy == 0.0)
 			return detectorDte.getProcessDeadTimeAllEventOffset();
 		return detectorDte.getProcessDeadTimeAllEventOffset() + grad * deadtimeEnergy;
 	}
-	
+
 	private double calculateDetectorProcessDeadTimeInWindowEvent(DetectorDeadTimeElement detectorDte, Double deadtimeEnergy) {
 		Double grad = detectorDte.getProcessDeadTimeInWindowGradient();
 		if (grad == null || grad == 0.0 || deadtimeEnergy == null || deadtimeEnergy == 0.0)
 			return detectorDte.getProcessDeadTimeInWindow();
 		return detectorDte.getProcessDeadTimeInWindow() + grad * deadtimeEnergy;
 	}
-	
+
 	/*
 	 * Documentation from William Helsby is available to explain the maths in this method
 	 * @param all
@@ -100,5 +100,5 @@ public class Xspress2DeadtimeTools {
 		factor *= 1 / Math.exp(-corrected * 2 * processDeadTimeInWindow);
 		return factor;
 	}
-	
+
 }

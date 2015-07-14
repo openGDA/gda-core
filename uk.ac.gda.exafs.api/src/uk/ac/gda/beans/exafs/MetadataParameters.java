@@ -24,18 +24,18 @@ import org.apache.commons.beanutils.BeanUtils;
 
 public class MetadataParameters implements Serializable{
 	private String scannableName;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public MetadataParameters() {
-		
+
 	}
-	
+
 	public MetadataParameters(String scannableName) {
 		this.scannableName = scannableName;
 	}
-	
+
 	/**
 	 * @return Returns the scannableName.
 	 */
@@ -49,7 +49,7 @@ public class MetadataParameters implements Serializable{
 	public void setScannableName(String scannableName) {
 		this.scannableName = scannableName;
 	}
-	
+
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -79,7 +79,7 @@ public class MetadataParameters implements Serializable{
 		}
 		return true;
 	}
-	
+
 	/**
 	 *
 	 */

@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.jython.JythonServerFacade;
-
 import org.dawnsci.common.richbeans.components.FieldBeanComposite;
 import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
@@ -36,6 +34,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
 
 /**
@@ -212,7 +211,7 @@ public final class SampleWheelParametersComposite extends FieldBeanComposite {
 	public BooleanWrapper getWheelEnabled() {
 		return wheelEnabled;
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void createEmptyLabel(Composite composite){
 		new Label(composite, SWT.NONE);

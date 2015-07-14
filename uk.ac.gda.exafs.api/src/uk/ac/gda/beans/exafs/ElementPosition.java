@@ -25,9 +25,9 @@ public class ElementPosition implements Serializable {
 	private String  name;
 	private String  principleElement;
 	private Integer wheelPosition;
-	
+
 	public ElementPosition() {
-		
+
 	}
 
 	public ElementPosition(String name, int pos) {

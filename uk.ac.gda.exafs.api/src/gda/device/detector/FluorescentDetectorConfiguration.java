@@ -26,7 +26,7 @@ public interface FluorescentDetectorConfiguration extends Findable, IObservable 
 
 	/**
 	 * Configure the detector using the given XML file.
-	 * 
+	 *
 	 * @param xmlFileName
 	 * @throws FactoryException
 	 */

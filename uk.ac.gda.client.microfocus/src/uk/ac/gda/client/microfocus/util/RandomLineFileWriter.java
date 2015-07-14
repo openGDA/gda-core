@@ -60,16 +60,16 @@ public class RandomLineFileWriter {
 			writer.flush();
 		}
 	}
-	
+
 	private void writeToFile(int lineNumber, String string) throws IOException
 	{
 		writer.write(string + "\n");
 		writer.flush();
 		lastWrittenLineNumber = lineNumber;
 	}
-	
+
 	private void writeLinesFromBuffer() throws IOException {
-		
+
 	for(int i =lastWrittenLineNumber + 1 ;; i++)
 	{
 		String lineToWrite = linesBuffer.get(i);
@@ -84,7 +84,7 @@ public class RandomLineFileWriter {
 		if(totalLinesBuffered == 0)
 			break;
 	}
-		
+
 	}
 
 	public void close() throws IOException

@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.jython.JythonServerFacade;
-
 import java.net.URL;
 import java.util.List;
 
@@ -43,6 +41,7 @@ import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.MetadataParameters;
 import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.beans.exafs.i20.I20OutputParameters;
@@ -88,7 +87,7 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		final GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
 		parent.setLayout(gridLayout);
-		
+
 		final Composite left = new Composite(parent, SWT.NONE);
 		left.setLayout(new GridLayout(2, false));
 		left.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, true));
@@ -135,7 +134,7 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		}
 		return filterPath;
 	}
-	
+
 	private void createExtraColumns(Composite composite){
 		signalExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
 		signalExpandableComposite.setText("Add extra columns of data");
@@ -158,7 +157,7 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
 		signalParametersGroup.setLayout(gridLayout);
-		
+
 		signalList = new VerticalListEditor(signalParametersGroup, SWT.NONE);
 		Control control = signalList.getViewer().getControl();
 		control.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
@@ -238,12 +237,12 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 			}
 		};
 		metadataExpandableComposite.addExpansionListener(metadataExpansionListener);
-		
-		
+
+
 		if(bean.getMetadataList().size()>0)
 			metadataExpandableComposite.setExpanded(true);
 	}
-	
+
 	private void createScripts(Composite composite){
 		jythonExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
 		jythonExpandableComposite.setText("Run scripts before and after a scan");
@@ -327,11 +326,11 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 			}
 		};
 		jythonExpandableComposite.addExpansionListener(jythonExpansionListener);
-		
+
 		if(bean.getBeforeScriptName()!=null || bean.getAfterScriptName()!=null)
 			jythonExpandableComposite.setExpanded(true);
 	}
-	
+
 	private void createOutput(Composite composite){
 		outputFoldersExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
 		outputFoldersExpandableComposite.setText("Choose where files are saved to");
@@ -372,7 +371,7 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		asciiDirectory.setLayoutData(gd_asciiDirectory);
 		asciiDirectory.setToolTipText("The ascii sub-folder that will store ascii output files.");
 		asciiDirectory.setTextType(TextWrapper.TEXT_TYPE.FILENAME);
-		
+
 		final Label nexusFolderLabel = new Label(ouputFilePreferencesGroup, SWT.NONE);
 		nexusFolderLabel.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, false, false));
 		nexusFolderLabel.setText("Nexus Folder");
@@ -385,7 +384,7 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		nexusDirectory.setTextType(TextWrapper.TEXT_TYPE.FILENAME);
 		new Label(outputFoldersComp, SWT.NONE);
 	}
-	
+
 	private void createDetectorOptions(Composite left) {
 		detectorsExpandableComposite = new ExpandableComposite(left, SWT.NONE);
 		detectorsExpandableComposite.setText("Fluorescence detectors output");
@@ -423,12 +422,12 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 			}
 		};
 		detectorsExpandableComposite.addExpansionListener(detFoldersListener);
-		
+
 		this.vortexSaveRawSpectrum = new BooleanWrapper(vortexPreferencesGroup, SWT.NONE);
 		vortexSaveRawSpectrum.setText("Save raw spectrum to file");
 		vortexSaveRawSpectrum.setValue(false);
 		new Label(vortexPreferencesGroup, SWT.NONE);
-		
+
 		this.xspressOnlyShowFF = new BooleanWrapper(xspressPreferencesGroup, SWT.NONE);
 		xspressOnlyShowFF.setText("Hide individual elements");
 		xspressOnlyShowFF
@@ -445,7 +444,7 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 		xspressSaveRawSpectrum.setText("Save raw spectrum to file");
 		xspressSaveRawSpectrum.setValue(false);
 		new Label(xspressPreferencesGroup, SWT.NONE);
-		
+
 		detectorsExpandableComposite.setClient(detFoldersComp);
 
 		ExpansionAdapter detExpansionListener = new ExpansionAdapter() {
@@ -457,12 +456,12 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 			}
 		};
 		detectorsExpandableComposite.addExpansionListener(detExpansionListener);
-		
+
 		if(bean.isVortexSaveRawSpectrum() || bean.isXspressOnlyShowFF() || bean.isXspressSaveRawSpectrum() || bean.isXspressShowDTRawValues())
 			detectorsExpandableComposite.setExpanded(true);
 	}
 
-	
+
 	@Override
 	public void dispose() {
 		super.dispose();
@@ -498,7 +497,7 @@ public class I20OutputParametersUIEditor extends RichBeanEditorPart {
 
 	public TextWrapper getAsciiFileName() {
 		return asciiFileName;
-	}	
+	}
 
 	public BooleanWrapper getVortexSaveRawSpectrum() {
 		return vortexSaveRawSpectrum;

@@ -37,6 +37,6 @@ public final class QEXAFSParametersDescriber extends XMLBeanContentDescriber {
 		return "uk.ac.gda.exafs.ui.QEXAFSParametersEditor";
 	}
 
-	
+
 
 }

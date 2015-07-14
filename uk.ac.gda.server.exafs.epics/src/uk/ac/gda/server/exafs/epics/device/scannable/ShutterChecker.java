@@ -18,6 +18,12 @@
 
 package uk.ac.gda.server.exafs.epics.device.scannable;
 
+import java.io.IOException;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.EnumPositioner;
 import gda.device.enumpositioner.ValveBase;
@@ -26,12 +32,6 @@ import gda.epics.LazyPVFactory;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
-
-import java.io.IOException;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Zero-in, zero-out scannable intended to be used a default scannable to confirm that the EH shutter is open.
@@ -78,7 +78,7 @@ public class ShutterChecker extends ScannableBase {
 				position = (String) shutter.getPosition();
 			}
 			if (!first)
-				updateUser("Experimental shutter re-opened, so continuing scan...");	
+				updateUser("Experimental shutter re-opened, so continuing scan...");
 		} catch (InterruptedException e) {
 			logger.error("Interrupted exception while checking shutter is open. Will rethrow as a DeviceException", e);
 			throw new DeviceException("Interrupted exception while checking shutter is open.", e);

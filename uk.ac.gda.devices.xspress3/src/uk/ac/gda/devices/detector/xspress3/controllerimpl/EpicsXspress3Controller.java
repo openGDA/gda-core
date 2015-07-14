@@ -1,18 +1,17 @@
 package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.epics.ReadOnlyPV;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-
 import java.io.IOException;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.epics.ReadOnlyPV;
+import gda.factory.Configurable;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 
@@ -21,9 +20,9 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
  * available here.
  * <p>
  * Functionality outside of the this class which is relevant: file saving,
- * 
+ *
  * @author rjw82
- * 
+ *
  */
 public class EpicsXspress3Controller implements Xspress3Controller, Configurable, Findable {
 
@@ -38,7 +37,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	private int numRoiToRead = 1;
 
 //	private int[] dimensionsOfLastFile;
-	
+
 	private int numberOfDetectorChannels = 4;
 
 	@Override
@@ -70,7 +69,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 
 	/**
 	 * Used to derive the available PVs.
-	 * 
+	 *
 	 * @return
 	 */
 	@Override
@@ -97,6 +96,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		}
 	}
 
+	@Override
 	public boolean isSavingFiles() throws DeviceException {
 		try {
 			return pvProvider.pvIsFileWriting.get() == CAPTURE_CTRL_RBV.Capture;
@@ -105,6 +105,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		}
 	}
 
+	@Override
 	public void setSavingFiles(Boolean saveFiles) throws DeviceException {
 		try {
 			if (saveFiles) {
@@ -165,6 +166,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 		}
 	}
 
+	@Override
 	public void setPerformROICalculations(Boolean doCalcs) throws DeviceException {
 		try {
 			UPDATE_CTRL setValue = UPDATE_CTRL.Disable;
@@ -268,6 +270,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 	 * @return - the number of frames EPICS reads per readout
 	 * @throws DeviceException
 	 */
+	@Override
 	public int getNumFramesPerReadout() throws DeviceException {
 		try {
 			return pvProvider.pvGetNumFramesPerReadout.get();
@@ -686,7 +689,7 @@ public class EpicsXspress3Controller implements Xspress3Controller, Configurable
 			throw new DeviceException("IOException while getting file number", e);
 		}
 	}
-	
+
 	@Override
 	public String getFullFileName() throws DeviceException {
 		try {

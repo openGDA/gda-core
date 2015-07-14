@@ -18,9 +18,6 @@
 
 package gda.exafs.scan;
 
-import gda.util.Converter;
-import gda.util.Element;
-
 import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -29,6 +26,8 @@ import org.python.core.PyFloat;
 import org.python.core.PyObject;
 import org.python.core.PyTuple;
 
+import gda.util.Converter;
+import gda.util.Element;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 
 /**
@@ -71,7 +70,7 @@ public class ExafsScanPointCreator {
 	/**
 	 * Operates this class when a bean (xml file from the gui) has been configured. This gives an example of how this
 	 * class should be driven in a more manual mode.
-	 * 
+	 *
 	 * @param parameters
 	 * @return PyTuple
 	 * @throws Exception
@@ -81,7 +80,7 @@ public class ExafsScanPointCreator {
 		setupScanPointCreator(parameters, creator);
 		return creator.getEnergies();
 	}
-	
+
 	public static ArrayList<ExafsScanRegionTime> getScanTimes(XasScanParameters parameters) throws Exception{
 		ExafsScanPointCreator creator = new ExafsScanPointCreator();
 		setupScanPointCreator(parameters, creator);
@@ -126,7 +125,7 @@ public class ExafsScanPointCreator {
 		else
 			creator.setEdgeEnergy(parameters.getEdgeEnergy());
 	}
-	
+
 	private static Double[] getABC(XasScanParameters parameters) throws Exception {
 		// define the steps in the edge region
 		Double[] abc = null;
@@ -170,7 +169,7 @@ public class ExafsScanPointCreator {
 	public PyTuple getEnergies() throws Exception {
 		return convert2DDoubleArray(getScanEnergies(), numberDetectors);
 	}
-	
+
 	public Double[] getScanTimes() throws Exception {
 		double[][] energies = getScanEnergies();
 		Double[] times = new Double[energies.length];
@@ -199,7 +198,7 @@ public class ExafsScanPointCreator {
 		scanTimes.add(new ExafsScanRegionTime("PreEdge", preEdgeEnergies.length, new double[]{preEdgeTime}));
 		double[][] abEnergies = convertABSteps(aEnergy, bEnergy, preEdgeStep, edgeStep, preEdgeTime);
 		scanTimes.add(new ExafsScanRegionTime("AbEdge", abEnergies.length, new double[]{preEdgeTime}));
-		
+
 		double[][] bcEnergies = createStepArray(bEnergy+edgeStep, cEnergy, edgeStep, edgeTime, false, numberDetectors);
 		scanTimes.add(new ExafsScanRegionTime("BcEnergy", bcEnergies.length, new double[]{edgeTime}));
 		// if varying time the temporarily set the exafs time to a fixed value
@@ -280,7 +279,7 @@ public class ExafsScanPointCreator {
 
 	/**
 	 * Gets the energy after which k is considered constant
-	 * 
+	 *
 	 * @param scanParametersOrXanesParameters
 	 * @return energy Value
 	 * @throws Exception
@@ -324,7 +323,7 @@ public class ExafsScanPointCreator {
 		}
 		return exafsEnergies;
 	}
-	
+
 	private double[][] calculateExafsEnergiesConstantKStep() {
 		// so want to loop from edgeRegionHighEnergy to finalEnergy in k steps of size exafsStep
 		double lowK = evToK(cEnergy);
@@ -338,7 +337,7 @@ public class ExafsScanPointCreator {
 
 	/**
 	 * evForK converts energy in eV in k value (in inverse angstroms)
-	 * 
+	 *
 	 * @param energy
 	 *            energy to convert
 	 * @return k in inverse Angstroms
@@ -350,7 +349,7 @@ public class ExafsScanPointCreator {
 
 	/**
 	 * kToEv converts energy in k to a value in ev
-	 * 
+	 *
 	 * @param value
 	 *            value to convert
 	 * @return energy in eV
@@ -830,37 +829,37 @@ public class ExafsScanPointCreator {
 		if (aEnergy == null) {
 			if (other.aEnergy != null)
 				return false;
-		} 
+		}
 		else if (!aEnergy.equals(other.aEnergy))
 			return false;
 		if (bEnergy == null) {
 			if (other.bEnergy != null)
 				return false;
-		} 
+		}
 		else if (!bEnergy.equals(other.bEnergy))
 			return false;
 		if (edgeEnergy == null) {
 			if (other.edgeEnergy != null)
 				return false;
-		} 
+		}
 		else if (!edgeEnergy.equals(other.edgeEnergy))
 			return false;
 		if (cEnergy == null) {
 			if (other.cEnergy != null)
 				return false;
-		} 
+		}
 		else if (!cEnergy.equals(other.cEnergy))
 			return false;
 		if (edgeStep == null) {
 			if (other.edgeStep != null)
 				return false;
-		} 
+		}
 		else if (!edgeStep.equals(other.edgeStep))
 			return false;
 		if (edgeTime == null) {
 			if (other.edgeTime != null)
 				return false;
-		} 
+		}
 		else if (!edgeTime.equals(other.edgeTime))
 			return false;
 		if (exafsConstantEnergyStep != other.exafsConstantEnergyStep)
@@ -870,19 +869,19 @@ public class ExafsScanPointCreator {
 		if (exafsFromTime == null) {
 			if (other.exafsFromTime != null)
 				return false;
-		} 
+		}
 		else if (!exafsFromTime.equals(other.exafsFromTime))
 			return false;
 		if (exafsStep == null) {
 			if (other.exafsStep != null)
 				return false;
-		} 
+		}
 		else if (!exafsStep.equals(other.exafsStep))
 			return false;
 		if (exafsTime == null) {
 			if (other.exafsTime != null)
 				return false;
-		} 
+		}
 		else if (!exafsTime.equals(other.exafsTime))
 			return false;
 		if (exafsToTime == null) {
@@ -906,7 +905,7 @@ public class ExafsScanPointCreator {
 		if (numberDetectors == null) {
 			if (other.numberDetectors != null)
 				return false;
-		} 
+		}
 		else if (!numberDetectors.equals(other.numberDetectors))
 			return false;
 		if (preEdgeStep == null) {
@@ -918,7 +917,7 @@ public class ExafsScanPointCreator {
 		if (preEdgeTime == null) {
 			if (other.preEdgeTime != null)
 				return false;
-		} 
+		}
 		else if (!preEdgeTime.equals(other.preEdgeTime))
 			return false;
 		return true;

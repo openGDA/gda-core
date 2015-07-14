@@ -46,7 +46,7 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 	private List<CustomXYZParameter> customXYZParameters;
 	private List<CustomParameter> customParameters;
 	private boolean shouldValidate = true;
-	
+
 	public static I20SampleParameters createFromXML(String filename) throws Exception {
 		return (I20SampleParameters) XMLHelpers.createFromXML(mappingURL, I20SampleParameters.class, schemaURL,
 				filename);
@@ -105,7 +105,7 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 	public void setRoomTemperatureParameters(List<SampleStageParameters> roomTemperatureParameters) {
 		this.roomTemperatureParameters = roomTemperatureParameters;
 	}
-	
+
 	public void addRoomTemperatureParameter(SampleStageParameters roomTempParameter) {
 		roomTemperatureParameters.add(roomTempParameter);
 	}
@@ -226,61 +226,61 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 		if (cryostatParameters == null) {
 			if (other.cryostatParameters != null)
 				return false;
-		} 
+		}
 		else if (!cryostatParameters.equals(other.cryostatParameters))
 			return false;
 		if (customParameters == null) {
 			if (other.customParameters != null)
 				return false;
-		} 
+		}
 		else if (!customParameters.equals(other.customParameters))
 			return false;
 		if (customXYZParameters == null) {
 			if (other.customXYZParameters != null)
 				return false;
-		} 
+		}
 		else if (!customXYZParameters.equals(other.customXYZParameters))
 			return false;
 		if (descriptions == null) {
 			if (other.descriptions != null)
 				return false;
-		} 
+		}
 		else if (!descriptions.equals(other.descriptions))
 			return false;
 		if (furnaceParameters == null) {
 			if (other.furnaceParameters != null)
 				return false;
-		} 
+		}
 		else if (!furnaceParameters.equals(other.furnaceParameters))
 			return false;
 		if (microreactorParameters == null) {
 			if (other.microreactorParameters != null)
 				return false;
-		} 
+		}
 		else if (!microreactorParameters.equals(other.microreactorParameters))
 			return false;
 		if (name == null) {
 			if (other.name != null)
 				return false;
-		} 
+		}
 		else if (!name.equals(other.name))
 			return false;
 		if (roomTemperatureParameters == null) {
 			if (other.roomTemperatureParameters != null)
 				return false;
-		} 
+		}
 		else if (!listEquals(roomTemperatureParameters, other.roomTemperatureParameters))
 			return false;
 		if (sampleEnvironment == null) {
 			if (other.sampleEnvironment != null)
 				return false;
-		} 
+		}
 		else if (!sampleEnvironment.equals(other.sampleEnvironment))
 			return false;
 		if (sampleWheelPosition == null) {
 			if (other.sampleWheelPosition != null)
 				return false;
-		} 
+		}
 		else if (!sampleWheelPosition.equals(other.sampleWheelPosition))
 			return false;
 		if (shouldValidate != other.shouldValidate)
@@ -288,7 +288,7 @@ public class I20SampleParameters implements Serializable, ISampleParameters {
 		if (useSampleWheel == null) {
 			if (other.useSampleWheel != null)
 				return false;
-		} 
+		}
 		else if (!useSampleWheel.equals(other.useSampleWheel))
 			return false;
 		return true;

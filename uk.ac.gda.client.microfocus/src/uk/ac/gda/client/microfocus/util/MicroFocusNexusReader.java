@@ -18,10 +18,6 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusTree;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +27,9 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
 import uk.ac.gda.beans.DetectorROI;
@@ -143,7 +142,7 @@ public class MicroFocusNexusReader {
 
 	/**
 	 * Get the data for the detector Element from the loaded data
-	 * 
+	 *
 	 */
 	public double[][][] getElementData(int detectorNo) {
 		detectorNode = mainTree
@@ -221,7 +220,7 @@ public class MicroFocusNexusReader {
 			logger.warn("Could not open Vortex bean to extract the ROIs",e);
 			return null;
 		}
-		if(vortexBean != null)	
+		if(vortexBean != null)
 		{
 			detectorName = vortexBean.getDetectorName();
 			numberOfdetectorElements = vortexBean.getDetectorList().size();
@@ -229,7 +228,7 @@ public class MicroFocusNexusReader {
 			elementRois = new List[numberOfdetectorElements];
 			for (int detectorNo = 0; detectorNo < numberOfdetectorElements; detectorNo++)
 				elementRois[detectorNo] = vortexBean.getDetector(detectorNo).getRegionList();
-		}	
+		}
 
 		return elementRois;
 
@@ -266,7 +265,7 @@ public class MicroFocusNexusReader {
 			getWindowsfromVortexBean((LocalProperties.getConfigDir()
 					+ "/templates/Vortex_Parameters.xml"));
 			return constructMappableDatafromXmap(elementName);
-		}	
+		}
 		return constructMappableDatafromCounter(elementName);
 	}
 
@@ -283,12 +282,12 @@ public class MicroFocusNexusReader {
 		int elementCounter = 0;
 		for (int i = 0; i < yarray.length; i++) {
 			for (int j = 0; j < xarray.length; j++) {
-				for (int detectorNo = 0; detectorNo < numberOfdetectorElements; detectorNo++) {	
+				for (int detectorNo = 0; detectorNo < numberOfdetectorElements; detectorNo++) {
 					if(vortexdetectorData[detectorNo] == null)
 					{
 						NexusGroupData d = detectorNode.getChildNode("Element"+detectorNo +"_"+elementName, "SDS").getData();
 						vortexdetectorData[detectorNo] = (double[])d.releaseData();
-						logger.info("the data obtained is " + d.isDetectorEntryData);			
+						logger.info("the data obtained is " + d.isDetectorEntryData);
 					}
 					mapData[i][j] += vortexdetectorData[detectorNo][elementCounter];
 
@@ -300,7 +299,7 @@ public class MicroFocusNexusReader {
 	}
 
 	/**
-	 * Construct a 2D array for the given element 
+	 * Construct a 2D array for the given element
 	 * @param elementName
 	 * @return 2d double array
 	 */

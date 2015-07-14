@@ -18,6 +18,8 @@
 
 package uk.ac.gda.client.microfocus.scan;
 
+import java.util.List;
+
 import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.TwoDScanRowReverser;
 import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
@@ -25,8 +27,6 @@ import gda.data.scan.datawriter.XasAsciiNexusDatapointCompletingDataWriter;
 import gda.device.detector.BufferedDetector;
 import gda.device.scannable.ScannableUtils;
 import gda.scan.ContinuousScan;
-
-import java.util.List;
 
 public class FasterRasterMap extends RasterMap {
 
@@ -38,30 +38,30 @@ public class FasterRasterMap extends RasterMap {
 	@Override
 	protected Object[] buildListOfArguments(BufferedDetector[] detectorList) {
 		Object[] args = super.buildListOfArguments(detectorList);
-		
+
 		for (Object arg : args){
 			if (arg instanceof ContinuousScan){
 				((ContinuousScan)arg).setBiDirectional(true);
 			}
 		}
-		
+
 		return args;
-		
+
 //		ContinuousScan cs = new ContinuousScan(trajectoryMotor, mapScanParameters.getXStart(), mapScanParameters.getXEnd(), calculateNumberXPoints(), mapScanParameters.getRowTime(), detectorList) ;
 //		cs.setBiDirectional(true);
-//		
+//
 //		//TODO have not done the custom settings for raster maps for the monitor objects
-//		
+//
 //		Object[] args = new Object[] {yMotor, mapScanParameters.getYStart(), mapScanParameters.getYEnd(),  mapScanParameters.getYStepSize(), trajectoryBeamMonitor, cs};
-//		
+//
 //		// add a Scannable, if defined, which fetches the motor readback values from the Epics Trajectory template after the trajectory completes.
 //		if (positionReader != null){
 //			args = ArrayUtils.add(args, positionReader);
 //		}
-//		
+//
 //		return args;
 
-		
+
 //		// TODO test this on beamline - I am really not sure if this will work first time - the constructor is Object[]
 //		// and the dummy version does not work, so can only test on the beamline... yikes.
 //
@@ -85,10 +85,10 @@ public class FasterRasterMap extends RasterMap {
 //		if (positionReader != null) {
 //			outerScanArgs = ArrayUtils.add(outerScanArgs, positionReader);
 //		}
-//		
-//		
+//
+//
 ////		I think that we could try using the ContinuousScan here - it would simply need modifying to accept a ScanPositionProvider instead of start. stop step but it should work....a
-////		
+////
 ////		if it does then both I18 raster maps could use ContinuousScan instead of faster raster using TrajectoryScanLine  :)
 //
 //		return outerScanArgs;

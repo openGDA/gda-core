@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
-import gda.observable.IObserver;
-
 import org.dawnsci.common.richbeans.components.FieldBeanComposite;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
 import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
@@ -34,6 +32,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
+
+import gda.observable.IObserver;
 
 public class FluoDetectorROIComposite extends FieldBeanComposite implements IObserver {
 

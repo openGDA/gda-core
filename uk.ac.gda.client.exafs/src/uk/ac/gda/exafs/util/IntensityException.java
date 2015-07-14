@@ -28,10 +28,10 @@ public class IntensityException extends Exception {
     private int type = MessageDialog.ERROR;
 	private String suggestedGain;
 	/**
-	 * 
+	 *
 	 */
 	public IntensityException() {
-	
+
 	}
 
 	/**

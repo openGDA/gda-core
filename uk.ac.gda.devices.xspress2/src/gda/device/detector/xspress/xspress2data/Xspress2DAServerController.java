@@ -1,5 +1,11 @@
 package gda.device.detector.xspress.xspress2data;
 
+import java.util.HashMap;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Timer;
@@ -7,13 +13,6 @@ import gda.device.detector.DAServer;
 import gda.device.detector.countertimer.TfgScaler;
 import gda.device.detector.xspress.Xspress2Detector;
 import gda.factory.FactoryException;
-
-import java.util.HashMap;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.ResGrades;
@@ -280,7 +279,7 @@ public class Xspress2DAServerController implements Xspress2Controller {
 
 	/**
 	 * execute the startup script on da.server
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	private void doStartupScript() throws DeviceException {

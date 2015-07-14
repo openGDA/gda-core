@@ -80,7 +80,7 @@ public class DetectorPlotter extends Composite {
 
 	/**
 	 * To be given updates when the user drags the ROI
-	 * 
+	 *
 	 * @param regionListener
 	 */
 	public void addRegionListener(IROIListener regionListener) {
@@ -94,7 +94,7 @@ public class DetectorPlotter extends Composite {
 
 	/**
 	 * Tell this what to plot
-	 * 
+	 *
 	 * @param dataSets
 	 */
 	public void setDataSets(Dataset... dataSets) {
@@ -115,7 +115,7 @@ public class DetectorPlotter extends Composite {
 
 	/**
 	 * Add to the status messages to the user at the bottom
-	 * 
+	 *
 	 * @param text
 	 * @param logger
 	 */

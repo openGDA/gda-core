@@ -7,9 +7,9 @@ import uk.ac.gda.devices.detector.FluorescenceDetector;
 
 /**
  * Interface for all classes representing the Xspress3 electronics.
- * 
+ *
  * @author rjw82
- * 
+ *
  */
 public interface Xspress3 extends FluorescenceDetector, NexusDetector {
 
@@ -18,7 +18,7 @@ public interface Xspress3 extends FluorescenceDetector, NexusDetector {
 	public double readoutFF() throws DeviceException;
 
 	public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException;
-	
+
 	public void clearAndStart() throws DeviceException;
 
 }

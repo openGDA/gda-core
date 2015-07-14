@@ -41,7 +41,7 @@ public class B18LargeLNCryostatComposite extends FieldBeanComposite {
 
 	/**
 	 * Create the composite.
-	 * 
+	 *
 	 * @param parent
 	 * @param style
 	 */

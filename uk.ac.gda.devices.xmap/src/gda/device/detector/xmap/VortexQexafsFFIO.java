@@ -37,7 +37,7 @@ public class VortexQexafsFFIO extends DetectorBase implements BufferedDetector{
 	public Double readout() throws DeviceException {
 		return 1.0;
 	}
-	
+
 	public String getscalerListName() {
 		return scalerName;
 	}
@@ -54,7 +54,7 @@ public class VortexQexafsFFIO extends DetectorBase implements BufferedDetector{
 		this.qxmap = qxmap;
 	}
 
-	
+
 	public BufferedScaler getQexafsScaler() {
 		return qscaler;
 	}
@@ -62,7 +62,7 @@ public class VortexQexafsFFIO extends DetectorBase implements BufferedDetector{
 	public void setQexafsScaler(BufferedScaler scaler) {
 		this.qscaler = scaler;
 	}
-	
+
 	@Override
 	public void configure() {
 		this.setExtraNames(new String[] { "VortexQexafsFFI0" });
@@ -83,13 +83,13 @@ public class VortexQexafsFFIO extends DetectorBase implements BufferedDetector{
 
 	@Override
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
-		
+
 		double[][] scalerFrames = (double[][])qscaler.readFrames(startFrame, finalFrame);
 		Object[] xmapData = qxmap.readFrames(startFrame, finalFrame);
 		NexusTreeProvider[] xmapFrames =  (NexusTreeProvider[])xmapData;
-		
+
 		Double[] ffio = new Double[finalFrame-startFrame+1];
-		
+
 		//for(int i=0;i<finalFrame-startFrame+1;i++){
 		for(int i=0;i<xmapData.length;i++){
 			NXDetectorData expressFrameData;
@@ -97,21 +97,21 @@ public class VortexQexafsFFIO extends DetectorBase implements BufferedDetector{
 				expressFrameData = (NXDetectorData)xmapFrames[finalFrame-1];
 			else
 				expressFrameData = (NXDetectorData)xmapFrames[i];
-			
+
 			Double[] expressFrameDoubles = expressFrameData.getDoubleVals();
 			int col=0;
 			String[] names = expressFrameData.getExtraNames();
 			for(int name=0;name<expressFrameDoubles.length;name++)
 				if(names[name].equals("FF"))
 					col=name;
-			
+
 			String[] exteraNames = qscaler.getExtraNames();
 			int I0Pos =0;
 			for(int j=0;j<exteraNames.length;j++){
 				if(exteraNames[j].equals("I0"))
 					I0Pos=j;
 			}
-			
+
 			double[] scalarFrame = scalerFrames[i];
 			double io = scalarFrame[I0Pos];
 			double ff = expressFrameDoubles[col];
@@ -120,9 +120,9 @@ public class VortexQexafsFFIO extends DetectorBase implements BufferedDetector{
 				result = ff/io;
 			ffio[i] =  result;
 		}
-		
+
 		return ffio;
-		
+
 	}
 
 	@Override
@@ -145,12 +145,12 @@ public class VortexQexafsFFIO extends DetectorBase implements BufferedDetector{
 
 	@Override
 	public int maximumReadFrames() throws DeviceException {
-		return qxmap.maximumReadFrames(); 
+		return qxmap.maximumReadFrames();
 	}
 
 	@Override
 	public void setContinuousMode(boolean on) throws DeviceException {
-		
+
 	}
 
 	@Override
@@ -160,7 +160,7 @@ public class VortexQexafsFFIO extends DetectorBase implements BufferedDetector{
 
 	@Override
 	public void collectData() throws DeviceException {
-		
+
 	}
 
 	@Override

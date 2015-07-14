@@ -18,15 +18,6 @@
 
 package uk.ac.gda.exafs.ui.detector.vortex;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.device.DeviceException;
-import gda.device.Timer;
-import gda.device.XmapDetector;
-import gda.factory.Finder;
-import gda.jython.accesscontrol.AccessDeniedException;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -64,6 +55,16 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.device.Timer;
+import gda.device.XmapDetector;
+import gda.factory.Finder;
+import gda.jython.accesscontrol.AccessDeniedException;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.DetectorParameters;
@@ -77,8 +78,6 @@ import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
-
-import com.swtdesigner.SWTResourceManager;
 
 public class VortexParametersUIEditor extends DetectorEditor {
 
@@ -104,7 +103,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	private boolean autoSaveEnabled;
 	private final XmapDetector detector;
 	private String detectorName;
-	
+
 
 	private Label lblDeadTime;
 
@@ -142,7 +141,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 				.getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS)) {
 			addOutputPreferences(left);
 		}
-		
+
 		configureUI();
 	}
 
@@ -338,7 +337,7 @@ public class VortexParametersUIEditor extends DetectorEditor {
 
 	/**
 	 * Not called in UI thread. This needs to be protected if data is obtained from ui objects.
-	 * 
+	 *
 	 * @param monitor
 	 * @throws Exception
 	 */
@@ -646,11 +645,11 @@ public class VortexParametersUIEditor extends DetectorEditor {
 	}
 
 	private XmapDetector getDetector(String detectorName){
-		return (XmapDetector) Finder.getInstance().find(detectorName); 
+		return (XmapDetector) Finder.getInstance().find(detectorName);
 	}
-	
-	
-	
+
+
+
 	@Override
 	public void dispose() {
 		if (countType != null)

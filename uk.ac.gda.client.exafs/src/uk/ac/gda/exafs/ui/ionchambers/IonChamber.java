@@ -34,7 +34,7 @@ public class IonChamber extends Composite{
 	private Text log;
 	private List ionChamberList;
 	private String[] ionChambers = {"I0", "It", "Iref"};
-	
+
 	public IonChamber(Composite parent, int style, boolean inEditor, IonChambersBean bean) {
 		super(parent, style);
 		setLayout(new FormLayout());
@@ -105,5 +105,5 @@ public class IonChamber extends Composite{
 	public List getList() {
 		return ionChamberList;
 	}
-	
+
 }

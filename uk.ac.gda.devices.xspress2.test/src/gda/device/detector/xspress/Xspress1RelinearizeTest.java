@@ -36,11 +36,11 @@ public class Xspress1RelinearizeTest {
 			long total = 46946;
 			long resets = 6454;
 
-			collectionTime = 1.0;			
+			collectionTime = 1.0;
 			Mockito.when(xspress.relinearize(total, resets, windowed, deadtime, collectionTime)).thenReturn(87);
-			collectionTime = 3.0;			
+			collectionTime = 3.0;
 			Mockito.when(xspress.relinearize(total, resets, windowed, deadtime, collectionTime)).thenReturn(86);
-			collectionTime = 5.0;			
+			collectionTime = 5.0;
 			Mockito.when(xspress.relinearize(total, resets, windowed, deadtime, collectionTime)).thenReturn(86);
 		}
 		{
@@ -48,11 +48,11 @@ public class Xspress1RelinearizeTest {
 			long total = 15941;
 			long resets = 18953;
 
-			collectionTime = 1.0;			
+			collectionTime = 1.0;
 			Mockito.when(xspress.relinearize(total, resets, windowed, deadtime, collectionTime)).thenReturn(8432);
-			collectionTime = 3.0;			
+			collectionTime = 3.0;
 			Mockito.when(xspress.relinearize(total, resets, windowed, deadtime, collectionTime)).thenReturn(8398);
-			collectionTime = 5.0;			
+			collectionTime = 5.0;
 			Mockito.when(xspress.relinearize(total, resets, windowed, deadtime, collectionTime)).thenReturn(8391);
 		}
 	}

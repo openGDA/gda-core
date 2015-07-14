@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.jython.JythonServerFacade;
-
 import org.dawnsci.common.richbeans.components.FieldBeanComposite;
 import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
@@ -38,6 +36,7 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
 
 /**
@@ -115,8 +114,8 @@ public class SXCryoStageComposite extends FieldBeanComposite {
 		sampleNumber.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		sampleNumber.setMaximum(10);
 		sampleNumber.setMinimum(1);
-		
-		
+
+
 		grpCalibrationOfSample = new Group(this, SWT.NONE);
 		grpCalibrationOfSample.setText("Calibration of sample cassette");
 		grpCalibrationOfSample.setLayout(new GridLayout(2, false));
@@ -130,12 +129,12 @@ public class SXCryoStageComposite extends FieldBeanComposite {
 		calibHeight = new ScaleBox(grpCalibrationOfSample, SWT.NONE);
 		calibHeight.setUnit("mm");
 		calibHeight.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		try {
 			setMotorLimits("sam1y", height);
 			setMotorLimits("sam1rot", rotation);
 			setMotorLimits("sam1y", calibHeight);
-			
+
 		} catch (Exception e) {
 			logger.warn("exception while fetching hardware limits: " + e.getMessage(), e);
 		}

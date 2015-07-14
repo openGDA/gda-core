@@ -41,7 +41,7 @@ public class ScalersMonitorConfig {
 		DecimalFormat formatter = new DecimalFormat("###,###,###,###,###");
 		table.getItem(0).setText(1, formatter.format(val));
 	}
-	
+
 	public void setIref(double val) {
 		DecimalFormat formatter = new DecimalFormat("###,###,###,###,###");
 		table.getItem(0).setText(2, formatter.format(val));
@@ -51,7 +51,7 @@ public class ScalersMonitorConfig {
 		String txt = String.format(formats[3], val);
 		table.getItem(0).setText(3, txt);
 	}
-	
+
 	public void setIrefIt(double val) {
 		String txt = String.format(formats[4], val);
 		table.getItem(0).setText(4, txt);
@@ -88,7 +88,7 @@ public class ScalersMonitorConfig {
 		for (int i = 0; i < titles.length; i++) {
 			table.getColumn(i).pack();
 		}
-		
+
 	}
 
 	public void setDetectorName(String detectorName) {

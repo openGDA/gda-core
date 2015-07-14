@@ -18,17 +18,17 @@
 
 package gda.device.detector.xmap;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.scan.ScanInformation;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
 
 /**
  * Drive the XIA Xmap card using hardware triggers. Data is only available after
@@ -84,10 +84,10 @@ public class HardwareTriggerXmap extends XmapSimpleAcquire {
 		vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), names));
 		return vector;
 	}
-	
+
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime)
 			throws Exception {
-		// do nothing here		
+		// do nothing here
 	}
 }

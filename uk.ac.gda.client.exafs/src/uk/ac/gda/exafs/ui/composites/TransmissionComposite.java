@@ -36,7 +36,7 @@ public class TransmissionComposite extends WorkingEnergyWithIonChambersComposite
 		final GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 2;
 		top.setLayout(gridLayout);
-		
+
 		createDiffractionSection(top);
 
 		createEdgeEnergy(top);

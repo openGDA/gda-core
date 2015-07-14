@@ -35,7 +35,7 @@ public class ApplyDetectorConfigurationHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
+
 		// look at the active part, so this handler can be used for multiple views / editors which are interacting with Fluorescence detectors
 		IWorkbenchPart activePart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 				.getActivePart();

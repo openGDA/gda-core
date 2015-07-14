@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors;
 
-import gda.device.DeviceException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +36,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;

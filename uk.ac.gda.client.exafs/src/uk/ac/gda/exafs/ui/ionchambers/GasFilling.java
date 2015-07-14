@@ -164,10 +164,10 @@ public class GasFilling extends Composite {
 		textFill2Period.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 		expandItemAdvanced.setControl(compositeAdvanced);
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void createEmptyLabel(Composite composite){
 		new Label(composite, SWT.NONE);
 	}
-	
+
 }

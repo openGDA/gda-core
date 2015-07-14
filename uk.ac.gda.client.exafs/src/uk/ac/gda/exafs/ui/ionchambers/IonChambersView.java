@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.ionchambers;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
 
 import org.eclipse.swt.SWT;
@@ -30,6 +28,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public class IonChambersView extends ViewPart {
@@ -37,7 +36,7 @@ public class IonChambersView extends ViewPart {
 	private String path;
 	private IonChambersBean bean = null;
 	private IonChamber ionChamber;
-	
+
 	private IPartListener partListener = new IPartListener() {
 		@Override
 		public void partActivated(IWorkbenchPart part) {}
@@ -58,7 +57,7 @@ public class IonChambersView extends ViewPart {
 		@Override
 		public void partOpened(IWorkbenchPart part) {}
 	};
-	
+
 	public IonChambersView() {
 	}
 
@@ -77,7 +76,7 @@ public class IonChambersView extends ViewPart {
 	@Override
 	public void setFocus() {
 	}
-	
+
 	@Override
 	public void dispose(){
 		getSite().getPage().removePartListener(partListener);

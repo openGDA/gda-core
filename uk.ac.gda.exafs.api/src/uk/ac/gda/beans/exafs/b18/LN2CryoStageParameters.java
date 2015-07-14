@@ -30,9 +30,9 @@ public class LN2CryoStageParameters  implements Serializable {
 	int sampleNumberA;
 	int sampleNumberB;
 	String cylinderType;
-	
-	
-	
+
+
+
 	public boolean isEditCalibration() {
 		return editCalibration;
 	}
@@ -124,12 +124,12 @@ public class LN2CryoStageParameters  implements Serializable {
 			return false;
 		return true;
 	}
-	
+
 	public void clear() {
 		height = angle = calibAngle = calibHeight = 0;
 		//cylinderType = "";
 	}
-	
+
 	public boolean isManual() {
 		return manual;
 	}

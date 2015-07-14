@@ -19,6 +19,12 @@
 
 package gda.device.detector.xspress;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
@@ -27,13 +33,6 @@ import gda.device.detector.xspress.xspress2data.Xspress2CurrentSettings;
 import gda.device.detector.xspress.xspress2data.Xspress2DAServerController;
 import gda.device.detector.xspress.xspress2data.Xspress2NexusTreeProvider;
 import gda.factory.FactoryException;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
 import uk.ac.gda.beans.xspress.DetectorElement;
@@ -155,7 +154,7 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 	public void setDeadtimeCalculationEnergy(Double energy) throws DeviceException {
 		settings.setDeadtimeEnergy(energy);
 	}
-	
+
 	/**
 	 * This is all detectors (elements), both included and excluded.
 	 */
@@ -169,7 +168,7 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 	 * depending on the resolution mode in use: 1 if no res threshold, 2 if a
 	 * threshold set and 16 if no threshold but all res grades to be read out
 	 * separately.
-	 * 
+	 *
 	 * @return The number of resolution grades
 	 */
 	@Override
@@ -180,7 +179,7 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 	/**
 	 * This is the string used by DAServer to set the mode of the resolution
 	 * grade.
-	 * 
+	 *
 	 * @return Returns the resGrade.
 	 */
 	@Override
@@ -208,7 +207,7 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 	 * Sets a region of interest. This is used when the readout mode is set to
 	 * ROI. Each region of interest may be a partial mca or a virtual scaler
 	 * (sum of counts in that region).
-	 * 
+	 *
 	 * @param detector
 	 * @param regionList
 	 * @throws DeviceException
@@ -223,7 +222,7 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 
 	/**
 	 * Set the hardware scaler window
-	 * 
+	 *
 	 * @param detector
 	 * @param windowStart
 	 * @param windowEnd
@@ -396,7 +395,7 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 	/**
 	 * Sends the daServer commands to clear the xspress system. Note that this
 	 * is very time consuming and should only be done when necessary.
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	@Override
@@ -407,7 +406,7 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 	/**
 	 * Sends the daServer commands to enable the xspress system counting. This
 	 * does not start the TFG counting.
-	 * 
+	 *
 	 * @see uk.ac.gda.beans.xspress.XspressDetector#start()
 	 */
 	@Override
@@ -446,10 +445,10 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 	public int getCurrentMCABits() {
 		return settings.getFullMCABits();
 	}
-	
+
 	/**
 	 * Reads the detector windows, gains etc from file.
-	 * 
+	 *
 	 * @param filename
 	 *            detector window setup filename
 	 * @throws Exception
@@ -474,7 +473,7 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 
 	/**
 	 * Saves the detector windows, gains etc to file
-	 * 
+	 *
 	 * @param filename
 	 *            the filename to write detector setup in.
 	 */
@@ -489,7 +488,7 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 
 	/**
 	 * Sets the window of the given detector.
-	 * 
+	 *
 	 * @param number
 	 *            the detector element number
 	 * @param lower
@@ -516,7 +515,7 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 	 * detector etc. Reads from one frame and tfg counts for time passed in
 	 * (suggest 1000ms). Reads 1 time frame and assumes desired resGrade has
 	 * already been set.
-	 * 
+	 *
 	 * @param time
 	 *            the time to count for (milliseconds)
 	 * @return array[numberOfDetectors][mcaChannels] of int values representing
@@ -525,7 +524,7 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 	 */
 	@Override
 	public int[][][] getMCData(int time) throws DeviceException {
-		
+
 		int[] data = controller.runOneFrame(time);
 
 		if (data != null) {
@@ -610,7 +609,7 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 	/**
 	 * Dead time corrected scaler data. Used by TfgXspress2 class which acts as
 	 * an adapter for this class so that it can act like a counterTimer.
-	 * 
+	 *
 	 * @return an array of doubles of dead time corrected 'in window' counts and
 	 *         the sum of all the dead time corrected data.
 	 * @throws DeviceException
@@ -725,7 +724,7 @@ public class Xspress2System extends XspressSystem implements NexusDetector, Xspr
 	/**
 	 * Can be used to create an XspressParameters xml file. Useful when new 64
 	 * element files are required!
-	 * 
+	 *
 	 * @param args
 	 * @throws Exception
 	 */

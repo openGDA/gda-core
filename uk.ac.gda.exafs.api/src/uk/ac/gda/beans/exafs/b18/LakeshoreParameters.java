@@ -33,7 +33,7 @@ public class LakeshoreParameters  implements Serializable{
 	double tolerance;
 	double time;
 	boolean controlFlag;
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -51,7 +51,7 @@ public class LakeshoreParameters  implements Serializable{
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -73,7 +73,7 @@ public class LakeshoreParameters  implements Serializable{
 			return false;
 		return true;
 	}
-	
+
 	public double getTemp0() {
 		return temp0;
 	}

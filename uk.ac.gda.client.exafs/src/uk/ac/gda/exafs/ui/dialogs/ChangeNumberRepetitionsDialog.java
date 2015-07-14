@@ -18,9 +18,6 @@
 
 package uk.ac.gda.exafs.ui.dialogs;
 
-import gda.exafs.scan.RepetitionsProperties;
-import gda.jython.InterfaceProvider;
-
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
@@ -30,6 +27,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
+
+import gda.exafs.scan.RepetitionsProperties;
+import gda.jython.InterfaceProvider;
 
 public class ChangeNumberRepetitionsDialog extends TitleAreaDialog {
 	private Spinner spinner;
@@ -78,5 +78,5 @@ public class ChangeNumberRepetitionsDialog extends TitleAreaDialog {
 		InterfaceProvider.getTerminalPrinter().print("Changed the number of repetitons of the scan currently running to "+ newValue);
 
 	}
-	
+
 }

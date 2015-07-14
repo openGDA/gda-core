@@ -63,11 +63,11 @@ public class ExafsActivator extends AbstractUIPlugin {
 	public static ExafsActivator getDefault() {
 		return plugin;
 	}
-	
+
 	public static IWorkbenchWindow getActiveWorkbenchWindow() {
 		return getDefault().getWorkbench().getActiveWorkbenchWindow();
-	}	
-	
+	}
+
 	public static Shell getActiveWorkbenchShell() {
 		IWorkbenchWindow window = getActiveWorkbenchWindow();
 		if (window != null) {

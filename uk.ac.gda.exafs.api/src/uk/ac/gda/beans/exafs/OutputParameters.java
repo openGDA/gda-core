@@ -46,7 +46,7 @@ public class OutputParameters implements Serializable, IOutputParameters {
 	public void setSignalActive(boolean signalActive) {
 		this.signalActive = signalActive;
 	}
-	
+
 	public boolean isMetadataActive() {
 		return metadataActive;
 	}
@@ -65,6 +65,7 @@ public class OutputParameters implements Serializable, IOutputParameters {
 		return asciiFileName;
 	}
 
+	@Override
 	public void setAsciiFileName(String asciiFileName) {
 		this.asciiFileName = asciiFileName;
 	}
@@ -78,6 +79,7 @@ public class OutputParameters implements Serializable, IOutputParameters {
 		this.asciiDirectory = asciiDirectory;
 	}
 
+	@Override
 	public String getNexusDirectory() {
 		return nexusDirectory;
 	}
@@ -90,6 +92,7 @@ public class OutputParameters implements Serializable, IOutputParameters {
 		signalList.add(signal);
 	}
 
+	@Override
 	public List<SignalParameters> getSignalList() {
 		return signalList;
 	}
@@ -120,7 +123,7 @@ public class OutputParameters implements Serializable, IOutputParameters {
 	public void setMetadataList(List<MetadataParameters> metadataList) {
 		this.metadataList = metadataList;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int prime = 31;
@@ -199,16 +202,18 @@ public class OutputParameters implements Serializable, IOutputParameters {
 		this.beforeScriptName = scriptName;
 	}
 
+	@Override
 	public String getBeforeScriptName() {
 		return beforeScriptName;
 	}
-	
+
 	public void setAfterScriptName(String scriptName) {
 		this.afterScriptName = scriptName;
 	}
 
+	@Override
 	public String getAfterScriptName() {
 		return afterScriptName;
 	}
-	
+
 }

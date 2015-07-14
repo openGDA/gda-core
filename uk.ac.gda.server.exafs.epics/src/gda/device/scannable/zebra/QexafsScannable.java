@@ -18,6 +18,15 @@
 
 package gda.device.scannable.zebra;
 
+import org.jscience.physics.quantities.Angle;
+import org.jscience.physics.quantities.Energy;
+import org.jscience.physics.quantities.Length;
+import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.units.NonSI;
+import org.jscience.physics.units.SI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.MotorStatus;
@@ -33,15 +42,6 @@ import gda.util.QuantityFactory;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import org.jscience.physics.quantities.Angle;
-import org.jscience.physics.quantities.Energy;
-import org.jscience.physics.quantities.Length;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.NonSI;
-import org.jscience.physics.units.SI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Under development for B18 only.
@@ -82,7 +82,7 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	protected boolean runDownOn = true;
 	private boolean doToggleEnergyControl = true;
 	protected double stepIncDemDeg;
-	
+
 
 	private Length twoDValue;
 
@@ -92,7 +92,7 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		try {
 			controller = EpicsController.getInstance();
 			channelManager = new EpicsChannelManager(this);
-			
+
 			accelChnl = channelManager.createChannel(accelPV, false);
 			xtalSwitchChnl = channelManager.createChannel(xtalSwitchPV, false);
 			currentSpeedChnl = channelManager.createChannel(braggCurrentSpeedPV, false);
@@ -169,16 +169,16 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 		// otherwise
 		toggleEnergyControl();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		stop();
 	}
-	
+
 	@Override
 	public void prepareForContinuousMove() throws DeviceException {
 		// clear this, so it has to be re-read once every scan to make sure the value has not changed.
-		twoDValue = null;	
+		twoDValue = null;
 	}
 
 	protected void resetDCMSpeed() throws DeviceException {
@@ -191,12 +191,12 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	}
 
 	protected void toggleEnergyControl() throws DeviceException {
-		
+
 		// public boolean to switch this off, depending on circumstances e.g. the exact energies being used.
 		if (!doToggleEnergyControl){
 			return;
 		}
-		
+
 		try {
 
 			long timeAtMethodStart = System.currentTimeMillis();
@@ -237,7 +237,7 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 	 * @throws InterruptedException
 	 */
 	protected Length getTwoD() throws TimeoutException, CAException, InterruptedException {
-		
+
 		if (twoDValue == null){
 			long timeAtMethodStart = System.currentTimeMillis();
 			String xtalSwitch = controller.cagetString(xtalSwitchChnl);
@@ -381,7 +381,7 @@ public abstract class QexafsScannable extends ScannableMotor implements Continuo
 
 	/**
 	 * When true then the energy control PV will be toggled at the end of a qexafs. Default is false.
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public boolean isToggleEnergyControl() {

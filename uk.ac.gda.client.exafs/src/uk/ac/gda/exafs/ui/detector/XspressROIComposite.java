@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.detector;
 
-import gda.configuration.properties.LocalProperties;
-
 import org.dawnsci.common.richbeans.components.FieldComposite.NOTIFY_TYPE;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
 import org.dawnsci.common.richbeans.components.wrappers.LabelWrapper;
@@ -30,6 +28,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.common.rcp.util.GridUtils;
 
 /**
@@ -39,10 +38,10 @@ public class XspressROIComposite extends DetectorROIComposite {
 
 	private ScaleBox roiStart;
 	private ScaleBox roiEnd;
-	
+
 	private LabelWrapper counts;
 	private TextWrapper roiName;
-	
+
 	private boolean modeOverride = LocalProperties.check("gda.xspress.mode.override");
 
 	/**
@@ -53,13 +52,13 @@ public class XspressROIComposite extends DetectorROIComposite {
 
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
-		
+
 		Label lblName = new Label(this, SWT.NONE);
 		lblName.setText("Name");
-		
+
 		roiName = new TextWrapper(this, SWT.BORDER);
 		roiName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		final Label windowStartLabel = new Label(this, SWT.NONE);
 		windowStartLabel.setText("Region start");
 
@@ -81,22 +80,22 @@ public class XspressROIComposite extends DetectorROIComposite {
 		Label lblCounts = new Label(this, SWT.NONE);
 		lblCounts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		lblCounts.setText("In window counts");
-		
+
 		counts = new LabelWrapper(this, SWT.NONE);
 		counts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		counts.setNotifyType(NOTIFY_TYPE.VALUE_CHANGED);
-		
+
 		roiStart.setMaximum(roiEnd);
 		roiEnd.setMinimum(roiStart);
 
 	}
-	
+
 	public void setFitTypeVisibility() {
 		if(modeOverride)
 			return;
 		GridUtils.startMultiLayout(this);
 		GridUtils.endMultiLayout();
-	}	
+	}
 	/**
 	 * @return d
 	 */
@@ -110,7 +109,7 @@ public class XspressROIComposite extends DetectorROIComposite {
 	public ScaleBox getRoiStart() {
 		return roiStart;
 	}
-	
+
 	public LabelWrapper getCounts() {
 		return counts;
 	}
@@ -128,8 +127,8 @@ public class XspressROIComposite extends DetectorROIComposite {
 			widgets = new FieldWidgetsForDetectorElementsComposite(getRoiStart(), getRoiEnd(), getCounts());
 		}
 		return widgets;
-	}	
-	
+	}
+
 	public ScaleBox getRegionEnd() {
 		return roiEnd;
 	}
@@ -140,7 +139,7 @@ public class XspressROIComposite extends DetectorROIComposite {
 	public ScaleBox getRegionStart() {
 		return roiStart;
 	}
-	
+
 	public ScaleBox getWindowEnd() {
 		return roiEnd;
 	}

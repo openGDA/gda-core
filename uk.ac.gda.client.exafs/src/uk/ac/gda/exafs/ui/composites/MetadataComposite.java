@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.device.Scannable;
-
 import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
 import org.dawnsci.common.richbeans.event.ValueAdapter;
 import org.dawnsci.common.richbeans.event.ValueEvent;
@@ -29,6 +27,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import gda.device.Scannable;
 import uk.ac.gda.beans.exafs.MetadataParameters;
 import uk.ac.gda.components.wrappers.FindableNameWrapper;
 
@@ -65,7 +64,7 @@ public class MetadataComposite extends Composite {
 			scannableName.refresh();
 		}
 	}
-	
+
 	/**
 	 * @return s
 	 */

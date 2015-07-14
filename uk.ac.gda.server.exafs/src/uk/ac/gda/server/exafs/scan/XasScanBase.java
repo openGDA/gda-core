@@ -18,6 +18,20 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import java.io.File;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.python.core.PyInteger;
+import org.python.core.PyObject;
+import org.python.core.PySequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
@@ -44,21 +58,6 @@ import gda.scan.ConcurrentScan;
 import gda.scan.Scan;
 import gda.scan.ScanInterruptedException;
 import gda.scan.ScanPlotSettings;
-
-import java.io.File;
-import java.io.StringWriter;
-import java.lang.reflect.Field;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.python.core.PyInteger;
-import org.python.core.PyObject;
-import org.python.core.PySequence;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.IDetectorConfigurationParameters;
@@ -121,7 +120,7 @@ public abstract class XasScanBase implements XasScan {
 
 	/**
 	 * For convenience when calling from Jython.
-	 * 
+	 *
 	 * @param pyArgs
 	 * @return 0 - normal completion
 	 * @throws Exception
@@ -133,11 +132,11 @@ public abstract class XasScanBase implements XasScan {
 		String detectorFileName = ((PySequence) pyArgs).__finditem__(2).asString();
 		String outputFileName = ((PySequence) pyArgs).__finditem__(3).asString();
 		String experimentFullPath = ((PySequence) pyArgs).__finditem__(4).asString();
-		
+
 		if (!experimentFullPath.endsWith(File.separator)){
 			experimentFullPath = experimentFullPath + File.separator;
 		}
-		
+
 		int numRepetitions = ((PySequence) pyArgs).__finditem__(5).asInt();
 
 		doCollection(sampleFileName, scanFileName, detectorFileName, outputFileName, experimentFullPath, numRepetitions);

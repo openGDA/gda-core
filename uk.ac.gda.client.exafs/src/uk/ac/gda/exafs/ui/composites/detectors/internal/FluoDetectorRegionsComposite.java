@@ -38,11 +38,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
+import com.swtdesigner.SWTResourceManager;
+
 import uk.ac.gda.beans.exafs.IDetectorElement;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
-
-import com.swtdesigner.SWTResourceManager;
 
 public class FluoDetectorRegionsComposite extends FieldBeanComposite {
 

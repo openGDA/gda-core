@@ -28,7 +28,7 @@ public interface ConfigurableAsciiFormat extends DataWriter {
 
 	/**
 	 * Must be called before the first time addData is called (obviously?)
-	 * 
+	 *
 	 * @param configuration
 	 */
 	public void setConfiguration(AsciiDataWriterConfiguration configuration);

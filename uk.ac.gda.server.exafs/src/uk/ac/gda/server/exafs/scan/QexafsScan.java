@@ -18,6 +18,8 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import java.util.List;
+
 import gda.device.detector.BufferedDetector;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.exafs.scan.ScanStartedMessage;
@@ -27,9 +29,6 @@ import gda.jython.scriptcontroller.event.ScriptProgressEvent;
 import gda.jython.scriptcontroller.logging.XasLoggingMessage;
 import gda.jython.scriptcontroller.logging.XasProgressUpdater;
 import gda.scan.ContinuousScan;
-
-import java.util.List;
-
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 
 public class QexafsScan extends EnergyScan {

@@ -18,12 +18,12 @@
 
 package uk.ac.gda.exafs.ui.plot;
 
-import gda.scan.IScanDataPoint;
-
 import java.util.List;
 
+import gda.scan.IScanDataPoint;
+
 public class ScanDataPointUtils {
-	
+
 	public static double getFF(final IScanDataPoint point) {
 		if (point == null)
 			return 0;
@@ -37,7 +37,7 @@ public class ScanDataPointUtils {
 		}
 		return ff;
 	}
-	
+
 	public static double getFFI0(final IScanDataPoint point) {
 		if (point == null)
 			return 0;
@@ -66,7 +66,7 @@ public class ScanDataPointUtils {
 		return ff;
 	}
 
-	
+
 	public static double getI0(final IScanDataPoint point) {
 		if (point == null)
 			return 0;
@@ -108,5 +108,5 @@ public class ScanDataPointUtils {
 		}
 		return it;
 	}
-	
+
 }

@@ -1,19 +1,19 @@
 package uk.ac.gda.devices.detector.xspress3;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.scan.ScanInformation;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
 /**
  * not used or tested yet.
- * 
+ *
  * @author rjw82
  *
  */
@@ -31,11 +31,11 @@ public class Xspress3FFCalculatorNXPlugin implements NXPlugin{
 	private int firstChannelToRead = 0;
 	private int numberOfChannelsToRead = 1;
 	private int summingMethod = SUM_ALL_ROI;
-	
+
 	public Xspress3FFCalculatorNXPlugin(Xspress3Controller controller) {
 		this.controller = controller;
 	}
-	
+
 	@Override
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
@@ -45,7 +45,7 @@ public class Xspress3FFCalculatorNXPlugin implements NXPlugin{
 		// readout ROI in format [frame][detector channel][ROIs]
 		Double[][][] data = controller.readoutDTCorrectedROI(framesRead, framesRead + 1, firstChannelToRead,
 				numberOfChannelsToRead + firstChannelToRead - 1);
-		
+
 		framesRead++;
 		// calc FF from ROI
 		int numFramesRead = 1;//numFramesAvailable - framesRead + 1;
@@ -66,10 +66,10 @@ public class Xspress3FFCalculatorNXPlugin implements NXPlugin{
 			NXDetectorDataDoubleAppender appender = new NXDetectorDataDoubleAppender(getExtraNames(),Arrays.asList(thisframe));
 			appenders.add(appender);
 		}
-		
+
 		return appenders;
 	}
-	
+
 	public List<String> getExtraNames() {
 		// these are the plottable values. For this detector it is the FF for each channel
 		String[] extraNames = new String[numberOfChannelsToRead];
@@ -86,7 +86,7 @@ public class Xspress3FFCalculatorNXPlugin implements NXPlugin{
 		}
 		return Arrays.asList(formats);
 	}
-	
+
 	private Double sumArray(Double[] doubles) {
 		Double sum = 0.0;
 		for (Double element : doubles) {

@@ -18,15 +18,14 @@
 
 package uk.ac.gda.exafs.ui.plot;
 
-import gda.exafs.scan.ExafsScanPointCreator;
-import gda.scan.IScanDataPoint;
-
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.exafs.scan.ExafsScanPointCreator;
+import gda.scan.IScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 import uk.ac.gda.beans.exafs.IScanParameters;
@@ -115,13 +114,13 @@ public class SubtractedBackgroundScanPlotView extends ExafsScanPlotView {
 		String prefix = "";
 		switch (kw) {
 		case 1:
-			prefix = "k"; 
+			prefix = "k";
 			break;
 		case 2:
-			prefix = "k\u00b2"; 
+			prefix = "k\u00b2";
 			break;
 		case 3:
-			prefix = "k\u00b3"; 
+			prefix = "k\u00b3";
 			break;
 		default:
 			break;

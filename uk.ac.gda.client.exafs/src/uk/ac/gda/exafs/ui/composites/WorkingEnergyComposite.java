@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.util.Element;
-
 import org.dawnsci.common.richbeans.beans.BeanUI;
 import org.dawnsci.common.richbeans.components.FieldBeanComposite;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
@@ -43,6 +41,7 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.util.Element;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
@@ -55,8 +54,8 @@ import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
-import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class WorkingEnergyComposite extends FieldBeanComposite {
 
@@ -81,7 +80,7 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 	XasScanParameters xasBean;
 	XanesScanParameters xanesBean;
 
-	
+
 
 	protected void createEdgeEnergy(Composite comp) {
 
@@ -122,7 +121,7 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 			selectDefaultsBtn.setText("Set Default Gas Mixtures");
 			selectDefaultsBtn.setToolTipText("Click to set ion chamber gas types to defaults.");
 		}
-		
+
 
 		IExperimentObject selectedScan = ExperimentFactory.getExperimentEditorManager().getSelectedScan();
 
@@ -198,7 +197,7 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 			logger.error("Cannot add EdgeEnergy listeners.", ne);
 		}
 	}
-	
+
 	private void updateWorkingEnergy(ValueEvent e) {
 		if(!workingEnergy.isDisposed()){
 			workingEnergy.off();
@@ -222,22 +221,22 @@ public class WorkingEnergyComposite extends FieldBeanComposite {
 	protected void setWorkingFromEdge() {
 		try {
 			IEditorPart[] dirtyEditors = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getDirtyEditors();
-			
-			
-			
+
+
+
 			if(dirtyEditors.length>0){
-				MessageBox dialog = 
+				MessageBox dialog =
 						  new MessageBox(this.getShell(), SWT.ICON_QUESTION | SWT.OK| SWT.CANCEL);
 						dialog.setText("Save Editor");
 						dialog.setMessage("The editors need to be saved to get the edge energy. Would you like to save?");
-						int returnCode = dialog.open(); 
+						int returnCode = dialog.open();
 						if(returnCode==32){
 							for(int i=0;i<dirtyEditors.length;i++){
 								dirtyEditors[i].doSave(new NullProgressMonitor());
 							}
 						}
 			}
-			
+
 			final ScanObject ob = (ScanObject) ExperimentFactory.getExperimentEditorManager().getSelectedScan();
 
 			if (ob != null) {

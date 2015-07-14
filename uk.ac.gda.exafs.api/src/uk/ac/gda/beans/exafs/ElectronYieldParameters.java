@@ -34,7 +34,7 @@ public class ElectronYieldParameters implements Serializable{
 	}
 	/**
 	 *
-	 
+
 	@Override
 	public String toString() {
 		try {

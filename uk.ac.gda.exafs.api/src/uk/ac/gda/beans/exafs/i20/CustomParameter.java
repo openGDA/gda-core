@@ -41,7 +41,7 @@ public class CustomParameter  implements Serializable {
 	public void setValue(double value) {
 		this.value = value;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -63,7 +63,7 @@ public class CustomParameter  implements Serializable {
 			return false;
 		CustomParameter other = (CustomParameter) obj;
 		if (deviceName == null && other.deviceName != null)
-			return false; 
+			return false;
 		else if (!deviceName.equals(other.deviceName))
 			return false;
 		if (Double.doubleToLongBits(value) != Double.doubleToLongBits(other.value))

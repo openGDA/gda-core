@@ -20,12 +20,6 @@ package uk.ac.gda.exafs.beans;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import gda.TestHelpers;
-import gda.device.scannable.DummyScannable;
-import gda.exafs.scan.ExafsValidator;
-import gda.factory.Factory;
-import gda.factory.Finder;
-import gda.util.TestUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,6 +30,12 @@ import org.eclipse.core.runtime.content.IContentDescriber;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.TestHelpers;
+import gda.device.scannable.DummyScannable;
+import gda.exafs.scan.ExafsValidator;
+import gda.factory.Factory;
+import gda.factory.Finder;
+import gda.util.TestUtils;
 import uk.ac.gda.beans.exafs.Region;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.validation.InvalidBeanMessage;
@@ -76,7 +76,7 @@ public class XanesScanParametersTest {
 
 	/**
 	 * Compare xml file with hard coded test class - they should be the same.
-	 * 
+	 *
 	 * @throws Throwable
 	 */
 	@Test
@@ -104,7 +104,7 @@ public class XanesScanParametersTest {
 
 	/**
 	 * Compare xml file with hard coded test class - they should be the different.
-	 * 
+	 *
 	 * @throws Throwable
 	 */
 	@Test
@@ -134,7 +134,7 @@ public class XanesScanParametersTest {
 
 	/**
 	 * Compare class with one Region - should be allowed.
-	 * 
+	 *
 	 * @throws Throwable
 	 */
 	@Test
@@ -152,7 +152,7 @@ public class XanesScanParametersTest {
 
 	/**
 	 * Compare class with zero Region - should not be allowed.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Test
 	public void testNoRegion() throws Exception {
@@ -167,7 +167,7 @@ public class XanesScanParametersTest {
 
 	/**
 	 * Ensure that regions are increasing in energy
-	 * 
+	 *
 	 * @throws Throwable
 	 */
 	@Test

@@ -19,6 +19,15 @@
 package gda.data.scan.datawriter;
 
 import static org.junit.Assert.fail;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Vector;
+
+import org.junit.Test;
+
 import gda.TestHelpers;
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
@@ -27,16 +36,7 @@ import gda.device.detector.DummyDetector;
 import gda.device.scannable.DummyScannable;
 import gda.device.scannable.ScannableUtils;
 import gda.scan.ScanDataPoint;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Vector;
-
 import junit.framework.Assert;
-
-import org.junit.Test;
 
 /**
  * Test the configurable format of this data writer. This uses DummyScannable and DummyDetector so indirectly tests
@@ -140,9 +140,9 @@ public class AsciiDataWriterTest {
 			String contents = "";
 			String contents1 = "";
 			String z, y;
-			
+
 			try (BufferedReader br = new BufferedReader(file); BufferedReader br1 = new BufferedReader(cfile);) {
-				while ((z = br1.readLine()) != null) 
+				while ((z = br1.readLine()) != null)
 					contents += z;
 				while ((y = br.readLine()) != null)
 					contents1 += y;

@@ -41,28 +41,28 @@ public class B18SmallLNCryostatComposite extends FieldBeanComposite {
 	public B18SmallLNCryostatComposite(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
-		
+
 		Label lblTemperature = new Label(this, SWT.NONE);
 		lblTemperature.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblTemperature.setText("Temperature");
-		
+
 		temperature = new RangeBox(this, SWT.NONE);
 		temperature.setUnit("C");
 		temperature.setMinimum(-200);
 		temperature.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblTolerance = new Label(this, SWT.NONE);
 		lblTolerance.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblTolerance.setText("Tolerance");
-		
+
 		tolerance = new ScaleBox(this, SWT.NONE);
 		tolerance.setUnit("C");
 		tolerance.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblTime = new Label(this, SWT.NONE);
 		lblTime.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblTime.setText("Waiting Time");
-		
+
 		time = new ScaleBox(this, SWT.NONE);
 		time.setUnit("s");
 		time.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -72,7 +72,7 @@ public class B18SmallLNCryostatComposite extends FieldBeanComposite {
 	protected void checkSubclass() {
 		// Disable the check that prevents subclassing of SWT components
 	}
-	
+
 	public FieldComposite getTemperature(){
 		return temperature;
 	}

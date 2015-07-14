@@ -1,5 +1,10 @@
 package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
+import java.util.Random;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Timer;
@@ -7,12 +12,6 @@ import gda.device.detector.DummyDAServer;
 import gda.device.timer.Tfg;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
-
-import java.util.Random;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
@@ -26,9 +25,9 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
  * With the Tfg object this should be able to provide timing so this simulation
  * could be run with the Xspress3System class as well as the Xspress3Detector
  * class.
- * 
+ *
  * @author rjw82
- * 
+ *
  */
 public class DummyXspress3Controller implements Xspress3Controller, Findable {
 
@@ -503,15 +502,15 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 	public void enableChannel(int channel, boolean doEnable) throws DeviceException {
 		enabledChannels[channel] = doEnable;
 	}
-	
+
 	@Override
 	public String getFullFileName() throws DeviceException {
 		return simulationFileName;
 	}
-	
+
 	/**
 	 * An hdf file containing MCA data.
-	 * 
+	 *
 	 * @param filename
 	 */
 	public void setSimulationFileName(String filename){
@@ -520,6 +519,6 @@ public class DummyXspress3Controller implements Xspress3Controller, Findable {
 
 	@Override
 	public void setPerformROICalculations(Boolean doCalcs) throws DeviceException {
-	    // do nothing	    
+	    // do nothing
 	}
 }

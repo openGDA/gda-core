@@ -18,15 +18,15 @@
 
 package uk.ac.gda.beans.exafs;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.Serializable;
+
+import gda.configuration.properties.LocalProperties;
 
 /**
  *
  */
 public class IonChamberParameters  implements Serializable{
-	
+
 	private String  name;
 	private String  deviceName= LocalProperties.get("gda.exafs.ionchambersName","counterTimer01");
 	private Integer channel=1;
@@ -44,10 +44,10 @@ public class IonChamberParameters  implements Serializable{
 	private Boolean changeSensitivity = false;
 	private Boolean autoFillGas = false;
 	private Boolean flush = false;
-	
+
 	// Not persisted but used in pressure calculation.
 	private Double  workingEnergy;
-	
+
 	public Double getGas_fill1_period_box() {
 		return gas_fill1_period_box;
 	}
@@ -55,7 +55,7 @@ public class IonChamberParameters  implements Serializable{
 	public void setGas_fill1_period_box(Double gasFill1PeriodBox) {
 		gas_fill1_period_box = gasFill1PeriodBox;
 	}
-	
+
 	public Double getGas_fill2_period_box() {
 		return gas_fill2_period_box;
 	}
@@ -63,7 +63,7 @@ public class IonChamberParameters  implements Serializable{
 	public void setGas_fill2_period_box(Double gasFill2PeriodBox) {
 		gas_fill2_period_box = gasFill2PeriodBox;
 	}
-	
+
 	public Double getWorkingEnergy() {
 		return workingEnergy;
 	}
@@ -176,7 +176,7 @@ public class IonChamberParameters  implements Serializable{
 	public void setAutoFillGas(Boolean automaticallyFillGas) {
 		this.autoFillGas = automaticallyFillGas;
 	}
-	
+
 	public void setFlush(Boolean flush) {
 		this.flush = flush;
 	}

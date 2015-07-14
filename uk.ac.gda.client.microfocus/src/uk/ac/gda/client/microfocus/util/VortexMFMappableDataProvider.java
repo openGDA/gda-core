@@ -28,8 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.VortexParameters;
-import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 
 public class VortexMFMappableDataProvider extends MicroFocusMappableDataProvider {

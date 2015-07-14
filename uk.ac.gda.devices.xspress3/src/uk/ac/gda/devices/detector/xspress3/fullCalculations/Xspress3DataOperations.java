@@ -1,5 +1,9 @@
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
+import java.util.List;
+
+import org.eclipse.dawnsci.hdf5.nexus.NexusException;
+
 import gda.data.nexus.extractor.NexusExtractorException;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -8,11 +12,6 @@ import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
 import gda.factory.Finder;
-
-import java.util.List;
-
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
@@ -87,7 +86,7 @@ public class Xspress3DataOperations {
 
 		applyConfigurationParameters(vortexParameters);
 	}
-	
+
 	public void applyConfigurationParameters(FluorescenceDetectorParameters parameters) {
 		List<DetectorROI> vortexRois = parameters.getDetector(0).getRegionList();
 		rois = new DetectorROI[vortexRois.size()];
@@ -95,7 +94,7 @@ public class Xspress3DataOperations {
 			rois[index] = new DetectorROI(vortexRois.get(index).getRoiName(), vortexRois.get(index).getRoiStart(), vortexRois
 					.get(index).getRoiEnd());
 		}
-		
+
 	}
 
 	private void disableAllEPICSCalculations() throws DeviceException {
@@ -159,7 +158,7 @@ public class Xspress3DataOperations {
 		double[][] data = controller.readoutDTCorrectedLatestMCA(0, controller.getNumberOfChannels() - 1);
 		return createNexusTreeForFrame(data, detectorName);
 	}
-	
+
 	private double[][] removeNaNs(double[][] original){
 		// because we might get NaNs from EPICS, which will mess up our totals
 		double[][] filtered = new double[original.length][original[0].length];
@@ -169,7 +168,7 @@ public class Xspress3DataOperations {
 				if (Double.toString(value).compareTo("NaN") == 0){
 					value = 0.0;
 				}
-				filtered[i][j] = value; 
+				filtered[i][j] = value;
 			}
 		}
 		original = filtered;
@@ -177,9 +176,9 @@ public class Xspress3DataOperations {
 	}
 
 	private NXDetectorData createNexusTreeForFrame(double[][] mcasFromFile, String detectorName) {
-		
+
 		mcasFromFile = removeNaNs(mcasFromFile);
-		
+
 		int numChannels = mcasFromFile.length;
 		int numRois = rois.length;
 
@@ -350,6 +349,6 @@ public class Xspress3DataOperations {
 	}
 
 	public void setRegionsOfInterest(DetectorROI[] regionList) {
-		rois = regionList;		
+		rois = regionList;
 	}
 }

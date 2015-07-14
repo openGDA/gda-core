@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -44,6 +42,7 @@ import org.eclipse.swt.widgets.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
@@ -104,10 +103,10 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 			}
 		});
 
-		
+
 		final Label configurationFileNameLabel = new Label(confComp, SWT.NONE);
 		configurationFileNameLabel.setText("Configuration file:");
-		
+
 		configFileName = new FileBox(confComp, SWT.NONE);
 		configFileName.setChoiceType(ChoiceType.NAME_ONLY);
 		if(autoChangeFluorescenceFile)
@@ -173,7 +172,7 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 				}
 			}
 		};
-		configure.addSelectionListener(configureAction);	
+		configure.addSelectionListener(configureAction);
 
 		try {
 			BeanUI.addBeanFieldValueListener(XasScanParameters.class, "Element", new ValueAdapter("FluorElementListener") {
@@ -208,9 +207,9 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 		} catch (Exception ne) {
 			logger.error("Cannot add EdgeEnergy listeners.", ne);
 		}
-		
+
 		createDiffractionSection(top);
-		
+
 		if (!ExafsActivator.getDefault().getPreferenceStore().getDefaultBoolean(ExafsPreferenceConstants.HIDE_WORKING_ENERGY)) {
 			createEdgeEnergy(top);
 			createIonChamberSection(abean);
@@ -234,7 +233,7 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 
 	/**
 	 * Tells the file chooser widget to update folder.
-	 * 
+	 *
 	 * @param editorFolder
 	 */
 	public void setCurrentFolder(final File editorFolder) {
@@ -269,7 +268,7 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 					final String element, edge;
 					final Object params = ob.getScanParameters();
 					if ((params instanceof XasScanParameters) || params instanceof XanesScanParameters) {
-						
+
 						if (params instanceof XasScanParameters) {
 							element = BeanUI.getBeanField("Element", XasScanParameters.class).getValue().toString();
 							edge = BeanUI.getBeanField("Edge", XasScanParameters.class).getValue().toString();
@@ -277,7 +276,7 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 							element = BeanUI.getBeanField("Element", XanesScanParameters.class).getValue().toString();
 							edge = BeanUI.getBeanField("Edge", XanesScanParameters.class).getValue().toString();
 						}
-						
+
 						if (value.equals("Silicon")) {
 							configFileName.setText("Vortex_Parameters" + element + "_" + edge + ".xml");
 						} else if (value.equals("Germanium")) {
@@ -307,19 +306,19 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 	public boolean isFileNameChangeRequired() {
 		return fileNameChangeRequired;
 	}
-	
+
 	public void checkConfigFile(String detectorType) throws ClassNotFoundException{
 		final IFolder dir = ExperimentFactory.getExperimentEditorManager().getSelectedFolder();
 		IFile configFile = dir.getFile(configFileName.getText());
 		final XMLCommandHandler xmlCommandHandler;
-		
+
 		if (detectorType.equals("Germanium"))
 			xmlCommandHandler = ExperimentBeanManager.INSTANCE.getXmlCommandHandler(XspressParameters.class);
 		else if (detectorType.equals("Silicon"))
 			xmlCommandHandler = ExperimentBeanManager.INSTANCE.getXmlCommandHandler(VortexParameters.class);
 		else if (detectorType.equals("Xspress3"))
 			xmlCommandHandler = ExperimentBeanManager.INSTANCE.getXmlCommandHandler(Xspress3Parameters.class);
-		else 
+		else
 			throw new ClassNotFoundException("XmlCommandHandler not found");
 		IFile returnFromTemplate = null;
 		if (!configFile.exists()) {
@@ -333,7 +332,7 @@ public class FluorescenceComposite extends WorkingEnergyWithIonChambersComposite
 		configFile = dir.getFile(configFileName.getText());
 		if (configFile.exists())
 			ExperimentFactory.getExperimentEditorManager().openEditor(configFile);
-	
+
 	}
 
 }

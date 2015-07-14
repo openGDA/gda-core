@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.microfocus.views;
 
-import gda.jython.InterfaceProvider;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.text.DecimalFormat;
@@ -36,6 +34,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.InterfaceProvider;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.microfocus.views.scan.MicroFocusElementListView;
@@ -44,7 +43,7 @@ public class ExafsSelectionView extends ViewPart {
 
 	public static final String ID = "uk.ac.gda.client.microfocus.SelectExafsView";
 	private static final Logger logger = LoggerFactory.getLogger(MicroFocusElementListView.class);
-	
+
 	private List exafsScanList;
 	private List selectedScanList;
 	private Text pointText;

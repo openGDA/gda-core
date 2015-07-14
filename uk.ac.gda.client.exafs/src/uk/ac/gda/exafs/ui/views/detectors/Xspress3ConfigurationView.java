@@ -18,12 +18,11 @@
 
 package uk.ac.gda.exafs.ui.views.detectors;
 
-import gda.factory.Finder;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
+import gda.factory.Finder;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.exafs.ui.composites.detectors.FluorescenceDetectorComposite;
 

@@ -37,7 +37,7 @@ public class SwitchScanTypeCommandHandler extends AbstractExperimentCommandHandl
 		SwitchScanWizard wizard = new SwitchScanWizard();
 		WizardDialog dialog = new WizardDialog(shell, wizard);
 		dialog.create();
-		dialog.open(); 
+		dialog.open();
 		return null;
 	}
 

@@ -18,15 +18,6 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.CounterTimer;
-import gda.device.DeviceException;
-import gda.device.XmapDetector;
-import gda.factory.Finder;
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -42,6 +33,14 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.CounterTimer;
+import gda.device.DeviceException;
+import gda.device.XmapDetector;
+import gda.factory.Finder;
+import gda.jython.Jython;
+import gda.jython.JythonServerFacade;
+import gda.rcp.GDAClientActivator;
 import uk.ac.gda.client.CommandQueueViewFactory;
 
 
@@ -246,7 +245,7 @@ public class XmapI1MonitorView extends ViewPart implements Runnable, IPartListen
 			currentFrame /= 2;
 			currentFrame--;
 		}
-		
+
 		// this view is bespoke to readout out the fourth ionchamber only (I1)
 		double[] ion_results = ionchambers.readFrame(4, 1, currentFrame);
 		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");

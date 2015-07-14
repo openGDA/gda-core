@@ -30,7 +30,7 @@ public class StanfordAmplifierView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		
+
 		Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new GridLayout(1, false));
 		StanfordAmplifiersComposite stanfordAmplifiersComposite = new StanfordAmplifiersComposite(composite, SWT.None);

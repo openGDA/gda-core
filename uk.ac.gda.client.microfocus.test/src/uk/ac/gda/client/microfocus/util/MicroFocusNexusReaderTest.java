@@ -58,14 +58,14 @@ public class MicroFocusNexusReaderTest {
 	@Test
 	public void testGetWindowsfromBean() throws Exception
 	{
-		
+
 		List<DetectorROI>[] rois = rdr.getWindowsfromBean("testfiles/uk/ac/gda/client/microfocus/util/Xspress_Parameters.xml");
 		assertEquals(9, rois.length);
 		assertEquals("fe",rois[0].get(0).getRoiName());
 		assertEquals(3, rois[0].size());
-		
+
 	}
-	
+
 
 	@SuppressWarnings("unused")
 	public void testGetElementData() throws Exception
@@ -78,9 +78,9 @@ public class MicroFocusNexusReaderTest {
 		assertEquals(-1060.304462163443, d[0][0][156],0.0);
 		d = rdr.getElementData(3);
 		assertEquals(14251.949956114078, d[0][0][156],0.0);
-		
+
 	}
-	
+
 
 	@SuppressWarnings("unused")
 	@Test
@@ -94,7 +94,7 @@ public class MicroFocusNexusReaderTest {
 		assertArrayEquals(new Double[]{0.0, 1.0, 2.0, 3.0, 4.0}, x);
 		assertArrayEquals(new Double[]{ 0.0, 2.0, 4.0}, y);
 	}
-	
+
 
 	@SuppressWarnings("unused")
 	@Test
@@ -107,7 +107,7 @@ public class MicroFocusNexusReaderTest {
 		assertEquals(5, d[0].length);
 		assertEquals(105263.0, d[1][4], 0.0);
 	}
-	
+
 	@SuppressWarnings("unused")
 	@Test
 	public void testLoadData3() throws Exception
@@ -120,7 +120,7 @@ public class MicroFocusNexusReaderTest {
 		assertArrayEquals(new Double[]{1.5, 1.6, 1.7000000000000002, 1.8000000000000007, 1.9000000000000004, 2.0000000000000004}, x);
 		assertArrayEquals(new Double[]{ 1.5, 3.0}, y);
 	}
-	
+
 
 	@SuppressWarnings("unused")
 	@Test

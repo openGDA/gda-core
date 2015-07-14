@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.views.amplifier;
 
-import gda.jython.JythonServerFacade;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -30,6 +28,8 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+
+import gda.jython.JythonServerFacade;
 
 public class StanfordAmplifierComposite{
 
@@ -43,15 +43,15 @@ public class StanfordAmplifierComposite{
 
 	public StanfordAmplifierComposite(Composite parent, @SuppressWarnings("unused") int style, String name, String scannable) {
 		scannableName=scannable;
-		
+
 		Group group = new Group(parent, SWT.NONE);
 		group.setText(name);
 		group.setLayout(new GridLayout(5, false));
-		
+
 		Label lblSensitivity = new Label(group, SWT.NONE);
 		lblSensitivity.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblSensitivity.setText("Sensitivity");
-		
+
 		sensitivity = new Combo(group, SWT.NONE);
 		sensitivity.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -61,7 +61,7 @@ public class StanfordAmplifierComposite{
 		});
 		sensitivity.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		sensitivity.setItems(new String[] {"1", "2", "5", "10", "20", "50", "100", "200", "500"});
-		
+
 		unit = new Combo(group, SWT.NONE);
 		unit.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -71,15 +71,15 @@ public class StanfordAmplifierComposite{
 		});
 		unit.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		unit.setItems(new String[] {"pA/V", "nA/V", "uA/V", "mA/V"});
-		
+
 		Button update = new Button(group, SWT.NONE);
 		update.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		update.setText("Update Values");
-		
+
 		Label lblInputOffsetCurrent = new Label(group, SWT.NONE);
 		lblInputOffsetCurrent.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblInputOffsetCurrent.setText("Input Offset");
-		
+
 		offset = new Combo(group, SWT.NONE);
 		offset.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -89,7 +89,7 @@ public class StanfordAmplifierComposite{
 		});
 		offset.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		offset.setItems(new String[] {"1", "2", "5", "10", "20", "50", "100", "200", "500"});
-		
+
 		offsetUnit = new Combo(group, SWT.NONE);
 		offsetUnit.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -99,14 +99,14 @@ public class StanfordAmplifierComposite{
 		});
 		offsetUnit.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		offsetUnit.setItems(new String[] {"pA", "nA", "uA"});
-		
+
 		on = new Button(group, SWT.NONE);
 		on.setSelection(true);
 		on.setText("On");
-		
+
 		off = new Button(group, SWT.NONE);
 		off.setText("Off");
-		
+
 		on.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -114,7 +114,7 @@ public class StanfordAmplifierComposite{
 				boolean offsetOn = false;
 				if(JythonServerFacade.getInstance().evaluateCommand(scannableName+".isOn()").equals("1"))
 					offsetOn=true;
-			
+
 				on.setEnabled(!offsetOn);
 				off.setEnabled(offsetOn);
 			}
@@ -127,7 +127,7 @@ public class StanfordAmplifierComposite{
 				boolean offsetOn = false;
 				if(JythonServerFacade.getInstance().evaluateCommand(scannableName+".isOn()").equals("1"))
 					offsetOn=true;
-			
+
 				on.setEnabled(!offsetOn);
 				off.setEnabled(offsetOn);
 			}
@@ -139,20 +139,20 @@ public class StanfordAmplifierComposite{
 				updateFields();
 			}
 		});
-		
+
 		updateFields();
 	}
-	
+
 	private void updateFields(){
 		sensitivity.select(Integer.parseInt(JythonServerFacade.getInstance().evaluateCommand(scannableName+".getSensitivity()")));
 		offset.select(Integer.parseInt(JythonServerFacade.getInstance().evaluateCommand(scannableName+".getOffset()")));
 		offsetUnit.select(Integer.parseInt(JythonServerFacade.getInstance().evaluateCommand(scannableName+".getOffsetUnit()")));
 		unit.select(Integer.parseInt(JythonServerFacade.getInstance().evaluateCommand(scannableName+".getUnit()")));
-		
+
 		boolean offsetOn = false;
 		if(JythonServerFacade.getInstance().evaluateCommand(scannableName+".isOn()").equals("1"))
 			offsetOn=true;
-	
+
 		on.setEnabled(!offsetOn);
 		off.setEnabled(offsetOn);
 	}

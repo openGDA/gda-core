@@ -18,6 +18,17 @@
 
 package gda.device.detector.xmap;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -36,40 +47,28 @@ import gda.device.detector.analyser.EpicsMCARegionOfInterest;
 import gda.device.detector.analyser.IEpicsMCA;
 import gda.device.scannable.PositionConvertorFunctions;
 import gda.factory.FactoryException;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 /**
  * An {@link XmapDetector} made from a number of Mca's (technically {@link Analyser}s).
- * 
+ *
  */
 public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetector, NexusDetector {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(XmapDetectorFromEpicsMca.class);
 
 	private List<Analyser> analysers = new ArrayList<Analyser>();
-	
+
 	private String configFileName;
-	
+
 	private List<String> roiChannelLabels = Collections.emptyList();
-	
+
 	private boolean readNetCounts = false;
-	
+
 	private boolean useLiveTime = false;
-	
+
 	// NexusDetector
 	private boolean sumAllElementData = false;
 
@@ -83,8 +82,8 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 
 	private boolean useConfigFileAtConfigure=true;
 
-	
-	
+
+
 	public boolean isUseConfigFileAtConfigure() {
 		return useConfigFileAtConfigure;
 	}
@@ -103,7 +102,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	/**
 	 * @param prefixExtraNameWithDetElement If true the extraName for each roi is set to detector name + "_" + roiName.
 	 * If false the extraName is simply the name of the roi. Default is true
-	 * 
+	 *
 	 * if true
 	 */
 	public void setPrefixExtraNameWithDetElement(boolean prefixExtraNameWithDetElement) {
@@ -128,7 +127,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	 * Report roi even if start = -1
 	 */
 	boolean reportInvalidROI=true;
-	
+
 	protected boolean isReportInvalidROI() {
 		return reportInvalidROI;
 	}
@@ -141,9 +140,9 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	 * if true NexusTree contains a single item called fullspectrum that has the fullspectrum for all analysers in a single 2d object
 	 */
 	boolean returnFullSpectrum=true;
-	
-	
-	
+
+
+
 	protected boolean isReturnFullSpectrum() {
 		return returnFullSpectrum;
 	}
@@ -184,7 +183,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 		}
 		return consensus;
 	}
-	
+
 	static private double sum(double[] a) {
 		double sum = 0;
 		for (int i = 0; i < a.length; i++) {
@@ -205,11 +204,11 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 		}
 		return a;
 	}
-	
+
 	public XmapDetectorFromEpicsMca() {
 		setInputNames(new String[0]);
 	}
-	
+
 	public void setAnalysers(List<Analyser> analysers) {
 		this.analysers = analysers;
 	}
@@ -217,7 +216,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	public List<Analyser> getAnalysers() {
 		return analysers;
 	}
-	
+
 	public String getConfigFileName() {
 		return configFileName;
 	}
@@ -225,7 +224,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	public void setConfigFileName(String configFileName) {
 		this.configFileName = configFileName;
 	}
-	
+
 	public void setSumAllElementData(boolean sumAllElementData) {
 		this.sumAllElementData = sumAllElementData;
 	}
@@ -233,7 +232,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	public boolean isSumAllElementData() {
 		return sumAllElementData;
 	}
-	
+
 	public void setReadNetCounts(boolean readNetCounts) {
 		this.readNetCounts = readNetCounts;
 	}
@@ -267,7 +266,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 
 	@Override
 	public void configure() throws FactoryException {
-		if (!configured) {			
+		if (!configured) {
 			if (getAnalysers().size() < 1) {
 				throw new FactoryException("No anyalsers have been configured");
 			}
@@ -283,12 +282,12 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 			}
 		}
 	}
-	
+
 	@Override
 	public int getNumberOfMca() throws DeviceException {
 		return analysers.size();
 	}
-	
+
 	public void loadConfigurationFromFile() throws Exception {
 		if (getConfigFileName() == null) {
 			logger.warn(getName()  + " has no configFileName configured so the configuration cannot be loaded.");
@@ -296,7 +295,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 		}
 		vortexParameters = readConfigFile(getConfigFileName());
 		configureHardware(vortexParameters);
-	
+
 	}
 
 	public void configureHardware(VortexParameters vortexParameters) throws Exception {
@@ -304,17 +303,17 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 		configureRegionsOfInterest(vortexParameters);
 		configureChannelLabels(vortexParameters);
 		this.vortexParameters=vortexParameters;
-	
+
 	}
 
 	public VortexParameters readConfigFile(String fileName) throws Exception {
 		return (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL,
 				VortexParameters.class, VortexParameters.schemaURL, fileName);
 	}
-	
-	
+
+
 	private void configureRegionsOfInterest(final VortexParameters vp) throws Exception {
-		try {			
+		try {
 			List<DetectorElement> detectorList = vp.getDetectorList();
 			if( detectorList != null ){
 				if( detectorList.size() > analysers.size())
@@ -363,7 +362,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 		for (Analyser analyser : analysers) {
 			analyser.clear();
 		}
-		
+
 	}
 
 	@Override
@@ -391,7 +390,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	public void setCollectionTime(double collectionTime) throws DeviceException {
 		setAcquisitionTime(collectionTime);
 	}
-	
+
 	@Override
 	public double getCollectionTime() {
 		try {
@@ -401,7 +400,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 		}
 		return -999;
 	}
-	
+
 	@Override
 	public void collectData() throws DeviceException {
 		clearAndStart();
@@ -528,10 +527,10 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	// 		"Element0_realtime", "Element0_livetime", "Element0_Pb_K", "Element0_Fe_K", "Element1_realtime", "Element1_livetime", "Element1_Pb_K", "Element1_Fe_K"}, xmap.getExtraNames());
 		long startTime = System.nanoTime();
 
-		
+
 		NXDetectorData output = new NXDetectorData(this);
 		INexusTree detTree    = output.getDetTree(getName());
-		
+
 		int detectorData[][] = getData();
 		double[] summation =null;
 		for (int element = 0; element < vortexParameters.getDetectorList().size(); element++) {
@@ -543,14 +542,14 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 			output.setPlottableValue(thisElement.getName()+"_realtime", (double) realAndLiveTime[0]);
 			NXDetectorData.addData(detTree, thisElement.getName()+"_livetime", new NexusGroupData((double) realAndLiveTime[1]), "s", 1);
 			output.setPlottableValue(thisElement.getName()+"_livetime", (double) realAndLiveTime[1]);
-			
+
 			Analyser analyser = analysers.get(element);
 			IEpicsMCA epicsMCA = (analyser instanceof IEpicsMCA) ? (IEpicsMCA) analyser : null;
 			HashMap<Integer, double[][]> regionsOfInterestCountCache = null;
 
 			// REGIONS
 			for (int roiIndex = 0; roiIndex < thisElement.getRegionList().size(); roiIndex++) {
-	
+
 				final DetectorROI roi = thisElement.getRegionList().get(roiIndex);
 				if( isReportInvalidROI() || roi.getRoiStart() != -1){
 					double count;
@@ -570,7 +569,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 					}
 					output.setPlottableValue(getExtraName(thisElement, roi), count);
 				}
-	
+
 			}
 			//add the full spectrum
 			NXDetectorData.addData(detTree, thisElement.getName()+"_fullSpectrum", new NexusGroupData(detectorData[element]), "counts", 1);
@@ -587,7 +586,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 		logger.info("xmap - total readout time: " + (System.nanoTime() - startTime)/1000000000.);
 		if( isReturnFullSpectrum())
 			NXDetectorData.addData(detTree, "fullSpectrum", new NexusGroupData(detectorData), "counts", 1);
-		
+
 		if(summation != null)
 			NXDetectorData.addData(detTree, "allElementSum", new NexusGroupData(summation), "counts",1);
 		firstScanPointDone=true;
@@ -598,7 +597,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 		Object elapsedParameters = analysers.get(detectorElement).getElapsedParameters();
 		return (float[]) elapsedParameters;
 	}
-	
+
 	@Override
 	public double readoutScalerData() throws DeviceException {
 		throw new RuntimeException("Not supported");
@@ -627,7 +626,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	/**
 	 * Set rois the array can be of size [maximum number rois][2] if it is lower for instance
 	 * [actual number of rois][2] then the other possible rois will be set to zero.
-	 * 
+	 *
 	 * The actual number of rois is also taken from the length of the first dimension of this array
 	 * so it should always be passed in with size of the actual number of rois.
 	 */
@@ -650,8 +649,8 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 		return actualNumberOfconfigredRois;
 	}
 
-	/* 
-	 * performance optimized version 
+	/*
+	 * performance optimized version
 	 */
 	double[] getROICountsUsingCache(int iRoi, Map<Integer,double[][]> regionsOfInterestCountCache) throws DeviceException {
 		double[] countsFromEachMca = new double[getNumberOfMca()];
@@ -671,7 +670,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 		return countsFromEachMca;
 	}
 
-	
+
 	@Override
 	public double[] getROICounts(int iRoi) throws DeviceException {
 		return getROICountsUsingCache(iRoi, null);
@@ -682,7 +681,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	}
 	@Override
 	public String[] getExtraNames() {
-		if( !isConfigured()) 
+		if( !isConfigured())
 			return new String[]{};
 		List<String> extraNames = new ArrayList<String>();
 		for (DetectorElement thisElement: vortexParameters.getDetectorList()) {
@@ -707,7 +706,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 		}
 		return formats;
 	}
-	
+
 	@Override
 	public String getDescription() throws DeviceException {
 		return "";
@@ -726,7 +725,7 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	@Override
 	public void setStatusRate(double statusRate) throws DeviceException {
 		throw new RuntimeException("Not supported");
-		
+
 	}
 
 	@Override
@@ -747,10 +746,10 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 	public VortexParameters createVortexParameters() throws Exception{
 		VortexParameters vortexParameters = (VortexParameters) XMLHelpers.createFromXML(VortexParameters.mappingURL,
 				VortexParameters.class, VortexParameters.schemaURL, getConfigFileName());
-		
+
 		//make a deep copy we can then change a little
 		VortexParameters vp = new VortexParameters(vortexParameters);
-		
+
 		for(int i=0; i< vp.getDetectorList().size(); i++){
 			//There is 1 detector element per analyser
 			DetectorElement de = vp.getDetectorList().get(i);
@@ -783,5 +782,5 @@ public class XmapDetectorFromEpicsMca extends DetectorBase implements XmapDetect
 		for (Analyser analyser : analysers) {
 			analyser.waitWhileBusy();
 		}
-	}	
+	}
 }

@@ -18,12 +18,6 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.data.nexus.extractor.NexusExtractorException;
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeBuilder;
-import gda.data.nexus.tree.NexusTreeNode;
-import gda.data.nexus.tree.NexusTreeNodeSelection;
-
 import java.io.File;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -31,6 +25,11 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.IFolder;
 import org.xml.sax.InputSource;
 
+import gda.data.nexus.extractor.NexusExtractorException;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeBuilder;
+import gda.data.nexus.tree.NexusTreeNode;
+import gda.data.nexus.tree.NexusTreeNodeSelection;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
@@ -55,12 +54,12 @@ public class MicroFocusScanLoader {
 	public java.util.List<String> loadMapXmlForView(String filePath) throws NexusExtractorException, Exception
 	{
 		final INexusTree   tree  = NexusTreeBuilder.getNexusTree(filePath, MicroFocusScanLoader.getSelection());
-		
+
 		if (tree.getChildNode(0) == null || tree.getChildNode(0).getNumberOfChildNodes() == 0) {
 			return new ArrayList<String>(0);
 		}
 		final NexusTreeNode xml  = (NexusTreeNode) tree.getChildNode(0).getChildNode(0);
-			
+
 		final java.util.List<String> files = new ArrayList<String>(7);
 		for (int i = 0; i < xml.getChildCount(); i++) {
 			final NexusTreeNode xmlFile = (NexusTreeNode)xml.getChildNode(i);
@@ -68,17 +67,17 @@ public class MicroFocusScanLoader {
 			files.add(data);
 		}
 		return files;
-	
-		
-		
+
+
+
 	}
-	
+
 	public void loadMapXmlForScan(IFolder folderToLoad, String filePath) throws Exception {
 		IExperimentObjectManager man = ExperimentProjectNature.createNewEmptyScan(folderToLoad, "loaded", null);
 		ScanObject obj = (ScanObject) man.createNewExperiment(filePath.substring(filePath.lastIndexOf(File.separator), filePath.indexOf(".nxs")));
 		final INexusTree   tree  = NexusTreeBuilder.getNexusTree(filePath, MicroFocusScanLoader.getSelection());
 		final NexusTreeNode xml  = (NexusTreeNode) tree.getChildNode(0).getChildNode(0);
-			
+
 		final java.util.List<String> files = new ArrayList<String>(7);
 		for (int i = 0; i < xml.getChildCount(); i++) {
 			final NexusTreeNode xmlFile = (NexusTreeNode)xml.getChildNode(i);
@@ -99,12 +98,12 @@ public class MicroFocusScanLoader {
 				FileUtils.write(scanfile, data);
 				obj.setOutputFileName(scanfile.getName());
 			}
-				
+
 		}
 		obj.setSampleFileName("None");
 		man.write();
-		
-		
-	}		
+
+
+	}
 
 }

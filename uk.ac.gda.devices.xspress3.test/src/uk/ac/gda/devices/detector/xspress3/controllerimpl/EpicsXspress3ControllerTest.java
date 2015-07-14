@@ -24,9 +24,9 @@ import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
  * <p>
  * Not a unit test as this has a dependency on hardware.
  * <p>
- * 
+ *
  * @author rjw82
- * 
+ *
  */
 public class EpicsXspress3ControllerTest {
 

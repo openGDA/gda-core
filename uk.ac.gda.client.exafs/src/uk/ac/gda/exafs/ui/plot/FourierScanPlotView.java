@@ -18,15 +18,14 @@
 
 package uk.ac.gda.exafs.ui.plot;
 
-import gda.exafs.scan.ExafsScanPointCreator;
-import gda.scan.IScanDataPoint;
-
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.exafs.scan.ExafsScanPointCreator;
+import gda.scan.IScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 import uk.ac.gda.beans.exafs.IScanParameters;
@@ -36,7 +35,7 @@ import uk.ac.gda.exafs.ui.data.ScanObjectManager;
  * This class assumes that the point with energy less than A are to be included in the pre-edge.
  */
 public class FourierScanPlotView extends ExafsScanPlotView {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(FourierScanPlotView.class);
 
 	@SuppressWarnings("hiding")
@@ -108,7 +107,7 @@ public class FourierScanPlotView extends ExafsScanPlotView {
 	protected IPlotData getX(IScanDataPoint... points) {
 		return xDataSetData;
 	}
-	
+
 	@Override
 	protected String getYAxisName() {
 		return "\u03c7(R)";

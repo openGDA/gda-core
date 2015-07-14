@@ -13,7 +13,7 @@ public class MCAReading implements Reading {
 	public double peakArea_bad;
 
 
-	
+
 	public MCAReading(String roiName, int elementNumber, double[][] counts, int[][] counts_raw, String name, int roiStart, int roiEnd, double peakArea, double peakArea_bad) {
 		this.elementNumber = elementNumber;
 		this.mcacounts = counts;

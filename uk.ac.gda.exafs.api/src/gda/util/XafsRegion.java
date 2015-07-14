@@ -72,7 +72,7 @@ public class XafsRegion {
 
 	/**
 	 * Constructor to create a XAFS Experiment Region from a String produced by the toString() method.
-	 * 
+	 *
 	 * @param string
 	 */
 	public XafsRegion(String string) {
@@ -95,7 +95,7 @@ public class XafsRegion {
 
 	/**
 	 * Constructor to create a XAFS Experiment Region for Angle Scan
-	 * 
+	 *
 	 * @param name
 	 *            region name
 	 * @param start
@@ -118,7 +118,7 @@ public class XafsRegion {
 
 	/**
 	 * Constructor to create a XAFS Experiment Region for Angle Scan
-	 * 
+	 *
 	 * @param name
 	 *            region name
 	 * @param start
@@ -151,7 +151,7 @@ public class XafsRegion {
 
 	/**
 	 * Converts from display units to internal units
-	 * 
+	 *
 	 * @param value
 	 *            the value too convert
 	 * @return the converted value
@@ -162,7 +162,7 @@ public class XafsRegion {
 
 	/**
 	 * Converts from internal units to display units
-	 * 
+	 *
 	 * @param value
 	 *            the value too convert
 	 * @return the converted value
@@ -173,7 +173,7 @@ public class XafsRegion {
 
 	/**
 	 * Sets a value.
-	 * 
+	 *
 	 * @param value
 	 *            new values (as a String)
 	 * @param valueNumber
@@ -205,7 +205,7 @@ public class XafsRegion {
 
 	/**
 	 * Gets a value
-	 * 
+	 *
 	 * @param valueNumber
 	 *            which value to get
 	 * @return either a Double or an Integer
@@ -242,7 +242,7 @@ public class XafsRegion {
 
 	/**
 	 * Sets the start value
-	 * 
+	 *
 	 * @param newValue
 	 *            the new value
 	 */
@@ -255,7 +255,7 @@ public class XafsRegion {
 
 	/**
 	 * Gets the start value
-	 * 
+	 *
 	 * @return start value
 	 */
 	public double getStart() {
@@ -267,7 +267,7 @@ public class XafsRegion {
 
 	/**
 	 * Sets the end value
-	 * 
+	 *
 	 * @param newValue
 	 *            the new value
 	 */
@@ -280,7 +280,7 @@ public class XafsRegion {
 
 	/**
 	 * Gets the end value
-	 * 
+	 *
 	 * @return end value
 	 */
 	public double getEnd() {
@@ -289,7 +289,7 @@ public class XafsRegion {
 
 	/**
 	 * Sets the increment
-	 * 
+	 *
 	 * @param newValue
 	 *            the new value
 	 */
@@ -300,7 +300,7 @@ public class XafsRegion {
 
 	/**
 	 * Gets the increment
-	 * 
+	 *
 	 * @return increment
 	 */
 	public double getIncrement() {
@@ -317,7 +317,7 @@ public class XafsRegion {
 
 	/**
 	 * Sets the name
-	 * 
+	 *
 	 * @param newValue
 	 *            the new value
 	 */
@@ -327,7 +327,7 @@ public class XafsRegion {
 
 	/**
 	 * Sets the time
-	 * 
+	 *
 	 * @param newValue
 	 *            the new value
 	 */
@@ -337,7 +337,7 @@ public class XafsRegion {
 
 	/**
 	 * Gets the time value
-	 * 
+	 *
 	 * @return time value
 	 */
 	public double getTime() {
@@ -346,7 +346,7 @@ public class XafsRegion {
 
 	/**
 	 * Gets the time value
-	 * 
+	 *
 	 * @return time value
 	 */
 	public double getTotalTime() {
@@ -358,7 +358,7 @@ public class XafsRegion {
 
 	/**
 	 * Sets the number of steps
-	 * 
+	 *
 	 * @param newValue
 	 *            the new value
 	 */
@@ -371,7 +371,7 @@ public class XafsRegion {
 
 	/**
 	 * Gets the number of steps
-	 * 
+	 *
 	 * @return the number of steps
 	 */
 	public int getNumberOfSteps() {
@@ -380,7 +380,7 @@ public class XafsRegion {
 
 	/**
 	 * Gets the region displayUnits
-	 * 
+	 *
 	 * @return region displayUnits
 	 */
 	public String getDisplayUnits() {
@@ -389,7 +389,7 @@ public class XafsRegion {
 
 	/**
 	 * sets the region displayUnits
-	 * 
+	 *
 	 * @param newValue
 	 *            new displayUnitss
 	 */

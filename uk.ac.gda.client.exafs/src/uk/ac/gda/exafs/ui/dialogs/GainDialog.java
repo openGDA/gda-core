@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.dialogs;
 
-import gda.util.Element;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
@@ -53,6 +51,9 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
+import gda.util.Element;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.ElementPosition;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
@@ -67,8 +68,6 @@ import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.exafs.ui.data.ScanObject;
 import uk.ac.gda.exafs.util.GainBean;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
-
-import com.swtdesigner.SWTResourceManager;
 
 public class GainDialog extends Dialog {
 	private static Logger logger = LoggerFactory.getLogger(GainDialog.class);
@@ -202,7 +201,7 @@ public class GainDialog extends Dialog {
 			label.setText("Error, the tolerance is blank but should be between 1 and 100");
 			if (getButton(IDialogConstants.OK_ID) != null)
 				getButton(IDialogConstants.OK_ID).setEnabled(false);
-		} 
+		}
 		else {
 			label.setText("The calculation looks at the intensity for each ion chamber based on the scan parameters and attempts to adjust gain until intensity is ~" + val + "% of the detector maximum.");
 			if (getButton(IDialogConstants.OK_ID) != null)
@@ -212,7 +211,7 @@ public class GainDialog extends Dialog {
 
 	/**
 	 * Create contents of the button bar
-	 * 
+	 *
 	 * @param parent
 	 */
 	@Override
@@ -348,7 +347,7 @@ public class GainDialog extends Dialog {
 						if (params instanceof XanesScanParameters) {
 							element = ((XanesScanParameters) params).getElement();
 							edge = ((XanesScanParameters) params).getEdge();
-						} 
+						}
 						else {
 							element = ((XasScanParameters) params).getElement();
 							edge = ((XasScanParameters) params).getEdge();
@@ -424,5 +423,5 @@ public class GainDialog extends Dialog {
 	public ScaleBox getTolerance() {
 		return tolerance;
 	}
-	
+
 }

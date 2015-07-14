@@ -33,7 +33,7 @@ import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 
 public enum XspressParametersUIHelper {
 	INSTANCE;
-	
+
 	public IDetectorROICompositeFactory getDetectorROICompositeFactory() {
 		IDetectorROICompositeFactory factory = new IDetectorROICompositeFactory() {
 			@Override
@@ -50,16 +50,16 @@ public enum XspressParametersUIHelper {
 		gridListEditor.setGridOrder(gridOrder);
 		gridListEditor.setGridMap(pixelMap);
 	}
-	
+
 	/**
 	 * Used where the pixels are mapped differently to the default
 	 * @return map of pixels read from extension point or null.
 	 */
 	public Map<Integer, Integer> getIndexToElectricalChannelMap() {
-		
+
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.gda.exafs.xspress.pixel.map");
-		if (config==null||config.length<1) return null; 
-			
+		if (config==null||config.length<1) return null;
+
 		final Map<Integer,Integer> ret = new HashMap<Integer, Integer>(64);
 		for (IConfigurationElement e : config) {
 		    final String pixel = e.getAttribute("pixel");

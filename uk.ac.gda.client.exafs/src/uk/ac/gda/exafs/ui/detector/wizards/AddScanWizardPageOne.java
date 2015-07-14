@@ -71,7 +71,7 @@ public class AddScanWizardPageOne extends WizardPage {
 		setMessage(null);
 		setControl(selectTypeArea);
 	}
-	
+
 	public String getScanType(){
 		return scanType;
 	}

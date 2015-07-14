@@ -36,7 +36,7 @@ public class MicroreactorParameters implements XMLRichBean {
 	private int gas7Rate = 0;
 	private int temperature = 150;
 	private String masses = "2,32"; // comma separated masses
-	
+
 	public int getGas0Rate() {
 		return gas0Rate;
 	}
@@ -112,7 +112,7 @@ public class MicroreactorParameters implements XMLRichBean {
 	public String getMasses() {
 		return masses;
 	}
-	
+
 	public Integer[] getIntegerMasses(){
 		String[] parts = masses.split(",");
 		Integer[] values = new Integer[0];
@@ -131,7 +131,7 @@ public class MicroreactorParameters implements XMLRichBean {
 	public void setMasses(String masses) {
 		this.masses = masses;
 	}
-	
+
 	@Override
 	public String toString() {
 		try {

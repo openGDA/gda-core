@@ -39,7 +39,7 @@ public class Xspress2BufferedDetectorForTesting extends Xspress2BufferedDetector
 
 	@Override
 	public void addPoint() throws DeviceException {
-		daserver.sendCommand("tfg cont");	
+		daserver.sendCommand("tfg cont");
 	}
 
 }

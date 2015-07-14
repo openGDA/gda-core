@@ -30,7 +30,7 @@ import uk.ac.gda.beans.exafs.XasScanParameters;
 public class XasDescriber extends XMLBeanContentDescriber {
 
 	public static final String ID = "uk.ac.gda.exafs.ui.XasScanParametersEditor";
-	
+
 	@Override
 	protected String getBeanName() {
 		return XasScanParameters.class.getName();
@@ -42,4 +42,3 @@ public class XasDescriber extends XMLBeanContentDescriber {
 
 }
 
-	

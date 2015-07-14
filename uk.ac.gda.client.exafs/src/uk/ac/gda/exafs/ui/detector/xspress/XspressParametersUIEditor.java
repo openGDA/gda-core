@@ -18,13 +18,6 @@
 
 package uk.ac.gda.exafs.ui.detector.xspress;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.device.DeviceException;
-import gda.factory.Finder;
-import gda.jython.accesscontrol.AccessDeniedException;
-
 import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
@@ -75,6 +68,15 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.ResourceManager;
+import com.swtdesigner.SWTResourceManager;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.factory.Finder;
+import gda.jython.accesscontrol.AccessDeniedException;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.DetectorParameters;
@@ -98,14 +100,11 @@ import uk.ac.gda.exafs.ui.detector.XspressROIComposite;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 
-import com.swtdesigner.ResourceManager;
-import com.swtdesigner.SWTResourceManager;
-
 /**
  *
  */
 public class XspressParametersUIEditor extends DetectorEditor {
-	
+
 	private static final String GDA_DEVICE_XSPRESS_SPOOL_DIR = "gda.device.xspress.spoolDir";
 
 	private static final Logger logger = LoggerFactory.getLogger(XspressParametersUIEditor.class);
@@ -256,12 +255,12 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		}
 		lblRegionBins = new Label(topComposite, SWT.NONE);
 		lblRegionBins.setText("Region type");
-		
+
 		regionType = new ComboWrapper(topComposite, SWT.READ_ONLY);
 		regionType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		regionType.setItems(new String[]{XspressParameters.VIRTUALSCALER, XspressROI.MCA});
 		regionType.select(0);
-		
+
 		Group grpAcquire = new Group(left, SWT.NONE);
 		grpAcquire.setText("Acquire Spectra");
 		grpAcquire.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false, 1, 1));
@@ -352,7 +351,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		applyToAllLabel.setEnabled(true);
 		applyToAllLabel.setSelection(true);
 		applyToAllLabel.addSelectionListener(new SelectionListener() {
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (applyToAllLabel.getSelection()) {
@@ -369,7 +368,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				widgetSelected(e);				
+				widgetSelected(e);
 			}
 		});
 
@@ -420,7 +419,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		} catch (Exception e1) {
 			logger.error("Cannot create region editor.", e1);
 		}
-		
+
 		if (!ExafsActivator.getDefault().getPreferenceStore()
 				.getBoolean(ExafsPreferenceConstants.DETECTOR_OUTPUT_IN_OUTPUT_PARAMETERS)) {
 			addOutputPreferences(left);
@@ -429,34 +428,34 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		sashPlotForm.setWeights(new int[] { 30, 74 });
 
 		configureUI();
-		
+
 		createApplyToAllObserver();
 	}
-	
+
 	protected void createApplyToAllObserver() {
-		
+
 		detectorElementCompositeValueListener = new ValueListener() {
-			
+
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				if (applyToAllLabel.getSelection()) {
 					applyToAll(false);
 				}
 			}
-			
+
 			@Override
 			public String getValueListenerName() {
 				return null;
 			}
 		};
-		
+
 		// if any changes in certain UI components then apply to all elements
 		getDetectorElementComposite().getWindowStart().addValueListener(detectorElementCompositeValueListener);
-		
+
 		getDetectorElementComposite().getWindowEnd().addValueListener(detectorElementCompositeValueListener);
-		
+
 		getDetectorElementComposite().getRegionList().addValueListener(detectorElementCompositeValueListener);
-		
+
 	}
 
 	private void addOutputPreferences(Composite comp) {
@@ -565,10 +564,10 @@ public class XspressParametersUIEditor extends DetectorEditor {
 
 	/**
 	 * Override to ass custom actions.
-	 * 
+	 *
 	 * @param parent
 	 * @return SashFormPlotComposite
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Override
 	protected SashFormPlotComposite createSashPlot(Composite parent) throws Exception {
@@ -628,13 +627,13 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		GridUtils.startMultiLayout(parentComposite);
 		try {
 			boolean currentEditIndividual = showIndividualElements.getValue();
-			
+
 			if (currentEditIndividual) {
 				detectorElementsGroup.setText("Detector Elements");
 			} else {
 				detectorElementsGroup.setText("All Elements");
 			}
-			
+
 			GridUtils.setVisibleAndLayout(middleComposite, currentEditIndividual);
 			GridUtils.setVisibleAndLayout(applyToAllLabel, currentEditIndividual);
 			GridUtils.setVisibleAndLayout(applyToAllButton, currentEditIndividual);
@@ -702,9 +701,9 @@ public class XspressParametersUIEditor extends DetectorEditor {
 			listEditorUI.notifySelected(getDetectorElementComposite().getRegionList());
 			// setup for all future notifications
 			getDetectorElementComposite().getRegionList().setListEditorUI(listEditorUI);
-			
+
 			updateROIAfterElementCompositeChange();
-			
+
 			sashPlotForm.getPlottingSystem().autoscaleAxes();
 		} finally {
 			GridUtils.endMultiLayout();
@@ -919,7 +918,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		}
 		return ret;
 	}
-	
+
 	@Override
 	protected void LoadAcquireFromFile() {
 		String dataDir = PathConstructor.createFromDefaultProperty();
@@ -1019,7 +1018,7 @@ public class XspressParametersUIEditor extends DetectorEditor {
 		String varDir = LocalProperties.get(LocalProperties.GDA_VAR_DIR);
 		return varDir + "/xspress_editor_data.xml";
 	}
-	
+
 	public ComboWrapper getRegionType() {
 		return regionType;
 	}

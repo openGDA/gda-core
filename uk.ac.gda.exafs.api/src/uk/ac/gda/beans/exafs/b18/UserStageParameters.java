@@ -27,7 +27,7 @@ public class UserStageParameters implements Serializable  {
 	double axis6;
 	double axis7;
 	double axis8;
-	
+
 
 	@Override
 	public int hashCode() {
@@ -72,49 +72,49 @@ public class UserStageParameters implements Serializable  {
 			return false;
 		return true;
 	}
-	
+
 	public double getAxis2() {
 		return axis2;
 	}
 	public void setAxis2(double axis2) {
 		this.axis2 = axis2;
 	}
-	
+
 	public double getAxis4() {
 		return axis4;
 	}
 	public void setAxis4(double axis4) {
 		this.axis4 = axis4;
 	}
-	
+
 	public double getAxis5() {
 		return axis5;
 	}
 	public void setAxis5(double axis5) {
 		this.axis5 = axis5;
 	}
-	
+
 	public double getAxis6() {
 		return axis6;
 	}
 	public void setAxis6(double axis6) {
 		this.axis6 = axis6;
 	}
-	
+
 	public double getAxis7() {
 		return axis7;
 	}
 	public void setAxis7(double axis7) {
 		this.axis7 = axis7;
 	}
-	
+
 	public double getAxis8() {
 		return axis8;
 	}
 	public void setAxis8(double axis8) {
 		this.axis8 = axis8;
 	}
-	
+
 	public void clear() {
 		axis2 = axis4 = axis5 = axis6 = axis7= axis8 = 0;
 	}

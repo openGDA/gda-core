@@ -77,7 +77,7 @@ public class FurnaceComposite extends FieldBeanComposite {
 		final GridData gd_z = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		z.setLayoutData(gd_z);
 		z.setUnit("mm");
-		
+
 		final Label temperatureLabel = new Label(this, SWT.NONE);
 		temperatureLabel.setText("Temperature");
 
@@ -108,41 +108,40 @@ public class FurnaceComposite extends FieldBeanComposite {
 	}
 	/**
 	 * @return ScaleBox
-	 */ 
+	 */
 	public NumberBox getX() {
 		return x;
 	}
 	/**
 	 * @return ScaleBox
-	 */ 
+	 */
 	public NumberBox getY() {
 		return y;
 	}
 	/**
 	 * @return ScaleBox
-	 */ 
+	 */
 	public NumberBox getZ() {
 		return z;
 	}
 	/**
 	 * @return ScaleBox
-	 */ 
+	 */
 	public NumberBox getTemperature() {
 		return temperature;
 	}
 	/**
 	 * @return ScaleBox
-	 */ 
+	 */
 	public ScaleBox getTolerance() {
 		return tolerance;
 	}
 	/**
 	 * @return ScaleBox
-	 */ 
+	 */
 	public ScaleBox getTime() {
 		return time;
 	}
 
 }
 
-	

@@ -59,8 +59,8 @@ public class DataCollectionModeHandler extends AbstractHandler implements IWorkb
 			return Boolean.FALSE;
 		}
 		for (IPerspectiveDescriptor desc : descriptors)
-			if (!(desc.getId().equals(JythonPerspective.ID) || 
-//			desc.getId().equals(DataBrowsingPerspective.ID) || 
+			if (!(desc.getId().equals(JythonPerspective.ID) ||
+//			desc.getId().equals(DataBrowsingPerspective.ID) ||
 			desc.getId().equals(PlottingPerspective.ID) ||
 			desc.getId().equals(ExperimentPerspective.ID)))
 				win.getActivePage().closePerspective(desc, true, true);

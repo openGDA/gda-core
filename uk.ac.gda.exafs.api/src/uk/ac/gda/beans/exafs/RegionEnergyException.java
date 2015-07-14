@@ -32,4 +32,3 @@ public class RegionEnergyException extends RegionException {
 
 }
 
-	

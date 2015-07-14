@@ -33,12 +33,12 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.beans.ElementCountsData;
 
 public class Data {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Data.class);
-	
+
 	public Data() {
 	}
-	
+
 	public DataWrapper readStoredData(String dataXMLName) {
 		DataWrapper newwrapper = new DataWrapper();
 		try {
@@ -76,12 +76,12 @@ public class Data {
 			logger.error("IOException whilst writing stored detector editor data from file " + dataXMLName);
 		}
 	}
-	
+
 	public void save(int[][][] data, String filePath) throws IOException {
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
 			StringBuffer toWrite = new StringBuffer();
-			for (int i = 0; i < data.length; i++) 
+			for (int i = 0; i < data.length; i++)
 				for (int j = 0; j < data[0].length; j++) {
 					for (int k = 0; k < data[0][0].length; k++)
 						toWrite.append(data[i][j][k] + "\t");

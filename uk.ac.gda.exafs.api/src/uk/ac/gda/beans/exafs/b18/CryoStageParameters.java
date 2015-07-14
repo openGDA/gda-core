@@ -23,7 +23,7 @@ import java.io.Serializable;
 public class CryoStageParameters  implements Serializable {
 	double x;
 	double rot;
-	
+
 	public double getX() {
 		return x;
 	}
@@ -36,7 +36,7 @@ public class CryoStageParameters  implements Serializable {
 	public void setRot(double rot) {
 		this.rot = rot;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -64,9 +64,9 @@ public class CryoStageParameters  implements Serializable {
 			return false;
 		return true;
 	}
-	
+
 	public void clear() {
 		x = rot = 0;
 	}
-	
+
 }

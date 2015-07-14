@@ -68,12 +68,12 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 	private ScaleBox mythenTime;
 	private Composite diffractionComp;
 	private Label collectDiffImagesLabel;
-	
+
 	/**
 	 * @param parent
 	 * @param style
 	 */
-	public SoftXRaysComposite(Composite parent, int style) {	
+	public SoftXRaysComposite(Composite parent, int style) {
 		super(parent, style, null);
 		setLayout(new GridLayout());
 
@@ -94,7 +94,7 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 
         	collectDiffImagesLabel = new Label(top, SWT.NONE);
         	collectDiffImagesLabel.setText("Diffraction Images");
-        	
+
 			diffractionComp = new Composite(top, SWT.NONE);
 			diffractionComp.setLayout(new GridLayout(5, true));
 
@@ -130,7 +130,7 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 				}
 			});
 		}
-        
+
         detectorType.addValueListener(new ValueAdapter("Detector Type Listener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -138,7 +138,7 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 				updateFileSelectionVisibility(e.getValue());
 			}
 		});
-        
+
 		Composite confComp = new Composite(detectorType, SWT.NONE);
 		confComp.setLayout(new GridLayout());
 
@@ -161,11 +161,11 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 					} catch (Exception e1) {
 						logger.error("Cannot open vortex parameters.", e1);
 					}
-				} 
+				}
 			}
 		};
 		configure.addSelectionListener(configureAction);
-		
+
 		configurationFileNameLabel = new Label(top, SWT.NONE);
 		configurationFileNameLabel.setText("Configuration File Name");
 
@@ -197,7 +197,7 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 						logger.error("Cannot get bean type of '" + file.getName() + "'.", e1);
 					}
 				}
-			}	
+			}
 		});
 		createEdgeEnergy(top);
 		createDrainCurrentSection();
@@ -220,7 +220,7 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 
 	/**
 	 * Tells the file chooser widget to update folder.
-	 * @param editorFolder 
+	 * @param editorFolder
 	 */
 	public void setCurrentFolder(final File editorFolder) {
 		this.editorFolder = editorFolder;
@@ -255,9 +255,9 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 		if (value.equals("Silicon Soft X-Rays"))
 			configFileName.setText("Vortex_Parameters.xml");
 		else
-			configFileName.setText("");	
+			configFileName.setText("");
 	}
-	
+
 	public ScaleBox getMythenEnergy() {
 		return mythenEnergy;
 	}
@@ -265,5 +265,5 @@ public class SoftXRaysComposite extends WorkingEnergyWithDrainCurrentsComposite 
 	public ScaleBox getMythenTime() {
 		return mythenTime;
 	}
-	
+
 }

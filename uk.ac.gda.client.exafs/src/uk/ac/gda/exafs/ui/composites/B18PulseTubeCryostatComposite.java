@@ -45,14 +45,14 @@ public class B18PulseTubeCryostatComposite extends FieldBeanComposite {
 	public B18PulseTubeCryostatComposite(Composite parent, int style, B18SampleParameters bean) {
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
-		
+
 		Label lblSetPoint = new Label(this, SWT.NONE);
 		lblSetPoint.setLayoutData(new GridData(SWT.LEFT, SWT.LEFT, false, false, 1, 1));
 		lblSetPoint.setText("Set Point");
 		setPoint = new ScaleBox(this, SWT.NONE);
 		setPoint.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, true, false, 1, 1));
 		setPoint.setMinimum(-200);
-		
+
 		Label lblTolerance = new Label(this, SWT.NONE);
 		lblTolerance.setLayoutData(new GridData(SWT.LEFT, SWT.LEFT, false, false, 1, 1));
 		lblTolerance.setText("Tolerance");
@@ -60,7 +60,7 @@ public class B18PulseTubeCryostatComposite extends FieldBeanComposite {
 		tolerance.setUnit("K");
 		tolerance.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, true, false, 1, 1));
 
-		
+
 		Label lblTime = new Label(this, SWT.NONE);
 		lblTime.setLayoutData(new GridData(SWT.LEFT, SWT.LEFT, false, false, 1, 1));
 		lblTime.setText("Waiting Time");
@@ -68,7 +68,7 @@ public class B18PulseTubeCryostatComposite extends FieldBeanComposite {
 		time.setUnit("s");
 		time.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, true, false, 1, 1));
 
-		
+
 		this.controlFlag = new BooleanWrapper(this, SWT.NONE);
 		controlFlag.setLayoutData(new GridData(SWT.FILL, SWT.LEFT, true, false, 1, 1));
 		controlFlag.setText("Only read, no control");

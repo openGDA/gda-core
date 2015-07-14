@@ -20,8 +20,6 @@ package uk.ac.gda.exafs.beans;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import gda.exafs.scan.ExafsValidator;
-import gda.util.TestUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,6 +31,8 @@ import org.eclipse.core.runtime.content.IContentDescriber;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.exafs.scan.ExafsValidator;
+import gda.util.TestUtils;
 import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.beans.validation.InvalidBeanMessage;
@@ -100,8 +100,8 @@ public class OutputParametersTest {
 //		o.addSignal(new SignalParameters("Temp", "temp", "%s", "temp", "Eurotherm"));
 
 		ExafsValidator._setCheckingFinables(false);
-		
-		
+
+
 		validate(o);
 
 	}
@@ -147,7 +147,7 @@ public class OutputParametersTest {
 
 	/**
 	 * test for xml file with output parameters
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test

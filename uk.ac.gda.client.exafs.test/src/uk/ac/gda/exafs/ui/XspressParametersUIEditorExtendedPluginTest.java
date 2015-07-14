@@ -35,18 +35,18 @@ import uk.ac.gda.util.PackageUtils;
  * Run as junit plugin test.
  */
 public class XspressParametersUIEditorExtendedPluginTest {
-	
+
 	private XspressParametersEditor boundsEditor;
 	/**
 	 * @throws Throwable
 	 */
 	@Before
 	public void setUp() throws Throwable {
-		
+
 		ClientManager.setTestingMode(true);
-		
+
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		
+
 		File xml = new File(PackageUtils.getTestPath(XspressParametersUIEditorExtendedPluginTest.class)+"/Xspress_BoundsTest.xml");
 		FileStoreEditorInput fileInput = new FileStoreEditorInput(EFS.getLocalFileSystem().fromLocalFile(xml));
 		this.boundsEditor = (XspressParametersEditor)window.getActivePage().openEditor(fileInput, XspressParametersEditor.ID);
@@ -54,42 +54,42 @@ public class XspressParametersUIEditorExtendedPluginTest {
 	}
 
 //	/**
-//	 * @throws Throwable 
+//	 * @throws Throwable
 //	 */
 //	@Test
 //	public final void testInputIdentified() throws Throwable {
-//		
+//
 //		final XspressParametersUIEditor uiEd = (XspressParametersUIEditor)boundsEditor.getRichBeanEditor();
 //		uiEd.setWindowsEnabled(true);
-//		
+//
 //		uiEd._testSetSelectedElement(0);
 //		uiEd._testSetSelectedElement(1);
-//		
+//
 //		// If defect occurs, Region Start will be out of bounds, incorrectly.
 //		final DetectorElementComposite comp = (DetectorElementComposite)uiEd.getDetectorList().getEditorUI();
 //		final Object              roiEditor = comp.getRegionList().getEditorUI();
 //		final ScaleBox          roiStart = (ScaleBox)BeanUI.getFieldWiget("roiStart", roiEditor);
-//		
+//
 //		if (!roiStart.isValidBounds()) throw new Exception("'roiStart' has incorrectly identified invalid bounds!");
 //		if (boundsEditor.isDirty())       throw new Exception("Editor is dirty even though only different nodes have been selected.");
 //	}
-	
+
 //	/**
-//	 * @throws Throwable 
+//	 * @throws Throwable
 //	 */
 //	@Test
 //	public final void testCanDelete() throws Throwable {
-//		
+//
 //		final XspressParametersUIEditor uiEd = (XspressParametersUIEditor)boundsEditor.getRichBeanEditor();
 //		uiEd.setWindowsEnabled(true);
-//		
+//
 //		uiEd._testSetSelectedElement(0);
 //		uiEd._testSetSelectedElement(1);
 //		uiEd._testAddRegionOfInterest("foo");
 //		uiEd._testDeleteRegionOfInterest();
 //		uiEd._testSetSelectedElement(0);
 //		uiEd._testSetSelectedElement(1);
-//		
+//
 //		if (uiEd._testGetNumberOfRegions()!=1) throw new Exception("Region of interest did not delete properly.");
 //	}
 

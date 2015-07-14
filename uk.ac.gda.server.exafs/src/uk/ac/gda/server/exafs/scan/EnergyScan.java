@@ -1,12 +1,5 @@
 package uk.ac.gda.server.exafs.scan;
 
-import gda.device.Detector;
-import gda.device.Scannable;
-import gda.device.scannable.JEPScannable;
-import gda.device.scannable.XasScannable;
-import gda.exafs.scan.ExafsScanPointCreator;
-import gda.exafs.scan.XanesScanPointCreator;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +7,12 @@ import org.apache.commons.lang.ArrayUtils;
 import org.nfunk.jep.ParseException;
 import org.python.core.PyTuple;
 
+import gda.device.Detector;
+import gda.device.Scannable;
+import gda.device.scannable.JEPScannable;
+import gda.device.scannable.XasScannable;
+import gda.exafs.scan.ExafsScanPointCreator;
+import gda.exafs.scan.XanesScanPointCreator;
 import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;

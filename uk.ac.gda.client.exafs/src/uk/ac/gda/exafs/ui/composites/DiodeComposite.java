@@ -18,9 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.device.CurrentAmplifier;
-import gda.device.Scannable;
-
 import org.dawnsci.common.richbeans.components.wrappers.SpinnerWrapper;
 import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
@@ -34,6 +31,8 @@ import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ColumnLayout;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
+import gda.device.CurrentAmplifier;
+import gda.device.Scannable;
 import uk.ac.gda.components.wrappers.FindableNameWrapper;
 
 /**
@@ -41,7 +40,7 @@ import uk.ac.gda.components.wrappers.FindableNameWrapper;
  *
  */
 public class DiodeComposite extends Composite  {
-	
+
 	private TextWrapper deviceName;
 	private TextWrapper name;
 	private TextWrapper currentAmplifierName;
@@ -57,11 +56,11 @@ public class DiodeComposite extends Composite  {
 	public DiodeComposite(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new GridLayout());
-		
+
 		final Composite main = new Composite(this, SWT.NONE);
 		main.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		main.setLayout(new FillLayout());
-		
+
 		final Composite left = new Composite(main, SWT.NONE);
 		left.setLayout(new ColumnLayout());
 
@@ -69,7 +68,7 @@ public class DiodeComposite extends Composite  {
 		final GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 2;
 		gainProperties.setLayout(gridLayout);
-		
+
 		final Label nameLabel = new Label(gainProperties, SWT.NONE);
 		nameLabel.setText("Name");
 
@@ -110,7 +109,7 @@ public class DiodeComposite extends Composite  {
 
 		currentAmplifierName = new FindableNameWrapper(advanced, SWT.BORDER, CurrentAmplifier.class);
 		currentAmplifierName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
+
 
 		advancedExpandableComposite.setClient(advanced);
 		this.expansionListener = new ExpansionAdapter() {
@@ -122,7 +121,7 @@ public class DiodeComposite extends Composite  {
 		advancedExpandableComposite.addExpansionListener(expansionListener);
 
 	}
-	
+
 	@Override
 	public void dispose() {
 		advancedExpandableComposite.removeExpansionListener(expansionListener);
@@ -160,9 +159,8 @@ public class DiodeComposite extends Composite  {
 	public TextWrapper getDeviceName() {
 		return deviceName;
 	}
-	
 
-	
+
+
 }
 
-	

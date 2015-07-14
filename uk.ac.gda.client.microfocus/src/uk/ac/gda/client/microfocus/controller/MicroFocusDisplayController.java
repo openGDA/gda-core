@@ -112,7 +112,7 @@ public class MicroFocusDisplayController {
 		fileDataProvider.loadData(filePath);
 		setFileIsDataSource(true);
 		displayMap(selectedElement,channelToDisplay);
-		
+
 		logger.debug("displayed map for " + selectedElement + " using " + fileDataProvider.getClass());
 	}
 

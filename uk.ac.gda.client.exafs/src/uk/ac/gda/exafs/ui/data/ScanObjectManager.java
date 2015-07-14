@@ -18,6 +18,11 @@
 
 package uk.ac.gda.exafs.ui.data;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.exafs.scan.ScanStartedMessage;
 import gda.factory.Findable;
 import gda.factory.Finder;
@@ -25,12 +30,6 @@ import gda.jython.scriptcontroller.logging.ILoggingScriptController;
 import gda.jython.scriptcontroller.logging.LoggingScriptController;
 import gda.observable.IObserver;
 import gda.rcp.GDAClientActivator;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentObjectManager;
@@ -45,7 +44,7 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 	private static IDetectorParameters currentDetectorParameters;
 	private static LoggingScriptController messageController;
 	private static final Logger logger = LoggerFactory.getLogger(ScanObjectManager.class);
-	
+
 	public ScanObjectManager() {
 		String controllers = GDAClientActivator.getDefault().getPreferenceStore().getString(PreferenceConstants.GDA_LOGGINGSCRIPTCONTROLLERS);
 		String[] controllerNames = controllers.split(",");
@@ -62,7 +61,7 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 			}
 		}
 	}
-	
+
 	/**
 	 * On I20, if the XES scan is an option, according to the extension
 	 * registry, then it should be the only scan option and the appearance of
@@ -70,7 +69,7 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 	 * <p>
 	 * XES and non-XES scans should not be mixed when running a multi-scan as
 	 * this is physically impossible.
-	 * 
+	 *
 	 * @return true if XES scanning is an option, or false if not running in an
 	 *         Equinox environment.
 	 */
@@ -81,7 +80,7 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 	public static void setXESOnlyMode(boolean onlyXESScans) {
 		ExafsActivator.getDefault().getPreferenceStore().setValue(ExafsPreferenceConstants.XES_MODE_ENABLED, onlyXESScans);
 	}
-	
+
 	public static boolean isQEXAFSDefaultScanType() {
 		return ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.QEXAFS_IS_DEFAULT_SCAN_TYPE);
 	}
@@ -89,18 +88,18 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 	public static void setQEXAFSDefaultScanType(boolean qexafsIsDefault) {
 		ExafsActivator.getDefault().getPreferenceStore().setValue(ExafsPreferenceConstants.QEXAFS_IS_DEFAULT_SCAN_TYPE, qexafsIsDefault);
 	}
-	
+
 	/**
 	 * Based on information returned from the specific Script Controller, returns the ScanObject currently in progress.
 	 * <p>
-	 * For parts of the UI whose display varies based on what is running. 
-	 * 
+	 * For parts of the UI whose display varies based on what is running.
+	 *
 	 * @return null if no scan running
 	 */
 	public static IScanParameters getCurrentScan() {
 		return currentScan;
 	}
-	
+
 	public static IDetectorParameters getCurrentDetectorParameters() {
 		return currentDetectorParameters;
 	}
@@ -113,13 +112,13 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 		ScanObjectManager.messageController = messageController;
 		messageController.addIObserver(this);
 	}
-	
+
 	@Override
 	public void update(Object source, Object arg) {
 		if (arg instanceof ScanStartedMessage){
 			currentScan = ((ScanStartedMessage)arg).getStartedScan();
 			currentDetectorParameters = ((ScanStartedMessage)arg).getDetectorParams();
-		} 
+		}
 	}
 
 	@Override
@@ -171,5 +170,5 @@ public final class ScanObjectManager extends ExperimentObjectManager implements 
 	public String[] getOrderedColumnBeanTypes() {
 		return new String[]{"Scan","Detector","Sample","Output"};
 	}
-	
+
 }

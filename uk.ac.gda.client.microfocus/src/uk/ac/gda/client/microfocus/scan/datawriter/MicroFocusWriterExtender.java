@@ -18,17 +18,6 @@
 
 package uk.ac.gda.client.microfocus.scan.datawriter;
 
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.scan.datawriter.DataWriterExtenderBase;
-import gda.data.scan.datawriter.IDataWriterExtender;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.detector.BufferedDetector;
-import gda.device.detector.NXDetectorData;
-import gda.device.detector.countertimer.TfgScaler;
-import gda.device.detector.xspress.Xspress2BufferedDetector;
-import gda.scan.IScanDataPoint;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -50,6 +39,16 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.scan.datawriter.DataWriterExtenderBase;
+import gda.data.scan.datawriter.IDataWriterExtender;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.detector.BufferedDetector;
+import gda.device.detector.NXDetectorData;
+import gda.device.detector.countertimer.TfgScaler;
+import gda.device.detector.xspress.Xspress2BufferedDetector;
+import gda.scan.IScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
@@ -194,7 +193,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	protected int getCurrentSDPNumber(IScanDataPoint dataPoint){
 		return dataPoint.getCurrentPointNumber();
 	}
-	
+
 	@Override
 	public void addData(IDataWriterExtender parent, IScanDataPoint dataPoint) throws Exception {
 		Double[] xy = dataPoint.getPositionsAsDoubles();
@@ -223,7 +222,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			if (detectorsData.size() != detFromDP.size()){
 				logger.error("Inconsistency in ScanDataPoint. There are " + detFromDP.size() + " detectors and " + detectorsData.size() + " data parts");
 			}
-			
+
 			for (int detDataIndex = 0; detDataIndex < detectorsData.size(); detDataIndex++) {
 				Object dataObj = detectorsData.get(detDataIndex);
 				Detector detector = detFromDP.get(detDataIndex);
@@ -235,26 +234,26 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 								+ " parts in the data and " + detector.getExtraNames().length + " extra names for "
 								+ detector.getName());
 					}
-					
+
 					for (int index = 0; index < scalerData.length; index++) {
 						String columnName = detector.getExtraNames()[index];
 						double data = scalerData[index];
 						rgbLineData.put(columnName, data);
 					}
-					
+
 					if (normaliseElementIndex != -1 && normaliseElementIndex < scalerData.length){
 						normaliseValue = scalerData[normaliseElementIndex];
 					}
-					
+
 					String[] elementNames = detector.getExtraNames();
-					
+
 					for (int channel = 0 ; channel < elementNames.length; channel ++){
 						String elementName = elementNames[channel];
 						double value = scalerData[channel];
 						scalerValuesCache.get(elementName)[dataPoint.getCurrentPointNumber()] = value;
 					}
 //					scalerValuesCache[dataPoint.getCurrentPointNumber()] = scalerData;
-					
+
 				} else if (dataObj instanceof NXDetectorData) {  // then this must be a fluorescence detector
 					// make the roiHeader once
 					if (dataPoint.getCurrentPointNumber() == 0) {
@@ -270,7 +269,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 						// add the fluo det columns to the rbg header
 						rgbLineData.put(s, 0.0);
 					}
-					
+
 					if (isXspressScan()
 							&& ((detector instanceof XspressDetector) || detector instanceof BufferedDetector)) {
 						d = ((NXDetectorData) dataObj);
@@ -297,7 +296,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 					} else if (isXspress3Scan()){
 						// TODO  extract the ROIs and put into the detectorValuesCache object for holding the map in memory
 						//  problem: at the moment, only the FFs are in the data, not the rois...
-						
+
 						d = ((NXDetectorData) dataObj);
 						for (int i = 0; i < numberOfSubDetectors; i++) {
 							@SuppressWarnings("unchecked")
@@ -308,7 +307,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 									if (detectorValuesCache[i][roiNameMap.get(key)] == null)
 										detectorValuesCache[i][roiNameMap.get(key)] = new double[totalPoints];
 									NexusGroupData groupData = d.getData(detectorName, key, "SDS");
-// 									in the simulation we get Doubles but live we return doubles. Fix the sim									
+// 									in the simulation we get Doubles but live we return doubles. Fix the sim
 									double[] dataArray = (double[]) groupData.getBuffer();
 									double windowTotal = dataArray[i];
 									double rgbElementSum = rgbLineData.get(key);
@@ -369,7 +368,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 	/*
 	 * if normalise is requested plot the normalised value in map and save normalised value internally but write raw
 	 * value to rgb files
-	 * 
+	 *
 	 * @param dataPoint
 	 */
 	private void normaliseDetectorValues(IScanDataPoint dataPoint) {
@@ -388,7 +387,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		roiHeader = new StringBuffer("row  column");
 		for (Detector det : detFromDP) {
 			if (det instanceof TfgScaler) {
-				
+
 				String[] s = det.getExtraNames();
 				for (int i = 0; i < s.length; i++) {
 					if (s[i].equals(selectedElement)) {
@@ -422,7 +421,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		firstX = xy[1];
 		firstY = xy[0];
 		int totalPoints = numberOfXPoints * numberOfYPoints;
-		
+
 		scalerValuesCache = new HashMap<String,double[]>();
 		for (Detector detector : detFromDP) {
 			if (detector instanceof TfgScaler) {
@@ -430,7 +429,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 				scalerValuesCache.put(detectorChannel,  new double[totalPoints]);
 			}
 		}
-		
+
 		if (roiNameMap != null)
 			detectorValuesCache = new double[numberOfSubDetectors][roiNameMap.size()][totalPoints];
 		xValues = new double[numberOfXPoints];
@@ -454,10 +453,10 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 		Dataset yDataset = DatasetFactory.createFromObject(yValues);
 		SDAPlotter.imagePlot(MapPlotView.NAME, xDataset, yDataset, dataSet);
 	}
-	
+
 	/**
 	 * This is mainly for unit testing
-	 * 
+	 *
 	 * @param detectorChannel
 	 * @param elementIndex
 	 * @return double[] the map for the given channel and element
@@ -495,9 +494,9 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 //								+ Xspress3Detector.getNameOfRowSubNode(y);
 //						lazyDataset = dataHolder.getLazyDataset(nameOfMcaForGivenRow);
 //						slice = lazyDataset.getSlice(new int[] { x, detNo, 0 }, new int[] { x + 1, detNo + 1,
-//								spectrumLength }, new int[] { 1, 1, 1 });					
+//								spectrumLength }, new int[] { 1, 1, 1 });
 //					}
-					
+
 				} catch (Exception e) {
 					// absorb the exception here as if the MCA does not exist then it will probably be because the row
 					// has not completed so the MCA are not available yet.
@@ -548,7 +547,7 @@ public class MicroFocusWriterExtender extends DataWriterExtenderBase {
 			}
 			plotImage(dataSetToDisplay);
 			return;
-		} 
+		}
 		throw new Exception("unable to determine the detector for the selected element ");
 	}
 

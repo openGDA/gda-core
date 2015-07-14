@@ -22,19 +22,19 @@ import java.io.Serializable;
 import java.net.URL;
 
 public class XanesRegionParameters implements Serializable{
-	
+
 	private int regionNumber;
 	private double startEnergy;
 	private double stepEnergy;
 	private double time;
-	
+
 	static public final URL mappingURL = XasScanParameters.class.getResource("ExafsParameterMapping.xml");
 	static public final URL schemaUrl = XasScanParameters.class.getResource("ExafsParameterMapping.xsd");
-	
+
 	public XanesRegionParameters(){
-		
+
 	}
-	
+
 	public XanesRegionParameters(int region, double startEnergy, double stepEnergy, double time){
 		super();
 		this.regionNumber = region;
@@ -74,7 +74,7 @@ public class XanesRegionParameters implements Serializable{
 	public void setTime(double time) {
 		this.time = time;
 	}
-	
-	
+
+
 
 }

@@ -18,16 +18,15 @@
 
 package uk.ac.gda.exafs.util;
 
-import gda.device.CurrentAmplifier;
-import gda.device.Detector;
-import gda.device.Scannable;
-import gda.factory.Finder;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 
+import gda.device.CurrentAmplifier;
+import gda.device.Detector;
+import gda.device.Scannable;
+import gda.factory.Finder;
 import uk.ac.gda.util.number.DoubleUtils;
 
 /**
@@ -45,8 +44,8 @@ public class GainCalculation {
 		addGainSettings("nA/V", NOTCHES);
 		addGainSettings("uA/V", NOTCHES);
 		NOTCHES.add("1 mA/V");
-		
-		
+
+
 		OFFSET_NOTCHES = new ArrayList<String>(13);
 		addOffsetSettings("pA", OFFSET_NOTCHES);
 		addOffsetSettings("nA", OFFSET_NOTCHES);
@@ -65,7 +64,7 @@ public class GainCalculation {
 		items.add("200 " + unit);
 		items.add("500 " + unit);
 	}
-	
+
 	private final static void addOffsetSettings(String unit, final List<String> items) {
 		items.add("1 " + unit);
 		items.add("2 " + unit);
@@ -172,11 +171,11 @@ public class GainCalculation {
 		bean.log("Suggested gain is " + gain);
 		return gain;
 	}
-	
+
 	public static List<String> getGainNotches() {
 		return NOTCHES;
 	}
-	
+
 	public static List<String> getOffsetNotches() {
 		return OFFSET_NOTCHES;
 	}

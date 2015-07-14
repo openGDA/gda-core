@@ -42,7 +42,7 @@ public class OutputParametersEditor extends ExperimentBeanMultiPageEditor {
 	}
 
 	@Override
-	
+
 	public URL getSchemaUrl() {
 		return OutputParameters.schemaUrl;
 	}

@@ -18,14 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.CurrentAmplifier;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.exafs.mucal.PressureBean;
-import gda.exafs.mucal.PressureCalculation;
-import gda.factory.Finder;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -74,6 +66,13 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.CurrentAmplifier;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.exafs.mucal.PressureBean;
+import gda.exafs.mucal.PressureCalculation;
+import gda.factory.Finder;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
@@ -154,7 +153,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 	}
 
 	private void createLeftGasProperties(final Composite left) {
-		
+
 		this.gasPropertiesGroup = new Group(left, SWT.NONE);
 		gasPropertiesGroup.setLayout(new GridLayout(2, false));
 		gasPropertiesGroup.setText("Gas Properties");
@@ -215,8 +214,8 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 		pressure.setUnit("bar");
 		pressure.setNotifyType(NOTIFY_TYPE.VALUE_CHANGED);
 		pressure.setDecimalPlaces(6);
-		
-		
+
+
 		if (!ExafsActivator.getDefault().getPreferenceStore()
 				.getBoolean(ExafsPreferenceConstants.HIDE_GAS_FILL_CONTROLS)) {
 			fillGasButton = new Button(composite, SWT.NONE);
@@ -256,7 +255,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 						gas_select_val = "1";
 					else if (gas_select.equals("Ar"))
 						gas_select_val = "2";
-					
+
 					final ArrayList<String> args = new ArrayList<String>();
 					args.add(purge_pressure);
 					args.add(purge_period);
@@ -267,9 +266,9 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 					args.add(gas_select_val);
 					args.add(flushString);
 
-					
+
 					final Scannable gasInjector;
-							
+
 					if (ionc_name.equalsIgnoreCase("I0")){
 						gasInjector = Finder.getInstance().find("ionc1_gas_injector");
 					} else if (ionc_name.equalsIgnoreCase("It")){
@@ -278,7 +277,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 						gasInjector = Finder.getInstance().find("ionc3_gas_injector");
 					} else {
 						gasInjector = null;
-					}		
+					}
 
 					if (gasInjector != null) {
 
@@ -326,7 +325,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 			});
 		}
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void createLeftSensitivityProperties(final Composite left) {
 		final Composite gainProperties = new Composite(left, SWT.NONE);
@@ -375,7 +374,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 			notches.add("10^9 V/A");
 			notches.add("10^10 V/A");
 		}
-			
+
 		gain.setItems(notches.toArray(new String[notches.size()]));
 		gain.addButtonListener(new SelectionAdapter() {
 			@Override
@@ -583,7 +582,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 	 * class.
 	 */
 	public void calculatePressure() {
-		
+
 		if(this.isVisible()){
 
 			if (!isUseGasProperties() || workingEnergy.getValue() == null)
@@ -808,7 +807,7 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 
 	/**
 	 * Sets the active working energy box used for pressure calculation.
-	 * 
+	 *
 	 * @param workingEnergy
 	 */
 	public void setWorkingEnergy(ScaleBox workingEnergy) {
@@ -825,8 +824,8 @@ public class IonChamberComposite extends Composite implements ListEditorUI {
 
 	public void setGasType(String gasTypeVal) {
 		this.gasType.select(findFilterIndex(gasTypeVal, gasType));
-	}	
-	
+	}
+
 	public void setExperimentType(String type) {
 		detParams.setExperimentType(type);
 	}

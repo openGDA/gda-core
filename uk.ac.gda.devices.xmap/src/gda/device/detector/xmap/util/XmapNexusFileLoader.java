@@ -18,19 +18,19 @@
 
 package gda.device.detector.xmap.util;
 
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeBuilder;
-import gda.data.nexus.tree.NexusTreeNodeSelection;
-
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeBuilder;
+import gda.data.nexus.tree.NexusTreeNodeSelection;
+
 /**
  * Reads the data buffer dump which Xmap puts into an HDF5 file.
- * 
+ *
  * @author rjw82
  *
  */
@@ -67,10 +67,10 @@ public class XmapNexusFileLoader implements XmapFileLoader {
 		short[][][] packedArray = packArray(arry, dataDim); // [buffer][XIA module][data]
 		int numberPixels = getNumberPixels(packedArray);
 		fullDataArray = new ChannelData[numberPixels][numberChannelsToRead];
-		
+
 		logger.debug("Reading " + fileName.trim() + " which has " + packedArray.length + " buffers containing "
 				+ numberPixels + " pixels");
-		
+
 		for (int m = 0; m < packedArray.length; m++) {
 			for (int n = 0; n < packedArray[m].length; n++) {
 				BufferHeader bufHeader = readCommonHeader(packedArray[m][n]);
@@ -291,7 +291,7 @@ public class XmapNexusFileLoader implements XmapFileLoader {
 
 		/**
 		 * Overloaded tostring method
-		 * 
+		 *
 		 * @return output
 		 */
 		@Override
@@ -346,7 +346,7 @@ public class XmapNexusFileLoader implements XmapFileLoader {
 
 		/**
 		 * Overloaded tostring method
-		 * 
+		 *
 		 * @return output
 		 */
 		@Override

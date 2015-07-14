@@ -31,6 +31,7 @@ public class TransmissionParameters implements IExperimentDetectorParameters, Se
 	private double mythenTime = 1.0;
 	private boolean collectDiffractionImages;
 
+	@Override
 	public Double getWorkingEnergy() {
 		return workingEnergy;
 	}
@@ -55,6 +56,7 @@ public class TransmissionParameters implements IExperimentDetectorParameters, Se
 		this.ionChamberParameters = ionChamberParameters;
 	}
 
+	@Override
 	public String getDetectorType() {
 		return detectorType;
 	}
@@ -63,6 +65,7 @@ public class TransmissionParameters implements IExperimentDetectorParameters, Se
 		this.detectorType = detectorType;
 	}
 
+	@Override
 	public double getMythenEnergy() {
 		return mythenEnergy;
 	}
@@ -71,6 +74,7 @@ public class TransmissionParameters implements IExperimentDetectorParameters, Se
 		this.mythenEnergy = mythenEnergy;
 	}
 
+	@Override
 	public double getMythenTime() {
 		return mythenTime;
 	}
@@ -79,6 +83,7 @@ public class TransmissionParameters implements IExperimentDetectorParameters, Se
 		this.mythenTime = mythenTime;
 	}
 
+	@Override
 	public boolean isCollectDiffractionImages() {
 		return collectDiffractionImages;
 	}

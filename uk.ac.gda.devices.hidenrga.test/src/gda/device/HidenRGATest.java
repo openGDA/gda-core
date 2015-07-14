@@ -3,11 +3,6 @@ package gda.device;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-import gda.factory.FactoryException;
-import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
 
 import java.io.IOException;
 import java.util.LinkedHashSet;
@@ -19,6 +14,12 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
+import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
 
 /*-
  * Copyright © 2015 Diamond Light Source Ltd.
@@ -49,10 +50,10 @@ public class HidenRGATest {
 
 	@Before
 	public void setup() throws DeviceException, IOException {
-		
+
 		JythonServerFacade jythonserverfacade = Mockito.mock(JythonServerFacade.class);
 		InterfaceProvider.setTerminalPrinterForTesting(jythonserverfacade);
-		
+
 		masses = new int[] { 16, 32, 48 };
 		massesSet = new LinkedHashSet<Integer>();
 		massesSet.add(16);
@@ -63,18 +64,18 @@ public class HidenRGATest {
 		rga.setName("rga");
 
 		mockedController = PowerMockito.mock(HidenRGAController.class);
-		
+
 		PowerMockito.when(mockedController.readout()).thenReturn(new double[]{12.5,177.7, 145.2});
 		PowerMockito.when(mockedController.readValve()).thenReturn(0.7);
 		PowerMockito.when(mockedController.readtemp()).thenReturn(20.0);
-		
-		
+
+
 		PowerMockito.mockStatic(PathConstructor.class);
 		PowerMockito.when(PathConstructor.createFromDefaultProperty()).thenReturn("/tmp");
-		
+
 		PowerMockito.mockStatic(LocalProperties.class);
 		PowerMockito.when(LocalProperties.get(LocalProperties.GDA_VAR_DIR)).thenReturn("/tmp");
-		
+
 
 		rga.setController(mockedController);
 	}
@@ -158,7 +159,7 @@ public class HidenRGATest {
 		rga.configure();
 		rga.setMasses(masses);
 		rga.getPosition();
-		
+
 		Mockito.verify(mockedController).readout();
 		Mockito.verify(mockedController).readValve();
 		Mockito.verify(mockedController).readtemp();

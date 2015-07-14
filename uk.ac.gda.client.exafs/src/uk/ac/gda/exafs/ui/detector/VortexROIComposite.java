@@ -45,13 +45,13 @@ public class VortexROIComposite extends DetectorROIComposite {
 	public VortexROIComposite(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
-		
+
 		Label lblName = new Label(this, SWT.NONE);
 		lblName.setText("Name");
-		
+
 		roiName = new TextWrapper(this, SWT.BORDER);
 		roiName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		final Label windowStartLabel = new Label(this, SWT.NONE);
 		windowStartLabel.setText("Start");
 
@@ -70,18 +70,18 @@ public class VortexROIComposite extends DetectorROIComposite {
 		windowEnd.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		windowEnd.setButtonVisible(true);
 		windowEnd.setDecimalPlaces(0);
-		
+
 		windowStart.setMaximum(windowEnd);
 		windowEnd.setMinimum(windowStart);
-		
+
 		Label lblCounts = new Label(this, SWT.NONE);
 		lblCounts.setText("In window counts");
-		
+
 		counts = new LabelWrapper(this, SWT.NONE);
 		counts.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		counts.setNotifyType(NOTIFY_TYPE.VALUE_CHANGED);
 	}
-	
+
 	/**
 	 * @return d
 	 */

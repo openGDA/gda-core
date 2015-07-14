@@ -32,7 +32,7 @@ import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
  */
 public class XspressParametersEditor extends ExperimentBeanMultiPageEditor {
 
-	
+
 	/**
 	 * The id for the editor
 	 */
@@ -58,7 +58,7 @@ public class XspressParametersEditor extends ExperimentBeanMultiPageEditor {
 	public URL getSchemaUrl() {
 		return XspressParameters.schemaURL;
 	}
-	
+
 	@Override
 	public List<String> getPrivateXMLFields() {
 		return Arrays.asList(new String[]{"data"});

@@ -19,13 +19,13 @@
 package uk.ac.gda.microfocus.beans;
 
 import static org.junit.Assert.fail;
-import gda.util.TestUtils;
 
 import java.io.File;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.util.TestUtils;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
 
@@ -40,16 +40,16 @@ public class MicroFocusScanParametersTest {
 	@Test
 	public void testCreateFromXMLWithClass() {
 		try {
-			final MicroFocusScanParameters s = (MicroFocusScanParameters)XMLHelpers.createFromXML(MicroFocusScanParameters.mappingURL, 
-					MicroFocusScanParameters.class, 
-					MicroFocusScanParameters.schemaUrl, 
+			final MicroFocusScanParameters s = (MicroFocusScanParameters)XMLHelpers.createFromXML(MicroFocusScanParameters.mappingURL,
+					MicroFocusScanParameters.class,
+					MicroFocusScanParameters.schemaUrl,
 					new File("testfiles/uk/ac/gda/microfocus/beans/MicroFocusScanParametersTest/MicroFocus_Parameters.xml"));
 			System.out.println(s);
 		} catch (Exception ex) {
 			fail("Invalid exception thrown - " + ex.getCause().getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testCreateFromXML()  throws Exception{
 		MicroFocusScanParameters mfp = new MicroFocusScanParameters();
@@ -69,7 +69,7 @@ public class MicroFocusScanParametersTest {
 			fail("Values read are incorrect - " + s.toString());
 		}
 	}
-	
+
 	@Test
 	public void testWriteToXML() throws Exception
 	{

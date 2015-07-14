@@ -35,7 +35,7 @@ public class PowerSupplyScannable extends ScannableBase implements Scannable{
 	private Object disable;
 	private Object send;
 	private Object start_ramp;
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
@@ -44,7 +44,7 @@ public class PowerSupplyScannable extends ScannableBase implements Scannable{
 			setInputNames(new String[] { getName() });
 		}
 	}
-	
+
 	@Override
 	public boolean isBusy() throws DeviceException {
 		try {
@@ -64,10 +64,10 @@ public class PowerSupplyScannable extends ScannableBase implements Scannable{
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void rawAsynchronousMoveTo(Object position) throws DeviceException {
-	
+
 		int intVal = Integer.parseInt(position.toString());
 
 		try {
@@ -78,14 +78,14 @@ public class PowerSupplyScannable extends ScannableBase implements Scannable{
 			ca_client.caput((String) start_ramp, 1);
 			Thread.sleep(500);
 			ca_client.caput((String) disable, 0);
-			
+
 		} catch (Exception e) {
 			if( e instanceof DeviceException)
 				throw (DeviceException)e;
 			throw new DeviceException(getName() +" exception in rawAsynchronousMoveTo", e);
 		}
 	}
-	
+
 	@Override
 	public Object rawGetPosition() throws DeviceException {
 		try {
@@ -136,5 +136,5 @@ public class PowerSupplyScannable extends ScannableBase implements Scannable{
 	public void setStart_ramp(Object startRamp) {
 		start_ramp = startRamp;
 	}
-	
+
 }

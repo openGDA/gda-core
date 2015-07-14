@@ -27,7 +27,7 @@ public interface RasterMapDetectorPreparer extends DetectorPreparer {
 	 * @return BufferedDetector[] - based on the parameters given to the object in its
 	 *         {@link #configure(uk.ac.gda.beans.exafs.IScanParameters, uk.ac.gda.beans.exafs.IDetectorParameters, uk.ac.gda.beans.exafs.IOutputParameters, String)}
 	 *         method
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public BufferedDetector[] getRasterMapDetectors() throws Exception;
 }

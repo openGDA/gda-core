@@ -26,6 +26,14 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InOrder;
+
 import gda.data.nexus.tree.INexusTree;
 import gda.device.Analyser;
 import gda.device.Detector;
@@ -34,13 +42,6 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.analyser.EpicsMCA;
 import gda.device.detector.analyser.EpicsMCAPresets;
 import gda.factory.FactoryException;
-
-import java.util.ArrayList;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InOrder;
 
 public class XmapDetectorFromEpicsMcaTest {
 
@@ -95,7 +96,7 @@ public class XmapDetectorFromEpicsMcaTest {
 	@Test
 	public void testClear() throws DeviceException, FactoryException {
 		xmap.configure();
-		
+
 		xmap.clear();
 		verify(mca0).clear();
 		verify(mca1).clear();

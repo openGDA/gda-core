@@ -18,12 +18,12 @@
 
 package gda.device.detector.xspress;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.detector.DAServer;
 import gda.factory.FactoryException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Xspress1DetectorImpl implements XspressDetectorImpl {
 
@@ -217,7 +217,7 @@ public class Xspress1DetectorImpl implements XspressDetectorImpl {
 
 	/**
 	 * Readout full mca for every detector element and specified time frame
-	 * 
+	 *
 	 * @param startFrame
 	 *            time frame to read
 	 * @param numberOfFrames
@@ -244,7 +244,7 @@ public class Xspress1DetectorImpl implements XspressDetectorImpl {
 
 	/**
 	 * execute the startup script on da.server
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	private void doStartupScript() throws DeviceException {

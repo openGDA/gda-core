@@ -18,11 +18,6 @@
 
 package uk.ac.gda.exafs.util;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.scannable.ScannableUtils;
-import gda.factory.Finder;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.dawnsci.common.richbeans.beans.IFieldWidget;
 import org.eclipse.swt.events.MouseEvent;
@@ -30,6 +25,11 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Link;
+
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.scannable.ScannableUtils;
+import gda.factory.Finder;
 
 /**
  * Sets the value of the defined motor name in the IFieldWidget when the mouseDown action is run.

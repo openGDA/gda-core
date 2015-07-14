@@ -24,7 +24,7 @@ package uk.ac.gda.exafs.util;
 public class CancelledException extends IntensityException {
 
 	/**
-	 * 
+	 *
 	 */
 	public CancelledException() {
 		// TODO Auto-generated constructor stub

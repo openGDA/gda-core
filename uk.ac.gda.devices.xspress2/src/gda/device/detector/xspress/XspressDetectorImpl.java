@@ -30,7 +30,7 @@ public interface XspressDetectorImpl {
 	public void clear() throws DeviceException;
 	public void start() throws DeviceException;
 	public void stop() throws DeviceException;
-	public void close() throws DeviceException;	
+	public void close() throws DeviceException;
 	public void reconfigure() throws DeviceException;
 	public int[] readoutHardwareScalers(int startFrame, int numberOfFrames) throws DeviceException;
 	public int[] readoutMca(int detector, int startFrame, int numberOfFrames, int mcaSize) throws DeviceException;

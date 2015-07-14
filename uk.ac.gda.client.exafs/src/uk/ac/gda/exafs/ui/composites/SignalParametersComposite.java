@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.device.Scannable;
-
 import java.util.regex.Pattern;
 
 import org.dawnsci.common.richbeans.components.wrappers.RegularExpressionTextWrapper;
@@ -38,6 +36,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import gda.device.Scannable;
 import uk.ac.gda.beans.exafs.SignalParameters;
 import uk.ac.gda.components.wrappers.FindableNameWrapper;
 
@@ -66,13 +65,13 @@ public class SignalParametersComposite extends Composite {
 				updateEnables();
 			}
 		});
-		
+
 		Label labelLabel = new Label(this, SWT.NONE);
 		labelLabel.setText("Column Label");
 
 		label = new RegularExpressionTextWrapper(this, SWT.BORDER, Pattern.compile("[a-zA-Z0-9_]+"));
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
+
 		scannableNameLabel = new Label(this, SWT.NONE);
 		scannableNameLabel.setText("Scannable Name");
 
@@ -84,10 +83,10 @@ public class SignalParametersComposite extends Composite {
 				updateLabelContents();
 			}
 		});
-		
+
 		lblDecimalPlaces = new Label(this, SWT.NONE);
 		lblDecimalPlaces.setText("Decimal Places");
-		
+
 		decimalPlacesSpinner = new SpinnerWrapper(this, SWT.BORDER);
 
 		Label nameLabel = new Label(this, SWT.NONE);
@@ -109,7 +108,7 @@ public class SignalParametersComposite extends Composite {
 	public TextWrapper getName() {
 		return name;
 	}
-	
+
 	public SpinnerWrapper getDecimalPlaces() {
 		return decimalPlacesSpinner;
 	}
@@ -125,7 +124,7 @@ public class SignalParametersComposite extends Composite {
 	public TextWrapper getScannableName() {
 		return scannableName;
 	}
-	
+
 	public void selectionChanged(SignalParameters sigParams) {
 		String labelValue = (String) label.getValue();
 		String scannableNameValue = (String) scannableName.getValue();
@@ -141,13 +140,13 @@ public class SignalParametersComposite extends Composite {
 		updateEnables();
 		scannableName.refresh();
 	}
-	
+
 	private void updateEnables() {
 		boolean selection = setLabelToName.getSelection();
 		label.setEnabled(!selection);
 		updateLabelContents();
 	}
-	
+
 	private void updateLabelContents() {
 		boolean selection = setLabelToName.getSelection();
 		if (selection) {

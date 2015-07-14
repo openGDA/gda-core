@@ -1,5 +1,8 @@
 package uk.ac.gda.devices.detector.xspress3;
 
+import java.io.File;
+import java.util.List;
+
 import gda.data.PathConstructor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -13,10 +16,6 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
-
-import java.io.File;
-import java.util.List;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
@@ -29,10 +28,10 @@ import uk.ac.gda.util.beans.xml.XMLHelpers;
  * By passive I mean that the Xspress3 is an externally triggered system and
  * this class does not cover how the triggers are generated. This class sets up
  * the Xspress3 time frames and reads out the data.
- * 
+ *
  * @see uk.ac.gda.devices.detector.xspress#Xspress3System
  * @author rjw82
- * 
+ *
  */
 public class Xspress3Detector extends DetectorBase implements Xspress3 {
 
@@ -69,7 +68,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * This will become redundant when SWMR is available and all Mca data can be
 	 * placed in the same HDF5 file by the Area Detector EPICS plugin, so there
 	 * will be no need to put MCA data in different files and Nexus nodes.
-	 * 
+	 *
 	 * @param rowNumber
 	 * @return
 	 */
@@ -273,7 +272,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * <p>
 	 * Returns the FF (sum of ROI) in the plottable values. May want the option
 	 * in the future to return the individual ROI values instead.
-	 * 
+	 *
 	 * @param firstFrame
 	 * @param lastFrame
 	 * @return NexusTreeProvider array for every frame
@@ -348,16 +347,16 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 				int numRows = currentDimensions[0];
 				String path = controller.getFilePath();
 				String prefix = controller.getFilePrefix();
-				
+
 				String allElementPath = path;
 				String allElementPrefix = "AllElementSum_"+prefix;
-				
+
 				for (int row = 0; row < numRows; row++) {
 					String hdf5FileName = path + prefix + String.format("%04d", row) + ".hdf5";
 					String nodeName = getNameOfRowSubNode(row);
 					String fullLink = "nxfile://" + hdf5FileName + "#entry/instrument/detector/data";
 					thisFrame.addExternalFileLink(getName(), nodeName, fullLink, false, false);
-					
+
 					String allElementFileName = allElementPath + allElementPrefix + String.format("%04d", row) + ".hdf5";
 					String allElementNodeName = getNameOfAllElementSumRowSubNode(row);
 					String allElementFullLink = "nxfile://" + allElementFileName + "#entry/instrument/detector/data";
@@ -370,12 +369,13 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return results;
 	}
 
+	@Override
 	public double readoutFF() throws DeviceException {
 		// assume that this is readout before the full readout() is called!!
 		Double[][][] data = controller.readoutDTCorrectedROI(framesRead, framesRead, firstChannelToRead,
 				controller.getNumberOfChannels() + firstChannelToRead - 1);
 		double[] ffSum = calculateFFs(data, 1)[0];
-		
+
 		double ff = 0.0;
 		for (double value : ffSum){
 			ff += value;
@@ -467,7 +467,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	/**
 	 * For the moment, all ROI on all channels are the same, and assumed by this
 	 * class to be the same.
-	 * 
+	 *
 	 * @return ROI[]
 	 * @throws DeviceException
 	 */
@@ -489,11 +489,13 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		return rois;
 	}
 
+	@Override
 	public void clearAndStart() throws DeviceException {
 		controller.doErase();
 		controller.doStart();
 	}
 
+	@Override
 	public int[][] getData() throws DeviceException {
 
 		double[][] deadTimeCorrectedData = controller.readoutDTCorrectedLatestMCA(firstChannelToRead,
@@ -513,6 +515,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 	 * @return
 	 * @throws DeviceException
 	 */
+	@Override
 	public double[][] getMCData(double time) throws DeviceException {
 		controller.doErase();
 		controller.doStart();
@@ -601,6 +604,7 @@ public class Xspress3Detector extends DetectorBase implements Xspress3 {
 		this.unitsLabel = unitsLabel;
 	}
 
+	@Override
 	public Xspress3Controller getController() {
 		return controller;
 	}

@@ -28,7 +28,7 @@ import gda.device.Scannable;
  * Bean which describes a single header line used by AsciiDataWriterConfiguration
  */
 public class AsciiMetadataConfig {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(AsciiMetadataConfig.class);
 	private String label = "";
 	private Scannable[] labelValues;
@@ -54,7 +54,7 @@ public class AsciiMetadataConfig {
 				} catch (DeviceException e) {
 					logger.error("Cannot give correct value for AsciiMetadataConfig item as DeviceException whilst fetching position from " + labelValues[i].getName() + " to add to metadata in file." + "\nIf this problem persists then the object should be reconfigured or removed from the metadata configuration.",e);
 					positions[i] = "";
-					
+
 					// if get here then do not do the String.format line below
 					StringBuffer namesOnly = new StringBuffer();
 					for (Scannable scannable : labelValues) {
@@ -64,14 +64,14 @@ public class AsciiMetadataConfig {
 				}
 			}
 			return String.format(label, positions);
-			// Should not throw this Exception, it causes the scan to die when some hardware 
+			// Should not throw this Exception, it causes the scan to die when some hardware
 			// that is not critical is not there. Instead we return the exception string and
 			// log the exception.
 		} catch (Exception ne) {
 			logger.error("Cannot format", ne);
 			return ne.getMessage();
 		}
-		
+
 	}
 	/**
 	 * @return Returns the label.

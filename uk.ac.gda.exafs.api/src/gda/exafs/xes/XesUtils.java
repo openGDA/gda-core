@@ -44,7 +44,7 @@ public class XesUtils {
 
 	/**
 	 * Given a Bragg angle and the Crystal properties, returns the Energy of the reflected X-rays from the crystal.
-	 * 
+	 *
 	 * @param theta
 	 *            - degrees - the Bragg angle
 	 * @param crystallCut
@@ -62,7 +62,7 @@ public class XesUtils {
 
 	/**
 	 * Returns the Bragg angle required to view X-rays of the given energy on the given crystal
-	 * 
+	 *
 	 * @param requiredFluoEnergy
 	 *            - eV
 	 * @param crystallCut
@@ -81,7 +81,7 @@ public class XesUtils {
 	/**
 	 * Linear distance of the analyser crystal from the sample to achieve XES conditions for the given Bragg angle in
 	 * the given Rowland circle
-	 * 
+	 *
 	 * @param R
 	 *            - units mm
 	 * @param bragg
@@ -94,7 +94,7 @@ public class XesUtils {
 
 	/**
 	 * Rotation of the analyser crystal to achieve XES conditions
-	 * 
+	 *
 	 * @param bragg
 	 *            - degrees
 	 * @return xtalRotation - degrees
@@ -105,7 +105,7 @@ public class XesUtils {
 
 	/**
 	 * The Bragg angle based on the position of the Crystal rotation motor.
-	 * 
+	 *
 	 * @param theta
 	 *            - degrees
 	 * @return xtalRotation - degrees
@@ -178,7 +178,7 @@ public class XesUtils {
 
 	/**
 	 * Horizontal displacement of the detector to achieve XES conditions
-	 * 
+	 *
 	 * @param R
 	 *            - mm
 	 * @param theta
@@ -190,7 +190,7 @@ public class XesUtils {
 
 	/**
 	 * Vertical displacement of the detector to achieve XES conditions
-	 * 
+	 *
 	 * @param R
 	 * @param theta
 	 * @return dy - mm
@@ -201,7 +201,7 @@ public class XesUtils {
 
 	/**
 	 * Should move to testing...
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {

@@ -35,7 +35,7 @@ public interface Xspress2Controller {
 	public abstract void setFullMCABits(int fullMCABits) throws DeviceException;
 
 	public abstract void doSetWindowsCommand(DetectorElement detector) throws DeviceException;
-	
+
 	public void doSetROICommand(DetectorElement detector) throws DeviceException;
 
 	public abstract Double getI0();
@@ -44,7 +44,7 @@ public interface Xspress2Controller {
 
 	/**
 	 * Readout full mca for every detector element and specified time frame
-	 * 
+	 *
 	 * @param startFrame
 	 *            time frame to read
 	 * @param numberOfFrames

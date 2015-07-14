@@ -18,15 +18,7 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.CounterTimer;
-import gda.device.DeviceException;
-import gda.factory.Finder;
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
-
 import org.apache.commons.lang.ArrayUtils;
-
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
@@ -41,6 +33,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.CounterTimer;
+import gda.device.DeviceException;
+import gda.factory.Finder;
+import gda.jython.Jython;
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.xspress.XspressDetector;
 
 public class XspressMonitorView extends MonitorViewBase {
@@ -202,7 +200,7 @@ public class XspressMonitorView extends MonitorViewBase {
 		int currentFrame = ionchambers.getCurrentFrame();
 		if (currentFrame % 2 != 0)
 			currentFrame--;
-		
+
 		if (currentFrame > 0) {
 			currentFrame /= 2;
 			currentFrame--;
@@ -211,7 +209,7 @@ public class XspressMonitorView extends MonitorViewBase {
 		// assumes an column called I0
 		double[] ion_results = (double[]) ionchambers.readout();
 		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
-		
+
 		String[] extraNames = ionchambers.getExtraNames();
 		int i0Index = ArrayUtils.indexOf(extraNames, "I0");
 		if (collectionTime != null) {
@@ -219,8 +217,8 @@ public class XspressMonitorView extends MonitorViewBase {
 			ion_results[i0Index + 1] /= collectionTime;
 			ion_results[i0Index + 2] /= collectionTime;
 		}
-		
-		
+
+
 		return new Double[] { ion_results[i0Index + 0], ion_results[i0Index + 1], ion_results[i0Index + 2] };
 	}
 

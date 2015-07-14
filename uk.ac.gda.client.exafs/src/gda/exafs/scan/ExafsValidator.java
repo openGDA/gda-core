@@ -18,12 +18,6 @@
 
 package gda.exafs.scan;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.Scannable;
-import gda.factory.Findable;
-import gda.factory.Finder;
-import gda.util.Element;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,6 +25,11 @@ import java.util.List;
 
 import org.nfunk.jep.JEP;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.Scannable;
+import gda.factory.Findable;
+import gda.factory.Finder;
+import gda.util.Element;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
@@ -277,7 +276,7 @@ public abstract class ExafsValidator extends AbstractValidator {
 
 	/**
 	 * Used in testing mode to switch off checking of findables which are not there.
-	 * 
+	 *
 	 * @param isChecking
 	 */
 	public static final void _setCheckingFinables(boolean isChecking) {

@@ -18,9 +18,6 @@
 
 package uk.ac.gda.exafs.ui.plot;
 
-import gda.rcp.views.scan.AbstractCachedScanPlotView;
-import gda.scan.IScanDataPoint;
-
 import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -28,6 +25,8 @@ import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.jreality.core.AxisMode;
 
+import gda.rcp.views.scan.AbstractCachedScanPlotView;
+import gda.scan.IScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 
@@ -41,7 +40,7 @@ public class LnI0ItScanPlotView extends AbstractCachedScanPlotView {
 
 	/**
 	 * Optionally override to change yAxis mode.
-	 * 
+	 *
 	 * @return mode.
 	 */
 	@Override

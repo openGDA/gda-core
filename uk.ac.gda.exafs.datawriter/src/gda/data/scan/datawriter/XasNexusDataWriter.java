@@ -24,7 +24,7 @@ import gda.configuration.properties.LocalProperties;
  * A nexus data writer that stores the XAS xml files contents.
  */
 public class XasNexusDataWriter extends NexusDataWriter {
-	
+
 	public XasNexusDataWriter() throws InstantiationException {
 		super();
 		setupProperties();
@@ -45,5 +45,5 @@ public class XasNexusDataWriter extends NexusDataWriter {
 		}
 		super.createNextFile();
 	}
-	
+
 }

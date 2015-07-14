@@ -18,6 +18,11 @@
 
 package gda.device.detector.xmap;
 
+import java.io.File;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
@@ -25,12 +30,6 @@ import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.detector.xmap.edxd.NDHDF5PVProvider;
 import gda.scan.ScanInformation;
-
-import java.io.File;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
 import uk.ac.gda.beans.DetectorROI;
 
 /**
@@ -74,33 +73,33 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 		dataDir += scanInfo.getScanNumber();
 		File tempFolder = new File(dataDir);
 		tempFolder.mkdirs();
-		
+
 		// tell the hdf writer the subfolder
 		dataDir = dataDir.replace("X:", "/dls/i08/");
 		ndHDF5PVProvider.setFilePath(dataDir);
-		
+
 		// set the prefix to be the filename
 		String prefix = "xmap-"+scanInfo.getScanNumber();
 		getXmap().setFilenamePrefix(prefix);
-		
+
 		dataAppenders = new XMapNXDetectorDataAppenderInputStream[scanInfo.getDimensions()[0]];
 	}
-	
+
 	@Override
 	public void prepareForLine() throws Exception {
 		getXmap().setFileNumber(nextRowToBeCollected);
 		getXmap().startRecording();
 		getXmap().start();  // this might not need to be done here
 	}
-	
+
 	@Override
 	public void completeLine() throws Exception {
 		String filename = getXmap().getHDFFileName();
 		boolean isRecording = getXmap().getCaptureStatus();
 		if (isRecording){
 			throw new DeviceException("the line should have finished!");
-		} 
-		
+		}
+
 		dataAppenders[nextRowToBeCollected] = new XMapNXDetectorDataAppenderInputStream(filename,rois);
 		nextRowToBeCollected++;
 	}
@@ -120,7 +119,7 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 		extraNames.add("FF");
 		return extraNames;
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws Exception {
 		getXmap().endRecording();
@@ -140,12 +139,12 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 	@Override
 	public List<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
-		
+
 		// FIXME error here when running map.
 		int firstPixel = pixelsReadSoFar + 1;
 		int rowSize = scanInfo.getDimensions()[1];
 		int rowOfFirstPixel = (int) Math.floor(firstPixel / rowSize);
-		
+
 		if (rowOfFirstPixel < nextRowToBeCollected){
 			return dataAppenders[rowOfFirstPixel].read(maxToRead);
 		}
@@ -163,6 +162,6 @@ public class HardwareTriggeredWithOnlineDataReductionXmap extends XmapSimpleAcqu
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime)
 			throws Exception {
-		// do nothing here		
+		// do nothing here
 	}
 }

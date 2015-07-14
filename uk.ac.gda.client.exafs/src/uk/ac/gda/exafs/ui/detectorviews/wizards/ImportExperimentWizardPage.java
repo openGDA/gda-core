@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.detectorviews.wizards;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
 
 import org.eclipse.core.resources.IWorkspace;
@@ -34,6 +32,8 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 
+import gda.configuration.properties.LocalProperties;
+
 public class ImportExperimentWizardPage extends WizardPage {
 	private IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 	private IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -41,7 +41,7 @@ public class ImportExperimentWizardPage extends WizardPage {
 	private List years;
 	private List visits;
 	private List experiments;
-	
+
 	public IWorkspace getWorkspace() {
 		return workspace;
 	}
@@ -124,7 +124,7 @@ public class ImportExperimentWizardPage extends WizardPage {
 						experiments.add(experimentList[i]);
 			}
 		});
-		
+
 		experiments.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -141,5 +141,5 @@ public class ImportExperimentWizardPage extends WizardPage {
 		setMessage(null);
 		setControl(parent);
 	}
-	
+
 }

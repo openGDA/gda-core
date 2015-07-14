@@ -18,6 +18,14 @@
 
 package uk.ac.gda.server.exafs.scan;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.data.scan.datawriter.AsciiMetadataConfig;
@@ -27,15 +35,6 @@ import gda.data.scan.datawriter.scannablewriter.ScannableWriter;
 import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.exafs.MetadataParameters;
 
 public class Metadata {
@@ -43,7 +42,7 @@ public class Metadata {
 	AsciiDataWriterConfiguration dataWriterConfig;
 	NXMetaDataProvider metashop;
 	Finder finder;
-	
+
 	public Metadata(FindableAsciiDataWriterConfiguration dataWriterConfig) {
 		this.dataWriterConfig = (AsciiDataWriterConfiguration) dataWriterConfig;
 		finder = Finder.getInstance();
@@ -52,7 +51,7 @@ public class Metadata {
 
 	public void add_to_metadata(List<MetadataParameters> metadataList) {
 		ArrayList<AsciiMetadataConfig> header = dataWriterConfig.getHeader();
-		
+
 		for (MetadataParameters metadata : metadataList) {
 			AsciiMetadataConfig asciiConfig = new AsciiMetadataConfig();
 			String name = metadata.getScannableName();
@@ -72,7 +71,7 @@ public class Metadata {
 		}
 		dataWriterConfig.setHeader(header);
 	}
-	      
+
 	public void removeNexusMetadataList(List<String> removeList) {
 		for (String s : removeList) {
 			Scannable scannable = finder.find(s);

@@ -33,7 +33,7 @@ public class DetectorDeadTimeElement implements Serializable {
 	static public final URL mappingURL = DetectorDeadTimeElement.class.getResource("XspressMapping.xml");
 
 	static public final URL schemaURL  = DetectorDeadTimeElement.class.getResource("XspressMapping.xsd");
-	
+
 	private double processDeadTimeAllEventGradient;
 	private double processDeadTimeAllEventOffset;
 	private double processDeadTimeInWindow;
@@ -41,7 +41,7 @@ public class DetectorDeadTimeElement implements Serializable {
 	private String name;
 	private int number;
 
-	
+
 	/**
 	 * default constructor for Castor
 	 */
@@ -50,23 +50,23 @@ public class DetectorDeadTimeElement implements Serializable {
 
 	public DetectorDeadTimeElement(String name, int number, double processDeadTimeAllEventGradient, double processDeadTimeAllEventOffset, double processDeadTimeInWindow) {
 		this.name = name;
-		this.number = number;		
+		this.number = number;
 		this.processDeadTimeAllEventGradient = processDeadTimeAllEventGradient;
 		this.processDeadTimeAllEventOffset = processDeadTimeAllEventOffset;
 		this.processDeadTimeInWindow = processDeadTimeInWindow;
 		this.processDeadTimeInWindowGradient = 0; // only noticed on 64-element so this value is optional
 	}
-	
+
 	public DetectorDeadTimeElement(String name, int number, double processDeadTimeAllEventGradient, double processDeadTimeAllEventOffset, double processDeadTimeInWindow,double processDeadTimeInWindowGradient) {
 		this.name = name;
-		this.number = number;		
+		this.number = number;
 		this.processDeadTimeAllEventGradient = processDeadTimeAllEventGradient;
 		this.processDeadTimeAllEventOffset = processDeadTimeAllEventOffset;
 		this.processDeadTimeInWindow = processDeadTimeInWindow;
 		this.processDeadTimeInWindowGradient = processDeadTimeInWindowGradient;
 	}
 
-	
+
 	/**
 		 *
 		 */
@@ -79,7 +79,7 @@ public class DetectorDeadTimeElement implements Serializable {
 		}
 	}
 
-	
+
 
 	public double getProcessDeadTimeAllEventGradient() {
 		return processDeadTimeAllEventGradient;
@@ -100,7 +100,7 @@ public class DetectorDeadTimeElement implements Serializable {
 	public double getProcessDeadTimeInWindow() {
 		return processDeadTimeInWindow;
 	}
-	
+
 	public void setProcessDeadTimeInWindow(double processDeadTimeInWindow) {
 		this.processDeadTimeInWindow = processDeadTimeInWindow;
 	}
@@ -128,16 +128,16 @@ public class DetectorDeadTimeElement implements Serializable {
 
 	/**
 	 * NOTE number = the pixel number
-	 * 
+	 *
 	 * A value starting at 1 used to reference pixels on the detector.
-	 * 
+	 *
 	 * @return number
 	 */
 	public int getNumber() {
 		return number;
 	}
 
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

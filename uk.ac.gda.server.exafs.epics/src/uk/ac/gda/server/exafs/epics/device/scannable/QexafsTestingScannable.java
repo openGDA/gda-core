@@ -18,13 +18,13 @@
 
 package uk.ac.gda.server.exafs.epics.device.scannable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.scannable.ContinuouslyScannable;
 import gda.device.scannable.ScannableMotor;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -58,7 +58,7 @@ public class QexafsTestingScannable extends ScannableMotor implements Continuous
 		}
 		super.moveTo(continuousParameters.getStartPosition()-1);
 	}
-	
+
 	@Override
 	public void performContinuousMove() throws DeviceException {
 		state = "running";
@@ -70,7 +70,7 @@ public class QexafsTestingScannable extends ScannableMotor implements Continuous
 		super.setSpeed(speed);
 		super.asynchronousMoveTo(continuousParameters.getEndPosition());
 	}
-	
+
 	@Override
 	public void continuousMoveComplete(){
 		state = "idle";

@@ -42,7 +42,7 @@ import uk.ac.gda.exafs.ui.dialogs.GainWizard;
 import uk.ac.gda.exafs.util.GainCalculation;
 
 public class DrainCurrentComposite extends Composite implements ListEditorUI {
-	
+
 	private TextWrapper deviceName;
 	private TextWrapper name;
 	private TextWrapper currentAmplifierName;
@@ -53,18 +53,18 @@ public class DrainCurrentComposite extends Composite implements ListEditorUI {
 
 	private ExpansionAdapter expansionListener;
 	private BooleanWrapper changeSensitivity;
-	
+
 	/**
 	 * @param parent
 	 * @param style
 	 */
 	@SuppressWarnings("unused")
 	public DrainCurrentComposite(Composite parent, int style) {
-		
-		
+
+
 		super(parent, style);
 		setLayout(new GridLayout());
-		
+
 		final Composite main = new Composite(this, SWT.NONE);
 		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.heightHint = 140;
@@ -76,7 +76,7 @@ public class DrainCurrentComposite extends Composite implements ListEditorUI {
 		gridLayout.numColumns = 2;
 		gainProperties.setLayout(gridLayout);
 		gainProperties.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
+
 		changeSensitivity = new BooleanWrapper(gainProperties, SWT.NONE);
 		changeSensitivity.setText("Change the sensitivity during data collection");
 		changeSensitivity
@@ -104,7 +104,7 @@ public class DrainCurrentComposite extends Composite implements ListEditorUI {
 			}
 		});
 	}
-	
+
 	@Override
 	public void dispose() {
 		advancedExpandableComposite.removeExpansionListener(expansionListener);
@@ -137,37 +137,36 @@ public class DrainCurrentComposite extends Composite implements ListEditorUI {
 	public TextWrapper getName() {
 		return name;
 	}
-	
+
 	public BooleanWrapper getChangeSensitivity() {
 		return changeSensitivity;
 	}
-	
+
 	/**
 	 * @return variable
 	 */
 	public TextWrapper getDeviceName() {
 		return deviceName;
 	}
-	
+
 	@Override
 	public boolean isAddAllowed(ListEditor listEditor) {
 		return false;
 	}
-	
+
 	@Override
 	public boolean isDeleteAllowed(ListEditor listEditor) {
 		return false;
 	}
-	
+
 	@Override
 	public boolean isReorderAllowed(ListEditor listEditor) {
 		return false;
 	}
-	
+
 	@Override
 	public void notifySelected(ListEditor listEditor) {
 	}
 
 }
 
-	

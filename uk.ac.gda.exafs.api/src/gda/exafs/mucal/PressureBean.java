@@ -46,7 +46,7 @@ public class PressureBean {
 	public String getErrorTooltip() {
 		return errorTooltip;
 	}
-	
+
 	public void setErrorTooltip(String errorTooltip) {
 		this.errorTooltip = errorTooltip;
 	}

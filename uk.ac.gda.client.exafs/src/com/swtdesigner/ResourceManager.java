@@ -17,16 +17,16 @@ import org.eclipse.swt.graphics.Rectangle;
 /**
  * Utility class for managing OS resources associated with SWT/JFace controls such as
  * colors, fonts, images, etc.
- * 
+ *
  * !!! IMPORTANT !!! Application code must explicitly invoke the <code>dispose()</code>
  * method to release the operating system resources managed by cached objects
  * when those objects and OS resources are no longer needed (e.g. on
  * application shutdown)
- * 
+ *
  * This class may be freely distributed as part of any application or plugin.
  * <p>
  * Copyright (c) 2003 - 2005, Instantiations, Inc. <br>All Rights Reserved
- * 
+ *
  * @author scheglov_ke
  * @author Dan Rubel
  */
@@ -57,7 +57,7 @@ public class ResourceManager extends SWTResourceManager {
 	 * Maps images to image decorators
 	 */
     private static HashMap<Image, HashMap<Image, Image>> m_ImageToDecoratorMap = new HashMap<Image, HashMap<Image, Image>>();
-    
+
     /**
      * Returns an image descriptor stored in the file at the specified path relative to the specified class
      * @param clazz Class The class relative to which to find the image descriptor
@@ -114,27 +114,27 @@ public class ResourceManager extends SWTResourceManager {
 		if (result == null) {
 			final Rectangle bid = baseImage.getBounds();
 			final Rectangle did = decorator.getBounds();
-            final Point baseImageSize = new Point(bid.width, bid.height); 
-            CompositeImageDescriptor compositImageDesc = new CompositeImageDescriptor() { 
+            final Point baseImageSize = new Point(bid.width, bid.height);
+            CompositeImageDescriptor compositImageDesc = new CompositeImageDescriptor() {
                 @Override
-				protected void drawCompositeImage(int width, int height) { 
-                    drawImage(baseImage.getImageData(), 0, 0); 
-                    if (corner == TOP_LEFT) { 
-                        drawImage(decorator.getImageData(), 0, 0); 
-                    } else if (corner == TOP_RIGHT) { 
-                        drawImage(decorator.getImageData(), bid.width - did.width - 1, 0); 
-                    } else if (corner == BOTTOM_LEFT) { 
-                        drawImage(decorator.getImageData(), 0, bid.height - did.height - 1); 
-                    } else if (corner == BOTTOM_RIGHT) { 
-                        drawImage(decorator.getImageData(), bid.width - did.width - 1, bid.height - did.height - 1); 
-                    } 
-                } 
+				protected void drawCompositeImage(int width, int height) {
+                    drawImage(baseImage.getImageData(), 0, 0);
+                    if (corner == TOP_LEFT) {
+                        drawImage(decorator.getImageData(), 0, 0);
+                    } else if (corner == TOP_RIGHT) {
+                        drawImage(decorator.getImageData(), bid.width - did.width - 1, 0);
+                    } else if (corner == BOTTOM_LEFT) {
+                        drawImage(decorator.getImageData(), 0, bid.height - did.height - 1);
+                    } else if (corner == BOTTOM_RIGHT) {
+                        drawImage(decorator.getImageData(), bid.width - did.width - 1, bid.height - did.height - 1);
+                    }
+                }
                 @Override
-				protected Point getSize() { 
-                    return baseImageSize; 
-                } 
-            }; 
-            result = compositImageDesc.createImage(); 
+				protected Point getSize() {
+                    return baseImageSize;
+                }
+            };
+            result = compositImageDesc.createImage();
 			decoratedMap.put(decorator, result);
 		}
 		return result;

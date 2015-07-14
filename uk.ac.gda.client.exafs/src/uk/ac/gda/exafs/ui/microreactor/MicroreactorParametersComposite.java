@@ -47,7 +47,7 @@ public final class MicroreactorParametersComposite extends FieldBeanComposite {
 	public MicroreactorParametersComposite(Composite parent, int style) {
 		super(parent, style);
 		setLayout(new GridLayout(1, false));
-		
+
 		Composite tempComposite = new Composite(this,SWT.NONE);
 		GridLayout temp_gridLayout = new GridLayout(2, false);
 		tempComposite.setLayout(temp_gridLayout);
@@ -62,7 +62,7 @@ public final class MicroreactorParametersComposite extends FieldBeanComposite {
 		temperature.setMinimum(100);
 		temperature.setMaximum(300);
 		createEmptyLabel(temperature);
-		
+
 		final Group gasPressures = new Group(this, SWT.NONE);
 		gasPressures.setText("Gas pressures (ml/min)");
 		gasPressures.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -132,7 +132,7 @@ public final class MicroreactorParametersComposite extends FieldBeanComposite {
 		gas7Rate.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		gas7Rate.setMinimum(0);
 		gas7Rate.setMaximum(100);
-		
+
 		final Group massGroup = new Group(this, SWT.NONE);
 		massGroup.setText("Spectrometer Masses (AMU)");
 		massGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -190,5 +190,5 @@ public final class MicroreactorParametersComposite extends FieldBeanComposite {
 	private void createEmptyLabel(Composite composite){
 		new Label(composite, SWT.NONE);
 	}
-	
+
 }

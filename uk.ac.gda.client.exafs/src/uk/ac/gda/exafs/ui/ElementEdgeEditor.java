@@ -18,14 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.configuration.properties.LocalProperties;
-import gda.exafs.scan.ExafsScanPointCreator;
-import gda.exafs.scan.ExafsScanPointCreatorException;
-import gda.exafs.scan.ExafsTimeEstimator;
-import gda.exafs.scan.XanesScanPointCreator;
-import gda.jython.JythonServerFacade;
-import gda.util.exafs.Element;
-
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.text.DateFormat;
@@ -78,6 +70,13 @@ import org.python.core.PyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.exafs.scan.ExafsScanPointCreator;
+import gda.exafs.scan.ExafsScanPointCreatorException;
+import gda.exafs.scan.ExafsTimeEstimator;
+import gda.exafs.scan.XanesScanPointCreator;
+import gda.jython.JythonServerFacade;
+import gda.util.exafs.Element;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
@@ -119,7 +118,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 		super(path, mappingURL, dirtyContainer, editingBean);
 		plotUpdateJob = new PlotUpdateJob("Calculating energy profile");
 	}
-	
+
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		try {
@@ -230,7 +229,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 			return edgeEnergyLabel.getNumericValue();
 		return getField(fieldName).getValue();
 	}
-	
+
 	public void updatePlottedPoints() {
 		try {
 			updateFromUIAndReturnEditingBean();
@@ -297,12 +296,12 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 			if (dcmCrystal.equals("Si(111)")) {
 				edgeEnergyLabel.setMaximum(26000.0);
 				edgeEnergyLabel.setMinimum(2050.0);
-			} 
+			}
 			else if (dcmCrystal.equals("Si(311)")) {
 				edgeEnergyLabel.setMaximum(40000.0);
 				edgeEnergyLabel.setMinimum(4000.0);
 			}
-		} 
+		}
 		else
 			edgeEnergyLabel.setMaximum(40000.0);
 		BeanUI.addBeanField(editingBean.getClass(), "EdgeEnergy", edgeEnergyLabel);
@@ -386,7 +385,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 
 	/*
 	 * Can override to provide a different points list.
-	 * 
+	 *
 	 * @return points
 	 * @throws Exception
 	 */
@@ -454,7 +453,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 						edge.setValue(edgeValue);
 					else
 						edge.setValue(edges.get(0));
-				} 
+				}
 				else {
 					try {
 						Method method = editingBean.getClass().getMethod("getEdge");
@@ -516,7 +515,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 
 	/**
 	 * Returns the edge value in eV. Uses the bean if value is not in the ui.
-	 * 
+	 *
 	 * @return edge
 	 */
 	protected double getEdgeValue() {
@@ -639,7 +638,7 @@ public abstract class ElementEdgeEditor extends RichBeanEditorPart {
 	public ComboWrapper getEdge() {
 		return edge;
 	}
-	
+
 	public ComboWrapper getElement() {
 		return element;
 	}

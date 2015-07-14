@@ -79,7 +79,7 @@ public class ElementCountsData implements Serializable {
 
 	/**
 	 * Convenience method
-	 * 
+	 *
 	 * @return i
 	 */
 	public int[][] getData() {
@@ -114,7 +114,7 @@ public class ElementCountsData implements Serializable {
 
 	/**
 	 * Convenience method
-	 * 
+	 *
 	 * @param data
 	 */
 	public void setData(final int[][] data) {

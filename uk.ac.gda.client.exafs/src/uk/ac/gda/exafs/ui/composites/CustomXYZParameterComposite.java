@@ -125,4 +125,3 @@ public class CustomXYZParameterComposite extends Composite {
 
 }
 
-	

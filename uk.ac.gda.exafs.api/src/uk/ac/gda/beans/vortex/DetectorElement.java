@@ -34,11 +34,11 @@ import uk.ac.gda.beans.exafs.IDetectorElement;
  * all detector elements at once sometimes.
  */
 public class DetectorElement  implements Serializable, IDetectorElement {
-	
+
 	private List<DetectorROI> regionList;
 
 	private String name;
-	
+
 	// Each detector knows its own number (counting from 0). This has little
 	// use within the software but helps to make the configuration file human
 	// readable and writeable.
@@ -51,9 +51,9 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 	private double gain;
 
 	private double offset;
-	
+
 	private boolean excluded = false;
-	
+
 	private double peakingTime;
 
 	/**
@@ -64,7 +64,7 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void clear() {
 		if (regionList!=null) regionList.clear();
@@ -102,7 +102,7 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 	public double getGain() {
 		return gain;
 	}
-	
+
 	/**
 	 * @return Returns the name.
 	 */
@@ -140,7 +140,7 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 
 	/**
 	 * Sets the gain
-	 * 
+	 *
 	 * @param gain
 	 *            new value
 	 */
@@ -150,7 +150,7 @@ public class DetectorElement  implements Serializable, IDetectorElement {
 
 	/**
 	 * Sets the offset
-	 * 
+	 *
 	 * @param offset
 	 *            new value
 	 */

@@ -1,13 +1,13 @@
 package uk.ac.gda.devices.detector.xspress3;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import gda.device.CounterTimer;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
 import gda.device.timer.Tfg;
-
-import org.apache.commons.lang.ArrayUtils;
 
 /**
  * Extension to the Xspress3Detector class which also drives a TFG timer to
@@ -27,9 +27,9 @@ import org.apache.commons.lang.ArrayUtils;
  * the frame sets.
  * <p>
  * It is assumed that the TFG is correctly wired up to the Xspress3 unit!
- * 
+ *
  * @author rjw82
- * 
+ *
  */
 public class Xspress3System extends Xspress3Detector implements Detector,
 		CounterTimer {
@@ -111,7 +111,7 @@ public class Xspress3System extends Xspress3Detector implements Detector,
 	 * Instead of use frame sets, give this class an array of times of the scan
 	 * in advance, so it can set up the time-frames. This will make operation of
 	 * the detector much faster than a simple step scan.
-	 * 
+	 *
 	 * @param times
 	 *            - array of times of the upcoming scan in seconds.
 	 */
@@ -169,7 +169,7 @@ public class Xspress3System extends Xspress3Detector implements Detector,
 			tfg.setAttribute(Tfg.SOFTWARE_START_AND_TRIG_ATTR_NAME,
 					Boolean.TRUE);
 		}
-		
+
 		if (frameSetsCreated|| usingTimesArray()) {
 			tfg.loadFrameSets();
 			startRunningXspress3FrameSet();

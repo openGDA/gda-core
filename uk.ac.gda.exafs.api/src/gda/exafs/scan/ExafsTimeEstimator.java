@@ -18,13 +18,12 @@
 
 package gda.exafs.scan;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.util.List;
 
 import org.python.core.PyObject;
 import org.python.core.PyTuple;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.beans.exafs.IScanParameters;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
 import uk.ac.gda.beans.exafs.XasScanParameters;
@@ -33,7 +32,7 @@ public class ExafsTimeEstimator {
 
 	/**
 	 * Estimates the time that an experiment will take.
-	 * 
+	 *
 	 * @param scanParameters
 	 * @return time in ms
 	 * @throws Exception
@@ -49,19 +48,19 @@ public class ExafsTimeEstimator {
 		// safe to perform an unchecked cast as PyTuple is a List<PyObject>
 		return getTime((List<PyObject[]>) points);
 	}
-	
+
 	/**
 	 * Estimates the time that an experiment will take.
-	 * 
+	 *
 	 * Two system properties are read:
 	 * gda.exafs.mono.energy.rate - the ms/eV rate of movement
 	 * gda.exafs.read.out.time    - the constant read out time for detector(s)
-	 * 
+	 *
 	 * @param points
 	 * @return time in ms
 	 */
 	public static long getTime(List<PyObject[]> points) {
-		if (points==null) 
+		if (points==null)
 			return 0l;
 		// We read the monchromator energy rate (eV / ms)
 		final String monoString    = LocalProperties.get("gda.exafs.mono.energy.rate");

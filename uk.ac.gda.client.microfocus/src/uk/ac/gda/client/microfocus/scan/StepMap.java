@@ -18,6 +18,10 @@
 
 package uk.ac.gda.client.microfocus.scan;
 
+import java.util.List;
+
+import org.apache.commons.lang.ArrayUtils;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.scan.datawriter.DataWriter;
 import gda.data.scan.datawriter.XasAsciiNexusDataWriter;
@@ -28,11 +32,6 @@ import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableUtils;
 import gda.jython.scriptcontroller.ScriptControllerBase;
-
-import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
-
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.client.microfocus.scan.datawriter.MicroFocusWriterExtender;
 import uk.ac.gda.server.exafs.scan.XasScanBase;

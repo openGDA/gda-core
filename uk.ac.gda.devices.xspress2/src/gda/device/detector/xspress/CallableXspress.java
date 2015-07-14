@@ -18,13 +18,12 @@
 
 package gda.device.detector.xspress;
 
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.DeviceException;
-import gda.device.scannable.PositionCallableProvider;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.DeviceException;
+import gda.device.scannable.PositionCallableProvider;
 import uk.ac.gda.beans.xspress.XspressDetector;
 
 public class CallableXspress extends Xspress2Detector implements XspressDetector, PositionCallableProvider<NexusTreeProvider>  {
@@ -59,7 +58,7 @@ public class CallableXspress extends Xspress2Detector implements XspressDetector
 			}
 
 		}
-		
+
 		private NexusTreeProvider getSuperReadout() throws Exception {
 			return super.readout();
 		}

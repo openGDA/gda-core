@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.Xspress3Parameters;
 import uk.ac.gda.devices.detector.xspress3.Xspress3Detector;
-import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvider {
 
@@ -69,7 +69,7 @@ public class Xspress3MFMappableDataProvider extends MicroFocusMappableDataProvid
 	protected void fillCache() {
 		// when GDA writes all the MCAs to the Nexus file
 		lazyDataset = dataHolder.getLazyDataset("/entry1/instrument/" + detectorName + "/MCAs");
-		
+
 		// else try the 'old' way where the MCAs are in separate file written by EPICS and linked to Nexus file
 		if (lazyDataset == null){
 			// derive the number of rows from the FF

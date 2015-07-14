@@ -1,16 +1,16 @@
 package gda.device.detector.xmap;
 
-import gda.device.DeviceException;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import gda.device.DeviceException;
+
 /**
  * Tests that a file is available to be read and has been released by the Arae Detector process writing it.
- * 
+ *
  * @author rjw82
  *
  */

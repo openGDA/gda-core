@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
@@ -38,6 +36,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
 import uk.ac.gda.beans.exafs.SoftXRaysParameters;
@@ -61,7 +60,7 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 	private SoftXRaysComposite softXRaysParameters;
 	private StackLayout stackLayout;
 	private Composite stackComponent;
-	
+
 	/**
 	 * @param path
 	 * @param mappingURL
@@ -124,7 +123,7 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 		else if (LocalProperties.get("gda.factory.factoryName").equalsIgnoreCase("i18"))
 			fluorescenceComposite = new FluorescenceComposite(stackComponent, SWT.NONE, false, true, true, (DetectorParameters)editingBean);
 		else
-			fluorescenceComposite = new FluorescenceComposite(stackComponent, SWT.NONE, true, true, false,(DetectorParameters)editingBean);			
+			fluorescenceComposite = new FluorescenceComposite(stackComponent, SWT.NONE, true, true, false,(DetectorParameters)editingBean);
 		fluorescenceComposite.setActiveMode(ACTIVE_MODE.ACTIVE_ONLY);
 		fluorescenceComposite.setEditorClass(FluorescenceParameters.class);
 		if (LocalProperties.get("gda.factory.factoryName").equals("b18")) {
@@ -139,11 +138,11 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 		}
 		stackLayout.topControl = transmissionComposite;
 		scrolledComposite.setContent(composite);
-		scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));	
+		scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		transmissionComposite.getIonChamberComposite().calculatePressure();
 		fluorescenceComposite.getIonChamberComposite().calculatePressure();
 	}
-	
+
 	@Override
 	public void linkUI(final boolean isPageChange) {
 		experimentType.addValueListener(new ValueAdapter("experimentTypeListener") {
@@ -170,7 +169,7 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 			xesParameters.updateFileName();
 		}
 	}
-	
+
 	private void initExperimentType() {
 		DetectorParameters bean = (DetectorParameters) editingBean;
 		int index = -1;
@@ -219,7 +218,7 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 				if (getTransmissionParameters().getValue() == null)
 					getTransmissionParameters().setEditingBean(val);
 				transmissionComposite.setExperimentType("Transmission");
-			} 
+			}
 			else if ("Fluorescence".equals(selection)) {
 				control = fluorescenceComposite;
 				val = getFluorescenceParameters().getValue();
@@ -232,7 +231,7 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 				if (getFluorescenceParameters().getValue() == null)
 					getFluorescenceParameters().setEditingBean(val);
 				fluorescenceComposite.setExperimentType("Fluorescence");
-			} 
+			}
 			else if ("Soft X-Rays".equals(selection)) {
 				control = softXRaysParameters;
 				val = getSoftXRaysParameters().getValue();
@@ -244,7 +243,7 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 					bean.setSoftXRaysParameters((SoftXRaysParameters) val);
 				if (getSoftXRaysParameters().getValue() == null)
 					getSoftXRaysParameters().setEditingBean(val);
-			} 
+			}
 			else if ("XES".equals(selection)) {
 				control = xesParameters;
 				val = getXesParameters().getValue();
@@ -261,7 +260,7 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 			stackComponent.layout();
 			composite.layout();
 			scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		
+
 		} catch (Throwable ne) {
 			ne.printStackTrace();
 		}
@@ -270,40 +269,40 @@ public class DetectorParametersUIEditor extends RichBeanEditorPart {
 	@Override
 	public void setFocus() {
 	}
-	
+
 	/**
 	 * @return TransmissionComposite
-	 */ 
+	 */
 	public TransmissionComposite getTransmissionParameters() {
 		return transmissionComposite;
 	}
-	
+
 	/**
 	 * @return FluorComposite
-	 */ 
+	 */
 	public FluorescenceComposite getFluorescenceParameters() {
 		return fluorescenceComposite;
 	}
-	
+
 	/**
 	 * @return SoftXRaysComposite
-	 */ 
+	 */
 	public SoftXRaysComposite getSoftXRaysParameters() {
 		return softXRaysParameters;
 	}
-	
+
 	/**
 	 * @return SoftXRaysComposite
-	 */ 
+	 */
 	public FluorescenceComposite getXesParameters() {
 		return xesParameters;
 	}
-	
+
 	/**
 	 * @return ComboWrapper
 	 */
 	public ComboWrapper getExperimentType() {
 		return experimentType;
 	}
-	
+
 }

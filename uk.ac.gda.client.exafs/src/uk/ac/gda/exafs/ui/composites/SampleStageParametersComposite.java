@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.jython.JythonServerFacade;
-
 import org.dawnsci.common.richbeans.components.FieldBeanComposite;
 import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
@@ -29,6 +27,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
+
+import gda.jython.JythonServerFacade;
 
 /**
  * This is a non generic (unlike how its name implies) composite used for I18 with hard coded scannable names.
@@ -48,7 +48,7 @@ public final class SampleStageParametersComposite extends FieldBeanComposite {
 		Label label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("x");
-		
+
 		x = new ScaleBox(this, SWT.NONE);
 		GridData gridData_2 = (GridData) x.getControl().getLayoutData();
 		gridData_2.widthHint = 100;
@@ -59,7 +59,7 @@ public final class SampleStageParametersComposite extends FieldBeanComposite {
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("y");
-		
+
 		y = new ScaleBox(this, SWT.NONE);
 		GridData gridData = (GridData) y.getControl().getLayoutData();
 		gridData.widthHint = 100;
@@ -70,7 +70,7 @@ public final class SampleStageParametersComposite extends FieldBeanComposite {
 		label = new Label(this, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		label.setText("z");
-		
+
 		z = new ScaleBox(this, SWT.NONE);
 		GridData gridData_1 = (GridData) z.getControl().getLayoutData();
 		gridData_1.widthHint = 100;

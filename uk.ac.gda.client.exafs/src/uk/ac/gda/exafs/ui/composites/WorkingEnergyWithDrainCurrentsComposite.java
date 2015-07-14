@@ -33,17 +33,17 @@ public class WorkingEnergyWithDrainCurrentsComposite extends WorkingEnergyCompos
 	protected VerticalListEditor      drainCurrentParameters;
 	protected DrainCurrentComposite drainCurrentComposite;
 
-	
+
 	public WorkingEnergyWithDrainCurrentsComposite(Composite parent, int style, DetectorParameters abean) {
 		super(parent, style, abean);
 	}
-	
+
 	protected void createDrainCurrentSection() {
 
 //		final TabItem ionChambersTabItem = new TabItem(getTabFolder(), SWT.NONE);
 //		ionChambersTabItem.setText("Drain Currents");
 		getTabFolder().setText("Drain Currents");
-		
+
 		drainCurrentParameters = new VerticalListEditor(getTabFolder(), SWT.BORDER);
 		drainCurrentParameters.setEditorClass(DrainCurrentParameters.class);
 		drainCurrentComposite = new DrainCurrentComposite(drainCurrentParameters, SWT.NONE);
@@ -58,8 +58,8 @@ public class WorkingEnergyWithDrainCurrentsComposite extends WorkingEnergyCompos
 		drainCurrentParameters.setListHeight(100);
 		drainCurrentParameters.setColumnWidths(300,300);
 		//ionChambersTabItem.setControl(drainCurrentParameters);
-		
-		
+
+
 	}
 
 	/**

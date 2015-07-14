@@ -18,18 +18,17 @@
 
 package gda.data.scan.datawriter;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.Detector;
 import gda.device.detector.DarkCurrentDetector;
 import gda.device.detector.DarkCurrentResults;
 import gda.device.detector.xspress.XspressSystem;
 import gda.scan.IScanDataPoint;
-
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.xspress.DetectorElement;
 
 /**
@@ -48,9 +47,9 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 	private String detectorParametersName;
 	private String outputParametersName;
 	private String folderName;
-	
+
 	private XspressSystem xspressSystem;
-	
+
 	public XasAsciiDataWriter(int fileNumber) throws InstantiationException {
 		super();
 		thisFileNumber = fileNumber;
@@ -94,7 +93,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 				file.write("# " + sampleParametersName + "\n");
 				file.write("# " + outputParametersName + "\n");
 				file.write("# The contents of these files are also stored in the nexus file.\n");
-				
+
 			}
 
 			file.write("#\n");
@@ -104,7 +103,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 				file.write("# Sample name:\n");
 			else
 				file.write("# Sample name: " + sampleName + "\n");
-			
+
 			if (descriptions == null || descriptions.isEmpty())
 				file.write("# Sample description:\n");
 			else {
@@ -116,8 +115,8 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 						startMsg += "Additional comments: ";
 					file.write(startMsg + descriptions.get(i) + "\n");
 				}
-			} 
-			
+			}
+
 			file.flush();
 		} catch (Exception e) {
 			logger.error("Exception while writing out header of ascii file: " + fileUrl);
@@ -156,7 +155,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 					boolean found = false;
 					xspressSystem = (XspressSystem) fluorescenceDetector;
 					if (xspressSystem != null) {
-						List<DetectorElement> elementList = xspressSystem.getDetectorList(); 
+						List<DetectorElement> elementList = xspressSystem.getDetectorList();
 						for (DetectorElement element : elementList) {
 							if (element.isExcluded()) {
 								if (found)
@@ -170,7 +169,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 						file.write("# " + buf + "\n");
 						file.write("#\n");
 					}
-				} 
+				}
 				else if (dataPoint.isDetector(detectorName))
 					file.write("# Detector: Si (XIA)\n");
 				else
@@ -246,7 +245,7 @@ public class XasAsciiDataWriter extends AsciiDataWriter {
 
 	/**
 	 * This must also include the subdirectory
-	 * 
+	 *
 	 * @param asciiFileNameTemplate
 	 */
 	public void setAsciiFileNameTemplate(String asciiFileNameTemplate) {

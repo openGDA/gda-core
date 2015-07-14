@@ -30,7 +30,7 @@ public class SignalParameters  implements Serializable{
 	private String scannableName;
 
 	public SignalParameters() {
-		
+
 	}
 
 	public SignalParameters(String label, String name, int decimalPlaces, String expression, String scannableName) {
@@ -40,7 +40,7 @@ public class SignalParameters  implements Serializable{
 		this.expression = expression;
 		this.scannableName = scannableName;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -48,7 +48,7 @@ public class SignalParameters  implements Serializable{
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	public int getDecimalPlaces() {
 		return decimalPlaces;
 	}

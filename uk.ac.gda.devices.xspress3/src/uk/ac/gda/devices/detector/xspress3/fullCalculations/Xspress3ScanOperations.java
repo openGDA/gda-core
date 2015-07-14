@@ -1,12 +1,11 @@
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
+import java.io.File;
+
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanInformation;
-
-import java.io.File;
-
 import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 
 public class Xspress3ScanOperations {

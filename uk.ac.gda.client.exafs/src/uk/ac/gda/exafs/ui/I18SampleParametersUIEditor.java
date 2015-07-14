@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.jython.JythonServerFacade;
-
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -34,6 +32,7 @@ import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.i18.I18SampleParameters;
 import uk.ac.gda.exafs.ui.composites.AttenuatorParametersComposite;
 import uk.ac.gda.exafs.ui.composites.I18SampleParametersComposite;

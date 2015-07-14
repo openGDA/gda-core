@@ -26,21 +26,21 @@ public class DetectorPerspective implements IPerspectiveFactory {
 
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
-		
+
 		String editorArea=layout.getEditorArea();
-		
+
 		IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, 0.4f, editorArea);
 		topLeft.addView("uk.ac.gda.client.exafs.stanford.amplifiers");
 		topLeft.addView("uk.ac.gda.beamline.b18.mythencontrol");
 		topLeft.addView("uk.ac.gda.devices.mythen.visualisation.views.MythenDataControlView");
-		
+
 		layout.addStandaloneView("uk.ac.gda.client.simplescanview", true, IPageLayout.BOTTOM, 0.5f, "topLeft");
 
 		IFolderLayout topRight = layout.createFolder("topRight", IPageLayout.RIGHT, 0.6f, editorArea);
 		topRight.addView("uk.ac.gda.exafs.ui.views.scalersmonitor");
 		layout.addStandaloneView("gda.rcp.jythonterminalview", true, IPageLayout.BOTTOM, 0.5f, "topRight");
-		
-		
+
+
 		layout.setEditorAreaVisible(false);
 
 	}

@@ -19,11 +19,10 @@
 
 package gda.device.detector.xspress.corba.impl;
 
-import gda.device.detector.xspress.corba.CorbaDetectorElement;
-import gda.device.detector.xspress.corba.CorbaXspressROI;
-
 import java.util.ArrayList;
 
+import gda.device.detector.xspress.corba.CorbaDetectorElement;
+import gda.device.detector.xspress.corba.CorbaXspressROI;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
 
@@ -33,7 +32,7 @@ import uk.ac.gda.beans.xspress.DetectorElement;
 public class DetectorElementConverter {
 	/**
 	 * Convert CorbaDetectorElement to DetectorElement
-	 * 
+	 *
 	 * @param cd
 	 *            corba detector
 	 * @return DetectorElement Object
@@ -50,7 +49,7 @@ public class DetectorElementConverter {
 
 	/**
 	 * Convert Detector to CorbaDetector
-	 * 
+	 *
 	 * @param d
 	 *            detector
 	 * @return CorbaDetectorElement object

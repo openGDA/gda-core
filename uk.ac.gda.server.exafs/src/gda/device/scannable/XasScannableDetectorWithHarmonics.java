@@ -25,7 +25,7 @@ import gda.factory.Finder;
 import gda.util.converters.AutoRenameableConverter;
 
 public class XasScannableDetectorWithHarmonics extends XasScannable {
-	private int scanPointCounter = 0; 
+	private int scanPointCounter = 0;
 	private AutoRenameableConverter energyHarmonicConverter = null;
 	private String harmonicConverterName;
 
@@ -40,10 +40,10 @@ public class XasScannableDetectorWithHarmonics extends XasScannable {
 	public XasScannableDetectorWithHarmonics() {
 		super();
 	}
-	
+
 	@Override
 	public void configure(){
-		energyHarmonicConverter = Finder.getInstance().find(harmonicConverterName);		
+		energyHarmonicConverter = Finder.getInstance().find(harmonicConverterName);
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class XasScannableDetectorWithHarmonics extends XasScannable {
 			if (detector instanceof Detector)
 				((Detector) detector).setCollectionTime(positions[1]);
 	}
-	
+
 	@Override
 	public void atPointEnd() throws DeviceException{
 		scanPointCounter++;
@@ -67,14 +67,14 @@ public class XasScannableDetectorWithHarmonics extends XasScannable {
 			energyHarmonicConverter.disableAutoConversion();
 		}
 	}
-	
+
 	@Override
 	public void atScanEnd() throws DeviceException{
 		if(energyHarmonicConverter == null)
 				configure();
 		energyHarmonicConverter.enableAutoConversion();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws DeviceException{
 		if(energyHarmonicConverter == null)

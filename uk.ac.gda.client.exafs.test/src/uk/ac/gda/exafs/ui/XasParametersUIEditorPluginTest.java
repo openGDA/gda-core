@@ -39,55 +39,55 @@ import uk.ac.gda.util.PackageUtils;
  * Run as junit plugin test.
  */
 public class XasParametersUIEditorPluginTest {
-	
+
 	/**
 	 * Force into testing mode.
 	 */
 	static {
 		ClientManager.setTestingMode(true);
 	}
-	
+
 	private XasScanParametersEditor editor;
 	private XasScanParametersUIEditor uiEd;
 
-	
+
 	@Before
 	public void setUp() throws Throwable {
 		ClientManager.setTestingMode(true);
-		
+
 		final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		
+
 		final File xml = new File(PackageUtils.getTestPath(XasParametersUIEditorPluginTest.class)+"/XAS_Parameters.xml");
-		
+
 		final FileStoreEditorInput fileInput = new FileStoreEditorInput(EFS.getLocalFileSystem().fromLocalFile(xml));
-		
+
 		// Close the introduction page.
 		this.editor = (XasScanParametersEditor)window.getActivePage().openEditor(fileInput, XasDescriber.ID);
-		
+
 		this.uiEd = (XasScanParametersUIEditor)editor.getRichBeanEditor();
 	}
-	
+
 	@Test
 	public final void testBounds() throws Throwable {
-		
+
 		final Double initialEnergy = (Double)uiEd.getInitialEnergy().getValue();
 		if (initialEnergy!=6911.14d) throw new Exception("The initial energy is not as expected.");
-		
+
 		uiEd.getInitialEnergy().setValue(8000d);
 		if (uiEd.getInitialEnergy().isValidBounds()) throw new Exception("The initial energy should be out of bounds but isn't.");
 		if (uiEd.getB().isValidBounds()) throw new Exception("The B should be out of bounds but isn't.");
-		
+
 		uiEd._testSetGapChoice(0);
 		if (uiEd.getB().isValidBounds()) throw new Exception("The B should be out of bounds but isn't.");
-		
+
 		final Color boxColor = uiEd.getB()._testGetForeGroundColor();
 		final Color red      = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 		if (boxColor.getRed() != red.getRed()) {
 			throw new Exception("The B should have red foreground text but doesn't.");
 		}
-		
+
 	}
-	
+
 	/**
 	 * Simple test that element and values are linked.
 	 * @throws Throwable
@@ -98,46 +98,46 @@ public class XasParametersUIEditorPluginTest {
         checkElement("Cr", 1.01d, 5788.74d,  6838.74d);
         checkElement("Ge", 1.82d, 10903.13d, 11953.13d);
 	}
-	
+
 	@Test
 	public final void testStepUnits() throws Throwable {
-		
+
 		if (!uiEd.getExafsStep().getUnit().equals("eV")) throw new Exception("Funny unit for exafs step energy "+uiEd.getExafsStep().getUnit());
-	    
+
 		uiEd.getExafsStepType().setValue("k");
-		
+
 		if (!uiEd.getExafsStep().getUnit().equals("Å⁻¹")) throw new Exception("Funny unit for exafs step energy "+uiEd.getExafsStep().getUnit());
 	}
 
 	@Test
 	public final void testConstantTimeVisibility() throws Throwable {
-		
-	    
+
+
 		if (!uiEd.getExafsTime().isActivated())    throw new Exception("Exafs step time should be active.");
 		if (uiEd.getExafsFromTime().isActivated()) throw new Exception("Exafs from time should not be active.");
 		if (uiEd.getExafsToTime().isActivated())   throw new Exception("Exafs to time should not be active.");
 		if(uiEd.getKWeighting().isActivated())		throw new Exception("K weighting should not be active.");
 		uiEd._testSetTimeType(1);
-		
+
 		if (uiEd.getExafsTime().isActivated())      throw new Exception("Exafs step time should not be active.");
 		if (!uiEd.getExafsFromTime().isActivated()) throw new Exception("Exafs from time should be active.");
 		if (!uiEd.getExafsToTime().isActivated())   throw new Exception("Exafs to time should be active.");
 		if(!uiEd.getKWeighting().isActivated())		throw new Exception("K weighting should be active.");
-		
+
 	}
-	
-	
+
+
 	private void checkElement(String ename, double cHole, double initialE, double finalE) throws Exception {
-		
+
         uiEd.getElement().setValue(ename);
         checkValue(cHole,    uiEd.getCoreHole().getValue(), "Core Hole");
         checkValue(initialE, uiEd.getInitialEnergy().getValue(),   "Initial Energy");
         checkValue(finalE,   uiEd.getFinalEnergy().getValue(),     "Final Energy");
-		
+
 	}
 
 	private void checkValue(double check, Object value, String name) throws Exception {
-		
+
 		double dblValue;
 		if (value instanceof String) {
 			dblValue = Double.parseDouble((String)value);

@@ -18,11 +18,11 @@
 
 package gda.device.detector.countertimer;
 
-import gda.device.DeviceException;
-
 import java.util.Arrays;
 
 import org.apache.commons.lang.ArrayUtils;
+
+import gda.device.DeviceException;
 
 /**
  * Version of TFGXspress2 which returns the raw numbers from the TFG memory.
@@ -37,7 +37,7 @@ public class TfgXspress2Raw extends TfgXspress2 {
 		Arrays.fill(formats, super.getOutputFormat()[0]);
 		return formats;
 	}
-	
+
 	/**
 	 * element0all, element0reset, element0counts, element0time etc...
 	 */
@@ -54,12 +54,12 @@ public class TfgXspress2Raw extends TfgXspress2 {
 		}
 		return myChannelNames;
 	}
-    
+
 	@Override
 	public Object readout() throws DeviceException {
 		return xspress.getRawScalerData();
 	}
-	
+
 	/**
 	 * Override ScannableBase to work within scans
 	 */

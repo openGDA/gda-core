@@ -18,6 +18,8 @@
 
 package gda.jython.scriptcontroller.logging;
 
+import java.util.concurrent.TimeUnit;
+
 import gda.configuration.properties.LocalProperties;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -28,8 +30,6 @@ import gda.jython.IScanDataPointProvider;
 import gda.jython.InterfaceProvider;
 import gda.scan.IScanDataPoint;
 import gda.scan.ScanDataPoint;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * A zero input, zero extra names Scannable which should be included in XAS scans to send progress messages to the

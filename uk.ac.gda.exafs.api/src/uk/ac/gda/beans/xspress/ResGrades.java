@@ -26,17 +26,17 @@ import java.util.List;
  * Class to hold grades.
  */
 public class ResGrades {
-	
+
 	/**
 	 * Means that a full mca for each element will be given i.e. for 9-element you get 9 * 4096 numbers
 	 */
 	public static final String NONE = "res-none";
-	
+
 	/**
 	 * Means that one mca per res grade for each element will be given i.e. for 9-element you get 16 * 9 * 4096 numbers
 	 */
 	public static final String ALLGRADES = "res-min-div-8";
-	
+
 	/**
 	 * Means that two mca per res grade for each element will be given; above and below the threshold. i.e. for 9-element you get 2 * 9 * 4096 numbers
 	 */
@@ -49,7 +49,7 @@ public class ResGrades {
 
 	/**
 	 * Tests if a string is an acceptable Res Grade. "res-thres" should have a floating pint number at the end in the range 0.0 to 16.0
-	 * 
+	 *
 	 * @param fullGrade
 	 * @return true if string an acceptable string to give to da server as a resgrade.
 	 */
@@ -60,11 +60,11 @@ public class ResGrades {
 		}
 		return RES_GRADE_NAMES.contains(fullGrade);
 	}
-	
+
 	private static boolean isFloatingPoint(String string){
 		return !isInt(string) && isDouble(string);
 	}
-	
+
 	private static boolean isInt(String string) {
 		try {
 			Integer.parseInt(string);
@@ -73,7 +73,7 @@ public class ResGrades {
 		}
 		return true;
 	}
-	
+
 	private static boolean isDouble(String string) {
 		try {
 			Double.parseDouble(string);
@@ -84,7 +84,7 @@ public class ResGrades {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return res grades
 	 */
 	public static final String[] toStringArray() {

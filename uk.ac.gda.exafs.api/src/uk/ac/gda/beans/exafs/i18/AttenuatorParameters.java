@@ -66,8 +66,8 @@ public class AttenuatorParameters  implements Serializable{
 	private String name;
 	private ArrayList<String> position;
 	private String selectedPosition;
-	
-	
+
+
 	public void setName(String name) {
 		this.name = name;
 	}

@@ -20,8 +20,6 @@ package uk.ac.gda.exafs.beans;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import gda.exafs.scan.ExafsValidator;
-import gda.util.TestUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +30,8 @@ import org.eclipse.core.runtime.content.IContentDescriber;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.exafs.scan.ExafsValidator;
+import gda.util.TestUtils;
 import uk.ac.gda.beans.exafs.DetectorGroup;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
@@ -97,7 +97,7 @@ public class DetectorParametersTest {
 
 	/**
 	 * test for ion chamber parameters
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -164,7 +164,7 @@ public class DetectorParametersTest {
 
 	/**
 	 * test fluorescence detector parameters
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test

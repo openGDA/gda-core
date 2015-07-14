@@ -65,7 +65,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 	private boolean validSource;
 	private XspressParameters xspressParameters;
 
-	
+
 	// Region list stores a list of ROIs, potentially unsafe conversion, if it fails
 	// there will be runtime class cast exceptions
 	@SuppressWarnings("unchecked")
@@ -91,9 +91,9 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 			setEnables(detectorListComposite, false);
 		}
 		updateAddButtonEnables();
-		
+
 	}
-	
+
 	private void updateAddButtonEnables() {
 		if (!currentSourceValid()) {
 			// error set by invalid source
@@ -112,7 +112,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 
 	@Override
 	protected void createSourceControls(Composite parent) {
-	
+
 		IDetectorROICompositeFactory factory = XspressParametersUIHelper.INSTANCE.getDetectorROICompositeFactory();
 		detectorListComposite = new DetectorListComposite(parent,
 				DetectorElement.class, elementListSize, XspressROI.class, factory,false);
@@ -125,32 +125,32 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 				scrolledComp.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 			}
 		});
-		
+
 		importFileRegionList = detectorListComposite.getDetectorElementComposite().getRegionList();
 		importFileRegionList.setListEditorUI(new ListEditorUI() {
-			
+
 			@Override
 			public void notifySelected(ListEditor listEditor) {
 		   		XspressROIComposite xspressROIComposite = (XspressROIComposite)(listEditor.getEditorUI());
 				xspressROIComposite.setFitTypeVisibility();
 			}
-			
+
 			@Override
 			public boolean isReorderAllowed(ListEditor listEditor) {
 				return false;
 			}
-			
+
 			@Override
 			public boolean isDeleteAllowed(ListEditor listEditor) {
 				return false;
 			}
-			
+
 			@Override
 			public boolean isAddAllowed(ListEditor listEditor) {
 				return false;
 			}
 		});
-		
+
 		detectorListComposite.getDetectorElementComposite().setEndMaximum((int)maximum);
 		detectorListComposite.getDetectorElementComposite().setWindowsEditable(false);
 		GridUtils.setVisibleAndLayout(importFileRegionList, true);
@@ -167,11 +167,11 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 			regionList = new VerticalListEditor(this, SWT.BORDER);
 			regionList.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			regionList.setEditorClass(XspressROI.class);
-			
+
 			final DetectorROIComposite detectorROIComposite = XspressParametersUIHelper.INSTANCE.getDetectorROICompositeFactory().createDetectorROIComposite(regionList, SWT.NONE);
 			detectorROIComposite.getFieldWidgetsForDetectorElementsComposite().getRoiEnd().setMaximum(maximum);
 			regionList.setEditorUI(detectorROIComposite);
-			
+
 			detectorROIComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 			regionList.setTemplateName("ROI");
@@ -186,49 +186,49 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 				}
 			});
 			regionList.setListEditorUI(new ListEditorUI() {
-				
+
 				@Override
 				public void notifySelected(ListEditor listEditor) {
 			   		XspressROIComposite xspressROIComposite = (XspressROIComposite)(listEditor.getEditorUI());
 					xspressROIComposite.setFitTypeVisibility();
 				}
-				
+
 				@Override
 				public boolean isReorderAllowed(ListEditor listEditor) {
 					return true;
 				}
-				
+
 				@Override
 				public boolean isDeleteAllowed(ListEditor listEditor) {
 					return true;
 				}
-				
+
 				@Override
 				public boolean isAddAllowed(ListEditor listEditor) {
 					// add is performed by using the >>> button
 					return false;
 				}
 			});
-		
+
 		}
-		
+
 
 		public VerticalListEditor getRegionList() {
 			return regionList;
 		}
-		
-		
+
+
 	}
-	
+
 	@Override
 	protected void createDestinationControls(Composite parent) {
 		roisToImportComposite = new DetectorComposite(parent, SWT.NONE, maximum);
 		GridDataFactory.swtDefaults().applyTo(roisToImportComposite);
-		
+
 		// create a temporary DetectorElement as a container for the beans
 		DetectorElement element = new DetectorElement();
 		element.setRegionList(currentBeans);
-		
+
 		try {
 			BeanUI.switchState(element, roisToImportComposite, false);
 			BeanUI.beanToUI(element, roisToImportComposite);
@@ -238,7 +238,7 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 			logger.error("Unexpected exception creating destination contents", e1);
 		}
 	}
-	
+
 	@Override
 	protected void newSourceSelected(IPath path) {
 		validSource = false;
@@ -251,14 +251,14 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 				validSource = true;
 			}
 		} catch (Exception e1) {
-		} 
+		}
 	}
-	
+
 	@Override
 	protected boolean currentSourceValid() {
 		return validSource;
 	}
-	
+
 	@Override
 	protected void performAdd() {
 		Object bean = detectorListComposite.getDetectorElementComposite().getRegionList().getBean();
@@ -299,10 +299,10 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 			final List<?> elements = (List<?>) this.currentDetectorList.getValue();
 			final List<?> regionClone = BeanUI.cloneBeans(regionToCopy);
 			int index = -1;
-			
+
 				for (Object element : elements) {
 					++index;
-					
+
 					if(index == currentDetectorList.getSelectedIndex())
 					{
 						roisToImportComposite.getRegionList().addBean(regionClone.get(index), -1);
@@ -312,15 +312,15 @@ public class ImportXspressROIWizardPage extends ImportROIWizardPage {
 						final Method addRegion = element.getClass().getMethod("addRegion", uk.ac.gda.beans.xspress.XspressROI.class);
 						addRegion.invoke(element, regionClone.get(index));
 					}
-					
+
 				}
 			} catch (Exception e1) {
 				logger.error("Error apply current detector regions to all detectors.", e1);
-			}		
-			
+			}
+
 		}
 	}
-	
+
 	@Override
 	public List<? extends DetectorROI> getBeansToAdd() {
 		// the region list is a wrapper for a List of DetectorROIs, therefore safe SuppressWarning

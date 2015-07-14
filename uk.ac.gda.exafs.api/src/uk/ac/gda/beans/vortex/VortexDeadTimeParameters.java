@@ -25,8 +25,8 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class VortexDeadTimeParameters implements Serializable, XMLRichBean {
 
@@ -83,7 +83,7 @@ public class VortexDeadTimeParameters implements Serializable, XMLRichBean {
 			return false;
 		}
 		VortexDeadTimeParameters other = (VortexDeadTimeParameters) obj;
-		
+
 		if (detectorDTList == null) {
 			if (other.detectorDTList != null) {
 				return false;

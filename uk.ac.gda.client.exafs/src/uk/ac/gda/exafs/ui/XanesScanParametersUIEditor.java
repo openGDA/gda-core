@@ -18,10 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.configuration.properties.LocalProperties;
-import gda.jython.JythonServerFacade;
-import gda.util.exafs.Element;
-
 import java.util.List;
 
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
@@ -38,6 +34,9 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.jython.JythonServerFacade;
+import gda.util.exafs.Element;
 import swing2swt.layout.BorderLayout;
 import uk.ac.gda.beans.exafs.Region;
 import uk.ac.gda.beans.exafs.XanesScanParameters;
@@ -70,7 +69,7 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 
 	/**
 	 * Create contents of the editor part
-	 * 
+	 *
 	 * @param parent
 	 */
 	@SuppressWarnings("unused")
@@ -114,7 +113,7 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 				try {
 					List<uk.ac.gda.beans.exafs.Region> regions = regionsEditor.getBeanRegions();
 					double coreHole = getSelectedElement(type).getCoreHole(getEdgeUseBean());
-					
+
 					if (getEdgeValue()!=edgeVal) {
 						edgeVal = getEdgeValue();
 						for (int i = 0; i < regions.size(); i++) {
@@ -173,7 +172,7 @@ public class XanesScanParametersUIEditor extends ElementEdgeEditor {
 				finalEnergy.setMinimum(4000.0);
 				finalEnergy.setMaximum(40000.0);
 			}
-		} 
+		}
 		else
 			finalEnergy.setMaximum(120000.0);
 

@@ -29,13 +29,13 @@ public class IonChambersBean implements Serializable {
 	private String log;
 	private double energy;
 	private List<IonChamberBean> ionChambers;
-	
+
 	public IonChambersBean(){
 		log="";
 		energy=0;
 		ionChambers = new ArrayList<IonChamberBean>(50);
 	}
-	
+
 	public void clear(){
 		log="";
 		energy=0;
@@ -65,9 +65,9 @@ public class IonChambersBean implements Serializable {
 	public void setIonChambers(List<IonChamberBean> ionChambers) {
 		this.ionChambers = ionChambers;
 	}
-	
+
 	public void addIonChamber(IonChamberBean ionChamber) {
 		ionChambers.add(ionChamber);
 	}
-	
+
 }

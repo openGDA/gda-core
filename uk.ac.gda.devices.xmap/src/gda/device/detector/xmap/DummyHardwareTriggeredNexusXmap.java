@@ -18,17 +18,16 @@
 
 package gda.device.detector.xmap;
 
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.DeviceException;
-import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetectorBase;
-import gda.device.scannable.PositionStreamIndexer;
-import gda.device.detector.xmap.XmapPositionInputStream;
-
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.DeviceException;
+import gda.device.detector.hardwaretriggerable.HardwareTriggerableDetectorBase;
+import gda.device.scannable.PositionStreamIndexer;
 
 public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetectorBase implements HardwareTriggeredNexusXmap{
 	public DummyHardwareTriggeredNexusXmap() {
@@ -119,7 +118,7 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 	}
 	@Override
 	public void atScanLineStart() throws DeviceException
-	{		
+	{
 		this.clearAndStart();
 		this.indexer  = new PositionStreamIndexer<NexusTreeProvider>(new XmapPositionInputStream(this, xmap.isSumAllElementData()));
 	}
@@ -127,37 +126,37 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 	@Override
 	public void clearAndStart() throws DeviceException {
 		xmap.clearAndStart();
-		
+
 	}
 
 	@Override
 	public void clear() throws DeviceException {
 		xmap.clear();
-		
+
 	}
 
 	@Override
 	public void start() throws DeviceException {
 		xmap.start();
-		
+
 	}
 
 	@Override
 	public void setNumberOfBins(int numberOfBins) throws DeviceException {
 		xmap.setNumberOfBins(numberOfBins);
-		
+
 	}
 
 	@Override
 	public int getNumberOfBins() throws DeviceException {
 		return xmap.getNumberOfBins();
-		
+
 	}
 
 	@Override
 	public void setStatusRate(double statusRate) throws DeviceException {
 		xmap.setStatusRate(statusRate);
-		
+
 	}
 
 	@Override
@@ -168,7 +167,7 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 	@Override
 	public void setReadRate(double readRate) throws DeviceException {
 		xmap.setReadRate(readRate);
-		
+
 	}
 
 	@Override
@@ -257,7 +256,7 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 			Thread.sleep(waitTime);
 			waitedSoFarMilliSeconds += waitTime;
 		}
-		
+
 	}
 		public boolean isStillWriting()  {
 			currentTime = System.currentTimeMillis();
@@ -275,21 +274,21 @@ public class DummyHardwareTriggeredNexusXmap extends HardwareTriggerableDetector
 		// TODO Auto-generated method stub
 		return bufferMode;
 	}
-	
+
 	@Override
 	public String[] getExtraNames() {
 		return xmap.getExtraNames();
 	}
-	
+
 	@Override
 	public int[] getDataDimensions() throws DeviceException {
-		return xmap.getDataDimensions();	
+		return xmap.getDataDimensions();
 	}
 
 	@Override
 	public void waitForCurrentScanFile() throws DeviceException, InterruptedException {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 }

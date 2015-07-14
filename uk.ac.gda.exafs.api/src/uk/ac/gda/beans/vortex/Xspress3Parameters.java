@@ -30,7 +30,7 @@ public class Xspress3Parameters extends VortexParameters {
 	static public final java.net.URL mappingURL = Xspress3Parameters.class.getResource("Xspress3Mapping.xml");
 
 	static public final java.net.URL schemaURL = Xspress3Parameters.class.getResource("Xspress3Mapping.xsd");
-	
+
 	public static Xspress3Parameters createFromXML(String filename) throws Exception {
 		return (Xspress3Parameters) XMLHelpers.createFromXML(mappingURL, Xspress3Parameters.class, schemaURL, filename);
 	}
@@ -38,12 +38,13 @@ public class Xspress3Parameters extends VortexParameters {
 	public static void writeToXML(Xspress3Parameters xspressParameters, String filename) throws Exception {
 		XMLHelpers.writeToXML(mappingURL, xspressParameters, filename);
 	}
-	
+
 	public Xspress3Parameters() {
 		super();
 	}
-	
-	public Xspress3Parameters objectCast (Object obj){ 
+
+	@Override
+	public Xspress3Parameters objectCast (Object obj){
 		return (Xspress3Parameters) obj;
 	}
 }

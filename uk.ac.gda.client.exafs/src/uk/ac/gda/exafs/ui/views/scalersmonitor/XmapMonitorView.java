@@ -18,14 +18,6 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
-import gda.configuration.properties.LocalProperties;
-import gda.device.CounterTimer;
-import gda.device.DeviceException;
-import gda.device.XmapDetector;
-import gda.factory.Finder;
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
-
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
@@ -40,8 +32,16 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
+import gda.configuration.properties.LocalProperties;
+import gda.device.CounterTimer;
+import gda.device.DeviceException;
+import gda.device.XmapDetector;
+import gda.factory.Finder;
+import gda.jython.Jython;
+import gda.jython.JythonServerFacade;
+
 public class XmapMonitorView extends MonitorViewBase {
-	
+
 	private static final Double MAX_FLUO_RATE = 500000.0;
 
 	public static final String ID = "uk.ac.gda.exafs.ui.views.xmapmonitor";
@@ -58,7 +58,7 @@ public class XmapMonitorView extends MonitorViewBase {
 	@Override
 	public void createPartControl(Composite parent) {
 		refreshRate = 0.1;
-		
+
 		Group grpCurrentCountRates = new Group(parent, SWT.BORDER);
 		grpCurrentCountRates.setText("Current count rates");
 		grpCurrentCountRates.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -68,11 +68,11 @@ public class XmapMonitorView extends MonitorViewBase {
 
 		myPlotter.createPlotPart(grpCurrentCountRates, "Rates", null, PlotType.XY, null);
 		myPlotter.getPlotComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
+
 		primaryAxis = myPlotter.getSelectedYAxis();
 		primaryAxis.setTitle("Counts (Hz)");
 		dtAxis = myPlotter.createAxis("Deadtime (%)", true, SWT.RIGHT);
-		
+
 		String xmapName = LocalProperties.get("gda.exafs.xmapName", "xmapMca");
 		XmapDetector xmap = (XmapDetector) Finder.getInstance().find(xmapName);
 		try {
@@ -219,7 +219,7 @@ public class XmapMonitorView extends MonitorViewBase {
 		int numChannels = ionchambers.getExtraNames().length;
 //		// works for TFG2 only where time if the first channel
 		double[] ion_results = ionchambers.readFrame(1, numChannels, currentFrame);
-		
+
 //		double[] ion_results = (double[]) ionchambers.readout();
 		Double collectionTime = (Double) ionchambers.getAttribute("collectionTime");
 		int i0Index = -1;

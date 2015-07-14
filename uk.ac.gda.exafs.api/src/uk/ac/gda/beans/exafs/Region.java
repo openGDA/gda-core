@@ -68,7 +68,7 @@ public class Region  implements Serializable{
 
 	/**
 	 * Testing
-	 * 
+	 *
 	 * @param args
 	 * @throws Exception
 	 */
@@ -162,7 +162,7 @@ public class Region  implements Serializable{
 
 	/**
 	 * {inheritDoc}
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

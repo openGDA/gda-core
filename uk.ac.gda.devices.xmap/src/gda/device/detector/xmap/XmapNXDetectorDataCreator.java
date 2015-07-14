@@ -1,14 +1,13 @@
 package gda.device.detector.xmap;
 
+import java.util.List;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeNode;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.xmap.util.XmapFileLoader;
-
-import java.util.List;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.util.CorrectionUtils;
@@ -36,7 +35,7 @@ public class XmapNXDetectorDataCreator {
 		this.createAllElementsSum = createAllElementsSum;
 	}
 
-	
+
 	public NXDetectorData writeToNexusFile(int dataPointNumber, short[][] detectorData) {
 		NXDetectorData output = new NXDetectorData(extraNames, outputFormat, detectorName);
 		INexusTree detTree = output.getDetTree(detectorName);
@@ -62,9 +61,9 @@ public class XmapNXDetectorDataCreator {
 			if (thisElement.isExcluded())
 				continue;
 			index++;
-			
+
 			reducedData[index] = detectorData[element];
-			
+
 			final double ocr = getOCR(dataPointNumber, element);
 			ocrs[index] = ocr;
 			final double icr = getICR(dataPointNumber, element);

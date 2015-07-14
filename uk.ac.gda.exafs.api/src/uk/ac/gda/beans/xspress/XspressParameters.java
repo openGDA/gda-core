@@ -28,7 +28,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import uk.ac.gda.beans.exafs.IDetectorConfigurationParameters;
 
 
-public class XspressParameters implements Serializable,IDetectorConfigurationParameters {	
+public class XspressParameters implements Serializable,IDetectorConfigurationParameters {
 	/**
 	 * The region type when the ROI returns the sum of counts in the region, so acts like a scaler.
 	 */
@@ -52,7 +52,7 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 	public XspressParameters() {
 		detectorList = new ArrayList<DetectorElement>();
 	}
-	
+
 	public void addDetectorElement(DetectorElement detectorElement) {
 		detectorList.add(detectorElement);
 	}
@@ -68,7 +68,7 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 	public DetectorElement getDetector(int index) {
 		return detectorList.get(index);
 	}
-	
+
 	public void clear(){
 		if (detectorList!=null) detectorList.clear();
 	}
@@ -179,7 +179,7 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 	public boolean isOnlyShowFF() {
 		return onlyShowFF;
 	}
-	
+
 	public void setShowDTRawValues(boolean xspressShowDTRawValues) {
 		this.showDTRawValues = xspressShowDTRawValues;
 	}
@@ -195,7 +195,7 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 	public boolean isSaveRawSpectrum() {
 		return saveRawSpectrum;
 	}
-	
+
 	/**
 	 * @return Returns the regionType.
 	 */
@@ -218,5 +218,5 @@ public class XspressParameters implements Serializable,IDetectorConfigurationPar
 	public void setSelectedRegionNumber(int selectedRegionNumber) {
 		this.selectedRegionNumber = selectedRegionNumber;
 	}
-	
+
 }

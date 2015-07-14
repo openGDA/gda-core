@@ -26,7 +26,7 @@ import uk.ac.gda.client.experimentdefinition.ExperimentBeanMultiPageEditor;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 public class Xspress3ParametersEditor extends ExperimentBeanMultiPageEditor {
-	
+
 	@Override
 	public Class<?> getBeanClass() {
 		return Xspress3Parameters.class;
@@ -47,7 +47,7 @@ public class Xspress3ParametersEditor extends ExperimentBeanMultiPageEditor {
 	public URL getSchemaUrl() {
 		return Xspress3Parameters.schemaURL;
 	}
-	
+
 	@Override
 	public List<String> getPrivateXMLFields() {
 		return Arrays.asList(new String[]{"data"});

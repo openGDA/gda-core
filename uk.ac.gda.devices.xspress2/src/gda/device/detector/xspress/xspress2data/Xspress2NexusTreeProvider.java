@@ -1,17 +1,16 @@
 package gda.device.detector.xspress.xspress2data;
 
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusTree;
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.detector.NXDetectorData;
-import gda.device.detector.xspress.Xspress2Detector;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.detector.NXDetectorData;
+import gda.device.detector.xspress.Xspress2Detector;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDeadTimeParameters;
@@ -21,9 +20,9 @@ import uk.ac.gda.beans.xspress.XspressParameters;
  * Provides tools to convert raw data from the Xspress2 electronics into
  * structured Nexus tree. Uses the settings in {@link Xspress2CurrentSettings}
  * to define the structure and contents of the Nexus tree.
- * 
+ *
  * @author rjw82
- * 
+ *
  */
 public class Xspress2NexusTreeProvider {
 
@@ -47,7 +46,7 @@ public class Xspress2NexusTreeProvider {
 	/**
 	 * When only one res garde, removes the single dimension to convert
 	 * [element][resGrade][mca] into a true 2D array of [element][mca]
-	 * 
+	 *
 	 * @param correctedMCAArrays
 	 * @return double[][]
 	 */
@@ -109,7 +108,7 @@ public class Xspress2NexusTreeProvider {
 	 * Convert the raw 1D array from DAServer into the 4D data it represents.
 	 * <p>
 	 * Assumes the packing order: frame,channel,res-grade,energy
-	 * 
+	 *
 	 * @param rawData
 	 * @param numFrames
 	 * @param numResGrades
@@ -134,7 +133,7 @@ public class Xspress2NexusTreeProvider {
 	/**
 	 * Flips the dimensions of an array, so if it was 2 by 4096 it is now 4096
 	 * by 2
-	 * 
+	 *
 	 * @param array
 	 * @return double[][]
 	 */
@@ -161,7 +160,7 @@ public class Xspress2NexusTreeProvider {
 	/**
 	 * Correct an array of [element][resGrade][mca] for deadtime where there is
 	 * a single deadtime for each element which is used on every resGrade.
-	 * 
+	 *
 	 * @param arrays
 	 * @param deadtimeFactors
 	 * @return double[][][]

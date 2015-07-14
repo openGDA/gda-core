@@ -19,9 +19,9 @@ import uk.ac.gda.devices.detector.xspress3.fullCalculations.Xspress3WithFullCalc
  * <p>
  * This decorates an underlying Xspress3Detector instance so that changing the
  * settings on one of the instances affects the other, as users would expect.
- * 
+ *
  * @author rjw82
- * 
+ *
  */
 public class Xspress3BufferedDetector extends DetectorBase implements BufferedDetector, NexusDetector,
 		FluorescenceDetector, Xspress3 {
@@ -83,7 +83,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 	public NXDetectorData[] readFrames(int startFrame, int finalFrame) throws DeviceException {
 		return xspress3Detector.readFrames(startFrame, finalFrame, getName());
 	}
-	
+
 	@Override
 	public NXDetectorData[] readAllFrames() throws DeviceException {
 		return xspress3Detector.readFrames(0, xspress3Detector.getController().getNumFramesToAcquire(), getName());
@@ -110,22 +110,27 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		this.xspress3Detector = xspress3Detector;
 	}
 
+	@Override
 	public double getCollectionTime() throws DeviceException {
 		return xspress3Detector.getCollectionTime();
 	}
 
+	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
 		xspress3Detector.setCollectionTime(collectionTime);
 	}
 
+	@Override
 	public int[] getDataDimensions() throws DeviceException {
 		return xspress3Detector.getDataDimensions();
 	}
 
+	@Override
 	public int getProtectionLevel() throws DeviceException {
 		return xspress3Detector.getProtectionLevel();
 	}
 
+	@Override
 	public void endCollection() throws DeviceException {
 		xspress3Detector.endCollection();
 	}
@@ -140,196 +145,244 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		xspress3Detector.prepareForCollection();
 	}
 
+	@Override
 	public void atScanStart() throws DeviceException {
 		// do nothing here, as the correct thing will be done by setContinuousParameters
 	}
 
+	@Override
 	public void asynchronousMoveTo(Object collectionTime) throws DeviceException {
 		xspress3Detector.asynchronousMoveTo(collectionTime);
 	}
 
+	@Override
 	public void atScanLineStart() throws DeviceException {
 		// do nothing here, as the correct thing will be done by setContinuousParameters
 	}
 
+	@Override
 	public Object getPosition() throws DeviceException {
 		return xspress3Detector.getPosition();
 	}
 
+	@Override
 	public void reconfigure() throws FactoryException {
 		xspress3Detector.reconfigure();
 	}
 
+	@Override
 	public void atScanEnd() throws DeviceException {
 		((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(false);
 		xspress3Detector.atScanEnd();
 	}
 
+	@Override
 	public void atPointEnd() throws DeviceException {
 		xspress3Detector.atPointEnd();
 	}
 
+	@Override
 	public void close() throws DeviceException {
 		xspress3Detector.close();
 	}
 
+	@Override
 	public void setAttribute(String attributeName, Object value) throws DeviceException {
 		xspress3Detector.setAttribute(attributeName, value);
 	}
 
+	@Override
 	public Object getAttribute(String attributeName) throws DeviceException {
 		return xspress3Detector.getAttribute(attributeName);
 	}
 
+	@Override
 	public boolean isBusy() throws DeviceException {
 		return xspress3Detector.isBusy();
 	}
 
+	@Override
 	public String toFormattedString() {
 		return xspress3Detector.toFormattedString();
 	}
 
+	@Override
 	public void addIObserver(IObserver observer) {
 		xspress3Detector.addIObserver(observer);
 	}
 
+	@Override
 	public void collectData() throws DeviceException {
 		xspress3Detector.collectData();
 	}
 
+	@Override
 	public void deleteIObserver(IObserver observer) {
 		xspress3Detector.deleteIObserver(observer);
 	}
 
+	@Override
 	public void deleteIObservers() {
 		xspress3Detector.deleteIObservers();
 	}
 
+	@Override
 	public void stop() throws DeviceException {
 		xspress3Detector.stop();
 	}
 
+	@Override
 	public int getStatus() throws DeviceException {
 		return xspress3Detector.getStatus();
 	}
 
+	@Override
 	public String getDescription() throws DeviceException {
 		return xspress3Detector.getDescription();
 	}
 
+	@Override
 	public String getDetectorID() throws DeviceException {
 		return xspress3Detector.getDetectorID();
 	}
 
+	@Override
 	public String getDetectorType() throws DeviceException {
 		return xspress3Detector.getDetectorType();
 	}
 
+	@Override
 	public boolean createsOwnFiles() throws DeviceException {
 		return xspress3Detector.createsOwnFiles();
 	}
 
+	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		return xspress3Detector.readout();
 	}
 
+	@Override
 	public String[] getExtraNames() {
 		return xspress3Detector.getExtraNames();
 	}
 
+	@Override
 	public void atPointStart() throws DeviceException {
 		xspress3Detector.atPointStart();
 	}
 
+	@Override
 	public void atScanLineEnd() throws DeviceException {
 //		xspress3Detector.atScanLineEnd();
 	}
 
+	@Override
 	public void clearAndStart() throws DeviceException {
 		xspress3Detector.clearAndStart();
 	}
 
+	@Override
 	public int[][] getData() throws DeviceException {
 		return xspress3Detector.getData();
 	}
 
+	@Override
 	public void atLevelStart() throws DeviceException {
 		xspress3Detector.atLevelStart();
 	}
 
+	@Override
 	public void atLevelMoveStart() throws DeviceException {
 		xspress3Detector.atLevelMoveStart();
 	}
 
+	@Override
 	public double[][] getMCData(double time) throws DeviceException {
 		return xspress3Detector.getMCData(time);
 	}
 
+	@Override
 	public void atLevelEnd() throws DeviceException {
 		xspress3Detector.atLevelEnd();
 	}
 
+	@Override
 	public void atCommandFailure() throws DeviceException {
 		((Xspress3WithFullCalculationsDetector) xspress3Detector).setReadDataFromFile(false);
 		xspress3Detector.atCommandFailure();
 	}
 
+	@Override
 	public String[] getInputNames() {
 		return xspress3Detector.getInputNames();
 	}
 
+	@Override
 	public int getLevel() {
 		return xspress3Detector.getLevel();
 	}
 
+	@Override
 	public String[] getOutputFormat() {
 		return xspress3Detector.getOutputFormat();
 	}
 
+	@Override
 	public void moveTo(Object position) throws DeviceException {
 		xspress3Detector.moveTo(position);
 	}
 
+	@Override
 	public void setExtraNames(String[] names) {
 		xspress3Detector.setExtraNames(names);
 	}
 
+	@Override
 	public void setInputNames(String[] names) {
 		xspress3Detector.setInputNames(names);
 	}
 
+	@Override
 	public void setLevel(int level) {
 		xspress3Detector.setLevel(level);
 	}
 
+	@Override
 	public void setOutputFormat(String[] names) {
 		xspress3Detector.setOutputFormat(names);
 	}
 
+	@Override
 	public String toString() {
 		return xspress3Detector.toString();
 	}
 
+	@Override
 	public void waitWhileBusy() throws DeviceException, InterruptedException {
 		xspress3Detector.waitWhileBusy();
 	}
 
+	@Override
 	public Object getCountRates() throws DeviceException {
 		return xspress3Detector.getCountRates();
 	}
 
+	@Override
 	public String getConfigFileName() {
 		return xspress3Detector.getConfigFileName();
 	}
 
+	@Override
 	public void setConfigFileName(String configFileName) {
 		xspress3Detector.setConfigFileName(configFileName);
 	}
 
+	@Override
 	public void loadConfigurationFromFile() throws Exception {
 		xspress3Detector.loadConfigurationFromFile();
 	}
 
+	@Override
 	public boolean isAt(Object positionToTest) throws DeviceException {
 		return xspress3Detector.isAt(positionToTest);
 	}
@@ -344,6 +397,7 @@ public class Xspress3BufferedDetector extends DetectorBase implements BufferedDe
 		return xspress3Detector.readoutFF();
 	}
 
+	@Override
 	public DetectorROI[] getRegionsOfInterest() throws DeviceException {
 		return xspress3Detector.getRegionsOfInterest();
 	}

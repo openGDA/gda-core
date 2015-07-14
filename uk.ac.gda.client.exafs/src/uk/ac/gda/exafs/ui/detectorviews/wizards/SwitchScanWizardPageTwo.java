@@ -303,5 +303,5 @@ public class SwitchScanWizardPageTwo extends WizardPage {
 	public IExperimentEditorManager getController() {
 		return controller;
 	}
-	
+
 }

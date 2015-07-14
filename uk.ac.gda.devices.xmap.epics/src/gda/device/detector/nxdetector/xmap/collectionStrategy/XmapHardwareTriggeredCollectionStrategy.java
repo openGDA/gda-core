@@ -18,29 +18,30 @@
 
 package gda.device.detector.nxdetector.xmap.collectionStrategy;
 
-import gda.device.DeviceException;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
-import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer;
-import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayer;
-import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer.*;
-import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayer.PixelAdvanceMode;
-import gda.scan.ScanInformation;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
+
+import gda.device.DeviceException;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdata.NXDetectorDataDoubleAppender;
+import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer;
+import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer.CollectionModeEnum;
+import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer.PresetMode;
+import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayer;
+import gda.device.detector.nxdetector.xmap.controller.XmapMappingModeEpicsLayer.PixelAdvanceMode;
+import gda.scan.ScanInformation;
 
 /**
  * Drive the XIA Xmap card using hardware triggers in Constant Velocity scans.
  */
 public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 
-	
-	private int pixelsPerBuffer = 124; // will always be this by default when auto pixels per buffer 
-	
-	
+
+	private int pixelsPerBuffer = 124; // will always be this by default when auto pixels per buffer
+
+
 	public XmapHardwareTriggeredCollectionStrategy(XmapAcquisitionBaseEpicsLayer xmap) throws Exception {
 		super(xmap, -1);
 		//this.ndHDF5PVProvider = nDHDF5PVProvider;
@@ -49,7 +50,7 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 	@Override
 	public void prepareForCollection(double collectionTime, int numImages, ScanInformation scanInfo) throws Exception {
 		getXmap().setCollectMode(CollectionModeEnum.MCA_MAPPING);
-		getXmap().setPresetMode(PresetMode.NO_PRESET);		
+		getXmap().setPresetMode(PresetMode.NO_PRESET);
 		if (getXmap().isXmapMappingModeInstance("prepareForCollection in Hardware triggered Collection Strategy")){
 			((XmapMappingModeEpicsLayer)getXmap().getCollectionMode()).setPixelAdvanceMode(PixelAdvanceMode.Gate);
 			((XmapMappingModeEpicsLayer)getXmap().getCollectionMode()).setIgnoreGate(false);
@@ -57,35 +58,35 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 			((XmapMappingModeEpicsLayer)getXmap().getCollectionMode()).setAutoPixelsPerBuffer(false);
 		}
 	}
-	
-	
+
+
 	@Override
 	public void prepareForLine() throws Exception {
 //		getXmap().start(); // restart collection at every line for this class
 	}
-	
+
 	@Override
 	public boolean requiresAsynchronousPlugins() {
 		return true;
 	}
-	
+
 	@Override
 	public List<String> getInputStreamNames() {
 		List<String> fieldNames = new ArrayList<String>();
-		
+
 			fieldNames.add("count_time");
-		
+
 			return fieldNames;
-		
+
 		//return new ArrayList<String>();
 	}
 
 	@Override
 	public List<String> getInputStreamFormats() {
 		List<String> formats = new ArrayList<String>();
-		
+
 			formats.add("%.2f");
-		
+
 		return formats;
 		//return new ArrayList<String>();
 	}
@@ -100,13 +101,13 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 		//}
 		return output;*/
 		List<Double> times = new ArrayList<Double>();
-		
+
 		try {
 				times.add(0.0);
 		} catch (Exception e) {
 				throw new DeviceException(e);
 		}
-		
+
 		Vector<NXDetectorDataAppender> vector = new Vector<NXDetectorDataAppender>();
 		vector.add(new NXDetectorDataDoubleAppender(getInputStreamNames(), times));
 		return vector;
@@ -115,8 +116,8 @@ public class XmapHardwareTriggeredCollectionStrategy extends XmapSimpleAcquire {
 	@Override
 	public void configureAcquireAndPeriodTimes(double collectionTime)
 			throws Exception {
-		// do nothing here		
+		// do nothing here
 	}
-	
+
 
 }

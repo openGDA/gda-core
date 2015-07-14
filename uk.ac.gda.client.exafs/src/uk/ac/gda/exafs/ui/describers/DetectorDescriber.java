@@ -30,10 +30,10 @@ import uk.ac.gda.beans.exafs.DetectorParameters;
 public class DetectorDescriber extends XMLBeanContentDescriber {
 
 	/**
-	 * 
+	 *
 	 */
 	public final static String ID = "uk.ac.gda.exafs.ui.DetectorParametersEditor";
-	
+
 	@Override
 	protected String getBeanName() {
 		return DetectorParameters.class.getName();
@@ -45,4 +45,3 @@ public class DetectorDescriber extends XMLBeanContentDescriber {
 
 }
 
-	

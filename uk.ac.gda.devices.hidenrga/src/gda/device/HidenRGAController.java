@@ -18,6 +18,9 @@
 
 package gda.device;
 
+import java.io.IOException;
+import java.util.Set;
+
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
@@ -33,9 +36,6 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import java.io.IOException;
-import java.util.Set;
 
 /**
  * Interacts with the Hiden RGA EPICS layer. This is separated from the Hiden Scannable class for testing purposes.
@@ -70,7 +70,7 @@ public class HidenRGAController implements IObservable, InitializationListener {
 	private String epicsPrefix;
 	private ObservableComponent observableComponent = new ObservableComponent();
 	private EpicsChannelManager channelManager;
-	
+
 	private PV<Integer> writeToRGAPv;
 	private ReadOnlyPV<Integer> scanCycleCountPV;
 	private PV<Integer> scanCyclesTypePV;
@@ -83,16 +83,16 @@ public class HidenRGAController implements IObservable, InitializationListener {
 	private ReadOnlyPV<Double>[] massReadbackPVs;
 	private ReadOnlyPV<Double>[] massCountsPerSecPVs;
 	private PV<Integer>[] enableMassPVs;
-	
+
 	protected ReadOnlyPV<Integer> dataPointsCountPV;
 	protected ReadOnlyPV<Double[]>[] dataPVs;// = LazyPVFactory.newDoubleArrayPV("ME12G-EA-RGA-01:MID:1:P:CAL");
 	protected ReadOnlyPV<Double[]> timestampPV;
 	protected ReadOnlyPV<Double[]> valveDataPV;
 	protected ReadOnlyPV<Double[]> tempDataPV;
-	
+
 
 	private int numberOfMasses;
-	
+
 	public HidenRGAController(String epicsPrefix) {
 		this.epicsPrefix = epicsPrefix;
 	}
@@ -103,9 +103,9 @@ public class HidenRGAController implements IObservable, InitializationListener {
 		channelManager = new EpicsChannelManager(this);
 		String scanCyclePVName = generatePVName(":CYC_RBV");
 		channelManager.createChannel(scanCyclePVName, new ScanCycleListener(), MonitorType.NATIVE, false);
-		
+
 		// rest of connections via LazyPVs
-		
+
 		writeToRGAPv = LazyPVFactory.newIntegerPV(generatePVName(":MID:UPLOAD.PROC"));   // set 1 to run procedure
 		scanCycleCountPV = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(":CYC_RBV"));
 		scanCyclesTypePV = LazyPVFactory.newIntegerPV(generatePVName(":MID:CYC:CONT"));  // set 1 for continuous
@@ -113,13 +113,13 @@ public class HidenRGAController implements IObservable, InitializationListener {
 		stopScanPV = LazyPVFactory.newIntegerPV(generatePVName(":ABORT.PROC"));		// set 1 to run procedure
 		currentValvePV = LazyPVFactory.newReadOnlyDoublePV(generatePVName(":P:MIDAUX1-I"));
 		currentTempPV = LazyPVFactory.newReadOnlyDoublePV(generatePVName(":P:MIDAUX2-I"));
-		
+
 		massSetPVs = new PV[numberOfMassChannels];
 		massReadbackPVs = new ReadOnlyPV[numberOfMassChannels];
 		massCountsPerSecPVs = new ReadOnlyPV[numberOfMassChannels];
 		enableMassPVs = new PV[numberOfMassChannels-1];  // the first channel cannot be disabled
 		dataPVs = new ReadOnlyPV[numberOfMassChannels];
-		
+
 		for (int chan = 1; chan <= numberOfMassChannels; chan++){
 			massSetPVs[chan - 1] = LazyPVFactory.newIntegerPV(generatePVName(String.format(":MID:%d:M_SP",chan)));
 			massReadbackPVs[chan - 1] = LazyPVFactory.newReadOnlyDoublePV(generatePVName(String.format(":MID:%d:M_RBV",chan)));
@@ -127,16 +127,16 @@ public class HidenRGAController implements IObservable, InitializationListener {
 			if (chan > 1){
 				enableMassPVs[chan - 2] = LazyPVFactory.newIntegerPV(generatePVName(String.format(":MID:%d:ENABLE",chan)));
 			}
-			
+
 			dataPVs[chan - 1]= LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(String.format(":MID:%d:P:CAL",chan)));
 		}
-		
+
 		dataPointsCountPV= LazyPVFactory.newReadOnlyIntegerPV(generatePVName(String.format(":MID:COUNT")));
 		timestampPV= LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(String.format(":MID:TIME:ABS")));
 		valveDataPV= LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(String.format(":MID:AUX1:P:RAW")));
 		tempDataPV= LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(String.format(":MID:AUX2:P:RAW")));
 	}
-	
+
 	private String generatePVName(String suffix) {
 		return epicsPrefix + suffix;
 	}
@@ -144,7 +144,7 @@ public class HidenRGAController implements IObservable, InitializationListener {
 	public void setMasses(Set<Integer> masses) throws IOException {
 
 		numberOfMasses = masses.size();
-		
+
 		int chan = 1;
 		for (Integer mass : masses){
 			// for each mass, set the value and enable the channel
@@ -154,19 +154,19 @@ public class HidenRGAController implements IObservable, InitializationListener {
 			}
 			chan++;
 		}
-		
+
 		// disable all the other channels
 		for(;chan <= numberOfMassChannels; chan++){
 			enableMassPVs[chan - 2].putNoWait(0);
 		}
-		
+
 		massSetPVs[0].putWait(masses.iterator().next());
 	}
-	
+
 	protected void setContinuousCycles() throws IOException{
 		scanCyclesTypePV.putWait(1);
 	}
-	
+
 	protected void writeToRGA() throws IOException{
 		writeToRGAPv.putWait(1);
 	}
@@ -174,11 +174,11 @@ public class HidenRGAController implements IObservable, InitializationListener {
 	protected void startScan() throws IOException{
 		startScanPV.putWait(1);
 	}
-	
+
 	public void stopScan() throws IOException {
 		stopScanPV.putWait(1);
 	}
-	
+
 	public int getLatestScanCycle() throws IOException{
 		return scanCycleCountPV.get();
 	}
@@ -220,7 +220,7 @@ public class HidenRGAController implements IObservable, InitializationListener {
 
 	@Override
 	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
-		// 
+		//
 	}
 
 }

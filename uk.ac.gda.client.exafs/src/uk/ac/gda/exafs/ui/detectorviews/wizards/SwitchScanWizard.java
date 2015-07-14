@@ -68,5 +68,5 @@ public class SwitchScanWizard extends Wizard implements INewWizard {
 	public boolean canFinish() {
 		return getContainer().getCurrentPage().equals(page2);
 	}
-	
+
 }

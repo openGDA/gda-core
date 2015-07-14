@@ -69,8 +69,8 @@ public class DetectorReading {
 		if (resets < 0) resets = (resets << 32) >>> 32;
 		if (originalWindowed < 0) originalWindowed = (originalWindowed << 32) >>> 32;
 		if (acc < 0) acc = (acc << 32) >>> 32;
-	
-	} 
+
+	}
 	/**
 	 * @return windowed counts
 	 */

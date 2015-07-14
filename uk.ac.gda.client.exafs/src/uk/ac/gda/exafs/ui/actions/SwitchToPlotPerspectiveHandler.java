@@ -37,9 +37,9 @@ public class SwitchToPlotPerspectiveHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
+
 		logger.debug("SwitchToPlotPerspective button pressed");
-		
+
 		String perspectiveID = PlottingPerspective.ID;
 		try {
 			IScanParameters scObj = ScanObjectManager.getCurrentScan();

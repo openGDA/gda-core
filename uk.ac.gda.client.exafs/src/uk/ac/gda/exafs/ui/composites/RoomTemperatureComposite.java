@@ -115,7 +115,7 @@ public class RoomTemperatureComposite extends FieldBeanComposite {
 		yaw.setUnit("°");
 		yaw.setMaximum(10.6);
 		yaw.setDecimalPlaces(4);
-		
+
 		ScannableValueListener.createLinkedLabel(xLabel,        "sample_x",     x);
 		ScannableValueListener.createLinkedLabel(yLabel,        "sample_y",     y);
 		ScannableValueListener.createLinkedLabel(zLabel,        "sample_z",     z);
@@ -162,4 +162,3 @@ public class RoomTemperatureComposite extends FieldBeanComposite {
 
 }
 
-	

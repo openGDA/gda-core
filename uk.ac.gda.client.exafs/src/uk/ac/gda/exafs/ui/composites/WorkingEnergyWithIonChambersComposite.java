@@ -49,7 +49,7 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 	protected VerticalListEditor ionChamberParameters;
 	IonChamberComposite ionChamberComposite;
 	private DetectorParameters provider;
-	
+
 	// diffraction section
 	private BooleanWrapper collectDiffractionImages;
 	private ScaleBox mythenEnergy;
@@ -94,7 +94,7 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 						logger.error("Error sending bean value to bean.", e);
 					}
 				}
-			});	
+			});
 		}
 		workingEnergy.addValueListener(new ValueAdapter("workingEnergyListener") {
 			@Override
@@ -114,18 +114,18 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 					} else if (provider.getExperimentType().toString().equals("Fluorescence")) {
 						workingEnergy = provider.getFluorescenceParameters().getWorkingEnergy();
 					}
-	
+
 					ionChamberComposite.calculateDefaultGasType(workingEnergy);
 				}
 			};
 			selectDefaultsBtn.addSelectionListener(selectDefaultsListener);
 		}
 	}
-	
+
 	protected void createDiffractionSection(final Composite top) {
 		boolean collectDiffractionData = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.SHOW_MYTHEN);
 		boolean diffractionCollectedWithFluoData = ExafsActivator.getDefault().getPreferenceStore().getBoolean(ExafsPreferenceConstants.DIFFRACTION_COLLECTED_CONCURRENTLY);
-		
+
 		if (collectDiffractionData) {
 			Label collectDiffImagesLabel = new Label(top, SWT.NONE);
 			collectDiffImagesLabel.setText("Diffraction Images");
@@ -135,7 +135,7 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 			collectDiffractionImages = new BooleanWrapper(diffractionComp, SWT.NONE);
 			collectDiffractionImages.setToolTipText("Collect diffraction data");
 			collectDiffractionImages.setText("Collect");
-			
+
 			// extra options when collecting diffraction data separately from fluo data
 			if (!diffractionCollectedWithFluoData){
 				final Label mythenEnergyLabel = new Label(diffractionComp, SWT.NONE);
@@ -150,12 +150,12 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 				mythenTime.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 				collectDiffractionImages.addValueListener(new ValueListener() {
-	
+
 					@Override
 					public String getValueListenerName() {
 						return null;
 					}
-	
+
 					@Override
 					public void valueChangePerformed(ValueEvent e) {
 						mythenEnergy.setVisible(collectDiffractionImages.getValue());
@@ -175,10 +175,10 @@ public class WorkingEnergyWithIonChambersComposite extends WorkingEnergyComposit
 	public ScaleBox getMythenTime() {
 		return mythenTime;
 	}
-	
+
 	/**
 	 * Return whether or not to collect diffraction images
-	 * 
+	 *
 	 * @return true if we should collect them, else false
 	 */
 	public BooleanWrapper getCollectDiffractionImages() {

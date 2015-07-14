@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 
 public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvider {
@@ -178,7 +178,7 @@ public class XspressMFMappableDataProvider extends MicroFocusMappableDataProvide
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void loadBean(XMLRichBean xspressBean) {

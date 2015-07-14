@@ -19,18 +19,18 @@
 
 package uk.ac.gda.devices.detector.xspress3;
 
-import gda.device.detector.FluorescentDetectorConfigurationBase;
-import gda.factory.FactoryException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.detector.FluorescentDetectorConfigurationBase;
+import gda.factory.FactoryException;
 
 /**
  * Utility class to configure an Xspress3 detector using the given XML file. It
  * notifies observers of progress e.g. an Xspress3 editor.
- * 
+ *
  * @author rjw82
- * 
+ *
  */
 public class Xspress3DetectorConfiguration extends FluorescentDetectorConfigurationBase {
 

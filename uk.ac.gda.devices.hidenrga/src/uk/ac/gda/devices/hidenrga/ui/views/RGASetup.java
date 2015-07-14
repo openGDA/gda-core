@@ -1,10 +1,5 @@
 package uk.ac.gda.devices.hidenrga.ui.views;
 
-import gda.device.HidenRGA;
-import gda.device.HidenRGAScannable;
-import gda.factory.Finder;
-import gda.observable.IObserver;
-
 import java.util.Set;
 
 import org.eclipse.jface.layout.GridDataFactory;
@@ -21,6 +16,11 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.HidenRGA;
+import gda.device.HidenRGAScannable;
+import gda.factory.Finder;
+import gda.observable.IObserver;
 
 public class RGASetup extends ViewPart implements IObserver {
 

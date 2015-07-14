@@ -18,12 +18,6 @@
 
 package gda.device.detector.xspress;
 
-import gda.data.nexus.tree.NexusTreeProvider;
-import gda.device.DeviceException;
-import gda.device.scannable.PositionCallableProvider;
-import gda.device.scannable.PositionInputStream;
-import gda.device.scannable.PositionStreamIndexer;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -31,6 +25,12 @@ import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.nexus.tree.NexusTreeProvider;
+import gda.device.DeviceException;
+import gda.device.scannable.PositionCallableProvider;
+import gda.device.scannable.PositionInputStream;
+import gda.device.scannable.PositionStreamIndexer;
 
 public class PositionStreamingXspress extends Xspress2Detector implements PositionCallableProvider<NexusTreeProvider>, PositionInputStream<NexusTreeProvider> {
 	private static Logger logger = LoggerFactory.getLogger(PositionStreamingXspress.class);

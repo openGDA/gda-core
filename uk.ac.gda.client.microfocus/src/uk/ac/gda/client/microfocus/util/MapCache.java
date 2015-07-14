@@ -50,7 +50,7 @@ public class MapCache {
 		Integer elementIndex = roiNameMap.get(element);
 		return mapdata[elementIndex][channel];
 	}
-	
+
 	public double[] getSpectrum(int detectorNo, int x, int y) {
 
 		int mcaSize = allMCAs.getShape()[3];
@@ -65,8 +65,8 @@ public class MapCache {
 		}
 		return data;
 	}
-	
-	
+
+
 	private double[][][] getAllMCAForOneLine(int y) {
 		IDataset pointData = allMCAs.getSlice(new int[]{y,0,0,0},new int[]{y+1,allMCAs.getShape()[1],allMCAs.getShape()[2],allMCAs.getShape()[3]},null);
 
@@ -85,9 +85,9 @@ public class MapCache {
 		}
 
 		return data;
-		
+
 	}
-	
+
 	private void deriveMapData(List<? extends DetectorROI>[] elementRois) {
 
 		int shape[] = allMCAs.getShape();
@@ -96,19 +96,19 @@ public class MapCache {
 		int numberChannels = shape[2];
 
 		// TODO could speed this up by getting the complete slice for each roi...
-		
+
 		mapdata = new double[roiNameMap.size()][numberChannels][numY][numX];
 		for (int yIndex = 0; yIndex < numY; yIndex++) {
-			
+
 //			System.out.println(yIndex);
 			double[][][] buffer = getAllMCAForOneLine(yIndex);
 //			logger.info("Reading Nexus Xmap line " + yIndex);
-			
+
 			for (int xIndex = 0; xIndex < numX; xIndex++) {
-				
+
 				// this should not be too much to hold in memory
 //				double[][] buffer = getAllMCAForOnePoint(xIndex,yIndex);
-				
+
 				for (int chaIndex = 0; chaIndex < numberChannels; chaIndex++) {
 					List<? extends DetectorROI> roiList = elementRois[chaIndex];
 					for (DetectorROI roi : roiList) {

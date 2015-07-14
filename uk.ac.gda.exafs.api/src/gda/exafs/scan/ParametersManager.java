@@ -18,12 +18,12 @@
 
 package gda.exafs.scan;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.factory.Finder;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 // TODO This is a class named ParametersManager which moves a scannable. It doesn't encapsulate (make sense).
@@ -37,7 +37,7 @@ abstract class ParametersManager {
 
 	/**
 	 * Call to configure the beamline on the given parameters
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public abstract void init() throws Exception;

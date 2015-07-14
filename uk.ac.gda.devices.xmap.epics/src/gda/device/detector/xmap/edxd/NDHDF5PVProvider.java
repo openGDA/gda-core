@@ -18,12 +18,12 @@
 
 package gda.device.detector.xmap.edxd;
 
+import java.io.IOException;
+
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
-
-import java.io.IOException;
 
 /**
  * Provides access to PVs in the NDHDF5 extension to the HDF5 Area Detector plugin
@@ -125,7 +125,7 @@ public class NDHDF5PVProvider {
 	public int getNumberOfPixels() throws IOException {
 		return pvNumCapture_rbv.get();
 	}
-	
+
 	public void setNumberOfPixels(int i) throws IOException {
 		pvNumCapture.putWait(i);
 	}
@@ -133,15 +133,15 @@ public class NDHDF5PVProvider {
 	public String getFilePath() throws IOException {
 		return pvFilePath_rbv.get();
 	}
-	
+
 	public void setFilePath(String dataDir) throws IOException {
 		pvFilePath.putNoWait(dataDir);
 	}
-	
+
 	public int getFileNumber() throws IOException {
 		return pvFileNumber_rbv.get();
 	}
-	
+
 	public void setFileNumber(int fileNumber) throws IOException {
 		pvFileNumber.putWait(fileNumber);
 	}

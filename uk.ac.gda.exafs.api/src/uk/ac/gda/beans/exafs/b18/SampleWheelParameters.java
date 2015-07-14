@@ -96,6 +96,6 @@ public class SampleWheelParameters implements Serializable {
 	public void setWheelEnabled(boolean enabled) {
 		this.wheelEnabled = enabled;
 	}
-	
-	
+
+
 }

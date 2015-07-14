@@ -18,13 +18,13 @@
 
 package gda.data.scan.datawriter;
 
-import gda.scan.IScanDataPoint;
-
 import java.util.ArrayList;
 import java.util.Hashtable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.scan.IScanDataPoint;
 
 /**
  * For use in two-directional raster scans (faster raster or raster-map-return-write).
@@ -179,7 +179,7 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter {
 	 * The underlying data writer which will create the Nexus and Ascii files. The same used in other scans.
 	 * <p>
 	 * Access is provided to enable extra settings to be made on this object.
-	 * 
+	 *
 	 * @return XasAsciiNexusDataWriter
 	 */
 	public XasAsciiNexusDataWriter getXasDataWriter() {
@@ -189,6 +189,6 @@ public class XasAsciiNexusDatapointCompletingDataWriter implements DataWriter {
 	@Override
 	public void configureScanNumber(int scanNumber) throws Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

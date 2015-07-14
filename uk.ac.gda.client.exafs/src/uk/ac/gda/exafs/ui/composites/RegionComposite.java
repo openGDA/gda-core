@@ -55,10 +55,10 @@ public class RegionComposite extends Composite {
 	XanesScanParametersUIEditor editor;
 	Button addRegionBtn;
 	Button removeRegionBtn;
-	
+
 	/**
 	 * Create the composite
-	 * 
+	 *
 	 * @param parent
 	 * @param style
 	 * @param site
@@ -72,7 +72,7 @@ public class RegionComposite extends Composite {
 		bean = newBean;
 		this.site = site;
 		this.editor=newEditor;
-		
+
 		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 		GridData gridData = new GridData();
 		gridData.verticalAlignment = GridData.FILL;
@@ -81,7 +81,7 @@ public class RegionComposite extends Composite {
 		gridData.widthHint = 380;
 		gridData.heightHint=200;
 		viewer.getControl().setLayoutData(gridData);
-		
+
 		createColumns(viewer);
 
 		Table table = viewer.getTable();
@@ -90,22 +90,22 @@ public class RegionComposite extends Composite {
 		table.setLinesVisible(true);
 
 		viewer.setContentProvider(new ArrayContentProvider());
-		
+
 		updateTable();
-		
+
 		createEmptyLabel(parent);
-		
+
 		Composite buttons = new Composite(parent, SWT.NONE);
 		FillLayout fillLayout = new FillLayout();
 		fillLayout.type = SWT.HORIZONTAL;
 		buttons.setLayout(fillLayout);
-		
+
 		addRegionBtn = new Button(buttons, SWT.NONE);
 		removeRegionBtn = new Button(buttons, SWT.NONE);
 		addRegionBtn.setText("           Add Region           ");
 		removeRegionBtn.setText("           Remove Region           ");
 		removeRegionBtn.setToolTipText("Select a region by region number and click Remove Region to delete");
-		
+
 		addRegionBtn.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -121,9 +121,9 @@ public class RegionComposite extends Composite {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-			}	
+			}
 		});
-		
+
 		removeRegionBtn.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -133,9 +133,9 @@ public class RegionComposite extends Composite {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-			}	
+			}
 		});
-		
+
 		createEmptyLabel(parent);
 	}
 
@@ -146,7 +146,7 @@ public class RegionComposite extends Composite {
 
 	// This will create the columns for the table
 	private void createColumns(final TableViewer viewer) {
-		
+
 		String[] titles = { "Region", "Start", "Step", "Time" };
 		int[] bounds = { 90, 90, 90, 90 };
 
@@ -164,7 +164,7 @@ public class RegionComposite extends Composite {
 				cell.setText(strRegion);
 			}
 		});
-		
+
 		col = createTableViewerColumn(titles[1], bounds[1]);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -241,7 +241,7 @@ public class RegionComposite extends Composite {
 	public List<Region> getBeanRegions() {
 		return bean.getRegions();
 	}
-	
+
 	public void updateTable(){
 		beanRegions = bean.getRegions();
 		regions = new ArrayList<XanesRegionParameters>();
@@ -256,10 +256,10 @@ public class RegionComposite extends Composite {
 		viewer.setInput(regions);
 		site.setSelectionProvider(viewer);
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void createEmptyLabel(Composite composite){
 		new Label(composite, SWT.NONE);
 	}
-	
+
 }

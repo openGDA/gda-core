@@ -34,8 +34,8 @@ public abstract class RepetitionsProperties {
 	 * because the only the current repetition has been aborted , but that the repetition loop should continue.
 	 */
 	public static String SKIP_REPETITION_PROPERTY = "uk.ac.gda.exafs.skiprepetition";
-	
-	
+
+
 	/**
 	 * Used by XAS scan scripts to store the number of repetitions in the current loop. This value may be changed outside of the
 	 * script to alter the number of repetitions that loop will do.

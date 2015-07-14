@@ -30,7 +30,7 @@ import gda.device.detector.countertimer.BufferedScaler;
 
 /**
  * Supplies a normalised FF (total counts in ROIs over all channels) during ContinuousScans for Xspress3.
- * 
+ *
  * @author rjw82
  *
  */
@@ -60,12 +60,12 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 		for (int thisFrame = 0; thisFrame < finalFrame - startFrame + 1; thisFrame++) {
 			double ff = getFF(expressFrames, thisFrame);
 			double i0 = scalerFrames[thisFrame][i0_channel];
-			
+
 			double this_ffio = ff / i0;
 			if (i0 == 0.0 || ff == 0.0){
 				this_ffio = 0.0;
 			}
-		
+
 			ffio[thisFrame] = this_ffio;
 		}
 		return ffio;
@@ -91,7 +91,7 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 	public Double readout() throws DeviceException {
 		return 1.0;
 	}
-	
+
 	@Override
 	public void clearMemory() throws DeviceException {
 	}
@@ -101,7 +101,7 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 		Integer lastFrame = getNumberFrames() - 1;
 		return readFrames(0, lastFrame);
 	}
-	
+
 	@Override
 	public ContinuousParameters getContinuousParameters() throws DeviceException {
 		return null;
@@ -121,7 +121,7 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 
 	@Override
 	public int maximumReadFrames() throws DeviceException {
-		return qxspress.maximumReadFrames(); 
+		return qxspress.maximumReadFrames();
 	}
 
 	@Override
@@ -172,7 +172,7 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 		this.qxspress = xspress;
 	}
 
-	
+
 	public BufferedScaler getQexafsScaler() {
 		return qscaler;
 	}

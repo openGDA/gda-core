@@ -30,14 +30,14 @@ public class DetectorGroup implements Serializable {
 
 	private String name;
 	private String [] detector;
-	
+
 	/**
 	 * One used by castor.
 	 */
 	public DetectorGroup() {
 		super();
 	}
-	
+
 	/**
 	 * Testing only.
 	 * @param name
@@ -48,7 +48,7 @@ public class DetectorGroup implements Serializable {
 		this.detector = detector;
 	}
 	/**
-	 * 
+	 *
 	 */
 	public void clear() {
 		detector = null;

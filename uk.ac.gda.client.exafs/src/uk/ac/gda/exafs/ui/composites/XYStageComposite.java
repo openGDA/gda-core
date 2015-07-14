@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.jython.JythonServerFacade;
-
 import org.dawnsci.common.richbeans.components.FieldBeanComposite;
 import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
@@ -31,6 +29,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+
+import gda.jython.JythonServerFacade;
 
 public class XYStageComposite extends FieldBeanComposite {
 	private ScaleBox x;
@@ -47,27 +47,27 @@ public class XYStageComposite extends FieldBeanComposite {
 	public XYStageComposite(Composite parent, int style, final String xName, final String yName) {
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
-		
+
 		this.xName = xName;
 		this.yName = yName;
-		
+
 		Label lblX = new Label(this, SWT.NONE);
 		lblX.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblX.setText("X");
-		
+
 		x = new ScaleBox(this, SWT.NONE);
 		x.setUnit("mm");
 		x.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblY = new Label(this, SWT.NONE);
 		lblY.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblY.setText("Y");
-		
+
 		y = new ScaleBox(this, SWT.NONE);
 		y.setUnit("mm");
 		y.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		new Label(this, SWT.NONE);
-		
+
 		Button btnGetCurrentValues = new Button(this, SWT.NONE);
 		btnGetCurrentValues.setToolTipText("Fill the text boxes with the current motor values");
 		btnGetCurrentValues.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));

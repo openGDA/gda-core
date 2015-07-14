@@ -1,5 +1,11 @@
 package gda.device.detector.xmap;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import gda.data.PathConstructor;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
@@ -12,13 +18,6 @@ import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.detector.xmap.edxd.NDHDF5PVProvider;
 import gda.device.detector.xmap.util.XmapNexusFileLoader;
 import gda.scan.ScanInformation;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 
@@ -26,9 +25,9 @@ import uk.ac.gda.beans.vortex.DetectorElement;
  * In the NXPlugin framework for NXDetectors, this reads the raw HDF5 files
  * produced by Xmap at the end of each row, extracts the ROIs and deadtime
  * corrcted MCAs.
- * 
+ *
  * @author rjw82
- * 
+ *
  */
 public class XmapReadbackHdf5NXPlugin extends NullNXPlugin {
 

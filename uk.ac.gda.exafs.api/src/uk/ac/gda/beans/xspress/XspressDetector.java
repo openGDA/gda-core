@@ -19,10 +19,10 @@
 
 package uk.ac.gda.beans.xspress;
 
+import java.util.ArrayList;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
-
-import java.util.ArrayList;
 
 /**
  * Xspress systems must implement this to enable CORBA use
@@ -44,21 +44,21 @@ public interface XspressDetector extends Detector {
 
 	/**
 	 * Enable the xspress system for data collection
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void start() throws DeviceException;
 
 	/**
 	 * Clear the xspress system memory
-	 * 
+	 *
 	 * @throws DeviceException
 	 */
 	public void clear() throws DeviceException;
 
 	/**
 	 * Get number of detectors
-	 * 
+	 *
 	 * @return the number of detectors
 	 * @throws DeviceException
 	 */
@@ -66,7 +66,7 @@ public interface XspressDetector extends Detector {
 
 	/**
 	 * Get multi-channel data for all elements
-	 * 
+	 *
 	 * @param time
 	 *            the time to count for (mS)
 	 * @return an array of readings from channels
@@ -79,7 +79,7 @@ public interface XspressDetector extends Detector {
 	 * This for monitoring the Xspress status.
 	 * <p>
 	 * Will return an int array of size 4 * number of detectors (elements).
-	 * 
+	 *
 	 * @return int[] 4 values for each element in order: total number of events, TFG reset counts, in window events,TFG
 	 *         clock counts
 	 * @throws DeviceException
@@ -88,7 +88,7 @@ public interface XspressDetector extends Detector {
 
 	/**
 	 * Set the channel range window for a particular detector
-	 * 
+	 *
 	 * @param which
 	 *            the detector number
 	 * @param start
@@ -101,7 +101,7 @@ public interface XspressDetector extends Detector {
 
 	/**
 	 * Get the detector information
-	 * 
+	 *
 	 * @param which
 	 *            the detector number to get information from
 	 * @return detector information as a Detector object
@@ -111,7 +111,7 @@ public interface XspressDetector extends Detector {
 
 	/**
 	 * Save detector information to a file
-	 * 
+	 *
 	 * @param filename
 	 *            the file to save detector information to
 	 * @throws DeviceException
@@ -120,7 +120,7 @@ public interface XspressDetector extends Detector {
 
 	/**
 	 * Create and initialize detectors specified in a file.
-	 * 
+	 *
 	 * @param string
 	 *            the file to read detector information from
 	 * @throws DeviceException
@@ -130,7 +130,7 @@ public interface XspressDetector extends Detector {
 
 	/**
 	 * Read out MCA data
-	 * 
+	 *
 	 * @return the data as an object
 	 * @throws DeviceException
 	 */
@@ -139,7 +139,7 @@ public interface XspressDetector extends Detector {
 
 	/**
 	 * Read out corrected scaler data
-	 * 
+	 *
 	 * @return the data as an object
 	 * @throws DeviceException
 	 */
@@ -147,7 +147,7 @@ public interface XspressDetector extends Detector {
 
 	/**
 	 * get the current channel label list;
-	 * 
+	 *
 	 * @return the channel labels
 	 */
 	public ArrayList<String> getChannelLabels();
@@ -178,7 +178,7 @@ public interface XspressDetector extends Detector {
 	/**
 	 * Sets the type of data which will be collected from the detector and returned by the readout and
 	 * readoutCorrectData methods.
-	 * 
+	 *
 	 * @param readoutMode
 	 * @throws DeviceException
 	 */
@@ -193,7 +193,7 @@ public interface XspressDetector extends Detector {
 	 * the peak counts in the spectrum being studied.
 	 * <p>
 	 * If the value null or 0.0 is entered then the deadtime calculation used will not be energy dependent.
-	 * 
+	 *
 	 * @param energy
 	 * @throws DeviceException
 	 */

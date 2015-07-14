@@ -56,12 +56,12 @@ public class XasScannable extends ScannableBase implements Scannable {
 	public Object getPosition() throws DeviceException {
 		return new double[] { ScannableUtils.getCurrentPositionArray(energyScannable)[0], lastCollectionTimeUsed };
 	}
-	
+
 	@Override
 	public void atPointStart() throws DeviceException {
 		energyScannable.atPointStart();
 	}
-	
+
 	 @Override
 	public void atScanLineStart() throws DeviceException {
 		 energyScannable.atScanLineStart();

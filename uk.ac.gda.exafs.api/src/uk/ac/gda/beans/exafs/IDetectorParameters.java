@@ -63,7 +63,7 @@ public interface IDetectorParameters extends XMLRichBean{
 	public List<DetectorGroup> getDetectorGroups();
 
 	/**
-	 * 
+	 *
 	 * @return ion chambers
 	 * @throws Exception
 	 */

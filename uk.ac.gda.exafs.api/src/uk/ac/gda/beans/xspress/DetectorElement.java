@@ -38,8 +38,8 @@ public class DetectorElement implements Serializable, IDetectorElement {
 
 	private String name;
 
-	// Each detector knows its pixel number starting at 1. This pixel number is 
-	// used along with the pixelMap to determine electronics channel. Use the 
+	// Each detector knows its pixel number starting at 1. This pixel number is
+	// used along with the pixelMap to determine electronics channel. Use the
 	// method getElectronicsChannel(DetectorElement) in Xspress2System.
 	private int number;
 
@@ -48,7 +48,7 @@ public class DetectorElement implements Serializable, IDetectorElement {
 	private int windowStart;
 	private int windowEnd;
 
-	
+
 	private boolean excluded = false;
 
 	/**
@@ -95,7 +95,7 @@ public class DetectorElement implements Serializable, IDetectorElement {
 
 	/**
 	 * Sets the window.
-	 * 
+	 *
 	 * @param windowStart
 	 * @param windowEnd
 	 */
@@ -160,9 +160,9 @@ public class DetectorElement implements Serializable, IDetectorElement {
 
 	/**
 	 * NOTE number = the pixel number
-	 * 
+	 *
 	 * A value starting at 1 used to reference pixels on the detector.
-	 * 
+	 *
 	 * @return number
 	 */
 	public int getNumber() {
@@ -235,7 +235,7 @@ public class DetectorElement implements Serializable, IDetectorElement {
 			return false;
 		if (number != other.number)
 			return false;
-		
+
 		if (regionList == null) {
 			if (other.regionList != null)
 				return false;

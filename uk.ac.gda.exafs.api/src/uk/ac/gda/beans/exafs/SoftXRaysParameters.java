@@ -29,17 +29,17 @@ import org.apache.commons.beanutils.BeanUtils;
  *
  */
 public class SoftXRaysParameters  implements Serializable{
-	
+
 	private String configFileName;
 	private List<DrainCurrentParameters> drainCurrentParameters;
 	private String detectorType;
 	private Double workingEnergy;
-	private boolean collectDiffractionImages; 
+	private boolean collectDiffractionImages;
 	private double mythenEnergy;
 	private double mythenTime;
 
 	/**
-	 * 
+	 *
 	 */
 	public SoftXRaysParameters() {
 		drainCurrentParameters = new ArrayList<DrainCurrentParameters>();
@@ -59,7 +59,7 @@ public class SoftXRaysParameters  implements Serializable{
 	public void setWorkingEnergy(Double workingEnergy) {
 		this.workingEnergy = workingEnergy;
 	}
-	
+
 	/**
 	 * @return type
 	 */
@@ -80,7 +80,7 @@ public class SoftXRaysParameters  implements Serializable{
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void clear() {
 		drainCurrentParameters.clear();
@@ -169,7 +169,7 @@ public class SoftXRaysParameters  implements Serializable{
 			return e.getMessage();
 		}
 	}
-	
+
 	public boolean isCollectDiffractionImages() {
 		return collectDiffractionImages;
 	}
@@ -178,8 +178,8 @@ public class SoftXRaysParameters  implements Serializable{
 		this.collectDiffractionImages = collectDiffractionImages;
 	}
 
-	
-	
+
+
 	public double getMythenEnergy() {
 		return mythenEnergy;
 	}

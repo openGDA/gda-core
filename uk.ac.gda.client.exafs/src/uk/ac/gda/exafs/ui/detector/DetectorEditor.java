@@ -18,12 +18,6 @@
 
 package uk.ac.gda.exafs.ui.detector;
 
-import gda.device.Detector;
-import gda.device.detector.FluorescentDetectorConfiguration;
-import gda.factory.Finder;
-import gda.jython.scriptcontroller.corba.impl.ScriptcontrollerAdapter;
-import gda.observable.IObserver;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -81,6 +75,13 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
+import gda.device.Detector;
+import gda.device.detector.FluorescentDetectorConfiguration;
+import gda.factory.Finder;
+import gda.jython.scriptcontroller.corba.impl.ScriptcontrollerAdapter;
+import gda.observable.IObserver;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.ElementCountsData;
@@ -95,8 +96,6 @@ import uk.ac.gda.exafs.ui.detector.wizards.ImportROIWizard;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
 import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
-
-import com.swtdesigner.SWTResourceManager;
 
 /**
  * Class to contain plotting which some detector editors require.
@@ -150,7 +149,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	/**
 	 * monitor can be null if the task is not being monitored.
-	 * 
+	 *
 	 * @param monitor
 	 * @throws Exception
 	 */
@@ -168,7 +167,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	/**
 	 * Name of the Detector which should be findable.
-	 * 
+	 *
 	 * @return detector.
 	 */
 	protected abstract String getDetectorName();
@@ -214,7 +213,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	/**
 	 * Override to ass custom actions.
-	 * 
+	 *
 	 * @param parent
 	 * @return SashFormPlotComposite
 	 * @throws Exception
@@ -243,7 +242,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	/**
 	 * Call to select particular detector element.
-	 * 
+	 *
 	 * @param index
 	 */
 	public void _testSetSelectedElement(final int index) {
@@ -387,7 +386,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	/**
 	 * Call to add a region of interest programatically.
-	 * 
+	 *
 	 * @param name
 	 * @throws Exception
 	 */
@@ -405,7 +404,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	/**
 	 * Call to add a region of interest programatically.
-	 * 
+	 *
 	 * @param value
 	 */
 	public void _testMoveRegionOfInterest(final int value) {
@@ -414,7 +413,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	/**
 	 * Testing only
-	 * 
+	 *
 	 * @param index
 	 * @return name at index
 	 */
@@ -494,7 +493,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	/**
 	 * Turn on auto-apply to all of other detectors to match the current one.
-	 * 
+	 *
 	 * @param on
 	 *            true to turn on auto-apply to all, false to turn it off
 	 */
@@ -537,7 +536,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 	/**
 	 * Currently copies all the regions from the current element to all the other elements, later read an offset file
 	 * when doing this step.
-	 * 
+	 *
 	 * @param showMessage
 	 *            if true prompts user to confirm
 	 * @return Returns true if the user accepted to do the apply to all, or returns false if the user did not want to
@@ -953,7 +952,7 @@ public abstract class DetectorEditor extends RichBeanEditorPart {
 
 	/**
 	 * Allows users to enter windows.
-	 * 
+	 *
 	 * @param isEnabled
 	 */
 	public void setEnabled(final boolean isEnabled) {

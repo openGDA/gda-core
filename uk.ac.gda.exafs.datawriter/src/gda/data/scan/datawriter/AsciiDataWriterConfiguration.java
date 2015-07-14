@@ -18,9 +18,9 @@
 
 package gda.data.scan.datawriter;
 
-import gda.device.Detector;
-
 import java.util.ArrayList;
+
+import gda.device.Detector;
 
 /**
  * Bean which holds the configuration for an AsciiDataWriter
@@ -102,7 +102,7 @@ public class AsciiDataWriterConfiguration implements FindableAsciiDataWriterConf
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	@Override
 	public AsciiDataWriterConfiguration clone(){
 		AsciiDataWriterConfiguration copy = new AsciiDataWriterConfiguration();

@@ -18,14 +18,13 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.configuration.properties.LocalProperties;
-import gda.gui.scriptcontroller.logging.ScriptControllerLogView;
-import gda.rcp.views.JythonTerminalView;
-
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.gui.scriptcontroller.logging.ScriptControllerLogView;
+import gda.rcp.views.JythonTerminalView;
 import uk.ac.gda.client.CommandQueueViewFactory;
 import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.exafs.ExafsActivator;
@@ -39,14 +38,14 @@ import uk.ac.gda.exafs.ui.views.scalersmonitor.XspressMonitorView;
 public class PlottingPerspective implements IPerspectiveFactory {
 
 	public static final String ID = "org.diamond.exafs.ui.PlottingPerspective";
-	
+
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
 
 		String nameFrag = LocalProperties.get("gda.instrument");
-		
+
 		if (nameFrag.equals("i20")) {
 			IFolderLayout flTop = layout.createFolder("flTop", IPageLayout.LEFT, 1.0f, editorArea);
 			flTop.addView(LivePlotView.ID);

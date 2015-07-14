@@ -18,15 +18,14 @@
 
 package uk.ac.gda.client.microfocus.scan;
 
-import gda.device.detector.BufferedDetector;
-import gda.device.scannable.ContinuouslyScannable;
-import gda.device.scannable.RealPositionReader;
-import gda.scan.ContinuousScan;
-
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import gda.device.detector.BufferedDetector;
+import gda.device.scannable.ContinuouslyScannable;
+import gda.device.scannable.RealPositionReader;
+import gda.scan.ContinuousScan;
 import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 
 /**

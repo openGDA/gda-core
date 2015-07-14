@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.data.nexus.tree.INexusTree;
-
 import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -30,6 +28,7 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.tree.INexusTree;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
@@ -72,7 +71,7 @@ public abstract class MicroFocusMappableDataProvider {
 		}
 		return false;
 	}
-	
+
 	public abstract String[] getElementNames();
 
 	public abstract double[][] constructMappableData();
@@ -80,10 +79,10 @@ public abstract class MicroFocusMappableDataProvider {
 	public abstract void loadBean();
 
 	public abstract double[] getSpectrum(int channelNum, int xPixel, int yPixel);
-	
+
 	public abstract void loadBean(XMLRichBean bean);
-	
-	
+
+
 	/**
 	 * Load a MicroFocus Nexus file and read in the x and y axis values
 	 */
@@ -91,7 +90,7 @@ public abstract class MicroFocusMappableDataProvider {
 		try {
 			hdf5Loader = new HDF5Loader(fileName);
 			dataHolder = hdf5Loader.loadFile();
-			
+
 			String[] namesList = dataHolder.getNames();
 			String names = "";
 			for (int i = 0; i < namesList.length; i++) {
@@ -109,15 +108,15 @@ public abstract class MicroFocusMappableDataProvider {
 			ILazyDataset yscannableDS = extractYScannableData(names);
 			Dataset ydata = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(yscannableDS));
 			yAxisLengthFromFile = ydata.getShape()[0];
-			
+
 			double[] x = (double[]) xdata.getBuffer();
 			double[] y = (double[]) ydata.getBuffer();
-			
+
 			ILazyDataset zscannableDS = extractZScannableData(names);
 
 			Dataset zdata = DatasetUtils.convertToDataset(getDatasetFromLazyDataset(zscannableDS));
 			zValue = Double.parseDouble(zdata.getString(0));
-	
+
 			// x and y values from file will be
 			// x = {0.0, 2.0, 4.0,6.0, 0.0, 2.0, 4.0,6.0,0.0, 2.0, 4.0,6.0}
 			// y = { 0.0,0.0,0.0,0.0, 2.0 , 2.0 , 2.0 , 2.0 , 4.0, 4.0, 4.0}
@@ -218,7 +217,7 @@ public abstract class MicroFocusMappableDataProvider {
 		// hack warning!!! yuck....
 		// TODO when writing these files in the first place we need some redirection with standard names for x-axis
 		// and y-axis of maps and not using the scannable names hardcoded here which can change
-		
+
 		ILazyDataset xscannableDS = dataHolder.getLazyDataset("/entry1/instrument/" + xScannableName + "/" + xScannableName);
 		if (xscannableDS == null) {
 
@@ -253,7 +252,7 @@ public abstract class MicroFocusMappableDataProvider {
 		}
 		return xscannableDS.getSlice(startShape, shape, step);
 	}
-	
+
 	public void setBeanFilePath(String file) {
 		beanFile = file;
 	}

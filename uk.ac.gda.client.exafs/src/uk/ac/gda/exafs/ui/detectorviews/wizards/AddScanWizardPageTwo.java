@@ -116,7 +116,7 @@ public class AddScanWizardPageTwo extends WizardPage {
 		outputFiles.setLayoutData(gd_outputFiles);
 		outputFiles.setItems(outputs);
 		outputFiles.select(outputs.length - 1);
-		
+
 		sampleFiles.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -281,5 +281,5 @@ public class AddScanWizardPageTwo extends WizardPage {
 	public IExperimentEditorManager getController() {
 		return controller;
 	}
-	
+
 }

@@ -31,7 +31,7 @@ public interface IOutputParameters extends XMLRichBean{
 	public String getAsciiFileName();
 
 	public String getAsciiDirectory();
-	
+
 	public String getNexusDirectory();
 
 	List<MetadataParameters> getMetadataList();
@@ -43,5 +43,5 @@ public interface IOutputParameters extends XMLRichBean{
 	public String getBeforeScriptName();
 
 	public List<SignalParameters> getSignalList();
-	
+
 }

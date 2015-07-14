@@ -91,7 +91,7 @@ public class FurnaceParameters implements Serializable {
 	public void setControlFlag(boolean control) {
 		this.controlFlag = control;
 	}
-	
+
 	public void clear() {
 		temperature = tolerance = time = 0;
 	}

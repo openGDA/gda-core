@@ -18,9 +18,6 @@
 
 package uk.ac.gda.exafs.ui.actions;
 
-import gda.exafs.scan.RepetitionsProperties;
-import gda.jython.InterfaceProvider;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -33,11 +30,14 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.exafs.scan.RepetitionsProperties;
+import gda.jython.InterfaceProvider;
+
 public class PauseAfterRepetition extends AbstractHandler implements IWorkbenchWindowActionDelegate,
 		IEditorActionDelegate {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(PauseAfterRepetition.class);
-	
+
 	@Override
 	public void run(IAction arg0) {
 	}
@@ -48,9 +48,9 @@ public class PauseAfterRepetition extends AbstractHandler implements IWorkbenchW
 
 	@Override
 	public Object execute(ExecutionEvent arg0) throws ExecutionException {
-		
+
 		logger.debug("PauseAfterRepetition button pressed");
-		
+
 		InterfaceProvider.getCommandRunner().runCommand(
 				"LocalProperties.set(\"" + RepetitionsProperties.PAUSE_AFTER_REP_PROPERTY + "\",\"true\")");
 		InterfaceProvider.getTerminalPrinter().print(

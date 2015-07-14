@@ -9,13 +9,6 @@
 
 package uk.ac.gda.exafs.ui.detector.xspress3;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.device.DeviceException;
-import gda.factory.Finder;
-import gda.jython.accesscontrol.AccessDeniedException;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -52,6 +45,14 @@ import org.eclipse.swt.widgets.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.factory.Finder;
+import gda.jython.accesscontrol.AccessDeniedException;
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.ElementCountsData;
 import uk.ac.gda.beans.exafs.DetectorParameters;
@@ -65,8 +66,6 @@ import uk.ac.gda.exafs.ui.detector.DetectorEditor;
 import uk.ac.gda.exafs.ui.detector.IDetectorROICompositeFactory;
 import uk.ac.gda.exafs.ui.detector.vortex.VortexParametersUIEditor;
 import uk.ac.gda.richbeans.editors.DirtyContainer;
-
-import com.swtdesigner.SWTResourceManager;
 
 public class Xspress3ParametersUIEditor extends DetectorEditor {
 	private static final String XSPRESS3_EDITOR_DATA_XML_FILENAME = "xspress3_editor_data.xml";
@@ -288,7 +287,7 @@ public class Xspress3ParametersUIEditor extends DetectorEditor {
 
 	/**
 	 * Not called in UI thread. This needs to be protected if data is obtained from ui objects.
-	 * 
+	 *
 	 * @param monitor
 	 * @throws Exception
 	 */

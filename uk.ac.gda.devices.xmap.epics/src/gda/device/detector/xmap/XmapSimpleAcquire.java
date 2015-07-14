@@ -65,7 +65,7 @@ public abstract class XmapSimpleAcquire implements CollectionStrategyBeanInterfa
 		throw new UnsupportedOperationException(
 				"Must be operated via prepareForCollection(collectionTime, numberImagesPerCollection)");
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if( xmap == null)

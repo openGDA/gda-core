@@ -36,5 +36,5 @@ public class AddExafsScanCommandHandler extends AbstractHandler implements IHand
 		return null;
 	}
 
-	
+
 }

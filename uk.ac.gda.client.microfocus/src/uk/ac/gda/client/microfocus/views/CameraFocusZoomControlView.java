@@ -18,9 +18,6 @@
 
 package uk.ac.gda.client.microfocus.views;
 
-import gda.device.ScannableMotionUnits;
-import gda.factory.Finder;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.GridData;
@@ -29,33 +26,35 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.part.ViewPart;
 
+import gda.device.ScannableMotionUnits;
+import gda.factory.Finder;
 import uk.ac.gda.ui.viewer.RotationViewer;
 
 public class CameraFocusZoomControlView extends ViewPart {
 
 	public static final String ID = "uk.ac.gda.client.microfocus.CameraFocusZoomControlView";
-	
+
 	private ScrolledComposite scrolledComposite;
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
-		
+
 			scrolledComposite = new ScrolledComposite(parent,SWT.H_SCROLL | SWT.V_SCROLL);
 			scrolledComposite.setExpandHorizontal(true);
 			scrolledComposite.setExpandVertical(true);
 
-			
-			Group sampleGroup = new Group(scrolledComposite, SWT.BORDER);	
+
+			Group sampleGroup = new Group(scrolledComposite, SWT.BORDER);
 			sampleGroup.setLayout(new GridLayout(2, false));
 			GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
 			sampleGroup.setLayoutData(data);
-			
-			
+
+
 			RotationViewer vmaZoomViewer = new RotationViewer((ScannableMotionUnits)Finder.getInstance().find("vma_zoom1"));
 			vmaZoomViewer.createControls(sampleGroup, SWT.SINGLE);
 			/*RotationViewer vmaFocusViewer = new RotationViewer((ScannableMotionUnits)Finder.getInstance().find("vma_focus1"));
 			vmaFocusViewer.createControls(sampleGroup, SWT.SINGLE);*/
-			
+
 			scrolledComposite.setContent(sampleGroup);
 	}
 

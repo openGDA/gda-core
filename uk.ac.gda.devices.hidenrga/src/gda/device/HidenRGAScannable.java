@@ -18,16 +18,6 @@
 
 package gda.device;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.device.scannable.ScannableBase;
-import gda.epics.EpicsConstants;
-import gda.factory.FactoryException;
-import gda.jython.InterfaceProvider;
-import gda.observable.IObserver;
-import gov.aps.jca.CAException;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -42,6 +32,16 @@ import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.IPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.device.scannable.ScannableBase;
+import gda.epics.EpicsConstants;
+import gda.factory.FactoryException;
+import gda.jython.InterfaceProvider;
+import gda.observable.IObserver;
+import gov.aps.jca.CAException;
 
 /**
  * The Hiden RGA is a gas mass analyser for use on Spectroscopy beamlines.
@@ -359,13 +359,13 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 			fileWriterThread.stopWriting();
 		}
 	}
-	
+
 	@Override
 	public String toFormattedString() {
 		if (configured){
 			return super.toFormattedString();
 		}
-		
+
 		return getName() + ": not connected";
 	}
 
@@ -373,12 +373,12 @@ public class HidenRGAScannable extends ScannableBase implements IObserver, Hiden
 	public Object getPosition() throws DeviceException {
 
 		synchronized (this) {
-			
+
 			if (!configured){
 				int numberZeroes = getExtraNames().length;
 				return new int[numberZeroes];
 			}
-			
+
 			try {
 				double[] latestMasses = controller.readout();
 				double valve = controller.readValve();

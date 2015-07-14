@@ -18,13 +18,12 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.rcp.views.JythonTerminalView;
-import gda.rcp.views.dashboard.DashboardView;
-
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
+import gda.rcp.views.JythonTerminalView;
+import gda.rcp.views.dashboard.DashboardView;
 import uk.ac.gda.client.liveplot.LivePlotView;
 
 public class AlignmentPerspective implements IPerspectiveFactory {

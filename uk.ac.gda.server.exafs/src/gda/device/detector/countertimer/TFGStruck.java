@@ -18,11 +18,11 @@
 
 package gda.device.detector.countertimer;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
-
-import org.apache.commons.lang.ArrayUtils;
 
 /**
  * For B18 Gas Micro-Strip detector (GMSD) running in step scans.
@@ -41,7 +41,7 @@ public class TFGStruck extends TFGCounterTimer implements Detector {
 	public void configure() throws FactoryException {
 		// don't call super.configure()
 		setInputNames(new String[]{"time"});
-		setExtraNames(new String[]{"gmsd0","gmsd1","gmsd2","gmsd3","gmsd4","gmsd5","gmsd6","gmsd7"}); 
+		setExtraNames(new String[]{"gmsd0","gmsd1","gmsd2","gmsd3","gmsd4","gmsd5","gmsd6","gmsd7"});
 		setOutputFormat(new String[]{"%.2f","%.5g","%.5g","%.5g","%.5g","%.5g","%.5g","%.5g","%.5g"});
 	}
 
@@ -52,8 +52,8 @@ public class TFGStruck extends TFGCounterTimer implements Detector {
 
 	@Override
 	public double[] readout() throws DeviceException {
-		double[] data =  (double[]) struck.readout(); 
-		
+		double[] data =  (double[]) struck.readout();
+
 		return ArrayUtils.subarray(data, 1, 9);
 	}
 
@@ -69,7 +69,7 @@ public class TFGStruck extends TFGCounterTimer implements Detector {
 			// if not in slave mode then drive the TFG from here
 			timer.countAsync(collectionTime);
 		}
-	} 
+	}
 
 
 	public Detector getStruck() {

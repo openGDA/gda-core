@@ -18,6 +18,13 @@
 
 package gda.device.detector.xmap;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
@@ -30,14 +37,6 @@ import gda.device.detector.xmap.util.XmapBufferedHdf5FileLoader;
 import gda.device.detector.xmap.util.XmapFileLoader;
 import gda.device.detector.xmap.util.XmapNexusFileLoader;
 import gda.device.scannable.PositionInputStream;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.util.CorrectionUtils;

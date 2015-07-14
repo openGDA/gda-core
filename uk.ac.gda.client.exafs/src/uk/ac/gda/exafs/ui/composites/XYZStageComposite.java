@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.jython.JythonServerFacade;
-
 import org.dawnsci.common.richbeans.components.FieldBeanComposite;
 import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
@@ -31,6 +29,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+
+import gda.jython.JythonServerFacade;
 
 public class XYZStageComposite extends FieldBeanComposite {
 	private ScaleBox z;
@@ -44,14 +44,14 @@ public class XYZStageComposite extends FieldBeanComposite {
 	 * Create the composite.
 	 * @param parent
 	 * @param style
-	 * @param xName 
-	 * @param yName 
-	 * @param zName 
+	 * @param xName
+	 * @param yName
+	 * @param zName
 	 */
 	public XYZStageComposite(Composite parent, int style,String xName, String yName, String zName) {
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
-		
+
 		this.xName = xName;
 		this.yName = yName;
 		this.zName = zName;
@@ -59,33 +59,33 @@ public class XYZStageComposite extends FieldBeanComposite {
 		Label lblX = new Label(this, SWT.NONE);
 		lblX.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblX.setText("X");
-		
+
 		x = new ScaleBox(this, SWT.NONE);
 		x.setUnit("mm");
 		x.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblY = new Label(this, SWT.NONE);
 		lblY.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblY.setText("Y");
-		
+
 		y = new ScaleBox(this, SWT.NONE);
 		y.setUnit("mm");
 		y.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblZ = new Label(this, SWT.NONE);
 		lblZ.setText("z");
-		
+
 		z = new ScaleBox(this, SWT.NONE);
 		z.setUnit("mm");
 		z.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		Label label_3 = new Label(this, SWT.NONE);
 		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		
+
 				Button btnGetCurrentValues = new Button(this, SWT.NONE);
 				btnGetCurrentValues.setToolTipText("Fill the text boxes with the current motor values");
 				btnGetCurrentValues.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 				btnGetCurrentValues.setText("Get current values");
-				
+
 						btnGetCurrentValues.addListener(SWT.Selection, new Listener() {
 							@Override
 							public void handleEvent(Event event) {
@@ -100,7 +100,7 @@ public class XYZStageComposite extends FieldBeanComposite {
 	protected void checkSubclass() {
 		// Disable the check that prevents subclassing of SWT components
 	}
-	
+
 	public FieldComposite getX(){
 		return x;
 	}

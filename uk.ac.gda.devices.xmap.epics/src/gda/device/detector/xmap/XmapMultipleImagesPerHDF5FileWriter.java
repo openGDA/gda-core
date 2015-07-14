@@ -22,7 +22,7 @@ import gda.device.detector.addetector.filewriter.MultipleImagesPerHDF5FileWriter
 
 public class XmapMultipleImagesPerHDF5FileWriter extends MultipleImagesPerHDF5FileWriter {
 
-	
+
 	@Override
 	protected void deriveFullFileName() throws Exception {
 		String filePath = getNdFile().getFilePath_RBV();

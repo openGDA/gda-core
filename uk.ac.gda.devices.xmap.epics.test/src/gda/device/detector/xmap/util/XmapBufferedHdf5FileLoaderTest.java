@@ -20,14 +20,15 @@ package gda.device.detector.xmap.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import gda.util.TestUtils;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.util.TestUtils;
+
 public class XmapBufferedHdf5FileLoaderTest {
-	
+
 	static String TestFileFolder;
 	private XmapBufferedHdf5FileLoader xMapLoader;
 
@@ -45,32 +46,32 @@ public class XmapBufferedHdf5FileLoaderTest {
 		String testfile1 = TestFileFolder + "/uk.ac.gda.devices.xmap.epics.test/i18-2309-0-HTXmapMca.h5";
 		xMapLoader = new XmapBufferedHdf5FileLoader(testfile1);
 		xMapLoader.loadFile();
-	
+
 	}
 	@Test
-	public void testgetData() {		
+	public void testgetData() {
 		short  [][]result = xMapLoader.getData(0);
 		assertEquals(result[0][513], (short)0);
 	}
-	
+
 	@Test
-	public void testgetTrigger()  {		
+	public void testgetTrigger()  {
 		double result = xMapLoader.getTrigger(0, 0);
 		assertEquals(601.0,result,  0.0);
 	}
 	@Test
-	public void testgetRealTime()  {		
+	public void testgetRealTime()  {
 		double result = xMapLoader.getRealTime(0, 0);
 		assertEquals(result,0.020898240000000002, 0.0);
 	}
-	
+
 	@Test
-	public void testgetLiveTime(){		
+	public void testgetLiveTime(){
 		double result = xMapLoader.getLiveTime(0, 0);
 		assertEquals(result,0.02067104, 0.0);
 	}
 	@Test
-	public void testgetEvents(){		
+	public void testgetEvents(){
 		double result = xMapLoader.getEvents(0, 0);
 		assertEquals(588, result, 0.0);
 	}

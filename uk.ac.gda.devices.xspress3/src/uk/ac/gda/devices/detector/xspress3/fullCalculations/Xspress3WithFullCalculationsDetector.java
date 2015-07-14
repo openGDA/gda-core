@@ -1,14 +1,14 @@
 package uk.ac.gda.devices.detector.xspress3.fullCalculations;
 
-import uk.ac.gda.beans.DetectorROI;
-import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
-import uk.ac.gda.devices.detector.xspress3.Xspress3;
-import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NXDetectorData;
+import uk.ac.gda.beans.DetectorROI;
+import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
+import uk.ac.gda.devices.detector.xspress3.Xspress3;
+import uk.ac.gda.devices.detector.xspress3.Xspress3Controller;
 
 /**
  * Performs all data reductions at the GDA level (e.g. ROIs, all element sum)
@@ -17,14 +17,14 @@ import gda.device.detector.NXDetectorData;
  * deadtime corrected MCAs to file. Only at the end of a scan (or a line in a
  * multidimensional scan) is the temporary HDF5 file written by EPICS readout
  * and all the data reduced and correctly stored in a NexusTreeProvider object.
- * 
+ *
  * @author rjw82
- * 
+ *
  */
 public class Xspress3WithFullCalculationsDetector extends DetectorBase implements Xspress3 {
 
 	private static final int MCA_SIZE = 4096;
-	
+
 	Xspress3Controller controller;
 	private Xspress3ScanOperations scanOperations;
 	private Xspress3DataOperations dataOperations;
@@ -34,11 +34,13 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	public Xspress3WithFullCalculationsDetector() {
 	}
 
+	@Override
 	public void configure() throws gda.factory.FactoryException {
 		scanOperations = new Xspress3ScanOperations(controller, getName());
 		dataOperations = new Xspress3DataOperations(controller, firstChannelToRead);
 	}
 
+	@Override
 	public void atScanStart() throws DeviceException {
 		// cannot tell if we are running a step scan or another type where file
 		// writing will be necessary, so need an attribute which is set
@@ -47,11 +49,13 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 		dataOperations.atScanStart(readDataFromFile);
 	}
 
+	@Override
 	public void atScanLineStart() throws DeviceException {
 		scanOperations.atScanLineStart();
 		dataOperations.atScanLineStart();
 	}
 
+	@Override
 	public void atScanEnd() throws DeviceException {
 		scanOperations.atScanEnd();
 	}
@@ -90,7 +94,7 @@ public class Xspress3WithFullCalculationsDetector extends DetectorBase implement
 	public NexusTreeProvider readout() throws DeviceException {
 		return dataOperations.readoutLatest(getName());
 	}
-	
+
 	/*
 	 * The detectorName is the string used in the Nexus tree returned. Allows for composition where the xspress3 is a component of another detector e.g. Xspress3BufferedDetector
 	 */

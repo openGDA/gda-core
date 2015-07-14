@@ -18,16 +18,15 @@
 
 package gda.device.detector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.countertimer.TfgScaler;
 import gda.factory.Finder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**
@@ -64,7 +63,7 @@ public class TfgFFoverI0 extends DetectorBase implements NexusDetector {
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
-		Double i0 = getI0(); 
+		Double i0 = getI0();
 		Double ff = getFF();
 		NXDetectorData thisFrame = new NXDetectorData(this);
 		INexusTree detTree = thisFrame.getDetTree(getName());

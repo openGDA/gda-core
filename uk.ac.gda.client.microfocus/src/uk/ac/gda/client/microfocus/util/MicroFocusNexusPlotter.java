@@ -18,9 +18,6 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
-
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
@@ -32,6 +29,8 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.gda.client.microfocus.views.ExafsSelectionView;
 import uk.ac.gda.client.microfocus.views.scan.MapPlotView;
@@ -81,7 +80,7 @@ public class MicroFocusNexusPlotter {
 						ExafsSelectionView selectionView = (ExafsSelectionView) PlatformUI.getWorkbench()
 								.getActiveWorkbenchWindow().getActivePage().findView(ExafsSelectionView.ID);
 						selectionView.setSelectedPoint(xyz);
-					
+
 						plotSpectrum(xArrayIndex, yArrayIndex);
 					}
 				}
@@ -153,7 +152,7 @@ public class MicroFocusNexusPlotter {
 
 	/**
 	 * For plotting I0 and It data which have no related channel/element.
-	 * 
+	 *
 	 * @param dataset
 	 */
 	public void plotDataset(Dataset dataset) {
@@ -207,9 +206,9 @@ public class MicroFocusNexusPlotter {
 	 * Display the MCA of the selected point. The x(l) and y(m) values are the data array indexes, not data values.
 	 */
 	private void plotSpectrum(final int xPixel, final int yPixel) {
-		
+
 		if (dataProvider != null) {
-			
+
 			double[] spectrum = dataProvider.getSpectrum(dataProvider.getSelectedChannel(), xPixel, yPixel);
 			if (spectrum != null) {
 				final Dataset yaxis = DatasetFactory.createFromObject(spectrum);

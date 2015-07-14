@@ -18,13 +18,12 @@
 
 package uk.ac.gda.server.exafs.scan;
 
-import gda.device.CounterTimer;
-import gda.device.scannable.RealPositionReader;
-import gda.jython.scriptcontroller.ScriptControllerBase;
-
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 
+import gda.device.CounterTimer;
+import gda.device.scannable.RealPositionReader;
+import gda.jython.scriptcontroller.ScriptControllerBase;
 import uk.ac.gda.client.microfocus.scan.MapFactory;
 
 public class FasterRasterMapTest extends RasterMapTest {

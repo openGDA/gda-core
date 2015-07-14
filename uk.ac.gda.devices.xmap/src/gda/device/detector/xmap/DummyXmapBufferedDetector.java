@@ -18,6 +18,13 @@
 
 package gda.device.detector.xmap;
 
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -31,14 +38,6 @@ import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
 import gda.device.detector.xmap.util.XmapNexusFileLoader;
 import gda.factory.FactoryException;
-
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.util.CorrectionUtils;
@@ -77,7 +76,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 		this.xmap = xmap;
 	}
 
-	
+
 
 	public String getDaServerName() {
 		return daServerName;
@@ -135,8 +134,8 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 		String fileName = null;
 		NexusTreeProvider[] container =null;
 		try {
-			
-			fileName = fileNames.get(0);			
+
+			fileName = fileNames.get(0);
 			waitForFile(fileName);
 			fileLoader = new XmapNexusFileLoader(fileName, xmap.getNumberOfMca());
 			fileLoader.loadFile();
@@ -158,7 +157,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 						pool.execute(new NexusDataPointcreator(container, finalFrame, fileLoader, finalFrame -1));
 					else{
 						//always one less than the number of points
-						
+
 						for (int i = startFrame; i < finalFrame; i++) {
 							logger.info("writing point number " + i);
 							//container[i] =(writeToNexusFile(i, fileLoader.getData(i)));
@@ -183,13 +182,13 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 			setupContinuousOperation();
 		if (!isSlave) {
 			if (on) {
-				setTimeFrames();				
+				setTimeFrames();
 			} else {
 				switchOffExtTrigger();
 			}
 		}
 	}
-	
+
 //	private void switchOnExtTrigger() {
 //	}
 
@@ -250,7 +249,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 	}
 
 	@Override
-	public void atScanStart() throws DeviceException {		
+	public void atScanStart() throws DeviceException {
 	}
 
 	@Override
@@ -285,9 +284,9 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 	}
 
 //	private void setupFilename() {
-//		
+//
 //	}
-	
+
 	private void setupContinuousOperation() {
 		scanStartTime = System.currentTimeMillis();
 	}
@@ -489,7 +488,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 		return 0;
 	}
 
-	
+
 
 	private double calculateROICounts(DetectorROI roi, short[]data)
 	{
@@ -500,7 +499,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 			count += data[i];
 		return count;
 	}
-	
+
 	public boolean isSlave() {
 		return isSlave;
 	}
@@ -510,7 +509,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 	}
 
 	class NexusDataPointcreator implements Runnable{
-		
+
 		private NexusTreeProvider[] dataContainer;
 		private int dataIndex;
 		private XmapNexusFileLoader filePointer;
@@ -526,7 +525,7 @@ public class DummyXmapBufferedDetector extends DetectorBase implements BufferedD
 		public void run() {
 			dataContainer[dataIndex] = writeToNexusFile(fileIndex, filePointer.getData(fileIndex));
 		}
-		
+
 	}
 
 }

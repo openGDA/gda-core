@@ -18,8 +18,6 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.File;
 import java.util.Hashtable;
 import java.util.List;
@@ -30,10 +28,11 @@ import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.IonChamberParameters;
-import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class ScalerMFMappableDataProvider extends MicroFocusMappableDataProvider {
 
@@ -130,6 +129,7 @@ public class ScalerMFMappableDataProvider extends MicroFocusMappableDataProvider
 		return false;
 	}
 
+	@Override
 	public String[] getElementNames() {
 		return elementNames;
 	}

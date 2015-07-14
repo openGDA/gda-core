@@ -31,12 +31,12 @@ import uk.ac.gda.beans.exafs.XanesScanParameters;
  * Creates a 2D tuple of energy and collection time for every point in a multi-region xanes scan.
  */
 public class XanesScanPointCreator {
-	
+
 	private Double finalEnergy;
 	private double[][] regions;
 	private Integer numberDetectors = 1;
 	private ArrayList<ExafsScanRegionTime> scanTimes;
-	
+
 	public static Double[] getScanTimeArray(XanesScanParameters parameters) throws Exception {
 		XanesScanPointCreator creator = new XanesScanPointCreator();
 		setupScanPointCreator(parameters, creator);
@@ -47,7 +47,7 @@ public class XanesScanPointCreator {
 	/**
 	 * Operates this class when a bean (xml file from the gui) has been configured. This gives an example of how this
 	 * class should be driven in a more manual mode.
-	 * 
+	 *
 	 * @param parameters
 	 * @return PyTuple
 	 * @throws Exception
@@ -60,7 +60,7 @@ public class XanesScanPointCreator {
 
 	private static void setupScanPointCreator(XanesScanParameters parameters,XanesScanPointCreator creator ) throws Exception
 	{
-		List<Region> regions = parameters.getRegions();		
+		List<Region> regions = parameters.getRegions();
 		double[][] newregions = new double[regions.size()][3];
 		for (int i = 0; i < regions.size(); i++){
 			Region thisRegion = regions.get(i);
@@ -69,7 +69,7 @@ public class XanesScanPointCreator {
 			newregions[i][2] = thisRegion.getTime();
 		}
 		creator.setFinalEnergy(parameters.getFinalEnergy());
-		creator.setRegions(newregions);		
+		creator.setRegions(newregions);
 	}
 
 	/**
@@ -111,16 +111,16 @@ public class XanesScanPointCreator {
 	private void checkAllValuesConsistent() throws Exception {
 		for (double[] region : regions) {
 			// all regions must have 3 elements
-			if (region.length != 3) 
+			if (region.length != 3)
 				throw new Exception("region length not 3. Each region must be: [energy, step, time]");
 			// the first element of each region must be less than the final energy
 			if (region[0] >= finalEnergy)
-				throw new Exception("region energy >= final energy");				
+				throw new Exception("region energy >= final energy");
 		}
 	}
 
 	private void checkAllValuesEntered() throws Exception {
-		if (finalEnergy == null) 
+		if (finalEnergy == null)
 			throw new Exception("finalEnergy not set");
 		if (regions == null)
 			throw new Exception("regions not set");
@@ -151,7 +151,7 @@ public class XanesScanPointCreator {
 	public void setNumberDetectors(int numberDetectors) {
 		this.numberDetectors = numberDetectors;
 	}
-	
+
 	public static ArrayList<ExafsScanRegionTime> getScanTimes(XanesScanParameters parameters) throws Exception{
 		XanesScanPointCreator creator = new XanesScanPointCreator();
 		setupScanPointCreator(parameters, creator);

@@ -54,7 +54,7 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	LakeshoreParameters lakeshoreParameters = new LakeshoreParameters();
 	SampleWheelParameters sampleWheelParameters = new SampleWheelParameters();
 	UserStageParameters userStageParameters = new UserStageParameters();
-	
+
 	boolean shouldValidate = true;
 
 	@Override
@@ -170,7 +170,7 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	public void setDescription1(String description) {
 		this.description1 = description;
 	}
-	
+
 	public String getDescription2() {
 		return description2;
 	}
@@ -194,7 +194,7 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	public void setXYThetaStageParameters(XYThetaStageParameters xythetaParameters) {
 		this.xythetaParameters = xythetaParameters;
 	}
-	
+
 	public UserStageParameters getUserStageParameters() {
 		return userStageParameters;
 	}
@@ -263,7 +263,7 @@ public class B18SampleParameters implements Serializable, ISampleParameters {
 	public List<String> getDescriptions() {
 		return Arrays.asList(new String[] { description1, description2 });
 	}
-	
+
 	public SampleWheelParameters getSampleWheelParameters() {
 		return sampleWheelParameters;
 	}

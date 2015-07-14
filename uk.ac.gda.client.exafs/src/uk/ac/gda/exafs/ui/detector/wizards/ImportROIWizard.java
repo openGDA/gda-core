@@ -33,12 +33,12 @@ import uk.ac.gda.exafs.ui.detector.xspress3.Xspress3ParametersUIEditor;
 
 /**
  * This is the Import Wizard that allows Regions Of Interest to be imported into the
- * current DetectorEditor from another bean xml file. 
+ * current DetectorEditor from another bean xml file.
  * <p>
  * The way to use it is as follows:
- * <p> 
+ * <p>
  * <ol>
- * <li>From within (e.g.) Vortex Parameters Editor UI, press the Import Regions Of Interest 
+ * <li>From within (e.g.) Vortex Parameters Editor UI, press the Import Regions Of Interest
  * button.</li>
  * <li>Select another Vortect Parameters file in the "Select Detector File to Import" box</li>
  * <li>Now (assuming a valid file) the imported file is on the left, and the bean currently being
@@ -52,19 +52,19 @@ import uk.ac.gda.exafs.ui.detector.xspress3.Xspress3ParametersUIEditor;
  * <p>
  * Some notes:
  * <ul>
- * <li>Unnamed Regions Of Interest do not maintain their display name in the list when copied. (e.g. ROI 2 when copied 
- * may become ROI 4) But it will still be added to the end of the list. Recommend to always have explicit names on source 
+ * <li>Unnamed Regions Of Interest do not maintain their display name in the list when copied. (e.g. ROI 2 when copied
+ * may become ROI 4) But it will still be added to the end of the list. Recommend to always have explicit names on source
  * files.</li>
- * <li>If you want to pre-fill a detector file to import (e.g. as I18 wants to have a common one to import from), 
+ * <li>If you want to pre-fill a detector file to import (e.g. as I18 wants to have a common one to import from),
  * override {@link ImportROIWizardPage#getInitialSourceValue()}</li>
- * <li>To achieve having a common file that can be imported from, create the file initially in the Xspress or Vortex editor 
+ * <li>To achieve having a common file that can be imported from, create the file initially in the Xspress or Vortex editor
  * and then copy/move the xml file to a common location.</li>
- * <li>It may be desirable to have more ROIs in the common file than the GUI will let you add. However, you can add more 
- * regions by editing the XML directly. Once the regions have been added in the XML file, you can edit the contents 
+ * <li>It may be desirable to have more ROIs in the common file than the GUI will let you add. However, you can add more
+ * regions by editing the XML directly. Once the regions have been added in the XML file, you can edit the contents
  * in the GUI editor</li>
  * </ul>
  * <p>
- * 
+ *
  */
 public class ImportROIWizard extends Wizard {
 
@@ -105,9 +105,9 @@ public class ImportROIWizard extends Wizard {
 		if (detectorEditor instanceof XspressParametersUIEditor) {
 			mainPage = new ImportXspressROIWizardPage(elementListSize, clonedValue, maximum);
 		} else if (detectorEditor instanceof VortexParametersUIEditor) {
-			mainPage = new ImportVortexROIWizardPage(elementListSize, clonedValue, maximum);			
+			mainPage = new ImportVortexROIWizardPage(elementListSize, clonedValue, maximum);
 		} else if (detectorEditor instanceof Xspress3ParametersUIEditor) {
-			mainPage = new ImportXspress3ROIWizardPage(elementListSize, clonedValue, maximum);			
+			mainPage = new ImportXspress3ROIWizardPage(elementListSize, clonedValue, maximum);
 		}
 		mainPage.setListEditor(detectorEditor.getDetectorList());
 		addPage(mainPage);

@@ -19,6 +19,13 @@
 
 package gda.device.detector.xmap;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -29,14 +36,6 @@ import gda.factory.Configurable;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gda.observable.IObserver;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.beans.vortex.VortexParameters;
@@ -99,7 +98,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 	/**
 	 * Call this method to ask the detector to load the current template XML file. If the detector was configured
 	 * without a configFileName set, then nothing will happen.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void loadConfigurationFromFile() throws Exception {
@@ -119,7 +118,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 	/**
 	 * Returns the region of interest names based on the first elements ROI names.
-	 * 
+	 *
 	 * @param vp
 	 */
 	private void configureChannelLabels(VortexParameters vp) {
@@ -138,7 +137,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 	/**
 	 * Works for different regions in each element.
-	 * 
+	 *
 	 * @param vp
 	 * @throws Exception
 	 */
@@ -181,27 +180,27 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 	@Override
 	public int getStatus() throws DeviceException {
-		// if in a scan then 
+		// if in a scan then
 		if (tfg != null && inAScan){
 			return tfg.getStatus();
 		}
 		return controller.getStatus();
 	}
-	
-	
+
+
 	@Override
 	public void atScanStart() throws DeviceException {
 		inAScan = true;
 		controller.stop();
 		super.atScanStart();
 	}
-	
+
 	@Override
 	public void atScanEnd() throws DeviceException {
 		inAScan = false;
 		super.atScanEnd();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		inAScan = false;
@@ -403,7 +402,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 	/**
 	 * sets a new status update rate
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 */
@@ -413,7 +412,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 	/**
 	 * sets a new read update rate for DlsMcsSIS3820.
-	 * 
+	 *
 	 * @param value
 	 * @throws DeviceException
 	 */
@@ -471,7 +470,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 	 * Returns a count for each mca for a given roi number For instance if roi=0 the first roi. If a given element is
 	 * disabled the counts for it will be set to zero. Therefore when setting up ROIs this method should not be used. It
 	 * is just for the data collection. The VortexParameters UI will plot all MCA counts.
-	 * 
+	 *
 	 * @param roiIndex
 	 * @return double array of roi count for all mca
 	 * @throws DeviceException
@@ -631,7 +630,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 
 	/**
 	 * Reads the fast filter rate for the element and calculates the K scaling factor used in the dead time correction.
-	 * 
+	 *
 	 * @param element
 	 * @return K
 	 */
@@ -688,7 +687,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 	public void setSaveRawSpectrum(boolean saveawSpectrum) {
 		this.saveRawSpectrum = saveawSpectrum;
 	}
-	
+
 	public void waitWhileControllerBusy() throws DeviceException, InterruptedException {
 		if (controller.getStatus() != 0) {
 			logger.warn("getData() called when getData is not idle. Waiting for it to be idle before returning results");
@@ -722,7 +721,7 @@ public class Xmap extends DetectorBase implements XmapDetector, Detector, Scanna
 		}
 		return results;
 	}
-	
+
 	public Object getCountRates() throws DeviceException {
 		Double results[] = new Double[2 * this.getNumberOfMca()];
 		int noOfMca = this.getNumberOfMca();

@@ -18,13 +18,13 @@
 
 package gda.data.scan.datawriter;
 
-import gda.scan.IScanDataPoint;
-import gda.scan.ScanDataPointFormatter;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import gda.scan.IScanDataPoint;
+import gda.scan.ScanDataPointFormatter;
 
 public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 	private static final int DEFAULT_COLUMN_WIDTH = 16;
@@ -77,7 +77,7 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 		else if (data.get("energy") != null)
 			addColumnEntry(headerBuf, "energy");
 		if (data.get("XESEnergy") != null)
-			addColumnEntry(headerBuf, "Ef");	
+			addColumnEntry(headerBuf, "Ef");
 		if (data.get("XES") != null)
 			addColumnEntry(headerBuf, "XESBragg");
 		if (data.get("I0") != null)
@@ -100,14 +100,14 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 			addColumnEntry(headerBuf, "FF/I0");
 		if (data.get("FFI1")!=null)
 			addColumnEntry(headerBuf, "FF/I1"); //  vortex FF over xes ion chmaber
-		if (data.get("XES") == null && data.get("Time") != null) 
+		if (data.get("XES") == null && data.get("Time") != null)
 			addColumnEntry(headerBuf, "Time");
 
 		final Map<String, String> signalData = getSignalData(data);
 		for (String name : signalData.keySet())
-			if (!(data.get("XES") == null && name.compareTo("Time") == 0)) 
+			if (!(data.get("XES") == null && name.compareTo("Time") == 0))
 				addColumnEntry(headerBuf, name);
-		
+
 		if (data.get("XES") != null && data.get("Time") != null)
 			addColumnEntry(headerBuf, "Time");
 
@@ -128,7 +128,7 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 		else if (data.get("energy") != null)
 			addColumnEntry(dataBuf, data.get("energy"));
 		if (data.get("XESEnergy") != null)
-			addColumnEntry(dataBuf, data.get("XESEnergy"));	
+			addColumnEntry(dataBuf, data.get("XESEnergy"));
 		if (data.get("XES") != null)
 			addColumnEntry(dataBuf, data.get("XES"));
 		if (data.get("I0") != null)
@@ -158,7 +158,7 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 		for (String name : signalData.keySet())
 			if (!(data.get("XES") == null && name.compareTo("Time") == 0))
 				addColumnEntry(dataBuf, signalData.get(name));
-		
+
 		if (data.get("XES") != null && data.get("Time") != null)
 			addColumnEntry(dataBuf, data.get("Time"));
 
@@ -188,7 +188,7 @@ public class XasScanDataPointFormatter implements ScanDataPointFormatter {
 
 	/**
 	 * NOTE assumes data = LinkedHashMap
-	 * 
+	 *
 	 * @param data
 	 */
 	private Map<String, String> getSignalData(Map<String, String> data) {

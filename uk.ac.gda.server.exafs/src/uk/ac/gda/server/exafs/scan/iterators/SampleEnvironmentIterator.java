@@ -18,9 +18,9 @@
 
 package uk.ac.gda.server.exafs.scan.iterators;
 
-import gda.device.DeviceException;
-
 import java.util.List;
+
+import gda.device.DeviceException;
 
 /**
  * To loop through a series of sample positions. At each node it is expected to perform the energy-scan data collection.
@@ -38,7 +38,7 @@ public interface SampleEnvironmentIterator {
 	/**
 	 * Move the sample environment to the next position in its array. Does not return until the sample environment
 	 * change has completed.
-	 * 
+	 *
 	 * @throws DeviceException
 	 * @throws InterruptedException
 	 */
@@ -59,7 +59,7 @@ public interface SampleEnvironmentIterator {
 	/**
 	 * Based on the current position of the iterator AFTER a call to moveToNext, what are the same details
 	 * (descriptions) of the next sample to be run
-	 * 
+	 *
 	 * @return String[]
 	 */
 	public List<String> getNextSampleDescriptions();

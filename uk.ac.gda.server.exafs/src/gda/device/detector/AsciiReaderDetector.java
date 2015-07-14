@@ -18,13 +18,13 @@
 
 package gda.device.detector;
 
-import gda.device.DeviceException;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
+
+import gda.device.DeviceException;
 
 /**
  * Reads an ascii data file written by the AsciiDataWriter class and returns the data there as its own. I hope this is
@@ -51,7 +51,7 @@ public class AsciiReaderDetector extends DetectorBase {
 		try {
 			reader = new BufferedReader(new FileReader(filename));
 			dataLines = new ArrayList<String>();
-			String tmpLine = reader.readLine(); 
+			String tmpLine = reader.readLine();
 			while (tmpLine != null) {
 				dataLines.add(tmpLine);
 				tmpLine = reader.readLine();
@@ -67,7 +67,7 @@ public class AsciiReaderDetector extends DetectorBase {
 			throw new DeviceException(e.getMessage(), e);
 		}
 	}
-	
+
 	@Override
 	public void atScanEnd() throws DeviceException {
 		dataLines = new ArrayList<String>();

@@ -19,12 +19,12 @@
 
 package gda.device.detector.xmap;
 
-import gda.device.detector.FluorescentDetectorConfigurationBase;
-import gda.factory.FactoryException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+
+import gda.device.detector.FluorescentDetectorConfigurationBase;
+import gda.factory.FactoryException;
 
 public class VortexDetectorConfiguration extends FluorescentDetectorConfigurationBase implements InitializingBean {
 

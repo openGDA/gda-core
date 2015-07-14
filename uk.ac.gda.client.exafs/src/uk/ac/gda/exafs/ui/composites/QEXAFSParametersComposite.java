@@ -18,11 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.configuration.properties.LocalProperties;
-import gda.jscience.physics.quantities.BraggAngle;
-import gda.jython.JythonServerFacade;
-import gda.util.QuantityFactory;
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -47,6 +42,10 @@ import org.jscience.physics.quantities.Quantity;
 import org.jscience.physics.units.NonSI;
 import org.jscience.physics.units.Unit;
 
+import gda.configuration.properties.LocalProperties;
+import gda.jscience.physics.quantities.BraggAngle;
+import gda.jython.JythonServerFacade;
+import gda.util.QuantityFactory;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.exafs.ExafsActivator;
 import uk.ac.gda.exafs.ui.preferences.ExafsPreferenceConstants;
@@ -84,7 +83,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 
 		label = new Label(this, SWT.NONE);
 		label.setText("Final Energy");
-		
+
 		finalEnergy = new ScaleBoxAndFixedExpression(this, SWT.NONE, k);
 		((GridData) finalEnergy.getControl().getLayoutData()).grabExcessHorizontalSpace = false;
 		((GridData) finalEnergy.getControl().getLayoutData()).widthHint = 150;
@@ -95,7 +94,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		GridData gd_finalEnergy = new GridData(SWT.FILL, SWT.CENTER, false, false);
 		gd_finalEnergy.widthHint = 150;
 		finalEnergy.setLayoutData(gd_finalEnergy);
-		
+
 		finalEnergy.setUnit("eV");
 		createEmptyLabel(finalEnergy);
 		createEmptyLabel(finalEnergy);
@@ -198,11 +197,11 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		GridData gd_avgTimePerPoint = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_avgTimePerPoint.widthHint = 159;
 		avgTimePerPoint.setLayoutData(gd_avgTimePerPoint);
-		
+
 		btnBothWays = new BooleanWrapper(this, SWT.NONE);
 		btnBothWays.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		btnBothWays.setText("Scan mono both ways");
-		
+
 		initialEnergy.addValueListener(new ValueAdapter("initialEnergyListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
@@ -237,7 +236,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 		});
 		calculate(provider);
 	}
-	
+
 	private void calculate(QEXAFSParameters provider) {
 //		try {
 //			BeanUI.uiToBean(this, provider);
@@ -279,7 +278,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 	public void updateFinalEnergy(){
 		finalEnergy.update();
 	}
-	
+
 	public FieldComposite getInitialEnergy() {
 		return initialEnergy;
 	}
@@ -303,7 +302,7 @@ public final class QEXAFSParametersComposite extends FieldBeanComposite {
 	public BooleanWrapper getBothWays() {
 		return btnBothWays;
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void createEmptyLabel(Composite composite){
 		new Label(composite, SWT.NONE);

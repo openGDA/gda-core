@@ -76,8 +76,8 @@ public final class XesScanParametersUIEditor extends RichBeanEditorPart {
 		try {
 			IExperimentEditorManager man = ExperimentFactory.getExperimentEditorManager();
 			IDetectorParameters currentDetParams = ((ScanObject)man.getSelectedScan()).getDetectorParameters();
-			if (currentDetParams != null) 
-				if (!currentDetParams.getExperimentType().equalsIgnoreCase("xes")) 
+			if (currentDetParams != null)
+				if (!currentDetParams.getExperimentType().equalsIgnoreCase("xes"))
 					MessageDialog.openInformation(getSite().getShell(), "Options inconsistent", "XES option has not been selected in the detector parameters!");
 		} catch (Exception e) {
 			// any problems, simply ignore as this will be a problem in the XafsEditorManager which will be picked up elsewhere
@@ -156,7 +156,7 @@ public final class XesScanParametersUIEditor extends RichBeanEditorPart {
 	public RadioWrapper getLoopChoice() {
 		return beanComposite.getLoopChoice();
 	}
-	
+
 	public FieldComposite getOffsetsStoreName() {
 		return beanComposite.getOffsetsStoreName();
 	}

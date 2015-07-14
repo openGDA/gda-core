@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.gda.util.io.FileUtils;
 
 public class RGBFileReader {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(RGBFileReader.class);
 	private String headerArray[];
 	private int contents[][];
@@ -37,11 +37,11 @@ public class RGBFileReader {
 		try {
 			List <String> fileContents = FileUtils.readFileAsList(new File(filePath));
 			StringTokenizer header = new StringTokenizer(fileContents.get(0));
-			headerArray= new String[header.countTokens()];	
+			headerArray= new String[header.countTokens()];
 			contents = new int[header.countTokens()][fileContents.size() -1];
 			int index =0;
 			while(header.hasMoreTokens()){
-				headerArray[index++] = header.nextToken();				
+				headerArray[index++] = header.nextToken();
 			}
 			StringTokenizer lineContent;
 			for(int i =1; i< fileContents.size(); i++)
@@ -53,23 +53,23 @@ public class RGBFileReader {
 					return;
 				}
 				for(int j =0 ; j< contents.length; j++)
-				{					
+				{
 					contents[j][i - 1] = Double.valueOf(lineContent.nextToken().trim()).intValue();
 				}
 				System.out.println("The number of elements are " + header);
-				
+
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	public String[] getHeader(){
 		return headerArray;
 	}
-	
+
 	public int[][] getContents()
 	{
 		return contents;

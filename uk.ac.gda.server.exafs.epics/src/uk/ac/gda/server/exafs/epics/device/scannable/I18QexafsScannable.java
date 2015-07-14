@@ -18,6 +18,16 @@
 
 package uk.ac.gda.server.exafs.epics.device.scannable;
 
+import org.jscience.physics.quantities.Angle;
+import org.jscience.physics.quantities.Constants;
+import org.jscience.physics.quantities.Energy;
+import org.jscience.physics.quantities.Length;
+import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.units.NonSI;
+import org.jscience.physics.units.SI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.scannable.ContinuouslyScannable;
@@ -32,16 +42,6 @@ import gda.util.QuantityFactory;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import org.jscience.physics.quantities.Angle;
-import org.jscience.physics.quantities.Constants;
-import org.jscience.physics.quantities.Energy;
-import org.jscience.physics.quantities.Length;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.NonSI;
-import org.jscience.physics.units.SI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * For I18 QEXAFS scans. Operates the mono energy but also set position compare to define when and how TTL pulses are
@@ -94,9 +94,9 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 	private double extraRunUp = 0;
 	private boolean runUpOn = true;
 	private boolean runDownOn = true;
-	
+
 	private boolean inKev = false;
-	
+
 	private double energyDivision = 1.0;
 
 	@Override
@@ -117,12 +117,12 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 				energySwitchChnl = channelManager.createChannel(energySwitchPV, false);
 			stepIncDegChnl = channelManager.createChannel(stepIncDegPV, false);
 			numPulsesChnl = channelManager.createChannel(numPulsesPV, false);
-			
+
 			if(inKev)
 				energyDivision=1000.0;
 			else
 				energyDivision=1.0;
-			
+
 			channelManager.creationPhaseCompleted();
 		} catch (CAException e) {
 			throw new FactoryException("CAException while creating channels for " + getName(), e);
@@ -336,7 +336,7 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 		if (Math.abs(dblRunUpAngle) < Math.abs(runupFactor * step)) {
 			runUpAngle = (Angle) QuantityFactory.createFromObject(Math.abs(runupFactor * step), NonSI.DEGREE_ANGLE);
 		}
-		
+
 		Quantity add = QuantityFactory.createFromObject(extraRunUp, NonSI.DEGREE_ANGLE);
 
 		runUpAngle = (Angle) runUpAngle.plus(add);
@@ -431,7 +431,7 @@ public class I18QexafsScannable extends ScannableMotor implements ContinuouslySc
 	public void setStepIncDegPV(String stepIncDegPV) {
 		this.stepIncDegPV = stepIncDegPV;
 	}
-	
+
 	public String getNumPulsesPV() {
 		return numPulsesPV;
 	}

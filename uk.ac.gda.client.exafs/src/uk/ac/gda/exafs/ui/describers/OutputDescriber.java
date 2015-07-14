@@ -30,10 +30,10 @@ import uk.ac.gda.beans.exafs.OutputParameters;
 public class OutputDescriber extends XMLBeanContentDescriber {
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String ID = "uk.ac.gda.exafs.ui.OutputParametersEditor";
-	
+
 	@Override
 	protected String getBeanName() {
 		return OutputParameters.class.getName();
@@ -45,4 +45,3 @@ public class OutputDescriber extends XMLBeanContentDescriber {
 
 }
 
-	

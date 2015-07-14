@@ -18,11 +18,6 @@
 
 package uk.ac.gda.client.microfocus.util;
 
-import gda.data.nexus.NexusUtils;
-import gda.data.nexus.extractor.NexusExtractor;
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.data.nexus.tree.INexusTree;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -38,6 +33,10 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.NexusUtils;
+import gda.data.nexus.extractor.NexusExtractor;
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.data.nexus.tree.INexusTree;
 import uk.ac.diamond.scisoft.analysis.io.NexusLoader;
 
 public class DetectorElementDataSelector {
@@ -59,7 +58,7 @@ public class DetectorElementDataSelector {
 
 	/**
 	 * Load a MicroFocus Nexus file and read in the x and y axis values
-	 * 
+	 *
 	 * @param FileName
 	 */
 	public void loadData(String FileName) {
@@ -200,7 +199,7 @@ public class DetectorElementDataSelector {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} finally {
-					
+
 				}
 
 			}
@@ -209,10 +208,10 @@ public class DetectorElementDataSelector {
 	}
 
 	private String fileCopy(String input, String outputDir) {
-		
+
 		String outFileName = input.replace(".nxs", "_1.nxs");
 		String outFileFullPath = outputDir + File.separator + outFileName;
-		
+
 		try (FileInputStream srcStream = new FileInputStream(input);
 				FileOutputStream dstStream = new FileOutputStream(outFileFullPath)) {
 			dstStream.getChannel().transferFrom(srcStream.getChannel(), 0, srcStream.getChannel().size());

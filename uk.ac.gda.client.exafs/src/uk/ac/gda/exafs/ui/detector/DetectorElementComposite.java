@@ -223,7 +223,7 @@ public class DetectorElementComposite extends Composite {
 			};
 			advancedExpandableComposite.addExpansionListener(expansionListener);
 		}
-		
+
 		GridUtils.layoutFull(mainComposite);
 	}
 
@@ -252,7 +252,7 @@ public class DetectorElementComposite extends Composite {
 
 	/**
 	 * Notified when the advanced section is expanded.
-	 * 
+	 *
 	 * @param l
 	 */
 	public void addExpansionListener(IExpansionListener l) {

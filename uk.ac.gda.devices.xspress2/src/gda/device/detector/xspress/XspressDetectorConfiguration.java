@@ -19,12 +19,12 @@
 
 package gda.device.detector.xspress;
 
-import gda.device.detector.FluorescentDetectorConfigurationBase;
-import gda.factory.FactoryException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+
+import gda.device.detector.FluorescentDetectorConfigurationBase;
+import gda.factory.FactoryException;
 
 public class XspressDetectorConfiguration extends FluorescentDetectorConfigurationBase implements InitializingBean {
 
@@ -56,6 +56,7 @@ public class XspressDetectorConfiguration extends FluorescentDetectorConfigurati
 		this.xspressSystem = xspressSystem;
 	}
 
+	@Override
 	public void configure(String xmlFileName) throws FactoryException {
 		try {
 			xspressSystem.setConfigFileName(xmlFileName);

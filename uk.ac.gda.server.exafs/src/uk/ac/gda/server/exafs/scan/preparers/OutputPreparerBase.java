@@ -18,6 +18,12 @@
 
 package uk.ac.gda.server.exafs.scan.preparers;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.data.metadata.NXMetaDataProvider;
 import gda.data.scan.datawriter.AsciiDataWriterConfiguration;
 import gda.device.DeviceException;
@@ -25,13 +31,6 @@ import gda.device.Scannable;
 import gda.factory.Finder;
 import gda.jython.InterfaceProvider;
 import gda.scan.ScanPlotSettings;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.springframework.beans.factory.InitializingBean;
-
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.IScanParameters;
@@ -93,7 +92,7 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 			}
 		}
 	}
-	
+
 	private Scannable retriveScannable(String scannableName){
 		Scannable scannableFromFinder = Finder.getInstance().find(scannableName);
 		if (scannableFromFinder!= null){
@@ -102,7 +101,7 @@ public abstract class OutputPreparerBase implements OutputPreparer, Initializing
 		Scannable scannableFromNamespace = (Scannable) InterfaceProvider.getJythonNamespace().getFromJythonNamespace(scannableName);
 		return scannableFromNamespace;
 	}
-	
+
 	@Override
 	public void beforeEachRepetition() throws Exception {
 		//

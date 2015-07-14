@@ -35,9 +35,9 @@ import uk.ac.gda.ui.event.PartAdapter;
 public class ExafsIntroConfigurer extends IntroConfigurer {
 
 	private final static Logger logger = LoggerFactory.getLogger(ExafsIntroConfigurer.class);
-	
+
 	private IPartListener partListener;
-	
+
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void init(final IIntroSite site, Map themeProperties) {
@@ -57,7 +57,7 @@ public class ExafsIntroConfigurer extends IntroConfigurer {
         };
         site.getPage().addPartListener(partListener);
  	}
-	
+
 	@Override
 	public IntroElement[] getGroupChildren(String pageId, String groupId) {
 		return null;

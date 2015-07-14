@@ -18,13 +18,6 @@
 
 package uk.ac.gda.client.microfocus.views.scan;
 
-import gda.configuration.properties.LocalProperties;
-import gda.factory.Finder;
-import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-
 import java.io.ByteArrayInputStream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -53,6 +46,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
+import gda.configuration.properties.LocalProperties;
+import gda.factory.Finder;
+import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.gda.beans.DetectorROI;
@@ -62,8 +61,8 @@ import uk.ac.gda.beans.xspress.XspressParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentFactory;
 import uk.ac.gda.client.experimentdefinition.IExperimentEditorManager;
 import uk.ac.gda.client.microfocus.controller.MicroFocusDisplayController;
-import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class MicroFocusElementListView extends ViewPart implements SelectionListener, IObservable, IObserver {
 
@@ -493,7 +492,7 @@ public class MicroFocusElementListView extends ViewPart implements SelectionList
 
 	/**
 	 * Set the X and Y selected point, as data values, not the index numbers of the data array
-	 * 
+	 *
 	 * @param pointX
 	 * @param pointY
 	 */

@@ -74,5 +74,5 @@ public class XmapI1MonitorViewData {
 		table.setLayout(layout);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(table);
 	}
-	
+
 }

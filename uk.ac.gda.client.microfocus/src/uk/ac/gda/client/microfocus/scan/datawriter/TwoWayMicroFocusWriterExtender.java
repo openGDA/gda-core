@@ -18,23 +18,22 @@
 
 package uk.ac.gda.client.microfocus.scan.datawriter;
 
-import gda.device.Detector;
-import gda.scan.IScanDataPoint;
-
 import java.io.IOException;
 
+import gda.device.Detector;
+import gda.scan.IScanDataPoint;
 import uk.ac.gda.client.microfocus.util.RandomLineFileWriter;
 import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 public class TwoWayMicroFocusWriterExtender extends MicroFocusWriterExtender {
-	
+
 	private RandomLineFileWriter rgbWriter;
-	
+
 	public TwoWayMicroFocusWriterExtender(int xPoints, int yPoints, double xStepSize, double yStepSize,
 			XMLRichBean detectorBean, Detector[] detectors2) {
 		super(xPoints, yPoints, xStepSize, yStepSize, detectorBean, detectors2);
 	}
-	
+
 	@Override
 	protected int getCurrentSDPNumber(IScanDataPoint dataPoint) {
 		Double[] xy = dataPoint.getPositionsAsDoubles();
@@ -42,11 +41,11 @@ public class TwoWayMicroFocusWriterExtender extends MicroFocusWriterExtender {
 		int correctedDataPointNumber = xyIndex[1] * numberOfXPoints + xyIndex[0];
 		return correctedDataPointNumber;
 	}
-	
+
 	@Override
 	protected void addToRgbFile(int currentPointNumber, String string) throws IOException {
 		rgbWriter.addToFile(currentPointNumber, string);
-		
+
 	}
 
 	private int[] getXYIndex(int dataPointNumber, double xValue) {

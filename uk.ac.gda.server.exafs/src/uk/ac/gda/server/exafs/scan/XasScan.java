@@ -29,7 +29,7 @@ public interface XasScan {
 	/**
 	 * For the database behind the LoggingScriptController which keeps a list of data collections and for log messages
 	 * to the user.
-	 * 
+	 *
 	 * @return String name of scan type e.g. XANES
 	 */
 	public abstract String getScanType();

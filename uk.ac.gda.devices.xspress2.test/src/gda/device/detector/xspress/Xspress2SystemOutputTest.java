@@ -21,6 +21,11 @@ package gda.device.detector.xspress;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.DeviceException;
 import gda.device.detector.DUMMY_XSPRESS2_MODE;
@@ -29,27 +34,22 @@ import gda.device.detector.xspress.xspress2data.Xspress2DAServerController;
 import gda.device.timer.Etfg;
 import gda.factory.FactoryException;
 import gda.factory.Finder;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import uk.ac.gda.beans.xspress.ResGrades;
 import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**
  * Tests the ascii and nexus output of the Xspress2 in its various modes of operation and output options
- * 
+ *
  * TODO test nexus, what if more than one ROI?
  */
 public class Xspress2SystemOutputTest {
 
-	
+
 	private static Xspress2Detector xspress = new Xspress2Detector();
 	private static Xspress2DAServerController controller;
 	private static DummyDAServer daserver;
 	final static String TestFileFolder = "testfiles/gda/device/detector/xspress/";
-	
+
 	private static final int NUM_ENABLED_ELEMENTS = 8;
 	private static final int SIZE_SCALER_DATA = NUM_ENABLED_ELEMENTS + 1; // for FF
 
@@ -58,7 +58,7 @@ public class Xspress2SystemOutputTest {
 		xspress = new Xspress2Detector();
 		controller = new Xspress2DAServerController();
 		xspress.setController(controller);
-		
+
 		daserver = new DummyDAServer();
 		daserver.setName("DummyDAServer");
 		daserver.setXspressMode(DUMMY_XSPRESS2_MODE.XSPRESS2_FULL_MCA);
@@ -66,7 +66,7 @@ public class Xspress2SystemOutputTest {
 		daserver.setNonRandomTestData(true);
 		Etfg tfg = new Etfg();
 		tfg.setName("tfg");
-		
+
 		try {
 			controller.setDaServer(daserver);
 			controller.setTfg(tfg);
@@ -95,8 +95,8 @@ public class Xspress2SystemOutputTest {
 	public static void clearUpAfterClass() {
 		Finder.getInstance().clear();
 	}
-	
-	@Test 
+
+	@Test
 	public void testExtraNames() throws DeviceException{
 		xspress.setReadoutMode(XspressDetector.READOUT_SCALERONLY);
 		xspress.setAddDTScalerValuesToAscii(false);
@@ -109,7 +109,7 @@ public class Xspress2SystemOutputTest {
 		xspress.setAddDTScalerValuesToAscii(true);
 		assertEquals((4*NUM_ENABLED_ELEMENTS+SIZE_SCALER_DATA),xspress.getExtraNames().length);
 	}
-	
+
 	@Test
 	public void testScalersOnly(){
 		try {
@@ -127,7 +127,7 @@ public class Xspress2SystemOutputTest {
 			// test ascii
 			assertEquals(SIZE_SCALER_DATA,asciiDataParts.length);
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
-			
+
 			//test when DTC values added
 			xspress.setAddDTScalerValuesToAscii(true);
 			xspress.setCollectionTime(0.05);
@@ -137,13 +137,13 @@ public class Xspress2SystemOutputTest {
 			asciiDataParts = asciiData.split("\t");
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
 			assertEquals((4*NUM_ENABLED_ELEMENTS+SIZE_SCALER_DATA),asciiDataParts.length);
-			
+
 		} catch (DeviceException e) {
 			fail(e.getMessage());
 		}
-		
+
 	}
-	
+
 	@Test
 	public void testScalersAndMCA(){
 		try {
@@ -173,12 +173,12 @@ public class Xspress2SystemOutputTest {
 			asciiDataParts = asciiData.split("\t");
 			assertEquals((4*NUM_ENABLED_ELEMENTS+SIZE_SCALER_DATA),asciiDataParts.length);
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
-			
+
 		} catch (DeviceException e) {
 			fail(e.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testResGradeNONE(){
 		try {
@@ -197,7 +197,7 @@ public class Xspress2SystemOutputTest {
 			// test ascii
 			assertEquals(SIZE_SCALER_DATA,asciiDataParts.length);
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
-			
+
 			//test when DTC values added
 			xspress.setAddDTScalerValuesToAscii(true);
 			xspress.setCollectionTime(0.05);
@@ -208,12 +208,12 @@ public class Xspress2SystemOutputTest {
 			String[] extraNames = xspress.getExtraNames();
 			assertEquals(extraNames.length,asciiDataParts.length);
 			assertEquals((NUM_ENABLED_ELEMENTS + 1 + 4 * NUM_ENABLED_ELEMENTS),asciiDataParts.length);
-			
+
 		} catch (DeviceException e) {
 			fail(e.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testResGradeThreshold(){
 		try {
@@ -232,7 +232,7 @@ public class Xspress2SystemOutputTest {
 			// test ascii
 			assertEquals(SIZE_SCALER_DATA + 1,asciiDataParts.length);  // +1 for ff_bad
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
-			
+
 			//test when DTC values added
 			xspress.setAddDTScalerValuesToAscii(true);
 			xspress.setCollectionTime(0.05);
@@ -242,12 +242,12 @@ public class Xspress2SystemOutputTest {
 			asciiDataParts = asciiData.split("\t");
 			assertEquals((NUM_ENABLED_ELEMENTS + 4*NUM_ENABLED_ELEMENTS+1 + 1),asciiDataParts.length);  // 4 *  numElements + good for each element + FF + FF_bad
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
-			
+
 		} catch (DeviceException e) {
 			fail(e.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testResGradeALL(){
 		try {
@@ -288,7 +288,7 @@ public class Xspress2SystemOutputTest {
 			asciiDataParts = asciiData.split("\t");
 			assertEquals((4*NUM_ENABLED_ELEMENTS+16 +NUM_ENABLED_ELEMENTS+1),asciiDataParts.length); // 4*numElements, 16 resGrade bins, 'best grades' per element ,FF
 			assertEquals(xspress.getExtraNames().length,asciiDataParts.length);
-			
+
 		} catch (DeviceException e) {
 			fail(e.getMessage());
 		}

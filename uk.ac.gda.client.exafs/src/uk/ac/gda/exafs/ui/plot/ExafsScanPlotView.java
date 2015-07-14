@@ -18,11 +18,6 @@
 
 package uk.ac.gda.exafs.ui.plot;
 
-import gda.rcp.util.ScanDataPointEvent;
-import gda.rcp.views.scan.AbstractCachedScanPlotView;
-import gda.scan.IScanDataPoint;
-import gda.util.Element;
-
 import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -35,6 +30,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.rcp.util.ScanDataPointEvent;
+import gda.rcp.views.scan.AbstractCachedScanPlotView;
+import gda.scan.IScanDataPoint;
+import gda.util.Element;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 import uk.ac.diamond.scisoft.spectroscopy.fitting.XafsFittingUtils;
@@ -74,9 +73,9 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
-		
+
 		setXafsPreferences();
-		
+
 		SpectroscopyRCPActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
@@ -97,7 +96,7 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 			}
 		});
 	}
-	
+
 	@Override
 	public void scanDataPointChanged(ScanDataPointEvent e) {
 		try {
@@ -182,7 +181,7 @@ abstract class ExafsScanPlotView extends AbstractCachedScanPlotView {
 	@Override
 	protected void updateCache(ArrayList<IScanDataPoint> collection, int startIndex) {
 		calculateA();
-		
+
 		if (cachedX == null)
 			cachedX = new ArrayList<Double>(89);
 		if (cachedY == null)

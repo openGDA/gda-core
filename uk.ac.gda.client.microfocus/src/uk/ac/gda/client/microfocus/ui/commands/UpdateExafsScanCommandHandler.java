@@ -70,7 +70,7 @@ public class UpdateExafsScanCommandHandler extends AbstractHandler implements IH
 					logger.error("Unable to create a new MultiScan");
 					return null;
 				}
-				
+
 				// create a new multiscan
 				for (String sScan : selectedScans) {// TODO need to change it to more eclipse way add a seperate class
 					// to provide the content

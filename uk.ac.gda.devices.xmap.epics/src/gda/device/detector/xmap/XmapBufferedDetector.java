@@ -18,6 +18,15 @@
 
 package gda.device.detector.xmap;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
@@ -39,18 +48,9 @@ import gda.factory.FactoryException;
 import gda.factory.Finder;
 import gov.aps.jca.CAException;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.attribute.PosixFilePermission;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * For using Xia XMap within the ContinuousScan-style trajectory scans.
- * 
+ *
  * @author rjw82
  *
  */
@@ -170,7 +170,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 				// change to linux format
 				String beamline = LocalProperties.get("gda.factory.factoryName", "").toLowerCase();
 				lastFileName = lastFileName.replace("X:/", "/dls/" + beamline);
-								
+
 				new XmapFileUtils(lastFileName).waitForFileToBeReadable();
 
 				createFileLoader();
@@ -186,17 +186,17 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 					fileLoader.loadFile();  // let this throw its exception to surrounding catch
 				}
 				lastFileReadStatus = true;
-			} 
-			
+			}
+
 			int numOfPointsInFile = fileLoader.getNumberOfDataPoints();
 			int numPointsToRead = finalFrame - startFrame + 1;
-			
+
 			if (numOfPointsInFile < numPointsToRead) {
 				String msg = "Xmap data file "+ lastFileName +  " only has " + numOfPointsInFile + " data point but expected at least " + numPointsToRead;
 				logger.error(msg);
 				throw new DeviceException( msg);
 			}
-			
+
 			XmapNXDetectorDataCreator dataCreator = new XmapNXDetectorDataCreator(
 					fileLoader, xmap.vortexParameters.getDetectorList(),
 					getExtraNames(), getOutputFormat(), getName(),
@@ -346,7 +346,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	public String[] getInputNames() {
 		return xmap.getInputNames();
 	}
-	
+
 	@Override
 	public String[] getExtraNames() {
 		return xmap.getExtraNames();
@@ -390,7 +390,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 			if (!directoryExists) {
 				throw new DeviceException("Failed to create temporary directory to place Xmap HDF5 files: " + dataDir);
 			}
-			
+
 			// set 777 perms to ensure detector account
 			Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
 			perms.add(PosixFilePermission.OWNER_READ);
@@ -412,7 +412,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 		try {
 			setupFilename();
 			controller.resetCounters();
-			
+
 			int numberOfPointsPerScan = continuousParameters.getNumberDataPoints();
 
 			// This has a -1 for b18. This is because the B18 Position Compare does not send the first
@@ -423,13 +423,13 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 
 			controller.setPixelsPerRun(numberOfPointsPerScan);
 			controller.setAutoPixelsPerBuffer(true);
-			
+
 			// in Xmap, each buffer holds 124 points and we have to also tell it the number of buffers to expect
 			int buffPerRow = Math.round(numberOfPointsPerScan / 124);
 			if (numberOfPointsPerScan % 124 != 0) {
 				buffPerRow++;
 			}
-			
+
 			controller.setHdfNumCapture(buffPerRow);
 			controller.startRecording();
 		} catch (Exception e) {
@@ -448,7 +448,7 @@ public class XmapBufferedDetector extends DetectorBase implements BufferedDetect
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
 		// FIXME should this really be extending DetectorBase???
-		return null; // cannot act as a regular detector, buffered detector only.  
+		return null; // cannot act as a regular detector, buffered detector only.
 	}
 
 	public boolean isStillWriting(String fileName) throws DeviceException {

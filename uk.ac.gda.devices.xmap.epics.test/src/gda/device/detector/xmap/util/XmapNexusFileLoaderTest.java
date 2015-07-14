@@ -20,10 +20,11 @@ package gda.device.detector.xmap.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import gda.util.TestUtils;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import gda.util.TestUtils;
 
 public class XmapNexusFileLoaderTest {
 
@@ -36,7 +37,7 @@ public class XmapNexusFileLoaderTest {
 			fail("TestUtils.getGDALargeTestFilesLocation() returned null - test aborted");
 		}
 	}
-	
+
 	@Test
 	public void testRead4ElementFile() throws Exception {
 		String testfile1 = TestFileFolder + "/uk.ac.gda.devices.xmap.epics.test/i18-6777-HTXmapMca.h5";
@@ -46,9 +47,9 @@ public class XmapNexusFileLoaderTest {
 		short[][] result = xMapLoader.getData(0);
 		assertEquals(4, result.length);
 		assertEquals(2048, result[0].length);
-		
+
 	}
-	
+
 	@Test
 	public void testRead10ElementFile() throws Exception {
 		String testfile1 = TestFileFolder + "/uk.ac.gda.devices.xmap.epics.test/i18-26092-0-raster_xmap.h5";

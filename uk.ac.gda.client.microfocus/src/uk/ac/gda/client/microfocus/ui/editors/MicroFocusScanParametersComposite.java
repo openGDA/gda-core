@@ -181,7 +181,7 @@ public final class MicroFocusScanParametersComposite extends Composite {
 			}
 		});
 
-		
+
 		label = new Label(tableComposite, SWT.NONE);
 		label.setText("Energy");
 		energy = new ScaleBox(tableComposite, SWT.NONE);
@@ -207,7 +207,7 @@ public final class MicroFocusScanParametersComposite extends Composite {
 		GridData gridData2 = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gridData2.widthHint=250;
 		infoComposite.setLayoutData(gridData2);
-		
+
 		scanTypeLabel = new Label(infoComposite, SWT.NONE);
 		scanTypeLabel.setText("                                                                    ");
 		rowDistanceLabel = new Label(infoComposite, SWT.NONE);

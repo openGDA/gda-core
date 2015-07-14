@@ -58,7 +58,7 @@ public class CryostatComposite extends FieldBeanComposite {
 	private Composite rampChoice, pidChoice, advChoice;
 	private ExpansionAdapter expansionListener;
 	private Label sampleNumberLabel;
-	
+
 	/**
 	 * @param parent
 	 * @param style
@@ -70,7 +70,7 @@ public class CryostatComposite extends FieldBeanComposite {
 
 		final Composite main = new Composite(this, SWT.NONE);
 		main.setLayout(new FillLayout());
-		
+
 		final Composite left = new Composite(main, SWT.NONE);
 		final GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 2;
@@ -101,7 +101,7 @@ public class CryostatComposite extends FieldBeanComposite {
 		time.setLayoutData(gd_time);
 		time.setUnit("s");
 		time.setMaximum(400.0);
-		
+
 		new Label(left, SWT.NONE);
 		new Label(left, SWT.NONE);
 
@@ -122,12 +122,12 @@ public class CryostatComposite extends FieldBeanComposite {
 		sampleNumber.setMaximum(2);
 		sampleNumber.setIntegerBox(true);
 		sampleNumber.setLayoutData(gd_temperature);
-		
+
 		sampleHolder.addValueListener(new ValueAdapter("sampleHolderListener") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				updateSampleRange();
-			}	
+			}
 		});
 
 		final Label positionLabel = new Label(left, SWT.NONE);
@@ -157,7 +157,7 @@ public class CryostatComposite extends FieldBeanComposite {
 
 		this.advancedExpandableComposite = new ExpandableComposite(right, SWT.NONE);
 		advancedExpandableComposite.setText("Advanced");
-		
+
 		final Composite advanced = new Composite(advancedExpandableComposite, SWT.NONE);
 		final GridLayout gridLayout_2 = new GridLayout();
 		gridLayout_2.numColumns = 2;
@@ -171,49 +171,49 @@ public class CryostatComposite extends FieldBeanComposite {
 		profileType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		profileType.setItems(new String[] {"PID", "Ramp"});
 		profileType.select(0);
-		
+
 		new Label(advanced, SWT.NONE);
-		
+
 		this.advChoice = new Composite(advanced, SWT.NONE);
 		advChoice.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		this.advStack = new StackLayout();
 		advChoice.setLayout(advStack);
-		
+
 		this.pidChoice = new Composite(advChoice, SWT.NONE);
 		pidChoice.setLayout(gridLayout_2);
 		advStack.topControl = pidChoice;
-		
+
 		final Label pLabel = new Label(pidChoice, SWT.NONE);
 		pLabel.setText("P");
-		
+
 		this.p = new ScaleBox(pidChoice,SWT.NONE);
 		p.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
 		final Label iLabel = new Label(pidChoice, SWT.NONE);
 		iLabel.setText("I");
-		
+
 		this.i = new ScaleBox(pidChoice,SWT.NONE);
 		i.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
+
 		final Label dLabel = new Label(pidChoice, SWT.NONE);
 		dLabel.setText("D");
-		
+
 		this.d = new ScaleBox(pidChoice,SWT.NONE);
 		d.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
+
 		this.rampChoice = new Composite(advChoice, SWT.NONE);
 		rampChoice.setLayout(gridLayout_2);
-		
+
 		final Label rampLabel = new Label(rampChoice, SWT.NONE);
 		rampLabel.setText("Ramp");
-		
+
 		this.ramp = new ScaleBox(rampChoice,SWT.NONE);
 		ramp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		ramp.setUnit("K/minute");
 		ramp.setMinimum(0.1d);
 		ramp.setMaximum(100d);
 		ramp.setValue(1d);
-		
+
 		final Label heaterLabel = new Label(advanced, SWT.NONE);
 		heaterLabel.setText("Heater Range");
 
@@ -231,7 +231,7 @@ public class CryostatComposite extends FieldBeanComposite {
 			}
 		};
 		advancedExpandableComposite.addExpansionListener(expansionListener);
-		
+
 		profileType.setNotifyType(NOTIFY_TYPE.ALWAYS);
 		profileType.addValueListener(new ValueAdapter("profileTypeListener") {
 			@Override
@@ -243,7 +243,7 @@ public class CryostatComposite extends FieldBeanComposite {
 			}
 		});
 	}
-	
+
 	protected void updateSampleRange() {
 		final int index = sampleHolder.getSelectionIndex();
 		if (index<3) {
@@ -262,13 +262,13 @@ public class CryostatComposite extends FieldBeanComposite {
         super.setValue(value);
         updateSampleRange();
 	}
-	
+
 	@Override
 	public void dispose() {
 		advancedExpandableComposite.removeExpansionListener(expansionListener);
 		super.dispose();
 	}
-	
+
 
 	private void updatePidLayout() {
 		advStack.topControl = profileType.getSelectionIndex()==0
@@ -279,25 +279,25 @@ public class CryostatComposite extends FieldBeanComposite {
 
 	/**
 	 * @return ScaleBox
-	 */ 
+	 */
 	public NumberBox getTemperature() {
 		return temperature;
 	}
 	/**
 	 * @return ScaleBox
-	 */ 
+	 */
 	public ScaleBox getTolerance() {
 		return tolerance;
 	}
 	/**
 	 * @return ScaleBox
-	 */ 
+	 */
 	public ScaleBox getTime() {
 		return time;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return d
 	 */
 	public ComboWrapper getProfileType() {
@@ -357,7 +357,7 @@ public class CryostatComposite extends FieldBeanComposite {
 	public RangeBox getFinePosition() {
 		return finePosition;
 	}
-	
+
 	/**
 	 * Used to show advanced in from test deck.
 	 */
@@ -374,4 +374,3 @@ public class CryostatComposite extends FieldBeanComposite {
 	}
 }
 
-	

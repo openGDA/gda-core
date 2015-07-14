@@ -19,10 +19,10 @@
 
 package gda.device.detector.xspress;
 
-import gda.data.nexus.extractor.NexusGroupData;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import gda.data.nexus.extractor.NexusGroupData;
 
 /**
  * Class which is sent at ScanDataPoint data. Must be public so that serializes.

@@ -50,4 +50,3 @@ public final class DetectorParametersEditor extends ExperimentBeanMultiPageEdito
 
 }
 
-	

@@ -18,12 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites.detectors.internal;
 
-import gda.data.NumTracker;
-import gda.data.PathConstructor;
-import gda.device.DeviceException;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -45,6 +39,11 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.NumTracker;
+import gda.data.PathConstructor;
+import gda.device.DeviceException;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.SashFormPlotComposite;
 import uk.ac.gda.devices.detector.FluorescenceDetector;
 import uk.ac.gda.devices.detector.FluorescenceDetectorParameters;
@@ -140,7 +139,7 @@ public class FluorescenceDetectorCompositeController {
 
 	/**
 	 * Start/stops continuous acquire
-	 * 
+	 *
 	 * @param collectionTime
 	 */
 	synchronized void continuousAcquire(final double collectionTime) {
@@ -342,7 +341,7 @@ public class FluorescenceDetectorCompositeController {
 		try {
 			theDetector.applyConfigurationParameters((FluorescenceDetectorParameters) fluorescenceDetectorComposite.getBean());
 			sashFormPlot.appendStatus("Successfully applied settings to detector", logger);
-			
+
 		} catch (DeviceException de) {
 			logAndDisplayErrorMessage("Exception applying detector settings",
 					"Hardware problem applying detector settings. See log for details.",

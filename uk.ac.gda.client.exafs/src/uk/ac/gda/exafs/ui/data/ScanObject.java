@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.data;
 
-import gda.exafs.scan.ExafsTimeEstimator;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.HashMap;
@@ -29,6 +27,7 @@ import org.dawnsci.common.richbeans.beans.BeansFactory;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 
+import gda.exafs.scan.ExafsTimeEstimator;
 import uk.ac.gda.beans.exafs.IDetectorParameters;
 import uk.ac.gda.beans.exafs.IOutputParameters;
 import uk.ac.gda.beans.exafs.ISampleParameters;
@@ -41,8 +40,8 @@ import uk.ac.gda.beans.microfocus.MicroFocusScanParameters;
 import uk.ac.gda.client.experimentdefinition.ExperimentObject;
 import uk.ac.gda.client.experimentdefinition.IExperimentObject;
 import uk.ac.gda.client.experimentdefinition.ui.handlers.XMLCommandHandler;
-import uk.ac.gda.util.beans.xml.XMLRichBean;
 import uk.ac.gda.util.beans.xml.XMLHelpers;
+import uk.ac.gda.util.beans.xml.XMLRichBean;
 
 /**
  * This class looks a bit like a bean but it is not designed to be a bean. It is an interface to the .scan file. setting
@@ -92,7 +91,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	public Map<String, IFile> getFilesWithTypes() {
 		HashMap<String,String> typeToFiles = getTypeToFileMap();
 		Map<String, IFile> targetFiles = new HashMap<String, IFile>(typeToFiles.size());
-		
+
 		for (Object fileType : typeToFiles.keySet()) {
 			IFile file = getFolder().getFile(typeToFiles.get(fileType));
 			targetFiles.put((String) fileType, file);
@@ -246,7 +245,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	/**
 	 * Returns a new bean. NOTE: Should not be used to get beans for editor, this is not the editors version but a
 	 * representation of the current file.
-	 * 
+	 *
 	 * @return a new bean from the file.
 	 * @throws Exception
 	 */
@@ -263,7 +262,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 
 	/**
 	 * Returns the name of the energy scannable being used.
-	 * 
+	 *
 	 * @return name
 	 * @throws Exception
 	 */
@@ -280,7 +279,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	/**
 	 * Returns a new bean. NOTE: Should not be used to get beans for editor, this is not the editors version but a
 	 * representation of the current file.
-	 * 
+	 *
 	 * @return a new bean from the file.
 	 * @throws Exception
 	 */
@@ -297,7 +296,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	/**
 	 * Returns a new bean. NOTE: Should not be used to get beans for editor, this is not the editors version but a
 	 * representation of the current file.
-	 * 
+	 *
 	 * @return a new bean from the file.
 	 * @throws Exception
 	 */
@@ -315,7 +314,7 @@ public class ScanObject extends ExperimentObject implements IExperimentObject {
 	/**
 	 * Returns a new bean. NOTE: Should not be used to get beans for editor, this is not the editors version but a
 	 * representation of the current file.
-	 * 
+	 *
 	 * @return a new bean from the file.
 	 * @throws Exception
 	 */

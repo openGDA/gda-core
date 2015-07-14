@@ -42,12 +42,12 @@ import uk.ac.gda.exafs.ExafsActivator;
 public class ExafsEditorPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String ID = "uk.ac.gda.exafs.preferences.exafsEditorPreferencePage";
 
 	/**
-	 * 
+	 *
 	 */
 	public ExafsEditorPreferencePage() {
 		super(GRID);

@@ -77,7 +77,7 @@ public class FurnaceParameters  implements Serializable{
 	public void setTime(double time) {
 		this.time = time;
 	}
-	
+
 	@Override
 	public String toString() {
 		try {

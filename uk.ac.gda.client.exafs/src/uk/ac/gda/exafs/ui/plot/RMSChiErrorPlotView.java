@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.plot;
 
-import gda.scan.IScanDataPoint;
-
 import java.util.ArrayList;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
@@ -28,6 +26,7 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.scan.IScanDataPoint;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.DataSetPlotData;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.IPlotData;
 
@@ -72,7 +71,7 @@ public class RMSChiErrorPlotView extends ExafsScanPlotView {
 
 		final Dataset energy = DatasetFactory.createFromList(cachedX);
 		final Dataset lnI0It = DatasetFactory.createFromList(cachedY);
-		
+
 		try {
 			Double[] edgePos = xafsFittingUtils.estimateEdgePosition(energy, lnI0It);
 

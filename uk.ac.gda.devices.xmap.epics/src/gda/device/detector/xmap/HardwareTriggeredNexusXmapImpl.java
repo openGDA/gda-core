@@ -18,6 +18,13 @@
 
 package gda.device.detector.xmap;
 
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.Callable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
 import gda.data.metadata.GDAMetadataProvider;
@@ -28,13 +35,6 @@ import gda.device.detector.xmap.edxd.EDXDController.COLLECTION_MODES;
 import gda.device.detector.xmap.edxd.EDXDMappingController;
 import gda.device.scannable.PositionStreamIndexer;
 import gda.factory.FactoryException;
-
-import java.io.File;
-import java.util.List;
-import java.util.concurrent.Callable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HardwareTriggeredNexusXmapImpl extends HardwareTriggerableDetectorBase implements
 		HardwareTriggeredNexusXmap {

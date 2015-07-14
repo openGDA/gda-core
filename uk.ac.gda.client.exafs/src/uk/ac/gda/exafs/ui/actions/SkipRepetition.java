@@ -18,9 +18,6 @@
 
 package uk.ac.gda.exafs.ui.actions;
 
-import gda.exafs.scan.RepetitionsProperties;
-import gda.jython.InterfaceProvider;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -33,10 +30,13 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.exafs.scan.RepetitionsProperties;
+import gda.jython.InterfaceProvider;
+
 public class SkipRepetition extends AbstractHandler implements IWorkbenchWindowActionDelegate, IEditorActionDelegate {
 
 	private static final Logger logger = LoggerFactory.getLogger(SkipRepetition.class);
-	
+
 	@Override
 	public void run(IAction arg0) {
 	}
@@ -47,9 +47,9 @@ public class SkipRepetition extends AbstractHandler implements IWorkbenchWindowA
 
 	@Override
 	public Object execute(ExecutionEvent arg0) throws ExecutionException {
-		
+
 		logger.debug("SkipRepetition button pressed");
-		
+
 		InterfaceProvider.getTerminalPrinter().print(
 				"** Request made to skip the current repetition and if available move on to the next one.");
 		InterfaceProvider.getCommandRunner().runCommand(

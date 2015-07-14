@@ -21,7 +21,7 @@ package gda.device.detector.nxdetector.xmap.collectionStrategy;
 import gda.device.DeviceException;
 import gda.device.detector.addetector.triggering.CollectionStrategyBeanInterface;
 import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer;
-import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer.*;
+import gda.device.detector.nxdetector.xmap.controller.XmapAcquisitionBaseEpicsLayer.CollectionModeEnum;
 import gda.scan.ScanInformation;
 
 /**
@@ -63,7 +63,7 @@ public abstract class XmapSimpleAcquire implements CollectionStrategyBeanInterfa
 		throw new UnsupportedOperationException(
 				"Must be operated via prepareForCollection(collectionTime, numberImagesPerCollection)");
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if( xmap == null)

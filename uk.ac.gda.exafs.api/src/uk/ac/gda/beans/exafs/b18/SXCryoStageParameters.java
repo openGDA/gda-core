@@ -21,13 +21,13 @@ package uk.ac.gda.beans.exafs.b18;
 import java.io.Serializable;
 
 public class SXCryoStageParameters  implements Serializable {
-	
+
 	private boolean manual;
 	private double height;
 	private double rotation;
 	private double calibHeight;
 	private int sampleNumber;
-	
+
 	public double getHeight() {
 		return height;
 	}
@@ -94,7 +94,7 @@ public class SXCryoStageParameters  implements Serializable {
 			return false;
 		return true;
 	}
-	
+
 	public void clear() {
 		height = calibHeight = sampleNumber = 0;
 	}
@@ -106,6 +106,6 @@ public class SXCryoStageParameters  implements Serializable {
 	public void setManual(boolean manual) {
 		this.manual = manual;
 	}
-	
-	
+
+
 }

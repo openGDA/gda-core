@@ -30,27 +30,27 @@ public class ExafsScanRegionTime {
 		this.stepsCount = stepsCount;
 		this.time = time;
 	}
-	
+
 	public void setRegionName(String regionName) {
 		this.regionName = regionName;
 	}
-	
+
 	public String getRegionName() {
 		return regionName;
 	}
-	
+
 	public void setStepsCount(int stepsCount) {
 		this.stepsCount = stepsCount;
 	}
-	
+
 	public int getStepsCount() {
 		return stepsCount;
 	}
-	
+
 	public void setTime(double[] time) {
 		this.time = time;
 	}
-	
+
 	public double[] getTime() {
 		return time;
 	}

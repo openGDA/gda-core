@@ -1,20 +1,20 @@
 package uk.ac.gda.devices.detector.xspress3.controllerimpl;
 
-import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 import gda.epics.LazyPVFactory;
 import gda.epics.PV;
 import gda.epics.ReadOnlyPV;
 import gda.factory.FactoryException;
+import uk.ac.gda.devices.detector.xspress3.TRIGGER_MODE;
 
 public class EpicsXspress3ControllerPvProvider {
-	
+
 	public static final int NUMBER_ROIs = 10; // fixed for the moment, but will could be changed in the future as this is an EPICS-level calculation
 	public static final int MCA_SIZE = 4096; // fixed for the moment, but will could be changed in the future as this is an EPICS-level calculation
-	
+
 	final private int numberOfDetectorChannels;
 
-	// EPICS strings in camelcase are from the Quantum Detectors API, the ones in capitals are EPICS values 
-	
+	// EPICS strings in camelcase are from the Quantum Detectors API, the ones in capitals are EPICS values
+
 	// Control and Status
 	private static String ACQUIRE_SUFFIX = ":Acquire";
 	private static String ERASE_SUFFIX = ":ERASE";
@@ -56,7 +56,7 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String EXTRA_DIM_N = ":HDF5:ExtraDimSizeN";
 	private static String EXTRA_DIM_X= ":HDF5:ExtraDimSizeX";
 	private static String EXTRA_DIM_Y = ":HDF5:ExtraDimSizeY";
-	
+
 	// All Element Sum File creation PVs
 //	private static String ALL_EL_STARTSTOP_FILE_WRITING = ":ALLEL:HDF5:Capture";
 //	private static String ALL_EL_FILE_WRITING_RBV = ":ALLEL:HDF5:Capture_RBV";
@@ -70,15 +70,15 @@ public class EpicsXspress3ControllerPvProvider {
 //	private static String ALL_EL_NEXT_FILENUMBER = ":ALLEL:HDF5:FileNumber";
 //	private static String ALL_EL_FILE_AUTOINCREMENT = ":ALLEL:HDF5:AutoIncrement";
 //	private static String ALL_EL_FILE_NUMCAPTURE = ":ALLEL:HDF5:NumCapture";
-//	
+//
 //	private static String ALL_EL_EXTRA_DIMS = ":ALLEL:HDF5:NumExtraDims";
 //	private static String ALL_EL_EXTRA_DIM_N = ":ALLEL:HDF5:ExtraDimSizeN";
 //	private static String ALL_EL_EXTRA_DIM_X= ":ALLEL:HDF5:ExtraDimSizeX";
 //	private static String ALL_EL_EXTRA_DIM_Y = ":ALLEL:HDF5:ExtraDimSizeY";
-	
 
-	
-	
+
+
+
 	// Display Updates
 //	private static String SCALER_UPDATE_SUFFIX = ":CTRL_DATA_UPDATE";
 //	private static String SCALER_UPDATE_RBV_SUFFIX = ":CTRL_DATA_UPDATE_RBV";
@@ -108,10 +108,10 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String SCA_WIN2_LOW_BIN_RBV_TEMPLATE = ":C%1d_SCA6_LLM_RBV";// channel (1-8)
 	private static String SCA_WIN2_HIGH_BIN_TEMPLATE = ":C%1d_SCA6_HLM";// channel (1-8)
 	private static String SCA_WIN2_HIGH_BIN_RBV_TEMPLATE = ":C%1d_SCA6_HLM_RBV";// channel (1-8)
-	
+
 	private static String SCA_WIN1_SCAS_TEMPLATE = ":C%1d_SCA5:ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
 	private static String SCA_WIN2_SCAS_TEMPLATE = ":C%1d_SCA6:ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
-	
+
 	private static String SCA_TIME_SCAS_TEMPLATE = ":C%1d_SCA0:ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
 	private static String SCA_RESET_TICKS_SCAS_TEMPLATE = ":C%1d_SCA1:ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
 	private static String SCA_RESET_COUNT_TEMPLATE = ":C%1d_SCA2:ArrayData_RBV.VAL";// channel (1-8)  this points towards a waveform
@@ -124,7 +124,7 @@ public class EpicsXspress3ControllerPvProvider {
 	private static String ALL_GOOD_EVT_OFFSET_TEMPLATE = ":C%1d_DTC_AEO_RBV";// channel (1-8)
 	private static String IN_WIN_EVT_GRAD_TEMPLATE = ":C%1d_DTC_IWG_RBV";// channel (1-8)
 	private static String INWIN_EVT_OFFSET_TEMPLATE = ":C%1d_DTC_IWO_RBV";// channel (1-8)
-	
+
 	// the shared PVs with the Controller which uses this object
 	protected String epicsTemplate;
 	protected PV<ACQUIRE_STATE> pvAcquire;
@@ -181,7 +181,7 @@ public class EpicsXspress3ControllerPvProvider {
 	protected PV<Integer>[][] pvsROIHLM;// [roi][channel]
 	protected ReadOnlyPV<Double>[][] pvsLatestROI;  // [roi][channel]
 	protected ReadOnlyPV<Double[]>[][] pvsROIs;   //[roi][channel]
-	
+
 	protected PV<CAPTURE_CTRL_RBV> pvStartStopFileWriting;
 	protected ReadOnlyPV<CAPTURE_CTRL_RBV> pvIsFileWriting;
 	protected ReadOnlyPV<Integer> pvGetFileWritingStatus;
@@ -248,7 +248,7 @@ public class EpicsXspress3ControllerPvProvider {
 		 pvIsBusy = LazyPVFactory.newReadOnlyBooleanFromIntegerPV(generatePVName(BUSY_SUFFIX));
 		 pvIsConnected = LazyPVFactory.newReadOnlyEnumPV(generatePVName(CONNECTION_STATUS), CONNECTION_STATE.class);
 	}
-	
+
 	private void createFileWritingPVs() {
 		pvStartStopFileWriting =  LazyPVFactory.newEnumPV(generatePVName(STARTSTOP_FILE_WRITING),CAPTURE_CTRL_RBV.class);
 		pvIsFileWriting = LazyPVFactory.newReadOnlyEnumPV(generatePVName(FILE_WRITING_RBV),CAPTURE_CTRL_RBV.class);
@@ -265,7 +265,7 @@ public class EpicsXspress3ControllerPvProvider {
 		pvExtraDimN = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_N));
 		pvExtraDimX = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_X));
 		pvExtraDimY = LazyPVFactory.newIntegerPV(generatePVName(EXTRA_DIM_Y));
-		
+
 //		pvAllElementSumStartStopFileWriting =  LazyPVFactory.newEnumPV(generatePVName(ALL_EL_STARTSTOP_FILE_WRITING),CAPTURE_CTRL_RBV.class);
 //		pvAllElementSumIsFileWriting = LazyPVFactory.newReadOnlyEnumPV(generatePVName(ALL_EL_FILE_WRITING_RBV),CAPTURE_CTRL_RBV.class);
 //		pvAllElementSumSetFilePath = LazyPVFactory.newStringFromWaveformPV(generatePVName(ALL_EL_FILE_PATH));
@@ -281,7 +281,7 @@ public class EpicsXspress3ControllerPvProvider {
 //		pvAllElementSumExtraDimY = LazyPVFactory.newIntegerPV(generatePVName(ALL_EL_EXTRA_DIM_Y));
 
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private void createDisplayPVs() {
 		pvGetMaxFrames = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(MAX_FRAMES_SUFFIX));
@@ -317,7 +317,7 @@ public class EpicsXspress3ControllerPvProvider {
 	private void createReadoutPVs() {
 		pvsScalerWindow1 = new ReadOnlyPV[numberOfDetectorChannels];
 		pvsScalerWindow2 = new ReadOnlyPV[numberOfDetectorChannels];
-		
+
 		pvsScaWin1Low = new PV[numberOfDetectorChannels];
 		pvsScaWin1LowRBV = new ReadOnlyPV[numberOfDetectorChannels];
 		pvsScaWin1High = new PV[numberOfDetectorChannels];
@@ -326,14 +326,14 @@ public class EpicsXspress3ControllerPvProvider {
 		pvsScaWin2LowRBV = new ReadOnlyPV[numberOfDetectorChannels];
 		pvsScaWin2High = new PV[numberOfDetectorChannels];
 		pvsScaWin2HighRBV = new ReadOnlyPV[numberOfDetectorChannels];
-		
+
 		pvsTime = new ReadOnlyPV[numberOfDetectorChannels];
 		pvsResetTicks = new ReadOnlyPV[numberOfDetectorChannels];
 		pvsResetCount = new ReadOnlyPV[numberOfDetectorChannels];
 		pvsAllEvent = new ReadOnlyPV[numberOfDetectorChannels];
 		pvsAllGood = new ReadOnlyPV[numberOfDetectorChannels];
 		pvsPileup = new ReadOnlyPV[numberOfDetectorChannels];
-		
+
 		pvsGoodEventGradient = new ReadOnlyPV[numberOfDetectorChannels];
 		pvsGoodEventOffset = new ReadOnlyPV[numberOfDetectorChannels];
 		pvsInWinEventGradient = new ReadOnlyPV[numberOfDetectorChannels];
@@ -341,7 +341,7 @@ public class EpicsXspress3ControllerPvProvider {
 
 		pvsLatestMCA = new ReadOnlyPV[numberOfDetectorChannels];
 		pvsLatestMCASummed = new ReadOnlyPV[numberOfDetectorChannels];
-		
+
 		for (int channel = 1; channel <= numberOfDetectorChannels; channel++){
 			pvsScalerWindow1[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_WIN1_SCAS_TEMPLATE,channel));
 			pvsScalerWindow2[channel-1] = LazyPVFactory.newReadOnlyDoubleArrayPV(generatePVName(SCA_WIN2_SCAS_TEMPLATE,channel));
@@ -354,14 +354,14 @@ public class EpicsXspress3ControllerPvProvider {
 			pvsScaWin2LowRBV[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(SCA_WIN2_LOW_BIN_RBV_TEMPLATE,channel));
 			pvsScaWin2High[channel-1] = LazyPVFactory.newIntegerPV(generatePVName(SCA_WIN2_HIGH_BIN_TEMPLATE,channel));
 			pvsScaWin2HighRBV[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(SCA_WIN2_HIGH_BIN_RBV_TEMPLATE,channel));
-			
+
 			pvsTime[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_TIME_SCAS_TEMPLATE,channel));
 			pvsResetTicks[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_RESET_TICKS_SCAS_TEMPLATE,channel));
 			pvsResetCount[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_RESET_COUNT_TEMPLATE,channel));
 			pvsAllEvent[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ALL_EVENT_TEMPLATE,channel));
 			pvsAllGood[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_ALL_GOOD_TEMPLATE,channel));
 			pvsPileup[channel-1] = LazyPVFactory.newReadOnlyIntegerArrayPV(generatePVName(SCA_PILEUP_TEMPLATE,channel));
-			
+
 			pvsGoodEventGradient[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(ALL_GOOD_EVT_GRAD_TEMPLATE,channel));
 			pvsGoodEventOffset[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(ALL_GOOD_EVT_OFFSET_TEMPLATE,channel));
 			pvsInWinEventGradient[channel-1] = LazyPVFactory.newReadOnlyIntegerPV(generatePVName(IN_WIN_EVT_GRAD_TEMPLATE,channel));
@@ -372,14 +372,14 @@ public class EpicsXspress3ControllerPvProvider {
 		}
 	}
 
-	
+
 	@SuppressWarnings("unchecked")
 	private void createMCAPVs() {
 		pvsROILLM = new PV[NUMBER_ROIs][numberOfDetectorChannels];
 		pvsROIHLM = new PV[NUMBER_ROIs][numberOfDetectorChannels];
 		pvsLatestROI = new ReadOnlyPV[NUMBER_ROIs][numberOfDetectorChannels];
 		pvsROIs = new ReadOnlyPV[NUMBER_ROIs][numberOfDetectorChannels];
-		
+
 		for (int roi = 1; roi <= NUMBER_ROIs; roi++){
 			for (int channel = 1; channel <= numberOfDetectorChannels; channel++){
 				pvsROILLM[roi-1][channel-1] = LazyPVFactory.newIntegerPV(generatePVName(ROI_LOW_BIN_TEMPLATE,channel,roi));

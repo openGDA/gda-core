@@ -18,18 +18,18 @@
 
 package gda.data.scan.datawriter;
 
-import gda.data.nexus.NexusUtils;
-
 import java.util.HashMap;
 import java.util.Vector;
 
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 
+import gda.data.nexus.NexusUtils;
+
 /**
  * Nexus Data Writer which has a custom list of metadata values about the sample to add to the nexus file.
  * <p>
- * Required because the NexusDataWriter does not write every piece of metadata to itself by default. 
+ * Required because the NexusDataWriter does not write every piece of metadata to itself by default.
  */
 public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 
@@ -37,7 +37,7 @@ public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 	 * The pieces of metadata, grouped in categories. They will be written to the Nexus file under those categories.
 	 */
 	private static HashMap<String,Vector<NexusFileMetadata>> groupedMetadata = new HashMap<String,Vector<NexusFileMetadata>>();
-	
+
 	public static void addMetadataEntry(NexusFileMetadata metadata){
 		String category = metadata.getUniqueCategory();
 		if (groupedMetadata.containsKey(category)){
@@ -45,7 +45,7 @@ public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 			for (NexusFileMetadata existingEntry : group)
 				if (existingEntry.getName().equals(metadata.getName()))
 					return;
-			group.add(metadata);				
+			group.add(metadata);
 		} else {
 			Vector<NexusFileMetadata> newgroup = new Vector<NexusFileMetadata>();
 			newgroup.add(metadata);
@@ -68,19 +68,19 @@ public class NexusExtraMetadataDataWriter extends NexusDataWriter {
 				group.remove(match);
 		}
 	}
-	
+
 	public static void removeAllMetadataEntries(){
 		groupedMetadata.clear();
 	}
-	
+
 	public static HashMap<String,Vector<NexusFileMetadata>> getMetadataEntries(){
 		return groupedMetadata;
 	}
-	
+
 	public NexusExtraMetadataDataWriter() {
 		super();
 	}
-	
+
 	public NexusExtraMetadataDataWriter(int fileNumber) {
 		super(fileNumber);
 	}

@@ -18,27 +18,27 @@
 
 package uk.ac.gda.beans.exafs;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.Serializable;
 
 import org.apache.commons.beanutils.BeanUtils;
+
+import gda.configuration.properties.LocalProperties;
 
 /**
  *
  */
 public class DrainCurrentParameters  implements Serializable{
-	
+
 	private String  name;
 	private String  deviceName=LocalProperties.get("gda.exafs.ionchambersName","counterTimer01");
 	private Integer channel=1;
 	private String  currentAmplifierName="Keithley";
 	private String  gain;
 	private Boolean changeSensitivity = false;
-	
+
 	// Not persisted but used in pressure calculation.
 	private Double  workingEnergy;
- 
+
 	/**
 	 * @return Returns the workingEnergy.
 	 */

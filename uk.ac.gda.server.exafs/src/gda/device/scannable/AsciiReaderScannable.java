@@ -18,17 +18,17 @@
 
 package gda.device.scannable;
 
-import gda.device.DeviceException;
-import gda.device.scannable.corba.impl.ScannableAdapter;
-import gda.device.scannable.corba.impl.ScannableImpl;
-import gda.factory.corba.util.CorbaAdapterClass;
-import gda.factory.corba.util.CorbaImplClass;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
+
+import gda.device.DeviceException;
+import gda.device.scannable.corba.impl.ScannableAdapter;
+import gda.device.scannable.corba.impl.ScannableImpl;
+import gda.factory.corba.util.CorbaAdapterClass;
+import gda.factory.corba.util.CorbaImplClass;
 
 @CorbaImplClass(ScannableImpl.class)
 @CorbaAdapterClass(ScannableAdapter.class)
@@ -41,7 +41,7 @@ public class AsciiReaderScannable extends SimpleScannable {
 	private BufferedReader reader;
 	private ArrayList<String> dataLines;
 	private int delay = 200;
-	
+
 	public AsciiReaderScannable() {
 		inputNames = new String[] { "Energy" };
 		extraNames = new String[] { "Integration Time" };
@@ -50,17 +50,17 @@ public class AsciiReaderScannable extends SimpleScannable {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#atScanEnd()
 	 */
 	@Override
 	public void atScanEnd() throws DeviceException {
 		dataLines = new ArrayList<String>();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#atScanStart()
 	 */
 	@Override
@@ -68,7 +68,7 @@ public class AsciiReaderScannable extends SimpleScannable {
 		try {
 			reader = new BufferedReader(new FileReader(filename));
 			dataLines = new ArrayList<String>();
-			String tmpLine = reader.readLine(); 
+			String tmpLine = reader.readLine();
 			while (tmpLine != null) {
 				dataLines.add(tmpLine);
 				tmpLine = reader.readLine();
@@ -107,7 +107,7 @@ public class AsciiReaderScannable extends SimpleScannable {
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.device.Scannable#getPosition()
 	 */
 	@Override

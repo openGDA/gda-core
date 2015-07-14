@@ -37,7 +37,7 @@ public class ChangeNumberRepetitions extends AbstractHandler implements IWorkben
 		IEditorActionDelegate {
 
 	private static final Logger logger = LoggerFactory.getLogger(ChangeNumberRepetitions.class);
-	
+
 	@Override
 	public void run(IAction action) {
 	}
@@ -48,9 +48,9 @@ public class ChangeNumberRepetitions extends AbstractHandler implements IWorkben
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
+
 		logger.debug("ChangeNumberRepetitions button pressed");
-		
+
 		ChangeNumberRepetitionsDialog dialog = new ChangeNumberRepetitionsDialog(PlatformUI.getWorkbench()
 				.getActiveWorkbenchWindow().getShell());
 		dialog.create();

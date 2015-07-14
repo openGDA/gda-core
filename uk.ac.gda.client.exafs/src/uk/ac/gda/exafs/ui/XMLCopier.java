@@ -21,14 +21,14 @@ package uk.ac.gda.exafs.ui;
 import org.eclipse.core.resources.IFolder;
 
 public interface XMLCopier {
-	
+
 	/**
 	 * Implement this method to copy the required file to the
 	 * folder passed in.
-	 * 
+	 *
 	 * @param folder
 	 * @return the name of the file created
 	 */
 	public String doCopy(IFolder folder);
-	
+
 }

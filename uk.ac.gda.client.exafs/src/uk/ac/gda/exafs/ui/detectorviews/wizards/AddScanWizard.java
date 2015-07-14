@@ -34,13 +34,13 @@ public class AddScanWizard extends Wizard implements INewWizard{
 	private AddScanWizardPageOne page1;
 	private AddScanWizardPageTwo page2;
 	private IExperimentEditorManager controller = null;
-	
+
 	protected IExperimentEditorManager getController() {
 		if (controller == null)
 			this.controller = ExperimentFactory.getExperimentEditorManager();
 		return controller;
 	}
-	
+
 	@Override
 	public boolean performFinish() {
 		final IExperimentObjectManager man = getController().getSelectedMultiScan();
@@ -60,7 +60,7 @@ public class AddScanWizard extends Wizard implements INewWizard{
 		controller.openDefaultEditors(created, true);
 		return true;
 	}
-	
+
 	@Override
 	public void addPages() {
 		setWindowTitle("Add Scan");

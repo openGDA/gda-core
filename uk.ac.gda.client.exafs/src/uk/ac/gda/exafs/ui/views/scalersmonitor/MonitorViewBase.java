@@ -18,13 +18,6 @@
 
 package uk.ac.gda.exafs.ui.views.scalersmonitor;
 
-import gda.device.DeviceException;
-import gda.jython.Jython;
-import gda.jython.JythonServerFacade;
-import gda.jython.JythonServerStatus;
-import gda.observable.IObserver;
-import gda.rcp.GDAClientActivator;
-
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.plotting.api.IPlottingSystem;
 import org.eclipse.dawnsci.plotting.api.PlottingFactory;
@@ -43,6 +36,12 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.jython.Jython;
+import gda.jython.JythonServerFacade;
+import gda.jython.JythonServerStatus;
+import gda.observable.IObserver;
+import gda.rcp.GDAClientActivator;
 import uk.ac.gda.client.CommandQueueViewFactory;
 
 /**
@@ -105,7 +104,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 
 	/**
 	 * Collect the data from the fluorescence detector
-	 * 
+	 *
 	 * @return Double[]
 	 * @throws DeviceException
 	 */
@@ -113,7 +112,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 
 	/**
 	 * Runs in the UI thread, so updates to UI objects should only be made here.
-	 * 
+	 *
 	 * @param values
 	 *            - values from the ion chambers
 	 * @param xspressStats
@@ -123,7 +122,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 
 	/**
 	 * Collect the data from the ion chambers
-	 * 
+	 *
 	 * @return Double[]
 	 * @throws DeviceException
 	 */
@@ -236,7 +235,7 @@ public abstract class MonitorViewBase extends ViewPart implements Runnable, IPar
 	 * Extending classes should use this when creating their datasets to create an empty data set to force the y-axis to
 	 * be a fixed scale. This gets around the limitation of the current graphing and its use should be reviewed when the
 	 * new graphing is available in Spring 2012.
-	 * 
+	 *
 	 * @param maxValue
 	 * @return DoubleDataset
 	 */

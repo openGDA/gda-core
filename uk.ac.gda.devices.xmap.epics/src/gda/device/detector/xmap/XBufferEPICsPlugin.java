@@ -18,14 +18,14 @@
 
 package gda.device.detector.xmap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.epics.connection.EpicsController;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  *
@@ -34,17 +34,17 @@ public class XBufferEPICsPlugin implements InitializingBean {
 	protected final static EpicsController EPICS_CONTROLLER = EpicsController.getInstance();
 	private String basePVName;
 	static final Logger logger = LoggerFactory.getLogger(XBufferEPICsPlugin.class);
-	
+
 	public enum EnableCallbacks {
 		DISABLE, ENABLE
 	}
 	/**
-	 * 
+	 *
 	 */
 	public XBufferEPICsPlugin() {
-		
+
 	}
-	
+
 	/**
 	 * @return Returns the basePVName.
 	 */
@@ -59,8 +59,8 @@ public class XBufferEPICsPlugin implements InitializingBean {
 	public void setBasePVName(String basePVName) {
 		this.basePVName = basePVName;
 	}
-	
-	
+
+
 	public Channel createChannel(String fullPvName) throws CAException, TimeoutException {
 		Channel channel;
 		try {
@@ -74,7 +74,7 @@ public class XBufferEPICsPlugin implements InitializingBean {
 		}
 		return channel;
 	}
-	
+
 	protected Channel getChannel() throws Exception {
 		try {
 			String fullPvName = basePVName+"EnableCallbacks_RBV";
@@ -84,7 +84,7 @@ public class XBufferEPICsPlugin implements InitializingBean {
 			throw exception;
 		}
 	}
-	
+
 	public int getEnableCallbacks_RBV() throws Exception{
 		try{
 			return EPICS_CONTROLLER.cagetEnum(getChannel());
@@ -93,7 +93,7 @@ public class XBufferEPICsPlugin implements InitializingBean {
 			throw ex;
 		}
 	}
-	
+
 	public void setEnableCallbacks_RBV(int enableCallbacks) throws Exception{
 		try{
 			EPICS_CONTROLLER.caput(getChannel(),enableCallbacks);
@@ -102,7 +102,7 @@ public class XBufferEPICsPlugin implements InitializingBean {
 			throw ex;
 		}
 	}
-		
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (basePVName == null) {

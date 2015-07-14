@@ -36,14 +36,14 @@ public class AddScanCommandHandler extends AbstractExperimentCommandHandler {
 
 	@Override
 	public Object execute(ExecutionEvent arg0) throws ExecutionException {
-		
+
 		IWorkbench workbench = PlatformUI.getWorkbench();
 		Shell shell = workbench.getActiveWorkbenchWindow().getShell();
 		AddScanWizard wizard = new AddScanWizard();
 		WizardDialog dialog = new WizardDialog(shell, wizard);
 		dialog.create();
-		dialog.open(); 
-		
+		dialog.open();
+
 		return null;
 	}
 

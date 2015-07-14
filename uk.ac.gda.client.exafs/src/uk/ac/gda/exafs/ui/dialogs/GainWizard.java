@@ -39,12 +39,12 @@ public class GainWizard extends Wizard {
     	super();
     	setNeedsProgressMonitor(true);
     }
-    
+
     @Override
 	public void addPages() {
         this.gainPage = new GainWizardPage();
         addPage(gainPage);
-        
+
         getAllValues();
  	}
 
@@ -56,11 +56,11 @@ public class GainWizard extends Wizard {
 		if (type.equalsIgnoreCase("Transmission")) {
 			TransmissionComposite tpc = (TransmissionComposite)BeanUI.getBeanField("transmissionParameters", DetectorParameters.class);
 			ionChambers = tpc.getIonChamberParameters();
-		} 
+		}
 		else if (type.equalsIgnoreCase("fluorescence")) {
 			FluorescenceComposite fpc = (FluorescenceComposite)BeanUI.getBeanField("fluorescenceParameters", DetectorParameters.class);
 			ionChambers = fpc.getIonChamberParameters();
-		} 
+		}
 		else {
 			logger.error("Cannot deal with experimentType = '"+type+"'");
 			throw new RuntimeException("Cannot deal with experimentType = '"+type+"'");
@@ -74,7 +74,7 @@ public class GainWizard extends Wizard {
 		}
 		return true;
 	}
-    
+
 	protected void getAllValues() {
 		gainPage.getFinalEnergyValue();
 		gainPage.getSampleEdgeValue();

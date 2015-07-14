@@ -24,7 +24,7 @@ package uk.ac.gda.exafs.util;
 public class SmallIntensityException extends IntensityException {
 
 	/**
-	 * 
+	 *
 	 */
 	public SmallIntensityException() {
 		// TODO Auto-generated constructor stub

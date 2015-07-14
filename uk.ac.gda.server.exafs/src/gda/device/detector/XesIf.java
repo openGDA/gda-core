@@ -36,10 +36,10 @@ public class XesIf extends DetectorBase {
 	private TfgScaler scaler = null;
 	private Memory gdhist = null;
 	private int ifChannelNumber;
-	
+
 	public XesIf() {
 	}
-	
+
 	@Override
 	public void configure() {
 		setExtraNames(new String[] { "I1","FFI1","Time" });

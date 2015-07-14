@@ -60,7 +60,7 @@ public class SampleParameters implements Serializable, ISampleParameters {
 	public void setDescription1(String description) {
 		this.description1 = description;
 	}
-	
+
 	public String getDescription2() {
 		return description2;
 	}

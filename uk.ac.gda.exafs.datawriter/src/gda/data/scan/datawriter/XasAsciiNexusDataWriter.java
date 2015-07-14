@@ -18,12 +18,14 @@
 
 package gda.data.scan.datawriter;
 
-import gda.data.fileregistrar.FileRegistrarHelper;
-import gda.scan.IScanDataPoint;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.fileregistrar.FileRegistrarHelper;
+import gda.scan.IScanDataPoint;
 
 /**
  * Write to an Xas and a Nexus file simultaneously
@@ -98,7 +100,7 @@ public class XasAsciiNexusDataWriter extends DataWriterBase implements Configura
 			firstData = false;
 		}
 
-		
+
 		// Nested try..catch..finallys so we at least attempt to write data to
 		// other file writers if there is an error, but still ensure that the
 		// exception is propagated.

@@ -19,13 +19,14 @@
 package gda.data.scan.datawriter;
 
 import static org.junit.Assert.assertEquals;
-import gda.scan.ScanDataPoint;
 
 import org.junit.Test;
 
+import gda.scan.ScanDataPoint;
+
 public class TwoDScanRowReverserTest {
 
-	
+
 	@Test
 	public void NineByFourTest () {
 		TwoDScanRowReverser indexer = new TwoDScanRowReverser();
@@ -33,12 +34,12 @@ public class TwoDScanRowReverserTest {
 		indexer.setNoOfRows(4);
 		indexer.setReverseOdd(true);
 		indexer.setReverseEven(false);
-		
+
 		ScanDataPoint sdp = new ScanDataPoint();
 		sdp.setCurrentPointNumber(0);
 		indexer.indexData(sdp);
 		assertEquals(0,sdp.getCurrentPointNumber());
-		
+
 		sdp = new ScanDataPoint();
 		sdp.setCurrentPointNumber(6);
 		indexer.indexData(sdp);

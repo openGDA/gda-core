@@ -18,6 +18,16 @@
 
 package uk.ac.gda.server.exafs.epics.device.scannable;
 
+import org.jscience.physics.quantities.Angle;
+import org.jscience.physics.quantities.Constants;
+import org.jscience.physics.quantities.Energy;
+import org.jscience.physics.quantities.Length;
+import org.jscience.physics.quantities.Quantity;
+import org.jscience.physics.units.NonSI;
+import org.jscience.physics.units.SI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
 import gda.device.MotorStatus;
@@ -33,16 +43,6 @@ import gda.util.QuantityFactory;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import org.jscience.physics.quantities.Angle;
-import org.jscience.physics.quantities.Constants;
-import org.jscience.physics.quantities.Energy;
-import org.jscience.physics.quantities.Length;
-import org.jscience.physics.quantities.Quantity;
-import org.jscience.physics.units.NonSI;
-import org.jscience.physics.units.SI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * For QEXAFS scans for B18 only. Operates the mono energy but also set position compare to define when and how TTL
@@ -99,7 +99,7 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 	private boolean runDownOn = true;
 
 	public boolean calcEndFromGui = true;
-	
+
 	private boolean toggleEnergyControl = false;
 
 	private double stepIncDemDeg;
@@ -318,7 +318,7 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 			toggleEnergyControl();
 		}
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		stop();
@@ -617,7 +617,7 @@ public class QexafsScannable extends ScannableMotor implements ContinuouslyScann
 
 	/**
 	 * When true then the energy control PV will be toggled at the end of a qexafs. Default is false.
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public boolean isToggleEnergyControl() {

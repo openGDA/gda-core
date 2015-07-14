@@ -41,9 +41,9 @@ public class VortexParameters implements Serializable, FluorescenceDetectorParam
 	static public final URL mappingURL = VortexParameters.class.getResource("VortexMapping.xml");
 
 	static public final URL schemaURL = VortexParameters.class.getResource("VortexMapping.xsd");
-	
+
 	private int selectedRegionNumber =0;
-	
+
 	public static VortexParameters createFromXML(String filename) throws Exception {
 		return (VortexParameters) XMLHelpers.createFromXML(mappingURL, VortexParameters.class, schemaURL, filename);
 	}
@@ -60,18 +60,21 @@ public class VortexParameters implements Serializable, FluorescenceDetectorParam
 		detectorList.add(detectorElement);
 	}
 
+	@Override
 	public List<DetectorElement> getDetectorList() {
 		return detectorList;
 	}
 
+	@Override
 	public void setDetectorList(List<DetectorElement> detectorList) {
 		this.detectorList = detectorList;
 	}
 
+	@Override
 	public DetectorElement getDetector(int index) {
 		return detectorList.get(index);
 	}
-	
+
 	public void clear(){
 		if (detectorList!=null) detectorList.clear();
 	}
@@ -101,7 +104,7 @@ public class VortexParameters implements Serializable, FluorescenceDetectorParam
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		
+
 		if (Double.doubleToLongBits(collectionTime) != Double.doubleToLongBits(objectCast(obj).collectionTime)) {
 			return false;
 		}
@@ -160,7 +163,7 @@ public class VortexParameters implements Serializable, FluorescenceDetectorParam
 	public void setCollectionTime(double collectionTime) {
 		this.collectionTime = collectionTime;
 	}
-	
+
 	public String getDetectorName() {
 		return detectorName;
 	}
@@ -209,7 +212,7 @@ public class VortexParameters implements Serializable, FluorescenceDetectorParam
 		}
 		return list;
 	}
-	
+
 	public int getSelectedRegionNumber() {
 		return selectedRegionNumber;
 	}
@@ -217,8 +220,8 @@ public class VortexParameters implements Serializable, FluorescenceDetectorParam
 	public void setSelectedRegionNumber(int selectedRegionNumber) {
 		this.selectedRegionNumber = selectedRegionNumber;
 	}
-	
-	public VortexParameters objectCast (Object obj){ 
+
+	public VortexParameters objectCast (Object obj){
 		return (VortexParameters) obj;
 	}
 

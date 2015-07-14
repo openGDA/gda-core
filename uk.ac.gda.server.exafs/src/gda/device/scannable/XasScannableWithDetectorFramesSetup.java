@@ -18,6 +18,8 @@
 
 package gda.device.scannable;
 
+import java.util.ArrayList;
+
 import gda.device.CounterTimer;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -26,11 +28,9 @@ import gda.exafs.scan.ExafsScanRegionTime;
 import gda.factory.Finder;
 import gda.util.converters.AutoRenameableConverter;
 
-import java.util.ArrayList;
-
 public class XasScannableWithDetectorFramesSetup extends XasScannable {
 	private ArrayList<ExafsScanRegionTime> times;
-	private int scanPointCounter = 0; 
+	private int scanPointCounter = 0;
 	private AutoRenameableConverter energyHarmonicConverter = null;
 	private String harmonicConverterName;
 
@@ -45,10 +45,10 @@ public class XasScannableWithDetectorFramesSetup extends XasScannable {
 	public XasScannableWithDetectorFramesSetup() {
 		super();
 	}
-	
+
 	@Override
 	public void configure(){
-		energyHarmonicConverter = Finder.getInstance().find(harmonicConverterName);		
+		energyHarmonicConverter = Finder.getInstance().find(harmonicConverterName);
 	}
 
 	@Override
@@ -58,29 +58,29 @@ public class XasScannableWithDetectorFramesSetup extends XasScannable {
 		energyScannable.moveTo(positions[0]);
 		lastCollectionTimeUsed = positions[1];
 	}
-	
-	public void setExafsScanRegionTimes(ArrayList<ExafsScanRegionTime> times){ 
+
+	public void setExafsScanRegionTimes(ArrayList<ExafsScanRegionTime> times){
 		this.times = times;
 	}
 
 	@Override
 	public void atScanStart() throws DeviceException {
-		scanPointCounter = 0; 
+		scanPointCounter = 0;
 		final Object server = Finder.getInstance().find("DAServer");
 		if (server!=null&&server instanceof DummyDAServer) {
 			final DummyDAServer daServer = (DummyDAServer)server;
 			daServer.resetScanPointCount();
 		}
-		for (Scannable detector : theDetectors) {		
+		for (Scannable detector : theDetectors) {
 			if (detector instanceof CounterTimer && !((CounterTimer)detector).isSlave()){
 				((CounterTimer)detector).clearFrameSets();
 				 for(ExafsScanRegionTime time : times)
 					 for(int i =0 ; i < time.getTime().length; i++)
-						 ((CounterTimer) detector).addFrameSet(time.getStepsCount(), 1.0E-4, time.getTime()[i] *1000.0,  0,7,-1,0);	
+						 ((CounterTimer) detector).addFrameSet(time.getStepsCount(), 1.0E-4, time.getTime()[i] *1000.0,  0,7,-1,0);
 			}
 		}
 	}
-	
+
 	@Override
 	public void atPointEnd() throws DeviceException{
 		scanPointCounter++;
@@ -90,14 +90,14 @@ public class XasScannableWithDetectorFramesSetup extends XasScannable {
 			energyHarmonicConverter.disableAutoConversion();
 		}
 	}
-	
+
 	@Override
 	public void atScanEnd() throws DeviceException{
 		if(energyHarmonicConverter == null)
 				configure();
 		energyHarmonicConverter.enableAutoConversion();
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws DeviceException{
 		if(energyHarmonicConverter == null)

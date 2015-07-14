@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.jython.JythonServerFacade;
-
 import java.net.URL;
 import java.util.List;
 
@@ -41,6 +39,7 @@ import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.MetadataParameters;
 import uk.ac.gda.beans.exafs.OutputParameters;
 import uk.ac.gda.beans.exafs.SignalParameters;
@@ -64,14 +63,14 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 	private ExpandableComposite jythonExpandableComposite;
 	private ExpandableComposite signalExpandableComposite;
 	private ExpandableComposite metadataExpandableComposite;
-	
+
 	private OutputParameters bean;
 
 	public OutputParametersUIEditor(String path, URL mappingURL, DirtyContainer dirtyContainer, Object editingBean) {
 		super(path, mappingURL, dirtyContainer, editingBean);
 		bean=(OutputParameters) editingBean;
 	}
-	
+
 	@Override
 	protected String getRichEditorTabText() {
 		return "Output Parameters";
@@ -82,7 +81,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		GridLayout gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
 		parent.setLayout(gridLayout);
-		
+
 		Composite left = new Composite(parent, SWT.NONE);
 		left.setLayout(new GridLayout(2, false));
 		left.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
@@ -126,7 +125,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		}
 		return filterPath;
 	}
-	
+
 	private void createExtraColumns(Composite composite){
 		signalExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
 		signalExpandableComposite.setText("Add extra columns of data");
@@ -145,7 +144,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		gridLayout = new GridLayout();
 		gridLayout.numColumns = 1;
 		signalParametersGroup.setLayout(gridLayout);
-		
+
 		signalList = new VerticalListEditor(signalParametersGroup, SWT.NONE);
 		signalList.setTemplateName("Signal");
 		signalList.setEditorClass(SignalParameters.class);
@@ -222,12 +221,12 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 			}
 		};
 		metadataExpandableComposite.addExpansionListener(metadataExpansionListener);
-		
-		
+
+
 		if(bean.getMetadataList().size()>0)
 			metadataExpandableComposite.setExpanded(true);
 	}
-	
+
 	private void createScripts(Composite composite){
 		jythonExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
 		jythonExpandableComposite.setText("Run scripts before and after a scan");
@@ -311,11 +310,11 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 			}
 		};
 		jythonExpandableComposite.addExpansionListener(jythonExpansionListener);
-		
+
 		if(bean.getBeforeScriptName()!=null || bean.getAfterScriptName()!=null)
 			jythonExpandableComposite.setExpanded(true);
 	}
-	
+
 	private void createOutput(Composite composite){
 		outputFoldersExpandableComposite = new ExpandableComposite(composite, SWT.NONE);
 		outputFoldersExpandableComposite.setText("Choose where files are saved to");
@@ -361,7 +360,7 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 		nexusDirectory.setToolTipText("The sub-folder that will store nexus output files.");
 		nexusDirectory.setTextType(TextWrapper.TEXT_TYPE.FILENAME);
 	}
-	
+
 	@Override
 	public void dispose() {
 		super.dispose();
@@ -394,5 +393,5 @@ public class OutputParametersUIEditor extends RichBeanEditorPart {
 	public VerticalListEditor getMetadataList() {
 		return metadataList;
 	}
-	
+
 }

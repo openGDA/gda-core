@@ -27,9 +27,9 @@ import gda.device.detector.xspress.Xspress2Detector;
  * Version of TFGXspress2 which does not perform deadtime corrections on the values it returns
  */
 public class TfgXspress2NoCorrection extends TfgXspress2 {
-	
+
 	String[] format;
-	
+
 	@Override
 	public Object readout() throws DeviceException {
 		Xspress2Detector xspress2system = (Xspress2Detector) xspress;
@@ -48,11 +48,11 @@ public class TfgXspress2NoCorrection extends TfgXspress2 {
 			resGrade = ((Xspress2Detector) xspress).getResGrade();
 		} catch (DeviceException e) {
 		}
-		
+
 		String[] names = (String[]) ArrayUtils.clone(super.getExtraNames());
-		
+
 		String[] newNames = null;
-		
+
 		if(readoutMode.equals("Scalers only")||readoutMode.equals("Scalers and MCA")){
 			//Element0 - Element8, FF
 			int counter = 0;
@@ -64,7 +64,7 @@ public class TfgXspress2NoCorrection extends TfgXspress2 {
 				}
 			}
 		}
-		
+
 		else if(readoutMode.equals("Regions Of Interest")){
 			if(resGrade.contains("res-thres")){
 				//Element0 - Element8, FF, FF_bad
@@ -101,19 +101,19 @@ public class TfgXspress2NoCorrection extends TfgXspress2 {
 
 			}
 		}
-		
+
 		if (newNames == null){
 			format = new String[]{};
 			return new String[]{};
 		}
-		
+
 		format = new String[newNames.length];
 		for (int i = 0; i < newNames.length; i++)
 			format[i]="%.6g";
 
 		return newNames;
 	}
-	
+
 	@Override
 	public String[] getOutputFormat() {
 		return format;

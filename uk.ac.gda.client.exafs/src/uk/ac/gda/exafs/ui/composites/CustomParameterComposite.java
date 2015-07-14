@@ -18,9 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.device.Scannable;
-import gda.factory.Finder;
-
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
 import org.dawnsci.common.richbeans.components.wrappers.TextWrapper;
 import org.eclipse.swt.SWT;
@@ -34,6 +31,8 @@ import org.eclipse.swt.widgets.Link;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.Scannable;
+import gda.factory.Finder;
 import uk.ac.gda.components.wrappers.FindableNameWrapper;
 
 /**
@@ -43,7 +42,7 @@ import uk.ac.gda.components.wrappers.FindableNameWrapper;
 public class CustomParameterComposite extends Composite {
 
 	private static final Logger logger = LoggerFactory.getLogger(CustomParameterComposite.class);
-	
+
 	private TextWrapper deviceName;
 	private ScaleBox value;
 
@@ -76,7 +75,7 @@ public class CustomParameterComposite extends Composite {
 			public void widgetSelected(SelectionEvent e) {
 				final String name = deviceName.getValue() != null ? deviceName.getValue().toString() : null;
 				if (name == null)  return;
-				
+
 				final Scannable scannable = Finder.getInstance().find(name);
 				try {
 					value.setValue(scannable.getPosition());
@@ -93,13 +92,13 @@ public class CustomParameterComposite extends Composite {
 		value.setMinimum(-Integer.MAX_VALUE);
 		value.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 	}
-	
+
 	@Override
 	public void dispose() {
 		valueLabel.removeSelectionListener(selectionListener);
 		super.dispose();
 	}
-	
+
 	/**
 	 * @return ScaleBox
 	 */
@@ -115,4 +114,3 @@ public class CustomParameterComposite extends Composite {
 
 }
 
-	

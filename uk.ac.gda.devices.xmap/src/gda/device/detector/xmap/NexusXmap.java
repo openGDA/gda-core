@@ -19,6 +19,13 @@
 
 package gda.device.detector.xmap;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -28,14 +35,6 @@ import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NexusDetector;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.vortex.DetectorElement;
 import uk.ac.gda.util.CorrectionUtils;
@@ -59,7 +58,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 
 	@Override
 	public NexusTreeProvider readout() throws DeviceException {
-		
+
 		if (controller.getStatus() == Detector.BUSY) {
 			// We must call stop before reading out.
 			controller.stop();
@@ -98,7 +97,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		String[] roiNames = new String[numberOfROIs];
 		double correctedDetData[][] = new double[numFilteredElements][];
 		double reducedDetectorData[][] = new double[numFilteredElements][];
-		
+
 		// create deadtime corrected values
 		int index = -1;
 		for (int element = 0; element < originalNumberOfElements; element++) {
@@ -130,13 +129,13 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 				roiCounts[iroi][index] = count;
 				roiNames[iroi] = roi.getRoiName();
 			}
-			
+
 			// full mca
 			correctedDetData[index] = new double[detectorData[element].length];
 			reducedDetectorData[index] = new double[detectorData[element].length];
 			for (int specElement = 0; specElement < detectorData[element].length; specElement++) {
 				correctedDetData[index][specElement] = detectorData[index][specElement] * deadTimeCorrectionFactor;
-				reducedDetectorData[index][specElement] = detectorData[index][specElement];				
+				reducedDetectorData[index][specElement] = detectorData[index][specElement];
 			}
 
 			if (sumAllElementData) {
@@ -184,7 +183,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 			index = -1;
 			for (int element = 0; element < originalNumberOfElements; element++) {
 				DetectorElement detElement = vortexParameters.getDetectorList().get(element);
-				if (detElement.isExcluded()) 
+				if (detElement.isExcluded())
 					continue;
 				index++;
 				String elementName = detElement.getName();
@@ -192,7 +191,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 				ffFromRoi +=roiCounts[iroi][index];
 			}
 		}
-		
+
 		// add the full spectrum
 		if (saveRawSpectrum || alwaysRecordRawMCAs){
 			if (originalNumberOfElements == 1) {
@@ -200,7 +199,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 			} else {
 				NXDetectorData.addData(detTree, "fullSpectrum", new NexusGroupData(reducedDetectorData), "counts", 1);
 			}
-			
+
 		} else {
 			if (originalNumberOfElements == 1) {
 				NXDetectorData.addData(detTree, "fullSpectrum", new NexusGroupData(correctedDetData[0]), "counts", 1);
@@ -285,7 +284,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 		}
 		return format;
 	}
-	
+
 	@Override
 	public int[] getDataDimensions() throws DeviceException {
 		return new int[] { getExtraNames().length };
@@ -298,7 +297,7 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 	public boolean isSumAllElementData() {
 		return sumAllElementData;
 	}
-	
+
 	public boolean isAlwaysRecordRawMCAs() {
 		return alwaysRecordRawMCAs;
 	}
@@ -313,15 +312,15 @@ public class NexusXmap extends XmapwithSlaveMode implements NexusDetector {
 			names[i] = vortexParameters.getDetectorList().get(i).getName();
 		return names;
 	}
-	
+
 	private String getIcrColumnName(int elementNumber){
 		return getElementNames()[elementNumber]+ "_icr";
 	}
-	
+
 	private String getOcrColumnName(int elementNumber){
 		return getElementNames()[elementNumber]+ "_ocr";
 	}
-	
+
 	public int getNumberOfIncludedDetectors() {
 		int numFilteredDetectors = 0;
 		for (int element = 0; element < vortexParameters.getDetectorList().size(); element++)

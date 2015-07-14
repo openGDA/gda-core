@@ -27,7 +27,7 @@ public class QexafsGMSDOverI0 extends DetectorBase implements BufferedDetector {
 	protected ContinuousParameters continuousParameters = null;
 	protected boolean isContinuousMode = true;
 	private BufferedScaler qscaler = null;
-	
+
 	public BufferedScaler getQexafsScaler() {
 		return qscaler;
 	}
@@ -35,14 +35,14 @@ public class QexafsGMSDOverI0 extends DetectorBase implements BufferedDetector {
 	public void setQexafsScaler(BufferedScaler scaler) {
 		this.qscaler = scaler;
 	}
-	
+
 	@Override
 	public void configure() {
 		this.setExtraNames(new String[] { "QexafsGMSDI0" });
 		this.setInputNames(new String[0]);
 		this.setOutputFormat(new String[] { "%.4f" });
 	}
-	
+
 	@Override
 	public void collectData() throws DeviceException {
 	}
@@ -64,7 +64,7 @@ public class QexafsGMSDOverI0 extends DetectorBase implements BufferedDetector {
 
 	@Override
 	public void clearMemory() throws DeviceException {
-		
+
 	}
 
 	@Override

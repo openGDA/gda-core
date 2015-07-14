@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.jython.JythonServerFacade;
-
 import org.dawnsci.common.richbeans.components.FieldBeanComposite;
 import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBox;
@@ -31,6 +29,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+
+import gda.jython.JythonServerFacade;
 
 public class YThetaStageComposite extends FieldBeanComposite {
 	private ScaleBox theta;
@@ -46,32 +46,32 @@ public class YThetaStageComposite extends FieldBeanComposite {
 	public YThetaStageComposite(Composite parent, int style, final String yName, final String thetaName) {
 		super(parent, style);
 		setLayout(new GridLayout(2, false));
-		
+
 		this.yName = yName;
 		this.thetaName = thetaName;
 
 		Label lblY = new Label(this, SWT.NONE);
 		lblY.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblY.setText("Y");
-		
+
 		y = new ScaleBox(this, SWT.NONE);
 		y.setUnit("mm");
 		y.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblZ = new Label(this, SWT.NONE);
 		lblZ.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblZ.setText("Theta");
-		
+
 		theta = new ScaleBox(this, SWT.NONE);
 		theta.setUnit("deg");
 		theta.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		Label label_3 = new Label(this, SWT.NONE);
 		label_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-		
+
 				Button btnGetCurrentValues = new Button(this, SWT.NONE);
 				btnGetCurrentValues.setToolTipText("Fill the text boxes with the current motor values");
 				btnGetCurrentValues.setText("Get current values");
-				
+
 						btnGetCurrentValues.addListener(SWT.Selection, new Listener() {
 							@Override
 							public void handleEvent(Event event) {

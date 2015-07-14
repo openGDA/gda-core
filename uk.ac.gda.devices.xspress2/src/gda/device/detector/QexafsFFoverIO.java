@@ -30,12 +30,12 @@ public class QexafsFFoverIO extends DetectorBase implements BufferedDetector{
 	private BufferedScaler qscaler = null;
 	protected ContinuousParameters continuousParameters = null;
 	protected boolean isContinuousMode = true;
-	
+
 	@Override
 	public Double readout() throws DeviceException {
 		return 1.0;
 	}
-	
+
 	public String getscalerListName() {
 		return scalerName;
 	}
@@ -52,7 +52,7 @@ public class QexafsFFoverIO extends DetectorBase implements BufferedDetector{
 		this.qxspress = xspress;
 	}
 
-	
+
 	public BufferedScaler getQexafsScaler() {
 		return qscaler;
 	}
@@ -60,7 +60,7 @@ public class QexafsFFoverIO extends DetectorBase implements BufferedDetector{
 	public void setQexafsScaler(BufferedScaler scaler) {
 		this.qscaler = scaler;
 	}
-	
+
 	@Override
 	public void configure() {
 		setExtraNames(new String[] { "QexafsFFI0" });
@@ -81,13 +81,13 @@ public class QexafsFFoverIO extends DetectorBase implements BufferedDetector{
 
 	@Override
 	public Object[] readFrames(int startFrame, int finalFrame) throws DeviceException {
-		
+
 		double[][] scalerFrames = (double[][])qscaler.readFrames(startFrame, finalFrame);
-		
+
 		NexusTreeProvider[] expressFrames =  (NexusTreeProvider[])qxspress.readFrames(startFrame, finalFrame);
-		
+
 		Double[] ffio = new Double[finalFrame-startFrame+1];
-		
+
 		for(int i=0;i<finalFrame-startFrame+1;i++){
 			NXDetectorData expressFrameData = (NXDetectorData)expressFrames[i];
 			Double[] expressFrameDoubles = expressFrameData.getDoubleVals();
@@ -131,12 +131,12 @@ public class QexafsFFoverIO extends DetectorBase implements BufferedDetector{
 
 	@Override
 	public int maximumReadFrames() throws DeviceException {
-		return qxspress.maximumReadFrames(); 
+		return qxspress.maximumReadFrames();
 	}
 
 	@Override
 	public void setContinuousMode(boolean on) throws DeviceException {
-		
+
 	}
 
 	@Override
@@ -146,7 +146,7 @@ public class QexafsFFoverIO extends DetectorBase implements BufferedDetector{
 
 	@Override
 	public void collectData() throws DeviceException {
-		
+
 	}
 
 	@Override

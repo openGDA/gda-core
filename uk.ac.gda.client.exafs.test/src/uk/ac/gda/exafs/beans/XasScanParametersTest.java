@@ -20,12 +20,6 @@ package uk.ac.gda.exafs.beans;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import gda.TestHelpers;
-import gda.device.scannable.DummyScannable;
-import gda.exafs.scan.ExafsValidator;
-import gda.factory.Factory;
-import gda.factory.Finder;
-import gda.util.TestUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,6 +30,12 @@ import org.eclipse.core.runtime.content.IContentDescriber;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.TestHelpers;
+import gda.device.scannable.DummyScannable;
+import gda.exafs.scan.ExafsValidator;
+import gda.factory.Factory;
+import gda.factory.Finder;
+import gda.util.TestUtils;
 import uk.ac.gda.beans.exafs.XasScanParameters;
 import uk.ac.gda.beans.validation.InvalidBeanMessage;
 import uk.ac.gda.exafs.ui.describers.XasDescriber;
@@ -91,7 +91,7 @@ public class XasScanParametersTest {
 
 	/**
 	 * Test method for {@link uk.ac.gda.beans.exafs.XasScanParameters#createFromXML(java.lang.String)}.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -124,7 +124,7 @@ public class XasScanParametersTest {
 
 	/**
 	 * Test method for {@link uk.ac.gda.beans.exafs.XasScanParameters#createFromXML(java.lang.String)}.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -160,7 +160,7 @@ public class XasScanParametersTest {
 
 	/**
 	 * Test method for {@link uk.ac.gda.beans.exafs.XasScanParameters#createFromXML(java.lang.String)}.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -198,7 +198,7 @@ public class XasScanParametersTest {
 
 	/**
 	 * Test method for {@link uk.ac.gda.beans.exafs.XasScanParameters#createFromXML(java.lang.String)}.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -231,7 +231,7 @@ public class XasScanParametersTest {
 
 	/**
 	 * Test method for {@link uk.ac.gda.beans.exafs.XasScanParameters#createFromXML(java.lang.String)}.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -266,7 +266,7 @@ public class XasScanParametersTest {
 	 * Test method for
 	 * {@link uk.ac.gda.beans.exafs.XasScanParameters#writeToXML(uk.ac.gda.beans.exafs.XasScanParameters, java.lang.String)}
 	 * .
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test

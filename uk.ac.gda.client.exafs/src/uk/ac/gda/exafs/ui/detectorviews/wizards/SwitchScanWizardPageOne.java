@@ -40,11 +40,11 @@ public class SwitchScanWizardPageOne extends WizardPage {
 	private Combo expType;
 	private Label lblChooseType;
 	private String scanType;
-	
+
 	SwitchScanWizardPageOne() {
 		super("Choose scan type");
 	}
-	
+
 	private String[] getExperimentTypes(){
 		if (ScanObjectManager.isXESOnlyMode())
 			return new String[]{"Xes"};
@@ -56,7 +56,7 @@ public class SwitchScanWizardPageOne extends WizardPage {
 					XMLRichBean thisbean = (XMLRichBean) element.createExecutableExtension("class");
 					if (thisbean instanceof MicroFocusScanParameters){
 						types = (String[]) ArrayUtils.add(types, "Microfocus");
-					} 
+					}
 					else if (thisbean instanceof QEXAFSParameters) {
 						types = (String[]) ArrayUtils.add(types, "Qexafs");
 					}
@@ -93,9 +93,9 @@ public class SwitchScanWizardPageOne extends WizardPage {
 		setMessage(null);
 		setControl(selectTypeArea);
 	}
-	
+
 	public String getScanType(){
 		return scanType;
 	}
-	
+
 }

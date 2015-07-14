@@ -30,11 +30,11 @@ public class DisplayMessages {
 
 			@Override
 			public void run() {
-				
+
 				MessageDialog.openError(null, "Error", messag);
-				
+
 			}
-			
+
 		});
 	}
 

@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.composites;
 
-import gda.jython.JythonServerFacade;
-
 import java.io.InputStream;
 
 import org.dawnsci.common.richbeans.components.FieldBeanComposite;
@@ -48,6 +46,7 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.b18.B18SampleParameters;
 
 /**
@@ -210,17 +209,17 @@ public class LN2CryoStageComposite extends FieldBeanComposite {
 			public void mouseDown(MouseEvent e) {
 				int x = e.x / 21;
 				int y = e.y / 18;
-				
+
 				int fluo_offset=0;
-				
+
 				if (x >= 5 && bean.getLN2CryoStageParameters().getCylinderType().equals("fluo"))
 					fluo_offset=1;
 				if(x<=(sampleNumberB.getItems().length+fluo_offset))
 					sampleNumberB.select(x-1-fluo_offset);
-				
+
 				if(y<=sampleNumberA.getItems().length)
 					sampleNumberA.select(y-1);
-				
+
 				setSample(x, y);
 			}
 
@@ -319,13 +318,13 @@ public class LN2CryoStageComposite extends FieldBeanComposite {
 		} catch (Exception e) {
 			logger.warn("exception while fetching hardware limits: " + e.getMessage(), e);
 		}
-		
+
 		sampleNumberA.addValueListener(new ValueAdapter("sampleNumberA") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
 				int a = Integer.parseInt(sampleNumberB.getValue().toString());
 				int b = Integer.parseInt(e.getValue().toString());
-					
+
 				if (a >= 5 && bean.getLN2CryoStageParameters().getCylinderType().equals("fluo"))
 					a++;
 				setSample(a, b);
@@ -337,7 +336,7 @@ public class LN2CryoStageComposite extends FieldBeanComposite {
 			public void valueChangePerformed(ValueEvent e) {
 				int a = Integer.parseInt(e.getValue().toString());
 				int b = Integer.parseInt(sampleNumberA.getValue().toString());
-					
+
 				if (a >= 5 && bean.getLN2CryoStageParameters().getCylinderType().equals("fluo"))
 					a++;
 				setSample(a, b);
@@ -406,7 +405,7 @@ public class LN2CryoStageComposite extends FieldBeanComposite {
 			transparentIdeaLabel.setImage(fluoCylinder);
 
 			ImageData tmpFluo = fluoCylinder.getImageData();
-			
+
 			if (x != 5) {
 				for (int i = -4; i <= 2; i++) {
 					tmpFluo.setPixel(xoffset + ((x - 1) * xgap) + (xgap / 2) + i, yoffset + ((y - 1) * ygap)

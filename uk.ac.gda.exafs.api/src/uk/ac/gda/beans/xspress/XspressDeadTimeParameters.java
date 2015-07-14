@@ -30,15 +30,15 @@ public class XspressDeadTimeParameters {
 	static public final URL mappingURL = XspressParameters.class.getResource("XspressMapping.xml");
 
 	static public final URL schemaURL  = XspressParameters.class.getResource("XspressMapping.xsd");
-	
+
 	public XspressDeadTimeParameters() {
 		detectorDTList = new ArrayList<DetectorDeadTimeElement>();
 	}
-		
+
 	public void clear() {
 		if (detectorDTList!=null) detectorDTList.clear();
 	}
-	
+
 	public void addDetectorDeadTimeElement(DetectorDeadTimeElement detectorDeadTimeElement) {
 		detectorDTList.add(detectorDeadTimeElement);
 	}
@@ -77,7 +77,7 @@ public class XspressDeadTimeParameters {
 				return false;
 		} else if (!detectorDTList.equals(other.detectorDTList))
 			return false;
-		
+
 		return true;
 	}
 

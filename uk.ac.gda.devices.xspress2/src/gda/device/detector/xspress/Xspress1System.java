@@ -19,6 +19,12 @@
 
 package gda.device.detector.xspress;
 
+import java.util.ArrayList;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
 import gda.data.nexus.tree.NexusTreeProvider;
@@ -26,13 +32,6 @@ import gda.device.DeviceException;
 import gda.device.Timer;
 import gda.device.detector.NXDetectorData;
 import gda.factory.FactoryException;
-
-import java.util.ArrayList;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.xspress.DetectorDeadTimeElement;
 import uk.ac.gda.beans.xspress.DetectorElement;
@@ -85,23 +84,23 @@ public class Xspress1System extends XspressSystem {
 			xspressParameters.setReadoutMode(READOUT_SCALERONLY);
 			xspressParameters.setResGrade(ResGrades.NONE);
 			xspressDeadTimeParameters = new XspressDeadTimeParameters();
-			xspressParameters.addDetectorElement(new DetectorElement("Element0", 0, 0, 4000, 
+			xspressParameters.addDetectorElement(new DetectorElement("Element0", 0, 0, 4000,
 					false, regions));
-			xspressParameters.addDetectorElement(new DetectorElement("Element1", 1, 85, 2047, 
+			xspressParameters.addDetectorElement(new DetectorElement("Element1", 1, 85, 2047,
 					false, regions));
-			xspressParameters.addDetectorElement(new DetectorElement("Element2", 2, 34, 2439, 
+			xspressParameters.addDetectorElement(new DetectorElement("Element2", 2, 34, 2439,
 					false, regions));
-			xspressParameters.addDetectorElement(new DetectorElement("Element3", 3, 31, 2126, 
+			xspressParameters.addDetectorElement(new DetectorElement("Element3", 3, 31, 2126,
 					false, regions));
 			xspressParameters.addDetectorElement(new DetectorElement("Element4", 4, 0, 4000, true,
 					regions));
 			xspressParameters.addDetectorElement(new DetectorElement("Element5", 5, 85, 2047,
 					false, regions));
-			xspressParameters.addDetectorElement(new DetectorElement("Element6", 6, 34, 2439, 
+			xspressParameters.addDetectorElement(new DetectorElement("Element6", 6, 34, 2439,
 					false, regions));
-			xspressParameters.addDetectorElement(new DetectorElement("Element7", 7, 31, 2126, 
+			xspressParameters.addDetectorElement(new DetectorElement("Element7", 7, 31, 2126,
 					false, regions));
-			xspressParameters.addDetectorElement(new DetectorElement("Element8", 8, 31, 2126, 
+			xspressParameters.addDetectorElement(new DetectorElement("Element8", 8, 31, 2126,
 					false, regions));
 			xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen0", 0,3.4E-7, 0.0, 3.4E-7));
 			xspressDeadTimeParameters.addDetectorDeadTimeElement(new DetectorDeadTimeElement("Elemen1", 1,3.8E-7, 0.0, 3.8E-7));
@@ -155,7 +154,7 @@ public class Xspress1System extends XspressSystem {
 
 	/**
 	 * Reads the detector windows, gains etc from file.
-	 * 
+	 *
 	 * @param filename
 	 *            detector window setup filename
 	 * @throws Exception
@@ -179,7 +178,7 @@ public class Xspress1System extends XspressSystem {
 	}
 	/**
 	 * Set the hardware scaler window
-	 * 
+	 *
 	 * @param detector
 	 * @param windowStart
 	 * @param windowEnd
@@ -286,7 +285,7 @@ public class Xspress1System extends XspressSystem {
 		try {
 			xspressDetectorImpl.reconfigure();
 		} catch(DeviceException e) {
-			throw new FactoryException(e.getMessage(), e);			
+			throw new FactoryException(e.getMessage(), e);
 		}
 	}
 
@@ -405,7 +404,7 @@ public class Xspress1System extends XspressSystem {
 	/**
 	 * Gets the multi-channel data for all elements. Includes setup of the detector etc. Reads from one frame and tfg
 	 * counts for time passed in (suggest 1000ms). Reads 1 time frame.
-	 * 
+	 *
 	 * @param time
 	 *            the time to count for (milliseconds)
 	 * @return array[numberOfDetectors][mcaChannels] of int values representing the counts in each channel.
@@ -492,7 +491,7 @@ public class Xspress1System extends XspressSystem {
 			}
 			scalerData[frame] = ArrayUtils.add(scalerData[frame], ff);
 
-		}	
+		}
 		return scalerData;
 	}
 
@@ -518,7 +517,7 @@ public class Xspress1System extends XspressSystem {
 
 	/**
 	 * Rescales the given counts to take into account dead time etc and creates a DetectorReading with the values
-	 * 
+	 *
 	 * @param total the original total counts read from the detector
 	 * @param resets the number of resets counted
 	 * @param windowed the original number of counts in the window

@@ -19,6 +19,13 @@
 
 package gda.device.detector.xmap.corba.impl;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.Object;
+import org.omg.CORBA.TRANSIENT;
+
 import gda.device.Detector;
 import gda.device.DeviceException;
 import gda.device.Scannable;
@@ -29,13 +36,6 @@ import gda.device.detector.xmap.corba.CorbaXmapDetector;
 import gda.device.detector.xmap.corba.CorbaXmapDetectorHelper;
 import gda.factory.Findable;
 import gda.factory.corba.util.NetService;
-
-import java.util.Collections;
-import java.util.List;
-
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.Object;
-import org.omg.CORBA.TRANSIENT;
 
 public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetector, Findable, Scannable {
 
@@ -65,7 +65,7 @@ public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetect
 				corbaXmapDetector = CorbaXmapDetectorHelper.narrow(netService.reconnect(name));
 			}
 		}
-		
+
 	}
 
 	@Override
@@ -90,7 +90,7 @@ public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetect
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				return corbaXmapDetector.getAcquisitionTime();
-				
+
 			} catch (CorbaDeviceException ex) {
 				throw new DeviceException(ex.message);
 			} catch (COMM_FAILURE cf) {
@@ -100,7 +100,7 @@ public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetect
 			}
 		}
 		throw new DeviceException("Communication failure: retry failed");
-		
+
 	}
 
 	@Override
@@ -108,7 +108,7 @@ public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetect
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				return corbaXmapDetector.getChannelData(mcaNumber);
-				
+
 			} catch (CorbaDeviceException ex) {
 				throw new DeviceException(ex.message);
 			} catch (COMM_FAILURE cf) {
@@ -125,7 +125,7 @@ public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetect
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				return corbaXmapDetector.getData();
-				
+
 			} catch (CorbaDeviceException ex) {
 				throw new DeviceException(ex.message);
 			} catch (COMM_FAILURE cf) {
@@ -142,7 +142,7 @@ public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetect
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				return corbaXmapDetector.getNumberOfBins();
-				
+
 			} catch (CorbaDeviceException ex) {
 				throw new DeviceException(ex.message);
 			} catch (COMM_FAILURE cf) {
@@ -159,7 +159,7 @@ public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetect
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				return corbaXmapDetector.getReadRate();
-				
+
 			} catch (CorbaDeviceException ex) {
 				throw new DeviceException(ex.message);
 			} catch (COMM_FAILURE cf) {
@@ -176,7 +176,7 @@ public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetect
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				return corbaXmapDetector.getRealTime();
-				
+
 			} catch (CorbaDeviceException ex) {
 				throw new DeviceException(ex.message);
 			} catch (COMM_FAILURE cf) {
@@ -193,7 +193,7 @@ public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetect
 		for (int i = 0; i < NetService.RETRY; i++) {
 			try {
 				return corbaXmapDetector.getStatusRate();
-				
+
 			} catch (CorbaDeviceException ex) {
 				throw new DeviceException(ex.message);
 			} catch (COMM_FAILURE cf) {
@@ -254,7 +254,7 @@ public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetect
 			}
 		}
 		throw new DeviceException("Communication failure: retry failed");
-		
+
 	}
 
 	@Override
@@ -306,7 +306,7 @@ public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetect
 			}
 		}
 		throw new DeviceException("Communication failure: retry failed");
-		
+
 	}
 
 	@Override
@@ -408,5 +408,5 @@ public class XmapAdapter extends DetectorAdapter implements Detector, XmapDetect
 	public double readoutScalerData() throws DeviceException {
 		throw new DeviceException("readoutScalerData not implemented for remote!");
 	}
-	
+
 }

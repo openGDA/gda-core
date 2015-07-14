@@ -27,10 +27,10 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.events.IExpansionListener;
 
+import com.swtdesigner.SWTResourceManager;
+
 import uk.ac.gda.beans.DetectorROI;
 import uk.ac.gda.beans.exafs.IDetectorElement;
-
-import com.swtdesigner.SWTResourceManager;
 
 public class DetectorListComposite extends Composite {
 
@@ -94,7 +94,7 @@ public class DetectorListComposite extends Composite {
 
 	/**
 	 * Notified when the advanced section is expanded.
-	 * 
+	 *
 	 * @param l
 	 */
 	public void addExpansionListener(IExpansionListener l) {

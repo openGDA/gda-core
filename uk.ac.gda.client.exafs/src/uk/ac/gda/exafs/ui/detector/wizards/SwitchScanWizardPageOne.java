@@ -41,19 +41,19 @@ public class SwitchScanWizardPageOne extends WizardPage {
 	Combo expType;
 	Label lblChooseType;
 	String scanType;
-	
+
 	SwitchScanWizardPageOne() {
 		super("Choose scan type");
 	}
-	
+
 	private String[] getExperimentTypes(){
-		
+
 		if (ScanObjectManager.isXESOnlyMode()) {
 			return new String[]{"Xes"};
-		} 
-		
+		}
+
 		String[] types = new String[]{ "Xas", "Xanes"};
-		
+
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
 				"uk.ac.common.beans.factory");
 		for (IConfigurationElement element : config) {
@@ -77,14 +77,14 @@ public class SwitchScanWizardPageOne extends WizardPage {
 	@Override
 	public void createControl(Composite parent) {
 		this.setTitle("Please select the type of scan.");
-		
+
 		Composite selectTypeArea = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.swtDefaults().numColumns(2).applyTo(selectTypeArea);
 		GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(selectTypeArea);
-		
+
 		lblChooseType = new Label(selectTypeArea, 0);
 		lblChooseType.setText("Please choose an experiment type");
-		
+
 		String[] scanTypes = getExperimentTypes();
 
 		expType = new Combo(selectTypeArea, 0);
@@ -99,13 +99,13 @@ public class SwitchScanWizardPageOne extends WizardPage {
 				SwitchScanWizardPageOne.this.setPageComplete(true);
 			}
 		});
-		
+
 		setPageComplete(false);
 		setErrorMessage(null);
 		setMessage(null);
 		setControl(selectTypeArea);
 	}
-	
+
 	public String getScanType(){
 		return scanType;
 	}

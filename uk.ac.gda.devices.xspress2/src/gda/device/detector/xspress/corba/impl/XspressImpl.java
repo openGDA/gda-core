@@ -19,6 +19,8 @@
 
 package gda.device.detector.xspress.corba.impl;
 
+import org.omg.CORBA.Any;
+
 import gda.device.DeviceException;
 import gda.device.corba.CorbaDeviceException;
 import gda.device.corba.impl.DeviceImpl;
@@ -27,9 +29,6 @@ import gda.device.detector.xspress.corba.CorbaDetectorElement;
 import gda.device.detector.xspress.corba.CorbaXspressPOA;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
-
-import org.omg.CORBA.Any;
-
 import uk.ac.gda.beans.xspress.DetectorElement;
 import uk.ac.gda.beans.xspress.XspressDetector;
 
@@ -53,7 +52,7 @@ public class XspressImpl extends CorbaXspressPOA {
 
 	/**
 	 * Create server side implementation to the CORBA package.
-	 * 
+	 *
 	 * @param xspress
 	 *            the Xspress implementation object
 	 * @param poa
@@ -69,7 +68,7 @@ public class XspressImpl extends CorbaXspressPOA {
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Xspress implementation object
 	 */
 	public XspressDetector _delegate() {
@@ -78,7 +77,7 @@ public class XspressImpl extends CorbaXspressPOA {
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param xspress
 	 *            set the Xspress implementation object
 	 */
@@ -182,7 +181,7 @@ public class XspressImpl extends CorbaXspressPOA {
 	public void setCollectionTime(double time) throws CorbaDeviceException {
 		detectorImpl.setCollectionTime(time);
 	}
-	
+
 	@Override
 	public double getCollectionTime() throws CorbaDeviceException {
 		return detectorImpl.getCollectionTime();
@@ -344,7 +343,7 @@ public class XspressImpl extends CorbaXspressPOA {
 	public void atLevelMoveStart() throws CorbaDeviceException {
 		scannableImpl.atLevelMoveStart();
 	}
-	
+
 	@Override
 	public void atLevelStart() throws CorbaDeviceException {
 		scannableImpl.atLevelStart();
@@ -359,7 +358,7 @@ public class XspressImpl extends CorbaXspressPOA {
 	public void atCommandFailure() throws CorbaDeviceException {
 		scannableImpl.atCommandFailure();
 	}
-	
+
 	@Override
 	public String toFormattedString() throws CorbaDeviceException {
 		return scannableImpl.toFormattedString();

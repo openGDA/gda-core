@@ -19,15 +19,14 @@
 
 package gda.device.detector.countertimer;
 
-import gda.device.CounterTimer;
-import gda.device.DeviceException;
-import gda.factory.FactoryException;
-import gda.factory.Finder;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.CounterTimer;
+import gda.device.DeviceException;
+import gda.factory.FactoryException;
+import gda.factory.Finder;
 import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**
@@ -58,7 +57,7 @@ public class TfgXspress2 extends TFGCounterTimer implements CounterTimer {
 
 	/**
 	 * Set the Xspress system name
-	 * 
+	 *
 	 * @param xspressSystemName
 	 *            the Xspress system name
 	 */
@@ -68,7 +67,7 @@ public class TfgXspress2 extends TFGCounterTimer implements CounterTimer {
 
 	/**
 	 * Get the Xspress system name
-	 * 
+	 *
 	 * @return the Xspress system name.
 	 */
 	public String getXspressSystemName() {

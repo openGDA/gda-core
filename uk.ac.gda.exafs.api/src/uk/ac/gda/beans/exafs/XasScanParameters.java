@@ -344,7 +344,7 @@ public class XasScanParameters implements Serializable, IScanParameters {
 	public void setKWeighting(Double kWeighting) {
 		this.kWeighting = kWeighting;
 	}
-	
+
 
 	@Override
 	public int hashCode() {
@@ -447,13 +447,13 @@ public class XasScanParameters implements Serializable, IScanParameters {
 				return false;
 		} else if (!exafsStepType.equals(other.exafsStepType))
 			return false;
-		
+
 		if (exafsTimeType == null) {
 			if (other.exafsTimeType != null)
 				return false;
 		} else if (!exafsTimeType.equals(other.exafsTimeType))
 			return false;
-		
+
 		if (exafsTime == null) {
 			if (other.exafsTime != null)
 				return false;

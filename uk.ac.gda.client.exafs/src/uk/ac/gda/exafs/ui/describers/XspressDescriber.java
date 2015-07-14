@@ -28,7 +28,7 @@ import uk.ac.gda.exafs.ui.detector.xspress.XspressParametersEditor;
  *
  */
 public class XspressDescriber extends XMLBeanContentDescriber {
-	
+
 	@Override
 	protected String getBeanName() {
 		return XspressParameters.class.getName();

@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.dialogs;
 
-import gda.util.Element;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
@@ -50,6 +48,9 @@ import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
+import gda.util.Element;
 import uk.ac.gda.beans.exafs.DetectorParameters;
 import uk.ac.gda.beans.exafs.ElementPosition;
 import uk.ac.gda.beans.exafs.FluorescenceParameters;
@@ -66,8 +67,6 @@ import uk.ac.gda.exafs.util.GainBean;
 import uk.ac.gda.exafs.util.GainCalculation;
 import uk.ac.gda.exafs.util.IntensityException;
 import uk.ac.gda.exafs.util.SmallIntensityException;
-
-import com.swtdesigner.SWTResourceManager;
 
 public class GainWizardPage extends WizardPage {
 	private static Logger logger = LoggerFactory.getLogger(GainDialog.class);
@@ -125,7 +124,7 @@ public class GainWizardPage extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				getFinalEnergyValue();
-			}		
+			}
 		});
 		finalEnergy = new ScaleBox(advanced, SWT.NONE);
 		finalEnergy.setMaximum(120000.0);
@@ -143,7 +142,7 @@ public class GainWizardPage extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				getSampleEdgeValue();
-			}		
+			}
 		});
 		sampleEdgeEnergy = new ScaleBox(advanced, SWT.NONE);
 		GridData gd_sampleEdgeEnergy = new GridData(SWT.FILL, SWT.CENTER, true, false);
@@ -161,7 +160,7 @@ public class GainWizardPage extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				getReferenceEdgeSample();
-			}		
+			}
 		});
 		referenceEdgeEnergy = new ScaleBox(advanced, SWT.NONE);
 		GridData gd_referenceEdgeEnergy = new GridData(SWT.FILL, SWT.CENTER, true, false);
@@ -181,7 +180,7 @@ public class GainWizardPage extends WizardPage {
 		tolerance.addValueListener(new ValueAdapter("Label updater") {
 			@Override
 			public void valueChangePerformed(ValueEvent e) {
-				setCalculationLabelText(theCalculationLooksLabel);	
+				setCalculationLabelText(theCalculationLooksLabel);
 			}
 		});
 		tolerance.on();
@@ -225,7 +224,7 @@ public class GainWizardPage extends WizardPage {
 		setControl(container);
 		setPageComplete(i0_gain!=null&&it_gain!=null&&iref_gain!=null);
 	}
-	
+
 	@SuppressWarnings({ "unchecked"})
 	protected void calculate() {
 		try {
@@ -240,18 +239,18 @@ public class GainWizardPage extends WizardPage {
 				}
 			};
 			resultsLabel.setText("");
-			
+
 			BeanUI.uiToBean(this, bean);
 			bean.setCollectionTime(1000L);
 			bean.setTolerance(tolerance.getNumericValue());
 			bean.setLogger(logger);
-			
+
 			// Name of scannable
 			ScanObject ob = (ScanObject) ExperimentFactory.getExperimentEditorManager().getSelectedScan();
 			IScanParameters scanParams = ob.getScanParameters();
 			String name       = scanParams.getScannableName();
 			bean.setScannableName(name);
-			
+
 			// Name of amplifiers
 			final List<IonChamberParameters> ionChambers;
 			String type = (String)BeanUI.getBeanField("experimentType", DetectorParameters.class).getValue();
@@ -261,7 +260,7 @@ public class GainWizardPage extends WizardPage {
 				ionChambers = ((FluorescenceParameters)BeanUI.getBeanField("fluorescenceParameters", DetectorParameters.class).getValue()).getIonChamberParameters();
 			else
 				throw new Exception("Cannot deal with experimentType = '"+type+"'");
-			
+
 			setPageComplete(true);
 			getWizard().getContainer().run(true, true, new IRunnableWithProgress() {
 				@Override
@@ -315,9 +314,9 @@ public class GainWizardPage extends WizardPage {
 		} catch (Exception e) {
 			logger.error("Cannot calculate gain.", e);
 		}
-		
+
 	}
-	
+
 	protected void showMessage(final IntensityException e) {
 		getShell().getDisplay().asyncExec(new Runnable()  {
 			@Override
@@ -334,7 +333,7 @@ public class GainWizardPage extends WizardPage {
 		if (Double.isNaN(val)) {
 			label.setText("Error, the tolerance is blank but should be between 1 and 100");
 			calculateButton.setEnabled(false);
-		} 
+		}
 		else {
 			label.setText("The calculation looks at the intensity for each ion chamber based on the scan parameters and attempts to adjust gain until intensity is ~"+val+"% of the detector maximum.");
 			calculateButton.setEnabled(true);
@@ -386,7 +385,7 @@ public class GainWizardPage extends WizardPage {
 						if (params instanceof XanesScanParameters) {
 							element = ((XanesScanParameters)params).getElement();
 							edge    = ((XanesScanParameters)params).getEdge();
-						} 
+						}
 						else {
 							element = ((XasScanParameters)params).getElement();
 							edge    = ((XasScanParameters)params).getEdge();
@@ -398,7 +397,7 @@ public class GainWizardPage extends WizardPage {
 					logger.error("Cannot get edge energy for element.", ne);
 				}
 			}
-			if (sampleEdgeEnergy!=null) 
+			if (sampleEdgeEnergy!=null)
 				this.sampleEdgeEnergy.setValue(sampleEdgeEnergyValue);
 		} catch (Exception ne) {
 			logger.error("Cannot get sample edge energy", ne);

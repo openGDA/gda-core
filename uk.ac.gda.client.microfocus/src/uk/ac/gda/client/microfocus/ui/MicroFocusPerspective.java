@@ -37,24 +37,24 @@ public class MicroFocusPerspective implements IPerspectiveFactory {
 
 	private void defineLayout(IPageLayout layout) {
 		layout.getEditorArea();
-		
+
 		IFolderLayout elementsFolder = layout.createFolder("elements", IPageLayout.TOP, 0.6f, IPageLayout.ID_EDITOR_AREA);
 		elementsFolder.addView(MicroFocusElementListView.ID);
-		
+
 		IFolderLayout mapplotFolder = layout.createFolder("mapplot", IPageLayout.RIGHT, 0.15f, "elements");
 		mapplotFolder.addView(MapPlotView.ID);
 
 		IFolderLayout mcafolder = layout.createFolder("mca", IPageLayout.RIGHT, 0.5f, "mapplot");
 		mcafolder.addView("uk.ac.gda.beamline.i18.McaView");
-		
+
 		IFolderLayout leftFolder = layout.createFolder("bottomleft", IPageLayout.BOTTOM, 0.4f, IPageLayout.ID_EDITOR_AREA);
 		leftFolder.addView("uk.ac.gda.client.microfocus.SelectExafsView");
 		leftFolder.addView(CommandQueueViewFactory.ID);
-		
+
 		IFolderLayout bottomrightFolder = layout.createFolder("bottomright", IPageLayout.RIGHT, 0.3f, "bottomleft");
 		bottomrightFolder.addView("gda.rcp.jythonterminalview");
 		bottomrightFolder.addView("org.dawb.workbench.plotting.views.toolPageView.fixed:org.dawnsci.rcp.histogram.histogram_tool_page");
-		
+
 		layout.setEditorAreaVisible(false);
 	}
 }

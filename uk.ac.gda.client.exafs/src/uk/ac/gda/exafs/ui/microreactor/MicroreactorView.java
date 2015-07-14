@@ -18,8 +18,6 @@
 
 package uk.ac.gda.exafs.ui.microreactor;
 
-import gda.jython.JythonServerFacade;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -29,25 +27,26 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
+import gda.jython.JythonServerFacade;
 import uk.ac.gda.beans.exafs.i20.MicroreactorParameters;
 
 public class MicroreactorView extends ViewPart {
 	public MicroreactorView() {
 	}
-	
+
 	private MicroreactorParametersComposite microreactorParameters;
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new GridLayout(1, false));
-		
+
 		this.microreactorParameters = new MicroreactorParametersComposite(parent, SWT.NONE);
 		microreactorParameters.setEditorClass(MicroreactorParameters.class);
-		
+
 		Button setMasses = new Button(parent, SWT.PUSH);
 		setMasses.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		setMasses.setText("Set Masses");
-		
+
 		setMasses.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -55,13 +54,13 @@ public class MicroreactorView extends ViewPart {
 				JythonServerFacade.getInstance().runCommand("cirrus.setMasses(["+masses+"])");
 			}
 		});
-		
+
 	}
 
 	@Override
 	public void setFocus() {
-		
-		
+
+
 	}
 
 }

@@ -30,10 +30,10 @@ import uk.ac.gda.beans.exafs.i20.I20SampleParameters;
 public class I20SampleDescriber extends XMLBeanContentDescriber {
 
 	/**
-	 * 
+	 *
 	 */
 	public static final String ID = "gda.exafs.ui.I20SampleParametersEditor";
-	
+
 	@Override
 	protected String getBeanName() {
 		return I20SampleParameters.class.getName();
@@ -45,4 +45,3 @@ public class I20SampleDescriber extends XMLBeanContentDescriber {
 
 }
 
-	

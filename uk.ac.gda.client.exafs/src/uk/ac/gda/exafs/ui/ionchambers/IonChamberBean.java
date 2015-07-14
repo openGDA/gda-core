@@ -37,7 +37,7 @@ public class IonChamberBean implements Serializable {
 	private double chamberLength;
 	private double fill1Period;
 	private double fill2Period;
-	
+
 	public IonChamberBean(){
 		absorption=0;
 		ionChamberScannable="";
@@ -53,7 +53,7 @@ public class IonChamberBean implements Serializable {
 		fill1Period=0;
 		fill2Period=0;
 	}
-	
+
 	public void clear(){
 		absorption=0;
 		ionChamberScannable="";

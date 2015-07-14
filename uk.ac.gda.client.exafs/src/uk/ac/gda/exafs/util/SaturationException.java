@@ -24,7 +24,7 @@ package uk.ac.gda.exafs.util;
 public class SaturationException extends IntensityException {
 
 	/**
-	 * 
+	 *
 	 */
 	public SaturationException() {
 		// TODO Auto-generated constructor stub

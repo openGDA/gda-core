@@ -30,12 +30,12 @@ import org.python.core.PyTuple;
 public class XanesScanPointCreatorTest {
 
 	/**
-	 * 
+	 *
 	 */
 	@Test
 	public void testGetScanEnergies() {
 		XanesScanPointCreator creator = new XanesScanPointCreator();
-		
+
 		boolean exceptionseen = false;
 		try {
 			creator.getEnergies();
@@ -46,7 +46,7 @@ public class XanesScanPointCreatorTest {
 			fail("exception not thrown when nothing set!");
 		}
 
-		
+
 		double[][] newregions = new double[3][3];
 		newregions[0][0] = 1000;
 		newregions[0][1] = 25;
@@ -60,7 +60,7 @@ public class XanesScanPointCreatorTest {
 		newregions[2][1] = 10;
 		newregions[2][2] = 3;
 		creator.setRegions(newregions);
-		
+
 		exceptionseen = false;
 		try {
 			creator.getEnergies();
@@ -70,7 +70,7 @@ public class XanesScanPointCreatorTest {
 		if (!exceptionseen){
 			fail("exception not thrown when nothing set!");
 		}
-		
+
 
 		creator.setFinalEnergy(1500);
 

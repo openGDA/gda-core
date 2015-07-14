@@ -1,15 +1,15 @@
 package gda.device;
 
-import gda.configuration.properties.LocalProperties;
-
 import java.io.IOException;
+
+import gda.configuration.properties.LocalProperties;
 
 /**
  * Not a unit test, but connects to Hiden RGA for testing against the
  * simulation.
- * 
+ *
  * @author rjw82
- * 
+ *
  */
 public class HidenRGASimulation {
 
@@ -17,7 +17,7 @@ public class HidenRGASimulation {
 		try {
 			LocalProperties.set("gov.aps.jca.JCALibrary.properties",
 					HidenRGASimulation.class.getResource("JCALibrary.properties").getFile());
-			
+
 			HidenRGAController controller = new HidenRGAController("ME12G-EA-RGA-01");
 			HidenRGAScannable rga = new HidenRGAScannable();
 			rga.setController(controller);
@@ -26,18 +26,18 @@ public class HidenRGASimulation {
 
 			int[] masses = new int[] { 16, 32, 48 };
 			rga.setMasses(masses);
-			
-			//rga.setMasses([16, 32 ,48]);	
-			
+
+			//rga.setMasses([16, 32 ,48]);
+
 //			// scan simulation
 			rga.atScanStart();
 			for (int i = 0; i < 20; i++){
 				waitAndPrintValues(rga, masses);
 			}
 			rga.atScanEnd();
-			
+
 			Thread.sleep(5000);
-			
+
 			// file writing simulation
 			LocalProperties.set("gda.data.scan.datawriter.datadir","/tmp");
 			LocalProperties.set("gda.var","/tmp");
@@ -45,9 +45,9 @@ public class HidenRGASimulation {
 			rga.startRecording();
 			Thread.sleep(10000);
 			rga.stopRecording();
-			
+
 			Thread.sleep(5000);
-			
+
 			System.exit(0);
 
 		} catch (Exception e) {

@@ -18,6 +18,11 @@
 
 package gda.device.scannable.zebra;
 
+import org.jscience.physics.quantities.Angle;
+import org.jscience.physics.units.NonSI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.factory.FactoryException;
 import gda.jython.InterfaceProvider;
@@ -25,11 +30,6 @@ import gda.util.QuantityFactory;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import org.jscience.physics.quantities.Angle;
-import org.jscience.physics.units.NonSI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The Zebra-specific parts of the Qexafs movement
@@ -185,7 +185,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			changeHasBeenMade = caputTestChangeString(positionDirectionChnl, positionDirection, changeHasBeenMade);
 			changeHasBeenMade = caputTestChangeDouble(gateStartChnl, startDeg, changeHasBeenMade);
 			changeHasBeenMade = caputTestChangeDouble(gateWidthChnl, width, changeHasBeenMade);
-			
+
 			// this value is set by beamline staff, and is not altered by GDA. It MUST be < stepDeg
 			double pulseWidth = controller.cagetDouble(pulseWidthChnl);
 			if (pulseWidth > stepDeg) {
@@ -200,7 +200,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			// are consistent with the parameters in this method
 			if (changeHasBeenMade) {
 				logger.debug("Have changed zebra settings, so sleeping for 1 second to ensure they have been set");
-				// yuck, but even if we go a caputwait to ensure that the Zebra record has finished processing, 
+				// yuck, but even if we go a caputwait to ensure that the Zebra record has finished processing,
 				// the readback values used in the getNumberOfDataPoints() come out incorrect.
 				Thread.sleep(1000);
 			}
@@ -245,7 +245,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			double width_counts = controller.cagetDouble(widthReadback_counts_Chnl);
 			Double readbackNumberOfCounts_floored = Math.floor(width_counts / stepSize_counts);
 			Double readbackNumberOfCounts = width_counts / stepSize_counts;
-			
+
 			if (readbackNumberOfCounts.equals(readbackNumberOfCounts_floored)) {
 				int expectedCounts = (int) Math.round(readbackNumberOfCounts_floored) -1;
 				logger.debug("Expecting " + expectedCounts + " points from Zebra.");
@@ -253,7 +253,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 			}
 			int expectedCounts = (int) Math.round(readbackNumberOfCounts_floored);
 			logger.debug("Expecting from Zebra " + expectedCounts + " points.");
-			
+
 			return expectedCounts;
 		} catch (Exception e) {
 			logger.error(
@@ -268,7 +268,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 		long timeAtMethodStart = System.currentTimeMillis();
 		if (channelsConfigured && continuousParameters != null) {
 			try {
-				
+
 				while (isBusy()) {
 					logger.info("-----waiting for qscanAxis to finish moving inside perform before starting scanning. after goto runup");
 					Thread.sleep(100);
@@ -284,7 +284,7 @@ public class ZebraQexafsScannable extends QexafsScannable {
 							+ " greater than Bragg maximum speed. Speed will be set instead to the maximum speed of "
 							+ getMaxSpeed() + " deg/s");
 				}
-				
+
 				// always toggle the energy at the start
 				toggleEnergyControl();
 

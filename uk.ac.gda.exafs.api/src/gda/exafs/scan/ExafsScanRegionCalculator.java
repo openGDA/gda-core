@@ -27,7 +27,7 @@ public class ExafsScanRegionCalculator {
 
 	/**
 	 * Returns the three energies to be used to define the inner two scan regions in an Exafs scan
-	 * 
+	 *
 	 * @param elementName
 	 * @param edgeName
 	 * @param edgeEnergy
@@ -69,7 +69,7 @@ public class ExafsScanRegionCalculator {
 
 	/**
 	 * Calculates the step sizes during the variable step (A->B) region in an Exafs scan
-	 * 
+	 *
 	 * @param aEnergy
 	 * @param bEnergy
 	 * @param preEdgeStep

@@ -18,6 +18,11 @@
 
 package gda.device.detector.xspress;
 
+import java.util.HashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.tree.NexusTreeProvider;
 import gda.device.ContinuousParameters;
 import gda.device.DeviceException;
@@ -25,12 +30,6 @@ import gda.device.detector.BufferedDetector;
 import gda.device.detector.DAServer;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NexusDetector;
-
-import java.util.HashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.beans.xspress.XspressDetector;
 
 /**
@@ -78,12 +77,12 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 	public String[] getExtraNames() {
 		return xspress2system.getExtraNames();
 	}
-	
+
 	@Override
 	public String[] getInputNames() {
 		return xspress2system.getInputNames();
 	}
-	
+
 	@Override
 	public String[] getOutputFormat() {
 		return xspress2system.getOutputFormat();
@@ -170,7 +169,7 @@ public class Xspress2BufferedDetector extends DetectorBase implements BufferedDe
 	public void setContinuousMode(boolean on) throws DeviceException {
 		isContinuousMode = on;
 		String deviceName = getDescription();
-		
+
 		if (!isSlave) {
 			if (on) {
 				try {

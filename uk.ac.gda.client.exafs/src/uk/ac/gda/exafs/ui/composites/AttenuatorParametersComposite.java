@@ -51,7 +51,7 @@ public final class AttenuatorParametersComposite extends FieldBeanComposite {
 		gridData.heightHint = 188;
 		selectedPosition.setLayoutData(gridData);
 	}
-	
+
 	public void setPosition(String pos){
 		String[] items = this.selectedPosition.getItems();
 		int index = ArrayUtils.indexOf(items,pos);

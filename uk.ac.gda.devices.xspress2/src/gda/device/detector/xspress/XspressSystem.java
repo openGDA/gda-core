@@ -23,16 +23,16 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.gda.beans.xspress.DetectorElement;
-import uk.ac.gda.beans.xspress.XspressDetector;
-import uk.ac.gda.beans.xspress.XspressParameters;
-import uk.ac.gda.util.beans.xml.XMLHelpers;
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.detector.DetectorBase;
 import gda.device.detector.NexusDetector;
 import gda.factory.Configurable;
 import gda.factory.FactoryException;
+import uk.ac.gda.beans.xspress.DetectorElement;
+import uk.ac.gda.beans.xspress.XspressDetector;
+import uk.ac.gda.beans.xspress.XspressParameters;
+import uk.ac.gda.util.beans.xml.XMLHelpers;
 
 public abstract class XspressSystem extends DetectorBase implements NexusDetector, XspressDetector, Scannable, Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(XspressSystem.class);
@@ -48,6 +48,7 @@ public abstract class XspressSystem extends DetectorBase implements NexusDetecto
 	protected XspressParameters xspressParameters;
 	protected Integer maxNumberOfFrames = 0; // the number of frames which TFG has space for, based on the current config in TFG
 
+	@Override
 	public abstract void configure() throws FactoryException;
 //	public String getConfigFileName();
 //	public void setOnlyDisplayFF(boolean onlyDisplayFF);
@@ -88,7 +89,7 @@ public abstract class XspressSystem extends DetectorBase implements NexusDetecto
 
 	public void setSaveRawSpectrum(Boolean saveRawSpectrum) {
 		this.saveRawSpectrum = saveRawSpectrum;
-		
+
 	}
 	public Boolean getSaveRawSpectrum() {
 		return saveRawSpectrum;
@@ -131,13 +132,14 @@ public abstract class XspressSystem extends DetectorBase implements NexusDetecto
 		this.maxNumberOfFrames = maxNumberOfFrames;
 	}
 
+	@Override
 	public DetectorElement getDetector(int which) throws DeviceException {
 		return xspressParameters.getDetector(which);
 	}
 
 	/**
 	 * Sets the window of the given detector.
-	 * 
+	 *
 	 * @param number the detector element number
 	 * @param lower the start of the window
 	 * @param upper the end of the window
@@ -149,7 +151,7 @@ public abstract class XspressSystem extends DetectorBase implements NexusDetecto
 
 	/**
 	 * Saves the detector windows, gains etc to file
-	 * 
+	 *
 	 * @param filename the filename to write detector setup in.
 	 */
 	@Override

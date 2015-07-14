@@ -28,7 +28,7 @@ import uk.ac.gda.exafs.ui.detector.VortexROIComposite;
 
 public enum VortexParametersUIHelper {
 	INSTANCE;
-	
+
 	public IDetectorROICompositeFactory getDetectorROICompositeFactory() {
 		IDetectorROICompositeFactory factory = new IDetectorROICompositeFactory() {
 			@Override

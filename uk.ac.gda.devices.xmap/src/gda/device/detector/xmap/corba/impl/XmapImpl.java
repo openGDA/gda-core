@@ -19,6 +19,11 @@
 
 package gda.device.detector.xmap.corba.impl;
 
+import org.omg.CORBA.Any;
+import org.omg.PortableServer.POA;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.XmapDetector;
 import gda.device.corba.CorbaDeviceException;
@@ -26,11 +31,6 @@ import gda.device.corba.impl.DeviceImpl;
 import gda.device.detector.corba.impl.DetectorImpl;
 import gda.device.scannable.corba.impl.ScannableImpl;
 import gda.factory.corba.CorbaFactoryException;
-
-import org.omg.CORBA.Any;
-import org.omg.PortableServer.POA;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -57,7 +57,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 
 	/**
 	 * Get the implementation object
-	 * 
+	 *
 	 * @return the Detector implementation object
 	 */
 	public XmapDetector _delegate() {
@@ -66,7 +66,7 @@ public class XmapImpl extends gda.device.detector.xmap.corba.CorbaXmapDetectorPO
 
 	/**
 	 * Set the implementation object.
-	 * 
+	 *
 	 * @param xmapDetector
 	 */
 	public void _delegate(XmapDetector xmapDetector) {

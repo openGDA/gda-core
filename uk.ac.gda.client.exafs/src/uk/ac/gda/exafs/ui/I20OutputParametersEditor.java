@@ -41,7 +41,7 @@ public class I20OutputParametersEditor extends ExperimentBeanMultiPageEditor {
 	public URL getMappingUrl() {
 		return OutputParameters.mappingURL;
 	}
-	
+
 	@Override
 	public URL getSchemaUrl() {
 		return OutputParameters.schemaUrl;

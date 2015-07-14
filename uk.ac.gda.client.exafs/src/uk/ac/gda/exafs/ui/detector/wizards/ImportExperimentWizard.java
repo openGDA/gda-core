@@ -18,9 +18,6 @@
 
 package uk.ac.gda.exafs.ui.detector.wizards;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,10 +28,13 @@ import java.io.OutputStream;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.Wizard;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
+
 public class ImportExperimentWizard extends Wizard implements IWizard {
 
 	ImportExperimentWizardPage page;
-	
+
 	@Override
 	public boolean performFinish() {
 
@@ -43,7 +43,7 @@ public class ImportExperimentWizard extends Wizard implements IWizard {
 
 		String currentDir =  PathConstructor.createFromProperty(LocalProperties.GDA_DATAWRITER_DIR);
 		String destination = currentDir + "xml/" + page.getExperiments().getSelection()[0] + "_imported";
-		
+
 		File src = new File(source);
 		File dst = new File(destination);
 		try {
@@ -61,7 +61,7 @@ public class ImportExperimentWizard extends Wizard implements IWizard {
 		page = new ImportExperimentWizardPage();
 		addPage(page);
 	}
-	
+
 	public void copyDirectory(File srcPath, File dstPath) throws IOException {
 
 		if (srcPath.isDirectory()) {
@@ -76,9 +76,9 @@ public class ImportExperimentWizard extends Wizard implements IWizard {
 
 		else {
 			if (!srcPath.exists()) {
-				
+
 			}
-			
+
 			else{
 				InputStream in = new FileInputStream(srcPath);
 				OutputStream out = new FileOutputStream(dstPath);

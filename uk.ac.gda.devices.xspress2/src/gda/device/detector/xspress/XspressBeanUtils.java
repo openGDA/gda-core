@@ -39,7 +39,7 @@ public class XspressBeanUtils {
 			throw e;
 		}
 	}
-	
+
 	public static void createXMLfromBean(Xspress2Detector xspress2System,
 			XspressParameters xspressBean) throws Exception {
 		try {

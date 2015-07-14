@@ -29,7 +29,7 @@ import gda.device.detector.xspress.corba.CorbaDetectorReading;
 public class DetectorReadingConverter {
 	/**
 	 * Convert CorbaDetectorReadings to DetectorReadings
-	 * 
+	 *
 	 * @param cdr
 	 *            corba detector reading
 	 * @return DetectorReading
@@ -42,7 +42,7 @@ public class DetectorReadingConverter {
 
 	/**
 	 * Convert DetectorReadings to CorbaDetectorReadings
-	 * 
+	 *
 	 * @param dr
 	 *            detector reading
 	 * @return CorbaDetectorReading

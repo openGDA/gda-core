@@ -18,9 +18,6 @@
 
 package uk.ac.gda.exafs.ui;
 
-import gda.util.Converter;
-import gda.util.exafs.Element;
-
 import org.dawnsci.common.richbeans.beans.IFieldWidget;
 import org.dawnsci.common.richbeans.components.FieldComposite;
 import org.dawnsci.common.richbeans.components.scalebox.ScaleBoxAndFixedExpression.ExpressionProvider;
@@ -39,6 +36,8 @@ import org.eclipse.swt.widgets.Label;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.util.Converter;
+import gda.util.exafs.Element;
 import swing2swt.layout.BorderLayout;
 import uk.ac.gda.beans.exafs.QEXAFSParameters;
 import uk.ac.gda.exafs.ui.composites.QEXAFSParametersComposite;
@@ -118,13 +117,13 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		updateElementBtn.setText("Load defaults");
 		updateElementBtn.setToolTipText("Set the initial and final energuies based on the selected element and edge");
 		new Label(grpQuickExafsParameters, SWT.NONE);
-		
+
 		try {
 			getCoreHole().setValue(getCfromElement());
 		} catch (Exception e) {
 			logger.error("Cannot get and set core hole", e);
 		}
-		
+
 		beanComposite.getSpeed().on();
 		beanComposite.getStepSize().on();
 		beanComposite.getTime().on();
@@ -155,7 +154,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 	public FieldComposite getTime() {
 		return beanComposite.getTime();
 	}
-	
+
 	public BooleanWrapper getBothWays() {
 		return beanComposite.getBothWays();
 	}
@@ -198,7 +197,7 @@ public final class QEXAFSParametersUIEditor extends ElementEdgeEditor {
 		}
 		super.linkUI(isPageChange);
 	}
-	
+
 	@Override
 	public ComboWrapper getEdge() {
 		return edge;

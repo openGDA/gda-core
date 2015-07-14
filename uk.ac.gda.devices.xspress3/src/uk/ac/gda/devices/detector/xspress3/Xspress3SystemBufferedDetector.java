@@ -18,9 +18,9 @@ import gda.device.detector.NXDetectorData;
  * <p>
  * This class will derive the TFG time frames from the supplied
  * ContinuousParameters object.
- * 
+ *
  * @author rjw82
- * 
+ *
  */
 public class Xspress3SystemBufferedDetector extends Xspress3System implements BufferedDetector {
 

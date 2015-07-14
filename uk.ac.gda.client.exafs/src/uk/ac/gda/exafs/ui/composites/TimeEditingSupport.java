@@ -33,7 +33,7 @@ public class TimeEditingSupport extends EditingSupport {
 	private XanesScanParameters bean;
 //	private IWorkbenchPartSite site;
 	XanesScanParametersUIEditor editor;
-	
+
 	public TimeEditingSupport(TableViewer viewer, XanesScanParameters bean, @SuppressWarnings("unused") IWorkbenchPartSite site, XanesScanParametersUIEditor editor) {
 		super(viewer);
 		this.viewer = viewer;

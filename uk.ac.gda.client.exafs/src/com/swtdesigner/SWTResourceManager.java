@@ -25,16 +25,16 @@ import org.eclipse.swt.widgets.Display;
 /**
  * Utility class for managing OS resources associated with SWT controls such as
  * colors, fonts, images, etc.
- * 
+ *
  * !!! IMPORTANT !!! Application code must explicitly invoke the <code>dispose()</code>
  * method to release the operating system resources managed by cached objects
  * when those objects and OS resources are no longer needed (e.g. on
  * application shutdown)
- * 
+ *
  * This class may be freely distributed as part of any application or plugin.
  * <p>
  * Copyright (c) 2003 - 2005, Instantiations, Inc. <br>All Rights Reserved
- * 
+ *
  * @author scheglov_ke
  * @author Dan Rubel
  */
@@ -219,7 +219,7 @@ public class SWTResourceManager {
      * Style constant for placing decorator image in bottom right corner of base image.
      */
     public static final int BOTTOM_RIGHT = 4;
-    
+
     /**
      * Returns an image composed of a base image decorated by another image
      * @param baseImage Image The base image that should be decorated
@@ -229,7 +229,7 @@ public class SWTResourceManager {
     public static Image decorateImage(Image baseImage, Image decorator) {
     	return decorateImage(baseImage, decorator, BOTTOM_RIGHT);
     }
-    
+
     /**
 	 * Returns an image composed of a base image decorated by another image
 	 * @param baseImage Image The base image that should be decorated
@@ -326,7 +326,7 @@ public class SWTResourceManager {
 
 
     /**
-     * Returns a font based on its name, height and style. 
+     * Returns a font based on its name, height and style.
      * Windows-specific strikeout and underline flags are also supported.
      * @param name String The name of the font
      * @param size int The size of the font
@@ -362,7 +362,7 @@ public class SWTResourceManager {
         }
 		return font;
 	}
-    
+
 
     /**
      * Return a bold version of the give font
@@ -433,7 +433,7 @@ public class SWTResourceManager {
      * Maps IDs to cursors
      */
     private static HashMap<Integer, Cursor> m_IdToCursorMap = new HashMap<Integer, Cursor>();
- 
+
     /**
      * Returns the system cursor matching the specific ID
      * @param id int The ID value for the cursor
@@ -448,7 +448,7 @@ public class SWTResourceManager {
         }
         return cursor;
     }
- 
+
     /**
      * Dispose all of the cached cursors
      */

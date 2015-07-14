@@ -18,16 +18,16 @@
 
 package gda.data.scan.datawriter;
 
-import gda.factory.Findable;
-import gda.factory.Finder;
-import gda.scan.IScanDataPoint;
-import gda.scan.ScanDataPointFormatter;
-
 import java.io.IOException;
 import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.factory.Findable;
+import gda.factory.Finder;
+import gda.scan.IScanDataPoint;
+import gda.scan.ScanDataPointFormatter;
 
 /**
  * Generic and configurable writer of ascii files. The format of the file is defined using an
@@ -48,7 +48,7 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 			throw new InstantiationException("No configuration object for " + this.getClass().getName() + " found");
 		configuration = ((AsciiDataWriterConfiguration) configs.get(0));
 	}
-	
+
 	public AsciiDataWriter(AsciiDataWriterConfiguration configuration) throws InstantiationException{
 		this.configuration = configuration;
 	}
@@ -89,7 +89,7 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 	}
 
 	@Override
-	public void writeFooter() {		
+	public void writeFooter() {
 		if (configuration == null) return;
 		for (AsciiMetadataConfig line : this.configuration.getFooter()) {
 			try {
@@ -132,7 +132,7 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 	public void setConfiguration(AsciiDataWriterConfiguration configuration) {
 		this.configuration = configuration;
 	}
-	
+
 	public void setScanDataPointFormatter(ScanDataPointFormatter scanDataPointFormatter){
 		this.scanDataPointFormatter = scanDataPointFormatter;
 	}
@@ -143,8 +143,8 @@ public class AsciiDataWriter extends IncrementalFile implements ConfigurableAsci
 
 	/*
 	 * This allows inheriting classes to extend the functionality at this point
-	 * 
-	 * @throws Exception 
+	 *
+	 * @throws Exception
 	 */
 	protected void setupFile() throws Exception {
 		super.prepareForCollection();

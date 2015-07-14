@@ -32,7 +32,7 @@ public class StepEditingSupport extends EditingSupport {
 	private TableViewer viewer;
 	private XanesScanParameters bean;
 	XanesScanParametersUIEditor editor;
-	
+
 	public StepEditingSupport(TableViewer viewer, XanesScanParameters bean, XanesScanParametersUIEditor editor) {
 		super(viewer);
 		this.viewer = viewer;
