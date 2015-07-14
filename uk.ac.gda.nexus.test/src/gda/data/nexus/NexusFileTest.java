@@ -36,10 +36,8 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("2015/06/11 Test ignored since intermittently fails SCI-5295")
 public class NexusFileTest {
 
 	@Test
@@ -72,7 +70,11 @@ public class NexusFileTest {
 		a.setName("value");
 		nf.createData("/entry", a, true);
 		a.iadd(1);
-		nf.createData("/entry", a, false);
+		try {
+			nf.createData("/entry", a, false);
+		} catch (NexusException ex) {
+			// do nothing as this should fail
+		}
 
 		nf.close();
 
@@ -123,8 +125,8 @@ public class NexusFileTest {
 		IDataset b = n.getDataset().getSlice();
 		assertArrayEquals(new int[] {2, 5}, b.getShape());
 		assertEquals(Float.class, b.elementClass());
-		assertEquals(1.0, b.getDouble(0, 0), 1e-15);
-		assertEquals(10.0, b.getDouble(1, 4), 1e-15);
+		assertEquals(0.0, b.getDouble(0, 0), 1e-15);
+		assertEquals(9.0, b.getDouble(1, 4), 1e-15);
 		nf.close();
 	}
 
