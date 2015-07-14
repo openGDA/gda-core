@@ -21,6 +21,7 @@ package gda.data.nexus;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.net.URI;
 
@@ -72,8 +73,9 @@ public class NexusFileTest {
 		a.iadd(1);
 		try {
 			nf.createData("/entry", a, false);
+			fail("Must not be able to create a dataset on top of an existing one");
 		} catch (NexusException ex) {
-			// do nothing as this should fail
+			// do nothing
 		}
 
 		nf.close();

@@ -499,7 +499,6 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		try {
 			s = file.getattr(n);
 		} catch (org.nexusformat.NexusException e1) {
-			logger.error("Problem getting attribute: {}", n, e);
 			throw new NexusException("Problem getting attribute", e1);
 		}
 		Attribute a = TreeFactory.createAttribute(tree, name, n, s, false);
