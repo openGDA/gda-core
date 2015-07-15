@@ -43,6 +43,7 @@ import org.junit.Test;
 public class NexusFileTest {
 
 	@Test
+	@Ignore("20150715: Breaks JVM with NAPI implementation of NexusFile - re-enable once that is replaced")
 	public void testNexusFile() throws Exception {
 		String name = "test-scratch/test.nxs";
 		NexusFile nf = NexusUtils.createNexusFile(name);
