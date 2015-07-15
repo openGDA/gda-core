@@ -17,21 +17,21 @@ public class ProgressView extends ViewPart {
 	private String iterationProgressPV;
 	private String iterationTotalPointsPV;
 	private String iterationCurrentPointPV;
-	
+
 	private String totalRemianingTimePV;
 	private String totalProgressPV;
 	private String totalPointsPV;
 	private String currentPointPV;
-	
+
 	private String currentIterationPV;
 	private String totalIterationsPV;
-	
+
 	private String totalDataPointsPV;
 	private String currentDataPointPV;
 
 	private String inLeadPV;
 	private String currentLeadPointPV;
-	
+
 	public ProgressView() {
 		setTitleToolTip("display progress view");
 		// setContentDescription("A view for displaying progresses.");
@@ -123,9 +123,9 @@ public class ProgressView extends ViewPart {
 
 	public void setInLeadPV(String inLeadPV) {
 		this.inLeadPV=inLeadPV;
-		
+
 	}
-	
+
 	public String getCurrentIterationRemainingTimePV() {
 		return this.currentIterationRemainingTimePV;
 	}

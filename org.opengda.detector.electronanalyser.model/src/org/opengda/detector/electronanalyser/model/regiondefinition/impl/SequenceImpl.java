@@ -6,19 +6,14 @@ import java.util.Collection;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
-
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
-
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
-
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RUN_MODES;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
@@ -134,7 +129,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	/**
 	 * This is true if the Run Mode Index attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -163,7 +158,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	/**
 	 * This is true if the Num Iterations attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -212,7 +207,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	/**
 	 * This is true if the Repeat Until Stopped attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -258,7 +253,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	/**
 	 * This is true if the Spectrum containment reference has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -305,6 +300,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RUN_MODES getRunMode() {
 		return runMode;
 	}
@@ -313,6 +309,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setRunMode(RUN_MODES newRunMode) {
 		RUN_MODES oldRunMode = runMode;
 		runMode = newRunMode == null ? RUN_MODE_EDEFAULT : newRunMode;
@@ -326,6 +323,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetRunMode() {
 		RUN_MODES oldRunMode = runMode;
 		boolean oldRunModeESet = runModeESet;
@@ -339,6 +337,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetRunMode() {
 		return runModeESet;
 	}
@@ -347,6 +346,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getRunModeIndex() {
 		return runModeIndex;
 	}
@@ -355,6 +355,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setRunModeIndex(int newRunModeIndex) {
 		int oldRunModeIndex = runModeIndex;
 		runModeIndex = newRunModeIndex;
@@ -368,6 +369,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetRunModeIndex() {
 		int oldRunModeIndex = runModeIndex;
 		boolean oldRunModeIndexESet = runModeIndexESet;
@@ -381,6 +383,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetRunModeIndex() {
 		return runModeIndexESet;
 	}
@@ -389,6 +392,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getNumIterations() {
 		return numIterations;
 	}
@@ -397,6 +401,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setNumIterations(int newNumIterations) {
 		int oldNumIterations = numIterations;
 		numIterations = newNumIterations;
@@ -410,6 +415,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetNumIterations() {
 		int oldNumIterations = numIterations;
 		boolean oldNumIterationsESet = numIterationsESet;
@@ -423,6 +429,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetNumIterations() {
 		return numIterationsESet;
 	}
@@ -432,6 +439,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isNumInterationOption() {
 		return numInterationOption;
 	}
@@ -441,6 +449,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setNumInterationOption(boolean newNumInterationOption) {
 		boolean oldNumInterationOption = numInterationOption;
 		numInterationOption = newNumInterationOption;
@@ -452,6 +461,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isRepeatUntilStopped() {
 		return repeatUntilStopped;
 	}
@@ -460,6 +470,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setRepeatUntilStopped(boolean newRepeatUntilStopped) {
 		boolean oldRepeatUntilStopped = repeatUntilStopped;
 		repeatUntilStopped = newRepeatUntilStopped;
@@ -473,6 +484,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetRepeatUntilStopped() {
 		boolean oldRepeatUntilStopped = repeatUntilStopped;
 		boolean oldRepeatUntilStoppedESet = repeatUntilStoppedESet;
@@ -486,6 +498,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetRepeatUntilStopped() {
 		return repeatUntilStoppedESet;
 	}
@@ -494,6 +507,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isConfirmAfterEachIteration() {
 		return confirmAfterEachIteration;
 	}
@@ -502,6 +516,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setConfirmAfterEachIteration(
 			boolean newConfirmAfterEachIteration) {
 		boolean oldConfirmAfterEachIteration = confirmAfterEachIteration;
@@ -516,6 +531,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetConfirmAfterEachIteration() {
 		boolean oldConfirmAfterEachIteration = confirmAfterEachIteration;
 		boolean oldConfirmAfterEachIterationESet = confirmAfterEachIterationESet;
@@ -529,6 +545,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetConfirmAfterEachIteration() {
 		return confirmAfterEachIterationESet;
 	}
@@ -537,6 +554,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Spectrum getSpectrum() {
 		return spectrum;
 	}
@@ -562,6 +580,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSpectrum(Spectrum newSpectrum) {
 		if (newSpectrum != spectrum) {
 			NotificationChain msgs = null;
@@ -600,6 +619,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetSpectrum() {
 		if (spectrum != null) {
 			NotificationChain msgs = null;
@@ -619,6 +639,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetSpectrum() {
 		return spectrumESet;
 	}
@@ -628,6 +649,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getElementSet() {
 		return elementSet;
 	}
@@ -637,6 +659,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setElementSet(String newElementSet) {
 		String oldElementSet = elementSet;
 		elementSet = newElementSet;
@@ -646,9 +669,10 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated NOT
 	 */
+	@Override
 	public Region getRegionById(String regionId) {
 		for (Region region : getRegion()) {
 			if (region.getRegionId().equals(regionId)) {
@@ -660,9 +684,10 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated NOT
 	 */
+	@Override
 	public EList<Region> getRegionsByName(String regionName) {
 		BasicEList<Region> regions = new BasicEList<Region>();
 		for (Region region : getRegion()) {
@@ -677,6 +702,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getFilename() {
 		return filename;
 	}
@@ -685,6 +711,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFilename(String newFilename) {
 		String oldFilename = filename;
 		filename = newFilename;
@@ -698,6 +725,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetFilename() {
 		String oldFilename = filename;
 		boolean oldFilenameESet = filenameESet;
@@ -711,6 +739,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetFilename() {
 		return filenameESet;
 	}
@@ -720,6 +749,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EList<Region> getRegion() {
 		if (region == null) {
 			region = new EObjectContainmentEList.Unsettable<Region>(Region.class, this, RegiondefinitionPackage.SEQUENCE__REGION);
@@ -732,6 +762,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetRegion() {
 		if (region != null) ((InternalEList.Unsettable<?>)region).unset();
 	}
@@ -741,6 +772,7 @@ public class SequenceImpl extends EObjectImpl implements Sequence {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetRegion() {
 		return region != null && ((InternalEList.Unsettable<?>)region).isSet();
 	}

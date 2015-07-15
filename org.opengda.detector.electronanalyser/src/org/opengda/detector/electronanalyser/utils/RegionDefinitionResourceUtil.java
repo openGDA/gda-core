@@ -1,11 +1,5 @@
 package org.opengda.detector.electronanalyser.utils;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.PathConstructor;
-import gda.data.metadata.GDAMetadataProvider;
-import gda.data.metadata.Metadata;
-import gda.device.DeviceException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -26,6 +20,12 @@ import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.PathConstructor;
+import gda.data.metadata.GDAMetadataProvider;
+import gda.data.metadata.Metadata;
+import gda.device.DeviceException;
+
 public class RegionDefinitionResourceUtil {
 	private final Logger logger = LoggerFactory
 			.getLogger(RegionDefinitionResourceUtil.class);
@@ -39,23 +39,23 @@ public class RegionDefinitionResourceUtil {
 	 * set, it will use the path specified by this property to store the
 	 * sequence file. If this property is not set, it will use {@code use.home}
 	 * property to store the sequence file.
-	 * 
+	 *
 	 * @return
 	 */
 	public String getDefaultSequenceFilename() {
 		return defaultSequenceFilename;
 	}
 	/**
-	 * return the default sequence file directory. 
-	 * 
+	 * return the default sequence file directory.
+	 *
 	 * This directory must have permission for GDA client to write to.
 	 * At DLS it is always the 'xml' directory under the directory defined by
-	 * the java property {@code gda.data.scan.datawriter.datadir}. 
-	 * If this property is set, it will use the path specified by this property 
-	 * to store the sequence file. If this property is not set, it will use 
+	 * the java property {@code gda.data.scan.datawriter.datadir}.
+	 * If this property is set, it will use the path specified by this property
+	 * to store the sequence file. If this property is not set, it will use
 	 * {@code use.home} property to store the sequence file.
-	 * 
-	 * 
+	 *
+	 *
 	 * @return
 	 */
 	public String getDefaultSequenceDirectory() {
@@ -63,7 +63,7 @@ public class RegionDefinitionResourceUtil {
 		String metadataValue = null;
 		Metadata metadata = GDAMetadataProvider.getInstance();
 		try {
-			//must test if 'subdirectory' is set as client can only write to the 
+			//must test if 'subdirectory' is set as client can only write to the
 			//'xml' directory under the visit root folder
 			metadataValue = metadata.getMetadataValue("subdirectory");
 			if (metadataValue != null && !metadataValue.isEmpty()) {
@@ -91,7 +91,7 @@ public class RegionDefinitionResourceUtil {
 		}
 		return dir;
 	}
-	
+
 	private String fileName;
 
 	public String getFileName() {
@@ -100,7 +100,7 @@ public class RegionDefinitionResourceUtil {
 
 	/**
 	 * enable file name to be set in Spring object configuration.
-	 * 
+	 *
 	 * @param fileName
 	 */
 	public void setFileName(String fileName) {
@@ -125,7 +125,7 @@ public class RegionDefinitionResourceUtil {
 	 * or {@code gda.data.scan.datawriter.datadir} and the default sequnece file
 	 * name {@code user.seq}. If this propery is not set this sequence file will
 	 * be created at {@code user.home}
-	 * 
+	 *
 	 * @return
 	 * @throws Exception
 	 */
@@ -143,20 +143,20 @@ public class RegionDefinitionResourceUtil {
 		URI fileURI = URI.createFileURI(fileName);
 		return resourceSet.getResource(fileURI, true);
 	}
-	
+
 	private ResourceSet getResourceSet() throws Exception {
 		EditingDomain sequenceEditingDomain = SequenceEditingDomain.INSTANCE.getEditingDomain();
 		//the following line only works in RCP/OSGi, not on server
 		//Activator.getDefault().getSequenceEditingDomain();
 		// Create a resource set to hold the resources.
 		ResourceSet resourceSet = sequenceEditingDomain.getResourceSet();
-		
+
 		return resourceSet;
 	}
 
 	/**
 	 * return the list of regions contained in a sequence or an empty list.
-	 * 
+	 *
 	 * @return
 	 * @throws Exception
 	 */
@@ -263,7 +263,7 @@ public class RegionDefinitionResourceUtil {
 		}
 		return Collections.emptyList();
 	}
-	
+
 
 	public void save(Resource res) throws IOException {
 		res.save(null);

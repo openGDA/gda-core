@@ -46,7 +46,7 @@ public final class ARPESScanBeanUIEditor extends RichBeanEditorPart {
 
 	@Override
 	public void createPartControl(Composite comp) {
-		comp.setLayout(new GridLayout(1, false));		
+		comp.setLayout(new GridLayout(1, false));
 		final ScrolledComposite scrolledComposite = new ScrolledComposite(comp, SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
@@ -62,7 +62,7 @@ public final class ARPESScanBeanUIEditor extends RichBeanEditorPart {
 		super.linkUI(isPageChange);
 		this.beanComposite.beanUpdated();
 	}
-	
+
 	@Override
 	public void setFocus() {
 	}

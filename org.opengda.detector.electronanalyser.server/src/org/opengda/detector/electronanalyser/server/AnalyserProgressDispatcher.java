@@ -1,5 +1,8 @@
 package org.opengda.detector.electronanalyser.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController;
 import gda.factory.Configurable;
@@ -12,9 +15,6 @@ import gov.aps.jca.dbr.DBR;
 import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 /**
  * notify the observer with progress value in percentage.
  * @author fy65

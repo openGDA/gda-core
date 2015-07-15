@@ -29,9 +29,9 @@ public class NewSequenceAction extends AbstractHandler implements IHandler {
 //		if (activePart instanceof IRegionDefinitionView) {
 //			IRegionDefinitionView regionDefView = (IRegionDefinitionView) activePart;
 //			if (regionDefView instanceof SequenceView) {
-//				
+//
 //			}
-//		} 
+//		}
 		Shell shell = HandlerUtil.getActiveShell(event);
 		NewSequenceFileWizard newWizard = new NewSequenceFileWizard();
 		IWorkbench workbench = HandlerUtil.getActiveWorkbenchWindow(event)

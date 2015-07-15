@@ -1,8 +1,24 @@
 package org.opengda.detector.electronanalyser.nxdetector;
 
 import static gda.jython.InterfaceProvider.getCurrentScanInformationHolder;
-import static gda.jython.InterfaceProvider.getScanDataPointProvider;
 import static gda.jython.InterfaceProvider.getTerminalPrinter;
+
+import java.io.File;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Collections;
+
+import org.apache.commons.io.FilenameUtils;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.opengda.detector.electronanalyser.event.ScanEndEvent;
+import org.opengda.detector.electronanalyser.event.ScanPointStartEvent;
+import org.opengda.detector.electronanalyser.event.ScanStartEvent;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
+import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.configuration.properties.LocalProperties;
 import gda.data.NumTracker;
 import gda.data.PathConstructor;
@@ -21,27 +37,11 @@ import gda.jython.accesscontrol.MethodAccessProtected;
 import gda.jython.scriptcontroller.ScriptControllerBase;
 import gda.jython.scriptcontroller.Scriptcontroller;
 import gda.util.Sleep;
-
-import java.io.File;
-import java.io.IOException;
-import java.sql.Timestamp;
-import java.util.Collections;
-
-import org.apache.commons.io.FilenameUtils;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.opengda.detector.electronanalyser.event.ScanEndEvent;
-import org.opengda.detector.electronanalyser.event.ScanPointStartEvent;
-import org.opengda.detector.electronanalyser.event.ScanStartEvent;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
-import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 /**
- * a container class for VGScienta Electron Analyser, which takes a sequence file 
+ * a container class for VGScienta Electron Analyser, which takes a sequence file
  * defining a list of regions as input and collect analyser data - image, spectrum and external IO data -
  * for each active regions in the listed order, and create a nexus file for each region.
- *   
+ *
  * @author fy65
  *
  */
@@ -49,7 +49,7 @@ import org.springframework.beans.factory.InitializingBean;
 @CorbaImplClass(DeviceImpl.class)
 public class EW4000 extends NXDetector implements InitializingBean, NexusDetector,PositionCallableProvider<NexusTreeProvider> {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -1155203719584202094L;
 
@@ -75,8 +75,8 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 			setConfigured(true);
 		}
 		super.configure();
-	}	
-	
+	}
+
 	@Override
 	public void collectData() throws DeviceException {
 		super.collectData();
@@ -84,7 +84,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 
 	@Override
 	public void setCollectionTime(double time) throws DeviceException {
-		// No-op defined by the list of active regions		
+		// No-op defined by the list of active regions
 	}
 	@Override
 	public double getCollectionTime() throws DeviceException {
@@ -174,7 +174,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new ScanEndEvent());
 		}
 
-		super.stop();		
+		super.stop();
 	}
 	@Override
 	public boolean isBusy() {
@@ -204,7 +204,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		collectionStrategy.setSequence(sequence);
 		collectionStrategy.setScanDataPoint(0); // first data point
 		currentPointNumber=0;
-		super.atScanStart();		
+		super.atScanStart();
 	}
 
 	@Override
@@ -251,7 +251,7 @@ public class EW4000 extends NXDetector implements InitializingBean, NexusDetecto
 		}
 		super.afterPropertiesSet();
 	}
-	
+
 
 	public String getSequenceFilename() {
 		return sequenceFilename;

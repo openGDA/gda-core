@@ -27,7 +27,7 @@ public class ScanStartEvent implements Serializable {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 640299152011958530L;
 

@@ -31,29 +31,29 @@ import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 public class ScanBeanFromNeXusFile {
 
 	public static ARPESScanBean read(String filename) throws Exception {
-		
+
 		ARPESScanBean shinynewbean = new ARPESScanBean();
-		
+
 		HDF5Loader hl = new HDF5Loader(filename);
 		try {
 			Tree tree = hl.loadTree();
 			DataNode nodeLink;
-			
+
 			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/acquisition_mode").getDestination();
-			setAcquisitionMode(shinynewbean, nodeLink.getDataset());	
-			
+			setAcquisitionMode(shinynewbean, nodeLink.getDataset());
+
 			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/lens_mode").getDestination();
 			setLensMode(shinynewbean, nodeLink.getDataset());
-			
+
 			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/pass_energy").getDestination();
 			setPassEnergy(shinynewbean, nodeLink.getDataset());
-			
+
 			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/energies").getDestination();
 			setEnergies(shinynewbean, nodeLink.getDataset());
-			
+
 			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/time_for_frames").getDestination();
 			setTimePerStep(shinynewbean, nodeLink.getDataset());
-			
+
 			nodeLink = (DataNode) tree.findNodeLink("/entry1/instrument/analyser/number_of_cycles").getDestination();
 			setIterations(shinynewbean, nodeLink.getDataset());
 		} finally {

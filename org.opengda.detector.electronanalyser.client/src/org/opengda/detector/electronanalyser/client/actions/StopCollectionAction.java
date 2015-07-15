@@ -1,17 +1,14 @@
 package org.opengda.detector.electronanalyser.client.actions;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.opengda.detector.electronanalyser.client.sequenceeditor.IRegionDefinitionView;
-import org.opengda.detector.electronanalyser.client.views.SequenceView;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 
 public class StopCollectionAction extends AbstractHandler implements IHandler {

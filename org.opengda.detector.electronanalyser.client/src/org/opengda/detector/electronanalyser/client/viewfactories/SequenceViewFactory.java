@@ -18,8 +18,6 @@
 
 package org.opengda.detector.electronanalyser.client.viewfactories;
 
-import gda.rcp.views.FindableExecutableExtension;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.Camera;
@@ -29,6 +27,8 @@ import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.rcp.views.FindableExecutableExtension;
 
 /**
  * Factory method that invokes the View object

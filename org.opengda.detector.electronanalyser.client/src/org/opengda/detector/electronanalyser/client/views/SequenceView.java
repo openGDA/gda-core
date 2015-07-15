@@ -1,28 +1,5 @@
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.configuration.properties.LocalProperties;
-import gda.data.NumTracker;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.scannable.ScannableStatus;
-import gda.epics.connection.EpicsChannelManager;
-import gda.epics.connection.EpicsController;
-import gda.epics.connection.EpicsController.MonitorType;
-import gda.epics.connection.InitializationListener;
-import gda.factory.Finder;
-import gda.jython.InterfaceProvider;
-import gda.jython.corba.booleanArrayHelper;
-import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.observable.IObserver;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.dbr.DBR_Enum;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -149,6 +126,28 @@ import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.configuration.properties.LocalProperties;
+import gda.data.NumTracker;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.scannable.ScannableStatus;
+import gda.epics.connection.EpicsChannelManager;
+import gda.epics.connection.EpicsController;
+import gda.epics.connection.EpicsController.MonitorType;
+import gda.epics.connection.InitializationListener;
+import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
+import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.observable.IObserver;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.dbr.DBR_Enum;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
+
 public class SequenceView extends ViewPart implements ISelectionProvider, IRegionDefinitionView, ISaveablePart, IObserver, InitializationListener {
 	public static final String ID = "org.opengda.detector.electronanalyser.client.sequenceeditor";
 	private static final Logger logger = LoggerFactory.getLogger(SequenceView.class);
@@ -214,7 +213,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Composite hardShutterState;
 	private Button btnSoftShutter;
 	private Composite softShutterState;
-	
+
 	public void createColumns(TableViewer tableViewer, TableColumnLayout layout) {
 		for (int i = 0; i < columnHeaders.length; i++) {
 			TableViewerColumn tableViewerColumn = new TableViewerColumn(
@@ -227,6 +226,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			column.setWidth(columnLayouts[i].minimumWidth);
 			if (i == 0) {
 				tableViewerColumn.setLabelProvider(new ColumnLabelProvider() {
+					@Override
 					public String getText(Object element) {
 						Region p = (Region) element;
 						return p.getName();
@@ -298,7 +298,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		GridData gd1 = new GridData(GridData.FILL_BOTH);
 		gd1.widthHint = 786;
 		sequenceTableViewer.getTable().setLayoutData(gd1);
-		ColumnViewerToolTipSupport.enableFor(sequenceTableViewer, ToolTip.NO_RECREATE); 
+		ColumnViewerToolTipSupport.enableFor(sequenceTableViewer, ToolTip.NO_RECREATE);
 		createColumns(sequenceTableViewer, null);
 		tableViewerContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 
@@ -319,11 +319,11 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		} catch (Exception e2) {
 			logger.error("Cannot load resouce from file: "+regionDefinitionResourceUtil.getFileName(), e2);
 		}
-		
+
 		Composite controlArea = new Composite(rootComposite, SWT.None);
 		controlArea.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		controlArea.setLayout(new GridLayout(3, false));
-		
+
 		if (getHardShutterPV()!=null || getSoftShutterPV()!=null) {
 			Group grpShutters=new Group(controlArea, SWT.BORDER);
 			GridData gd_grpShutters = new GridData(GridData.FILL_HORIZONTAL);
@@ -332,16 +332,16 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			grpShutters.setLayoutData(gd_grpShutters);
 			grpShutters.setText("Fast Shutters");
 			grpShutters.setLayout(new GridLayout(2, true));
-			
+
 			if (getHardShutterPV()!=null) {
 				Group grpHardShutter=new Group(grpShutters, SWT.NONE);
 				GridData gd_grpHardShutter = new GridData(SWT.LEFT, SWT.CENTER, true, false);
 				grpHardShutter.setLayoutData(gd_grpHardShutter);
 				grpHardShutter.setLayout(new GridLayout(3, false));
-				
+
 				Label lblHardXray=new Label(grpHardShutter, SWT.None);
 				lblHardXray.setText("Hard X-Ray: ");
-				
+
 				/* Composite to contain the status composite so that a border can be displayed. */
 				GridData fillHorizontalGD = new GridData();
 				Composite borderComposite =  new Composite(grpHardShutter, SWT.NONE);
@@ -355,7 +355,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				fillHorizontalGD.heightHint = 20;
 				borderComposite.setLayoutData(fillHorizontalGD);
 				hardShutterState = new Composite(borderComposite, SWT.FILL);
-				
+
 				btnHardShutter = new Button(grpHardShutter, SWT.PUSH);
 				btnHardShutter.setText("Close");
 				btnHardShutter.addSelectionListener(new SelectionAdapter() {
@@ -378,20 +378,20 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 						}
 					}
 				});
-				
+
 			} else {
 				new Label(grpShutters, SWT.None);
 			}
-			
+
 			if (getSoftShutterPV()!=null) {
 				Group grpSoftShutter=new Group(grpShutters, SWT.NONE);
 				GridData gd_grpSoftShutter = new GridData(SWT.RIGHT, SWT.CENTER, true, false);
 				grpSoftShutter.setLayoutData(gd_grpSoftShutter);
 				grpSoftShutter.setLayout(new GridLayout(3, false));
-				
+
 				Label lblSoftXray=new Label(grpSoftShutter, SWT.None);
 				lblSoftXray.setText("Soft X-Ray: ");
-				
+
 				/* Composite to contain the status composite so that a border can be displayed. */
 				GridData fillHorizontalGD = new GridData();
 				Composite borderComposite = new Composite(grpSoftShutter, SWT.NONE);
@@ -405,7 +405,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 				fillHorizontalGD.heightHint = 20;
 				borderComposite.setLayoutData(fillHorizontalGD);
 				softShutterState = new Composite(borderComposite, SWT.FILL);
-				
+
 				btnSoftShutter = new Button(grpSoftShutter, SWT.PUSH);
 				btnSoftShutter.setText("CLose");
 				btnSoftShutter.addSelectionListener(new SelectionAdapter() {
@@ -444,7 +444,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		comboElementSet.setToolTipText("Select an element set");
 		comboElementSet.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		comboElementSet.setText(comboElementSet.getItem(0));
-		
+
 		Group grpActiveRegions = new Group(controlArea, SWT.NONE);
 		GridData gd_grpActiveRegions = new GridData(GridData.FILL_HORIZONTAL);
 		gd_grpActiveRegions.grabExcessHorizontalSpace = false;
@@ -456,7 +456,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		txtNumberActives.setBackground(ColorConstants.black);
 		txtNumberActives.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtNumberActives.setEditable(false);
-		
+
 		Group grpTotalTime = new Group(controlArea, SWT.None);
 		GridData gd_grpTotalTime = new GridData(GridData.FILL_HORIZONTAL);
 		gd_grpTotalTime.horizontalAlignment = SWT.LEFT;
@@ -470,7 +470,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		txtEstimatedTime.setBackground(ColorConstants.black);
 		txtEstimatedTime.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtEstimatedTime.setEditable(false);
-		
+
 		Group grpSequenceFile = new Group(controlArea, SWT.None);
 		GridData gd_grpSequenceFile = new GridData(GridData.FILL_HORIZONTAL);
 		gd_grpSequenceFile.horizontalSpan=3;
@@ -483,7 +483,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		txtSequenceFilePath.setBackground(ColorConstants.black);
 		txtSequenceFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtSequenceFilePath.setEditable(false);
-		
+
 		Group grpDataFile = new Group(controlArea, SWT.None);
 		GridData gd_grpDataFile = new GridData(GridData.FILL_HORIZONTAL);
 		gd_grpDataFile.horizontalSpan=3;
@@ -497,7 +497,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		txtDataFilePath.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		txtDataFilePath.setEditable(false);
 		txtDataFilePath.setText("Data file to be collected");
-		
+
 		Group grpScanProgress=new Group(controlArea, SWT.BORDER);
 		GridData gd_grpScanProgress = new GridData(GridData.FILL_HORIZONTAL);
 		gd_grpScanProgress.horizontalSpan=3;
@@ -508,7 +508,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 		Label lblScanNumber=new Label(grpScanProgress, SWT.None);
 		lblScanNumber.setText("Current Scan Number: ");
-		
+
 		txtScanNumberValue = new Text(grpScanProgress, SWT.BORDER);
 		GridData gd_txtScanNumberValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_txtScanNumberValue.widthHint = 50;
@@ -524,7 +524,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 
 		Label lblPoint=new Label(grpScanProgress, SWT.None);
 		lblPoint.setText("Scan Point Number: ");
-		
+
 		txtPointValue = new Text(grpScanProgress, SWT.BORDER);
 		GridData gd_lblIterationValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_lblIterationValue.widthHint = 50;
@@ -533,10 +533,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		txtPointValue.setEditable(false);
 		txtPointValue.setBackground(ColorConstants.black);
 		updateScanPointNumber(currentPointNumber, totalNumberOfPoints);
-		
+
 		Label lblRegion = new Label(grpScanProgress, SWT.NONE);
 		lblRegion.setText("Active Region Number:");
-		
+
 		txtRegionValue = new Text(grpScanProgress, SWT.BORDER);
 		txtRegionValue.setForeground(ColorConstants.green);
 		txtRegionValue.setEditable(false);
@@ -545,10 +545,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		GridData gd_txtCurrentPoint = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
 		gd_txtCurrentPoint.widthHint = 50;
 		txtRegionValue.setLayoutData(gd_txtCurrentPoint);
-		
+
 		Label lblTimeRemaining = new Label(grpScanProgress, SWT.NONE);
 		lblTimeRemaining.setText("Time Remaining:");
-		
+
 		txtTimeRemaining = new Text(grpScanProgress, SWT.BORDER);
 //		gd_txtIterationTimeRemaining.widthHint=40;
 		txtTimeRemaining.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
@@ -558,10 +558,10 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		gd_txtTimeRemaining.widthHint = 50;
 		txtTimeRemaining.setLayoutData(gd_txtTimeRemaining);
 		txtTimeRemaining.setEditable(false);
-		
+
 		Label lblProgress = new Label(grpScanProgress, SWT.NONE);
 		lblProgress.setText("Scan Progress:");
-		
+
 		progressBar = new ProgressBar(grpScanProgress, SWT.HORIZONTAL);
 		GridData gd_progressBar = new GridData(GridData.FILL_HORIZONTAL);
 		gd_progressBar.grabExcessHorizontalSpace = false;
@@ -581,7 +581,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		hookContextMenu();
 		contributeToActionBars();
 	}
-	
+
 	private void setShutterState(Composite shutterState,int status) {
 		setColourControl(shutterState, status, SWT.COLOR_DARK_GREEN, SWT.COLOR_RED);
 	}
@@ -636,7 +636,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		addAction.setText("Add");
 		addAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_ADD_OBJ));
 		addAction.setToolTipText("Add a new region");
-		
+
 		copyAction = new Action() {
 
 			@Override
@@ -706,7 +706,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		undoAction.setText("Undo");
 		undoAction.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_UNDO_EDIT));
 		undoAction.setToolTipText("Undo");
-		
+
 
 		redoAction = new Action() {
 
@@ -728,6 +728,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
+			@Override
 			public void menuAboutToShow(IMenuManager manager) {
 				SequenceView.this.fillContextMenu(manager);
 			}
@@ -749,7 +750,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		manager.add(copyAction);
 		manager.add(undoAction);
 		manager.add(redoAction);
-		
+
 	}
 
 	private void fillContextMenu(IMenuManager manager) {
@@ -761,7 +762,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
-	
+
 	private void fillLocalToolBar(IToolBarManager manager) {
 		manager.add(addAction);
 		manager.add(deleteAction);
@@ -853,18 +854,18 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private AnalyserTotalTimeRemainingListener analyserTotalTimeRemainingListener;
 	private SoftShutterStateListener softShutterStateListener;
 	private HardShutterStateListener hardShutterStateListener;
-	
+
 	private String analyserStatePV;
 	private String analyserTotalTimeRemianingPV;
 	private String hardShutterPV;
 	private String softShutterPV;
-	
+
 
 	private Channel analyserStateChannel;
 	private Channel analyserTotalTimeRemainingChannel;
 	private Channel hardShutterChannel;
 	private Channel softShutterChannel;
-	
+
 	private EpicsChannelManager channelmanager;
 
 	private String energyLensTableDir;
@@ -881,7 +882,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 		}
 		return null;
 	}
-	
+
 	private IVGScientaAnalyser analyser;
 
 	private SelectionAdapter elementSetSelAdaptor = new SelectionAdapter() {
@@ -898,7 +899,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	};
 
 	private void initialisation() {
-		try { // populate Combo list from EPICS PV 
+		try { // populate Combo list from EPICS PV
 			comboElementSet.removeAll();
 			comboElementSet.setItems(getAnalyser().getElementSet());
 		} catch (DeviceException e) {
@@ -1203,7 +1204,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			//same file no need refresh
 			return;
 		}
-		
+
 		try {
 			resource.eAdapters().remove(notifyListener);
 			regionDefinitionResourceUtil.setFileName(seqFileName);
@@ -1303,7 +1304,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 					boolean validRegion = isValidRegion(region, true);
 					if (!validRegion) {
 						invalidRegionName=region.getName();
-					} 
+					}
 					valid = valid && validRegion;
 				}
 			}
@@ -1440,7 +1441,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	}
 	AnimationEngine animation = null;
 	private double hardXRayEnergy;
-	private double softXRayEnergy; 
+	private double softXRayEnergy;
 
 	@Override
 	@SuppressWarnings("restriction")
@@ -1504,7 +1505,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 								updateRegionStatus(region, status);
 							}
 						}
-						
+
 						if (status==STATUS.COMPLETED) {
 							fireSelectionChanged(new RegionRunCompletedSelection());
 						}
@@ -1636,7 +1637,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 	private Scannable pgmenergy;
 	private RegionValidator regionValidator;
 	private Button btnHardShutter;
-	
+
 	private class AnalyserTotalTimeRemainingListener implements MonitorListener {
 
 		@Override
@@ -1648,7 +1649,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		}
 	}
-	
+
 	private double getRemainingRegionsTimeTotal(int currentRegionNumber2) {
 		double timeToGo = 0.0;
 		int i=0;
@@ -1717,7 +1718,7 @@ public class SequenceView extends ViewPart implements ISelectionProvider, IRegio
 			}
 		}
 	}
-	
+
 	private class HardShutterStateListener implements MonitorListener {
 
 		@Override

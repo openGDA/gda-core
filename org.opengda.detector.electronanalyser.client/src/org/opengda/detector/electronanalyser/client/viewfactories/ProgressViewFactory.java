@@ -1,12 +1,12 @@
 package org.opengda.detector.electronanalyser.client.viewfactories;
 
-import gda.rcp.views.FindableExecutableExtension;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.views.ProgressView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.rcp.views.FindableExecutableExtension;
 
 public class ProgressViewFactory implements FindableExecutableExtension {
 	private static final Logger logger=LoggerFactory.getLogger(ProgressViewFactory.class);
@@ -17,20 +17,20 @@ public class ProgressViewFactory implements FindableExecutableExtension {
 	private String iterationProgressPV;
 	private String totalDataPointsPV;
 	private String iterationCurrentPointPV;
-	
+
 	private String totalRemianingTimePV;
 	private String totalProgressPV;
 	private String totalPointsPV;
 	private String currentPointPV;
-	
+
 	private String currentIterationPV;
 	private String totalIterationsPV;
-	
+
 //	private String iterationTotalPointsPV;
 //	private String currentDataPointPV;
 //	private String inLeadPV;
 //	private String currentLeadPointPV;
-	
+
 	@Override
 	public Object create() throws CoreException {
 		logger.info("Creating Progress view");
@@ -81,13 +81,13 @@ public class ProgressViewFactory implements FindableExecutableExtension {
 //		if (currentLeadPointPV != null) {
 //			progressView.setCurrentLeadPointPV(currentLeadPointPV);
 //		}
-		
+
 		return progressView;
 	}
 
 	@Override
 	public void setName(String name) {
-		this.name=name;		
+		this.name=name;
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public class ProgressViewFactory implements FindableExecutableExtension {
 	@Override
 	public void setInitializationData(IConfigurationElement config,
 			String propertyName, Object data) throws CoreException {
-		
+
 	}
 
 	@Override

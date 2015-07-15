@@ -36,7 +36,7 @@ public abstract class LivePlotView extends ViewPart {
 
 	protected void makeActions(IViewSite viewSite, IEnergyAxis plotComposite) {
 		CheckableActionGroup energyGroup=new CheckableActionGroup();
-		
+
         final MenuAction energyDropDown = new MenuAction("Energy mode selection");
         energyDropDown.setId("org.opengda.detector.electronanalyser.client.actions.energymodeselection");
         energyDropDown.setImageDescriptor(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().getDescriptor(ImageConstants.ICON_ENERGY_SELECTION));
@@ -47,24 +47,24 @@ public abstract class LivePlotView extends ViewPart {
         energyDropDown.setSelectedAction(kinetic);
         energyDropDown.setText("Swap Energy");
         energyDropDown.setChecked(true);
-        
+
         binding = new EnergyAxisAction("Binding", IAction.AS_CHECK_BOX, plotComposite,ENERGY_MODE.BINDING);
 		binding.setToolTipText("Display data in binding energy.");
 		energyDropDown.add(binding);
-		
+
 		energyGroup.add(kinetic);
 		energyGroup.add(binding);
-		
+
 		contributeToActionBars(energyDropDown);
 	}
-	
+
 	protected void updateEnergyAxisActions(IWorkbenchPart part, Object firstElement, IEnergyAxis plotComposite) {
 		Region region = (Region) firstElement;
 		if (region.getEnergyMode() == ENERGY_MODE.BINDING) {
 			plotComposite.displayInBindingEnergy(true);
 			if (!part.getSite().getShell().getDisplay().isDisposed()) {
 				part.getSite().getShell().getDisplay().asyncExec(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						binding.setChecked(true);
@@ -75,7 +75,7 @@ public abstract class LivePlotView extends ViewPart {
 			plotComposite.displayInBindingEnergy(false);
 			if (!part.getSite().getShell().getDisplay().isDisposed()) {
 				part.getSite().getShell().getDisplay().asyncExec(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						kinetic.setChecked(true);
@@ -100,11 +100,11 @@ public abstract class LivePlotView extends ViewPart {
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
-	
+
 	private void fillLocalToolBar(IToolBarManager manager, Action energyDropDown) {
 		manager.add(new Separator());
 		manager.add(energyDropDown);
-		
+
 	}
 
 	public LivePlotView() {
@@ -113,7 +113,7 @@ public abstract class LivePlotView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-	
+
 	}
 
 	public IVGScientaAnalyser getAnalyser() {
@@ -126,7 +126,7 @@ public abstract class LivePlotView extends ViewPart {
 
 	public void setViewPartName(String viewPartName) {
 		setPartName(viewPartName);
-	
+
 	}
 
 	public String getArrayPV() {

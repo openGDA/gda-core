@@ -5,7 +5,6 @@ package org.opengda.detector.electronanalyser.model.regiondefinition.util;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
 
 /**

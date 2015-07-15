@@ -18,6 +18,15 @@
 
 package org.opengda.detector.electronanalyser.nxdetector.plugins;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
+import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.device.DeviceException;
 import gda.device.detector.NXDetectorData;
@@ -27,15 +36,6 @@ import gda.device.detector.nxdata.NXDetectorDataAppender;
 import gda.device.detector.nxdata.NXDetectorDataNullAppender;
 import gda.device.detector.nxdetector.NXPlugin;
 import gda.scan.ScanInformation;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
-import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ADArrayPlugin implements NXPlugin {
 
@@ -155,7 +155,7 @@ public class ADArrayPlugin implements NXPlugin {
 	}
 
 	public void setEnergyMode(String literal) {
-		this.energyMode=literal;		
+		this.energyMode=literal;
 	}
 }
 
@@ -228,13 +228,13 @@ class NXDetectorDataAnalyserArrayAppender implements NXDetectorDataAppender {
 			axis = analyser.getAngleAxis();
 
 			data.addAxis(detectorName, aname, new NexusGroupData(axis), i + 1, 1, aunit, false);
-			
+
 			data.addData(detectorName, "reagion_name", new NexusGroupData(regionName));
 
 			data.addData(detectorName, "lens_mode", new NexusGroupData(analyser.getLensMode()));
 			data.addData(detectorName, "acquisition_mode", new NexusGroupData(analyser.getAcquisitionMode()));
 			data.addData(detectorName, "detector_mode", new NexusGroupData(analyser.getDetectorMode()));
-			
+
 			data.addData(detectorName, "pass_energy", new NexusGroupData(analyser.getPassEnergy()));
 			if (energyMode.equalsIgnoreCase("Binding")) {
 				data.addData(detectorName, "energy_mode", new NexusGroupData(energyMode));

@@ -25,5 +25,5 @@ public interface FlexibleFrameDetector extends Device {
 	public int getCurrentFrame();
 	public int getMaximumFrame();
 	public void setMaximumFrame(int max);
-	
+
 }

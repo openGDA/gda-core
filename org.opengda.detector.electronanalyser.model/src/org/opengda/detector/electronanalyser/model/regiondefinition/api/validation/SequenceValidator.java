@@ -5,7 +5,6 @@
 package org.opengda.detector.electronanalyser.model.regiondefinition.api.validation;
 
 import org.eclipse.emf.common.util.EList;
-
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RUN_MODES;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;

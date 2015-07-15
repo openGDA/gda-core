@@ -18,14 +18,14 @@
 
 package org.opengda.detector.electronanalyser.nxdata;
 
+import java.text.MessageFormat;
+import java.util.List;
+
 import gda.device.detector.NXDetectorData;
 import gda.device.detector.NXDetectorDataWithFilepathForSrs;
 import gda.device.detector.nxdata.NXDetectorDataAppender;
-
-import java.text.MessageFormat;
-import java.util.List;
 /**
- * 
+ *
  */
 public class NXDetectorDataFilenamesAppender implements NXDetectorDataAppender {
 
@@ -48,7 +48,7 @@ public class NXDetectorDataFilenamesAppender implements NXDetectorDataAppender {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) {

@@ -1,11 +1,5 @@
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.scannable.ScannableStatus;
-import gda.factory.Finder;
-import gda.observable.IObserver;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -73,11 +67,17 @@ import org.opengda.detector.electronanalyser.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.scannable.ScannableStatus;
+import gda.factory.Finder;
+import gda.observable.IObserver;
+
 /**
  * A Region Editor View for defining new or editing existing Region Definition for VG Scienta Electron Analyser.
- * 
+ *
  * @author fy65
- * 
+ *
  */
 public class RegionView extends ViewPart implements ISelectionProvider, IObserver {
 	public static final String ID = "org.opengda.detector.electronanalyser.client.regioneditor";
@@ -211,7 +211,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			    Matcher matcher = pattern.matcher(toExamine);
 			    return matcher.find();
 			}
-			
+
 		});
 
 		Composite modeComposite = new Composite(rootComposite, SWT.None);
@@ -251,7 +251,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		numberOfIterationSpinner.setMinimum(1);
 		numberOfIterationSpinner.setMaximum(Integer.MAX_VALUE);
 		numberOfIterationSpinner.setToolTipText("Set number of iterations required");
-		
+
 		Label lblSclies = new Label(grpRunMode, SWT.NONE);
 		lblSclies.setText("Number of Y Slices:");
 
@@ -303,13 +303,13 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 					}
 				}
 			});
-			
+
 			txtHardEnergy = new Text(grpExcitationEnergy, SWT.BORDER | SWT.READ_ONLY);
 //			txtHardEnergy.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			txtHardEnergy.setToolTipText("Current hard X-ray beam energy");
 			txtHardEnergy.setEnabled(false);
 			txtHardEnergy.setEditable(false);
-			
+
 			btnSoft = new Button(grpExcitationEnergy, SWT.RADIO);
 			btnSoft.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			btnSoft.setText("Soft X-Ray:");
@@ -327,7 +327,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 			txtSoftEnergy.setToolTipText("Current soft X-ray beam energy");
 			txtSoftEnergy.setEnabled(false);
 			txtSoftEnergy.setEditable(false);
-			
+
 		} else {
 			Label lblCurrentValue = new Label(grpExcitationEnergy, SWT.NONE);
 			lblCurrentValue.setText("X-Ray energy:");
@@ -385,7 +385,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		GridData centerLayoutData = new GridData(GridData.FILL_HORIZONTAL);
 		txtCenter.setLayoutData(centerLayoutData);
 		txtCenter.setToolTipText("Center/Fixed energy");
-		
+
 		Label lblHigh = new Label(grpEnergy, SWT.NONE);
 		lblHigh.setText("High");
 
@@ -457,7 +457,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtMinimumSize.setToolTipText("Minimum energy size per step allowed");
 		txtMinimumSize.setEditable(false);
 		txtMinimumSize.setEnabled(false);
-		
+
 		Label lblTotalTime = new Label(grpStep, SWT.NONE);
 		lblTotalTime.setText("Total Time [s]");
 
@@ -466,7 +466,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtTotalTime.setToolTipText("Anticipated total time for this collection");
 		txtTotalTime.setEditable(false);
 		txtTotalTime.setEnabled(false);
-		
+
 		Label lblTotalSteps = new Label(grpStep, SWT.NONE);
 		lblTotalSteps.setText("Total Steps");
 
@@ -475,7 +475,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		txtTotalSteps.setToolTipText("Total number of steps for this collection");
 		txtTotalSteps.setEditable(false);
 		txtTotalSteps.setEnabled(false);
-		
+
 		Group grpDetector = new Group(rootComposite, SWT.NONE);
 		grpDetector.setText("Detector");
 		grpDetector.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -597,19 +597,19 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		GridData gd_label = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_label.widthHint = 450;
 		horizontalSeparator.setLayoutData(gd_label);
-		
+
 		Group grpProgress = new Group(rootComposite, SWT.NONE);
 		grpProgress.setText("Progress");
 		grpProgress.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpProgress.setLayout(new GridLayout());
-		
+
 		progressComposite=new RegionProgressComposite(grpProgress, SWT.None);
 
 		Group grpAnalyser = new Group(rootComposite, SWT.NONE);
 		grpAnalyser.setText("Analyser IOC");
 		grpAnalyser.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		grpAnalyser.setLayout(new GridLayout());
-		
+
 		analyserComposite=new AnalyserComposite(grpAnalyser, SWT.None);
 
 		regionComposite.setMinSize(rootComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
@@ -625,7 +625,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		dialog.setMessage(message);
 		dialog.open();
 	}
-	
+
 	private ISelectionListener selectionListener = new INullSelectionListener() {
 		@Override
 		public void selectionChanged(IWorkbenchPart part, ISelection selection) {
@@ -791,7 +791,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		regionName.addSelectionListener(regionNameSelAdapter);
 		lensMode.addSelectionListener(lensModeSelAdaptor);
 		numberOfIterationSpinner.addSelectionListener(numIterationSpinnerSelAdaptor);
-		
+
 		progressComposite.setCurrentIterationRemainingTimePV(getCurrentIterationRemainingTimePV());
 		progressComposite.setIterationLeadPointsPV(getIterationLeadPointsPV());
 		progressComposite.setIterationProgressPV(getIterationProgressPV());
@@ -804,7 +804,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		progressComposite.setCurrentIterationPV(getCurrentIterationPV());
 		progressComposite.setTotalIterationsPV(getTotalIterationsPV());
 		progressComposite.initialise();
-		
+
 		analyserComposite.setStatePV(statePV);
 		analyserComposite.setAcquirePV(acquirePV);
 		analyserComposite.setMessagePV(messagePV);
@@ -838,13 +838,14 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	}
 
 	private SelectionAdapter regionNameSelAdapter = new SelectionAdapter() {
+		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
 			// on enter - change region name
 			if (e.getSource().equals(regionName)) {
 				String newName=regionName.getText().trim();
 				if (getRegionNames().contains(newName)) {
 					MessageDialog msgDialog = new MessageDialog(getViewSite().getShell(), "Duplicated region name", null,
-							"Region name must be unique in the sequence definition. Select 'No' to re-enter it again, otherwise an unique name will be generated for you", 
+							"Region name must be unique in the sequence definition. Select 'No' to re-enter it again, otherwise an unique name will be generated for you",
 							MessageDialog.ERROR, new String[] { "Yes", "No" }, 0);
 					int result = msgDialog.open();
 					if (result == 0) {
@@ -866,6 +867,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 		}
 
 		// on selection from list
+		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource().equals(regionName)) {
 				Object data = regionName.getData(String.valueOf(regionName.getSelectionIndex()));
@@ -978,6 +980,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	private double sweptHighEnergy;
 	private SelectionAdapter sizeSelectionListener = new SelectionAdapter() {
 
+		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
 			Object source = e.getSource();
 			if (source.equals(txtSize)) {
@@ -1029,6 +1032,7 @@ public class RegionView extends ViewPart implements ISelectionProvider, IObserve
 	}
 
 	private SelectionAdapter timeSelectionListener = new SelectionAdapter() {
+		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
 			Object source = e.getSource();
 			onModifyTime(source);

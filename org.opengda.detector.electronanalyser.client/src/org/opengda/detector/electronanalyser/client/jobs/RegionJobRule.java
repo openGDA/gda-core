@@ -13,7 +13,7 @@ public class RegionJobRule implements ISchedulingRule {
 	public RegionJobRule(int order) {
 		this.jobOrder = order;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.core.runtime.jobs.ISchedulingRule#contains(org.eclipse.core.runtime.jobs.ISchedulingRule)
 	 */

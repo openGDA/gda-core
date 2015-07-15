@@ -18,20 +18,18 @@
 
 package uk.ac.gda.devices.vgscienta;
 
-import gda.device.DeviceException;
-import gda.device.detector.areadetector.IPVProvider;
-import gda.epics.connection.EpicsController;
-import gda.factory.Configurable;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.DeviceException;
+import gda.device.detector.areadetector.IPVProvider;
+import gda.epics.connection.EpicsController;
+import gda.factory.Configurable;
+import gov.aps.jca.Channel;
 
 public class VGScientaController implements Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaController.class);
@@ -67,7 +65,7 @@ public class VGScientaController implements Configurable {
 	 */
 	private Map<String, Channel> channelMap = new HashMap<String, Channel>();
 	private Vector<Integer> passenergies = new Vector<Integer>(7);
-	
+
 	private Channel getChannel(String pvPostFix) throws Exception {
 		String fullPvName;
 		if (pvProvider != null) {
@@ -90,22 +88,22 @@ public class VGScientaController implements Configurable {
 	public void setBasePVName(String basePVName) {
 		this.basePVName = basePVName;
 	}
-	
+
 	public void setLensMode(String value) throws Exception {
 		EPICS_CONTROLLER.caputWait(getChannel(LENSMODE), value);
 	}
-	
+
 	public String getLensMode() throws Exception {
 		return EPICS_CONTROLLER.cagetString(getChannel(LENSMODE_RBV));
 	}
 	public String getPsuMode() throws Exception {
 		return EPICS_CONTROLLER.cagetString(getChannel(PSUMODE_RBV));
 	}
-		
+
 	public void setAcquisitionMode(String value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(ACQMODE), value);
 	}
-	
+
 	public String getAcquisitionMode() throws Exception {
 		return EPICS_CONTROLLER.cagetString(getChannel(ACQMODE_RBV));
 	}
@@ -119,19 +117,19 @@ public class VGScientaController implements Configurable {
 			}
 			i = i + 1;
 		}
-		
+
 		throw new Exception("unknown pass energy");
 	}
-	
+
 	public Integer getPassEnergy() throws Exception {
 			return passenergies.get(EPICS_CONTROLLER.cagetInt(getChannel(PASSENERGY_RBV)));
 	}
 
 	/**
 	 * gets the available positions from this device.
-	 * 
+	 *
 	 * @return available positions
-	 * @throws DeviceException 
+	 * @throws DeviceException
 	 */
 	public String[] getPassEnergies() throws DeviceException {
 		String[] positionLabels = new String[0];
@@ -158,11 +156,11 @@ public class VGScientaController implements Configurable {
 			logger.error("cannot fill passenergy array, setting and getting passenergy will fail");
 		}
 	}
-	
+
 	public void setStartEnergy(Double value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(STARTENERGY), value);
 	}
-	
+
 	public Double getStartEnergy() throws Exception {
 		return EPICS_CONTROLLER.cagetDouble(getChannel(STARTENERGY_RBV));
 	}
@@ -170,7 +168,7 @@ public class VGScientaController implements Configurable {
 	public void setCentreEnergy(Double value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(CENTREENERGY), value);
 	}
-	
+
 	public Double getCentreEnergy() throws Exception {
 		return EPICS_CONTROLLER.cagetDouble(getChannel(CENTREENERGY_RBV));
 	}
@@ -178,7 +176,7 @@ public class VGScientaController implements Configurable {
 	public void setEndEnergy(Double value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(ENDENERGY), value);
 	}
-	
+
 	public Double getEndEnergy() throws Exception {
 		return EPICS_CONTROLLER.cagetDouble(getChannel(ENDENERGY_RBV));
 	}
@@ -186,7 +184,7 @@ public class VGScientaController implements Configurable {
 	public void setEnergyStep(Double value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(ENERGYSTEP), value);
 	}
-	
+
 	public Double getEnergyStep() throws Exception {
 		return EPICS_CONTROLLER.cagetDouble(getChannel(ENERGYSTEP_RBV));
 	}
@@ -194,7 +192,7 @@ public class VGScientaController implements Configurable {
 	public void setFrames(Integer value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(FRAMES), value);
 	}
-	
+
 	public Integer getFrames() throws Exception {
 		return EPICS_CONTROLLER.cagetInt(getChannel(FRAMES_RBV));
 	}
@@ -202,11 +200,11 @@ public class VGScientaController implements Configurable {
 	public void setSlice(Integer value) throws Exception {
 		EPICS_CONTROLLER.caput(getChannel(SLICE), value);
 	}
-	
+
 	public Integer getSlice() throws Exception {
 		return EPICS_CONTROLLER.cagetInt(getChannel(SLICE_RBV));
 	}
-	
+
 	public void zeroSupplies() throws Exception {
 		try {
 			EPICS_CONTROLLER.caputWait(getChannel(ZERO_SUPPLIES), 1);
@@ -215,7 +213,7 @@ public class VGScientaController implements Configurable {
 		} catch (Exception e) {
 			logger.error("exception received while zeroing voltages: ", e);
 			throw e;
-		} 
+		}
 	}
 
 	public int getSweepSteps() throws Exception {

@@ -24,7 +24,7 @@ public class SetBean implements Serializable{
 
 	String scannableName;
 	Double value;
-	
+
 	public String getScannableName() {
 		return scannableName;
 	}

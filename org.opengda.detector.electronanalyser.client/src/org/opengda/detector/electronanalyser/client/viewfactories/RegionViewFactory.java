@@ -18,9 +18,6 @@
 
 package org.opengda.detector.electronanalyser.client.viewfactories;
 
-import gda.device.scannable.ScannableMotor;
-import gda.rcp.views.FindableExecutableExtension;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.Camera;
@@ -29,6 +26,9 @@ import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.scannable.ScannableMotor;
+import gda.rcp.views.FindableExecutableExtension;
 
 /**
  * Factory class that creates the RegionView object to be contributed to eclipse's {@link org.eclipse.ui.views} extension point.
@@ -42,7 +42,7 @@ public class RegionViewFactory implements FindableExecutableExtension {
 	private Camera camera;
 	private ScannableMotor dcmenergy;
 	private ScannableMotor pgmenergy;
-	private IVGScientaAnalyser analyser; 
+	private IVGScientaAnalyser analyser;
 
 	private String currentIterationRemainingTimePV;
 	private String iterationLeadPointsPV;
@@ -55,7 +55,7 @@ public class RegionViewFactory implements FindableExecutableExtension {
 	private String currentPointPV;
 	private String currentIterationPV;
 	private String totalIterationsPV;
-	
+
 	private String statePV;
 	private String acquirePV;
 	private String messagePV;

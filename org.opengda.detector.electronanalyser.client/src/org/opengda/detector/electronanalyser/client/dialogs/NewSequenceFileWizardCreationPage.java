@@ -15,6 +15,6 @@ public class NewSequenceFileWizardCreationPage extends WizardNewFileCreationPage
 
 	public NewSequenceFileWizardCreationPage(IStructuredSelection selection) {
 		this("New Sequence File", selection);
-		
+
 	}
 }

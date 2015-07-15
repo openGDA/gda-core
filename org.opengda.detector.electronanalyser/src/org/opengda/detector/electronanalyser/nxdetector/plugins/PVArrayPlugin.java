@@ -18,15 +18,6 @@
 
 package org.opengda.detector.electronanalyser.nxdetector.plugins;
 
-import gda.data.nexus.extractor.NexusGroupData;
-import gda.device.DeviceException;
-import gda.device.detector.NXDetectorData;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdetector.plugin.NullNXPlugin;
-import gda.epics.LazyPVFactory;
-import gda.epics.ReadOnlyPV;
-import gda.scan.ScanInformation;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -39,8 +30,17 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.extractor.NexusGroupData;
+import gda.device.DeviceException;
+import gda.device.detector.NXDetectorData;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdetector.plugin.NullNXPlugin;
+import gda.epics.LazyPVFactory;
+import gda.epics.ReadOnlyPV;
+import gda.scan.ScanInformation;
+
 public class PVArrayPlugin extends NullNXPlugin {
-	
+
 
 	private ReadOnlyPV<Double[]> pv;
 	private ReadOnlyPV<Integer> dataPointsPV;
@@ -101,7 +101,7 @@ public class PVArrayPlugin extends NullNXPlugin {
 	public List<String> getInputStreamFormats() {
 		return Arrays.asList();
 	}
-	
+
 	@Override
 	public Vector<NXDetectorDataAppender> read(int maxToRead) throws NoSuchElementException, InterruptedException,
 			DeviceException {
@@ -165,7 +165,7 @@ class NXDetectorDatasetAppender implements NXDetectorDataAppender {
 
 	@Override
 	public void appendTo(NXDetectorData data, String detectorName) throws DeviceException{
-		
+
 		try {
 			if (regionName != null) {
 				readoutDatasetIntoNXDetectorData(data,dataset,detectorName,regionName);
@@ -187,7 +187,7 @@ class NXDetectorDatasetAppender implements NXDetectorDataAppender {
 		if (ds.getDtype() == Dataset.FLOAT32) {
 			ngd = ngd.asDouble();
 		}
-		//logger.warn("dimension = {}, data = {}", dims[0],ds.getBuffer()); 
+		//logger.warn("dimension = {}, data = {}", dims[0],ds.getBuffer());
 		data.addData(detectorName, regionName+"_"+ds.getName(), ngd, unit, 1);
 	}
 }

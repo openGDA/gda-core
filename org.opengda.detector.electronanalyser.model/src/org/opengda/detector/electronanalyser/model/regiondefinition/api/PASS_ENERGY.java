@@ -297,6 +297,7 @@ public enum PASS_ENERGY implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getValue() {
 	  return value;
 	}
@@ -306,6 +307,7 @@ public enum PASS_ENERGY implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getName() {
 	  return name;
 	}
@@ -315,6 +317,7 @@ public enum PASS_ENERGY implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getLiteral() {
 	  return literal;
 	}
@@ -329,5 +332,5 @@ public enum PASS_ENERGY implements Enumerator {
 	public String toString() {
 		return literal;
 	}
-	
+
 } //PASS_ENERGY

@@ -2,12 +2,11 @@
  */
 package org.opengda.detector.electronanalyser.model.regiondefinition.tests;
 
-import junit.framework.TestCase;
-
-import junit.textui.TestRunner;
-
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
+
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 /**
  * <!-- begin-user-doc -->

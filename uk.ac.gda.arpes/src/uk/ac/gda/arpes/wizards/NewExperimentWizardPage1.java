@@ -18,8 +18,6 @@
 
 package uk.ac.gda.arpes.wizards;
 
-import gda.rcp.DataProject;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -42,14 +40,16 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
+import gda.rcp.DataProject;
+
 public class NewExperimentWizardPage1 extends WizardPage {
 	private Text containerText;
 	private Text fileText;
 	private ISelection selection;
-	
+
 	/**
 	 * Create the wizard.
-	 * @param selection 
+	 * @param selection
 	 */
 	public NewExperimentWizardPage1(ISelection selection) {
 		super("locationPage");
@@ -129,7 +129,7 @@ public class NewExperimentWizardPage1 extends WizardPage {
 				containerText.setText(container.getFullPath().toString());
 				return;
 			}
-		} 
+		}
 
 		IProject dataProject = DataProject.getDataProjectIfExists();
 		if (dataProject != null) {

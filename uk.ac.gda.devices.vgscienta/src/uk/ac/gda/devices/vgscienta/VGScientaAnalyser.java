@@ -18,6 +18,14 @@
 
 package uk.ac.gda.devices.vgscienta;
 
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
+import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.cosylab.epics.caj.CAJChannel;
+
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
 import gda.data.nexus.tree.INexusTree;
@@ -41,16 +49,7 @@ import gda.observable.IObserver;
 import gov.aps.jca.dbr.DBR_Enum;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
-
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
-import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
-
-import com.cosylab.epics.caj.CAJChannel;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
@@ -58,14 +57,14 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaAnalyser.class);
 
 	protected boolean inScan = false;
-	
+
 	private VGScientaController controller;
 	private AnalyserCapabilties ac;
 	private int[] fixedModeRegion;
 	private EpicsController epicsController;
-	
+
 	private NDProcess ndProc;
-	
+
 	public final static MotorStatus stopped = MotorStatus.READY;
 	public final static MotorStatus running = MotorStatus.BUSY;
 	private MotorStatus currentstatus = stopped;
@@ -75,31 +74,31 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	private FlexibleFrameStrategy flex;
 
 	private EntranceSlitInformationProvider entranceSlitInformationProvider;
-	
+
 	private gda.device.detector.nxdetector.roi.PlotServerROISelectionProvider cpsRoiProvider;
 	private RectangularROI cpsRoi;
 
 	private boolean kineticEnergyChangesDuringScan = false;
-	
+
 	final public Scannable centre_energy = new ScannableBase() {
-	
+
 		@Override
 		public void atScanStart() throws DeviceException {
 			kineticEnergyChangesDuringScan = true;
 		}
-		
+
 		@Override
 		public Double getPosition() throws DeviceException {
 			try {
 				if (controller.getAcquisitionMode().equalsIgnoreCase("Fixed")) {
 					return getCentreEnergy();
-				} 
+				}
 				return 0.5 * (getStartEnergy() + getEndEnergy());
 			} catch (Exception e) {
 				throw new DeviceException("error getting to EPICS", e);
 			}
 		}
-		
+
 		@Override
 		public void asynchronousMoveTo(Object externalPosition) throws DeviceException {
 			Double energy = ((Number) externalPosition).doubleValue();
@@ -107,7 +106,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 				if (controller.getAcquisitionMode().equalsIgnoreCase("Fixed")) {
 					setCentreEnergy(energy);
 					return;
-				} 
+				}
 				Double moveby = this.getPosition() - energy;
 				setStartEnergy(getStartEnergy() - moveby);
 				setEndEnergy(getEndEnergy() - moveby);
@@ -116,14 +115,14 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 				throw new DeviceException("error getting to EPICS", e);
 			}
 		}
-		
+
 		@Override
 		public boolean isBusy() throws DeviceException {
 			return false;
 		}
 	};
 
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		super.configure();
@@ -135,23 +134,23 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			getNdProc().setFilterType(2);
 			getNdProc().setNumFilter(1000000);
 			getNdProc().getPluginBase().enableCallbacks();
-			
+
 			setExtraNames(new String[] {"cps"});
-			
-			flex = new FlexibleFrameStrategy(getAdBase(), 0., getNdProc()); 
+
+			flex = new FlexibleFrameStrategy(getAdBase(), 0., getNdProc());
 			setCollectionStrategy(flex);
 			flex.setMaxNumberOfFrames(1);
 			flex.addIObserver(this);
-			
+
 			// for updates to GUI
 			epicsController = EpicsController.getInstance();
 			epicsController.setMonitor(epicsController.createChannel(((ADBaseImpl) getAdBase()).getBasePVName() + ADBase.Acquire_RBV), this);
-			
+
 		} catch (Exception e) {
 			throw new FactoryException("error setting up areadetector and related listeners ", e);
 		}
 	}
-	
+
 	public AnalyserCapabilties getCapabilities() {
 		return ac;
 	}
@@ -191,7 +190,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		super.atScanStart();
 		inScan = true;
 	}
-	
+
 	@Override
 	public void atScanEnd() throws DeviceException {
 		inScan = false;
@@ -199,11 +198,11 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		zeroSuppliesIgnoreErrors();
 		kineticEnergyChangesDuringScan = false;
 	}
-	
+
 	public int getNumberOfSweeptSteps() throws Exception {
-		return controller.getSweepSteps(); 
+		return controller.getSweepSteps();
 	}
-	
+
 	public double[] getEnergyAxis() throws Exception {
 		double start, step;
 		int length, startChannel = 0;
@@ -249,7 +248,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			default:
 				break;
 		}
-		
+
 		if (getNdProc().getResetFilter_RBV() == 1)
 			throw new DeviceException("processing plugin has not seen any data");
 
@@ -262,9 +261,9 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			data.addData(getName(), "kinetic_energy_start",  new NexusGroupData(getStartEnergy()),  "eV", null);
 			data.addData(getName(), "kinetic_energy_center", new NexusGroupData((Double) centre_energy.getPosition()), "eV", null);
 			data.addData(getName(), "kinetic_energy_end",    new NexusGroupData(getEndEnergy()),    "eV", null);
-						
+
 		}
-				
+
 		if (firstReadoutInScan) {
 			String aunit, aname;
 			if ("Transmission".equals(getLensMode())) {
@@ -295,7 +294,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 				data.addData(getName(), "cps_region_origin", new NexusGroupData(0, 0), null, null);
 				data.addData(getName(), "cps_region_size", new NexusGroupData(groupData.dimensions), null, null);
 			}
-			
+
 			if (entranceSlitInformationProvider != null) {
 				data.addData(getName(), "entrance_slit_size", new NexusGroupData(entranceSlitInformationProvider.getSizeInMM()), "mm", null);
 				data.addData(getName(), "entrance_slit_setting", new NexusGroupData(String.format("%03d", entranceSlitInformationProvider.getRawValue().intValue())), null, null);
@@ -304,14 +303,14 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			}
 		}
 	}
-	
+
 	@Override
 	protected void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
 		data.addData(getName(), "number_of_cycles", new NexusGroupData(flex.getLastAcquired()), null, null, null, true);
-		
+
 		double acquireTime_RBV = flex.getAcquireTime();
 		data.addData(getName(), "time_per_channel", new NexusGroupData(acquireTime_RBV), "s", null, null, true);
-		
+
 		NexusGroupData groupData = data.getData(getName(), "data", NexusExtractor.SDSClassName);
 		if (groupData.isFloat()) {
 			long sum = 0;
@@ -336,11 +335,11 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		valdata.addChildNode(new NexusTreeNode("local_name",NexusExtractor.AttrClassName, valdata, new NexusGroupData(String.format("%s.%s", getName(), name))));
 		data.setPlottableValue(name, d);
 	}
-	
+
 	public boolean isFixedMode() throws Exception {
 		return "Fixed".equalsIgnoreCase(controller.getAcquisitionMode());
 	}
-	
+
 	public void setFixedMode(boolean fixed) throws Exception {
 		int[] region = fixedModeRegion;
 		if (fixed) {
@@ -367,7 +366,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	public void setSweptModeRegion(int[] sweptModeRegion) {
 		this.sweptModeRegion = sweptModeRegion;
 	}
-	
+
 	public int[] getFixedModeRegion() {
 		return fixedModeRegion;
 	}
@@ -375,7 +374,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	public void setFixedModeRegion(int[] fixedModeRegion) {
 		this.fixedModeRegion = fixedModeRegion;
 	}
-	
+
 	@Override
 	public double getCollectionTime() throws DeviceException {
 		try {
@@ -384,7 +383,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			throw new DeviceException("error getting collection time", e);
 		}
 	}
-	
+
 	@Override
 	public void setCollectionTime(double collectionTime) throws DeviceException {
 		try {
@@ -393,9 +392,9 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 			throw new DeviceException("error setting collection time", e);
 		}
 	}
-	
+
 	public void setLensMode(String value) throws Exception {
-		if (inScan) 
+		if (inScan)
 			throw new DeviceException("change of lens mode prohibited during scan");
 		boolean restart = false;
 		if (getAdBase().getAcquireState() == 1) {
@@ -409,15 +408,15 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		if (restart)
 			getAdBase().startAcquiring();
 	}
-	
+
 	public String getLensMode() throws Exception {
 		return controller.getLensMode();
 	}
 	public String getPsuMode()  throws Exception {
 		return controller.getPsuMode();
-	}	
+	}
 	public void setPassEnergy(Integer value) throws Exception {
-		if (inScan) 
+		if (inScan)
 			throw new DeviceException("change of pass energy prohibited during scan");
 		boolean restart = false;
 		if (getAdBase().getAcquireState() == 1) {
@@ -431,15 +430,15 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 		if (restart)
 			getAdBase().startAcquiring();
 	}
-	
+
 	public Integer getPassEnergy() throws Exception {
 			return controller.getPassEnergy();
 	}
-	
+
 	public void setStartEnergy(Double value) throws Exception {
 		controller.setStartEnergy(value);
 	}
-	
+
 	public Double getStartEnergy() throws Exception {
 		return controller.getStartEnergy();
 	}
@@ -447,7 +446,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	public void setCentreEnergy(Double value) throws Exception {
 		controller.setCentreEnergy(value);
 	}
-	
+
 	public Double getCentreEnergy() throws Exception {
 		return controller.getCentreEnergy();
 	}
@@ -455,7 +454,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	public void setEndEnergy(Double value) throws Exception {
 		controller.setEndEnergy(value);
 	}
-	
+
 	public Double getEndEnergy() throws Exception {
 		return controller.getEndEnergy();
 	}
@@ -463,17 +462,17 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	public void setEnergyStep(Double value) throws Exception {
 		controller.setEnergyStep(value);
 	}
-	
+
 	public Double getEnergyStep() throws Exception {
 		return controller.getEnergyStep();
 	}
-	
+
 	public void zeroSupplies() throws Exception {
 		getAdBase().stopAcquiring();//Acquisition must be stopped before zeroing supplies.
 		Thread.sleep(250);//Pause before zeroing supplies as there is a possible race condition between stopping acquisition and zeroing supplies.
 		controller.zeroSupplies();
 	}
-	
+
 	public void zeroSuppliesIgnoreErrors() {
 		try {
 			zeroSupplies();
@@ -524,7 +523,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 
 	@Override
 	public void update(Object source, Object arg) {
-		if (flex == source) 
+		if (flex == source)
 			notifyIObservers(source, arg);
 	}
 
@@ -535,14 +534,14 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	public void setEntranceSlitInformationProvider(EntranceSlitInformationProvider entranceSlitInformationProvider) {
 		this.entranceSlitInformationProvider = entranceSlitInformationProvider;
 	}
-	
+
 	@Override
 	public void atCommandFailure() throws DeviceException {
 		inScan = false;
 		zeroSuppliesIgnoreErrors();
 		super.atCommandFailure();
 	}
-	
+
 	@Override
 	public void stop() throws DeviceException {
 		inScan = false;
@@ -556,7 +555,7 @@ public class VGScientaAnalyser extends gda.device.detector.addetector.ADDetector
 	public void setCpsRoiProvider(PlotServerROISelectionProvider cpsRoiProvider) {
 		this.cpsRoiProvider = cpsRoiProvider;
 	}
-	
+
 	public Scannable getCentreEnergyScannable() {
 		return centre_energy;
 	}

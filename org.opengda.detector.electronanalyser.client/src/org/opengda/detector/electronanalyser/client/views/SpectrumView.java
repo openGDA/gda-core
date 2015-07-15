@@ -18,7 +18,7 @@ public class SpectrumView extends LivePlotView {
 	public static final String ID = "org.opengda.detector.electronanalyser.client.views.spectrumview";
 	private static final Logger logger = LoggerFactory.getLogger(SpectrumView.class);
 	private SpectrumPlotComposite plotComposite;
-	
+
 	public SpectrumView() {
 		setTitleToolTip("live display of integrated spectrum");
 		// setContentDescription("A view for displaying integrated spectrum.");

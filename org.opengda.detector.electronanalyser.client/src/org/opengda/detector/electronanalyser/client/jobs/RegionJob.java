@@ -39,11 +39,11 @@ public class RegionJob extends Job {
 		}
 		return Status.OK_STATUS;
 	}
-	
+
 	public Region getRegion() {
 		return regionCommand.getRegion();
 	}
-	
+
 	@Override
 	protected void canceling() {
 		regionCommand.abort();
@@ -51,7 +51,7 @@ public class RegionJob extends Job {
 	}
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.core.internal.jobs.InternalJob#belongsTo(java.lang.Object)
 	 */
 	@Override

@@ -1,24 +1,5 @@
 package org.opengda.detector.electronanalyser.nxdetector;
 
-import gda.data.nexus.tree.INexusTree;
-import gda.device.Detector;
-import gda.device.DeviceException;
-import gda.device.Scannable;
-import gda.device.detector.areadetector.v17.ADBase;
-import gda.device.detector.areadetector.v17.ImageMode;
-import gda.device.detector.areadetector.v17.NDPluginBase;
-import gda.device.detector.areadetector.v17.NDStats;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
-import gda.device.detector.nxdetector.NXFileWriterPlugin;
-import gda.jython.scriptcontroller.ScriptControllerBase;
-import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.observable.IObservable;
-import gda.observable.IObserver;
-import gda.observable.ObservableComponent;
-import gda.scan.ScanInformation;
-import gda.util.Sleep;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +21,25 @@ import org.opengda.detector.electronanalyser.nxdetector.NexusDataWriterExtension
 import org.opengda.detector.electronanalyser.server.VGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.nexus.tree.INexusTree;
+import gda.device.Detector;
+import gda.device.DeviceException;
+import gda.device.Scannable;
+import gda.device.detector.areadetector.v17.ADBase;
+import gda.device.detector.areadetector.v17.ImageMode;
+import gda.device.detector.areadetector.v17.NDPluginBase;
+import gda.device.detector.areadetector.v17.NDStats;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+import gda.device.detector.nxdetector.NXCollectionStrategyPlugin;
+import gda.device.detector.nxdetector.NXFileWriterPlugin;
+import gda.jython.scriptcontroller.ScriptControllerBase;
+import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+import gda.observable.ObservableComponent;
+import gda.scan.ScanInformation;
+import gda.util.Sleep;
 
 public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXFileWriterPlugin,IObservable{
 	private static final Logger logger = LoggerFactory.getLogger(EW4000CollectionStrategy.class);
@@ -73,7 +73,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 	private Scriptcontroller scriptcontroller;
 	protected Region lastregion=null;
 	private volatile boolean called=true;
-	
+
 	@Override
 	public void prepareForCollection(int numberImagesPerCollection,	ScanInformation scanInfo) throws Exception {
 		this.scannumber=scanInfo.getScanNumber();
@@ -112,7 +112,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 			}
 		}
 	}
-	
+
 	Vector<INexusTree> regionDataList= new Vector<INexusTree>();
 	private Vector<Double> totalIntensity=new Vector<Double>();
 
@@ -186,7 +186,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 							if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
 								((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionStatusEvent(region.getRegionId(), STATUS.COMPLETED,i));
 							}
-							
+
 						} catch (InterruptedException e) {
 							try {
 								getAnalyser().stop();
@@ -261,14 +261,14 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 			totalIntensity.clear();
 			lastTotalIntensityList.clear();
 			copyoftotalintensity.clear();
-			
+
 			called=true;
 		}
 	}
 
 	@Override
 	public void atCommandFailure() throws Exception {
-		completeCollection();		
+		completeCollection();
 	}
 
 	@Override
@@ -289,7 +289,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 		// waitWhileBusy();
 		completeCollection();
 	}
-	
+
 	@Override
 	public List<String> getInputStreamNames() {
 		//TODO why this being called 7 time in a scan start
@@ -400,12 +400,12 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 	public void waitWhileBusy() throws InterruptedException, Exception {
 		while (getStatus()==Detector.BUSY){
 			Sleep.sleep(500);
-		}		
+		}
 	}
 
 	@Override
 	public void setGenerateCallbacks(boolean b) {
-		
+
 	}
 
 	@Override
@@ -455,20 +455,20 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 		XRaySourceEnergyLimit = xRaySourceEnergyLimit;
 	}
 	public void setSequence(Sequence sequence) {
-		this.sequence=sequence;		
+		this.sequence=sequence;
 	}
 	public void setScanDataPoint(int i) {
-		this.scanDatapoint.set(i);		
+		this.scanDatapoint.set(i);
 	}
 
 	@Override
 	public void addIObserver(IObserver observer) {
-		oc.addIObserver(observer);		
+		oc.addIObserver(observer);
 	}
 
 	@Override
 	public void deleteIObserver(IObserver observer) {
-		oc.deleteIObserver(observer);		
+		oc.deleteIObserver(observer);
 	}
 
 	@Override
@@ -533,7 +533,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 			getAnalyser().setPassEnergy(region.getPassEnergy(), 10.0);
 			//Hack to fix EPICS does not support bind energy input values, energy values in EPICS are kinetic energy only
 			getAnalyser().setCachedEnergyMode(literal);
-			
+
 			getAnalyser().setEnergyStep(region.getEnergyStep() / 1000.0, 10.0);
 			double collectionTime = region.getStepTime();
 			getAnalyser().setStepTime(collectionTime, 10.0);
@@ -547,7 +547,7 @@ public class EW4000CollectionStrategy implements NXCollectionStrategyPlugin, NXF
 			getAnalyser().setAcquisitionMode(region.getAcquisitionMode().getLiteral(), 10.0);
 		} catch (Exception e) {
 			throw e;
-		} 
+		}
 		if (getScriptcontroller()!=null && getScriptcontroller() instanceof ScriptControllerBase) {
 			((ScriptControllerBase)getScriptcontroller()).update(getScriptcontroller(), new RegionChangeEvent(region.getRegionId(), region.getName()));
 		}

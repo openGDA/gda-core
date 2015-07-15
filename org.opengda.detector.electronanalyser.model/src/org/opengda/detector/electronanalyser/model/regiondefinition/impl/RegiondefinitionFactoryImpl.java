@@ -6,12 +6,20 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
-
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
-
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.*;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.DocumentRoot;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.RUN_MODES;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
 
 /**
  * <!-- begin-user-doc -->
@@ -118,6 +126,7 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public DocumentRoot createDocumentRoot() {
 		DocumentRootImpl documentRoot = new DocumentRootImpl();
 		return documentRoot;
@@ -128,6 +137,7 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Sequence createSequence() {
 		SequenceImpl sequence = new SequenceImpl();
 		return sequence;
@@ -138,6 +148,7 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Region createRegion() {
 		RegionImpl region = new RegionImpl();
 		return region;
@@ -148,6 +159,7 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RunMode createRunMode() {
 		RunModeImpl runMode = new RunModeImpl();
 		return runMode;
@@ -158,6 +170,7 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Spectrum createSpectrum() {
 		SpectrumImpl spectrum = new SpectrumImpl();
 		return spectrum;
@@ -268,6 +281,7 @@ public class RegiondefinitionFactoryImpl extends EFactoryImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RegiondefinitionPackage getRegiondefinitionPackage() {
 		return (RegiondefinitionPackage)getEPackage();
 	}

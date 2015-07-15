@@ -4,13 +4,10 @@ package org.opengda.detector.electronanalyser.model.regiondefinition.impl;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
-
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DocumentRoot;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
@@ -72,6 +69,7 @@ public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Sequence getSequence() {
 		return sequence;
 	}
@@ -98,6 +96,7 @@ public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSequence(Sequence newSequence) {
 		if (newSequence != sequence) {
 			NotificationChain msgs = null;
@@ -138,6 +137,7 @@ public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetSequence() {
 		if (sequence != null) {
 			NotificationChain msgs = null;
@@ -158,6 +158,7 @@ public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetSequence() {
 		return sequenceESet;
 	}

@@ -19,6 +19,9 @@
 package uk.ac.gda.devices.vgscienta;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.detector.addetector.triggering.SimpleAcquire;
 import gda.device.detector.areadetector.v17.ADBase;
@@ -34,22 +37,19 @@ import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListener, IObservable {
 	static final Logger logger = LoggerFactory.getLogger(FlexibleFrameStrategy.class);
 
 	private ObservableComponent oc = new ObservableComponent();
-	
+
 	private int maxNumberOfFrames = 1;
 	private int currentFrame = -1;
 	private int highestFrame = 0;
 	private boolean wethinkweareincharge = false;
-	
+
 	private NDProcess proc;
 	private EpicsController epicsController;
-	
+
 	public FlexibleFrameStrategy(ADBase base, double time, NDProcess ndProcess) throws CAException, InterruptedException, TimeoutException {
 		super(base, time);
 		setReadoutTime(-1);
@@ -80,11 +80,11 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 			}
 		}
 	}
-	
+
 	private void interactWithDeviceIfRequired() {
 		if (!wethinkweareincharge)
 			return;
-		
+
 		try {
 			if (currentFrame == (maxNumberOfFrames - 1)) {
 					getAdBase().setImageMode(0);
@@ -96,24 +96,24 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 		} catch (Exception e) {
 			logger.error("Exception received controlling analyser exposure, sweeps out of control!", e);
 		}
-		
+
 		notifyObservers();
 	}
-	
+
 	@Override
 	public void completeCollection() throws Exception {
-		if (!wethinkweareincharge) 
+		if (!wethinkweareincharge)
 			return;
 		wethinkweareincharge = false;
 		highestFrame = currentFrame;
 		currentFrame = -1;
-		// versions of SES=ses1.3.1r5 and IOC=R3.14.12.3v2-11 subsume zeroing of power supplies within acquire stop, 
-		// so separate zeroing action is no longer exposed. Call to super.completeCollection was 
-		// removed from here avoid toggling the power supplies by invoking stop (via getAdBase().stopAcquire) 
-		// after every datapoint in a step scan 
+		// versions of SES=ses1.3.1r5 and IOC=R3.14.12.3v2-11 subsume zeroing of power supplies within acquire stop,
+		// so separate zeroing action is no longer exposed. Call to super.completeCollection was
+		// removed from here avoid toggling the power supplies by invoking stop (via getAdBase().stopAcquire)
+		// after every datapoint in a step scan
 		notifyObservers();
 	}
-	
+
 	public int getMaxNumberOfFrames() {
 		return maxNumberOfFrames;
 	}
@@ -126,11 +126,11 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 		this.maxNumberOfFrames = maxNumberOfFrames;
 		interactWithDeviceIfRequired();
 	}
-	
+
 	public double getFrameTime() throws Exception {
 		return super.getAcquireTime();
 	}
-	
+
 	@Override
 	public double getAcquireTime() throws Exception {
 		return super.getAcquireTime() * proc.getNumFiltered_RBV();
@@ -139,14 +139,14 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 	public int getLastAcquired() throws Exception {
 		return proc.getNumFiltered_RBV();
 	}
-	
+
 	public int getCurrentFrame() {
 		return currentFrame;
 	}
 
 	@Override
 	public void addIObserver(IObserver observer) {
-		oc.addIObserver(observer);		
+		oc.addIObserver(observer);
 	}
 
 	@Override
@@ -156,13 +156,13 @@ public class FlexibleFrameStrategy extends SimpleAcquire implements MonitorListe
 
 	@Override
 	public void deleteIObservers() {
-		oc.deleteIObservers();		
+		oc.deleteIObservers();
 	}
-	
+
 	private void notifyObservers() {
 		oc.notifyIObservers(this, new FrameUpdate(currentFrame, maxNumberOfFrames));
 	}
-	
+
 	@Override
 	public void waitWhileBusy() throws InterruptedException, DeviceException {
 		super.waitWhileBusy();

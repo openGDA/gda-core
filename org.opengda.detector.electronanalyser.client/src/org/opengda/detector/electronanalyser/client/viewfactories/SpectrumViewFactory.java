@@ -1,13 +1,13 @@
 package org.opengda.detector.electronanalyser.client.viewfactories;
 
-import gda.rcp.views.FindableExecutableExtension;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.views.SpectrumView;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.rcp.views.FindableExecutableExtension;
 
 public class SpectrumViewFactory implements FindableExecutableExtension {
 	private static final Logger logger=LoggerFactory.getLogger(SpectrumViewFactory.class);
@@ -24,13 +24,13 @@ public class SpectrumViewFactory implements FindableExecutableExtension {
 			spectrumView.setAnalyser(analyser);
 			spectrumView.setArrayPV(arrayPV);
 		}
-		
+
 		return spectrumView;
 	}
 
 	@Override
 	public void setName(String name) {
-		this.name=name;		
+		this.name=name;
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class SpectrumViewFactory implements FindableExecutableExtension {
 	@Override
 	public void setInitializationData(IConfigurationElement config,
 			String propertyName, Object data) throws CoreException {
-		
+
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class SpectrumViewFactory implements FindableExecutableExtension {
 		if (analyser == null ) {
 			throw new IllegalArgumentException("analyser cannot be null in Spectrum View.");
 		}
-		
+
 	}
 
 	public IVGScientaAnalyser getAnalyser() {

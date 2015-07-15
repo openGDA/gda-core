@@ -5,10 +5,10 @@ import org.opengda.detector.electronanalyser.client.IEnergyAxis;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
 
 public class EnergyAxisAction extends Action {
-	
+
 	IEnergyAxis energyAxis;
 	ENERGY_MODE mode;
-	
+
 	public EnergyAxisAction(String text, int style,IEnergyAxis plot, ENERGY_MODE mode) {
 		super(text, style);
 		this.energyAxis=plot;

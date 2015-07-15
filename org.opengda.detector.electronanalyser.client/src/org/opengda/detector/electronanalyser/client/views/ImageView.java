@@ -59,7 +59,7 @@ public class ImageView extends LivePlotView {
 			}
 		}
 	};
-	
+
 	@Override
 	public void dispose() {
 		getViewSite()

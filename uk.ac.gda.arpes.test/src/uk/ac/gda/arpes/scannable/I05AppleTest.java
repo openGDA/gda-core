@@ -21,9 +21,6 @@ package uk.ac.gda.arpes.scannable;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import gda.device.DeviceException;
-import gda.device.ScannableMotion;
-import gda.device.scannable.DummyUnitsScannable;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -34,8 +31,11 @@ import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.gda.arpes.scannable.I05Apple.TrajectorySolver;
+import gda.device.DeviceException;
+import gda.device.ScannableMotion;
+import gda.device.scannable.DummyUnitsScannable;
 import uk.ac.gda.arpes.scannable.I05Apple.PGMove;
+import uk.ac.gda.arpes.scannable.I05Apple.TrajectorySolver;
 
 public class I05AppleTest {
 

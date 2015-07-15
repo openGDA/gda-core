@@ -18,6 +18,19 @@
 
 package org.opengda.detector.electronanalyser.server;
 
+import java.util.Arrays;
+
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
+import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
+import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
+import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusExtractor;
 import gda.data.nexus.extractor.NexusGroupData;
@@ -34,19 +47,6 @@ import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 import gov.aps.jca.CAException;
 import gov.aps.jca.TimeoutException;
-
-import java.util.Arrays;
-
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
-import org.eclipse.dawnsci.analysis.api.tree.DataNode;
-import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
-import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
@@ -165,11 +165,11 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			data.addAxis(getName(), aname, new NexusGroupData(axis), i + 1, 1, aunit, false);
 
 			data.addData(getName(), "lens_mode", new NexusGroupData(getLensMode()));
-			
+
 			data.addData(getName(), "pass_energy", new NexusGroupData(getPassEnergy()));
 
 			data.addData(getName(), "acquisition_mode", new NexusGroupData(getAcquisitionMode()));
-			
+
 			data.addData(getName(), "energy_mode", new NexusGroupData(getEnergyMode()));
 
 			data.addData(getName(), "detector_mode", new NexusGroupData(getDetectorMode()));
@@ -183,7 +183,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			data.addData(getName(), "number_of_iterations", new NexusGroupData(getNumberIterations()));
 		}
 	}
-	
+
 	@Override
 	protected void appendNXDetectorDataFromCollectionStrategy(NXDetectorData data) throws Exception {
 		super.appendNXDetectorDataFromCollectionStrategy(data);
@@ -198,12 +198,12 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		if (externalIO!=null) {
 			data.addData(getName(), "externalIO", new NexusGroupData(externalIO));
 		}
-	
+
 	}
 	@Override
 	public void collectData() throws DeviceException {
 		//TODO test this
-		
+
 //		try {
 //			getAdBase().startAcquiringSynchronously();
 //		} catch (Exception e) {
@@ -229,27 +229,27 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			INexusTree energy_mode_node=new NexusTreeNode("energy_mode", NexusExtractor.SDSClassName, null,energy_mode);
 			regionNode.addChildNode(energy_mode_node);
 		} else {
-			NexusGroupData energy_mode=new NexusGroupData("Binding");			
+			NexusGroupData energy_mode=new NexusGroupData("Binding");
 			INexusTree energy_mode_node=new NexusTreeNode("energy_mode", NexusExtractor.SDSClassName, null,energy_mode);
 			regionNode.addChildNode(energy_mode_node);
 		}
-		
+
 		NexusGroupData detector_mode=new NexusGroupData(getDetectorMode());
 		INexusTree detector_mode_node=new NexusTreeNode("detector_mode", NexusExtractor.SDSClassName, null,detector_mode);
 		regionNode.addChildNode(detector_mode_node);
-	
+
 		NexusGroupData pass_energy=new NexusGroupData(getPassEnergy());
 		INexusTree pass_energy_node=new NexusTreeNode("pass_energy", NexusExtractor.SDSClassName, null,pass_energy);
 		regionNode.addChildNode(pass_energy_node);
 		pass_energy_node.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, pass_energy_node, new NexusGroupData("eV")));
-		
+
 		double excitationEnergy = getExcitationEnergy();
 		if (!getCachedEnergyMode().equalsIgnoreCase("Binding")) {
 			NexusGroupData low_energy=new NexusGroupData(getStartEnergy());
 			INexusTree low_energy_node=new NexusTreeNode("low_energy", NexusExtractor.SDSClassName, null,low_energy);
 			regionNode.addChildNode(low_energy_node);
 			low_energy_node.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, low_energy_node, new NexusGroupData("eV")));
-		
+
 			NexusGroupData high_energy=new NexusGroupData(getEndEnergy());
 			INexusTree high_energy_node=new NexusTreeNode("high_energy", NexusExtractor.SDSClassName, null,high_energy);
 			regionNode.addChildNode(high_energy_node);
@@ -265,7 +265,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			INexusTree low_energy_node=new NexusTreeNode("low_energy", NexusExtractor.SDSClassName, null,low_energy);
 			regionNode.addChildNode(low_energy_node);
 			low_energy_node.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, low_energy_node, new NexusGroupData("eV")));
-		
+
 			NexusGroupData high_energy=new NexusGroupData(excitationEnergy-getStartEnergy());
 			INexusTree high_energy_node=new NexusTreeNode("high_energy", NexusExtractor.SDSClassName, null,high_energy);
 			regionNode.addChildNode(high_energy_node);
@@ -275,9 +275,9 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			INexusTree fixed_energy_node=new NexusTreeNode("fixed_energy", NexusExtractor.SDSClassName, null,fixed_energy);
 			regionNode.addChildNode(fixed_energy_node);
 			fixed_energy_node.addChildNode(new NexusTreeNode("units",NexusExtractor.AttrClassName, high_energy_node, new NexusGroupData("eV")));
-			
+
 		}
-		
+
 		NexusGroupData energy_step=new NexusGroupData(getEnergyStep());
 		INexusTree energy_step_node=new NexusTreeNode("energy_step", NexusExtractor.SDSClassName, null,energy_step);
 		regionNode.addChildNode(energy_step_node);
@@ -311,7 +311,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		NexusGroupData detector_x_from=new NexusGroupData(cameraMinX);
 		INexusTree detector_x_from_node=new NexusTreeNode("detector_x_from", NexusExtractor.SDSClassName, null,detector_x_from);
 		regionNode.addChildNode(detector_x_from_node);
-		
+
 		NexusGroupData detector_x_to=new NexusGroupData(getCameraSizeX()-cameraMinX);
 		INexusTree detector_x_to_node=new NexusTreeNode("detector_x_to", NexusExtractor.SDSClassName, null,detector_x_to);
 		regionNode.addChildNode(detector_x_to_node);
@@ -320,7 +320,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		NexusGroupData detector_y_from=new NexusGroupData(cameraMinY);
 		INexusTree detector_y_from_node=new NexusTreeNode("detector_y_from", NexusExtractor.SDSClassName, null,detector_y_from);
 		regionNode.addChildNode(detector_y_from_node);
-		
+
 		NexusGroupData detector_y_to=new NexusGroupData(getCameraSizeY()-cameraMinY);
 		INexusTree detector_y_to_node=new NexusTreeNode("detector_y_to", NexusExtractor.SDSClassName, null,detector_y_to);
 		regionNode.addChildNode(detector_y_to_node);
@@ -349,7 +349,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			logger.error("failed to get energy axis data from analyser.", e);
 			throw e;
 		}
-		
+
 		i = 0;
 		if ("Transmission".equals(lensMode)) {
 			aname = "location";
@@ -375,7 +375,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		createSpectrumData(regionNode);
 		createExternalIOData(regionNode);
 		createExciationEnergy(regionNode);
-		
+
 		return regionNode;
 	}
 	private void createImageData(INexusTree regionNode) {
@@ -383,7 +383,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			int[] dims=new int[2];
 			dims[0] = getAngleAxis().length;
 			dims[1] = getEnergyAxis().length;
-			
+
 			if (dims.length == 0) {
 				logger.warn("Dimensions of image data from " + getName() + " are zero length");
 				return;
@@ -411,7 +411,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	private void createSpectrumData(INexusTree regionNode) {
 		try {
 			int size = getEnergyAxis().length;
-			
+
 			double[] s = getSpectrum(size);
 			NexusGroupData spectrum_data=new NexusGroupData(s);
 			spectrum_data.isDetectorEntryData=true;
@@ -485,7 +485,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 						NexusUtils.writeDouble(nexusFile, g, "low_energy", excitationEnergy-getEndEnergy(), "eV");
 						NexusUtils.writeDouble(nexusFile, g, "high_energy", excitationEnergy-getStartEnergy(), "eV");
 						NexusUtils.writeDouble(nexusFile, g, "fixed_energy", excitationEnergy-getCentreEnergy(), "eV");
-						
+
 					} else {
 						NexusUtils.writeString(nexusFile, g, "energy_mode", "Kinetic");
 						NexusUtils.writeDouble(nexusFile, g, "low_energy", getStartEnergy(), "eV");
@@ -527,7 +527,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 					} catch (Exception e) {
 						logger.error("failed to get energy axis data from analyser.", e);
 					}
-					
+
 					i = 0;
 					if ("Transmission".equals(lensMode)) {
 						aname = "location";
@@ -544,7 +544,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 						NexusUtils.writeStringAttribute(nexusFile, d, "unit", aunit);
 					} catch (Exception e) {
 						logger.error("failed to get angle or location axis data from analyser.", e);
-					
+
 					}
 				} catch (Exception e) {
 					logger.error("failed to get analyser parameters on write data out",e);
@@ -559,7 +559,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			nexusFile.flush();
 		} catch (Exception e) {
 			logger.error("NexusException on write data out",e);
-		} 
+		}
 	}
 
 	private void writeImageData(GroupNode g, int scanDataPoint) {
@@ -576,7 +576,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			}
 			Dataset image = DatasetFactory.createFromObject(getImage(dims[1] * dims[2]));
 			image.setShape(dims);
-			
+
 			lazy.setSlice(null, image, SliceND.createSlice(lazy, new int[] {scanDataPoint}, new int[] {scanDataPoint+1}));
 		} catch (Exception e) {
 			logger.error("Failed to get NDArray data from EPICS plugin. ",e);
@@ -600,7 +600,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 			Dataset spectrum = DatasetFactory.createFromObject(getSpectrum(size));
 			spectrum.setShape(dims);
-			
+
 			lazy.setSlice(null, spectrum, SliceND.createSlice(lazy, new int[] {scanDataPoint}, new int[] {scanDataPoint+1}));
 
 			this.totalIntensity=(Double) spectrum.sum();
@@ -631,7 +631,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 			Dataset io = DatasetFactory.createFromObject(getExternalIOData(size));
 			io.setShape(dims);
-			
+
 			lazy.setSlice(null, io, SliceND.createSlice(lazy, new int[] {scanDataPoint}, new int[] {scanDataPoint+1}));
 		} catch (Exception e) {
 			logger.error("Failed to get external IO data from EPICS analyser. ",e);
@@ -654,7 +654,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 
 			Dataset exEnergy = DatasetFactory.createFromObject(getExcitationEnergy());
 			exEnergy.setShape(dims);
-			
+
 			lazy.setSlice(null, exEnergy, SliceND.createSlice(lazy, new int[] {scanDataPoint}, new int[] {scanDataPoint+1}));
 		} catch (Exception e) {
 			logger.error("Failed to get excitation energy from EPICS analyser. ",e);
@@ -692,8 +692,8 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 		getAdBase().setImageMode(0);
 		getAdBase().setTriggerMode(0);
 	}
-	
-	
+
+
 	public int[] getSweptModeRegion() {
 		return sweptModeRegion;
 	}
@@ -729,7 +729,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 			throw new DeviceException("error setting collection time", e);
 		}
 	}
-	
+
 	@Override
 	public void setNumberInterations(int value) throws Exception {
 		getAdBase().setNumExposures(value);
@@ -738,7 +738,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public void setNumberInterations(int value, double timeout) throws Exception {
 		getAdBase().setNumExposures(value, timeout);
 	}
-	
+
 	@Override
 	public Integer getNumberIterations() throws Exception {
 		return getAdBase().getNumExposures_RBV();
@@ -765,7 +765,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public void setCameraMinY(int value, double timeout) throws Exception {
 		getAdBase().setMinYWait(value, timeout);
 	}
-	
+
 	@Override
 	public int getCameraMinY() throws Exception {
 		return getAdBase().getMinY_RBV();
@@ -995,7 +995,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public double[] getSpectrum() throws Exception {
 		return controller.getSpectrum();
 	}
-	
+
 	public double[] getImage() throws Exception {
 		return controller.getImage();
 	}
@@ -1022,6 +1022,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public String[] getLensModes() throws DeviceException {
 		return controller.getLensModes();
 	}
+	@Override
 	public String[] getElementSet() throws DeviceException {
 		return controller.getElementset();
 	}
@@ -1029,7 +1030,7 @@ public class VGScientaAnalyser extends ADDetector implements IVGScientaAnalyser 
 	public double getExcitationEnergy() throws Exception {
 		return controller.getExcitationEnergy();
 	}
-	
+
 	@Override
 	public void setExcitationEnergy(double energy) throws Exception {
 		controller.setExcitationEnergy(energy);

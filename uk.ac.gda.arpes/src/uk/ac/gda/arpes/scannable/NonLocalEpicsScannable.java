@@ -33,7 +33,7 @@ public class NonLocalEpicsScannable extends EpicsScannable {
 		super();
 		setLocal(false);
 	}
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		boolean local = isLocal();

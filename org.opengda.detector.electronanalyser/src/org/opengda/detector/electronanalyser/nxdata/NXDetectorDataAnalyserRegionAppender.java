@@ -1,26 +1,25 @@
 package org.opengda.detector.electronanalyser.nxdata;
 
-import gda.data.nexus.tree.INexusTree;
-import gda.data.scan.datawriter.NexusDataWriter;
-import gda.device.DeviceException;
-import gda.device.detector.NXDetectorData;
-import gda.device.detector.nxdata.NXDetectorDataAppender;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.data.nexus.tree.INexusTree;
+import gda.device.DeviceException;
+import gda.device.detector.NXDetectorData;
+import gda.device.detector.nxdata.NXDetectorDataAppender;
+
 /**
  * A {@link NXDetectorDataAppender} for collecting data from VGScienta Electron analyser.
  * It is compatible with the standard GDA scan {@link NexusDataWriter} and supports data collections over
  * multiple analyser regions of different data sizes and produce single nexus data file per scan.
- * 
- * It also provides plots of total intensity count over the scanned scannable, i.e. excitation energies for energy scan. 
- * 
+ *
+ * It also provides plots of total intensity count over the scanned scannable, i.e. excitation energies for energy scan.
+ *
  * @author fy65
- * 
+ *
  */
 public class NXDetectorDataAnalyserRegionAppender implements NXDetectorDataAppender {
 	// region name

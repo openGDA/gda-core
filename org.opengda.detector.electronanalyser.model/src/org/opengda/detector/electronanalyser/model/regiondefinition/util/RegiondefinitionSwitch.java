@@ -4,10 +4,13 @@ package org.opengda.detector.electronanalyser.model.regiondefinition.util;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.util.Switch;
-
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.*;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.DocumentRoot;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
 
 /**
  * <!-- begin-user-doc -->

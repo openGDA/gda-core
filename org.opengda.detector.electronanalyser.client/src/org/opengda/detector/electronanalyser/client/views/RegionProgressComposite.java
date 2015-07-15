@@ -1,5 +1,16 @@
 package org.opengda.detector.electronanalyser.client.views;
 
+import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.swt.widgets.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.epics.connection.EpicsChannelManager;
 import gda.epics.connection.EpicsController.MonitorType;
@@ -13,25 +24,14 @@ import gov.aps.jca.dbr.DBR_Int;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.ProgressBar;
-import org.eclipse.swt.widgets.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * class to display data colection progress for a
  * {@link org.opengda.detector.electronanalyser.model.Region} It monitors EPICS
  * progress PVs to update the progress bar. It also provides 'Stop' button to
  * abort current region collection. Users must provide 'analyser' object to enable the monitoring.
- * 
+ *
  * @author fy65
- * 
+ *
  */
 public class RegionProgressComposite extends Composite implements InitializationListener {
 
@@ -40,21 +40,21 @@ public class RegionProgressComposite extends Composite implements Initialization
 	private String iterationProgressPV;
 	private String totalDataPointsPV;
 	private String iterationCurrentPointPV;
-	
+
 //	private String iterationTotalPointsPV;
 //	private String currentDataPointPV;
-	
+
 	private String totalRemianingTimePV;
 	private String totalProgressPV;
 	private String totalPointsPV;
 	private String currentPointPV;
-	
+
 	private String currentIterationPV;
 	private String totalIterationsPV;
 
 //	private String inLeadPV;
 //	private String currentLeadPointPV;
-	
+
 	private static final Logger logger=LoggerFactory.getLogger(RegionProgressComposite.class);
 	private EpicsChannelManager controller;
 
@@ -63,24 +63,24 @@ public class RegionProgressComposite extends Composite implements Initialization
 	private IterationProgressListener iterationProgressListener;
 	private IterationTotalDataPointsListener endPointsListener;
 	private IterationCurrentPointListener iterationCurrentPointListener;
-	
+
 //	private IterationTotalPointsListener iterationTotalPointsListener; //total steps in iteration
 //	private IterationCurrentDataPointListener iterationCurrentDataPointListener; //current data point in iteration
-	
+
 	private TotalRemainingTimeListener totalTimeRemainingListener;
 	private TotalProgressListener totalProgressListener;
 	private TotalPointsListener totalPointsListener;
 	private CurrentPointListener currentPointListener;
-	
+
 	private CurrentIterationListener currentIterationListener;
 	private TotalIterationsListener totalIterationsListener;
-	
+
 	private Channel iterationTimeRemainingChannel;
 	private Channel leadPointsChannel;
 	private Channel interationProgressChannel;
 	private Channel endPointsChannel;
 	private Channel interationCurrentPointChannel;
-	
+
 	private Channel totalTimeRemainingChannel;
 	private Channel totalProgressChannel;
 	private Channel totalPointsChannel;
@@ -109,13 +109,13 @@ public class RegionProgressComposite extends Composite implements Initialization
 	private Text txtCurrentStepValue;
 	private Text txtTotalTimeRemaining;
 	protected ProgressBar totalProgressBar;
-	
+
 	public RegionProgressComposite(Composite parent, int style) {
 		super(parent, style);
-		
+
 		controller=new EpicsChannelManager(this);
 		setLayout(new GridLayout(1, false));
-		
+
 		Composite rootComposite = new Composite(this, SWT.NONE);
 		GridData gd_rootComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_rootComposite.widthHint = 456;
@@ -124,10 +124,10 @@ public class RegionProgressComposite extends Composite implements Initialization
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		rootComposite.setLayout(layout);
-		
+
 		Label lblIteration=new Label(rootComposite, SWT.None);
 		lblIteration.setText("Iteration: ");
-		
+
 		txtTextIterationValue = new Text(rootComposite, SWT.BORDER);
 		GridData gd_lblIterationValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_lblIterationValue.widthHint = 40;
@@ -136,10 +136,10 @@ public class RegionProgressComposite extends Composite implements Initialization
 		txtTextIterationValue.setEditable(false);
 		txtTextIterationValue.setBackground(ColorConstants.black);
 		updateIterationDispay(currentiteration, totalIterations);
-		
+
 		Label lblCurrentPoint = new Label(rootComposite, SWT.NONE);
 		lblCurrentPoint.setText("Point:");
-		
+
 		txtCurrentPoint = new Text(rootComposite, SWT.BORDER);
 		txtCurrentPoint.setForeground(ColorConstants.green);
 		txtCurrentPoint.setEditable(false);
@@ -148,10 +148,10 @@ public class RegionProgressComposite extends Composite implements Initialization
 		GridData gd_txtCurrentPoint = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
 		gd_txtCurrentPoint.widthHint = 40;
 		txtCurrentPoint.setLayoutData(gd_txtCurrentPoint);
-		
+
 		Label lblTimeRemaining = new Label(rootComposite, SWT.NONE);
 		lblTimeRemaining.setText("Iter Time Remaining:");
-		
+
 		txtIterationTimeRemaining = new Text(rootComposite, SWT.BORDER);
 //		gd_txtIterationTimeRemaining.widthHint=40;
 		txtIterationTimeRemaining.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
@@ -159,16 +159,16 @@ public class RegionProgressComposite extends Composite implements Initialization
 		txtIterationTimeRemaining.setBackground(ColorConstants.black);
 		txtIterationTimeRemaining.setText("0.0000");
 		txtIterationTimeRemaining.setEditable(false);
-		
+
 		Label lblIterationProgress = new Label(rootComposite, SWT.NONE);
 		lblIterationProgress.setText("Iter progress:");
-		
+
 		lblMin = new Label(rootComposite, SWT.NONE);
 		lblMin.setAlignment(SWT.RIGHT);
 		GridData gd_lblMin = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
 		gd_lblMin.widthHint = 28;
 		lblMin.setLayoutData(gd_lblMin);
-		
+
 		progressBar = new ProgressBar(rootComposite, SWT.HORIZONTAL);
 		GridData gd_progressBar = new GridData(GridData.FILL_HORIZONTAL);
 		gd_progressBar.grabExcessHorizontalSpace = false;
@@ -176,13 +176,13 @@ public class RegionProgressComposite extends Composite implements Initialization
 		progressBar.setLayoutData(gd_progressBar);
 		progressBar.setMinimum(0);
 		progressBar.setMaximum(100);
-		
+
 		lblMax = new Label(rootComposite, SWT.NONE);
 		lblMax.setText("100");
 		GridData gd_lblMax = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_lblMax.widthHint = 56;
 		lblMax.setLayoutData(gd_lblMax);
-		
+
 		lblMax.setText(String.valueOf(progressBar.getMaximum()));
 		lblMin.setText(String.valueOf(progressBar.getMinimum()));
 
@@ -190,10 +190,10 @@ public class RegionProgressComposite extends Composite implements Initialization
 		GridData gd_label = new GridData(SWT.LEFT, SWT.CENTER, false, false, 6, 1);
 		gd_label.widthHint = 447;
 		horizontalSeparator.setLayoutData(gd_label);
-		
+
 		Label lblTotalSteps = new Label(rootComposite, SWT.NONE);
 		lblTotalSteps.setText("Total Steps:");
-		
+
 		txtTextTotalStepsValue = new Text(rootComposite, SWT.BORDER);
 		GridData gd_txtTextTotalStepsValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_txtTextTotalStepsValue.widthHint = 40;
@@ -202,11 +202,11 @@ public class RegionProgressComposite extends Composite implements Initialization
 		txtTextTotalStepsValue.setBackground(ColorConstants.black);
 		txtTextTotalStepsValue.setText("0");
 		txtTextTotalStepsValue.setEditable(false);
-		
+
 		Label lblCurrentStep = new Label(rootComposite, SWT.NONE);
 		lblCurrentStep.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblCurrentStep.setText("Step:");
-		
+
 		txtCurrentStepValue = new Text(rootComposite, SWT.BORDER);
 		txtCurrentStepValue.setForeground(ColorConstants.green);
 		txtCurrentStepValue.setBackground(ColorConstants.black);
@@ -215,10 +215,10 @@ public class RegionProgressComposite extends Composite implements Initialization
 		txtCurrentStepValue.setLayoutData(gd_txtCurrentStepValue);
 		txtCurrentStepValue.setText("0");
 		txtCurrentStepValue.setEditable(false);
-		
+
 		Label lblTotalTimeRemaining = new Label(rootComposite, SWT.NONE);
 		lblTotalTimeRemaining.setText("Total time remaining:");
-		
+
 		txtTotalTimeRemaining = new Text(rootComposite, SWT.BORDER);
 //		gd_txtTotalTimeRemaining.widthHint=40;
 		txtTotalTimeRemaining.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
@@ -226,15 +226,15 @@ public class RegionProgressComposite extends Composite implements Initialization
 		txtTotalTimeRemaining.setBackground(ColorConstants.black);
 		txtTotalTimeRemaining.setText("0.0000");
 		txtTotalTimeRemaining.setEditable(false);
-		
+
 		Label lblTotalProgress = new Label(rootComposite, SWT.NONE);
 		lblTotalProgress.setText("Total progress:");
-		
+
 		totalProgressBar = new ProgressBar(rootComposite, SWT.NONE);
 		GridData gd_progressBar_1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 5, 1);
 		gd_progressBar_1.widthHint = 340;
 		totalProgressBar.setLayoutData(gd_progressBar_1);
-		
+
 //		Button btnStop = new Button(rootComposite, SWT.CENTER);
 //		btnStop.setImage(ElectronAnalyserClientPlugin.getDefault().getImageRegistry().get(ImageConstants.ICON_STOP));
 //		btnStop.setToolTipText("Stop current region collection");
@@ -279,12 +279,12 @@ public class RegionProgressComposite extends Composite implements Initialization
 		endPointsListener = new IterationTotalDataPointsListener();
 		iterationProgressListener=new IterationProgressListener();
 		iterationCurrentPointListener = new IterationCurrentPointListener();
-		
+
 		totalTimeRemainingListener=new TotalRemainingTimeListener();
 		totalProgressListener=new TotalProgressListener();
 		totalPointsListener = new TotalPointsListener();
 		currentPointListener=new CurrentPointListener();
-		
+
 		currentIterationListener=new CurrentIterationListener();
 		totalIterationsListener=new TotalIterationsListener();
 		try {
@@ -300,18 +300,18 @@ public class RegionProgressComposite extends Composite implements Initialization
 		endPointsChannel = controller.createChannel(getTotalDataPointsPV(),endPointsListener,MonitorType.NATIVE, false);
 		interationProgressChannel = controller.createChannel(getIterationProgressPV(), iterationProgressListener, MonitorType.NATIVE,false);
 		interationCurrentPointChannel=controller.createChannel(getIterationCurrentPointPV(),iterationCurrentPointListener,MonitorType.NATIVE,false );
-		
+
 		totalTimeRemainingChannel = controller.createChannel(getTotalRemianingTimePV(),totalTimeRemainingListener,MonitorType.NATIVE, false);
 		totalProgressChannel = controller.createChannel(getTotalProgressPV(),totalProgressListener,MonitorType.NATIVE, false);
 		totalPointsChannel = controller.createChannel(getTotalPointsPV(),totalPointsListener,MonitorType.NATIVE, false);
 		currentPointChannel = controller.createChannel(getCurrentPointPV(),currentPointListener,MonitorType.NATIVE, false);
-		
+
 		currentIterationChannel=controller.createChannel(getCurrentIterationPV(),currentIterationListener,MonitorType.NATIVE,false );
 		totalIterationsChannel=controller.createChannel(getTotalIterationsPV(),totalIterationsListener, MonitorType.NATIVE,false );
 		controller.creationPhaseCompleted();
 		logger.debug("channels are created");
 	}
-	
+
 	private class IterationRemainingTimeListener implements MonitorListener {
 
 		@Override
@@ -321,7 +321,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 				final double timeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
 					getDisplay().asyncExec(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							txtIterationTimeRemaining.setText(String.format("%.3f",timeremaining));
@@ -342,7 +342,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 				final int leadPoints = -(int)((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
 					getDisplay().asyncExec(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							lblMin.setText(String.valueOf(leadPoints));
@@ -362,7 +362,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 				final int percentage =(int) ((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
 					getDisplay().asyncExec(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							progressBar.setSelection(percentage);
@@ -385,7 +385,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 				iterationTotalDataPoints = (int)((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
 					getDisplay().asyncExec(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							lblMax.setText(String.valueOf(iterationTotalDataPoints));
@@ -405,7 +405,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 				final int currentpoint =(int) ((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
 					getDisplay().asyncExec(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							txtCurrentPoint.setText(String.valueOf(currentpoint));
@@ -430,7 +430,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 				totalIterations = ((DBR_Int) dbr).getIntValue()[0];
 				if (!getDisplay().isDisposed()) {
 					getDisplay().asyncExec(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							updateIterationDispay(currentiteration, totalIterations);
@@ -453,7 +453,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 				currentiteration = ((DBR_Int) dbr).getIntValue()[0];
 				if (!getDisplay().isDisposed()) {
 					getDisplay().asyncExec(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							updateIterationDispay(currentiteration, totalIterations);
@@ -474,7 +474,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 				final double timeremaining = ((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
 					getDisplay().asyncExec(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							txtTotalTimeRemaining.setText(String.format("%.3f",timeremaining));
@@ -494,7 +494,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 				final int percentage =(int) ((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
 					getDisplay().asyncExec(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							totalProgressBar.setSelection(percentage);
@@ -517,7 +517,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 				totalSteps = (int)((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
 					getDisplay().asyncExec(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							txtTextTotalStepsValue.setText(String.valueOf(totalSteps));
@@ -537,7 +537,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 				final int currentstep =(int) ((DBR_Double) dbr).getDoubleValue()[0];
 				if (!getDisplay().isDisposed()) {
 					getDisplay().asyncExec(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							txtCurrentStepValue.setText(String.valueOf(currentstep));
@@ -556,7 +556,7 @@ public class RegionProgressComposite extends Composite implements Initialization
 	@Override
 	public void initializationCompleted() throws InterruptedException, DeviceException, TimeoutException, CAException {
 		logger.info("Region Progress EPICS Channels initialisation completed!");
-		
+
 	}
 
 	public String getCurrentIterationRemainingTimePV() {

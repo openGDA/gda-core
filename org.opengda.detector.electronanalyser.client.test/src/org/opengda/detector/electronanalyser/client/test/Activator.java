@@ -1,11 +1,11 @@
 package org.opengda.detector.electronanalyser.client.test;
 
-import gda.util.SpringObjectServer;
-
 import java.io.File;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+
+import gda.util.SpringObjectServer;
 
 public class Activator implements BundleActivator {
 
@@ -17,7 +17,7 @@ public class Activator implements BundleActivator {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext
 	 * )
@@ -31,7 +31,7 @@ public class Activator implements BundleActivator {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */

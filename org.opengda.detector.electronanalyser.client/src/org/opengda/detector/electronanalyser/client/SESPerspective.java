@@ -1,8 +1,5 @@
 package org.opengda.detector.electronanalyser.client;
 
-import gda.rcp.views.JythonTerminalView;
-import gda.util.Sleep;
-
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
@@ -16,6 +13,8 @@ import org.opengda.detector.electronanalyser.client.views.SequenceView;
 import org.opengda.detector.electronanalyser.client.views.SlicesView;
 import org.opengda.detector.electronanalyser.client.views.SpectrumView;
 
+import gda.rcp.views.JythonTerminalView;
+import gda.util.Sleep;
 import uk.ac.gda.client.liveplot.LivePlotView;
 import uk.ac.gda.client.scripting.JythonPerspective;
 
@@ -42,14 +41,14 @@ public class SESPerspective implements IPerspectiveFactory {
 		layout.setFixed(false);
 		defineLayout(layout);
 		defineActions(layout);
-	}		
-	
-	private void defineActions(IPageLayout layout) {
-		// TODO Auto-generated method stub
-		
 	}
 
-	private void defineLayout(IPageLayout layout) {	
+	private void defineActions(IPageLayout layout) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void defineLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
 		layout.setEditorAreaVisible(false);
 //		IFolderLayout statusFolder =  layout.createFolder(STATUS_FOLDER, IPageLayout.BOTTOM, (float)0.85, editorArea);
@@ -57,7 +56,7 @@ public class SESPerspective implements IPerspectiveFactory {
 
 		IFolderLayout plotFolder = layout.createFolder(PLOT_FOLDER, IPageLayout.LEFT, 0.75f, editorArea);
 		plotFolder.addView(SPECTRUMVIEW);
-		
+
         IFolderLayout regionEditorFolder=layout.createFolder(REGION_EDITOR_FOLDER, IPageLayout.RIGHT, (float)0.48, PLOT_FOLDER); //$NON-NLS-1$
         regionEditorFolder.addView(REGIONEDITOR);
 
@@ -69,7 +68,7 @@ public class SESPerspective implements IPerspectiveFactory {
         terminalFolder.addView(SCAN_PLOT_VIEW_ID);
 
         String plotLayoutString = ElectronAnalyserClientPlugin.getDefault().getPreferenceStore().getString(ElectronAnalyserClientPlugin.PLOT_LAYOUT);
-		if (plotLayoutString == null || plotLayoutString.isEmpty() 
+		if (plotLayoutString == null || plotLayoutString.isEmpty()
 				|| ElectronAnalyserClientPlugin.STACK_PLOT.equals(plotLayoutString)) {
 			plotFolder.addView(EXTERNALIOVIEW);
 			plotFolder.addView(IMAGEVIEW);
@@ -111,9 +110,9 @@ public class SESPerspective implements IPerspectiveFactory {
 			view = page.findView(EXTERNALIOVIEW);
 			view.setFocus();
 		}
-		
+
         layout.addPerspectiveShortcut(JythonPerspective.ID);
-		
+
 		layout.addShowViewShortcut(SEQUENCEEDITOR);
 		layout.addShowViewShortcut(REGIONEDITOR);
 		layout.addShowViewShortcut(SPECTRUMVIEW);

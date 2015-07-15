@@ -18,15 +18,6 @@
 
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.device.detector.areadetector.v17.ADBase;
-import gda.epics.connection.EpicsController.MonitorType;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,6 +47,15 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.device.detector.areadetector.v17.ADBase;
+import gda.epics.connection.EpicsController.MonitorType;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
 
 public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 
@@ -143,7 +143,7 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 	private int selectedSlice=1;
 
 	private boolean channelCreatedForSlices=false;
-	
+
 	/**
 	 * need to override base class method as it uses a different data listener implementation.
 	 */
@@ -155,7 +155,7 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 		dataListener = new DataListener();
 		createChannels();
 	}
-	
+
 	private void createChannels() {
 		if (!channelCreatedForSlices) {
 			first = true;
@@ -227,7 +227,7 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 			}
 			double[] values = Arrays.copyOf(value, arraysize);
 			final Dataset ds = new DoubleDataset(values, dims);
-			
+
 			ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
 			if (selectedSlice>sliceControl.getMaximum()) selectedSlice=1;
 			for (int i=0; i<slices; i++) {
@@ -260,7 +260,7 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 		} catch (Exception e) {
 			logger.error("exception caught preparing analyser live slices plot",	e);
 		}
-		
+
 	}
 	@Override
 	public void updatePlot() {
@@ -270,5 +270,5 @@ public class SlicesPlotComposite extends EpicsArrayPlotComposite {
 		plotDataSets.add(dataset);
 		plottingSystem.createPlot1D(xAxis, plotDataSets, new NullProgressMonitor());
 	}
-	
+
 }

@@ -131,7 +131,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 
 	/**
 	 * Creates, registers, and initializes the <b>Package</b> for this model, and for any others upon which it depends.
-	 * 
+	 *
 	 * <p>This method is used to initialize {@link RegiondefinitionPackage#eINSTANCE} when that field is accessed.
 	 * Clients should not invoke it directly. Instead, they should simply access that field to obtain the package.
 	 * <!-- begin-user-doc -->
@@ -156,7 +156,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 		// Mark meta-data to indicate it can't be changed
 		theRegiondefinitionPackage.freeze();
 
-  
+
 		// Update the registry and return the package
 		EPackage.Registry.INSTANCE.put(RegiondefinitionPackage.eNS_URI, theRegiondefinitionPackage);
 		return theRegiondefinitionPackage;
@@ -167,6 +167,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getDocumentRoot() {
 		if (documentRootEClass == null) {
 			documentRootEClass = (EClass)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(0);
@@ -179,6 +180,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getDocumentRoot_Sequence() {
         return (EReference)getDocumentRoot().getEStructuralFeatures().get(0);
 	}
@@ -188,6 +190,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getSequence() {
 		if (sequenceEClass == null) {
 			sequenceEClass = (EClass)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(1);
@@ -200,6 +203,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSequence_RunMode() {
         return (EAttribute)getSequence().getEStructuralFeatures().get(2);
 	}
@@ -209,6 +213,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSequence_RunModeIndex() {
         return (EAttribute)getSequence().getEStructuralFeatures().get(3);
 	}
@@ -218,6 +223,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSequence_NumIterations() {
         return (EAttribute)getSequence().getEStructuralFeatures().get(4);
 	}
@@ -227,6 +233,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSequence_NumInterationOption() {
         return (EAttribute)getSequence().getEStructuralFeatures().get(5);
 	}
@@ -236,6 +243,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSequence_RepeatUntilStopped() {
         return (EAttribute)getSequence().getEStructuralFeatures().get(6);
 	}
@@ -245,6 +253,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSequence_ConfirmAfterEachIteration() {
         return (EAttribute)getSequence().getEStructuralFeatures().get(7);
 	}
@@ -254,6 +263,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getSequence_Spectrum() {
         return (EReference)getSequence().getEStructuralFeatures().get(8);
 	}
@@ -263,6 +273,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSequence_ElementSet() {
         return (EAttribute)getSequence().getEStructuralFeatures().get(9);
 	}
@@ -272,6 +283,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSequence_Filename() {
         return (EAttribute)getSequence().getEStructuralFeatures().get(0);
 	}
@@ -281,6 +293,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getSequence_Region() {
         return (EReference)getSequence().getEStructuralFeatures().get(1);
 	}
@@ -290,6 +303,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getRegion() {
 		if (regionEClass == null) {
 			regionEClass = (EClass)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(2);
@@ -302,6 +316,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_RegionId() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(0);
 	}
@@ -311,6 +326,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_Name() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(3);
 	}
@@ -320,6 +336,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_LensMode() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(4);
 	}
@@ -329,6 +346,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_PassEnergy() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(5);
 	}
@@ -338,6 +356,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getRegion_RunMode() {
         return (EReference)getRegion().getEStructuralFeatures().get(6);
 	}
@@ -347,6 +366,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_ExcitationEnergy() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(7);
 	}
@@ -356,6 +376,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_AcquisitionMode() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(8);
 	}
@@ -365,6 +386,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_EnergyMode() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(9);
 	}
@@ -374,6 +396,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_FixEnergy() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(10);
 	}
@@ -383,6 +406,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_LowEnergy() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(11);
 	}
@@ -392,6 +416,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_HighEnergy() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(12);
 	}
@@ -401,6 +426,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_EnergyStep() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(13);
 	}
@@ -410,6 +436,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_StepTime() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(14);
 	}
@@ -419,6 +446,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_FirstXChannel() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(15);
 	}
@@ -428,6 +456,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_LastXChannel() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(16);
 	}
@@ -437,6 +466,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_FirstYChannel() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(17);
 	}
@@ -446,6 +476,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_LastYChannel() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(18);
 	}
@@ -455,6 +486,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_Slices() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(19);
 	}
@@ -464,6 +496,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_DetectorMode() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(20);
 	}
@@ -473,6 +506,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_ADCMask() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(21);
 	}
@@ -482,6 +516,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_DiscriminatorLevel() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(22);
 	}
@@ -491,6 +526,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_TotalSteps() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(23);
 	}
@@ -500,6 +536,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_TotalTime() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(24);
 	}
@@ -509,6 +546,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_Status() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(1);
 	}
@@ -518,6 +556,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRegion_Enabled() {
         return (EAttribute)getRegion().getEStructuralFeatures().get(2);
 	}
@@ -527,6 +566,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getRunMode() {
 		if (runModeEClass == null) {
 			runModeEClass = (EClass)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(3);
@@ -539,6 +579,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRunMode_Mode() {
         return (EAttribute)getRunMode().getEStructuralFeatures().get(0);
 	}
@@ -548,6 +589,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRunMode_RunModeIndex() {
         return (EAttribute)getRunMode().getEStructuralFeatures().get(1);
 	}
@@ -557,6 +599,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRunMode_NumIterations() {
         return (EAttribute)getRunMode().getEStructuralFeatures().get(2);
 	}
@@ -566,6 +609,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRunMode_RepeatUntilStopped() {
         return (EAttribute)getRunMode().getEStructuralFeatures().get(3);
 	}
@@ -575,6 +619,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRunMode_ConfirmAfterEachIteration() {
         return (EAttribute)getRunMode().getEStructuralFeatures().get(4);
 	}
@@ -584,6 +629,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRunMode_NumIterationOption() {
         return (EAttribute)getRunMode().getEStructuralFeatures().get(5);
 	}
@@ -593,6 +639,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getSpectrum() {
 		if (spectrumEClass == null) {
 			spectrumEClass = (EClass)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(8);
@@ -605,6 +652,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSpectrum_Location() {
         return (EAttribute)getSpectrum().getEStructuralFeatures().get(0);
 	}
@@ -614,6 +662,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSpectrum_User() {
         return (EAttribute)getSpectrum().getEStructuralFeatures().get(1);
 	}
@@ -623,6 +672,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSpectrum_SampleName() {
         return (EAttribute)getSpectrum().getEStructuralFeatures().get(2);
 	}
@@ -632,6 +682,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSpectrum_FilenamePrefix() {
         return (EAttribute)getSpectrum().getEStructuralFeatures().get(3);
 	}
@@ -641,6 +692,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSpectrum_BaseDirectory() {
         return (EAttribute)getSpectrum().getEStructuralFeatures().get(4);
 	}
@@ -650,6 +702,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSpectrum_FilenameFormat() {
         return (EAttribute)getSpectrum().getEStructuralFeatures().get(5);
 	}
@@ -659,6 +712,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSpectrum_FileExtension() {
         return (EAttribute)getSpectrum().getEStructuralFeatures().get(6);
 	}
@@ -668,6 +722,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSpectrum_NumberOfComments() {
         return (EAttribute)getSpectrum().getEStructuralFeatures().get(7);
 	}
@@ -677,6 +732,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSpectrum_Comments() {
         return (EAttribute)getSpectrum().getEStructuralFeatures().get(8);
 	}
@@ -686,6 +742,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EEnum getRUN_MODES() {
 		if (ruN_MODESEEnum == null) {
 			ruN_MODESEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(4);
@@ -698,6 +755,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EEnum getACQUISITION_MODE() {
 		if (acquisitioN_MODEEEnum == null) {
 			acquisitioN_MODEEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(5);
@@ -710,6 +768,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EEnum getENERGY_MODE() {
 		if (energY_MODEEEnum == null) {
 			energY_MODEEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(6);
@@ -722,6 +781,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EEnum getDETECTOR_MODE() {
 		if (detectoR_MODEEEnum == null) {
 			detectoR_MODEEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(7);
@@ -734,6 +794,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EEnum getSTATUS() {
 		if (statusEEnum == null) {
 			statusEEnum = (EEnum)EPackage.Registry.INSTANCE.getEPackage(RegiondefinitionPackage.eNS_URI).getEClassifiers().get(9);
@@ -746,6 +807,7 @@ public class RegiondefinitionPackageImpl extends EPackageImpl implements Regiond
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RegiondefinitionFactory getRegiondefinitionFactory() {
 		return (RegiondefinitionFactory)getEFactoryInstance();
 	}

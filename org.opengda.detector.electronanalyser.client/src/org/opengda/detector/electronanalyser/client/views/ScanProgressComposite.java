@@ -1,8 +1,5 @@
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.jython.scriptcontroller.Scriptcontroller;
-import gda.observable.IObserver;
-
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -15,14 +12,17 @@ import org.opengda.detector.electronanalyser.event.ScanStartEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.jython.scriptcontroller.Scriptcontroller;
+import gda.observable.IObserver;
+
 /**
  * class to display data colection progress for a
  * {@link org.opengda.detector.electronanalyser.model.Region} It monitors EPICS
  * progress PVs to update the progress bar. It also provides 'Stop' button to
  * abort current region collection. Users must provide 'analyser' object to enable the monitoring.
- * 
+ *
  * @author fy65
- * 
+ *
  */
 public class ScanProgressComposite extends Composite implements IObserver {
 
@@ -38,12 +38,12 @@ public class ScanProgressComposite extends Composite implements IObserver {
 	private int totalActiveRegions;
 	private int crrentRegionNumber;
 	private Scriptcontroller scriptcontroller;
-	
+
 	public ScanProgressComposite(Composite parent, int style) {
 		super(parent, style);
-		
+
 		setLayout(new GridLayout(1, false));
-		
+
 		Composite rootComposite = new Composite(this, SWT.NONE);
 		GridData gd_rootComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_rootComposite.widthHint = 456;
@@ -52,10 +52,10 @@ public class ScanProgressComposite extends Composite implements IObserver {
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		rootComposite.setLayout(layout);
-		
+
 		Label lblPoint=new Label(rootComposite, SWT.None);
 		lblPoint.setText("Point: ");
-		
+
 		txtPointValue = new Text(rootComposite, SWT.BORDER);
 		GridData gd_lblIterationValue = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_lblIterationValue.widthHint = 40;
@@ -64,10 +64,10 @@ public class ScanProgressComposite extends Composite implements IObserver {
 		txtPointValue.setEditable(false);
 		txtPointValue.setBackground(ColorConstants.black);
 		updateScanPointNumber(currentPointNumber, totalNumberOfPoints);
-		
+
 		Label lblRegion = new Label(rootComposite, SWT.NONE);
 		lblRegion.setText("Region:");
-		
+
 		txtRegionValue = new Text(rootComposite, SWT.BORDER);
 		txtRegionValue.setForeground(ColorConstants.green);
 		txtRegionValue.setEditable(false);
@@ -77,10 +77,10 @@ public class ScanProgressComposite extends Composite implements IObserver {
 		gd_txtCurrentPoint.widthHint = 40;
 		txtRegionValue.setLayoutData(gd_txtCurrentPoint);
 		updateRegionNumber(crrentRegionNumber, totalActiveRegions);
-		
+
 		Label lblTimeRemaining = new Label(rootComposite, SWT.NONE);
 		lblTimeRemaining.setText("Time Remaining:");
-		
+
 		txtTimeRemaining = new Text(rootComposite, SWT.BORDER);
 //		gd_txtIterationTimeRemaining.widthHint=40;
 		txtTimeRemaining.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
@@ -88,10 +88,10 @@ public class ScanProgressComposite extends Composite implements IObserver {
 		txtTimeRemaining.setBackground(ColorConstants.black);
 		txtTimeRemaining.setText("0.0000");
 		txtTimeRemaining.setEditable(false);
-		
+
 		Label lblProgress = new Label(rootComposite, SWT.NONE);
 		lblProgress.setText("progress:");
-		
+
 		progressBar = new ProgressBar(rootComposite, SWT.HORIZONTAL);
 		GridData gd_progressBar = new GridData(GridData.FILL_HORIZONTAL);
 		gd_progressBar.grabExcessHorizontalSpace = false;
@@ -99,7 +99,7 @@ public class ScanProgressComposite extends Composite implements IObserver {
 		progressBar.setLayoutData(gd_progressBar);
 		progressBar.setMinimum(0);
 		progressBar.setMaximum(100);
-		
+
 	}
 	public void initialise() {
 		if (getScriptcontroller()==null) {
@@ -133,7 +133,7 @@ public class ScanProgressComposite extends Composite implements IObserver {
 				int scanNumber = evt.getScanNumber();
 				if (!getDisplay().isDisposed()) {
 					getDisplay().asyncExec(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							updateScanPointNumber(currentPointNumber, totalNumberOfPoints);
@@ -142,7 +142,7 @@ public class ScanProgressComposite extends Composite implements IObserver {
 				}
 			}
 		}
-		
+
 	}
 
 }

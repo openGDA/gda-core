@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class SequenceViewLabelProvider extends LabelProvider implements ITableLabelProvider, ITableColorProvider {
-	
+
 	private double xRaySourceEnergyLimit = 2100.0; // must be in eV
 	private boolean sourceSelectable = false;
 	private Camera camera;

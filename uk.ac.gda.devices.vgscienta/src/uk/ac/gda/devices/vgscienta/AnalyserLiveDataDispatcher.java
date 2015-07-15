@@ -18,15 +18,6 @@
 
 package uk.ac.gda.devices.vgscienta;
 
-import gda.epics.connection.EpicsController;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-import gov.aps.jca.Channel;
-import gov.aps.jca.dbr.DBRType;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
-
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -38,6 +29,14 @@ import org.eclipse.dawnsci.analysis.dataset.impl.FloatDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.epics.connection.EpicsController;
+import gda.factory.Configurable;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
+import gov.aps.jca.Channel;
+import gov.aps.jca.dbr.DBRType;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Findable {
@@ -53,7 +52,7 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 	private long sleeptime = 1000;
 
 	private ThreadPoolExecutor executor;
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		epicsController = EpicsController.getInstance();
@@ -96,9 +95,9 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 	public void monitorChanged(MonitorEvent arg0) {
 		try {
 			logger.debug("might soon be sending some thing to plot "+plotName+" with axes from "+analyser.getName()+" because of "+arg0.toString());
-			
+
 			int newvalue =((gov.aps.jca.dbr.INT) arg0.getDBR().convert(DBRType.INT)).getIntValue()[0];
-			
+
 			if (newvalue > oldNumber && newvalue > 0) {
 				try {
 					executor.submit(new Runnable() {
@@ -119,7 +118,7 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 				}
 			}
 			oldNumber = newvalue;
-			
+
 		} catch (Exception e) {
 			logger.error("exception caught preparing analyser live plot", e);
 		}
@@ -135,24 +134,24 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 		float[] array = epicsController.cagetFloatArray(arrayChannel, arraysize);
 		return new FloatDataset(array, dims);
 	}
-	
+
 	protected Dataset getXAxis() throws Exception {
 		double[] xdata = analyser.getEnergyAxis();
 		DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
 		xAxis.setName("energies (eV)");
 		return xAxis;
-	}	
-	
+	}
+
 	protected Dataset getYAxis() throws Exception {
 		double[] ydata = analyser.getAngleAxis();
 		DoubleDataset yAxis = new DoubleDataset(ydata, new int[] { ydata.length });
 		if ("Transmission".equalsIgnoreCase(analyser.getLensMode())) {
-			yAxis.setName("location (mm)");				
-		} else 
+			yAxis.setName("location (mm)");
+		} else
 			yAxis.setName("angles (deg)");
 		return yAxis;
 	}
-	
+
 	protected void plotNewArray() throws Exception {
 		Dataset xAxis = getXAxis();
 		Dataset yAxis = getYAxis();
@@ -164,7 +163,7 @@ class AnalyserLiveDataDispatcher implements MonitorListener, Configurable, Finda
 		logger.debug("dispatching plot to "+plotName);
 		SDAPlotter.imagePlot(plotName, xAxis, yAxis, ds);
 	}
-	
+
 	public String getArrayPV() {
 		return arrayPV;
 	}

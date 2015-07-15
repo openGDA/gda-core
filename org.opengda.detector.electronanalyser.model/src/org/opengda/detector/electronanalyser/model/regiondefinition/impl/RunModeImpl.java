@@ -3,12 +3,9 @@
 package org.opengda.detector.electronanalyser.model.regiondefinition.impl;
 
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.ecore.EClass;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
-
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RUN_MODES;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RunMode;
@@ -212,6 +209,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RUN_MODES getMode() {
 		return mode;
 	}
@@ -221,6 +219,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMode(RUN_MODES newMode) {
 		RUN_MODES oldMode = mode;
 		mode = newMode == null ? MODE_EDEFAULT : newMode;
@@ -235,6 +234,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetMode() {
 		RUN_MODES oldMode = mode;
 		boolean oldModeESet = modeESet;
@@ -249,6 +249,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetMode() {
 		return modeESet;
 	}
@@ -258,6 +259,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getRunModeIndex() {
 		return runModeIndex;
 	}
@@ -267,6 +269,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setRunModeIndex(int newRunModeIndex) {
 		int oldRunModeIndex = runModeIndex;
 		runModeIndex = newRunModeIndex;
@@ -281,6 +284,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetRunModeIndex() {
 		int oldRunModeIndex = runModeIndex;
 		boolean oldRunModeIndexESet = runModeIndexESet;
@@ -295,6 +299,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetRunModeIndex() {
 		return runModeIndexESet;
 	}
@@ -304,6 +309,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getNumIterations() {
 		return numIterations;
 	}
@@ -313,6 +319,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setNumIterations(int newNumIterations) {
 		int oldNumIterations = numIterations;
 		numIterations = newNumIterations;
@@ -327,6 +334,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetNumIterations() {
 		int oldNumIterations = numIterations;
 		boolean oldNumIterationsESet = numIterationsESet;
@@ -341,6 +349,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetNumIterations() {
 		return numIterationsESet;
 	}
@@ -350,6 +359,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isRepeatUntilStopped() {
 		return repeatUntilStopped;
 	}
@@ -359,6 +369,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setRepeatUntilStopped(boolean newRepeatUntilStopped) {
 		boolean oldRepeatUntilStopped = repeatUntilStopped;
 		repeatUntilStopped = newRepeatUntilStopped;
@@ -373,6 +384,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetRepeatUntilStopped() {
 		boolean oldRepeatUntilStopped = repeatUntilStopped;
 		boolean oldRepeatUntilStoppedESet = repeatUntilStoppedESet;
@@ -387,6 +399,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetRepeatUntilStopped() {
 		return repeatUntilStoppedESet;
 	}
@@ -396,6 +409,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isConfirmAfterEachIteration() {
 		return confirmAfterEachIteration;
 	}
@@ -405,6 +419,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setConfirmAfterEachIteration(boolean newConfirmAfterEachIteration) {
 		boolean oldConfirmAfterEachIteration = confirmAfterEachIteration;
 		confirmAfterEachIteration = newConfirmAfterEachIteration;
@@ -417,6 +432,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isNumIterationOption() {
 		return numIterationOption;
 	}
@@ -426,6 +442,7 @@ public class RunModeImpl extends EObjectImpl implements RunMode {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setNumIterationOption(boolean newNumIterationOption) {
 		boolean oldNumIterationOption = numIterationOption;
 		numIterationOption = newNumIterationOption;

@@ -48,7 +48,7 @@ public class ImagePlotComposite extends EpicsArrayPlotComposite {
 	private static final String IMAGE_PLOT = "Image plot";
 	double[] ydata = null;
 	private Dataset yAxis;
-	
+
 	/**
 	 * @param parent
 	 * @param style
@@ -103,7 +103,7 @@ public class ImagePlotComposite extends EpicsArrayPlotComposite {
 			plottingSystem.setKeepAspect(false);
 		} catch (Exception e) {
 			logger.error("exception caught preparing analyser live image plot", e);
-		}	
+		}
 	}
 
 	@Override
@@ -116,7 +116,7 @@ public class ImagePlotComposite extends EpicsArrayPlotComposite {
 		plottingSystem.setKeepAspect(false);
 		plottingSystem.createPlot2D(dataset, axes, new NullProgressMonitor());
 	}
-	
+
 	private Dataset createYAxis() {
 		DoubleDataset yAxis = new DoubleDataset(ydata, new int[] { ydata.length });
 		try {

@@ -1,18 +1,5 @@
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.device.DeviceException;
-import gda.device.detector.areadetector.v17.ADBase;
-import gda.epics.connection.EpicsChannelManager;
-import gda.epics.connection.EpicsController.MonitorType;
-import gda.epics.connection.InitializationListener;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBR_Double;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
@@ -27,6 +14,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.cosylab.epics.caj.CAJChannel;
+
+import gda.device.DeviceException;
+import gda.device.detector.areadetector.v17.ADBase;
+import gda.epics.connection.EpicsChannelManager;
+import gda.epics.connection.EpicsController.MonitorType;
+import gda.epics.connection.InitializationListener;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBR_Double;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
 
 public class EpicsArrayPlotComposite extends Composite implements InitializationListener, MonitorListener, IEnergyAxis,IPlotCompositeInitialiser {
 
@@ -46,12 +46,13 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	private boolean newRegion = true;
 	private boolean displayBindingEnergy = false;
 	protected Dataset xAxis;
-	
+
 	public EpicsArrayPlotComposite(Composite parent, int style) {
 		super(parent, style);
 		controller = new EpicsChannelManager(this);
 	}
-	
+
+	@Override
 	public void initialise() {
 		if (getAnalyser() == null || getArrayPV() == null) {
 			throw new IllegalStateException("required parameters for 'analyser' and/or 'arrayPV' are missing.");
@@ -98,14 +99,14 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 
 	public void clearPlots() {
 		getDisplay().syncExec(new Runnable() {
-	
+
 			@Override
 			public void run() {
 				plottingSystem.setTitle("");
 				plottingSystem.reset();
 			}
 		});
-	
+
 	}
 
 	protected class DataListener implements MonitorListener {
@@ -138,7 +139,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		}
 	}
 	/**
-	 * subclass must override this method to provide actual data and plotting. 
+	 * subclass must override this method to provide actual data and plotting.
 	 * The override method must call this method first to set X-Axis.
 	 */
 	protected void updatePlot(final IProgressMonitor monitor, double[] value) {
@@ -172,9 +173,10 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		return xdata;
 	}
 	/**
-	 * subclass must override this method to provide actual data and plotting. 
+	 * subclass must override this method to provide actual data and plotting.
 	 * The override method must call this method first to set X-Axis.
 	 */
+	@Override
 	public void updatePlot() {
 		if (xdata==null) return;
 		xdata=convertToBindingENergy(xdata);
@@ -188,6 +190,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		return analyser;
 	}
 
+	@Override
 	public void setAnalyser(IVGScientaAnalyser analyser) {
 		this.analyser = analyser;
 	}
@@ -196,6 +199,7 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		return arrayPV;
 	}
 
+	@Override
 	public void setArrayPV(String arrayPV) {
 		this.arrayPV = arrayPV;
 	}
@@ -204,12 +208,12 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 	public void initializationCompleted() throws InterruptedException,
 			DeviceException, TimeoutException, CAException {
 				logger.info("EPICS Channel {} initialisation completed!", dataChannel.getName());
-			
+
 			}
 
 	public void setNewRegion(boolean b) {
 		this.newRegion = b;
-	
+
 	}
 
 	public boolean isNewRegion() {
@@ -235,8 +239,9 @@ public class EpicsArrayPlotComposite extends Composite implements Initialization
 		return xdata;
 	}
 
+	@Override
 	public void displayInBindingEnergy(boolean b) {
-		this.displayBindingEnergy=b;		
+		this.displayBindingEnergy=b;
 	}
 
 	public boolean isDisplayBindingEnergy() {

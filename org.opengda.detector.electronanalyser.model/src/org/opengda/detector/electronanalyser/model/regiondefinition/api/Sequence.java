@@ -3,7 +3,6 @@
 package org.opengda.detector.electronanalyser.model.regiondefinition.api;
 
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EObject;
 
 /**

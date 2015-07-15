@@ -18,6 +18,9 @@
 
 package uk.ac.gda.arpes.scannable;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.device.scannable.ScannableBase;
@@ -25,9 +28,6 @@ import gda.device.scannable.ScannableUtils;
 import gda.epics.connection.EpicsController;
 import gda.factory.FactoryException;
 import gov.aps.jca.Channel;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class EpicsLakeshore336 extends ScannableBase {
 

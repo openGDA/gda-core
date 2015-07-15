@@ -1,5 +1,13 @@
 package org.opengda.detector.electronanalyser;
 
+import java.io.Serializable;
+
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
+import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.commandqueue.Command;
 import gda.commandqueue.CommandBase;
 import gda.commandqueue.CommandDetails;
@@ -8,14 +16,6 @@ import gda.commandqueue.SimpleCommandDetails;
 import gda.commandqueue.SimpleCommandSummary;
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.v17.ImageMode;
-
-import java.io.Serializable;
-
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
-import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RegionCommand extends CommandBase implements Command, Serializable {
 

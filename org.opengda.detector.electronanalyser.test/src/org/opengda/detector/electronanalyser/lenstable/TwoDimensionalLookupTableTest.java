@@ -1,9 +1,10 @@
 /**
- * 
+ *
  */
 package org.opengda.detector.electronanalyser.lenstable;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -63,7 +64,7 @@ public class TwoDimensionalLookupTableTest {
 				System.out.println(String.format("%s\t%s\t%s",rowkey, colkey, table2.get(rowkey,  colkey)));
 			}
 		}
-		
+
 	}
 
 	/**

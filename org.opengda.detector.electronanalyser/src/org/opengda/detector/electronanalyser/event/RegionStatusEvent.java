@@ -3,16 +3,15 @@ package org.opengda.detector.electronanalyser.event;
 import java.io.Serializable;
 
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.STATUS;
-import org.opengda.detector.electronanalyser.scan.RegionScannable;
 
 /**
  * Finish Event for broadcast by {@link RegionScannable} objects to inform IObervers of the region completion status. used to update the Table Viewer of
  * {@link SequenceView}
- * 
+ *
  */
 public class RegionStatusEvent implements Serializable {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -6492439515246163536L;
 

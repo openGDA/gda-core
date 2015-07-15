@@ -18,13 +18,6 @@
 
 package org.opengda.detector.electronanalyser.server;
 
-import gda.epics.connection.EpicsController;
-import gda.factory.Configurable;
-import gda.factory.FactoryException;
-import gda.factory.Findable;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
-
 import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
@@ -32,6 +25,12 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.epics.connection.EpicsController;
+import gda.factory.Configurable;
+import gda.factory.FactoryException;
+import gda.factory.Findable;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 
 class AnalyserSweptLiveDataDispatcher implements MonitorListener, Configurable, Findable {
@@ -42,7 +41,7 @@ class AnalyserSweptLiveDataDispatcher implements MonitorListener, Configurable, 
 	private String name;
 	private EpicsController epicsController;
 	private String arrayPV;
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		epicsController = EpicsController.getInstance();
@@ -50,7 +49,7 @@ class AnalyserSweptLiveDataDispatcher implements MonitorListener, Configurable, 
 			epicsController.setMonitor(epicsController.createChannel(arrayPV), this);
 		} catch (Exception e) {
 			throw new FactoryException("Cannot set up monitoring of arrays", e);
-		}		
+		}
 	}
 
 	public String getPlotName() {
@@ -84,23 +83,23 @@ class AnalyserSweptLiveDataDispatcher implements MonitorListener, Configurable, 
 		try {
 			logger.debug("sending some thing from "+arg0.toString()+" to plot "+plotName+" with axes from "+analyser.getName());
 			double[] value = (double[]) arg0.getDBR().getValue();
-			
+
 			int[] dims = new int[] {analyser.getNdArray().getPluginBase().getArraySize1_RBV(), analyser.getNdArray().getPluginBase().getArraySize0_RBV()};
 			int arraysize = dims[0]*dims[1];
 			if (arraysize < 1) return;
 			value = Arrays.copyOf(value, arraysize);
 			Dataset ds = new DoubleDataset(value, dims);
-			
+
 			double[] xdata = analyser.getEnergyAxis();
 			double[] ydata = analyser.getAngleAxis();
 			DoubleDataset xAxis = new DoubleDataset(xdata, new int[] { xdata.length });
 			DoubleDataset yAxis = new DoubleDataset(ydata, new int[] { ydata.length });
 			xAxis.setName("energies (eV)");
 			if ("Transmission".equalsIgnoreCase(analyser.getLensMode())) {
-				yAxis.setName("location (mm)");				
-			} else 
+				yAxis.setName("location (mm)");
+			} else
 			yAxis.setName("angles (deg)");
-			
+
 			SDAPlotter.imagePlot(plotName, xAxis, yAxis, ds);
 		} catch (Exception e) {
 			logger.error("exception caught preparing analyser live plot", e);

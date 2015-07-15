@@ -199,6 +199,7 @@ public enum LENS_MODE implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getValue() {
 	  return value;
 	}
@@ -208,6 +209,7 @@ public enum LENS_MODE implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getName() {
 	  return name;
 	}
@@ -217,6 +219,7 @@ public enum LENS_MODE implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getLiteral() {
 	  return literal;
 	}
@@ -231,5 +234,5 @@ public enum LENS_MODE implements Enumerator {
 	public String toString() {
 		return literal;
 	}
-	
+
 } //LENS_MODE

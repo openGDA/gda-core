@@ -33,10 +33,10 @@ public class ProgressBarWithText {
 	private String barText = "";
 	private ProgressBar bar;
 	private int min = 0, max = 100, sele = 0;
-	
+
 	/**
 	 * Add text on Bar, also works around the fact that the original ProgressBar doesn't like negative minimum
-	 * 
+	 *
 	 */
 	public ProgressBarWithText(Composite parent, int style) {
 		bar = new ProgressBar(parent, style);
@@ -56,13 +56,13 @@ public class ProgressBarWithText {
 	public void setText(String newText) {
 		if (barText.equals(newText))
 			return;
-		if (newText != null) 
+		if (newText != null)
 			barText = newText;
-		else 
+		else
 			barText = "";
 		bar.redraw();
 	}
-	
+
 	public String getText() {
 		if (barText.isEmpty())
 			return null;
@@ -79,7 +79,7 @@ public class ProgressBarWithText {
 	public int getSelection () {
 		return sele;
 	}
-	
+
 	public void setMaximum (int value) {
 		if (value <= min) return;
 		max = value;

@@ -18,6 +18,10 @@
 
 package uk.ac.gda.arpes.scannable;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Vector;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.ScannableBase;
@@ -27,15 +31,11 @@ import gda.factory.FactoryException;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Vector;
-
 /**
  * This is a compound scannable that operates on a bragg (wavelength determining) scannable and a
  * number of other scannables (id_gap, detector thresholds, etc.)
- * 
- * It is also used as metadata provider for images plotted 
+ *
+ * It is also used as metadata provider for images plotted
  */
 @CorbaAdapterClass(ScannableAdapter.class)
 @CorbaImplClass(ScannableImpl.class)
@@ -44,13 +44,13 @@ public class EnergyScannable extends ScannableBase {
 	private Scannable pgm;
 	private I05Apple id;
 	private Collection<Scannable> scannables = new Vector<Scannable>();
-	
+
 	@Override
 	public void configure() throws FactoryException {
 		setInputNames(new String[] {getName()});
 		setupExtraNames();
 	}
-			
+
 	private void setupExtraNames() {
 		Vector<String> en = new Vector<String>();
 		Vector<String> of = new Vector<String>();
@@ -81,12 +81,12 @@ public class EnergyScannable extends ScannableBase {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void asynchronousMoveTo(Object position) throws DeviceException {
 		Double energy;
 		String polarisation = null;
-		
+
 		if (position instanceof Number) {
 			energy = ((Number) position).doubleValue();
 		} else {
@@ -96,7 +96,7 @@ public class EnergyScannable extends ScannableBase {
 				Object[] arr = (Object []) position;
 				if (arr[0] instanceof Number)
 					energy = ((Number) arr[0]).doubleValue();
-				else 
+				else
 					energy = Double.parseDouble(arr[0].toString());
 				if (arr[1] != null)
 					polarisation = arr[1].toString();
@@ -104,14 +104,14 @@ public class EnergyScannable extends ScannableBase {
 				throw new DeviceException("expecting number energy and string polarisation");
 			}
 		}
-		
+
 		pgm.asynchronousMoveTo(energy);
 		id.asynchronousMoveTo(new Object[] {energy, polarisation});
 		for(Scannable s : scannables) {
 			s.asynchronousMoveTo(energy);
 		}
 	}
-	
+
 	@Override
 	public Object getPosition() throws DeviceException {
 		Object[] pos = new Object[scannables.size()+4];
@@ -127,7 +127,7 @@ public class EnergyScannable extends ScannableBase {
 		}
 		return pos;
 	}
-	
+
 	public Scannable getPgm() {
 		return pgm;
 	}
@@ -150,7 +150,7 @@ public class EnergyScannable extends ScannableBase {
 			setupExtraNames();
 		}
 	}
-	
+
 	public void removeScannable(Scannable s) {
 		scannables.remove(s);
 		setupExtraNames();

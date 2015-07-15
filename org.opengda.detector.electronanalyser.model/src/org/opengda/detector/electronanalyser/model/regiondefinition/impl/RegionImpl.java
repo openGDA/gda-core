@@ -8,14 +8,10 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUIAITION_MODE;
+import org.opengda.detector.electronanalyser.model.regiondefinition.api.ACQUISITION_MODE;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DETECTOR_MODE;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.ELEMENT_SET;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.ENERGY_MODE;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.LENS_MODE;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.PASS_ENERGY;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
@@ -197,7 +193,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	/**
 	 * This is true if the Pass Energy attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -215,7 +211,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	/**
 	 * This is true if the Run Mode containment reference has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -244,7 +240,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	/**
 	 * This is true if the Excitation Energy attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -273,7 +269,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	/**
 	 * This is true if the Acquisition Mode attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -300,7 +296,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	/**
 	 * This is true if the Energy Mode attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -327,7 +323,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	/**
 	 * This is true if the Fix Energy attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -354,7 +350,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	/**
 	 * This is true if the Low Energy attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -381,7 +377,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	/**
 	 * This is true if the High Energy attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -408,7 +404,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	/**
 	 * This is true if the Energy Step attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -464,7 +460,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	/**
 	 * This is true if the First XChannel attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -493,7 +489,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	/**
 	 * This is true if the Last XChannel attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -522,7 +518,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	/**
 	 * This is true if the First YChannel attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -551,7 +547,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	/**
 	 * This is true if the Last YChannel attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -607,7 +603,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	/**
 	 * This is true if the Detector Mode attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -663,7 +659,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	/**
 	 * This is true if the Discriminator Level attribute has been set. <!--
 	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 * @ordered
 	 */
@@ -725,7 +721,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated NOT
 	 */
 	protected RegionImpl() {
@@ -747,6 +743,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getRegionId() {
 		return regionId;
 	}
@@ -755,6 +752,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setRegionId(String newRegionId) {
 		String oldRegionId = regionId;
 		regionId = newRegionId;
@@ -766,6 +764,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated NOT
 	 */
+	@Override
 	public String getName() {
 		String newname=name.trim().replaceAll(" ", "_");
 		return newname;
@@ -775,6 +774,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setName(String newName) {
 		String oldName = name;
 		name = newName;
@@ -788,6 +788,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetName() {
 		String oldName = name;
 		boolean oldNameESet = nameESet;
@@ -801,6 +802,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetName() {
 		return nameESet;
 	}
@@ -809,6 +811,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getLensMode() {
 		return lensMode;
 	}
@@ -817,6 +820,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setLensMode(String newLensMode) {
 		String oldLensMode = lensMode;
 		lensMode = newLensMode;
@@ -830,6 +834,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetLensMode() {
 		String oldLensMode = lensMode;
 		boolean oldLensModeESet = lensModeESet;
@@ -843,6 +848,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetLensMode() {
 		return lensModeESet;
 	}
@@ -851,6 +857,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getPassEnergy() {
 		return passEnergy;
 	}
@@ -859,6 +866,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setPassEnergy(int newPassEnergy) {
 		int oldPassEnergy = passEnergy;
 		passEnergy = newPassEnergy;
@@ -872,6 +880,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetPassEnergy() {
 		int oldPassEnergy = passEnergy;
 		boolean oldPassEnergyESet = passEnergyESet;
@@ -885,6 +894,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetPassEnergy() {
 		return passEnergyESet;
 	}
@@ -893,6 +903,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RunMode getRunMode() {
 		return runMode;
 	}
@@ -918,6 +929,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setRunMode(RunMode newRunMode) {
 		if (newRunMode != runMode) {
 			NotificationChain msgs = null;
@@ -956,6 +968,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetRunMode() {
 		if (runMode != null) {
 			NotificationChain msgs = null;
@@ -975,6 +988,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetRunMode() {
 		return runModeESet;
 	}
@@ -983,6 +997,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getExcitationEnergy() {
 		return excitationEnergy;
 	}
@@ -991,6 +1006,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setExcitationEnergy(double newExcitationEnergy) {
 		double oldExcitationEnergy = excitationEnergy;
 		excitationEnergy = newExcitationEnergy;
@@ -1004,6 +1020,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetExcitationEnergy() {
 		double oldExcitationEnergy = excitationEnergy;
 		boolean oldExcitationEnergyESet = excitationEnergyESet;
@@ -1017,6 +1034,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetExcitationEnergy() {
 		return excitationEnergyESet;
 	}
@@ -1025,6 +1043,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ACQUISITION_MODE getAcquisitionMode() {
 		return acquisitionMode;
 	}
@@ -1033,6 +1052,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setAcquisitionMode(ACQUISITION_MODE newAcquisitionMode) {
 		ACQUISITION_MODE oldAcquisitionMode = acquisitionMode;
 		acquisitionMode = newAcquisitionMode == null ? ACQUISITION_MODE_EDEFAULT : newAcquisitionMode;
@@ -1046,6 +1066,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetAcquisitionMode() {
 		ACQUISITION_MODE oldAcquisitionMode = acquisitionMode;
 		boolean oldAcquisitionModeESet = acquisitionModeESet;
@@ -1059,6 +1080,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetAcquisitionMode() {
 		return acquisitionModeESet;
 	}
@@ -1067,6 +1089,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ENERGY_MODE getEnergyMode() {
 		return energyMode;
 	}
@@ -1075,6 +1098,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setEnergyMode(ENERGY_MODE newEnergyMode) {
 		ENERGY_MODE oldEnergyMode = energyMode;
 		energyMode = newEnergyMode == null ? ENERGY_MODE_EDEFAULT : newEnergyMode;
@@ -1088,6 +1112,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetEnergyMode() {
 		ENERGY_MODE oldEnergyMode = energyMode;
 		boolean oldEnergyModeESet = energyModeESet;
@@ -1101,6 +1126,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetEnergyMode() {
 		return energyModeESet;
 	}
@@ -1109,6 +1135,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getFixEnergy() {
 		return fixEnergy;
 	}
@@ -1117,6 +1144,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFixEnergy(double newFixEnergy) {
 		double oldFixEnergy = fixEnergy;
 		fixEnergy = newFixEnergy;
@@ -1130,6 +1158,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetFixEnergy() {
 		double oldFixEnergy = fixEnergy;
 		boolean oldFixEnergyESet = fixEnergyESet;
@@ -1143,6 +1172,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetFixEnergy() {
 		return fixEnergyESet;
 	}
@@ -1151,6 +1181,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getLowEnergy() {
 		return lowEnergy;
 	}
@@ -1159,6 +1190,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setLowEnergy(double newLowEnergy) {
 		double oldLowEnergy = lowEnergy;
 		lowEnergy = newLowEnergy;
@@ -1172,6 +1204,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetLowEnergy() {
 		double oldLowEnergy = lowEnergy;
 		boolean oldLowEnergyESet = lowEnergyESet;
@@ -1185,6 +1218,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetLowEnergy() {
 		return lowEnergyESet;
 	}
@@ -1193,6 +1227,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getHighEnergy() {
 		return highEnergy;
 	}
@@ -1201,6 +1236,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setHighEnergy(double newHighEnergy) {
 		double oldHighEnergy = highEnergy;
 		highEnergy = newHighEnergy;
@@ -1214,6 +1250,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetHighEnergy() {
 		double oldHighEnergy = highEnergy;
 		boolean oldHighEnergyESet = highEnergyESet;
@@ -1227,6 +1264,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetHighEnergy() {
 		return highEnergyESet;
 	}
@@ -1235,6 +1273,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getEnergyStep() {
 		return energyStep;
 	}
@@ -1243,6 +1282,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setEnergyStep(double newEnergyStep) {
 		double oldEnergyStep = energyStep;
 		energyStep = newEnergyStep;
@@ -1256,6 +1296,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetEnergyStep() {
 		double oldEnergyStep = energyStep;
 		boolean oldEnergyStepESet = energyStepESet;
@@ -1269,6 +1310,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetEnergyStep() {
 		return energyStepESet;
 	}
@@ -1277,6 +1319,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getStepTime() {
 		return stepTime;
 	}
@@ -1285,6 +1328,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setStepTime(double newStepTime) {
 		double oldStepTime = stepTime;
 		stepTime = newStepTime;
@@ -1298,6 +1342,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetStepTime() {
 		double oldStepTime = stepTime;
 		boolean oldStepTimeESet = stepTimeESet;
@@ -1311,6 +1356,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetStepTime() {
 		return stepTimeESet;
 	}
@@ -1319,6 +1365,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getFirstXChannel() {
 		return firstXChannel;
 	}
@@ -1327,6 +1374,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFirstXChannel(int newFirstXChannel) {
 		int oldFirstXChannel = firstXChannel;
 		firstXChannel = newFirstXChannel;
@@ -1340,6 +1388,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetFirstXChannel() {
 		int oldFirstXChannel = firstXChannel;
 		boolean oldFirstXChannelESet = firstXChannelESet;
@@ -1353,6 +1402,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetFirstXChannel() {
 		return firstXChannelESet;
 	}
@@ -1361,6 +1411,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getLastXChannel() {
 		return lastXChannel;
 	}
@@ -1369,6 +1420,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setLastXChannel(int newLastXChannel) {
 		int oldLastXChannel = lastXChannel;
 		lastXChannel = newLastXChannel;
@@ -1382,6 +1434,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetLastXChannel() {
 		int oldLastXChannel = lastXChannel;
 		boolean oldLastXChannelESet = lastXChannelESet;
@@ -1395,6 +1448,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetLastXChannel() {
 		return lastXChannelESet;
 	}
@@ -1403,6 +1457,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getFirstYChannel() {
 		return firstYChannel;
 	}
@@ -1411,6 +1466,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFirstYChannel(int newFirstYChannel) {
 		int oldFirstYChannel = firstYChannel;
 		firstYChannel = newFirstYChannel;
@@ -1424,6 +1480,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetFirstYChannel() {
 		int oldFirstYChannel = firstYChannel;
 		boolean oldFirstYChannelESet = firstYChannelESet;
@@ -1437,6 +1494,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetFirstYChannel() {
 		return firstYChannelESet;
 	}
@@ -1445,6 +1503,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getLastYChannel() {
 		return lastYChannel;
 	}
@@ -1453,6 +1512,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setLastYChannel(int newLastYChannel) {
 		int oldLastYChannel = lastYChannel;
 		lastYChannel = newLastYChannel;
@@ -1466,6 +1526,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetLastYChannel() {
 		int oldLastYChannel = lastYChannel;
 		boolean oldLastYChannelESet = lastYChannelESet;
@@ -1479,6 +1540,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetLastYChannel() {
 		return lastYChannelESet;
 	}
@@ -1487,6 +1549,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getSlices() {
 		return slices;
 	}
@@ -1495,6 +1558,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSlices(int newSlices) {
 		int oldSlices = slices;
 		slices = newSlices;
@@ -1508,6 +1572,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetSlices() {
 		int oldSlices = slices;
 		boolean oldSlicesESet = slicesESet;
@@ -1521,6 +1586,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetSlices() {
 		return slicesESet;
 	}
@@ -1529,6 +1595,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public DETECTOR_MODE getDetectorMode() {
 		return detectorMode;
 	}
@@ -1537,6 +1604,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDetectorMode(DETECTOR_MODE newDetectorMode) {
 		DETECTOR_MODE oldDetectorMode = detectorMode;
 		detectorMode = newDetectorMode == null ? DETECTOR_MODE_EDEFAULT : newDetectorMode;
@@ -1550,6 +1618,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetDetectorMode() {
 		DETECTOR_MODE oldDetectorMode = detectorMode;
 		boolean oldDetectorModeESet = detectorModeESet;
@@ -1563,6 +1632,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetDetectorMode() {
 		return detectorModeESet;
 	}
@@ -1571,6 +1641,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getADCMask() {
 		return adcMask;
 	}
@@ -1579,6 +1650,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setADCMask(int newADCMask) {
 		int oldADCMask = adcMask;
 		adcMask = newADCMask;
@@ -1592,6 +1664,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetADCMask() {
 		int oldADCMask = adcMask;
 		boolean oldADCMaskESet = adcMaskESet;
@@ -1605,6 +1678,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetADCMask() {
 		return adcMaskESet;
 	}
@@ -1613,6 +1687,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDiscriminatorLevel() {
 		return discriminatorLevel;
 	}
@@ -1621,6 +1696,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDiscriminatorLevel(int newDiscriminatorLevel) {
 		int oldDiscriminatorLevel = discriminatorLevel;
 		discriminatorLevel = newDiscriminatorLevel;
@@ -1634,6 +1710,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetDiscriminatorLevel() {
 		int oldDiscriminatorLevel = discriminatorLevel;
 		boolean oldDiscriminatorLevelESet = discriminatorLevelESet;
@@ -1647,6 +1724,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetDiscriminatorLevel() {
 		return discriminatorLevelESet;
 	}
@@ -1655,6 +1733,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getTotalSteps() {
 		return totalSteps;
 	}
@@ -1663,6 +1742,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setTotalSteps(int newTotalSteps) {
 		int oldTotalSteps = totalSteps;
 		totalSteps = newTotalSteps;
@@ -1677,6 +1757,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetTotalSteps() {
 		int oldTotalSteps = totalSteps;
 		boolean oldTotalStepsESet = totalStepsESet;
@@ -1691,6 +1772,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetTotalSteps() {
 		return totalStepsESet;
 	}
@@ -1699,6 +1781,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getTotalTime() {
 		return totalTime;
 	}
@@ -1707,6 +1790,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setTotalTime(double newTotalTime) {
 		double oldTotalTime = totalTime;
 		totalTime = newTotalTime;
@@ -1721,6 +1805,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetTotalTime() {
 		double oldTotalTime = totalTime;
 		boolean oldTotalTimeESet = totalTimeESet;
@@ -1735,6 +1820,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetTotalTime() {
 		return totalTimeESet;
 	}
@@ -1743,6 +1829,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public STATUS getStatus() {
 		return status;
 	}
@@ -1751,6 +1838,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setStatus(STATUS newStatus) {
 		STATUS oldStatus = status;
 		status = newStatus == null ? STATUS_EDEFAULT : newStatus;
@@ -1762,6 +1850,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -1770,6 +1859,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setEnabled(boolean newEnabled) {
 		boolean oldEnabled = enabled;
 		enabled = newEnabled;
@@ -1783,6 +1873,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetEnabled() {
 		boolean oldEnabled = enabled;
 		boolean oldEnabledESet = enabledESet;
@@ -1796,6 +1887,7 @@ public class RegionImpl extends EObjectImpl implements Region {
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetEnabled() {
 		return enabledESet;
 	}

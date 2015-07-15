@@ -61,7 +61,7 @@ public class NewExperimentWizard extends Wizard implements INewWizard {
 		page = new NewExperimentWizardPage1(selection);
 		addPage(page);
 	}
-	
+
 	/**
 	 * This method is called when 'Finish' button is pressed in the wizard. We will create an operation and run it using
 	 * wizard as execution context.
@@ -141,7 +141,7 @@ public class NewExperimentWizard extends Wizard implements INewWizard {
 	 */
 	private InputStream getContentStream() {
 		ARPESScanBean sessionBean = new ARPESScanBean();
-		
+
 		return ARPESWizardUtils.sessionBeanToStream(sessionBean);
 	}
 
@@ -152,7 +152,7 @@ public class NewExperimentWizard extends Wizard implements INewWizard {
 
 	/**
 	 * We will accept the selection in the workbench to see if we can initialize from it.
-	 * 
+	 *
 	 * @see IWorkbenchWizard#init(IWorkbench, IStructuredSelection)
 	 */
 	@Override

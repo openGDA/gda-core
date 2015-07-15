@@ -1,13 +1,13 @@
 package org.opengda.detector.electronanalyser.client.viewfactories;
 
-import gda.rcp.views.FindableExecutableExtension;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.opengda.detector.electronanalyser.client.views.SlicesView;
 import org.opengda.detector.electronanalyser.server.IVGScientaAnalyser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.rcp.views.FindableExecutableExtension;
 
 public class SlicesViewFactory implements FindableExecutableExtension {
 	private static final Logger logger=LoggerFactory.getLogger(SlicesViewFactory.class);
@@ -24,7 +24,7 @@ public class SlicesViewFactory implements FindableExecutableExtension {
 		if (analyser != null) {
 			slicesView.setAnalyser(analyser);
 		}
-		
+
 		if (arrayPV != null) {
 				slicesView.setArrayPV(arrayPV);
 		}
@@ -33,7 +33,7 @@ public class SlicesViewFactory implements FindableExecutableExtension {
 
 	@Override
 	public void setName(String name) {
-		this.name=name;		
+		this.name=name;
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class SlicesViewFactory implements FindableExecutableExtension {
 	@Override
 	public void setInitializationData(IConfigurationElement config,
 			String propertyName, Object data) throws CoreException {
-		
+
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class SlicesViewFactory implements FindableExecutableExtension {
 		if (analyser == null ) {
 			throw new IllegalArgumentException("analyser cannot be null in slices View.");
 		}
-		
+
 	}
 
 	public IVGScientaAnalyser getAnalyser() {

@@ -18,6 +18,9 @@
 
 package uk.ac.gda.devices.vgscienta;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceBase;
 import gda.device.corba.impl.DeviceAdapter;
 import gda.device.corba.impl.DeviceImpl;
@@ -32,14 +35,11 @@ import gov.aps.jca.dbr.DBRType;
 import gov.aps.jca.event.MonitorEvent;
 import gov.aps.jca.event.MonitorListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @CorbaAdapterClass(DeviceAdapter.class)
 @CorbaImplClass(DeviceImpl.class)
 public class SweepUpdater extends DeviceBase implements Configurable, Findable {
 	private static final Logger logger = LoggerFactory.getLogger(SweepUpdater.class);
-	
+
 	protected VGScientaAnalyser analyser;
 	private EpicsController epicsController;
 	private String currentSweepPV, maxSweepPV, pctSweepPV;
@@ -48,7 +48,7 @@ public class SweepUpdater extends DeviceBase implements Configurable, Findable {
 	@Override
 	public void configure() throws FactoryException {
 		epicsController = EpicsController.getInstance();
-		
+
 		try {
 			epicsController.setMonitor(epicsController.createChannel(maxSweepPV), new MonitorListener() {
 				@Override
@@ -60,7 +60,7 @@ public class SweepUpdater extends DeviceBase implements Configurable, Findable {
 					}
 				}
 			});
-			
+
 			epicsController.setMonitor(epicsController.createChannel(currentSweepPV),  new MonitorListener() {
 				@Override
 				public void monitorChanged(MonitorEvent ev) {
@@ -84,7 +84,7 @@ public class SweepUpdater extends DeviceBase implements Configurable, Findable {
 					}
 				}
 			});
-						
+
 		} catch (Exception e) {
 			throw new FactoryException("Cannot set up monitoring of arrays", e);
 		}
@@ -111,7 +111,7 @@ public class SweepUpdater extends DeviceBase implements Configurable, Findable {
 	public void setMaxSweepPV(String maxSweepPV) {
 		this.maxSweepPV = maxSweepPV;
 	}
-	
+
 	public String getPercentagePV() {
 		return pctSweepPV;
 	}

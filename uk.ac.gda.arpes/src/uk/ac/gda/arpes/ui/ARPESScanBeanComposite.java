@@ -18,12 +18,6 @@
 
 package uk.ac.gda.arpes.ui;
 
-import gda.device.Scannable;
-import gda.factory.Finder;
-import gda.jython.InterfaceProvider;
-import gda.jython.JythonServerFacade;
-import gda.observable.IObserver;
-
 import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -62,6 +56,11 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.Scannable;
+import gda.factory.Finder;
+import gda.jython.InterfaceProvider;
+import gda.jython.JythonServerFacade;
+import gda.observable.IObserver;
 import uk.ac.gda.arpes.beans.ARPESScanBean;
 import uk.ac.gda.arpes.beans.ScanBeanFromNeXusFile;
 import uk.ac.gda.devices.vgscienta.AnalyserCapabilties;
@@ -70,7 +69,7 @@ import uk.ac.gda.richbeans.editors.RichBeanEditorPart;
 
 public final class ARPESScanBeanComposite extends Composite implements ValueListener {
 	private static final Logger logger = LoggerFactory.getLogger(ARPESScanBeanComposite.class);
-	
+
 	private AnalyserCapabilties capabilities;
 	private Label lblpsuMode;
 	private Label psuMode;
@@ -96,14 +95,14 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 	private final NumberBox energyWidth;
 	private Label lblConfigureOnly;
 	private final BooleanWrapper configureOnly;
-	
-	private Label lblEstimatedTime;	
+
+	private Label lblEstimatedTime;
 	private Label estimatedTime;
 
 
 	public ARPESScanBeanComposite(final Composite parent, int style, final RichBeanEditorPart editor) {
 		super(parent, style);
-		
+
 		//Switch off undoing as it doesn't work when box values are programmatically updated
 		editor.setUndoStackActive(false);
 
@@ -341,7 +340,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		lblConfigureOnly.setText("Configure Only");
 		configureOnly = new BooleanWrapper(this, SWT.NONE);
 		configureOnly.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		//Call to get current PSU mode as panel is building
 		//Only call after creating all GUI objects
 		updatePsuMode();
@@ -450,13 +449,13 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		return hours + ":" + minsString + ":" + secsString;
 	}
 
-	private double calculateSweptTime(double stepTime, double startEn, double endEn, double stepEnergyVal, double passEnergyVal) {  
+	private double calculateSweptTime(double stepTime, double startEn, double endEn, double stepEnergyVal, double passEnergyVal) {
 		// returns sweptTime estimate in milliseconds
 		// Analyser is only visible via Finder as cast to Device, so get jython to dig out the region instead
 		String sweptRegEmin = InterfaceProvider.getCommandRunner().evaluateCommand("analyser.getSweptModeRegion()[0]").trim(); // typically = 55
 		String sweptRegEmax = InterfaceProvider.getCommandRunner().evaluateCommand("analyser.getSweptModeRegion()[2]").trim(); // typically = 905
 
-		double numberOfDetectorPoints = Integer.parseInt(sweptRegEmax) - Integer.parseInt(sweptRegEmin);	
+		double numberOfDetectorPoints = Integer.parseInt(sweptRegEmax) - Integer.parseInt(sweptRegEmin);
 		double minStepEnergyValEv = determineMinimumStepEnergy(passEnergyVal) / 1000; // convert from meV to eV
 		double stepEnergyValEv = stepEnergyVal / 1000;                                // convert from meV to eV
 		double energyRangeEv   = Math.abs(startEn - endEn);
@@ -593,7 +592,7 @@ public final class ARPESScanBeanComposite extends Composite implements ValueList
 		} else { // Low Pass (UPS) or unknown!
 			energyRange = getLowPassEnergyRange(lens, passEnergyVal);
 		}
-		
+
 		int min = energyRange[0];
 		int max = energyRange[1];
 

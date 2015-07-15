@@ -3,9 +3,7 @@
 package org.opengda.detector.electronanalyser.model.regiondefinition.presentation;
 
 import org.eclipse.emf.common.EMFPlugin;
-
 import org.eclipse.emf.common.ui.EclipseUIPlugin;
-
 import org.eclipse.emf.common.util.ResourceLocator;
 
 /**
@@ -22,7 +20,7 @@ public final class RegiondefinitionEditorPlugin extends EMFPlugin {
 	 * @generated
 	 */
 	public static final RegiondefinitionEditorPlugin INSTANCE = new RegiondefinitionEditorPlugin();
-	
+
 	/**
 	 * Keep track of the singleton.
 	 * <!-- begin-user-doc -->
@@ -54,7 +52,7 @@ public final class RegiondefinitionEditorPlugin extends EMFPlugin {
 	public ResourceLocator getPluginResourceLocator() {
 		return plugin;
 	}
-	
+
 	/**
 	 * Returns the singleton instance of the Eclipse plugin.
 	 * <!-- begin-user-doc -->
@@ -65,7 +63,7 @@ public final class RegiondefinitionEditorPlugin extends EMFPlugin {
 	public static Implementation getPlugin() {
 		return plugin;
 	}
-	
+
 	/**
 	 * The actual implementation of the Eclipse <b>Plugin</b>.
 	 * <!-- begin-user-doc -->
@@ -81,7 +79,7 @@ public final class RegiondefinitionEditorPlugin extends EMFPlugin {
 		 */
 		public Implementation() {
 			super();
-	
+
 			// Remember the static instance.
 			//
 			plugin = this;

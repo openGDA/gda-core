@@ -1,7 +1,5 @@
 package org.opengda.detector.electronanalyser.lenstable;
 
-import gda.factory.Findable;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Table;
 
+import gda.factory.Findable;
+
 /**
  * validate a given region against analyser's energy range for specified element set.
  * object of this class requires a map of element set name to its corresponding look up table file.
@@ -26,7 +26,7 @@ public class RegionValidator implements Findable {
 	private Map<String, String> lookupTablePathMap=new HashMap<String, String>();
 	private String name;
 	private String energyrange;
-	
+
 	public RegionValidator() {
 	}
 	/**
@@ -102,7 +102,7 @@ public class RegionValidator implements Findable {
 	}
 	@Override
 	public void setName(String name) {
-		this.name=name;		
+		this.name=name;
 	}
 	@Override
 	public String getName() {

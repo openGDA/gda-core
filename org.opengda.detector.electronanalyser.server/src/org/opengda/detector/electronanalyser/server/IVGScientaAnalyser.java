@@ -8,7 +8,7 @@ public interface IVGScientaAnalyser extends Findable {
 	public abstract int getNdarrayXsize() throws Exception;
 
 	public abstract int getNdarrayYsize() throws Exception;
-	
+
 	public abstract AnalyserCapabilities getCapabilities();
 
 	public abstract void setCapabilities(AnalyserCapabilities ac);
@@ -160,6 +160,6 @@ public interface IVGScientaAnalyser extends Findable {
 	double getStepTime() throws Exception;
 
 	public abstract String[] getElementSet() throws DeviceException;
-	
+
 
 }

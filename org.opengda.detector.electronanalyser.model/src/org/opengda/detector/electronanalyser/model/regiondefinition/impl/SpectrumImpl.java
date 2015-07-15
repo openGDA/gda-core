@@ -5,16 +5,11 @@ package org.opengda.detector.electronanalyser.model.regiondefinition.impl;
 import java.util.Collection;
 
 import org.eclipse.emf.common.notify.Notification;
-
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EClass;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
-
 import org.eclipse.emf.ecore.util.EDataTypeUniqueEList;
-
 import org.eclipse.emf.ecore.util.InternalEList;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Spectrum;
@@ -307,6 +302,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getLocation() {
 		return location;
 	}
@@ -316,6 +312,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setLocation(String newLocation) {
 		String oldLocation = location;
 		location = newLocation;
@@ -330,6 +327,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetLocation() {
 		String oldLocation = location;
 		boolean oldLocationESet = locationESet;
@@ -344,6 +342,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetLocation() {
 		return locationESet;
 	}
@@ -353,6 +352,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getUser() {
 		return user;
 	}
@@ -362,6 +362,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setUser(String newUser) {
 		String oldUser = user;
 		user = newUser;
@@ -376,6 +377,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetUser() {
 		String oldUser = user;
 		boolean oldUserESet = userESet;
@@ -390,6 +392,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetUser() {
 		return userESet;
 	}
@@ -399,6 +402,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getSampleName() {
 		return sampleName;
 	}
@@ -408,6 +412,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSampleName(String newSampleName) {
 		String oldSampleName = sampleName;
 		sampleName = newSampleName;
@@ -422,6 +427,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetSampleName() {
 		String oldSampleName = sampleName;
 		boolean oldSampleNameESet = sampleNameESet;
@@ -436,6 +442,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetSampleName() {
 		return sampleNameESet;
 	}
@@ -445,6 +452,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getFilenamePrefix() {
 		return filenamePrefix;
 	}
@@ -454,6 +462,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFilenamePrefix(String newFilenamePrefix) {
 		String oldFilenamePrefix = filenamePrefix;
 		filenamePrefix = newFilenamePrefix;
@@ -468,6 +477,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetFilenamePrefix() {
 		String oldFilenamePrefix = filenamePrefix;
 		boolean oldFilenamePrefixESet = filenamePrefixESet;
@@ -482,6 +492,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetFilenamePrefix() {
 		return filenamePrefixESet;
 	}
@@ -491,6 +502,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getBaseDirectory() {
 		return baseDirectory;
 	}
@@ -500,6 +512,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setBaseDirectory(String newBaseDirectory) {
 		String oldBaseDirectory = baseDirectory;
 		baseDirectory = newBaseDirectory;
@@ -514,6 +527,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetBaseDirectory() {
 		String oldBaseDirectory = baseDirectory;
 		boolean oldBaseDirectoryESet = baseDirectoryESet;
@@ -528,6 +542,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetBaseDirectory() {
 		return baseDirectoryESet;
 	}
@@ -537,6 +552,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getFilenameFormat() {
 		return filenameFormat;
 	}
@@ -546,6 +562,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFilenameFormat(String newFilenameFormat) {
 		String oldFilenameFormat = filenameFormat;
 		filenameFormat = newFilenameFormat;
@@ -560,6 +577,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetFilenameFormat() {
 		String oldFilenameFormat = filenameFormat;
 		boolean oldFilenameFormatESet = filenameFormatESet;
@@ -574,6 +592,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetFilenameFormat() {
 		return filenameFormatESet;
 	}
@@ -583,6 +602,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getFileExtension() {
 		return fileExtension;
 	}
@@ -592,6 +612,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFileExtension(String newFileExtension) {
 		String oldFileExtension = fileExtension;
 		fileExtension = newFileExtension;
@@ -606,6 +627,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetFileExtension() {
 		String oldFileExtension = fileExtension;
 		boolean oldFileExtensionESet = fileExtensionESet;
@@ -620,6 +642,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetFileExtension() {
 		return fileExtensionESet;
 	}
@@ -629,6 +652,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getNumberOfComments() {
 		return numberOfComments;
 	}
@@ -638,6 +662,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setNumberOfComments(int newNumberOfComments) {
 		int oldNumberOfComments = numberOfComments;
 		numberOfComments = newNumberOfComments;
@@ -652,6 +677,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetNumberOfComments() {
 		int oldNumberOfComments = numberOfComments;
 		boolean oldNumberOfCommentsESet = numberOfCommentsESet;
@@ -666,6 +692,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetNumberOfComments() {
 		return numberOfCommentsESet;
 	}
@@ -675,6 +702,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EList<String> getComments() {
 		if (comments == null) {
 			comments = new EDataTypeUniqueEList.Unsettable<String>(String.class, this, RegiondefinitionPackage.SPECTRUM__COMMENTS);
@@ -687,6 +715,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetComments() {
 		if (comments != null) ((InternalEList.Unsettable<?>)comments).unset();
 	}
@@ -696,6 +725,7 @@ public class SpectrumImpl extends EObjectImpl implements Spectrum {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetComments() {
 		return comments != null && ((InternalEList.Unsettable<?>)comments).isSet();
 	}

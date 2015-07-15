@@ -7,22 +7,14 @@ import java.io.IOException;
 
 import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.common.util.URI;
-
 import org.eclipse.emf.ecore.EObject;
-
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-
 import org.eclipse.emf.ecore.util.Diagnostician;
-
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DocumentRoot;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionFactory;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
-import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
 import org.opengda.detector.electronanalyser.model.regiondefinition.util.RegiondefinitionResourceFactoryImpl;
 
 /**
@@ -43,19 +35,19 @@ public class RegiondefinitionExample {
 		// Create a resource set to hold the resources.
 		//
 		ResourceSet resourceSet = new ResourceSetImpl();
-		
+
 		// Register the appropriate resource factory to handle all file extensions.
 		//
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put
-			(Resource.Factory.Registry.DEFAULT_EXTENSION, 
+			(Resource.Factory.Registry.DEFAULT_EXTENSION,
 			 new RegiondefinitionResourceFactoryImpl());
 
 		// Register the package to ensure it is available during loading.
 		//
 		resourceSet.getPackageRegistry().put
-			(RegiondefinitionPackage.eNS_URI, 
+			(RegiondefinitionPackage.eNS_URI,
 			 RegiondefinitionPackage.eINSTANCE);
-        
+
 		// If there are no arguments, emit an appropriate usage message.
 		//
 		if (args.length == 0) {
@@ -103,7 +95,7 @@ public class RegiondefinitionExample {
 			}
 		}
 	}
-	
+
 	/**
 	 * <!-- begin-user-doc -->
 	 * Prints diagnostics with indentation.

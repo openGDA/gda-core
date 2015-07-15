@@ -172,6 +172,7 @@ public enum DETECTOR_MODE implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getValue() {
 	  return value;
 	}
@@ -181,6 +182,7 @@ public enum DETECTOR_MODE implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getName() {
 	  return name;
 	}
@@ -190,6 +192,7 @@ public enum DETECTOR_MODE implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getLiteral() {
 	  return literal;
 	}
@@ -204,5 +207,5 @@ public enum DETECTOR_MODE implements Enumerator {
 	public String toString() {
 		return literal;
 	}
-	
+
 } //DETECTOR_MODE

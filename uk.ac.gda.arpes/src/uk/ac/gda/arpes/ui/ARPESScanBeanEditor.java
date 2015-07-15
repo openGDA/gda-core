@@ -35,7 +35,7 @@ public final class ARPESScanBeanEditor extends RichBeanMultiPageEditorPart {
 		super();
 		setPartProperty("RichBeanEditorPart", null);
 	}
-	
+
 	@Override
 	public Class<?> getBeanClass() {
 		return ARPESScanBean.class;
@@ -55,7 +55,7 @@ public final class ARPESScanBeanEditor extends RichBeanMultiPageEditorPart {
 	public URL getSchemaUrl() {
 		return ARPESScanBean.schemaURL; // Please make sure this field is present and the schema
 	}
-	
+
 	@Override
 	public void setInput(final IEditorInput input) {
 		try{
@@ -66,7 +66,7 @@ public final class ARPESScanBeanEditor extends RichBeanMultiPageEditorPart {
 			logger.error("Error setting input for editor from input " + input.getName(), th);
 		}
 	}
-	
+
 	public void replaceBean(Object object) {
 		this.editingBean = object;
 		linkUI();

@@ -18,9 +18,6 @@
 
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.epics.connection.InitializationListener;
-import gov.aps.jca.event.MonitorListener;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +42,9 @@ import org.opengda.detector.electronanalyser.client.IEnergyAxis;
 import org.opengda.detector.electronanalyser.client.IPlotCompositeInitialiser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.epics.connection.InitializationListener;
+import gov.aps.jca.event.MonitorListener;
 
 /**
  * monitor and display external IO data update in the plot.
@@ -86,7 +86,7 @@ public class ExtIOPlotComposite extends EpicsArrayPlotComposite implements Initi
 	@Override
 	protected void updatePlot(final IProgressMonitor monitor, double[] value) {
 		super.updatePlot(monitor, value);
-		
+
 		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
 		double[] data = ArrayUtils.subarray(value, 0, xdata.length);
 		dataset = new DoubleDataset(data, new int[] { data.length });
@@ -110,7 +110,8 @@ public class ExtIOPlotComposite extends EpicsArrayPlotComposite implements Initi
 			});
 		}
 	}
-	
+
+	@Override
 	public void updatePlot() {
 		if (xdata==null) return;
 		super.updatePlot();
@@ -118,5 +119,5 @@ public class ExtIOPlotComposite extends EpicsArrayPlotComposite implements Initi
 		plotDataSets.add(dataset);
 		plottingSystem.createPlot1D(xAxis, plotDataSets, new NullProgressMonitor());
 	}
-	
+
 }

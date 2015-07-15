@@ -206,7 +206,7 @@ public class SpectrumPlotComposite extends EpicsArrayPlotComposite {
 	@Override
 	protected void updatePlot(final IProgressMonitor monitor, double[] value) {
 		super.updatePlot(monitor, value);
-		
+
 		ArrayList<Dataset> plotDataSets = new ArrayList<Dataset>();
 		double[] data = ArrayUtils.subarray(value, 0, xdata.length);
 		dataset = new DoubleDataset(data, new int[] { data.length });
@@ -230,7 +230,8 @@ public class SpectrumPlotComposite extends EpicsArrayPlotComposite {
 			});
 		}
 	}
-	
+
+	@Override
 	public void updatePlot() {
 		if (xdata==null) return;
 		super.updatePlot();
@@ -238,7 +239,7 @@ public class SpectrumPlotComposite extends EpicsArrayPlotComposite {
 		plotDataSets.add(dataset);
 		plottingSystem.createPlot1D(xAxis, plotDataSets, new NullProgressMonitor());
 	}
-	
+
 	public void updateStat() {
 		if (dataset==null) return;
 		if (xdata!=null) setPositionValue(xdata[dataset.argMax()]);

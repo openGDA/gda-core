@@ -1,22 +1,5 @@
 package org.opengda.detector.electronanalyser.client.views;
 
-import gda.device.DeviceException;
-import gda.device.Monitor;
-import gda.epics.connection.EpicsChannelManager;
-import gda.epics.connection.EpicsController;
-import gda.epics.connection.EpicsController.MonitorType;
-import gda.epics.connection.InitializationListener;
-import gov.aps.jca.CAException;
-import gov.aps.jca.Channel;
-import gov.aps.jca.TimeoutException;
-import gov.aps.jca.dbr.DBR;
-import gov.aps.jca.dbr.DBRType;
-import gov.aps.jca.dbr.DBR_Byte;
-import gov.aps.jca.dbr.DBR_Enum;
-import gov.aps.jca.dbr.DBR_String;
-import gov.aps.jca.event.MonitorEvent;
-import gov.aps.jca.event.MonitorListener;
-
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -30,11 +13,26 @@ import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gda.device.DeviceException;
+import gda.epics.connection.EpicsChannelManager;
+import gda.epics.connection.EpicsController;
+import gda.epics.connection.EpicsController.MonitorType;
+import gda.epics.connection.InitializationListener;
+import gov.aps.jca.CAException;
+import gov.aps.jca.Channel;
+import gov.aps.jca.TimeoutException;
+import gov.aps.jca.dbr.DBR;
+import gov.aps.jca.dbr.DBRType;
+import gov.aps.jca.dbr.DBR_Byte;
+import gov.aps.jca.dbr.DBR_Enum;
+import gov.aps.jca.event.MonitorEvent;
+import gov.aps.jca.event.MonitorListener;
+
 /**
  * class to display analyser status and permit manual zero supplies in the analyser device
- * 
+ *
  * @author fy65
- * 
+ *
  */
 public class AnalyserComposite extends Composite implements InitializationListener {
 

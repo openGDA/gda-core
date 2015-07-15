@@ -54,7 +54,7 @@ public class TwoDimensionalLookupTable {
 		}
 		return lines;
 	}
-	
+
 	public String getValue(String rowKey, String columnKey) {
 		return table.get(rowKey, columnKey);
 	}

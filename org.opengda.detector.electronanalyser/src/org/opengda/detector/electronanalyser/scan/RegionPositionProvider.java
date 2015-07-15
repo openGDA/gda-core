@@ -1,7 +1,5 @@
 package org.opengda.detector.electronanalyser.scan;
 
-import gda.scan.ScanPositionProvider;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,10 +14,11 @@ import org.eclipse.emf.edit.domain.EditingDomain;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.DocumentRoot;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Region;
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.Sequence;
-import org.opengda.detector.electronanalyser.utils.RegionDefinitionResourceUtil;
 import org.opengda.detector.electronanalyser.utils.SequenceEditingDomain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.scan.ScanPositionProvider;
 
 public class RegionPositionProvider implements ScanPositionProvider {
 	List<Region> points = new ArrayList<Region>();

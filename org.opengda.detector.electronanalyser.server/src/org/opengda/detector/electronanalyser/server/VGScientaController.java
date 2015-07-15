@@ -18,6 +18,13 @@
 
 package org.opengda.detector.electronanalyser.server;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.detector.areadetector.IPVProvider;
 import gda.epics.connection.EpicsController;
@@ -25,13 +32,6 @@ import gda.factory.Configurable;
 import gov.aps.jca.CAException;
 import gov.aps.jca.Channel;
 import gov.aps.jca.TimeoutException;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class VGScientaController implements Configurable {
 	private static final Logger logger = LoggerFactory.getLogger(VGScientaController.class);
@@ -204,7 +204,7 @@ public class VGScientaController implements Configurable {
 
 	/**
 	 * gets the available positions from this device.
-	 * 
+	 *
 	 * @return available positions
 	 * @throws DeviceException
 	 */

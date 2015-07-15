@@ -5,11 +5,8 @@ package org.opengda.detector.electronanalyser.model.regiondefinition.util;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.resource.Resource;
-
 import org.eclipse.emf.ecore.xmi.util.XMLProcessor;
-
 import org.opengda.detector.electronanalyser.model.regiondefinition.api.RegiondefinitionPackage;
 
 /**
@@ -30,7 +27,7 @@ public class RegiondefinitionXMLProcessor extends XMLProcessor {
 		super((EPackage.Registry.INSTANCE));
 		RegiondefinitionPackage.eINSTANCE.eClass();
 	}
-	
+
 	/**
 	 * Register for "*" and "xml" file extensions the RegiondefinitionResourceFactoryImpl factory.
 	 * <!-- begin-user-doc -->

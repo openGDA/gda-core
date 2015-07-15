@@ -21,9 +21,9 @@ package uk.ac.gda.devices.vgscienta;
 import java.io.Serializable;
 
 public class FrameUpdate implements Serializable {
-	
+
 	public static final long serialVersionUID = 1L;
-	
+
 	public int mFrame, cFrame;
 	public FrameUpdate() { }
 	public FrameUpdate(int c, int m) {

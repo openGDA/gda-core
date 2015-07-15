@@ -24,7 +24,7 @@ public class StartStopStepBean implements Serializable {
 
 	String scannableName;
 	Double start, stop, step;
-	
+
 	public String getScannableName() {
 		return scannableName;
 	}

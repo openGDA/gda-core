@@ -18,12 +18,6 @@
 
 package uk.ac.gda.arpes.scannable;
 
-import gda.data.scan.datawriter.SelfCreatingLink;
-import gda.data.scan.datawriter.scannablewriter.ComponentWriter;
-import gda.data.scan.datawriter.scannablewriter.NumberComponentWriter;
-import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
-import gda.data.scan.datawriter.scannablewriter.StringComponentWriter;
-
 import java.util.Collection;
 import java.util.Collections;
 
@@ -31,6 +25,12 @@ import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+
+import gda.data.scan.datawriter.SelfCreatingLink;
+import gda.data.scan.datawriter.scannablewriter.ComponentWriter;
+import gda.data.scan.datawriter.scannablewriter.NumberComponentWriter;
+import gda.data.scan.datawriter.scannablewriter.SingleScannableWriter;
+import gda.data.scan.datawriter.scannablewriter.StringComponentWriter;
 
 public class EnergyScannableWriter extends SingleScannableWriter {
 

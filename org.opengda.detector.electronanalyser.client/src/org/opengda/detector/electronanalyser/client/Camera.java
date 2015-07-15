@@ -5,7 +5,7 @@ public class Camera {
 	private double energyResolution=0.0877;
 	private int cameraXSize=1024;
 	private int cameraYSize=1024;
-	
+
 	public Camera() {
 		//no-op
 	}

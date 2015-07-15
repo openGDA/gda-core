@@ -41,7 +41,7 @@ public class SequenceEditingDomain implements IEditingDomainProvider {
 
 	/**
 	 * This sets up the editing domain for the model editor. <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 *
 	 * @generated
 	 */
 	protected void initializeEditingDomain() {
