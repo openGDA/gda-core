@@ -37,6 +37,7 @@ import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
 import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class NexusFileTest {
@@ -176,7 +177,7 @@ public class NexusFileTest {
 		assertEquals("World", bs.getString(3, 3));
 	}
 
-	@Test
+	@Ignore("20150715: Breaks JVM with NAPI implementation of NexusFile - re-enable once that is replaced")
 	public void testLinked() throws NexusException {
 		String d = "testfiles/gda/data/nexus/";
 		String n = "testnapilinks.nxs";
@@ -199,13 +200,13 @@ public class NexusFileTest {
 		assertEquals(1., ds.getDouble(0, 1), 1e-8);
 		assertEquals(9., ds.getDouble(1, 4), 1e-8);
 
-//		ds = f.getData("/entry1/to/this/level/extdst").getDataset().getSlice();
-//		assertArrayEquals(shape, ds.getShape());
-//		assertEquals(1., ds.getDouble(0, 1), 1e-8);
-//		assertEquals(9., ds.getDouble(1, 4), 1e-8);
+		ds = f.getData("/entry1/to/this/level/extdst").getDataset().getSlice();
+		assertArrayEquals(shape, ds.getShape());
+		assertEquals(1., ds.getDouble(0, 1), 1e-8);
+		assertEquals(9., ds.getDouble(1, 4), 1e-8);
 
 		// cannot get string attributes written by h5py(!!!)
-//		GroupNode g = f.getGroup("/g_el/lies", false);
-//		assertEquals("ballyhoo", g.getAttribute("a1").getFirstElement());
+		GroupNode g = f.getGroup("/g_el/lies", false);
+		assertEquals("ballyhoo", g.getAttribute("a1").getFirstElement());
 	}
 }
