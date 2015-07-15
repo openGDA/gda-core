@@ -18,16 +18,15 @@
 
 package gda.device.scannable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.exafs.xes.XesUtils;
 import gda.factory.FactoryException;
 import gda.factory.Findable;
 import gda.observable.IObserver;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.ac.gda.util.ThreadManager;
 
 /**
@@ -84,7 +83,7 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 	@Override
 	public void stop() throws DeviceException {
 		stopCalled = true;
-		
+
 		xtal_x.stop();
 		det_x.stop();
 		det_y.stop();
@@ -265,10 +264,10 @@ public class XesSpectrometerScannable extends ScannableMotionUnitsBase implement
 			det_rot.asynchronousMoveTo(finalDetectorPositions[2] * 2);
 		}
 	}
-	
+
 	/**
 	 * The detector motor angle will be 2*theta.  The analyser crystals should be at theta.
-	 * 
+	 *
 	 * @param radius
 	 * @param bragg
 	 * @return Double[] X,Y,theta

@@ -88,7 +88,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 			if(en.length()>8){
 				double enVal = Double.parseDouble(en.substring(0,7));
 				return enVal;
-			} 
+			}
 			return energy;
 		}
 		return 0;
@@ -104,7 +104,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 			material =  germanium;
 		return material;
 	}
-	
+
 	@Override
 	public void stop() throws DeviceException {
 		xes.stop();
@@ -141,7 +141,7 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	public void setCut3(Scannable cut3) {
 		this.cut3Scannable = cut3;
 	}
-	
+
 	public Scannable getMaterial() {
 		return materialScannable;
 	}
@@ -149,5 +149,5 @@ public class XESEnergyScannable extends ScannableMotionUnitsBase implements IObs
 	public void setMaterial(Scannable material) {
 		this.materialScannable = material;
 	}
-	
+
 }
