@@ -40,7 +40,7 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class NexusFileTest {
+public class NexusFileIntegrationTest {
 
 	@Test
 	@Ignore("20150715: Breaks JVM with NAPI implementation of NexusFile - re-enable once that is replaced")
