@@ -31,22 +31,22 @@ import ch.qos.logback.core.ConsoleAppender;
 import junit.framework.TestCase;
 
 public class LogbackUtilsTest extends TestCase {
-	
+
 	private static final String ROOT_LOGGER_NAME = "ROOT";
-	
+
 	public void testReset() {
 		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-		
+
 		// This creates a couple of extra loggers besides the root logger...
 		LoggerFactory.getLogger("xxx.yyy");
 		// ...so there should be at least 3
 		assertTrue(loggerContext.getLoggerList().size() >= 3);
-		
+
 		// Resetting the logging system shouldn't remove existing loggers...
 		LogbackUtils.resetLogging();
 		// ...so there should still be at least 3
 		assertTrue(loggerContext.getLoggerList().size() >= 3);
-		
+
 		// None of the loggers should have any appenders, or a level (except for the root logger)
 		for (Logger logger : loggerContext.getLoggerList()) {
 			if (logger.getName().equals(ROOT_LOGGER_NAME)) {
@@ -57,20 +57,20 @@ public class LogbackUtilsTest extends TestCase {
 			assertEquals(0, LogbackUtils.getAppendersForLogger(logger).size());
 		}
 	}
-	
+
 	public void testResetLoggingToDefaultConfiguration() {
 		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-		
+
 		// This creates a couple of extra loggers besides the root logger...
 		LoggerFactory.getLogger("xxx.yyy");
 		// ...so there should be at least 3
 		assertTrue(loggerContext.getLoggerList().size() >= 3);
-		
+
 		// Resetting the logging system to the default configuration shouldn't remove existing loggers...
 		LogbackUtils.resetLoggingToDefaultConfiguration();
 		// ...so there should still be at least 3
 		assertTrue(loggerContext.getLoggerList().size() >= 3);
-		
+
 		// Except for the root logger, none of the loggers should have any appenders, or a level
 		for (Logger logger : loggerContext.getLoggerList()) {
 			final List<Appender<ILoggingEvent>> appenders = LogbackUtils.getAppendersForLogger(logger);
@@ -84,6 +84,6 @@ public class LogbackUtilsTest extends TestCase {
 			}
 		}
 	}
-	
+
 
 }

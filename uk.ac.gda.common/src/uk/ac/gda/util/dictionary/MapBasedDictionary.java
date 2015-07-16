@@ -40,9 +40,9 @@ public class MapBasedDictionary extends Dictionary implements Map {
 
 	/**
 	 * Enumeration wrapper around an Iterator.
-	 * 
+	 *
 	 * @author Costin Leau
-	 * 
+	 *
 	 */
 	private static class IteratorBasedEnumeration implements Enumeration {
 
@@ -75,7 +75,7 @@ public class MapBasedDictionary extends Dictionary implements Map {
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 */
 	public MapBasedDictionary() {
 		this.map = new LinkedHashMap();
@@ -88,7 +88,7 @@ public class MapBasedDictionary extends Dictionary implements Map {
 	/**
 	 * Constructor for dealing with existing Dictionary. Will copy the content
 	 * into the inner Map.
-	 * 
+	 *
 	 * @param dictionary
 	 */
 	public MapBasedDictionary(Dictionary dictionary) {
@@ -137,7 +137,7 @@ public class MapBasedDictionary extends Dictionary implements Map {
 	public Set keySet() {
 		return map.keySet();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object put(Object key, Object value) {

@@ -40,7 +40,7 @@ public class StreamMacroSubstitutorTest {
 	 */
 	@Test
 	public void testProcess() throws IOException {
-		
+
 		String f = "<?xml version='1.0' encoding='UTF-8'?>"
 			+ "<configuration>"
 			+ "<appender name='DebugFILE' class='ch.qos.logback.core.FileAppender'>"
@@ -54,17 +54,17 @@ public class StreamMacroSubstitutorTest {
 		map.put("my.file.macro", "my_file_macro");
 		map.put("my.file.macro1", "my_file_macro1");
 		CharArrayWriter out = new CharArrayWriter();
-		StreamMacroSubstitutor.process( new StringReader(f),out,  
+		StreamMacroSubstitutor.process( new StringReader(f),out,
 				new MacroSupplier(){
-					
+
 					@Override
 					public String get(String key) {
 						return map.get(key);
-							
+
 					}});
 		String s = out.toString();
 		Assert.assertEquals(f.replace("${my.file.macro}", "my_file_macro").replace("${my.file.macro1}", "my_file_macro1"),s);
-		
+
 	}
 
 }

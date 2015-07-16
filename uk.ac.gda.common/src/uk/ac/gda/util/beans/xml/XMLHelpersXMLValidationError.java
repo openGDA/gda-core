@@ -23,12 +23,12 @@ package uk.ac.gda.util.beans.xml;
  */
 final public class XMLHelpersXMLValidationError extends Exception {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 4797367267574329339L;
 
 	/**
-	 * 
+	 *
 	 */
 	public XMLHelpersXMLValidationError() {
 		super("Validation failed - check log for more information");

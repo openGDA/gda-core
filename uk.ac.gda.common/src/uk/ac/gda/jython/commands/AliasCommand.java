@@ -31,7 +31,7 @@ public class AliasCommand extends AbstractExtendedCommand{
 
 	@Override
 	public String getCorrectionMessage() {
-		
+
 		String message = null;
 		String ec = currentMatcher.group(1);
 		if (ec==null) ec = "scan";
@@ -47,13 +47,13 @@ public class AliasCommand extends AbstractExtendedCommand{
 
 	@Override
 	public String getResolution() {
-		
+
 		String ec = currentMatcher.group(1);
 		if (ec==null) return null;
-		
+
 		String x = currentMatcher.group(2);
 		if (x==null) return null;
-		
+
 		try {
 			return String.format(RES_REP, ec.trim(), x.trim());
 		} catch (Exception ne) {

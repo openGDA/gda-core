@@ -29,7 +29,7 @@ import ch.qos.logback.core.spi.PropertyDefiner;
  * A Logback {@link PropertyDefiner} that returns the JVM name, as reported by
  * {@link RuntimeMXBean#getName()}.
  * </p>
- * 
+ *
  * <p>
  * On Linux this is "{@code <pid>@<hostname>}", but could change in the future.
  * </p>

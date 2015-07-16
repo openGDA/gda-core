@@ -40,7 +40,7 @@ public class FieldContainer {
 		this.field = field;
 	}
 	/**
-	 * @return Returns the object, if it was a list returns a 
+	 * @return Returns the object, if it was a list returns a
 	 *         list of them otherwise a size 1 list with the
 	 *         original value.
 	 */
@@ -53,7 +53,7 @@ public class FieldContainer {
 	public void setOriginalObject(Object object) {
 		this.originalObject = object;
 	}
-	
+
 	/**
 	 * IMPORTANT DO NOT AUTOGENERATE
 	 */
@@ -66,7 +66,7 @@ public class FieldContainer {
 		result = prime * result + ((originalObject == null) ? 0 : originalObject.hashCode());
 		return result;
 	}
-	
+
 	/**
 	 * IMPORTANT DO NOT AUTOGENERATE
 	 */
@@ -97,7 +97,7 @@ public class FieldContainer {
 	public String getName() {
 		return field.getName();
 	}
-	
+
 	public void setParent(FieldContainer parent) {
 		this.parent = parent;
 	}
@@ -116,13 +116,13 @@ public class FieldContainer {
 	public void setListIndex(int listIndex) {
 		this.listIndex = listIndex;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param object
 	 * @param i
 	 * @return clone
-	 * 
+	 *
 	 */
 	public FieldContainer clone(Object object, int i) {
 		final FieldContainer clone = new FieldContainer();
@@ -133,7 +133,7 @@ public class FieldContainer {
 		clone.setAnnotation(this.annotation);
 		return clone;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "field='"+getField().getName()+"' object='"+getOriginalObject()+"'" + "{"+getOriginalObject().hashCode()+"}";
@@ -150,5 +150,5 @@ public class FieldContainer {
 	public void setAnnotation(DOEField annotation) {
 		this.annotation = annotation;
 	}
-	
+
 }

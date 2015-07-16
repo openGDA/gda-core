@@ -23,14 +23,14 @@ package gda.observable;
  * A general purpose interface for an object to notify 1-many observing objects. Observing objects must implement the
  * IObserver interface and must be added to the IObservable object's list of IObservers by invoking the <IObservable
  * object>.addIObserver() method.
- * 
+ *
  * @see gda.observable.IObserver
  */
 
 public interface IObservable {
 	/**
 	 * Add an object to this objects's list of IObservers.
-	 * 
+	 *
 	 * @param observer
 	 *            object that implement IObserver and wishes to be notified by this object
 	 */
@@ -38,7 +38,7 @@ public interface IObservable {
 
 	/**
 	 * Delete an object from this objects's list of IObservers.
-	 * 
+	 *
 	 * @param observer
 	 *            object that implement IObserver and wishes to be notified by this object
 	 */

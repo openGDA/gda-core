@@ -69,5 +69,5 @@ public class TestListOneAnnotation implements Serializable {
 		if (testBeans==null) testBeans = new ArrayList<TestDimsData>(3);
 		testBeans.add(t);
 	}
-	
+
 }

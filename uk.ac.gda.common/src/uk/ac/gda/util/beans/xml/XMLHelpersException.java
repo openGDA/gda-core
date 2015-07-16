@@ -25,7 +25,7 @@ package uk.ac.gda.util.beans.xml;
 public class XMLHelpersException extends Exception {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -1153046093796449665L;
 
@@ -38,4 +38,3 @@ public class XMLHelpersException extends Exception {
 
 }
 
-	

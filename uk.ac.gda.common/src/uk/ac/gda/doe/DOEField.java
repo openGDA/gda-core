@@ -34,7 +34,7 @@ public @interface DOEField {
 	 * returns the weighting value which is used to determine
 	 * the loop level that the field should be between 0 and 10.
 	 * 0 is the lowest looped property and 10 the hightest i.e.
-	 * 
+	 *
 	 *  for (DOEField with value==10) {
 	 *      for (DOEField with value==9) {
 	 *         ...
@@ -45,7 +45,7 @@ public @interface DOEField {
 	 *  }
 	 */
 	public int value() default DEFAULT_LEVEL;
-	
+
 	/**
 	 * This should be a subclass of java.lang.Number
 	 * The default is Double. This is used where the field was and Integer
@@ -53,7 +53,7 @@ public @interface DOEField {
 	 * of '1' being recorded in the string after the expand.
 	 * @return the class
 	 */
-	Class<? extends Number> type() default java.lang.Double.class; 
+	Class<? extends Number> type() default java.lang.Double.class;
 
 	public static final int DEFAULT_LEVEL = 4;
 	public static final int MIN_LEVEL     = 0;

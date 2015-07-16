@@ -25,15 +25,15 @@ import org.slf4j.LoggerFactory;
  * Kills a process if it runs for too long.
  */
 public class ProcessKiller {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ProcessKiller.class);
-	
+
 	private final Process process;
 	private final int timeoutInMs;
-	
+
 	private final TimerThread timerThread;
 	private final WaitThread waitThread;
-	
+
 	public ProcessKiller(Process process, int timeoutInMs) {
 		this.process = process;
 		this.timeoutInMs = timeoutInMs;
@@ -42,19 +42,19 @@ public class ProcessKiller {
 		timerThread.setName(TimerThread.class.getName() + " for " + process);
 		waitThread.setName(WaitThread.class.getName() + " for " + process);
 	}
-	
+
 	public void start() {
 		timerThread.start();
 		waitThread.start();
 	}
-	
+
 	private volatile boolean processRunning = true;
-	
+
 	private volatile boolean keepTiming = true;
 	private volatile boolean keepWaiting = true;
-	
+
 	class TimerThread extends Thread {
-		
+
 		@Override
 		public void run() {
 			logger.debug("timing process...");
@@ -69,24 +69,24 @@ public class ProcessKiller {
 				}
 				elapsedTime = System.currentTimeMillis() - startTime;
 			}
-			
+
 			if (processRunning && elapsedTime >= timeoutInMs) {
 				waitThread.stopWaiting();
 				logger.warn("process timed out, and will be killed");
 				process.destroy();
 			}
-			
+
 			logger.debug("process timer finished ({}ms)", elapsedTime);
 		}
-		
+
 		public void stopTiming() {
 			keepTiming = false;
 			interrupt();
 		}
 	}
-	
+
 	class WaitThread extends Thread {
-		
+
 		@Override
 		public void run() {
 			while (keepWaiting && processRunning) {
@@ -101,14 +101,14 @@ public class ProcessKiller {
 					// ignore and continue
 				}
 			}
-			
+
 			logger.debug("wait thread finished (running={})", processRunning);
 		}
-		
+
 		public void stopWaiting() {
 			keepWaiting = false;
 			interrupt();
 		}
 	}
-	
+
 }

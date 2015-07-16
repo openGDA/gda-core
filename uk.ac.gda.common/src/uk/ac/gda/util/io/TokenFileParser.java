@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Read a tabbed delimited file into columns. Each row must have
  * the same number of entries currently.
- * 
+ *
  * Assumes that files are small. For larger files use StreamTokenizer(Reader r) which is more efficient.
  */
 public class TokenFileParser {
@@ -47,43 +47,43 @@ public class TokenFileParser {
 	public TokenFileParser(final URL url) throws IOException {
 		this(url.openStream());
 	}
-	
+
 	/**
 	 * @param file
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public TokenFileParser(final File file) throws IOException {
 		this(new FileInputStream(file));
 	}
-	
+
 	/**
 	 * NOTE Does not use StreamTokenizer so files need to be small.
-	 * 
+	 *
 	 * @param unbuffered
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public TokenFileParser(final InputStream unbuffered) throws IOException {
-		
+
 		this.data = new ArrayList<List<String>>(7);
-		
+
 		this.reader = new BufferedReader(new InputStreamReader(unbuffered, "US-ASCII"));
 	}
-	
-	
+
+
 	/**
 	 * Must be called to parse the file.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void parse() throws IOException {
-		
+
 		boolean firstLine = true;
 		String l = null;
 		while((l=reader.readLine())!=null) {
-			
+
 			if (getCommentChar()!=null && l.startsWith(getCommentChar())) continue;
-			
+
 			final String[] line = l.trim().split(token);
-			
+
 			int index = 0;
 			for (int i = 0; i < line.length; i++) {
 				final String value = line[i].trim();
@@ -96,7 +96,7 @@ public class TokenFileParser {
 			firstLine = false;
 		}
 	}
-	
+
 	/**
 	 * @param icol
 	 * @return the exact column, modifying it will change the data
@@ -104,10 +104,10 @@ public class TokenFileParser {
 	public List<String> getColumn(final int icol) {
 		return data.get(icol);
 	}
-	
+
 	@Override
 	public String toString() {
-		
+
 		final StringBuilder buf = new StringBuilder();
 		final int size = data.get(0).size();
 		for (int i = 0; i < size; i++) {
@@ -117,7 +117,7 @@ public class TokenFileParser {
 			}
 			buf.append("\n");
 		}
-		
+
 		return buf.toString();
 	}
 
@@ -128,7 +128,7 @@ public class TokenFileParser {
 	 */
 	public Double[] getColumnAsDoubleArray(int i, int... ignoreRows) {
 		final List<Double> ret = getColumnAsDoubleList(i, ignoreRows);
-		
+
 		return ret.toArray(new Double[ret.size()]);
 	}
 
@@ -138,10 +138,10 @@ public class TokenFileParser {
 	 * @return column as list of Doubles
 	 */
 	public List<Double> getColumnAsDoubleList(int i, int... ignoreRows) {
-		
+
 		final List<Integer> ig    = new ArrayList<Integer>(ignoreRows.length);
 		for (int j = 0; j < ignoreRows.length; j++) ig.add(ignoreRows[j]);
-		
+
 		final List<String> values = data.get(i);
 		final List<Double> ret    = new ArrayList<Double>(values.size());
 		for (int row = 0; row < values.size(); row++) {

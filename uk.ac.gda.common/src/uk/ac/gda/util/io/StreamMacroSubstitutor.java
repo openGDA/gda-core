@@ -38,11 +38,11 @@ public class StreamMacroSubstitutor {
 	 */
 	static public void process(Reader in, Writer out, MacroSupplier macroSupplier) throws IOException{
 		(new StreamMacroSubstitutor()).doProcessing(in, out, macroSupplier);
-		
+
 	}
 	/**
 	 * Reads byte from in and write to out until start pattern found.
-	 * 
+	 *
 	 * @return true if next header found
 	 * @throws IOException
 	 */
@@ -79,7 +79,7 @@ public class StreamMacroSubstitutor {
 	/**
 	 * Reads in text into a string until a terminator character found, thus forming a property key to be substituted
 	 * with its value.
-	 * 
+	 *
 	 * @return property key name if found. null if not found.
 	 * @throws IOException
 	 */
@@ -113,7 +113,7 @@ public class StreamMacroSubstitutor {
 	 * same name and replace the pattern instance with the value of that property using string interpolation. N.B.
 	 * Should handle multiple pattern instances per property value, but doesnt handle recursive interpolation yet (i.e.
 	 * a pattern containing a property with a value containing further patterns).
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	private void doProcessing(Reader in, Writer out, MacroSupplier macroSupplier) throws IOException {

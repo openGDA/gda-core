@@ -24,7 +24,7 @@ package gda.observable;
 public interface Observer<E> {
 	/**
 	 * Called whenever an observed object is changed.
-	 * 
+	 *
 	 * @param source
 	 *            the object being observed
 	 * @param arg

@@ -39,23 +39,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class OSCommandRunner implements Serializable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(OSCommandRunner.class);
 
 	// TODO fields should be private and accessor methods used.
-	
+
 	public final Integer exitValue;
-	
+
 	public final Exception exception;
-	
+
 	public final Boolean succeeded;
-	
+
 	public final List<String> commands;
-	
+
 	public final boolean keepOutput;
-	
+
 	private final List<String> outputLines;
-	
+
 	public final List<String> getOutputLines() {
 		return outputLines;
 	}
@@ -73,11 +73,11 @@ public class OSCommandRunner implements Serializable {
 	}
 
 	public enum LOGOPTION {
-		
+
 		NEVER,
-		
+
 		ALWAYS,
-		
+
 		ONLY_ON_ERROR
 	}
 
@@ -98,11 +98,11 @@ public class OSCommandRunner implements Serializable {
 	public static void runNoWait(final List<String> _commands, final LOGOPTION logOption, final String stdInFileName){
 		runNoWait(_commands, logOption, stdInFileName, null, null);
 	}
-	
+
 	public static void runNoWait(final List<String> _commands, final LOGOPTION logOption, final String stdInFileName, ExecutorService executor) {
 		_runNoWait(_commands, logOption, stdInFileName, null, null, executor);
 	}
-	
+
 	/**
 	 * Starts executing a process and returns.
 	 * @param _commands - program path and arguments
@@ -114,7 +114,7 @@ public class OSCommandRunner implements Serializable {
 			final List<String> envRemove) {
 		_runNoWait(_commands, logOption, stdInFileName, envPutAll, envRemove, null);
 	}
-	
+
 	private static void _runNoWait(final List<String> _commands, final LOGOPTION logOption, final String stdInFileName,
 			final Map<? extends String, ? extends String> envPutAll,
 			final List<String> envRemove, ExecutorService executor) {
@@ -141,7 +141,7 @@ public class OSCommandRunner implements Serializable {
 				}
 			}
 		};
-		
+
 		if (executor != null) {
 			executor.submit(r);
 		} else {
@@ -172,7 +172,7 @@ public class OSCommandRunner implements Serializable {
 			List<String> envRemove) {
 		this(_commands, _keepOutput, stdInFile, stdOutFileName, envPutAll, envRemove, null);
 	}
-	
+
 	/**
 	 * @param _commands - this is the program and list of arguments
 	 * @param _keepOutput - true if output is to be later accessed in outputLines
@@ -183,8 +183,8 @@ public class OSCommandRunner implements Serializable {
 			List<String> envRemove, String directory) {
 		this(_commands, _keepOutput, stdInFile, stdOutFileName, envPutAll, envRemove, directory, -1);
 	}
-	
-	
+
+
 	public OSCommandRunner(List<String> _commands, boolean _keepOutput, Object stdInFile, String stdOutFileName, Map<? extends String, ? extends String> envPutAll,
 			List<String> envRemove, String directory, int timeoutInMs) {
 		this.commands = _commands;
@@ -205,19 +205,19 @@ public class OSCommandRunner implements Serializable {
 			pb.command(commands);
 			if( directory != null && !directory.isEmpty())
 				pb.directory(new File(directory));
-			
+
 			final Process p = pb.start();
-			
+
 			if (timeoutInMs != -1) {
 				final ProcessKiller killer = new ProcessKiller(p, timeoutInMs);
 				killer.start();
 			}
-			
+
 			try {
 				if (stdInFile != null) {
 					// Copy the file to the process input
 					final OutputStream ostream = p.getOutputStream();
-					final InputStream istream = stdInFile instanceof String 
+					final InputStream istream = stdInFile instanceof String
 					                          ? new FileInputStream((String)stdInFile)
 					                          : null;
 					try {
@@ -272,19 +272,19 @@ public class OSCommandRunner implements Serializable {
 						if (stdOutFileName != null && istream != null) {
 							istream.close();
 						}
-						
+
 					}
 				}
 				_succeeded = _exitValue == 0;
 			} catch (Exception ex) {
 				throw ex;
 			}
-			
+
 			closeStream(p.getInputStream(), "input");
 			closeStream(p.getOutputStream(), "output");
 			closeStream(p.getErrorStream(), "error");
 			p.destroy();
-			
+
 		} catch (Exception ex) {
 			_exception = ex;
 		} finally {
@@ -300,7 +300,7 @@ public class OSCommandRunner implements Serializable {
 			}
 		}
 	}
-	
+
 	private static void closeStream(Closeable stream, String name) {
 		try {
 			stream.close();
@@ -308,7 +308,7 @@ public class OSCommandRunner implements Serializable {
 			logger.warn(String.format("Unable to close process %s stream", name), ioe);
 		}
 	}
-	
+
 	private static void pipe(final InputStream src, final PrintStream dest) {
 	    new Thread(new Runnable() {
 	        @Override
@@ -323,8 +323,8 @@ public class OSCommandRunner implements Serializable {
 	        }
 	    }).start();
 	}
-	
-	
+
+
 	public String getCommandAsString() {
 		String msg = "";
 		for (String s : commands) {

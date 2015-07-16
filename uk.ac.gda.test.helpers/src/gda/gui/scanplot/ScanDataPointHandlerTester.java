@@ -19,6 +19,10 @@
 
 package gda.gui.scanplot;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Vector;
+
 import gda.TestHelpers;
 import gda.device.Scannable;
 import gda.device.scannable.DummyScannable;
@@ -33,24 +37,20 @@ import gda.scan.ScanDataPointServer;
 import gda.scan.ScanDataPointVar;
 import gda.util.simpleServlet.FindableSimpleServlet;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Vector;
-
 /**
  *
  * first sets of lines is a nested scan the first scannable has 3 positions, the second 2 positions
- * and the 3rd 100, so there are 6 combinations of first and second scannables. 
+ * and the 3rd 100, so there are 6 combinations of first and second scannables.
  * There are 2 extra scannables being monitored so the total number of lines per combination is 4
  * making 4*6 lines = 24.
- * So x is the 3rd scannable 
+ * So x is the 3rd scannable
  * second set of lines is simple a scan of x with Y being read at each point so the additional
  * number of lines is 1
- * 
+ *
  * following sets of lines are repeats of the first and second.
- * 
+ *
  * An example of using this class is XYPlotViewTest:
- * 
+ *
  * 		ScanDataPointHandlerTester addDataQueue = new ScanDataPointHandlerTester(this);
 		for(int i=0; i< 3; i++){
 			File f =  new File(scratchFolder + File.separator + Integer.toString(i)+".nxs");
@@ -64,7 +64,7 @@ import java.util.Vector;
 				'test' results
  */
 public class ScanDataPointHandlerTester implements Runnable {
-	
+
 	private final ScanDataPointHandler scanPlot;
 	private final int size;
 
@@ -105,7 +105,7 @@ public class ScanDataPointHandlerTester implements Runnable {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void stopAddingData() {
 		synchronized (obj) {
@@ -115,7 +115,7 @@ public class ScanDataPointHandlerTester implements Runnable {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public void dispose() {
 		killed = true;
@@ -189,7 +189,7 @@ public class ScanDataPointHandlerTester implements Runnable {
 							scanDataPoint.addScannablePosition(scannable.getPosition(),scannable.getOutputFormat());
 						}
 					}
-					
+
 					scanDataPoint.setHasChild(childScan);
 					scanDataPoint.setCurrentPointNumber(pointNumber);
 					scanDataPoint.setNumberOfPoints(childScan ? totalPointsWithChild : xLoops[0]);
@@ -199,7 +199,7 @@ public class ScanDataPointHandlerTester implements Runnable {
 					scanDataPoint.setCurrentFilename(currentFileName);
 					scanDataPoint.setNumberOfChildScans(childScan ? xLoops.length-1 : 0);
 					if( childScan ){
-						List<IScanStepId> scanStepIds = new Vector<IScanStepId>(); 
+						List<IScanStepId> scanStepIds = new Vector<IScanStepId>();
 						for( int i=0; i< xCounters.length;i++){
 							scanStepIds.add(  new LocalStepId(Integer.toString(i) + "=" + xCounters[i].toString() + ","));
 						}
@@ -247,8 +247,8 @@ public class ScanDataPointHandlerTester implements Runnable {
 						Double yVal = (((double) i + 1) / 5.0)
 								* Math.sin(Math.PI * ((xVal + numberOfRestarts * 20) / 180));
 						if (yScannables[i]!=null)  yScannables[i].asynchronousMoveTo(yVal);
-					}					
-					
+					}
+
 					if (atEnd) {
 						pointNumber = 0;
 //						numberOfRestarts++;
@@ -260,7 +260,7 @@ public class ScanDataPointHandlerTester implements Runnable {
 			}
 		}
 	}
-	
+
 	public boolean isAddingData(){
 		return addData;
 	}

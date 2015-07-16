@@ -26,10 +26,10 @@ import java.net.URL;
 public interface URLResolver {
 
 	/**
-	 * Implement to provide a URL resolver which will 
+	 * Implement to provide a URL resolver which will
 	 * transform a URL from a bundle resource to an
 	 * absolute url.
-	 * 
+	 *
 	 * @param url
 	 * @return the url
 	 */

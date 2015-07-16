@@ -31,17 +31,17 @@ import org.slf4j.LoggerFactory;
  * DO NOT synchronize the methods of this class as doing so in the past led to deadlocks when used with DOFS and AbosulteMove objects
  */
 public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
-	
+
 	private Vector<Observer<E>> myObservers = new Vector<Observer<E>>();
 
 	private Map<Observer<E>, Predicate<E>> observersPredicates = new HashMap<Observer<E>, Predicate<E>>();
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ObservableUtil.class);
 
 	/**
 	 * Add an observer to the list of observers providing that the list does not already contain an instance of the
 	 * observer on it. If a predicate was associated with this observer then remove it. {@inheritDoc}
-	 * 
+	 *
 	 * @param observer
 	 *            the observer
 	 * @see gda.observable.Observable#addObserver(gda.observable.Observer)
@@ -61,7 +61,7 @@ public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
 	/**
 	 * Add an observer to the list of observers providing that the list does not already contain an instance of the
 	 * observer on it. Either way, associate the specified predicate with the observer. {@inheritDoc}
-	 * 
+	 *
 	 * @param observer
 	 *            the observer
 	 * @see gda.observable.Observable#addObserver(gda.observable.Observer)
@@ -80,7 +80,7 @@ public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
 
 	/**
 	 * Delete the instance of this observer from the list observers. {@inheritDoc}
-	 * 
+	 *
 	 * @param observer
 	 *            the observer
 	 * @see gda.observable.Observable#removeObserver(gda.observable.Observer)
@@ -96,7 +96,7 @@ public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
 	}
 
 	/**
-	 * Delete all observers from the list of observers. 
+	 * Delete all observers from the list of observers.
 	 */
 	public void deleteIObservers() {
 		synchronized(myObservers){
@@ -107,7 +107,7 @@ public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
 
 	/**
 	 * Notify all observers on the list of the requested change.
-	 * 
+	 *
 	 * @param theObserved
 	 *            the observed component
 	 * @param changeCode
@@ -115,13 +115,13 @@ public class ObservableUtil<E> implements Observable<E>, IIsBeingObserved {
 	 */
 	@SuppressWarnings("unchecked")
 	public void notifyIObservers(Observable<E> theObserved, E changeCode) {
-		
+
 		Observer<E>[] observers;
-		
+
 		synchronized(myObservers){
 			observers = (Observer<E>[]) myObservers.toArray(new Observer<?>[0]);
 		}
-		
+
 		for (Observer<E> observer : observers) {
 			try {
 				Predicate<E> predicate = observersPredicates.get(observer);

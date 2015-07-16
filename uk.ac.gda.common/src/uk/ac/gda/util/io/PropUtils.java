@@ -39,7 +39,7 @@ public final class PropUtils {
 		return PropUtils.loadProperties(file);
 	}
 	////////////////////////////////////////////////////////////////////////
-	public final static Properties loadProperties(final File file) throws IOException {   	
+	public final static Properties loadProperties(final File file) throws IOException {
 		final Properties fileProps       = new Properties();
 		if (!file.exists()) return fileProps;
 		InputStream stream = null;
@@ -106,9 +106,9 @@ public final class PropUtils {
 		} finally {
 			if (in!=null) {
 				IOUtils.close(in,"Loading properties from URL");
-				connection.disconnect();  // Must do for HTTP because servers have limited connections 
+				connection.disconnect();  // Must do for HTTP because servers have limited connections
 			}
-		}                    	
+		}
 		return urlProps;
 	}
 }

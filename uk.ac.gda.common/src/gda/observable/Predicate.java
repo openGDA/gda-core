@@ -27,14 +27,14 @@ package gda.observable;
  * <li>http://guava-libraries.googlecode.com/svn-history/r13/trunk/javadoc/com/google/common/base/Predicate.html (Not
  * part of gda)
  * </UL>
- * 
+ *
  * @param <T> The type of object tested by an implementation
  */
 public interface Predicate<T> {
 
 	/**
 	 * Apply the implementations test to an object.
-	 * 
+	 *
 	 * @param object
 	 * @return true if the Object meets some requirement
 	 */

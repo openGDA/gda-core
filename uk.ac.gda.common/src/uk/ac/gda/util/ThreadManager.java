@@ -24,16 +24,16 @@ import java.util.HashSet;
 /**
  * This class is used to ensure that in GDA all 'uk.ac.gda.util.ThreadManager.getThread(' lines are
  * transferred to ThreadManager.createNew(...) lines.
- * 
+ *
  * This ensures that all GDA threads have a name as some were previously not named.
- * 
- * Later this central point for Threads might be upgraded to use ThreadGroups or 
+ *
+ * Later this central point for Threads might be upgraded to use ThreadGroups or
  * to use ExecutorService.
  */
 public class ThreadManager {
 
 	protected static Collection<String> takenNames = new HashSet<String>(89);
-	
+
 	/**
 	 * @return a thread automatically named from the calling class name.
 	 */
@@ -42,9 +42,9 @@ public class ThreadManager {
 		createUniqueNameFromStack(thread);
 		return thread;
 	}
-	
+
 	/**
-	 * @param target 
+	 * @param target
 	 * @return a thread automatically named from the calling class name.
 	 */
 	public static Thread getThread(Runnable target) {
@@ -52,7 +52,7 @@ public class ThreadManager {
 		createUniqueNameFromStack(thread);
 		return thread;
 	}
-	
+
 	/**
 	 * Names a thread from the calling stack.
 	 * @param thread
@@ -67,7 +67,7 @@ public class ThreadManager {
 				break;
 			}
 		}
-		
+
 		if (call!=null) thread.setName(ThreadManager.getUniqueName(call));
 	}
 
@@ -84,31 +84,31 @@ public class ThreadManager {
 	}
 
 	/**
-	 * @param target 
-	 * @param name 
+	 * @param target
+	 * @param name
 	 * @return a thread made by the uk.ac.gda.util.ThreadManager.getThread(target, name) constructor.
 	 */
 	public static Thread getThread(Runnable target, String name) {
         return new Thread(target, name);
 	}
-	
+
 	/**
-	 * @param name 
+	 * @param name
 	 * @return a thread made by the uk.ac.gda.util.ThreadManager.getThread(name) constructor.
 	 */
 	public static Thread getThread(final String name) {
         return new Thread(name);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		ThreadNameStackTester t = new ThreadNameStackTester();
 		t.create();
 	}
-	
+
 	private static class ThreadNameStackTester {
 		void create() {
 			final Thread blank = ThreadManager.getThread();

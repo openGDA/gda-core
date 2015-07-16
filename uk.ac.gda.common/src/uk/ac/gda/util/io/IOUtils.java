@@ -36,7 +36,7 @@ public class IOUtils {
 	private final static Logger logger = LoggerFactory.getLogger(IOUtils.class);
 	/**
 	 * Unconditionally close a <code>ZipFile</code>.
-	 * and optionally log errors 
+	 * and optionally log errors
 	 */
 	public static void close(FileChannel channel, String msg) {
 		if (channel == null) {
@@ -53,7 +53,7 @@ public class IOUtils {
 
 	/**
 	 * Unconditionally close a <code>ZipFile</code>.
-	 * and optionally log errors 
+	 * and optionally log errors
 	 *
 	 * @param input A (possibly null) Reader
 	 */
@@ -72,7 +72,7 @@ public class IOUtils {
 
 	/**
 	 * Unconditionally close a <code>Reader</code>
-	 * and optionally log errors 
+	 * and optionally log errors
 	 *
 	 * @param input A (possibly null) Reader
 	 */

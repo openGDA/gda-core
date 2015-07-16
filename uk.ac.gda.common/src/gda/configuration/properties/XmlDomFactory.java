@@ -44,7 +44,7 @@ public class XmlDomFactory {
 	/**
 	 * Create DOM implementation. If classname was specified via a (system) property, then try to instantiate that.
 	 * Otherwise, create from javax.xml.parsers.DocumentBuilderFactory.
-	 * 
+	 *
 	 * @return DOM Implementation - if found. null if none found or not able to create.
 	 */
 	public static DOMImplementation getDomImpl() {
@@ -91,7 +91,7 @@ public class XmlDomFactory {
 
 	/**
 	 * Create a new XML DOM DocumentType instance.
-	 * 
+	 *
 	 * @param qualifiedName
 	 *            The qualified name of the document type to be created.
 	 * @param publicId
@@ -116,7 +116,7 @@ public class XmlDomFactory {
 
 	/**
 	 * Create a new XML DOM Document instance.
-	 * 
+	 *
 	 * @param nameSpaceURI
 	 *            The namespace URI of the document element to create or null.
 	 * @param qualifiedName

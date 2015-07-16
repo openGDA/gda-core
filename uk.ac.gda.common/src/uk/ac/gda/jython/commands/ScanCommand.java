@@ -22,7 +22,7 @@ import uk.ac.gda.jython.AbstractExtendedCommand;
 
 public class ScanCommand extends AbstractExtendedCommand{
 
-	
+
 	private static final String ERR_REP = "Use '%s([%s, %s, %s, %s, %s])' instead of '%s %s %s %s %s %s'.";
 	private static final String RES_REP = "%s([%s, %s, %s, %s, %s])";
 
@@ -32,24 +32,24 @@ public class ScanCommand extends AbstractExtendedCommand{
 
 	@Override
 	public String getCorrectionMessage() {
-		
+
 		String message = null;
-		
+
 		String ec = currentMatcher.group(1);
 		if (ec==null) ec = "scan";
-		
+
 		String x = currentMatcher.group(2);
 		if (x==null) x = "x";
-		
+
 		String arg1 = currentMatcher.group(3);
 		if (arg1==null) arg1 = "arg1";
-		
+
 		String arg2 = currentMatcher.group(4);
 		if (arg2==null) arg2 = "arg2";
 
 		String arg3 = currentMatcher.group(5);
 		if (arg3==null) arg3 = "arg3";
-		
+
 		String y = currentMatcher.group(6);
 		if (y==null) y = "y";
 		try {
@@ -60,30 +60,30 @@ public class ScanCommand extends AbstractExtendedCommand{
 		}
 		return message;
 	}
-	
+
 
 	@Override
 	public String getResolution() {
-		
+
 		String ec = currentMatcher.group(1);
 		if (ec==null) return null;
-		
+
 		String x = currentMatcher.group(2);
 		if (x==null) return null;
-		
+
 		String arg1 = currentMatcher.group(3);
 		if (arg1==null)return null;
-		
+
 		String arg2 = currentMatcher.group(4);
 		if (arg2==null) return null;
 
 		String arg3 = currentMatcher.group(5);
 		if (arg3==null) return null;
-		
+
 		String y = currentMatcher.group(6);
 		if (y==null) return null;
 
-		
+
 		try {
 			return String.format(RES_REP, ec.trim(), x.trim(), arg1.trim(), arg2.trim(),arg3.trim(), y.trim());
 		} catch (Exception ne) {

@@ -30,10 +30,10 @@ public class DoubleUtils {
 	public static boolean equalsWithinTolerance(Number foo, Number bar, Number tolerance) {
 		final double a = foo.doubleValue();
 		final double b = bar.doubleValue();
-		final double t = tolerance.doubleValue();	
+		final double t = tolerance.doubleValue();
 		return t>=Math.abs(a-b);
 	}
-	
+
 	/**
 	 * Test if two numbers are equal within an absolute or relative tolerance whichever is larger.
 	 * The relative tolerance is given by a percentage and calculated from the absolute maximum of the input numbers.

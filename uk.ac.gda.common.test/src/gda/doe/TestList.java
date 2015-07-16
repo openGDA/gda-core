@@ -69,5 +69,5 @@ public class TestList implements Serializable {
 		if (testBeans==null) testBeans = new ArrayList<TestBean>(3);
 		testBeans.add(t);
 	}
-	
+
 }

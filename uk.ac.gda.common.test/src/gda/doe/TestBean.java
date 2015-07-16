@@ -28,20 +28,20 @@ public class TestBean implements Serializable {
 
 	@DOEField(value=1, type=java.lang.Integer.class)
 	private String i;
-	
+
 	@DOEField(5)
 	private String j;
-	
+
 	@DOEField(9)
 	private String k;
-	
+
 	private int d;
 
 	public TestBean(int d) {
 		this.d = d;
 	}
 	public TestBean() {
-		
+
 	}
 	public TestBean(String i, String j, String k) {
 		setI(i);

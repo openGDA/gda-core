@@ -45,7 +45,7 @@ import java.util.List;
 /**
  * A class with a collection of file management static utility classes. Several method contents copied from code
  * snippets available on the web.
- * 
+ *
  * @author Matthew Gerring
  */
 public final class FileUtils {
@@ -53,7 +53,7 @@ public final class FileUtils {
 	private final static String NEWFOLDER = "New Folder";
 
 	/**
-	 * 
+	 *
 	 */
 	public static final char BOM; // note this character is the same whether UTF-8, UTF-16BE or UTF-16LE
 
@@ -120,7 +120,7 @@ public final class FileUtils {
 
 	/**
 	 * Generates a unique file of the name template or template+an integer
-	 * 
+	 *
 	 * @param dir
 	 * @param template
 	 * @param ext
@@ -155,7 +155,7 @@ public final class FileUtils {
 
 	/**
 	 * Recursively delete parent folder on exit of JVM
-	 * 
+	 *
 	 * @param parent
 	 */
 	static public final void recursiveDeleteOnExit(File parent) {
@@ -173,7 +173,7 @@ public final class FileUtils {
 
 	/**
 	 * Define buffer size here.
-	 * 
+	 *
 	 * @return the buffer size
 	 */
 	static private final int getBufferSize() {
@@ -187,7 +187,7 @@ public final class FileUtils {
 	/**
 	 * Recursively copy one folder to another Deleting the contents of the destination folder before copying. Use at
 	 * your peril!
-	 * 
+	 *
 	 * @param source_dir
 	 * @param destination_dir
 	 * @throws IOException
@@ -240,7 +240,7 @@ public final class FileUtils {
 	/**
 	 * Recursively copy one folder to another Deleting the contents of the destination folder before copying. Use at
 	 * your peril!
-	 * 
+	 *
 	 * @param source_dir
 	 * @param destination_dir
 	 * @throws IOException
@@ -283,7 +283,7 @@ public final class FileUtils {
 	/**
 	 * Recursively copy one folder to another Not deleting the contents of the destination folder before copying. Any
 	 * file that already exists will not be copied.
-	 * 
+	 *
 	 * @param source_dir
 	 * @param destination_dir
 	 * @throws IOException
@@ -321,7 +321,7 @@ public final class FileUtils {
 	 * Recursively copy one folder to another, but not deleting destination data. Only copies files if timestamp
 	 * indicates the data is newer. inf[0] - returns files copied, can be used to track progress inf[1] - returns files
 	 * skipped, can be used to track progress inf[2] - if set to -1 will halt copy
-	 * 
+	 *
 	 * @param source_dir
 	 * @param destination_dir
 	 * @throws IOException
@@ -336,7 +336,7 @@ public final class FileUtils {
 	 * Recursively copy one folder to another, but not deleting destination data. Only copies files if timestamp
 	 * indicates the data is newer. inf[0] - returns files copied, can be used to track progress inf[1] - returns files
 	 * skipped, can be used to track progress inf[2] - if set to -1 will halt copy
-	 * 
+	 *
 	 * @param source_dir
 	 * @param destination_dir
 	 * @param inf
@@ -411,7 +411,7 @@ public final class FileUtils {
 
 	/**
 	 * Overwrites destination_file if it exists, creates new if not.
-	 * 
+	 *
 	 * @param source_file
 	 * @param destination_file
 	 * @throws IOException
@@ -422,7 +422,7 @@ public final class FileUtils {
 
 	/**
 	 * Overwrites destination_file if it exists, creates new if not.
-	 * 
+	 *
 	 * @param source_file
 	 * @param destination_file
 	 * @param buffer
@@ -735,7 +735,7 @@ public final class FileUtils {
 	/**
 	 * Reads a file using the encoding parameter passed and returns each line as an item in the result list Optionally:
 	 * the BOM can be removed (first character of file if present) the line can be trimmed of whitespace
-	 * 
+	 *
 	 * @param file
 	 *            The file to read
 	 * @param encodingOfFile
@@ -789,7 +789,7 @@ public final class FileUtils {
 
 	/**
 	 * This method returns true if file is Unix and false if Windows line endings.
-	 * 
+	 *
 	 * @param stringToTest
 	 *            The text of the file
 	 *@return boolean true if the file is Unix.
@@ -822,7 +822,7 @@ public final class FileUtils {
 
 	/**
 	 * Returns true if the string is starting with a BOM
-	 * 
+	 *
 	 * @param stringToTest
 	 * @return boolean
 	 */
@@ -859,7 +859,7 @@ public final class FileUtils {
 	/**
 	 * This method attempts to write a string to file in US-ASCII. The code was moved directly from atos.SaveTextFile
 	 * and no check has been made to how efficient it is.
-	 * 
+	 *
 	 * @param file
 	 * @param text
 	 * @throws Exception
@@ -873,7 +873,7 @@ public final class FileUtils {
 	 * method there is a workaround in Java 1.5 for this problem:
 	 * http://forum.java.sun.com/thread.jspa?threadID=418441&messageID=2816084
 	 * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5026745
-	 * 
+	 *
 	 * @param out
 	 * @param text
 	 * @param charset
@@ -1078,7 +1078,7 @@ public final class FileUtils {
 
 	/**
 	 * Get File extension (result will NOT include ".")
-	 * 
+	 *
 	 * @param fileName
 	 * @return String file extension value, or "" is no extension
 	 */
@@ -1090,7 +1090,7 @@ public final class FileUtils {
 
 	/**
 	 * Get File extension (result will NOT include ".")
-	 * 
+	 *
 	 * @param file
 	 * @return String file extension value, or "" is no extension
 	 */
@@ -1100,7 +1100,7 @@ public final class FileUtils {
 
 	/**
 	 * Get Filename minus it's extension if present
-	 * 
+	 *
 	 * @param file
 	 *            File to get filename from
 	 * @return String filename minus its extension
@@ -1114,7 +1114,7 @@ public final class FileUtils {
 
 	/**
 	 * Formats a file size
-	 * 
+	 *
 	 * @param longSize
 	 * @param decimalPos
 	 * @return formatted string for size.
@@ -1139,11 +1139,11 @@ public final class FileUtils {
 		}
 		return fmt.format(size).concat(" bytes");
 	}
-	
+
 	private static DateFormat dateFormat;
 	/**
 	 * Gets the last modified and size formatted as a string
-	 * 
+	 *
 	 * @param file
 	 * @return date and size
 	 */
@@ -1154,7 +1154,7 @@ public final class FileUtils {
 		buf.append(dateFormat.format(new Date(file.lastModified())));
 		buf.append("\nFile size ");
 		buf.append(formatSize(file.length(), 0));
-		
+
 		return buf.toString();
 	}
 }

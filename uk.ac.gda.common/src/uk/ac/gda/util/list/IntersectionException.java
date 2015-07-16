@@ -25,7 +25,7 @@ public class IntersectionException extends Exception {
 
 	private String firstName, secondName;
 	/**
-	 * 
+	 *
 	 */
 	public IntersectionException() {
 	}

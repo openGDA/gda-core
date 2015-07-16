@@ -25,20 +25,20 @@ import java.lang.reflect.Method;
  * Provides access to private members in classes.
  */
 public class PrivateAccessor {
-	
+
 	 /**
 	 * @param o
 	 * @param fieldName
 	 * @return field
 	 * @throws Exception
 	 */
-	public static Object getPrivateField (Object o, String fieldName) throws Exception {   
-		
-		  // Check we have valid arguments... 
+	public static Object getPrivateField (Object o, String fieldName) throws Exception {
+
+		  // Check we have valid arguments...
 	    assert(o!=null);
 	    assert(fieldName!=null);
-	    
-	    // Go and find the private field... 
+
+	    // Go and find the private field...
 	    final Field fields[] = o.getClass().getDeclaredFields();
 	    for (int i = 0; i < fields.length; ++i) {
 	      if (fieldName.equals(fields[i].getName())) {
@@ -48,7 +48,7 @@ public class PrivateAccessor {
 	    }
 	    return null;
 	}
-  
+
     /**
      * @param o
      * @param methodName
@@ -56,14 +56,14 @@ public class PrivateAccessor {
      * @return the method return object
      * @throws Exception
      */
-    public static Object invokePrivateMethod (Object o, String methodName, Object... params) throws Exception {   
-      
-    	// Check we have valid arguments... 
+    public static Object invokePrivateMethod (Object o, String methodName, Object... params) throws Exception {
+
+    	// Check we have valid arguments...
 	    assert(o!=null);
 	    assert(methodName!=null);
 	    assert(params!=null);
-	    
-	    // Go and find the private method... 
+
+	    // Go and find the private method...
 	    final Method methods[] = o.getClass().getDeclaredMethods();
 	    for (int i = 0; i < methods.length; ++i) {
 	      if (methodName.equals(methods[i].getName())) {
@@ -72,5 +72,5 @@ public class PrivateAccessor {
 	      }
 	    }
 	    return null;
-	}  
+	}
 }

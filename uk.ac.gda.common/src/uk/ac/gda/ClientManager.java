@@ -23,7 +23,7 @@ package uk.ac.gda;
  */
 public class ClientManager {
 
-	
+
 	private static boolean testingMode = false;
 	/**
 	 * @return Returns the testingMode.
@@ -37,7 +37,7 @@ public class ClientManager {
 	public static void setTestingMode(boolean testingMode) {
 		ClientManager.testingMode = testingMode;
 	}
-	
+
 	/**
 	 * @return In testing mode this returns false and in gda client mode, true
 	 */

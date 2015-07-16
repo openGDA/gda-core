@@ -82,24 +82,24 @@ public class LocalProperties {
 	 * varies, but the gda.data property should be static at runtime.
 	 */
 	public static final String GDA_DATA = "gda.data";
-	
+
 	/**
 	 * Name of class in package gda.data.scan.datawriter that is called when ScanDataPoints are available to be written
-	 * Must support interface DataWriter 
+	 * Must support interface DataWriter
 	 */
-	public static final String GDA_DATA_SCAN_DATAWRITER_DATAFORMAT = "gda.data.scan.datawriter.dataFormat";	
+	public static final String GDA_DATA_SCAN_DATAWRITER_DATAFORMAT = "gda.data.scan.datawriter.dataFormat";
 
 	/**
 	 * Property used to provide the 'default' property to gda.data.PathConstructor (in uk.ac.gda.core). This in turn
 	 * is used by *many* classes to determine where scan files or images should be written.
 	 */
 	public static final String GDA_DATAWRITER_DIR = "gda.data.scan.datawriter.datadir";
-	
+
 	/**
 	 * The directory in which to keep NumTracker files. (See NumTracker for alternative ways to specify this).
 	 */
 	public static final String GDA_DATA_NUMTRACKER="gda.data.numtracker";
-	
+
 	/**
 	 * Property that specifies the GDA configuration folder.
 	 */
@@ -156,8 +156,8 @@ public class LocalProperties {
 	 * Boolean property that indicates whether GDA baton management is enabled.
 	 */
 	public static final String GDA_BATON_MANAGEMENT_ENABLED = "gda.accesscontrol.useBatonControl";
-	
-	
+
+
 	/**
 	 * Boolean property that indicates that clients with the same user and visit can share the baton.
 	 */
@@ -275,7 +275,7 @@ public class LocalProperties {
 	public static final String GDA_GUI_FORCE_INTRO = "gda.gui.window.force.intro";
 
 	/**
-	 * Option to save and restore the GUI state between sessions. Default 'true'. 
+	 * Option to save and restore the GUI state between sessions. Default 'true'.
 	 * If 'true' the setting to force the Intro/Welcome Screen may have no effect
 	 */
 	public static final String GDA_GUI_SAVE_RESTORE = "gda.gui.save.restore";
@@ -284,7 +284,7 @@ public class LocalProperties {
 	 * Starting width for the GDA application window
 	 */
 	public static final String GDA_GUI_START_WIDTH = "gda.gui.window.start.width";
-	
+
 	/**
 	 * Starting height for the GDA application window
 	 */
@@ -324,16 +324,16 @@ public class LocalProperties {
 
 	private static final String GDA_SCAN_SETS_SCANNUMBER = "gda.scan.sets.scannumber";
 
-	
-	
+
+
 	public static boolean isScanSetsScanNumber(){
 		return LocalProperties.check(LocalProperties.GDA_SCAN_SETS_SCANNUMBER);
 	}
 	public static void setScanSetsScanNumber(boolean enable){
 		LocalProperties.set(LocalProperties.GDA_SCAN_SETS_SCANNUMBER, Boolean.toString(enable));
 	}
-	
-	
+
+
 	// create Jakarta properties handler object
 	// README - The JakartaPropertiesConfig class automatically picks up
 	// system
@@ -379,7 +379,7 @@ public class LocalProperties {
 	 * Set a group of string-valued properties. An array of strings is passed in and each string is expected to be of
 	 * the form "A=B". Each string is parsed into its a key (A) and a value (B). A string property is then set using
 	 * each key value pair.
-	 * 
+	 *
 	 * @param propertyPairs
 	 *            an array of key-value pair assignment strings
 	 */
@@ -405,7 +405,7 @@ public class LocalProperties {
 
 	/**
 	 * Get a string property value using a specified key string with windows path separator "\\" being replaced by "/".
-	 * 
+	 *
 	 * @param propertyName
 	 *            the key specified to fetch the string value
 	 * @return the property value to return to the caller
@@ -433,7 +433,7 @@ public class LocalProperties {
 	/**
 	 * Get a boolean property value using a specified key string. No default is specified and "false" is returned if no
 	 * key is found.
-	 * 
+	 *
 	 * @param propertyName
 	 *            the key specified to fetch the boolean value
 	 * @return the property value to return to the caller. Returns false if key is not found.
@@ -444,7 +444,7 @@ public class LocalProperties {
 
 	/**
 	 * Get a boolean property value using a specified key string.
-	 * 
+	 *
 	 * @param propertyName
 	 *            the key specified to fetch the boolean value
 	 * @param defaultCheck
@@ -457,7 +457,7 @@ public class LocalProperties {
 
 	/**
 	 * Get an integer property value using a specified key string.
-	 * 
+	 *
 	 * @param propertyName
 	 *            the key specified to fetch the integer value
 	 * @param defaultValue
@@ -470,7 +470,7 @@ public class LocalProperties {
 
 	/**
 	 * Get a double property value using a specified key string.
-	 * 
+	 *
 	 * @param propertyName
 	 *            the key specified to fetch the double value
 	 * @param defaultValue
@@ -483,7 +483,7 @@ public class LocalProperties {
 
 	/**
 	 * Get a string property value using a specified key string.
-	 * 
+	 *
 	 * @param propertyName
 	 *            the key specified to fetch the string value
 	 * @param defaultValue
@@ -506,7 +506,7 @@ public class LocalProperties {
 
 	/**
 	 * Get a file path property value using a specified key string.
-	 * 
+	 *
 	 * @param name
 	 *            the key specified to fetch the file path value
 	 * @param defaultValue
@@ -521,7 +521,7 @@ public class LocalProperties {
 
 	/**
 	 * Get a URL property value using a specified key string.
-	 * 
+	 *
 	 * @param name
 	 *            the key specified to fetch the URL value
 	 * @param defaultValue
@@ -534,7 +534,7 @@ public class LocalProperties {
 
 	/**
 	 * Assign a string property value to a specified key string.
-	 * 
+	 *
 	 * @param propertyName
 	 *            the key specified to assign to the value
 	 * @param value
@@ -547,7 +547,7 @@ public class LocalProperties {
 
 	/**
 	 * Determines whether GDA is using the dummy mode configuration.
-	 * 
+	 *
 	 * @return true if GDA is using the dummy mode configuration; false otherwise. False is default to make dummy mode the exception.
 	 */
 	public static boolean isDummyModeEnabled() {
@@ -556,7 +556,7 @@ public class LocalProperties {
 
 	/**
 	 * Determines whether access control is enabled.
-	 * 
+	 *
 	 * @return true if access control is enabled; false otherwise. False is default to keep original behaviour.
 	 */
 	public static boolean isAccessControlEnabled() {
@@ -565,13 +565,13 @@ public class LocalProperties {
 
 	/**
 	 * Determines whether baton management is enabled.
-	 * 
+	 *
 	 * @return true if baton management is enabled; false otherwise. False is default to keep original behaviour.
 	 */
 	public static boolean isBatonManagementEnabled() {
 		return check(LocalProperties.GDA_BATON_MANAGEMENT_ENABLED, false);
 	}
-	
+
 	/**
 	 * @return true if with the same user and visit ID can share the baton. False by default.
 	 */
@@ -581,7 +581,7 @@ public class LocalProperties {
 
 	/**
 	 * Returns the location of the 'lib' folder in the 'core' plugin.
-	 * 
+	 *
 	 * @return the location of the core plugin's lib folder
 	 */
 	public static String getCoreLibraryDirectory() {
@@ -595,7 +595,7 @@ public class LocalProperties {
 	public static String getInstallationWorkspaceDir() {
 		return appendSeparator(get(GDA_WORKSPACE_LOC));
 	}
-	
+
 	/**
 	 * {@link #GDA_GIT_LOC}
 	 * @return String
@@ -625,7 +625,7 @@ public class LocalProperties {
 	/**
 	 * If the property gda.var is not defined, then it is assumed that there is a var dir inside the config directory
 	 * (where var was previously recommended to be placed)
-	 * 
+	 *
 	 * @see #GDA_VAR_DIR
 	 */
 	public static String getVarDir() {
@@ -699,14 +699,14 @@ public class LocalProperties {
 		String s = get(propertyName);
 		return s != null ? Integer.valueOf(s) : defaultValue;
 	}
-	
+
 	public static boolean contains(String propertyName) {
 		return propConfig.containsKey(propertyName);
 	}
 
 	/**
 	 * Remove a property from the configuration
-	 * 
+	 *
 	 * @param key
 	 */
 	public static void clearProperty(String key) {

@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 public abstract class AbstractExtendedCommand implements ExtendedCommand {
 
 	public static final String NUMBER = "-?\\d+\\.?\\d*";
-	
+
 	protected final Pattern regularExpression;
 
 	public AbstractExtendedCommand(String regularExpression) {
@@ -32,7 +32,7 @@ public abstract class AbstractExtendedCommand implements ExtendedCommand {
 	}
 
 	protected Matcher currentMatcher;
-	
+
 	@Override
 	public boolean matches(String line) {
 		currentMatcher = regularExpression.matcher(line.trim());

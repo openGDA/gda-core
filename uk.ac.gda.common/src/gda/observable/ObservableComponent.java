@@ -35,7 +35,7 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 	/**
 	 * Add an observer to the list of observers providing that the list does not already contain an instance of the
 	 * observer on it. {@inheritDoc}
-	 * 
+	 *
 	 * @param anIObserver
 	 *            the observer
 	 * @see gda.observable.IObservable#addIObserver(gda.observable.IObserver)
@@ -52,7 +52,7 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 
 	/**
 	 * Delete the instance of this observer from the list observers. {@inheritDoc}
-	 * 
+	 *
 	 * @param anIObserver
 	 *            the observer
 	 * @see gda.observable.IObservable#deleteIObserver(gda.observable.IObserver)
@@ -68,7 +68,7 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 
 	/**
 	 * Delete all observers from the list of observers. {@inheritDoc}
-	 * 
+	 *
 	 * @see gda.observable.IObservable#deleteIObservers()
 	 */
 	@Override
@@ -80,7 +80,7 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 
 	/**
 	 * Notify all observers on the list of the requested change.
-	 * 
+	 *
 	 * @param theObserved
 	 *            the observed component
 	 * @param changeCode
@@ -91,7 +91,7 @@ public class ObservableComponent implements IObservable, IIsBeingObserved {
 		synchronized(myIObservers){
 			observers = myIObservers.toArray(new IObserver[0]);
 		}
-		
+
 		for (IObserver anIObserver : observers) {
 			try {
 				anIObserver.update(theObserved, changeCode);

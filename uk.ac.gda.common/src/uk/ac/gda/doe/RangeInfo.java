@@ -34,7 +34,7 @@ public class RangeInfo implements Serializable {
 	public RangeInfo() {
 		experiments = new ArrayList<FieldValue>(7);
 	}
-		
+
 	public void clear() {
 		experiments.clear();
 	}
@@ -94,17 +94,17 @@ public class RangeInfo implements Serializable {
 	public static String format(final List<RangeInfo> info) {
 
 		final StringBuilder buf = new StringBuilder();
-		
+
 		// Do header
 		buf.append(info.get(0).getHeader());
 		buf.append("\n");
-		
+
 		// Do values
 		for (RangeInfo rangeInfo : info) {
 			buf.append(rangeInfo.getValues());
 			buf.append("\n");
 		}
-		
+
 		return buf.toString();
 	}
 
@@ -116,7 +116,7 @@ public class RangeInfo implements Serializable {
 		}
 		return buf.toString();
 	}
-	
+
 	public String getValues() {
 		final StringBuilder buf = new StringBuilder();
 		for (FieldValue field : getExperiments()) {
@@ -141,7 +141,7 @@ public class RangeInfo implements Serializable {
 	/**
 	 * Fields should not be large so a loop is ok, could
 	 * replace with a map one day.
-	 * 
+	 *
 	 * @param name
 	 * @return value or null
 	 */
@@ -151,7 +151,7 @@ public class RangeInfo implements Serializable {
 		for (FieldValue fv : experiments) {
 			if (name.equals(fv.getName())) return fv.getValue();
 		}
-		
+
 		return null;
 	}
 }

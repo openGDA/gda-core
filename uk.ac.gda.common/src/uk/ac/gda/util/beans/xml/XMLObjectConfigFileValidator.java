@@ -112,7 +112,7 @@ public class XMLObjectConfigFileValidator {
 		public void warning(SAXParseException exception) throws SAXException {
 			saxParseException = exception;
 		}
-		
+
 		public void throwIfRequired() throws Exception {
 			if (saxParseException!=null) throw saxParseException;
 		}
@@ -121,7 +121,7 @@ public class XMLObjectConfigFileValidator {
 	/**
 	 * Uses Xerces to validate an XML document against a specified XML schema. Should be able to pass in
 	 * "file://d:/gda/dev/blah.xml" type of URL.
-	 * 
+	 *
 	 * @return True if document has validated successfully. False if it fails to validate.
 	 */
 	private boolean xerces2Validate() throws Exception {
@@ -173,7 +173,7 @@ public class XMLObjectConfigFileValidator {
 
 	/**
 	 * Uses JAXP to validate an XML document against a specified XML schema.
-	 * 
+	 *
 	 * @return True if document has validated successfully. False if it fails to validate.
 	 */
 	private boolean jaxpValidate() throws Exception {
@@ -220,7 +220,7 @@ public class XMLObjectConfigFileValidator {
 	 * Validate an XML document file against a specified XML schema. Caller can select between JAXP and Xerces to do the
 	 * validation. Should be able to pass in "file://d:/gda/dev/blah.xml" type of URL.
 	 * <p>
-	 * 
+	 *
 	 * @param SchemaUrl
 	 *            URL pathname to XML schema XSD file
 	 * @param xmlInstanceDocumentURL
@@ -228,7 +228,7 @@ public class XMLObjectConfigFileValidator {
 	 * @param useXercesValidation
 	 *            true to use Xerces, false to use JAXP
 	 * @return True if document has validated successfully. False if it fails to validate.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public boolean validateFile(String SchemaUrl, String xmlInstanceDocumentURL, boolean useXercesValidation) throws Exception {
 		this.SchemaUrl              = getPath(SchemaUrl);
@@ -253,14 +253,14 @@ public class XMLObjectConfigFileValidator {
 	/**
 	 * Read in all data from InputSource, storing it in a CharArrayWriter, so we can create multiple instances of
 	 * InputSource from it. Helper method used by validateSource()
-	 * 
+	 *
 	 * @param source
 	 *            InputSource to read data from
 	 * @return CharArrayWriter containing copy of data read in from source
-	 * @throws UnsupportedEncodingException 
+	 * @throws UnsupportedEncodingException
 	 */
 	private CharArrayWriter getCharArrayWriterFromInputSource(InputSource source) throws UnsupportedEncodingException {
-		
+
 		// Create a BufferedReader, for reading from a SAX InputSource
 		final Reader cs = source.getCharacterStream();
 		Reader in = null;
@@ -274,12 +274,12 @@ public class XMLObjectConfigFileValidator {
 		try {
 			// Data read in is to be stored in a CharArrayWriter
 			CharArrayWriter out = new CharArrayWriter();
-	
+
 			try {
 				while (true) {
 					// Read in data from InputSource using BufferedReader
 					int charRead = in.read();
-	
+
 					if (charRead > -1) {
 						// store data in the CharArrayWriter
 						out.write(charRead);
@@ -291,7 +291,7 @@ public class XMLObjectConfigFileValidator {
 				logger.error("Cannot read file", e);
 				out = null;
 			}
-	
+
 			return out;
 		} finally {
 			// Must close stream or file system errors can occur.
@@ -302,7 +302,7 @@ public class XMLObjectConfigFileValidator {
 			}
 		}
 	}
-	
+
 	/**
 	 * Validate an XML document SAX InputSource against a specified XML schema. Caller can select between JAXP and
 	 * Xerces to do the validation. Should be able to pass in "file://d:/gda/dev/blah.xml" type of URL.
@@ -311,7 +311,7 @@ public class XMLObjectConfigFileValidator {
 	 * same data, if validation has occurred. This is necessary, since an InputSource cannot be re-read, so a cloned
 	 * source must be passed back if the original was read in.
 	 * <p>
-	 * 
+	 *
 	 * @param SchemaUrl
 	 *            URL pathname to XML schema XSD file
 	 * @param xmlInstanceDocumentSource
@@ -320,11 +320,11 @@ public class XMLObjectConfigFileValidator {
 	 *            true to use Xerces, false to use JAXP
 	 * @return a useable InputSource guaranteed to contain same data as input, if validation passed. null if validation
 	 *         failed.
-	 * @throws Exception 
+	 * @throws Exception
 	 * @throws SAXException
 	 */
-	public InputSource validateSource(String      SchemaUrl, 
-						              InputSource xmlInstanceDocumentSource, 
+	public InputSource validateSource(String      SchemaUrl,
+						              InputSource xmlInstanceDocumentSource,
 						              boolean     useXercesValidation) throws Exception {
 		// README - InputSource could be based on a Reader (characters) or
 		// InputStream (bytes) - ideally, validation needs to cope with both!
@@ -341,15 +341,15 @@ public class XMLObjectConfigFileValidator {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param SchemaUrl
 	 * @param xmlCharacters
 	 * @param useXercesValidation
 	 * @return InputSource
 	 * @throws Exception
 	 */
-	public InputSource validateSource(String      SchemaUrl, 
-							          char []     xmlCharacters, 
+	public InputSource validateSource(String      SchemaUrl,
+							          char []     xmlCharacters,
 	                                  boolean     useXercesValidation) throws Exception {
 
 		InputSource source = new InputSource(new CharArrayReader(xmlCharacters));

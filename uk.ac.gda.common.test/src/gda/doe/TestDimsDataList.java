@@ -25,12 +25,12 @@ import java.util.List;
 
 public class TestDimsDataList implements Serializable {
 
-	
+
 	private List<TestDimsData> dimsData;
-		
+
 	public TestDimsDataList() {
 	}
-	
+
 	public List<TestDimsData> getDimsData() {
 		return dimsData;
 	}
@@ -38,7 +38,7 @@ public class TestDimsDataList implements Serializable {
 	public void setDimsData(List<TestDimsData> slices) {
 		this.dimsData = slices;
 	}
-	
+
 	public void add(TestDimsData dimension) {
 		if (dimsData==null) dimsData = new ArrayList<TestDimsData>(3);
 //		if (sliceData.size()>dimension.getDimension() && dimension.getDimension()>-1) {

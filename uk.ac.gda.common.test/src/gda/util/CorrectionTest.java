@@ -28,20 +28,20 @@ import uk.ac.gda.util.CorrectionUtils;
 import uk.ac.gda.util.number.DoubleUtils;
 
 /**
- * This class uses vortex data corrected on I18 (from scripts) to test the 
+ * This class uses vortex data corrected on I18 (from scripts) to test the
  * Java implementation of the dead time correction.
  */
 public class CorrectionTest {
 
 	@Test
 	public void testCorrectionFactorCalculation() throws Exception {
-		
+
 		final File data =  new File("testfiles/gda/util/CorrectionTest/43490.dat");
 		final File corr =  new File("testfiles/gda/util/CorrectionTest/43490_corr.dat");
-		
+
 		final BufferedReader dat = new BufferedReader(new FileReader(data));
 		final BufferedReader cor = new BufferedReader(new FileReader(corr));
-		
+
 		double[] fit = new double[4];
 		fit[0] = 1.1029752060937018e-007;
 		fit[1] = 1.1407794527246737e-007;
@@ -51,19 +51,19 @@ public class CorrectionTest {
 		try {
 			String line = null;
 			while((line = dat.readLine())!=null) {
-				
+
 				// Line split is:
 				// Angle, energy, time , i0 ,It , Idrain, window1, window2, window3, window4, windowSum, ICR1,ICR2,ICR3,ICR4,OCR1,OCR2,OCR3,OCR4
 				final String[] d = line.split(" ");
 				if (d.length!=19) throw new Exception("Expected 19 columns in the data!");
-				
+
 				final double[]k = new double[4];
 				for (int i = 0; i < k.length; i++) {
 					final double ffr = Double.parseDouble(d[11+i]);
 					final double sfr = Double.parseDouble(d[15+i]);
 					k[i] = CorrectionUtils.getK(fit[i], ffr, sfr);
 				}
-				
+
 				final String correctedLine = cor.readLine();
 				// correctedLine split is:
 				// Angle, energy, time , i0 ,It , Idrain, window1, window2, window3, window4, windowSum
@@ -74,9 +74,9 @@ public class CorrectionTest {
                     	throw new Exception("The correction factor '"+k[i]+"' when applied to '"+windowOrig+"' gives '"+windowOrig*k[i]+"' not '"+Double.parseDouble(c[6+i])+"'");
                     }
 				}
-			
+
 			}
-			
+
 		} finally {
 			dat.close();
 			cor.close();

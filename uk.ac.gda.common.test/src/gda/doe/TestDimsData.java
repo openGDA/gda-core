@@ -29,7 +29,7 @@ import uk.ac.gda.doe.DOEField;
  */
 public class TestDimsData implements Serializable {
 
-	
+
 	@DOEField(value=1, type=java.lang.Integer.class)
 	private String    sliceRange;
 
@@ -38,13 +38,13 @@ public class TestDimsData implements Serializable {
 	private int       slice;
 
 	public TestDimsData() {
-		
+
 	}
-	
+
 	public TestDimsData(final int dim) {
 		this.dimension = dim;
 	}
-		
+
 
 
 	@Override

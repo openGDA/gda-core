@@ -25,9 +25,9 @@ public class FieldValue implements Serializable {
 	private String name,value;
     private Object originalObject;
 	public FieldValue() {
-		
+
 	}
-	
+
 	public FieldValue(final Object originalObject, String name, String value) {
 		super();
 		setOriginalObject(originalObject);

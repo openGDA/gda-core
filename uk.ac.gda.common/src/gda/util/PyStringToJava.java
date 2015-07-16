@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Functions to convert PyObjects that have been changed into strings back to 
+ * Functions to convert PyObjects that have been changed into strings back to
  * something useful. If you have a Jython interpreter simply get it to do the job
  *
  */
@@ -40,7 +40,7 @@ public class PyStringToJava {
 		try{
 			/* remove  square brackets at the start and end */
 			String input1 = input.substring(1, input.length()-1);
-			
+
 			/* breakup in an list of strings surrounded by parenthesis
 			 * Once inside a parenthesis we need to take account of being inside quotes
 			 * e.g. ('kjflkadj','kjlk)'),('kjflkadj','kjlk)') should produce
@@ -83,13 +83,13 @@ public class PyStringToJava {
 								}
 							}
 						}
-						
+
 					}
-				}	
-				
+				}
+
 			}
 			{
-				/* for each tuple break up into individual strings */	
+				/* for each tuple break up into individual strings */
 				for(String item : tuple ){
 					ArrayList<String> tupleStrings = new ArrayList<String>();
 					StringReader reader= new StringReader(item);

@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2015 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -16,22 +16,17 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.gda.doe;
+package uk.ac.gda.util;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+public final class BoolUtils {
 
-/**
- * Use this annotation to mark the field that controls
- * usage of other parts of the bean. I.e. instance a field
- * with a value which marks other fields in the bean as
- * active.
- */
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface DOEControl {
-     public String [] values();
-     public String [] fields();
+	/**
+	 * Inverts a Boolean object, handling the <code>null</code> condition without NPE. Nulls are treated as false, thus
+	 * true is returned. Also allows concise inversion without boxing. @param bool Boolean object to invert @return
+	 * Inverted Boolean object
+	 */
+	public static Boolean negate(final Boolean bool) {
+		boolean negative = (bool == null) ? true : !bool.booleanValue();
+		return Boolean.valueOf(negative);
+	}
 }

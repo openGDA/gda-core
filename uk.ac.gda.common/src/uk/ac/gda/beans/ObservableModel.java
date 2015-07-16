@@ -45,7 +45,7 @@ public class ObservableModel {
 			PropertyChangeListener listener) {
 		changeSupport.removePropertyChangeListener(propertyName, listener);
 	}
-	
+
 	public void clearListeners() {
 		for(PropertyChangeListener object : changeSupport.getPropertyChangeListeners()) {
 			changeSupport.removePropertyChangeListener(object);

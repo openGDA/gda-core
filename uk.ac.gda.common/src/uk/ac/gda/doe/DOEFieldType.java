@@ -19,7 +19,7 @@
 package uk.ac.gda.doe;
 
 public enum DOEFieldType {
-	
+
 	SINGLE_VALUE,
 	LIST,
 	RANGE;
@@ -27,12 +27,12 @@ public enum DOEFieldType {
 	/**
 	 * Decodes a value to determine the DOEFieldType, if it cannot be decoded,
 	 * SINGLE_VALUE is returned.
-	 * 
+	 *
 	 * @param value
 	 * @return DOEFieldType
 	 */
 	public static DOEFieldType getRangeType(String value) {
-		
+
 		if (value.indexOf(";")>-1 && value.split(";").length==3) {
 			return RANGE;
 		} else if (value.indexOf(",")>-1) {

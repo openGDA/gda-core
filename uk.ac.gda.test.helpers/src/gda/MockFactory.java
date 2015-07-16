@@ -21,6 +21,7 @@ package gda;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.ScannableMotion;

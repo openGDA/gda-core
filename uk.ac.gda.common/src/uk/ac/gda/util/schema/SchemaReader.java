@@ -36,22 +36,22 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * A Class that reads a castor objects schema and provides information 
+ * A Class that reads a castor objects schema and provides information
  * about the elements defined in the xsd.
- * 
+ *
  * There should be a more elegant way of reading the Schema. There is a
  * Schema object in castor but reading elements appears to involve loops and
  * visitors which is not what we want.
- * 
+ *
  * For now this class uses xPath.
- * 
+ *
  * @author Matthew Gerring
  *
  */
 public class SchemaReader {
 
 	private String nameSpaceURI = "http://www.w3.org/2001/XMLSchema";
-	
+
 	private final XPathFactory factory;
 	private final Document     doc;
 
@@ -62,15 +62,15 @@ public class SchemaReader {
 	 * @throws Exception
 	 */
 	public SchemaReader(final URL  schemaUrl) throws Exception {
-		
+
 		DocumentBuilderFactory docBuilder = DocumentBuilderFactory.newInstance();
 		docBuilder.setNamespaceAware(true); // never forget this!
 		DocumentBuilder builder = docBuilder.newDocumentBuilder();
-		
+
 		this.doc     = builder.parse(schemaUrl.openConnection().getInputStream());
 		this.factory = XPathFactory.newInstance();
 	}
-	
+
 	/**
 	 * Gets the legal choices for the element or null if there are none.
 	 * @param mainElementName
@@ -83,25 +83,25 @@ public class SchemaReader {
 		return processExpression("//xsd:schema/xsd:element[@name='"+mainElementName+"']/xsd:complexType/xsd:sequence/xsd:element[@name='"+containingElementName+"']/xsd:simpleType/xsd:restriction/xsd:enumeration",
 				                 "value");
 	}
-	
+
 	/**
-	 * 
-	 * @param parentName 
+	 *
+	 * @param parentName
 	 * @return list of all elements
 	 * @throws Exception
 	 */
 	public List<String> getChildTags(final String parentName) throws Exception {
-		
+
 		if (parentName == null) {
 			return processExpression("*/xsd:element", "name");
-		} 
-		
+		}
+
 		return processExpression("*//xsd:element[@name='"+parentName+"']/xsd:complexType/xsd:sequence/xsd:element", "name");
 	}
-	
+
 
 	public List<String> getParents(String name) throws Exception {
-		
+
 		final String expression = "*//xsd:element";
 		final XPath xpath = factory.newXPath();
 		xpath.setNamespaceContext(getXSDContext());
@@ -109,7 +109,7 @@ public class SchemaReader {
 		final XPathExpression expr = xpath.compile(expression);
 		final Object        result = expr.evaluate(doc, XPathConstants.NODESET);
 		if (result==null) return null;
-		
+
 		final NodeList nodes = (NodeList) result;
 		if (nodes.getLength()<1) return null;
 
@@ -130,17 +130,17 @@ public class SchemaReader {
 	}
 
 	private List<String> processExpression(final String expression, final String fieldName) throws Exception{
-		
+
 		final XPath xpath = factory.newXPath();
 		xpath.setNamespaceContext(getXSDContext());
 
 		final XPathExpression expr = xpath.compile(expression);
 		final Object        result = expr.evaluate(doc, XPathConstants.NODESET);
 		if (result==null) return null;
-		
+
 		final NodeList nodes = (NodeList) result;
 		if (nodes.getLength()<1) return null;
-	
+
 		final List<String> items = new ArrayList<String>(nodes.getLength());
 		for (int i = 0; i < nodes.getLength(); i++) {
 		    final Node node = nodes.item(i);
@@ -149,7 +149,7 @@ public class SchemaReader {
 		return items;
 
 	}
-	
+
 	/**
 	 * @return the nameSpaceURI
 	 */
@@ -187,9 +187,8 @@ public class SchemaReader {
 				// TODO Auto-generated method stub
 				return null;
 			}
-			
+
 		};
 	}
 }
 
-	

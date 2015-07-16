@@ -21,9 +21,9 @@ package uk.ac.gda.jython;
 public interface ExtendedCommand {
 
 	public static final String EXTENDED_QUICK_FIX = "pydevExtendedResolution";
-	
+
 	/**
-	 * 
+	 *
 	 * @param line
 	 * @return true if the line matches this command
 	 */

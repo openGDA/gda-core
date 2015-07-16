@@ -38,12 +38,12 @@ import uk.ac.gda.util.list.SortNatural;
 public class SortingUtils {
 
 	/**
-	 * 
+	 *
 	 */
 	public static final Comparator<File> NATURAL_SORT = new SortNatural<File>(true);
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public static final Comparator<Object> NATURAL_SORT_CASE_INSENSITIVE = new SortNatural<Object>(false);
 
@@ -62,7 +62,7 @@ public class SortingUtils {
 	public static List<File> getSortedFileList(final File dir) {
 		return getSortedFileList(dir, DEFAULT_COMPARATOR);
 	}
-	
+
 	/**
 	 * Lists folders before files
 	 * @param dir
@@ -71,64 +71,64 @@ public class SortingUtils {
 	public static List<File> getSortedFileList(final File dir, final boolean dirsFirst) {
 		return getSortedFileList(dir, DEFAULT_COMPARATOR, dirsFirst);
 	}
-	
+
 	/**
 	 *  Lists folders before files
 	 * @param dir
 	 * @param comp
 	 * @return  List<File>
 	 */
-	public static List<File> getSortedFileList(final File dir, final Comparator<File> comp) {  
+	public static List<File> getSortedFileList(final File dir, final Comparator<File> comp) {
 		return getSortedFileList(dir, comp, false);
 	}
-	
+
 	private static List<File> getSortedFileList(final File dir, final Comparator<File> comp, final boolean dirsFirst) {
-	    
+
 		if (!dir.isDirectory())    return null;
 	    if (dir.listFiles()==null) return null;
 
 	    final List<File> ret;
 	    if (dirsFirst) {
 			ret = new ArrayList<File>(dir.listFiles().length);
-			
-			final List<File> dirs = getSortedFileList(dir.listFiles(new FileFilter() {		
+
+			final List<File> dirs = getSortedFileList(dir.listFiles(new FileFilter() {
 				@Override
 				public boolean accept(File pathname) {
 					return pathname.isDirectory();
 				}
 			}), comp);
 			if (dirs!=null) ret.addAll(dirs);
-			
-			final List<File> files = getSortedFileList(dir.listFiles(new FileFilter() {		
+
+			final List<File> files = getSortedFileList(dir.listFiles(new FileFilter() {
 				@Override
 				public boolean accept(File pathname) {
 					return !pathname.isDirectory();
 				}
 			}), comp);
 			if (files!=null) ret.addAll(files);
-		
+
 	    } else {
 	    	ret = getSortedFileList(dir.listFiles(), comp);
 	    }
-			
+
 		if (ret.isEmpty()) return null;
 		return ret;
 
 	}
 	/**
 	 * @param dir
-	 * @param fileFilter 
+	 * @param fileFilter
 	 * @param comp
 	 * @return  List<File>
 	 */
-	public static List<File> getSortedFileList(final File dir, FileFilter fileFilter, final Comparator<File> comp) {  
+	public static List<File> getSortedFileList(final File dir, FileFilter fileFilter, final Comparator<File> comp) {
 	    return getSortedFileList(dir.listFiles(fileFilter), comp);
 	}
-	
+
 	/**
 	 * @param dir
 	 * @param fileFilter
-	 * @return List<File> 
+	 * @return List<File>
 	 */
 	public static List<File> getSortedFileList(File dir, FileFilter fileFilter) {
 	    return getSortedFileList(dir.listFiles(fileFilter), DEFAULT_COMPARATOR);
@@ -139,9 +139,9 @@ public class SortingUtils {
 	 * @return  List<File>
 	 */
 	private static List<File> getSortedFileList(final File[] fa, final Comparator<File> comp) {
-	    
+
 	    if (fa == null || fa.length<1) return null;
-	    
+
 	    final List<File> files = new ArrayList<File>(fa.length);
 	    files.addAll(Arrays.asList(fa));
 	    Collections.sort(files, comp);
@@ -167,4 +167,3 @@ public class SortingUtils {
 
 
 
-	

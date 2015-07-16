@@ -23,11 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LibGdaCommon {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(LibGdaCommon.class);
-	
+
 	private static boolean LIBRARY_AVAILABLE = false;
-	
+
 	static {
 		final String libname = "gda_common";
 		try {
@@ -39,14 +39,14 @@ public class LibGdaCommon {
 			logger.warn("Couldn't load " + libname + " library", e);
 		}
 	}
-	
+
 	public static String getFullNameOfUser(String username) {
 		if (LIBRARY_AVAILABLE) {
 			return _getFullNameOfUser(username);
 		}
 		return username; // We may well have the right user name originally. (Fix for windows.)
 	}
-	
+
 	private static native String _getFullNameOfUser(String username);
-	
+
 }

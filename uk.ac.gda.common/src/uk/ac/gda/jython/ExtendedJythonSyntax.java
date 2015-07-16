@@ -29,13 +29,13 @@ import uk.ac.gda.jython.commands.ScanCommand;
 
 /**
  * Class to deal with commands pos and *scan and any alised commands.
- * 
+ *
  * Could do with extending in line with Jython extended systax in GDA.
  */
 public class ExtendedJythonSyntax {
-	
 
-	
+
+
 	/**
 	 * Extended Jython commands and a pattern detailing their current
 	 * syntax. This is a bit of a bodge as you have to change the patterns here
@@ -45,17 +45,17 @@ public class ExtendedJythonSyntax {
 	static {
 		// Groups must be 1=command 2=scannable 3=auxilary information
 		final List<ExtendedCommand> tmp1 = new ArrayList<ExtendedCommand>(3);
-		
+
 		tmp1.add(new PosCommand());
 		tmp1.add(new AliasCommand());
 		tmp1.add(new ScanCommand());
-		
+
 		COMMANDS = Collections.unmodifiableList(tmp1);
-		
+
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param line
 	 * @return true if line looks like a Jython command line.
 	 */
@@ -68,20 +68,20 @@ public class ExtendedJythonSyntax {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * @param line
 	 * @return a suggestion to fix the syntax
 	 */
 	public static String getCorrectionMessage(final String line, final List<String> commands) {
-		
+
 		String message = null;
-		for (ExtendedCommand cmd : COMMANDS) {		
+		for (ExtendedCommand cmd : COMMANDS) {
 			if (cmd.matches(line)) {
 				message = cmd.getCorrectionMessage();
 			}
 		}
-		
+
 		if (GenericExtendedCommand.matches(line, commands)) {
 			message = GenericExtendedCommand.getCorrectionMessage(line, commands);
 		}
@@ -90,7 +90,7 @@ public class ExtendedJythonSyntax {
 	}
 
 	public static String getResolution(final String line, final List<String> commands) {
-		for (ExtendedCommand cmd : COMMANDS) {		
+		for (ExtendedCommand cmd : COMMANDS) {
 			if (cmd.matches(line)) {
 				return cmd.getResolution();
 			}
@@ -99,8 +99,8 @@ public class ExtendedJythonSyntax {
 			return GenericExtendedCommand.getResolution(line, commands);
 		}
 		return null;
-		
+
 	}
-	
+
 
 }

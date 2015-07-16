@@ -24,7 +24,7 @@ import java.util.List;
 public class ListUtils {
 
 	/**
-	 * 
+	 *
 	 * @param value
 	 * @return v
 	 */
@@ -34,9 +34,9 @@ public class ListUtils {
 		final String line = value.toString();
 		return line.substring(1,line.length()-1);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param value
 	 * @return v
 	 */
@@ -48,16 +48,16 @@ public class ListUtils {
 		for (int i = 0; i < vals.length; i++) ret.add(vals[i].trim());
 		return ret;
 	}
-	
+
 	public static void main(String[] args) {
 		String test = "one,two,three";
 		List<String> v = getList(test);
 		System.out.println(v);
-		
+
 		test = " ";
 		v = getList(test);
 		System.out.println(v);
-		
+
 		test = null;
 		v = getList(test);
 		System.out.println(v);
@@ -65,11 +65,11 @@ public class ListUtils {
 		test = ",";
 		v = getList(test);
 		System.out.println(v);
-		
+
 		test = ",,";
 		v = getList(test);
 		System.out.println(v);
-		
+
 		test = ",,)";
 		v = getList(test);
 		System.out.println(v);

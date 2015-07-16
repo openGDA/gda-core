@@ -20,10 +20,10 @@ package uk.ac.gda.util;
 
 public class CorrectionUtils {
 
-	
+
 	/**
 	 * Documentation from William Helsby is available to explain the maths in this method
-	 * 
+	 *
 	 * @param ffr            - fast filter rate or 'Input Count Rate'
 	 * @param processDeadTime - T
 	 * @return actual count rate
@@ -33,9 +33,9 @@ public class CorrectionUtils {
 		double in = 0.0;
 		double tryIn;
 		long div;
-		
+
 		// if processDeadTime set to zero, then simply return the unchanged fast filter rate
-		if (Double.valueOf(processDeadTime) == 0.0){ 
+		if (Double.valueOf(processDeadTime) == 0.0){
 			return ffr;
 		}
 
@@ -64,7 +64,7 @@ public class CorrectionUtils {
 	 * @return K the correction factor for dead time
 	 */
 	public static double getK(double ppdt, double ffr, double sfr) {
-		final double actualCountRate = CorrectionUtils.correct(ffr, ppdt);	
+		final double actualCountRate = CorrectionUtils.correct(ffr, ppdt);
 	    return actualCountRate / sfr;
 	}
 

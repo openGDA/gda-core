@@ -29,7 +29,7 @@ import org.apache.commons.configuration.ConfigurationException;
 public interface PropertiesConfig {
 	/**
 	 * Load in property information from a data source.
-	 * 
+	 *
 	 * @param listName
 	 *            the path name of the property file.
 	 * @throws ConfigurationException
@@ -43,7 +43,7 @@ public interface PropertiesConfig {
 
 	/**
 	 * Get an integer property value using a specified key string.
-	 * 
+	 *
 	 * @param name
 	 *            the key specified to fetch the integer value
 	 * @param defaultValue
@@ -54,7 +54,7 @@ public interface PropertiesConfig {
 
 	/**
 	 * Get a string property value using a specified key string.
-	 * 
+	 *
 	 * @param name
 	 *            the key specified to fetch the string value
 	 * @param defaultValue
@@ -65,7 +65,7 @@ public interface PropertiesConfig {
 
 	/**
 	 * Get a float property value using a specified key string.
-	 * 
+	 *
 	 * @param name
 	 *            the key specified to fetch the float value
 	 * @param defaultValue
@@ -76,7 +76,7 @@ public interface PropertiesConfig {
 
 	/**
 	 * Get a double property value using a specified key string.
-	 * 
+	 *
 	 * @param name
 	 *            the key specified to fetch the double value
 	 * @param defaultValue
@@ -87,7 +87,7 @@ public interface PropertiesConfig {
 
 	/**
 	 * Get a boolean property value using a specified key string.
-	 * 
+	 *
 	 * @param name
 	 *            the key specified to fetch the boolean value
 	 * @param defaultValue
@@ -98,7 +98,7 @@ public interface PropertiesConfig {
 
 	/**
 	 * Get a file path property value using a specified key string.
-	 * 
+	 *
 	 * @param name
 	 *            the key specified to fetch the file path value
 	 * @param defaultValue
@@ -109,7 +109,7 @@ public interface PropertiesConfig {
 
 	/**
 	 * Get a URL property value using a specified key string.
-	 * 
+	 *
 	 * @param name
 	 *            the key specified to fetch the URL value
 	 * @param defaultValue
@@ -120,20 +120,20 @@ public interface PropertiesConfig {
 
 	/**
 	 * Assign a string property value to a specified key string.
-	 * 
+	 *
 	 * @param value
 	 *            the string value to assign to the specified key
 	 * @param name
 	 *            the key specified to assign to the value
 	 */
 	public void setString(String value, String name);
-	
+
 	/**
 	 * Remove a property from the configuration
 	 * @param key
 	 */
 	public void clearProperty(String key);
-	
+
 	/**
 	 * @param key
 	 * @return True if the configuration contains the specified key

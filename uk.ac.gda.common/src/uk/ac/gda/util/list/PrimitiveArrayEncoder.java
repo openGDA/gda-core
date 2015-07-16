@@ -25,7 +25,7 @@ import java.util.zip.Inflater;
 
 
 /**
- * Simple class for ensuring that number arrays can be encoded to 
+ * Simple class for ensuring that number arrays can be encoded to
  * XML without separate tags which bloat the XML.
  */
 public class PrimitiveArrayEncoder {
@@ -59,7 +59,7 @@ public class PrimitiveArrayEncoder {
 		return list.toString();
 	}
 
-	
+
 	/**
 	 * String->double[]
 	 * @param dataString

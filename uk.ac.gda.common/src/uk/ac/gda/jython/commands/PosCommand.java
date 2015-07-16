@@ -24,14 +24,14 @@ public class PosCommand extends AbstractExtendedCommand{
 
 	private static final String ERR_REP = "Instead of '%s %s %s', use '%s(%s)'.";
 	private static final String RES_REP = "%s(%s)";
-	
+
 	public PosCommand() {
 		super("(pos)( \\w+)?( "+AbstractExtendedCommand.NUMBER+")?");
 	}
 
 	@Override
 	public String getCorrectionMessage() {
-		
+
 		String message = null;
 		String ec = currentMatcher.group(1);
 		if (ec==null) ec = "scan";
@@ -51,13 +51,13 @@ public class PosCommand extends AbstractExtendedCommand{
 
 	@Override
 	public String getResolution() {
-		
+
 		String name = currentMatcher.group(2);
 		if (name==null) return null;
-		
+
 		String val = currentMatcher.group(3);
 		if (val==null) return null;
-		
+
 		try {
 			return String.format(RES_REP, name.trim(), val.trim());
 		} catch (Exception ne) {

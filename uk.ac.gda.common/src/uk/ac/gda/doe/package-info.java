@@ -38,9 +38,9 @@ Here is what to do to start using ranges:
    </code>
    The level argument to DOEField is explained in that class and defines at what level the parameter should be operated when expanding
    the experiments.
-   
+
    NOTE: When changing a field to be a string the castor mapping and schema have to be updated.
-   
+
 4. Use <code>DOEUtils.expand(Object bean)</code> the bean objects to a list of experiment definitions.
 
 5. The annotation <code> @DOEControl </code> can be used where one field value means that other fields are not to be read.

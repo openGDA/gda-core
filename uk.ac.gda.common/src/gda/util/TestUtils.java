@@ -30,12 +30,12 @@ public class TestUtils {
 	 * Utility function to skip a JUnit test if the specified condition is true.
 	 * If called from a method annotated with @Test, and condition is true, the @Test method will halt and be ignored (skipped).
 	 * If called from a method annotated with @Before or @BeforeClass, all @Test methods of the class are ignored (skipped).
-	 * 
+	 *
 	 * Existing test runners (we're talking JUnit 4.5 and Ant 1.7.1, as bundled with Eclipse 3.5.1, don't have the concept of a
 	 * skipped test (tests are classified as either a pass or fail). Tests that fail an assumption are reported as passed.
-	 * 
+	 *
 	 * Internally, a failing assumption throws an AssumptionViolatedException (in JUnit 4,5; this may have changed in later releases).
-	 * 
+	 *
 	 * @param condition - boolean specifying whether the test method or test class is to be skipped
 	 * @param reason - explanation of why the test is skipped
 	 */
@@ -58,10 +58,10 @@ public class TestUtils {
 	 * Prefix to folder in which test files are to be generated
 	 */
 	public static final String OUTPUT_FOLDER_PREFIX = "test-scratch/";
-	
+
 	/**
 	 * Generates a (relative) directory name based on a class name. Uses the appropriate separators for the platform.
-	 * 
+	 *
 	 * @param classname
 	 *            - the name of the class on which to base the directory name (a value something like
 	 *            "gda.analysis.io.JPEGTest").
@@ -78,7 +78,7 @@ public class TestUtils {
 
 	/**
 	 * Helper function to (recursively) delete a directory and all its contents
-	 * 
+	 *
 	 * @param dir
 	 *            - path to directory to delete
 	 * @return - boolean True if directory no longer exists
@@ -107,7 +107,7 @@ public class TestUtils {
 
 	/**
 	 * Creates a scratch directory for test files created by the specified class.
-	 * 
+	 *
 	 * @param clazz
 	 *            the class
 	 * @return the directory
@@ -121,7 +121,7 @@ public class TestUtils {
 	/**
 	 * Creates an empty directory for use by test code. If the directory exists (from a previous test), the directory
 	 * and all its contents are first deleted.
-	 * 
+	 *
 	 * @param testScratchDirectoryname
 	 *            - the name of the directory to create.
 	 * @throws Exception
@@ -140,12 +140,12 @@ public class TestUtils {
 	/**
 	 * Returns a {@link File} for the specified resource, associated with the
 	 * specified class.
-	 * 
+	 *
 	 * @param clazz the class with which the resource is associated
 	 * @param name the desired resource
-	 * 
+	 *
 	 * @return a {@link File} for the resource, if it is found
-	 * 
+	 *
 	 * @throws FileNotFoundException if the resource cannot be found
 	 */
 	public static File getResourceAsFile(Class<?> clazz, String name) throws FileNotFoundException {
@@ -160,7 +160,7 @@ public class TestUtils {
 	 * Sets up of environment for the a test Set property so that output is to Nexus format file Uses
 	 * MockJythonServerFacade and MockJythonServer to configure InterfaceProvider Configure logging so that DEBUG and
 	 * above go to log.txt in output folder
-	 * 
+	 *
 	 * @param testClass
 	 *            e.g. gda.data.nexus.ScanToNexusTest
 	 * @param nameOfTest
@@ -183,12 +183,12 @@ public class TestUtils {
 			TestUtils.makeScratchDirectory(testScratchDirectoryName);
 		}
 
-		
+
 		return testScratchDirectoryName;
-	}	
-	
+	}
+
 	/**
-	 * 
+	 *
 	 * @return String pointing to the top of the hierarchy of large test files used in GDA tests
 	 * Set using vmarg e.g. -DGDALargeTestFilesLocation=/scratch/largetestfiles/
 	 * Note that it contains the final File.separatorChar so simply concat the result with the filename required
@@ -197,6 +197,6 @@ public class TestUtils {
 	public static String getGDALargeTestFilesLocation(){
 		return System.getProperty("GDALargeTestFilesLocation");
 	}
-	
+
 
 }

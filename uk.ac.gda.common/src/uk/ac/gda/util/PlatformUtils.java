@@ -19,9 +19,9 @@
 package uk.ac.gda.util;
 
 public class PlatformUtils {
-	
+
 	private PlatformUtils() {}
-	
+
 	public static boolean isRcpGui() {
 		return (System.getProperty("eclipse.vm") != null);
 	}

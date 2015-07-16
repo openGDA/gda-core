@@ -18,20 +18,20 @@
 
 package uk.ac.gda.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 public class UnixToWindowsFilePathConverterTest {
 
-	
+
 	@Test
 	public void testConverttoInternal() throws Exception {
 		UnixToWindowsFilePathConverter converter = new UnixToWindowsFilePathConverter();
 		converter.setUnixSubString("/dls/i13-1/data");
 		converter.setWindowsSubString("z:\\data");
 		converter.afterPropertiesSet();
-		
+
 		String internal = converter.converttoInternal("/dls/i13-1/data/2011/0-0/");
 		assertEquals("z:\\data\\2011\\0-0\\", internal);
 	}
@@ -42,7 +42,7 @@ public class UnixToWindowsFilePathConverterTest {
 		converter.setUnixSubString("/dls/i13-1/data");
 		converter.setWindowsSubString("z:\\data");
 		converter.afterPropertiesSet();
-		
+
 		String external = converter.converttoExternal("z:\\data\\2011\\0-0\\");
 		assertEquals("/dls/i13-1/data/2011/0-0/", external);
 	}

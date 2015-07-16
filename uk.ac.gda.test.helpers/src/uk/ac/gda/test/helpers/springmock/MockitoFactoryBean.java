@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * A {@link FactoryBean} for creating mocked beans based on Mockito so that they can be {@link Autowired} into Spring
  * test configurations. Allows simple stubbing of methods for when you want the mock to return particular value when
  * particular method is called.
- * 
+ *
  * @see org.mockito.Mockito <pre>
  * 	<bean id="pco1_hdf5_Zebra" class="uk.ac.gda.test.helpers.springmock.MockitoFactoryBean">
  * 		<constructor-arg name="classToBeMocked"
@@ -32,7 +32,7 @@ public class MockitoFactoryBean<T> implements FactoryBean<T> {
 
 	/**
 	 * Creates a Mockito mock instance of the provided class.
-	 * 
+	 *
 	 * @param classToBeMocked
 	 *            The class to be mocked.
 	 */

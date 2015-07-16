@@ -24,7 +24,7 @@ package uk.ac.gda.doe;
 public class DOEException extends Exception {
 
 	/**
-	 * 
+	 *
 	 */
 	public DOEException() {
 		// TODO Auto-generated constructor stub

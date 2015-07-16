@@ -22,7 +22,7 @@ public class PackageUtils {
 
 	/**
 	 * Returns a sub folder called TestFiles for the use of test decks.
-	 * 
+	 *
 	 * @param clazz
 	 * @return path
 	 */

@@ -67,7 +67,7 @@ public class PropertiesToXmlConverter {
 
 	/**
 	 * From an XML DOM element, try to locate a named child node.
-	 * 
+	 *
 	 * @param current
 	 *            current element node
 	 * @param childName
@@ -92,7 +92,7 @@ public class PropertiesToXmlConverter {
 	 * Adds a new element as a child of a current element. Assumes existing children are sorted alphabetically. Child is
 	 * added at appropriate place in list of children. Repeated use of this routine results in elements with
 	 * alphabetically sorted child elements.
-	 * 
+	 *
 	 * @param current
 	 *            current parent element to insert new element into
 	 * @param newChild
@@ -119,7 +119,7 @@ public class PropertiesToXmlConverter {
 	/**
 	 * Create a XML DOM representation for a property key-value pair (from a Properties object). N.B. Should create a
 	 * representation compatible with Jakarta commons configuration XML properties file format.
-	 * 
+	 *
 	 * @param root
 	 *            the root element of the DOM instance
 	 * @param propertyName
@@ -187,7 +187,7 @@ public class PropertiesToXmlConverter {
 	/**
 	 * Write an XML DOM instance to an XML file. Using Generic Java Transform API, so it is not tied to using 3rd-party
 	 * code. And keeps it using generic APIs, so Impl can still be swapped?
-	 * 
+	 *
 	 * @param outputFileName
 	 *            The name of the XML properties file to write out.
 	 */
@@ -266,7 +266,7 @@ public class PropertiesToXmlConverter {
 
 	/**
 	 * Write an XML DOM instance to an XML file.
-	 * 
+	 *
 	 * @param outputFileName
 	 *            The name of the XML properties file to write out.
 	 */
@@ -295,7 +295,7 @@ public class PropertiesToXmlConverter {
 
 	/**
 	 * Load a Java Properties API compliant properties file into a Properties object in memory.
-	 * 
+	 *
 	 * @param inputFileName
 	 *            The name of the properties file to load in.
 	 */
@@ -326,7 +326,7 @@ public class PropertiesToXmlConverter {
 	 * <p>
 	 * java gda.configuration.properties.PropertiesToXmlConverter [properties file] [XML file for output]
 	 * <p>
-	 * 
+	 *
 	 * @param args
 	 */
 	public static void main(String[] args) {

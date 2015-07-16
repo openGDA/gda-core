@@ -59,9 +59,9 @@ import org.slf4j.LoggerFactory;
  * <p>
  */
 public class JakartaPropertiesConfig implements PropertiesConfig {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(JakartaPropertiesConfig.class);
-	
+
 	// all properties config data is combined into this object
 	private CompositeConfiguration config = null;
 
@@ -108,7 +108,7 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 	 * contains references to one or more property data sources. Files should work with relative pathnames. However just
 	 * specifying "java.properties" doesnt find the file! So need to fixup the factory base path with the location of
 	 * the config.xml file. This appears to fix the problem - eg "java.properties" is now found.
-	 * 
+	 *
 	 * @param factory
 	 *            the current configuration factory in use
 	 * @param listName
@@ -142,7 +142,7 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 	 * <p>
 	 * N.B. Also system properties are currently loaded before any calls to loadPropertyData, so they take precedence
 	 * over everything.
-	 * 
+	 *
 	 * @param listName
 	 *            the path name of the property data source. If the name ends in "config.xml" then the file is treated
 	 *            as a Jakarta commons configuration descriptor file. If the file ends in ".xml" it is loaded as a
@@ -194,9 +194,9 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 	 */
 	@Override
 	public void dumpProperties() {
-		
+
 		((ch.qos.logback.classic.Logger)logger).setLevel(ch.qos.logback.classic.Level.DEBUG);
-		
+
 		Iterator<String> keyIterator = config.getKeys();
 
 		while (keyIterator.hasNext()) {
@@ -252,7 +252,7 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 	 * pathname. Backslashes can cause problems with Java code expecting forward slashes. So it *should* be safe to
 	 * convert any backslashes to forward slashes. If any client code needs to fetch properties with backslashes (eg to
 	 * pass to native JNI code), then either convert the result back to forward slashes, or just call getString instead.
-	 * 
+	 *
 	 * @see gda.configuration.properties.PropertiesConfig#getPath(java.lang.String, java.lang.String)
 	 */
 	@Override
