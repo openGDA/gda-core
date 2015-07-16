@@ -12,7 +12,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.dawnsci.analysis.api;bundle-version="1.0.0",
  org.eclipse.dawnsci.hdf5;bundle-version="1.2.0",
  org.eclipse.dawnsci.analysis.tree;bundle-version="1.0.0",
- org.eclipse.dawnsci.analysis.dataset;bundle-version="1.0.0"
+ org.eclipse.dawnsci.analysis.dataset;bundle-version="1.0.0",
+ ncsa.hdf,
+ uk.ac.diamond.scisoft.analysis
 Export-Package: gda.data.nexus,
  gda.data.nexus.extractor,
  gda.data.nexus.napi,
