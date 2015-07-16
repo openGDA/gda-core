@@ -870,14 +870,17 @@ where task can be:
 						self.append_plugin_and_dependencies_to_class_path_and_library_path(dependency)
 
 		else:
+			if dependent == 'uk.ac.diamond.org.jscience4':
+				# There are 2 versions of jscience (2.0.2 and 4.3.1) in tp/ and the classpath order is important
+				# 2.0.2 (bundle name uk.ac.diamond.org.jscience) must appear before 4.3.1 (bundle name uk.ac.diamond.org.jscience4)
+				# so if we are adding jscience4, first add jscience (the code makes sure that we never add anything twice)
+				self.append_plugin_and_dependencies_to_class_path_and_library_path('uk.ac.diamond.org.jscience')
 			# look up a jar in tp/plugins
 			jarPaths = glob.glob(os.path.join(self.tp, "plugins", dependent + "_*.jar"))  # use * in place of version numbers
 			if len(jarPaths) > 1:
 				self.logger.warn("Multiple jars satisfy %s: %s" % (dependent, jarPaths))
 			if len(jarPaths) >= 1:
 				for jarPath in sorted(jarPaths):
-					# FIXME: this is a complete hack. There are 2 version of jscience (2.0.2 and 4.3.1) in tp/ and the classpath order is important.
-					# Further investigation is required.
 					self.append_to_class_path(jarPath)
 			else:
 				rcpclient_required_dependent = ["org.python.pydev", "org.python.pydev.core", "org.python.pydev.debug", "org.python.pydev.ast", "org.python.pydev.customizations", "org.python.pydev.help", "org.python.pydev.jython", "org.python.pydev.parser", "org.python.pydev.refactoring", "com.python.pydev", "com.python.pydev.analysis", "com.python.pydev.codecompletion", "com.python.pydev.debug", "com.python.pydev.fastparser", "com.python.pydev.refactoring", "ch.qos.logback.eclipse", "ch.qos.logback.beagle"]
