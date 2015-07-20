@@ -1620,8 +1620,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			if (event == null)
 				throw new TimeoutException("put timeout, "+timeout+"s");
 
-			if (event.getStatus() != CAStatus.NORMAL)
+			if (event.getStatus() != CAStatus.NORMAL) {
+				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
 				throw new CAStatusException(event.getStatus(), "put failed");
+			}
 
 		} catch (TimeoutException ex) {
 			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
@@ -1666,8 +1668,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			if (event == null)
 				throw new TimeoutException("put timeout, "+timeout+"s");
 
-			if (event.getStatus() != CAStatus.NORMAL)
+			if (event.getStatus() != CAStatus.NORMAL) {
+				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
 				throw new CAStatusException(event.getStatus(), "put failed");
+			}
 
 		} catch (TimeoutException ex) {
 			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
@@ -1712,8 +1716,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			if (event == null)
 				throw new TimeoutException("put timeout, "+timeout+"s");
 
-			if (event.getStatus() != CAStatus.NORMAL)
+			if (event.getStatus() != CAStatus.NORMAL) {
+				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
 				throw new CAStatusException(event.getStatus(), "put failed");
+			}
 
 		} catch (TimeoutException ex) {
 			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
@@ -1758,8 +1764,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			if (event == null)
 				throw new TimeoutException("put timeout, "+timeout+"s");
 
-			if (event.getStatus() != CAStatus.NORMAL)
+			if (event.getStatus() != CAStatus.NORMAL) {
+				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
 				throw new CAStatusException(event.getStatus(), "put failed");
+			}
 
 		} catch (TimeoutException ex) {
 			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
@@ -1804,8 +1812,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			if (event == null)
 				throw new TimeoutException("put timeout, "+timeout+"s");
 
-			if (event.getStatus() != CAStatus.NORMAL)
+			if (event.getStatus() != CAStatus.NORMAL) {
+				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
 				throw new CAStatusException(event.getStatus(), "put failed");
+			}
 
 		} catch (TimeoutException ex) {
 			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
@@ -1850,8 +1860,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			if (event == null)
 				throw new TimeoutException("put timeout, "+timeout+"s");
 
-			if (event.getStatus() != CAStatus.NORMAL)
+			if (event.getStatus() != CAStatus.NORMAL) {
+				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
 				throw new CAStatusException(event.getStatus(), "put failed");
+			}
 
 		} catch (TimeoutException ex) {
 			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
@@ -1896,8 +1908,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			if (event == null)
 				throw new TimeoutException("put timeout, "+timeout+"s");
 
-			if (event.getStatus() != CAStatus.NORMAL)
+			if (event.getStatus() != CAStatus.NORMAL) {
+				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
 				throw new CAStatusException(event.getStatus(), "put failed");
+			}
 
 		} catch (TimeoutException ex) {
 			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
@@ -1942,8 +1956,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			if (event == null)
 				throw new TimeoutException("put timeout, "+timeout+"s");
 
-			if (event.getStatus() != CAStatus.NORMAL)
+			if (event.getStatus() != CAStatus.NORMAL) {
+				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
 				throw new CAStatusException(event.getStatus(), "put failed");
+			}
 
 		} catch (TimeoutException ex) {
 			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
@@ -1988,8 +2004,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			if (event == null)
 				throw new TimeoutException("put timeout, "+timeout+"s");
 
-			if (event.getStatus() != CAStatus.NORMAL)
+			if (event.getStatus() != CAStatus.NORMAL) {
+				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
 				throw new CAStatusException(event.getStatus(), "put failed");
+			}
 
 		} catch (TimeoutException ex) {
 			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
@@ -2034,8 +2052,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			if (event == null)
 				throw new TimeoutException("put timeout, "+timeout+"s");
 
-			if (event.getStatus() != CAStatus.NORMAL)
+			if (event.getStatus() != CAStatus.NORMAL) {
+				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
 				throw new CAStatusException(event.getStatus(), "put failed");
+			}
 
 		} catch (TimeoutException ex) {
 			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
@@ -2365,8 +2385,10 @@ public class EpicsController implements ContextExceptionListener, ContextMessage
 			if (event == null)
 				throw new TimeoutException("put timeout, "+timeout+"s");
 
-			if (event.getStatus() != CAStatus.NORMAL)
+			if (event.getStatus() != CAStatus.NORMAL) {
+				logger.error(" put to channel: {} value: {} failed status: {}", ch.getName(), value, event.getStatus());
 				throw new CAStatusException(event.getStatus(), "put failed");
+			}
 
 		} catch (TimeoutException ex) {
 			logger.error(" put to channel: {} value: {} failed. ", ch.getName(), value);
