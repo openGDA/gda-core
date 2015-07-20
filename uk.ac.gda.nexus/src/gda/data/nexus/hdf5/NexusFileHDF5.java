@@ -22,7 +22,9 @@ import gda.data.nexus.NexusUtils;
 import gda.data.nexus.extractor.NexusGroupData;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -33,7 +35,7 @@ import ncsa.hdf.hdf5lib.HDF5Constants;
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
 import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
 import ncsa.hdf.hdf5lib.structs.H5O_info_t;
-import ncsa.hdf.object.h5.H5CompoundDS;
+import ncsa.hdf.object.h5.H5Datatype;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
@@ -46,7 +48,9 @@ import org.eclipse.dawnsci.analysis.api.tree.NodeLink;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.api.tree.TreeUtils;
+import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.tree.TreeFactory;
@@ -60,17 +64,40 @@ import uk.ac.diamond.scisoft.analysis.io.HDF5LazySaver;
 
 public class NexusFileHDF5 implements NexusFile {
 
+	//TODO: Clean up and move stuff to helper classes?
+
 	private static Map<Integer, Integer> HDF_TYPES_TO_DATASET_TYPES;
 	private static Map<Integer, Integer> DATASET_TYPES_TO_HDF_TYPES;
 	private static Set<Integer> UNSIGNED_HDF_TYPES;
+
+	private static int getTypeRepresentation(int nativeHdfTypeId) throws NexusException {
+		final int[] types = {HDF5Constants.H5T_NATIVE_DOUBLE,
+				HDF5Constants.H5T_NATIVE_FLOAT,
+				HDF5Constants.H5T_NATIVE_INT8,
+				HDF5Constants.H5T_NATIVE_UINT8,
+				HDF5Constants.H5T_NATIVE_INT16,
+				HDF5Constants.H5T_NATIVE_UINT16,
+				HDF5Constants.H5T_NATIVE_INT32,
+				HDF5Constants.H5T_NATIVE_UINT32,
+				HDF5Constants.H5T_NATIVE_INT64,
+				HDF5Constants.H5T_NATIVE_UINT64,
+				HDF5Constants.H5T_C_S1};
+		try {
+			for (int type : types) {
+				if (H5.H5Tequal(nativeHdfTypeId, type)) {
+					return type;
+				}
+			}
+		} catch (HDF5LibraryException e) {
+			throw new NexusException("Could not compare types", e);
+		}
+		throw new NexusException("Unknown type");
+	}
 
 	static {
 		HDF_TYPES_TO_DATASET_TYPES = new HashMap<Integer, Integer>();
 		DATASET_TYPES_TO_HDF_TYPES = new HashMap<Integer, Integer>();
 		UNSIGNED_HDF_TYPES = new HashSet<Integer>();
-
-		HDF_TYPES_TO_DATASET_TYPES.put(HDF5Constants.H5T_NATIVE_CHAR, Dataset.STRING);
-		DATASET_TYPES_TO_HDF_TYPES.put(Dataset.STRING, HDF5Constants.H5T_NATIVE_CHAR);
 
 		HDF_TYPES_TO_DATASET_TYPES.put(HDF5Constants.H5T_NATIVE_INT8, Dataset.INT8);
 		DATASET_TYPES_TO_HDF_TYPES.put(Dataset.INT8, HDF5Constants.H5T_NATIVE_INT8);
@@ -101,6 +128,9 @@ public class NexusFileHDF5 implements NexusFile {
 
 		HDF_TYPES_TO_DATASET_TYPES.put(HDF5Constants.H5T_NATIVE_DOUBLE, Dataset.FLOAT64);
 		DATASET_TYPES_TO_HDF_TYPES.put(Dataset.FLOAT64, HDF5Constants.H5T_NATIVE_DOUBLE);
+
+		HDF_TYPES_TO_DATASET_TYPES.put(HDF5Constants.H5T_C_S1, Dataset.STRING);
+		DATASET_TYPES_TO_HDF_TYPES.put(Dataset.STRING, HDF5Constants.H5T_C_S1);
 	}
 
 	public enum NodeType {
@@ -133,7 +163,7 @@ public class NexusFileHDF5 implements NexusFile {
 		}
 	}
 
-	//TODO: Make generic for stricter typing on node?
+	//TODO: Better name?
 	final class NodeData {
 		public final String name;
 		public final String nxClass;
@@ -214,13 +244,13 @@ public class NexusFileHDF5 implements NexusFile {
 			try {
 				fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
 			} catch (HDF5LibraryException e) {
-				throw new NexusException("Cannot open to write");
+				throw new NexusException("Cannot open to write", e);
 			}
 		} else if (createIfNecessary) {
 			try {
 				fileId = H5.H5Fcreate(fileName, HDF5Constants.H5F_ACC_EXCL, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT);
 			} catch (HDF5LibraryException e) {
-				throw new NexusException("Cannot create to write");
+				throw new NexusException("Cannot create to write", e);
 			}
 		} else {
 			throw new NexusException("File not found and not created");
@@ -234,7 +264,7 @@ public class NexusFileHDF5 implements NexusFile {
 		try {
 			fileId = H5.H5Fcreate(fileName, HDF5Constants.H5F_ACC_TRUNC, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT);
 		} catch (HDF5LibraryException e) {
-			throw new NexusException("Cannot create to write");
+			throw new NexusException("Cannot create to write", e);
 		}
 		initializeTree();
 		writeable = true;
@@ -310,6 +340,7 @@ public class NexusFileHDF5 implements NexusFile {
 		return node;
 	}
 
+	//TODO: When would this be used?
 	private NodeData getDatasetNode(String augmentedPath) throws NexusException {
 		NodeData node = getNode(augmentedPath, false);
 		if (node.type != NodeType.DATASET) {
@@ -320,7 +351,6 @@ public class NexusFileHDF5 implements NexusFile {
 
 	//TODO: What does this function actually *want* to do?
 	//Should *NOT* call H5Xopen on anything without also closing it
-	//TODO: Don't like that this _creates_ the chain whilst being called *get*Node
 	private NodeData getNode(String augmentedPath, boolean createPathIfNecessary) throws NexusException {
 		ParsedNode[] parsedNodes = parseAugmentedPath(augmentedPath);
 		if (parsedNodes.length < 1) {
@@ -393,7 +423,7 @@ public class NexusFileHDF5 implements NexusFile {
 			}
 			return type;
 		} catch (HDF5LibraryException e) {
-			throw new NexusException("Could not get object information");
+			throw new NexusException("Could not get object information", e);
 		}
 	}
 
@@ -432,7 +462,6 @@ public class NexusFileHDF5 implements NexusFile {
 		return groupId;
 	}
 
-	//TODO: Is this function necessary?
 	private int openDataset(String absolutePath) throws NexusException {
 		//TODO: Potentially handle external datasets (are they transparent? if they are do we want to cache their data?)
 		NodeType type = getNodeType(absolutePath);
@@ -452,9 +481,9 @@ public class NexusFileHDF5 implements NexusFile {
 
 	private DataNode createDataNode(GroupNode parentNode, String path, String name,
 			long[] shape, int datasetType, boolean unsigned, long[] maxShape, long[] chunks) throws NexusException {
-		int[] iShape = longArrayToIntArray(shape);
-		int[] iMaxShape = longArrayToIntArray(maxShape);
-		int[] iChunks = longArrayToIntArray(chunks);
+		int[] iShape = shape == null ? null : longArrayToIntArray(shape);
+		int[] iMaxShape = maxShape == null ? null : longArrayToIntArray(maxShape);
+		int[] iChunks = chunks == null ? null : longArrayToIntArray(chunks);;
 		DataNode dataNode = TreeFactory.createDataNode(path.hashCode());
 		//TODO: copy attributes
 		String parentPath = path.substring(0, path.length() - name.length());
@@ -467,11 +496,11 @@ public class NexusFileHDF5 implements NexusFile {
 		byte fill = 0;
 		if (writeable) {
 			lazyDataset = new LazyWriteableDataset(name, datasetType, iShape, null, null, 
-					new HDF5LazySaver("localhost", fileName, parentPath, name, iShape, itemSize,
+					new HDF5LazySaver(null, fileName, path, name, iShape, itemSize,
 							datasetType, extendUnsigned, iMaxShape, iChunks, fill));
 		} else {
 			lazyDataset = new LazyDataset(name, datasetType, iShape, 
-					new HDF5LazyLoader("localhost", fileName, parentPath, name, iShape, itemSize,
+					new HDF5LazyLoader(null, fileName, path, name, iShape, itemSize,
 							datasetType, extendUnsigned));
 		}
 		dataNode.setDataset(lazyDataset);
@@ -506,32 +535,51 @@ public class NexusFileHDF5 implements NexusFile {
 			throw new NexusException("Path points to non-dataset object");
 		}
 
-		long[] shape;
-		long[] maxShape;
-		long[] chunks;
+		long[] shape = null;
+		long[] maxShape = null;
+		long[] chunks = null;
 		Integer datasetType;
 		boolean unsigned = false;
 		int datasetId = openDataset(path);
-		//TODO: make resource acquisition exception safe
+		//TODO: make resource acquisition/release exception safe
 		try {
+			boolean vlStrings;
+			int typeRepresentation;
 			int dataspaceId = H5.H5Dget_space(datasetId);
-			int nDims = H5.H5Sget_simple_extent_ndims(dataspaceId);
-			int hdfType = H5.H5Sget_simple_extent_type(dataspaceId);
-			shape = new long[nDims];
-			maxShape = new long[nDims];
-			chunks = new long[nDims];
-			H5.H5Sget_simple_extent_dims(dataspaceId, shape, maxShape);
-			H5.H5Sclose(dataspaceId);
-			unsigned = UNSIGNED_HDF_TYPES.contains(hdfType);
-			datasetType = HDF_TYPES_TO_DATASET_TYPES.get(hdfType);
+			int rawHdfTypeId = H5.H5Dget_type(datasetId);
+			int nativeTypeId = H5.H5Tget_native_type(rawHdfTypeId);
+			if (H5.H5Tis_variable_str(nativeTypeId)) {
+				vlStrings = true;
+				typeRepresentation = HDF5Constants.H5T_C_S1;
+			} else {
+				vlStrings = false;
+				typeRepresentation = getTypeRepresentation(nativeTypeId);
+			}
+			H5.H5Tclose(rawHdfTypeId);
+			H5.H5Tclose(nativeTypeId);
+			unsigned = UNSIGNED_HDF_TYPES.contains(typeRepresentation);
+			datasetType = HDF_TYPES_TO_DATASET_TYPES.get(typeRepresentation);
 			if (datasetType == null) {
 				throw new NexusException("Unknown data type");
 			}
+			int nDims = H5.H5Sget_simple_extent_ndims(dataspaceId);
+			int propertiesId = H5.H5Dget_create_plist(datasetId);
+			if (H5.H5Pget_layout(propertiesId) == HDF5Constants.H5D_CHUNKED) {
+				chunks = new long[nDims];
+				H5.H5Pget_chunk(propertiesId, nDims, chunks);
+			} else {
+				//H5D_COMPACT || H5D_CONTIGUOUS can have chunk array set to the shape
+				//or can leave null and dataset stuff assumes the same
+			}
+			H5.H5Pclose(propertiesId);
+			shape = new long[nDims];
+			maxShape = new long[nDims];
+			H5.H5Sget_simple_extent_dims(dataspaceId, shape, maxShape);
+			H5.H5Sclose(dataspaceId);
 		} catch (HDF5Exception e) {
-			throw new NexusException("Error reading dataspace");
+			throw new NexusException("Error reading dataspace", e);
 		}
 		closeNode(datasetId);
-		//TODO: GET MAXSHAPE AND CHUNKS
 		return createDataNode((GroupNode) parentNodeData.node, path, dataName, shape, datasetType, unsigned, maxShape, chunks);
 	}
 
@@ -545,28 +593,6 @@ public class NexusFileHDF5 implements NexusFile {
 	public DataNode createData(String path, ILazyWriteableDataset data, int compression, boolean createPathIfNecessary)
 			throws NexusException {
 		assertCanWrite();
-		/*
-		String parentPath = path;
-		if (path.endsWith(Node.SEPARATOR)) {
-			path.substring(0, path.length() - 1);
-		}
-		parentPath = path.substring(0, path.lastIndexOf(Node.SEPARATOR));
-		NodeData parentNode = getGroupNode(parentPath, createPathIfNecessary);
-		//NodeData nodeData = getNode(path, createPathIfNecessary);
-		if (nodeData.name == null) {
-			return null;
-		}
-
-		String dataName = data.getName();
-		if (dataName == null || dataName.isEmpty()) {
-			throw new IllegalArgumentException("Dataset name must be defined");
-		}
-		if (isPathValid(nodeData.path + dataName)) {
-			throw new NexusException("Dataset already exists");
-		}
-		//TODO: DO MAGIC THINGS NOW WITH LAZY THINGS!
-		*/
-
 		return null;
 	}
 
@@ -598,39 +624,42 @@ public class NexusFileHDF5 implements NexusFile {
 			throw new IllegalArgumentException("Dataset name must be defined");
 		}
 
-		if (isPathValid(parentNode.name + dataName)) {
+		String dataPath = parentNode.path + parentNode.name + Node.SEPARATOR + dataName;
+		if (isPathValid(dataPath)) {
 			throw new NexusException("Object already exists at specified location");
 		}
 
 		//TODO: Scalar dataspaces? i.e. rank 0
-		NexusGroupData ngd = NexusGroupData.createFromDataset(data);
-		final long[] shape;
-		if (data.getRank() == 0 && !ngd.isChar()) {
-			shape = new long[] {1};
-		} else {
-			int length = ngd.getDimensions().length;
-			shape = new long[length];
-			for (int i = 0; i < length; i++) {
-				shape[i] = ngd.getDimensions()[i];
-			}
-		}
-		Serializable buffer = ngd.getBuffer(true);
+		boolean stringDataset = data.elementClass().equals(String.class);//ngd.isChar();
+		final long[] shape = data.getRank() == 0 ? new long[] {1} : intArrayToLongArray(data.getShape());
+
 		int type = getHDF5Type(data);
+		int dataTypeId;
 		int dataspaceId;
 
 		//TODO: safe closing in face of exceptions
 		try {
-		dataspaceId = H5.H5Screate_simple(shape.length, shape, (long[])null);
-		int dataId = H5.H5Dcreate(fileId, dataName, type, dataspaceId,
-				HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT);
-		H5.H5Dwrite(dataId, type, HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL, HDF5Constants.H5P_DEFAULT, buffer);
-		H5.H5Dclose(dataId);
-		H5.H5Sclose(dataspaceId);
+			dataTypeId = H5.H5Tcopy(type);
+			if (stringDataset) { 
+				H5.H5Tset_size(dataTypeId, HDF5Constants.H5T_VARIABLE);
+				H5.H5Tset_size(dataTypeId, HDF5Constants.H5T_CSET_UTF8);
+			}
+			dataspaceId = H5.H5Screate_simple(shape.length, shape, (long[])null);
+			int dataId = H5.H5Dcreate(fileId, dataPath, dataTypeId, dataspaceId,
+					HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT);
+			if (stringDataset) {
+				String[] strings = (String[])DatasetUtils.serializeDataset(data);
+				H5.H5DwriteString(dataId, dataTypeId, HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL, HDF5Constants.H5P_DEFAULT, strings);
+			} else {
+				Serializable buffer = DatasetUtils.serializeDataset(data);
+				H5.H5Dwrite(dataId, dataTypeId, HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL, HDF5Constants.H5P_DEFAULT, buffer);
+			}
+			H5.H5Tclose(dataTypeId);
+			H5.H5Dclose(dataId);
+			H5.H5Sclose(dataspaceId);
 		} catch (HDF5Exception e) {
 			throw new NexusException("Could not create dataset", e);
 		}
-
-		String dataPath = parentNode + dataName;
 		DataNode dataNode = TreeFactory.createDataNode(dataPath.hashCode());
 		((GroupNode) parentNode.node).addDataNode(dataPath, dataName, dataNode);
 		return dataNode;
@@ -692,6 +721,7 @@ public class NexusFileHDF5 implements NexusFile {
 			return;
 		}
 		try {
+			//TODO: check everything is really closed
 			H5.H5Fclose(fileId);
 			fileId = -1;
 			tree = null;
@@ -704,9 +734,7 @@ public class NexusFileHDF5 implements NexusFile {
 	@Override
 	public boolean isPathValid(String path) {
 		try {
-			int objectId = H5.H5Oopen(fileId, path, HDF5Constants.H5P_DEFAULT);
-			H5.H5Oclose(objectId);
-			return true;
+			return H5.H5Lexists(fileId, path, HDF5Constants.H5P_DEFAULT);
 		} catch (HDF5LibraryException e) {
 			return false;
 		}
@@ -715,7 +743,7 @@ public class NexusFileHDF5 implements NexusFile {
 	private static int getHDF5Type(ILazyDataset data) {
 		Class<?> clazz = data.elementClass();
 		if (clazz.equals(String.class)) {
-			return HDF5Constants.H5T_NATIVE_CHAR;
+			return HDF5Constants.H5T_C_S1;
 		} else if (clazz.equals(Byte.class)) {
 			return HDF5Constants.H5T_NATIVE_INT8;
 		} else if (clazz.equals(Short.class)) {
