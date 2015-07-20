@@ -191,7 +191,7 @@ public class NexusGroupData implements Serializable {
 		byte[] bdata = new byte[n * max];
 		int k = 0;
 		for (int i = 0; i < n; i++) {
-			System.arraycopy(lines[i], 0, bdata, k, max);
+			System.arraycopy(lines[i], 0, bdata, k, lines[i].length);
 			k += max;
 		}
 		return bdata;
