@@ -540,16 +540,15 @@ public class NexusFileHDF5 implements NexusFile {
 		int datasetId = openDataset(path);
 		//TODO: make resource acquisition/release exception safe
 		try {
-			boolean vlStrings;
 			int typeRepresentation;
 			int dataspaceId = H5.H5Dget_space(datasetId);
 			int rawHdfTypeId = H5.H5Dget_type(datasetId);
 			int nativeTypeId = H5.H5Tget_native_type(rawHdfTypeId);
-			if (H5.H5Tis_variable_str(nativeTypeId)) {
-				vlStrings = true;
+			int dataClass = H5.H5Tget_class(nativeTypeId);
+			if (dataClass == HDF5Constants.H5T_STRING || H5.H5Tis_variable_str(nativeTypeId)) {
+				//TODO: This is potentially questionable at best
 				typeRepresentation = HDF5Constants.H5T_C_S1;
 			} else {
-				vlStrings = false;
 				typeRepresentation = getTypeRepresentation(nativeTypeId);
 			}
 			H5.H5Tclose(rawHdfTypeId);
