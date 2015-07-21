@@ -107,7 +107,10 @@ public class Xspress3FFoverI0BufferedDetector extends DetectorBase implements Bu
 	public int getNumberFrames() throws DeviceException {
 		if (!isContinuousMode)
 			return 0;
-		return continuousParameters.getNumberDataPoints();
+//		return continuousParameters.getNumberDataPoints();
+		int xspress3Frames = qxspress.getNumberFrames();
+		int scalerFrames = qscaler.getNumberFrames();
+		return Math.min(scalerFrames, xspress3Frames);
 	}
 
 	@Override
