@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.ui,
  uk.ac.diamond.tomography.reconstruction.parameters.edit;bundle-version="1.0.0",
  org.dawnsci.commandserver.tomo;bundle-version="1.0.0",
  org.dawnsci.commandserver;bundle-version="1.0.0",
- org.dawnsci.commandserver.ui;bundle-version="1.0.0"
+ org.dawnsci.commandserver.ui;bundle-version="1.0.0",
+ javax.jms;bundle-version="1.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: org.apache.commons.lang.builder;version="2.6.0",
