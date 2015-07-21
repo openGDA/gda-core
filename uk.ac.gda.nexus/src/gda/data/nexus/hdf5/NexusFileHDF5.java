@@ -537,45 +537,43 @@ public class NexusFileHDF5 implements NexusFile {
 		long[] chunks = null;
 		Integer datasetType;
 		boolean unsigned = false;
-		int datasetId = openDataset(path);
-		//TODO: make resource acquisition/release exception safe
-		try {
+		try (HDF5Resource hdfDataset = new HDF5DatasetResource(openDataset(path));
+				HDF5Resource hdfDataspace = new HDF5DataspaceResource( H5.H5Dget_space(hdfDataset.getResource()) );
+				HDF5Resource hdfDatatype = new HDF5DatatypeResource( H5.H5Dget_type(hdfDataset.getResource()) );
+				HDF5Resource hdfNativetype = new HDF5DatatypeResource( H5.H5Tget_native_type(hdfDatatype.getResource()) )) {
+			final int datasetId = hdfDataset.getResource();
 			int typeRepresentation;
-			int dataspaceId = H5.H5Dget_space(datasetId);
-			int rawHdfTypeId = H5.H5Dget_type(datasetId);
-			int nativeTypeId = H5.H5Tget_native_type(rawHdfTypeId);
-			int dataClass = H5.H5Tget_class(nativeTypeId);
+			final int dataspaceId = hdfDataspace.getResource();
+			final int nativeTypeId = hdfNativetype.getResource();
+			final int dataClass = H5.H5Tget_class(nativeTypeId);
 			if (dataClass == HDF5Constants.H5T_STRING || H5.H5Tis_variable_str(nativeTypeId)) {
-				//TODO: This is potentially questionable at best
+				//TODO: This is questionable
 				typeRepresentation = HDF5Constants.H5T_C_S1;
 			} else {
 				typeRepresentation = getTypeRepresentation(nativeTypeId);
 			}
-			H5.H5Tclose(rawHdfTypeId);
-			H5.H5Tclose(nativeTypeId);
 			unsigned = UNSIGNED_HDF_TYPES.contains(typeRepresentation);
 			datasetType = HDF_TYPES_TO_DATASET_TYPES.get(typeRepresentation);
 			if (datasetType == null) {
 				throw new NexusException("Unknown data type");
 			}
 			int nDims = H5.H5Sget_simple_extent_ndims(dataspaceId);
-			int propertiesId = H5.H5Dget_create_plist(datasetId);
-			if (H5.H5Pget_layout(propertiesId) == HDF5Constants.H5D_CHUNKED) {
-				chunks = new long[nDims];
-				H5.H5Pget_chunk(propertiesId, nDims, chunks);
-			} else {
-				//H5D_COMPACT || H5D_CONTIGUOUS can have chunk array set to the shape
-				//or can leave null and dataset stuff assumes the same
+			try (HDF5Resource hdfProperties = new HDF5PropertiesResource(H5.H5Dget_create_plist(datasetId))) {
+				int propertiesId = hdfProperties.getResource();
+				if (H5.H5Pget_layout(propertiesId) == HDF5Constants.H5D_CHUNKED) {
+					chunks = new long[nDims];
+					H5.H5Pget_chunk(propertiesId, nDims, chunks);
+				} else {
+					//H5D_COMPACT || H5D_CONTIGUOUS can have chunk array set to the shape
+					//or can leave null and dataset stuff assumes the same
+				}
 			}
-			H5.H5Pclose(propertiesId);
 			shape = new long[nDims];
 			maxShape = new long[nDims];
 			H5.H5Sget_simple_extent_dims(dataspaceId, shape, maxShape);
-			H5.H5Sclose(dataspaceId);
 		} catch (HDF5Exception e) {
 			throw new NexusException("Error reading dataspace", e);
 		}
-		closeNode(datasetId);
 		return createDataNode((GroupNode) parentNodeData.node, path, dataName, shape, datasetType, unsigned, maxShape, chunks);
 	}
 
@@ -609,7 +607,6 @@ public class NexusFileHDF5 implements NexusFile {
 		int[] iChunks = data.getChunking();
 		byte[] fillValue = {0};
 
-		//int rank = data.getRank();
 		long[] shape = intArrayToLongArray(iShape);
 		long[] maxShape = intArrayToLongArray(iMaxShape);
 		long[] chunks = intArrayToLongArray(iChunks);
@@ -620,25 +617,24 @@ public class NexusFileHDF5 implements NexusFile {
 		}
 		//TODO: compression
 		int hdfType = getHDF5Type(data);
-		int dataTypeId;
-		int dataspaceId;
-		//TODO: exception safety
 		try {
-			dataTypeId = H5.H5Tcopy(hdfType);
-			dataspaceId = H5.H5Screate_simple(shape.length, shape, maxShape);
-			int dataPropertiesId = H5.H5Pcreate(HDF5Constants.H5P_DATASET_CREATE);
-			if (chunks != null) {
-				H5.H5Pset_fill_value(dataPropertiesId, dataTypeId, fillValue);
-				//these have to be set in this order
-				H5.H5Pset_layout(dataPropertiesId, HDF5Constants.H5D_CHUNKED);
-				H5.H5Pset_chunk(dataPropertiesId, chunks.length, chunks);
+			try (HDF5Resource hdfDatatype = new HDF5DatatypeResource(H5.H5Tcopy(hdfType));
+					HDF5Resource hdfDataspace = new HDF5DataspaceResource(H5.H5Screate_simple(shape.length, shape, maxShape));
+					HDF5Resource hdfProperties = new HDF5PropertiesResource(H5.H5Pcreate(HDF5Constants.H5P_DATASET_CREATE))) {
+
+				final int hdfPropertiesId = hdfProperties.getResource();
+				final int hdfDatatypeId = hdfDatatype.getResource();
+				final int hdfDataspaceId = hdfDataspace.getResource();
+				if (chunks != null) {
+					H5.H5Pset_fill_value(hdfPropertiesId, hdfDatatypeId, fillValue);
+					//these have to be set in this order
+					H5.H5Pset_layout(hdfPropertiesId, HDF5Constants.H5D_CHUNKED);
+					H5.H5Pset_chunk(hdfPropertiesId, chunks.length, chunks);
+				}
+				int datasetId = H5.H5Dcreate(fileId, dataPath, hdfDatatypeId, hdfDataspaceId,
+						HDF5Constants.H5P_DEFAULT, hdfPropertiesId, HDF5Constants.H5P_DEFAULT);
+				H5.H5Dclose(datasetId);
 			}
-			int datasetId = H5.H5Dcreate(fileId, dataPath, dataTypeId, dataspaceId,
-					HDF5Constants.H5P_DEFAULT, dataPropertiesId, HDF5Constants.H5P_DEFAULT);
-			H5.H5Dclose(datasetId);
-			H5.H5Pclose(dataPropertiesId);
-			H5.H5Sclose(dataspaceId);
-			H5.H5Tclose(dataTypeId);
 		} catch (HDF5Exception e) {
 			throw new NexusException("Could not create dataset", e);
 		}
@@ -691,29 +687,32 @@ public class NexusFileHDF5 implements NexusFile {
 		final long[] shape = data.getRank() == 0 ? new long[] {1} : intArrayToLongArray(data.getShape());
 
 		int type = getHDF5Type(data);
-		int dataTypeId;
-		int dataspaceId;
 
-		//TODO: safe closing in face of exceptions
 		try {
-			dataTypeId = H5.H5Tcopy(type);
-			if (stringDataset) { 
-				H5.H5Tset_size(dataTypeId, HDF5Constants.H5T_VARIABLE);
-				H5.H5Tset_size(dataTypeId, HDF5Constants.H5T_CSET_UTF8);
+			try (HDF5Resource hdfDatatype = new HDF5DatatypeResource(H5.H5Tcopy(type));
+					HDF5Resource hdfDataspace = new HDF5DataspaceResource(
+							H5.H5Screate_simple(shape.length, shape, (long[])null))) {
+
+				final int datatypeId = hdfDatatype.getResource();
+				final int dataspaceId = hdfDataspace.getResource();
+				if (stringDataset) {
+					H5.H5Tset_size(datatypeId, HDF5Constants.H5T_VARIABLE);
+					H5.H5Tset_size(datatypeId, HDF5Constants.H5T_CSET_UTF8);
+				}
+				try (HDF5Resource hdfDataset = new HDF5DatasetResource(
+						H5.H5Dcreate(fileId, dataPath, datatypeId, dataspaceId,
+								HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT));) {
+
+					final int dataId = hdfDataset.getResource();
+					if (stringDataset) {
+						String[] strings = (String[])DatasetUtils.serializeDataset(data);
+						H5.H5DwriteString(dataId, datatypeId, HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL, HDF5Constants.H5P_DEFAULT, strings);
+					} else {
+						Serializable buffer = DatasetUtils.serializeDataset(data);
+						H5.H5Dwrite(dataId, datatypeId, HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL, HDF5Constants.H5P_DEFAULT, buffer);
+					}
+				}
 			}
-			dataspaceId = H5.H5Screate_simple(shape.length, shape, (long[])null);
-			int dataId = H5.H5Dcreate(fileId, dataPath, dataTypeId, dataspaceId,
-					HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT);
-			if (stringDataset) {
-				String[] strings = (String[])DatasetUtils.serializeDataset(data);
-				H5.H5DwriteString(dataId, dataTypeId, HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL, HDF5Constants.H5P_DEFAULT, strings);
-			} else {
-				Serializable buffer = DatasetUtils.serializeDataset(data);
-				H5.H5Dwrite(dataId, dataTypeId, HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL, HDF5Constants.H5P_DEFAULT, buffer);
-			}
-			H5.H5Tclose(dataTypeId);
-			H5.H5Dclose(dataId);
-			H5.H5Sclose(dataspaceId);
 		} catch (HDF5Exception e) {
 			throw new NexusException("Could not create dataset", e);
 		}
