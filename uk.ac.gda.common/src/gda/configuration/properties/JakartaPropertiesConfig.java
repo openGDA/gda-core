@@ -158,8 +158,12 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 
 		if (listName.contains(".xml")) {
 			if (listName.endsWith("config.xml")) {
-				// create a JCC configuration factory from a JCC config
-				// descriptor
+
+				// *****
+				// FIXME 'ConfigurationFactory' should be replaced with the new and improved 'DefaultConfigurationBuilder'
+				// *****
+
+				// create a JCC configuration factory from a JCC config descriptor
 				// file and make a JCC configuration interface/object from it
 				ConfigurationFactory factory = new ConfigurationFactory();
 
@@ -167,8 +171,7 @@ public class JakartaPropertiesConfig implements PropertiesConfig {
 				// See comment for this method for explanation.
 				configFactoryBasePathBugWorkaround(factory, listName);
 
-				// now try to load in config.xml - relative paths should now
-				// work
+				// now try to load in config.xml - relative paths should now work
 				factory.setConfigurationFileName(listName);
 				userConfig = factory.getConfiguration();
 			} else {
