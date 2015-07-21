@@ -19,10 +19,8 @@
 package gda.data.nexus.hdf5;
 
 import gda.data.nexus.NexusUtils;
-import gda.data.nexus.extractor.NexusGroupData;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,7 +33,6 @@ import ncsa.hdf.hdf5lib.HDF5Constants;
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
 import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
 import ncsa.hdf.hdf5lib.structs.H5O_info_t;
-import ncsa.hdf.object.h5.H5Datatype;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
@@ -593,7 +590,68 @@ public class NexusFileHDF5 implements NexusFile {
 	public DataNode createData(String path, ILazyWriteableDataset data, int compression, boolean createPathIfNecessary)
 			throws NexusException {
 		assertCanWrite();
-		return null;
+		NodeData parentNode = getGroupNode(path, createPathIfNecessary);
+		if (parentNode.name == null) {
+			return null;
+		}
+		String parentPath = parentNode.path + parentNode.name;
+		String dataName = data.getName();
+		String dataPath = parentPath + Node.SEPARATOR + dataName;
+		if (dataName == null || dataName.isEmpty()) {
+			throw new IllegalArgumentException("Dataset name must be defined");
+		}
+		if (isPathValid(dataPath)) {
+			throw new NexusException("Object already exists at specified location");
+		}
+		int itemSize = 1;
+		int dataType = AbstractDataset.getDType(data);
+		int[] iShape = data.getShape();
+		int[] iMaxShape = data.getMaxShape();
+		int[] iChunks = data.getChunking();
+		byte[] fillValue = {0};
+
+		//int rank = data.getRank();
+		long[] shape = intArrayToLongArray(iShape);
+		long[] maxShape = intArrayToLongArray(iMaxShape);
+		long[] chunks = intArrayToLongArray(iChunks);
+		if (!Arrays.equals(shape, maxShape)) {
+			//we *must* configure chunking
+			chunks = new long[shape.length];
+			Arrays.fill(chunks, 1);
+		}
+		//TODO: compression
+		int hdfType = getHDF5Type(data);
+		int dataTypeId;
+		int dataspaceId;
+		//TODO: exception safety
+		try {
+			dataTypeId = H5.H5Tcopy(hdfType);
+			dataspaceId = H5.H5Screate_simple(shape.length, shape, maxShape);
+			int dataPropertiesId = H5.H5Pcreate(HDF5Constants.H5P_DATASET_CREATE);
+			if (chunks != null) {
+				H5.H5Pset_fill_value(dataPropertiesId, dataTypeId, fillValue);
+				//these have to be set in this order
+				H5.H5Pset_layout(dataPropertiesId, HDF5Constants.H5D_CHUNKED);
+				H5.H5Pset_chunk(dataPropertiesId, chunks.length, chunks);
+			}
+			int datasetId = H5.H5Dcreate(fileId, dataPath, dataTypeId, dataspaceId,
+					HDF5Constants.H5P_DEFAULT, dataPropertiesId, HDF5Constants.H5P_DEFAULT);
+			H5.H5Dclose(datasetId);
+			H5.H5Pclose(dataPropertiesId);
+			H5.H5Sclose(dataspaceId);
+			H5.H5Tclose(dataTypeId);
+		} catch (HDF5Exception e) {
+			throw new NexusException("Could not create dataset", e);
+		}
+
+		HDF5LazySaver saver = new HDF5LazySaver(null, fileName, parentPath, dataName,
+				iShape, itemSize, dataType, false, iMaxShape, iChunks, fillValue);
+		data.setSaver(saver);
+
+		DataNode dataNode = TreeFactory.createDataNode(dataPath.hashCode());
+		((GroupNode)parentNode.node).addDataNode(tree, parentPath, dataName, dataNode);
+		dataNode.setDataset(data);
+		return dataNode;
 	}
 
 	@Override
@@ -761,6 +819,7 @@ public class NexusFileHDF5 implements NexusFile {
 	}
 
 	private static long[] intArrayToLongArray(int[] intArray) {
+		if (intArray == null) return null;
 		long[] longArray = new long[intArray.length];
 		for (int i = 0; i < intArray.length; i++) {
 			longArray[i] = intArray[i];
