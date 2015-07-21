@@ -72,6 +72,7 @@ public class ReconresultsFactoryImpl extends EFactoryImpl implements Reconresult
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ReconResults createReconResults() {
 		ReconResultsImpl reconResults = new ReconResultsImpl();
 		return reconResults;
@@ -82,6 +83,7 @@ public class ReconresultsFactoryImpl extends EFactoryImpl implements Reconresult
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ReconstructionDetail createReconstructionDetail() {
 		ReconstructionDetailImpl reconstructionDetail = new ReconstructionDetailImpl();
 		return reconstructionDetail;
@@ -92,6 +94,7 @@ public class ReconresultsFactoryImpl extends EFactoryImpl implements Reconresult
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ReconresultsPackage getReconresultsPackage() {
 		return (ReconresultsPackage)getEPackage();
 	}

@@ -127,6 +127,7 @@ public class ValueStepTypeImpl extends EObjectImpl implements ValueStepType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType4 getType() {
 		return type;
 	}
@@ -151,6 +152,7 @@ public class ValueStepTypeImpl extends EObjectImpl implements ValueStepType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setType(TypeType4 newType) {
 		if (newType != type) {
 			NotificationChain msgs = null;
@@ -170,6 +172,7 @@ public class ValueStepTypeImpl extends EObjectImpl implements ValueStepType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getPercent() {
 		return percent;
 	}
@@ -179,6 +182,7 @@ public class ValueStepTypeImpl extends EObjectImpl implements ValueStepType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setPercent(int newPercent) {
 		int oldPercent = percent;
 		percent = newPercent;
@@ -193,6 +197,7 @@ public class ValueStepTypeImpl extends EObjectImpl implements ValueStepType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetPercent() {
 		int oldPercent = percent;
 		boolean oldPercentESet = percentESet;
@@ -207,6 +212,7 @@ public class ValueStepTypeImpl extends EObjectImpl implements ValueStepType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetPercent() {
 		return percentESet;
 	}
@@ -216,6 +222,7 @@ public class ValueStepTypeImpl extends EObjectImpl implements ValueStepType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getPixel() {
 		return pixel;
 	}
@@ -225,6 +232,7 @@ public class ValueStepTypeImpl extends EObjectImpl implements ValueStepType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setPixel(int newPixel) {
 		int oldPixel = pixel;
 		pixel = newPixel;
@@ -239,6 +247,7 @@ public class ValueStepTypeImpl extends EObjectImpl implements ValueStepType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetPixel() {
 		int oldPixel = pixel;
 		boolean oldPixelESet = pixelESet;
@@ -253,6 +262,7 @@ public class ValueStepTypeImpl extends EObjectImpl implements ValueStepType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetPixel() {
 		return pixelESet;
 	}

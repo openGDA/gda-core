@@ -132,6 +132,7 @@ public class TomoParametersFactoryImpl extends EFactoryImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ScanCollected createScanCollected() {
 		ScanCollectedImpl scanCollected = new ScanCollectedImpl();
 		return scanCollected;

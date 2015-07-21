@@ -104,6 +104,7 @@ public class ImageLastTypeImpl extends EObjectImpl implements ImageLastType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getValue() {
 		return value;
 	}
@@ -113,6 +114,7 @@ public class ImageLastTypeImpl extends EObjectImpl implements ImageLastType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setValue(int newValue) {
 		int oldValue = value;
 		value = newValue;
@@ -127,6 +129,7 @@ public class ImageLastTypeImpl extends EObjectImpl implements ImageLastType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetValue() {
 		int oldValue = value;
 		boolean oldValueESet = valueESet;
@@ -141,6 +144,7 @@ public class ImageLastTypeImpl extends EObjectImpl implements ImageLastType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetValue() {
 		return valueESet;
 	}
@@ -150,6 +154,7 @@ public class ImageLastTypeImpl extends EObjectImpl implements ImageLastType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getDone() {
 		return done;
 	}
@@ -159,6 +164,7 @@ public class ImageLastTypeImpl extends EObjectImpl implements ImageLastType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDone(String newDone) {
 		String oldDone = done;
 		done = newDone;

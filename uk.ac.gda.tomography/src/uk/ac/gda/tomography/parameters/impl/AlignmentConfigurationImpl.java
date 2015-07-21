@@ -1018,6 +1018,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Integer getTomoRotationAxis() {
 		return tomoRotationAxis;
 	}
@@ -1027,6 +1028,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setTomoRotationAxis(Integer newTomoRotationAxis) {
 		Integer oldTomoRotationAxis = tomoRotationAxis;
 		tomoRotationAxis = newTomoRotationAxis;
@@ -1039,6 +1041,7 @@ public class AlignmentConfigurationImpl extends EObjectImpl implements Alignment
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EList<ScanCollected> getScanCollected() {
 		if (scanCollected == null) {
 			scanCollected = new EObjectContainmentEList<ScanCollected>(ScanCollected.class, this, TomoParametersPackage.ALIGNMENT_CONFIGURATION__SCAN_COLLECTED);

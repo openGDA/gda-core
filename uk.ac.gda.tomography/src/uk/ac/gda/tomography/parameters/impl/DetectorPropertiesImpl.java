@@ -317,6 +317,7 @@ public class DetectorPropertiesImpl extends EObjectImpl implements DetectorPrope
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setAcquisitionTimeDivider(double newAcquisitionTimeDivider) {
 		double oldAcquisitionTimeDivider = acquisitionTimeDivider;
 		acquisitionTimeDivider = newAcquisitionTimeDivider;

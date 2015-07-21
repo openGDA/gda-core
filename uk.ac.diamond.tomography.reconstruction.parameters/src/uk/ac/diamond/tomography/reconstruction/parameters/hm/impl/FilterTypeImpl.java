@@ -147,6 +147,7 @@ public class FilterTypeImpl extends EObjectImpl implements FilterType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType7 getType() {
 		return type;
 	}
@@ -171,6 +172,7 @@ public class FilterTypeImpl extends EObjectImpl implements FilterType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setType(TypeType7 newType) {
 		if (newType != type) {
 			NotificationChain msgs = null;
@@ -190,6 +192,7 @@ public class FilterTypeImpl extends EObjectImpl implements FilterType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public NameType getName() {
 		return name;
 	}
@@ -214,6 +217,7 @@ public class FilterTypeImpl extends EObjectImpl implements FilterType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setName(NameType newName) {
 		if (newName != name) {
 			NotificationChain msgs = null;
@@ -233,6 +237,7 @@ public class FilterTypeImpl extends EObjectImpl implements FilterType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BigDecimal getBandwidth() {
 		return bandwidth;
 	}
@@ -242,6 +247,7 @@ public class FilterTypeImpl extends EObjectImpl implements FilterType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setBandwidth(BigDecimal newBandwidth) {
 		BigDecimal oldBandwidth = bandwidth;
 		bandwidth = newBandwidth;
@@ -254,6 +260,7 @@ public class FilterTypeImpl extends EObjectImpl implements FilterType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public WindowNameType getWindowName() {
 		return windowName;
 	}
@@ -278,6 +285,7 @@ public class FilterTypeImpl extends EObjectImpl implements FilterType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setWindowName(WindowNameType newWindowName) {
 		if (newWindowName != windowName) {
 			NotificationChain msgs = null;
@@ -297,6 +305,7 @@ public class FilterTypeImpl extends EObjectImpl implements FilterType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public NormalisationType getNormalisation() {
 		return normalisation;
 	}
@@ -321,6 +330,7 @@ public class FilterTypeImpl extends EObjectImpl implements FilterType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setNormalisation(NormalisationType newNormalisation) {
 		if (newNormalisation != normalisation) {
 			NotificationChain msgs = null;
@@ -340,6 +350,7 @@ public class FilterTypeImpl extends EObjectImpl implements FilterType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BigDecimal getPixelSize() {
 		return pixelSize;
 	}
@@ -349,6 +360,7 @@ public class FilterTypeImpl extends EObjectImpl implements FilterType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setPixelSize(BigDecimal newPixelSize) {
 		BigDecimal oldPixelSize = pixelSize;
 		pixelSize = newPixelSize;

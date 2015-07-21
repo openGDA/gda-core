@@ -152,6 +152,7 @@ public class ModuleImpl extends EObjectImpl implements Module {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getCameraMagnification() {
 		return cameraMagnification;
 	}
@@ -161,6 +162,7 @@ public class ModuleImpl extends EObjectImpl implements Module {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCameraMagnification(double newCameraMagnification) {
 		double oldCameraMagnification = cameraMagnification;
 		cameraMagnification = newCameraMagnification;

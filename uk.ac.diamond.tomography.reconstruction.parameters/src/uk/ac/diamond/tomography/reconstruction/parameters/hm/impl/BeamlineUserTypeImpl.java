@@ -277,6 +277,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType17 getType() {
 		return type;
 	}
@@ -301,6 +302,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setType(TypeType17 newType) {
 		if (newType != type) {
 			NotificationChain msgs = null;
@@ -320,6 +322,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getBeamlineName() {
 		return beamlineName;
 	}
@@ -329,6 +332,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setBeamlineName(String newBeamlineName) {
 		String oldBeamlineName = beamlineName;
 		beamlineName = newBeamlineName;
@@ -341,6 +345,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getYear() {
 		return year;
 	}
@@ -350,6 +355,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setYear(String newYear) {
 		String oldYear = year;
 		year = newYear;
@@ -362,6 +368,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getMonth() {
 		return month;
 	}
@@ -371,6 +378,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMonth(String newMonth) {
 		String oldMonth = month;
 		month = newMonth;
@@ -383,6 +391,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getDate() {
 		return date;
 	}
@@ -392,6 +401,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDate(String newDate) {
 		String oldDate = date;
 		date = newDate;
@@ -404,6 +414,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getVisitNumber() {
 		return visitNumber;
 	}
@@ -413,6 +424,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setVisitNumber(String newVisitNumber) {
 		String oldVisitNumber = visitNumber;
 		visitNumber = newVisitNumber;
@@ -425,6 +437,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getInputDataFolder() {
 		return inputDataFolder;
 	}
@@ -434,6 +447,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setInputDataFolder(String newInputDataFolder) {
 		String oldInputDataFolder = inputDataFolder;
 		inputDataFolder = newInputDataFolder;
@@ -446,6 +460,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getInputScanFolder() {
 		return inputScanFolder;
 	}
@@ -455,6 +470,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setInputScanFolder(String newInputScanFolder) {
 		String oldInputScanFolder = inputScanFolder;
 		inputScanFolder = newInputScanFolder;
@@ -467,6 +483,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getOutputDataFolder() {
 		return outputDataFolder;
 	}
@@ -476,6 +493,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setOutputDataFolder(String newOutputDataFolder) {
 		String oldOutputDataFolder = outputDataFolder;
 		outputDataFolder = newOutputDataFolder;
@@ -488,6 +506,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getOutputScanFolder() {
 		return outputScanFolder;
 	}
@@ -497,6 +516,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setOutputScanFolder(String newOutputScanFolder) {
 		String oldOutputScanFolder = outputScanFolder;
 		outputScanFolder = newOutputScanFolder;
@@ -509,6 +529,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getDone() {
 		return done;
 	}
@@ -518,6 +539,7 @@ public class BeamlineUserTypeImpl extends EObjectImpl implements BeamlineUserTyp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDone(String newDone) {
 		String oldDone = done;
 		done = newDone;

@@ -116,6 +116,7 @@ public class ScanCollectedImpl extends EObjectImpl implements ScanCollected {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getScanNumber() {
 		return scanNumber;
 	}
@@ -125,6 +126,7 @@ public class ScanCollectedImpl extends EObjectImpl implements ScanCollected {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setScanNumber(String newScanNumber) {
 		String oldScanNumber = scanNumber;
 		scanNumber = newScanNumber;
@@ -137,6 +139,7 @@ public class ScanCollectedImpl extends EObjectImpl implements ScanCollected {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getStartTime() {
 		return startTime;
 	}
@@ -146,6 +149,7 @@ public class ScanCollectedImpl extends EObjectImpl implements ScanCollected {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setStartTime(String newStartTime) {
 		String oldStartTime = startTime;
 		startTime = newStartTime;
@@ -158,6 +162,7 @@ public class ScanCollectedImpl extends EObjectImpl implements ScanCollected {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getEndTime() {
 		return endTime;
 	}
@@ -167,6 +172,7 @@ public class ScanCollectedImpl extends EObjectImpl implements ScanCollected {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setEndTime(String newEndTime) {
 		String oldEndTime = endTime;
 		endTime = newEndTime;

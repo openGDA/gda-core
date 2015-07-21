@@ -244,6 +244,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getScanCollected() {
 		return scanCollectedEClass;
 	}
@@ -253,6 +254,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getScanCollected_ScanNumber() {
 		return (EAttribute)scanCollectedEClass.getEStructuralFeatures().get(0);
 	}
@@ -262,6 +264,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getScanCollected_StartTime() {
 		return (EAttribute)scanCollectedEClass.getEStructuralFeatures().get(1);
 	}
@@ -271,6 +274,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getScanCollected_EndTime() {
 		return (EAttribute)scanCollectedEClass.getEStructuralFeatures().get(2);
 	}
@@ -300,6 +304,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getModule_CameraMagnification() {
 		return (EAttribute)moduleEClass.getEStructuralFeatures().get(1);
 	}
@@ -659,6 +664,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getAlignmentConfiguration_TomoRotationAxis() {
 		return (EAttribute)alignmentConfigurationEClass.getEStructuralFeatures().get(16);
 	}
@@ -668,6 +674,7 @@ public class TomoParametersPackageImpl extends EPackageImpl implements TomoParam
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getAlignmentConfiguration_ScanCollected() {
 		return (EReference)alignmentConfigurationEClass.getEStructuralFeatures().get(17);
 	}

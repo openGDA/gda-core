@@ -98,6 +98,7 @@ public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public FeatureMap getMixed() {
 		if (mixed == null) {
 			mixed = new BasicFeatureMap(this, HmPackage.DOCUMENT_ROOT__MIXED);
@@ -110,6 +111,7 @@ public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EMap<String, String> getXMLNSPrefixMap() {
 		if (xMLNSPrefixMap == null) {
 			xMLNSPrefixMap = new EcoreEMap<String,String>(EcorePackage.Literals.ESTRING_TO_STRING_MAP_ENTRY, EStringToStringMapEntryImpl.class, this, HmPackage.DOCUMENT_ROOT__XMLNS_PREFIX_MAP);
@@ -122,6 +124,7 @@ public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EMap<String, String> getXSISchemaLocation() {
 		if (xSISchemaLocation == null) {
 			xSISchemaLocation = new EcoreEMap<String,String>(EcorePackage.Literals.ESTRING_TO_STRING_MAP_ENTRY, EStringToStringMapEntryImpl.class, this, HmPackage.DOCUMENT_ROOT__XSI_SCHEMA_LOCATION);
@@ -134,6 +137,7 @@ public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public HMxmlType getHMxml() {
 		return (HMxmlType)getMixed().get(HmPackage.Literals.DOCUMENT_ROOT__HMXML, true);
 	}
@@ -152,6 +156,7 @@ public class DocumentRootImpl extends EObjectImpl implements DocumentRoot {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setHMxml(HMxmlType newHMxml) {
 		((FeatureMap.Internal)getMixed()).set(HmPackage.Literals.DOCUMENT_ROOT__HMXML, newHMxml);
 	}

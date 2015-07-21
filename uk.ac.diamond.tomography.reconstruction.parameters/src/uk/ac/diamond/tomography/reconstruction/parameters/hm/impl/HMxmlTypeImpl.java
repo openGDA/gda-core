@@ -67,6 +67,7 @@ public class HMxmlTypeImpl extends EObjectImpl implements HMxmlType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public FBPType getFBP() {
 		return fBP;
 	}
@@ -91,6 +92,7 @@ public class HMxmlTypeImpl extends EObjectImpl implements HMxmlType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFBP(FBPType newFBP) {
 		if (newFBP != fBP) {
 			NotificationChain msgs = null;

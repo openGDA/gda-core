@@ -73,6 +73,7 @@ public class ScanFactoryImpl extends EFactoryImpl implements ScanFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Parameters createParameters() {
 		ParametersImpl parameters = new ParametersImpl();
 		return parameters;
@@ -83,6 +84,7 @@ public class ScanFactoryImpl extends EFactoryImpl implements ScanFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ScanPackage getScanPackage() {
 		return (ScanPackage) getEPackage();
 	}

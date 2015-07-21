@@ -162,6 +162,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public FilterType getFilter() {
 		return filter;
 	}
@@ -186,6 +187,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFilter(FilterType newFilter) {
 		if (newFilter != filter) {
 			NotificationChain msgs = null;
@@ -205,6 +207,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BigDecimal getImageCentre() {
 		return imageCentre;
 	}
@@ -214,6 +217,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setImageCentre(BigDecimal newImageCentre) {
 		BigDecimal oldImageCentre = imageCentre;
 		imageCentre = newImageCentre;
@@ -226,6 +230,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ClockwiseRotationType getClockwiseRotation() {
 		return clockwiseRotation;
 	}
@@ -250,6 +255,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setClockwiseRotation(ClockwiseRotationType newClockwiseRotation) {
 		if (newClockwiseRotation != clockwiseRotation) {
 			NotificationChain msgs = null;
@@ -269,6 +275,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TiltType getTilt() {
 		return tilt;
 	}
@@ -293,6 +300,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setTilt(TiltType newTilt) {
 		if (newTilt != tilt) {
 			NotificationChain msgs = null;
@@ -312,6 +320,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public CoordinateSystemType getCoordinateSystem() {
 		return coordinateSystem;
 	}
@@ -336,6 +345,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCoordinateSystem(CoordinateSystemType newCoordinateSystem) {
 		if (newCoordinateSystem != coordinateSystem) {
 			NotificationChain msgs = null;
@@ -355,6 +365,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public CirclesType getCircles() {
 		return circles;
 	}
@@ -379,6 +390,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCircles(CirclesType newCircles) {
 		if (newCircles != circles) {
 			NotificationChain msgs = null;
@@ -398,6 +410,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ROIType getROI() {
 		return rOI;
 	}
@@ -422,6 +435,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setROI(ROIType newROI) {
 		if (newROI != rOI) {
 			NotificationChain msgs = null;
@@ -441,6 +455,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public PolarCartesianInterpolationType getPolarCartesianInterpolation() {
 		return polarCartesianInterpolation;
 	}
@@ -465,6 +480,7 @@ public class BackprojectionTypeImpl extends EObjectImpl implements Backprojectio
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setPolarCartesianInterpolation(PolarCartesianInterpolationType newPolarCartesianInterpolation) {
 		if (newPolarCartesianInterpolation != polarCartesianInterpolation) {
 			NotificationChain msgs = null;

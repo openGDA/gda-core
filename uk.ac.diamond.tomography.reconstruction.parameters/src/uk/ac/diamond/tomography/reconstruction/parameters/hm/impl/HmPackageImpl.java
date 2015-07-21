@@ -718,6 +718,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getBackprojectionType() {
 		return backprojectionTypeEClass;
 	}
@@ -727,6 +728,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getBackprojectionType_Filter() {
 		return (EReference)backprojectionTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -736,6 +738,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getBackprojectionType_ImageCentre() {
 		return (EAttribute)backprojectionTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -745,6 +748,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getBackprojectionType_ClockwiseRotation() {
 		return (EReference)backprojectionTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -754,6 +758,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getBackprojectionType_Tilt() {
 		return (EReference)backprojectionTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -763,6 +768,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getBackprojectionType_CoordinateSystem() {
 		return (EReference)backprojectionTypeEClass.getEStructuralFeatures().get(4);
 	}
@@ -772,6 +778,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getBackprojectionType_Circles() {
 		return (EReference)backprojectionTypeEClass.getEStructuralFeatures().get(5);
 	}
@@ -781,6 +788,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getBackprojectionType_ROI() {
 		return (EReference)backprojectionTypeEClass.getEStructuralFeatures().get(6);
 	}
@@ -790,6 +798,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getBackprojectionType_PolarCartesianInterpolation() {
 		return (EReference)backprojectionTypeEClass.getEStructuralFeatures().get(7);
 	}
@@ -799,6 +808,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getBeamlineUserType() {
 		return beamlineUserTypeEClass;
 	}
@@ -808,6 +818,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getBeamlineUserType_Type() {
 		return (EReference)beamlineUserTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -817,6 +828,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getBeamlineUserType_BeamlineName() {
 		return (EAttribute)beamlineUserTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -826,6 +838,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getBeamlineUserType_Year() {
 		return (EAttribute)beamlineUserTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -835,6 +848,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getBeamlineUserType_Month() {
 		return (EAttribute)beamlineUserTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -844,6 +858,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getBeamlineUserType_Date() {
 		return (EAttribute)beamlineUserTypeEClass.getEStructuralFeatures().get(4);
 	}
@@ -853,6 +868,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getBeamlineUserType_VisitNumber() {
 		return (EAttribute)beamlineUserTypeEClass.getEStructuralFeatures().get(5);
 	}
@@ -862,6 +878,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getBeamlineUserType_InputDataFolder() {
 		return (EAttribute)beamlineUserTypeEClass.getEStructuralFeatures().get(6);
 	}
@@ -871,6 +888,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getBeamlineUserType_InputScanFolder() {
 		return (EAttribute)beamlineUserTypeEClass.getEStructuralFeatures().get(7);
 	}
@@ -880,6 +898,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getBeamlineUserType_OutputDataFolder() {
 		return (EAttribute)beamlineUserTypeEClass.getEStructuralFeatures().get(8);
 	}
@@ -889,6 +908,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getBeamlineUserType_OutputScanFolder() {
 		return (EAttribute)beamlineUserTypeEClass.getEStructuralFeatures().get(9);
 	}
@@ -898,6 +918,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getBeamlineUserType_Done() {
 		return (EAttribute)beamlineUserTypeEClass.getEStructuralFeatures().get(10);
 	}
@@ -907,6 +928,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getBitsTypeType() {
 		return bitsTypeTypeEClass;
 	}
@@ -916,6 +938,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getBitsTypeType_Value() {
 		return (EAttribute)bitsTypeTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -925,6 +948,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getBitsTypeType_Info() {
 		return (EAttribute)bitsTypeTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -934,6 +958,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getByteOrderType() {
 		return byteOrderTypeEClass;
 	}
@@ -943,6 +968,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getByteOrderType_Value() {
 		return (EAttribute)byteOrderTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -952,6 +978,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getByteOrderType_Info() {
 		return (EAttribute)byteOrderTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -961,6 +988,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getCirclesType() {
 		return circlesTypeEClass;
 	}
@@ -970,6 +998,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getCirclesType_ValueMin() {
 		return (EReference)circlesTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -979,6 +1008,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getCirclesType_ValueMax() {
 		return (EReference)circlesTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -988,6 +1018,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getCirclesType_ValueStep() {
 		return (EReference)circlesTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -997,6 +1028,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getCirclesType_Comm() {
 		return (EAttribute)circlesTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -1006,6 +1038,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getClockwiseRotationType() {
 		return clockwiseRotationTypeEClass;
 	}
@@ -1015,6 +1048,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getClockwiseRotationType_Value() {
 		return (EAttribute)clockwiseRotationTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1024,6 +1058,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getClockwiseRotationType_Done() {
 		return (EAttribute)clockwiseRotationTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1033,6 +1068,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getClockwiseRotationType_Info() {
 		return (EAttribute)clockwiseRotationTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -1042,6 +1078,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getCoordinateSystemType() {
 		return coordinateSystemTypeEClass;
 	}
@@ -1051,6 +1088,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getCoordinateSystemType_Type() {
 		return (EReference)coordinateSystemTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1060,6 +1098,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getCoordinateSystemType_Slice() {
 		return (EAttribute)coordinateSystemTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1069,6 +1108,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getCoordinateSystemType_Done() {
 		return (EAttribute)coordinateSystemTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -1078,6 +1118,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getDarkFieldType() {
 		return darkFieldTypeEClass;
 	}
@@ -1087,6 +1128,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getDarkFieldType_Type() {
 		return (EReference)darkFieldTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1096,6 +1138,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getDarkFieldType_ValueBefore() {
 		return (EAttribute)darkFieldTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1105,6 +1148,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getDarkFieldType_ValueAfter() {
 		return (EAttribute)darkFieldTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -1114,6 +1158,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getDarkFieldType_FileBefore() {
 		return (EAttribute)darkFieldTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -1123,6 +1168,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getDarkFieldType_FileAfter() {
 		return (EAttribute)darkFieldTypeEClass.getEStructuralFeatures().get(4);
 	}
@@ -1132,6 +1178,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getDarkFieldType_ProfileType() {
 		return (EReference)darkFieldTypeEClass.getEStructuralFeatures().get(5);
 	}
@@ -1141,6 +1188,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getDarkFieldType_FileProfile() {
 		return (EAttribute)darkFieldTypeEClass.getEStructuralFeatures().get(6);
 	}
@@ -1150,6 +1198,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getDefaultXmlType() {
 		return defaultXmlTypeEClass;
 	}
@@ -1159,6 +1208,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getDefaultXmlType_Value() {
 		return (EAttribute)defaultXmlTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1168,6 +1218,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getDefaultXmlType_Done() {
 		return (EAttribute)defaultXmlTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1177,6 +1228,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getDocumentRoot() {
 		return documentRootEClass;
 	}
@@ -1186,6 +1238,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getDocumentRoot_Mixed() {
 		return (EAttribute)documentRootEClass.getEStructuralFeatures().get(0);
 	}
@@ -1195,6 +1248,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getDocumentRoot_XMLNSPrefixMap() {
 		return (EReference)documentRootEClass.getEStructuralFeatures().get(1);
 	}
@@ -1204,6 +1258,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getDocumentRoot_XSISchemaLocation() {
 		return (EReference)documentRootEClass.getEStructuralFeatures().get(2);
 	}
@@ -1213,6 +1268,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getDocumentRoot_HMxml() {
 		return (EReference)documentRootEClass.getEStructuralFeatures().get(3);
 	}
@@ -1222,6 +1278,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getExtrapolationTypeType() {
 		return extrapolationTypeTypeEClass;
 	}
@@ -1231,6 +1288,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getExtrapolationTypeType_Value() {
 		return (EAttribute)extrapolationTypeTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1240,6 +1298,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getExtrapolationTypeType_Info() {
 		return (EAttribute)extrapolationTypeTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1249,6 +1308,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getFBPType() {
 		return fbpTypeEClass;
 	}
@@ -1258,6 +1318,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFBPType_DefaultXml() {
 		return (EReference)fbpTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1267,6 +1328,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFBPType_GPUDeviceNumber() {
 		return (EAttribute)fbpTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1276,6 +1338,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFBPType_BeamlineUser() {
 		return (EReference)fbpTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -1285,6 +1348,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFBPType_LogFile() {
 		return (EAttribute)fbpTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -1294,6 +1358,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFBPType_InputData() {
 		return (EReference)fbpTypeEClass.getEStructuralFeatures().get(4);
 	}
@@ -1303,6 +1368,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFBPType_FlatDarkFields() {
 		return (EReference)fbpTypeEClass.getEStructuralFeatures().get(5);
 	}
@@ -1312,6 +1378,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFBPType_Preprocessing() {
 		return (EReference)fbpTypeEClass.getEStructuralFeatures().get(6);
 	}
@@ -1321,6 +1388,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFBPType_Transform() {
 		return (EReference)fbpTypeEClass.getEStructuralFeatures().get(7);
 	}
@@ -1330,6 +1398,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFBPType_Backprojection() {
 		return (EReference)fbpTypeEClass.getEStructuralFeatures().get(8);
 	}
@@ -1339,6 +1408,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFBPType_OutputData() {
 		return (EReference)fbpTypeEClass.getEStructuralFeatures().get(9);
 	}
@@ -1348,6 +1418,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getFilterType() {
 		return filterTypeEClass;
 	}
@@ -1357,6 +1428,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFilterType_Type() {
 		return (EReference)filterTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1366,6 +1438,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFilterType_Name() {
 		return (EReference)filterTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1375,6 +1448,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFilterType_Bandwidth() {
 		return (EAttribute)filterTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -1384,6 +1458,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFilterType_WindowName() {
 		return (EReference)filterTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -1393,6 +1468,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFilterType_Normalisation() {
 		return (EReference)filterTypeEClass.getEStructuralFeatures().get(4);
 	}
@@ -1402,6 +1478,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFilterType_PixelSize() {
 		return (EAttribute)filterTypeEClass.getEStructuralFeatures().get(5);
 	}
@@ -1411,6 +1488,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getFirstImageIndexType() {
 		return firstImageIndexTypeEClass;
 	}
@@ -1420,6 +1498,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFirstImageIndexType_Value() {
 		return (EAttribute)firstImageIndexTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1429,6 +1508,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFirstImageIndexType_Info() {
 		return (EAttribute)firstImageIndexTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1438,6 +1518,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getFlatDarkFieldsType() {
 		return flatDarkFieldsTypeEClass;
 	}
@@ -1447,6 +1528,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFlatDarkFieldsType_FlatField() {
 		return (EReference)flatDarkFieldsTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1456,6 +1538,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFlatDarkFieldsType_DarkField() {
 		return (EReference)flatDarkFieldsTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1465,6 +1548,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getFlatFieldType() {
 		return flatFieldTypeEClass;
 	}
@@ -1474,6 +1558,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFlatFieldType_Type() {
 		return (EReference)flatFieldTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1483,6 +1568,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFlatFieldType_ValueBefore() {
 		return (EAttribute)flatFieldTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1492,6 +1578,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFlatFieldType_ValueAfter() {
 		return (EAttribute)flatFieldTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -1501,6 +1588,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFlatFieldType_FileBefore() {
 		return (EAttribute)flatFieldTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -1510,6 +1598,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFlatFieldType_FileAfter() {
 		return (EAttribute)flatFieldTypeEClass.getEStructuralFeatures().get(4);
 	}
@@ -1519,6 +1608,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getFlatFieldType_ProfileType() {
 		return (EReference)flatFieldTypeEClass.getEStructuralFeatures().get(5);
 	}
@@ -1528,6 +1618,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getFlatFieldType_FileProfile() {
 		return (EAttribute)flatFieldTypeEClass.getEStructuralFeatures().get(6);
 	}
@@ -1537,6 +1628,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getGapType() {
 		return gapTypeEClass;
 	}
@@ -1546,6 +1638,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getGapType_Value() {
 		return (EAttribute)gapTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1555,6 +1648,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getGapType_Info() {
 		return (EAttribute)gapTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1564,6 +1658,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getHighPeaksAfterColumnsType() {
 		return highPeaksAfterColumnsTypeEClass;
 	}
@@ -1573,6 +1668,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getHighPeaksAfterColumnsType_Type() {
 		return (EReference)highPeaksAfterColumnsTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1582,6 +1678,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getHighPeaksAfterColumnsType_NumberPixels() {
 		return (EAttribute)highPeaksAfterColumnsTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1591,6 +1688,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getHighPeaksAfterColumnsType_Jump() {
 		return (EAttribute)highPeaksAfterColumnsTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -1600,6 +1698,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getHighPeaksAfterRowsType() {
 		return highPeaksAfterRowsTypeEClass;
 	}
@@ -1609,6 +1708,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getHighPeaksAfterRowsType_Type() {
 		return (EReference)highPeaksAfterRowsTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1618,6 +1718,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getHighPeaksAfterRowsType_NumberPixels() {
 		return (EAttribute)highPeaksAfterRowsTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1627,6 +1728,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getHighPeaksAfterRowsType_Jump() {
 		return (EAttribute)highPeaksAfterRowsTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -1636,6 +1738,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getHighPeaksBeforeType() {
 		return highPeaksBeforeTypeEClass;
 	}
@@ -1645,6 +1748,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getHighPeaksBeforeType_Type() {
 		return (EReference)highPeaksBeforeTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1654,6 +1758,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getHighPeaksBeforeType_NumberPixels() {
 		return (EAttribute)highPeaksBeforeTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1663,6 +1768,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getHighPeaksBeforeType_Jump() {
 		return (EAttribute)highPeaksBeforeTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -1672,6 +1778,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getHMxmlType() {
 		return hMxmlTypeEClass;
 	}
@@ -1681,6 +1788,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getHMxmlType_FBP() {
 		return (EReference)hMxmlTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1690,6 +1798,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getImageFirstType() {
 		return imageFirstTypeEClass;
 	}
@@ -1699,6 +1808,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getImageFirstType_Value() {
 		return (EAttribute)imageFirstTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1708,6 +1818,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getImageFirstType_Done() {
 		return (EAttribute)imageFirstTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1717,6 +1828,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getImageLastType() {
 		return imageLastTypeEClass;
 	}
@@ -1726,6 +1838,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getImageLastType_Value() {
 		return (EAttribute)imageLastTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1735,6 +1848,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getImageLastType_Done() {
 		return (EAttribute)imageLastTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1744,6 +1858,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getImageStepType() {
 		return imageStepTypeEClass;
 	}
@@ -1753,6 +1868,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getImageStepType_Value() {
 		return (EAttribute)imageStepTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1762,6 +1878,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getImageStepType_Done() {
 		return (EAttribute)imageStepTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1771,6 +1888,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getInputDataType() {
 		return inputDataTypeEClass;
 	}
@@ -1780,6 +1898,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getInputDataType_Folder() {
 		return (EAttribute)inputDataTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -1789,6 +1908,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getInputDataType_Prefix() {
 		return (EAttribute)inputDataTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -1798,6 +1918,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getInputDataType_Suffix() {
 		return (EAttribute)inputDataTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -1807,6 +1928,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getInputDataType_Extension() {
 		return (EAttribute)inputDataTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -1816,6 +1938,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getInputDataType_NOD() {
 		return (EReference)inputDataTypeEClass.getEStructuralFeatures().get(4);
 	}
@@ -1825,6 +1948,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getInputDataType_MemorySizeMax() {
 		return (EReference)inputDataTypeEClass.getEStructuralFeatures().get(5);
 	}
@@ -1834,6 +1958,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getInputDataType_MemorySizeMin() {
 		return (EReference)inputDataTypeEClass.getEStructuralFeatures().get(6);
 	}
@@ -1843,6 +1968,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getInputDataType_Orientation() {
 		return (EReference)inputDataTypeEClass.getEStructuralFeatures().get(7);
 	}
@@ -1852,6 +1978,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getInputDataType_FileFirst() {
 		return (EAttribute)inputDataTypeEClass.getEStructuralFeatures().get(8);
 	}
@@ -1861,6 +1988,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getInputDataType_FileLast() {
 		return (EAttribute)inputDataTypeEClass.getEStructuralFeatures().get(9);
 	}
@@ -1870,6 +1998,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getInputDataType_FileStep() {
 		return (EAttribute)inputDataTypeEClass.getEStructuralFeatures().get(10);
 	}
@@ -1879,6 +2008,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getInputDataType_ImageFirst() {
 		return (EReference)inputDataTypeEClass.getEStructuralFeatures().get(11);
 	}
@@ -1888,6 +2018,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getInputDataType_ImageLast() {
 		return (EReference)inputDataTypeEClass.getEStructuralFeatures().get(12);
 	}
@@ -1897,6 +2028,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getInputDataType_ImageStep() {
 		return (EReference)inputDataTypeEClass.getEStructuralFeatures().get(13);
 	}
@@ -1906,6 +2038,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getInputDataType_Raw() {
 		return (EReference)inputDataTypeEClass.getEStructuralFeatures().get(14);
 	}
@@ -1915,6 +2048,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getInputDataType_FirstImageIndex() {
 		return (EReference)inputDataTypeEClass.getEStructuralFeatures().get(15);
 	}
@@ -1924,6 +2058,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getInputDataType_ImagesPerFile() {
 		return (EAttribute)inputDataTypeEClass.getEStructuralFeatures().get(16);
 	}
@@ -1933,6 +2068,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getInputDataType_Restrictions() {
 		return (EReference)inputDataTypeEClass.getEStructuralFeatures().get(17);
 	}
@@ -1942,6 +2078,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getInputDataType_ValueMin() {
 		return (EAttribute)inputDataTypeEClass.getEStructuralFeatures().get(18);
 	}
@@ -1951,6 +2088,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getInputDataType_ValueMax() {
 		return (EAttribute)inputDataTypeEClass.getEStructuralFeatures().get(19);
 	}
@@ -1960,6 +2098,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getInputDataType_Type() {
 		return (EReference)inputDataTypeEClass.getEStructuralFeatures().get(20);
 	}
@@ -1969,6 +2108,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getInputDataType_Shape() {
 		return (EReference)inputDataTypeEClass.getEStructuralFeatures().get(21);
 	}
@@ -1978,6 +2118,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getInputDataType_PixelParam() {
 		return (EAttribute)inputDataTypeEClass.getEStructuralFeatures().get(22);
 	}
@@ -1987,6 +2128,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getIntensityType() {
 		return intensityTypeEClass;
 	}
@@ -1996,6 +2138,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getIntensityType_Type() {
 		return (EReference)intensityTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2005,6 +2148,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getIntensityType_ColumnLeft() {
 		return (EAttribute)intensityTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2014,6 +2158,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getIntensityType_ColumnRight() {
 		return (EAttribute)intensityTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -2023,6 +2168,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getIntensityType_ZeroLeft() {
 		return (EAttribute)intensityTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -2032,6 +2178,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getIntensityType_ZeroRight() {
 		return (EAttribute)intensityTypeEClass.getEStructuralFeatures().get(4);
 	}
@@ -2041,6 +2188,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getInterpolationType() {
 		return interpolationTypeEClass;
 	}
@@ -2050,6 +2198,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getInterpolationType_Value() {
 		return (EAttribute)interpolationTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2059,6 +2208,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getInterpolationType_Info() {
 		return (EAttribute)interpolationTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2068,6 +2218,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getMemorySizeMaxType() {
 		return memorySizeMaxTypeEClass;
 	}
@@ -2077,6 +2228,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMemorySizeMaxType_Value() {
 		return (EAttribute)memorySizeMaxTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2086,6 +2238,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMemorySizeMaxType_Info() {
 		return (EAttribute)memorySizeMaxTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2095,6 +2248,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getMemorySizeMinType() {
 		return memorySizeMinTypeEClass;
 	}
@@ -2104,6 +2258,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMemorySizeMinType_Value() {
 		return (EAttribute)memorySizeMinTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2113,6 +2268,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMemorySizeMinType_Info() {
 		return (EAttribute)memorySizeMinTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2122,6 +2278,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getMissedProjectionsType() {
 		return missedProjectionsTypeEClass;
 	}
@@ -2131,6 +2288,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMissedProjectionsType_Value() {
 		return (EAttribute)missedProjectionsTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2140,6 +2298,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMissedProjectionsType_Info() {
 		return (EAttribute)missedProjectionsTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2149,6 +2308,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getMissedProjectionsTypeType() {
 		return missedProjectionsTypeTypeEClass;
 	}
@@ -2158,6 +2318,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMissedProjectionsTypeType_Value() {
 		return (EAttribute)missedProjectionsTypeTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2167,6 +2328,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMissedProjectionsTypeType_Info() {
 		return (EAttribute)missedProjectionsTypeTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2176,6 +2338,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getNameType() {
 		return nameTypeEClass;
 	}
@@ -2185,6 +2348,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getNameType_Value() {
 		return (EAttribute)nameTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2194,6 +2358,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getNameType_Info() {
 		return (EAttribute)nameTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2203,6 +2368,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getNODType() {
 		return nodTypeEClass;
 	}
@@ -2212,6 +2378,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getNODType_Value() {
 		return (EAttribute)nodTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2221,6 +2388,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getNODType_Info() {
 		return (EAttribute)nodTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2230,6 +2398,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getNormalisationType() {
 		return normalisationTypeEClass;
 	}
@@ -2239,6 +2408,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getNormalisationType_Value() {
 		return (EAttribute)normalisationTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2248,6 +2418,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getNormalisationType_Info() {
 		return (EAttribute)normalisationTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2257,6 +2428,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getNumSeriesType() {
 		return numSeriesTypeEClass;
 	}
@@ -2266,6 +2438,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getNumSeriesType_Value() {
 		return (EAttribute)numSeriesTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2275,6 +2448,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getNumSeriesType_Info() {
 		return (EAttribute)numSeriesTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2284,6 +2458,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getOffsetType() {
 		return offsetTypeEClass;
 	}
@@ -2293,6 +2468,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOffsetType_Value() {
 		return (EAttribute)offsetTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2302,6 +2478,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOffsetType_Info() {
 		return (EAttribute)offsetTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2311,6 +2488,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getOrientationType() {
 		return orientationTypeEClass;
 	}
@@ -2320,6 +2498,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOrientationType_Value() {
 		return (EAttribute)orientationTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2329,6 +2508,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOrientationType_Done() {
 		return (EAttribute)orientationTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2338,6 +2518,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOrientationType_Info() {
 		return (EAttribute)orientationTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -2347,6 +2528,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getOutputDataType() {
 		return outputDataTypeEClass;
 	}
@@ -2356,6 +2538,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getOutputDataType_Type() {
 		return (EReference)outputDataTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2365,6 +2548,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getOutputDataType_State() {
 		return (EReference)outputDataTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2374,6 +2558,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOutputDataType_Folder() {
 		return (EAttribute)outputDataTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -2383,6 +2568,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOutputDataType_Prefix() {
 		return (EAttribute)outputDataTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -2392,6 +2578,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOutputDataType_Suffix() {
 		return (EAttribute)outputDataTypeEClass.getEStructuralFeatures().get(4);
 	}
@@ -2401,6 +2588,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOutputDataType_Extension() {
 		return (EAttribute)outputDataTypeEClass.getEStructuralFeatures().get(5);
 	}
@@ -2410,6 +2598,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOutputDataType_NOD() {
 		return (EAttribute)outputDataTypeEClass.getEStructuralFeatures().get(6);
 	}
@@ -2419,6 +2608,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOutputDataType_FileFirst() {
 		return (EAttribute)outputDataTypeEClass.getEStructuralFeatures().get(7);
 	}
@@ -2428,6 +2618,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOutputDataType_FileStep() {
 		return (EAttribute)outputDataTypeEClass.getEStructuralFeatures().get(8);
 	}
@@ -2437,6 +2628,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getOutputDataType_BitsType() {
 		return (EReference)outputDataTypeEClass.getEStructuralFeatures().get(9);
 	}
@@ -2446,6 +2638,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOutputDataType_Bits() {
 		return (EAttribute)outputDataTypeEClass.getEStructuralFeatures().get(10);
 	}
@@ -2455,6 +2648,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getOutputDataType_Restrictions() {
 		return (EReference)outputDataTypeEClass.getEStructuralFeatures().get(11);
 	}
@@ -2464,6 +2658,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOutputDataType_ValueMin() {
 		return (EAttribute)outputDataTypeEClass.getEStructuralFeatures().get(12);
 	}
@@ -2473,6 +2668,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOutputDataType_ValueMax() {
 		return (EAttribute)outputDataTypeEClass.getEStructuralFeatures().get(13);
 	}
@@ -2482,6 +2678,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getOutputDataType_Shape() {
 		return (EReference)outputDataTypeEClass.getEStructuralFeatures().get(14);
 	}
@@ -2491,6 +2688,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getOutputWidthTypeType() {
 		return outputWidthTypeTypeEClass;
 	}
@@ -2500,6 +2698,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOutputWidthTypeType_Value() {
 		return (EAttribute)outputWidthTypeTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2509,6 +2708,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getOutputWidthTypeType_Info() {
 		return (EAttribute)outputWidthTypeTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2518,6 +2718,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getPolarCartesianInterpolationType() {
 		return polarCartesianInterpolationTypeEClass;
 	}
@@ -2527,6 +2728,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getPolarCartesianInterpolationType_Value() {
 		return (EAttribute)polarCartesianInterpolationTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2536,6 +2738,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getPolarCartesianInterpolationType_Done() {
 		return (EAttribute)polarCartesianInterpolationTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2545,6 +2748,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getPolarCartesianInterpolationType_Info() {
 		return (EAttribute)polarCartesianInterpolationTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -2554,6 +2758,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getPreprocessingType() {
 		return preprocessingTypeEClass;
 	}
@@ -2563,6 +2768,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getPreprocessingType_HighPeaksBefore() {
 		return (EReference)preprocessingTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2572,6 +2778,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getPreprocessingType_RingArtefacts() {
 		return (EReference)preprocessingTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2581,6 +2788,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getPreprocessingType_Intensity() {
 		return (EReference)preprocessingTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -2590,6 +2798,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getPreprocessingType_HighPeaksAfterRows() {
 		return (EReference)preprocessingTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -2599,6 +2808,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getPreprocessingType_HighPeaksAfterColumns() {
 		return (EReference)preprocessingTypeEClass.getEStructuralFeatures().get(4);
 	}
@@ -2608,6 +2818,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getProfileTypeType() {
 		return profileTypeTypeEClass;
 	}
@@ -2617,6 +2828,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getProfileTypeType_Value() {
 		return (EAttribute)profileTypeTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2626,6 +2838,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getProfileTypeType_Info() {
 		return (EAttribute)profileTypeTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2635,6 +2848,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getProfileTypeType1() {
 		return profileTypeType1EClass;
 	}
@@ -2644,6 +2858,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getProfileTypeType1_Value() {
 		return (EAttribute)profileTypeType1EClass.getEStructuralFeatures().get(0);
 	}
@@ -2653,6 +2868,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getProfileTypeType1_Info() {
 		return (EAttribute)profileTypeType1EClass.getEStructuralFeatures().get(1);
 	}
@@ -2662,6 +2878,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getRawType() {
 		return rawTypeEClass;
 	}
@@ -2671,6 +2888,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getRawType_Type() {
 		return (EReference)rawTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2680,6 +2898,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRawType_Bits() {
 		return (EAttribute)rawTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2689,6 +2908,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getRawType_Offset() {
 		return (EReference)rawTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -2698,6 +2918,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getRawType_ByteOrder() {
 		return (EReference)rawTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -2707,6 +2928,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRawType_Xlen() {
 		return (EAttribute)rawTypeEClass.getEStructuralFeatures().get(4);
 	}
@@ -2716,6 +2938,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRawType_Ylen() {
 		return (EAttribute)rawTypeEClass.getEStructuralFeatures().get(5);
 	}
@@ -2725,6 +2948,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRawType_Zlen() {
 		return (EAttribute)rawTypeEClass.getEStructuralFeatures().get(6);
 	}
@@ -2734,6 +2958,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getRawType_Gap() {
 		return (EReference)rawTypeEClass.getEStructuralFeatures().get(7);
 	}
@@ -2743,6 +2968,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRawType_Done() {
 		return (EAttribute)rawTypeEClass.getEStructuralFeatures().get(8);
 	}
@@ -2752,6 +2978,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getRestrictionsType() {
 		return restrictionsTypeEClass;
 	}
@@ -2761,6 +2988,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRestrictionsType_Value() {
 		return (EAttribute)restrictionsTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2770,6 +2998,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRestrictionsType_Info() {
 		return (EAttribute)restrictionsTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2779,6 +3008,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getRestrictionsType1() {
 		return restrictionsType1EClass;
 	}
@@ -2788,6 +3018,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRestrictionsType1_Value() {
 		return (EAttribute)restrictionsType1EClass.getEStructuralFeatures().get(0);
 	}
@@ -2797,6 +3028,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRestrictionsType1_Info() {
 		return (EAttribute)restrictionsType1EClass.getEStructuralFeatures().get(1);
 	}
@@ -2806,6 +3038,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getRingArtefactsType() {
 		return ringArtefactsTypeEClass;
 	}
@@ -2815,6 +3048,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getRingArtefactsType_Type() {
 		return (EReference)ringArtefactsTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2824,6 +3058,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRingArtefactsType_ParameterN() {
 		return (EAttribute)ringArtefactsTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2833,6 +3068,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRingArtefactsType_ParameterR() {
 		return (EAttribute)ringArtefactsTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -2842,6 +3078,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getRingArtefactsType_NumSeries() {
 		return (EReference)ringArtefactsTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -2851,6 +3088,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getROIType() {
 		return roiTypeEClass;
 	}
@@ -2860,6 +3098,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getROIType_Type() {
 		return (EReference)roiTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2869,6 +3108,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getROIType_Xmin() {
 		return (EAttribute)roiTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2878,6 +3118,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getROIType_Xmax() {
 		return (EAttribute)roiTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -2887,6 +3128,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getROIType_Ymin() {
 		return (EAttribute)roiTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -2896,6 +3138,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getROIType_Ymax() {
 		return (EAttribute)roiTypeEClass.getEStructuralFeatures().get(4);
 	}
@@ -2905,6 +3148,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getROIType_OutputWidthType() {
 		return (EReference)roiTypeEClass.getEStructuralFeatures().get(5);
 	}
@@ -2914,6 +3158,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getROIType_OutputWidth() {
 		return (EAttribute)roiTypeEClass.getEStructuralFeatures().get(6);
 	}
@@ -2923,6 +3168,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getROIType_Angle() {
 		return (EAttribute)roiTypeEClass.getEStructuralFeatures().get(7);
 	}
@@ -2932,6 +3178,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getRotationAngleEndPointsType() {
 		return rotationAngleEndPointsTypeEClass;
 	}
@@ -2941,6 +3188,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRotationAngleEndPointsType_Value() {
 		return (EAttribute)rotationAngleEndPointsTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2950,6 +3198,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRotationAngleEndPointsType_Info() {
 		return (EAttribute)rotationAngleEndPointsTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2959,6 +3208,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getRotationAngleTypeType() {
 		return rotationAngleTypeTypeEClass;
 	}
@@ -2968,6 +3218,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRotationAngleTypeType_Value() {
 		return (EAttribute)rotationAngleTypeTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -2977,6 +3228,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getRotationAngleTypeType_Info() {
 		return (EAttribute)rotationAngleTypeTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -2986,6 +3238,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getScaleTypeType() {
 		return scaleTypeTypeEClass;
 	}
@@ -2995,6 +3248,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getScaleTypeType_Value() {
 		return (EAttribute)scaleTypeTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -3004,6 +3258,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getScaleTypeType_Info() {
 		return (EAttribute)scaleTypeTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -3013,6 +3268,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getShapeType() {
 		return shapeTypeEClass;
 	}
@@ -3022,6 +3278,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getShapeType_Value() {
 		return (EAttribute)shapeTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -3031,6 +3288,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getShapeType_Done() {
 		return (EAttribute)shapeTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -3040,6 +3298,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getShapeType_Info() {
 		return (EAttribute)shapeTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -3049,6 +3308,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getShapeType1() {
 		return shapeType1EClass;
 	}
@@ -3058,6 +3318,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getShapeType1_Value() {
 		return (EAttribute)shapeType1EClass.getEStructuralFeatures().get(0);
 	}
@@ -3067,6 +3328,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getShapeType1_Info() {
 		return (EAttribute)shapeType1EClass.getEStructuralFeatures().get(1);
 	}
@@ -3076,6 +3338,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getStateType() {
 		return stateTypeEClass;
 	}
@@ -3085,6 +3348,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getStateType_Value() {
 		return (EAttribute)stateTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -3094,6 +3358,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getStateType_Info() {
 		return (EAttribute)stateTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -3103,6 +3368,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTiltType() {
 		return tiltTypeEClass;
 	}
@@ -3112,6 +3378,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getTiltType_Type() {
 		return (EReference)tiltTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -3121,6 +3388,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTiltType_XTilt() {
 		return (EAttribute)tiltTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -3130,6 +3398,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTiltType_ZTilt() {
 		return (EAttribute)tiltTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -3139,6 +3408,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTiltType_Done() {
 		return (EAttribute)tiltTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -3148,6 +3418,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTransformType() {
 		return transformTypeEClass;
 	}
@@ -3157,6 +3428,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getTransformType_MissedProjections() {
 		return (EReference)transformTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -3166,6 +3438,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getTransformType_MissedProjectionsType() {
 		return (EReference)transformTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -3175,6 +3448,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getTransformType_RotationAngleType() {
 		return (EReference)transformTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -3184,6 +3458,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTransformType_RotationAngle() {
 		return (EAttribute)transformTypeEClass.getEStructuralFeatures().get(3);
 	}
@@ -3193,6 +3468,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getTransformType_RotationAngleEndPoints() {
 		return (EReference)transformTypeEClass.getEStructuralFeatures().get(4);
 	}
@@ -3202,6 +3478,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTransformType_ReCentreAngle() {
 		return (EAttribute)transformTypeEClass.getEStructuralFeatures().get(5);
 	}
@@ -3211,6 +3488,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTransformType_ReCentreRadius() {
 		return (EAttribute)transformTypeEClass.getEStructuralFeatures().get(6);
 	}
@@ -3220,6 +3498,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTransformType_CropTop() {
 		return (EAttribute)transformTypeEClass.getEStructuralFeatures().get(7);
 	}
@@ -3229,6 +3508,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTransformType_CropBottom() {
 		return (EAttribute)transformTypeEClass.getEStructuralFeatures().get(8);
 	}
@@ -3238,6 +3518,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTransformType_CropLeft() {
 		return (EAttribute)transformTypeEClass.getEStructuralFeatures().get(9);
 	}
@@ -3247,6 +3528,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTransformType_CropRight() {
 		return (EAttribute)transformTypeEClass.getEStructuralFeatures().get(10);
 	}
@@ -3256,6 +3538,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getTransformType_ScaleType() {
 		return (EReference)transformTypeEClass.getEStructuralFeatures().get(11);
 	}
@@ -3265,6 +3548,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTransformType_ScaleWidth() {
 		return (EAttribute)transformTypeEClass.getEStructuralFeatures().get(12);
 	}
@@ -3274,6 +3558,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTransformType_ScaleHeight() {
 		return (EAttribute)transformTypeEClass.getEStructuralFeatures().get(13);
 	}
@@ -3283,6 +3568,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getTransformType_ExtrapolationType() {
 		return (EReference)transformTypeEClass.getEStructuralFeatures().get(14);
 	}
@@ -3292,6 +3578,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTransformType_ExtrapolationPixels() {
 		return (EAttribute)transformTypeEClass.getEStructuralFeatures().get(15);
 	}
@@ -3301,6 +3588,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTransformType_ExtrapolationWidth() {
 		return (EAttribute)transformTypeEClass.getEStructuralFeatures().get(16);
 	}
@@ -3310,6 +3598,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getTransformType_Interpolation() {
 		return (EReference)transformTypeEClass.getEStructuralFeatures().get(17);
 	}
@@ -3319,6 +3608,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType() {
 		return typeTypeEClass;
 	}
@@ -3328,6 +3618,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType_Value() {
 		return (EAttribute)typeTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -3337,6 +3628,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType_Info() {
 		return (EAttribute)typeTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -3346,6 +3638,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType1() {
 		return typeType1EClass;
 	}
@@ -3355,6 +3648,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType1_Value() {
 		return (EAttribute)typeType1EClass.getEStructuralFeatures().get(0);
 	}
@@ -3364,6 +3658,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType1_Info() {
 		return (EAttribute)typeType1EClass.getEStructuralFeatures().get(1);
 	}
@@ -3373,6 +3668,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType2() {
 		return typeType2EClass;
 	}
@@ -3382,6 +3678,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType2_Value() {
 		return (EAttribute)typeType2EClass.getEStructuralFeatures().get(0);
 	}
@@ -3391,6 +3688,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType2_Info() {
 		return (EAttribute)typeType2EClass.getEStructuralFeatures().get(1);
 	}
@@ -3400,6 +3698,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType3() {
 		return typeType3EClass;
 	}
@@ -3409,6 +3708,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType3_Value() {
 		return (EAttribute)typeType3EClass.getEStructuralFeatures().get(0);
 	}
@@ -3418,6 +3718,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType3_Info() {
 		return (EAttribute)typeType3EClass.getEStructuralFeatures().get(1);
 	}
@@ -3427,6 +3728,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType4() {
 		return typeType4EClass;
 	}
@@ -3436,6 +3738,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType4_Value() {
 		return (EAttribute)typeType4EClass.getEStructuralFeatures().get(0);
 	}
@@ -3445,6 +3748,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType4_Info() {
 		return (EAttribute)typeType4EClass.getEStructuralFeatures().get(1);
 	}
@@ -3454,6 +3758,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType5() {
 		return typeType5EClass;
 	}
@@ -3463,6 +3768,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType5_Value() {
 		return (EAttribute)typeType5EClass.getEStructuralFeatures().get(0);
 	}
@@ -3472,6 +3778,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType5_Info() {
 		return (EAttribute)typeType5EClass.getEStructuralFeatures().get(1);
 	}
@@ -3481,6 +3788,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType6() {
 		return typeType6EClass;
 	}
@@ -3490,6 +3798,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType6_Value() {
 		return (EAttribute)typeType6EClass.getEStructuralFeatures().get(0);
 	}
@@ -3499,6 +3808,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType6_Info() {
 		return (EAttribute)typeType6EClass.getEStructuralFeatures().get(1);
 	}
@@ -3508,6 +3818,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType7() {
 		return typeType7EClass;
 	}
@@ -3517,6 +3828,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType7_Value() {
 		return (EAttribute)typeType7EClass.getEStructuralFeatures().get(0);
 	}
@@ -3526,6 +3838,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType7_Info() {
 		return (EAttribute)typeType7EClass.getEStructuralFeatures().get(1);
 	}
@@ -3535,6 +3848,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType8() {
 		return typeType8EClass;
 	}
@@ -3544,6 +3858,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType8_Value() {
 		return (EAttribute)typeType8EClass.getEStructuralFeatures().get(0);
 	}
@@ -3553,6 +3868,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType8_Info() {
 		return (EAttribute)typeType8EClass.getEStructuralFeatures().get(1);
 	}
@@ -3562,6 +3878,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType9() {
 		return typeType9EClass;
 	}
@@ -3571,6 +3888,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType9_Value() {
 		return (EAttribute)typeType9EClass.getEStructuralFeatures().get(0);
 	}
@@ -3580,6 +3898,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType9_Info() {
 		return (EAttribute)typeType9EClass.getEStructuralFeatures().get(1);
 	}
@@ -3589,6 +3908,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType10() {
 		return typeType10EClass;
 	}
@@ -3598,6 +3918,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType10_Value() {
 		return (EAttribute)typeType10EClass.getEStructuralFeatures().get(0);
 	}
@@ -3607,6 +3928,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType10_Info() {
 		return (EAttribute)typeType10EClass.getEStructuralFeatures().get(1);
 	}
@@ -3616,6 +3938,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType11() {
 		return typeType11EClass;
 	}
@@ -3625,6 +3948,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType11_Value() {
 		return (EAttribute)typeType11EClass.getEStructuralFeatures().get(0);
 	}
@@ -3634,6 +3958,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType11_Info() {
 		return (EAttribute)typeType11EClass.getEStructuralFeatures().get(1);
 	}
@@ -3643,6 +3968,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType12() {
 		return typeType12EClass;
 	}
@@ -3652,6 +3978,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType12_Value() {
 		return (EAttribute)typeType12EClass.getEStructuralFeatures().get(0);
 	}
@@ -3661,6 +3988,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType12_Info() {
 		return (EAttribute)typeType12EClass.getEStructuralFeatures().get(1);
 	}
@@ -3670,6 +3998,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType13() {
 		return typeType13EClass;
 	}
@@ -3679,6 +4008,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType13_Value() {
 		return (EAttribute)typeType13EClass.getEStructuralFeatures().get(0);
 	}
@@ -3688,6 +4018,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType13_Info() {
 		return (EAttribute)typeType13EClass.getEStructuralFeatures().get(1);
 	}
@@ -3697,6 +4028,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType14() {
 		return typeType14EClass;
 	}
@@ -3706,6 +4038,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType14_Value() {
 		return (EAttribute)typeType14EClass.getEStructuralFeatures().get(0);
 	}
@@ -3715,6 +4048,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType14_Info() {
 		return (EAttribute)typeType14EClass.getEStructuralFeatures().get(1);
 	}
@@ -3724,6 +4058,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType15() {
 		return typeType15EClass;
 	}
@@ -3733,6 +4068,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType15_Value() {
 		return (EAttribute)typeType15EClass.getEStructuralFeatures().get(0);
 	}
@@ -3742,6 +4078,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType15_Info() {
 		return (EAttribute)typeType15EClass.getEStructuralFeatures().get(1);
 	}
@@ -3751,6 +4088,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType16() {
 		return typeType16EClass;
 	}
@@ -3760,6 +4098,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType16_Value() {
 		return (EAttribute)typeType16EClass.getEStructuralFeatures().get(0);
 	}
@@ -3769,6 +4108,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType16_Info() {
 		return (EAttribute)typeType16EClass.getEStructuralFeatures().get(1);
 	}
@@ -3778,6 +4118,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getTypeType17() {
 		return typeType17EClass;
 	}
@@ -3787,6 +4128,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType17_Value() {
 		return (EAttribute)typeType17EClass.getEStructuralFeatures().get(0);
 	}
@@ -3796,6 +4138,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getTypeType17_Info() {
 		return (EAttribute)typeType17EClass.getEStructuralFeatures().get(1);
 	}
@@ -3805,6 +4148,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getValueMaxType() {
 		return valueMaxTypeEClass;
 	}
@@ -3814,6 +4158,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getValueMaxType_Type() {
 		return (EReference)valueMaxTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -3823,6 +4168,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getValueMaxType_Percent() {
 		return (EAttribute)valueMaxTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -3832,6 +4178,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getValueMaxType_Pixel() {
 		return (EAttribute)valueMaxTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -3841,6 +4188,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getValueMinType() {
 		return valueMinTypeEClass;
 	}
@@ -3850,6 +4198,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getValueMinType_Type() {
 		return (EReference)valueMinTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -3859,6 +4208,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getValueMinType_Percent() {
 		return (EAttribute)valueMinTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -3868,6 +4218,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getValueMinType_Pixel() {
 		return (EAttribute)valueMinTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -3877,6 +4228,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getValueStepType() {
 		return valueStepTypeEClass;
 	}
@@ -3886,6 +4238,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getValueStepType_Type() {
 		return (EReference)valueStepTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -3895,6 +4248,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getValueStepType_Percent() {
 		return (EAttribute)valueStepTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -3904,6 +4258,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getValueStepType_Pixel() {
 		return (EAttribute)valueStepTypeEClass.getEStructuralFeatures().get(2);
 	}
@@ -3913,6 +4268,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getWindowNameType() {
 		return windowNameTypeEClass;
 	}
@@ -3922,6 +4278,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getWindowNameType_Value() {
 		return (EAttribute)windowNameTypeEClass.getEStructuralFeatures().get(0);
 	}
@@ -3931,6 +4288,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getWindowNameType_Info() {
 		return (EAttribute)windowNameTypeEClass.getEStructuralFeatures().get(1);
 	}
@@ -3940,6 +4298,7 @@ public class HmPackageImpl extends EPackageImpl implements HmPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public HmFactory getHmFactory() {
 		return (HmFactory)getEFactoryInstance();
 	}

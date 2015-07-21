@@ -202,6 +202,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public DefaultXmlType getDefaultXml() {
 		return defaultXml;
 	}
@@ -226,6 +227,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDefaultXml(DefaultXmlType newDefaultXml) {
 		if (newDefaultXml != defaultXml) {
 			NotificationChain msgs = null;
@@ -245,6 +247,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getGPUDeviceNumber() {
 		return gPUDeviceNumber;
 	}
@@ -254,6 +257,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setGPUDeviceNumber(int newGPUDeviceNumber) {
 		int oldGPUDeviceNumber = gPUDeviceNumber;
 		gPUDeviceNumber = newGPUDeviceNumber;
@@ -268,6 +272,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetGPUDeviceNumber() {
 		int oldGPUDeviceNumber = gPUDeviceNumber;
 		boolean oldGPUDeviceNumberESet = gPUDeviceNumberESet;
@@ -282,6 +287,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetGPUDeviceNumber() {
 		return gPUDeviceNumberESet;
 	}
@@ -291,6 +297,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BeamlineUserType getBeamlineUser() {
 		return beamlineUser;
 	}
@@ -315,6 +322,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setBeamlineUser(BeamlineUserType newBeamlineUser) {
 		if (newBeamlineUser != beamlineUser) {
 			NotificationChain msgs = null;
@@ -334,6 +342,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getLogFile() {
 		return logFile;
 	}
@@ -343,6 +352,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setLogFile(String newLogFile) {
 		String oldLogFile = logFile;
 		logFile = newLogFile;
@@ -355,6 +365,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public InputDataType getInputData() {
 		return inputData;
 	}
@@ -379,6 +390,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setInputData(InputDataType newInputData) {
 		if (newInputData != inputData) {
 			NotificationChain msgs = null;
@@ -398,6 +410,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public FlatDarkFieldsType getFlatDarkFields() {
 		return flatDarkFields;
 	}
@@ -422,6 +435,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFlatDarkFields(FlatDarkFieldsType newFlatDarkFields) {
 		if (newFlatDarkFields != flatDarkFields) {
 			NotificationChain msgs = null;
@@ -441,6 +455,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public PreprocessingType getPreprocessing() {
 		return preprocessing;
 	}
@@ -465,6 +480,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setPreprocessing(PreprocessingType newPreprocessing) {
 		if (newPreprocessing != preprocessing) {
 			NotificationChain msgs = null;
@@ -484,6 +500,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TransformType getTransform() {
 		return transform;
 	}
@@ -508,6 +525,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setTransform(TransformType newTransform) {
 		if (newTransform != transform) {
 			NotificationChain msgs = null;
@@ -527,6 +545,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BackprojectionType getBackprojection() {
 		return backprojection;
 	}
@@ -551,6 +570,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setBackprojection(BackprojectionType newBackprojection) {
 		if (newBackprojection != backprojection) {
 			NotificationChain msgs = null;
@@ -570,6 +590,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public OutputDataType getOutputData() {
 		return outputData;
 	}
@@ -594,6 +615,7 @@ public class FBPTypeImpl extends EObjectImpl implements FBPType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setOutputData(OutputDataType newOutputData) {
 		if (newOutputData != outputData) {
 			NotificationChain msgs = null;

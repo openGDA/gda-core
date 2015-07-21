@@ -453,6 +453,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MissedProjectionsType getMissedProjections() {
 		return missedProjections;
 	}
@@ -477,6 +478,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMissedProjections(MissedProjectionsType newMissedProjections) {
 		if (newMissedProjections != missedProjections) {
 			NotificationChain msgs = null;
@@ -496,6 +498,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MissedProjectionsTypeType getMissedProjectionsType() {
 		return missedProjectionsType;
 	}
@@ -520,6 +523,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMissedProjectionsType(MissedProjectionsTypeType newMissedProjectionsType) {
 		if (newMissedProjectionsType != missedProjectionsType) {
 			NotificationChain msgs = null;
@@ -539,6 +543,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RotationAngleTypeType getRotationAngleType() {
 		return rotationAngleType;
 	}
@@ -563,6 +568,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setRotationAngleType(RotationAngleTypeType newRotationAngleType) {
 		if (newRotationAngleType != rotationAngleType) {
 			NotificationChain msgs = null;
@@ -582,6 +588,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getRotationAngle() {
 		return rotationAngle;
 	}
@@ -591,6 +598,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setRotationAngle(int newRotationAngle) {
 		int oldRotationAngle = rotationAngle;
 		rotationAngle = newRotationAngle;
@@ -605,6 +613,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetRotationAngle() {
 		int oldRotationAngle = rotationAngle;
 		boolean oldRotationAngleESet = rotationAngleESet;
@@ -619,6 +628,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetRotationAngle() {
 		return rotationAngleESet;
 	}
@@ -628,6 +638,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RotationAngleEndPointsType getRotationAngleEndPoints() {
 		return rotationAngleEndPoints;
 	}
@@ -652,6 +663,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setRotationAngleEndPoints(RotationAngleEndPointsType newRotationAngleEndPoints) {
 		if (newRotationAngleEndPoints != rotationAngleEndPoints) {
 			NotificationChain msgs = null;
@@ -671,6 +683,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BigDecimal getReCentreAngle() {
 		return reCentreAngle;
 	}
@@ -680,6 +693,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setReCentreAngle(BigDecimal newReCentreAngle) {
 		BigDecimal oldReCentreAngle = reCentreAngle;
 		reCentreAngle = newReCentreAngle;
@@ -692,6 +706,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BigDecimal getReCentreRadius() {
 		return reCentreRadius;
 	}
@@ -701,6 +716,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setReCentreRadius(BigDecimal newReCentreRadius) {
 		BigDecimal oldReCentreRadius = reCentreRadius;
 		reCentreRadius = newReCentreRadius;
@@ -713,6 +729,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getCropTop() {
 		return cropTop;
 	}
@@ -722,6 +739,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCropTop(int newCropTop) {
 		int oldCropTop = cropTop;
 		cropTop = newCropTop;
@@ -736,6 +754,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetCropTop() {
 		int oldCropTop = cropTop;
 		boolean oldCropTopESet = cropTopESet;
@@ -750,6 +769,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetCropTop() {
 		return cropTopESet;
 	}
@@ -759,6 +779,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getCropBottom() {
 		return cropBottom;
 	}
@@ -768,6 +789,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCropBottom(int newCropBottom) {
 		int oldCropBottom = cropBottom;
 		cropBottom = newCropBottom;
@@ -782,6 +804,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetCropBottom() {
 		int oldCropBottom = cropBottom;
 		boolean oldCropBottomESet = cropBottomESet;
@@ -796,6 +819,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetCropBottom() {
 		return cropBottomESet;
 	}
@@ -805,6 +829,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getCropLeft() {
 		return cropLeft;
 	}
@@ -814,6 +839,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCropLeft(int newCropLeft) {
 		int oldCropLeft = cropLeft;
 		cropLeft = newCropLeft;
@@ -828,6 +854,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetCropLeft() {
 		int oldCropLeft = cropLeft;
 		boolean oldCropLeftESet = cropLeftESet;
@@ -842,6 +869,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetCropLeft() {
 		return cropLeftESet;
 	}
@@ -851,6 +879,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getCropRight() {
 		return cropRight;
 	}
@@ -860,6 +889,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCropRight(int newCropRight) {
 		int oldCropRight = cropRight;
 		cropRight = newCropRight;
@@ -874,6 +904,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetCropRight() {
 		int oldCropRight = cropRight;
 		boolean oldCropRightESet = cropRightESet;
@@ -888,6 +919,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetCropRight() {
 		return cropRightESet;
 	}
@@ -897,6 +929,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ScaleTypeType getScaleType() {
 		return scaleType;
 	}
@@ -921,6 +954,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setScaleType(ScaleTypeType newScaleType) {
 		if (newScaleType != scaleType) {
 			NotificationChain msgs = null;
@@ -940,6 +974,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getScaleWidth() {
 		return scaleWidth;
 	}
@@ -949,6 +984,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setScaleWidth(int newScaleWidth) {
 		int oldScaleWidth = scaleWidth;
 		scaleWidth = newScaleWidth;
@@ -963,6 +999,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetScaleWidth() {
 		int oldScaleWidth = scaleWidth;
 		boolean oldScaleWidthESet = scaleWidthESet;
@@ -977,6 +1014,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetScaleWidth() {
 		return scaleWidthESet;
 	}
@@ -986,6 +1024,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getScaleHeight() {
 		return scaleHeight;
 	}
@@ -995,6 +1034,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setScaleHeight(int newScaleHeight) {
 		int oldScaleHeight = scaleHeight;
 		scaleHeight = newScaleHeight;
@@ -1009,6 +1049,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetScaleHeight() {
 		int oldScaleHeight = scaleHeight;
 		boolean oldScaleHeightESet = scaleHeightESet;
@@ -1023,6 +1064,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetScaleHeight() {
 		return scaleHeightESet;
 	}
@@ -1032,6 +1074,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ExtrapolationTypeType getExtrapolationType() {
 		return extrapolationType;
 	}
@@ -1056,6 +1099,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setExtrapolationType(ExtrapolationTypeType newExtrapolationType) {
 		if (newExtrapolationType != extrapolationType) {
 			NotificationChain msgs = null;
@@ -1075,6 +1119,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getExtrapolationPixels() {
 		return extrapolationPixels;
 	}
@@ -1084,6 +1129,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setExtrapolationPixels(int newExtrapolationPixels) {
 		int oldExtrapolationPixels = extrapolationPixels;
 		extrapolationPixels = newExtrapolationPixels;
@@ -1098,6 +1144,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetExtrapolationPixels() {
 		int oldExtrapolationPixels = extrapolationPixels;
 		boolean oldExtrapolationPixelsESet = extrapolationPixelsESet;
@@ -1112,6 +1159,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetExtrapolationPixels() {
 		return extrapolationPixelsESet;
 	}
@@ -1121,6 +1169,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getExtrapolationWidth() {
 		return extrapolationWidth;
 	}
@@ -1130,6 +1179,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setExtrapolationWidth(int newExtrapolationWidth) {
 		int oldExtrapolationWidth = extrapolationWidth;
 		extrapolationWidth = newExtrapolationWidth;
@@ -1144,6 +1194,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetExtrapolationWidth() {
 		int oldExtrapolationWidth = extrapolationWidth;
 		boolean oldExtrapolationWidthESet = extrapolationWidthESet;
@@ -1158,6 +1209,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetExtrapolationWidth() {
 		return extrapolationWidthESet;
 	}
@@ -1167,6 +1219,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public InterpolationType getInterpolation() {
 		return interpolation;
 	}
@@ -1191,6 +1244,7 @@ public class TransformTypeImpl extends EObjectImpl implements TransformType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setInterpolation(InterpolationType newInterpolation) {
 		if (newInterpolation != interpolation) {
 			NotificationChain msgs = null;

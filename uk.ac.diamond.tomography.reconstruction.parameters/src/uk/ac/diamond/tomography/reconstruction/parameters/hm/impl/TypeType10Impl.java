@@ -95,6 +95,7 @@ public class TypeType10Impl extends EObjectImpl implements TypeType10 {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getValue() {
 		return value;
 	}
@@ -104,6 +105,7 @@ public class TypeType10Impl extends EObjectImpl implements TypeType10 {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setValue(String newValue) {
 		String oldValue = value;
 		value = newValue;
@@ -116,6 +118,7 @@ public class TypeType10Impl extends EObjectImpl implements TypeType10 {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getInfo() {
 		return info;
 	}
@@ -125,6 +128,7 @@ public class TypeType10Impl extends EObjectImpl implements TypeType10 {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setInfo(String newInfo) {
 		String oldInfo = info;
 		info = newInfo;

@@ -130,6 +130,7 @@ public class TiltTypeImpl extends EObjectImpl implements TiltType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType8 getType() {
 		return type;
 	}
@@ -154,6 +155,7 @@ public class TiltTypeImpl extends EObjectImpl implements TiltType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setType(TypeType8 newType) {
 		if (newType != type) {
 			NotificationChain msgs = null;
@@ -173,6 +175,7 @@ public class TiltTypeImpl extends EObjectImpl implements TiltType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getXTilt() {
 		return xTilt;
 	}
@@ -182,6 +185,7 @@ public class TiltTypeImpl extends EObjectImpl implements TiltType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setXTilt(String newXTilt) {
 		String oldXTilt = xTilt;
 		xTilt = newXTilt;
@@ -194,6 +198,7 @@ public class TiltTypeImpl extends EObjectImpl implements TiltType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getZTilt() {
 		return zTilt;
 	}
@@ -203,6 +208,7 @@ public class TiltTypeImpl extends EObjectImpl implements TiltType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setZTilt(String newZTilt) {
 		String oldZTilt = zTilt;
 		zTilt = newZTilt;
@@ -215,6 +221,7 @@ public class TiltTypeImpl extends EObjectImpl implements TiltType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getDone() {
 		return done;
 	}
@@ -224,6 +231,7 @@ public class TiltTypeImpl extends EObjectImpl implements TiltType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDone(String newDone) {
 		String oldDone = done;
 		done = newDone;

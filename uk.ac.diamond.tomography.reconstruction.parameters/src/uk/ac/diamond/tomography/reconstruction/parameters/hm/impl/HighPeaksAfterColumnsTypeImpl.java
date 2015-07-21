@@ -120,6 +120,7 @@ public class HighPeaksAfterColumnsTypeImpl extends EObjectImpl implements HighPe
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType10 getType() {
 		return type;
 	}
@@ -144,6 +145,7 @@ public class HighPeaksAfterColumnsTypeImpl extends EObjectImpl implements HighPe
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setType(TypeType10 newType) {
 		if (newType != type) {
 			NotificationChain msgs = null;
@@ -163,6 +165,7 @@ public class HighPeaksAfterColumnsTypeImpl extends EObjectImpl implements HighPe
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getNumberPixels() {
 		return numberPixels;
 	}
@@ -172,6 +175,7 @@ public class HighPeaksAfterColumnsTypeImpl extends EObjectImpl implements HighPe
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setNumberPixels(int newNumberPixels) {
 		int oldNumberPixels = numberPixels;
 		numberPixels = newNumberPixels;
@@ -186,6 +190,7 @@ public class HighPeaksAfterColumnsTypeImpl extends EObjectImpl implements HighPe
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetNumberPixels() {
 		int oldNumberPixels = numberPixels;
 		boolean oldNumberPixelsESet = numberPixelsESet;
@@ -200,6 +205,7 @@ public class HighPeaksAfterColumnsTypeImpl extends EObjectImpl implements HighPe
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetNumberPixels() {
 		return numberPixelsESet;
 	}
@@ -209,6 +215,7 @@ public class HighPeaksAfterColumnsTypeImpl extends EObjectImpl implements HighPe
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BigDecimal getJump() {
 		return jump;
 	}
@@ -218,6 +225,7 @@ public class HighPeaksAfterColumnsTypeImpl extends EObjectImpl implements HighPe
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setJump(BigDecimal newJump) {
 		BigDecimal oldJump = jump;
 		jump = newJump;

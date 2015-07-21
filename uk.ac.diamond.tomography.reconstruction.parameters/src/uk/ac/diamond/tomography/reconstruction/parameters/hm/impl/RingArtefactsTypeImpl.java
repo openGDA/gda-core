@@ -123,6 +123,7 @@ public class RingArtefactsTypeImpl extends EObjectImpl implements RingArtefactsT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType5 getType() {
 		return type;
 	}
@@ -147,6 +148,7 @@ public class RingArtefactsTypeImpl extends EObjectImpl implements RingArtefactsT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setType(TypeType5 newType) {
 		if (newType != type) {
 			NotificationChain msgs = null;
@@ -166,6 +168,7 @@ public class RingArtefactsTypeImpl extends EObjectImpl implements RingArtefactsT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BigDecimal getParameterN() {
 		return parameterN;
 	}
@@ -175,6 +178,7 @@ public class RingArtefactsTypeImpl extends EObjectImpl implements RingArtefactsT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setParameterN(BigDecimal newParameterN) {
 		BigDecimal oldParameterN = parameterN;
 		parameterN = newParameterN;
@@ -187,6 +191,7 @@ public class RingArtefactsTypeImpl extends EObjectImpl implements RingArtefactsT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BigDecimal getParameterR() {
 		return parameterR;
 	}
@@ -196,6 +201,7 @@ public class RingArtefactsTypeImpl extends EObjectImpl implements RingArtefactsT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setParameterR(BigDecimal newParameterR) {
 		BigDecimal oldParameterR = parameterR;
 		parameterR = newParameterR;
@@ -208,6 +214,7 @@ public class RingArtefactsTypeImpl extends EObjectImpl implements RingArtefactsT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public NumSeriesType getNumSeries() {
 		return numSeries;
 	}
@@ -232,6 +239,7 @@ public class RingArtefactsTypeImpl extends EObjectImpl implements RingArtefactsT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setNumSeries(NumSeriesType newNumSeries) {
 		if (newNumSeries != numSeries) {
 			NotificationChain msgs = null;

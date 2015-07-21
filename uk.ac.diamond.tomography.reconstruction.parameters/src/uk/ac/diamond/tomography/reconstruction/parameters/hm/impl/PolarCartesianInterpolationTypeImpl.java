@@ -116,6 +116,7 @@ public class PolarCartesianInterpolationTypeImpl extends EObjectImpl implements 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getValue() {
 		return value;
 	}
@@ -125,6 +126,7 @@ public class PolarCartesianInterpolationTypeImpl extends EObjectImpl implements 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setValue(String newValue) {
 		String oldValue = value;
 		value = newValue;
@@ -137,6 +139,7 @@ public class PolarCartesianInterpolationTypeImpl extends EObjectImpl implements 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getDone() {
 		return done;
 	}
@@ -146,6 +149,7 @@ public class PolarCartesianInterpolationTypeImpl extends EObjectImpl implements 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDone(String newDone) {
 		String oldDone = done;
 		done = newDone;
@@ -158,6 +162,7 @@ public class PolarCartesianInterpolationTypeImpl extends EObjectImpl implements 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getInfo() {
 		return info;
 	}
@@ -167,6 +172,7 @@ public class PolarCartesianInterpolationTypeImpl extends EObjectImpl implements 
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setInfo(String newInfo) {
 		String oldInfo = info;
 		info = newInfo;

@@ -169,6 +169,7 @@ public class IntensityTypeImpl extends EObjectImpl implements IntensityType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType6 getType() {
 		return type;
 	}
@@ -193,6 +194,7 @@ public class IntensityTypeImpl extends EObjectImpl implements IntensityType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setType(TypeType6 newType) {
 		if (newType != type) {
 			NotificationChain msgs = null;
@@ -212,6 +214,7 @@ public class IntensityTypeImpl extends EObjectImpl implements IntensityType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getColumnLeft() {
 		return columnLeft;
 	}
@@ -221,6 +224,7 @@ public class IntensityTypeImpl extends EObjectImpl implements IntensityType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setColumnLeft(String newColumnLeft) {
 		String oldColumnLeft = columnLeft;
 		columnLeft = newColumnLeft;
@@ -233,6 +237,7 @@ public class IntensityTypeImpl extends EObjectImpl implements IntensityType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getColumnRight() {
 		return columnRight;
 	}
@@ -242,6 +247,7 @@ public class IntensityTypeImpl extends EObjectImpl implements IntensityType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setColumnRight(String newColumnRight) {
 		String oldColumnRight = columnRight;
 		columnRight = newColumnRight;
@@ -254,6 +260,7 @@ public class IntensityTypeImpl extends EObjectImpl implements IntensityType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getZeroLeft() {
 		return zeroLeft;
 	}
@@ -263,6 +270,7 @@ public class IntensityTypeImpl extends EObjectImpl implements IntensityType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setZeroLeft(int newZeroLeft) {
 		int oldZeroLeft = zeroLeft;
 		zeroLeft = newZeroLeft;
@@ -277,6 +285,7 @@ public class IntensityTypeImpl extends EObjectImpl implements IntensityType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetZeroLeft() {
 		int oldZeroLeft = zeroLeft;
 		boolean oldZeroLeftESet = zeroLeftESet;
@@ -291,6 +300,7 @@ public class IntensityTypeImpl extends EObjectImpl implements IntensityType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetZeroLeft() {
 		return zeroLeftESet;
 	}
@@ -300,6 +310,7 @@ public class IntensityTypeImpl extends EObjectImpl implements IntensityType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getZeroRight() {
 		return zeroRight;
 	}
@@ -309,6 +320,7 @@ public class IntensityTypeImpl extends EObjectImpl implements IntensityType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setZeroRight(int newZeroRight) {
 		int oldZeroRight = zeroRight;
 		zeroRight = newZeroRight;
@@ -323,6 +335,7 @@ public class IntensityTypeImpl extends EObjectImpl implements IntensityType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetZeroRight() {
 		int oldZeroRight = zeroRight;
 		boolean oldZeroRightESet = zeroRightESet;
@@ -337,6 +350,7 @@ public class IntensityTypeImpl extends EObjectImpl implements IntensityType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetZeroRight() {
 		return zeroRightESet;
 	}

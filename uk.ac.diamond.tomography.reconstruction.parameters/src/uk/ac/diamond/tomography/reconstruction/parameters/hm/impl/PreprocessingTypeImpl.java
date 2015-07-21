@@ -115,6 +115,7 @@ public class PreprocessingTypeImpl extends EObjectImpl implements PreprocessingT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public HighPeaksBeforeType getHighPeaksBefore() {
 		return highPeaksBefore;
 	}
@@ -139,6 +140,7 @@ public class PreprocessingTypeImpl extends EObjectImpl implements PreprocessingT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setHighPeaksBefore(HighPeaksBeforeType newHighPeaksBefore) {
 		if (newHighPeaksBefore != highPeaksBefore) {
 			NotificationChain msgs = null;
@@ -158,6 +160,7 @@ public class PreprocessingTypeImpl extends EObjectImpl implements PreprocessingT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RingArtefactsType getRingArtefacts() {
 		return ringArtefacts;
 	}
@@ -182,6 +185,7 @@ public class PreprocessingTypeImpl extends EObjectImpl implements PreprocessingT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setRingArtefacts(RingArtefactsType newRingArtefacts) {
 		if (newRingArtefacts != ringArtefacts) {
 			NotificationChain msgs = null;
@@ -201,6 +205,7 @@ public class PreprocessingTypeImpl extends EObjectImpl implements PreprocessingT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public IntensityType getIntensity() {
 		return intensity;
 	}
@@ -225,6 +230,7 @@ public class PreprocessingTypeImpl extends EObjectImpl implements PreprocessingT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setIntensity(IntensityType newIntensity) {
 		if (newIntensity != intensity) {
 			NotificationChain msgs = null;
@@ -244,6 +250,7 @@ public class PreprocessingTypeImpl extends EObjectImpl implements PreprocessingT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public HighPeaksAfterRowsType getHighPeaksAfterRows() {
 		return highPeaksAfterRows;
 	}
@@ -268,6 +275,7 @@ public class PreprocessingTypeImpl extends EObjectImpl implements PreprocessingT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setHighPeaksAfterRows(HighPeaksAfterRowsType newHighPeaksAfterRows) {
 		if (newHighPeaksAfterRows != highPeaksAfterRows) {
 			NotificationChain msgs = null;
@@ -287,6 +295,7 @@ public class PreprocessingTypeImpl extends EObjectImpl implements PreprocessingT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public HighPeaksAfterColumnsType getHighPeaksAfterColumns() {
 		return highPeaksAfterColumns;
 	}
@@ -311,6 +320,7 @@ public class PreprocessingTypeImpl extends EObjectImpl implements PreprocessingT
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setHighPeaksAfterColumns(HighPeaksAfterColumnsType newHighPeaksAfterColumns) {
 		if (newHighPeaksAfterColumns != highPeaksAfterColumns) {
 			NotificationChain msgs = null;

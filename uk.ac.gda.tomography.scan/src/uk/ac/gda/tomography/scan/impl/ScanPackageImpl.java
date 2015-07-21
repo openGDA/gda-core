@@ -99,6 +99,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getParameters() {
 		return parametersEClass;
 	}
@@ -108,6 +109,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getParameters_InBeamPosition() {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(0);
 	}
@@ -117,6 +119,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getParameters_OutOfBeamPosition() {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(1);
 	}
@@ -126,6 +129,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getParameters_ExposureTime() {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(2);
 	}
@@ -135,6 +139,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getParameters_Start() {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(3);
 	}
@@ -144,6 +149,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getParameters_Stop() {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(4);
 	}
@@ -153,6 +159,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getParameters_Step() {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(5);
 	}
@@ -162,6 +169,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getParameters_DarkFieldInterval() {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(6);
 	}
@@ -171,6 +179,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getParameters_FlatFieldInterval() {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(7);
 	}
@@ -180,6 +189,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getParameters_ImagesPerDark() {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(8);
 	}
@@ -189,6 +199,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getParameters_ImagesPerFlat() {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(9);
 	}
@@ -198,6 +209,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getParameters_MinI() {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(10);
 	}
@@ -207,6 +219,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getParameters_Title() {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(11);
 	}
@@ -216,6 +229,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getParameters_FlyScan() {
 		return (EAttribute) parametersEClass.getEStructuralFeatures().get(12);
 	}
@@ -225,6 +239,7 @@ public class ScanPackageImpl extends EPackageImpl implements ScanPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ScanFactory getScanFactory() {
 		return (ScanFactory) getEFactoryInstance();
 	}

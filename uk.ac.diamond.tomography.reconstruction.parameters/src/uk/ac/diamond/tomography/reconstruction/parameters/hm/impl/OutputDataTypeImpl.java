@@ -363,6 +363,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType2 getType() {
 		return type;
 	}
@@ -387,6 +388,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setType(TypeType2 newType) {
 		if (newType != type) {
 			NotificationChain msgs = null;
@@ -406,6 +408,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public StateType getState() {
 		return state;
 	}
@@ -430,6 +433,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setState(StateType newState) {
 		if (newState != state) {
 			NotificationChain msgs = null;
@@ -449,6 +453,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getFolder() {
 		return folder;
 	}
@@ -458,6 +463,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFolder(String newFolder) {
 		String oldFolder = folder;
 		folder = newFolder;
@@ -470,6 +476,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getPrefix() {
 		return prefix;
 	}
@@ -479,6 +486,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setPrefix(String newPrefix) {
 		String oldPrefix = prefix;
 		prefix = newPrefix;
@@ -491,6 +499,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getSuffix() {
 		return suffix;
 	}
@@ -500,6 +509,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSuffix(String newSuffix) {
 		String oldSuffix = suffix;
 		suffix = newSuffix;
@@ -512,6 +522,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getExtension() {
 		return extension;
 	}
@@ -521,6 +532,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setExtension(String newExtension) {
 		String oldExtension = extension;
 		extension = newExtension;
@@ -533,6 +545,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getNOD() {
 		return nOD;
 	}
@@ -542,6 +555,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setNOD(int newNOD) {
 		int oldNOD = nOD;
 		nOD = newNOD;
@@ -556,6 +570,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetNOD() {
 		int oldNOD = nOD;
 		boolean oldNODESet = nODESet;
@@ -570,6 +585,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetNOD() {
 		return nODESet;
 	}
@@ -579,6 +595,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getFileFirst() {
 		return fileFirst;
 	}
@@ -588,6 +605,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFileFirst(int newFileFirst) {
 		int oldFileFirst = fileFirst;
 		fileFirst = newFileFirst;
@@ -602,6 +620,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetFileFirst() {
 		int oldFileFirst = fileFirst;
 		boolean oldFileFirstESet = fileFirstESet;
@@ -616,6 +635,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetFileFirst() {
 		return fileFirstESet;
 	}
@@ -625,6 +645,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getFileStep() {
 		return fileStep;
 	}
@@ -634,6 +655,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFileStep(int newFileStep) {
 		int oldFileStep = fileStep;
 		fileStep = newFileStep;
@@ -648,6 +670,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetFileStep() {
 		int oldFileStep = fileStep;
 		boolean oldFileStepESet = fileStepESet;
@@ -662,6 +685,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetFileStep() {
 		return fileStepESet;
 	}
@@ -671,6 +695,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BitsTypeType getBitsType() {
 		return bitsType;
 	}
@@ -695,6 +720,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setBitsType(BitsTypeType newBitsType) {
 		if (newBitsType != bitsType) {
 			NotificationChain msgs = null;
@@ -714,6 +740,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getBits() {
 		return bits;
 	}
@@ -723,6 +750,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setBits(int newBits) {
 		int oldBits = bits;
 		bits = newBits;
@@ -737,6 +765,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetBits() {
 		int oldBits = bits;
 		boolean oldBitsESet = bitsESet;
@@ -751,6 +780,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetBits() {
 		return bitsESet;
 	}
@@ -760,6 +790,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RestrictionsType getRestrictions() {
 		return restrictions;
 	}
@@ -784,6 +815,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setRestrictions(RestrictionsType newRestrictions) {
 		if (newRestrictions != restrictions) {
 			NotificationChain msgs = null;
@@ -803,6 +835,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BigDecimal getValueMin() {
 		return valueMin;
 	}
@@ -812,6 +845,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setValueMin(BigDecimal newValueMin) {
 		BigDecimal oldValueMin = valueMin;
 		valueMin = newValueMin;
@@ -824,6 +858,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BigDecimal getValueMax() {
 		return valueMax;
 	}
@@ -833,6 +868,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setValueMax(BigDecimal newValueMax) {
 		BigDecimal oldValueMax = valueMax;
 		valueMax = newValueMax;
@@ -845,6 +881,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ShapeType getShape() {
 		return shape;
 	}
@@ -869,6 +906,7 @@ public class OutputDataTypeImpl extends EObjectImpl implements OutputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setShape(ShapeType newShape) {
 		if (newShape != shape) {
 			NotificationChain msgs = null;

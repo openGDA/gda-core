@@ -112,6 +112,7 @@ public class CirclesTypeImpl extends EObjectImpl implements CirclesType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ValueMinType getValueMin() {
 		return valueMin;
 	}
@@ -136,6 +137,7 @@ public class CirclesTypeImpl extends EObjectImpl implements CirclesType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setValueMin(ValueMinType newValueMin) {
 		if (newValueMin != valueMin) {
 			NotificationChain msgs = null;
@@ -155,6 +157,7 @@ public class CirclesTypeImpl extends EObjectImpl implements CirclesType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ValueMaxType getValueMax() {
 		return valueMax;
 	}
@@ -179,6 +182,7 @@ public class CirclesTypeImpl extends EObjectImpl implements CirclesType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setValueMax(ValueMaxType newValueMax) {
 		if (newValueMax != valueMax) {
 			NotificationChain msgs = null;
@@ -198,6 +202,7 @@ public class CirclesTypeImpl extends EObjectImpl implements CirclesType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ValueStepType getValueStep() {
 		return valueStep;
 	}
@@ -222,6 +227,7 @@ public class CirclesTypeImpl extends EObjectImpl implements CirclesType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setValueStep(ValueStepType newValueStep) {
 		if (newValueStep != valueStep) {
 			NotificationChain msgs = null;
@@ -241,6 +247,7 @@ public class CirclesTypeImpl extends EObjectImpl implements CirclesType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getComm() {
 		return comm;
 	}
@@ -250,6 +257,7 @@ public class CirclesTypeImpl extends EObjectImpl implements CirclesType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setComm(String newComm) {
 		String oldComm = comm;
 		comm = newComm;

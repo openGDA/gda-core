@@ -202,6 +202,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType15 getType() {
 		return type;
 	}
@@ -226,6 +227,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setType(TypeType15 newType) {
 		if (newType != type) {
 			NotificationChain msgs = null;
@@ -245,6 +247,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Double getValueBefore() {
 		return valueBefore;
 	}
@@ -254,6 +257,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setValueBefore(Double newValueBefore) {
 		Double oldValueBefore = valueBefore;
 		valueBefore = newValueBefore;
@@ -268,6 +272,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetValueBefore() {
 		Double oldValueBefore = valueBefore;
 		boolean oldValueBeforeESet = valueBeforeESet;
@@ -282,6 +287,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetValueBefore() {
 		return valueBeforeESet;
 	}
@@ -291,6 +297,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Double getValueAfter() {
 		return valueAfter;
 	}
@@ -300,6 +307,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setValueAfter(Double newValueAfter) {
 		Double oldValueAfter = valueAfter;
 		valueAfter = newValueAfter;
@@ -314,6 +322,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetValueAfter() {
 		Double oldValueAfter = valueAfter;
 		boolean oldValueAfterESet = valueAfterESet;
@@ -328,6 +337,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetValueAfter() {
 		return valueAfterESet;
 	}
@@ -337,6 +347,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getFileBefore() {
 		return fileBefore;
 	}
@@ -346,6 +357,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFileBefore(String newFileBefore) {
 		String oldFileBefore = fileBefore;
 		fileBefore = newFileBefore;
@@ -358,6 +370,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getFileAfter() {
 		return fileAfter;
 	}
@@ -367,6 +380,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFileAfter(String newFileAfter) {
 		String oldFileAfter = fileAfter;
 		fileAfter = newFileAfter;
@@ -379,6 +393,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ProfileTypeType1 getProfileType() {
 		return profileType;
 	}
@@ -403,6 +418,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setProfileType(ProfileTypeType1 newProfileType) {
 		if (newProfileType != profileType) {
 			NotificationChain msgs = null;
@@ -422,6 +438,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getFileProfile() {
 		return fileProfile;
 	}
@@ -431,6 +448,7 @@ public class FlatFieldTypeImpl extends EObjectImpl implements FlatFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFileProfile(String newFileProfile) {
 		String oldFileProfile = fileProfile;
 		fileProfile = newFileProfile;

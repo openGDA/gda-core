@@ -79,6 +79,7 @@ public class FlatDarkFieldsTypeImpl extends EObjectImpl implements FlatDarkField
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public FlatFieldType getFlatField() {
 		return flatField;
 	}
@@ -103,6 +104,7 @@ public class FlatDarkFieldsTypeImpl extends EObjectImpl implements FlatDarkField
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFlatField(FlatFieldType newFlatField) {
 		if (newFlatField != flatField) {
 			NotificationChain msgs = null;
@@ -122,6 +124,7 @@ public class FlatDarkFieldsTypeImpl extends EObjectImpl implements FlatDarkField
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public DarkFieldType getDarkField() {
 		return darkField;
 	}
@@ -146,6 +149,7 @@ public class FlatDarkFieldsTypeImpl extends EObjectImpl implements FlatDarkField
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDarkField(DarkFieldType newDarkField) {
 		if (newDarkField != darkField) {
 			NotificationChain msgs = null;

@@ -252,6 +252,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType3 getType() {
 		return type;
 	}
@@ -276,6 +277,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setType(TypeType3 newType) {
 		if (newType != type) {
 			NotificationChain msgs = null;
@@ -295,6 +297,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getXmin() {
 		return xmin;
 	}
@@ -304,6 +307,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setXmin(int newXmin) {
 		int oldXmin = xmin;
 		xmin = newXmin;
@@ -318,6 +322,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetXmin() {
 		int oldXmin = xmin;
 		boolean oldXminESet = xminESet;
@@ -332,6 +337,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetXmin() {
 		return xminESet;
 	}
@@ -341,6 +347,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getXmax() {
 		return xmax;
 	}
@@ -350,6 +357,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setXmax(int newXmax) {
 		int oldXmax = xmax;
 		xmax = newXmax;
@@ -364,6 +372,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetXmax() {
 		int oldXmax = xmax;
 		boolean oldXmaxESet = xmaxESet;
@@ -378,6 +387,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetXmax() {
 		return xmaxESet;
 	}
@@ -387,6 +397,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getYmin() {
 		return ymin;
 	}
@@ -396,6 +407,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setYmin(int newYmin) {
 		int oldYmin = ymin;
 		ymin = newYmin;
@@ -410,6 +422,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetYmin() {
 		int oldYmin = ymin;
 		boolean oldYminESet = yminESet;
@@ -424,6 +437,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetYmin() {
 		return yminESet;
 	}
@@ -433,6 +447,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getYmax() {
 		return ymax;
 	}
@@ -442,6 +457,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setYmax(int newYmax) {
 		int oldYmax = ymax;
 		ymax = newYmax;
@@ -456,6 +472,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetYmax() {
 		int oldYmax = ymax;
 		boolean oldYmaxESet = ymaxESet;
@@ -470,6 +487,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetYmax() {
 		return ymaxESet;
 	}
@@ -479,6 +497,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public OutputWidthTypeType getOutputWidthType() {
 		return outputWidthType;
 	}
@@ -503,6 +522,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setOutputWidthType(OutputWidthTypeType newOutputWidthType) {
 		if (newOutputWidthType != outputWidthType) {
 			NotificationChain msgs = null;
@@ -522,6 +542,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getOutputWidth() {
 		return outputWidth;
 	}
@@ -531,6 +552,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setOutputWidth(int newOutputWidth) {
 		int oldOutputWidth = outputWidth;
 		outputWidth = newOutputWidth;
@@ -545,6 +567,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetOutputWidth() {
 		int oldOutputWidth = outputWidth;
 		boolean oldOutputWidthESet = outputWidthESet;
@@ -559,6 +582,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetOutputWidth() {
 		return outputWidthESet;
 	}
@@ -568,6 +592,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BigDecimal getAngle() {
 		return angle;
 	}
@@ -577,6 +602,7 @@ public class ROITypeImpl extends EObjectImpl implements ROIType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setAngle(BigDecimal newAngle) {
 		BigDecimal oldAngle = angle;
 		angle = newAngle;

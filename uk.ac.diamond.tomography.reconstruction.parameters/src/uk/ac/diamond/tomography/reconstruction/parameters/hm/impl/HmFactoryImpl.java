@@ -148,6 +148,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BackprojectionType createBackprojectionType() {
 		BackprojectionTypeImpl backprojectionType = new BackprojectionTypeImpl();
 		return backprojectionType;
@@ -158,6 +159,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BeamlineUserType createBeamlineUserType() {
 		BeamlineUserTypeImpl beamlineUserType = new BeamlineUserTypeImpl();
 		return beamlineUserType;
@@ -168,6 +170,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BitsTypeType createBitsTypeType() {
 		BitsTypeTypeImpl bitsTypeType = new BitsTypeTypeImpl();
 		return bitsTypeType;
@@ -178,6 +181,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ByteOrderType createByteOrderType() {
 		ByteOrderTypeImpl byteOrderType = new ByteOrderTypeImpl();
 		return byteOrderType;
@@ -188,6 +192,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public CirclesType createCirclesType() {
 		CirclesTypeImpl circlesType = new CirclesTypeImpl();
 		return circlesType;
@@ -198,6 +203,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ClockwiseRotationType createClockwiseRotationType() {
 		ClockwiseRotationTypeImpl clockwiseRotationType = new ClockwiseRotationTypeImpl();
 		return clockwiseRotationType;
@@ -208,6 +214,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public CoordinateSystemType createCoordinateSystemType() {
 		CoordinateSystemTypeImpl coordinateSystemType = new CoordinateSystemTypeImpl();
 		return coordinateSystemType;
@@ -218,6 +225,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public DarkFieldType createDarkFieldType() {
 		DarkFieldTypeImpl darkFieldType = new DarkFieldTypeImpl();
 		return darkFieldType;
@@ -228,6 +236,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public DefaultXmlType createDefaultXmlType() {
 		DefaultXmlTypeImpl defaultXmlType = new DefaultXmlTypeImpl();
 		return defaultXmlType;
@@ -238,6 +247,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public DocumentRoot createDocumentRoot() {
 		DocumentRootImpl documentRoot = new DocumentRootImpl();
 		return documentRoot;
@@ -248,6 +258,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ExtrapolationTypeType createExtrapolationTypeType() {
 		ExtrapolationTypeTypeImpl extrapolationTypeType = new ExtrapolationTypeTypeImpl();
 		return extrapolationTypeType;
@@ -258,6 +269,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public FBPType createFBPType() {
 		FBPTypeImpl fbpType = new FBPTypeImpl();
 		return fbpType;
@@ -268,6 +280,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public FilterType createFilterType() {
 		FilterTypeImpl filterType = new FilterTypeImpl();
 		return filterType;
@@ -278,6 +291,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public FirstImageIndexType createFirstImageIndexType() {
 		FirstImageIndexTypeImpl firstImageIndexType = new FirstImageIndexTypeImpl();
 		return firstImageIndexType;
@@ -288,6 +302,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public FlatDarkFieldsType createFlatDarkFieldsType() {
 		FlatDarkFieldsTypeImpl flatDarkFieldsType = new FlatDarkFieldsTypeImpl();
 		return flatDarkFieldsType;
@@ -298,6 +313,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public FlatFieldType createFlatFieldType() {
 		FlatFieldTypeImpl flatFieldType = new FlatFieldTypeImpl();
 		return flatFieldType;
@@ -308,6 +324,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public GapType createGapType() {
 		GapTypeImpl gapType = new GapTypeImpl();
 		return gapType;
@@ -318,6 +335,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public HighPeaksAfterColumnsType createHighPeaksAfterColumnsType() {
 		HighPeaksAfterColumnsTypeImpl highPeaksAfterColumnsType = new HighPeaksAfterColumnsTypeImpl();
 		return highPeaksAfterColumnsType;
@@ -328,6 +346,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public HighPeaksAfterRowsType createHighPeaksAfterRowsType() {
 		HighPeaksAfterRowsTypeImpl highPeaksAfterRowsType = new HighPeaksAfterRowsTypeImpl();
 		return highPeaksAfterRowsType;
@@ -338,6 +357,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public HighPeaksBeforeType createHighPeaksBeforeType() {
 		HighPeaksBeforeTypeImpl highPeaksBeforeType = new HighPeaksBeforeTypeImpl();
 		return highPeaksBeforeType;
@@ -348,6 +368,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public HMxmlType createHMxmlType() {
 		HMxmlTypeImpl hMxmlType = new HMxmlTypeImpl();
 		return hMxmlType;
@@ -358,6 +379,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ImageFirstType createImageFirstType() {
 		ImageFirstTypeImpl imageFirstType = new ImageFirstTypeImpl();
 		return imageFirstType;
@@ -368,6 +390,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ImageLastType createImageLastType() {
 		ImageLastTypeImpl imageLastType = new ImageLastTypeImpl();
 		return imageLastType;
@@ -378,6 +401,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ImageStepType createImageStepType() {
 		ImageStepTypeImpl imageStepType = new ImageStepTypeImpl();
 		return imageStepType;
@@ -388,6 +412,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public InputDataType createInputDataType() {
 		InputDataTypeImpl inputDataType = new InputDataTypeImpl();
 		return inputDataType;
@@ -398,6 +423,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public IntensityType createIntensityType() {
 		IntensityTypeImpl intensityType = new IntensityTypeImpl();
 		return intensityType;
@@ -408,6 +434,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public InterpolationType createInterpolationType() {
 		InterpolationTypeImpl interpolationType = new InterpolationTypeImpl();
 		return interpolationType;
@@ -418,6 +445,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MemorySizeMaxType createMemorySizeMaxType() {
 		MemorySizeMaxTypeImpl memorySizeMaxType = new MemorySizeMaxTypeImpl();
 		return memorySizeMaxType;
@@ -428,6 +456,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MemorySizeMinType createMemorySizeMinType() {
 		MemorySizeMinTypeImpl memorySizeMinType = new MemorySizeMinTypeImpl();
 		return memorySizeMinType;
@@ -438,6 +467,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MissedProjectionsType createMissedProjectionsType() {
 		MissedProjectionsTypeImpl missedProjectionsType = new MissedProjectionsTypeImpl();
 		return missedProjectionsType;
@@ -448,6 +478,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MissedProjectionsTypeType createMissedProjectionsTypeType() {
 		MissedProjectionsTypeTypeImpl missedProjectionsTypeType = new MissedProjectionsTypeTypeImpl();
 		return missedProjectionsTypeType;
@@ -458,6 +489,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public NameType createNameType() {
 		NameTypeImpl nameType = new NameTypeImpl();
 		return nameType;
@@ -468,6 +500,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public NODType createNODType() {
 		NODTypeImpl nodType = new NODTypeImpl();
 		return nodType;
@@ -478,6 +511,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public NormalisationType createNormalisationType() {
 		NormalisationTypeImpl normalisationType = new NormalisationTypeImpl();
 		return normalisationType;
@@ -488,6 +522,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public NumSeriesType createNumSeriesType() {
 		NumSeriesTypeImpl numSeriesType = new NumSeriesTypeImpl();
 		return numSeriesType;
@@ -498,6 +533,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public OffsetType createOffsetType() {
 		OffsetTypeImpl offsetType = new OffsetTypeImpl();
 		return offsetType;
@@ -508,6 +544,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public OrientationType createOrientationType() {
 		OrientationTypeImpl orientationType = new OrientationTypeImpl();
 		return orientationType;
@@ -518,6 +555,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public OutputDataType createOutputDataType() {
 		OutputDataTypeImpl outputDataType = new OutputDataTypeImpl();
 		return outputDataType;
@@ -528,6 +566,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public OutputWidthTypeType createOutputWidthTypeType() {
 		OutputWidthTypeTypeImpl outputWidthTypeType = new OutputWidthTypeTypeImpl();
 		return outputWidthTypeType;
@@ -538,6 +577,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public PolarCartesianInterpolationType createPolarCartesianInterpolationType() {
 		PolarCartesianInterpolationTypeImpl polarCartesianInterpolationType = new PolarCartesianInterpolationTypeImpl();
 		return polarCartesianInterpolationType;
@@ -548,6 +588,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public PreprocessingType createPreprocessingType() {
 		PreprocessingTypeImpl preprocessingType = new PreprocessingTypeImpl();
 		return preprocessingType;
@@ -558,6 +599,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ProfileTypeType createProfileTypeType() {
 		ProfileTypeTypeImpl profileTypeType = new ProfileTypeTypeImpl();
 		return profileTypeType;
@@ -568,6 +610,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ProfileTypeType1 createProfileTypeType1() {
 		ProfileTypeType1Impl profileTypeType1 = new ProfileTypeType1Impl();
 		return profileTypeType1;
@@ -578,6 +621,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RawType createRawType() {
 		RawTypeImpl rawType = new RawTypeImpl();
 		return rawType;
@@ -588,6 +632,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RestrictionsType createRestrictionsType() {
 		RestrictionsTypeImpl restrictionsType = new RestrictionsTypeImpl();
 		return restrictionsType;
@@ -598,6 +643,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RestrictionsType1 createRestrictionsType1() {
 		RestrictionsType1Impl restrictionsType1 = new RestrictionsType1Impl();
 		return restrictionsType1;
@@ -608,6 +654,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RingArtefactsType createRingArtefactsType() {
 		RingArtefactsTypeImpl ringArtefactsType = new RingArtefactsTypeImpl();
 		return ringArtefactsType;
@@ -618,6 +665,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ROIType createROIType() {
 		ROITypeImpl roiType = new ROITypeImpl();
 		return roiType;
@@ -628,6 +676,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RotationAngleEndPointsType createRotationAngleEndPointsType() {
 		RotationAngleEndPointsTypeImpl rotationAngleEndPointsType = new RotationAngleEndPointsTypeImpl();
 		return rotationAngleEndPointsType;
@@ -638,6 +687,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RotationAngleTypeType createRotationAngleTypeType() {
 		RotationAngleTypeTypeImpl rotationAngleTypeType = new RotationAngleTypeTypeImpl();
 		return rotationAngleTypeType;
@@ -648,6 +698,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ScaleTypeType createScaleTypeType() {
 		ScaleTypeTypeImpl scaleTypeType = new ScaleTypeTypeImpl();
 		return scaleTypeType;
@@ -658,6 +709,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ShapeType createShapeType() {
 		ShapeTypeImpl shapeType = new ShapeTypeImpl();
 		return shapeType;
@@ -668,6 +720,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ShapeType1 createShapeType1() {
 		ShapeType1Impl shapeType1 = new ShapeType1Impl();
 		return shapeType1;
@@ -678,6 +731,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public StateType createStateType() {
 		StateTypeImpl stateType = new StateTypeImpl();
 		return stateType;
@@ -688,6 +742,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TiltType createTiltType() {
 		TiltTypeImpl tiltType = new TiltTypeImpl();
 		return tiltType;
@@ -698,6 +753,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TransformType createTransformType() {
 		TransformTypeImpl transformType = new TransformTypeImpl();
 		return transformType;
@@ -708,6 +764,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType createTypeType() {
 		TypeTypeImpl typeType = new TypeTypeImpl();
 		return typeType;
@@ -718,6 +775,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType1 createTypeType1() {
 		TypeType1Impl typeType1 = new TypeType1Impl();
 		return typeType1;
@@ -728,6 +786,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType2 createTypeType2() {
 		TypeType2Impl typeType2 = new TypeType2Impl();
 		return typeType2;
@@ -738,6 +797,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType3 createTypeType3() {
 		TypeType3Impl typeType3 = new TypeType3Impl();
 		return typeType3;
@@ -748,6 +808,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType4 createTypeType4() {
 		TypeType4Impl typeType4 = new TypeType4Impl();
 		return typeType4;
@@ -758,6 +819,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType5 createTypeType5() {
 		TypeType5Impl typeType5 = new TypeType5Impl();
 		return typeType5;
@@ -768,6 +830,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType6 createTypeType6() {
 		TypeType6Impl typeType6 = new TypeType6Impl();
 		return typeType6;
@@ -778,6 +841,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType7 createTypeType7() {
 		TypeType7Impl typeType7 = new TypeType7Impl();
 		return typeType7;
@@ -788,6 +852,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType8 createTypeType8() {
 		TypeType8Impl typeType8 = new TypeType8Impl();
 		return typeType8;
@@ -798,6 +863,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType9 createTypeType9() {
 		TypeType9Impl typeType9 = new TypeType9Impl();
 		return typeType9;
@@ -808,6 +874,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType10 createTypeType10() {
 		TypeType10Impl typeType10 = new TypeType10Impl();
 		return typeType10;
@@ -818,6 +885,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType11 createTypeType11() {
 		TypeType11Impl typeType11 = new TypeType11Impl();
 		return typeType11;
@@ -828,6 +896,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType12 createTypeType12() {
 		TypeType12Impl typeType12 = new TypeType12Impl();
 		return typeType12;
@@ -838,6 +907,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType13 createTypeType13() {
 		TypeType13Impl typeType13 = new TypeType13Impl();
 		return typeType13;
@@ -848,6 +918,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType14 createTypeType14() {
 		TypeType14Impl typeType14 = new TypeType14Impl();
 		return typeType14;
@@ -858,6 +929,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType15 createTypeType15() {
 		TypeType15Impl typeType15 = new TypeType15Impl();
 		return typeType15;
@@ -868,6 +940,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType16 createTypeType16() {
 		TypeType16Impl typeType16 = new TypeType16Impl();
 		return typeType16;
@@ -878,6 +951,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType17 createTypeType17() {
 		TypeType17Impl typeType17 = new TypeType17Impl();
 		return typeType17;
@@ -888,6 +962,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ValueMaxType createValueMaxType() {
 		ValueMaxTypeImpl valueMaxType = new ValueMaxTypeImpl();
 		return valueMaxType;
@@ -898,6 +973,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ValueMinType createValueMinType() {
 		ValueMinTypeImpl valueMinType = new ValueMinTypeImpl();
 		return valueMinType;
@@ -908,6 +984,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ValueStepType createValueStepType() {
 		ValueStepTypeImpl valueStepType = new ValueStepTypeImpl();
 		return valueStepType;
@@ -918,6 +995,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public WindowNameType createWindowNameType() {
 		WindowNameTypeImpl windowNameType = new WindowNameTypeImpl();
 		return windowNameType;
@@ -928,6 +1006,7 @@ public class HmFactoryImpl extends EFactoryImpl implements HmFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public HmPackage getHmPackage() {
 		return (HmPackage)getEPackage();
 	}

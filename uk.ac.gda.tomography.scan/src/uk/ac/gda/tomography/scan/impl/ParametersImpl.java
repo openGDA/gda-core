@@ -326,6 +326,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getInBeamPosition() {
 		return inBeamPosition;
 	}
@@ -335,6 +336,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setInBeamPosition(double newInBeamPosition) {
 		double oldInBeamPosition = inBeamPosition;
 		inBeamPosition = newInBeamPosition;
@@ -349,6 +351,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getOutOfBeamPosition() {
 		return outOfBeamPosition;
 	}
@@ -358,6 +361,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setOutOfBeamPosition(double newOutOfBeamPosition) {
 		double oldOutOfBeamPosition = outOfBeamPosition;
 		outOfBeamPosition = newOutOfBeamPosition;
@@ -372,6 +376,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getExposureTime() {
 		return exposureTime;
 	}
@@ -381,6 +386,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setExposureTime(double newExposureTime) {
 		double oldExposureTime = exposureTime;
 		exposureTime = newExposureTime;
@@ -395,6 +401,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getStart() {
 		return start;
 	}
@@ -404,6 +411,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setStart(double newStart) {
 		double oldStart = start;
 		start = newStart;
@@ -417,6 +425,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getStop() {
 		return stop;
 	}
@@ -426,6 +435,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setStop(double newStop) {
 		double oldStop = stop;
 		stop = newStop;
@@ -439,6 +449,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getStep() {
 		return step;
 	}
@@ -448,6 +459,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setStep(double newStep) {
 		double oldStep = step;
 		step = newStep;
@@ -461,6 +473,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDarkFieldInterval() {
 		return darkFieldInterval;
 	}
@@ -470,6 +483,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDarkFieldInterval(int newDarkFieldInterval) {
 		int oldDarkFieldInterval = darkFieldInterval;
 		darkFieldInterval = newDarkFieldInterval;
@@ -484,6 +498,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getFlatFieldInterval() {
 		return flatFieldInterval;
 	}
@@ -493,6 +508,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFlatFieldInterval(int newFlatFieldInterval) {
 		int oldFlatFieldInterval = flatFieldInterval;
 		flatFieldInterval = newFlatFieldInterval;
@@ -507,6 +523,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getImagesPerDark() {
 		return imagesPerDark;
 	}
@@ -516,6 +533,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setImagesPerDark(int newImagesPerDark) {
 		int oldImagesPerDark = imagesPerDark;
 		imagesPerDark = newImagesPerDark;
@@ -530,6 +548,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getImagesPerFlat() {
 		return imagesPerFlat;
 	}
@@ -539,6 +558,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setImagesPerFlat(int newImagesPerFlat) {
 		int oldImagesPerFlat = imagesPerFlat;
 		imagesPerFlat = newImagesPerFlat;
@@ -553,6 +573,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getMinI() {
 		return minI;
 	}
@@ -562,6 +583,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMinI(double newMinI) {
 		double oldMinI = minI;
 		minI = newMinI;
@@ -575,6 +597,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getTitle() {
 		return title;
 	}
@@ -584,6 +607,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setTitle(String newTitle) {
 		String oldTitle = title;
 		title = newTitle;
@@ -597,6 +621,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isFlyScan() {
 		return flyScan;
 	}
@@ -606,6 +631,7 @@ public class ParametersImpl extends EObjectImpl implements Parameters {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFlyScan(boolean newFlyScan) {
 		boolean oldFlyScan = flyScan;
 		flyScan = newFlyScan;

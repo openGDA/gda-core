@@ -109,6 +109,7 @@ public class CoordinateSystemTypeImpl extends EObjectImpl implements CoordinateS
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType9 getType() {
 		return type;
 	}
@@ -133,6 +134,7 @@ public class CoordinateSystemTypeImpl extends EObjectImpl implements CoordinateS
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setType(TypeType9 newType) {
 		if (newType != type) {
 			NotificationChain msgs = null;
@@ -152,6 +154,7 @@ public class CoordinateSystemTypeImpl extends EObjectImpl implements CoordinateS
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getSlice() {
 		return slice;
 	}
@@ -161,6 +164,7 @@ public class CoordinateSystemTypeImpl extends EObjectImpl implements CoordinateS
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSlice(String newSlice) {
 		String oldSlice = slice;
 		slice = newSlice;
@@ -173,6 +177,7 @@ public class CoordinateSystemTypeImpl extends EObjectImpl implements CoordinateS
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getDone() {
 		return done;
 	}
@@ -182,6 +187,7 @@ public class CoordinateSystemTypeImpl extends EObjectImpl implements CoordinateS
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDone(String newDone) {
 		String oldDone = done;
 		done = newDone;

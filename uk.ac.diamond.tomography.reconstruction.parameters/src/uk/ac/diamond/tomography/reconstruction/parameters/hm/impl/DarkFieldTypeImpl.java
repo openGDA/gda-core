@@ -186,6 +186,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType13 getType() {
 		return type;
 	}
@@ -210,6 +211,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setType(TypeType13 newType) {
 		if (newType != type) {
 			NotificationChain msgs = null;
@@ -229,6 +231,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Double getValueBefore() {
 		return valueBefore;
 	}
@@ -238,6 +241,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setValueBefore(Double newValueBefore) {
 		Double oldValueBefore = valueBefore;
 		valueBefore = newValueBefore;
@@ -250,6 +254,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Double getValueAfter() {
 		return valueAfter;
 	}
@@ -259,6 +264,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setValueAfter(Double newValueAfter) {
 		Double oldValueAfter = valueAfter;
 		valueAfter = newValueAfter;
@@ -271,6 +277,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getFileBefore() {
 		return fileBefore;
 	}
@@ -280,6 +287,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFileBefore(String newFileBefore) {
 		String oldFileBefore = fileBefore;
 		fileBefore = newFileBefore;
@@ -292,6 +300,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getFileAfter() {
 		return fileAfter;
 	}
@@ -301,6 +310,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFileAfter(String newFileAfter) {
 		String oldFileAfter = fileAfter;
 		fileAfter = newFileAfter;
@@ -313,6 +323,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ProfileTypeType getProfileType() {
 		return profileType;
 	}
@@ -337,6 +348,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setProfileType(ProfileTypeType newProfileType) {
 		if (newProfileType != profileType) {
 			NotificationChain msgs = null;
@@ -356,6 +368,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getFileProfile() {
 		return fileProfile;
 	}
@@ -365,6 +378,7 @@ public class DarkFieldTypeImpl extends EObjectImpl implements DarkFieldType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFileProfile(String newFileProfile) {
 		String oldFileProfile = fileProfile;
 		fileProfile = newFileProfile;

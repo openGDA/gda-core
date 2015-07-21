@@ -244,6 +244,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType16 getType() {
 		return type;
 	}
@@ -268,6 +269,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setType(TypeType16 newType) {
 		if (newType != type) {
 			NotificationChain msgs = null;
@@ -287,6 +289,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getBits() {
 		return bits;
 	}
@@ -296,6 +299,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setBits(int newBits) {
 		int oldBits = bits;
 		bits = newBits;
@@ -310,6 +314,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetBits() {
 		int oldBits = bits;
 		boolean oldBitsESet = bitsESet;
@@ -324,6 +329,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetBits() {
 		return bitsESet;
 	}
@@ -333,6 +339,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public OffsetType getOffset() {
 		return offset;
 	}
@@ -357,6 +364,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setOffset(OffsetType newOffset) {
 		if (newOffset != offset) {
 			NotificationChain msgs = null;
@@ -376,6 +384,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ByteOrderType getByteOrder() {
 		return byteOrder;
 	}
@@ -400,6 +409,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setByteOrder(ByteOrderType newByteOrder) {
 		if (newByteOrder != byteOrder) {
 			NotificationChain msgs = null;
@@ -419,6 +429,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getXlen() {
 		return xlen;
 	}
@@ -428,6 +439,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setXlen(int newXlen) {
 		int oldXlen = xlen;
 		xlen = newXlen;
@@ -442,6 +454,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetXlen() {
 		int oldXlen = xlen;
 		boolean oldXlenESet = xlenESet;
@@ -456,6 +469,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetXlen() {
 		return xlenESet;
 	}
@@ -465,6 +479,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getYlen() {
 		return ylen;
 	}
@@ -474,6 +489,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setYlen(int newYlen) {
 		int oldYlen = ylen;
 		ylen = newYlen;
@@ -488,6 +504,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetYlen() {
 		int oldYlen = ylen;
 		boolean oldYlenESet = ylenESet;
@@ -502,6 +519,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetYlen() {
 		return ylenESet;
 	}
@@ -511,6 +529,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getZlen() {
 		return zlen;
 	}
@@ -520,6 +539,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setZlen(int newZlen) {
 		int oldZlen = zlen;
 		zlen = newZlen;
@@ -534,6 +554,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetZlen() {
 		int oldZlen = zlen;
 		boolean oldZlenESet = zlenESet;
@@ -548,6 +569,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetZlen() {
 		return zlenESet;
 	}
@@ -557,6 +579,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public GapType getGap() {
 		return gap;
 	}
@@ -581,6 +604,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setGap(GapType newGap) {
 		if (newGap != gap) {
 			NotificationChain msgs = null;
@@ -600,6 +624,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getDone() {
 		return done;
 	}
@@ -609,6 +634,7 @@ public class RawTypeImpl extends EObjectImpl implements RawType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDone(String newDone) {
 		String oldDone = done;
 		done = newDone;

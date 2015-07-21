@@ -97,6 +97,7 @@ public class NumSeriesTypeImpl extends EObjectImpl implements NumSeriesType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BigDecimal getValue() {
 		return value;
 	}
@@ -106,6 +107,7 @@ public class NumSeriesTypeImpl extends EObjectImpl implements NumSeriesType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setValue(BigDecimal newValue) {
 		BigDecimal oldValue = value;
 		value = newValue;
@@ -118,6 +120,7 @@ public class NumSeriesTypeImpl extends EObjectImpl implements NumSeriesType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getInfo() {
 		return info;
 	}
@@ -127,6 +130,7 @@ public class NumSeriesTypeImpl extends EObjectImpl implements NumSeriesType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setInfo(String newInfo) {
 		String oldInfo = info;
 		info = newInfo;

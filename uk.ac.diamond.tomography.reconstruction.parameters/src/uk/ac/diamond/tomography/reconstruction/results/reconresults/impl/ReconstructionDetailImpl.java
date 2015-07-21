@@ -137,6 +137,7 @@ public class ReconstructionDetailImpl extends EObjectImpl implements Reconstruct
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getNexusFileName() {
 		return nexusFileName;
 	}
@@ -146,6 +147,7 @@ public class ReconstructionDetailImpl extends EObjectImpl implements Reconstruct
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setNexusFileName(String newNexusFileName) {
 		String oldNexusFileName = nexusFileName;
 		nexusFileName = newNexusFileName;
@@ -158,6 +160,7 @@ public class ReconstructionDetailImpl extends EObjectImpl implements Reconstruct
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getNexusFileLocation() {
 		return nexusFileLocation;
 	}
@@ -167,6 +170,7 @@ public class ReconstructionDetailImpl extends EObjectImpl implements Reconstruct
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setNexusFileLocation(String newNexusFileLocation) {
 		String oldNexusFileLocation = nexusFileLocation;
 		nexusFileLocation = newNexusFileLocation;
@@ -179,6 +183,7 @@ public class ReconstructionDetailImpl extends EObjectImpl implements Reconstruct
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getReconstructedLocation() {
 		return reconstructedLocation;
 	}
@@ -188,6 +193,7 @@ public class ReconstructionDetailImpl extends EObjectImpl implements Reconstruct
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setReconstructedLocation(String newReconstructedLocation) {
 		String oldReconstructedLocation = reconstructedLocation;
 		reconstructedLocation = newReconstructedLocation;
@@ -200,6 +206,7 @@ public class ReconstructionDetailImpl extends EObjectImpl implements Reconstruct
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getTimeReconStarted() {
 		return timeReconStarted;
 	}
@@ -209,6 +216,7 @@ public class ReconstructionDetailImpl extends EObjectImpl implements Reconstruct
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setTimeReconStarted(String newTimeReconStarted) {
 		String oldTimeReconStarted = timeReconStarted;
 		timeReconStarted = newTimeReconStarted;

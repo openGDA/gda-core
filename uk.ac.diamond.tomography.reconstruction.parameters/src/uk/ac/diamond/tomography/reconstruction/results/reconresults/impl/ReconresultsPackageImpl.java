@@ -106,6 +106,7 @@ public class ReconresultsPackageImpl extends EPackageImpl implements Reconresult
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getReconResults() {
 		return reconResultsEClass;
 	}
@@ -115,6 +116,7 @@ public class ReconresultsPackageImpl extends EPackageImpl implements Reconresult
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getReconResults_Reconresult() {
 		return (EReference)reconResultsEClass.getEStructuralFeatures().get(0);
 	}
@@ -124,6 +126,7 @@ public class ReconresultsPackageImpl extends EPackageImpl implements Reconresult
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getReconstructionDetail() {
 		return reconstructionDetailEClass;
 	}
@@ -133,6 +136,7 @@ public class ReconresultsPackageImpl extends EPackageImpl implements Reconresult
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getReconstructionDetail_NexusFileName() {
 		return (EAttribute)reconstructionDetailEClass.getEStructuralFeatures().get(0);
 	}
@@ -142,6 +146,7 @@ public class ReconresultsPackageImpl extends EPackageImpl implements Reconresult
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getReconstructionDetail_NexusFileLocation() {
 		return (EAttribute)reconstructionDetailEClass.getEStructuralFeatures().get(1);
 	}
@@ -151,6 +156,7 @@ public class ReconresultsPackageImpl extends EPackageImpl implements Reconresult
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getReconstructionDetail_ReconstructedLocation() {
 		return (EAttribute)reconstructionDetailEClass.getEStructuralFeatures().get(2);
 	}
@@ -160,6 +166,7 @@ public class ReconresultsPackageImpl extends EPackageImpl implements Reconresult
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getReconstructionDetail_TimeReconStarted() {
 		return (EAttribute)reconstructionDetailEClass.getEStructuralFeatures().get(3);
 	}
@@ -169,6 +176,7 @@ public class ReconresultsPackageImpl extends EPackageImpl implements Reconresult
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ReconresultsFactory getReconresultsFactory() {
 		return (ReconresultsFactory)getEFactoryInstance();
 	}

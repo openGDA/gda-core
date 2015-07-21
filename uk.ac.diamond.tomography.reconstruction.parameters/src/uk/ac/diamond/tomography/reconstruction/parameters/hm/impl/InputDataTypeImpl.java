@@ -468,6 +468,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getFolder() {
 		return folder;
 	}
@@ -477,6 +478,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFolder(String newFolder) {
 		String oldFolder = folder;
 		folder = newFolder;
@@ -489,6 +491,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getPrefix() {
 		return prefix;
 	}
@@ -498,6 +501,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setPrefix(String newPrefix) {
 		String oldPrefix = prefix;
 		prefix = newPrefix;
@@ -510,6 +514,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getSuffix() {
 		return suffix;
 	}
@@ -519,6 +524,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSuffix(String newSuffix) {
 		String oldSuffix = suffix;
 		suffix = newSuffix;
@@ -531,6 +537,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getExtension() {
 		return extension;
 	}
@@ -540,6 +547,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setExtension(String newExtension) {
 		String oldExtension = extension;
 		extension = newExtension;
@@ -552,6 +560,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public NODType getNOD() {
 		return nOD;
 	}
@@ -576,6 +585,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setNOD(NODType newNOD) {
 		if (newNOD != nOD) {
 			NotificationChain msgs = null;
@@ -595,6 +605,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MemorySizeMaxType getMemorySizeMax() {
 		return memorySizeMax;
 	}
@@ -619,6 +630,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMemorySizeMax(MemorySizeMaxType newMemorySizeMax) {
 		if (newMemorySizeMax != memorySizeMax) {
 			NotificationChain msgs = null;
@@ -638,6 +650,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public MemorySizeMinType getMemorySizeMin() {
 		return memorySizeMin;
 	}
@@ -662,6 +675,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMemorySizeMin(MemorySizeMinType newMemorySizeMin) {
 		if (newMemorySizeMin != memorySizeMin) {
 			NotificationChain msgs = null;
@@ -681,6 +695,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public OrientationType getOrientation() {
 		return orientation;
 	}
@@ -705,6 +720,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setOrientation(OrientationType newOrientation) {
 		if (newOrientation != orientation) {
 			NotificationChain msgs = null;
@@ -724,6 +740,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getFileFirst() {
 		return fileFirst;
 	}
@@ -733,6 +750,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFileFirst(int newFileFirst) {
 		int oldFileFirst = fileFirst;
 		fileFirst = newFileFirst;
@@ -747,6 +765,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetFileFirst() {
 		int oldFileFirst = fileFirst;
 		boolean oldFileFirstESet = fileFirstESet;
@@ -761,6 +780,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetFileFirst() {
 		return fileFirstESet;
 	}
@@ -770,6 +790,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getFileLast() {
 		return fileLast;
 	}
@@ -779,6 +800,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFileLast(int newFileLast) {
 		int oldFileLast = fileLast;
 		fileLast = newFileLast;
@@ -793,6 +815,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetFileLast() {
 		int oldFileLast = fileLast;
 		boolean oldFileLastESet = fileLastESet;
@@ -807,6 +830,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetFileLast() {
 		return fileLastESet;
 	}
@@ -816,6 +840,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getFileStep() {
 		return fileStep;
 	}
@@ -825,6 +850,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFileStep(int newFileStep) {
 		int oldFileStep = fileStep;
 		fileStep = newFileStep;
@@ -839,6 +865,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetFileStep() {
 		int oldFileStep = fileStep;
 		boolean oldFileStepESet = fileStepESet;
@@ -853,6 +880,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetFileStep() {
 		return fileStepESet;
 	}
@@ -862,6 +890,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ImageFirstType getImageFirst() {
 		return imageFirst;
 	}
@@ -886,6 +915,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setImageFirst(ImageFirstType newImageFirst) {
 		if (newImageFirst != imageFirst) {
 			NotificationChain msgs = null;
@@ -905,6 +935,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ImageLastType getImageLast() {
 		return imageLast;
 	}
@@ -929,6 +960,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setImageLast(ImageLastType newImageLast) {
 		if (newImageLast != imageLast) {
 			NotificationChain msgs = null;
@@ -948,6 +980,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ImageStepType getImageStep() {
 		return imageStep;
 	}
@@ -972,6 +1005,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setImageStep(ImageStepType newImageStep) {
 		if (newImageStep != imageStep) {
 			NotificationChain msgs = null;
@@ -991,6 +1025,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RawType getRaw() {
 		return raw;
 	}
@@ -1015,6 +1050,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setRaw(RawType newRaw) {
 		if (newRaw != raw) {
 			NotificationChain msgs = null;
@@ -1034,6 +1070,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public FirstImageIndexType getFirstImageIndex() {
 		return firstImageIndex;
 	}
@@ -1058,6 +1095,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFirstImageIndex(FirstImageIndexType newFirstImageIndex) {
 		if (newFirstImageIndex != firstImageIndex) {
 			NotificationChain msgs = null;
@@ -1077,6 +1115,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getImagesPerFile() {
 		return imagesPerFile;
 	}
@@ -1086,6 +1125,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setImagesPerFile(int newImagesPerFile) {
 		int oldImagesPerFile = imagesPerFile;
 		imagesPerFile = newImagesPerFile;
@@ -1100,6 +1140,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetImagesPerFile() {
 		int oldImagesPerFile = imagesPerFile;
 		boolean oldImagesPerFileESet = imagesPerFileESet;
@@ -1114,6 +1155,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetImagesPerFile() {
 		return imagesPerFileESet;
 	}
@@ -1123,6 +1165,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public RestrictionsType1 getRestrictions() {
 		return restrictions;
 	}
@@ -1147,6 +1190,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setRestrictions(RestrictionsType1 newRestrictions) {
 		if (newRestrictions != restrictions) {
 			NotificationChain msgs = null;
@@ -1166,6 +1210,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BigDecimal getValueMin() {
 		return valueMin;
 	}
@@ -1175,6 +1220,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setValueMin(BigDecimal newValueMin) {
 		BigDecimal oldValueMin = valueMin;
 		valueMin = newValueMin;
@@ -1187,6 +1233,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BigDecimal getValueMax() {
 		return valueMax;
 	}
@@ -1196,6 +1243,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setValueMax(BigDecimal newValueMax) {
 		BigDecimal oldValueMax = valueMax;
 		valueMax = newValueMax;
@@ -1208,6 +1256,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public TypeType14 getType() {
 		return type;
 	}
@@ -1232,6 +1281,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setType(TypeType14 newType) {
 		if (newType != type) {
 			NotificationChain msgs = null;
@@ -1251,6 +1301,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ShapeType1 getShape() {
 		return shape;
 	}
@@ -1275,6 +1326,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setShape(ShapeType1 newShape) {
 		if (newShape != shape) {
 			NotificationChain msgs = null;
@@ -1294,6 +1346,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public BigDecimal getPixelParam() {
 		return pixelParam;
 	}
@@ -1303,6 +1356,7 @@ public class InputDataTypeImpl extends EObjectImpl implements InputDataType {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setPixelParam(BigDecimal newPixelParam) {
 		BigDecimal oldPixelParam = pixelParam;
 		pixelParam = newPixelParam;
