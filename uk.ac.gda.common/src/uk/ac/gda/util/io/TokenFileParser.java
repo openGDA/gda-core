@@ -146,7 +146,7 @@ public class TokenFileParser {
 		final List<Double> ret    = new ArrayList<Double>(values.size());
 		for (int row = 0; row < values.size(); row++) {
 			if (ig.contains(row)) continue;
-			ret.add(Double.parseDouble(values.get(row)));
+			ret.add(Double.valueOf(values.get(row)));
 		}
 		return ret;
 	}
