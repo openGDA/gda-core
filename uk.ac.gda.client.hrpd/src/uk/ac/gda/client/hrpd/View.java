@@ -43,12 +43,15 @@ public class View extends ViewPart {
 	 * example).
 	 */
 	class ViewContentProvider implements IStructuredContentProvider {
+		@Override
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 		}
 
+		@Override
 		public void dispose() {
 		}
 
+		@Override
 		public Object[] getElements(Object parent) {
 			return new String[] { "One", "Two", "Three" };
 		}
@@ -56,10 +59,12 @@ public class View extends ViewPart {
 
 	class ViewLabelProvider extends LabelProvider implements
 			ITableLabelProvider {
+		@Override
 		public String getColumnText(Object obj, int index) {
 			return getText(obj);
 		}
 
+		@Override
 		public Image getColumnImage(Object obj, int index) {
 			return getImage(obj);
 		}
