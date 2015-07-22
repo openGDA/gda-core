@@ -644,7 +644,7 @@ public class NexusFileHDF5 implements NexusFile {
 		data.setSaver(saver);
 
 		DataNode dataNode = TreeFactory.createDataNode(dataPath.hashCode());
-		((GroupNode)parentNode.node).addDataNode(tree, parentPath, dataName, dataNode);
+		((GroupNode)parentNode.node).addDataNode(parentPath, dataName, dataNode);
 		dataNode.setDataset(data);
 		return dataNode;
 	}

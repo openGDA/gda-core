@@ -209,7 +209,7 @@ public class NexusFileTest {
 		attribDataset.setName("testAttribute");
 		
 		GroupNode node = nf.getGroup("/a/b/c", true);
-		Attribute attribute = nf.createAttribute(node, attribDataset);
+		Attribute attribute = nf.createAttribute(attribDataset);
 		nf.addAttribute(node, attribute);
 		
 		assertSame(attribute, node.getAttribute("testAttribute"));
@@ -221,7 +221,7 @@ public class NexusFileTest {
 		attribDataset.setName("testAttribute");
 		
 		GroupNode node = nf.getGroup("/a/b/c", true);
-		Attribute attribute = nf.createAttribute(node, attribDataset);
+		Attribute attribute = nf.createAttribute(attribDataset);
 		nf.addAttribute(node, attribute);
 		
 		assertSame(attribute, node.getAttribute("testAttribute"));
