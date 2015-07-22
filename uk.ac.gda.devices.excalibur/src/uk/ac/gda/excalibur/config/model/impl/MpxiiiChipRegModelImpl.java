@@ -291,6 +291,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getDacIntoMpx() {
 		return dacIntoMpx;
 	}
@@ -300,6 +301,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacIntoMpx(double newDacIntoMpx) {
 		double oldDacIntoMpx = dacIntoMpx;
 		dacIntoMpx = newDacIntoMpx;
@@ -312,6 +314,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getDacOutFromMpx() {
 		return dacOutFromMpx;
 	}
@@ -321,6 +324,7 @@ public class MpxiiiChipRegModelImpl extends EObjectImpl implements MpxiiiChipReg
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacOutFromMpx(double newDacOutFromMpx) {
 		double oldDacOutFromMpx = dacOutFromMpx;
 		dacOutFromMpx = newDacOutFromMpx;

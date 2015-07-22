@@ -778,6 +778,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiChipRegModel_ChipDisable() {
 		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(2);
 	}
@@ -787,6 +788,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiChipRegModel_DacIntoMpx() {
 		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(3);
 	}
@@ -796,6 +798,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getMpxiiiChipRegModel_DacOutFromMpx() {
 		return (EAttribute)mpxiiiChipRegModelEClass.getEStructuralFeatures().get(4);
 	}
@@ -1065,6 +1068,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getReadoutNodeFemModel_OperationMode() {
 		return (EAttribute)readoutNodeFemModelEClass.getEStructuralFeatures().get(1);
 	}
@@ -1074,6 +1078,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getReadoutNodeFemModel_CounterSelect() {
 		return (EAttribute)readoutNodeFemModelEClass.getEStructuralFeatures().get(2);
 	}
@@ -1163,6 +1168,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getReadoutNodeFemModel_DacSense() {
 		return (EAttribute)readoutNodeFemModelEClass.getEStructuralFeatures().get(11);
 	}
@@ -1172,6 +1178,7 @@ public class ExcaliburConfigPackageImpl extends EPackageImpl implements Excalibu
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getReadoutNodeFemModel_DacExternal() {
 		return (EAttribute)readoutNodeFemModelEClass.getEStructuralFeatures().get(12);
 	}

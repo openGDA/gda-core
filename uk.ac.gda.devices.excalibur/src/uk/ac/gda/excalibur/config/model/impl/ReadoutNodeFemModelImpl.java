@@ -678,6 +678,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDacSense() {
 		return dacSense;
 	}
@@ -687,6 +688,7 @@ public class ReadoutNodeFemModelImpl extends EObjectImpl implements ReadoutNodeF
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDacSense(int newDacSense) {
 		int oldDacSense = dacSense;
 		dacSense = newDacSense;
