@@ -100,6 +100,7 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public ExperimentDefinition createExperimentDefinition() {
 		ExperimentDefinitionImpl experimentDefinition = new ExperimentDefinitionImpl();
 		return experimentDefinition;
@@ -110,6 +111,7 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public SampleList createSampleList() {
 		SampleListImpl sampleList = new SampleListImpl();
 		return sampleList;
@@ -120,6 +122,7 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Sample createSample() {
 		SampleImpl sample = new SampleImpl();
 		return sample;
@@ -150,6 +153,7 @@ public class LDEExperimentsFactoryImpl extends EFactoryImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public LDEExperimentsPackage getLDEExperimentsPackage() {
 		return (LDEExperimentsPackage)getEPackage();
 	}

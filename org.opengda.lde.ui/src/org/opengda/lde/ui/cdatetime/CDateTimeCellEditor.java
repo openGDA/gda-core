@@ -20,6 +20,7 @@ public class CDateTimeCellEditor extends org.eclipse.nebula.jface.cdatetime.CDat
 	protected Control createControl(Composite parent) {
 		final CDateTime cdt = (CDateTime) super.createControl(parent);
 		cdt.addFocusListener(new FocusAdapter() {
+			@Override
 			public void focusLost(FocusEvent e) {
 				if (!cdt.isOpen()) {
 					fireApplyEditorValue();

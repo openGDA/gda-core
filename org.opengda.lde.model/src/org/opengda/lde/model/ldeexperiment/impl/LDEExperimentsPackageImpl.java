@@ -118,6 +118,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getExperimentDefinition() {
 		return experimentDefinitionEClass;
 	}
@@ -127,6 +128,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getExperimentDefinition_Samplelist() {
 		return (EReference)experimentDefinitionEClass.getEStructuralFeatures().get(0);
 	}
@@ -136,6 +138,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getSampleList() {
 		return sampleListEClass;
 	}
@@ -145,6 +148,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSampleList_Filename() {
 		return (EAttribute)sampleListEClass.getEStructuralFeatures().get(0);
 	}
@@ -154,6 +158,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EReference getSampleList_Samples() {
 		return (EReference)sampleListEClass.getEStructuralFeatures().get(1);
 	}
@@ -163,6 +168,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EOperation getSampleList__GetSampleById__String() {
 		return sampleListEClass.getEOperations().get(0);
 	}
@@ -172,6 +178,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EOperation getSampleList__GetSampleByName__String() {
 		return sampleListEClass.getEOperations().get(1);
 	}
@@ -181,6 +188,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EClass getSample() {
 		return sampleEClass;
 	}
@@ -190,6 +198,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_SampleID() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(0);
 	}
@@ -199,6 +208,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Status() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(1);
 	}
@@ -208,6 +218,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Active() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(2);
 	}
@@ -217,6 +228,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Name() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(3);
 	}
@@ -226,6 +238,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_CellID() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(4);
 	}
@@ -235,6 +248,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_VisitID() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(5);
 	}
@@ -244,6 +258,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Calibrant() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(6);
 	}
@@ -253,6 +268,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Calibrant_x() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(7);
 	}
@@ -262,6 +278,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Calibrant_y() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(8);
 	}
@@ -271,6 +288,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Calibrant_exposure() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(9);
 	}
@@ -280,6 +298,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Sample_x_start() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(10);
 	}
@@ -289,6 +308,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Sample_x_stop() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(11);
 	}
@@ -298,6 +318,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Sample_x_step() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(12);
 	}
@@ -307,6 +328,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Sample_y_start() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(13);
 	}
@@ -316,6 +338,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Sample_y_stop() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(14);
 	}
@@ -325,6 +348,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Sample_y_step() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(15);
 	}
@@ -334,6 +358,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Sample_exposure() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(16);
 	}
@@ -343,6 +368,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Detector_x() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(17);
 	}
@@ -352,6 +378,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Detector_y() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(18);
 	}
@@ -361,6 +388,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Detector_z() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(19);
 	}
@@ -370,6 +398,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Email() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(20);
 	}
@@ -379,6 +408,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_StartDate() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(21);
 	}
@@ -388,6 +418,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_EndDate() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(22);
 	}
@@ -397,6 +428,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Command() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(23);
 	}
@@ -406,6 +438,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_MailCount() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(24);
 	}
@@ -415,6 +448,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_DataFileCount() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(25);
 	}
@@ -424,6 +458,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_Comment() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(26);
 	}
@@ -433,6 +468,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EAttribute getSample_DataFilePath() {
 		return (EAttribute)sampleEClass.getEStructuralFeatures().get(27);
 	}
@@ -442,6 +478,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EEnum getSTATUS() {
 		return statusEEnum;
 	}
@@ -451,6 +488,7 @@ public class LDEExperimentsPackageImpl extends EPackageImpl implements LDEExperi
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public LDEExperimentsFactory getLDEExperimentsFactory() {
 		return (LDEExperimentsFactory)getEFactoryInstance();
 	}

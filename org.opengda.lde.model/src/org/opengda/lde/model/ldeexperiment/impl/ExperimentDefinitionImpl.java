@@ -60,6 +60,7 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public SampleList getSamplelist() {
 		return samplelist;
 	}
@@ -84,6 +85,7 @@ public class ExperimentDefinitionImpl extends MinimalEObjectImpl.Container imple
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSamplelist(SampleList newSamplelist) {
 		if (newSamplelist != samplelist) {
 			NotificationChain msgs = null;

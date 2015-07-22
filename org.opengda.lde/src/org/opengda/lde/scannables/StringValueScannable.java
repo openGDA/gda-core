@@ -15,15 +15,18 @@ public class StringValueScannable extends ScannableBase {
 	private String value="Undefined";
 	private String name;
 	
+	@Override
 	public String getName() {
 		return name;
 	}
+	@Override
 	public void setName(String name) {
 		this.name = name;
 	}
 	public StringValueScannable() {
 	}
 	
+	@Override
 	public void configure() throws gda.factory.FactoryException {
 		if (!configured) {
 			setName(name);

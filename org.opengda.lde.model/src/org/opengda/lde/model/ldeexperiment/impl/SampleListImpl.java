@@ -86,6 +86,7 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getFilename() {
 		return filename;
 	}
@@ -95,6 +96,7 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setFilename(String newFilename) {
 		String oldFilename = filename;
 		filename = newFilename;
@@ -107,6 +109,7 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public EList<Sample> getSamples() {
 		if (samples == null) {
 			samples = new EObjectContainmentEList.Unsettable<Sample>(Sample.class, this, LDEExperimentsPackage.SAMPLE_LIST__SAMPLES);
@@ -119,6 +122,7 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetSamples() {
 		if (samples != null) ((InternalEList.Unsettable<?>)samples).unset();
 	}
@@ -128,6 +132,7 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetSamples() {
 		return samples != null && ((InternalEList.Unsettable<?>)samples).isSet();
 	}
@@ -137,6 +142,7 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Sample getSampleById(String regionID) {
 		// TODO: implement this method
 		// Ensure that you remove @generated or mark it @generated NOT
@@ -148,6 +154,7 @@ public class SampleListImpl extends MinimalEObjectImpl.Container implements Samp
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Sample getSampleByName(String sampleName) {
 		// TODO: implement this method
 		// Ensure that you remove @generated or mark it @generated NOT

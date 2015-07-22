@@ -219,6 +219,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	/**
 	 * This is a callback that will allow us to create the viewer and initialise it.
 	 */
+	@Override
 	public void createPartControl(Composite parent) {
 		Composite rootComposite = new Composite(parent, SWT.NONE);
 		rootComposite.setLayout(new GridLayout());
@@ -1504,6 +1505,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
+			@Override
 			public void menuAboutToShow(IMenuManager manager) {
 				SampleGroupView.this.fillContextMenu(manager);
 			}
@@ -1568,6 +1570,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 
 	private void hookDoubleClickAction() {
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				//TODO implement this editor
 //				doubleClickAction.run();
@@ -1582,6 +1585,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
+	@Override
 	public void setFocus() {
 		viewer.getTable().setFocus();
 	}

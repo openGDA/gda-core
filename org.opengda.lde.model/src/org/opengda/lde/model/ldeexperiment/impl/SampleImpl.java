@@ -675,6 +675,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getSampleID() {
 		return sampleID;
 	}
@@ -684,6 +685,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSampleID(String newSampleID) {
 		String oldSampleID = sampleID;
 		sampleID = newSampleID;
@@ -698,6 +700,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetSampleID() {
 		String oldSampleID = sampleID;
 		boolean oldSampleIDESet = sampleIDESet;
@@ -712,6 +715,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetSampleID() {
 		return sampleIDESet;
 	}
@@ -721,6 +725,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public STATUS getStatus() {
 		return status;
 	}
@@ -730,6 +735,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setStatus(STATUS newStatus) {
 		STATUS oldStatus = status;
 		status = newStatus == null ? STATUS_EDEFAULT : newStatus;
@@ -744,6 +750,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void unsetStatus() {
 		STATUS oldStatus = status;
 		boolean oldStatusESet = statusESet;
@@ -758,6 +765,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isSetStatus() {
 		return statusESet;
 	}
@@ -767,6 +775,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isActive() {
 		return active;
 	}
@@ -776,6 +785,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setActive(boolean newActive) {
 		boolean oldActive = active;
 		active = newActive;
@@ -788,6 +798,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -797,6 +808,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setName(String newName) {
 		String oldName = name;
 		name = newName;
@@ -809,6 +821,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getCellID() {
 		return cellID;
 	}
@@ -818,6 +831,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCellID(String newCellID) {
 		String oldCellID = cellID;
 		cellID = newCellID;
@@ -830,6 +844,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getVisitID() {
 		return visitID;
 	}
@@ -839,6 +854,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setVisitID(String newVisitID) {
 		String oldVisitID = visitID;
 		visitID = newVisitID;
@@ -851,6 +867,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getCalibrant() {
 		return calibrant;
 	}
@@ -860,6 +877,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCalibrant(String newCalibrant) {
 		String oldCalibrant = calibrant;
 		calibrant = newCalibrant;
@@ -872,6 +890,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getCalibrant_x() {
 		return calibrant_x;
 	}
@@ -881,6 +900,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCalibrant_x(double newCalibrant_x) {
 		double oldCalibrant_x = calibrant_x;
 		calibrant_x = newCalibrant_x;
@@ -893,6 +913,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getCalibrant_y() {
 		return calibrant_y;
 	}
@@ -902,6 +923,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCalibrant_y(double newCalibrant_y) {
 		double oldCalibrant_y = calibrant_y;
 		calibrant_y = newCalibrant_y;
@@ -914,6 +936,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getCalibrant_exposure() {
 		return calibrant_exposure;
 	}
@@ -923,6 +946,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCalibrant_exposure(double newCalibrant_exposure) {
 		double oldCalibrant_exposure = calibrant_exposure;
 		calibrant_exposure = newCalibrant_exposure;
@@ -935,6 +959,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Double getSample_x_start() {
 		return sample_x_start;
 	}
@@ -944,6 +969,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSample_x_start(Double newSample_x_start) {
 		Double oldSample_x_start = sample_x_start;
 		sample_x_start = newSample_x_start;
@@ -956,6 +982,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Double getSample_x_stop() {
 		return sample_x_stop;
 	}
@@ -965,6 +992,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSample_x_stop(Double newSample_x_stop) {
 		Double oldSample_x_stop = sample_x_stop;
 		sample_x_stop = newSample_x_stop;
@@ -977,6 +1005,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Double getSample_x_step() {
 		return sample_x_step;
 	}
@@ -986,6 +1015,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSample_x_step(Double newSample_x_step) {
 		Double oldSample_x_step = sample_x_step;
 		sample_x_step = newSample_x_step;
@@ -998,6 +1028,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Double getSample_y_start() {
 		return sample_y_start;
 	}
@@ -1007,6 +1038,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSample_y_start(Double newSample_y_start) {
 		Double oldSample_y_start = sample_y_start;
 		sample_y_start = newSample_y_start;
@@ -1019,6 +1051,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Double getSample_y_stop() {
 		return sample_y_stop;
 	}
@@ -1028,6 +1061,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSample_y_stop(Double newSample_y_stop) {
 		Double oldSample_y_stop = sample_y_stop;
 		sample_y_stop = newSample_y_stop;
@@ -1040,6 +1074,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Double getSample_y_step() {
 		return sample_y_step;
 	}
@@ -1049,6 +1084,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSample_y_step(Double newSample_y_step) {
 		Double oldSample_y_step = sample_y_step;
 		sample_y_step = newSample_y_step;
@@ -1061,6 +1097,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getSample_exposure() {
 		return sample_exposure;
 	}
@@ -1070,6 +1107,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setSample_exposure(double newSample_exposure) {
 		double oldSample_exposure = sample_exposure;
 		sample_exposure = newSample_exposure;
@@ -1082,6 +1120,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getDetector_x() {
 		return detector_x;
 	}
@@ -1091,6 +1130,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDetector_x(double newDetector_x) {
 		double oldDetector_x = detector_x;
 		detector_x = newDetector_x;
@@ -1103,6 +1143,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getDetector_y() {
 		return detector_y;
 	}
@@ -1112,6 +1153,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDetector_y(double newDetector_y) {
 		double oldDetector_y = detector_y;
 		detector_y = newDetector_y;
@@ -1124,6 +1166,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public double getDetector_z() {
 		return detector_z;
 	}
@@ -1133,6 +1176,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDetector_z(double newDetector_z) {
 		double oldDetector_z = detector_z;
 		detector_z = newDetector_z;
@@ -1145,6 +1189,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getEmail() {
 		return email;
 	}
@@ -1154,6 +1199,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setEmail(String newEmail) {
 		String oldEmail = email;
 		email = newEmail;
@@ -1166,6 +1212,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Date getStartDate() {
 		return startDate;
 	}
@@ -1175,6 +1222,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setStartDate(Date newStartDate) {
 		Date oldStartDate = startDate;
 		startDate = newStartDate;
@@ -1187,6 +1235,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public Date getEndDate() {
 		return endDate;
 	}
@@ -1196,6 +1245,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setEndDate(Date newEndDate) {
 		Date oldEndDate = endDate;
 		endDate = newEndDate;
@@ -1208,6 +1258,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getCommand() {
 		return command;
 	}
@@ -1217,6 +1268,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setCommand(String newCommand) {
 		String oldCommand = command;
 		command = newCommand;
@@ -1229,6 +1281,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getMailCount() {
 		return mailCount;
 	}
@@ -1238,6 +1291,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setMailCount(int newMailCount) {
 		int oldMailCount = mailCount;
 		mailCount = newMailCount;
@@ -1250,6 +1304,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getDataFileCount() {
 		return dataFileCount;
 	}
@@ -1259,6 +1314,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDataFileCount(int newDataFileCount) {
 		int oldDataFileCount = dataFileCount;
 		dataFileCount = newDataFileCount;
@@ -1271,6 +1327,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getComment() {
 		return comment;
 	}
@@ -1280,6 +1337,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setComment(String newComment) {
 		String oldComment = comment;
 		comment = newComment;
@@ -1292,6 +1350,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getDataFilePath() {
 		return dataFilePath;
 	}
@@ -1301,6 +1360,7 @@ public class SampleImpl extends MinimalEObjectImpl.Container implements Sample {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setDataFilePath(String newDataFilePath) {
 		String oldDataFilePath = dataFilePath;
 		dataFilePath = newDataFilePath;
