@@ -23,11 +23,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
 import java.net.URI;
+import java.util.Arrays;
 
+import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
 import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
@@ -265,4 +269,57 @@ public class NexusFileTest {
 		assertFalse(nf.isPathValid("/a/b/c/d"));
 	}
 
+	@Test
+	public void testWritingSimpleStringArray() throws Exception {
+		GroupNode g = nf.getGroup("/entry1:NXentry", true);
+		NexusUtils.write(nf, g, "stringarray", new String[] {"String", "String Å"});
+		nf.close();
+
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		DataNode d = nf.getData("/entry1/stringarray");
+		IDataset ds = d.getDataset().getSlice();
+		int[] shape = ds.getShape();
+		assertArrayEquals(new int[] {2}, shape);
+	}
+
+	@Test
+	public void testWriteSimpleString() throws Exception {
+		GroupNode g = nf.getGroup("/note:NXnote", true);
+		NexusUtils.write(nf, g, "somestring", "MyString");
+		nf.close();
+
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		DataNode d = nf.getData("/note/somestring");
+		IDataset ds = d.getDataset().getSlice();
+		int[] shape = ds.getShape();
+		assertArrayEquals(new int[] {1}, shape);
+		assertEquals("MyString", ds.getString(0));
+	}
+
+	@Test
+	public void testLazyWriteStringArray() throws Exception {
+		int nPoints = 10;
+
+		GroupNode g = nf.getGroup("/test:NXnote", true);
+		ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("stringarray", Dataset.STRING,
+				new int[] {ILazyWriteableDataset.UNLIMITED}, null, null);
+		nf.createData(g, lazy);
+		nf.close();
+
+		for (int i = 0; i < nPoints; i++) {
+			lazy.setSlice(null, DatasetFactory.createFromObject("file" + i),
+					SliceND.createSlice(lazy, new int[] {i}, new int[] {i+1}));
+		}
+
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		DataNode d = nf.getData("/test/stringarray");
+		IDataset ds = d.getDataset().getSlice();
+		System.err.println(ds);
+		int[] shape = ds.getShape();
+		System.err.println(Arrays.toString(shape));
+		for (int i = 0; i < nPoints; i++) {
+			System.err.println(i + "/" + nPoints);
+			System.out.println(ds.getString(i));
+		}
+	}
 }
