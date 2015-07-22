@@ -102,6 +102,7 @@ public class UViewImageDetector extends DetectorBase implements UView {
 		this.prepare();
 	}
 
+	@Override
 	public boolean createsOwnFiles() throws DeviceException {
 		return true;
 	}
@@ -144,6 +145,7 @@ public class UViewImageDetector extends DetectorBase implements UView {
 		uic.prepare(tracker, imageDir);
 	}
 	
+	@Override
 	public void prepare(){
 		uic.prepare(tracker, imageDir);
 	}
@@ -191,6 +193,7 @@ public class UViewImageDetector extends DetectorBase implements UView {
 	
 	
 	
+	@Override
 	public String shotSingleImage() throws IOException {
 		int status;
 		try {
@@ -226,25 +229,30 @@ public class UViewImageDetector extends DetectorBase implements UView {
 		return "Aaa! Wrong Detector Status. Not working!";
 	}
 
+	@Override
 	public void connect(String host) throws IOException {
 		// TODO Auto-generated method stub
 	}
 
+	@Override
 	public void disconnect() {
 		// TODO Auto-generated method stub
 
 	}
 
+	@Override
 	public boolean isConnected() {
 		// TODO Auto-generated method stub
 		return true;
 	}
 
+	@Override
 	public Object getHashROIs() throws IOException {
 
 		return hashROIs;
 	}
 
+	@Override
 	public int createROI(String nameROI) {
 		int idROI = 0;
 
@@ -272,6 +280,7 @@ public class UViewImageDetector extends DetectorBase implements UView {
 		return idROI;
 	}
 
+	@Override
 	public void setBoundsROI(String nameROI, int x, int y, int width, int height) {
 
 		if (hashROIs.containsKey(nameROI)) {
@@ -287,6 +296,7 @@ public class UViewImageDetector extends DetectorBase implements UView {
 
 	}
 
+	@Override
 	public Object getBoundsROI(String nameROI) throws IOException {
 		Rectangle rect = null;
 		if (hashROIs.containsKey(nameROI)) {
@@ -297,6 +307,7 @@ public class UViewImageDetector extends DetectorBase implements UView {
 		return rect;
 	}
 
+	@Override
 	public Object readoutROI(String nameROI) {
 		double dataROI = -100;
 
@@ -319,14 +330,17 @@ public class UViewImageDetector extends DetectorBase implements UView {
 		this.notifyIObservers(this, nameROI);
 	}
 
+	@Override
 	public String getDescription() throws DeviceException {
 		return "UView Image Detector";
 	}
 
+	@Override
 	public String getDetectorID() throws DeviceException {
 		return "unknown";
 	}
 
+	@Override
 	public String getDetectorType() throws DeviceException {
 		return "unknown";
 	}

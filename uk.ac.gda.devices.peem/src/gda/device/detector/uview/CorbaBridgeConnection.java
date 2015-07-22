@@ -322,10 +322,12 @@ public class CorbaBridgeConnection implements Configurable, Findable {
 		logger.debug(Float.toString(msImpl.GetLEEM2000Version()));
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
 
+	@Override
 	public void setName(String name) {
 		this.name = name;
 	}

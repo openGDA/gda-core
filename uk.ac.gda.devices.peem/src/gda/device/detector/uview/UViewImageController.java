@@ -313,6 +313,7 @@ public class UViewImageController extends Observable implements Runnable {
 	/**
 	 * Thread which checks on the status of the detector
 	 */
+	@Override
 	public void run() {
 		/*
 		 * Find out if status changes have occured.if so keep a record and pass on the information.
