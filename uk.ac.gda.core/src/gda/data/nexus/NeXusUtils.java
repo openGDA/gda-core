@@ -46,29 +46,6 @@ public class NeXusUtils {
 	private static final Logger logger = LoggerFactory.getLogger(NexusUtils.class);
 
 	private final static String DEFAULT_NUMBER_VALUE = "-1.0";
-	@SuppressWarnings("unused")
-	private final static String DEFAULT_STRING_VALUE = "Not Defined";
-
-	private static enum DataType {
-		/** Double */
-		DOUBLE,
-		/** Double Array */
-		DOUBLE_ARRAY,
-		/** Integer */
-		INTEGER,
-		/** Integer Array */
-		INTEGER_ARRAY,
-		/** Long */
-		LONG,
-		/** Long Array */
-		LONG_ARRAY,
-		/** String */
-		STRING,
-		/** Boolean */
-		BOOLEAN,
-		/** NXdata Class */
-		NXDATA
-	}
 
 	/**
 	 * Returns the number of dimensions (rank) required for the data section in a NeXus file. e.g. A single channel
@@ -240,9 +217,6 @@ public class NeXusUtils {
 		// Make the source
 		write_NXsource(file, group);
 
-		// Close the NXinstrument group before returning, so that we are at the same point in the file.
-//		file.closegroup();
-
 	}
 
 	/**
@@ -412,27 +386,6 @@ public class NeXusUtils {
 
 	/**
 	 * @param file
-	 * @param names
-	 * @param datatypes
-	 * @throws NexusException
-	 */
-	@SuppressWarnings("unused")
-	public static void writeMetadataList(NexusFile file, ArrayList<String> names, ArrayList<DataType> datatypes)
-			throws NexusException {
-		Metadata metadata = GDAMetadataProvider.getInstance();
-		// for (String item : names) {
-		// try {
-		// String value = metadata.getMetadataValue(item);
-		// if
-		// } catch (DeviceException e) {
-		// logger.warn("Problem reading one or more items of metadata.");
-		// }
-		// }
-
-	}
-
-	/**
-	 * @param file
 	 * @param group
 	 * @throws NexusException
 	 */
@@ -442,8 +395,8 @@ public class NeXusUtils {
 
 		// Elements of this component
 		String name = "";
-		Double critical_energy = Double.parseDouble(DEFAULT_NUMBER_VALUE);
-		Double bending_radius = Double.parseDouble(DEFAULT_NUMBER_VALUE);
+		double critical_energy = Double.parseDouble(DEFAULT_NUMBER_VALUE);
+		double bending_radius = Double.parseDouble(DEFAULT_NUMBER_VALUE);
 		double[] spectrum;
 
 		ArrayList<String> items = new ArrayList<String>();
@@ -451,12 +404,6 @@ public class NeXusUtils {
 		items.add("instrument.bending_magnet.bending_radius");
 		items.add("instrument.bending_magnet.critical_energy");
 		items.add("instrument.bending_magnet.spectrum");
-
-		ArrayList<DataType> datatype = new ArrayList<DataType>();
-		datatype.add(DataType.STRING);
-		datatype.add(DataType.DOUBLE);
-		datatype.add(DataType.DOUBLE);
-		datatype.add(DataType.NXDATA);
 
 		// Have a look to see if any of the metadata items have been defined.
 		try {

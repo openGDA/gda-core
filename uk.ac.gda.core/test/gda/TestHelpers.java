@@ -428,7 +428,7 @@ class SimpleScannable implements Scannable, INeXusInfoWriteable {
 			if (units != null && units.length > 0) {
 				Dataset ad = DatasetFactory.createFromObject(units[0]);
 				ad.setName("units");
-				Attribute a = file.createAttribute(node, ad);
+				Attribute a = file.createAttribute(ad);
 				file.addAttribute(node, a);
 			}
 		} catch (NexusException e) {
