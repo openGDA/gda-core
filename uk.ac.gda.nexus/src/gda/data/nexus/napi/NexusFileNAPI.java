@@ -393,7 +393,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		if (clazz != null && !clazz.isEmpty())
 			g.addAttribute(TreeFactory.createAttribute(NXCLASS, clazz, false));
 		copyAttributes(name, g);
-		group.addGroupNode(tree, path, name, g);
+		group.addGroupNode(path, name, g);
 	}
 
 	/**
@@ -422,9 +422,9 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 					try {
 						Tuple<String, GroupNode, Node> ntuple = createExternalNode(null, ext, false, true);
 						if (ntuple.node instanceof GroupNode) {
-							group.addGroupNode(tree, npath, n, (GroupNode) ntuple.node);
+							group.addGroupNode(npath, n, (GroupNode) ntuple.node);
 						} else if (ntuple.node instanceof DataNode) {
-							group.addDataNode(tree, npath, n, (DataNode) ntuple.node);
+							group.addDataNode(npath, n, (DataNode) ntuple.node);
 						}
 					} catch (Throwable t) {
 						logger.error("Could not create external group", t);
@@ -549,7 +549,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		if (ext != null) {
 			try {
 				Tuple<String, GroupNode, Node> ntuple = createExternalNode(null, ext, false, true);
-				tuple.group.addDataNode(tree, path, name, (DataNode) ntuple.node);
+				tuple.group.addDataNode(path, name, (DataNode) ntuple.node);
 				return (DataNode) ntuple.node;
 			} catch (Throwable t) {
 				logger.error("Could not create external group", t);
@@ -614,7 +614,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		DataNode dataNode = TreeFactory.createDataNode(path.hashCode());
 		copyAttributes(name, dataNode);
 		String p = path.substring(0, path.length() - name.length());
-		g.addDataNode(tree, p, name, dataNode);
+		g.addDataNode(p, name, dataNode);
 		int[] tShape = new int[10];
 		int[] args = new int[10];
 		try {
@@ -808,7 +808,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		}
 		String dpath = tuple.path + name;
 		DataNode dataNode = TreeFactory.createDataNode(dpath.hashCode());
-		tuple.group.addDataNode(tree, tuple.path, name, dataNode);
+		tuple.group.addDataNode(tuple.path, name, dataNode);
 
 		dataNode.setDataset(data);
 		return dataNode;
@@ -893,7 +893,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 
 		String dpath = tuple.path + name;
 		DataNode dataNode = TreeFactory.createDataNode(dpath.hashCode());
-		tuple.group.addDataNode(tree, tuple.path, name, dataNode);
+		tuple.group.addDataNode(tuple.path, name, dataNode);
 
 		dataNode.setDataset(data);
 		return dataNode;
