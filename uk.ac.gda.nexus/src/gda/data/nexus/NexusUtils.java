@@ -20,6 +20,7 @@
 package gda.data.nexus;
 
 
+import gda.data.nexus.hdf5.NexusFileHDF5;
 import gda.data.nexus.napi.NexusFileNAPI;
 
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
@@ -38,6 +39,8 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
  * Utility methods for dealing with NeXus files.
  */
 public class NexusUtils {
+
+	private static boolean useHDF5 = true;
 
 	/**
 	 * Create a (top-level) NeXus augmented path
@@ -324,7 +327,7 @@ public class NexusUtils {
 	 * @throws NexusException
 	 */
 	public static NexusFile createNexusFile(String path) throws NexusException {
-		NexusFileNAPI file = new NexusFileNAPI(path);
+		NexusFile file = useHDF5 ? new NexusFileHDF5(path) : new NexusFileNAPI(path);
 		file.createAndOpenToWrite();
 		return file;
 	}
@@ -336,7 +339,7 @@ public class NexusUtils {
 	 * @throws NexusException
 	 */
 	public static NexusFile openNexusFile(String path) throws NexusException {
-		NexusFileNAPI file = new NexusFileNAPI(path);
+		NexusFile file = useHDF5 ? new NexusFileHDF5(path) : new NexusFileNAPI(path);
 		file.openToWrite(false);
 		return file;
 	}
@@ -348,7 +351,7 @@ public class NexusUtils {
 	 * @throws NexusException
 	 */
 	public static NexusFile openNexusFileReadOnly(String path) throws NexusException {
-		NexusFileNAPI file = new NexusFileNAPI(path);
+		NexusFile file = useHDF5 ? new NexusFileHDF5(path) : new NexusFileNAPI(path);
 		file.openToRead();
 		return file;
 	}
