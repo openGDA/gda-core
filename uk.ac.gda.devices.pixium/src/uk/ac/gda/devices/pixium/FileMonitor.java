@@ -148,7 +148,8 @@ public class FileMonitor
    */
   private class FileMonitorNotifier extends TimerTask
   {
-    public void run()
+    @Override
+	public void run()
     {
       // Loop over the registered files and see which have changed.
       // Use a copy of the list in case listener wants to alter the
@@ -209,7 +210,8 @@ public class FileMonitor
   private class TestListener
     implements FileListener
   {
-    public void fileChanged (File file)
+    @Override
+	public void fileChanged (File file)
     {
       System.out.println ("File changed: " + file);
     }
