@@ -1,11 +1,8 @@
 package uk.ac.gda.devices.bssc.ispyb;
 
 import static org.junit.Assert.assertEquals;
-import gda.factory.FactoryException;
 
-import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.databinding.observable.Realm;
@@ -17,6 +14,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.factory.FactoryException;
 import uk.ac.gda.devices.bssc.beans.BioSAXSProgressController;
 import uk.ac.gda.devices.bssc.beans.ISAXSProgress;
 
@@ -298,10 +296,12 @@ class DefaultRealm extends Realm {
 	/**
 	 * @return always returns true
 	 */
+	@Override
 	public boolean isCurrent() {
 		return true;
 	}
 
+	@Override
 	protected void syncExec(Runnable runnable) {
 		runnable.run();
 	}
@@ -309,6 +309,7 @@ class DefaultRealm extends Realm {
 	/**
 	 * @throws UnsupportedOperationException
 	 */
+	@Override
 	public void asyncExec(Runnable runnable) {
 		// throw new UnsupportedOperationException("asyncExec is unsupported");
 		runnable.run();
