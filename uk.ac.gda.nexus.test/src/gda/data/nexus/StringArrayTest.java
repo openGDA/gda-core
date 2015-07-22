@@ -18,6 +18,9 @@
 
 package gda.data.nexus;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
+
 import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
@@ -27,7 +30,6 @@ import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
-import org.eclipse.dawnsci.hdf5.nexus.NexusException;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.junit.Test;
 
@@ -37,12 +39,41 @@ import org.junit.Test;
 public class StringArrayTest {
 
 	@Test
-	public void test() {
+	public void testSimpleStringArray() throws Exception{
+		try (NexusFile nf = NexusUtils.createNexusFile("/tmp/stringarray.nxs")) {
+			GroupNode g = nf.getGroup("/entry1:NXentry", true);
+			NexusUtils.write(nf, g, "stringarray", new String[] {"String", "String Å"});
+		}
+
+		try (NexusFile nf = NexusUtils.openNexusFile("/tmp/stringarray.nxs")) {
+			DataNode d = nf.getData("/entry1/stringarray");
+			IDataset ds = d.getDataset().getSlice();
+			int[] shape = ds.getShape();
+			assertArrayEquals(new int[] {2}, shape);
+		}
+	}
+
+	@Test
+	public void testSimpleString() throws Exception {
+		try (NexusFile nf = NexusUtils.createNexusFile("/tmp/stringfile.nxs")) {
+			GroupNode g = nf.getGroup("/note:NXnote", true);
+			NexusUtils.write(nf, g, "somestring", "MyString");
+		}
+
+		try (NexusFile nf = NexusUtils.openNexusFileReadOnly("/tmp/stringfile.nxs")) {
+			DataNode d = nf.getData("/note/somestring");
+			IDataset ds = d.getDataset().getSlice();
+			int[] shape = ds.getShape();
+			assertArrayEquals(new int[] {1}, shape);
+			assertEquals("MyString", ds.getString(0));
+		}
+	}
+
+	@Test
+	public void test() throws Exception {
 		int nPoints = 10;
 
-		try {
-			NexusFile nf = NexusUtils.createNexusFile("/tmp/file.nxs");
-
+		try (NexusFile nf = NexusUtils.createNexusFile("/tmp/file.nxs")) {
 			GroupNode g = nf.getGroup("/test:NXnote", true);
 			ILazyWriteableDataset lazy = NexusUtils.createLazyWriteableDataset("stringarray", Dataset.STRING, new int[] {ILazyWriteableDataset.UNLIMITED}, null, null);
 			nf.createData(g, lazy);
@@ -50,10 +81,6 @@ public class StringArrayTest {
 			for (int i = 0; i < nPoints; i++) {
 				lazy.setSlice(null, DatasetFactory.createFromObject("file" + i), SliceND.createSlice(lazy, new int[] {i}, new int[] {i+1}));
 			}
-
-			nf.close();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 
 		try (NexusFile f = NexusUtils.openNexusFileReadOnly("/tmp/file.nxs")) {
@@ -66,7 +93,6 @@ public class StringArrayTest {
 				System.err.println(i + "/" + nPoints);
 				System.out.println(ds.getString(i));
 			}
-		} catch (NexusException e) {
 		}
 	}
 }
