@@ -291,10 +291,10 @@ public class NexusFileHDF5 implements NexusFile {
 			throws NexusException {
 		GroupNode g = TreeFactory.createGroupNode(oid);
 		if (nxClass != null && !nxClass.isEmpty()) {
-			g.addAttribute(TreeFactory.createAttribute(tree,  name,  NXCLASS, nxClass, false));
+			g.addAttribute(TreeFactory.createAttribute(NXCLASS, nxClass, false));
 		}
 		//TODO copy Attributes from node in file to tree node (g)
-		group.addGroupNode(tree, path, name, g);
+		group.addGroupNode(path, name, g);
 	}
 
 	private void populateGroupNode(String path, GroupNode group) throws NexusException {
@@ -360,7 +360,7 @@ public class NexusFileHDF5 implements NexusFile {
 					node = group.getDataNode(parsedNode.name);
 				} else {
 					node = getData(path);
-					group.addDataNode(tree, parentPath, parsedNode.name, (DataNode) node);
+					group.addDataNode(parentPath, parsedNode.name, (DataNode) node);
 				}
 				break;
 			} else {
@@ -458,7 +458,7 @@ public class NexusFileHDF5 implements NexusFile {
 		DataNode dataNode = TreeFactory.createDataNode(path.hashCode());
 		//TODO: copy attributes
 		String parentPath = path.substring(0, path.length() - name.length());
-		parentNode.addDataNode(tree, parentPath, name, dataNode);
+		parentNode.addDataNode(parentPath, name, dataNode);
 		dataNode.setUnsigned(unsigned);
 		//TODO: String stuff
 		ILazyDataset lazyDataset = null;
@@ -632,7 +632,7 @@ public class NexusFileHDF5 implements NexusFile {
 
 		String dataPath = parentNode + dataName;
 		DataNode dataNode = TreeFactory.createDataNode(dataPath.hashCode());
-		((GroupNode) parentNode.node).addDataNode(tree, dataPath, dataName, dataNode);
+		((GroupNode) parentNode.node).addDataNode(dataPath, dataName, dataNode);
 		return dataNode;
 	}
 
@@ -643,16 +643,10 @@ public class NexusFileHDF5 implements NexusFile {
 	}
 
 	@Override
-	public Attribute createAttribute(String nodeName, IDataset attr) {
+	public Attribute createAttribute(IDataset attr) {
 		// TODO Auto-generated method stub
 		assertOpen();
 		return null;
-	}
-
-	@Override
-	public Attribute createAttribute(Node node, IDataset attr) {
-		String path = getPath(node);
-		return createAttribute(path.substring(path.lastIndexOf(Node.SEPARATOR)), attr);
 	}
 
 	@Override
