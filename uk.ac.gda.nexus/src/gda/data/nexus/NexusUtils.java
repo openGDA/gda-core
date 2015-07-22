@@ -40,7 +40,7 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
  */
 public class NexusUtils {
 
-	private static boolean useHDF5 = true;
+	private static boolean useHDF5 = false;
 
 	/**
 	 * Create a (top-level) NeXus augmented path
