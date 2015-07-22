@@ -60,7 +60,8 @@ public class BorderLayout extends AWTLayout {
     this.vgap = vgap;
   }
 
-  protected Point computeSize(
+  @Override
+protected Point computeSize(
     Composite composite,
     int wHint,
     int hHint,
@@ -97,7 +98,8 @@ public class BorderLayout extends AWTLayout {
     return size;
   }
 
-  protected void layout(Composite composite, boolean flushCache) {
+  @Override
+protected void layout(Composite composite, boolean flushCache) {
     readLayoutData(composite);
     Rectangle clientArea = composite.getClientArea();
     int top = clientArea.y;
