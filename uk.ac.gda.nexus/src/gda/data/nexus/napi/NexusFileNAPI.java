@@ -391,7 +391,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			throws NexusException {
 		GroupNode g = TreeFactory.createGroupNode(oid);
 		if (clazz != null && !clazz.isEmpty())
-			g.addAttribute(TreeFactory.createAttribute(tree, name, NXCLASS, clazz, false));
+			g.addAttribute(TreeFactory.createAttribute(NXCLASS, clazz, false));
 		copyAttributes(name, g);
 		group.addGroupNode(tree, path, name, g);
 	}
@@ -487,21 +487,21 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		}
 		for (Entry<String, AttributeEntry> sa: map.entrySet()) {
 			try {
-				node.addAttribute(createAttribute(name, sa.getKey(), sa.getValue()));
+				node.addAttribute(createAttribute(sa.getKey(), sa.getValue()));
 			} catch (Throwable t) {
 				logger.warn("Could not get attr so ignoring {}", sa.getKey(), t);
 			}
 		}
 	}
 
-	private Attribute createAttribute(String name, String n, AttributeEntry e) throws NexusException {
+	private Attribute createAttribute(String n, AttributeEntry e) throws NexusException {
 		Object s;
 		try {
 			s = file.getattr(n);
 		} catch (org.nexusformat.NexusException e1) {
 			throw new NexusException("Problem getting attribute", e1);
 		}
-		Attribute a = TreeFactory.createAttribute(tree, name, n, s, false);
+		Attribute a = TreeFactory.createAttribute(n, s, false);
 		if (!a.isString()) {
 			IDataset d = a.getValue();
 			d.setShape(e.dim);
@@ -903,7 +903,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	public Attribute createAttribute(String node, IDataset attr) {
 		checkClosed(false);
 
-		Attribute a = TreeFactory.createAttribute(tree, node, attr.getName());
+		Attribute a = TreeFactory.createAttribute(attr.getName());
 		a.setValue(attr);
 		return a;
 	}
