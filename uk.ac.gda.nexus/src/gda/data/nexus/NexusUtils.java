@@ -313,7 +313,7 @@ public class NexusUtils {
 
 		Dataset a = DatasetFactory.createFromObject(value);
 		a.setName(name);
-		Attribute attr = file.createAttribute(node, a);
+		Attribute attr = file.createAttribute(a);
 		file.addAttribute(node, attr);
 	}
 

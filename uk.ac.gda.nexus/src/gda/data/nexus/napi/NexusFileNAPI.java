@@ -900,18 +900,12 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 	}
 
 	@Override
-	public Attribute createAttribute(String node, IDataset attr) {
+	public Attribute createAttribute(IDataset attr) {
 		checkClosed(false);
 
 		Attribute a = TreeFactory.createAttribute(attr.getName());
 		a.setValue(attr);
 		return a;
-	}
-
-	@Override
-	public Attribute createAttribute(Node node, IDataset attr) {
-		String path = getPath(node);
-		return createAttribute(path.substring(path.lastIndexOf(Node.SEPARATOR)), attr);
 	}
 
 	@Override

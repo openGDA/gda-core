@@ -52,7 +52,7 @@ public class NexusFileTest {
 		Dataset a = DatasetFactory.createFromObject("world");
 		a.setName("hello");
 
-		nf.addAttribute(g, nf.createAttribute("b", a));
+		nf.addAttribute(g, nf.createAttribute(a));
 
 		int[] shape = new int[] {2, 34};
 		int[] mshape = new int[] {ILazyWriteableDataset.UNLIMITED, 34};
@@ -64,7 +64,7 @@ public class NexusFileTest {
 
 		a = DatasetFactory.createFromObject(-1.5);
 		a.setName("value");
-		nf.addAttribute(g.getDataNode(d.getName()), nf.createAttribute(d.getName(), a));
+		nf.addAttribute(g.getDataNode(d.getName()), nf.createAttribute(a));
 
 		LazyWriteableDataset t = new LazyWriteableDataset("t", Dataset.STRING, shape, mshape, null, null);
 		nf.createData(g, t);
