@@ -351,7 +351,10 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 			}
 
 			try {
-				return createExternalNode(p.toString(), ext, createPathIfNecessary, toBottom);
+				Tuple<String, GroupNode, Node> tuple = createExternalNode(p.toString(), ext, createPathIfNecessary, toBottom);
+				GroupNode eg = tuple.group;
+				group.addGroupNode(ppath, name, eg); // overwrite existing group with external one
+				return tuple;
 			} catch (Throwable t) {
 				logger.error("Could not create external group", t);
 				throw new NexusException("Could not create external group", t);
@@ -422,9 +425,9 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 					try {
 						Tuple<String, GroupNode, Node> ntuple = createExternalNode(null, ext, false, true);
 						if (ntuple.node instanceof GroupNode) {
-							group.addGroupNode(npath, n, (GroupNode) ntuple.node);
+							group.addGroupNode(path, n, (GroupNode) ntuple.node);
 						} else if (ntuple.node instanceof DataNode) {
-							group.addDataNode(npath, n, (DataNode) ntuple.node);
+							group.addDataNode(path, n, (DataNode) ntuple.node);
 						}
 					} catch (Throwable t) {
 						logger.error("Could not create external group", t);
@@ -571,9 +574,10 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 		if (!uri.getScheme().equals(NX_URL_SCHEME)) {
 			throw new IllegalArgumentException("External URI string is not of correct scheme");
 		}
+		String a = uri.getAuthority();
 		String filepath = uri.getPath();
-		if (filepath.isEmpty()) {
-			filepath = uri.getAuthority();
+		if (a != null && !a.isEmpty()) {
+			filepath = a.concat(filepath);
 		}
 		if (filepath.startsWith("/./") || filepath.startsWith("/~/")) { // trim relative path
 			filepath = filepath.substring(1);
