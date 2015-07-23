@@ -20,8 +20,7 @@ Require-Bundle: org.eclipse.core.runtime,
  uk.ac.gda.hrpd;bundle-version="1.0.0",
  uk.ac.gda.dls.client;bundle-version="1.0.0",
  uk.ac.gda.epics,
- org.eclipse.dawnsci.plotting.api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+ org.eclipse.dawnsci.plotting.api,
  uk.ac.gda.dls.client;bundle-version="1.0.0",
  org.python.pydev,
  org.eclipse.dawnsci.plotting.api,
