@@ -30,6 +30,7 @@ import java.net.URI;
 import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
+import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
@@ -244,22 +245,85 @@ public class NexusFileTest {
 	}
 
 	@Test
+	public void testHardLinkDataset() throws Exception {
+		IDataset dataset = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
+		dataset.setName("data");
+		nf.createData("/a/", dataset, true);
+		nf.link("/a/data", "/x/data");
+		DataNode linkedNode = nf.getData("/x/data");
+		IDataset linkedData = linkedNode.getDataset().getSlice();
+		assertNotNull(linkedData);
+		assertSame(dataset, linkedData);
+	}
+
+
+	@Test
 	public void testLinkExternal() throws Exception {
-		NexusFile extFile = null;
-		try {
-			extFile = NexusUtils.createNexusFile(FILE2_NAME);
-			extFile.getGroup("/e/f/g", true);
-			nf.linkExternal(new URI("nxfile:///./" + FILE2_NAME + "#e"), "/a/b/c", true);
-			GroupNode groupB = nf.getGroup("/a/b", false);
-			GroupNode groupE = groupB.getGroupNode("e");
-			// TODO this test fails with NexusFileNAPI due to a bug
-			// TODO confirm, should we see /a/b/c/e or /a/b/e ?
-			assertNotNull(groupE);
-		} finally {
-			if (extFile != null) {
-				extFile.close();
-			}
+		try (NexusFile extFile = NexusUtils.createNexusFile(FILE2_NAME)) {
+			extFile.getGroup("/d/e/f/g", true);
 		}
+		nf.linkExternal(new URI("nxfile://" + FILE2_NAME + "#/d/e"), "/a/b/c", true);
+		GroupNode groupC = nf.getGroup("/a/b/c", false);
+		GroupNode groupF = nf.getGroup(groupC, "f", null, false);
+		GroupNode groupG = nf.getGroup(groupF, "g", null, false);
+		assertNotNull(groupG);
+		assertSame(groupG, nf.getGroup("/a/b/c/f/g", false));
+	}
+
+	@Test
+	public void testLinkExternalUnderRoot() throws Exception {
+		try (NexusFile extFile = NexusUtils.createNexusFile(FILE2_NAME)) {
+			extFile.getGroup("/d", true);
+		}
+		nf.linkExternal(new URI("nxfile://" + FILE2_NAME + "#/d"), "/a", true);
+		assertNotNull(nf.getGroup("/a", false));
+	}
+
+	@Test
+	public void testLinkExternalUseSourceName() throws Exception {
+		try (NexusFile extFile = NexusUtils.createNexusFile(FILE2_NAME)) {
+			extFile.getGroup("/e/f/g", true);
+		}
+		nf.linkExternal(new URI("nxfile://" + FILE2_NAME + "#e"), "/a/b/c/d/", true);
+		GroupNode groupD = nf.getGroup("/a/b/c/d", false);
+		GroupNode groupE = nf.getGroup(groupD, "e", null, false);
+		assertNotNull(groupE);
+	}
+
+	@Test
+	public void testLinkExternalDataset() throws Exception {
+		IDataset externalData = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
+		externalData.setName("data");
+		try (NexusFile ef = NexusUtils.createNexusFile(FILE2_NAME)) {
+			ef.createData("/a/b/c", externalData, true);
+		}
+		nf.linkExternal(new URI("nxfile://" + FILE2_NAME + "#a/b/c/data"), "/x/y/", false);
+		DataNode dataNode = nf.getData("/x/y/data");
+		IDataset linkedData = dataNode.getDataset().getSlice();
+		assertNotNull(linkedData);
+		assertEquals(externalData, linkedData);
+	}
+
+	@Test
+	public void testLinkExternalSameFile() throws Exception {
+		//"soft link" implementation
+		nf.getGroup("/a/b/c", true);
+		nf.linkExternal(new URI("#/a/b"), "/x", true);
+		GroupNode groupXC = nf.getGroup("/x/c", false);
+		GroupNode groupABC = nf.getGroup("/a/b/c", false);
+		assertNotNull(groupXC);
+		assertSame(groupXC, groupABC);
+	}
+
+	@Test
+	public void testSoftLinkDataset() throws Exception {
+		IDataset dataset = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
+		dataset.setName("data");
+		nf.createData("/a/", dataset, true);
+		nf.linkExternal(new URI("#/a/data"), "/x/", false);
+		DataNode dataNode = nf.getData("/a/data");
+		DataNode linkedDataNode = nf.getData("/x/data");
+		assertSame(dataNode, linkedDataNode);
 	}
 
 	@Test

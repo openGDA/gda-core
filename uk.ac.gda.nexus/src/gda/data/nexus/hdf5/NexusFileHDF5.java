@@ -32,6 +32,7 @@ import ncsa.hdf.hdf5lib.H5;
 import ncsa.hdf.hdf5lib.HDF5Constants;
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
 import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
+import ncsa.hdf.hdf5lib.structs.H5L_info_t;
 import ncsa.hdf.hdf5lib.structs.H5O_info_t;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
@@ -350,12 +351,13 @@ public class NexusFileHDF5 implements NexusFile {
 	//Should *NOT* call H5Xopen on anything without also closing it
 	private NodeData getNode(String augmentedPath, boolean createPathIfNecessary) throws NexusException {
 		ParsedNode[] parsedNodes = parseAugmentedPath(augmentedPath);
-		if (parsedNodes.length < 1) {
-			throw new IllegalArgumentException("Invalid path specified");
-		}
 		StringBuilder pathBuilder = new StringBuilder(Tree.ROOT);
 		String parentPath = pathBuilder.toString();
 		GroupNode group = tree.getGroupNode();
+		if (parsedNodes.length < 1) {
+			return new NodeData(Tree.ROOT, null, null, group, NodeType.GROUP);
+			//throw new IllegalArgumentException("Invalid path specified");
+		}
 		Node node = group;
 		ParsedNode parsedNode = parsedNodes[0];
 		NodeType type = null;
@@ -394,6 +396,20 @@ public class NexusFileHDF5 implements NexusFile {
 				throw new NexusException("Unhandled node type");
 			}
 			//establish group in our cache
+			try {
+				H5L_info_t linkInfo = (H5.H5Lget_info(fileId, path, HDF5Constants.H5P_DEFAULT));
+				if (linkInfo.type == HDF5Constants.H5L_TYPE_SOFT) {
+					String[] name = new String[2];
+					H5.H5Lget_val(fileId, path, name, HDF5Constants.H5P_DEFAULT);
+					path = name[0];
+					if (!group.containsGroupNode(parsedNode.name)) {
+						NodeData linkedNode = getGroupNode(path, false);
+						group.addGroupNode(parentPath, parsedNode.name, (GroupNode)linkedNode.node);
+					}
+				}
+			} catch (HDF5LibraryException e) {
+				throw new NexusException("Could not query if path is soft link", e);
+			}
 			if (!group.containsGroupNode(parsedNode.name)) {
 				createGroupNode(path.hashCode(), group, parentPath, parsedNode.name, parsedNode.nxClass);
 			}
@@ -486,7 +502,6 @@ public class NexusFileHDF5 implements NexusFile {
 		String parentPath = path.substring(0, path.length() - name.length());
 		parentNode.addDataNode(parentPath, name, dataNode);
 		dataNode.setUnsigned(unsigned);
-		//TODO: String stuff
 		ILazyDataset lazyDataset = null;
 		int itemSize = 1;
 		boolean extendUnsigned = false;
@@ -507,6 +522,18 @@ public class NexusFileHDF5 implements NexusFile {
 	@Override
 	public DataNode getData(String path) throws NexusException {
 		assertOpen();
+
+		//check if the data node itself is a symlink
+		try {
+			H5L_info_t linkInfo = (H5.H5Lget_info(fileId, path, HDF5Constants.H5P_DEFAULT));
+			if (linkInfo.type == HDF5Constants.H5L_TYPE_SOFT) {
+				String[] name = new String[2];
+				H5.H5Lget_val(fileId, path, name, HDF5Constants.H5P_DEFAULT);
+				return getData(name[0]);
+			}
+		} catch (HDF5LibraryException e) {
+			throw new NexusException("Cannot query if data node is a symlink");
+		}
 
 		path = NexusUtils.stripAugmentedPath(path);
 		NodeLink link = tree.findNodeLink(path);
@@ -717,6 +744,7 @@ public class NexusFileHDF5 implements NexusFile {
 			throw new NexusException("Could not create dataset", e);
 		}
 		DataNode dataNode = TreeFactory.createDataNode(dataPath.hashCode());
+		dataNode.setDataset(data);
 		((GroupNode) parentNode.node).addDataNode(dataPath, dataName, dataNode);
 		return dataNode;
 	}
@@ -746,16 +774,85 @@ public class NexusFileHDF5 implements NexusFile {
 		addAttribute(path, attribute);
 	}
 
+	private void createSoftLink(String source, String destination) throws NexusException {
+		boolean useNameAtSource = destination.endsWith(Node.SEPARATOR);
+		String linkName = destination;
+		if (!useNameAtSource) {
+			destination = destination.substring(0, destination.lastIndexOf(Node.SEPARATOR));
+			if (destination.isEmpty()) destination = Tree.ROOT;
+		} else {
+			int index = source.lastIndexOf(Node.SEPARATOR);
+			linkName += source.substring(index);
+		}
+		getGroupNode(destination, true);
+		try {
+			H5.H5Lcreate_soft(source, fileId, linkName, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT);
+		} catch (HDF5LibraryException e) {
+			throw new NexusException("Could not create hard link", e);
+		}
+	}
+
+	private void createHardLink(String source, String destination) throws NexusException {
+		boolean useNameAtSource = destination.endsWith(Node.SEPARATOR);
+		NodeData sourceData = getNode(source, false);
+		if (sourceData.name == null) {
+			throw new IllegalArgumentException("Source does not exist");
+		}
+		String linkName = destination;
+		if (!useNameAtSource) {
+			destination = destination.substring(0, destination.lastIndexOf(Node.SEPARATOR));
+			if (destination.isEmpty()) destination = Tree.ROOT;
+		} else {
+			int index = source.lastIndexOf(Node.SEPARATOR);
+			linkName += source.substring(index);
+		}
+		getGroupNode(destination, true);
+		try {
+			H5.H5Lcreate_hard(fileId, source, fileId, linkName, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT);
+		} catch (HDF5LibraryException e) {
+			throw new NexusException("Could not create hard link", e);
+		}
+	}
+
 	@Override
 	public void link(String source, String destination) throws NexusException {
-		// TODO Auto-generated method stub
 		assertCanWrite();
+		createHardLink(source, destination);
 	}
 
 	@Override
 	public void linkExternal(URI source, String destination, boolean isGroup) throws NexusException {
-		// TODO Auto-generated method stub
+		//creates a soft link *at* destination *to* source
 		assertCanWrite();
+		boolean useNameAtSource = destination.endsWith(Node.SEPARATOR);
+		String linkName = destination;
+		//TODO: add class attribute
+		String linkClass;
+		String externalFileName = source.getPath();
+		String externalNexusPath = source.getFragment();
+		if (externalFileName == null || externalFileName.isEmpty()) {
+			createSoftLink(externalNexusPath, destination);
+			return;
+		}
+		if (!externalNexusPath.startsWith(Tree.ROOT)) {
+			externalNexusPath = Tree.ROOT + externalNexusPath;
+		}
+
+		if (!useNameAtSource) {
+			destination = destination.substring(0, destination.lastIndexOf(Node.SEPARATOR));
+			if (destination.isEmpty()) destination = Tree.ROOT;
+		}
+		NodeData destinationGroup = getGroupNode(destination, true);
+		linkClass = destinationGroup.nxClass;
+		if (useNameAtSource) {
+			int index = externalNexusPath.lastIndexOf(Node.SEPARATOR);
+			linkName += externalNexusPath.substring(index);
+		}
+		try {
+			H5.H5Lcreate_external(externalFileName, externalNexusPath, fileId, linkName, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT);
+		} catch (HDF5LibraryException e) {
+			throw new NexusException("Could not create external link", e);
+		}
 	}
 
 	@Override
