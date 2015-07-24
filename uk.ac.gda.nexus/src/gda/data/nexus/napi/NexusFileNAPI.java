@@ -598,7 +598,7 @@ public class NexusFileNAPI implements org.eclipse.dawnsci.hdf5.nexus.NexusFile {
 				p = pp.resolveSibling(p.getFileName());
 			}
 			if (!Files.exists(p)) {
-				logger.error("Could not find file: {} or {}", filename, p);
+				logger.error("Could not find file: {} or {}", filepath, p);
 				throw new NexusException("Could not find file");
 			}
 			filepath = p.toString();
