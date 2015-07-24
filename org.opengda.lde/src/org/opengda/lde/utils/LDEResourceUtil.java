@@ -9,8 +9,11 @@ import gda.device.DeviceException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -264,22 +267,48 @@ public class LDEResourceUtil {
 	public EditingDomain getEditingDomain() throws Exception {
 		return Activator.getDefault().getSampleGroupEditingDomain();
 	}
-	public List<Sample> getSamples(String filename) throws Exception {
-		List<Sample> samples=new ArrayList<Sample>();
+	
+	public Map<String, Sample> getSamples(String filename) throws Exception {
+		Map<String, Sample> samples=new HashMap<String, Sample>();
 		List<Experiment> experiments = getExperiments(filename);
 		for (Experiment experiment : experiments) {
-			EList<Stage> stages = experiment.getStages();
-			for (Stage stage :stages) {
-				EList<Cell> cells = stage.getCells();
-				for (Cell cell :cells) {
-					samples.addAll(cell.getSamples());
+			for (Stage stage :experiment.getStages()) {
+				for (Cell cell : stage.getCells()) {
+					for (Sample sample : cell.getSamples()) {
+						samples.put(sample.getSampleID(), sample);
+					}
 				}
 			}
 		}
-		return Collections.unmodifiableList(samples);
+		return Collections.unmodifiableMap(samples);
 	}
-	public List<Sample>  getSamples() throws Exception {
+	
+	public Map<String, Stage> getStages(String filename) throws Exception {
+		Map<String, Stage> stages=new HashMap<String, Stage>();
+		List<Experiment> experiments = getExperiments(filename);
+		for (Experiment experiment : experiments) {
+			for (Stage stage : experiment.getStages()) {
+				stages.put(stage.getStageID(), stage);
+			}
+		}
+		return Collections.unmodifiableMap(stages);
+	}
+	
+	public Map<String, Cell> getCells(String filename) throws Exception {
+		Map<String, Cell> cells=new HashMap<String, Cell>();
+		List<Experiment> experiments = getExperiments(filename);
+		for (Experiment experiment : experiments) {
+			for (Stage stage : experiment.getStages()) {
+				for (Cell cell : stage.getCells()) {
+					cells.put(cell.getCellID(), cell);
+				}
+			}
+		}
+		return Collections.unmodifiableMap(cells);
+	}
+	
+	public Collection<Sample>  getSamples() throws Exception {
 		// TODO Auto-generated method stub
-		return getSamples(getFileName());
+		return getSamples(getFileName()).values();
 	}
 }
