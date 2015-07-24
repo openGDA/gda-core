@@ -250,10 +250,16 @@ public class NexusFileTest {
 		dataset.setName("data");
 		nf.createData("/a/", dataset, true);
 		nf.link("/a/data", "/x/data");
+		DataNode dataNode = nf.getData("/a/data");
 		DataNode linkedNode = nf.getData("/x/data");
-		IDataset linkedData = linkedNode.getDataset().getSlice();
-		assertNotNull(linkedData);
-		assertSame(dataset, linkedData);
+		assertSame(linkedNode, nf.getData("/a/data"));
+		nf.close();
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		dataNode = nf.getData("/a/data");
+		linkedNode = nf.getData("/x/data");
+		assertNotNull(linkedNode);
+		assertNotNull(linkedNode.getDataset().getSlice());
+		assertSame(dataNode, linkedNode);
 	}
 
 

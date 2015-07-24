@@ -185,6 +185,8 @@ public class NexusFileHDF5 implements NexusFile {
 
 	private TreeFile tree;
 
+	private Map<Long, Node> nodeMap; //used to remember node locations in file for detecting hard links
+
 	private boolean writeable = false;
 
 	public NexusFileHDF5(String path) {
@@ -194,6 +196,7 @@ public class NexusFileHDF5 implements NexusFile {
 	private void initializeTree() {
 		if (tree == null) {
 			tree = TreeFactory.createTreeFile(fileName.hashCode(), fileName);
+			nodeMap = new HashMap<Long, Node>();
 		} else {
 			throw new IllegalStateException("File is already open");
 		}
@@ -317,9 +320,21 @@ public class NexusFileHDF5 implements NexusFile {
 
 	private void createGroupNode(long oid, GroupNode group, String path, String name, String nxClass)
 			throws NexusException {
-		GroupNode g = TreeFactory.createGroupNode(oid);
-		if (nxClass != null && !nxClass.isEmpty()) {
-			g.addAttribute(TreeFactory.createAttribute(NXCLASS, nxClass, false));
+		GroupNode g;
+		long fileAddr = getLinkTarget(path + Node.SEPARATOR + name);
+		if (!nodeMap.containsKey(fileAddr)) {
+			g = TreeFactory.createGroupNode(oid);
+			if (nxClass != null && !nxClass.isEmpty()) {
+				g.addAttribute(TreeFactory.createAttribute(NXCLASS, nxClass, false));
+			}
+			if (fileAddr != IS_EXTERNAL_LINK) {
+				//if our node is an external link we cannot cache its file location
+				//we cannot handle hard links in external files
+				nodeMap.put(fileAddr, g);
+			}
+			//TODO copy Attributes from node in file to tree node (g)
+		} else {
+			g = (GroupNode)nodeMap.get(fileAddr);
 		}
 		//TODO copy Attributes from node in file to tree node (g)
 		group.addGroupNode(path, name, g);
@@ -524,15 +539,11 @@ public class NexusFileHDF5 implements NexusFile {
 		assertOpen();
 
 		//check if the data node itself is a symlink
-		try {
-			H5L_info_t linkInfo = (H5.H5Lget_info(fileId, path, HDF5Constants.H5P_DEFAULT));
-			if (linkInfo.type == HDF5Constants.H5L_TYPE_SOFT) {
-				String[] name = new String[2];
-				H5.H5Lget_val(fileId, path, name, HDF5Constants.H5P_DEFAULT);
-				return getData(name[0]);
-			}
-		} catch (HDF5LibraryException e) {
-			throw new NexusException("Cannot query if data node is a symlink");
+			//*
+		long fileAddr = getLinkTarget(path);
+		DataNode dataNode = (DataNode) nodeMap.get(fileAddr);
+		if (dataNode != null) {
+			return dataNode;
 		}
 
 		path = NexusUtils.stripAugmentedPath(path);
@@ -601,7 +612,9 @@ public class NexusFileHDF5 implements NexusFile {
 		} catch (HDF5Exception e) {
 			throw new NexusException("Error reading dataspace", e);
 		}
-		return createDataNode((GroupNode) parentNodeData.node, path, dataName, shape, datasetType, unsigned, maxShape, chunks);
+		dataNode = createDataNode((GroupNode) parentNodeData.node, path, dataName, shape, datasetType, unsigned, maxShape, chunks);
+		nodeMap.put(getLinkTarget(path), dataNode);
+		return dataNode;
 	}
 
 	@Override
@@ -744,6 +757,8 @@ public class NexusFileHDF5 implements NexusFile {
 			throw new NexusException("Could not create dataset", e);
 		}
 		DataNode dataNode = TreeFactory.createDataNode(dataPath.hashCode());
+		long fileAddr = getLinkTarget(dataPath);
+		nodeMap.put(fileAddr, dataNode);
 		dataNode.setDataset(data);
 		((GroupNode) parentNode.node).addDataNode(dataPath, dataName, dataNode);
 		return dataNode;
@@ -878,6 +893,7 @@ public class NexusFileHDF5 implements NexusFile {
 			H5.H5Fclose(fileId);
 			fileId = -1;
 			tree = null;
+			nodeMap = null;
 			writeable = false;
 		} catch (HDF5LibraryException e) {
 			throw new NexusException("Cannot close file", e);
@@ -890,6 +906,27 @@ public class NexusFileHDF5 implements NexusFile {
 			return H5.H5Lexists(fileId, path, HDF5Constants.H5P_DEFAULT);
 		} catch (HDF5LibraryException e) {
 			return false;
+		}
+	}
+
+	private static long IS_EXTERNAL_LINK = -4370;
+
+	private long getLinkTarget(String path) throws NexusException {
+		try {
+			H5L_info_t linkInfo = H5.H5Lget_info(fileId, path, HDF5Constants.H5P_DEFAULT);
+			if (linkInfo.type == HDF5Constants.H5L_TYPE_SOFT) {
+				String[] name = new String[2];
+				H5.H5Lget_val(fileId, path, name, HDF5Constants.H5P_DEFAULT);
+				return getLinkTarget(name[0]);
+			} else if (linkInfo.type == HDF5Constants.H5L_TYPE_HARD) {
+				//return nodeMap.get(linkInfo.address_val_size);
+				return linkInfo.address_val_size;
+			} else if (linkInfo.type == HDF5Constants.H5L_TYPE_EXTERNAL) {
+				return IS_EXTERNAL_LINK;
+			}
+			throw new NexusException("Unhandled link type");
+		} catch (HDF5LibraryException e) {
+			throw new NexusException("Could not get link target", e);
 		}
 	}
 
