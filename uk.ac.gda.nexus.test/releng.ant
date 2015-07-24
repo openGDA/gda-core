@@ -35,6 +35,7 @@
 				<pathelement location="${workspace.git.loc}/scisoft-core.git/uk.ac.diamond.scisoft.analysis/jars/*" />
 				<pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/bin" />
 				<pathelement location="${workspace.git.loc}/dawn-third.git/ncsa.hdf/jars/*" />
+				<path refid="libs.jars.path" />
 				<path refid="tp.slf4j.path" />  <!--ensure that required org.slf4j.LoggerFactory appears first in classpath -->
 				<pathelement location="${workspace.loc}/tp/plugins/*" />
 			</classpath>
