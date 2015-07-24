@@ -1,6 +1,5 @@
 package org.opengda.lde.experiments;
 
-import org.opengda.lde.model.ldeexperiment.Sample;
 import org.opengda.lde.model.ldeexperiment.Stage;
 
 import gda.device.DeviceException;

@@ -1,5 +1,9 @@
 package org.opengda.lde.experiments;
 
+import org.opengda.lde.model.ldeexperiment.Cell;
+import org.opengda.lde.model.ldeexperiment.Sample;
+import org.springframework.beans.factory.InitializingBean;
+
 import gda.device.DeviceException;
 import gda.device.Scannable;
 import gda.device.scannable.scannablegroup.ScannableGroup;
@@ -7,10 +11,6 @@ import gda.device.scannable.scannablegroup.corba.impl.ScannablegroupAdapter;
 import gda.device.scannable.scannablegroup.corba.impl.ScannablegroupImpl;
 import gda.factory.corba.util.CorbaAdapterClass;
 import gda.factory.corba.util.CorbaImplClass;
-
-import org.opengda.lde.model.ldeexperiment.Cell;
-import org.opengda.lde.model.ldeexperiment.Sample;
-import org.springframework.beans.factory.InitializingBean;
 @CorbaAdapterClass(ScannablegroupAdapter.class)
 @CorbaImplClass(ScannablegroupImpl.class)
 public class SampleStage extends ScannableGroup implements InitializingBean {
