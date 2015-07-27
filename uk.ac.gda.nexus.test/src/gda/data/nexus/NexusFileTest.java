@@ -30,7 +30,6 @@ import java.net.URI;
 import java.util.Arrays;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
-import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyWriteableDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.SliceND;
 import org.eclipse.dawnsci.analysis.api.tree.Attribute;
@@ -158,6 +157,46 @@ public class NexusFileTest {
 	}
 
 	@Test
+	public void testGroupProperties() throws Exception {
+		//Test that the properties on a retrieved node match expectations without having traversed to children
+		nf.getGroup("/a/b/c", true);
+		IDataset dataset = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
+		dataset.setName("d");
+		nf.createData("/a/b", dataset, false);
+		IDataset attr = DatasetFactory.createFromObject("AttributeValue");
+		attr.setName("SomeAttribute");
+		nf.addAttribute("/a/b", nf.createAttribute(attr));
+		nf.close();
+
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		GroupNode group = nf.getGroup("/a/b", false);
+		assertTrue(group.containsGroupNode("c"));
+		assertTrue(group.containsDataNode("d"));
+		assertEquals(group.getDataNode("d"), dataset);
+		assertTrue(group.containsAttribute("SomeAttribute"));
+		assertEquals(attr, group.getAttribute("SomeAttribute").getValue());
+	}
+
+	@Test
+	public void testDataNodeProperties() throws NexusException {
+		IDataset dataset = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
+		dataset.setName("d");
+		nf.createData("/a/b", dataset, true);
+		IDataset attr = DatasetFactory.createFromObject(new int[] {12, 3});
+		attr.setName("SomeAttribute");
+		nf.addAttribute("/a/b/d", nf.createAttribute(attr));
+		nf.close();
+
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		DataNode dataNode = nf.getData("/a/b/d");
+		assertNotNull(dataNode);
+		assertEquals(dataset, dataNode.getDataset().getSlice());
+		Attribute foundAttr = dataNode.getAttribute("SomeAttribute");
+		assertNotNull(foundAttr);
+		assertEquals(attr, foundAttr.getValue());
+	}
+
+	@Test
 	public void testCreateDataPathLazyDataset() throws Exception {
 		int[] shape = { 5, 5 };
 		ILazyWriteableDataset dataset = new LazyWriteableDataset("data", Dataset.INT32, shape, shape, null, null);
@@ -225,13 +264,69 @@ public class NexusFileTest {
 	public void testAddAttributePath() throws Exception {
 		Dataset attribDataset = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
 		attribDataset.setName("testAttribute");
+		Dataset attrib2Dataset = DatasetFactory.createRange(6, Dataset.INT64).reshape(3, 2);
+		attrib2Dataset.setName("testAttribute2");
 
 		GroupNode node = nf.getGroup("/a/b/c", true);
 		Attribute attribute = nf.createAttribute(attribDataset);
 		assertNotNull(attribute);
 		nf.addAttribute(node, attribute);
+		Attribute attribute2 = nf.createAttribute(attrib2Dataset);
+		assertNotNull(attribute2);
+		nf.addAttribute(node, attribute2);
 		assertNotNull(node.getAttribute("testAttribute"));
 		assertSame(attribute, node.getAttribute("testAttribute"));
+		assertNotNull(node.getAttribute("testAttribute2"));
+		assertSame(attribute2, node.getAttribute("testAttribute2"));
+	}
+
+	@Test
+	public void testReadbackDoubleArrayAttribute() throws Exception {
+		GroupNode group = nf.getGroup("/a/b", true);
+		IDataset attrData = DatasetFactory.createRange(12.0, Dataset.FLOAT64).reshape(3, 4);
+		attrData.setName("attribute");
+		nf.addAttribute(group, nf.createAttribute(attrData));
+		nf.close();
+
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		group = nf.getGroup("/a/b", false);
+		Attribute attr = group.getAttribute("attribute");
+		assertNotNull(attr);
+		IDataset readData = attr.getValue();
+		assertNotNull(readData);
+		assertEquals(attrData, readData);
+	}
+
+	@Test
+	public void testReadbackStringAttribute() throws Exception {
+		GroupNode group = nf.getGroup("/a/b", true);
+		IDataset attrString = DatasetFactory.createFromObject("SomeÅttributeString");
+		attrString.setName("test");
+		nf.addAttribute(group, nf.createAttribute(attrString));
+		nf.close();
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		group = nf.getGroup("/a/b", false);
+		Attribute attr = group.getAttribute("test");
+		assertNotNull(attr);
+		if (attrString.getRank() == 0) {
+			//Hack around the current ambiguity between scalar datasets (rank 0) and single element arrays
+			attrString.resize(new int[] {1});
+		}
+		assertEquals(attrString, attr.getValue());
+	}
+
+	@Test
+	public void testReadbackStringArrayAttribute() throws Exception {
+		GroupNode group = nf.getGroup("/a/b", true);
+		IDataset attrString = DatasetFactory.createFromObject(new String[] {"A String", "String1", "SomeÅttributeString", "String2"}).reshape(2,2);
+		attrString.setName("test");
+		nf.addAttribute(group, nf.createAttribute(attrString));
+		nf.close();
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		group = nf.getGroup("/a/b", false);
+		Attribute attr = group.getAttribute("test");
+		assertNotNull(attr);
+		assertEquals(attrString, attr.getValue());
 	}
 
 	@Test

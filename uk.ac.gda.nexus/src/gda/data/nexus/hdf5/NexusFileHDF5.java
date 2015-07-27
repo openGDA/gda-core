@@ -22,6 +22,7 @@ import gda.data.nexus.NexusUtils;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,6 +49,7 @@ import org.eclipse.dawnsci.analysis.api.tree.TreeFile;
 import org.eclipse.dawnsci.analysis.api.tree.TreeUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.AbstractDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.LazyWriteableDataset;
@@ -294,7 +296,6 @@ public class NexusFileHDF5 implements NexusFile {
 					if (!plainPath.endsWith(Node.SEPARATOR)) {
 						plainPath += Node.SEPARATOR;
 					}
-					//TODO: copy attributes from link to g
 					populateGroupNode(plainPath, g);
 				}
 				return g;
@@ -336,12 +337,92 @@ public class NexusFileHDF5 implements NexusFile {
 		} else {
 			g = (GroupNode)nodeMap.get(fileAddr);
 		}
-		//TODO copy Attributes from node in file to tree node (g)
 		group.addGroupNode(path, name, g);
 	}
 
+	private void cacheAttributes(String path, Node node) throws NexusException {
+		Charset utf8 = Charset.forName("UTF-8");
+		try {
+			H5O_info_t objInfo = H5.H5Oget_info_by_name(fileId, path, HDF5Constants.H5P_DEFAULT);
+			long numAttrs = objInfo.num_attrs;
+			for (long i = 0; i < numAttrs; i++) {
+				Dataset dataset;
+				//boolean unsigned = false;
+				long[] shape = null;
+				long[] maxShape = null;
+				Integer datasetType;
+				try (HDF5Resource attrResource = new HDF5AttributeResource(
+						H5.H5Aopen_by_idx(fileId, path, HDF5Constants.H5_INDEX_NAME, HDF5Constants.H5_ITER_INC, i,
+								HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT))) {
+					int attrId = attrResource.getResource();
+					String[] name = new String[1];
+					H5.H5Aget_name(attrId, name);
+					if (node.containsAttribute(name[0]) && writeable) {
+						//we don't need to read an attribute we already have
+						continue;
+					}
+					try (HDF5Resource spaceResource = new HDF5DataspaceResource( H5.H5Aget_space(attrId) );
+							HDF5Resource typeResource = new HDF5DatatypeResource( H5.H5Aget_type(attrId) );
+							HDF5Resource nativeTypeResource = new HDF5DatatypeResource( H5.H5Tget_native_type(typeResource.getResource()) )) {
+						final int spaceId = spaceResource.getResource();
+						final int nativeTypeId = nativeTypeResource.getResource();
+						final int dataclass = H5.H5Tget_class(nativeTypeId);
+						final int datatypeSize = H5.H5Tget_size(nativeTypeId);
+						//TODO: handle strings
+						if (dataclass == HDF5Constants.H5T_STRING) {
+							datasetType = Dataset.STRING;
+							//unsigned = false;
+						} else {
+							int typeRepresentation = getTypeRepresentation(nativeTypeId);
+							//unsigned = UNSIGNED_HDF_TYPES.contains(typeRepresentation);
+							datasetType = HDF_TYPES_TO_DATASET_TYPES.get(typeRepresentation);
+						}
+						if (datasetType == null) {
+							throw new NexusException("Unknown data type");
+						}
+						final int nDims = H5.H5Sget_simple_extent_ndims(spaceId);
+						shape = new long[nDims];
+						maxShape = new long[nDims];
+						H5.H5Sget_simple_extent_dims(spaceId, shape, maxShape);
+						final int[] iShape = longArrayToIntArray(shape);
+						if (dataclass == HDF5Constants.H5T_STRING) {
+							//TODO: support reading VL strings
+							int strCount = 1;
+							for (int d : iShape) {
+								strCount *= d;
+							}
+							byte[] buffer = new byte[strCount * datatypeSize];
+							H5.H5Aread(attrId, nativeTypeId, buffer);
+							String[] strings = new String[strCount];
+							int strIndex = 0;
+							for (int j = 0; j < buffer.length; j += datatypeSize) {
+								int strLength = 0;
+								//Java doesn't strip null bytes during string construction
+								for (int k = j; k < j + datatypeSize && buffer[k] != '\0'; k++) strLength++;
+								strings[strIndex++] = new String(buffer, j, strLength, utf8);
+							}
+							dataset = DatasetFactory.createFromObject(strings).reshape(iShape);
+						} else {
+							dataset = DatasetFactory.zeros(iShape, datasetType);
+							Serializable buffer = dataset.getBuffer();
+							H5.H5Aread(attrId, nativeTypeId, buffer);
+						}
+						dataset.setName(name[0]);
+						node.addAttribute(createAttribute(dataset));
+					}
+				}
+			}
+		} catch (HDF5Exception e) {
+			throw new NexusException("Could not retrieve node attributes");
+		}
+		return;
+	}
+
 	private void populateGroupNode(String path, GroupNode group) throws NexusException {
-		//TODO: Populate with stuff
+		//TODO: populate child group nodes
+		//TODO: populate child data nodes
+		//TODO: verify soft/external/hard links work
+		cacheAttributes(path, group);
 		return;
 	}
 
@@ -511,9 +592,9 @@ public class NexusFileHDF5 implements NexusFile {
 			long[] shape, int datasetType, boolean unsigned, long[] maxShape, long[] chunks) throws NexusException {
 		int[] iShape = shape == null ? null : longArrayToIntArray(shape);
 		int[] iMaxShape = maxShape == null ? null : longArrayToIntArray(maxShape);
-		int[] iChunks = chunks == null ? null : longArrayToIntArray(chunks);;
+		int[] iChunks = chunks == null ? null : longArrayToIntArray(chunks);
 		DataNode dataNode = TreeFactory.createDataNode(path.hashCode());
-		//TODO: copy attributes
+		cacheAttributes(path, dataNode);
 		String parentPath = path.substring(0, path.length() - name.length());
 		parentNode.addDataNode(parentPath, name, dataNode);
 		dataNode.setUnsigned(unsigned);
@@ -736,8 +817,8 @@ public class NexusFileHDF5 implements NexusFile {
 				final int datatypeId = hdfDatatype.getResource();
 				final int dataspaceId = hdfDataspace.getResource();
 				if (stringDataset) {
+					H5.H5Tset_cset(datatypeId, HDF5Constants.H5T_CSET_UTF8);
 					H5.H5Tset_size(datatypeId, HDF5Constants.H5T_VARIABLE);
-					H5.H5Tset_size(datatypeId, HDF5Constants.H5T_CSET_UTF8);
 				}
 				try (HDF5Resource hdfDataset = new HDF5DatasetResource(
 						H5.H5Dcreate(fileId, dataPath, datatypeId, dataspaceId,
@@ -772,15 +853,73 @@ public class NexusFileHDF5 implements NexusFile {
 
 	@Override
 	public Attribute createAttribute(IDataset attr) {
-		// TODO Auto-generated method stub
 		assertOpen();
-		return null;
+		Attribute a = TreeFactory.createAttribute(attr.getName());
+		a.setValue(attr);
+		return a;
 	}
 
 	@Override
 	public void addAttribute(String path, Attribute... attribute) throws NexusException {
-		// TODO Auto-generated method stub
 		assertCanWrite();
+		Charset utf8 = Charset.forName("UTF-8");
+		for (Attribute attr : attribute) {
+			String attrName = attr.getName();
+			if (attrName == null || attrName.isEmpty()) {
+				throw new IllegalArgumentException("Attribute must have a name");
+			}
+			IDataset attrData = attr.getValue();
+			int baseHdf5Type = getHDF5Type(attrData);
+			final long[] shape = attrData.getRank() == 0 ? new long[] {1} : intArrayToLongArray(attrData.getShape());
+			try {
+				try (HDF5Resource typeResource = new HDF5DatatypeResource(H5.H5Tcopy(baseHdf5Type));
+						HDF5Resource spaceResource = new HDF5DataspaceResource(
+								H5.H5Screate_simple(shape.length, shape, shape))) {
+
+					int datatypeId = typeResource.getResource();
+					int dataspaceId = spaceResource.getResource();
+					boolean stringDataset = attrData.elementClass().equals(String.class);
+					Serializable buffer = DatasetUtils.serializeDataset(attrData);
+					if (stringDataset) {
+						String[] strings = (String[]) buffer;
+						int strCount = strings.length;
+						int maxLength = 0;
+						byte[][] stringbuffers = new byte[strCount][];
+						int i = 0;
+						for (String str : strings) {
+							stringbuffers[i] = str.getBytes(utf8);
+							int l = stringbuffers[i].length;
+							if (l > maxLength) maxLength = l;
+							i++;
+						}
+						maxLength++; //we require null terminators
+						buffer = new byte[maxLength * strCount];
+						int offset = 0;
+						for (byte[] str: stringbuffers) {
+							System.arraycopy(str, 0, buffer, offset, str.length);
+							offset += maxLength;
+						}
+
+						H5.H5Tset_cset(datatypeId, HDF5Constants.H5T_CSET_UTF8);
+						H5.H5Tset_size(datatypeId, maxLength);
+					}
+					try (HDF5Resource attributeResource = new HDF5AttributeResource(
+							H5.H5Acreate_by_name(fileId, path, attrName, datatypeId, dataspaceId,
+									HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT))) {
+
+						if (stringDataset) {
+							H5.H5Awrite(attributeResource.getResource(), datatypeId, buffer);
+						} else {
+							H5.H5Awrite(attributeResource.getResource(), datatypeId, buffer);
+						}
+					}
+				}
+			} catch (HDF5Exception e) {
+				throw new NexusException("Could not create attribute", e);
+			}
+			Node node = getNode(path, false).node;
+			node.addAttribute(attr);
+		}
 	}
 
 	@Override
