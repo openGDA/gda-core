@@ -33,6 +33,7 @@ import ncsa.hdf.hdf5lib.H5;
 import ncsa.hdf.hdf5lib.HDF5Constants;
 import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
 import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
+import ncsa.hdf.hdf5lib.structs.H5G_info_t;
 import ncsa.hdf.hdf5lib.structs.H5L_info_t;
 import ncsa.hdf.hdf5lib.structs.H5O_info_t;
 
@@ -179,6 +180,7 @@ public class NexusFileHDF5 implements NexusFile {
 		}
 	}
 
+	//TODO: Logging
 	private static final Logger logger = LoggerFactory.getLogger(NexusFile.class);
 
 	private int fileId = -1;
@@ -328,7 +330,7 @@ public class NexusFileHDF5 implements NexusFile {
 			if (nxClass != null && !nxClass.isEmpty()) {
 				g.addAttribute(TreeFactory.createAttribute(NXCLASS, nxClass, false));
 			}
-			if (fileAddr != IS_EXTERNAL_LINK) {
+			if (fileAddr != IS_EXTERNAL_LINK &&  !testForExternalLink(path)) {
 				//if our node is an external link we cannot cache its file location
 				//we cannot handle hard links in external files
 				nodeMap.put(fileAddr, g);
@@ -419,10 +421,33 @@ public class NexusFileHDF5 implements NexusFile {
 	}
 
 	private void populateGroupNode(String path, GroupNode group) throws NexusException {
-		//TODO: populate child group nodes
-		//TODO: populate child data nodes
 		//TODO: verify soft/external/hard links work
 		cacheAttributes(path, group);
+		try {
+			H5G_info_t groupInfo = H5.H5Gget_info_by_name(fileId, path, HDF5Constants.H5P_DEFAULT);
+			for (long i = 0; i < groupInfo.nlinks; i++) {
+				//we have to open the object itself to handle external links
+				//H5.H5Lget_name_by_idx(fileId, "X", ....) will fail if X is an external link node, as will similar methods
+				try (HDF5Resource objResource = new HDF5ObjectResource( H5.H5Oopen(fileId, path, HDF5Constants.H5P_DEFAULT) )) {
+					int objId = objResource.getResource();
+					String linkName = H5.H5Lget_name_by_idx(objId, ".", HDF5Constants.H5_INDEX_NAME,
+							HDF5Constants.H5_ITER_INC, i, HDF5Constants.H5P_DEFAULT);
+					String childPath = path + linkName;
+					H5O_info_t objectInfo = H5.H5Oget_info_by_name(fileId, childPath, HDF5Constants.H5P_DEFAULT);
+					String nxClass = "";
+					//TODO getNxClass attribute
+					if (objectInfo.type == HDF5Constants.H5O_TYPE_GROUP) {
+						createGroupNode(childPath.hashCode(), group, path, linkName, nxClass);
+					} else if (objectInfo.type == HDF5Constants.H5O_TYPE_DATASET) {
+						group.addDataNode(childPath, linkName, getDataNodeFromFile(childPath, group, linkName));
+					} else {
+						throw new NexusException("Unhandled object type");
+					}
+				}
+			}
+		} catch (HDF5LibraryException e) {
+			throw new NexusException("Could not process over child links", e);
+		}
 		return;
 	}
 
@@ -604,45 +629,13 @@ public class NexusFileHDF5 implements NexusFile {
 							datasetType, extendUnsigned));
 		}
 		dataNode.setDataset(lazyDataset);
+		if (!testForExternalLink(path)) {
+			nodeMap.put(getLinkTarget(path), dataNode);
+		}
 		return dataNode;
 	}
 
-	@Override
-	public DataNode getData(String path) throws NexusException {
-		assertOpen();
-
-		//check if the data node itself is a symlink
-			//*
-		long fileAddr = getLinkTarget(path);
-		DataNode dataNode = (DataNode) nodeMap.get(fileAddr);
-		if (dataNode != null) {
-			return dataNode;
-		}
-
-		path = NexusUtils.stripAugmentedPath(path);
-		NodeLink link = tree.findNodeLink(path);
-		if (link != null) {
-			if (link.isDestinationData()) {
-				return (DataNode) link.getDestination();
-			}
-			throw new IllegalArgumentException("Path specified is not for a dataset");
-		}
-
-		String dataName = NexusUtils.getName(path);
-		//TODO: make sure this works
-		String parentPath = path.substring(0, path.lastIndexOf(dataName));
-		NodeData parentNodeData = getGroupNode(parentPath, false);
-		if (parentNodeData.name == null) {
-			return null;
-		}
-
-		NodeType nodeType = getNodeType(path);
-		if (nodeType == null) {
-			throw new NexusException("Path does not point to any object");
-		} else if (nodeType != NodeType.DATASET) {
-			throw new NexusException("Path points to non-dataset object");
-		}
-
+	private DataNode getDataNodeFromFile(String path, GroupNode parentNode, String dataName) throws NexusException {
 		long[] shape = null;
 		long[] maxShape = null;
 		long[] chunks = null;
@@ -685,8 +678,46 @@ public class NexusFileHDF5 implements NexusFile {
 		} catch (HDF5Exception e) {
 			throw new NexusException("Error reading dataspace", e);
 		}
-		dataNode = createDataNode((GroupNode) parentNodeData.node, path, dataName, shape, datasetType, unsigned, maxShape, chunks);
-		nodeMap.put(getLinkTarget(path), dataNode);
+		return createDataNode(parentNode, path, dataName, shape, datasetType, unsigned, maxShape, chunks);
+	}
+
+	@Override
+	public DataNode getData(String path) throws NexusException {
+		assertOpen();
+
+		//check if the data node itself is a symlink
+			//*
+		long fileAddr = getLinkTarget(path);
+		DataNode dataNode = (DataNode) nodeMap.get(fileAddr);
+		if (dataNode != null) {
+			return dataNode;
+		}
+
+		path = NexusUtils.stripAugmentedPath(path);
+		NodeLink link = tree.findNodeLink(path);
+		if (link != null) {
+			if (link.isDestinationData()) {
+				return (DataNode) link.getDestination();
+			}
+			throw new IllegalArgumentException("Path specified is not for a dataset");
+		}
+
+		String dataName = NexusUtils.getName(path);
+		//TODO: make sure this works
+		String parentPath = path.substring(0, path.lastIndexOf(dataName));
+		NodeData parentNodeData = getGroupNode(parentPath, false);
+		if (parentNodeData.name == null) {
+			return null;
+		}
+
+		NodeType nodeType = getNodeType(path);
+		if (nodeType == null) {
+			throw new NexusException("Path does not point to any object");
+		} else if (nodeType != NodeType.DATASET) {
+			throw new NexusException("Path points to non-dataset object");
+		}
+
+		dataNode = getDataNodeFromFile(path, (GroupNode)parentNodeData.node, dataName);
 		return dataNode;
 	}
 
@@ -1042,6 +1073,22 @@ public class NexusFileHDF5 implements NexusFile {
 
 	private static long IS_EXTERNAL_LINK = -4370;
 
+	private boolean testForExternalLink(String path) throws NexusException {
+		//TODO: might want to cache results
+		ParsedNode[] parsedNodes = parseAugmentedPath(path);
+		StringBuilder currentPath = new StringBuilder(Tree.ROOT);
+		for (ParsedNode node : parsedNodes) {
+			if (node.name.isEmpty()) {
+				continue;
+			}
+			currentPath.append(Node.SEPARATOR);
+			currentPath.append(node.name);
+			if (getLinkTarget(currentPath.toString()) == IS_EXTERNAL_LINK) {
+				return true;
+			}
+		}
+		return false;
+	}
 	private long getLinkTarget(String path) throws NexusException {
 		try {
 			H5L_info_t linkInfo = H5.H5Lget_info(fileId, path, HDF5Constants.H5P_DEFAULT);

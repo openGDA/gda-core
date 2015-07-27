@@ -163,7 +163,7 @@ public class NexusFileTest {
 		IDataset dataset = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
 		dataset.setName("d");
 		nf.createData("/a/b", dataset, false);
-		IDataset attr = DatasetFactory.createFromObject("AttributeValue");
+		IDataset attr = DatasetFactory.createFromObject(new int[] {1, 2, 3});
 		attr.setName("SomeAttribute");
 		nf.addAttribute("/a/b", nf.createAttribute(attr));
 		nf.close();
@@ -172,7 +172,7 @@ public class NexusFileTest {
 		GroupNode group = nf.getGroup("/a/b", false);
 		assertTrue(group.containsGroupNode("c"));
 		assertTrue(group.containsDataNode("d"));
-		assertEquals(group.getDataNode("d"), dataset);
+		assertEquals(group.getDataNode("d").getDataset().getSlice(), dataset);
 		assertTrue(group.containsAttribute("SomeAttribute"));
 		assertEquals(attr, group.getAttribute("SomeAttribute").getValue());
 	}
