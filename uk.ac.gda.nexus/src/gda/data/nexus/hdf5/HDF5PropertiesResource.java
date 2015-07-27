@@ -32,8 +32,8 @@ public class HDF5PropertiesResource extends HDF5BaseResource {
 	}
 
 	/**
-	 * Wrap the specified datatype resource identifier
-	 * @param resource datatype identifier to wrap
+	 * Wrap the specified property list resource identifier
+	 * @param resource property list identifier to wrap
 	 */
 	public HDF5PropertiesResource(int resource) {
 		this.resource = resource;

@@ -434,17 +434,10 @@ public class NexusFileHDF5 implements NexusFile {
 		return node;
 	}
 
-	//TODO: When would this be used?
-	private NodeData getDatasetNode(String augmentedPath) throws NexusException {
-		NodeData node = getNode(augmentedPath, false);
-		if (node.type != NodeType.DATASET) {
-			throw new NexusException("Found group node instead of dataset node");
-		}
-		return node;
-	}
-
-	//TODO: What does this function actually *want* to do?
-	//Should *NOT* call H5Xopen on anything without also closing it
+	/**
+	 * Try to retrieve or create the target node (and parents), building cache as necessary.
+	 * Cannot create data nodes
+	 */
 	private NodeData getNode(String augmentedPath, boolean createPathIfNecessary) throws NexusException {
 		ParsedNode[] parsedNodes = parseAugmentedPath(augmentedPath);
 		StringBuilder pathBuilder = new StringBuilder(Tree.ROOT);
@@ -452,7 +445,6 @@ public class NexusFileHDF5 implements NexusFile {
 		GroupNode group = tree.getGroupNode();
 		if (parsedNodes.length < 1) {
 			return new NodeData(Tree.ROOT, null, null, group, NodeType.GROUP);
-			//throw new IllegalArgumentException("Invalid path specified");
 		}
 		Node node = group;
 		ParsedNode parsedNode = parsedNodes[0];
