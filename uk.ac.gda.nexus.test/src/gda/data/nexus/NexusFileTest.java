@@ -495,4 +495,21 @@ public class NexusFileTest {
 			System.out.println(ds.getString(i));
 		}
 	}
+
+	@Test
+	public void testWriteAfterHardLink() throws Exception {
+		//Have had bugs where writing created a "new" dataset, leaving previously
+		//hard linked nodes un-updated
+		ILazyWriteableDataset lazyData = NexusUtils.createLazyWriteableDataset("c", Dataset.INT32,
+				new int[] {ILazyWriteableDataset.UNLIMITED}, null, null);
+		GroupNode g = nf.getGroup("/a/b", true);
+		nf.createData(g, lazyData);
+		nf.link("/a/b/c", "/x/");
+		lazyData.setSlice(null, DatasetFactory.createFromObject(1), new int[] {0}, new int[] {1}, null);
+		assertSame(nf.getData("/a/b/c").getDataset(), nf.getData("/x/c").getDataset());
+		nf.flush();
+		nf.close();
+		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
+		assertEquals(nf.getData("/a/b/c").getDataset(), nf.getData("/x/c").getDataset());
+	}
 }
