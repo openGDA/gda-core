@@ -18,20 +18,19 @@
 
 package gda.data.scan.datawriter;
 
-import gda.data.nexus.NexusUtils;
-
 import java.net.URI;
 import java.util.List;
 import java.util.Vector;
-
-import ncsa.hdf.hdf5lib.H5;
-import ncsa.hdf.hdf5lib.HDF5Constants;
 
 import org.eclipse.dawnsci.analysis.api.tree.Node;
 import org.eclipse.dawnsci.analysis.api.tree.Tree;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gda.data.nexus.NexusUtils;
+import ncsa.hdf.hdf5lib.H5;
+import ncsa.hdf.hdf5lib.HDF5Constants;
 
 /**
  * Class used to create additional links in a nexus file.
@@ -72,10 +71,10 @@ public class NXLinkCreator {
 						logger.debug("DBG: pathToGroup = {}", pathToGroup);
 						logger.debug("DBG: groupName = {}", groupName);
 
-						int fid = -1;
+						long fid = -1;
 						fid = H5.H5Fopen(filename, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
 
-						int gid = -1;
+						long gid = -1;
 						gid = H5.H5Gopen(fid, pathToGroup, HDF5Constants.H5P_DEFAULT);
 
 						String oname = groupName;

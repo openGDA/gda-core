@@ -18,22 +18,20 @@
 
 package uk.ac.gda.analysis.hdf5;
 
-import gda.TestHelpers;
-import gda.util.TestUtils;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.Vector;
-
-import junit.framework.Assert;
-import ncsa.hdf.object.Datatype;
-import ncsa.hdf.object.h5.H5Datatype;
 
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.dataset.ILazyDataset;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import gda.TestHelpers;
+import gda.util.TestUtils;
+import junit.framework.Assert;
+import ncsa.hdf.object.Datatype;
+import ncsa.hdf.object.h5.H5Datatype;
 import uk.ac.gda.analysis.hdf5.Hdf5Helper.TYPE;
 
 /**
@@ -92,7 +90,7 @@ public class Hdf5HelperTest {
 		}
 		long[] data_maxdims = null;
 		long[] data_dims = new long[]{length};
-		int mem_type_id = data2.native_type;
+		long mem_type_id = data2.native_type;
 		int [] data = (int[]) H5Datatype.allocateArray(mem_type_id, length);
 
 		long before = System.currentTimeMillis();
@@ -127,7 +125,7 @@ public class Hdf5HelperTest {
 		}
 		long[] data_maxdims = null;
 		long[] data_dims = dims;
-		int mem_type_id = data2.native_type;
+		long mem_type_id = data2.native_type;
 
 		long before = System.currentTimeMillis();
 		int []data = (int[]) Hdf5Helper.getInstance().AllocateMemory(mem_type_id, data_dims);
@@ -166,7 +164,7 @@ public class Hdf5HelperTest {
 		System.out.println();
 		data_dims[dims.length-1]=sizeOfSlice;
 		long before = System.currentTimeMillis();
-		int mem_type_id = data2.native_type;
+		long mem_type_id = data2.native_type;
 		int []data = (int[])  Hdf5Helper.getInstance().AllocateMemory(mem_type_id, data_dims);
 		@SuppressWarnings("unused")
 		Hdf5HelperData helperData=null;
