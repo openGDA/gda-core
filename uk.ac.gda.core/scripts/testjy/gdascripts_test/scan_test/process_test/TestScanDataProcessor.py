@@ -49,11 +49,6 @@ def createMockConcurrentScanForRealNexusFile():
 		
 
 class TestScisoftScanFileHolder(unittest.TestCase):
- 	
-# 	def testJhddf5InPath(self):
-# 		print "java.library.path:", java.lang.System.getProperty("java.library.path")
-# 		import ncsa.hdf.hdf5lib.H5  # @UnusedImport
- 	
 	def testHDF5Loader(self):
 		filepath = os.path.join(os.path.dirname(__file__), 'i22-166406.nxs')
 		sfh = ScanFileHolder()
