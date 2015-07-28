@@ -636,6 +636,12 @@ public class NexusFileHDF5 implements NexusFile {
 	}
 
 	private DataNode getDataNodeFromFile(String path, GroupNode parentNode, String dataName) throws NexusException {
+		if (!testForExternalLink(path)) {
+			DataNode node = (DataNode) nodeMap.get(getLinkTarget(path));
+			if (node != null) {
+				return node;
+			}
+		}
 		long[] shape = null;
 		long[] maxShape = null;
 		long[] chunks = null;
@@ -735,9 +741,9 @@ public class NexusFileHDF5 implements NexusFile {
 		if (parentNode.name == null) {
 			return null;
 		}
-		String parentPath = parentNode.path + parentNode.name;
+		String parentPath = path.endsWith(Node.SEPARATOR) ? path : path + Node.SEPARATOR;
 		String dataName = data.getName();
-		String dataPath = parentPath + Node.SEPARATOR + dataName;
+		String dataPath = parentPath + dataName;
 		if (dataName == null || dataName.isEmpty()) {
 			throw new IllegalArgumentException("Dataset name must be defined");
 		}
@@ -790,6 +796,8 @@ public class NexusFileHDF5 implements NexusFile {
 		DataNode dataNode = TreeFactory.createDataNode(dataPath.hashCode());
 		((GroupNode)parentNode.node).addDataNode(parentPath, dataName, dataNode);
 		dataNode.setDataset(data);
+		long fileAddr = getLinkTarget(dataPath);
+		nodeMap.put(fileAddr, dataNode);
 		return dataNode;
 	}
 
@@ -976,14 +984,26 @@ public class NexusFileHDF5 implements NexusFile {
 			throw new IllegalArgumentException("Source does not exist");
 		}
 		String linkName = destination;
+		String nodeName;
 		if (!useNameAtSource) {
 			destination = destination.substring(0, destination.lastIndexOf(Node.SEPARATOR));
+			nodeName = source.substring(source.lastIndexOf(Node.SEPARATOR));
 			if (destination.isEmpty()) destination = Tree.ROOT;
 		} else {
 			int index = source.lastIndexOf(Node.SEPARATOR);
-			linkName += source.substring(index);
+			nodeName = source.substring(index);
+			linkName += nodeName;
 		}
-		getGroupNode(destination, true);
+
+		GroupNode destNode = (GroupNode)getGroupNode(destination, true).node;
+		switch(sourceData.type) {
+		case DATASET:
+			destNode.addDataNode(destination, nodeName, (DataNode) sourceData.node);
+			break;
+		case GROUP:
+			destNode.addGroupNode(destination, nodeName, (GroupNode) sourceData.node);
+			break;
+		}
 		try {
 			H5.H5Lcreate_hard(fileId, source, fileId, linkName, HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT);
 		} catch (HDF5LibraryException e) {
