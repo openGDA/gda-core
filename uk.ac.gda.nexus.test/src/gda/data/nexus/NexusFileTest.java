@@ -160,6 +160,7 @@ public class NexusFileTest {
 	public void testGroupProperties() throws Exception {
 		//Test that the properties on a retrieved node match expectations without having traversed to children
 		nf.getGroup("/a/b/c", true);
+		nf.getGroup("/a/b/x", true);
 		IDataset dataset = DatasetFactory.createRange(10.0, Dataset.FLOAT64).reshape(2, 5);
 		dataset.setName("d");
 		nf.createData("/a/b", dataset, false);
@@ -171,10 +172,17 @@ public class NexusFileTest {
 		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
 		GroupNode group = nf.getGroup("/a/b", false);
 		assertTrue(group.containsGroupNode("c"));
+		assertTrue(group.containsGroupNode("x"));
 		assertTrue(group.containsDataNode("d"));
 		assertEquals(group.getDataNode("d").getDataset().getSlice(), dataset);
 		assertTrue(group.containsAttribute("SomeAttribute"));
 		assertEquals(attr, group.getAttribute("SomeAttribute").getValue());
+
+		//Make sure group has no other children
+		String[] childNames = group.getNames().toArray(new String[] {});
+		//we could use assertTrue(childNames.contains(...)) but this gives a much better diagnostic on failure
+		Arrays.sort(childNames);
+		assertArrayEquals(childNames, new String[] {"c", "d", "x"});
 	}
 
 	@Test
