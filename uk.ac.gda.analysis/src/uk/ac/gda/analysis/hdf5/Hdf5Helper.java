@@ -23,17 +23,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
-import ncsa.hdf.hdf5lib.H5;
-import ncsa.hdf.hdf5lib.HDF5Constants;
-import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
-import ncsa.hdf.hdf5lib.structs.H5G_info_t;
-import ncsa.hdf.object.h5.H5Datatype;
-
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.hdf5.HDF5Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ncsa.hdf.hdf5lib.H5;
+import ncsa.hdf.hdf5lib.HDF5Constants;
+import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
+import ncsa.hdf.hdf5lib.structs.H5G_info_t;
+import ncsa.hdf.object.h5.H5Datatype;
 
 /**
  *
@@ -55,14 +55,14 @@ public class Hdf5Helper {
 		writeToFile(hData, fileName, location, dataSetName, null, null, null);
 	}
 
-	private void createAttribute(int loc_id, String attributeName, String attributeValue) throws Exception {
+	private void createAttribute(long loc_id, String attributeName, String attributeValue) throws Exception {
 
 		Hdf5HelperData attr_data = Hdf5HelperData.getInstance(attributeValue);
-		int dataspaceId = -1;
-		int attributeId = -1;
+		long dataspaceId = -1;
+		long attributeId = -1;
 		try {
 			dataspaceId = H5.H5Screate_simple(attr_data.dims.length, attr_data.dims, null);
-			int typeId = attr_data.native_type; // H5.H5Tcreate(hData.h5Datatype.getDatatypeClass(),
+			long typeId = attr_data.native_type; // H5.H5Tcreate(hData.h5Datatype.getDatatypeClass(),
 
 			attributeId = H5.H5Acreate(loc_id, attributeName, typeId, dataspaceId, HDF5Constants.H5P_DEFAULT,
 					HDF5Constants.H5P_DEFAULT);
@@ -98,11 +98,11 @@ public class Hdf5Helper {
 	public void writeToFile(Hdf5HelperData hData, String fileName, HDF5HelperLocations location, String dataSetName,
 			long[] chunk_dims, boolean[] extendible, long[] offset) throws Exception {
 
-		int fileId = -1;
-		int filespaceId = -1;
-		int datasetId = -1;
-		int groupId = -1;
-		int[] groupIds = new int[location.size()];
+		long fileId = -1;
+		long filespaceId = -1;
+		long datasetId = -1;
+		long groupId = -1;
+		long[] groupIds = new long[location.size()];
 		// boolean[] isDataSet = new boolean[groupIds.length];
 		Arrays.fill(groupIds, -1);
 
@@ -122,7 +122,7 @@ public class Hdf5Helper {
 						HDF5Constants.H5P_DEFAULT);
 			}
 			for (int i = 0; i < location.size(); i++) {
-				int loc_id = i == 0 ? fileId : groupIds[i - 1];
+				long loc_id = i == 0 ? fileId : groupIds[i - 1];
 				String name = location.get(i).name;
 				/*
 				 * isDataSet[i] = false; if( name.endsWith(":DS")){ name = name.replace(":DS",""); isDataSet[i] = true;
@@ -153,7 +153,7 @@ public class Hdf5Helper {
 			// size to be the current size.
 			if (hData != null) {
 				long[] max_dims = null;
-				int cparms = HDF5Constants.H5P_DEFAULT;
+				long cparms = HDF5Constants.H5P_DEFAULT;
 				if (extendible != null) {
 					max_dims = new long[extendible.length];
 					for (int i = 0; i < max_dims.length; i++) {
@@ -165,7 +165,7 @@ public class Hdf5Helper {
 						throw new Exception("Error setting chunk");
 				}
 				filespaceId = H5.H5Screate_simple(hData.dims.length, hData.dims, max_dims);
-				int typeId = hData.native_type;
+				long typeId = hData.native_type;
 
 				try {
 					datasetId = H5.H5Dopen(groupId, dataSetName, HDF5Constants.H5P_DEFAULT);
@@ -177,7 +177,7 @@ public class Hdf5Helper {
 				if (extendible != null) {
 
 					// ensure dataspace size is big enough for the new item
-					int filespace = H5.H5Dget_space(datasetId);
+					long filespace = H5.H5Dget_space(datasetId);
 					if (filespace < 0)
 						throw new Exception("Unable to open the filespace");
 
@@ -242,8 +242,8 @@ public class Hdf5Helper {
 
 	public void createLocation(String fileName, TYPE holder, HDF5HelperLocations location) throws Exception {
 
-		int fileId = -1;
-		int[] groupIds = new int[location.size()];
+		long fileId = -1;
+		long[] groupIds = new long[location.size()];
 		boolean[] isDataSet = new boolean[groupIds.length];
 		Arrays.fill(groupIds, -1);
 
@@ -256,7 +256,7 @@ public class Hdf5Helper {
 						HDF5Constants.H5P_DEFAULT);
 			}
 			for (int i = 0; i < location.size(); i++) {
-				int loc_id = i == 0 ? fileId : groupIds[i - 1];
+				long loc_id = i == 0 ? fileId : groupIds[i - 1];
 				String name = location.get(i).name;
 				isDataSet[i] = false;
 				if (holder.equals(TYPE.DATASET) && i == location.size() - 1) {
@@ -327,13 +327,13 @@ public class Hdf5Helper {
 	 */
 	public String [] getListOfDatasets(String fileName, String location) throws Exception {
 		Vector<String> names = new Vector<String>();
-		int fileId = -1;
+		long fileId = -1;
 		try {
 			fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
 			if (fileId < 0) {
 				throw new Exception("Unable to open file `" + fileName + "`");
 			}
-			int groupId = H5.H5Gopen(fileId, location, HDF5Constants.H5P_DEFAULT);
+			long groupId = H5.H5Gopen(fileId, location, HDF5Constants.H5P_DEFAULT);
 			if (groupId <= 0) {
 				throw new Exception("Unable to open location " + location);
 			}
@@ -374,7 +374,7 @@ public class Hdf5Helper {
 		return length;
 	}
 
-	public Object AllocateMemory(int native_mem_type, long[] data_dims) throws Exception {
+	public Object AllocateMemory(long native_mem_type, long[] data_dims) throws Exception {
 		long lenFromDims = lenFromDims(data_dims);
 		if (lenFromDims > Integer.MAX_VALUE)
 			throw new Exception("Requested size of memory > Integer.MAX_VALUE." + lenFromDims);
@@ -399,7 +399,7 @@ public class Hdf5Helper {
 		long length = lenFromDims(dsize);
 		long[] data_maxdims = null;
 		long[] data_dims = new long[] { length };
-		int mem_type_id = data2.native_type;
+		long mem_type_id = data2.native_type;
 		Object data =  H5Datatype.allocateArray(mem_type_id, (int) length);
 		return readDataSet(fileName, groupName, dataSetName, sstart, sstride, dsize, block, data_maxdims, data_dims,
 				mem_type_id, data, true);
@@ -411,27 +411,27 @@ public class Hdf5Helper {
 			long[] dsize, // destination size
 			long[] block, // = null;
 			long[] data_maxdims, // = null
-			long[] data_dims, int native_mem_type, Object data, boolean getData) throws Exception {
-		int fileId = -1;
+			long[] data_dims, long native_mem_type, Object data, boolean getData) throws Exception {
+		long fileId = -1;
 		try {
 			fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
 			if (fileId < 0) {
 				throw new IllegalArgumentException("Unable to open file `" + fileName + "`");
 			}
-			int groupId = H5.H5Gopen(fileId, groupName, HDF5Constants.H5P_DEFAULT);
+			long groupId = H5.H5Gopen(fileId, groupName, HDF5Constants.H5P_DEFAULT);
 			if (groupId <= 0) {
 				throw new IllegalArgumentException("Unable to open group " + groupName);
 			}
 			try {
-				int datasetId = H5.H5Dopen(groupId, dataSetName, HDF5Constants.H5P_DEFAULT);
+				long datasetId = H5.H5Dopen(groupId, dataSetName, HDF5Constants.H5P_DEFAULT);
 				if (datasetId <= 0)
 					throw new IllegalArgumentException("Unable to open dataSetName " + dataSetName);
 				try {
-					int dataspaceId = H5.H5Dget_space(datasetId);
+					long dataspaceId = H5.H5Dget_space(datasetId);
 					if (dataspaceId <= 0)
 						throw new IllegalArgumentException("Unable to open dataspace ");
 					try {
-						int xfer_plist_id = HDF5Constants.H5P_DEFAULT;
+						long xfer_plist_id = HDF5Constants.H5P_DEFAULT;
 
 						if (sstart != null) {
 							if (data == null) {
@@ -454,13 +454,13 @@ public class Hdf5Helper {
 							 * Define the memory dataspace.
 							 */
 
-							int mem_dataspace_id = H5.H5Screate_simple(data_dims.length, data_dims, data_maxdims);
+							long mem_dataspace_id = H5.H5Screate_simple(data_dims.length, data_dims, data_maxdims);
 							status = H5.H5Sselect_all(mem_dataspace_id);
 							if (status < 0)
 								throw new Exception("Error calling H5Sselect_all:" + status);
 
 							H5Datatype h5Datatype = new H5Datatype(native_mem_type);
-							int native_type = H5.H5Tget_native_type(native_mem_type);
+							long native_type = H5.H5Tget_native_type(native_mem_type);
 							status = H5.H5Dread(datasetId, native_mem_type, mem_dataspace_id, dataspaceId,
 									xfer_plist_id, data);
 							if (status < 0)
@@ -475,10 +475,10 @@ public class Hdf5Helper {
 							len *= dims[i];
 						}
 
-						int mem_type_id = H5.H5Dget_type(datasetId);// todo ensure it is closed in a finally block
+						long mem_type_id = H5.H5Dget_type(datasetId);// todo ensure it is closed in a finally block
 						try {
 							H5Datatype h5Datatype = new H5Datatype(mem_type_id);
-							int native_type = H5.H5Tget_native_type(mem_type_id);
+							long native_type = H5.H5Tget_native_type(mem_type_id);
 							if (data != null || getData) {
 								if (data == null)
 									data = H5Datatype.allocateArray(mem_type_id, len);
@@ -522,12 +522,12 @@ public class Hdf5Helper {
 			throw new IllegalArgumentException("attribHolder is null");
 		}
 		// Open an existing dataset.
-		int fileId = -1;
-		int attribHolderId = -1;
-		int attributeId = -1;
-		int filetypeId = -1;
-		int dataspaceId = -1;
-		int memtype_id = -1;
+		long fileId = -1;
+		long attribHolderId = -1;
+		long attributeId = -1;
+		long filetypeId = -1;
+		long dataspaceId = -1;
+		long memtype_id = -1;
 		try {
 			fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
 			if (fileId < 0) {
@@ -561,9 +561,9 @@ public class Hdf5Helper {
 				len *= dims[i];
 			}
 
-			int mem_type_id = H5.H5Aget_type(attributeId);// todo ensure it is closed in a finally block
+			long mem_type_id = H5.H5Aget_type(attributeId);// todo ensure it is closed in a finally block
 			H5Datatype h5Datatype = new H5Datatype(mem_type_id);
-			int native_type = H5.H5Tget_native_type(mem_type_id);
+			long native_type = H5.H5Tget_native_type(mem_type_id);
 			Object data = H5Datatype.allocateArray(mem_type_id, len);
 			H5.H5Aread(attributeId, mem_type_id, data);
 
@@ -612,12 +612,12 @@ public class Hdf5Helper {
 		}
 		String result = null;
 		// Open an existing dataset.
-		int fileId = -1;
-		int attribHolderId = -1;
-		int attributeId = -1;
-		int filetypeId = -1;
-		int dataspaceId = -1;
-		int memtype_id = -1;
+		long fileId = -1;
+		long attribHolderId = -1;
+		long attributeId = -1;
+		long filetypeId = -1;
+		long dataspaceId = -1;
+		long memtype_id = -1;
 		try {
 			fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
 			if (fileId < 0) {
@@ -739,11 +739,11 @@ public class Hdf5Helper {
 		createLocation(fileName, attribHolder, location);
 
 		// Open an existing dataset.
-		int fileId = -1;
-		int attribHolderId = -1;
-		int attributeId = -1;
-		int dataspaceId = -1;
-		int memtype_id = -1;
+		long fileId = -1;
+		long attribHolderId = -1;
+		long attributeId = -1;
+		long dataspaceId = -1;
+		long memtype_id = -1;
 		String attributeHolderName = location.getLocationForOpen();
 		try {
 			fileId = H5.H5Fopen(fileName, HDF5Constants.H5F_ACC_RDWR, HDF5Constants.H5P_DEFAULT);
@@ -763,7 +763,7 @@ public class Hdf5Helper {
 			// Create dataspace. Setting maximum size to NULL sets the maximum
 			// size to be the current size.
 			dataspaceId = H5.H5Screate_simple(hData.dims.length, hData.dims, null);
-			int typeId = hData.native_type; // H5.H5Tcreate(hData.h5Datatype.getDatatypeClass(),
+			long typeId = hData.native_type; // H5.H5Tcreate(hData.h5Datatype.getDatatypeClass(),
 
 			attributeId = H5.H5Acreate(attribHolderId, attributeName, typeId, dataspaceId, HDF5Constants.H5P_DEFAULT,
 					HDF5Constants.H5P_DEFAULT);
