@@ -13,8 +13,6 @@ from mock import Mock
 from gdascripts.scan.process.ScanDataProcessorResult import ScanDataProcessorResult
 from gda.scan import ConcurrentScan
 import os
-from gda.analysis import ScanFileHolder
-from uk.ac.diamond.scisoft.analysis.io import HDF5Loader
 
 def MockConcurrentScan(filename = '1234.dat'):
 	w, x, y, z, _ = createSimpleScanFileHolderAndScannables()
@@ -31,11 +29,11 @@ def MockConcurrentScan(filename = '1234.dat'):
 	return mock
 
 def createMockConcurrentScanForRealNexusFile():
-	
+
 	filepath = os.path.join(os.path.dirname(__file__), 'i22-166406.nxs')
-	a = MockScannable('base_x', ['base_x'], [])	
+	a = MockScannable('base_x', ['base_x'], [])
 	b = MockScannable('bsdiode', ['bsdiode'], [])
-	
+
 	mock = Mock(ConcurrentScan)
 	mock.getScanPlotSettings.return_value = Mock()
 	mock.getScanPlotSettings.return_value.getYAxesShown.return_value = ['bsdiode']
@@ -46,16 +44,6 @@ def createMockConcurrentScanForRealNexusFile():
 	mock.getDataWriter.return_value = Mock()
 	mock.getDataWriter.return_value.getCurrentFileName.return_value = filepath
 	return mock
-		
-
-class TestScisoftScanFileHolder(unittest.TestCase):
-
-	def testHDF5Loader(self):
-		filepath = os.path.join(os.path.dirname(__file__), 'i22-166406.nxs')
-		sfh = ScanFileHolder()
-		hdf5loader= HDF5Loader(filepath)
-		sfh.load(hdf5loader)
-
 
 class TestScanDataProcessor(unittest.TestCase):
 
@@ -68,7 +56,7 @@ class TestScanDataProcessor(unittest.TestCase):
 		sdp = ScanDataProcessor([], rootNamespaceDict, raiseProcessorExceptions=True)
 		self.assertEquals(sdp.processScan(self.concurrentScan),'<No dataset processors are configured>')
 		self.assertEquals(rootNamespaceDict, {'a':1})
-		
+
 	def testProcessScan(self):
 		rootNamespaceDict = {}
 		sdp = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue()], rootNamespaceDict, raiseProcessorExceptions=True)
@@ -80,9 +68,8 @@ class TestScanDataProcessor(unittest.TestCase):
 		self.assertEquals(report['minval'].name, 'minval')
 		self.assertEquals(report['maxval'].name, 'maxval')
 		self.assertEquals(self.x.name, sdp.last_scannable_scanned.name)
-
 		print rootNamespaceDict
-		
+
 	def testProcessScanLcenAndRcen(self):
 		rootNamespaceDict = {}
 		lcen = Lcen()
@@ -97,8 +84,8 @@ class TestScanDataProcessor(unittest.TestCase):
 		print "***"
 		self.assertEquals(report['lcen'].name, 'lcen')
 		self.assertEquals(report['rcen'].name, 'rcen')
-		print rootNamespaceDict	
-	
+		print rootNamespaceDict
+
 	def testProcessScanWithMultiInputXScannable(self):
 		concurrentScan = MockConcurrentScan()
 		concurrentScan.getUserListedScannables.return_value = [self.w, self.x, self.y, self.z]
@@ -109,12 +96,12 @@ class TestScanDataProcessor(unittest.TestCase):
 		print "***"
 		print report
 		print "***"
-	
+
 	def testProcessScanNamespaceWritingWorksTwice(self):
 		sdp = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue()], {}, raiseProcessorExceptions=True)
 		sdp.processScan(self.concurrentScan)
 		sdp.processScan(self.concurrentScan)
-		
+
 	def testPrepareForScan(self):
 		dataSetResult = Mock()
 		dataSetResult.resultsDict = {'key':None}
@@ -135,13 +122,13 @@ class TestScanDataProcessor(unittest.TestCase):
 		sdp.duplicate_names = {'maxval':'maxpos', 'minval':'minpos'}
 		sdp.prepareForScan()
 		self.assertEquals(namespace, {'myobject': 1, 'minval': 'Non SDPR should be left alone at this stage'})
-		
+
 	def testPrepareForScanDisablesGo(self):
 		sdp = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue()], {}, raiseProcessorExceptions=True)
 		sdp.last_scannable_scanned = self.x
 		sdp.prepareForScan()
 		self.assertRaises(Exception, sdp.go, 3)
-		
+
 	def testProcessScanWithJythonException(self):
 		concurrentScan = Mock()
 		concurrentScan.getUserListedScannables.side_effect = Exception("e")
@@ -150,7 +137,7 @@ class TestScanDataProcessor(unittest.TestCase):
 		print "***"
 		print result
 		print "***"
-	
+
 	def testProcessScanWithJavaException(self):
 		concurrentScan = Mock()
 		def r():
@@ -161,7 +148,7 @@ class TestScanDataProcessor(unittest.TestCase):
 		print "***"
 		print result
 		print "***"
-		
+
 	def testProcessScanWithJavaError(self):
 		concurrentScan = Mock()
 		def r():
@@ -169,17 +156,17 @@ class TestScanDataProcessor(unittest.TestCase):
 		concurrentScan.getUserListedScannables = r
 		sdp = ScanDataProcessor([], {})
 		sdp.processScan(concurrentScan)
-		
+
 	def testGoCAlledWithSDPResult(self):
 		sdpresult = Mock()
 		sdp = ScanDataProcessor([], {})
 		sdp.go(sdpresult)
 		sdpresult.go.assert_called_with()
-		
+
 	def testGoCAlledWithNoScannableFromLastScan(self):
 		sdp = ScanDataProcessor([], {})
 		self.assertRaises(Exception, sdp.go, 2)
-			
+
 	def testGoWithScannbaleFromLastScan(self):
 		scannable = Mock()
 		sdp = ScanDataProcessor([], {})
@@ -191,22 +178,18 @@ class TestScanDataProcessor(unittest.TestCase):
 		sdp.go([1,2])
 		scannable.moveTo.assert_called_with([1, 2])
 
-			
-		
-
 class TestScanDataProcessorWithOnlyOnePoint(TestScanDataProcessor):
 
 	def setUp(self):
 		self.w, self.x, self.y, self.z, self.sfh = createSimpleScanFileHolderWithOneValueAndScannables()
 		self.concurrentScan = MockConcurrentScan('1234-singlepoint.dat')
 
-
 	def testProcessScan(self):
 		rootNamespaceDict = {}
 		sdp = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue()], rootNamespaceDict, raiseProcessorExceptions=True)
 		report = sdp.processScan(self.concurrentScan)
-		self.assertEquals(report, '<Scan too short to process sensibly>')
-	
+		self.assertEquals(report, 'Scan too short to process sensibly')
+
 	def testProcessScanLcenAndRcen(self):
 		rootNamespaceDict = {}
 		lcen = Lcen()
@@ -215,9 +198,8 @@ class TestScanDataProcessorWithOnlyOnePoint(TestScanDataProcessor):
 		rcen.raise_process_exceptions = True
 		sdp = ScanDataProcessor([lcen, rcen], rootNamespaceDict, raiseProcessorExceptions=True)
 		report = sdp.processScan(self.concurrentScan)
-		self.assertEquals(report, '<Scan too short to process sensibly>')
-		print rootNamespaceDict	
-
+		self.assertEquals(report, 'Scan too short to process sensibly')
+		print rootNamespaceDict
 
 class TestScanDataProcessorIntegrationWithRealNexusFile(unittest.TestCase):
 
@@ -228,22 +210,21 @@ class TestScanDataProcessorIntegrationWithRealNexusFile(unittest.TestCase):
 		max_processor = MaxPositionAndValue()
 		min_processor.raise_process_exceptions = True
 		max_processor.raise_process_exceptions = True
-		
+
 		sdp = ScanDataProcessor([min_processor, max_processor], rootNamespaceDict, raiseProcessorExceptions=True)
 		sdp.raiseProcessorExceptions = True
 		result = sdp.processScan(self.concurrentScan)
 		self.assertAlmostEqual(result['maxval'].result.maxpos, -50)
-	
 
 class TestScanDataProcessorWithEceptionRaisingProcessor(TestScanDataProcessor):
-	
+
 	def testProcessScan(self):
 		rootNamespaceDict = {}
 		sdp = ScanDataProcessor([MaxPositionAndValue(), MinPositionAndValue(), SimpleXYDataSetProcessorWithError()], rootNamespaceDict, raiseProcessorExceptions=True)
 		report = sdp.processScan(self.concurrentScan)
 		print report
 		print rootNamespaceDict
-	
+
 	def testProcessScanWithMultiInputXScannable(self):
 		concurrentScan = MockConcurrentScan()
 
@@ -254,14 +235,12 @@ class TestScanDataProcessorWithEceptionRaisingProcessor(TestScanDataProcessor):
 		print report
 		print "***"
 
-
 def suite():
 	return unittest.TestSuite((
-							unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessor),
-							unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorWithOnlyOnePoint),
-							unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorWithEceptionRaisingProcessor),			
-							unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorIntegrationWithRealNexusFile),			
-							unittest.TestLoader().loadTestsFromTestCase(TestScisoftScanFileHolder)			
+		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessor),
+		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorWithOnlyOnePoint),
+		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorWithEceptionRaisingProcessor),
+		unittest.TestLoader().loadTestsFromTestCase(TestScanDataProcessorIntegrationWithRealNexusFile),
 	))
 
 if __name__ == '__main__':

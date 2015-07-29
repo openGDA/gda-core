@@ -8,13 +8,13 @@ class GaussianEdge(XYDataSetFunction):
 		XYDataSetFunction.__init__(self, name, labelList, 'pos', formatString)
 		self.smoothwidth = 1
 		self.plotPanel = plotPanel
-	
+
 	def _process(self,xDataSet, yDataSet):
-		dyDataSet = Maths.derivative(xDataSet, yDataSet, self.smoothwidth)
+		dyDataSet = Maths.derivative(xDataSet._jdataset(), yDataSet._jdataset(), self.smoothwidth)
 		minVal, maxVal = dyDataSet.min(), dyDataSet.max()
 		if maxVal - minVal == 0:
 			raise ValueError("There is no edge")
-		
+
 		fitResult = GaussianPeak(self.name, self.labelList, self.formatString, self.plotPanel)._process(xDataSet, dyDataSet)
 
 		return fitResult
