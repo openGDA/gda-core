@@ -517,22 +517,26 @@ public class NexusFileTest {
 	public void testNxClassGroup() throws Exception {
 		GroupNode g = nf.getGroup("/entry1:NXentry/note:NXnote", true);
 		GroupNode e = nf.getGroup("/entry1", false);
-		Attribute gAttr = g.getAttribute("NXClass");
-		Attribute eAttr = e.getAttribute("NXClass");
+		Attribute gAttr = g.getAttribute("NX_class");
+		Attribute eAttr = e.getAttribute("NX_class");
 		assertNotNull(gAttr);
-		assertEquals(gAttr.getValue(), DatasetFactory.createFromObject("NXnote"));
+		assertArrayEquals(gAttr.getValue().getShape(), new int[] {1});
+		assertEquals(gAttr.getValue().getString(0), "NXnote");
 		assertNotNull(eAttr);
-		assertEquals(eAttr.getValue(), DatasetFactory.createFromObject("NXentry"));
+		assertArrayEquals(eAttr.getValue().getShape(), new int[] {1});
+		assertEquals(eAttr.getValue().getString(0), "NXentry");
 
 		nf.close();
 		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
 		g = nf.getGroup("/entry1:NXentry/note:NXnote", true);
 		e = nf.getGroup("/entry1", false);
-		gAttr = g.getAttribute("NXClass");
-		eAttr = e.getAttribute("NXClass");
+		gAttr = g.getAttribute("NX_class");
+		eAttr = e.getAttribute("NX_class");
 		assertNotNull(gAttr);
-		assertEquals(gAttr.getValue(), DatasetFactory.createFromObject("NXnote"));
+		assertArrayEquals(gAttr.getValue().getShape(), new int[] {1});
+		assertEquals(gAttr.getValue().getString(0), "NXnote");
 		assertNotNull(eAttr);
-		assertEquals(eAttr.getValue(), DatasetFactory.createFromObject("NXentry"));
+		assertArrayEquals(eAttr.getValue().getShape(), new int[] {1});
+		assertEquals(eAttr.getValue().getString(0), "NXentry");
 	}
 }
