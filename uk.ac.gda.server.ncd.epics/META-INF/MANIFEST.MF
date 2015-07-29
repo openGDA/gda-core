@@ -5,7 +5,7 @@ Bundle-SymbolicName: uk.ac.gda.server.ncd.epics
 Bundle-Version: 1.0.0
 Bundle-Activator: uk.ac.gda.server.ncd.epics.Activator
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: uk.ac.gda.core;bundle-version="1.0.0",
  uk.ac.gda.common;bundle-version="1.0.0",
  uk.ac.gda.libs;bundle-version="1.0.0",

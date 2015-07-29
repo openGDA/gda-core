@@ -36,7 +36,7 @@ Bundle-Name: uk.ac.gda.client.ncd Plug-in
 Bundle-Activator: gda.rcp.ncd.Activator
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: uk.ac.gda.client.ncd;singleton:=true
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: gda.rcp.ncd.perspectives,
  gda.rcp.ncd.views
 Import-Package: org.apache.commons.lang,
