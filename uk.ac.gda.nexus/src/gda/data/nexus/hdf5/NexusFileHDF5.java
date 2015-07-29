@@ -330,6 +330,7 @@ public class NexusFileHDF5 implements NexusFile {
 			if (nxClass != null && !nxClass.isEmpty()) {
 				g.addAttribute(TreeFactory.createAttribute(NXCLASS, nxClass, false));
 			}
+			cacheAttributes(path + Node.SEPARATOR + name, g);
 			if (fileAddr != IS_EXTERNAL_LINK &&  !testForExternalLink(path)) {
 				//if our node is an external link we cannot cache its file location
 				//we cannot handle hard links in external files

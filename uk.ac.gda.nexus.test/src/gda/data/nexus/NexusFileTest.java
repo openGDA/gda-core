@@ -165,8 +165,11 @@ public class NexusFileTest {
 		dataset.setName("d");
 		nf.createData("/a/b", dataset, false);
 		IDataset attr = DatasetFactory.createFromObject(new int[] {1, 2, 3});
+		IDataset attr2 = DatasetFactory.createFromObject(new int[] {4, 5});
 		attr.setName("SomeAttribute");
+		attr2.setName("Another Attribute");
 		nf.addAttribute("/a/b", nf.createAttribute(attr));
+		nf.addAttribute("/a/b/c", nf.createAttribute(attr2));
 		nf.close();
 
 		nf = NexusUtils.openNexusFileReadOnly(FILE_NAME);
@@ -177,6 +180,8 @@ public class NexusFileTest {
 		assertEquals(group.getDataNode("d").getDataset().getSlice(), dataset);
 		assertTrue(group.containsAttribute("SomeAttribute"));
 		assertEquals(attr, group.getAttribute("SomeAttribute").getValue());
+		assertTrue(group.getGroupNode("c").containsAttribute("Another Attribute"));
+		assertEquals(attr2, group.getGroupNode("c").getAttribute("Another Attribute").getValue());
 
 		//Make sure group has no other children
 		String[] childNames = group.getNames().toArray(new String[] {});
