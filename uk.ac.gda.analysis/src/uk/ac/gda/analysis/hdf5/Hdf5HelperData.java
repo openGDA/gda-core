@@ -19,7 +19,6 @@
 package uk.ac.gda.analysis.hdf5;
 
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
 import ncsa.hdf.hdf5lib.H5;
 import ncsa.hdf.hdf5lib.HDF5Constants;
@@ -76,20 +75,8 @@ public class Hdf5HelperData {
 		this(dims, data, new H5Datatype(HDF5Constants.H5T_NATIVE_DOUBLE),HDF5Constants.H5T_NATIVE_DOUBLE);
 	}
 
-	public Hdf5HelperData(short[] data) {
-		this(new long[]{data.length}, data, new H5Datatype(HDF5Constants.H5T_NATIVE_INT16),HDF5Constants.H5T_NATIVE_INT16);
-	}
-
-	public Hdf5HelperData( int[] data) {
-		this(new long[]{data.length}, data, new H5Datatype(HDF5Constants.H5T_NATIVE_INT32),HDF5Constants.H5T_NATIVE_INT32);
-	}
-
 	public Hdf5HelperData( double[] data) {
 		this(new long[]{data.length}, data, new H5Datatype(HDF5Constants.H5T_NATIVE_DOUBLE),HDF5Constants.H5T_NATIVE_DOUBLE);
-	}
-
-	public Hdf5HelperData( DoubleDataset dds) {
-		this( getShapeAsLongs(dds.getShape()), dds.getData(), new H5Datatype(HDF5Constants.H5T_NATIVE_DOUBLE),HDF5Constants.H5T_NATIVE_DOUBLE);
 	}
 
 	public Hdf5HelperData( Dataset ads) {
