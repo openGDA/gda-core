@@ -338,6 +338,10 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 	 */
 	protected String evnScannableNames = EVN_SCANNABLE_NAMES_EDEFAULT;
 
+	private boolean processed;
+
+	private boolean calibrated;
+
 	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1026,6 +1030,23 @@ public class CellImpl extends MinimalEObjectImpl.Container implements Cell {
 		result.append(evnScannableNames);
 		result.append(')');
 		return result.toString();
+	}
+
+	@Override
+	public void setProcessed(boolean b) {
+		this.processed=b;		
+	}
+	@Override
+	public boolean isProcessed() {
+		return processed;
+	}
+	@Override
+	public void setCalibrated(boolean b) {
+		this.calibrated=b;		
+	}
+	@Override
+	public boolean isCalibrated() {
+		return calibrated;
 	}
 
 } //CellImpl

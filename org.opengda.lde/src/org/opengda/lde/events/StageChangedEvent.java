@@ -4,20 +4,22 @@ import java.io.Serializable;
 
 public class StageChangedEvent implements Serializable {
 
-	private String currentStage;
-	private int numberOfSamples;
+	private String stageName;
+	private int numberOfCells;
 
-	public String getCurrentStage() {
-		return currentStage;
-	}
 
-	public int getNumberOfSamples() {
-		return numberOfSamples;
+
+	public int getNumberOfCells() {
+		return numberOfCells;
 	}
 
 	public StageChangedEvent(String name, int size) {
-		this.currentStage=name;
-		this.numberOfSamples=size;
+		this.stageName=name;
+		this.numberOfCells=size;
+	}
+
+	public String getStageName() {
+		return stageName;
 	}
 
 	/**

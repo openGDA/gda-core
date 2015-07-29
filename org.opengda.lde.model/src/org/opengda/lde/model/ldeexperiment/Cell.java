@@ -485,4 +485,11 @@ public interface Cell extends EObject {
 	 */
 	Sample getSampleByName(String sampleName);
 
+	void setProcessed(boolean b);
+
+	void setCalibrated(boolean b);
+
+	boolean isProcessed();
+	boolean isCalibrated();
+
 } // Cell

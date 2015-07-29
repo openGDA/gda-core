@@ -104,6 +104,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.internal.AnimationEngine;
 import org.eclipse.ui.part.ViewPart;
+import org.opengda.lde.events.CellChangedEvent;
 import org.opengda.lde.events.DataReductionFailedEvent;
 import org.opengda.lde.events.NewDataFileEvent;
 import org.opengda.lde.events.ProcessMessage;
@@ -204,6 +205,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 	private String eventAdminName;
 	private Scriptcontroller eventAdmin;
 	private int numActiveSamples;
+	private Text txtCellname;
 	
 	/**
 	 * The constructor.
@@ -319,8 +321,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtScanNumber.setForeground(ColorConstants.lightGreen);
 		txtScanNumber.setBackground(ColorConstants.black);
 		txtScanNumber.setText("display current scan number");
-		GridData gd_txtScanNumber = new GridData(SWT.FILL, SWT.CENTER, true,
-				false, 1, 1);
+		GridData gd_txtScanNumber = new GridData(SWT.FILL, SWT.CENTER, true,false, 1, 1);
 		gd_txtScanNumber.widthHint = 60;
 		txtScanNumber.setLayoutData(gd_txtScanNumber);
 
@@ -332,10 +333,21 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtSamplename.setForeground(ColorConstants.lightGreen);
 		txtSamplename.setBackground(ColorConstants.black);
 		txtSamplename.setText("display current sample name");
-		GridData gd_txtSamplename = new GridData(SWT.FILL, SWT.CENTER, true,
-				false, 1, 1);
+		GridData gd_txtSamplename = new GridData(SWT.FILL, SWT.CENTER, true,false, 1, 1);
 		gd_txtSamplename.widthHint = 100;
 		txtSamplename.setLayoutData(gd_txtSamplename);
+		
+		Label lblCurrentCell = new Label(grpDataCollectionProgress, SWT.NONE);
+		lblCurrentCell.setText("Cell:");
+
+		txtCellname = new Text(grpDataCollectionProgress, SWT.BORDER);
+		txtCellname.setEditable(false);
+		txtCellname.setForeground(ColorConstants.lightGreen);
+		txtCellname.setBackground(ColorConstants.black);
+		txtCellname.setText("display current sample name");
+		GridData gd_txtCellname = new GridData(SWT.FILL, SWT.CENTER, true,false, 1, 1);
+		gd_txtCellname.widthHint = 100;
+		txtCellname.setLayoutData(gd_txtCellname);
 		
 		Label lblCurrentStage = new Label(grpDataCollectionProgress, SWT.NONE);
 		lblCurrentStage.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -378,7 +390,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		lblProgress.setText("Acquisition Progress:");
 		
 		progressBar = new ProgressBar(grpDataCollectionProgress, SWT.NONE);
-		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,false, 4, 1));
+		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,false, 5, 1));
 		progressBar.setMaximum(100);
 		progressBar.setMinimum(0);
 		
@@ -390,7 +402,7 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 		txtProgressMessage.setBackground(ColorConstants.black);
 		txtProgressMessage.setEditable(false);
 		txtProgressMessage.setText("progressMessage");
-		txtProgressMessage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,true, false, 4, 1));
+		txtProgressMessage.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,true, false, 5, 1));
 
 		initialisation();
 		// register as selection provider to the SelectionService
@@ -547,13 +559,24 @@ public class SampleGroupView extends ViewPart implements ISelectionProvider, ISa
 				});
 			} else if (arg instanceof StageChangedEvent) {
 				StageChangedEvent event = ((StageChangedEvent)arg);
-				final String currentStage = event.getCurrentStage();
+				final String currentStage = event.getStageName();
+				final int numberOfCells = event.getNumberOfCells();
+				Display.getDefault().asyncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						txtStagename.setText(currentStage+": "+numberOfCells+" cells.");
+					}
+				});
+			} else if (arg instanceof CellChangedEvent) {
+				CellChangedEvent event = ((CellChangedEvent)arg);
+				final String currentCell = event.getCellName();
 				final int numberOfSamples = event.getNumberOfSamples();
 				Display.getDefault().asyncExec(new Runnable() {
 
 					@Override
 					public void run() {
-						txtStagename.setText(currentStage+": "+numberOfSamples+" samples.");
+						txtCellname.setText(currentCell+": "+numberOfSamples+" samples.");
 					}
 				});
 			} else if (arg instanceof SampleProcessingEvent) {

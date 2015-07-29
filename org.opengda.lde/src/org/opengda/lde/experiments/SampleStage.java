@@ -19,8 +19,7 @@ public class SampleStage extends ScannableGroup implements InitializingBean {
 	private double positionTolerance=0.001;
 	//the fixed offset of sample stage in Z direction reference to the Z-zero position of the detector 
 	private double zPosition;
-	private boolean samplesProcessed=false;
-	private boolean detectorCalibrated;
+	private boolean processed=false;
 
 	public Scannable getXMotor() {
 		return this.getGroupMember(getName() + "x");
@@ -94,14 +93,6 @@ public class SampleStage extends ScannableGroup implements InitializingBean {
 		this.positionTolerance = positionTolerance;
 	}
 
-	public boolean isSamplesProcessed() {
-		return samplesProcessed;
-	}
-
-	public void setSamplesProcessed(boolean samplesProcessed) {
-		this.samplesProcessed = samplesProcessed;
-	}
-
 	public double getzPosition() throws DeviceException {
 		Scannable groupMember = this.getGroupMember(getName() + "ztop");
 		if (groupMember!=null) {
@@ -114,18 +105,19 @@ public class SampleStage extends ScannableGroup implements InitializingBean {
 		this.zPosition = zPosition;
 	}
 
-	public void setDetectorCalibrated(boolean b) {
-		this.detectorCalibrated=b;		
-	}
-	public boolean isDetectorCalibrated() {
-		return detectorCalibrated;
-	}
-
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (zPosition==-1000.0) {
 			throw new IllegalStateException("Stage must have Z position set.");
 		}
+	}
+
+	public boolean isProcessed() {
+		return processed;
+	}
+
+	public void setProcessed(boolean processed) {
+		this.processed = processed;
 	}
 
 }

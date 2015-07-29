@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.emf.common.util.EList;
+import org.opengda.lde.events.CellChangedEvent;
 import org.opengda.lde.events.ProcessMessage;
 import org.opengda.lde.events.SampleChangedEvent;
 import org.opengda.lde.events.SampleProcessingEvent;
@@ -73,6 +75,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	private int numCalibrations;
 	private int currentCalibrationNumber;
 	private Sample currentSample;
+	private Cell currentCell;
 	/**
 	 * blocking move to park all sampleStages in their safe positions. It only returns after all sampleStages are parked.
 	 * @throws DeviceException
@@ -122,7 +125,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	}
 	/**
 	 * start LDE data collection.
-	 * Data collection starts with all stages in parking position, proceed from 1st stage and move down 
+	 * Data collection starts with all stages in parking positions, proceed from 1st stage and move down 
 	 * the X-ray beam direction, collect diffraction data from all active samples on these stages along with 
 	 * detector calibration for each of cells having active samples. 
 	 * @param filename - the file containing a list of samples to be collected.
@@ -135,10 +138,15 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	}
 	
 	private void completeDataCollection() {
+		String message="Automated data collections for all active samples in all cells on all stages are completed.";
+		updateMessage(null, message);
+		InterfaceProvider.getTerminalPrinter().print("Data collection completed !");
 		cellActiveSamplesMap.clear();
 		stages.clear();
 		cells.clear();
 		samples.clear();
+		currentCell=null;
+		currentSample=null;
 	}
 
 	/**
@@ -152,7 +160,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		//pause the current scan used to collect data for current sample.
 		InterfaceProvider.getCurrentScanController().pauseCurrentScan();
 //		InterfaceProvider.getScriptController().pauseCurrentScript();
-		if (eventAdmin!=null && currentSample!=null) {
+		if (eventAdmin!=null && (currentSample!=null || currentCell!=null)) {
 			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(currentSample.getSampleID(), STATUS.PAUSED));
 		}
 	}
@@ -166,7 +174,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		//resume the current scan used to collect data for current sample.
 		InterfaceProvider.getCurrentScanController().resumeCurrentScan();
 //		InterfaceProvider.getScriptController().resumeCurrentScript();
-		if (eventAdmin!=null && currentSample!=null) {
+		if (eventAdmin!=null && (currentSample!=null || currentCell!=null)) {
 			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(currentSample.getSampleID(), STATUS.RUNNING));
 		}
 	}
@@ -182,7 +190,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			updateMessage(null, message);
 			InterfaceProvider.getCurrentScanController().requestFinishEarly();
 		} else {
-			message="No active sample scan to skip at the moment.";
+			message="No active sample or calibrant scan to skip at the moment.";
 			updateMessage(null, message);
 		}
 	}
@@ -195,7 +203,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	}
 	/**
 	 * prepare for data collection, load the samples from experiment definition file, 
-	 * group active or selected samples into stages, and ensure all stages are in safe positions. 
+	 * group active or selected samples into cells, and ensure all stages are in safe positions. 
 	 * @param filename
 	 * @throws InterruptedException 
 	 */
@@ -209,6 +217,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		currentCalibrationNumber=0;
 		currentSampleName="";
 		currentSample=null;
+		currentCell=null;
 		if (resUtil != null) {
 			// load samples definition from .lde file
 			try {
@@ -224,7 +233,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		}
 		checkForPauseAndInterruption();
 		if (samples != null && !samples.isEmpty()) {
-			// group sample into stage using stage name as key, reset status
+			// group sample into cell using cell as key, reset status
 			for (Sample sample : samples.values()) {
 				if (sample.isActive()) {
 					cellActiveSamplesMap.put(sample.getCell(), sample);
@@ -237,15 +246,19 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			numCalibrations=cellActiveSamplesMap.size(); // one calibrant per sample cell.
 		}
 		if (cellActiveSamplesMap.isEmpty()) {
-			message = "No sample is selected in the table for data collection.";
+			message = "No sample is selected for data collection.";
 			updateMessage(null, message);
 			//stop when no active sample
 			throw new IllegalStateException(message);
 		}
 		for (SampleStage stage : getStages()) {
 			//initialize stage cached states
-			stage.setSamplesProcessed(false);
-			stage.setDetectorCalibrated(false);
+			stage.setProcessed(false);
+			for (Cell cell : stages.get(stage.getName()).getCells()) {
+				//initialise cell states
+				cell.setProcessed(false);
+				cell.setCalibrated(false);
+			}
 		}
 		checkForPauseAndInterruption();
 		
@@ -309,20 +322,41 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		checkForPauseAndInterruption();
 		String message="Processing each of the sample stages down the X-ray beam direction ...";
 		for (SampleStage stage : getStages()) {
-			processStage(stage);
-			for (Cell cell : stages.get(stage.getName()).getCells()) {
-				processCell(cell);
-				for (Sample sample : cellActiveSamplesMap.get(cell)) {
-					processSample(sample);
+			EList<Cell> cells2 = stages.get(stage.getName()).getCells();
+			if (eventAdmin!=null) {
+				((ScriptControllerBase)eventAdmin).update(eventAdmin, new StageChangedEvent(stage.getName(), cells2.size()));
+			}
+			if (!cells2.isEmpty()) {
+				processStage(stage);
+				checkForPauseAndInterruption();
+				for (Cell cell : cells2) {
+					List<Sample> samples2 = cellActiveSamplesMap.get(cell);
+					if (!samples2.isEmpty()) {
+						if (eventAdmin != null) {
+							((ScriptControllerBase) eventAdmin).update(eventAdmin,new CellChangedEvent(cell.getName(), samples2.size()));
+						}
+						processCell(cell);
+						checkForPauseAndInterruption();
+						for (Sample sample : samples2) {
+							if (eventAdmin != null) {
+								((ScriptControllerBase) eventAdmin).update(eventAdmin,new SampleChangedEvent(sample.getSampleID()));
+								((ScriptControllerBase) eventAdmin).update(eventAdmin,new SampleStatusEvent(sample.getSampleID(), STATUS.RUNNING));
+							}
+							processSample(sample);
+							checkForPauseAndInterruption();
+						}
+					}
+					cell.setProcessed(true);
 				}
+			}
+			stage.setProcessed(true);
 			
-			checkForPauseAndInterruption();
-			if (stage != getStages().get(getStages().size() - 1) || stage != sampleStages.get(0)) {
-				//do not need to engage the last and first stages.
+			if (stage != getStages().get(getStages().size() - 1)) {
+				// do not need to engage the last and first stages.
 				try {
 					engageStage(stage);
 				} catch (DeviceException e) {
-					message="Engage stage '" + stage.getName()+ "' failed: "+e.getMessage();
+					message = "Engage stage '" + stage.getName() + "' failed: " + e.getMessage();
 					updateMessage(e, message);
 				}
 			}
@@ -358,37 +392,39 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		message="Data collection completed!";
 		updateMessage(null, message);
 	}
-	}
 	
 	private void processSample(Sample sample) throws InterruptedException {
-		// TODO Auto-generated method stub
 		doSampleDataCollection(sample);
-		
 	}
-
+	/**
+	 * process the specified stage. Move detector to position for the specified stage;
+	 * @param stage
+	 * @throws InterruptedException
+	 */
 	private void processStage(SampleStage stage) throws InterruptedException {
 		moveDetectorToPosition(stage);
-		takePhoto(stage);
 	}
-
-	private void takePhoto(SampleStage stage) {
-		// TODO Auto-generated method stub
-
-	}
-
 	/**
-	 * process samples on the specified stage:
-	 * 1st move detector in position relative to the stage;
-	 * 2nd do detector calibration with the calibrant on the stage;
-	 * 3rd do diffraction collection for all samples on the stage.
-	 * @param stage
+	 * process the specified cell:
+	 * 1st take a photo of the sample cell;
+	 * 2nd do detector calibration with the calibrant for the specified cell;
+	 * @param cell
 	 * @throws InterruptedException 
 	 */
 	private void processCell(Cell cell) throws InterruptedException {
+		currentCell=cell;
+		takePhoto(cell);
 		doDetectorCalibration(cell);
 	}
+
+	private void takePhoto(Cell cell) {
+		// TODO Auto-generated method stub
+
+	}
+	
 	/**
-	 * Only support one position per stage - all samples and calibrant on the stage <b>must</b> have the same distance from the detector.
+	 * Only support one detector position per stage - all samples and calibrant in the same cell on the stage
+	 *  <b>must</b> have the same distance from the detector.
 	 * @param sampleStage
 	 * @throws InterruptedException 
 	 */
@@ -398,18 +434,12 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		String message="Move detector to its position "+sampleDetectorZPosition+" relative to the stage '"+sampleStage.getName()+"' ...";
 		updateMessage(null, message);
 
-		if (eventAdmin!=null) {
-			((ScriptControllerBase)eventAdmin).update(eventAdmin, new StageChangedEvent(sampleStage.getName(), samples.size()));
-			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleChangedEvent(currentSample.getSampleID()));
-			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(currentSample.getSampleID(), STATUS.RUNNING));
-		}
 		checkForPauseAndInterruption();
-
+		message="";
 		try {
 			if (!detectorArm.isAtXPosition(stage)) {
 				detectorArm.getXMotor().asynchronousMoveTo(stage.getDetector_x());
-				message="Move detector X motor to position "+stage.getDetector_x()+" ...";
-				updateMessage(null, message);
+				message="Move detector X to position "+stage.getDetector_x()+", ";
 			}
 		} catch (DeviceException e) {
 			message="Error check or move detector X motor: "+e.getMessage();
@@ -418,34 +448,25 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 		try {
 			if (!detectorArm.isAtYPosition(stage)) {
 				detectorArm.getYMotor().asynchronousMoveTo(stage.getDetector_y());
-				message="Move detector Y motor to position "+stage.getDetector_y()+" ...";
-				updateMessage(null, message);
+				message +="Move Detector Y to position "+stage.getDetector_y()+", ";
 			}
 		} catch (DeviceException e) {
 			message="Error check or move detector Y motor: "+e.getMessage();
 			updateMessage(e, message);
 		}
-		boolean atZPosition = false;
+
 		try {
-			atZPosition = detectorArm.isAtZPosition(stage, sampleStage.getzPosition());
-		} catch (DeviceException e1) {
-			message="Failed on checking detector Z position: "+e1.getMessage();
-			updateMessage(e1, message);
-		}
-		if (atZPosition) {
-			message="Detector is already at position "+ stage.getDetector_z()+" relative to the stage '"+sampleStage.getName()+"'";
-			updateMessage(null, message);
-			return;
-		} else {
-			try {
-				message="Move detector Z motor to position "+(sampleDetectorZPosition+sampleStage.getzPosition())+" ...";
+			if (!detectorArm.isAtZPosition(stage, sampleStage.getzPosition())) {
+				detectorArm.getZMotor().asynchronousMoveTo(sampleStage.getzPosition() + sampleDetectorZPosition);
+				message += "Move detector Z to position " + (sampleDetectorZPosition + sampleStage.getzPosition())+ " ...";
 				updateMessage(null, message);
-				detectorArm.getZMotor().asynchronousMoveTo(sampleStage.getzPosition()+sampleDetectorZPosition);
-			} catch (DeviceException e) {
-				message = "Failed to move detector to position "+sampleDetectorZPosition+" relative to stage '"+sampleStage.getName()+"'";
-				updateMessage(e, message);
 			}
+		} catch (DeviceException e) {
+			message = "Failed to check or move detector z to position " + sampleDetectorZPosition + " relative to stage '"
+					+ sampleStage.getName() + "'";
+			updateMessage(e, message);
 		}
+
 		try {
 			while (!detectorArm.isAtPosition(stage, sampleStage.getzPosition())){
 				checkForPauseAndInterruption();
@@ -459,7 +480,7 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 			message="Detector is at position ("+detectorArm.getXMotor().getPosition()+", "+detectorArm.getYMotor().getPosition()+", "+detectorArm.getZMotor().getPosition()+") for stage '"+sampleStage.getName()+"'";
 			updateMessage(null, message);
 		} catch (DeviceException e) {
-			message="Failed to get Detector position for stage '"+sampleStage.getName()+"'";
+			message="Failed to get Detector positions for stage '"+sampleStage.getName()+"'";
 			updateMessage(e, message);
 		}
 	}
@@ -469,6 +490,12 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	 * @throws InterruptedException 
 	 */
 	private void doDetectorCalibration(Cell cell) throws InterruptedException {
+		if (cell.isCalibrated()) {
+			if (getDatareduction()!=null && getDatareduction() instanceof DataReductionScannable) {
+				logger.info("Cell {} is already calibrated. Calibration data file is {}.", cell.getName(), ((DataReductionScannable)getDatareduction()).getCurrentCalibrantDataFilename());
+			}
+			return;
+		}
 		String calibrant = cell.getCalibrant();
 		String message="Starting detector calibration using calibrant '"+calibrant+"' for cell '"+cell.getCellID()+"' ...";
 		updateMessage(null, message);		
@@ -524,20 +551,21 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 					((DataReductionScannable)getDatareduction()).setCalibrant(true);
 				}
 				logger.info("collect diffraction data from {} with request for post collection data reduction on cluster.", getCalibrantNameScannable().getName());
-				ScannableCommands.scan(getDatareduction(), 1,1,1, getPixium(), currentSample.getCell().getCalibrant_exposure());
-				stage.setDetectorCalibrated(true);
+				ScannableCommands.scan(getDatareduction(), 1,1,1, getPixium(), cell.getCalibrant_exposure());
+				cell.setCalibrated(true);
 			} else {
 				logger.info("collect diffraction data from {} without data reduction post processing.", getCalibrantNameScannable().getName());
-				ScannableCommands.scan(new DummyScannable("ds"), 1,1,1, getPixium(), currentSample.getCell().getCalibrant_exposure());
+				ScannableCommands.scan(new DummyScannable("ds"), 1,1,1, getPixium(), cell.getCalibrant_exposure());
 			}
 		} catch (Exception e) {
 			message="Scan failed during calibrant diffraction collection: "+e.getMessage();
 			updateMessage(e, message);
-			stage.setDetectorCalibrated(false);
+			cell.setCalibrated(false);
 		} finally {
 			InterfaceProvider.getJSFObserver().deleteIObserver(this);
 		}
 	}
+	
 	private String getDataDirectory(Cell cell) {
 		String dataDir=File.separator;
 		if (getDataDriver()!=null && !getDataDriver().isEmpty()) {
@@ -576,108 +604,104 @@ public class DataCollection extends ScriptBase implements IObserver, Initializin
 	}
 
 	private void doSampleDataCollection(Sample sample) throws InterruptedException {
+		//check if calibration available
+		if (!sample.getCell().isCalibrated()) {
+			logger.warn("Calibration is not available for sample {} in cell {}", sample.getName(), sample.getCell().getName());
+			String message="Calibration is not available for sample "+sample.getName()+" in cell "+ sample.getCell().getName();
+			updateMessage(null, message);
+		}
 		String message="Starting diffraction data collection for sample '"+sample.getName()+"'...";
 		updateMessage(null, message);
-		boolean success=true;
 
 		String stageID = sample.getCell().getStage().getStageID();
 		SampleStage stage = Finder.getInstance().find(stageID);
-			checkForPauseAndInterruption();
-			currentSampleName = sample.getName();
-			currentSample=sample;
-			currentSampleNumber++;
-			if (getSampleNameScannable()!=null) {
-				try {
-					getSampleNameScannable().moveTo(currentSampleName);
-				} catch (DeviceException e) {
-					message="Failed to set sample name to '"+currentSampleName+"' in cell "+sample.getCell().getName() +" on the stage '"+ stageID+"'.";
-					updateMessage(e, message);
-				}
-			}
-			if (eventAdmin!=null) {
-				((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(currentSampleName, currentSampleNumber, currentCalibrationNumber, numActiveSamples, numCalibrations));
-				((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleChangedEvent(sample.getSampleID()));
-			}
-			checkForPauseAndInterruption();
-
-			Scannable x_motor = stage.getXMotor();
-			Double x_start = sample.getSample_x_start();
-			Double x_stop = sample.getSample_x_stop();
-			Double x_step = sample.getSample_x_step();
-			
-			if (x_start==Double.NaN || x_step==Double.NaN || x_stop==Double.NaN) {
-				message="Missing parameters: Sample '"+name+"' must have X motor positions being provided for start, stop, and step.";
-				updateMessage(null, message);
-				// stop as scan will fail
-				throw new IllegalArgumentException(message);
-			}
-			ArrayList<Object> scanparameters=new ArrayList<Object>();
-			scanparameters.add(x_motor);
-			scanparameters.add(x_start);
-			scanparameters.add(x_stop);
-			scanparameters.add(x_step);
-			Double y_start = sample.getSample_y_start();
-			Double y_stop = sample.getSample_y_stop();
-			Double y_step = sample.getSample_y_step();
-			if (y_start!=Double.NaN) {
-				scanparameters.add(stage.getYMotor());
-				scanparameters.add(y_start);
-				if (y_stop!=Double.NaN) {
-					scanparameters.add(y_stop);
-				}
-				if (y_step!=Double.NaN) {
-					scanparameters.add(y_step);
-				}
-			}
-			scanparameters.add(pixium);
-			double sample_exposure = sample.getSample_exposure();
-			scanparameters.add(sample_exposure);
-			if (datareduction != null) {
-				if (getDatareduction() instanceof DataReductionScannable) {
-					((DataReductionScannable)getDatareduction()).setCalibrant(false);
-					((DataReductionScannable)getDatareduction()).setSampleID(sample.getSampleID());
-				}
-				scanparameters.add(datareduction);
-				logger.info("collect diffraction data from sample {} with request for post collection data reduction on cluster.", sample.getName());
-			} else {
-				logger.info("collect diffraction data from sample {} without post collection data reduction.", sample.getName());
-			}
-			//set data directory
-			LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, getDataDirectory(sample.getCell()));
-			checkForPauseAndInterruption();
-
-			if (eventAdmin!=null) {
-				((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), STATUS.RUNNING));
-			}
-			InterfaceProvider.getJSFObserver().addIObserver(this);
+		checkForPauseAndInterruption();
+		currentSampleName = sample.getName();
+		currentSample=sample;
+		currentSampleNumber++;
+		if (getSampleNameScannable()!=null) {
 			try {
-				ScannableCommands.scan(scanparameters);
-				success = true && success;
-			} catch (Exception e) {
-				message="Scan failed during sample '"+name+"' diffraction collection: "+e.getMessage();
+				getSampleNameScannable().moveTo(currentSampleName);
+			} catch (DeviceException e) {
+				message="Failed to set sample name to '"+currentSampleName+"' in cell "+sample.getCell().getName() +" on the stage '"+ stageID+"'.";
 				updateMessage(e, message);
-				if (eventAdmin!=null) {
-					((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), STATUS.ERROR));
-				}
-				success=false;
-			} finally {
-				if (InterfaceProvider.getCurrentScanController().isFinishEarlyRequested()){
-					if (eventAdmin!=null) {
-						((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), STATUS.ABORTED));
-					}
-					
-				}
-				InterfaceProvider.getJSFObserver().deleteIObserver(this);
 			}
-			
-			if (success && eventAdmin!=null) {
-				((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), STATUS.COMPLETED));
-			}
+		}
+		if (eventAdmin!=null) {
+			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleProcessingEvent(currentSampleName, currentSampleNumber, currentCalibrationNumber, numActiveSamples, numCalibrations));
+			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleChangedEvent(sample.getSampleID()));
+		}
+		checkForPauseAndInterruption();
 
-		if (success) {
-			stage.setSamplesProcessed(true);
+		Scannable x_motor = stage.getXMotor();
+		Double x_start = sample.getSample_x_start();
+		Double x_stop = sample.getSample_x_stop();
+		Double x_step = sample.getSample_x_step();
+		
+		if (x_start==Double.NaN || x_step==Double.NaN || x_stop==Double.NaN) {
+			message="Missing parameters: Sample '"+name+"' must have X motor positions being provided for start, stop, and step.";
+			updateMessage(null, message);
+			// stop as scan will fail
+			throw new IllegalArgumentException(message);
+		}
+		ArrayList<Object> scanparameters=new ArrayList<Object>();
+		scanparameters.add(x_motor);
+		scanparameters.add(x_start);
+		scanparameters.add(x_stop);
+		scanparameters.add(x_step);
+		Double y_start = sample.getSample_y_start();
+		Double y_stop = sample.getSample_y_stop();
+		Double y_step = sample.getSample_y_step();
+		if (y_start!=Double.NaN) {
+			scanparameters.add(stage.getYMotor());
+			scanparameters.add(y_start);
+			if (y_stop!=Double.NaN) {
+				scanparameters.add(y_stop);
+			}
+			if (y_step!=Double.NaN) {
+				scanparameters.add(y_step);
+			}
+		}
+		scanparameters.add(pixium);
+		double sample_exposure = sample.getSample_exposure();
+		scanparameters.add(sample_exposure);
+		if (datareduction != null) {
+			if (getDatareduction() instanceof DataReductionScannable) {
+				((DataReductionScannable)getDatareduction()).setCalibrant(false);
+				((DataReductionScannable)getDatareduction()).setSampleID(sample.getSampleID());
+			}
+			scanparameters.add(datareduction);
+			logger.info("collect diffraction data from sample {} with request for post collection data reduction on cluster.", sample.getName());
 		} else {
-			stage.setSamplesProcessed(false);
+			logger.info("collect diffraction data from sample {} without post collection data reduction.", sample.getName());
+		}
+		//set data directory
+		LocalProperties.set(LocalProperties.GDA_DATAWRITER_DIR, getDataDirectory(sample.getCell()));
+		checkForPauseAndInterruption();
+		
+		STATUS status = sample.getStatus();
+		InterfaceProvider.getJSFObserver().addIObserver(this);
+		if (eventAdmin!=null) {
+			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), status=STATUS.RUNNING));
+		}
+		try {
+			ScannableCommands.scan(scanparameters);
+		} catch (Exception e) {
+			message="Scan failed during sample '"+name+"' diffraction collection: "+e.getMessage();
+			updateMessage(e, message);
+			status=STATUS.ERROR;
+		} finally {
+			if (status==STATUS.ERROR) {
+				//no-op
+			} else if (InterfaceProvider.getCurrentScanController().isFinishEarlyRequested()){
+				status=STATUS.ABORTED;
+			} else {
+				status=STATUS.COMPLETED;
+			}
+		if (eventAdmin!=null) {
+			((ScriptControllerBase)eventAdmin).update(eventAdmin, new SampleStatusEvent(sample.getSampleID(), status));
+		}
+			InterfaceProvider.getJSFObserver().deleteIObserver(this);
 		}
 	}
 
