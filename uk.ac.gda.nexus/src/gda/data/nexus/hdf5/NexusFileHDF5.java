@@ -577,6 +577,7 @@ public class NexusFileHDF5 implements NexusFile {
 				} catch (HDF5LibraryException e) {
 					throw new NexusException("Cannot create group", e);
 				}
+				addAttribute(absolutePath, TreeFactory.createAttribute(NXCLASS, nxClass, false));
 			} else {
 				throw new NexusException("Group does not exist and cannot be created");
 			}
